@@ -1,6 +1,7 @@
 import { type MutableRefObject, type ReactNode, createElement, useEffect, useRef, useState } from 'react'
-import { Input, Tree } from 'antd'
+import { Input, Modal, Tree } from 'antd'
 import { CopyOutlined, DatabaseOutlined, DeleteOutlined, EditOutlined, FileOutlined } from '@ant-design/icons'
+import { use_modal } from 'react-object-model/hooks.js'
 
 import { dashboard } from '../model.js'
 import { create_data_source, data_sources, delete_data_source, rename_data_source, type DataSource, type DataSourcePropertyType, copy_data_source, paste_data_source } from './date-source.js'
@@ -38,6 +39,7 @@ export function DataSourceList ({
     change_current_data_source_property
 }: PropsType) {
     const [current_select, set_current_select] = useState(current_data_source?.id || '')
+    const [new_name, set_new_name] = useState('')
     const [menu_items, set_menu_items] = useState(
         data_sources.map((data_source: DataSource): MenuItemType => {
             return {
@@ -49,6 +51,8 @@ export function DataSourceList ({
     )
     
     const tree_ref = useRef(null)
+    
+    const { visible: add_visible, open: add_open, close: add_close } = use_modal()
     
     // 监听 ctrl v事件，复制组件
     useEffect(() => { 
@@ -105,6 +109,42 @@ export function DataSourceList ({
     }
     
     return <>
+            <Modal
+                style={{ top: '200px' }}
+                open={add_visible}
+                maskClosable={false}
+                onCancel={() => {
+                    add_close()
+                    set_new_name('')
+                }}
+                onOk={() => {
+                    try {
+                        const id = create_data_source(new_name)
+                        const new_menu_items = [
+                            {
+                                key: id,
+                                icon: createElement(DatabaseOutlined),
+                                title: new_name
+                            },
+                            ...menu_items
+                        ]
+                        set_menu_items(new_menu_items)
+                        set_current_select(id)
+                        set_new_name('')
+                        change_current_data_source(id)
+                        add_close()
+                    } catch (error) {
+                        dashboard.message.error(error.message)
+                    }
+                }}
+                closeIcon={false}
+                title={t('新数据源')}>
+                <Input 
+                    value={new_name}
+                    placeholder={t('请输入新数据源的名称')}
+                    onChange={event => { set_new_name(event.target.value) }}
+                />
+            </Modal>
             <div className='config-data-source-list'>
                 <div className='data-source-list-top'>
                     <div
@@ -115,19 +155,7 @@ export function DataSourceList ({
                             if (no_save_flag.current && (await save_confirm()))
                                 await handle_save()
                             no_save_flag.current = false
-                            const { id, name } = create_data_source()
-                            const new_menu_items = [
-                                {
-                                    key: id,
-                                    icon: createElement(DatabaseOutlined),
-                                    title: name
-                                },
-                                ...menu_items
-                            ]
-                            set_menu_items(new_menu_items)
-                            set_current_select(id)
-                            change_current_data_source(id)
-                            rename_data_source_handler(new_menu_items, id, name)
+                            add_open()
                         }}
                     >
                         <FileOutlined className='data-source-list-top-item-icon' />

@@ -1,6 +1,7 @@
 import { type MutableRefObject, type ReactNode, createElement, useEffect, useRef, useState } from 'react'
-import { Input, Tree } from 'antd'
+import { Input, Modal, Tree } from 'antd'
 import { CopyOutlined, DeleteOutlined, EditOutlined, FileOutlined, ToolOutlined } from '@ant-design/icons'
+import { use_modal } from 'react-object-model/hooks.js'
 
 import { dashboard } from '../model.js'
 import { create_variable, delete_variable, rename_variable, type Variable, type VariablePropertyType, variables, copy_variables, paste_variables } from './variable.js'
@@ -37,6 +38,7 @@ export function VariableList ({
 }: PropsType) {
     const { variable_infos } = variables
     const [current_select, set_current_select] = useState(current_variable?.id || '')
+    const [new_name, set_new_name] = useState('')
     const [menu_items, set_menu_items] = useState(
         variable_infos.map((variable_info: { id: string, name: string }): MenuItemType => (
             {
@@ -46,6 +48,8 @@ export function VariableList ({
             }
         ))
     )
+    
+    const { visible: add_visible, open: add_open, close: add_close } = use_modal()
     
     const tree_ref = useRef(null)
     
@@ -106,6 +110,42 @@ export function VariableList ({
     }
     
     return <>
+            <Modal
+                style={{ top: '200px' }}
+                open={add_visible}
+                maskClosable={false}
+                onCancel={() => {
+                    add_close()
+                    set_new_name('')
+                }}
+                onOk={() => {
+                    try {
+                        const id = create_variable(new_name)
+                        const new_menu_items = [
+                            {
+                                key: id,
+                                icon: createElement(ToolOutlined),
+                                title: new_name
+                            },
+                            ...menu_items
+                        ]
+                        set_menu_items(new_menu_items)
+                        set_current_select(id)
+                        set_new_name('')
+                        change_current_variable(id)
+                        add_close()
+                    } catch (error) {
+                        dashboard.message.error(error.message)
+                    }
+                }}
+                closeIcon={false}
+                title={t('新变量')}>
+                <Input 
+                    value={new_name}
+                    placeholder={t('请输入新变量的名称')}
+                    onChange={event => { set_new_name(event.target.value) }}
+                />
+            </Modal>
             <div className='config-variable-list'>
                 <div className='variable-list-top'>
                     <div
@@ -114,19 +154,7 @@ export function VariableList ({
                             if (no_save_flag.current && (await save_confirm()))
                                 await handle_save()
                             no_save_flag.current = false
-                            const { id, name } = create_variable()
-                            const new_menu_items = [
-                                {
-                                    key: id,
-                                    icon: createElement(ToolOutlined),
-                                    title: name
-                                },
-                                ...menu_items
-                            ]
-                            set_menu_items(new_menu_items)
-                            set_current_select(id)
-                            change_current_variable(id)
-                            rename_variable_handler(new_menu_items, id, name)
+                            add_open()
                         }}
                     >
                         <FileOutlined className='variable-list-top-item-icon' />

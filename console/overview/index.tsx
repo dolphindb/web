@@ -7,7 +7,7 @@ const { Header } = Layout
 
 import { default as Icon,  SettingOutlined } from '@ant-design/icons'
 
-import { use_modal } from 'react-object-model/modal.js'
+import { use_modal } from 'react-object-model/hooks.js'
 
 import { delay } from 'xshell/utils.browser.js'
 

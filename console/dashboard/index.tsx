@@ -7,7 +7,6 @@ import 'gridstack/dist/gridstack.css'
 import { useEffect, useRef, useState } from 'react'
 import { App, Button, ConfigProvider, Popconfirm, Result, Spin, theme } from 'antd'
 import * as echarts from 'echarts'
-import { DdbVectorString } from 'dolphindb/browser'
 
 import { DashboardPermission, dashboard } from './model.js'
 import { Sider } from './Sider.js'
@@ -17,7 +16,7 @@ import { Header } from './Header.js'
 import { Overview } from './Overview.js'
 import config from './chart.config.json' assert { type: 'json' }
 import { NodeType, model } from '../model.js'
-import { t } from '../../i18n/index.js'
+import { t, language } from '../../i18n/index.js'
 import { paste_widget } from './utils.js'
 
 import backend from './backend.dos'
@@ -53,6 +52,8 @@ export function DashBoard () {
     useEffect(() => {
         (async () => {
             try {
+                if (language !== 'zh')
+                    return
                 const version = (await model.ddb.call('dashboard_get_version')).value
                 if (version === '1.0.0')
                     set_inited_state(2) 
@@ -79,7 +80,7 @@ export function DashBoard () {
                         algorithm: theme.darkAlgorithm
                     }}
                 >
-                    <App className='app spin-container'>
+                    <App className='app'>
                         <Spin spinning={loading} delay={500} size='large'>
                             <DashboardInstance />
                         </Spin>
@@ -102,7 +103,7 @@ function Init ({ is_admin, set_inited_state }: { is_admin: boolean, set_inited_s
                 <>
                     <p>{t('初始化操作将新增以下数据库表：')}</p>
                     <p>dfs://dashboardConfigDb/configDtl</p>
-                    <p>{t('以及 9 个以 dashboard_ 开头的函数视图（FunctionView）')}</p>
+                    <p>{t('以及 11 个以 dashboard_ 开头的函数视图（FunctionView）')}</p>
                     <p>{t('提示：初始化后请完善相关配置（详见文档），并重启服务器')}</p>
                 </>
             }

@@ -7,7 +7,7 @@ import { default as Icon, DoubleLeftOutlined, DoubleRightOutlined, ExperimentOut
 import { isNil, omitBy } from 'lodash'
 
 
-import { t } from '../../i18n/index.js'
+import { t, language } from '../../i18n/index.js'
 
 import { model, type DdbModel, NodeType, storage_keys } from '../model.js'
 
@@ -118,6 +118,11 @@ export function DdbSider () {
                     icon: <MenuIcon view='shell' />,
                     label: t('交互编程'),
                 },
+                ...language === 'zh' ? [ {
+                    key: 'dashboard',
+                    icon: <MenuIcon view='dashboard' />,
+                    label: t('数据面板'),
+                }] : [ ],
                 {
                     key: 'job',
                     icon: <MenuIcon view='job' />,
@@ -155,11 +160,6 @@ export function DdbSider () {
                     icon: <MenuIcon view='factor' />,
                     label: <Link target='_blank' href={factor_href}>{t('因子平台')}</Link>
                 }] : [ ],
-                {
-                    key: 'dashboard',
-                    icon: <MenuIcon view='dashboard' />,
-                    label: t('数据面板'),
-                },
                 {
                     key: 'tools',
                     icon: <MenuIcon view='tools' />,

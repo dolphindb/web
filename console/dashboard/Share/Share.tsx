@@ -27,10 +27,16 @@ export function Share ({ dashboard_ids, trigger_type }: IProps) {
         const currentUrl = new URL(window.location.href)
         currentUrl.searchParams.set('preview', '1')
         
-        dashboard_ids.forEach(dashboard_id => {
-            currentUrl.searchParams.set('dashboard', String(dashboard_id))
-            copy_text += `${dashboard.configs.find(({ id }) => id === dashboard_id).name}：${currentUrl.href}\n`
-        })
+        if (dashboard_ids.length === 1) {
+            currentUrl.searchParams.set('dashboard', String(dashboard_ids[0]))
+            copy_text = currentUrl.href
+        }
+        else
+            dashboard_ids.forEach(dashboard_id => {
+                currentUrl.searchParams.set('dashboard', String(dashboard_id))
+                copy_text += `${dashboard.configs.find(({ id }) => id === dashboard_id).name}：${currentUrl.href}\n`
+            })
+            
         try {
             copy(copy_text)
             api.success({
@@ -73,7 +79,7 @@ export function Share ({ dashboard_ids, trigger_type }: IProps) {
 // import { ShareAltOutlined } from '@ant-design/icons'
 // import { Button, Modal, Radio, Table } from 'antd'
 // import { useCallback, useState } from 'react'
-// import { use_modal } from 'react-object-model/modal'
+// import { use_modal } from 'react-object-model/hooks.js'
 
 // import { DashboardPermission, dashboard } from '../model.js'
 // import { t } from '../../../i18n/index.js'

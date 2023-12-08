@@ -8,6 +8,14 @@ $border_color: #333333
     height: 100%
     padding: 0px !important
     
+    .ant-spin-nested-loading
+        height: 100%
+        .ant-spin-container
+            height: 100%
+        
+    .ant-spin-nested-loading div .ant-spin
+        max-height: none
+    
     .init
         .ant-result
             padding-top: 150px !important        
@@ -177,16 +185,8 @@ $border_color: #333333
     .ant-input-number
         width: 100%
     .ant-collapse .ant-collapse-content>.ant-collapse-content-box
-        padding: 8px
-
-.spin-container        
-    .ant-spin-nested-loading
-        height: 100%
-        .ant-spin-container
-            height: 100%
-        
-    .ant-spin-nested-loading div .ant-spin
-        max-height: none
+        padding: 8px  
+    
     
 .interceptor
     height: 100%

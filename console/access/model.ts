@@ -1,6 +1,6 @@
+import { DdbBool, DdbInt, DdbVectorString } from 'dolphindb/browser.js'
 import { Model } from 'react-object-model'
 import { model } from '../model.js'
-import { DdbBool, DdbInt, DdbVectorString, DdbVoid } from 'dolphindb/browser.js'
 
 export interface User {
     userId: string
@@ -182,7 +182,6 @@ class AccessModel extends Model<AccessModel> {
     
     
     async grant (user: string, aces: string, obj?: string) {
-        console.log(user, aces, obj)
         await model.ddb.call('grant', obj ? [ user, new DdbInt(ACCESS_NUM[aces]), obj ] : [user, new DdbInt(ACCESS_NUM[aces])], { urgent: true })
     }
     

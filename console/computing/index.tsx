@@ -8,7 +8,7 @@ import { ReloadOutlined, QuestionCircleOutlined, WarningOutlined } from '@ant-de
 
 import type { SortOrder } from 'antd/es/table/interface.js'
 
-import { use_modal } from 'react-object-model/modal.js'
+import { use_modal } from 'react-object-model/hooks.js'
 
 import { type DDB } from 'dolphindb/browser.js'
 
@@ -120,7 +120,6 @@ export function Computing () {
             
             streaming_engine_rows.push(new_row)
         }
-    console.log('stat', shared_table_stat.to_cols(), shared_table_stat.to_rows()) 
     return <Tabs
         activeKey={tab_key}
         type='card'

@@ -1,5 +1,5 @@
 import { AxisFormFields, SeriesFormFields } from '../../ChartFormFields/BasicChartFields.js'
-import { type Widget } from '../../model.js'
+import { dashboard, type Widget } from '../../model.js'
 import ReactEChartsCore from 'echarts-for-react/lib/core'
 import * as echarts from 'echarts'
 import { useMemo } from 'react'
@@ -72,9 +72,10 @@ export function HeatMap (props: IProps) {
          }
     }, [widget.config, data_source])
     
+    // 编辑模式下 notMerge 为 true ，因为要修改配置，预览模式下 notMerge 为 false ，避免数据更新，导致选中的 label失效
     return <ReactEChartsCore
         echarts={echarts}
-        notMerge
+        notMerge={dashboard.editing}
         option={options}
         className='dashboard-line-chart'
         theme='my-theme'

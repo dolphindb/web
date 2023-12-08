@@ -5,7 +5,7 @@ import { cloneDeep } from 'lodash'
 
 import { Button, Modal, type ButtonProps, Tabs } from 'antd'
 import { DatabaseOutlined } from '@ant-design/icons'
-import { use_modal } from 'react-object-model/modal.js'
+import { use_modal } from 'react-object-model/hooks.js'
 
 import { DataSourceList } from './DataSourceList.js'
 import { SqlEditor } from './SqlEditor.js'
@@ -179,7 +179,7 @@ export function DataSourceConfig (props: IProps, ref) {
                                 activeKey={current_data_source.mode} 
                                 items={[
                                     {
-                                        label: t('DolphinDB SQL'),
+                                        label: 'DolphinDB SQL',
                                         key: 'sql',
                                         disabled: loading !== ''
                                     },

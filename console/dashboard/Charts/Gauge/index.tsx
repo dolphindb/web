@@ -3,7 +3,7 @@ import './index.scss'
 import { BasicFormFields } from '../../ChartFormFields/BasicFormFields.js'
 import ReactEChartsCore from 'echarts-for-react/lib/core'
 import * as echarts from 'echarts'
-import { type Widget } from '../../model.js'
+import { dashboard, type Widget } from '../../model.js'
 import { convert_list_to_options, parse_text } from '../../utils.js'
 import { Button, Collapse, Form, Input, InputNumber, Select } from 'antd'
 import { DeleteOutlined, PlusCircleOutlined } from '@ant-design/icons'
@@ -75,10 +75,10 @@ export function Gauge (props: IProps) {
         }
     }, [config, data_source])
     
-    
+    // 编辑模式下 notMerge 为 true ，因为要修改配置，预览模式下 notMerge 为 false ，避免数据更新，导致选中的 label失效
     return  <ReactEChartsCore
                 echarts={echarts}
-                notMerge
+                notMerge={dashboard.editing}
                 option={options}
                 style={{ backgroundColor: '#282828' }}
                 theme='dark'

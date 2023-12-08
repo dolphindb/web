@@ -127,7 +127,7 @@ def dashboard_get_version() {
     backendDB = "dfs://dashboardConfigDb"
     funcs = exec name from defs("dashboard_%")
 
-    if (!existsDatabase(backendDB) || count(funcs) != 9) {
+    if (!existsDatabase(backendDB) || count(funcs) != 11) {
         throw "Initialization Failed"
     } else {
         // version
@@ -135,18 +135,46 @@ def dashboard_get_version() {
     }
 }
 
+def dashboard_grant_functionviews(userId, groupIds, isAdmin) {
+    funcs = exec name from defs("dashboard_%")
+    onlyAdminFuncs = ["dashboard_grant_functionviews", "dashboard_delete_user"]
+    grantFuncs = (set(funcs) - set(onlyAdminFuncs)).keys()
+
+    try{
+        if (count(grantFuncs) != 0) {
+            each(grant, take(userId,count(grantFuncs)), take(VIEW_EXEC, count(grantFuncs)), grantFuncs)
+        } 
+    }catch(ex){
+        try{each(revoke, take(userId,count(grantFuncs)), take(VIEW_EXEC, count(grantFuncs)), grantFuncs)}catch(ex){}
+        throw ex[0] + "->" + ex[1]
+    }
+}
+
+def dashboard_delete_user(userId, groupIds, isAdmin) {
+    try{
+        delete from loadTable("dfs://dashboardConfigDb", "configDtl") where owner = userId;
+    }catch(ex){
+        throw ex[0] + "->" + ex[1]
+    }
+}
+
 def addAllFunctionViews(prefix) {
     funcs = exec name from defs(prefix)
+    onlyAdminFuncs = ["dashboard_grant_functionviews", "dashboard_delete_user"]
+
     for(func in funcs) {
         try{addFunctionView(funcByName(func))}catch(ex){}
-        try{each(grant, getUserList(), take(VIEW_EXEC, count(getUserList())), take(func, count(getUserList())))}catch(ex){}
-        //try{grant("*", VIEW_EXEC, func)}catch(ex){}
+    }
+    
+    grantFuncs = (set(funcs) - set(onlyAdminFuncs)).keys()
+    for (gfunc in grantFuncs) {
+        try{each(grant, getUserList(), take(VIEW_EXEC, count(getUserList())), take(gfunc, count(getUserList())))}catch(ex){}
     }
 }
 
 def initializeDashboard(){
-    try{createDashboardConfigDb()}catch(ex){}
-    try{addAllFunctionViews("dashboard_%")}catch(ex){}
+    createDashboardConfigDb()
+    addAllFunctionViews("dashboard_%")
 }
 
 initializeDashboard()

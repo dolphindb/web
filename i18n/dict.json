@@ -938,9 +938,6 @@
     "模块数量": {
         "en": "number of modules"
     },
-    "console 开始初始化": {
-        "en": "console starts to initialize"
-    },
     "当前为中信证券的 web, 启用单点登录": {
         "en": "Currently for CITIC Securities' web, single sign-on is enabled"
     },
@@ -1286,9 +1283,6 @@
     "准备中_pending": {
         "en": "Pending"
     },
-    "web 开始初始化，当前处于{{mode}}模式": {
-        "en": "The web starts to initialize and is currently in {{mode}} mode"
-    },
     "开发": {
         "en": "development"
     },
@@ -1304,8 +1298,8 @@
     "web 构建时间": {
         "en": "web build time"
     },
-    "web 开始初始化，当前处于{{mode}}模式，构建时间是 {{time}}": {
-        "en": "The web starts to initialize, it is currently in {{mode}} mode, and the build time is {{time}}"
+    "web 开始初始化，当前处于{{mode}}模式，版本为 {{version}}": {
+        "en": "The web starts to initialize, it is currently in {{mode}} mode, and the version is {{version}}"
     },
     "License Server 地址": {
         "en": "License Server Address"
@@ -3041,8 +3035,8 @@
     "初始化操作将新增以下数据库表：": {
         "en": "The initialization operation will add the following database tables:"
     },
-    "以及 9 个以 dashboard_ 开头的函数视图（FunctionView）": {
-        "en": "and 9 function views starting with dashboard_"
+    "以及 11 个以 dashboard_ 开头的函数视图（FunctionView）": {
+        "en": "and 11 function views starting with dashboard_"
     },
     "你确定要初始化数据面板功能吗？": {
         "en": "Are you sure you want to initialize dashboard functionality?"
@@ -3349,9 +3343,20 @@
     },
     "请选择对比值": {
         "en": "Please select a comparison value"
+    },
+    "新数据源": {
+        "en": "New data source"
+    },
+    "请输入新数据源的名称": {
+        "en": "Please enter a name for the new data source"
+    },
+    "新变量": {
+        "en": "New variable"
+    },
+    "请输入新变量的名称": {
+        "en": "Please enter a name for the new variable"
+    },
+    "web 版本": {
+        "en": "web version"
     }
-    
-    
-    
-    
 }

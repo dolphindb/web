@@ -12,7 +12,8 @@ import type { Options as TSLoaderOptions } from 'ts-loader'
 import * as sass from 'sass'
 import type { Options as SassOptions } from 'sass-loader'
 
-import { fexists, Lock } from 'xshell'
+import { fexists, fwrite, Lock } from 'xshell'
+import { Git } from 'xshell/git.js'
 
 
 /** LOCAL: 启用后在项目中使用本地 javascript-api 中的 browser.ts，修改后刷新 web 自动生效，调试非常方便
@@ -176,6 +177,19 @@ export let webpack = {
         const base_config = get_base_config(production)
         
         await this.lcompiler.request(async () => {
+            let git = new Git(fpd_root)
+            
+            const branch = await git.get_branch()
+            
+            const { hash, time } = (
+                await git.get_last_commits(1)
+            )[0]
+            
+            const version = `${branch} (${dayjs(time).format('YYYY.MM.DD HH:mm:ss')} ${hash.slice(0, 6)})`
+            
+            await fwrite(`${fpd_out_console}version.json`, { version })
+            
+            
             this.lcompiler.resource = Webpack(this.config = {
                 ... base_config,
                 
@@ -264,7 +278,7 @@ export let webpack = {
                 
                 plugins: [
                     new Webpack.DefinePlugin({
-                        BUILD_TIME: dayjs().format('YYYY.MM.DD HH:mm:ss').quote()
+                        WEB_VERSION: version.quote(),
                     }),
                     
                     // 使用 IgnorePlugin 能够不打包，但是一旦导入就会报错

@@ -181,11 +181,22 @@ export function delete_data_source (source_id: string): number {
     }
 }
 
-export function create_data_source  (): { id: string, name: string } {
+
+function check_name (source_id: string, new_name: string) {
+    if (data_sources.find(data_source => data_source.name === new_name && data_source.id !== source_id)) 
+        throw new Error(t('该数据源名已存在'))
+    else if (new_name.length > 10)
+        throw new Error(t('数据源名长度不能大于10'))
+    else if (new_name.length === 0)
+        throw new Error(t('数据源名不能为空'))
+}
+
+
+export function create_data_source  (new_name: string):  string  {
     const id = String(genid())
-    const name = `${t('数据源')} ${id.slice(0, 4)}`
-    data_sources.unshift(new DataSource(id, name))
-    return { id, name }
+    check_name(id, new_name)
+    data_sources.unshift(new DataSource(id, new_name))
+    return id
 }
 
 
@@ -193,17 +204,8 @@ export function rename_data_source (source_id: string, new_name: string) {
     const data_source = get_data_source(source_id)
     
     new_name = new_name.trim()
-    
-    if (new_name === data_source.name)
-        return
-    else if (data_sources.findIndex(data_source => data_source.name === new_name) !== -1) 
-        throw new Error(t('该数据源名已存在'))
-    else if (new_name.length > 10)
-        throw new Error(t('数据源名长度不能大于10'))
-    else if (new_name.length === 0)
-        throw new Error(t('数据源名不能为空'))
-    else
-        data_source.name = new_name
+    check_name(source_id, new_name)
+    data_source.name = new_name
 }
 
 
