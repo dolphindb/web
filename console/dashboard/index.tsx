@@ -16,7 +16,7 @@ import { Header } from './Header.js'
 import { Overview } from './Overview.js'
 import config from './chart.config.json' assert { type: 'json' }
 import { NodeType, model } from '../model.js'
-import { t } from '../../i18n/index.js'
+import { t, language } from '../../i18n/index.js'
 import { paste_widget } from './utils.js'
 
 import backend from './backend.dos'
@@ -52,7 +52,7 @@ export function DashBoard () {
     useEffect(() => {
         (async () => {
             try {
-                if (new URLSearchParams(location.search).has('language') || navigator.language === 'en')
+                if (language !== 'zh')
                     return
                 const version = (await model.ddb.call('dashboard_get_version')).value
                 if (version === '1.0.0')
