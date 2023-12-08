@@ -202,7 +202,7 @@ export function QueryForm (props: IProps) {
                 </>
             }
             <h4>{t('查询条件')}</h4>
-            <Form.List name='querys'>
+            <Form.List name='querys' initialValue={[ ]}>
                 {(fields, { add, remove }) => { 
                     return <div className='querys-wrapper'>
                         {
