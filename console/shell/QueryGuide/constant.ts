@@ -1,6 +1,6 @@
 export const VALUE_OPERATIONS = [
     {
-        label: '等于（=）',
+        label: '等于(=)',
         value: 1
     },
     {

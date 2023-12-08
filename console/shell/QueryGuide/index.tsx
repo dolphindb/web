@@ -1,6 +1,6 @@
 import './index.scss'
 
-import { Drawer, Tooltip, Segmented } from 'antd'
+import { Drawer, Tooltip, Segmented, Button } from 'antd'
 import { useCallback, useMemo, useState } from 'react'
 import { QueryGuideType } from './type.js'
 import { t } from '../../../i18n/index.js'
@@ -35,7 +35,7 @@ export function QueryGuideIcon (props: IProps) {
     
     return <>
         <Tooltip title={t('进入查询向导')}>
-            <FileSearchOutlined  onClick={action.setTrue} className='query-icon'/>
+            <FileSearchOutlined onClick={action.setTrue} className='query-icon'/>
         </Tooltip>
         <Drawer
             destroyOnClose

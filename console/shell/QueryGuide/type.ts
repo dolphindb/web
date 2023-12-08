@@ -33,3 +33,10 @@ export interface IQueryInfos {
     // 查询条件块
     querys: Array<Query>
 }
+
+
+export enum ExportStatus {
+    LOADING,
+    SUCCESS,
+    FAILED = -1
+}

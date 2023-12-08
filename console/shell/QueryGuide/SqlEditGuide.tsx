@@ -2,10 +2,11 @@ import './index.scss'
 import { useCallback, useMemo, useState } from 'react'
 import { t } from '../../../i18n/index.js'
 import { Button, Space, message } from 'antd'
-import { request } from '../../guide/utils.js'
 
 import { QueryDataView } from './components/QueryDataView.js'
 import { Editor } from '../Editor/index.js'
+import NiceModal from '@ebay/nice-modal-react'
+import { ExportFileModal } from './components/ExportFileModal.js'
 
 interface IProps { 
     database: string
@@ -36,15 +37,6 @@ export function SqlEditGuide (props: IProps) {
         set_current_step(current_step - 1)
     }, [current_step])
     
-    const download = useCallback(async () => { 
-        const { csvContent } = await request<{ csvContent: string }>('executeQuery', { code })
-        const link = document.createElement('a')
-        link.href = 'data:application/vnd.ms-excel;charset=utf-8,\uFEFF' + encodeURIComponent(csvContent)
-        link.download = `${table}.csv`
-        link.click()
-        link.remove()
-    }, [code, table])
-    
     const on_preview_data = useCallback(() => { 
         if (!code)  
             message.error(t('请编辑代码'))
@@ -57,9 +49,9 @@ export function SqlEditGuide (props: IProps) {
             case 0: 
                 return <Button type='primary' onClick={on_preview_data}>{t('下一步')}</Button>
             case 1:
-                return <Button type='primary' onClick={download}>{t('导出数据')}</Button>
+                return <Button type='primary' onClick={async () => NiceModal.show(ExportFileModal, { code, table })}>{t('导出数据')}</Button>
         }
-    }, [ download, to_next_step])
+    }, [ to_next_step, code, table])
     
     return <>
         {view_map[current_step]}

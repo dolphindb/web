@@ -1,12 +1,15 @@
 import { QueryForm } from './components/QueryForm.js'
 import { useCallback, useMemo, useState } from 'react'
 import { t } from '../../../i18n/index.js'
-import { Button, Form, Space } from 'antd'
+import { Button, Form, Input, Modal, Space } from 'antd'
 import { request } from '../../guide/utils.js'
 import { type IQueryInfos } from './type.js'
 import { transform_query } from './utils.js'
 import { ReadonlyEditor } from '../../components/ReadonlyEditor/index.js'
 import { QueryDataView } from './components/QueryDataView.js'
+import { useBoolean } from 'ahooks'
+import NiceModal from '@ebay/nice-modal-react'
+import { ExportFileModal } from './components/ExportFileModal.js'
 
 interface IProps { 
     database: string
@@ -55,14 +58,7 @@ export function QueryGuide (props: IProps) {
         } catch { }
     }, [to_next_step, database, table])
     
-    const download = useCallback(async () => { 
-        const { csvContent } = await request<{ csvContent: string }>('executeQuery', { code })
-        const link = document.createElement('a')
-        link.href = 'data:application/vnd.ms-excel;charset=utf-8,\uFEFF' + encodeURIComponent(csvContent)
-        link.download = `${table}.csv`
-        link.click()
-        link.remove()
-    }, [code, table])
+   
     
     const primary_btn = useMemo(() => { 
         switch (current_step) { 
@@ -71,11 +67,13 @@ export function QueryGuide (props: IProps) {
             case 1: 
                 return <Button type='primary' onClick={to_next_step}>{t('预览数据')}</Button>
             case 2:
-                return <Button type='primary' onClick={download}>{t('导出数据')}</Button>
+                return <Button type='primary' onClick={async () => NiceModal.show(ExportFileModal, { code, table })}>{t('导出数据')}</Button>
         }
-    }, [ get_query_code, download, to_next_step])
+    }, [ get_query_code, code, table, to_next_step])
+    
     
     return <>
+      
         {view_map[current_step]}
         <div className='btn-wrapper'>
             <Space>

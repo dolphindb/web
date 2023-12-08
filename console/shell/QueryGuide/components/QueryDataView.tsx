@@ -15,7 +15,7 @@ const DEFAULT_DATA = {
 
 export function QueryDataView (props: IProps) { 
     const { code } = props
-    const [pagination, set_pagination] = useState({ page: 1, page_size: 20 })
+    const [pagination, set_pagination] = useState({ page: 1, page_size: 10 })
     
     const { data = DEFAULT_DATA, isLoading } = useSWR(
         ['executeQueryByPage', code, pagination.page, pagination.page_size],
@@ -32,13 +32,17 @@ export function QueryDataView (props: IProps) {
     }, [data])
     
     return <Table
-        rowKey={genid()}
+        scroll={{ x: '100%' }}
+        rowKey={() => genid()}
         loading={isLoading}
         columns={columns}
         dataSource={data.items}
         pagination={{
             total: data.total,
+            showTotal: total => `共 ${total} 条数据`,
             pageSizeOptions: [10, 20],
+            defaultPageSize: pagination.page_size,
+            showSizeChanger: true,
             onChange: (page, pageSize) => { set_pagination({ page, page_size: pageSize }) }
         }}
     />
