@@ -82,6 +82,9 @@ export function GraphItem  ({ widget }: { widget: Widget }) {
             'with-edit-btn': is_active
         }) }>
             {
+               is_active &&  <div className='widget-type'>{t(WidgetType[widget.type])}</div>
+            }
+            {
                 is_active && !WidgetTypeWithoutDatasource.includes(widget.type) && widget.source_id &&
                 <DataSourceConfig
                     className='edit-data-source-btn'
@@ -102,7 +105,7 @@ export function GraphItem  ({ widget }: { widget: Widget }) {
                 <GraphComponent widget={widget} />
             :
                 <div className='graph-content'>
-                    <div className='graph-title'>{WidgetType[widget.type]}</div>
+                    <div className='graph-title'>{t(WidgetType[widget.type])}</div>
                     <img src={ChartSvg} className='default-img'/>
                     <DataSourceConfig widget={widget}/>
                 </div>

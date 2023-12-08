@@ -43,8 +43,6 @@ export function DashBoard () {
     
     const [inited_state, set_inited_state] = useState(0)  // 0表示未查询到结果，1表示没有初始化，2表示已经初始化 
     
-    const [is_admin, set_is_admin] = useState(false)
-    
     if (node_type === NodeType.controller)
         return <Result
             status='warning'
@@ -55,11 +53,12 @@ export function DashBoard () {
     useEffect(() => {
         (async () => {
             try {
+                if (new URLSearchParams(location.search).has('language'))
+                    return
                 const version = (await model.ddb.call('dashboard_get_version')).value
                 if (version === '1.0.0')
                     set_inited_state(2) 
             } catch (error) {
-                set_is_admin((await model.ddb.call('getUserAccess', [new DdbVectorString([model.username])])).value[2].value[0])
                 set_inited_state(1)
             }
         })()
@@ -67,7 +66,7 @@ export function DashBoard () {
     
     const component = {
         0: <></>,
-        1: <Init is_admin={is_admin} set_inited_state={set_inited_state}/>,
+        1: <Init is_admin={model.admin} set_inited_state={set_inited_state}/>,
         2: (new URLSearchParams(location.search).has('dashboard') ?
                 <ConfigProvider
                     theme={{
@@ -100,24 +99,24 @@ function Init ({ is_admin, set_inited_state }: { is_admin: boolean, set_inited_s
     return <div className='init'>
         {is_admin
         ? <Result
-            title={t('数据面板功能未初始化，可点击下方按钮初始化数据面板功能。')}
+            title={t('请点击下方按钮完成初始化')}
             subTitle={
                 <>
                     <p>{t('初始化操作将新增以下数据库表：')}</p>
-                    <p>dfs://dashboardUserDb</p>
-                    <p>{t('以及 7 个以 dashboard_ 开头的函数视图（FunctionView）。')}</p>
+                    <p>dfs://dashboardConfigDb/configDtl</p>
+                    <p>{t('以及 11 个以 dashboard_ 开头的函数视图（FunctionView）')}</p>
+                    <p>{t('提示：初始化后请完善相关配置（详见文档），并重启服务器')}</p>
                 </>
             }
             extra={
                 <Popconfirm
                     title={t('你确定要初始化数据面板功能吗？')}
                     onConfirm={async () => { 
-                        try {
+                        model.execute(async () => {
                             await model.ddb.eval(backend)
                             set_inited_state(2)
-                        } catch (error) {
-                            model.show_error(error)
-                        } 
+                            model.message.success(t('初始化数据面板成功！'))
+                        }) 
                     }}
                     okText={t('确定')}
                     cancelText={t('取消')}
@@ -127,7 +126,7 @@ function Init ({ is_admin, set_inited_state }: { is_admin: boolean, set_inited_s
             }
         />
         : <Result
-            title={t('数据面板功能未初始化，请联系管理员初始化数据面板功能。')}
+            title={t('数据面板功能未初始化，请联系管理员初始化数据面板功能')}
         />}
     </div>
         

@@ -31,6 +31,10 @@ export function HostSelect () {
                 value: '183.136.170.16:8820'
             },
             {
+                label: '运维工具',
+                value: '183.136.170.173:1001'
+            },
+            {
                 label: '本地',
                 value: '127.0.0.1:8848'
             }

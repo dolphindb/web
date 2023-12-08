@@ -807,15 +807,19 @@ export class Database implements DataNode {
             <span title={path.slice(0, -1)}>{path.slice('dfs://'.length, -1).split('.').at(-1)}</span>
             
             <div className='database-actions'>
-                <Tooltip title={ t('查看用户权限')} color='grey' destroyTooltipOnHide>
-                    <Icon 
-                        component={SvgAccess}
-                        onClick={async event => { 
-                            event.stopPropagation()
-                            await NiceModal.show(AccessModal, { database: this }) 
-                        }} 
-                    />
-                </Tooltip> 
+                {
+                    model.admin && 
+                        model.node_type !== NodeType.computing && 
+                    <Tooltip title={ t('查看用户权限')} color='grey' destroyTooltipOnHide>
+                        <Icon 
+                            component={SvgAccess}
+                            onClick={async event => { 
+                                event.stopPropagation()
+                                await NiceModal.show(AccessModal, { database: this }) 
+                            }} 
+                        />
+                    </Tooltip> 
+                }
                 <Tooltip title={enable_create_table ? t('创建数据表') : t('仅支持单机节点和数据节点创建数据表')} color='grey' destroyTooltipOnHide>
                     <Icon 
                         disabled={!enable_create_table}

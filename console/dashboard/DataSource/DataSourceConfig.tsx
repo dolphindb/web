@@ -179,12 +179,12 @@ export function DataSourceConfig (props: IProps, ref) {
                                 activeKey={current_data_source.mode} 
                                 items={[
                                     {
-                                        label: t('DolphinDB 脚本 / SQL'),
+                                        label: 'DolphinDB SQL',
                                         key: 'sql',
                                         disabled: loading !== ''
                                     },
                                     {
-                                        label: t('流数据'),
+                                        label: t('流数据表'),
                                         key: 'stream',
                                         disabled: loading !== ''
                                     }

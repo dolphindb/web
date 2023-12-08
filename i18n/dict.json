@@ -2826,7 +2826,7 @@
         "en": "There are unsaved changes in this data source. do you want to save?"
     },
     "点击填充数据源": {
-        "en": "click to populate data source"
+        "en": "populate data source"
     },
     "配置数据源": {
         "en": "configure data source"
@@ -2836,12 +2836,6 @@
     },
     "关闭": {
         "en": "Close"
-    },
-    "DolphinDB 脚本 / SQL": {
-        "en": "DolphinDB script / SQL"
-    },
-    "流数据": {
-        "en": "Streaming"
     },
     "重命名": {
         "en": "Rename"
@@ -2885,11 +2879,11 @@
     "间隔时间": {
         "en": "Interval time"
     },
-    "最大行数": {
-        "en": "Maximum row count"
+    "最大展示行数": {
+        "en": "Maximum display rows"
     },
-    "若该值为空则表示不对最大行数进行限制": {
-        "en": "If this value is empty, it means no maximum row count restriction"
+    "若该值为空则表示不对最大展示行数进行限制": {
+        "en": "If the value is empty, it means that there is no limit on the maximum number of display rows"
     },
     "自定义": {
         "en": "custom"
@@ -3011,14 +3005,14 @@
     "控制节点不支持数据面板，请跳转到数据节点或计算节点查看。": {
         "en": "Control nodes do not support dashboards. Please navigate to data nodes or compute nodes to view."
     },
-    "数据面板功能未初始化，可点击下方按钮初始化数据面板功能。": {
-        "en": "Dashboard functionality is not initialized. Click the button below to initialize dashboard functionality."
+    "请点击下方按钮完成初始化": {
+        "en": "Please click the button below to complete initialization"
     },
     "初始化操作将新增以下数据库表：": {
         "en": "The initialization operation will add the following database tables:"
     },
-    "以及 7 个以 dashboard_ 开头的函数视图（FunctionView）。": {
-        "en": "and 7 function views starting with dashboard_."
+    "以及 11 个以 dashboard_ 开头的函数视图（FunctionView）": {
+        "en": "and 11 function views starting with dashboard_"
     },
     "你确定要初始化数据面板功能吗？": {
         "en": "Are you sure you want to initialize dashboard functionality?"
@@ -3026,8 +3020,8 @@
     "初始化": {
         "en": "Initialize"
     },
-    "数据面板功能未初始化，请联系管理员初始化数据面板功能。": {
-        "en": "Datshboard functionality is not initialized. Please contact the administrator to initialize dashboard functionality."
+    "数据面板功能未初始化，请联系管理员初始化数据面板功能": {
+        "en": "Datshboard functionality is not initialized. Please contact the administrator to initialize dashboard functionality"
     },
     "dashboard 配置加载成功": {
         "en": "Dashboard configuration loaded successfully"
@@ -3271,5 +3265,38 @@
     },
     " 个{{item}}吗?": {
         "en": " {{item}} ?"
+    },
+    "请选择想要添加的用户": {
+        "en": "Please select the user you want to add."
+    },
+    "请输入要搜索的流表名": {
+        "en": "Please enter the table name you want to search."
+    },
+    "以下内容已复制到剪切板": {
+        "en": "The following content has been copied to the clipboard."
+    },
+    "已存在，粘贴失败!": {
+        "en": "already exists, paste failed!"
+    },
+    "初始化数据面板成功！": {
+        "en": "Dashboard initialization successful!"
+    },
+    "新数据面板": {
+        "en": "New dashboard"
+    },
+    "提示：初始化后请完善相关配置（详见文档），并重启服务器": {
+        "en": "Tip: After initialization, please complete the relevant configuration (see the documentation for details) and restart the server"
+    },
+    "新数据源": {
+        "en": "New data source"
+    },
+    "请输入新数据源的名称": {
+        "en": "Please enter a name for the new data source"
+    },
+    "新变量": {
+        "en": "New variable"
+    },
+    "请输入新变量的名称": {
+        "en": "Please enter a name for the new variable"
     }
 }

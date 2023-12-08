@@ -257,10 +257,12 @@ export function Header () {
                     onCancel={add_close}
                     onOk={handle_add}
                     closeIcon={false}
-                    title={t('请输入数据面板的名称')}>
-                    <Input value={new_dashboard_name}
+                    title={t('新数据面板')}>
+                    <Input 
+                        value={new_dashboard_name}
+                        placeholder={t('请输入新数据面板的名称')}
                         onChange={event => { set_new_dashboard_name(event.target.value) }}
-                        />
+                    />
                 </Modal>
             
                 <Modal open={edit_visible}
@@ -305,7 +307,7 @@ export function Header () {
                         onClick={() => {
                             const new_id = genid()
                             set_new_dashboard_id(new_id)                
-                            set_new_dashboard_name(String(new_id).slice(0, 4))
+                            set_new_dashboard_name('')
                             add_open()
                         }}
                     >

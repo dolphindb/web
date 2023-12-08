@@ -50,7 +50,7 @@ export function Overview () {
         if (params.get('create') === '1') {
             const new_id = genid()
             set_new_dashboard_id(new_id)                
-            set_new_dashboard_name(String(new_id).slice(0, 4))
+            set_new_dashboard_name('')
             creator.open()
         }
     }, [ ])
@@ -97,10 +97,11 @@ export function Overview () {
                         creator.close()
                     }, { json_error: true })
                 }
-                title={t('请输入新数据面板的名称')}
+                title={t('新数据面板')}
             >
                 <Input
                     value={new_dashboard_name}
+                    placeholder={t('请输入新数据面板的名称')}
                     onChange={event => {
                         set_new_dashboard_name(event.target.value)
                     }}
@@ -353,7 +354,7 @@ export function Overview () {
                                 onClick={() => {
                                     const new_id = genid()
                                     set_new_dashboard_id(new_id)                
-                                    set_new_dashboard_name(String(new_id).slice(0, 4))
+                                    set_new_dashboard_name('')
                                     creator.open()
                                 }}
                             >

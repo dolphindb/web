@@ -1,5 +1,5 @@
 import { ShareAltOutlined } from '@ant-design/icons'
-import { Button, Tooltip } from 'antd'
+import { Button, Tooltip, notification } from 'antd'
 import { useCallback } from 'react'
 
 import { dashboard } from '../model.js'
@@ -14,6 +14,7 @@ interface IProps {
 
 
 export function Share ({ dashboard_ids, trigger_type }: IProps) {
+    const [api, contextHolder] = notification.useNotification({ maxCount: 1 })
     const message = trigger_type === 'icon' ? dashboard.message : model.message
     
     const trigger_click_handler = useCallback(async () => {
@@ -26,13 +27,26 @@ export function Share ({ dashboard_ids, trigger_type }: IProps) {
         const currentUrl = new URL(window.location.href)
         currentUrl.searchParams.set('preview', '1')
         
-        dashboard_ids.forEach(dashboard_id => {
-            currentUrl.searchParams.set('dashboard', String(dashboard_id))
-            copy_text += `${dashboard.configs.find(({ id }) => id === dashboard_id).name}：${currentUrl.href}\n`
-        })
+        if (dashboard_ids.length === 1) {
+            currentUrl.searchParams.set('dashboard', String(dashboard_ids[0]))
+            copy_text = currentUrl.href
+        }
+        else
+            dashboard_ids.forEach(dashboard_id => {
+                currentUrl.searchParams.set('dashboard', String(dashboard_id))
+                copy_text += `${dashboard.configs.find(({ id }) => id === dashboard_id).name}：${currentUrl.href}\n`
+            })
+            
         try {
             copy(copy_text)
-            message.success(t('复制成功'))
+            api.success({
+                message: t('以下内容已复制到剪切板'),
+                style: {
+                    width: 1100
+                },
+                description: copy_text.split('\n').map(item => <p>{item}</p>),
+                placement: 'top',
+            })
          } catch (e) {
             message.error(t('复制失败'))
         }
@@ -52,7 +66,10 @@ export function Share ({ dashboard_ids, trigger_type }: IProps) {
         
     }
     
-    return triggers[trigger_type]
+    return <>
+        {contextHolder}
+        {triggers[trigger_type]}
+    </>
 }
 
 

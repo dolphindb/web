@@ -2,7 +2,7 @@ import ReactEChartsCore from 'echarts-for-react/lib/core'
 import * as echarts from 'echarts'
 import { useMemo } from 'react'
 
-import { type Widget } from '../../model.js'
+import { dashboard, type Widget } from '../../model.js'
 import { type ISeriesConfig, type IChartConfig } from '../../type.js'
 import { BasicFormFields } from '../../ChartFormFields/OhlcChartFields.js'
 import { OhlcFormFields } from '../../ChartFormFields/OhlcChartFields.js'
@@ -30,7 +30,7 @@ function splitData (rowData: any[], col_name: COL_MAP) {
     for (let i = 0;  i < rowData.length;  i++) {
         categoryData.push(rowData[i][time])
         values.push([rowData[i][open], rowData[i][close], rowData[i][low], rowData[i][high]])
-        volumes.push([i, rowData[i][trades], Number(rowData[i][open]) > Number(rowData[i][close]) ? 1 : -1])
+        volumes.push([i, rowData[i][trades], Number(rowData[i][trades]) > 0 ? 1 : -1])
     }
     if (time_format)
         categoryData = categoryData.map(item => format_time(item, time_format))
@@ -59,16 +59,7 @@ export function OHLC ({ widget, data_source }: { widget: Widget, data_source: an
                 return { yAxis: item }
         }) || [ ]
         
-        
         let data = data_source.map(item => item?.[series?.col_name])
-        // console.log('col', series.col_name, data)
-        // if (xAxis.type === AxisType.TIME)  
-        //     data = data_source.map(item => [dayjs(item?.[xAxis.col_name]).format('YYYY-MM-DD HH:mm:ss'), item?.[series.col_name]])
-        
-        // if (xAxis.type === AxisType.VALUE || xAxis.type === AxisType.LOG)  
-        //     data  = data_source.map(item => [item[xAxis.col_name], item[series.col_name]])
-        
-           
         
         return {
             type: series?.type?.toLowerCase(),
@@ -347,7 +338,8 @@ export function OHLC ({ widget, data_source }: { widget: Widget, data_source: an
         [title, with_tooltip, data, xAxis, yAxis, x_datazoom, y_datazoom]
     )
     
-    return <ReactEChartsCore echarts={echarts} option={option} notMerge lazyUpdate theme='ohlc_theme' />
+    // 编辑模式下 notMerge 为 true ，因为要修改配置，预览模式下 notMerge 为 false ，避免数据更新，导致选中的 label失效
+    return <ReactEChartsCore notMerge={dashboard.editing} echarts={echarts} option={option} lazyUpdate theme='ohlc_theme' />
 }
 
 
