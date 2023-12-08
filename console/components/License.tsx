@@ -62,7 +62,7 @@ export function License () {
                             </>
                         }
                         <Descriptions.Item label={t('最大节点数')}>{license.maxNodes}</Descriptions.Item>
-                        <Descriptions.Item label={t('web 构建时间')}>{BUILD_TIME}</Descriptions.Item>
+                        <Descriptions.Item label={t('web 版本')}>{WEB_VERSION}</Descriptions.Item>
                     </Descriptions>
                 </Card>
             </div>

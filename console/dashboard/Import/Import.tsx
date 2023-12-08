@@ -2,7 +2,7 @@ import { Button, Input, Modal, Tooltip, Upload } from 'antd'
 import { DownloadOutlined } from '@ant-design/icons'
 import { genid } from 'xshell/utils.browser.js'
 import { useRef, useState } from 'react'
-import { use_modal } from 'react-object-model/modal.js'
+import { use_modal } from 'react-object-model/hooks.js'
 
 import { t } from '../../../i18n/index.js'
 import { model } from '../../model.js'
