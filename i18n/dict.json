@@ -3298,5 +3298,8 @@
     },
     "请输入新变量的名称": {
         "en": "Please enter a name for the new variable"
+    },
+    "web 版本": {
+        "en": "web version"
     }
 }
