@@ -3017,8 +3017,8 @@
     "初始化操作将新增以下数据库表：": {
         "en": "The initialization operation will add the following database tables:"
     },
-    "以及 9 个以 dashboard_ 开头的函数视图（FunctionView）": {
-        "en": "and 9 function views starting with dashboard_"
+    "以及 11 个以 dashboard_ 开头的函数视图（FunctionView）": {
+        "en": "and 11 function views starting with dashboard_"
     },
     "你确定要初始化数据面板功能吗？": {
         "en": "Are you sure you want to initialize dashboard functionality?"
