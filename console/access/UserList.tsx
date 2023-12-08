@@ -9,7 +9,7 @@ import { t } from '../../i18n/index.js'
 
 import { access } from './model.js'
 import { model } from '../model.js'
-import { use_modal } from 'react-object-model/modal'
+import { use_modal } from 'react-object-model/hooks.js'
 
 export function UserList () {
     

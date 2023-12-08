@@ -5,7 +5,7 @@ import { cloneDeep } from 'lodash'
 
 import { Button, Modal } from 'antd'
 import { ToolOutlined } from '@ant-design/icons'
-import { use_modal } from 'react-object-model/modal.js'
+import { use_modal } from 'react-object-model/hooks.js'
 
 import { VariableList } from './VariableList.js'
 import { VariableEditor } from './VariableEditor.js'

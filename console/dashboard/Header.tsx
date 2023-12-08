@@ -4,7 +4,7 @@ import { useState } from 'react'
 import { Button, Input, Modal, Popconfirm, Select, Tag, Tooltip, } from 'antd'
 import { CopyOutlined, DeleteOutlined, EditOutlined, EyeOutlined, FileAddOutlined, HomeOutlined, RollbackOutlined, SaveOutlined, UploadOutlined } from '@ant-design/icons'
 
-import { use_modal } from 'react-object-model/modal.js'
+import { use_modal } from 'react-object-model/hooks.js'
 import { genid } from 'xshell/utils.browser.js'
 
 import { model } from '../model.js'

@@ -7,7 +7,7 @@ import { EditOutlined } from '@ant-design/icons'
 import { useMemo, useState, useRef, useCallback, useEffect } from 'react'
 import cn from 'classnames'
 
-import { use_modal } from 'react-object-model/modal.js'
+import { use_modal } from 'react-object-model/hooks.js'
 
 import { t } from '../../../../i18n/index.js'
 import { type Widget, dashboard } from '../../model.js'

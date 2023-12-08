@@ -5,7 +5,7 @@ import { t } from '../../i18n/index.js'
 import { access, type Database } from './model.js'
 import { model } from '../model.js'
 import { CheckCircleFilled, CloseCircleFilled, MinusCircleFilled, MinusCircleOutlined, PlusCircleOutlined, PlusOutlined, QuestionCircleFilled, ReloadOutlined, SearchOutlined } from '@ant-design/icons'
-import { use_modal } from 'react-object-model/modal.js'
+import { use_modal } from 'react-object-model/hooks.js'
 
 export function AccessView () {
     

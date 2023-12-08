@@ -6,7 +6,7 @@ import { default as Icon, WarningFilled  } from '@ant-design/icons'
 
 import { SqlStandard } from 'dolphindb/browser.js'
 
-import { use_modal } from 'react-object-model/modal.js'
+import { use_modal } from 'react-object-model/hooks.js'
 
 import { storage_keys, model } from '../model.js'
 import { t } from '../../i18n/index.js'

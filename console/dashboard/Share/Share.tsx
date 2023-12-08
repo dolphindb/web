@@ -62,7 +62,7 @@ export function Share ({ dashboard_ids, trigger_type }: IProps) {
 // import { ShareAltOutlined } from '@ant-design/icons'
 // import { Button, Modal, Radio, Table } from 'antd'
 // import { useCallback, useState } from 'react'
-// import { use_modal } from 'react-object-model/modal'
+// import { use_modal } from 'react-object-model/hooks.js'
 
 // import { DashboardPermission, dashboard } from '../model.js'
 // import { t } from '../../../i18n/index.js'

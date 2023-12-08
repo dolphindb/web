@@ -21,7 +21,10 @@ class DevServer extends Server {
     
     
     constructor () {
-        super({ port: 8432 })
+        super({
+            name: 'web 开发服务器',
+            http_port: 8432,
+        })
     }
     
     
