@@ -24,7 +24,7 @@ export function DashboardEditor ({ widget }: { widget: Widget }) {
                 ...config,
                 data: { ...config.data, canvas: { widgets: config.data.canvas.widgets.toSpliced(index, 1, new_widget) } }
             }
-            await dashboard.update_dashboard_config(new_config, false)
+            await dashboard.update_dashboard_config(new_config)
         }, { json_error: true })
     }
     
