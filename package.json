@@ -75,6 +75,7 @@
         "monaco-editor": "^0.44.0",
         "re-resizable": "^6.9.11",
         "react-dom": "^18.2.0",
+        "react-draggable": "^4.4.6",
         "react-object-model": "^1.2.0",
         "react-quill": "^2.0.0",
         "swr": "^2.2.4",

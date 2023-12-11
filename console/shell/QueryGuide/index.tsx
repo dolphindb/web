@@ -8,7 +8,7 @@ import { QueryGuide } from './QueryGuide.js'
 import { SqlEditGuide } from './SqlEditGuide.js'
 
 import NiceModal, { useModal } from '@ebay/nice-modal-react'
-import Modal from 'antd/es/modal/Modal'
+import { DraggableModal } from '../../components/DraggableModal/index.js'
 
 interface IProps { 
     database: string
@@ -38,7 +38,7 @@ export const QueryGuideModal = NiceModal.create((props: IProps) => {
     const Component = useMemo(() => components[type], [type])
     
     return <>
-        <Modal
+        <DraggableModal
             maskClosable={false}
             destroyOnClose
             footer={footer}
@@ -59,7 +59,7 @@ export const QueryGuideModal = NiceModal.create((props: IProps) => {
                 ]}
             />
             <Component set_footer={set_footer} {...props} />
-        </Modal>
+        </DraggableModal>
     
     </>
  })
