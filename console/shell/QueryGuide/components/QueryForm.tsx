@@ -242,7 +242,7 @@ export function QueryForm (props: IProps) {
                             icon={<PlusCircleOutlined />}
                             className='add-query-block-btn'
                         >
-                            {t('增加查询条件块')}
+                            {t('增加或查询条件块')}
                         </Button>
                     </div>
                 }}
