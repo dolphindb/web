@@ -120,7 +120,7 @@ export function Computing () {
             
             streaming_engine_rows.push(new_row)
         }
-    console.log('stat', shared_table_stat.to_cols(), shared_table_stat.to_rows()) 
+    
     return <Tabs
         activeKey={tab_key}
         type='card'

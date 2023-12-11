@@ -1,0 +1,89 @@
+.default-img {
+    width: 150px;
+    height: 140px;
+}
+
+.graph-title {
+    color: #fff;
+    font-size: 16px;
+    margin-bottom: 8px;
+}
+
+.widget-type {
+    display: inline-block; 
+}
+
+
+.edit-data-source {
+    cursor: pointer;
+    display: inline-block;
+    margin-right: 8px;
+}
+
+.edit-data-source-btn {
+    color: #fff;
+    &:hover {
+        color: #fff !important;
+    }
+}
+
+.graph-item-wrapper {
+    width: 100%;
+    height: 100%;
+    overflow: auto;
+    padding: 12px;
+    background-color: #282828;
+    
+    display: flex;
+    flex-direction: column;
+    
+    &-abandon-scroll {
+        overflow: hidden;
+    }
+    
+    .graph-component {
+        width: 100%;
+        flex-grow: 1;
+        
+        >div::-webkit-scrollbar-track-piece {
+            background-color: #474747 !important;
+        }
+        >div::-webkit-scrollbar-thumb {
+            border-radius: 0px;
+            border: 1px solid #606060 !important;
+            box-shadow: 0 0 3px rgba(0, 0, 0, 0.5);
+            background-color: #505050 !important;
+        }
+        
+    }
+    
+    &::-webkit-scrollbar-track-piece {
+        background-color: #474747 !important;
+    }
+    &::-webkit-scrollbar-thumb {
+        border-radius: 0px;
+        border: 1px solid #606060 !important;
+        box-shadow: 0 0 3px rgba(0, 0, 0, 0.5);
+        background-color: #505050 !important;
+    }
+}
+
+
+.variable-wrapper {
+    margin-bottom: 16px;
+    display: flex;
+    align-items: center;
+    .variable-form {
+        flex: 1;
+        .data-picker{
+            width: 100%;
+        }
+        .ant-form-item {
+            margin-bottom: 0px;
+        }
+    }
+    .search-btn{
+        margin-left: 32px;
+    }
+    
+}

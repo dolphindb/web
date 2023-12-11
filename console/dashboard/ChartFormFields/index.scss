@@ -1,0 +1,63 @@
+.field-wrapper {
+    .ant-space {
+        width: 100%;
+        .ant-space-item:first-child {
+            flex-grow: 1;
+        }
+    }
+    padding: 8px 0px;
+    .ant-form-item{
+        margin-bottom: 8px;
+        &:last-child {
+            margin-bottom: 0px;
+        }
+    }
+}
+
+.axis-wrapper {
+    .ant-form-item{
+        margin-bottom: 8px;
+        &:last-child {
+            margin-bottom: 0px;
+        }
+    }
+}
+
+.divider {
+    margin: 4px 0px;
+}
+
+
+.delete-icon {
+    margin-left: 4px;
+}
+
+.series-collapse {
+    border: 0px;
+    &>.ant-collapse-item {
+        border: 0px;
+    }
+}
+
+.yasix-collapse-wrapper {
+    .ant-collapse {
+        border: 0px;
+        &>.ant-collapse-item {
+            border: 0px;
+        }
+    }
+    .add-yaxis-btn {
+        margin-top: 12px;
+    }
+}
+
+.yaxis-collapse-label, .series-collapse-label {
+    display: flex;
+    justify-content: space-between;
+}
+
+
+.add-series-btn {
+    margin-top: 12px;
+}
+

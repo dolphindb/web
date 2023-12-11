@@ -1,0 +1,36 @@
+.data-setting-label {
+    display: flex;
+    justify-content: space-between;
+}
+
+.data-setting-wrapper {
+    .ant-form-item {
+        margin-bottom: 8px;
+    }
+}
+
+.add-data-setting-btn {
+    margin-top: 12px;
+}
+
+.gauge-axis-setting-wrapper {
+    display: flex;
+    
+    align-items: center;
+    
+    .ant-form-item:first-child {
+        margin-bottom: 8px;
+        width: 65%;
+    }
+    .ant-form-item:nth-child(2) {
+        margin-left: 8px;
+        margin-bottom: 8px;
+        width: 30%;
+    }
+    
+    .gauge-axis-delete-icon {
+
+        margin-bottom: 8px;
+    }
+    
+}

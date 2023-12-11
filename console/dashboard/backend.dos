@@ -1,0 +1,184 @@
+def dropAllFunctionViews(prefix) {
+    funcs = exec name from defs(prefix)
+    for(func in funcs) {
+        try{dropFunctionView(func)}catch(ex){};go;
+        try{undef(func, DEF)}catch(ex){};go;
+    }
+
+    for(func in select name from getFunctionViews() where name like prefix) {
+        try{dropFunctionView(func);}catch(ex){}
+    }
+}
+dropAllFunctionViews("dashboard_%");go
+
+def createDashboardConfigDb() {
+    if (existsDatabase("dfs://dashboardConfigDb")){
+        print("dfs://dashboardConfigDb has been existed")
+    } else {
+        dbTime = database(, partitionType = VALUE, partitionScheme = 2023.11M..2023.12M)
+        dbId = database(, partitionType = VALUE, partitionScheme = ["user1", "user2"])
+        db = database(directory="dfs://dashboardConfigDb", partitionType = COMPO, partitionScheme = [dbTime, dbId], engine = 'TSDB')
+        tb = table(1:0, 
+            ["id", "name", "owner", "config", "createTime", "editor", "updateTime", "isDeleted"],
+            ["LONG", "SYMBOL", "SYMBOL", "BLOB", "TIMESTAMP", "SYMBOL", "TIMESTAMP", "BOOL"])
+        createPartitionedTable(db, tb, "configDtl", `updateTime`owner, sortColumns=`updateTime)
+    }
+}
+
+def dashboard_get_config_list() {
+    user = getCurrentSessionAndUser()[1]
+    tb_config = loadTable("dfs://dashboardConfigDb", "configDtl")
+
+    tb_owned = select * from tb_config where owner = user context by id limit -1
+    res = select id, name, owner, 0 as permission, string(config) as data, createTime from tb_owned where isDeleted = false order by createTime desc
+
+    return res
+}
+
+def dashboard_exist_check(dbid) {
+    tb_config = loadTable("dfs://dashboardConfigDb", "configDtl")
+
+    // existence check
+    tb_exist = select * from tb_config where id = dbid order by updateTime desc limit 1
+    tb_exist = select * from tb_exist where isDeleted = false
+    if (count(tb_exist) == 0) {
+        throw toStdJson({code: "S001"})
+    }else{
+        return tb_exist
+    }
+}
+
+def dashboard_get_config(param) {
+    user = getCurrentSessionAndUser()[1]
+
+    // existence check
+    tb_exist = dashboard_exist_check(long(param.id))
+
+    res = select id, name, owner, config as data from tb_exist
+    res["permission"] = iif(tb_exist["owner"] == user, 0, 2)
+    return res
+}
+
+def dashboard_save_blob(x) {
+    // save config json to blob
+    return blob(toStdJson(x))
+}
+
+def dashboard_add_config(param) {
+    user = getCurrentSessionAndUser()[1]
+    tb_config = loadTable("dfs://dashboardConfigDb", "configDtl")
+
+    // existence check
+    tb_exist = select * from tb_config where id = param.id order by updateTime desc limit 1
+    tb_exist = select * from tb_exist where isDeleted = false
+    if (count(tb_exist) != 0) {
+        throw toStdJson({code: "S002"})
+    }
+
+    // name check
+    name_check = select * from tb_config where owner = user and name = param.name context by id csort updateTime desc limit 1
+    name_check  = select * from name_check where isDeleted = false
+    if (count(name_check) != 0) {throw toStdJson({code: "S003"})}
+
+    // save
+    tmp = table(long(param.id) as id, param.name as name, user as owner, dashboard_save_blob(param.data) as config, now() as createTime, user as editor, now() as updateTime, false as isDeleted)
+
+    tb_config.append!(tmp)
+}
+
+def dashboard_delete_configs(param) {
+    user = getCurrentSessionAndUser()[1]
+    tb_config = loadTable("dfs://dashboardConfigDb", "configDtl")
+
+    tb_to_delete = select * from tb_config where owner = user and id in long(param.ids) context by id limit -1
+    tb_to_delete = select * from tb_to_delete where isDeleted = false
+    update tb_to_delete set updateTime = now(), config = string(NULL), editor = user, isDeleted = true
+    tb_config.append!(tb_to_delete)
+}
+
+def dashboard_edit_config(param) {
+    user = getCurrentSessionAndUser()[1]
+    tb_config = loadTable("dfs://dashboardConfigDb", "configDtl")
+    
+    // existence check
+    tb_exist = dashboard_exist_check(long(param.id))
+
+    // insert data
+    update tb_exist set config = dashboard_save_blob(param.data), editor = user, updateTime = now()
+    tb_config.append!(tb_exist)
+}
+
+def dashboard_rename_config(param) {
+    user = getCurrentSessionAndUser()[1]
+    tb_config = loadTable("dfs://dashboardConfigDb", "configDtl")
+
+    // name check
+    if (isNull(param.name)) {throw toStdJson({code: "S004"})}
+
+    // existence check
+    tb_exist = dashboard_exist_check(long(param.id))
+
+    // insert data
+    update tb_exist set name = param.name, updateTime=now(), editor = user
+    tb_config.append!(tb_exist)
+}
+
+def dashboard_get_version() {
+    backendDB = "dfs://dashboardConfigDb"
+    funcs = exec name from defs("dashboard_%")
+
+    if (!existsDatabase(backendDB) || count(funcs) != 11) {
+        throw "Initialization Failed"
+    } else {
+        // version
+        return "1.0.0"
+    }
+}
+
+def dashboard_grant_functionviews(userId, groupIds, isAdmin) {
+    funcs = exec name from defs("dashboard_%")
+    onlyAdminFuncs = ["dashboard_grant_functionviews", "dashboard_delete_user"]
+    grantFuncs = (set(funcs) - set(onlyAdminFuncs)).keys()
+
+    try{
+        if (count(grantFuncs) != 0) {
+            each(grant, take(userId,count(grantFuncs)), take(VIEW_EXEC, count(grantFuncs)), grantFuncs)
+        } 
+    }catch(ex){
+        try{each(revoke, take(userId,count(grantFuncs)), take(VIEW_EXEC, count(grantFuncs)), grantFuncs)}catch(ex){}
+        throw ex[0] + "->" + ex[1]
+    }
+}
+
+def dashboard_delete_user(userId, groupIds, isAdmin) {
+    try{
+        delete from loadTable("dfs://dashboardConfigDb", "configDtl") where owner = userId;
+    }catch(ex){
+        throw ex[0] + "->" + ex[1]
+    }
+}
+
+def addAllFunctionViews(prefix) {
+    funcs = exec name from defs(prefix)
+    onlyAdminFuncs = ["dashboard_grant_functionviews", "dashboard_delete_user"]
+
+    for(func in funcs) {
+        try{addFunctionView(funcByName(func))}catch(ex){}
+    }
+    
+    grantFuncs = (set(funcs) - set(onlyAdminFuncs)).keys()
+    for (gfunc in grantFuncs) {
+        try{each(grant, getUserList(), take(VIEW_EXEC, count(getUserList())), take(gfunc, count(getUserList())))}catch(ex){}
+    }
+}
+
+def initializeDashboard(){
+    createDashboardConfigDb()
+    addAllFunctionViews("dashboard_%")
+}
+
+initializeDashboard()
+undef all
+
+
+print('dashboard backend 已加载')

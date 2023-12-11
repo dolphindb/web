@@ -1,0 +1,117 @@
+$canvas_back_color: rgb(40, 40, 40)
+$font_color: rgb(215, 215, 215)
+$blue: rgb(22, 104, 220)
+$border_color: #333333
+    
+.variable
+    .ant-modal-content
+        background-color: $canvas_back_color
+        .ant-modal-title
+            background-color: $canvas_back_color
+
+.variable-config-trigger-navigation   
+    cursor: pointer
+    
+    .variable-config-trigger-navigation-icon
+        margin-right: 5px
+
+.variable-config-main
+    width: 100%
+    height: 500px
+    color: $font_color
+    display: flex
+
+    .config-variable-list
+        width: 200px
+        border-right: 1px solid $border_color
+        display: flex
+        flex-direction: column
+        
+        .variable-list-top
+            padding-right: 10px
+            height: 45px
+            display: flex
+            align-items: center
+            justify-content: space-between
+            
+            .variable-list-top-item
+                cursor: pointer
+                font-size: 12px
+                
+                .variable-list-top-item-icon
+                    margin-right: 2px
+            
+        .variable-list-bottom
+            flex: 1
+            padding-right: 10px
+            
+            .variable-list-bottom-menu
+                height: 100%
+                
+                .bottom-menu-rename-input
+                    width: 150px
+                
+                .ant-tree-switcher-noop
+                    display: none
+                    
+                .ant-tree-node-content-wrapper
+                    height: 40px
+                    padding-left: 10px
+                    display: flex
+                    align-items: center
+        
+    .config-right
+        flex: 1
+        display: flex
+        flex-direction: column
+        overflow: auto
+            
+        .variable-editor
+            height: 100%
+            padding: 0 15px
+            
+            .variable-editor-main
+                display: flex
+                flex-direction: column
+                height: 100%
+                
+                .variable-editor-main-display-name
+                    display: flex
+                    justify-content: space-between 
+                    width: 450px
+                    margin: 8px 0 10px 0
+                    
+                    .variable-editor-main-display-name-input
+                        width: 350px
+                
+                .variable-editor-main-mode
+                    display: flex
+                    justify-content: space-between 
+                    width: 450px
+                    margin: 10px 0
+                    
+                    .variable-editor-main-mode-select
+                        width: 350px
+                    
+                .variable-editor-main-value
+                    display: flex
+                    justify-content: space-between 
+                    width: 450px
+                    margin: 10px 0
+                    
+                    .variable-editor-main-value-control
+                        width: 350px
+                
+                .variable-editor-main-options
+                    display: flex
+                    flex-direction: column
+                    margin: 10px 0
+                    
+                    .variable-editor-main-options-top
+                        display: flex
+                        justify-content: space-between
+                        margin-bottom: 8px
+                        
+                        .variable-editor-main-options-top-add
+                            cursor: pointer
+                            color: #1668DC
