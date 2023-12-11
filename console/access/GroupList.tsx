@@ -5,8 +5,8 @@ import { useEffect, useMemo, useState } from 'react'
 import { DeleteOutlined, PlusOutlined, ReloadOutlined, SearchOutlined } from '@ant-design/icons'
 import { Button, Form, Input, Modal, Popconfirm, Table, Tag, Tooltip, Transfer, type TableColumnType } from 'antd'
 
+import { use_modal } from 'react-object-model/modal'
 import { t } from '../../i18n/index.js'
-import { use_modal } from 'react-object-model/hooks.js'
 import { model } from '../model.js'
 import { access } from './model.js'
 
