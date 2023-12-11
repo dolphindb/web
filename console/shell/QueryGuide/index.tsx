@@ -1,13 +1,14 @@
 import './index.scss'
 
 import { Drawer, Tooltip, Segmented } from 'antd'
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { type ReactElement, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { QueryGuideType } from './type.js'
 import { t } from '../../../i18n/index.js'
 import { QueryGuide } from './QueryGuide.js'
 import { SqlEditGuide } from './SqlEditGuide.js'
-import { FileSearchOutlined } from '@ant-design/icons'
-import { useBoolean } from 'ahooks'
+
+import NiceModal, { useModal } from '@ebay/nice-modal-react'
+import Modal from 'antd/es/modal/Modal'
 
 interface IProps { 
     database: string
@@ -19,11 +20,10 @@ const components = {
     [QueryGuideType.SQL]: SqlEditGuide
 }
 
-export function QueryGuideIcon (props: IProps) {
-    
+export const QueryGuideModal = NiceModal.create((props: IProps) => {
     const { table, database } = props
-    
-    const [open, action] = useBoolean(false)
+    const modal = useModal()
+    const [footer, set_footer] = useState<ReactElement>(null)
     
     const [type, set_type] = useState<QueryGuideType>(QueryGuideType.QUERY_GUIDE)
     
@@ -38,24 +38,28 @@ export function QueryGuideIcon (props: IProps) {
     const Component = useMemo(() => components[type], [type])
     
     return <>
-        <Tooltip title={t('进入查询向导')}>
-            <FileSearchOutlined onClick={action.setTrue} className='query-icon'/>
-        </Tooltip>
-        <Drawer
-            destroyOnClose
-            title={`${database}/${table}` }
-            extra={
-                <Segmented value={type} onChange={change_type} options={[{ label: t('向导界面'), value: QueryGuideType.QUERY_GUIDE }, { label: t('编辑界面'), value: QueryGuideType.SQL }]} />
-            }
+        <Modal
             maskClosable={false}
-            onClose={action.setFalse}
-            width={820}
-            className='query-guide-drawer'
-            open={open}
-            placement='left'
-        >
-        <Component {...props} />
-    </Drawer>
+            destroyOnClose
+            footer={footer}
+            title={database + '/' + table}
+            width={1000}
+            className='query-guide-modal'
+            open={modal.visible}
+            onCancel={modal.hide}
+            afterClose={modal.remove}
+        >   
+            <Segmented
+                className='guide-segmented'
+                value={type}
+                onChange={change_type}
+                options={[
+                    { label: t('向导界面'), value: QueryGuideType.QUERY_GUIDE },
+                    { label: t('编辑界面'), value: QueryGuideType.SQL }
+                ]}
+            />
+            <Component set_footer={set_footer} {...props} />
+        </Modal>
     
     </>
- }
+ })

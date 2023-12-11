@@ -1,5 +1,5 @@
 import { QueryForm } from './components/QueryForm.js'
-import { useCallback, useMemo, useState } from 'react'
+import { type ReactElement, forwardRef, useCallback, useImperativeHandle, useMemo, useState, useEffect } from 'react'
 import { t } from '../../../i18n/index.js'
 import { Button, Form, Space, Tooltip } from 'antd'
 import { request } from '../../guide/utils.js'
@@ -13,11 +13,12 @@ import { ExportFileModal } from './components/ExportFileModal.js'
 interface IProps { 
     database: string
     table: string
+    set_footer: (val: ReactElement) => void
 }
 
 export function QueryGuide (props: IProps) { 
     
-    const { table, database } = props
+    const { table, database, set_footer } = props
     
     const [current_step, set_current_step] = useState(0)
     const [query_info, set_query_info] = useState<IQueryInfos>()
@@ -74,17 +75,22 @@ export function QueryGuide (props: IProps) {
                     </Tooltip>
                     : <Button type='primary' onClick={async () => NiceModal.show(ExportFileModal, { code, table })}>{t('导出数据')}</Button>
         }
-    }, [ get_query_code, code, table, to_next_step, disable_export])
+    }, [get_query_code, code, table, to_next_step, disable_export])
     
-    return <>
-      
-        {view_map[current_step]}
-        <div className='btn-wrapper'>
+    useEffect(() => { 
+        set_footer(
+            <div className='btn-wrapper'>
             <Space>
                 {current_step === 0 && <Button onClick={() => { form.resetFields() }}>{t('重置')}</Button>}
                 {current_step > 0 && <Button onClick={back}>{t('上一步')}</Button> }
                 {primary_btn}
             </Space>
-        </div>
-    </>
+        </div>  
+        )
+    }, [primary_btn, current_step, back])
+    
+   
+  
+    
+    return view_map[current_step]
 }

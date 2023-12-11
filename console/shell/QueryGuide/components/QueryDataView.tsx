@@ -22,7 +22,7 @@ export function QueryDataView (props: IProps) {
         ['executeQueryByPage', code, pagination.page, pagination.page_size],
         async () => request<{ items: any[], total: number }>('executeQueryByPage', { code, page: pagination.page, pageSize: pagination.page_size }),
         {
-            onSuccess: data => { set_disable_export(data.total > 500000) }
+            onSuccess: data => { set_disable_export(data.total > 500000 || data.total === 0) }
         }
     )
     
@@ -31,7 +31,9 @@ export function QueryDataView (props: IProps) {
             return Object.keys(data.items[0]).map(key => ({
                 title: key,
                 dataIndex: key,
-                key
+                key,
+                ellipsis: true,
+                width: 100,
             }))
     }, [data])
     

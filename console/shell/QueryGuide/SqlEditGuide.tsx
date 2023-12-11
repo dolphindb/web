@@ -1,5 +1,5 @@
 import './index.scss'
-import { useCallback, useMemo, useState } from 'react'
+import { type ReactElement, useCallback, useMemo, useState, useEffect } from 'react'
 import { t } from '../../../i18n/index.js'
 import { Button, Space, Tooltip, message } from 'antd'
 
@@ -11,11 +11,12 @@ import { ExportFileModal } from './components/ExportFileModal.js'
 interface IProps { 
     database: string
     table: string
+    set_footer: (footer: ReactElement) => void
 }
 
 export function SqlEditGuide (props: IProps) { 
     
-    const { table, database } = props
+    const { table, database, set_footer } = props
     
     const [current_step, set_current_step] = useState(0)
     const [code, set_code] = useState(`SELECT * FROM loadTable("${database}", "${table}")`)
@@ -60,15 +61,17 @@ export function SqlEditGuide (props: IProps) {
                     </Tooltip>
                     : <Button type='primary' onClick={async () => NiceModal.show(ExportFileModal, { code, table })}>{t('导出数据')}</Button>
         }
-    }, [ to_next_step, code, table, disable_export])
+    }, [to_next_step, code, table, disable_export])
     
-    return <>
-        {view_map[current_step]}
-        <div className='btn-wrapper'>
+    useEffect(() => { 
+        set_footer( <div className='btn-wrapper'>
             <Space>
                 {current_step > 0 && <Button onClick={back}>{t('上一步')}</Button> }
                 {primary_btn}
             </Space>
-        </div>
-    </>
+        </div>)
+    }, [back, primary_btn])
+    
+    return view_map[current_step]
+    
 }

@@ -186,7 +186,7 @@ export function QueryForm (props: IProps) {
     
     return <Spin spinning={isLoading}>
         <Form form={form}>
-            <h4>{t('查询列')}</h4>
+            <h4 className='query-col-title'>{t('查询列')}</h4>
             <Form.Item name='queryCols' rules={[{ required: true, message: '请选择查询列' }] }>
                 <ColSelectTransfer cols={cols}/>
             </Form.Item>
