@@ -120,11 +120,11 @@ export function DdbSider () {
                     icon: <MenuIcon view='job' />,
                     label: t('作业管理'),
                 },
-                {
-                    key: 'computing',
-                    icon: <MenuIcon view='computing' />,
-                    label: t('流计算监控'),
-                },
+                // {
+                //     key: 'computing',
+                //     icon: <MenuIcon view='computing' />,
+                //     label: t('流计算监控'),
+                // },
                 {
                     key: 'log',
                     icon: <MenuIcon view='log' />,
