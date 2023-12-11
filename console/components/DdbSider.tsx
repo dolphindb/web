@@ -14,6 +14,7 @@ import { model, type DdbModel, NodeType, storage_keys } from '../model.js'
 
 import SvgOverview from '../overview/icons/overview.icon.svg'
 import SvgShell from '../shell/index.icon.svg'
+import SvgDashboard from '../dashboard/icons/dashboard.icon.svg'
 import SvgJob from '../job.icon.svg'
 import SvgLog from '../log.icon.svg'
 import SvgFactor from '../factor.icon.svg'
@@ -26,11 +27,13 @@ const { Text, Link } = Typography
 const svgs = {
     overview: SvgOverview,
     shell: SvgShell,
+    dashboard: SvgDashboard,
     job: SvgJob,
     log: SvgLog,
     factor: SvgFactor,
     computing: SvgComputing,
 }
+
 
 function MenuIcon ({ view }: { view: DdbModel['view'] }) {
     return <Icon className='icon-menu' component={svgs[view]} />
@@ -128,11 +131,6 @@ export function DdbSider () {
                     label: <Link target='_blank' href={factor_href}>{t('因子平台')}</Link>
                 }] : [ ],
                 ... model.dev || model.cdn ? [
-                    // {
-                    //     key: 'dashboard',
-                    //     icon: <MenuIcon view='dashboard' />,
-                    //     label: t('数据面板'),
-                    // },
                     {
                         key: 'test',
                         icon: <ExperimentOutlined className='icon-menu' />,

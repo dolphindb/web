@@ -67,7 +67,6 @@ export function Databases () {
     const enable_create_db = [NodeType.data, NodeType.single].includes(node_type)
     const [refresh_spin, set_refresh_spin] = useState(false)
     
-    
     return <Resizable
         className='treeview-resizable-split1'
         enable={{
@@ -150,7 +149,7 @@ export function Databases () {
                             
                             loadedKeys={loaded_keys}
                             loadData={async (node: EventDataNode<DatabaseGroup | Database | Table | ColumnRoot | PartitionRoot | Column | PartitionDirectory | PartitionFile>) => {
-                                try {
+                                await model.execute(async () => {
                                     switch (node.type) {
                                         case 'column-root':
                                         case 'partition-root':
@@ -162,12 +161,7 @@ export function Databases () {
                                             
                                             break
                                     }
-                                } catch (error) {
-                                    model.show_error({ error })
-                                    
-                                    // 这里不往上扔错误，避免 rc-tree 自动重试造成多个错误弹窗
-                                    // throw error
-                                }
+                                }, { throw: false })  // 这里不往上扔错误，避免 rc-tree 自动重试造成多个错误弹窗
                             }}
                             onLoad={ keys => { set_loaded_keys(keys) }}
                             
@@ -216,12 +210,7 @@ export function Databases () {
                                             keys_.push(node.key)
                                             
                                             // 显示 schema
-                                            try {
-                                                await node.inspect()
-                                            } catch (error) {
-                                                model.show_error({ error })
-                                                throw error
-                                            }  
+                                            await model.execute(async () => node.inspect())
                                         }
                                         
                                         set_expanded_keys(keys_)
@@ -230,12 +219,7 @@ export function Databases () {
                                     
                                     case 'partition-file':
                                     case 'schema':
-                                        try {
-                                            await node.inspect()
-                                        } catch (error) {
-                                            model.show_error({ error })
-                                            throw error
-                                        }
+                                        await model.execute(async () => node.inspect())
                                         break
                                     
                                     case 'table': {
@@ -255,12 +239,7 @@ export function Databases () {
                                         
                                         set_expanded_keys(keys_)
                                         
-                                        try {
-                                            await node.inspect()
-                                        } catch (error) {
-                                            model.show_error({ error })
-                                            throw error
-                                        }
+                                        await model.execute(async () => node.inspect())
                                         
                                         node.peeked = true
                                         
@@ -318,7 +297,7 @@ function SetColumnComment () {
             labelWrap
             name='edit-comment'
             onFinish={ async ({ comment }: { comment: string }) => {
-                try {
+                await model.execute(async () => {
                     await shell.define_set_column_comment()
                     await model.ddb.call('set_column_comment', [
                         root.table.db.path.slice(0, -1),
@@ -331,10 +310,7 @@ function SetColumnComment () {
                     root.table.schema = null
                     await root.load_children()
                     shell.set({ dbs: [...shell.dbs] })
-                } catch (error) {
-                    model.show_error({ error })
-                    throw error
-                }
+                })
                 
                 form.resetFields()
                 shell.set({ set_column_comment_modal_visible: false })
@@ -377,17 +353,14 @@ function ConfirmCommand () {
             labelWrap
             name='confirm-command'
             onFinish={async () => {
-                try {
+                await model.execute(async () => {
                     console.log(t('创建数据库的脚本:'))
                     console.log(generated_command)
                     await model.ddb.eval(generated_command)
                     model.message.success(t('创建数据库成功'))
                     await shell.load_dbs()
                     shell.set({ dbs: [...shell.dbs] })
-                } catch (error) {
-                    model.show_error({ error })
-                    throw error
-                }
+                })
                 
                 form.resetFields()
                 shell.set({ confirm_command_modal_visible: false })
@@ -817,14 +790,11 @@ export class Database implements DataNode {
         const onclick_create_table: React.MouseEventHandler<HTMLSpanElement> = enable_create_table ?
             async event => {
                 event.stopPropagation()
-                try {
+                await model.execute(async () => {
                     const databaseSchema = (await model.ddb.eval(`schema(database("${this.path}"))`)).to_dict()
                     await NiceModal.show(CreateTableModal, { database: this, schema: databaseSchema })
                     await shell.load_dbs()
-                } catch (error) {
-                    model.show_error({ error })
-                    throw error
-                }
+                })
             }
         :
             event => {

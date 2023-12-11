@@ -49,4 +49,4 @@ interface Window {
     dashboard?: import('react-object-model').Model<any>
 }
 
-declare const BUILD_TIME: string
+declare const WEB_VERSION: string

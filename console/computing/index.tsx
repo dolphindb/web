@@ -8,12 +8,14 @@ import { ReloadOutlined, QuestionCircleOutlined, WarningOutlined } from '@ant-de
 
 import type { SortOrder } from 'antd/es/table/interface.js'
 
-import { use_modal } from 'react-object-model/modal.js'
+import { use_modal } from 'react-object-model/hooks.js'
 
 import { type DDB } from 'dolphindb/browser.js'
 
 import { model, NodeType } from '../model.js'
 import { computing } from './model.js'
+
+import { TableCellDetail } from '../components/TableCellDetail/index.js'
 
 import { t } from '../../i18n/index.js'
 
@@ -42,18 +44,14 @@ export function Computing () {
     useEffect(() => {
         if (!logined || node_type === NodeType.controller)
             return
-        ;(async () => {
-            try {
-                if (!computing.inited)
-                    await computing.init()
-                await computing.get_streaming_pub_sub_stat()
-                await computing.get_streaming_engine_stat()
-                await computing.get_streaming_table_stat()
-            } catch (error) {
-                model.show_error({ error })
-                throw error
-            }
-        })()
+        
+        model.execute(async () => {
+            if (!computing.inited)
+                await computing.init()
+            await computing.get_streaming_pub_sub_stat()
+            await computing.get_streaming_engine_stat()
+            await computing.get_streaming_table_stat()
+        })
     }, [ ])
     
     if (node_type === NodeType.controller)
@@ -122,7 +120,7 @@ export function Computing () {
             
             streaming_engine_rows.push(new_row)
         }
-        
+    console.log('stat', shared_table_stat.to_cols(), shared_table_stat.to_rows()) 
     return <Tabs
         activeKey={tab_key}
         type='card'
@@ -173,7 +171,7 @@ export function Computing () {
                         <StateTable
                             type='pubConns'
                             cols={set_col_color(render_col_title(streaming_stat.pubConns.to_cols(), 'pubConns'), 'queueDepth')}
-                            rows={handle_ellipsis_col(add_key(streaming_stat.pubConns.to_rows()), 'tables')}
+                            rows={add_key(streaming_stat.pubConns.to_rows())}
                             separated={false}
                         />
                     </div>
@@ -230,18 +228,22 @@ export function Computing () {
                     <div className='persistent-table-stat'>
                         <StateTable
                             type='sharedStreamingTableStat'
-                            cols={render_col_title(translate_format_col(shared_table_stat.to_cols(), 'bytes'), 'sharedStreamingTableStat')}
-                            rows={translate_byte_row(add_key(shared_table_stat.to_rows()), 'bytes')}
+                            cols={render_col_title(translate_format_col(shared_table_stat.to_cols(), 'memoryUsed'), 'sharedStreamingTableStat')}
+                            rows={translate_byte_row(add_key(shared_table_stat.to_rows()), 'memoryUsed')}
                             refresher={computing.get_streaming_table_stat}
                         />
                         <StateTable
                             type='persistenceMeta'
                             cols={render_col_title(
-                                sort_col(set_col_width(persistent_table_stat.to_cols(), 'persistenceMeta'), 'persistenceMeta'),
+                                    sort_col(
+                                        set_col_width(
+                                            translate_format_col(persistent_table_stat.to_cols(), 'memoryUsed'), 'persistenceMeta'), 'persistenceMeta'),
                                 'persistenceMeta'
                             )}
-                            rows={handle_null(add_key(persistent_table_stat.to_rows()))}
-                            min_width={1500}
+                            rows={handle_null(
+                                    translate_byte_row(
+                                        handle_ellipsis_col(add_key(persistent_table_stat.to_rows()), 'persistenceDir'), 'memoryUsed'))}
+                            min_width={1600}
                             refresher={computing.get_streaming_table_stat}
                         />
                         {streaming_stat.persistWorkers && (
@@ -259,15 +261,12 @@ export function Computing () {
         tabBarExtraContent={
             <Button
                 icon={<ReloadOutlined />}
-                onClick={async () => {
-                    try {
+                onClick={async () =>
+                    model.execute(async () => {
                         await tab_content[tab_key].refresher.call(computing)
                         model.message.success(`${tab_content[tab_key].title}${t('刷新成功')}`)
-                    } catch (error) {
-                        model.show_error(error)
-                        throw error
-                    }
-                }}
+                    })
+                }
             >
                 {t('刷新')}
             </Button>
@@ -302,13 +301,16 @@ const cols_width = {
     },
     persistenceMeta: {
         tablename: 150,
+        loaded: 100,
+        columns: 60,
+        memoryUsed: 100,
         lastLogSeqNum: 120,
-        sizeInMemory: 120,
+        sizeInMemory: 100,
         asynWrite: 110,
-        totalSize: 120,
+        totalSize: 90,
         raftGroup: 70,
         compress: 70,
-        sizeOnDisk: 120,
+        sizeOnDisk: 100,
         retentionMinutes: 120,
         memoryOffset: 100,
         hashValue: 90,
@@ -335,12 +337,12 @@ const header_text = {
     persistenceMeta: {
         title: t('持久化共享流表状态'),
         tip: t('监控启用了持久化的共享流数据表的元数据。'),
-        func: 'objs(true)'
+        func: 'getStreamTables(1)'
     },
     sharedStreamingTableStat: {
         title: t('非持久化共享流表状态'),
         tip: t('监控未启用持久化的共享流数据表的元数据。'),
-        func: 'objs(true)'
+        func: 'getStreamTables(2)'
     },
     engine: {
         title: t('流引擎状态'),
@@ -389,13 +391,16 @@ const leading_cols = {
     },
     persistenceMeta: {
         tablename: t('表名'),
+        loaded: t('加载到内存'),
+        columns: t('列数'),
+        memoryUsed: t('内存大小'),
         totalSize: t('总行数'),
         sizeInMemory: t('内存中行数'),
         memoryOffset: t('内存中偏移量'),
         sizeOnDisk: t('磁盘中行数'),
         diskOffset: t('磁盘中偏移量'),
         asynWrite: t('是否异步持久化'),
-        retentionMinutes: t('保留时间'),
+        retentionMinutes: t('保留时间（分钟）'),
         compress: t('是否压缩'),
         persistenceDir: t('持久化路径'),
         hashValue: t('持久化线程'),
@@ -409,10 +414,10 @@ const leading_cols = {
         tables: t('表名')
     },
     sharedStreamingTableStat: {
-        tableName: t('表名'),
+        TableName: t('表名'),
         rows: t('行数'),
         columns: t('列数'),
-        bytes: t('字节数')
+        memoryUsed: t('内存大小')
     },
     engine: {
         name: t('引擎名'),
@@ -512,13 +517,18 @@ const units = {
     }
 }
 
+const detail_title = {
+    lastErrMsg: t('错误详细信息'),
+    persistenceDir: t('持久化路径')
+}
+
 /** 省略文本内容，提供`详细`按钮，点开后弹出 modal 显示详细信息 */
 function handle_ellipsis_col (table: Record<string, any>[], col_name: string) {
-    const is_error_col = col_name === 'lastErrMsg'
     return table.map(row => {
-        if (is_error_col)
+        if (col_name === 'lastErrMsg')
             row.order = row[col_name]
-        row[col_name] = <DetailInfo text={row[col_name] as string} type={is_error_col ? 'error' : 'info'} />
+        // row[col_name] = <DetailInfo text={row[col_name] as string} type={col_name} />
+        row[col_name] = <TableCellDetail content={row[col_name] as string} title={detail_title[col_name]} />
         return row
     })
 }
@@ -678,9 +688,9 @@ function handle_null (table: Record<string, any>[]) {
 
 /** 统一处理删除 */
 async function handle_delete (type: string, selected: string[], ddb: DDB, refresher: () => Promise<void>, raftGroups?: string[]) {
-    switch (type) {
-        case 'subWorkers':
-            try {
+    await model.execute(async () => {
+        switch (type) {
+            case 'subWorkers':
                 await Promise.all(
                     selected.map(async (pub_table, idx) => {
                         const pub_table_arr = pub_table.split('/')
@@ -697,59 +707,22 @@ async function handle_delete (type: string, selected: string[], ddb: DDB, refres
                     })
                 )
                 model.message.success(t('取消订阅成功'))
-            } catch (error) {
-                model.show_error({ error })
-            }
-            break
-        case 'persistenceMeta':
-        case 'sharedStreamingTableStat':
-            try {
+                break
+            case 'persistenceMeta':
+            case 'sharedStreamingTableStat':
                 await Promise.all(selected.map(async streaming_table_name => ddb.call('dropStreamTable', [streaming_table_name], { urgent: true })))
                 model.message.success(t('流数据表删除成功'))
-            } catch (error) {
-                model.show_error({ error })
-            }
-            break
-        case 'engine':
-            try {
+                break
+            case 'engine':
                 await Promise.all(selected.map(async engine_name => ddb.call('dropStreamEngine', [engine_name], { urgent: true })))
                 model.message.success(t('引擎删除成功'))
-            } catch (error) {
-                model.show_error({ error })
-            }
-    }
-    await refresher.bind(computing)()
+                
+        }
+    })
+    
+    await refresher.call(computing)
 }
 
-function DetailInfo ({ text, type }: { text: string, type: string }) {
-    if (!text)
-        return
-    function error () {
-        model.modal.info({
-            title: type === 'error' ? t('错误详细信息') : t('共享流数据表'),
-            content: text,
-            width: '80%'
-        })
-    }
-    return <Typography.Paragraph
-            ellipsis={{
-                rows: 2,
-                expandable: true,
-                symbol: (
-                    <span
-                        onClick={event => {
-                            event.stopPropagation()
-                            error()
-                        }}
-                    >
-                        {t('详细')}
-                    </span>
-                )
-            }}
-        >
-            {text}
-        </Typography.Paragraph>
-}
 
 function DeleteModal ({
     table_name,
@@ -773,13 +746,13 @@ function DeleteModal ({
                     <div className='delete-warning-title'>
                         <WarningOutlined />
                         <span>
-                            {`确认${button_text[table_name].action}选中的 `}
+                            {t('确认{{action}}选中的 ', { action: button_text[table_name].action })}
                             <Tooltip
                                 title={selected.map(name => <p key={name}>{name}</p>)}
                             >
                                 <span className='selected-number'>{selected.length}</span>
                             </Tooltip>
-                            {` 个${button_text[table_name].title}吗？`}
+                            {t(' 个{{item}}吗?', { item: button_text[table_name].title })}
                         </span>
                     </div>
                 }

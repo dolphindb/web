@@ -33,7 +33,7 @@ export const AddColumnModal = NiceModal.create<Props>(({ node }) => {
     )
     
     async function onSubmit (formValues: IAddColumnFormValues) {
-        try {
+        await model.execute(async () => {
             const { table } = node
             
             await shell.define_add_column()
@@ -51,9 +51,7 @@ export const AddColumnModal = NiceModal.create<Props>(({ node }) => {
             shell.set({ dbs: [...shell.dbs] })
             modal.resolve()
             modal.hide()
-        } catch (error) {
-            model.show_error({ error })
-        }
+        }, { throw: false })
     }
     
     return <Modal 

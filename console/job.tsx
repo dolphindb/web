@@ -13,6 +13,7 @@ import { type DdbObj, nulls, format, DdbType } from 'dolphindb/browser.js'
 import { language, t } from '../i18n/index.js'
 import { model, type DdbJob } from './model.js'
 
+import { TableCellDetail } from './components/TableCellDetail/index.js'
 
 const { Title, Text, Link } = Typography
 
@@ -24,6 +25,22 @@ const statuses = {
     failed: t('出错了'),
 }
 
+const cols_width = {
+   rjobs: {
+    userID: 120,
+    jobId: 150,
+    errorMsg: 220,
+    priority: 65,
+    parallelism: 65,
+    clientIp: 120,
+    clientPort: 90
+   }
+}
+
+
+const ellipsis_cols = {
+    rjobs: ['rootJobId']
+}
 
 export function Job () {
     const [refresher, set_refresher] = useState({ })
@@ -81,7 +98,7 @@ export function Job () {
             -(l.finishedTasks - r.finishedTasks))
     
     const rjob_rows = filter_job_rows(
-        rjobs.to_rows().map(compute_status_info),
+        set_detail_row(rjobs.to_rows().map(compute_status_info), [ 'errorMsg']),
         query
     ).sort((l, r) => {
         if (l.status !== r.status) {
@@ -113,7 +130,7 @@ export function Job () {
         </div>
         
         <div className={`cjobs ${ !gjob_rows.length ? 'nojobs' : '' }`} style={{ display: (!query || gjob_rows.length) ? 'block' : 'none' }}>
-            <Title level={4}>
+            <Title level={4} className='title'>
                 <Tooltip title='getConsoleJobs'>{t('运行中作业')} </Tooltip>
                 ({gjob_rows.length} {t('个进行中')})
             </Title>
@@ -157,25 +174,29 @@ export function Job () {
         </div>
         
         <div className={`rjobs ${ !rjob_rows.length ? 'nojobs' : '' }`} style={{ display: (!query || rjob_rows.length) ? 'block' : 'none' }}>
-            <Title level={4}>
+            <Title level={4} className='title'>
                 <Tooltip title='getRecentJobs'>{t('已提交作业')} </Tooltip>
                 ({n_rjob_rows_uncompleted} {t('个进行中')}, {rjob_rows.length - n_rjob_rows_uncompleted} {t('个已完成')})
             </Title>
             
             <Table
                 columns={
-                    translate_columns(
-                        add_status_col(
-                            append_action_col(
-                                rjobs.to_cols() as TableColumnType<Record<string, any>>[],
-                                'stop',
-                                async job => {
-                                    await model.cancel_job(job)
-                                    await get_rjobs()
-                                }
-                            )
-                        )
-                    )
+                    handle_ellipsis_col(
+                        set_col_width(
+                            translate_columns(
+                                add_status_col(
+                                    append_action_col(
+                                        rjobs.to_cols() as TableColumnType<Record<string, any>>[],
+                                        'stop',
+                                        async job => {
+                                            await model.cancel_job(job)
+                                            await get_rjobs()
+                                        }
+                                    )
+                                )
+                            ), 'rjobs'
+                        ), 'rjobs'
+                    )  
                 }
                 dataSource={rjob_rows}
                 rowKey={(job: DdbJob) => `${job.jobId}.${job.node || ''}`}
@@ -184,7 +205,7 @@ export function Job () {
         </div>
         
         <div className={`sjobs ${ !sjob_rows.length ? 'nojobs' : '' }`} style={{ display: (!query || sjob_rows.length) ? 'block' : 'none' }}>
-            <Title level={4}>
+            <Title level={4} className='title'>
                 <Tooltip title='getScheduledJobs'>{t('已定时作业')} </Tooltip>
                 ({sjob_rows.length} {t('个已配置')})
             </Title>
@@ -264,9 +285,36 @@ const column_names = {
     queue: t('队列')
 }
 
+const detail_title = {
+    errorMsg: t('错误详细信息'),
+    rootJobId: t('根作业 ID')
+}
+
 function translate_columns (cols: DdbJobColumn[]): DdbJobColumn[] {
     return cols.map(item => 
         ({ ...item, title: column_names[item.title as string] || item.title }))
+}
+
+function set_detail_row (table: Record<string, any>[], col_names: string[]) {
+    return table.map(row => {
+        for (let col_name of col_names)
+            row[col_name] = <TableCellDetail title={detail_title[col_name]} content={row[col_name]}/>
+        return row
+    })
+}
+
+
+function handle_ellipsis_col (table: Record<string, any>[], table_name: string) {
+    return table.map(row => {
+        if (ellipsis_cols[table_name].includes(row.dataIndex)) 
+            row = {
+                ...row,
+                render: text => <Tooltip placement='topLeft' title={text}>
+                    <div className='ellipsis'>{text}</div>
+                </Tooltip>
+            }
+        return row
+    })
 }
 
 
@@ -304,6 +352,14 @@ function fix_scols (sjobs: DdbObj<DdbObj[]>) {
 }
 
 
+/** 设置列宽 */
+function set_col_width (cols: TableColumnType<Record<string, any>>[], type: string) {
+    for (let width_key of Object.keys(cols_width[type])) 
+        cols.find(col => col.dataIndex === width_key).width = cols_width[type][width_key]
+    return cols
+}
+
+
 function append_action_col (
     cols: DdbJobColumn[],
     type: 'stop' | 'delete',
@@ -317,17 +373,14 @@ function append_action_col (
                 
                 return <Popconfirm
                     title={ type === 'stop' ? t('确认停止作业') : t('确认删除作业')}
-                    onConfirm={async () => {
-                        try {
+                    onConfirm={async () => 
+                        model.execute(async () => {
                             await action(job)
                             model.message.success(
                                 type === 'stop' ? t('停止作业指令发送成功') : t('删除作业成功')
                             )
-                        } catch (error) {
-                            model.show_error({ error })
-                            throw error
-                        }
-                    }}
+                        })
+                    }
                 >
                     <Link title={ disabled ? t('作业已完成') : '' } disabled={disabled}>{
                         type === 'stop' ? t('停止') : t('删除')
@@ -396,8 +449,7 @@ function filter_job_rows (jobs: DdbJob[], query: string) {
 
 function compute_status_info (job: DdbJob) {
     const { startTime, endTime, errorMsg } = job
-    
-    if (startTime === nulls.int64) {
+    if (!startTime) {
         job.status = 'queuing'
         return job
     }
@@ -408,7 +460,7 @@ function compute_status_info (job: DdbJob) {
         return job
     }
     
-    if (endTime === nulls.int64) {
+    if (!endTime) {
         job.status = 'running'
         job.theme = 'warning'
         return job

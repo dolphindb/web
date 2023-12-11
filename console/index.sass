@@ -21,14 +21,14 @@ $line-number-active-foreground-color: var(--vscode-editorLineNumber-activeForegr
 
 html, body
     margin: 0
+    padding: 0
     height: 100%
     overscroll-behavior-y: contain
 
-*
-    box-sizing: inherit
+*, :before, :after
+    box-sizing: border-box
 
 .root
-    box-sizing: border-box
     height: 100%
     
     .app
@@ -169,6 +169,12 @@ html, body
                 border-right: unset
                 
                 color: #707070
+                
+                &.ant-menu-light .ant-menu-submenu-selected >.ant-menu-submenu-title, .ant-menu-light>.ant-menu .ant-menu-submenu-selected >.ant-menu-submenu-title
+                    color: #282828
+                    
+                .ant-menu-sub
+                    color: #707070
                 
                 &.ant-menu-inline-collapsed
                     width: 50px

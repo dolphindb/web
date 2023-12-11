@@ -16,7 +16,6 @@ class ComputingModel extends Model<ComputingModel> {
     
     async init () {
         await Promise.all([
-            this.def_get_persistence_table_names(),
             this.def_get_persistence_stat(),
             this.def_get_shared_table_stat()
         ])
@@ -38,40 +37,22 @@ class ComputingModel extends Model<ComputingModel> {
         this.set({ shared_table_stat: await model.ddb.call('get_shared_table_stat', [ ], { urgent: true }) }) 
     }
     
-    async def_get_persistence_table_names () {
-        await model.ddb.eval(
-            'def get_persistence_table_names () {\n' +
-            '    if(getConfigure("persistenceDir") == NULL){\n' +
-            '        return NULL\n' +
-            '    }else{\n' +
-            '        shareNames = exec name from objs(true) where type="REALTIME" and shared=true\n' +
-            '        res = array(STRING, 0)\n' +
-            '        for(tbName in shareNames){\n' +
-            '            try{\n' +
-            '                getPersistenceMeta(objByName(tbName))\n' +
-            '            }catch(ex){\n' +
-            '                continue\n' +
-            '            }\n' +
-            '            res.append!(tbName)\n' +
-            '        }\n' +
-            '        return res\n' +
-            '    }\n' +
-            '}\n', { urgent: true })
-    } 
-    
     
     async def_get_persistence_stat () {
         await model.ddb.eval(
             'def get_persistence_stat () {\n' +
-            '    tableNames = get_persistence_table_names()\n' +
-            '    resultColNames = ["tablename","lastLogSeqNum","sizeInMemory","asynWrite","totalSize","raftGroup","compress","memoryOffset","sizeOnDisk","retentionMinutes","persistenceDir","hashValue","diskOffset"]\n' +
+            '    persistTable = getStreamTables(1)\n' +
+            '    resultColNames = ["name","lastLogSeqNum","sizeInMemory","asynWrite","totalSize","raftGroup","compress","memoryOffset","sizeOnDisk","retentionMinutes","persistenceDir","hashValue","diskOffset"]\n' +
             '    resultColTypes = ["STRING", "LONG","LONG","BOOL","LONG","INT","BOOL","LONG","LONG","LONG","STRING","INT","LONG"]\n' +
             '    result = table(1:0, resultColNames, resultColTypes)\n' +
-            '    for(tbname in tableNames){\n' +
-            '       tbStat = getPersistenceMeta(objByName(tbname))\n' +
-            '       tbStat["tablename"] = tbname\n' +
-            '       result.tableInsert(tbStat)\n' +
+            '    for(tbname in persistTable["name"]){\n' +
+            '       try{\n' +
+            '           tbStat = getPersistenceMeta(objByName(tbname))\n' +
+            '           tbStat["name"] = tbname\n' +
+            '           result.tableInsert(tbStat)\n' +
+            '       }catch(ex){}\n' +
             '    }\n' +
+            '    result = select name as tablename, loaded, columns, memoryUsed, totalSize, sizeInMemory, memoryOffset, sizeOnDisk, diskOffset, asynWrite, retentionMinutes, compress, persistenceDir, hashValue, raftGroup, lastLogSeqNum from lj(persistTable, result, `name)\n' +
             '    return result\n' +
             '}\n', { urgent: true }
         )
@@ -81,9 +62,7 @@ class ComputingModel extends Model<ComputingModel> {
     async def_get_shared_table_stat () {
         await model.ddb.eval(
             'def get_shared_table_stat () {\n' +
-            '    tableNames = get_persistence_table_names()\n' +
-            '    shareNames = exec name from objs(true) where type="REALTIME" and shared=true and name not in tableNames\n' +
-            '    return select name as tableName,  rows, columns, bytes from objs(true) where name in shareNames\n' +
+            '    return select name as TableName, rowsInMemory as rows, columns, memoryUsed from getStreamTables(2) where shared=true\n' +
             '}\n', { urgent: true }
         )
     }

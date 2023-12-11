@@ -33,6 +33,7 @@ import { Test } from './test/index.js'
 import { Job } from './job.js'
 import { Log } from './log.js'
 import { Computing } from './computing/index.js'
+import { DashBoard } from './dashboard/index.js'
 
 
 createRoot(
@@ -64,13 +65,7 @@ function MainLayout () {
     Object.assign(model, App.useApp())
     
     useEffect(() => {
-        (async () => {
-            try {
-                await model.init()
-            } catch (error) {
-                model.show_error({ error })
-            }
-        })()
+        model.execute(async () => model.init())
     }, [ ])
     
     useEffect(() => {
@@ -86,11 +81,7 @@ function MainLayout () {
                     !alt
                 ) {
                     event.preventDefault()
-                    try {
-                        model.recompile_and_refresh()
-                    } catch (error) {
-                        model.show_error({ error })
-                    }
+                    await model.execute(async () => model.recompile_and_refresh())
                 }
             }
             
@@ -126,6 +117,7 @@ const views = {
     job: Job,
     log: Log,
     computing: Computing,
+    dashboard: DashBoard,
 }
 
 
@@ -137,7 +129,7 @@ function DdbContent () {
     if (!View)
         return null
     
-    return <div className={`view-card ${view}`}>
+    return <div className={cn('view-card', view, { 'white-pagination': view !== 'dashboard' })}>
         <View />
     </div>
 }
