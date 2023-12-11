@@ -54,6 +54,10 @@ export function DashBoard () {
             try {
                 if (language !== 'zh')
                     return
+                if (!model.logined) {
+                    model.goto_login()
+                    return
+                }
                 const version = (await model.ddb.call('dashboard_get_version')).value
                 if (version === '1.0.0')
                     set_inited_state(2) 

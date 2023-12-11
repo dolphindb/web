@@ -37,10 +37,6 @@ export function Overview () {
     
     useEffect(() => {
         model.execute(async () => {
-            if (!model.logined) {
-                model.goto_login()
-                return
-            }
             await dashboard.get_dashboard_configs()
         }, { json_error: true })
     }, [ ])
