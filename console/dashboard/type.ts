@@ -103,7 +103,8 @@ export interface IColProperty {
     time_format?: ITimeFormat
     is_thousandth_place?: boolean
     align?: 'left' | 'center' | 'right'
-    sort?: boolean
+    sorter?: boolean
+    multiple?: number
 }
 export interface ITableConfig {
     title?: string

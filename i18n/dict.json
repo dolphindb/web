@@ -3358,5 +3358,17 @@
     },
     "web 版本": {
         "en": "web version"
+    },
+    "是否排序": {
+        "en": "Sort or not"
+    },
+    "为多列设置排序时需设置优先级，该值越高表明优先级越高": {
+        "en": "When setting sorting for multiple columns, you need to set a priority. The higher the value, the higher the priority."
+    },
+    "排序优先级": {
+        "en": "Sort priority"
+    },
+    "请输入优先级": {
+        "en": "Please enter priority"
     }
 }
