@@ -1,6 +1,7 @@
 import { Select } from 'antd'
 import useSWR from 'swr'
 import { query_enums } from '../utils.js'
+import { t } from '../../../../i18n/index.js'
 
 interface IProps { 
     table: string
@@ -23,6 +24,6 @@ export function EnumSelect (props: IProps) {
         showSearch
         mode='tags'
         options={data}
-        placeholder='如需自定义输入，请输入值后按回车键'
+        placeholder={t('如需自定义输入，请输入值后按回车键')}
     />
 }

@@ -44,7 +44,7 @@ export function SqlEditGuide (props: IProps) {
             message.error(t('请编辑代码'))
          else
             to_next_step()
-    }, [ ])
+    }, [ code ])
     
     
     const primary_btn = useMemo(() => { 

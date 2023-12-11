@@ -131,7 +131,9 @@ export function QueryCard (props: IQueryCard) {
                             } }
                         </FormDependencies>
                             
-                        <PlusCircleOutlined className='add-icon' onClick={() => { add() } } />
+                        <Tooltip title={t('增加且条件项')}>
+                            <PlusCircleOutlined className='add-icon' onClick={() => { add() } } />
+                        </Tooltip>
                         
                         {fields.length > 1 && <MinusCircleOutlined className='delete-icon' onClick={() => { remove(field.name) }} />}
                     </div>

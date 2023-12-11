@@ -2,6 +2,7 @@ import { Transfer } from 'antd'
 import { type IColumn } from '../type.js'
 import { useCallback, useMemo, useState } from 'react'
 import { CheckSquareFilled, CloseSquareFilled } from '@ant-design/icons'
+import { t } from '../../../../i18n/index.js'
 
 interface IProps {
     cols: IColumn[]
@@ -25,11 +26,11 @@ export function ColSelectTransfer (props: IProps) {
     return <Transfer
         titles={[
             <div className='transfer-list-title'>
-                <CloseSquareFilled className='not-selected-icon'/>未选查询列
+                <CloseSquareFilled className='not-selected-icon' />{t('未选查询列')}
             </div>,
             <div className='transfer-list-title'>
                 <CheckSquareFilled className='selected-icon'/>
-                已选查询列
+                {t('已选查询列')}
             </div>
         ]}
         className='col-select-transfer'
@@ -38,6 +39,6 @@ export function ColSelectTransfer (props: IProps) {
         targetKeys={target_keys}
         render={item => item.title}
         dataSource={options}
-        operations={['增加查询列', '删除查询列']}
+        operations={[t('增加查询列'), t('删除查询列')]}
     />
 }
