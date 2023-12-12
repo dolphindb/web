@@ -128,10 +128,15 @@ export function StreamEditor ({
     }, [current_data_source.stream_table])
     
     useEffect(() => {
+        if (node_list.findIndex(node => node.value === current_data_source.node) === -1) 
+            if (current_data_source.node === null)
+                current_data_source.node = node_list[0].value
+            else
+                current_data_source.node = ''
+        
         if (current_data_source.node === '')
             return
         
-        current_data_source.node = default_value_in_select(current_data_source, 'node', node_list)
         const node = nodes.filter(node => node.name === current_data_source.node)[0]
         
         const closest_node_host = model.find_closest_node_host(node)
