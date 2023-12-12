@@ -104,7 +104,7 @@ export function OHLC ({ widget, data_source }: { widget: Widget, data_source: an
             }),
         [data_source, xAxis.col_name, series]
     )
-    const [kColor = '#aa2a27', kColor0 = '#1bb649'] = useMemo(() => 
+    const [kColor = '#ec0000', kColor0 = '#00da3c'] = useMemo(() => 
             [ series[0].kcolor, series[0].kcolor0], 
     [series[0]])
     const option = useMemo(
