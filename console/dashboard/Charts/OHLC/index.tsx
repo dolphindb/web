@@ -30,7 +30,7 @@ function splitData (rowData: any[], col_name: COL_MAP) {
     for (let i = 0;  i < rowData.length;  i++) {
         categoryData.push(rowData[i][time])
         values.push([rowData[i][open], rowData[i][close], rowData[i][low], rowData[i][high]])
-        volumes.push([i, rowData[i][trades], Number(rowData[i][trades]) > 0 ? 1 : -1])
+        volumes.push([i, Math.abs(rowData[i][trades]), Number(rowData[i][trades]) > 0 ? 1 : -1])
     }
     if (time_format)
         categoryData = categoryData.map(item => format_time(item, time_format))
@@ -104,7 +104,7 @@ export function OHLC ({ widget, data_source }: { widget: Widget, data_source: an
             }),
         [data_source, xAxis.col_name, series]
     )
-    const [kColor = '#fd1050', kColor0 = '#0cf49b'] = useMemo(() => 
+    const [kColor = '#ec0000', kColor0 = '#00da3c'] = useMemo(() => 
             [ series[0].kcolor, series[0].kcolor0], 
     [series[0]])
     const option = useMemo(
@@ -329,7 +329,7 @@ export function OHLC ({ widget, data_source }: { widget: Widget, data_source: an
                     yAxisIndex: 1,
                     data: data.volumes,
                     itemStyle: {
-                        color: ({ value }) => (value[2] === -1 ? kColor : kColor0)
+                        color: ({ value }) => (value[2] === 1 ? kColor : kColor0)
                     }
                 },
                 ...lines
