@@ -48,6 +48,7 @@ import SvgPartitionFile from './icons/partition-file.icon.svg'
 import SvgColumnRoot from './icons/column-root.icon.svg'
 import SvgPartitionDirectory from './icons/partition-directory.icon.svg'
 import SvgTable from './icons/table.icon.svg'
+import { init_dbms_query_guide } from './QueryGuide/init.js'
 
 
 enum TableKind {
@@ -69,6 +70,15 @@ export function Databases () {
     
     const enable_create_db = [NodeType.data, NodeType.single].includes(node_type)
     const [refresh_spin, set_refresh_spin] = useState(false)
+    
+    const dbms_guide_inited = useRef(false)
+    
+    useEffect(() => { 
+        if (!dbms_guide_inited.current) { 
+            init_dbms_query_guide()
+            dbms_guide_inited.current = true
+        }
+    }, [ ])
     
     return <Resizable
         className='treeview-resizable-split1'
