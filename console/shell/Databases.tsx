@@ -33,6 +33,7 @@ import { Editor } from './Editor/index.js'
 import { CreateTableModal } from './CreateTableModal.js'
 import { AddColumnModal } from './AddColumnModal.js'
 import { AccessModal } from './AccessModal.js'
+import { QueryGuideModal } from './QueryGuide/index.js'
 
 import SvgDatabase from './icons/database.icon.svg'
 import SvgCreateDatabase from './icons/create-database.icon.svg'
@@ -47,7 +48,6 @@ import SvgPartitionFile from './icons/partition-file.icon.svg'
 import SvgColumnRoot from './icons/column-root.icon.svg'
 import SvgPartitionDirectory from './icons/partition-directory.icon.svg'
 import SvgTable from './icons/table.icon.svg'
-import { QueryGuideModal } from './QueryGuide/index.js'
 
 
 enum TableKind {
