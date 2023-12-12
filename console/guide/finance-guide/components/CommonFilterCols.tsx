@@ -53,7 +53,7 @@ export function CommonFilterCols (props: IProps) {
                             { required: true, message: '请选择列名' },
                             { validator }
                         ]}>
-                        <Select options={filter_col_options} placeholder='请选择列名'/>
+                        <Select showSearch options={filter_col_options} placeholder='请选择列名'/>
                     </Form.Item>
                     <Form.Item name={[field.name, 'uniqueNum']} label='唯一值数量' rules={[{ required: true, message: '请输入唯一值数量' }]}>
                         <InputNumber placeholder='请输入唯一值数量'/>

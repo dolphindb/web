@@ -15,10 +15,10 @@ import type { ModalStaticFunctions } from 'antd/es/modal/confirm.js'
 import type { NotificationInstance } from 'antd/es/notification/interface.js'
 
 import { t } from '../../i18n/index.js'
-import { model, show_error, type ErrorOptions, storage_keys } from '../model.js'
+import { model, show_error, type ErrorOptions } from '../model.js'
 import { type Monaco } from '../shell/Editor/index.js'
 
-import { type DataSource, type ExportDataSource, import_data_sources, unsubscribe_data_source, type DataType, clear_data_sources, subscribe_data_source } from './DataSource/date-source.js'
+import { type DataSource, type ExportDataSource, import_data_sources, unsubscribe_data_source, type DataType, clear_data_sources } from './DataSource/date-source.js'
 import { type IEditorConfig, type IChartConfig, type ITableConfig, type ITextConfig, type IGaugeConfig, type IHeatMapChartConfig, type IOrderBookConfig } from './type.js'
 import { type Variable, import_variables, type ExportVariable } from './Variable/variable.js'
 import { parse_error } from '../utils/ddb-error.js'
@@ -86,12 +86,6 @@ export class DashBoardModel extends Model<DashBoardModel> {
     
     /** 初始化 GridStack 并配置事件监听器 */
     async init ($div: HTMLDivElement) {
-        // try {
-        //     await this.get_dashboard_configs()
-        // } catch (error) {
-        //     this.set({ backend: false })
-        //     await this.get_configs_from_local()
-        // }
         await dashboard.execute(async () => {
             await this.get_dashboard_configs()
         }, { json_error: true })
@@ -145,8 +139,6 @@ export class DashBoardModel extends Model<DashBoardModel> {
                 type: node.el.dataset.type as keyof typeof WidgetType,
             }
             
-            // console.log('拖拽释放，添加 widget:', widget)
-            
             this.add_widget(widget)
             
             grid.removeWidget(node.el)
@@ -154,7 +146,6 @@ export class DashBoardModel extends Model<DashBoardModel> {
         
         // 响应 GridStack 中 widget 的位置或尺寸变化的事件
         grid.on('change', (event: Event, widgets: GridStackNode[]) => {
-            // console.log('修改 widget 大小或位置:', widgets)
             
             if (widgets?.length)
                 for (const widget of widgets)
@@ -162,20 +153,8 @@ export class DashBoardModel extends Model<DashBoardModel> {
                         this.widgets.find(({ id }) => id === widget.id), 
                         widget
                     )
-            else {
-                // console.log('gridstack change 时 widgets 为空')
-            }
         })
         
-        // grid.on('resize', () => {
-        //     console.log('resize')
-        // })
-        
-        // grid.on('dragstop', () => {
-        //     console.log('dragstop')
-        // })
-        
-        // todo: throttle?
         window.addEventListener('resize', () => {
             grid.cellHeight(Math.floor(grid.el.clientHeight / this.maxrows))
         })
@@ -216,55 +195,6 @@ export class DashBoardModel extends Model<DashBoardModel> {
     show_error (options: ErrorOptions) {
         show_error(this.modal, options)
     }
-    
-    
-    
-    /** 传入 _delete === true 时表示删除传入的 config, 传入 null 代表清空当前的config，返回到 dashboard 管理界面 */
-    // async update_config (config: DashBoardConfig, _delete = false) {
-    //     this.set({ loading: true })
-    //     const { config: config_, configs } = (() => {
-    //         if (_delete) {
-    //             const configs = this.configs.filter(c => c.id !== config.id)
-                
-    //             return {
-    //                 config: configs[0] || this.generate_new_config(),
-    //                 configs,
-    //             }
-    //         } else {
-    //             let index = this.configs?.findIndex(c => c.id === config.id)
-                
-    //             return {
-    //                 config,
-                    
-    //                 configs: index === -1 ?
-    //                     [...this.configs, config]
-    //                 :
-    //                     this.configs ?  this.configs.toSpliced(index, 1, config) : [config],
-    //             }
-    //         }
-    //     })()
-        
-    //     model.set_query('dashboard', String(config.id))
-        
-    //     this.set({
-    //         config: config_,
-            
-    //         configs,
-            
-    //         variables: await import_variables(config_.data.variables),
-            
-    //         data_sources: await import_data_sources(config_.data.datasources),
-            
-    //         widgets: config_.data.canvas.widgets.map(widget => ({
-    //             ...widget,
-    //             ref: createRef()
-    //         })) as any,
-            
-    //         widget: null,
-    //     })
-    //     this.set({ loading: false })
-    //     console.log(t('dashboard 配置加载成功'))
-    // }
     
     
     generate_new_config (id: number, name: string, data?: DashboardData) {
@@ -437,14 +367,12 @@ export class DashBoardModel extends Model<DashBoardModel> {
     }
     
     
-    async update_dashboard_config (config: DashBoardConfig, render: boolean = true) {
+    async update_dashboard_config (config: DashBoardConfig) {
         const index = this.configs.findIndex(({ id }) => id === config.id)
         this.set({ configs: this.configs.toSpliced(index, 1, config), config })
         const params = new DdbDict(
             ({ id: new DdbLong(BigInt(config.id)), data: JSON.stringify(config.data) })) 
         await model.ddb.call<DdbVoid>('dashboard_edit_config', [params])
-        if (render)
-            await this.render_with_config(config)
     }
     
     
@@ -455,7 +383,6 @@ export class DashBoardModel extends Model<DashBoardModel> {
         const config = this.configs[index]
         config.name = new_name
         this.set({ configs: this.configs.toSpliced(index, 1, config), config })
-        await this.render_with_config(config)
     }
     
     
@@ -495,22 +422,6 @@ export class DashBoardModel extends Model<DashBoardModel> {
     }
     
     
-    /** 从浏览器获取 dashboard 配置 */
-    // async get_configs_from_local () {
-    //     let configs = JSON.parse(localStorage.getItem(storage_keys.dashboards)) || [ ]
-        
-    //     this.set({ configs })
-    //     const dashboard = Number(new URLSearchParams(location.search).get('dashboard'))
-    //     if (dashboard) {
-    //         const config = this.configs.find(({ id }) =>  id === dashboard)
-    //         if (config)
-    //             this.set({ config })
-    //         else
-    //             this.show_error({ error: new Error(t('当前 url 所指向的 dashboard 不存在')) })
-    //     } 
-    // }
-    
-    
     async render_with_config (config: DashBoardConfig) {
         this.set({ loading: true })
         
@@ -532,25 +443,6 @@ export class DashBoardModel extends Model<DashBoardModel> {
         model.set_query('dashboard', String(config.id))
         this.set({ loading: false })
     }
-    
-    
-    // /** 将配置持久化保存到浏览器 */
-    // async save_configs_to_local () {
-    //     localStorage.setItem(storage_keys.dashboards, JSON.stringify(this.configs))
-    // }
-    
-    // async share (dashboard_ids: number[], viewers: string[], editors: string[]) {
-    //    await model.ddb.call<DdbVoid>('dashboard_share_configs',
-    //         [new DdbDict({ 
-    //             ids: new DdbVectorLong(dashboard_ids), 
-    //             viewers: new DdbVectorString(viewers), 
-    //             editors: new DdbVectorString(editors) 
-    //         })])
-    // }
-    
-    // async revoke (id: number) {
-    //     await model.ddb.call<DdbVoid>('dashboard_revoke_permission', [new DdbDict({ id: new DdbLong(BigInt(id)) })])
-    // }
 }
 
 
@@ -621,10 +513,7 @@ export enum WidgetType {
     TABLE = '表格',
     OHLC = 'K 线',
     MIX = '混合图',
-    // CANDLE = '蜡烛图',
     ORDER = '订单图',
-    // NEEDLE = '数值针型图',
-    // STRIP = '带图',
     TEXT = '富文本',
     DESCRIPTIONS = '描述表',
     EDITOR = '编辑器',
@@ -642,10 +531,7 @@ export enum WidgetChartType {
     PIE = 'PIE',
     TABLE = 'TABLE',
     OHLC = 'OHLC',
-    // CANDLE = 'CANDLE',
     ORDER = 'ORDER',
-    // NEEDLE = 'NEEDLE',
-    // STRIP = 'STRIP',
     TEXT = 'TEXT',
     DESCRIPTIONS = 'DESCRIPTIONS',
     EDITOR = 'EDITOR',

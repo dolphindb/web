@@ -5,7 +5,6 @@ import { Form, Select, Spin } from 'antd'
 import useSWR from 'swr'
 import { ENUM_TYPES, TIME_TYPES } from '../../constant.js'
 import { CUSTOM } from '../constant.js'
-import { validate } from 'webpack'
 
 interface IProps { 
     info: IFinanceInfo

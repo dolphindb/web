@@ -47,22 +47,6 @@
 .code-view-wrapper {
     width: 1000px;
     margin-top: 32px;
-   
-    .readonly-editor {
-        position: relative;
-    
-        .copy-btn {
-            position: absolute;
-            border-radius: 4px;
-            top: 12px;
-            right: 32px;
-            z-index: 1000;
-        }
-        
-        border: 1px solid #D9D9D9;
-        width: 1000px;
-        height: 600px;
-    }
 }
 
 .json-upload {
@@ -200,4 +184,9 @@
     margin-top: 4px;
     display: inline-block;
     margin-bottom: 24px;
+}
+
+.view-code-editor {
+    width: 1000px;
+    height: 600px;
 }
