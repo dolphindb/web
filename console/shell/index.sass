@@ -7,6 +7,18 @@
     
     display: flex
     
+    .table-title
+        display: flex
+        justify-content: space-between
+        width: 100%
+        &:hover
+            .query-icon
+                display: inline-flex
+        .query-icon
+            display: none
+            margin-right: 4px
+    
+    
     
     .left-panels
         display: flex
@@ -431,15 +443,4 @@
             margin-right: 8px
 
 
-    
-.table-title
-    display: flex
-    justify-content: space-between
-    width: 100%
-    &:hover
-        .query-icon
-            display: inline-flex
-    .query-icon
-        display: none
-        margin-right: 4px
     
