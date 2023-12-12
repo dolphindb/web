@@ -7,7 +7,7 @@ import { genid } from 'xshell/utils.browser.js'
 import copy from 'copy-to-clipboard'
 import dayjs from 'dayjs'
 
-import { WidgetChartType, type Widget, dashboard, type DashBoardConfig, DashboardPermission } from './model.js'
+import { WidgetChartType, type Widget, dashboard, DashboardPermission } from './model.js'
 import { type AxisConfig, type IChartConfig, type ISeriesConfig } from './type.js'
 import { subscribe_data_source, type DataSource } from './DataSource/date-source.js'
 import { AxisType, MarkPresetType } from './ChartFormFields/type.js'

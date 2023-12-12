@@ -13,6 +13,7 @@ import { model, type DdbModel, NodeType, storage_keys } from '../model.js'
 
 
 import SvgOverview from '../overview/icons/overview.icon.svg'
+import SvgConfig from '../config/icons/config.icon.svg'
 import SvgShell from '../shell/index.icon.svg'
 import SvgDashboard from '../dashboard/icons/dashboard.icon.svg'
 import SvgJob from '../job.icon.svg'
@@ -30,6 +31,7 @@ const { Text, Link } = Typography
 
 const svgs = {
     overview: SvgOverview,
+    config: SvgConfig,
     shell: SvgShell,
     dashboard: SvgDashboard,
     job: SvgJob,
@@ -113,6 +115,11 @@ export function DdbSider () {
                     icon: <MenuIcon view='overview' />,
                     label: t('集群总览'),
                 }] : [ ],
+                {
+                    key: 'config',
+                    icon: <MenuIcon view='config'/>,
+                    label: t('配置管理')
+                },
                 {
                     key: 'shell',
                     icon: <MenuIcon view='shell' />,

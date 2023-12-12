@@ -2,7 +2,7 @@ import './index.sass'
 
 import { type Dispatch, type ReactNode, type SetStateAction, useEffect, useState } from 'react'
 
-import { Button, Tabs, Table, Tooltip, Typography, Spin, Result, type TableColumnType, Input, Modal, List } from 'antd'
+import { Button, Tabs, Table, Tooltip, Spin, Result, type TableColumnType, Input, Modal, List } from 'antd'
 
 import { ReloadOutlined, QuestionCircleOutlined, WarningOutlined } from '@ant-design/icons'
 
