@@ -9,7 +9,7 @@ import { Tooltip, Tree, Modal, Form, Input, Select, Button, InputNumber } from '
 
 import type { DataNode, EventDataNode } from 'antd/es/tree'
 
-import { default as Icon, SyncOutlined, MinusSquareOutlined, EditOutlined } from '@ant-design/icons'
+import { default as Icon, SyncOutlined, MinusSquareOutlined, EditOutlined, FileSearchOutlined } from '@ant-design/icons'
 
 import { assert, delay } from 'xshell/utils.browser.js'
 
@@ -32,6 +32,7 @@ import { shell } from './model.js'
 import { Editor } from './Editor/index.js'
 import { CreateTableModal } from './CreateTableModal.js'
 import { AddColumnModal } from './AddColumnModal.js'
+import { QueryGuideModal } from './QueryGuide/index.js'
 
 import SvgDatabase from './icons/database.icon.svg'
 import SvgCreateDatabase from './icons/create-database.icon.svg'
@@ -861,7 +862,7 @@ export class Table implements DataNode {
     
     name: string
     
-    title: string
+    title: React.ReactNode
     
     className = 'table'
     
@@ -884,7 +885,14 @@ export class Table implements DataNode {
         this.self = this
         this.db = db
         this.key = this.path = path
-        this.title = this.name = path.slice(db.path.length, -1)
+        this.name = path.slice(db.path.length, -1)
+        this.title = <div className='table-title'>
+            <span> {path.slice(db.path.length, -1)} </span>
+            <Tooltip title={t('进入查询向导')}>
+                <FileSearchOutlined onClick={async () => NiceModal.show(QueryGuideModal, { database: this.db.path.slice(0, -1), table: this.name }) } className='query-icon'/>
+            </Tooltip>
+        </div>
+       
     }
     
     

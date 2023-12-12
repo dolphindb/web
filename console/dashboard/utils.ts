@@ -196,7 +196,7 @@ export function parse_code (code: string, data_source?: DataSource): string {
 
 
 export function concat_name_path (...paths: NamePath[]): NamePath {
-    return ([ ] as NamePath).concat(...paths.filter(p => !isNil(p)))
+    return paths.filter(p => !isNil(p))
 }
 
 export function convert_chart_config (widget: Widget, data_source: any[]) {
