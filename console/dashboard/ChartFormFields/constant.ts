@@ -12,6 +12,10 @@ export const axis_type_options = [{
     value: AxisType.CATEGORY
 },
 {
+    label: t('时间轴'),
+    value: AxisType.TIME,
+},
+{
     label: t('对数'),
     value: AxisType.LOG
 }]
@@ -77,3 +81,8 @@ export const format_time_options = Object.values(ITimeFormat).map(val => ({
     label: val,
     value: val
 }))
+
+
+// const TIME_RANGE_MAP = {
+//     [ITimeFormat.DATE]: <String
+// }

@@ -1,7 +1,7 @@
 import './index.scss'
 
 import { useMemo } from 'react'
-import { Form, Select, Input, Collapse, Button, Space, InputNumber } from 'antd'
+import { Form, Select, Input, Collapse, Button, Space, InputNumber, DatePicker } from 'antd'
 import { DeleteOutlined, PlusCircleOutlined } from '@ant-design/icons'
 
 import { t } from '../../../i18n/index.js'
@@ -14,6 +14,7 @@ import { axis_position_options, axis_type_options, chart_type_options, format_ti
 import { WidgetChartType, dashboard } from '../model.js'
 import { StringColorPicker } from '../../components/StringColorPicker/index.js'
 import { BoolRadioGroup } from '../../components/BoolRadioGroup/index.js'
+import { StringRangeDateTimePicker } from '../../components/StringDatePicker/index.js'
 
 
 // col 表示是否需要选择坐标列，x轴必须选择坐标列
@@ -25,6 +26,8 @@ export function AxisItem ({ name_path, col_names = [ ], list_name, initial_value
             initialValue={initial_values?.type ?? AxisType.CATEGORY}
             tooltip={<>
                 {t('数值轴，适用于连续数据')}
+                <br />
+                {t('时间轴，适用于连续的时序数据')}
                 <br />
                 {t('类目轴，适用于离散的类目数据，或者时序数据')}
                 <br />
@@ -43,6 +46,7 @@ export function AxisItem ({ name_path, col_names = [ ], list_name, initial_value
         <FormDependencies dependencies={[concat_name_path(list_name, name_path, 'type')]}>
             {value => {
                 const type = list_name ? value[list_name]?.find(item => item)?.type : value?.[name_path]?.type
+                console.log(type, 'type')
                 switch (type) { 
                     case AxisType.VALUE:
                         return <>
@@ -63,9 +67,22 @@ export function AxisItem ({ name_path, col_names = [ ], list_name, initial_value
                             </Form.Item>
                         </>
                     case AxisType.TIME:
-                        <Form.Item name={concat_name_path(name_path, 'time_format')} label={t('时间格式化')}>
-                            <Select options={format_time_options} allowClear/>
-                        </Form.Item>
+                        return <>
+                            <Form.Item name={concat_name_path(name_path, 'col_name')} label={t('坐标列')} initialValue={initial_values?.col_name ?? col_names?.[0]} >
+                                <Select options={convert_list_to_options(col_names)} allowClear/>
+                            </Form.Item>
+                            <Form.Item name={concat_name_path(name_path, 'time_format')} label={t('时间格式化')}>
+                                <Select options={format_time_options}/>
+                            </Form.Item>
+                            <FormDependencies dependencies={[[concat_name_path(list_name, name_path, 'time_format')]]}>
+                                {value => { 
+                                    const format = list_name ? value[list_name]?.find(item => item)?.time_format : value?.[name_path]?.time_format
+                                    if (format) { 
+                                        switch(format)
+                                    }
+                                } }
+                            </FormDependencies>
+                        </>
                     case AxisType.CATEGORY:
                         return <>
                             <Form.Item name={concat_name_path(name_path, 'col_name')} label={t('坐标列')} initialValue={initial_values?.col_name ?? col_names?.[0]} >
@@ -189,6 +206,31 @@ function Series (props: { col_names: string[], single?: boolean }) {
                                         <Form.Item name={[field.name, 'end_label']} label={t('展示端标签')} initialValue={false}>
                                             <BoolRadioGroup />
                                         </Form.Item>
+                                        <FormDependencies dependencies={[['series', field.name, 'end_label']]}>
+                                            {value => { 
+                                                if (!value.series?.[field.name]?.end_label)
+                                                    return null
+                                                
+                                                return <Form.Item
+                                                name={[field.name, 'end_label_formatter']}
+                                                label={t('自定义端标签')}
+                                                initialValue='{a}'
+                                                tooltip={<>
+                                                    {t('支持静态标签与模板变量，其中模板变量包含以下几种')}
+                                                    <br />
+                                                    {t('{a}：数据列名称')}
+                                                    <br />
+                                                    {t('{b}：x轴值')}
+                                                    <br />
+                                                    {t('{c}：y轴值')}
+                                                    <br />
+                                                    {t('示例: 名称-{a}')}
+                                                </>}
+                                            >
+                                                    <Input placeholder={t('请输入自定义端标签')} />
+                                            </Form.Item>
+                                            } }
+                                        </FormDependencies>
                                     </>
                                 else if (seriesType === WidgetChartType.SCATTER)
                                     return <>

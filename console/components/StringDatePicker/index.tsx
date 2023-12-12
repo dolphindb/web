@@ -10,6 +10,32 @@ interface IProps extends Omit<DatePickerProps, 'onChange' | 'value'> {
     submit_suffix?: string
 }
 
+
+const { RangePicker } = DatePicker
+
+interface IStringRangePickerProps {
+    onChange: (val: [string, string]) => void
+    value: [string, string]
+    format?: string
+}
+
+export function StringRangeDateTimePicker (props: IStringRangePickerProps) { 
+    const { value, onChange, format = 'YYYY-MM-DD HH:mm:ss', ...others } = props
+    
+    const on_value_change = useCallback((_, dateStrings: [string, string],) => {
+        console.log(dateStrings, 'dateStrings')
+        onChange(dateStrings)
+    }, [ ])
+    
+    console.log(value, 'value')
+    
+    return <RangePicker
+        value={value ? [dayjs(value[0], format), dayjs(value[1], format)] : null}
+        format={format} {...others}
+        onChange={on_value_change}
+    />
+}
+
 export function StringDatePicker (props: IProps) { 
     const { onChange, value, submitFormat = 'YYYY.MM.DD', submit_suffix, ...others } = props
     

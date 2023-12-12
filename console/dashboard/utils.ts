@@ -16,6 +16,8 @@ import { t } from '../../i18n/index.js'
 
 
 export function format_time (time: string, format: string) { 
+    if (!format)
+        return time
     try {
         return dayjs(time).format(format || 'YYYY-MM-DD HH:mm:ss')
     } catch (e) { 
@@ -270,7 +272,9 @@ export function convert_chart_config (widget: Widget, data_source: any[]) {
         }
         
         if (axis.type === AxisType.CATEGORY)
-            return { ...axis_config, data: uniq(data || [ ]) }
+            return { ...axis_config, data: data || [ ] }
+        if (axis.type === AxisType.TIME && axis.range)
+            return { ...axis_config, min: axis.range[0], max: axis.range[1] }
         else
             return axis_config
     }
@@ -290,8 +294,11 @@ export function convert_chart_config (widget: Widget, data_source: any[]) {
         let data = data_source.map(item => item?.[series.col_name])
         
         // 时间轴情况下，series为二维数组，且每项的第一个值为 x轴对应的值，第二个值为 y轴对应的值，并且需要对时间进行格式化处理
-        if (xAxis.type === AxisType.TIME)  
+        if (xAxis.type === AxisType.TIME) { 
+            console.log(data_source, 'data_source')
             data = data_source.map(item => [format_time(item?.[xAxis.col_name], xAxis.time_format), item?.[series.col_name]])
+        }
+            
             
         // x 轴和 y 轴均为数据轴或者对数轴的情况下或者散点图，series 的数据为二维数组，每一项的第一个值为x的值，第二个值为y的值
         if (([AxisType.VALUE, AxisType.LOG].includes(xAxis.type) && [AxisType.VALUE, AxisType.LOG].includes(yAxis[series.yAxisIndex].type)) || series.type === WidgetChartType.SCATTER)  
@@ -304,7 +311,6 @@ export function convert_chart_config (widget: Widget, data_source: any[]) {
                     color: item > series.threshold.value ? series.threshold?.high_color : series.threshold?.low_color
                 }
             }))
-        
         return {
             type: series.type?.toLowerCase(),
             name: series.name,
@@ -313,7 +319,8 @@ export function convert_chart_config (widget: Widget, data_source: any[]) {
             stack: series.stack,
             endLabel: {
                 show: series.end_label,
-                formatter: series.name
+                formatter: series.end_label_formatter,
+                color: 'inherit'
             },
             
             // 防止删除yAxis导致渲染失败
