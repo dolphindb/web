@@ -120,6 +120,7 @@ export function Computing () {
             
             streaming_engine_rows.push(new_row)
         }
+    
     return <Tabs
         activeKey={tab_key}
         type='card'

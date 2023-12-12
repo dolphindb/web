@@ -118,7 +118,7 @@ export function DdbSider () {
                     icon: <MenuIcon view='shell' />,
                     label: t('交互编程'),
                 },
-                ...language === 'zh' ? [ {
+                ... language === 'zh' ? [ {
                     key: 'dashboard',
                     icon: <MenuIcon view='dashboard' />,
                     label: t('数据面板'),

@@ -70,7 +70,7 @@ export class DdbModel extends Model<DdbModel> {
     
     username: string = username_guest
     
-    admin: boolean = false
+    admin = false
     
     node_type: NodeType
     
@@ -284,7 +284,9 @@ export class DdbModel extends Model<DdbModel> {
         localStorage.setItem(storage_keys.ticket, ticket)
         
         this.set({ logined: true, username })
+        
         await this.is_admin()
+        
         console.log(t('{{username}} 使用账号密码登陆成功', { username: this.username }))
     }
     
@@ -301,7 +303,9 @@ export class DdbModel extends Model<DdbModel> {
         try {
             await this.ddb.call('authenticateByTicket', [ticket], { urgent: true })
             this.set({ logined: true, username: last_username })
+            
             await this.is_admin()
+            
             console.log(t('{{username}} 使用 ticket 登陆成功', { username: last_username }))
         } catch (error) {
             localStorage.removeItem(storage_keys.ticket)
@@ -344,7 +348,9 @@ export class DdbModel extends Model<DdbModel> {
             // 等 server 增加 parseJSON 函数
             const { name: username } = JSON.parse(result.raw)
             this.set({ logined: true, username })
+            
             await this.is_admin()
+            
             return result
         }
     }
