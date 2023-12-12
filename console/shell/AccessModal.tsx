@@ -13,11 +13,6 @@ interface Props {
     database: Database
 }
 
-// const ACCESS_TYPE = {
-//     database: [ 'DB_MANAGE', 'DBOBJ_CREATE', 'DBOBJ_DELETE', 'DB_INSERT', 'DB_UPDATE', 'DB_DELETE', 'DB_READ'],
-//     table: [ 'TABLE_READ', 'TABLE_INSERT', 'TABLE_UPDATE', 'TABLE_DELETE'],
-// }
-
 const cols: TableColumnType<Record<string, any>>[] = [
     {
         title: t('权限'),
@@ -58,7 +53,7 @@ export const AccessModal = NiceModal.create<Props>(({ database }) => {
             }
             set_db_rows(rows)
         })
-    }, [ shell.get_access_defined])
+    }, [shell.get_access_defined])
  
     
     const items = [

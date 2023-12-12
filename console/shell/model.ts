@@ -589,7 +589,7 @@ class ShellModel extends Model<ShellModel> {
             return
         await model.ddb.eval(
             'def getUserGrant(name) {\n' +
-            '    userAccessRow = getUserAccess(getUserList())\n' +
+            '    userAccessRow = getUserAccess(getUserList(),true)\n' +
             '    t = table(100:0, `userId`AccessAction, [STRING, SYMBOL])\n' +
             '    if(rows(userAccessRow)==0)return t\n' +
             '    for(action in `DB_MANAGE`DBOBJ_CREATE`DBOBJ_DELETE`DB_INSERT`DB_UPDATE`DB_DELETE`DB_READ`TABLE_READ`TABLE_INSERT`TABLE_UPDATE`TABLE_DELETE) {\n' +
