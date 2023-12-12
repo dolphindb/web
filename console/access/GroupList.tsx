@@ -255,7 +255,7 @@ export function GroupList () {
                 group_name: group.groupName,
                 users:  <div>
                         {
-                        group.users && group.users.split(',').map((user: string) => <Tag color='cyan'>{user}</Tag>) 
+                        group.users && group.users.split(',').map((user: string) => <Tag color='cyan' key={user}>{user}</Tag>) 
                         }
                     </div>,
                 actions: <div className='actions'>

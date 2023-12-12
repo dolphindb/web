@@ -81,9 +81,9 @@ class AccessModel extends Model<AccessModel> {
         this.set({ users: (await model.ddb.call('getUserList', [ ], { urgent: true })).value as string[] })
     }
     
-    
-    async get_user_access (users: string[]) {
-        return (await model.ddb.call('getUserAccess', [new DdbVectorString(users)], { urgent: true })).to_rows()
+    // final 属性代表是否获取用户最终权限，只有在用户查看权限界面需要 final = true
+    async get_user_access (users: string[], final: boolean = false) {
+        return (await model.ddb.call('getUserAccess', [...final ? [new DdbVectorString(users), true] : [new DdbVectorString(users)]], { urgent: true })).to_rows()
     }
     
     

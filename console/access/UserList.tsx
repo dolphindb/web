@@ -381,7 +381,7 @@ export function UserList () {
                                         <MinusCircleFilled className='gray'/>,
                     groups:  <div>
                                 {
-                                   user_access.groups && user_access.groups.split(',').map((group: string) => <Tag color='cyan'>{group}</Tag>) 
+                                   user_access.groups && user_access.groups.split(',').map((group: string) => <Tag color='cyan' key={group}>{group}</Tag>) 
                                 }
                             </div>,
                             // <Select
