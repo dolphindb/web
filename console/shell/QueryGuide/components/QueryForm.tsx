@@ -201,6 +201,9 @@ export function QueryForm (props: IProps) {
                         name='partitionColQuerys'
                         name_path={null}
                     />
+                    <Typography.Text type='secondary' className='partition-query-tip'>
+                        {t('匹配 (like) 规则说明（区分大小写）：% 表示任意 0 个或者多个字符，可匹配任意类型和长度的字符，例如"688%" 匹配以 688 开头的字符串，可匹配 "688101.SH"、"688101"等字符串；"%SZ%" 匹配包含 SZ 的字符串， 能够匹配 "300951.SZ"、 "SZ.300951"的字符串；"%6" 匹配以 6 结尾的字符串，能够匹配例如 “abcd6” 的字符串。') }
+                    </Typography.Text>
                 </>
             }
             <h4>{t('查询条件')}</h4>
