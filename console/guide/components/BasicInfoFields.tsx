@@ -92,15 +92,12 @@ export function BasicInfoFields (props: IProps) {
                             <Select options={DAILY_INCREASE_NUM_OPTIONS} />
                         </Form.Item>
                         <FormDependencies dependencies={[['dailyTotalNum', 'gap']]}>
-                            {value => { 
-                                const { dailyTotalNum } = value
-                                if (dailyTotalNum?.gap === CUSTOM_VALUE)
-                                    return <Form.Item name={['dailyTotalNum', 'custom']} label='自定义日增数据量' rules={[{ required: true, message: '请输入自定义日增数据量' }]}>
+                            {({ dailyTotalNum }) => 
+                                dailyTotalNum?.gap === CUSTOM_VALUE ? 
+                                    <Form.Item name={['dailyTotalNum', 'custom']} label='自定义日增数据量' rules={[{ required: true, message: '请输入自定义日增数据量' }]}>
                                         <InputNumber placeholder='请输入自定义日增数据量'/>
-                                    </Form.Item>
-                                else
-                                    return null
-                            } }
+                                    </Form.Item> : null
+                             }
                         </FormDependencies>
                     </>
                 return <>
@@ -113,13 +110,11 @@ export function BasicInfoFields (props: IProps) {
                     </Form.Item>
                     
                     <FormDependencies dependencies={[['totalNum', 'gap']]}>
-                        {value => { 
-                            const { totalNum } = value
-                            if (totalNum?.gap === CUSTOM_VALUE)  
-                                return <Form.Item label='自定义数据总量' name={['totalNum', 'custom']} rules={[{ required: true, message: '请输入自定义数据总量' }]}>
+                        {({ totalNum }) =>  
+                            (totalNum?.gap === CUSTOM_VALUE) ? <Form.Item label='自定义数据总量' name={['totalNum', 'custom']} rules={[{ required: true, message: '请输入自定义数据总量' }]}>
                                     <InputNumber placeholder='请输入自定义数据总量'/>
-                                </Form.Item>
-                        } }
+                                </Form.Item> : null
+                        }
                     </FormDependencies>
                 
                 </>
@@ -128,10 +123,9 @@ export function BasicInfoFields (props: IProps) {
         
         {/* 测点数 简易版与进阶版下，只有时序数据才需要测点数 */}
         <FormDependencies dependencies={['isFreqIncrease']}>
-            {({ isFreqIncrease }) => {
+            {({ isFreqIncrease }) => 
                 // 时序数据情况下，或者数据总量大于100w 展示测点数
-                if (isFreqIncrease)
-                    return <Form.Item
+                isFreqIncrease ? <Form.Item
                         tooltip='以车联网数据采集场景为例说明测点含义。一辆车有发动机、轮胎、油箱等传感器，需要采集发动机、轮胎、油箱等数据，在这个场景中，测点是车辆，而不是传感器。'
                         label='测点数'
                         name='pointNum'
@@ -139,20 +133,17 @@ export function BasicInfoFields (props: IProps) {
                     >
                         <InputNumber placeholder='请输入测点数'/>
                     </Form.Item>
-                else
-                    return null
-            }}
+                : null
+            }
         </FormDependencies>
         
         <SchemaList engine='TSDB' mode='ito' need_time_col={need_time_col} />
         
         {
             type === GuideType.SIMPLE && <FormDependencies dependencies={['isFreqIncrease', 'totalNum', 'schema']}>
-                {({ isFreqIncrease, totalNum, schema = [ ] }) => {
+                {({ isFreqIncrease, totalNum, schema = [ ] }) => 
                     // 时序数据，或者非时序数据，但是数据总量大于200w需要选常用筛选列
-                    if (isFreqIncrease || totalNum.gap === 1 || totalNum.custom > 2000000) { 
-                        const options = schema.filter(item => item?.colName && [...TIME_TYPES, ...ENUM_TYPES].includes(item.dataType)).map(item => ({ label: item.colName, value: item.colName }))
-                        return <Form.Item
+                    isFreqIncrease || totalNum.gap === 1 || totalNum.custom > 2000000 ? <Form.Item
                             extra='请选择两个常用筛选列，时序数据或者数据总量大于200万的非时序第一列需为时间列，第二列需为设备编号列，其余情况第一列需为设备编号列'
                             tooltip='常用筛选列是查询时常作为常选条件的列，越重要的过滤条件，在筛选列中的位置越靠前。'
                             name='sortColumn'
@@ -185,11 +176,17 @@ export function BasicInfoFields (props: IProps) {
                                 }
                             ]}
                         >
-                            <Select showSearch placeholder='请选择常用筛选列' mode='multiple' options={options} />
-                        </Form.Item>
-                    }
-                    
-                } }
+                            <Select 
+                                showSearch 
+                                placeholder='请选择常用筛选列' 
+                                mode='multiple' 
+                                options={schema.filter(
+                                    item => item?.colName && 
+                                        [...TIME_TYPES, ...ENUM_TYPES].
+                                            includes(item.dataType)).
+                                                map(item => ({ label: item.colName, value: item.colName }))} />
+                        </Form.Item> : null
+                 }
                 
             </FormDependencies>
         }

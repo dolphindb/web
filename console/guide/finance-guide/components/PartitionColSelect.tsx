@@ -24,27 +24,27 @@ export function PartitionColSelect (props: IProps) {
         { onSuccess: data =>  { set_partition_info(data?.cols?.map(item => item.split(','))) }
     })
     
-    const filter_col_options = useCallback((col_types: string[]) => {
-        return schema
+    const filter_col_options = useCallback((col_types: string[]) => 
+        schema
             .filter(item => col_types?.includes(item?.dataType))
-            .map(col => ({
-                label: col.colName,
-                value: col.colName
-            }))
-    }, [schema])
+                .map(col => ({
+                    label: col.colName,
+                    value: col.colName
+                }))
+    , [schema])
     
-    const show_time_col = useMemo(() => { 
-        return !(database.dailyTotalNum?.gap === 8)
-    }, [database])
+    const show_time_col = useMemo(() =>  
+        database.dailyTotalNum?.gap === 8
+    , [database])
     
-    const show_hash_col = useMemo(() => { 
+    const show_hash_col = useMemo(() => 
         // 日增量选择【总数据量为小于200万且不新增】【0-1w】【1-10w】【10-100w】的时候不展示标的列
-        return [3, 4, 5, 6, 7].includes(database.dailyTotalNum?.gap) || (database.dailyTotalNum?.gap === CUSTOM && database.dailyTotalNum?.custom > 2000000)
-    }, [database])
+        [3, 4, 5, 6, 7].includes(database.dailyTotalNum?.gap) || (database.dailyTotalNum?.gap === CUSTOM && database.dailyTotalNum?.custom > 2000000)
+    , [database])
     
     useEffect(() => { 
         if (partition_info.length && !table?.partitionCols)
-            form.setFieldValue('partitionCols', partition_info.map(item => ({ })) )
+            form.setFieldValue('partitionCols', partition_info.map(() => ({ })) )
     }, [partition_info, database])
     
     const is_col_exist = useCallback(async (values: string[]) => { 
@@ -53,18 +53,16 @@ export function PartitionColSelect (props: IProps) {
                 return Promise.reject(`表结构中无 ${col_name} 列，请修改`)
     }, [schema])
     
-    const validate_partition_col = useCallback(async (_, values) => { 
-        return is_col_exist(values.map(item => item.colName))
-    }, [schema])
+    const validate_partition_col = useCallback(async (_, values) =>  
+        is_col_exist(values.map(item => item.colName))
+    , [schema])
     
     
     
     return database?.isExist ? <Spin spinning={isLoading}>
         <Form.List name='partitionCols' rules={[{ validator: validate_partition_col }] }>
-        {fields => {
-            return fields.map(field => {
+        {fields => fields.map(field => {
                 const data_types = partition_info[field.name]
-                const options = filter_col_options(data_types)
                 return <Form.Item
                     tooltip='根据已有数据库的分区信息，选择需要作为划分数据依据的列'
                     key={field.name}
@@ -72,12 +70,11 @@ export function PartitionColSelect (props: IProps) {
                     label={`分区列${field.name + 1}`} name={[field.name, 'colName']}
                     rules={[{ required: true, message: '请选择分区列' }]}
                 >
-                    <Select options={options} placeholder='请选择分区列'/>
+                    <Select options={filter_col_options(data_types)} placeholder='请选择分区列'/>
                 </Form.Item>
-                    
             })
-        }}
-    </Form.List>
+        }
+        </Form.List>
         
     </Spin>
     : <>

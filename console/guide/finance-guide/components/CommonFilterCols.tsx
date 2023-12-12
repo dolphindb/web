@@ -60,7 +60,7 @@ export function CommonFilterCols (props: IProps) {
                     </Form.Item>
                     {fields.length > 1 && <Tooltip title='删除'><DeleteOutlined onClick={() => { remove(field.name) }} className='delete-icon'/> </Tooltip>}
                 </div>)}
-                { fields.length < 2 && <Button block type='dashed' onClick={() => { add() }} icon={<PlusCircleOutlined />}>增加筛选列</Button> }
+                { fields.length < 2 && <Button block type='dashed' onClick={add} icon={<PlusCircleOutlined />}>增加筛选列</Button> }
             </>}
         </Form.List>
         

@@ -33,8 +33,7 @@ export const SchemaUploadModal = NiceModal.create((props: ISchemaUploadModal) =>
     const on_submit = useCallback(async () => {
         set_loading(true)
         try { 
-            await form.validateFields()
-            const { delimiter, file_path, file, upload_type } = form.getFieldsValue()
+            const { delimiter, file_path, file, upload_type } =  await form.validateFields()
             let params = { 
                 type: upload_type,
                 content: { }
@@ -84,16 +83,13 @@ export const SchemaUploadModal = NiceModal.create((props: ISchemaUploadModal) =>
             </Form.Item>
             
             <FormDependencies dependencies={['upload_type']}>
-                {({ upload_type }) => { 
-                    // 本地导入
-                    if (upload_type === 0)
-                        return <UploadFileField accept='text/*' tip='仅支持上传带固定分隔符文本文件，如 csv文件、txt文件，默认分隔符为“,”' />
-                    else
-                    // 服务器导入
-                        return <Form.Item name='file_path' label='文件地址' rules={[{ required: true, message: '请输入文件在服务器的地址' }]}>
+                {({ upload_type }) =>  !upload_type  ? 
+                        <UploadFileField accept='text/*' tip='仅支持上传带固定分隔符文本文件，如 csv文件、txt文件，默认分隔符为“,”' /> 
+                                            :
+                        <Form.Item name='file_path' label='文件地址' rules={[{ required: true, message: '请输入文件在服务器的地址' }]}>
                             <Input placeholder='请输入文件在服务器的地址'/>
                         </Form.Item>
-                } }
+                }
                 
             </FormDependencies>
         </Form>
@@ -217,9 +213,9 @@ export function SchemaList (props: { mode: 'finance' | 'ito', engine: string, ne
             form.setFieldValue('schema', schema)
     }, [ ])
     
-    const on_upload = useCallback(() => { 
+    const on_upload = useCallback(async () => 
         NiceModal.show(SchemaUploadModal, { on_apply })
-    }, [on_apply])
+    , [on_apply])
     
     const validator = useCallback(async (_, value) => { 
         const name_list = schema.filter(item => !!item?.colName).map(item => item?.colName)
@@ -232,12 +228,12 @@ export function SchemaList (props: { mode: 'finance' | 'ito', engine: string, ne
     const validate_schema = useCallback(async (_, values) => {
         const types = values.filter(item => item?.dataType).map(item => item.dataType)
         // 物联网场景，且为时序数据或者数据总量大于200w的非时序数据
-        if (mode === 'ito' && need_time_col)  
+        if (mode === 'ito' 
+                && need_time_col
+                    && (!types.some(type => TIME_TYPES.includes(type)) 
+                            || !types.some(type => ENUM_TYPES.includes(type))))  
             // 物联网场景
-            if (types.some(type => TIME_TYPES.includes(type)) && types.some(type => ENUM_TYPES.includes(type)))
-                return Promise.resolve()
-            else  
-                return Promise.reject(new Error('时序数据与总数据量大于200万的非时序数据，表结构至少有一列时间列与枚举列'))
+            return Promise.reject(new Error('时序数据与总数据量大于200万的非时序数据，表结构至少有一列时间列与枚举列'))
         // 金融场景必须有一列时间列
         else if (mode === 'finance' && !types.some(type => TIME_TYPES.includes(type)))
             return Promise.reject('表结构至少包含一列时间列')

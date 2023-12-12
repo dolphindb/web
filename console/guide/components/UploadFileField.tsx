@@ -17,14 +17,6 @@ export function UploadFileField (props: IProps) {
         onChange?.(file)
     }, [file])
     
-    const before_upload = useCallback((file: File) => { 
-        set_file(file)
-        return false
-    }, [ ])
-    
-    const on_delete = useCallback(() => { 
-        set_file(null)
-    }, [ ])
     
     return <Form.Item
         wrapperCol={{ span: 24 }}
@@ -32,11 +24,7 @@ export function UploadFileField (props: IProps) {
         name='file'
         rules={[{ required: true, message: '请上传文件' }]}
         valuePropName='file'
-        getValueFromEvent={e => { 
-            if (Array.isArray(e))
-                return e[0]
-            return e
-        }}
+        getValueFromEvent={e => Array.isArray(e) ? e[0] : e }
         >
         {
             file ? 
@@ -45,9 +33,16 @@ export function UploadFileField (props: IProps) {
                         <FileOutlined className='file-icon'/>
                         {file.name}
                     </div>
-                    <DeleteOutlined onClick={on_delete} className='delete-icon'/>
+                    <DeleteOutlined onClick={() => { 
+                        set_file(null)
+                    }} className='delete-icon'/>
                 </div>
-            : <Upload.Dragger accept={accept} beforeUpload={before_upload}>
+            : <Upload.Dragger 
+                accept={accept} 
+                beforeUpload={(file: File) => { 
+                    set_file(file)
+                    return false
+            }}>
                 <div>
                     <CloudUploadOutlined className='upload-icon' />
                     <div>点击或将文件拖拽到此区域</div>
