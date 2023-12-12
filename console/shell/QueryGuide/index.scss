@@ -10,8 +10,8 @@
     
     .ant-modal-body {
         max-height: 600px;
-        overflow: auto;
-        
+        overflow-y: auto;
+        padding: 12px;
     }
     .ant-form-item {
         margin-bottom: 0px;

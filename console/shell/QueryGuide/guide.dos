@@ -1,0 +1,123 @@
+def dbms_generateQuery(input_json){
+    input = strReplace(input_json, "\n", "")
+    input_dict = input.parseExpr().eval()
+    dbName = input_dict["dbName"]
+    tbName = input_dict["tbName"]
+    queryCols = concat(input_dict['queryCols'], ", ")
+    opt_map = dict([1,2,3,4,5,6,7,8,9,10], 
+        ["=","!=", ">", "<",">=","<=", "LIKE", "NOT LIKE", "IN", "NOT IN"])
+    temp_list = []
+    for(tempCondition in input_dict["partitionColQuerys"]){
+        if (tempCondition["dataType"] in `STRING`SYMBOL){
+            if (tempCondition["opt"] in [9, 10]){
+                temp_con = tempCondition["col"] + ' ' +  opt_map[tempCondition["opt"]] + ' ["' + concat(tempCondition["value"], '","')  + '"]'
+            } else{
+                temp_con = tempCondition["col"] + ' ' +  opt_map[tempCondition["opt"]] + ' "' + tempCondition["value"] + '"'
+            }
+        } else if (tempCondition["dataType"] in `TIME`TIMESTAMP) {
+            temp_con = tempCondition["col"] + " " +  opt_map[tempCondition["opt"]] + " " + tempCondition["value"] + ".000"
+        } else if (tempCondition["dataType"] in `NANOTIME`NANOTIMESTAMP){
+            temp_con = tempCondition["col"] + " " +  opt_map[tempCondition["opt"]] + " " + tempCondition["value"] + ".000000000"
+        } else{
+            temp_con = tempCondition["col"] + " " +  opt_map[tempCondition["opt"]] + " " + tempCondition["value"]
+        }
+        temp_list.append!(temp_con)
+    }
+    partitionCol = concat(temp_list, " AND ")
+    tempCond = ""
+    for(tempConditions in input_dict["querys"]){
+        temp_list = []
+        tempCond += " OR "
+        for(tempCondition in tempConditions){
+            if (tempCondition["dataType"] in `STRING`SYMBOL){
+                if (tempCondition["opt"] in [9, 10]){
+                    temp_con = tempCondition["col"] + ' ' +  opt_map[tempCondition["opt"]] + ' ["' + concat(tempCondition["value"], '","')  + '"]'
+                }else{
+                    temp_con = tempCondition["col"] + ' ' +  opt_map[tempCondition["opt"]] + ' "' + tempCondition["value"] + '"'
+                }
+            } else if (tempCondition["dataType"] in `TIME`TIMESTAMP) {
+                temp_con = tempCondition["col"] + " " +  opt_map[tempCondition["opt"]] + " " + tempCondition["value"] + ".000"
+            } else if (tempCondition["dataType"] in `NANOTIME`NANOTIMESTAMP){
+                temp_con = tempCondition["col"] + " " +  opt_map[tempCondition["opt"]] + " " + tempCondition["value"] + ".000000000"
+            } else{
+                temp_con = tempCondition["col"] + " " +  opt_map[tempCondition["opt"]] + " " + tempCondition["value"]
+            }
+            temp_list.append!(temp_con)
+        }
+        tempCond = tempCond + "(" + concat(temp_list, " AND ")  + ")" 
+    }
+    n2 = strlen(tempCond)
+    n1 = strlen(partitionCol)
+    if (n1 == 0 and n2 == 0){
+        sqlQuery = "SELECT \n" + queryCols + "\nFROM \n" + 'loadTable("' + dbName + '", "' + tbName + '")'
+    } else{
+        sqlQuery = "SELECT \n" + queryCols + "\nFROM \n" + 'loadTable("' + dbName + '", "' + tbName + '")' + "\nWHERE\n" 
+    }
+    if (n2 != 0){
+        tempCond = substr(tempCond, 4)
+        tempCond = "(" + tempCond + ")"
+    }
+    if (n1 != 0){
+        sqlQuery += partitionCol
+        if(n2 != 0){
+        sqlQuery += " AND "
+        }
+    }
+    sqlQuery += tempCond
+    code = dict(["code"], [sqlQuery])
+    code = toStdJson(code)
+    return code
+}
+
+
+def dbms_executeQuery(input_json){
+    code = input_json.parseExpr().eval()["code"]
+    temp = code.parseExpr().eval()
+    n = size temp
+    n = min([n,500000])
+    csvContent = generateTextFromTable(temp, 0, n, 0,',',true)
+    csvContent = concat(csvContent, "")
+    res = dict(["csvContent"], [csvContent])
+    res = toStdJson(res)
+    return res
+}
+
+
+def dbms_executeQueryByPage(input_json){
+    input_dict = input_json.parseExpr().eval()
+    code = input_dict["code"]
+    page = input_dict["page"]
+    pageSize = input_dict["pageSize"]
+    temp = code.parseExpr().eval()
+    count = size temp
+    if (count == 0){
+        res = '{"total":' + string(count) + ',"items":[]}'
+    }else {
+        limitcondition = " LIMIT " + (page-1)*pageSize + ", " + pageSize
+        code = code + limitcondition
+        temp = code.parseExpr().eval()
+        itemsList = array(STRING, 0)
+        real_n = size temp
+        for(i in 0..(real_n-1)){
+            itemsList.append!(toStdJson(temp[i]))
+        }
+        res = '{"total":' + string(count) + ',"items":'
+        itemsString = "[" + concat(itemsList,",") + "]"
+        res += itemsString
+        res += '}'
+    }
+    return res
+}
+
+
+def dbms_generateEnumerate(input_json){
+    input_dict = input_json.parseExpr().eval()
+    dbName = input_dict["dbName"]
+    tbName = input_dict["tbName"]
+    cols = input_dict["col"]
+    query =  "EXEC distinct(" + cols + ') FROM loadTable("' + dbName + '", "' + tbName +  '")'
+    enumList = query.parseExpr().eval()
+    res = '{"enumList":["' + concat(enumList, '","') + '"]}' 
+    return res
+}
+

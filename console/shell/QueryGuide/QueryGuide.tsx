@@ -52,7 +52,7 @@ export function QueryGuide (props: IProps) {
                 querys: values.querys?.map(transform_query),
                 partitionColQuerys: transform_query(values.partitionColQuerys ?? [ ])
             }
-            const { code } = await request<{ code: string }>('generateQuery', { ...params, dbName: database, tbName: table })
+            const { code } = await request<{ code: string }>('dbms_generateQuery', { ...params, dbName: database, tbName: table })
             set_query_info(values)
             set_code(code)
             to_next_step()
