@@ -1,10 +1,10 @@
 import { type SelectProps } from 'antd'
 import { type DdbType } from 'dolphindb/browser.js'
 
-export type DDBTypeNames = Uppercase<keyof typeof DdbType>
+export type DDBColumnTypeNames = Uppercase<keyof typeof DdbType>
 
 /** 数据表的列数据类型 */
-export const DDB_COLUMN_DATA_TYPES: DDBTypeNames[] = [
+export const DDB_COLUMN_DATA_TYPES: DDBColumnTypeNames[] = [
     'BOOL',
     'CHAR',
     'SHORT',
@@ -24,6 +24,7 @@ export const DDB_COLUMN_DATA_TYPES: DDBTypeNames[] = [
     'SYMBOL',
     'STRING',
     'UUID',
+    'DATEHOUR',
     'IPADDR',
     'INT128',
     'BLOB',
@@ -35,8 +36,34 @@ export const DDB_COLUMN_DATA_TYPES: DDBTypeNames[] = [
     'DECIMAL128',
 ]
 
+export const SUPPORT_ARRAY_VECTOR_TYPES: DDBColumnTypeNames[] = [
+    'BOOL',
+    'CHAR',
+    'SHORT',
+    'INT',
+    'LONG',
+    'DATE',
+    'MONTH',
+    'TIME',
+    'MINUTE',
+    'SECOND',
+    'DATETIME',
+    'TIMESTAMP',
+    'NANOTIME',
+    'NANOTIMESTAMP',
+    'DATEHOUR',
+    'FLOAT',
+    'DOUBLE',
+    'IPADDR',
+    'UUID',
+    'INT128',
+    'DECIMAL32',
+    'DECIMAL64',
+    'DECIMAL128',
+]
+
 /** 支持排序的列类型 */
-export const SUPPORT_SORT_COLUMN_TYPES: DDBTypeNames[] = [
+export const SUPPORT_SORT_COLUMN_TYPES: DDBColumnTypeNames[] = [
     'CHAR',
     'SHORT',
     'INT',

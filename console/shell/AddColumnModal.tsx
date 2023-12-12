@@ -13,7 +13,7 @@ import { DDBTypeSelectorSchemaFields, SchemaField } from '../components/formily/
 import { shell } from './model.js'
 import { model } from '../model.js'
 import { generateDDBDataTypeLiteral } from '../utils/ddb-data-types.js'
-import { type DDBTypeNames } from '../constants/column-data-types.js'
+import { type DDBColumnTypeNames } from '../constants/column-data-types.js'
 
 interface Props {
     node: ColumnRoot
@@ -21,7 +21,7 @@ interface Props {
 
 interface IAddColumnFormValues {
     column: string
-    type: DDBTypeNames
+    type: DDBColumnTypeNames
     scale?: number
 }
 

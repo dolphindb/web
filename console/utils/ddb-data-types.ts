@@ -1,6 +1,6 @@
-import { type DDBTypeNames } from '../constants/column-data-types.js'
+import { SUPPORT_ARRAY_VECTOR_TYPES, type DDBColumnTypeNames } from '../constants/column-data-types.js'
 
-export function isDDBTemporalType (type: DDBTypeNames) {
+export function isDDBTemporalType (type: DDBColumnTypeNames) {
     return [
         'DATE',
         'MONTH',
@@ -14,7 +14,7 @@ export function isDDBTemporalType (type: DDBTypeNames) {
     ].includes(type)
 }
 
-export function isDDBDecimalType (type: DDBTypeNames) {
+export function isDDBDecimalType (type: DDBColumnTypeNames) {
     return [
         'DECIMAL32',
         'DECIMAL64',
@@ -22,13 +22,21 @@ export function isDDBDecimalType (type: DDBTypeNames) {
     ].includes(type)
 }
 
-interface GenerateDDBDataTypeLiteralOptions {
-    type: DDBTypeNames
-    scale?: number
+export function isDDBArrayVectorSupportType (type: DDBColumnTypeNames) {
+    return SUPPORT_ARRAY_VECTOR_TYPES.includes(type)
 }
 
-export function generateDDBDataTypeLiteral ({ type, scale = 0 }: GenerateDDBDataTypeLiteralOptions) {
-    if (isDDBDecimalType(type)) 
-        return `${type}(${scale})`
-    return type
+interface GenerateDDBDataTypeLiteralOptions {
+    type: DDBColumnTypeNames
+    scale?: number
+    arrayVector?: boolean
+}
+
+export function generateDDBDataTypeLiteral ({ type, scale = 0, arrayVector }: GenerateDDBDataTypeLiteralOptions) {
+    let typeLiteral = isDDBDecimalType(type) ? `${type}(${scale})` : type
+    
+    if (arrayVector)
+        typeLiteral = `${typeLiteral}[]`
+    
+    return typeLiteral
 }

@@ -1,6 +1,6 @@
 import React from 'react'
 
-import { isDDBDecimalType } from '../../../utils/ddb-data-types.js'
+import { isDDBArrayVectorSupportType, isDDBDecimalType } from '../../../utils/ddb-data-types.js'
 import { getDecimalScaleRange, isAvailableDecimalScale } from '../../../utils/decimal.js'
 
 import { t } from '../../../../i18n/index.js'
@@ -32,6 +32,7 @@ export function DDBTypeSelectorSchemaFields (props: DDBTypeSelectorSchemaFieldsP
             x-component-props={{
                 placeholder: t('选择类型'),
                 showSearch: true,
+                popupMatchSelectWidth: false,
                 ...(props.typeField?.['x-component-props'] ?? { })
             }}
             enum={DDB_COLUMN_DATA_TYPES_SELECT_OPTIONS}
@@ -64,21 +65,41 @@ export function DDBTypeSelectorSchemaFields (props: DDBTypeSelectorSchemaFieldsP
                 },
                 fulfill: {
                     state: {
-                        visible: '{{ isDDBDecimalType($deps.type) }}',
+                        visible: '{{ DDBTypeSelector.isDDBDecimalType($deps.type) }}',
                     },
                     schema: {
                         'x-component-props': {
-                            placeholder: "{{ isDDBDecimalType($deps.type) ? getDecimalScaleRange($deps.type).join('~') : '' }}"
+                            placeholder: "{{ DDBTypeSelector.isDDBDecimalType($deps.type) ? DDBTypeSelector.getDecimalScaleRange($deps.type).join('~') : '' }}"
                         }
                     }
                 },
             }]}
             {...props.scaleField}
         />
+        <SchemaField.Boolean
+            key='arrayVector'
+            name='arrayVector'
+            title='Array Vector'
+            x-decorator='FormItem'
+            x-component='Checkbox'
+            x-reactions={[{
+                dependencies: {
+                    type: '.type'
+                },
+                fulfill: {
+                    state: {
+                        visible: '{{ DDBTypeSelector.isDDBArrayVectorSupportType($deps.type) }}',
+                    },
+                },
+            }]}
+        />
     </>
 }
 
 DDBTypeSelectorSchemaFields.ScopeValues = {
-    isDDBDecimalType,
-    getDecimalScaleRange,
+    DDBTypeSelector: {
+        isDDBArrayVectorSupportType,
+        isDDBDecimalType,
+        getDecimalScaleRange,
+    }
 }
