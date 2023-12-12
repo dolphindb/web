@@ -28,6 +28,7 @@ import { DdbSider } from './components/DdbSider.js'
 import { Login } from './login.js'
 import { Overview } from './overview/index.js'
 import { OverviewOld } from './overview/old.js'
+import { Config } from './config/index.js'
 import { Shell } from './shell/index.js'
 import { Test } from './test/index.js'
 import { Job } from './job.js'
@@ -116,6 +117,7 @@ const views = {
     login: Login,
     overview: Overview,
     'overview-old': OverviewOld,
+    config: Config,
     shell: Shell,
     test: Test,
     job: Job,
