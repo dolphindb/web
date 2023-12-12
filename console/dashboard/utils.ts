@@ -166,7 +166,7 @@ export function default_value_in_select (
     key: string, 
     select_list: { label: string, value: string }[]): string 
 {
-    return (data_source_node[key] && select_list.filter(item => item.value === data_source_node[key]).length) 
+    return (data_source_node[key] && select_list.findIndex(item => item.value === data_source_node[key]) !== -1) 
         ? data_source_node[key] 
         : select_list[0].value
 }
