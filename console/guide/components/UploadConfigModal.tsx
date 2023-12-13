@@ -16,8 +16,7 @@ export const UploadConfigModal = NiceModal.create((props: IProps) => {
     
     const on_apply = useCallback(async () => {
         try {
-            await form.validateFields()
-            const { file } = form.getFieldsValue()
+            const { file } = await form.validateFields()
             const config = safe_json_parse(await file.file.text())
             apply(config)
             await modal.hide()
@@ -28,8 +27,8 @@ export const UploadConfigModal = NiceModal.create((props: IProps) => {
         width={640}
         title='导入配置'
         open={modal.visible}
-        onCancel={async () => modal.hide()}
-        afterClose={() => { modal.remove() }}
+        onCancel={modal.hide}
+        afterClose={modal.remove}
         onOk={on_apply}
     >
         <Form form={form}>

@@ -13,8 +13,7 @@ export const DownloadConfigModal = NiceModal.create((props: IProps) => {
     
     const on_download_config = useCallback(async () => { 
         try {
-            await form.validateFields()
-            const { name } = form.getFieldsValue()
+            const { name } =  await form.validateFields()
             let a = document.createElement('a')
             a.download = `${name}.json`
             a.href = URL.createObjectURL(
@@ -33,8 +32,8 @@ export const DownloadConfigModal = NiceModal.create((props: IProps) => {
         title='导出配置'
         onOk={on_download_config}
         open={modal.visible}
-        onCancel={async () => modal.hide()}
-        afterClose={() => { modal.remove() }}
+        onCancel={modal.hide}
+        afterClose={modal.remove}
     >
         <Form form={form}>
             <Form.Item name='name' label='名称' rules={[{ required: true, message: '请输入文件名称' }]}>

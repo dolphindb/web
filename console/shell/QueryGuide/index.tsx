@@ -1,6 +1,6 @@
 import './index.scss'
 
-import { Drawer, Tooltip, Segmented } from 'antd'
+import { Segmented } from 'antd'
 import { type ReactElement, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { QueryGuideType } from './type.js'
 import { t } from '../../../i18n/index.js'
@@ -9,6 +9,7 @@ import { SqlEditGuide } from './SqlEditGuide.js'
 
 import NiceModal, { useModal } from '@ebay/nice-modal-react'
 import { DraggableModal } from '../../components/DraggableModal/index.js'
+import { GUIDE_FORM_VALUES_KEY } from './constant.js'
 
 interface IProps { 
     database: string
@@ -36,6 +37,13 @@ export const QueryGuideModal = NiceModal.create((props: IProps) => {
     }, [ ]) 
     
     const Component = useMemo(() => components[type], [type])
+    
+    useEffect(() => { 
+        // 填写表单的时候缓存表单数据，弹窗销毁的时候清除
+        return () => {
+            sessionStorage.removeItem(GUIDE_FORM_VALUES_KEY)
+        }
+    }, [ ])
     
     return <>
         <DraggableModal

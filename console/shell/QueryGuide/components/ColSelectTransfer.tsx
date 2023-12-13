@@ -13,15 +13,11 @@ interface IProps {
 export function ColSelectTransfer (props: IProps) {
     const { cols, value = [ ], onChange } = props
     
-    const [target_keys, set_target_keys] = useState(value)   
-    
     const options = useMemo(() => cols.map(item => ({ title: item.name, key: item.name })), [cols])
     
     const on_value_change = useCallback((keys: string[]) => { 
-        set_target_keys(keys)
         onChange(keys)
     }, [ ])
-    
     
     return <Transfer
         titles={[
@@ -36,7 +32,7 @@ export function ColSelectTransfer (props: IProps) {
         className='col-select-transfer'
         showSearch
         onChange={on_value_change}
-        targetKeys={target_keys}
+        targetKeys={value ?? [ ]}
         render={item => item.title}
         dataSource={options}
         operations={[t('增加查询列'), t('删除查询列')]}

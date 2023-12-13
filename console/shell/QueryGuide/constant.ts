@@ -68,3 +68,6 @@ export const IN_OPERATIONS = [{
 export const VALUE_TYPES = ['INT', 'SHORT', 'DOUBLE', 'FLOAT', 'LONG']
 
 
+
+
+export const GUIDE_FORM_VALUES_KEY = 'guide_form_values'

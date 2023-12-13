@@ -1,5 +1,5 @@
 import { QueryForm } from './components/QueryForm.js'
-import { type ReactElement, forwardRef, useCallback, useImperativeHandle, useMemo, useState, useEffect } from 'react'
+import { type ReactElement, useCallback, useMemo, useState, useEffect } from 'react'
 import { t } from '../../../i18n/index.js'
 import { Button, Form, Space, Tooltip } from 'antd'
 import { request } from '../../guide/utils.js'
@@ -21,7 +21,6 @@ export function QueryGuide (props: IProps) {
     const { table, database, set_footer } = props
     
     const [current_step, set_current_step] = useState(0)
-    const [query_info, set_query_info] = useState<IQueryInfos>()
     const [code, set_code] = useState('')
     const [disable_export, set_disable_export] = useState(false)
     
@@ -29,7 +28,7 @@ export function QueryGuide (props: IProps) {
     
     const view_map = useMemo(() => { 
         return {
-            0: <QueryForm {...props} form={form} initial_values={query_info} />,
+            0: <QueryForm {...props} form={form} />,
             1: <ReadonlyEditor code={code} className='query-code-view' />,
             2: <QueryDataView set_disable_export={set_disable_export} code={code} />
         }
@@ -43,6 +42,8 @@ export function QueryGuide (props: IProps) {
         set_current_step(current_step - 1)
     }, [current_step])
     
+    
+    
     const get_query_code = useCallback(async () => { 
         try {
             await form.validateFields()
@@ -53,7 +54,6 @@ export function QueryGuide (props: IProps) {
                 partitionColQuerys: transform_query(values.partitionColQuerys ?? [ ])
             }
             const { code } = await request<{ code: string }>('dbms_generateQuery', { ...params, dbName: database, tbName: table })
-            set_query_info(values)
             set_code(code)
             to_next_step()
         } catch { }

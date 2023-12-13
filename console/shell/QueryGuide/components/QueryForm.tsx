@@ -4,12 +4,12 @@ import { shell } from '../../model.js'
 import { NodeType, model } from '../../../model.js'
 import {  DdbFunctionType } from 'dolphindb'
 import { isNumber } from 'lodash'
-import { useEffect, useId, useState } from 'react'
+import { useCallback, useEffect, useId, useState } from 'react'
 import { ColSelectTransfer } from './ColSelectTransfer.js'
 import { FormDependencies } from '../../../components/formily/FormDependcies/index.js'
 import { StringDatePicker } from '../../../components/StringDatePicker/index.js'
 import { StringTimePicker } from '../../../components/StringTimePicker.js'
-import { IN, IN_OPERATIONS, LIKE, NOT_IN, NOT_LIKE, STRING_OPERATIONS, VALUE_OPERATIONS, VALUE_TYPES } from '../constant.js'
+import { GUIDE_FORM_VALUES_KEY, IN, IN_OPERATIONS, LIKE, NOT_IN, NOT_LIKE, STRING_OPERATIONS, VALUE_OPERATIONS, VALUE_TYPES } from '../constant.js'
 import { MinusCircleOutlined, PlusCircleOutlined } from '@ant-design/icons'
 import { t } from '../../../../i18n/index.js'
 import { ENUM_TYPES, type IColumn, type IQueryInfos } from '../type.js'
@@ -22,7 +22,6 @@ interface IProps {
     form: FormInstance
     database: string
     table: string
-    initial_values: IQueryInfos
 }
 
 interface IQueryCard {
@@ -144,15 +143,21 @@ export function QueryCard (props: IQueryCard) {
 }
 
 export function QueryForm (props: IProps) { 
-    const { database, table, form, initial_values } = props
+    const { database, table, form } = props
     const [cols, set_cols] = useState<IColumn[]>([ ])
     const [partition_cols, set_partition_cols] = useState<string[]>([ ])
     const page_id = useId()
     
+        
+    const save_cache = useCallback((_, values) => {
+        sessionStorage.setItem(GUIDE_FORM_VALUES_KEY, JSON.stringify(values))
+    }, [ ])
+    
     useEffect(() => { 
-        if (initial_values)
-            form.setFieldsValue(initial_values)
-    }, [ initial_values ])
+        const last_values = JSON.parse(sessionStorage.getItem(GUIDE_FORM_VALUES_KEY))
+        console.log(last_values, 'last_values')
+        form.setFieldsValue(last_values)
+    }, [ form ])
     
     const { isLoading } = useSWR(['get_table_schema', table, database, page_id],
         async () => { 
@@ -184,8 +189,9 @@ export function QueryForm (props: IProps) {
         }
     )
     
+    
     return <Spin spinning={isLoading}>
-        <Form form={form}>
+        <Form form={form} onValuesChange={save_cache}>
             <h4 className='query-col-title'>{t('查询列')}</h4>
             <Form.Item name='queryCols' rules={[{ required: true, message: '请选择查询列' }] }>
                 <ColSelectTransfer cols={cols}/>
@@ -201,6 +207,9 @@ export function QueryForm (props: IProps) {
                         name='partitionColQuerys'
                         name_path={null}
                     />
+                    <Typography.Text type='secondary' className='partition-query-tip'>
+                        {t('匹配 (like) 规则说明（区分大小写）：% 表示任意 0 个或者多个字符，可匹配任意类型和长度的字符，例如"688%" 匹配以 688 开头的字符串，可匹配 "688101.SH"、"688101"等字符串；"%SZ%" 匹配包含 SZ 的字符串， 能够匹配 "300951.SZ"、 "SZ.300951"的字符串；"%6" 匹配以 6 结尾的字符串，能够匹配例如 “abcd6” 的字符串。') }
+                    </Typography.Text>
                 </>
             }
             <h4>{t('查询条件')}</h4>

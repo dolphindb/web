@@ -30,9 +30,9 @@ export function CodeViewStep (props: IProps) {
     
     
     
-    const on_download = useCallback(() => { 
+    const on_download = useCallback(async () => 
         NiceModal.show(DownloadConfigModal, { config })
-    }, [config])
+    , [config])
     
     
     return <div className='code-view-wrapper'>

@@ -56,7 +56,7 @@ export function CommonSortCols (props: IProps) {
                         </Form.Item>
                         {fields.length > 1 && <Tooltip title='删除'><DeleteOutlined className='delete-icon' onClick={() => { remove(field.name) }} /></Tooltip>}
                     </div>)}
-                { fields.length < max && <Button onClick={() => { add() } } block type='dashed' icon={<PlusCircleOutlined />}>增加筛选列</Button>}
+                { fields.length < max && <Button onClick={add} block type='dashed' icon={<PlusCircleOutlined />}>增加筛选列</Button>}
             </>}
         </Form.List>
     </div>
