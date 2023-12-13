@@ -19,8 +19,6 @@ interface IProps {
 export function Chart (props: IProps) {
     const { widget, data_source } = props 
     
-    console.log(convert_chart_config(widget, data_source), 'options')
-    
     // 编辑模式下 notMerge 为 true ，因为要修改配置，预览模式下 notMerge 为 false ，避免数据更新，导致选中的 label失效
     return <ReactEChartsCore
                 echarts={echarts}

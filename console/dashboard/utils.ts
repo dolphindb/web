@@ -213,16 +213,12 @@ export function convert_chart_config (widget: Widget, data_source: any[]) {
                 type: 'slider',
                 xAxisIndex: [0],
                 filterMode: 'filter',
-                start: 0,
-                end: 100
             },
             {
                 id: 'dataZoomY',
                 type: 'slider',
                 yAxisIndex: [0],
                 filterMode: 'empty',
-                start: 0,
-                end: 100
             }
         ]
         let data_zoom = [ ]
@@ -294,10 +290,9 @@ export function convert_chart_config (widget: Widget, data_source: any[]) {
         let data = data_source.map(item => item?.[series.col_name])
         
         // 时间轴情况下，series为二维数组，且每项的第一个值为 x轴对应的值，第二个值为 y轴对应的值，并且需要对时间进行格式化处理
-        if (xAxis.type === AxisType.TIME) { 
-            console.log(xAxis.time_format, 'time_format')
+        if (xAxis.type === AxisType.TIME)  
             data = data_source.map(item => [format_time(item?.[xAxis.col_name], xAxis.time_format), item?.[series.col_name]])
-        }
+        
             
             
         // x 轴和 y 轴均为数据轴或者对数轴的情况下或者散点图，series 的数据为二维数组，每一项的第一个值为x的值，第二个值为y的值
@@ -372,12 +367,12 @@ export function convert_chart_config (widget: Widget, data_source: any[]) {
             },
             // 时间轴的tooltip格式需要手动处理，默认的format是 YYYY-MM-DD HH:mm:ss
             formatter: xAxis.type === AxisType.TIME ? params => { 
-                var text = '--'
+                let text = '--'
                 if (params && params.length) {
                   text = params[0].data[0] // 提示框顶部的日期标题
                   params.forEach(item => {
-                    const dotHtml = item.marker // 提示框示例的小圆圈,可以在这里修改
-                    text += `</br>${dotHtml}${item.seriesName} : ${item.data[1] ? item.data[1] : '-'}`
+                    const dotHtml = item.marker // 系列marker
+                    text += `</br>${dotHtml}${item.seriesName}：<span style="font-weight: 500;">${item.data[1] ?? '-'}</span>`
                   })
                 }
                 return text

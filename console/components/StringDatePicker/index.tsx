@@ -7,7 +7,7 @@ interface IProps extends Omit<DatePickerProps, 'onChange' | 'value'> {
     onChange?: (val: string) => void
     submitFormat?: string
     showTime?: boolean
-    submit_suffix?: string
+    submitSuffix?: string
 }
 
 
@@ -19,24 +19,9 @@ interface IStringRangePickerProps {
     format?: string
 }
 
-export function StringRangeDateTimePicker (props: IStringRangePickerProps) { 
-    const { value, onChange, format = 'YYYY-MM-DD HH:mm:ss', ...others } = props
-    
-    const on_value_change = useCallback((_, dateStrings: [string, string],) => {
-        onChange(dateStrings)
-    }, [ ])
-    
-    console.log(value, 'value')
-    
-    return <RangePicker
-        value={value ? [dayjs(value[0], format), dayjs(value[1], format)] : null}
-        format={format} {...others}
-        onChange={on_value_change}
-    />
-}
-
 export function StringDatePicker (props: IProps) { 
-    const { onChange, value, submitFormat = 'YYYY.MM.DD', submit_suffix, ...others } = props
+    // 使用 submitFormat 是因为 ddb 内时间格式固定将年月日以 . 连接，但是实际在组件内展示的标准时间格式是以 - 连接，所以提交表单的格式与展示格式不一致
+    const { onChange, value, submitFormat = 'YYYY.MM.DD', submitSuffix, ...others } = props
     
     const on_date_change = useCallback((value: Dayjs) => { 
         if (!value) { 
@@ -44,20 +29,20 @@ export function StringDatePicker (props: IProps) {
             return
         }
            
-        if (submit_suffix)
-            onChange(value.format(submitFormat) + submit_suffix)
+        if (submitSuffix)
+            onChange(value.format(submitFormat) + submitSuffix)
         else
             onChange(value.format(submitFormat))
-    }, [ ])
+    }, [ submitSuffix ])
     
     const val = useMemo(() => { 
         if (!value || !dayjs(value).isValid())
             return null
         let time = value
-        if (submit_suffix)  
-            time = submit_suffix ? time.replace(submit_suffix, '') : time
+        if (submitSuffix)  
+            time = submitSuffix ? time.replace(submitSuffix, '') : time
         return dayjs(time)
-    }, [ value, submit_suffix ])
+    }, [ value, submitSuffix ])
     
     return <DatePicker picker='date' {...others} onChange={on_date_change} value={val} />
 }

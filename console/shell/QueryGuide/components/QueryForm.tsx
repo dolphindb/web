@@ -37,9 +37,9 @@ interface IQueryCard {
 
 export const TIME_COMPONENT = {
     DATE: <StringDatePicker allowClear/>,
-    MONTH: <StringDatePicker submitFormat='YYYY.MM' submit_suffix='M' allowClear/>,
+    MONTH: <StringDatePicker submitFormat='YYYY.MM' submitSuffix='M' allowClear/>,
     TIME: <StringTimePicker format='HH:mm:ss' allowClear/>,
-    MINUTE: <StringTimePicker format='HH:mm' submit_suffix='m' allowClear/>,
+    MINUTE: <StringTimePicker format='HH:mm' submitSuffix='m' allowClear/>,
     SECOND: <StringTimePicker format='HH:mm:ss' allowClear/>,
     DATETIME: <StringDatePicker submitFormat='YYYY.MM.DD HH:mm:ss' showTime allowClear/>,
     TIMESTAMP: <StringDatePicker submitFormat='YYYY.MM.DD HH:mm:ss' showTime allowClear/>,
