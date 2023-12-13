@@ -596,7 +596,7 @@ function CreateDatabase () {
             }]}>
                 <InputNumber placeholder='1' onChange={(e: string) => {
                     const level = parseInt(e, 10)
-                    if (level < 1 || level > 3)
+                    if (level < 1 || level > 3 || !level)
                         return
                     
                     shell.set({ create_database_partition_count: level })
