@@ -19,7 +19,8 @@ export interface AxisConfig {
     log_base?: number
     
     range?: string[]
-    
+    max?: any
+    min?: any
 }
 
 export interface ISeriesConfig {

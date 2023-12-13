@@ -239,7 +239,7 @@ export function convert_chart_config (widget: Widget, data_source: any[]) {
         // 类目轴下需要定义类目数据, 其他轴线类型下 data 不生效
         if (axis.type === AxisType.CATEGORY)
             data = axis.col_name ? data_source.map(item => item?.[axis.col_name]) : [ ]
-        
+            
         const axis_config =  {
             show: true,
             name: axis.name,
@@ -268,13 +268,13 @@ export function convert_chart_config (widget: Widget, data_source: any[]) {
             scale: !axis.with_zero ?? false,
             nameTextStyle: {
                 fontSize: axis.fontsize ?? 12
-            }
+            },
+            min: axis.min,
+            max: axis.max
         }
         
         if (axis.type === AxisType.CATEGORY)
             return { ...axis_config, data: data || [ ] }
-        if (axis.type === AxisType.TIME && axis.range)
-            return { ...axis_config, min: axis.range[0], max: axis.range[1] }
         else
             return axis_config
     }
@@ -295,7 +295,7 @@ export function convert_chart_config (widget: Widget, data_source: any[]) {
         
         // 时间轴情况下，series为二维数组，且每项的第一个值为 x轴对应的值，第二个值为 y轴对应的值，并且需要对时间进行格式化处理
         if (xAxis.type === AxisType.TIME) { 
-            console.log(data_source, 'data_source')
+            console.log(xAxis.time_format, 'time_format')
             data = data_source.map(item => [format_time(item?.[xAxis.col_name], xAxis.time_format), item?.[series.col_name]])
         }
             
@@ -369,7 +369,19 @@ export function convert_chart_config (widget: Widget, data_source: any[]) {
             borderColor: '#060606',
             textStyle: {
                 color: '#F5F5F5'
-            }
+            },
+            // 时间轴的tooltip格式需要手动处理，默认的format是 YYYY-MM-DD HH:mm:ss
+            formatter: xAxis.type === AxisType.TIME ? params => { 
+                var text = '--'
+                if (params && params.length) {
+                  text = params[0].data[0] // 提示框顶部的日期标题
+                  params.forEach(item => {
+                    const dotHtml = item.marker // 提示框示例的小圆圈,可以在这里修改
+                    text += `</br>${dotHtml}${item.seriesName} : ${item.data[1] ? item.data[1] : '-'}`
+                  })
+                }
+                return text
+            } : null
         },
         title: {
             text: parse_text(title ?? ''),

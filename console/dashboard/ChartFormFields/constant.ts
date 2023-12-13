@@ -81,8 +81,3 @@ export const format_time_options = Object.values(ITimeFormat).map(val => ({
     label: val,
     value: val
 }))
-
-
-// const TIME_RANGE_MAP = {
-//     [ITimeFormat.DATE]: <String
-// }

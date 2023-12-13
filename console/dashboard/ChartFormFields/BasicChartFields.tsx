@@ -1,21 +1,33 @@
 import './index.scss'
 
 import { useMemo } from 'react'
-import { Form, Select, Input, Collapse, Button, Space, InputNumber, DatePicker } from 'antd'
+import { Form, Select, Input, Collapse, Button, Space, InputNumber } from 'antd'
 import { DeleteOutlined, PlusCircleOutlined } from '@ant-design/icons'
 
 import { t } from '../../../i18n/index.js'
 import { concat_name_path, convert_list_to_options } from '../utils.js'
 import { FormDependencies } from '../../components/formily/FormDependcies/index.js'
-import { AxisType, type IAxisItem, ILineType, type IYAxisItemValue } from './type.js'
+import { AxisType, type IAxisItem, ILineType, type IYAxisItemValue, ITimeFormat } from './type.js'
 
 
 import { axis_position_options, axis_type_options, chart_type_options, format_time_options, line_type_options, mark_line_options, mark_point_options } from './constant.js'
 import { WidgetChartType, dashboard } from '../model.js'
 import { StringColorPicker } from '../../components/StringColorPicker/index.js'
 import { BoolRadioGroup } from '../../components/BoolRadioGroup/index.js'
-import { StringRangeDateTimePicker } from '../../components/StringDatePicker/index.js'
+import { StringDatePicker } from '../../components/StringDatePicker/index.js'
+import { StringTimePicker } from '../../components/StringTimePicker.js'
 
+
+
+const DATE_SELECT_FORMAT = {
+    [ITimeFormat.DATE]: <StringDatePicker submitFormat={ITimeFormat.DATE}  allowClear />,
+    [ITimeFormat.DATE_HOUR]: <StringDatePicker submitFormat={ITimeFormat.DATE_HOUR} showTime allowClear />,
+    [ITimeFormat.DATE_MINUTE]: <StringDatePicker submitFormat={ITimeFormat.DATE_MINUTE} format={ITimeFormat.DATE_MINUTE} showTime allowClear />,
+    [ITimeFormat.DATE_SECOND]: <StringDatePicker submitFormat={ITimeFormat.DATE_SECOND} format={ITimeFormat.DATE_SECOND} showTime allowClear />,
+    [ITimeFormat.HOUR]: <StringTimePicker format={ITimeFormat.HOUR} allowClear />,
+    [ITimeFormat.MINUTE]: <StringTimePicker format={ITimeFormat.MINUTE} allowClear />,
+    [ITimeFormat.SECOND]: <StringTimePicker format={ITimeFormat.SECOND} allowClear />,
+} 
 
 // col 表示是否需要选择坐标列，x轴必须选择坐标列
 export function AxisItem ({ name_path, col_names = [ ], list_name, initial_values, col }: IAxisItem) { 
@@ -46,7 +58,6 @@ export function AxisItem ({ name_path, col_names = [ ], list_name, initial_value
         <FormDependencies dependencies={[concat_name_path(list_name, name_path, 'type')]}>
             {value => {
                 const type = list_name ? value[list_name]?.find(item => item)?.type : value?.[name_path]?.type
-                console.log(type, 'type')
                 switch (type) { 
                     case AxisType.VALUE:
                         return <>
@@ -55,6 +66,12 @@ export function AxisItem ({ name_path, col_names = [ ], list_name, initial_value
                             </Form.Item> }
                             <Form.Item name={concat_name_path(name_path, 'with_zero')} label={t('强制包含零刻度')} initialValue={false}>
                                 <BoolRadioGroup />
+                            </Form.Item>
+                            <Form.Item name={concat_name_path(name_path, 'min')} label={t('最小值')}>
+                                <InputNumber />
+                            </Form.Item>
+                            <Form.Item name={concat_name_path(name_path, 'max')} label={t('最大值')}>
+                                <InputNumber />
                             </Form.Item>
                         </>
                     case AxisType.LOG:
@@ -74,12 +91,20 @@ export function AxisItem ({ name_path, col_names = [ ], list_name, initial_value
                             <Form.Item name={concat_name_path(name_path, 'time_format')} label={t('时间格式化')}>
                                 <Select options={format_time_options}/>
                             </Form.Item>
-                            <FormDependencies dependencies={[[concat_name_path(list_name, name_path, 'time_format')]]}>
+                            <FormDependencies dependencies={[concat_name_path(list_name, name_path, 'time_format')]}>
                                 {value => { 
-                                    const format = list_name ? value[list_name]?.find(item => item)?.time_format : value?.[name_path]?.time_format
-                                    if (format) { 
-                                        switch(format)
-                                    }
+                                    const time_format = list_name ? value[list_name]?.find(item => item)?.time_format : value?.[name_path]?.time_format
+                                    if (!time_format)
+                                        return null
+                                    else
+                                        return <>
+                                            <Form.Item name={concat_name_path(name_path, 'min')} label={t('开始时间')}>
+                                                {DATE_SELECT_FORMAT[time_format]}
+                                            </Form.Item>
+                                            <Form.Item name={concat_name_path(name_path, 'max')} label={t('结束时间')}>
+                                                {DATE_SELECT_FORMAT[time_format]}
+                                            </Form.Item>
+                                        </>
                                 } }
                             </FormDependencies>
                         </>
@@ -97,6 +122,9 @@ export function AxisItem ({ name_path, col_names = [ ], list_name, initial_value
                 }
             }}
         </FormDependencies>
+        
+                                                
+       
     </>
 }
 

@@ -23,7 +23,6 @@ export function StringRangeDateTimePicker (props: IStringRangePickerProps) {
     const { value, onChange, format = 'YYYY-MM-DD HH:mm:ss', ...others } = props
     
     const on_value_change = useCallback((_, dateStrings: [string, string],) => {
-        console.log(dateStrings, 'dateStrings')
         onChange(dateStrings)
     }, [ ])
     
@@ -60,5 +59,5 @@ export function StringDatePicker (props: IProps) {
         return dayjs(time)
     }, [ value, submit_suffix ])
     
-    return <DatePicker  picker='date' {...others} onChange={on_date_change} value={val} />
+    return <DatePicker picker='date' {...others} onChange={on_date_change} value={val} />
 }
