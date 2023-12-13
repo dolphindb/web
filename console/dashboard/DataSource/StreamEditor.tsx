@@ -93,10 +93,13 @@ export function StreamEditor ({
                 set_stream_tables(table_items)
                 tables_ref.current = table_items
                 
-                if (!table.includes(current_data_source.stream_table)) {
-                    change_current_data_source_property('stream_table', table[0], false) 
-                    set_current_stream(table[0])
-                } 
+                if (!table.includes(current_data_source.stream_table)) 
+                    if (current_data_source.stream_table) 
+                        set_current_stream(null)
+                    else {
+                        change_current_data_source_property('stream_table', table[0], false) 
+                        set_current_stream(table[0])
+                    }
                 else 
                     set_current_stream(current_data_source.stream_table)
                 
@@ -194,95 +197,100 @@ export function StreamEditor ({
                                 }}
                             />
                         </div>
-                        <div className='streameditor-main-right'>
-                            <div className='preview' style={{ height: current_data_source.filter ? '40%' : '100%' }}>
-                                <div className='preview-config'>
-                                    <div className='preview-config-tag'>
-                                        {t('列名预览（共{{length}}列）：', { length: current_data_source.cols.length })}
+                        {current_stream 
+                            ? <div className='streameditor-main-right'>
+                                <div className='preview' style={{ height: current_data_source.filter ? '40%' : '100%' }}>
+                                    <div className='preview-config'>
+                                        <div className='preview-config-tag'>
+                                            {t('列名预览（共{{length}}列）：', { length: current_data_source.cols.length })}
+                                        </div>
+                                    </div>
+                                    <div className='preview-main'>
+                                        <Table 
+                                            columns={[
+                                                {
+                                                    title: 'Index',
+                                                    dataIndex: 'index',
+                                                },
+                                                {
+                                                    title: 'Name',
+                                                    dataIndex: 'name',
+                                                },
+                                            ]} 
+                                            dataSource={
+                                                current_data_source.cols.map((col, index) => {
+                                                    return {
+                                                        key: col,
+                                                        index: index + 1,
+                                                        name: col
+                                                    }
+                                                })
+                                            } 
+                                            bordered
+                                            size='small'
+                                            pagination={{ pageSize: 6, position: ['bottomCenter'] }} 
+                                        />
                                     </div>
                                 </div>
-                                <div className='preview-main'>
-                                    <Table 
-                                        columns={[
-                                            {
-                                                title: 'Index',
-                                                dataIndex: 'index',
-                                            },
-                                            {
-                                                title: 'Name',
-                                                dataIndex: 'name',
-                                            },
-                                        ]} 
-                                        dataSource={
-                                            current_data_source.cols.map((col, index) => {
-                                                return {
-                                                    key: col,
-                                                    index: index + 1,
-                                                    name: col
-                                                }
-                                            })
-                                        } 
-                                        bordered
-                                        size='small'
-                                        pagination={{ pageSize: 6, position: ['bottomCenter'] }} 
-                                    />
-                                </div>
+                                {current_data_source.filter &&
+                                    <>
+                                        <div className='streameditor-main-right-filter'>
+                                            <div className='streameditor-main-right-filter-top'>
+                                                <div className='streameditor-main-right-filter-top-mode'>
+                                                    {t('列过滤') + '：'}
+                                                    <Popover 
+                                                        content={(
+                                                            <div>
+                                                                <p>{t('值过滤、范围过滤、哈希过滤')}</p>
+                                                            </div>
+                                                        )} 
+                                                    >
+                                                        <QuestionCircleOutlined className='streameditor-main-right-filter-top-mode-icon'/>
+                                                    </Popover>
+                                                </div>
+                                                <div className='streameditor-main-right-filter-top-col'>
+                                                    {stream_filter_col ? (t('当前过滤列为:') + stream_filter_col) : t('当前流表无过滤列')}
+                                                </div>
+                                            </div>
+                                            <div className='streameditor-main-right-filter-main'>
+                                                <Editor
+                                                    readonly={loading}
+                                                    enter_completion
+                                                    on_mount={(editor, monaco) => {
+                                                        editor?.setValue(get_data_source(current_data_source.id).filter_column || '')
+                                                        dashboard.set({ filter_column_editor: editor, monaco })
+                                                    }}
+                                                    on_change={() => { change_no_save_flag(true) }}
+                                                    theme='dark'
+                                                />
+                                            </div>
+                                        </div>
+                                        <div className='streameditor-main-right-filter'>
+                                            <div className='streameditor-main-right-filter-top'>
+                                                <div className='streameditor-main-right-filter-top-mode'>
+                                                    {t('表达式过滤') + '：'}
+                                                </div>
+                                            </div>
+                                            <div className='streameditor-main-right-filter-main'>
+                                                <Editor
+                                                    readonly={loading}
+                                                    enter_completion
+                                                    on_mount={(editor, monaco) => {
+                                                        editor?.setValue(get_data_source(current_data_source.id).filter_expression || '')
+                                                        dashboard.set({ filter_expression_editor: editor, monaco })
+                                                    }}
+                                                    on_change={() => { change_no_save_flag(true) }}
+                                                    theme='dark'
+                                                />
+                                            </div>
+                                        </div>
+                                    </>
+                                }
                             </div>
-                            {current_data_source.filter &&
-                                <>
-                                    <div className='streameditor-main-right-filter'>
-                                        <div className='streameditor-main-right-filter-top'>
-                                            <div className='streameditor-main-right-filter-top-mode'>
-                                                {t('列过滤') + '：'}
-                                                <Popover 
-                                                    content={(
-                                                        <div>
-                                                            <p>{t('值过滤、范围过滤、哈希过滤')}</p>
-                                                        </div>
-                                                    )} 
-                                                >
-                                                    <QuestionCircleOutlined className='streameditor-main-right-filter-top-mode-icon'/>
-                                                </Popover>
-                                            </div>
-                                            <div className='streameditor-main-right-filter-top-col'>
-                                                {stream_filter_col ? (t('当前过滤列为:') + stream_filter_col) : t('当前流表无过滤列')}
-                                            </div>
-                                        </div>
-                                        <div className='streameditor-main-right-filter-main'>
-                                            <Editor
-                                                readonly={loading}
-                                                enter_completion
-                                                on_mount={(editor, monaco) => {
-                                                    editor?.setValue(get_data_source(current_data_source.id).filter_column || '')
-                                                    dashboard.set({ filter_column_editor: editor, monaco })
-                                                }}
-                                                on_change={() => { change_no_save_flag(true) }}
-                                                theme='dark'
-                                            />
-                                        </div>
-                                    </div>
-                                    <div className='streameditor-main-right-filter'>
-                                        <div className='streameditor-main-right-filter-top'>
-                                            <div className='streameditor-main-right-filter-top-mode'>
-                                                {t('表达式过滤') + '：'}
-                                            </div>
-                                        </div>
-                                        <div className='streameditor-main-right-filter-main'>
-                                            <Editor
-                                                readonly={loading}
-                                                enter_completion
-                                                on_mount={(editor, monaco) => {
-                                                    editor?.setValue(get_data_source(current_data_source.id).filter_expression || '')
-                                                    dashboard.set({ filter_expression_editor: editor, monaco })
-                                                }}
-                                                on_change={() => { change_no_save_flag(true) }}
-                                                theme='dark'
-                                            />
-                                        </div>
-                                    </div>
-                                </>
-                            }
-                        </div>        
+                            : <div className='streameditor-main-right'>
+                                {`${t('注意：导入的 JSON 配置中流数据表 [{{name}}] 于当前节点不存在。', { name: current_data_source.stream_table })}`}
+                            </div>
+                        }        
                     </div>
                     <div className='streamconfig'>
                         <div className='streamconfig-left'>
@@ -338,7 +346,7 @@ export function StreamEditor ({
                             }
                     </div>
                     
-                    { current_data_source.filter && <InsertVariableBtn on_insert={on_monaco_insert} /> }
+                    { current_data_source.filter && current_stream && <InsertVariableBtn on_insert={on_monaco_insert} /> }
                         <div className='streamconfig-right'>
                             <div>
                                 {t('最大展示行数') + '：'}
