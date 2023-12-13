@@ -60,7 +60,7 @@ export function QueryCard (props: IQueryCard) {
                                 <Select
                                     showSearch
                                     options={cols
-                                        .filter(item => !item.name.includes('[]'))
+                                        .filter(item => !item.data_type.includes('[]'))
                                         .map(item => ({
                                             label: <div className='col-select-label'>
                                                 <span className='table-name'>{item.name}</span>
@@ -80,7 +80,7 @@ export function QueryCard (props: IQueryCard) {
                                 const { data_type } = safe_json_parse(val ?? '{}')
                                 
                                 let opt_options = [ ]
-                                if (VALUE_TYPES.includes(data_type) || Object.keys(TIME_COMPONENT).includes(data_type)) 
+                                if (VALUE_TYPES.includes(data_type) || Object.keys(TIME_COMPONENT).includes(data_type) || data_type?.includes('DECIMAL'))
                                     opt_options = VALUE_OPERATIONS
                                 else  
                                     opt_options = STRING_OPERATIONS
