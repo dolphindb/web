@@ -266,7 +266,8 @@ export function convert_chart_config (widget: Widget, data_source: any[]) {
             return axis_config
     }
     
-    function convert_series (series: ISeriesConfig) { 
+    function convert_series (series: ISeriesConfig) {
+        
         let mark_line_data = series?.mark_line?.map(item => { 
             if (item in MarkPresetType)
                 return {
@@ -278,6 +279,7 @@ export function convert_chart_config (widget: Widget, data_source: any[]) {
         }) || [ ]
         
         
+        
         let data = data_source.map(item => item?.[series.col_name])
         
         // 时间轴情况下，series为二维数组，且每项的第一个值为 x轴对应的值，第二个值为 y轴对应的值，并且需要对时间进行格式化处理
@@ -285,10 +287,11 @@ export function convert_chart_config (widget: Widget, data_source: any[]) {
             data = data_source.map(item => [format_time(item?.[xAxis.col_name], xAxis.time_format), item?.[series.col_name]])
         
             
-            
+        
+        
         // x 轴和 y 轴均为数据轴或者对数轴的情况下或者散点图，series 的数据为二维数组，每一项的第一个值为x的值，第二个值为y的值
         if (([AxisType.VALUE, AxisType.LOG].includes(xAxis.type) && [AxisType.VALUE, AxisType.LOG].includes(yAxis[series.yAxisIndex].type)) || series.type === WidgetChartType.SCATTER)  
-            data  = data_source.map(item => [item[xAxis.col_name], item[series.col_name]])
+            data  = data_source.map(item => [format_time(item[xAxis.col_name], xAxis.time_format), item[series.col_name]])
         
         if (isNumber(series.threshold?.value))  
             data = data.map(item => ({
@@ -357,17 +360,17 @@ export function convert_chart_config (widget: Widget, data_source: any[]) {
                 color: '#F5F5F5'
             },
             // 时间轴的tooltip格式需要手动处理，默认的format是 YYYY-MM-DD HH:mm:ss
-            formatter: xAxis.type === AxisType.TIME ? params => { 
-                let text = '--'
-                if (params && params.length) {
-                  text = params[0].data[0] // 提示框顶部的日期标题
-                  params.forEach(item => {
-                    const dotHtml = item.marker // 系列marker
-                    text += `</br>${dotHtml}${item.seriesName}：<span style="font-weight: 500;">${item.data[1] ?? '-'}</span>`
-                  })
-                }
-                return text
-            } : null
+            // formatter: xAxis.type === AxisType.TIME ? params => { 
+            //     let text = '--'
+            //     if (params && params.length) {
+            //       text = `<span style="font-weight: 500;">${params[0].value[0]}</span>` // 提示框顶部的日期标题
+            //       params.forEach(item => {
+            //         const dotHtml = item.marker // 系列marker
+            //         text += `</br>${dotHtml}${item.seriesName}：<span style="font-weight: 500;">${item?.value?.[1] ?? '-'}</span>`
+            //       })
+            //     }
+            //     return text
+            // } : null
         },
         title: {
             text: parse_text(title ?? ''),
