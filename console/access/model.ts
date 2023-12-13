@@ -14,22 +14,22 @@ export interface Database {
     tables: string[]
 }
 
-const ACCESS_NUM = {
-    TABLE_READ: 0,
-    TABLE_WRITE: 1,
-    DBOBJ_CREATE: 2,
-    DBOBJ_DELETE: 3,
-    DB_MANAGE: 4,
-    VIEW_EXEC: 5,
-    SCRIPT_EXEC: 6,
-    TEST_EXEC: 7,
-    TABLE_INSERT: 13,
-    TABLE_UPDATE: 14,
-    TABLE_DELETE: 15,
-    DB_READ: 16,
-    DB_INSERT: 18,
-    DB_UPDATE: 19,
-    DB_DELETE: 20
+enum ACCESS_NUM  {
+    TABLE_READ =  0,
+    TABLE_WRITE = 1,
+    DBOBJ_CREATE = 2,
+    DBOBJ_DELETE = 3,
+    DB_MANAGE = 4,
+    VIEW_EXEC = 5,
+    SCRIPT_EXEC = 6,
+    TEST_EXEC = 7,
+    TABLE_INSERT = 13,
+    TABLE_UPDATE = 14,
+    TABLE_DELETE = 15,
+    DB_READ = 16,
+    DB_INSERT = 18,
+    DB_UPDATE = 19,
+    DB_DELETE = 20
 }
 
 class AccessModel extends Model<AccessModel> {
