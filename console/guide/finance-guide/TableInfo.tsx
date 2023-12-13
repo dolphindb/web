@@ -33,11 +33,10 @@ export function TableInfo (props: IProps) {
             table_params = { ...values, partitionCols: values.partitionCols?.map(item => item.colName) }
         else
             table_params = values
-        const params = {
+        const { code } = await request<{ code: string }>('autoCreateDBTB', {
             database: info.database,
             table: table_params
-        } 
-        const { code } = await request<{ code: string }>('autoCreateDBTB', params)
+        } )
         go({ table: values, code })
     }, [info, go])
     

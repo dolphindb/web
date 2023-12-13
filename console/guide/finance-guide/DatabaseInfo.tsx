@@ -44,13 +44,12 @@ export function DatabaseInfo (props: IProps) {
         </Form.Item>
         
         <FormDependencies dependencies={['isExist']}>
-            {value => { 
-                if (value.isExist)
-                    return <Form.Item label='现有库' name='name' rules={[{ required: true, message: '请选择现有库' }]}>
+            {({ isExist }) => 
+               isExist ? <Form.Item label='现有库' name='name' rules={[{ required: true, message: '请选择现有库' }]}>
                         <ExistDBSelect />
                     </Form.Item>
-                else
-                    return <>
+                :
+                    <>
                         <Form.Item
                             label='新建库名'
                             name='name'
@@ -111,7 +110,7 @@ export function DatabaseInfo (props: IProps) {
                             }  
                         </FormDependencies>
                     </>
-            } }
+             }
         </FormDependencies>
         
         <Form.Item className='btn-group'>
