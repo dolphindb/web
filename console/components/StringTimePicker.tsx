@@ -4,29 +4,29 @@ import { useCallback, useMemo } from 'react'
 interface IProps extends Omit<TimePickerProps, 'onChange' | 'value'> { 
     onChange?: (time: string) => void
     value?: string
-    submit_suffix?: string
+    submitSuffix?: string
 }
 
 export function StringTimePicker (props: IProps) { 
-    const { format = 'HH:mm:ss', onChange, value, submit_suffix, ...others } = props
+    const { format = 'HH:mm:ss', onChange, value, submitSuffix, ...others } = props
     
     const on_value_change = useCallback((value, time) => {
         if (!value) { 
             onChange(null)
             return
         }
-        if (submit_suffix)
-            onChange(time + submit_suffix)
+        if (submitSuffix)
+            onChange(time + submitSuffix)
         else
             onChange(time)
-    }, [submit_suffix])
+    }, [submitSuffix])
     
     const val = useMemo(() => { 
         if (!value || !dayjs(value, format as string).isValid())
             return null
-        let time = submit_suffix ? value.replace(submit_suffix, '') : value
+        let time = submitSuffix ? value.replace(submitSuffix, '') : value
         return time ? dayjs(value, format as string) : null
-    }, [submit_suffix, value, format])
+    }, [submitSuffix, value, format])
     
     
     return <TimePicker
