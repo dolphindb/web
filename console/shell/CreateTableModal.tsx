@@ -74,7 +74,8 @@ function CreateTableModalPreviewCode () {
     const steps = useContext(StepsContext)
     const { schema } = useContext(PropsContext)
     
-    const engineType = schema.engineType.value as string
+    // 1.30 没有 engineType
+    const engineType = schema.engineType?.value as string
     const isTSDB = engineType === 'TSDB'
     
     const code = useMemo(() => {
@@ -288,7 +289,7 @@ function CreateTableModalFillForm () {
         [partitionList]
     )
     
-    const engineType = schema.engineType.value as string
+    const engineType = schema.engineType?.value as string
     const isTSDB = engineType === 'TSDB'
     
     // restore form value from steps context
@@ -421,6 +422,7 @@ function CreateTableModalFillForm () {
                         }}
                     >
                         <DDBTypeSelectorSchemaFields 
+                            isTSDBEngine={isTSDB}
                             typeField={{
                                 title: null,
                             }}

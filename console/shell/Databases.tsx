@@ -433,7 +433,7 @@ interface CreateDatabaseFormInfo {
 
 function CreateDatabase () {
     const { create_database_modal_visible, create_database_partition_count } = shell.use(['create_database_modal_visible', 'create_database_partition_count'])
-    const { node_type, node, datanode } = model.use(['node_type', 'node', 'datanode'])
+    const { node_type, node, datanode, is_v2 } = model.use(['node_type', 'node', 'datanode', 'is_v2'])
     const [form] = Form.useForm()
     
     // We just assume this is always turned on in dolphindb.cfg
@@ -662,18 +662,18 @@ function CreateDatabase () {
             </Form.Item> */
             }
             
-            <Form.Item label={t('存储引擎')} name='storageEngine' required>
+            <Form.Item label={t('存储引擎')} name='storageEngine' required initialValue='OLAP'>
                 <Select placeholder={t('请选择存储引擎')} options={[
                     // https://www.dolphindb.cn/cn/help/FunctionsandCommands/FunctionReferences/d/database.html
                     {
                         label: <span title={t('OLAP 引擎。OLAP 数据表的每个列存储为一个文件，数据以追加的方式存储到相应的列文件中，因此，数据写入的顺序决定了它们的存储顺序。')}> OLAP </span>,
                         value: 'OLAP',
                     },
-                    {
+                    is_v2 && {
                         label: <span title={t('TSDB 引擎。采用经典的 LSMT 模型，引入了排序列以提升在用户查询某个或少数几个设备（股票）在特定时间段数据的场景下的查询性能。')}> TSDB </span>,
                         value: 'TSDB',
                     }
-                ]} />
+                ].filter(Boolean)} />
             </Form.Item>
             
             <Form.Item label={t('写入事务原子性')} name='atomicLevel' required>
@@ -792,8 +792,9 @@ export class Database implements DataNode {
             async event => {
                 event.stopPropagation()
                 await model.execute(async () => {
-                    const databaseSchema = (await model.ddb.eval(`schema(database("${this.path}"))`)).to_dict()
-                    await NiceModal.show(CreateTableModal, { database: this, schema: databaseSchema })
+                    const schema = (await this.get_schema()).to_dict()
+                    console.log(schema)
+                    await NiceModal.show(CreateTableModal, { database: this, schema })
                     await shell.load_dbs()
                 })
             }
@@ -1184,8 +1185,9 @@ export class ColumnRoot implements DataNode {
         this.key = `${table.path}${this.type}/`
         this.title = <div className='column-root-title'>
             {t('列')}
-            <div className='add-column-button' onClick={ event => {
+            <div className='add-column-button' onClick={async event => {
                 event.stopPropagation()
+                await this.table.db.get_schema()
                 NiceModal.show(AddColumnModal, { node: this })
             }}>
                 <Tooltip title={t('添加列')} color='grey'>

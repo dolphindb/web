@@ -84,9 +84,3 @@ export const SUPPORT_SORT_COLUMN_TYPES: DDBColumnTypeNames[] = [
     'DECIMAL64',
     'DECIMAL128',
 ]
-
-export const DDB_COLUMN_DATA_TYPES_SELECT_OPTIONS: SelectProps['options'] =
-    DDB_COLUMN_DATA_TYPES.map(type => ({
-        label: type,
-        value: type,
-    }))

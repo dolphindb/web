@@ -32,6 +32,9 @@ export const AddColumnModal = NiceModal.create<Props>(({ node }) => {
         [ ]
     )
     
+    const engineType = node.table.db.schema.to_dict().engineType?.value as string
+    const isTSDB = engineType === 'TSDB'
+    
     async function onSubmit (formValues: IAddColumnFormValues) {
         await model.execute(async () => {
             const { table } = node
@@ -84,7 +87,7 @@ export const AddColumnModal = NiceModal.create<Props>(({ node }) => {
                         message: t('请输入列名')
                     }}
                 />
-                <DDBTypeSelectorSchemaFields />
+                <DDBTypeSelectorSchemaFields isTSDBEngine={isTSDB} />
             </SchemaField>
             <FormButtonGroup align='right'>
                 <Submit type='primary'>{t('确定')}</Submit>

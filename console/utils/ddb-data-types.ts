@@ -1,4 +1,5 @@
 import { SUPPORT_ARRAY_VECTOR_TYPES, type DDBColumnTypeNames } from '../constants/column-data-types.js'
+import { model } from '../model.js'
 
 export function isDDBTemporalType (type: DDBColumnTypeNames) {
     return [
@@ -23,7 +24,7 @@ export function isDDBDecimalType (type: DDBColumnTypeNames) {
 }
 
 export function isDDBArrayVectorSupportType (type: DDBColumnTypeNames) {
-    return SUPPORT_ARRAY_VECTOR_TYPES.includes(type)
+    return model.is_v2 && SUPPORT_ARRAY_VECTOR_TYPES.includes(type)
 }
 
 interface GenerateDDBDataTypeLiteralOptions {
