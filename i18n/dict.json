@@ -1469,8 +1469,8 @@
     "创建成功": {
         "en": "Successfully created"
     },
-    "数据库路径": {
-        "en": "db path"
+    "数据库路径（directory）": {
+        "en": "directory"
     },
     "表类型": {
         "en": "table type"
@@ -1577,8 +1577,8 @@
     "分区位置": {
         "en": "partition location"
     },
-    "存储引擎": {
-        "en": "storage engine"
+    "存储引擎（engine）": {
+        "en": "engine"
     },
     "请选择存储引擎": {
         "en": "Please select storage engine"
@@ -1589,8 +1589,8 @@
     "TSDB 引擎。采用经典的 LSMT 模型，引入了排序列以提升在用户查询某个或少数几个设备（股票）在特定时间段数据的场景下的查询性能。": {
         "en": "TSDB engine. Using the classic LSMT model, the sorted column is introduced to improve the query performance in the scenario where the user queries the data of a few devices (or stocks) in a specific time period."
     },
-    "写入事务原子性": {
-        "en": "transaction atomicity"
+    "写入事务原子性（atomic）": {
+        "en": "atomic"
     },
     "请选择写入事务原子性": {
         "en": "Please select transaction atomicity"
@@ -1607,8 +1607,8 @@
     "分区级原子性": {
         "en": "partition level transaction atomicity"
     },
-    "分区粒度": {
-        "en": "chunk granularity"
+    "分区粒度（chunkGranularity）": {
+        "en": "chunkGranularity"
     },
     "请选择分区粒度": {
         "en": "Please select chunk granularity"
@@ -1658,14 +1658,14 @@
     "创建数据库成功": {
         "en": "Database created successfully."
     },
-    "{{i18nIndex}}分区类型": {
-        "en": "{{i18nIndex}} partition's type"
+    "{{i18nIndex}}分区类型（partitionType）": {
+        "en": "{{i18nIndex}} partitionType"
     },
     "请选择{{i18nIndex}}分区类型": {
         "en": "Please select the partition type of the {{i18nIndex}} partition"
     },
-    "{{i18nIndex}}分区方案": {
-        "en": "{{i18nIndex}} partition's scheme"
+    "{{i18nIndex}}分区方案（partitionScheme）": {
+        "en": "{{i18nIndex}} partitionScheme"
     },
     "请输入{{i18nIndex}}分区方案": {
         "en": "Please enter the partition scheme of the {{i18nIndex}} partition"
