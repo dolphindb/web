@@ -481,7 +481,7 @@ function CreateDatabase () {
                         : 'https://docs.dolphindb.cn/en/help200/FunctionsandCommands/FunctionReferences/d/database.html'
                     }
                 >
-                    {t('文档链接')}
+                    {t('参考教程')}
                 </a>
             </div>}
     >{

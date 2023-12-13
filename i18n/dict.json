@@ -1670,6 +1670,9 @@
     "请输入{{i18nIndex}}分区方案": {
         "en": "Please enter the partition scheme of the {{i18nIndex}} partition"
     },
+    "参考教程":{
+        "en":  "Reference"
+    },
     "一级": {
         "en": "first"
     },
