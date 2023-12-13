@@ -242,7 +242,6 @@ function Series (props: { col_names: string[], single?: boolean }) {
                                                 return <Form.Item
                                                 name={[field.name, 'end_label_formatter']}
                                                 label={t('自定义端标签')}
-                                                initialValue='{a}'
                                                 tooltip={<>
                                                     {t('支持静态标签与模板变量，其中模板变量包含以下几种')}
                                                     <br />
