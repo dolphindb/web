@@ -52,7 +52,7 @@ export enum ITimeFormat {
     SECOND = 'HH:mm:ss',
     
     DATE = 'YYYY-MM-DD',
-    DATE_HOUR = 'YYYY-MM-DD HH时',
+    DATE_HOUR = 'YYYY-MM-DD HH',
     DATE_MINUTE = 'YYYY-MM-DD HH:mm',
     DATE_SECOND = 'YYYY-MM-DD HH:mm:ss',
    

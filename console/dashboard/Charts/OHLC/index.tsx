@@ -290,16 +290,13 @@ export function OHLC ({ widget, data_source }: { widget: Widget, data_source: an
                 {
                     type: 'inside',
                     xAxisIndex: [0, 1],
-                    start: 0,
-                    end: 100
+                    
                 },
                 {
                     show: x_datazoom,
                     xAxisIndex: [0, 1],
                     type: 'slider',
                     top: '86%',
-                    start: 0,
-                    end: 100,
                     height: 20
                 },
                 {
