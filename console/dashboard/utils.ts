@@ -163,15 +163,6 @@ export function get_cols (obj: DdbObj<DdbValue>): Array<string> {
     return cols
 }
 
-export function default_value_in_select (
-    data_source_node: DataSource, 
-    key: string, 
-    select_list: { label: string, value: string }[]): string 
-{
-    return (data_source_node[key] && select_list.findIndex(item => item.value === data_source_node[key]) !== -1) 
-        ? data_source_node[key] 
-        : select_list[0].value
-}
 
 export function parse_text (code: string): string {
     code = code.replace(/\{\{(.*?)\}\}/g, function (match, variable) {
