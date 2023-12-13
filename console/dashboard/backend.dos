@@ -136,7 +136,7 @@ def dashboard_get_version() {
 }
 
 def dashboard_grant_functionviews(userId, groupIds, isAdmin) {
-    funcs = exec name from defs("dashboard_%")
+    funcs = exec name from getFunctionViews() where name like "dashboard_%"
     onlyAdminFuncs = ["dashboard_grant_functionviews", "dashboard_delete_user"]
     grantFuncs = (set(funcs) - set(onlyAdminFuncs)).keys()
 
@@ -150,7 +150,7 @@ def dashboard_grant_functionviews(userId, groupIds, isAdmin) {
     }
 }
 
-def dashboard_delete_user(userId, groupIds, isAdmin) {
+def dashboard_delete_user(userId) {
     try{
         delete from loadTable("dfs://dashboardConfigDb", "configDtl") where owner = userId;
     }catch(ex){
@@ -180,5 +180,3 @@ def initializeDashboard(){
 initializeDashboard()
 undef all
 
-
-print('dashboard backend 已加载')
