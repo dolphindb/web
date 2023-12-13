@@ -136,6 +136,7 @@ def dashboard_get_version() {
 }
 
 def dashboard_grant_functionviews(userId, groupIds, isAdmin) {
+    //控制节点执行
     funcs = exec name from getFunctionViews() where name like "dashboard_%"
     onlyAdminFuncs = ["dashboard_grant_functionviews", "dashboard_delete_user"]
     grantFuncs = (set(funcs) - set(onlyAdminFuncs)).keys()
@@ -151,16 +152,16 @@ def dashboard_grant_functionviews(userId, groupIds, isAdmin) {
 }
 
 def dashboard_delete_user(userId) {
-    try{
-        delete from loadTable("dfs://dashboardConfigDb", "configDtl") where owner = userId;
-    }catch(ex){
-        throw ex[0] + "->" + ex[1]
-    }
+    //控制节点执行
+    dnode = (exec name from getClusterPerf() where mode in [0, 3])[0]
+    delCfg = def(userId){delete from loadTable("dfs://dashboardConfigDb", "configDtl") where owner = userId;}
+    rpc(dnode, delCfg, userId)
 }
 
 def addAllFunctionViews(prefix) {
+    //prefix = "dashboard_%"
     funcs = exec name from defs(prefix)
-    onlyAdminFuncs = ["dashboard_grant_functionviews", "dashboard_delete_user"]
+    onlyAdminFuncs = ["dashboard_grant_functionviews", "dashboard_delete_user_cfg", "dashboard_delete_user"]
 
     for(func in funcs) {
         try{addFunctionView(funcByName(func))}catch(ex){}
