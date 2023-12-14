@@ -24,9 +24,9 @@ export const DATE_SELECT_FORMAT = {
     [ITimeFormat.DATE_HOUR]: <StringDatePicker submitFormat={ITimeFormat.DATE_HOUR} format={ITimeFormat.DATE_HOUR} showTime allowClear />,
     [ITimeFormat.DATE_MINUTE]: <StringDatePicker submitFormat={ITimeFormat.DATE_MINUTE} format={ITimeFormat.DATE_MINUTE} showTime allowClear />,
     [ITimeFormat.DATE_SECOND]: <StringDatePicker submitFormat={ITimeFormat.DATE_SECOND} format={ITimeFormat.DATE_SECOND} showTime allowClear />,
-    [ITimeFormat.HOUR]: <StringTimePicker format={ITimeFormat.HOUR} allowClear />,
-    [ITimeFormat.MINUTE]: <StringTimePicker format={ITimeFormat.MINUTE} allowClear />,
-    [ITimeFormat.SECOND]: <StringTimePicker format={ITimeFormat.SECOND} allowClear />,
+    // [ITimeFormat.HOUR]: <StringTimePicker format={ITimeFormat.HOUR} allowClear />,
+    // [ITimeFormat.MINUTE]: <StringTimePicker format={ITimeFormat.MINUTE} allowClear />,
+    // [ITimeFormat.SECOND]: <StringTimePicker format={ITimeFormat.SECOND} allowClear />,
 } 
 
 // col 表示是否需要选择坐标列，x轴必须选择坐标列
@@ -89,7 +89,7 @@ export function AxisItem ({ name_path, col_names = [ ], list_name, initial_value
                                 <Select options={convert_list_to_options(col_names)} allowClear/>
                             </Form.Item>
                             <Form.Item name={concat_name_path(name_path, 'time_format')} label={t('时间格式化')}>
-                                <Select options={format_time_options}/>
+                                <Select options={format_time_options.slice(3)}/>
                             </Form.Item>
                             <FormDependencies dependencies={[concat_name_path(list_name, name_path, 'time_format')]}>
                                 {value => { 

@@ -42,4 +42,4 @@ export enum ExportStatus {
 }
 
 
-export const ENUM_TYPES = ['STRING', 'INT', 'SYMBOL', 'CHAR']
+export const ENUM_TYPES = ['STRING', 'INT', 'SYMBOL', 'CHAR', 'BOOL']

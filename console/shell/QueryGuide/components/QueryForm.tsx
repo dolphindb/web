@@ -9,7 +9,7 @@ import { ColSelectTransfer } from './ColSelectTransfer.js'
 import { FormDependencies } from '../../../components/formily/FormDependcies/index.js'
 import { StringDatePicker } from '../../../components/StringDatePicker/index.js'
 import { StringTimePicker } from '../../../components/StringTimePicker.js'
-import { GUIDE_FORM_VALUES_KEY, IN, IN_OPERATIONS, LIKE, NOT_IN, NOT_LIKE, STRING_OPERATIONS, VALUE_OPERATIONS, VALUE_TYPES } from '../constant.js'
+import { GUIDE_FORM_VALUES_KEY, IN, LIKE, NOT_IN, NOT_LIKE, OTHER_OPERATIONS, STRING_OPERATIONS, STRING_TYPES, TIME_TYPES, VALID_DATA_TYPES, VALUE_OPERATIONS, VALUE_TYPES } from '../constant.js'
 import { MinusCircleOutlined, PlusCircleOutlined } from '@ant-design/icons'
 import { t } from '../../../../i18n/index.js'
 import { ENUM_TYPES, type IColumn } from '../type.js'
@@ -35,15 +35,16 @@ interface IQueryCard {
 }
 
 export const TIME_COMPONENT = {
-    DATE: <StringDatePicker allowClear/>,
-    MONTH: <StringDatePicker submitFormat='YYYY.MM' submitSuffix='M' allowClear/>,
+    DATE: <StringDatePicker submitFormat='YYYY.MM.DD' format='YYYY-MM=DD' allowClear/>,
+    MONTH: <StringDatePicker submitFormat='YYYY.MM' format='YYYY-MM' submitSuffix='M' allowClear/>,
     TIME: <StringTimePicker format='HH:mm:ss' allowClear/>,
     MINUTE: <StringTimePicker format='HH:mm' submitSuffix='m' allowClear/>,
     SECOND: <StringTimePicker format='HH:mm:ss' allowClear/>,
-    DATETIME: <StringDatePicker submitFormat='YYYY.MM.DD HH:mm:ss' showTime allowClear/>,
-    TIMESTAMP: <StringDatePicker submitFormat='YYYY.MM.DD HH:mm:ss' showTime allowClear/>,
+    DATETIME: <StringDatePicker submitFormat='YYYY.MM.DD HH:mm:ss' format='YYYY-MM-DD HH:mm:ss' showTime allowClear/>,
+    TIMESTAMP: <StringDatePicker submitFormat='YYYY.MM.DD HH:mm:ss' format='YYYY-MM-DD HH:mm:ss' showTime allowClear/>,
     NANOTIME: <StringTimePicker format='HH:mm:ss' allowClear/>,
-    NANOTIMESTAMP: <StringDatePicker showTime submitFormat='YYYY.MM.DD HH:mm:ss' allowClear/>,
+    NANOTIMESTAMP: <StringDatePicker showTime submitFormat='YYYY.MM.DD HH:mm:ss' format='YYYY-MM-DD HH:mm:ss' allowClear />,
+    DATEHOUR: <StringDatePicker submitFormat='YYYY.MM.DD HH' format='YYYY-MM-DD HH' showTime />
 } 
 
 export function QueryCard (props: IQueryCard) { 
@@ -60,7 +61,6 @@ export function QueryCard (props: IQueryCard) {
                                 <Select
                                     showSearch
                                     options={cols
-                                        .filter(item => !item.data_type.includes('[]'))
                                         .map(item => ({
                                             label: <div className='col-select-label'>
                                                 <span className='table-name'>{item.name}</span>
@@ -68,7 +68,8 @@ export function QueryCard (props: IQueryCard) {
                                                     {item.data_type}
                                                 </Tag>
                                             </div>,
-                                            value: JSON.stringify(item)
+                                            value: JSON.stringify(item),
+                                            disabled: !VALID_DATA_TYPES.includes(item.data_type) && !item.data_type.includes('DECIMAL')
                                         }))}
                                     placeholder='请选择列名' />
                             </Form.Item>
@@ -80,14 +81,16 @@ export function QueryCard (props: IQueryCard) {
                                 const { data_type } = safe_json_parse(val ?? '{}')
                                 
                                 let opt_options = [ ]
-                                if (VALUE_TYPES.includes(data_type) || Object.keys(TIME_COMPONENT).includes(data_type) || data_type?.includes('DECIMAL'))
+                                // 数值类型时间类型运算符
+                                if ([...VALUE_TYPES, ...TIME_TYPES].includes(data_type) || data_type?.includes('DECIMAL'))
                                     opt_options = VALUE_OPERATIONS
-                                else  
+                                // string symbol类型运算符
+                                else if (STRING_TYPES.includes(data_type))
                                     opt_options = STRING_OPERATIONS
-                
-                                if (['SYMBOL', 'STRING'].includes(data_type)) 
-                                    opt_options = opt_options.concat(IN_OPERATIONS)
-                                    
+                                // 其他运算符
+                                else
+                                    opt_options = OTHER_OPERATIONS
+                           
                                 return <Form.Item
                                     name={[field.name, 'opt']}
                                     rules={[{ required: true, message: '请选择运算符' }]}
@@ -103,30 +106,34 @@ export function QueryCard (props: IQueryCard) {
                                 const { col, opt } = item
                                 const { data_type } = safe_json_parse(col ?? '{}')
                                 
-                                // 枚举类型并且运算符不为匹配与包含需要获取枚举值
-                                if (ENUM_TYPES.includes(data_type) && ![LIKE, NOT_LIKE, IN, NOT_IN].includes(opt))
-                                    return <Form.Item name={[field.name, 'value']} rules={[{ required: true, message: '请输入对比值' }]}>
-                                        <EnumAutoComplete table={table} database={database} col={col} />
-                                    </Form.Item>
-                                
-                                if (ENUM_TYPES.includes(data_type) && [IN, NOT_IN].includes(opt))
-                                    return <Form.Item name={[field.name, 'value']} rules={[{ required: true, message: '请输入对比值' }]}>
-                                        <EnumSelect table={table} database={database} col={col}/>
-                                    </Form.Item>
-                
-                                if (VALUE_TYPES.includes(data_type)) 
+                                // 数值类型
+                                if (VALUE_TYPES.includes(data_type) || data_type?.includes('DECIMAL'))
                                     return <Form.Item name={[field.name, 'value']} rules={[{ required: true, message: '请输入对比值' }]}>
                                         <InputNumber placeholder='请输入对比值' />
                                     </Form.Item>
-                                
-                                if (Object.keys(TIME_COMPONENT).includes(data_type)) 
+                                // 时间类型
+                                else if (TIME_TYPES.includes(data_type))
                                     return <Form.Item name={[field.name, 'value']} rules={[{ required: true, message: '请选择对比值' }]}>
                                         {TIME_COMPONENT[data_type]}
                                     </Form.Item>
-                                
-                                return <Form.Item name={[field.name, 'value']} rules={[{ required: true, message: '请输入对比值' }]}>
-                                    <Input placeholder='请输入对比值'/>
-                                </Form.Item>
+                                else
+                                    // 其余情况跟运算符相关
+                                    // 包含跟不包含运算符，为选择器
+                                    if (opt && [IN, NOT_IN].includes(opt))
+                                        return <Form.Item name={[field.name, 'value']} rules={[{ required: true, message: '请输入对比值' }]}>
+                                            <EnumSelect table={table} database={database} col={col} />
+                                        </Form.Item>
+                                    else if (opt && [LIKE, NOT_LIKE].includes(opt))
+                                        return <Form.Item name={[field.name, 'value']} rules={[{ required: true, message: '请输入对比值' }]}>
+                                            <Input placeholder='请输入对比值'/>
+                                        </Form.Item>
+                                    // 枚举类型，且不为 like not like
+                                    else  
+                                        return <Form.Item name={[field.name, 'value']} rules={[{ required: true, message: '请输入对比值' }]}>
+                                            <EnumAutoComplete table={table} database={database} col={col} options={data_type === 'BOOL' ? [{ value: 'true', label: 'true' }, { value: 'false', label: 'false' }] : [ ] } />
+                                        </Form.Item>
+                                       
+                                    
                             } }
                         </FormDependencies>
                             

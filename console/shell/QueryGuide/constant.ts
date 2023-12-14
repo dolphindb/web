@@ -5,7 +5,14 @@ export const NOT_LIKE = 8
 export const IN = 9
 export const NOT_IN = 10
 
+export const VALID_DATA_TYPES = ['BOOL', 'CHAR', 'SHORT', 'INT', 'LONG', 'DATE', 'MONTH', 'TIME', 'MINUTE', 'SECOND', 'DATETIME',
+    'TIMESTAMP', 'NANOTIME', 'NANOTIMESTAMP', 'FLOAT', 'DOUBLE', 'SYMBOL', 'STRING', 'DECIMAL32', 'DECIMAL64', 'DECIMAL128', 'INT128', 'DATEHOUR']
 
+export const TIME_TYPES = [ 'DATE', 'MONTH', 'TIME', 'MINUTE', 'SECOND', 'DATETIME',
+'TIMESTAMP', 'NANOTIME', 'NANOTIMESTAMP', 'DATEHOUR']
+    
+
+export const STRING_TYPES = ['STRING', 'SYMBOL']
 export const VALUE_OPERATIONS = [
     {
         label: '等于 (=)',
@@ -50,22 +57,30 @@ export const STRING_OPERATIONS = [
     {
         label: '不匹配 (not like)',
         value: NOT_LIKE
-    }
-]
-
-
-export const IN_OPERATIONS = [{
+    },
+    {
         label: '包含 (in)',
         value: IN
     },
     {
         label: '不包含 (not in)',
         value: NOT_IN
-    }]
+    }
+]
+
+export const OTHER_OPERATIONS = [
+    {
+        label: '等于 (=)',
+        value: 1
+    },
+    {
+        label: '不等于 (!=)',
+        value: 2
+    },
+]
 
 
-
-export const VALUE_TYPES = ['INT', 'SHORT', 'DOUBLE', 'FLOAT', 'LONG']
+export const VALUE_TYPES = ['INT', 'SHORT', 'DOUBLE', 'FLOAT', 'LONG', 'DECIMAL128', 'INT128']
 
 
 
