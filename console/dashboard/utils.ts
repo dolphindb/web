@@ -261,7 +261,7 @@ export function convert_chart_config (widget: Widget, data_source: any[]) {
         }
         
         if (axis.type === AxisType.CATEGORY)
-            return { ...axis_config, data: data || [ ] }
+            return { ...axis_config, data: uniq(data) || [ ] }
         else
             return axis_config
     }
@@ -281,7 +281,6 @@ export function convert_chart_config (widget: Widget, data_source: any[]) {
         const get_item_color = value => value > series.threshold.value ? series.threshold?.high_color : series.threshold?.low_color
         
         let data = data_source.map(item => item?.[series.col_name])
-        console.log(data, 'data')
         if (isNumber(series.threshold?.value))  
             data = data.map(item => ({
                 value: item,
