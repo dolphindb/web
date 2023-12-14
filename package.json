@@ -52,6 +52,7 @@
     "dependencies": {
         "@ant-design/icons": "^5.2.6",
         "@ant-design/plots": "^2.1.1",
+        "@ant-design/pro-components": "^2.6.43",
         "@ant-design/pro-layout": "^7.17.16",
         "@ebay/nice-modal-react": "^1.2.13",
         "@formily/antd-v5": "1.1.9",
@@ -62,6 +63,7 @@
         "antd": "^5.12.2",
         "classnames": "^2.3.2",
         "client-zip": "^2.4.4",
+        "compare-versions": "^6.1.0",
         "copy-to-clipboard": "^3.3.3",
         "dayjs": "^1.11.10",
         "dolphindb": "^2.0.1033",
