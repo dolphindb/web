@@ -7,6 +7,7 @@ import { QueryDataView } from './components/QueryDataView.js'
 import { Editor } from '../Editor/index.js'
 import NiceModal from '@ebay/nice-modal-react'
 import { ExportFileModal } from './components/ExportFileModal.js'
+import { GUIDE_QUERY_EDIT_CODE_KEY } from './constant.js'
 
 interface IProps { 
     database: string
@@ -19,14 +20,22 @@ export function SqlEditGuide (props: IProps) {
     const { table, database, set_footer } = props
     
     const [current_step, set_current_step] = useState(0)
-    const [code, set_code] = useState(`SELECT * FROM loadTable("${database}", "${table}")`)
+    const [code, set_code] = useState(() => { 
+        const cache_code = sessionStorage.getItem(GUIDE_QUERY_EDIT_CODE_KEY)
+        return cache_code ?? `SELECT * FROM loadTable("${database}", "${table}")`
+    })
     // 总数据量大于 50w, 不允许导出数据
     const [disable_export, set_disable_export] = useState(false)
     
     const view_map = useMemo(() => { 
         return {
             0: <div className='query-code-editor'>
-                <Editor value={code} on_change={code => { set_code(code) }}/>
+                <Editor
+                    value={code}
+                    on_change={code => {
+                        set_code(code)
+                        sessionStorage.setItem(GUIDE_QUERY_EDIT_CODE_KEY, code)
+                    }} />
             </div>,
             1: <QueryDataView code={code} set_disable_export={set_disable_export} />,
         }

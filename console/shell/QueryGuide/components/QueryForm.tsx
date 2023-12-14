@@ -12,7 +12,7 @@ import { StringTimePicker } from '../../../components/StringTimePicker.js'
 import { GUIDE_FORM_VALUES_KEY, IN, IN_OPERATIONS, LIKE, NOT_IN, NOT_LIKE, STRING_OPERATIONS, VALUE_OPERATIONS, VALUE_TYPES } from '../constant.js'
 import { MinusCircleOutlined, PlusCircleOutlined } from '@ant-design/icons'
 import { t } from '../../../../i18n/index.js'
-import { ENUM_TYPES, type IColumn, type IQueryInfos } from '../type.js'
+import { ENUM_TYPES, type IColumn } from '../type.js'
 import { concat_name_path, safe_json_parse } from '../../../dashboard/utils.js'
 
 import { EnumSelect } from './EnumSelect.js'
@@ -155,7 +155,6 @@ export function QueryForm (props: IProps) {
     
     useEffect(() => { 
         const last_values = JSON.parse(sessionStorage.getItem(GUIDE_FORM_VALUES_KEY))
-        console.log(last_values, 'last_values')
         form.setFieldsValue(last_values)
     }, [ form ])
     
@@ -245,7 +244,7 @@ export function QueryForm (props: IProps) {
                                 </div>)
                         }
                         <Button
-                            onClick={() => { add() }}
+                            onClick={() => { add([{ }]) }}
                             type='dashed'
                             block
                             icon={<PlusCircleOutlined />}

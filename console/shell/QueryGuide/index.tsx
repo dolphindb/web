@@ -9,7 +9,7 @@ import { SqlEditGuide } from './SqlEditGuide.js'
 
 import NiceModal, { useModal } from '@ebay/nice-modal-react'
 import { DraggableModal } from '../../components/DraggableModal/index.js'
-import { GUIDE_FORM_VALUES_KEY } from './constant.js'
+import { GUIDE_FORM_VALUES_KEY, GUIDE_QUERY_EDIT_CODE_KEY } from './constant.js'
 
 interface IProps { 
     database: string
@@ -42,6 +42,7 @@ export const QueryGuideModal = NiceModal.create((props: IProps) => {
         // 填写表单的时候缓存表单数据，弹窗销毁的时候清除
         return () => {
             sessionStorage.removeItem(GUIDE_FORM_VALUES_KEY)
+            sessionStorage.removeItem(GUIDE_QUERY_EDIT_CODE_KEY)
         }
     }, [ ])
     
