@@ -433,7 +433,7 @@ interface CreateDatabaseFormInfo {
 
 function CreateDatabase () {
     const { create_database_modal_visible, create_database_partition_count } = shell.use(['create_database_modal_visible', 'create_database_partition_count'])
-    const { node_type, node, datanode, is_v2 } = model.use(['node_type', 'node', 'datanode', 'is_v2'])
+    const { node_type, node, datanode, is_v2, is_v3 } = model.use(['node_type', 'node', 'datanode', 'is_v2', 'is_v3'])
     const [form] = Form.useForm()
     
     // We just assume this is always turned on in dolphindb.cfg
@@ -669,7 +669,7 @@ function CreateDatabase () {
                         label: <span title={t('OLAP 引擎。OLAP 数据表的每个列存储为一个文件，数据以追加的方式存储到相应的列文件中，因此，数据写入的顺序决定了它们的存储顺序。')}> OLAP </span>,
                         value: 'OLAP',
                     },
-                    is_v2 && {
+                    (is_v2 || is_v3) && {
                         label: <span title={t('TSDB 引擎。采用经典的 LSMT 模型，引入了排序列以提升在用户查询某个或少数几个设备（股票）在特定时间段数据的场景下的查询性能。')}> TSDB </span>,
                         value: 'TSDB',
                     }

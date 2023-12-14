@@ -23,10 +23,6 @@ export function isDDBDecimalType (type: DDBColumnTypeNames) {
     ].includes(type)
 }
 
-export function isDDBArrayVectorSupportType (type: DDBColumnTypeNames) {
-    return model.is_v2 && SUPPORT_ARRAY_VECTOR_TYPES.includes(type)
-}
-
 interface GenerateDDBDataTypeLiteralOptions {
     type: DDBColumnTypeNames
     scale?: number
