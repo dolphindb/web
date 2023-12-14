@@ -63,6 +63,7 @@
         "antd": "^5.12.2",
         "classnames": "^2.3.2",
         "client-zip": "^2.4.4",
+        "compare-versions": "^6.1.0",
         "copy-to-clipboard": "^3.3.3",
         "dayjs": "^1.11.10",
         "dolphindb": "^2.0.1033",
