@@ -19,7 +19,7 @@ import { StringTimePicker } from '../../components/StringTimePicker.js'
 
 
 
-const DATE_SELECT_FORMAT = {
+export const DATE_SELECT_FORMAT = {
     [ITimeFormat.DATE]: <StringDatePicker submitFormat={ITimeFormat.DATE} format={ITimeFormat.DATE}  allowClear />,
     [ITimeFormat.DATE_HOUR]: <StringDatePicker submitFormat={ITimeFormat.DATE_HOUR} format={ITimeFormat.DATE_HOUR} showTime allowClear />,
     [ITimeFormat.DATE_MINUTE]: <StringDatePicker submitFormat={ITimeFormat.DATE_MINUTE} format={ITimeFormat.DATE_MINUTE} showTime allowClear />,
@@ -89,7 +89,7 @@ export function AxisItem ({ name_path, col_names = [ ], list_name, initial_value
                                 <Select options={convert_list_to_options(col_names)} allowClear/>
                             </Form.Item>
                             <Form.Item name={concat_name_path(name_path, 'time_format')} label={t('时间格式化')}>
-                                <Select options={format_time_options}/>
+                                <Select options={format_time_options.slice(3)}/>
                             </Form.Item>
                             <FormDependencies dependencies={[concat_name_path(list_name, name_path, 'time_format')]}>
                                 {value => { 

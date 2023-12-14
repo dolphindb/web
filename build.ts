@@ -99,6 +99,8 @@ async function copy_vendors (fpd_out: string, monaco: boolean, production: boole
             
             '@ant-design/plots/dist/plots.min.js',
             '@ant-design/plots/dist/plots.min.js.map',
+            '@ant-design/pro-components/dist/pro-components.min.js',
+            '@ant-design/pro-components/dist/pro-components.min.js.map',
             
             'echarts/dist/echarts.js',
             

@@ -247,6 +247,7 @@ export let webpack = {
                     dayjs: 'dayjs',
                     '@ant-design/icons': 'icons',
                     '@ant-design/plots': 'Plots',
+                    '@ant-design/pro-components': 'ProComponents',
                     echarts: 'echarts',
                     
                     // import { GridStack } from 'gridstack'
@@ -298,7 +299,12 @@ export let webpack = {
                                 'react-object-model', 
                                 '@ant-design/icons-svg', 
                                 '@ant-design/pro-layout', 
-                                '@ant-design/pro-provider', 
+                                '@ant-design/pro-provider',
+                                '@ant-design/pro-table', 
+                                '@ant-design/pro-utils', 
+                                '@ant-design/pro-form', 
+                                '@ant-design/pro-card', 
+                                '@ant-design/pro-field', 
                                 'toggle-selection', 
                                 'ahooks', 
                                 'dolphindb-web', 
