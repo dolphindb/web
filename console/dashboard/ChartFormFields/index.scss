@@ -20,7 +20,7 @@
         &:last-child {
             margin-bottom: 0px;
         }
-    }
+    } 
 }
 
 .divider {
@@ -61,3 +61,6 @@
     margin-top: 12px;
 }
 
+.ant-picker-dropdown .ant-picker-time-panel-column {
+    width: 100px; 
+}
