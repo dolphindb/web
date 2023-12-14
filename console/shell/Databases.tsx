@@ -433,7 +433,7 @@ interface CreateDatabaseFormInfo {
 
 function CreateDatabase () {
     const { create_database_modal_visible, create_database_partition_count } = shell.use(['create_database_modal_visible', 'create_database_partition_count'])
-    const { node_type, node, datanode, is_v2 } = model.use(['node_type', 'node', 'datanode', 'is_v2'])
+    const { node_type, node, is_v2 } = model.use(['node_type', 'node', 'datanode', 'is_v2'])
     const [form] = Form.useForm()
     
     // We just assume this is always turned on in dolphindb.cfg
@@ -793,7 +793,6 @@ export class Database implements DataNode {
                 event.stopPropagation()
                 await model.execute(async () => {
                     const schema = (await this.get_schema()).to_dict()
-                    console.log(schema)
                     await NiceModal.show(CreateTableModal, { database: this, schema })
                     await shell.load_dbs()
                 })
