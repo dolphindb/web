@@ -1,6 +1,6 @@
-import { type DDBTypeNames } from '../constants/column-data-types.js'
+import { type DDBColumnTypeNames } from '../constants/column-data-types.js'
 
-export function getDecimalScaleRange (decimalType: DDBTypeNames) {
+export function getDecimalScaleRange (decimalType: DDBColumnTypeNames) {
     switch (decimalType) {
         case 'DECIMAL32':
             return [0, 9]
@@ -13,7 +13,7 @@ export function getDecimalScaleRange (decimalType: DDBTypeNames) {
     }
 }
 
-export function isAvailableDecimalScale (decimalType: DDBTypeNames, scale: number) {
+export function isAvailableDecimalScale (decimalType: DDBColumnTypeNames, scale: number) {
     const range = getDecimalScaleRange(decimalType)
     
     if (range) 

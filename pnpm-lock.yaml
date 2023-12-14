@@ -49,6 +49,9 @@ dependencies:
   client-zip:
     specifier: ^2.4.4
     version: 2.4.4
+  compare-versions:
+    specifier: ^6.1.0
+    version: 6.1.0
   copy-to-clipboard:
     specifier: ^3.3.3
     version: 3.3.3
@@ -4213,6 +4216,10 @@ packages:
   /commander@9.5.0:
     resolution: {integrity: sha512-KRs7WVDKg86PWiuAqhDrAQnTXZKraVcCc6vFdL14qrZ/DcWwuRo7VoiYXalXO7S5GKpqYiVEwCbgFDfxNHKJBQ==}
     engines: {node: ^12.20.0 || >=14}
+    dev: false
+
+  /compare-versions@6.1.0:
+    resolution: {integrity: sha512-LNZQXhqUvqUTotpZ00qLSaify3b4VFD588aRr8MKFw4CMUr98ytzCW5wDH5qx/DEY5kCDXcbcRuCqL0szEf2tg==}
     dev: false
 
   /compress-commons@5.0.1:
