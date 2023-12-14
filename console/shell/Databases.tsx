@@ -433,7 +433,7 @@ interface CreateDatabaseFormInfo {
 
 function CreateDatabase () {
     const { create_database_modal_visible, create_database_partition_count } = shell.use(['create_database_modal_visible', 'create_database_partition_count'])
-    const { node_type, node, datanode, is_v2, is_v3 } = model.use(['node_type', 'node', 'datanode', 'is_v2', 'is_v3'])
+    const { node_type, node, is_v2, is_v3 } = model.use(['node_type', 'node', 'is_v2', 'is_v3'])
     const [form] = Form.useForm()
     
     // We just assume this is always turned on in dolphindb.cfg
