@@ -174,6 +174,8 @@ export let webpack = {
     
     
     async build ({ production, is_cloud }: { production: boolean, is_cloud?: boolean }) {
+        console.log(`开始构建${production ? '生产' : '开发'}模式的 web`)
+        
         const base_config = get_base_config(production)
         
         await this.lcompiler.request(async () => {
