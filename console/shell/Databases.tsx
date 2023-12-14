@@ -793,7 +793,6 @@ export class Database implements DataNode {
                 event.stopPropagation()
                 await model.execute(async () => {
                     const schema = (await this.get_schema()).to_dict()
-                    console.log(schema)
                     await NiceModal.show(CreateTableModal, { database: this, schema })
                     await shell.load_dbs()
                 })
