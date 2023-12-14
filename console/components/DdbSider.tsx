@@ -115,11 +115,11 @@ export function DdbSider () {
                     icon: <MenuIcon view='overview' />,
                     label: t('集群总览'),
                 }] : [ ],
-                {
+                ...node_type === NodeType.controller ? [{
                     key: 'config',
                     icon: <MenuIcon view='config'/>,
                     label: t('配置管理')
-                },
+                }] : [ ],
                 {
                     key: 'shell',
                     icon: <MenuIcon view='shell' />,

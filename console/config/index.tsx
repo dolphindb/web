@@ -6,17 +6,23 @@ import { t } from '../../i18n/index.js'
 import SvgControllerConfig from './icons/controller.config.icon.svg'
 import SvgNodesManagement from './icons/nodes.management.icon.svg'
 import SvgNodesConfig from './icons/nodes.config.icon.svg'
+import { ControllerConfig } from './ControllerConfig.js'
+import { useState } from 'react'
 
 export function Config () {
+    const [tab_key, set_tab_key] = useState('controller_config')
     return <Tabs
                 type='card'
+                key={tab_key}
+                onChange={set_tab_key}
                 items={[
                 {
                     key: 'controller_config',
                     label: <div className='tab-header'>
                         <SvgControllerConfig/>
                         {t('控制节点配置')}
-                    </div>
+                    </div>,
+                    children: <ControllerConfig/>
                     
                 },
                 {
@@ -36,3 +42,4 @@ export function Config () {
                 ]}
         />
 }
+
