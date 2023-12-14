@@ -21,14 +21,13 @@ interface IStringRangePickerProps {
 
 export function StringDatePicker (props: IProps) { 
     // 使用 submitFormat 是因为 ddb 内时间格式固定将年月日以 . 连接，但是实际在组件内展示的标准时间格式是以 - 连接，所以提交表单的格式与展示格式不一致
-    const { onChange, value, submitFormat = 'YYYY.MM.DD', submitSuffix, ...others } = props
+    const { onChange, value, submitFormat = 'YYYY.MM.DD', submitSuffix, format, ...others } = props
     
     const on_date_change = useCallback((value: Dayjs) => { 
         if (!value) { 
             onChange(null)
             return
         }
-           
         if (submitSuffix)
             onChange(value.format(submitFormat) + submitSuffix)
         else
@@ -36,13 +35,13 @@ export function StringDatePicker (props: IProps) {
     }, [ submitSuffix ])
     
     const val = useMemo(() => { 
-        if (!value || !dayjs(value).isValid())
+        if (!value || !dayjs(value, format as string).isValid())
             return null
         let time = value
         if (submitSuffix)  
             time = submitSuffix ? time.replace(submitSuffix, '') : time
-        return dayjs(time)
-    }, [ value, submitSuffix ])
+        return dayjs(time, format as string)
+    }, [ value, format ])
     
-    return <DatePicker picker='date' {...others} onChange={on_date_change} value={val} />
+    return <DatePicker format={format} picker='date' {...others} onChange={on_date_change} value={val} />
 }

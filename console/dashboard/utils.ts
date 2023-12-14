@@ -19,7 +19,7 @@ export function format_time (time: string, format: string) {
     if (!format)
         return time
     try {
-        return dayjs(time).format(format || 'YYYY-MM-DD HH:mm:ss')
+        return dayjs(time).format(format)
     } catch (e) { 
         return time
     }

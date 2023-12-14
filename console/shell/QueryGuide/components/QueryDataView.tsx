@@ -25,7 +25,6 @@ export function QueryDataView (props: IProps) {
             onSuccess: data => { set_disable_export(data.total > 500000 || data.total === 0) }
         }
     )
-    
     const columns = useMemo(() => { 
         if (data.items[0])  
             return Object.keys(data.items[0]).map(key => ({
@@ -34,6 +33,7 @@ export function QueryDataView (props: IProps) {
                 key,
                 ellipsis: true,
                 width: 100,
+                render: item => <span>{typeof item === 'boolean' ? item?.toString() : item}</span>
             }))
     }, [data])
     
