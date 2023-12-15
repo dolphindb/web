@@ -116,7 +116,7 @@ export function OptionList ({
     function handleDelete (key: string) {
         const newData = current_options.filter(item => item.key !== key)
         set_current_options(newData)
-        change_current_variable_property('value', '')
+        change_current_variable_property('value', current_variable.mode === 'multi_select' ? '[]' : '')
     } 
     const defaultColumns: (ColumnTypes[number] & { editable?: boolean, dataIndex: string })[] = [
         {

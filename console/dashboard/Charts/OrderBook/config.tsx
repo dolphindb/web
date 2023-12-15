@@ -2,10 +2,10 @@ import {
     type EChartsOption,
 } from 'echarts/types/dist/shared'
 import { type IOrderBookConfig } from '../../type'
-import { parse_text, to_chart_data } from '../../utils.js'
+import { parse_text } from '../../utils.js'
 
 export function convert_order_book_config (config: IOrderBookConfig, orderbook_data, line_data, bar_data): EChartsOption {
-    let { title, with_tooltip, time_rate, title_size, with_legend, with_split_line, bar_color, line_color } = config
+    let { title, with_tooltip, time_rate, title_size, with_split_line, bar_color, line_color } = config
     
     return {
         title: {
@@ -15,9 +15,12 @@ export function convert_order_book_config (config: IOrderBookConfig, orderbook_d
                 fontSize: title_size,
             }
         },
-        legend: {
-            show: with_legend
-        },
+        // legend: {
+        //     show: with_legend,
+        //     textStyle: {
+        //         color: '#e6e6e6'
+        //     }
+        // },
         tooltip: {
             show: with_tooltip,
             position: 'top',
@@ -36,8 +39,8 @@ export function convert_order_book_config (config: IOrderBookConfig, orderbook_d
             },
             // 柱状图
             {
-                height: '30%',
-                bottom: '10%'
+                height: '25%',
+                bottom: '15%'
             }
         ],
         

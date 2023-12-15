@@ -312,7 +312,7 @@ export function convert_chart_config (widget: Widget, data_source: any[]) {
         //         data = data.map(item => ([item[0], { value: item[1], itemStyle: { color: get_item_color(item[1]) } }]))
         // }
  
-        console.log(data, 'data')
+        // console.log(data, 'data')
         return {
             type: series.type?.toLowerCase(),
             name: series.name,
