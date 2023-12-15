@@ -35,6 +35,7 @@ function splitData (rowData: any[], col_name: COL_MAP) {
     
     if (time_format)
         categoryData = categoryData.map(item => format_time(item, time_format))
+    console.log(categoryData)
     return {
         categoryData,
         values,
@@ -60,8 +61,6 @@ export function OHLC ({ widget, data_source }: { widget: Widget, data_source: an
         
         let data = data_source.map(item => item?.[series?.col_name])
         
-        if (xAxis.type === AxisType.TIME)
-            data = data_source.map(item => [format_time(item?.[xAxis.col_name], xAxis.time_format), item?.[series.col_name]])
         return {
             type: series?.type?.toLowerCase(),
             name: series?.name,
