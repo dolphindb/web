@@ -19,7 +19,7 @@ export function format_time (time: string, format: string) {
     if (!format)
         return time
     try {
-        return dayjs(time, format).format(format)
+        return isNaN(dayjs(time).day()) ? dayjs(time, format).format(format)  : dayjs(time).format(format)
     } catch (e) { 
         return time
     }
