@@ -10,7 +10,7 @@ import { type Widget } from '../../model.js'
 import { type ITableConfig } from '../../type.js'
 
 import { type ColumnsType } from 'antd/es/table'
-import { isNumber } from 'lodash'
+import { cloneDeep, isNumber } from 'lodash'
 import { format_number, format_time, parse_text } from '../../utils.js'
 import classNames from 'classnames'
 
@@ -154,7 +154,7 @@ export function DBTable (props: IProps) {
                     bordered={config.bordered}
                     scroll={{ x: '100%' }}
                     columns={columns}
-                    dataSource={config.is_reverse ? data_source.reverse() : data_source}
+                    dataSource={config.is_reverse ? cloneDeep(data_source).reverse() : data_source}
                     pagination={pagination}
                     rowKey={() => genid()}
                     rowClassName={classNames({
