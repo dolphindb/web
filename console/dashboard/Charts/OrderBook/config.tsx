@@ -16,7 +16,10 @@ export function convert_order_book_config (config: IOrderBookConfig, orderbook_d
             }
         },
         legend: {
-            show: with_legend
+            show: with_legend,
+            textStyle: {
+                color: '#e6e6e6'
+            }
         },
         tooltip: {
             show: with_tooltip,
@@ -36,8 +39,8 @@ export function convert_order_book_config (config: IOrderBookConfig, orderbook_d
             },
             // 柱状图
             {
-                height: '30%',
-                bottom: '10%'
+                height: '25%',
+                bottom: '15%'
             }
         ],
         
