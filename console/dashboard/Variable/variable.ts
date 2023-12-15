@@ -90,8 +90,8 @@ export async function update_variable_value (change_variables: {})  {
 
 export function get_variable_value (variable_name: string): string {
     const variable = find_variable_by_name(variable_name)
-    if (variable)
-        return variable.value
+    if (variable) 
+        return variable.mode === 'multi_select' ? safe_json_parse(variable.value) : variable.value  
     else
         throw new Error(`${t('变量')} ${variable_name} ${t('不存在')}`)
 }
