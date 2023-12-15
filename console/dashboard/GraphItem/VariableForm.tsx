@@ -43,6 +43,7 @@ function ControlField ({ variable }: { variable: Variable }) {
     const form = Form.useFormInstance()
     
     useEffect(() => { 
+        console.log(safe_json_parse(variable_obj[id].value))
         form.setFieldValue(id, variable_obj[id].mode === 'multiple' ? safe_json_parse(variable_obj[id].value) : variable_obj[id].value)
     }, [variable_obj[id].value, id])
     
@@ -53,7 +54,7 @@ function ControlField ({ variable }: { variable: Variable }) {
             </Form.Item>
         case 'multi_select':
             return <Form.Item name={id} label={display_name}>
-               <Select mode='multiple' options={options}/>
+               <StringMultiSelect options={options}/>
             </Form.Item>
         case 'select':
             return <Form.Item name={id} label={display_name}>
