@@ -261,7 +261,10 @@ export function convert_chart_config (widget: Widget, data_source: any[]) {
         }
         
         if (axis.type === AxisType.CATEGORY)
-            return { ...axis_config, data: uniq(data) || [ ] }
+            // 热力图的类目数据需为去重之后的数据
+            return {
+                ...axis_config, data: widget.type === WidgetChartType.HEATMAP ? uniq(data) : data || [ ]
+            }
         else
             return axis_config
     }
