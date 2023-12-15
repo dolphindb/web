@@ -13,7 +13,7 @@ import { DDBTypeSelectorSchemaFields, SchemaField } from '../components/formily/
 import { shell } from './model.js'
 import { model } from '../model.js'
 import { generateDDBDataTypeLiteral } from '../utils/ddb-data-types.js'
-import { type DDBTypeNames } from '../constants/column-data-types.js'
+import { type DDBColumnTypeNames } from '../constants/column-data-types.js'
 
 interface Props {
     node: ColumnRoot
@@ -21,7 +21,7 @@ interface Props {
 
 interface IAddColumnFormValues {
     column: string
-    type: DDBTypeNames
+    type: DDBColumnTypeNames
     scale?: number
 }
 
@@ -31,6 +31,9 @@ export const AddColumnModal = NiceModal.create<Props>(({ node }) => {
         () => createForm(),
         [ ]
     )
+    
+    const engineType = node.table.db.schema.to_dict().engineType?.value as string
+    const isTSDB = engineType === 'TSDB'
     
     async function onSubmit (formValues: IAddColumnFormValues) {
         await model.execute(async () => {
@@ -84,7 +87,7 @@ export const AddColumnModal = NiceModal.create<Props>(({ node }) => {
                         message: t('请输入列名')
                     }}
                 />
-                <DDBTypeSelectorSchemaFields />
+                <DDBTypeSelectorSchemaFields isTSDBEngine={isTSDB} />
             </SchemaField>
             <FormButtonGroup align='right'>
                 <Submit type='primary'>{t('确定')}</Submit>

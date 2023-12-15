@@ -1,6 +1,7 @@
 import dayjs from 'dayjs'
 
 import { Model } from 'react-object-model'
+import { satisfies } from 'compare-versions'
 
 import type { BaseType } from 'antd/es/typography/Base/index.js'
 import type { MessageInstance } from 'antd/es/message/interface.js'
@@ -97,6 +98,12 @@ export class DdbModel extends Model<DdbModel> {
     
     
     version: string
+    
+    is_v1: boolean
+    
+    is_v2: boolean
+    
+    is_v3: boolean
     
     license: DdbLicense
     
@@ -444,7 +451,12 @@ export class DdbModel extends Model<DdbModel> {
     async get_version () {
         let { value: version } = await this.ddb.call<DdbObj<string>>('version')
         version = version.split(' ')[0]
-        this.set({ version })
+        this.set({ 
+            version,
+            is_v1: satisfies(version, '^1'),
+            is_v2: satisfies(version, '^2'),
+            is_v3: satisfies(version, '^3')
+        })
         console.log(t('版本:'), version)
         return version
     }

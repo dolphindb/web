@@ -1,17 +1,25 @@
-import React from 'react'
+import React, { useMemo } from 'react'
 
 import { isDDBDecimalType } from '../../../utils/ddb-data-types.js'
 import { getDecimalScaleRange, isAvailableDecimalScale } from '../../../utils/decimal.js'
 
 import { t } from '../../../../i18n/index.js'
-import { DDB_COLUMN_DATA_TYPES_SELECT_OPTIONS } from '../../../constants/column-data-types.js'
+import { type DDBColumnTypeNames, DDB_COLUMN_DATA_TYPES, SUPPORT_ARRAY_VECTOR_TYPES } from '../../../constants/column-data-types.js'
 
 import { SchemaField } from '../SchemaField/index.js'
+import { type SelectProps } from 'antd'
+import { model } from '../../../model.js'
 
 interface DDBTypeSelectorSchemaFieldsProps {
     typeField?: Partial<React.ComponentProps<(typeof SchemaField.String)>>
     scaleField?: Partial<React.ComponentProps<(typeof SchemaField.Number)>>
+    isTSDBEngine?: boolean
 }
+
+const TSDB_ONLY_TYPES: DDBColumnTypeNames[] = [
+    'BLOB',
+]
+
 
 /** DDB 数据类型选择组件，包含了联动和校验逻辑，使用时需要在 SchemaField 上设置 scope
     @example
@@ -22,6 +30,30 @@ interface DDBTypeSelectorSchemaFieldsProps {
     ```
     @returns  */
 export function DDBTypeSelectorSchemaFields (props: DDBTypeSelectorSchemaFieldsProps) {
+    const { isTSDBEngine, scaleField, typeField } = props
+    
+    const { is_v2, is_v3 } = model.use(['is_v2', 'is_v3'])
+    
+    const support_decimal = is_v2 || is_v3
+    
+    const dataTypesOptions: SelectProps['options'] = useMemo(() =>
+        DDB_COLUMN_DATA_TYPES.map(type => ({
+            label: type,
+            value: type,
+        }))
+            .filter(({ value }) => {
+                let can_use_type = true
+                
+                if (!isTSDBEngine)
+                    can_use_type &&= !TSDB_ONLY_TYPES.includes(value)
+                    
+                if (!support_decimal)
+                    can_use_type &&= !isDDBDecimalType(value)
+                    
+                return can_use_type
+            })
+        , [isTSDBEngine])
+        
     return <>
         <SchemaField.String
             key='type'
@@ -32,15 +64,16 @@ export function DDBTypeSelectorSchemaFields (props: DDBTypeSelectorSchemaFieldsP
             x-component-props={{
                 placeholder: t('选择类型'),
                 showSearch: true,
-                ...(props.typeField?.['x-component-props'] ?? { })
+                popupMatchSelectWidth: false,
+                ...(typeField?.['x-component-props'] ?? { })
             }}
-            enum={DDB_COLUMN_DATA_TYPES_SELECT_OPTIONS}
+            enum={dataTypesOptions}
             required
             x-validator={{
                 required: true,
                 message: t('请选择该列的类型')
             }}
-            {...props.typeField}
+            {...typeField}
         />
         <SchemaField.Number
             key='scale'
@@ -64,21 +97,36 @@ export function DDBTypeSelectorSchemaFields (props: DDBTypeSelectorSchemaFieldsP
                 },
                 fulfill: {
                     state: {
-                        visible: '{{ isDDBDecimalType($deps.type) }}',
+                        visible: '{{ DDBTypeSelector.isDDBDecimalType($deps.type) }}',
                     },
                     schema: {
                         'x-component-props': {
-                            placeholder: "{{ isDDBDecimalType($deps.type) ? getDecimalScaleRange($deps.type).join('~') : '' }}"
+                            placeholder: "{{ DDBTypeSelector.isDDBDecimalType($deps.type) ? DDBTypeSelector.getDecimalScaleRange($deps.type).join('~') : '' }}"
                         }
                     }
                 },
             }]}
-            {...props.scaleField}
+            {...scaleField}
+        />
+        <SchemaField.Boolean
+            key='arrayVector'
+            name='arrayVector'
+            title='Array Vector'
+            x-decorator='FormItem'
+            x-component='Checkbox'
+            x-reactions={[field => {
+                const type = field.query('.type').value()
+                field.setState({
+                    visible: isTSDBEngine && SUPPORT_ARRAY_VECTOR_TYPES.includes(type)
+                })
+            }]}
         />
     </>
 }
 
 DDBTypeSelectorSchemaFields.ScopeValues = {
-    isDDBDecimalType,
-    getDecimalScaleRange,
+    DDBTypeSelector: {
+        isDDBDecimalType,
+        getDecimalScaleRange,
+    }
 }

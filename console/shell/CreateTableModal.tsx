@@ -15,7 +15,7 @@ import { DdbType, type DdbObj } from 'dolphindb/browser.js'
 
 import { t } from '../../i18n/index.js'
 import { type Database } from './Databases.js'
-import { type DDBTypeNames, SUPPORT_SORT_COLUMN_TYPES } from '../constants/column-data-types.js'
+import { type DDBColumnTypeNames, SUPPORT_SORT_COLUMN_TYPES } from '../constants/column-data-types.js'
 import { CopyIconButton } from '../components/copy/CopyIconButton.js'
 import { model } from '../model.js'
 import { generateDDBDataTypeLiteral, isDDBTemporalType } from '../utils/ddb-data-types.js'
@@ -40,7 +40,7 @@ enum KeepDuplicatesValues {
 
 interface ICreateTableColumnFormValue {
     name: string
-    type: DDBTypeNames
+    type: DDBColumnTypeNames
     scale?: number
     comment: string
     compress: string
@@ -74,7 +74,8 @@ function CreateTableModalPreviewCode () {
     const steps = useContext(StepsContext)
     const { schema } = useContext(PropsContext)
     
-    const engineType = schema.engineType.value as string
+    // 1.30 没有 engineType
+    const engineType = schema.engineType?.value as string
     const isTSDB = engineType === 'TSDB'
     
     const code = useMemo(() => {
@@ -288,7 +289,7 @@ function CreateTableModalFillForm () {
         [partitionList]
     )
     
-    const engineType = schema.engineType.value as string
+    const engineType = schema.engineType?.value as string
     const isTSDB = engineType === 'TSDB'
     
     // restore form value from steps context
@@ -379,7 +380,7 @@ function CreateTableModalFillForm () {
                 <SchemaField.Object>
                     <SchemaField.Void
                         x-component='ArrayTable.Column'
-                        x-component-props={{ width: 50, align: 'center' }}
+                        x-component-props={{ width: 30, align: 'center' }}
                     >
                         <SchemaField.Void
                             x-decorator='FormItem'
@@ -388,7 +389,7 @@ function CreateTableModalFillForm () {
                     </SchemaField.Void>
                     <SchemaField.Void
                         x-component='ArrayTable.Column'
-                        x-component-props={{ title: t('列名'), width: 120 }}
+                        x-component-props={{ title: t('列名'), width: 100 }}
                     >
                         <SchemaField.String
                             name='name'
@@ -417,10 +418,11 @@ function CreateTableModalFillForm () {
                         x-component='ArrayTable.Column'
                         x-component-props={{
                             title: t('数据类型'),
-                            width: 100,
+                            width: 120,
                         }}
                     >
                         <DDBTypeSelectorSchemaFields 
+                            isTSDBEngine={isTSDB}
                             typeField={{
                                 title: null,
                             }}
@@ -445,7 +447,7 @@ function CreateTableModalFillForm () {
                         x-component='ArrayTable.Column'
                         x-component-props={{
                             title: t('压缩算法'),
-                            width: 100,
+                            width: 80,
                         }}
                     >
                         <SchemaField.String
