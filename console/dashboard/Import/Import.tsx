@@ -26,6 +26,7 @@ export function Import ({ type }: { type: 'icon' | 'button' }) {
     
     const triggers = {
         button: <Upload
+                    accept='.json'
                     multiple
                     showUploadList={false}
                     beforeUpload={(file, fileList) => { 
@@ -37,6 +38,7 @@ export function Import ({ type }: { type: 'icon' | 'button' }) {
                 </Upload>,
         icon: <Tooltip title={t('导入')}>
                     <Upload
+                        accept='.json'
                         showUploadList={false}
                         beforeUpload={(file, fileList) => { 
                             set_file_list(fileList) 
