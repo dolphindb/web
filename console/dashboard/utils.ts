@@ -256,8 +256,8 @@ export function convert_chart_config (widget: Widget, data_source: any[]) {
             nameTextStyle: {
                 fontSize: axis.fontsize ?? 12
             },
-            min: axis.min,
-            max: axis.max
+            min: [AxisType.TIME, AxisType.VALUE].includes(axis.type) ? axis.min : undefined,
+            max: [AxisType.TIME, AxisType.VALUE].includes(axis.type) ? axis.max : undefined
         }
         
         if (axis.type === AxisType.CATEGORY)
