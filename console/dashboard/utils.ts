@@ -225,7 +225,7 @@ export function convert_chart_config (widget: Widget, data_source: any[]) {
         let data = undefined
         // 类目轴下需要定义类目数据, 其他轴线类型下 data 不生效
         if (axis.type === AxisType.CATEGORY)
-            data = axis.col_name ? data_source.map(item => item?.[axis.col_name]) : [ ]
+            data = axis.col_name ? data_source.map(item => format_time(item?.[axis.col_name], axis.time_format)) : [ ]
         
         const axis_config =  {
             show: true,
