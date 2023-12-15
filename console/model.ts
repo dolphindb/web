@@ -103,6 +103,8 @@ export class DdbModel extends Model<DdbModel> {
     
     is_v2: boolean
     
+    is_v3: boolean
+    
     license: DdbLicense
     
     license_server?: DdbLicenseServer
@@ -449,7 +451,12 @@ export class DdbModel extends Model<DdbModel> {
     async get_version () {
         let { value: version } = await this.ddb.call<DdbObj<string>>('version')
         version = version.split(' ')[0]
-        this.set({ version, is_v1: satisfies(version, '^1'), is_v2: satisfies(version, '^2') })
+        this.set({ 
+            version,
+            is_v1: satisfies(version, '^1'),
+            is_v2: satisfies(version, '^2'),
+            is_v3: satisfies(version, '^3')
+        })
         console.log(t('版本:'), version)
         return version
     }
