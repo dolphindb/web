@@ -110,10 +110,17 @@ def dbms_generateEnumerate(input_json){
     input_dict = input_json.parseExpr().eval()
     dbName = input_dict["dbName"]
     tbName = input_dict["tbName"]
-    cols = input_dict["col"]
-    query =  "EXEC distinct(" + cols + ') FROM loadTable("' + dbName + '", "' + tbName +  '")'
+    col = input_dict["col"]
+    if (typestr(loadTable(dbName, tbName).schema().partitionColumnName) == 'STRING VECTOR'){
+        colName = loadTable(dbName, tbName).schema().partitionColumnName[0]
+    } else{
+        colName = loadTable(dbName, tbName).schema().partitionColumnName
+    }
+    query =  "EXEC " + col + ' FROM loadTable("' + dbName + '", "' + tbName +  '") WHERE sample(' + 
+    colName + ', 0.1) GROUP BY ' + col
     enumList = query.parseExpr().eval()
     res = '{"enumList":["' + concat(enumList, '","') + '"]}' 
     return res
 }
+
 
