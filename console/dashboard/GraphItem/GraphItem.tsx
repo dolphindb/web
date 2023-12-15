@@ -107,7 +107,7 @@ export function GraphItem  ({ widget }: { widget: Widget }) {
                 <div className='graph-content'>
                     <div className='graph-title'>{t(WidgetType[widget.type])}</div>
                     <img src={ChartSvg} className='default-img'/>
-                    <DataSourceConfig widget={widget}/>
+                    {dashboard.editing && <DataSourceConfig widget={widget}/>}
                 </div>
         }
         <div className={cn({ 'drag-icon': editing }) } />

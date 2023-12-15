@@ -15,7 +15,7 @@ import { find_variable_by_name, get_variable_copy_infos, get_variable_value, pas
 import { t } from '../../i18n/index.js'
 
 
-export function format_time (time: string, format: string) { 
+export function format_time (time: string, format: string) {
     if (!format)
         return time
     try {
@@ -226,7 +226,7 @@ export function convert_chart_config (widget: Widget, data_source: any[]) {
         // 类目轴下需要定义类目数据, 其他轴线类型下 data 不生效
         if (axis.type === AxisType.CATEGORY)
             data = axis.col_name ? data_source.map(item => item?.[axis.col_name]) : [ ]
-            
+        
         const axis_config =  {
             show: true,
             name: axis.name,
@@ -261,7 +261,7 @@ export function convert_chart_config (widget: Widget, data_source: any[]) {
         }
         
         if (axis.type === AxisType.CATEGORY)
-            return { ...axis_config, data: data || [ ] }
+            return { ...axis_config, data: uniq(data) || [ ] }
         else
             return axis_config
     }
@@ -278,28 +278,38 @@ export function convert_chart_config (widget: Widget, data_source: any[]) {
                 return { yAxis: item }
         }) || [ ]
         
-        
+        const get_item_color = value => value > series.threshold.value ? series.threshold?.high_color : series.threshold?.low_color
         
         let data = data_source.map(item => item?.[series.col_name])
-        
-        // 时间轴情况下，series为二维数组，且每项的第一个值为 x轴对应的值，第二个值为 y轴对应的值，并且需要对时间进行格式化处理
-        if (xAxis.type === AxisType.TIME)  
-            data = data_source.map(item => [format_time(item?.[xAxis.col_name], xAxis.time_format), item?.[series.col_name]])
-        
-            
-        
-        
-        // x 轴和 y 轴均为数据轴或者对数轴的情况下或者散点图，series 的数据为二维数组，每一项的第一个值为x的值，第二个值为y的值
-        if (([AxisType.VALUE, AxisType.LOG].includes(xAxis.type) && [AxisType.VALUE, AxisType.LOG].includes(yAxis[series.yAxisIndex].type)) || series.type === WidgetChartType.SCATTER)  
-            data  = data_source.map(item => [format_time(item[xAxis.col_name], xAxis.time_format), item[series.col_name]])
-        
         if (isNumber(series.threshold?.value))  
             data = data.map(item => ({
                 value: item,
                 itemStyle: {
-                    color: item > series.threshold.value ? series.threshold?.high_color : series.threshold?.low_color
+                    color: get_item_color(item)
                 }
             }))
+        
+        
+        
+        // 时间轴情况下，series为二维数组，且每项的第一个值为 x轴对应的值，第二个值为 y轴对应的值，并且需要对时间进行格式化处理
+        if (xAxis.type === AxisType.TIME || ([AxisType.VALUE, AxisType.LOG].includes(xAxis.type) && [AxisType.VALUE, AxisType.LOG].includes(yAxis[series.yAxisIndex].type)) || series.type === WidgetChartType.SCATTER) { 
+            data = data_source.map(item => [format_time(item?.[xAxis.col_name], xAxis.time_format), item?.[series.col_name]])
+            if (isNumber(series.threshold?.value))
+                data = data.map(item => ({ value: item, itemStyle: { color: get_item_color(item[1]) } }))
+        }
+           
+        
+           
+        
+            
+        // // x 轴和 y 轴均为数据轴或者对数轴的情况下或者散点图，series 的数据为二维数组，每一项的第一个值为x的值，第二个值为y的值
+        // else if (([AxisType.VALUE, AxisType.LOG].includes(xAxis.type) && [AxisType.VALUE, AxisType.LOG].includes(yAxis[series.yAxisIndex].type)) || series.type === WidgetChartType.SCATTER) { 
+        //     data = data_source.map(item => [format_time(item[xAxis.col_name], xAxis.time_format), item[series.col_name]])
+        //     if (isNumber(series.threshold?.value))
+        //         data = data.map(item => ([item[0], { value: item[1], itemStyle: { color: get_item_color(item[1]) } }]))
+        // }
+ 
+        console.log(data, 'data')
         return {
             type: series.type?.toLowerCase(),
             name: series.name,

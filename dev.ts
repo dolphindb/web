@@ -20,14 +20,6 @@ class DevServer extends Server {
     ddb_backend = '127.0.0.1:8848'
     
     
-    constructor () {
-        super({
-            name: 'web 开发服务器',
-            http_port: 8432,
-        })
-    }
-    
-    
     override async router (ctx: Context) {
         const {
             request: {
@@ -161,7 +153,11 @@ console.log('项目根目录:', fpd_root)
 
 assert(ramdisk || fexists(`${fpd_root}.vscode/settings.json`), '需要将 .vscode/settings.template.json 复制为 .vscode/settings.json')
 
-let server = new DevServer()
+let server = new DevServer({
+    name: 'web 开发服务器',
+    http: true,
+    http_port: 8432,
+})
 
 await Promise.all([
     server.start(),

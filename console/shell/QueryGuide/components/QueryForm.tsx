@@ -10,7 +10,7 @@ import { FormDependencies } from '../../../components/formily/FormDependcies/ind
 import { StringDatePicker } from '../../../components/StringDatePicker/index.js'
 import { StringTimePicker } from '../../../components/StringTimePicker.js'
 import { GUIDE_FORM_VALUES_KEY, IN, LIKE, NOT_IN, NOT_LIKE, OTHER_OPERATIONS, STRING_OPERATIONS, STRING_TYPES, TIME_TYPES, VALID_DATA_TYPES, VALUE_OPERATIONS, VALUE_TYPES } from '../constant.js'
-import { MinusCircleOutlined, PlusCircleOutlined } from '@ant-design/icons'
+import { DeleteOutlined, MinusCircleOutlined, PlusCircleOutlined } from '@ant-design/icons'
 import { t } from '../../../../i18n/index.js'
 import { ENUM_TYPES, type IColumn } from '../type.js'
 import { concat_name_path, safe_json_parse } from '../../../dashboard/utils.js'
@@ -35,7 +35,7 @@ interface IQueryCard {
 }
 
 export const TIME_COMPONENT = {
-    DATE: <StringDatePicker submitFormat='YYYY.MM.DD' format='YYYY-MM=DD' allowClear/>,
+    DATE: <StringDatePicker submitFormat='YYYY.MM.DD' format='YYYY-MM-DD' allowClear/>,
     MONTH: <StringDatePicker submitFormat='YYYY.MM' format='YYYY-MM' submitSuffix='M' allowClear/>,
     TIME: <StringTimePicker format='HH:mm:ss' allowClear/>,
     MINUTE: <StringTimePicker format='HH:mm' submitSuffix='m' allowClear/>,
@@ -69,7 +69,7 @@ export function QueryCard (props: IQueryCard) {
                                                 </Tag>
                                             </div>,
                                             value: JSON.stringify(item),
-                                            disabled: !VALID_DATA_TYPES.includes(item.data_type) && !item.data_type.includes('DECIMAL')
+                                            disabled: (!VALID_DATA_TYPES.includes(item.data_type) && !item.data_type.includes('DECIMAL')) || item.data_type.includes('[]')
                                         }))}
                                     placeholder='请选择列名' />
                             </Form.Item>
@@ -198,70 +198,67 @@ export function QueryForm (props: IProps) {
     
     return <Spin spinning={isLoading}>
         <Form form={form} onValuesChange={save_cache}>
-            <h4 className='query-col-title'>{t('查询列')}</h4>
+            <h3 className='query-col-title'>{t('查询列')}</h3>
             <Form.Item name='queryCols' rules={[{ required: true, message: '请选择查询列' }] }>
                 <ColSelectTransfer cols={cols}/>
             </Form.Item>
-            {
-                !!partition_cols?.length && <>
-                    <h4>{t('分区列查询条件')}</h4>
-                    <QueryCard
-                        table={table}
-                        database={database}
-                        cols={cols.filter(item => partition_cols.includes(item.name)) ?? [ ]}
-                        className='partition-query-block'
-                        name='partitionColQuerys'
-                        name_path={null}
-                    />
-                    <Typography.Text type='secondary' className='partition-query-tip'>
-                        {t('匹配 (like) 规则说明（区分大小写）：% 表示任意 0 个或者多个字符，可匹配任意类型和长度的字符，例如"688%" 匹配以 688 开头的字符串，可匹配 "688101.SH"、"688101"等字符串；"%SZ%" 匹配包含 SZ 的字符串， 能够匹配 "300951.SZ"、 "SZ.300951"的字符串；"%6" 匹配以 6 结尾的字符串，能够匹配例如 “abcd6” 的字符串。') }
-                    </Typography.Text>
-                </>
-            }
-            <h4>{t('查询条件')}</h4>
-            <Form.List name='querys' initialValue={[ ]}>
-                {(fields, { add, remove }) => { 
-                    return <div className='querys-wrapper'>
-                        {
-                            fields.map(field => <div key={field.name}>
+            <h3>{t('查询条件')}</h3>
+            <div className='query-conditions-wrapper'>
+                
+                {
+                    !!partition_cols?.length && <>
+                        <h4>{t('分区列查询条件')}</h4>
+                        <QueryCard
+                            table={table}
+                            database={database}
+                            cols={cols.filter(item => partition_cols.includes(item.name)) ?? [ ]}
+                            // className='partition-query-block'
+                            name='partitionColQuerys'
+                            name_path={null}
+                        />
+                    </>
+                }
+                {!!partition_cols?.length && <h4>{t('其他查询条件')}</h4>}
+                <Form.List name='querys' initialValue={[ ]}>
+                    {(fields, { add, remove }) => { 
+                        return <div className='querys-wrapper'>
                             {
-                                field.name !== 0 && 
-                                <Typography.Text className='condition-tip' type='secondary'>{t('或满足')}</Typography.Text>}
-                                <QueryCard
-                                    table={table}
-                                    database={database}
-                                    className='query-block'
-                                    key={field.name}
-                                    cols={cols.filter(item => !partition_cols.includes(item.name)) ?? [ ]}
-                                    title={
-                                        <div className='query-block-title'>
-                                            <span>{`查询条件 ${field.name + 1}`}</span>
-                                            <Typography.Link
-                                                className='delete-text'
-                                                onClick={() => { remove(field.name) }}
-                                                type='danger'
-                                            >
-                                                {t('删除')}
-                                            </Typography.Link> 
+                                fields.map(field =>
+                                    <div key={field.name}>
+                                        {
+                                            field.name !== 0 && <Typography.Text className='condition-tip' type='secondary'>{t('或满足')}</Typography.Text>
+                                        }
+                                        <div className='query-block'>
+                                            <QueryCard
+                                                table={table}
+                                                database={database}
+                                                className='query-content'
+                                                
+                                                key={field.name}
+                                                cols={cols.filter(item => !partition_cols.includes(item.name)) ?? [ ]}
+                                                name={field.name}
+                                                name_path='querys'
+                                            />
+                                            <DeleteOutlined className='delete-icon' onClick={() => { remove(field.name) }} />
+                                            
                                         </div>
-                                    }
-                                    name={field.name}
-                                    name_path='querys'
-                                />
-                                </div>)
-                        }
-                        <Button
-                            onClick={() => { add([{ }]) }}
-                            type='dashed'
-                            block
-                            icon={<PlusCircleOutlined />}
-                            className='add-query-block-btn'
-                        >
-                            {t('增加或查询条件块')}
-                        </Button>
-                    </div>
-                }}
-            </Form.List>
+                                </div>
+                                )
+                            }
+                            <Button
+                                onClick={() => { add([{ }]) }}
+                                type='dashed'
+                                block
+                                icon={<PlusCircleOutlined />}
+                                className='add-query-block-btn'
+                            >
+                                {t('添加其他查询条件')}
+                            </Button>
+                        </div>
+                    }}
+                </Form.List>
+                
+            </div>
         </Form>
     </Spin>
 }
