@@ -548,7 +548,7 @@ export enum DashboardPermission {
     view = 2
 }
 
-export const WidgetTypeWithoutDatasource = ['TEXT', 'EDITOR']
+export const WidgetTypeWithoutDatasource = ['TEXT', 'EDITOR', WidgetChartType.VARIABLE]
 
 
 export type Result = { type: 'object', data: DdbObj<DdbValue> } | null
