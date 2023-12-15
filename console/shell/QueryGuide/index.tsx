@@ -39,11 +39,14 @@ export const QueryGuideModal = NiceModal.create((props: IProps) => {
     const Component = useMemo(() => components[type], [type])
     
     useEffect(() => { 
-        // 填写表单的时候缓存表单数据，弹窗销毁的时候清除
-        return () => {
+        function clear_cache () { 
             sessionStorage.removeItem(GUIDE_FORM_VALUES_KEY)
             sessionStorage.removeItem(GUIDE_QUERY_EDIT_CODE_KEY)
         }
+        // 填写表单的时候缓存表单数据，弹窗销毁与刷新页面的时候清除
+        window.onunload = clear_cache
+        
+        return clear_cache
     }, [ ])
     
     return <>

@@ -2,8 +2,6 @@ import { Spin } from 'antd'
 import { useMemo, useState } from 'react'
 import useSWR from 'swr'
 import { request } from '../../../guide/utils.js'
-import { genid } from 'xshell/utils.browser.js'
-import { Obj } from '../../../obj.js'
 import { Table } from '../../../obj.js'
 
 interface IProps { 
@@ -44,6 +42,7 @@ export function QueryDataView (props: IProps) {
             pageSizeOptions: [10, 20],
             defaultPageSize: pagination.page_size,
             showSizeChanger: true,
+            current: pagination.page,
             onChange: (page, pageSize) => { set_pagination({ page, page_size: pageSize }) }
         }}
     />
