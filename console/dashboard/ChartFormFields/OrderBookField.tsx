@@ -24,9 +24,9 @@ export function BasicFormFields ({ type }: { type: 'chart' | 'table' }) {
             
             <PaddingSetting />
             
-            <Form.Item name='with_legend' label={t('图例')} initialValue>
+            {/* <Form.Item name='with_legend' label={t('图例')} initialValue>
                 <BoolRadioGroup />
-            </Form.Item>
+            </Form.Item> */}
             <Form.Item name='with_tooltip' label={t('气泡提示')} initialValue>
                 <BoolRadioGroup />
             </Form.Item>
