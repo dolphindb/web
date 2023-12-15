@@ -9,7 +9,7 @@ import { OhlcFormFields } from '../../ChartFormFields/OhlcChartFields.js'
 
 import './index.sass'
 import { format_time, parse_text } from '../../utils.js'
-import {  MarkPresetType } from '../../ChartFormFields/type.js'
+import {  AxisType, MarkPresetType } from '../../ChartFormFields/type.js'
 
 type COL_MAP = {
     time: string
@@ -32,9 +32,10 @@ function splitData (rowData: any[], col_name: COL_MAP) {
         values.push([rowData[i][open], rowData[i][close], rowData[i][low], rowData[i][high]])
         volumes.push([i, Math.abs(rowData[i][trades]), Number(rowData[i][trades]) > 0 ? 1 : -1])
     }
+    
     if (time_format)
         categoryData = categoryData.map(item => format_time(item, time_format))
-    
+    console.log(categoryData)
     return {
         categoryData,
         values,
@@ -47,7 +48,6 @@ function splitData (rowData: any[], col_name: COL_MAP) {
 
 export function OHLC ({ widget, data_source }: { widget: Widget, data_source: any[] }) {
     const { title, title_size, with_tooltip, xAxis, series, yAxis, x_datazoom, y_datazoom } = widget.config as IChartConfig
-   
     function convert_series (series: ISeriesConfig) { 
         let mark_line_data = series?.mark_line?.map(item => { 
             if (item in MarkPresetType)
@@ -102,7 +102,7 @@ export function OHLC ({ widget, data_source }: { widget: Widget, data_source: an
                 trades: series[1].col_name as string,
                 time_format: xAxis.time_format || ''
             }),
-        [data_source, xAxis.col_name, series]
+        [data_source, xAxis.col_name, series, xAxis.time_format]
     )
     const [kColor = '#ec0000', kColor0 = '#00da3c'] = useMemo(() => 
             [ series[0].kcolor, series[0].kcolor0], 
@@ -117,6 +117,7 @@ export function OHLC ({ widget, data_source }: { widget: Widget, data_source: an
                     fontSize: title_size || 18,
                 }
             },
+            data,
             legend: {
                 top: 10,
                 left: 'center',
@@ -229,6 +230,15 @@ export function OHLC ({ widget, data_source }: { widget: Widget, data_source: an
                     },
                     axisPointer: {
                         z: 100
+                    },
+                    min: () => { 
+                        const idx = data.categoryData.findIndex(time => time >= xAxis.min)
+                        return idx === -1 ? 0 : idx
+                    }
+                    ,
+                    max:  () => { 
+                        const idx = data.categoryData.findIndex(time => time >= xAxis.max) 
+                        return idx === -1 ? data.categoryData.length - 1 : idx
                     }
                 },
                 {
@@ -245,8 +255,16 @@ export function OHLC ({ widget, data_source }: { widget: Widget, data_source: an
                     // axisTick: { show: false },
                     // splitLine: { show: false },
                     // axisLabel: { show: false },
-                   
-                }
+                    min: () => { 
+                        const idx = data.categoryData.findIndex(time => time >= xAxis.min)
+                        return idx === -1 ? 0 : idx
+                    }
+                    ,
+                    max:  () => { 
+                        const idx = data.categoryData.findIndex(time => time >= xAxis.max) 
+                        return idx === -1 ? data.categoryData.length - 1 : idx
+                    }
+            }
             ],
             yAxis: [
                 {
@@ -290,16 +308,13 @@ export function OHLC ({ widget, data_source }: { widget: Widget, data_source: an
                 {
                     type: 'inside',
                     xAxisIndex: [0, 1],
-                    start: 0,
-                    end: 100
+                    
                 },
                 {
                     show: x_datazoom,
                     xAxisIndex: [0, 1],
                     type: 'slider',
                     top: '86%',
-                    start: 0,
-                    end: 100,
                     height: 20
                 },
                 {
@@ -307,8 +322,8 @@ export function OHLC ({ widget, data_source }: { widget: Widget, data_source: an
                     id: 'dataZoomY',
                     type: 'slider',
                     yAxisIndex: [0, 1],
-                    start: 0,
-                    end: 100
+                    // start: 0,
+                    // end: 100
                 }
             ],
             series: [
@@ -337,7 +352,6 @@ export function OHLC ({ widget, data_source }: { widget: Widget, data_source: an
         }),
         [title, with_tooltip, data, xAxis, yAxis, x_datazoom, y_datazoom]
     )
-    
     // 编辑模式下 notMerge 为 true ，因为要修改配置，预览模式下 notMerge 为 false ，避免数据更新，导致选中的 label失效
     return <ReactEChartsCore notMerge={dashboard.editing} echarts={echarts} option={option} lazyUpdate theme='ohlc_theme' />
 }

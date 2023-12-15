@@ -22,7 +22,17 @@ export function Variables (props: IProps) {
     const config = useMemo(() => widget.config as IVariableConfig, [widget.config])
     
     return <>
-        {config.title && <div className='variable-title' style={{ fontSize: config.title_size ?? 18, fontWeight: 500 }}>{config.title}</div>}
-        <VariableForm className='variable-chart-wrapper' ids={config.variable_ids} cols={config.variable_cols} with_search_btn={config.with_search_btn} />
+        {
+            config?.title &&
+                <div className='variable-title' style={{ fontSize: config.title_size ?? 18, fontWeight: 500 }}>
+                    {config.title}
+                </div>
+        }
+         <VariableForm
+            className='variable-chart-wrapper'
+            ids={config?.variable_ids}
+            cols={config?.variable_cols}
+            with_search_btn={config?.with_search_btn}
+        />
     </>
 }

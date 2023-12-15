@@ -7,7 +7,7 @@ import { genid } from 'xshell/utils.browser.js'
 import copy from 'copy-to-clipboard'
 import dayjs from 'dayjs'
 
-import { WidgetChartType, type Widget, dashboard, type DashBoardConfig, DashboardPermission } from './model.js'
+import { WidgetChartType, type Widget, dashboard, DashboardPermission } from './model.js'
 import { type AxisConfig, type IChartConfig, type ISeriesConfig } from './type.js'
 import { subscribe_data_source, type DataSource } from './DataSource/date-source.js'
 import { AxisType, MarkPresetType } from './ChartFormFields/type.js'
@@ -15,9 +15,11 @@ import { find_variable_by_name, get_variable_copy_infos, get_variable_value, pas
 import { t } from '../../i18n/index.js'
 
 
-export function format_time (time: string, format: string) { 
+export function format_time (time: string, format: string) {
+    if (!format)
+        return time
     try {
-        return dayjs(time).format(format || 'YYYY-MM-DD HH:mm:ss')
+        return isNaN(dayjs(time).day()) ? dayjs(time, format).format(format)  : dayjs(time).format(format)
     } catch (e) { 
         return time
     }
@@ -161,15 +163,6 @@ export function get_cols (obj: DdbObj<DdbValue>): Array<string> {
     return cols
 }
 
-export function default_value_in_select (
-    data_source_node: DataSource, 
-    key: string, 
-    select_list: { label: string, value: string }[]): string 
-{
-    return (data_source_node[key] && select_list.filter(item => item.value === data_source_node[key]).length) 
-        ? data_source_node[key] 
-        : select_list[0].value
-}
 
 export function parse_text (code: string): string {
     code = code.replace(/\{\{(.*?)\}\}/g, function (match, variable) {
@@ -211,16 +204,12 @@ export function convert_chart_config (widget: Widget, data_source: any[]) {
                 type: 'slider',
                 xAxisIndex: [0],
                 filterMode: 'filter',
-                start: 0,
-                end: 100
             },
             {
                 id: 'dataZoomY',
                 type: 'slider',
                 yAxisIndex: [0],
                 filterMode: 'empty',
-                start: 0,
-                end: 100
             }
         ]
         let data_zoom = [ ]
@@ -266,16 +255,22 @@ export function convert_chart_config (widget: Widget, data_source: any[]) {
             scale: !axis.with_zero ?? false,
             nameTextStyle: {
                 fontSize: axis.fontsize ?? 12
-            }
+            },
+            min: [AxisType.TIME, AxisType.VALUE].includes(axis.type) ? axis.min : undefined,
+            max: [AxisType.TIME, AxisType.VALUE].includes(axis.type) ? axis.max : undefined
         }
         
         if (axis.type === AxisType.CATEGORY)
-            return { ...axis_config, data: uniq(data || [ ]) }
+            // 热力图的类目数据需为去重之后的数据
+            return {
+                ...axis_config, data: widget.type === WidgetChartType.HEATMAP ? uniq(data) : data || [ ]
+            }
         else
             return axis_config
     }
     
-    function convert_series (series: ISeriesConfig) { 
+    function convert_series (series: ISeriesConfig) {
+        
         let mark_line_data = series?.mark_line?.map(item => { 
             if (item in MarkPresetType)
                 return {
@@ -286,25 +281,38 @@ export function convert_chart_config (widget: Widget, data_source: any[]) {
                 return { yAxis: item }
         }) || [ ]
         
+        const get_item_color = value => value > series.threshold.value ? series.threshold?.high_color : series.threshold?.low_color
         
         let data = data_source.map(item => item?.[series.col_name])
-        
-        // 时间轴情况下，series为二维数组，且每项的第一个值为 x轴对应的值，第二个值为 y轴对应的值，并且需要对时间进行格式化处理
-        if (xAxis.type === AxisType.TIME)  
-            data = data_source.map(item => [format_time(item?.[xAxis.col_name], xAxis.time_format), item?.[series.col_name]])
-            
-        // x 轴和 y 轴均为数据轴或者对数轴的情况下或者散点图，series 的数据为二维数组，每一项的第一个值为x的值，第二个值为y的值
-        if (([AxisType.VALUE, AxisType.LOG].includes(xAxis.type) && [AxisType.VALUE, AxisType.LOG].includes(yAxis[series.yAxisIndex].type)) || series.type === WidgetChartType.SCATTER)  
-            data  = data_source.map(item => [item[xAxis.col_name], item[series.col_name]])
-        
         if (isNumber(series.threshold?.value))  
             data = data.map(item => ({
                 value: item,
                 itemStyle: {
-                    color: item > series.threshold.value ? series.threshold?.high_color : series.threshold?.low_color
+                    color: get_item_color(item)
                 }
             }))
         
+        
+        
+        // 时间轴情况下，series为二维数组，且每项的第一个值为 x轴对应的值，第二个值为 y轴对应的值，并且需要对时间进行格式化处理
+        if (xAxis.type === AxisType.TIME || ([AxisType.VALUE, AxisType.LOG].includes(xAxis.type) && [AxisType.VALUE, AxisType.LOG].includes(yAxis[series.yAxisIndex].type)) || series.type === WidgetChartType.SCATTER) { 
+            data = data_source.map(item => [format_time(item?.[xAxis.col_name], xAxis.time_format), item?.[series.col_name]])
+            if (isNumber(series.threshold?.value))
+                data = data.map(item => ({ value: item, itemStyle: { color: get_item_color(item[1]) } }))
+        }
+           
+        
+           
+        
+            
+        // // x 轴和 y 轴均为数据轴或者对数轴的情况下或者散点图，series 的数据为二维数组，每一项的第一个值为x的值，第二个值为y的值
+        // else if (([AxisType.VALUE, AxisType.LOG].includes(xAxis.type) && [AxisType.VALUE, AxisType.LOG].includes(yAxis[series.yAxisIndex].type)) || series.type === WidgetChartType.SCATTER) { 
+        //     data = data_source.map(item => [format_time(item[xAxis.col_name], xAxis.time_format), item[series.col_name]])
+        //     if (isNumber(series.threshold?.value))
+        //         data = data.map(item => ([item[0], { value: item[1], itemStyle: { color: get_item_color(item[1]) } }]))
+        // }
+ 
+        // console.log(data, 'data')
         return {
             type: series.type?.toLowerCase(),
             name: series.name,
@@ -313,7 +321,8 @@ export function convert_chart_config (widget: Widget, data_source: any[]) {
             stack: series.stack,
             endLabel: {
                 show: series.end_label,
-                formatter: series.name
+                formatter: series.end_label_formatter,
+                color: 'inherit'
             },
             
             // 防止删除yAxis导致渲染失败
@@ -362,7 +371,19 @@ export function convert_chart_config (widget: Widget, data_source: any[]) {
             borderColor: '#060606',
             textStyle: {
                 color: '#F5F5F5'
-            }
+            },
+            // 时间轴的tooltip格式需要手动处理，默认的format是 YYYY-MM-DD HH:mm:ss
+            // formatter: xAxis.type === AxisType.TIME ? params => { 
+            //     let text = '--'
+            //     if (params && params.length) {
+            //       text = `<span style="font-weight: 500;">${params[0].value[0]}</span>` // 提示框顶部的日期标题
+            //       params.forEach(item => {
+            //         const dotHtml = item.marker // 系列marker
+            //         text += `</br>${dotHtml}${item.seriesName}：<span style="font-weight: 500;">${item?.value?.[1] ?? '-'}</span>`
+            //       })
+            //     }
+            //     return text
+            // } : null
         },
         title: {
             text: parse_text(title ?? ''),

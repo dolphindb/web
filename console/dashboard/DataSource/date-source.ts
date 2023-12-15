@@ -43,8 +43,6 @@ export type ExportDataSource = {
     /** stream 模式专用 */
     filter_expression: string
     /** stream 模式专用 */
-    node: string
-    /** stream 模式专用 */
     ip: string
 }
 
@@ -76,8 +74,6 @@ export class DataSource extends Model<DataSource>  {
     filter_column = ''    
     /** stream 模式专用 */
     filter_expression = ''
-    /** stream 模式专用 */
-    node = null
     /** stream 模式专用 */
     ip = ''
     

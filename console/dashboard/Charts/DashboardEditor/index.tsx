@@ -40,6 +40,9 @@ export function DashboardEditor ({ widget }: { widget: Widget }) {
                     set_code(code)
                     await save_debounced(code)
                 }}
+                options={{
+                    fixedOverflowWidgets: true
+                }}
                 theme='dark'
             />
         </div>

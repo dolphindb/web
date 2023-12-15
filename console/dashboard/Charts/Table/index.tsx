@@ -68,7 +68,19 @@ export function DBTable (props: IProps) {
         return selected_cols
             .map(col_name => show_cols.find(item => item.col === col_name))
             .map(col => {
-                const { col: name, width = 200, threshold, display_name, decimal_places, time_format, is_thousandth_place, color, align = 'left', background_color, sorter, multiple } = col ?? { }
+                const { col: name,
+                    width = 200,
+                    threshold,
+                    display_name,
+                    decimal_places,
+                    time_format,
+                    is_thousandth_place,
+                    color,
+                    align = 'left',
+                    background_color,
+                    sorter,
+                    multiple
+                } = col ?? { }
                 
                 const col_config = {
                     dataIndex: name,

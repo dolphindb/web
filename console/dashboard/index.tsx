@@ -108,6 +108,7 @@ function Init ({ is_admin, set_inited_state }: { is_admin: boolean, set_inited_s
                     <p>{t('初始化操作将新增以下数据库表：')}</p>
                     <p>dfs://dashboardConfigDb/configDtl</p>
                     <p>{t('以及 11 个以 dashboard_ 开头的函数视图（FunctionView）')}</p>
+                    <p>{t('提示：初始化后请完善相关配置（详见文档），并重启服务器')}</p>
                 </>
             }
             extra={
