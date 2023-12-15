@@ -14,10 +14,14 @@ def dbms_generateQuery(input_json){
             } else{
                 temp_con = tempCondition["col"] + ' ' +  opt_map[tempCondition["opt"]] + ' "' + tempCondition["value"] + '"'
             }
+        } else if (tempCondition["dataType"] == `BLOB){
+            temp_con = tempCondition["col"] + ' ' +  opt_map[tempCondition["opt"]] + ' blob("' + tempCondition["value"] + '")'
         } else if (tempCondition["dataType"] in `TIME`TIMESTAMP) {
             temp_con = tempCondition["col"] + " " +  opt_map[tempCondition["opt"]] + " " + tempCondition["value"] + ".000"
         } else if (tempCondition["dataType"] in `NANOTIME`NANOTIMESTAMP){
             temp_con = tempCondition["col"] + " " +  opt_map[tempCondition["opt"]] + " " + tempCondition["value"] + ".000000000"
+        } else if (tempCondition["dataType"] == `DATEHOUR){
+            temp_con = tempCondition["col"] + " " +  opt_map[tempCondition["opt"]] + " datehour('" + tempCondition["value"] + "')"
         } else{
             temp_con = tempCondition["col"] + " " +  opt_map[tempCondition["opt"]] + " " + tempCondition["value"]
         }
@@ -35,10 +39,14 @@ def dbms_generateQuery(input_json){
                 }else{
                     temp_con = tempCondition["col"] + ' ' +  opt_map[tempCondition["opt"]] + ' "' + tempCondition["value"] + '"'
                 }
+            } else if (tempCondition["dataType"] == `BLOB){
+                temp_con = tempCondition["col"] + ' ' +  opt_map[tempCondition["opt"]] + ' blob("' + tempCondition["value"] + '")'
             } else if (tempCondition["dataType"] in `TIME`TIMESTAMP) {
                 temp_con = tempCondition["col"] + " " +  opt_map[tempCondition["opt"]] + " " + tempCondition["value"] + ".000"
             } else if (tempCondition["dataType"] in `NANOTIME`NANOTIMESTAMP){
                 temp_con = tempCondition["col"] + " " +  opt_map[tempCondition["opt"]] + " " + tempCondition["value"] + ".000000000"
+            } else if (tempCondition["dataType"] == `DATEHOUR){
+                temp_con = tempCondition["col"] + " " +  opt_map[tempCondition["opt"]] + " datehour('" + tempCondition["value"] + "')"
             } else{
                 temp_con = tempCondition["col"] + " " +  opt_map[tempCondition["opt"]] + " " + tempCondition["value"]
             }
@@ -70,6 +78,7 @@ def dbms_generateQuery(input_json){
 }
 
 
+
 def dbms_executeQuery(input_json){
     code = input_json.parseExpr().eval()["code"]
     temp = code.parseExpr().eval()
@@ -88,25 +97,12 @@ def dbms_executeQueryByPage(input_json){
     code = input_dict["code"]
     page = input_dict["page"]
     pageSize = input_dict["pageSize"]
-    temp = code.parseExpr().eval()
-    count = size temp
-    if (count == 0){
-        res = '{"total":' + string(count) + ',"items":[]}'
-    }else {
-        limitcondition = " LIMIT " + (page-1)*pageSize + ", " + pageSize
-        code = code + limitcondition
-        temp = code.parseExpr().eval()
-        itemsList = array(STRING, 0)
-        real_n = size temp
-        for(i in 0..(real_n-1)){
-            itemsList.append!(toStdJson(temp[i]))
-        }
-        res = '{"total":' + string(count) + ',"items":'
-        itemsString = "[" + concat(itemsList,",") + "]"
-        res += itemsString
-        res += '}'
-    }
-    return res
+    query = 'EXEC count(*) FROM ' + code.split("FROM")[1]
+    total = query.parseExpr().eval()
+    limitcondition = " LIMIT " + (page-1)*pageSize + ", " + pageSize
+    code = code + limitcondition
+    res = code.parseExpr().eval()
+    return total, res
 }
 
 
