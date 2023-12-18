@@ -251,11 +251,10 @@ export function copy_variables (variable_ids: string[]) {
 }
 
 /** widget 表示是否是粘贴 widget 时附带粘贴变量 */
-export async function paste_variables (event, widget = false) { 
+export async function paste_variables (event, widget = false): Promise<boolean> { 
     const { variables: _variables } = safe_json_parse((event.clipboardData).getData('text'))
     if (!_variables || !_variables.length)
-        return
-    
+        return false
     // 先校验，重名不粘贴，不重名且 id 不同的直接粘贴，不重名但 id 相同的重新生成 id 后粘贴
     for (let i = 0;  i < _variables.length;  i++  ) {
         const { id, name } = _variables[i]
@@ -283,6 +282,8 @@ export async function paste_variables (event, widget = false) {
         })
         await save_variable(parste_variable, true)
     }
+    
+    return true
 }
 
 export const variables = new Variables()
