@@ -63,11 +63,11 @@ export function BasicTableFields ({ col_names }: { col_names: string[] }) {
                                 <Select options={convert_list_to_options(['left', 'center', 'right'])} />
                             </Form.Item>
                             
-                            <Form.Item label={t('是否排序')} name={[field.name, 'sorter']} initialValue={false}>
+                            <Form.Item tooltip={t('仅数值类型可支持排序')} label={t('是否排序')} name={[field.name, 'sorter']} initialValue={false}>
                                 <BoolRadioGroup />
                             </Form.Item>
                             
-                            <FormDependencies dependencies={[['col_properties', field.name, 'sorter']]}>
+                            {/* <FormDependencies dependencies={[['col_properties', field.name, 'sorter']]}>
                                 {value => { 
                                     console.log(value, 'value')
                                     if (!value.col_properties?.[field.name]?.sorter)  
@@ -77,7 +77,7 @@ export function BasicTableFields ({ col_names }: { col_names: string[] }) {
                                             <InputNumber placeholder={t('请输入优先级')} />
                                         </Form.Item>
                                 }}
-                            </FormDependencies>
+                            </FormDependencies> */}
                             
                             
                         </div>,

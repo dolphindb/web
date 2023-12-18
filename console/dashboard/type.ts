@@ -108,7 +108,7 @@ export interface IColProperty {
     is_thousandth_place?: boolean
     align?: 'left' | 'center' | 'right'
     sorter?: boolean
-    multiple?: number
+    // multiple?: number
 }
 export interface ITableConfig {
     title?: string

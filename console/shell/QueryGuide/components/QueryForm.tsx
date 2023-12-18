@@ -107,7 +107,7 @@ export function QueryCard (props: IQueryCard) {
                                 const { data_type } = safe_json_parse(col ?? '{}')
                                 
                                 // 数值类型
-                                if (VALUE_TYPES.includes(data_type) || data_type?.includes('DECIMAL'))
+                                if ((VALUE_TYPES.includes(data_type) && !ENUM_TYPES.includes(data_type)) || data_type?.includes('DECIMAL'))
                                     return <Form.Item name={[field.name, 'value']} rules={[{ required: true, message: '请输入对比值' }]}>
                                         <InputNumber placeholder='请输入对比值' />
                                     </Form.Item>

@@ -79,7 +79,7 @@ export function DBTable (props: IProps) {
                     align = 'left',
                     background_color,
                     sorter,
-                    multiple
+                    // multiple
                 } = col ?? { }
                 
                 const col_config = {
@@ -91,7 +91,7 @@ export function DBTable (props: IProps) {
                     align,
                     sorter: sorter ? {
                         compare: (a, b) => a[name] - b[name],
-                        multiple
+                        // multiple
                     } : false,
                     onCell: record => {
                         return {

@@ -1,5 +1,5 @@
 import { Spin } from 'antd'
-import { useMemo, useState } from 'react'
+import { useEffect, useState } from 'react'
 import useSWR from 'swr'
 import { request } from '../../../guide/utils.js'
 import { Table } from '../../../obj.js'
@@ -17,20 +17,18 @@ const DEFAULT_DATA = {
 export function QueryDataView (props: IProps) { 
     const { code, set_disable_export } = props
     const [pagination, set_pagination] = useState({ page: 1, page_size: 10 })
-    const [total, set_total] = useState(0)
+    const [total, set_total] = useState()
     
     const { data = DEFAULT_DATA, isLoading } = useSWR(
-        ['dbms_executeQueryByPage', code, pagination.page, pagination.page_size],
-        async () => request<{ items: any[], total: number }>('dbms_executeQueryByPage', { code, page: pagination.page, pageSize: pagination.page_size }),
+        'dbms_executeQueryByPage' + code + pagination.page + pagination.page_size,
+        async () => request<{ items: any[], total: number }>('dbms_executeQueryByPage', { code, page: pagination.page, pageSize: pagination.page_size, total }),
         {
             onSuccess: data => {
-                console.log(data[1], 'obj')
                 set_total(data[0].value)
                 set_disable_export(data[0].value > 500000 || data[0].value === 0)
-            }
+            },
         }
     )
-    
     
     return !isLoading ? <Table
         obj={data[1]}
@@ -43,7 +41,9 @@ export function QueryDataView (props: IProps) {
             defaultPageSize: pagination.page_size,
             showSizeChanger: true,
             current: pagination.page,
-            onChange: (page, pageSize) => { set_pagination({ page, page_size: pageSize }) }
+            onChange: (page, pageSize) => {
+                set_pagination({ page, page_size: pageSize })
+            }
         }}
     />
     :

@@ -3349,5 +3349,8 @@
     },
     "删除查询列": {
         "en": "Delete query column"
+    },
+    "仅数值类型可支持排序": {
+        "en": "Only numeric types support sorting"
     }
 }
