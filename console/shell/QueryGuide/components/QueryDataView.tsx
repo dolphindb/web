@@ -24,7 +24,6 @@ export function QueryDataView (props: IProps) {
         async () => request<{ items: any[], total: number }>('dbms_executeQueryByPage', { code, page: pagination.page, pageSize: pagination.page_size }),
         {
             onSuccess: data => {
-                console.log(data[1], 'obj')
                 set_total(data[0].value)
                 set_disable_export(data[0].value > 500000 || data[0].value === 0)
             }

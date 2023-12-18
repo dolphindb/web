@@ -15,9 +15,7 @@ export function EnumAutoComplete (props: IProps) {
     const { data = options } = useSWR(
         options?.length ? null : ['generateEnumerate', table, database, col], 
         async () => query_enums({ dbName: database, tbName: table, col })
-    )
-    
-    console.log(options, 'options')
+    )   
     
     return <AutoComplete
         placeholder={t('请输入对比值')}
