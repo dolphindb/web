@@ -17,11 +17,11 @@ const DEFAULT_DATA = {
 export function QueryDataView (props: IProps) { 
     const { code, set_disable_export } = props
     const [pagination, set_pagination] = useState({ page: 1, page_size: 10 })
-    const [total, set_total] = useState(0)
+    const [total, set_total] = useState()
     
     const { data = DEFAULT_DATA, isLoading } = useSWR(
         'dbms_executeQueryByPage' + code + pagination.page + pagination.page_size,
-        async () => request<{ items: any[], total: number }>('dbms_executeQueryByPage', { code, page: pagination.page, pageSize: pagination.page_size }),
+        async () => request<{ items: any[], total: number }>('dbms_executeQueryByPage', { code, page: pagination.page, pageSize: pagination.page_size, total }),
         {
             onSuccess: data => {
                 set_total(data[0].value)

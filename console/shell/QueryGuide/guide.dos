@@ -97,10 +97,13 @@ def dbms_executeQueryByPage(input_json){
     code = input_dict["code"]
     page = input_dict["page"]
     pageSize = input_dict["pageSize"]
-    query = 'EXEC count(*) FROM ' + code.split("FROM")[1]
-    total = query.parseExpr().eval()
-    total = min(total, 20000000)
-    total = int(total)
+    total = input_dict["total"]
+    if (total == null){
+        query = code + ' LIMIT 20000000'
+        total = query.parseExpr().eval()
+        total = size(total)
+        total = int(total)    
+    }
     limitcondition = " LIMIT " + (page-1)*pageSize + ", " + pageSize
     code = code + limitcondition
     res = code.parseExpr().eval()
