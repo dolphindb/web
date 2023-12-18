@@ -67,7 +67,7 @@ export function BasicTableFields ({ col_names }: { col_names: string[] }) {
                                 <BoolRadioGroup />
                             </Form.Item>
                             
-                            <FormDependencies dependencies={[['col_properties', field.name, 'sorter']]}>
+                            {/* <FormDependencies dependencies={[['col_properties', field.name, 'sorter']]}>
                                 {value => { 
                                     console.log(value, 'value')
                                     if (!value.col_properties?.[field.name]?.sorter)  
@@ -77,7 +77,7 @@ export function BasicTableFields ({ col_names }: { col_names: string[] }) {
                                             <InputNumber placeholder={t('请输入优先级')} />
                                         </Form.Item>
                                 }}
-                            </FormDependencies>
+                            </FormDependencies> */}
                             
                             
                         </div>,
