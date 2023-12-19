@@ -57,21 +57,22 @@ export function VariableList ({
     useEffect(() => { 
         async function paste_handler (event) {
             try {
-                await paste_variables(event)
-                set_menu_items(
-                    variables.variable_infos.map((variable_info: { id: string, name: string }): MenuItemType => (
-                        {
-                            key: variable_info.id,
-                            icon: createElement(ToolOutlined),
-                            title: variable_info.name
-                        }
-                    ))
-                )
-                const id = variables.variable_infos[0]?.id
-                if (id) {
-                    change_current_variable(id)
-                    set_current_select(id)
-                }
+                if (await paste_variables(event)) {
+                    set_menu_items(
+                        variables.variable_infos.map((variable_info: { id: string, name: string }): MenuItemType => (
+                            {
+                                key: variable_info.id,
+                                icon: createElement(ToolOutlined),
+                                title: variable_info.name
+                            }
+                        ))
+                    )
+                    const id = variables.variable_infos[0]?.id
+                    if (id) {
+                        change_current_variable(id)
+                        set_current_select(id)
+                    }
+                }    
             } catch (error) {
                 dashboard.message.error(error.message)
             }
