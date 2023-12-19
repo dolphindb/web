@@ -189,7 +189,7 @@ export let webpack = {
             
             const version = `${branch} (${dayjs(time).format('YYYY.MM.DD HH:mm:ss')} ${hash.slice(0, 6)})`
             
-            await fwrite(`${fpd_out_console}version.json`, { version })
+            await fwrite(`${fpd_out_console}version.json`, { version, print: false })
             
             
             this.lcompiler.resource = Webpack(this.config = {
