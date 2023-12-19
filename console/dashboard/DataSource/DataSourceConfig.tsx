@@ -140,7 +140,7 @@ export function DataSourceConfig (props: IProps, ref) {
                             set_loading('save')
                             await handle_save()
                             if (widget) {
-                                if (!widget.source_id || widget.source_id !== current_data_source.id) {
+                                if (!widget.source_id || !current_data_source.deps.has(widget.id)) {
                                     await subscribe_data_source(widget, current_data_source.id)
                                     dashboard.update_widget({ ...widget, source_id: current_data_source.id })
                                 }

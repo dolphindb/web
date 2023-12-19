@@ -58,19 +58,20 @@ export function DataSourceList ({
     useEffect(() => { 
         async function paste_handler (event) {
             try {
-                await paste_data_source(event)
-                set_menu_items(
-                    data_sources.map((data_source: DataSource): MenuItemType => {
-                        return {
-                            key: String(data_source.id),
-                            icon: createElement(DatabaseOutlined),
-                            title: data_source.name
-                        }
-                    })
-                )
-                const id = data_sources[0].id
-                change_current_data_source(id)
-                set_current_select(id)
+                if (await paste_data_source(event)) {
+                    set_menu_items(
+                        data_sources.map((data_source: DataSource): MenuItemType => {
+                            return {
+                                key: String(data_source.id),
+                                icon: createElement(DatabaseOutlined),
+                                title: data_source.name
+                            }
+                        })
+                    )
+                    const id = data_sources[0].id
+                    change_current_data_source(id)
+                    set_current_select(id)
+                }
             } catch (error) {
                 dashboard.message.error(error.message)
             }
