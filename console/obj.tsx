@@ -13,6 +13,7 @@ import {
     type TableColumnType,
     Input,
     Form,
+    type TableProps,
 } from 'antd'
 
 import { default as Icon, CaretRightOutlined, PauseOutlined } from '@ant-design/icons'
@@ -524,13 +525,15 @@ function StreamingCell ({
 }
 
 
-function Table ({
+export function Table ({
     obj,
     objref,
     ctx,
     remote,
     ddb,
     options,
+    show_bottom_bar = true,
+    ...others
 }: {
     obj?: DdbTableObj
     objref?: DdbObjRef<DdbObj<DdbVectorValue>[]>
@@ -538,7 +541,8 @@ function Table ({
     remote?: Remote
     ddb?: DDB
     options?: InspectOptions
-}) {
+    show_bottom_bar?: boolean
+} & TableProps<any>) {
     const info = obj || objref
     
     const ncols = info.cols
@@ -601,7 +605,7 @@ function Table ({
                     render: irow =>
                         page_size * page_index + irow
                 },
-                ...seq(ncols, index => 
+                ...seq(ncols, index =>
                     new TableColumn({
                         obj,
                         objref,
@@ -611,9 +615,10 @@ function Table ({
                         options,
                     }))
             ]}
+            {...others}
         />
         
-        <div className='bottom-bar'>
+        { show_bottom_bar && <div className='bottom-bar'>
             <div className='info'>
                 <span className='desc'>{ info.rows ? `${info.rows} ${t('行')} ` : ' ' }{info.cols} {t('列')}{ objref ? ` (${Number(objref.bytes).to_fsize_str()}) ` : '' }</span>
                 <span className='type'>{t('的表格')}</span>
@@ -648,7 +653,7 @@ function Table ({
                     }}
                 />}
             </div>
-        </div>
+        </div>}
     </div>
 }
 
@@ -1793,19 +1798,20 @@ function Chart ({
                         xField='row'
                         yField='value'
                         colorField='col'
-                        axis={{
-                            x: {
+                        xAxis={
+                            {
                                 title: {
                                     text: titles.x_axis
                                 }
-                            },
-                            y: {
+                            }
+                        }
+                        yAxis={
+                            {
                                 title: {
                                     text: titles.y_axis
                                 }
                             }
-                        }}
-                        shape='circle'
+                        }
                         padding='auto'
                     />
                 

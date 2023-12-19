@@ -1469,8 +1469,8 @@
     "创建成功": {
         "en": "Successfully created"
     },
-    "数据库路径": {
-        "en": "db path"
+    "数据库路径（directory）": {
+        "en": "directory"
     },
     "表类型": {
         "en": "table type"
@@ -1577,8 +1577,8 @@
     "分区位置": {
         "en": "partition location"
     },
-    "存储引擎": {
-        "en": "storage engine"
+    "存储引擎（engine）": {
+        "en": "engine"
     },
     "请选择存储引擎": {
         "en": "Please select storage engine"
@@ -1589,8 +1589,8 @@
     "TSDB 引擎。采用经典的 LSMT 模型，引入了排序列以提升在用户查询某个或少数几个设备（股票）在特定时间段数据的场景下的查询性能。": {
         "en": "TSDB engine. Using the classic LSMT model, the sorted column is introduced to improve the query performance in the scenario where the user queries the data of a few devices (or stocks) in a specific time period."
     },
-    "写入事务原子性": {
-        "en": "transaction atomicity"
+    "写入事务原子性（atomic）": {
+        "en": "atomic"
     },
     "请选择写入事务原子性": {
         "en": "Please select transaction atomicity"
@@ -1607,8 +1607,8 @@
     "分区级原子性": {
         "en": "partition level transaction atomicity"
     },
-    "分区粒度": {
-        "en": "chunk granularity"
+    "分区粒度（chunkGranularity）": {
+        "en": "chunkGranularity"
     },
     "请选择分区粒度": {
         "en": "Please select chunk granularity"
@@ -1658,17 +1658,20 @@
     "创建数据库成功": {
         "en": "Database created successfully."
     },
-    "{{i18nIndex}}分区类型": {
-        "en": "{{i18nIndex}} partition's type"
+    "{{i18nIndex}}分区类型（partitionType）": {
+        "en": "{{i18nIndex}} partitionType"
     },
     "请选择{{i18nIndex}}分区类型": {
         "en": "Please select the partition type of the {{i18nIndex}} partition"
     },
-    "{{i18nIndex}}分区方案": {
-        "en": "{{i18nIndex}} partition's scheme"
+    "{{i18nIndex}}分区方案（partitionScheme）": {
+        "en": "{{i18nIndex}} partitionScheme"
     },
     "请输入{{i18nIndex}}分区方案": {
         "en": "Please enter the partition scheme of the {{i18nIndex}} partition"
+    },
+    "参考教程": {
+        "en": "Reference"
     },
     "一级": {
         "en": "first"
@@ -2411,32 +2414,8 @@
     "当前配置与已有配置重名，请改名": {
         "en": "The current configuration has the same name as the existing configuration, please change the name"
     },
-    "命名不可为空":{
-        "en":"Name cannot be empty"
-    },
-    "进入查询向导": {
-        "en": "Enter the query guide"
-    },
-    "向导界面": {
-        "en": "Guide interface"
-    },
-    "编辑界面": {
-        "en": "Edit interface"
-    },
-    "增加或查询条件块": {
-        "en": "Add or query condition block"
-    },
-    "查询条件": {
-        "en": "Query conditions"
-    },
-    "分区列查询条件": {
-        "en": "Query conditions of Partition columns"
-    },
-    "且满足": {
-        "en": "and satisfied"
-    },
-    "或满足": {
-        "en": "or satisfied"
+    "命名不可为空": {
+        "en": "Name cannot be empty"
     },
     "分布式数据库": {
         "en": "distributed database"
@@ -3311,39 +3290,6 @@
     "提示：初始化后请完善相关配置（详见文档），并重启服务器": {
         "en": "Tip: After initialization, please complete the relevant configuration (see the documentation for details) and restart the server"
     },
-    "预览数据": {
-        "en": "Preview data"
-    },
-    "导出数据": {
-        "en": "Export data"
-    },
-    "未选查询列": {
-        "en": "Unselected query column"
-    },
-    "已选查询列": {
-        "en": "Selected query column"
-    },
-    "增加查询列": {
-        "en": "Add query column"
-    },
-    "删除查询列": {
-        "en": "Delete query column"
-    },
-    "请选择列名": {
-        "en": "Please select a column name"
-    },
-    "请选择运算符": {
-        "en": "Please select an operator"
-    },
-    "请输入对比值": {
-        "en": "Please enter a comparison value"
-    },
-    "输入值后按回车键，可输入多个值": {
-        "en": "After entering the value, press the Enter key to enter multiple values."
-    },
-    "请选择对比值": {
-        "en": "Please select a comparison value"
-    },
     "新数据源": {
         "en": "New data source"
     },
@@ -3370,5 +3316,41 @@
     },
     "请输入优先级": {
         "en": "Please enter priority"
+    },
+    "自定义端标签": {
+        "en": "Custom end tag"
+    },
+    "支持静态标签与模板变量，其中模板变量包含以下几种": {
+        "en": "Supports static tags and template variables, where template variables include the following types"
+    },
+    "{a}：数据列名称": {
+        "en": "{a}: data column name"
+    },
+    "{c}：y轴值": {
+        "en": "{c}: y-axis value"
+    },
+    "{b}：x轴值": {
+        "en": "{b}: x-axis value"
+    },
+    "示例: 名称-{a}": {
+        "en": "Example: name-{a}"
+    },
+    "请输入自定义端标签": {
+        "en": "Please enter custom end tag"
+    },
+    "未选查询列": {
+        "en": "Unselected query column"
+    },
+    "已选查询列": {
+        "en": "Selected query column"
+    },
+    "增加查询列": {
+        "en": "Add query column"
+    },
+    "删除查询列": {
+        "en": "Delete query column"
+    },
+    "仅数值类型可支持排序": {
+        "en": "Only numeric types support sorting"
     }
 }
