@@ -13,7 +13,7 @@ export function Config () {
     const [tab_key, set_tab_key] = useState('controller_config')
     return <Tabs
                 type='card'
-                key={tab_key}
+                accessKey={tab_key}
                 onChange={set_tab_key}
                 items={[
                 {
