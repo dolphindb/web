@@ -3,7 +3,7 @@ import useSWR from 'swr'
 import { shell } from '../../model.js'
 import { NodeType, model } from '../../../model.js'
 import {  DdbFunctionType } from 'dolphindb'
-import { isNumber } from 'lodash'
+import { get, isNumber } from 'lodash'
 import { useCallback, useEffect, useId, useState } from 'react'
 import { ColSelectTransfer } from './ColSelectTransfer.js'
 import { FormDependencies } from '../../../components/formily/FormDependcies/index.js'
@@ -78,7 +78,7 @@ export function QueryCard (props: IQueryCard) {
                         {/* 运算符选择 */}
                         <FormDependencies dependencies={[concat_name_path(name_path, name, field.name, 'col')]}>
                             {value => {
-                                const val = name_path ? value?.[name_path]?.[name]?.[field.name]?.col : value?.[name]?.[field.name]?.col ?? '{}'
+                                const val = get(value, concat_name_path(name_path, name, field.name, 'col')) ?? '{}' 
                                 const { data_type } = safe_json_parse(val ?? '{}')
                                 
                                 let opt_options = [ ]
@@ -96,10 +96,11 @@ export function QueryCard (props: IQueryCard) {
                                     name={[field.name, 'opt']}
                                     rules={[{ required: true, message: '请选择运算符' }]}
                                     shouldUpdate={(prev, cur) => { 
-                                        // 列名更改的时候重置运算符
-                                        const prev_col = name_path ? prev?.[name_path]?.[name]?.[field.name]?.col : prev?.[name]?.[field.name]?.col ?? '{}'
-                                        const cur_col = name_path ? cur?.[name_path]?.[name]?.[field.name]?.col : cur?.[name]?.[field.name]?.col ?? '{}'
-                                        if (prev_col !== cur_col) { 
+                                        // 列名更改的时候重置运算符 
+                                        const prev_col = get(prev, concat_name_path(name_path, name, field.name, 'col')) ?? '{}' 
+                                        const cur_col = get(cur, concat_name_path(name_path, name, field.name, 'col')) ?? '{}' 
+                                        console.log(prev_col, cur_col, 'prev_col')
+                                        if (JSON.parse(prev_col.toString()).data_type !== JSON.parse(cur_col.toString()).data_type) { 
                                             form.setFieldValue(concat_name_path(name_path, name, field.name, 'opt'), undefined)
                                             return true
                                         } else
@@ -117,32 +118,42 @@ export function QueryCard (props: IQueryCard) {
                                 const { col, opt } = item
                                 const { data_type } = safe_json_parse(col ?? '{}')
                                 
+                                let component = null
+                                
                                 // 数值类型
                                 if ((VALUE_TYPES.includes(data_type) && !ENUM_TYPES.includes(data_type)) || data_type?.includes('DECIMAL'))
-                                    return <Form.Item name={[field.name, 'value']} rules={[{ required: true, message: '请输入对比值' }]}>
-                                        <InputNumber placeholder='请输入对比值' />
-                                    </Form.Item>
+                                    component = <InputNumber placeholder='请输入对比值' />
                                 // 时间类型
                                 else if (TIME_TYPES.includes(data_type))
-                                    return <Form.Item name={[field.name, 'value']} rules={[{ required: true, message: '请选择对比值' }]}>
-                                        {TIME_COMPONENT[data_type]}
-                                    </Form.Item>
+                                    component = TIME_COMPONENT[data_type]
                                 else
                                     // 其余情况跟运算符相关
                                     // 包含跟不包含运算符，为选择器
                                     if (opt && [IN, NOT_IN].includes(opt))
-                                        return <Form.Item name={[field.name, 'value']} rules={[{ required: true, message: '请输入对比值' }]}>
-                                            <EnumSelect table={table} database={database} col={col} />
-                                        </Form.Item>
+                                        component = <EnumSelect table={table} database={database} col={col} />
                                     else if (opt && [LIKE, NOT_LIKE].includes(opt))
-                                        return <Form.Item name={[field.name, 'value']} rules={[{ required: true, message: '请输入对比值' }]}>
-                                            <Input placeholder='请输入对比值'/>
-                                        </Form.Item>
+                                        component =  <Input placeholder='请输入对比值'/>
                                     // 枚举类型，且不为 like not like
-                                    else  
-                                        return <Form.Item name={[field.name, 'value']} rules={[{ required: true, message: '请输入对比值' }]}>
-                                            <EnumAutoComplete table={table} database={database} col={col} options={data_type === 'BOOL' ? [{ value: 'true', label: 'true' }, { value: 'false', label: 'false' }] : [ ] } />
-                                        </Form.Item>
+                                    else
+                                        component = <EnumAutoComplete table={table} database={database} col={col} options={data_type === 'BOOL' ? [{ value: 'true', label: 'true' }, { value: 'false', label: 'false' }] : [ ] } />
+                                return <Form.Item shouldUpdate={
+                                    (prev, cur) => { 
+                                        // 列名更改的时候重置值
+                                        const prev_col = get(prev, concat_name_path(name_path, name, field.name, 'col')) ?? '{}' 
+                                        const cur_col = get(cur, concat_name_path(name_path, name, field.name, 'col')) ?? '{}' 
+                                        console.log(prev_col, cur_col, 'prev_col')
+                                        if (JSON.parse(prev_col.toString()).data_type !== JSON.parse(cur_col.toString()).data_type) { 
+                                            form.setFieldValue(concat_name_path(name_path, name, field.name, 'value'), undefined)
+                                            return true
+                                        } else
+                                            return false
+                                    }
+                                }
+                                    name={[field.name, 'value']}
+                                    rules={[{ required: true, message: '请输入对比值' }]}
+                                >
+                                    { component }
+                                </Form.Item>
                                        
                                     
                             } }
@@ -223,7 +234,6 @@ export function QueryForm (props: IProps) {
                             table={table}
                             database={database}
                             cols={cols.filter(item => partition_cols.includes(item.name)) ?? [ ]}
-                            // className='partition-query-block'
                             name='partitionColQuerys'
                             name_path={null}
                         />

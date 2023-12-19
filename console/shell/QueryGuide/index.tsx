@@ -55,7 +55,7 @@ export const QueryGuideModal = NiceModal.create((props: IProps) => {
             destroyOnClose
             footer={footer}
             title={database + '/' + table}
-            width={1000}
+            width='80%'
             className='query-guide-modal'
             open={modal.visible}
             onCancel={modal.hide}
