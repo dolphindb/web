@@ -265,8 +265,10 @@ class ShellModel extends Model<ShellModel> {
                 `(${imutables.map(({ name }) => name).join(', ')}, 0)${model.ddb.python ? '.toddb()' : ''}`
             )
             
-            for (let i = 0;  i < values.length - 1;  i++)
+            for (let i = 0;  i < values.length - 1;  i++) {
                 imutables[i].obj = values[i]
+                imutables[i].type = values[i].type
+            }  
         }
         
         
