@@ -1779,21 +1779,21 @@ function Chart ({
                         xField='row'
                         yField='value'
                         seriesField='col'
-                        xAxis={
+                        axis={
                             {
-                                title: {
-                                    text: titles.x_axis
+                                x: {
+                                    title: {
+                                        text: titles.x_axis
+                                    }
+                                },
+                                y: {
+                                    title: {
+                                        text: titles.y_axis
+                                    }
                                 }
                             }
                         }
-                        yAxis={
-                            {
-                                title: {
-                                    text: titles.y_axis
-                                }
-                            }
-                        }
-                        isStack={stacking}
+                        stack={stacking}
                         padding='auto'
                     />
                 
