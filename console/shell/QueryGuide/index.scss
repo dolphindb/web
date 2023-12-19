@@ -31,6 +31,7 @@
     .ant-modal-body {
         max-height: 600px;
         padding: 12px;
+        overflow-y: auto;
     }
     .ant-form-item {
         margin-bottom: 0px;
@@ -65,7 +66,7 @@
             
             .not-selected-icon {
                 margin-right: 4px;
-                color: #FF4D4F;
+                // color: #FDD144;
             }
             
             .selected-icon {
