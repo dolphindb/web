@@ -49,7 +49,7 @@ export const TIME_COMPONENT = {
 
 export function QueryCard (props: IQueryCard) { 
     const { name, name_path, cols, className, title, table, database } = props
-    
+    const form = Form.useFormInstance()
     return <Form.List name={name} initialValue={[{ }]}>
         {(fields, { add, remove }) => { 
             return <Card className={className} size='small' title={title}>
@@ -71,7 +71,8 @@ export function QueryCard (props: IQueryCard) {
                                             value: JSON.stringify(item),
                                             disabled: (!VALID_DATA_TYPES.includes(item.data_type) && !item.data_type.includes('DECIMAL')) || item.data_type.includes('[]')
                                         }))}
-                                    placeholder='请选择列名' />
+                                    placeholder='请选择列名'
+                                />
                             </Form.Item>
                         
                         {/* 运算符选择 */}
@@ -94,6 +95,16 @@ export function QueryCard (props: IQueryCard) {
                                 return <Form.Item
                                     name={[field.name, 'opt']}
                                     rules={[{ required: true, message: '请选择运算符' }]}
+                                    shouldUpdate={(prev, cur) => { 
+                                        // 列名更改的时候重置运算符
+                                        const prev_col = name_path ? prev?.[name_path]?.[name]?.[field.name]?.col : prev?.[name]?.[field.name]?.col ?? '{}'
+                                        const cur_col = name_path ? cur?.[name_path]?.[name]?.[field.name]?.col : cur?.[name]?.[field.name]?.col ?? '{}'
+                                        if (prev_col !== cur_col) { 
+                                            form.setFieldValue(concat_name_path(name_path, name, field.name, 'opt'), undefined)
+                                            return true
+                                        } else
+                                            return false
+                                    }}
                                 >
                                     <Select options={opt_options} placeholder='请选择运算符' />
                                 </Form.Item>
@@ -233,7 +244,6 @@ export function QueryForm (props: IProps) {
                                                 table={table}
                                                 database={database}
                                                 className='query-content'
-                                                
                                                 key={field.name}
                                                 cols={cols.filter(item => !partition_cols.includes(item.name)) ?? [ ]}
                                                 name={field.name}

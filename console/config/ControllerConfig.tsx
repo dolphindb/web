@@ -1,4 +1,4 @@
-import { CloseCircleOutlined, DeleteOutlined, EditOutlined, ReloadOutlined, SaveOutlined } from '@ant-design/icons'
+import { CloseCircleOutlined, DeleteOutlined, EditOutlined, PlusCircleFilled, ReloadOutlined, SaveOutlined } from '@ant-design/icons'
 import { EditableProTable, type ActionType, type ProColumns } from '@ant-design/pro-components'
 import { Button, Input, Popconfirm } from 'antd'
 
@@ -36,12 +36,14 @@ export function ControllerConfig () {
             formItemProps: {
                 rules: [{
                     required: true,
-                    message: '此项为必填项'
+                    message: t('请输入配置名！')
                 },
                 () => ({
                     async validator (rule, value) {
-                        if (Object.keys(configs).includes(value))
-                            return Promise.reject('该详细类型已存在!')
+                        console.log('mode', configs.findIndex(cfg => cfg.name === value))
+                        if (configs.findIndex(cfg => cfg.name === value) !== -1) 
+                            return Promise.reject(t('该配置项已存在！'))
+                        
                     },
                 }),
             ]
@@ -57,7 +59,7 @@ export function ControllerConfig () {
             formItemProps: {
                 rules: [{
                     required: true,
-                    message: '此项为必填项'
+                    message: t('请输入配置值！')
                 }]
             }
         },
@@ -128,7 +130,11 @@ export function ControllerConfig () {
                 recordCreatorProps={
                     {
                         position: 'top',
-                        record: () => ({ id: String(genid()), name: '', value: '' }),
+                        record: () => ({
+                            id: String(Date.now()),
+                            name: '',
+                            value: ''
+                        }),
                         creatorButtonText: t('新增控制节点配置'),
                         
                     }
@@ -192,3 +198,4 @@ export function ControllerConfig () {
                 tableLayout='fixed'
             />
 }
+
