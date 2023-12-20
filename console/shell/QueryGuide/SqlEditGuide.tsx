@@ -6,8 +6,8 @@ import { Button, Space, Tooltip, message } from 'antd'
 import { QueryDataView } from './components/QueryDataView.js'
 import NiceModal from '@ebay/nice-modal-react'
 import { ExportFileModal } from './components/ExportFileModal.js'
-import { GUIDE_QUERY_EDIT_CODE_KEY } from './constant.js'
 import { Editor } from '../Editor/index.js'
+import { guide_query_model } from './model.js'
 
 interface IProps { 
     database: string
@@ -20,10 +20,8 @@ export function SqlEditGuide (props: IProps) {
     const { table, database, set_footer } = props
     
     const [current_step, set_current_step] = useState(0)
-    const [code, set_code] = useState(() => { 
-        const cache_code = sessionStorage.getItem(GUIDE_QUERY_EDIT_CODE_KEY)
-        return cache_code ?? `SELECT * FROM loadTable("${database}", "${table}")`
-    })
+    
+    const [code, set_code] = useState(guide_query_model.use(['code']).code ?? `SELECT * FROM loadTable("${database}", "${table}")`)
     // 总数据量大于 50w, 不允许导出数据
     const [disable_export, set_disable_export] = useState(false)
     
@@ -35,7 +33,7 @@ export function SqlEditGuide (props: IProps) {
                         theme='light'
                         on_change={code => {
                             set_code(code)
-                            sessionStorage.setItem(GUIDE_QUERY_EDIT_CODE_KEY, code)
+                            guide_query_model.set({ code })
                         }}
                     />
             </div>,
