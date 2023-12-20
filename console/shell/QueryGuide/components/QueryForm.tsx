@@ -2,14 +2,14 @@ import { Button, Card, Form, type FormInstance, Input, InputNumber, Select, Spin
 import useSWR from 'swr'
 import { shell } from '../../model.js'
 import { NodeType, model } from '../../../model.js'
-import {  DdbFunctionType } from 'dolphindb'
+import { DdbFunctionType } from 'dolphindb'
 import { get, isNumber } from 'lodash'
-import { useCallback, useEffect, useId, useState } from 'react'
+import { useId, useState } from 'react'
 import { ColSelectTransfer } from './ColSelectTransfer.js'
 import { FormDependencies } from '../../../components/formily/FormDependcies/index.js'
 import { StringDatePicker } from '../../../components/StringDatePicker/index.js'
 import { StringTimePicker } from '../../../components/StringTimePicker.js'
-import { GUIDE_FORM_VALUES_KEY, IN, LIKE, NOT_IN, NOT_LIKE, OTHER_OPERATIONS, STRING_OPERATIONS, STRING_TYPES, TIME_TYPES, VALID_DATA_TYPES, VALUE_OPERATIONS, VALUE_TYPES } from '../constant.js'
+import { IN, LIKE, NOT_IN, NOT_LIKE, OTHER_OPERATIONS, STRING_OPERATIONS, STRING_TYPES, TIME_TYPES, VALID_DATA_TYPES, VALUE_OPERATIONS, VALUE_TYPES } from '../constant.js'
 import { DeleteOutlined, MinusCircleOutlined, PlusCircleOutlined } from '@ant-design/icons'
 import { t } from '../../../../i18n/index.js'
 import { ENUM_TYPES, type IColumn } from '../type.js'
@@ -17,6 +17,7 @@ import { concat_name_path, safe_json_parse } from '../../../dashboard/utils.js'
 
 import { EnumSelect } from './EnumSelect.js'
 import { EnumAutoComplete } from './EnumAutoComplete.js'
+import { guide_query_model } from '../model.js'
 
 interface IProps { 
     form: FormInstance
@@ -100,7 +101,6 @@ export function QueryCard (props: IQueryCard) {
                                         // 列名更改的时候重置运算符 
                                         const prev_col = get(prev, concat_name_path(name_path, name, field.name, 'col')) ?? '{}' 
                                         const cur_col = get(cur, concat_name_path(name_path, name, field.name, 'col')) ?? '{}' 
-                                        console.log(JSON.parse(prev_col.toString()).data_type, JSON.parse(cur_col.toString()).data_type)
                                         const get_data_type = col => JSON.parse(col)?.data_type
                                         const prev_data_type = get_data_type(prev_col)
                                         const cur_data_type = get_data_type(cur_col)
@@ -184,15 +184,7 @@ export function QueryForm (props: IProps) {
     const [partition_cols, set_partition_cols] = useState<string[]>([ ])
     const page_id = useId()
     
-        
-    const save_cache = useCallback((_, values) => {
-        sessionStorage.setItem(GUIDE_FORM_VALUES_KEY, JSON.stringify(values))
-    }, [ ])
-    
-    useEffect(() => { 
-        const last_values = JSON.parse(sessionStorage.getItem(GUIDE_FORM_VALUES_KEY))
-        form.setFieldsValue(last_values)
-    }, [ form ])
+    const { query_values } = guide_query_model.use(['query_values'])
     
     const { isLoading } = useSWR(['get_table_schema', table, database, page_id],
         async () => { 
@@ -226,7 +218,7 @@ export function QueryForm (props: IProps) {
     
     
     return <Spin spinning={isLoading}>
-        <Form form={form} onValuesChange={save_cache}>
+        <Form initialValues={query_values} form={form} onValuesChange={(_, values) => { guide_query_model.set({ query_values: values }) }}>
             <h3 className='query-col-title'>{t('查询列')}</h3>
             <Form.Item name='queryCols' rules={[{ required: true, message: '请选择查询列' }] }>
                 <ColSelectTransfer cols={cols}/>
