@@ -114,7 +114,7 @@ export class DashBoardModel extends Model<DashBoardModel> {
             acceptWidgets: true,
             float: true,
             column: this.maxcols,
-            // row: this.maxrows,
+            row: this.maxrows,
             margin: 0,
             draggable: { scroll: false },
             resizable: { handles: 'n,e,se,s,w' },
