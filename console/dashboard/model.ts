@@ -216,7 +216,7 @@ export class DashBoardModel extends Model<DashBoardModel> {
     
     dispose () {
         clear_data_sources()
-        console.log('dispose')
+        console.log('grid.destroy')
         this.grid.destroy()
         this.grid = null
     }

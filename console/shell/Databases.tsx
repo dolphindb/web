@@ -857,7 +857,6 @@ export class Database implements DataNode {
                 model.node_type === NodeType.controller ? { node: model.datanode.name, func_type: DdbFunctionType.UserDefinedFunc } : { }
             )
         }
-        console.log(this.schema, 'schema')
         
         return this.schema
     }

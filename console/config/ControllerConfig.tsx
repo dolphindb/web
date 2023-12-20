@@ -40,7 +40,7 @@ export function ControllerConfig () {
                 },
                 () => ({
                     async validator (rule, value) {
-                        console.log('mode', configs.findIndex(cfg => cfg.name === value))
+                        console.log('mode:', configs.findIndex(cfg => cfg.name === value))
                         if (configs.findIndex(cfg => cfg.name === value) !== -1) 
                             return Promise.reject(t('该配置项已存在！'))
                         
@@ -75,7 +75,7 @@ export function ControllerConfig () {
                 className='mr-btn'
                 icon={<EditOutlined />}
                 onClick={() => {
-                    console.log('edit config', record)
+                    console.log('edit config:', record)
                     action?.startEditable?.(record.id)
                 }}
               >
@@ -100,7 +100,7 @@ export function ControllerConfig () {
     const delete_config = useCallback(async (config_id: string) => 
         model.execute(
             async () => {
-                console.log('delete config', config_id, configs_2_strs(configs))
+                console.log('delete config:', config_id, configs_2_strs(configs))
                 const new_configs = configs_2_strs(configs).filter(cfg => cfg !== config_id)
                 await config.save_controller_configs(new_configs)
                 set_refresher(refresher + 1)
@@ -117,7 +117,7 @@ export function ControllerConfig () {
                     let value = [ ]
                     await model.execute(async () => {
                         value = (await config.load_controller_configs()).value as any[]
-                        console.log('request configs', value)
+                        console.log('request configs:', value)
                     })
                     const configs = strs_2_configs(value)
                     set_configs(configs)

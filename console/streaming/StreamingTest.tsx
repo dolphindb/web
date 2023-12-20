@@ -56,7 +56,7 @@ export function StreamingTest () {
                             height: 500,
                             animationDuration: 500
                         }}
-                        onError={e => { console.log('1') }}
+                        onError={e => {  }}
                     />
                 </Col>
                 <Col span={8}>
