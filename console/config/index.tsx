@@ -7,6 +7,7 @@ import SvgControllerConfig from './icons/controller.config.icon.svg'
 import SvgNodesManagement from './icons/nodes.management.icon.svg'
 import SvgNodesConfig from './icons/nodes.config.icon.svg'
 import { ControllerConfig } from './ControllerConfig.js'
+import { NodesManagement } from './NodesManagement.js'
 import { useState } from 'react'
 
 export function Config () {
@@ -30,7 +31,8 @@ export function Config () {
                     label: <div className='tab-header'>
                         <SvgNodesManagement/>
                         {t('集群节点管理')}
-                    </div>
+                    </div>,
+                    children: <NodesManagement/>
                 },
                 {
                     key: 'nodes_config',

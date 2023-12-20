@@ -1,9 +1,4 @@
-export type Config = {
-    id: string
-    name: string
-    value: string
-}
-
+import { NodeType, type Config, type Node } from './type.js'
 
 export const strs_2_configs  = (strs: string[]): Config[] =>
     strs.map(str => {
@@ -16,6 +11,23 @@ export const strs_2_configs  = (strs: string[]): Config[] =>
     })
 
 
-
 export const configs_2_strs  = (configs: Config[]): string[] =>
     configs.map(cfg => cfg.id)
+
+    
+export const nodes_2_strs = (nodes: Node[]): string[] =>
+    nodes.map(node => node.id)
+    
+
+export const strs_2_nodes = (strs: string[]): Node[] =>
+    strs.map(str => {
+        const [rest, mode] = str.split(',')
+        const [host, port, alias] = rest.split(':')
+        return {
+            id: str,
+            host,
+            port,
+            alias,
+            mode: NodeType[mode]
+        }
+    })

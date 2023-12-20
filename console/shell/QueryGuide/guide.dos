@@ -96,25 +96,26 @@ def dbms_executeQueryByPage(input_json){
     try{ 
         input_dict = input_json.parseExpr().eval()
         code = input_dict["code"]
-        page = input_dict["page"]
-        pageSize = input_dict["pageSize"]
-        total = input_dict["total"]
-        if (total == null){
-            query = code + ' LIMIT 20000000'
-            total = query.parseExpr().eval()
-            total = size(total)
-            total = int(total)    
-        }
-        limitcondition = " LIMIT " + (page-1)*pageSize + ", " + pageSize
-        code = code + limitcondition
-        res = code.parseExpr().eval()
-        return total, res        
+        if (strFind(code, "SELECT") == -1 OR strFind(code, "FROM") == -1){
+            throw "This is not standard SQL."
+    }
+    page = input_dict["page"]
+    pageSize = input_dict["pageSize"]
+    total = input_dict["total"]
+    if (total == null){
+        query = code + ' LIMIT 20000000'
+        total = query.parseExpr().eval()
+        total = size(total)
+        total = int(total)    
+    }
+    limitcondition = " LIMIT " + (page-1)*pageSize + ", " + pageSize
+    code = code + limitcondition
+    res = code.parseExpr().eval()
+    return total, res        
     } catch(ex){
-        return ex[0] + ":" + ex[1]
+        return "This is not standard SQL."
     }
 }
-
-
 def dbms_generateEnumerate(input_json){
     input_dict = input_json.parseExpr().eval()
     dbName = input_dict["dbName"]
@@ -125,8 +126,12 @@ def dbms_generateEnumerate(input_json){
     } else{
         colName = loadTable(dbName, tbName).schema().partitionColumnName
     }
-    query =  "EXEC " + col + ' FROM( SELECT ' + col + ' FROM loadTable("' + dbName + '", "' + tbName +  '") LIMIT 100000 ) GROUP BY ' + col
-    enumList = query.parseExpr().eval()
+    query =  "EXEC " + col + ' FROM loadTable("' + dbName + '", "' + tbName +  '") WHERE sample(' + 
+    colName + ', 100) GROUP BY ' + col + ' LIMIT 1000'
+    do{
+        enumList = query.parseExpr().eval()
+    }
+    while(size(enumList) == 0)
     res = '{"enumList":["' + concat(enumList, '","') + '"]}' 
     return res
 }
