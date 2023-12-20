@@ -231,6 +231,9 @@ function Series (props: { col_names: string[], single?: boolean }) {
                                         <Form.Item label={t('线类型')} name={[field.name, 'line_type']} initialValue={ILineType.SOLID}>
                                             <Select options={line_type_options} />
                                         </Form.Item>
+                                        <Form.Item label={t('线宽')} name={[field.name, 'line_width']}>
+                                            <InputNumber addonAfter='px'/>
+                                        </Form.Item>
                                         <Form.Item name={[field.name, 'end_label']} label={t('展示端标签')} initialValue={false}>
                                             <BoolRadioGroup />
                                         </Form.Item>

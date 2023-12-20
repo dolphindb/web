@@ -202,11 +202,13 @@ export function convert_chart_config (widget: Widget, data_source: any[]) {
             {
                 id: 'dataZoomX',
                 type: 'slider',
+                show: true,
                 xAxisIndex: [0],
                 filterMode: 'filter',
             },
             {
                 id: 'dataZoomY',
+                show: true,
                 type: 'slider',
                 yAxisIndex: [0],
                 filterMode: 'empty',
@@ -336,7 +338,8 @@ export function convert_chart_config (widget: Widget, data_source: any[]) {
             },
             lineStyle: {
                 type: series.line_type,
-                color: series.color
+                color: series.color,
+                width: series.line_width
             }
         }
     }
@@ -346,7 +349,7 @@ export function convert_chart_config (widget: Widget, data_source: any[]) {
         grid: {
             containLabel: true,
             left: 10,
-            bottom: 10
+            bottom: x_datazoom ? 50 : 10
         },
         legend: {
             show: with_legend,
