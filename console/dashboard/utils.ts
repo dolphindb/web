@@ -516,7 +516,7 @@ export async function paste_widget (event) {
             id: String(genid()),
         }
         dashboard.add_widget(paste_widget_el)
-        await subscribe_data_source(paste_widget, paste_widget.source_id)
+        await subscribe_data_source(paste_widget_el, paste_widget_el.source_id)
     } catch (error) {
         dashboard.message.error(error.message)
     }
