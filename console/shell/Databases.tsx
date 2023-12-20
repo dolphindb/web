@@ -575,7 +575,7 @@ function CreateDatabase () {
                 })
             }}
         >
-            <Form.Item label={t('数据库路径')} name='dbPath' required rules={[{
+            <Form.Item label={t('数据库路径 (directory)')} name='dbPath' required rules={[{
                 required: true,
                 validator: async (_, val: string) => {
                     if (!val)
@@ -597,7 +597,7 @@ function CreateDatabase () {
             }]}>
                 <InputNumber placeholder='1' onChange={(e: string) => {
                     const level = parseInt(e, 10)
-                    if (level < 1 || level > 3)
+                    if (level < 1 || level > 3 || !level)
                         return
                     
                     shell.set({ create_database_partition_count: level })
@@ -614,7 +614,7 @@ function CreateDatabase () {
                     
                     return <div key={'create-db-' + i}>
                         <Form.Item
-                            label={t('{{i18nIndex}}分区类型', { i18nIndex })}
+                            label={t('{{i18nIndex}}分区类型 (partitionType)', { i18nIndex })}
                             name={['partitions', i, 'type']}
                             required
                             rules={[{
@@ -651,7 +651,7 @@ function CreateDatabase () {
                         </Form.Item>
                         
                         <Form.Item
-                            label={t('{{i18nIndex}}分区方案', { i18nIndex })}
+                            label={t('{{i18nIndex}}分区方案 (partitionScheme)', { i18nIndex })}
                             name={['partitions', i, 'scheme']}
                             required
                             rules={[{
@@ -675,7 +675,7 @@ function CreateDatabase () {
             </Form.Item> */
             }
             
-            <Form.Item label={t('存储引擎')} name='storageEngine' required initialValue='OLAP'>
+            <Form.Item label={t('存储引擎 (engine)')} name='storageEngine' required initialValue='OLAP'>
                 <Select placeholder={t('请选择存储引擎')} options={[
                     // https://www.dolphindb.cn/cn/help/FunctionsandCommands/FunctionReferences/d/database.html
                     {
@@ -689,7 +689,7 @@ function CreateDatabase () {
                 ].filter(Boolean)} />
             </Form.Item>
             
-            <Form.Item label={t('写入事务原子性')} name='atomicLevel' required>
+            <Form.Item label={t('写入事务原子性 (atomic)')} name='atomicLevel' required>
                 <Select placeholder={t('请选择写入事务原子性')} options={[
                     // https://www.dolphindb.cn/cn/help/FunctionsandCommands/FunctionReferences/d/database.html
                     {
@@ -703,7 +703,7 @@ function CreateDatabase () {
                 ]} />
             </Form.Item>
             
-            <Form.Item label={t('分区粒度')} name='chunkGranularity' required>
+            <Form.Item label={t('分区粒度 (chunkGranularity)')} name='chunkGranularity' required>
                 <Select placeholder={t('请选择分区粒度')} options={[
                     // https://www.dolphindb.cn/cn/help/FunctionsandCommands/FunctionReferences/d/database.html
                     {

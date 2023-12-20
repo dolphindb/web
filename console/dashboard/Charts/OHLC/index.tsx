@@ -1,15 +1,14 @@
-import ReactEChartsCore from 'echarts-for-react/lib/core'
 import * as echarts from 'echarts'
+import ReactEChartsCore from 'echarts-for-react/lib/core'
 import { useMemo } from 'react'
 
+import { BasicFormFields, OhlcFormFields } from '../../ChartFormFields/OhlcChartFields.js'
 import { dashboard, type Widget } from '../../model.js'
-import { type ISeriesConfig, type IChartConfig } from '../../type.js'
-import { BasicFormFields } from '../../ChartFormFields/OhlcChartFields.js'
-import { OhlcFormFields } from '../../ChartFormFields/OhlcChartFields.js'
+import { type IChartConfig, type ISeriesConfig } from '../../type.js'
 
-import './index.sass'
+import { MarkPresetType } from '../../ChartFormFields/type.js'
 import { format_time, parse_text } from '../../utils.js'
-import {  AxisType, MarkPresetType } from '../../ChartFormFields/type.js'
+import './index.sass'
 
 type COL_MAP = {
     time: string
@@ -35,7 +34,6 @@ function splitData (rowData: any[], col_name: COL_MAP) {
     
     if (time_format)
         categoryData = categoryData.map(item => format_time(item, time_format))
-    console.log(categoryData)
     return {
         categoryData,
         values,
@@ -236,10 +234,7 @@ export function OHLC ({ widget, data_source }: { widget: Widget, data_source: an
                         return idx === -1 ? 0 : idx
                     }
                     ,
-                    max:  () => { 
-                        const idx = data.categoryData.findIndex(time => time >= xAxis.max) 
-                        return idx === -1 ? data.categoryData.length - 1 : idx
-                    }
+                    max:  () => data.categoryData.findIndex(time => time >= xAxis.max) 
                 },
                 {
                     type: 'category',
@@ -260,10 +255,7 @@ export function OHLC ({ widget, data_source }: { widget: Widget, data_source: an
                         return idx === -1 ? 0 : idx
                     }
                     ,
-                    max:  () => { 
-                        const idx = data.categoryData.findIndex(time => time >= xAxis.max) 
-                        return idx === -1 ? data.categoryData.length - 1 : idx
-                    }
+                    max: () => data.categoryData.findIndex(time => time >= xAxis.max) 
             }
             ],
             yAxis: [

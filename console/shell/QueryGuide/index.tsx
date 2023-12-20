@@ -1,6 +1,6 @@
 import './index.scss'
 
-import { Segmented } from 'antd'
+import { Modal, Segmented } from 'antd'
 import { type ReactElement, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { QueryGuideType } from './type.js'
 import { t } from '../../../i18n/index.js'
@@ -8,7 +8,6 @@ import { QueryGuide } from './QueryGuide.js'
 import { SqlEditGuide } from './SqlEditGuide.js'
 
 import NiceModal, { useModal } from '@ebay/nice-modal-react'
-import { DraggableModal } from '../../components/DraggableModal/index.js'
 import { GUIDE_FORM_VALUES_KEY, GUIDE_QUERY_EDIT_CODE_KEY } from './constant.js'
 
 interface IProps { 
@@ -50,7 +49,7 @@ export const QueryGuideModal = NiceModal.create((props: IProps) => {
     }, [ ])
     
     return <>
-        <DraggableModal
+        <Modal
             maskClosable={false}
             destroyOnClose
             footer={footer}
@@ -71,7 +70,7 @@ export const QueryGuideModal = NiceModal.create((props: IProps) => {
                 ]}
             />
             <Component set_footer={set_footer} {...props} />
-        </DraggableModal>
+        </Modal>
     
     </>
  })
