@@ -154,7 +154,7 @@ export function DBTable (props: IProps) {
                     bordered={config.bordered}
                     scroll={{ x: '100%' }}
                     columns={columns}
-                    dataSource={config.is_reverse ? cloneDeep(data_source).reverse() : data_source}
+                    dataSource={config.is_reverse ? [...data_source].reverse() : data_source}
                     pagination={pagination}
                     rowKey={() => genid()}
                     rowClassName={classNames({
