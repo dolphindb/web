@@ -1645,20 +1645,18 @@ function Chart ({
                             xField='row'
                             yField='value'
                             seriesField='col'
-                            xAxis={
-                                {
+                            axis={{
+                                x: {
                                     title: {
                                         text: titles.x_axis
                                     }
-                                }
-                            }
-                            yAxis={
-                                {
+                                },
+                                y: {
                                     title: {
                                         text: titles.y_axis
                                     }
                                 }
-                            }
+                            }}
                             isStack={stacking}
                             padding='auto'
                         />
@@ -1668,22 +1666,20 @@ function Chart ({
                             data={[data, data]}
                             xField='row'
                             yField={col_labels as any}
-                            xAxis={
-                                {
+                            axis={{
+                                x: {
                                     title: {
                                         text: titles.x_axis
                                     }
-                                }
-                            }
-                            yAxis={
-                                {
+                                },
+                                y: {
                                     [col_labels[0]]: {
                                         title: {
                                             text: titles.y_axis
                                         }
                                     }
                                 }
-                            }
+                            }}
                             padding='auto'
                         />
                         
@@ -1779,20 +1775,18 @@ function Chart ({
                         xField='row'
                         yField='value'
                         seriesField='col'
-                        axis={
-                            {
-                                x: {
-                                    title: {
-                                        text: titles.x_axis
-                                    }
-                                },
-                                y: {
-                                    title: {
-                                        text: titles.y_axis
-                                    }
+                        axis={{
+                            x: {
+                                title: {
+                                    text: titles.x_axis
+                                }
+                            },
+                            y: {
+                                title: {
+                                    text: titles.y_axis
                                 }
                             }
-                        }
+                        }}
                         stack={stacking}
                         padding='auto'
                     />
@@ -1830,20 +1824,18 @@ function Chart ({
                         // 修复类型错误
                         binNumber={undefined}
                         { ... bin_count ? { binNumber: Number(bin_count.value) } : { } }
-                        xAxis={
-                            {
+                        axis={{
+                            x: {
                                 title: {
                                     text: titles.x_axis
                                 }
-                            }
-                        }
-                        yAxis={
-                            {
+                            },
+                            y: {
                                 title: {
                                     text: titles.y_axis
                                 }
                             }
-                        }
+                        }}
                         // 修复类型错误
                         binWidth={undefined}
                         padding='auto'
