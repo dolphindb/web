@@ -20,24 +20,25 @@ export function SqlEditGuide (props: IProps) {
     const { table, database, set_footer } = props
     
     const [current_step, set_current_step] = useState(0)
+    const [total, set_total] = useState(0)
     
     const [code, set_code] = useState(guide_query_model.use(['code']).code ?? `SELECT * FROM loadTable("${database}", "${table}")`)
-    // 总数据量大于 50w, 不允许导出数据
-    const [disable_export, set_disable_export] = useState(false)
+    
     
     const view_map = useMemo(() => { 
         return {
             0: <div className='query-code-editor'>
-                    <Editor
-                        default_value={code}
-                        theme='light'
-                        on_change={code => {
-                            set_code(code)
-                            guide_query_model.set({ code })
-                        }}
-                    />
+                <Editor
+                    enter_completion
+                    default_value={code}
+                    theme='light'
+                    on_change={code => {
+                        set_code(code)
+                        guide_query_model.set({ code })
+                    }}
+                />
             </div>,
-            1: <QueryDataView code={code} set_disable_export={set_disable_export} />,
+            1: <QueryDataView code={code} set_total={set_total} />,
         }
     }, [code])
     
@@ -60,22 +61,22 @@ export function SqlEditGuide (props: IProps) {
     const primary_btn = useMemo(() => { 
         switch (current_step) { 
             case 0: 
-                return <Button type='primary' onClick={on_preview_data}>{t('下一步')}</Button>
+                return <Button type='primary' onClick={on_preview_data}>{t('预览数据')}</Button>
             case 1:
-                return disable_export
-                    ? <Tooltip title={t('总数据量小于 50 万才能使用导出数据功能')}>
+                return total === 0 || total > 500000
+                    ? <Tooltip title={total === 0 ? t('当前数据为空，暂不支持导出功能。') : t('当前数据量已达 50 万行，暂不支持导出功能。')}>
                         <Button type='primary' disabled onClick={async () => NiceModal.show(ExportFileModal, { code, table })}>
                             {t('导出数据')}
                         </Button>
                     </Tooltip>
                     : <Button type='primary' onClick={async () => NiceModal.show(ExportFileModal, { code, table })}>{t('导出数据')}</Button>
         }
-    }, [to_next_step, code, table, disable_export])
+    }, [to_next_step, code, table, total])
     
     useEffect(() => { 
         set_footer( <div className='btn-wrapper'>
             <Space>
-                {current_step > 0 && <Button onClick={back}>{t('上一步')}</Button> }
+                {current_step > 0 && <Button onClick={back}>{t('返回修改')}</Button> }
                 {primary_btn}
             </Space>
         </div>)

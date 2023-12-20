@@ -47,8 +47,7 @@ export function QueryGuide (props: IProps) {
     
     const get_query_code = useCallback(async () => { 
         try {
-            await form.validateFields()
-            const values = form.getFieldsValue()
+            const values = await form.validateFields()
             const params: IQueryInfos = {
                 ...values,
                 querys: values.querys?.map(transform_query),
@@ -82,19 +81,19 @@ export function QueryGuide (props: IProps) {
         set_footer(
             <div className='btn-wrapper'>
             <Space>
-                    {current_step === 0 && <Button onClick={() => {
+                {current_step === 0 && <Button onClick={() => {
                         guide_query_model.set({ query_values: undefined })
                         form.resetFields()
-                    }}>{t('重置条件')}</Button>}
+                }}
+                >
+                    {t('重置条件')}
+                </Button>}
                 {current_step > 0 && <Button onClick={back}>{t('返回修改')}</Button> }
                 {primary_btn}
             </Space>
         </div>  
         )
     }, [primary_btn, current_step, back])
-    
-   
-  
     
     return view_map[current_step]
 }

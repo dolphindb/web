@@ -51,6 +51,7 @@ export const TIME_COMPONENT = {
 export function QueryCard (props: IQueryCard) { 
     const { name, name_path, cols, className, title, table, database } = props
     const form = Form.useFormInstance()
+    
     return <Form.List name={name} initialValue={[{ }]}>
         {(fields, { add, remove }) => { 
             return <Card className={className} size='small' title={title}>
@@ -58,7 +59,7 @@ export function QueryCard (props: IQueryCard) {
                     {
                         field.name !== 0 && <Typography.Text className='condition-tip' type='secondary'>{t('且满足')}</Typography.Text>}
                         <div className='query-item' key={field.name}>
-                            <Form.Item name={[field.name, 'col']} rules={[{ required: true, message: '请选择列名' }]}>
+                            <Form.Item name={[field.name, 'col']} rules={[{ required: true, message: t('请选择列名') }]}>
                                 <Select
                                 showSearch
                                 options={cols
@@ -105,8 +106,8 @@ export function QueryCard (props: IQueryCard) {
                                                     title={<>
                                                         {t('匹配（like）或者不匹配（not like）使用说明：输入对比值时须带有通配符“%”。“%”表示任意0个或者多个字符，可匹配任意类型和长度的字符。以下为使用示例：')}
                                                         <ul>
-                                                            <li>{t('688% 匹配以 688 开头的字符串，能够匹配例如 “688101.SH”、”688101”的字符串；')}</li>
-                                                            <li>{t('%SZ% 匹配包含 SZ 的字符串， 能够匹配例如 300951.SZ、 SZ.300951的字符串，注意是区分大小写的；')}</li>
+                                                            <li>{t('688% 匹配以 688 开头的字符串，能够匹配例如 688101.SH、 688101 的字符串；')}</li>
+                                                            <li>{t('%SZ% 匹配包含 SZ 的字符串， 能够匹配例如 300951.SZ、 SZ.300951 的字符串，注意是区分大小写的；')}</li>
                                                             <li>{t('%6 匹配以 6 结尾的字符串，能够匹配例如 abcd6 的字符串；')}</li>
                                                         </ul>
                                                     </>}

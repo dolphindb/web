@@ -5,6 +5,7 @@ import { Button, Form, InputNumber, Select, Tooltip } from 'antd'
 import { type SelectProps } from 'antd/lib'
 import { countBy } from 'lodash'
 import { useCallback } from 'react'
+import { t } from '../../../../i18n/index.js'
 
 interface IProps {
     initial_value?: any
@@ -37,13 +38,13 @@ export function CommonSortCols (props: IProps) {
                             label='列名'
                             name={[field.name, 'colName']}
                             rules={[
-                                { required: true, message: '请选择列名' },
+                                { required: true, message: t('请选择列名') },
                                 { validator }
                             ]}
                             labelCol={{ span: 10 }}
                             wrapperCol={{ span: 14 }}
                         >
-                            <Select showSearch options={options} placeholder='请选择列名'/>
+                            <Select showSearch options={options} placeholder={t('请选择列名')} />
                         </Form.Item>
                         <Form.Item
                             label='唯一值数量'
