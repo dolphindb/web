@@ -96,13 +96,19 @@ export function QueryCard (props: IQueryCard) {
                                     name={[field.name, 'opt']}
                                     rules={[{ required: true, message: '请选择运算符' }]}
                                     shouldUpdate={(prev, cur) => { 
+                                        
                                         // 列名更改的时候重置运算符 
                                         const prev_col = get(prev, concat_name_path(name_path, name, field.name, 'col')) ?? '{}' 
                                         const cur_col = get(cur, concat_name_path(name_path, name, field.name, 'col')) ?? '{}' 
-                                        if (JSON.parse(prev_col.toString()).data_type !== JSON.parse(cur_col.toString()).data_type) { 
+                                        console.log(JSON.parse(prev_col.toString()).data_type, JSON.parse(cur_col.toString()).data_type)
+                                        const get_data_type = col => JSON.parse(col)?.data_type
+                                        const prev_data_type = get_data_type(prev_col)
+                                        const cur_data_type = get_data_type(cur_col)
+                                        if (prev_data_type && cur_data_type && prev_data_type !== cur_data_type) { 
                                             form.setFieldValue(concat_name_path(name_path, name, field.name, 'opt'), undefined)
                                             return true
-                                        } else
+                                        } 
+                                         else
                                             return false
                                     }}
                                 >
@@ -140,7 +146,10 @@ export function QueryCard (props: IQueryCard) {
                                         // 列名更改的时候重置值
                                         const prev_col = get(prev, concat_name_path(name_path, name, field.name, 'col')) ?? '{}' 
                                         const cur_col = get(cur, concat_name_path(name_path, name, field.name, 'col')) ?? '{}' 
-                                        if (JSON.parse(prev_col.toString()).data_type !== JSON.parse(cur_col.toString()).data_type) { 
+                                        const get_data_type = col => JSON.parse(col)?.data_type
+                                        const prev_data_type = get_data_type(prev_col)
+                                        const cur_data_type = get_data_type(cur_col)
+                                        if (cur_data_type && prev_data_type && prev_data_type !== cur_data_type) { 
                                             form.setFieldValue(concat_name_path(name_path, name, field.name, 'value'), undefined)
                                             return true
                                         } else
@@ -258,7 +267,6 @@ export function QueryForm (props: IProps) {
                                                 name_path='querys'
                                             />
                                             <DeleteOutlined className='delete-icon' onClick={() => { remove(field.name) }} />
-                                            
                                         </div>
                                 </div>
                                 )
