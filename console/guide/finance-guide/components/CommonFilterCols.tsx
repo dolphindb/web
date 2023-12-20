@@ -5,6 +5,7 @@ import { DeleteOutlined, PlusCircleOutlined, QuestionCircleOutlined } from '@ant
 import { useCallback, useMemo } from 'react'
 import { countBy } from 'lodash'
 import { TIME_TYPES } from '../../constant.js'
+import { t } from '../../../../i18n/index.js'
 
 interface IProps { 
     schema: ITableInfo['schema']
@@ -50,10 +51,10 @@ export function CommonFilterCols (props: IProps) {
                         name={[field.name, 'colName']}
                         label='列名'
                         rules={[
-                            { required: true, message: '请选择列名' },
+                            { required: true, message: t('请选择列名') },
                             { validator }
                         ]}>
-                        <Select showSearch options={filter_col_options} placeholder='请选择列名'/>
+                        <Select showSearch options={filter_col_options} placeholder={t('请选择列名')} />
                     </Form.Item>
                     <Form.Item name={[field.name, 'uniqueNum']} label='唯一值数量' rules={[{ required: true, message: '请输入唯一值数量' }]}>
                         <InputNumber placeholder='请输入唯一值数量'/>

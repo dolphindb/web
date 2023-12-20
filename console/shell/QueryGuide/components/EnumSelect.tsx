@@ -24,6 +24,6 @@ export function EnumSelect (props: IProps) {
         showSearch
         mode='tags'
         options={data}
-        placeholder={t('如需自定义输入，请输入值后按回车键')}
+        placeholder={t('请输入对比值')}
     />
 }

@@ -23,11 +23,11 @@ export function ColSelectTransfer (props: IProps) {
         titles={[
             <div className='transfer-list-title'>
                 <MinusCircleOutlined className='not-selected-icon'/>
-                {t('未选查询列')}
+                {t('非查询列')}
             </div>,
             <div className='transfer-list-title'>
                 <CheckCircleOutlined className='selected-icon'/>
-                {t('已选查询列')}
+                {t('查询列')}
             </div>
         ]}
         className='col-select-transfer'

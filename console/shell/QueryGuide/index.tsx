@@ -59,8 +59,8 @@ export const QueryGuideModal = NiceModal.create((props: IProps) => {
                 value={type}
                 onChange={change_type}
                 options={[
-                    { label: t('向导界面'), value: QueryGuideType.QUERY_GUIDE },
-                    { label: t('编辑界面'), value: QueryGuideType.SQL }
+                    { label: t('向导查询'), value: QueryGuideType.QUERY_GUIDE },
+                    { label: t('脚本查询'), value: QueryGuideType.SQL }
                 ]}
             />
             <Component set_footer={set_footer} {...props} />

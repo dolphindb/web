@@ -4,13 +4,13 @@ import { shell } from '../../model.js'
 import { NodeType, model } from '../../../model.js'
 import { DdbFunctionType } from 'dolphindb'
 import { get, isNumber } from 'lodash'
-import { useId, useState } from 'react'
+import { useEffect, useId, useState } from 'react'
 import { ColSelectTransfer } from './ColSelectTransfer.js'
 import { FormDependencies } from '../../../components/formily/FormDependcies/index.js'
 import { StringDatePicker } from '../../../components/StringDatePicker/index.js'
 import { StringTimePicker } from '../../../components/StringTimePicker.js'
 import { IN, LIKE, NOT_IN, NOT_LIKE, OTHER_OPERATIONS, STRING_OPERATIONS, STRING_TYPES, TIME_TYPES, VALID_DATA_TYPES, VALUE_OPERATIONS, VALUE_TYPES } from '../constant.js'
-import { DeleteOutlined, MinusCircleOutlined, PlusCircleOutlined } from '@ant-design/icons'
+import { DeleteOutlined, MinusCircleOutlined, PlusCircleOutlined, QuestionCircleOutlined } from '@ant-design/icons'
 import { t } from '../../../../i18n/index.js'
 import { ENUM_TYPES, type IColumn } from '../type.js'
 import { concat_name_path, safe_json_parse } from '../../../dashboard/utils.js'
@@ -51,6 +51,7 @@ export const TIME_COMPONENT = {
 export function QueryCard (props: IQueryCard) { 
     const { name, name_path, cols, className, title, table, database } = props
     const form = Form.useFormInstance()
+    
     return <Form.List name={name} initialValue={[{ }]}>
         {(fields, { add, remove }) => { 
             return <Card className={className} size='small' title={title}>
@@ -58,21 +59,21 @@ export function QueryCard (props: IQueryCard) {
                     {
                         field.name !== 0 && <Typography.Text className='condition-tip' type='secondary'>{t('且满足')}</Typography.Text>}
                         <div className='query-item' key={field.name}>
-                            <Form.Item name={[field.name, 'col']} rules={[{ required: true, message: '请选择列名' }]}>
+                            <Form.Item name={[field.name, 'col']} rules={[{ required: true, message: t('请选择列名') }]}>
                                 <Select
-                                    showSearch
-                                    options={cols
-                                        .map(item => ({
-                                            label: <div className='col-select-label'>
-                                                <span className='table-name'>{item.name}</span>
-                                                <Tag color='processing' bordered={false}>
-                                                    {item.data_type}
-                                                </Tag>
-                                            </div>,
-                                            value: JSON.stringify(item),
-                                            disabled: (!VALID_DATA_TYPES.includes(item.data_type) && !item.data_type.includes('DECIMAL')) || item.data_type.includes('[]')
-                                        }))}
-                                    placeholder='请选择列名'
+                                showSearch
+                                options={cols
+                                    .map(item => ({
+                                        label: <div className='col-select-label'>
+                                            <span className='table-name'>{item.name}</span>
+                                            <Tag color='processing' bordered={false}>
+                                                {item.data_type}
+                                            </Tag>
+                                        </div>,
+                                        value: JSON.stringify(item),
+                                        disabled: (!VALID_DATA_TYPES.includes(item.data_type) && !item.data_type.includes('DECIMAL')) || item.data_type.includes('[]')
+                                    }))}
+                                    placeholder={t('请选择列名') }
                                 />
                             </Form.Item>
                         
@@ -92,10 +93,56 @@ export function QueryCard (props: IQueryCard) {
                                 // 其他运算符
                                 else
                                     opt_options = OTHER_OPERATIONS
+                                
+                                opt_options = opt_options.map(item => {
+                                    if ([LIKE, NOT_LIKE].includes(item.value))
+                                        return {
+                                            value: item.value,
+                                            label: <>
+                                                {item.label}
+                                                <Tooltip
+                                                    overlayClassName='operator-help-tooltip'
+                                                    placement='right'
+                                                    title={<>
+                                                        {t('匹配（like）或者不匹配（not like）使用说明：输入对比值时须带有通配符“%”。“%”表示任意0个或者多个字符，可匹配任意类型和长度的字符。以下为使用示例：')}
+                                                        <ul>
+                                                            <li>{t('688% 匹配以 688 开头的字符串，能够匹配例如 688101.SH、 688101 的字符串；')}</li>
+                                                            <li>{t('%SZ% 匹配包含 SZ 的字符串， 能够匹配例如 300951.SZ、 SZ.300951 的字符串，注意是区分大小写的；')}</li>
+                                                            <li>{t('%6 匹配以 6 结尾的字符串，能够匹配例如 abcd6 的字符串；')}</li>
+                                                        </ul>
+                                                    </>}
+                                                >
+                                                    <QuestionCircleOutlined className='operator-help-icon' />
+                                                </Tooltip>
+                                            </>
+                                        }
+                                    else if ([IN, NOT_IN].includes(item.value))
+                                        return {
+                                            ...item,
+                                            label: <>
+                                            {item.label}
+                                            <Tooltip
+                                                overlayClassName='operator-help-tooltip'
+                                                placement='right'
+                                                title={<>
+                                                    {t('包含（in）或者不包含（not in）使用说明：')}
+                                                    <ul>
+                                                        <li>{t('用户可在对比值的下拉框中选择一个或多个枚举值。注意，下拉框中仅展示部分枚举值，且存在响应延时。')}</li>
+                                                        <li>{t('用户可手动输入自定义或未显示的枚举值，单击回车键以完成操作。')}</li>
+                                                    </ul>
+                                                </>}
+                                            >
+                                                <QuestionCircleOutlined className='operator-help-icon' />
+                                            </Tooltip>
+                                        </>
+                                        }
+                                    else
+                                        return item
+                                 })
                            
                                 return <Form.Item
                                     name={[field.name, 'opt']}
-                                    rules={[{ required: true, message: '请选择运算符' }]}
+                                    rules={[{ required: true, message: t('请选择运算符') }]}
                                     shouldUpdate={(prev, cur) => { 
                                         
                                         // 列名更改的时候重置运算符 
@@ -112,7 +159,7 @@ export function QueryCard (props: IQueryCard) {
                                             return false
                                     }}
                                 >
-                                    <Select options={opt_options} placeholder='请选择运算符' />
+                                    <Select options={opt_options} placeholder={t('请选择运算符')} />
                                 </Form.Item>
                             } }
                         </FormDependencies>
@@ -127,7 +174,7 @@ export function QueryCard (props: IQueryCard) {
                                 
                                 // 数值类型
                                 if ((VALUE_TYPES.includes(data_type) && !ENUM_TYPES.includes(data_type)) || data_type?.includes('DECIMAL'))
-                                    component = <InputNumber placeholder='请输入对比值' />
+                                    component = <InputNumber placeholder={t('请输入对比值')} />
                                 // 时间类型
                                 else if (TIME_TYPES.includes(data_type))
                                     component = TIME_COMPONENT[data_type]
@@ -137,7 +184,7 @@ export function QueryCard (props: IQueryCard) {
                                     if (opt && [IN, NOT_IN].includes(opt))
                                         component = <EnumSelect table={table} database={database} col={col} />
                                     else if (opt && [LIKE, NOT_LIKE].includes(opt))
-                                        component =  <Input placeholder='请输入对比值'/>
+                                        component = <Input placeholder={t('请输入对比值')} />
                                     // 枚举类型，且不为 like not like
                                     else
                                         component = <EnumAutoComplete table={table} database={database} col={col} options={data_type === 'BOOL' ? [{ value: 'true', label: 'true' }, { value: 'false', label: 'false' }] : [ ] } />
@@ -157,7 +204,7 @@ export function QueryCard (props: IQueryCard) {
                                     }
                                 }
                                     name={[field.name, 'value']}
-                                    rules={[{ required: true, message: '请输入对比值' }]}
+                                    rules={[{ required: true, message: t('请输入对比值') }]}
                                 >
                                     { component }
                                 </Form.Item>
@@ -170,7 +217,9 @@ export function QueryCard (props: IQueryCard) {
                             <PlusCircleOutlined className='add-icon' onClick={() => { add() } } />
                         </Tooltip>
                         
-                        {fields.length > 1 && <MinusCircleOutlined className='delete-icon' onClick={() => { remove(field.name) }} />}
+                        {fields.length > 1 && <Tooltip title={t('删除该条件项')}>
+                            <MinusCircleOutlined className='delete-icon' onClick={() => { remove(field.name) }} />
+                        </Tooltip>}
                     </div>
                 </div>)}
             </Card>
@@ -216,19 +265,29 @@ export function QueryForm (props: IProps) {
         }
     )
     
+    useEffect(() => { 
+        form.setFieldsValue(query_values)
+    }, [ ])
     
     return <Spin spinning={isLoading}>
-        <Form initialValues={query_values} form={form} onValuesChange={(_, values) => { guide_query_model.set({ query_values: values }) }}>
-            <h3 className='query-col-title'>{t('查询列')}</h3>
-            <Form.Item name='queryCols' rules={[{ required: true, message: '请选择查询列' }] }>
+        <Form form={form} onValuesChange={(_, values) => { guide_query_model.set({ query_values: values }) }}>
+            <h3 className='query-col-title'>{t('筛选查询列')}</h3>
+            <Form.Item name='queryCols' rules={[{ required: true, message: t('查询列不可为空，请重新筛选！') }] }>
                 <ColSelectTransfer cols={cols}/>
             </Form.Item>
-            <h3>{t('查询条件')}</h3>
+            <h3>
+                {t('添加查询条件')}
+            </h3>
             <div className='query-conditions-wrapper'>
                 
                 {
                     !!partition_cols?.length && <>
-                        <h4>{t('分区列查询条件')}</h4>
+                        <h4>
+                            {t('分区列查询条件')}
+                            <Tooltip title={t('必填项，仅支持【且满足】，与”其他查询条件”亦为【且满足】关系。')}>
+                                <QuestionCircleOutlined className='help-icon' />
+                            </Tooltip>
+                        </h4>
                         <QueryCard
                             table={table}
                             database={database}
@@ -258,7 +317,9 @@ export function QueryForm (props: IProps) {
                                                 name={field.name}
                                                 name_path='querys'
                                             />
-                                            <DeleteOutlined className='delete-icon' onClick={() => { remove(field.name) }} />
+                                            <Tooltip title={t('删除该条件块')}>
+                                                <DeleteOutlined className='delete-icon' onClick={() => { remove(field.name) }} />
+                                            </Tooltip>
                                         </div>
                                 </div>
                                 )
@@ -270,7 +331,7 @@ export function QueryForm (props: IProps) {
                                 icon={<PlusCircleOutlined />}
                                 className='add-query-block-btn'
                             >
-                                {t('添加其他查询条件')}
+                                {t('新增条件块')}
                             </Button>
                         </div>
                     }}
