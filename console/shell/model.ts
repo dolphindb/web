@@ -267,6 +267,8 @@ class ShellModel extends Model<ShellModel> {
             
             for (let i = 0;  i < values.length - 1;  i++) {
                 imutables[i].obj = values[i]
+                
+                // 此处需要用变量值的类型来替换 objs(true) 中获取的变量的类型，因为当变量类型为 string 且变量值很长时，server 返回的变量值的类型是 blob
                 imutables[i].type = values[i].type
             }  
         }
