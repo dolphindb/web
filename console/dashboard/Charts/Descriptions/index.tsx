@@ -132,7 +132,7 @@ export function DBDescriptionsForm ({ col_names, data_source = [ ] }: { col_name
                                                 </>
                                             } }
                                         </FormDependencies>
-                                        <Form.Item label={t('时间格式化')} name={ [field.name, 'time_format']}>
+                                        <Form.Item label={t('时间格式化')} name={[field.name, 'time_format']}>
                                             <Select options={format_time_options} allowClear/>
                                         </Form.Item>
                                     

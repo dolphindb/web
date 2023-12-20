@@ -12,6 +12,7 @@ import { chart_type_options, format_time_options, line_type_options, mark_line_o
 import { DeleteOutlined, PlusCircleOutlined } from '@ant-design/icons'
 import { WidgetChartType } from '../model.js'
 import { PaddingSetting, VariableSetting } from './BasicFormFields.js'
+import { DATE_SELECT_FORMAT } from './BasicChartFields.js'
 
 interface IProps { 
     col_names: string[]
@@ -83,8 +84,8 @@ function AxisItem (props: IAxisItem) {
             name={concat_name_path(name_path, 'type')}
             label={t('类型')}
             initialValue='time'
-            tooltip={t('数值轴，适用于连续数据\n类目轴，适用于离散的类目数据或者时序数据\n对数轴，适用于对数数据')}>
-            <Select options={axis_type_options}  />
+            tooltip={t('k 线图仅支持时间轴')}>
+            <Select disabled options={axis_type_options}  />
         </Form.Item>
         <Form.Item name={concat_name_path(name_path, 'name')} label={t('名称')} initialValue={initial_values?.name ?? t('名称')}>
             <Input />
@@ -96,24 +97,54 @@ function AxisItem (props: IAxisItem) {
         <FormDependencies dependencies={[concat_name_path(list_name, name_path, 'type')]}>
             {value => { 
                 const type = list_name ? value[list_name]?.find(item => !!item)?.type : value?.[name_path]?.type
-                switch (type) { 
+                switch (type) {
+                    case AxisType.VALUE:
+                        return <>
+                            <Form.Item name={concat_name_path(name_path, 'col_name')} label={t('坐标列')} initialValue={initial_values?.col_name ?? col_names?.[0]} >
+                                <Select options={convert_list_to_options(col_names)} allowClear/>
+                            </Form.Item>
+                            <Form.Item name={concat_name_path(name_path, 'min')} label={t('最小值')}>
+                                <InputNumber />
+                            </Form.Item>
+                            <Form.Item name={concat_name_path(name_path, 'max')} label={t('最大值')}>
+                                <InputNumber />
+                            </Form.Item>
+                        </> 
                     case AxisType.LOG:
                         return <Form.Item name={concat_name_path(name_path, 'log_base')} label={t('底数')} initialValue={10}>
                             <InputNumber />
                         </Form.Item>
                     case AxisType.TIME:
-                    case AxisType.CATEGORY:
-                        return <Form.Item name={concat_name_path(name_path, 'col_name')} label={t('坐标列')} initialValue={initial_values?.col_name ?? col_names?.[0]} >
-                            <Select options={convert_list_to_options(col_names)} />
-                        </Form.Item>
+                        return <>
+                            <Form.Item name={concat_name_path(name_path, 'col_name')} label={t('坐标列')} initialValue={initial_values?.col_name ?? col_names?.[0]} >
+                                <Select options={convert_list_to_options(col_names)} allowClear/>
+                            </Form.Item>
+                            <Form.Item name={concat_name_path(name_path, 'time_format')} label={t('时间格式化')}>
+                                <Select options={format_time_options}/>
+                            </Form.Item>
+                            <FormDependencies dependencies={[concat_name_path(list_name, name_path, 'time_format')]}>
+                                {value => { 
+                                    const time_format = list_name ? value[list_name]?.find(item => item)?.time_format : value?.[name_path]?.time_format
+                                    if (!time_format)
+                                        return null
+                                    else
+                                        return <>
+                                            <Form.Item name={concat_name_path(name_path, 'min')} label={t('开始时间')}>
+                                                {DATE_SELECT_FORMAT[time_format]}
+                                            </Form.Item>
+                                            <Form.Item name={concat_name_path(name_path, 'max')} label={t('结束时间')}>
+                                                {DATE_SELECT_FORMAT[time_format]}
+                                            </Form.Item>
+                                        </>
+                                } }
+                            </FormDependencies>
+                        </>
+                    
                     default: 
                         return null
                 }
             } }
         </FormDependencies>
-        <Form.Item label={t('时间格式化')} name={concat_name_path(name_path, 'time_format')}>
-            <Select options={format_time_options} allowClear/>
-        </Form.Item>
     </>
 }
 

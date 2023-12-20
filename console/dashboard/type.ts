@@ -18,6 +18,9 @@ export interface AxisConfig {
     // 对数轴特有
     log_base?: number
     
+    range?: string[]
+    max?: any
+    min?: any
 }
 
 export interface ISeriesConfig {
@@ -31,6 +34,7 @@ export interface ISeriesConfig {
     // 柱状图是否堆叠
     stack?: string
     end_label?: boolean
+    end_label_formatter?: string
     
     
     // 阈值与配色
@@ -103,7 +107,8 @@ export interface IColProperty {
     time_format?: ITimeFormat
     is_thousandth_place?: boolean
     align?: 'left' | 'center' | 'right'
-    sort?: boolean
+    sorter?: boolean
+    // multiple?: number
 }
 export interface ITableConfig {
     title?: string

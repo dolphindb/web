@@ -43,8 +43,6 @@ export type ExportDataSource = {
     /** stream 模式专用 */
     filter_expression: string
     /** stream 模式专用 */
-    node: string
-    /** stream 模式专用 */
     ip: string
 }
 
@@ -76,8 +74,6 @@ export class DataSource extends Model<DataSource>  {
     filter_column = ''    
     /** stream 模式专用 */
     filter_expression = ''
-    /** stream 模式专用 */
-    node = null
     /** stream 模式专用 */
     ip = ''
     
@@ -529,13 +525,14 @@ export function copy_data_source (source_id: string) {
 }
 
 
-export async function paste_data_source (event) { 
+export async function paste_data_source (event): Promise<boolean> { 
     const { data_source: _data_source } = safe_json_parse((event.clipboardData).getData('text'))
-    
     // 先校验，重名不粘贴，不重名且 id 不同的直接粘贴，不重名但 id 相同的重新生成 id 后粘贴
-    if (!_data_source || data_sources.findIndex(data_source => data_source.name === _data_source.name) !== -1) {
+    if (!_data_source) 
+        return false
+    else if (data_sources.findIndex(data_source => data_source.name === _data_source.name) !== -1) {
         dashboard.message.error(`${_data_source.name} ${t('已存在，粘贴失败!')}`)
-        return
+        return false
     }
         
     
@@ -548,6 +545,7 @@ export async function paste_data_source (event) {
     Object.assign(import_data_source, _data_source, { deps: import_data_source.deps, variables: import_data_source.variables })
     data_sources.unshift(import_data_source)
     await save_data_source(import_data_source, import_data_source.code, import_data_source.filter_column, import_data_source.filter_expression)
+    return true
 }
 
 export let data_sources: DataSource[] = [ ]

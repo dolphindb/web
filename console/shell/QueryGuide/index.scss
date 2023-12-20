@@ -1,7 +1,27 @@
 .query-guide-modal {
     
+    .query-guide-spin {
+        display: block;
+    }
+    
     .query-col-title {
         margin-top: 0px;
+    }
+    
+    .query-conditions-wrapper {
+        h4 {
+            margin: 12px 0px;
+            
+            &:first-of-type {
+                margin-top: 0px;
+            }
+        }
+        
+        
+        
+        
+        padding: 12px 12px 12px 12px;
+        border: 1px solid #D9D9D9;
     }
     
     .guide-segmented {
@@ -85,16 +105,26 @@
         }
     }
     
+    .query-block {
+        display: flex;
+        align-items: center;
+      
+        .query-content {
+            flex: 1;
+            margin-right: 8px;
+        }
+        
+        .delete-icon {
+            color:#FF4D4F;
+        }
+    }
+    
     .query-block-title {
         display: flex;
         justify-content: space-between;
         
-        .delete-text {
-            font-weight: 400;
-        }
-        
-        .delete-icon {
-            color: #FF4D4F;
+        .query-content {
+            flex: 1;
         }
     }
     
@@ -112,10 +142,6 @@
         font-size: 12px;
     }
     
-    .querys-wrapper {
-        background-color: #efefef;
-        padding: 12px;
-    }
     
     .partition-query-block {
         background-color: #efefef;
@@ -137,6 +163,11 @@
         padding: 12px;
         margin-top: 16px;
         border: 1px solid #D9D9D9;
+    }
+    
+    .partition-query-tip {
+        margin-top: 4px;
+        font-size: 12px;
     }
 }
 

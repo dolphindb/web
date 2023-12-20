@@ -53,7 +53,7 @@ function ControlField ({ variable }: { variable: Variable }) {
             </Form.Item>
         case 'multi_select':
             return <Form.Item name={id} label={display_name}>
-               <Select mode='multiple' options={options}/>
+               <StringMultiSelect options={options}/>
             </Form.Item>
         case 'select':
             return <Form.Item name={id} label={display_name}>

@@ -174,6 +174,8 @@ export let webpack = {
     
     
     async build ({ production, is_cloud }: { production: boolean, is_cloud?: boolean }) {
+        console.log(`开始构建${production ? '生产' : '开发'}模式的 web`)
+        
         const base_config = get_base_config(production)
         
         await this.lcompiler.request(async () => {
@@ -187,7 +189,7 @@ export let webpack = {
             
             const version = `${branch} (${dayjs(time).format('YYYY.MM.DD HH:mm:ss')} ${hash.slice(0, 6)})`
             
-            await fwrite(`${fpd_out_console}version.json`, { version })
+            await fwrite(`${fpd_out_console}version.json`, { version, print: false })
             
             
             this.lcompiler.resource = Webpack(this.config = {
@@ -245,6 +247,7 @@ export let webpack = {
                     dayjs: 'dayjs',
                     '@ant-design/icons': 'icons',
                     '@ant-design/plots': 'Plots',
+                    '@ant-design/pro-components': 'ProComponents',
                     echarts: 'echarts',
                     
                     // import { GridStack } from 'gridstack'
@@ -296,7 +299,12 @@ export let webpack = {
                                 'react-object-model', 
                                 '@ant-design/icons-svg', 
                                 '@ant-design/pro-layout', 
-                                '@ant-design/pro-provider', 
+                                '@ant-design/pro-provider',
+                                '@ant-design/pro-table', 
+                                '@ant-design/pro-utils', 
+                                '@ant-design/pro-form', 
+                                '@ant-design/pro-card', 
+                                '@ant-design/pro-field', 
                                 'toggle-selection', 
                                 'ahooks', 
                                 'dolphindb-web', 

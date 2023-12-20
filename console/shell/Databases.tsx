@@ -22,7 +22,7 @@ import {
 } from 'dolphindb/browser.js'
 
 
-import { t } from '../../i18n/index.js'
+import { language, t } from '../../i18n/index.js'
 
 import { CopyIconButton } from '../components/copy/CopyIconButton.js'
 
@@ -458,7 +458,20 @@ function CreateDatabase () {
         width='960px'
         open={create_database_modal_visible}
         onCancel={() => { shell.set({ create_database_modal_visible: false }) }}
-        title={t('创建数据库')}
+        title={
+            <div>
+                {t('创建数据库')}
+                <a 
+                    className='db-modal-link' 
+                    target='_blank'
+                    href={language === 'zh'
+                        ? 'https://docs.dolphindb.cn/zh/help/FunctionsandCommands/FunctionReferences/d/database.html'
+                        : 'https://docs.dolphindb.cn/en/help200/FunctionsandCommands/FunctionReferences/d/database.html'
+                    }
+                >
+                    {t('参考教程')}
+                </a>
+            </div>}
     >{
     shouldRunOnCurrNode &&
         <Form

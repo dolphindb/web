@@ -10,7 +10,7 @@ import { type Widget } from '../../model.js'
 import { type ITableConfig } from '../../type.js'
 
 import { type ColumnsType } from 'antd/es/table'
-import { isNumber } from 'lodash'
+import { cloneDeep, isNumber } from 'lodash'
 import { format_number, format_time, parse_text } from '../../utils.js'
 import classNames from 'classnames'
 
@@ -68,7 +68,19 @@ export function DBTable (props: IProps) {
         return selected_cols
             .map(col_name => show_cols.find(item => item.col === col_name))
             .map(col => {
-                const { col: name, width = 200, threshold, display_name, decimal_places, time_format, is_thousandth_place, color, align = 'left', background_color, sorter, multiple } = col ?? { }
+                const { col: name,
+                    width = 200,
+                    threshold,
+                    display_name,
+                    decimal_places,
+                    time_format,
+                    is_thousandth_place,
+                    color,
+                    align = 'left',
+                    background_color,
+                    sorter,
+                    // multiple
+                } = col ?? { }
                 
                 const col_config = {
                     dataIndex: name,
@@ -79,7 +91,7 @@ export function DBTable (props: IProps) {
                     align,
                     sorter: sorter ? {
                         compare: (a, b) => a[name] - b[name],
-                        multiple
+                        // multiple
                     } : false,
                     onCell: record => {
                         return {
@@ -142,7 +154,7 @@ export function DBTable (props: IProps) {
                     bordered={config.bordered}
                     scroll={{ x: '100%' }}
                     columns={columns}
-                    dataSource={config.is_reverse ? data_source.reverse() : data_source}
+                    dataSource={config.is_reverse ? cloneDeep(data_source).reverse() : data_source}
                     pagination={pagination}
                     rowKey={() => genid()}
                     rowClassName={classNames({

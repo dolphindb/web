@@ -2,7 +2,7 @@ import './index.sass'
 
 import { type Dispatch, type ReactNode, type SetStateAction, useEffect, useState } from 'react'
 
-import { Button, Tabs, Table, Tooltip, Typography, Spin, Result, type TableColumnType, Input, Modal, List } from 'antd'
+import { Button, Tabs, Table, Tooltip, Spin, Result, type TableColumnType, Input, Modal, List } from 'antd'
 
 import { ReloadOutlined, QuestionCircleOutlined, WarningOutlined } from '@ant-design/icons'
 
@@ -560,9 +560,13 @@ function translate_order_col (cols: TableColumnType<Record<string, any>>[], is_s
         sorter: is_sub_workers
             ? (a: Record<string, any>, b: Record<string, any>) => Number(a.queueDepth) - Number(b.queueDepth)
             : (a: Record<string, any>, b: Record<string, any>) => Number(a.origin_bytes) - Number(b.origin_bytes),
-        sortDirections: ['descend' as SortOrder]
+        sortDirections: ['descend' as SortOrder],
+        showSorterTooltip: false
     }
-    cols[i_last_err_msg_col] = { ...cols[i_last_err_msg_col], sorter: msg_order_function, sortDirections: ['descend' as SortOrder] }
+    cols[i_last_err_msg_col] = { ...cols[i_last_err_msg_col], 
+                                 sorter: msg_order_function, 
+                                 sortDirections: ['descend' as SortOrder],
+                                 showSorterTooltip: false }
     return cols
 }
 
