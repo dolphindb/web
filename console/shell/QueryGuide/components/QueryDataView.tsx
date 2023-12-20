@@ -1,4 +1,4 @@
-import { Alert, Spin } from 'antd'
+import { Alert, Spin, Typography } from 'antd'
 import { useCallback, useEffect, useState } from 'react'
 import { request } from '../../../guide/utils.js'
 import { Table } from '../../../obj.js'
@@ -7,11 +7,11 @@ import { t } from '../../../../i18n/index.js'
 
 interface IProps { 
     code: string
-    set_disable_export: (val: boolean) => void
+    set_total: (val: number) => void
 }
 
 export function QueryDataView (props: IProps) { 
-    const { code, set_disable_export } = props
+    const { code, set_total: get_total } = props
     const [pagination, set_pagination] = useState({ page: 1, page_size: 10 })
     const [total, set_total] = useState()
     const [error, set_error] = useState<string>()
@@ -27,7 +27,7 @@ export function QueryDataView (props: IProps) {
             set_error(undefined)
             set_data(data)
             set_total(data[0].value)
-            set_disable_export(data[0].value > 500000 || data[0].value === 0)
+            get_total(data[0].value)
         }
         set_loading(false)
     }, [code, total])
@@ -40,7 +40,9 @@ export function QueryDataView (props: IProps) {
         <>
             {
                 !error ? 
-                <Table
+                <>
+                    { total === 20000000 &&  <Typography.Text>{t('当前数据量已达 2000 万行的预览上限，此处仅显示部分截断数据。') }</Typography.Text>}
+                    <Table
                     obj={data[1]}
                     ctx='page'
                     show_bottom_bar={false}
@@ -57,7 +59,9 @@ export function QueryDataView (props: IProps) {
                             get_query_data(page, pageSize)
                         }
                     }}
-                    /> :
+                    />
+                    </>
+                    :
                     <Alert
                         message={t('查询语句执行错误')}
                         description={error}

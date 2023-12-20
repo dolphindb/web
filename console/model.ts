@@ -38,7 +38,7 @@ const username_guest = 'guest' as const
 export type PageViews = 'overview' | 'overview-old' | 'shell' | 'dashboard' | 'table' | 'job' | 'login' | 'dfs' | 'log' | 'factor' | 'test' | 'computing'
 
 
-export class DdbModel extends Model<DdbModel> {
+class DdbModel extends Model<DdbModel> {
     inited = false
     
     /** 在本地开发模式 */
@@ -851,6 +851,18 @@ export class DdbModel extends Model<DdbModel> {
         await request('http://localhost:8432/api/recompile')
         location.reload()
     }
+}
+
+
+if (!Array.prototype.toReversed) {
+    Object.defineProperty(Array.prototype, 'toReversed', {
+        configurable: true,
+        writable: true,
+        enumerable: false,
+        value: function toReversed (this: Array<any>) {
+            return [...this].reverse()
+        }
+    })
 }
 
 

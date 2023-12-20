@@ -82,9 +82,3 @@ export const OTHER_OPERATIONS = [
 
 export const VALUE_TYPES = ['INT', 'SHORT', 'DOUBLE', 'FLOAT', 'LONG']
 
-
-
-
-export const GUIDE_FORM_VALUES_KEY = 'guide_form_values'
-
-export const GUIDE_QUERY_EDIT_CODE_KEY = 'guide_query_edit_code'

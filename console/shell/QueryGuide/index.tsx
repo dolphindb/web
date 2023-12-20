@@ -8,7 +8,7 @@ import { QueryGuide } from './QueryGuide.js'
 import { SqlEditGuide } from './SqlEditGuide.js'
 
 import NiceModal, { useModal } from '@ebay/nice-modal-react'
-import { GUIDE_FORM_VALUES_KEY, GUIDE_QUERY_EDIT_CODE_KEY } from './constant.js'
+import { guide_query_model } from './model.js'
 
 interface IProps { 
     database: string
@@ -28,7 +28,7 @@ export const QueryGuideModal = NiceModal.create((props: IProps) => {
     const [type, set_type] = useState<QueryGuideType>(QueryGuideType.QUERY_GUIDE)
     
     useEffect(() => { 
-        set_type(QueryGuideType.QUERY_GUIDE)
+        guide_query_model.define_query_guide()
     }, [ ])
     
     const change_type = useCallback(value => {
@@ -37,15 +37,9 @@ export const QueryGuideModal = NiceModal.create((props: IProps) => {
     
     const Component = useMemo(() => components[type], [type])
     
-    useEffect(() => { 
-        function clear_cache () { 
-            sessionStorage.removeItem(GUIDE_FORM_VALUES_KEY)
-            sessionStorage.removeItem(GUIDE_QUERY_EDIT_CODE_KEY)
-        }
-        // 填写表单的时候缓存表单数据，弹窗销毁与刷新页面的时候清除
-        window.onunload = clear_cache
-        
-        return clear_cache
+    const on_cancel = useCallback(async () => { 
+        guide_query_model.set({ code: undefined, query_values: undefined })
+        modal.hide()
     }, [ ])
     
     return <>
@@ -57,7 +51,7 @@ export const QueryGuideModal = NiceModal.create((props: IProps) => {
             width={1000}
             className='query-guide-modal'
             open={modal.visible}
-            onCancel={modal.hide}
+            onCancel={on_cancel}
             afterClose={modal.remove}
         >   
             <Segmented
@@ -65,8 +59,8 @@ export const QueryGuideModal = NiceModal.create((props: IProps) => {
                 value={type}
                 onChange={change_type}
                 options={[
-                    { label: t('向导界面'), value: QueryGuideType.QUERY_GUIDE },
-                    { label: t('编辑界面'), value: QueryGuideType.SQL }
+                    { label: t('向导查询'), value: QueryGuideType.QUERY_GUIDE },
+                    { label: t('脚本查询'), value: QueryGuideType.SQL }
                 ]}
             />
             <Component set_footer={set_footer} {...props} />
