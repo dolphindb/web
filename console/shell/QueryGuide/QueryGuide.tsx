@@ -81,10 +81,12 @@ export function QueryGuide (props: IProps) {
         set_footer(
             <div className='btn-wrapper'>
             <Space>
-                {current_step === 0 && <Button onClick={() => {
-                        guide_query_model.set({ query_values: undefined })
-                        form.resetFields()
-                }}
+                {current_step === 0 &&
+                    <Button
+                        onClick={() => {
+                            guide_query_model.set({ query_values: undefined })
+                            form.resetFields()
+                        }}
                 >
                     {t('重置条件')}
                 </Button>}

@@ -48,7 +48,7 @@ export function QueryDataView (props: IProps) {
                     show_bottom_bar={false}
                     pagination={{
                         total: data[0].value,
-                        showTotal: total => `共 ${total} 条数据`,
+                        showTotal: total => t('共 {{total}} 条数据', { total }),
                         pageSizeOptions: [10, 20],
                         pageSize: pagination.page_size,
                         showSizeChanger: true,
@@ -63,7 +63,7 @@ export function QueryDataView (props: IProps) {
                     </>
                     :
                     <Alert
-                        message={t('查询语句执行错误')}
+                        message={t('错误信息')}
                         description={error}
                         type='error'
                         showIcon
