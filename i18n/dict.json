@@ -1469,7 +1469,7 @@
     "创建成功": {
         "en": "Successfully created"
     },
-    "数据库路径（directory）": {
+    "数据库路径 (directory)": {
         "en": "directory"
     },
     "表类型": {
@@ -1577,7 +1577,7 @@
     "分区位置": {
         "en": "partition location"
     },
-    "存储引擎（engine）": {
+    "存储引擎 (engine)": {
         "en": "engine"
     },
     "请选择存储引擎": {
@@ -1589,7 +1589,7 @@
     "TSDB 引擎。采用经典的 LSMT 模型，引入了排序列以提升在用户查询某个或少数几个设备（股票）在特定时间段数据的场景下的查询性能。": {
         "en": "TSDB engine. Using the classic LSMT model, the sorted column is introduced to improve the query performance in the scenario where the user queries the data of a few devices (or stocks) in a specific time period."
     },
-    "写入事务原子性（atomic）": {
+    "写入事务原子性 (atomic)": {
         "en": "atomic"
     },
     "请选择写入事务原子性": {
@@ -1607,7 +1607,7 @@
     "分区级原子性": {
         "en": "partition level transaction atomicity"
     },
-    "分区粒度（chunkGranularity）": {
+    "分区粒度 (chunkGranularity)": {
         "en": "chunkGranularity"
     },
     "请选择分区粒度": {
@@ -1658,13 +1658,13 @@
     "创建数据库成功": {
         "en": "Database created successfully."
     },
-    "{{i18nIndex}}分区类型（partitionType）": {
+    "{{i18nIndex}}分区类型 (partitionType)": {
         "en": "{{i18nIndex}} partitionType"
     },
     "请选择{{i18nIndex}}分区类型": {
         "en": "Please select the partition type of the {{i18nIndex}} partition"
     },
-    "{{i18nIndex}}分区方案（partitionScheme）": {
+    "{{i18nIndex}}分区方案 (partitionScheme)": {
         "en": "{{i18nIndex}} partitionScheme"
     },
     "请输入{{i18nIndex}}分区方案": {
@@ -3326,14 +3326,17 @@
     "{a}：数据列名称": {
         "en": "{a}: data column name"
     },
-    "{c}：y轴值": {
-        "en": "{c}: y-axis value"
+    "{c}：当 x 轴为类目轴时显示 y 轴值，当 x 轴为其余轴时显示 x轴值,y轴值": {
+        "en": "When the x-axis is the category axis, the y-axis value is displayed. When the x-axis is the other axes, the x-axis value and y-axis value are displayed."
     },
     "{b}：x轴值": {
         "en": "{b}: x-axis value"
     },
     "示例: 名称-{a}": {
         "en": "Example: name-{a}"
+    },
+    "请注意，不填自定义端标签时默认展示 y 轴值": {
+        "en": "Please note that when the custom end label is not filled in, the y-axis value is displayed by default."
     },
     "请输入自定义端标签": {
         "en": "Please enter custom end tag"
