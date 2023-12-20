@@ -99,7 +99,6 @@ export function QueryCard (props: IQueryCard) {
                                         // 列名更改的时候重置运算符 
                                         const prev_col = get(prev, concat_name_path(name_path, name, field.name, 'col')) ?? '{}' 
                                         const cur_col = get(cur, concat_name_path(name_path, name, field.name, 'col')) ?? '{}' 
-                                        console.log(prev_col, cur_col, 'prev_col')
                                         if (JSON.parse(prev_col.toString()).data_type !== JSON.parse(cur_col.toString()).data_type) { 
                                             form.setFieldValue(concat_name_path(name_path, name, field.name, 'opt'), undefined)
                                             return true
@@ -141,7 +140,6 @@ export function QueryCard (props: IQueryCard) {
                                         // 列名更改的时候重置值
                                         const prev_col = get(prev, concat_name_path(name_path, name, field.name, 'col')) ?? '{}' 
                                         const cur_col = get(cur, concat_name_path(name_path, name, field.name, 'col')) ?? '{}' 
-                                        console.log(prev_col, cur_col, 'prev_col')
                                         if (JSON.parse(prev_col.toString()).data_type !== JSON.parse(cur_col.toString()).data_type) { 
                                             form.setFieldValue(concat_name_path(name_path, name, field.name, 'value'), undefined)
                                             return true

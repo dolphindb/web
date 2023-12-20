@@ -7,8 +7,6 @@ import { QueryDataView } from './components/QueryDataView.js'
 import NiceModal from '@ebay/nice-modal-react'
 import { ExportFileModal } from './components/ExportFileModal.js'
 import { GUIDE_QUERY_EDIT_CODE_KEY } from './constant.js'
-import { MonacoDolphinDBEditor } from 'monaco-dolphindb/react'
-import { language } from '../../../i18n/index.js'
 import { Editor } from '../Editor/index.js'
 
 interface IProps { 
@@ -32,30 +30,14 @@ export function SqlEditGuide (props: IProps) {
     const view_map = useMemo(() => { 
         return {
             0: <div className='query-code-editor'>
-                    {/* <Editor
+                    <Editor
                         default_value={code}
+                        theme='light'
                         on_change={code => {
                             set_code(code)
                             sessionStorage.setItem(GUIDE_QUERY_EDIT_CODE_KEY, code)
                         }}
-                    /> */}
-                <MonacoDolphinDBEditor
-                    dolphinDBLanguageOptions={{
-                        docs: `docs.${language === 'zh' ? 'zh' : 'en'}.json`,
-                        language: language === 'zh' ? 'zh' : 'en',
-                    }}
-                    options={{
-                        automaticLayout: true,
-                        fontSize: 16,
-                        acceptSuggestionOnEnter: 'on',
-                    }}
-                    theme='light'
-                    defaultValue={code}
-                    onChange={code => { 
-                        set_code(code)
-                        sessionStorage.setItem(GUIDE_QUERY_EDIT_CODE_KEY, code) }
-                    }
-                />
+                    />
             </div>,
             1: <QueryDataView code={code} set_disable_export={set_disable_export} />,
         }
