@@ -46,7 +46,7 @@ export const ExportFileModal = NiceModal.create((props: IProps) => {
     
     
     return <Modal
-        title='导出数据'
+        title={t('导出数据')}
         width={600}
         open={modal.visible}
         onOk={download}

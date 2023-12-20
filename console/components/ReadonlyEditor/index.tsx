@@ -6,6 +6,7 @@ import { Button, Tooltip, message } from 'antd'
 import copy from 'copy-to-clipboard'
 import { useCallback } from 'react'
 import classNames from 'classnames'
+import { t } from '../../../i18n/index.js'
 
 interface IProps { 
     code: string
@@ -17,11 +18,11 @@ export function ReadonlyEditor (props: IProps) {
         
     const copy_code = useCallback(() => {
         copy(code)
-        message.success('复制成功')
+        message.success(t('复制成功'))
     }, [code])
     
     return <div className={classNames('readonly-editor', { [className]: true })}>
-        <Tooltip title='复制代码'>
+        <Tooltip title={t('复制代码')}>
             <Button className='copy-btn' icon={<CopyOutlined />} onClick={copy_code} />
         </Tooltip>
         <Editor value={code} readonly />
