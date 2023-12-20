@@ -98,8 +98,7 @@ export async function save_data_source ( new_data_source: DataSource, code?: str
     const data_source = get_data_source(id)
     const deps = new_data_source.deps
     
-    delete_interval(data_source)
-    unsubscribe_stream(data_source)
+    clear_data_source(data_source)
     
     data_source.variables.forEach(variable_id => { unsubscribe_variable(data_source, variable_id) })
         
@@ -115,8 +114,10 @@ export async function save_data_source ( new_data_source: DataSource, code?: str
     switch (new_data_source.mode) {
         case 'sql':
             try {
+                new_data_source.ddb = await create_sql_connection()
+                
                 const parsed_code = parse_code(new_data_source.code, new_data_source)
-                const { type, result } = await dashboard.execute_code(parsed_code)
+                const { type, result } = await dashboard.execute_code(parsed_code, new_data_source.ddb)
                 
                 switch (type) {
                     case 'success':
@@ -137,12 +138,14 @@ export async function save_data_source ( new_data_source: DataSource, code?: str
                 if (code === undefined)
                     dashboard.message.error(error.message)
             } finally {
-                data_source.set({ ...new_data_source, timer: data_source.timer })
-                
+                data_source.set({ ...new_data_source })
+                if ((data_source.error_message || !deps.size || !data_source.variables.size) && data_source.ddb) {
+                    data_source.ddb.disconnect()
+                    data_source.ddb = null 
+                }
                 if (deps.size && !data_source.error_message && data_source.auto_refresh) 
-                    await create_interval(data_source)                    
+                    create_interval(data_source)                    
             }
-            
             break
         case 'stream':
             try {
@@ -219,8 +222,11 @@ export async function subscribe_data_source (widget_option: Widget, source_id: s
     } else
         switch (data_source.mode) {
             case 'sql':
+                // 有变量需要单独建一个连接，这样在变量更新时可以并发查询
+                if (!data_source.ddb && data_source.variables.size)
+                    await create_sql_connection()
                 if (data_source.auto_refresh && !data_source.timer)
-                    await create_interval(data_source)
+                    create_interval(data_source)
                 break
             case 'stream':
                 if (!data_source.ddb)
@@ -239,14 +245,7 @@ export function unsubscribe_data_source (widget_option: Widget) {
     
     data_source.deps.delete(widget_option.id)
     if (!data_source.deps.size) 
-        switch (data_source.mode) {
-            case 'sql':
-                delete_interval(data_source)
-                break
-            case 'stream':
-                unsubscribe_stream(data_source)
-                break
-        }  
+        clear_data_source(data_source)  
 }
 
 
@@ -278,7 +277,7 @@ export async function execute (source_id: string) {
                             })
                             
                         if (data_source.deps.size && !data_source.timer && data_source.auto_refresh) 
-                            await create_interval(data_source)
+                            create_interval(data_source)
                         
                         break
                     case 'error':
@@ -293,7 +292,7 @@ export async function execute (source_id: string) {
                     cols: [ ],
                     error_message: error.message
                 })
-                delete_interval(data_source)
+                clear_data_source(data_source)
             } finally {
                 break
             }
@@ -303,44 +302,47 @@ export async function execute (source_id: string) {
     }
 }
 
-async function create_interval (data_source: DataSource) {
+
+async function create_sql_connection (): Promise<DDB> {
+    const params = new URLSearchParams(location.search)
+    const port = params.get('port') || location.port
+    const connection = new DDB(
+        (model.dev ? (params.get('tls') === '1' ? 'wss' : 'ws') : (location.protocol === 'https:' ? 'wss' : 'ws')) +
+            '://' +
+            (params.get('hostname') || location.hostname) +
+            
+            // 一般 location.port 可能是空字符串
+            (port ? `:${port}` : '') +
+            
+            // 检测 ddb 是否通过 nginx 代理，部署在子路径下
+            (location.pathname === '/dolphindb/' ? '/dolphindb/' : ''),
+        {
+            autologin: false,
+            verbose: model.verbose,
+            sql: model.sql
+        }
+    )
+    
+    await connection.connect()
+    const ticket = localStorage.getItem(storage_keys.ticket)
+    if (ticket)
+        await connection.call('authenticateByTicket', [ticket], { urgent: true })
+    else {
+        const { ddb: { username, password } } = model
+        await connection.call('login', [username, password], { urgent: true })
+    }
+    return connection
+}
+
+
+function create_interval (data_source: DataSource) {
     try {
-        if (data_source.auto_refresh) {
-            delete_interval(data_source)
-            
-            const params = new URLSearchParams(location.search)
-            const port = params.get('port') || location.port
-            const sql_connection = new DDB(
-                (model.dev ? (params.get('tls') === '1' ? 'wss' : 'ws') : (location.protocol === 'https:' ? 'wss' : 'ws')) +
-                    '://' +
-                    (params.get('hostname') || location.hostname) +
-                    
-                    // 一般 location.port 可能是空字符串
-                    (port ? `:${port}` : '') +
-                    
-                    // 检测 ddb 是否通过 nginx 代理，部署在子路径下
-                    (location.pathname === '/dolphindb/' ? '/dolphindb/' : ''),
-                {
-                    autologin: false,
-                    verbose: model.verbose,
-                    sql: model.sql
-                }
-            )
-            
-            await sql_connection.connect()
-            const ticket = localStorage.getItem(storage_keys.ticket)
-            if (ticket)
-                await sql_connection.call('authenticateByTicket', [ticket], { urgent: true })
-            else {
-                const { ddb: { username, password } } = model
-                await sql_connection.call('login', [username, password], { urgent: true })
-            }
-                
+        if (data_source.auto_refresh) {  
             const interval_id = setInterval(async () => {
                 await execute(data_source.id)  
             }, data_source.interval * 1000)
             
-            data_source.set({ timer: interval_id, ddb: sql_connection })
+            data_source.set({ timer: interval_id })
         }
     } catch (error) {
         dashboard.message.error(`${data_source.name} ${t('轮询启动失败')}`)
@@ -349,22 +351,8 @@ async function create_interval (data_source: DataSource) {
 }
 
 
-function delete_interval (data_source: DataSource) {
-    const interval = data_source.timer
-    const sql_connection = data_source.ddb
-    if (interval) {
-        clearInterval(interval)
-        data_source.timer = null
-    } 
-    if (sql_connection) {
-        sql_connection.disconnect()
-        data_source.ddb = null
-    }    
-}
-
-
 async function subscribe_stream (data_source: DataSource) {
-    unsubscribe_stream(data_source)
+    clear_data_source(data_source)
     
     try {
         const { ddb: { username, password } } = model
@@ -417,15 +405,6 @@ async function subscribe_stream (data_source: DataSource) {
 }
 
 
-function unsubscribe_stream (data_source: DataSource) {
-    const stream_connection = data_source.ddb
-    if (stream_connection) {
-        stream_connection.disconnect()
-        data_source.ddb = null
-    } 
-}
-
-
 export async function get_stream_tables (): Promise<string[]> {
     try {
         return (await dashboard.eval('exec name from objs(true) where type="REALTIME"')).value as string[]
@@ -473,27 +452,35 @@ export async function export_data_sources (): Promise<ExportDataSource[]> {
 export async function import_data_sources (_data_sources: ExportDataSource[]) {
     data_sources = [ ]
     
-    for (let data_source of _data_sources) {
+    await Promise.all(_data_sources.map(async data_source => new Promise(async (resolve, reject) => {
         const import_data_source = new DataSource(data_source.id, data_source.name)
         Object.assign(import_data_source, data_source, { deps: new Set(data_source.deps), variables: import_data_source.variables })
         data_sources.push(import_data_source)
         await save_data_source(import_data_source, import_data_source.code, import_data_source.filter_column, import_data_source.filter_expression)
-    }
+        resolve(true)
+    })))
     
     return data_sources
 }
 
+export function clear_data_source (data_source: DataSource) {
+    const connection = data_source.ddb
+    const interval = data_source.timer
+    if (interval) {
+        clearInterval(interval)
+        data_source.timer = null
+    }
+    if (connection) {
+        connection.disconnect()
+        data_source.ddb = null
+    }
+}
+
+
 
 export function clear_data_sources () {
     data_sources.forEach(data_source => {
-        switch (data_source.mode) {
-            case 'sql':
-                delete_interval(data_source)
-                break
-            case 'stream':
-                unsubscribe_stream(data_source)
-                break
-        }
+        clear_data_source(data_source)
     })
 }
 
