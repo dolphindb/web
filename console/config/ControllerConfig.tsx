@@ -1,16 +1,16 @@
-import { CloseCircleOutlined, DeleteOutlined, EditOutlined, PlusCircleFilled, ReloadOutlined, SaveOutlined } from '@ant-design/icons'
+import { CloseCircleOutlined, DeleteOutlined, EditOutlined, ReloadOutlined, SaveOutlined } from '@ant-design/icons'
 import { EditableProTable, type ActionType, type ProColumns } from '@ant-design/pro-components'
 import { Button, Input, Popconfirm } from 'antd'
 
 import { useCallback, useMemo, useRef, useState } from 'react'
 
-import { genid } from 'xshell/utils.browser.js'
 import { t } from '../../i18n/index.js'
 
 import { model } from '../model.js'
 import { config } from './model.js'
 
-import { configs_2_strs, strs_2_configs, type Config } from './utils.js'
+import { type Config } from './type.js'
+import { configs_2_strs, strs_2_configs } from './utils.js'
 
 const { Search } = Input
 
