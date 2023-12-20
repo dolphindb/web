@@ -247,11 +247,13 @@ function Series (props: { col_names: string[], single?: boolean }) {
                                                     <br />
                                                     {t('{a}：数据列名称')}
                                                     <br />
-                                                    {t('{b}：x轴值')}
+                                                    {t('{b}：x 轴值')}
                                                     <br />
-                                                    {t('{c}：y轴值')}
+                                                    {t('{c}：当 x 轴为类目轴时显示 y 轴值，其余轴的情况下显示 x轴值,y轴值')}
                                                     <br />
                                                     {t('示例: 名称-{a}')}
+                                                    <br />
+                                                    {t('请注意，不填自定义端标签时默认展示 y 轴值') }
                                                 </>}
                                             >
                                                     <Input placeholder={t('请输入自定义端标签')} />
