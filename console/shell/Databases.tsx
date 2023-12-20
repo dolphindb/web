@@ -917,7 +917,7 @@ export class Table implements DataNode {
         this.name = path.slice(db.path.length, -1)
         this.title = <div className='table-title'>
             <span> {path.slice(db.path.length, -1)} </span>
-            <Tooltip title={t('进入查询向导')} color='grey'>
+            <Tooltip title={t('新建查询')} color='grey'>
                 <FileSearchOutlined onClick={async () => NiceModal.show(QueryGuideModal, { database: this.db.path.slice(0, -1), table: this.name }) } className='query-icon'/>
             </Tooltip>
         </div>
