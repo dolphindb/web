@@ -141,8 +141,15 @@ def dbms_generateEnumerate(input_json){
         enumList = query.parseExpr().eval()
     }
     while(size(enumList) == 0)
+    if (type(enumList) == 17 or type(enumList) == 18){
+        enumList = string(enumList)
+        for(i in 1..size(enumList) ){
+            enumList[i-1] = strReplace(enumList[i-1], "\"", '\\\"')
+        }
+    } 
     res = '{"enumList":["' + concat(enumList, '","') + '"]}' 
     return res
 }
+
 
 

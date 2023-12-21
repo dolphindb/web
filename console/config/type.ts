@@ -1,9 +1,4 @@
-export enum NodeType {
-    data,
-    agent,
-    controller,
-    computing,
-}
+export type NodeType  = 'data' | 'agent' | 'controller' | 'computing'
 
 export type Config = {
     id: string
@@ -11,7 +6,7 @@ export type Config = {
     value: string
 }
 
-export type Node = {
+export type ClusterNode = {
     id: string
     host: string
     port: string
