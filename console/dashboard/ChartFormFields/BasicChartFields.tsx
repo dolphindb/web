@@ -20,6 +20,7 @@ import { StringTimePicker } from '../../components/StringTimePicker.js'
 
 
 export const DATE_SELECT_FORMAT = {
+    [ITimeFormat.DAY_MINUTE]: <StringDatePicker submitFormat={ITimeFormat.DAY_MINUTE} format={ITimeFormat.DAY_MINUTE} showTime allowClear/>,
     [ITimeFormat.DATE]: <StringDatePicker submitFormat={ITimeFormat.DATE} format={ITimeFormat.DATE}  allowClear />,
     [ITimeFormat.DATE_HOUR]: <StringDatePicker submitFormat={ITimeFormat.DATE_HOUR} format={ITimeFormat.DATE_HOUR} showTime allowClear />,
     [ITimeFormat.DATE_MINUTE]: <StringDatePicker submitFormat={ITimeFormat.DATE_MINUTE} format={ITimeFormat.DATE_MINUTE} showTime allowClear />,

@@ -111,7 +111,33 @@ export class DashBoardModel extends Model<DashBoardModel> {
         }
         
         let grid = GridStack.init({
-            acceptWidgets: true,
+            //  gridstack 有 bug ，当 grid 没有 2*3 的连续空间时，再拖入一个会使所有 widget 无法 change，暂时通过计算面积阻止拖入，后续无限行数时不会再有此问题
+            acceptWidgets: () => {
+                const canvas = Array.from({ length: 12 }, () => Array(12).fill(0))
+                
+                this.widgets.forEach(widget => {
+                for (let i = widget.x;  i < widget.x + widget.w;  i++)
+                    for (let j = widget.y;  j < widget.y + widget.h;  j++)
+                        canvas[i][j] = 1
+                })
+                
+                // 使用动态规划记录每个位置上的连续空白格子数量
+                const dp = Array.from({ length: 12 }, () => Array(12).fill(0))
+                for (let i = 0;  i < 12;  i++)
+                    for (let j = 0;  j < 12;  j++)
+                        if (canvas[i][j] === 0)
+                            dp[i][j] = (j > 0 ? dp[i][j - 1] : 0) + 1
+                    
+                // 检查是否有符合条件的3x2空白区域
+                let hasEmptyArea = false
+                for (let i = 0;  i < 11;  i++)
+                    for (let j = 0;  j < 11;  j++)
+                        if (dp[i][j] >= 3 && dp[i + 1][j] >= 3) {
+                            hasEmptyArea = true
+                            break
+                        }
+                return hasEmptyArea
+            },
             float: true,
             column: this.maxcols,
             row: this.maxrows,
