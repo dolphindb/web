@@ -3437,17 +3437,17 @@
     "当前数据量已达 2000 万行的预览上限，此处仅显示部分截断数据。": {
         "en": "Showing a partial preview of the data. The full dataset exceeds 20 million rows."
     },
-    "匹配（like）或者不匹配（not like）使用说明：输入对比值时须带有通配符“%”。“%”表示任意0个或者多个字符，可匹配任意类型和长度的字符。以下为使用示例：": {
-        "en": "The LIKE/NOT LIKE pattern must include the wildcard character %, which represents zero, one, or multiple characters of any type or length. For example:"
+    "输入对比值时须带有通配符 “%”。“%” 表示任意 0 个或者多个字符，可匹配任意类型和长度的字符。使用时请注意区分大小写。以下为使用示例：": {
+        "en": "The LIKE/NOT LIKE pattern must include the wildcard character %, which represents zero, one, or multiple characters of any type or length. It is case-sensitive. For example:"
     },
-    "\"688%\" 匹配以 \"688\" 开头的字符串，能够匹配例如 \"688101.SH\"、 \"688101\" 的字符串；": {
-        "en": "\"688%\" matches strings starting with \"688\", like \"688101\"."
+    "688%（匹配以 “688” 开头的字符串，能够匹配例如 “688101.SH”、”688101”的字符串）": {
+        "en": "688% matches strings starting with \"688\", like \"688101\"."
     },
-    "\"%SZ%\" 匹配包含 \"SZ\" 的字符串， 能够匹配例如 \"300951.SZ\"、 \"SZ.300951\" 的字符串，注意是区分大小写的；": {
-        "en": "\"%SZ%\" matches strings that contain \"SZ\" (case-sensitive), such as \"001SZ\"."
+    "%SZ%（匹配包含 “SZ” 的字符串， 能够匹配例如 “300951.SZ”、 “SZ.300951”的字符串）": {
+        "en": "%SZ% matches strings that contain \"SZ\", such as \"001SZ\"."
     },
-    "\"%6\" 匹配以 \"6\" 结尾的字符串，能够匹配例如 \"abcd6\" 的字符串。": {
-        "en": "\"%6\" matches strings ending with \"6\", like \"abcd6\"."
+    "%6（匹配以 “6” 结尾的字符串，能够匹配例如 “abcd6” 的字符串）": {
+        "en": "%6 matches strings ending with \"6\", like \"abcd6\"."
     },
     "在对比值的下拉框中选择一个或多个枚举值。注意，下拉框中仅展示部分枚举值，且存在响应延时。": {
         "en": "For IN and NOT IN operators, the dropdown shows a subset of available values with a brief delay."
@@ -3499,5 +3499,8 @@
     },
     "共 {{total}} 条数据": {
         "en": "Number of Rows: {{total}}"
+    },
+    "仅单机节点和数据节点支持新建查询": {
+        "en": "Only single-server nodes and data nodes support queries."
     }
 }
