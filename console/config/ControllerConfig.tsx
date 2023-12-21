@@ -64,7 +64,7 @@ export function ControllerConfig () {
                 className='mr-btn'
                 icon={<EditOutlined />}
                 onClick={() => {
-                    console.log('edit config', record)
+                    console.log('edit config:', record)
                     action?.startEditable?.(record.id)
                 }}
               >
@@ -89,8 +89,8 @@ export function ControllerConfig () {
     const delete_config = useCallback(async (config_id: string) => 
         model.execute(
             async () => {
-                console.log('delete config', config_id, _2_strs(configs))
-                const new_configs = _2_strs(configs).filter(cfg => cfg !== config_id)
+                console.log('delete config:', config_id, configs_2_strs(configs))
+                const new_configs = configs_2_strs(configs).filter(cfg => cfg !== config_id)
                 await config.save_controller_configs(new_configs)
                 actionRef.current.reload()
             }
@@ -105,7 +105,7 @@ export function ControllerConfig () {
                     let value = [ ]
                     await model.execute(async () => {
                         value = (await config.load_controller_configs()).value as any[]
-                        console.log('request configs', value)
+                        console.log('request configs:', value)
                     })
                     const configs = strs_2_configs(value)
                     set_configs(configs)

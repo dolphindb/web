@@ -71,13 +71,11 @@ def dashboard_add_config(param) {
     // existence check
     tb_exist = select * from tb_config where id = param.id order by updateTime desc limit 1
     tb_exist = select * from tb_exist where isDeleted = false
-    if (count(tb_exist) != 0) {
-        throw toStdJson({code: "S002"})
-    }
+    if (count(tb_exist) != 0) { throw toStdJson({code: "S002"}) }
 
     // name check
-    name_check = select * from tb_config where owner = user and name = param.name context by id csort updateTime desc limit 1
-    name_check  = select * from name_check where isDeleted = false
+    name_check = select * from tb_config where owner = user context by id limit -1
+    name_check  = select * from name_check where isDeleted = false and name = param.name
     if (count(name_check) != 0) {throw toStdJson({code: "S003"})}
 
     // save
@@ -180,4 +178,6 @@ def initializeDashboard(){
 
 initializeDashboard()
 undef all
+
+print('dashboard backend loaded')
 

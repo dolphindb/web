@@ -30,7 +30,9 @@ export interface ISeriesConfig {
     yAxisIndex: number
     mark_point?: Array<'max' | 'min'>
     mark_line?: string[]
-    line_type: ILineType
+    line_type?: ILineType
+    // 线宽，仅折线图有
+    line_width?: number
     // 柱状图是否堆叠
     stack?: string
     end_label?: boolean

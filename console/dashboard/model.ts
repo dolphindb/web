@@ -216,7 +216,7 @@ export class DashBoardModel extends Model<DashBoardModel> {
     
     dispose () {
         clear_data_sources()
-        console.log('dispose')
+        console.log('grid.destroy')
         this.grid.destroy()
         this.grid = null
     }
@@ -401,12 +401,16 @@ export class DashBoardModel extends Model<DashBoardModel> {
     /** 从服务器获取 dashboard 配置 */
     async get_dashboard_configs () {
         const data = (await model.ddb.call<DdbVoid>('dashboard_get_config_list', [ ])).to_rows()
-        const configs =  data.map(cfg => ({ ...cfg, 
-                                            id: Number(cfg.id), 
-                                            data: JSON.parse(typeof cfg.data === 'string' ? 
-                                                                                    JSON.parse(cfg.data)
-                                                                                        : 
-                                                                                    new TextDecoder().decode(cfg.data) ) }) as DashBoardConfig) 
+        const configs =  data.map(cfg => {
+            // 有些只需要 parse 一次，有些需要 parse 两次
+            let data = typeof cfg.data === 'string' ?  JSON.parse(cfg.data) : new TextDecoder().decode(cfg.data)
+            data = typeof data === 'string' ? JSON.parse(data) : data
+            return { 
+                ...cfg, 
+                id: Number(cfg.id), 
+                data
+            } as DashBoardConfig
+        } ) 
         this.set({ configs })
         const dashboard_id = Number(new URLSearchParams(location.search).get('dashboard'))
         if (dashboard_id) {

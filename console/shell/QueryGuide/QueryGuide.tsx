@@ -9,6 +9,7 @@ import { ReadonlyEditor } from '../../components/ReadonlyEditor/index.js'
 import { QueryDataView } from './components/QueryDataView.js'
 import NiceModal from '@ebay/nice-modal-react'
 import { ExportFileModal } from './components/ExportFileModal.js'
+import { guide_query_model } from './model.js'
 
 interface IProps { 
     database: string
@@ -22,7 +23,7 @@ export function QueryGuide (props: IProps) {
     
     const [current_step, set_current_step] = useState(0)
     const [code, set_code] = useState('')
-    const [disable_export, set_disable_export] = useState(false)
+    const [total, set_total] = useState(0)
     
     const [form] = Form.useForm<IQueryInfos>()
     
@@ -30,7 +31,7 @@ export function QueryGuide (props: IProps) {
         return {
             0: <QueryForm {...props} form={form} />,
             1: <ReadonlyEditor code={code} className='query-code-view' />,
-            2: <QueryDataView set_disable_export={set_disable_export} code={code} />
+            2: <QueryDataView set_total={set_total} code={code} />
         }
     }, [code])
     
@@ -46,8 +47,7 @@ export function QueryGuide (props: IProps) {
     
     const get_query_code = useCallback(async () => { 
         try {
-            await form.validateFields()
-            const values = form.getFieldsValue()
+            const values = await form.validateFields()
             const params: IQueryInfos = {
                 ...values,
                 querys: values.querys?.map(transform_query),
@@ -63,34 +63,39 @@ export function QueryGuide (props: IProps) {
     const primary_btn = useMemo(() => { 
         switch (current_step) { 
             case 0: 
-                return <Button type='primary' onClick={get_query_code}>{t('下一步')}</Button>
+                return <Button type='primary' onClick={get_query_code}>{t('查看 SQL 语句')}</Button>
             case 1: 
                 return <Button type='primary' onClick={to_next_step}>{t('预览数据')}</Button>
             case 2:
-                return disable_export ?
-                    <Tooltip title={t('总数据量小于 50 万才能使用导出数据功能')}>
+                return total === 0 || total > 500000 ?
+                    <Tooltip title={total === 0  ? t('当前数据为空，暂不支持导出功能。') : t('当前数据量已达 50 万行，暂不支持导出功能。')}>
                         <Button type='primary' disabled onClick={async () => NiceModal.show(ExportFileModal, { code, table })}>
                             {t('导出数据')}
                         </Button>
                     </Tooltip>
                     : <Button type='primary' onClick={async () => NiceModal.show(ExportFileModal, { code, table })}>{t('导出数据')}</Button>
         }
-    }, [get_query_code, code, table, to_next_step, disable_export])
+    }, [get_query_code, code, table, to_next_step, total])
     
     useEffect(() => { 
         set_footer(
             <div className='btn-wrapper'>
             <Space>
-                {current_step === 0 && <Button onClick={() => { form.resetFields() }}>{t('重置')}</Button>}
-                {current_step > 0 && <Button onClick={back}>{t('上一步')}</Button> }
+                {current_step === 0 &&
+                    <Button
+                        onClick={() => {
+                            guide_query_model.set({ query_values: undefined })
+                            form.resetFields()
+                        }}
+                >
+                    {t('重置条件')}
+                </Button>}
+                {current_step > 0 && <Button onClick={back}>{t('返回修改')}</Button> }
                 {primary_btn}
             </Space>
         </div>  
         )
     }, [primary_btn, current_step, back])
-    
-   
-  
     
     return view_map[current_step]
 }
