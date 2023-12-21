@@ -51,6 +51,8 @@ export enum ITimeFormat {
     MINUTE = 'HH:mm',
     SECOND = 'HH:mm:ss',
     
+    DAY_MINUTE = 'MM-DD HH:MM',
+    
     DATE = 'YYYY-MM-DD',
     DATE_HOUR = 'YYYY-MM-DD HH',
     DATE_MINUTE = 'YYYY-MM-DD HH:mm',
