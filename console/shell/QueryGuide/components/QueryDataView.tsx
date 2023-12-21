@@ -13,7 +13,7 @@ interface IProps {
 export function QueryDataView (props: IProps) { 
     const { code, set_total: get_total } = props
     const [pagination, set_pagination] = useState({ page: 1, page_size: 10 })
-    const [total, set_total] = useState()
+    const [total, set_total] = useState<number>()
     const [error, set_error] = useState<string>()
     const [loading, set_loading] = useState(true)
     const [data, set_data] = useState<any>()
@@ -21,16 +21,21 @@ export function QueryDataView (props: IProps) {
     const get_query_data = useCallback(async (page, pageSize) => { 
         set_loading(true)
         const data = await request('dbms_executeQueryByPage', { code, page, pageSize, total })
-        if (typeof data === 'string')
+        if (typeof data === 'string') { 
             set_error(data)
+            set_total(0)
+        }
         else { 
             set_error(undefined)
             set_data(data)
             set_total(data[0].value)
-            get_total(data[0].value)
         }
         set_loading(false)
     }, [code, total])
+    
+    useEffect(() => { 
+        get_total(total)
+    }, [total])
     
     useEffect(() => { 
         get_query_data(1, 10)

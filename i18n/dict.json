@@ -3449,17 +3449,17 @@
     "\"%6\" 匹配以 \"6\" 结尾的字符串，能够匹配例如 \"abcd6\" 的字符串。": {
         "en": "\"%6\" matches strings ending with \"6\", like \"abcd6\"."
     },
-    "包含（in）或者不包含（not in）使用说明：用户可在对比值的下拉框中选择一个或多个枚举值。注意，下拉框中仅展示部分枚举值，且存在响应延时。": {
+    "在对比值的下拉框中选择一个或多个枚举值。注意，下拉框中仅展示部分枚举值，且存在响应延时。": {
         "en": "For IN and NOT IN operators, the dropdown shows a subset of available values with a brief delay."
     },
-    "用户可手动输入未显示的枚举值，单击回车键以完成操作。": {
+    "请手动输入未显示的枚举值，单击回车键以完成操作。": {
         "en": "Alternatively, enter one or more values manually in the field, pressing 'Enter' after each."
     },
     "复制代码": {
         "en": "Copy"
     },
     "文件名": {
-        "en": "Export Data"
+        "en": "File Name"
     },
     "请输入文件名" : {
         "en": "Specify a file name."
