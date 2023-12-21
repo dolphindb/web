@@ -1,4 +1,4 @@
-import { NodeType, type Config, type Node } from './type.js'
+import { type NodeType, type Config, type ClusterNode } from './type.js'
 
 export const strs_2_configs  = (strs: string[]): Config[] =>
     strs.map(str => {
@@ -11,15 +11,11 @@ export const strs_2_configs  = (strs: string[]): Config[] =>
     })
 
 
-export const configs_2_strs  = (configs: Config[]): string[] =>
-    configs.map(cfg => cfg.id)
-
-    
-export const nodes_2_strs = (nodes: Node[]): string[] =>
-    nodes.map(node => node.id)
+export const _2_strs  = (items: Config[] | ClusterNode[]): string[] =>
+    items.map(i => i.id)
     
 
-export const strs_2_nodes = (strs: string[]): Node[] =>
+export const strs_2_nodes = (strs: string[]): ClusterNode[] =>
     strs.map(str => {
         const [rest, mode] = str.split(',')
         const [host, port, alias] = rest.split(':')
@@ -28,6 +24,6 @@ export const strs_2_nodes = (strs: string[]): Node[] =>
             host,
             port,
             alias,
-            mode: NodeType[mode]
+            mode: mode as NodeType
         }
     })
