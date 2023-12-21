@@ -89,7 +89,7 @@ export function AxisItem ({ name_path, col_names = [ ], list_name, initial_value
                                 <Select options={convert_list_to_options(col_names)} allowClear/>
                             </Form.Item>
                             <Form.Item name={concat_name_path(name_path, 'time_format')} label={t('时间格式化')}>
-                                <Select options={format_time_options.slice(3)}/>
+                                <Select options={format_time_options.slice(4)}/>
                             </Form.Item>
                             <FormDependencies dependencies={[concat_name_path(list_name, name_path, 'time_format')]}>
                                 {value => { 
