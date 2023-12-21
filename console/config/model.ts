@@ -13,6 +13,10 @@ class ConfigModel extends Model<ConfigModel> {
     async get_cluster_nodes () {
         return model.ddb.call('getClusterNodesCfg', [ ], { urgent: true })
     }
+    
+    async save_cluster_nodes (nodes: string[]) {
+        return model.ddb.call('saveClusterNodes', [new DdbVectorString(nodes)], { urgent: true })
+    }
 }
 
 export let config = new ConfigModel()

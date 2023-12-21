@@ -10,19 +10,16 @@ import { model } from '../model.js'
 import { config } from './model.js'
 
 import { type Config } from './type.js'
-import { configs_2_strs, strs_2_configs } from './utils.js'
+import { _2_strs, strs_2_configs } from './utils.js'
 
 const { Search } = Input
+console.log('new ControllerConfig')
 
 export function ControllerConfig () {
     const [configs, set_configs] = useState<Config[]>([ ])
     
-    const [refresher, set_refresher] = useState(0)
-    
     const [search_key, set_search_key] = useState('')
     
-    const [editableKeys, setEditableRowKeys] = useState<React.Key[]>([ ])
-   
     const actionRef = useRef<ActionType>()
     
     const cols: ProColumns<Config>[] = useMemo(() => ([
@@ -38,14 +35,6 @@ export function ControllerConfig () {
                     required: true,
                     message: t('请输入配置名！')
                 },
-                () => ({
-                    async validator (rule, value) {
-                        console.log('mode', configs.findIndex(cfg => cfg.name === value))
-                        if (configs.findIndex(cfg => cfg.name === value) !== -1) 
-                            return Promise.reject(t('该配置项已存在！'))
-                        
-                    },
-                }),
             ]
             }
         },
@@ -100,17 +89,16 @@ export function ControllerConfig () {
     const delete_config = useCallback(async (config_id: string) => 
         model.execute(
             async () => {
-                console.log('delete config', config_id, configs_2_strs(configs))
-                const new_configs = configs_2_strs(configs).filter(cfg => cfg !== config_id)
+                console.log('delete config', config_id, _2_strs(configs))
+                const new_configs = _2_strs(configs).filter(cfg => cfg !== config_id)
                 await config.save_controller_configs(new_configs)
-                set_refresher(refresher + 1)
+                actionRef.current.reload()
             }
         )
     , [configs])
     
     return <EditableProTable 
                 rowKey='id'
-                params={{ refresher }}
                 actionRef={actionRef}
                 columns={cols}
                 request={async () => {
@@ -144,7 +132,7 @@ export function ControllerConfig () {
                         type='primary'
                         className='mr-btn'
                         icon={<ReloadOutlined />}
-                        onClick={() => { set_refresher(refresher + 1) }}
+                        onClick={async () => actionRef.current.reload()}
                         >
                             {t('刷新')}
                     </Button>,
@@ -153,18 +141,20 @@ export function ControllerConfig () {
                         value={search_key}
                         enterButton
                         onChange={e => { set_search_key(e.target.value) }}
-                        onSearch={() => { set_refresher(refresher + 1) }}
+                        onSearch={async () => actionRef.current.reload()}
                     />
                 ]
                 }
                 editable={{
                     type: 'single',
-                    editableKeys,
                     onSave: async (rowKey, data, row) => {
-                        await config.save_controller_configs([ data.name + '=' + data.value, ...configs_2_strs(configs)])
-                        set_refresher(refresher + 1)
+                        const config_strs = _2_strs(configs)
+                        let idx = config_strs.indexOf(rowKey as string)
+                        if (idx === -1) 
+                            await config.save_controller_configs([ data.name + '=' + data.value, ...config_strs])
+                         else 
+                            await config.save_controller_configs(config_strs.splice(idx, 1, data.name + '=' + data.value))
                     },
-                    onChange: setEditableRowKeys,
                     onDelete: async (key, row) => delete_config(row.id as string),
                     deletePopconfirmMessage: t('确认删除此配置项？'),
                     saveText: 
