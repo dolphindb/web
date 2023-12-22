@@ -93,7 +93,6 @@ def dbms_executeQuery(input_json){
 
 def dbms_executeQueryByPage(input_json){
     try{
-        print(input_json)
         codePos = strFind(input_json,'"page"')
         code = input_json[11:codePos-2]
         rest = "{" + input_json[codePos:]
