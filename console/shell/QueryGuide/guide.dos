@@ -91,11 +91,12 @@ def dbms_executeQuery(input_json){
     return res
 }
 
-
 def dbms_executeQueryByPage(input_json){
-    try{ 
-        input_dict = input_json.parseExpr().eval()
-        code = input_dict["code"]
+    try{
+        codePos = strFind(input_json,'"page"')
+        code = input_json[11:codePos-2]
+        rest = "{" + input_json[codePos:]
+        input_dict = rest.parseExpr().eval()
         isTable = false
         if (strFind(code, "()") >= 0){
             temp = code.parseExpr().eval()
@@ -124,6 +125,8 @@ def dbms_executeQueryByPage(input_json){
         return ex[0] + ":" + ex[1]
     }
 }
+
+
 
 def dbms_generateEnumerate(input_json){
     input_dict = input_json.parseExpr().eval()
