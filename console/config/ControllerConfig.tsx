@@ -89,8 +89,8 @@ export function ControllerConfig () {
     const delete_config = useCallback(async (config_id: string) => 
         model.execute(
             async () => {
-                console.log('delete config:', config_id, configs_2_strs(configs))
-                const new_configs = configs_2_strs(configs).filter(cfg => cfg !== config_id)
+                console.log('delete config:', config_id, _2_strs(configs))
+                const new_configs = _2_strs(configs).filter(cfg => cfg !== config_id)
                 await config.save_controller_configs(new_configs)
                 actionRef.current.reload()
             }

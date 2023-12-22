@@ -2,11 +2,14 @@ import { CloseCircleOutlined, DeleteOutlined, EditOutlined, PlusCircleOutlined, 
 import { EditableProTable, type ActionType, type ProColumns } from '@ant-design/pro-components'
 import { Button, Input, Popconfirm } from 'antd'
 import { useCallback, useMemo, useRef, useState } from 'react'
+import { BatchAddNodesModal } from './BatchAddNodesModal.js'
+
 import { t } from '../../i18n/index.js'
 import { model } from '../model.js'
 import { config } from './model.js'
 import { type ClusterNode } from './type.js'
 import { _2_strs, strs_2_nodes } from './utils.js'
+import NiceModal from '@ebay/nice-modal-react'
 
 
 const { Search } = Input
@@ -181,6 +184,7 @@ export function NodesManagement () {
                         type='primary'
                         className='mr-btn'
                         icon={<PlusCircleOutlined />}
+                        onClick={async () => NiceModal.show(BatchAddNodesModal)}
                         >
                             {t('批量新增节点')}
                     </Button>,

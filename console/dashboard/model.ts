@@ -185,10 +185,12 @@ export class DashBoardModel extends Model<DashBoardModel> {
             grid.cellHeight(Math.floor(grid.el.clientHeight / this.maxrows))
         })
         
-        GridStack.setupDragIn('.dashboard-graph-item', { helper: 'clone' })
+        GridStack.setupDragIn('.grid-stack-item', { helper: 'clone' })
         
         this.set({ grid, widget: null })
     }
+    
+    
     
     
     /** 执行 action，遇到错误时弹窗提示 
