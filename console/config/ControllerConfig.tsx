@@ -9,20 +9,19 @@ import { t } from '../../i18n/index.js'
 import { model } from '../model.js'
 import { config } from './model.js'
 
-import { type Config } from './type.js'
-import { _2_strs, strs_2_configs } from './utils.js'
+import { type ControllerConfig } from './type.js'
+import { _2_strs, strs_2_controller_configs } from './utils.js'
 
 const { Search } = Input
-console.log('new ControllerConfig')
 
 export function ControllerConfig () {
-    const [configs, set_configs] = useState<Config[]>([ ])
+    const [configs, set_configs] = useState<ControllerConfig[]>([ ])
     
     const [search_key, set_search_key] = useState('')
     
     const actionRef = useRef<ActionType>()
     
-    const cols: ProColumns<Config>[] = useMemo(() => ([
+    const cols: ProColumns<ControllerConfig>[] = useMemo(() => ([
         {
             title: t('Name'),
             dataIndex: 'name',
@@ -107,7 +106,7 @@ export function ControllerConfig () {
                         value = (await config.load_controller_configs()).value as any[]
                         console.log('request configs:', value)
                     })
-                    const configs = strs_2_configs(value)
+                    const configs = strs_2_controller_configs(value)
                     set_configs(configs)
                     return {
                         data: configs.filter(({ name }) => name.includes(search_key)),
