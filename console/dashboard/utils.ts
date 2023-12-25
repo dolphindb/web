@@ -311,7 +311,7 @@ export function convert_chart_config (widget: Widget, data_source: any[]) {
         return {
             type: series.type?.toLowerCase(),
             name: series.name,
-            symbol: series?.symbol || 'none',
+            symbol: series.type === WidgetChartType.SCATTER ? series?.symbol ?? 'none' : 'none',
             symbolSize: series.symbol_size,
             stack: series.stack,
             endLabel: {

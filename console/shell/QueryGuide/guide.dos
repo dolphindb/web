@@ -1,3 +1,15 @@
+def dbms_executeQuery(input_json){
+    code = input_json.parseExpr().eval()["code"]
+    temp = code.parseExpr().eval()
+    n = size temp
+    n = min([n,500000])
+    csvContent = generateTextFromTable(temp, 0, n, 0,',',true)
+    csvContent = concat(csvContent, "")
+    res = dict(["csvContent"], [csvContent])
+    res = toStdJson(res)
+    return res
+}
+
 def dbms_generateQuery(input_json){
     input = strReplace(input_json, "\n", "")
     input_dict = input.parseExpr().eval()
@@ -8,12 +20,17 @@ def dbms_generateQuery(input_json){
         ["=","!=", ">", "<",">=","<=", "LIKE", "NOT LIKE", "IN", "NOT IN"])
     temp_list = []
     for(tempCondition in input_dict["partitionColQuerys"]){
+        value = string(tempCondition["value"])
+        value = strReplace(value, "\\", '\\\\')
+        value = strReplace(value, "\"", '\\\"')
         if (tempCondition["dataType"] in `STRING`SYMBOL){
             if (tempCondition["opt"] in [9, 10]){
-                temp_con = tempCondition["col"] + ' ' +  opt_map[tempCondition["opt"]] + ' ["' + concat(tempCondition["value"], '","')  + '"]'
+                temp_con = tempCondition["col"] + ' ' +  opt_map[tempCondition["opt"]] + ' ["' + concat(value, '","')  + '"]'
             } else{
-                temp_con = tempCondition["col"] + ' ' +  opt_map[tempCondition["opt"]] + ' "' + tempCondition["value"] + '"'
+                temp_con = tempCondition["col"] + ' ' +  opt_map[tempCondition["opt"]] + ' "' + value + '"'
             }
+        } else if (tempCondition["dataType"] == `CHAR){
+            temp_con = tempCondition["col"] + ' ' +  opt_map[tempCondition["opt"]] + " '" + value + "' "
         } else if (tempCondition["dataType"] == `BLOB){
             temp_con = tempCondition["col"] + ' ' +  opt_map[tempCondition["opt"]] + ' blob("' + tempCondition["value"] + '")'
         } else if (tempCondition["dataType"] in `TIME`TIMESTAMP) {
@@ -23,7 +40,7 @@ def dbms_generateQuery(input_json){
         } else if (tempCondition["dataType"] == `DATEHOUR){
             temp_con = tempCondition["col"] + " " +  opt_map[tempCondition["opt"]] + " datehour('" + tempCondition["value"] + "')"
         } else{
-            temp_con = tempCondition["col"] + " " +  opt_map[tempCondition["opt"]] + " " + tempCondition["value"]
+            temp_con = tempCondition["col"] + " " +  opt_map[tempCondition["opt"]] + " " + value
         }
         temp_list.append!(temp_con)
     }
@@ -33,12 +50,17 @@ def dbms_generateQuery(input_json){
         temp_list = []
         tempCond += " OR "
         for(tempCondition in tempConditions){
+            value = string(tempCondition["value"])
+            value = strReplace(value, "\\", '\\\\')
+            value = strReplace(value, "\"", '\\\"') 
             if (tempCondition["dataType"] in `STRING`SYMBOL){
                 if (tempCondition["opt"] in [9, 10]){
-                    temp_con = tempCondition["col"] + ' ' +  opt_map[tempCondition["opt"]] + ' ["' + concat(tempCondition["value"], '","')  + '"]'
+                    temp_con = tempCondition["col"] + ' ' +  opt_map[tempCondition["opt"]] + ' ["' + concat(value, '","')  + '"]'
                 }else{
-                    temp_con = tempCondition["col"] + ' ' +  opt_map[tempCondition["opt"]] + ' "' + tempCondition["value"] + '"'
+                    temp_con = tempCondition["col"] + ' ' +  opt_map[tempCondition["opt"]] + ' "' + value + '"'
                 }
+            } else if (tempCondition["dataType"] == `CHAR){
+                    temp_con = tempCondition["col"] + ' ' +  opt_map[tempCondition["opt"]] + " '" + value + "' "
             } else if (tempCondition["dataType"] == `BLOB){
                 temp_con = tempCondition["col"] + ' ' +  opt_map[tempCondition["opt"]] + ' blob("' + tempCondition["value"] + '")'
             } else if (tempCondition["dataType"] in `TIME`TIMESTAMP) {
@@ -48,7 +70,7 @@ def dbms_generateQuery(input_json){
             } else if (tempCondition["dataType"] == `DATEHOUR){
                 temp_con = tempCondition["col"] + " " +  opt_map[tempCondition["opt"]] + " datehour('" + tempCondition["value"] + "')"
             } else{
-                temp_con = tempCondition["col"] + " " +  opt_map[tempCondition["opt"]] + " " + tempCondition["value"]
+                temp_con = tempCondition["col"] + " " +  opt_map[tempCondition["opt"]] + " " + value
             }
             temp_list.append!(temp_con)
         }
@@ -78,21 +100,9 @@ def dbms_generateQuery(input_json){
 }
 
 
-
-def dbms_executeQuery(input_json){
-    code = input_json.parseExpr().eval()["code"]
-    temp = code.parseExpr().eval()
-    n = size temp
-    n = min([n,500000])
-    csvContent = generateTextFromTable(temp, 0, n, 0,',',true)
-    csvContent = concat(csvContent, "")
-    res = dict(["csvContent"], [csvContent])
-    res = toStdJson(res)
-    return res
-}
-
 def dbms_executeQueryByPage(input_json){
     try{
+        print(input_json)
         codePos = strFind(input_json,'"page"')
         code = input_json[11:codePos-2]
         rest = "{" + input_json[codePos:]
@@ -125,6 +135,7 @@ def dbms_executeQueryByPage(input_json){
         return ex[0] + ":" + ex[1]
     }
 }
+
 
 
 
