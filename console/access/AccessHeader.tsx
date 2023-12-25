@@ -24,21 +24,27 @@ export function AccessHeader ({
     return <div className='actions'>
             
             <Button  
+                type='primary'
                 onClick={() => { access.set({ current: null }) }}>
                 {t('返回{{role}}列表', { role: current.role === 'user' ? t('用户') : t('组') })}
             </Button>
             
             {preview ? 
                 <Button  
+                    type='primary'
                     onClick={() => { access.set({ current: { ...access.current, view: 'manage' } }) }}>
                     {t('权限管理')}
                 </Button>  
                     : 
             <>
-                <Button onClick={open}>
+                <Button 
+                    type='primary'
+                    onClick={open}>
                     {t('新增权限')}
                 </Button>
-                <Button onClick={() => { access.set({ current: { ...current, view: 'preview' } }) }}>
+                <Button
+                    type='primary' 
+                    onClick={() => { access.set({ current: { ...current, view: 'preview' } }) }}>
                     {t('权限查看')}
                 </Button>
             </> 

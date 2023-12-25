@@ -1,11 +1,11 @@
-import { DeleteOutlined, EditOutlined, ReloadOutlined } from '@ant-design/icons'
-import { type ActionType, EditableProTable, type ProColumns } from '@ant-design/pro-components'
-import { Button, Popconfirm, type CollapseProps, Collapse, Input } from 'antd'
+import { DeleteOutlined, EditOutlined, PlusOutlined, ReloadOutlined } from '@ant-design/icons'
+import { EditableProTable, type ActionType, type ProColumns } from '@ant-design/pro-components'
+import { Button, Collapse, Input, Popconfirm, type CollapseProps } from 'antd'
 import { useMemo, useRef, useState } from 'react'
 import { t } from '../../i18n/index.js'
-import { CONFIG_CLASSIFICATION, type ControllerConfig } from './type.js'
 import { model } from '../model.js'
 import { config } from './model.js'
+import { CONFIG_CLASSIFICATION, type ControllerConfig } from './type.js'
 import { strs_2_nodes_config } from './utils.js'
 
 const { Search } = Input
@@ -120,24 +120,22 @@ export function NodesConfig () {
                             total: value.length
                         }
                     }}
-                    recordCreatorProps={
-                        {
-                            position: 'top',
-                            record: () => ({
-                                id: String(Date.now()),
-                                name: '',
-                                value: ''
-                            }),
-                            creatorButtonText: t('新增集群节点配置'),
-                            
-                        }
-                    }
+                    recordCreatorProps={false}
                     tableLayout='fixed'
     />,
     }))
     
     return <div className='nodes-config-container'>
             <div className='toolbar'>
+                <Button
+                    type='primary'
+                    className='mr-btn'
+                    icon={<PlusOutlined/>}
+                    // onClick={async () => actionRef.current.reload()}
+                    >
+                        {t('新增配置')}
+                </Button>
+                
                 <Button
                     type='primary'
                     className='mr-btn'
