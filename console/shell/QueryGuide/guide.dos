@@ -91,40 +91,95 @@ def dbms_executeQuery(input_json){
     return res
 }
 
-def dbms_executeQueryByPage(input_json){
-    try{
-        codePos = strFind(input_json,'"page"')
-        code = input_json[11:codePos-2]
-        rest = "{" + input_json[codePos:]
-        input_dict = rest.parseExpr().eval()
-        isTable = false
-        if (strFind(code, "()") >= 0){
-            temp = code.parseExpr().eval()
-            isTable = true
+def dbms_generateQuery(input_json){
+    input = strReplace(input_json, "\n", "")
+    input_dict = input.parseExpr().eval()
+    dbName = input_dict["dbName"]
+    tbName = input_dict["tbName"]
+    queryCols = concat(input_dict['queryCols'], ", ")
+    opt_map = dict([1,2,3,4,5,6,7,8,9,10], 
+        ["=","!=", ">", "<",">=","<=", "LIKE", "NOT LIKE", "IN", "NOT IN"])
+    temp_list = []
+    for(tempCondition in input_dict["partitionColQuerys"]){
+        value = string(tempCondition["value"])
+        value = strReplace(value, "\\", '\\\\')
+        value = strReplace(value, "\"", '\\\"')
+        if (tempCondition["dataType"] in `STRING`SYMBOL){
+            if (tempCondition["opt"] in [9, 10]){
+                temp_con = tempCondition["col"] + ' ' +  opt_map[tempCondition["opt"]] + ' ["' + concat(value, '","')  + '"]'
+            } else{
+                temp_con = tempCondition["col"] + ' ' +  opt_map[tempCondition["opt"]] + ' "' + value + '"'
+            }
+        } else if (tempCondition["dataType"] == `CHAR){
+            temp_con = tempCondition["col"] + ' ' +  opt_map[tempCondition["opt"]] + " '" + value + "' "
+        } else if (tempCondition["dataType"] == `BLOB){
+            temp_con = tempCondition["col"] + ' ' +  opt_map[tempCondition["opt"]] + ' blob("' + tempCondition["value"] + '")'
+        } else if (tempCondition["dataType"] in `TIME`TIMESTAMP) {
+            temp_con = tempCondition["col"] + " " +  opt_map[tempCondition["opt"]] + " " + tempCondition["value"] + ".000"
+        } else if (tempCondition["dataType"] in `NANOTIME`NANOTIMESTAMP){
+            temp_con = tempCondition["col"] + " " +  opt_map[tempCondition["opt"]] + " " + tempCondition["value"] + ".000000000"
+        } else if (tempCondition["dataType"] == `DATEHOUR){
+            temp_con = tempCondition["col"] + " " +  opt_map[tempCondition["opt"]] + " datehour('" + tempCondition["value"] + "')"
+        } else{
+            temp_con = tempCondition["col"] + " " +  opt_map[tempCondition["opt"]] + " " + value
         }
-        if(isTable){
-            code = 'SELECT * FROM ' + code
-        }     
-        page = input_dict["page"]
-        pageSize = input_dict["pageSize"]
-        total = input_dict["total"]
-        if (total == null){
-            query = code + ' LIMIT 20000000'
-            total = query.parseExpr().eval()
-            total = size(total)
-            total = int(total)    
-        }
-        limitcondition = " LIMIT " + (page-1)*pageSize + ", " + pageSize
-        code = code + limitcondition
-        res = code.parseExpr().eval()
-        if(type(res) != 27){
-            throw "This is not a table"
-        }
-        return total, res        
-    } catch(ex){
-        return ex[0] + ":" + ex[1]
+        temp_list.append!(temp_con)
     }
+    partitionCol = concat(temp_list, " AND ")
+    tempCond = ""
+    for(tempConditions in input_dict["querys"]){
+        temp_list = []
+        tempCond += " OR "
+        for(tempCondition in tempConditions){
+            value = string(tempCondition["value"])
+            value = strReplace(value, "\\", '\\\\')
+            value = strReplace(value, "\"", '\\\"') 
+            if (tempCondition["dataType"] in `STRING`SYMBOL){
+                if (tempCondition["opt"] in [9, 10]){
+                    temp_con = tempCondition["col"] + ' ' +  opt_map[tempCondition["opt"]] + ' ["' + concat(value, '","')  + '"]'
+                }else{
+                    temp_con = tempCondition["col"] + ' ' +  opt_map[tempCondition["opt"]] + ' "' + value + '"'
+                }
+            } else if (tempCondition["dataType"] == `CHAR){
+                    temp_con = tempCondition["col"] + ' ' +  opt_map[tempCondition["opt"]] + " '" + value + "' "
+            } else if (tempCondition["dataType"] == `BLOB){
+                temp_con = tempCondition["col"] + ' ' +  opt_map[tempCondition["opt"]] + ' blob("' + tempCondition["value"] + '")'
+            } else if (tempCondition["dataType"] in `TIME`TIMESTAMP) {
+                temp_con = tempCondition["col"] + " " +  opt_map[tempCondition["opt"]] + " " + tempCondition["value"] + ".000"
+            } else if (tempCondition["dataType"] in `NANOTIME`NANOTIMESTAMP){
+                temp_con = tempCondition["col"] + " " +  opt_map[tempCondition["opt"]] + " " + tempCondition["value"] + ".000000000"
+            } else if (tempCondition["dataType"] == `DATEHOUR){
+                temp_con = tempCondition["col"] + " " +  opt_map[tempCondition["opt"]] + " datehour('" + tempCondition["value"] + "')"
+            } else{
+                temp_con = tempCondition["col"] + " " +  opt_map[tempCondition["opt"]] + " " + value
+            }
+            temp_list.append!(temp_con)
+        }
+        tempCond = tempCond + "(" + concat(temp_list, " AND ")  + ")" 
+    }
+    n2 = strlen(tempCond)
+    n1 = strlen(partitionCol)
+    if (n1 == 0 and n2 == 0){
+        sqlQuery = "SELECT \n" + queryCols + "\nFROM \n" + 'loadTable("' + dbName + '", "' + tbName + '")'
+    } else{
+        sqlQuery = "SELECT \n" + queryCols + "\nFROM \n" + 'loadTable("' + dbName + '", "' + tbName + '")' + "\nWHERE\n" 
+    }
+    if (n2 != 0){
+        tempCond = substr(tempCond, 4)
+        tempCond = "(" + tempCond + ")"
+    }
+    if (n1 != 0){
+        sqlQuery += partitionCol
+        if(n2 != 0){
+        sqlQuery += " AND "
+        }
+    }
+    sqlQuery += tempCond
+    code = dict(["code"], [sqlQuery])
+    code = toStdJson(code)
+    return code
 }
+
 
 
 
