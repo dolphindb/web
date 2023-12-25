@@ -7,6 +7,8 @@ import { model } from '../model.js'
 import { config } from './model.js'
 import { CONFIG_CLASSIFICATION, type ControllerConfig } from './type.js'
 import { strs_2_nodes_config } from './utils.js'
+import NiceModal from '@ebay/nice-modal-react'
+import { NodesConfigAddModal } from './NodesConfigAddModal.js'
 
 const { Search } = Input
 
@@ -127,14 +129,6 @@ export function NodesConfig () {
     
     return <div className='nodes-config-container'>
             <div className='toolbar'>
-                <Button
-                    type='primary'
-                    className='mr-btn'
-                    icon={<PlusOutlined/>}
-                    // onClick={async () => actionRef.current.reload()}
-                    >
-                        {t('新增配置')}
-                </Button>
                 
                 <Button
                     type='primary'
@@ -144,9 +138,18 @@ export function NodesConfig () {
                     >
                         {t('刷新')}
                 </Button>
+                
+                <Button
+                    type='primary'
+                    className='mr-btn'
+                    icon={<PlusOutlined/>}
+                    onClick={async () => NiceModal.show(NodesConfigAddModal) }
+                    >
+                        {t('新增配置')}
+                </Button>
                    
                 <Search
-                    placeholder={t('请输入想要查找的节点')}
+                    placeholder={t('请输入想要查找的配置项')}
                     value={search_key}
                     enterButton
                     onChange={e => { set_search_key(e.target.value) }}
