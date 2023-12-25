@@ -17,6 +17,14 @@ class ConfigModel extends Model<ConfigModel> {
     async save_cluster_nodes (nodes: string[]) {
         return model.ddb.call('saveClusterNodes', [new DdbVectorString(nodes)], { urgent: true })
     }
+    
+    async load_nodes_config () {
+        return model.ddb.call('loadClusterNodesConfigs', [ ], { urgent: true })
+    }
+    
+    async save_nodes_config (configs: string[]) {
+        return model.ddb.call('saveClusterNodesConfigs', [new DdbVectorString(configs)], { urgent: true })
+    }
 }
 
 export let config = new ConfigModel()

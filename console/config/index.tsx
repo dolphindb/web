@@ -1,14 +1,17 @@
 import './index.sass'
 
+import { useState } from 'react'
+
 import { Tabs } from 'antd'
 import { t } from '../../i18n/index.js'
 
-import SvgControllerConfig from './icons/controller.config.icon.svg'
-import SvgNodesManagement from './icons/nodes.management.icon.svg'
-import SvgNodesConfig from './icons/nodes.config.icon.svg'
 import { ControllerConfig } from './ControllerConfig.js'
 import { NodesManagement } from './NodesManagement.js'
-import { useState } from 'react'
+import { NodesConfig } from './NodesConfig.js'
+
+import SvgControllerConfig from './icons/controller.config.icon.svg'
+import SvgNodesConfig from './icons/nodes.config.icon.svg'
+import SvgNodesManagement from './icons/nodes.management.icon.svg'
 
 export function Config () {
     const [tab_key, set_tab_key] = useState('controller_config')
@@ -39,7 +42,8 @@ export function Config () {
                     label: <div className='tab-header'>
                         <SvgNodesConfig/>
                         {t('集群节点配置')}
-                    </div>
+                    </div>,
+                    children: <NodesConfig/>
                 }
                 ]}
         />

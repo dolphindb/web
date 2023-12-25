@@ -389,7 +389,6 @@
 
                 if (_Publish.publishMethodArray.indexOf(name) === -1) {
                     throw new Error('GridManager Error:方法调用错误，请确定方法名[' + name + ']是否正确');
-                    return false;
                 }
                 var gmObj = void 0;
                 // 当前为初始化方法
@@ -2394,10 +2393,11 @@
                     var onlyCheckTd = null;
                     _jTool2.default.each(_tr, function(i, v) {
                         onlyCheckTd = (0, _jTool2.default)('td[gm-checkbox="true"]', v);
-                        if (onlyCheckTd.length == 0) {
+                        if (onlyCheckTd.length == 0 && v.childNodes[0].childNodes[0].textContent!=='Controller') {
                             (0, _jTool2.default)(v).prepend('<td gm-checkbox="true" gm-create="true"><input type="checkbox"/></td>');
                         } else {
                             (0, _jTool2.default)('[type="checkbox"]', onlyCheckTd).prop('checked', false);
+                            (0, _jTool2.default)(v).prepend('<td gm-checkbox="true" gm-create="true"></td>');
                         }
                     });
                 }

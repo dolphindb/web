@@ -2,14 +2,12 @@ import { CloseCircleOutlined, DeleteOutlined, EditOutlined, PlusCircleOutlined, 
 import { EditableProTable, type ActionType, type ProColumns } from '@ant-design/pro-components'
 import { Button, Input, Popconfirm } from 'antd'
 import { useCallback, useMemo, useRef, useState } from 'react'
-import { BatchAddNodesModal } from './BatchAddNodesModal.js'
 
 import { t } from '../../i18n/index.js'
 import { model } from '../model.js'
 import { config } from './model.js'
 import { type ClusterNode } from './type.js'
 import { _2_strs, strs_2_nodes } from './utils.js'
-import NiceModal from '@ebay/nice-modal-react'
 
 
 const { Search } = Input
@@ -180,14 +178,14 @@ export function NodesManagement () {
                         >
                             {t('刷新')}
                     </Button>,
-                    <Button
-                        type='primary'
-                        className='mr-btn'
-                        icon={<PlusCircleOutlined />}
-                        onClick={async () => NiceModal.show(BatchAddNodesModal)}
-                        >
-                            {t('批量新增节点')}
-                    </Button>,
+                    // <Button
+                    //     type='primary'
+                    //     className='mr-btn'
+                    //     icon={<PlusCircleOutlined />}
+                    //     onClick={async () => NiceModal.show(BatchAddNodesModal)}
+                    //     >
+                    //         {t('批量新增节点')}
+                    // </Button>,
                     <Search
                         placeholder={t('请输入想要查找的节点')}
                         value={search_key}
@@ -200,7 +198,6 @@ export function NodesManagement () {
                 editable={
                     {
                         type: 'single',
-                        // editableKeys: editable_keys,
                         
                         onSave: async (rowKey, data, row) => {
                             const node_strs = _2_strs(nodes)
