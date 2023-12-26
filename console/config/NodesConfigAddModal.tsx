@@ -1,11 +1,17 @@
 import NiceModal from '@ebay/nice-modal-react'
-import { Button, Form, Input, Modal, Select, Space } from 'antd'
+import { AutoComplete, Button, Form, Input, Modal, Select, Space } from 'antd'
 import { t } from '../../i18n/index.js'
 import { MinusCircleOutlined, PlusOutlined } from '@ant-design/icons'
+import { CONFIG_CLASSIFICATION } from './type.js'
+import { useCallback } from 'react'
 
 
 export const NodesConfigAddModal = NiceModal.create(() => {
     const modal = NiceModal.useModal()
+    
+    const filter_config = useCallback(
+        (input: string, option?: { label: string, options: string }) =>
+            (option?.label ?? '').toLowerCase().includes(input.toLowerCase()), [ ])
     
     return <Modal
                 className='add-config-modal' 
@@ -16,53 +22,50 @@ export const NodesConfigAddModal = NiceModal.create(() => {
                 footer={false}
                 afterClose={modal.remove}>
                 
-            <Form
-                name='add-config-form'
-                // onFinish={onFinish}
-                // style={{ maxWidth: 600 }}
-                autoComplete='off'
-            >
-                    <Form.List name='config'>
-                    {(fields, { add, remove }) => <>
-                        {fields.map(({ key, name, ...restField }) => <Space key={key} style={{ display: 'flex', marginBottom: 8 }} align='baseline'>
-                            <Form.Item
-                                {...restField}
-                                name={[name, 'qualifier']}
-                                rules={[{ required: true, message: 'Missing first name' }]}
-                            >
-                                <Input placeholder='eg dn1 or dn% or empty' />
-                            </Form.Item>
-                            <Form.Item
-                                {...restField}
-                                name={[name, 'key']}
-                                rules={[{ required: true, message: 'Missing last name' }]}
-                            >
-                                <Select 
-                                    placeholder={t('请输入或选择配置项')} 
-                                    // options={}    
-                                />
-                            </Form.Item>
-                            <Form.Item
-                                {...restField}
-                                name={[name, 'value']}
-                                rules={[{ required: true, message: 'Missing last name' }]}
-                            >
-                                <Input placeholder={t('请输入配置值')} />
-                            </Form.Item>
-                            <MinusCircleOutlined onClick={() => { remove(name) }} />
-                            </Space>)}
-                        <Form.Item>
-                            <Button type='dashed' onClick={() => { add() }} block icon={<PlusOutlined />}>
-                            Add field
-                            </Button>
-                        </Form.Item>
-                        </>}
-                    </Form.List>
-                    <Form.Item>
-                    <Button type='primary' htmlType='submit'>
-                        Submit
+                <Form     
+                    labelCol={{ span: 4 }}
+                    wrapperCol={{ span: 20 }}>
+                    <Form.Item
+                        label='Qualifier'
+                        name='qualifier'
+                    >
+                        <Input placeholder='eg dn1 or dn% or empty'/>
+                    </Form.Item>
+    
+                    <Form.Item
+                        label='Name'
+                        name='name'
+                        rules={[{ required: true, message: t('请输入或选择配置项名') }]}
+                        >
+                        <AutoComplete 
+                            showSearch
+                            optionFilterProp='label'
+                            filterOption={filter_config}
+                            options={Object.keys(CONFIG_CLASSIFICATION).map(cfg_cls => ({
+                                label: cfg_cls,
+                                options: CONFIG_CLASSIFICATION[cfg_cls].map(cfg => ({
+                                    label: cfg,
+                                    value: cfg
+                                }))
+                            }))}/>
+                    </Form.Item>
+                    
+                    <Form.Item
+                        label='Value'
+                        name='value'
+                        rules={[{ required: true, message: t('请输入配置项值') }]}
+                        >
+                        <Input />
+                    </Form.Item>
+                    
+                    <Form.Item wrapperCol={{ offset: 8, span: 16 }}>
+                    <Button  
+                        type='primary' 
+                        htmlType='submit'
+                        >
+                        {t('确定')}
                     </Button>
                     </Form.Item>
-                </Form> 
+                </Form>
             </Modal>
 })
