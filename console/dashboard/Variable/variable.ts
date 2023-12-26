@@ -83,10 +83,9 @@ export async function update_variable_value (change_variables: {})  {
         variables[variable_id].deps.forEach((data_source: string) => data_sources.add(data_source))
     })
     
-    await Promise.all(Array.from(data_sources).map(async source_id => new Promise(async (resolve, reject) => {
-        await execute(source_id as string)
-        resolve(true)
-    })))
+    await Promise.all(
+        [...data_sources].map(async source_id => execute(source_id))
+    )
 }
 
 
