@@ -5,7 +5,7 @@ import { StringColorPicker } from '../../../components/StringColorPicker/index.j
 
 export function LegendFields () { 
     return <>
-        <Form.Item label={t('是否展示')} name='with_legend' initialValue>
+        <Form.Item label={t('是否展示')} name={['legend', 'show']} initialValue>
             <BoolRadioGroup />
         </Form.Item>
         <Form.Item label={t('布局')} name={['legend', 'orient']}>

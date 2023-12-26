@@ -82,17 +82,17 @@ export interface IChartConfig {
     x_datazoom: boolean
     y_datazoom: boolean
     animation?: boolean
-    // 网格线
-    with_split_line: boolean
     splitLine: {
+        show: boolean
         lineStyle: {
             type: ILineType
             color: string
             width: number
         }
     }
-    with_tooltip: boolean
-    with_legend: boolean
+    tooltip: {
+        show: boolean
+    }
     legend?: {
         show: boolean
         type: 'scroll' | 'plain'
@@ -174,7 +174,7 @@ export interface IDescriptionsConfig {
 }
 
 
-export interface IOrderBookConfig extends Pick<IChartConfig, 'title' | 'title_size' | 'with_tooltip' | 'with_split_line' | 'with_legend'> {
+export interface IOrderBookConfig extends Pick<IChartConfig, 'title' | 'title_size' > {
     time_rate: number
     market_data_files_num: number
     bar_color: string

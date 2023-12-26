@@ -4,7 +4,7 @@ import { BoolRadioGroup } from '../../../components/BoolRadioGroup/index.js'
 
 export function TooltipFields () { 
     return <>
-        <Form.Item name='with_tooltip' label={t('气泡提示')} initialValue>
+        <Form.Item name={['tooltip', 'show']} label={t('气泡提示')} initialValue>
             <BoolRadioGroup />
         </Form.Item>
     

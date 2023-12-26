@@ -47,7 +47,7 @@ function splitData (rowData: any[], col_name: COL_MAP) {
 
 
 export function OHLC ({ widget, data_source }: { widget: Widget, data_source: any[] }) {
-    const { title, title_size, with_tooltip, with_legend, xAxis, series, yAxis, x_datazoom, y_datazoom, legend, splitLine, with_split_line, animation } = widget.config as IChartConfig
+    const { title, title_size, xAxis, series, yAxis, x_datazoom, y_datazoom, legend, splitLine, animation, tooltip } = widget.config as IChartConfig
     function convert_series (series: ISeriesConfig) { 
         let mark_line_data = series?.mark_line?.map(item => { 
             if (item in MarkPresetType)
@@ -118,11 +118,11 @@ export function OHLC ({ widget, data_source }: { widget: Widget, data_source: an
             },
             data,
             splitLine: {
-                show: with_split_line,
+                show: true,
                 ...splitLine
             },
             legend: pickBy({
-                show: with_legend,
+                show: true,
                 top: 10,
                 left: 'center',
                 data: series.slice(2).map(s => s?.name || ''),
@@ -133,7 +133,7 @@ export function OHLC ({ widget, data_source }: { widget: Widget, data_source: an
               }, v => !isNil(v)),
             backgroundColor: '#282828',
             tooltip: {
-                show: with_tooltip,
+                show: true,
                 trigger: 'axis',
                 axisPointer: {
                     type: 'cross'
@@ -229,7 +229,7 @@ export function OHLC ({ widget, data_source }: { widget: Widget, data_source: an
                     
                     boundaryGap: false,
                     axisLine: { onZero: false },
-                    splitLine: { ...splitLine, show: with_split_line },
+                    splitLine: { show: true, ...splitLine },
                     nameTextStyle: {
                         fontSize: xAxis?.fontsize ?? 12
                     },
@@ -278,7 +278,7 @@ export function OHLC ({ widget, data_source }: { widget: Widget, data_source: an
                         show: true
                     },
                     splitLine: {
-                        show: with_split_line,
+                        show: true,
                         lineStyle: {
                             type: 'dashed',
                             color: '#6E6F7A'
@@ -356,7 +356,7 @@ export function OHLC ({ widget, data_source }: { widget: Widget, data_source: an
                 ...lines
             ]
         }),
-        [title, animation, with_tooltip, data, xAxis, yAxis, x_datazoom, y_datazoom]
+        [title, animation, data, xAxis, yAxis, x_datazoom, y_datazoom, legend, splitLine, tooltip]
     )
     // 编辑模式下 notMerge 为 true ，因为要修改配置，预览模式下 notMerge 为 false ，避免数据更新，导致选中的 label失效
     return <ReactEChartsCore echarts={echarts} option={option} theme='ohlc_theme' />

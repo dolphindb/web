@@ -12,7 +12,7 @@ import { ChartField } from '../../ChartFormFields/type.js'
 
 
 export function Radar ({ widget, data_source }: { widget: Widget, data_source: any[] }) {
-    const { title, title_size = 18, with_tooltip, with_legend, legend, series, labels } = widget.config as IChartConfig
+    const { title, title_size = 18, tooltip, legend, series, labels } = widget.config as IChartConfig
     const option = useMemo(
         () => {
             const legends = [ ]
@@ -32,7 +32,7 @@ export function Radar ({ widget, data_source }: { widget: Widget, data_source: a
             
             return {
                 legend: {
-                    show: with_legend,
+                    show: true,
                     textStyle: {
                         color: '#e6e6e6'
                     },
@@ -40,7 +40,8 @@ export function Radar ({ widget, data_source }: { widget: Widget, data_source: a
                     ...legend,
                 },
                 tooltip: {
-                    show: with_tooltip,
+                    show: true,
+                    ...tooltip,
                     // 与图形类型相关，一期先写死
                     trigger: 'item',
                     backgroundColor: '#1D1D1D',
@@ -67,7 +68,7 @@ export function Radar ({ widget, data_source }: { widget: Widget, data_source: a
                 ]
             }
         },
-        [title, with_tooltip, with_legend, series, title_size, labels, data_source, legend]
+        [title, tooltip, series, title_size, labels, data_source, legend]
     )
     
     // 编辑模式下 notMerge 为 true ，因为要修改配置，预览模式下 notMerge 为 false ，避免数据更新，导致选中的 label失效

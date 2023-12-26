@@ -7,7 +7,7 @@ import { ILineType } from '../type.js'
 
 export function SplitLineFields () { 
     return <>
-        <Form.Item name={['with_split_line']} label={t('是否展示')} initialValue={false}>
+        <Form.Item name={['splitLine', 'show']} label={t('是否展示')} initialValue={false}>
             <BoolRadioGroup />
         </Form.Item>
         <Form.Item name={['splitLine', 'lineStyle', 'color']} label={t('线条颜色')} initialValue='#6E6F7A'>
