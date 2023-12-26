@@ -195,7 +195,7 @@ export function concat_name_path (...paths: NamePath[]): NamePath {
 export function convert_chart_config (widget: Widget, data_source: any[]) {
     const { config } = widget
     
-    const { title, title_size, with_legend, with_tooltip, splitLine, with_split_line, xAxis, series, yAxis, x_datazoom, y_datazoom, legend, animation } = config as IChartConfig
+    const { title, title_size, splitLine, xAxis, series, yAxis, x_datazoom, y_datazoom, legend, animation, tooltip } = config as IChartConfig
     
     function convert_data_zoom (x_datazoom: boolean, y_datazoom: boolean) { 
         const total_data_zoom = [
@@ -234,7 +234,7 @@ export function convert_chart_config (widget: Widget, data_source: any[]) {
             name: axis.name,
             type: axis.type,
             splitLine: {
-                show: with_split_line,
+                show: true,
                 lineStyle: { 
                     type: 'dashed',
                     color: '#6E6F7A'
@@ -354,7 +354,7 @@ export function convert_chart_config (widget: Widget, data_source: any[]) {
             bottom: x_datazoom ? 50 : 10
         },
         legend: pickBy({
-            show: with_legend,
+            show: true,
             textStyle: {
                 color: '#e6e6e6',
                 ...legend?.textStyle,
@@ -362,7 +362,8 @@ export function convert_chart_config (widget: Widget, data_source: any[]) {
             ...legend,
         }, v => !isNil(v)),
         tooltip: {
-            show: with_tooltip,
+            show: true,
+            ...tooltip,
             // 与图形类型相关，一期先写死
             trigger: 'axis',
             backgroundColor: '#060606',
