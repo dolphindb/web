@@ -7,7 +7,7 @@ import { dashboard, type Widget } from '../../model.js'
 import { convert_list_to_options, parse_text } from '../../utils.js'
 import { Button, Collapse, Form, Input, InputNumber, Select } from 'antd'
 import { DeleteOutlined, PlusCircleOutlined } from '@ant-design/icons'
-import { type IGaugeConfig } from '../../type.js'
+import { type IChartConfig, type IGaugeConfig } from '../../type.js'
 import { useMemo } from 'react'
 import { StringColorPicker } from '../../../components/StringColorPicker/index.js'
 
@@ -25,9 +25,10 @@ export function Gauge (props: IProps) {
     const config = useMemo(() => widget.config as IGaugeConfig, [widget.config])
     
     const options = useMemo<echarts.EChartsCoreOption>(() => { 
-        const { title, title_size, max, min, data_setting, label_size, value_size } = config
+        const { title, title_size, max, min, data_setting, label_size, value_size, animation } = config
         
         return {
+            animation,
             backgroundColor: '#282828',
             // 标题
             title: {
@@ -88,6 +89,9 @@ export function Gauge (props: IProps) {
 export function GaugeConfigForm (props: { col_names: string[] } ) {
     const { col_names = [ ] } = props
     
+    const form = Form.useFormInstance()
+    const { widget } = dashboard.use(['widget'])
+    
     return <>
         <BasicFormFields />
         <Collapse items={[{
@@ -103,11 +107,11 @@ export function GaugeConfigForm (props: { col_names: string[] } ) {
                     <InputNumber />
                 </Form.Item>
                 
-                <Form.Item label='label 字号' name='label_size' initialValue={16}>
+                <Form.Item label='标签字号' name='label_size' initialValue={16}>
                     <InputNumber addonAfter='px'/>
                 </Form.Item>
                 
-                <Form.Item label='value 字号' name='value_size' initialValue={18}>
+                <Form.Item label='值字号' name='value_size' initialValue={18}>
                     <InputNumber addonAfter='px'/>
                 </Form.Item>
                 
@@ -121,7 +125,13 @@ export function GaugeConfigForm (props: { col_names: string[] } ) {
                                 forceRender: true,
                                 children: <>
                                     <Form.Item name={[field.name, 'col']} label='数据列'>
-                                        <Select options={convert_list_to_options(col_names)} />
+                                        <Select
+                                            onSelect={val => { 
+                                                form.setFieldValue(['data_setting', field.name, 'name'], val)
+                                                dashboard.update_widget({ ...widget, config: form.getFieldsValue() })
+                                            } }
+                                            options={convert_list_to_options(col_names)}
+                                        />
                                     </Form.Item>
                                     
                                     <Form.Item name={[field.name, 'name']} label='名称'>

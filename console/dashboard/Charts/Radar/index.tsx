@@ -4,13 +4,15 @@ import { useMemo } from 'react'
 
 import { dashboard, type Widget } from '../../model.js'
 
-import { BasicFormFields, LabelsFormFields, SeriesFormFields } from '../../ChartFormFields/RadarChartFields.js'
+import { LabelsFormFields, SeriesFormFields } from '../../ChartFormFields/RadarChartFields.js'
 import { type IChartConfig } from '../../type.js'
 import { parse_text } from '../../utils.js'
+import { BasicFormFields } from '../../ChartFormFields/BasicFormFields.js'
+import { ChartField } from '../../ChartFormFields/type.js'
 
 
 export function Radar ({ widget, data_source }: { widget: Widget, data_source: any[] }) {
-    const { title, title_size = 18, with_tooltip, with_legend, series, labels } = widget.config as IChartConfig
+    const { title, title_size = 18, with_tooltip, with_legend, legend, series, labels } = widget.config as IChartConfig
     const option = useMemo(
         () => {
             const legends = [ ]
@@ -34,7 +36,8 @@ export function Radar ({ widget, data_source }: { widget: Widget, data_source: a
                     textStyle: {
                         color: '#e6e6e6'
                     },
-                    data: legends
+                    data: legends,
+                    ...legend,
                 },
                 tooltip: {
                     show: with_tooltip,
@@ -64,7 +67,7 @@ export function Radar ({ widget, data_source }: { widget: Widget, data_source: a
                 ]
             }
         },
-        [title, with_tooltip, with_legend, series, title_size, labels, data_source]
+        [title, with_tooltip, with_legend, series, title_size, labels, data_source, legend]
     )
     
     // 编辑模式下 notMerge 为 true ，因为要修改配置，预览模式下 notMerge 为 false ，避免数据更新，导致选中的 label失效
@@ -75,7 +78,7 @@ export function RadarConfigForm (props: { col_names: string[] } ) {
     const { col_names = [ ] } = props
     
     return <>
-        <BasicFormFields type='chart' />
+        <BasicFormFields type='chart' chart_fields={[ChartField.LEGEND, ChartField.TOOLTIP]}/>
         <LabelsFormFields col_names={col_names} />
         <SeriesFormFields col_names={col_names} />
     </>

@@ -6,6 +6,7 @@ import { useMemo } from 'react'
 import { type IChartConfig } from '../../type.js'
 import { convert_chart_config } from '../../utils.js'
 import { BasicFormFields } from '../../ChartFormFields/BasicFormFields.js'
+import { ChartField } from '../../ChartFormFields/type.js'
 
 interface IProps { 
     widget: Widget
@@ -85,7 +86,7 @@ export function HeatMap (props: IProps) {
 
 export function HeatMapConfigForm ({ col_names }: { col_names: string[] }) {
     return <>
-        <BasicFormFields type='chart' />
+        <BasicFormFields type='chart' chart_fields={[ChartField.TOOLTIP]}/>
         <AxisFormFields col_names={col_names} single />
         <SeriesFormFields col_names={col_names} single/>
     </>
