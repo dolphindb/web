@@ -130,7 +130,7 @@ export function OHLC ({ widget, data_source }: { widget: Widget, data_source: an
                     color: '#e6e6e6'
                 },
                 ...legend,
-              }, v => !isNil(v)),
+              }, v => !isNil(v) && v !== ''),
             backgroundColor: '#282828',
             tooltip: {
                 show: true,

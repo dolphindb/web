@@ -360,7 +360,7 @@ export function convert_chart_config (widget: Widget, data_source: any[]) {
                 ...legend?.textStyle,
             },
             ...legend,
-        }, v => !isNil(v)),
+        }, v => !isNil(v) && v !== ''),
         tooltip: {
             show: true,
             ...tooltip,

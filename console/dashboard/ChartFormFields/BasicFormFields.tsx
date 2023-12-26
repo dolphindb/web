@@ -76,7 +76,7 @@ export function BasicFormFields (props: { type?: 'chart' | 'table' | 'descriptio
         return  <div className='axis-wrapper'>
             <TitleFields />
             <WrapperFields />
-            {type === 'chart' && <Form.Item name='animation' label={t('是否开启动画')} initialValue={false}>
+            {type === 'chart' && <Form.Item name='animation' label={t('是否开启动画')} initialValue>
                 <BoolRadioGroup />
             </Form.Item> }
             
