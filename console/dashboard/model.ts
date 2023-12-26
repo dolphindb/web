@@ -125,18 +125,20 @@ export class DashBoardModel extends Model<DashBoardModel> {
                 const dp = Array.from({ length: 12 }, () => Array(12).fill(0))
                 for (let i = 0;  i < 12;  i++)
                     for (let j = 0;  j < 12;  j++)
-                        if (canvas[i][j] === 0)
+                        if (canvas[i][j] === 0) 
                             dp[i][j] = (j > 0 ? dp[i][j - 1] : 0) + 1
+                        
+                            
                     
                 // 检查是否有符合条件的3x2空白区域
-                let hasEmptyArea = false
                 for (let i = 0;  i < 11;  i++)
-                    for (let j = 0;  j < 11;  j++)
-                        if (dp[i][j] >= 3 && dp[i + 1][j] >= 3) {
-                            hasEmptyArea = true
-                            break
-                        }
-                return hasEmptyArea
+                    for (let j = 0;  j <= 11;  j++)
+                        if (dp[i][j] >= 3 && dp[i + 1][j] >= 3) 
+                            return true
+                console.log('格子不够')
+                console.log('canvas', canvas)
+                console.log('dp', dp)        
+                return false
             },
             float: true,
             column: this.maxcols,
@@ -185,7 +187,7 @@ export class DashBoardModel extends Model<DashBoardModel> {
             grid.cellHeight(Math.floor(grid.el.clientHeight / this.maxrows))
         })
         
-        GridStack.setupDragIn('.grid-stack-item', { helper: 'clone' })
+        GridStack.setupDragIn('.dashboard-graph-item', { helper: 'clone' })
         
         this.set({ grid, widget: null })
     }

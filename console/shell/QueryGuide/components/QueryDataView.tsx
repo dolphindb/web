@@ -3,6 +3,7 @@ import { useCallback, useEffect, useState } from 'react'
 import { request } from '../../../guide/utils.js'
 import { Table } from '../../../obj.js'
 import { t } from '../../../../i18n/index.js'
+import { model } from '../../../model.js'
 
 
 interface IProps { 
@@ -20,13 +21,12 @@ export function QueryDataView (props: IProps) {
     
     const get_query_data = useCallback(async (page, pageSize) => { 
         set_loading(true)
-        const data = await request('dbms_executeQueryByPage', { code, page, pageSize, total })
+        const { value: data } = await model.ddb.eval(`dbms_executeQueryByPage('${JSON.stringify({ code, page, pageSize, total })})')`)
         if (typeof data === 'string') { 
             set_error(data)
             set_total(0)
         }
         else { 
-            set_error(undefined)
             set_data(data)
             set_total(data[0].value)
         }

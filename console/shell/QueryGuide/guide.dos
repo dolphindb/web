@@ -139,6 +139,7 @@ def dbms_executeQueryByPage(input_json){
 
 
 
+
 def dbms_generateEnumerate(input_json){
     input_dict = input_json.parseExpr().eval()
     dbName = input_dict["dbName"]
@@ -150,20 +151,20 @@ def dbms_generateEnumerate(input_json){
         colName = loadTable(dbName, tbName).schema().partitionColumnName
     }
     query =  "EXEC " + col + ' FROM loadTable("' + dbName + '", "' + tbName +  '") WHERE sample(' + 
-    colName + ', 100) GROUP BY ' + col + ' LIMIT 1000'
-    do{
-        enumList = query.parseExpr().eval()
-    }
-    while(size(enumList) == 0)
+    colName + ', 10) GROUP BY ' + col + ' LIMIT 1000'
+    enumList = query.parseExpr().eval()
+    newEnumList = array(STRING, 0)
     if (type(enumList) == 17 or type(enumList) == 18){
         enumList = string(enumList)
         for(i in 1..size(enumList) ){
-            enumList[i-1] = strReplace(enumList[i-1], "\"", '\\\"')
+            newEnumList.append!(strReplace(enumList[i-1], "\"", '\\\"')) 
         }
     } 
-    res = '{"enumList":["' + concat(enumList, '","') + '"]}' 
+    if (size(enumList) == 0){
+        res = '{"enumList":[]}'  
+    } else{
+        res = '{"enumList":["' + concat(newEnumList, '","') + '"]}'  
+    }
     return res
 }
-
-
 
