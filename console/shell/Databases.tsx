@@ -9,9 +9,10 @@ import { Tooltip, Tree, Modal, Form, Input, Select, Button, InputNumber } from '
 
 import type { DataNode, EventDataNode } from 'antd/es/tree'
 
-import { default as Icon, SyncOutlined, MinusSquareOutlined, EditOutlined, FileSearchOutlined } from '@ant-design/icons'
+import { default as Icon, SyncOutlined, MinusSquareOutlined, EditOutlined } from '@ant-design/icons'
 
 import { assert, delay } from 'xshell/utils.browser.js'
+
 
 import {
     DdbFunctionType,
@@ -46,6 +47,8 @@ import SvgPartitionFile from './icons/partition-file.icon.svg'
 import SvgColumnRoot from './icons/column-root.icon.svg'
 import SvgPartitionDirectory from './icons/partition-directory.icon.svg'
 import SvgTable from './icons/table.icon.svg'
+import SvgQueryGuide from './icons/query-guide.icon.svg'
+
 
 
 enum TableKind {
@@ -899,11 +902,29 @@ export class Table implements DataNode {
         this.db = db
         this.key = this.path = path
         this.name = path.slice(db.path.length, -1)
+        
+        const enable_create_table = [NodeType.single, NodeType.data].includes(model.node_type)
+        
+        const create_query: React.MouseEventHandler<HTMLSpanElement> = e => { 
+            e.stopPropagation()
+            if (enable_create_table)
+                NiceModal.show(QueryGuideModal, { database: this.db.path.slice(0, -1), table: this.name })
+            else
+                return
+        }
         this.title = <div className='table-title'>
             <span> {path.slice(db.path.length, -1)} </span>
-            <Tooltip title={t('新建查询')} color='grey'>
-                <FileSearchOutlined onClick={async () => NiceModal.show(QueryGuideModal, { database: this.db.path.slice(0, -1), table: this.name }) } className='query-icon'/>
-            </Tooltip>
+            <div className='table-actions'>
+                <Tooltip title={enable_create_table ? t('新建查询') : t('仅单机节点和数据节点支持新建查询')} color='grey'>
+                    <Icon 
+                        disabled={!enable_create_table}
+                        className={enable_create_table ? '' : 'disabled'}
+                        component={SvgQueryGuide}
+                        onClick={create_query} 
+                    />
+                
+                </Tooltip>
+            </div>
         </div>
        
     }

@@ -15,7 +15,10 @@ export function transform_query (query: Query) {
 
 
 export async function query_enums (params) { 
-    const col_name = safe_json_parse(params.col).name
+    const col_name = safe_json_parse(params.col)?.name
+    if (!col_name)
+        return [ ]
+    
     const res = await request<{ enumList: string[] }>('dbms_generateEnumerate', {
         ...params,
         col: col_name

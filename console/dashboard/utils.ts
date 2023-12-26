@@ -202,11 +202,13 @@ export function convert_chart_config (widget: Widget, data_source: any[]) {
             {
                 id: 'dataZoomX',
                 type: 'slider',
+                show: true,
                 xAxisIndex: [0],
                 filterMode: 'filter',
             },
             {
                 id: 'dataZoomY',
+                show: true,
                 type: 'slider',
                 yAxisIndex: [0],
                 filterMode: 'empty',
@@ -309,7 +311,7 @@ export function convert_chart_config (widget: Widget, data_source: any[]) {
         return {
             type: series.type?.toLowerCase(),
             name: series.name,
-            symbol: series?.symbol || 'none',
+            symbol: series.type === WidgetChartType.SCATTER ? series?.symbol ?? 'none' : 'none',
             symbolSize: series.symbol_size,
             stack: series.stack,
             endLabel: {
@@ -336,7 +338,8 @@ export function convert_chart_config (widget: Widget, data_source: any[]) {
             },
             lineStyle: {
                 type: series.line_type,
-                color: series.color
+                color: series.color,
+                width: series.line_width
             }
         }
     }
@@ -346,7 +349,7 @@ export function convert_chart_config (widget: Widget, data_source: any[]) {
         grid: {
             containLabel: true,
             left: 10,
-            bottom: 10
+            bottom: x_datazoom ? 50 : 10
         },
         legend: {
             show: with_legend,
@@ -516,7 +519,7 @@ export async function paste_widget (event) {
             id: String(genid()),
         }
         dashboard.add_widget(paste_widget_el)
-        await subscribe_data_source(paste_widget, paste_widget.source_id)
+        await subscribe_data_source(paste_widget_el, paste_widget_el.source_id)
     } catch (error) {
         dashboard.message.error(error.message)
     }

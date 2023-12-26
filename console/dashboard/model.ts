@@ -111,7 +111,33 @@ export class DashBoardModel extends Model<DashBoardModel> {
         }
         
         let grid = GridStack.init({
-            acceptWidgets: true,
+            //  gridstack 有 bug ，当 grid 没有 2*3 的连续空间时，再拖入一个会使所有 widget 无法 change，暂时通过计算面积阻止拖入，后续无限行数时不会再有此问题
+            acceptWidgets: () => {
+                const canvas = Array.from({ length: 12 }, () => Array(12).fill(0))
+                
+                this.widgets.forEach(widget => {
+                for (let i = widget.x;  i < widget.x + widget.w;  i++)
+                    for (let j = widget.y;  j < widget.y + widget.h;  j++)
+                        canvas[i][j] = 1
+                })
+                
+                // 使用动态规划记录每个位置上的连续空白格子数量
+                const dp = Array.from({ length: 12 }, () => Array(12).fill(0))
+                for (let i = 0;  i < 12;  i++)
+                    for (let j = 0;  j < 12;  j++)
+                        if (canvas[i][j] === 0)
+                            dp[i][j] = (j > 0 ? dp[i][j - 1] : 0) + 1
+                    
+                // 检查是否有符合条件的3x2空白区域
+                let hasEmptyArea = false
+                for (let i = 0;  i < 11;  i++)
+                    for (let j = 0;  j < 11;  j++)
+                        if (dp[i][j] >= 3 && dp[i + 1][j] >= 3) {
+                            hasEmptyArea = true
+                            break
+                        }
+                return hasEmptyArea
+            },
             float: true,
             column: this.maxcols,
             row: this.maxrows,
@@ -159,10 +185,12 @@ export class DashBoardModel extends Model<DashBoardModel> {
             grid.cellHeight(Math.floor(grid.el.clientHeight / this.maxrows))
         })
         
-        GridStack.setupDragIn('.dashboard-graph-item', { helper: 'clone' })
+        GridStack.setupDragIn('.grid-stack-item', { helper: 'clone' })
         
         this.set({ grid, widget: null })
     }
+    
+    
     
     
     /** 执行 action，遇到错误时弹窗提示 
@@ -216,7 +244,7 @@ export class DashBoardModel extends Model<DashBoardModel> {
     
     dispose () {
         clear_data_sources()
-        console.log('dispose')
+        console.log('grid.destroy')
         this.grid.destroy()
         this.grid = null
     }
@@ -401,12 +429,16 @@ export class DashBoardModel extends Model<DashBoardModel> {
     /** 从服务器获取 dashboard 配置 */
     async get_dashboard_configs () {
         const data = (await model.ddb.call<DdbVoid>('dashboard_get_config_list', [ ])).to_rows()
-        const configs =  data.map(cfg => ({ ...cfg, 
-                                            id: Number(cfg.id), 
-                                            data: JSON.parse(typeof cfg.data === 'string' ? 
-                                                                                    JSON.parse(cfg.data)
-                                                                                        : 
-                                                                                    new TextDecoder().decode(cfg.data) ) }) as DashBoardConfig) 
+        const configs =  data.map(cfg => {
+            // 有些只需要 parse 一次，有些需要 parse 两次
+            let data = typeof cfg.data === 'string' ?  JSON.parse(cfg.data) : new TextDecoder().decode(cfg.data)
+            data = typeof data === 'string' ? JSON.parse(data) : data
+            return { 
+                ...cfg, 
+                id: Number(cfg.id), 
+                data
+            } as DashBoardConfig
+        } ) 
         this.set({ configs })
         const dashboard_id = Number(new URLSearchParams(location.search).get('dashboard'))
         if (dashboard_id) {

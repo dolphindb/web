@@ -46,7 +46,7 @@ export const ExportFileModal = NiceModal.create((props: IProps) => {
     
     
     return <Modal
-        title='导出数据'
+        title={t('导出数据')}
         width={600}
         open={modal.visible}
         onOk={download}
@@ -55,7 +55,7 @@ export const ExportFileModal = NiceModal.create((props: IProps) => {
         okButtonProps={{ loading }}
     >
         <Form form={form}>
-            <Form.Item rules={[{ required: true, message: t('请输入文件名') }]} name='name' label='文件名' initialValue={table}>
+            <Form.Item rules={[{ required: true, message: t('请输入文件名') }]} name='name' label={t('文件名')} initialValue={table}>
                 <Input addonAfter='.csv' placeholder={t('请输入文件名')} />
             </Form.Item>
         </Form>
