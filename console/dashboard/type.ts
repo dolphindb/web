@@ -101,6 +101,10 @@ export interface IChartConfig {
             fontSize: number
             color: string
         }
+        top: number | string
+        bottom: number | string
+        right: number | string
+        left: number | string
     }
     // 是否增加数据过滤选择
     with_data_filter: boolean

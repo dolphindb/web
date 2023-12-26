@@ -9,6 +9,7 @@ import { BasicFormFields } from '../../ChartFormFields/BasicFormFields.js'
 import { type IChartConfig } from '../../type.js'
 import { parse_text } from '../../utils.js'
 import { ChartField } from '../../ChartFormFields/type.js'
+import { isNil, pickBy } from 'lodash'
 
 const radius = {
     1: [[0, '70%']],
@@ -17,20 +18,21 @@ const radius = {
 }
 
 export function Pie ({ widget, data_source }: { widget: Widget, data_source: any[] }) {
-    const { title, title_size = 18, with_tooltip, with_legend, legend, series, animation } = widget.config as IChartConfig
+    const { title, title_size = 18, legend, series, animation } = widget.config as IChartConfig
+    console.log(legend, 'legend')
     const option = useMemo(
         () => {
             return {
                 animation,
-                legend: {
-                    show: with_legend,
+                legend: pickBy({
+                    show: true,
                     textStyle: {
                         color: '#e6e6e6'
                     },
                     ...legend,
-                },
+                }, v => !isNil(v) && v !== ''),
                 tooltip: {
-                    show: with_tooltip,
+                    show: true,
                     // 与图形类型相关，一期先写死
                     trigger: 'item',
                     backgroundColor: '#1D1D1D',
@@ -61,17 +63,19 @@ export function Pie ({ widget, data_source }: { widget: Widget, data_source: any
                         }),
                         emphasis: {
                             itemStyle: {
-                            shadowBlur: 10,
-                            shadowOffsetX: 0,
-                            shadowColor: 'rgba(0, 0, 0, 0.5)'
+                                shadowBlur: 10,
+                                shadowOffsetX: 0,
+                                shadowColor: 'rgba(0, 0, 0, 0.5)'
                             }
                         }
                     }
                 })
             }
         },
-        [title, animation, with_tooltip, with_legend, series, title_size, data_source, legend]
+        [title, animation, series, title_size, data_source, legend]
     )
+    
+    console.log(option, 'options')
     
     // 编辑模式下 notMerge 为 true ，因为要修改配置，预览模式下 notMerge 为 false ，避免数据更新，导致选中的 label失效
     return <ReactEChartsCore notMerge={dashboard.editing} echarts={echarts} option={option} lazyUpdate theme='ohlc_theme' />
