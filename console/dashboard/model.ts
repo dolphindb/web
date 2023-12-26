@@ -135,7 +135,9 @@ export class DashBoardModel extends Model<DashBoardModel> {
                     for (let j = 0;  j <= 11;  j++)
                         if (dp[i][j] >= 3 && dp[i + 1][j] >= 3) 
                             return true
-                        
+                console.log('格子不够')
+                console.log('canvas', canvas)
+                console.log('dp', dp)        
                 return false
             },
             float: true,

@@ -1,12 +1,14 @@
 import ReactEChartsCore from 'echarts-for-react/lib/core'
 import * as echarts from 'echarts'
-import { useId, useMemo } from 'react'
+import { useMemo } from 'react'
 
 import { dashboard, type Widget } from '../../model.js'
 
-import { BasicFormFields, SeriesFormFields } from '../../ChartFormFields/PieChartFields.js'
+import { SeriesFormFields } from '../../ChartFormFields/PieChartFields.js'
+import { BasicFormFields } from '../../ChartFormFields/BasicFormFields.js'
 import { type IChartConfig } from '../../type.js'
 import { parse_text } from '../../utils.js'
+import { ChartField } from '../../ChartFormFields/type.js'
 
 const radius = {
     1: [[0, '70%']],
@@ -15,16 +17,17 @@ const radius = {
 }
 
 export function Pie ({ widget, data_source }: { widget: Widget, data_source: any[] }) {
-    const { title, title_size = 18, with_tooltip, with_legend, series } = widget.config as IChartConfig
-    
+    const { title, title_size = 18, with_tooltip, with_legend, legend, series, animation } = widget.config as IChartConfig
     const option = useMemo(
         () => {
             return {
+                animation,
                 legend: {
                     show: with_legend,
                     textStyle: {
                         color: '#e6e6e6'
-                    }
+                    },
+                    ...legend,
                 },
                 tooltip: {
                     show: with_tooltip,
@@ -67,7 +70,7 @@ export function Pie ({ widget, data_source }: { widget: Widget, data_source: any
                 })
             }
         },
-        [title, with_tooltip, with_legend, series, title_size, data_source]
+        [title, animation, with_tooltip, with_legend, series, title_size, data_source, legend]
     )
     
     // 编辑模式下 notMerge 为 true ，因为要修改配置，预览模式下 notMerge 为 false ，避免数据更新，导致选中的 label失效
@@ -78,7 +81,7 @@ export function PieConfigForm (props: { col_names: string[] } ) {
     const { col_names = [ ] } = props
     
     return <>
-        <BasicFormFields type='chart' />
+        <BasicFormFields type='chart' chart_fields={[ChartField.LEGEND, ChartField.TOOLTIP]}/>
         <SeriesFormFields col_names={col_names} />
     </>
 }

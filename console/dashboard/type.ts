@@ -81,10 +81,27 @@ export interface IChartConfig {
     // 缩略轴
     x_datazoom: boolean
     y_datazoom: boolean
+    animation?: boolean
     // 网格线
     with_split_line: boolean
+    splitLine: {
+        lineStyle: {
+            type: ILineType
+            color: string
+            width: number
+        }
+    }
     with_tooltip: boolean
     with_legend: boolean
+    legend?: {
+        show: boolean
+        type: 'scroll' | 'plain'
+        itemGap: number
+        textStyle: {
+            fontSize: number
+            color: string
+        }
+    }
     // 是否增加数据过滤选择
     with_data_filter: boolean
     xAxis: AxisConfig
@@ -179,6 +196,7 @@ export interface IGaugeConfig {
     title_size?: number
     label_size?: number
     value_size?: number
+    animation?: boolean
     
     axis_setting: Array<{
         threshold: number

@@ -59,3 +59,11 @@ export enum ITimeFormat {
     DATE_SECOND = 'YYYY-MM-DD HH:mm:ss',
    
 }
+
+
+export enum ChartField { 
+    LEGEND = 'legend',
+    TOOLTIP = 'tooltip',
+    SPLIT_LINE = 'split_line',
+    DATA_ZOOM = 'data_zoom'
+}

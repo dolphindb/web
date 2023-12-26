@@ -123,30 +123,52 @@ export function AxisItem ({ name_path, col_names = [ ], list_name, initial_value
                 }
             }}
         </FormDependencies>
-        
-                                                
-       
     </>
 }
 
 
 function Series (props: { col_names: string[], single?: boolean }) { 
     const { col_names, single = false } = props
-    const { widget: { type } } = dashboard.use(['widget'])
+    const { widget } = dashboard.use(['widget'])
+    
+    const type = useMemo(() => widget.type, [widget])
     
     const series = Form.useWatch('series')
     
     const is_heat_map = type === WidgetChartType.HEATMAP
     
-    return <Form.List name='series' initialValue={[{ col_name: col_names[0], name: t('数据列 1'), yAxisIndex: 0, type: type === WidgetChartType.MIX ? WidgetChartType.LINE : type, color: null }]}>
+    const form = Form.useFormInstance()
+    
+    return <Form.List
+        name='series'
+        initialValue={[
+            {
+                col_name: col_names[0],
+                name: col_names[0],
+                yAxisIndex: 0,
+                type: type === WidgetChartType.MIX ? WidgetChartType.LINE : type,
+                color: null
+            }
+        ]}>
         {(fields, { add, remove }) => { 
             const items = fields.map(field => { 
                 const children = 
                     <div className='field-wrapper'>
                         <Form.Item name={[field.name, 'col_name']} label={type === WidgetChartType.HEATMAP ? t('热力值列') : t('数据列')} initialValue={col_names?.[0]} >
-                            <Select options={col_names.map(item => ({ label: item, value: item })) } />
+                            <Select
+                                options={col_names.map(item => ({ label: item, value: item }))}
+                                onSelect={val => {
+                                    form.setFieldValue(['series', field.name, 'name'], val)
+                                    // setFieldValue 不会触发 onValuesChange 事件，需要手动更新config
+                                    dashboard.update_widget({ ...widget, config: form.getFieldsValue() })
+                                }}
+                            />
                         </Form.Item>
-                        <Form.Item name={[field.name, 'name']} label={t('名称')} initialValue={`${t('数据列')} ${field.key + 1}`}> 
+                        <Form.Item
+                            name={[field.name, 'name']}
+                            label={t('名称')}
+                            initialValue={col_names[0]}
+                        > 
                             <Input />
                         </Form.Item>
                         
@@ -194,7 +216,6 @@ function Series (props: { col_names: string[], single?: boolean }) {
                                     折线图可以选择线类型
                                  */ 
                                 }
-                                
                                 const ThresholdSelect = <>
                                     <Form.Item name={[field.name, 'threshold', 'value']} label={t('阈值')}>
                                         <InputNumber />
@@ -225,7 +246,6 @@ function Series (props: { col_names: string[], single?: boolean }) {
                                             <Input />
                                         </Form.Item>
                                         {ThresholdSelect}
-                                    
                                     </>
                                 else if (seriesType === WidgetChartType.LINE)
                                     return <>
@@ -399,6 +419,10 @@ export function YAxis (props: { col_names: string[], initial_values?: IYAxisItem
     </Form.List>
 }
 
+/** 
+    @param col_names 数据列名
+    @param single 是否可配置多个 y 轴
+    @returns  */
 export function AxisFormFields ({ col_names = [ ], single = false }: { col_names: string[], single?: boolean }) {
     return <Collapse items={[{
         key: 'x_axis',
@@ -415,7 +439,10 @@ export function AxisFormFields ({ col_names = [ ], single = false }: { col_names
     ]} />
 }
 
-
+/** 
+    @param col_names 数据列
+    @param single 是否可配置多数据列
+    @returns  */
 export function SeriesFormFields (props: { col_names: string[], single?: boolean }) {
     const { col_names, single = false } = props
     return <Collapse items={[
