@@ -100,12 +100,11 @@ export function DashBoard () {
 
 function Init ({ set_inited_state }: { set_inited_state }) {
     if (model.node_type === NodeType.computing)
-        return <div className='init'>
-            <Result
+        return <Result
                 status='warning'
+                className='interceptor'
                 title={t('数据面板未初始化，请联系管理员在数据节点完成初始化。')}
             />
-        </div>
     else if (model.admin)
         return <div className='init'>
             <Result
@@ -137,11 +136,10 @@ function Init ({ set_inited_state }: { set_inited_state }) {
             />
         </div>
     else
-        return <div className='init'>
-            <Result
+        return <Result
+                className='interceptor'
                 title={t('数据面板功能未初始化，请联系管理员初始化数据面板功能')}
             />
-        </div>
 }
 
 
