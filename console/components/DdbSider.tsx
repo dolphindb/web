@@ -123,7 +123,7 @@ export function DdbSider () {
                 {
                     key: 'computing',
                     icon: <MenuIcon view='computing' />,
-                    label: t('流计算监控'),
+                    label: t('流计算监控', { context: 'menu' }),
                 },
                 {
                     key: 'log',
