@@ -1647,16 +1647,14 @@ function Chart ({
                             xField='row'
                             yField='value'
                             seriesField='col'
-                            axis={{
-                                x: {
-                                    title: {
-                                        text: titles.x_axis
-                                    }
-                                },
-                                y: {
-                                    title: {
-                                        text: titles.y_axis
-                                    }
+                            xAxis={{
+                                title: {
+                                    text: titles.x_axis
+                                }
+                            }}
+                            yAxis={{
+                                title: {
+                                    text: titles.y_axis
                                 }
                             }}
                             isStack={stacking}
@@ -1668,17 +1666,15 @@ function Chart ({
                             data={[data, data]}
                             xField='row'
                             yField={col_labels as any}
-                            axis={{
-                                x: {
+                            xAxis={{
+                                title: {
+                                    text: titles.x_axis
+                                }
+                            }}
+                            yAxis={{
+                                [col_labels[0]]: {
                                     title: {
-                                        text: titles.x_axis
-                                    }
-                                },
-                                y: {
-                                    [col_labels[0]]: {
-                                        title: {
-                                            text: titles.y_axis
-                                        }
+                                        text: titles.y_axis
                                     }
                                 }
                             }}
@@ -1777,16 +1773,15 @@ function Chart ({
                         xField='row'
                         yField='value'
                         seriesField='col'
-                        axis={{
-                            x: {
-                                title: {
-                                    text: titles.x_axis
-                                }
-                            },
-                            y: {
-                                title: {
-                                    text: titles.y_axis
-                                }
+                        // @ts-ignore
+                        xAxis={{
+                            title: {
+                                text: titles.x_axis
+                            }
+                        }}
+                        yAxis={{
+                            title: {
+                                text: titles.y_axis
                             }
                         }}
                         stack={stacking}
@@ -1826,16 +1821,14 @@ function Chart ({
                         // 修复类型错误
                         binNumber={undefined}
                         { ... bin_count ? { binNumber: Number(bin_count.value) } : { } }
-                        axis={{
-                            x: {
-                                title: {
-                                    text: titles.x_axis
-                                }
-                            },
-                            y: {
-                                title: {
-                                    text: titles.y_axis
-                                }
+                        xAxis={{
+                            title: {
+                                text: titles.x_axis
+                            }
+                        }}
+                        yAxis={{
+                            title: {
+                                text: titles.y_axis
                             }
                         }}
                         // 修复类型错误
