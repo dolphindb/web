@@ -119,6 +119,7 @@ function Init ({ set_inited_state }: { set_inited_state }) {
                             <a 
                                 href='https://docs.dolphindb.cn/zh/tutorials/dashboard_tutorial.html'
                                 className='link'
+                                target='_blank'
                             >
                                 {t('文档')}
                             </a>
