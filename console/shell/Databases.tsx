@@ -903,7 +903,7 @@ export class Table implements DataNode {
         this.key = this.path = path
         this.name = path.slice(db.path.length, -1)
         
-        const enable_create_table = [NodeType.single, NodeType.data].includes(model.node_type)
+        const enable_create_table = [NodeType.computing, NodeType.single, NodeType.data].includes(model.node_type)
         
         const create_query: React.MouseEventHandler<HTMLSpanElement> = e => { 
             e.stopPropagation()
@@ -915,7 +915,7 @@ export class Table implements DataNode {
         this.title = <div className='table-title'>
             <span> {path.slice(db.path.length, -1)} </span>
             <div className='table-actions'>
-                <Tooltip title={enable_create_table ? t('新建查询') : t('仅单机节点和数据节点支持新建查询')} color='grey'>
+                <Tooltip title={enable_create_table ? t('新建查询') : t('仅单机节点、数据节点和计算节点支持新建查询')} color='grey'>
                     <Icon 
                         disabled={!enable_create_table}
                         className={enable_create_table ? '' : 'disabled'}
