@@ -43,12 +43,11 @@ export function DashBoard () {
     const [inited_state, set_inited_state] = useState(0)  // 0表示未查询到结果，1表示没有初始化，2表示已经初始化 
     
     if (node_type === NodeType.controller)
-        return <div className='init'>
-            <Result
-                status='warning'
-                title={t('控制节点不支持数据面板，请跳转到数据节点或计算节点查看。')}
-            />
-        </div>
+        return <Result
+            status='warning'
+            className='interceptor'
+            title={t('控制节点不支持数据面板，请跳转到数据节点或计算节点查看。')}
+        />
         
     useEffect(() => {
         (async () => {
