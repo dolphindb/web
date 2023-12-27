@@ -104,7 +104,7 @@ function Init ({ set_inited_state }: { set_inited_state }) {
         return <div className='init'>
             <Result
                 status='warning'
-                title={t('请切换至数据节点进行数据面板初始化。')}
+                title={t('数据面板未初始化，请联系管理员在数据节点完成初始化。')}
             />
         </div>
     else if (model.admin)
