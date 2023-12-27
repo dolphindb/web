@@ -114,7 +114,16 @@ function Init ({ set_inited_state }: { set_inited_state }) {
                         <p>{t('初始化操作将新增以下数据库表：')}</p>
                         <p>dfs://dashboardConfigDb/configDtl</p>
                         <p>{t('以及 11 个以 dashboard_ 开头的函数视图（FunctionView）')}</p>
-                        <p>{t('提示：初始化后请完善相关配置（详见文档），并重启服务器')}</p>
+                        <p>
+                            {t('提示：初始化后请完善用户相关配置（详见')}
+                            <a 
+                                href='https://docs.dolphindb.cn/zh/tutorials/dashboard_tutorial.html'
+                                className='link'
+                            >
+                                {t('文档')}
+                            </a>
+                            ）
+                        </p>
                     </>
                 }
                 extra={
