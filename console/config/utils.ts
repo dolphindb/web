@@ -1,4 +1,4 @@
-import { type NodeType, type ControllerConfig, type ClusterNode, type NodesConfig } from './type.js'
+import { type NodeType, type ControllerConfig, type ClusterNode, type NodesConfig, CONFIG_CLASSIFICATION } from './type.js'
 
 export const strs_2_controller_configs  = (strs: string[]): ControllerConfig[] =>
     strs.map(str => {
@@ -33,10 +33,19 @@ export const strs_2_nodes_config = (strs: string[]): NodesConfig[] =>
     strs.map(str => {
         const [rest, value] = str.split('=')
         const [first, second] = rest.split('.')
+        const qualifier =  second ? first : ''
+        const name = second ? second : first
+        let category = 'others'
+        let clses = Object.keys(CONFIG_CLASSIFICATION)
+        for (let cls of clses) 
+            if (CONFIG_CLASSIFICATION[cls].has(name))
+                category = cls
+        
         return {
             id: str,
-            qualifier: second ? first : '',
-            name: second ? second : first,
-            value
+            category,
+            qualifier,
+            name,
+            value,
         }
     })

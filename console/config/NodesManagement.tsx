@@ -32,7 +32,10 @@ export function NodesManagement () {
                 rules: [{
                     required: true,
                     message: t('请输入 host')
-                },
+                }, {
+                    pattern: /^(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])$/,
+                    message: t('请输入正确的 host')
+                }
             ]
             }
         },
@@ -42,6 +45,7 @@ export function NodesManagement () {
             key: 'port',
             fieldProps: {
                 placeholder: t('请输入 port'),
+                type: 'number',
             },
             formItemProps: {
                 rules: [{
@@ -137,6 +141,8 @@ export function NodesManagement () {
         )
     , [nodes])
    
+    console.log(model.nodes)
+    
     return <EditableProTable
                 rowKey='id'
                 columns={cols}
@@ -161,10 +167,9 @@ export function NodesManagement () {
                         console.log('request nodes', value)
                     })
                     const nodes = strs_2_nodes(value)
-                    console.log(nodes)
                     set_nodes(nodes)
                     return {
-                        data: nodes.filter(({ alias }) => alias.includes(search_key)),
+                        data: nodes.filter(({ alias }) => alias.toLowerCase().includes(search_key.toLowerCase())),
                         success: true,
                         total: value.length
                     }
@@ -174,20 +179,15 @@ export function NodesManagement () {
                         type='primary'
                         className='mr-btn'
                         icon={<ReloadOutlined />}
-                        onClick={async () => actionRef.current.reload()}
+                        onClick={async () => {
+                                await actionRef.current.reload()
+                                model.message.success(t('刷新成功'))
+                            }}
                         >
                             {t('刷新')}
                     </Button>,
-                    // <Button
-                    //     type='primary'
-                    //     className='mr-btn'
-                    //     icon={<PlusCircleOutlined />}
-                    //     onClick={async () => NiceModal.show(BatchAddNodesModal)}
-                    //     >
-                    //         {t('批量新增节点')}
-                    // </Button>,
                     <Search
-                        placeholder={t('请输入想要查找的节点')}
+                        placeholder={t('请输入想要查找的节点别名')}
                         value={search_key}
                         enterButton
                         onChange={e => { set_search_key(e.target.value) }}
@@ -200,12 +200,16 @@ export function NodesManagement () {
                         type: 'single',
                         
                         onSave: async (rowKey, data, row) => {
-                            const node_strs = _2_strs(nodes)
-                            let idx = node_strs.indexOf(rowKey as string)
-                            if (idx === -1) 
-                                await config.save_cluster_nodes([ data.host + ':' + data.port + ':' + data.alias + ',' + data.mode, ...node_strs])
-                            else 
-                                await config.save_cluster_nodes(node_strs.splice(idx, 1, data.host + ':' + data.port + ':' + data.alias + ',' + data.mode))
+                           model.execute(async () => {
+                                const node_strs = _2_strs(nodes)
+                                let idx = node_strs.indexOf(rowKey as string)
+                                if (idx === -1) 
+                                    await config.save_cluster_nodes([ data.host + ':' + data.port + ':' + data.alias + ',' + data.mode, ...node_strs])
+                                else 
+                                    await config.save_cluster_nodes(node_strs.toSpliced(idx, 1, data.host + ':' + data.port + ':' + data.alias + ',' + data.mode))
+                           })
+                           actionRef.current.reload()
+                           model.message.success(t('保存成功'))
                         },
                         onDelete: async (key, row) => delete_nodes(row.id),
                         deletePopconfirmMessage: t('确认删除此节点？'),
