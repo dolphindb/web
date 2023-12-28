@@ -21,9 +21,6 @@ import SvgLog from '../log.icon.svg'
 import SvgFactor from '../factor.icon.svg'
 import SvgComputing from '../computing/icons/computing.icon.svg'
 import SvgTools from '../icons/tools.icon.svg'
-import SvgAccess from '../access/icons/access.icon.svg'
-import SvgUser from '../access/icons/user.icon.svg'
-import SvgGroup from '../access/icons/group.icon.svg'
 
 
 const { Text, Link } = Typography
@@ -39,9 +36,6 @@ const svgs = {
     factor: SvgFactor,
     computing: SvgComputing,
     tools: SvgTools,
-    access: SvgAccess,
-    user: SvgUser,
-    group: SvgGroup
 }
 
 
@@ -140,23 +134,6 @@ export function DdbSider () {
                     icon: <MenuIcon view='computing' />,
                     label: t('流计算监控'),
                 },
-                ...model.node_type !== NodeType.computing && model.admin ? [{
-                    key: 'access',
-                    icon: <MenuIcon view='access' />,
-                    label: t('权限管理'),
-                    children: [
-                        {
-                            key: 'user',
-                            icon: <MenuIcon view='user' />,
-                            label: t('用户管理'),
-                        },
-                        {
-                            key: 'group',
-                            icon: <MenuIcon view='group' />,
-                            label: t('组管理'),
-                        },
-                    ]
-                }] : [ ],
                 {
                     key: 'log',
                     icon: <MenuIcon view='log' />,
@@ -167,21 +144,6 @@ export function DdbSider () {
                     icon: <MenuIcon view='factor' />,
                     label: <Link target='_blank' href={factor_href}>{t('因子平台')}</Link>
                 }] : [ ],
-                {
-                    key: 'tools',
-                    icon: <MenuIcon view='tools' />,
-                    label: t('运维工具'),
-                    children: [
-                        {
-                            key: 'iot-guide',
-                            label: '物联网库表创建引导'
-                        },
-                        {
-                            key: 'finance-guide',
-                            label: '金融库表创建引导'
-                        }
-                    ]
-                },
                 ... model.dev || model.cdn ? [
                     {
                         key: 'test',

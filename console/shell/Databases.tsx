@@ -34,7 +34,6 @@ import { Editor } from './Editor/index.js'
 import { CreateTableModal } from './CreateTableModal.js'
 import { AddColumnModal } from './AddColumnModal.js'
 import { AccessModal } from './AccessModal.js'
-import { QueryGuideModal } from './QueryGuide/index.js'
 
 import SvgDatabase from './icons/database.icon.svg'
 import SvgCreateDatabase from './icons/create-database.icon.svg'
@@ -920,26 +919,9 @@ export class Table implements DataNode {
         
         const enable_create_table = [NodeType.single, NodeType.data].includes(model.node_type)
         
-        const create_query: React.MouseEventHandler<HTMLSpanElement> = e => { 
-            e.stopPropagation()
-            if (enable_create_table)
-                NiceModal.show(QueryGuideModal, { database: this.db.path.slice(0, -1), table: this.name })
-            else
-                return
-        }
         this.title = <div className='table-title'>
             <span> {path.slice(db.path.length, -1)} </span>
-            <div className='table-actions'>
-                <Tooltip title={enable_create_table ? t('新建查询') : t('仅单机节点和数据节点支持新建查询')} color='grey'>
-                    <Icon 
-                        disabled={!enable_create_table}
-                        className={enable_create_table ? '' : 'disabled'}
-                        component={SvgQueryGuide}
-                        onClick={create_query} 
-                    />
-                
-                </Tooltip>
-            </div>
+            <div className='table-actions' />
         </div>
        
     }

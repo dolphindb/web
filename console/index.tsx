@@ -35,10 +35,6 @@ import { Job } from './job.js'
 import { Log } from './log.js'
 import { Computing } from './computing/index.js'
 import { DashBoard } from './dashboard/index.js'
-import { CreateGuide } from './guide/iot-guide/index.js'
-import { FinanceGuide } from './guide/finance-guide/index.js'
-import { User } from './access/index.js'
-import { Group } from './access/index.js'
 
 
 createRoot(
@@ -124,10 +120,6 @@ const views = {
     log: Log,
     computing: Computing,
     dashboard: DashBoard,
-    'iot-guide': CreateGuide,
-    'finance-guide': FinanceGuide,
-    user: User,
-    group: Group
 }
 
 
