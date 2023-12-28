@@ -120,6 +120,18 @@ export function NodesConfig () {
         )
     , [configs])
     
+    
+    const search_row = useCallback((record, index) => {
+        if (search_key === '')
+            return ''
+        // 根据 record 或 index 判断是否需要添加 highlight-row 类名
+        const { name } = record
+        console.log(name)
+        return name.toLowerCase().includes(search_key.toLowerCase()) ? 'high-light-row' : ''
+    }, [search_key ]) 
+      
+    
+    
     const items: CollapseProps['items'] = useMemo(() => {
         let clsed_config = Object.fromEntries([...Object.keys(CONFIG_CLASSIFICATION), 'others'].map(cfg => [cfg, [ ]]))
         for (let config of configs) {
@@ -137,6 +149,7 @@ export function NodesConfig () {
                         value={configs}
                         recordCreatorProps={false}
                         tableLayout='fixed'
+                        rowClassName={search_row}
                         editable={{
                             type: 'single',
                             onSave: async (rowKey, data, row) => {
@@ -183,7 +196,7 @@ export function NodesConfig () {
                         }}
                         
     />,
-    })) }, [configs ])
+    })) }, [configs, search_key ])
     
     return <div className='nodes-config-container'>
             <div className='toolbar'>
