@@ -17,11 +17,11 @@ def createDashboardConfigDb() {
     } else {
         dbTime = database(, partitionType = VALUE, partitionScheme = 2023.11M..2023.12M)
         dbId = database(, partitionType = VALUE, partitionScheme = ["user1", "user2"])
-        db = database(directory="dfs://dashboardConfigDb", partitionType = COMPO, partitionScheme = [dbTime, dbId], engine = 'OLAP')
+        db = database(directory="dfs://dashboardConfigDb", partitionType = COMPO, partitionScheme = [dbTime, dbId], engine = 'TSDB')
         tb = table(1:0, 
             ["id", "name", "owner", "config", "createTime", "editor", "updateTime", "isDeleted"],
             ["LONG", "SYMBOL", "SYMBOL", "BLOB", "TIMESTAMP", "SYMBOL", "TIMESTAMP", "BOOL"])
-        createPartitionedTable(db, tb, "configDtl", `updateTime`owner)
+        createPartitionedTable(db, tb, "configDtl", `updateTime`owner, sortColumns=`updateTime)
     }
 }
 
