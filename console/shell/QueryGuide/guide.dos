@@ -137,7 +137,6 @@ def dbms_executeQueryByPage(input_json){
 
 
 
-
 def dbms_generateEnumerate(input_json){
     input_dict = input_json.parseExpr().eval()
     dbName = input_dict["dbName"]
@@ -153,9 +152,11 @@ def dbms_generateEnumerate(input_json){
     enumList = query.parseExpr().eval()
     newEnumList = array(STRING, 0)
     if (type(enumList) in [4, 17, 18]){
-        enumList = string(enumList)
+        rawenumList = string(enumList)
         for(i in 1..size(enumList) ){
-            newEnumList.append!(strReplace(enumList[i-1], "\"", '\\\"')) 
+            if(enumList[i-1] != null and enumList[i-1] != ""){
+                newEnumList.append!(strReplace(rawenumList[i-1], "\"", '\\\"'))      
+            } 
         }
     } 
     if (size(enumList) == 0){
@@ -165,3 +166,4 @@ def dbms_generateEnumerate(input_json){
     }
     return res
 }
+
