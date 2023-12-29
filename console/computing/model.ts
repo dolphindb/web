@@ -6,6 +6,8 @@ class ComputingModel extends Model<ComputingModel> {
     
     inited = false
     
+    persistence_dir = ''
+    
     streaming_stat: Record<string, DdbObj>
     
     origin_streaming_engine_stat: Record<string, DdbObj>
@@ -15,12 +17,16 @@ class ComputingModel extends Model<ComputingModel> {
     shared_table_stat: DdbObj
     
     async init () {
-        await Promise.all([
-            this.def_get_persistence_stat(),
-            this.def_get_shared_table_stat()
-        ])
+        await this.get_persistence_dir()
+        if (this.persistence_dir)
+            await this.def_get_persistence_stat()
+        await this.def_get_shared_table_stat()
         
         this.set({ inited: true })
+    }
+    
+    async get_persistence_dir () {
+        this.set({ persistence_dir: (await model.ddb.call('getConfig', ['persistenceDir'], { urgent: true })).value as string })
     }
     
      /** 处理流计算引擎状态，给每一个引擎添加 engineType 字段，合并所有类型的引擎 */
@@ -33,7 +39,8 @@ class ComputingModel extends Model<ComputingModel> {
     }
     
     async get_streaming_table_stat () {
-        this.set({ persistent_table_stat: await model.ddb.call('get_persistence_stat', [ ], { urgent: true }) })
+        if (this.persistence_dir)
+            this.set({ persistent_table_stat: await model.ddb.call('get_persistence_stat', [ ], { urgent: true }) })
         this.set({ shared_table_stat: await model.ddb.call('get_shared_table_stat', [ ], { urgent: true }) }) 
     }
     
