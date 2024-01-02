@@ -147,16 +147,14 @@ def dbms_generateEnumerate(input_json){
     } else{
         colName = loadTable(dbName, tbName).schema().partitionColumnName
     }
-    query =  "EXEC " + col + ' FROM loadTable("' + dbName + '", "' + tbName +  '") WHERE sample(' + 
-    colName + ', 10) GROUP BY ' + col + ' LIMIT 1000'
+    query =  "EXEC distinct(" + col + ') FROM loadTable("' + dbName + '", "' + tbName +  '") WHERE sample(' + 
+    colName + ', 10) LIMIT 100'
     enumList = query.parseExpr().eval()
     newEnumList = array(STRING, 0)
     if (type(enumList) in [4, 17, 18]){
-        rawenumList = string(enumList)
+        enumList = string(enumList)
         for(i in 1..size(enumList) ){
-            if(enumList[i-1] != null and enumList[i-1] != ""){
-                newEnumList.append!(strReplace(rawenumList[i-1], "\"", '\\\"'))      
-            } 
+            newEnumList.append!(strReplace(enumList[i-1], "\"", '\\\"')) 
         }
     } 
     if (size(enumList) == 0){
