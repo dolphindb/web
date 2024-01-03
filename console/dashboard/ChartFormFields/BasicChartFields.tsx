@@ -16,6 +16,9 @@ import { StringColorPicker } from '../../components/StringColorPicker/index.js'
 import { BoolRadioGroup } from '../../components/BoolRadioGroup/index.js'
 import { StringDatePicker } from '../../components/StringDatePicker/index.js'
 import { StringTimePicker } from '../../components/StringTimePicker.js'
+import { AxisColSelect } from './components/AxisColSelect.js'
+import { get } from 'lodash'
+import { get_data_source } from '../DataSource/date-source.js'
 
 
 
@@ -32,6 +35,8 @@ export const DATE_SELECT_FORMAT = {
 
 // col 表示是否需要选择坐标列，x轴必须选择坐标列
 export function AxisItem ({ name_path, col_names = [ ], list_name, initial_values, col }: IAxisItem) { 
+    const { widget } = dashboard.use(['widget'])
+    
     return <>
         <Form.Item
             label={t('类型')}
@@ -55,6 +60,11 @@ export function AxisItem ({ name_path, col_names = [ ], list_name, initial_value
         <Form.Item label={t('字号')} name={ concat_name_path(name_path, 'fontsize')} initialValue={12}>
             <InputNumber addonAfter='px'/>
         </Form.Item>
+        
+        
+        {col && widget.type !== WidgetChartType.COMPOSITE_GRAPH && <AxisColSelect label={t('坐标列')} col_names={col_names} path={name_path} list_path={list_name} /> }
+        
+        
         {/* 类目轴从 col_name 中获取 data */}
         <FormDependencies dependencies={[concat_name_path(list_name, name_path, 'type')]}>
             {value => {
@@ -62,9 +72,6 @@ export function AxisItem ({ name_path, col_names = [ ], list_name, initial_value
                 switch (type) { 
                     case AxisType.VALUE:
                         return <>
-                            { col && <Form.Item name={concat_name_path(name_path, 'col_name')} label={t('坐标列')} initialValue={initial_values?.col_name ?? col_names?.[0]} >
-                                <Select options={convert_list_to_options(col_names)} allowClear/>
-                            </Form.Item> }
                             <Form.Item name={concat_name_path(name_path, 'with_zero')} label={t('强制包含零刻度')} initialValue={false}>
                                 <BoolRadioGroup />
                             </Form.Item>
@@ -77,18 +84,12 @@ export function AxisItem ({ name_path, col_names = [ ], list_name, initial_value
                         </>
                     case AxisType.LOG:
                         return <>
-                            <Form.Item name={concat_name_path(name_path, 'col_name')} label={t('坐标列')} initialValue={initial_values?.col_name ?? col_names?.[0]} >
-                                <Select options={convert_list_to_options(col_names)} allowClear/>
-                            </Form.Item>
                             <Form.Item name={concat_name_path(name_path, 'log_base')} label={t('底数')} initialValue={10}>
                                 <InputNumber />
                             </Form.Item>
                         </>
                     case AxisType.TIME:
                         return <>
-                            <Form.Item name={concat_name_path(name_path, 'col_name')} label={t('坐标列')} initialValue={initial_values?.col_name ?? col_names?.[0]} >
-                                <Select options={convert_list_to_options(col_names)} allowClear/>
-                            </Form.Item>
                             <Form.Item name={concat_name_path(name_path, 'time_format')} label={t('时间格式化')}>
                                 <Select options={format_time_options.slice(4)}/>
                             </Form.Item>
@@ -111,9 +112,6 @@ export function AxisItem ({ name_path, col_names = [ ], list_name, initial_value
                         </>
                     case AxisType.CATEGORY:
                         return <>
-                            <Form.Item name={concat_name_path(name_path, 'col_name')} label={t('坐标列')} initialValue={initial_values?.col_name ?? col_names?.[0]} >
-                                <Select options={convert_list_to_options(col_names)} allowClear/>
-                            </Form.Item>
                             <Form.Item name={concat_name_path(name_path, 'time_format')} label={t('时间格式化')}>
                                 <Select options={format_time_options} allowClear/>
                             </Form.Item>
@@ -133,6 +131,8 @@ function Series (props: { col_names: string[], single?: boolean }) {
     
     const type = useMemo(() => widget.type, [widget])
     
+    const is_mix_type = useMemo(() => [WidgetChartType.MIX, WidgetChartType.COMPOSITE_GRAPH].includes(type), [ type ])
+    
     const series = Form.useWatch('series')
     
     const is_heat_map = type === WidgetChartType.HEATMAP
@@ -146,24 +146,51 @@ function Series (props: { col_names: string[], single?: boolean }) {
                 col_name: col_names[0],
                 name: col_names[0],
                 yAxisIndex: 0,
-                type: type === WidgetChartType.MIX ? WidgetChartType.LINE : type,
+                type: is_mix_type ? WidgetChartType.LINE : type,
                 color: null
             }
         ]}>
         {(fields, { add, remove }) => { 
-            const items = fields.map(field => { 
+            const items = fields.map(field => {
+                // 选择数据列的时候，同步修改数据列名称
+                function on_select_col (val) { 
+                    form.setFieldValue(['series', field.name, 'name'], val)
+                    dashboard.update_widget({ ...widget, config: form.getFieldsValue() })
+                }
+                
                 const children = 
                     <div className='field-wrapper'>
-                        <Form.Item name={[field.name, 'col_name']} label={type === WidgetChartType.HEATMAP ? t('热力值列') : t('数据列')} initialValue={col_names?.[0]} >
-                            <Select
-                                options={col_names.map(item => ({ label: item, value: item }))}
-                                onSelect={val => {
-                                    form.setFieldValue(['series', field.name, 'name'], val)
-                                    // setFieldValue 不会触发 onValuesChange 事件，需要手动更新config
-                                    dashboard.update_widget({ ...widget, config: form.getFieldsValue() })
-                                }}
-                            />
-                        </Form.Item>
+                        {widget.type === WidgetChartType.COMPOSITE_GRAPH
+                            ? 
+                            <>
+                                <Form.Item label={t('数据源')} name={[field.name, 'data_source_id']}>
+                                    <Select options={
+                                        widget.source_id.map(id => {
+                                        const source = get_data_source(id)
+                                        return { label: source.name, value: source.id }
+                                    }) } />
+                                </Form.Item>
+                                <FormDependencies dependencies={['series', field.name, 'data_source_id']}>
+                                    {values => {
+                                        const data_source_id = get(values, ['series', field.name, 'data_source_id'])
+                                        const col_options = convert_list_to_options(get_data_source(data_source_id).cols)
+                                        return <>
+                                            <Form.Item label={t('X 轴数据列')} name={[field.name, 'x_col_name']}>
+                                                <Select options={col_options}/>
+                                            </Form.Item>
+                                            <Form.Item label={t('Y 轴数据列')}  name={[field.name, 'col_name']}>
+                                                <Select options={col_options} onSelect={on_select_col} />
+                                            </Form.Item>
+                                        </>
+                                    } }
+                                </FormDependencies>
+                            </>
+                            : <Form.Item name={[field.name, 'col_name']} label={type === WidgetChartType.HEATMAP ? t('热力值列') : t('数据列')} initialValue={col_names?.[0]} >
+                                <Select
+                                    options={convert_list_to_options(col_names)}
+                                    onSelect={on_select_col}
+                                />
+                            </Form.Item>}
                         <Form.Item
                             name={[field.name, 'name']}
                             label={t('名称')}
@@ -173,8 +200,8 @@ function Series (props: { col_names: string[], single?: boolean }) {
                         </Form.Item>
                         
                         {type !== WidgetChartType.HEATMAP && <>
-                            <Form.Item name={[field.name, 'type']} label={t('类型')} initialValue={type === WidgetChartType.MIX ? WidgetChartType.LINE : type}>
-                                <Select options={chart_type_options} disabled={type !== WidgetChartType.MIX} />
+                            <Form.Item name={[field.name, 'type']} label={t('类型')} initialValue={is_mix_type ? WidgetChartType.LINE : type}>
+                                <Select options={chart_type_options} disabled={!is_mix_type} />
                             </Form.Item>
                             <Form.Item name={[field.name, 'color']} label={t('颜色')} initialValue={null}>
                                 <StringColorPicker />

@@ -37,6 +37,9 @@ export interface ISeriesConfig {
     stack?: string
     end_label?: boolean
     end_label_formatter?: string
+    data_source_id: string
+    x_col_name: string
+    
     
     
     // 阈值与配色

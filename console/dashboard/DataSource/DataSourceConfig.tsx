@@ -13,7 +13,8 @@ import { StreamEditor } from './StreamEditor.js'
 
 import { dashboard } from '../model.js'
 import { type Widget } from '../model.js'
-import { data_sources,
+import {
+    data_sources,
     find_data_source_index, 
     get_data_source,
     save_data_source, 
@@ -45,6 +46,9 @@ export function DataSourceConfig (props: IProps, ref) {
     const { config } = dashboard.use(['config'])
     
     const [show_preview, set_show_preview] = useState(false) 
+    // 当前选择应用的数据源
+    const [selected_data_sources, set_selected_data_sources] = useState<string[]>([ ])
+    // 当前点击查看的数据源
     const [current_data_source, set_current_data_source] = useState(null)
     const [loading, set_loading] = useState('')
     
@@ -71,7 +75,7 @@ export function DataSourceConfig (props: IProps, ref) {
             })
             if (save_confirm)
                 no_save_flag.current = true 
-    }, [ ])
+        }, [ ])
     
     const handle_save = useCallback(async () => {
         await save_data_source(current_data_source)
@@ -108,7 +112,10 @@ export function DataSourceConfig (props: IProps, ref) {
             maskClosable={false}
             styles={{ mask: { backgroundColor: 'rgba(84,84,84,0.5)' } }}
             afterOpenChange={() => {
-                set_current_data_source(cloneDeep(data_sources[Math.max(widget?.source_id ? find_data_source_index(widget.source_id) : 0, 0)]))
+                let idx = 0
+                if (widget.source_id?.length)  
+                    idx = find_data_source_index(widget.source_id[0]) 
+                set_current_data_source(cloneDeep(data_sources[Math.max(0, idx)]))
             }}
             footer={
                 [
@@ -133,24 +140,33 @@ export function DataSourceConfig (props: IProps, ref) {
                         {t('预览')}
                     </Button>
                     : <div key='preview' />,
-                    <Button key='save' type='primary' loading={loading === 'save'} onClick={async () => {
-                        try {
-                            if (loading)
-                                return
-                            set_loading('save')
-                            await handle_save()
-                            if (widget) {
-                                if (!widget.source_id || !current_data_source.deps.has(widget.id)) {
-                                    await subscribe_data_source(widget, current_data_source.id)
-                                    dashboard.update_widget({ ...widget, source_id: current_data_source.id })
-                                }
-                                close()
-                                set_show_preview(false)
-                            } 
-                        } finally {
-                            set_loading('')
+                    <Button
+                        key='save'
+                        type='primary'
+                        loading={loading === 'save'}
+                        onClick={async () => {
+                            try {
+                                if (loading)
+                                    return
+                                set_loading('save')
+                                await handle_save()
+                                if (widget) {
+                                    if (!widget.source_id || !current_data_source.deps.has(widget.id)) {
+                                        await subscribe_data_source(widget, current_data_source.id)
+                                        if (!selected_data_sources.length) { 
+                                            model.message.warning(t('请选择数据源'))
+                                            return
+                                        }
+                                        dashboard.update_widget({ ...widget, source_id: selected_data_sources })
+                                    }
+                                    close()
+                                    set_show_preview(false)
+                                } 
+                            } finally {
+                                set_loading('')
+                            }
                         }
-                    }}>
+                    }>
                         {widget ? t('应用') : t('保存')}
                     </Button>,
                     <Button key='close' onClick={handle_close}>
@@ -168,6 +184,7 @@ export function DataSourceConfig (props: IProps, ref) {
                     no_save_flag={no_save_flag}
                     save_confirm={() => modal.confirm(save_confirm_config) }
                     handle_save={handle_save}
+                    on_select={ (keys: string[]) => { set_selected_data_sources(keys) }}
                     change_current_data_source={change_current_data_source}
                     change_current_data_source_property={change_current_data_source_property}
                 />

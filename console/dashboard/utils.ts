@@ -188,8 +188,15 @@ export function parse_code (code: string, data_source?: DataSource): string {
 
 
 
-export function concat_name_path (...paths: NamePath[]): NamePath {
-    return paths.filter(p => !isNil(p))
+export function concat_name_path (...paths: (NamePath | NamePath[])[]): NamePath {
+    return paths.reduce((prev, p) => {
+        if (isNil(p))
+            return prev
+        else if (Array.isArray(p))  
+            return prev.concat(p)
+        else
+            return prev.concat([p])
+    }, [ ])
 }
 
 export function convert_chart_config (widget: Widget, data_source: any[]) {
