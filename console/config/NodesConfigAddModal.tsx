@@ -51,9 +51,10 @@ export const NodesConfigAddModal = NiceModal.create((props: NodesConfigAddModalP
                             showSearch
                             optionFilterProp='label'
                             filterOption={filter_config}
-                            options={Object.keys(CONFIG_CLASSIFICATION).map(cfg_cls => ({
+                            // @ts-ignore
+                            options={Object.entries(CONFIG_CLASSIFICATION).map(([cfg_cls, configs]) => ({
                                 label: cfg_cls,
-                                options: CONFIG_CLASSIFICATION[cfg_cls].map(cfg => ({
+                                options: Array.from(configs).map(cfg => ({
                                     label: cfg,
                                     value: cfg
                                 }))

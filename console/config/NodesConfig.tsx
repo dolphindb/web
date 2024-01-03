@@ -1,14 +1,14 @@
 import { CloseCircleOutlined, DeleteOutlined, EditOutlined, PlusOutlined, ReloadOutlined, SaveOutlined } from '@ant-design/icons'
-import { EditableProTable, type ActionType, type ProColumns } from '@ant-design/pro-components'
+import { EditableProTable, type ProColumns } from '@ant-design/pro-components'
+import NiceModal from '@ebay/nice-modal-react'
 import { Button, Collapse, Input, Popconfirm, type CollapseProps } from 'antd'
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { t } from '../../i18n/index.js'
 import { model } from '../model.js'
-import { config } from './model.js'
-import { CONFIG_CLASSIFICATION, type NodesConfig, type ControllerConfig } from './type.js'
-import { _2_strs, strs_2_nodes_config } from './utils.js'
-import NiceModal from '@ebay/nice-modal-react'
 import { NodesConfigAddModal } from './NodesConfigAddModal.js'
+import { config } from './model.js'
+import { CONFIG_CLASSIFICATION, type ControllerConfig, type NodesConfig } from './type.js'
+import { _2_strs, strs_2_nodes_config } from './utils.js'
 
 const { Search } = Input
 
@@ -126,7 +126,6 @@ export function NodesConfig () {
             return ''
         // 根据 record 或 index 判断是否需要添加 highlight-row 类名
         const { name } = record
-        console.log(name)
         return name.toLowerCase().includes(search_key.toLowerCase()) ? 'high-light-row' : ''
     }, [search_key ]) 
       
