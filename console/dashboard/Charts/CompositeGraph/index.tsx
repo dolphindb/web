@@ -49,8 +49,6 @@ export function CompositeGraph (props: IProps) {
         }
     }, [ widget.config, widget, data_source ])
     
-    console.log(options, 'options')
-    
     return <ReactEChartsCore
             echarts={echarts}
             notMerge={dashboard.editing}

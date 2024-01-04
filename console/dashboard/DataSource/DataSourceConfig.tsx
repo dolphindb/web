@@ -11,7 +11,7 @@ import { DataSourceList } from './DataSourceList.js'
 import { SqlEditor } from './SqlEditor.js'
 import { StreamEditor } from './StreamEditor.js'
 
-import { dashboard } from '../model.js'
+import { WidgetChartType, dashboard } from '../model.js'
 import { type Widget } from '../model.js'
 import {
     data_sources,
@@ -151,14 +151,21 @@ export function DataSourceConfig (props: IProps, ref) {
                                 set_loading('save')
                                 await handle_save()
                                 if (widget) {
-                                    if (!widget.source_id || !current_data_source.deps.has(widget.id)) {
-                                        await subscribe_data_source(widget, current_data_source.id)
-                                        if (!selected_data_sources.length) { 
-                                            model.message.warning(t('请选择数据源'))
-                                            return
+                                    if (!widget?.source_id?.length || !current_data_source.deps.has(widget.id)) 
+                                        // 复合图
+                                        if (widget.type === WidgetChartType.COMPOSITE_GRAPH) {
+                                            if (!selected_data_sources.length) {
+                                                model.message.warning(t('请选择数据源'))
+                                                return
+                                            }
+                                            for (let id of selected_data_sources)
+                                                await subscribe_data_source(widget, id)
+                                            dashboard.update_widget({ ...widget, source_id: selected_data_sources })
                                         }
-                                        dashboard.update_widget({ ...widget, source_id: selected_data_sources })
-                                    }
+                                        else { 
+                                            await subscribe_data_source(widget, current_data_source.id)
+                                            dashboard.update_widget({ ...widget, source_id: [current_data_source.id] })
+                                        }
                                     close()
                                     set_show_preview(false)
                                 } 

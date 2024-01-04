@@ -315,12 +315,12 @@ export function convert_chart_config (widget: Widget, data_source: any[]) {
                 }
             }))
         }
-           
+        
         return {
             type: series.type?.toLowerCase(),
             name: series.name,
-            symbol: series.type === WidgetChartType.SCATTER ? series?.symbol ?? 'none' : 'none',
-            symbolSize: series.symbol_size,
+            symbol: series.type === WidgetChartType.SCATTER ? series?.symbol ?? 'circle' : 'none',
+            symbolSize: series.symbol_size ?? 10,
             stack: series.stack,
             endLabel: {
                 show: series.end_label,
