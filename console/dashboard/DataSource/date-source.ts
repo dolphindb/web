@@ -210,6 +210,7 @@ export function rename_data_source (source_id: string, new_name: string) {
 
 export async function subscribe_data_source (widget_option: Widget, source_id: string, message = true) {
     const data_source = get_data_source(source_id)
+    console.log(data_source, widget_option, 'source_id')
     
     if (widget_option.source_id && !widget_option.source_id.includes(source_id))
         unsubscribe_data_source(widget_option)  

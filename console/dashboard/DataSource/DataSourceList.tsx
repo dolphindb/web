@@ -56,7 +56,7 @@ export function DataSourceList ({
     const { widget } = dashboard.use(['widget'])
     
     
-    const checkable = useMemo(() => widget.type === WidgetChartType.COMPOSITE_GRAPH, [ ])
+    const checkable = useMemo(() => widget ? widget.type === WidgetChartType.COMPOSITE_GRAPH : false, [ widget ])
     
     const tree_ref = useRef(null)
     
@@ -163,8 +163,6 @@ export function DataSourceList ({
                                 return
                             if (no_save_flag.current && (await save_confirm()))  
                                 await handle_save()
-                            
-                                
                             no_save_flag.current = false
                             add_open()
                         }}
@@ -225,7 +223,7 @@ export function DataSourceList ({
                     {data_sources.length && 
                         <Tree
                             checkable={checkable}
-                            defaultCheckedKeys={typeof widget.source_id === 'string' ? [widget.source_id] : widget.source_id}
+                            defaultCheckedKeys={widget?.source_id ?? [ ]}
                             ref={tree_ref}
                             showIcon
                             height={450}

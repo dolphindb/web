@@ -54,6 +54,10 @@ export function DataSourceConfig (props: IProps, ref) {
     
     const no_save_flag = useRef(false)
     
+    useEffect(() => { 
+        set_selected_data_sources(widget?.source_id ?? [ ])
+    }, [widget?.source_id])
+    
     useEffect(() => {
        change_current_data_source('')
     }, [config?.id])
@@ -113,7 +117,7 @@ export function DataSourceConfig (props: IProps, ref) {
             styles={{ mask: { backgroundColor: 'rgba(84,84,84,0.5)' } }}
             afterOpenChange={() => {
                 let idx = 0
-                if (widget.source_id?.length)  
+                if (widget?.source_id?.length)  
                     idx = find_data_source_index(widget.source_id[0]) 
                 set_current_data_source(cloneDeep(data_sources[Math.max(0, idx)]))
             }}
@@ -151,21 +155,19 @@ export function DataSourceConfig (props: IProps, ref) {
                                 set_loading('save')
                                 await handle_save()
                                 if (widget) {
-                                    if (!widget?.source_id?.length || !current_data_source.deps.has(widget.id)) 
-                                        // 复合图
-                                        if (widget.type === WidgetChartType.COMPOSITE_GRAPH) {
-                                            if (!selected_data_sources.length) {
-                                                model.message.warning(t('请选择数据源'))
-                                                return
-                                            }
-                                            for (let id of selected_data_sources)
-                                                await subscribe_data_source(widget, id)
-                                            dashboard.update_widget({ ...widget, source_id: selected_data_sources })
+                                    if (widget.type === WidgetChartType.COMPOSITE_GRAPH) {
+                                        if (!selected_data_sources.length) {
+                                            dashboard.message.warning(t('请选择数据源'))
+                                            return
                                         }
-                                        else { 
-                                            await subscribe_data_source(widget, current_data_source.id)
-                                            dashboard.update_widget({ ...widget, source_id: [current_data_source.id] })
-                                        }
+                                        for (let id of selected_data_sources) 
+                                            await subscribe_data_source(widget, id)
+                                        dashboard.update_widget({ ...widget, source_id: selected_data_sources })
+                                    }
+                                    else { 
+                                        await subscribe_data_source(widget, current_data_source.id)
+                                        dashboard.update_widget({ ...widget, source_id: [current_data_source.id] })
+                                    }
                                     close()
                                     set_show_preview(false)
                                 } 
