@@ -38,29 +38,26 @@ echarts.registerTheme('my-theme', config.theme)
 export function DashBoard () {
     const { loading } = dashboard.use(['loading'])
     
-    const { node_type } = model.use(['node_type'])
+    const { node_type, is_v1, logined } = model.use(['node_type', 'is_v1', 'logined'])
     
-    const [inited_state, set_inited_state] = useState(0)  // 0表示未查询到结果，1表示没有初始化，2表示已经初始化 
-    
-    if (node_type === NodeType.controller)
-        return <Result
-            status='warning'
-            className='interceptor'
-            title={t('控制节点不支持数据面板，请跳转到数据节点或计算节点查看。')}
-        />
-        
+    const [inited_state, set_inited_state] = useState(0)  // 0表示未查询到结果或 server 版本为 v1，1表示没有初始化，2表示已经初始化，3 表示为控制节点
+     
     useEffect(() => {
         (async () => {
             try {
-                if (language !== 'zh')
+                if (language !== 'zh' || is_v1)
                     return
-                if (!model.logined) {
+                else if (!logined) {
                     model.goto_login()
                     return
                 }
-                const version = (await model.ddb.call('dashboard_get_version')).value
-                if (version === '1.0.0')
-                    set_inited_state(2) 
+                else if (node_type === NodeType.controller)
+                    set_inited_state(3)
+                else {
+                    const version = (await model.ddb.call('dashboard_get_version')).value
+                    if (version === '1.0.0')
+                        set_inited_state(2) 
+                }
             } catch (error) {
                 set_inited_state(1)
             }
@@ -91,7 +88,12 @@ export function DashBoard () {
                     </App>
                 </ConfigProvider>
             :
-                <Overview />)
+                <Overview />),
+        3: <Result
+                status='warning'
+                className='interceptor'
+                title={t('控制节点不支持数据面板，请跳转到数据节点或计算节点查看。')}
+            />
     }
     
     return component[inited_state]
