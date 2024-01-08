@@ -30,7 +30,6 @@ const { Text, Link } = Typography
 
 const svgs = {
     overview: SvgOverview,
-    config: SvgConfig,
     shell: SvgShell,
     dashboard: SvgDashboard,
     job: SvgJob,
@@ -113,11 +112,6 @@ export function DdbSider () {
                     key: 'overview-old',
                     icon: <MenuIcon view='overview' />,
                     label: t('集群总览'),
-                }] : [ ],
-                ...model.admin && node_type === NodeType.controller ? [{
-                    key: 'config',
-                    icon: <MenuIcon view='config'/>,
-                    label: t('配置管理')
                 }] : [ ],
                 {
                     key: 'shell',
