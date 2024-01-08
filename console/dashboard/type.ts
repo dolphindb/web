@@ -225,8 +225,3 @@ export interface IGaugeConfig {
         }
     }>
 }
-
-export enum DataSourceType { 
-    TABLE,
-    MATRIX,
-}

@@ -25,6 +25,7 @@ import {
 import { parse_code } from '../utils.js'
 import { model } from '../../model.js'
 import { t } from '../../../i18n/index.js'
+import { DdbForm } from 'dolphindb'
 
 const save_confirm_config = {
     cancelText: t('不保存'),
@@ -49,7 +50,7 @@ export function DataSourceConfig (props: IProps, ref) {
     // 当前选择应用的数据源
     const [selected_data_sources, set_selected_data_sources] = useState<string[]>([ ])
     // 当前点击查看的数据源
-    const [current_data_source, set_current_data_source] = useState(null)
+    const [current_data_source, set_current_data_source] = useState<DataSource>(null)
     const [loading, set_loading] = useState('')
     
     const no_save_flag = useRef(false)
@@ -96,6 +97,8 @@ export function DataSourceConfig (props: IProps, ref) {
         close()
         set_show_preview(false)
     }, [no_save_flag.current, handle_save, loading])
+    
+    
     
     return <>
         <Button
@@ -160,8 +163,10 @@ export function DataSourceConfig (props: IProps, ref) {
                                             dashboard.message.warning(t('请选择数据源'))
                                             return
                                         }
-                                        for (let id of selected_data_sources) 
+                                        for (let id of selected_data_sources)  
                                             await subscribe_data_source(widget, id)
+                                        
+                                            
                                         dashboard.update_widget({ ...widget, source_id: selected_data_sources })
                                     }
                                     else { 
@@ -209,11 +214,11 @@ export function DataSourceConfig (props: IProps, ref) {
                                         key: 'sql',
                                         disabled: loading !== ''
                                     },
-                                    {
+                                    ...(current_data_source.type === DdbForm.matrix ? [ ] : [{
                                         label: t('流数据表'),
                                         key: 'stream',
                                         disabled: loading !== ''
-                                    }
+                                    }])
                                 ]} 
                             />
                         </div>

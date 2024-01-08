@@ -1,6 +1,6 @@
 import { Model } from 'react-object-model'
 import { genid } from 'xshell/utils.browser.js'
-import { DDB, type DdbObj, type DdbValue } from 'dolphindb/browser.js'
+import { DDB, DdbForm, type DdbObj, type DdbValue } from 'dolphindb/browser.js'
 import { cloneDeep } from 'lodash'
 import copy from 'copy-to-clipboard'
 
@@ -9,7 +9,7 @@ import { sql_formatter, get_cols, stream_formatter, parse_code, safe_json_parse 
 import { model, storage_keys } from '../../model.js'
 import { get_variable_copy_infos, paste_variables, unsubscribe_variable } from '../Variable/variable.js'
 import { t } from '../../../i18n/index.js'
-import { DataSourceType } from '../type.js'
+import { ConsoleSqlOutlined } from '@ant-design/icons'
 
 
 export type DataType = { }[]
@@ -19,7 +19,7 @@ export type DataSourcePropertyType = string | number | boolean | string[] | Data
 export type ExportDataSource = {
     id: string
     name: string
-    type: DataSourceType
+    type: DdbForm
     mode: string
     max_line: number
     data: DataType 
@@ -52,7 +52,7 @@ export type ExportDataSource = {
 export class DataSource extends Model<DataSource>  {
     id: string
     name: string
-    type: DataSourceType
+    type: DdbForm
     mode: 'sql' | 'stream' = 'sql'
     max_line: number = null
     data: DataType = [ ]
@@ -81,7 +81,7 @@ export class DataSource extends Model<DataSource>  {
     ip = ''
     
     
-    constructor (id: string, name: string, type: DataSourceType) {
+    constructor (id: string, name: string, type: DdbForm) {
         super()
         this.id = id
         this.name = name
@@ -95,7 +95,7 @@ export function find_data_source_index (source_id: string): number {
 } 
 
 export function get_data_source (source_id: string): DataSource {
-    return data_sources[find_data_source_index(source_id)] || new DataSource('', '', DataSourceType.TABLE)
+    return data_sources[find_data_source_index(source_id)] || new DataSource('', '', DdbForm.table)
 }
 
 export async function save_data_source ( new_data_source: DataSource, code?: string, filter_column?: string, filter_expression?: string ) {
@@ -123,15 +123,19 @@ export async function save_data_source ( new_data_source: DataSource, code?: str
                 
                 const parsed_code = parse_code(new_data_source.code, new_data_source)
                 const { type, result } = await dashboard.execute_code(parsed_code, new_data_source.ddb)
-                
+                console.log(new_data_source, 'new_data_source')
                 switch (type) {
                     case 'success':
                         if (typeof result === 'object' && result) {
-                            // 暂时只支持table
+                            if (result.form !== new_data_source.type) { 
+                                dashboard.message.error(t('sql 执行得到的数据类型与数据源类型不符，请修改'))
+                                return
+                            }
+                            // 暂时只支持table、matrix
                             new_data_source.data = sql_formatter(result, new_data_source.max_line)
                             new_data_source.cols = get_cols(result)
                         }
-                        if (code === undefined)
+                        if (code === undefined)  
                             dashboard.message.success(`${data_source.name} ${t('保存成功')}`)
                         break  
                     case 'error':
@@ -196,7 +200,7 @@ function check_name (source_id: string, new_name: string) {
 }
 
 
-export function create_data_source  (new_name: string, type: DataSourceType):  DataSource  {
+export function create_data_source  (new_name: string, type: DdbForm):  DataSource  {
     const id = String(genid())
     const new_data_source = new DataSource(id, new_name, type)
     data_sources.unshift(new_data_source)
@@ -265,9 +269,8 @@ export async function execute (source_id: string) {
     
     switch (data_source.mode) {
         case 'sql':
-            try {
+            // try {
                 const { type, result } = await dashboard.execute_code(parse_code(data_source.code, data_source), data_source.ddb || model.ddb)
-                // console.log(type, data_source.name)
                 switch (type) {
                     case 'success':
                         // 暂时只支持table
@@ -283,7 +286,6 @@ export async function execute (source_id: string) {
                                 cols: [ ],
                                 error_message: ''
                             })
-                            
                         if (data_source.deps.size && !data_source.timer && data_source.auto_refresh) 
                             create_interval(data_source)
                         
@@ -291,19 +293,21 @@ export async function execute (source_id: string) {
                     case 'error':
                         throw new Error(result as string) 
                 }
-            } catch (error) {
-                // 切换 dashboard 会关闭轮询的连接，若该连接中仍有排队的任务，此处会抛出“连接被关闭”的错误，此处手动过滤
-                if (!data_source.auto_refresh || data_source.ddb)
-                    dashboard.message.error(`${error.message} ${data_source.name}`)
-                data_source.set({
-                    data: [ ],
-                    cols: [ ],
-                    error_message: error.message
-                })
-                clear_data_source(data_source)
-            } finally {
-                break
-            }
+            // }
+            // catch (error) {
+            //     // 切换 dashboard 会关闭轮询的连接，若该连接中仍有排队的任务，此处会抛出“连接被关闭”的错误，此处手动过滤
+            //     if (!data_source.auto_refresh || data_source.ddb)
+            //         dashboard.message.error(`${error.message} ${data_source.name}`)
+            //     data_source.set({
+            //         data: [ ],
+            //         cols: [ ],
+            //         error_message: error.message
+            //     })
+            //     clear_data_source(data_source)
+            // }
+            // finally {
+            //     break
+            // }
         case 'stream':
             if (data_source.deps.size) 
                 await subscribe_stream(data_source)

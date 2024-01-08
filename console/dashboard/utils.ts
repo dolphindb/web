@@ -70,12 +70,25 @@ function formatter (type: DdbType, values, le: boolean, index: number, options =
     }
 }
 
-export function sql_formatter (obj: DdbObj<DdbValue>, max_line: number): Array<{}> {
+export function sql_formatter (obj: DdbObj<DdbValue>, max_line: number): any {
     switch (obj.form) {
         case DdbForm.matrix:
+            // 行数、列数
             const { cols: col_num, rows: row_num, value } = obj
+            // 行标签、列标签与数据
             const { cols: col_label, rows: row_babel, data } = value as DdbMatrixValue
-            return [ ]
+            let matrix_data = [ ]
+            for (let i = 0;  i < row_num;  i++) { 
+                let row_data = [ ]
+                for (let j = 0;  j < col_num;  j++)
+                    row_data.push(data[i + row_num * j])
+                matrix_data.push(row_data)
+            }
+            return {
+                data: matrix_data,
+                col_label: col_label ?? Array.from(new Array(col_num).keys()),
+                row_babel: row_babel ?? Array.from(new Array(row_num).keys())
+            }
         case DdbForm.table:
             const array_vectors = { }
             let rows = new Array()
@@ -162,6 +175,8 @@ export function stream_formatter (obj: DdbObj<DdbValue>, max_line: number, cols:
 }
 
 export function get_cols (obj: DdbObj<DdbValue>): Array<string> {
+    if (obj.form !== DdbForm.table)
+        return [ ]
     const cols = [ ]
     for (let i = 0;  i < obj.cols;  i++) 
         cols.push(obj.value[i].name)
@@ -536,4 +551,14 @@ export function check_name (new_name: string) {
         return t('dashboard 名称中不允许包含 "/" 或 "\\" ')
     else if (dashboard.configs.find(({ name, permission }) => name === new_name && permission === DashboardPermission.own)) 
         return t('名称重复，请重新输入')    
+}
+
+
+export function get_chart_data_type (chart_type: WidgetChartType) {
+    switch (chart_type) { 
+        case WidgetChartType.HEATMAP:
+            return DdbForm.matrix
+        default: 
+            return DdbForm.table
+    }
 }
