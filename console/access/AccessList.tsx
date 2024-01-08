@@ -101,6 +101,7 @@ export function AccessList ({
             title: TABLE_NAMES[category],
             dataIndex: 'name',
             key: 'name',
+            width: 500
           
         },
         ... category !== 'script' ? ACCESS_TYPE[category].filter(t => t !== 'TABLE_WRITE').map(type => ({
