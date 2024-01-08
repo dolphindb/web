@@ -9,6 +9,7 @@ import { sql_formatter, get_cols, stream_formatter, parse_code, safe_json_parse 
 import { model, storage_keys } from '../../model.js'
 import { get_variable_copy_infos, paste_variables, unsubscribe_variable } from '../Variable/variable.js'
 import { t } from '../../../i18n/index.js'
+import { DataSourceType } from '../type.js'
 
 
 export type DataType = { }[]
@@ -18,6 +19,7 @@ export type DataSourcePropertyType = string | number | boolean | string[] | Data
 export type ExportDataSource = {
     id: string
     name: string
+    type: DataSourceType
     mode: string
     max_line: number
     data: DataType 
@@ -50,6 +52,7 @@ export type ExportDataSource = {
 export class DataSource extends Model<DataSource>  {
     id: string
     name: string
+    type: DataSourceType
     mode: 'sql' | 'stream' = 'sql'
     max_line: number = null
     data: DataType = [ ]
@@ -77,10 +80,12 @@ export class DataSource extends Model<DataSource>  {
     /** stream 模式专用 */
     ip = ''
     
-    constructor (id: string, name: string) {
+    
+    constructor (id: string, name: string, type: DataSourceType) {
         super()
         this.id = id
         this.name = name
+        this.type = type
     }
 }
 
@@ -90,7 +95,7 @@ export function find_data_source_index (source_id: string): number {
 } 
 
 export function get_data_source (source_id: string): DataSource {
-    return data_sources[find_data_source_index(source_id)] || new DataSource('', '')
+    return data_sources[find_data_source_index(source_id)] || new DataSource('', '', DataSourceType.TABLE)
 }
 
 export async function save_data_source ( new_data_source: DataSource, code?: string, filter_column?: string, filter_expression?: string ) {
@@ -191,11 +196,11 @@ function check_name (source_id: string, new_name: string) {
 }
 
 
-export function create_data_source  (new_name: string):  string  {
+export function create_data_source  (new_name: string, type: DataSourceType):  DataSource  {
     const id = String(genid())
-    check_name(id, new_name)
-    data_sources.unshift(new DataSource(id, new_name))
-    return id
+    const new_data_source = new DataSource(id, new_name, type)
+    data_sources.unshift(new_data_source)
+    return new_data_source
 }
 
 
@@ -456,7 +461,7 @@ export async function import_data_sources (_data_sources: ExportDataSource[]) {
     data_sources = [ ]
     
     await Promise.all(_data_sources.map(async data_source => new Promise(async (resolve, reject) => {
-        const import_data_source = new DataSource(data_source.id, data_source.name)
+        const import_data_source = new DataSource(data_source.id, data_source.name, data_source.type)
         Object.assign(import_data_source, data_source, { deps: new Set(data_source.deps), variables: import_data_source.variables })
         data_sources.push(import_data_source)
         await save_data_source(import_data_source, import_data_source.code, import_data_source.filter_column, import_data_source.filter_expression)
@@ -532,7 +537,7 @@ export async function paste_data_source (event): Promise<boolean> {
     
     await paste_variables(event)
         
-    const import_data_source = new DataSource(_data_source.id, _data_source.name)
+    const import_data_source = new DataSource(_data_source.id, _data_source.name, _data_source.type)
     Object.assign(import_data_source, _data_source, { deps: import_data_source.deps, variables: import_data_source.variables })
     data_sources.unshift(import_data_source)
     await save_data_source(import_data_source, import_data_source.code, import_data_source.filter_column, import_data_source.filter_expression)

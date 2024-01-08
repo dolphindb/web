@@ -1,5 +1,5 @@
 import { type NamePath } from 'antd/es/form/interface'
-import { type DdbObj, DdbForm, DdbType, nulls, type DdbValue, format, type InspectOptions } from 'dolphindb/browser.js'
+import { type DdbObj, DdbForm, DdbType, nulls, type DdbValue, format, type InspectOptions, type DdbMatrixValue } from 'dolphindb/browser.js'
 import { is_decimal_null_value } from 'dolphindb/shared/utils/decimal-type.js'
 import { isNil, isNumber, pickBy, uniq } from 'lodash'
 import { createRef } from 'react'
@@ -13,6 +13,7 @@ import { subscribe_data_source, type DataSource } from './DataSource/date-source
 import { AxisType, MarkPresetType } from './ChartFormFields/type.js'
 import { find_variable_by_name, get_variable_copy_infos, get_variable_value, paste_variables, subscribe_variable } from './Variable/variable.js'
 import { t } from '../../i18n/index.js'
+import { type DdbMatrixObj } from 'dolphindb'
 
 
 export function format_time (time: string, format: string) {
@@ -71,6 +72,10 @@ function formatter (type: DdbType, values, le: boolean, index: number, options =
 
 export function sql_formatter (obj: DdbObj<DdbValue>, max_line: number): Array<{}> {
     switch (obj.form) {
+        case DdbForm.matrix:
+            const { cols: col_num, rows: row_num, value } = obj
+            const { cols: col_label, rows: row_babel, data } = value as DdbMatrixValue
+            return [ ]
         case DdbForm.table:
             const array_vectors = { }
             let rows = new Array()

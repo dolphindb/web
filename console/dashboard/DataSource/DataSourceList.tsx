@@ -1,11 +1,12 @@
-import { type MutableRefObject, type ReactNode, createElement, useEffect, useRef, useState, useMemo } from 'react'
-import { Input, Modal, Tree } from 'antd'
+import { type MutableRefObject, type ReactNode, createElement, useEffect, useRef, useState, useMemo, useCallback } from 'react'
+import { Form, Input, Modal, Radio, Tree } from 'antd'
 import { CopyOutlined, DatabaseOutlined, DeleteOutlined, EditOutlined, FileOutlined } from '@ant-design/icons'
-import { use_modal } from 'react-object-model/hooks.js'
 
 import { WidgetChartType, dashboard } from '../model.js'
 import { create_data_source, data_sources, delete_data_source, rename_data_source, type DataSource, type DataSourcePropertyType, copy_data_source, paste_data_source } from './date-source.js'
 import { t } from '../../../i18n/index.js'
+import NiceModal, { useModal } from '@ebay/nice-modal-react'
+import { DataSourceType } from '../type.js'
 
 
 interface PropsType {
@@ -29,6 +30,49 @@ interface MenuItemType {
     icon: ReactNode
     title: ReactNode
 }
+
+interface ICreateDataSourceModalProps { 
+    on_after_create: (new_data_source: DataSource) => void
+}
+
+export const CreateDataSourceModal = NiceModal.create((props: ICreateDataSourceModalProps) => {
+    const { on_after_create } = props
+    const modal = useModal()
+    const [form] = Form.useForm()
+    
+    const on_create = useCallback(async () => {
+        try {
+            const { name, type } = await form.validateFields()
+            const new_data_source = create_data_source(name, type)
+            on_after_create(new_data_source)
+            modal.hide()
+        } catch (error) {
+            dashboard.message.error(error.message)
+        }
+     }, [on_after_create])
+    
+    return <Modal
+        destroyOnClose
+        open={modal.visible}
+        maskClosable={false}
+        onCancel={modal.hide}
+        afterClose={modal.remove}
+        onOk={on_create}
+        title={t('创建数据源')}
+    >
+        <Form form={form}  labelCol={{ span: 6 }} labelAlign='left'>
+            <Form.Item label={t('名称')} name='name' rules={[{ required: true, message: '请输入名称' }]}>
+                <Input placeholder={t('请输入数据源的名称')} />
+            </Form.Item>
+            <Form.Item label={t('数据类型')} name='type' initialValue={DataSourceType.TABLE} required>
+                <Radio.Group>
+                    <Radio value={DataSourceType.TABLE}>{t('表格')}</Radio>
+                    <Radio value={DataSourceType.MATRIX}>{t('矩阵')}</Radio>
+                </Radio.Group>
+            </Form.Item>
+        </Form>
+    </Modal>
+})
 
 export function DataSourceList ({
     loading,
@@ -60,7 +104,7 @@ export function DataSourceList ({
     
     const tree_ref = useRef(null)
     
-    const { visible: add_visible, open: add_open, close: add_close } = use_modal()
+    // const { visible: add_visible, open: add_open, close: add_close } = use_modal()
     
     // 监听 ctrl v事件，复制组件
     useEffect(() => { 
@@ -117,43 +161,20 @@ export function DataSourceList ({
         set_menu_items([...menu_items])
     }
     
+    const on_after_create = useCallback((new_data_source: DataSource) => { 
+        set_menu_items([
+            {
+                key: new_data_source.id,
+                icon: createElement(DatabaseOutlined),
+                title: new_data_source.name
+            },
+            ...menu_items
+        ])
+        set_current_select(new_data_source.id)
+        change_current_data_source(new_data_source.id)
+    }, [ menu_items ])
+    
     return <>
-            <Modal
-                style={{ top: '200px' }}
-                open={add_visible}
-                maskClosable={false}
-                onCancel={() => {
-                    add_close()
-                    set_new_name('')
-                }}
-                onOk={() => {
-                    try {
-                        const id = create_data_source(new_name)
-                        const new_menu_items = [
-                            {
-                                key: id,
-                                icon: createElement(DatabaseOutlined),
-                                title: new_name
-                            },
-                            ...menu_items
-                        ]
-                        set_menu_items(new_menu_items)
-                        set_current_select(id)
-                        set_new_name('')
-                        change_current_data_source(id)
-                        add_close()
-                    } catch (error) {
-                        dashboard.message.error(error.message)
-                    }
-                }}
-                closeIcon={false}
-                title={t('新数据源')}>
-                <Input 
-                    value={new_name}
-                    placeholder={t('请输入新数据源的名称')}
-                    onChange={event => { set_new_name(event.target.value) }}
-                />
-            </Modal>
             <div className='config-data-source-list'>
                 <div className='data-source-list-top'>
                     <div
@@ -164,7 +185,7 @@ export function DataSourceList ({
                             if (no_save_flag.current && (await save_confirm()))  
                                 await handle_save()
                             no_save_flag.current = false
-                            add_open()
+                            NiceModal.show(CreateDataSourceModal, { on_after_create })
                         }}
                     >
                         <FileOutlined className='data-source-list-top-item-icon' />
