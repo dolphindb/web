@@ -185,7 +185,7 @@ function Series (props: { col_names: string[], single?: boolean }) {
                                     } }
                                 </FormDependencies>
                             </>
-                            : <Form.Item name={[field.name, 'col_name']} label={type === WidgetChartType.HEATMAP ? t('热力值列') : t('数据列')} initialValue={col_names?.[0]} >
+                            : <Form.Item name={[field.name, 'col_name']} label={t('数据列')} initialValue={col_names?.[0]} >
                                 <Select
                                     options={convert_list_to_options(col_names)}
                                     onSelect={on_select_col}
@@ -213,7 +213,7 @@ function Series (props: { col_names: string[], single?: boolean }) {
                         {/* 数据关联的y轴选择 */}
                         {!is_heat_map && <FormDependencies dependencies={['yAxis']}>
                             { value => {
-                                const { yAxis, series } = value
+                                const { yAxis } = value
                                 const options = yAxis.map((item, idx) => ({
                                     value: idx,
                                     label: item?.name
