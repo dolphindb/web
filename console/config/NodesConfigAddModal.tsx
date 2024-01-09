@@ -8,10 +8,11 @@ import { model } from '../model.js'
 
 interface NodesConfigAddModalProps {
     configs: string[]
+    refresher: () => void
 }
 
 export const NodesConfigAddModal = NiceModal.create((props: NodesConfigAddModalProps) => {
-    const { configs } = props
+    const { configs, refresher } = props
     
     const modal = NiceModal.useModal()
     
@@ -50,6 +51,7 @@ export const NodesConfigAddModal = NiceModal.create((props: NodesConfigAddModalP
                         <AutoComplete 
                             showSearch
                             optionFilterProp='label'
+                            // @ts-ignore
                             filterOption={filter_config}
                             // @ts-ignore
                             options={Object.entries(CONFIG_CLASSIFICATION).map(([cfg_cls, configs]) => ({
@@ -81,14 +83,15 @@ export const NodesConfigAddModal = NiceModal.create((props: NodesConfigAddModalP
                         type='primary' 
                         htmlType='submit'
                         onClick={
-                            () => {
-                                model.execute(
+                            async () => {
+                                await model.execute(
                                     async () => {
                                         const { qualifier, name, value } = await add_config_form.validateFields()
                                         const new_config = (qualifier ? qualifier + '.' : '') + name + '=' + value 
                                         await config.save_nodes_config([new_config, ...configs])
                                     }
                                 )
+                                refresher()
                                 model.message.success(t('保存成功'))
                                 modal.hide()
                             }

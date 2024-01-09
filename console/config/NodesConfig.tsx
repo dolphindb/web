@@ -216,7 +216,7 @@ export function NodesConfig () {
                     type='primary'
                     className='mr-btn'
                     icon={<PlusOutlined/>}
-                    onClick={async () => NiceModal.show(NodesConfigAddModal, { configs: _2_strs(configs) }) }
+                    onClick={async () => NiceModal.show(NodesConfigAddModal, { configs: _2_strs(configs), refresher: () => { set_refresher({ }) } }) }
                     >
                         {t('新增配置')}
                 </Button>
