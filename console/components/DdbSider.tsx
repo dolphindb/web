@@ -40,7 +40,7 @@ function MenuIcon ({ view }: { view: DdbModel['view'] }) {
 }
 
 export function DdbSider () {
-    const { view, node_type, collapsed, logined, login_required } = model.use(['view', 'node_type', 'collapsed', 'logined', 'login_required'])
+    const { view, node_type, collapsed, logined, login_required, is_v1 } = model.use(['view', 'node_type', 'collapsed', 'logined', 'login_required', 'is_v1'])
     
     
     const factor_href = useMemo(() => {
@@ -110,7 +110,7 @@ export function DdbSider () {
                     icon: <MenuIcon view='shell' />,
                     label: t('交互编程'),
                 },
-                ... language === 'zh' ? [ {
+                ... (language === 'zh' && !is_v1 ) ? [ {
                     key: 'dashboard',
                     icon: <MenuIcon view='dashboard' />,
                     label: t('数据面板'),
@@ -123,7 +123,7 @@ export function DdbSider () {
                 {
                     key: 'computing',
                     icon: <MenuIcon view='computing' />,
-                    label: t('流计算监控'),
+                    label: t('流计算监控', { context: 'menu' }),
                 },
                 {
                     key: 'log',

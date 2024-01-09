@@ -101,7 +101,7 @@ function Performance () {
                 {Number(node.diskWriteRate).to_fsize_str()}/s
             </Descriptions.Item>
             <Descriptions.Item label={t('前一分钟读磁盘量')}>
-                {Number(node.lastMinuteWriteVolume).to_fsize_str()}
+                {Number(node.lastMinuteReadVolume).to_fsize_str()}
             </Descriptions.Item>
             <Descriptions.Item label={t('前一分钟写磁盘量')}>
                 {Number(node.lastMinuteWriteVolume).to_fsize_str()}

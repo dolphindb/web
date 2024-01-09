@@ -38,29 +38,26 @@ echarts.registerTheme('my-theme', config.theme)
 export function DashBoard () {
     const { loading } = dashboard.use(['loading'])
     
-    const { node_type } = model.use(['node_type'])
+    const { node_type, is_v1, logined } = model.use(['node_type', 'is_v1', 'logined'])
     
-    const [inited_state, set_inited_state] = useState(0)  // 0表示未查询到结果，1表示没有初始化，2表示已经初始化 
-    
-    if (node_type === NodeType.controller)
-        return <Result
-            status='warning'
-            className='interceptor'
-            title={t('控制节点不支持数据面板，请跳转到数据节点或计算节点查看。')}
-        />
-        
+    const [inited_state, set_inited_state] = useState(0)  // 0表示未查询到结果或 server 版本为 v1，1表示没有初始化，2表示已经初始化，3 表示为控制节点
+     
     useEffect(() => {
         (async () => {
             try {
-                if (language !== 'zh')
+                if (language !== 'zh' || is_v1)
                     return
-                if (!model.logined) {
+                else if (!logined) {
                     model.goto_login()
                     return
                 }
-                const version = (await model.ddb.call('dashboard_get_version')).value
-                if (version === '1.0.0')
-                    set_inited_state(2) 
+                else if (node_type === NodeType.controller)
+                    set_inited_state(3)
+                else {
+                    const version = (await model.ddb.call('dashboard_get_version')).value
+                    if (version === '1.0.0')
+                        set_inited_state(2) 
+                }
             } catch (error) {
                 set_inited_state(1)
             }
@@ -69,7 +66,7 @@ export function DashBoard () {
     
     const component = {
         0: <></>,
-        1: <Init is_admin={model.admin} set_inited_state={set_inited_state}/>,
+        1: <Init set_inited_state={set_inited_state}/>,
         2: (new URLSearchParams(location.search).has('dashboard') ?
                 <ConfigProvider
                     theme={{
@@ -91,48 +88,70 @@ export function DashBoard () {
                     </App>
                 </ConfigProvider>
             :
-                <Overview />)
+                <Overview />),
+        3: <Result
+                status='warning'
+                className='interceptor'
+                title={t('控制节点不支持数据面板，请跳转到数据节点或计算节点查看。')}
+            />
     }
     
     return component[inited_state]
 }
 
 
-function Init ({ is_admin, set_inited_state }: { is_admin: boolean, set_inited_state }) {
-    return <div className='init'>
-        {is_admin
-        ? <Result
-            title={t('请点击下方按钮完成初始化')}
-            subTitle={
-                <>
-                    <p>{t('初始化操作将新增以下数据库表：')}</p>
-                    <p>dfs://dashboardConfigDb/configDtl</p>
-                    <p>{t('以及 11 个以 dashboard_ 开头的函数视图（FunctionView）')}</p>
-                    <p>{t('提示：初始化后请完善相关配置（详见文档），并重启服务器')}</p>
-                </>
-            }
-            extra={
-                <Popconfirm
-                    title={t('你确定要初始化数据面板功能吗？')}
-                    onConfirm={async () => { 
-                        model.execute(async () => {
-                            await model.ddb.eval(backend)
-                            set_inited_state(2)
-                            model.message.success(t('初始化数据面板成功！'))
-                        }) 
-                    }}
-                    okText={t('确定')}
-                    cancelText={t('取消')}
-                    >
-                    <Button type='primary' size='large'>{t('初始化')}</Button>
-                </Popconfirm>
-            }
-        />
-        : <Result
-            title={t('数据面板功能未初始化，请联系管理员初始化数据面板功能')}
-        />}
-    </div>
-        
+function Init ({ set_inited_state }: { set_inited_state }) {
+    if (model.node_type === NodeType.computing)
+        return <Result
+                status='warning'
+                className='interceptor'
+                title={t('数据面板未初始化，请联系管理员在数据节点完成初始化。')}
+            />
+    else if (model.admin)
+        return <div className='init'>
+            <Result
+                title={t('请点击下方按钮完成初始化')}
+                subTitle={
+                    <>
+                        <p>{t('初始化操作将新增以下数据库表：')}</p>
+                        <p>dfs://dashboardConfigDb/configDtl</p>
+                        <p>{t('以及 11 个以 dashboard_ 开头的函数视图（FunctionView）')}</p>
+                        <p>
+                            {t('提示：初始化后请完善用户相关配置（详见')}
+                            <a 
+                                href='https://docs.dolphindb.cn/zh/tutorials/dashboard_tutorial.html'
+                                className='link'
+                                target='_blank'
+                            >
+                                {t('文档')}
+                            </a>
+                            ）
+                        </p>
+                    </>
+                }
+                extra={
+                    <Popconfirm
+                        title={t('你确定要初始化数据面板功能吗？')}
+                        onConfirm={async () => { 
+                            model.execute(async () => {
+                                await model.ddb.eval(backend)
+                                set_inited_state(2)
+                                model.message.success(t('初始化数据面板成功！'))
+                            }) 
+                        }}
+                        okText={t('确定')}
+                        cancelText={t('取消')}
+                        >
+                        <Button type='primary' size='large'>{t('初始化')}</Button>
+                    </Popconfirm>
+                }
+            />
+        </div>
+    else
+        return <Result
+                className='interceptor'
+                title={t('数据面板功能未初始化，请联系管理员初始化数据面板功能')}
+            />
 }
 
 
