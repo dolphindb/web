@@ -13,7 +13,9 @@ import { subscribe_data_source, type DataSource } from './DataSource/date-source
 import { AxisType, MarkPresetType } from './ChartFormFields/type.js'
 import { find_variable_by_name, get_variable_copy_infos, get_variable_value, paste_variables, subscribe_variable } from './Variable/variable.js'
 import { t } from '../../i18n/index.js'
-import { type DdbMatrixObj } from 'dolphindb'
+import { formati, type DdbMatrixObj } from 'dolphindb'
+import { seq } from 'xshell'
+import NumCalculator from 'antd/es/theme/util/calc/NumCalculator.js'
 
 
 export function format_time (time: string, format: string) {
@@ -84,10 +86,19 @@ export function sql_formatter (obj: DdbObj<DdbValue>, max_line: number): any {
                     row_data.push(data[i + row_num * j])
                 matrix_data.push(row_data)
             }
+            
+            function convert_labels (num: number, obj) {
+                if (!obj)
+                    return null
+                let labels = [ ]
+                for (let i = 0;  i < num;  i++)  
+                    labels.push(formati(obj, i))
+                return labels        
+            }
             return {
                 data: matrix_data,
-                col_label: col_label ?? Array.from(new Array(col_num).keys()),
-                row_babel: row_babel ?? Array.from(new Array(row_num).keys())
+                col_label: convert_labels(col_num, col_label) ?? Array.from(new Array(col_num).keys()),
+                row_babel: convert_labels(row_num, row_babel) ?? Array.from(new Array(row_num).keys())
             }
         case DdbForm.table:
             const array_vectors = { }
