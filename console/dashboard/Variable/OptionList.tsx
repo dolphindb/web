@@ -1,10 +1,11 @@
-import React, { useContext, useEffect, useRef, useState } from 'react'
-import { Form, Input, Popconfirm, Table, type  InputRef } from 'antd'
+import React, { useContext, useEffect, useMemo, useRef, useState } from 'react'
+import { Form, Input, Popconfirm, Table, type  InputRef, Typography, Alert, Button } from 'antd'
 import type { FormInstance } from 'antd/es/form'
 import { genid } from 'xshell/utils.browser.js'
 
 import { type Variable, type VariablePropertyType, type OptionType } from './variable'
 import { t } from '../../../i18n/index.js'
+import { PlusOutlined } from '@ant-design/icons'
 
 type EditableTableProps = Parameters<typeof Table>[0]
 
@@ -116,7 +117,6 @@ export function OptionList ({
     function handleDelete (key: string) {
         const newData = current_options.filter(item => item.key !== key)
         set_current_options(newData)
-        change_current_variable_property('value', current_variable.mode === 'multi_select' ? '[]' : '')
     } 
     const defaultColumns: (ColumnTypes[number] & { editable?: boolean, dataIndex: string })[] = [
         {
@@ -134,12 +134,20 @@ export function OptionList ({
         {
             title: t('操作'),
             dataIndex: 'operation',
-            render: (_, record: { key: React.Key }) => 
-                current_options.length >= 1 ? (
-                <Popconfirm title={t('你确定要删除改选项吗？')} onConfirm={() => { handleDelete(record.key as string) }}>
-                    <a>Delete</a>
-                </Popconfirm>
-                ) : null    
+            render: (_, record) => { 
+                const disabled = record.value === current_variable.value
+                return current_options.length >= 1 ? (
+                        <Popconfirm title={t('确定要删除该选项吗？')} onConfirm={() => { handleDelete(record.key as string) }}>
+                            <Typography.Link
+                                disabled={disabled}
+                                type='danger'
+                            >
+                                {t('删除')}
+                            </Typography.Link>
+                        </Popconfirm>
+                ) : null 
+            }
+                   
         },
     ]
     
@@ -178,13 +186,15 @@ export function OptionList ({
         
         return {
         ...col,
-        onCell: (record: OptionType) => ({
-            record,
-            editable: col.editable,
-            dataIndex: col.dataIndex,
-            title: col.title,
-            handleSave,
-        }),
+        onCell: (record: OptionType) => { 
+            return {
+                record,
+                editable: col.editable && record.value !== current_variable.value,
+                dataIndex: col.dataIndex,
+                title: col.title,
+                handleSave,
+            }
+        },
         }
     })
     
@@ -193,9 +203,7 @@ export function OptionList ({
                     <div className='variable-editor-main-options-top-lable'>
                         {t('可选项：')}
                     </div>
-                    <div className='variable-editor-main-options-top-add' onClick={handleAdd}>
-                        + {t('新增')}
-                    </div>
+                    <Button type='primary' onClick={handleAdd} size='small' icon={<PlusOutlined />}>{t('新增')}</Button>
                 </div>
                 <Table
                     components={components}
