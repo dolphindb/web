@@ -6,7 +6,6 @@ import { type Variable, type VariablePropertyType } from './variable.js'
 import { OptionList } from './OptionList.js'
 import { safe_json_parse } from '../utils.js'
 import { t } from '../../../i18n/index.js'
-import { useMemo } from 'react'
 
 const { TextArea } = Input
 
@@ -22,7 +21,7 @@ export function VariableEditor ({
     }: PropsType) 
 { 
     
-    const value_editor = useMemo(() => ( {
+    const value_editor = {
         select: <Select
                     size='small'
                     className='variable-editor-main-value-control'
@@ -55,7 +54,7 @@ export function VariableEditor ({
                         change_current_variable_property('value', date ? date.format('YYYY.MM.DD') : '')
                     }} 
                 />
-    }), [ change_current_variable_property, current_variable.value ])
+    }
     
     return <>
         <div className='variable-editor'>
