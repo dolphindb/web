@@ -34,14 +34,19 @@ export const DATE_SELECT_FORMAT = {
 } 
 
 // col 表示是否需要选择坐标列，x轴必须选择坐标列
-export function AxisItem ({ name_path, col_names = [ ], list_name, initial_values, col }: IAxisItem) { 
+export function AxisItem (props: IAxisItem) { 
+    const { name_path, col_names = [ ], list_name, initial_values, need_col_name } = props
     const { widget } = dashboard.use(['widget'])
+    
+    const is_heat_map = useMemo(
+        () => widget.type === WidgetChartType.HEATMAP
+    , [widget.type])
     
     return <>
         <Form.Item
             label={t('类型')}
             name={concat_name_path(name_path, 'type')}
-            initialValue={initial_values?.type ?? AxisType.CATEGORY}
+            initialValue={is_heat_map ? AxisType.CATEGORY : initial_values?.type ?? AxisType.CATEGORY}
             tooltip={<>
                 {t('数值轴，适用于连续数据')}
                 <br />
@@ -52,7 +57,7 @@ export function AxisItem ({ name_path, col_names = [ ], list_name, initial_value
                 {t('对数轴，适用于对数数据')}
             </>}
         >
-            <Select options={axis_type_options} />
+            <Select disabled={is_heat_map} options={axis_type_options} />
         </Form.Item>
         <Form.Item label={t('名称')} name={concat_name_path(name_path, 'name')} initialValue={ initial_values?.name ?? t('名称')}>
             <Input />
@@ -62,7 +67,8 @@ export function AxisItem ({ name_path, col_names = [ ], list_name, initial_value
         </Form.Item>
         
         
-        {col && widget.type !== WidgetChartType.COMPOSITE_GRAPH && <AxisColSelect label={t('坐标列')} col_names={col_names} path={name_path} list_path={list_name} /> }
+        {/* 复合图和热力图不需要选择坐标列 */}
+        {need_col_name && ![WidgetChartType.COMPOSITE_GRAPH, WidgetChartType.HEATMAP].includes(widget.type) && <AxisColSelect label={t('坐标列')} col_names={col_names} path={name_path} list_path={list_name} /> }
         
         
         {/* 类目轴从 col_name 中获取 data */}
@@ -321,24 +327,6 @@ function Series (props: { col_names: string[], single?: boolean }) {
                                             <Select options={convert_list_to_options(['circle', 'rect', 'roundRect', 'triangle', 'diamond', 'pin', 'arrow']) } />
                                         </Form.Item>
                                     </>
-                                else if (seriesType === WidgetChartType.HEATMAP)
-                                    return <>
-                                        <Form.Item label={t('阴暗色')} name={[field.name, 'in_range', 'color', 'low']} initialValue='#EBE1E1'>
-                                            <StringColorPicker />
-                                        </Form.Item>
-                                        <Form.Item label={t('明亮色')} name={[field.name, 'in_range', 'color', 'high']} initialValue='#983430'>
-                                            <StringColorPicker />
-                                        </Form.Item>
-                                        <Form.Item label={t('最小值')} name={[field.name, 'min']}>
-                                            <InputNumber />
-                                        </Form.Item>
-                                        <Form.Item label={t('最大值')} name={[field.name, 'max']}>
-                                            <InputNumber />
-                                        </Form.Item>
-                                        <Form.Item label={t('展示标签')} name={[field.name, 'with_label']} initialValue={false}>
-                                            <BoolRadioGroup />
-                                        </Form.Item>
-                                    </>
                                 else
                                     return null
                             } }
@@ -381,15 +369,17 @@ function Series (props: { col_names: string[], single?: boolean }) {
 export function YAxis (props: { col_names: string[], initial_values?: IYAxisItemValue[], single?: boolean } ) {
     const { col_names, initial_values, single } = props
     
+    const { widget } = dashboard.use(['widget'])
+    
     const default_initial_values = useMemo(() => ([
         {
-            type: AxisType.VALUE,
+            type: widget.type === WidgetChartType.HEATMAP ? AxisType.CATEGORY : AxisType.VALUE,
             name: t('名称'),
             col_name: col_names[0],
             position: 'left',
             offset: 0
         }
-    ]), [col_names])
+    ]), [col_names, widget.type])
     
     const yAxis = Form.useWatch('yAxis')
     
@@ -454,7 +444,9 @@ export function AxisFormFields ({ col_names = [ ], single = false }: { col_names
     return <Collapse items={[{
         key: 'x_axis',
         label: t('X 轴属性'),
-        children: <div className='axis-wrapper'><AxisItem col name_path='xAxis' col_names={col_names} /></div>,
+        children: <div className='axis-wrapper'>
+            <AxisItem need_col_name name_path='xAxis' col_names={col_names} />
+        </div>,
         forceRender: true,
     },
     {

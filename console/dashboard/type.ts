@@ -225,3 +225,10 @@ export interface IGaugeConfig {
         }
     }>
 }
+
+
+export interface c { 
+    data: number[][]
+    row_labels: string[]
+    col_labels: string[]
+}

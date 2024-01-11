@@ -97,8 +97,8 @@ export function sql_formatter (obj: DdbObj<DdbValue>, max_line: number): any {
             }
             return {
                 data: matrix_data,
-                col_label: convert_labels(col_num, col_label) ?? Array.from(new Array(col_num).keys()),
-                row_babel: convert_labels(row_num, row_babel) ?? Array.from(new Array(row_num).keys())
+                col_labels: convert_labels(col_num, col_label) ?? Array.from(new Array(col_num).keys()),
+                row_labels: convert_labels(row_num, row_babel) ?? Array.from(new Array(row_num).keys())
             }
         case DdbForm.table:
             const array_vectors = { }
