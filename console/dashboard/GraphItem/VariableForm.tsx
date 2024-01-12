@@ -29,6 +29,7 @@ function StringMultiSelect (props: IStringMultiSelectProps) {
     }, [ ])
     
     return <Select
+        allowClear
         mode='multiple'
         options={options}
         value={safe_json_parse(value)}
@@ -49,7 +50,7 @@ function ControlField ({ variable }: { variable: Variable }) {
     switch (mode) {
         case 'date':
             return <Form.Item name={id} label={display_name}>
-                <StringDatePicker className='data-picker'/>
+                <StringDatePicker allowClear className='data-picker'/>
             </Form.Item>
         case 'multi_select':
             return <Form.Item name={id} label={display_name}>
@@ -57,7 +58,7 @@ function ControlField ({ variable }: { variable: Variable }) {
             </Form.Item>
         case 'select':
             return <Form.Item name={id} label={display_name}>
-                <Select options={options} />
+                <Select allowClear options={options} />
             </Form.Item>
         case 'text':
             return <Form.Item name={id} label={display_name}>

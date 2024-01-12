@@ -23,6 +23,7 @@ export function VariableEditor ({
     
     const value_editor = {
         select: <Select
+                    allowClear
                     size='small'
                     className='variable-editor-main-value-control'
                     value={current_variable.value}
@@ -30,6 +31,7 @@ export function VariableEditor ({
                     options={current_variable.options}
                 />,
         multi_select: <Select
+                    allowClear
                     size='small'
                     mode='multiple'
                     className='variable-editor-main-value-control'
@@ -47,6 +49,7 @@ export function VariableEditor ({
                     }}
                 />,
         date: <DatePicker 
+                    allowClear
                     size='small'
                     className='variable-editor-main-value-control'
                     value={current_variable.value ? dayjs(current_variable.value) : null}
