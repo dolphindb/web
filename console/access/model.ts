@@ -1,4 +1,4 @@
-import { DdbBool, DdbInt, DdbVectorString } from 'dolphindb/browser.js'
+import { DdbBool, DdbDatabaseError, DdbInt, DdbVectorString } from 'dolphindb/browser.js'
 import { Model } from 'react-object-model'
 import { model } from '../model.js'
 
@@ -193,6 +193,22 @@ class AccessModel extends Model<AccessModel> {
     
     async revoke (user: string, aces: string, obj?: string) {
         await model.ddb.call('revoke', obj ? [user, new DdbInt(ACCESS_NUM[aces]), obj ] : [user, new DdbInt(ACCESS_NUM[aces])], { urgent: true })
+    }
+    
+    async handle_validate_error (func: Function) {
+        try {
+            await func()
+        } catch (error) {
+            if (error instanceof DdbDatabaseError) {
+                model.show_error({ error })
+                return
+            }
+            const { errorFields } = error
+            error = errorFields.reduce((error_msg, curent_err) => 
+                error_msg += curent_err.errors
+            , '')
+            model.show_error({ content: error })
+        }
     }
     
 }

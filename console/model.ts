@@ -883,6 +883,7 @@ export interface ErrorOptions {
 
 
 export function show_error (modal: DdbModel['modal'], { title, error, content }: ErrorOptions) {
+    console.log(title, error, content)
     modal.error({
         className: 'modal-error',
         title: title || error?.message,

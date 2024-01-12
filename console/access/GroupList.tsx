@@ -71,7 +71,7 @@ export function GroupList () {
             }}
             destroyOnClose
             title={t('新建组')}
-            onOk={async () => model.execute(async () => {
+            onOk={async () => access.handle_validate_error(async () => {
                 const { group_name, users } = await add_group_form.validateFields()
                     await access.create_group(group_name, users ?? [ ])
                     model.message.success(t('组创建成功'))
@@ -81,7 +81,6 @@ export function GroupList () {
                     add_group_form.resetFields()
                     await access.get_group_list()
             })}
-            
             >
             <Form
                 name='basic'

@@ -5,7 +5,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { CheckCircleFilled, DeleteOutlined, MinusCircleFilled, PlusOutlined, ReloadOutlined, SearchOutlined } from '@ant-design/icons'
 import { Button, Form, Input, Modal, Popconfirm, Select, Switch, Table, Tag, Tooltip, Transfer, type TableColumnType } from 'antd'
 
-import { t } from '../../i18n/index.js'
+import { t, Trans } from '../../i18n/index.js'
 
 import { use_modal } from 'react-object-model/hooks.js'
 import { model } from '../model.js'
@@ -94,20 +94,21 @@ export function UserList () {
             }}
             destroyOnClose
             title={t('新建用户')}
-            onOk={async () => model.execute(async () => {
-                const { username, password, is_admin, groups } = await add_user_form.validateFields()
-                await access.create_user({ 
-                    userId: username,
-                    password: password,
-                    groupIds: groups,
-                    isAdmin: is_admin 
-                })
-                model.message.success(t('用户创建成功'))
-                creator.close()
-                add_user_form.resetFields()
-                await access.get_user_list()
-            })}
-            
+            onOk={async () => access.handle_validate_error(
+                async () => {
+                    const { username, password, is_admin, groups } = await add_user_form.validateFields()
+                    await access.create_user({ 
+                        userId: username,
+                        password: password,
+                        groupIds: groups,
+                        isAdmin: is_admin 
+                    })
+                    model.message.success(t('用户创建成功'))
+                    creator.close()
+                    add_user_form.resetFields()
+                    await access.get_user_list()
+                }
+            )  }
             >
             <Form
                 name='basic'
@@ -201,13 +202,15 @@ export function UserList () {
         <Modal
             className='edit-user-modal'
             open={editor.visible}
-            onOk={async () => model.execute(async () => {
-                const { password } = await reset_password_form.validateFields()
-                await access.reset_password(current?.name, password)
-                reset_password_form.resetFields()
-                model.message.success(t('密码修改成功'))
-                editor.close()
-            })}
+            onOk={async () =>  access.handle_validate_error(
+                    async () => {
+                        const { password } = await reset_password_form.validateFields()
+                        await access.reset_password(current?.name, password)
+                        reset_password_form.resetFields()
+                        model.message.success(t('密码修改成功'))
+                        editor.close()
+                    }
+            )}
             title={<div>
                     {t('重置用户 ')}
                     <span className='blue'>{ current?.name }</span>
@@ -264,9 +267,9 @@ export function UserList () {
             onCancel={edit_groupor.close}
             destroyOnClose
             title={<div>
-                {t('组 ')}
+                {t('用户 ')}
                 <span className='blue'>{ current?.name }</span>
-                {t(' 成员管理')}
+                {t(' 所属组管理')}
                 </div> 
             }
             onOk={async () => {
