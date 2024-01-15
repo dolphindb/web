@@ -132,7 +132,7 @@ export function Databases () {
                                 />
                             </Tooltip>
                         </span>
-                        <span onClick={async () => refresher()}>
+                        <span onClick={refresher}>
                             <Tooltip title={t('刷新')} color='grey'>
                                 <SyncOutlined spin={refresh_spin}/>
                             </Tooltip>
