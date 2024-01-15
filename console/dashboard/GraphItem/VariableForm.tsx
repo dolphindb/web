@@ -1,5 +1,6 @@
-import { Button, Col, Form, Input, Radio, Row, Select, type SelectProps, Space } from 'antd'
-import { useCallback, useEffect } from 'react'
+import './index.scss'
+import { Button, Col, Form, Input, Row, Select, type SelectProps } from 'antd'
+import { useCallback, useEffect, useState } from 'react'
 
 import { type Variable, variables, update_variable_value } from '../Variable/variable.js'
 import { StringDatePicker } from '../../components/StringDatePicker/index.js'
@@ -7,6 +8,7 @@ import { SearchOutlined } from '@ant-design/icons'
 import classNames from 'classnames'
 import { safe_json_parse } from '../utils.js'
 import { t } from '../../../i18n/index.js'
+import { genid } from 'xshell/utils.browser'
 
 interface IProps { 
     ids: string[]
@@ -42,6 +44,7 @@ function ControlField ({ variable }: { variable: Variable }) {
     
     const variable_obj = variables.use()
     const form = Form.useFormInstance()
+    const [key, set_key] = useState(genid())
     
     useEffect(() => { 
         form.setFieldValue(id, variable_obj[id].mode === 'multiple' ? safe_json_parse(variable_obj[id].value) : variable_obj[id].value)
@@ -58,7 +61,14 @@ function ControlField ({ variable }: { variable: Variable }) {
             </Form.Item>
         case 'select':
             return <Form.Item name={id} label={display_name}>
-                <Select allowClear options={options} />
+                {/* https://github.com/ant-design/ant-design/issues/38244 */}
+                {/* 拖拽元素下， select 下拉列表会有闪烁问题，每次选择之后更新 key，强制重新渲染，可解决闪烁问题 */}
+                <Select
+                    key={key}
+                    onSelect={() => { set_key(genid()) } }
+                    options={options}
+                    allowClear
+                />
             </Form.Item>
         case 'text':
             return <Form.Item name={id} label={display_name}>
