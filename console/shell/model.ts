@@ -57,6 +57,7 @@ class ShellModel extends Model<ShellModel> {
     
     options?: InspectOptions
     
+    db_refresher = null
     
     executing = false
     
@@ -428,7 +429,6 @@ class ShellModel extends Model<ShellModel> {
         //         dbs.set(path, new DdbEntity({ path ,tables}))
         //     }
         //  }
-        
         this.set({ dbs: root })
     }
     

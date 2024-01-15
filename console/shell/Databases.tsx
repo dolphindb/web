@@ -1,4 +1,4 @@
-import { default as React, useEffect, useRef, useState } from 'react'
+import { default as React, useCallback, useEffect, useRef, useState } from 'react'
 
 import NiceModal from '@ebay/nice-modal-react'
 
@@ -64,6 +64,27 @@ export function Databases () {
     
     const [db_height, set_db_height] = useState(256)
     
+    useEffect(() => {
+        if (!shell.db_refresher)
+            shell.db_refresher = refresher
+    }, [ ])
+    
+    const refresher = useCallback( async () => {
+        try {
+            set_refresh_spin(true)
+            const promise = delay(1000)
+            await shell.load_dbs()
+            set_expanded_keys([ ])
+            set_loaded_keys([ ])
+            await promise
+        } catch (error) {
+            model.show_error({ error })
+            throw error
+        } finally {
+            set_refresh_spin(false)
+        }
+    }, [ ])
+    
     const [expanded_keys, set_expanded_keys] = useState([ ])
     const [loaded_keys, set_loaded_keys] = useState([ ])
     const previous_clicked_node = useRef<DatabaseGroup | Database | Table | ColumnRoot | PartitionRoot | Column | PartitionDirectory | PartitionFile | Schema>()
@@ -111,21 +132,7 @@ export function Databases () {
                                 />
                             </Tooltip>
                         </span>
-                        <span onClick={async () => {
-                            try {
-                                set_refresh_spin(true)
-                                const promise = delay(1000)
-                                await shell.load_dbs()
-                                set_expanded_keys([ ])
-                                set_loaded_keys([ ])
-                                await promise
-                            } catch (error) {
-                                model.show_error({ error })
-                                throw error
-                            } finally {
-                                set_refresh_spin(false)
-                            }
-                        }}>
+                        <span onClick={async () => refresher()}>
                             <Tooltip title={t('刷新')} color='grey'>
                                 <SyncOutlined spin={refresh_spin}/>
                             </Tooltip>
@@ -231,7 +238,6 @@ export function Databases () {
                                         let expanded = false
                                         const  { peeked } = node
                                         let keys_ = [ ]
-                                        
                                         for (const key of expanded_keys)
                                             if (key === node.key)
                                                 expanded = true
@@ -811,6 +817,8 @@ export class Database implements DataNode {
                     const schema = (await this.get_schema()).to_dict()
                     await NiceModal.show(CreateTableModal, { database: this, schema })
                     await shell.load_dbs()
+                    if (shell.db_refresher)
+                        await shell.db_refresher()
                 })
             }
         :
