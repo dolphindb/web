@@ -64,12 +64,7 @@ export function Databases () {
     
     const [db_height, set_db_height] = useState(256)
     
-    useEffect(() => {
-        if (!shell.db_refresher)
-            shell.db_refresher = refresher
-    }, [ ])
-    
-    const refresher = useCallback( async () => {
+    shell.refresh_db = useCallback( async () => {
         try {
             set_refresh_spin(true)
             const promise = delay(1000)
@@ -132,7 +127,7 @@ export function Databases () {
                                 />
                             </Tooltip>
                         </span>
-                        <span onClick={refresher}>
+                        <span onClick={shell.refresh_db}>
                             <Tooltip title={t('刷新')} color='grey'>
                                 <SyncOutlined spin={refresh_spin}/>
                             </Tooltip>
@@ -817,8 +812,7 @@ export class Database implements DataNode {
                     const schema = (await this.get_schema()).to_dict()
                     await NiceModal.show(CreateTableModal, { database: this, schema })
                     await shell.load_dbs()
-                    if (shell.db_refresher)
-                        await shell.db_refresher()
+                    await shell.refresh_db()
                 })
             }
         :

@@ -57,8 +57,6 @@ class ShellModel extends Model<ShellModel> {
     
     options?: InspectOptions
     
-    db_refresher = null
-    
     executing = false
     
     show_executing = false
@@ -121,6 +119,7 @@ class ShellModel extends Model<ShellModel> {
         return lines_
     }
     
+    async refresh_db () { }   
     
     async eval (code = this.editor.getValue()) {
         const time_start = dayjs()
