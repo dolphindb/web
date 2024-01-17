@@ -64,7 +64,15 @@ export function Databases () {
     
     const [db_height, set_db_height] = useState(256)
     
-    shell.refresh_db = useCallback( async () => {
+    const [expanded_keys, set_expanded_keys] = useState([ ])
+    const [loaded_keys, set_loaded_keys] = useState([ ])
+    const previous_clicked_node = useRef<DatabaseGroup | Database | Table | ColumnRoot | PartitionRoot | Column | PartitionDirectory | PartitionFile | Schema>()
+    
+    const enable_create_db = [NodeType.data, NodeType.single].includes(node_type)
+    const [refresh_spin, set_refresh_spin] = useState(false)
+    
+    
+    shell.refresh_db = useCallback(async () => {
         try {
             set_refresh_spin(true)
             const promise = delay(1000)
@@ -80,12 +88,6 @@ export function Databases () {
         }
     }, [ ])
     
-    const [expanded_keys, set_expanded_keys] = useState([ ])
-    const [loaded_keys, set_loaded_keys] = useState([ ])
-    const previous_clicked_node = useRef<DatabaseGroup | Database | Table | ColumnRoot | PartitionRoot | Column | PartitionDirectory | PartitionFile | Schema>()
-    
-    const enable_create_db = [NodeType.data, NodeType.single].includes(node_type)
-    const [refresh_spin, set_refresh_spin] = useState(false)
     
     return <Resizable
         className='treeview-resizable-split1'
@@ -233,6 +235,7 @@ export function Databases () {
                                         let expanded = false
                                         const  { peeked } = node
                                         let keys_ = [ ]
+                                        
                                         for (const key of expanded_keys)
                                             if (key === node.key)
                                                 expanded = true

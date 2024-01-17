@@ -57,6 +57,7 @@ class ShellModel extends Model<ShellModel> {
     
     options?: InspectOptions
     
+    
     executing = false
     
     show_executing = false
@@ -119,7 +120,9 @@ class ShellModel extends Model<ShellModel> {
         return lines_
     }
     
-    async refresh_db () { }   
+    async refresh_db () {
+        
+    }
     
     async eval (code = this.editor.getValue()) {
         const time_start = dayjs()
@@ -428,6 +431,7 @@ class ShellModel extends Model<ShellModel> {
         //         dbs.set(path, new DdbEntity({ path ,tables}))
         //     }
         //  }
+        
         this.set({ dbs: root })
     }
     
