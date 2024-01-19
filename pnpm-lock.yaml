@@ -59,8 +59,8 @@ dependencies:
     specifier: ^1.11.10
     version: 1.11.10
   dolphindb:
-    specifier: ^2.0.1100
-    version: 2.0.1100(react-dom@18.2.0)
+    specifier: ^2.0.1101
+    version: 2.0.1101(react-dom@18.2.0)
   echarts:
     specifier: ^5.4.3
     version: 5.4.3(patch_hash=uvtishkmh4xmae7fi25qxvc26u)
@@ -81,7 +81,7 @@ dependencies:
     version: 4.17.21
   monaco-dolphindb:
     specifier: 0.0.17
-    version: 0.0.17(dolphindb@2.0.1100)(monaco-editor@0.45.0)(react-dom@18.2.0)(react@18.2.0)(vscode-oniguruma@2.0.1)(vscode-textmate@9.0.0)
+    version: 0.0.17(dolphindb@2.0.1101)(monaco-editor@0.45.0)(react-dom@18.2.0)(react@18.2.0)(vscode-oniguruma@2.0.1)(vscode-textmate@9.0.0)
   monaco-editor:
     specifier: ^0.45.0
     version: 0.45.0
@@ -4672,8 +4672,8 @@ packages:
       esutils: 2.0.3
     dev: true
 
-  /dolphindb@2.0.1100(react-dom@18.2.0):
-    resolution: {integrity: sha512-k4EFAU5DYJj/ozAiWkNCk2No7XGNBzY03FWAMfIxQYGWW4Prceu5frb/pO3UaKKbJEQ5ZyW0SM5YCXvehcjtyA==}
+  /dolphindb@2.0.1101(react-dom@18.2.0):
+    resolution: {integrity: sha512-wy/aSc4Wg/alB3fmW5yjd2TgSMBICCTYohKAo73l1cf3JSmzKAsgxg4zt0wW70acD+JlpZH1+mhadbV/tSBNfg==}
     engines: {node: '>=20.6.1'}
     dependencies:
       dayjs: 1.11.10
@@ -6394,7 +6394,7 @@ packages:
       isarray: 2.0.5
     dev: false
 
-  /monaco-dolphindb@0.0.17(dolphindb@2.0.1100)(monaco-editor@0.45.0)(react-dom@18.2.0)(react@18.2.0)(vscode-oniguruma@2.0.1)(vscode-textmate@9.0.0):
+  /monaco-dolphindb@0.0.17(dolphindb@2.0.1101)(monaco-editor@0.45.0)(react-dom@18.2.0)(react@18.2.0)(vscode-oniguruma@2.0.1)(vscode-textmate@9.0.0):
     resolution: {integrity: sha512-liGoRwXBPDRGm3NyppZl3BnAH0RxuUbkPCOZKlXABxH4sw870Rdy0+DeE7q0HGGpvFU0OSuFJSFrmIzEa1cszA==}
     peerDependencies:
       dolphindb: ^2.0.976
@@ -6402,7 +6402,7 @@ packages:
       vscode-oniguruma: ^1.7.0
       vscode-textmate: ^9.0.0
     dependencies:
-      dolphindb: 2.0.1100(react-dom@18.2.0)
+      dolphindb: 2.0.1101(react-dom@18.2.0)
       monaco-editor: 0.45.0
       vscode-oniguruma: 2.0.1
       vscode-textmate: 9.0.0
