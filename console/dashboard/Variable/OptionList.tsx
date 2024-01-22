@@ -135,7 +135,11 @@ export function OptionList ({
             title: t('操作'),
             dataIndex: 'operation',
             render: (_, record) => { 
-                const disabled = record.value === current_variable.value || JSON.parse(current_variable.value)?.includes?.(record.value)
+                let disabled = false
+                if (current_variable.mode === VariableMode.SELECT && current_variable.value === record.value)
+                    disabled = true
+                else if (current_variable.mode === VariableMode.MULTI_SELECT && JSON.parse(current_variable.value)?.includes?.(record.value))
+                    disabled = true
                 return current_options.length >= 1 ? (
                         <Popconfirm title={t('确定要删除该选项吗？')} onConfirm={() => { handleDelete(record.key as string) }}>
                             <Typography.Link
@@ -187,7 +191,11 @@ export function OptionList ({
         return {
         ...col,
             onCell: (record: OptionType) => {          
-                const disable_editable = current_variable.value === record.value || JSON.parse(current_variable.value)?.includes?.(record.value)
+                let disable_editable = false
+                if (current_variable.mode === VariableMode.SELECT && current_variable.value === record.value)
+                    disable_editable = true
+                else if (current_variable.mode === VariableMode.MULTI_SELECT && JSON.parse(current_variable.value)?.includes?.(record.value))
+                    disable_editable = true
                 return {
                     record,
                     editable: col.editable && !disable_editable,
