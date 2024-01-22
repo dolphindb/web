@@ -226,3 +226,10 @@ export interface IGaugeConfig {
     }>
 }
 
+
+export enum VariableMode { 
+    SELECT = 'select',
+    MULTI_SELECT = 'multi_select',
+    TEXT = 'text',
+    DATE = 'date'
+}

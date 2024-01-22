@@ -6,6 +6,7 @@ import { genid } from 'xshell/utils.browser.js'
 import { type Variable, type VariablePropertyType, type OptionType } from './variable'
 import { t } from '../../../i18n/index.js'
 import { PlusOutlined } from '@ant-design/icons'
+import { VariableMode } from '../type.js'
 
 type EditableTableProps = Parameters<typeof Table>[0]
 
@@ -134,7 +135,7 @@ export function OptionList ({
             title: t('操作'),
             dataIndex: 'operation',
             render: (_, record) => { 
-                const disabled = record.value === current_variable.value
+                const disabled = record.value === current_variable.value || JSON.parse(current_variable.value)?.includes?.(record.value)
                 return current_options.length >= 1 ? (
                         <Popconfirm title={t('确定要删除该选项吗？')} onConfirm={() => { handleDelete(record.key as string) }}>
                             <Typography.Link
@@ -185,15 +186,16 @@ export function OptionList ({
         
         return {
         ...col,
-        onCell: (record: OptionType) => { 
-            return {
-                record,
-                editable: col.editable && record.value !== current_variable.value,
-                dataIndex: col.dataIndex,
-                title: col.title,
-                handleSave,
-            }
-        },
+            onCell: (record: OptionType) => {          
+                const disable_editable = current_variable.value === record.value || JSON.parse(current_variable.value)?.includes?.(record.value)
+                return {
+                    record,
+                    editable: col.editable && !disable_editable,
+                    dataIndex: col.dataIndex,
+                    title: col.title,
+                    handleSave,
+                }
+            },
         }
     })
     
