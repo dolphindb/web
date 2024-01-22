@@ -466,7 +466,6 @@ function Node ({
                     >
                         {Math.round(avgLoad) + '%'}
                     </InfoItem>
-                    <InfoItem title={t('executor 线程总数')}>{executorNum}</InfoItem>
                 </NodeInfo>
                 <NodeInfo title={t('内存')} icon={SvgMemory} className='memory-info'>
                     <InfoItem
