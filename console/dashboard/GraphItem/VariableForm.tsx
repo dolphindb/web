@@ -9,6 +9,7 @@ import classNames from 'classnames'
 import { safe_json_parse } from '../utils.js'
 import { t } from '../../../i18n/index.js'
 import { genid } from 'xshell/utils.browser'
+import { VariableMode } from '../type'
 
 interface IProps { 
     ids: string[]
@@ -51,15 +52,15 @@ function ControlField ({ variable }: { variable: Variable }) {
     }, [variable_obj[id].value, id])
     
     switch (mode) {
-        case 'date':
+        case VariableMode.DATE:
             return <Form.Item name={id} label={display_name}>
                 <StringDatePicker allowClear className='data-picker'/>
             </Form.Item>
-        case 'multi_select':
+        case VariableMode.MULTI_SELECT:
             return <Form.Item name={id} label={display_name}>
                <StringMultiSelect options={options}/>
             </Form.Item>
-        case 'select':
+        case VariableMode.SELECT:
             return <Form.Item name={id} label={display_name}>
                 {/* https://github.com/ant-design/ant-design/issues/38244 */}
                 {/* 拖拽元素下， select 下拉列表会有闪烁问题，每次选择之后更新 key，强制重新渲染，可解决闪烁问题 */}
@@ -70,7 +71,7 @@ function ControlField ({ variable }: { variable: Variable }) {
                     allowClear
                 />
             </Form.Item>
-        case 'text':
+        case VariableMode.TEXT:
             return <Form.Item name={id} label={display_name}>
                 <Input />
             </Form.Item>
