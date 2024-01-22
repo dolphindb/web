@@ -9,7 +9,7 @@ import classNames from 'classnames'
 import { safe_json_parse } from '../utils.js'
 import { t } from '../../../i18n/index.js'
 import { genid } from 'xshell/utils.browser'
-import { VariableMode } from '../type'
+import { VariableMode } from '../type.js'
 
 interface IProps { 
     ids: string[]
