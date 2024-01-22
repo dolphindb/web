@@ -3,12 +3,13 @@ import { Input, Modal, Tree } from 'antd'
 import { CopyOutlined, DatabaseOutlined, DeleteOutlined, EditOutlined, FileOutlined } from '@ant-design/icons'
 import { use_modal } from 'react-object-model/hooks.js'
 
-import { WidgetChartType, dashboard } from '../model.js'
+import { type Widget, WidgetChartType, dashboard } from '../model.js'
 import { create_data_source, data_sources, delete_data_source, rename_data_source, type DataSource, type DataSourcePropertyType, copy_data_source, paste_data_source } from './date-source.js'
 import { t } from '../../../i18n/index.js'
 
 
 interface PropsType {
+    widget: Widget
     loading: Boolean
     current_data_source: DataSource
     no_save_flag: MutableRefObject<boolean>
@@ -31,6 +32,7 @@ interface MenuItemType {
 }
 
 export function DataSourceList ({
+    widget,
     loading,
     current_data_source,
     no_save_flag,
@@ -52,8 +54,6 @@ export function DataSourceList ({
             }
         })
     )
-    
-    const { widget } = dashboard.use(['widget'])
     
     
     const checkable = useMemo(() => widget ? widget.type === WidgetChartType.COMPOSITE_GRAPH : false, [ widget ])

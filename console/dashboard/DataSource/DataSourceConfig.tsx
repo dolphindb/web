@@ -188,6 +188,7 @@ export function DataSourceConfig (props: IProps, ref) {
             {contextHolder}
             <div className='data-source-config-main'>
                 <DataSourceList
+                    widget={widget}
                     loading={loading !== ''}
                     current_data_source={current_data_source}
                     no_save_flag={no_save_flag}
