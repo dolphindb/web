@@ -121,7 +121,9 @@ export function UserList () {
                 <Form.Item
                     label={t('用户名')}
                     name='username'
-                    rules={[{ required: true, message: '请输入用户名!' }]}
+                    rules={[{ required: true, message: '请输入用户名!' }, 
+                            { max: 30, message: '用户名长度不能超过 30 个字符' }, 
+                            { pattern: /^(?![0-9])[\w\d]+$/, message: '用户名只能包含字母、下划线或数字，并且不能以数字开头' }]}
                     >
                         <Input />
                 </Form.Item>
@@ -129,7 +131,9 @@ export function UserList () {
                 <Form.Item
                     label={t('密码')}
                     name='password'
-                    rules={[{ required: true, message: '请输入密码!' }]}
+                    rules={[{ required: true, message: '请输入密码!' },
+                            { min: 6, message: '密码长度最少为 6 个字符' },
+                            { max: 20, message: '密码长度最多为 20 个字符' }]}
                     >
                     <Input.Password />
                 </Form.Item>
@@ -194,7 +198,7 @@ export function UserList () {
                 await access.get_user_list()
             })
             }
-            title={<Tooltip title={selected_users.map(name => <p key={name}>{name}</p>)}>
+            title={<Tooltip>
                         {t('确认删除选中的 {{num}} 个用户吗？', { num: selected_users.length })}
                 </Tooltip>}
         />

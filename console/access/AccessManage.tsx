@@ -1,4 +1,4 @@
-import { Button, Checkbox, Divider, Modal, Radio, Select, Table, TreeSelect, type TableColumnType } from 'antd'
+import { Button, Checkbox, Divider, Modal, Radio, Select, Table, TreeSelect, type TableColumnType, Tooltip, Popconfirm } from 'antd'
 import { useMemo, useState } from 'react'
 
 import { use_modal } from 'react-object-model/hooks.js'
@@ -9,6 +9,12 @@ import { AccessHeader } from './AccessHeader.js'
 import { ACCESS_TYPE, access_options } from './constant.js'
 import { access } from './model.js'
 
+interface ACCESS {
+    key: string
+    access: string
+    name?: string
+}
+
 
 export function AccessManage ({ 
     category 
@@ -16,6 +22,7 @@ export function AccessManage ({
     category: 'database' | 'shared' | 'stream' | 'function_view' | 'script'
 }) {
     let creator = use_modal()
+    let deletor = use_modal()
     
     const { 
             databases, 
@@ -35,6 +42,8 @@ export function AccessManage ({
     
     
     const [search_key, set_search_key] = useState('')
+    
+    const [selected_access, set_selected_access] = useState<ACCESS[]>([ ])
     
     const [add_rule_selected, set_add_rule_selected] = useState({ access: access_options[category][0], type: 'grant', obj: [ ] })
     
@@ -135,16 +144,25 @@ export function AccessManage ({
                             key: k,
                             access: k,
                             type: v,
-                            action: <Button type='link' danger onClick={async () => 
-                                        model.execute(async () => {
-                                            await access.revoke(current.name, k)
-                                            model.message.success('revoke 成功')
-                                            access.set({ accesses: current.role === 'user' ? 
-                                                            (await access.get_user_access([current.name]))[0]
-                                                                                        :
-                                                            (await access.get_group_access([current.name]))[0] }) 
-                                        })
-                                    }>Revoke</Button>
+                            action:   <Popconfirm
+                                        title={t('删除用户')}
+                                        description={t('确认 revoke 该权限吗？')}
+                                        onConfirm={async () => 
+                                            model.execute(async () => {
+                                                await access.revoke(current.name, k)
+                                                model.message.success('revoke 成功')
+                                                access.set({ accesses: current.role === 'user' ? 
+                                                                (await access.get_user_access([current.name]))[0]
+                                                                                            :
+                                                                (await access.get_group_access([current.name]))[0] }) 
+                                            })
+                                        }   
+                                    
+                                    >
+                                        <Button type='link' danger>
+                                            {t('Revoke')}
+                                        </Button>
+                                    </Popconfirm> 
                 })
                 else if (showed_aces_types.map(aces => aces + '_allowed').includes(k) || showed_aces_types.map(aces =>  aces + '_denied').includes(k)) {
                     let objs = v.split(',')
@@ -161,16 +179,35 @@ export function AccessManage ({
                                 name: obj,
                                 access: k.slice(0, k.indexOf(allowed ? '_allowed' : '_denied')),
                                 type: allowed ? 'grant' : 'deny',
-                                action: <Button type='link' danger onClick={async () => 
-                                    model.execute(async () => {
-                                        await access.revoke(current.name, k.slice(0, k.indexOf(allowed ? '_allowed' : '_denied')), obj)
-                                        model.message.success(t('revoke 成功'))
-                                        access.set({ accesses: current.role === 'user' ? 
-                                                        (await access.get_user_access([current.name]))[0]
-                                                                                    :
-                                                        (await access.get_group_access([current.name]))[0] }) 
-                                    })
-                                }>Revoke</Button>
+                                action: 
+                                <Popconfirm
+                                    title={t('删除用户')}
+                                    description={t('确认 revoke 该权限吗？')}
+                                    onConfirm={async () => 
+                                        model.execute(async () => {
+                                            await access.revoke(current.name, k.slice(0, k.indexOf(allowed ? '_allowed' : '_denied')), obj)
+                                            model.message.success(t('revoke 成功'))
+                                            access.set({ accesses: current.role === 'user' ? 
+                                                            (await access.get_user_access([current.name]))[0]
+                                                                                        :
+                                                            (await access.get_group_access([current.name]))[0] }) 
+                                        })
+                                    }>
+                                    <Button type='link' danger>
+                                        {t('Revoke')}
+                                    </Button>
+                                </Popconfirm> 
+                                
+                                // <Button type='link' danger onClick={async () => 
+                                //     model.execute(async () => {
+                                //         await access.revoke(current.name, k.slice(0, k.indexOf(allowed ? '_allowed' : '_denied')), obj)
+                                //         model.message.success(t('revoke 成功'))
+                                //         access.set({ accesses: current.role === 'user' ? 
+                                //                         (await access.get_user_access([current.name]))[0]
+                                //                                                     :
+                                //                         (await access.get_group_access([current.name]))[0] }) 
+                                //     })
+                                // }>Revoke</Button>
                     })
                 }
         return tb_rows
@@ -383,14 +420,59 @@ export function AccessManage ({
              </div>
         
             </Modal>
+            <Modal
+                className='delete-user-modal'
+                open={deletor.visible}
+                onCancel={deletor.close}
+                onOk={async () => model.execute(async () => {
+                    console.log(selected_access)
+                    await Promise.all(
+                        selected_access.map(async ac => 
+                            category === 'script' ? 
+                                access.revoke(current.name, ac.access) 
+                                    : 
+                                access.revoke(current.name, ac.access, ac.name)))
+                    model.message.success(t('Revoke 成功'))
+                    set_selected_access([ ])
+                    deletor.close()
+                    access.set({ accesses: current.role === 'user' ? 
+                    (await access.get_user_access([current.name]))[0]
+                                                :
+                    (await access.get_group_access([current.name]))[0] }) 
+                })
+                }
+                title={<Tooltip>
+                            {t('确认 revoke 选中的 {{num}} 条权限吗？', { num: selected_access.length })}
+                    </Tooltip>}
+            />
             <Table
+                rowSelection={{
+                    selectedRowKeys: selected_access.map(ac => ac.key),
+                    onChange: (_, selectedRows: any[], info) => {
+                        if (info.type === 'all')
+                            return
+                        set_selected_access(selectedRows)
+                    },
+                    onSelectAll () {
+                        const all_access = access_rules.filter(row => 
+                            row[category === 'script' ? 'access' : 'name'].toLowerCase().includes(search_key.toLowerCase())
+                        )
+                        if (selected_access.length < all_access.length)
+                            set_selected_access(all_access)
+                        else
+                            set_selected_access([ ])
+                    },
+                    
+                }}
+                
                 title={() => 
                     <AccessHeader 
                         category={category} 
                         preview={false}
                         search_key={search_key}
                         set_search_key={set_search_key}
-                        open={creator.open}/>
+                        add_open={creator.open}
+                        delete_open={deletor.open}/>
                 }
                 columns={showed_aces_cols}
                 dataSource={access_rules.filter(row => 

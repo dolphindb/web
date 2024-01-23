@@ -192,6 +192,7 @@ class AccessModel extends Model<AccessModel> {
     
     
     async revoke (user: string, aces: string, obj?: string) {
+        console.log(user, aces, obj)
         await model.ddb.call('revoke', obj ? [user, new DdbInt(ACCESS_NUM[aces]), obj ] : [user, new DdbInt(ACCESS_NUM[aces])], { urgent: true })
     }
     

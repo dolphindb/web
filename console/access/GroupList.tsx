@@ -210,7 +210,7 @@ export function GroupList () {
                 await access.get_group_list()
             })
             }
-            title={<Tooltip title={selected_groups.map(name => <p key={name}>{name}</p>)}>
+            title={<Tooltip>
                         {t('确认删除选中的 {{num}} 个组吗？', { num: selected_groups.length })}
                 </Tooltip>}
         />
