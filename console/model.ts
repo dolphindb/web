@@ -936,7 +936,7 @@ export interface DdbNode {
     workerNum: number
     /**
      * @deprecated since server 2.00.10
-     * server 2.00.10 后没有 local executo
+     * server 2.00.10 后没有 local executor
      */
     executorNum: number
     connectionNum: number
