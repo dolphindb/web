@@ -348,7 +348,6 @@ function Node ({
         maxConnections,
         maxMemSize,
         workerNum,
-        executorNum, 
         connectionNum, 
         memoryUsed, 
         memoryAlloc, 
@@ -375,6 +374,7 @@ function Node ({
         lastMsgLatency,
         cumMsgLatency
     } = node
+    
     
     const agentNode = agentSite ? agentSite.split(':')[2] : ''
     

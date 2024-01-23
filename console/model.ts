@@ -934,6 +934,9 @@ export interface DdbNode {
     maxConnections: number
     maxMemSize: number
     workerNum: number
+    /**
+     * @deprecated since server 2.0.10
+     */
     executorNum: number
     connectionNum: number
     memoryUsed: bigint
