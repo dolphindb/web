@@ -79,12 +79,11 @@ export function DBTable (props: IProps) {
                     align = 'left',
                     background_color,
                     sorter,
-                    // multiple
                 } = col ?? { }
                 
                 const col_config = {
                     dataIndex: name,
-                    width,
+                    width: width || 200,
                     title: display_name || name,
                     key: name,
                     ellipsis: true,
