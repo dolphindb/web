@@ -474,7 +474,8 @@ export function AccessManage ({
                         search_key={search_key}
                         set_search_key={set_search_key}
                         add_open={creator.open}
-                        delete_open={deletor.open}/>
+                        delete_open={deletor.open}
+                        selected_length={selected_access.length}/>
                 }
                 columns={showed_aces_cols}
                 dataSource={access_rules.filter(row => 

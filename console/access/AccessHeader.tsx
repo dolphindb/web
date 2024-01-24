@@ -13,6 +13,7 @@ export function AccessHeader ({
     set_search_key,
     add_open,
     delete_open,
+    selected_length
 }: {
     preview: boolean
     category: string
@@ -20,6 +21,7 @@ export function AccessHeader ({
     set_search_key: (str: string) => void
     add_open?: () => void
     delete_open?: () => void
+    selected_length?: number 
 }) {
     const { current } = access.use(['current', 'users', 'groups'])
     
@@ -57,7 +59,10 @@ export function AccessHeader ({
                 <Button 
                     danger 
                     icon={<DeleteOutlined/>} 
-                    onClick={delete_open}
+                    onClick={() => {
+                        if (selected_length)
+                            delete_open()
+                    }}
                 >
                     {t('批量 Revoke')}
                 </Button>
