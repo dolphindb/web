@@ -1,5 +1,5 @@
 import { Button, Checkbox, Divider, Modal, Radio, Select, Table, TreeSelect, type TableColumnType, Tooltip, Popconfirm } from 'antd'
-import { useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 
 import { use_modal } from 'react-object-model/hooks.js'
 import { t } from '../../i18n/index.js'
@@ -52,6 +52,8 @@ export function AccessManage ({
                     :
         ACCESS_TYPE[category]).filter(ac => ac !== 'TABLE_WRITE'), 
     [category])
+    
+    useEffect(() => { set_selected_access([ ]) }, [ current])
     
     const showed_aces_cols: TableColumnType<Record<string, any>>[] = useMemo(() => (
         [   {
@@ -145,7 +147,7 @@ export function AccessManage ({
                             access: k,
                             type: v,
                             action:   <Popconfirm
-                                        title={t('删除用户')}
+                                        title={t('撤销权限')}
                                         description={t('确认 revoke 该权限吗？')}
                                         onConfirm={async () => 
                                             model.execute(async () => {

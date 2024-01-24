@@ -48,18 +48,18 @@ export function AccessHeader ({
                     
                     {t('新增权限')}
                 </Button>
+                <Button
+                    type='primary' 
+                    icon={<KeyOutlined />}
+                    onClick={() => { access.set({ current: { ...current, view: 'preview' } }) }}>
+                    {t('权限查看')}
+                </Button>
                 <Button 
                     danger 
                     icon={<DeleteOutlined/>} 
                     onClick={delete_open}
                 >
                     {t('批量 Revoke')}
-                </Button>
-                <Button
-                    type='primary' 
-                    icon={<KeyOutlined />}
-                    onClick={() => { access.set({ current: { ...current, view: 'preview' } }) }}>
-                    {t('权限查看')}
                 </Button>
             </> 
             }
