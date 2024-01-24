@@ -290,7 +290,7 @@ export function convert_chart_config (widget: Widget, data_source: any[]) {
                 return { yAxis: item }
         }) || [ ]
         
-        const get_item_color = value => value > series.threshold.value ? series.threshold?.high_color : series.threshold?.low_color
+        // const get_item_color = value => value > series.threshold.value ? series.threshold?.high_color : series.threshold?.low_color
         
         let data = [ ]
         
@@ -302,18 +302,18 @@ export function convert_chart_config (widget: Widget, data_source: any[]) {
                     value: [format_time(item?.[xAxis.col_name], xAxis.time_format), item?.[series.col_name]]
                 }
             })
-            if (isNumber(series.threshold?.value))
-                data = data.map(item => ({ ...item, itemStyle: { color: get_item_color(item[1]) } }))
+            // if (isNumber(series.threshold?.value))
+            //     data = data.map(item => ({ ...item, itemStyle: { color: get_item_color(item[1]) } }))
         } else { 
             // 有类目轴的情况下，类目信息从 axis 中取
             data = data_source.map(item => item?.[series.col_name])
-            if (isNumber(series.threshold?.value))
-                data = data.map(item => ({
-                value: item,
-                itemStyle: {
-                    color: get_item_color(item)
-                }
-            }))
+            // if (isNumber(series.threshold?.value))
+            //     data = data.map(item => ({
+            //     value: item,
+            //     itemStyle: {
+            //         color: get_item_color(item)
+            //     }
+            // }))
         }
         
         return {
