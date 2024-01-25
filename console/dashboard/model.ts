@@ -514,7 +514,7 @@ export interface Widget extends GridStackNode {
     ref: React.MutableRefObject<GridItemHTMLElement>
     
     /** 图表类型 */
-    type: keyof typeof WidgetType
+    type: WidgetChartType
     
     /** 数据源 id */
     source_id?: string

@@ -4,7 +4,7 @@ import { type Dispatch, type ReactNode, type SetStateAction, useEffect, useState
 
 import { Button, Tabs, Table, Tooltip, Spin, Result, type TableColumnType, Input, Modal, List } from 'antd'
 
-import { ReloadOutlined, QuestionCircleOutlined, WarningOutlined } from '@ant-design/icons'
+import { ReloadOutlined, QuestionCircleOutlined, WarningOutlined, FormatPainterOutlined } from '@ant-design/icons'
 
 import type { SortOrder } from 'antd/es/table/interface.js'
 
@@ -22,6 +22,7 @@ import { t } from '../../i18n/index.js'
 import SvgPublish from './icons/publish.icon.svg'
 import SvgEngine from './icons/engine.icon.svg'
 import SvgTable from './icons/table.icon.svg'
+import { CEPComputing } from './CEPComputing/index.js'
 
 
 export function Computing () {
@@ -257,20 +258,30 @@ export function Computing () {
                         )}
                     </div>
                 )
+            },
+            {
+                key: "cep_computing",
+                children: <CEPComputing />,
+                label: <label className='tab-header'>
+                    <FormatPainterOutlined className='tab-icon sm-font'/>
+                    {t('CEP 流计算引擎') }
+                </label>,
             }
         ]}
         tabBarExtraContent={
-            <Button
-                icon={<ReloadOutlined />}
-                onClick={async () =>
-                    model.execute(async () => {
-                        await tab_content[tab_key].refresher.call(computing)
-                        model.message.success(`${tab_content[tab_key].title}${t('刷新成功')}`)
-                    })
-                }
-            >
-                {t('刷新')}
-            </Button>
+            tab_key === 'cep_computing'
+                ? null
+                : <Button
+                    icon={<ReloadOutlined />}
+                    onClick={async () =>
+                        model.execute(async () => {
+                            await tab_content[tab_key].refresher.call(computing)
+                            model.message.success(`${tab_content[tab_key].title}${t('刷新成功')}`)
+                        })
+                    }
+                    >
+                    {t('刷新')}
+                </Button>
         }
     />
 }

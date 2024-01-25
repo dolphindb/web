@@ -1,0 +1,64 @@
+.cep-computing-wrapper {
+    padding: 24px;
+    width: 100%;
+    display: flex;
+}
+
+.cep-engine-detail {
+    flex: 1;
+    .spin-content {
+        width: 100%;
+        height: 400px;
+    }
+}
+
+.cep-engine-list {
+    width: 380px;
+    border: 1px solid #fafafa;
+    box-shadow: 2px 2px 2px 1px rgba(0, 0, 0, 0.1);
+    padding: 0 16px 16px 16px;
+    margin-right: 36px;
+    
+    div.ant-typography, .ant-typography p {
+        margin-bottom: 0px;
+    }
+    
+    &-title {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        .refresh-icon {
+            margin-right: 4px;
+        }
+    }
+    
+    .cep-engine-item {
+        border-bottom: 1px solid #fafafa;
+        background-color: #fff;
+        padding: 12px;
+        
+        &:hover {
+            cursor: pointer;
+            background-color: #fafafa;
+            border-radius: 4px;
+        }
+        
+        &-active {
+            background-color: #EEF7FC !important;
+            border-radius: 4px;
+        }
+        
+        &:last-child {
+            border-bottom: none;
+        }
+        
+        &-title {
+            margin-bottom: 8px;
+        }
+        &-desp {
+            display: flex;
+            justify-content: space-around;
+        }
+    }
+    
+}
