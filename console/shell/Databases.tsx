@@ -1170,7 +1170,7 @@ export class PartitionFile implements DataNode {
         this.chunk = chunk
         
         // 找到最后一个 / 的位置，从后面开始截取
-        name ? this.title = this.name = name : this.title = this.name = t('分区数据')
+        this.title = this.name = name || t('分区数据')
         
         this.site_node = site_node
     }
