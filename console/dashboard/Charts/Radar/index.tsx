@@ -9,6 +9,7 @@ import { type IChartConfig } from '../../type.js'
 import { parse_text } from '../../utils.js'
 import { BasicFormFields } from '../../ChartFormFields/BasicFormFields.js'
 import { ChartField } from '../../ChartFormFields/type.js'
+import { isNil, pickBy } from 'lodash'
 
 
 export function Radar ({ widget, data_source }: { widget: Widget, data_source: any[] }) {
@@ -31,14 +32,14 @@ export function Radar ({ widget, data_source }: { widget: Widget, data_source: a
             })
             
             return {
-                legend: {
+                legend: pickBy({
                     show: true,
                     textStyle: {
                         color: '#e6e6e6'
                     },
                     data: legends,
                     ...legend,
-                },
+                }, v => !isNil(v) && v !== ''),
                 tooltip: {
                     show: true,
                     ...tooltip,
@@ -70,9 +71,15 @@ export function Radar ({ widget, data_source }: { widget: Widget, data_source: a
         },
         [title, tooltip, series, title_size, labels, data_source, legend]
     )
-    
+    console.log(option, 'option')
     // 编辑模式下 notMerge 为 true ，因为要修改配置，预览模式下 notMerge 为 false ，避免数据更新，导致选中的 label失效
-    return <ReactEChartsCore notMerge={dashboard.editing} echarts={echarts} option={option} lazyUpdate theme='ohlc_theme' />
+    return <ReactEChartsCore
+        notMerge={dashboard.editing}
+        echarts={echarts}
+        option={option}
+        lazyUpdate
+        theme='ohlc_theme' 
+        />
 }
 
 export function RadarConfigForm (props: { col_names: string[] } ) {

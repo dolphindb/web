@@ -12,6 +12,7 @@ import { get_chart_data_type } from '../utils.js'
 
 
 interface PropsType {
+    widget: Widget
     loading: Boolean
     current_data_source: DataSource
     no_save_flag: MutableRefObject<boolean>
@@ -101,6 +102,7 @@ export const CreateDataSourceModal = NiceModal.create((props: ICreateDataSourceM
 })
 
 export function DataSourceList ({
+    widget,
     loading,
     current_data_source,
     no_save_flag,
@@ -113,8 +115,6 @@ export function DataSourceList ({
     
     const [current_select, set_current_select] = useState(current_data_source?.id || '')
     const [menu_items, set_menu_items] = useState<MenuItemType[]>()
-    
-    const { widget } = dashboard.use(['widget'])
     
     
     useEffect(() => { 

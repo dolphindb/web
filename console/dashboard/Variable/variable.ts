@@ -6,6 +6,7 @@ import { dashboard } from '../model.js'
 import { type DataSource, execute } from '../DataSource/date-source.js'
 import { safe_json_parse } from '../utils.js'
 import { t } from '../../../i18n/index.js'
+import { VariableMode } from '../type.js'
 
 export type ExportVariable = {
     id: string
@@ -14,7 +15,7 @@ export type ExportVariable = {
     
     display_name: string
     
-    mode: string
+    mode: VariableMode
     
     deps: string[]
     
@@ -30,7 +31,7 @@ export class Variable  {
     
     display_name: string
     
-    mode = 'select'
+    mode = VariableMode.SELECT
     
     deps: Set<string>
     
