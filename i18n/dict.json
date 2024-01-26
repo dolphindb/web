@@ -3502,5 +3502,12 @@
     },
     "仅单机节点、数据节点和计算节点支持新建查询": {
         "en": "Queries can only be created on data/compute nodes, or on a standalone server."
-    }
+    },
+    "请将您的浏览器升级至最近 24 个月内发布的版本，Chrome 或 Edge 浏览器版本不应低于 v100。": {
+        "en": "Attention: Please upgrade your browser to the version released within the last 24 months. The Chrome or Edge browser version should not be lower than v100."
+    },
+   "浏览器版本更新提示": {
+        "en": "Browser Version Update Alert"
+   }
+
 }

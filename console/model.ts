@@ -2,6 +2,7 @@ import dayjs from 'dayjs'
 
 import { Model } from 'react-object-model'
 import { satisfies } from 'compare-versions'
+import { UAParser } from 'ua-parser-js'
 
 import type { BaseType } from 'antd/es/typography/Base/index.js'
 import type { MessageInstance } from 'antd/es/message/interface.js'
@@ -225,6 +226,8 @@ class DdbModel extends Model<DdbModel> {
         this.set({ inited: true })
         
         this.get_version()
+        
+        this.show_update()
     }
     
     
@@ -272,6 +275,25 @@ class DdbModel extends Model<DdbModel> {
     
     show_error (options: ErrorOptions) {
         show_error(this.modal, options)
+    }
+    
+    
+     // show warning modal if user's browser version is too old
+     show_update () {
+        const parser = new UAParser()
+            let result = parser.getResult()
+            let needUpdate: boolean = false
+            const browserList = ['Chrome', 'Edge', 'Firefox']
+            
+            if (browserList.includes(result.browser.name))
+                result.browser.major < '100' ? needUpdate = true : needUpdate = false
+                 
+            else if (result.browser.name === 'Safari')
+                result.browser.major < '15' ? needUpdate = true : needUpdate = false
+            
+            // TODO: 适配更多浏览器的版本识别
+            
+        needUpdate ? show_update(this.modal) : ''
     }
     
     
@@ -854,7 +876,7 @@ class DdbModel extends Model<DdbModel> {
 }
 
 
-if (!Array.prototype.toReversed) {
+if (!Array.prototype.toReversed) 
     Object.defineProperty(Array.prototype, 'toReversed', {
         configurable: true,
         writable: true,
@@ -863,7 +885,7 @@ if (!Array.prototype.toReversed) {
             return [...this].reverse()
         }
     })
-}
+
 
 
 export enum NodeType {
@@ -917,6 +939,17 @@ export function show_error (modal: DdbModel['modal'], { title, error, content }:
                 
                 return s
             }
+        })(),
+        width: 1000,
+    })
+}
+
+export function show_update (modal: DdbModel['modal']) {
+    modal.warning({
+        className: 'modal-warning',
+        title: t('浏览器版本更新提示'),
+        content: (() => {
+            return t('请将您的浏览器升级至最近 24 个月内发布的版本，Chrome 或 Edge 浏览器版本不应低于 v100。')
         })(),
         width: 1000,
     })
