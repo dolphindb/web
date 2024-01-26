@@ -3,53 +3,18 @@ import { t } from "../../../i18n/index.js";
 import { RedoOutlined } from "@ant-design/icons";
 import { CEPEngineItem } from "./type.js";
 import classNames from "classnames";
-
-const item_list: CEPEngineItem[] = [{
-        name: "CEP 引擎1",
-        user: "admin",
-        status: "string",
-        lastErrMsg: "xxxxx",
-        useSystemTime: true,
-        numOfSubEngine: 1,
-        queueDepth: 2,
-        eventsReceived: 3,
-        eventsEmitted: 3,
-        eventsOnOutputQueue: 3
-    },
-    {
-        name: "CEP 引擎2",
-        user: "admin",
-        status: "string",
-        lastErrMsg: "xxxxx",
-        useSystemTime: true,
-        numOfSubEngine: 1,
-        queueDepth: 2,
-        eventsReceived: 3,
-        eventsEmitted: 3,
-        eventsOnOutputQueue: 3
-    },
-    {
-        name: "CEP 引擎3",
-        user: "admin",
-        status: "string",
-        lastErrMsg: "xxxxx",
-        useSystemTime: true,
-        numOfSubEngine: 1,
-        queueDepth: 2,
-        eventsReceived: 3,
-        eventsEmitted: 3,
-        eventsOnOutputQueue: 3
-    }]
+import { useEffect } from "react";
     
 interface IProps { 
     on_select: (name: string) => void
     current: string
+    data: CEPEngineItem[]
 }
 
 
 export function CEPEngineList(props: IProps) { 
     
-    const { current, on_select } = props
+    const { current, on_select, data = [] } = props
     
     return <div className="cep-engine-list">
         <div className='cep-engine-list-title'>
@@ -60,7 +25,7 @@ export function CEPEngineList(props: IProps) {
             </Typography.Link>
         </div>
         
-        {item_list.map(item => <div
+        {data.map(item => <div
             className={classNames('cep-engine-item', { "cep-engine-item-active": item.name === current })}
             key={item.name}
             onClick={ () => on_select(item.name) }
