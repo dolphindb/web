@@ -438,6 +438,9 @@ class ShellModel extends Model<ShellModel> {
     
     /** - path: 类似 dfs://Crypto_TSDB_14/, dfs://Crypto_TSDB_14/20100101_20110101/ 的路径 */
     async load_partitions (root: PartitionRoot, node: PartitionDirectory | PartitionRoot) {
+        const dbSchema = root.table.schema
+        const isDatabase: boolean = dbSchema.to_dict().chunkGranularity.toString() === 'DATABASE'
+        
         const {
             rows,
             value: [{ value: filenames }, { value: filetypes }, /* sizes */, { value: chunks_column }, { value: sites }]
@@ -451,7 +454,7 @@ class ShellModel extends Model<ShellModel> {
         )
         
         let directories: PartitionDirectory[] = [ ]
-        let file: PartitionFile
+        let files: PartitionFile[] = [ ]
         
         for (let i = 0;  i < rows;  i++)
             switch (filetypes[i]) {
@@ -464,7 +467,7 @@ class ShellModel extends Model<ShellModel> {
                 case DfsFileType.file_partition: {
                     const chunks = chunks_column[i].split(',')
                     assert(chunks.length === 1, 'chunks.length === 1')
-                    const chunk = chunks[0]
+                    let chunk = chunks[0]
                     
                     // 这里假定对应的 sites 字段一定不是空字符串
                     const site_node = sites[i].split(',')[0].split(':')[0]
@@ -481,26 +484,26 @@ class ShellModel extends Model<ShellModel> {
                     if (!tables.length)
                         return [ ]
                     
-                    assert(tables.length === 1, t('getTablesByTabletChunk 应该只返回一个对应的 table'))
+                    if (isDatabase) 
+                        files.push(new PartitionFile(root, node, `${node.path}${filenames[i]}`, chunk, site_node, filenames[i]))
+                    else 
+                        if (tables[0] === node.root.table.name) {
+                            assert(files.length !== 1, t('应该只有一个满足条件的 PartitionFile 在 PartitionDirectory 下面'))
+                            files.push(new PartitionFile(root, node, `${node.path}${filenames[i]}`, chunk, site_node))
+                            i = rows // break
+                            break
+                        } 
                     
-                    if (tables[0] === node.root.table.name) {
-                        assert(!file, t('应该只有一个满足条件的 PartitionFile 在 PartitionDirectory 下面'))
-                        file = new PartitionFile(root, node, `${node.path}${filenames[i]}`, chunk, site_node)
-                        
-                        i = rows // break
-                    }
-                    
-                    break
                 }
             }
         
         // directories 和 files 中应该只有一个有值，另一个为空
         if (directories.length) {
-            assert(!file, t('directories 和 file 应该只有一个有值，另一个为空'))
+            assert(files.length === 0, t('directories 和 file 应该只有一个有值，另一个为空'))
             return directories
-        } else if (file) {
+        } else if (files) {
             assert(!directories.length, t('directories 和 file 应该只有一个有值，另一个为空'))
-            return [file]
+            return files
         } else
             return [ ]
     }

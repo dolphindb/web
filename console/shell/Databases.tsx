@@ -1157,7 +1157,7 @@ export class PartitionFile implements DataNode {
     /** chunk 所在的集群中的节点 alias */
     site_node: string
     
-    constructor (root: PartitionRoot, parent: PartitionDirectory | PartitionRoot, path: string, chunk: string, site_node: string) {
+    constructor (root: PartitionRoot, parent: PartitionDirectory | PartitionRoot, path: string, chunk: string, site_node: string, name?: string) {
         this.self = this
         this.parent = parent
         this.root = root
@@ -1170,7 +1170,7 @@ export class PartitionFile implements DataNode {
         this.chunk = chunk
         
         // 找到最后一个 / 的位置，从后面开始截取
-        this.title = this.name = t('分区数据')
+        name ? this.title = this.name = name : this.title = this.name = t('分区数据')
         
         this.site_node = site_node
     }
