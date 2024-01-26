@@ -1953,9 +1953,9 @@ function Chart ({
             }
         })()}
         
-        <div className='bottom-bar-placeholder' />
+        { ctx !== 'window' && <div className='bottom-bar-placeholder' /> }
         
-        <div className='bottom-bar'>
+        { ctx !== 'window' && <div className='bottom-bar'>
             <div className='actions'>
                 {(ctx === 'page' || ctx === 'embed') && <Icon
                     className='icon-link'
@@ -1966,6 +1966,6 @@ function Chart ({
                     }}
                 />}
             </div>
-        </div>
+        </div> }
     </div>
 }
