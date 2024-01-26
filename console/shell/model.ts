@@ -467,7 +467,7 @@ class ShellModel extends Model<ShellModel> {
                 case DfsFileType.file_partition: {
                     const chunks = chunks_column[i].split(',')
                     assert(chunks.length === 1, 'chunks.length === 1')
-                    let chunk = chunks[0]
+                    const chunk = chunks[0]
                     
                     // 这里假定对应的 sites 字段一定不是空字符串
                     const site_node = sites[i].split(',')[0].split(':')[0]
