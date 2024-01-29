@@ -1,5 +1,5 @@
 import { Badge, Descriptions, DescriptionsProps, Divider, Menu, Radio, Spin, Table, TableColumnsType, TableProps } from "antd"
-import { useCallback, useMemo, useState } from "react"
+import { useCallback, useEffect, useMemo, useState } from "react"
 import { CEPEngineDetail, EngineDetailPage, SubEngineItem } from "./type.js"
 import { t } from "../../../i18n/index.js"
 import { get_cep_engine_detail } from "./api.js"
@@ -122,10 +122,16 @@ function EngineInfo({ info } : { info: CEPEngineDetail }) {
 function DataView({ info }: { info: CEPEngineDetail }) {
     
     const [data_views, set_data_views] = useState([])
+    // 当前选中的 key
     const [current_key, set_current_key] = useState<string>()
     
     const on_refresh = useCallback(() => { 
         // 调用 getDataViewEngine 获取最新的数据
+    }, [])
+    
+    useEffect(() => { 
+        // 首次进入调用 getDataViewEngine 获取最新数据，之后非手动刷新的情况下采用流订阅的方式更新数据
+        on_refresh()
     },[])
     
     return <>

@@ -64,6 +64,7 @@ export function CEPComputing() {
             !engine_list.length
                 ? <Empty className='cep-engine-empty' />
                 : <div className='cep-computing-wrapper'> 
+                    {/* 仅有一个引擎的时候直接展示该引擎的信息，不需要展示列表 */}
                     {(engine_list.length > 1) && <CEPEngineList on_select={on_select} current={current} data={engine_list} />}
                     <CEPEngineDetail engine={current} />
                 </div>
