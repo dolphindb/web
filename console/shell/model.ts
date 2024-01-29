@@ -193,6 +193,7 @@ class ShellModel extends Model<ShellModel> {
             let message = error.message as string
             if (message.includes('RefId:'))
                 message = message.replaceAll(/RefId:\s*(\w+)/g, (_, ref_id) => {
+                    // 暂时隐藏S00004及以后的错误码编号及链接，待英文文档更新后再向用户暴露
                     if (language === 'en' && Number(ref_id.slice(1)) >= 4)
                         return ''
                     else
