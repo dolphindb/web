@@ -18,8 +18,8 @@ const radius = {
 }
 
 export function Pie ({ widget, data_source }: { widget: Widget, data_source: any[] }) {
-    const { title, title_size = 18, legend, series, animation } = widget.config as IChartConfig
-    console.log(legend, 'legend')
+    const { title, title_size = 18, legend, series, animation, tooltip } = widget.config as IChartConfig
+    
     const option = useMemo(
         () => {
             return {
@@ -32,7 +32,7 @@ export function Pie ({ widget, data_source }: { widget: Widget, data_source: any
                     ...legend,
                 }, v => !isNil(v) && v !== ''),
                 tooltip: {
-                    show: true,
+                    show: tooltip.show ?? true,
                     // 与图形类型相关，一期先写死
                     trigger: 'item',
                     backgroundColor: '#1D1D1D',
@@ -72,7 +72,7 @@ export function Pie ({ widget, data_source }: { widget: Widget, data_source: any
                 })
             }
         },
-        [title, animation, series, title_size, data_source, legend]
+        [title, animation, series, title_size, data_source, legend, tooltip]
     )
     
     console.log(option, 'options')
