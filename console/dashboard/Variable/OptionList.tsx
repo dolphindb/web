@@ -190,7 +190,8 @@ export function OptionList ({
         
         return {
         ...col,
-            onCell: (record: OptionType) => {          
+            onCell: (record: OptionType) => {     
+                // 当前选中变量值无法编辑
                 let disable_editable = false
                 if (current_variable.mode === VariableMode.SELECT && current_variable.value === record.value)
                     disable_editable = true
