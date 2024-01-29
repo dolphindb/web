@@ -32,7 +32,7 @@ export function Pie ({ widget, data_source }: { widget: Widget, data_source: any
                     ...legend,
                 }, v => !isNil(v) && v !== ''),
                 tooltip: {
-                    show: tooltip.show ?? true,
+                    show: tooltip?.show ?? true,
                     // 与图形类型相关，一期先写死
                     trigger: 'item',
                     backgroundColor: '#1D1D1D',
