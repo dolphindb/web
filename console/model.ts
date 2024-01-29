@@ -286,10 +286,10 @@ class DdbModel extends Model<DdbModel> {
             const browserList = ['Chrome', 'Edge', 'Firefox']
             
             if (browserList.includes(result.browser.name))
-                result.browser.major < '100' ? needUpdate = true : needUpdate = false
+                result.browser.major < 100 ? needUpdate = true : needUpdate = false
                  
             else if (result.browser.name === 'Safari')
-                result.browser.major < '15' ? needUpdate = true : needUpdate = false
+                result.browser.major < 15 ? needUpdate = true : needUpdate = false
             
             // TODO: 适配更多浏览器的版本识别
             
