@@ -1,61 +1,61 @@
 import './index.scss'
-import { CEPEngineList } from "./CEPEngineList.js";
-import { useCallback, useEffect, useState } from 'react';
-import { CEPEngineDetail } from './CEPEngineDetail.js';
-import { CEPEngineItem } from './type';
-import { Empty, Spin } from 'antd';
+import { CEPEngineList } from './CEPEngineList.js'
+import { useCallback, useEffect, useState } from 'react'
+import { CEPEngineDetail } from './CEPEngineDetail.js'
+import { type CEPEngineItem } from './type'
+import { Empty, Spin } from 'antd'
 
-const item_list: CEPEngineItem[] = [{
-    name: "CEP 引擎1",
-    user: "admin",
-    status: "string",
-    lastErrMsg: "xxxxx",
-    useSystemTime: true,
-    numOfSubEngine: 1,
-    queueDepth: 2,
-    eventsReceived: 3,
-    eventsEmitted: 3,
-    eventsOnOutputQueue: 3
-},
-{
-    name: "CEP 引擎2",
-    user: "admin",
-    status: "string",
-    lastErrMsg: "xxxxx",
-    useSystemTime: true,
-    numOfSubEngine: 1,
-    queueDepth: 2,
-    eventsReceived: 3,
-    eventsEmitted: 3,
-    eventsOnOutputQueue: 3
-},
-{
-    name: "CEP 引擎3",
-    user: "admin",
-    status: "string",
-    lastErrMsg: "xxxxx",
-    useSystemTime: true,
-    numOfSubEngine: 1,
-    queueDepth: 2,
-    eventsReceived: 3,
-    eventsEmitted: 3,
-    eventsOnOutputQueue: 3
-}]
+// const item_list: CEPEngineItem[] = [{
+//     name: 'CEP 引擎1',
+//     user: 'admin',
+//     status: 'string',
+//     lastErrMsg: 'xxxxx',
+//     useSystemTime: true,
+//     numOfSubEngine: 1,
+//     queueDepth: 2,
+//     eventsReceived: 3,
+//     eventsEmitted: 3,
+//     eventsOnOutputQueue: 3
+// },
+// {
+//     name: 'CEP 引擎2',
+//     user: 'admin',
+//     status: 'string',
+//     lastErrMsg: 'xxxxx',
+//     useSystemTime: true,
+//     numOfSubEngine: 1,
+//     queueDepth: 2,
+//     eventsReceived: 3,
+//     eventsEmitted: 3,
+//     eventsOnOutputQueue: 3
+// },
+// {
+//     name: 'CEP 引擎3',
+//     user: 'admin',
+//     status: 'string',
+//     lastErrMsg: 'xxxxx',
+//     useSystemTime: true,
+//     numOfSubEngine: 1,
+//     queueDepth: 2,
+//     eventsReceived: 3,
+//     eventsEmitted: 3,
+//     eventsOnOutputQueue: 3
+// }]
 
-export function CEPComputing() { 
+export function CEPComputing () { 
     
     // 当前选中的引擎名称
     const [current, set_current] = useState<string>()
-    const [engine_list, set_engine_list] = useState<CEPEngineItem[]>(item_list)
+    const [engine_list, set_engine_list] = useState<CEPEngineItem[]>([ ])
     const [loading, set_loading] = useState(false)
     
     const on_select = useCallback((name: string) => { 
         set_current(name)
-    }, [])
+    }, [ ])
     
     useEffect(() => { 
         // 获取引擎列表
-    }, [])
+    }, [ ])
     
     console.log(engine_list, 'engine_list')
     
