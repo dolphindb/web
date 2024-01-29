@@ -10,7 +10,7 @@ import type { FitAddon } from 'xterm-addon-fit'
 import type * as monacoapi from 'monaco-editor/esm/vs/editor/editor.api.js'
 
 import { delta2str, assert, delay } from 'xshell/utils.browser.js'
-import { red, blue, underline } from 'xshell/chalk.browser.js'
+import { red, blue } from 'xshell/chalk.browser.js'
 
 import {
     DdbForm,
@@ -34,6 +34,7 @@ import { model, NodeType, storage_keys } from '../model.js'
 import type { Monaco } from './Editor/index.js'
 import { Database, DatabaseGroup, type Column, type ColumnRoot, PartitionDirectory, type PartitionRoot, PartitionFile, Table } from './Databases.js'
 import { DdbVar } from './Variables.js'
+import { get_error_code_doc_link } from '../utils/ddb-error.js'
 
 
 type Result = { type: 'object', data: DdbObj } | { type: 'objref', data: DdbObjRef }
@@ -119,6 +120,9 @@ class ShellModel extends Model<ShellModel> {
         return lines_
     }
     
+    async refresh_db () {
+        
+    }
     
     async eval (code = this.editor.getValue()) {
         const time_start = dayjs()
@@ -187,8 +191,10 @@ class ShellModel extends Model<ShellModel> {
             )
         } catch (error) {
             let message = error.message as string
-            if (message.includes('RefId:'))
-                message = message.replaceAll(/RefId:\s*(\w+)/g, underline(blue('RefId: $1')))
+            if (message.includes('RefId:')) 
+                message = message.replaceAll(/RefId:\s*(\w+)/g, (_, ref_id) => 
+                    // xterm link写法 https://stackoverflow.com/questions/64759060/how-to-create-links-in-xterm-js
+                    blue(`\x1b]8;;${get_error_code_doc_link(ref_id.toLowerCase())}\x07RefId: ${ref_id}\x1b]8;;\x07`))
             this.term.writeln(red(message))
             throw error
         } finally {
