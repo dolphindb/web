@@ -192,15 +192,17 @@ class ShellModel extends Model<ShellModel> {
         } catch (error) {
             let message = error.message as string
             if (message.includes('RefId:')) 
-                language === 'en' 
-                ? message.slice(-5) >= '00004' 
-                    ? message = message.substring(0, message.length - 13) 
-                    : message = message.replaceAll(/RefId:\s*(\w+)/g, (_, ref_id) => 
+                if (language === 'en') {
+                    let regex = /RefId:[A-Za-z0-9]+/i
+                    if (message.slice(-5) >= '00004') 
+                        message = message.replace(regex, '') 
+                     else 
+                        message = message.replaceAll(/RefId:\s*(\w+)/g, (_, ref_id) => 
                         // xterm link写法 https://stackoverflow.com/questions/64759060/how-to-create-links-in-xterm-js
                         blue(`\x1b]8;;${get_error_code_doc_link(ref_id.toLowerCase())}\x07RefId: ${ref_id}\x1b]8;;\x07`)) 
-                : message = message.replaceAll(/RefId:\s*(\w+)/g, (_, ref_id) => 
-                    // xterm link写法 https://stackoverflow.com/questions/64759060/how-to-create-links-in-xterm-js
-                    blue(`\x1b]8;;${get_error_code_doc_link(ref_id.toLowerCase())}\x07RefId: ${ref_id}\x1b]8;;\x07`))
+                } else
+                    message = message.replaceAll(/RefId:\s*(\w+)/g, (_, ref_id) => 
+                        blue(`\x1b]8;;${get_error_code_doc_link(ref_id.toLowerCase())}\x07RefId: ${ref_id}\x1b]8;;\x07`))   
                 
             this.term.writeln(red(message))
             throw error
