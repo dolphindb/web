@@ -231,8 +231,6 @@ export function DataSourceList ({
                             selectedKeys={[current_select]}
                             className='data-source-list-bottom-menu'
                             onCheck={keys => {
-                                console.log(data_sources, 'data_sources')
-                                console.log(keys, 'keys')
                                 if (Array.isArray(keys))
                                     on_select(keys.map(key => String(key))) 
                                 else
