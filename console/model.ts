@@ -283,8 +283,9 @@ class DdbModel extends Model<DdbModel> {
         const parser = new UAParser()
             let result = parser.getResult()
             let needUpdate: boolean = false
+            let reminded: boolean = localStorage.getItem('seen') === (new Date()).getDate().toString()
             const browserList = ['Chrome', 'Edge', 'Firefox']
-            
+                      
             if (browserList.includes(result.browser.name))
                 result.browser.major < 100 ? needUpdate = true : needUpdate = false
                  
@@ -293,7 +294,7 @@ class DdbModel extends Model<DdbModel> {
             
             // TODO: 适配更多浏览器的版本识别
             
-        needUpdate ? show_update(this.modal) : ''
+        needUpdate && !reminded ? show_update(this.modal) : ''
     }
     
     
@@ -945,6 +946,8 @@ export function show_error (modal: DdbModel['modal'], { title, error, content }:
 }
 
 export function show_update (modal: DdbModel['modal']) {
+    localStorage.setItem('seen', (new Date()).getDate().toString())
+    console.log('Working')
     modal.warning({
         className: 'modal-warning',
         title: t('浏览器版本更新提示'),
@@ -953,6 +956,7 @@ export function show_update (modal: DdbModel['modal']) {
         })(),
         width: 1000,
     })
+    
 }
 
 
