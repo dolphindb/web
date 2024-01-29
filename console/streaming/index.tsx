@@ -1,5 +1,3 @@
-import './obj.sass'
-
 import { useEffect, useRef, useState } from 'react'
 
 import { Switch, Descriptions, Row, Col, Statistic, Card } from 'antd'
