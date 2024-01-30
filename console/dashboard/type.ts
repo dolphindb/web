@@ -37,6 +37,9 @@ export interface ISeriesConfig {
     stack?: string
     end_label?: boolean
     end_label_formatter?: string
+    data_source_id: string
+    x_col_name: string
+    
     
     
     // 阈值与配色
@@ -81,10 +84,31 @@ export interface IChartConfig {
     // 缩略轴
     x_datazoom: boolean
     y_datazoom: boolean
-    // 网格线
-    with_split_line: boolean
-    with_tooltip: boolean
-    with_legend: boolean
+    animation?: boolean
+    splitLine: {
+        show: boolean
+        lineStyle: {
+            type: ILineType
+            color: string
+            width: number
+        }
+    }
+    tooltip: {
+        show: boolean
+    }
+    legend?: {
+        show: boolean
+        type: 'scroll' | 'plain'
+        itemGap: number
+        textStyle: {
+            fontSize: number
+            color: string
+        }
+        top: number | string
+        bottom: number | string
+        right: number | string
+        left: number | string
+    }
     // 是否增加数据过滤选择
     with_data_filter: boolean
     xAxis: AxisConfig
@@ -157,7 +181,7 @@ export interface IDescriptionsConfig {
 }
 
 
-export interface IOrderBookConfig extends Pick<IChartConfig, 'title' | 'title_size' | 'with_tooltip' | 'with_split_line' | 'with_legend'> {
+export interface IOrderBookConfig extends Pick<IChartConfig, 'title' | 'title_size' > {
     time_rate: number
     market_data_files_num: number
     bar_color: string
@@ -179,6 +203,7 @@ export interface IGaugeConfig {
     title_size?: number
     label_size?: number
     value_size?: number
+    animation?: boolean
     
     axis_setting: Array<{
         threshold: number
@@ -201,3 +226,10 @@ export interface IGaugeConfig {
     }>
 }
 
+
+export enum VariableMode { 
+    SELECT = 'select',
+    MULTI_SELECT = 'multi_select',
+    TEXT = 'text',
+    DATE = 'date'
+}

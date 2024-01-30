@@ -1,14 +1,15 @@
-import { type MutableRefObject, type ReactNode, createElement, useEffect, useRef, useState } from 'react'
+import { type MutableRefObject, type ReactNode, createElement, useEffect, useRef, useState, useMemo } from 'react'
 import { Input, Modal, Tree } from 'antd'
 import { CopyOutlined, DatabaseOutlined, DeleteOutlined, EditOutlined, FileOutlined } from '@ant-design/icons'
 import { use_modal } from 'react-object-model/hooks.js'
 
-import { dashboard } from '../model.js'
+import { type Widget, WidgetChartType, dashboard } from '../model.js'
 import { create_data_source, data_sources, delete_data_source, rename_data_source, type DataSource, type DataSourcePropertyType, copy_data_source, paste_data_source } from './date-source.js'
 import { t } from '../../../i18n/index.js'
 
 
 interface PropsType {
+    widget: Widget
     loading: Boolean
     current_data_source: DataSource
     no_save_flag: MutableRefObject<boolean>
@@ -21,6 +22,7 @@ interface PropsType {
     handle_save: () => Promise<void>
     change_current_data_source: (key: string) => void
     change_current_data_source_property: (key: string, value: DataSourcePropertyType, save_confirm?: boolean) => void
+    on_select: (keys: string[]) => void
 }
 
 interface MenuItemType {
@@ -30,14 +32,17 @@ interface MenuItemType {
 }
 
 export function DataSourceList ({
+    widget,
     loading,
     current_data_source,
     no_save_flag,
     save_confirm,
     handle_save,
     change_current_data_source,
-    change_current_data_source_property
+    change_current_data_source_property,
+    on_select
 }: PropsType) {
+    
     const [current_select, set_current_select] = useState(current_data_source?.id || '')
     const [new_name, set_new_name] = useState('')
     const [menu_items, set_menu_items] = useState(
@@ -49,6 +54,9 @@ export function DataSourceList ({
             }
         })
     )
+    
+    
+    const checkable = useMemo(() => widget ? widget.type === WidgetChartType.COMPOSITE_GRAPH : false, [ widget ])
     
     const tree_ref = useRef(null)
     
@@ -153,7 +161,7 @@ export function DataSourceList ({
                         onClick={async () => {
                             if (loading)
                                 return
-                            if (no_save_flag.current && (await save_confirm()))
+                            if (no_save_flag.current && (await save_confirm()))  
                                 await handle_save()
                             no_save_flag.current = false
                             add_open()
@@ -214,12 +222,20 @@ export function DataSourceList ({
                 { current_data_source && <div className='data-source-list-bottom'>
                     {data_sources.length && 
                         <Tree
+                            checkable={checkable}
+                            defaultCheckedKeys={widget?.source_id ?? [ ]}
                             ref={tree_ref}
                             showIcon
                             height={450}
                             blockNode
                             selectedKeys={[current_select]}
                             className='data-source-list-bottom-menu'
+                            onCheck={keys => {
+                                if (Array.isArray(keys))
+                                    on_select(keys.map(key => String(key))) 
+                                else
+                                    on_select([ ])
+                            }}
                             onSelect={async key => {
                                 if (loading)
                                     return
@@ -229,6 +245,7 @@ export function DataSourceList ({
                                     no_save_flag.current = false
                                     change_current_data_source(String(key[0]))
                                     set_current_select(String(key[0]))
+                                    !checkable && on_select([String(key[0])])
                                 }
                             }}
                             treeData={menu_items}

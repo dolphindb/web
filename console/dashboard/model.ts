@@ -135,7 +135,9 @@ export class DashBoardModel extends Model<DashBoardModel> {
                     for (let j = 0;  j <= 11;  j++)
                         if (dp[i][j] >= 3 && dp[i + 1][j] >= 3) 
                             return true
-                        
+                console.log('格子不够')
+                console.log('canvas', canvas)
+                console.log('dp', dp)        
                 return false
             },
             float: true,
@@ -465,6 +467,7 @@ export class DashBoardModel extends Model<DashBoardModel> {
             
             widgets: config.data.canvas.widgets.map(widget => ({
                 ...widget,
+                source_id: typeof widget.source_id === 'string' ? Array.of(widget.source_id) : widget.source_id,
                 ref: createRef()
                 })) as Widget[],
          
@@ -514,10 +517,10 @@ export interface Widget extends GridStackNode {
     ref: React.MutableRefObject<GridItemHTMLElement>
     
     /** 图表类型 */
-    type: keyof typeof WidgetType
+    type: WidgetChartType
     
     /** 数据源 id */
-    source_id?: string
+    source_id?: string[]
     
     /** 更新图表方法 */
     update_graph?: (data: DataType) => void
@@ -553,6 +556,7 @@ export enum WidgetType {
     RADAR = '雷达图',
     VARIABLE = '变量',
     SCATTER = '散点图',
+    COMPOSITE_GRAPH = '复合图'
     // HEATMAP = '热力图'
 }
 
@@ -571,7 +575,8 @@ export enum WidgetChartType {
     RADAR = 'RADAR',
     VARIABLE = 'VARIABLE',
     SCATTER = 'SCATTER',
-    HEATMAP = 'HEATMAP'
+    HEATMAP = 'HEATMAP',
+    COMPOSITE_GRAPH = 'COMPOSITE_GRAPH'
 }
 
 export enum DashboardPermission {
