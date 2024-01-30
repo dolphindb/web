@@ -2,6 +2,7 @@ import 'xshell/scroll-bar.sass'
 
 import './formily-patch.scss'
 import './index.sass'
+import './pagination.sass'
 
 
 import { useEffect } from 'react'
@@ -129,7 +130,7 @@ function DdbContent () {
     if (!View)
         return null
     
-    return <div className={cn('view-card', view, { 'white-pagination': view !== 'dashboard' })}>
+    return <div className={cn('view-card', view, { 'themed-pagination': view !== 'dashboard' })}>
         <View />
     </div>
 }
