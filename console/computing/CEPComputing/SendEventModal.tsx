@@ -33,7 +33,10 @@ export const SendEventModal = NiceModal.create((props: IProps) => {
     const on_send = useCallback(async () => {
         const { event_type, ...others } = await form.validateFields()
         let dict = { }
-        for (let [key, value] of Object.entries(others)) { 
+        const { eventValuesTypeString: types } = msgSchema.find(item => item.eventType === event_type)
+        for (let i in Object.entries(others)) { 
+            const [key, value] = others[i]
+            // if()
             const obj = await model.ddb.eval(JSON.stringify(value))
             dict[key] = obj
         }
