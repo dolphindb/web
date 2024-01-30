@@ -2,13 +2,15 @@ import * as echarts from 'echarts'
 import ReactEChartsCore from 'echarts-for-react/lib/core'
 import { useMemo } from 'react'
 
-import { BasicFormFields, OhlcFormFields } from '../../ChartFormFields/OhlcChartFields.js'
+import { OhlcFormFields } from '../../ChartFormFields/OhlcChartFields.js'
 import { dashboard, type Widget } from '../../model.js'
 import { type IChartConfig, type ISeriesConfig } from '../../type.js'
 
 import { MarkPresetType } from '../../ChartFormFields/type.js'
 import { format_time, parse_text } from '../../utils.js'
 import './index.sass'
+import { BasicFormFields } from '../../ChartFormFields/BasicFormFields.js'
+import { isNil, pickBy } from 'lodash'
 
 type COL_MAP = {
     time: string
@@ -45,7 +47,7 @@ function splitData (rowData: any[], col_name: COL_MAP) {
 
 
 export function OHLC ({ widget, data_source }: { widget: Widget, data_source: any[] }) {
-    const { title, title_size, with_tooltip, xAxis, series, yAxis, x_datazoom, y_datazoom } = widget.config as IChartConfig
+    const { title, title_size, xAxis, series, yAxis, x_datazoom, y_datazoom, legend, splitLine, animation, tooltip } = widget.config as IChartConfig
     function convert_series (series: ISeriesConfig) { 
         let mark_line_data = series?.mark_line?.map(item => { 
             if (item in MarkPresetType)
@@ -90,8 +92,7 @@ export function OHLC ({ widget, data_source }: { widget: Widget, data_source: an
     const lines = series.slice(2).map(serie => convert_series(serie))
     
     const data = useMemo(
-        () =>
-            splitData(data_source, {
+        () => splitData(data_source, {
                 time: xAxis.col_name,
                 open: series[0].open as string,
                 close: series[0].close as string,
@@ -107,7 +108,7 @@ export function OHLC ({ widget, data_source }: { widget: Widget, data_source: an
     [series[0]])
     const option = useMemo(
         () => ({
-            animation: false,
+            animation,
             title: {
                 text: parse_text(title),
                 textStyle: {
@@ -116,17 +117,23 @@ export function OHLC ({ widget, data_source }: { widget: Widget, data_source: an
                 }
             },
             data,
-            legend: {
+            splitLine: {
+                show: true,
+                ...splitLine
+            },
+            legend: pickBy({
+                show: true,
                 top: 10,
                 left: 'center',
                 data: series.slice(2).map(s => s?.name || ''),
                 textStyle: {
                     color: '#e6e6e6'
-                }
-              },
+                },
+                ...legend,
+              }, v => !isNil(v) && v !== ''),
             backgroundColor: '#282828',
             tooltip: {
-                show: with_tooltip,
+                show: true,
                 trigger: 'axis',
                 axisPointer: {
                     type: 'cross'
@@ -222,7 +229,7 @@ export function OHLC ({ widget, data_source }: { widget: Widget, data_source: an
                     
                     boundaryGap: false,
                     axisLine: { onZero: false },
-                    splitLine: { show: false },
+                    splitLine: { show: true, ...splitLine },
                     nameTextStyle: {
                         fontSize: xAxis?.fontsize ?? 12
                     },
@@ -234,8 +241,8 @@ export function OHLC ({ widget, data_source }: { widget: Widget, data_source: an
                         return idx === -1 ? 0 : idx
                     }
                     ,
-                    max:  () => {
-                        const idx = data.categoryData.findIndex(time => time >= xAxis.max) 
+                    max: () => {
+                        const idx = data.categoryData.findIndex(time => time >= xAxis.max)
                         return idx === -1 ? data.categoryData.length - 1 : idx
                     }
                 },
@@ -275,7 +282,8 @@ export function OHLC ({ widget, data_source }: { widget: Widget, data_source: an
                         lineStyle: {
                             type: 'dashed',
                             color: '#6E6F7A'
-                        }
+                        },
+                        ...splitLine
                     },
                     nameTextStyle: {
                         padding: [0, 50, 0, 0],
@@ -348,7 +356,7 @@ export function OHLC ({ widget, data_source }: { widget: Widget, data_source: an
                 ...lines
             ]
         }),
-        [title, with_tooltip, data, xAxis, yAxis, x_datazoom, y_datazoom]
+        [title, animation, data, xAxis, yAxis, x_datazoom, y_datazoom, legend, splitLine, tooltip]
     )
     // 编辑模式下 notMerge 为 true ，因为要修改配置，预览模式下 notMerge 为 false ，避免数据更新，导致选中的 label失效
     return <ReactEChartsCore echarts={echarts} option={option} theme='ohlc_theme' />
@@ -358,7 +366,7 @@ export function OHLC ({ widget, data_source }: { widget: Widget, data_source: an
 export function OhlcConfigForm (props: { col_names: string[] }) {
     const { col_names = [ ] } = props
     return <>
-        <BasicFormFields/>
+        <BasicFormFields type='chart'/>
         <OhlcFormFields col_names={col_names} />
     </>
 }
