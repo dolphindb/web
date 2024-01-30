@@ -10,8 +10,6 @@ import { createRoot } from 'react-dom/client'
 
 import NiceModal from '@ebay/nice-modal-react'
 
-import cn from 'classnames'
-
 import { Layout, ConfigProvider, App } from 'antd'
 import zh from 'antd/es/locale/zh_CN.js'
 import en from 'antd/locale/en_US.js'
@@ -130,7 +128,7 @@ function DdbContent () {
     if (!View)
         return null
     
-    return <div className={cn('view-card', view, { 'themed-pagination': view !== 'dashboard' })}>
+    return <div className={`view-card ${view}`}>
         <View />
     </div>
 }
