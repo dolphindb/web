@@ -22,6 +22,10 @@ $line-number-active-foreground-color: var(--vscode-editorLineNumber-activeForegr
 .result
     overflow-y: auto
     
+    position: relative
+    
+    height: 100%
+    
     .default-obj
         color: $font-color
     
@@ -135,10 +139,9 @@ $line-number-active-foreground-color: var(--vscode-editorLineNumber-activeForegr
         width: 100%
         height: 30px
         
-        position: fixed
+        position: absolute
         bottom: 0px
         
-        background-color: $background-color
         border-top: 1px solid $border-color
         
         padding-left: 12px
@@ -188,12 +191,14 @@ $line-number-active-foreground-color: var(--vscode-editorLineNumber-activeForegr
     
     .ant-table
         background-color: $background-color !important
-        // 加上下面的会导致 table 下面多渲染 7px，不知道当初为什么要加上
+        
+        // 加上下面的会导致 table 下面多渲染 7px，之前加上是为了让 dict 中的表格不要占 100% 的宽度，导致表格顶部的 border 超出表格
         // display: inline-block
         
-    .ant-table-has-fix-left
-        .ant-table-container
-            border-inline-start-width: 2px !important
+    // 先去掉为了 vscode 中 dataview 做的修复看看还是否有必要，加上这个 web 里表格左框线特别粗
+    // .ant-table-has-fix-left
+    //     .ant-table-container
+    //         border-inline-start-width: 2px !important
     
     .ant-table-thead > tr > td::before
         content: none !important
@@ -228,7 +233,11 @@ $line-number-active-foreground-color: var(--vscode-editorLineNumber-activeForegr
         
     .ant-table-wrapper .ant-table-tbody > tr.ant-table-placeholder
         background-color: $background-color !important
-        
+    
+    // 去掉 table-container 顶部多余的分割线，宽度超出了 table 且占了 100% 的宽度
+    .ant-table-wrapper .ant-table.ant-table-bordered >.ant-table-container
+        border-top: unset
+    
     .ant-table-tbody > tr > td
         transition: none
         
