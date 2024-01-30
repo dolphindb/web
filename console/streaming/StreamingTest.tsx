@@ -8,7 +8,7 @@ import { StreamingHeatMap } from './StreamingHeatMap.js'
 
 export function StreamingTest () {
     // 监听开始与否
-    return <div className='result page'>
+    return <div className='obj-result themed page'>
             <Row>
                 <Col span={24}>
                     <StreamingScatter
