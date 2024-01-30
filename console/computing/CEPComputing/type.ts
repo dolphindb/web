@@ -80,13 +80,15 @@ export interface EventItem {
     eventValuesTypeInt: number[]
 }
 
-export interface CEPEngineDetail extends CEPEngineItem { 
+export interface CEPEngineDetail { 
+    /** 引擎信息 */
+    EngineStat: CEPEngineItem
     /** 数据视图信息 */
     dataViewEngines: DataViewEngineItem[]
     /** 事件信息 */
     msgSchema: EventItem[]
     /** 子引擎信息 */
-    subEngineStat: SubEngineItem[]
+    SubEngineStat: SubEngineItem[]
 }
 
 export enum EngineDetailPage { 

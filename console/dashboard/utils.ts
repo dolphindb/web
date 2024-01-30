@@ -69,7 +69,7 @@ function formatter (type: DdbType, values, le: boolean, index: number, options =
     }
 }
 
-export function sql_formatter (obj: DdbObj<DdbValue>, max_line: number): Array<{}> {
+export function sql_formatter (obj: DdbObj<DdbValue>, max_line?: number): Array<{}> {
     switch (obj.form) {
         case DdbForm.table:
             const array_vectors = { }

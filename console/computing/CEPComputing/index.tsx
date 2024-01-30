@@ -4,43 +4,7 @@ import { useCallback, useEffect, useState } from 'react'
 import { CEPEngineDetail } from './CEPEngineDetail.js'
 import { type CEPEngineItem } from './type'
 import { Empty, Spin } from 'antd'
-
-// const item_list: CEPEngineItem[] = [{
-//     name: 'CEP 引擎1',
-//     user: 'admin',
-//     status: 'string',
-//     lastErrMsg: 'xxxxx',
-//     useSystemTime: true,
-//     numOfSubEngine: 1,
-//     queueDepth: 2,
-//     eventsReceived: 3,
-//     eventsEmitted: 3,
-//     eventsOnOutputQueue: 3
-// },
-// {
-//     name: 'CEP 引擎2',
-//     user: 'admin',
-//     status: 'string',
-//     lastErrMsg: 'xxxxx',
-//     useSystemTime: true,
-//     numOfSubEngine: 1,
-//     queueDepth: 2,
-//     eventsReceived: 3,
-//     eventsEmitted: 3,
-//     eventsOnOutputQueue: 3
-// },
-// {
-//     name: 'CEP 引擎3',
-//     user: 'admin',
-//     status: 'string',
-//     lastErrMsg: 'xxxxx',
-//     useSystemTime: true,
-//     numOfSubEngine: 1,
-//     queueDepth: 2,
-//     eventsReceived: 3,
-//     eventsEmitted: 3,
-//     eventsOnOutputQueue: 3
-// }]
+import { get_cep_engine_list } from './api.js'
 
 export function CEPComputing () { 
     
@@ -53,8 +17,16 @@ export function CEPComputing () {
         set_current(name)
     }, [ ])
     
+    const get_cep_engines = useCallback(async () => {
+        const list = await get_cep_engine_list()
+        set_engine_list(list)
+        set_current(list?.[0]?.name)
+    }, [ ])
+    
+    
     useEffect(() => { 
         // 获取引擎列表
+        get_cep_engines()
     }, [ ])
     
     console.log(engine_list, 'engine_list')
