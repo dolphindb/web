@@ -1,7 +1,7 @@
 import { DdbString } from 'dolphindb'
 import { safe_json_parse, sql_formatter } from '../../dashboard/utils.js'
 import { model } from '../../model.js'
-import { type CEPEngineDetail, type CEPEngineItem } from './type.js'
+import { type ICEPEngineDetail, type CEPEngineItem, type DataViewEngineItem } from './type.js'
 
 export async function get_cep_engine_list () { 
     const res = await model.ddb.eval('getStreamEngineStat().CEPEngine')
@@ -10,15 +10,21 @@ export async function get_cep_engine_list () {
 
 export async function get_cep_engine_detail (name: string) { 
     const { value } = await model.ddb.eval(`toStdJson(getCEPEngineStat(${JSON.stringify(name)}))`)
-    return safe_json_parse(value) as CEPEngineDetail
+    return safe_json_parse(value) as ICEPEngineDetail
+}
+
+export async function get_dataview_keys (engine_name: string, dataview_name: string ) { 
+    const engine_detail = await get_cep_engine_detail(engine_name)
+    const [key_col] = engine_detail.dataViewEngines?.find(item => item.name === dataview_name)?.keyColumns?.split(' ')
+    const dataview_info = await model.ddb.call('getDataViewEngine', [engine_name, dataview_name])
+    return sql_formatter(dataview_info).map(item => item[key_col])
+}
+
+export async function get_dataview_info (engine_name, dataview_name) { 
+    const info_table = await model.ddb.call('getDataViewEngine', [engine_name, dataview_name])
+    return sql_formatter(info_table)
 }
 
 export async function send_event_to_engine () { 
     
 }
-
-export async function get_engine_dataviews () {
-    
-}
-
-export function convert_to_basic_ddb_type (type, value) { }

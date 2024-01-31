@@ -31,8 +31,8 @@ export interface DataViewEngineItem {
     status: string
     /** 最新一条错误信息 */
     lastErrMsg: string
-    /** 字符串 keyColumns 名称*/
-    keyColumns: string[]
+    /** 字符串 keyColumns 名称，如有多个，以空格隔开 */
+    keyColumns: string
     /** 输出表名称 */
     outputTableName: string
     /** 是否使用系统时间 */
@@ -80,7 +80,7 @@ export interface EventItem {
     eventValuesTypeInt: number[]
 }
 
-export interface CEPEngineDetail { 
+export interface ICEPEngineDetail { 
     /** 引擎信息 */
     EngineStat: CEPEngineItem
     /** 数据视图信息 */

@@ -1,16 +1,16 @@
 import NiceModal, { useModal } from '@ebay/nice-modal-react'
 import { Form, Input, InputNumber, Modal, Select } from 'antd'
 import { useCallback } from 'react'
-import { type CEPEngineDetail } from './type.js'
+import { type ICEPEngineDetail } from './type.js'
 import { t } from '../../../i18n/index.js'
-import { FormDependencies } from '../../components/formily/FormDependcies'
+import { FormDependencies } from '../../components/formily/FormDependcies/index.js'
 import { TIME_COMPONENT } from '../../shell/QueryGuide/components/QueryForm.js'
 import { VALUE_TYPES } from '../../shell/QueryGuide/constant.js'
 import { DdbDict, type DdbValue, type DdbObj, DdbForm } from 'dolphindb'
 import { model } from '../../model.js'
 
 interface IProps { 
-    engine_info: CEPEngineDetail
+    engine_info: ICEPEngineDetail
 }
 
 export function InputField ({ type }: { type: string }) { 
@@ -26,7 +26,7 @@ export function InputField ({ type }: { type: string }) {
 }
 
 export const SendEventModal = NiceModal.create((props: IProps) => { 
-    const { engine_info: { msgSchema = [ ], name } } = props
+    const { engine_info: { msgSchema = [ ], EngineStat: { name } } } = props
     const modal = useModal()
     const [form] = Form.useForm()
     

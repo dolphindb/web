@@ -260,7 +260,7 @@ export function Computing () {
                 )
             },
             {
-                key: "cep_computing",
+                key: 'cep_computing',
                 children: <CEPComputing />,
                 label: <label className='tab-header'>
                     <FormatPainterOutlined className='tab-icon sm-font'/>

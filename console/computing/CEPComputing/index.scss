@@ -3,10 +3,7 @@
     width: 100%;
     height: 100%;
     display: flex;
-    
-    .cep-btn-wrapper {
-        text-align: right;
-    }
+
 }
 
 .cep-engine-empty {
@@ -14,10 +11,36 @@
 }
 
 .cep-engine-detail {
-    flex: 1;
+    width: calc( 100% - 320px);
+    &-single {
+        width: 100%;
+    }
     .spin-content {
         width: 100%;
         height: 400px;
+    }
+    .cep-detail-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+    .data-view-info {
+        display: flex;
+        justify-content: space-between;
+        margin-top: 12px;
+        
+        .data-view-menu {
+            width: 320px;
+            background-color: rgba(187, 187, 187, .07);
+        }
+        
+        .data-view-table {
+            width: calc(100% - 320px);
+            margin-left: 12px;
+        }
+        
+        
+        
     }
 }
 
