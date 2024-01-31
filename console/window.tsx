@@ -1,6 +1,7 @@
 import 'xshell/scroll-bar.sass'
 
 import './window.sass'
+import './pagination.sass'
 
 
 import { useEffect } from 'react'
