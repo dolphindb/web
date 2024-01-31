@@ -265,7 +265,7 @@ function DataView ({ info }: { info: ICEPEngineDetail }) {
                 { title: t('值'), dataIndex: 'value' }
             ]}
             pagination={{
-                defaultPageSize: 5,
+                defaultPageSize: 10,
                 pageSizeOptions: ['5', '10', '20'],
                 size: 'small',
                 showSizeChanger: true,
