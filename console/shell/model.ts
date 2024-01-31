@@ -438,8 +438,10 @@ class ShellModel extends Model<ShellModel> {
     
     /** - path: 类似 dfs://Crypto_TSDB_14/, dfs://Crypto_TSDB_14/20100101_20110101/ 的路径 */
     async load_partitions (root: PartitionRoot, node: PartitionDirectory | PartitionRoot) {
-        const dbSchema = root.table.schema
-        const isDatabase: boolean = dbSchema.to_dict().chunkGranularity.toString() === 'DATABASE'
+        // 之前 table.load_children 时一定已经加载了 schema
+        const { schema } = root.table
+        
+        const is_database_granularity = schema.to_dict().chunkGranularity.value === 'DATABASE'
         
         const {
             rows,
@@ -484,16 +486,16 @@ class ShellModel extends Model<ShellModel> {
                     if (!tables.length)
                         return [ ]
                     
-                    if (isDatabase) 
+                    if (is_database_granularity)  // directory 下面的每个 partition file 代表一个分区
                         files.push(new PartitionFile(root, node, `${node.path}${filenames[i]}`, chunk, site_node, filenames[i]))
-                    else 
-                        if (tables[0] === node.root.table.name) {
-                            assert(files.length !== 1, t('应该只有一个满足条件的 PartitionFile 在 PartitionDirectory 下面'))
-                            files.push(new PartitionFile(root, node, `${node.path}${filenames[i]}`, chunk, site_node))
-                            i = rows // break
-                            break
-                        } 
-                    
+                    else if (tables[0] === node.root.table.name) {
+                        assert(tables.length === 1, t('getTablesByTabletChunk 应该只返回一个对应的 table'))
+                        assert(files.length === 0, t('应该只有一个满足条件的 PartitionFile 在 PartitionDirectory 下面'))
+                        files.push(new PartitionFile(root, node, `${node.path}${filenames[i]}`, chunk, site_node))
+                        
+                        i = rows // break
+                        break
+                    }
                 }
             }
         
@@ -501,7 +503,7 @@ class ShellModel extends Model<ShellModel> {
         if (directories.length) {
             assert(!files.length, t('directories 和 file 应该只有一个有值，另一个为空'))
             return directories
-        } else if (files) {
+        } else if (files.length) {
             assert(!directories.length, t('directories 和 file 应该只有一个有值，另一个为空'))
             return files
         } else

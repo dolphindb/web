@@ -958,21 +958,26 @@ export class Table implements DataNode {
                 model.node_type === NodeType.controller ? { node: model.datanode.name, func_type: DdbFunctionType.UserDefinedFunc } : { }
             )
         }
+        
         return this.schema
     }
     
     
     async load_children () {
         if (!this.children && !this.kind) {
-            this.kind = Number((await this.get_schema()).to_dict().partitionColumnIndex.value) < 0 ? 
+            this.kind = Number(
+                (await this.get_schema())
+                    .to_dict().partitionColumnIndex.value
+            ) < 0 ? 
                     TableKind.Table
                 :
                     TableKind.PartitionedTable
             
-            this.children = this.kind === TableKind.Table ?
-                    [new Schema(this), new ColumnRoot(this)]
-                :
-                    [new Schema(this), new ColumnRoot(this), new PartitionRoot(this)]
+            this.children = [
+                new Schema(this), 
+                new ColumnRoot(this),
+                ... (this.kind === TableKind.Table ? [ ] : [new PartitionRoot(this)]) as [PartitionRoot?]
+            ]
         }
     }
 }
