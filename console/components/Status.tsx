@@ -89,9 +89,6 @@ function Performance () {
             <Descriptions.Item label={t('worker 线程总数')}>
                 {node.workerNum}
             </Descriptions.Item>
-            <Descriptions.Item label={t('executor 线程总数')}>
-                {node.executorNum}
-            </Descriptions.Item>
         </Descriptions >
         <Descriptions className='table' column={2} bordered size='small' title={t('磁盘')}>
             <Descriptions.Item label={t('磁盘读速率')}>

@@ -958,21 +958,26 @@ export class Table implements DataNode {
                 model.node_type === NodeType.controller ? { node: model.datanode.name, func_type: DdbFunctionType.UserDefinedFunc } : { }
             )
         }
+        
         return this.schema
     }
     
     
     async load_children () {
         if (!this.children && !this.kind) {
-            this.kind = Number((await this.get_schema()).to_dict().partitionColumnIndex.value) < 0 ? 
+            this.kind = Number(
+                (await this.get_schema())
+                    .to_dict().partitionColumnIndex.value
+            ) < 0 ? 
                     TableKind.Table
                 :
                     TableKind.PartitionedTable
             
-            this.children = this.kind === TableKind.Table ?
-                    [new Schema(this), new ColumnRoot(this)]
-                :
-                    [new Schema(this), new ColumnRoot(this), new PartitionRoot(this)]
+            this.children = [
+                new Schema(this), 
+                new ColumnRoot(this),
+                ... (this.kind === TableKind.Table ? [ ] : [new PartitionRoot(this)]) as [PartitionRoot?]
+            ]
         }
     }
 }
@@ -1157,7 +1162,7 @@ export class PartitionFile implements DataNode {
     /** chunk 所在的集群中的节点 alias */
     site_node: string
     
-    constructor (root: PartitionRoot, parent: PartitionDirectory | PartitionRoot, path: string, chunk: string, site_node: string) {
+    constructor (root: PartitionRoot, parent: PartitionDirectory | PartitionRoot, path: string, chunk: string, site_node: string, name?: string) {
         this.self = this
         this.parent = parent
         this.root = root
@@ -1170,7 +1175,7 @@ export class PartitionFile implements DataNode {
         this.chunk = chunk
         
         // 找到最后一个 / 的位置，从后面开始截取
-        this.title = this.name = t('分区数据')
+        this.title = this.name = name || t('分区数据')
         
         this.site_node = site_node
     }

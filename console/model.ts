@@ -934,6 +934,7 @@ export interface DdbNode {
     maxConnections: number
     maxMemSize: number
     workerNum: number
+    /** @deprecated server 2.00.10 后没有 local executor，此项一直为零 */
     executorNum: number
     connectionNum: number
     memoryUsed: bigint

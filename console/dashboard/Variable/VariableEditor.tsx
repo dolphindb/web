@@ -6,6 +6,7 @@ import { type Variable, type VariablePropertyType } from './variable.js'
 import { OptionList } from './OptionList.js'
 import { safe_json_parse } from '../utils.js'
 import { t } from '../../../i18n/index.js'
+import { VariableMode } from '../type.js'
 
 const { TextArea } = Input
 
@@ -20,15 +21,18 @@ export function VariableEditor ({
         change_no_save_flag
     }: PropsType) 
 { 
+    
     const value_editor = {
-        select: <Select
+        [VariableMode.SELECT]: <Select
+                    allowClear
                     size='small'
                     className='variable-editor-main-value-control'
                     value={current_variable.value}
                     onChange={value => { change_current_variable_property('value', value) }}
                     options={current_variable.options}
                 />,
-        multi_select: <Select
+        [VariableMode.MULTI_SELECT]: <Select
+                    allowClear
                     size='small'
                     mode='multiple'
                     className='variable-editor-main-value-control'
@@ -36,7 +40,7 @@ export function VariableEditor ({
                     onChange={value => { change_current_variable_property('value', JSON.stringify(value)) }}
                     options={current_variable.options}
                 />,
-        text: <TextArea 
+        [VariableMode.TEXT]: <TextArea 
                     size='small' 
                     rows={18}
                     className='variable-editor-main-value-control'
@@ -45,7 +49,8 @@ export function VariableEditor ({
                         change_current_variable_property('value', event.target.value) 
                     }}
                 />,
-        date: <DatePicker 
+        [VariableMode.DATE]: <DatePicker 
+                    allowClear
                     size='small'
                     className='variable-editor-main-value-control'
                     value={current_variable.value ? dayjs(current_variable.value) : null}
@@ -104,7 +109,7 @@ export function VariableEditor ({
                     {t('变量值：')}
                     {value_editor[current_variable.mode]}
                 </div>
-                {(current_variable.mode === 'select' || current_variable.mode === 'multi_select') &&
+                {[VariableMode.MULTI_SELECT, VariableMode.SELECT].includes(current_variable.mode) &&
                     <OptionList
                         current_variable={current_variable}
                         change_current_variable_property={change_current_variable_property}

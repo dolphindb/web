@@ -6,12 +6,6 @@
         }
     }
     padding: 8px 0px;
-    .ant-form-item{
-        margin-bottom: 8px;
-        &:last-child {
-            margin-bottom: 0px;
-        }
-    }
 }
 
 .axis-wrapper {
@@ -32,20 +26,7 @@
     margin-left: 4px;
 }
 
-.series-collapse {
-    border: 0px;
-    &>.ant-collapse-item {
-        border: 0px;
-    }
-}
-
 .yasix-collapse-wrapper {
-    .ant-collapse {
-        border: 0px;
-        &>.ant-collapse-item {
-            border: 0px;
-        }
-    }
     .add-yaxis-btn {
         margin-top: 12px;
     }
@@ -63,4 +44,11 @@
 
 .ant-picker-dropdown .ant-picker-time-panel-column {
     width: 100px; 
+}
+
+.col-select-space {
+    width: 100%;
+    .ant-space-item {
+        width: 50%;
+    }
 }
