@@ -1,4 +1,4 @@
-import { t } from '../../i18n/index.js'
+import { language, t } from '../../i18n/index.js'
 import { error_message } from './ddb-error-message.js'
 
 export function parse_error (error: Error) {
@@ -14,4 +14,11 @@ export function parse_error (error: Error) {
     
     const jsonError = JSON.parse(jsonErrorMsg[0])
     return new Error(t(error_message[jsonError.code], { variables: jsonError.variables }))
+}
+
+
+export function get_error_code_doc_link (ref_id: string) {
+    return language === 'en'
+        ? `https://docs.dolphindb.com/en/Maintenance/ErrorCodeReference/${ref_id}.html`
+        : `https://docs.dolphindb.cn/zh/error_codes/${ref_id}.html`
 }

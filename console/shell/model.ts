@@ -10,7 +10,7 @@ import type { FitAddon } from 'xterm-addon-fit'
 import type * as monacoapi from 'monaco-editor/esm/vs/editor/editor.api.js'
 
 import { delta2str, assert, delay } from 'xshell/utils.browser.js'
-import { red, blue, underline } from 'xshell/chalk.browser.js'
+import { red, blue } from 'xshell/chalk.browser.js'
 
 import {
     DdbForm,
@@ -34,6 +34,7 @@ import { model, NodeType, storage_keys } from '../model.js'
 import type { Monaco } from './Editor/index.js'
 import { Database, DatabaseGroup, type Column, type ColumnRoot, PartitionDirectory, type PartitionRoot, PartitionFile, Table } from './Databases.js'
 import { DdbVar } from './Variables.js'
+import { get_error_code_doc_link } from '../utils/ddb-error.js'
 
 
 type Result = { type: 'object', data: DdbObj } | { type: 'objref', data: DdbObjRef }
@@ -119,6 +120,9 @@ class ShellModel extends Model<ShellModel> {
         return lines_
     }
     
+    async refresh_db () {
+        
+    }
     
     async eval (code = this.editor.getValue()) {
         const time_start = dayjs()
@@ -187,8 +191,10 @@ class ShellModel extends Model<ShellModel> {
             )
         } catch (error) {
             let message = error.message as string
-            if (message.includes('RefId:'))
-                message = message.replaceAll(/RefId:\s*(\w+)/g, underline(blue('RefId: $1')))
+            if (message.includes('RefId:')) 
+                message = message.replaceAll(/RefId:\s*(\w+)/g, (_, ref_id) => 
+                    // xterm link写法 https://stackoverflow.com/questions/64759060/how-to-create-links-in-xterm-js
+                    blue(`\x1b]8;;${get_error_code_doc_link(ref_id.toLowerCase())}\x07RefId: ${ref_id}\x1b]8;;\x07`))
             this.term.writeln(red(message))
             throw error
         } finally {
@@ -432,6 +438,11 @@ class ShellModel extends Model<ShellModel> {
     
     /** - path: 类似 dfs://Crypto_TSDB_14/, dfs://Crypto_TSDB_14/20100101_20110101/ 的路径 */
     async load_partitions (root: PartitionRoot, node: PartitionDirectory | PartitionRoot) {
+        // 之前 table.load_children 时一定已经加载了 schema
+        const { schema } = root.table
+        
+        const is_database_granularity = schema.to_dict().chunkGranularity.value === 'DATABASE'
+        
         const {
             rows,
             value: [{ value: filenames }, { value: filetypes }, /* sizes */, { value: chunks_column }, { value: sites }]
@@ -445,7 +456,7 @@ class ShellModel extends Model<ShellModel> {
         )
         
         let directories: PartitionDirectory[] = [ ]
-        let file: PartitionFile
+        let files: PartitionFile[] = [ ]
         
         for (let i = 0;  i < rows;  i++)
             switch (filetypes[i]) {
@@ -475,26 +486,26 @@ class ShellModel extends Model<ShellModel> {
                     if (!tables.length)
                         return [ ]
                     
-                    assert(tables.length === 1, t('getTablesByTabletChunk 应该只返回一个对应的 table'))
-                    
-                    if (tables[0] === node.root.table.name) {
-                        assert(!file, t('应该只有一个满足条件的 PartitionFile 在 PartitionDirectory 下面'))
-                        file = new PartitionFile(root, node, `${node.path}${filenames[i]}`, chunk, site_node)
+                    if (is_database_granularity)  // directory 下面的每个 partition file 代表一个分区
+                        files.push(new PartitionFile(root, node, `${node.path}${filenames[i]}`, chunk, site_node, filenames[i]))
+                    else if (tables[0] === node.root.table.name) {
+                        assert(tables.length === 1, t('getTablesByTabletChunk 应该只返回一个对应的 table'))
+                        assert(files.length === 0, t('应该只有一个满足条件的 PartitionFile 在 PartitionDirectory 下面'))
+                        files.push(new PartitionFile(root, node, `${node.path}${filenames[i]}`, chunk, site_node))
                         
                         i = rows // break
+                        break
                     }
-                    
-                    break
                 }
             }
         
         // directories 和 files 中应该只有一个有值，另一个为空
         if (directories.length) {
-            assert(!file, t('directories 和 file 应该只有一个有值，另一个为空'))
+            assert(!files.length, t('directories 和 file 应该只有一个有值，另一个为空'))
             return directories
-        } else if (file) {
+        } else if (files.length) {
             assert(!directories.length, t('directories 和 file 应该只有一个有值，另一个为空'))
-            return [file]
+            return files
         } else
             return [ ]
     }

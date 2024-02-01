@@ -1929,7 +1929,7 @@
         "en": "offset"
     },
     "因子平台": {
-        "en": "Factor Platform"
+        "en": "FactorLab"
     },
     "标题": {
         "en": "Title"
@@ -2343,7 +2343,7 @@
         "en": "receive average latency"
     },
     "流计算监控": {
-        "en": "Stream Computing Monitoring"
+        "en": "Stream"
     },
     "流计算引擎状态": {
         "en": "Stream Computing Engine Status"
@@ -3500,10 +3500,10 @@
     "共 {{total}} 条数据": {
         "en": "Number of Rows: {{total}}"
     },
-    "仅单机节点和数据节点支持新建查询": {
-        "en": "Only single-server nodes and data nodes support queries."
-    },
     "请注意，无法删除或者编辑当前选中的选项": {
         "en": "Please note that currently selected options cannot be deleted or edited"
+    },
+    "仅单机节点、数据节点和计算节点支持新建查询": {
+        "en": "Queries can only be created on data/compute nodes, or on a standalone server."
     }
 }

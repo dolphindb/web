@@ -882,6 +882,7 @@ function ControllerConfig () {
         },
         { name: 'metricsToken', value: '', default: '', tip: '' },
         { name: 'strictPermissionMode', value: '', default: '', tip: '' },
+        { name: 'enableLocalDatabase', value: '', default: '', tip: '' },
     ]
     for (var item of configs)
         configsName.push(item.name)

@@ -38,7 +38,7 @@ def dbms_generateQuery(input_json){
         } else if (tempCondition["dataType"] in `NANOTIME`NANOTIMESTAMP){
             temp_con = tempCondition["col"] + " " +  opt_map[tempCondition["opt"]] + " " + tempCondition["value"] + ".000000000"
         } else if (tempCondition["dataType"] == `DATEHOUR){
-            temp_con = tempCondition["col"] + " " +  opt_map[tempCondition["opt"]] + " datehour('" + tempCondition["value"] + "')"
+            temp_con = tempCondition["col"] + " " +  opt_map[tempCondition["opt"]] + " datehour(\"" + tempCondition["value"] + "\")"
         } else{
             temp_con = tempCondition["col"] + " " +  opt_map[tempCondition["opt"]] + " " + value
         }
@@ -68,7 +68,7 @@ def dbms_generateQuery(input_json){
             } else if (tempCondition["dataType"] in `NANOTIME`NANOTIMESTAMP){
                 temp_con = tempCondition["col"] + " " +  opt_map[tempCondition["opt"]] + " " + tempCondition["value"] + ".000000000"
             } else if (tempCondition["dataType"] == `DATEHOUR){
-                temp_con = tempCondition["col"] + " " +  opt_map[tempCondition["opt"]] + " datehour('" + tempCondition["value"] + "')"
+                temp_con = tempCondition["col"] + " " +  opt_map[tempCondition["opt"]] + " datehour(\"" + tempCondition["value"] + "\")"
             } else{
                 temp_con = tempCondition["col"] + " " +  opt_map[tempCondition["opt"]] + " " + value
             }
@@ -102,13 +102,12 @@ def dbms_generateQuery(input_json){
 
 def dbms_executeQueryByPage(input_json){
     try{
-        print(input_json)
         codePos = strFind(input_json,'"page"')
         code = input_json[11:codePos-2]
         rest = "{" + input_json[codePos:]
         input_dict = rest.parseExpr().eval()
         isTable = false
-        if (strFind(code, "()") >= 0){
+        if (strFind(code, "()") >= 0 or strFind(code, "table") >= 0){
             temp = code.parseExpr().eval()
             isTable = true
         }
@@ -138,25 +137,18 @@ def dbms_executeQueryByPage(input_json){
 
 
 
-
-
 def dbms_generateEnumerate(input_json){
     input_dict = input_json.parseExpr().eval()
     dbName = input_dict["dbName"]
     tbName = input_dict["tbName"]
     col = input_dict["col"]
-    if (typestr(loadTable(dbName, tbName).schema().partitionColumnName) == 'STRING VECTOR'){
-        colName = loadTable(dbName, tbName).schema().partitionColumnName[0]
-    } else{
-        colName = loadTable(dbName, tbName).schema().partitionColumnName
-    }
-    query =  "EXEC " + col + ' FROM loadTable("' + dbName + '", "' + tbName +  '") WHERE sample(' + 
-    colName + ', 10) GROUP BY ' + col + ' LIMIT 1000'
+    query =  "EXEC " + col + ' FROM ( SELECT ' + col + ' FROM loadTable("' + dbName + '", "' + tbName +  '") LIMIT 100000)' + ' GROUP BY ' + col;
     enumList = query.parseExpr().eval()
     newEnumList = array(STRING, 0)
-    if (type(enumList) == 17 or type(enumList) == 18){
-        enumList = string(enumList)
+    if (type(enumList) in [4, 17, 18]){
+        rawenumList = string(enumList)
         for(i in 1..size(enumList) ){
+            if(enumList[i-1] != null and enumList[i-1] != "")
             newEnumList.append!(strReplace(enumList[i-1], "\"", '\\\"')) 
         }
     } 

@@ -9,7 +9,7 @@ import { StreamingTable } from '../obj.js'
 export function Test () {
     const { ddb: { url, username, password } } = model
     
-    return <div className='result page'>
+    return <div className='obj-result themed page'>
         <StreamingTable
             ctx='page'
             url={url}
