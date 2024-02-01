@@ -854,7 +854,7 @@ class DdbModel extends Model<DdbModel> {
 }
 
 
-if (!Array.prototype.toReversed) 
+if (!Array.prototype.toReversed)
     Object.defineProperty(Array.prototype, 'toReversed', {
         configurable: true,
         writable: true,
