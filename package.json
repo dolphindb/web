@@ -82,6 +82,7 @@
         "react-quill": "^2.0.0",
         "swr": "^2.2.4",
         "tslib": "^2.6.2",
+        "ua-parser-js": "^1.0.37",
         "vscode-oniguruma": "^2.0.1",
         "vscode-textmate": "^9.0.0",
         "xshell": "^1.0.77",
