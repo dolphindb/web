@@ -122,6 +122,7 @@ export function Computing () {
         }
     
     return <Tabs
+        className='themed'
         activeKey={tab_key}
         type='card'
         onChange={set_tab_key}

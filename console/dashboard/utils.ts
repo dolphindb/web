@@ -1,7 +1,7 @@
 import { type NamePath } from 'antd/es/form/interface'
 import { type DdbObj, DdbForm, DdbType, nulls, type DdbValue, format, type InspectOptions } from 'dolphindb/browser.js'
 import { is_decimal_null_value } from 'dolphindb/shared/utils/decimal-type.js'
-import { isNil, isNumber, uniq } from 'lodash'
+import { isNil, isNumber, pickBy, uniq } from 'lodash'
 import { createRef } from 'react'
 import { genid } from 'xshell/utils.browser.js'
 import copy from 'copy-to-clipboard'
@@ -188,14 +188,21 @@ export function parse_code (code: string, data_source?: DataSource): string {
 
 
 
-export function concat_name_path (...paths: NamePath[]): NamePath {
-    return paths.filter(p => !isNil(p))
+export function concat_name_path (...paths: (NamePath | NamePath[])[]): NamePath {
+    return paths.reduce((prev, p) => {
+        if (isNil(p))
+            return prev
+        else if (Array.isArray(p))  
+            return prev.concat(p)
+        else
+            return prev.concat([p])
+    }, [ ])
 }
 
 export function convert_chart_config (widget: Widget, data_source: any[]) {
     const { config } = widget
     
-    const { title, title_size, with_legend, with_tooltip, with_split_line, xAxis, series, yAxis, x_datazoom, y_datazoom } = config as IChartConfig
+    const { title, title_size, splitLine, xAxis, series, yAxis, x_datazoom, y_datazoom, legend, animation, tooltip } = config as IChartConfig
     
     function convert_data_zoom (x_datazoom: boolean, y_datazoom: boolean) { 
         const total_data_zoom = [
@@ -205,6 +212,7 @@ export function convert_chart_config (widget: Widget, data_source: any[]) {
                 show: true,
                 xAxisIndex: [0],
                 filterMode: 'filter',
+                height: 24,
             },
             {
                 id: 'dataZoomY',
@@ -222,23 +230,23 @@ export function convert_chart_config (widget: Widget, data_source: any[]) {
         return data_zoom
     }
     
-    
     function convert_axis (axis: AxisConfig, index?: number) {
         let data = undefined
         // 类目轴下需要定义类目数据, 其他轴线类型下 data 不生效
         if (axis.type === AxisType.CATEGORY)
             data = axis.col_name ? data_source.map(item => item?.[axis.col_name]) : [ ]
         
-        const axis_config =  {
+        const axis_config = {
             show: true,
             name: axis.name,
             type: axis.type,
             splitLine: {
-                show: with_split_line,
-                lineStyle: {
+                show: true,
+                lineStyle: { 
                     type: 'dashed',
                     color: '#6E6F7A'
-                }
+                },
+                ...splitLine,
             },
             axisLabel: {
                 formatter: axis.type === AxisType.CATEGORY && (value => { 
@@ -282,7 +290,7 @@ export function convert_chart_config (widget: Widget, data_source: any[]) {
                 return { yAxis: item }
         }) || [ ]
         
-        const get_item_color = value => value > series.threshold.value ? series.threshold?.high_color : series.threshold?.low_color
+        // const get_item_color = value => value > series.threshold.value ? series.threshold?.high_color : series.threshold?.low_color
         
         let data = [ ]
         
@@ -294,25 +302,25 @@ export function convert_chart_config (widget: Widget, data_source: any[]) {
                     value: [format_time(item?.[xAxis.col_name], xAxis.time_format), item?.[series.col_name]]
                 }
             })
-            if (isNumber(series.threshold?.value))
-                data = data.map(item => ({ ...item, itemStyle: { color: get_item_color(item[1]) } }))
+            // if (isNumber(series.threshold?.value))
+            //     data = data.map(item => ({ ...item, itemStyle: { color: get_item_color(item[1]) } }))
         } else { 
             // 有类目轴的情况下，类目信息从 axis 中取
             data = data_source.map(item => item?.[series.col_name])
-            if (isNumber(series.threshold?.value))
-                data = data.map(item => ({
-                value: item,
-                itemStyle: {
-                    color: get_item_color(item)
-                }
-            }))
+            // if (isNumber(series.threshold?.value))
+            //     data = data.map(item => ({
+            //     value: item,
+            //     itemStyle: {
+            //         color: get_item_color(item)
+            //     }
+            // }))
         }
-           
+        
         return {
             type: series.type?.toLowerCase(),
             name: series.name,
-            symbol: series.type === WidgetChartType.SCATTER ? series?.symbol ?? 'none' : 'none',
-            symbolSize: series.symbol_size,
+            symbol: series.type === WidgetChartType.SCATTER ? series?.symbol ?? 'circle' : 'none',
+            symbolSize: series.symbol_size ?? 10,
             stack: series.stack,
             endLabel: {
                 show: series.end_label,
@@ -346,21 +354,23 @@ export function convert_chart_config (widget: Widget, data_source: any[]) {
     
     
     return {
+        animation,
         grid: {
             containLabel: true,
             left: 10,
             bottom: x_datazoom ? 50 : 10
         },
-        legend: {
-            show: with_legend,
-            top: 25,
-            left: 160,
+        legend: pickBy({
+            show: true,
             textStyle: {
                 color: '#e6e6e6',
-            }
-        },
+                ...legend?.textStyle,
+            },
+            ...legend,
+        }, v => !isNil(v) && v !== ''),
         tooltip: {
-            show: with_tooltip,
+            show: true,
+            ...tooltip,
             // 与图形类型相关，一期先写死
             trigger: 'axis',
             backgroundColor: '#060606',
@@ -368,18 +378,6 @@ export function convert_chart_config (widget: Widget, data_source: any[]) {
             textStyle: {
                 color: '#F5F5F5'
             },
-            // 时间轴的tooltip格式需要手动处理，默认的format是 YYYY-MM-DD HH:mm:ss
-            // formatter: xAxis.type === AxisType.TIME ? params => { 
-            //     let text = '--'
-            //     if (params && params.length) {
-            //       text = `<span style="font-weight: 500;">${params[0].value[0]}</span>` // 提示框顶部的日期标题
-            //       params.forEach(item => {
-            //         const dotHtml = item.marker // 系列marker
-            //         text += `</br>${dotHtml}${item.seriesName}：<span style="font-weight: 500;">${item?.value?.[1] ?? '-'}</span>`
-            //       })
-            //     }
-            //     return text
-            // } : null
         },
         title: {
             text: parse_text(title ?? ''),

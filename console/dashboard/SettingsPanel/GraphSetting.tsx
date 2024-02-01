@@ -8,7 +8,7 @@ import { t } from '../../../i18n/index.js'
 
 export function GraphSetting () { 
     const { widget } = dashboard.use(['widget'])
-    const data_source_node = get_data_source(widget.source_id)
+    const data_source_node = get_data_source(widget.source_id?.[0])
     const { cols = [ ], data: data_source = [ ] } = data_source_node?.use(['cols', 'data'])
     
     const [form] = Form.useForm()
@@ -36,7 +36,7 @@ export function GraphSetting () {
     
     
     
-    const on_form_change = useCallback((_, values) => {         
+    const on_form_change = useCallback((_, values) => {     
         if (widget)
             dashboard.update_widget({ ...widget, config: values })
     }, [widget])

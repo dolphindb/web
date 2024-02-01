@@ -10,7 +10,7 @@ export function DataView () {
     const { result } = shell.use(['result'])
     const { options } = model.use(['options'])
     
-    return <div className='dataview result embed'>{
+    return <div className='dataview obj-result themed embed'>{
         (() => {
             if (!result)
                 return
