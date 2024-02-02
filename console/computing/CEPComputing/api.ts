@@ -13,7 +13,7 @@ export async function get_cep_engine_detail (name: string) {
     const res = safe_json_parse(value) as IServerEngineDetail
     return {
         ...res,
-        msgSchema: res.msgSchema.map(item => ({
+        msgSchema: res?.msgSchema?.map(item => ({
             eventValuesTypeInt: item.eventValuesTypeInt,
             eventType: item.eventType,
             eventKeys: item.eventKeys ? item.eventKeys.split(',') : [ ],
