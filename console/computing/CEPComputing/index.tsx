@@ -1,7 +1,7 @@
 import './index.scss'
-import { CEPEngineList } from './CEPEngineList.js'
+import { CEPEngineList } from './components/CEPEngineList.js'
 import { useCallback, useEffect, useState } from 'react'
-import { CEPEngineDetail } from './CEPEngineDetail.js'
+import { CEPEngineDetail } from './components/CEPEngineDetail.js'
 import { type ICEPEngineDetail, type CEPEngineItem } from './type'
 import { Empty, Spin } from 'antd'
 import { get_cep_engine_detail, get_cep_engine_list } from './api.js'
@@ -19,10 +19,10 @@ export function CEPComputing () {
         set_current(detail)
     }, [ ])
     
+    // 获取 cep 引擎列表及当前选中的引擎详情，初始时展示第一个 cep 引擎的详情
     const get_cep_engines = useCallback(async () => {
         const list = await get_cep_engine_list()
         set_engine_list(list)
-        // 无当前选中则默认选中第一个，获取第一个引擎的信息
         const detail = await get_cep_engine_detail(current?.EngineStat?.name ?? list?.[0]?.name)
         set_current(detail)
         set_loading(false)

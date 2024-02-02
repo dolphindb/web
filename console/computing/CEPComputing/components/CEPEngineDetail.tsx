@@ -1,14 +1,14 @@
 import { Badge, Descriptions, type DescriptionsProps, Menu, Radio, Spin, Table, type TableColumnsType, Tree, Space, type TreeProps, message } from 'antd'
 import { useCallback, useEffect, useMemo, useState } from 'react'
-import { type ICEPEngineDetail, EngineDetailPage, type SubEngineItem } from './type.js'
-import { t } from '../../../i18n/index.js'
+import { type ICEPEngineDetail, EngineDetailPage, type SubEngineItem } from '../type.js'
+import { t } from '../../../../i18n/index.js'
 import { Button } from 'antd/lib/index.js'
 import { DatabaseOutlined, RedoOutlined, SendOutlined } from '@ant-design/icons'
-import { get_dataview_info, get_dataview_keys } from './api.js'
+import { get_dataview_info, get_dataview_keys } from '../api.js'
 import { type ItemType } from 'antd/es/menu/hooks/useItems.js'
 import { DDB, type StreamingMessage } from 'dolphindb'
-import { model } from '../../model.js'
-import { stream_formatter } from '../../dashboard/utils.js'
+import { model } from '../../../model.js'
+import { stream_formatter } from '../../../dashboard/utils.js'
 import NiceModal from '@ebay/nice-modal-react'
 import { SendEventModal } from './SendEventModal.js'
 
@@ -19,9 +19,10 @@ interface IProps {
 }
 
 
+
 function EngineInfo ({ info }: { info: ICEPEngineDetail }) {
     
-    const { EngineStat, SubEngineStat, msgSchema } = info ?? { }
+    const { EngineStat, SubEngineStat } = info ?? { }
     
     const info_items = useMemo<DescriptionsProps['items']>(() => [
         {
@@ -157,15 +158,20 @@ function EngineInfo ({ info }: { info: ICEPEngineDetail }) {
 }
 
 
+
 function DataView ({ info }: { info: ICEPEngineDetail }) {
     
     const { ddb: { username, password } } = model
+    // 缓存连接，每次展开 dataview 的时候新建连接，切换的时候关闭
     const [cep_ddb, set_cep_ddb] = useState<DDB>()
     // 流表数据
     const [data, set_data] = useState([ ])
-    // 实际需要展示的某个 key 的数据
     const [table_data, set_table_data] = useState([ ])
+    // 当前选中的 key
     const [selected_key, set_selected_key] = useState<string>()
+    
+     // 当前选中的 dataview
+     const [current, set_current] = useState<string>()
     
     const [views, set_views] = useState<ItemType[]>(() => info?.dataViewEngines?.map(item => ({
         label: item.name,
@@ -174,15 +180,13 @@ function DataView ({ info }: { info: ICEPEngineDetail }) {
         children: [ ]
     })))
     
-    // 当前选中的 dataview
-    const [current, set_current] = useState<string>()
     
     // 订阅流表
     const on_subscribe = useCallback(async (streaming_table: string) => { 
         if (cep_ddb)
             cep_ddb.disconnect()
         const url_search_params = new URLSearchParams(location.search)
-        const streaming_host = model.dev ? url_search_params.get('hostname') + ':' + new URLSearchParams(location.search).get('port') : location.host
+        const streaming_host = (model.dev || model.cdn) ? url_search_params.get('hostname') + ':' + new URLSearchParams(location.search).get('port') : location.host
         const url =  (location.protocol === 'https:' ? 'wss' : 'ws') + '://' + streaming_host
         
         const cep_streaming_ddb = new DDB(url, {
@@ -207,9 +211,10 @@ function DataView ({ info }: { info: ICEPEngineDetail }) {
     }, [ cep_ddb, info, data ])
     
     const on_load_dataview_keys = useCallback(async (keys: string[]) => { 
-        // 收起菜单
+        // 收起菜单，并将选中的 key 置为 null
         if (!keys.length) { 
             set_current(null)
+            set_selected_key(null)
             return
         }
         const cur = keys[0]
@@ -234,8 +239,6 @@ function DataView ({ info }: { info: ICEPEngineDetail }) {
         on_subscribe(output_table_name)
     }, [current, info])
     
-    
-    
     useEffect(() => {
         // 流表更新、选择 key 的时候更新右侧 table 的数据
         if (!current || !selected_key)
@@ -246,6 +249,8 @@ function DataView ({ info }: { info: ICEPEngineDetail }) {
         if (table_data)  
             set_table_data(Object.entries(table_data).map(([name, value]) => ({ name, value })))
     }, [selected_key, data, current])
+    
+    
     
     return <div className='data-view-info'>
         <Menu
@@ -292,7 +297,7 @@ export function CEPEngineDetail (props: IProps) {
     
     const on_send_event = useCallback(async () => { 
         await NiceModal.show(SendEventModal, { engine_info: engine })
-    }, [ ])
+    }, [engine])
     
     return <div className={`cep-engine-detail ${className}`}>
         <div className='cep-detail-header'>

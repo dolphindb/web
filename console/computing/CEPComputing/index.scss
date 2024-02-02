@@ -97,8 +97,41 @@
 
 
 .cep-send-event-wrapper {
+    .ant-modal-header {
+        margin-bottom: 16px;
+    }
+    
+    .ant-modal-body {
+        max-height: 520px;
+        overflow: auto;
+    }
+    
     .event-fields-wrapper {
-        background-color: #bbb;
+        padding: 12px;
+        background-color: rgba(187, 187, 187, .07);
         border-radius: 8px;
+        
+        .type-doc-link {
+            font-size: 12px;
+            margin-left: 8px;
+        }
+        
+        .ant-form-item {
+            margin-bottom: 12px;
+        }
+        
+        .event-type-tip {
+            margin-top: 8px;
+        }
+
+        h4 {
+            margin-top: 0px;
+        }
+        .ant-input-number {
+            width: 100%;
+        }
+        .ant-picker {
+            width: 100%;
+        }
     }
 }

@@ -38,14 +38,17 @@ interface IQueryCard {
 export const TIME_COMPONENT = {
     DATE: <StringDatePicker submitFormat='YYYY.MM.DD' format='YYYY-MM-DD' allowClear/>,
     MONTH: <StringDatePicker submitFormat='YYYY.MM' format='YYYY-MM' submitSuffix='M' allowClear/>,
-    TIME: <StringTimePicker format='HH:mm:ss' allowClear/>,
+    DATETIME: <StringDatePicker submitFormat='YYYY.MM.DD HH:mm:ss' format='YYYY-MM-DD HH:mm:ss' showTime allowClear/>,
+    TIMESTAMP: <StringDatePicker submitFormat='YYYY.MM.DD HH:mm:ss' format='YYYY-MM-DD HH:mm:ss' showTime allowClear />,
+    NANOTIMESTAMP: <StringDatePicker showTime submitFormat='YYYY.MM.DD HH:mm:ss' format='YYYY-MM-DD HH:mm:ss' allowClear />,
+    DATEHOUR: <StringDatePicker submitFormat='YYYY.MM.DD HH' format='YYYY-MM-DD HH' showTime />,
+    
+    TIME: <StringTimePicker format='HH:mm:ss' allowClear />,
     MINUTE: <StringTimePicker format='HH:mm' submitSuffix='m' allowClear/>,
     SECOND: <StringTimePicker format='HH:mm:ss' allowClear/>,
-    DATETIME: <StringDatePicker submitFormat='YYYY.MM.DD HH:mm:ss' format='YYYY-MM-DD HH:mm:ss' showTime allowClear/>,
-    TIMESTAMP: <StringDatePicker submitFormat='YYYY.MM.DD HH:mm:ss' format='YYYY-MM-DD HH:mm:ss' showTime allowClear/>,
+    
     NANOTIME: <StringTimePicker format='HH:mm:ss' allowClear/>,
-    NANOTIMESTAMP: <StringDatePicker showTime submitFormat='YYYY.MM.DD HH:mm:ss' format='YYYY-MM-DD HH:mm:ss' allowClear />,
-    DATEHOUR: <StringDatePicker submitFormat='YYYY.MM.DD HH' format='YYYY-MM-DD HH' showTime />
+    
 } 
 
 export function QueryCard (props: IQueryCard) { 
