@@ -295,7 +295,7 @@ export function convert_chart_config (widget: Widget, data_source: any[]) {
         let data = [ ]
         
         // 无类目轴的情况下，series 每项为二维数组，第一个为 x 轴的值，第二个为 y 轴的值
-        if (![xAxis?.type, yAxis?.[series?.yAxisIndex]?.type].includes(AxisType.CATEGORY)) {
+        if (![xAxis?.type, yAxis?.[series?.yAxisIndex]?.type].includes(AxisType.CATEGORY)) 
             data = data_source.map(item => { 
                 return {
                     name: format_time(item?.[xAxis.col_name], xAxis.time_format),
@@ -304,7 +304,7 @@ export function convert_chart_config (widget: Widget, data_source: any[]) {
             })
             // if (isNumber(series.threshold?.value))
             //     data = data.map(item => ({ ...item, itemStyle: { color: get_item_color(item[1]) } }))
-        } else { 
+         else  
             // 有类目轴的情况下，类目信息从 axis 中取
             data = data_source.map(item => item?.[series.col_name])
             // if (isNumber(series.threshold?.value))
@@ -314,7 +314,7 @@ export function convert_chart_config (widget: Widget, data_source: any[]) {
             //         color: get_item_color(item)
             //     }
             // }))
-        }
+        
         
         return {
             type: series.type?.toLowerCase(),
@@ -325,7 +325,13 @@ export function convert_chart_config (widget: Widget, data_source: any[]) {
             endLabel: {
                 show: series.end_label,
                 formatter: series.end_label_formatter,
-                color: 'inherit'
+                color: '#fff',
+                backgroundColor: 'inherit',
+                padding: 4,
+            },
+            // endLabel 标签不重叠
+            labelLayout: {
+              moveOverlap: 'shiftY', 
             },
             
             // 防止删除yAxis导致渲染失败
