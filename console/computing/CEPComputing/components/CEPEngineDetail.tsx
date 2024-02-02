@@ -1,5 +1,5 @@
-import { Badge, Descriptions, type DescriptionsProps, Menu, Radio, Spin, Table, type TableColumnsType, Tree, Space, type TreeProps, message } from 'antd'
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { Badge, Descriptions, type DescriptionsProps, Menu, Radio, Table, type TableColumnsType, Tree, Space, type TreeProps, message, Empty } from 'antd'
+import { useCallback, useMemo, useState } from 'react'
 import { type ICEPEngineDetail, EngineDetailPage, type SubEngineItem } from '../type.js'
 import { t } from '../../../../i18n/index.js'
 import { Button } from 'antd/lib/index.js'
@@ -164,15 +164,17 @@ function DataView ({ info }: { info: ICEPEngineDetail }) {
     const { ddb: { username, password } } = model
     // 缓存连接，每次展开 dataview 的时候新建连接，切换的时候关闭
     const [cep_ddb, set_cep_ddb] = useState<DDB>()
-    // 流表数据
-    const [data, set_data] = useState([ ])
-    const [table_data, set_table_data] = useState([ ])
+    
+    // 用于存储每个 key 对应的 map
+    const [key_data, set_key_data] = useState<Record<string, Record<string, string>>>({ })
+    
     // 当前选中的 key
     const [selected_key, set_selected_key] = useState<string>()
     
-     // 当前选中的 dataview
-     const [current, set_current] = useState<string>()
+    // 当前选中的 dataview
+    const [current, set_current] = useState<string>()
     
+    // 当前 cep 引擎的所有 dataview 
     const [views, set_views] = useState<ItemType[]>(() => info?.dataViewEngines?.map(item => ({
         label: item.name,
         key: item.name,
@@ -180,17 +182,19 @@ function DataView ({ info }: { info: ICEPEngineDetail }) {
         children: [ ]
     })))
     
-    
     // 订阅流表
-    const on_subscribe = useCallback(async (streaming_table: string) => { 
+    const on_subscribe = useCallback(async (streaming_table: string, key_column: string) => { 
+        
+        // 订阅前取消上个 dataview 的订阅
         if (cep_ddb)
             cep_ddb.disconnect()
+        
         const url_search_params = new URLSearchParams(location.search)
         const streaming_host = (model.dev || model.cdn) ? url_search_params.get('hostname') + ':' + new URLSearchParams(location.search).get('port') : location.host
         const url =  (location.protocol === 'https:' ? 'wss' : 'ws') + '://' + streaming_host
         
         const cep_streaming_ddb = new DDB(url, {
-            autologin: Boolean(username),
+            autologin: !!username,
             username,
             password,
             streaming: {
@@ -202,26 +206,31 @@ function DataView ({ info }: { info: ICEPEngineDetail }) {
                     }
                     // @ts-ignore
                     const streaming_data = stream_formatter(message.data, 0, message.colnames)
-                    set_data(data => [...streaming_data, ...data])
+    
+                    for (let item of streaming_data)  
+                        set_key_data(data => ({ ...data, [item[key_column]]: item }))                    
                 }
             }
         })
         await cep_streaming_ddb.connect()
         set_cep_ddb(cep_streaming_ddb)
-    }, [ cep_ddb, info, data ])
+    }, [ cep_ddb, info ])
     
-    const on_load_dataview_keys = useCallback(async (keys: string[]) => { 
+    // 菜单展开关闭的回调
+    const on_open_change = useCallback(async (keys: string[]) => { 
         // 收起菜单，并将选中的 key 置为 null
         if (!keys.length) { 
             set_current(null)
             set_selected_key(null)
+            cep_ddb.disconnect()
             return
         }
+        // 保证每次只展开一个 dataview
         const cur = keys[0]
-        set_current(cur)
-    
         
-        // 每次展开菜单的时候实时获取 dataview 的 keys
+        set_current(cur)
+        
+        // // 点击 dataview 的时候需要加载该 dataview 的 key 并展示
         const dataview_keys = await get_dataview_keys(info.EngineStat.name, cur)
         set_views(views => views.map(item => { 
             if (item.key !== cur)
@@ -230,27 +239,26 @@ function DataView ({ info }: { info: ICEPEngineDetail }) {
                 return { ...item, children: dataview_keys.map(key => ({ label: key, key })) }
         }))
         
-        // 并拉取 dataview 的监听字段
+        
+        // 拉取 dataview 的初始数据，初始化 key_data
         const data_view_initial_data = await get_dataview_info(info.EngineStat.name, cur) 
-        set_data(data_view_initial_data)
+        const key_column = info.dataViewEngines.find(view => view.name === cur)?.keyColumns?.split(' ')[0]
+        for (let key of dataview_keys) {
+            const key_item = data_view_initial_data.find(view_item => view_item[key_column] === key)
+            set_key_data(data => ({ ...data, [key]: key_item }))
+        }
         
         // 订阅流表
         const output_table_name = info.dataViewEngines.find(item => item.name === cur).outputTableName
-        on_subscribe(output_table_name)
-    }, [current, info])
+        on_subscribe(output_table_name, key_column)
+    }, [current, info, cep_ddb])
     
-    useEffect(() => {
-        // 流表更新、选择 key 的时候更新右侧 table 的数据
-        if (!current || !selected_key)
-            return
-        const [col_key] = info.dataViewEngines.find(view => view.name === current).keyColumns.split(' ')
-        const table_data = data.find(item => item[col_key] === selected_key)
-        // 转换为表结构数据
-        if (table_data)  
-            set_table_data(Object.entries(table_data).map(([name, value]) => ({ name, value })))
-    }, [selected_key, data, current])
-    
-    
+    // 当前选中 key 的数据
+    const table_data_source = useMemo(() => {
+        if (!selected_key)
+            return [ ]
+        return Object.entries(key_data[selected_key]).map(([name, value]) => ({ name, value }))
+    }, [key_data, selected_key])
     
     return <div className='data-view-info'>
         <Menu
@@ -258,17 +266,20 @@ function DataView ({ info }: { info: ICEPEngineDetail }) {
             className='data-view-menu'
             mode='inline'
             items={views}
-            onOpenChange={on_load_dataview_keys}
-            onSelect={({ key }) => { set_selected_key(key) }} 
+            onOpenChange={on_open_change}
+            onSelect={({ key }) => { set_selected_key(key) }}
+            selectedKeys={[selected_key]}
+            multiple={false}
         />
         <Table
             className='data-view-table'
-            dataSource={table_data}
+            dataSource={table_data_source}
             rowKey='name'
             columns={[
                 { title: t('名称'), dataIndex: 'name', width: 300 },
                 { title: t('值'), dataIndex: 'value' }
             ]}
+            locale={{ emptyText: <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description={t('请选择需要观测的 key')} /> }} 
             pagination={{
                 defaultPageSize: 10,
                 pageSizeOptions: ['5', '10', '20'],
@@ -278,7 +289,7 @@ function DataView ({ info }: { info: ICEPEngineDetail }) {
                 hideOnSinglePage: true
             }}
         />
-        </div>
+    </div>
         
 }
 
