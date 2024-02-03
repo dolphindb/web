@@ -19,14 +19,20 @@ export enum MarkPresetType {
 }
 
 export interface IAxisItem { 
-    name_path?: NamePath
+    /** 数据源列名 */
     col_names: string[]
+    /** 外层包了 Form.List，此字段需传入 field.name */
+    name_path?: NamePath
+    /** 外层包了 Form.List，此字段表示 Form.List 的 name  */
     list_name?: string
-    col?: boolean
+    /** 需要隐藏的表单项 */
+    hidden_fields?: string[]
+    /** 初始值 */
     initial_values?: {
         type?: AxisType
         name?: string
         col_name?: string
+        time_format?: ITimeFormat
     }
 }
 

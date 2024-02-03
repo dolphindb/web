@@ -111,7 +111,7 @@ function Series (props: { col_names: string[] }) {
                     return {
                         children,
                         key: field.name,
-                        label: <div className='yaxis-collapse-label'>
+                        label: <div className='collapse-label'>
                             {/* {`数据列 ${field.name + 1}`} */}
                             {series?.[field.name]?.name || `数据列 ${field.name + 1}` }
                             {

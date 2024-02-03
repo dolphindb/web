@@ -1,14 +1,15 @@
 import { Model } from 'react-object-model'
 import { genid } from 'xshell/utils.browser.js'
-import { DDB, type DdbObj, type DdbValue } from 'dolphindb/browser.js'
+import { DDB, type DdbType, type DdbObj, type DdbValue } from 'dolphindb/browser.js'
 import { cloneDeep } from 'lodash'
 import copy from 'copy-to-clipboard'
 
 import { type Widget, dashboard } from '../model.js'
-import { sql_formatter, get_cols, stream_formatter, parse_code, safe_json_parse } from '../utils.js'
+import { sql_formatter, get_cols, stream_formatter, parse_code, safe_json_parse, get_sql_col_type_map, get_streaming_col_type_map } from '../utils.js'
 import { model, storage_keys } from '../../model.js'
 import { get_variable_copy_infos, paste_variables, unsubscribe_variable } from '../Variable/variable.js'
 import { t } from '../../../i18n/index.js'
+import { type DdbTable } from 'dolphindb'
 
 
 export type DataType = { }[]
@@ -54,6 +55,8 @@ export class DataSource extends Model<DataSource>  {
     max_line: number = null
     data: DataType = [ ]
     cols: string[] = [ ]
+    /** map 类型，存储了每一列对应的 DDB 类型 ID */
+    type_map: Record<string, DdbType>
     deps: Set<string> = new Set()
     variables: Set<string> = new Set()
     error_message = ''
@@ -101,7 +104,7 @@ export async function save_data_source ( new_data_source: DataSource, code?: str
     clear_data_source(data_source)
     
     data_source.variables.forEach(variable_id => { unsubscribe_variable(data_source, variable_id) })
-        
+    
     new_data_source.data.length = 0
     new_data_source.error_message = ''
     new_data_source.timer = null
@@ -122,9 +125,10 @@ export async function save_data_source ( new_data_source: DataSource, code?: str
                 switch (type) {
                     case 'success':
                         if (typeof result === 'object' && result) {
-                            // 暂时只支持table
+                            // 暂时只支持table matrix
                             new_data_source.data = sql_formatter(result, new_data_source.max_line)
                             new_data_source.cols = get_cols(result)
+                            new_data_source.type_map = get_sql_col_type_map(result as unknown as DdbTable)
                         }
                         if (code === undefined)
                             dashboard.message.success(`${data_source.name} ${t('保存成功')}`)
@@ -135,6 +139,7 @@ export async function save_data_source ( new_data_source: DataSource, code?: str
             } catch (error) {
                 new_data_source.error_message = error.message
                 new_data_source.cols = [ ]
+                new_data_source.type_map = { }
                 if (code === undefined)
                     dashboard.message.error(error.message)
             } finally {
@@ -149,7 +154,13 @@ export async function save_data_source ( new_data_source: DataSource, code?: str
             break
         case 'stream':
             try {
-                data_source.set({ ...new_data_source, auto_refresh: false, cols: await get_stream_cols(data_source.stream_table) })
+                console.log(data_source.stream_table, 'stream_table')
+                data_source.set({
+                    ...new_data_source,
+                    auto_refresh: false,
+                    cols: await get_stream_cols(data_source.stream_table),
+                    type_map: await get_streaming_col_type_map(new_data_source.stream_table)
+                })
                 
                 if (deps.size) 
                     await subscribe_stream(data_source) 

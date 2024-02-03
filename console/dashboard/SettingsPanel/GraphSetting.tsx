@@ -9,7 +9,7 @@ import { t } from '../../../i18n/index.js'
 export function GraphSetting () { 
     const { widget } = dashboard.use(['widget'])
     const data_source_node = get_data_source(widget.source_id?.[0])
-    const { cols = [ ], data: data_source = [ ] } = data_source_node?.use(['cols', 'data'])
+    const { cols = [ ], data: data_source = [ ], type_map } = data_source_node?.use(['cols', 'data', 'type_map'])
     
     const [form] = Form.useForm()
     
@@ -54,7 +54,7 @@ export function GraphSetting () {
             colon={false}
             className='graph-setting-form'
         >
-            <ConfigFormFields col_names={cols} data_source={data_source} />
+            <ConfigFormFields col_names={cols} data_source={data_source} type_map={type_map} />
         </Form>
         
         <Popconfirm title={t('确定要重置配置吗？')} onConfirm={on_reset_config}>

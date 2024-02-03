@@ -16,7 +16,6 @@ import cn from 'classnames'
 import { VariableForm } from './VariableForm.js'
 import { Button } from 'antd'
 import { copy_widget } from '../utils.js'
-import { workerData } from 'worker_threads'
 
 function get_padding_style (padding: { left: number, right: number, top: number, bottom: number }) { 
     if (!padding)

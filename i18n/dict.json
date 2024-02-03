@@ -2660,11 +2660,11 @@
     "Y 轴": {
         "en": "Y-axis"
     },
-    "X 轴属性": {
-        "en": "X-axis properties"
+    "X 轴配置": {
+        "en": "X-axis configuration"
     },
-    "Y 轴属性": {
-        "en": "Y-axis properties"
+    "Y 轴配置": {
+        "en": "Y-axis configuration"
     },
     "每行变量数": {
         "en": "number of variables per row"

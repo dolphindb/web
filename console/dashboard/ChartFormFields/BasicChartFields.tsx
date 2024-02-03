@@ -34,12 +34,13 @@ export const DATE_SELECT_FORMAT = {
 } 
 
 // col 表示是否需要选择坐标列，x轴必须选择坐标列
-export function AxisItem ({ name_path, col_names = [ ], list_name, initial_values, col }: IAxisItem) { 
+export function AxisItem ({ name_path, col_names = [ ], list_name, initial_values, hidden_fields }: IAxisItem) { 
     const { widget } = dashboard.use(['widget'])
     
     return <>
         <Form.Item
             label={t('类型')}
+            hidden={hidden_fields?.includes('type')}
             name={concat_name_path(name_path, 'type')}
             initialValue={initial_values?.type ?? AxisType.CATEGORY}
             tooltip={<>
@@ -54,15 +55,25 @@ export function AxisItem ({ name_path, col_names = [ ], list_name, initial_value
         >
             <Select options={axis_type_options} />
         </Form.Item>
-        <Form.Item label={t('名称')} name={concat_name_path(name_path, 'name')} initialValue={ initial_values?.name ?? t('名称')}>
+        <Form.Item
+            label={t('名称')}
+            name={concat_name_path(name_path, 'name')}
+            initialValue={initial_values?.name ?? t('名称')}
+            hidden={hidden_fields?.includes('name')}
+        >
             <Input />
         </Form.Item>
-        <Form.Item label={t('字号')} name={ concat_name_path(name_path, 'fontsize')} initialValue={12}>
+        <Form.Item
+            label={t('字号')}
+            name={concat_name_path(name_path, 'fontsize')}
+            initialValue={12}
+            hidden={hidden_fields?.includes('fontsize')}
+        >
             <InputNumber addonAfter='px'/>
         </Form.Item>
         
         
-        {col && widget.type !== WidgetChartType.COMPOSITE_GRAPH && <AxisColSelect label={t('坐标列')} col_names={col_names} path={name_path} list_path={list_name} /> }
+        {widget.type !== WidgetChartType.COMPOSITE_GRAPH && <AxisColSelect hidden={hidden_fields?.includes('col_name')} label={t('坐标列')} col_names={col_names} path={name_path} list_path={list_name} /> }
         
         
         {/* 类目轴从 col_name 中获取 data */}
@@ -72,25 +83,40 @@ export function AxisItem ({ name_path, col_names = [ ], list_name, initial_value
                 switch (type) { 
                     case AxisType.VALUE:
                         return <>
-                            <Form.Item name={concat_name_path(name_path, 'with_zero')} label={t('强制包含零刻度')} initialValue={false}>
+                            <Form.Item
+                                name={concat_name_path(name_path, 'with_zero')}
+                                label={t('强制包含零刻度')}
+                                initialValue={false}
+                                hidden={hidden_fields?.includes('with_zero')}
+                            >
                                 <BoolRadioGroup />
                             </Form.Item>
-                            <Form.Item name={concat_name_path(name_path, 'min')} label={t('最小值')}>
+                            <Form.Item name={concat_name_path(name_path, 'min')} label={t('最小值')} hidden={hidden_fields?.includes('min')}>
                                 <InputNumber />
                             </Form.Item>
-                            <Form.Item name={concat_name_path(name_path, 'max')} label={t('最大值')}>
+                            <Form.Item name={concat_name_path(name_path, 'max')} label={t('最大值')} hidden={hidden_fields?.includes('max')}>
                                 <InputNumber />
                             </Form.Item>
                         </>
                     case AxisType.LOG:
                         return <>
-                            <Form.Item name={concat_name_path(name_path, 'log_base')} label={t('底数')} initialValue={10}>
+                            <Form.Item
+                                name={concat_name_path(name_path, 'log_base')}
+                                label={t('底数')}
+                                initialValue={10}
+                                hidden={hidden_fields?.includes('log_base')}
+                            >
                                 <InputNumber />
                             </Form.Item>
                         </>
                     case AxisType.TIME:
                         return <>
-                            <Form.Item name={concat_name_path(name_path, 'time_format')} label={t('时间格式化')}>
+                            <Form.Item
+                                name={concat_name_path(name_path, 'time_format')}
+                                label={t('时间格式化')}
+                                initialValue={initial_values?.time_format}
+                                hidden={hidden_fields?.includes('time_format')}
+                            >
                                 <Select options={format_time_options.slice(4)}/>
                             </Form.Item>
                             <FormDependencies dependencies={[concat_name_path(list_name, name_path, 'time_format')]}>
@@ -100,10 +126,18 @@ export function AxisItem ({ name_path, col_names = [ ], list_name, initial_value
                                         return null
                                     else
                                         return <>
-                                            <Form.Item name={concat_name_path(name_path, 'min')} label={t('开始时间')}>
+                                            <Form.Item
+                                                name={concat_name_path(name_path, 'min')}
+                                                label={t('开始时间')}
+                                                hidden={hidden_fields?.includes('min')}
+                                            >
                                                 {DATE_SELECT_FORMAT[time_format]}
                                             </Form.Item>
-                                            <Form.Item name={concat_name_path(name_path, 'max')} label={t('结束时间')}>
+                                            <Form.Item
+                                                name={concat_name_path(name_path, 'max')}
+                                                label={t('结束时间')}
+                                                hidden={hidden_fields?.includes('max')}
+                                            >
                                                 {DATE_SELECT_FORMAT[time_format]}
                                             </Form.Item>
                                         </>
@@ -112,7 +146,11 @@ export function AxisItem ({ name_path, col_names = [ ], list_name, initial_value
                         </>
                     case AxisType.CATEGORY:
                         return <>
-                            <Form.Item name={concat_name_path(name_path, 'time_format')} label={t('时间格式化')}>
+                            <Form.Item
+                                name={concat_name_path(name_path, 'time_format')}
+                                label={t('时间格式化')}
+                                hidden={hidden_fields?.includes('time_format')}
+                            >
                                 <Select options={format_time_options} allowClear/>
                             </Form.Item>
                         </>
@@ -123,7 +161,6 @@ export function AxisItem ({ name_path, col_names = [ ], list_name, initial_value
         </FormDependencies>
     </>
 }
-
 
 function Series (props: { col_names: string[], single?: boolean }) { 
     const { col_names, single = false } = props
@@ -376,8 +413,19 @@ function Series (props: { col_names: string[], single?: boolean }) {
     </Form.List>
 }
 
-export function YAxis (props: { col_names: string[], initial_values?: IYAxisItemValue[], single?: boolean } ) {
-    const { col_names, initial_values, single } = props
+interface IYAxisProps { 
+    /** 数据源列名 */
+    col_names: string[]
+    /** 初始值 */
+    initial_values?: IYAxisItemValue[]
+    /** 是否只允许创建一个 Y 轴 */
+    single?: boolean
+    /** 坐标轴配置项 props */
+    axis_item_props?: Omit<IAxisItem, 'col_names'> 
+}
+
+export function YAxis (props: IYAxisProps ) {
+    const { col_names, initial_values, single, axis_item_props } = props
     
     const default_initial_values = useMemo(() => ([
         {
@@ -397,7 +445,7 @@ export function YAxis (props: { col_names: string[], initial_values?: IYAxisItem
                 const children = <div className='field-wrapper' key={field.name}>
                     <Space>
                         <div className='axis-wrapper'>
-                            <AxisItem col_names={col_names} name_path={field.name} list_name='yAxis'/>
+                            <AxisItem col_names={col_names} name_path={field.name} list_name='yAxis' {...axis_item_props} />
                             <Form.Item name={[field.name, 'position']} label={t('位置')} initialValue='left'>
                                 <Select options={axis_position_options} />
                             </Form.Item>
@@ -411,7 +459,7 @@ export function YAxis (props: { col_names: string[], initial_values?: IYAxisItem
                 return {
                     children,
                     key: field.name,
-                    label: <div className='yaxis-collapse-label'>
+                    label: <div className='collapse-label'>
                         {/* {`Y 轴 ${field.name + 1}`} */}
                         {yAxis?.[field.name]?.name || `${t('Y 轴')} ${field.name + 1}` }
                         {
@@ -451,13 +499,13 @@ export function YAxis (props: { col_names: string[], initial_values?: IYAxisItem
 export function AxisFormFields ({ col_names = [ ], single = false }: { col_names: string[], single?: boolean }) {
     return <Collapse items={[{
         key: 'x_axis',
-        label: t('X 轴属性'),
-        children: <div className='axis-wrapper'><AxisItem col name_path='xAxis' col_names={col_names} /></div>,
+        label: t('X 轴配置'),
+        children: <div className='axis-wrapper'><AxisItem hidden_fields={['col_name']} name_path='xAxis' col_names={col_names} /></div>,
         forceRender: true,
     },
     {
         key: 'y_axis',
-        label: t('Y 轴属性'),
+        label: t('Y 轴配置'),
         children: <YAxis col_names={col_names} single={single} />,
         forceRender: true,
     }

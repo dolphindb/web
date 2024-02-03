@@ -4,6 +4,9 @@ import { BarChartOutlined, BarsOutlined, BoxPlotOutlined, DoubleLeftOutlined, Do
 import { WidgetType } from './model.js'
 import { t } from '../../i18n/index.js'
 
+import timeSeriesSvg from '../icons/timeSeries.icon.svg'
+import Icon from '@ant-design/icons/lib/components/Icon.js'
+
 
 
 const icons = {
@@ -21,8 +24,9 @@ const icons = {
     [WidgetType.RADAR]: <RadarChartOutlined className='icon' />,
     [WidgetType.VARIABLE]: <FunctionOutlined className='icon'/>,
     [WidgetType.SCATTER]: <DotChartOutlined className='icon' />,
-    [WidgetType.HEATMAP]: <WindowsOutlined className='icon' />,
-    [WidgetType.COMPOSITE_GRAPH]: <GoldOutlined className='icon'/>
+    // [WidgetType.HEATMAP]: <WindowsOutlined className='icon' />,
+    [WidgetType.COMPOSITE_GRAPH]: <GoldOutlined className='icon' />,
+    [WidgetType.TIME_SERIES]: <Icon component={timeSeriesSvg} className='icon'/>
 }
 
 

@@ -13,6 +13,9 @@ import { subscribe_data_source, type DataSource } from './DataSource/date-source
 import { AxisType, MarkPresetType } from './ChartFormFields/type.js'
 import { find_variable_by_name, get_variable_copy_infos, get_variable_value, paste_variables, subscribe_variable } from './Variable/variable.js'
 import { t } from '../../i18n/index.js'
+import { type DdbTable, type DdbArrayVectorValue, DdbArrayVectorBlock } from 'dolphindb'
+import { model } from '../model.js'
+import { DDB_TYPE_MAP } from '../constants/ddb-type-maps.js'
 
 
 export function format_time (time: string, format: string) {
@@ -537,4 +540,26 @@ export function check_name (new_name: string) {
         return t('dashboard 名称中不允许包含 "/" 或 "\\" ')
     else if (dashboard.configs.find(({ name, permission }) => name === new_name && permission === DashboardPermission.own)) 
         return t('名称重复，请重新输入')    
+}
+
+
+export function get_sql_col_type_map (obj: DdbTable): Record<string, DdbType> { 
+    const col_type_map: Record<string, DdbType> = { } 
+    for (let col_obj of obj.value)  
+        col_type_map[col_obj.name] = col_obj.type
+    return col_type_map
+}
+
+
+export async function get_streaming_col_type_map (table_name: string): Promise<Record<string, DdbType>> {
+    const col_types_map: Record<string, DdbType> = { }
+    const schema_table = (await dashboard.eval(`schema(${table_name})['colDefs']`)).value as DdbObj<DdbValue>[]
+    
+    const cols = schema_table.find(item => item.name === 'name').value as string[]
+    const ddb_types = schema_table.find(item => item.name === 'typeInt').value as DdbType[]
+    
+    for (let i = 0;  i < cols.length;  i++)
+        col_types_map[cols[i]] = ddb_types[i]
+        
+    return col_types_map
 }

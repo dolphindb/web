@@ -14,6 +14,7 @@ import { Variables } from './Charts/Variables/index.js'
 import { HeatMap, HeatMapConfigForm } from './Charts/HeatMap/index.js'
 import { BasicFormFields } from './ChartFormFields/BasicFormFields.js'
 import { CompositeGraph, CompositeGraphConfig } from './Charts/CompositeGraph/index.js'
+import { TimeSeriesChart, TimeSeriesChartConfig } from './Charts/TimeSeriesChart/index.js'
 
 
 type GraphConfig =  { 
@@ -86,5 +87,9 @@ export const graph_config: GraphConfig =  {
     [WidgetChartType.COMPOSITE_GRAPH]: {
         component: CompositeGraph,
         config: CompositeGraphConfig
+    },
+    [WidgetChartType.TIME_SERIES]: {
+        component: TimeSeriesChart,
+        config: TimeSeriesChartConfig
     }
 }
