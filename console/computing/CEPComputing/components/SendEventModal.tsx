@@ -4,7 +4,7 @@ import { useCallback } from 'react'
 import { type ICEPEngineDetail } from '../type.js'
 import { t } from '../../../../i18n/index.js'
 import { FormDependencies } from '../../../components/formily/FormDependcies/index.js'
-import { DdbDict, type DdbObj, DdbType, type DdbValue, DdbString } from 'dolphindb'
+import { DdbDict, type DdbObj, type DdbValue, DdbType } from 'dolphindb'
 import { model } from '../../../model.js'
 import { DdbObjField } from './DdbObjField.js'
 
@@ -68,7 +68,7 @@ export const SendEventModal = NiceModal.create((props: IProps) => {
         afterClose={modal.remove}
         onOk={async () => model.execute(on_send)}
         className='cep-send-event-wrapper'
-        title={t(`发送事件到 【${name}】 引擎`)}
+        title={t('发送事件到 {{name}} 引擎', { name })}
         width={700}
     >
         <Form form={form} colon={false} labelCol={{ span: 4 }} wrapperCol={{ span: 20 }} labelAlign='left'>
@@ -86,21 +86,19 @@ export const SendEventModal = NiceModal.create((props: IProps) => {
                         return <>
                             <h4>
                                 {t('事件字段')}
-                                <Typography.Link className='type-doc-link' href='https://docs.dolphindb.cn/zh/progr/data_types.html'>{t('类型说明')}</Typography.Link>
+                                <Typography.Link target='_blank' className='type-doc-link' href='https://docs.dolphindb.cn/zh/progr/data_types.html'>{t('类型说明')}</Typography.Link>
                             </h4>
-                            {keys.map((key, idx) => <>
-                                <Form.Item
-                                    name={key}
-                                    key={key}
-                                    label={key}
-                                    rules={[
-                                        { required: true },
-                                        { validator: async (_, value) => validate_type(value, type_ids[idx])  }
-                                    ]}
-                                >
-                                    <DdbObjField type={types[idx]} placeholder={t('数据类型为 {{type}}', { type: types[idx] }) } />
-                                </Form.Item>
-                            </>
+                            {keys.map((key, idx) => <Form.Item
+                                name={key}
+                                key={key}
+                                label={key}
+                                rules={[
+                                    { required: true },
+                                    { validator: async (_, value) => validate_type(value, type_ids[idx])  }
+                                ]}
+                            >
+                                <DdbObjField key={key} type={types[idx]} placeholder={t('数据类型为 {{type}}', { type: types[idx] }) } />
+                            </Form.Item>
                         ) }
                         </>
                     } }

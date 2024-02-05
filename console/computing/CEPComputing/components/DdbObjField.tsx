@@ -6,7 +6,7 @@ import { t } from '../../../../i18n/index.js'
 
 interface IProps extends Omit<DatePickerProps, 'onChange'> { 
     onChange?: (val: any) => void
-    showTime?: boolean
+    showTime?: any
     type?: string
 }
 
@@ -22,8 +22,7 @@ export function DdbObjDatePicker ({ onChange, value, type, ...others }: IProps) 
         if (type === 'MONTH')
             date_str += 'M'
         else if (type === 'DATEHOUR')
-            date_str = `datehour(${date_str})`
-        console.log(date_str, typeof date_str)
+            date_str = `datehour(${JSON.stringify(date_str)})`
         const obj = await model.ddb.eval(date_str)
         onChange(obj)
     }, [type])
@@ -40,10 +39,8 @@ interface IDdbObjTimePickerProps extends Omit<TimePickerProps, 'onChange'> {
 /** 将控件输入的时间格式转化为 ddb 的时间格式，format 需要与 ddb 中的时间格式一致 */ 
 export function DdbObjTimePicker ({ onChange, type, value, ...others }: IDdbObjTimePickerProps) {
     const on_value_change = useCallback(async (_, time_str: string) => { 
-        if (type && type === 'MINUTE')
+        if (type === 'MINUTE')
             time_str += 'm'
-        else if (type === 'DATEHOUR')
-            time_str = `datehour(${time_str})`
         else if (type === 'TIME')
             time_str = `time(${JSON.stringify(time_str)})`
         const time_obj = await model.ddb.eval(time_str)
@@ -116,8 +113,8 @@ export function DdbObjField ({ type, placeholder, ...others }: IDdbObjFieldProps
             return <DdbObjDatePicker placeholder={placeholder} format='YYYY.MM.DD HH:mm:ss' showTime {...others} />
         case 'TIMESTAMP':
             return <DdbObjDatePicker placeholder={placeholder} format='YYYY.MM.DD HH:mm:ss.SSS' showTime {...others} />
-        case 'DATEHOUR': 
-            return <DdbObjDatePicker placeholder={placeholder} format='YYYY.MM.DD HH:mm:ss' type='DATEHOUR' showTime {...others} />
+        case 'DATEHOUR':
+            return <DdbObjDatePicker placeholder={placeholder} format='YYYY.MM.DD HH' showTime={{ format: 'HH' }} type='DATEHOUR' {...others} />
         case 'TIME':
             return <DdbObjTimePicker placeholder={placeholder} format='HH:mm:ss.SSS' type='TIME' {...others} />
         case 'MINUTE':
