@@ -33,7 +33,7 @@ function GraphComponent ({ widget }: { widget: Widget }) {
     // 普通图表 source_id 内只有一项，只需要取第一项，复合图表才会有多项
     const data_source_node = get_data_source(widget.source_id?.[0])
     
-    const { data = [ ] } = data_source_node.use(['data'])
+    const { data = [ ], cols = [ ], type_map = { } } = data_source_node.use(['data', 'cols', 'type_map'])
     
     const Component = useMemo(() => graph_config[widget.type].component, [widget.type])
     
@@ -56,7 +56,7 @@ function GraphComponent ({ widget }: { widget: Widget }) {
         <div className={cn('graph-component', {
             'graph-item-wrapper-abandon-scroll': widget.config?.abandon_scroll
         }) }>
-            <Component data_source={data} widget={widget} />
+            <Component data_source={data} widget={widget} col_names={cols} type_map={type_map} />
         </div>
     </div>
 }

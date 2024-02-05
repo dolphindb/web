@@ -23,6 +23,7 @@ export interface AxisConfig {
     min?: any
 }
 
+
 export interface ISeriesConfig {
     type: string
     col_name: string

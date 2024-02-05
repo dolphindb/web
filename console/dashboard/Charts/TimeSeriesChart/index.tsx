@@ -4,25 +4,47 @@ import { Button, Collapse, type CollapseProps, Form, Select, Typography, Tooltip
 import { BasicFormFields } from '../../ChartFormFields/BasicFormFields.js'
 import { t } from '../../../../i18n/index.js'
 import { AxisItem, YAxis } from '../../ChartFormFields/BasicChartFields.js'
-import { AxisType, ILineType, ITimeFormat } from '../../ChartFormFields/type.js'
+import { AxisType, ITimeFormat } from '../../ChartFormFields/type.js'
 import { DeleteOutlined, LinkOutlined, PlusCircleOutlined, QuestionCircleOutlined } from '@ant-design/icons'
 import { FormDependencies } from '../../../components/formily/FormDependcies/index.js'
-import { convert_list_to_options } from '../../utils.js'
+import { concat_name_path, convert_chart_config, convert_list_to_options } from '../../utils.js'
 import { get, uniq } from 'lodash'
-import { type DdbType } from 'dolphindb'
+import { DdbType } from 'dolphindb'
 import { DDB_TYPE_MAP } from '../../../constants/ddb-type-maps.js'
-import { type } from 'os'
-import { BoolRadioGroup } from '../../../components/BoolRadioGroup/index.js'
-import { StringColorPicker } from '../../../components/StringColorPicker/index.js'
-import { chart_type_options, mark_point_options, mark_line_options, line_type_options } from '../../ChartFormFields/constant.js'
-import { get_data_source } from '../../DataSource/date-source.js'
-import { WidgetChartType } from '../../model.js'
+
+import { type Widget, dashboard } from '../../model.js'
+import { SeriesItem } from '../../ChartFormFields/components/SeriesItem.js'
+import { useEffect, useMemo } from 'react'
+import ReactEChartsCore from 'echarts-for-react/lib/core'
+import * as echarts from 'echarts'
+import { type ISeriesConfig, type IChartConfig, type AxisConfig } from '../../type'
 
 
-enum MatchType { 
+enum MatchRuleType {
     NAME,
     REGEXP,
     DATA_TYPE
+}
+
+interface ITimeSeriesItemConfig extends Omit<ISeriesConfig, 'type' | 'col_name'> { 
+    match_type: MatchRuleType
+    match_value: any
+}
+
+interface ITimeSeriesChartConfig extends Omit<IChartConfig, 'series'> { 
+    series: ITimeSeriesItemConfig[]
+}
+
+interface ITimeSeriesChart { 
+    data_source: {}[]
+    col_names: string[]
+    type_map: Record<string, DdbType>
+    widget: Widget
+}
+
+interface ITimeSeriesChartConfigProps { 
+    col_names: string[]
+    type_map: Record<string, DdbType>
 }
 
 const REGEXP_LINK = 'https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/RegExp'
@@ -35,7 +57,7 @@ const series_match_type_options = [
                 <QuestionCircleOutlined className='series_match_type_tip'/>
             </Tooltip>
         </>,
-        value: MatchType.NAME
+        value: MatchRuleType.NAME
     },
     {
         label: <>
@@ -44,7 +66,7 @@ const series_match_type_options = [
                 <QuestionCircleOutlined className='series_match_type_tip'/>
             </Tooltip>
         </>,
-        value: MatchType.REGEXP
+        value: MatchRuleType.REGEXP
     },
     {
         label: <>
@@ -53,17 +75,80 @@ const series_match_type_options = [
                 <QuestionCircleOutlined className='series_match_type_tip'/>
             </Tooltip>
         </>,
-        value: MatchType.DATA_TYPE
+        value: MatchRuleType.DATA_TYPE
     }
 ]
 
-export function TimeSeriesChart () {
-    return <>时序图</>
+const TIME_TYPES = [
+    DdbType.date,
+    DdbType.month,
+    DdbType.time,
+    DdbType.minute,
+    DdbType.second,
+    DdbType.datetime,
+    DdbType.timestamp,
+    DdbType.nanotime,
+    DdbType.nanotimestamp,
+    DdbType.datehour
+]
+
+
+export function TimeSeriesChart (props: ITimeSeriesChart) {
+    const { widget, data_source, col_names, type_map } = props
+    
+    const options = useMemo(() => { 
+        const { series = [ ], xAxis, yAxis = [ ], ...others } = widget.config as unknown as ITimeSeriesChartConfig
+        const x_axis_col = xAxis?.col_name
+        
+        const config = {
+            ...others,
+            xAxis,
+            yAxis: yAxis.map(item => ({ ...item, type: AxisType.VALUE })),
+            // 将 X 轴过滤，其他列均作为数据列
+            series: col_names.filter(item => item !== x_axis_col).map(col => {
+                // 按照匹配规则为配置数据列，如果没有匹配中的就使用默认的
+                const match_rule = series.filter(Boolean).find(item => {
+                    const { match_type, match_value } = item
+                    
+                    if (match_type === MatchRuleType.NAME)
+                        return item.match_value?.includes(col)
+                    else if (match_type === MatchRuleType.DATA_TYPE)
+                        return match_value === type_map[col]
+                    else if (match_type === MatchRuleType.REGEXP)  
+                        try { return eval(match_value)?.test(col) }
+                        catch (e) { return false }
+                })
+                return { col_name: col, type: 'line', name: col, ...match_rule }
+            })
+        }
+        return convert_chart_config({ ...widget, config } as unknown as  Widget, data_source)
+    }, [widget.config, col_names, type_map, data_source])
+    
+    console.log(options, 'options')
+    
+    return <ReactEChartsCore
+        echarts={echarts}
+        notMerge={dashboard.editing}
+        option={options}
+        className='dashboard-line-chart'
+        theme='my-theme'
+    />
 }
 
-
 // 时序图不需要配置 y 轴，默认为数据轴，但是可以配置 x 轴更改时间列
-export function TimeSeriesChartConfig ({ col_names, type_map }: { col_names: string[], type_map: Record<string, DdbType> }) { 
+export function TimeSeriesChartConfig (props: ITimeSeriesChartConfigProps) {
+    const { col_names, type_map } = props
+    const { widget } = dashboard.use(['widget']) 
+    const type = useMemo(() => widget.type, [widget])
+    
+    const form = Form.useFormInstance()
+    
+    useEffect(() => {
+        const time_col = col_names.find(col => TIME_TYPES.includes(type_map[col]))
+        const config = widget.config as IChartConfig
+        form.setFieldValue(concat_name_path('xAxis', 'col_name'), time_col)
+        dashboard.update_widget({ ...widget, config: { ...config, xAxis: { ...config?.xAxis, col_name: time_col } } })
+    }, [col_names, type_map, widget.id])
     
     return <>
         <BasicFormFields type='chart' />
@@ -72,7 +157,16 @@ export function TimeSeriesChartConfig ({ col_names, type_map }: { col_names: str
                 key: 'x_axis',
                 label: t('X 轴配置'),
                 forceRender: true,
-                children: <AxisItem hidden_fields={['col_name', 'type']} name_path='series' col_names={col_names} initial_values={{ type: AxisType.TIME, time_format: ITimeFormat.DATE_SECOND }} />
+                children: <AxisItem
+                    col_names={col_names}
+                    name_path='xAxis'
+                    initial_values={{
+                        type: AxisType.TIME,
+                        time_format: ITimeFormat.DATE_SECOND,
+                        /** 第一个时间类型的列作为 X 轴 */
+                        col_name: col_names.find(col => TIME_TYPES.includes(type_map[col]))
+                    }}
+                />
             },
             {
                 key: 'y_axis',
@@ -84,32 +178,32 @@ export function TimeSeriesChartConfig ({ col_names, type_map }: { col_names: str
                 key: 'series',
                 label: t('数据列配置'),
                 forceRender: true,
-                children: <Form.List name='series_config'>
+                children: <Form.List name='series'>
                     {(fields, { add, remove }) => { 
                         const items: CollapseProps['items'] = fields.map(field => ({
                             key: `series_${field.name}`,
                             forceRender: true,
                             label: <div className='collapse-label'>
-                                {t(`配置 ${field.name + 1}`)}
+                                {t(`配置规则 ${field.name + 1}`)}
                                 <DeleteOutlined onClick={() => { remove(field.name) }}/>
                             </div>,
                             children: <div key={field.name}>
                                 {/* 用户选择如何配置应用的范围 */}
-                                <Form.Item label={t('匹配规则')} name={[field.name, 'match_type']}>
+                                <Form.Item label={t('匹配类型')} name={[field.name, 'match_type']}>
                                     <Select options={series_match_type_options} />
                                 </Form.Item>
-                                <FormDependencies dependencies={[['series_config', field.name, 'match_type']]}>
+                                <FormDependencies dependencies={[concat_name_path('series', field.name, 'match_type')]}>
                                     {value => { 
-                                        const match_type = get(value, ['series_config', field.name, 'match_type'])
+                                        const match_type = get(value, concat_name_path('series', field.name, 'match_type'))
                                         switch (match_type) {
-                                            case MatchType.NAME:
-                                                return <Form.Item label={t('筛选列')} name='match_value'>
+                                            case MatchRuleType.NAME:
+                                                return <Form.Item label={t('筛选列')} name={concat_name_path(field.name, 'match_value')}>
                                                     <Select mode='multiple' options={convert_list_to_options(col_names)} />
                                                 </Form.Item>
-                                            case MatchType.REGEXP:
+                                            case MatchRuleType.REGEXP:
                                                 return <Form.Item
                                                     label={t('正则表达式')}
-                                                    name='match_value'
+                                                    name={concat_name_path(field.name, 'match_value')}
                                                     extra={<Typography.Link target='_blank' href={REGEXP_LINK}>
                                                         <LinkOutlined style={{ marginRight: 8 }}/>
                                                         {t('正则表达式书写规则')}
@@ -117,140 +211,27 @@ export function TimeSeriesChartConfig ({ col_names, type_map }: { col_names: str
                                                 >
                                                     <Input placeholder={t('请输入字面量形式的正则表达式，如 /[0-9]+/g') } />
                                                 </Form.Item>
-                                            case MatchType.DATA_TYPE:
+                                            case MatchRuleType.DATA_TYPE:
                                                 const type_options = uniq(Object.values(type_map)).map(item => ({ label: DDB_TYPE_MAP[item], value: item }))
-                                                return <Form.Item label={t('数据类型')} name='match_value'>
+                                                return <Form.Item label={t('数据类型')} name={concat_name_path(field.name, 'match_value')}>
                                                     <Select options={type_options}/>
                                                 </Form.Item>
+                                            default:
+                                                return null
                                         }
                                     } }
                                 </FormDependencies>
                                 
-                                <div className='field-wrapper'>
-                       
-                                    <Form.Item
-                                        name={[field.name, 'name']}
-                                        label={t('名称')}
-                                        initialValue={col_names[0]}
-                                    > 
-                                        <Input />
-                                    </Form.Item>
-                        
-                                   
-                                    <Form.Item name={[field.name, 'type']} label={t('类型')} initialValue={WidgetChartType.LINE}>
-                                        <Select options={chart_type_options} />
-                                    </Form.Item>
-                                    <Form.Item name={[field.name, 'color']} label={t('颜色')} initialValue={null}>
-                                        <StringColorPicker />
-                                    </Form.Item>
-                        
-                                    {/* 数据关联的y轴选择 */}
-                                    <FormDependencies dependencies={['yAxis']}>
-                                        { value => {
-                                            const { yAxis } = value
-                                            const options = yAxis.map((item, idx) => ({
-                                                value: idx,
-                                                label: item?.name
-                                            }))
-                                            return <Form.Item name={[field.name, 'yAxisIndex']} label={t('关联 Y 轴')} initialValue={0}>
-                                                <Select options={options} />
-                                            </Form.Item>
-                                        } }
-                                    </FormDependencies>
-                        
-                        
-                                    <Form.Item name={[field.name, 'mark_point']} label={t('标记点')}>
-                                        <Select options={mark_point_options} mode='multiple'/>
-                                    </Form.Item>
-                                    
-                                    <Form.Item label={t('水平线')} name={[field.name, 'mark_line']}>
-                                        <Select options={mark_line_options} mode='tags' />
-                                    </Form.Item>
-                       
-                        {/* 仅折线图可选择线类型 */}
-                        
-                        <FormDependencies dependencies={[['series', field.name, 'type']]}>
-                            {({ series }) => { 
-                                const { type: seriesType } = series.find(item => !!item)
-                                
-                                if (seriesType === WidgetChartType.BAR)
-                                    return <>
-                                        <Form.Item tooltip={t('同个类目轴上为数据列配置相同的堆叠值可以堆叠放置')} label={t('堆叠值')} name={[field.name, 'stack']}>
-                                            <Input />
-                                        </Form.Item>
-                                        {/* {ThresholdSelect} */}
-                                    </>
-                                else if (seriesType === WidgetChartType.LINE)
-                                    return <>
-                                        <Form.Item label={t('线类型')} name={[field.name, 'line_type']} initialValue={ILineType.SOLID}>
-                                            <Select options={line_type_options} />
-                                        </Form.Item>
-                                        <Form.Item label={t('线宽')} name={[field.name, 'line_width']}>
-                                            <InputNumber addonAfter='px'/>
-                                        </Form.Item>
-                                        <Form.Item name={[field.name, 'end_label']} label={t('展示端标签')} initialValue={false}>
-                                            <BoolRadioGroup />
-                                        </Form.Item>
-                                        <FormDependencies dependencies={[['series', field.name, 'end_label']]}>
-                                            {value => { 
-                                                if (!value.series?.[field.name]?.end_label)
-                                                    return null
-                                                
-                                                return <Form.Item
-                                                name={[field.name, 'end_label_formatter']}
-                                                label={t('自定义端标签')}
-                                                tooltip={<>
-                                                    {t('支持静态标签与模板变量，其中模板变量包含以下几种')}
-                                                    <br />
-                                                    {t('{a}：数据列名称')}
-                                                    <br />
-                                                    {t('{b}：x 轴值')}
-                                                    <br />
-                                                    {t('{c}：当 x 轴为类目轴时显示 y 轴值，其余轴的情况下显示 x轴值,y轴值')}
-                                                    <br />
-                                                    {t('示例: 名称-{a}')}
-                                                    <br />
-                                                    {t('请注意，不填自定义端标签时默认展示 y 轴值') }
-                                                </>}
-                                            >
-                                                    <Input placeholder={t('请输入自定义端标签')} />
-                                            </Form.Item>
-                                            } }
-                                        </FormDependencies>
-                                    </>
-                                else if (seriesType === WidgetChartType.SCATTER)
-                                    return <>
-                                        <Form.Item label={t('散点大小')} name={[field.name, 'symbol_size']} initialValue={10}>
-                                            <InputNumber min={1} />
-                                        </Form.Item>
-                                        <Form.Item label={t('散点标记')} name={[field.name, 'symbol']} initialValue='circle'>
-                                            <Select options={convert_list_to_options(['circle', 'rect', 'roundRect', 'triangle', 'diamond', 'pin', 'arrow']) } />
-                                        </Form.Item>
-                                    </>
-                                else if (seriesType === WidgetChartType.HEATMAP)
-                                    return <>
-                                        <Form.Item label={t('阴暗色')} name={[field.name, 'in_range', 'color', 'low']} initialValue='#EBE1E1'>
-                                            <StringColorPicker />
-                                        </Form.Item>
-                                        <Form.Item label={t('明亮色')} name={[field.name, 'in_range', 'color', 'high']} initialValue='#983430'>
-                                            <StringColorPicker />
-                                        </Form.Item>
-                                        <Form.Item label={t('最小值')} name={[field.name, 'min']}>
-                                            <InputNumber />
-                                        </Form.Item>
-                                        <Form.Item label={t('最大值')} name={[field.name, 'max']}>
-                                            <InputNumber />
-                                        </Form.Item>
-                                        <Form.Item label={t('展示标签')} name={[field.name, 'with_label']} initialValue={false}>
-                                            <BoolRadioGroup />
-                                        </Form.Item>
-                                    </>
-                                else
-                                    return null
-                            } }
-                        </FormDependencies>
-                    </div>
-                                
+                                {/* 数据列配置 */}
+                                <FormDependencies dependencies={[concat_name_path(concat_name_path('series', field.name, 'match_value'))] }>
+                                    {value => {
+                                        const match_value = get(value, concat_name_path('series', field.name, 'match_value'))
+                                        return match_value
+                                            ? <SeriesItem col_names={col_names} type={type} name={field.name} path='series' />
+                                            : null
+                                    }}
+                                </FormDependencies>
+                               
                             </div>
                         }))
                         
