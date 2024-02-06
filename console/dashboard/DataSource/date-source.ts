@@ -154,7 +154,6 @@ export async function save_data_source ( new_data_source: DataSource, code?: str
             break
         case 'stream':
             try {
-                console.log(data_source.stream_table, 'stream_table')
                 data_source.set({
                     ...new_data_source,
                     auto_refresh: false,
@@ -281,6 +280,7 @@ export async function execute (source_id: string) {
                             data_source.set({
                                 data: sql_formatter(result, data_source.max_line),
                                 cols: get_cols(result),
+                                type_map: get_sql_col_type_map(result as unknown as DdbTable),
                                 error_message: ''
                             })        
                         else

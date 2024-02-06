@@ -1,6 +1,6 @@
 import './index.sass'
 
-import { useCallback, useRef, useState, useEffect } from 'react'
+import { useCallback, useRef, useState, useEffect, useMemo } from 'react'
 import { cloneDeep } from 'lodash'
 
 import { Button, Modal, type ButtonProps, Tabs } from 'antd'
@@ -48,11 +48,21 @@ export function DataSourceConfig (props: IProps, ref) {
     const [show_preview, set_show_preview] = useState(false) 
     // 当前选择应用的数据源
     const [selected_data_sources, set_selected_data_sources] = useState<string[]>([ ])
-    // 当前点击查看的数据源
+    // 当前点击查看的数据源，对于非复合图与时序图而言，当前查看的数据源即当前选中要应用的数据源
     const [current_data_source, set_current_data_source] = useState(null)
     const [loading, set_loading] = useState('')
     
     const no_save_flag = useRef(false)
+    
+    const is_multi_data_source = useMemo(
+        () => [WidgetChartType.COMPOSITE_GRAPH, WidgetChartType.TIME_SERIES].includes(widget?.type)
+        , [widget?.type])
+    
+    useEffect(() => { 
+        // 非多选数据源的情况下，当前查看数据源即为当前选中数据源
+        if (!is_multi_data_source && current_data_source)
+            set_selected_data_sources([current_data_source.id])
+    }, [current_data_source, is_multi_data_source])
     
     useEffect(() => { 
         set_selected_data_sources(widget?.source_id ?? [ ])
@@ -68,6 +78,8 @@ export function DataSourceConfig (props: IProps, ref) {
             return
         }    
         set_current_data_source(cloneDeep(get_data_source(key)))
+        if (!is_multi_data_source)
+            set_selected_data_sources([key])
         set_show_preview(false)
     }, [ ])
     
@@ -155,19 +167,13 @@ export function DataSourceConfig (props: IProps, ref) {
                                 set_loading('save')
                                 await handle_save()
                                 if (widget) {
-                                    if (widget.type === WidgetChartType.COMPOSITE_GRAPH) {
-                                        if (!selected_data_sources.length) {
-                                            dashboard.message.warning(t('请选择数据源'))
-                                            return
-                                        }
-                                        for (let id of selected_data_sources) 
-                                            await subscribe_data_source(widget, id)
-                                        dashboard.update_widget({ ...widget, source_id: selected_data_sources })
+                                    if (!selected_data_sources.length) {
+                                        dashboard.message.warning(t('请选择数据源'))
+                                        return
                                     }
-                                    else { 
-                                        await subscribe_data_source(widget, current_data_source.id)
-                                        dashboard.update_widget({ ...widget, source_id: [current_data_source.id] })
-                                    }
+                                    for (let id of selected_data_sources) 
+                                        await subscribe_data_source(widget, id)
+                                    dashboard.update_widget({ ...widget, source_id: selected_data_sources })
                                     close()
                                     set_show_preview(false)
                                 } 
@@ -194,8 +200,14 @@ export function DataSourceConfig (props: IProps, ref) {
                     no_save_flag={no_save_flag}
                     save_confirm={() => modal.confirm(save_confirm_config) }
                     handle_save={handle_save}
-                    on_select={ (keys: string[]) => { set_selected_data_sources(keys) }}
-                    change_current_data_source={change_current_data_source}
+                    on_select={(keys: string[] | string) => {
+                        // 多选模式下 keys 为 array，单选模式下为 string
+                        if (Array.isArray(keys)) { 
+                            set_selected_data_sources(keys)
+                            return
+                        }
+                        keys && change_current_data_source(keys)
+                    }}
                     change_current_data_source_property={change_current_data_source_property}
                 />
                 {current_data_source &&

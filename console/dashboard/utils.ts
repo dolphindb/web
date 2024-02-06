@@ -320,6 +320,8 @@ export function convert_chart_config (widget: Widget, data_source: any[]) {
         
         
         return {
+            // 将原始信息返回
+            origin: series,
             type: series.type?.toLowerCase(),
             name: series.name,
             symbol: series.type === WidgetChartType.SCATTER ? series?.symbol ?? 'circle' : 'none',

@@ -20,9 +20,8 @@ interface PropsType {
         then<T>(resolve: (confirmed: boolean) => T, reject: VoidFunction): Promise<T>
     }
     handle_save: () => Promise<void>
-    change_current_data_source: (key: string) => void
     change_current_data_source_property: (key: string, value: DataSourcePropertyType, save_confirm?: boolean) => void
-    on_select: (keys: string[]) => void
+    on_select: (keys: string[] | string) => void
 }
 
 interface MenuItemType {
@@ -38,10 +37,11 @@ export function DataSourceList ({
     no_save_flag,
     save_confirm,
     handle_save,
-    change_current_data_source,
     change_current_data_source_property,
     on_select
 }: PropsType) {
+    
+    console.log(widget?.source_id, 'source_id')
     
     const [current_select, set_current_select] = useState(current_data_source?.id || '')
     const [new_name, set_new_name] = useState('')
@@ -55,8 +55,9 @@ export function DataSourceList ({
         })
     )
     
-    
-    const checkable = useMemo(() => widget ? widget.type === WidgetChartType.COMPOSITE_GRAPH : false, [ widget ])
+    const checkable = useMemo(() => widget
+        ? [WidgetChartType.COMPOSITE_GRAPH, WidgetChartType.TIME_SERIES].includes(widget.type)
+        : false, [widget])
     
     const tree_ref = useRef(null)
     
@@ -77,7 +78,7 @@ export function DataSourceList ({
                         })
                     )
                     const id = data_sources[0].id
-                    change_current_data_source(id)
+                    on_select(id)
                     set_current_select(id)
                 }
             } catch (error) {
@@ -140,7 +141,7 @@ export function DataSourceList ({
                         set_menu_items(new_menu_items)
                         set_current_select(id)
                         set_new_name('')
-                        change_current_data_source(id)
+                        on_select(id)
                         add_close()
                     } catch (error) {
                         dashboard.message.error(error.message)
@@ -192,10 +193,10 @@ export function DataSourceList ({
                                 menu_items.splice(delete_index, 1)
                                 set_menu_items([...menu_items])
                                 if (!data_sources.length)
-                                    change_current_data_source('')
+                                    on_select(null)
                                 else {
                                     const index = delete_index === 0 ? 0 : delete_index - 1
-                                    change_current_data_source(data_sources[index].id)
+                                    on_select(data_sources[index].id)
                                     set_current_select(data_sources[index].id)
                                 }
                             }
@@ -243,7 +244,7 @@ export function DataSourceList ({
                                     if (no_save_flag.current && (await save_confirm()))
                                         await handle_save()
                                     no_save_flag.current = false
-                                    change_current_data_source(String(key[0]))
+                                    on_select(String(key[0]))
                                     set_current_select(String(key[0]))
                                     !checkable && on_select([String(key[0])])
                                 }

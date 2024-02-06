@@ -7,17 +7,19 @@ import { AxisItem, YAxis } from '../../ChartFormFields/BasicChartFields.js'
 import { AxisType, ITimeFormat } from '../../ChartFormFields/type.js'
 import { DeleteOutlined, LinkOutlined, PlusCircleOutlined, QuestionCircleOutlined } from '@ant-design/icons'
 import { FormDependencies } from '../../../components/formily/FormDependcies/index.js'
-import { concat_name_path, convert_chart_config, convert_list_to_options } from '../../utils.js'
+import { concat_name_path, convert_chart_config, convert_list_to_options, format_time } from '../../utils.js'
 import { get, uniq } from 'lodash'
 import { DdbType } from 'dolphindb'
 import { DDB_TYPE_MAP } from '../../../constants/ddb-type-maps.js'
 
 import { type Widget, dashboard } from '../../model.js'
 import { SeriesItem } from '../../ChartFormFields/components/SeriesItem.js'
-import { useEffect, useMemo } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import ReactEChartsCore from 'echarts-for-react/lib/core'
 import * as echarts from 'echarts'
-import { type ISeriesConfig, type IChartConfig, type AxisConfig } from '../../type'
+import { type ISeriesConfig, type IChartConfig, type AxisConfig } from '../../type.js'
+import { get_data_source, type DataSource } from '../../DataSource/date-source.js'
+import { BoolRadioGroup } from '../../../components/BoolRadioGroup/index.js'
 
 
 enum MatchRuleType {
@@ -29,6 +31,7 @@ enum MatchRuleType {
 interface ITimeSeriesItemConfig extends Omit<ISeriesConfig, 'type' | 'col_name'> { 
     match_type: MatchRuleType
     match_value: any
+    show: boolean
 }
 
 interface ITimeSeriesChartConfig extends Omit<IChartConfig, 'series'> { 
@@ -94,20 +97,38 @@ const TIME_TYPES = [
 
 
 export function TimeSeriesChart (props: ITimeSeriesChart) {
-    const { widget, data_source, col_names, type_map } = props
+    const { widget, data_source, type_map } = props
+    const [update, set_update] = useState(null)
+    
+    // 存储每个数据源的时间列和数据列
+    const [source_col_map, set_source_col_map] = useState<Record<string, { time_col: string, series_col: string[] }>>({ })
+    
+    useEffect(() => { set_source_col_map({ }) }, [widget.source_id])
+    
+    useEffect(() => { 
+        for (let id of widget.source_id) { 
+            const { cols, type_map } = get_data_source(id)
+            const time_col = cols.find(col => TIME_TYPES.includes(type_map[col]))
+            
+            console.log(get_data_source(id), 'data_source')
+            const series_col = cols.filter(item => item !== time_col)
+            set_source_col_map(map => ({
+                ...map,
+                [id]: { time_col, series_col }
+            }))
+        }
+    }, [update])
+    
+    console.log(source_col_map, 'source_col_map')
     
     const options = useMemo(() => { 
-        const { series = [ ], xAxis, yAxis = [ ], ...others } = widget.config as unknown as ITimeSeriesChartConfig
-        const x_axis_col = xAxis?.col_name
-        
-        const config = {
-            ...others,
-            xAxis,
-            yAxis: yAxis.map(item => ({ ...item, type: AxisType.VALUE })),
-            // 将 X 轴过滤，其他列均作为数据列
-            series: col_names.filter(item => item !== x_axis_col).map(col => {
-                // 按照匹配规则为配置数据列，如果没有匹配中的就使用默认的
-                const match_rule = series.filter(Boolean).find(item => {
+        const { series: series_config = [ ], xAxis, yAxis = [ ], ...others } = widget.config as unknown as ITimeSeriesChartConfig
+        console.log(series_config, 'series_config')
+        let series = [ ]
+        for (let [data_source_id, item] of Object.entries(source_col_map)) { 
+            const { series_col, time_col } = item
+            for (let col of series_col) { 
+                const match_rule = series_config.filter(Boolean).find(item => {
                     const { match_type, match_value } = item
                     
                     if (match_type === MatchRuleType.NAME)
@@ -117,22 +138,71 @@ export function TimeSeriesChart (props: ITimeSeriesChart) {
                     else if (match_type === MatchRuleType.REGEXP)  
                         try { return eval(match_value)?.test(col) }
                         catch (e) { return false }
-                })
-                return { col_name: col, type: 'line', name: col, ...match_rule }
+                    })
+                if (!match_rule || match_rule.show)
+                    series.push({ data_source_id, time_col, col_name: col, type: 'line', name: col, ...match_rule })
+            }
+        }
+        
+        const config = {
+            ...others,
+            xAxis,
+            yAxis: yAxis.map(item => ({ ...item, type: AxisType.VALUE })),
+            series,
+        }
+        
+        const default_options = convert_chart_config({ ...widget, config } as unknown as  Widget, data_source)
+    
+        
+        return {
+            ...default_options,
+            xAxis: { ...default_options.xAxis, data: null },
+            series: default_options.series.map((item, idx) => {
+                const { data_source_id, time_col, col_name } = series[idx] ?? { }
+                const get_cols = (data_source_id, col) => get_data_source(data_source_id).data.map(item => item[col])
+                const x_data = get_cols(data_source_id, time_col).map(x => format_time(x, config.xAxis.time_format))
+                const y_data = get_cols(data_source_id, col_name)
+                return {
+                    ...item,
+                    data: x_data.map((x, idx) => ([x, y_data[idx]]))
+                }
             })
         }
-        return convert_chart_config({ ...widget, config } as unknown as  Widget, data_source)
-    }, [widget.config, col_names, type_map, data_source])
+    }, [widget.config, update, source_col_map])
     
-    console.log(options, 'options')
+    return <>
+        {widget.source_id.map(id => <SingleDataSourceUpdate key={id} source_id={id} force_update={() => { set_update({ }) }}/>) }
+        <ReactEChartsCore
+            echarts={echarts}
+            notMerge={dashboard.editing}
+            option={options}
+            className='dashboard-line-chart'
+            theme='my-theme'
+        />
+    </>
+   
+}
+
+/** 用于更新多数据源 */
+function SingleDataSourceUpdate (props: { source_id: string, force_update: () => void }) {
+    const { source_id, force_update } = props
+    const data_node = get_data_source(source_id)
+    const { cols, data } = data_node.use(['cols', 'data'])
     
-    return <ReactEChartsCore
-        echarts={echarts}
-        notMerge={dashboard.editing}
-        option={options}
-        className='dashboard-line-chart'
-        theme='my-theme'
-    />
+    useEffect(() => { force_update() }, [cols, data ])
+    
+    return null
+}
+
+/** 用于更新多数据源 */
+function SingleDataSourceColUpdate (props: { source_id: string, force_update: () => void }) {
+    const { source_id, force_update } = props
+    const data_node = get_data_source(source_id)
+    const { cols } = data_node.use(['cols'])
+    
+    useEffect(() => { force_update() }, [cols])
+    
+    return null
 }
 
 // 时序图不需要配置 y 轴，默认为数据轴，但是可以配置 x 轴更改时间列
@@ -140,8 +210,22 @@ export function TimeSeriesChartConfig (props: ITimeSeriesChartConfigProps) {
     const { col_names, type_map } = props
     const { widget } = dashboard.use(['widget']) 
     const type = useMemo(() => widget.type, [widget])
+    const [update, set_update] = useState({ })
+    
     
     const form = Form.useFormInstance()
+    
+    const update_cols = useCallback(() => { set_update({ }) }, [ ])
+    
+    // 数据源列名更改，options 随之更改
+    const col_options = useMemo(() => { 
+        return widget.source_id.reduce((prev, cur) => {
+            return convert_list_to_options(uniq([...prev, ...get_data_source(cur).cols]))
+        }, [ ])
+    }, [update, widget.source_id])
+    
+    console.log(col_options, 'col_options')
+    
     
     useEffect(() => {
         const time_col = col_names.find(col => TIME_TYPES.includes(type_map[col]))
@@ -151,6 +235,7 @@ export function TimeSeriesChartConfig (props: ITimeSeriesChartConfigProps) {
     }, [col_names, type_map, widget.id])
     
     return <>
+        {widget.source_id.map(id => <SingleDataSourceColUpdate key={id} source_id={id} force_update={update_cols}/>) }
         <BasicFormFields type='chart' />
         <Collapse items={[
             {
@@ -160,6 +245,7 @@ export function TimeSeriesChartConfig (props: ITimeSeriesChartConfigProps) {
                 children: <AxisItem
                     col_names={col_names}
                     name_path='xAxis'
+                    hidden_fields={['col_name']}
                     initial_values={{
                         type: AxisType.TIME,
                         time_format: ITimeFormat.DATE_SECOND,
@@ -198,7 +284,7 @@ export function TimeSeriesChartConfig (props: ITimeSeriesChartConfigProps) {
                                         switch (match_type) {
                                             case MatchRuleType.NAME:
                                                 return <Form.Item label={t('筛选列')} name={concat_name_path(field.name, 'match_value')}>
-                                                    <Select mode='multiple' options={convert_list_to_options(col_names)} />
+                                                    <Select mode='tags' options={col_options} />
                                                 </Form.Item>
                                             case MatchRuleType.REGEXP:
                                                 return <Form.Item
@@ -222,14 +308,26 @@ export function TimeSeriesChartConfig (props: ITimeSeriesChartConfigProps) {
                                     } }
                                 </FormDependencies>
                                 
-                                {/* 数据列配置 */}
-                                <FormDependencies dependencies={[concat_name_path(concat_name_path('series', field.name, 'match_value'))] }>
+                                {/* 是否展示 */}
+                                <FormDependencies dependencies={[concat_name_path('series', field.name, 'match_value')] }>
                                     {value => {
                                         const match_value = get(value, concat_name_path('series', field.name, 'match_value'))
                                         return match_value
-                                            ? <SeriesItem col_names={col_names} type={type} name={field.name} path='series' />
+                                            ? <Form.Item label={t('是否展示')} name={concat_name_path(field.name, 'show')} initialValue>
+                                                <BoolRadioGroup defaultValue />
+                                            </Form.Item>
                                             : null
                                     }}
+                                </FormDependencies>
+                                
+                                 {/* 数据列配置 */}
+                                <FormDependencies dependencies={[concat_name_path('series', field.name, 'show')]}>
+                                    {value => { 
+                                        const show = get(value, concat_name_path('series', field.name, 'show'))
+                                        return show
+                                            ? <SeriesItem col_names={col_names} type={type} name={field.name} path='series' />
+                                            : null
+                                    } }
                                 </FormDependencies>
                                
                             </div>
@@ -243,7 +341,7 @@ export function TimeSeriesChartConfig (props: ITimeSeriesChartConfigProps) {
                                 icon={<PlusCircleOutlined />}
                                 onClick={() => { add() }}
                             >
-                                {t('增加数据列配置')}
+                                {t('增加配置规则')}
                             </Button>
                         </>
                     } }

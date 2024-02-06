@@ -306,7 +306,7 @@ export function AxisFormFields ({ col_names = [ ], single = false }: { col_names
     return <Collapse items={[{
         key: 'x_axis',
         label: t('X 轴配置'),
-        children: <div className='axis-wrapper'><AxisItem hidden_fields={['col_name']} name_path='xAxis' col_names={col_names} /></div>,
+        children: <div className='axis-wrapper'><AxisItem name_path='xAxis' col_names={col_names} /></div>,
         forceRender: true,
     },
     {
