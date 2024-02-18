@@ -18,7 +18,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react'
 import ReactEChartsCore from 'echarts-for-react/lib/core'
 import * as echarts from 'echarts'
 import { type ISeriesConfig, type IChartConfig, type AxisConfig } from '../../type.js'
-import { get_data_source, type DataSource } from '../../DataSource/date-source.js'
+import { get_data_source } from '../../DataSource/date-source.js'
 import { BoolRadioGroup } from '../../../components/BoolRadioGroup/index.js'
 
 
@@ -108,9 +108,8 @@ export function TimeSeriesChart (props: ITimeSeriesChart) {
     useEffect(() => { 
         for (let id of widget.source_id) { 
             const { cols, type_map } = get_data_source(id)
+            // 第一个时间类型的列作为时间列，其余作为数据列
             const time_col = cols.find(col => TIME_TYPES.includes(type_map[col]))
-            
-            console.log(get_data_source(id), 'data_source')
             const series_col = cols.filter(item => item !== time_col)
             set_source_col_map(map => ({
                 ...map,
@@ -119,11 +118,8 @@ export function TimeSeriesChart (props: ITimeSeriesChart) {
         }
     }, [update])
     
-    console.log(source_col_map, 'source_col_map')
-    
     const options = useMemo(() => { 
         const { series: series_config = [ ], xAxis, yAxis = [ ], ...others } = widget.config as unknown as ITimeSeriesChartConfig
-        console.log(series_config, 'series_config')
         let series = [ ]
         for (let [data_source_id, item] of Object.entries(source_col_map)) { 
             const { series_col, time_col } = item
@@ -138,9 +134,10 @@ export function TimeSeriesChart (props: ITimeSeriesChart) {
                     else if (match_type === MatchRuleType.REGEXP)  
                         try { return eval(match_value)?.test(col) }
                         catch (e) { return false }
-                    })
-                if (!match_rule || match_rule.show)
-                    series.push({ data_source_id, time_col, col_name: col, type: 'line', name: col, ...match_rule })
+                })
+                if (match_rule?.show === false)
+                    return
+                series.push({ data_source_id, time_col, col_name: col, type: 'line', name: col, ...match_rule })
             }
         }
         
@@ -223,8 +220,6 @@ export function TimeSeriesChartConfig (props: ITimeSeriesChartConfigProps) {
             return convert_list_to_options(uniq([...prev, ...get_data_source(cur).cols]))
         }, [ ])
     }, [update, widget.source_id])
-    
-    console.log(col_options, 'col_options')
     
     
     useEffect(() => {
@@ -314,7 +309,7 @@ export function TimeSeriesChartConfig (props: ITimeSeriesChartConfigProps) {
                                         const match_value = get(value, concat_name_path('series', field.name, 'match_value'))
                                         return match_value
                                             ? <Form.Item label={t('是否展示')} name={concat_name_path(field.name, 'show')} initialValue>
-                                                <BoolRadioGroup defaultValue />
+                                                <BoolRadioGroup />
                                             </Form.Item>
                                             : null
                                     }}
