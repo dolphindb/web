@@ -257,7 +257,7 @@ export function TimeSeriesChartConfig () {
                             key: `series_${field.name}`,
                             forceRender: true,
                             label: <div className='collapse-label'>
-                                {t(`配置规则 ${field.name + 1}`)}
+                                {t('配置规则 {{name}}', { name: field.name + 1 })}
                                 <DeleteOutlined onClick={() => { remove(field.name) }}/>
                             </div>,
                             children: <div key={field.name}>

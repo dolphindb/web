@@ -3505,5 +3505,54 @@
     },
     "仅单机节点、数据节点和计算节点支持新建查询": {
         "en": "Queries can only be created on data/compute nodes, or on a standalone server."
+    },
+    "列名完全匹配":{
+        "en": "Column names match exactly"
+    },
+    "为指定名称的列定制配置": {
+        "en": "Customize the configuration for a column with a specified name"
+    },
+    "列名正则匹配": {
+        "en": "Column name regular matching"
+    },
+    "为列名匹配正则表达式的列定制配置": {
+        "en": "Customize configuration for columns whose column names match regular expressions"
+    },
+    "类型匹配": {
+        "en": "type matching"
+    },
+    "为特定 DolphinDB 数据类型的列定制配置，如 INT, DOUBLE": {
+        "en": "Custom configuration for columns of specific DolphinDB data types, such as INT, DOUBLE"
+    },
+    "配置规则 {{name}}": {
+        "en": "Configure rule {{name}}"
+    },
+    "匹配类型": {
+        "en": "Match Type"
+    },
+    "筛选列": {
+        "en": "Filter Columns"
+    },
+    "正则表达式": {
+        "en": "Regular Expression"
+    },
+    "支持子面量形式和构造函数形式的正则对象": {
+        "en": "Supports regular objects in literal form and constructor form"
+    },
+    "子面量：/abc/g": {
+        "en": "Amount of sub-face: /abc/g"
+    },
+    "构造函数：new RegExp(\"abc\", \"g\")": {
+        "en": "Constructor: new RegExp(\"abc\", \"g\")"
+    },
+    "正则表达式书写规则": {
+        "en": "Regular expression writing rules"
+    },
+    "请输入正则表达式": {
+        "en": "Please enter a regular expression"
+    },
+    "增加配置规则": {
+        "en": "Add configuration rules"
     }
+    
 }
