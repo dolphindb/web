@@ -129,13 +129,14 @@ export function TimeSeriesChart (props: ITimeSeriesChart) {
                     const { match_type, match_value } = item
                     switch (match_type) { 
                         case MatchRuleType.NAME:
-                            return item.match_value?.includes(col)
+                            return match_value?.includes(col)
                         case MatchRuleType.DATA_TYPE:
-                            return match_value === type_map[col]
+                            return match_value?.includes(type_map[col])
                         case MatchRuleType.REGEXP:
                             try { return eval(match_value)?.test(col) }
                             catch (e) { return false }
-                        default: return false
+                        default:
+                            return false
                     }
                 })
                 // 选了不展示数据列则不添加，其他情况下都添加
@@ -296,7 +297,7 @@ export function TimeSeriesChartConfig () {
                                             case MatchRuleType.DATA_TYPE:
                                                 const types = uniq(Object.values(type_map)).map(item => ({ label: DDB_TYPE_MAP[item], value: item }))
                                                 return <Form.Item label={t('数据类型')} name={concat_name_path(field.name, 'match_value')}>
-                                                    <Select options={types}/>
+                                                    <Select options={types} mode='multiple'/>
                                                 </Form.Item>
                                             default:
                                                 return null
