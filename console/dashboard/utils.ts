@@ -13,9 +13,7 @@ import { subscribe_data_source, type DataSource } from './DataSource/date-source
 import { AxisType, MarkPresetType } from './ChartFormFields/type.js'
 import { find_variable_by_name, get_variable_copy_infos, get_variable_value, paste_variables, subscribe_variable } from './Variable/variable.js'
 import { t } from '../../i18n/index.js'
-import { type DdbTable, type DdbArrayVectorValue, DdbArrayVectorBlock } from 'dolphindb'
-import { model } from '../model.js'
-import { DDB_TYPE_MAP } from '../constants/ddb-type-maps.js'
+import { type DdbTable } from 'dolphindb'
 
 
 export function format_time (time: string, format: string) {
