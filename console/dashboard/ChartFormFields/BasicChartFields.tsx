@@ -258,6 +258,17 @@ export function YAxis (props: IYAxisProps ) {
                             <Form.Item tooltip={t('Y 轴相对于左右默认位置的偏移')} name={[field.name, 'offset']} label={t('偏移量')} initialValue={0}>
                                 <InputNumber />
                             </Form.Item>
+                            <Form.Item name={concat_name_path(field.name, 'with_threshold')} label={t('阈值设置')}>
+                                <BoolRadioGroup />
+                            </Form.Item>
+                            <FormDependencies dependencies={[concat_name_path(field.name, 'with_threshold')]}>
+                                {value => { 
+                                    const show = get(value, concat_name_path(field.name, 'with_threshold'))
+                                    return show
+                                        ? <></>
+                                        : null
+                                } }
+                            </FormDependencies>
                         </div>
                     </Space>
                 </div>

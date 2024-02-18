@@ -280,9 +280,9 @@ export function TimeSeriesChartConfig () {
                                                 return <Form.Item
                                                     label={t('正则表达式')}
                                                     tooltip={<>
-                                                        <div>{t('支持子面量形式和构造函数形式的正则对象')}</div>
+                                                        <div>{t('支持字面量形式和构造函数形式的正则对象')}</div>
                                                         <ul>
-                                                            <li>{t('子面量：/abc/g')}</li>
+                                                            <li>{t('字面量：/abc/g')}</li>
                                                             <li>{t('构造函数：new RegExp("abc", "g")')}</li>
                                                         </ul> 
                                                     </>}

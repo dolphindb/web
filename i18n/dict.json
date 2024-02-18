@@ -3553,6 +3553,9 @@
     },
     "增加配置规则": {
         "en": "Add configuration rules"
+    },
+    "阈值设置": {
+        "en": "Threshold setting"
     }
     
 }
