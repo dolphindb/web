@@ -3556,6 +3556,15 @@
     },
     "阈值设置": {
         "en": "Threshold setting"
+    },
+    "阈值类型": {
+        "en": "Threshold type"
+    },
+    "绝对值": {
+        "en": "Absolute Value"
+    },
+    "百分比": {
+        "en": "Percentage"
     }
     
 }

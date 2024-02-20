@@ -73,3 +73,15 @@ export enum ChartField {
     SPLIT_LINE = 'split_line',
     DATA_ZOOM = 'data_zoom'
 }
+
+
+export enum ThresholdType { 
+    ABSOLUTE,
+    PERCENTAGE
+}
+
+
+export enum ThresholdShowType { 
+    NONE,
+    FILLED_REGION,
+}

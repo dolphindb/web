@@ -3,7 +3,7 @@ import './index.scss'
 import { Button, Collapse, type CollapseProps, Form, Select, Typography, Tooltip, Input, InputNumber } from 'antd'
 import { BasicFormFields } from '../../ChartFormFields/BasicFormFields.js'
 import { t } from '../../../../i18n/index.js'
-import { AxisItem, YAxis } from '../../ChartFormFields/BasicChartFields.js'
+import { AxisItem, ThresholdFormFields, YAxis } from '../../ChartFormFields/BasicChartFields.js'
 import { AxisType, ITimeFormat } from '../../ChartFormFields/type.js'
 import { DeleteOutlined, LinkOutlined, PlusCircleOutlined, QuestionCircleOutlined } from '@ant-design/icons'
 import { FormDependencies } from '../../../components/formily/FormDependcies/index.js'
@@ -141,7 +141,7 @@ export function TimeSeriesChart (props: ITimeSeriesChart) {
                 })
                 // 选了不展示数据列则不添加，其他情况下都添加
                 if (!(match_rule?.show === false))
-                    series.push({ data_source_id, time_col, col_name: col, type: 'line', name: col, ...match_rule })
+                    series.push({ data_source_id, time_col, col_name: col, type: 'line', name: col, yAxisIndex: 0, ...match_rule })
             }
         }
         
@@ -153,7 +153,7 @@ export function TimeSeriesChart (props: ITimeSeriesChart) {
         }
         
         const default_options = convert_chart_config({ ...widget, config } as unknown as  Widget, data_source)
-    
+        console.log(default_options, 'default_options')
         return {
             ...default_options,
             xAxis: { ...default_options.xAxis, data: null },
@@ -169,6 +169,8 @@ export function TimeSeriesChart (props: ITimeSeriesChart) {
             })
         }
     }, [widget.config, update, source_col_map, type_map])
+    
+    console.log(options, 'options')
     
     return <>
         {widget.source_id.map(id => <SingleDataSourceUpdate key={id} source_id={id} force_update={() => { set_update({ }) }}/>) }
@@ -344,5 +346,6 @@ export function TimeSeriesChartConfig () {
                 </Form.List>
             }
         ]} />
+        <ThresholdFormFields />
     </>
 }

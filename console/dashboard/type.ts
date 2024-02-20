@@ -1,4 +1,4 @@
-import { type ITimeFormat, type AxisType, type ILineType, type Position } from './ChartFormFields/type.js'
+import { type ITimeFormat, type AxisType, type ILineType, type Position, type ThresholdType, type ThresholdShowType } from './ChartFormFields/type.js'
 
 export interface AxisConfig { 
     name: string
@@ -79,6 +79,16 @@ export interface ISeriesConfig {
     max?: number
 }
 
+export interface IThresholdConfig { 
+    related_y_axis: number
+    type: ThresholdType
+    show_type: ThresholdShowType
+    thresholds: Array<{
+        color: string
+        value: number
+    }>
+}
+
 export interface IChartConfig {
     title?: string
     title_size?: number
@@ -116,6 +126,7 @@ export interface IChartConfig {
     yAxis: AxisConfig[]
     labels?: ISeriesConfig[]
     series: ISeriesConfig[]
+    threshold: IThresholdConfig
 }
 
 export interface IHeatMapChartConfig extends Omit<IChartConfig, 'yAxis'> { 

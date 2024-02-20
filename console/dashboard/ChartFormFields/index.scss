@@ -52,3 +52,31 @@ collapse-label {
         width: 50%;
     }
 }
+
+
+
+.threshold-list {
+    background-color:#1E1E1E;
+    opacity: 0.8;
+    padding: 12px;
+    .threshold-item {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 8px;
+        align-items: center;
+        .hidden-delete-icon {
+            visibility: hidden;
+        }
+        .ant-form-item {
+            margin-bottom: 0px !important;
+        }
+    }
+    
+    .threshold-add-btn {
+        text-align: right;
+        .threshold-add-icon {
+            margin-right: 4px;
+        }
+    }
+}
+

@@ -1,13 +1,13 @@
 import './index.scss'
 
 import { useMemo } from 'react'
-import { Form, Select, Input, Collapse, Button, Space, InputNumber } from 'antd'
+import { Form, Select, Input, Collapse, Button, Space, InputNumber, Radio } from 'antd'
 import { DeleteOutlined, PlusCircleOutlined } from '@ant-design/icons'
 
 import { t } from '../../../i18n/index.js'
 import { concat_name_path } from '../utils.js'
 import { FormDependencies } from '../../components/formily/FormDependcies/index.js'
-import { AxisType, type IAxisItem, type IYAxisItemValue, ITimeFormat } from './type.js'
+import { AxisType, type IAxisItem, type IYAxisItemValue, ITimeFormat, ThresholdType } from './type.js'
 
 
 import { axis_position_options, axis_type_options, format_time_options } from './constant.js'
@@ -18,6 +18,7 @@ import { StringTimePicker } from '../../components/StringTimePicker.js'
 import { AxisColSelect } from './components/AxisColSelect.js'
 import { get } from 'lodash'
 import { SeriesItem } from './components/SeriesItem.js'
+import { ThresholdSetting } from './components/ThresholdSetting.js'
 
 
 
@@ -78,7 +79,7 @@ export function AxisItem ({ name_path, col_names = [ ], list_name, initial_value
         {/* 类目轴从 col_name 中获取 data */}
         <FormDependencies dependencies={[concat_name_path(list_name, name_path, 'type')]}>
             {value => {
-                const type =  get(value, concat_name_path(list_name, name_path, 'type'))
+                const type = get(value, concat_name_path(list_name, name_path, 'type'))
                 switch (type) { 
                     case AxisType.VALUE:
                         return <>
@@ -258,17 +259,36 @@ export function YAxis (props: IYAxisProps ) {
                             <Form.Item tooltip={t('Y 轴相对于左右默认位置的偏移')} name={[field.name, 'offset']} label={t('偏移量')} initialValue={0}>
                                 <InputNumber />
                             </Form.Item>
-                            <Form.Item name={concat_name_path(field.name, 'with_threshold')} label={t('阈值设置')}>
+                            {/* <Form.Item name={concat_name_path(field.name, 'with_threshold')} label={t('阈值设置')}>
                                 <BoolRadioGroup />
-                            </Form.Item>
-                            <FormDependencies dependencies={[concat_name_path(field.name, 'with_threshold')]}>
+                            </Form.Item> */}
+                            {/* <FormDependencies dependencies={[concat_name_path('yAxis', field.name, 'with_threshold')]}>
                                 {value => { 
-                                    const show = get(value, concat_name_path(field.name, 'with_threshold'))
+                                    const show = get(value, concat_name_path('yAxis', field.name, 'with_threshold'))
                                     return show
-                                        ? <></>
+                                        ? <>
+                                            <Form.Item
+                                                label={t('阈值类型')}
+                                                name={concat_name_path(field.name, 'threshold', 'type')}
+                                                initialValue={ThresholdType.ABSOLUTE}
+                                            >
+                                                <Select options={[{ label: t('绝对值'), value: ThresholdType.ABSOLUTE }, { label: t('百分比'), value: ThresholdType.PERCENTAGE }] } />
+                                            </Form.Item>
+                                            <Form.List initialValue={[{ }]} name={concat_name_path(field.name, 'threshold', 'values')}>
+                                                {(fields, { remove, add }) => fields.map(field => { 
+                                                    return <Space>
+                                                        <Form.Item name='value' >
+                                                            <InputNumber />
+                                                        </Form.Item>
+                                                        <PlusCircleOutlined onClick={() => { add() }}/>
+                                                        <MinusCircleOutlined onClick={() => { remove(field.name) }} />
+                                                    </Space>
+                                                })}
+                                            </Form.List>
+                                        </>
                                         : null
                                 } }
-                            </FormDependencies>
+                            </FormDependencies> */}
                         </div>
                     </Space>
                 </div>
@@ -346,3 +366,13 @@ export function SeriesFormFields (props: { col_names: string[], single?: boolean
 }
 
 
+
+
+export function ThresholdFormFields () { 
+    return <Collapse items={[{
+        key: 'threshold',
+        label: t('阈值设置'),
+        children: <ThresholdSetting />,
+        forceRender: true,
+    }] } />
+}

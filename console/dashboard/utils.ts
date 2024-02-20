@@ -1,7 +1,7 @@
 import { type NamePath } from 'antd/es/form/interface'
 import { type DdbObj, DdbForm, DdbType, nulls, type DdbValue, format, type InspectOptions } from 'dolphindb/browser.js'
 import { is_decimal_null_value } from 'dolphindb/shared/utils/decimal-type.js'
-import { isNil, isNumber, pickBy, uniq } from 'lodash'
+import { isNil, max, pickBy, uniq } from 'lodash'
 import { createRef } from 'react'
 import { genid } from 'xshell/utils.browser.js'
 import copy from 'copy-to-clipboard'
@@ -10,7 +10,7 @@ import dayjs from 'dayjs'
 import { WidgetChartType, type Widget, dashboard, DashboardPermission } from './model.js'
 import { type AxisConfig, type IChartConfig, type ISeriesConfig } from './type.js'
 import { subscribe_data_source, type DataSource } from './DataSource/date-source.js'
-import { AxisType, MarkPresetType } from './ChartFormFields/type.js'
+import { AxisType, MarkPresetType, ThresholdShowType, ThresholdType } from './ChartFormFields/type.js'
 import { find_variable_by_name, get_variable_copy_infos, get_variable_value, paste_variables, subscribe_variable } from './Variable/variable.js'
 import { t } from '../../i18n/index.js'
 import { type DdbTable } from 'dolphindb'
@@ -203,7 +203,7 @@ export function concat_name_path (...paths: (NamePath | NamePath[])[]): NamePath
 export function convert_chart_config (widget: Widget, data_source: any[]) {
     const { config } = widget
     
-    const { title, title_size, splitLine, xAxis, series, yAxis, x_datazoom, y_datazoom, legend, animation, tooltip } = config as IChartConfig
+    const { title, title_size, splitLine, xAxis, series, yAxis, x_datazoom, y_datazoom, legend, animation, tooltip, threshold } = config as IChartConfig
     
     function convert_data_zoom (x_datazoom: boolean, y_datazoom: boolean) { 
         const total_data_zoom = [
@@ -291,8 +291,6 @@ export function convert_chart_config (widget: Widget, data_source: any[]) {
                 return { yAxis: item }
         }) || [ ]
         
-        // const get_item_color = value => value > series.threshold.value ? series.threshold?.high_color : series.threshold?.low_color
-        
         let data = [ ]
         
         // 无类目轴的情况下，series 每项为二维数组，第一个为 x 轴的值，第二个为 y 轴的值
@@ -303,23 +301,11 @@ export function convert_chart_config (widget: Widget, data_source: any[]) {
                     value: [format_time(item?.[xAxis.col_name], xAxis.time_format), item?.[series.col_name]]
                 }
             })
-            // if (isNumber(series.threshold?.value))
-            //     data = data.map(item => ({ ...item, itemStyle: { color: get_item_color(item[1]) } }))
          else  
             // 有类目轴的情况下，类目信息从 axis 中取
             data = data_source.map(item => item?.[series.col_name])
-            // if (isNumber(series.threshold?.value))
-            //     data = data.map(item => ({
-            //     value: item,
-            //     itemStyle: {
-            //         color: get_item_color(item)
-            //     }
-            // }))
-        
         
         return {
-            // 将原始信息返回
-            origin: series,
             type: series.type?.toLowerCase(),
             name: series.name,
             symbol: series.type === WidgetChartType.SCATTER ? series?.symbol ?? 'circle' : 'none',
@@ -361,6 +347,41 @@ export function convert_chart_config (widget: Widget, data_source: any[]) {
         }
     }
     
+    let echarts_series = series.filter(Boolean).map(convert_series)
+    
+    if (threshold && threshold.show_type !== ThresholdShowType.NONE) { 
+        // 设置了阈值，需要根据关联的 Y 轴找到第一个数据列，然后为数据列设置 markArea
+        const idx = series.findIndex(item => item.yAxisIndex === threshold.related_y_axis)
+        const threshold_series = series.filter(item => item?.yAxisIndex === threshold.related_y_axis)
+        let thresholds = [...threshold.thresholds.filter(item => isFinite(item?.value))]
+        if (threshold.type === ThresholdType.PERCENTAGE) { 
+            // 阈值如果是分位数，需要找到所有数据列中的最大值，由分位数和最大值计算得到阈值
+            const data = threshold_series.reduce((prev, cur) => [...prev, ...data_source.map(item => Number(item[cur.col_name])).filter(isFinite)], [ ])
+            const max_value = max(data)
+            thresholds = thresholds.map(item => { 
+                return { ...item, value: max_value * item.value / 100 }
+            })
+        }
+        
+        let mark_area_data = [ ]
+        const sorted_threshold = thresholds.sort((a, b) => a.value - b.value)
+    
+        for (let i = 0;  i < sorted_threshold.length;  i++)  
+            mark_area_data.push([{
+                yAxis: sorted_threshold[i].value,
+                itemStyle: { color: sorted_threshold[i].color }
+            }, {
+                yAxis: sorted_threshold[i + 1]?.value
+            }])
+          
+        echarts_series[idx] = {
+            ...echarts_series[idx],
+            markArea: {
+                data: mark_area_data
+            },
+        } as any
+    }
+    
     
     return {
         animation,
@@ -397,7 +418,7 @@ export function convert_chart_config (widget: Widget, data_source: any[]) {
         },
         xAxis: convert_axis(xAxis),
         yAxis: Array.isArray(yAxis) ? yAxis.filter(item => !!item).map(convert_axis) : convert_axis(yAxis),
-        series: series.filter(item => !!item).map(convert_series),
+        series: echarts_series,
         dataZoom: convert_data_zoom(x_datazoom, y_datazoom)
     }
 }
