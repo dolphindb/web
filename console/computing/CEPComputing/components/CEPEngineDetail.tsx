@@ -22,18 +22,18 @@ interface IProps {
 
 function EngineInfo ({ info }: { info: ICEPEngineDetail }) {
     
-    const { EngineStat, SubEngineStat } = info ?? { }
+    const { engineStat, subEngineStat } = info ?? { }
     
     const info_items = useMemo<DescriptionsProps['items']>(() => [
         {
             key: t('引擎名称'),
             label: t('引擎名称'),
-            children: EngineStat?.name ?? '-'
+            children: engineStat?.name ?? '-'
         },
         {
             key: t('创建人'),
             label: t('创建人'),
-            children: EngineStat?.user ?? '-'
+            children: engineStat?.user ?? '-'
         },
         {
             key: t('状态'),
@@ -43,39 +43,39 @@ function EngineInfo ({ info }: { info: ICEPEngineDetail }) {
         {
             key: t('子引擎数量'),
             label: t('子引擎数量'),
-            children: EngineStat?.numOfSubEngine ?? '-'
+            children: engineStat?.numOfSubEngine ?? '-'
         },
         {
             key: t('收到事件数量'),
             label: t('收到事件数量'),
-            children: EngineStat?.eventsReceived ?? '-'
+            children: engineStat?.eventsReceived ?? '-'
         },
         {
             key: t('发送事件数量'),
             label: t('发送事件数量'),
-            children: EngineStat?.eventsEmitted ?? '-'
+            children: engineStat?.eventsEmitted ?? '-'
         },
         {
             key: t('队列深度'),
             label: t('队列深度'),
-            children: EngineStat?.queueDepth ?? '-'
+            children: engineStat?.queueDepth ?? '-'
         },
         {
             key: t('是否使用系统时间'),
             label: t('是否使用系统时间'),
-            children: EngineStat?.useSystemTime ? t('是') : t('否')
+            children: engineStat?.useSystemTime ? t('是') : t('否')
         },
         {
             key: t('队列中发送事件数量'),
             label: t('队列中发送事件数量'),
-            children: EngineStat?.eventsOnOutputQueue ?? '-'
+            children: engineStat?.eventsOnOutputQueue ?? '-'
         },
         {
             key: t('最后一条错误信息'),
             label: t('最后一条错误信息'),
-            children: EngineStat?.lastErrMsg ?? '-'
+            children: engineStat?.lastErrMsg ?? '-'
         }
-    ], [EngineStat])
+    ], [engineStat])
     
     const cols = useMemo<TableColumnsType<SubEngineItem>>(() => [
         {
@@ -142,7 +142,7 @@ function EngineInfo ({ info }: { info: ICEPEngineDetail }) {
             className='sub-engine-table'
             tableLayout='fixed'
             columns={cols}
-            dataSource={SubEngineStat ?? [ ]}
+            dataSource={subEngineStat ?? [ ]}
             scroll={{ x: '100%' }}
             rowKey='subEngineName'
             pagination={{
@@ -231,7 +231,7 @@ function DataView ({ info }: { info: ICEPEngineDetail }) {
         set_current(cur)
         
         // // 点击 dataview 的时候需要加载该 dataview 的 key 并展示
-        const dataview_keys = await get_dataview_keys(info.EngineStat.name, cur)
+        const dataview_keys = await get_dataview_keys(info.engineStat.name, cur)
         set_views(views => views.map(item => { 
             if (item.key !== cur)
                 return item
@@ -241,7 +241,7 @@ function DataView ({ info }: { info: ICEPEngineDetail }) {
         
         
         // 拉取 dataview 的初始数据，初始化 key_data
-        const data_view_initial_data = await get_dataview_info(info.EngineStat.name, cur) 
+        const data_view_initial_data = await get_dataview_info(info.engineStat.name, cur) 
         const key_column = info.dataViewEngines.find(view => view.name === cur)?.keyColumns?.split(' ')[0]
         for (let key of dataview_keys) {
             const key_item = data_view_initial_data.find(view_item => view_item[key_column] === key)
@@ -307,7 +307,7 @@ export function CEPEngineDetail (props: IProps) {
     }, [page, engine])
     
     const on_send_event = useCallback(async () => { 
-        await NiceModal.show(SendEventModal, { engine_info: engine })
+        await NiceModal.show(SendEventModal, { engine_info: engine, on_refresh })
     }, [engine])
     
     return <div className={`cep-engine-detail ${className}`}>

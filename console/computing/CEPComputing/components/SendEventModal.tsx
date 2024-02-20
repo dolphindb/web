@@ -1,5 +1,5 @@
 import NiceModal, { useModal } from '@ebay/nice-modal-react'
-import { Form, Modal, Select, Typography } from 'antd'
+import { Form, Modal, Select, Typography, message } from 'antd'
 import { useCallback } from 'react'
 import { type ICEPEngineDetail } from '../type.js'
 import { t } from '../../../../i18n/index.js'
@@ -10,40 +10,12 @@ import { DdbObjField } from './DdbObjField.js'
 
 interface IProps { 
     engine_info: ICEPEngineDetail
+    on_refresh: () => void
 }
-
-const test_msg_schema = [{
-    eventType: 'order',
-    eventKeys: [
-        'a',
-        'b',
-        'c',
-        'd',
-        'e',
-        'f',
-        'g',
-        'h',
-        'i',
-        'j'
-    ],
-    eventValuesTypeStringList: [
-        'INT',
-        'DATE',
-        'MONTH',
-        'DATETIME',
-        'MINUTE',
-        'TIMESTAMP',
-        'DATEHOUR',
-        'MINUTE',
-        'TIME',
-        'SECOND'
-    ],
-    eventValuesTypeInt: [DdbType.int, DdbType.date, DdbType.month, DdbType.datetime, DdbType.minute, DdbType.timestamp, DdbType.datehour, DdbType.minute, DdbType.time, DdbType.second]
-}]
 
 export const SendEventModal = NiceModal.create((props: IProps) => { 
     
-    const { msgSchema = test_msg_schema, EngineStat: { name } } = props.engine_info
+    const { msgSchema, engineStat: { name } } = props.engine_info
     const modal = useModal()
     const [form] = Form.useForm()
     
@@ -52,8 +24,11 @@ export const SendEventModal = NiceModal.create((props: IProps) => {
         const params = new DdbDict(values)
         // @ts-ignore
         await model.ddb.call('appendEvent', [name, params])
+        message.success(t('发送成功'))
+        props?.on_refresh()
+        
         modal.hide()
-    }, [name, msgSchema])
+    }, [name, msgSchema, props?.on_refresh])
     
     const validate_type = useCallback(async (value: DdbObj<DdbValue>, type: number) => {
         if (type !== value.type)
@@ -73,7 +48,7 @@ export const SendEventModal = NiceModal.create((props: IProps) => {
     >
         <Form form={form} colon={false} labelCol={{ span: 4 }} wrapperCol={{ span: 20 }} labelAlign='left'>
             <Form.Item label={t('事件类型')} name='eventType' rules={[{ required: true }] }>
-                <Select options={ msgSchema.map(item => ({ label: item.eventType, value: item.eventType })) } />
+                <Select placeholder={t('请选择事件类型')} options={ msgSchema.map(item => ({ label: item.eventType, value: item.eventType })) } />
             </Form.Item>
             {
                 event_type && <div className='event-fields-wrapper'>
@@ -81,8 +56,8 @@ export const SendEventModal = NiceModal.create((props: IProps) => {
                     {({ eventType }) => {
                         if (!eventType)
                             return null
-                        const { eventKeys: keys = [ ], eventValuesTypeStringList: types = [ ], eventValuesTypeInt: type_ids } = msgSchema.find(item => item.eventType === eventType) ?? { }
-                        
+                        const { eventKeys: keys = [ ], eventValuesTypeStringList: types = [ ], eventValuesTypeIntList: type_ids } = msgSchema.find(item => item.eventType === eventType) ?? { }
+                        console.log(type_ids, msgSchema, 'type_ids')
                         return <>
                             <h4>
                                 {t('事件字段')}

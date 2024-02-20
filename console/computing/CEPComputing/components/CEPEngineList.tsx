@@ -26,7 +26,7 @@ export function CEPEngineList (props: IProps) {
         </div>
         
         {data.map(item => <div
-            className={classNames('cep-engine-item', { 'cep-engine-item-active': item.name === current?.EngineStat?.name })}
+            className={classNames('cep-engine-item', { 'cep-engine-item-active': item.name === current?.engineStat?.name })}
             key={item.name}
             onClick={ () => { on_select(item.name) } }
         >
