@@ -25,13 +25,13 @@ export function ThresholdSetting () {
     const yAxis = Form.useWatch('yAxis', form)
     
     return <>
-        <Form.Item label={t('关联 Y 轴')} name={concat_name_path('threshold', 'related_y_axis')}>
+        <Form.Item initialValue={0} label={t('关联 Y 轴')} name={concat_name_path('threshold', 'related_y_axis')}>
             <Select options={yAxis?.map((item, idx) => ({
                 value: idx,
                 label: item?.name
             }))} />
         </Form.Item>
-        <Form.Item name={concat_name_path('threshold', 'type') } label={t('阈值类型')}>
+        <Form.Item initialValue={ThresholdType.ABSOLUTE} name={concat_name_path('threshold', 'type') } label={t('阈值类型')}>
             <Select options={[{ label: t('绝对值'), value: ThresholdType.ABSOLUTE }, { label: t('百分比'), value: ThresholdType.PERCENTAGE }] } />
         </Form.Item>
         <Form.Item name={concat_name_path('threshold', 'show_type')} label={t('展示类型')} initialValue={ThresholdShowType.NONE}>
