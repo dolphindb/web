@@ -8,8 +8,6 @@ import { type CollapseProps } from 'antd/lib'
 import { format_time_options } from './constant.js'
 import { StringColorPicker } from '../../components/StringColorPicker/index.js'
 import { convert_list_to_options } from '../utils.js'
-import { FormDependencies } from '../../components/formily/FormDependcies/index.js'
-
 
 export function BasicTableFields ({ col_names }: { col_names: string[] }) {
     const form = Form.useFormInstance()
@@ -40,6 +38,10 @@ export function BasicTableFields ({ col_names }: { col_names: string[] }) {
                                 <InputNumber />
                             </Form.Item>
                             
+                            <Form.Item label={t('字号')} name={[field.name, 'font_size']} initialValue={14}>
+                                <InputNumber min={1} addonAfter='px'/>
+                            </Form.Item>
+                            
                             <Form.Item label={t('字体颜色')} name={[field.name, 'color']}>
                                 <StringColorPicker />
                             </Form.Item>
@@ -66,19 +68,6 @@ export function BasicTableFields ({ col_names }: { col_names: string[] }) {
                             <Form.Item tooltip={t('仅数值类型可支持排序')} label={t('是否排序')} name={[field.name, 'sorter']} initialValue={false}>
                                 <BoolRadioGroup />
                             </Form.Item>
-                            
-                            {/* <FormDependencies dependencies={[['col_properties', field.name, 'sorter']]}>
-                                {value => { 
-                                    console.log(value, 'value')
-                                    if (!value.col_properties?.[field.name]?.sorter)  
-                                        return null
-                                     else
-                                        return <Form.Item tooltip={t('为多列设置排序时需设置优先级，该值越高表明优先级越高')} label={t('排序优先级')} name={[field.name, 'multiple']}>
-                                            <InputNumber placeholder={t('请输入优先级')} />
-                                        </Form.Item>
-                                }}
-                            </FormDependencies> */}
-                            
                             
                         </div>,
                         forceRender: true

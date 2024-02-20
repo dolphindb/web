@@ -164,6 +164,21 @@ export function SeriesItem (props: SeriesItemProps) {
                         <Form.Item label={t('线宽')} name={concat_name_path(name, 'line_width')}>
                             <InputNumber addonAfter='px'/>
                         </Form.Item>
+                        
+                        <Form.Item label={t('是否填充') } initialValue={false} name={[name, 'is_filled']}>
+                            <BoolRadioGroup />
+                        </Form.Item>
+                        <FormDependencies dependencies={[concat_name_path(path, name, 'is_filled')]}>
+                            {value => { 
+                                const is_filled = get(value, concat_name_path(path, name, 'is_filled'))
+                                return !is_filled
+                                    ? null
+                                    : <Form.Item label={t('透明度')} name={concat_name_path(name, 'opacity')} initialValue={0.2}>
+                                        <InputNumber max={1} min={0}/>
+                                    </Form.Item>
+                            } }
+                        </FormDependencies>
+                        
                         <Form.Item name={concat_name_path(name, 'end_label')} label={t('展示端标签')} initialValue={false}>
                             <BoolRadioGroup />
                         </Form.Item>

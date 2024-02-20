@@ -343,7 +343,11 @@ export function convert_chart_config (widget: Widget, data_source: any[]) {
                 type: series.line_type,
                 color: series.color,
                 width: series.line_width
-            }
+            },
+            areaStyle: series.is_filled ? {
+                opacity: series.opacity
+            } : null
+            
         }
     }
     

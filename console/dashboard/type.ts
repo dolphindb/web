@@ -34,6 +34,10 @@ export interface ISeriesConfig {
     line_type?: ILineType
     // 线宽，仅折线图有
     line_width?: number
+    /** 是否填充下方面积，仅折线图有 */
+    is_filled?: boolean
+    opacity?: number
+    
     // 柱状图是否堆叠
     stack?: string
     end_label?: boolean
@@ -139,6 +143,7 @@ export interface IColProperty {
     show: boolean
     color?: string
     background_color?: string
+    font_size?: number
     with_value_format: boolean
     decimal_places?: number
     display_name?: string
