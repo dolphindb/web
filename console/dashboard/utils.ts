@@ -10,7 +10,7 @@ import dayjs from 'dayjs'
 import { WidgetChartType, type Widget, dashboard, DashboardPermission } from './model.js'
 import { type AxisConfig, type IChartConfig, type ISeriesConfig } from './type.js'
 import { subscribe_data_source, type DataSource } from './DataSource/date-source.js'
-import { AxisType, MarkPresetType, ThresholdShowType, ThresholdType } from './ChartFormFields/type.js'
+import { AxisType, ILineType, MarkPresetType, ThresholdShowType, ThresholdType } from './ChartFormFields/type.js'
 import { find_variable_by_name, get_variable_copy_infos, get_variable_value, paste_variables, subscribe_variable } from './Variable/variable.js'
 import { t } from '../../i18n/index.js'
 import { type DdbTable } from 'dolphindb'
@@ -353,35 +353,58 @@ export function convert_chart_config (widget: Widget, data_source: any[]) {
     
     let echarts_series = series.filter(Boolean).map(convert_series)
     
-    if (threshold && threshold.show_type !== ThresholdShowType.NONE) { 
-        // 设置了阈值，需要根据关联的 Y 轴找到第一个数据列，然后为数据列设置 markArea
+    // 设置了阈值且展示，需要在 series 中增加 markArea 或者 markLine
+    if (threshold && threshold.show_type !== ThresholdShowType.NONE) {
+        // 需要根据关联的 Y 轴找到第一个数据列，然后为数据列设置 markArea 或者 markLine
         const idx = series.findIndex(item => item.yAxisIndex === threshold.related_y_axis)
+        // 关联 Y 轴对应的所有数据列
         const threshold_series = series.filter(item => item?.yAxisIndex === threshold.related_y_axis)
-        let thresholds = [...threshold.thresholds.filter(item => isFinite(item?.value))]
+        
+        let thresholds = threshold.thresholds.filter(item => isFinite(item?.value))
+        
         if (threshold.type === ThresholdType.PERCENTAGE) { 
             // 阈值如果是分位数，需要找到所有数据列中的最大值，由分位数和最大值计算得到阈值
             const data = threshold_series.reduce((prev, cur) => [...prev, ...data_source.map(item => Number(item[cur.col_name])).filter(isFinite)], [ ])
+            // 关联 Y 轴对应数据列的最大值
             const max_value = max(data)
-            thresholds = thresholds.map(item => { 
-                return { ...item, value: max_value * item.value / 100 }
-            })
+            // 根据最大值和百分比重新计算阈值
+            thresholds = thresholds.map(item => ( { ...item, value: max_value * item.value / 100 }))
         }
         
         let mark_area_data = [ ]
+        let mark_line_data = [ ]
         const sorted_threshold = thresholds.sort((a, b) => a.value - b.value)
-    
-        for (let i = 0;  i < sorted_threshold.length;  i++)  
-            mark_area_data.push([{
-                yAxis: sorted_threshold[i].value,
-                itemStyle: { color: sorted_threshold[i].color }
-            }, {
-                yAxis: sorted_threshold[i + 1]?.value
-            }])
+        
+        // 区域颜色分界
+        if (threshold.show_type === ThresholdShowType.FILLED_REGION)
+            for (let i = 0;  i < sorted_threshold.length;  i++)
+                mark_area_data.push([{
+                    yAxis: sorted_threshold[i].value,
+                    itemStyle: { color: sorted_threshold[i].color }
+                }, {
+                    yAxis: sorted_threshold[i + 1]?.value
+                }])
+        // 线条分界
+        else 
+            for (let item of sorted_threshold)
+                mark_line_data.push({
+                    yAxis: item.value,
+                    lineStyle: {
+                        color: item.color,
+                        type: threshold.line_type ?? ILineType.SOLID,
+                        width: threshold.line_width
+                    }
+                })
+        
           
         echarts_series[idx] = {
             ...echarts_series[idx],
-            markArea: {
+            markArea:  {
                 data: mark_area_data
+            },
+            markLine: { 
+                symbol: ['none', 'none'],
+                data: mark_line_data
             },
         } as any
     }

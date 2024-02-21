@@ -87,6 +87,8 @@ export interface IThresholdConfig {
     related_y_axis: number
     type: ThresholdType
     show_type: ThresholdShowType
+    line_type?: ILineType
+    line_width?: number
     thresholds: Array<{
         color: string
         value: number

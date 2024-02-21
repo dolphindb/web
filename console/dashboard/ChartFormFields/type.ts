@@ -84,4 +84,5 @@ export enum ThresholdType {
 export enum ThresholdShowType { 
     NONE,
     FILLED_REGION,
+    LINE
 }
