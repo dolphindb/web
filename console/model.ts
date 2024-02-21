@@ -863,18 +863,18 @@ if (!Array.prototype.toReversed)
             return [...this].reverse()
         }
     })
-    
+
 if (!Array.prototype.toSpliced)
     Object.defineProperty(Array.prototype, 'toSpliced', {
         configurable: true,
         writable: true,
         enumerable: false,
-        value: function toSpliced (...args: [start:number, deleteCount?: number, ...items:any[]]) {
-           const copy =  [...this]
-           copy.splice(...args)
-           return copy
+        value: function toSpliced (...args: [start: number, deleteCount?: number, ...items: any[]]) {
+            const copy = [...this]
+            copy.splice(...args)
+            return copy
         }
-})
+    })
 
 if (!Array.prototype.at)
     Object.defineProperty(Array.prototype, 'at', {
@@ -882,9 +882,9 @@ if (!Array.prototype.at)
         writable: true,
         enumerable: false,
         value: function at (index: number) {
-           return index >= 0  ? this[index] : this[index + this.length] 
+            return index >= 0 ? this[index] : this[index + this.length]
         }
-})
+    })
 
 
 
