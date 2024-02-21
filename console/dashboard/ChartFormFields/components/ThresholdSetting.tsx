@@ -4,7 +4,6 @@ import { DeleteOutlined, PlusOutlined } from '@ant-design/icons'
 import { ILineType, ThresholdShowType, ThresholdType } from '../type.js'
 import { concat_name_path } from '../../utils.js'
 import { StringColorPicker } from '../../../components/StringColorPicker/index.js'
-import cn from 'classnames'
 import { FormDependencies } from '../../../components/formily/FormDependcies/index.js'
 import { get } from 'lodash'
 import { line_type_options } from '../constant.js'
@@ -44,18 +43,17 @@ export function ThresholdSetting () {
             <Select options={[{ label: t('绝对值'), value: ThresholdType.ABSOLUTE }, { label: t('百分比'), value: ThresholdType.PERCENTAGE }] } />
         </Form.Item>
         <Form.Item name={concat_name_path('threshold', 'show_type')} label={t('展示类型')} initialValue={ThresholdShowType.NONE}>
-            {/* show_type 改变会影响某些表单项的显隐，如果不加 update_widget，当从隐藏状态更改为显示状态后，表单显示的属性与真实展示情况会不一致，本质上还是由于 form.setFieldValue 不会触发 form 的 onValuesChange 导致的 */}
             <Select
                 options={show_type_options}
+                /* show_type 改变会影响某些表单项的显隐，如果不加 update_widget，当从隐藏状态更改为显示状态后，表单显示的属性与真实展示情况会不一致，本质上还是由于 form.setFieldValue 不会触发 form 的 onValuesChange 导致的 */
                 onSelect={() => setTimeout(() => { dashboard.update_widget({ ...widget, config: form.getFieldsValue() }) })}
             />
         </Form.Item>
         <FormDependencies dependencies={[concat_name_path('threshold', 'show_type')]}>
             {value => { 
                 const show_type = get(value, concat_name_path('threshold', 'show_type'))
-                return show_type !== ThresholdShowType.LINE
-                    ? null
-                    : <>
+                return show_type === ThresholdShowType.LINE
+                    ? <>
                         <Form.Item initialValue={ILineType.SOLID} label={t('线类型')} name={concat_name_path('threshold', 'line_type') }>
                             <Select options={line_type_options} />
                         </Form.Item>
@@ -63,6 +61,7 @@ export function ThresholdSetting () {
                             <InputNumber addonAfter='px' min={1}/>
                         </Form.Item>
                     </>
+                    : null
             } }
         </FormDependencies>
         <Form.List initialValue={[{ }]} name={concat_name_path('threshold', 'thresholds') }>
@@ -81,7 +80,7 @@ export function ThresholdSetting () {
                                     </Form.Item>
                                 } }
                             </FormDependencies>
-                            <DeleteOutlined className={cn({ 'hidden-delete-icon': !field.name }) } onClick={ () => { remove(field.name) }} />
+                            <DeleteOutlined onClick={ () => { remove(field.name) }} />
                         </div>)
                     }
                     <div className='threshold-add-btn'>
