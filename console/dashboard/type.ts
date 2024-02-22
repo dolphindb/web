@@ -37,6 +37,9 @@ export interface ISeriesConfig {
     stack?: string
     end_label?: boolean
     end_label_formatter?: string
+    data_source_id: string
+    x_col_name: string
+    
     
     
     // 阈值与配色
@@ -223,3 +226,10 @@ export interface IGaugeConfig {
     }>
 }
 
+
+export enum VariableMode { 
+    SELECT = 'select',
+    MULTI_SELECT = 'multi_select',
+    TEXT = 'text',
+    DATE = 'date'
+}

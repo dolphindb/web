@@ -88,7 +88,7 @@ export function Computing () {
         }
     }
     
-    if (!streaming_stat || !origin_streaming_engine_stat || !persistent_table_stat || !shared_table_stat)
+    if (!streaming_stat || !origin_streaming_engine_stat || !shared_table_stat)
         return <div className='spin-container'>
             <Spin size='large' delay={300} />
         </div>
@@ -122,6 +122,7 @@ export function Computing () {
         }
     
     return <Tabs
+        className='themed'
         activeKey={tab_key}
         type='card'
         onChange={set_tab_key}
@@ -232,7 +233,7 @@ export function Computing () {
                             rows={translate_byte_row(add_key(shared_table_stat.to_rows()), 'memoryUsed')}
                             refresher={computing.get_streaming_table_stat}
                         />
-                        <StateTable
+                        {computing.persistence_dir && <StateTable
                             type='persistenceMeta'
                             cols={render_col_title(
                                     sort_col(
@@ -246,6 +247,7 @@ export function Computing () {
                             min_width={1600}
                             refresher={computing.get_streaming_table_stat}
                         />
+                        }
                         {streaming_stat.persistWorkers && (
                             <StateTable
                                 type='persistWorkers'

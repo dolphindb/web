@@ -854,7 +854,7 @@ class DdbModel extends Model<DdbModel> {
 }
 
 
-if (!Array.prototype.toReversed) {
+if (!Array.prototype.toReversed)
     Object.defineProperty(Array.prototype, 'toReversed', {
         configurable: true,
         writable: true,
@@ -863,7 +863,29 @@ if (!Array.prototype.toReversed) {
             return [...this].reverse()
         }
     })
-}
+
+if (!Array.prototype.toSpliced)
+    Object.defineProperty(Array.prototype, 'toSpliced', {
+        configurable: true,
+        writable: true,
+        enumerable: false,
+        value: function toSpliced (...args: [start: number, deleteCount?: number, ...items: any[]]) {
+            const copy = [...this]
+            copy.splice(...args)
+            return copy
+        }
+    })
+
+if (!Array.prototype.at)
+    Object.defineProperty(Array.prototype, 'at', {
+        configurable: true,
+        writable: true,
+        enumerable: false,
+        value: function at (index: number) {
+            return index >= 0 ? this[index] : this[index + this.length]
+        }
+    })
+
 
 
 export enum NodeType {
@@ -934,6 +956,7 @@ export interface DdbNode {
     maxConnections: number
     maxMemSize: number
     workerNum: number
+    /** @deprecated server 2.00.10 后没有 local executor，此项一直为零 */
     executorNum: number
     connectionNum: number
     memoryUsed: bigint

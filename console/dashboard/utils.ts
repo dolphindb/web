@@ -188,8 +188,15 @@ export function parse_code (code: string, data_source?: DataSource): string {
 
 
 
-export function concat_name_path (...paths: NamePath[]): NamePath {
-    return paths.filter(p => !isNil(p))
+export function concat_name_path (...paths: (NamePath | NamePath[])[]): NamePath {
+    return paths.reduce((prev, p) => {
+        if (isNil(p))
+            return prev
+        else if (Array.isArray(p))  
+            return prev.concat(p)
+        else
+            return prev.concat([p])
+    }, [ ])
 }
 
 export function convert_chart_config (widget: Widget, data_source: any[]) {
@@ -283,7 +290,7 @@ export function convert_chart_config (widget: Widget, data_source: any[]) {
                 return { yAxis: item }
         }) || [ ]
         
-        const get_item_color = value => value > series.threshold.value ? series.threshold?.high_color : series.threshold?.low_color
+        // const get_item_color = value => value > series.threshold.value ? series.threshold?.high_color : series.threshold?.low_color
         
         let data = [ ]
         
@@ -295,25 +302,25 @@ export function convert_chart_config (widget: Widget, data_source: any[]) {
                     value: [format_time(item?.[xAxis.col_name], xAxis.time_format), item?.[series.col_name]]
                 }
             })
-            if (isNumber(series.threshold?.value))
-                data = data.map(item => ({ ...item, itemStyle: { color: get_item_color(item[1]) } }))
+            // if (isNumber(series.threshold?.value))
+            //     data = data.map(item => ({ ...item, itemStyle: { color: get_item_color(item[1]) } }))
         } else { 
             // 有类目轴的情况下，类目信息从 axis 中取
             data = data_source.map(item => item?.[series.col_name])
-            if (isNumber(series.threshold?.value))
-                data = data.map(item => ({
-                value: item,
-                itemStyle: {
-                    color: get_item_color(item)
-                }
-            }))
+            // if (isNumber(series.threshold?.value))
+            //     data = data.map(item => ({
+            //     value: item,
+            //     itemStyle: {
+            //         color: get_item_color(item)
+            //     }
+            // }))
         }
-           
+        
         return {
             type: series.type?.toLowerCase(),
             name: series.name,
-            symbol: series.type === WidgetChartType.SCATTER ? series?.symbol ?? 'none' : 'none',
-            symbolSize: series.symbol_size,
+            symbol: series.type === WidgetChartType.SCATTER ? series?.symbol ?? 'circle' : 'none',
+            symbolSize: series.symbol_size ?? 10,
             stack: series.stack,
             endLabel: {
                 show: series.end_label,
