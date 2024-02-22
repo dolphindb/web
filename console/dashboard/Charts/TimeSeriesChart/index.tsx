@@ -5,7 +5,7 @@ import { BasicFormFields } from '../../ChartFormFields/BasicFormFields.js'
 import { t } from '../../../../i18n/index.js'
 import { AxisItem, ThresholdFormFields, YAxis } from '../../ChartFormFields/BasicChartFields.js'
 import { AxisType, ITimeFormat } from '../../ChartFormFields/type.js'
-import { DeleteOutlined, LinkOutlined, PlusCircleOutlined, QuestionCircleOutlined } from '@ant-design/icons'
+import { DeleteOutlined, PlusCircleOutlined, QuestionCircleOutlined } from '@ant-design/icons'
 import { FormDependencies } from '../../../components/formily/FormDependcies/index.js'
 import { concat_name_path, convert_chart_config, convert_list_to_options, format_time } from '../../utils.js'
 import { get, uniq } from 'lodash'
@@ -234,10 +234,12 @@ export function TimeSeriesChartConfig () {
     
     // 所有数据源数值类型列名
     const col_options = useMemo(() => { 
-        return widget.source_id.reduce((prev, id) => { 
-            const cols = uniq(get_data_source(id).cols).filter(col => VALUE_TYPES.includes(type_map[col]))
-            return prev.concat(convert_list_to_options(cols))
-        }, [ ])
+        return convert_list_to_options(
+            uniq(widget.source_id.reduce((prev, id) => { 
+                const cols = uniq(get_data_source(id).cols).filter(col => VALUE_TYPES.includes(type_map[col]))
+                return prev.concat(cols)
+            }, [ ]))
+        )
     }, [update, widget.source_id, type_map])
     
     
@@ -250,12 +252,11 @@ export function TimeSeriesChartConfig () {
                 label: t('X 轴配置'),
                 forceRender: true,
                 children: <AxisItem
-                    col_names={col_options.map(item => item.value)}
+                    col_names={col_options.map(item => item.value) as string[]}
                     name_path='xAxis'
                     hidden_fields={['col_name']}
                     initial_values={{
-                        type: AxisType.TIME,
-                        time_format: ITimeFormat.DATE_SECOND,
+                        type: AxisType.CATEGORY
                     }}
                 />
             },
@@ -263,7 +264,7 @@ export function TimeSeriesChartConfig () {
                 key: 'y_axis',
                 label: t('Y 轴配置'),
                 forceRender: true,
-                children: <YAxis col_names={col_options.map(item => item.value)} axis_item_props={{ hidden_fields: ['col_name', 'type'] } } />
+                children: <YAxis col_names={col_options.map(item => item.value) as string[]} axis_item_props={{ hidden_fields: ['col_name', 'type'] } } />
             },
             {
                 key: 'series',
@@ -336,7 +337,7 @@ export function TimeSeriesChartConfig () {
                                     {value => { 
                                         const show = get(value, concat_name_path('series', field.name, 'show'))
                                         return show
-                                            ? <SeriesItem col_names={col_options.map(item => item.value)} type={type} name={field.name} path='series' />
+                                            ? <SeriesItem col_names={col_options.map(item => item.value) as string[]} type={type} name={field.name} path='series' />
                                             : null
                                     } }
                                 </FormDependencies>
