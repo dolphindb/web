@@ -247,7 +247,7 @@ export function convert_chart_config (
         let data = undefined
         // 类目轴下需要定义类目数据, 其他轴线类型下 data 不生效
         if (axis.type === AxisType.CATEGORY)
-            data = axis.col_name ? data_source.map(item => item?.[axis.col_name]) : [ ]
+            data = axis.col_name ? data_source.map(item => format_time(item?.[axis.col_name], axis.time_format)) : [ ]
         
         const axis_config = {
             show: true,
@@ -317,6 +317,11 @@ export function convert_chart_config (
             // 有类目轴的情况下，类目信息从 axis 中取
             data = data_source.map(item => item?.[series.col_name])
         
+        // 类目轴 x 轴数据可以从 xAxis 中取，可以用模版字符串，其他类型的图，series data 中包含了 x 轴数据与 y 轴数据，需要替换
+        let end_label_formatter = series?.end_label_formatter
+        if (xAxis.type !== AxisType.CATEGORY && end_label_formatter)
+            end_label_formatter = end_label_formatter.replaceAll('{b}', '{@[0]}').replaceAll('{c}', '{@[1]}')
+        
         return {
             type: series.type?.toLowerCase(),
             name: series.name,
@@ -325,7 +330,7 @@ export function convert_chart_config (
             stack: series.stack,
             endLabel: {
                 show: series.end_label,
-                formatter: series.end_label_formatter,
+                formatter: end_label_formatter,
                 color: '#fff',
                 backgroundColor: 'inherit',
                 padding: 4,
