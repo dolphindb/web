@@ -227,6 +227,8 @@ export function TimeSeriesChartConfig () {
     
     const update_cols = useCallback(() => { set_update({ }) }, [ ])
     
+    const form = Form.useFormInstance()
+    
     // 所有数据源类型 map
     const type_map = useMemo<Record<string, DdbType>>(() => { 
         return widget.source_id.reduce((prev, id) => ({ ...prev, ...get_data_source(id).type_map }), { })
@@ -241,6 +243,8 @@ export function TimeSeriesChartConfig () {
             }, [ ]))
         )
     }, [update, widget.source_id, type_map])
+    
+    
     
     
     return <>
@@ -282,7 +286,7 @@ export function TimeSeriesChartConfig () {
                             children: <div key={field.name}>
                                 {/* 用户选择如何配置应用的范围 */}
                                 <Form.Item label={t('匹配类型')} name={[field.name, 'match_type']}>
-                                    <Select options={series_match_type_options} />
+                                    <Select options={series_match_type_options} onSelect={() => { form.setFieldValue(concat_name_path('series', field.name, 'match_value'), null) } } />
                                 </Form.Item>
                                 <FormDependencies dependencies={[concat_name_path('series', field.name, 'match_type')]}>
                                     {value => { 
