@@ -561,8 +561,8 @@ export enum WidgetType {
     RADAR = '雷达图',
     VARIABLE = '变量',
     SCATTER = '散点图',
-    COMPOSITE_GRAPH = '复合图'
-    // HEATMAP = '热力图'
+    COMPOSITE_GRAPH = '复合图',
+    HEATMAP = '热力图'
 }
 
 export enum WidgetChartType { 
