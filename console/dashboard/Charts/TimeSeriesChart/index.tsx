@@ -46,9 +46,6 @@ interface ITimeSeriesChart {
     widget: Widget
 }
 
-
-const REGEXP_LINK = 'https://developer.mozilla.org/zh-CN/docs/Web/JavaScript/Reference/Global_Objects/RegExp'
-
 const series_match_type_options = [
     {
         label: <>
@@ -93,6 +90,18 @@ const TIME_TYPES = [
 ]
 
 
+const VALUE_TYPES = [
+    DdbType.short,
+    DdbType.int,
+    DdbType.long,
+    DdbType.float,
+    DdbType.double,
+    DdbType.decimal32,
+    DdbType.decimal64,
+    DdbType.decimal128
+]
+
+
 export function TimeSeriesChart (props: ITimeSeriesChart) {
     const { widget, data_source } = props
     const [update, set_update] = useState(null)
@@ -104,22 +113,24 @@ export function TimeSeriesChart (props: ITimeSeriesChart) {
     
     useEffect(() => { set_source_col_map({ }) }, [widget.source_id])
     
+    const type_map = useMemo<Record<string, DdbType>>(() => { 
+        return widget.source_id.reduce((prev, id) => ({ ...prev, ...get_data_source(id).type_map }), { })
+    }, [update, widget.source_id])
+    
     useEffect(() => { 
         for (let id of widget.source_id) { 
             const { cols, type_map } = get_data_source(id)
             // 第一个时间类型的列作为时间列，其余作为数据列
             const time_col = cols.find(col => TIME_TYPES.includes(type_map[col]))
-            const series_col = cols.filter(item => item !== time_col)
+            const series_col = cols.filter(item => item !== time_col && VALUE_TYPES.includes(type_map[item]))
             set_source_col_map(map => ({
                 ...map,
                 [id]: { time_col, series_col }
             }))
         }
-    }, [update])
+    }, [update, type_map, widget.source_id])
     
-    const type_map = useMemo<Record<string, DdbType>>(() => { 
-        return widget.source_id.reduce((prev, id) => ({ ...prev, ...get_data_source(id).type_map }), { })
-    }, [update, widget.source_id])
+   
     
     const options = useMemo(() => { 
         const { series: series_config = [ ], xAxis, yAxis = [ ], ...others } = widget.config as unknown as ITimeSeriesChartConfig
@@ -216,15 +227,19 @@ export function TimeSeriesChartConfig () {
     
     const update_cols = useCallback(() => { set_update({ }) }, [ ])
     
-    // 所有数据源列名
-    const col_options = useMemo(() => { 
-        return widget.source_id.reduce((prev, id) => prev.concat(convert_list_to_options(uniq(get_data_source(id).cols))), [ ])
-    }, [update, widget.source_id])
-    
     // 所有数据源类型 map
     const type_map = useMemo<Record<string, DdbType>>(() => { 
         return widget.source_id.reduce((prev, id) => ({ ...prev, ...get_data_source(id).type_map }), { })
     }, [update, widget.source_id])
+    
+    // 所有数据源数值类型列名
+    const col_options = useMemo(() => { 
+        return widget.source_id.reduce((prev, id) => { 
+            const cols = uniq(get_data_source(id).cols).filter(col => VALUE_TYPES.includes(type_map[col]))
+            return prev.concat(convert_list_to_options(cols))
+        }, [ ])
+    }, [update, widget.source_id, type_map])
+    
     
     return <>
         {widget.source_id.map(id => <SingleDataSourceColUpdate key={id} source_id={id} force_update={update_cols}/>) }
@@ -290,15 +305,11 @@ export function TimeSeriesChartConfig () {
                                                         </ul> 
                                                     </>}
                                                     name={concat_name_path(field.name, 'match_value')}
-                                                    extra={<Typography.Link target='_blank' href={REGEXP_LINK}>
-                                                        <LinkOutlined style={{ marginRight: 8 }}/>
-                                                        {t('正则表达式书写规则')}
-                                                    </Typography.Link>}
                                                 >
                                                     <Input placeholder={t('请输入正则表达式') } />
                                                 </Form.Item>
                                             case MatchRuleType.DATA_TYPE:
-                                                const types = uniq(Object.values(type_map)).map(item => ({ label: DDB_TYPE_MAP[item], value: item }))
+                                                const types = uniq(Object.values(type_map)).filter(type => VALUE_TYPES.includes(type)).map(item => ({ label: DDB_TYPE_MAP[item], value: item }))
                                                 return <Form.Item label={t('数据类型')} name={concat_name_path(field.name, 'match_value')}>
                                                     <Select options={types} mode='multiple'/>
                                                 </Form.Item>
