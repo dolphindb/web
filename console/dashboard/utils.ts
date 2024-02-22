@@ -1,7 +1,7 @@
 import { type NamePath } from 'antd/es/form/interface'
 import { type DdbObj, DdbForm, DdbType, nulls, type DdbValue, format, type InspectOptions } from 'dolphindb/browser.js'
 import { is_decimal_null_value } from 'dolphindb/shared/utils/decimal-type.js'
-import { isNil, max, pickBy, uniq } from 'lodash'
+import { isNil, pickBy, uniq } from 'lodash'
 import { createRef } from 'react'
 import { genid } from 'xshell/utils.browser.js'
 import copy from 'copy-to-clipboard'
@@ -14,6 +14,7 @@ import { AxisType, ILineType, MarkPresetType, ThresholdShowType, ThresholdType }
 import { find_variable_by_name, get_variable_copy_infos, get_variable_value, paste_variables, subscribe_variable } from './Variable/variable.js'
 import { t } from '../../i18n/index.js'
 import { type DdbTable } from 'dolphindb'
+import type { EChartsInstance } from 'echarts-for-react'
 
 
 export function format_time (time: string, format: string) {
@@ -200,7 +201,18 @@ export function concat_name_path (...paths: (NamePath | NamePath[])[]): NamePath
     }, [ ])
 }
 
-export function convert_chart_config (widget: Widget, data_source: any[]) {
+
+// 用于获取 Y 轴的范围，以获取阈值范围
+function get_y_axis_range (echart_instance: EChartsInstance, idx: number,) {
+    return echart_instance.getModel().getComponent('yAxis', idx).axis.scale._extent
+}
+
+
+export function convert_chart_config (
+    widget: Widget,
+    data_source: any[],
+    echart_instance?: EChartsInstance
+) {
     const { config } = widget
     
     const { title, title_size, splitLine, xAxis, series, yAxis, x_datazoom, y_datazoom, legend, animation, tooltip, threshold } = config as IChartConfig
@@ -353,24 +365,19 @@ export function convert_chart_config (widget: Widget, data_source: any[]) {
     
     let echarts_series = series.filter(Boolean).map(convert_series)
     
-    // 设置了阈值且展示，需要在 series 中增加 markArea 或者 markLine
     if (threshold && threshold.show_type !== ThresholdShowType.NONE) {
-        // 需要根据关联的 Y 轴找到第一个数据列，然后为数据列设置 markArea 或者 markLine
+        // 需要根据关联的 Y 轴找到第一个数据列，然后为此数据列设置 markArea 或者 markLine
         const idx = series.findIndex(item => item.yAxisIndex === threshold.related_y_axis)
-        // 关联 Y 轴对应的所有数据列
-        const threshold_series = series.filter(item => item?.yAxisIndex === threshold.related_y_axis)
         
         let thresholds = threshold.thresholds.filter(item => isFinite(item?.value))
         
-        if (threshold.type === ThresholdType.PERCENTAGE) { 
-            // 阈值如果是分位数，需要找到所有数据列中的最大值，由分位数和最大值计算得到阈值
-            const data = threshold_series.reduce((prev, cur) => [...prev, ...data_source.map(item => Number(item[cur.col_name])).filter(isFinite)], [ ])
-            // 关联 Y 轴对应数据列的最大值
-            const max_value = max(data)
-            // 根据最大值和百分比重新计算阈值
-            thresholds = thresholds.map(item => ( { ...item, value: max_value * item.value / 100 }))
-        }
-        
+        if (threshold.type === ThresholdType.PERCENTAGE)
+            // 获取 Y 轴最大值
+            if (echart_instance) {
+                const [min, max] = get_y_axis_range(echart_instance, threshold.related_y_axis)
+                thresholds = thresholds.map(item => ({ ...item, value: (max - min) * item.value / 100 }))
+            }
+            
         let mark_area_data = [ ]
         let mark_line_data = [ ]
         const sorted_threshold = thresholds.sort((a, b) => a.value - b.value)
@@ -378,13 +385,16 @@ export function convert_chart_config (widget: Widget, data_source: any[]) {
         // 区域颜色分界
         if (threshold.show_type === ThresholdShowType.FILLED_REGION)
             for (let i = 0;  i < sorted_threshold.length;  i++)
-                mark_area_data.push([{
-                    yAxis: sorted_threshold[i].value,
-                    itemStyle: { color: sorted_threshold[i].color }
-                }, {
-                    yAxis: sorted_threshold[i + 1]?.value
-                }])
-        // 线条分界
+                mark_area_data.push([
+                    {
+                        yAxis: sorted_threshold[i].value,
+                        itemStyle: { color: sorted_threshold[i].color }
+                    },
+                    {
+                        yAxis: sorted_threshold[i + 1]?.value
+                    }
+                ]) 
+        // 线条分界    
         else 
             for (let item of sorted_threshold)
                 mark_line_data.push({
@@ -395,8 +405,7 @@ export function convert_chart_config (widget: Widget, data_source: any[]) {
                         width: threshold.line_width
                     }
                 })
-        
-          
+                
         echarts_series[idx] = {
             ...echarts_series[idx],
             markArea:  {
@@ -410,7 +419,7 @@ export function convert_chart_config (widget: Widget, data_source: any[]) {
     }
     
     
-    return {
+    const options =  {
         animation,
         grid: {
             containLabel: true,
@@ -448,6 +457,7 @@ export function convert_chart_config (widget: Widget, data_source: any[]) {
         series: echarts_series,
         dataZoom: convert_data_zoom(x_datazoom, y_datazoom)
     }
+    return options
 }
 
 

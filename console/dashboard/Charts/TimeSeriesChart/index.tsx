@@ -20,6 +20,7 @@ import * as echarts from 'echarts'
 import { type ISeriesConfig, type IChartConfig } from '../../type.js'
 import { get_data_source } from '../../DataSource/date-source.js'
 import { BoolRadioGroup } from '../../../components/BoolRadioGroup/index.js'
+import type { EChartsInstance } from 'echarts-for-react'
 
 
 enum MatchRuleType {
@@ -96,6 +97,8 @@ export function TimeSeriesChart (props: ITimeSeriesChart) {
     const { widget, data_source } = props
     const [update, set_update] = useState(null)
     
+    const [echart_instance, set_echart_instance] = useState<EChartsInstance>()
+    
     // 存储每个数据源的时间列和数据列
     const [source_col_map, set_source_col_map] = useState<Record<string, { time_col: string, series_col: string[] }>>({ })
     
@@ -152,8 +155,7 @@ export function TimeSeriesChart (props: ITimeSeriesChart) {
             series,
         }
         
-        const default_options = convert_chart_config({ ...widget, config } as unknown as  Widget, data_source)
-        console.log(default_options, 'default_options')
+        const default_options = convert_chart_config({ ...widget, config } as unknown as  Widget, data_source, echart_instance)
         return {
             ...default_options,
             xAxis: { ...default_options.xAxis, data: null },
@@ -168,9 +170,7 @@ export function TimeSeriesChart (props: ITimeSeriesChart) {
                 }
             })
         }
-    }, [widget.config, update, source_col_map, type_map])
-    
-    console.log(options, 'options')
+    }, [widget.config, update, source_col_map, type_map, echart_instance])
     
     return <>
         {widget.source_id.map(id => <SingleDataSourceUpdate key={id} source_id={id} force_update={() => { set_update({ }) }}/>) }
@@ -180,6 +180,7 @@ export function TimeSeriesChart (props: ITimeSeriesChart) {
             option={options}
             className='dashboard-line-chart'
             theme='my-theme'
+            onChartReady={(ins: EChartsInstance) => { set_echart_instance(ins) }}
         />
     </>
    

@@ -8,6 +8,7 @@ import { get_data_source } from '../../DataSource/date-source.js'
 import { convert_chart_config, format_time } from '../../utils.js'
 import { type IChartConfig } from '../../type.js'
 import { isNil, pickBy } from 'lodash'
+import type { EChartsInstance } from 'echarts-for-react'
 
 interface IProps { 
     widget: Widget
@@ -27,6 +28,7 @@ function SingleDataSourceWatch (props: { source_id: string, force_update: () => 
 
 export function CompositeGraph (props: IProps) { 
     const { widget } = props
+    const [echart_instance, set_echart_instance] = useState<EChartsInstance>()
     
     const [update, set_update] = useState({ })
     
@@ -44,7 +46,7 @@ export function CompositeGraph (props: IProps) {
     
     const options = useMemo(() => { 
         const config = widget.config as IChartConfig
-        const default_options = convert_chart_config(widget, Object.values(data_source)?.[0] as any[])
+        const default_options = convert_chart_config(widget, Object.values(data_source)?.[0] as any[], echart_instance)
         function get_cols (source_id, col_name) { 
             return data_source?.[source_id]?.map(item => item[col_name]) ?? [ ]
         }
@@ -66,7 +68,7 @@ export function CompositeGraph (props: IProps) {
             })
             
         }
-    }, [ widget.config, data_source ])
+    }, [ widget.config, data_source, echart_instance ])
     
     return <>
         {widget.source_id.map(id => <SingleDataSourceWatch key={id} source_id={id} force_update={update_data_source} />)}
@@ -76,6 +78,7 @@ export function CompositeGraph (props: IProps) {
             option={options}
             className='dashboard-line-chart'
             theme='my-theme'
+            onChartReady={(ins: EChartsInstance) => { set_echart_instance(ins) }}
         />
     </>
 }
