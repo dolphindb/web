@@ -286,7 +286,7 @@ export function TimeSeriesChartConfig () {
                             children: <div key={field.name}>
                                 {/* 用户选择如何配置应用的范围 */}
                                 <Form.Item label={t('匹配类型')} name={[field.name, 'match_type']}>
-                                    <Select options={series_match_type_options} onSelect={() => { form.setFieldValue(concat_name_path('series', field.name, 'match_value'), null) } } />
+                                    <Select options={series_match_type_options} onSelect={() => { form.setFieldValue(concat_name_path('series', field.name, 'match_value'), undefined) } } />
                                 </Form.Item>
                                 <FormDependencies dependencies={[concat_name_path('series', field.name, 'match_type')]}>
                                     {value => { 
