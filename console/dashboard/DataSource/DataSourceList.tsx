@@ -111,8 +111,6 @@ export function DataSourceList ({
     on_select
 }: PropsType) {
     
-    console.log(widget?.source_id, 'source_id')
-    
     const [current_select, set_current_select] = useState(current_data_source?.id || '')
     const [menu_items, set_menu_items] = useState<MenuItemType[]>()
     
@@ -132,11 +130,11 @@ export function DataSourceList ({
     useEffect(() => { 
         async function paste_handler (event) {
             try {
-                if (await paste_data_source(event)) {
+                if (await paste_data_source(event)) { 
                     set_menu_items(data_sources.map(item => generate_tree_item(item, widget)))
                     const id = data_sources[0].id
-                    on_select(id)
                     set_current_select(id)
+                    on_select(id)
                 }
             } catch (error) {
                 dashboard.message.error(error.message)
