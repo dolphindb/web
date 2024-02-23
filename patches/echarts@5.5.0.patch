@@ -1,25 +1,24 @@
 diff --git a/dist/echarts.js b/dist/echarts.js
-index c9e0f20eb06e277454d43716801f4ad93f18de83..f937f0fa41bf17219c090b6a7475e1fe42356ce3 100644
+index df103b18c8fb11e78c3a660652e330a6bec96a31..913b88a94b71ad3f20d2a53ad5008cedf676c6a6 100644
 --- a/dist/echarts.js
 +++ b/dist/echarts.js
-@@ -70004,13 +70004,14 @@
+@@ -62954,12 +62954,13 @@
+           var xAxis = coordSys.getAxis('x');
            var yAxis = coordSys.getAxis('y');
- 
            if ("development" !== 'production') {
 -            if (!(xAxis.type === 'category' && yAxis.type === 'category')) {
 -              throw new Error('Heatmap on cartesian must have two category axes');
+-            }
+-            if (!(xAxis.onBand && yAxis.onBand)) {
+-              throw new Error('Heatmap on cartesian must have two axes with boundaryGap true');
 -            }
 +            // 原代码只允许开发模式下 x， y 轴展示类目轴，通过 patch 去除掉这个限制
 +            // if (!(xAxis.type === 'category' && yAxis.type === 'category')) {
 +            //   throw new Error('Heatmap on cartesian must have two category axes');
 +            // }
- 
--            if (!(xAxis.onBand && yAxis.onBand)) {
--              throw new Error('Heatmap on cartesian must have two axes with boundaryGap true');
--            }
 +            // if (!(xAxis.onBand && yAxis.onBand)) {
 +            //   throw new Error('Heatmap on cartesian must have two axes with boundaryGap true');
 +            // }
-           } // add 0.5px to avoid the gaps
- 
- 
+           }
+           // add 0.5px to avoid the gaps
+           width = xAxis.getBandWidth() + .5;

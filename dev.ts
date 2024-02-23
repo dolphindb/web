@@ -83,8 +83,8 @@ class DevServer extends Server {
             } catch (error) {
                 console.log(error)
                 if (error.response) {
-                    const { text, status }: RequestError['response'] = error.response
-                    response.body = text
+                    const { body, status }: RequestError['response'] = error.response
+                    response.body = body
                     response.status = status
                     response.type = 'json'
                 } else {
