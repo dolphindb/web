@@ -10,9 +10,6 @@ interface IProps extends Omit<DatePickerProps, 'onChange' | 'value'> {
     submitSuffix?: string
 }
 
-
-const { RangePicker } = DatePicker
-
 interface IStringRangePickerProps {
     onChange: (val: [string, string]) => void
     value: [string, string]

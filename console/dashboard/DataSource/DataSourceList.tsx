@@ -1,9 +1,9 @@
-import { type MutableRefObject, type ReactNode, createElement, useEffect, useRef, useState, useMemo, useCallback } from 'react'
+import { type MutableRefObject, type ReactNode, createElement, useEffect, useRef, useState, useMemo, useCallback, type Key } from 'react'
 import { ConfigProvider, Form, Input, Modal, Radio, Tag, Tree, theme } from 'antd'
 import { CopyOutlined, DatabaseOutlined, DeleteOutlined, EditOutlined, FileOutlined } from '@ant-design/icons'
 
 import { type Widget, WidgetChartType, dashboard } from '../model.js'
-import { create_data_source, data_sources, delete_data_source, rename_data_source, type DataSource, type DataSourcePropertyType, copy_data_source, paste_data_source } from './date-source.js'
+import { create_data_source, data_sources, delete_data_source, rename_data_source, type DataSource, type DataSourcePropertyType, copy_data_source, paste_data_source, get_data_source } from './date-source.js'
 import { t } from '../../../i18n/index.js'
 import NiceModal, { useModal } from '@ebay/nice-modal-react'
 import { DdbForm } from 'dolphindb'
@@ -23,6 +23,7 @@ interface PropsType {
         then<T>(resolve: (confirmed: boolean) => T, reject: VoidFunction): Promise<T>
     }
     handle_save: () => Promise<void>
+    change_current_data_source: (key: string) => void
     change_current_data_source_property: (key: string, value: DataSourcePropertyType, save_confirm?: boolean) => void
     on_select: (keys: string[] | string) => void
 }
@@ -107,17 +108,23 @@ export function DataSourceList ({
     no_save_flag,
     save_confirm,
     handle_save,
+    change_current_data_source,
     change_current_data_source_property,
     on_select
 }: PropsType) {
     
-    const [current_select, set_current_select] = useState(current_data_source?.id || '')
-    const [menu_items, set_menu_items] = useState<MenuItemType[]>()
+    // 当前选中的 datasource
+    const [current_selected, set_current_selected] = useState(current_data_source?.id || '')
+    // 当前 check 的 datasource
+    const [checked_keys, set_checked_keys] = useState<string[]>(widget.source_id)
     
+    const [menu_items, set_menu_items] = useState<MenuItemType[]>()
     
     useEffect(() => { 
         set_menu_items(data_sources.map(item => generate_tree_item(item, widget)))
     }, [widget])
+    
+    useEffect(() => { on_select(checked_keys) }, [checked_keys])
     
     const checkable = useMemo(() => widget
         ? [WidgetChartType.COMPOSITE_GRAPH, WidgetChartType.TIME_SERIES].includes(widget.type)
@@ -133,8 +140,8 @@ export function DataSourceList ({
                 if (await paste_data_source(event)) { 
                     set_menu_items(data_sources.map(item => generate_tree_item(item, widget)))
                     const id = data_sources[0].id
-                    set_current_select(id)
-                    on_select(id)
+                    set_current_selected(id)
+                    change_current_data_source(id)
                 }
             } catch (error) {
                 dashboard.message.error(error.message)
@@ -146,7 +153,7 @@ export function DataSourceList ({
     }, [widget])
     
     useEffect(() => {
-        set_current_select(current_data_source?.id)
+        set_current_selected(current_data_source?.id)
         tree_ref.current?.scrollTo({ key: current_data_source.id })
     }, [ current_data_source ])
     
@@ -178,9 +185,9 @@ export function DataSourceList ({
             generate_tree_item(new_data_source, widget),
             ...menu_items
         ])
-        set_current_select(new_data_source.id)
-        on_select(new_data_source.id)
-    }, [ menu_items, widget ])
+        set_current_selected(new_data_source.id)
+        change_current_data_source(new_data_source.id)
+    }, [menu_items, widget])
     
     return <>
             <div className='config-data-source-list'>
@@ -205,7 +212,7 @@ export function DataSourceList ({
                             if (loading)
                                 return
                             if (current_data_source)
-                                rename_data_source_handler(menu_items, current_select, current_data_source.name)
+                                rename_data_source_handler(menu_items, current_selected, current_data_source.name)
                         }}
                     >
                         <EditOutlined className='data-source-list-top-item-icon' />
@@ -221,11 +228,11 @@ export function DataSourceList ({
                                 menu_items.splice(delete_index, 1)
                                 set_menu_items([...menu_items])
                                 if (!data_sources.length)
-                                    on_select(null)
+                                    change_current_data_source(null)
                                 else {
                                     const index = delete_index === 0 ? 0 : delete_index - 1
-                                    on_select(data_sources[index].id)
-                                    set_current_select(data_sources[index].id)
+                                    change_current_data_source(data_sources[index].id)
+                                    set_current_selected(data_sources[index].id)
                                 }
                             }
                         }}
@@ -252,29 +259,25 @@ export function DataSourceList ({
                     {data_sources.length && 
                         <Tree
                             checkable={checkable}
-                            defaultCheckedKeys={widget?.source_id ?? [ ]}
+                            checkedKeys={checked_keys}
                             ref={tree_ref}
                             showIcon
                             height={450}
                             blockNode
-                            selectedKeys={[current_select]}
+                            selectedKeys={[current_selected]}
                             className='data-source-list-bottom-menu'
-                            onCheck={keys => {
-                                if (Array.isArray(keys))
-                                    on_select(keys.map(key => String(key))) 
-                                else
-                                    on_select([ ])
-                            }}
+                            onCheck={keys => { set_checked_keys(keys as string[]) }}
                             onSelect={async key => {
+                                // 点击树节点触发
                                 if (loading)
                                     return
-                                if (key.length) {
+                                const [selected_key] = key ?? [ ] 
+                                if (selected_key) {
                                     if (no_save_flag.current && (await save_confirm()))
                                         await handle_save()
                                     no_save_flag.current = false
-                                    on_select(String(key[0]))
-                                    set_current_select(String(key[0]))
-                                    !checkable && on_select([String(key[0])])
+                                    set_current_selected(String(selected_key))
+                                    change_current_data_source(String(selected_key))
                                 }
                             }}
                             treeData={menu_items}

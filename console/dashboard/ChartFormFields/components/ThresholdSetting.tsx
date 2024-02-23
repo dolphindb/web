@@ -94,3 +94,8 @@ export function ThresholdSetting () {
         </Form.List>
     </>
 }
+
+
+export function ThresholdSettingList () { 
+    
+}
