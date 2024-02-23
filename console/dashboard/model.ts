@@ -431,14 +431,19 @@ export class DashBoardModel extends Model<DashBoardModel> {
     /** 从服务器获取 dashboard 配置 */
     async get_dashboard_configs () {
         const data = (await model.ddb.call<DdbVoid>('dashboard_get_config_list', [ ])).to_rows()
-        const configs =  data.map(cfg => {
+        
+        const configs = data.map(cfg => {
             // 有些只需要 parse 一次，有些需要 parse 两次
             let data = typeof cfg.data === 'string' ?  JSON.parse(cfg.data) : new TextDecoder().decode(cfg.data)
             data = typeof data === 'string' ? JSON.parse(data) : data
             return { 
                 ...cfg, 
                 id: Number(cfg.id), 
-                data
+                data: {
+                    ...data,
+                    // 历史数据的数据源类型统一修改为表格类型
+                    datasources: data.datasources.map(item => ({ type: DdbForm.table, ...item }))
+                }
             } as DashBoardConfig
         } ) 
         this.set({ configs })
@@ -557,8 +562,8 @@ export enum WidgetType {
     VARIABLE = '变量',
     SCATTER = '散点图',
     COMPOSITE_GRAPH = '复合图',
-    TIME_SERIES = '时序图'
-    // HEATMAP = '热力图'
+    TIME_SERIES = '时序图',
+    HEATMAP = '热力图'
 }
 
 export enum WidgetChartType { 

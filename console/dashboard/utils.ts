@@ -1,5 +1,5 @@
 import { type NamePath } from 'antd/es/form/interface'
-import { type DdbObj, DdbForm, DdbType, nulls, type DdbValue, format, type InspectOptions } from 'dolphindb/browser.js'
+import { type DdbObj, DdbForm, DdbType, nulls, type DdbValue, format, type InspectOptions, type DdbMatrixValue } from 'dolphindb/browser.js'
 import { is_decimal_null_value } from 'dolphindb/shared/utils/decimal-type.js'
 import { isNil, pickBy, uniq } from 'lodash'
 import { createRef } from 'react'
@@ -15,6 +15,9 @@ import { find_variable_by_name, get_variable_copy_infos, get_variable_value, pas
 import { t } from '../../i18n/index.js'
 import { type DdbTable } from 'dolphindb'
 import type { EChartsInstance } from 'echarts-for-react'
+import { formati, type DdbMatrixObj } from 'dolphindb'
+import { seq } from 'xshell'
+import NumCalculator from 'antd/es/theme/util/calc/NumCalculator.js'
 
 
 export function format_time (time: string, format: string) {
@@ -71,8 +74,34 @@ function formatter (type: DdbType, values, le: boolean, index: number, options =
     }
 }
 
-export function sql_formatter (obj: DdbObj<DdbValue>, max_line: number): Array<{}> {
+export function sql_formatter (obj: DdbObj<DdbValue>, max_line: number): any {
     switch (obj.form) {
+        case DdbForm.matrix:
+            // 行数、列数
+            const { cols: col_num, rows: row_num, value } = obj
+            // 行标签、列标签与数据
+            const { cols: col_label, rows: row_babel, data } = value as DdbMatrixValue
+            let matrix_data = [ ]
+            for (let i = 0;  i < row_num;  i++) { 
+                let row_data = [ ]
+                for (let j = 0;  j < col_num;  j++)
+                    row_data.push(data[i + row_num * j])
+                matrix_data.push(row_data)
+            }
+            
+            function convert_labels (num: number, obj) {
+                if (!obj)
+                    return null
+                let labels = [ ]
+                for (let i = 0;  i < num;  i++)  
+                    labels.push(formati(obj, i))
+                return labels        
+            }
+            return {
+                data: matrix_data,
+                col_labels: convert_labels(col_num, col_label) ?? Array.from(new Array(col_num).keys()),
+                row_labels: convert_labels(row_num, row_babel) ?? Array.from(new Array(row_num).keys())
+            }
         case DdbForm.table:
             const array_vectors = { }
             let rows = new Array()
@@ -159,6 +188,8 @@ export function stream_formatter (obj: DdbObj<DdbValue>, max_line: number, cols:
 }
 
 export function get_cols (obj: DdbObj<DdbValue>): Array<string> {
+    if (obj.form !== DdbForm.table)
+        return [ ]
     const cols = [ ]
     for (let i = 0;  i < obj.cols;  i++) 
         cols.push(obj.value[i].name)
@@ -625,4 +656,12 @@ export async function get_streaming_col_type_map (table_name: string): Promise<R
         col_types_map[cols[i]] = ddb_types[i]
         
     return col_types_map
+}
+export function get_chart_data_type (chart_type: WidgetChartType) {
+    switch (chart_type) { 
+        case WidgetChartType.HEATMAP:
+            return DdbForm.matrix
+        default: 
+            return DdbForm.table
+    }
 }

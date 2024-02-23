@@ -246,6 +246,12 @@ export interface IGaugeConfig {
 }
 
 
+export interface MatrixData {
+    data: number[][]
+    row_labels: string[]
+    col_labels: string[]
+}
+
 export enum VariableMode { 
     SELECT = 'select',
     MULTI_SELECT = 'multi_select',

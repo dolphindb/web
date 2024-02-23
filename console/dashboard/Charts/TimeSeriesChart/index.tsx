@@ -118,7 +118,7 @@ export function TimeSeriesChart (props: ITimeSeriesChart) {
     }, [update, widget.source_id])
     
     useEffect(() => { 
-        for (let id of widget.source_id) { 
+        for (let id of widget.source_id) {
             const { cols, type_map } = get_data_source(id)
             // 第一个时间类型的列作为时间列，其余作为数据列
             const time_col = cols.find(col => TIME_TYPES.includes(type_map[col]))

@@ -37,6 +37,10 @@ export const DATE_SELECT_FORMAT = {
 export function AxisItem ({ name_path, col_names = [ ], list_name, initial_values, hidden_fields }: IAxisItem) { 
     const { widget } = dashboard.use(['widget'])
     
+    const is_heat_map = useMemo(
+        () => widget.type === WidgetChartType.HEATMAP
+    , [widget.type])
+    
     return <>
         <Form.Item
             label={t('类型')}
@@ -53,7 +57,7 @@ export function AxisItem ({ name_path, col_names = [ ], list_name, initial_value
                 {t('对数轴，适用于对数数据')}
             </>}
         >
-            <Select options={axis_type_options} />
+            <Select disabled={is_heat_map} options={axis_type_options} />
         </Form.Item>
         <Form.Item
             label={t('名称')}

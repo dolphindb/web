@@ -25,6 +25,7 @@ import {
 import { parse_code } from '../utils.js'
 import { model } from '../../model.js'
 import { t } from '../../../i18n/index.js'
+import { DdbForm } from 'dolphindb'
 
 const save_confirm_config = {
     cancelText: t('不保存'),
@@ -48,8 +49,8 @@ export function DataSourceConfig (props: IProps, ref) {
     const [show_preview, set_show_preview] = useState(false) 
     // 当前选择应用的数据源
     const [selected_data_sources, set_selected_data_sources] = useState<string[]>([ ])
-    // 当前点击查看的数据源，对于非复合图与时序图而言，当前查看的数据源即当前选中要应用的数据源
-    const [current_data_source, set_current_data_source] = useState(null)
+    // 当前点击查看的数据源
+    const [current_data_source, set_current_data_source] = useState<DataSource>(null)
     const [loading, set_loading] = useState('')
     
     const no_save_flag = useRef(false)
@@ -109,6 +110,8 @@ export function DataSourceConfig (props: IProps, ref) {
         set_show_preview(false)
     }, [no_save_flag.current, handle_save, loading])
     
+    
+    
     return <>
         <Button
             icon={<DatabaseOutlined className='data-source-config-trigger-navigation-icon' />}
@@ -167,9 +170,20 @@ export function DataSourceConfig (props: IProps, ref) {
                                 set_loading('save')
                                 await handle_save()
                                 if (widget) {
-                                    if (!selected_data_sources.length) {
-                                        dashboard.message.warning(t('请选择数据源'))
-                                        return
+                                    if (widget.type === WidgetChartType.COMPOSITE_GRAPH) {
+                                        if (!selected_data_sources.length) {
+                                            dashboard.message.warning(t('请选择数据源'))
+                                            return
+                                        }
+                                        for (let id of selected_data_sources)  
+                                            await subscribe_data_source(widget, id)
+                                        
+                                            
+                                        dashboard.update_widget({ ...widget, source_id: selected_data_sources })
+                                    }
+                                    else { 
+                                        await subscribe_data_source(widget, current_data_source.id)
+                                        dashboard.update_widget({ ...widget, source_id: [current_data_source.id] })
                                     }
                                     for (let id of selected_data_sources) 
                                         await subscribe_data_source(widget, id)
@@ -222,11 +236,11 @@ export function DataSourceConfig (props: IProps, ref) {
                                         key: 'sql',
                                         disabled: loading !== ''
                                     },
-                                    {
+                                    ...(current_data_source.type === DdbForm.matrix ? [ ] : [{
                                         label: t('流数据表'),
                                         key: 'stream',
                                         disabled: loading !== ''
-                                    }
+                                    }])
                                 ]} 
                             />
                         </div>

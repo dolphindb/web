@@ -24,7 +24,7 @@ const icons = {
     [WidgetType.RADAR]: <RadarChartOutlined className='icon' />,
     [WidgetType.VARIABLE]: <FunctionOutlined className='icon'/>,
     [WidgetType.SCATTER]: <DotChartOutlined className='icon' />,
-    // [WidgetType.HEATMAP]: <WindowsOutlined className='icon' />,
+    [WidgetType.HEATMAP]: <WindowsOutlined className='icon' />,
     [WidgetType.COMPOSITE_GRAPH]: <GoldOutlined className='icon' />,
     [WidgetType.TIME_SERIES]: <Icon component={timeSeriesSvg} className='icon'/>
 }

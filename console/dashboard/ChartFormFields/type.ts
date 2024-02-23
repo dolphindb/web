@@ -27,6 +27,7 @@ export interface IAxisItem {
     list_name?: string
     /** 需要隐藏的表单项 */
     hidden_fields?: string[]
+    need_col_name?: boolean
     /** 初始值 */
     initial_values?: {
         type?: AxisType

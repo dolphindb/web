@@ -75,8 +75,6 @@ export function Pie ({ widget, data_source }: { widget: Widget, data_source: any
         [title, animation, series, title_size, data_source, legend, tooltip]
     )
     
-    console.log(option, 'options')
-    
     // 编辑模式下 notMerge 为 true ，因为要修改配置，预览模式下 notMerge 为 false ，避免数据更新，导致选中的 label失效
     return <ReactEChartsCore notMerge={dashboard.editing} echarts={echarts} option={option} lazyUpdate theme='ohlc_theme' />
 }

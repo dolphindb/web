@@ -1,6 +1,6 @@
 import { Model } from 'react-object-model'
 import { genid } from 'xshell/utils.browser.js'
-import { DDB, type DdbType, type DdbObj, type DdbValue } from 'dolphindb/browser.js'
+import { DDB, type DdbType, type DdbObj, type DdbValue, DdbForm } from 'dolphindb/browser.js'
 import { cloneDeep } from 'lodash'
 import copy from 'copy-to-clipboard'
 
@@ -19,6 +19,7 @@ export type DataSourcePropertyType = string | number | boolean | string[] | Data
 export type ExportDataSource = {
     id: string
     name: string
+    type: DdbForm
     mode: string
     max_line: number
     data: DataType 
@@ -51,6 +52,7 @@ export type ExportDataSource = {
 export class DataSource extends Model<DataSource>  {
     id: string
     name: string
+    type: DdbForm
     mode: 'sql' | 'stream' = 'sql'
     max_line: number = null
     data: DataType = [ ]
@@ -80,10 +82,12 @@ export class DataSource extends Model<DataSource>  {
     /** stream 模式专用 */
     ip = ''
     
-    constructor (id: string, name: string) {
+    
+    constructor (id: string, name: string, type: DdbForm) {
         super()
         this.id = id
         this.name = name
+        this.type = type
     }
 }
 
@@ -93,7 +97,7 @@ export function find_data_source_index (source_id: string): number {
 } 
 
 export function get_data_source (source_id: string): DataSource {
-    return data_sources[find_data_source_index(source_id)] || new DataSource('', '')
+    return data_sources[find_data_source_index(source_id)] || new DataSource('', '', DdbForm.table)
 }
 
 export async function save_data_source ( new_data_source: DataSource, code?: string, filter_column?: string, filter_expression?: string ) {
@@ -121,16 +125,21 @@ export async function save_data_source ( new_data_source: DataSource, code?: str
                 
                 const parsed_code = parse_code(new_data_source.code, new_data_source)
                 const { type, result } = await dashboard.execute_code(parsed_code, new_data_source.ddb)
-                
+                console.log(new_data_source, 'new_data_source')
                 switch (type) {
                     case 'success':
                         if (typeof result === 'object' && result) {
                             // 暂时只支持table matrix
+                            if (result.form !== new_data_source.type) { 
+                                dashboard.message.error(t('sql 执行得到的数据类型与数据源类型不符，请修改'))
+                                return
+                            }
+                            // 暂时只支持table、matrix
                             new_data_source.data = sql_formatter(result, new_data_source.max_line)
                             new_data_source.cols = get_cols(result)
                             new_data_source.type_map = get_sql_col_type_map(result as unknown as DdbTable)
                         }
-                        if (code === undefined)
+                        if (code === undefined)  
                             dashboard.message.success(`${data_source.name} ${t('保存成功')}`)
                         break  
                     case 'error':
@@ -201,11 +210,11 @@ function check_name (source_id: string, new_name: string) {
 }
 
 
-export function create_data_source  (new_name: string):  string  {
+export function create_data_source  (new_name: string, type: DdbForm):  DataSource  {
     const id = String(genid())
-    check_name(id, new_name)
-    data_sources.unshift(new DataSource(id, new_name))
-    return id
+    const new_data_source = new DataSource(id, new_name, type)
+    data_sources.unshift(new_data_source)
+    return new_data_source
 }
 
 
@@ -272,7 +281,6 @@ export async function execute (source_id: string) {
         case 'sql':
             try {
                 const { type, result } = await dashboard.execute_code(parse_code(data_source.code, data_source), data_source.ddb || model.ddb)
-                // console.log(type, data_source.name)
                 switch (type) {
                     case 'success':
                         // 暂时只支持table
@@ -289,7 +297,6 @@ export async function execute (source_id: string) {
                                 cols: [ ],
                                 error_message: ''
                             })
-                            
                         if (data_source.deps.size && !data_source.timer && data_source.auto_refresh) 
                             create_interval(data_source)
                         
@@ -297,7 +304,8 @@ export async function execute (source_id: string) {
                     case 'error':
                         throw new Error(result as string) 
                 }
-            } catch (error) {
+            }
+            catch (error) {
                 // 切换 dashboard 会关闭轮询的连接，若该连接中仍有排队的任务，此处会抛出“连接被关闭”的错误，此处手动过滤
                 if (!data_source.auto_refresh || data_source.ddb)
                     dashboard.message.error(`${error.message} ${data_source.name}`)
@@ -307,7 +315,8 @@ export async function execute (source_id: string) {
                     error_message: error.message
                 })
                 clear_data_source(data_source)
-            } finally {
+            }
+            finally {
                 break
             }
         case 'stream':
@@ -467,7 +476,7 @@ export async function import_data_sources (_data_sources: ExportDataSource[]) {
     data_sources = [ ]
     
     await Promise.all(_data_sources.map(async data_source => new Promise(async (resolve, reject) => {
-        const import_data_source = new DataSource(data_source.id, data_source.name)
+        const import_data_source = new DataSource(data_source.id, data_source.name, data_source.type)
         Object.assign(import_data_source, data_source, { deps: new Set(data_source.deps), variables: import_data_source.variables })
         data_sources.push(import_data_source)
         await save_data_source(import_data_source, import_data_source.code, import_data_source.filter_column, import_data_source.filter_expression)
@@ -543,7 +552,7 @@ export async function paste_data_source (event): Promise<boolean> {
     
     await paste_variables(event)
         
-    const import_data_source = new DataSource(_data_source.id, _data_source.name)
+    const import_data_source = new DataSource(_data_source.id, _data_source.name, _data_source.type)
     Object.assign(import_data_source, _data_source, { deps: import_data_source.deps, variables: import_data_source.variables })
     data_sources.unshift(import_data_source)
     await save_data_source(import_data_source, import_data_source.code, import_data_source.filter_column, import_data_source.filter_expression)
