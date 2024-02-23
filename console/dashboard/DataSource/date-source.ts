@@ -134,7 +134,6 @@ export async function save_data_source ( new_data_source: DataSource, code?: str
                                 dashboard.message.error(t('sql 执行得到的数据类型与数据源类型不符，请修改'))
                                 return
                             }
-                            // 暂时只支持table、matrix
                             new_data_source.data = sql_formatter(result, new_data_source.max_line)
                             new_data_source.cols = get_cols(result)
                             new_data_source.type_map = get_sql_col_type_map(result as unknown as DdbTable)
@@ -212,6 +211,7 @@ function check_name (source_id: string, new_name: string) {
 
 export function create_data_source  (new_name: string, type: DdbForm):  DataSource  {
     const id = String(genid())
+    check_name(id, new_name)
     const new_data_source = new DataSource(id, new_name, type)
     data_sources.unshift(new_data_source)
     return new_data_source
