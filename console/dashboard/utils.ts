@@ -412,7 +412,7 @@ export function convert_chart_config (
             // 获取 Y 轴最大值
             if (echart_instance) {
                 const [min, max] = get_y_axis_range(echart_instance, threshold.related_y_axis)
-                thresholds = thresholds.map(item => ({ ...item, value: (max - min) * item.value / 100 }))
+                thresholds = thresholds.map(item => ({ ...item, value: (max - min) * item.value / 100 + min }))
             }
             
         let mark_area_data = [ ]
