@@ -1,6 +1,6 @@
 import './index.scss'
 
-import { Collapse, Form, Input, InputNumber, Select } from 'antd'
+import { Col, Collapse, Form, Input, InputNumber, Row, Select, Space } from 'antd'
 
 import { t } from '../../../i18n/index.js'
 import { BoolRadioGroup } from '../../components/BoolRadioGroup/index.js'
@@ -28,26 +28,57 @@ export function BasicTableFields ({ col_names }: { col_names: string[] }) {
                             <Form.Item label={t('是否展示')} name={[field.name, 'show']} initialValue>
                                 <BoolRadioGroup />
                             </Form.Item>
-                            <Form.Item label={t('展示列名')} name={[field.name, 'display_name']}>
+                            <Form.Item label={t('展示名称')} name={[field.name, 'display_name']}>
                                 <Input />
                             </Form.Item>
                             <Form.Item label={t('列宽')} name={[field.name, 'width']}>
                                 <InputNumber addonAfter='px'/>
                             </Form.Item>
+                            
+                             
+                            <Form.Item label={t('列样式')} tooltip={t('从左到右依次为字号、文字色与背景色')}>
+                                <Row gutter={4}>
+                                    <Col span={12}>
+                                        <Form.Item name={[field.name, 'font_size']} initialValue={14}>
+                                            <InputNumber min={1}/>
+                                        </Form.Item>
+                                    </Col>
+                                    <Col span={6}>
+                                        <Form.Item name={[field.name, 'color']}>
+                                            <StringColorPicker />
+                                        </Form.Item>
+                                    </Col>
+                                    <Col span={6}>
+                                        <Form.Item name={[field.name, 'background_color']}>
+                                            <StringColorPicker />
+                                        </Form.Item>
+                                    </Col>
+                                </Row>
+                            </Form.Item>
+                            
+                            
+                            <Form.Item label={t('表头样式')} tooltip={t('从左到右依次为字号、文字色与背景色') }>
+                                <Row gutter={4}>
+                                    <Col span={12}>
+                                        <Form.Item name={[field.name, 'header_style', 'fontSize'] }>
+                                            <InputNumber min={1}/>
+                                        </Form.Item>
+                                    </Col>
+                                    <Col span={6}>
+                                        <Form.Item name={[field.name, 'header_style', 'color'] }>
+                                            <StringColorPicker />
+                                        </Form.Item>
+                                    </Col>
+                                    <Col span={6}>
+                                        <Form.Item name={[field.name, 'header_style', 'backgroundColor'] }>
+                                            <StringColorPicker />
+                                        </Form.Item>
+                                    </Col>
+                                </Row>
+                            </Form.Item>
+             
                             <Form.Item label={t('阈值')} tooltip={t('数值列可设置阈值，设置之后后超过阈值的数值展示为红色，低于阈值则展示为绿色，非数值列不生效')} name={[field.name, 'threshold']}>
                                 <InputNumber />
-                            </Form.Item>
-                            
-                            <Form.Item label={t('字号')} name={[field.name, 'font_size']} initialValue={14}>
-                                <InputNumber min={1} addonAfter='px'/>
-                            </Form.Item>
-                            
-                            <Form.Item label={t('字体颜色')} name={[field.name, 'color']}>
-                                <StringColorPicker />
-                            </Form.Item>
-                            
-                            <Form.Item label={t('背景颜色')} name={[field.name, 'background_color']}>
-                                <StringColorPicker />
                             </Form.Item>
                             
                             <Form.Item label={t('时间格式化')} name={[field.name, 'time_format']}>
@@ -68,6 +99,7 @@ export function BasicTableFields ({ col_names }: { col_names: string[] }) {
                             <Form.Item tooltip={t('仅数值类型可支持排序')} label={t('是否排序')} name={[field.name, 'sorter']} initialValue={false}>
                                 <BoolRadioGroup />
                             </Form.Item>
+                           
                             
                         </div>,
                         forceRender: true

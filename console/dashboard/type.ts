@@ -156,6 +156,8 @@ export interface IColProperty {
     align?: 'left' | 'center' | 'right'
     sorter?: boolean
     // multiple?: number
+    
+    header_style?: any
 }
 export interface ITableConfig {
     title?: string
