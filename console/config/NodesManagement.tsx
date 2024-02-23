@@ -75,17 +75,18 @@ export function NodesManagement () {
             valueType: 'select',
             valueEnum: {
                 data: {
-                    text: 'data',
+                    text: 'datanode',
                 },
-                agent: {
-                    text: 'agent',
+                computing: {
+                    text: 'computenode',
                 },
                 controller: {
                     text: 'controller',
                 },
-                computing: {
-                    text: 'computing',
+                agent: {
+                    text: 'agent',
                 },
+                
             },
             fieldProps: {
                 placeholder: t('请选择 mode'),
