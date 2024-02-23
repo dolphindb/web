@@ -21,6 +21,8 @@ export interface AxisConfig {
     range?: string[]
     max?: any
     min?: any
+    
+    interval?: number
 }
 
 

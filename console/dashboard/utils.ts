@@ -284,6 +284,7 @@ export function convert_chart_config (
             show: true,
             name: axis.name,
             type: axis.type,
+            interval: axis.interval,
             splitLine: {
                 show: true,
                 lineStyle: { 

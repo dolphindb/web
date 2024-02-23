@@ -95,6 +95,9 @@ export function AxisItem ({ name_path, col_names = [ ], list_name, initial_value
                             >
                                 <BoolRadioGroup />
                             </Form.Item>
+                            <Form.Item name={concat_name_path(name_path, 'interval')} label={t('刻度间隔')} hidden={hidden_fields?.includes('interval')}>
+                                <InputNumber min={1} />
+                            </Form.Item>
                             <Form.Item name={concat_name_path(name_path, 'min')} label={t('最小值')} hidden={hidden_fields?.includes('min')}>
                                 <InputNumber />
                             </Form.Item>
@@ -263,36 +266,6 @@ export function YAxis (props: IYAxisProps ) {
                             <Form.Item tooltip={t('Y 轴相对于左右默认位置的偏移')} name={[field.name, 'offset']} label={t('偏移量')} initialValue={0}>
                                 <InputNumber />
                             </Form.Item>
-                            {/* <Form.Item name={concat_name_path(field.name, 'with_threshold')} label={t('阈值设置')}>
-                                <BoolRadioGroup />
-                            </Form.Item> */}
-                            {/* <FormDependencies dependencies={[concat_name_path('yAxis', field.name, 'with_threshold')]}>
-                                {value => { 
-                                    const show = get(value, concat_name_path('yAxis', field.name, 'with_threshold'))
-                                    return show
-                                        ? <>
-                                            <Form.Item
-                                                label={t('阈值类型')}
-                                                name={concat_name_path(field.name, 'threshold', 'type')}
-                                                initialValue={ThresholdType.ABSOLUTE}
-                                            >
-                                                <Select options={[{ label: t('绝对值'), value: ThresholdType.ABSOLUTE }, { label: t('百分比'), value: ThresholdType.PERCENTAGE }] } />
-                                            </Form.Item>
-                                            <Form.List initialValue={[{ }]} name={concat_name_path(field.name, 'threshold', 'values')}>
-                                                {(fields, { remove, add }) => fields.map(field => { 
-                                                    return <Space>
-                                                        <Form.Item name='value' >
-                                                            <InputNumber />
-                                                        </Form.Item>
-                                                        <PlusCircleOutlined onClick={() => { add() }}/>
-                                                        <MinusCircleOutlined onClick={() => { remove(field.name) }} />
-                                                    </Space>
-                                                })}
-                                            </Form.List>
-                                        </>
-                                        : null
-                                } }
-                            </FormDependencies> */}
                         </div>
                     </Space>
                 </div>

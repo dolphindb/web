@@ -90,10 +90,6 @@ export function BasicFormFields (props: { type?: 'chart' | 'table' | 'descriptio
                 <Form.Item name='is_reverse' label={t('倒序展示')} tooltip={t('流数据开启此功能可将最新的数据插入到表格头部')} initialValue={false}>
                     <BoolRadioGroup />
                 </Form.Item>
-                
-                {/* <Form.Item tooltip={t('启用此选项之后，会在表格内层滚动')} name='abandon_scroll' label={t('禁止滚动')} initialValue={false} >
-                    <BoolRadioGroup />
-                </Form.Item> */}
             </>}
         </div>
     }, [type])

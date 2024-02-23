@@ -28,8 +28,6 @@ export function HeatMap (props: IProps) {
     const node = get_data_source(widget.source_id[0])
     const { data } = node.use(['data'])
     
-    console.log(data, 'data')
-    
     const options = useMemo(() => { 
         const default_options = convert_chart_config({ ...widget, config: { ...widget.config, series: [ ] } }, [ ])
         const { series } = config
