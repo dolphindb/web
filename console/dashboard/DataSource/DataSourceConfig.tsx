@@ -170,24 +170,19 @@ export function DataSourceConfig (props: IProps, ref) {
                                 set_loading('save')
                                 await handle_save()
                                 if (widget) {
-                                    if (widget.type === WidgetChartType.COMPOSITE_GRAPH) {
+                                    if (is_multi_data_source) {
                                         if (!selected_data_sources.length) {
                                             dashboard.message.warning(t('请选择数据源'))
                                             return
                                         }
                                         for (let id of selected_data_sources)  
                                             await subscribe_data_source(widget, id)
-                                        
-                                            
                                         dashboard.update_widget({ ...widget, source_id: selected_data_sources })
                                     }
                                     else { 
                                         await subscribe_data_source(widget, current_data_source.id)
                                         dashboard.update_widget({ ...widget, source_id: [current_data_source.id] })
                                     }
-                                    for (let id of selected_data_sources) 
-                                        await subscribe_data_source(widget, id)
-                                    dashboard.update_widget({ ...widget, source_id: selected_data_sources })
                                     close()
                                     set_show_preview(false)
                                 } 
