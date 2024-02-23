@@ -1801,6 +1801,7 @@ function Chart ({
                             }
                         }}
                         stack={stacking}
+                        isStack={stacking}
                         padding='auto'
                         animation={false}
                     />

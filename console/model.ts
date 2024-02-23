@@ -38,7 +38,7 @@ const username_guest = 'guest' as const
 export type PageViews = 'overview' | 'overview-old' | 'shell' | 'dashboard' | 'table' | 'job' | 'login' | 'dfs' | 'log' | 'factor' | 'test' | 'computing' | 'tools' | 'iot-guide' | 'finance-guide' | 'access' | 'user' | 'group' | 'config'
 
 
-class DdbModel extends Model<DdbModel> {
+export class DdbModel extends Model<DdbModel> {
     inited = false
     
     /** 在本地开发模式 */
