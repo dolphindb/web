@@ -74,10 +74,10 @@ export function NodesManagement () {
             key: 'mode',
             valueType: 'select',
             valueEnum: {
-                data: {
+                datanode: {
                     text: 'datanode',
                 },
-                computing: {
+                computenode: {
                     text: 'computenode',
                 },
                 controller: {
@@ -142,7 +142,6 @@ export function NodesManagement () {
         )
     , [nodes])
    
-    console.log(model.nodes)
     
     return <EditableProTable
                 rowKey='id'
@@ -165,7 +164,6 @@ export function NodesManagement () {
                     let value = [ ]
                     await model.execute(async () => {
                         value = (await config.get_cluster_nodes()).value as any[]
-                        console.log('request nodes', value)
                     })
                     const nodes = strs_2_nodes(value)
                     set_nodes(nodes)
