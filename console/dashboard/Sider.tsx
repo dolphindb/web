@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { BarChartOutlined, BarsOutlined, BoxPlotOutlined, DoubleLeftOutlined, DoubleRightOutlined, FileTextOutlined, FundOutlined, HeatMapOutlined, LineChartOutlined, PieChartOutlined, TableOutlined, CodeOutlined, CompassOutlined, FunctionOutlined, DotChartOutlined,  RadarChartOutlined, WindowsOutlined } from '@ant-design/icons'
+import { BarChartOutlined, BarsOutlined, BoxPlotOutlined, DoubleLeftOutlined, DoubleRightOutlined, FileTextOutlined, FundOutlined, HeatMapOutlined, LineChartOutlined, PieChartOutlined, TableOutlined, CodeOutlined, CompassOutlined, FunctionOutlined, DotChartOutlined,  RadarChartOutlined, WindowsOutlined, GoldOutlined } from '@ant-design/icons'
 
 import { WidgetType } from './model.js'
 import { t } from '../../i18n/index.js'
@@ -21,7 +21,8 @@ const icons = {
     [WidgetType.RADAR]: <RadarChartOutlined className='icon' />,
     [WidgetType.VARIABLE]: <FunctionOutlined className='icon'/>,
     [WidgetType.SCATTER]: <DotChartOutlined className='icon' />,
-    [WidgetType.HEATMAP]: <WindowsOutlined className='icon'/>
+    [WidgetType.HEATMAP]: <WindowsOutlined className='icon' />,
+    [WidgetType.COMPOSITE_GRAPH]: <GoldOutlined className='icon'/>
 }
 
 

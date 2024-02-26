@@ -13,7 +13,6 @@ import { PageHeader } from '@ant-design/pro-layout'
 import { Terminal } from 'xterm'
 import { FitAddon } from 'xterm-addon-fit'
 import { WebglAddon } from 'xterm-addon-webgl'
-// import { WebLinksAddon } from 'xterm-addon-web-links'
 
 import debounce from 'lodash/debounce.js'
 
@@ -69,15 +68,12 @@ export function Shell () {
         })
         
         const fit_addon = new FitAddon()
-        // const weblinks_addon = new WebLinksAddon()
         
         let ws: WebSocket
         
         term.loadAddon(fit_addon)
-        // term.loadAddon(weblinks_addon)
         
         term.onData(input => {
-            // console.log('input:', input)
             ws.send(JSON.stringify({ type: 'input', input }))
         })
         

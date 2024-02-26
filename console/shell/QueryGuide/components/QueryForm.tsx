@@ -2,7 +2,7 @@ import { Button, Card, Form, type FormInstance, Input, InputNumber, Select, Spin
 import useSWR from 'swr'
 import { shell } from '../../model.js'
 import { NodeType, model } from '../../../model.js'
-import { DdbFunctionType } from 'dolphindb'
+import { DdbFunctionType } from 'dolphindb/browser.js'
 import { get, isNumber } from 'lodash'
 import { useEffect, useId, useState } from 'react'
 import { ColSelectTransfer } from './ColSelectTransfer.js'

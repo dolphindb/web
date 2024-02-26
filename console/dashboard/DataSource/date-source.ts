@@ -139,7 +139,7 @@ export async function save_data_source ( new_data_source: DataSource, code?: str
                     dashboard.message.error(error.message)
             } finally {
                 data_source.set({ ...new_data_source })
-                if ((data_source.error_message || !deps.size || !data_source.variables.size) && data_source.ddb) {
+                if ((data_source.error_message || !deps.size) && data_source.ddb) {
                     data_source.ddb.disconnect()
                     data_source.ddb = null 
                 }
@@ -210,8 +210,9 @@ export function rename_data_source (source_id: string, new_name: string) {
 
 export async function subscribe_data_source (widget_option: Widget, source_id: string, message = true) {
     const data_source = get_data_source(source_id)
+    console.log(data_source, widget_option, 'source_id')
     
-    if (widget_option.source_id && widget_option.source_id !== source_id)
+    if (widget_option.source_id && !widget_option.source_id.includes(source_id))
         unsubscribe_data_source(widget_option)  
         
     data_source.deps.add(widget_option.id)
@@ -222,9 +223,8 @@ export async function subscribe_data_source (widget_option: Widget, source_id: s
     } else
         switch (data_source.mode) {
             case 'sql':
-                // 有变量需要单独建一个连接，这样在变量更新时可以并发查询
-                if (!data_source.ddb && data_source.variables.size)
-                    await create_sql_connection()
+                data_source.ddb ??= await create_sql_connection()
+                
                 if (data_source.auto_refresh && !data_source.timer)
                     create_interval(data_source)
                 break
@@ -238,14 +238,16 @@ export async function subscribe_data_source (widget_option: Widget, source_id: s
 
 export function unsubscribe_data_source (widget_option: Widget) {
     const source_id = widget_option.source_id
-    const data_source = get_data_source(source_id)
+    source_id.forEach(id => { 
+        const data_source = get_data_source(id)
     
-    if (data_source.id === '')
-        return
-    
-    data_source.deps.delete(widget_option.id)
-    if (!data_source.deps.size) 
-        clear_data_source(data_source)  
+        if (data_source.id === '')
+            return
+        
+        data_source.deps.delete(widget_option.id)
+        if (!data_source.deps.size) 
+            clear_data_source(data_source)  
+    })
 }
 
 

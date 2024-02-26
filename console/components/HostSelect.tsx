@@ -16,7 +16,7 @@ export function HostSelect () {
             },
             {
                 label: '单机',
-                value: '115.239.209.123:8892'
+                value: '183.134.101.134:8892'
             },
             {
                 label: '数据面板.开发',

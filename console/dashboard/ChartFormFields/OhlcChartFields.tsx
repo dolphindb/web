@@ -10,7 +10,7 @@ import { useMemo } from 'react'
 import { StringColorPicker } from '../../components/StringColorPicker/index.js'
 import { chart_type_options, format_time_options, line_type_options, mark_line_options, mark_point_options } from './constant.js'
 import { DeleteOutlined, PlusCircleOutlined } from '@ant-design/icons'
-import { WidgetChartType } from '../model.js'
+import { WidgetChartType, dashboard } from '../model.js'
 import { PaddingSetting, VariableSetting } from './BasicFormFields.js'
 import { DATE_SELECT_FORMAT } from './BasicChartFields.js'
 
@@ -208,10 +208,12 @@ function YAxis ({ col_names, initial_values }: { col_names: string[], initial_va
 
 function Series (props: { col_names: string[] }) { 
     const { col_names } = props
+    const { widget } = dashboard.use(['widget'])
     
     const series = useMemo(() => [{ name: '', key: 0, selected_cols: [ 'open', 'close', 'lowest', 'highest'] }, 
                                   { name: '', key: 1 }], [ ])
     
+    const form = Form.useFormInstance()
     return <Form.List name='series' initialValue={series}>
              {(fields, { add, remove }) => { 
             const items = fields.map((field, index) => { 
@@ -235,9 +237,16 @@ function Series (props: { col_names: string[] }) {
                                     : 
                                         <>
                                             <Form.Item name={[field.name, 'col_name']} label={t('数据列')} initialValue={col_names?.[0]} >
-                                                <Select options={col_names.map(item => ({ label: item, value: item })) } />
+                                                <Select
+                                                    options={col_names.map(item => ({ label: item, value: item }))}
+                                                    onSelect={val => { 
+                                                        form.setFieldValue(['series', field.name, 'name'], val)
+                                                         // setFieldValue 不会触发 onValuesChange 事件，需要手动更新config
+                                                        dashboard.update_widget({ ...widget, config: form.getFieldsValue() })
+                                                    }}
+                                                />
                                             </Form.Item>
-                                            <Form.Item name={[field.name, 'name']} label={t('名称')} initialValue={`${t('数据列')} ${field.key + 1}`}> 
+                                            <Form.Item name={[field.name, 'name']} label={t('名称')} initialValue={col_names[0]}> 
                                                 <Input />
                                             </Form.Item>
                                             <Form.Item name={[field.name, 'type']} label={t('类型')} initialValue={WidgetChartType.LINE} >
