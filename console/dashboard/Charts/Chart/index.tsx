@@ -8,6 +8,7 @@ import { dashboard, type Widget } from '../../model.js'
 import { convert_chart_config } from '../../utils.js'
 import { useEffect, useRef, useState } from 'react'
 import { type EChartsInstance } from 'echarts-for-react'
+import { useSize } from 'ahooks'
 
 
 interface IProps { 
@@ -21,14 +22,13 @@ export function Chart (props: IProps) {
     const [echart_instance, set_echart_instance] = useState<EChartsInstance>()
     
     const ref = useRef<ReactEChartsCore>()
-    
-    const inited = useRef(false)
+    const size = useSize(ref.current?.ele)
     
     useEffect(() => { 
         // 初始化的时候，有概率会出现图表无法渲染，是因为父元素的宽高非直接写死，所以需要在宽高改变时调用 resize
         // https://github.com/hustcc/echarts-for-react/issues/193
         echart_instance?.resize?.()
-    }, [ref.current?.ele?.clientWidth, ref.current?.ele?.clientHeight])
+    }, [size])
     
     // 编辑模式下 notMerge 为 true ，因为要修改配置，预览模式下 notMerge 为 false ，避免数据更新，导致选中的 label 失效
     return <ReactEChartsCore
