@@ -24,8 +24,11 @@ export function CEPComputing () {
     const get_cep_engines = useCallback(async () => {
         const list = await get_cep_engine_list()
         set_engine_list(list)
-        const detail = await get_cep_engine_detail(current?.engineStat?.name ?? list?.[0]?.name)
-        set_current(detail)
+        if (list.length) { 
+            const detail = await get_cep_engine_detail(current?.engineStat?.name ?? list?.[0]?.name)
+            set_current(detail)
+        }
+        
         set_loading(false)
     }, [current])
     
@@ -34,9 +37,11 @@ export function CEPComputing () {
         get_cep_engines()
     }, [ ])
     
+    console.log(loading, 'loading')
+    
     return <Spin spinning={loading}>
         {
-            !engine_list.length
+            engine_list.length === 0
                 ? <Empty className='cep-engine-empty' />
                 : <div className='cep-computing-wrapper'> 
                     {/* 仅有一个引擎的时候直接展示该引擎的信息，不需要展示列表 */}

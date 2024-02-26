@@ -127,6 +127,7 @@ export function Computing () {
         activeKey={tab_key}
         type='card'
         onChange={set_tab_key}
+        destroyInactiveTabPane
         items={[
             {
                 key: 'streaming_pub_sub_stat',

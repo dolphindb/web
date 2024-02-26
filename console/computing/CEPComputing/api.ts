@@ -4,7 +4,7 @@ import { type ICEPEngineDetail, type CEPEngineItem, type DataViewEngineItem, typ
 
 export async function get_cep_engine_list () { 
     const res = await model.ddb.eval('getStreamEngineStat().CEPEngine')
-    return sql_formatter(res) as CEPEngineItem[]
+    return res.value ? sql_formatter(res) as CEPEngineItem[] : [ ]
 }
 
 export async function get_cep_engine_detail (name: string) { 
