@@ -333,11 +333,11 @@ export class CloudModel extends Model <CloudModel> {
         
         let s = ''
         try {
-            const { error_message, error_code }: { error_message: string, error_code: string } = JSON.parse(error.response.text)
+            const { error_message, error_code }: { error_message: string, error_code: string } = JSON.parse(error.response.body)
             s = language === 'zh' ? error_codes[error_code] : error_message.slice(0, error_message.indexOf('!'))
         } catch (err) {
             // 这个 err 不是原始错误，不往上抛
-            s = t('转译错误信息出错，待解析文本 {{ text }}', { text: error.response.text })
+            s = t('转译错误信息出错，待解析文本 {{ text }}', { text: error.response.body })
         }
         
         this.modal.error({

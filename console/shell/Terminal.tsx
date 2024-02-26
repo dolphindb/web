@@ -5,7 +5,6 @@ import { useEffect, useRef, useState } from 'react'
 import { Terminal as XTermTerminal } from 'xterm'
 import { FitAddon } from 'xterm-addon-fit'
 import { WebglAddon } from 'xterm-addon-webgl'
-import { WebLinksAddon } from 'xterm-addon-web-links'
 
 import { debounce } from 'lodash'
 
@@ -14,7 +13,7 @@ import { delay } from 'xshell/utils.browser.js'
 import type { DdbMessage } from 'dolphindb/browser.js'
 
 
-import { t, language } from '../../i18n/index.js'
+import { t } from '../../i18n/index.js'
 
 import { model } from '../model.js'
 import { shell } from './model.js'
@@ -93,24 +92,13 @@ export function Terminal () {
                 return true
             })
             
-            term.loadAddon(
-                new WebLinksAddon(
-                    (event, url) => {
-                        console.log(t('点击了 RefId 链接:'), url)
-                        window.open(
-                            (language === 'zh' ? 'https://dolphindb.cn/cn/' : 'https://dolphindb.com/') +
-                            `help/${model.version?.startsWith('1.30') ? '130/' : ''}ErrorCode${ language === 'zh' ? 'List' : 'Reference' }/${url.slice('RefId: '.length)}/index.html`,
-                            '_blank'
-                        )
-                    },
-                    { urlRegex: /(RefId: \w+)/ }))
-            
             term.open(rterminal.current)
             
             term.loadAddon(new WebglAddon())
             
             model.ddb.listeners.push(printer)
             
+            // 删去这句话，首次点击会失效
             rterminal.current.children[0]?.dispatchEvent(new Event('mousedown'))
             
             term.writeln(

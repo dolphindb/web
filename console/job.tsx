@@ -129,7 +129,7 @@ export function Job () {
             <Input.Search className='search' placeholder={t('输入关键字后按回车可搜索作业')} onSearch={ value => { set_query(value) }} />
         </div>
         
-        <div className={`cjobs ${ !gjob_rows.length ? 'nojobs' : '' }`} style={{ display: (!query || gjob_rows.length) ? 'block' : 'none' }}>
+        <div className={`cjobs themed ${ !gjob_rows.length ? 'nojobs' : '' }`} style={{ display: (!query || gjob_rows.length) ? 'block' : 'none' }}>
             <Title level={4} className='title'>
                 <Tooltip title='getConsoleJobs'>{t('运行中作业')} </Tooltip>
                 ({gjob_rows.length} {t('个进行中')})
@@ -173,7 +173,7 @@ export function Job () {
             />
         </div>
         
-        <div className={`rjobs ${ !rjob_rows.length ? 'nojobs' : '' }`} style={{ display: (!query || rjob_rows.length) ? 'block' : 'none' }}>
+        <div className={`rjobs themed ${ !rjob_rows.length ? 'nojobs' : '' }`} style={{ display: (!query || rjob_rows.length) ? 'block' : 'none' }}>
             <Title level={4} className='title'>
                 <Tooltip title='getRecentJobs'>{t('已提交作业')} </Tooltip>
                 ({n_rjob_rows_uncompleted} {t('个进行中')}, {rjob_rows.length - n_rjob_rows_uncompleted} {t('个已完成')})
@@ -204,7 +204,7 @@ export function Job () {
             />
         </div>
         
-        <div className={`sjobs ${ !sjob_rows.length ? 'nojobs' : '' }`} style={{ display: (!query || sjob_rows.length) ? 'block' : 'none' }}>
+        <div className={`sjobs themed ${ !sjob_rows.length ? 'nojobs' : '' }`} style={{ display: (!query || sjob_rows.length) ? 'block' : 'none' }}>
             <Title level={4} className='title'>
                 <Tooltip title='getScheduledJobs'>{t('已定时作业')} </Tooltip>
                 ({sjob_rows.length} {t('个已配置')})
