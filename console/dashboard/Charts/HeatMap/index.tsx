@@ -32,7 +32,7 @@ export function HeatMap (props: IProps) {
         const default_options = convert_chart_config({ ...widget, config: { ...widget.config, series: [ ] } }, [ ])
         const { series } = config
          
-        const { data: matrix_data, row_labels, col_labels } = data as unknown as MatrixData
+        const { data: matrix_data = [ ], row_labels = [ ], col_labels = [ ] } = data as unknown as MatrixData
         
         let chart_data = [ ]
         for (let j = 0;  j < matrix_data.length;  j++)
