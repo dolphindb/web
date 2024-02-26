@@ -14,6 +14,7 @@ export function CEPComputing () {
     const [engine_list, set_engine_list] = useState<CEPEngineItem[]>([ ])
     const [loading, set_loading] = useState(true)
     
+    
     const on_select = useCallback(async (name: string) => { 
         const detail = await get_cep_engine_detail(name)
         set_current(detail)
@@ -23,11 +24,10 @@ export function CEPComputing () {
     const get_cep_engines = useCallback(async () => {
         const list = await get_cep_engine_list()
         set_engine_list(list)
-        const detail = await get_cep_engine_detail(current?.EngineStat?.name ?? list?.[0]?.name)
+        const detail = await get_cep_engine_detail(current?.engineStat?.name ?? list?.[0]?.name)
         set_current(detail)
         set_loading(false)
-    }, [ current ])
-    
+    }, [current])
     
     useEffect(() => { 
         // 获取引擎列表

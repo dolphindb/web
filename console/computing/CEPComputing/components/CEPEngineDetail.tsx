@@ -230,7 +230,7 @@ function DataView ({ info }: { info: ICEPEngineDetail }) {
         
         set_current(cur)
         
-        // // 点击 dataview 的时候需要加载该 dataview 的 key 并展示
+        // 点击 dataview 的时候需要加载该 dataview 的 key 并展示， key 会变，所以每次点击的时候需要实时加载
         const dataview_keys = await get_dataview_keys(info.engineStat.name, cur)
         set_views(views => views.map(item => { 
             if (item.key !== cur)
@@ -257,6 +257,7 @@ function DataView ({ info }: { info: ICEPEngineDetail }) {
     const table_data_source = useMemo(() => {
         if (!selected_key)
             return [ ]
+        // 将宽表转化为窄表
         return Object.entries(key_data[selected_key]).map(([name, value]) => ({ name, value }))
     }, [key_data, selected_key])
     
@@ -292,6 +293,7 @@ function DataView ({ info }: { info: ICEPEngineDetail }) {
     </div>
         
 }
+
 
 export function CEPEngineDetail (props: IProps) {
     const { engine, className, on_refresh } = props 

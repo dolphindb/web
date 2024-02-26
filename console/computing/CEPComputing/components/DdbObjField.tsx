@@ -82,14 +82,12 @@ interface IDdbObjInput extends Omit<InputProps, 'onChange'> {
 export function DdbObjInputField ({ onChange, value, type, ...others }: IDdbObjInput) { 
     
     const on_value_change = useCallback<ChangeEventHandler<HTMLInputElement>>(async e => {
-        const str = e.target.value
-        let obj
+        let input_str = e.target.value
         if (type === 'STRING')
-            obj = await model.ddb.eval(JSON.stringify(str))
+            input_str = JSON.stringify(input_str)
         else if (type === 'CHAR')
-            obj = await model.ddb.eval(`'${str}'`)
-        else
-            obj = await model.ddb.eval(str)
+            input_str = `'${input_str}'`
+        const obj = await model.ddb.eval(input_str)
         onChange(obj)
      }, [ ])
     
