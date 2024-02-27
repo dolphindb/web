@@ -176,9 +176,6 @@ function DataView ({ info }: { info: ICEPEngineDetail }) {
     // 当前选中的 key
     const [selected_key, set_selected_key] = useState<string>()
     
-    // 当前选中的 dataview 名称
-    const [current, set_current] = useState<string>()
-    
     // dataview 的所有 key
     const [view_keys, set_view_keys] = useState<string[]>([ ])
     
@@ -195,7 +192,6 @@ function DataView ({ info }: { info: ICEPEngineDetail }) {
     }, [cep_ddb])
     
     const reset = useCallback(() => { 
-        set_current(undefined)
         set_key_info({
             keys: [ ],
             page: 1,
@@ -244,9 +240,7 @@ function DataView ({ info }: { info: ICEPEngineDetail }) {
     }, [cep_ddb, info])
     
     // 选择 dataview
-    const on_select = useCallback(async name => { 
-        set_current(name)
-        
+    const on_select = useCallback(async name => {         
         set_loading(true)
         const { table, keys, key_col } = await get_dataview_info(info.engineStat.name, name) 
         set_view_keys(keys)
@@ -269,7 +263,7 @@ function DataView ({ info }: { info: ICEPEngineDetail }) {
     const on_search_key = useCallback((e:  React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
         const name = e.target.value
         if (!name)
-            return
+            set_key_info(val => ({ ...val, keys: view_keys }))
         set_key_info(val => ({ ...val, keys: view_keys.filter(item => item.includes(name)) }))
     }, [view_keys])
     
@@ -285,7 +279,6 @@ function DataView ({ info }: { info: ICEPEngineDetail }) {
         <div>
             <Select
                 allowClear
-                value={current}
                 className='data-view-select'
                 placeholder={t('请选择数据视图')}
                 options={info?.dataViewEngines?.map(item => ({
@@ -318,9 +311,7 @@ function DataView ({ info }: { info: ICEPEngineDetail }) {
                             <Pagination
                                 simple
                                 size='small'
-                                onShowSizeChange={(_, size) => {
-                                    set_key_info(val => ({ ...val, page_size: size }))
-                                }}
+                                onChange={(page, page_size) => { set_key_info(val => ({ ...val, page, page_size })) }}
                                 defaultCurrent={key_info.page}
                                 total={key_info.keys.length}
                                 hideOnSinglePage
