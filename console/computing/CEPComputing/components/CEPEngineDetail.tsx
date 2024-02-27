@@ -12,13 +12,6 @@ import { stream_formatter } from '../../../dashboard/utils.js'
 import NiceModal from '@ebay/nice-modal-react'
 import { SendEventModal } from './SendEventModal.js'
 
-interface IProps { 
-    engine: ICEPEngineDetail
-    on_refresh: () => void
-    className?: string
-}
-
-
 
 function EngineInfo ({ info }: { info: ICEPEngineDetail }) {
     
@@ -294,6 +287,11 @@ function DataView ({ info }: { info: ICEPEngineDetail }) {
         
 }
 
+interface IProps { 
+    engine: ICEPEngineDetail
+    on_refresh: () => void
+    className?: string
+}
 
 export function CEPEngineDetail (props: IProps) {
     const { engine, className, on_refresh } = props 
