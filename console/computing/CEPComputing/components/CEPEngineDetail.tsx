@@ -194,7 +194,7 @@ function DataView ({ info }: { info: ICEPEngineDetail }) {
         return () => { cep_ddb?.disconnect?.() }
     }, [cep_ddb])
     
-    useEffect(() => { 
+    const reset = useCallback(() => { 
         set_current(undefined)
         set_key_info({
             keys: [ ],
@@ -203,7 +203,12 @@ function DataView ({ info }: { info: ICEPEngineDetail }) {
         })
         set_key_data_map({ })
         set_view_keys([ ])
+    }, [ ])
+    
+    useEffect(() => { 
+        reset()
     }, [info.engineStat.name])
+    
     
     // 订阅流表
     const on_subscribe = useCallback(async (streaming_table: string, key_column: string) => { 
@@ -288,7 +293,10 @@ function DataView ({ info }: { info: ICEPEngineDetail }) {
                     value: item.name
                 }))}
                 onSelect={on_select}
-                onClear={() => { cep_ddb?.disconnect?.() }}
+                onClear={() => {
+                    reset()
+                    cep_ddb?.disconnect?.()
+                }}
                 showSearch
             />
             <div className='data-view-key-wrapper'>
