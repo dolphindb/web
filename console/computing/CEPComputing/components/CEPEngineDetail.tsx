@@ -1,16 +1,17 @@
-import { Badge, Descriptions, type DescriptionsProps, Menu, Radio, Table, type TableColumnsType, Tree, Space, type TreeProps, message, Empty } from 'antd'
-import { useCallback, useMemo, useState } from 'react'
+import '../index.scss'
+import { Badge, Descriptions, type DescriptionsProps, Menu, Radio, Table, type TableColumnsType, Tree, Space, type TreeProps, message, Empty, Typography, Select, type SelectProps, Input, Pagination, Spin } from 'antd'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 import { type ICEPEngineDetail, EngineDetailPage, type SubEngineItem } from '../type.js'
 import { t } from '../../../../i18n/index.js'
 import { Button } from 'antd/lib/index.js'
-import { DatabaseOutlined, RedoOutlined, SendOutlined } from '@ant-design/icons'
-import { get_dataview_info, get_dataview_keys } from '../api.js'
-import { type ItemType } from 'antd/es/menu/hooks/useItems.js'
+import { RedoOutlined, SearchOutlined, SendOutlined } from '@ant-design/icons'
+import { get_dataview_info } from '../api.js'
 import { DDB, type StreamingMessage } from 'dolphindb'
 import { model } from '../../../model.js'
 import { stream_formatter } from '../../../dashboard/utils.js'
 import NiceModal from '@ebay/nice-modal-react'
 import { SendEventModal } from './SendEventModal.js'
+import cn from 'classnames'
 
 
 function EngineInfo ({ info }: { info: ICEPEngineDetail }) {
@@ -118,11 +119,20 @@ function EngineInfo ({ info }: { info: ICEPEngineDetail }) {
             width: 200,
         },
         {
-            dataIndex: 'lastErrMsg',
+            dataIndex: 'lastErrorTimestamp',
+            title: t('最新错误时间'),
+            width: 150,
+        },
+        {
+            dataIndex: 'lastErrorMessage',
             title: t('最新错误信息'),
-            width: 200,
-            fixed: 'right'
-        }
+            width: 300,
+            fixed: 'right',
+            render: msg => <Typography.Paragraph ellipsis={{ rows: 2, expandable: true, symbol: t('展开') }}>
+                {msg}
+            </Typography.Paragraph>
+        },
+        
     ], [ ])
     
     
@@ -158,30 +168,49 @@ function DataView ({ info }: { info: ICEPEngineDetail }) {
     // 缓存连接，每次展开 dataview 的时候新建连接，切换的时候关闭
     const [cep_ddb, set_cep_ddb] = useState<DDB>()
     
-    // 用于存储每个 key 对应的 map
-    const [key_data, set_key_data] = useState<Record<string, Record<string, string>>>({ })
+    const [loading, set_loading] = useState(false)
+    
+    // 用于存储每个 key 对应的数据，初始化的时候或者接受到流表推送的时候更新
+    const [key_data_map, set_key_data_map] = useState<Record<string, Record<string, string>>>({ })
     
     // 当前选中的 key
     const [selected_key, set_selected_key] = useState<string>()
     
-    // 当前选中的 dataview
+    // 当前选中的 dataview 名称
     const [current, set_current] = useState<string>()
     
-    // 当前 cep 引擎的所有 dataview 
-    const [views, set_views] = useState<ItemType[]>(() => info?.dataViewEngines?.map(item => ({
-        label: item.name,
-        key: item.name,
-        icon: <DatabaseOutlined />,
-        children: [ ]
-    })))
+    // dataview 的所有 key
+    const [view_keys, set_view_keys] = useState<string[]>([ ])
+    
+    const [key_info, set_key_info] = useState({
+        // 与 view_keys 可能会有不同，因为做了模糊搜索
+        keys: [ ],
+        page: 1,
+        page_size: 10
+    })
+    
+    
+    useEffect(() => {
+        return () => { cep_ddb?.disconnect?.() }
+    }, [cep_ddb])
+    
+    useEffect(() => { 
+        set_current(undefined)
+        set_key_info({
+            keys: [ ],
+            page: 1,
+            page_size: 10
+        })
+        set_key_data_map({ })
+        set_view_keys([ ])
+    }, [info.engineStat.name])
     
     // 订阅流表
     const on_subscribe = useCallback(async (streaming_table: string, key_column: string) => { 
-        
         // 订阅前取消上个 dataview 的订阅
-        if (cep_ddb)
+        if (cep_ddb)  
             cep_ddb.disconnect()
-        
+            
         const url_search_params = new URLSearchParams(location.search)
         const streaming_host = (model.dev || model.cdn) ? url_search_params.get('hostname') + ':' + new URLSearchParams(location.search).get('port') : location.host
         const url =  (location.protocol === 'https:' ? 'wss' : 'ws') + '://' + streaming_host
@@ -201,70 +230,100 @@ function DataView ({ info }: { info: ICEPEngineDetail }) {
                     const streaming_data = stream_formatter(message.data, 0, message.colnames)
     
                     for (let item of streaming_data)  
-                        set_key_data(data => ({ ...data, [item[key_column]]: item }))                    
+                        set_key_data_map(data => ({ ...data, [item[key_column]]: item }))                    
                 }
             }
         })
         await cep_streaming_ddb.connect()
         set_cep_ddb(cep_streaming_ddb)
-    }, [ cep_ddb, info ])
+    }, [cep_ddb, info])
     
-    // 菜单展开关闭的回调
-    const on_open_change = useCallback(async (keys: string[]) => { 
-        // 收起菜单，并将选中的 key 置为 null
-        if (!keys.length) { 
-            set_current(null)
-            set_selected_key(null)
-            cep_ddb.disconnect()
+    // 选择 dataview
+    const on_select = useCallback(async name => { 
+        set_current(name)
+        
+        set_loading(true)
+        const { table, keys, key_col } = await get_dataview_info(info.engineStat.name, name) 
+        set_view_keys(keys)
+        
+        set_key_info(val => ({ ...val, keys }))
+        
+        const key_map = { }
+        for (let key of keys)  
+            key_map[key] = table.find(view_item => view_item[key_col] === key)
+        
+        set_key_data_map(key_map)
+        const output_table_name = info.dataViewEngines.find(item => item.name === name).outputTableName
+        on_subscribe(output_table_name, key_col)
+        
+        set_loading(false)
+        
+    }, [info])
+    
+    // 模糊搜索 key
+    const on_search_key = useCallback((e:  React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
+        const name = e.target.value
+        if (!name)
             return
-        }
-        // 保证每次只展开一个 dataview
-        const cur = keys[0]
-        
-        set_current(cur)
-        
-        // 点击 dataview 的时候需要加载该 dataview 的 key 并展示， key 会变，所以每次点击的时候需要实时加载
-        const dataview_keys = await get_dataview_keys(info.engineStat.name, cur)
-        set_views(views => views.map(item => { 
-            if (item.key !== cur)
-                return item
-            else
-                return { ...item, children: dataview_keys.map(key => ({ label: key, key })) }
-        }))
-        
-        
-        // 拉取 dataview 的初始数据，初始化 key_data
-        const data_view_initial_data = await get_dataview_info(info.engineStat.name, cur) 
-        const key_column = info.dataViewEngines.find(view => view.name === cur)?.keyColumns?.split(' ')[0]
-        for (let key of dataview_keys) {
-            const key_item = data_view_initial_data.find(view_item => view_item[key_column] === key)
-            set_key_data(data => ({ ...data, [key]: key_item }))
-        }
-        
-        // 订阅流表
-        const output_table_name = info.dataViewEngines.find(item => item.name === cur).outputTableName
-        on_subscribe(output_table_name, key_column)
-    }, [current, info, cep_ddb])
+        set_key_info(val => ({ ...val, keys: view_keys.filter(item => item.includes(name)) }))
+    }, [view_keys])
     
     // 当前选中 key 的数据
     const table_data_source = useMemo(() => {
         if (!selected_key)
             return [ ]
         // 将宽表转化为窄表
-        return Object.entries(key_data[selected_key]).map(([name, value]) => ({ name, value }))
-    }, [key_data, selected_key])
+        return Object.entries(key_data_map?.[selected_key] ?? { }).map(([name, value]) => ({ name, value }))
+    }, [key_data_map, selected_key])
     
     return <div className='data-view-info'>
-        <Menu
-            openKeys={current ? [current] : [ ]}
-            className='data-view-menu'
-            mode='inline'
-            items={views}
-            onOpenChange={on_open_change}
-            onSelect={({ key }) => { set_selected_key(key) }}
-            selectedKeys={[selected_key]}
-            multiple={false}
-        />
+        <div>
+            <Select
+                allowClear
+                value={current}
+                className='data-view-select'
+                placeholder={t('请选择数据视图')}
+                options={info?.dataViewEngines?.map(item => ({
+                    label: item.name,
+                    value: item.name
+                }))}
+                onSelect={on_select}
+                onClear={() => { cep_ddb?.disconnect?.() }}
+                showSearch
+            />
+            <div className='data-view-key-wrapper'>
+                <Input className='data-view-key-search-input' placeholder={t('请输入要查询的 key')} suffix={<SearchOutlined />} onChange={on_search_key}/>
+                <Spin spinning={loading}> 
+                    {
+                        !!key_info.keys.length ? <>
+                            {
+                                key_info.keys
+                                    .slice((key_info.page - 1) * key_info.page_size, key_info.page * key_info.page_size)
+                                    .map(key => <div
+                                        key={key}
+                                        className={cn('data-view-key-item', { 'data-view-key-item-active': key === selected_key })}
+                                        onClick={() => { set_selected_key(key) }}
+                                    >
+                                        {key}
+                                    </div>)
+                            }
+                            <Pagination
+                                simple
+                                size='small'
+                                onShowSizeChange={(_, size) => {
+                                    set_key_info(val => ({ ...val, page_size: size }))
+                                }}
+                                defaultCurrent={key_info.page}
+                                total={key_info.keys.length}
+                                hideOnSinglePage
+                            />
+                        </>
+                        : <Empty />
+                    }
+                </Spin>
+            </div>
+        <div />
+        </div>
         <Table
             className='data-view-table'
             dataSource={table_data_source}
