@@ -165,20 +165,15 @@ function EngineInfo ({ info }: { info: ICEPEngineDetail }) {
 function DataView ({ info }: { info: ICEPEngineDetail }) {
     
     const { ddb: { username, password } } = model
-    // 缓存连接，每次展开 dataview 的时候新建连接，切换的时候关闭
+    // 缓存连接，每次选择 dataview 的时候新建连接，订阅 dataview 的流表，切换的时候关闭
     const [cep_ddb, set_cep_ddb] = useState<DDB>()
-    
     const [loading, set_loading] = useState(false)
-    
     // 用于存储每个 key 对应的数据，初始化的时候或者接受到流表推送的时候更新
     const [key_data_map, set_key_data_map] = useState<Record<string, Record<string, string>>>({ })
-    
     // 当前选中的 key
     const [selected_key, set_selected_key] = useState<string>()
-    
     // dataview 的所有 key
     const [view_keys, set_view_keys] = useState<string[]>([ ])
-    
     const [key_info, set_key_info] = useState({
         // 与 view_keys 可能会有不同，因为做了模糊搜索
         keys: [ ],
@@ -259,7 +254,6 @@ function DataView ({ info }: { info: ICEPEngineDetail }) {
         
     }, [info])
     
-    // 模糊搜索 key
     const on_search_key = useCallback((e:  React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
         const name = e.target.value
         if (!name)
@@ -267,7 +261,6 @@ function DataView ({ info }: { info: ICEPEngineDetail }) {
         set_key_info(val => ({ ...val, keys: view_keys.filter(item => item.includes(name)) }))
     }, [view_keys])
     
-    // 当前选中 key 的数据
     const table_data_source = useMemo(() => {
         if (!selected_key)
             return [ ]

@@ -37,8 +37,6 @@ export function CEPComputing () {
         get_cep_engines()
     }, [ ])
     
-    console.log(loading, 'loading')
-    
     return <Spin spinning={loading}>
         {
             engine_list.length === 0
