@@ -33,7 +33,10 @@ import { Job } from './job.js'
 import { Log } from './log.js'
 import { Computing } from './computing/index.js'
 import { DashBoard } from './dashboard/index.js'
+import dayjs from 'dayjs'
+import 'dayjs/locale/zh-cn'
 
+dayjs.locale(language === 'zh' ? 'zh-cn' : language)
 
 createRoot(
     document.querySelector('.root')

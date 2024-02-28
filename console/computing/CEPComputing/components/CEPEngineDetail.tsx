@@ -142,6 +142,7 @@ function EngineInfo ({ info }: { info: ICEPEngineDetail }) {
         
         <h3>{t('子引擎信息')}</h3>
         <Table
+            size='small'
             className='sub-engine-table'
             tableLayout='fixed'
             columns={cols}
@@ -317,6 +318,7 @@ function DataView ({ info }: { info: ICEPEngineDetail }) {
         <div />
         </div>
         <Table
+            size='small'
             className='data-view-table'
             dataSource={table_data_source}
             rowKey='name'
