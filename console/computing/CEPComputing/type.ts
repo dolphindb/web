@@ -8,7 +8,7 @@ export interface CEPEngineItem {
     /** 引擎状态 */
     status: string
     /** 最新一条错误信息 */
-    lastErrMsg: string
+    lastErrorMessage: string
     /** 是否使用系统时间 */
     useSystemTime: boolean
     /** 当前子引擎数量（可视为线程数） */

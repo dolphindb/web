@@ -67,7 +67,9 @@ function EngineInfo ({ info }: { info: ICEPEngineDetail }) {
         {
             key: t('最后一条错误信息'),
             label: t('最后一条错误信息'),
-            children: engineStat?.lastErrMsg ?? '-'
+            children: <Typography.Paragraph ellipsis={{ rows: 2, symbol: t('展开'), expandable: true } }>
+                { engineStat?.lastErrorMessage ?? '-' }
+            </Typography.Paragraph>
         }
     ], [engineStat])
     
