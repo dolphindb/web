@@ -86,12 +86,14 @@ export interface ISeriesConfig {
 }
 
 export interface IThresholdConfig { 
-    related_y_axis: number
+    axis: number
+    /** 0 代表 X 轴，1 代表 Y 轴 */
+    axis_type: 0 | 1
     type: ThresholdType
     show_type: ThresholdShowType
     line_type?: ILineType
     line_width?: number
-    thresholds: Array<{
+    values: Array<{
         color: string
         value: number
     }>
@@ -134,7 +136,7 @@ export interface IChartConfig {
     yAxis: AxisConfig[]
     labels?: ISeriesConfig[]
     series: ISeriesConfig[]
-    threshold: IThresholdConfig
+    thresholds: IThresholdConfig[]
 }
 
 export interface IHeatMapChartConfig extends Omit<IChartConfig, 'yAxis'> { 

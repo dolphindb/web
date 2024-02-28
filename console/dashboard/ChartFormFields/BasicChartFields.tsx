@@ -18,8 +18,7 @@ import { StringTimePicker } from '../../components/StringTimePicker.js'
 import { AxisColSelect } from './components/AxisColSelect.js'
 import { get } from 'lodash'
 import { SeriesItem } from './components/SeriesItem.js'
-import { ThresholdSetting } from './components/ThresholdSetting.js'
-
+import { ThresholdSettingList } from './components/ThresholdSetting.js'
 
 
 export const DATE_SELECT_FORMAT = {
@@ -349,7 +348,7 @@ export function ThresholdFormFields () {
     return <Collapse items={[{
         key: 'threshold',
         label: t('阈值设置'),
-        children: <ThresholdSetting />,
+        children: <ThresholdSettingList />,
         forceRender: true,
     }] } />
 }

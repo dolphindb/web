@@ -234,10 +234,14 @@ export function concat_name_path (...paths: (NamePath | NamePath[])[]): NamePath
 
 
 // 用于获取 Y 轴的范围，以获取阈值范围
-function get_y_axis_range (echart_instance: EChartsInstance, idx: number,) {
+function get_y_axis_range (echart_instance: EChartsInstance, idx: number) {
     return echart_instance.getModel().getComponent('yAxis', idx).axis.scale._extent
 }
 
+
+function get_x_axis_range (echart_instance: EChartsInstance, idx: number) { 
+    return echart_instance.getModel().getComponent('xAxis', idx).axis.scale._extent
+}
 
 export function convert_chart_config (
     widget: Widget,
@@ -246,7 +250,7 @@ export function convert_chart_config (
 ) {
     const { config } = widget
     
-    const { title, title_size, splitLine, xAxis, series, yAxis, x_datazoom, y_datazoom, legend, animation, tooltip, threshold } = config as IChartConfig
+    const { title, title_size, splitLine, xAxis, series, yAxis, x_datazoom, y_datazoom, legend, animation, tooltip, thresholds = [ ] } = config as IChartConfig
     
     function convert_data_zoom (x_datazoom: boolean, y_datazoom: boolean) { 
         const total_data_zoom = [
@@ -401,60 +405,100 @@ export function convert_chart_config (
     }
     
     let echarts_series = series.filter(Boolean).map(convert_series)
+    const valid_thresholds = thresholds.filter(item => item && item.show_type !== ThresholdShowType.NONE)
     
-    if (threshold && threshold.show_type !== ThresholdShowType.NONE) {
-        // 需要根据关联的 Y 轴找到第一个数据列，然后为此数据列设置 markArea 或者 markLine
-        const idx = series.findIndex(item => item.yAxisIndex === threshold.related_y_axis)
-        
-        let thresholds = threshold.thresholds.filter(item => isFinite(item?.value))
-        
-        if (threshold.type === ThresholdType.PERCENTAGE)
-            // 获取 Y 轴最大值
-            if (echart_instance) {
-                const [min, max] = get_y_axis_range(echart_instance, threshold.related_y_axis)
-                thresholds = thresholds.map(item => ({ ...item, value: (max - min) * item.value / 100 + min }))
+    // 根据阈值，为 series 添加 markArea 或者 markLine
+    for (let threshold of valid_thresholds)  
+        // x 轴设置区域
+        if (threshold.axis_type === 0) {
+            // x 轴只有 1 个，所以直接更改第一个 series 的 markArea 或者 markLine 即可
+            const idx = 0
+            let valid_values = threshold.values.filter(item => isFinite(item?.value))
+            if (threshold.type === ThresholdType.PERCENTAGE && echart_instance) {
+                // 百分比分界需要计算 values 中实际的 value 值
+                const [min, max] = get_x_axis_range(echart_instance, threshold.axis)
+                valid_values = valid_values.map(item => ({ ...item, value: (max - min) * item.value / 100 + min }))
             }
             
-        let mark_area_data = [ ]
-        let mark_line_data = [ ]
-        const sorted_threshold = thresholds.sort((a, b) => a.value - b.value)
-        
-        // 区域颜色分界
-        if (threshold.show_type === ThresholdShowType.FILLED_REGION)
-            for (let i = 0;  i < sorted_threshold.length;  i++)
-                mark_area_data.push([
-                    {
-                        yAxis: sorted_threshold[i].value,
-                        itemStyle: { color: sorted_threshold[i].color }
-                    },
-                    {
-                        yAxis: sorted_threshold[i + 1]?.value
-                    }
-                ]) 
-        // 线条分界    
-        else 
-            for (let item of sorted_threshold)
-                mark_line_data.push({
-                    yAxis: item.value,
-                    lineStyle: {
-                        color: item.color,
-                        type: threshold.line_type ?? ILineType.SOLID,
-                        width: threshold.line_width
-                    }
-                })
+            let mark_area_data = [ ]
+            let mark_line_data = [ ]
+            const sorted_values = valid_values.sort((a, b) => a.value - b.value)
+            
+            for (let i = 0;  i < sorted_values.length;  i++)  
+                // 区域颜色分界
+                if (threshold.show_type === ThresholdShowType.FILLED_REGION)
+                    mark_area_data.push([
+                        {
+                            xAxis: sorted_values[i].value,
+                            itemStyle: { color: sorted_values[i].color }
+                        },
+                        { xAxis: sorted_values[i + 1]?.value }
+                    ]) 
+                else
+                    // 值颜色分界
+                    mark_line_data.push({
+                        xAxis: sorted_values[i].value,
+                        lineStyle: {
+                            color: sorted_values[i].color,
+                            type: threshold.line_type ?? ILineType.SOLID,
+                            width: threshold.line_width
+                        }
+                    })
+            
+            echarts_series[idx] = {
+                ...echarts_series[idx],
+                markArea:  { data: mark_area_data },
+                markLine: { 
+                    symbol: ['none', 'none'],
+                    data: mark_line_data
+                },
+            } as any
+        }
+        else { 
+            // 需要根据关联的 Y 轴找到第一个数据列，然后为此数据列设置 markArea 或者 markLine
+            const idx = series.findIndex(item => item.yAxisIndex === threshold.axis)
+            let valid_values = threshold.values.filter(item => isFinite(item?.value))
+            
+            if (threshold.type === ThresholdType.PERCENTAGE && echart_instance) { 
+                // 获取 Y 轴最大值，将阈值转化为绝对值
+                const [min, max] = get_y_axis_range(echart_instance, threshold.axis)
+                valid_values = valid_values.map(item => ({ ...item, value: (max - min) * item.value / 100 + min }))
+            }
                 
-        echarts_series[idx] = {
-            ...echarts_series[idx],
-            markArea:  {
-                data: mark_area_data
-            },
-            markLine: { 
-                symbol: ['none', 'none'],
-                data: mark_line_data
-            },
-        } as any
-    }
-    
+            let mark_area_data = [ ]
+            let mark_line_data = [ ]
+            const sorted_values = valid_values.sort((a, b) => a.value - b.value)
+            
+            for (let i = 0;  i < sorted_values.length;  i++)  
+                // 区域颜色分界
+                if (threshold.show_type === ThresholdShowType.FILLED_REGION)
+                    mark_area_data.push([
+                        {
+                            yAxis: sorted_values[i].value,
+                            itemStyle: { color: sorted_values[i].color }
+                        },
+                        { yAxis: sorted_values[i + 1]?.value }
+                    ]) 
+                else
+                    // 值颜色分界
+                    mark_line_data.push({
+                        yAxis: sorted_values[i].value,
+                        lineStyle: {
+                            color: sorted_values[i].color,
+                            type: threshold.line_type ?? ILineType.SOLID,
+                            width: threshold.line_width
+                        }
+                    })
+                    
+            echarts_series[idx] = {
+                ...echarts_series[idx],
+                markArea: { data: mark_area_data },
+                markLine: { 
+                    symbol: ['none', 'none'],
+                    data: mark_line_data
+                },
+            } as any
+        }
     
     const options =  {
         animation,
