@@ -1,13 +1,14 @@
 
-import { DatePicker, TimePicker, type DatePickerProps, type InputNumberProps, InputNumber, Input, type InputProps, type TimePickerProps } from 'antd'
-import { type ChangeEventHandler, useCallback } from 'react'
+import { DatePicker, TimePicker, type DatePickerProps, type InputNumberProps, InputNumber, Input, type InputProps, type TimePickerProps, Space } from 'antd'
+import { type ChangeEventHandler, useCallback, useState, useEffect } from 'react'
 import { model } from '../../../model.js'
 import { t } from '../../../../i18n/index.js'
+import { DdbType } from 'dolphindb'
 
 interface IProps extends Omit<DatePickerProps, 'onChange'> { 
     onChange?: (val: any) => void
     showTime?: any
-    type?: string
+    type_id: DdbType
 }
 
 /**  
@@ -16,16 +17,18 @@ interface IProps extends Omit<DatePickerProps, 'onChange'> {
       @returns   
 */
 
-export function DdbObjDatePicker ({ onChange, value, type, ...others }: IProps) { 
+export function DdbObjDatePicker ({ onChange, value, type_id, ...others }: IProps) { 
     
-    const on_value_change = useCallback(async (_, date_str: string) => {
-        if (type === 'MONTH')
-            date_str += 'M'
-        else if (type === 'DATEHOUR')
-            date_str = `datehour(${JSON.stringify(date_str)})`
-        const obj = await model.ddb.eval(date_str)
+    const on_value_change = useCallback(async (_, execute_str: string) => {
+        if (type_id === DdbType.month)
+            execute_str += 'M'
+            
+        else if (type_id === DdbType.datehour)
+            execute_str = `datehour(${JSON.stringify(execute_str)})`
+        
+        const obj = await model.ddb.eval(execute_str)
         onChange(obj)
-    }, [type])
+    }, [type_id])
     
     return <DatePicker picker='date' {...others} onChange={on_value_change} />
 }
@@ -33,19 +36,21 @@ export function DdbObjDatePicker ({ onChange, value, type, ...others }: IProps) 
 
 interface IDdbObjTimePickerProps extends Omit<TimePickerProps, 'onChange'> { 
     onChange?: (obj: any) => void
-    type?: string
+    type_id: DdbType
 }
 
 /** 将控件输入的时间格式转化为 ddb 的时间格式，format 需要与 ddb 中的时间格式一致 */ 
-export function DdbObjTimePicker ({ onChange, type, value, ...others }: IDdbObjTimePickerProps) {
+export function DdbObjTimePicker ({ onChange, type_id, value, ...others }: IDdbObjTimePickerProps) {
     const on_value_change = useCallback(async (_, time_str: string) => { 
-        if (type === 'MINUTE')
+        if (type_id === DdbType.minute)
             time_str += 'm'
-        else if (type === 'TIME')
+            
+        else if (type_id === DdbType.time)
             time_str = `time(${JSON.stringify(time_str)})`
+        
         const time_obj = await model.ddb.eval(time_str)
         onChange(time_obj)
-    }, [ type ])
+    }, [ type_id ])
     
     return <TimePicker
         {...others}
@@ -59,7 +64,6 @@ interface IDdbObjInputNumberProps extends Omit<InputNumberProps, 'onChange'> {
 }
 
 /** 将数值类输入转化为 ddb 的数值格式 */
-
 export function DdbObjInputNumber ({ onChange, value, ...others }: IDdbObjInputNumberProps) { 
     
     const on_value_change = useCallback(async (val: string | number) => { 
@@ -70,67 +74,132 @@ export function DdbObjInputNumber ({ onChange, value, ...others }: IDdbObjInputN
         onChange(obj)
     }, [ ])
     
-    return <InputNumber placeholder={t('请输入')} {...others} onChange={on_value_change} />
+    return <InputNumber {...others} onChange={on_value_change} />
 }
 
 interface IDdbObjInput extends Omit<InputProps, 'onChange'> { 
     onChange?: (val: any) => void
-    type: string
+    type_id: DdbType
 }
 
 /** 将 input 输入的值转化为 ddb 对象 */
-export function DdbObjInputField ({ onChange, value, type, ...others }: IDdbObjInput) { 
+export function DdbObjInputField ({ onChange, value, type_id, ...others }: IDdbObjInput) { 
     
     const on_value_change = useCallback<ChangeEventHandler<HTMLInputElement>>(async e => {
-        let input_str = e.target.value
-        if (type === 'STRING')
-            input_str = JSON.stringify(input_str)
-        else if (type === 'CHAR')
-            input_str = `'${input_str}'`
-        else if (type === 'FLOAT')
-            input_str = `float(${input_str})`
-        else if (type === 'DOUBLE')
-            input_str = `double(${input_str})`
+        let execute_str = e.target.value
+        
+        switch (type_id) { 
+            case DdbType.string:
+                execute_str = JSON.stringify(execute_str)
+                break
+            case DdbType.char:
+                execute_str = `'${execute_str}'`
+                break
+            case DdbType.float:
+                execute_str = `float(${execute_str})`
+                break
+            case DdbType.double:
+                execute_str = `double(${execute_str})`
+                break
+            case DdbType.long:
+                execute_str = `long(${execute_str})`
+                break
+        }
+        
         try {
-            const obj = await model.ddb.eval(input_str)
+            const obj = await model.ddb.eval(execute_str)
             onChange(obj)
         } catch (e) { 
-            onChange(input_str)
+            onChange(execute_str)
         }
-     }, [ ])
+     }, [ type_id ])
     
     return <Input placeholder={t('请输入')} {...others} onChange={on_value_change} />
     
 }
 
+
+interface IDecimalObjInputFieldProps { 
+    onChange?: (val: any) => void
+    type_id: DdbType
+    type: string
+}
+
+export function DecimalObjInputField (props: IDecimalObjInputFieldProps) {
+    const { onChange, type_id, type } = props
+    
+    const [value, set_value] = useState<string>()
+    const [precision, set_precision] = useState<string | number>()
+    
+    const transfer_decimal = useCallback(async (value, precision) =>  { 
+        if (!value || !precision)  
+            return
+        
+        let execute_str = ''
+        switch (type_id) { 
+            case DdbType.decimal32:
+                execute_str = `decimal32(${value}, ${precision})`
+                break
+            case DdbType.decimal64:
+                execute_str = `decimal64(${value}, ${precision})`
+                break
+            default:
+                execute_str = `decimal128(${value}, ${precision})`
+        }
+    
+        try {
+            const obj = await model.ddb.eval(execute_str)
+            onChange(obj)
+        } catch (e) { 
+            onChange(execute_str)
+        }
+    }, [type_id]) 
+    
+    useEffect(() => { 
+        transfer_decimal(value, precision)    
+    }, [value, precision, transfer_decimal])
+    
+    return <Space className='decimal-field-wrapper'>
+        <Input placeholder={t(`请输入 ${type} 的值`)} onChange={e => { set_value(e.target.value) } } />
+        <InputNumber placeholder={t(`请输入 ${type} 的精度`)} precision={0} onChange={val => { set_precision(val) } } />
+    </Space>
+ }
+
+
 interface IDdbObjFieldProps {
     /** ddb 类型 */
     type: string
+    /** ddb id 类型 */
+    type_id: DdbType
     placeholder?: string
 }
 
-export function DdbObjField ({ type, placeholder, ...others }: IDdbObjFieldProps) {
-    switch (type) { 
-        case 'DATE':
-            return <DdbObjDatePicker placeholder={placeholder} format='YYYY.MM.DD' {...others} />
-        case 'MONTH': 
-            return <DdbObjDatePicker placeholder={placeholder} format='YYYY.MM' type='MONTH' picker='month' {...others} />
-        case 'DATETIME': 
-            return <DdbObjDatePicker placeholder={placeholder} format='YYYY.MM.DD HH:mm:ss' showTime {...others} />
-        case 'TIMESTAMP':
-            return <DdbObjDatePicker placeholder={placeholder} format='YYYY.MM.DD HH:mm:ss.SSS' showTime {...others} />
-        case 'DATEHOUR':
-            return <DdbObjDatePicker placeholder={placeholder} format='YYYY.MM.DD HH' showTime={{ format: 'HH' }} type='DATEHOUR' {...others} />
-        case 'TIME':
-            return <DdbObjTimePicker placeholder={placeholder} format='HH:mm:ss.SSS' type='TIME' {...others} />
-        case 'MINUTE':
-            return <DdbObjTimePicker placeholder={placeholder} format='HH:mm' type='MINUTE' {...others} />
-        case 'SECOND':
-            return <DdbObjTimePicker placeholder={placeholder} format='HH:mm:ss' {...others} />
-        case 'INT':
+export function DdbObjField ({ type, type_id, placeholder, ...others }: IDdbObjFieldProps) {
+    switch (type_id) { 
+        case DdbType.date:
+            return <DdbObjDatePicker placeholder={placeholder} format='YYYY.MM.DD' type_id={type_id} {...others} />
+        case DdbType.month: 
+            return <DdbObjDatePicker placeholder={placeholder} format='YYYY.MM' type_id={type_id} picker='month' {...others} />
+        case DdbType.datetime: 
+            return <DdbObjDatePicker placeholder={placeholder} format='YYYY.MM.DD HH:mm:ss' type_id={type_id} showTime {...others} />
+        case DdbType.timestamp:
+            return <DdbObjDatePicker placeholder={placeholder} format='YYYY.MM.DD HH:mm:ss.SSS' type_id={type_id} showTime {...others} />
+        case DdbType.datehour:
+            return <DdbObjDatePicker placeholder={placeholder} format='YYYY.MM.DD HH' type_id={type_id} showTime={{ format: 'HH' }} {...others} />
+        case DdbType.time:
+            return <DdbObjTimePicker placeholder={placeholder} format='HH:mm:ss.SSS' type_id={type_id} {...others} />
+        case DdbType.minute:
+            return <DdbObjTimePicker placeholder={placeholder} format='HH:mm' type_id={type_id} {...others} />
+        case DdbType.second:
+            return <DdbObjTimePicker placeholder={placeholder} format='HH:mm:ss' type_id={type_id} {...others} />
+        case DdbType.int:
             return <DdbObjInputNumber placeholder={placeholder} precision={0} {...others} />
+        case DdbType.decimal32:
+        case DdbType.decimal64:
+        case DdbType.decimal128:
+            return <DecimalObjInputField type={type} type_id={type_id} {...others} />
         default:
-            return <DdbObjInputField placeholder={placeholder} type={type} {...others} />
+            return <DdbObjInputField placeholder={placeholder} type_id={type_id} {...others} />
     }
 }
 

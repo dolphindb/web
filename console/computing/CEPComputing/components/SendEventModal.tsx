@@ -3,10 +3,10 @@ import { Form, Modal, Select, Typography, message } from 'antd'
 import { useCallback } from 'react'
 import { type ICEPEngineDetail } from '../type.js'
 import { t } from '../../../../i18n/index.js'
-import { FormDependencies } from '../../../components/formily/FormDependcies/index.js'
-import { DdbDict } from 'dolphindb'
+import { DdbDict, DdbType } from 'dolphindb'
 import { model } from '../../../model.js'
 import { DdbObjField } from './DdbObjField.js'
+import { useMemo } from 'react'
 
 interface IProps { 
     engine_info: ICEPEngineDetail
@@ -23,17 +23,24 @@ export const SendEventModal = NiceModal.create((props: IProps) => {
     
     const on_send = useCallback(async () => {
         let values
-        try {
-            values = await form.validateFields()
-        } catch { }
+        values = await form.validateFields()
         const params = new DdbDict(values)
         await model.execute(async () => model.ddb.call('appendEvent', [name, params as any]))
         message.success(t('发送成功'))
         on_refresh?.()
-        await modal.hide()
+        modal.hide()
     }, [name, msgSchema, on_refresh])
     
     const event_type = Form.useWatch('eventType', form)
+    
+    const msg_item = useMemo(() => {
+        const item = msgSchema.find(item => item.eventType === event_type)
+        return {
+            types: item?.eventValuesTypeStringList?.concat(['DECIMAL(32)S']) ?? [ ],
+            type_ids: item?.eventValuesTypeIntList?.concat([DdbType.decimal32]) ?? [ ],
+            keys: item?.eventKeys?.concat(['test']) ?? [ ]
+        }
+     }, [event_type])
     
     return <Modal 
         open={modal.visible}
@@ -50,40 +57,29 @@ export const SendEventModal = NiceModal.create((props: IProps) => {
             </Form.Item>
             {
                 event_type && <div className='event-fields-wrapper'>
-                <FormDependencies dependencies={['eventType']}>
-                    {({ eventType }) => {
-                        if (!eventType)
-                            return null
-                        const { eventKeys: keys = [ ], eventValuesTypeStringList: types = [ ], eventValuesTypeIntList: type_ids } = msgSchema.find(item => item.eventType === eventType) ?? { }
-                        return <>
-                            <h4>
-                                {t('事件字段')}
-                                <Typography.Link target='_blank' className='type-doc-link' href='https://docs.dolphindb.cn/zh/progr/data_types.html'>{t('类型说明')}</Typography.Link>
-                            </h4>
-                            {keys.map((key, idx) => <Form.Item
-                                name={key}
-                                key={key}
-                                label={key}
-                                rules={[
-                                    { required: true },
-                                    {
-                                        validator: async (_, value, cb) => { 
-                                            try {
-                                                if (type_ids[idx] !== value?.type)
-                                                    cb(t('输入类型有误，请检查'))
-                                            } catch (e) { 
-                                                cb(e)
-                                            }
-                                    } }
-                                ]}
-                            >
-                                <DdbObjField key={key} type={types[idx]} placeholder={t('数据类型为 {{type}}', { type: types[idx] }) } />
-                            </Form.Item>
-                        ) }
-                        </>
-                    } }
-                </FormDependencies>
-            </div>
+                    <h4>
+                        {t('事件字段')}
+                        <Typography.Link target='_blank' className='type-doc-link' href='https://docs.dolphindb.cn/zh/progr/data_types.html'>{t('类型说明')}</Typography.Link>
+                    </h4>
+                    { msg_item.keys.map((key, idx) => <Form.Item
+                            name={key}
+                            key={key}
+                            label={key}
+                            required
+                            rules={[
+                                {
+                                    validator: async (_, value, cb) => { 
+                                        if (!value)
+                                            return Promise.reject(t('请输入'))
+                                        else if (msg_item.type_ids[idx] !== value?.type)
+                                            return Promise.reject(t('输入类型有误，请检查'))
+                                } }
+                            ]}
+                        >
+                            <DdbObjField key={key} type={msg_item.types[idx]} type_id={msg_item.type_ids[idx]} placeholder={t('数据类型为 {{type}}', { type: msg_item.types[idx] }) } />
+                        </Form.Item>
+                    ) }
+                </div>
             
             }
         </Form>

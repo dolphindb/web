@@ -3,7 +3,7 @@ import { Badge, Descriptions, type DescriptionsProps, Menu, Radio, Table, type T
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { type ICEPEngineDetail, EngineDetailPage, type SubEngineItem } from '../type.js'
 import { t } from '../../../../i18n/index.js'
-import { Button } from 'antd/lib/index.js'
+import { Button } from 'antd'
 import { RedoOutlined, SearchOutlined, SendOutlined } from '@ant-design/icons'
 import { get_dataview_info } from '../api.js'
 import { DDB, type StreamingMessage } from 'dolphindb'

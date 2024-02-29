@@ -194,11 +194,11 @@ class ShellModel extends Model<ShellModel> {
             if (message.includes('RefId:'))
                 message = message.replaceAll(/RefId:\s*(\w+)/g, (_, ref_id) =>
                     // 暂时隐藏 S00004 及以后的错误码编号及链接，待英文文档更新后再向用户暴露
-                    language === 'en' && Number(ref_id.slice(1)) >= 4 ? 
-                        ''
-                    :
+                    language === 'en' && Number(ref_id.slice(1)) >= 4
+                        ? ''
+                        :
                         // xterm link写法 https://stackoverflow.com/questions/64759060/how-to-create-links-in-xterm-js
-                        blue(`\x1b]8;;${get_error_code_doc_link(ref_id.toLowerCase())}\x07RefId: ${ref_id}\x1b]8;;\x07`)   
+                        blue(`\x1b]8;;${get_error_code_doc_link(ref_id)}\x07RefId: ${ref_id}\x1b]8;;\x07`)   
                 )
             
             this.term.writeln(red(message))
