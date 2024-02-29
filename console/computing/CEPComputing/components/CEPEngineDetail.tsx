@@ -1,5 +1,5 @@
 import '../index.scss'
-import { Badge, Descriptions, type DescriptionsProps, Menu, Radio, Table, type TableColumnsType, Tree, Space, type TreeProps, message, Empty, Typography, Select, type SelectProps, Input, Pagination, Spin } from 'antd'
+import { Badge, Descriptions, type DescriptionsProps, Radio, Table, type TableColumnsType, Space, Empty, Typography, Select, Input, Pagination, Spin } from 'antd'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { type ICEPEngineDetail, EngineDetailPage, type SubEngineItem } from '../type.js'
 import { t } from '../../../../i18n/index.js'
@@ -123,7 +123,7 @@ function EngineInfo ({ info }: { info: ICEPEngineDetail }) {
         {
             dataIndex: 'lastErrorTimestamp',
             title: t('最新错误时间'),
-            width: 150,
+            width: 200,
         },
         {
             dataIndex: 'lastErrorMessage',
