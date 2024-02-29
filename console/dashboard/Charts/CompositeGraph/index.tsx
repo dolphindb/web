@@ -1,7 +1,7 @@
 import ReactEChartsCore from 'echarts-for-react/lib/core'
 import * as echarts from 'echarts'
 import { BasicFormFields } from '../../ChartFormFields/BasicFormFields.js'
-import { AxisFormFields, SeriesFormFields } from '../../ChartFormFields/BasicChartFields.js'
+import { AxisFormFields, SeriesFormFields, ThresholdFormFields } from '../../ChartFormFields/BasicChartFields.js'
 import { dashboard, type Widget } from '../../model.js'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { get_data_source } from '../../DataSource/date-source.js'
@@ -10,7 +10,7 @@ import { type IChartConfig } from '../../type.js'
 import { isNil, pickBy } from 'lodash'
 import type { EChartsInstance } from 'echarts-for-react'
 
-interface IProps { 
+interface IProps {
     widget: Widget
 }
 
@@ -68,7 +68,9 @@ export function CompositeGraph (props: IProps) {
             })
             
         }
-    }, [ widget.config, data_source, echart_instance ])
+    }, [widget.config, data_source, echart_instance])
+    
+    
     
     return <>
         {widget.source_id.map(id => <SingleDataSourceWatch key={id} source_id={id} force_update={update_data_source} />)}
@@ -90,5 +92,6 @@ export function CompositeGraphConfig ({ col_names }: { col_names: string[] }) {
         <BasicFormFields type='chart'/>
         <AxisFormFields col_names={col_names} />
         <SeriesFormFields col_names={col_names} />
+        <ThresholdFormFields />
     </>
 }

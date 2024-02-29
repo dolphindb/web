@@ -230,21 +230,15 @@ export function concat_name_path (...paths: (NamePath | NamePath[])[]): NamePath
     }, [ ])
 }
 
-
-// 用于获取 Y 轴的范围，以获取阈值范围
-function get_y_axis_range (echart_instance: EChartsInstance, idx: number) {
-    return echart_instance.getModel().getComponent('yAxis', idx).axis.scale._extent
-}
-
-
-function get_x_axis_range (echart_instance: EChartsInstance, idx: number) { 
-    return echart_instance.getModel().getComponent('xAxis', idx).axis.scale._extent
+/** type 表示轴类型，传入 0 的时候代表 X 轴，其余时候为 Y 轴 */
+export function get_axis_range (type: number, echart_instance: EChartsInstance, idx: number) { 
+    return echart_instance.getModel().getComponent(type === 0 ? 'xAxis' : 'yAxis', idx).axis.scale._extent
 }
 
 export function convert_chart_config (
     widget: Widget,
     data_source: any[],
-    echart_instance?: EChartsInstance
+    axis_range_map?: { [key: string]: { min: number, max: number } }
 ) {
     const { config } = widget
     
@@ -412,9 +406,9 @@ export function convert_chart_config (
             // x 轴只有 1 个，所以直接更改第一个 series 的 markArea 或者 markLine 即可
             const idx = 0
             let valid_values = threshold.values.filter(item => isFinite(item?.value))
-            if (threshold.type === ThresholdType.PERCENTAGE && echart_instance) {
+            if (threshold.type === ThresholdType.PERCENTAGE && axis_range_map) {
                 // 百分比分界需要计算 values 中实际的 value 值
-                const [min, max] = get_x_axis_range(echart_instance, threshold.axis)
+                const { min = 0, max = 0 } = axis_range_map[`x_${threshold.axis}`] ?? { }
                 valid_values = valid_values.map(item => ({ ...item, value: (max - min) * item.value / 100 + min }))
             }
             
@@ -457,9 +451,9 @@ export function convert_chart_config (
             const idx = series.findIndex(item => item.yAxisIndex === threshold.axis)
             let valid_values = threshold.values.filter(item => isFinite(item?.value))
             
-            if (threshold.type === ThresholdType.PERCENTAGE && echart_instance) { 
+            if (threshold.type === ThresholdType.PERCENTAGE && axis_range_map) { 
                 // 获取 Y 轴最大值，将阈值转化为绝对值
-                const [min, max] = get_y_axis_range(echart_instance, threshold.axis)
+                const { min = 0, max = 0 } = axis_range_map[`y_${threshold.axis}`] ?? { }
                 valid_values = valid_values.map(item => ({ ...item, value: (max - min) * item.value / 100 + min }))
             }
                 
