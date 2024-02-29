@@ -37,14 +37,14 @@ export const NodesConfigAddModal = NiceModal.create((props: NodesConfigAddModalP
                     form={add_config_form}
                     >
                     <Form.Item
-                        label='Qualifier'
+                        label={t('限定词')}
                         name='qualifier'
                     >
                         <Input placeholder='eg dn1 or dn% or empty'/>
                     </Form.Item>
     
                     <Form.Item
-                        label='Name'
+                        label={t('名称')}
                         name='name'
                         rules={[{ required: true, message: t('请输入或选择配置项名') }]}
                         >
@@ -64,7 +64,7 @@ export const NodesConfigAddModal = NiceModal.create((props: NodesConfigAddModalP
                     </Form.Item>
                     
                     <Form.Item
-                        label='Value'
+                        label={t('数值')}
                         name='value'
                         rules={[{ required: true, message: t('请输入配置项值') }]}
                         >

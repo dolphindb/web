@@ -23,7 +23,7 @@ export function ControllerConfig () {
     
     const cols: ProColumns<ControllerConfig>[] = useMemo(() => ([
         {
-            title: t('Name'),
+            title: t('名称'),
             dataIndex: 'name',
             key: 'name',
             fieldProps: {
@@ -38,7 +38,7 @@ export function ControllerConfig () {
             }
         },
         {
-            title: t('Value'),
+            title: t('数值'),
             dataIndex: 'value',
             key: 'value',
             fieldProps: {
@@ -52,7 +52,7 @@ export function ControllerConfig () {
             }
         },
         {
-            title: t('Actions'),
+            title: t('操作'),
             valueType: 'option',
             key: 'actions',
             width: 240,

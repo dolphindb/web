@@ -1,3 +1,4 @@
+import { t } from '../../i18n/index.js'
 import { type NodeType, type ControllerConfig, type ClusterNode, type NodesConfig, CONFIG_CLASSIFICATION } from './type.js'
 
 export const strs_2_controller_configs  = (strs: string[]): ControllerConfig[] =>
@@ -35,7 +36,7 @@ export const strs_2_nodes_config = (strs: string[]): NodesConfig[] =>
         const [first, second] = rest.split('.')
         const qualifier =  second ? first : ''
         const name = second ? second : first
-        let category = 'others'
+        let category = t('其它')
         let clses = Object.keys(CONFIG_CLASSIFICATION)
         for (let cls of clses) 
             if (CONFIG_CLASSIFICATION[cls].has(name))

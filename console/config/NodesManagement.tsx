@@ -22,54 +22,54 @@ export function NodesManagement () {
     
     const cols: ProColumns<ClusterNode>[] = useMemo(() => ([
         {
-            title: t('Host'),
+            title: t('主机名'),
             dataIndex: 'host',
             key: 'host',
             fieldProps: {
-                placeholder: t('请输入 host'),
+                placeholder: t('请输入主机名'),
             },
             formItemProps: {
                 rules: [{
                     required: true,
-                    message: t('请输入 host')
+                    message: t('请输入主机名')
                 }, {
                     pattern: /^(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])$/,
-                    message: t('请输入正确的 host')
+                    message: t('请输入正确的主机名')
                 }
             ]
             }
         },
         {
-            title: t('Port'),
+            title: t('端口号'),
             dataIndex: 'port',
             key: 'port',
             fieldProps: {
-                placeholder: t('请输入 port'),
+                placeholder: t('请输入端口号'),
                 type: 'number',
             },
             formItemProps: {
                 rules: [{
                     required: true,
-                    message: t('请输入 port')
+                    message: t('请输入端口号')
                 }]
             }
         },
         {
-            title: t('Alias'),
+            title: t('别名'),
             dataIndex: 'alias',
             key: 'alias',
             fieldProps: {
-                placeholder: t('请输入 alias'),
+                placeholder: t('请输入别名'),
             },
             formItemProps: {
                 rules: [{
                     required: true,
-                    message: t('请输入 alias')
+                    message: t('请输入别名')
                 }]
             }
         },
         {
-            title: t('Mode'),
+            title: t('类型'),
             dataIndex: 'mode',
             key: 'mode',
             valueType: 'select',
@@ -89,17 +89,17 @@ export function NodesManagement () {
                 
             },
             fieldProps: {
-                placeholder: t('请选择 mode'),
+                placeholder: t('请选择节点类型'),
             },
             formItemProps: {
                 rules: [{
                     required: true,
-                    message: t('请选择 mode')
+                    message: t('请选择节点类型')
                 }]
             }
         },
         {
-            title: t('Actions'),
+            title: t('操作'),
             valueType: 'option',
             key: 'actions',
             width: 240,

@@ -12,6 +12,7 @@ import { _2_strs, strs_2_nodes_config } from './utils.js'
 
 const { Search } = Input
 
+
 export function NodesConfig () {
     
     const [configs, set_configs] = useState<NodesConfig[]>([ ])
@@ -24,7 +25,7 @@ export function NodesConfig () {
     
     const cols: ProColumns<ControllerConfig>[] = useMemo(() => ([
         {
-            title: t('Qualifier'),
+            title: t('限定词'),
             dataIndex: 'qualifier',
             key: 'qualifier',
             fieldProps: {
@@ -38,7 +39,7 @@ export function NodesConfig () {
             }
         },
         {
-            title: t('Name'),
+            title: t('名称'),
             dataIndex: 'name',
             key: 'name',
             fieldProps: {
@@ -53,7 +54,7 @@ export function NodesConfig () {
             }
         },
         {
-            title: t('Value'),
+            title: t('数值'),
             dataIndex: 'value',
             key: 'value',
             fieldProps: {
@@ -67,7 +68,7 @@ export function NodesConfig () {
             }
         },
         {
-            title: t('Actions'),
+            title: t('操作'),
             valueType: 'option',
             key: 'actions',
             width: 240,
@@ -132,7 +133,7 @@ export function NodesConfig () {
     
     
     const items: CollapseProps['items'] = useMemo(() => {
-        let clsed_config = Object.fromEntries([...Object.keys(CONFIG_CLASSIFICATION), 'others'].map(cfg => [cfg, [ ]]))
+        let clsed_config = Object.fromEntries([...Object.keys(CONFIG_CLASSIFICATION), t('其它')].map(cfg => [cfg, [ ]]))
         for (let config of configs) {
             const { category } = config
             clsed_config[category].push(config)
