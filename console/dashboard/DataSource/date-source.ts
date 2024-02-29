@@ -125,7 +125,7 @@ export async function save_data_source ( new_data_source: DataSource, code?: str
                 
                 const parsed_code = parse_code(new_data_source.code, new_data_source)
                 const { type, result } = await dashboard.execute_code(parsed_code, new_data_source.ddb)
-                console.log(new_data_source, 'new_data_source')
+             
                 switch (type) {
                     case 'success':
                         if (typeof result === 'object' && result) {

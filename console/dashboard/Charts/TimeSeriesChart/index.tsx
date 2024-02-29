@@ -4,10 +4,10 @@ import { Button, Collapse, type CollapseProps, Form, Select, Typography, Tooltip
 import { BasicFormFields } from '../../ChartFormFields/BasicFormFields.js'
 import { t } from '../../../../i18n/index.js'
 import { AxisItem, ThresholdFormFields, YAxis } from '../../ChartFormFields/BasicChartFields.js'
-import { AxisType, ITimeFormat } from '../../ChartFormFields/type.js'
+import { AxisType } from '../../ChartFormFields/type.js'
 import { DeleteOutlined, PlusCircleOutlined, QuestionCircleOutlined } from '@ant-design/icons'
 import { FormDependencies } from '../../../components/formily/FormDependcies/index.js'
-import { concat_name_path, convert_chart_config, convert_list_to_options, format_time } from '../../utils.js'
+import { concat_name_path, convert_chart_config, convert_list_to_options, format_time, get_axis_range } from '../../utils.js'
 import { get, uniq } from 'lodash'
 import { DdbType } from 'dolphindb'
 import { DDB_TYPE_MAP } from '../../../constants/ddb-type-maps.js'
@@ -108,6 +108,10 @@ export function TimeSeriesChart (props: ITimeSeriesChart) {
     
     const [echart_instance, set_echart_instance] = useState<EChartsInstance>()
     
+    
+    // 用来存储阈值对应的轴范围
+    const [axis_range_map, set_axis_range_map] = useState<{ [key: string]: { min: number, max: number } }>()
+    
     // 存储每个数据源的时间列和数据列
     const [source_col_map, set_source_col_map] = useState<Record<string, { time_col: string, series_col: string[] }>>({ })
     
@@ -166,7 +170,7 @@ export function TimeSeriesChart (props: ITimeSeriesChart) {
             series,
         }
         
-        const default_options = convert_chart_config({ ...widget, config } as unknown as  Widget, data_source, echart_instance)
+        const default_options = convert_chart_config({ ...widget, config } as unknown as  Widget, data_source, axis_range_map)
         return {
             ...default_options,
             xAxis: { ...default_options.xAxis, data: null },
@@ -181,7 +185,23 @@ export function TimeSeriesChart (props: ITimeSeriesChart) {
                 }
             })
         }
-    }, [widget.config, update, source_col_map, type_map, echart_instance])
+    }, [widget.config, update, source_col_map, type_map, axis_range_map])
+    
+    
+    useEffect(() => {
+        if (!echart_instance)
+            return
+        // options 更新之后，重新计算 thresholds 对应的各轴的范围，判断是否需要更新
+        const { thresholds = [ ] } = widget.config as IChartConfig
+            for (let threshold of thresholds.filter(Boolean)) { 
+                const { axis_type, axis } = threshold
+                const [min, max] = get_axis_range(axis_type, echart_instance, axis)
+                const key = (axis_type === 0 ? 'x' : 'y') + '_' + axis
+                // 轴范围与之前的不一致才需要更新 axis_range_map, 一致则不需要更新
+                if (axis_range_map?.[key]?.min !== min || axis_range_map?.[key]?.max !== max)  
+                    set_axis_range_map(val => ({ ...val, [key]: { min, max } }))
+            }
+    }, [options, echart_instance])
     
     return <>
         {widget.source_id.map(id => <SingleDataSourceUpdate key={id} source_id={id} force_update={() => { set_update({ }) }}/>) }

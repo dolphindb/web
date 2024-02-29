@@ -116,7 +116,7 @@ export function DataSourceList ({
     // 当前选中的 datasource
     const [current_selected, set_current_select] = useState(current_data_source?.id || '')
     // 当前 check 的 datasource
-    const [checked_keys, set_checked_keys] = useState<string[]>(widget.source_id)
+    const [checked_keys, set_checked_keys] = useState<string[]>(widget?.source_id ?? [ ])
     
     const [menu_items, set_menu_items] = useState<MenuItemType[]>()
     

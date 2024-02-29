@@ -5,7 +5,7 @@ import { AxisFormFields, SeriesFormFields, ThresholdFormFields } from '../../Cha
 import { dashboard, type Widget } from '../../model.js'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { get_data_source } from '../../DataSource/date-source.js'
-import { convert_chart_config, format_time } from '../../utils.js'
+import { convert_chart_config, format_time, get_axis_range } from '../../utils.js'
 import { type IChartConfig } from '../../type.js'
 import { isNil, pickBy } from 'lodash'
 import type { EChartsInstance } from 'echarts-for-react'
@@ -32,6 +32,9 @@ export function CompositeGraph (props: IProps) {
     
     const [update, set_update] = useState({ })
     
+    // 用来存储阈值对应的轴范围
+    const [axis_range_map, set_axis_range_map] = useState<{ [key: string]: { min: number, max: number } }>()
+    
     const update_data_source = useCallback(() => {
         set_update({ })
      }, [ ])
@@ -46,7 +49,7 @@ export function CompositeGraph (props: IProps) {
     
     const options = useMemo(() => { 
         const config = widget.config as IChartConfig
-        const default_options = convert_chart_config(widget, Object.values(data_source)?.[0] as any[], echart_instance)
+        const default_options = convert_chart_config(widget, Object.values(data_source)?.[0] as any[], axis_range_map)
         function get_cols (source_id, col_name) { 
             return data_source?.[source_id]?.map(item => item[col_name]) ?? [ ]
         }
@@ -68,7 +71,22 @@ export function CompositeGraph (props: IProps) {
             })
             
         }
-    }, [widget.config, data_source, echart_instance])
+    }, [widget.config, data_source, axis_range_map])
+    
+    useEffect(() => {
+        if (!echart_instance)
+            return
+        // options 更新之后，重新计算 thresholds 对应的各轴的范围，判断是否需要更新
+        const { thresholds = [ ] } = widget.config as IChartConfig
+            for (let threshold of thresholds.filter(Boolean)) { 
+                const { axis_type, axis } = threshold
+                const [min, max] = get_axis_range(axis_type, echart_instance, axis)
+                const key = (axis_type === 0 ? 'x' : 'y') + '_' + axis
+                // 轴范围与之前的不一致才需要更新 axis_range_map, 一致则不需要更新
+                if (axis_range_map?.[key]?.min !== min || axis_range_map?.[key]?.max !== max)  
+                    set_axis_range_map(val => ({ ...val, [key]: { min, max } }))
+            }
+    }, [options, echart_instance])
     
     
     
