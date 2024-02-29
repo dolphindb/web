@@ -129,7 +129,6 @@ function EngineInfo ({ info }: { info: ICEPEngineDetail }) {
             dataIndex: 'lastErrorMessage',
             title: t('最新错误信息'),
             width: 300,
-            fixed: 'right',
             render: msg => <Typography.Paragraph ellipsis={{ rows: 2, expandable: true, symbol: t('展开') }}>
                 {msg}
             </Typography.Paragraph>
