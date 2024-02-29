@@ -15,9 +15,7 @@ import { find_variable_by_name, get_variable_copy_infos, get_variable_value, pas
 import { t } from '../../i18n/index.js'
 import { type DdbTable } from 'dolphindb'
 import type { EChartsInstance } from 'echarts-for-react'
-import { formati, type DdbMatrixObj } from 'dolphindb'
-import { seq } from 'xshell'
-import NumCalculator from 'antd/es/theme/util/calc/NumCalculator.js'
+import { formati } from 'dolphindb'
 
 
 export function format_time (time: string, format: string) {
