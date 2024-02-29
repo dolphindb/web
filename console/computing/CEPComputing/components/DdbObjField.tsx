@@ -87,8 +87,16 @@ export function DdbObjInputField ({ onChange, value, type, ...others }: IDdbObjI
             input_str = JSON.stringify(input_str)
         else if (type === 'CHAR')
             input_str = `'${input_str}'`
-        const obj = await model.ddb.eval(input_str)
-        onChange(obj)
+        else if (type === 'FLOAT')
+            input_str = `float(${input_str})`
+        else if (type === 'DOUBLE')
+            input_str = `double(${input_str})`
+        try {
+            const obj = await model.ddb.eval(input_str)
+            onChange(obj)
+        } catch (e) { 
+            onChange(input_str)
+        }
      }, [ ])
     
     return <Input placeholder={t('请输入')} {...others} onChange={on_value_change} />
