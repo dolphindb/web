@@ -38,7 +38,7 @@ const username_guest = 'guest' as const
 export type PageViews = 'overview' | 'overview-old' | 'shell' | 'dashboard' | 'table' | 'job' | 'login' | 'dfs' | 'log' | 'factor' | 'test' | 'computing'
 
 
-class DdbModel extends Model<DdbModel> {
+export class DdbModel extends Model<DdbModel> {
     inited = false
     
     /** 在本地开发模式 */
@@ -861,6 +861,28 @@ if (!Array.prototype.toReversed)
         enumerable: false,
         value: function toReversed (this: Array<any>) {
             return [...this].reverse()
+        }
+    })
+
+if (!Array.prototype.toSpliced)
+    Object.defineProperty(Array.prototype, 'toSpliced', {
+        configurable: true,
+        writable: true,
+        enumerable: false,
+        value: function toSpliced (...args: [start: number, deleteCount?: number, ...items: any[]]) {
+            const copy = [...this]
+            copy.splice(...args)
+            return copy
+        }
+    })
+
+if (!Array.prototype.at)
+    Object.defineProperty(Array.prototype, 'at', {
+        configurable: true,
+        writable: true,
+        enumerable: false,
+        value: function at (index: number) {
+            return index >= 0 ? this[index] : this[index + this.length]
         }
     })
 
