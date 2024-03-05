@@ -14,7 +14,7 @@ export async function get_cep_engine_list () {
 
 export async function get_cep_engine_detail (name: string) { 
     let res
-    model.execute(async () => { 
+    await model.execute(async () => { 
         const { value } = (await model.ddb.eval(`toStdJson(getCEPEngineStat(${JSON.stringify(name)}))`))
         res = safe_json_parse(value) as IServerEngineDetail
     })
@@ -35,7 +35,7 @@ export async function get_dataview_info (engine_name: string, dataview_name: str
     let dataview_info
     let engine_detail
     
-    model.execute(async () => {
+    await model.execute(async () => {
         dataview_info = await model.ddb.call('getDataViewEngine', [engine_name, dataview_name])
         engine_detail = await get_cep_engine_detail(engine_name)
     })
