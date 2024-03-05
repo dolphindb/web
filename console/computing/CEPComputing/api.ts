@@ -13,11 +13,11 @@ export async function get_cep_engine_list () {
 
 
 export async function get_cep_engine_detail (name: string) { 
-    let value
+    let res
     model.execute(async () => { 
-        value = (await model.ddb.eval(`toStdJson(getCEPEngineStat(${JSON.stringify(name)}))`)).value
+        const { value } = (await model.ddb.eval(`toStdJson(getCEPEngineStat(${JSON.stringify(name)}))`))
+        res = safe_json_parse(value) as IServerEngineDetail
     })
-    const res = safe_json_parse(value) as IServerEngineDetail
     return {
         ...res,
         msgSchema: res?.msgSchema?.map(item => ({
