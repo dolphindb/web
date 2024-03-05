@@ -34,9 +34,9 @@ export const SendEventModal = NiceModal.create(({ on_refresh, engine_info }: IPr
     const msg_item = useMemo(() => {
         const item = msgSchema.find(item => item.eventType === event_type)
         return {
-            types: item?.eventValuesTypeStringList?.concat(['DECIMAL(32)S']) ?? [ ],
-            type_ids: item?.eventValuesTypeIntList?.concat([DdbType.decimal32]) ?? [ ],
-            keys: item?.eventKeys?.concat(['test']) ?? [ ]
+            types: item?.eventValuesTypeStringList ?? [ ],
+            type_ids: item?.eventValuesTypeIntList ?? [ ],
+            keys: item?.eventKeys ?? [ ]
         }
      }, [event_type])
     
