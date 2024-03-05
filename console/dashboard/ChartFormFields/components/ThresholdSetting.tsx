@@ -52,7 +52,6 @@ export function ThresholdSettingList () {
                             
                             return <Form.Item
                                 tooltip={t('仅支持数据轴')}
-                                initialValue={0}
                                 label={type === 0 ? t('关联 X 轴') : t('关联 Y 轴')}
                                 name={concat_name_path(field.name, 'axis')}
                             >

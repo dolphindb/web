@@ -405,7 +405,8 @@ export function convert_chart_config (
         if (threshold.axis_type === 0) {
             // x 轴只有 1 个，所以直接更改第一个 series 的 markArea 或者 markLine 即可
             const idx = 0
-            let valid_values = threshold.values.filter(item => isFinite(item?.value))
+            let valid_values = threshold.values.filter(item => item?.value && isFinite(item?.value))
+            
             if (threshold.type === ThresholdType.PERCENTAGE && axis_range_map) {
                 // 百分比分界需要计算 values 中实际的 value 值
                 const { min = 0, max = 0 } = axis_range_map[`x_${threshold.axis}`] ?? { }
@@ -414,7 +415,10 @@ export function convert_chart_config (
             
             let mark_area_data = [ ]
             let mark_line_data = [ ]
-            const sorted_values = valid_values.sort((a, b) => a.value - b.value)
+            
+            
+            const sorted_values = valid_values.filter(Boolean).sort((a, b) => a.value - b.value)
+            
             
             for (let i = 0;  i < sorted_values.length;  i++)  
                 // 区域颜色分界
