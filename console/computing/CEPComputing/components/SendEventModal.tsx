@@ -13,16 +13,15 @@ interface IProps {
     on_refresh: () => void
 }
 
-export const SendEventModal = NiceModal.create((props: IProps) => { 
-    const { on_refresh } = props
+export const SendEventModal = NiceModal.create(({ on_refresh, engine_info }: IProps) => { 
     
-    const { msgSchema, engineStat: { name } } = props.engine_info
+    const { msgSchema, engineStat: { name } } = engine_info
+    
     const modal = useModal()
     const [form] = Form.useForm()
     
     const on_send = useCallback(async () => {
-        let values
-        values = await form.validateFields()
+        const values = await form.validateFields()
         const params = new DdbDict(values)
         await model.execute(async () => model.ddb.call('appendEvent', [name, params]))
         message.success(t('发送成功'))

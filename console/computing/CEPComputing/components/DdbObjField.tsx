@@ -1,9 +1,10 @@
 
 import { DatePicker, TimePicker, type DatePickerProps, type InputNumberProps, InputNumber, Input, type InputProps, type TimePickerProps, Space } from 'antd'
-import { type ChangeEventHandler, useCallback, useState, useEffect } from 'react'
+import { useCallback, useState, useEffect } from 'react'
 import { model } from '../../../model.js'
 import { t } from '../../../../i18n/index.js'
 import { DdbType } from 'dolphindb'
+import type { FocusEventHandler } from 'react'
 
 interface IProps extends Omit<DatePickerProps, 'onChange'> { 
     onChange?: (val: any) => void
@@ -66,15 +67,15 @@ interface IDdbObjInputNumberProps extends Omit<InputNumberProps, 'onChange'> {
 /** 将数值类输入转化为 ddb 的数值格式 */
 export function DdbObjInputNumber ({ onChange, value, ...others }: IDdbObjInputNumberProps) { 
     
-    const on_value_change = useCallback(async (val: string | number) => { 
-        // 开启高精度模式，onChange 事件会返回 string 类型，其他模式下是 number 类型
-        if (typeof val === 'number')
-            val = JSON.stringify(val)
+    const on_blur = useCallback<FocusEventHandler<HTMLInputElement>>(async e => { 
+        let val = e.target.value
         const obj = await model.ddb.eval(val)
         onChange(obj)
     }, [ ])
     
-    return <InputNumber {...others} onChange={on_value_change} />
+    
+    
+    return <InputNumber {...others} onBlur={on_blur} />
 }
 
 interface IDdbObjInput extends Omit<InputProps, 'onChange'> { 
@@ -85,7 +86,7 @@ interface IDdbObjInput extends Omit<InputProps, 'onChange'> {
 /** 将 input 输入的值转化为 ddb 对象 */
 export function DdbObjInputField ({ onChange, value, type_id, ...others }: IDdbObjInput) { 
     
-    const on_value_change = useCallback<ChangeEventHandler<HTMLInputElement>>(async e => {
+    const on_blur = useCallback<FocusEventHandler<HTMLInputElement>>(async e => {
         let execute_str = e.target.value
         
         switch (type_id) { 
@@ -114,7 +115,7 @@ export function DdbObjInputField ({ onChange, value, type_id, ...others }: IDdbO
         }
      }, [ type_id ])
     
-    return <Input placeholder={t('请输入')} {...others} onChange={on_value_change} />
+    return <Input placeholder={t('请输入')} {...others} onBlur={on_blur} />
     
 }
 
@@ -160,8 +161,8 @@ export function DecimalObjInputField (props: IDecimalObjInputFieldProps) {
     }, [value, precision, transfer_decimal])
     
     return <Space className='decimal-field-wrapper'>
-        <Input placeholder={t(`${type} 的值`)} onChange={e => { set_value(e.target.value) } } />
-        <InputNumber placeholder={t(`${type} 的精度`)} precision={0} onChange={val => { set_precision(val) } } />
+        <Input placeholder={t(`${type} 的值`)} onBlur={e => { set_value(e.target.value) } } />
+        <InputNumber placeholder={t(`${type} 的精度`)} precision={0} onBlur={e => { set_precision(e.target.value) } } />
     </Space>
  }
 

@@ -4,13 +4,19 @@ import { type ICEPEngineDetail, type CEPEngineItem, type DataViewEngineItem, typ
 
 
 export async function get_cep_engine_list () { 
-    const res = await model.ddb.eval('getStreamEngineStat().CEPEngine')
+    let res
+    await model.execute(async () => { 
+        res = await model.ddb.eval('getStreamEngineStat().CEPEngine')
+    })
     return res.value ? sql_formatter(res) as CEPEngineItem[] : [ ]
 }
 
 
 export async function get_cep_engine_detail (name: string) { 
-    const { value } = await model.ddb.eval(`toStdJson(getCEPEngineStat(${JSON.stringify(name)}))`)
+    let value
+    model.execute(async () => { 
+        value = (await model.ddb.eval(`toStdJson(getCEPEngineStat(${JSON.stringify(name)}))`)).value
+    })
     const res = safe_json_parse(value) as IServerEngineDetail
     return {
         ...res,
@@ -25,11 +31,15 @@ export async function get_cep_engine_detail (name: string) {
 
 
 export async function get_dataview_info (engine_name: string, dataview_name: string) { 
-    const dataview_info = await model.ddb.call('getDataViewEngine', [engine_name, dataview_name])
-    const engine_detail = await get_cep_engine_detail(engine_name)
+    
+    let dataview_info
+    let engine_detail
+    
+    model.execute(async () => {
+        dataview_info = await model.ddb.call('getDataViewEngine', [engine_name, dataview_name])
+        engine_detail = await get_cep_engine_detail(engine_name)
+    })
     const [key_col] = engine_detail.dataViewEngines?.find(item => item.name === dataview_name)?.keyColumns?.split(' ')
-    
     const data_view_table = sql_formatter(dataview_info)
-    
     return { table: data_view_table, key_col, keys: data_view_table.map(item => item[key_col]) }
 }
