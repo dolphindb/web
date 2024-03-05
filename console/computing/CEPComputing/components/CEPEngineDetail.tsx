@@ -372,7 +372,7 @@ export function CEPEngineDetail (props: IProps) {
             </Radio.Group>
             
             <Space>
-                <Button onClick={on_send_event} icon={<SendOutlined />} type='primary'>{t('发送事件到引擎')}</Button>
+                <Button onClick={on_send_event} icon={<SendOutlined />}>{t('发送事件到引擎')}</Button>
                 {page === EngineDetailPage.INFO && <Button onClick={on_refresh} icon={<RedoOutlined />}>{t('刷新')}</Button>}
             </Space>
         </div>
