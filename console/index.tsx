@@ -19,6 +19,10 @@ import ko from 'antd/locale/ko_KR.js'
 
 import { language } from '../i18n/index.js'
 
+import dayjs from 'dayjs'
+import 'dayjs/locale/zh-cn'
+dayjs.locale(language === 'zh' ? 'zh-cn' : language)
+
 import { model } from './model.js'
 
 import { DdbHeader } from './components/DdbHeader.js'
@@ -33,10 +37,7 @@ import { Job } from './job.js'
 import { Log } from './log.js'
 import { Computing } from './computing/index.js'
 import { DashBoard } from './dashboard/index.js'
-import dayjs from 'dayjs'
-import 'dayjs/locale/zh-cn'
 
-dayjs.locale(language === 'zh' ? 'zh-cn' : language)
 
 createRoot(
     document.querySelector('.root')

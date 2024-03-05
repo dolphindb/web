@@ -1,4 +1,4 @@
-import { type DdbForm, type DdbType } from 'dolphindb'
+import type { DdbForm, DdbType } from 'dolphindb/browser.js'
 
 export interface CEPEngineItem { 
     /** 引擎名称 */

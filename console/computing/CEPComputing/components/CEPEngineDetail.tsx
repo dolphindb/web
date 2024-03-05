@@ -1,17 +1,18 @@
 import '../index.scss'
-import { Badge, Descriptions, type DescriptionsProps, Radio, Table, type TableColumnsType, Space, Empty, Typography, Select, Input, Pagination, Spin } from 'antd'
+
+import { Badge, Descriptions, type DescriptionsProps, Radio, Table, type TableColumnsType, Space, Empty, Typography, Select, Input, Pagination, Spin, Button } from 'antd'
 import { useCallback, useEffect, useMemo, useState } from 'react'
+import { RedoOutlined, SearchOutlined, SendOutlined } from '@ant-design/icons'
+import { DDB, type StreamingMessage } from 'dolphindb/browser.js'
+import NiceModal from '@ebay/nice-modal-react'
+import cn from 'classnames'
+
 import { type ICEPEngineDetail, EngineDetailPage, type SubEngineItem } from '../type.js'
 import { t } from '../../../../i18n/index.js'
-import { Button } from 'antd'
-import { RedoOutlined, SearchOutlined, SendOutlined } from '@ant-design/icons'
 import { get_dataview_info } from '../api.js'
-import { DDB, type StreamingMessage } from 'dolphindb'
 import { model } from '../../../model.js'
 import { stream_formatter } from '../../../dashboard/utils.js'
-import NiceModal from '@ebay/nice-modal-react'
 import { SendEventModal } from './SendEventModal.js'
-import cn from 'classnames'
 
 
 function EngineInfo ({ info }: { info: ICEPEngineDetail }) {
@@ -206,14 +207,9 @@ function DataView ({ info }: { info: ICEPEngineDetail }) {
     // 订阅流表
     const on_subscribe = useCallback(async (streaming_table: string, key_column: string) => { 
         // 订阅前取消上个 dataview 的订阅
-        if (cep_ddb)  
-            cep_ddb.disconnect()
-            
-        const url_search_params = new URLSearchParams(location.search)
-        const streaming_host = (model.dev || model.cdn) ? url_search_params.get('hostname') + ':' + new URLSearchParams(location.search).get('port') : location.host
-        const url =  (location.protocol === 'https:' ? 'wss' : 'ws') + '://' + streaming_host
+        cep_ddb?.disconnect()
         
-        const cep_streaming_ddb = new DDB(url, {
+        const cep_streaming_ddb = new DDB(model.ddb.url, {
             autologin: !!username,
             username,
             password,
@@ -224,7 +220,7 @@ function DataView ({ info }: { info: ICEPEngineDetail }) {
                         console.error(message.error)
                         return
                     }
-                    // @ts-ignore
+                    
                     const streaming_data = stream_formatter(message.data, 0, message.colnames)
     
                     for (let item of streaming_data)  

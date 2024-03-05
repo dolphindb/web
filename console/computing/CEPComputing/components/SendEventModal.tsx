@@ -1,12 +1,12 @@
 import NiceModal, { useModal } from '@ebay/nice-modal-react'
 import { Form, Modal, Select, Typography, message } from 'antd'
-import { useCallback } from 'react'
+import { useCallback, useMemo } from 'react'
+
 import { type ICEPEngineDetail } from '../type.js'
 import { t } from '../../../../i18n/index.js'
-import { DdbDict, DdbType } from 'dolphindb'
+import { DdbDict, DdbType } from 'dolphindb/browser.js'
 import { model } from '../../../model.js'
 import { DdbObjField } from './DdbObjField.js'
-import { useMemo } from 'react'
 
 interface IProps { 
     engine_info: ICEPEngineDetail
@@ -14,7 +14,6 @@ interface IProps {
 }
 
 export const SendEventModal = NiceModal.create((props: IProps) => { 
-    
     const { on_refresh } = props
     
     const { msgSchema, engineStat: { name } } = props.engine_info
@@ -25,7 +24,7 @@ export const SendEventModal = NiceModal.create((props: IProps) => {
         let values
         values = await form.validateFields()
         const params = new DdbDict(values)
-        await model.execute(async () => model.ddb.call('appendEvent', [name, params as any]))
+        await model.execute(async () => model.ddb.call('appendEvent', [name, params]))
         message.success(t('发送成功'))
         on_refresh?.()
         modal.hide()
