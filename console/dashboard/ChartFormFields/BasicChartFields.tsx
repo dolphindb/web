@@ -123,7 +123,7 @@ export function AxisItem ({ name_path, col_names = [ ], list_name, initial_value
                                 initialValue={initial_values?.time_format}
                                 hidden={hidden_fields?.includes('time_format')}
                             >
-                                <Select options={format_time_options.slice(4)}/>
+                                <Select options={format_time_options.slice(5)}/>
                             </Form.Item>
                             <FormDependencies dependencies={[concat_name_path(list_name, name_path, 'time_format')]}>
                                 {value => { 
