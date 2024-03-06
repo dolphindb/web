@@ -26,7 +26,6 @@ const icons = {
     [WidgetType.SCATTER]: <DotChartOutlined className='icon' />,
     [WidgetType.HEATMAP]: <WindowsOutlined className='icon' />,
     [WidgetType.COMPOSITE_GRAPH]: <GoldOutlined className='icon' />,
-    [WidgetType.TIME_SERIES]: <Icon component={timeSeriesSvg} className='icon'/>
 }
 
 

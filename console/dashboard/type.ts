@@ -106,6 +106,8 @@ export interface IChartConfig {
     x_datazoom: boolean
     y_datazoom: boolean
     animation?: boolean
+    // 复合图支持此选项
+    is_time_series_mode?: boolean
     splitLine: {
         show: boolean
         lineStyle: {

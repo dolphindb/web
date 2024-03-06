@@ -24,7 +24,7 @@ export function HostSelect () {
             },
             {
                 label: '数据面板.演示',
-                value: '115.239.209.228:8666'
+                value: '183.134.101.138:8666'
             },
             {
                 label: '因子管理',

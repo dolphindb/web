@@ -9,7 +9,7 @@ import dayjs from 'dayjs'
 
 import { WidgetChartType, type Widget, dashboard, DashboardPermission } from './model.js'
 import { type AxisConfig, type IChartConfig, type ISeriesConfig } from './type.js'
-import { subscribe_data_source, type DataSource } from './DataSource/date-source.js'
+import { subscribe_data_source, type DataSource, get_data_source } from './DataSource/date-source.js'
 import { AxisType, ILineType, MarkPresetType, ThresholdShowType, ThresholdType } from './ChartFormFields/type.js'
 import { find_variable_by_name, get_variable_copy_infos, get_variable_value, paste_variables, subscribe_variable } from './Variable/variable.js'
 import { t } from '../../i18n/index.js'
@@ -235,6 +235,10 @@ export function get_axis_range (type: number, echart_instance: EChartsInstance, 
     return echart_instance.getModel().getComponent(type === 0 ? 'xAxis' : 'yAxis', idx).axis.scale._extent
 }
 
+function get_data_source_cols (data_source_id, col) {
+    return get_data_source(data_source_id).data.map(item => item[col])
+} 
+
 export function convert_chart_config (
     widget: Widget,
     data_source: any[],
@@ -311,13 +315,7 @@ export function convert_chart_config (
             max: [AxisType.TIME, AxisType.VALUE].includes(axis.type) ? axis.max : undefined
         }
         
-        if (axis.type === AxisType.CATEGORY)
-            // 热力图的类目数据需为去重之后的数据
-            return {
-                ...axis_config, data: widget.type === WidgetChartType.HEATMAP ? uniq(data) : data || [ ]
-            }
-        else
-            return axis_config
+        return axis_config
     }
     
     function convert_series (series: ISeriesConfig) {
@@ -333,21 +331,20 @@ export function convert_chart_config (
         
         let data = [ ]
         
-        // 无类目轴的情况下，series 每项为二维数组，第一个为 x 轴的值，第二个为 y 轴的值
-        if (![xAxis?.type, yAxis?.[series?.yAxisIndex]?.type].includes(AxisType.CATEGORY)) 
-            data = data_source.map(item => { 
-                return {
-                    name: format_time(item?.[xAxis.col_name], xAxis.time_format),
-                    value: [format_time(item?.[xAxis.col_name], xAxis.time_format), item?.[series.col_name]]
-                }
-            })
-         else  
-            // 有类目轴的情况下，类目信息从 axis 中取
-            data = data_source.map(item => item?.[series.col_name])
+        // 多数据源的情况下，series 中会有 data_source_id 和 x_col_name，代表数据源 id 和 x 轴名称
+        const { col_name, x_col_name, data_source_id, yAxisIndex } = series
         
-        // 类目轴 x 轴数据可以从 xAxis 中取，可以用模版字符串，其他类型的图，series data 中包含了 x 轴数据与 y 轴数据，需要替换
+        if (data_source_id) {
+            // 多数据源的情况
+            const x_data = get_data_source_cols(data_source_id, x_col_name).map(x => format_time(x, xAxis.time_format))
+            const y_data = get_data_source_cols(data_source_id, col_name).map(y => format_time(y, yAxis[yAxisIndex].time_format))
+            data = x_data.map((x, idx) => ([x, y_data[idx]]))
+        } else  
+            data = data_source.map(item => [format_time(item?.[xAxis.col_name], xAxis.time_format), item?.[series.col_name]])
+        
+        // {b} 代表 xAxis 中的 data，x 轴的数据现在都在 series 中，需要替换
         let end_label_formatter = series?.end_label_formatter
-        if (xAxis.type !== AxisType.CATEGORY && end_label_formatter)
+        if (end_label_formatter)
             end_label_formatter = end_label_formatter.replaceAll('{b}', '{@[0]}').replaceAll('{c}', '{@[1]}')
         
         return {

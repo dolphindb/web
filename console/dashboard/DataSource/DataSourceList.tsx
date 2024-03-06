@@ -126,9 +126,7 @@ export function DataSourceList ({
     
     useEffect(() => { on_select(checked_keys) }, [checked_keys])
     
-    const checkable = useMemo(() => widget
-        ? [WidgetChartType.COMPOSITE_GRAPH, WidgetChartType.TIME_SERIES].includes(widget.type)
-        : false, [widget])
+    const checkable = useMemo(() => widget && WidgetChartType.COMPOSITE_GRAPH === widget.type, [widget])
     
     const tree_ref = useRef(null)
     

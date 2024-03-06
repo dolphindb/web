@@ -28,20 +28,21 @@ export function SeriesItem (props: SeriesItemProps) {
     const { name, type, col_names, path } = props
     const { widget } = dashboard.use(['widget'])
     
-    // 是否为热力图，混合图，复合图，时序图
-    const [is_heat_map, is_mix_type, is_composite, is_time_series] = useMemo(() => [
+    // 是否为热力图，混合图，复合图
+    const [is_heat_map, is_mix_type, is_composite] = useMemo(() => [
         type === WidgetChartType.HEATMAP,
         type === WidgetChartType.MIX,
-        type === WidgetChartType.COMPOSITE_GRAPH,
-        type === WidgetChartType.TIME_SERIES
+        type === WidgetChartType.COMPOSITE_GRAPH
     ], [type])
     
     const form = Form.useFormInstance()
+    // 复合图是否开启时序模式
+    const is_time_series = Form.useWatch('is_time_series_mode', form)
     
-    /** 数据列选择，复合图需要特殊处理，时序图不需要选择数据列，默认全展示，只需要配置 */
+    /** 数据列选择，复合图需要特殊处理 */
     const select_col_field = useMemo(() => {
-        if (is_composite)
-            return <>
+        if (is_composite) 
+            return is_time_series ? null : <>
                 <Form.Item label={t('数据源')} name={concat_name_path(name, 'data_source_id')}>
                     <Select options={
                         widget.source_id.map(id => {
@@ -64,8 +65,6 @@ export function SeriesItem (props: SeriesItemProps) {
                     }}
                 </FormDependencies>
             </>
-        else if (is_time_series)
-            return null
         else  
             return <Form.Item name={concat_name_path(name, 'col_name')} label={type === WidgetChartType.HEATMAP ? t('热力值列') : t('数据列')} initialValue={col_names?.[0]} >
                 <Select

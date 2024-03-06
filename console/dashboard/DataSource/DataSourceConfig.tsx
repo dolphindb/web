@@ -56,7 +56,7 @@ export function DataSourceConfig (props: IProps, ref) {
     const no_save_flag = useRef(false)
     
     const is_multi_data_source = useMemo(
-        () => [WidgetChartType.COMPOSITE_GRAPH, WidgetChartType.TIME_SERIES].includes(widget?.type)
+        () => WidgetChartType.COMPOSITE_GRAPH === widget?.type
         , [widget?.type])
     
     useEffect(() => { 

@@ -562,7 +562,6 @@ export enum WidgetType {
     VARIABLE = '变量',
     SCATTER = '散点图',
     COMPOSITE_GRAPH = '复合图',
-    TIME_SERIES = '时序图',
     HEATMAP = '热力图'
 }
 
@@ -583,7 +582,6 @@ export enum WidgetChartType {
     SCATTER = 'SCATTER',
     HEATMAP = 'HEATMAP',
     COMPOSITE_GRAPH = 'COMPOSITE_GRAPH',
-    TIME_SERIES = 'TIME_SERIES'
 }
 
 export enum DashboardPermission {

@@ -170,8 +170,8 @@ export function AxisItem ({ name_path, col_names = [ ], list_name, initial_value
 
 
 
-function Series (props: { col_names: string[], single?: boolean }) { 
-    const { col_names, single = false } = props
+export function Series (props: { col_names?: string[], single?: boolean }) { 
+    const { col_names = [ ], single = false } = props
     const { widget } = dashboard.use(['widget'])
     
     const type = useMemo(() => widget.type, [widget])

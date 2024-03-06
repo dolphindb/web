@@ -7,7 +7,6 @@ import { useMemo } from 'react'
 import { BoolRadioGroup } from '../../components/BoolRadioGroup/index.js'
 import { variables } from '../Variable/variable.js'
 import { convert_list_to_options } from '../utils.js'
-import { FormDependencies } from '../../components/formily/FormDependcies/index.js'
 
 import { TitleFields } from './components/Title.js'
 import { LegendFields } from './components/Legend.js'
@@ -16,6 +15,7 @@ import { SplitLineFields } from './components/SplitLine.js'
 import { DataZoomFields } from './components/DataZoom.js'
 import { WrapperFields } from './components/Wrapper.js'
 import { ChartField } from './type.js'
+import { WidgetChartType, dashboard } from '../model.js'
 
 
 export function VariableSetting () { 
@@ -59,8 +59,11 @@ export function PaddingSetting () {
 }
 
 export function BasicFormFields (props: { type?: 'chart' | 'table' | 'description', chart_fields?: ChartField[] }) { 
+    const { widget } = dashboard.use(['widget'])
     
     const { type, chart_fields = [ChartField.LEGEND, ChartField.DATA_ZOOM, ChartField.SPLIT_LINE, ChartField.TOOLTIP] } = props
+    
+    const form = Form.useFormInstance()
     
     const FormFields = useMemo(() => {
         return  <div className='axis-wrapper'>
@@ -68,7 +71,17 @@ export function BasicFormFields (props: { type?: 'chart' | 'table' | 'descriptio
             <WrapperFields />
             {type === 'chart' && <Form.Item name='animation' label={t('是否开启动画')} initialValue>
                 <BoolRadioGroup />
-            </Form.Item> }
+            </Form.Item>}
+            
+            {widget.type === WidgetChartType.COMPOSITE_GRAPH && <Form.Item
+                name='is_time_series_mode'
+                label={t('开启时序模式')}
+                initialValue={false}
+                tooltip={t('开启时序模式会自动查找各数据源时间类型的列作为 X 轴，各数据源数值列作为数据列，在数据列配置区域可对特定数据列进行个性化配置')}
+            >
+               <BoolRadioGroup />
+            </Form.Item>}
+            
             
             {type === 'table' && <>
                 <Form.Item initialValue={false} name='bordered' label={t('展示边框')}>
