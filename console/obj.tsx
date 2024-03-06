@@ -954,6 +954,12 @@ export function StreamingTable ({
                     )
                 }}>测试添加一条数据 2000 次</Button></div>
                 
+                <Button onClick={() => {
+                    throw new Error('出错了')
+                }}>
+                    测试错误捕获
+                </Button>
+                
                 <div>应添加行数: {rappended.current}</div>
                 <div>实际的行数: {rreceived.current}</div>
                 <div>上面两个应该相等</div>

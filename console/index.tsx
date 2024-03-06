@@ -10,14 +10,14 @@ import { createRoot } from 'react-dom/client'
 
 import NiceModal from '@ebay/nice-modal-react'
 
-import { Layout, ConfigProvider, App } from 'antd'
+import { Layout, ConfigProvider, App, Modal } from 'antd'
 import zh from 'antd/es/locale/zh_CN.js'
 import en from 'antd/locale/en_US.js'
 import ja from 'antd/locale/ja_JP.js'
 import ko from 'antd/locale/ko_KR.js'
 
 
-import { language } from '../i18n/index.js'
+import { language, t } from '../i18n/index.js'
 
 import { model } from './model.js'
 
@@ -67,6 +67,19 @@ function MainLayout () {
         model.execute(async () => model.init())
     }, [ ])
     
+    useEffect(() => { 
+        window.onerror = async function (_errorMessage, _scriptURI, _lineNo, _columnNo, error) {
+            const dashboard = (new URLSearchParams(location.search)).get('dashboard')
+            // dashboard 主题不一致，还是需要用 model.execute
+            if (!dashboard)
+                await Modal.error({
+                    title: t('错误信息'),
+                    content: error.stack,
+                    className: 'error-catch-modal',
+                })  
+        }
+    }, [ ])
+    
     useEffect(() => {
         if (model.dev) {
             async function on_keydown (event: KeyboardEvent) {
@@ -80,7 +93,7 @@ function MainLayout () {
                     !alt
                 ) {
                     event.preventDefault()
-                    await model.execute(async () => model.recompile_and_refresh())
+                    await model.recompile_and_refresh()
                 }
             }
             

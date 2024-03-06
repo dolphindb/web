@@ -35,12 +35,10 @@ export function Log () {
     
     async function init () {
         set_index(1)
-        await model.execute(async () => {
-            const temp = await get_log_length()
-            const offset = temp > default_length ? temp - default_length : BigInt(0)
-            const length = temp > default_length ? default_length : temp
-            await get_log(length, offset)
-        })
+        const temp = await get_log_length()
+        const offset = temp > default_length ? temp - default_length : BigInt(0)
+        const length = temp > default_length ? default_length : temp
+        await get_log(length, offset)
     }
     
     async function get_log (length: bigint, offset: bigint) {
