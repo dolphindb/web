@@ -64,20 +64,8 @@ function MainLayout () {
     Object.assign(model, App.useApp())
     
     useEffect(() => {
-        model.execute(async () => model.init())
-    }, [ ])
-    
-    useEffect(() => { 
-        window.onerror = async function (_errorMessage, _scriptURI, _lineNo, _columnNo, error) {
-            const dashboard = (new URLSearchParams(location.search)).get('dashboard')
-            // dashboard 主题不一致，还是需要用 model.execute
-            if (!dashboard)
-                await Modal.error({
-                    title: t('错误信息'),
-                    content: error.stack,
-                    className: 'error-catch-modal',
-                })  
-        }
+        model.init()
+        return () => { window.removeEventListener('error', model.catch_error_event) }
     }, [ ])
     
     useEffect(() => {
