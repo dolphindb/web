@@ -41,8 +41,8 @@ function EngineInfo ({ info }: { info: ICEPEngineDetail }) {
             children: engineStat?.numOfSubEngine ?? '-'
         },
         {
-            key: t('收到事件数量'),
-            label: t('收到事件数量'),
+            key: t('接收事件数量'),
+            label: t('接收事件数量'),
             children: engineStat?.eventsReceived ?? '-'
         },
         {
@@ -51,8 +51,8 @@ function EngineInfo ({ info }: { info: ICEPEngineDetail }) {
             children: engineStat?.eventsEmitted ?? '-'
         },
         {
-            key: t('队列深度'),
-            label: t('队列深度'),
+            key: t('队列最大深度'),
+            label: t('队列最大深度'),
             children: engineStat?.queueDepth ?? '-'
         },
         {
@@ -83,7 +83,7 @@ function EngineInfo ({ info }: { info: ICEPEngineDetail }) {
         },
         {
             dataIndex: 'eventsOnInputQueue',
-            title: t('输入队列中待处理事件数'),
+            title: t('接收队列中待处理事件数量'),
             width: 200,
         },
         {
@@ -93,22 +93,22 @@ function EngineInfo ({ info }: { info: ICEPEngineDetail }) {
         },
         {
             dataIndex: 'timers',
-            title: t('计时器监听数'),
+            title: t('计时器数量'),
             width: 150,
         },
         {
             dataIndex: 'eventsRouted',
-            title: t('内部 Routed 的事件数'),
+            title: t('内部路由事件数量'),
             width: 200,
         },
         {
             dataIndex: 'eventsSent',
-            title: t('发送事件数'),
+            title: t('内部发送事件数量'),
             width: 150,
         },
         {
             dataIndex: 'eventsReceived',
-            title: t('接收事件数'),
+            title: t('接收事件数量'),
             width: 150,
         },
         {
