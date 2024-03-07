@@ -68,9 +68,9 @@ export const SendEventModal = NiceModal.create(({ on_refresh, engine_info }: IPr
                                 {
                                     validator: async (_, value, cb) => { 
                                         if (!value)
-                                            return Promise.reject(t('请输入'))
+                                            return Promise.reject(t('请输入事件字段'))
                                         else if (msg_item.type_ids[idx] !== value?.type)
-                                            return Promise.reject(t('输入类型有误，请检查'))
+                                            return Promise.reject(t('字段类型有误，请检查'))
                                 } }
                             ]}
                         >
