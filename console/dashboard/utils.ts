@@ -1,7 +1,7 @@
 import { type NamePath } from 'antd/es/form/interface'
 import { type DdbObj, DdbForm, DdbType, nulls, type DdbValue, format, type InspectOptions, type DdbMatrixValue } from 'dolphindb/browser.js'
 import { is_decimal_null_value } from 'dolphindb/shared/utils/decimal-type.js'
-import { isNil, pickBy, uniq } from 'lodash'
+import { isNil, isNumber, pickBy, uniq } from 'lodash'
 import { createRef } from 'react'
 import { genid } from 'xshell/utils.browser.js'
 import copy from 'copy-to-clipboard'
@@ -579,10 +579,11 @@ export function safe_json_parse (val) {
 export function format_number (val: any, decimal_places, is_thousandth_place) {
     let value = val
     try {
-        if (!isNaN(Number(val)) && typeof decimal_places === 'number') {
+        if (isFinite(val) && isNumber(decimal_places)) {
             // 0 不需要格式化
             if (Number(val) === 0)
                 return 0
+        
             value = Number(val).toFixed(decimal_places)
         }
         else if (typeof val === 'string') {

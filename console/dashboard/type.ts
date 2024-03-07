@@ -231,6 +231,8 @@ export interface IGaugeConfig {
     label_size?: number
     value_size?: number
     animation?: boolean
+    split_number?: number
+    value_precision?: number
     
     axis_setting: Array<{
         threshold: number
