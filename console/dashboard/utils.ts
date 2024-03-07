@@ -140,7 +140,7 @@ export function sql_formatter (obj: DdbObj<DdbValue>, max_line: number): any {
             
             return rows
         default:
-            throw new Error('返回结果必须是table')
+            throw new Error('返回结果必须是 table 或 matrix')
     }
     
 }
