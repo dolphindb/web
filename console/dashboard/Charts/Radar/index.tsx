@@ -71,7 +71,7 @@ export function Radar ({ widget, data_source }: { widget: Widget, data_source: a
         },
         [title, tooltip, series, title_size, labels, data_source, legend]
     )
-    console.log(option, 'option')
+    
     // 编辑模式下 notMerge 为 true ，因为要修改配置，预览模式下 notMerge 为 false ，避免数据更新，导致选中的 label失效
     return <ReactEChartsCore
         notMerge={dashboard.editing}
