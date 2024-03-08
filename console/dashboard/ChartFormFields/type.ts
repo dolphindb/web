@@ -90,3 +90,12 @@ export enum ThresholdShowType {
     FILLED_REGION,
     LINE
 }
+
+
+
+export enum MatchRuleType {
+    NAME,
+    REGEXP,
+    DATA_TYPE,
+    DATA_SOURCE
+}

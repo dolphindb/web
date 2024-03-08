@@ -4,7 +4,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react'
 import ReactEChartsCore from 'echarts-for-react/lib/core'
 import * as echarts from 'echarts'
 import { Button, Collapse, type CollapseProps, Form, Select, Tooltip, Input } from 'antd'
-import { get, uniq } from 'lodash'
+import { get, pickBy, uniq } from 'lodash'
 import { DdbType } from 'dolphindb'
 import type { EChartsInstance } from 'echarts-for-react'
 import { DeleteOutlined, PlusCircleOutlined, QuestionCircleOutlined } from '@ant-design/icons'
@@ -13,7 +13,7 @@ import { DeleteOutlined, PlusCircleOutlined, QuestionCircleOutlined } from '@ant
 import { BasicFormFields } from '../../ChartFormFields/BasicFormFields.js'
 import { t } from '../../../../i18n/index.js'
 import { AxisItem, Series, ThresholdFormFields, YAxis } from '../../ChartFormFields/BasicChartFields.js'
-import { AxisType } from '../../ChartFormFields/type.js'
+import { AxisType, MatchRuleType } from '../../ChartFormFields/type.js'
 import { FormDependencies } from '../../../components/formily/FormDependcies/index.js'
 import { concat_name_path, convert_chart_config, convert_list_to_options, format_time, get_axis_range } from '../../utils.js'
 import { DDB_TYPE_MAP } from '../../../constants/ddb-type-maps.js'
@@ -23,13 +23,6 @@ import { type ISeriesConfig, type IChartConfig } from '../../type.js'
 import { get_data_source } from '../../DataSource/date-source.js'
 import { BoolRadioGroup } from '../../../components/BoolRadioGroup/index.js'
 
-
-
-enum MatchRuleType {
-    NAME,
-    REGEXP,
-    DATA_TYPE
-}
 
 interface ICompositeSeriesConfig extends ISeriesConfig { 
     match_type?: MatchRuleType
@@ -49,6 +42,15 @@ interface ICompositeChartProps {
 }
 
 const series_match_type_options = [
+    {
+        label: <>
+            {t('数据源匹配')}
+            <Tooltip title={t('同数据源的数值列采用同配置')}>
+                <QuestionCircleOutlined className='series_match_type_tip'/>
+            </Tooltip>
+        </>,
+        value: MatchRuleType.DATA_SOURCE
+    },
     {
         label: <>
             {t('列名完全匹配')}
@@ -161,14 +163,27 @@ export function CompositeChart (props: ICompositeChartProps) {
                             case MatchRuleType.REGEXP:
                                 try { return eval(match_value)?.test(col) }
                                 catch (e) { return false }
+                            case MatchRuleType.DATA_SOURCE:
+                                return data_source_id === match_value
                             default:
                                 return false
                         }
                     })
-                    
+                    console.log(match_rule, 'match_rule', col)
                     // 选了不展示数据列则不添加，其他情况下都添加
-                    if (!(match_rule?.show === false))  
-                        series.push({ data_source_id, x_col_name: time_col, col_name: col, type: 'line', yAxisIndex: 0, ...match_rule, name: col, })  
+                    if (!(match_rule?.show === false)) 
+                        series.push({
+                            data_source_id,
+                            x_col_name: time_col,
+                            type: 'line',
+                            yAxisIndex: 0,
+                            ...(pickBy(match_rule)),
+                            name: col,
+                            col_name: col,
+                        })  
+                    
+                        
+                    console.log(series, 'series')
                 }
             }
             const time_series_config = {
@@ -340,6 +355,10 @@ export function CompositeChartConfig () {
                                                 return <Form.Item label={t('数据类型')} name={concat_name_path(field.name, 'match_value')}>
                                                     <Select options={types} mode='multiple'/>
                                                 </Form.Item>
+                                            case MatchRuleType.DATA_SOURCE:
+                                                return <Form.Item label={t('数据源')} name={concat_name_path(field.name, 'match_value')}>
+                                                    <Select options={widget.source_id.map(id => ({ label: get_data_source(id).name, value: id })) } />
+                                                </Form.Item>
                                             default:
                                                 return null
                                         }
@@ -359,11 +378,23 @@ export function CompositeChartConfig () {
                                 </FormDependencies>
                                 
                                  {/* 数据列配置 */}
-                                <FormDependencies dependencies={[concat_name_path('series', field.name, 'show')]}>
+                                <FormDependencies
+                                    dependencies={[
+                                        concat_name_path('series', field.name, 'show'),
+                                        concat_name_path('series', field.name, 'match_type'),
+                                        concat_name_path('series', field.name, 'match_value')
+                                    ]}>
                                     {value => { 
                                         const show = get(value, concat_name_path('series', field.name, 'show'))
+                                        const match_type = get(value, concat_name_path('series', field.name, 'match_type'))
+                                        const data_source = get(value, concat_name_path('series', field.name, 'match_value'))
                                         return show
-                                            ? <SeriesItem col_names={col_options.map(item => item.value) as string[]} type={type} name={field.name} path='series' />
+                                            ? <>
+                                                {match_type === MatchRuleType.DATA_SOURCE && <Form.Item name={concat_name_path(field.name, 'x_col_name')} label={t('x 轴数据列')}>
+                                                    <Select options={convert_list_to_options(get_data_source(data_source).cols)} />
+                                                </Form.Item> }
+                                                <SeriesItem col_names={col_options.map(item => item.value) as string[]} type={type} name={field.name} path='series' />
+                                            </>
                                             : null
                                     } }
                                 </FormDependencies>
