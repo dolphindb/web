@@ -2262,7 +2262,7 @@
         "en": "Step Size"
     },
     "是否使用系统时间": {
-        "en": "Whether to Use System Time"
+        "en": "Use System Time"
     },
     "快照目录": {
         "en": "Snapshot Directory"
@@ -3507,102 +3507,115 @@
         "en": "Queries can only be created on data/compute nodes, or on a standalone server."
     },
     "CEP 流计算引擎": {
-        "en": ""
+        "en": "CEP Streaming Engine"
     },
     "引擎信息": {
-        "en": ""
+        "en": "Engine Info"
     },
     "数据视图": {
-        "en": ""
+        "en": "Data View"
     },
     "发送事件到引擎": {
-        "en": ""
+        "en": "Send Event"
     },
     "CEP 引擎": {
-        "en": ""
+        "en": "CEP Engine"
     },
     "引擎名称": {
-        "en": ""
+        "en": "Engine Name"
     },
     "创建人": {
-        "en": ""
+        "en": "Creator"
     },
-    "子引擎数量": {
-        "en": ""
+    "子引擎数": {
+        "en": "Sub Engines"
     },
-    "接收事件数量": {
-        "en": ""
+    "子引擎数：{{num}}": {
+        "en": "Sub Engines: {{num}}"
     },
-    "发送事件数量": {
-        "en": ""
+    "接收事件数": {
+        "en": "Received Events"
     },
-    "队列最大深度": {
-        "en": ""
+    "发送事件数": {
+        "en": "Sent Events"
     },
-    "队列中发送事件数量": {
-        "en": ""
+    "事件队列最大深度": {
+        "en": "Maximum Event Queue Depth"
+    },
+    "队列中发送事件数": {
+        "en": "Sent Events in Output Queue"
     },
     "最后一条错误信息": {
-        "en": ""
+        "en": "Last Error Message"
     },
     "子引擎信息": {
-        "en": ""
+        "en": "Sub Engine Info"
     },
-    "接收队列中待处理事件数量": {
-        "en": ""
+    "事件队列中待处理事件数": {
+        "en": "Pending Events in Event Queue"
     },
     "事件监听数": {
-        "en": ""
+        "en": "Event Listeners"
     },
-    "计时器数量": {
-        "en": ""
+    "计时器数": {
+        "en": "Timers"
     },
-    "内部路由事件数量": {
-        "en": ""
+    "插入队列头事件数": {
+        "en": "Events Sent to Queue Head"
     },
-    "内部发送事件数量": {
-        "en": ""
+    "插入队列尾事件数": {
+        "en": "Events Sent to Queue Tail"
     },
-    "已处理事件数": {
-        "en": ""
+    "匹配成功事件数": {
+        "en": "Matched Events"
     },
     "最新接收事件的时间": {
-        "en": ""
+        "en": "Timestamp of the Last Received Event"
     },
     "最新错误信息": {
-        "en": ""
+        "en": "Last Error Message"
     },
     "请输入要查询的 key": {
-        "en": ""
+        "en": "Please enter a key for query."
     },
     "发送事件到 {{name}} 引擎": {
-        "en": ""
+        "en": "Send An Event to {{name}} Engine"
     },
     "事件类型": {
-        "en": ""
+        "en": "Event Type"
     },
     "事件字段": {
-        "en": ""
+        "en": "Fields"
     },
     "类型说明": {
-        "en": ""
+        "en": "DataTypes"
     },
-    "DECIMAL32 的值": {
-        "en": ""
+    "{{type}} 的值": {
+        "en": "Value of {{type}}"
     },
-    "DECIMAL32 的精度": {
-        "en": ""
+    "{{type}} 的精度": {
+        "en": "Scale of {{type}}"
     },
     "发送成功": {
-        "en": ""
+        "en": "Success"
     },
     "字段类型有误，请检查": {
-        "en": ""
+        "en": "The entered field type is incorrect."
     },
     "请输入事件字段": {
-        "en": ""
+        "en": "Please enter the fields."
     },
     "请选择事件类型": {
-        "en": ""    
+        "en": "Please select the event type."    
+    },
+    "数据类型为 {{name}}": {
+        "en": "Please enter data of {{name}} type."
+    },
+    "最新错误时间": {
+        "en": "Last Error Time" 
+    },
+    "请选择数据视图": {
+        "en": "Please select a data view"
     }
+    
 }

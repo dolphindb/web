@@ -161,8 +161,8 @@ export function DecimalObjInputField (props: IDecimalObjInputFieldProps) {
     }, [value, precision, transfer_decimal])
     
     return <Space className='decimal-field-wrapper'>
-        <Input placeholder={t(`${type} 的值`)} onBlur={e => { set_value(e.target.value) } } />
-        <InputNumber placeholder={t(`${type} 的精度`)} precision={0} onBlur={e => { set_precision(e.target.value) } } />
+        <Input placeholder={t('{{type}} 的值', { type })} onBlur={e => { set_value(e.target.value) } } />
+        <InputNumber placeholder={t('{{type}} 的精度', { type })} precision={0} onBlur={e => { set_precision(e.target.value) } } />
     </Space>
  }
 

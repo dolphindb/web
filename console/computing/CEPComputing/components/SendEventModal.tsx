@@ -74,7 +74,7 @@ export const SendEventModal = NiceModal.create(({ on_refresh, engine_info }: IPr
                                 } }
                             ]}
                         >
-                            <DdbObjField key={key} type={msg_item.types[idx]} type_id={msg_item.type_ids[idx]} placeholder={t('数据类型为 {{type}}', { type: msg_item.types[idx] }) } />
+                            <DdbObjField key={key} type={msg_item.types[idx]} type_id={msg_item.type_ids[idx]} placeholder={t('数据类型为 {{name}}', { name: msg_item.types[idx] }) } />
                         </Form.Item>
                     ) }
                 </div>

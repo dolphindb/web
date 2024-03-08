@@ -36,23 +36,23 @@ function EngineInfo ({ info }: { info: ICEPEngineDetail }) {
             children: <Badge status='processing' text={t('运行中')} />
         },
         {
-            key: t('子引擎数量'),
-            label: t('子引擎数量'),
+            key: t('子引擎数'),
+            label: t('子引擎数'),
             children: engineStat?.numOfSubEngine ?? '-'
         },
         {
-            key: t('接收事件数量'),
-            label: t('接收事件数量'),
+            key: t('接收事件数'),
+            label: t('接收事件数'),
             children: engineStat?.eventsReceived ?? '-'
         },
         {
-            key: t('发送事件数量'),
-            label: t('发送事件数量'),
+            key: t('发送事件数'),
+            label: t('发送事件数'),
             children: engineStat?.eventsEmitted ?? '-'
         },
         {
-            key: t('队列最大深度'),
-            label: t('队列最大深度'),
+            key: t('事件队列最大深度'),
+            label: t('事件队列最大深度'),
             children: engineStat?.queueDepth ?? '-'
         },
         {
@@ -61,8 +61,8 @@ function EngineInfo ({ info }: { info: ICEPEngineDetail }) {
             children: engineStat?.useSystemTime ? t('是') : t('否')
         },
         {
-            key: t('队列中发送事件数量'),
-            label: t('队列中发送事件数量'),
+            key: t('队列中发送事件数'),
+            label: t('队列中发送事件数'),
             children: engineStat?.eventsOnOutputQueue ?? '-'
         },
         {
@@ -83,7 +83,7 @@ function EngineInfo ({ info }: { info: ICEPEngineDetail }) {
         },
         {
             dataIndex: 'eventsOnInputQueue',
-            title: t('接收队列中待处理事件数量'),
+            title: t('事件队列中待处理事件数'),
             width: 200,
         },
         {
@@ -93,27 +93,27 @@ function EngineInfo ({ info }: { info: ICEPEngineDetail }) {
         },
         {
             dataIndex: 'timers',
-            title: t('计时器数量'),
+            title: t('计时器数'),
             width: 150,
         },
         {
             dataIndex: 'eventsRouted',
-            title: t('内部路由事件数量'),
+            title: t('插入队列头事件数'),
             width: 200,
         },
         {
             dataIndex: 'eventsSent',
-            title: t('内部发送事件数量'),
+            title: t('插入队列尾事件数'),
             width: 150,
         },
         {
             dataIndex: 'eventsReceived',
-            title: t('接收事件数量'),
+            title: t('接收事件数'),
             width: 150,
         },
         {
             dataIndex: 'eventsConsumed',
-            title: t('已处理事件数'),
+            title: t('匹配成功事件数'),
             width: 150,
         },
         {

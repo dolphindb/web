@@ -40,7 +40,7 @@ export function CEPEngineList (props: IProps) {
                 </Col>
                 <Col span={12}>
                     <Typography.Paragraph type='secondary'>
-                        {t('子引擎数量：{{num}}', { num: item.numOfSubEngine }) }
+                        {t('子引擎数：{{num}}', { num: item.numOfSubEngine }) }
                     </Typography.Paragraph>
                 </Col>
             </Row>
