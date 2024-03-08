@@ -66,8 +66,8 @@ function EngineInfo ({ info }: { info: ICEPEngineDetail }) {
             children: engineStat?.eventsOnOutputQueue ?? '-'
         },
         {
-            key: t('最后一条错误信息'),
-            label: t('最后一条错误信息'),
+            key: t('最近错误信息'),
+            label: t('最近错误信息'),
             children: <Typography.Paragraph ellipsis={{ rows: 2, symbol: t('展开'), expandable: true } }>
                 { engineStat?.lastErrorMessage ?? '-' }
             </Typography.Paragraph>
@@ -118,17 +118,17 @@ function EngineInfo ({ info }: { info: ICEPEngineDetail }) {
         },
         {
             dataIndex: 'lastEventTime',
-            title: t('最新接收事件的时间'),
+            title: t('最近接收事件的时间'),
             width: 200,
         },
         {
             dataIndex: 'lastErrorTimestamp',
-            title: t('最新错误时间'),
+            title: t('最近错误时间'),
             width: 200,
         },
         {
             dataIndex: 'lastErrorMessage',
-            title: t('最新错误信息'),
+            title: t('最近错误信息'),
             width: 300,
             render: msg => <Typography.Paragraph ellipsis={{ rows: 2, expandable: true, symbol: t('展开') }}>
                 {msg}

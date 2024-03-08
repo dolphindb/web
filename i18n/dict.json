@@ -3545,9 +3545,6 @@
     "队列中发送事件数": {
         "en": "Sent Events in Output Queue"
     },
-    "最后一条错误信息": {
-        "en": "Last Error Message"
-    },
     "子引擎信息": {
         "en": "Sub Engine Info"
     },
@@ -3569,11 +3566,8 @@
     "匹配成功事件数": {
         "en": "Matched Events"
     },
-    "最新接收事件的时间": {
+    "最近接收事件的时间": {
         "en": "Timestamp of the Last Received Event"
-    },
-    "最新错误信息": {
-        "en": "Last Error Message"
     },
     "请输入要查询的 key": {
         "en": "Please enter a key for query."
@@ -3611,7 +3605,7 @@
     "数据类型为 {{name}}": {
         "en": "Please enter data of {{name}} type."
     },
-    "最新错误时间": {
+    "最近错误时间": {
         "en": "Last Error Time" 
     },
     "请选择数据视图": {
