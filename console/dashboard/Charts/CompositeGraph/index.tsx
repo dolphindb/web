@@ -1,27 +1,18 @@
 import './index.scss'
 
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import ReactEChartsCore from 'echarts-for-react/lib/core'
 import * as echarts from 'echarts'
-import { Button, Collapse, type CollapseProps, Form, Select, Tooltip, Input } from 'antd'
-import { get, pickBy, uniq } from 'lodash'
+import { pickBy } from 'lodash'
 import { DdbType } from 'dolphindb'
 import type { EChartsInstance } from 'echarts-for-react'
-import { DeleteOutlined, PlusCircleOutlined, QuestionCircleOutlined } from '@ant-design/icons'
 
 
-import { BasicFormFields } from '../../ChartFormFields/BasicFormFields.js'
-import { t } from '../../../../i18n/index.js'
-import { AxisItem, Series, ThresholdFormFields, YAxis } from '../../ChartFormFields/BasicChartFields.js'
-import { AxisType, MatchRuleType } from '../../ChartFormFields/type.js'
-import { FormDependencies } from '../../../components/formily/FormDependcies/index.js'
-import { concat_name_path, convert_chart_config, convert_list_to_options, format_time, get_axis_range } from '../../utils.js'
-import { DDB_TYPE_MAP } from '../../../constants/ddb-type-maps.js'
+import { AxisType, MatchRuleType, ThresholdType } from '../../ChartFormFields/type.js'
+import { convert_chart_config, get_axis_range } from '../../utils.js'
 import { type Widget, dashboard } from '../../model.js'
-import { SeriesItem } from '../../ChartFormFields/components/SeriesItem.js'
 import { type ISeriesConfig, type IChartConfig } from '../../type.js'
 import { get_data_source } from '../../DataSource/date-source.js'
-import { BoolRadioGroup } from '../../../components/BoolRadioGroup/index.js'
 
 
 interface ICompositeSeriesConfig extends ISeriesConfig { 
@@ -41,45 +32,6 @@ interface ICompositeChartProps {
     widget: Widget
 }
 
-const series_match_type_options = [
-    {
-        label: <>
-            {t('数据源匹配')}
-            <Tooltip title={t('同数据源的数值列采用同配置')}>
-                <QuestionCircleOutlined className='series_match_type_tip'/>
-            </Tooltip>
-        </>,
-        value: MatchRuleType.DATA_SOURCE
-    },
-    {
-        label: <>
-            {t('列名完全匹配')}
-            <Tooltip title={t('为指定名称的列定制配置')}>
-                <QuestionCircleOutlined className='series_match_type_tip'/>
-            </Tooltip>
-        </>,
-        value: MatchRuleType.NAME
-    },
-    {
-        label: <>
-            {t('列名正则匹配')}
-            <Tooltip title={t('为列名匹配正则表达式的列定制配置')}>
-                <QuestionCircleOutlined className='series_match_type_tip'/>
-            </Tooltip>
-        </>,
-        value: MatchRuleType.REGEXP
-    },
-    {
-        label: <>
-            {t('类型匹配')}
-            <Tooltip title={t('为特定 DolphinDB 数据类型的列定制配置，如 INT, DOUBLE')}>
-                <QuestionCircleOutlined className='series_match_type_tip'/>
-            </Tooltip>
-        </>,
-        value: MatchRuleType.DATA_TYPE
-    }
-]
-
 const TIME_TYPES = [
     DdbType.date,
     DdbType.month,
@@ -94,7 +46,7 @@ const TIME_TYPES = [
 ]
 
 
-const VALUE_TYPES = [
+export const VALUE_TYPES = [
     DdbType.short,
     DdbType.int,
     DdbType.long,
@@ -115,7 +67,7 @@ export function CompositeChart (props: ICompositeChartProps) {
     
     const [echart_instance, set_echart_instance] = useState<EChartsInstance>()
     
-    // 用来存储阈值对应的轴范围
+    // 用来存储阈值对应的轴范围，设置了百分比阈值时使用
     const [axis_range_map, set_axis_range_map] = useState<{ [key: string]: { min: number, max: number } }>()
     
     // 存储每个数据源的时间列和数据列
@@ -151,8 +103,8 @@ export function CompositeChart (props: ICompositeChartProps) {
             // 时序模式，查找匹配的数据列规则，设置数据列
             for (let [data_source_id, item] of Object.entries(source_col_map)) {
                 const { series_col, time_col } = item
+                // 遍历每个数据源的数据列，查找匹配规则
                 for (let col of series_col) {
-                    // 查找匹配规则
                     const match_rule = series_config.filter(Boolean).find(item => {
                         const { match_type, match_value } = item
                         switch (match_type) {
@@ -169,8 +121,8 @@ export function CompositeChart (props: ICompositeChartProps) {
                                 return false
                         }
                     })
-                    console.log(match_rule, 'match_rule', col)
-                    // 选了不展示数据列则不添加，其他情况下都添加
+                    
+                    // 选了不展示数据列则不添加，其他情况下都添加数据列
                     if (!(match_rule?.show === false)) 
                         series.push({
                             data_source_id,
@@ -181,9 +133,6 @@ export function CompositeChart (props: ICompositeChartProps) {
                             name: col,
                             col_name: col,
                         })  
-                    
-                        
-                    console.log(series, 'series')
                 }
             }
             const time_series_config = {
@@ -201,7 +150,9 @@ export function CompositeChart (props: ICompositeChartProps) {
     
     
     useEffect(() => {
-        if (!echart_instance)
+        // 未设置百分比阈值的时候不需要更新轴范围
+        const has_percent_threshold = config?.thresholds?.find(item => item?.type === ThresholdType.PERCENTAGE)
+        if (!echart_instance || !has_percent_threshold)
             return
         // options 更新之后，重新计算 thresholds 对应的各轴的范围，判断是否需要更新
         const { thresholds = [ ] } = widget.config as IChartConfig
@@ -213,7 +164,7 @@ export function CompositeChart (props: ICompositeChartProps) {
                 if (axis_range_map?.[key]?.min !== min || axis_range_map?.[key]?.max !== max)  
                     set_axis_range_map(val => ({ ...val, [key]: { min, max } }))
             }
-    }, [options, echart_instance])
+    }, [options, echart_instance, config.thresholds])
     
     return <>
         {widget.source_id.map(id => <SingleDataSourceUpdate key={id} source_id={id} force_update={() => { set_update({ }) }}/>) }
@@ -229,8 +180,9 @@ export function CompositeChart (props: ICompositeChartProps) {
    
 }
 
-/** 用于更新多数据源 */
-function SingleDataSourceUpdate (props: { source_id: string, force_update: () => void }) {
+
+/** 订阅单数据源更新 */
+export function SingleDataSourceUpdate (props: { source_id: string, force_update: () => void }) {
     const { source_id, force_update } = props
     const data_node = get_data_source(source_id)
     const { cols, data } = data_node.use(['cols', 'data'])
@@ -238,184 +190,4 @@ function SingleDataSourceUpdate (props: { source_id: string, force_update: () =>
     useEffect(() => { force_update() }, [cols, data ])
     
     return null
-}
-
-/** 用于更新多数据源 */
-function SingleDataSourceColUpdate (props: { source_id: string, force_update: () => void }) {
-    const { source_id, force_update } = props
-    const data_node = get_data_source(source_id)
-    const { cols } = data_node.use(['cols'])
-    
-    useEffect(() => { force_update() }, [cols])
-    
-    return null
-}
-
-// 时序图不需要配置 y 轴，默认为数据轴
-export function CompositeChartConfig () {
-    const { widget } = dashboard.use(['widget']) 
-    const type = useMemo(() => widget.type, [widget])
-    const [update, set_update] = useState({ })
-    
-    const update_cols = useCallback(() => { set_update({ }) }, [ ])
-    
-    const form = Form.useFormInstance()
-    
-    // 是否开启时序图模式
-    const is_time_series_mode = Form.useWatch('is_time_series_mode', form)
-    
-    // 所有数据源类型 map
-    const type_map = useMemo<Record<string, DdbType>>(() => { 
-        return widget.source_id.reduce((prev, id) => ({ ...prev, ...get_data_source(id).type_map }), { })
-    }, [update, widget.source_id])
-    
-    // 所有数据源数值类型列名
-    const col_options = useMemo(() => { 
-        return convert_list_to_options(
-            uniq(widget.source_id.reduce((prev, id) => { 
-                const cols = uniq(get_data_source(id).cols).filter(col => VALUE_TYPES.includes(type_map[col]))
-                return prev.concat(cols)
-            }, [ ]))
-        )
-    }, [update, widget.source_id, type_map])
-    
-    
-    return <>
-        {widget.source_id.map(id => <SingleDataSourceColUpdate key={id} source_id={id} force_update={update_cols}/>) }
-        <BasicFormFields type='chart' />
-        <Collapse items={[
-            {
-                key: 'x_axis',
-                label: t('X 轴配置'),
-                forceRender: true,
-                children: <AxisItem
-                    col_names={[ ]}
-                    name_path='xAxis'
-                    hidden_fields={['col_name']}
-                    initial_values={{
-                        type: AxisType.CATEGORY
-                    }}
-                />
-            },
-            {
-                key: 'y_axis',
-                label: t('Y 轴配置'),
-                forceRender: true,
-                children: <YAxis
-                    col_names={col_options.map(item => item.value) as string[]}
-                    axis_item_props={{ hidden_fields: is_time_series_mode ? ['col_name', 'type'] : [ ] }} />
-            },
-            {
-                key: 'series',
-                label: t('数据列配置'),
-                forceRender: true,
-                children: !is_time_series_mode
-                    ? <Series col_names={[ ]} />
-                    : <Form.List name='series'>
-                    {(fields, { add, remove }) => { 
-                        const items: CollapseProps['items'] = fields.map(field => ({
-                            key: `series_${field.name}`,
-                            forceRender: true,
-                            label: <div className='collapse-label'>
-                                {t('配置规则 {{name}}', { name: field.name + 1 })}
-                                <DeleteOutlined onClick={() => { remove(field.name) }}/>
-                            </div>,
-                            children: <div key={field.name}>
-                                {/* 用户选择如何配置应用的范围 */}
-                                <Form.Item label={t('匹配类型')} name={[field.name, 'match_type']}>
-                                    <Select options={series_match_type_options} onSelect={() => { form.setFieldValue(concat_name_path('series', field.name, 'match_value'), undefined) } } />
-                                </Form.Item>
-                                <FormDependencies dependencies={[concat_name_path('series', field.name, 'match_type')]}>
-                                    {value => { 
-                                        const match_type = get(value, concat_name_path('series', field.name, 'match_type'))
-                                        switch (match_type) {
-                                            case MatchRuleType.NAME:
-                                                return <Form.Item
-                                                    label={t('筛选列')}
-                                                    name={concat_name_path(field.name, 'match_value')}
-                                                >
-                                                    <Select mode='tags' options={col_options} />
-                                                </Form.Item>
-                                            case MatchRuleType.REGEXP:
-                                                return <Form.Item
-                                                    label={t('正则表达式')}
-                                                    tooltip={<>
-                                                        <div>{t('支持字面量形式和构造函数形式的正则对象')}</div>
-                                                        <ul>
-                                                            <li>{t('字面量：/abc/g')}</li>
-                                                            <li>{t('构造函数：new RegExp("abc", "g")')}</li>
-                                                        </ul> 
-                                                    </>}
-                                                    name={concat_name_path(field.name, 'match_value')}
-                                                >
-                                                    <Input placeholder={t('请输入正则表达式') } />
-                                                </Form.Item>
-                                            case MatchRuleType.DATA_TYPE:
-                                                const types = uniq(Object.values(type_map)).filter(type => VALUE_TYPES.includes(type)).map(item => ({ label: DDB_TYPE_MAP[item], value: item }))
-                                                return <Form.Item label={t('数据类型')} name={concat_name_path(field.name, 'match_value')}>
-                                                    <Select options={types} mode='multiple'/>
-                                                </Form.Item>
-                                            case MatchRuleType.DATA_SOURCE:
-                                                return <Form.Item label={t('数据源')} name={concat_name_path(field.name, 'match_value')}>
-                                                    <Select options={widget.source_id.map(id => ({ label: get_data_source(id).name, value: id })) } />
-                                                </Form.Item>
-                                            default:
-                                                return null
-                                        }
-                                    } }
-                                </FormDependencies>
-                                
-                                {/* 是否展示 */}
-                                <FormDependencies dependencies={[concat_name_path('series', field.name, 'match_value')] }>
-                                    {value => {
-                                        const match_value = get(value, concat_name_path('series', field.name, 'match_value'))
-                                        return match_value
-                                            ? <Form.Item label={t('是否展示')} name={concat_name_path(field.name, 'show')} initialValue>
-                                                <BoolRadioGroup />
-                                            </Form.Item>
-                                            : null
-                                    }}
-                                </FormDependencies>
-                                
-                                 {/* 数据列配置 */}
-                                <FormDependencies
-                                    dependencies={[
-                                        concat_name_path('series', field.name, 'show'),
-                                        concat_name_path('series', field.name, 'match_type'),
-                                        concat_name_path('series', field.name, 'match_value')
-                                    ]}>
-                                    {value => { 
-                                        const show = get(value, concat_name_path('series', field.name, 'show'))
-                                        const match_type = get(value, concat_name_path('series', field.name, 'match_type'))
-                                        const data_source = get(value, concat_name_path('series', field.name, 'match_value'))
-                                        return show
-                                            ? <>
-                                                {match_type === MatchRuleType.DATA_SOURCE && <Form.Item name={concat_name_path(field.name, 'x_col_name')} label={t('x 轴数据列')}>
-                                                    <Select options={convert_list_to_options(get_data_source(data_source).cols)} />
-                                                </Form.Item> }
-                                                <SeriesItem col_names={col_options.map(item => item.value) as string[]} type={type} name={field.name} path='series' />
-                                            </>
-                                            : null
-                                    } }
-                                </FormDependencies>
-                            </div>
-                        }))
-                        
-                        return <>
-                            {!!items.length && <Collapse items={items} size='small'/> }
-                            <Button
-                                style={{ width: '100%', marginTop: 12 }}
-                                type='dashed'
-                                icon={<PlusCircleOutlined />}
-                                onClick={() => { add() }}
-                            >
-                                {t('增加配置规则')}
-                            </Button>
-                        </>
-                    } }
-                </Form.List>
-            }
-        ]} />
-        <ThresholdFormFields />
-    </>
 }
