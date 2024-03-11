@@ -1,5 +1,5 @@
 import { DeleteOutlined, PlusCircleOutlined, QuestionCircleOutlined } from '@ant-design/icons'
-import { Form, Collapse, type CollapseProps, Select, Input, Button, Tooltip } from 'antd'
+import { Form, Collapse, type CollapseProps, Select, Input, Button, Tooltip, Typography } from 'antd'
 import type { DdbType } from 'dolphindb/browser.js'
 import { get, uniq } from 'lodash'
 import { useMemo, useState, useCallback } from 'react'
@@ -65,11 +65,11 @@ export function CompositeChartConfig () {
     const type = useMemo(() => widget.type, [widget])
     const [update, set_update] = useState({ })
     
-    const update_cols = useCallback(() => { set_update({ }) }, [ ])
+    const force_update = useCallback(() => { set_update({ }) }, [ ])
     
     const form = Form.useFormInstance()
     
-    // 是否开启时序图模式
+    // 是否开启自动画图模式
     const automatic_mode = Form.useWatch('automatic_mode', form)
     
     // 所有数据源类型 map
@@ -89,7 +89,7 @@ export function CompositeChartConfig () {
     
     
     return <>
-        {widget.source_id.map(id => <SingleDataSourceUpdate key={id} source_id={id} force_update={update_cols}/>) }
+        {widget.source_id.map(id => <SingleDataSourceUpdate key={id} source_id={id} force_update={force_update}/>) }
         <BasicFormFields type='chart' />
         <Collapse items={[
             {
@@ -110,12 +110,17 @@ export function CompositeChartConfig () {
                 label: t('Y 轴配置'),
                 forceRender: true,
                 children: <YAxis
-                    col_names={col_options.map(item => item.value) as string[]}
+                    col_names={[ ]}
                     axis_item_props={{ hidden_fields: automatic_mode ? ['col_name', 'type'] : [ ] }} />
             },
             {
                 key: 'series',
-                label: t('数据列配置'),
+                label: <div className='collapse-label'>
+                    {t('数据列配置')}
+                    <Tooltip title={t('单条数据列若命中多个配置规则，以第一项命中的为准') }>
+                        <QuestionCircleOutlined />
+                    </Tooltip>
+                </div>,
                 forceRender: true,
                 children: !automatic_mode
                     ? <Series col_names={[ ]} />
@@ -134,7 +139,7 @@ export function CompositeChartConfig () {
                                     <Select options={series_match_type_options} onSelect={() => { form.setFieldValue(concat_name_path('series', field.name, 'match_value'), undefined) } } />
                                 </Form.Item>
                                 <FormDependencies dependencies={[concat_name_path('series', field.name, 'match_type')]}>
-                                    {value => { 
+                                    {value => {
                                         const match_type = get(value, concat_name_path('series', field.name, 'match_type')) as MatchRuleType
                                         switch (match_type) {
                                             case MatchRuleType.NAME:

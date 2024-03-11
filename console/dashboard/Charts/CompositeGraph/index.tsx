@@ -74,10 +74,15 @@ export function CompositeChart (props: ICompositeChartProps) {
             }
     }, [type_map, config.automatic_mode, config.x_col_types, widget.source_id])
     
+    
     const options = useMemo(() => { 
         const { automatic_mode, series: series_config = [ ], yAxis = [ ], ...others } = config
         let series = [ ]
-        if (automatic_mode) {
+        
+        // 非自动画图模式
+        if (!automatic_mode)
+            return convert_chart_config(widget, data_source, axis_range_map)
+        else {
             // 自动模式，查找匹配的数据列规则，设置数据列
             for (let [data_source_id, item] of Object.entries(source_col_map)) {
                 const { series_col, x_col_name } = item
@@ -96,7 +101,7 @@ export function CompositeChart (props: ICompositeChartProps) {
                             case MatchRuleType.REGEXP:
                                 try { return eval(match_value)?.test(col) }
                                 catch (e) { return false }
-                            //
+                            // 数据源匹配
                             case MatchRuleType.DATA_SOURCE:
                                 return data_source_id === match_value
                             default:
@@ -124,10 +129,8 @@ export function CompositeChart (props: ICompositeChartProps) {
             }
             return convert_chart_config({ ...widget, config: time_series_config } as unknown as Widget, data_source, axis_range_map)
         }
-        // 非时序模式
-        else  
-            return convert_chart_config(widget, data_source, axis_range_map)
     }, [config, update, source_col_map, type_map, axis_range_map])
+    
     
     
     useEffect(() => {
@@ -146,6 +149,7 @@ export function CompositeChart (props: ICompositeChartProps) {
                     set_axis_range_map(val => ({ ...val, [key]: { min, max } }))
             }
     }, [options, echart_instance, config.thresholds])
+    
     
     return <>
         {widget.source_id.map(id => <SingleDataSourceUpdate key={id} source_id={id} force_update={() => { set_update({ }) }}/>) }
