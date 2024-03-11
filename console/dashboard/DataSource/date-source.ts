@@ -541,9 +541,10 @@ export async function paste_data_source (event): Promise<boolean> {
     // 先校验，重名不粘贴，不重名且 id 不同的直接粘贴，不重名但 id 相同的重新生成 id 后粘贴
     if (!_data_source) 
         return false
-    else if (data_sources.findIndex(data_source => data_source.name === _data_source.name) !== -1) 
-        _data_source.name += '_copy'
-    
+    else if (data_sources.findIndex(data_source => data_source.name === _data_source.name) !== -1) {
+        dashboard.message.error(`${_data_source.name} ${t('已存在，粘贴失败!')}`)
+        return false
+    }
         
     
     if (find_data_source_index(_data_source.id) !== -1)
