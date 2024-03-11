@@ -1,3 +1,4 @@
+import type { DdbType } from 'dolphindb'
 import { type ITimeFormat, type AxisType, type ILineType, type Position, type ThresholdType, type ThresholdShowType } from './ChartFormFields/type.js'
 
 export interface AxisConfig { 
@@ -106,8 +107,11 @@ export interface IChartConfig {
     x_datazoom: boolean
     y_datazoom: boolean
     animation?: boolean
-    // 复合图支持此选项
-    is_time_series_mode?: boolean
+    // 复合图支持此选项，自动画图模式
+    automatic_mode?: boolean
+    x_col_types: DdbType[]
+    
+    
     splitLine: {
         show: boolean
         lineStyle: {

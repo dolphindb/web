@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState } from 'react'
 import ReactEChartsCore from 'echarts-for-react/lib/core'
 import * as echarts from 'echarts'
 import { pickBy } from 'lodash'
-import { DdbType } from 'dolphindb'
+import { type DdbType } from 'dolphindb'
 import type { EChartsInstance } from 'echarts-for-react'
 
 
@@ -13,6 +13,7 @@ import { convert_chart_config, get_axis_range } from '../../utils.js'
 import { type Widget, dashboard } from '../../model.js'
 import { type ISeriesConfig, type IChartConfig } from '../../type.js'
 import { get_data_source } from '../../DataSource/date-source.js'
+import { VALUE_TYPES, TIME_TYPES } from './constant.js'
 
 
 interface ICompositeSeriesConfig extends ISeriesConfig { 
@@ -32,30 +33,6 @@ interface ICompositeChartProps {
     widget: Widget
 }
 
-const TIME_TYPES = [
-    DdbType.date,
-    DdbType.month,
-    DdbType.time,
-    DdbType.minute,
-    DdbType.second,
-    DdbType.datetime,
-    DdbType.timestamp,
-    DdbType.nanotime,
-    DdbType.nanotimestamp,
-    DdbType.datehour
-]
-
-
-export const VALUE_TYPES = [
-    DdbType.short,
-    DdbType.int,
-    DdbType.long,
-    DdbType.float,
-    DdbType.double,
-    DdbType.decimal32,
-    DdbType.decimal64,
-    DdbType.decimal128
-]
 
 
 export function CompositeChart (props: ICompositeChartProps) {
@@ -71,7 +48,7 @@ export function CompositeChart (props: ICompositeChartProps) {
     const [axis_range_map, set_axis_range_map] = useState<{ [key: string]: { min: number, max: number } }>()
     
     // 存储每个数据源的时间列和数据列
-    const [source_col_map, set_source_col_map] = useState<Record<string, { time_col: string, series_col: string[] }>>({ })
+    const [source_col_map, set_source_col_map] = useState<Record<string, { x_col_name: string, series_col: string[] }>>({ })
     
     useEffect(() => { 
         set_source_col_map({ }) 
@@ -81,52 +58,56 @@ export function CompositeChart (props: ICompositeChartProps) {
         return widget.source_id.reduce((prev, id) => ({ ...prev, ...get_data_source(id).type_map }), { })
     }, [update, widget.source_id])
     
-    // 时序模式需要存储每个数据源的时间列和数据列
+    // 自动画图模式需要存储每个数据源的 x 轴列和数据列
     useEffect(() => {
-        if (config.is_time_series_mode)
+        if (config.automatic_mode)
             for (let id of widget.source_id) {
                 const { cols, type_map } = get_data_source(id)
-                // 第一个时间类型的列作为时间列，其余作为数据列
-                const time_col = cols.find(col => TIME_TYPES.includes(type_map[col]))
-                const series_col = cols.filter(item => item !== time_col && VALUE_TYPES.includes(type_map[item]))
+                // 第一个在选定类型中的列作为 x 轴列，其余作为数据列
+                const x_col_types = config.x_col_types?.length ? config.x_col_types : TIME_TYPES 
+                const x_col_name = cols.find(col => x_col_types.includes(type_map[col]))
+                const series_col = cols.filter(item => item !== x_col_name && VALUE_TYPES.includes(type_map[item]))
                 set_source_col_map(map => ({
                     ...map,
-                    [id]: { time_col, series_col }
+                    [id]: { x_col_name, series_col }
                 }))
             }
-    }, [update, type_map, config.is_time_series_mode, widget.source_id])
+    }, [type_map, config.automatic_mode, config.x_col_types, widget.source_id])
     
     const options = useMemo(() => { 
-        const { is_time_series_mode, series: series_config = [ ], yAxis = [ ], ...others } = config
+        const { automatic_mode, series: series_config = [ ], yAxis = [ ], ...others } = config
         let series = [ ]
-        if (is_time_series_mode) {
-            // 时序模式，查找匹配的数据列规则，设置数据列
+        if (automatic_mode) {
+            // 自动模式，查找匹配的数据列规则，设置数据列
             for (let [data_source_id, item] of Object.entries(source_col_map)) {
-                const { series_col, time_col } = item
+                const { series_col, x_col_name } = item
                 // 遍历每个数据源的数据列，查找匹配规则
                 for (let col of series_col) {
                     const match_rule = series_config.filter(Boolean).find(item => {
                         const { match_type, match_value } = item
                         switch (match_type) {
+                            // 名称匹配
                             case MatchRuleType.NAME:
                                 return match_value?.includes(col)
+                            // 名称类型匹配
                             case MatchRuleType.DATA_TYPE:
                                 return match_value?.includes(type_map[col])
+                            // 名称正则匹配
                             case MatchRuleType.REGEXP:
                                 try { return eval(match_value)?.test(col) }
                                 catch (e) { return false }
+                            //
                             case MatchRuleType.DATA_SOURCE:
                                 return data_source_id === match_value
                             default:
                                 return false
                         }
                     })
-                    
                     // 选了不展示数据列则不添加，其他情况下都添加数据列
                     if (!(match_rule?.show === false)) 
                         series.push({
                             data_source_id,
-                            x_col_name: time_col,
+                            x_col_name,
                             type: 'line',
                             yAxisIndex: 0,
                             ...(pickBy(match_rule)),

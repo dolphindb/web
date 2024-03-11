@@ -15,7 +15,8 @@ import { AxisType, MatchRuleType } from '../../ChartFormFields/type.js'
 import { get_data_source } from '../../DataSource/date-source.js'
 import { dashboard } from '../../model.js'
 import { convert_list_to_options, concat_name_path } from '../../utils.js'
-import { SingleDataSourceUpdate, VALUE_TYPES } from './index.js'
+import { SingleDataSourceUpdate } from './index.js'
+import { VALUE_TYPES } from './constant.js'
 
 
 const series_match_type_options = [
@@ -69,7 +70,7 @@ export function CompositeChartConfig () {
     const form = Form.useFormInstance()
     
     // 是否开启时序图模式
-    const is_time_series_mode = Form.useWatch('is_time_series_mode', form)
+    const automatic_mode = Form.useWatch('automatic_mode', form)
     
     // 所有数据源类型 map
     const type_map = useMemo<Record<string, DdbType>>(() => { 
@@ -110,13 +111,13 @@ export function CompositeChartConfig () {
                 forceRender: true,
                 children: <YAxis
                     col_names={col_options.map(item => item.value) as string[]}
-                    axis_item_props={{ hidden_fields: is_time_series_mode ? ['col_name', 'type'] : [ ] }} />
+                    axis_item_props={{ hidden_fields: automatic_mode ? ['col_name', 'type'] : [ ] }} />
             },
             {
                 key: 'series',
                 label: t('数据列配置'),
                 forceRender: true,
-                children: !is_time_series_mode
+                children: !automatic_mode
                     ? <Series col_names={[ ]} />
                     : <Form.List name='series'>
                     {(fields, { add, remove }) => { 
