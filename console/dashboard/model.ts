@@ -24,7 +24,18 @@ import { type Variable, import_variables, type ExportVariable } from './Variable
 import { parse_error } from '../utils/ddb-error.js'
 
 
+/** 0 表示隐藏dashboard（未查询到结果、 server 版本为 v1 或 language 非中文），1 表示没有初始化，2 表示已经初始化，3 表示为控制节点 */
+export enum InitedState {
+    hidden = 0,
+    uninited = 1,
+    inited = 2,
+    control_node = 3
+}
+
 export class DashBoardModel extends Model<DashBoardModel> {
+    /** dashboard 初始化状态 */
+    inited_state = InitedState.hidden
+    
     /** 所有 dashboard 的配置 */
     configs: DashBoardConfig[]
     
