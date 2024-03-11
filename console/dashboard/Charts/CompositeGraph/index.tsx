@@ -118,7 +118,7 @@ export function CompositeChart (props: ICompositeChartProps) {
                             ...(pickBy(match_rule)),
                             name: col,
                             col_name: col,
-                        })  
+                        }) 
                 }
             }
             const time_series_config = {
@@ -155,7 +155,7 @@ export function CompositeChart (props: ICompositeChartProps) {
         {widget.source_id.map(id => <SingleDataSourceUpdate key={id} source_id={id} force_update={() => { set_update({ }) }}/>) }
         <ReactEChartsCore
             echarts={echarts}
-            notMerge={dashboard.editing}
+            notMerge
             option={options}
             className='dashboard-line-chart'
             theme='my-theme'

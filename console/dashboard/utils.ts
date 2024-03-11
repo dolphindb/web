@@ -337,7 +337,7 @@ export function convert_chart_config (
         if (data_source_id) {
             // 多数据源的情况
             const x_data = get_data_source_cols(data_source_id, x_col_name).map(x => format_time(x, xAxis.time_format))
-            const y_data = get_data_source_cols(data_source_id, col_name).map(y => format_time(y, yAxis[yAxisIndex].time_format))
+            const y_data = get_data_source_cols(data_source_id, col_name).map(y => format_time(y, yAxis[yAxisIndex]?.time_format))
             data = x_data.map((x, idx) => ([x, y_data[idx]]))
         } else  
             data = data_source.map(item => [format_time(item?.[xAxis.col_name], xAxis.time_format), item?.[series.col_name]])

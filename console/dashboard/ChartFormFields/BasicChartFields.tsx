@@ -294,7 +294,7 @@ export function YAxis (props: IYAxisProps ) {
                         className='add-yaxis-btn'
                         type='dashed'
                         block
-                        onClick={() => { add() }}
+                        onClick={() => { add({ type: AxisType.VALUE }) }}
                         icon={<PlusCircleOutlined />}
                     >
                         {t('增加 Y 轴')}
