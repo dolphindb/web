@@ -178,25 +178,13 @@ export class DdbModel extends Model<DdbModel> {
     }
     
     
-    async catch_error_event ({ error }: ErrorEvent) {
-        if (error.hasBeenCaught !== undefined) 
-            return false
-        
-        error.hasBeenCaught = true
-        const dashboard = (new URLSearchParams(location.search)).get('dashboard')
-        // dashboard 主题不一致，还是需要用 model.execute
-        if (!dashboard)
-            model.show_error({ error })
-    }
-    
     async init () {
         console.log(t('web 开始初始化，当前处于{{mode}}模式，版本为 {{version}}', {
             mode: this.dev ? t('开发') : t('生产'),
             version: WEB_VERSION
         }))
         
-        window.addEventListener('error', this.catch_error_event)
-    
+        
         await Promise.all([
             this.get_node_type(),
             this.get_node_alias(),
