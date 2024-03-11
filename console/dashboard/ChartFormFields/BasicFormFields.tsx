@@ -1,6 +1,7 @@
 import './index.scss'
 
-import { Collapse, type CollapseProps, Form, Input, InputNumber, Select } from 'antd'
+import { Collapse, type CollapseProps, Form, InputNumber, Select } from 'antd'
+import { get } from 'lodash'
 
 import { t } from '../../../i18n/index.js'
 import { useMemo } from 'react'
@@ -16,6 +17,10 @@ import { DataZoomFields } from './components/DataZoom.js'
 import { WrapperFields } from './components/Wrapper.js'
 import { ChartField } from './type.js'
 import { WidgetChartType, dashboard } from '../model.js'
+import { FormDependencies } from '../../components/formily/FormDependcies/index.js'
+import { DDB_TYPE_MAP } from '../../constants/ddb-type-maps.js'
+
+import { TIME_TYPES } from '../Charts/CompositeGraph/constant.js'
 
 
 export function VariableSetting () { 
@@ -73,14 +78,40 @@ export function BasicFormFields (props: { type?: 'chart' | 'table' | 'descriptio
                 <BoolRadioGroup />
             </Form.Item>}
             
-            {widget.type === WidgetChartType.COMPOSITE_GRAPH && <Form.Item
-                name='is_time_series_mode'
-                label={t('开启时序模式')}
-                initialValue={false}
-                tooltip={t('开启时序模式会自动查找各数据源时间类型的列作为 X 轴，各数据源数值列作为数据列，在数据列配置区域可对特定数据列进行个性化配置')}
-            >
-               <BoolRadioGroup />
-            </Form.Item>}
+            {widget.type === WidgetChartType.COMPOSITE_GRAPH && <>
+                <Form.Item
+                    name='automatic_mode'
+                    label={t('自动画图模式')}
+                    initialValue={false}
+                    tooltip={t('自动画图模式会自动查找各数据源选定类型的列（默认为时间类型）作为 X 轴，各数据源数值列作为数据列，在数据列配置区域可对特定数据列进行个性化配置')}
+                >
+                    <BoolRadioGroup />
+                </Form.Item>
+                
+                <FormDependencies dependencies={['automatic_mode']}>
+                    {value => { 
+                        const automatic_mode = get(value, ['automatic_mode'])
+                        const options = Object.entries(DDB_TYPE_MAP).map(([k, v]) => ({
+                            label: v,
+                            value: Number(k)
+                        }))
+                        return automatic_mode
+                            ? <Form.Item label={t('X 轴类型')} name='x_col_types'>
+                                <Select
+                                    mode='multiple'
+                                    showSearch
+                                    options={options}
+                                    placeholder={t('请选择类型')}
+                                    filterOption={(val, option) => val ? option.label.toLowerCase().includes(val.toLowerCase()) : true}
+                                />
+                            </Form.Item>
+                            : null
+                    } }
+                </FormDependencies>
+            
+            </>}
+            
+            
             
             
             {type === 'table' && <>

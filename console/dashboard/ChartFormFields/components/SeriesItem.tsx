@@ -37,12 +37,12 @@ export function SeriesItem (props: SeriesItemProps) {
     
     const form = Form.useFormInstance()
     // 复合图是否开启时序模式
-    const is_time_series = Form.useWatch('is_time_series_mode', form)
+    const automatic_mode = Form.useWatch('automatic_mode', form)
     
     /** 数据列选择，复合图需要特殊处理 */
     const select_col_field = useMemo(() => {
         if (is_composite) 
-            return is_time_series ? null : <>
+            return automatic_mode ? null : <>
                 <Form.Item label={t('数据源')} name={concat_name_path(name, 'data_source_id')}>
                     <Select options={
                         widget.source_id.map(id => {
@@ -72,7 +72,7 @@ export function SeriesItem (props: SeriesItemProps) {
                     onSelect={on_select_col}
                 />
             </Form.Item>
-     }, [ is_composite, is_time_series])
+     }, [ is_composite, automatic_mode])
     
     /** 选择数据列的时候，更改数据列名称为当前选中列名 */
     function on_select_col (val) { 
@@ -84,7 +84,7 @@ export function SeriesItem (props: SeriesItemProps) {
     return <div className='field-wrapper'>
         {select_col_field}
         {/* 时序图列名会更改，直接用列名作为名称，不能写死名称 */}
-        { !is_time_series && <Form.Item
+        { !automatic_mode && <Form.Item
             name={concat_name_path(name, 'name')}
             label={t('名称')}
             initialValue={col_names[0]}
@@ -93,8 +93,8 @@ export function SeriesItem (props: SeriesItemProps) {
         </Form.Item> }
     
         {!is_heat_map && <>
-            <Form.Item name={concat_name_path(name, 'type')} label={t('类型')} initialValue={(is_composite || is_mix_type || is_time_series) ? WidgetChartType.LINE : type}>
-                <Select options={chart_type_options} disabled={!is_mix_type && !is_composite && !is_time_series} />
+            <Form.Item name={concat_name_path(name, 'type')} label={t('类型')} initialValue={(is_composite || is_mix_type || automatic_mode) ? WidgetChartType.LINE : type}>
+                <Select options={chart_type_options} disabled={!is_mix_type && !is_composite && !automatic_mode} />
             </Form.Item>
             <Form.Item name={concat_name_path(name, 'color')} label={t('颜色')} initialValue={null}>
                 <StringColorPicker />
