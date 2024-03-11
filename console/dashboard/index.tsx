@@ -8,7 +8,7 @@ import { useEffect, useRef, useState } from 'react'
 import { App, Button, ConfigProvider, Popconfirm, Result, Spin, theme } from 'antd'
 import * as echarts from 'echarts'
 
-import { DashboardPermission, dashboard } from './model.js'
+import { DashboardPermission, InitedState, dashboard } from './model.js'
 import { Sider } from './Sider.js'
 import { GraphItem } from './GraphItem/GraphItem.js'
 import { SettingsPanel } from './SettingsPanel/SettingsPanel.js'
@@ -36,12 +36,10 @@ echarts.registerTheme('my-theme', config.theme)
     通过 GridStack.on('dropped', ...) 监听用户从外部添加拖拽 widget 到 GridStack 的事件  
     通过 GridStack.on('change', ...) 响应 GridStack 中 widget 的位置或尺寸变化的事件 */
 export function DashBoard () {
-    const { loading } = dashboard.use(['loading'])
+    const { loading, inited_state } = dashboard.use(['loading', 'inited_state'])
     
     const { node_type, is_v1, logined } = model.use(['node_type', 'is_v1', 'logined'])
     
-    const [inited_state, set_inited_state] = useState(0)  // 0表示未查询到结果或 server 版本为 v1，1表示没有初始化，2表示已经初始化，3 表示为控制节点
-     
     useEffect(() => {
         (async () => {
             try {
@@ -52,22 +50,22 @@ export function DashBoard () {
                     return
                 }
                 else if (node_type === NodeType.controller)
-                    set_inited_state(3)
+                    dashboard.set({ inited_state: InitedState.control_node })
                 else {
                     const version = (await model.ddb.call('dashboard_get_version')).value
                     if (version === '1.0.0')
-                        set_inited_state(2) 
+                        dashboard.set({ inited_state: InitedState.inited })
                 }
             } catch (error) {
-                set_inited_state(1)
+                dashboard.set({ inited_state: InitedState.uninited })
             }
         })()
     }, [ ])
     
     const component = {
-        0: <></>,
-        1: <Init set_inited_state={set_inited_state}/>,
-        2: (new URLSearchParams(location.search).has('dashboard') ?
+        [InitedState.hidden]: <></>,
+        [InitedState.uninited]: <Init/>,
+        [InitedState.inited]: (new URLSearchParams(location.search).has('dashboard') ?
                 <ConfigProvider
                     theme={{
                         hashed: false,
@@ -89,7 +87,7 @@ export function DashBoard () {
                 </ConfigProvider>
             :
                 <Overview />),
-        3: <Result
+        [InitedState.control_node]: <Result
                 status='warning'
                 className='interceptor'
                 title={t('控制节点不支持数据面板，请跳转到数据节点或计算节点查看。')}
@@ -100,7 +98,7 @@ export function DashBoard () {
 }
 
 
-function Init ({ set_inited_state }: { set_inited_state }) {
+function Init () {
     if (model.node_type === NodeType.computing)
         return <Result
                 status='warning'
@@ -135,7 +133,7 @@ function Init ({ set_inited_state }: { set_inited_state }) {
                         onConfirm={async () => { 
                             model.execute(async () => {
                                 await model.ddb.eval(backend)
-                                set_inited_state(2)
+                                dashboard.set({ inited_state: InitedState.inited })
                                 model.message.success(t('初始化数据面板成功！'))
                             }) 
                         }}
