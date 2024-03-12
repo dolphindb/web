@@ -113,8 +113,6 @@ export function DataSourceList ({
     on_select
 }: PropsType) {
     
-    // 当前选中的 datasource
-    const [current_selected, set_current_select] = useState(current_data_source?.id || '')
     // 当前 check 的 datasource
     const [checked_keys, set_checked_keys] = useState<string[]>(widget?.source_id ?? [ ])
     
@@ -139,7 +137,6 @@ export function DataSourceList ({
                     set_menu_items(data_sources.map(item => generate_tree_item(item, widget)))
                     const id = data_sources[0].id
                     change_current_data_source(id)
-                    set_current_select(id)
                 }
             } catch (error) {
                 dashboard.message.error(error.message)
@@ -151,7 +148,6 @@ export function DataSourceList ({
     }, [widget])
     
     useEffect(() => {
-        set_current_select(current_data_source?.id)
         tree_ref.current?.scrollTo({ key: current_data_source.id })
     }, [ current_data_source ])
     
@@ -184,7 +180,6 @@ export function DataSourceList ({
             ...menu_items
         ])
         change_current_data_source(new_data_source.id)
-        set_current_select(new_data_source.id)
     }, [menu_items, widget])
     
     return <>
@@ -210,7 +205,7 @@ export function DataSourceList ({
                             if (loading)
                                 return
                             if (current_data_source)
-                                rename_data_source_handler(menu_items, current_selected, current_data_source.name)
+                                rename_data_source_handler(menu_items, current_data_source.id, current_data_source.name)
                         }}
                     >
                         <EditOutlined className='data-source-list-top-item-icon' />
@@ -230,7 +225,6 @@ export function DataSourceList ({
                                 else {
                                     const index = delete_index === 0 ? 0 : delete_index - 1
                                     change_current_data_source(data_sources[index].id)
-                                    set_current_select(data_sources[index].id)
                                 }
                             }
                         }}
@@ -262,7 +256,7 @@ export function DataSourceList ({
                             showIcon
                             height={450}
                             blockNode
-                            selectedKeys={[current_selected]}
+                            selectedKeys={[current_data_source.id]}
                             className='data-source-list-bottom-menu'
                             onCheck={keys => { set_checked_keys(keys as string[]) }}
                             onSelect={async key => {
@@ -274,7 +268,6 @@ export function DataSourceList ({
                                     if (no_save_flag.current && (await save_confirm()))
                                         await handle_save()
                                     no_save_flag.current = false
-                                    set_current_select(String(selected_key))
                                     change_current_data_source(String(selected_key))
                                 }
                             }}

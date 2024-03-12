@@ -60,8 +60,8 @@ export function HeatMap (props: IProps) {
                 data: row_labels.map(label => format_time(label, config?.yAxis[0]?.time_format))
             }],
             visualMap: {
-                min: series[0].min ?? 0,
-                max: series[0].max ?? 10,
+                min: series[0].min || 0,
+                max: series[0].max || 10,
                 calculable: true,
                 orient: 'horizontal',
                 left: 'center',
@@ -84,7 +84,6 @@ export function HeatMap (props: IProps) {
         }
     }, [widget.config, data])
     
-    console.log(options, 'options')
     
     // 编辑模式下 notMerge 为 true ，因为要修改配置，预览模式下 notMerge 为 false ，避免数据更新，导致选中的 label失效
     return <ReactEChartsCore

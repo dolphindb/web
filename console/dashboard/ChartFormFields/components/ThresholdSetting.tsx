@@ -1,14 +1,16 @@
-import { Button, Collapse, Form, InputNumber, Radio, Select, Typography } from 'antd'
-import { t } from '../../../../i18n/index.js'
+import { Button, Collapse, Form, InputNumber, Select, Typography } from 'antd'
+import { get } from 'lodash'
+import { type CollapseProps } from 'antd/lib/index.js'
 import { DeleteOutlined, PlusCircleOutlined, PlusOutlined } from '@ant-design/icons'
+
+import { t } from '../../../../i18n/index.js'
 import { AxisType, ILineType, ThresholdShowType, ThresholdType } from '../type.js'
 import { concat_name_path } from '../../utils.js'
 import { StringColorPicker } from '../../../components/StringColorPicker/index.js'
 import { FormDependencies } from '../../../components/formily/FormDependcies/index.js'
-import { get } from 'lodash'
 import { line_type_options } from '../constant.js'
 import { dashboard } from '../../model.js'
-import { type CollapseProps } from 'antd/lib/index.js'
+
 
 const show_type_options = [
     {

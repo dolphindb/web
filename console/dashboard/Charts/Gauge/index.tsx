@@ -69,9 +69,6 @@ export function Gauge (props: IProps) {
                         color: item.color,
                     }
                 })),
-                axisLabel: {
-                    formatter: value => format_number(value, 0, true)
-                },
                 detail: {
                     valueAnimation: true,
                     height: 14,

@@ -1,7 +1,7 @@
 import { type NamePath } from 'antd/es/form/interface'
 import { type DdbObj, DdbForm, DdbType, nulls, type DdbValue, format, type InspectOptions, type DdbMatrixValue } from 'dolphindb/browser.js'
 import { is_decimal_null_value } from 'dolphindb/shared/utils.js'
-import { isNil, isNumber, pickBy } from 'lodash'
+import { isNil, pickBy } from 'lodash'
 import { createRef } from 'react'
 import { genid } from 'xshell/utils.browser.js'
 import copy from 'copy-to-clipboard'
@@ -534,6 +534,13 @@ export function convert_chart_config (
 }
 
 
+export function convert_list_to_options (list: any[]) { 
+    return list.map(item => ({
+        label: item,
+        value: item,
+        key: item,
+    }))
+}
 
 
 export function to_chart_data (data: DdbValue, datatype: DdbType) {
@@ -571,7 +578,7 @@ export function safe_json_parse (val) {
 export function format_number (val: any, decimal_places, is_thousandth_place) {
     let value = val
     try {
-        if (!isNaN(Number(val)) && typeof decimal_places === 'number') {
+        if (isFinite(Number(val)) && isFinite(decimal_places)) {
             // 0 不需要格式化
             if (Number(val) === 0)
                 return 0

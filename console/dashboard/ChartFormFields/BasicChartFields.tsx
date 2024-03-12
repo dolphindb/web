@@ -32,12 +32,14 @@ export const DATE_SELECT_FORMAT = {
     [ITimeFormat.SECOND]: <StringTimePicker format={ITimeFormat.SECOND} allowClear />,
 } 
 
-// col 表示是否需要选择坐标列，x轴必须选择坐标列
-export function AxisItem ({ name_path, col_names = [ ], list_name, initial_values, hidden_fields }: IAxisItem) { 
+export function AxisItem ({ name_path, col_names = [ ], list_name, initial_values, hidden_fields = [ ] }: IAxisItem) { 
     const { widget } = dashboard.use(['widget'])
     
-    const is_heat_map = useMemo(
-        () => widget.type === WidgetChartType.HEATMAP
+    const [is_heat_map, is_composite] = useMemo(
+        () => [
+            widget.type === WidgetChartType.HEATMAP,
+            widget.type === WidgetChartType.COMPOSITE_GRAPH
+        ]
     , [widget.type])
     
     return <>
@@ -76,7 +78,8 @@ export function AxisItem ({ name_path, col_names = [ ], list_name, initial_value
         </Form.Item>
         
         
-        {widget.type !== WidgetChartType.COMPOSITE_GRAPH && <AxisColSelect hidden={hidden_fields?.includes('col_name')} label={t('坐标列')} col_names={col_names} path={name_path} list_path={list_name} /> }
+        {/* 复合图不需要选择坐标列，在数据列中选择 */}
+        {!is_composite && <AxisColSelect hidden={hidden_fields?.includes('col_name')} label={t('坐标列')} col_names={col_names} path={name_path} list_path={list_name} /> }
         
         
         {/* 类目轴从 col_name 中获取 data */}

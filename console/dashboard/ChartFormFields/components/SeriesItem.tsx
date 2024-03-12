@@ -66,7 +66,7 @@ export function SeriesItem (props: SeriesItemProps) {
                 </FormDependencies>
             </>
         else  
-            return <Form.Item name={concat_name_path(name, 'col_name')} label={type === WidgetChartType.HEATMAP ? t('热力值列') : t('数据列')} initialValue={col_names?.[0]} >
+            return <Form.Item name={concat_name_path(name, 'col_name')} label={is_heat_map ? t('热力值列') : t('数据列')} initialValue={col_names?.[0]} >
                 <Select
                     options={convert_list_to_options(col_names)}
                     onSelect={on_select_col}
@@ -170,11 +170,11 @@ export function SeriesItem (props: SeriesItemProps) {
                         <FormDependencies dependencies={[concat_name_path(path, name, 'is_filled')]}>
                             {value => { 
                                 const is_filled = get(value, concat_name_path(path, name, 'is_filled'))
-                                return !is_filled
-                                    ? null
-                                    : <Form.Item label={t('透明度')} name={concat_name_path(name, 'opacity')} initialValue={0.2}>
+                                return is_filled
+                                    ? <Form.Item label={t('透明度')} name={concat_name_path(name, 'opacity')} initialValue={0.2}>
                                         <InputNumber max={1} min={0}/>
                                     </Form.Item>
+                                    : null
                             } }
                         </FormDependencies>
                         
@@ -183,28 +183,29 @@ export function SeriesItem (props: SeriesItemProps) {
                         </Form.Item>
                         <FormDependencies dependencies={[concat_name_path(path, name, 'end_label')]}>
                             {value => { 
-                                if (!value.series?.[name]?.end_label)
+                                const end_label = get(value, concat_name_path(path, name, 'end_label'))
+                                if (end_label)
                                     return null
                                 
                                 return <Form.Item
-                                name={[name, 'end_label_formatter']}
-                                label={t('自定义端标签')}
-                                tooltip={<>
-                                    {t('支持静态标签与模板变量，其中模板变量包含以下几种')}
-                                    <br />
-                                    {t('{a}：数据列名称')}
-                                    <br />
-                                    {t('{b}：x 轴值')}
-                                    <br />
-                                    {t('{c}：当 x 轴为类目轴时显示 y 轴值，其余轴的情况下显示 x轴值,y轴值')}
-                                    <br />
-                                    {t('示例: 名称-{a}')}
-                                    <br />
-                                    {t('请注意，不填自定义端标签时默认展示 y 轴值') }
-                                </>}
-                            >
-                                    <Input placeholder={t('请输入自定义端标签')} />
-                            </Form.Item>
+                                    name={[name, 'end_label_formatter']}
+                                    label={t('自定义端标签')}
+                                    tooltip={<>
+                                        {t('支持静态标签与模板变量，其中模板变量包含以下几种')}
+                                        <br />
+                                        {t('{a}：数据列名称')}
+                                        <br />
+                                        {t('{b}：x 轴值')}
+                                        <br />
+                                        {t('{c}：当 x 轴为类目轴时显示 y 轴值，其余轴的情况下显示 x轴值,y轴值')}
+                                        <br />
+                                        {t('示例: 名称-{a}')}
+                                        <br />
+                                        {t('请注意，不填自定义端标签时默认展示 y 轴值') }
+                                    </>}
+                                >
+                                        <Input placeholder={t('请输入自定义端标签')} />
+                                </Form.Item>
                             } }
                         </FormDependencies>
                     </>

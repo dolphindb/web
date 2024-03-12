@@ -257,7 +257,6 @@ export async function subscribe_data_source (widget_option: Widget, source_id: s
 
 export function unsubscribe_data_source (widget_option: Widget) {
     const source_id = widget_option.source_id
-    console.log(source_id, 'source_id')
     source_id.forEach(id => { 
         const data_source = get_data_source(id)
     

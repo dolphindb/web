@@ -47,7 +47,7 @@ export function CompositeChart (props: ICompositeChartProps) {
     // 用来存储阈值对应的轴范围，设置了百分比阈值时使用
     const [axis_range_map, set_axis_range_map] = useState<{ [key: string]: { min: number, max: number } }>()
     
-    // 存储每个数据源的时间列和数据列
+    // 存储每个数据源的 X 轴列和数据列
     const [source_col_map, set_source_col_map] = useState<Record<string, { x_col_name: string, series_col: string[] }>>({ })
     
     useEffect(() => { 
@@ -58,14 +58,15 @@ export function CompositeChart (props: ICompositeChartProps) {
         return widget.source_id.reduce((prev, id) => ({ ...prev, ...get_data_source(id).type_map }), { })
     }, [update, widget.source_id])
     
-    // 自动画图模式需要存储每个数据源的 x 轴列和数据列
+    // 自动画图模式需要存储每个数据源的 X 轴列和数据列
     useEffect(() => {
         if (config.automatic_mode)
             for (let id of widget.source_id) {
                 const { cols, type_map } = get_data_source(id)
-                // 第一个在选定类型中的列作为 x 轴列，其余作为数据列
+                // 第一个在选定类型中的列作为 X 轴列，其余作为数据列
                 const x_col_types = config.x_col_types?.length ? config.x_col_types : TIME_TYPES 
                 const x_col_name = cols.find(col => x_col_types.includes(type_map[col]))
+                // 非 X 轴列且为数值的列作为数据列
                 const series_col = cols.filter(item => item !== x_col_name && VALUE_TYPES.includes(type_map[item]))
                 set_source_col_map(map => ({
                     ...map,

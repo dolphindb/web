@@ -10,6 +10,7 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import { type EChartsInstance } from 'echarts-for-react'
 import { useSize } from 'ahooks'
 import type { IChartConfig } from '../../type'
+import { ThresholdType } from '../../ChartFormFields/type.js'
 
 
 interface IProps { 
@@ -39,10 +40,12 @@ export function Chart (props: IProps) {
         , [widget.config, data_source, axis_range_map])
     
     useEffect(() => {
-        if (!echart_instance)
-            return
-        // options 更新之后，重新计算 thresholds 对应的各轴的范围，判断是否需要更新
         const { thresholds = [ ] } = widget.config as IChartConfig
+        const has_percent_threshold = thresholds?.find(item => item?.type === ThresholdType.PERCENTAGE)
+        // 无百分比阈值不需要更新
+        if (!echart_instance || !has_percent_threshold)
+            return
+            // options 更新之后，重新计算 thresholds 对应的各轴的范围，判断是否需要更新
             for (let threshold of thresholds.filter(Boolean)) { 
                 const { axis_type, axis } = threshold
                 const [min, max] = get_axis_range(axis_type, echart_instance, axis)
