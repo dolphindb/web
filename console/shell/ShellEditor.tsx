@@ -102,6 +102,19 @@ export function ShellEditor ({ collapser }) {
             on_mount={(editor, monaco) => {
                 editor.setValue(localStorage.getItem(storage_keys.code) || '')
                 
+                
+                async function execute (selection: 'line' | 'all') {
+                    if (shell.executing)
+                        model.message.warning(t('当前连接正在执行作业，请等待'))
+                    else
+                        try {
+                            await shell.execute_(selection)
+                        } catch (error) {
+                            // 忽略用户执行脚本的错误
+                        }
+                }
+                
+                
                 editor.addAction({
                     id: 'dolphindb.execute',
                     
@@ -111,11 +124,8 @@ export function ShellEditor ({ collapser }) {
                     
                     label: t('DolphinDB: 执行当前行代码'),
                     
-                    run () {
-                        if (shell.executing)
-                            model.message.warning(t('当前连接正在执行作业，请等待'))
-                        else
-                            shell.execute_('line')
+                    async run () {
+                        await execute('line')
                     }
                 })
                 
@@ -128,11 +138,8 @@ export function ShellEditor ({ collapser }) {
                     
                     label: t('DolphinDB: 执行代码'),
                     
-                    run () {
-                        if (shell.executing)
-                            model.message.warning(t('当前连接正在执行作业，请等待'))
-                        else
-                            shell.execute_('all')
+                    async run () {
+                        await execute('all')
                     }
                 })
                 

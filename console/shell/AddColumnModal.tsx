@@ -36,23 +36,28 @@ export const AddColumnModal = NiceModal.create<Props>(({ node }) => {
     const isTSDB = engineType === 'TSDB'
     
     async function onSubmit (formValues: IAddColumnFormValues) {
-        const { table } = node
-        
-        await shell.define_add_column()
-        // 调用该函数时，数据库路径不能以 / 结尾
-        await model.ddb.call('add_column', [
-            table.db.path.slice(0, -1),
-            table.name,
-            formValues.column,
-            generateDDBDataTypeLiteral(formValues)
-        ])
-        model.message.success(t('添加成功'))
-        node.children = null
-        table.schema = null
-        await node.load_children()
-        shell.set({ dbs: [...shell.dbs] })
-        modal.resolve()
-        modal.hide()
+        try {
+            const { table } = node
+            
+            await shell.define_add_column()
+            // 调用该函数时，数据库路径不能以 / 结尾
+            await model.ddb.call('add_column', [
+                table.db.path.slice(0, -1),
+                table.name,
+                formValues.column,
+                generateDDBDataTypeLiteral(formValues)
+            ])
+            model.message.success(t('添加成功'))
+            node.children = null
+            table.schema = null
+            await node.load_children()
+            shell.set({ dbs: [...shell.dbs] })
+            modal.resolve()
+            modal.hide()
+        } catch (error) {
+            console.log(error)
+            model.show_error({ error })
+        }
     }
     
     return <Modal 

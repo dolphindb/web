@@ -22,7 +22,7 @@ export function Import ({ type }: { type: 'icon' | 'button' }) {
     const { visible: confirm_visible, open: confirm_open, close: confirm_close } = use_modal()
     
     const message = type === 'icon' ? dashboard.message : model.message
-    const execute = type === 'icon' ? dashboard.execute : model.execute
+    const execute = type === 'icon' ? dashboard.execute.bind(dashboard) : model.execute.bind(model)
     
     const triggers = {
         button: <Upload

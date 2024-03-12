@@ -5,12 +5,12 @@ import './index.sass'
 import './pagination.sass'
 
 
-import { useEffect } from 'react'
+import { Component, useEffect, type PropsWithChildren } from 'react'
 import { createRoot } from 'react-dom/client'
 
 import NiceModal from '@ebay/nice-modal-react'
 
-import { Layout, ConfigProvider, App } from 'antd'
+import { Layout, ConfigProvider, App, Result } from 'antd'
 import zh from 'antd/es/locale/zh_CN.js'
 import en from 'antd/locale/en_US.js'
 import ja from 'antd/locale/ja_JP.js'
@@ -19,7 +19,7 @@ import ko from 'antd/locale/ko_KR.js'
 
 import { language } from '../i18n/index.js'
 
-import { model } from './model.js'
+import { format_error, model } from './model.js'
 
 import { DdbHeader } from './components/DdbHeader.js'
 import { DdbSider } from './components/DdbSider.js'
@@ -62,10 +62,14 @@ function MainLayout () {
     const { header, inited, sider } = model.use(['header', 'inited', 'sider'])
     
     
+    // App 组件通过 Context 提供上下文方法调用，因而 useApp 需要作为子组件才能使用
+    Object.assign(model, App.useApp())
+    
+    
     // 挂载全局的错误处理方法，在 onClick, useEffect 等回调中报错且未 catch 时弹框显示错误
     useEffect(() => {
-        function on_global_error ({ error }: ErrorEvent) {
-            debugger
+        function on_global_error ({ error, reason }: ErrorEvent & PromiseRejectionEvent) {
+            error ??= reason
             
             if (!error.shown) {
                 error.shown = true
@@ -79,16 +83,15 @@ function MainLayout () {
             }
         }
         
+        
         window.addEventListener('error', on_global_error)
+        window.addEventListener('unhandledrejection', on_global_error)
         
         return () => {
             window.removeEventListener('error', on_global_error)
+            window.removeEventListener('unhandledrejection', on_global_error)
         }
     }, [ ])
-    
-    
-    // App 组件通过 Context 提供上下文方法调用，因而 useApp 需要作为子组件才能使用
-    Object.assign(model, App.useApp())
     
     
     useEffect(() => {
@@ -122,17 +125,19 @@ function MainLayout () {
     if (!inited)
         return null
     
-    return <Layout className='root-layout'>
-        { header && <Layout.Header className='ddb-header'>
-            <DdbHeader />
-        </Layout.Header> }
-        <Layout className='body' hasSider>
-            { sider && <DdbSider />}
-            <Layout.Content className='view'>
-                <DdbContent />
-            </Layout.Content>
+    return <DdbErrorBoundary>
+        <Layout className='root-layout'>
+            { header && <Layout.Header className='ddb-header'>
+                <DdbHeader />
+            </Layout.Header> }
+            <Layout className='body' hasSider>
+                { sider && <DdbSider />}
+                <Layout.Content className='view'>
+                    <DdbContent />
+                </Layout.Content>
+            </Layout>
         </Layout>
-    </Layout>
+    </DdbErrorBoundary>
 }
 
 
@@ -160,4 +165,34 @@ function DdbContent () {
     return <div className={`view-card ${view}`}>
         <View />
     </div>
+}
+
+
+interface DdbErrorBoundaryState {
+    error?: Error
+}
+
+
+class DdbErrorBoundary extends Component<PropsWithChildren<{ }>, DdbErrorBoundaryState> {
+    override state: DdbErrorBoundaryState = { }
+    
+    
+    static getDerivedStateFromError (error: Error) {
+        return { error }
+    }
+    
+    
+    override render () {
+        const { error } = this.state
+        
+        return error ?
+            <Result
+                className='global-error-result'
+                status='error'
+                title={error.message}
+                subTitle={format_error(error)}
+            />
+        :
+            this.props.children
+    }
 }
