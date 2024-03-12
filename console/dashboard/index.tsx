@@ -4,7 +4,7 @@ import 'gridstack/dist/gridstack.css'
 // 行列数为 1 - 11 时需要
 // import 'gridstack/dist/gridstack-extra.css'
 
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef } from 'react'
 import { App, Button, ConfigProvider, Popconfirm, Result, Spin, theme } from 'antd'
 import * as echarts from 'echarts'
 
@@ -14,6 +14,7 @@ import { GraphItem } from './GraphItem/GraphItem.js'
 import { SettingsPanel } from './SettingsPanel/SettingsPanel.js'
 import { Header } from './Header.js'
 import { Overview } from './Overview.js'
+import { Doc } from './components/Doc.js'
 import config from './chart.config.json' assert { type: 'json' }
 import { NodeType, model } from '../model.js'
 import { t, language } from '../../i18n/index.js'
@@ -51,11 +52,8 @@ export function DashBoard () {
                 }
                 else if (node_type === NodeType.controller)
                     dashboard.set({ inited_state: InitedState.control_node })
-                else {
-                    const version = (await model.ddb.call('dashboard_get_version')).value
-                    if (version === '1.0.0')
-                        dashboard.set({ inited_state: InitedState.inited })
-                }
+                else if ((await model.ddb.call('dashboard_get_version')).value === '1.0.0')
+                    dashboard.set({ inited_state: InitedState.inited })
             } catch (error) {
                 dashboard.set({ inited_state: InitedState.uninited })
             }
@@ -116,13 +114,7 @@ function Init () {
                         <p>{t('以及 11 个以 dashboard_ 开头的函数视图（FunctionView）')}</p>
                         <p>
                             {t('提示：初始化后请完善用户相关配置（详见')}
-                            <a 
-                                href='https://docs.dolphindb.cn/zh/tutorials/dashboard_tutorial.html'
-                                className='link'
-                                target='_blank'
-                            >
-                                {t('文档')}
-                            </a>
+                            <Doc/>
                             ）
                         </p>
                     </>
