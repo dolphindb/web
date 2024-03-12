@@ -10,16 +10,16 @@ import { createRoot } from 'react-dom/client'
 
 import NiceModal from '@ebay/nice-modal-react'
 
-import { Layout, ConfigProvider, App, Result } from 'antd'
+import { Layout, ConfigProvider, App, Result, Button } from 'antd'
 import zh from 'antd/es/locale/zh_CN.js'
 import en from 'antd/locale/en_US.js'
 import ja from 'antd/locale/ja_JP.js'
 import ko from 'antd/locale/ko_KR.js'
 
 
-import { language } from '../i18n/index.js'
+import { language, t } from '../i18n/index.js'
 
-import { format_error, model } from './model.js'
+import { model } from './model.js'
 
 import { DdbHeader } from './components/DdbHeader.js'
 import { DdbSider } from './components/DdbSider.js'
@@ -125,19 +125,19 @@ function MainLayout () {
     if (!inited)
         return null
     
-    return <DdbErrorBoundary>
-        <Layout className='root-layout'>
-            { header && <Layout.Header className='ddb-header'>
-                <DdbHeader />
-            </Layout.Header> }
-            <Layout className='body' hasSider>
-                { sider && <DdbSider />}
-                <Layout.Content className='view'>
+    return <Layout className='root-layout'>
+        { header && <Layout.Header className='ddb-header'>
+            <DdbHeader />
+        </Layout.Header> }
+        <Layout className='body' hasSider>
+            { sider && <DdbSider />}
+            <Layout.Content className='view'>
+                <DdbErrorBoundary>
                     <DdbContent />
-                </Layout.Content>
-            </Layout>
+                </DdbErrorBoundary>
+            </Layout.Content>
         </Layout>
-    </DdbErrorBoundary>
+    </Layout>
 }
 
 
@@ -174,7 +174,7 @@ interface DdbErrorBoundaryState {
 
 
 class DdbErrorBoundary extends Component<PropsWithChildren<{ }>, DdbErrorBoundaryState> {
-    override state: DdbErrorBoundaryState = { }
+    override state: DdbErrorBoundaryState = { error: null }
     
     
     static getDerivedStateFromError (error: Error) {
@@ -190,7 +190,8 @@ class DdbErrorBoundary extends Component<PropsWithChildren<{ }>, DdbErrorBoundar
                 className='global-error-result'
                 status='error'
                 title={error.message}
-                subTitle={format_error(error)}
+                subTitle={model.format_error(error)}
+                extra={<Button onClick={() => { this.setState({ error: null }) }}>{t('关闭')}</Button>}
             />
         :
             this.props.children
