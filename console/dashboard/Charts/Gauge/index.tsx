@@ -38,8 +38,7 @@ export function Gauge (props: IProps) {
                 textStyle: {
                     color: '#e6e6e6',
                     fontSize: title_size || 18,
-                },
-                padding: [0, 0]
+                }
             },
             series: [{
                 type: 'gauge',
@@ -48,8 +47,7 @@ export function Gauge (props: IProps) {
                     color: '#fff',
                 },
                 min,
-                max,
-                center: ['50%', '50%'],
+                max,           
                 progress: {
                     show: true,
                     roundCap: true,
