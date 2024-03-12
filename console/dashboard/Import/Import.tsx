@@ -22,7 +22,6 @@ export function Import ({ type }: { type: 'icon' | 'button' }) {
     const { visible: confirm_visible, open: confirm_open, close: confirm_close } = use_modal()
     
     const message = type === 'icon' ? dashboard.message : model.message
-    const execute = type === 'icon' ? dashboard.execute.bind(dashboard) : model.execute.bind(model)
     
     const triggers = {
         button: <Upload
@@ -96,13 +95,11 @@ export function Import ({ type }: { type: 'icon' | 'button' }) {
                     key='cover'
                     type='primary'
                     onClick={async () => {
-                        await execute(async () => {
-                            await dashboard.delete_dashboard_configs([repeat_config_id], false)
-                            await dashboard.add_dashboard_config(import_config, type === 'icon')
-                            import_close()
-                            resolve_lock.current()
-                            message.success(`${import_config.name} ${t('导入成功！')}`)
-                        }, { json_error: true })
+                        await dashboard.delete_dashboard_configs([repeat_config_id], false)
+                        await dashboard.add_dashboard_config(import_config, type === 'icon')
+                        import_close()
+                        resolve_lock.current()
+                        message.success(`${import_config.name} ${t('导入成功！')}`)
                     }}
                 >
                     {t('覆盖')}

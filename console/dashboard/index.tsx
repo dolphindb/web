@@ -170,7 +170,7 @@ function DashboardInstance () {
     }, [ ])
     
     useEffect(() => {
-        dashboard.execute(async () => dashboard.init(rdiv.current), { json_error: true })
+        dashboard.init(rdiv.current)
         return () => { dashboard.dispose() }
     }, [ ])
     
