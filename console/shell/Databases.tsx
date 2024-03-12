@@ -157,18 +157,23 @@ export function Databases () {
                             
                             loadedKeys={loaded_keys}
                             loadData={async (node: EventDataNode<DatabaseGroup | Database | Table | ColumnRoot | PartitionRoot | Column | PartitionDirectory | PartitionFile>) => {
-                                switch (node.type) {
-                                    case 'column-root':
-                                    case 'partition-root':
-                                    case 'partition-directory':
-                                    case 'table':
-                                        await node.self.load_children()
-                                        
-                                        shell.set({ dbs: [...dbs] })
-                                        
-                                        break
-                                }
-                            }}
+                                try {
+                                    switch (node.type) {
+                                        case 'column-root':
+                                        case 'partition-root':
+                                        case 'partition-directory':
+                                        case 'table':
+                                            await node.self.load_children()
+                                            
+                                            shell.set({ dbs: [...dbs] })
+                                            
+                                            break
+                                    }
+                                } catch (error) {
+                                    model.show_error({ error })
+                                    // 这里不往上扔错误，避免 rc-tree 自动重试造成多个错误弹窗
+                                }}
+                            }
                             onLoad={ keys => { set_loaded_keys(keys) }}
                             
                             expandedKeys={expanded_keys}
@@ -214,6 +219,7 @@ export function Databases () {
                                         
                                         if (!found) {
                                             keys_.push(node.key)
+                                            
                                             // 显示 schema
                                             await node.inspect()
                                         }
@@ -302,7 +308,6 @@ function SetColumnComment () {
             labelWrap
             name='edit-comment'
             onFinish={ async ({ comment }: { comment: string }) => {
-                
                 await shell.define_set_column_comment()
                 await model.ddb.call('set_column_comment', [
                     root.table.db.path.slice(0, -1),
@@ -810,7 +815,6 @@ export class Database implements DataNode {
                 await NiceModal.show(CreateTableModal, { database: this, schema })
                 await shell.load_dbs()
                 await shell.refresh_db()
-                
             }
         :
             event => {
