@@ -310,44 +310,6 @@ function LoadTable(nodeList) {
                 }
             }
         }, {
-            text: 'ServerLog',
-            key: 'serverLog',
-            remind: 'server log',
-            template: function (action, rowObject) {
-                var r = "";
-                var ref = "";
-                var api_url = "";
-                var node_alias = rowObject.site.split(":")[2];
-                if (rowObject.mode === 0 || rowObject.mode === 4) {
-                    var agentUrl = getAgentSite(getControllerIp(), rowObject);
-                    api_url = agentUrl;
-                    // console.log(agentUrl);
-                    ref = agentUrl + '@' + rowObject.site;
-                } else { //controller
-                    api_url = getControllerIp();
-                    ref = rowObject.site.replace(rowObject.host, getControllerIp()) + '@' + rowObject.site;
-                }
-                r += '<a style="padding-left:20px" class="a-link"  ref="getServerLog@' + ref + '" href="javascript:void(0)" onclick="showServerLog(\'' + api_url + '\',\'' + node_alias + '\')">view</a>';
-                return r;
-            }
-        }, {
-            text: 'QueryLog',
-            key: 'perfLog',
-            remind: 'query performance log',
-            template: function (action, rowObject) {
-                var r = "";
-                var api_url = "";
-                var node_alias = rowObject.site.split(":")[2];
-                if (rowObject.mode === 0 || rowObject.mode === 4) {
-                    var agentUrl = getAgentSite(getControllerIp(), rowObject);
-                    api_url = agentUrl;
-                    ref = agentUrl + '@' + rowObject.site;
-                    r += '<a style="padding-left:20px" class="a-link" ref="getPerfLog@' + ref + '" href="javascript:void(0)" onclick="showPerfLog(\'' + api_url + '\',\'' + node_alias + '\')">view</a>';
-                    return r;
-                } else
-                    return "<span style='padding-left:20px;color:gray'>N/A</span>"
-            }
-        }, {
             text: 'Conns',
             key: 'connectionNum',
             remind: ' number of current connections',
