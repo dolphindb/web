@@ -74,7 +74,7 @@ function MainLayout () {
             if (!error.shown) {
                 error.shown = true
                 
-                const in_dashboard = (new URLSearchParams(location.search)).get('dashboard')
+                const in_dashboard = new URLSearchParams(location.search).get('dashboard')
                 
                 if (in_dashboard)
                     dashboard.show_error({ error })
