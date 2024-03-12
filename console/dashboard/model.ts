@@ -21,7 +21,6 @@ import { type Monaco } from '../shell/Editor/index.js'
 import { type DataSource, type ExportDataSource, import_data_sources, unsubscribe_data_source, type DataType, clear_data_sources } from './DataSource/date-source.js'
 import { type IEditorConfig, type IChartConfig, type ITableConfig, type ITextConfig, type IGaugeConfig, type IHeatMapChartConfig, type IOrderBookConfig } from './type.js'
 import { type Variable, import_variables, type ExportVariable } from './Variable/variable.js'
-import { parse_error } from '../utils/ddb-error.js'
 
 
 export class DashBoardModel extends Model<DashBoardModel> {
@@ -86,9 +85,8 @@ export class DashBoardModel extends Model<DashBoardModel> {
     
     /** 初始化 GridStack 并配置事件监听器 */
     async init ($div: HTMLDivElement) {
-        await dashboard.execute(async () => {
-            await this.get_dashboard_configs()
-        }, { json_error: true })
+        await this.get_dashboard_configs()
+        
         if (!this.config) {
             const id = genid()
             const new_dashboard_config = {
@@ -190,35 +188,6 @@ export class DashBoardModel extends Model<DashBoardModel> {
         GridStack.setupDragIn('.dashboard-graph-item', { helper: 'clone' })
         
         this.set({ grid, widget: null })
-    }
-    
-    
-    
-    
-    /** 执行 action，遇到错误时弹窗提示 
-        - action: 需要弹框展示执行错误的函数
-        - options?:
-            - throw?: `true` 默认会继续向上抛出错误，如果不需要向上继续抛出
-            - print?: `!throw` 在控制台中打印错误
-            - json_error?: `true` 会解析 server 返回的错误
-        @example await model.execute(async () => model.xxx()) */
-    async execute (
-        action: Function, 
-        { throw: _throw = true, print, json_error = false }: { throw?: boolean, print?: boolean, json_error?: boolean } = { }) 
-    {
-        try {
-            await action()
-        } catch (error) {
-            error = json_error ? parse_error(error) : error
-            
-            if (print ?? !_throw)
-                console.error(error)
-            
-            this.show_error({ error })
-            
-            if (_throw)
-                throw error
-        }
     }
     
     

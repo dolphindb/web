@@ -1,5 +1,4 @@
-import { SUPPORT_ARRAY_VECTOR_TYPES, type DDBColumnTypeNames } from '../constants/column-data-types.js'
-import { model } from '../model.js'
+import { type DDBColumnTypeNames } from '../constants/column-data-types.js'
 
 export function isDDBTemporalType (type: DDBColumnTypeNames) {
     return [

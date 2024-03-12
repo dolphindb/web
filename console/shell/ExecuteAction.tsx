@@ -17,7 +17,7 @@ export function ExecuteAction () {
         cancelText={t('不要取消')}
         disabled={!executing}
         onConfirm={async () => {
-            await model.execute(async () => model.ddb.cancel())
+            await model.ddb.cancel()
             model.message.success(t('取消作业指令发送成功'))
         }}
     >
@@ -25,8 +25,13 @@ export function ExecuteAction () {
             className='action execute'
             title={executing ? t('点击可以取消当前执行中的作业') : t('执行选中代码或全部代码')}
             onClick={async () => {
-                if (!executing)
-                    await shell.execute_('all')
+                try {
+                    // shell 上的 executing 状态才是最新的
+                    if (!shell.executing)
+                        await shell.execute_('all')
+                } catch (error) {
+                    // 忽略用户执行脚本的报错
+                }
             }}
         >
             {executing && show_executing ? <LoadingOutlined /> : <CaretRightOutlined />}

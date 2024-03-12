@@ -289,6 +289,8 @@ export function OHLC ({ widget, data_source }: { widget: Widget, data_source: an
                         padding: [0, 50, 0, 0],
                         fontSize: yAxis[0]?.fontsize ?? 12,
                     },
+                    min: yAxis[0].min,
+                    max: yAxis[0].max,
                     name: yAxis[0].name,
                     position: yAxis[0].position,
                     offset: yAxis[0].offset
@@ -297,6 +299,8 @@ export function OHLC ({ widget, data_source }: { widget: Widget, data_source: an
                     scale: true,
                     gridIndex: 1,
                     splitNumber: 2,
+                    min: yAxis[1].min,
+                    max: yAxis[1].max,
                     nameTextStyle: {
                         padding: [0, 0, 0, 50],
                         fontSize: yAxis[1]?.fontsize ?? 12,
