@@ -43,7 +43,7 @@ export function Overview () {
             if (model.admin) {
                 let { version } = model
                 version += (version.split('.').length < 4) ? '.0' : ''
-                if (vercmp(version, '2.00.11.0') <= 0) {
+                if (vercmp(version, '2.00.11.0') >= 0) {
                     for (let i of ['Create', 'Delete']) 
                         if (!(await model.ddb.eval(`rpc(getControllerAlias(), getConfig, \`thirdParty${i}UserCallback)`)).value)
                             config_infos.push(i === 'Create' ? 'thirdPartyCreateUserCallback=dashboard_grant_functionviews' : 'thirdPartyDeleteUserCallback=dashboard_delete_user')  
