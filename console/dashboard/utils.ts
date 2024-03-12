@@ -493,7 +493,7 @@ export function convert_chart_config (
             } as any
         }
     
-    const options =  {
+    return  {
         animation,
         grid: {
             containLabel: true,
@@ -531,17 +531,9 @@ export function convert_chart_config (
         series: echarts_series,
         dataZoom: convert_data_zoom(x_datazoom, y_datazoom)
     }
-    return options
 }
 
 
-export function convert_list_to_options (list: (string | number)[]) { 
-    return list.map(item => ({
-        label: item,
-        value: item,
-        key: item,
-    }))
-}
 
 
 export function to_chart_data (data: DdbValue, datatype: DdbType) {
@@ -579,11 +571,10 @@ export function safe_json_parse (val) {
 export function format_number (val: any, decimal_places, is_thousandth_place) {
     let value = val
     try {
-        if (isFinite(val) && isNumber(decimal_places)) {
+        if (!isNaN(Number(val)) && typeof decimal_places === 'number') {
             // 0 不需要格式化
             if (Number(val) === 0)
                 return 0
-        
             value = Number(val).toFixed(decimal_places)
         }
         else if (typeof val === 'string') {

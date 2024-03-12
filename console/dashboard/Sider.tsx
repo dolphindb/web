@@ -4,9 +4,6 @@ import { BarChartOutlined, BarsOutlined, BoxPlotOutlined, DoubleLeftOutlined, Do
 import { WidgetType } from './model.js'
 import { t } from '../../i18n/index.js'
 
-import timeSeriesSvg from '../icons/timeSeries.icon.svg'
-import Icon from '@ant-design/icons/lib/components/Icon.js'
-
 
 
 const icons = {

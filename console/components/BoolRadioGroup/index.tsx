@@ -18,7 +18,7 @@ export function BoolRadioGroup (props: IBoolRadioGroupProps) {
     )
     
     return <Radio.Group value={value} onChange={onChange} {...otherProps}>
-            <Radio value >{t('是')}</Radio>
+            <Radio value>{t('是')}</Radio>
             <Radio value={false}>{t('否')}</Radio>
         </Radio.Group>
 }
