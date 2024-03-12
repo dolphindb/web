@@ -75,8 +75,6 @@ export function DataSourceConfig (props: IProps, ref) {
             return
         }    
         set_current_data_source(cloneDeep(get_data_source(key)))
-        if (!is_multi_data_source)
-            set_selected_data_sources([key])
         set_show_preview(false)
     }, [ ])
     
