@@ -11,7 +11,6 @@ import { type IGaugeConfig } from '../../type.js'
 import { useMemo } from 'react'
 import { StringColorPicker } from '../../../components/StringColorPicker/index.js'
 import { t } from '../../../../i18n/index.js'
-import { BoolRadioGroup } from '../../../components/BoolRadioGroup'
 
 
 interface IProps { 
