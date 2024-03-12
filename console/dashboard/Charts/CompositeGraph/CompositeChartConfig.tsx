@@ -115,10 +115,10 @@ export function CompositeChartConfig () {
             },
             {
                 key: 'series',
-                label: <div className='collapse-label'>
+                label: <div>
                     {t('数据列配置')}
                     <Tooltip title={t('单条数据列若命中多个配置规则，以第一项命中的为准') }>
-                        <QuestionCircleOutlined />
+                        <QuestionCircleOutlined style={{ marginLeft: 4 }} />
                     </Tooltip>
                 </div>,
                 forceRender: true,
