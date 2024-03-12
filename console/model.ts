@@ -38,7 +38,7 @@ const username_guest = 'guest' as const
 export type PageViews = 'overview' | 'overview-old' | 'shell' | 'dashboard' | 'table' | 'job' | 'login' | 'dfs' | 'log' | 'factor' | 'test' | 'computing' | 'tools' | 'iot-guide' | 'finance-guide' | 'access' | 'user' | 'group' 
 
 
-class DdbModel extends Model<DdbModel> {
+export class DdbModel extends Model<DdbModel> {
     inited = false
     
     /** 在本地开发模式 */
@@ -854,13 +854,35 @@ class DdbModel extends Model<DdbModel> {
 }
 
 
-if (!Array.prototype.toReversed) 
+if (!Array.prototype.toReversed)
     Object.defineProperty(Array.prototype, 'toReversed', {
         configurable: true,
         writable: true,
         enumerable: false,
         value: function toReversed (this: Array<any>) {
             return [...this].reverse()
+        }
+    })
+
+if (!Array.prototype.toSpliced)
+    Object.defineProperty(Array.prototype, 'toSpliced', {
+        configurable: true,
+        writable: true,
+        enumerable: false,
+        value: function toSpliced (...args: [start: number, deleteCount?: number, ...items: any[]]) {
+            const copy = [...this]
+            copy.splice(...args)
+            return copy
+        }
+    })
+
+if (!Array.prototype.at)
+    Object.defineProperty(Array.prototype, 'at', {
+        configurable: true,
+        writable: true,
+        enumerable: false,
+        value: function at (index: number) {
+            return index >= 0 ? this[index] : this[index + this.length]
         }
     })
 
@@ -935,6 +957,7 @@ export interface DdbNode {
     maxConnections: number
     maxMemSize: number
     workerNum: number
+    /** @deprecated server 2.00.10 后没有 local executor，此项一直为零 */
     executorNum: number
     connectionNum: number
     memoryUsed: bigint

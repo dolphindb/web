@@ -45,3 +45,10 @@
 .ant-picker-dropdown .ant-picker-time-panel-column {
     width: 100px; 
 }
+
+.col-select-space {
+    width: 100%;
+    .ant-space-item {
+        width: 50%;
+    }
+}

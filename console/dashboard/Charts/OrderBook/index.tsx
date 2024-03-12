@@ -8,7 +8,7 @@ import { DdbType } from 'dolphindb/browser.js'
 import { OrderFormFields, BasicFormFields } from '../../ChartFormFields/OrderBookField.js'
 import {
   type EChartsOption,
-} from 'echarts/types/dist/shared'
+} from 'echarts/types/dist/shared.js'
 import { convert_order_book_config, convertDateFormat, type OrderBookTradeData, parsePrice } from './config.js'
 
 

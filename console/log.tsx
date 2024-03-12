@@ -53,7 +53,7 @@ export function Log () {
         return len
     }
     
-    return <div className='list'>
+    return <div className='list themed'>
         <div className='log-title'>
             <div className='log-name'>
                 {node_alias} {t('日志')} ({Number(log_length).to_fsize_str()})

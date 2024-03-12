@@ -1,4 +1,4 @@
-import { default as React, useEffect, useRef, useState } from 'react'
+import { default as React, useCallback, useEffect, useRef, useState } from 'react'
 
 import NiceModal from '@ebay/nice-modal-react'
 
@@ -73,6 +73,24 @@ export function Databases () {
     const enable_create_db = [NodeType.data, NodeType.single].includes(node_type)
     const [refresh_spin, set_refresh_spin] = useState(false)
     
+    
+    shell.refresh_db = useCallback(async () => {
+        try {
+            set_refresh_spin(true)
+            const promise = delay(1000)
+            await shell.load_dbs()
+            set_expanded_keys([ ])
+            set_loaded_keys([ ])
+            await promise
+        } catch (error) {
+            model.show_error({ error })
+            throw error
+        } finally {
+            set_refresh_spin(false)
+        }
+    }, [ ])
+    
+    
     return <Resizable
         className='treeview-resizable-split1'
         enable={{
@@ -113,21 +131,7 @@ export function Databases () {
                                 />
                             </Tooltip>
                         </span>
-                        <span onClick={async () => {
-                            try {
-                                set_refresh_spin(true)
-                                const promise = delay(1000)
-                                await shell.load_dbs()
-                                set_expanded_keys([ ])
-                                set_loaded_keys([ ])
-                                await promise
-                            } catch (error) {
-                                model.show_error({ error })
-                                throw error
-                            } finally {
-                                set_refresh_spin(false)
-                            }
-                        }}>
+                        <span onClick={shell.refresh_db}>
                             <Tooltip title={t('刷新')} color='grey'>
                                 <SyncOutlined spin={refresh_spin}/>
                             </Tooltip>
@@ -813,6 +817,7 @@ export class Database implements DataNode {
                     const schema = (await this.get_schema()).to_dict()
                     await NiceModal.show(CreateTableModal, { database: this, schema })
                     await shell.load_dbs()
+                    await shell.refresh_db()
                 })
             }
         :
@@ -968,21 +973,26 @@ export class Table implements DataNode {
                 model.node_type === NodeType.controller ? { node: model.datanode.name, func_type: DdbFunctionType.UserDefinedFunc } : { }
             )
         }
+        
         return this.schema
     }
     
     
     async load_children () {
         if (!this.children && !this.kind) {
-            this.kind = Number((await this.get_schema()).to_dict().partitionColumnIndex.value) < 0 ? 
+            this.kind = Number(
+                (await this.get_schema())
+                    .to_dict().partitionColumnIndex.value
+            ) < 0 ? 
                     TableKind.Table
                 :
                     TableKind.PartitionedTable
             
-            this.children = this.kind === TableKind.Table ?
-                    [new Schema(this), new ColumnRoot(this)]
-                :
-                    [new Schema(this), new ColumnRoot(this), new PartitionRoot(this)]
+            this.children = [
+                new Schema(this), 
+                new ColumnRoot(this),
+                ... (this.kind === TableKind.Table ? [ ] : [new PartitionRoot(this)]) as [PartitionRoot?]
+            ]
         }
     }
 }
@@ -1167,7 +1177,7 @@ export class PartitionFile implements DataNode {
     /** chunk 所在的集群中的节点 alias */
     site_node: string
     
-    constructor (root: PartitionRoot, parent: PartitionDirectory | PartitionRoot, path: string, chunk: string, site_node: string) {
+    constructor (root: PartitionRoot, parent: PartitionDirectory | PartitionRoot, path: string, chunk: string, site_node: string, name?: string) {
         this.self = this
         this.parent = parent
         this.root = root
@@ -1180,7 +1190,7 @@ export class PartitionFile implements DataNode {
         this.chunk = chunk
         
         // 找到最后一个 / 的位置，从后面开始截取
-        this.title = this.name = t('分区数据')
+        this.title = this.name = name || t('分区数据')
         
         this.site_node = site_node
     }
