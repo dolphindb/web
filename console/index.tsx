@@ -185,15 +185,17 @@ class DdbErrorBoundary extends Component<PropsWithChildren<{ }>, DdbErrorBoundar
     override render () {
         const { error } = this.state
         
-        return error ?
-            <Result
+        if (error) {
+            const { title, body } = model.format_error(error)
+            
+            return <Result
                 className='global-error-result'
                 status='error'
-                title={error.message}
-                subTitle={model.format_error(error)}
+                title={title}
+                subTitle={body}
                 extra={<Button onClick={() => { this.setState({ error: null }) }}>{t('关闭')}</Button>}
             />
-        :
-            this.props.children
+        } else
+            return this.props.children
     }
 }

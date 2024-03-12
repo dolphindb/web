@@ -843,7 +843,10 @@ export class DdbModel extends Model<DdbModel> {
                 if (matches) {
                     const { code, variables } = JSON.parse(matches[0])
                     
-                    return t(error_messages[code], { variables })
+                    return {
+                        title: t(error_messages[code], { variables }),
+                        body: ''
+                    }
                 }
             }
             
@@ -867,7 +870,10 @@ export class DdbModel extends Model<DdbModel> {
         if (error.cause)
             s += '\n' + (error.cause as Error).stack
         
-        return s
+        return {
+            title: error.message,
+            body: s
+        }
     }
     
     
@@ -925,20 +931,20 @@ export enum NodeType {
 export interface ErrorOptions {
     error?: Error
     title?: string
-    content?: string
+    body?: string
 }
 
 
-export function show_error (modal: DdbModel['modal'], { title, error, content }: ErrorOptions) {
-    let error_text: string
+export function show_error (modal: DdbModel['modal'], { title, error, body }: ErrorOptions) {
+    let title_: string, body_: string
     
     if (error)
-        error_text = model.format_error(error)
+        ({ title: title_, body: body_ } = model.format_error(error))
     
     modal.error({
         className: 'modal-error',
-        title: title || error?.message,
-        content: content || error_text,
+        title: title || title_,
+        content: body || body_,
         width: 1000,
     })
 }
