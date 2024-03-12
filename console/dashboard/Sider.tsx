@@ -22,7 +22,7 @@ const icons = {
     [WidgetType.VARIABLE]: <FunctionOutlined className='icon'/>,
     [WidgetType.SCATTER]: <DotChartOutlined className='icon' />,
     [WidgetType.HEATMAP]: <WindowsOutlined className='icon' />,
-    [WidgetType.COMPOSITE_GRAPH]: <GoldOutlined className='icon' />,
+    [WidgetType.COMPOSITE_GRAPH]: <GoldOutlined className='icon'/>
 }
 
 
