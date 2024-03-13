@@ -472,8 +472,8 @@ function CreateDatabase () {
                     className='db-modal-link' 
                     target='_blank'
                     href={language === 'zh'
-                        ? 'https://docs.dolphindb.cn/zh/help/FunctionsandCommands/FunctionReferences/d/database.html'
-                        : 'https://docs.dolphindb.cn/en/help200/FunctionsandCommands/FunctionReferences/d/database.html'
+                        ? 'https://docs.dolphindb.cn/zh/funcs/d/database.html'
+                        : 'https://docs.dolphindb.com/en/Functions/d/database.html'
                     }
                 >
                     {t('参考教程')}
@@ -633,7 +633,6 @@ function CreateDatabase () {
                             }]}
                         >
                             <Select placeholder={t('请选择{{i18nIndex}}分区类型', { i18nIndex })} options={[
-                                // https://www.dolphindb.cn/cn/help/FunctionsandCommands/FunctionReferences/d/database.html
                                 {
                                     label: <span title={t('顺序分区。分区方案格式为：整型标量，表示分区的数量。')}>{ t('顺序分区') + ' (SEQ)' }</span>,
                                     value: 'SEQ',
@@ -684,7 +683,6 @@ function CreateDatabase () {
             
             <Form.Item label={t('存储引擎 (engine)')} name='storageEngine' required initialValue='OLAP'>
                 <Select placeholder={t('请选择存储引擎')} options={[
-                    // https://www.dolphindb.cn/cn/help/FunctionsandCommands/FunctionReferences/d/database.html
                     {
                         label: <span title={t('OLAP 引擎。OLAP 数据表的每个列存储为一个文件，数据以追加的方式存储到相应的列文件中，因此，数据写入的顺序决定了它们的存储顺序。')}> OLAP </span>,
                         value: 'OLAP',
@@ -698,7 +696,6 @@ function CreateDatabase () {
             
             <Form.Item label={t('写入事务原子性 (atomic)')} name='atomicLevel' required>
                 <Select placeholder={t('请选择写入事务原子性')} options={[
-                    // https://www.dolphindb.cn/cn/help/FunctionsandCommands/FunctionReferences/d/database.html
                     {
                         label: <span title={t('写入事务的原子性层级为事务，即一个事务写入多个分区时，若某个分区被其他写入事务锁定而出现写入冲突，则该事务的写入全部失败。因此，该设置下，不允许并发写入同一个分区。')}>{ t('事务级原子性') + ' (TRANS)' }</span>,
                         value: 'TRANS',
@@ -712,7 +709,6 @@ function CreateDatabase () {
             
             <Form.Item label={t('分区粒度 (chunkGranularity)')} name='chunkGranularity' required>
                 <Select placeholder={t('请选择分区粒度')} options={[
-                    // https://www.dolphindb.cn/cn/help/FunctionsandCommands/FunctionReferences/d/database.html
                     {
                         label: <span title={t('表级分区，设置后支持同时写入同一分区的不同表。')}>{ t('表级分区') + ' (TABLE)' }</span>,
                         value: 'TABLE'
@@ -929,6 +925,7 @@ export class Table implements DataNode {
             else
                 return
         }
+        
         this.title = <div className='table-title'>
             <span> {path.slice(db.path.length, -1)} </span>
             <div className='table-actions'>
