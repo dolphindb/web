@@ -23,7 +23,7 @@ export const SendEventModal = NiceModal.create(({ on_refresh, engine_info }: IPr
     const on_send = useCallback(async () => {
         const values = await form.validateFields()
         const params = new DdbDict(values)
-        await model.execute(async () => model.ddb.call('appendEvent', [name, params]))
+        await model.ddb.call('appendEvent', [name, params])
         message.success(t('发送成功'))
         on_refresh?.()
         modal.hide()

@@ -24,18 +24,15 @@ export function CEPComputing () {
     }, [ ])
     
     // 获取 cep 引擎列表及当前选中的引擎详情，初始时展示第一个 cep 引擎的详情
-    const get_cep_engines = useCallback(async () =>
-        model.execute(async () => {
-            const list = await get_cep_engine_list()
-            set_engine_list(list)
-            if (list.length) { 
-                const detail = await get_cep_engine_detail(current?.engineStat?.name ?? list?.[0]?.name)
-                set_current(detail)
-            }
-            
-            set_loading(false)
-        })
-    , [current])
+    const get_cep_engines = useCallback(async () => {
+        const list = await get_cep_engine_list()
+        set_engine_list(list)
+        if (list.length) {
+            const detail = await get_cep_engine_detail(current?.engineStat?.name ?? list?.[0]?.name)
+            set_current(detail)
+        }
+        set_loading(false)
+    }, [current])
     
     useEffect(() => { 
         // 获取引擎列表
