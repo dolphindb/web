@@ -159,7 +159,7 @@ export function Databases () {
                             
                             loadedKeys={loaded_keys}
                             loadData={async (node: EventDataNode<DatabaseGroup | Database | Table | ColumnRoot | PartitionRoot | Column | PartitionDirectory | PartitionFile>) => {
-                                await model.execute(async () => {
+                                try {
                                     switch (node.type) {
                                         case 'column-root':
                                         case 'partition-root':
@@ -171,8 +171,11 @@ export function Databases () {
                                             
                                             break
                                     }
-                                }, { throw: false })  // 这里不往上扔错误，避免 rc-tree 自动重试造成多个错误弹窗
-                            }}
+                                } catch (error) {
+                                    model.show_error({ error })
+                                    // 这里不往上扔错误，避免 rc-tree 自动重试造成多个错误弹窗
+                                }}
+                            }
                             onLoad={ keys => { set_loaded_keys(keys) }}
                             
                             expandedKeys={expanded_keys}
@@ -220,7 +223,7 @@ export function Databases () {
                                             keys_.push(node.key)
                                             
                                             // 显示 schema
-                                            await model.execute(async () => node.inspect())
+                                            await node.inspect()
                                         }
                                         
                                         set_expanded_keys(keys_)
@@ -229,7 +232,7 @@ export function Databases () {
                                     
                                     case 'partition-file':
                                     case 'schema':
-                                        await model.execute(async () => node.inspect())
+                                        await node.inspect()
                                         break
                                     
                                     case 'table': {
@@ -249,7 +252,7 @@ export function Databases () {
                                         
                                         set_expanded_keys(keys_)
                                         
-                                        await model.execute(async () => node.inspect())
+                                        await node.inspect()
                                         
                                         node.peeked = true
                                         
@@ -307,20 +310,18 @@ function SetColumnComment () {
             labelWrap
             name='edit-comment'
             onFinish={ async ({ comment }: { comment: string }) => {
-                await model.execute(async () => {
-                    await shell.define_set_column_comment()
-                    await model.ddb.call('set_column_comment', [
-                        root.table.db.path.slice(0, -1),
-                        root.table.name,
-                        name,
-                        comment
-                    ])
-                    model.message.success(t('设置注释成功'))
-                    root.children = null
-                    root.table.schema = null
-                    await root.load_children()
-                    shell.set({ dbs: [...shell.dbs] })
-                })
+                await shell.define_set_column_comment()
+                await model.ddb.call('set_column_comment', [
+                    root.table.db.path.slice(0, -1),
+                    root.table.name,
+                    name,
+                    comment
+                ])
+                model.message.success(t('设置注释成功'))
+                root.children = null
+                root.table.schema = null
+                await root.load_children()
+                shell.set({ dbs: [...shell.dbs] })
                 
                 form.resetFields()
                 shell.set({ set_column_comment_modal_visible: false })
@@ -363,14 +364,12 @@ function ConfirmCommand () {
             labelWrap
             name='confirm-command'
             onFinish={async () => {
-                await model.execute(async () => {
-                    console.log(t('创建数据库的脚本:'))
-                    console.log(generated_command)
-                    await model.ddb.eval(generated_command)
-                    model.message.success(t('创建数据库成功'))
-                    await shell.load_dbs()
-                    shell.set({ dbs: [...shell.dbs] })
-                })
+                console.log(t('创建数据库的脚本:'))
+                console.log(generated_command)
+                await model.ddb.eval(generated_command)
+                model.message.success(t('创建数据库成功'))
+                await shell.load_dbs()
+                shell.set({ dbs: [...shell.dbs] })
                 
                 form.resetFields()
                 shell.set({ confirm_command_modal_visible: false })
@@ -813,12 +812,11 @@ export class Database implements DataNode {
         const onclick_create_table: React.MouseEventHandler<HTMLSpanElement> = enable_create_table ?
             async event => {
                 event.stopPropagation()
-                await model.execute(async () => {
-                    const schema = (await this.get_schema()).to_dict()
-                    await NiceModal.show(CreateTableModal, { database: this, schema })
-                    await shell.load_dbs()
-                    await shell.refresh_db()
-                })
+                
+                const schema = (await this.get_schema()).to_dict()
+                await NiceModal.show(CreateTableModal, { database: this, schema })
+                await shell.load_dbs()
+                await shell.refresh_db()
             }
         :
             event => {

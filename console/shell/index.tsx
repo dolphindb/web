@@ -45,7 +45,7 @@ export function Shell () {
     }, [options])
     
     useEffect(() => {
-        model.execute(async () =>  shell.load_dbs() )
+        shell.load_dbs()
     }, [ ])
     
     return <>

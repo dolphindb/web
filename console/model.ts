@@ -16,8 +16,7 @@ import {
     DdbDatabaseError, type DdbStringObj, type DdbDictObj, type DdbVectorStringObj
 } from 'dolphindb/browser.js'
 
-import { t } from '../i18n/index.js'
-import { parse_error } from './utils/ddb-error.js'
+import { language, t } from '../i18n/index.js'
 
 
 export const storage_keys = {
@@ -32,6 +31,8 @@ export const storage_keys = {
     sql: 'ddb.sql',
     dashboards: 'ddb.dashboards'
 } as const
+
+const json_error_pattern = /^{.*"code": "(.*?)".*}$/
 
 const username_guest = 'guest' as const
 
@@ -240,33 +241,6 @@ export class DdbModel extends Model<DdbModel> {
             url.searchParams.set(key, value)
         
         history.replaceState(null, '', url)
-    }
-    
-    
-    /** 执行 action，遇到错误时弹窗提示 
-        - action: 需要弹框展示执行错误的函数
-        - options?:
-            - throw?: `true` 默认会继续向上抛出错误，如果不需要向上继续抛出
-            - print?: `!throw` 在控制台中打印错误
-            - json_error?: `true` 会解析 server 返回的错误
-        @example await model.execute(async () => model.xxx()) */
-    async execute (
-        action: Function, 
-        { throw: _throw = true, print, json_error = false }: { throw?: boolean, print?: boolean, json_error?: boolean } = { }) 
-    {
-        try {
-            await action()
-        } catch (error) {
-            error = json_error ? parse_error(error) : error
-            
-            if (print ?? !_throw)
-                console.error(error)
-            
-            this.show_error({ error })
-            
-            if (_throw)
-                throw error
-        }
     }
     
     
@@ -851,6 +825,63 @@ export class DdbModel extends Model<DdbModel> {
         await request('http://localhost:8432/api/recompile')
         location.reload()
     }
+    
+    
+    format_error (error: Error) {
+        let s = ''
+        
+        if (error instanceof DdbDatabaseError) {
+            const { type, options, message } = error
+            
+            // json 错误是可以预期的业务逻辑错误，不需要显示后面的脚本、参数和调用栈了
+            if (message.includes(' => {"')) {
+                const i_arrow = message.lastIndexOf('=>')
+                const i_message_start = i_arrow === -1 ? 0 : i_arrow + 3
+                
+                const matches = json_error_pattern.exec(message.slice(i_message_start))
+                
+                if (matches) {
+                    const { code, variables } = JSON.parse(matches[0])
+                    
+                    return {
+                        title: t(error_messages[code], { variables }),
+                        body: ''
+                    }
+                }
+            }
+            
+            switch (type) {
+                case 'script':
+                    s += t('运行以下脚本时出错:\n') +
+                        error.options.script + '\n'
+                    break
+                
+                case 'function':
+                    s += t('调用 {{func}} 函数时出错，参数为:\n', { func: error.options.func }) +
+                        options.args.map(arg => arg.toString())
+                            .join_lines()
+                    break
+            }
+        }
+        
+        s += t('调用栈:\n') +
+            error.stack
+        
+        if (error.cause)
+            s += '\n' + (error.cause as Error).stack
+        
+        return {
+            title: error.message,
+            body: s
+        }
+    }
+    
+    
+    get_error_code_doc_link (ref_id: string) {
+        return language === 'en'
+            ? `https://docs.dolphindb.com/en/Maintenance/ErrorCodeReference/${ref_id}.html`
+            : `https://docs.dolphindb.cn/zh/error_codes/${ref_id}.html`
+    }
 }
 
 
@@ -900,49 +931,30 @@ export enum NodeType {
 export interface ErrorOptions {
     error?: Error
     title?: string
-    content?: string
+    body?: string
 }
 
 
-export function show_error (modal: DdbModel['modal'], { title, error, content }: ErrorOptions) {
-    console.log(title, error, content)
+export function show_error (modal: DdbModel['modal'], { title, error, body }: ErrorOptions) {
+    let title_: string, body_: string
+    
+    if (error)
+        ({ title: title_, body: body_ } = model.format_error(error))
+    
     modal.error({
         className: 'modal-error',
-        title: title || error?.message,
-        content: (() => {
-            if (content)
-                return content
-                
-            if (error) {
-                let s = ''
-                
-                if (error instanceof DdbDatabaseError) {
-                    const { type, options } = error
-                    switch (type) {
-                        case 'script':
-                            s += t('运行以下脚本时出错:\n') +
-                                error.options.script + '\n'
-                            break
-                        
-                        case 'function':
-                            s += t('调用 {{func}} 函数时出错，参数为:\n', { func: error.options.func }) +
-                                options.args.map(arg => arg.toString())
-                                    .join_lines()
-                            break
-                    }
-                }
-                
-                s += t('调用栈:\n') +
-                    error.stack
-                
-                if (error.cause)
-                    s += '\n' + (error.cause as Error).stack
-                
-                return s
-            }
-        })(),
+        title: title || title_,
+        content: body || body_,
         width: 1000,
     })
+}
+
+
+const error_messages = {
+    S001: '当前配置不存在',
+    S002: '配置id重复，无法保存',
+    S003: '当前配置与已有配置重名，请改名',
+    S004: '命名不可为空',
 }
 
 

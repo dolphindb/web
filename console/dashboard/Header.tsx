@@ -92,80 +92,72 @@ export function Header () {
     
     
     async function handle_save () {
-        await dashboard.execute(async () => {
-            const updated_config = await get_latest_config()
-            await dashboard.update_dashboard_config(updated_config)
-            dashboard.set({ save_confirm: false })
-            dashboard.message.success(t('数据面板保存成功'))
-        }, { json_error: true })
+        const updated_config = await get_latest_config()
+        await dashboard.update_dashboard_config(updated_config)
+        dashboard.set({ save_confirm: false })
+        dashboard.message.success(t('数据面板保存成功'))
     }
     
     
     async function handle_add () {
-        await dashboard.execute(async () => {
-            const check_name_message = check_name(new_dashboard_name)
-            if (check_name_message) {
-                dashboard.message.error(check_name_message)
-                return
-            }
-            
-            const new_dashboard_config = dashboard.generate_new_config(new_dashboard_id, new_dashboard_name)
-            
-            // await dashboard.update_config(new_dashboard_config)
-            await dashboard.add_dashboard_config(new_dashboard_config)
-            await dashboard.render_with_config(new_dashboard_config)
-            dashboard.message.success(t('添加成功'))
-        }, { json_error: true })
+        const check_name_message = check_name(new_dashboard_name)
+        if (check_name_message) {
+            dashboard.message.error(check_name_message)
+            return
+        }
+        
+        const new_dashboard_config = dashboard.generate_new_config(new_dashboard_id, new_dashboard_name)
+        
+        // await dashboard.update_config(new_dashboard_config)
+        await dashboard.add_dashboard_config(new_dashboard_config)
+        await dashboard.render_with_config(new_dashboard_config)
+        dashboard.message.success(t('添加成功'))
         add_close()
     }
     
     
     async function handle_edit () {
-        await dashboard.execute(async () => {
-            const check_name_message = check_name(edit_dashboard_name)
-            if (check_name_message) {
-                dashboard.message.error(check_name_message)
-                return
-            }
-            
-            // const updated_config = {
-            //     ...config,
-            //     name: edit_dashboard_name,
-            // }
-            
-            // await dashboard.update_config(updated_config)
-            await dashboard.rename_dashboard(config.id, edit_dashboard_name)
-            // await dashboard.save_configs_to_local()
-            dashboard.message.success(t('修改成功'))
-            
-            edit_close()
-        }, { json_error: true })
+        const check_name_message = check_name(edit_dashboard_name)
+        if (check_name_message) {
+            dashboard.message.error(check_name_message)
+            return
+        }
+        
+        // const updated_config = {
+        //     ...config,
+        //     name: edit_dashboard_name,
+        // }
+        
+        // await dashboard.update_config(updated_config)
+        await dashboard.rename_dashboard(config.id, edit_dashboard_name)
+        // await dashboard.save_configs_to_local()
+        dashboard.message.success(t('修改成功'))
+        
+        edit_close()
     }
     
     /** 删除和撤销的回调 */
     async function handle_destroy (revoke = false) {
-        await dashboard.execute(async () => {
-            if (!configs.length) {
-                dashboard.message.error(t('当前数据面板列表为空'))
-                return
-            }
-            
-            clear_data_sources()
-            
-            // if (revoke)
-            //     await dashboard.revoke(config.id)
-            // else
-                await dashboard.delete_dashboard_configs([config.id])
-            
-            const filtered_configs = configs.filter(({ id }) => id !== config.id)
-            model.set_query('dashboard', String(filtered_configs[0].id))
-            
-            // await dashboard.update_config(config, true)
-            
-            // await dashboard.save_configs_to_local()
-            
-            dashboard.message.success(revoke ? t('撤销成功') : t('删除成功'))
-        }, { json_error: true })
+        if (!configs.length) {
+            dashboard.message.error(t('当前数据面板列表为空'))
+            return
+        }
+        
+        clear_data_sources()
+        
+        // if (revoke)
+        //     await dashboard.revoke(config.id)
+        // else
+            await dashboard.delete_dashboard_configs([config.id])
+        
+        const filtered_configs = configs.filter(({ id }) => id !== config.id)
+        model.set_query('dashboard', String(filtered_configs[0].id))
+        
+        // await dashboard.update_config(config, true)
+        
+        // await dashboard.save_configs_to_local()
+        
+        dashboard.message.success(revoke ? t('撤销成功') : t('删除成功'))
     }
     
     
@@ -277,20 +269,19 @@ export function Header () {
                 <Modal
                     open={copy_visible}
                     onCancel={copy_close}
-                    onOk={async () => 
-                        dashboard.execute(async () => {
-                            const check_name_message = check_name(copy_dashboard_name)
-                            if (check_name_message) {
-                                dashboard.message.error(check_name_message)
-                                return
-                            }
-                            
-                            const copy_dashboard = dashboard.generate_new_config(5605049565005838, copy_dashboard_name, config.data)
-                            await dashboard.add_dashboard_config(copy_dashboard)
-                            dashboard.message.success(t('创建副本成功'))
-                            
-                            copy_close()
-                    }, { json_error: true })}
+                    onOk={async () => {
+                        const check_name_message = check_name(copy_dashboard_name)
+                        if (check_name_message) {
+                            dashboard.message.error(check_name_message)
+                            return
+                        }
+                        
+                        const copy_dashboard = dashboard.generate_new_config(5605049565005838, copy_dashboard_name, config.data)
+                        await dashboard.add_dashboard_config(copy_dashboard)
+                        dashboard.message.success(t('创建副本成功'))
+                        
+                        copy_close()
+                    }}
                     title={t('请输入 dashboard 副本名称')}
                 >
                     <Input
@@ -323,21 +314,19 @@ export function Header () {
                     dashboard.config?.permission !== DashboardPermission.view
                         && <>
                             <Tooltip title={t('导出')}>
-                                <Button className='action' onClick={async () => 
-                                    dashboard.execute(async () => {
-                                        await get_latest_config()
-                                        
-                                        let a = document.createElement('a')
-                                        a.download = `dashboard.${config.name}.json`
-                                        a.href = URL.createObjectURL(
-                                            new Blob([JSON.stringify(config, null, 4)], { type: 'application/json' })
-                                        )
-                                        
-                                        document.body.appendChild(a)
-                                        a.click()
-                                        document.body.removeChild(a)
-                                    }, { json_error: true })
-                                }><UploadOutlined /></Button>
+                                <Button className='action' onClick={async () => {
+                                    await get_latest_config()
+                                    
+                                    let a = document.createElement('a')
+                                    a.download = `dashboard.${config.name}.json`
+                                    a.href = URL.createObjectURL(
+                                        new Blob([JSON.stringify(config, null, 4)], { type: 'application/json' })
+                                    )
+                                    
+                                    document.body.appendChild(a)
+                                    a.click()
+                                    document.body.removeChild(a)
+                                }}><UploadOutlined /></Button>
                             </Tooltip>
                             <Tooltip title={t('创建副本')}>
                                 <Button className='action' onClick={() => {

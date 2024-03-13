@@ -133,11 +133,9 @@ function Init ({ set_inited_state }: { set_inited_state }) {
                     <Popconfirm
                         title={t('你确定要初始化数据面板功能吗？')}
                         onConfirm={async () => { 
-                            model.execute(async () => {
-                                await model.ddb.eval(backend)
-                                set_inited_state(2)
-                                model.message.success(t('初始化数据面板成功！'))
-                            }) 
+                            await model.ddb.eval(backend)
+                            set_inited_state(2)
+                            model.message.success(t('初始化数据面板成功！'))
                         }}
                         okText={t('确定')}
                         cancelText={t('取消')}
@@ -170,7 +168,7 @@ function DashboardInstance () {
     }, [ ])
     
     useEffect(() => {
-        dashboard.execute(async () => dashboard.init(rdiv.current), { json_error: true })
+        dashboard.init(rdiv.current)
         return () => { dashboard.dispose() }
     }, [ ])
     
