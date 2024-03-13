@@ -321,7 +321,7 @@ function Vector ({
         :
             Math.min(
                 Math.ceil(info.rows / ncols),
-                page_size / ncols
+                Math.ceil(page_size / ncols)
             )
     
     const [page_index, set_page_index] = useState(0)
