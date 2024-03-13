@@ -39,7 +39,7 @@ export function UserList () {
     let confior = use_modal()
     
     useEffect(() => {
-        model.execute(async () =>  { set_users_info((await access.get_user_access(users))) } )
+        (async () =>  { set_users_info((await access.get_user_access(users))) } )()
     }, [users])
     
     const cols: TableColumnType<Record<string, any>>[] = useMemo(() => (
@@ -94,21 +94,19 @@ export function UserList () {
             }}
             destroyOnClose
             title={t('新建用户')}
-            onOk={async () => access.handle_validate_error(
-                async () => {
-                    const { username, password, is_admin, groups } = await add_user_form.validateFields()
-                    await access.create_user({ 
-                        userId: username,
-                        password: password,
-                        groupIds: groups,
-                        isAdmin: is_admin 
-                    })
-                    model.message.success(t('用户创建成功'))
-                    creator.close()
-                    add_user_form.resetFields()
-                    await access.get_user_list()
-                }
-            )  }
+            onOk={async () => {
+                const { username, password, is_admin, groups } = await add_user_form.validateFields()
+                await access.create_user({ 
+                    userId: username,
+                    password: password,
+                    groupIds: groups,
+                    isAdmin: is_admin 
+                })
+                model.message.success(t('用户创建成功'))
+                creator.close()
+                add_user_form.resetFields()
+                await access.get_user_list()
+            }}
             >
             <Form
                 name='basic'
@@ -190,13 +188,13 @@ export function UserList () {
             className='delete-user-modal'
             open={deletor.visible}
             onCancel={deletor.close}
-            onOk={async () => model.execute(async () => {
+            onOk={async () => {
                 await Promise.all(selected_users.map(async user => access.delete_user(user)))
                 model.message.success(t('用户删除成功'))
                 set_selected_users([ ])
                 deletor.close()
                 await access.get_user_list()
-            })
+            }
             }
             title={<Tooltip>
                         {t('确认删除选中的 {{num}} 个用户吗？', { num: selected_users.length })}
@@ -206,15 +204,13 @@ export function UserList () {
         <Modal
             className='edit-user-modal'
             open={editor.visible}
-            onOk={async () =>  access.handle_validate_error(
-                    async () => {
-                        const { password } = await reset_password_form.validateFields()
-                        await access.reset_password(current?.name, password)
-                        reset_password_form.resetFields()
-                        model.message.success(t('密码修改成功'))
-                        editor.close()
-                    }
-            )}
+            onOk={async () => {
+                const { password } = await reset_password_form.validateFields()
+                await access.reset_password(current?.name, password)
+                reset_password_form.resetFields()
+                model.message.success(t('密码修改成功'))
+                editor.close()
+            }}
             title={<div>
                     {t('重置用户 ')}
                     <span className='blue'>{ current?.name }</span>
@@ -309,7 +305,7 @@ export function UserList () {
                 {t(' 进行以下改动吗')}
             </div> 
             }
-            onOk={async () => model.execute(async () => {
+            onOk={async () => {
                 const origin_groups = (await access.get_user_access([current?.name]))[0].groups.split(',').filter(group => group !== '')
                 const delete_groups = origin_groups.filter(u => !target_groups.includes(u)).filter(group => group !== '')
                 const add_groups = target_groups.filter((u: string) => !origin_groups.includes(u)).filter(group => group !== '')
@@ -325,8 +321,7 @@ export function UserList () {
                 set_selected_groups([ ])
                 set_target_groups([ ])
                 set_users_info((await access.get_user_access(users)))
-            })}
-            
+            }}
             >
             <div>
                 <h4>{t('原有组:')}</h4>
@@ -362,13 +357,11 @@ export function UserList () {
             </div>
             <Button type='default'
                     icon={<ReloadOutlined />}
-                    onClick={async () => model.execute(
-                        async () => {
-                            await access.get_user_list() 
+                    onClick={async () => {
+                        await access.get_user_list() 
                             set_users_info((await access.get_user_access(users)))
                             model.message.success(t('刷新成功'))
-                        })
-                    }>{t('刷新')}</Button>
+                    }}>{t('刷新')}</Button>
         </div>
         <Table 
             rowSelection={{
@@ -439,11 +432,11 @@ export function UserList () {
                         <Popconfirm
                             title={t('删除用户')}
                             description={t('确认删除用户 {{user}} 吗', { user: user_access.userId })}
-                            onConfirm={async () => model.execute(async () => {
+                            onConfirm={async () => {
                                 await access.delete_user(user_access.userId)
                                 model.message.success(t('用户删除成功'))
                                 await access.get_user_list()
-                            })}
+                            }}
                         >
                             <Button type='link' danger>
                                 {t('删除')}

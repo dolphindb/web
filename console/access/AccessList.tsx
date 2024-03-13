@@ -32,7 +32,7 @@ export function AccessList ({
     const { current, databases, shared_tables, stream_tables, function_views, accesses } = access.use(['current', 'databases', 'shared_tables', 'stream_tables', 'function_views', 'accesses'])
     
     useEffect(() => {
-        model.execute(async () => {
+        (async () => {
             let final_accesses = accesses
             
             // 用户权限列表需要单独获取最终权限去展示
@@ -93,7 +93,7 @@ export function AccessList ({
             }
             set_showed_accesses(tmp_tb_access)
                
-        })
+        })()
     }, [accesses, current, category])
     
     const cols: TableColumnType<Record<string, any>>[] = useMemo(() => ([

@@ -196,21 +196,21 @@ class AccessModel extends Model<AccessModel> {
         await model.ddb.call('revoke', obj ? [user, new DdbInt(ACCESS_NUM[aces]), obj ] : [user, new DdbInt(ACCESS_NUM[aces])], { urgent: true })
     }
     
-    async handle_validate_error (func: Function) {
-        try {
-            await func()
-        } catch (error) {
-            if (error instanceof DdbDatabaseError) {
-                model.show_error({ error })
-                return
-            }
-            const { errorFields } = error
-            error = errorFields.reduce((error_msg, curent_err) => 
-                error_msg += curent_err.errors
-            , '')
-            model.show_error({ content: error })
-        }
-    }
+    // async handle_validate_error (func: Function) {
+    //     try {
+    //         await func()
+    //     } catch (error) {
+    //         if (error instanceof DdbDatabaseError) {
+    //             model.show_error({ error })
+    //             return
+    //         }
+    //         const { errorFields } = error
+    //         error = errorFields.reduce((error_msg, curent_err) => 
+    //             error_msg += curent_err.errors
+    //         , '')
+    //         model.show_error({ content: error })
+    //     }
+    // }
     
 }
 

@@ -25,10 +25,10 @@ function Access ({
     const { current } = access.use(['current'])
     
     useEffect(() => {
-        model.execute(async () => { 
+        (async () => { 
             if (!access.inited)
                 await access.init() 
-        })
+        })()
     }, [ ])
     
     useEffect(() => {

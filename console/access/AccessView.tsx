@@ -20,12 +20,12 @@ export function AccessView () {
     const [refresher, set_refresher] = useState({ })
     
     useEffect(() => {
-        model.execute(async () =>  { 
+        (async () =>  { 
             access.set({ accesses: role === 'user' ? 
                 (await access.get_user_access([name]))[0]
                     :
                 (await access.get_group_access([name]))[0] }) 
-        })
+        })()
     }, [refresher, role, name])
     
     const tabs: TabsProps['items'] = useMemo(() => ([

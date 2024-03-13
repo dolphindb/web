@@ -34,7 +34,7 @@ export function GroupList () {
     let confior = use_modal()
     
     useEffect(() => {
-        model.execute(async () => { set_groups_info((await access.get_group_access(groups))) })    
+        (async () => { set_groups_info((await access.get_group_access(groups))) })()    
     } 
     , [groups])  
     
@@ -71,16 +71,16 @@ export function GroupList () {
             }}
             destroyOnClose
             title={t('新建组')}
-            onOk={async () => access.handle_validate_error(async () => {
+            onOk={async () => {
                 const { group_name, users } = await add_group_form.validateFields()
-                    await access.create_group(group_name, users ?? [ ])
-                    model.message.success(t('组创建成功'))
-                    creator.close()
-                    set_selected_users([ ])
-                    set_target_users([ ])
-                    add_group_form.resetFields()
-                    await access.get_group_list()
-            })}
+                await access.create_group(group_name, users ?? [ ])
+                model.message.success(t('组创建成功'))
+                creator.close()
+                set_selected_users([ ])
+                set_target_users([ ])
+                add_group_form.resetFields()
+                await access.get_group_list()
+            }}
             >
             <Form
                 name='basic'
@@ -168,8 +168,7 @@ export function GroupList () {
                 {t(' 进行以下改动吗')}
             </div> 
             }
-            onOk={async () => model.execute(async () => {
-               
+            onOk={async () => {
                 const delete_users = origin_users.filter(u => !target_users.includes(u)).filter(group => group !== '')
                 const add_users = target_users.filter((u: string) => !origin_users.includes(u)).filter(group => group !== '')
                 if (delete_users.length || add_users.length) {
@@ -183,8 +182,8 @@ export function GroupList () {
                 confior.close()
                 set_selected_users([ ])
                 set_target_users([ ])
-                await access.get_group_list()
-            })}
+                await access.get_group_list()   
+            }}
             
             >
             <div>
@@ -204,14 +203,13 @@ export function GroupList () {
             className='delete-user-modal'
             open={deletor.visible}
             onCancel={deletor.close}
-            onOk={async () => model.execute(async () => {
+            onOk={async () => {
                 await Promise.all(selected_groups.map(async group => access.delete_group(group)))
                 model.message.success(t('组删除成功'))
                 set_selected_groups([ ])
                 deletor.close()
                 await access.get_group_list()
-            })
-            }
+            }}
             title={<Tooltip>
                         {t('确认删除选中的 {{num}} 个组吗？', { num: selected_groups.length })}
                 </Tooltip>}
@@ -240,7 +238,7 @@ export function GroupList () {
             <Button 
                 type='default'
                 icon={<ReloadOutlined />}
-                onClick={async () => model.execute(async () => access.get_group_list())} >{t('刷新')}</Button>
+                onClick={async () => (async () => access.get_group_list())()} >{t('刷新')}</Button>
         </div>
         <Table 
             rowSelection={{
@@ -261,11 +259,11 @@ export function GroupList () {
                     </div>,
                 actions: <div className='actions'>
                     <Button type='link' 
-                            onClick={async () => model.execute(async () => { 
+                            onClick={async () => {
                                 access.set({ current: { name: group.groupName } })
                                 editor.open()
                                 set_target_users(await access.get_users_by_group(group.groupName))
-                            })}>
+                            }}>
                         {t('成员管理')}
                     </Button>
                     <Button type='link' 
@@ -283,11 +281,11 @@ export function GroupList () {
                     <Popconfirm
                         title={t('删除组')}
                         description={t('确认删除组 {{group}} 吗', { group: group.groupName })}
-                        onConfirm={async () => model.execute(async () => {
+                        onConfirm={async () => {
                             await access.delete_group(group.groupName)
                             model.message.success(t('组删除成功'))
                             await access.get_group_list()
-                        })}
+                        }}
                     >
                         <Button type='link' danger>
                             {t('删除')}
