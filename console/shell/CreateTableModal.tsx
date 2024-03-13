@@ -10,6 +10,7 @@ import {
     Submit,
 } from '@formily/antd-v5'
 import { mapKeys } from 'lodash'
+import { noop } from 'xshell/utils.browser.js'
 
 import { DdbType, type DdbObj } from 'dolphindb/browser.js'
 
@@ -315,6 +316,7 @@ function CreateTableModalFillForm () {
         form={form}
         className='create-table-form'
         onAutoSubmit={onSubmit}
+        onAutoSubmitFailed={noop}
     >
         <SchemaField scope={{ ...DDBTypeSelectorSchemaFields.ScopeValues, engineType }}>
             <SchemaField.String
