@@ -236,6 +236,7 @@ export function DataSourceList ({
                             if (delete_index >= 0) {
                                 menu_items.splice(delete_index, 1)
                                 set_menu_items([...menu_items])
+                                no_save_flag.current = false
                                 if (!data_sources.length)
                                     change_current_data_source('')
                                 else {
