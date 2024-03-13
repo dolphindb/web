@@ -77,6 +77,8 @@ export class DashBoardModel extends Model<DashBoardModel> {
     maxcols = 12
     maxrows = 12
     
+    show_config_modal = true
+    
     monaco: Monaco
     
     sql_editor: monacoapi.editor.IStandaloneCodeEditor

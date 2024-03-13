@@ -21,7 +21,7 @@ import { Doc } from './components/Doc.js'
 
 
 export function Overview () {
-    const { configs } = dashboard.use(['configs'])
+    const { configs, show_config_modal } = dashboard.use(['configs', 'show_config_modal'])
     const [selected_dashboard_ids, set_selected_dashboard_ids] = useState([ ])
     const [current_dashboard, set_current_dashboard] = useState(null)
     const [new_dashboard_id, set_new_dashboard_id] = useState<number>()
@@ -40,7 +40,7 @@ export function Overview () {
     
     useEffect(() => {
         (async () => {
-            if (model.admin) {
+            if (model.admin && show_config_modal) {
                 let { version } = model
                 version += (version.split('.').length < 4) ? '.0' : ''
                 if (vercmp(version, '2.00.11.0') >= 0) {
@@ -49,6 +49,7 @@ export function Overview () {
                             config_infos.push(i === 'Create' ? 'thirdPartyCreateUserCallback=dashboard_grant_functionviews' : 'thirdPartyDeleteUserCallback=dashboard_delete_user')  
                     if (config_infos.length) {
                         set_config_infos(config_infos)
+                        dashboard.set({ show_config_modal: false })
                         configor.open()
                     }   
                 }
