@@ -132,7 +132,6 @@ async function copy_vendors (fpd_out: string, monaco: boolean, production: boole
                 'basic-languages/python/python.js',
                 'basic-languages/javascript/javascript.js',
                 'basic-languages/typescript/typescript.js',
-                'basic-languages/typescript/typescript.js',
                 'basic-languages/cpp/cpp.js',
                 'basic-languages/sql/sql.js',
             ].filter(fp => !production || !fp.endsWith('.map'))
