@@ -23,6 +23,10 @@ export const DDB_COLUMN_DATA_TYPES: DDBColumnTypeNames[] = [
     'SYMBOL',
     'STRING',
     'UUID',
+    
+    // server 不支持
+    // 'DATEHOUR',
+    
     'IPADDR',
     'INT128',
     'BLOB',
