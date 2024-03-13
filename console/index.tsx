@@ -74,6 +74,10 @@ function MainLayout () {
             if (!error.shown) {
                 error.shown = true
                 
+                // 忽略 monaco editor 的错误
+                if (error.message.includes('getModifierState is not a function'))
+                    return
+                
                 const in_dashboard = new URLSearchParams(location.search).get('dashboard')
                 
                 if (in_dashboard)
