@@ -192,7 +192,7 @@
         "en": "Submit changes?"
     },
     "名称": {
-        "en": "name"
+        "en": "Name"
     },
     "模式": {
         "en": "mode"
@@ -210,7 +210,7 @@
         "en": " Status"
     },
     "操作": {
-        "en": "actions"
+        "en": "Actions"
     },
     "当前值": {
         "en": "value"
@@ -219,7 +219,7 @@
         "en": "default value"
     },
     "类型": {
-        "en": "type"
+        "en": "Type"
     },
     "描述": {
         "en": "description"
@@ -636,7 +636,7 @@
         "en": "executors"
     },
     "磁盘": {
-        "en": "Disk"
+        "en": "disk"
     },
     "磁盘读速率": {
         "en": "disk read rate"
@@ -3510,7 +3510,7 @@
         "en": "K-line only supports timeline"
     },
     "配置管理": {
-        "en": "Config Management"
+        "en": "Config"
     },
     "请输入配置名": {
         "en": "Please enter config name"
@@ -3534,13 +3534,13 @@
         "en": "Add controller config"
     },
     "请输入想要查找的配置项": {
-        "en": "Please enter the config item you want to find"
+        "en": "Please enter config name"
     },
     "集群节点管理": {
         "en": "Cluster node management"
     },
     "限定词": {
-        "en": "qualifier"
+        "en": "Qualifier"
     },
     "请输入选择器": {
         "en": "Please enter qualifier"
@@ -3549,7 +3549,7 @@
         "en": "others"
     },
     "新增配置": {
-        "en": "new config"
+        "en": "New config"
     },
     "请输入或选择配置项名": {
         "en": "Please enter or select a config item name"
@@ -3588,7 +3588,7 @@
         "en": "Add new node"
     },
     "请输入想要查找的节点别名": {
-        "en": "lease enter the alias of the node you want to find"
+        "en": "Please enter the node alias"
     },
     "线程": {
         "en": "thread"
