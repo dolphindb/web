@@ -132,14 +132,11 @@ export function NodesManagement () {
           },
     ]), [ nodes ])
     
-    const delete_nodes = useCallback(async (node_id: string) => 
-        model.execute(
-            async () => {
-                const new_nodes = _2_strs(nodes).filter(nod => nod !== node_id)
-                await config.save_cluster_nodes(new_nodes)
-                actionRef.current.reload()
-            }
-        )
+    const delete_nodes = useCallback(async (node_id: string) => {
+            const new_nodes = _2_strs(nodes).filter(nod => nod !== node_id)
+            await config.save_cluster_nodes(new_nodes)
+            actionRef.current.reload()
+        }
     , [nodes])
    
     
@@ -161,10 +158,7 @@ export function NodesManagement () {
                     }
                 }
                 request={async () => {
-                    let value = [ ]
-                    await model.execute(async () => {
-                        value = (await config.get_cluster_nodes()).value as any[]
-                    })
+                    const value = (await config.get_cluster_nodes()).value as any[]
                     const nodes = strs_2_nodes(value)
                     set_nodes(nodes)
                     return {
@@ -199,14 +193,12 @@ export function NodesManagement () {
                         type: 'single',
                         
                         onSave: async (rowKey, data, row) => {
-                           model.execute(async () => {
-                                const node_strs = _2_strs(nodes)
-                                let idx = node_strs.indexOf(rowKey as string)
-                                if (idx === -1) 
-                                    await config.save_cluster_nodes([ data.host + ':' + data.port + ':' + data.alias + ',' + data.mode, ...node_strs])
-                                else 
-                                    await config.save_cluster_nodes(node_strs.toSpliced(idx, 1, data.host + ':' + data.port + ':' + data.alias + ',' + data.mode))
-                           })
+                            const node_strs = _2_strs(nodes)
+                            let idx = node_strs.indexOf(rowKey as string)
+                            if (idx === -1) 
+                                await config.save_cluster_nodes([ data.host + ':' + data.port + ':' + data.alias + ',' + data.mode, ...node_strs])
+                            else 
+                                await config.save_cluster_nodes(node_strs.toSpliced(idx, 1, data.host + ':' + data.port + ':' + data.alias + ',' + data.mode))
                            actionRef.current.reload()
                            model.message.success(t('保存成功'))
                         },

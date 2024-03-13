@@ -103,22 +103,18 @@ export function NodesConfig () {
     ]), [configs ])
     
     useEffect(() => {
-        model.execute(async () => {
-            let value = (await config.load_nodes_config()).value as string[]
+        (async () => {
+            const value = (await config.load_nodes_config()).value as string[]
             set_configs(strs_2_nodes_config(value))
-        })
+        })()
     }, [refresher])
     
-    const delete_config = useCallback(async (config_id: string) =>
-        model.execute(
-            async () => {
-                console.log('delete config:', config_id, _2_strs(configs))
-                const new_configs = _2_strs(configs).filter(cfg => cfg !== config_id)
-                await config.save_nodes_config(new_configs)
-                set_refresher({ })
-                model.message.success(t('删除成功'))
-            }
-        )
+    const delete_config = useCallback(async (config_id: string) => {
+            const new_configs = _2_strs(configs).filter(cfg => cfg !== config_id)
+            await config.save_nodes_config(new_configs)
+            set_refresher({ })
+            model.message.success(t('删除成功'))
+        }
     , [configs])
     
     
@@ -153,14 +149,11 @@ export function NodesConfig () {
                         editable={{
                             type: 'single',
                             onSave: async (rowKey, data, row) => {
-                                model.execute(async () => {
-                                    console.log(data)
-                                    const config_strs = _2_strs(configs)
-                                    await config.save_nodes_config(
-                                        config_strs.toSpliced(
-                                            config_strs.indexOf(rowKey as string), 1, 
-                                                (data.qualifier ? data.qualifier + '.' : '') + data.name + '=' + data.value))
-                                })
+                                const config_strs = _2_strs(configs)
+                                await config.save_nodes_config(
+                                    config_strs.toSpliced(
+                                        config_strs.indexOf(rowKey as string), 1, 
+                                            (data.qualifier ? data.qualifier + '.' : '') + data.name + '=' + data.value))
                                 set_refresher({ })
                                 model.message.success(t('保存成功'))
                             },

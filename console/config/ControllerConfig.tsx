@@ -86,14 +86,11 @@ export function ControllerConfig () {
     ]), [configs ])
     
     const delete_config = useCallback(async (config_id: string) => 
-        model.execute(
-            async () => {
-                console.log('delete config:', config_id, _2_strs(configs))
-                const new_configs = _2_strs(configs).filter(cfg => cfg !== config_id)
-                await config.save_controller_configs(new_configs)
-                actionRef.current.reload()
-            }
-        )
+        {
+            const new_configs = _2_strs(configs).filter(cfg => cfg !== config_id)
+            await config.save_controller_configs(new_configs)
+            actionRef.current.reload()
+        }
     , [configs])
     
     return <EditableProTable 
@@ -101,11 +98,7 @@ export function ControllerConfig () {
                 actionRef={actionRef}
                 columns={cols}
                 request={async () => {
-                    let value = [ ]
-                    await model.execute(async () => {
-                        value = (await config.load_controller_configs()).value as any[]
-                        console.log('request configs:', value)
-                    })
+                    const value = (await config.load_controller_configs()).value as any[]
                     const configs = strs_2_controller_configs(value)
                     set_configs(configs)
                     return {
@@ -150,14 +143,12 @@ export function ControllerConfig () {
                 editable={{
                     type: 'single',
                     onSave: async (rowKey, data, row) => {
-                        model.execute(async () => {
-                            const config_strs = _2_strs(configs)
-                            let idx = config_strs.indexOf(rowKey as string)
-                            if (idx === -1) 
-                                await config.save_controller_configs([ data.name + '=' + data.value, ...config_strs])
-                            else 
-                                await config.save_controller_configs(config_strs.toSpliced(idx, 1, data.name + '=' + data.value))
-                        })
+                        const config_strs = _2_strs(configs)
+                        let idx = config_strs.indexOf(rowKey as string)
+                        if (idx === -1) 
+                            await config.save_controller_configs([ data.name + '=' + data.value, ...config_strs])
+                        else 
+                            await config.save_controller_configs(config_strs.toSpliced(idx, 1, data.name + '=' + data.value))
                         actionRef.current.reload()
                         model.message.success(t('保存成功'))
                     },
