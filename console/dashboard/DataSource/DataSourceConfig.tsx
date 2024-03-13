@@ -89,7 +89,8 @@ export function DataSourceConfig (props: IProps, ref) {
         }, [ ])
     
     const handle_save = useCallback(async () => {
-        await save_data_source(current_data_source)
+        if (current_data_source)
+            await save_data_source(current_data_source)
         no_save_flag.current = false
     }, [current_data_source])
     
@@ -171,9 +172,9 @@ export function DataSourceConfig (props: IProps, ref) {
                                     for (let id of selected_data_sources)  
                                         await subscribe_data_source(widget, id)
                                     dashboard.update_widget({ ...widget, source_id: selected_data_sources })
-                                    close()
                                     set_show_preview(false)
-                                } 
+                                }
+                                close()
                             } finally {
                                 set_loading('')
                             }
