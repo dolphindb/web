@@ -316,7 +316,10 @@ function CreateTableModalFillForm () {
         form={form}
         className='create-table-form'
         onAutoSubmit={onSubmit}
-        onAutoSubmitFailed={noop}
+        onAutoSubmitFailed={feedbacks => {
+            if (feedbacks instanceof Error)
+                throw feedbacks
+        }}
     >
         <SchemaField scope={{ ...DDBTypeSelectorSchemaFields.ScopeValues, engineType }}>
             <SchemaField.String
