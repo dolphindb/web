@@ -1,4 +1,3 @@
-import { type SelectProps } from 'antd'
 import { type DdbType } from 'dolphindb/browser.js'
 
 export type DDBColumnTypeNames = Uppercase<keyof typeof DdbType>
@@ -24,7 +23,10 @@ export const DDB_COLUMN_DATA_TYPES: DDBColumnTypeNames[] = [
     'SYMBOL',
     'STRING',
     'UUID',
-    'DATEHOUR',
+    
+    // server 不支持
+    // 'DATEHOUR',
+    
     'IPADDR',
     'INT128',
     'BLOB',
