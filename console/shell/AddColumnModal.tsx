@@ -92,7 +92,7 @@ export const AddColumnModal = NiceModal.create<Props>(({ node }) => {
                         message: t('请输入列名')
                     }}
                 />
-                <DDBTypeSelectorSchemaFields isTSDBEngine={isTSDB} />
+                <DDBTypeSelectorSchemaFields isTSDBEngine={isTSDB} isAddColumn/>
             </SchemaField>
             <FormButtonGroup align='right'>
                 <Submit type='primary'>{t('确定')}</Submit>
