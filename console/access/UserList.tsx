@@ -115,6 +115,10 @@ export function UserList () {
                 labelAlign='right'
                 form={add_user_form}
                 autoComplete='off'
+                onFinishFailed={error => {
+                    if (error instanceof Error) 
+                        throw error
+                }}
             >
                 <Form.Item
                     label={t('用户名')}
