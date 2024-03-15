@@ -95,30 +95,32 @@ export function UserList () {
             destroyOnClose
             title={t('新建用户')}
             onOk={async () => {
-                const { username, password, is_admin, groups } = await add_user_form.validateFields()
-                await access.create_user({ 
-                    userId: username,
-                    password: password,
-                    groupIds: groups,
-                    isAdmin: is_admin 
-                })
-                model.message.success(t('用户创建成功'))
-                creator.close()
-                add_user_form.resetFields()
-                await access.get_user_list()
+                try {
+                    const { username, password, is_admin, groups } = await add_user_form.validateFields()
+                    await access.create_user({ 
+                        userId: username,
+                        password: password,
+                        groupIds: groups,
+                        isAdmin: is_admin 
+                    })
+                    model.message.success(t('用户创建成功'))
+                    creator.close()
+                    add_user_form.resetFields()
+                    await access.get_user_list()
+                } catch (error) {
+                    if (error instanceof Error)
+                        throw error
+                    console.error(error)
+                }
+                
             }}
             >
             <Form
                 name='basic'
                 labelCol={{ span: 4 }}
-        
                 labelAlign='right'
                 form={add_user_form}
                 autoComplete='off'
-                onFinishFailed={error => {
-                    if (error instanceof Error) 
-                        throw error
-                }}
             >
                 <Form.Item
                     label={t('用户名')}
@@ -209,11 +211,18 @@ export function UserList () {
             className='edit-user-modal'
             open={editor.visible}
             onOk={async () => {
-                const { password } = await reset_password_form.validateFields()
-                await access.reset_password(current?.name, password)
-                reset_password_form.resetFields()
-                model.message.success(t('密码修改成功'))
-                editor.close()
+                try {
+                    const { password } = await reset_password_form.validateFields()
+                    await access.reset_password(current?.name, password)
+                    reset_password_form.resetFields()
+                    model.message.success(t('密码修改成功'))
+                    editor.close()
+                }
+                catch (error) {
+                    if (error instanceof Error)
+                        throw error
+                    console.error(error)
+                }
             }}
             title={<div>
                     {t('重置用户 ')}

@@ -72,14 +72,22 @@ export function GroupList () {
             destroyOnClose
             title={t('新建组')}
             onOk={async () => {
-                const { group_name, users } = await add_group_form.validateFields()
-                await access.create_group(group_name, users ?? [ ])
-                model.message.success(t('组创建成功'))
-                creator.close()
-                set_selected_users([ ])
-                set_target_users([ ])
-                add_group_form.resetFields()
-                await access.get_group_list()
+                try {
+                    const { group_name, users } = await add_group_form.validateFields()
+                    await access.create_group(group_name, users ?? [ ])
+                    model.message.success(t('组创建成功'))
+                    creator.close()
+                    set_selected_users([ ])
+                    set_target_users([ ])
+                    add_group_form.resetFields()
+                    await access.get_group_list()
+                } catch (error) {
+                    if (error instanceof Error)
+                        throw error
+                    console.error(error)
+                }
+                
+                
             }}
             >
             <Form
