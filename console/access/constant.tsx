@@ -12,6 +12,7 @@ export const ACCESS_TYPE = {
 
 export const TABLE_NAMES = {
     database: t('数据库'),
+    shared: t('共享内存表'),
     stream: t('流表'),
     function_view: t('函数视图'),
     script: t('脚本权限')

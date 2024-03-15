@@ -127,7 +127,8 @@ export function UserList () {
                     name='username'
                     rules={[{ required: true, message: '请输入用户名!' }, 
                             { max: 30, message: '用户名长度不能超过 30 个字符' }, 
-                            { pattern: /^(?![0-9])[\w\d]+$/, message: '用户名只能包含字母、下划线或数字，并且不能以数字开头' }]}
+                            { pattern: /^(?![\d_])[\w\d]+$/, message: '用户名只能包含字母、下划线或数字，并且不能以数字或下划线开头' }]}
+                    validateFirst
                     >
                         <Input />
                 </Form.Item>
@@ -136,8 +137,11 @@ export function UserList () {
                     label={t('密码')}
                     name='password'
                     rules={[{ required: true, message: '请输入密码!' },
-                            { min: 6, message: '密码长度最少为 6 个字符' },
-                            { max: 20, message: '密码长度最多为 20 个字符' }]}
+                            { min: 6, message: '密码长度为 6-20 个字符，且不包含空格' },
+                            { max: 20, message: '密码长度为 6-20 个字符，且不包含空格' },
+                            { pattern: /^[^\s]+$/, message: '密码长度为 6-20 个字符，且不包含空格' }, 
+                        ]}
+                    validateFirst     
                     >
                     <Input.Password />
                 </Form.Item>
@@ -161,6 +165,7 @@ export function UserList () {
                             },
                           }),
                     ]}
+                    validateFirst
                     >
                     <Input.Password />
                 </Form.Item>
