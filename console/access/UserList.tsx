@@ -1,6 +1,6 @@
 import './index.sass'
 
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useId, useMemo, useState } from 'react'
 
 import { CheckCircleFilled, DeleteOutlined, MinusCircleFilled, PlusOutlined, ReloadOutlined, SearchOutlined } from '@ant-design/icons'
 import { Button, Form, Input, Modal, Popconfirm, Select, Switch, Table, Tag, Tooltip, Transfer, type TableColumnType } from 'antd'
@@ -456,7 +456,7 @@ export function UserList () {
                                 await access.get_user_list()
                             }}
                         >
-                            <Button type='link' danger>
+                            <Button type='link' danger disabled={user_access.userId === localStorage.getItem('ddb.username')}>
                                 {t('删除')}
                             </Button>
                         </Popconfirm>

@@ -79,7 +79,6 @@ export function AccessView () {
                 {t('当前查看{{role}}:', { role: role === 'user' ? t('用户') : t('组') })}
                 <Select 
                     value={name}
-                    bordered={false}
                     options={(role === 'user' ? users : groups).map(t => ({
                             value: t,
                             label: t

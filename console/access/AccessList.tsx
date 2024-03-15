@@ -6,7 +6,6 @@ import { t } from '../../i18n/index.js'
 import { access } from './model.js'
 import { ACCESS_TYPE, STAT_ICONS, TABLE_NAMES, type TABLE_ACCESS } from './constant.js'
 import { AccessHeader } from './AccessHeader.js'
-import { model } from '../model.js'
 
 
 function handle_access (accesses: Record<string, any>, type: string, name: string) {    
@@ -115,7 +114,6 @@ export function AccessList ({
             key: 'stat',
         }]
     ]), [ ])
-    
     return <Table 
             columns={cols}
             dataSource={showed_accesses.filter(({ name }) =>
