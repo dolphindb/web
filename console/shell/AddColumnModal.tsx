@@ -7,6 +7,8 @@ import { Form, FormButtonGroup, Submit } from '@formily/antd-v5'
 
 import NiceModal from '@ebay/nice-modal-react'
 
+import { noop } from 'xshell/utils.browser.js'
+
 import type { ColumnRoot } from './Databases.js'
 import { t } from '../../i18n/index.js'
 import { DDBTypeSelectorSchemaFields, SchemaField } from '../components/formily/index.js'
@@ -14,6 +16,7 @@ import { shell } from './model.js'
 import { model } from '../model.js'
 import { generateDDBDataTypeLiteral } from '../utils/ddb-data-types.js'
 import { type DDBColumnTypeNames } from '../constants/column-data-types.js'
+
 
 interface Props {
     node: ColumnRoot
@@ -67,6 +70,10 @@ export const AddColumnModal = NiceModal.create<Props>(({ node }) => {
             labelCol={6}
             form={form}
             onAutoSubmit={onSubmit}
+            onAutoSubmitFailed={feedbacks => {
+                if (feedbacks instanceof Error)
+                    throw feedbacks
+            }}
         >
             <SchemaField scope={{
                 ...DDBTypeSelectorSchemaFields.ScopeValues
@@ -85,7 +92,7 @@ export const AddColumnModal = NiceModal.create<Props>(({ node }) => {
                         message: t('请输入列名')
                     }}
                 />
-                <DDBTypeSelectorSchemaFields isTSDBEngine={isTSDB} />
+                <DDBTypeSelectorSchemaFields isTSDBEngine={isTSDB} isAddColumn/>
             </SchemaField>
             <FormButtonGroup align='right'>
                 <Submit type='primary'>{t('确定')}</Submit>

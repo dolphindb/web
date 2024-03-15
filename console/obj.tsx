@@ -20,6 +20,8 @@ import { default as Icon, CaretRightOutlined, PauseOutlined } from '@ant-design/
 
 import { Line, Pie, Bar, Column, Scatter, Area, DualAxes, Histogram, Stock } from '@ant-design/plots'
 
+import { use_rerender } from 'react-object-model/hooks.js'
+
 import { genid, seq } from 'xshell/utils.browser.js'
 
 
@@ -319,7 +321,7 @@ function Vector ({
         :
             Math.min(
                 Math.ceil(info.rows / ncols),
-                page_size / ncols
+                Math.ceil(page_size / ncols)
             )
     
     const [page_index, set_page_index] = useState(0)
@@ -561,7 +563,7 @@ export function Table ({
     
     const [page_index, set_page_index] = useState(0)
     
-    const render = useState({ })[1]
+    const render = use_rerender()
     
     useEffect(() => {
         set_page_index(0)
@@ -590,7 +592,7 @@ export function Table ({
                 else
                     objref.obj = DdbObj.parse(... await remote.call<[Uint8Array, boolean]>('eval', [node, script])) as DdbTableObj
                 
-                render({ })
+                render()
             }
         })()
     }, [obj, objref, page_index, page_size])
