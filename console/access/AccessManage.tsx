@@ -390,7 +390,10 @@ export function AccessManage ({
                                     access,
                                     type,
                                 }]
-                                set_add_access_rows([...add_access_rows, ...rows])
+                                const total_rows = [...add_access_rows, ...rows]
+                                let set = new Set()
+                                const unique_rows =  total_rows.filter(obj => !set.has(obj.key) && set.add(obj.key))
+                                set_add_access_rows(unique_rows)
                                 set_add_rule_selected({ access: access_options[category][0], type: 'grant', obj: [ ] })
                                 
                     }}>
