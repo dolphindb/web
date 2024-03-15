@@ -14,12 +14,16 @@ interface DDBTypeSelectorSchemaFieldsProps {
     typeField?: Partial<React.ComponentProps<(typeof SchemaField.String)>>
     scaleField?: Partial<React.ComponentProps<(typeof SchemaField.Number)>>
     isTSDBEngine?: boolean
+    isAddColumn?: boolean
 }
 
 const TSDB_ONLY_TYPES: DDBColumnTypeNames[] = [
     'BLOB',
 ]
 
+const ADD_COLUMN_EXCLUED_TYPES: DDBColumnTypeNames[] = [
+    'DATEHOUR',
+]
 
 /** DDB 数据类型选择组件，包含了联动和校验逻辑，使用时需要在 SchemaField 上设置 scope
     @example
@@ -30,7 +34,7 @@ const TSDB_ONLY_TYPES: DDBColumnTypeNames[] = [
     ```
     @returns  */
 export function DDBTypeSelectorSchemaFields (props: DDBTypeSelectorSchemaFieldsProps) {
-    const { isTSDBEngine, scaleField, typeField } = props
+    const { isTSDBEngine, isAddColumn, scaleField, typeField } = props
     
     const { is_v2, is_v3 } = model.use(['is_v2', 'is_v3'])
     
@@ -43,6 +47,9 @@ export function DDBTypeSelectorSchemaFields (props: DDBTypeSelectorSchemaFieldsP
         }))
             .filter(({ value }) => {
                 let can_use_type = true
+                
+                if (isAddColumn)
+                    can_use_type &&= !ADD_COLUMN_EXCLUED_TYPES.includes(value)
                 
                 if (!isTSDBEngine)
                     can_use_type &&= !TSDB_ONLY_TYPES.includes(value)
