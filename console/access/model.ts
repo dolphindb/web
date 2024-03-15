@@ -67,7 +67,7 @@ class AccessModel extends Model<AccessModel> {
         const databases = await this.get_databases()
         const dbs = [ ]
         for (let db of databases) {
-            let tables = await this.get_tables(db)
+            let tables = await this.get_tables(db + '/')
             dbs.push({
                 name: db,
                 tables

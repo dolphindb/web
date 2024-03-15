@@ -402,19 +402,6 @@ export function UserList () {
                                    user_access.groups && user_access.groups.split(',').map((group: string) => <Tag color='cyan' key={group}>{group}</Tag>) 
                                 }
                             </div>,
-                            // <Select
-                            //     mode='tags'
-                            //     className='group-select'
-                            //     // allowClear
-                            //     key={user_access.groups}
-                            //     tagRender={tagRender}
-                            //     disabled
-                            //     placeholder={t('请选择想要添加的组')}
-                            //     defaultValue={user_access.groups ? user_access.groups.split(',') : [ ]}
-                            //     onDeselect={async group => model.execute(async () => { await access.delete_group_member(user_access.userId, group) })}
-                            //     onSelect={async group => model.execute(async () => { await access.add_group_member(user_access.userId, group) })}
-                            //     options={groups.map(group => ({ label: group, value: group }))}
-                            // />,
                     actions: <div className='actions'>
                         <Button type='link'
                             onClick={async () => {
