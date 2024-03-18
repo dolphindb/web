@@ -145,7 +145,7 @@ export function AccessManage ({
                     tb_rows.push({
                             key: k,
                             access: k,
-                            type: v,
+                            type: v === 'allow' ? 'grant' : v,
                             action:   <Popconfirm
                                         title={t('撤销权限')}
                                         description={t('确认 revoke 该权限吗？')}
@@ -181,7 +181,7 @@ export function AccessManage ({
                                 type: allowed ? 'grant' : 'deny',
                                 action: 
                                 <Popconfirm
-                                    title={t('删除用户')}
+                                    title={t('撤销权限')}
                                     description={t('确认 revoke 该权限吗？')}
                                     onConfirm={async () => {
                                         await access.revoke(current.name, k.slice(0, k.indexOf(allowed ? '_allowed' : '_denied')), obj)
@@ -341,7 +341,7 @@ export function AccessManage ({
                                     mode='multiple'
                                     maxTagCount='responsive'
                                     disabled={category === 'script'}
-                                    placeholder={category === 'script' ? t('脚本权限应用范围为全局') : t('请选择权限应用范围')}
+                                    placeholder={category === 'script' ? t('应用范围为全局') : t('请选择权限应用范围')}
                                     value={add_rule_selected.obj}
                                     dropdownRender={originNode =>
                                         <div>

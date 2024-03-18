@@ -93,7 +93,6 @@ export function GroupList () {
             <Form
                 name='basic'
                 labelCol={{ span: 3 }}
-        
                 labelAlign='right'
                 form={add_group_form}
                 autoComplete='off'

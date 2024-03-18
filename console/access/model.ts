@@ -29,7 +29,8 @@ enum ACCESS_NUM  {
     DB_READ = 16,
     DB_INSERT = 18,
     DB_UPDATE = 19,
-    DB_DELETE = 20
+    DB_DELETE = 20,
+    VIEW_OWNER = 23
 }
 
 class AccessModel extends Model<AccessModel> {

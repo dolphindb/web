@@ -65,7 +65,7 @@ export function AccessView () {
             
         }, {
             key: 'script',
-            label: t('脚本权限'),
+            label: t('全局权限'),
             children: view === 'preview' ? 
                         <AccessList category='script'/>
                             :

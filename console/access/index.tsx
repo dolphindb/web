@@ -3,7 +3,6 @@ import './index.sass'
 import { useEffect } from 'react'
 import { access } from './model.js'
 
-import { model } from '../model.js'
 import { AccessView } from './AccessView.js'
 import { GroupList } from './GroupList.js'
 import { UserList } from './UserList.js'

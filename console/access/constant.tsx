@@ -7,7 +7,7 @@ export const ACCESS_TYPE = {
     shared: [ 'TABLE_WRITE', 'TABLE_READ', 'TABLE_INSERT', 'TABLE_UPDATE', 'TABLE_DELETE'],
     stream: ['TABLE_WRITE', 'TABLE_READ', 'TABLE_INSERT', 'TABLE_UPDATE', 'TABLE_DELETE'],
     function_view: ['VIEW_EXEC'],
-    script: ['SCRIPT_EXEC', 'TEST_EXEC']
+    script: ['SCRIPT_EXEC', 'TEST_EXEC', 'VIEW_OWNER']
 }
 
 export const TABLE_NAMES = {
@@ -15,7 +15,7 @@ export const TABLE_NAMES = {
     shared: t('共享内存表'),
     stream: t('流表'),
     function_view: t('函数视图'),
-    script: t('脚本权限')
+    script: t('全局权限')
 }
 
 
