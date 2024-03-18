@@ -7,6 +7,9 @@ import { model } from '../model.js'
 import { AccessView } from './AccessView.js'
 import { GroupList } from './GroupList.js'
 import { UserList } from './UserList.js'
+import { Result } from 'antd'
+import { t } from '../../i18n/index.js'
+
 
 export function User () {
    return <Access role='user'/>
@@ -27,7 +30,7 @@ function Access ({
     
     useEffect(() => {
         (async () => { 
-            if (!access.inited)
+            if (admin && !access.inited)
                 await access.init() 
         })()
     }, [ ])
@@ -37,8 +40,14 @@ function Access ({
             access.set({ current: null })
     }, [ ])
     
-    
-    return !admin ? <div /> : (current?.view ? 
-            <AccessView/> : 
-            (role === 'group' ? <GroupList/> : <UserList/>))
+    if(!admin)
+        return <Result
+            status='warning'
+            className='interceptor'
+            title={t('非管理员不能查看权限管理模块。')}
+        />
+    else
+        return current?.view ? 
+                    <AccessView/> : 
+            (role === 'group' ? <GroupList/> : <UserList/>)
 }
