@@ -301,7 +301,6 @@ export function GroupList () {
                 </div>
             }))}
             tableLayout='fixed'
-            // scroll={{ x: '100%' }}
             />
     </>
 }

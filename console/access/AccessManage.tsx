@@ -196,16 +196,7 @@ export function AccessManage ({
                                     </Button>
                                 </Popconfirm> 
                                 
-                                // <Button type='link' danger onClick={async () => 
-                                //     model.execute(async () => {
-                                //         await access.revoke(current.name, k.slice(0, k.indexOf(allowed ? '_allowed' : '_denied')), obj)
-                                //         model.message.success(t('revoke 成功'))
-                                //         access.set({ accesses: current.role === 'user' ? 
-                                //                         (await access.get_user_access([current.name]))[0]
-                                //                                                     :
-                                //                         (await access.get_group_access([current.name]))[0] }) 
-                                //     })
-                                // }>Revoke</Button>
+                               
                     })
                 }
         return tb_rows
@@ -276,7 +267,13 @@ export function AccessManage ({
                     />
                     <Select 
                         className='access-select'
-                        options={access_options[category].map(ac => ({
+                        // 对于当前用户是管理员，不能赋予 VIEW_OWNER 权限
+                        options={(category==='script' 
+                                    && current.role === 'user' 
+                                    && accesses?.isAdmin ? 
+                                access_options[category].slice(0,2) 
+                                    : 
+                                access_options[category]).map(ac => ({
                             label: ac,
                             value: ac
                         }))}
