@@ -181,13 +181,20 @@ export class DashBoardModel extends Model<DashBoardModel> {
                     )
         })
         
-        window.addEventListener('resize', () => {
-            grid.cellHeight(Math.floor(grid.el.clientHeight / this.maxrows))
-        })
+        window.addEventListener('resize', this.on_resize)
         
         GridStack.setupDragIn('.dashboard-graph-item', { helper: 'clone' })
         
         this.set({ grid, widget: null })
+    }
+    
+    
+    on_resize = () => {
+        window.addEventListener('resize', () => {
+            let { grid } = this
+            if (grid?.el)
+                grid.cellHeight(Math.floor(grid.el.clientHeight / this.maxrows))
+        })
     }
     
     
@@ -214,8 +221,12 @@ export class DashBoardModel extends Model<DashBoardModel> {
     
     
     dispose () {
+        console.log('dashboard.dispose')
+        
+        window.removeEventListener('resize', this.on_resize)
+        
         clear_data_sources()
-        console.log('grid.destroy')
+        
         this.grid.destroy()
         this.grid = null
     }

@@ -129,6 +129,8 @@ async function copy_vendors (fpd_out: string, monaco: boolean, production: boole
                 'base/worker/workerMain.js',
                 'base/worker/workerMain.js.map',
                 'base/browser/ui/codicons/codicon/codicon.ttf',
+                ... ['python', 'javascript', 'typescript', 'css', 'html', 'cpp', 'sql', 'scss', 'shell'].map(language => 
+                    `basic-languages/${language}/${language}.js`)
             ].filter(fp => !production || !fp.endsWith('.map'))
             .map(async fp =>
                 fcopy(
