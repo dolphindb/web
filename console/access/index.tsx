@@ -2,6 +2,7 @@ import './index.sass'
 
 import { useEffect } from 'react'
 import { access } from './model.js'
+import { model } from '../model.js'
 
 import { AccessView } from './AccessView.js'
 import { GroupList } from './GroupList.js'
@@ -22,6 +23,7 @@ function Access ({
     role: 'group' | 'user'
 }) {
     const { current } = access.use(['current'])
+    const { admin } = model.use(['admin'])
     
     useEffect(() => {
         (async () => { 
@@ -36,7 +38,7 @@ function Access ({
     }, [ ])
     
     
-    return current?.view ? 
+    return !admin ? <div /> : (current?.view ? 
             <AccessView/> : 
-            (role === 'group' ? <GroupList/> : <UserList/>)
+            (role === 'group' ? <GroupList/> : <UserList/>))
 }

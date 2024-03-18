@@ -48,7 +48,7 @@ function MenuIcon ({ view }: { view: DdbModel['view'] }) {
 }
 
 export function DdbSider () {
-    const { view, node_type, collapsed, logined, login_required, is_v1 } = model.use(['view', 'node_type', 'collapsed', 'logined', 'login_required', 'is_v1'])
+    const { view, node_type, collapsed, logined, admin, login_required, is_v1 } = model.use(['view', 'node_type', 'collapsed', 'logined', 'admin', 'login_required', 'is_v1'])
     
     
     const factor_href = useMemo(() => {
@@ -133,7 +133,7 @@ export function DdbSider () {
                     icon: <MenuIcon view='computing' />,
                     label: t('流计算监控', { context: 'menu' }),
                 },
-                ...model.node_type !== NodeType.computing && model.admin ? [{
+                ...model.node_type !== NodeType.computing && admin ? [{
                     key: 'access',
                     icon: <MenuIcon view='access' />,
                     label: t('权限管理'),
