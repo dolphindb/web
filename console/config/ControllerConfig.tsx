@@ -102,7 +102,7 @@ export function ControllerConfig () {
                     const configs = strs_2_controller_configs(value)
                     set_configs(configs)
                     return {
-                        data: configs.filter(({ name }) => name.includes(search_key)),
+                        data: configs.filter(({ name }) => name.toLowerCase().includes(search_key.toLowerCase())),
                         success: true,
                         total: value.length
                     }
