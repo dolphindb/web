@@ -57,12 +57,6 @@ export function Overview () {
         })()
     }, [ ])
     
-    useEffect(() => {
-        model.execute(async () => {
-            await dashboard.get_dashboard_configs()
-        }, { json_error: true })
-    }, [ ])
-    
     
     useEffect(() => {
         if (params.get('create') === '1') {

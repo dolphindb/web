@@ -60,6 +60,16 @@ export function DashBoard () {
         })()
     }, [ ])
     
+    
+    useEffect(() => {
+        (async () => { 
+            if (dashboard.inited_state = InitedState.inited) 
+                model.execute(async () => {
+                    await dashboard.get_dashboard_configs()
+                }, { json_error: true })
+        })()
+    }, [ ])
+    
     const component = {
         [InitedState.hidden]: <></>,
         [InitedState.uninited]: <Init/>,
@@ -165,16 +175,33 @@ function DashboardInstance () {
     }, [ ])
     
     
+    useEffect(() => {
+        (async () => {
+            const dashboard_id = Number(new URLSearchParams(location.search).get('dashboard'))
+            if (dashboard_id) 
+                try {
+                    const config = await dashboard.get_dashboard_config(dashboard_id)
+                    dashboard.set({ config })
+                    await dashboard.render_with_config(config)
+                } catch (error) {
+                    dashboard.return_to_overview()
+                    model.message.error(t('dashboard 不存在'))
+                }    
+        })()
+    }, [ ])
+    
+    
     // widget 变化时通过 GridStack.makeWidget 将画布中已有的 dom 节点交给 GridStack 管理
     useEffect(() => {
         dashboard.render_widgets()
     }, [widgets])
     
+    
     useEffect(() => {
         const params = new URLSearchParams(location.search)
         if (!params.has('preview', '1')) {
             if (config?.permission === DashboardPermission.view) 
-                model.set_query('preview', '1')
+                dashboard.on_preview()
             dashboard.set({ save_confirm: true })
         }    
     }, [config])
