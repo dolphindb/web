@@ -257,7 +257,7 @@ export function Header () {
                                 return
                             }
                             
-                            const copy_dashboard = dashboard.generate_new_config(5605049565005838, copy_dashboard_name, config.data)
+                            const copy_dashboard = dashboard.generate_new_config(genid(), copy_dashboard_name, config.data)
                             await dashboard.add_dashboard_config(copy_dashboard)
                             dashboard.message.success(t('创建副本成功'))
                             
