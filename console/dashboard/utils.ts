@@ -518,6 +518,27 @@ export function convert_chart_config (
             textStyle: {
                 color: '#F5F5F5'
             },
+            formatter: params => { 
+                if (!Array.isArray(params))
+                    params = [params]
+                const x = params[0].value?.[0] ?? params[0]?.data?.[0]
+                let html = `<div style="font-weight: 500;">${x}</div>`
+                for (let series of params) { 
+                    const value = series.value?.[1] ?? series.data?.[1]
+                    const text = `<div style="display: flex; justify-content: space-between;">
+                        <span style="display: inline-block; margin-right: 12px;">
+                            ${series?.marker}
+                            <span>${series?.seriesName}</span>
+                        </span>
+                        <span style="font-weight: 500">
+                            ${value}
+                        </span>
+                    </div>
+                    `
+                    html += text 
+                }
+                return html
+            }
         },
         title: {
             text: parse_text(title ?? ''),
