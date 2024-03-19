@@ -209,21 +209,21 @@ export function Header () {
                 }}><HomeOutlined /></Button>
             </Tooltip>
             
+               
+            <Modal open={save_visible}
+                maskClosable={false}
+                onCancel={dashboard.return_to_overview}
+                onOk={async () => { 
+                    await handle_save()
+                    save_close()
+                    dashboard.return_to_overview()                                    
+                }}
+                okText={t('保存')}
+                cancelText={t('不保存')}
+                closeIcon={false}
+                title={t('离开此界面您当前更改会丢失，是否需要保存当前更改')} />
             
             {editing && <>     
-                <Modal open={save_visible}
-                    maskClosable={false}
-                    onCancel={dashboard.return_to_overview}
-                    onOk={async () => { 
-                        await handle_save()
-                        save_close()
-                        dashboard.return_to_overview()                                    
-                    }}
-                    okText={t('保存')}
-                    cancelText={t('不保存')}
-                    closeIcon={false}
-                    title={t('离开此界面您当前更改会丢失，是否需要保存当前更改')} />
-                
                 <Modal open={add_visible}
                     maskClosable={false}
                     onCancel={add_close}
