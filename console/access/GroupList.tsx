@@ -102,7 +102,8 @@ export function GroupList () {
                     name='group_name'
                     rules={[{ required: true, message: t('请输入组名') },
                             { max: 30, message: t('组名长度不能超过 30 个字符') }, 
-                            { pattern: /^(?![0-9])[\w\d]+$/, message: '组名只能包含字母、下划线或数字，并且不能以数字开头' }]}
+                            { pattern: /^(?![\d_])[\w\d]+$/, message: '组名只能包含字母、下划线或数字，并且不能以数字或下划线开头' }]}
+                    validateFirst
                     >
                         <Input />
                 </Form.Item>
