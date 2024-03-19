@@ -137,9 +137,9 @@ export function UserList () {
                     label={t('密码')}
                     name='password'
                     rules={[{ required: true, message: '请输入密码!' },
-                            { min: 6, message: '密码长度为 6-20 个字符，且不包含空格' },
-                            { max: 20, message: '密码长度为 6-20 个字符，且不包含空格' },
-                            { pattern: /^[^\s]+$/, message: '密码长度为 6-20 个字符，且不包含空格' }, 
+                            { min: 6, message: '密码长度为 6-20 个字符，且不包含空格或中文' },
+                            { max: 20, message: '密码长度为 6-20 个字符，且不包含空格或中文' },
+                            { pattern: /^[^\s\u4E00-\u9FFF]+$/, message: '密码长度为 6-20 个字符，且不包含空格或中文' }, 
                         ]}
                     validateFirst     
                     >
@@ -249,7 +249,12 @@ export function UserList () {
                 <Form.Item
                     label={t('新密码')}
                     name='password'
-                    rules={[{ required: true, message: '请输入密码!' }]}
+                    rules={[{ required: true, message: '请输入密码!' },
+                            { min: 6, message: '密码长度为 6-20 个字符，且不包含空格或中文' },
+                            { max: 20, message: '密码长度为 6-20 个字符，且不包含空格或中文' },
+                            { pattern: /^[^\s\u4E00-\u9FFF]+$/, message: '密码长度为 6-20 个字符，且不包含空格或中文' }, 
+                    ]}
+                
                     >
                     <Input.Password />
                 </Form.Item>
