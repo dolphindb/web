@@ -518,6 +518,7 @@ export function convert_chart_config (
             textStyle: {
                 color: '#F5F5F5'
             },
+            confine: true,
             formatter: params => { 
                 if (!Array.isArray(params))
                     params = [params]
