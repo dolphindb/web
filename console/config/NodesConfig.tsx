@@ -39,22 +39,22 @@ export function NodesConfig () {
             }
         },
         {
-            title: t('名称'),
+            title: t('键'),
             dataIndex: 'name',
             key: 'name',
             fieldProps: {
-                placeholder: t('请输入配置名'),
+                placeholder: t('请输入配置键'),
             },
             formItemProps: {
                 rules: [{
                     required: true,
-                    message: t('请输入配置名！')
+                    message: t('请输入配置键')
                 },
             ]
             }
         },
         {
-            title: t('数值'),
+            title: t('值'),
             dataIndex: 'value',
             key: 'value',
             fieldProps: {
@@ -63,7 +63,7 @@ export function NodesConfig () {
             formItemProps: {
                 rules: [{
                     required: true,
-                    message: t('请输入配置值！')
+                    message: t('请输入配置值')
                 }]
             }
         },

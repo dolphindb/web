@@ -22,6 +22,54 @@ export function NodesManagement () {
     
     const cols: ProColumns<ClusterNode>[] = useMemo(() => ([
         {
+            title: t('别名'),
+            dataIndex: 'alias',
+            key: 'alias',
+            fieldProps: {
+                placeholder: t('请输入别名'),
+            },
+            formItemProps: {
+                rules: [{
+                    required: true,
+                    message: t('请输入别名')
+                }]
+            }
+        },
+        {
+            title: t('类型'),
+            dataIndex: 'mode',
+            key: 'mode',
+            valueType: 'select',
+            valueEnum: {
+                datanode: {
+                    text: '数据节点',
+                    value: 'datanode'
+                },
+                computenode: {
+                    text: '计算节点',
+                    value: 'computenode'
+                },
+                controller: {
+                    text: '控制节点',
+                    value: 'controller',
+                },
+                agent: {
+                    text: '代理节点',
+                    value: 'agent',
+                },
+                
+            },
+            fieldProps: {
+                placeholder: t('请选择节点类型'),
+            },
+            formItemProps: {
+                rules: [{
+                    required: true,
+                    message: t('请选择节点类型')
+                }]
+            }
+        },
+        {
             title: t('主机名'),
             dataIndex: 'host',
             key: 'host',
@@ -51,50 +99,6 @@ export function NodesManagement () {
                 rules: [{
                     required: true,
                     message: t('请输入端口号')
-                }]
-            }
-        },
-        {
-            title: t('别名'),
-            dataIndex: 'alias',
-            key: 'alias',
-            fieldProps: {
-                placeholder: t('请输入别名'),
-            },
-            formItemProps: {
-                rules: [{
-                    required: true,
-                    message: t('请输入别名')
-                }]
-            }
-        },
-        {
-            title: t('类型'),
-            dataIndex: 'mode',
-            key: 'mode',
-            valueType: 'select',
-            valueEnum: {
-                datanode: {
-                    text: 'datanode',
-                },
-                computenode: {
-                    text: 'computenode',
-                },
-                controller: {
-                    text: 'controller',
-                },
-                agent: {
-                    text: 'agent',
-                },
-                
-            },
-            fieldProps: {
-                placeholder: t('请选择节点类型'),
-            },
-            formItemProps: {
-                rules: [{
-                    required: true,
-                    message: t('请选择节点类型')
                 }]
             }
         },
@@ -169,7 +173,7 @@ export function NodesManagement () {
                 }}
                 toolBarRender={() => [
                     <Button
-                        type='primary'
+                        // type='text'
                         className='mr-btn'
                         icon={<ReloadOutlined />}
                         onClick={async () => {
@@ -180,6 +184,7 @@ export function NodesManagement () {
                             {t('刷新')}
                     </Button>,
                     <Search
+                        className='toolbar-search'
                         placeholder={t('请输入想要查找的节点别名')}
                         value={search_key}
                         enterButton
