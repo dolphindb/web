@@ -30,6 +30,7 @@ export const DATE_SELECT_FORMAT = {
     [ITimeFormat.HOUR]: <StringTimePicker format={ITimeFormat.HOUR} allowClear />,
     [ITimeFormat.MINUTE]: <StringTimePicker format={ITimeFormat.MINUTE} allowClear />,
     [ITimeFormat.SECOND]: <StringTimePicker format={ITimeFormat.SECOND} allowClear />,
+    [ITimeFormat.DATE_MILLISECOND]: <StringDatePicker submitFormat={ITimeFormat.DATE_MILLISECOND} format={ITimeFormat.DATE_MILLISECOND} showTime allowClear/>
 } 
 
 export function AxisItem ({ name_path, col_names = [ ], list_name, initial_values, hidden_fields = [ ] }: IAxisItem) { 
