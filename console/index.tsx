@@ -75,10 +75,14 @@ function MainLayout () {
             if (!error.shown) {
                 error.shown = true
                 
-                // 忽略 monaco editor 的错误
-                // https://github.com/microsoft/monaco-editor/issues/4325
-                if (error.message.includes('getModifierState is not a function'))
-                    return
+                // 非 Error 类型的错误转换为 Error
+                if (error instanceof Error) {
+                    // 忽略 monaco editor 的错误
+                    // https://github.com/microsoft/monaco-editor/issues/4325
+                    if (error.message.includes('getModifierState is not a function'))
+                        return
+                } else
+                    error = new Error(JSON.stringify(error))
                 
                 const in_dashboard = new URLSearchParams(location.search).get('dashboard')
                 
