@@ -63,7 +63,7 @@ export function DashBoard () {
     
     useEffect(() => {
         (async () => { 
-            if (dashboard.inited_state = InitedState.inited) 
+            if (dashboard.inited_state === InitedState.inited) 
                 model.execute(async () => {
                     await dashboard.get_dashboard_configs()
                 }, { json_error: true })
