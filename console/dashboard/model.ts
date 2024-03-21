@@ -99,30 +99,6 @@ export class DashBoardModel extends Model<DashBoardModel> {
     
     /** 初始化 GridStack 并配置事件监听器 */
     async init ($div: HTMLDivElement) {
-        await dashboard.execute(async () => {
-            await this.get_dashboard_configs()
-        }, { json_error: true })
-        if (!this.config) {
-            const id = genid()
-            const new_dashboard_config = {
-                id,
-                name: String(id).slice(0, 4),
-                owner: '',
-                permission: DashboardPermission.own,
-                data: {
-                    datasources: [ ],
-                    variables: [ ],
-                    canvas: {
-                        widgets: [ ]
-                    }
-                }
-            }
-            this.set({
-                config: new_dashboard_config,
-                configs: [new_dashboard_config]
-            })
-        }
-        
         let grid = GridStack.init({
             //  gridstack 有 bug ，当 grid 没有 2*3 的连续空间时，再拖入一个会使所有 widget 无法 change，暂时通过计算面积阻止拖入，后续无限行数时不会再有此问题
             acceptWidgets: () => {
@@ -460,17 +436,6 @@ export class DashBoardModel extends Model<DashBoardModel> {
             } as DashBoardConfig
         } ) 
         this.set({ configs })
-        const dashboard_id = Number(new URLSearchParams(location.search).get('dashboard'))
-        if (dashboard_id) {
-            const config = configs.find(({ id }) =>  id === dashboard_id) || await this.get_dashboard_config(dashboard_id)
-            if (config) {
-                this.set({ config })
-                await this.render_with_config(config)
-            }
-                
-            else 
-                this.show_error({ error: new Error(t('当前 url 所指向的 dashboard 不存在')) })
-        }
     }
     
     
@@ -495,6 +460,20 @@ export class DashBoardModel extends Model<DashBoardModel> {
         
         model.set_query('dashboard', String(config.id))
         this.set({ loading: false })
+    }
+    
+    
+    return_to_overview () {
+        clear_data_sources()
+        dashboard.set({ config: null, save_confirm: false })
+        model.set_query('dashboard', null)
+        model.set_query('preview', null)
+        model.set({ sider: true, header: true })
+    }
+    
+    on_preview () {
+        dashboard.set_editing(false)
+        model.set_query('preview', '1')
     }
 }
 
