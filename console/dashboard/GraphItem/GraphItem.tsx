@@ -50,6 +50,7 @@ function GraphComponent ({ widget }: { widget: Widget }) {
                 ids={widget.config.variable_ids}
                 cols={widget.config.variable_cols}
                 with_search_btn={widget.config.with_search_btn}
+                search_btn_label={widget.config.search_btn_label }
             />
         }
         
