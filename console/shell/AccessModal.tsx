@@ -33,7 +33,7 @@ export const AccessModal = NiceModal.create<Props>(({ database }) => {
     shell.use(['get_access_defined'])
     
     useEffect(() => {
-        model.execute(async () => {
+        (async () => {
             if (!shell.get_access_defined) 
                 await shell.define_get_user_grant()
             let rows = [ ]
@@ -52,7 +52,7 @@ export const AccessModal = NiceModal.create<Props>(({ database }) => {
                 row.users.push(userId)
             }
             set_db_rows(rows)
-        })
+        })()
     }, [shell.get_access_defined])
  
     
@@ -95,7 +95,7 @@ function TableAccess ({
     const [tb_rows, set_tb_rows] = useState([ ])
     
     useEffect(() => {
-        model.execute(async () => {
+        (async () => {
             let rows = [ ]
             const access = (await(model.ddb.call('getUserGrant', [tb], { urgent: true }))).to_rows()
             for (let ac of access) {
@@ -112,7 +112,7 @@ function TableAccess ({
                 row.users.push(userId)
             }
             set_tb_rows(rows)
-        })
+        })()
     }, [ ])
     
     return <Table 
