@@ -2466,7 +2466,7 @@
         "en": "return {{role}} list"
     },
     "权限管理": {
-        "en": "permission management"
+        "en": "Permission"
     },
     "权限查看": {
         "en": "permission view"
@@ -2574,10 +2574,10 @@
         "en": "Please enter the user you want to search for"
     },
     "用户管理": {
-        "en": "user management"
+        "en": "User"
     },
     "组管理": {
-        "en": "group management"
+        "en": "Group"
     },
     "数据面板": {
         "en": "Dashboard"
@@ -3461,7 +3461,7 @@
     "文件名": {
         "en": "File Name"
     },
-    "请输入文件名" : {
+    "请输入文件名": {
         "en": "Specify a file name."
     },
     "等于 (=)": {
