@@ -16,6 +16,7 @@ import en from 'antd/locale/en_US.js'
 import ja from 'antd/locale/ja_JP.js'
 import ko from 'antd/locale/ko_KR.js'
 
+import { ProConfigProvider } from '@ant-design/pro-components'
 
 import { language, t } from '../i18n/index.js'
 
@@ -50,11 +51,13 @@ function DolphinDB () {
         autoInsertSpaceInButton={false}
         theme={{ hashed: false, token: { borderRadius: 0, motion: false } }}
     >
-        <NiceModal.Provider>
-            <App className='app'>
-                <MainLayout />
-            </App>
-        </NiceModal.Provider>
+        <ProConfigProvider hashed={false} token={{ borderRadius: 0, motion: false }}>
+            <NiceModal.Provider>
+                <App className='app'>
+                    <MainLayout />
+                </App>
+            </NiceModal.Provider>
+        </ProConfigProvider>
     </ConfigProvider>
 }
 

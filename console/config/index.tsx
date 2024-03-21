@@ -13,39 +13,44 @@ import SvgControllerConfig from './icons/controller.config.icon.svg'
 import SvgNodesConfig from './icons/nodes.config.icon.svg'
 import SvgNodesManagement from './icons/nodes.management.icon.svg'
 
-export function Config () {
-    const [tab_key, set_tab_key] = useState('controller_config')
-    return <Tabs
-                type='card'
-                accessKey={tab_key}
-                onChange={set_tab_key}
-                items={[
-                {
-                    key: 'controller_config',
-                    label: <div className='tab-header'>
-                        <SvgControllerConfig/>
-                        {t('控制节点配置')}
-                    </div>,
-                    children: <ControllerConfig/>
-                    
-                },
-                {
-                    key: 'nodes_management',
-                    label: <div className='tab-header'>
-                        <SvgNodesManagement/>
-                        {t('集群节点管理')}
-                    </div>,
-                    children: <NodesManagement/>
-                },
-                {
-                    key: 'nodes_config',
-                    label: <div className='tab-header'>
-                        <SvgNodesConfig/>
-                        {t('集群节点配置')}
-                    </div>,
-                    children: <NodesConfig/>
-                }
-                ]}
-        />
-}
 
+export function Config () {
+    const [tab_key, set_tab_key] = useState<'controller_config' | 'nodes_config' | 'nodes_management'>('controller_config')
+    return <Tabs
+        type='card'
+        accessKey={tab_key}
+        onChange={set_tab_key as any}
+        items={[
+            {
+                key: 'controller_config',
+                label: (
+                    <div className='tab-header'>
+                        <SvgControllerConfig />
+                        {t('控制节点配置')}
+                    </div>
+                ),
+                children: <ControllerConfig />
+            },
+            {
+                key: 'nodes_management',
+                label: (
+                    <div className='tab-header'>
+                        <SvgNodesManagement />
+                        {t('集群节点管理')}
+                    </div>
+                ),
+                children: <NodesManagement />
+            },
+            {
+                key: 'nodes_config',
+                label: (
+                    <div className='tab-header'>
+                        <SvgNodesConfig />
+                        {t('集群节点配置')}
+                    </div>
+                ),
+                children: <NodesConfig />
+            }
+        ]}
+    />
+}
