@@ -28,6 +28,7 @@ export function NodesConfig () {
             title: t('限定词'),
             dataIndex: 'qualifier',
             key: 'qualifier',
+            width: 300,
             fieldProps: {
                 placeholder: t('请输入选择器'),
             },
@@ -42,6 +43,7 @@ export function NodesConfig () {
             title: t('配置项'),
             dataIndex: 'name',
             key: 'name',
+            width: 400,
             fieldProps: {
                 placeholder: t('请输入配置项'),
             },
@@ -77,23 +79,19 @@ export function NodesConfig () {
                 type='link'
                 key='editable'
                 className='mr-btn'
-                icon={<EditOutlined />}
                 onClick={() => {
-                    console.log('edit config:', record)
                     action?.startEditable?.(record.id)
                 }}
               >
                 {t('编辑')}
               </Button>,
               <Popconfirm 
-                title={t('确认删除此配置项？')}
-                key='delete'
-                onConfirm={async () => delete_config(record.id as string)}
+                    title={t('确认删除此配置项？')}
+                    key='delete'
+                    onConfirm={async () => delete_config(record.id as string)}
                 >
                 <Button
                     type='link'
-                    danger
-                    icon={<DeleteOutlined />}
                 >
                     {t('删除')}
                 </Button>
@@ -164,7 +162,6 @@ export function NodesConfig () {
                                     type='link'
                                     key='editable'
                                     className='mr-btn'
-                                    icon={<SaveOutlined />}
                                 >
                                     {t('保存')}
                                 </Button>,
@@ -173,16 +170,13 @@ export function NodesConfig () {
                                     type='link'
                                     key='delete'
                                     className='mr-btn'
-                                    danger
-                                    icon={<DeleteOutlined />}
                                 >
                                     {t('删除')}
                                 </Button>,
                             cancelText:
                                 <Button
                                     type='link'
-                                    key='delete'
-                                    icon={<CloseCircleOutlined />}
+                                    key='cancel'
                                 >
                                     {t('取消')}
                                 </Button>,

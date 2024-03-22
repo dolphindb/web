@@ -112,9 +112,7 @@ export function NodesManagement () {
                 type='link'
                 key='editable'
                 className='mr-btn'
-                icon={<EditOutlined />}
                 onClick={() => {
-                    console.log('edit config', record)
                     action?.startEditable?.(record.id)
                 }}
               >
@@ -126,8 +124,6 @@ export function NodesManagement () {
                 onConfirm={async () => delete_nodes(record.id as string)}>
                 <Button
                     type='link'
-                    danger
-                    icon={<DeleteOutlined />}
                 >
                     {t('删除')}
                 </Button>
@@ -150,7 +146,7 @@ export function NodesManagement () {
                 actionRef={actionRef}
                 recordCreatorProps={
                     {
-                        position: 'top',
+                        position: 'bottom',
                         record: () => ({
                             id: String(Date.now()),
                             host: '',
@@ -161,6 +157,7 @@ export function NodesManagement () {
                         creatorButtonText: t('新增节点'),
                     }
                 }
+                scroll={{ y: 680 }}
                 request={async () => {
                     const value = (await config.get_cluster_nodes()).value as any[]
                     const nodes = strs_2_nodes(value)
@@ -211,7 +208,6 @@ export function NodesManagement () {
                                 type='link'
                                 key='editable'
                                 className='mr-btn'
-                                icon={<SaveOutlined />}
                             >
                                 {t('保存')}
                             </Button>,
@@ -220,16 +216,13 @@ export function NodesManagement () {
                                 type='link'
                                 key='delete'
                                 className='mr-btn'
-                                danger
-                                icon={<DeleteOutlined />}
                             >
                                 {t('删除')}
                             </Button>,
                         cancelText:
                             <Button
                                 type='link'
-                                key='delete'
-                                icon={<CloseCircleOutlined />}
+                                key='cancal'
                             >
                                 {t('取消')}
                             </Button>,

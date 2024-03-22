@@ -11,6 +11,7 @@ import { config } from './model.js'
 
 import { type ControllerConfig } from './type.js'
 import { _2_strs, strs_2_controller_configs } from './utils.js'
+import { genid } from 'xshell/utils.browser.js'
 
 const { Search } = Input
 
@@ -26,6 +27,7 @@ export function ControllerConfig () {
             title: t('配置项'),
             dataIndex: 'name',
             key: 'name',
+            width: 400,
             fieldProps: {
                 placeholder: t('请输入配置项'),
             },
@@ -61,9 +63,7 @@ export function ControllerConfig () {
                 type='link'
                 key='editable'
                 className='mr-btn'
-                icon={<EditOutlined />}
                 onClick={() => {
-                    console.log('edit config:', record)
                     action?.startEditable?.(record.id)
                 }}
               >
@@ -75,8 +75,6 @@ export function ControllerConfig () {
                 onConfirm={async () => delete_config(record.id as string)}>
                 <Button
                     type='link'
-                    danger
-                    icon={<DeleteOutlined />}
                 >
                     {t('删除')}
                 </Button>
@@ -107,16 +105,16 @@ export function ControllerConfig () {
                         total: value.length
                     }
                 }}
+                scroll={{ y: 680 }}
                 recordCreatorProps={
                     {
-                        position: 'top',
+                        position: 'bottom',
                         record: () => ({
-                            id: String(Date.now()),
+                            id: String(genid()),
                             name: '',
                             value: ''
                         }),
                         creatorButtonText: t('新增控制节点配置'),
-                        
                     }
                 }
                 toolBarRender={() => [
@@ -156,7 +154,6 @@ export function ControllerConfig () {
                             type='link'
                             key='editable'
                             className='mr-btn'
-                            icon={<SaveOutlined />}
                         >
                             {t('保存')}
                         </Button>,
@@ -165,16 +162,13 @@ export function ControllerConfig () {
                             type='link'
                             key='delete'
                             className='mr-btn'
-                            danger
-                            icon={<DeleteOutlined />}
                         >
                             {t('删除')}
                         </Button>,
                     cancelText:
                         <Button
                             type='link'
-                            key='delete'
-                            icon={<CloseCircleOutlined />}
+                            key='cancel'
                         >
                             {t('取消')}
                         </Button>,
