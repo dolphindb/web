@@ -1,6 +1,6 @@
 import './index.sass'
 
-import { type Dispatch, type ReactNode, type SetStateAction, useEffect, useState } from 'react'
+import { type Dispatch, type ReactNode, type SetStateAction, useEffect, useState, useMemo } from 'react'
 
 import { Button, Tabs, Table, Tooltip, Spin, Result, type TableColumnType, Input, Modal, List } from 'antd'
 
@@ -24,6 +24,8 @@ import SvgEngine from './icons/engine.icon.svg'
 import SvgTable from './icons/table.icon.svg'
 
 import { CEPComputing } from './CEPComputing/index.js'
+import { vercmp } from 'xshell/utils.browser'
+import { repeat } from 'lodash'
 
 
 export function Computing () {
@@ -41,7 +43,16 @@ export function Computing () {
     
     const [tab_key, set_tab_key] = useState<string>('streaming_pub_sub_stat')
     
-    const { logined, node_type } = model.use(['logined', 'node_type'])
+    const { logined, node_type, version } = model.use(['logined', 'node_type', 'version'])
+    
+    const show_cep_engine = useMemo(() => {
+        if (!version)
+            return false
+        const server_version = version + repeat('.0', 4 - version.split('.').length)
+        return vercmp(server_version, '3.00.00.0') >= 0
+    }, [ version ])
+    
+    console.log(show_cep_engine, 'show_cep_engine')
     
     useEffect(() => {
         if (!logined || node_type === NodeType.controller)
@@ -262,14 +273,14 @@ export function Computing () {
                     </div>
                 )
             },
-            {
+            ...(show_cep_engine ? [{
                 key: 'cep_computing',
                 children: <CEPComputing />,
                 label: <label className='tab-header'>
                     <FormatPainterOutlined className='tab-icon sm-font'/>
                     {t('CEP 流计算引擎') }
                 </label>,
-            }
+            }] : [ ])
         ]}
         tabBarExtraContent={
             tab_key === 'cep_computing'
