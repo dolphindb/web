@@ -4,12 +4,13 @@ import { BasicFormFields } from '../../ChartFormFields/BasicFormFields.js'
 import ReactEChartsCore from 'echarts-for-react/lib/core'
 import * as echarts from 'echarts'
 import { dashboard, type Widget } from '../../model.js'
-import { convert_list_to_options, parse_text } from '../../utils.js'
+import { convert_list_to_options, format_number, parse_text } from '../../utils.js'
 import { Button, Collapse, Form, Input, InputNumber, Select } from 'antd'
 import { DeleteOutlined, PlusCircleOutlined } from '@ant-design/icons'
-import { type IChartConfig, type IGaugeConfig } from '../../type.js'
+import { type IGaugeConfig } from '../../type.js'
 import { useMemo } from 'react'
 import { StringColorPicker } from '../../../components/StringColorPicker/index.js'
+import { t } from '../../../../i18n/index.js'
 
 
 interface IProps { 
@@ -25,7 +26,7 @@ export function Gauge (props: IProps) {
     const config = useMemo(() => widget.config as IGaugeConfig, [widget.config])
     
     const options = useMemo<echarts.EChartsCoreOption>(() => { 
-        const { title, title_size, max, min, data_setting, label_size, value_size, animation } = config
+        const { title, title_size, max, min, data_setting, label_size, value_size, animation, split_number, value_precision } = config
         
         return {
             animation,
@@ -45,13 +46,13 @@ export function Gauge (props: IProps) {
                     color: '#fff',
                 },
                 min,
-                max,
-                
+                max,           
                 progress: {
                     show: true,
                     roundCap: true,
                     clip: true
                 },
+                splitNumber: split_number || 8,
                 data: data_setting.filter(Boolean).map(item => ({
                     value: data_source?.[0]?.[item?.col],
                     name: item.name,
@@ -71,6 +72,7 @@ export function Gauge (props: IProps) {
                     fontSize: value_size ?? 18,
                     fontWeight: 500,
                     color: 'inherit',
+                    formatter: value => format_number(value, value_precision, true)
                 },
             }]
         }
@@ -114,6 +116,15 @@ export function GaugeConfigForm (props: { col_names: string[] } ) {
                 <Form.Item label='值字号' name='value_size' initialValue={18}>
                     <InputNumber addonAfter='px'/>
                 </Form.Item>
+                
+                <Form.Item label='值精度' name='value_precision' initialValue={2}>
+                    <InputNumber precision={0} min={0} />
+                </Form.Item>
+                
+                <Form.Item label={t('分段数')} name='split_number' initialValue={8}>
+                    <InputNumber precision={0}/>
+                </Form.Item>
+                
                 
                 <Form.List name='data_setting' initialValue={[{ }]}>
                     {(fields, { add, remove }) => {

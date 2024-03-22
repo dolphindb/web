@@ -32,7 +32,7 @@
     }
 }
 
-.yaxis-collapse-label, .series-collapse-label {
+collapse-label {
     display: flex;
     justify-content: space-between;
 }
@@ -50,5 +50,28 @@
     width: 100%;
     .ant-space-item {
         width: 50%;
+    }
+}
+
+
+
+.threshold-list {
+    background-color:rgb(20,20,20);
+    padding: 8px;
+
+    .threshold-item {
+        display: flex;
+        justify-content: space-between;
+        margin-bottom: 8px;
+        .ant-form-item {
+            margin-bottom: 0px !important;
+        }
+    }
+    
+    .threshold-add-btn {
+        text-align: right;
+        .threshold-add-icon {
+            margin-right: 4px;
+        }
     }
 }

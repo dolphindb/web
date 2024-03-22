@@ -8,7 +8,7 @@ import cn from 'classnames'
 
 
 import { use_modal } from 'react-object-model/hooks.js'
-import { genid } from 'xshell/utils.browser.js'
+import { genid, vercmp } from 'xshell/utils.browser.js'
 
 import { model } from '../model.js'
 import { t } from '../../i18n/index.js'
@@ -17,26 +17,44 @@ import { dashboard, DashboardPermission } from './model.js'
 import { check_name } from './utils.js'
 import { Import } from './Import/Import.js'
 import { Share } from './Share/Share.js'
+import { Doc } from './components/Doc.js'
 
 
 export function Overview () {
-    const { configs } = dashboard.use(['configs'])
+    const { configs, show_config_modal } = dashboard.use(['configs', 'show_config_modal'])
     const [selected_dashboard_ids, set_selected_dashboard_ids] = useState([ ])
     const [current_dashboard, set_current_dashboard] = useState(null)
     const [new_dashboard_id, set_new_dashboard_id] = useState<number>()
     const [new_dashboard_name, set_new_dashboard_name] = useState('')
     const [edit_dashboard_name, set_edit_dashboard_name] = useState('')
     const [copy_dashboard_name, set_copy_dashboard_name] = useState('')
+    const [config_infos, set_config_infos] = useState([ ])
     
     let creator = use_modal()
     let editor = use_modal()
     let deletor = use_modal()
     let copyor = use_modal()
+    let configor = use_modal()
     
     const params = new URLSearchParams(location.search)
     
     useEffect(() => {
-        dashboard.get_dashboard_configs()
+        (async () => {
+            if (model.admin && show_config_modal) {
+                let { version } = model
+                version += (version.split('.').length < 4) ? '.0' : ''
+                if (vercmp(version, '2.00.11.0') >= 0) {
+                    for (let i of ['Create', 'Delete']) 
+                        if (!(await model.ddb.eval(`rpc(getControllerAlias(), getConfig, \`thirdParty${i}UserCallback)`)).value)
+                            config_infos.push(i === 'Create' ? 'thirdPartyCreateUserCallback=dashboard_grant_functionviews' : 'thirdPartyDeleteUserCallback=dashboard_delete_user')  
+                    if (config_infos.length) {
+                        set_config_infos(config_infos)
+                        dashboard.set({ show_config_modal: false })
+                        configor.open()
+                    }   
+                }
+            }    
+        })()
     }, [ ])
     
     
@@ -68,6 +86,32 @@ export function Overview () {
     
     
     return <div className='dashboard-overview'>
+            <Modal
+                className='user-config'
+                open={configor.visible}
+                closeIcon={null}
+                footer={[
+                    <Button onClick={configor.close} type='primary' key='confirm'>{t('确定')}</Button>
+                ]}
+            >
+                <div>
+                    <p>
+                        {t('检测到以下配置不存在，请及时配置并重启数据库，避免影响数据面板功能使用，详见')}
+                        &nbsp;
+                        <Doc/>
+                    </p>
+                    <p>
+                        {t('待配置项：')}
+                        {
+                            config_infos.map(config_info => <span key={config_info}>
+                                <br />
+                                <span className='user-config-info'>{config_info}</span>
+                            </span>)
+                        }
+                    </p>
+                </div>
+            </Modal>
+            
             <Modal
                 open={creator.visible}
                 onCancel={creator.close}

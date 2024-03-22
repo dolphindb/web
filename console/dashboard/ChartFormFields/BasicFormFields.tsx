@@ -1,13 +1,13 @@
 import './index.scss'
 
-import { Collapse, type CollapseProps, Form, Input, InputNumber, Select } from 'antd'
+import { Collapse, type CollapseProps, Form, InputNumber, Select, Input } from 'antd'
+import { get } from 'lodash'
 
 import { t } from '../../../i18n/index.js'
 import { useMemo } from 'react'
 import { BoolRadioGroup } from '../../components/BoolRadioGroup/index.js'
 import { variables } from '../Variable/variable.js'
 import { convert_list_to_options } from '../utils.js'
-import { FormDependencies } from '../../components/formily/FormDependcies/index.js'
 
 import { TitleFields } from './components/Title.js'
 import { LegendFields } from './components/Legend.js'
@@ -16,6 +16,11 @@ import { SplitLineFields } from './components/SplitLine.js'
 import { DataZoomFields } from './components/DataZoom.js'
 import { WrapperFields } from './components/Wrapper.js'
 import { ChartField } from './type.js'
+import { WidgetChartType, dashboard } from '../model.js'
+import { FormDependencies } from '../../components/formily/FormDependcies/index.js'
+import { DDB_TYPE_MAP } from '../../constants/ddb-type-maps.js'
+
+import { TIME_TYPES } from '../Charts/CompositeGraph/constant.js'
 
 
 export function VariableSetting () { 
@@ -29,22 +34,15 @@ export function VariableSetting () {
             }))} />
         </Form.Item>
             
-        <FormDependencies dependencies={['variable_ids']}>
-            {
-                ({ variable_ids }) => { 
-                    if (!variable_ids?.length)
-                        return null
-                    return <>
-                        <Form.Item  name='variable_cols' label={t('每行变量数')} initialValue={3}>
-                            <Select options={convert_list_to_options([1, 2, 3, 4, 6, 8, 12])} allowClear />
-                        </Form.Item>
-                        <Form.Item name='with_search_btn' label={t('查询按钮')} initialValue={false} tooltip={t('不展示查询按钮的情况，表单更新即会进行查询，在变量设置较多的情况下，建议使用查询按钮，点击之后再运行数据源代码')}>
-                            <BoolRadioGroup />
-                        </Form.Item>
-                    </>
-                }
-            }
-        </FormDependencies>
+        <Form.Item  name='variable_cols' label={t('每行变量数')} initialValue={3}>
+            <Select options={convert_list_to_options([1, 2, 3, 4, 6, 8, 12])} allowClear />
+        </Form.Item>
+        <Form.Item name='with_search_btn' label={t('查询按钮')} initialValue={false} tooltip={t('不展示查询按钮的情况，表单更新即会进行查询，在变量设置较多的情况下，建议使用查询按钮，点击之后再运行数据源代码')}>
+            <BoolRadioGroup />
+        </Form.Item>
+        <Form.Item name='search_btn_label' label={t('按钮文案')} initialValue='查询'>
+            <Input placeholder={t('请输入')} />
+        </Form.Item>
     </div>
 }
 
@@ -69,8 +67,11 @@ export function PaddingSetting () {
 }
 
 export function BasicFormFields (props: { type?: 'chart' | 'table' | 'description', chart_fields?: ChartField[] }) { 
+    const { widget } = dashboard.use(['widget'])
     
     const { type, chart_fields = [ChartField.LEGEND, ChartField.DATA_ZOOM, ChartField.SPLIT_LINE, ChartField.TOOLTIP] } = props
+    
+    const form = Form.useFormInstance()
     
     const FormFields = useMemo(() => {
         return  <div className='axis-wrapper'>
@@ -78,7 +79,43 @@ export function BasicFormFields (props: { type?: 'chart' | 'table' | 'descriptio
             <WrapperFields />
             {type === 'chart' && <Form.Item name='animation' label={t('是否开启动画')} initialValue>
                 <BoolRadioGroup />
-            </Form.Item> }
+            </Form.Item>}
+            
+            {widget.type === WidgetChartType.COMPOSITE_GRAPH && <>
+                <Form.Item
+                    name='automatic_mode'
+                    label={t('自动画图模式')}
+                    initialValue={false}
+                    tooltip={t('自动画图模式会自动查找各数据源选定类型的列（默认为时间类型）作为 X 轴，各数据源数值列作为数据列，在数据列配置区域可对特定数据列进行个性化配置')}
+                >
+                    <BoolRadioGroup />
+                </Form.Item>
+                
+                <FormDependencies dependencies={['automatic_mode']}>
+                    {value => { 
+                        const automatic_mode = get(value, ['automatic_mode'])
+                        const options = Object.entries(DDB_TYPE_MAP).map(([k, v]) => ({
+                            label: v,
+                            value: Number(k)
+                        }))
+                        return automatic_mode
+                            ? <Form.Item label={t('X 轴类型')} name='x_col_types'>
+                                <Select
+                                    mode='multiple'
+                                    showSearch
+                                    options={options}
+                                    placeholder={t('请选择类型')}
+                                    filterOption={(val, option) => val ? option.label.toLowerCase().includes(val.toLowerCase()) : true}
+                                />
+                            </Form.Item>
+                            : null
+                    } }
+                </FormDependencies>
+            
+            </>}
+            
+            
+            
             
             {type === 'table' && <>
                 <Form.Item initialValue={false} name='bordered' label={t('展示边框')}>
@@ -90,10 +127,6 @@ export function BasicFormFields (props: { type?: 'chart' | 'table' | 'descriptio
                 <Form.Item name='is_reverse' label={t('倒序展示')} tooltip={t('流数据开启此功能可将最新的数据插入到表格头部')} initialValue={false}>
                     <BoolRadioGroup />
                 </Form.Item>
-                
-                {/* <Form.Item tooltip={t('启用此选项之后，会在表格内层滚动')} name='abandon_scroll' label={t('禁止滚动')} initialValue={false} >
-                    <BoolRadioGroup />
-                </Form.Item> */}
             </>}
         </div>
     }, [type])

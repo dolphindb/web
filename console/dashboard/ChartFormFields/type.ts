@@ -19,14 +19,20 @@ export enum MarkPresetType {
 }
 
 export interface IAxisItem { 
-    name_path?: NamePath
+    /** 数据源列名 */
     col_names: string[]
+    /** 外层包了 Form.List，此字段需传入 field.name */
+    name_path?: NamePath
+    /** 外层包了 Form.List，此字段表示 Form.List 的 name  */
     list_name?: string
-    col?: boolean
+    /** 需要隐藏的表单项 */
+    hidden_fields?: string[]
+    /** 初始值 */
     initial_values?: {
         type?: AxisType
         name?: string
         col_name?: string
+        time_format?: ITimeFormat
     }
 }
 
@@ -50,6 +56,7 @@ export enum ITimeFormat {
     HOUR = 'HH',
     MINUTE = 'HH:mm',
     SECOND = 'HH:mm:ss',
+    MILLISECOND = 'HH:mm:ss.SSS',
     
     DAY_MINUTE = 'MM-DD HH:mm',
     
@@ -57,6 +64,8 @@ export enum ITimeFormat {
     DATE_HOUR = 'YYYY-MM-DD HH',
     DATE_MINUTE = 'YYYY-MM-DD HH:mm',
     DATE_SECOND = 'YYYY-MM-DD HH:mm:ss',
+    
+    DATE_MILLISECOND = 'YYYY-MM-DD HH:mm:ss.SSS'
    
 }
 
@@ -66,4 +75,26 @@ export enum ChartField {
     TOOLTIP = 'tooltip',
     SPLIT_LINE = 'split_line',
     DATA_ZOOM = 'data_zoom'
+}
+
+
+export enum ThresholdType { 
+    ABSOLUTE,
+    PERCENTAGE
+}
+
+
+export enum ThresholdShowType { 
+    NONE,
+    FILLED_REGION,
+    LINE
+}
+
+
+
+export enum MatchRuleType {
+    NAME,
+    REGEXP,
+    DATA_TYPE,
+    DATA_SOURCE
 }
