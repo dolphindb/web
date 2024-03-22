@@ -44,9 +44,9 @@ export const NodesConfigAddModal = NiceModal.create((props: NodesConfigAddModalP
                     </Form.Item>
     
                     <Form.Item
-                        label={t('名称')}
+                        label={t('配置项')}
                         name='name'
-                        rules={[{ required: true, message: t('请输入或选择配置项名') }]}
+                        rules={[{ required: true, message: t('请输入或选择配置项') }]}
                         >
                         <AutoComplete 
                             showSearch
@@ -64,9 +64,9 @@ export const NodesConfigAddModal = NiceModal.create((props: NodesConfigAddModalP
                     </Form.Item>
                     
                     <Form.Item
-                        label={t('数值')}
+                        label={t('值')}
                         name='value'
-                        rules={[{ required: true, message: t('请输入配置项值') }]}
+                        rules={[{ required: true, message: t('请输入配置值') }]}
                         >
                         <Input />
                     </Form.Item>

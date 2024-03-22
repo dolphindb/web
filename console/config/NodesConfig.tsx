@@ -39,16 +39,16 @@ export function NodesConfig () {
             }
         },
         {
-            title: t('键'),
+            title: t('配置项'),
             dataIndex: 'name',
             key: 'name',
             fieldProps: {
-                placeholder: t('请输入配置键'),
+                placeholder: t('请输入配置项'),
             },
             formItemProps: {
                 rules: [{
                     required: true,
-                    message: t('请输入配置键')
+                    message: t('请输入配置项')
                 },
             ]
             }
@@ -195,8 +195,6 @@ export function NodesConfig () {
             <div className='toolbar'>
                 
                 <Button
-                    type='primary'
-                    className='mr-btn'
                     icon={<ReloadOutlined />}
                     onClick={() => { 
                         set_refresher({ }) 
@@ -207,8 +205,6 @@ export function NodesConfig () {
                 </Button>
                 
                 <Button
-                    type='primary'
-                    className='mr-btn'
                     icon={<PlusOutlined/>}
                     onClick={async () => NiceModal.show(NodesConfigAddModal, { configs: _2_strs(configs), refresher: () => { set_refresher({ }) } }) }
                     >
@@ -218,7 +214,6 @@ export function NodesConfig () {
                 <Search
                     placeholder={t('请输入想要查找的配置项')}
                     value={search_key}
-                    enterButton
                     onChange={e => { set_search_key(e.target.value) }}
                     onSearch={async () => {
                         let keys = [ ]

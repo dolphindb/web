@@ -23,16 +23,16 @@ export function ControllerConfig () {
     
     const cols: ProColumns<ControllerConfig>[] = useMemo(() => ([
         {
-            title: t('键'),
+            title: t('配置项'),
             dataIndex: 'name',
             key: 'name',
             fieldProps: {
-                placeholder: t('请输入配置名'),
+                placeholder: t('请输入配置项'),
             },
             formItemProps: {
                 rules: [{
                     required: true,
-                    message: t('请输入配置名！')
+                    message: t('请输入配置项！')
                 },
             ]
             }
@@ -121,8 +121,6 @@ export function ControllerConfig () {
                 }
                 toolBarRender={() => [
                     <Button
-                        type='primary'
-                        className='mr-btn'
                         icon={<ReloadOutlined />}
                         onClick={async () => {
                             await actionRef.current.reload() 
@@ -134,7 +132,6 @@ export function ControllerConfig () {
                     <Search
                         placeholder={t('请输入想要查找的配置项')}
                         value={search_key}
-                        enterButton
                         onChange={e => { set_search_key(e.target.value) }}
                         onSearch={async () => actionRef.current.reload()}
                     />

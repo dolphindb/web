@@ -70,19 +70,19 @@ export function NodesManagement () {
             }
         },
         {
-            title: t('主机名'),
+            title: t('主机名 / IP 地址'),
             dataIndex: 'host',
             key: 'host',
             fieldProps: {
-                placeholder: t('请输入主机名'),
+                placeholder: t('请输入主机名 / IP 地址'),
             },
             formItemProps: {
                 rules: [{
                     required: true,
-                    message: t('请输入主机名')
+                    message: t('请输入主机名 / IP 地址')
                 }, {
                     pattern: /^(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])$/,
-                    message: t('请输入正确的主机名')
+                    message: t('请输入正确的主机名 / IP 地址')
                 }
             ]
             }
@@ -173,8 +173,6 @@ export function NodesManagement () {
                 }}
                 toolBarRender={() => [
                     <Button
-                        // type='text'
-                        className='mr-btn'
                         icon={<ReloadOutlined />}
                         onClick={async () => {
                                 await actionRef.current.reload()
@@ -187,7 +185,6 @@ export function NodesManagement () {
                         className='toolbar-search'
                         placeholder={t('请输入想要查找的节点别名')}
                         value={search_key}
-                        enterButton
                         onChange={e => { set_search_key(e.target.value) }}
                         onSearch={async () => actionRef.current.reload()}
                     />
