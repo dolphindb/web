@@ -262,7 +262,7 @@ export function YAxis (props: IYAxisProps ) {
                 const children = <div className='field-wrapper' key={field.name}>
                     <Space>
                         <div className='axis-wrapper'>
-                            <AxisItem col_names={col_names} name_path={field.name} list_name='yAxis' {...axis_item_props} />
+                            <AxisItem hidden_fields={['col_name']} col_names={col_names} name_path={field.name} list_name='yAxis' {...axis_item_props} />
                             <Form.Item name={[field.name, 'position']} label={t('位置')} initialValue='left'>
                                 <Select options={axis_position_options} />
                             </Form.Item>
