@@ -244,7 +244,7 @@ export class DdbModel extends Model<DdbModel> {
     }
     
     
-    show_error (options: ErrorOptions) {
+    show_error (options: ShowErrorOptions) {
         show_error(this.modal, options)
     }
     
@@ -928,14 +928,14 @@ export enum NodeType {
 }
 
 
-export interface ErrorOptions {
+export interface ShowErrorOptions {
     error?: Error
     title?: string
     body?: string
 }
 
 
-export function show_error (modal: DdbModel['modal'], { title, error, body }: ErrorOptions) {
+export function show_error (modal: DdbModel['modal'], { title, error, body }: ShowErrorOptions) {
     let title_: string, body_: string
     
     if (error)
@@ -944,7 +944,7 @@ export function show_error (modal: DdbModel['modal'], { title, error, body }: Er
     modal.error({
         className: 'modal-error',
         title: title || title_,
-        content: body || body_,
+        content: (body || body === '') ? body : body_,
         width: 1000,
     })
 }
