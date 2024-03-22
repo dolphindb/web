@@ -71,7 +71,7 @@ export function UserList () {
                                     userId === record.user_name).isAdmin === is_admin
             },
             {
-                title: t('组'),
+                title: t('所属组'),
                 dataIndex: 'groups',
                 key: 'groups',
             },
@@ -125,9 +125,9 @@ export function UserList () {
                 <Form.Item
                     label={t('用户名')}
                     name='username'
-                    rules={[{ required: true, message: '请输入用户名!' }, 
-                            { max: 30, message: '用户名长度不能超过 30 个字符' }, 
-                            { pattern: /^(?![\d_])[\w\d]+$/, message: '用户名只能包含字母、下划线或数字，并且不能以数字或下划线开头' }]}
+                    rules={[{ required: true, message: t('请输入用户名!') }, 
+                            { max: 30, message: t('用户名长度不能超过 30 个字符') }, 
+                            { pattern: /^(?![\d_])[\w\d]+$/, message: t('用户名只能包含字母、下划线或数字，并且不能以数字或下划线开头') }]}
                     validateFirst
                     >
                         <Input />
@@ -136,10 +136,10 @@ export function UserList () {
                 <Form.Item
                     label={t('密码')}
                     name='password'
-                    rules={[{ required: true, message: '请输入密码!' },
-                            { min: 6, message: '密码长度为 6-20 个字符，且不包含空格或中文' },
-                            { max: 20, message: '密码长度为 6-20 个字符，且不包含空格或中文' },
-                            { pattern: /^[^\s\u4E00-\u9FFF]+$/, message: '密码长度为 6-20 个字符，且不包含空格或中文' }, 
+                    rules={[{ required: true, message: t('请输入密码!') },
+                            { min: 6, message: t('密码长度为 6-20 个字符，且不包含空格或中文') },
+                            { max: 20, message: t('密码长度为 6-20 个字符，且不包含空格或中文') },
+                            { pattern: /^[^\s\u4E00-\u9FFF]+$/, message: t('密码长度为 6-20 个字符，且不包含空格或中文') }, 
                         ]}
                     validateFirst     
                     >
@@ -154,14 +154,14 @@ export function UserList () {
                     rules={[
                         { 
                             required: true, 
-                            message: '请再次输入密码!',
+                            message: t('请再次输入密码!'),
                         },
                         ({ getFieldValue }) => ({
                             async validator (_, value) {
                               if (!value || getFieldValue('password') === value)
                                   return Promise.resolve()
                               
-                              return Promise.reject(new Error('两次输入密码需要保持一致!'))
+                              return Promise.reject(new Error(t('两次输入密码需要保持一致!') ))
                             },
                           }),
                     ]}
@@ -249,10 +249,10 @@ export function UserList () {
                 <Form.Item
                     label={t('新密码')}
                     name='password'
-                    rules={[{ required: true, message: '请输入密码!' },
-                            { min: 6, message: '密码长度为 6-20 个字符，且不包含空格或中文' },
-                            { max: 20, message: '密码长度为 6-20 个字符，且不包含空格或中文' },
-                            { pattern: /^[^\s\u4E00-\u9FFF]+$/, message: '密码长度为 6-20 个字符，且不包含空格或中文' }, 
+                    rules={[{ required: true, message: t('请输入密码!') },
+                            { min: 6, message: t('密码长度为 6-20 个字符，且不包含空格或中文') },
+                            { max: 20, message: t('密码长度为 6-20 个字符，且不包含空格或中文') },
+                            { pattern: /^[^\s\u4E00-\u9FFF]+$/, message: t('密码长度为 6-20 个字符，且不包含空格或中文') }, 
                     ]}
                 
                     >
@@ -267,14 +267,14 @@ export function UserList () {
                     rules={[
                         { 
                             required: true, 
-                            message: '请再次输入密码!',
+                            message: t('请再次输入密码!'),
                         },
                         ({ getFieldValue }) => ({
                             async validator (_, value) {
                               if (!value || getFieldValue('password') === value)
                                   return Promise.resolve()
                               
-                              return Promise.reject(new Error('两次输入密码需要保持一致!'))
+                              return Promise.reject(new Error(t('两次输入密码需要保持一致!')))
                             },
                           }),
                     ]}
@@ -305,7 +305,7 @@ export function UserList () {
                     key: user,
                     title: user
                 }))}
-                titles={['未所属组', '所属组']}
+                titles={[t('未所属组'), t('所属组')]}
                 showSearch
                 locale={{ itemUnit: t('个'), itemsUnit: t('个'), searchPlaceholder: t('请输入想查找的组') }}
                 filterOption={(val, user) => user.title.includes(val)}
@@ -429,7 +429,7 @@ export function UserList () {
                                 onClick={() => { 
                                     access.set({ current: { role: 'user', name: user_access.userId, view: 'manage' } }) 
                                 }}>
-                            {t('权限管理')}
+                            {t('管理权限')}
                         </Button>
                         
                         <Button type='link'

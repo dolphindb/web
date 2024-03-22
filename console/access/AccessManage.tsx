@@ -148,10 +148,10 @@ export function AccessManage ({
                             type: v === 'allow' ? 'grant' : v,
                             action:   <Popconfirm
                                         title={t('撤销权限')}
-                                        description={t('确认 revoke 该权限吗？')}
+                                        description={t('确认撤销该权限吗？')}
                                         onConfirm={async () => {
                                             await access.revoke(current.name, k)
-                                            model.message.success('revoke 成功')
+                                            model.message.success(t('撤销成功'))
                                             access.set({ accesses: current.role === 'user' ? 
                                                             (await access.get_user_access([current.name]))[0]
                                                                                         :
@@ -160,7 +160,7 @@ export function AccessManage ({
                                     
                                     >
                                         <Button type='link' danger>
-                                            {t('Revoke')}
+                                            {t('撤销')}
                                         </Button>
                                     </Popconfirm> 
                 })
@@ -182,17 +182,17 @@ export function AccessManage ({
                                 action: 
                                 <Popconfirm
                                     title={t('撤销权限')}
-                                    description={t('确认 revoke 该权限吗？')}
+                                    description={t('确认撤销该权限吗？')}
                                     onConfirm={async () => {
                                         await access.revoke(current.name, k.slice(0, k.indexOf(allowed ? '_allowed' : '_denied')), obj)
-                                            model.message.success(t('revoke 成功'))
+                                            model.message.success(t('撤销成功'))
                                             access.set({ accesses: current.role === 'user' ? 
                                                             (await access.get_user_access([current.name]))[0]
                                                                                         :
                                                             (await access.get_group_access([current.name]))[0] })
                                     }}>
                                     <Button type='link' danger>
-                                        {t('Revoke')}
+                                        {t('撤销')}
                                     </Button>
                                 </Popconfirm> 
                                 
@@ -268,10 +268,10 @@ export function AccessManage ({
                     <Select 
                         className='access-select'
                         // 对于当前用户是管理员，不能赋予 VIEW_OWNER 权限
-                        options={(category==='script' 
+                        options={(category === 'script' 
                                     && current.role === 'user' 
                                     && accesses?.isAdmin ? 
-                                access_options[category].slice(0,2) 
+                                access_options[category].slice(0, 2) 
                                     : 
                                 access_options[category]).map(ac => ({
                             label: ac,
@@ -362,9 +362,7 @@ export function AccessManage ({
                                         </div>
                                     }
                                     onChange={vals => {
-                                        const selected = { ...add_rule_selected }
-                                        selected.obj = vals
-                                        set_add_rule_selected(selected)
+                                        set_add_rule_selected({ ...add_rule_selected, obj: vals })
                                     }}
                                     options={obj_options.map(obj => ({
                                         key: obj,
@@ -394,7 +392,7 @@ export function AccessManage ({
                                 set_add_rule_selected({ access: access_options[category][0], type: 'grant', obj: [ ] })
                                 
                     }}>
-                         {t('预添加')}
+                         {t('预览')}
                     </Button>
                 </div>
                 <Table 
@@ -427,7 +425,7 @@ export function AccessManage ({
                                 access.revoke(current.name, ac.access) 
                                     : 
                                 access.revoke(current.name, ac.access, ac.name)))
-                    model.message.success(t('Revoke 成功'))
+                    model.message.success(t('撤销成功'))
                     set_selected_access([ ])
                     deletor.close()
                     access.set({ accesses: current.role === 'user' ? 
@@ -436,7 +434,7 @@ export function AccessManage ({
                     (await access.get_group_access([current.name]))[0] }) 
                 }}
                 title={<Tooltip>
-                            {t('确认 revoke 选中的 {{num}} 条权限吗？', { num: selected_access.length })}
+                            {t('确认撤销选中的 {{num}} 条权限吗？', { num: selected_access.length })}
                     </Tooltip>}
             />
             <Table

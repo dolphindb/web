@@ -47,7 +47,7 @@ export function GroupList () {
                 width: 200
             },
             {
-                title: t('组内用户'),
+                title: t('组成员'),
                 dataIndex: 'users',
                 key: 'users',
             },
@@ -102,7 +102,7 @@ export function GroupList () {
                     name='group_name'
                     rules={[{ required: true, message: t('请输入组名') },
                             { max: 30, message: t('组名长度不能超过 30 个字符') }, 
-                            { pattern: /^(?![\d_])[\w\d]+$/, message: '组名只能包含字母、下划线或数字，并且不能以数字或下划线开头' }]}
+                            { pattern: /^(?![\d_])[\w\d]+$/, message: t('组名只能包含字母、下划线或数字，并且不能以数字或下划线开头') }]}
                     validateFirst
                     >
                         <Input />
@@ -116,9 +116,9 @@ export function GroupList () {
                             key: user,
                             title: user
                         }))}
-                        titles={['组外用户', '组内用户']}
+                        titles={[t('组成员'), t('非组成员')]}
                         showSearch
-                        locale={{ itemUnit: t('个'), itemsUnit: t('个'), searchPlaceholder: t('请输入想查找的用户') }}
+                        locale={{ itemUnit: t('个'), itemsUnit: t('个'), searchPlaceholder: t('请输入想要搜索的用户') }}
                         filterOption={(val, user) => user.title.includes(val)}
                         targetKeys={target_users}
                         selectedKeys={selected_users}
@@ -153,7 +153,7 @@ export function GroupList () {
                     key: user,
                     title: user
                 }))}
-                titles={['组外用户', '组内用户']}
+                titles={['组成员', '非组成员']}
                 showSearch
                 locale={{ itemUnit: t('个'), itemsUnit: t('个'), searchPlaceholder: t('请输入想查找的用户') }}
                 filterOption={(val, user) => user.title.includes(val)}
@@ -272,13 +272,13 @@ export function GroupList () {
                                 editor.open()
                                 set_target_users(await access.get_users_by_group(group.groupName))
                             }}>
-                        {t('成员管理')}
+                        {t('管理成员')}
                     </Button>
                     <Button type='link' 
                             onClick={() => { 
                                 access.set({ current: { role: 'group', name: group.groupName, view: 'manage' } }) 
                             }}>
-                        {t('权限管理')}
+                        {t('管理权限')}
                     </Button>
                     <Button type='link'
                             onClick={() => { 

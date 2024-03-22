@@ -76,7 +76,7 @@ export function AccessView () {
     
     const OperationsSlot: Record<'left' | 'right', React.ReactNode> = {
         left: <div className='switch-user'>
-                {t('当前查看{{role}}:', { role: role === 'user' ? t('用户') : t('组') })}
+                {t('当前{{role}}:', { role: role === 'user' ? t('用户') : t('组') })}
                 <Select 
                     value={name}
                     options={(role === 'user' ? users : groups).map(t => ({

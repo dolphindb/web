@@ -40,7 +40,7 @@ function Access ({
             access.set({ current: null })
     }, [ ])
     
-    if(!admin)
+    if (!admin)
         return <Result
             status='warning'
             className='interceptor'

@@ -39,7 +39,7 @@ export function AccessHeader ({
                     type='primary'
                     icon={<SettingOutlined />}
                     onClick={() => { access.set({ current: { ...access.current, view: 'manage' } }) }}>
-                    {t('权限管理')}
+                    {t('管理权限')}
                 </Button>  
                     : 
             <>
@@ -54,7 +54,7 @@ export function AccessHeader ({
                     type='primary' 
                     icon={<KeyOutlined />}
                     onClick={() => { access.set({ current: { ...current, view: 'preview' } }) }}>
-                    {t('权限查看')}
+                    {t('查看权限')}
                 </Button>
                 <Button 
                     danger 
@@ -64,7 +64,7 @@ export function AccessHeader ({
                             delete_open()
                     }}
                 >
-                    {t('批量 Revoke')}
+                    {t('批量撤销')}
                 </Button>
             </> 
             }
