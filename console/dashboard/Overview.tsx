@@ -348,18 +348,16 @@ export function Overview () {
                                             title='撤销'
                                             description={`确定撤销 ${configs.find(({ id }) => id === key).name} 的权限吗？`}
                                             onConfirm={async () => 
-                                                model.execute(async () => {
-                                                    if (!configs.length) {
-                                                        dashboard.message.error(t('当前 dashboard 列表为空'))
-                                                        return
-                                                    }
-                                                    
-                                                    dashboard.set({ configs: configs.filter(({ id }) => id !== key) })
-                                                    
-                                                    await dashboard.revoke(key)
-                                                    set_selected_dashboard_ids(selected_dashboard_ids.filter(id => id !== key))
-                                                    model.message.success(t('撤销成功'))
-                                                })
+                                                if (!configs.length) {
+                                                    dashboard.message.error(t('当前 dashboard 列表为空'))
+                                                    return
+                                                }
+                                                
+                                                dashboard.set({ configs: configs.filter(({ id }) => id !== key) })
+                                                
+                                                await dashboard.revoke(key)
+                                                set_selected_dashboard_ids(selected_dashboard_ids.filter(id => id !== key))
+                                                model.message.success(t('撤销成功'))
                                             }
                                             okText={t('确认撤销')}
                                             cancelText={t('取消')}
