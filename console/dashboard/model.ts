@@ -21,7 +21,6 @@ import { type Monaco } from '../shell/Editor/index.js'
 import { type DataSource, type ExportDataSource, import_data_sources, unsubscribe_data_source, type DataType, clear_data_sources } from './DataSource/date-source.js'
 import { type IEditorConfig, type IChartConfig, type ITableConfig, type ITextConfig, type IGaugeConfig, type IHeatMapChartConfig, type IOrderBookConfig } from './type.js'
 import { type Variable, import_variables, type ExportVariable } from './Variable/variable.js'
-import { parse_error } from '../utils/ddb-error.js'
 
 
 /** 0 表示隐藏dashboard（未查询到结果、 server 版本为 v1 或 language 非中文），1 表示没有初始化，2 表示已经初始化，3 表示为控制节点 */
@@ -172,9 +171,7 @@ export class DashBoardModel extends Model<DashBoardModel> {
                     )
         })
         
-        window.addEventListener('resize', () => {
-            grid.cellHeight(Math.floor(grid.el.clientHeight / this.maxrows))
-        })
+        window.addEventListener('resize', this.on_resize)
         
         GridStack.setupDragIn('.dashboard-graph-item', { helper: 'clone' })
         
@@ -182,32 +179,12 @@ export class DashBoardModel extends Model<DashBoardModel> {
     }
     
     
-    
-    
-    /** 执行 action，遇到错误时弹窗提示 
-        - action: 需要弹框展示执行错误的函数
-        - options?:
-            - throw?: `true` 默认会继续向上抛出错误，如果不需要向上继续抛出
-            - print?: `!throw` 在控制台中打印错误
-            - json_error?: `true` 会解析 server 返回的错误
-        @example await model.execute(async () => model.xxx()) */
-    async execute (
-        action: Function, 
-        { throw: _throw = true, print, json_error = false }: { throw?: boolean, print?: boolean, json_error?: boolean } = { }) 
-    {
-        try {
-            await action()
-        } catch (error) {
-            error = json_error ? parse_error(error) : error
-            
-            if (print ?? !_throw)
-                console.error(error)
-            
-            this.show_error({ error })
-            
-            if (_throw)
-                throw error
-        }
+    on_resize = () => {
+        window.addEventListener('resize', () => {
+            let { grid } = this
+            if (grid?.el)
+                grid.cellHeight(Math.floor(grid.el.clientHeight / this.maxrows))
+        })
     }
     
     
@@ -234,8 +211,12 @@ export class DashBoardModel extends Model<DashBoardModel> {
     
     
     dispose () {
+        console.log('dashboard.dispose')
+        
+        window.removeEventListener('resize', this.on_resize)
+        
         clear_data_sources()
-        console.log('grid.destroy')
+        
         this.grid.destroy()
         this.grid = null
     }

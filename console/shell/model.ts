@@ -34,7 +34,6 @@ import { model, NodeType, storage_keys } from '../model.js'
 import type { Monaco } from './Editor/index.js'
 import { Database, DatabaseGroup, type Column, type ColumnRoot, PartitionDirectory, type PartitionRoot, PartitionFile, Table } from './Databases.js'
 import { DdbVar } from './Variables.js'
-import { get_error_code_doc_link } from '../utils/ddb-error.js'
 
 
 type Result = { type: 'object', data: DdbObj } | { type: 'objref', data: DdbObjRef }
@@ -198,7 +197,7 @@ class ShellModel extends Model<ShellModel> {
                         ''
                     :
                         // xterm link写法 https://stackoverflow.com/questions/64759060/how-to-create-links-in-xterm-js
-                        blue(`\x1b]8;;${get_error_code_doc_link(ref_id.toLowerCase())}\x07RefId: ${ref_id}\x1b]8;;\x07`)   
+                        blue(`\x1b]8;;${model.get_error_code_doc_link(ref_id.toLowerCase())}\x07RefId: ${ref_id}\x1b]8;;\x07`)   
                 )
             
             this.term.writeln(red(message))
