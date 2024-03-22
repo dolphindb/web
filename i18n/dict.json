@@ -3505,5 +3505,116 @@
     },
     "仅单机节点、数据节点和计算节点支持新建查询": {
         "en": "Queries can only be created on data/compute nodes, or on a standalone server."
+    },
+    "返回": {
+        "en": "Return"
+    },
+    "批量 Revoke": {
+        "en": "Batch Revoke"
+    },
+    "动作": {
+        "en": "actions"
+    },
+    "撤销权限": {
+        "en": "Revoke"
+    },
+    "确认 revoke 该权限吗？": {
+        "en": "Confirm revoke permission?"
+    },
+    "Revoke": {
+        "en": "Revoke"
+    },
+    "确认添加": {
+        "en": "Confirm add"
+    },
+    "添加权限": {
+        "en": "Add permissions"
+    },
+    "请选择权限应用范围": {
+        "en": "Please select the scope of permission application"
+    },
+    "应用范围为全局": {
+        "en": "Application scope is global"
+    },
+    "预添加": {
+        "en": "pre-added"
+    },
+    "移除": {
+        "en": "remove"
+    },
+    "Revoke 成功": {
+        "en": "Revoke successfully"
+    },
+    "确认 revoke 选中的 {{num}} 条权限吗？": {
+        "en": "Confirm {{num}} permissions selected by revoke?"
+    },
+    "全局权限": {
+        "en": "Global permissions"
+    },
+    "请输入组名": {
+        "en": "Please enter a group name"
+    },
+    "组名长度不能超过 30 个字符": {
+        "en": "Group name cannot exceed 30 characters in length"
+    },
+    "组 ": {
+        "en": "group "
+    },
+    " 成员管理": {
+        "en": " Member management"
+    },
+    "预览修改": {
+        "en": "Preview changes"
+    },
+    "确认对组 ": {
+        "en": "Are you sure you want to make the following changes to the group?"
+    },
+    " 进行以下改动吗": {
+        "en": " "
+    },
+    "组内用户修改成功": {
+        "en": "Users in the group have been modified successfully"
+    },
+    "原组内用户:": {
+        "en": "Users in the original group"
+    },
+    "移入用户:": {
+        "en": "Move in users"
+    },
+    "移出用户:": {
+        "en": "Remove user"
+    },
+    "非管理员不能查看权限管理模块。": {
+        "en": "Non-administrators cannot view the rights management module."
+    },
+    "重置用户 ": {
+        "en": "reset user "
+    },
+    "用户 ": {
+        "en": "user "
+    },
+    " 所属组管理": {
+        "en": " group management"
+    },
+    "请输入想查找的组": {
+        "en": "Please enter the group you want to find"
+    },
+    "确认对用户 ": {
+        "en": "Confirm to user "
+    },
+    "用户所属组修改成功": {
+        "en": "The group to which the user belongs has been modified successfully"
+    },
+    "原有组:": {
+        "en": "original group"
+    },
+    "移入组:": {
+        "en": "Move into group"
+    },
+    "移出组:": {
+        "en": "Move out of group"
+    },
+    "用户组管理": {
+        "en": "group management"
     }
 }
