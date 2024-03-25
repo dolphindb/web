@@ -325,8 +325,8 @@ function DataView ({ info }: { info: ICEPEngineDetail }) {
             ]}
             locale={{ emptyText: <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description={t('请选择需要观测的 key')} /> }} 
             pagination={{
-                defaultPageSize: 10,
-                pageSizeOptions: ['5', '10', '20'],
+                defaultPageSize: 20,
+                pageSizeOptions: ['10', '20', '50'],
                 size: 'small',
                 showSizeChanger: true,
                 showQuickJumper: true,
