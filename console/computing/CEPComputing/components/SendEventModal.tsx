@@ -15,7 +15,9 @@ interface IProps {
 
 export const SendEventModal = NiceModal.create(({ on_refresh, engine_info }: IProps) => { 
     
-    const { msgSchema, engineStat: { name } } = engine_info
+    const { eventSchema, engineStat: { name } } = engine_info
+    
+    console.log(eventSchema, 'eventSchema')
     
     const modal = useModal()
     const [form] = Form.useForm()
@@ -27,16 +29,16 @@ export const SendEventModal = NiceModal.create(({ on_refresh, engine_info }: IPr
         message.success(t('发送成功'))
         on_refresh?.()
         modal.hide()
-    }, [name, msgSchema, on_refresh])
+    }, [name, eventSchema, on_refresh])
     
     const event_type = Form.useWatch('eventType', form)
     
     const msg_item = useMemo(() => {
-        const item = msgSchema.find(item => item.eventType === event_type)
+        const item = eventSchema.find(item => item.eventType === event_type)
         return {
             types: item?.eventValuesTypeStringList ?? [ ],
             type_ids: item?.eventValuesTypeIntList ?? [ ],
-            keys: item?.eventKeys ?? [ ]
+            keys: item?.eventField ?? [ ]
         }
      }, [event_type])
     
@@ -51,7 +53,7 @@ export const SendEventModal = NiceModal.create(({ on_refresh, engine_info }: IPr
     >
         <Form form={form} colon={false} labelCol={{ span: 4 }} wrapperCol={{ span: 20 }} labelAlign='left'>
             <Form.Item label={t('事件类型')} name='eventType' rules={[{ required: true }] }>
-                <Select placeholder={t('请选择事件类型')} options={ msgSchema.map(item => ({ label: item.eventType, value: item.eventType })) } />
+                <Select placeholder={t('请选择事件类型')} options={ eventSchema.map(item => ({ label: item.eventType, value: item.eventType })) } />
             </Form.Item>
             {
                 event_type && <div className='event-fields-wrapper'>
@@ -66,7 +68,7 @@ export const SendEventModal = NiceModal.create(({ on_refresh, engine_info }: IPr
                             required
                             rules={[
                                 {
-                                    validator: async (_, value, cb) => { 
+                                    validator: async (_, value) => { 
                                         if (!value)
                                             return Promise.reject(t('请输入事件字段'))
                                         else if (msg_item.type_ids[idx] !== value?.type)

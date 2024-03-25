@@ -15,11 +15,11 @@ export async function get_cep_engine_detail (name: string) {
     
     return {
         ...res,
-        msgSchema: res?.msgSchema?.map(item => ({
-            eventValuesTypeIntList: item.eventValuesTypeID,
+        eventSchema: res?.eventSchema?.map(item => ({
+            eventValuesTypeIntList: item.fieldTypeId,
             eventType: item.eventType,
-            eventKeys: item.eventKeys ? item.eventKeys.split(',') : [ ],
-            eventValuesTypeStringList: item.eventValuesTypeString ? item.eventValuesTypeString.split(',') : [ ]
+            eventField: item.eventField ? item.eventField.split(',') : [ ],
+            eventValuesTypeStringList: item.fieldType ? item.fieldType.split(',') : [ ]
         }))
     } as ICEPEngineDetail
 }

@@ -75,19 +75,19 @@ export interface ServerEventItem {
     /** 事件类型 */
     eventType: string
     /** 事件所需的字段名，多个字段用逗号分隔 */
-    eventKeys: string
+    eventField: string
     /** 事件所需字段名对应的类型，多个用逗号分隔 */
-    eventValuesTypeString: string
+    fieldType: string
     /** 事件所包含的字段对应的数据类型 ID */
-    eventValuesTypeID: DdbType[]
+    fieldTypeId: DdbType[]
     /** 事件所包含的字段对应的数据形式ID ID */
-    eventValuesFormID: DdbForm[]
+    fieldFormId: DdbForm[]
 }
 interface EventItem {
     /** 事件类型 */
     eventType: string
     /** 事件所需的字段名 */
-    eventKeys: string[]
+    eventField: string[]
     /** 事件所需字段名对应的类型 */
     eventValuesTypeStringList: string[]
     /** 事件所包含的字段对应的数据类型 ID */
@@ -100,7 +100,7 @@ export interface ICEPEngineDetail {
     /** 数据视图信息 */
     dataViewEngines: DataViewEngineItem[]
     /** 事件信息 */
-    msgSchema: EventItem[]
+    eventSchema: EventItem[]
     /** 子引擎信息 */
     subEngineStat: SubEngineItem[]
 }
@@ -111,7 +111,7 @@ export interface IServerEngineDetail {
     /** 数据视图信息 */
     dataViewEngines: DataViewEngineItem[]
     /** 事件信息 */
-    msgSchema: ServerEventItem[]
+    eventSchema: ServerEventItem[]
     /** 子引擎信息 */
     subEngineStat: SubEngineItem[]
 }
