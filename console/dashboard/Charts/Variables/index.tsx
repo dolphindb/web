@@ -14,6 +14,7 @@ interface IVariableConfig {
     variable_ids?: string[]
     variable_cols: number
     with_search_btn: boolean
+    search_btn_label?: string
 }
 export function Variables (props: IProps) { 
     
@@ -33,6 +34,7 @@ export function Variables (props: IProps) {
             ids={config?.variable_ids}
             cols={config?.variable_cols}
             with_search_btn={config?.with_search_btn}
+            search_btn_label={config?.search_btn_label }
         />
     </>
 }

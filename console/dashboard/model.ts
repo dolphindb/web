@@ -23,7 +23,18 @@ import { type IEditorConfig, type IChartConfig, type ITableConfig, type ITextCon
 import { type Variable, import_variables, type ExportVariable } from './Variable/variable.js'
 
 
+/** 0 表示隐藏dashboard（未查询到结果、 server 版本为 v1 或 language 非中文），1 表示没有初始化，2 表示已经初始化，3 表示为控制节点 */
+export enum InitedState {
+    hidden = 0,
+    uninited = 1,
+    inited = 2,
+    control_node = 3
+}
+
 export class DashBoardModel extends Model<DashBoardModel> {
+    /** dashboard 初始化状态 */
+    inited_state = InitedState.hidden
+    
     /** 所有 dashboard 的配置 */
     configs: DashBoardConfig[]
     
@@ -65,6 +76,8 @@ export class DashBoardModel extends Model<DashBoardModel> {
     maxcols = 12
     maxrows = 12
     
+    show_config_modal = true
+    
     monaco: Monaco
     
     sql_editor: monacoapi.editor.IStandaloneCodeEditor
@@ -85,29 +98,6 @@ export class DashBoardModel extends Model<DashBoardModel> {
     
     /** 初始化 GridStack 并配置事件监听器 */
     async init ($div: HTMLDivElement) {
-        await this.get_dashboard_configs()
-        
-        if (!this.config) {
-            const id = genid()
-            const new_dashboard_config = {
-                id,
-                name: String(id).slice(0, 4),
-                owner: '',
-                permission: DashboardPermission.own,
-                data: {
-                    datasources: [ ],
-                    variables: [ ],
-                    canvas: {
-                        widgets: [ ]
-                    }
-                }
-            }
-            this.set({
-                config: new_dashboard_config,
-                configs: [new_dashboard_config]
-            })
-        }
-        
         let grid = GridStack.init({
             //  gridstack 有 bug ，当 grid 没有 2*3 的连续空间时，再拖入一个会使所有 widget 无法 change，暂时通过计算面积阻止拖入，后续无限行数时不会再有此问题
             acceptWidgets: () => {
@@ -162,7 +152,7 @@ export class DashBoardModel extends Model<DashBoardModel> {
                 h: 3,
                 ref: createRef(),
                 id: String(genid()),
-                type: node.el.dataset.type as keyof typeof WidgetType,
+                type: node.el.dataset.type as WidgetChartType,
             }
             
             this.add_widget(widget)
@@ -411,28 +401,22 @@ export class DashBoardModel extends Model<DashBoardModel> {
     /** 从服务器获取 dashboard 配置 */
     async get_dashboard_configs () {
         const data = (await model.ddb.call<DdbVoid>('dashboard_get_config_list', [ ])).to_rows()
-        const configs =  data.map(cfg => {
+        
+        const configs = data.map(cfg => {
             // 有些只需要 parse 一次，有些需要 parse 两次
             let data = typeof cfg.data === 'string' ?  JSON.parse(cfg.data) : new TextDecoder().decode(cfg.data)
             data = typeof data === 'string' ? JSON.parse(data) : data
             return { 
                 ...cfg, 
                 id: Number(cfg.id), 
-                data
+                data: {
+                    ...data,
+                    // 历史数据的数据源类型统一修改为表格类型
+                    datasources: data.datasources.map(item => ({ type: DdbForm.table, ...item }))
+                }
             } as DashBoardConfig
         } ) 
         this.set({ configs })
-        const dashboard_id = Number(new URLSearchParams(location.search).get('dashboard'))
-        if (dashboard_id) {
-            const config = configs.find(({ id }) =>  id === dashboard_id) || await this.get_dashboard_config(dashboard_id)
-            if (config) {
-                this.set({ config })
-                await this.render_with_config(config)
-            }
-                
-            else 
-                this.show_error({ error: new Error(t('当前 url 所指向的 dashboard 不存在')) })
-        }
     }
     
     
@@ -457,6 +441,20 @@ export class DashBoardModel extends Model<DashBoardModel> {
         
         model.set_query('dashboard', String(config.id))
         this.set({ loading: false })
+    }
+    
+    
+    return_to_overview () {
+        clear_data_sources()
+        dashboard.set({ config: null, save_confirm: false })
+        model.set_query('dashboard', null)
+        model.set_query('preview', null)
+        model.set({ sider: true, header: true })
+    }
+    
+    on_preview () {
+        dashboard.set_editing(false)
+        model.set_query('preview', '1')
     }
 }
 
@@ -511,6 +509,7 @@ export interface Widget extends GridStackNode {
         abandon_scroll?: boolean
         variable_cols?: number
         with_search_btn?: boolean
+        search_btn_label?: string
         padding?: {
             left: number
             right: number
@@ -536,8 +535,8 @@ export enum WidgetType {
     RADAR = '雷达图',
     VARIABLE = '变量',
     SCATTER = '散点图',
-    COMPOSITE_GRAPH = '复合图'
-    // HEATMAP = '热力图'
+    COMPOSITE_GRAPH = '多源图',
+    HEATMAP = '热力图'
 }
 
 export enum WidgetChartType { 
@@ -556,7 +555,7 @@ export enum WidgetChartType {
     VARIABLE = 'VARIABLE',
     SCATTER = 'SCATTER',
     HEATMAP = 'HEATMAP',
-    COMPOSITE_GRAPH = 'COMPOSITE_GRAPH'
+    COMPOSITE_GRAPH = 'COMPOSITE_GRAPH',
 }
 
 export enum DashboardPermission {

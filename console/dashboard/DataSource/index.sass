@@ -26,10 +26,16 @@ $border_color: #333333
         top: 250px !important
 
     .config-data-source-list
-        width: 200px
+        width: 240px
         border-right: 1px solid $border_color
         display: flex
         flex-direction: column
+        
+        .ant-tree-title
+            width: 100%
+            .data-source-tree-item
+                display: flex
+                justify-content: space-between
         
         .data-source-list-top
             padding-right: 10px
