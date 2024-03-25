@@ -155,9 +155,13 @@ export function NodesManagement () {
                             mode: ''
                         }),
                         creatorButtonText: t('新增节点'),
+                        onClick: () => { 
+                            const tbody = document.querySelector('.ant-table-body')
+                            setTimeout(() => tbody.scrollTop = tbody.scrollHeight, 1)
+                        }
                     }
                 }
-                scroll={{ y: 680 }}
+                scroll={{ y: '72vh' }}
                 request={async () => {
                     const value = (await config.get_cluster_nodes()).value as any[]
                     const nodes = strs_2_nodes(value)

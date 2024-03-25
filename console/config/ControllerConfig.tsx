@@ -105,7 +105,7 @@ export function ControllerConfig () {
                         total: value.length
                     }
                 }}
-                scroll={{ y: 680 }}
+                scroll={{ y: '72vh' }}
                 recordCreatorProps={
                     {
                         position: 'bottom',
@@ -115,6 +115,10 @@ export function ControllerConfig () {
                             value: ''
                         }),
                         creatorButtonText: t('新增控制节点配置'),
+                        onClick: () => { 
+                            const tbody = document.querySelector('.ant-table-body')
+                            setTimeout(() => tbody.scrollTop = tbody.scrollHeight, 1)
+                         }
                     }
                 }
                 toolBarRender={() => [
