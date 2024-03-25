@@ -1,11 +1,11 @@
 import './index.sass'
 
-import { useEffect, useId, useMemo, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 
 import { CheckCircleFilled, DeleteOutlined, MinusCircleFilled, PlusOutlined, ReloadOutlined, SearchOutlined } from '@ant-design/icons'
 import { Button, Form, Input, Modal, Popconfirm, Select, Switch, Table, Tag, Tooltip, Transfer, type TableColumnType } from 'antd'
 
-import { t, Trans } from '../../i18n/index.js'
+import { t, language } from '../../i18n/index.js'
 
 import { use_modal } from 'react-object-model/hooks.js'
 import { model } from '../model.js'
@@ -117,7 +117,7 @@ export function UserList () {
             >
             <Form
                 name='basic'
-                labelCol={{ span: 4 }}
+                labelCol={{ span: language === 'zh' ? 4 : 8 }}
                 labelAlign='right'
                 form={add_user_form}
                 autoComplete='off'
@@ -242,7 +242,7 @@ export function UserList () {
             <Form
                 name='basic'
                 form={reset_password_form}
-                labelCol={{ span: 4 }}
+                labelCol={{ span: language === 'zh' ? 4 : 8 }}
                 labelAlign='right'
                 autoComplete='off'
             >
@@ -414,7 +414,7 @@ export function UserList () {
                                 set_target_groups((await access.get_user_access([user_access.userId]))[0].groups.split(','))
                                 edit_groupor.open()
                         }}>
-                            {t('用户组管理')}
+                            {t('管理用户组')}
                         </Button>
                         
                         <Button type='link'

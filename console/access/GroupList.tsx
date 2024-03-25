@@ -6,7 +6,7 @@ import { DeleteOutlined, PlusOutlined, ReloadOutlined, SearchOutlined } from '@a
 import { Button, Form, Input, Modal, Popconfirm, Table, Tag, Tooltip, Transfer, type TableColumnType } from 'antd'
 
 import { use_modal } from 'react-object-model/hooks'
-import { t } from '../../i18n/index.js'
+import { t, language } from '../../i18n/index.js'
 import { model } from '../model.js'
 import { access } from './model.js'
 
@@ -55,7 +55,7 @@ export function GroupList () {
                 title: t('操作'),
                 dataIndex: 'actions',
                 key: 'actions',
-                width: 400
+                width: language === 'zh' ? 400 : 520
             }
         ]
     ), [ ])
@@ -153,7 +153,7 @@ export function GroupList () {
                     key: user,
                     title: user
                 }))}
-                titles={['组成员', '非组成员']}
+                titles={[t('组成员'), t('非组成员')]}
                 showSearch
                 locale={{ itemUnit: t('个'), itemsUnit: t('个'), searchPlaceholder: t('请输入想查找的用户') }}
                 filterOption={(val, user) => user.title.includes(val)}
@@ -184,7 +184,7 @@ export function GroupList () {
                     ...delete_users.length ? [access.delete_group_member(delete_users, current?.name )] : [ ],
                     ...add_users.length ?  [access.add_group_member(add_users, current?.name )] : [ ]                    
                     ])
-                    model.message.success(t('组内用户修改成功'))
+                    model.message.success(t('组成员修改成功'))
                 }
                 editor.close()
                 confior.close()

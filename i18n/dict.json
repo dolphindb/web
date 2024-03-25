@@ -210,7 +210,7 @@
         "en": " Status"
     },
     "操作": {
-        "en": "actions"
+        "en": "Actions"
     },
     "当前值": {
         "en": "value"
@@ -219,7 +219,7 @@
         "en": "default value"
     },
     "类型": {
-        "en": "type"
+        "en": "Type"
     },
     "描述": {
         "en": "description"
@@ -2103,7 +2103,7 @@
         "en": "Are you sure to unsubscribe the selected stream data table?"
     },
     "批量删除": {
-        "en": "Batch deletion"
+        "en": "Batch Delete"
     },
     "确认删除选中的引擎吗？": {
         "en": "Are you sure you want to delete the selected engine?"
@@ -2367,7 +2367,7 @@
         "en": "Monitor the status of the stream computing engine."
     },
     "流数据表": {
-        "en": "Streaming Tables"
+        "en": "Stream Table"
     },
     "取消订阅": {
         "en": "Unsubscribe"
@@ -2418,13 +2418,13 @@
         "en": "Name cannot be empty"
     },
     "分布式数据库": {
-        "en": "distributed database"
+        "en": "Distributed Database"
     },
     "共享内存表": {
-        "en": "shared memory table"
+        "en": "Shared In-Memory Table"
     },
     "函数视图": {
-        "en": "function view"
+        "en": "Function View"
     },
     "脚本权限": {
         "en": "script permissions"
@@ -2439,7 +2439,7 @@
         "en": "Permission granted successfully"
     },
     "新增权限": {
-        "en": "add permissions"
+        "en": "Add Access"
     },
     "请选择{{category}}": {
         "en": "Please choose {{category}}"
@@ -2475,7 +2475,7 @@
         "en": "Please enter the {{category}} you want to search for"
     },
     "组名": {
-        "en": "group name"
+        "en": "Group Name"
     },
     "组内用户": {
         "en": "group members"
@@ -2484,7 +2484,7 @@
         "en": "member management"
     },
     "查看权限": {
-        "en": "view permissions"
+        "en": "View Access"
     },
     "删除组": {
         "en": "delete group"
@@ -2496,82 +2496,82 @@
         "en": "Group deletion successful"
     },
     "新建组": {
-        "en": "create new group"
+        "en": "Create Group"
     },
     "组创建成功": {
-        "en": "Group creation successful"
+        "en": "Successfully Created"
     },
     "成员": {
-        "en": "members"
+        "en": "Members"
     },
     "个": {
-        "en": "individual"
+        "en": ""
     },
     "请输入想查找的用户": {
         "en": "Please enter the user you want to search for"
     },
     "组 {{group}} 成员管理": {
-        "en": "group {{group}} Member Management"
+        "en": "Manage Members for {{group}}"
     },
     "成员修改成功": {
-        "en": "Member modification successful"
+        "en": "Successfully Changed"
     },
     "确认删除选中的 {{num}} 个组吗？": {
-        "en": "Are you sure to delete the {{num}} selected groups?"
+        "en": "Are you sure to delete selected groups?"
     },
     "请输入想要搜索的组": {
-        "en": "Please enter the group you want to search for"
+        "en": "Search Groups"
     },
     "是否管理员": {
-        "en": "is administrator"
+        "en": "Is Admin"
     },
     "管理员": {
-        "en": "administrator"
+        "en": "Admin"
     },
     "非管理员": {
-        "en": "non-administrator"
+        "en": "Non-admin"
     },
     "请选择想要添加的组": {
-        "en": "Please select the group you want to add"
+        "en": "Please select the group."
     },
     "重置密码": {
-        "en": "reset password"
+        "en": "Reset Password"
     },
     "删除用户": {
-        "en": "delete user"
+        "en": "Delete User"
     },
     "确认删除用户 {{user}} 吗": {
         "en": "Are you sure to delete user {{user}}?"
     },
     "用户删除成功": {
-        "en": "User deletion successful"
+        "en": "Successfully Deleted"
     },
     "新建用户": {
-        "en": "create new user"
+        "en": "Create User"
     },
     "用户创建成功": {
-        "en": "User creation successful"
+        "en": "Successfully Created"
     },
     "密码": {
-        "en": "password"
+        "en": "Password"
     },
     "确认密码": {
-        "en": "confirm password"
+        "en": "Confirm Password"
     },
     "确认删除选中的 {{num}} 个用户吗？": {
-        "en": "Are you sure to delete the selected {{num}} users?"
+        "en": "Are you sure to delete selected users?"
     },
     "密码修改成功": {
-        "en": "Password reset complete"
+        "en": "Successfully Reset Password."
     },
     "重置用户 {{user}} 密码": {
-        "en": "reset user {{user}} password"
+        "en": "Reset Password for {{user}}"
     },
     "新密码": {
-        "en": "new password"
+        "en": "New Password"
     },
     "请输入想要搜索的用户": {
-        "en": "Please enter the user you want to search for"
+        "en": "Search Users"
     },
     "用户管理": {
         "en": "User"
@@ -2979,7 +2979,7 @@
         "en": "confirm deletion"
     },
     "撤销": {
-        "en": "undo"
+        "en": "Revoke"
     },
     "编辑": {
         "en": "Edit"
@@ -3114,7 +3114,7 @@
         "en": "share successful"
     },
     "权限": {
-        "en": "permissions"
+        "en": "Access"
     },
     "无": {
         "en": "none"
@@ -3513,7 +3513,7 @@
         "en": "Batch Revoke"
     },
     "动作": {
-        "en": "actions"
+        "en": "Actions"
     },
     "撤销权限": {
         "en": "Revoke"
@@ -3525,19 +3525,19 @@
         "en": "Revoke"
     },
     "确认添加": {
-        "en": "Confirm add"
+        "en": "Confirm"
     },
     "添加权限": {
-        "en": "Add permissions"
+        "en": "Add Access"
     },
     "请选择权限应用范围": {
-        "en": "Please select the scope of permission application"
+        "en": "Please select the access object."
     },
     "应用范围为全局": {
-        "en": "Application scope is global"
+        "en": "Global level"
     },
     "预添加": {
-        "en": "pre-added"
+        "en": "Add"
     },
     "移除": {
         "en": "remove"
@@ -3549,7 +3549,7 @@
         "en": "Confirm {{num}} permissions selected by revoke?"
     },
     "全局权限": {
-        "en": "Global permissions"
+        "en": "Global"
     },
     "请输入组名": {
         "en": "Please enter a group name"
@@ -3558,13 +3558,13 @@
         "en": "Group name cannot exceed 30 characters in length"
     },
     "组 ": {
-        "en": "group "
+        "en": "Group "
     },
     " 成员管理": {
         "en": " Member management"
     },
     "预览修改": {
-        "en": "Preview changes"
+        "en": "Preview"
     },
     "确认对组 ": {
         "en": "Are you sure you want to make the following changes to the group?"
@@ -3617,7 +3617,7 @@
     "用户组管理": {
         "en": "group management"
     },
-    "列名完全匹配":{
+    "列名完全匹配": {
         "en": "Column names match exactly"
     },
     "为指定名称的列定制配置": {
@@ -3676,6 +3676,71 @@
     },
     "百分比": {
         "en": "Percentage"
+    },
+    "管理权限": {
+        "en": "Manage Access"
+    },
+    "批量撤销": {
+        "en": "Revoke Access"
+    },
+    "DFS 表名": {
+        "en": "DFS tables"
+    },
+    "确认撤销该权限吗？": {
+        "en": "Are you sure to revoke this access?"
+    },
+    "确认撤销选中的 {{num}} 条权限吗？": {
+        "en": "Are you sure to delete selected access?"
+    },
+    "当前{{role}}:": {
+        "en": "Current {{role}}"
+    },
+    "组成员": {
+        "en": "Members"
+    },
+    "组名只能包含字母、下划线或数字，并且不能以数字或下划线开头": {
+        "en": "Group name can only use letters, digits or underscores (_), and must start with letters."
+    },
+    "非组成员": {
+        "en": "Non-Members"
+    },
+    "组成员修改成功": {
+        "en": "Successfully Changed"
+    },
+    "管理成员": {
+        "en": "Manage Members"
+    },
+    "所属组": {
+        "en": "Group"
+    },
+    "请输入用户名!": {
+        "en": "Please enter user ID."
+    },
+    "用户名长度不能超过 30 个字符": {
+        "en": "User ID must be less than 30 characters."
+    },
+    "用户名只能包含字母、下划线或数字，并且不能以数字或下划线开头": {
+        "en": "User ID can only use letters, digits or underscores (_), and must start with letters."
+    },
+    "请输入密码!": {
+        "en": "Please enter password."
+    },
+    "密码长度为 6-20 个字符，且不包含空格或中文": {
+        "en": "Use a password 6-20 characters long. Spaces and Chinese characters are not allowed."
+    },
+    "请再次输入密码!": {
+        "en": "Please confirm your password."
+    },
+    "两次输入密码需要保持一致!": {
+        "en": "Your passwords do not match."
+    },
+    "未所属组": {
+        "en": "Other Groups"
+    },
+    "管理用户组": {
+        "en": "Manage Groups"
+    },
+    "范围": {
+        "en": "Scope"
     }
-    
 }

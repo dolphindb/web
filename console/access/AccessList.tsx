@@ -144,7 +144,7 @@ export function AccessList ({
                         columns={
                             [
                                 {
-                                    title: t('dfs 表名'),
+                                    title: t('DFS 表名'),
                                     dataIndex: 'table_name',
                                     key: 'table_name',
                                     

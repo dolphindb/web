@@ -57,7 +57,7 @@ export function AccessManage ({
     
     const showed_aces_cols: TableColumnType<Record<string, any>>[] = useMemo(() => (
         [   {
-            title: '类型',
+            title: t('类型'),
             dataIndex: 'type',
             key: 'type',
             wdith: 100,
@@ -73,7 +73,7 @@ export function AccessManage ({
             },
             
             {
-                title: '权限',
+                title: t('权限'),
                 dataIndex: 'access',
                 key: 'access',
                 wdith: 200,
@@ -88,7 +88,7 @@ export function AccessManage ({
                 }
             },
             ...category !== 'script' ?  [{
-                title: '范围',
+                title: t('范围'),
                 dataIndex: 'name',
                 key: 'name',
                 width: 600
@@ -106,19 +106,19 @@ export function AccessManage ({
     const add_access_cols: TableColumnType<Record<string, any>>[] = useMemo(() => (
         [   
             {
-                title: '类型',
+                title: t('类型'),
                 dataIndex: 'type',
                 key: 'type',
                 wdith: 200,
             },
             {
-                title: '权限',
+                title: t('权限'),
                 dataIndex: 'access',
                 key: 'access',
                 wdith: 300,
             },
             ...category !== 'script' ?  [{
-                title: '范围',
+                title: t('范围'),
                 dataIndex: 'name',
                 key: 'name',
             }] : [ ],
@@ -200,7 +200,7 @@ export function AccessManage ({
                     })
                 }
         return tb_rows
-    }, [ accesses, category])
+    }, [accesses, category])
     
     let obj_options = [ ]
     switch (category) {
@@ -392,7 +392,7 @@ export function AccessManage ({
                                 set_add_rule_selected({ access: access_options[category][0], type: 'grant', obj: [ ] })
                                 
                     }}>
-                         {t('预览')}
+                         {t('预添加')}
                     </Button>
                 </div>
                 <Table 
