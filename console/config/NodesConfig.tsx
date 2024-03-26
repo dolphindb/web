@@ -100,7 +100,7 @@ export function NodesConfig () {
     
     useEffect(() => {
         (async () => {
-            const value = (await config.load_nodes_config()).value as string[]
+            const value = Array.from(new Set((await config.load_nodes_config()).value as string[]))
             set_configs(strs_2_nodes_config(value))
         })()
     }, [refresher])
