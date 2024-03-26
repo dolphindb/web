@@ -1,4 +1,4 @@
-import { CloseCircleOutlined, DeleteOutlined, EditOutlined, PlusCircleOutlined, ReloadOutlined, SaveOutlined } from '@ant-design/icons'
+import { ReloadOutlined } from '@ant-design/icons'
 import { EditableProTable, type ActionType, type ProColumns } from '@ant-design/pro-components'
 import { Button, Input, Popconfirm } from 'antd'
 import { useCallback, useMemo, useRef, useState } from 'react'
@@ -135,102 +135,102 @@ export function NodesManagement () {
     const delete_nodes = useCallback(async (node_id: string) => {
             const new_nodes = _2_strs(nodes).filter(nod => nod !== node_id)
             await config.save_cluster_nodes(new_nodes)
-            actionRef.current.reload()
+            await actionRef.current.reload()
         }
     , [nodes])
    
     
     return <EditableProTable
-                rowKey='id'
-                columns={cols}
-                actionRef={actionRef}
-                recordCreatorProps={
-                    {
-                        position: 'bottom',
-                        record: () => ({
-                            id: String(Date.now()),
-                            host: '',
-                            port: '',
-                            alias: '',
-                            mode: ''
-                        }),
-                        creatorButtonText: t('新增节点'),
-                        onClick: () => { 
-                            const tbody = document.querySelector('.ant-table-body')
-                            setTimeout(() => tbody.scrollTop = tbody.scrollHeight, 1)
-                        }
-                    }
+        rowKey='id'
+        columns={cols}
+        actionRef={actionRef}
+        recordCreatorProps={
+            {
+                position: 'bottom',
+                record: () => ({
+                    id: String(Date.now()),
+                    host: '',
+                    port: '',
+                    alias: '',
+                    mode: ''
+                }),
+                creatorButtonText: t('新增节点'),
+                onClick: () => { 
+                    const tbody = document.querySelector('.ant-table-body')
+                    setTimeout(() => tbody.scrollTop = tbody.scrollHeight, 1)
                 }
-                scroll={{ y: '72vh' }}
-                request={async () => {
-                    const value = (await config.get_cluster_nodes()).value as any[]
-                    const nodes = strs_2_nodes(value)
-                    set_nodes(nodes)
-                    return {
-                        data: nodes.filter(({ alias }) => alias.toLowerCase().includes(search_key.toLowerCase())),
-                        success: true,
-                        total: value.length
-                    }
-                }}
-                toolBarRender={() => [
-                    <Button
-                        icon={<ReloadOutlined />}
-                        onClick={async () => {
-                                await actionRef.current.reload()
-                                model.message.success(t('刷新成功'))
-                            }}
-                        >
-                            {t('刷新')}
-                    </Button>,
-                    <Search
-                        className='toolbar-search'
-                        placeholder={t('请输入想要查找的节点别名')}
-                        value={search_key}
-                        onChange={e => { set_search_key(e.target.value) }}
-                        onSearch={async () => actionRef.current.reload()}
-                    />
-                ]
-                }
-                editable={
-                    {
-                        type: 'single',
-                        
-                        onSave: async (rowKey, data, row) => {
-                            const node_strs = _2_strs(nodes)
-                            let idx = node_strs.indexOf(rowKey as string)
-                            if (idx === -1) 
-                                await config.save_cluster_nodes([ data.host + ':' + data.port + ':' + data.alias + ',' + data.mode, ...node_strs])
-                            else 
-                                await config.save_cluster_nodes(node_strs.toSpliced(idx, 1, data.host + ':' + data.port + ':' + data.alias + ',' + data.mode))
-                           actionRef.current.reload()
-                           model.message.success(t('保存成功'))
-                        },
-                        onDelete: async (key, row) => delete_nodes(row.id),
-                        deletePopconfirmMessage: t('确认删除此节点？'),
-                        saveText: 
-                            <Button
-                                type='link'
-                                key='editable'
-                                className='mr-btn'
-                            >
-                                {t('保存')}
-                            </Button>,
-                        deleteText: 
-                            <Button
-                                type='link'
-                                key='delete'
-                                className='mr-btn'
-                            >
-                                {t('删除')}
-                            </Button>,
-                        cancelText:
-                            <Button
-                                type='link'
-                                key='cancal'
-                            >
-                                {t('取消')}
-                            </Button>,
-                    }
-                }
+            }
+        }
+        scroll={{ y: '72vh' }}
+        request={async () => {
+            const value = (await config.get_cluster_nodes()).value as any[]
+            const nodes = strs_2_nodes(value)
+            set_nodes(nodes)
+            return {
+                data: nodes.filter(({ alias }) => alias.toLowerCase().includes(search_key.toLowerCase())),
+                success: true,
+                total: value.length
+            }
+        }}
+        toolBarRender={() => [
+            <Button
+                icon={<ReloadOutlined />}
+                onClick={async () => {
+                        await actionRef.current.reload()
+                        model.message.success(t('刷新成功'))
+                    }}
+                >
+                    {t('刷新')}
+            </Button>,
+            <Search
+                className='toolbar-search'
+                placeholder={t('请输入想要查找的节点别名')}
+                value={search_key}
+                onChange={e => { set_search_key(e.target.value) }}
+                onSearch={async () => actionRef.current.reload()}
             />
+        ]
+        }
+        editable={
+            {
+                type: 'single',
+                
+                onSave: async (rowKey, data, row) => {
+                    const node_strs = _2_strs(nodes)
+                    let idx = node_strs.indexOf(rowKey as string)
+                    if (idx === -1) 
+                        await config.save_cluster_nodes([`${data.host}:${data.port}:${data.alias},${data.mode}`, ...node_strs])
+                    else 
+                        await config.save_cluster_nodes(node_strs.toSpliced(idx, 1, `${data.host}:${data.port}:${data.alias},${data.mode}`))
+                    await actionRef.current.reload()
+                    model.message.success(t('保存成功'))
+                },
+                onDelete: async (key, row) => delete_nodes(row.id),
+                deletePopconfirmMessage: t('确认删除此节点？'),
+                saveText: 
+                    <Button
+                        type='link'
+                        key='editable'
+                        className='mr-btn'
+                    >
+                        {t('保存')}
+                    </Button>,
+                deleteText: 
+                    <Button
+                        type='link'
+                        key='delete'
+                        className='mr-btn'
+                    >
+                        {t('删除')}
+                    </Button>,
+                cancelText:
+                    <Button
+                        type='link'
+                        key='cancal'
+                    >
+                        {t('取消')}
+                    </Button>,
+            }
+        }
+    />
 }

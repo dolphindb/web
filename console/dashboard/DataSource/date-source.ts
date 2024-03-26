@@ -479,8 +479,9 @@ export async function import_data_sources (_data_sources: ExportDataSource[]) {
         Object.assign(import_data_source, data_source, { deps: new Set(data_source.deps), variables: import_data_source.variables })
         data_sources.push(import_data_source)
         await save_data_source(import_data_source, import_data_source.code, import_data_source.filter_column, import_data_source.filter_expression)
+        resolve(true)
     })))
-    console.log('end', new Date())
+    
     return data_sources
 }
 
