@@ -24,7 +24,7 @@ import { model } from './model.js'
 
 import { DdbHeader } from './components/DdbHeader.js'
 import { DdbSider } from './components/DdbSider.js'
-import { GlobalErrorBoundary } from './components/GlobalErrorBoundary'
+import { GlobalErrorBoundary } from './components/GlobalErrorBoundary.js'
 
 import { Login } from './login.js'
 import { Overview } from './overview/index.js'

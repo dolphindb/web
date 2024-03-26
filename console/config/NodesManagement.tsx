@@ -161,7 +161,7 @@ export function NodesManagement () {
                 }
             }
         }
-        scroll={{ y: '72vh' }}
+        scroll={{ y: 'calc(100vh - 250px)' }}
         request={async () => {
             const value = (await config.get_cluster_nodes()).value as any[]
             const nodes = strs_2_nodes(value)
