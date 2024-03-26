@@ -9,7 +9,6 @@ import NiceModal, { useModal } from '@ebay/nice-modal-react'
 import { DdbForm } from 'dolphindb'
 import { DATA_SOURCE_TYPE_MAP } from '../constant.js'
 import { check_name, get_chart_data_type } from '../utils.js'
-import { throttle } from 'lodash'
 
 
 interface PropsType {
@@ -60,7 +59,12 @@ export const CreateDataSourceModal = NiceModal.create((props: ICreateDataSourceM
     const [form] = Form.useForm()
     
     const on_create = useCallback(async () => {
-        const { name, type } = await form.validateFields()
+        try {
+            await form.validateFields()
+        } catch { 
+           return
+        }
+        const { name, type } = await form.getFieldsValue()
         const new_data_source = create_data_source(name, type)
         on_after_create(new_data_source)
         modal.hide()
@@ -94,7 +98,7 @@ export const CreateDataSourceModal = NiceModal.create((props: ICreateDataSourceM
                             { required: true, message: '请输入名称' },
                             {
                                 validator: async (_, val) => {
-                                    if (val.length > 10)
+                                    if (val?.length > 10)
                                         return Promise.reject(new Error(t('数据源名长度不能大于10')))
                                     else if (data_sources.find(data_source => data_source.name === val))
                                         return Promise.reject(new Error(t('已有同名数据源，请修改')))

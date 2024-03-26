@@ -216,6 +216,8 @@ export class DashBoardModel extends Model<DashBoardModel> {
         window.removeEventListener('resize', this.on_resize)
         
         clear_data_sources()
+        // 当前选中图表时删除，再次进入会报错，因为没有清空 widget
+        this.widget = null
         
         this.grid.destroy()
         this.grid = null
