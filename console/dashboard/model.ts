@@ -14,9 +14,9 @@ import type { MessageInstance } from 'antd/es/message/interface.js'
 import type { ModalStaticFunctions } from 'antd/es/modal/confirm.js'
 import type { NotificationInstance } from 'antd/es/notification/interface.js'
 
-import { t } from '../../i18n/index.js'
-import { model, show_error, type ErrorOptions } from '../model.js'
+import { model, show_error } from '../model.js'
 import { type Monaco } from '../shell/Editor/index.js'
+import type { FormatErrorOptions } from '../components/GlobalErrorBoundary.js'
 
 import { type DataSource, type ExportDataSource, import_data_sources, unsubscribe_data_source, type DataType, clear_data_sources } from './DataSource/date-source.js'
 import { type IEditorConfig, type IChartConfig, type ITableConfig, type ITextConfig, type IGaugeConfig, type IHeatMapChartConfig, type IOrderBookConfig } from './type.js'
@@ -188,7 +188,7 @@ export class DashBoardModel extends Model<DashBoardModel> {
     }
     
     
-    show_error (options: ErrorOptions) {
+    show_error (options: FormatErrorOptions) {
         show_error(this.modal, options)
     }
     
@@ -216,6 +216,8 @@ export class DashBoardModel extends Model<DashBoardModel> {
         window.removeEventListener('resize', this.on_resize)
         
         clear_data_sources()
+        // 当前选中图表时删除，再次进入会报错，因为没有清空 widget
+        this.widget = null
         
         this.grid.destroy()
         this.grid = null

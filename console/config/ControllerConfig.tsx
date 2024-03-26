@@ -101,7 +101,7 @@ export function ControllerConfig () {
                 total: value.length
             }
         }}
-        scroll={{ y: '72vh' }}
+        scroll={{ y: 'calc(100vh - 250px)' }}
         recordCreatorProps={
             {
                 position: 'bottom',
