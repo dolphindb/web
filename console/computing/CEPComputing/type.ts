@@ -57,6 +57,8 @@ export interface SubEngineItem {
     listeners: number
     /** 当前计时器监听数量 */
     timers: number
+    /** 当前监视器数量 */
+    monitorNumber: number
     /** 内部 Routed 过的 event 数量 */
     eventsRouted: number
     /** 内部 sent 过的 event 数量 */

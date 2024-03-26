@@ -9,7 +9,6 @@ import { CEPEngineDetail } from './components/CEPEngineDetail.js'
 
 import type { ICEPEngineDetail, CEPEngineItem } from './type.js'
 import { get_cep_engine_detail, get_cep_engine_list } from './api.js'
-import { model } from '../../model.js'
 
 export function CEPComputing () { 
     // 当前选中的引擎名称

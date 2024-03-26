@@ -97,6 +97,11 @@ function EngineInfo ({ info }: { info: ICEPEngineDetail }) {
             width: 150,
         },
         {
+            dataIndex: 'monitorNumber',
+            title: t('监视器数'),
+            width: 150
+        },
+        {
             dataIndex: 'eventsRouted',
             title: t('插入队列头事件数'),
             width: 200,

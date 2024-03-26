@@ -3610,6 +3610,9 @@
     },
     "请选择数据视图": {
         "en": "Please select a data view"
+    },
+    "监视器数": {
+        "en": "Monitors"
     }
     
 }
