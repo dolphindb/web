@@ -42,19 +42,19 @@ export function NodesManagement () {
             valueType: 'select',
             valueEnum: {
                 datanode: {
-                    text: '数据节点',
+                    text: t('数据节点'),
                     value: 'datanode'
                 },
                 computenode: {
-                    text: '计算节点',
+                    text: t('计算节点'),
                     value: 'computenode'
                 },
                 controller: {
-                    text: '控制节点',
+                    text: t('控制节点'),
                     value: 'controller',
                 },
                 agent: {
-                    text: '代理节点',
+                    text: t('代理节点'),
                     value: 'agent',
                 },
                 
