@@ -192,7 +192,7 @@
         "en": "Submit changes?"
     },
     "名称": {
-        "en": "Name"
+        "en": "name"
     },
     "模式": {
         "en": "mode"
@@ -210,7 +210,7 @@
         "en": " Status"
     },
     "操作": {
-        "en": "Actions"
+        "en": "actions"
     },
     "当前值": {
         "en": "value"
@@ -219,7 +219,7 @@
         "en": "default value"
     },
     "类型": {
-        "en": "Type"
+        "en": "type"
     },
     "描述": {
         "en": "description"
@@ -636,7 +636,7 @@
         "en": "executors"
     },
     "磁盘": {
-        "en": "disk"
+        "en": "Disk"
     },
     "磁盘读速率": {
         "en": "disk read rate"
