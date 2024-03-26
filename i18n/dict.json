@@ -2660,11 +2660,11 @@
     "Y 轴": {
         "en": "Y-axis"
     },
-    "X 轴属性": {
-        "en": "X-axis properties"
+    "X 轴配置": {
+        "en": "X-axis configuration"
     },
-    "Y 轴属性": {
-        "en": "Y-axis properties"
+    "Y 轴配置": {
+        "en": "Y-axis configuration"
     },
     "每行变量数": {
         "en": "number of variables per row"
@@ -3461,7 +3461,7 @@
     "文件名": {
         "en": "File Name"
     },
-    "请输入文件名" : {
+    "请输入文件名": {
         "en": "Specify a file name."
     },
     "等于 (=)": {
@@ -3505,5 +3505,161 @@
     },
     "仅单机节点、数据节点和计算节点支持新建查询": {
         "en": "Queries can only be created on data/compute nodes, or on a standalone server."
+    },
+    "k 线图仅支持时间轴": {
+        "en": "K-line only supports timeline"
+    },
+    "配置管理": {
+        "en": "Config"
+    },
+    "请输入配置名": {
+        "en": "Please enter config name"
+    },
+    "请输入配置名！": {
+        "en": "Please enter config name!"
+    },
+    "数值": {
+        "en": "Value"
+    },
+    "请输入配置值": {
+        "en": "Please enter config value"
+    },
+    "请输入配置值！": {
+        "en": "Please enter config value!"
+    },
+    "确认删除此配置项？": {
+        "en": "Confirm to delete this config item?"
+    },
+    "新增控制节点配置": {
+        "en": "Add controller config"
+    },
+    "请输入想要查找的配置项": {
+        "en": "Please enter config name"
+    },
+    "集群节点管理": {
+        "en": "Cluster node management"
+    },
+    "限定词": {
+        "en": "Qualifier"
+    },
+    "请输入选择器": {
+        "en": "Please enter qualifier"
+    },
+    "其它": {
+        "en": "others"
+    },
+    "新增配置": {
+        "en": "New config"
+    },
+    "请输入或选择配置项名": {
+        "en": "Please enter or select a config item name"
+    },
+    "请输入配置项值": {
+        "en": "Please enter the config item value"
+    },
+    "主机名": {
+        "en": "Host"
+    },
+    "请输入主机名": {
+        "en": "Please enter host"
+    },
+    "请输入正确的主机名": {
+        "en": "Please enter the correct"
+    },
+    "端口号": {
+        "en": "Port"
+    },
+    "请输入端口号": {
+        "en": "Please enter the port"
+    },
+    "别名": {
+        "en": "Alias"
+    },
+    "请输入别名": {
+        "en": "Please enter an alias"
+    },
+    "请选择节点类型": {
+        "en": "Please select node mode"
+    },
+    "确认删除此节点？": {
+        "en": "Confirm to delete this node?"
+    },
+    "新增节点": {
+        "en": "Add new node"
+    },
+    "请输入想要查找的节点别名": {
+        "en": "Please enter the node alias"
+    },
+    "线程": {
+        "en": "thread"
+    },
+    "发布流": {
+        "en": "streaming_pub"
+    },
+    "订阅流": {
+        "en": "streaming_sub"
+    },
+    "系统": {
+        "en": "system"
+    },
+    "列名完全匹配":{
+        "en": "Column names match exactly"
+    },
+    "为指定名称的列定制配置": {
+        "en": "Customize the configuration for a column with a specified name"
+    },
+    "列名正则匹配": {
+        "en": "Column name regular matching"
+    },
+    "为列名匹配正则表达式的列定制配置": {
+        "en": "Customize configuration for columns whose column names match regular expressions"
+    },
+    "类型匹配": {
+        "en": "type matching"
+    },
+    "为特定 DolphinDB 数据类型的列定制配置，如 INT, DOUBLE": {
+        "en": "Custom configuration for columns of specific DolphinDB data types, such as INT, DOUBLE"
+    },
+    "配置规则 {{name}}": {
+        "en": "Configure rule {{name}}"
+    },
+    "匹配类型": {
+        "en": "Match Type"
+    },
+    "筛选列": {
+        "en": "Filter Columns"
+    },
+    "正则表达式": {
+        "en": "Regular Expression"
+    },
+    "支持子面量形式和构造函数形式的正则对象": {
+        "en": "Supports regular objects in literal form and constructor form"
+    },
+    "子面量：/abc/g": {
+        "en": "Amount of sub-face: /abc/g"
+    },
+    "构造函数：new RegExp(\"abc\", \"g\")": {
+        "en": "Constructor: new RegExp(\"abc\", \"g\")"
+    },
+    "正则表达式书写规则": {
+        "en": "Regular expression writing rules"
+    },
+    "请输入正则表达式": {
+        "en": "Please enter a regular expression"
+    },
+    "增加配置规则": {
+        "en": "Add configuration rules"
+    },
+    "阈值设置": {
+        "en": "Threshold setting"
+    },
+    "阈值类型": {
+        "en": "Threshold type"
+    },
+    "绝对值": {
+        "en": "Absolute Value"
+    },
+    "百分比": {
+        "en": "Percentage"
     }
 }

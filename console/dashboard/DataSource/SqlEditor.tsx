@@ -11,6 +11,7 @@ import { type DataSource, type DataSourcePropertyType, get_data_source } from '.
 import { InsertVariableBtn } from './InsertVariableBtn.js'
 import { use_monaco_insert } from '../../utils/hooks/use-monaco-insert.js'
 import { t } from '../../../i18n/index.js'
+import { DdbForm } from 'dolphindb'
 
 interface PropsType { 
     loading: boolean
@@ -115,7 +116,7 @@ export function SqlEditor ({
             <InsertVariableBtn on_insert={on_monaco_insert}/>
             
             <div className='sqlconfig-right'>
-                <div>
+                {current_data_source.type === DdbForm.table && <div>
                     {t('最大展示行数') + '：'}
                     <InputNumber 
                         disabled={loading}
@@ -136,7 +137,7 @@ export function SqlEditor ({
                     >
                         <QuestionCircleOutlined className='sqlconfig-right-icon'/>
                     </Popover>
-                </div>
+                </div>}
             </div>
         </div>
     </>

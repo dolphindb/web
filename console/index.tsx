@@ -16,6 +16,7 @@ import en from 'antd/locale/en_US.js'
 import ja from 'antd/locale/ja_JP.js'
 import ko from 'antd/locale/ko_KR.js'
 
+import { ProConfigProvider } from '@ant-design/pro-components'
 
 import { language, t } from '../i18n/index.js'
 
@@ -27,6 +28,7 @@ import { DdbSider } from './components/DdbSider.js'
 import { Login } from './login.js'
 import { Overview } from './overview/index.js'
 import { OverviewOld } from './overview/old.js'
+import { Config } from './config/index.js'
 import { Shell } from './shell/index.js'
 import { Test } from './test/index.js'
 import { Job } from './job.js'
@@ -49,11 +51,13 @@ function DolphinDB () {
         autoInsertSpaceInButton={false}
         theme={{ hashed: false, token: { borderRadius: 0, motion: false } }}
     >
-        <NiceModal.Provider>
-            <App className='app'>
-                <MainLayout />
-            </App>
-        </NiceModal.Provider>
+        <ProConfigProvider hashed={false} token={{ borderRadius: 0, motion: false }}>
+            <NiceModal.Provider>
+                <App className='app'>
+                    <MainLayout />
+                </App>
+            </NiceModal.Provider>
+        </ProConfigProvider>
     </ConfigProvider>
 }
 
@@ -154,6 +158,7 @@ const views = {
     login: Login,
     overview: Overview,
     'overview-old': OverviewOld,
+    config: Config,
     shell: Shell,
     test: Test,
     job: Job,

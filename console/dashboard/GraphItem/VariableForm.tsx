@@ -4,10 +4,8 @@ import { useCallback, useEffect, useState } from 'react'
 
 import { type Variable, variables, update_variable_value } from '../Variable/variable.js'
 import { StringDatePicker } from '../../components/StringDatePicker/index.js'
-import { SearchOutlined } from '@ant-design/icons'
 import classNames from 'classnames'
 import { safe_json_parse } from '../utils.js'
-import { t } from '../../../i18n/index.js'
 import { genid } from 'xshell/utils.browser'
 import { VariableMode } from '../type.js'
 
@@ -15,6 +13,7 @@ interface IProps {
     ids: string[]
     cols: number
     with_search_btn: boolean
+    search_btn_label: string
     className?: string
 }
 
@@ -82,7 +81,7 @@ function ControlField ({ variable }: { variable: Variable }) {
 
 
 export function VariableForm (props: IProps) {
-    const { ids = [ ], cols = 3, with_search_btn, className } = props
+    const { ids = [ ], cols = 3, with_search_btn, className, search_btn_label } = props
     
     const [form] = Form.useForm()
     
@@ -104,8 +103,8 @@ export function VariableForm (props: IProps) {
             </Row>
         </Form>
         {
-            with_search_btn && <Button type='primary' icon={<SearchOutlined />} onClick={on_search} className='search-btn'>
-                {t('查询')}
+            with_search_btn && <Button type='primary' onClick={on_search} className='search-btn'>
+                {search_btn_label || '查询' }
             </Button> 
         }
     </div>

@@ -13,7 +13,8 @@ import { Gauge, GaugeConfigForm } from './Charts/Gauge/index.js'
 import { Variables } from './Charts/Variables/index.js'
 import { HeatMap, HeatMapConfigForm } from './Charts/HeatMap/index.js'
 import { BasicFormFields } from './ChartFormFields/BasicFormFields.js'
-import { CompositeGraph, CompositeGraphConfig } from './Charts/CompositeGraph/index.js'
+import { CompositeChart } from './Charts/CompositeGraph/index.js'
+import { CompositeChartConfig } from './Charts/CompositeGraph/CompositeChartConfig.js'
 
 
 type GraphConfig =  { 
@@ -84,7 +85,7 @@ export const graph_config: GraphConfig =  {
         config: HeatMapConfigForm
     },
     [WidgetChartType.COMPOSITE_GRAPH]: {
-        component: CompositeGraph,
-        config: CompositeGraphConfig
-    }
+        component: CompositeChart,
+        config: CompositeChartConfig
+    },
 }

@@ -9,8 +9,8 @@ import { BasicTableFields } from '../../ChartFormFields/BasicTableFields.js'
 import { type Widget } from '../../model.js'
 import { type ITableConfig } from '../../type.js'
 
-import { type ColumnsType } from 'antd/es/table'
-import { cloneDeep, isNumber } from 'lodash'
+import { type ColumnProps, type ColumnsType } from 'antd/es/table'
+import { isNumber } from 'lodash'
 import { format_number, format_time, parse_text } from '../../utils.js'
 import classNames from 'classnames'
 
@@ -68,8 +68,9 @@ export function DBTable (props: IProps) {
         return selected_cols
             .map(col_name => show_cols.find(item => item.col === col_name))
             .map(col => {
-                const { col: name,
-                    width = 200,
+                const {
+                    col: name,
+                    width,
                     threshold,
                     display_name,
                     decimal_places,
@@ -79,6 +80,8 @@ export function DBTable (props: IProps) {
                     align = 'left',
                     background_color,
                     sorter,
+                    font_size,
+                    header_style
                 } = col ?? { }
                 
                 const col_config = {
@@ -90,17 +93,16 @@ export function DBTable (props: IProps) {
                     align,
                     sorter: sorter ? {
                         compare: (a, b) => a[name] - b[name],
-                        // multiple
                     } : false,
-                    onCell: record => {
-                        return {
-                            style: {
-                                backgroundColor: isNumber(threshold) ? get_cell_color(record[name], threshold, data_source.map(item => item[col?.col])) : background_color,
-                                color,
-                                border: config.bordered ? '1px solid black' : null
-                            }
+                    onCell: record => ({
+                        style: {
+                            backgroundColor: isNumber(threshold) ? get_cell_color(record[name], threshold, data_source.map(item => item[col?.col])) : background_color,
+                            color,
+                            border: config.bordered ? '1px solid black' : null,
+                            fontSize: font_size || 14
                         }
-                    },
+                    }),
+                    onHeaderCell: () => ({ style: header_style }),
                     render: val => (decimal_places === 0 || decimal_places || is_thousandth_place) ? format_number(val, decimal_places, is_thousandth_place) : val ?? '-'
                 }
                 
