@@ -79,38 +79,38 @@ class AccessModel extends Model<AccessModel> {
     
     
     async get_user_list () {
-        this.set({ users: (await model.ddb.call('getUserList', [ ], { urgent: true })).value as string[] })
+        this.set({ users: (await model.ddb.call('getUserList', [ ])).value as string[] })
     }
     
     // final 属性代表是否获取用户最终权限，只有在用户查看权限界面需要 final = true
     async get_user_access (users: string[], final: boolean = false) {
-        return (await model.ddb.call('getUserAccess', [...final ? [new DdbVectorString(users), true] : [new DdbVectorString(users)]], { urgent: true })).to_rows()
+        return (await model.ddb.call('getUserAccess', [...final ? [new DdbVectorString(users), true] : [new DdbVectorString(users)]])).to_rows()
     }
     
     
     async get_group_list () {
-        this.set({ groups: (await model.ddb.call('getGroupList', [ ], { urgent: true })).value as string[] })
+        this.set({ groups: (await model.ddb.call('getGroupList', [ ])).value as string[] })
     }
     
     
     async get_group_access (groups: string[]) {
-        return (await model.ddb.call('getGroupAccess', [new DdbVectorString(groups)], { urgent: true })).to_rows()
+        return (await model.ddb.call('getGroupAccess', [new DdbVectorString(groups)])).to_rows()
     }
     
     
     async create_user (user: User) {
         const { userId, password, groupIds = [ ], isAdmin = false } = user
-        await model.ddb.call('createUser', [userId, password, new DdbVectorString(groupIds), isAdmin], { urgent: true })
+        await model.ddb.call('createUser', [userId, password, new DdbVectorString(groupIds), isAdmin])
     }
     
     
     async delete_user (user: string) {
-        await model.ddb.call('deleteUser', [user], { urgent: true })
+        await model.ddb.call('deleteUser', [user])
     }
     
     
     async reset_password (user: string, password: string) {
-        await model.ddb.call('resetPwd', [user, password], { urgent: true })
+        await model.ddb.call('resetPwd', [user, password])
     }
     
     // user_names 和 group_names 不能同时为数组
@@ -128,17 +128,17 @@ class AccessModel extends Model<AccessModel> {
     
     
     async create_group (group: string, users: string[]) {
-        await model.ddb.call('createGroup', [group, new DdbVectorString(users)], { urgent: true })
+        await model.ddb.call('createGroup', [group, new DdbVectorString(users)])
     }
     
     
     async delete_group (group: string) {
-        await model.ddb.call('deleteGroup', [group], { urgent: true })
+        await model.ddb.call('deleteGroup', [group])
     }
     
     
     async get_users_by_group (group: string) {
-        return (await model.ddb.call('getUsersByGroupId', [group], { urgent: true })).value as string[]
+        return (await model.ddb.call('getUsersByGroupId', [group])).value as string[]
     }
     
     
@@ -157,44 +157,44 @@ class AccessModel extends Model<AccessModel> {
     
     
     async get_databases (): Promise<string[]> {
-        return (await (model.ddb.call('getClusterDFSDatabases', [ ], { urgent: true }))).value as string[]
+        return (await (model.ddb.call('getClusterDFSDatabases', [ ]))).value as string[]
     }
     
     
     async get_tables (database: string): Promise<string[]> {
-        return (await model.ddb.call('getDFSTablesByDatabase', [database], { urgent: true })).value as string[]
+        return (await model.ddb.call('getDFSTablesByDatabase', [database])).value as string[]
     }
     
     
     async get_share_tables () {
-        const tables =  (await model.ddb.call('objs', [new DdbBool(true)], { urgent: true })).to_rows()
+        const tables =  (await model.ddb.call('objs', [new DdbBool(true)])).to_rows()
         this.set({ shared_tables: tables.filter(table => table.shared && table.type === 'BASIC' && table.form === 'TABLE').map(table => table.name) })
     }
     
     
     async get_stream_tables () {
-        this.set({ stream_tables: (await model.ddb.call('getStreamTables', [new DdbInt(0)], { urgent: true })).to_rows().map(tb => tb.name) })
+        this.set({ stream_tables: (await model.ddb.call('getStreamTables', [new DdbInt(0)])).to_rows().filter(table => table.shared).map(tb => tb.name)  })
     }
     
     
     async get_function_views () {
-        this.set({ function_views: (await model.ddb.call('getFunctionViews', [ ], { urgent: true })).to_rows().map(fv => fv.name) })
+        this.set({ function_views: (await model.ddb.call('getFunctionViews', [ ])).to_rows().map(fv => fv.name) })
     }
     
     
     async grant (user: string, aces: string, obj?: string) {
-        await model.ddb.call('grant', obj ? [ user, new DdbInt(ACCESS_NUM[aces]), obj ] : [user, new DdbInt(ACCESS_NUM[aces])], { urgent: true })
+        await model.ddb.call('grant', obj ? [ user, new DdbInt(ACCESS_NUM[aces]), obj ] : [user, new DdbInt(ACCESS_NUM[aces])])
     }
     
     
     async deny (user: string, aces: string, obj?: string) {
-        await model.ddb.call('deny', obj ? [user, new DdbInt(ACCESS_NUM[aces]), obj ] :  [user, new DdbInt(ACCESS_NUM[aces])], { urgent: true })
+        await model.ddb.call('deny', obj ? [user, new DdbInt(ACCESS_NUM[aces]), obj ] :  [user, new DdbInt(ACCESS_NUM[aces])])
     }
     
     
     async revoke (user: string, aces: string, obj?: string) {
         console.log(user, aces, obj)
-        await model.ddb.call('revoke', obj ? [user, new DdbInt(ACCESS_NUM[aces]), obj ] : [user, new DdbInt(ACCESS_NUM[aces])], { urgent: true })
+        await model.ddb.call('revoke', obj ? [user, new DdbInt(ACCESS_NUM[aces]), obj ] : [user, new DdbInt(ACCESS_NUM[aces])])
     }
     
     // async handle_validate_error (func: Function) {
