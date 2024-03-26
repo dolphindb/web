@@ -33,7 +33,7 @@ import { shell } from './model.js'
 import { Editor } from './Editor/index.js'
 import { CreateTableModal } from './CreateTableModal.js'
 import { AddColumnModal } from './AddColumnModal.js'
-import { QueryGuideModal } from './QueryGuide/index.js'
+import { AccessModal } from './AccessModal.js'
 
 import SvgDatabase from './icons/database.icon.svg'
 import SvgCreateDatabase from './icons/create-database.icon.svg'
@@ -41,6 +41,7 @@ import SvgDatabaseGroup from './icons/database-group.icon.svg'
 import SvgColumn from './icons/column.icon.svg'
 import SvgAddColumn from './icons/add-column.icon.svg'
 import SvgCreateTable from './icons/create-table.icon.svg'
+import SvgAccess from './icons/access.icon.svg'
 import SvgPartitions from './icons/partitions.icon.svg'
 import SvgSchema from './icons/schema.icon.svg'
 import SvgPartitionFile from './icons/partition-file.icon.svg'
@@ -820,7 +821,20 @@ export class Database implements DataNode {
         this.title = <div className='database-title'>
             <span title={path.slice(0, -1)}>{path.slice('dfs://'.length, -1).split('.').at(-1)}</span>
             
-            <div className='database-actions'> 
+            <div className='database-actions'>
+                {
+                    model.admin && 
+                        model.node_type !== NodeType.computing && 
+                    <Tooltip title={ t('查看用户权限')} color='grey' destroyTooltipOnHide>
+                        <Icon 
+                            component={SvgAccess}
+                            onClick={async event => { 
+                                event.stopPropagation()
+                                await NiceModal.show(AccessModal, { database: this }) 
+                            }} 
+                        />
+                    </Tooltip> 
+                }
                 <Tooltip title={enable_create_table ? t('创建数据表') : t('仅支持单机节点和数据节点创建数据表')} color='grey' destroyTooltipOnHide>
                     <Icon 
                         disabled={!enable_create_table}

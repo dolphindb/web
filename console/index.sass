@@ -39,6 +39,9 @@ html, body
         .refresh-button
             margin-left: 16px
             background-color: #f2f2f2
+            
+            &:hover
+                background-color: unset
         
         .ant-avatar-sm
             width: 20px
@@ -352,6 +355,9 @@ html, body
 .ant-message
     z-index: 1031
 
+.ant-message .ant-message-notice-wrapper .ant-message-notice-content
+    border-radius: unset
+    
 .ant-modal-root
     .ant-modal-mask
         background-color: unset
@@ -373,3 +379,4 @@ html, body
     .ant-modal-confirm-content
         white-space: break-spaces
         
+

@@ -247,7 +247,10 @@ export let webpack = {
                     dayjs: 'dayjs',
                     '@ant-design/icons': 'icons',
                     '@ant-design/plots': 'Plots',
-                    '@ant-design/pro-components': 'ProComponents',
+                    
+                    // 使用官方的 node_modules/@ant-design/pro-components/dist/pro-components.min.js 会有样式问题
+                    // '@ant-design/pro-components': 'ProComponents',
+                    
                     echarts: 'echarts',
                     
                     // import { GridStack } from 'gridstack'
