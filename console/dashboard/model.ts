@@ -14,7 +14,6 @@ import type { MessageInstance } from 'antd/es/message/interface.js'
 import type { ModalStaticFunctions } from 'antd/es/modal/confirm.js'
 import type { NotificationInstance } from 'antd/es/notification/interface.js'
 
-import { t } from '../../i18n/index.js'
 import { model, show_error } from '../model.js'
 import { type Monaco } from '../shell/Editor/index.js'
 import type { FormatErrorOptions } from '../components/GlobalErrorBoundary.js'
