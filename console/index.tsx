@@ -5,12 +5,12 @@ import './index.sass'
 import './pagination.sass'
 
 
-import { Component, useEffect, type PropsWithChildren } from 'react'
+import { useEffect } from 'react'
 import { createRoot } from 'react-dom/client'
 
 import NiceModal from '@ebay/nice-modal-react'
 
-import { Layout, ConfigProvider, App, Result, Button } from 'antd'
+import { Layout, ConfigProvider, App } from 'antd'
 import zh from 'antd/es/locale/zh_CN.js'
 import en from 'antd/locale/en_US.js'
 import ja from 'antd/locale/ja_JP.js'
@@ -18,12 +18,13 @@ import ko from 'antd/locale/ko_KR.js'
 
 import { ProConfigProvider } from '@ant-design/pro-components'
 
-import { language, t } from '../i18n/index.js'
+import { language } from '../i18n/index.js'
 
 import { model } from './model.js'
 
 import { DdbHeader } from './components/DdbHeader.js'
 import { DdbSider } from './components/DdbSider.js'
+import { GlobalErrorBoundary } from './components/GlobalErrorBoundary'
 
 import { Login } from './login.js'
 import { Overview } from './overview/index.js'
@@ -35,7 +36,6 @@ import { Job } from './job.js'
 import { Log } from './log.js'
 import { Computing } from './computing/index.js'
 import { DashBoard } from './dashboard/index.js'
-import { dashboard } from './dashboard/model.js'
 
 
 createRoot(
@@ -68,43 +68,6 @@ function MainLayout () {
     
     // App 组件通过 Context 提供上下文方法调用，因而 useApp 需要作为子组件才能使用
     Object.assign(model, App.useApp())
-    
-    
-    // 挂载全局的错误处理方法，在 onClick, useEffect 等回调中报错且未 catch 时弹框显示错误
-    useEffect(() => {
-        function on_global_error ({ error, reason }: ErrorEvent & PromiseRejectionEvent) {
-            error ??= reason
-            
-            if (!error.shown) {
-                error.shown = true
-                
-                // 非 Error 类型的错误转换为 Error
-                if (error instanceof Error) {
-                    // 忽略 monaco editor 的错误
-                    // https://github.com/microsoft/monaco-editor/issues/4325
-                    if (error.message.includes('getModifierState is not a function'))
-                        return
-                } else
-                    error = new Error(JSON.stringify(error))
-                
-                const in_dashboard = new URLSearchParams(location.search).get('dashboard')
-                
-                if (in_dashboard)
-                    dashboard.show_error({ error })
-                else
-                    model.show_error({ error })
-            }
-        }
-        
-        
-        window.addEventListener('error', on_global_error)
-        window.addEventListener('unhandledrejection', on_global_error)
-        
-        return () => {
-            window.removeEventListener('error', on_global_error)
-            window.removeEventListener('unhandledrejection', on_global_error)
-        }
-    }, [ ])
     
     
     useEffect(() => {
@@ -145,9 +108,9 @@ function MainLayout () {
         <Layout className='body' hasSider>
             { sider && <DdbSider />}
             <Layout.Content className='view'>
-                <DdbErrorBoundary>
+                <GlobalErrorBoundary>
                     <DdbContent />
-                </DdbErrorBoundary>
+                </GlobalErrorBoundary>
             </Layout.Content>
         </Layout>
     </Layout>
@@ -181,35 +144,3 @@ function DdbContent () {
     </div>
 }
 
-
-interface DdbErrorBoundaryState {
-    error?: Error
-}
-
-
-class DdbErrorBoundary extends Component<PropsWithChildren<{ }>, DdbErrorBoundaryState> {
-    override state: DdbErrorBoundaryState = { error: null }
-    
-    
-    static getDerivedStateFromError (error: Error) {
-        return { error }
-    }
-    
-    
-    override render () {
-        const { error } = this.state
-        
-        if (error) {
-            const { title, body } = model.format_error(error)
-            
-            return <Result
-                className='global-error-result'
-                status='error'
-                title={title}
-                subTitle={body}
-                extra={<Button onClick={() => { this.setState({ error: null }) }}>{t('关闭')}</Button>}
-            />
-        } else
-            return this.props.children
-    }
-}

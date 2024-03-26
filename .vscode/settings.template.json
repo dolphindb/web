@@ -1,6 +1,7 @@
 {
     "typescript.tsdk": "node_modules/typescript/lib",
     "typescript.preferences.preferTypeOnlyAutoImports": true,
+    "typescript.preferences.importModuleSpecifierEnding": "js",
     "files.trimTrailingWhitespace": false,
     "editor.trimAutoWhitespace": false,
     "editor.formatOnSave": false,

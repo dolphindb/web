@@ -17,6 +17,7 @@ import {
 } from 'dolphindb/browser.js'
 
 import { language, t } from '../i18n/index.js'
+import type { FormatErrorOptions } from './components/GlobalErrorBoundary.js'
 
 
 export const storage_keys = {
@@ -244,7 +245,7 @@ export class DdbModel extends Model<DdbModel> {
     }
     
     
-    show_error (options: ShowErrorOptions) {
+    show_error (options: FormatErrorOptions) {
         show_error(this.modal, options)
     }
     
@@ -928,14 +929,7 @@ export enum NodeType {
 }
 
 
-export interface ShowErrorOptions {
-    error?: Error
-    title?: string
-    body?: string
-}
-
-
-export function show_error (modal: DdbModel['modal'], { title, error, body }: ShowErrorOptions) {
+export function show_error (modal: DdbModel['modal'], { title, error, body }: FormatErrorOptions) {
     let title_: string, body_: string
     
     if (error)
