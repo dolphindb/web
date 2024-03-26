@@ -3602,7 +3602,7 @@
     "系统": {
         "en": "system"
     },
-    "列名完全匹配":{
+    "列名完全匹配": {
         "en": "Column names match exactly"
     },
     "为指定名称的列定制配置": {
@@ -3661,5 +3661,26 @@
     },
     "百分比": {
         "en": "Percentage"
+    },
+    "配置项": {
+        "en": "key"
+    },
+    "请输入配置项": {
+        "en": "Please enter key"
+    },
+    "请输入配置项！": {
+        "en": "Please enter key"
+    },
+    "请输入或选择配置项": {
+        "en": "Please enter or select key"
+    },
+    "主机名 / IP 地址": {
+        "en": "Hostname/IP address"
+    },
+    "请输入主机名 / IP 地址": {
+        "en": "Please enter hostname/IP address"
+    },
+    "请输入正确的主机名 / IP 地址": {
+        "en": "Please enter correct hostname/IP address"
     }
 }
