@@ -210,7 +210,7 @@
         "en": " Status"
     },
     "操作": {
-        "en": "Actions"
+        "en": "Action"
     },
     "当前值": {
         "en": "value"
@@ -2472,7 +2472,7 @@
         "en": "permission view"
     },
     "请输入想要搜索的{{category}}": {
-        "en": "Please enter the {{category}} you want to search for"
+        "en": "Search {{category}}"
     },
     "组名": {
         "en": "Group Name"
@@ -2484,16 +2484,16 @@
         "en": "member management"
     },
     "查看权限": {
-        "en": "View Access"
+        "en": "Access"
     },
     "删除组": {
-        "en": "delete group"
+        "en": "Delete Group"
     },
     "确认删除组 {{group}} 吗": {
-        "en": "Are you sure to delete group {{group}}"
+        "en": "Are you sure to delete {{group}}"
     },
     "组删除成功": {
-        "en": "Group deletion successful"
+        "en": "Successfully Deleted"
     },
     "新建组": {
         "en": "Create Group"
@@ -2503,9 +2503,6 @@
     },
     "成员": {
         "en": "Members"
-    },
-    "个": {
-        "en": ""
     },
     "请输入想查找的用户": {
         "en": "Please enter the user you want to search for"
@@ -2541,7 +2538,7 @@
         "en": "Delete User"
     },
     "确认删除用户 {{user}} 吗": {
-        "en": "Are you sure to delete user {{user}}?"
+        "en": "Are you sure to delete {{user}}?"
     },
     "用户删除成功": {
         "en": "Successfully Deleted"
@@ -3509,9 +3506,6 @@
     "返回": {
         "en": "Return"
     },
-    "批量 Revoke": {
-        "en": "Batch Revoke"
-    },
     "动作": {
         "en": "Actions"
     },
@@ -3555,22 +3549,13 @@
         "en": "Please enter a group name"
     },
     "组名长度不能超过 30 个字符": {
-        "en": "Group name cannot exceed 30 characters in length"
-    },
-    "组 ": {
-        "en": "Group "
-    },
-    " 成员管理": {
-        "en": " Member management"
+        "en": "Group name must be less than 30 characters."
     },
     "预览修改": {
         "en": "Preview"
     },
-    "确认对组 ": {
-        "en": "Are you sure you want to make the following changes to the group?"
-    },
-    " 进行以下改动吗": {
-        "en": " "
+    "确认对组 {{group}} 进行以下改动吗？": {
+        "en": "Confirm the following changes to {{group}}?"
     },
     "组内用户修改成功": {
         "en": "Users in the group have been modified successfully"
@@ -3579,40 +3564,37 @@
         "en": "Users in the original group"
     },
     "移入用户:": {
-        "en": "Move in users"
+        "en": "Add"
     },
     "移出用户:": {
-        "en": "Remove user"
+        "en": "Remove"
     },
     "非管理员不能查看权限管理模块。": {
-        "en": "Non-administrators cannot view the rights management module."
+        "en": "Available only for administrators."
     },
     "重置用户 ": {
-        "en": "reset user "
+        "en": "Reset user "
     },
-    "用户 ": {
-        "en": "user "
-    },
-    " 所属组管理": {
-        "en": " group management"
+    "用户 {{user}} 所属组管理": {
+        "en": "Manage Groups for {{user}}"
     },
     "请输入想查找的组": {
-        "en": "Please enter the group you want to find"
+        "en": "Search Groups"
     },
-    "确认对用户 ": {
-        "en": "Confirm to user "
+    "确认对用户 {{user}} 进行以下改动吗？": {
+        "en": "Confirm the following changes to {{user}}?"
     },
     "用户所属组修改成功": {
-        "en": "The group to which the user belongs has been modified successfully"
+        "en": "Successfully Changed"
     },
     "原有组:": {
-        "en": "original group"
+        "en": "Groups"
     },
     "移入组:": {
-        "en": "Move into group"
+        "en": "Move into"
     },
     "移出组:": {
-        "en": "Move out of group"
+        "en": "Move out"
     },
     "用户组管理": {
         "en": "group management"
@@ -3742,5 +3724,8 @@
     },
     "范围": {
         "en": "Scope"
+    },
+    "原组成员:": {
+        "en": "Members"
     }
 }

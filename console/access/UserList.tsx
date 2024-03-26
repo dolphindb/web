@@ -230,9 +230,7 @@ export function UserList () {
                 }
             }}
             title={<div>
-                    {t('重置用户 ')}
-                    <span className='blue'>{ current?.name }</span>
-                    {t(' 密码')}
+                    {t('重置用户 {{user}} 密码', { user: current?.name })}
                     </div> 
             }
             onCancel={() => {
@@ -290,9 +288,7 @@ export function UserList () {
             onCancel={edit_groupor.close}
             destroyOnClose
             title={<div>
-                {t('用户 ')}
-                <span className='blue'>{ current?.name }</span>
-                {t(' 所属组管理')}
+                {t('用户 {{user}} 所属组管理', { user: current?.name })}
                 </div> 
             }
             onOk={async () => {
@@ -323,9 +319,7 @@ export function UserList () {
             onCancel={confior.close}
             destroyOnClose
             title={<div>
-                {t('确认对用户 ')}
-                <span className='blue'>{current?.name}</span>
-                {t(' 进行以下改动吗')}
+                {t('确认对用户 {{user}} 进行以下改动吗？', { user: current?.name })}
             </div> 
             }
             onOk={async () => {

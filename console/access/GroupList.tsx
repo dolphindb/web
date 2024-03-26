@@ -137,9 +137,7 @@ export function GroupList () {
             onCancel={editor.close}
             destroyOnClose
             title={<div>
-                {t('组 ')}
-                <span className='blue'>{ current?.name }</span>
-                {t(' 成员管理')}
+                {t('组 {{group}} 成员管理', { group: current?.name })}
                 </div> 
             }
             onOk={async () => {
@@ -171,9 +169,7 @@ export function GroupList () {
             onCancel={confior.close}
             destroyOnClose
             title={<div>
-                {t('确认对组 ')}
-                <span className='blue'>{current?.name}</span>
-                {t(' 进行以下改动吗')}
+                {t('确认对组 {{group}} 进行以下改动吗？', { group: current?.name })}
             </div> 
             }
             onOk={async () => {
@@ -195,7 +191,7 @@ export function GroupList () {
             
             >
             <div>
-                <h4>{t('原组内用户:')}</h4>
+                <h4>{t('原组成员:')}</h4>
                 {origin_users.map(group => 
                     <Tag color='cyan'>{group}</Tag>)}
                 <h4>{t('移入用户:')}</h4>
