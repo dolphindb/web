@@ -3682,5 +3682,11 @@
     },
     "请输入正确的主机名 / IP 地址": {
         "en": "Please enter correct hostname/IP address"
+    },
+    "流发布": {
+        "en": "streaming_pub"
+    },
+    "流订阅": {
+        "en": "streaming_sub"
     }
 }
