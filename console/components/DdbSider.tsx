@@ -19,6 +19,9 @@ import SvgJob from '../job.icon.svg'
 import SvgLog from '../log.icon.svg'
 import SvgFactor from '../factor.icon.svg'
 import SvgComputing from '../computing/icons/computing.icon.svg'
+import SvgAccess from '../access/icons/access.icon.svg'
+import SvgUser from '../access/icons/user.icon.svg'
+import SvgGroup from '../access/icons/group.icon.svg'
 
 
 const { Text, Link } = Typography
@@ -32,6 +35,9 @@ const svgs = {
     log: SvgLog,
     factor: SvgFactor,
     computing: SvgComputing,
+    access: SvgAccess,
+    user: SvgUser,
+    group: SvgGroup
 }
 
 
@@ -57,7 +63,7 @@ export function DdbSider () {
     )
     
     return <Layout.Sider
-        width={120}
+        width={170}
         className='sider'
         theme='light'
         collapsible
