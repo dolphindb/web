@@ -212,11 +212,13 @@ export interface IDescriptionsConfig {
 }
 
 
-export interface IOrderBookConfig extends Pick<IChartConfig, 'title' | 'title_size' > {
+export interface IOrderBookConfig extends Pick<IChartConfig, 'title' | 'title_size' | 'legend' | 'tooltip' | 'splitLine' > {
     time_rate: number
     market_data_files_num: number
     bar_color: string
     line_color: string
+    with_tooltip: boolean
+    with_split_line: boolean
 }
 
 
