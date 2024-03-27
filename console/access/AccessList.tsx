@@ -101,17 +101,19 @@ export function AccessList ({
             dataIndex: 'name',
             key: 'name',
             width: 200
-          
+            
         },
         ... category !== 'script' ? ACCESS_TYPE[category].filter(t => t !== 'TABLE_WRITE').map(type => ({
             title: type,
             dataIndex: type,
             key: type,
-            width: 160
+            width: 160,
+            align:'center' as const
         })) : [{ 
             title: 'stat',
             dataIndex: 'stat',
             key: 'stat',
+            align:'center' as const
         }]
     ]), [ ])
     return <Table 

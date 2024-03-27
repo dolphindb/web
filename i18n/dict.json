@@ -3826,5 +3826,11 @@
     },
     "设置密码": {
         "en": "Set Password"
+    },
+    "设置权限": {
+        "en": "Manage Access"
+    },
+    "设置用户组": {
+        "en": "Manage Groups"
     }
 }

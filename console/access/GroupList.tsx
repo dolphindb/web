@@ -273,7 +273,7 @@ export function GroupList () {
                             onClick={() => { 
                                 access.set({ current: { role: 'group', name: group.groupName, view: 'manage' } }) 
                             }}>
-                        {t('管理权限')}
+                        {t('设置权限')}
                     </Button>
                     
                     <Button type='link' 
