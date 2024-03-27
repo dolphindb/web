@@ -169,9 +169,6 @@ export function AxisItem ({ name_path, col_names = [ ], list_name, initial_value
                 }
             }}
         </FormDependencies>
-        
-                                                
-       
     </>
 }
 

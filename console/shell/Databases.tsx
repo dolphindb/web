@@ -34,7 +34,6 @@ import { Editor } from './Editor/index.js'
 import { CreateTableModal } from './CreateTableModal.js'
 import { AddColumnModal } from './AddColumnModal.js'
 import { AccessModal } from './AccessModal.js'
-import { QueryGuideModal } from './QueryGuide/index.js'
 
 import SvgDatabase from './icons/database.icon.svg'
 import SvgCreateDatabase from './icons/create-database.icon.svg'
