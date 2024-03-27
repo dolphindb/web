@@ -55,7 +55,7 @@ export function GroupList () {
                 title: t('操作'),
                 dataIndex: 'actions',
                 key: 'actions',
-                width: language === 'zh' ? 400 : 520
+                width: language === 'zh' ? 300 : 400
             }
         ]
     ), [ ])
