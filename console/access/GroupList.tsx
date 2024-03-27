@@ -151,7 +151,7 @@ export function GroupList () {
                     key: user,
                     title: user
                 }))}
-                titles={[t('组成员'), t('非组成员')]}
+                titles={[t('非组成员'), t('组成员')]}
                 showSearch
                 locale={{ itemUnit: t('个'), itemsUnit: t('个'), searchPlaceholder: t('请输入想查找的用户') }}
                 filterOption={(val, user) => user.title.includes(val)}
