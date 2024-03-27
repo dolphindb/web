@@ -10,7 +10,7 @@ import type { SortOrder } from 'antd/es/table/interface.js'
 
 import { use_modal } from 'react-object-model/hooks.js'
 
-import { type DDB } from 'dolphindb/browser.js'
+import { DdbBool, type DDB } from 'dolphindb/browser.js'
 
 import { model, NodeType } from '../model.js'
 import { computing } from './model.js'
@@ -713,7 +713,7 @@ async function handle_delete (type: string, selected: string[], ddb: DDB, refres
             break
         case 'persistenceMeta':
         case 'sharedStreamingTableStat':
-            await Promise.all(selected.map(async streaming_table_name => ddb.call('dropStreamTable', [streaming_table_name], { urgent: true })))
+            await Promise.all(selected.map(async streaming_table_name => ddb.call('dropStreamTable', [streaming_table_name, new DdbBool(true)], { urgent: true })))
             model.message.success(t('流数据表删除成功'))
             break
         case 'engine':
