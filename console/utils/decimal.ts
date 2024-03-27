@@ -21,3 +21,10 @@ export function isAvailableDecimalScale (decimalType: DDBColumnTypeNames, scale:
     
     return false
 }
+
+// decimal 规定精度之后 type 会跟精度变化，需要解析出类型和精度
+export function convertDecimalType (type: number) { 
+    const type_id =  type & 0xffff
+    const scale = (type & (~0x80000000)) >> 16
+    return [type_id, scale]
+}

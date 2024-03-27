@@ -5,6 +5,7 @@ import { model } from '../../../model.js'
 import { t } from '../../../../i18n/index.js'
 import { DdbType } from 'dolphindb'
 import type { FocusEventHandler } from 'react'
+import { convertDecimalType } from '../../../utils/decimal.js'
 
 interface IProps extends Omit<DatePickerProps, 'onChange'> { 
     onChange?: (val: any) => void
@@ -53,6 +54,7 @@ export function DdbObjTimePicker ({ onChange, type_id, value, ...others }: IDdbO
         onChange(time_obj)
     }, [ type_id ])
     
+    // @ts-ignore
     return <TimePicker
         {...others}
         format={others.format}
@@ -124,13 +126,13 @@ interface IDecimalObjInputFieldProps {
     onChange?: (val: any) => void
     type_id: DdbType
     type: string
+    scale: number
 }
 
 export function DecimalObjInputField (props: IDecimalObjInputFieldProps) {
-    const { onChange, type_id, type } = props
+    const { onChange, type_id, type, scale } = props
     
     const [value, set_value] = useState<string>()
-    const [precision, set_precision] = useState<string | number>()
     
     const transfer_decimal = useCallback(async (value, precision) =>  { 
         if (!value || !precision)  
@@ -157,25 +159,21 @@ export function DecimalObjInputField (props: IDecimalObjInputFieldProps) {
     }, [type_id]) 
     
     useEffect(() => { 
-        transfer_decimal(value, precision)    
-    }, [value, precision, transfer_decimal])
+        transfer_decimal(value, scale)    
+    }, [value, scale, transfer_decimal])
     
-    return <Space className='decimal-field-wrapper'>
-        <Input placeholder={t('{{type}} 的值', { type })} onBlur={e => { set_value(e.target.value) } } />
-        <InputNumber placeholder={t('{{type}} 的精度', { type })} precision={0} onBlur={e => { set_precision(e.target.value) } } />
-    </Space>
+    return <Input placeholder={t('{{type}} 的值', { type })} onBlur={e => { set_value(e.target.value) } } />
  }
 
 
-interface IDdbObjFieldProps {
-    /** ddb 类型 */
-    type: string
-    /** ddb id 类型 */
-    type_id: DdbType
-    placeholder?: string
-}
 
-export function DdbObjField ({ type, type_id, placeholder, ...others }: IDdbObjFieldProps) {
+export function DdbObjField ({ type, type_id: server_type_id, placeholder, ...others }: IDdbObjFieldProps) {
+   
+    let type_id = server_type_id
+    let scale = null
+    if (type.includes('DECIMAL'))  
+        [type_id, scale] = convertDecimalType(server_type_id)
+    
     switch (type_id) { 
         case DdbType.date:
             return <DdbObjDatePicker placeholder={placeholder} format='YYYY.MM.DD' type_id={type_id} {...others} />
@@ -198,7 +196,7 @@ export function DdbObjField ({ type, type_id, placeholder, ...others }: IDdbObjF
         case DdbType.decimal32:
         case DdbType.decimal64:
         case DdbType.decimal128:
-            return <DecimalObjInputField type={type} type_id={type_id} {...others} />
+            return <DecimalObjInputField type={type} type_id={type_id} {...others} scale={scale} />
         default:
             return <DdbObjInputField placeholder={placeholder} type_id={type_id} {...others} />
     }

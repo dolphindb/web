@@ -7,6 +7,7 @@ import { t } from '../../../../i18n/index.js'
 import { DdbDict, DdbType } from 'dolphindb/browser.js'
 import { model } from '../../../model.js'
 import { DdbObjField } from './DdbObjField.js'
+import { convertDecimalType } from '../../../utils/decimal.js'
 
 interface IProps { 
     engine_info: ICEPEngineDetail
@@ -71,6 +72,12 @@ export const SendEventModal = NiceModal.create(({ on_refresh, engine_info }: IPr
                                     validator: async (_, value) => { 
                                         if (!value)
                                             return Promise.reject(t('请输入事件字段'))
+                                        if (msg_item.types[idx].includes('DECIMAL')) { 
+                                            // decimal 类型的需要先转化 type，精度不同 type 也不同
+                                            const [type_id] = convertDecimalType(msg_item.type_ids[idx])
+                                            if (type_id !== value?.type)
+                                                return Promise.reject(t('字段类型有误，请检查'))
+                                        }
                                         else if (msg_item.type_ids[idx] !== value?.type)
                                             return Promise.reject(t('字段类型有误，请检查'))
                                 } }
