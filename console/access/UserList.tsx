@@ -56,7 +56,6 @@ export function UserList () {
                 dataIndex: 'is_admin',
                 key: 'is_admin',
                 width: 150,
-                align:'center',
                 filters: [
                     {
                         text: t('管理员'),

@@ -108,12 +108,12 @@ export function AccessList ({
             dataIndex: type,
             key: type,
             width: 160,
-            align:'center' as const
+            align: 'center' as const
         })) : [{ 
             title: 'stat',
             dataIndex: 'stat',
             key: 'stat',
-            align:'center' as const
+            align: 'center' as const
         }]
     ]), [ ])
     return <Table 
