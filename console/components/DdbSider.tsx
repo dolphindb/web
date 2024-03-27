@@ -52,18 +52,22 @@ export function DdbSider () {
     const factor_href = useMemo(() => {
         const search_params = new URLSearchParams(location.search)
         
-        return 'factor-platform/index.html?' + new URLSearchParams(omitBy({
-            ddb_hostname: search_params.get('hostname'),
-            ddb_port: search_params.get('port'),
-            logined: Number(logined).toString(),
-            token: localStorage.getItem(storage_keys.ticket)
-        }, isNil)).toString()
-    },
-        [logined]
-    )
+        return 'factor-platform/index.html?' +
+            new URLSearchParams(
+                omitBy(
+                    {
+                        ddb_hostname: search_params.get('hostname'),
+                        ddb_port: search_params.get('port'),
+                        logined: Number(logined).toString(),
+                        token: localStorage.getItem(storage_keys.ticket)
+                    },
+                    isNil
+                )
+            ).toString()
+    }, [logined])
     
     return <Layout.Sider
-        width={170}
+        width={150}
         className='sider'
         theme='light'
         collapsible
