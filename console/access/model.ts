@@ -1,6 +1,9 @@
-import { DdbBool, DdbDatabaseError, DdbInt, DdbVectorString } from 'dolphindb/browser.js'
 import { Model } from 'react-object-model'
+
+import { DdbInt, DdbVectorString, type DdbVectorStringObj } from 'dolphindb/browser.js'
+
 import { model } from '../model.js'
+
 
 export interface User {
     userId: string
@@ -14,7 +17,8 @@ export interface Database {
     tables: string[]
 }
 
-enum ACCESS_NUM  {
+
+enum Access  {
     TABLE_READ =  0,
     TABLE_WRITE = 1,
     DBOBJ_CREATE = 2,
@@ -34,7 +38,6 @@ enum ACCESS_NUM  {
 }
 
 class AccessModel extends Model<AccessModel> {
-    
     users: string[] = [ ]
     
     groups: string[] = [ ]
@@ -49,7 +52,11 @@ class AccessModel extends Model<AccessModel> {
     
     inited = false
     
-    current = null
+    current: {
+        role?: 'user' | 'group'
+        name?: string
+        view?: string
+    } = null
     
     accesses = null
     
@@ -60,6 +67,7 @@ class AccessModel extends Model<AccessModel> {
         this.get_share_tables()
         this.get_stream_tables()
         this.get_function_views()
+        
         this.set({ inited: true })
     }
     
@@ -79,7 +87,7 @@ class AccessModel extends Model<AccessModel> {
     
     
     async get_user_list () {
-        this.set({ users: (await model.ddb.call('getUserList', [ ])).value as string[] })
+        this.set({ users: (await model.ddb.call<DdbVectorStringObj>('getUserList', [ ])).value  })
     }
     
     // final 属性代表是否获取用户最终权限，只有在用户查看权限界面需要 final = true
@@ -117,13 +125,10 @@ class AccessModel extends Model<AccessModel> {
     async add_group_member (users: string[] | string, groups: string[] | string) {
         if (!users || !groups || !users.length || !groups.length)
             return
-        await model.ddb.call('addGroupMember', 
-                            [ 
-                                Array.isArray(users) ? new DdbVectorString(users) : users,
-                                Array.isArray(groups) ? new DdbVectorString(groups) : groups
-                            ],
-                            { urgent: true }
-                )
+        await model.ddb.call(
+            'addGroupMember',
+            [Array.isArray(users) ? new DdbVectorString(users) : users, Array.isArray(groups) ? new DdbVectorString(groups) : groups]
+        )
     }
     
     
@@ -138,7 +143,7 @@ class AccessModel extends Model<AccessModel> {
     
     
     async get_users_by_group (group: string) {
-        return (await model.ddb.call('getUsersByGroupId', [group])).value as string[]
+        return (await model.ddb.call<DdbVectorStringObj>('getUsersByGroupId', [group])).value
     }
     
     
@@ -146,34 +151,40 @@ class AccessModel extends Model<AccessModel> {
     async delete_group_member (users: string[] | string, groups: string[] | string) {
         if (!users || !groups || !users.length || !groups.length)
             return
-        await model.ddb.call('deleteGroupMember', 
-                            [ 
-                                Array.isArray(users) ? new DdbVectorString(users) : users,
-                                Array.isArray(groups) ? new DdbVectorString(groups) : groups
-                            ],
-                            { urgent: true }
-                )
+        await model.ddb.call(
+            'deleteGroupMember',
+            [
+                Array.isArray(users) ? new DdbVectorString(users) : users, 
+                Array.isArray(groups) ? new DdbVectorString(groups) : groups
+            ]
+        )
     }
     
     
     async get_databases (): Promise<string[]> {
-        return (await (model.ddb.call('getClusterDFSDatabases', [ ]))).value as string[]
+        return (await (model.ddb.call<DdbVectorStringObj>('getClusterDFSDatabases', [ ]))).value
     }
     
     
     async get_tables (database: string): Promise<string[]> {
-        return (await model.ddb.call('getDFSTablesByDatabase', [database])).value as string[]
+        return (await model.ddb.call<DdbVectorStringObj>('getDFSTablesByDatabase', [database])).value
     }
     
     
     async get_share_tables () {
-        const tables =  (await model.ddb.call('objs', [new DdbBool(true)])).to_rows()
-        this.set({ shared_tables: tables.filter(table => table.shared && table.type === 'BASIC' && table.form === 'TABLE').map(table => table.name) })
+        const tables =  (await model.ddb.call('objs', [true])).to_rows()
+        this.set({
+            shared_tables: tables.filter(table => table.shared && table.type === 'BASIC' && table.form === 'TABLE')
+                .map(table => table.name) })
     }
     
     
     async get_stream_tables () {
-        this.set({ stream_tables: (await model.ddb.call('getStreamTables', [new DdbInt(0)])).to_rows().filter(table => table.shared).map(tb => tb.name)  })
+        this.set({
+            stream_tables: (await model.ddb.call('getStreamTables', [new DdbInt(0)]))
+                .to_rows()
+                .filter(table => table.shared)
+                .map(tb => tb.name)  })
     }
     
     
@@ -182,19 +193,18 @@ class AccessModel extends Model<AccessModel> {
     }
     
     
-    async grant (user: string, aces: string, obj?: string) {
-        await model.ddb.call('grant', obj ? [ user, new DdbInt(ACCESS_NUM[aces]), obj ] : [user, new DdbInt(ACCESS_NUM[aces])])
+    async grant (user: string, access: string, obj?: string) {
+        await model.ddb.call('grant', obj ? [ user, new DdbInt(Access[access]), obj ] : [user, new DdbInt(Access[access])])
     }
     
     
-    async deny (user: string, aces: string, obj?: string) {
-        await model.ddb.call('deny', obj ? [user, new DdbInt(ACCESS_NUM[aces]), obj ] :  [user, new DdbInt(ACCESS_NUM[aces])])
+    async deny (user: string, access: string, obj?: string) {
+        await model.ddb.call('deny', obj ? [user, new DdbInt(Access[access]), obj ] :  [user, new DdbInt(Access[access])])
     }
     
     
-    async revoke (user: string, aces: string, obj?: string) {
-        console.log(user, aces, obj)
-        await model.ddb.call('revoke', obj ? [user, new DdbInt(ACCESS_NUM[aces]), obj ] : [user, new DdbInt(ACCESS_NUM[aces])])
+    async revoke (user: string, access: string, obj?: string) {
+        await model.ddb.call('revoke', obj ? [user, new DdbInt(Access[access]), obj ] : [user, new DdbInt(Access[access])])
     }
     
     // async handle_validate_error (func: Function) {
@@ -212,7 +222,6 @@ class AccessModel extends Model<AccessModel> {
     //         model.show_error({ content: error })
     //     }
     // }
-    
 }
 
 

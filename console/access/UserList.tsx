@@ -12,7 +12,6 @@ import { model } from '../model.js'
 import { access } from './model.js'
 
 export function UserList () {
-    
     const { users, groups, current } = access.use(['users', 'groups', 'current'])
     
     const [users_info, set_users_info] = useState([ ])
