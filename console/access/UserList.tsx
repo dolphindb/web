@@ -416,7 +416,7 @@ export function UserList () {
                                 access.set({ current: { name: user_access.userId } })
                                 editor.open()
                         }}>
-                            {t('重置密码')}
+                            {t('设置密码')}
                         </Button>
                         
                         <Button type='link'
