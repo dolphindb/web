@@ -52,9 +52,11 @@ export function UserList () {
             },
             {
                 title: t('是否管理员'),
+                align: 'center',
                 dataIndex: 'is_admin',
                 key: 'is_admin',
-                width: 150,
+                width: 120,
+                
                 filters: [
                     {
                         text: t('管理员'),
@@ -79,10 +81,10 @@ export function UserList () {
                 title: t('操作'),
                 dataIndex: 'actions',
                 key: 'actions',
-                width: 400
+                width: 360
             }
         ]
-    ), [users_info ])
+    ), [users_info])
     
     return <>
         <Modal 
