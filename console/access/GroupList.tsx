@@ -231,6 +231,10 @@ export function GroupList () {
                 }}>
                     {t('批量删除')}
                 </Button>
+                <Button 
+                type='default'
+                icon={<ReloadOutlined />}
+                onClick={async () => (async () => access.get_group_list())()} >{t('刷新')}</Button>
                 <Input  
                     className='search'
                     value={search_key}
@@ -239,10 +243,6 @@ export function GroupList () {
                     placeholder={t('请输入想要搜索的组')} 
                 />
             </div>
-            <Button 
-                type='default'
-                icon={<ReloadOutlined />}
-                onClick={async () => (async () => access.get_group_list())()} >{t('刷新')}</Button>
         </div>
         <Table 
             rowSelection={{
@@ -262,6 +262,20 @@ export function GroupList () {
                         }
                     </div>,
                 actions: <div className='actions'>
+                    <Button type='link'
+                            onClick={() => { 
+                                access.set({ current: { role: 'group', name: group.groupName, view: 'preview' } }) 
+                            }}>
+                        {t('查看权限')}
+                    </Button>
+                    
+                    <Button type='link' 
+                            onClick={() => { 
+                                access.set({ current: { role: 'group', name: group.groupName, view: 'manage' } }) 
+                            }}>
+                        {t('管理权限')}
+                    </Button>
+                    
                     <Button type='link' 
                             onClick={async () => {
                                 access.set({ current: { name: group.groupName } })
@@ -270,18 +284,7 @@ export function GroupList () {
                             }}>
                         {t('管理成员')}
                     </Button>
-                    <Button type='link' 
-                            onClick={() => { 
-                                access.set({ current: { role: 'group', name: group.groupName, view: 'manage' } }) 
-                            }}>
-                        {t('管理权限')}
-                    </Button>
-                    <Button type='link'
-                            onClick={() => { 
-                                access.set({ current: { role: 'group', name: group.groupName, view: 'preview' } }) 
-                            }}>
-                        {t('查看权限')}
-                    </Button>
+                    
                     <Popconfirm
                         title={t('删除组')}
                         description={t('确认删除组 {{group}} 吗', { group: group.groupName })}

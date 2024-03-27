@@ -1,4 +1,4 @@
-import { DeleteOutlined, KeyOutlined, PlusOutlined, SearchOutlined, SettingOutlined, StepBackwardOutlined } from '@ant-design/icons'
+import { ArrowLeftOutlined, DeleteOutlined, KeyOutlined, PlusOutlined, SearchOutlined, SettingOutlined, StepBackwardOutlined } from '@ant-design/icons'
 import { Button, Input } from 'antd'
 
 import { t } from '../../i18n/index.js'
@@ -29,7 +29,7 @@ export function AccessHeader ({
             
             <Button  
                 type='default'
-                icon={<StepBackwardOutlined />}
+                icon={<ArrowLeftOutlined />}
                 onClick={() => { access.set({ current: null }) }}>
                 {t('返回')}
             </Button>
@@ -51,7 +51,7 @@ export function AccessHeader ({
                     {t('新增权限')}
                 </Button>
                 <Button
-                    type='primary' 
+                    type='default' 
                     icon={<KeyOutlined />}
                     onClick={() => { access.set({ current: { ...current, view: 'preview' } }) }}>
                     {t('查看权限')}

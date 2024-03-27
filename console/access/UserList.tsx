@@ -364,6 +364,13 @@ export function UserList () {
                 }}>
                     {t('批量删除')}
                 </Button>
+                <Button type='default'
+                    icon={<ReloadOutlined />}
+                    onClick={async () => {
+                        await access.get_user_list() 
+                            set_users_info((await access.get_user_access(users)))
+                            model.message.success(t('刷新成功'))
+                    }}>{t('刷新')}</Button>
                 <Input  
                     className='search'
                     value={search_key}
@@ -371,14 +378,7 @@ export function UserList () {
                     onChange={e => { set_search_key(e.target.value) }} 
                     placeholder={t('请输入想要搜索的用户')} 
                 />
-            </div>
-            <Button type='default'
-                    icon={<ReloadOutlined />}
-                    onClick={async () => {
-                        await access.get_user_list() 
-                            set_users_info((await access.get_user_access(users)))
-                            model.message.success(t('刷新成功'))
-                    }}>{t('刷新')}</Button>
+            </div>  
         </div>
         <Table 
             rowSelection={{
@@ -402,13 +402,28 @@ export function UserList () {
                                 }
                             </div>,
                     actions: <div className='actions'>
+                        
+                        <Button type='link'
+                                onClick={() => { 
+                                    access.set({ current: { role: 'user', name: user_access.userId, view: 'preview' } }) 
+                                }}>
+                            {t('查看权限')}
+                        </Button>
+                        
+                        <Button type='link'
+                                onClick={() => { 
+                                    access.set({ current: { role: 'user', name: user_access.userId, view: 'manage' } }) 
+                                }}>
+                            {t('设置权限')}
+                        </Button>
+                        
                         <Button type='link'
                             onClick={async () => {
                                 access.set({ current: { name: user_access.userId } })
                                 set_target_groups((await access.get_user_access([user_access.userId]))[0].groups.split(','))
                                 edit_groupor.open()
                         }}>
-                            {t('管理用户组')}
+                            {t('设置用户组')}
                         </Button>
                         
                         <Button type='link'
@@ -417,20 +432,6 @@ export function UserList () {
                                 editor.open()
                         }}>
                             {t('设置密码')}
-                        </Button>
-                        
-                        <Button type='link'
-                                onClick={() => { 
-                                    access.set({ current: { role: 'user', name: user_access.userId, view: 'manage' } }) 
-                                }}>
-                            {t('管理权限')}
-                        </Button>
-                        
-                        <Button type='link'
-                                onClick={() => { 
-                                    access.set({ current: { role: 'user', name: user_access.userId, view: 'preview' } }) 
-                                }}>
-                            {t('查看权限')}
                         </Button>
                         
                         <Popconfirm
