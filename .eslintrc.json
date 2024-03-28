@@ -16,6 +16,7 @@
     "plugins": [
         "@typescript-eslint",
         "react",
+        "import",
         "xlint"
     ],
     
@@ -176,6 +177,14 @@
         "@typescript-eslint/consistent-type-imports": ["error", { "fixStyle": "inline-type-imports", "disallowTypeAnnotations": false }],
         
         // () => { 返回 void 的表达式 }
-        "@typescript-eslint/no-confusing-void-expression": "error"
+        "@typescript-eslint/no-confusing-void-expression": "error",
+        
+        
+        // ------------ import
+        "import/no-duplicates": ["error", { "prefer-inline": true }],
+        
+        "import/order": ["error", {
+            "newlines-between": "always-and-inside-groups"
+        }]
     }
 }

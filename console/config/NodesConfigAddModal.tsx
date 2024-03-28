@@ -1,10 +1,15 @@
 import NiceModal from '@ebay/nice-modal-react'
 import { AutoComplete, Button, Form, Input, Modal } from 'antd'
-import { t } from '../../i18n/index.js'
-import { CONFIG_CLASSIFICATION } from './type.js'
+
 import { useCallback } from 'react'
-import { config } from './model.js'
+
+import { t } from '../../i18n/index.js'
+
 import { model } from '../model.js'
+
+import { CONFIG_CLASSIFICATION } from './type.js'
+import { config } from './model.js'
+
 
 interface NodesConfigAddModalProps {
     configs: string[]
