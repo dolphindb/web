@@ -272,7 +272,7 @@ export function QueryForm (props: IProps) {
     }, [ ])
     
     return <Spin spinning={isLoading}>
-        <Form form={form} onValuesChange={(_, values) => { guide_query_model.set({ query_values: values }) }}>
+        <Form autoComplete='off' form={form} onValuesChange={(_, values) => { guide_query_model.set({ query_values: values }) }}>
             <h3 className='query-col-title'>{t('筛选查询列')}</h3>
             <Form.Item name='queryCols' rules={[{ required: true, message: t('查询列不可为空，请重新筛选！') }] }>
                 <ColSelectTransfer cols={cols}/>

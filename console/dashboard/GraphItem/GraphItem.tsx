@@ -16,7 +16,6 @@ import cn from 'classnames'
 import { VariableForm } from './VariableForm.js'
 import { Button } from 'antd'
 import { copy_widget } from '../utils.js'
-import { workerData } from 'worker_threads'
 
 function get_padding_style (padding: { left: number, right: number, top: number, bottom: number }) { 
     if (!padding)
@@ -34,7 +33,7 @@ function GraphComponent ({ widget }: { widget: Widget }) {
     // 普通图表 source_id 内只有一项，只需要取第一项，复合图表才会有多项
     const data_source_node = get_data_source(widget.source_id?.[0])
     
-    const { data = [ ] } = data_source_node.use(['data'])
+    const { data = [ ], cols = [ ], type_map = { } } = data_source_node.use(['data', 'cols', 'type_map'])
     
     const Component = useMemo(() => graph_config[widget.type].component, [widget.type])
     
@@ -51,13 +50,14 @@ function GraphComponent ({ widget }: { widget: Widget }) {
                 ids={widget.config.variable_ids}
                 cols={widget.config.variable_cols}
                 with_search_btn={widget.config.with_search_btn}
+                search_btn_label={widget.config.search_btn_label }
             />
         }
         
         <div className={cn('graph-component', {
             'graph-item-wrapper-abandon-scroll': widget.config?.abandon_scroll
         }) }>
-            <Component data_source={data} widget={widget} />
+            <Component data_source={data} widget={widget} col_names={cols} type_map={type_map} />
         </div>
     </div>
 }

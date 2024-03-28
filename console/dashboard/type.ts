@@ -1,4 +1,5 @@
-import { type ITimeFormat, type AxisType, type ILineType, type Position } from './ChartFormFields/type.js'
+import type { DdbType } from 'dolphindb'
+import { type ITimeFormat, type AxisType, type ILineType, type Position, type ThresholdType, type ThresholdShowType } from './ChartFormFields/type.js'
 
 export interface AxisConfig { 
     name: string
@@ -21,7 +22,10 @@ export interface AxisConfig {
     range?: string[]
     max?: any
     min?: any
+    
+    interval?: number
 }
+
 
 export interface ISeriesConfig {
     type: string
@@ -33,6 +37,10 @@ export interface ISeriesConfig {
     line_type?: ILineType
     // 线宽，仅折线图有
     line_width?: number
+    /** 是否填充下方面积，仅折线图有 */
+    is_filled?: boolean
+    opacity?: number
+    
     // 柱状图是否堆叠
     stack?: string
     end_label?: boolean
@@ -78,6 +86,20 @@ export interface ISeriesConfig {
     max?: number
 }
 
+export interface IThresholdConfig { 
+    axis: number
+    /** 0 代表 X 轴，1 代表 Y 轴 */
+    axis_type: 0 | 1
+    type: ThresholdType
+    show_type: ThresholdShowType
+    line_type?: ILineType
+    line_width?: number
+    values: Array<{
+        color: string
+        value: number
+    }>
+}
+
 export interface IChartConfig {
     title?: string
     title_size?: number
@@ -85,6 +107,11 @@ export interface IChartConfig {
     x_datazoom: boolean
     y_datazoom: boolean
     animation?: boolean
+    // 复合图支持此选项，自动画图模式
+    automatic_mode?: boolean
+    x_col_types: DdbType[]
+    
+    
     splitLine: {
         show: boolean
         lineStyle: {
@@ -115,6 +142,7 @@ export interface IChartConfig {
     yAxis: AxisConfig[]
     labels?: ISeriesConfig[]
     series: ISeriesConfig[]
+    thresholds: IThresholdConfig[]
 }
 
 export interface IHeatMapChartConfig extends Omit<IChartConfig, 'yAxis'> { 
@@ -127,6 +155,7 @@ export interface IColProperty {
     show: boolean
     color?: string
     background_color?: string
+    font_size?: number
     with_value_format: boolean
     decimal_places?: number
     display_name?: string
@@ -135,6 +164,8 @@ export interface IColProperty {
     align?: 'left' | 'center' | 'right'
     sorter?: boolean
     // multiple?: number
+    
+    header_style?: any
 }
 export interface ITableConfig {
     title?: string
@@ -181,11 +212,13 @@ export interface IDescriptionsConfig {
 }
 
 
-export interface IOrderBookConfig extends Pick<IChartConfig, 'title' | 'title_size' > {
+export interface IOrderBookConfig extends Pick<IChartConfig, 'title' | 'title_size' | 'legend' | 'tooltip' | 'splitLine' > {
     time_rate: number
     market_data_files_num: number
     bar_color: string
     line_color: string
+    with_tooltip: boolean
+    with_split_line: boolean
 }
 
 
@@ -204,6 +237,8 @@ export interface IGaugeConfig {
     label_size?: number
     value_size?: number
     animation?: boolean
+    split_number?: number
+    value_precision?: number
     
     axis_setting: Array<{
         threshold: number
@@ -226,6 +261,12 @@ export interface IGaugeConfig {
     }>
 }
 
+
+export interface MatrixData {
+    data: number[][]
+    row_labels: string[]
+    col_labels: string[]
+}
 
 export enum VariableMode { 
     SELECT = 'select',

@@ -13,11 +13,12 @@ import { use_modal } from 'react-object-model/hooks.js'
 import { type DDB } from 'dolphindb/browser.js'
 
 import { model, NodeType } from '../model.js'
-import { computing } from './model.js'
 
 import { TableCellDetail } from '../components/TableCellDetail/index.js'
 
 import { t } from '../../i18n/index.js'
+
+import { computing } from './model.js'
 
 import SvgPublish from './icons/publish.icon.svg'
 import SvgEngine from './icons/engine.icon.svg'
@@ -58,13 +59,13 @@ export function Computing () {
         if (!logined || node_type === NodeType.controller)
             return
         
-        model.execute(async () => {
+        (async () => {
             if (!computing.inited)
                 await computing.init()
             await computing.get_streaming_pub_sub_stat()
             await computing.get_streaming_engine_stat()
             await computing.get_streaming_table_stat()
-        })
+        })()
     }, [ ])
     
     if (node_type === NodeType.controller)
@@ -287,13 +288,11 @@ export function Computing () {
                 ? null
                 : <Button
                     icon={<ReloadOutlined />}
-                    onClick={async () =>
-                        model.execute(async () => {
-                            await tab_content[tab_key].refresher.call(computing)
-                            model.message.success(`${tab_content[tab_key].title}${t('刷新成功')}`)
-                        })
-                    }
-                    >
+                    onClick={async () => {
+                        await tab_content[tab_key].refresher.call(computing)
+                        model.message.success(`${tab_content[tab_key].title}${t('刷新成功')}`)
+                    }}
+                >
                     {t('刷新')}
                 </Button>
         }
@@ -718,38 +717,35 @@ function handle_null (table: Record<string, any>[]) {
 
 /** 统一处理删除 */
 async function handle_delete (type: string, selected: string[], ddb: DDB, refresher: () => Promise<void>, raftGroups?: string[]) {
-    await model.execute(async () => {
-        switch (type) {
-            case 'subWorkers':
-                await Promise.all(
-                    selected.map(async (pub_table, idx) => {
-                        const pub_table_arr = pub_table.split('/')
-                        const [ip, port] = pub_table_arr[0].split(':')
-                        let script = ''
-                        if (raftGroups[idx])
-                            script = `rpc('${model.get_controller_alias()}','unsubscribeTable','${pub_table_arr[1]}', '${pub_table_arr[2] || ''}')`
-                        else
-                            script =
-                                ip === model.node.host && Number(port) === model.node.port
-                                    ? `unsubscribeTable(,'${pub_table_arr[1]}', '${pub_table_arr[2] || ''}')`
-                                    : `h=xdb('${ip}',${port})\n` + `unsubscribeTable(h,'${pub_table_arr[1]}','${pub_table_arr[2] || ''}')`
-                        ddb.eval(script, { urgent: true })
-                    })
-                )
-                model.message.success(t('取消订阅成功'))
-                break
-            case 'persistenceMeta':
-            case 'sharedStreamingTableStat':
-                await Promise.all(selected.map(async streaming_table_name => ddb.call('dropStreamTable', [streaming_table_name], { urgent: true })))
-                model.message.success(t('流数据表删除成功'))
-                break
-            case 'engine':
-                await Promise.all(selected.map(async engine_name => ddb.call('dropStreamEngine', [engine_name], { urgent: true })))
-                model.message.success(t('引擎删除成功'))
-                
-        }
-    })
-    
+    switch (type) {
+        case 'subWorkers':
+            await Promise.all(
+                selected.map(async (pub_table, idx) => {
+                    const pub_table_arr = pub_table.split('/')
+                    const [ip, port] = pub_table_arr[0].split(':')
+                    let script = ''
+                    if (raftGroups[idx])
+                        script = `rpc('${model.get_controller_alias()}','unsubscribeTable','${pub_table_arr[1]}', '${pub_table_arr[2] || ''}')`
+                    else
+                        script =
+                            ip === model.node.host && Number(port) === model.node.port
+                                ? `unsubscribeTable(,'${pub_table_arr[1]}', '${pub_table_arr[2] || ''}')`
+                                : `h=xdb('${ip}',${port})\n` + `unsubscribeTable(h,'${pub_table_arr[1]}','${pub_table_arr[2] || ''}')`
+                    ddb.eval(script, { urgent: true })
+                })
+            )
+            model.message.success(t('取消订阅成功'))
+            break
+        case 'persistenceMeta':
+        case 'sharedStreamingTableStat':
+            await Promise.all(selected.map(async streaming_table_name => ddb.call('dropStreamTable', [streaming_table_name, true], { urgent: true })))
+            model.message.success(t('流数据表删除成功'))
+            break
+        case 'engine':
+            await Promise.all(selected.map(async engine_name => ddb.call('dropStreamEngine', [engine_name], { urgent: true })))
+            model.message.success(t('引擎删除成功'))
+            
+    }
     await refresher.call(computing)
 }
 

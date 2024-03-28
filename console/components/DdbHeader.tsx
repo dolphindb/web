@@ -29,7 +29,7 @@ export function DdbHeader () {
     
     return <>
         <img className='logo' src='./ddb.svg' />
-        {(model.dev || model.cdn) && <HostSelect />}
+        {(model.dev || model.test) && <HostSelect />}
         { model.dev && <CompileAndRefresh /> }
         
         <div className='padding' />

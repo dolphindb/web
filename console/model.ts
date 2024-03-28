@@ -16,8 +16,8 @@ import {
     DdbDatabaseError, type DdbStringObj, type DdbDictObj, type DdbVectorStringObj
 } from 'dolphindb/browser.js'
 
-import { t } from '../i18n/index.js'
-import { parse_error } from './utils/ddb-error.js'
+import { language, t } from '../i18n/index.js'
+import type { FormatErrorOptions } from './components/GlobalErrorBoundary.js'
 
 
 export const storage_keys = {
@@ -33,9 +33,11 @@ export const storage_keys = {
     dashboards: 'ddb.dashboards'
 } as const
 
+const json_error_pattern = /^{.*"code": "(.*?)".*}$/
+
 const username_guest = 'guest' as const
 
-export type PageViews = 'overview' | 'overview-old' | 'shell' | 'dashboard' | 'table' | 'job' | 'login' | 'dfs' | 'log' | 'factor' | 'test' | 'computing'
+export type PageViews = 'overview' | 'overview-old' | 'shell' | 'dashboard' | 'table' | 'job' | 'login' | 'dfs' | 'log' | 'factor' | 'test' | 'computing' | 'tools' | 'iot-guide' | 'finance-guide' | 'access' | 'user' | 'group' | 'config'
 
 
 export class DdbModel extends Model<DdbModel> {
@@ -47,8 +49,8 @@ export class DdbModel extends Model<DdbModel> {
     /** 通过 ticket 或用户名密码自动登录，默认为 true 传 autologin=0 关闭 */
     autologin = true
     
-    /** 通过 cdn 访问的 web */
-    cdn = false
+    /** 通过 test.dolphindb.cn 访问的 web */
+    test = false
     
     /** 启用详细日志，包括执行的代码和运行代码返回的变量 */
     verbose = false
@@ -140,11 +142,11 @@ export class DdbModel extends Model<DdbModel> {
         
         this.dev = params.get('dev') !== '0' && location.pathname.endsWith('/console/') || params.get('dev') === '1'
         this.autologin = params.get('autologin') !== '0'
-        this.cdn = location.hostname === 'cdn.dolphindb.cn' || params.get('cdn') === '1'
+        this.test = location.hostname === 'test.dolphindb.cn' || params.get('test') === '1'
         this.verbose = params.get('verbose') === '1'
         
-        // cdn 或开发模式下，浏览器误跳转到 https 链接，自动跳转回 http
-        if (location.protocol === 'https:' && (this.dev || this.cdn) && params.get('https') !== '1') {
+        // test 或开发模式下，浏览器误跳转到 https 链接，自动跳转回 http
+        if (location.protocol === 'https:' && (this.dev || this.test) && params.get('https') !== '1') {
             alert('请将地址栏中的链接改为 http:// 开头')
             return
         }
@@ -198,7 +200,7 @@ export class DdbModel extends Model<DdbModel> {
             } catch {
                 console.log(t('ticket 登录失败'))
                 
-                if (this.dev || this.cdn)
+                if (this.dev || this.test)
                     try {
                         await this.login_by_password('admin', '123456')
                     } catch {
@@ -243,34 +245,7 @@ export class DdbModel extends Model<DdbModel> {
     }
     
     
-    /** 执行 action，遇到错误时弹窗提示 
-        - action: 需要弹框展示执行错误的函数
-        - options?:
-            - throw?: `true` 默认会继续向上抛出错误，如果不需要向上继续抛出
-            - print?: `!throw` 在控制台中打印错误
-            - json_error?: `true` 会解析 server 返回的错误
-        @example await model.execute(async () => model.xxx()) */
-    async execute (
-        action: Function, 
-        { throw: _throw = true, print, json_error = false }: { throw?: boolean, print?: boolean, json_error?: boolean } = { }) 
-    {
-        try {
-            await action()
-        } catch (error) {
-            error = json_error ? parse_error(error) : error
-            
-            if (print ?? !_throw)
-                console.error(error)
-            
-            this.show_error({ error })
-            
-            if (_throw)
-                throw error
-        }
-    }
-    
-    
-    show_error (options: ErrorOptions) {
+    show_error (options: FormatErrorOptions) {
         show_error(this.modal, options)
     }
     
@@ -553,7 +528,7 @@ export class DdbModel extends Model<DdbModel> {
         this.set({
             view: new URLSearchParams(location.search).get('view') as DdbModel['view'] || 
                 (this.node_type === NodeType.controller ? 
-                    (this.dev || this.cdn ? 'overview' : 'overview-old')
+                    (this.dev || this.test ? 'overview' : 'overview-old')
                 :
                     'shell')
         })
@@ -851,6 +826,63 @@ export class DdbModel extends Model<DdbModel> {
         await request('http://localhost:8432/api/recompile')
         location.reload()
     }
+    
+    
+    format_error (error: Error) {
+        let s = ''
+        
+        if (error instanceof DdbDatabaseError) {
+            const { type, options, message } = error
+            
+            // json 错误是可以预期的业务逻辑错误，不需要显示后面的脚本、参数和调用栈了
+            if (message.includes(' => {"')) {
+                const i_arrow = message.lastIndexOf('=>')
+                const i_message_start = i_arrow === -1 ? 0 : i_arrow + 3
+                
+                const matches = json_error_pattern.exec(message.slice(i_message_start))
+                
+                if (matches) {
+                    const { code, variables } = JSON.parse(matches[0])
+                    
+                    return {
+                        title: t(error_messages[code], { variables }),
+                        body: ''
+                    }
+                }
+            }
+            
+            switch (type) {
+                case 'script':
+                    s += t('运行以下脚本时出错:\n') +
+                        error.options.script + '\n'
+                    break
+                
+                case 'function':
+                    s += t('调用 {{func}} 函数时出错，参数为:\n', { func: error.options.func }) +
+                        options.args.map(arg => arg.toString())
+                            .join_lines()
+                    break
+            }
+        }
+        
+        s += t('调用栈:\n') +
+            error.stack
+        
+        if (error.cause)
+            s += '\n' + (error.cause as Error).stack
+        
+        return {
+            title: error.message,
+            body: s
+        }
+    }
+    
+    
+    get_error_code_doc_link (ref_id: string) {
+        return language === 'en'
+            ? `https://docs.dolphindb.com/en/Maintenance/ErrorCodeReference/${ref_id}.html`
+            : `https://docs.dolphindb.cn/zh/error_codes/${ref_id}.html`
+    }
 }
 
 
@@ -897,51 +929,26 @@ export enum NodeType {
 }
 
 
-export interface ErrorOptions {
-    error?: Error
-    title?: string
-    content?: string
+export function show_error (modal: DdbModel['modal'], { title, error, body }: FormatErrorOptions) {
+    let title_: string, body_: string
+    
+    if (error)
+        ({ title: title_, body: body_ } = model.format_error(error))
+    
+    modal.error({
+        className: 'modal-error',
+        title: title || title_,
+        content: (body || body === '') ? body : body_,
+        width: 1000,
+    })
 }
 
 
-export function show_error (modal: DdbModel['modal'], { title, error, content }: ErrorOptions) {
-    modal.error({
-        className: 'modal-error',
-        title: title || error?.message,
-        content: (() => {
-            if (content)
-                return content
-                
-            if (error) {
-                let s = ''
-                
-                if (error instanceof DdbDatabaseError) {
-                    const { type, options } = error
-                    switch (type) {
-                        case 'script':
-                            s += t('运行以下脚本时出错:\n') +
-                                error.options.script + '\n'
-                            break
-                        
-                        case 'function':
-                            s += t('调用 {{func}} 函数时出错，参数为:\n', { func: error.options.func }) +
-                                options.args.map(arg => arg.toString())
-                                    .join_lines()
-                            break
-                    }
-                }
-                
-                s += t('调用栈:\n') +
-                    error.stack
-                
-                if (error.cause)
-                    s += '\n' + (error.cause as Error).stack
-                
-                return s
-            }
-        })(),
-        width: 1000,
-    })
+const error_messages = {
+    S001: '当前配置不存在',
+    S002: '配置id重复，无法保存',
+    S003: '当前配置与已有配置重名，请改名',
+    S004: '命名不可为空',
 }
 
 

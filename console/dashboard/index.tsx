@@ -4,16 +4,17 @@ import 'gridstack/dist/gridstack.css'
 // 行列数为 1 - 11 时需要
 // import 'gridstack/dist/gridstack-extra.css'
 
-import { useEffect, useRef, useState } from 'react'
+import { useEffect, useRef } from 'react'
 import { App, Button, ConfigProvider, Popconfirm, Result, Spin, theme } from 'antd'
 import * as echarts from 'echarts'
 
-import { DashboardPermission, dashboard } from './model.js'
+import { DashboardPermission, InitedState, dashboard } from './model.js'
 import { Sider } from './Sider.js'
 import { GraphItem } from './GraphItem/GraphItem.js'
 import { SettingsPanel } from './SettingsPanel/SettingsPanel.js'
 import { Header } from './Header.js'
 import { Overview } from './Overview.js'
+import { Doc } from './components/Doc.js'
 import config from './chart.config.json' assert { type: 'json' }
 import { NodeType, model } from '../model.js'
 import { t, language } from '../../i18n/index.js'
@@ -36,12 +37,10 @@ echarts.registerTheme('my-theme', config.theme)
     通过 GridStack.on('dropped', ...) 监听用户从外部添加拖拽 widget 到 GridStack 的事件  
     通过 GridStack.on('change', ...) 响应 GridStack 中 widget 的位置或尺寸变化的事件 */
 export function DashBoard () {
-    const { loading } = dashboard.use(['loading'])
+    const { loading, inited_state } = dashboard.use(['loading', 'inited_state'])
     
     const { node_type, is_v1, logined } = model.use(['node_type', 'is_v1', 'logined'])
     
-    const [inited_state, set_inited_state] = useState(0)  // 0表示未查询到结果或 server 版本为 v1，1表示没有初始化，2表示已经初始化，3 表示为控制节点
-     
     useEffect(() => {
         (async () => {
             try {
@@ -52,22 +51,27 @@ export function DashBoard () {
                     return
                 }
                 else if (node_type === NodeType.controller)
-                    set_inited_state(3)
-                else {
-                    const version = (await model.ddb.call('dashboard_get_version')).value
-                    if (version === '1.0.0')
-                        set_inited_state(2) 
-                }
+                    dashboard.set({ inited_state: InitedState.control_node })
+                else if ((await model.ddb.call('dashboard_get_version')).value === '1.0.0')
+                    dashboard.set({ inited_state: InitedState.inited })
             } catch (error) {
-                set_inited_state(1)
+                dashboard.set({ inited_state: InitedState.uninited })
             }
         })()
     }, [ ])
     
+    
+    useEffect(() => {
+        (async () => { 
+            if (dashboard.inited_state === InitedState.inited) 
+                await dashboard.get_dashboard_configs()
+        })()
+    }, [inited_state])
+    
     const component = {
-        0: <></>,
-        1: <Init set_inited_state={set_inited_state}/>,
-        2: (new URLSearchParams(location.search).has('dashboard') ?
+        [InitedState.hidden]: <></>,
+        [InitedState.uninited]: <Init/>,
+        [InitedState.inited]: (new URLSearchParams(location.search).has('dashboard') ?
                 <ConfigProvider
                     theme={{
                         hashed: false,
@@ -89,7 +93,7 @@ export function DashBoard () {
                 </ConfigProvider>
             :
                 <Overview />),
-        3: <Result
+        [InitedState.control_node]: <Result
                 status='warning'
                 className='interceptor'
                 title={t('控制节点不支持数据面板，请跳转到数据节点或计算节点查看。')}
@@ -100,7 +104,7 @@ export function DashBoard () {
 }
 
 
-function Init ({ set_inited_state }: { set_inited_state }) {
+function Init () {
     if (model.node_type === NodeType.computing)
         return <Result
                 status='warning'
@@ -118,13 +122,7 @@ function Init ({ set_inited_state }: { set_inited_state }) {
                         <p>{t('以及 11 个以 dashboard_ 开头的函数视图（FunctionView）')}</p>
                         <p>
                             {t('提示：初始化后请完善用户相关配置（详见')}
-                            <a 
-                                href='https://docs.dolphindb.cn/zh/tutorials/dashboard_tutorial.html'
-                                className='link'
-                                target='_blank'
-                            >
-                                {t('文档')}
-                            </a>
+                            <Doc/>
                             ）
                         </p>
                     </>
@@ -133,11 +131,9 @@ function Init ({ set_inited_state }: { set_inited_state }) {
                     <Popconfirm
                         title={t('你确定要初始化数据面板功能吗？')}
                         onConfirm={async () => { 
-                            model.execute(async () => {
-                                await model.ddb.eval(backend)
-                                set_inited_state(2)
-                                model.message.success(t('初始化数据面板成功！'))
-                            }) 
+                            await model.ddb.eval(backend)
+                            dashboard.set({ inited_state: InitedState.inited })
+                            model.message.success(t('初始化数据面板成功！'))
                         }}
                         okText={t('确定')}
                         cancelText={t('取消')}
@@ -170,8 +166,24 @@ function DashboardInstance () {
     }, [ ])
     
     useEffect(() => {
-        dashboard.execute(async () => dashboard.init(rdiv.current), { json_error: true })
+        dashboard.init(rdiv.current)
         return () => { dashboard.dispose() }
+    }, [ ])
+    
+    
+    useEffect(() => {
+        (async () => {
+            const dashboard_id = Number(new URLSearchParams(location.search).get('dashboard'))
+            if (dashboard_id) 
+                try {
+                    const config = await dashboard.get_dashboard_config(dashboard_id)
+                    dashboard.set({ config })
+                    await dashboard.render_with_config(config)
+                } catch (error) {
+                    dashboard.return_to_overview()
+                    model.message.error(t('dashboard 不存在'))
+                }    
+        })()
     }, [ ])
     
     
@@ -180,11 +192,12 @@ function DashboardInstance () {
         dashboard.render_widgets()
     }, [widgets])
     
+    
     useEffect(() => {
         const params = new URLSearchParams(location.search)
         if (!params.has('preview', '1')) {
             if (config?.permission === DashboardPermission.view) 
-                model.set_query('preview', '1')
+                dashboard.on_preview()
             dashboard.set({ save_confirm: true })
         }    
     }, [config])

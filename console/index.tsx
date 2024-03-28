@@ -16,6 +16,7 @@ import en from 'antd/locale/en_US.js'
 import ja from 'antd/locale/ja_JP.js'
 import ko from 'antd/locale/ko_KR.js'
 
+import { ProConfigProvider } from '@ant-design/pro-components'
 
 import { language } from '../i18n/index.js'
 
@@ -27,16 +28,20 @@ import { model } from './model.js'
 
 import { DdbHeader } from './components/DdbHeader.js'
 import { DdbSider } from './components/DdbSider.js'
+import { GlobalErrorBoundary } from './components/GlobalErrorBoundary.js'
 
 import { Login } from './login.js'
 import { Overview } from './overview/index.js'
 import { OverviewOld } from './overview/old.js'
+import { Config } from './config/index.js'
 import { Shell } from './shell/index.js'
 import { Test } from './test/index.js'
 import { Job } from './job.js'
 import { Log } from './log.js'
 import { Computing } from './computing/index.js'
 import { DashBoard } from './dashboard/index.js'
+import { User } from './access/index.js'
+import { Group } from './access/index.js'
 
 
 createRoot(
@@ -52,11 +57,13 @@ function DolphinDB () {
         autoInsertSpaceInButton={false}
         theme={{ hashed: false, token: { borderRadius: 0, motion: false } }}
     >
-        <NiceModal.Provider>
-            <App className='app'>
-                <MainLayout />
-            </App>
-        </NiceModal.Provider>
+        <ProConfigProvider hashed={false} token={{ borderRadius: 0, motion: false }}>
+            <NiceModal.Provider>
+                <App className='app'>
+                    <MainLayout />
+                </App>
+            </NiceModal.Provider>
+        </ProConfigProvider>
     </ConfigProvider>
 }
 
@@ -64,12 +71,15 @@ function DolphinDB () {
 function MainLayout () {
     const { header, inited, sider } = model.use(['header', 'inited', 'sider'])
     
+    
     // App 组件通过 Context 提供上下文方法调用，因而 useApp 需要作为子组件才能使用
     Object.assign(model, App.useApp())
     
+    
     useEffect(() => {
-        model.execute(async () => model.init())
+        model.init()
     }, [ ])
+    
     
     useEffect(() => {
         if (model.dev) {
@@ -84,7 +94,7 @@ function MainLayout () {
                     !alt
                 ) {
                     event.preventDefault()
-                    await model.execute(async () => model.recompile_and_refresh())
+                    await model.recompile_and_refresh()
                 }
             }
             
@@ -104,7 +114,9 @@ function MainLayout () {
         <Layout className='body' hasSider>
             { sider && <DdbSider />}
             <Layout.Content className='view'>
-                <DdbContent />
+                <GlobalErrorBoundary>
+                    <DdbContent />
+                </GlobalErrorBoundary>
             </Layout.Content>
         </Layout>
     </Layout>
@@ -115,12 +127,15 @@ const views = {
     login: Login,
     overview: Overview,
     'overview-old': OverviewOld,
+    config: Config,
     shell: Shell,
     test: Test,
     job: Job,
     log: Log,
     computing: Computing,
     dashboard: DashBoard,
+    user: User,
+    group: Group
 }
 
 
@@ -136,3 +151,4 @@ function DdbContent () {
         <View />
     </div>
 }
+

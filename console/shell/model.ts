@@ -34,7 +34,6 @@ import { model, NodeType, storage_keys } from '../model.js'
 import type { Monaco } from './Editor/index.js'
 import { Database, DatabaseGroup, type Column, type ColumnRoot, PartitionDirectory, type PartitionRoot, PartitionFile, Table } from './Databases.js'
 import { DdbVar } from './Variables.js'
-import { get_error_code_doc_link } from '../utils/ddb-error.js'
 
 
 type Result = { type: 'object', data: DdbObj } | { type: 'objref', data: DdbObjRef }
@@ -198,7 +197,7 @@ class ShellModel extends Model<ShellModel> {
                         ? ''
                         :
                         // xterm link写法 https://stackoverflow.com/questions/64759060/how-to-create-links-in-xterm-js
-                        blue(`\x1b]8;;${get_error_code_doc_link(ref_id)}\x07RefId: ${ref_id}\x1b]8;;\x07`)   
+                        blue(`\x1b]8;;${model.get_error_code_doc_link(ref_id)}\x07RefId: ${ref_id}\x1b]8;;\x07`)   
                 )
             
             this.term.writeln(red(message))
@@ -614,9 +613,12 @@ class ShellModel extends Model<ShellModel> {
             '    t = table(100:0, `userId`AccessAction, [STRING, SYMBOL])\n' +
             '    if(rows(userAccessRow)==0)return t\n' +
             '    for(action in `DB_MANAGE`DBOBJ_CREATE`DBOBJ_DELETE`DB_INSERT`DB_UPDATE`DB_DELETE`DB_READ`TABLE_READ`TABLE_INSERT`TABLE_UPDATE`TABLE_DELETE) {\n' +
-            '        accItems = userAccessRow[action + "_allowed"].split(",").flatten()\n' +
-            '        tablePath = accItems[accItems == name]\n' +
-            '        t.tableInsert(take(userAccessRow.userId, tablePath.size()), take(action, tablePath.size()))\n' +
+            '       for(user in userAccessRow){\n' +
+            '           accItems = user[action + "_allowed"].split(",").flatten()\n' +
+            '           tablePath = accItems[accItems == name]\n' +
+            '           tablePath.size()\n' +
+            '           t.tableInsert( take(user.userId, tablePath.size()), take(action, tablePath.size()))\n' +
+            '       }\n' +
             '    }\n' +
             '    return t\n' +
             '}\n'

@@ -33,7 +33,7 @@ import { shell } from './model.js'
 import { Editor } from './Editor/index.js'
 import { CreateTableModal } from './CreateTableModal.js'
 import { AddColumnModal } from './AddColumnModal.js'
-import { QueryGuideModal } from './QueryGuide/index.js'
+import { AccessModal } from './AccessModal.js'
 
 import SvgDatabase from './icons/database.icon.svg'
 import SvgCreateDatabase from './icons/create-database.icon.svg'
@@ -41,6 +41,7 @@ import SvgDatabaseGroup from './icons/database-group.icon.svg'
 import SvgColumn from './icons/column.icon.svg'
 import SvgAddColumn from './icons/add-column.icon.svg'
 import SvgCreateTable from './icons/create-table.icon.svg'
+import SvgAccess from './icons/access.icon.svg'
 import SvgPartitions from './icons/partitions.icon.svg'
 import SvgSchema from './icons/schema.icon.svg'
 import SvgPartitionFile from './icons/partition-file.icon.svg'
@@ -48,6 +49,7 @@ import SvgColumnRoot from './icons/column-root.icon.svg'
 import SvgPartitionDirectory from './icons/partition-directory.icon.svg'
 import SvgTable from './icons/table.icon.svg'
 import SvgQueryGuide from './icons/query-guide.icon.svg'
+import { QueryGuideModal } from './QueryGuide/index.js'
 
 
 
@@ -157,7 +159,7 @@ export function Databases () {
                             
                             loadedKeys={loaded_keys}
                             loadData={async (node: EventDataNode<DatabaseGroup | Database | Table | ColumnRoot | PartitionRoot | Column | PartitionDirectory | PartitionFile>) => {
-                                await model.execute(async () => {
+                                try {
                                     switch (node.type) {
                                         case 'column-root':
                                         case 'partition-root':
@@ -169,8 +171,11 @@ export function Databases () {
                                             
                                             break
                                     }
-                                }, { throw: false })  // 这里不往上扔错误，避免 rc-tree 自动重试造成多个错误弹窗
-                            }}
+                                } catch (error) {
+                                    model.show_error({ error })
+                                    // 这里不往上扔错误，避免 rc-tree 自动重试造成多个错误弹窗
+                                } }
+                            }
                             onLoad={ keys => { set_loaded_keys(keys) }}
                             
                             expandedKeys={expanded_keys}
@@ -218,7 +223,7 @@ export function Databases () {
                                             keys_.push(node.key)
                                             
                                             // 显示 schema
-                                            await model.execute(async () => node.inspect())
+                                            await node.inspect()
                                         }
                                         
                                         set_expanded_keys(keys_)
@@ -227,7 +232,7 @@ export function Databases () {
                                     
                                     case 'partition-file':
                                     case 'schema':
-                                        await model.execute(async () => node.inspect())
+                                        await node.inspect()
                                         break
                                     
                                     case 'table': {
@@ -247,7 +252,7 @@ export function Databases () {
                                         
                                         set_expanded_keys(keys_)
                                         
-                                        await model.execute(async () => node.inspect())
+                                        await node.inspect()
                                         
                                         node.peeked = true
                                         
@@ -264,7 +269,7 @@ export function Databases () {
                     :
                         <div className='start-node-to-view'>
                             <span>{t('没有正在运行的数据节点和计算节点')}</span>
-                            <a onClick={() => { model.set({ view: model.dev || model.cdn ? 'overview' : 'overview-old' }) } }>{t('去启动节点')}</a>
+                            <a onClick={() => { model.set({ view: model.dev || model.test ? 'overview' : 'overview-old' }) } }>{t('去启动节点')}</a>
                         </div>
                 :
                     <div className='login-to-view'>
@@ -305,20 +310,18 @@ function SetColumnComment () {
             labelWrap
             name='edit-comment'
             onFinish={ async ({ comment }: { comment: string }) => {
-                await model.execute(async () => {
-                    await shell.define_set_column_comment()
-                    await model.ddb.call('set_column_comment', [
-                        root.table.db.path.slice(0, -1),
-                        root.table.name,
-                        name,
-                        comment
-                    ])
-                    model.message.success(t('设置注释成功'))
-                    root.children = null
-                    root.table.schema = null
-                    await root.load_children()
-                    shell.set({ dbs: [...shell.dbs] })
-                })
+                await shell.define_set_column_comment()
+                await model.ddb.call('set_column_comment', [
+                    root.table.db.path.slice(0, -1),
+                    root.table.name,
+                    name,
+                    comment
+                ])
+                model.message.success(t('设置注释成功'))
+                root.children = null
+                root.table.schema = null
+                await root.load_children()
+                shell.set({ dbs: [...shell.dbs] })
                 
                 form.resetFields()
                 shell.set({ set_column_comment_modal_visible: false })
@@ -361,14 +364,12 @@ function ConfirmCommand () {
             labelWrap
             name='confirm-command'
             onFinish={async () => {
-                await model.execute(async () => {
-                    console.log(t('创建数据库的脚本:'))
-                    console.log(generated_command)
-                    await model.ddb.eval(generated_command)
-                    model.message.success(t('创建数据库成功'))
-                    await shell.load_dbs()
-                    shell.set({ dbs: [...shell.dbs] })
-                })
+                console.log(t('创建数据库的脚本:'))
+                console.log(generated_command)
+                await model.ddb.eval(generated_command)
+                model.message.success(t('创建数据库成功'))
+                await shell.load_dbs()
+                shell.set({ dbs: [...shell.dbs] })
                 
                 form.resetFields()
                 shell.set({ confirm_command_modal_visible: false })
@@ -472,8 +473,8 @@ function CreateDatabase () {
                     className='db-modal-link' 
                     target='_blank'
                     href={language === 'zh'
-                        ? 'https://docs.dolphindb.cn/zh/help/FunctionsandCommands/FunctionReferences/d/database.html'
-                        : 'https://docs.dolphindb.cn/en/help200/FunctionsandCommands/FunctionReferences/d/database.html'
+                        ? 'https://docs.dolphindb.cn/zh/funcs/d/database.html'
+                        : 'https://docs.dolphindb.com/en/Functions/d/database.html'
                     }
                 >
                     {t('参考教程')}
@@ -633,7 +634,6 @@ function CreateDatabase () {
                             }]}
                         >
                             <Select placeholder={t('请选择{{i18nIndex}}分区类型', { i18nIndex })} options={[
-                                // https://www.dolphindb.cn/cn/help/FunctionsandCommands/FunctionReferences/d/database.html
                                 {
                                     label: <span title={t('顺序分区。分区方案格式为：整型标量，表示分区的数量。')}>{ t('顺序分区') + ' (SEQ)' }</span>,
                                     value: 'SEQ',
@@ -684,7 +684,6 @@ function CreateDatabase () {
             
             <Form.Item label={t('存储引擎 (engine)')} name='storageEngine' required initialValue='OLAP'>
                 <Select placeholder={t('请选择存储引擎')} options={[
-                    // https://www.dolphindb.cn/cn/help/FunctionsandCommands/FunctionReferences/d/database.html
                     {
                         label: <span title={t('OLAP 引擎。OLAP 数据表的每个列存储为一个文件，数据以追加的方式存储到相应的列文件中，因此，数据写入的顺序决定了它们的存储顺序。')}> OLAP </span>,
                         value: 'OLAP',
@@ -698,7 +697,6 @@ function CreateDatabase () {
             
             <Form.Item label={t('写入事务原子性 (atomic)')} name='atomicLevel' required>
                 <Select placeholder={t('请选择写入事务原子性')} options={[
-                    // https://www.dolphindb.cn/cn/help/FunctionsandCommands/FunctionReferences/d/database.html
                     {
                         label: <span title={t('写入事务的原子性层级为事务，即一个事务写入多个分区时，若某个分区被其他写入事务锁定而出现写入冲突，则该事务的写入全部失败。因此，该设置下，不允许并发写入同一个分区。')}>{ t('事务级原子性') + ' (TRANS)' }</span>,
                         value: 'TRANS',
@@ -712,7 +710,6 @@ function CreateDatabase () {
             
             <Form.Item label={t('分区粒度 (chunkGranularity)')} name='chunkGranularity' required>
                 <Select placeholder={t('请选择分区粒度')} options={[
-                    // https://www.dolphindb.cn/cn/help/FunctionsandCommands/FunctionReferences/d/database.html
                     {
                         label: <span title={t('表级分区，设置后支持同时写入同一分区的不同表。')}>{ t('表级分区') + ' (TABLE)' }</span>,
                         value: 'TABLE'
@@ -811,12 +808,11 @@ export class Database implements DataNode {
         const onclick_create_table: React.MouseEventHandler<HTMLSpanElement> = enable_create_table ?
             async event => {
                 event.stopPropagation()
-                await model.execute(async () => {
-                    const schema = (await this.get_schema()).to_dict()
-                    await NiceModal.show(CreateTableModal, { database: this, schema })
-                    await shell.load_dbs()
-                    await shell.refresh_db()
-                })
+                
+                const schema = (await this.get_schema()).to_dict()
+                await NiceModal.show(CreateTableModal, { database: this, schema })
+                await shell.load_dbs()
+                await shell.refresh_db()
             }
         :
             event => {
@@ -826,7 +822,20 @@ export class Database implements DataNode {
         this.title = <div className='database-title'>
             <span title={path.slice(0, -1)}>{path.slice('dfs://'.length, -1).split('.').at(-1)}</span>
             
-            <div className='database-actions'> 
+            <div className='database-actions'>
+                {
+                    model.admin && 
+                        model.node_type !== NodeType.computing && 
+                    <Tooltip title={ t('查看用户权限')} color='grey' destroyTooltipOnHide>
+                        <Icon 
+                            component={SvgAccess}
+                            onClick={async event => { 
+                                event.stopPropagation()
+                                await NiceModal.show(AccessModal, { database: this }) 
+                            }} 
+                        />
+                    </Tooltip> 
+                }
                 <Tooltip title={enable_create_table ? t('创建数据表') : t('仅支持单机节点和数据节点创建数据表')} color='grey' destroyTooltipOnHide>
                     <Icon 
                         disabled={!enable_create_table}
@@ -917,6 +926,7 @@ export class Table implements DataNode {
             else
                 return
         }
+        
         this.title = <div className='table-title'>
             <span> {path.slice(db.path.length, -1)} </span>
             <div className='table-actions'>

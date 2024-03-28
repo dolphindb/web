@@ -217,13 +217,13 @@ function ButtonIframeModal ({
     class_name: string
     iframe_src: string
 }) {
-    const { cdn } = model
+    const { test } = model
     
     const { visible, open, close } = use_modal()
     
     return <>
-        <Tooltip title={ cdn ? t('CDN 部署时无法使用配置管理') : '' }>
-            <Button icon={<SettingOutlined />} onClick={open} disabled={cdn}>{button_text}</Button>
+        <Tooltip title={ test ? t('测试环境部署时无法使用配置管理') : '' }>
+            <Button icon={<SettingOutlined />} onClick={open} disabled={test}>{button_text}</Button>
         </Tooltip>
         
         <Modal

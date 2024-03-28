@@ -11,10 +11,11 @@ interface IProps {
     path: NamePath | NamePath[]
     col_names: string[]
     list_path?: NamePath | NamePath[]
+    hidden?: boolean
 }
 
 export function AxisColSelect (props: IProps) { 
-    const { label, path, col_names, list_path } = props
+    const { label, path, col_names, list_path, hidden } = props
     
     const { widget: { source_id = [ ], type } } = dashboard.use(['widget'])
     
@@ -30,12 +31,11 @@ export function AxisColSelect (props: IProps) {
             <FormDependencies dependencies={concat_name_path(list_path, path, 'data_source_id')}>
                 {value => { 
                     const data_source = get(value, concat_name_path(list_path, path, 'data_source_id'))
-                    console.log(data_source, 'data_source')
                     return <Form.Item initialValue={get_data_source(source_id?.[0])?.cols?.[0]} name={concat_name_path(path, 'col_name')}>
                         <Select
                             options={convert_list_to_options(get_data_source(data_source).cols ?? [ ])} />
                     </Form.Item>
-                } }
+                }}
             </FormDependencies>
         </Space>
     </Form.Item>
@@ -44,6 +44,7 @@ export function AxisColSelect (props: IProps) {
         name={concat_name_path(path, 'col_name')}
         label={label}
         initialValue={col_names[0]}
+        hidden={hidden}
     >
         <Select options={convert_list_to_options(col_names)} />
     </Form.Item>

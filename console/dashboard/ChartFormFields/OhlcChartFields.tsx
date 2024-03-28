@@ -184,7 +184,7 @@ function YAxis ({ col_names, initial_values }: { col_names: string[], initial_va
                 return {
                     children,
                     key: field.name,
-                    label: <div className='yaxis-collapse-label'>
+                    label: <div className='collapse-label'>
                         {`${t('Y 轴')} ${field.name + 1}`}
                         {
                             index >= 2 &&
@@ -327,7 +327,7 @@ function Series (props: { col_names: string[] }) {
                  return {
                     key: field.name,
                     children,
-                    label: <div className='series-collapse-label'>
+                    label: <div className='collapse-label'>
                         {`${t('数据列')} ${field.name + 1}`}
                         {index >= 2 && <DeleteOutlined className='delete-icon' onClick={() => { remove(field.name) }} />}
                     </div>,
@@ -376,7 +376,7 @@ export function OhlcFormFields (props: IProps) {
         items={[
             {
                 key: 'x_axis',
-                label: t('X 轴属性'),
+                label: t('X 轴配置'),
                 children: (
                     <div className='axis-wrapper'>
                         <AxisItem name_path='xAxis' col_names={col_names} initial_values={x_axis} />
@@ -386,7 +386,7 @@ export function OhlcFormFields (props: IProps) {
             },
             {
                 key: 'y_axis',
-                label: t('Y 轴属性'),
+                label: t('Y 轴配置'),
                 // children: <AxisItem name_path='yAxis' col_names={col_names}/>,
                 children: <YAxis col_names={col_names} initial_values={y_axis} />,
                 forceRender: true

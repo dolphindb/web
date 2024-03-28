@@ -13,12 +13,16 @@ import { model, type DdbModel, NodeType, storage_keys } from '../model.js'
 
 
 import SvgOverview from '../overview/icons/overview.icon.svg'
+import SvgConfig from '../config/icons/config.icon.svg'
 import SvgShell from '../shell/index.icon.svg'
 import SvgDashboard from '../dashboard/icons/dashboard.icon.svg'
 import SvgJob from '../job.icon.svg'
 import SvgLog from '../log.icon.svg'
 import SvgFactor from '../factor.icon.svg'
 import SvgComputing from '../computing/icons/computing.icon.svg'
+import SvgAccess from '../access/icons/access.icon.svg'
+import SvgUser from '../access/icons/user.icon.svg'
+import SvgGroup from '../access/icons/group.icon.svg'
 
 
 const { Text, Link } = Typography
@@ -26,12 +30,16 @@ const { Text, Link } = Typography
 
 const svgs = {
     overview: SvgOverview,
+    config: SvgConfig,
     shell: SvgShell,
     dashboard: SvgDashboard,
     job: SvgJob,
     log: SvgLog,
     factor: SvgFactor,
     computing: SvgComputing,
+    access: SvgAccess,
+    user: SvgUser,
+    group: SvgGroup
 }
 
 
@@ -40,24 +48,28 @@ function MenuIcon ({ view }: { view: DdbModel['view'] }) {
 }
 
 export function DdbSider () {
-    const { view, node_type, collapsed, logined, login_required, is_v1 } = model.use(['view', 'node_type', 'collapsed', 'logined', 'login_required', 'is_v1'])
+    const { view, node_type, collapsed, logined, admin, login_required, is_v1 } = model.use(['view', 'node_type', 'collapsed', 'logined', 'admin', 'login_required', 'is_v1'])
     
     
     const factor_href = useMemo(() => {
         const search_params = new URLSearchParams(location.search)
         
-        return 'factor-platform/index.html?' + new URLSearchParams(omitBy({
-            ddb_hostname: search_params.get('hostname'),
-            ddb_port: search_params.get('port'),
-            logined: Number(logined).toString(),
-            token: localStorage.getItem(storage_keys.ticket)
-        }, isNil)).toString()
-    },
-        [logined]
-    )
+        return 'factor-platform/index.html?' +
+            new URLSearchParams(
+                omitBy(
+                    {
+                        ddb_hostname: search_params.get('hostname'),
+                        ddb_port: search_params.get('port'),
+                        logined: Number(logined).toString(),
+                        token: localStorage.getItem(storage_keys.ticket)
+                    },
+                    isNil
+                )
+            ).toString()
+    }, [logined])
     
     return <Layout.Sider
-        width={120}
+        width={150}
         className='sider'
         theme='light'
         collapsible
@@ -95,15 +107,20 @@ export function DdbSider () {
             }}
             inlineIndent={10}
             items={[
-                ... model.dev || model.cdn ? [{
+                ... model.dev || model.test ? [{
                     key: 'overview',
                     icon: <MenuIcon view='overview' />,
                     label: node_type === NodeType.single ? t('单机总览') : t('集群总览'),
                 }] : [ ],
-                ... !model.cdn && node_type === NodeType.controller ? [{
+                ... !model.test && node_type === NodeType.controller ? [{
                     key: 'overview-old',
                     icon: <MenuIcon view='overview' />,
                     label: t('集群总览'),
+                }] : [ ],
+                ...model.admin && node_type === NodeType.controller ? [{
+                    key: 'config',
+                    icon: <MenuIcon view='config'/>,
+                    label: t('配置管理')
                 }] : [ ],
                 {
                     key: 'shell',
@@ -125,6 +142,23 @@ export function DdbSider () {
                     icon: <MenuIcon view='computing' />,
                     label: t('流计算监控', { context: 'menu' }),
                 },
+                ... model.node_type !== NodeType.computing && admin ? [{
+                    key: 'access',
+                    icon: <MenuIcon view='access' />,
+                    label: t('权限管理'),
+                    children: [
+                        {
+                            key: 'user',
+                            icon: <MenuIcon view='user' />,
+                            label: t('用户管理'),
+                        },
+                        {
+                            key: 'group',
+                            icon: <MenuIcon view='group' />,
+                            label: t('组管理'),
+                        },
+                    ]
+                }] : [ ],
                 {
                     key: 'log',
                     icon: <MenuIcon view='log' />,
@@ -135,7 +169,7 @@ export function DdbSider () {
                     icon: <MenuIcon view='factor' />,
                     label: <Link target='_blank' href={factor_href}>{t('因子平台')}</Link>
                 }] : [ ],
-                ... model.dev || model.cdn ? [
+                ... model.dev || model.test ? [
                     {
                         key: 'test',
                         icon: <ExperimentOutlined className='icon-menu' />,

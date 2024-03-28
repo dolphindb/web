@@ -1,7 +1,7 @@
 import { type NamePath } from 'antd/es/form/interface'
-import { type DdbObj, DdbForm, DdbType, nulls, type DdbValue, format, type InspectOptions } from 'dolphindb/browser.js'
+import { type DdbObj, DdbForm, DdbType, nulls, type DdbValue, format, type InspectOptions, type DdbMatrixValue } from 'dolphindb/browser.js'
 import { is_decimal_null_value } from 'dolphindb/shared/utils.js'
-import { isNil, isNumber, pickBy, uniq } from 'lodash'
+import { isNil, pickBy } from 'lodash'
 import { createRef } from 'react'
 import { genid } from 'xshell/utils.browser.js'
 import copy from 'copy-to-clipboard'
@@ -9,10 +9,13 @@ import dayjs from 'dayjs'
 
 import { WidgetChartType, type Widget, dashboard, DashboardPermission } from './model.js'
 import { type AxisConfig, type IChartConfig, type ISeriesConfig } from './type.js'
-import { subscribe_data_source, type DataSource } from './DataSource/date-source.js'
-import { AxisType, MarkPresetType } from './ChartFormFields/type.js'
+import { subscribe_data_source, type DataSource, get_data_source } from './DataSource/date-source.js'
+import { AxisType, ILineType, MarkPresetType, ThresholdShowType, ThresholdType } from './ChartFormFields/type.js'
 import { find_variable_by_name, get_variable_copy_infos, get_variable_value, paste_variables, subscribe_variable } from './Variable/variable.js'
 import { t } from '../../i18n/index.js'
+import { type DdbTable } from 'dolphindb'
+import type { EChartsInstance } from 'echarts-for-react'
+import { formati } from 'dolphindb'
 
 
 export function format_time (time: string, format: string) {
@@ -69,8 +72,34 @@ function formatter (type: DdbType, values, le: boolean, index: number, options =
     }
 }
 
-export function sql_formatter (obj: DdbObj<DdbValue>, max_line?: number): Array<{}> {
+export function sql_formatter (obj: DdbObj<DdbValue>, max_line?: number): any {
     switch (obj.form) {
+        case DdbForm.matrix:
+            // 行数、列数
+            const { cols: col_num, rows: row_num, value } = obj
+            // 行标签、列标签与数据
+            const { cols: col_label, rows: row_babel, data } = value as DdbMatrixValue
+            let matrix_data = [ ]
+            for (let i = 0;  i < row_num;  i++) { 
+                let row_data = [ ]
+                for (let j = 0;  j < col_num;  j++)
+                    row_data.push(data[i + row_num * j])
+                matrix_data.push(row_data)
+            }
+            
+            function convert_labels (num: number, obj) {
+                if (!obj)
+                    return null
+                let labels = [ ]
+                for (let i = 0;  i < num;  i++)  
+                    labels.push(formati(obj, i))
+                return labels        
+            }
+            return {
+                data: matrix_data,
+                col_labels: convert_labels(col_num, col_label) ?? Array.from(new Array(col_num).keys()),
+                row_labels: convert_labels(row_num, row_babel) ?? Array.from(new Array(row_num).keys())
+            }
         case DdbForm.table:
             const array_vectors = { }
             let rows = new Array()
@@ -111,7 +140,7 @@ export function sql_formatter (obj: DdbObj<DdbValue>, max_line?: number): Array<
             
             return rows
         default:
-            throw new Error('返回结果必须是table')
+            throw new Error('返回结果必须是 table 或 matrix')
     }
     
 }
@@ -157,6 +186,8 @@ export function stream_formatter (obj: DdbObj<DdbValue>, max_line: number, cols:
 }
 
 export function get_cols (obj: DdbObj<DdbValue>): Array<string> {
+    if (obj.form !== DdbForm.table)
+        return [ ]
     const cols = [ ]
     for (let i = 0;  i < obj.cols;  i++) 
         cols.push(obj.value[i].name)
@@ -199,10 +230,23 @@ export function concat_name_path (...paths: (NamePath | NamePath[])[]): NamePath
     }, [ ])
 }
 
-export function convert_chart_config (widget: Widget, data_source: any[]) {
+/** type 表示轴类型，传入 0 的时候代表 X 轴，其余时候为 Y 轴 */
+export function get_axis_range (type: number, echart_instance: EChartsInstance, idx: number) { 
+    return echart_instance.getModel().getComponent(type === 0 ? 'xAxis' : 'yAxis', idx).axis.scale._extent
+}
+
+function get_data_source_cols (data_source_id, col) {
+    return get_data_source(data_source_id).data.map(item => item[col])
+} 
+
+export function convert_chart_config (
+    widget: Widget,
+    data_source: any[],
+    axis_range_map?: { [key: string]: { min: number, max: number } }
+) {
     const { config } = widget
     
-    const { title, title_size, splitLine, xAxis, series, yAxis, x_datazoom, y_datazoom, legend, animation, tooltip } = config as IChartConfig
+    const { title, title_size, splitLine, xAxis, series, yAxis, x_datazoom, y_datazoom, legend, animation, tooltip, thresholds = [ ] } = config as IChartConfig
     
     function convert_data_zoom (x_datazoom: boolean, y_datazoom: boolean) { 
         const total_data_zoom = [
@@ -234,12 +278,13 @@ export function convert_chart_config (widget: Widget, data_source: any[]) {
         let data = undefined
         // 类目轴下需要定义类目数据, 其他轴线类型下 data 不生效
         if (axis.type === AxisType.CATEGORY)
-            data = axis.col_name ? data_source.map(item => item?.[axis.col_name]) : [ ]
+            data = axis.col_name ? data_source.map(item => format_time(item?.[axis.col_name], axis.time_format)) : [ ]
         
         const axis_config = {
             show: true,
             name: axis.name,
             type: axis.type,
+            interval: axis.interval,
             splitLine: {
                 show: true,
                 lineStyle: { 
@@ -270,13 +315,7 @@ export function convert_chart_config (widget: Widget, data_source: any[]) {
             max: [AxisType.TIME, AxisType.VALUE].includes(axis.type) ? axis.max : undefined
         }
         
-        if (axis.type === AxisType.CATEGORY)
-            // 热力图的类目数据需为去重之后的数据
-            return {
-                ...axis_config, data: widget.type === WidgetChartType.HEATMAP ? uniq(data) : data || [ ]
-            }
-        else
-            return axis_config
+        return axis_config
     }
     
     function convert_series (series: ISeriesConfig) {
@@ -290,31 +329,23 @@ export function convert_chart_config (widget: Widget, data_source: any[]) {
                 return { yAxis: item }
         }) || [ ]
         
-        // const get_item_color = value => value > series.threshold.value ? series.threshold?.high_color : series.threshold?.low_color
-        
         let data = [ ]
         
-        // 无类目轴的情况下，series 每项为二维数组，第一个为 x 轴的值，第二个为 y 轴的值
-        if (![xAxis?.type, yAxis?.[series?.yAxisIndex]?.type].includes(AxisType.CATEGORY)) 
-            data = data_source.map(item => { 
-                return {
-                    name: format_time(item?.[xAxis.col_name], xAxis.time_format),
-                    value: [format_time(item?.[xAxis.col_name], xAxis.time_format), item?.[series.col_name]]
-                }
-            })
-            // if (isNumber(series.threshold?.value))
-            //     data = data.map(item => ({ ...item, itemStyle: { color: get_item_color(item[1]) } }))
-         else  
-            // 有类目轴的情况下，类目信息从 axis 中取
-            data = data_source.map(item => item?.[series.col_name])
-            // if (isNumber(series.threshold?.value))
-            //     data = data.map(item => ({
-            //     value: item,
-            //     itemStyle: {
-            //         color: get_item_color(item)
-            //     }
-            // }))
+        // 多数据源的情况下，series 中会有 data_source_id 和 x_col_name，代表数据源 id 和 x 轴名称
+        const { col_name, x_col_name, data_source_id, yAxisIndex } = series
         
+        if (data_source_id) {
+            // 多数据源的情况
+            const x_data = get_data_source_cols(data_source_id, x_col_name).map(x => format_time(x, xAxis.time_format))
+            const y_data = get_data_source_cols(data_source_id, col_name).map(y => format_time(y, yAxis[yAxisIndex]?.time_format))
+            data = x_data.map((x, idx) => ([x, y_data[idx]]))
+        } else  
+            data = data_source.map(item => [format_time(item?.[xAxis.col_name], xAxis.time_format), item?.[series.col_name]])
+        
+        // {b} 代表 xAxis 中的 data，x 轴的数据现在都在 series 中，需要替换
+        let end_label_formatter = series?.end_label_formatter
+        if (end_label_formatter)
+            end_label_formatter = end_label_formatter.replaceAll('{b}', '{@[0]}').replaceAll('{c}', '{@[1]}')
         
         return {
             type: series.type?.toLowerCase(),
@@ -324,8 +355,14 @@ export function convert_chart_config (widget: Widget, data_source: any[]) {
             stack: series.stack,
             endLabel: {
                 show: series.end_label,
-                formatter: series.end_label_formatter,
-                color: 'inherit'
+                formatter: end_label_formatter,
+                color: '#fff',
+                backgroundColor: 'inherit',
+                padding: 4,
+            },
+            // endLabel 标签不重叠
+            labelLayout: {
+              moveOverlap: 'shiftY', 
             },
             
             // 防止删除yAxis导致渲染失败
@@ -348,12 +385,115 @@ export function convert_chart_config (widget: Widget, data_source: any[]) {
                 type: series.line_type,
                 color: series.color,
                 width: series.line_width
-            }
+            },
+            areaStyle: series.is_filled ? {
+                opacity: series.opacity
+            } : null
+            
         }
     }
     
+    let echarts_series = series.filter(Boolean).map(convert_series)
+    const valid_thresholds = thresholds.filter(item => item && item.show_type !== ThresholdShowType.NONE)
     
-    return {
+    // 根据阈值，为 series 添加 markArea 或者 markLine
+    for (let threshold of valid_thresholds)  
+        // x 轴设置区域
+        if (threshold.axis_type === 0) {
+            // x 轴只有 1 个，所以直接更改第一个 series 的 markArea 或者 markLine 即可
+            const idx = 0
+            let valid_values = threshold.values.filter(item => item?.value && isFinite(item?.value))
+            
+            if (threshold.type === ThresholdType.PERCENTAGE && axis_range_map) {
+                // 百分比分界需要计算 values 中实际的 value 值
+                const { min = 0, max = 0 } = axis_range_map[`x_${threshold.axis}`] ?? { }
+                valid_values = valid_values.map(item => ({ ...item, value: (max - min) * item.value / 100 + min }))
+            }
+            
+            let mark_area_data = [ ]
+            let mark_line_data = [ ]
+            
+            
+            const sorted_values = valid_values.filter(Boolean).sort((a, b) => a.value - b.value)
+            
+            
+            for (let i = 0;  i < sorted_values.length;  i++)  
+                // 区域颜色分界
+                if (threshold.show_type === ThresholdShowType.FILLED_REGION)
+                    mark_area_data.push([
+                        {
+                            xAxis: sorted_values[i].value,
+                            itemStyle: { color: sorted_values[i].color }
+                        },
+                        { xAxis: sorted_values[i + 1]?.value }
+                    ]) 
+                else
+                    // 值颜色分界
+                    mark_line_data.push({
+                        xAxis: sorted_values[i].value,
+                        lineStyle: {
+                            color: sorted_values[i].color,
+                            type: threshold.line_type ?? ILineType.SOLID,
+                            width: threshold.line_width
+                        }
+                    })
+            
+            echarts_series[idx] = {
+                ...echarts_series[idx],
+                markArea:  { data: mark_area_data },
+                markLine: { 
+                    symbol: ['none', 'none'],
+                    data: mark_line_data
+                },
+            } as any
+        }
+        else { 
+            // 需要根据关联的 Y 轴找到第一个数据列，然后为此数据列设置 markArea 或者 markLine
+            const idx = series.findIndex(item => item.yAxisIndex === threshold.axis)
+            let valid_values = threshold.values.filter(item => isFinite(item?.value))
+            
+            if (threshold.type === ThresholdType.PERCENTAGE && axis_range_map) { 
+                // 获取 Y 轴最大值，将阈值转化为绝对值
+                const { min = 0, max = 0 } = axis_range_map[`y_${threshold.axis}`] ?? { }
+                valid_values = valid_values.map(item => ({ ...item, value: (max - min) * item.value / 100 + min }))
+            }
+                
+            let mark_area_data = [ ]
+            let mark_line_data = [ ]
+            const sorted_values = valid_values.sort((a, b) => a.value - b.value)
+            
+            for (let i = 0;  i < sorted_values.length;  i++)  
+                // 区域颜色分界
+                if (threshold.show_type === ThresholdShowType.FILLED_REGION)
+                    mark_area_data.push([
+                        {
+                            yAxis: sorted_values[i].value,
+                            itemStyle: { color: sorted_values[i].color }
+                        },
+                        { yAxis: sorted_values[i + 1]?.value }
+                    ]) 
+                else
+                    // 值颜色分界
+                    mark_line_data.push({
+                        yAxis: sorted_values[i].value,
+                        lineStyle: {
+                            color: sorted_values[i].color,
+                            type: threshold.line_type ?? ILineType.SOLID,
+                            width: threshold.line_width
+                        }
+                    })
+                    
+            echarts_series[idx] = {
+                ...echarts_series[idx],
+                markArea: { data: mark_area_data },
+                markLine: { 
+                    symbol: ['none', 'none'],
+                    data: mark_line_data
+                },
+            } as any
+        }
+    
+    return  {
         animation,
         grid: {
             containLabel: true,
@@ -378,6 +518,28 @@ export function convert_chart_config (widget: Widget, data_source: any[]) {
             textStyle: {
                 color: '#F5F5F5'
             },
+            confine: true,
+            formatter: params => { 
+                if (!Array.isArray(params))
+                    params = [params]
+                const x = params[0].value?.[0] ?? params[0]?.data?.[0]
+                let html = `<div style="font-weight: 500;">${x}</div>`
+                for (let series of params) { 
+                    const value = series.value?.[1] ?? series.data?.[1]
+                    const text = `<div style="display: flex; justify-content: space-between;">
+                        <span style="display: inline-block; margin-right: 12px;">
+                            ${series?.marker}
+                            <span>${series?.seriesName}</span>
+                        </span>
+                        <span style="font-weight: 500">
+                            ${value}
+                        </span>
+                    </div>
+                    `
+                    html += text 
+                }
+                return html
+            }
         },
         title: {
             text: parse_text(title ?? ''),
@@ -388,13 +550,13 @@ export function convert_chart_config (widget: Widget, data_source: any[]) {
         },
         xAxis: convert_axis(xAxis),
         yAxis: Array.isArray(yAxis) ? yAxis.filter(item => !!item).map(convert_axis) : convert_axis(yAxis),
-        series: series.filter(item => !!item).map(convert_series),
+        series: echarts_series,
         dataZoom: convert_data_zoom(x_datazoom, y_datazoom)
     }
 }
 
 
-export function convert_list_to_options (list: (string | number)[]) { 
+export function convert_list_to_options (list: any[]) { 
     return list.map(item => ({
         label: item,
         value: item,
@@ -438,7 +600,7 @@ export function safe_json_parse (val) {
 export function format_number (val: any, decimal_places, is_thousandth_place) {
     let value = val
     try {
-        if (!isNaN(Number(val)) && typeof decimal_places === 'number') {
+        if (isFinite(Number(val)) && isFinite(decimal_places)) {
             // 0 不需要格式化
             if (Number(val) === 0)
                 return 0
@@ -531,4 +693,34 @@ export function check_name (new_name: string) {
         return t('dashboard 名称中不允许包含 "/" 或 "\\" ')
     else if (dashboard.configs.find(({ name, permission }) => name === new_name && permission === DashboardPermission.own)) 
         return t('名称重复，请重新输入')    
+}
+
+
+export function get_sql_col_type_map (obj: DdbTable): Record<string, DdbType> { 
+    const col_type_map: Record<string, DdbType> = { } 
+    for (let col_obj of obj.value)  
+        col_type_map[col_obj.name] = col_obj.type
+    return col_type_map
+}
+
+
+export async function get_streaming_col_type_map (table_name: string): Promise<Record<string, DdbType>> {
+    const col_types_map: Record<string, DdbType> = { }
+    const schema_table = (await dashboard.eval(`schema(${table_name})['colDefs']`)).value as DdbObj<DdbValue>[]
+    
+    const cols = schema_table.find(item => item.name === 'name').value as string[]
+    const ddb_types = schema_table.find(item => item.name === 'typeInt').value as DdbType[]
+    
+    for (let i = 0;  i < cols.length;  i++)
+        col_types_map[cols[i]] = ddb_types[i]
+        
+    return col_types_map
+}
+export function get_chart_data_type (chart_type: WidgetChartType) {
+    switch (chart_type) { 
+        case WidgetChartType.HEATMAP:
+            return DdbForm.matrix
+        default: 
+            return DdbForm.table
+    }
 }
