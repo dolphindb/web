@@ -16,11 +16,13 @@ interface ErrorType {
     appear: boolean
     msg: string
 }
+
 interface ConfigType {
     table: string
     username: string
     password: string
 }
+
 export interface LineConfigType extends ConfigType {
     time_variable: string
     properties: Array<string>
@@ -74,6 +76,7 @@ export type LineNodeType = {
     time: number
     [key: string]: number | string
 }
+
 // 定义K线图节点类型
 export type KLineNodeType = {
     time: number

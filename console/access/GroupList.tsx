@@ -246,6 +246,7 @@ export function GroupList () {
                     set_selected_groups(selectedRowKeys)
                 }
             }}
+            pagination={{ hideOnSinglePage: true, size: 'small' }}
             columns={cols}
             dataSource={groups_info
                 .filter(({ groupName }) => groupName.toLowerCase().includes(search_key.toLowerCase()))

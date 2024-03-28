@@ -375,6 +375,7 @@ export function UserList () {
                     set_selected_users(selectedRowKeys)
                 }
             }}
+            pagination={{ hideOnSinglePage: true, size: 'small' }}
             columns={cols}
             dataSource={users_info
                 .filter(({ userId }) => userId.toLowerCase().includes(search_key.toLowerCase()))

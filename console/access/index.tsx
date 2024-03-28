@@ -3,14 +3,15 @@ import './index.sass'
 import { useEffect } from 'react'
 import { Result } from 'antd'
 
-import { access } from './model.js'
 import { model } from '../model.js'
+
+import { t } from '../../i18n/index.js'
+
+import { access } from './model.js'
 
 import { AccessView } from './AccessView.js'
 import { GroupList } from './GroupList.js'
 import { UserList } from './UserList.js'
-
-import { t } from '../../i18n/index.js'
 
 
 export function User () {
@@ -36,8 +37,13 @@ function Access ({ role }: { role: 'group' | 'user' }) {
             access.set({ current: null })
     }, [ ])
     
-    return admin ?
-            current?.view ? <AccessView /> : role === 'group' ? <GroupList /> : <UserList />
+    return admin ? (
+        current?.view ?
+            <AccessView />
+        : role === 'group' ?
+            <GroupList />
         :
-            <Result status='warning' className='interceptor' title={t('非管理员不能查看权限管理模块。')} />
+            <UserList />
+    ) :
+        <Result status='warning' className='interceptor' title={t('非管理员不能查看权限管理模块。')} />
 }

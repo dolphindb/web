@@ -8,7 +8,7 @@ import {
 } from 'antd'
 import { ReloadOutlined } from '@ant-design/icons'
 
-import { type DdbObj, nulls, format, DdbType } from 'dolphindb/browser.js'
+import { type DdbObj, format, DdbType } from 'dolphindb/browser.js'
 
 import { language, t } from '../i18n/index.js'
 import { model, type DdbJob } from './model.js'
@@ -136,6 +136,7 @@ export function Job () {
             </Title>
             
             <Table
+                size='small'
                 columns={
                     translate_columns(
                         add_progress_col(
@@ -156,6 +157,7 @@ export function Job () {
                 expandable={{
                     expandedRowRender: gjob => 
                         <Table
+                            size='small'
                             columns={
                                 translate_columns(
                                     cjob_cols.filter(col => 
@@ -180,6 +182,7 @@ export function Job () {
             </Title>
             
             <Table
+                size='small'
                 columns={
                     handle_ellipsis_col(
                         set_col_width(
@@ -211,6 +214,7 @@ export function Job () {
             </Title>
             
             <Table
+                size='small'
                 columns={
                     translate_columns(
                         append_action_col(
