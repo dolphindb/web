@@ -713,7 +713,7 @@ async function handle_delete (type: string, selected: string[], ddb: DDB, refres
             break
         case 'persistenceMeta':
         case 'sharedStreamingTableStat':
-            await Promise.all(selected.map(async streaming_table_name => ddb.call('dropStreamTable', [streaming_table_name, new DdbBool(true)], { urgent: true })))
+            await Promise.all(selected.map(async streaming_table_name => ddb.call('dropStreamTable', [streaming_table_name, true], { urgent: true })))
             model.message.success(t('流数据表删除成功'))
             break
         case 'engine':
