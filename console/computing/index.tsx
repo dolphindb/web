@@ -13,11 +13,12 @@ import { use_modal } from 'react-object-model/hooks.js'
 import { type DDB } from 'dolphindb/browser.js'
 
 import { model, NodeType } from '../model.js'
-import { computing } from './model.js'
 
 import { TableCellDetail } from '../components/TableCellDetail/index.js'
 
 import { t } from '../../i18n/index.js'
+
+import { computing } from './model.js'
 
 import SvgPublish from './icons/publish.icon.svg'
 import SvgEngine from './icons/engine.icon.svg'
