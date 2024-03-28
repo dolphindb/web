@@ -107,12 +107,12 @@ export function DdbSider () {
             }}
             inlineIndent={10}
             items={[
-                ... model.dev || model.cdn ? [{
+                ... model.dev || model.test ? [{
                     key: 'overview',
                     icon: <MenuIcon view='overview' />,
                     label: node_type === NodeType.single ? t('单机总览') : t('集群总览'),
                 }] : [ ],
-                ... !model.cdn && node_type === NodeType.controller ? [{
+                ... !model.test && node_type === NodeType.controller ? [{
                     key: 'overview-old',
                     icon: <MenuIcon view='overview' />,
                     label: t('集群总览'),
@@ -169,7 +169,7 @@ export function DdbSider () {
                     icon: <MenuIcon view='factor' />,
                     label: <Link target='_blank' href={factor_href}>{t('因子平台')}</Link>
                 }] : [ ],
-                ... model.dev || model.cdn ? [
+                ... model.dev || model.test ? [
                     {
                         key: 'test',
                         icon: <ExperimentOutlined className='icon-menu' />,

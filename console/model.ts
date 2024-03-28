@@ -49,8 +49,8 @@ export class DdbModel extends Model<DdbModel> {
     /** 通过 ticket 或用户名密码自动登录，默认为 true 传 autologin=0 关闭 */
     autologin = true
     
-    /** 通过 cdn 访问的 web */
-    cdn = false
+    /** 通过 test.dolphindb.cn 访问的 web */
+    test = false
     
     /** 启用详细日志，包括执行的代码和运行代码返回的变量 */
     verbose = false
@@ -142,11 +142,11 @@ export class DdbModel extends Model<DdbModel> {
         
         this.dev = params.get('dev') !== '0' && location.pathname.endsWith('/console/') || params.get('dev') === '1'
         this.autologin = params.get('autologin') !== '0'
-        this.cdn = location.hostname === 'cdn.dolphindb.cn' || params.get('cdn') === '1'
+        this.test = location.hostname === 'test.dolphindb.cn' || params.get('test') === '1'
         this.verbose = params.get('verbose') === '1'
         
-        // cdn 或开发模式下，浏览器误跳转到 https 链接，自动跳转回 http
-        if (location.protocol === 'https:' && (this.dev || this.cdn) && params.get('https') !== '1') {
+        // test 或开发模式下，浏览器误跳转到 https 链接，自动跳转回 http
+        if (location.protocol === 'https:' && (this.dev || this.test) && params.get('https') !== '1') {
             alert('请将地址栏中的链接改为 http:// 开头')
             return
         }
@@ -200,7 +200,7 @@ export class DdbModel extends Model<DdbModel> {
             } catch {
                 console.log(t('ticket 登录失败'))
                 
-                if (this.dev || this.cdn)
+                if (this.dev || this.test)
                     try {
                         await this.login_by_password('admin', '123456')
                     } catch {
@@ -528,7 +528,7 @@ export class DdbModel extends Model<DdbModel> {
         this.set({
             view: new URLSearchParams(location.search).get('view') as DdbModel['view'] || 
                 (this.node_type === NodeType.controller ? 
-                    (this.dev || this.cdn ? 'overview' : 'overview-old')
+                    (this.dev || this.test ? 'overview' : 'overview-old')
                 :
                     'shell')
         })

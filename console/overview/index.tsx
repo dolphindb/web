@@ -217,7 +217,7 @@ function ButtonIframeModal ({
     class_name: string
     iframe_src: string
 }) {
-    const { cdn } = model
+    const { test: cdn } = model
     
     const { visible, open, close } = use_modal()
     

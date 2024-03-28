@@ -269,7 +269,7 @@ export function Databases () {
                     :
                         <div className='start-node-to-view'>
                             <span>{t('没有正在运行的数据节点和计算节点')}</span>
-                            <a onClick={() => { model.set({ view: model.dev || model.cdn ? 'overview' : 'overview-old' }) } }>{t('去启动节点')}</a>
+                            <a onClick={() => { model.set({ view: model.dev || model.test ? 'overview' : 'overview-old' }) } }>{t('去启动节点')}</a>
                         </div>
                 :
                     <div className='login-to-view'>
