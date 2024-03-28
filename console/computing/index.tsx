@@ -10,7 +10,7 @@ import type { SortOrder } from 'antd/es/table/interface.js'
 
 import { use_modal } from 'react-object-model/hooks.js'
 
-import { DdbBool, type DDB } from 'dolphindb/browser.js'
+import { type DDB } from 'dolphindb/browser.js'
 
 import { model, NodeType } from '../model.js'
 import { computing } from './model.js'
