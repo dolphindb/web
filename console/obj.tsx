@@ -22,7 +22,7 @@ import { Line, Pie, Bar, Column, Scatter, Area, DualAxes, Histogram, Stock } fro
 
 import { use_rerender } from 'react-object-model/hooks.js'
 
-import { genid, seq } from 'xshell/utils.browser.js'
+import { genid, seq, assert, delay } from 'xshell/utils.browser.js'
 
 
 import {
@@ -48,7 +48,6 @@ import {
     type StreamingParams,
     type StreamingMessage,
 } from 'dolphindb/browser.js'
-import { assert, delay } from 'xshell/utils.browser.js'
 
 import { t } from '../i18n/index.js'
 
