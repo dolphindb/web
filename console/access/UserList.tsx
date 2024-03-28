@@ -5,10 +5,12 @@ import { useEffect, useMemo, useState } from 'react'
 import { CheckCircleFilled, DeleteOutlined, MinusCircleFilled, PlusOutlined, ReloadOutlined, SearchOutlined } from '@ant-design/icons'
 import { Button, Form, Input, Modal, Popconfirm, Select, Switch, Table, Tag, Tooltip, Transfer, type TableColumnType } from 'antd'
 
+import { use_modal } from 'react-object-model/hooks.js'
+
 import { t, language } from '../../i18n/index.js'
 
-import { use_modal } from 'react-object-model/hooks.js'
 import { model } from '../model.js'
+
 import { access } from './model.js'
 
 export function UserList () {
@@ -26,7 +28,6 @@ export function UserList () {
     
     const [selected_groups, set_selected_groups] = useState<string[]>([ ])
     
-    
     const [add_user_form] = Form.useForm()
     
     const [reset_password_form] = Form.useForm()
@@ -38,11 +39,13 @@ export function UserList () {
     let confior = use_modal()
     
     useEffect(() => {
-        (async () =>  { set_users_info((await access.get_user_access(users))) } )()
+        (async () => {
+            set_users_info(await access.get_user_access(users))
+        })()
     }, [users])
     
-    const cols: TableColumnType<Record<string, any>>[] = useMemo(() => (
-        [
+    const cols: TableColumnType<Record<string, any>>[] = useMemo(
+        () => [
             {
                 title: t('用户名'),
                 dataIndex: 'user_name',
@@ -60,20 +63,18 @@ export function UserList () {
                         text: t('管理员'),
                         value: true
                     },
-                    { 
+                    {
                         text: t('非管理员'),
                         value: false
                     }
                 ],
                 filterMultiple: false,
-                onFilter: (is_admin: boolean, record) => 
-                                users_info.find(({ userId }) => 
-                                    userId === record.user_name).isAdmin === is_admin
+                onFilter: (is_admin: boolean, record) => users_info.find(({ userId }) => userId === record.user_name).isAdmin === is_admin
             },
             {
                 title: t('所属组'),
                 dataIndex: 'groups',
-                key: 'groups',
+                key: 'groups'
             },
             {
                 title: t('操作'),
@@ -81,14 +82,15 @@ export function UserList () {
                 key: 'actions',
                 width: 360
             }
-        ]
-    ), [users_info])
+        ],
+        [users_info]
+    )
     
     return <>
-        <Modal 
+        <Modal
             className='add-user-modal'
             open={creator.visible}
-            onCancel={() => { 
+            onCancel={() => {
                 add_user_form.resetFields()
                 creator.close()
             }}
@@ -97,11 +99,11 @@ export function UserList () {
             onOk={async () => {
                 try {
                     const { username, password, is_admin, groups } = await add_user_form.validateFields()
-                    await access.create_user({ 
+                    await access.create_user({
                         userId: username,
                         password: password,
                         groupIds: groups,
-                        isAdmin: is_admin 
+                        isAdmin: is_admin
                     })
                     model.message.success(t('用户创建成功'))
                     creator.close()
@@ -112,37 +114,33 @@ export function UserList () {
                         throw error
                     console.error(error)
                 }
-                
             }}
-            >
-            <Form
-                name='basic'
-                labelCol={{ span: language === 'zh' ? 4 : 8 }}
-                labelAlign='right'
-                form={add_user_form}
-                autoComplete='off'
-            >
+        >
+            <Form name='basic' labelCol={{ span: language === 'zh' ? 4 : 8 }} labelAlign='right' form={add_user_form} autoComplete='off'>
                 <Form.Item
                     label={t('用户名')}
                     name='username'
-                    rules={[{ required: true, message: t('请输入用户名!') }, 
-                            { max: 30, message: t('用户名长度不能超过 30 个字符') }, 
-                            { pattern: /^(?![\d_])[\w\d]+$/, message: t('用户名只能包含字母、下划线或数字，并且不能以数字或下划线开头') }]}
+                    rules={[
+                        { required: true, message: t('请输入用户名!') },
+                        { max: 30, message: t('用户名长度不能超过 30 个字符') },
+                        { pattern: /^(?![\d_])[\w\d]+$/, message: t('用户名只能包含字母、下划线或数字，并且不能以数字或下划线开头') }
+                    ]}
                     validateFirst
-                    >
-                        <Input />
+                >
+                    <Input />
                 </Form.Item>
                 
                 <Form.Item
                     label={t('密码')}
                     name='password'
-                    rules={[{ required: true, message: t('请输入密码!') },
-                            { min: 6, message: t('密码长度为 6-20 个字符，且不包含空格或中文') },
-                            { max: 20, message: t('密码长度为 6-20 个字符，且不包含空格或中文') },
-                            { pattern: /^[^\s\u4E00-\u9FFF]+$/, message: t('密码长度为 6-20 个字符，且不包含空格或中文') }, 
-                        ]}
-                    validateFirst     
-                    >
+                    rules={[
+                        { required: true, message: t('请输入密码!') },
+                        { min: 6, message: t('密码长度为 6-20 个字符，且不包含空格或中文') },
+                        { max: 20, message: t('密码长度为 6-20 个字符，且不包含空格或中文') },
+                        { pattern: /^[^\s\u4E00-\u9FFF]+$/, message: t('密码长度为 6-20 个字符，且不包含空格或中文') }
+                    ]}
+                    validateFirst
+                >
                     <Input.Password />
                 </Form.Item>
                 
@@ -152,46 +150,38 @@ export function UserList () {
                     dependencies={['password']}
                     hasFeedback
                     rules={[
-                        { 
-                            required: true, 
-                            message: t('请再次输入密码!'),
+                        {
+                            required: true,
+                            message: t('请再次输入密码!')
                         },
                         ({ getFieldValue }) => ({
                             async validator (_, value) {
-                              if (!value || getFieldValue('password') === value)
-                                  return Promise.resolve()
-                              
-                              return Promise.reject(new Error(t('两次输入密码需要保持一致!') ))
-                            },
-                          }),
+                                if (!value || getFieldValue('password') === value)
+                                    return Promise.resolve()
+                                
+                                return Promise.reject(new Error(t('两次输入密码需要保持一致!')))
+                            }
+                        })
                     ]}
                     validateFirst
-                    >
+                >
                     <Input.Password />
                 </Form.Item>
                 
-                <Form.Item
-                    label={t('是否管理员')}
-                    name='is_admin'
-                    initialValue={false}
-                    >
-                    <Switch/>
+                <Form.Item label={t('是否管理员')} name='is_admin' initialValue={false}>
+                    <Switch />
                 </Form.Item>
                 
-                <Form.Item
-                    label={t('组')}
-                    name='groups'
-                    >
+                <Form.Item label={t('组')} name='groups'>
                     <Select
-                            mode='multiple'
-                            className='group-select'
-                            // allowClear
-                            placeholder={t('请选择想要添加的组')}
-                            // onChange={handleChange}
-                            options={groups.map(group => ({ label: group, value: group }))}
+                        mode='multiple'
+                        className='group-select'
+                        // allowClear
+                        placeholder={t('请选择想要添加的组')}
+                        // onChange={handleChange}
+                        options={groups.map(group => ({ label: group, value: group }))}
                     />
                 </Form.Item>
-                    
             </Form>
         </Modal>
         
@@ -205,11 +195,8 @@ export function UserList () {
                 set_selected_users([ ])
                 deletor.close()
                 await access.get_user_list()
-            }
-            }
-            title={<Tooltip>
-                        {t('确认删除选中的 {{num}} 个用户吗？', { num: selected_users.length })}
-                </Tooltip>}
+            }}
+            title={<Tooltip>{t('确认删除选中的 {{num}} 个用户吗？', { num: selected_users.length })}</Tooltip>}
         />
         
         <Modal
@@ -222,38 +209,29 @@ export function UserList () {
                     reset_password_form.resetFields()
                     model.message.success(t('密码修改成功'))
                     editor.close()
-                }
-                catch (error) {
+                } catch (error) {
                     if (error instanceof Error)
                         throw error
                     console.error(error)
                 }
             }}
-            title={<div>
-                    {t('重置用户 {{user}} 密码', { user: current?.name })}
-                    </div> 
-            }
+            title={<div>{t('重置用户 {{user}} 密码', { user: current?.name })}</div>}
             onCancel={() => {
                 reset_password_form.resetFields()
                 editor.close()
-            }}>
-            <Form
-                name='basic'
-                form={reset_password_form}
-                labelCol={{ span: language === 'zh' ? 4 : 8 }}
-                labelAlign='right'
-                autoComplete='off'
-            >
+            }}
+        >
+            <Form name='basic' form={reset_password_form} labelCol={{ span: language === 'zh' ? 4 : 8 }} labelAlign='right' autoComplete='off'>
                 <Form.Item
                     label={t('新密码')}
                     name='password'
-                    rules={[{ required: true, message: t('请输入密码!') },
-                            { min: 6, message: t('密码长度为 6-20 个字符，且不包含空格或中文') },
-                            { max: 20, message: t('密码长度为 6-20 个字符，且不包含空格或中文') },
-                            { pattern: /^[^\s\u4E00-\u9FFF]+$/, message: t('密码长度为 6-20 个字符，且不包含空格或中文') }, 
+                    rules={[
+                        { required: true, message: t('请输入密码!') },
+                        { min: 6, message: t('密码长度为 6-20 个字符，且不包含空格或中文') },
+                        { max: 20, message: t('密码长度为 6-20 个字符，且不包含空格或中文') },
+                        { pattern: /^[^\s\u4E00-\u9FFF]+$/, message: t('密码长度为 6-20 个字符，且不包含空格或中文') }
                     ]}
-                
-                    >
+                >
                     <Input.Password />
                 </Form.Item>
                 
@@ -263,39 +241,37 @@ export function UserList () {
                     dependencies={['password']}
                     hasFeedback
                     rules={[
-                        { 
-                            required: true, 
-                            message: t('请再次输入密码!'),
+                        {
+                            required: true,
+                            message: t('请再次输入密码!')
                         },
                         ({ getFieldValue }) => ({
                             async validator (_, value) {
-                              if (!value || getFieldValue('password') === value)
-                                  return Promise.resolve()
-                              
-                              return Promise.reject(new Error(t('两次输入密码需要保持一致!')))
-                            },
-                          }),
+                                if (!value || getFieldValue('password') === value)
+                                    return Promise.resolve()
+                                
+                                return Promise.reject(new Error(t('两次输入密码需要保持一致!')))
+                            }
+                        })
                     ]}
-                    >
+                >
                     <Input.Password />
                 </Form.Item>
             </Form>
         </Modal>
         
-        <Modal 
+        <Modal
             className='edit-user-group-modal'
             open={edit_groupor.visible}
             onCancel={edit_groupor.close}
             destroyOnClose
-            title={<div>
-                {t('用户 {{user}} 所属组管理', { user: current?.name })}
-                </div> 
-            }
+            title={<div>{t('用户 {{user}} 所属组管理', { user: current?.name })}</div>}
             onOk={async () => {
                 set_origin_groups((await access.get_user_access([current?.name]))[0].groups.split(',').filter(group => group !== ''))
-                confior.open() }}
+                confior.open()
+            }}
             okText={t('预览修改')}
-            >
+        >
             <Transfer
                 dataSource={groups.map(user => ({
                     key: user,
@@ -308,28 +284,27 @@ export function UserList () {
                 targetKeys={target_groups}
                 selectedKeys={selected_groups}
                 onChange={set_target_groups}
-                onSelectChange={(s, t) => { set_selected_groups([...s, ...t]) }}
+                onSelectChange={(s, t) => {
+                    set_selected_groups([...s, ...t])
+                }}
                 render={item => item.title}
-                />
+            />
         </Modal>
         
-        <Modal 
+        <Modal
             className='edit-confirm-modal'
             open={confior.visible}
             onCancel={confior.close}
             destroyOnClose
-            title={<div>
-                {t('确认对用户 {{user}} 进行以下改动吗？', { user: current?.name })}
-            </div> 
-            }
+            title={<div>{t('确认对用户 {{user}} 进行以下改动吗？', { user: current?.name })}</div>}
             onOk={async () => {
                 const origin_groups = (await access.get_user_access([current?.name]))[0].groups.split(',').filter(group => group !== '')
                 const delete_groups = origin_groups.filter(u => !target_groups.includes(u)).filter(group => group !== '')
                 const add_groups = target_groups.filter((u: string) => !origin_groups.includes(u)).filter(group => group !== '')
                 if (delete_groups.length || add_groups.length) {
                     await Promise.all([
-                    ...delete_groups.length ? [access.delete_group_member(current?.name, delete_groups)] : [ ],
-                    ...add_groups.length ?  [access.add_group_member(current?.name, add_groups)] : [ ]                    
+                        ...(delete_groups.length ? [access.delete_group_member(current?.name, delete_groups)] : [ ]),
+                        ...(add_groups.length ? [access.add_group_member(current?.name, add_groups)] : [ ])
                     ])
                     model.message.success(t('用户所属组修改成功'))
                 }
@@ -337,50 +312,63 @@ export function UserList () {
                 confior.close()
                 set_selected_groups([ ])
                 set_target_groups([ ])
-                set_users_info((await access.get_user_access(users)))
+                set_users_info(await access.get_user_access(users))
             }}
-            >
+        >
             <div>
                 <h4>{t('原有组:')}</h4>
-                {origin_groups.map(group => 
-                    <Tag color='cyan'>{group}</Tag>)}
+                {origin_groups.map(group => <Tag color='cyan'>{group}</Tag>)}
                 <h4>{t('移入组:')}</h4>
-                {target_groups.filter((u: string) => !origin_groups.includes(u)).filter(group => group !== '').map(group => 
-                    <Tag color='green'>{group}</Tag>)}
+                {target_groups
+                    .filter((u: string) => !origin_groups.includes(u))
+                    .filter(group => group !== '')
+                    .map(group => <Tag color='green'>{group}</Tag>)}
                 <h4>{t('移出组:')}</h4>
-                {origin_groups.filter(u => !target_groups.includes(u)).filter(group => group !== '').map(group => 
-                    <Tag color='red'>{group}</Tag>)}
+                {origin_groups
+                    .filter(u => !target_groups.includes(u))
+                    .filter(group => group !== '')
+                    .map(group => <Tag color='red'>{group}</Tag>)}
             </div>
         </Modal>
         
         <div className='header'>
             <div className='actions'>
-                <Button type='primary' icon={<PlusOutlined/>} onClick={creator.open}>
+                <Button type='primary' icon={<PlusOutlined />} onClick={creator.open}>
                     {t('新建用户')}
                 </Button>
-                <Button danger icon={<DeleteOutlined/>} onClick={() => {
-                    if (selected_users.length)
-                        deletor.open()
-                }}>
+                <Button
+                    danger
+                    icon={<DeleteOutlined />}
+                    onClick={() => {
+                        if (selected_users.length)
+                            deletor.open()
+                    }}
+                >
                     {t('批量删除')}
                 </Button>
-                <Button type='default'
+                <Button
+                    type='default'
                     icon={<ReloadOutlined />}
                     onClick={async () => {
-                        await access.get_user_list() 
-                            set_users_info((await access.get_user_access(users)))
-                            model.message.success(t('刷新成功'))
-                    }}>{t('刷新')}</Button>
-                <Input  
+                        await access.get_user_list()
+                        set_users_info(await access.get_user_access(users))
+                        model.message.success(t('刷新成功'))
+                    }}
+                >
+                    {t('刷新')}
+                </Button>
+                <Input
                     className='search'
                     value={search_key}
                     prefix={<SearchOutlined />}
-                    onChange={e => { set_search_key(e.target.value) }} 
-                    placeholder={t('请输入想要搜索的用户')} 
+                    onChange={e => {
+                        set_search_key(e.target.value)
+                    }}
+                    placeholder={t('请输入想要搜索的用户')}
                 />
-            </div>  
+            </div>
         </div>
-        <Table 
+        <Table
             rowSelection={{
                 selectedRowKeys: selected_users,
                 onChange: (selectedRowKeys: React.Key[]) => {
@@ -388,69 +376,77 @@ export function UserList () {
                 }
             }}
             columns={cols}
-            dataSource={users_info.filter(
-                ({ userId }) => userId.toLowerCase().includes(search_key.toLowerCase())).map(user_access => ({
+            dataSource={users_info
+                .filter(({ userId }) => userId.toLowerCase().includes(search_key.toLowerCase()))
+                .map(user_access => ({
                     key: user_access.userId,
                     user_name: user_access.userId,
-                    is_admin: user_access.isAdmin ? 
-                                        <CheckCircleFilled className='green'/> 
-                                            : 
-                                        <MinusCircleFilled className='gray'/>,
-                    groups:  <div>
-                                {
-                                   user_access.groups && user_access.groups.split(',').map((group: string) => <Tag color='cyan' key={group}>{group}</Tag>) 
-                                }
-                            </div>,
-                    actions: <div className='actions'>
-                        
-                        <Button type='link'
-                                onClick={() => { 
-                                    access.set({ current: { role: 'user', name: user_access.userId, view: 'preview' } }) 
-                                }}>
-                            {t('查看权限')}
-                        </Button>
-                        
-                        <Button type='link'
-                                onClick={() => { 
-                                    access.set({ current: { role: 'user', name: user_access.userId, view: 'manage' } }) 
-                                }}>
-                            {t('设置权限')}
-                        </Button>
-                        
-                        <Button type='link'
-                            onClick={async () => {
-                                access.set({ current: { name: user_access.userId } })
-                                set_target_groups((await access.get_user_access([user_access.userId]))[0].groups.split(','))
-                                edit_groupor.open()
-                        }}>
-                            {t('设置用户组')}
-                        </Button>
-                        
-                        <Button type='link'
-                            onClick={() => {
-                                access.set({ current: { name: user_access.userId } })
-                                editor.open()
-                        }}>
-                            {t('设置密码')}
-                        </Button>
-                        
-                        <Popconfirm
-                            title={t('删除用户')}
-                            description={t('确认删除用户 {{user}} 吗', { user: user_access.userId })}
-                            onConfirm={async () => {
-                                await access.delete_user(user_access.userId)
-                                model.message.success(t('用户删除成功'))
-                                await access.get_user_list()
-                            }}
-                        >
-                            <Button type='link' danger disabled={user_access.userId === localStorage.getItem('ddb.username')}>
-                                {t('删除')}
+                    is_admin: user_access.isAdmin ? <CheckCircleFilled className='green' /> : <MinusCircleFilled className='gray' />,
+                    groups: (
+                        <div>
+                            {user_access.groups &&
+                                user_access.groups.split(',').map((group: string) => <Tag color='cyan' key={group}>
+                                        {group}
+                                    </Tag>)}
+                        </div>
+                    ),
+                    actions: (
+                        <div className='actions'>
+                            <Button
+                                type='link'
+                                onClick={() => {
+                                    access.set({ current: { role: 'user', name: user_access.userId, view: 'preview' } })
+                                }}
+                            >
+                                {t('查看权限')}
                             </Button>
-                        </Popconfirm>
-                    </div>
-                })
-        
-        )}
-            />
+                            
+                            <Button
+                                type='link'
+                                onClick={() => {
+                                    access.set({ current: { role: 'user', name: user_access.userId, view: 'manage' } })
+                                }}
+                            >
+                                {t('设置权限')}
+                            </Button>
+                            
+                            <Button
+                                type='link'
+                                onClick={async () => {
+                                    access.set({ current: { name: user_access.userId } })
+                                    set_target_groups((await access.get_user_access([user_access.userId]))[0].groups.split(','))
+                                    edit_groupor.open()
+                                }}
+                            >
+                                {t('设置用户组')}
+                            </Button>
+                            
+                            <Button
+                                type='link'
+                                onClick={() => {
+                                    access.set({ current: { name: user_access.userId } })
+                                    editor.open()
+                                }}
+                            >
+                                {t('设置密码')}
+                            </Button>
+                            
+                            <Popconfirm
+                                title={t('删除用户')}
+                                description={t('确认删除用户 {{user}} 吗', { user: user_access.userId })}
+                                onConfirm={async () => {
+                                    await access.delete_user(user_access.userId)
+                                    model.message.success(t('用户删除成功'))
+                                    await access.get_user_list()
+                                }}
+                            >
+                                <Button type='link' danger disabled={user_access.userId === localStorage.getItem('ddb.username')}>
+                                    {t('删除')}
+                                </Button>
+                            </Popconfirm>
+                        </div>
+                    )
+                }))}
+        />
     </>
 }
