@@ -49,6 +49,7 @@ import SvgColumnRoot from './icons/column-root.icon.svg'
 import SvgPartitionDirectory from './icons/partition-directory.icon.svg'
 import SvgTable from './icons/table.icon.svg'
 import SvgQueryGuide from './icons/query-guide.icon.svg'
+import { QueryGuideModal } from './QueryGuide/index.js'
 
 
 
@@ -173,7 +174,7 @@ export function Databases () {
                                 } catch (error) {
                                     model.show_error({ error })
                                     // 这里不往上扔错误，避免 rc-tree 自动重试造成多个错误弹窗
-                                }}
+                                } }
                             }
                             onLoad={ keys => { set_loaded_keys(keys) }}
                             
@@ -268,7 +269,7 @@ export function Databases () {
                     :
                         <div className='start-node-to-view'>
                             <span>{t('没有正在运行的数据节点和计算节点')}</span>
-                            <a onClick={() => { model.set({ view: model.dev || model.cdn ? 'overview' : 'overview-old' }) } }>{t('去启动节点')}</a>
+                            <a onClick={() => { model.set({ view: model.dev || model.test ? 'overview' : 'overview-old' }) } }>{t('去启动节点')}</a>
                         </div>
                 :
                     <div className='login-to-view'>

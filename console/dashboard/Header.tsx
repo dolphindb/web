@@ -331,7 +331,7 @@ export function Header () {
                     </Tooltip>
                 </Popconfirm>
             </>}
-            {(model.dev || model.cdn ) && <HostSelect />}
+            {(model.dev || model.test ) && <HostSelect />}
         
             {model.dev && <CompileAndRefresh />}
         </div>

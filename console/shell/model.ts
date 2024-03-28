@@ -613,9 +613,12 @@ class ShellModel extends Model<ShellModel> {
             '    t = table(100:0, `userId`AccessAction, [STRING, SYMBOL])\n' +
             '    if(rows(userAccessRow)==0)return t\n' +
             '    for(action in `DB_MANAGE`DBOBJ_CREATE`DBOBJ_DELETE`DB_INSERT`DB_UPDATE`DB_DELETE`DB_READ`TABLE_READ`TABLE_INSERT`TABLE_UPDATE`TABLE_DELETE) {\n' +
-            '        accItems = userAccessRow[action + "_allowed"].split(",").flatten()\n' +
-            '        tablePath = accItems[accItems == name]\n' +
-            '        t.tableInsert(take(userAccessRow.userId, tablePath.size()), take(action, tablePath.size()))\n' +
+            '       for(user in userAccessRow){\n' +
+            '           accItems = user[action + "_allowed"].split(",").flatten()\n' +
+            '           tablePath = accItems[accItems == name]\n' +
+            '           tablePath.size()\n' +
+            '           t.tableInsert( take(user.userId, tablePath.size()), take(action, tablePath.size()))\n' +
+            '       }\n' +
             '    }\n' +
             '    return t\n' +
             '}\n'

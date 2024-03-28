@@ -6,6 +6,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react'
 
 import { t } from '../../i18n/index.js'
 import { model } from '../model.js'
+
 import { NodesConfigAddModal } from './NodesConfigAddModal.js'
 import { config } from './model.js'
 import { CONFIG_CLASSIFICATION, type ControllerConfig, type NodesConfig } from './type.js'

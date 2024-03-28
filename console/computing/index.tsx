@@ -13,11 +13,12 @@ import { use_modal } from 'react-object-model/hooks.js'
 import { type DDB } from 'dolphindb/browser.js'
 
 import { model, NodeType } from '../model.js'
-import { computing } from './model.js'
 
 import { TableCellDetail } from '../components/TableCellDetail/index.js'
 
 import { t } from '../../i18n/index.js'
+
+import { computing } from './model.js'
 
 import SvgPublish from './icons/publish.icon.svg'
 import SvgEngine from './icons/engine.icon.svg'
@@ -713,7 +714,7 @@ async function handle_delete (type: string, selected: string[], ddb: DDB, refres
             break
         case 'persistenceMeta':
         case 'sharedStreamingTableStat':
-            await Promise.all(selected.map(async streaming_table_name => ddb.call('dropStreamTable', [streaming_table_name], { urgent: true })))
+            await Promise.all(selected.map(async streaming_table_name => ddb.call('dropStreamTable', [streaming_table_name, true], { urgent: true })))
             model.message.success(t('流数据表删除成功'))
             break
         case 'engine':
