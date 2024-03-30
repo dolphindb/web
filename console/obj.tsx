@@ -1714,7 +1714,7 @@ function Chart ({
                         }}
                         isGroup
                         label={{
-                            position: 'middle',
+                            // position: 'middle',
                             layout: [
                                 {
                                     type: 'interval-adjust-position',
@@ -1751,7 +1751,7 @@ function Chart ({
                         isStack={stacking}
                         isGroup={!stacking}
                         label={{
-                            position: 'middle',
+                            // position: 'middle',
                             layout: [
                                 {
                                     type: 'interval-adjust-position',
