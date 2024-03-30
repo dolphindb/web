@@ -52,7 +52,7 @@
     },
     "dependencies": {
         "@ant-design/icons": "^5.3.5",
-        "@ant-design/plots": "2.1.15",
+        "@ant-design/plots": "1.2.5",
         "@ant-design/pro-components": "^2.6.52",
         "@ant-design/pro-layout": "^7.18.0",
         "@ebay/nice-modal-react": "^1.2.13",
