@@ -94,6 +94,12 @@ export function DdbObjInputField ({ form, onChange, value, type_id, type = '', .
     const on_blur = useCallback<FocusEventHandler<HTMLInputElement>>(async e => {
         let execute_str = e.target.value
         
+        if (!execute_str) { 
+            onChange(undefined)
+            return
+        }
+           
+        
         switch (type_id) { 
             case DdbType.string:
                 if(!is_vector)
@@ -105,7 +111,11 @@ export function DdbObjInputField ({ form, onChange, value, type_id, type = '', .
                 break
             case DdbType.blob:
             case DdbType.ipaddr:
-                execute_str = `${type?.toLocaleLowerCase()}(${JSON.stringify(execute_str)})`
+            case DdbType.uuid:
+                if (is_vector)
+                    execute_str = `${type?.toLocaleLowerCase()}(${execute_str})`
+                else 
+                    execute_str = `${type?.toLocaleLowerCase()}(${JSON.stringify(execute_str)})`
                 break
             case DdbType.nanotimestamp:
             case DdbType.nanotime:
@@ -133,7 +143,7 @@ export function DdbObjInputField ({ form, onChange, value, type_id, type = '', .
         } catch (e) { 
             onChange(execute_str)
         }
-     }, [ type_id, type ])
+     }, [ type_id, is_vector ])
     
     return <Input placeholder={t('请输入')} {...others} onBlur={on_blur} />
     
