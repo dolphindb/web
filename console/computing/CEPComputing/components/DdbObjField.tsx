@@ -1,6 +1,6 @@
 
 import { DatePicker, TimePicker, type DatePickerProps, type InputNumberProps, InputNumber, Input, type InputProps, type TimePickerProps, Space } from 'antd'
-import { useCallback, useState, useEffect } from 'react'
+import { useCallback, useState, useEffect, useMemo } from 'react'
 import { model } from '../../../model.js'
 import { t } from '../../../../i18n/index.js'
 import { DdbType } from 'dolphindb'
@@ -87,21 +87,25 @@ interface IDdbObjInput extends Omit<InputProps, 'onChange' | 'form'> {
 }
 
 /** 将 input 输入的值转化为 ddb 对象 */
-export function DdbObjInputField ({ form, onChange, value, type_id, type, ...others }: IDdbObjInput) { 
+export function DdbObjInputField ({ form, onChange, value, type_id, type = '', ...others }: IDdbObjInput) { 
+    
+    const is_vector = useMemo(() => form === 1, [form])
     
     const on_blur = useCallback<FocusEventHandler<HTMLInputElement>>(async e => {
         let execute_str = e.target.value
         
         switch (type_id) { 
             case DdbType.string:
-                execute_str = JSON.stringify(execute_str)
+                if(!is_vector)
+                    execute_str = JSON.stringify(execute_str)
                 break
             case DdbType.char:
-                execute_str = `'${execute_str}'`
+                if(!is_vector)
+                    execute_str = `'${execute_str}'`
                 break
             case DdbType.blob:
             case DdbType.ipaddr:
-                execute_str = `${type.toLocaleLowerCase()}(${JSON.stringify(execute_str)})`
+                execute_str = `${type?.toLocaleLowerCase()}(${JSON.stringify(execute_str)})`
                 break
             case DdbType.nanotimestamp:
             case DdbType.nanotime:
@@ -112,10 +116,10 @@ export function DdbObjInputField ({ form, onChange, value, type_id, type, ...oth
             case DdbType.complex:
             case DdbType.point:
             case DdbType.bool:
-                execute_str = `${type.toLocaleLowerCase()}(${execute_str})`
+                execute_str = `${type?.toLocaleLowerCase()}(${execute_str})`
                 break
             case DdbType.int128:
-                if (form === 0)
+                if (!is_vector)
                     execute_str = `int128(${JSON.stringify(execute_str)})`
                 else
                     execute_str = `int128(${execute_str})`
@@ -125,10 +129,11 @@ export function DdbObjInputField ({ form, onChange, value, type_id, type, ...oth
         try {
             const obj = await model.ddb.eval(execute_str)
             onChange(obj)
+            console.log(obj, 'obj')
         } catch (e) { 
             onChange(execute_str)
         }
-     }, [ type_id ])
+     }, [ type_id, type ])
     
     return <Input placeholder={t('请输入')} {...others} onBlur={on_blur} />
     
@@ -219,7 +224,7 @@ export function DdbObjField ({ type, type_id: server_type_id, placeholder, form,
         case DdbType.int:
             return <DdbObjInputNumber placeholder={placeholder} precision={0} {...others} />
         default:
-            return <DdbObjInputField placeholder={placeholder} type_id={type_id} {...others} />
+            return <DdbObjInputField placeholder={placeholder} type_id={type_id} type={type} {...others} />
     }
 }
 
