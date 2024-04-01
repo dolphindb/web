@@ -512,6 +512,7 @@ export interface Widget extends GridStackNode {
         variable_cols?: number
         with_search_btn?: boolean
         search_btn_label?: string
+        variable_form_label_col?: number
         padding?: {
             left: number
             right: number

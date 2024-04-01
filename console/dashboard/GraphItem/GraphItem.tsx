@@ -37,6 +37,8 @@ function GraphComponent ({ widget }: { widget: Widget }) {
     
     const Component = useMemo(() => graph_config[widget.type].component, [widget.type])
     
+    const {variable_cols, with_search_btn, search_btn_label, variable_form_label_col } = widget.config
+    
     return <div
             style={{ padding: get_padding_style(widget.config?.padding) }}
             className={cn('graph-item-wrapper', {
@@ -48,9 +50,10 @@ function GraphComponent ({ widget }: { widget: Widget }) {
             (widget.type !== WidgetChartType.VARIABLE && widget.config) &&
             <VariableForm
                 ids={widget.config.variable_ids}
-                cols={widget.config.variable_cols}
-                with_search_btn={widget.config.with_search_btn}
-                search_btn_label={widget.config.search_btn_label }
+                cols={variable_cols}
+                with_search_btn={with_search_btn}
+                search_btn_label={search_btn_label}
+                label_col={variable_form_label_col ? Math.floor(variable_form_label_col * 24 / 100) : 6 }
             />
         }
         
@@ -109,6 +112,6 @@ export function GraphItem  ({ widget }: { widget: Widget }) {
                     {dashboard.editing && <DataSourceConfig widget={widget}/>}
                 </div>
         }
-        <div className={cn({ 'drag-icon': editing }) } />
+        <div className={cn({ 'drag-icon': editing })} />
      </div>
 }
