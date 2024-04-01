@@ -53,7 +53,7 @@ export function Computing () {
             return false
         const server_version = version + repeat('.0', 4 - version.split('.').length)
         return vercmp(server_version, '3.00.00.0') >= 0
-    }, [version])
+    }, [ version ])
     
     
     useEffect(() => {
