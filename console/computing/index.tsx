@@ -12,11 +12,17 @@ import { use_modal } from 'react-object-model/hooks.js'
 
 import { type DDB } from 'dolphindb/browser.js'
 
+import { vercmp } from 'xshell/utils.browser'
+
+import { repeat } from 'lodash'
+
 import { model, NodeType } from '../model.js'
 
 import { TableCellDetail } from '../components/TableCellDetail/index.js'
 
 import { t } from '../../i18n/index.js'
+
+import { Unlogin } from '../components/Unlogin.js'
 
 import { computing } from './model.js'
 
@@ -25,8 +31,6 @@ import SvgEngine from './icons/engine.icon.svg'
 import SvgTable from './icons/table.icon.svg'
 
 import { CEPComputing } from './CEPComputing/index.js'
-import { vercmp } from 'xshell/utils.browser'
-import { repeat } from 'lodash'
 
 
 export function Computing () {
@@ -75,16 +79,7 @@ export function Computing () {
         />
     
     if (!logined)
-        return <Result
-            status='warning'
-            className='interceptor'
-            title={t('登录后可查看当前节点流计算状态')}
-            extra={
-                <Button type='primary' onClick={() => { model.goto_login() }}>
-                    {t('去登录')}
-                </Button>
-            }
-        />
+        return <Unlogin info='当前节点流计算状态'/>
     
     const tab_content = {
         streaming_pub_sub_stat: {

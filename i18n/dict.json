@@ -1256,8 +1256,11 @@
     "运行中_job.status": {
         "en": "running"
     },
-    "登录后可查看当前节点日志": {
-        "en": "You need to be logged in to view the logs of the current node"
+    "登录后可查看{{info}}": {
+        "en": "You need to be logged in to view {{info}}"
+    },
+    "当前节点日志": {
+        "en": "the logs of the current node"
     },
     "去登录": {
         "en": "To log in"
@@ -2312,8 +2315,8 @@
     "最近消息接收时刻": {
         "en": "last message received time"
     },
-    "登录后可查看当前节点流计算状态": {
-        "en": "After logging in, you can view the current node stream computing status"
+    "当前节点流计算状态": {
+        "en": "the current node stream computing status"
     },
     "队列深度": {
         "en": "Queue Depth"
