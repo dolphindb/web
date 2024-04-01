@@ -19,7 +19,8 @@ export async function get_cep_engine_detail (name: string) {
             eventValuesTypeIntList: item.fieldTypeId,
             eventType: item.eventType,
             eventField: item.eventField ? item.eventField.split(',') : [ ],
-            eventValuesTypeStringList: item.fieldType ? item.fieldType.split(',') : [ ]
+            eventValuesTypeStringList: item.fieldType ? item.fieldType.split(',') : [ ],
+            eventFormIdList: item.fieldFormId,
         }))
     } as ICEPEngineDetail
 }

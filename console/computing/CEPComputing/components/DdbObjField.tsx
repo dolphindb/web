@@ -80,13 +80,14 @@ export function DdbObjInputNumber ({ onChange, value, ...others }: IDdbObjInputN
     return <InputNumber {...others} onBlur={on_blur} />
 }
 
-interface IDdbObjInput extends Omit<InputProps, 'onChange'> { 
+interface IDdbObjInput extends Omit<InputProps, 'onChange' | 'form'> { 
     onChange?: (val: any) => void
     type_id: DdbType
+    form?: number
 }
 
 /** 将 input 输入的值转化为 ddb 对象 */
-export function DdbObjInputField ({ onChange, value, type_id, ...others }: IDdbObjInput) { 
+export function DdbObjInputField ({ form, onChange, value, type_id, type, ...others }: IDdbObjInput) { 
     
     const on_blur = useCallback<FocusEventHandler<HTMLInputElement>>(async e => {
         let execute_str = e.target.value
@@ -98,14 +99,26 @@ export function DdbObjInputField ({ onChange, value, type_id, ...others }: IDdbO
             case DdbType.char:
                 execute_str = `'${execute_str}'`
                 break
-            case DdbType.float:
-                execute_str = `float(${execute_str})`
+            case DdbType.blob:
+            case DdbType.ipaddr:
+                execute_str = `${type.toLocaleLowerCase()}(${JSON.stringify(execute_str)})`
                 break
-            case DdbType.double:
-                execute_str = `double(${execute_str})`
-                break
+            case DdbType.nanotimestamp:
+            case DdbType.nanotime:
+            case DdbType.short:
             case DdbType.long:
-                execute_str = `long(${execute_str})`
+            case DdbType.double:
+            case DdbType.float:
+            case DdbType.complex:
+            case DdbType.point:
+            case DdbType.bool:
+                execute_str = `${type.toLocaleLowerCase()}(${execute_str})`
+                break
+            case DdbType.int128:
+                if (form === 0)
+                    execute_str = `int128(${JSON.stringify(execute_str)})`
+                else
+                    execute_str = `int128(${execute_str})`
                 break
         }
         
@@ -165,14 +178,26 @@ export function DecimalObjInputField (props: IDecimalObjInputFieldProps) {
     return <Input placeholder={t('{{type}} 的值', { type })} onBlur={e => { set_value(e.target.value) } } />
  }
 
+interface IDdbObjFieldProps {
+    type: string
+    type_id: DdbType
+    placeholder: string
+    form?: number
+}
 
-
-export function DdbObjField ({ type, type_id: server_type_id, placeholder, ...others }: IDdbObjFieldProps) {
+export function DdbObjField ({ type, type_id: server_type_id, placeholder, form, ...others }: IDdbObjFieldProps) {
    
     let type_id = server_type_id
     let scale = null
-    if (type.includes('DECIMAL'))  
+    const is_decimal = type.includes('DECIMAL')
+    
+    if (is_decimal) {
         [type_id, scale] = convertDecimalType(server_type_id)
+        return <DecimalObjInputField type={type} type_id={type_id} {...others} scale={scale} />
+    }
+      
+    else if (form === 1)
+        return <DdbObjInputField form={form} placeholder={placeholder} type={type} type_id={type_id} {...others} />
     
     switch (type_id) { 
         case DdbType.date:
@@ -193,10 +218,6 @@ export function DdbObjField ({ type, type_id: server_type_id, placeholder, ...ot
             return <DdbObjTimePicker placeholder={placeholder} format='HH:mm:ss' type_id={type_id} {...others} />
         case DdbType.int:
             return <DdbObjInputNumber placeholder={placeholder} precision={0} {...others} />
-        case DdbType.decimal32:
-        case DdbType.decimal64:
-        case DdbType.decimal128:
-            return <DecimalObjInputField type={type} type_id={type_id} {...others} scale={scale} />
         default:
             return <DdbObjInputField placeholder={placeholder} type_id={type_id} {...others} />
     }
