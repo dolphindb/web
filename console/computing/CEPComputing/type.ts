@@ -94,6 +94,8 @@ interface EventItem {
     eventValuesTypeStringList: string[]
     /** 事件所包含的字段对应的数据类型 ID */
     eventValuesTypeIntList: DdbType[]
+    /** 字段 form 形式 */
+    eventFormIdList: number[]
 }
 
 export interface ICEPEngineDetail { 
@@ -105,6 +107,8 @@ export interface ICEPEngineDetail {
     eventSchema: EventItem[]
     /** 子引擎信息 */
     subEngineStat: SubEngineItem[]
+    /** 数据类型形式， 0 为标量，1 为向量 */
+    eventFormIdList: number[]
 }
 
 export interface IServerEngineDetail { 
