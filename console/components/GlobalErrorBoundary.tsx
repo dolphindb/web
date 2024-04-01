@@ -58,7 +58,7 @@ export class GlobalErrorBoundary extends Component<PropsWithChildren<{ }>, Globa
             } else {
                 // 忽略 monaco editor 的错误
                 // https://github.com/suren-atoyan/monaco-react/issues/57
-                if (error.msg.includes('operation is manually canceled') && error.type === 'cancelation') 
+                if (error.msg?.includes('operation is manually canceled') && error.type === 'cancelation') 
                     return
                 
                 error = new Error(JSON.stringify(error))
