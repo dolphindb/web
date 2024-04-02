@@ -28,7 +28,8 @@ export enum InitedState {
     hidden = 0,
     uninited = 1,
     inited = 2,
-    control_node = 3
+    control_node = 3,
+    unlogined = 4
 }
 
 export class DashBoardModel extends Model<DashBoardModel> {

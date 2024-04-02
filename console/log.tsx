@@ -5,7 +5,9 @@ import { Pagination, Button, Result } from 'antd'
 import { ReloadOutlined } from '@ant-design/icons'
 
 import { t } from '../i18n/index.js'
+
 import { model, NodeType } from './model.js'
+import { Unlogin } from './components/Unlogin.js'
 
 const default_length = 50000n
 
@@ -70,16 +72,7 @@ export function Log () {
         </div>
         {
             show_login_required_info ? (
-                <Result
-                    status='warning'
-                    className='log-login-interceptor'
-                    title={t('登录后可查看当前节点日志')}
-                    extra={
-                        <Button type='primary' onClick={() => { model.goto_login() }}>
-                            {t('去登录')}
-                        </Button>
-                    }
-                />
+                <Unlogin info='当前节点日志'/>
             ) : (
                 <>
                     <div className='log-block' ref={ref}>

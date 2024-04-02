@@ -8,6 +8,12 @@ import { useEffect, useRef } from 'react'
 import { App, Button, ConfigProvider, Popconfirm, Result, Spin, theme } from 'antd'
 import * as echarts from 'echarts'
 
+import { NodeType, model } from '../model.js'
+
+import { t, language } from '../../i18n/index.js'
+
+import { Unlogin } from '../components/Unlogin.js'
+
 import { DashboardPermission, InitedState, dashboard } from './model.js'
 import { Sider } from './Sider.js'
 import { GraphItem } from './GraphItem/GraphItem.js'
@@ -15,9 +21,9 @@ import { SettingsPanel } from './SettingsPanel/SettingsPanel.js'
 import { Header } from './Header.js'
 import { Overview } from './Overview.js'
 import { Doc } from './components/Doc.js'
+
 import config from './chart.config.json' assert { type: 'json' }
-import { NodeType, model } from '../model.js'
-import { t, language } from '../../i18n/index.js'
+
 import { paste_widget } from './utils.js'
 
 import backend from './backend.dos'
@@ -46,10 +52,8 @@ export function DashBoard () {
             try {
                 if (language !== 'zh' || is_v1)
                     return
-                else if (!logined) {
-                    model.goto_login()
-                    return
-                }
+                else if (!logined) 
+                    dashboard.set({ inited_state: InitedState.unlogined })
                 else if (node_type === NodeType.controller)
                     dashboard.set({ inited_state: InitedState.control_node })
                 else if ((await model.ddb.call('dashboard_get_version')).value === '1.0.0')
@@ -58,7 +62,7 @@ export function DashBoard () {
                 dashboard.set({ inited_state: InitedState.uninited })
             }
         })()
-    }, [ ])
+    }, [logined])
     
     
     useEffect(() => {
@@ -97,7 +101,8 @@ export function DashBoard () {
                 status='warning'
                 className='interceptor'
                 title={t('控制节点不支持数据面板，请跳转到数据节点或计算节点查看。')}
-            />
+            />,
+        [InitedState.unlogined]: <Unlogin info='数据面板'/>
     }
     
     return component[inited_state]

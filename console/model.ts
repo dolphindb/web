@@ -17,6 +17,7 @@ import {
 } from 'dolphindb/browser.js'
 
 import { language, t } from '../i18n/index.js'
+
 import type { FormatErrorOptions } from './components/GlobalErrorBoundary.js'
 
 
