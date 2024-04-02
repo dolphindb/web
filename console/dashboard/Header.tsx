@@ -1,7 +1,7 @@
 import './Header.sass'
 
-import { useState } from 'react'
-import { Button, Input, Modal, Popconfirm, Select, Tag, Tooltip, Segmented } from 'antd'
+import { useCallback, useEffect, useRef, useState } from 'react'
+import { Button, Input, Modal, Popconfirm, Select, Tag, Tooltip, Segmented, Switch } from 'antd'
 import { CopyOutlined, DeleteOutlined, EditOutlined, FileAddOutlined, HomeOutlined, SaveOutlined, UploadOutlined } from '@ant-design/icons'
 
 import { use_modal } from 'react-object-model/hooks.js'
@@ -24,6 +24,8 @@ import { Share } from './Share/Share.js'
 import { DashboardMode } from './type.js'
 import NiceModal from '@ebay/nice-modal-react'
 import { SaveConfirmModal } from './components/SaveComfirmModal.js'
+import type { SwitchProps } from 'antd/lib/index.js'
+import { AUTO_SAVE_KEY } from './constant.js'
 
 
 export function get_widget_config (widget: Widget) {
@@ -48,7 +50,7 @@ interface DashboardOption {
 
 
 export function Header () {
-    const { editing, widgets, configs, config } = dashboard.use(['editing', 'widgets', 'configs', 'config'])
+    const { editing, widgets, configs, config, auto_save } = dashboard.use(['editing', 'widgets', 'configs', 'config', 'auto_save'])
     const [new_dashboard_id, set_new_dashboard_id] = useState<number>()
     const [new_dashboard_name, set_new_dashboard_name] = useState('')
     const [edit_dashboard_name, set_edit_dashboard_name] = useState('')
@@ -56,10 +58,11 @@ export function Header () {
     
     const { visible: add_visible, open: add_open, close: add_close } = use_modal()
     const { visible: edit_visible, open: edit_open, close: edit_close } = use_modal()
-    const { visible: save_visible, open: save_open, close: save_close } = use_modal()
     const { visible: copy_visible, open: copy_open, close: copy_close } = use_modal()
     
-    async function get_latest_config () {
+    const timer = useRef<NodeJS.Timeout>()
+    
+    const get_latest_config = useCallback(async () => {
         const updated_config = {
             ...config,
             data: {
@@ -73,7 +76,8 @@ export function Header () {
         }
         // await dashboard.update_config(updated_config)
         return updated_config
-    }
+    },[widgets]) 
+
     
     /** 生成可以比较的 config */
     // function exact_config (config: DashBoardConfig) {
@@ -94,12 +98,25 @@ export function Header () {
     // }
     
     
-    async function handle_save () {
+    const handle_save = useCallback(async () => {
         const updated_config = await get_latest_config()
+        console.log(updated_config, 'updated_config')
         await dashboard.update_dashboard_config(updated_config)
         dashboard.set({ save_confirm: false })
         dashboard.message.success(t('数据面板保存成功'))
-    }
+    }, [get_latest_config]) 
+    
+    
+    useEffect(() => { 
+        if (auto_save && editing) { 
+            if (timer.current)
+                clearInterval(timer.current)
+            timer.current = setInterval(handle_save, 60 * 1000)
+        }
+        else clearInterval(timer.current)
+        
+        return () => clearInterval(timer.current)
+    },[auto_save, handle_save, editing])
     
     
     async function handle_add () {
@@ -198,6 +215,11 @@ export function Header () {
             
         }  
     }
+    
+    const on_auto_save = useCallback<SwitchProps['onChange']>((value) => {
+        dashboard.set({ auto_save: value })
+        localStorage.setItem(AUTO_SAVE_KEY, String(value))
+    },[])
     
     return <div className='dashboard-header'>
         {
@@ -358,6 +380,13 @@ export function Header () {
         </div>
         
         <div className='padding' />
+        
+        <Tooltip title="开启自动保存后，将每隔 3 分钟保存一次当前 Dashboard 的配置">
+            <div className='auto-save-wrapper'>
+                <span className="auto-save-label">自动保存</span>
+                <Switch size='small' defaultChecked={auto_save} onChange={on_auto_save} />
+            </div>
+        </Tooltip>
         
         {
             editing && <div className='configs'>

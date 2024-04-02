@@ -202,6 +202,7 @@ function DashboardInstance () {
         if (editing) {
             if (config?.permission === DashboardPermission.view) 
                 dashboard.on_preview()
+            dashboard.set({ save_confirm: true })
         }    
     }, [config, editing])
     

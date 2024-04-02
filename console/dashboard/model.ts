@@ -21,6 +21,7 @@ import type { FormatErrorOptions } from '../components/GlobalErrorBoundary.js'
 import { type DataSource, type ExportDataSource, import_data_sources, unsubscribe_data_source, type DataType, clear_data_sources } from './DataSource/date-source.js'
 import { type IEditorConfig, type IChartConfig, type ITableConfig, type ITextConfig, type IGaugeConfig, type IHeatMapChartConfig, type IOrderBookConfig } from './type.js'
 import { type Variable, import_variables, type ExportVariable } from './Variable/variable.js'
+import { AUTO_SAVE_KEY } from './constant.js'
 
 
 /** 0 表示隐藏dashboard（未查询到结果、 server 版本为 v1 或 language 非中文），1 表示没有初始化，2 表示已经初始化，3 表示为控制节点 */
@@ -78,6 +79,9 @@ export class DashBoardModel extends Model<DashBoardModel> {
     maxrows = 12
     
     show_config_modal = true
+    
+    /** 是否开启自动保存 */
+    auto_save: boolean = localStorage.getItem(AUTO_SAVE_KEY) === 'true'
     
     monaco: Monaco
     
@@ -145,7 +149,7 @@ export class DashBoardModel extends Model<DashBoardModel> {
         // 响应用户从外部添加新 widget 到 GridStack 的事件
         grid.on('dropped', async (event: Event, old_node: GridStackNode, node: GridStackNode) => {
             // old_widget 为 undefined
-            this.save_confirm = true
+            
             const widget: Widget = {
                 ...node,
                 // 默认大小：宽度 2 ， 高度 3
@@ -163,7 +167,7 @@ export class DashBoardModel extends Model<DashBoardModel> {
         
         // 响应 GridStack 中 widget 的位置或尺寸变化的事件
         grid.on('change', (event: Event, widgets: GridStackNode[]) => {
-            this.save_confirm = true
+            
             if (widgets?.length)
                 for (const widget of widgets)
                     Object.assign(
@@ -258,8 +262,7 @@ export class DashBoardModel extends Model<DashBoardModel> {
     }
     
     
-    delete_widget(widget: Widget) {
-        this.save_confirm = true
+    delete_widget (widget: Widget) {
         const widgets = this.widgets.filter(w => w !== widget)
         
         if (widget.source_id)
@@ -450,7 +453,7 @@ export class DashBoardModel extends Model<DashBoardModel> {
     
     return_to_overview () {
         clear_data_sources()
-        dashboard.set({ config: null })
+        dashboard.set({ config: null, save_confirm: false })
         model.set_query('dashboard', null)
         model.set_query('preview', null)
         model.set({ sider: true, header: true })
