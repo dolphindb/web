@@ -2,7 +2,7 @@ import { useMemo } from 'react'
 
 import { Layout, Menu, Typography } from 'antd'
 
-import { default as Icon, DoubleLeftOutlined, DoubleRightOutlined, ExperimentOutlined } from '@ant-design/icons'
+import { default as Icon, DoubleLeftOutlined, DoubleRightOutlined, ExperimentOutlined, BulbOutlined, SettingOutlined } from '@ant-design/icons'
 
 import { isNil, omitBy } from 'lodash'
 
@@ -48,7 +48,8 @@ function MenuIcon ({ view }: { view: DdbModel['view'] }) {
 }
 
 export function DdbSider () {
-    const { view, node_type, collapsed, logined, admin, login_required, is_v1 } = model.use(['view', 'node_type', 'collapsed', 'logined', 'admin', 'login_required', 'is_v1'])
+    const { view, node_type, collapsed, logined, admin, login_required, is_v1, dev, test, is_factor_platform_enabled } 
+        = model.use(['view', 'node_type', 'collapsed', 'logined', 'admin', 'login_required', 'is_v1', 'dev', 'test', 'is_factor_platform_enabled'])
     
     
     const factor_href = useMemo(() => {
@@ -88,7 +89,7 @@ export function DdbSider () {
         }}
     >
         <Menu
-            className='menu'
+            className={`menu ${admin ? 'manager' : ''}`}
             mode='inline'
             theme='light'
             selectedKeys={[view]}
@@ -107,17 +108,17 @@ export function DdbSider () {
             }}
             inlineIndent={10}
             items={[
-                ... model.dev || model.test ? [{
+                ... dev || test ? [{
                     key: 'overview',
                     icon: <MenuIcon view='overview' />,
                     label: node_type === NodeType.single ? t('单机总览') : t('集群总览'),
                 }] : [ ],
-                ... !model.test && node_type === NodeType.controller ? [{
+                ... !test && node_type === NodeType.controller ? [{
                     key: 'overview-old',
                     icon: <MenuIcon view='overview' />,
                     label: t('集群总览'),
                 }] : [ ],
-                ...model.admin && node_type === NodeType.controller ? [{
+                ...admin && node_type === NodeType.controller ? [{
                     key: 'config',
                     icon: <MenuIcon view='config'/>,
                     label: t('配置管理')
@@ -142,7 +143,7 @@ export function DdbSider () {
                     icon: <MenuIcon view='computing' />,
                     label: t('流计算监控', { context: 'menu' }),
                 },
-                ... model.node_type !== NodeType.computing && admin ? [{
+                ... node_type !== NodeType.computing && admin ? [{
                     key: 'access',
                     icon: <MenuIcon view='access' />,
                     label: t('权限管理'),
@@ -164,16 +165,22 @@ export function DdbSider () {
                     icon: <MenuIcon view='log' />,
                     label: t('日志查看'),
                 },
-                ... model.is_factor_platform_enabled ? [{
+                ... is_factor_platform_enabled ? [{
                     key: 'factor',
                     icon: <MenuIcon view='factor' />,
                     label: <Link target='_blank' href={factor_href}>{t('因子平台')}</Link>
                 }] : [ ],
-                ... model.dev || model.test ? [
+                ... dev || test ? [
                     {
                         key: 'test',
                         icon: <ExperimentOutlined className='icon-menu' />,
                         label: '测试模块'
+                }] : [ ],
+                ... admin ? [
+                    {
+                        key: 'manager',
+                        icon: <SettingOutlined  className='icon-menu' />,
+                        label: '功能设置'
                 }] : [ ],
             ]}
         />

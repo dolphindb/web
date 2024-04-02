@@ -18,9 +18,10 @@ import ko from 'antd/locale/ko_KR.js'
 
 import { ProConfigProvider } from '@ant-design/pro-components'
 
+import dayjs from 'dayjs'
+
 import { language } from '../i18n/index.js'
 
-import dayjs from 'dayjs'
 import 'dayjs/locale/zh-cn'
 dayjs.locale(language === 'zh' ? 'zh-cn' : language)
 
@@ -40,8 +41,8 @@ import { Job } from './job.js'
 import { Log } from './log.js'
 import { Computing } from './computing/index.js'
 import { DashBoard } from './dashboard/index.js'
-import { User } from './access/index.js'
-import { Group } from './access/index.js'
+import { User, Group } from './access/index.js'
+import { Manager } from './manager/index.js'
 
 
 createRoot(
@@ -135,7 +136,8 @@ const views = {
     computing: Computing,
     dashboard: DashBoard,
     user: User,
-    group: Group
+    group: Group,
+    manager: Manager
 }
 
 
