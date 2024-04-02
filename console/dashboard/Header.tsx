@@ -22,6 +22,8 @@ import { check_name } from './utils.js'
 import { Import } from './Import/Import.js'
 import { Share } from './Share/Share.js'
 import { DashboardMode } from './type.js'
+import NiceModal from '@ebay/nice-modal-react'
+import { SaveConfirmModal } from './components/SaveComfirmModal.js'
 
 
 export function get_widget_config (widget: Widget) {
@@ -161,12 +163,40 @@ export function Header () {
     function on_change_mode (value: DashboardMode) {
         if (value === DashboardMode.EDITING) { 
             dashboard.set_editing(true)
-            dashboard.set({ save_confirm: true })
             model.set_query('preview', null)
         }
         else { 
             dashboard.on_preview()
         }
+    }
+    
+
+    /** 切换 dashboard */
+    async function on_change_dashboard(_, option: DashboardOption) { 
+        const handle_change = async () => { 
+            const current_dashboard = configs.find(({ id }) => id === option.key)
+            clear_data_sources()
+            await dashboard.render_with_config(current_dashboard)
+            if (current_dashboard.permission === DashboardPermission.view)
+                dashboard.on_preview()
+        }
+        if (config.permission === DashboardPermission.view || !dashboard.save_confirm) {
+            await handle_change()
+        } else { 
+            /** 未保存提示 */
+            await NiceModal.show(SaveConfirmModal, {
+                onCancel: async () => { 
+                    dashboard.set({save_confirm: false})
+                    await handle_change()
+                },
+                onOK: async () => { 
+                    dashboard.set({save_confirm: false})
+                    await handle_save()
+                    await handle_change()
+                }
+            })
+            
+        }  
     }
     
     return <div className='dashboard-header'>
@@ -175,13 +205,7 @@ export function Header () {
                 ? <Select
                         className='switcher'
                         placeholder={t('选择 dashboard')}
-                        onChange={async (_, option: DashboardOption) => {
-                            const current_dashboard = configs.find(({ id }) => id === option.key)
-                            clear_data_sources()
-                            await dashboard.render_with_config(current_dashboard)
-                            if (current_dashboard.permission === DashboardPermission.view)
-                                dashboard.on_preview()
-                        }}
+                        onChange={on_change_dashboard}
                         value={config?.id}
                         variant='borderless'
                         options={configs?.map(({ id, name, permission }) => ({
@@ -198,28 +222,20 @@ export function Header () {
         
         <div className='actions'>
             <Tooltip title={t('返回主界面')}>
-                <Button className='action' onClick={async () => { 
+                <Button className='action' onClick={async () => {
                     if (config.permission === DashboardPermission.view || !dashboard.save_confirm)
                         dashboard.return_to_overview()
                     else
-                        save_open()
+                        NiceModal.show(SaveConfirmModal, {
+                            onCancel: dashboard.return_to_overview,
+                            onOk: async () => { 
+                                await handle_save()
+                                dashboard.return_to_overview()                                    
+                            }
+                        })
                     
                 }}><HomeOutlined /></Button>
             </Tooltip>
-            
-               
-            <Modal open={save_visible}
-                maskClosable={false}
-                onCancel={dashboard.return_to_overview}
-                onOk={async () => { 
-                    await handle_save()
-                    save_close()
-                    dashboard.return_to_overview()                                    
-                }}
-                okText={t('保存')}
-                cancelText={t('不保存')}
-                closeIcon={false}
-                title={t('离开此界面您当前更改会丢失，是否需要保存当前更改')} />
             
             {editing && <>     
                 <Modal open={add_visible}

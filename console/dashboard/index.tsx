@@ -199,13 +199,11 @@ function DashboardInstance () {
     
     
     useEffect(() => {
-        const params = new URLSearchParams(location.search)
-        if (!params.has('preview', '1')) {
+        if (editing) {
             if (config?.permission === DashboardPermission.view) 
                 dashboard.on_preview()
-            dashboard.set({ save_confirm: true })
         }    
-    }, [config])
+    }, [config, editing])
     
     
     return <div className='dashboard' >

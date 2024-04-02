@@ -145,7 +145,7 @@ export class DashBoardModel extends Model<DashBoardModel> {
         // 响应用户从外部添加新 widget 到 GridStack 的事件
         grid.on('dropped', async (event: Event, old_node: GridStackNode, node: GridStackNode) => {
             // old_widget 为 undefined
-            
+            this.save_confirm = true
             const widget: Widget = {
                 ...node,
                 // 默认大小：宽度 2 ， 高度 3
@@ -163,7 +163,7 @@ export class DashBoardModel extends Model<DashBoardModel> {
         
         // 响应 GridStack 中 widget 的位置或尺寸变化的事件
         grid.on('change', (event: Event, widgets: GridStackNode[]) => {
-            
+            this.save_confirm = true
             if (widgets?.length)
                 for (const widget of widgets)
                     Object.assign(
@@ -258,7 +258,8 @@ export class DashBoardModel extends Model<DashBoardModel> {
     }
     
     
-    delete_widget (widget: Widget) {
+    delete_widget(widget: Widget) {
+        this.save_confirm = true
         const widgets = this.widgets.filter(w => w !== widget)
         
         if (widget.source_id)
@@ -449,7 +450,7 @@ export class DashBoardModel extends Model<DashBoardModel> {
     
     return_to_overview () {
         clear_data_sources()
-        dashboard.set({ config: null, save_confirm: false })
+        dashboard.set({ config: null })
         model.set_query('dashboard', null)
         model.set_query('preview', null)
         model.set({ sider: true, header: true })
