@@ -1,8 +1,8 @@
 import './Header.sass'
 
 import { useState } from 'react'
-import { Button, Input, Modal, Popconfirm, Select, Tag, Tooltip, } from 'antd'
-import { CopyOutlined, DeleteOutlined, EditOutlined, EyeOutlined, FileAddOutlined, HomeOutlined, SaveOutlined, UploadOutlined } from '@ant-design/icons'
+import { Button, Input, Modal, Popconfirm, Select, Tag, Tooltip, Segmented } from 'antd'
+import { CopyOutlined, DeleteOutlined, EditOutlined, FileAddOutlined, HomeOutlined, SaveOutlined, UploadOutlined } from '@ant-design/icons'
 
 import { use_modal } from 'react-object-model/hooks.js'
 import { genid } from 'xshell/utils.browser.js'
@@ -21,6 +21,7 @@ import { HostSelect } from '../components/HostSelect.js'
 import { check_name } from './utils.js'
 import { Import } from './Import/Import.js'
 import { Share } from './Share/Share.js'
+import { DashboardMode } from './type.js'
 
 
 export function get_widget_config (widget: Widget) {
@@ -156,13 +157,17 @@ export function Header () {
         dashboard.message.success(t('删除成功'))
     }
     
-    
-    function on_edit () { 
-        dashboard.set_editing(true)
-        dashboard.set({ save_confirm: true })
-        model.set_query('preview', null)
+    /** 切换预览与编辑模式 */
+    function on_change_mode (value: DashboardMode) {
+        if (value === DashboardMode.EDITING) { 
+            dashboard.set_editing(true)
+            dashboard.set({ save_confirm: true })
+            model.set_query('preview', null)
+        }
+        else { 
+            dashboard.on_preview()
+        }
     }
-    
     
     return <div className='dashboard-header'>
         {
@@ -336,25 +341,6 @@ export function Header () {
             {model.dev && <CompileAndRefresh />}
         </div>
         
-        {
-            config?.permission !== DashboardPermission.view && <div className='modes'>
-            <span
-                className={`right-editormode-editor ${editing ? 'editormode-selected' : ''}`}
-                onClick={on_edit}
-            >
-                <EditOutlined /> {t('编辑')}
-            </span>
-            <span className='divider'>|</span>
-            <span
-                className={`right-editormode-preview ${editing ? '' : 'editormode-selected'} `}
-                onClick={dashboard.on_preview}
-            >
-                <EyeOutlined /> {t('预览')}
-            </span>
-        </div>
-        
-        }
-        
         <div className='padding' />
         
         {
@@ -362,6 +348,18 @@ export function Header () {
                 <VariableConfig/>
                 <DataSourceConfig/>
             </div>
+        }
+        
+        {
+            config?.permission !== DashboardPermission.view && <Segmented
+                options={[
+                    { label: t("编辑"), value: DashboardMode.EDITING },
+                    { label: t("预览"), value: DashboardMode.PREVIEW }
+                ]}
+                onChange={on_change_mode}
+                className="dashboard-modes"
+                defaultValue={editing ? DashboardMode.EDITING : DashboardMode.PREVIEW}
+            />
         }
     </div>
 }

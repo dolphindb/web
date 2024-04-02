@@ -10,6 +10,8 @@ $blue: rgb(22, 104, 220)
     
     display: flex
     
+    align-items: center
+    
     background-color: rgb(44, 42, 41)
     
     color: $font_color
@@ -42,27 +44,9 @@ $blue: rgb(22, 104, 220)
         .refresh-button
             margin-left: 20px
     
-    .modes
-        position: absolute
-        left: 50%
-        top: 8px
-        font-size: 16px
-        
-        display: flex
-        align-items: center
-        flex: 1
-        
-        .right-editormode-editor
-            cursor: pointer
-            
-        .divider
-            padding: 0px 8px
-            
-        .right-editormode-preview
-            cursor: pointer
-        
-        .editormode-selected
-            color: $blue
+    .dashboard-modes
+        height: 32px
+        margin: 0 12px
     
     .padding
         flex: 1
