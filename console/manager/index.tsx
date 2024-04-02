@@ -9,7 +9,7 @@ export function Manager () {
         <div className='title'>{t('可选模块')}</div>
         {
             Array.from(module_infos).map(([key]) =>
-                <Card key={key} />
+                <Card _key={key} key={key}/>
             )
         }
     </>

@@ -3,6 +3,7 @@ import './index.sass'
 import { useState } from 'react'
 
 import { Tabs } from 'antd'
+
 import { t } from '../../i18n/index.js'
 
 import { ControllerConfig } from './ControllerConfig.js'

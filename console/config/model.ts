@@ -4,8 +4,13 @@ import { DdbVectorString } from 'dolphindb/browser.js'
 
 import { model } from '../model.js'
 
+import { type NodesConfig } from './type.js'
+import { strs_2_nodes_config } from './utils.js'
+
 
 class ConfigModel extends Model<ConfigModel> {
+    nodes_configs: NodesConfig[] = [ ]
+    
     async load_controller_configs () {
         return model.ddb.call('loadControllerConfigs')
     }
@@ -23,11 +28,19 @@ class ConfigModel extends Model<ConfigModel> {
     }
     
     async load_nodes_config () {
-        return model.ddb.call('loadClusterNodesConfigs')
+        this.set({ nodes_configs: 
+            strs_2_nodes_config(
+                Array.from(new Set((await model.ddb.call('loadClusterNodesConfigs')).value as string[]))
+        ) })
     }
     
     async save_nodes_config (configs: string[]) {
-        return model.ddb.call('saveClusterNodesConfigs', [new DdbVectorString(configs)])
+        await model.ddb.call('saveClusterNodesConfigs', [new DdbVectorString(configs)])
+        await config.load_nodes_config()
+    }
+    
+    constructor () {
+        super()
     }
 }
 

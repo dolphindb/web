@@ -17,7 +17,7 @@ interface NodesConfigAddModalProps {
 }
 
 export const NodesConfigAddModal = NiceModal.create((props: NodesConfigAddModalProps) => {
-    const { configs, refresher } = props
+    const { configs } = props
     
     const modal = NiceModal.useModal()
     
@@ -92,7 +92,6 @@ export const NodesConfigAddModal = NiceModal.create((props: NodesConfigAddModalP
                                 const { qualifier, name, value } = await add_config_form.validateFields()
                                 const new_config = (qualifier ? qualifier + '.' : '') + name + '=' + value 
                                 await config.save_nodes_config([new_config, ...configs])
-                                refresher()
                                 model.message.success(t('保存成功'))
                                 modal.hide()
                             }

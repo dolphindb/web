@@ -2,7 +2,7 @@ import { PlusOutlined, ReloadOutlined } from '@ant-design/icons'
 import { EditableProTable, type ProColumns } from '@ant-design/pro-components'
 import NiceModal from '@ebay/nice-modal-react'
 import { Button, Collapse, Input, Popconfirm, type CollapseProps } from 'antd'
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useMemo, useState } from 'react'
 
 import { t } from '../../i18n/index.js'
 import { model } from '../model.js'
@@ -10,18 +10,16 @@ import { model } from '../model.js'
 import { NodesConfigAddModal } from './NodesConfigAddModal.js'
 import { config } from './model.js'
 import { CONFIG_CLASSIFICATION, type ControllerConfig, type NodesConfig } from './type.js'
-import { _2_strs, strs_2_nodes_config } from './utils.js'
+import { _2_strs } from './utils.js'
 
 const { Search } = Input
 
 export function NodesConfig () {
-    const [configs, set_configs] = useState<NodesConfig[]>([ ])
+    const { nodes_configs } = config.use(['nodes_configs'])
     
     const [active_key, set_active_key] = useState<string | string[]>('thread')
     
     const [search_key, set_search_key] = useState('')
-    
-    const [refresher, set_refresher] = useState({ })
     
     const cols: ProColumns<ControllerConfig>[] = useMemo(
         () => [
@@ -96,24 +94,16 @@ export function NodesConfig () {
                 ]
             }
         ],
-        [configs]
+        [nodes_configs]
     )
-    
-    useEffect(() => {
-        (async () => {
-            const value = Array.from(new Set((await config.load_nodes_config()).value as string[]))
-            set_configs(strs_2_nodes_config(value))
-        })()
-    }, [refresher])
     
     const delete_config = useCallback(
         async (config_id: string) => {
-            const new_configs = _2_strs(configs).filter(cfg => cfg !== config_id)
+            const new_configs = _2_strs(nodes_configs).filter(cfg => cfg !== config_id)
             await config.save_nodes_config(new_configs)
-            set_refresher({ })
             model.message.success(t('删除成功'))
         },
-        [configs]
+        [nodes_configs]
     )
     
     const search_row = useCallback(
@@ -129,12 +119,12 @@ export function NodesConfig () {
     
     const items: CollapseProps['items'] = useMemo(() => {
         let clsed_config = Object.fromEntries([...Object.keys(CONFIG_CLASSIFICATION), t('其它')].map(cfg => [cfg, [ ]]))
-        for (let config of configs) {
+        for (let config of nodes_configs) {
             const { category } = config
             clsed_config[category].push(config)
         }
         
-        return Object.entries(clsed_config).map(([key, configs]) => ({
+        return Object.entries(clsed_config).map(([key, nodes_configs]) => ({
             key,
             label: <div className='collapse-title'>{key}</div>,
             children: (
@@ -142,14 +132,14 @@ export function NodesConfig () {
                     className='nodes-config-table'
                     rowKey='id'
                     columns={cols}
-                    value={configs}
+                    value={nodes_configs}
                     recordCreatorProps={false}
                     tableLayout='fixed'
                     rowClassName={search_row}
                     editable={{
                         type: 'single',
                         onSave: async (rowKey, data, row) => {
-                            const config_strs = _2_strs(configs)
+                            const config_strs = _2_strs(nodes_configs)
                             await config.save_nodes_config(
                                 config_strs.toSpliced(
                                     config_strs.indexOf(rowKey as string),
@@ -157,7 +147,6 @@ export function NodesConfig () {
                                     (data.qualifier ? data.qualifier + '.' : '') + data.name + '=' + data.value
                                 )
                             )
-                            set_refresher({ })
                             model.message.success(t('保存成功'))
                         },
                         onDelete: async (key, row) => delete_config(row.id as string),
@@ -181,14 +170,14 @@ export function NodesConfig () {
                 />
             )
         }))
-    }, [configs, search_key])
+    }, [nodes_configs, search_key])
     
     return <div className='nodes-config-container'>
             <div className='toolbar'>
                 <Button
                     icon={<ReloadOutlined />}
-                    onClick={() => {
-                        set_refresher({ })
+                    onClick={async () => {
+                        await config.load_nodes_config()
                         model.message.success(t('刷新成功'))
                     }}
                 >
@@ -199,9 +188,9 @@ export function NodesConfig () {
                     icon={<PlusOutlined />}
                     onClick={async () =>
                         NiceModal.show(NodesConfigAddModal, {
-                            configs: _2_strs(configs),
-                            refresher: () => {
-                                set_refresher({ })
+                            configs: _2_strs(nodes_configs),
+                            refresher: async () => {
+                                await config.load_nodes_config()
                             }
                         })
                     }
@@ -217,7 +206,7 @@ export function NodesConfig () {
                     }}
                     onSearch={async () => {
                         let keys = [ ]
-                        for (let config of configs) {
+                        for (let config of nodes_configs) {
                             const { category, name } = config
                             if (name.toLowerCase().includes(search_key.toLowerCase()))
                                 keys.push(category)

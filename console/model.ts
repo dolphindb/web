@@ -19,6 +19,7 @@ import {
 import { language, t } from '../i18n/index.js'
 
 import type { FormatErrorOptions } from './components/GlobalErrorBoundary.js'
+import { config } from './config/model.js'
 
 
 export const storage_keys = {
@@ -192,7 +193,8 @@ export class DdbModel extends Model<DdbModel> {
             this.get_node_type(),
             this.get_node_alias(),
             this.get_controller_alias(),
-            this.get_login_required()
+            this.get_login_required(),
+            config.load_nodes_config()
         ])
         
         if (this.autologin)

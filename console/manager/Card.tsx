@@ -9,10 +9,10 @@ import { model } from '../model.js'
 
 import { module_infos } from './model.js'
 
-export function Card ({ key }: { key: string }) 
+export function Card ({ _key }: { _key: string }) 
 {
     const { visible, open, close } = use_modal()
-    const { label, description, load_prompt, unload_prompt, load_function, unload_function } = module_infos.get(key)
+    const { label, description, load_prompt, unload_prompt, load_function, unload_function } = module_infos.get(_key)
     
     return <>
         <div className='card'>
@@ -24,7 +24,7 @@ export function Card ({ key }: { key: string })
                 <Button
                     className='button'
                     type='primary'
-                    danger={modules.has(key)}
+                    // danger={modules.has(key)}
                     onClick={() => {
                         Modal.confirm({
                           title: 'Confirm',
@@ -34,7 +34,7 @@ export function Card ({ key }: { key: string })
                         })
                       }}
                 >
-                    {modules.has(key) ? t('停用') : t('启用')}
+                    {/* {modules.has(key) ? t('停用') : t('启用')} */}
                 </Button>
             </div>
         </div>

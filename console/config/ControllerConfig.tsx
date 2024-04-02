@@ -4,14 +4,16 @@ import { Button, Input, Popconfirm } from 'antd'
 
 import { useCallback, useMemo, useRef, useState } from 'react'
 
+import { genid, delay } from 'xshell/utils.browser.js'
+
 import { t } from '../../i18n/index.js'
 
 import { model } from '../model.js'
+
 import { config } from './model.js'
 
 import type { ControllerConfig } from './type.js'
 import { _2_strs, strs_2_controller_configs } from './utils.js'
-import { genid, delay } from 'xshell/utils.browser.js'
 
 const { Search } = Input
 
