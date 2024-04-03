@@ -83,12 +83,12 @@ export function NodesConfig () {
                         key='editable'
                         className='mr-btn'
                         onClick={() => {
-                            action?.startEditable?.(record.id)
+                            action?.startEditable?.(record.name)
                         }}
                     >
                         {t('编辑')}
                     </Button>,
-                    <Popconfirm title={t('确认删除此配置项？')} key='delete' onConfirm={async () => delete_config(record.id as string)}>
+                    <Popconfirm title={t('确认删除此配置项？')} key='delete' onConfirm={async () => delete_config(record.name as string)}>
                         <Button type='link'>{t('删除')}</Button>
                     </Popconfirm>
                 ]
@@ -98,9 +98,8 @@ export function NodesConfig () {
     )
     
     const delete_config = useCallback(
-        async (config_id: string) => {
-            const new_configs = _2_strs(nodes_configs).filter(cfg => cfg !== config_id)
-            await config.save_nodes_config(new_configs)
+        async (config_name: string) => {
+            await config.save_nodes_config([config_name], true)
             model.message.success(t('删除成功'))
         },
         [nodes_configs]
@@ -118,38 +117,34 @@ export function NodesConfig () {
     )
     
     const items: CollapseProps['items'] = useMemo(() => {
-        let clsed_config = Object.fromEntries([...Object.keys(CONFIG_CLASSIFICATION), t('其它')].map(cfg => [cfg, [ ]]))
-        for (let config of nodes_configs) {
-            const { category } = config
-            clsed_config[category].push(config)
-        }
+        let clsed_configs = Object.fromEntries([...Object.keys(CONFIG_CLASSIFICATION), t('其它')].map(cfg => [cfg, [ ]]))
         
-        return Object.entries(clsed_config).map(([key, nodes_configs]) => ({
+        Array.from(nodes_configs).forEach(([key, nodes_config]) => {
+            const { category } = nodes_config
+            clsed_configs[category].push(nodes_config)
+        })
+        
+        return Object.entries(clsed_configs).map(([key, clsed_config]) => ({
             key,
             label: <div className='collapse-title'>{key}</div>,
             children: (
                 <EditableProTable
                     className='nodes-config-table'
-                    rowKey='id'
+                    rowKey='name'
                     columns={cols}
-                    value={nodes_configs}
+                    value={clsed_config}
                     recordCreatorProps={false}
                     tableLayout='fixed'
                     rowClassName={search_row}
                     editable={{
                         type: 'single',
                         onSave: async (rowKey, data, row) => {
-                            const config_strs = _2_strs(nodes_configs)
-                            await config.save_nodes_config(
-                                config_strs.toSpliced(
-                                    config_strs.indexOf(rowKey as string),
-                                    1,
-                                    (data.qualifier ? data.qualifier + '.' : '') + data.name + '=' + data.value
-                                )
-                            )
+                            const { name, qualifier, value } = data
+                            const config_name = (qualifier ? qualifier + '.' : '') + name
+                            await config.save_nodes_config([[config_name, { ...nodes_configs.get(config_name), value }]], false)
                             model.message.success(t('保存成功'))
                         },
-                        onDelete: async (key, row) => delete_config(row.id as string),
+                        onDelete: async (key, row) => delete_config(row.name as string),
                         deletePopconfirmMessage: t('确认删除此配置项？'),
                         saveText: (
                             <Button type='link' key='editable' className='mr-btn'>
@@ -187,12 +182,7 @@ export function NodesConfig () {
                 <Button
                     icon={<PlusOutlined />}
                     onClick={async () =>
-                        NiceModal.show(NodesConfigAddModal, {
-                            configs: _2_strs(nodes_configs),
-                            refresher: async () => {
-                                await config.load_nodes_config()
-                            }
-                        })
+                        NiceModal.show(NodesConfigAddModal)
                     }
                 >
                     {t('新增配置')}
@@ -206,11 +196,11 @@ export function NodesConfig () {
                     }}
                     onSearch={async () => {
                         let keys = [ ]
-                        for (let config of nodes_configs) {
+                        Array.from(nodes_configs).forEach(([key, config]) => {
                             const { category, name } = config
                             if (name.toLowerCase().includes(search_key.toLowerCase()))
                                 keys.push(category)
-                        }
+                        })
                         set_active_key(keys)
                     }}
                 />

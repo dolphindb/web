@@ -135,6 +135,8 @@ export class DdbModel extends Model<DdbModel> {
     
     notification: NotificationInstance
     
+    /** 记录启用了哪些可选功能 */
+    modules: Set<string>
     
     
     constructor () {

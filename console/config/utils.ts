@@ -31,8 +31,9 @@ export const strs_2_nodes = (strs: string[]): ClusterNode[] =>
     })
 
     
-export const strs_2_nodes_config = (strs: string[]): NodesConfig[] =>
-    strs.map(str => {
+export function strs_2_nodes_config (strs: string[]) {
+    const nodes_configs = new Map<string, NodesConfig>()
+    strs.forEach(str => {
         const [rest, value] = str.split('=')
         const [first, second] = rest.split('.')
         const qualifier =  second ? first : ''
@@ -43,11 +44,15 @@ export const strs_2_nodes_config = (strs: string[]): NodesConfig[] =>
             if (CONFIG_CLASSIFICATION[cls].has(name))
                 category = cls
         
-        return {
-            id: str,
-            category,
-            qualifier,
+        nodes_configs.set(
             name,
-            value,
-        }
+            {
+                category,
+                qualifier,
+                name,
+                value,
+            }
+        )
     })
+    return nodes_configs
+}

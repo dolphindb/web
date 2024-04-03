@@ -5,11 +5,11 @@ import { DdbVectorString } from 'dolphindb/browser.js'
 import { model } from '../model.js'
 
 import { type NodesConfig } from './type.js'
-import { strs_2_nodes_config } from './utils.js'
+import { _2_strs, strs_2_nodes_config } from './utils.js'
 
 
 class ConfigModel extends Model<ConfigModel> {
-    nodes_configs: NodesConfig[] = [ ]
+    nodes_configs: Map<string, NodesConfig>
     
     async load_controller_configs () {
         return model.ddb.call('loadControllerConfigs')
@@ -34,8 +34,28 @@ class ConfigModel extends Model<ConfigModel> {
         ) })
     }
     
-    async save_nodes_config (configs: string[]) {
-        await model.ddb.call('saveClusterNodesConfigs', [new DdbVectorString(configs)])
+    
+    async save_nodes_config (configs: Array<[string, NodesConfig]>, is_delete: false): Promise<void>
+    async save_nodes_config (configs: Array<string>, is_delete: true): Promise<void>
+    async save_nodes_config (configs: Array<[string, NodesConfig]> | Array<string>, is_delete: boolean): Promise<void> {
+        let web_modules_changed = false
+        if (is_delete) 
+            (configs as Array<string>).forEach(config => {
+                if (config === 'webModules')
+                    web_modules_changed = true
+                this.nodes_configs.delete(config)
+            })
+        else
+            (configs as Array<[string, NodesConfig]>).forEach(([key, value]) => {
+                if (key === 'webModules')
+                    web_modules_changed = true
+                this.nodes_configs.set(key, value)
+            }) 
+        
+        await model.ddb.call(
+            'saveClusterNodesConfigs', 
+            [new DdbVectorString(Array.from(this.nodes_configs).map(([key, config]) => `${config.name}=${config.value}`))]
+        )
         await config.load_nodes_config()
     }
     
