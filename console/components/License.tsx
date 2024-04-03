@@ -48,7 +48,7 @@ export function License () {
                         <Descriptions.Item label={t('过期时间')}>{date2str(license.expiration)}</Descriptions.Item>
                         <Descriptions.Item label={t('绑定 CPU')}>{String(license.bindCPU)}</Descriptions.Item>
                         <Descriptions.Item label={t('license 版本')}>{license.version}</Descriptions.Item>
-                        <Descriptions.Item label={t('模块数量')}>{ license.modules === -1n ? '∞' : license.modules.toString() }</Descriptions.Item>
+                        <Descriptions.Item label={t('模块数量')}>{ license.modules === -1n ? '∞' : String(license.modules) }</Descriptions.Item>
                         {
                             is_license_server_node ?
                             <>
