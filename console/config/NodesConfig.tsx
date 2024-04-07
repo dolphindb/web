@@ -94,7 +94,7 @@ export function NodesConfig () {
                 ]
             }
         ],
-        [nodes_configs]
+        [ ]
     )
     
     const delete_config = useCallback(
@@ -102,7 +102,7 @@ export function NodesConfig () {
             await config.save_nodes_config([config_name], true)
             model.message.success(t('删除成功'))
         },
-        [nodes_configs]
+        [ ]
     )
     
     const search_row = useCallback(

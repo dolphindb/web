@@ -28,10 +28,9 @@ class ConfigModel extends Model<ConfigModel> {
     }
     
     async load_nodes_config () {
-        this.set({ nodes_configs: 
-            strs_2_nodes_config(
-                Array.from(new Set((await model.ddb.call('loadClusterNodesConfigs')).value as string[]))
-        ) })
+        this.set({ 
+            nodes_configs: strs_2_nodes_config((await model.ddb.call('loadClusterNodesConfigs')).value as string[]) 
+        })
     }
     
     
