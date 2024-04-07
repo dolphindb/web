@@ -20,6 +20,7 @@ import { language, t } from '../i18n/index.js'
 
 import type { FormatErrorOptions } from './components/GlobalErrorBoundary.js'
 import { config } from './config/model.js'
+import { type NodesConfig } from './config/type.js'
 
 
 export const storage_keys = {
@@ -214,6 +215,8 @@ export class DdbModel extends Model<DdbModel> {
             }
         
         await this.get_cluster_perf(true)
+        
+        this.get_modules()
         
         await Promise.all([
             this.check_leader_and_redirect(),
@@ -887,6 +890,18 @@ export class DdbModel extends Model<DdbModel> {
         return language === 'en'
             ? `https://docs.dolphindb.com/en/Maintenance/ErrorCodeReference/${ref_id}.html`
             : `https://docs.dolphindb.cn/zh/error_codes/${ref_id}.html`
+    }
+    
+    
+    get_modules () {
+        const webModules = config.nodes_configs.get('webModules')
+        this.set({ modules: (webModules?.value) ? new Set(webModules.value.split(',')) : new Set() })
+    }
+    
+    
+    async change_modules (key: string, is_delete: boolean) {
+        is_delete ? this.modules.delete(key) : this.modules.add(key)
+        await config.save_nodes_config([['webModules', { name: 'webModules', value: Array.from(this.modules).join(','), qualifier: '' } as unknown as NodesConfig]], false)
     }
 }
 

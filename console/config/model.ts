@@ -57,6 +57,10 @@ class ConfigModel extends Model<ConfigModel> {
             [new DdbVectorString(Array.from(this.nodes_configs).map(([key, config]) => `${config.name}=${config.value}`))]
         )
         await config.load_nodes_config()
+        
+        if (web_modules_changed) 
+            model.get_modules()
+        
     }
     
     constructor () {

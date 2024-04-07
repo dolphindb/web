@@ -1,6 +1,6 @@
 import { Button, Modal } from 'antd'
 
-import { use_modal } from 'react-object-model/hooks.js'
+import { useEffect, useState } from 'react'
 
 import { t } from '../../i18n/index.js'
 
@@ -9,10 +9,18 @@ import { model } from '../model.js'
 
 import { module_infos } from './model.js'
 
-export function Card ({ _key }: { _key: string }) 
+export function Card ({ module_key }: { module_key: string }) 
 {
-    const { visible, open, close } = use_modal()
-    const { label, description, load_prompt, unload_prompt, load_function, unload_function } = module_infos.get(_key)
+    const { modules } = model.use(['modules'])
+    const { label, description, load_prompt, unload_prompt, load_function, unload_function } = module_infos.get(module_key)
+    const [enable, set_enable] = useState<boolean>(false)
+    const [enable_label, set_enable_label] = useState<string>('')
+    
+    useEffect(() => {
+        const has_module = modules.has(module_key)
+        set_enable(has_module)
+        set_enable_label(has_module ? t('停用') : t('启用'))
+    }, [modules])
     
     return <>
         <div className='card'>
@@ -24,17 +32,20 @@ export function Card ({ _key }: { _key: string })
                 <Button
                     className='button'
                     type='primary'
-                    // danger={modules.has(key)}
+                    danger={enable}
                     onClick={() => {
                         Modal.confirm({
-                          title: 'Confirm',
-                          content: 'Bla bla ...',
-                          onOk: () => { },
-                          onCancel: () => { },
+                          title: t('{{label}}{{enable_label}}提示', { enable_label, label }),
+                          content: enable ? unload_prompt : load_prompt,
+                          onOk: async () => { 
+                                enable ? await unload_function() : await load_function()
+                                await model.change_modules(module_key, enable)
+                                model.message.success(t('{{label}}{{enable_label}}成功', { enable_label, label }))
+                            }
                         })
                       }}
                 >
-                    {/* {modules.has(key) ? t('停用') : t('启用')} */}
+                    {enable_label}
                 </Button>
             </div>
         </div>
