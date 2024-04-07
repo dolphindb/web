@@ -53,7 +53,7 @@ export const SendEventModal = NiceModal.create(({ on_refresh, engine_info }: IPr
         title={t('发送事件到 {{name}} 引擎', { name })}
         width={700}
     >
-        <Form form={form} colon={false} labelCol={{ span: 4 }} wrapperCol={{ span: 20 }} labelAlign='left'>
+        <Form form={form} colon={false} labelCol={{ span: 6 }} wrapperCol={{ span: 18 }} labelAlign='left'>
             <Form.Item label={t('事件类型')} name='eventType' rules={[{ required: true }] }>
                 <Select placeholder={t('请选择事件类型')} options={ eventSchema.map(item => ({ label: item.eventType, value: item.eventType })) } />
             </Form.Item>
@@ -70,7 +70,7 @@ export const SendEventModal = NiceModal.create(({ on_refresh, engine_info }: IPr
                             required
                             rules={[
                                 {
-                                    validator: async (_, value: DdbObj) => { 
+                                    validator: async (_, value: DdbObj | undefined) => { 
                                         if (!value)
                                             return Promise.reject(t('请输入事件字段'))
                                         
