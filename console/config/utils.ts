@@ -45,8 +45,9 @@ export function strs_2_nodes_config (strs: string[]) {
                 category = cls
         
         nodes_configs.set(
-            name,
+            rest,
             {
+                key: rest,
                 category,
                 qualifier,
                 name,

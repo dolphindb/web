@@ -53,7 +53,10 @@ class ConfigModel extends Model<ConfigModel> {
         
         await model.ddb.call(
             'saveClusterNodesConfigs', 
-            [new DdbVectorString(Array.from(this.nodes_configs).map(([key, config]) => `${config.name}=${config.value}`))]
+            [new DdbVectorString(Array.from(this.nodes_configs).map(([key, config]) => {
+                const { value } = config
+                return `${key}=${value}`
+            }))]
         )
         await config.load_nodes_config()
         

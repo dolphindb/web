@@ -28,6 +28,7 @@ export type ClusterNode = {
 }
 
 export type NodesConfig = {
+    key: string
     category?: string
     qualifier: string
     name: string

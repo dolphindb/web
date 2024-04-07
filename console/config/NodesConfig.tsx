@@ -21,7 +21,7 @@ export function NodesConfig () {
     
     const [search_key, set_search_key] = useState('')
     
-    const cols: ProColumns<ControllerConfig>[] = useMemo(
+    const cols: ProColumns<NodesConfig>[] = useMemo(
         () => [
             {
                 title: t('限定词'),
@@ -83,12 +83,12 @@ export function NodesConfig () {
                         key='editable'
                         className='mr-btn'
                         onClick={() => {
-                            action?.startEditable?.(record.name)
+                            action?.startEditable?.(record.key)
                         }}
                     >
                         {t('编辑')}
                     </Button>,
-                    <Popconfirm title={t('确认删除此配置项？')} key='delete' onConfirm={async () => delete_config(record.name as string)}>
+                    <Popconfirm title={t('确认删除此配置项？')} key='delete' onConfirm={async () => delete_config(record.key as string)}>
                         <Button type='link'>{t('删除')}</Button>
                     </Popconfirm>
                 ]
@@ -130,7 +130,7 @@ export function NodesConfig () {
             children: (
                 <EditableProTable
                     className='nodes-config-table'
-                    rowKey='name'
+                    rowKey='key'
                     columns={cols}
                     value={clsed_config}
                     recordCreatorProps={false}
@@ -140,11 +140,13 @@ export function NodesConfig () {
                         type: 'single',
                         onSave: async (rowKey, data, row) => {
                             const { name, qualifier, value } = data
-                            const config_name = (qualifier ? qualifier + '.' : '') + name
-                            await config.save_nodes_config([[config_name, { ...nodes_configs.get(config_name), value }]], false)
+                            const key = (qualifier ? qualifier + '.' : '') + name
+                            if (rowKey !== key)
+                                config.nodes_configs.delete(rowKey as string)
+                            await config.save_nodes_config([[key, { name, qualifier, value, key }]], false)
                             model.message.success(t('保存成功'))
                         },
-                        onDelete: async (key, row) => delete_config(row.name as string),
+                        onDelete: async key => delete_config(key as string),
                         deletePopconfirmMessage: t('确认删除此配置项？'),
                         saveText: (
                             <Button type='link' key='editable' className='mr-btn'>
