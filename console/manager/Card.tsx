@@ -11,16 +11,16 @@ import { module_infos } from './model.js'
 
 export function Card ({ module_key }: { module_key: string }) 
 {
-    const { modules } = model.use(['modules'])
-    const { label, description, load_prompt, unload_prompt, load_function, unload_function } = module_infos.get(module_key)
-    const [enable, set_enable] = useState<boolean>(false)
-    const [enable_label, set_enable_label] = useState<string>('')
+    const { active_modules } = model.use(['active_modules'])
+    const { label, description, activate_prompt, deactivate_prompt, activate_function, deactivate_function } = module_infos.get(module_key)
+    const [active, set_active] = useState<boolean>(false)
+    const [active_label, set_active_label] = useState<string>('')
     
     useEffect(() => {
-        const has_module = modules.has(module_key)
-        set_enable(has_module)
-        set_enable_label(has_module ? t('停用') : t('启用'))
-    }, [modules])
+        const has_module = active_modules.has(module_key)
+        set_active(has_module)
+        set_active_label(has_module ? t('停用') : t('启用'))
+    }, [active_modules])
     
     return <>
         <div className='card'>
@@ -32,20 +32,20 @@ export function Card ({ module_key }: { module_key: string })
                 <Button
                     className='button'
                     type='primary'
-                    danger={enable}
+                    danger={active}
                     onClick={() => {
                         Modal.confirm({
-                          title: t('{{label}}{{enable_label}}提示', { enable_label, label }),
-                          content: enable ? unload_prompt : load_prompt,
+                          title: t('{{label}}{{active_label}}提示', { active_label, label }),
+                          content: active ? deactivate_prompt : activate_prompt,
                           onOk: async () => { 
-                                enable ? await unload_function() : await load_function()
-                                await model.change_modules(module_key, enable)
-                                model.message.success(t('{{label}}{{enable_label}}成功', { enable_label, label }))
+                                active ? await deactivate_function() : await activate_function()
+                                await model.change_modules(module_key, active)
+                                model.message.success(t('{{label}}{{active_label}}成功', { active_label, label }))
                             }
                         })
                       }}
                 >
-                    {enable_label}
+                    {active_label}
                 </Button>
             </div>
         </div>

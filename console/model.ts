@@ -138,10 +138,10 @@ export class DdbModel extends Model<DdbModel> {
     notification: NotificationInstance
     
     /** 记录启用了哪些可选功能 */
-    modules: Set<string>
+    active_modules: Set<string>
     
     /** 记录所有可选功能 */
-    all_modules: Set<string> = new Set()
+    options_modules: Set<string> = new Set()
     
     
     constructor () {
@@ -221,7 +221,7 @@ export class DdbModel extends Model<DdbModel> {
         await this.get_cluster_perf(true)
         
         Array.from(module_infos).map(([key]) =>
-            this.all_modules.add(key)
+            this.options_modules.add(key)
         )
         this.get_modules()
         
@@ -902,18 +902,18 @@ export class DdbModel extends Model<DdbModel> {
     
     get_modules () {
         const webModules = config.nodes_configs.get('webModules')
-        this.set({ modules: (webModules?.value) ? new Set(webModules.value.split(',')) : new Set() })
+        this.set({ active_modules: (webModules?.value) ? new Set(webModules.value.split(',')) : new Set() })
     }
     
     
     async change_modules (key: string, is_delete: boolean) {
-        is_delete ? this.modules.delete(key) : this.modules.add(key)
-        await config.save_nodes_config([['webModules', { name: 'webModules', value: Array.from(this.modules).join(','), qualifier: '' } as unknown as NodesConfig]], false)
+        is_delete ? this.active_modules.delete(key) : this.active_modules.add(key)
+        await config.save_nodes_config([['webModules', { name: 'webModules', value: Array.from(this.active_modules).join(','), qualifier: '' } as unknown as NodesConfig]], false)
     }
     
     
     show_module (key: string): boolean {
-        return this.modules.has(key) || !this.all_modules.has(key)
+        return this.active_modules.has(key) || !this.options_modules.has(key)
     }
 }
 
