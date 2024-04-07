@@ -48,8 +48,8 @@ function MenuIcon ({ view }: { view: DdbModel['view'] }) {
 }
 
 export function DdbSider () {
-    const { view, node_type, collapsed, logined, admin, login_required, is_v1, dev, test, is_factor_platform_enabled } 
-        = model.use(['view', 'node_type', 'collapsed', 'logined', 'admin', 'login_required', 'is_v1', 'dev', 'test', 'is_factor_platform_enabled'])
+    const { view, node_type, collapsed, logined, admin, login_required, is_v1, dev, test, is_factor_platform_enabled, modules } 
+        = model.use(['view', 'node_type', 'collapsed', 'logined', 'admin', 'login_required', 'is_v1', 'dev', 'test', 'is_factor_platform_enabled', 'modules'])
     
     
     const factor_href = useMemo(() => {
@@ -68,6 +68,86 @@ export function DdbSider () {
                 )
             ).toString()
     }, [logined])
+    
+    
+    const items = useMemo(() => {
+        return [
+            ... dev || test ? [{
+                key: 'overview',
+                icon: <MenuIcon view='overview' />,
+                label: node_type === NodeType.single ? t('单机总览') : t('集群总览'),
+            }] : [ ],
+            ... !test && node_type === NodeType.controller ? [{
+                key: 'overview-old',
+                icon: <MenuIcon view='overview' />,
+                label: t('集群总览'),
+            }] : [ ],
+            ...admin && node_type === NodeType.controller ? [{
+                key: 'config',
+                icon: <MenuIcon view='config'/>,
+                label: t('配置管理')
+            }] : [ ],
+            {
+                key: 'shell',
+                icon: <MenuIcon view='shell' />,
+                label: t('交互编程'),
+            },
+            ... (language === 'zh' && !is_v1 ) ? [ {
+                key: 'dashboard',
+                icon: <MenuIcon view='dashboard' />,
+                label: t('数据面板'),
+            }] : [ ],
+            {
+                key: 'job',
+                icon: <MenuIcon view='job' />,
+                label: t('作业管理'),
+            },
+            {
+                key: 'computing',
+                icon: <MenuIcon view='computing' />,
+                label: t('流计算监控', { context: 'menu' }),
+            },
+            ... node_type !== NodeType.computing && admin ? [{
+                key: 'access',
+                icon: <MenuIcon view='access' />,
+                label: t('权限管理'),
+                children: [
+                    {
+                        key: 'user',
+                        icon: <MenuIcon view='user' />,
+                        label: t('用户管理'),
+                    },
+                    {
+                        key: 'group',
+                        icon: <MenuIcon view='group' />,
+                        label: t('组管理'),
+                    },
+                ]
+            }] : [ ],
+            {
+                key: 'log',
+                icon: <MenuIcon view='log' />,
+                label: t('日志查看'),
+            },
+            ... is_factor_platform_enabled ? [{
+                key: 'factor',
+                icon: <MenuIcon view='factor' />,
+                label: <Link target='_blank' href={factor_href}>{t('因子平台')}</Link>
+            }] : [ ],
+            ... dev || test ? [
+                {
+                    key: 'test',
+                    icon: <ExperimentOutlined className='icon-menu' />,
+                    label: '测试模块'
+            }] : [ ],
+            ... admin ? [
+                {
+                    key: 'manager',
+                    icon: <SettingOutlined  className='icon-menu' />,
+                    label: '功能设置'
+            }] : [ ],
+        ].filter(item => model.show_module(item.key))
+    }, [ modules ])
     
     return <Layout.Sider
         width={150}
@@ -107,82 +187,7 @@ export function DdbSider () {
                 model.set({ view: key as DdbModel['view'] })
             }}
             inlineIndent={10}
-            items={[
-                ... dev || test ? [{
-                    key: 'overview',
-                    icon: <MenuIcon view='overview' />,
-                    label: node_type === NodeType.single ? t('单机总览') : t('集群总览'),
-                }] : [ ],
-                ... !test && node_type === NodeType.controller ? [{
-                    key: 'overview-old',
-                    icon: <MenuIcon view='overview' />,
-                    label: t('集群总览'),
-                }] : [ ],
-                ...admin && node_type === NodeType.controller ? [{
-                    key: 'config',
-                    icon: <MenuIcon view='config'/>,
-                    label: t('配置管理')
-                }] : [ ],
-                {
-                    key: 'shell',
-                    icon: <MenuIcon view='shell' />,
-                    label: t('交互编程'),
-                },
-                ... (language === 'zh' && !is_v1 ) ? [ {
-                    key: 'dashboard',
-                    icon: <MenuIcon view='dashboard' />,
-                    label: t('数据面板'),
-                }] : [ ],
-                {
-                    key: 'job',
-                    icon: <MenuIcon view='job' />,
-                    label: t('作业管理'),
-                },
-                {
-                    key: 'computing',
-                    icon: <MenuIcon view='computing' />,
-                    label: t('流计算监控', { context: 'menu' }),
-                },
-                ... node_type !== NodeType.computing && admin ? [{
-                    key: 'access',
-                    icon: <MenuIcon view='access' />,
-                    label: t('权限管理'),
-                    children: [
-                        {
-                            key: 'user',
-                            icon: <MenuIcon view='user' />,
-                            label: t('用户管理'),
-                        },
-                        {
-                            key: 'group',
-                            icon: <MenuIcon view='group' />,
-                            label: t('组管理'),
-                        },
-                    ]
-                }] : [ ],
-                {
-                    key: 'log',
-                    icon: <MenuIcon view='log' />,
-                    label: t('日志查看'),
-                },
-                ... is_factor_platform_enabled ? [{
-                    key: 'factor',
-                    icon: <MenuIcon view='factor' />,
-                    label: <Link target='_blank' href={factor_href}>{t('因子平台')}</Link>
-                }] : [ ],
-                ... dev || test ? [
-                    {
-                        key: 'test',
-                        icon: <ExperimentOutlined className='icon-menu' />,
-                        label: '测试模块'
-                }] : [ ],
-                ... admin ? [
-                    {
-                        key: 'manager',
-                        icon: <SettingOutlined  className='icon-menu' />,
-                        label: '功能设置'
-                }] : [ ],
-            ]}
+            items={items}
         />
     </Layout.Sider>
 }

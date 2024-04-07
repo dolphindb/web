@@ -21,6 +21,7 @@ import { language, t } from '../i18n/index.js'
 import type { FormatErrorOptions } from './components/GlobalErrorBoundary.js'
 import { config } from './config/model.js'
 import { type NodesConfig } from './config/type.js'
+import { module_infos } from './manager/model.js'
 
 
 export const storage_keys = {
@@ -139,6 +140,9 @@ export class DdbModel extends Model<DdbModel> {
     /** 记录启用了哪些可选功能 */
     modules: Set<string>
     
+    /** 记录所有可选功能 */
+    all_modules: Set<string> = new Set()
+    
     
     constructor () {
         super()
@@ -216,6 +220,9 @@ export class DdbModel extends Model<DdbModel> {
         
         await this.get_cluster_perf(true)
         
+        Array.from(module_infos).map(([key]) =>
+            this.all_modules.add(key)
+        )
         this.get_modules()
         
         await Promise.all([
@@ -902,6 +909,11 @@ export class DdbModel extends Model<DdbModel> {
     async change_modules (key: string, is_delete: boolean) {
         is_delete ? this.modules.delete(key) : this.modules.add(key)
         await config.save_nodes_config([['webModules', { name: 'webModules', value: Array.from(this.modules).join(','), qualifier: '' } as unknown as NodesConfig]], false)
+    }
+    
+    
+    show_module (key: string): boolean {
+        return this.modules.has(key) || !this.all_modules.has(key)
     }
 }
 
