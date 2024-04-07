@@ -1,8 +1,8 @@
 import { Model } from 'react-object-model'
 
-import { DdbVectorString } from 'dolphindb/browser.js'
+import { DdbFunctionType, DdbVectorString } from 'dolphindb/browser.js'
 
-import { model } from '../model.js'
+import { NodeType, model } from '../model.js'
 
 import { type NodesConfig } from './type.js'
 import { _2_strs, strs_2_nodes_config } from './utils.js'
@@ -29,7 +29,13 @@ class ConfigModel extends Model<ConfigModel> {
     
     async load_nodes_config () {
         this.set({ 
-            nodes_configs: strs_2_nodes_config((await model.ddb.call('loadClusterNodesConfigs')).value as string[]) 
+            nodes_configs: strs_2_nodes_config(
+                (await model.ddb.call(
+                    'loadClusterNodesConfigs', 
+                    [ ], 
+                    { ... model.node_type === NodeType.controller || model.node_type === NodeType.single ? { } : { node: model.controller_alias, func_type: DdbFunctionType.SystemFunc } }
+                )).value as string[]
+            ) 
         })
     }
     

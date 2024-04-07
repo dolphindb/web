@@ -201,7 +201,6 @@ export class DdbModel extends Model<DdbModel> {
             this.get_node_alias(),
             this.get_controller_alias(),
             this.get_login_required(),
-            config.load_nodes_config()
         ])
         
         if (this.autologin)
@@ -220,6 +219,7 @@ export class DdbModel extends Model<DdbModel> {
         
         await this.get_cluster_perf(true)
         
+        await config.load_nodes_config()
         Array.from(module_infos).map(([key]) =>
             this.options_modules.add(key)
         )

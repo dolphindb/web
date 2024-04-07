@@ -34,7 +34,7 @@ export function Card ({ module_key }: { module_key: string })
                     type='primary'
                     danger={active}
                     onClick={() => {
-                        Modal.confirm({
+                        model.modal.confirm({
                           title: t('{{label}}{{active_label}}提示', { active_label, label }),
                           content: active ? deactivate_prompt : activate_prompt,
                           onOk: async () => { 
