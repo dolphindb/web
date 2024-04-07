@@ -147,7 +147,7 @@ export function DdbSider () {
                     label: '功能设置'
             }] : [ ],
         ].filter(item => model.show_module(item.key))
-    }, [ active_modules ])
+    }, [ active_modules, dev, test, admin, is_factor_platform_enabled, node_type, language, is_v1])
     
     return <Layout.Sider
         width={150}
