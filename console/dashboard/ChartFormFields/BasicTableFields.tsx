@@ -2,12 +2,16 @@ import './index.scss'
 
 import { Col, Collapse, Form, Input, InputNumber, Row, Select, Space } from 'antd'
 
+import { type CollapseProps } from 'antd/lib'
+
 import { t } from '../../../i18n/index.js'
 import { BoolRadioGroup } from '../../components/BoolRadioGroup/index.js'
-import { type CollapseProps } from 'antd/lib'
-import { format_time_options } from './constant.js'
+
+
 import { StringColorPicker } from '../../components/StringColorPicker/index.js'
 import { convert_list_to_options } from '../utils.js'
+
+import { format_time_options } from './constant.js'
 
 export function BasicTableFields ({ col_names }: { col_names: string[] }) {
     const form = Form.useFormInstance()

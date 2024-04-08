@@ -1,14 +1,22 @@
 import ReactEChartsCore from 'echarts-for-react/lib/core'
 import * as echarts from 'echarts'
-import { dashboard, type Widget } from '../../model.js'
+
 import { useMemo } from 'react'
-import { type IOrderBookConfig, type IChartConfig } from '../../type.js'
-import { to_chart_data } from '../../utils.js'
+
 import { DdbType } from 'dolphindb/browser.js'
-import { OrderFormFields, BasicFormFields } from '../../ChartFormFields/OrderBookField.js'
+
 import {
   type EChartsOption,
 } from 'echarts/types/dist/shared.js'
+
+import { dashboard, type Widget } from '../../model.js'
+import { type IOrderBookConfig, type IChartConfig } from '../../type.js'
+import { to_chart_data } from '../../utils.js'
+
+
+import { OrderFormFields, BasicFormFields } from '../../ChartFormFields/OrderBookField.js'
+
+
 import { convert_order_book_config, convertDateFormat, type OrderBookTradeData, parsePrice } from './config.js'
 
 

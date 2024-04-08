@@ -4,7 +4,7 @@ import {
     EyeOutlined,
     PlusOutlined,
     SearchOutlined,
-    SettingOutlined} from '@ant-design/icons'
+    SettingOutlined } from '@ant-design/icons'
 import { Button, Input } from 'antd'
 
 import { t } from '../../i18n/index.js'

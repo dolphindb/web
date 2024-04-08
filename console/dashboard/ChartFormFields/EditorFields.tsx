@@ -2,8 +2,9 @@ import './index.scss'
 
 import { Collapse, Form, Input } from 'antd'
 
-import { t } from '../../../i18n/index.js'
 import { useMemo } from 'react'
+
+import { t } from '../../../i18n/index.js'
 
 export function EditorFields () { 
     

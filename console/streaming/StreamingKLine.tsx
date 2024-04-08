@@ -1,12 +1,16 @@
 import React, { useEffect, useId, useMemo, useRef, useState } from 'react'
-import { type ErrorType, type KLineConfigType, type KLineNodeType } from './types.js'
+
 import { type StreamingMessage } from 'dolphindb/browser.js'
-import { use_streaming } from './hooks/use-streaming.js'
+
 import { type EChartsType } from 'echarts'
 import * as echarts from 'echarts'
 import dayjs from 'dayjs'
-import { StreamingError } from './StreamingError.js'
+
 import { Switch } from 'antd'
+
+import { StreamingError } from './StreamingError.js'
+import { use_streaming } from './hooks/use-streaming.js'
+import { type ErrorType, type KLineConfigType, type KLineNodeType } from './types.js'
 import './index.sass'
 
 /** 

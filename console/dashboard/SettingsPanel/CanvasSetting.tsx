@@ -1,4 +1,5 @@
 import { type CollapseProps, Form, Input, Collapse } from 'antd'
+
 import { t } from '../../../i18n/index.js'
 
 export function CanvasSetting () {

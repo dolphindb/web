@@ -1,11 +1,15 @@
 import './index.scss'
 
 import { Collapse, Descriptions, type DescriptionsProps, Form, InputNumber, Select, type CollapseProps, Input, Checkbox, Pagination } from 'antd'
+
+import { useMemo, useState } from 'react'
+
+import { isNumber, tail } from 'lodash'
+
 import { type Widget } from '../../model.js'
 import { convert_list_to_options, format_number, format_time, parse_text } from '../../utils.js'
 
 
-import { useMemo, useState } from 'react'
 import { type IDescriptionsConfig } from '../../type.js'
 import { FormDependencies } from '../../../components/formily/FormDependcies/index.js'
 import { StringColorPicker } from '../../../components/StringColorPicker/index.js'
@@ -13,7 +17,7 @@ import { BasicFormFields } from '../../ChartFormFields/BasicFormFields.js'
 import { BoolRadioGroup } from '../../../components/BoolRadioGroup/index.js'
 import { format_time_options } from '../../ChartFormFields/constant.js'
 import { t } from '../../../../i18n/index.js'
-import { isNumber, tail } from 'lodash'
+
 
 
 interface IProps { 

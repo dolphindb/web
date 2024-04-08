@@ -1,7 +1,7 @@
 import { Card, Col, Row, Statistic } from 'antd'
 import { formati, type StreamingMessage } from 'dolphindb/browser.js'
-import React, { useMemo } from 'react'
-import { useEffect, useRef, useState } from 'react'
+import React, { useMemo, useEffect, useRef, useState } from 'react'
+
 import { use_streaming } from './hooks/use-streaming.js'
 import { StreamingError } from './StreamingError.js'
 import { type ErrorType, type HeatMapConfigType } from './types.js'

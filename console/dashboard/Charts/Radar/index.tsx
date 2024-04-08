@@ -2,6 +2,8 @@ import ReactEChartsCore from 'echarts-for-react/lib/core'
 import * as echarts from 'echarts'
 import { useMemo } from 'react'
 
+import { isNil, pickBy } from 'lodash'
+
 import { dashboard, type Widget } from '../../model.js'
 
 import { LabelsFormFields, SeriesFormFields } from '../../ChartFormFields/RadarChartFields.js'
@@ -9,7 +11,6 @@ import { type IChartConfig } from '../../type.js'
 import { parse_text } from '../../utils.js'
 import { BasicFormFields } from '../../ChartFormFields/BasicFormFields.js'
 import { ChartField } from '../../ChartFormFields/type.js'
-import { isNil, pickBy } from 'lodash'
 
 
 export function Radar ({ widget, data_source }: { widget: Widget, data_source: any[] }) {

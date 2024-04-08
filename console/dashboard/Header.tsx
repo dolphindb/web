@@ -7,17 +7,20 @@ import { CopyOutlined, DeleteOutlined, EditOutlined, EyeOutlined, FileAddOutline
 import { use_modal } from 'react-object-model/hooks.js'
 import { genid } from 'xshell/utils.browser.js'
 
+import cn from 'classnames'
+
 import { model } from '../model.js'
 import { t } from '../../i18n/index.js'
 import { CompileAndRefresh } from '../components/CompileAndRefresh.js'
+
+import { HostSelect } from '../components/HostSelect.js'
 
 import { type Widget, dashboard, DashboardPermission } from './model.js'
 import { DataSourceConfig } from './DataSource/DataSourceConfig.js'
 import { clear_data_sources, export_data_sources } from './DataSource/date-source.js'
 import { VariableConfig } from './Variable/VariableConfig.js'
 import { export_variables } from './Variable/variable.js'
-import cn from 'classnames'
-import { HostSelect } from '../components/HostSelect.js'
+
 import { check_name } from './utils.js'
 import { Import } from './Import/Import.js'
 import { Share } from './Share/Share.js'

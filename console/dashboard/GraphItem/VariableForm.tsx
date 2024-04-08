@@ -2,11 +2,15 @@ import './index.scss'
 import { Button, Col, Form, Input, Row, Select, type SelectProps } from 'antd'
 import { useCallback, useEffect, useState } from 'react'
 
+import classNames from 'classnames'
+
+import { genid } from 'xshell/utils.browser'
+
 import { type Variable, variables, update_variable_value } from '../Variable/variable.js'
 import { StringDatePicker } from '../../components/StringDatePicker/index.js'
-import classNames from 'classnames'
 import { safe_json_parse } from '../utils.js'
-import { genid } from 'xshell/utils.browser'
+
+
 import { VariableMode } from '../type.js'
 
 interface IProps { 
