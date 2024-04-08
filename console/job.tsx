@@ -11,6 +11,7 @@ import { ReloadOutlined } from '@ant-design/icons'
 import { type DdbObj, format, DdbType } from 'dolphindb/browser.js'
 
 import { language, t } from '../i18n/index.js'
+
 import { model, type DdbJob } from './model.js'
 
 import { TableCellDetail } from './components/TableCellDetail/index.js'

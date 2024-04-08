@@ -3,15 +3,21 @@ import { useEffect } from 'react'
 import { CloseOutlined, QuestionCircleOutlined } from '@ant-design/icons'
 import { InputNumber, Popover, Switch } from 'antd'
 
+import { DdbForm } from 'dolphindb'
+
 import { Editor } from '../../shell/Editor/index.js'
-import { DataView } from './DataView.js'
 
 import { dashboard } from '../model.js'
+
+import { use_monaco_insert } from '../../utils/hooks/use-monaco-insert.js'
+
+import { t } from '../../../i18n/index.js'
+
+import { DataView } from './DataView.js'
+
 import { type DataSource, type DataSourcePropertyType, get_data_source } from './date-source.js'
 import { InsertVariableBtn } from './InsertVariableBtn.js'
-import { use_monaco_insert } from '../../utils/hooks/use-monaco-insert.js'
-import { t } from '../../../i18n/index.js'
-import { DdbForm } from 'dolphindb'
+
 
 interface PropsType { 
     loading: boolean

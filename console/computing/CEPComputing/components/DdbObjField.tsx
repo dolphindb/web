@@ -1,10 +1,11 @@
 
 import { DatePicker, TimePicker, type DatePickerProps, type InputNumberProps, InputNumber, Input, type InputProps, type TimePickerProps, Space } from 'antd'
-import { useCallback, useState, useEffect, useMemo } from 'react'
+import { useCallback, useState, useEffect, useMemo, type  FocusEventHandler } from 'react'
+
+import { DdbType } from 'dolphindb'
+
 import { model } from '../../../model.js'
 import { t } from '../../../../i18n/index.js'
-import { DdbType } from 'dolphindb'
-import type { FocusEventHandler } from 'react'
 import { convertDecimalType } from '../../../utils/decimal.js'
 
 interface IProps extends Omit<DatePickerProps, 'onChange'> { 
@@ -102,11 +103,11 @@ export function DdbObjInputField ({ form, onChange, value, type_id, type = '', .
         
         switch (type_id) { 
             case DdbType.string:
-                if(!is_vector)
+                if (!is_vector)
                     execute_str = JSON.stringify(execute_str)
                 break
             case DdbType.char:
-                if(!is_vector)
+                if (!is_vector)
                     execute_str = `'${execute_str}'`
                 break
             case DdbType.blob:

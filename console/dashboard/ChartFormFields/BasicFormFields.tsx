@@ -3,11 +3,20 @@ import './index.scss'
 import { Collapse, type CollapseProps, Form, InputNumber, Select, Input } from 'antd'
 import { get } from 'lodash'
 
-import { t } from '../../../i18n/index.js'
 import { useMemo } from 'react'
+
+import { t } from '../../../i18n/index.js'
 import { BoolRadioGroup } from '../../components/BoolRadioGroup/index.js'
 import { variables } from '../Variable/variable.js'
 import { convert_list_to_options } from '../utils.js'
+
+import { WidgetChartType, dashboard } from '../model.js'
+
+import { FormDependencies } from '../../components/formily/FormDependcies/index.js'
+
+import { DDB_TYPE_MAP } from '../../constants/ddb-type-maps.js'
+
+import { TIME_TYPES } from '../Charts/CompositeGraph/constant.js'
 
 import { TitleFields } from './components/Title.js'
 import { LegendFields } from './components/Legend.js'
@@ -16,11 +25,7 @@ import { SplitLineFields } from './components/SplitLine.js'
 import { DataZoomFields } from './components/DataZoom.js'
 import { WrapperFields } from './components/Wrapper.js'
 import { ChartField } from './type.js'
-import { WidgetChartType, dashboard } from '../model.js'
-import { FormDependencies } from '../../components/formily/FormDependcies/index.js'
-import { DDB_TYPE_MAP } from '../../constants/ddb-type-maps.js'
 
-import { TIME_TYPES } from '../Charts/CompositeGraph/constant.js'
 
 
 export function VariableSetting () { 

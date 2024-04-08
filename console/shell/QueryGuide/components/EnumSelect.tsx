@@ -1,8 +1,10 @@
 import { Select } from 'antd'
 import useSWR from 'swr'
+
+import { useCallback, useEffect, useState } from 'react'
+
 import { query_enums } from '../utils.js'
 import { t } from '../../../../i18n/index.js'
-import { useCallback, useEffect, useState } from 'react'
 
 interface IProps { 
     table: string

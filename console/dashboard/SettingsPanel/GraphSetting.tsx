@@ -1,9 +1,11 @@
 import { Button, Form, Popconfirm, Typography } from 'antd'
 import { useCallback, useEffect, useMemo } from 'react'
+
+import { UndoOutlined } from '@ant-design/icons'
+
 import { graph_config } from '../graph-config.js'
 import { dashboard } from '../model.js'
 import { get_data_source } from '../DataSource/date-source.js'
-import { UndoOutlined } from '@ant-design/icons'
 import { t } from '../../../i18n/index.js'
 
 export function GraphSetting () { 

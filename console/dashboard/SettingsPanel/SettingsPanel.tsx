@@ -9,8 +9,9 @@ import cn from 'classnames'
 
 import { t } from '../../../i18n/index.js'
 
-import { GraphSetting } from './GraphSetting.js'
 import { WidgetTypeWithoutDatasource, dashboard } from '../model.js'
+
+import { GraphSetting } from './GraphSetting.js'
 
 
 export function SettingsPanel (props: { hidden: boolean }) {

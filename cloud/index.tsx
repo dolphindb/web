@@ -25,9 +25,10 @@ import {
 } from '@ant-design/icons'
 const { Text } = Typography
 
+import Cookies from 'js-cookie'
+
 import { language, t } from '../i18n/index.js'
 
-import Cookies from 'js-cookie'
 
 import { type CloudModel, model, type PageViews } from './model.js'
 import { Cloud } from './cloud.js'

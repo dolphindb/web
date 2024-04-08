@@ -1,16 +1,25 @@
 import './index.scss'
 
 import { Form, Select, Input, Collapse, InputNumber, Space, Button } from 'antd'
+
+import { useMemo } from 'react'
+
+import { DeleteOutlined, PlusCircleOutlined } from '@ant-design/icons'
+
 import { t } from '../../../i18n/index.js'
 import { FormDependencies } from '../../components/formily/FormDependcies/index.js'
-import { AxisType, type IAxisItem, type IYAxisItemValue, Position, ILineType } from './type.js'
+
 import { concat_name_path, convert_list_to_options } from '../utils.js'
 import { BoolRadioGroup } from '../../components/BoolRadioGroup/index.js'
-import { useMemo } from 'react'
 import { StringColorPicker } from '../../components/StringColorPicker/index.js'
-import { chart_type_options, format_time_options, line_type_options, mark_line_options, mark_point_options } from './constant.js'
-import { DeleteOutlined, PlusCircleOutlined } from '@ant-design/icons'
+
 import { WidgetChartType, dashboard } from '../model.js'
+
+import { chart_type_options, format_time_options, line_type_options, mark_line_options, mark_point_options } from './constant.js'
+
+
+import { AxisType, type IAxisItem, type IYAxisItemValue, Position, ILineType } from './type.js'
+
 import { PaddingSetting, VariableSetting } from './BasicFormFields.js'
 import { DATE_SELECT_FORMAT } from './BasicChartFields.js'
 

@@ -1,4 +1,5 @@
 import { Form, InputNumber } from 'antd'
+
 import { t } from '../../../../i18n/index.js'
 
 export function WrapperFields () { 

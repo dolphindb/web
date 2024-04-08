@@ -16,6 +16,7 @@ import type { DdbMessage } from 'dolphindb/browser.js'
 import { t } from '../../i18n/index.js'
 
 import { model } from '../model.js'
+
 import { shell } from './model.js'
 
 

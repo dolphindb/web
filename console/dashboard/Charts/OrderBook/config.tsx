@@ -1,6 +1,7 @@
 import {
     type EChartsOption,
 } from 'echarts/types/dist/shared.js'
+
 import { type IOrderBookConfig } from '../../type'
 import { parse_text } from '../../utils.js'
 
