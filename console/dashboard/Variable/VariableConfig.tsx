@@ -7,17 +7,20 @@ import { Button, Modal } from 'antd'
 import { ToolOutlined } from '@ant-design/icons'
 import { use_modal } from 'react-object-model/hooks.js'
 
+import { dashboard } from '../model.js'
+
+import { t } from '../../../i18n/index.js'
+
 import { VariableList } from './VariableList.js'
 import { VariableEditor } from './VariableEditor.js'
 
-import { dashboard } from '../model.js'
 import { 
     save_variable, 
     type Variable,
     type VariablePropertyType,
     variables,
 } from './variable.js'
-import { t } from '../../../i18n/index.js'
+
 
 const save_confirm_config = {
     cancelText: t('不保存'),

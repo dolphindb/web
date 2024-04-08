@@ -1,14 +1,16 @@
 import './index.scss'
 
-import { BasicFormFields } from '../../ChartFormFields/BasicFormFields.js'
-import { AxisFormFields, SeriesFormFields, ThresholdFormFields } from '../../ChartFormFields/BasicChartFields.js'
 import ReactEChartsCore from 'echarts-for-react/lib/core'
 import * as echarts from 'echarts'
-import { dashboard, type Widget } from '../../model.js'
-import { convert_chart_config, get_axis_range } from '../../utils.js'
+
 import { useEffect, useMemo, useRef, useState } from 'react'
 import { type EChartsInstance } from 'echarts-for-react'
 import { useSize } from 'ahooks'
+
+import { convert_chart_config, get_axis_range } from '../../utils.js'
+import { dashboard, type Widget } from '../../model.js'
+import { AxisFormFields, SeriesFormFields, ThresholdFormFields } from '../../ChartFormFields/BasicChartFields.js'
+import { BasicFormFields } from '../../ChartFormFields/BasicFormFields.js'
 import type { IChartConfig } from '../../type'
 import { ThresholdType } from '../../ChartFormFields/type.js'
 

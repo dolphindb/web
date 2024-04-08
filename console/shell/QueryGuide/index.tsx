@@ -2,12 +2,16 @@ import './index.scss'
 
 import { Modal, Segmented } from 'antd'
 import { type ReactElement, useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { QueryGuideType } from './type.js'
+
+import NiceModal, { useModal } from '@ebay/nice-modal-react'
+
 import { t } from '../../../i18n/index.js'
+
+import { QueryGuideType } from './type.js'
 import { QueryGuide } from './QueryGuide.js'
 import { SqlEditGuide } from './SqlEditGuide.js'
 
-import NiceModal, { useModal } from '@ebay/nice-modal-react'
+
 import { guide_query_model } from './model.js'
 
 interface IProps { 

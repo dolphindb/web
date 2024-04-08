@@ -7,12 +7,21 @@ import { Button, Modal, type ButtonProps, Tabs } from 'antd'
 import { DatabaseOutlined } from '@ant-design/icons'
 import { use_modal } from 'react-object-model/hooks.js'
 
+import { DdbForm } from 'dolphindb'
+
+import { WidgetChartType, dashboard, type Widget } from '../model.js'
+
+import { parse_code } from '../utils.js'
+
+import { model } from '../../model.js'
+
+import { t } from '../../../i18n/index.js'
+
 import { DataSourceList } from './DataSourceList.js'
 import { SqlEditor } from './SqlEditor.js'
 import { StreamEditor } from './StreamEditor.js'
 
-import { WidgetChartType, dashboard } from '../model.js'
-import { type Widget } from '../model.js'
+
 import {
     data_sources,
     find_data_source_index, 
@@ -22,10 +31,8 @@ import {
     type DataSource,
     type DataSourcePropertyType,
 } from './date-source.js'
-import { parse_code } from '../utils.js'
-import { model } from '../../model.js'
-import { t } from '../../../i18n/index.js'
-import { DdbForm } from 'dolphindb'
+
+
 
 const save_confirm_config = {
     cancelText: t('不保存'),

@@ -15,8 +15,10 @@ import { AxisType, MatchRuleType } from '../../ChartFormFields/type.js'
 import { get_data_source } from '../../DataSource/date-source.js'
 import { dashboard } from '../../model.js'
 import { convert_list_to_options, concat_name_path } from '../../utils.js'
-import { SingleDataSourceUpdate } from './index.js'
+
 import { VALUE_TYPES } from './constant.js'
+
+import { SingleDataSourceUpdate } from './index.js'
 
 
 const series_match_type_options = [

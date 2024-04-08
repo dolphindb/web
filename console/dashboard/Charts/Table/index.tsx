@@ -4,15 +4,20 @@ import { Checkbox, type PaginationProps, Table, type TableProps, Empty } from 'a
 import { useEffect, useMemo, useState } from 'react'
 import { genid } from 'xshell/utils.browser.js'
 
+import { type ColumnProps, type ColumnsType } from 'antd/es/table'
+
+import { isNumber } from 'lodash'
+
+import classNames from 'classnames'
+
 import {  BasicFormFields }  from '../../ChartFormFields/BasicFormFields.js'
 import { BasicTableFields } from '../../ChartFormFields/BasicTableFields.js'
 import { type Widget } from '../../model.js'
 import { type ITableConfig } from '../../type.js'
 
-import { type ColumnProps, type ColumnsType } from 'antd/es/table'
-import { isNumber } from 'lodash'
+
 import { format_number, format_time, parse_text } from '../../utils.js'
-import classNames from 'classnames'
+
 
 
 interface IProps extends TableProps<any> { 

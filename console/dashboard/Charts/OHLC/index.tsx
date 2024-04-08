@@ -2,6 +2,8 @@ import * as echarts from 'echarts'
 import ReactEChartsCore from 'echarts-for-react/lib/core'
 import { useMemo } from 'react'
 
+import { isNil, pickBy } from 'lodash'
+
 import { OhlcFormFields } from '../../ChartFormFields/OhlcChartFields.js'
 import { dashboard, type Widget } from '../../model.js'
 import { type IChartConfig, type ISeriesConfig } from '../../type.js'
@@ -10,7 +12,6 @@ import { MarkPresetType } from '../../ChartFormFields/type.js'
 import { format_time, parse_text } from '../../utils.js'
 import './index.sass'
 import { BasicFormFields } from '../../ChartFormFields/BasicFormFields.js'
-import { isNil, pickBy } from 'lodash'
 
 type COL_MAP = {
     time: string

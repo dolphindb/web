@@ -3,8 +3,17 @@ import { Input, Popover, Select, Tree, type MenuProps, InputNumber, Switch, Tabl
 import { QuestionCircleOutlined, SearchOutlined, TableOutlined } from '@ant-design/icons'
 import { throttle } from 'lodash'
 
+import { type editor } from 'monaco-editor'
+
 import { Editor } from '../../shell/Editor/index.js'
 
+import { dashboard } from '../model.js'
+import { model } from '../../model.js'
+
+import { use_monaco_insert } from '../../utils/hooks/use-monaco-insert.js'
+import { t } from '../../../i18n/index.js'
+
+import { InsertVariableBtn } from './InsertVariableBtn.js'
 import { 
     type DataSourcePropertyType, 
     type DataSource, 
@@ -13,12 +22,6 @@ import {
     get_data_source,
     get_stream_filter_col
 } from './date-source.js'
-import { dashboard } from '../model.js'
-import { model } from '../../model.js'
-import { InsertVariableBtn } from './InsertVariableBtn.js'
-import { type editor } from 'monaco-editor'
-import { use_monaco_insert } from '../../utils/hooks/use-monaco-insert.js'
-import { t } from '../../../i18n/index.js'
 
 
 interface PropsType  { 

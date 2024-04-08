@@ -1,14 +1,21 @@
-import { AxisFormFields } from '../../ChartFormFields/BasicChartFields.js'
-import { dashboard, type Widget } from '../../model.js'
 import ReactEChartsCore from 'echarts-for-react/lib/core'
+
 import * as echarts from 'echarts'
 
 import { useMemo } from 'react'
+
+import { Collapse, Form, InputNumber } from 'antd'
+
+import { AxisFormFields } from '../../ChartFormFields/BasicChartFields.js'
+import { dashboard, type Widget } from '../../model.js'
+
+
 import { convert_chart_config, format_time } from '../../utils.js'
 import { BasicFormFields } from '../../ChartFormFields/BasicFormFields.js'
 import { ChartField } from '../../ChartFormFields/type.js'
 import { get_data_source } from '../../DataSource/date-source.js'
-import { Collapse, Form, InputNumber } from 'antd'
+
+
 import { t } from '../../../../i18n/index.js'
 import { BoolRadioGroup } from '../../../components/BoolRadioGroup/index.js'
 import { StringColorPicker } from '../../../components/StringColorPicker/index.js'

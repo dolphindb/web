@@ -1,4 +1,5 @@
 import { Form, Input, InputNumber } from 'antd'
+
 import { t } from '../../../../i18n/index.js'
 
 export function TitleFields () { 

@@ -8,6 +8,7 @@ import { t } from '../../../i18n/index.js'
 
 import { BoolRadioGroup } from '../../components/BoolRadioGroup/index.js'
 import { variables } from '../Variable/variable.js'
+
 import { PaddingSetting, VariableSetting } from './BasicFormFields.js'
 
 export function BasicFormFields ({ type }: { type: 'chart' | 'table' }) { 

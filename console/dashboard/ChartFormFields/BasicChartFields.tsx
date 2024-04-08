@@ -4,19 +4,22 @@ import { useMemo } from 'react'
 import { Form, Select, Input, Collapse, Button, Space, InputNumber, Radio } from 'antd'
 import { DeleteOutlined, PlusCircleOutlined } from '@ant-design/icons'
 
+import { get } from 'lodash'
+
 import { t } from '../../../i18n/index.js'
 import { concat_name_path } from '../utils.js'
 import { FormDependencies } from '../../components/formily/FormDependcies/index.js'
-import { AxisType, type IAxisItem, type IYAxisItemValue, ITimeFormat, ThresholdType } from './type.js'
 
 
-import { axis_position_options, axis_type_options, format_time_options } from './constant.js'
+
 import { WidgetChartType, dashboard } from '../model.js'
 import { BoolRadioGroup } from '../../components/BoolRadioGroup/index.js'
 import { StringDatePicker } from '../../components/StringDatePicker/index.js'
 import { StringTimePicker } from '../../components/StringTimePicker.js'
+
+import { axis_position_options, axis_type_options, format_time_options } from './constant.js'
+import { AxisType, type IAxisItem, type IYAxisItemValue, ITimeFormat, ThresholdType } from './type.js'
 import { AxisColSelect } from './components/AxisColSelect.js'
-import { get } from 'lodash'
 import { SeriesItem } from './components/SeriesItem.js'
 import { ThresholdSettingList } from './components/ThresholdSetting.js'
 

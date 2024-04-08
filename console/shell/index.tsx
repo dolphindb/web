@@ -8,6 +8,7 @@ import { delay } from 'xshell/utils.browser.js'
 
 
 import { model } from '../model.js'
+
 import { shell } from './model.js'
 
 import { ShellEditor } from './ShellEditor.js'

@@ -1,6 +1,9 @@
 import { Form, Select, Input, InputNumber } from 'antd'
 import { type NamePath } from 'antd/es/form/interface'
 import { useMemo } from 'react'
+
+import { get } from 'lodash'
+
 import { t } from '../../../../i18n/index.js'
 import { BoolRadioGroup } from '../../../components/BoolRadioGroup/index.js'
 import { StringColorPicker } from '../../../components/StringColorPicker/index.js'
@@ -10,7 +13,6 @@ import { WidgetChartType, dashboard } from '../../model.js'
 import { concat_name_path, convert_list_to_options } from '../../utils.js'
 import { chart_type_options, mark_point_options, mark_line_options, line_type_options } from '../constant.js'
 import { ILineType } from '../type.js'
-import { get } from 'lodash'
 
 interface SeriesItemProps { 
     /** 选传，外层包裹了 Form.List 时为 field.name */
