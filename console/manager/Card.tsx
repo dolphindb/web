@@ -1,4 +1,4 @@
-import { Button, Modal } from 'antd'
+import { Button, Modal, Popconfirm } from 'antd'
 
 import { useEffect, useState } from 'react'
 
@@ -29,24 +29,25 @@ export function Card ({ module_key }: { module_key: string })
                 <div className='description'>{description}</div>
             </div>
             <div className='right'>
-                <Button
-                    className='button'
-                    type='primary'
-                    danger={active}
-                    onClick={() => {
-                        model.modal.confirm({
-                          title: t('{{label}}{{active_label}}提示', { active_label, label }),
-                          content: active ? deactivate_prompt : activate_prompt,
-                          onOk: async () => { 
-                                active ? await deactivate_function() : await activate_function()
-                                await model.change_modules(module_key, active)
-                                model.message.success(t('{{label}}{{active_label}}成功', { active_label, label }))
-                            }
-                        })
-                      }}
+                <Popconfirm
+                    title={t('{{label}}{{active_label}}提示', { active_label, label })}
+                    description={active ? deactivate_prompt : activate_prompt}
+                    onConfirm={async () => { 
+                        active ? await deactivate_function() : await activate_function()
+                        await model.change_modules(module_key, active)
+                        model.message.success(t('{{label}}{{active_label}}成功', { active_label, label }))
+                    }}
+                    okText={t('确定')}
+                    cancelText={t('取消')}
                 >
-                    {active_label}
-                </Button>
+                    <Button
+                        className='button'
+                        type='primary'
+                        danger={active}
+                    >
+                        {active_label}
+                    </Button>
+                </Popconfirm>
             </div>
         </div>
     </>
