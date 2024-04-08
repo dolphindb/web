@@ -1,31 +1,51 @@
-import { Button, Modal, Popconfirm } from 'antd'
+import { Button, Popconfirm } from 'antd'
 
-import { useEffect, useState } from 'react'
+import { type ReactElement, useEffect, useState, useMemo } from 'react'
 
 import { t } from '../../i18n/index.js'
 
 import './index.sass'
 import { model } from '../model.js'
 
-import { module_infos } from './model.js'
+export interface PropsType {
+    module_key: string
+    label: string
+    description: string
+    activate_prompt: string
+    deactivate_prompt: string
+    activate_function: Function
+    deactivate_function: Function
+    children: ReactElement
+}
 
-export function Card ({ module_key }: { module_key: string }) 
+export function Card ({
+        module_key,
+        label,
+        description,
+        activate_prompt,
+        deactivate_prompt,
+        activate_function,
+        deactivate_function,
+        children
+    }: PropsType) 
 {
     const { active_modules } = model.use(['active_modules'])
-    const { label, description, activate_prompt, deactivate_prompt, activate_function, deactivate_function } = module_infos.get(module_key)
-    const [active, set_active] = useState<boolean>(false)
-    const [active_label, set_active_label] = useState<string>('')
     
-    useEffect(() => {
-        const has_module = active_modules.has(module_key)
-        set_active(has_module)
-        set_active_label(has_module ? t('停用') : t('启用'))
-    }, [active_modules])
+    const active = useMemo(() => {
+        return active_modules.has(module_key)
+    }, [ active_modules])
+    
+    const active_label = useMemo(() => {
+        return active_modules.has(module_key) ? t('停用') : t('启用')
+    }, [ active_modules])
     
     return <>
         <div className='card'>
             <div className='left'>
-                <div className='label'>{label}</div>
+                <div className='label'>
+                    {children}
+                    <div>{label}</div>
+                </div>
                 <div className='description'>{description}</div>
             </div>
             <div className='right'>

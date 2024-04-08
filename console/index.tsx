@@ -42,7 +42,7 @@ import { Log } from './log.js'
 import { Computing } from './computing/index.js'
 import { DashBoard } from './dashboard/index.js'
 import { User, Group } from './access/index.js'
-import { Manager } from './manager/index.js'
+import { Settings } from './settings/index.js'
 
 
 createRoot(
@@ -137,7 +137,7 @@ const views = {
     dashboard: DashBoard,
     user: User,
     group: Group,
-    manager: Manager
+    settings: Settings
 }
 
 

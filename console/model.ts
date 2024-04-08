@@ -21,7 +21,6 @@ import { language, t } from '../i18n/index.js'
 import type { FormatErrorOptions } from './components/GlobalErrorBoundary.js'
 import { config } from './config/model.js'
 import { type NodesConfig } from './config/type.js'
-import { module_infos } from './manager/model.js'
 
 
 export const storage_keys = {
@@ -141,7 +140,7 @@ export class DdbModel extends Model<DdbModel> {
     active_modules: Set<string>
     
     /** 记录所有可选功能 */
-    options_modules: Set<string> = new Set()
+    options_modules: Set<string> = new Set([ 'test', 'finance-tools', 'iot-tools'])
     
     
     constructor () {
@@ -220,9 +219,6 @@ export class DdbModel extends Model<DdbModel> {
         await this.get_cluster_perf(true)
         
         await config.load_nodes_config()
-        Array.from(module_infos).map(([key]) =>
-            this.options_modules.add(key)
-        )
         this.get_modules()
         
         await Promise.all([
