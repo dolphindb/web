@@ -3,19 +3,25 @@ import './index.scss'
 import { CloseOutlined, CopyOutlined } from '@ant-design/icons'
 
 
-import { WidgetChartType, WidgetType, WidgetTypeWithoutDatasource, dashboard } from '../model.js'
-import { DataSourceConfig } from '../DataSource/DataSourceConfig.js'
 import { useMemo, useRef } from 'react'
-import { type Widget } from '../model.js'
+
+import cn from 'classnames'
+
+import { Button } from 'antd'
+
+import { WidgetChartType, WidgetType, WidgetTypeWithoutDatasource, dashboard, type Widget } from '../model.js'
+import { DataSourceConfig } from '../DataSource/DataSourceConfig.js'
 import { graph_config } from '../graph-config.js'
 
 import ChartSvg from '../icons/chart.svg'
 import { get_data_source } from '../DataSource/date-source.js'
-import { t } from '../../../i18n/index.js' 
-import cn from 'classnames'
-import { VariableForm } from './VariableForm.js'
-import { Button } from 'antd'
+import { t } from '../../../i18n/index.js'
+ 
+
 import { copy_widget } from '../utils.js'
+
+import { VariableForm } from './VariableForm.js'
+
 
 function get_padding_style (padding: { left: number, right: number, top: number, bottom: number }) { 
     if (!padding)

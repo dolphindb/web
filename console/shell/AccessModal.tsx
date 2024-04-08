@@ -1,12 +1,19 @@
 import './AccessModal.sass'
 
 import NiceModal from '@ebay/nice-modal-react'
-import { type Database } from './Databases.js'
+
 import { Collapse, Modal, Table, type TableColumnType } from 'antd'
-import { t } from '../../i18n/index.js'
+
 import { useEffect, useState } from 'react'
-import { shell } from './model.js'
+
+import { t } from '../../i18n/index.js'
+
 import { model } from '../model.js'
+
+import { shell } from './model.js'
+
+
+import { type Database } from './Databases.js'
 
 
 interface Props {

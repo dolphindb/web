@@ -2,11 +2,12 @@ import dayjs from 'dayjs'
 
 import { DatePicker, Input, Select } from 'antd'
 
-import { type Variable, type VariablePropertyType } from './variable.js'
-import { OptionList } from './OptionList.js'
 import { safe_json_parse } from '../utils.js'
 import { t } from '../../../i18n/index.js'
 import { VariableMode } from '../type.js'
+
+import { OptionList } from './OptionList.js'
+import { type Variable, type VariablePropertyType } from './variable.js'
 
 const { TextArea } = Input
 

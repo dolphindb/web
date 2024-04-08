@@ -2,6 +2,8 @@ import ReactEChartsCore from 'echarts-for-react/lib/core'
 import * as echarts from 'echarts'
 import { useMemo } from 'react'
 
+import { isNil, pickBy } from 'lodash'
+
 import { dashboard, type Widget } from '../../model.js'
 
 import { SeriesFormFields } from '../../ChartFormFields/PieChartFields.js'
@@ -9,7 +11,6 @@ import { BasicFormFields } from '../../ChartFormFields/BasicFormFields.js'
 import { type IChartConfig } from '../../type.js'
 import { parse_text } from '../../utils.js'
 import { ChartField } from '../../ChartFormFields/type.js'
-import { isNil, pickBy } from 'lodash'
 
 const radius = {
     1: [[0, '70%']],

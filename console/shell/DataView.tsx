@@ -3,6 +3,7 @@ import { DdbForm } from 'dolphindb/browser.js'
 import { Obj } from '../obj.js'
 
 import { model } from '../model.js'
+
 import { shell } from './model.js'
 
 

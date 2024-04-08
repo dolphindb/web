@@ -29,6 +29,7 @@ import { t } from '../../i18n/index.js'
 import { DdbObjRef } from '../obj.js'
 
 import { model, NodeType } from '../model.js'
+
 import { shell } from './model.js'
 
 import SvgVar from './icons/variable.icon.svg'
@@ -426,7 +427,7 @@ function SuffixIcon ({ name }: { name: string }) {
                         )
                     }
                 }
-            )}}
+            ) }}
         />
     </Tooltip>
 }

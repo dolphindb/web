@@ -1,23 +1,27 @@
 import { Button, Card, Form, type FormInstance, Input, InputNumber, Select, Spin, Tag, Tooltip, Typography } from 'antd'
 import useSWR from 'swr'
-import { shell } from '../../model.js'
-import { NodeType, model } from '../../../model.js'
+
 import { DdbFunctionType } from 'dolphindb/browser.js'
 import { get, isNumber } from 'lodash'
 import { useEffect, useId, useState } from 'react'
-import { ColSelectTransfer } from './ColSelectTransfer.js'
+
+import { DeleteOutlined, MinusCircleOutlined, PlusCircleOutlined, QuestionCircleOutlined } from '@ant-design/icons'
+
 import { FormDependencies } from '../../../components/formily/FormDependcies/index.js'
 import { StringDatePicker } from '../../../components/StringDatePicker/index.js'
 import { StringTimePicker } from '../../../components/StringTimePicker.js'
 import { IN, LIKE, NOT_IN, NOT_LIKE, OTHER_OPERATIONS, STRING_OPERATIONS, STRING_TYPES, TIME_TYPES, VALID_DATA_TYPES, VALUE_OPERATIONS, VALUE_TYPES } from '../constant.js'
-import { DeleteOutlined, MinusCircleOutlined, PlusCircleOutlined, QuestionCircleOutlined } from '@ant-design/icons'
+import { NodeType, model } from '../../../model.js'
+import { shell } from '../../model.js'
 import { t } from '../../../../i18n/index.js'
 import { ENUM_TYPES, type IColumn } from '../type.js'
 import { concat_name_path, safe_json_parse } from '../../../dashboard/utils.js'
 
-import { EnumSelect } from './EnumSelect.js'
-import { EnumAutoComplete } from './EnumAutoComplete.js'
 import { guide_query_model } from '../model.js'
+
+import { ColSelectTransfer } from './ColSelectTransfer.js'
+import { EnumAutoComplete } from './EnumAutoComplete.js'
+import { EnumSelect } from './EnumSelect.js'
 
 interface IProps { 
     form: FormInstance

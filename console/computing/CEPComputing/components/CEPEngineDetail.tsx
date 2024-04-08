@@ -12,6 +12,7 @@ import { t } from '../../../../i18n/index.js'
 import { get_dataview_info } from '../api.js'
 import { model } from '../../../model.js'
 import { stream_formatter } from '../../../dashboard/utils.js'
+
 import { SendEventModal } from './SendEventModal.js'
 
 
