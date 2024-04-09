@@ -140,7 +140,7 @@ export class DdbModel extends Model<DdbModel> {
     active_modules: Set<string>
     
     /** 记录所有可选功能 */
-    options_modules: Set<string> = new Set([ 'test', 'finance-tools', 'iot-tools'])
+    options_modules = new Set(['test', 'finance-tools', 'iot-tools'])
     
     
     constructor () {
