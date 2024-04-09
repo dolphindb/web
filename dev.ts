@@ -8,8 +8,7 @@ import {
 } from 'xshell'
 import { Server } from 'xshell/server.js'
 
-import { webpack, fpd_root, fpd_node_modules, fpd_src_console, fpd_src_cloud, ramdisk } from './webpack.js'
-import { build_bundle, fpd_pre_bundle_dist } from './pre-bundle/index.js'
+import { webpack, fpd_root, fpd_node_modules, fpd_src_console, fpd_src_cloud, ramdisk, fpd_pre_bundle_dist } from './webpack.js'
 
 
 // k8s 开发环境需要使用自签名的证书
@@ -103,7 +102,7 @@ class DevServer extends Server {
         
         for (const prefix of ['/console/pre-bundle/', '/cloud/pre-bundle/'] as const)
             if (path.startsWith(prefix)) {
-                await this.try_send(ctx, fpd_pre_bundle_dist, path.slice(prefix.length), true)
+                await this.try_send(ctx, `${fpd_pre_bundle_dist}dev/`, path.slice(prefix.length), true)
                 return true
             }
         
@@ -161,8 +160,7 @@ let server = new DevServer({
 
 await Promise.all([
     server.start(),
-    build_bundle({ entry: 'formily', production: false }),
-    build_bundle({ entry: 'antd-pro-components', production: false }),
+    webpack.build_bundles(false),
     webpack.build({ production: false })
 ])
 
