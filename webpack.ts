@@ -39,9 +39,7 @@ export const fpd_out = !ci && ramdisk ? fpd_ramdisk_root : fpd_root
 export const fpd_out_console = `${fpd_out}web/`
 export const fpd_out_cloud = `${fpd_out}web.cloud/`
 
-export const fpd_pre_bundle = `${fpd_root}pre-bundle/`
-
-export const fpd_pre_bundle_dist = ramdisk ? `${fpd_ramdisk_root}pre-bundle/` : `${fpd_pre_bundle}dist/`
+const fpd_pre_bundle = `${fpd_root}pre-bundle/`
 
 
 export function get_base_config (production: boolean): Webpack.Configuration {
@@ -361,15 +359,15 @@ export let webpack = {
     /** 将 pre-bundle/entries/{entry}.ts 打包到 {fpd_pre_bundle_dist}{entry}.js */
     async build_bundles (production?: boolean) {
         const fp_project_package_json = `${fpd_root}package.json`
-        const fpd_pre_bundle_dist_env = `${fpd_pre_bundle_dist}${ production ? 'production' : 'dev' }/`
-        const fp_cache_package_json = `${fpd_pre_bundle_dist_env}package.json`
+        const fpd_pre_bundle_dist = `${ ramdisk ? `${fpd_ramdisk_root}pre-bundle/` : `${fpd_pre_bundle}dist/` }${ production ? 'production' : 'dev' }/`
+        const fp_cache_package_json = `${fpd_pre_bundle_dist}package.json`
         
         const entries = ['formily', 'antd-pro-components']
         
         async function fcopy_dist_to_out (entry: string) {
             return Promise.all([
-                fcopy(`${fpd_pre_bundle_dist_env}${entry}.js`, `${fpd_out_console}pre-bundle/${entry}.js`, { print: false }),
-                !production && fcopy(`${fpd_pre_bundle_dist_env}${entry}.js.map`, `${fpd_out_console}pre-bundle/${entry}.js.map`, { print: false })
+                fcopy(`${fpd_pre_bundle_dist}${entry}.js`, `${fpd_out_console}pre-bundle/${entry}.js`, { print: false }),
+                !production && fcopy(`${fpd_pre_bundle_dist}${entry}.js.map`, `${fpd_out_console}pre-bundle/${entry}.js.map`, { print: false })
             ])
         }
         
@@ -393,7 +391,7 @@ export let webpack = {
                         entry: `${fpd_pre_bundle}entries/${entry}.ts`,
                         
                         output: {
-                            path: fpd_pre_bundle_dist_env,
+                            path: fpd_pre_bundle_dist,
                             filename: `${entry}.js`,
                             publicPath: '/',
                             globalObject: 'globalThis',

@@ -8,7 +8,7 @@ import {
 } from 'xshell'
 import { Server } from 'xshell/server.js'
 
-import { webpack, fpd_root, fpd_node_modules, fpd_src_console, fpd_src_cloud, ramdisk, fpd_pre_bundle_dist } from './webpack.js'
+import { webpack, fpd_root, fpd_node_modules, fpd_src_console, fpd_src_cloud, ramdisk } from './webpack.js'
 
 
 // k8s 开发环境需要使用自签名的证书
@@ -97,12 +97,6 @@ class DevServer extends Server {
         for (const prefix of ['/console/vs/', '/min-maps/vs/'] as const)
             if (path.startsWith(prefix)) {
                 await this.try_send(ctx, `${fpd_node_modules}monaco-editor/dev/vs/`, path.slice(prefix.length), true)
-                return true
-            }
-        
-        for (const prefix of ['/console/pre-bundle/', '/cloud/pre-bundle/'] as const)
-            if (path.startsWith(prefix)) {
-                await this.try_send(ctx, `${fpd_pre_bundle_dist}dev/`, path.slice(prefix.length), true)
                 return true
             }
         
