@@ -3,10 +3,12 @@ import { Form, Input, Popconfirm, Table, type  InputRef, Typography, Alert, Butt
 import type { FormInstance } from 'antd/es/form'
 import { genid } from 'xshell/utils.browser.js'
 
-import { type Variable, type VariablePropertyType, type OptionType } from './variable'
-import { t } from '../../../i18n/index.js'
 import { PlusOutlined } from '@ant-design/icons'
+
+import { t } from '../../../i18n/index.js'
 import { VariableMode } from '../type.js'
+
+import { type Variable, type VariablePropertyType, type OptionType } from './variable'
 
 type EditableTableProps = Parameters<typeof Table>[0]
 

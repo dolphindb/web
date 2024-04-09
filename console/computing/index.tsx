@@ -178,12 +178,12 @@ export function Computing () {
                             refresher={computing.get_streaming_pub_sub_stat}
                         />
                         
-                        <StateTable
+                        {streaming_stat.pubConns && <StateTable
                             type='pubConns'
                             cols={set_col_color(render_col_title(streaming_stat.pubConns.to_cols(), 'pubConns'), 'queueDepth')}
                             rows={add_key(streaming_stat.pubConns.to_rows())}
                             separated={false}
-                        />
+                        />}
                     </div>
                 )
             },

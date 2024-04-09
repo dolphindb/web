@@ -2,6 +2,7 @@
     "include": [
         "./dev.ts",
         "./build.ts",
+        "./eslint.config.ts",
         "./pre-bundle/entries/",
         
         "./global.d.ts",

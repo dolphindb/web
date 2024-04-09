@@ -1,12 +1,16 @@
 import './index.scss'
 import { type ReactElement, useCallback, useMemo, useState, useEffect } from 'react'
-import { t } from '../../../i18n/index.js'
+
 import { Button, Space, Tooltip, message } from 'antd'
 
-import { QueryDataView } from './components/QueryDataView.js'
 import NiceModal from '@ebay/nice-modal-react'
-import { ExportFileModal } from './components/ExportFileModal.js'
+
+import { t } from '../../../i18n/index.js'
+
 import { Editor } from '../Editor/index.js'
+
+import { QueryDataView } from './components/QueryDataView.js'
+import { ExportFileModal } from './components/ExportFileModal.js'
 import { guide_query_model } from './model.js'
 
 interface IProps { 

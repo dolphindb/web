@@ -28,6 +28,7 @@ import { language, t } from '../../i18n/index.js'
 import { CopyIconButton } from '../components/copy/CopyIconButton.js'
 
 import { model, NodeType } from '../model.js'
+
 import { shell } from './model.js'
 
 import { Editor } from './Editor/index.js'

@@ -3,7 +3,8 @@
     
     "include": [
         "./dev.ts",
-        "./build.ts"
+        "./build.ts",
+        "./eslint.config.ts"
     ],
     
     "exclude": [

@@ -1,4 +1,5 @@
 import type { DdbType } from 'dolphindb'
+
 import { type ITimeFormat, type AxisType, type ILineType, type Position, type ThresholdType, type ThresholdShowType } from './ChartFormFields/type.js'
 
 export interface AxisConfig { 

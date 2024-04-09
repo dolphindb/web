@@ -1,7 +1,7 @@
 import { Descriptions } from 'antd'
 import { DDB, formati, type StreamingMessage } from 'dolphindb/browser.js'
-import React from 'react'
-import { useRef, useState } from 'react'
+import React, { useRef, useState } from 'react'
+
 import { use_streaming } from './hooks/use-streaming.js'
 import { StreamingError } from './StreamingError.js'
 import { type ErrorType, type TableConfigType } from './types.js'

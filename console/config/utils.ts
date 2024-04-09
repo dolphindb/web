@@ -1,4 +1,5 @@
 import { t } from '../../i18n/index.js'
+
 import { type NodeType, type ControllerConfig, type ClusterNode, type NodesConfig, CONFIG_CLASSIFICATION } from './type.js'
 
 export const strs_2_controller_configs  = (strs: string[]): ControllerConfig[] =>

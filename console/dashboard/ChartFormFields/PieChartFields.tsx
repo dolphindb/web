@@ -10,6 +10,7 @@ import { BoolRadioGroup } from '../../components/BoolRadioGroup/index.js'
 import { variables } from '../Variable/variable.js'
 import { FormDependencies } from '../../components/formily/FormDependcies/index.js'
 import { convert_list_to_options } from '../utils.js'
+
 import { PaddingSetting, VariableSetting } from './BasicFormFields.js'
 
 export function BasicFormFields ({ type }: { type: 'chart' | 'table' }) { 

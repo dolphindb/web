@@ -5,7 +5,6 @@ import process from 'process'
 import { fcopy, fdelete, fmkdir } from 'xshell'
 
 import { webpack, fpd_root, fpd_out_console, fpd_out_cloud, fpd_src_console, fpd_src_cloud, fpd_node_modules } from './webpack.js'
-import { build_bundle, fpd_pre_bundle_dist } from './pre-bundle/index.js'
 
 
 const verbose = false
@@ -53,11 +52,7 @@ if (process.argv.includes('cloud')) {
             fcopy(`${fpd_node_modules}dolphindb/docs.${language}.json`, `${fpd_out_console}docs.${language}.json`, { print: verbose })
         ),
         
-        (async () => {
-            await build_bundle({ entry: 'formily', production: true })
-            
-            await copy_pre_bundle(fpd_out_console)
-        })(),
+        webpack.build_bundles(true),
         
         webpack.build({ production: true, is_cloud: false })
     ])
@@ -142,11 +137,4 @@ async function copy_vendors (fpd_out: string, monaco: boolean, production: boole
         :
             [ ]
     ])
-}
-
-
-async function copy_pre_bundle (fpd_out: string) {
-    const fpd_pre_bundle_out = `${fpd_out}pre-bundle/`
-    if (fpd_pre_bundle_out !== fpd_pre_bundle_dist)
-        await fcopy(fpd_pre_bundle_dist, fpd_pre_bundle_out, { print: verbose })
 }

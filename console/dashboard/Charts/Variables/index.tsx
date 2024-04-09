@@ -1,7 +1,8 @@
 import './index.scss'
+import { useMemo } from 'react'
+
 import { VariableForm } from '../../GraphItem/VariableForm.js'
 import { type Widget } from '../../model.js'
-import { useMemo } from 'react'
 
 interface IProps { 
     widget: Widget

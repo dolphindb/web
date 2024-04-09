@@ -2,13 +2,15 @@ import { type MutableRefObject, type ReactNode, createElement, useEffect, useRef
 import { ConfigProvider, Form, Input, Modal, Radio, Tag, Tree, theme } from 'antd'
 import { CopyOutlined, DatabaseOutlined, DeleteOutlined, EditOutlined, FileOutlined } from '@ant-design/icons'
 
-import { type Widget, WidgetChartType, dashboard } from '../model.js'
-import { create_data_source, data_sources, delete_data_source, rename_data_source, type DataSource, type DataSourcePropertyType, copy_data_source, paste_data_source, get_data_source } from './date-source.js'
-import { t } from '../../../i18n/index.js'
 import NiceModal, { useModal } from '@ebay/nice-modal-react'
 import { DdbForm } from 'dolphindb'
+
+import { t } from '../../../i18n/index.js'
+import { type Widget, WidgetChartType, dashboard } from '../model.js'
 import { DATA_SOURCE_TYPE_MAP } from '../constant.js'
 import { check_name, get_chart_data_type } from '../utils.js'
+
+import { create_data_source, data_sources, delete_data_source, rename_data_source, type DataSource, type DataSourcePropertyType, copy_data_source, paste_data_source, get_data_source } from './date-source.js'
 
 
 interface PropsType {

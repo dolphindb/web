@@ -1,14 +1,21 @@
 import './index.scss'
 
-import { BasicFormFields } from '../../ChartFormFields/BasicFormFields.js'
 import ReactEChartsCore from 'echarts-for-react/lib/core'
 import * as echarts from 'echarts'
+
+import { Button, Collapse, Form, Input, InputNumber, Select } from 'antd'
+
+import { DeleteOutlined, PlusCircleOutlined } from '@ant-design/icons'
+
+import { useMemo } from 'react'
+
 import { dashboard, type Widget } from '../../model.js'
 import { convert_list_to_options, format_number, parse_text } from '../../utils.js'
-import { Button, Collapse, Form, Input, InputNumber, Select } from 'antd'
-import { DeleteOutlined, PlusCircleOutlined } from '@ant-design/icons'
+
 import { type IGaugeConfig } from '../../type.js'
-import { useMemo } from 'react'
+
+
+import { BasicFormFields } from '../../ChartFormFields/BasicFormFields.js'
 import { StringColorPicker } from '../../../components/StringColorPicker/index.js'
 import { t } from '../../../../i18n/index.js'
 

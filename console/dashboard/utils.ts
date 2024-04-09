@@ -7,15 +7,17 @@ import { genid } from 'xshell/utils.browser.js'
 import copy from 'copy-to-clipboard'
 import dayjs from 'dayjs'
 
+import { type DdbTable, formati } from 'dolphindb'
+
+import type { EChartsInstance } from 'echarts-for-react'
+
+import { t } from '../../i18n/index.js'
+
 import { WidgetChartType, type Widget, dashboard, DashboardPermission } from './model.js'
 import { type AxisConfig, type IChartConfig, type ISeriesConfig } from './type.js'
 import { subscribe_data_source, type DataSource, get_data_source } from './DataSource/date-source.js'
 import { AxisType, ILineType, MarkPresetType, ThresholdShowType, ThresholdType } from './ChartFormFields/type.js'
 import { find_variable_by_name, get_variable_copy_infos, get_variable_value, paste_variables, subscribe_variable } from './Variable/variable.js'
-import { t } from '../../i18n/index.js'
-import { type DdbTable } from 'dolphindb'
-import type { EChartsInstance } from 'echarts-for-react'
-import { formati } from 'dolphindb'
 
 
 export function format_time (time: string, format: string) {
