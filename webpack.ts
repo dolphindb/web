@@ -249,7 +249,7 @@ export let webpack = {
                     '@ant-design/plots': 'Plots',
                     
                     // 使用官方的 node_modules/@ant-design/pro-components/dist/pro-components.min.js 会有样式问题
-                    // '@ant-design/pro-components': 'ProComponents',
+                    '@ant-design/pro-components': ['module ./pre-bundle/antd-pro-components.js', 'ProComponents'],
                     
                     echarts: 'echarts',
                     

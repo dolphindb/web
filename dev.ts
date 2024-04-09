@@ -162,6 +162,7 @@ let server = new DevServer({
 await Promise.all([
     server.start(),
     build_bundle({ entry: 'formily', production: false }),
+    build_bundle({ entry: 'antd-pro-components', production: false }),
     webpack.build({ production: false })
 ])
 
