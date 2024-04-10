@@ -38,17 +38,12 @@ export function strs_2_nodes_config (strs: string[]) {
         const [first, second] = rest.split('.')
         const qualifier =  second ? first : ''
         const name = second ? second : first
-        let category = t('其它')
-        let clses = Object.keys(CONFIG_CLASSIFICATION)
-        for (let cls of clses) 
-            if (CONFIG_CLASSIFICATION[cls].has(name))
-                category = cls
         
         nodes_configs.set(
             rest,
             {
                 key: rest,
-                category,
+                category: get_category(name),
                 qualifier,
                 name,
                 value,
@@ -56,4 +51,14 @@ export function strs_2_nodes_config (strs: string[]) {
         )
     })
     return nodes_configs
+}
+
+
+export function get_category (name: string) {
+    let category = t('其它')
+    let clses = Object.keys(CONFIG_CLASSIFICATION)
+    for (let cls of clses) 
+        if (CONFIG_CLASSIFICATION[cls].has(name))
+            category = cls
+    return category
 }

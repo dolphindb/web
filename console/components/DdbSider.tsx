@@ -48,8 +48,8 @@ function MenuIcon ({ view }: { view: DdbModel['view'] }) {
 }
 
 export function DdbSider () {
-    const { view, node_type, collapsed, logined, admin, login_required, is_v1, dev, test, is_factor_platform_enabled, active_modules } 
-        = model.use(['view', 'node_type', 'collapsed', 'logined', 'admin', 'login_required', 'is_v1', 'dev', 'test', 'is_factor_platform_enabled', 'active_modules'])
+    const { view, node_type, collapsed, logined, admin, login_required, is_v1, dev, test, is_factor_platform_enabled, enable_modules } 
+        = model.use(['view', 'node_type', 'collapsed', 'logined', 'admin', 'login_required', 'is_v1', 'dev', 'test', 'is_factor_platform_enabled', 'enable_modules'])
     
     
     const factor_href = useMemo(() => {
@@ -182,7 +182,7 @@ export function DdbSider () {
                         icon: <SettingOutlined  className='icon-menu' />,
                         label: '功能设置'
                 }] : [ ],
-            ].filter(item => model.show_module(item.key))}
+            ].filter(item => model.is_module_visible(item.key))}
         />
     </Layout.Sider>
 }

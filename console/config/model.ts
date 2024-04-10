@@ -5,7 +5,7 @@ import { DdbFunctionType, type DdbObj, type DdbValue, DdbVectorString } from 'do
 import { NodeType, model } from '../model.js'
 
 import { type NodesConfig } from './type.js'
-import { _2_strs, strs_2_nodes_config } from './utils.js'
+import { _2_strs, get_category, strs_2_nodes_config } from './utils.js'
 
 class ConfigModel extends Model<ConfigModel> {
     nodes_configs: Map<string, NodesConfig>
@@ -35,44 +35,39 @@ class ConfigModel extends Model<ConfigModel> {
     }
     
     
-    async save_nodes_config (configs: Array<[string, NodesConfig]>, is_delete: false): Promise<void>
-    async save_nodes_config (configs: Array<string>, is_delete: true): Promise<void>
-    async save_nodes_config (configs: Array<[string, NodesConfig]> | Array<string>, is_delete: boolean): Promise<void> {
-        let web_modules_changed = false
-        if (is_delete) 
-            (configs as Array<string>).forEach(config => {
-                if (config === 'webModules')
-                    web_modules_changed = true
-                this.nodes_configs.delete(config)
-            })
-        else
-            (configs as Array<[string, NodesConfig]>).forEach(([key, value]) => {
-                if (key === 'webModules')
-                    web_modules_changed = true
-                this.nodes_configs.set(key, value)
-            }) 
-        
+    async change_nodes_config (configs: Array<[string, NodesConfig]>) {
+        configs.forEach(([key, value]) => {
+            this.nodes_configs.set(key, { ...value, category: get_category(value.name) })
+        }) 
+    
+        await this.save_nodes_config()
+    }
+    
+    
+    async delete_nodes_config (configs: Array<string>) {
+        configs.forEach(config => {
+            this.nodes_configs.delete(config)
+        })
+        await this.save_nodes_config()
+    }
+    
+    
+    async save_nodes_config () {
+        const new_nodes_configs = new Map<string, NodesConfig>()
         await this.call(
             'saveClusterNodesConfigs', 
             [new DdbVectorString(Array.from(this.nodes_configs).map(([key, config]) => {
+                new_nodes_configs.set(key, config)
                 const { value } = config
                 return `${key}=${value}`
             }))]
         )
-        await config.load_nodes_config()
-        
-        if (web_modules_changed) 
-            model.get_modules()
+        this.set({ nodes_configs: new_nodes_configs })
     }
     
     
     async call (name: string, args?: (string | boolean | DdbObj<DdbValue>)[], options?) {
         return model.ddb.call(name, args || [ ], options || { ... model.node_type === NodeType.controller || model.node_type === NodeType.single ? { } : { node: model.controller_alias, func_type: DdbFunctionType.SystemFunc } })
-    }
-    
-    
-    constructor () {
-        super()
     }
 }
 

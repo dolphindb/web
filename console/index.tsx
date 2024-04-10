@@ -146,7 +146,7 @@ function DdbContent () {
     
     const View = views[view]
     
-    if (!View || !model.show_module(view))
+    if (!View || !model.is_module_visible(view))
         return null
     
     return <div className={`view-card ${view}`}>

@@ -84,7 +84,7 @@ export const NodesConfigAddModal = NiceModal.create(() => {
                             async () => {
                                 const { qualifier, name, value } = await add_config_form.validateFields()
                                 const key = (qualifier ? qualifier + '.' : '') + name
-                                await config.save_nodes_config([[key, { qualifier, name, value, key }]], false)
+                                await config.change_nodes_config([[key, { qualifier, name, value, key }]])
                                 model.message.success(t('保存成功'))
                                 modal.hide()
                             }

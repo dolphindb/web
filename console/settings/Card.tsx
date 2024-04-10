@@ -29,15 +29,15 @@ export function Card ({
         children
     }: PropsType) 
 {
-    const { active_modules } = model.use(['active_modules'])
+    const { enable_modules } = model.use(['enable_modules'])
     
     const active = useMemo(() => {
-        return active_modules.has(module_key)
-    }, [ active_modules])
+        return enable_modules.has(module_key)
+    }, [ enable_modules])
     
     const active_label = useMemo(() => {
-        return active_modules.has(module_key) ? t('停用') : t('启用')
-    }, [ active_modules])
+        return enable_modules.has(module_key) ? t('停用') : t('启用')
+    }, [ enable_modules])
     
     return <>
         <div className='card'>

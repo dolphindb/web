@@ -99,7 +99,7 @@ export function NodesConfig () {
     
     const delete_config = useCallback(
         async (config_name: string) => {
-            await config.save_nodes_config([config_name], true)
+            await config.delete_nodes_config([config_name])
             model.message.success(t('删除成功'))
         },
         [ ]
@@ -143,7 +143,7 @@ export function NodesConfig () {
                             const key = (qualifier ? qualifier + '.' : '') + name
                             if (rowKey !== key)
                                 config.nodes_configs.delete(rowKey as string)
-                            await config.save_nodes_config([[key, { name, qualifier, value, key }]], false)
+                            await config.change_nodes_config([[key, { name, qualifier, value, key }]])
                             model.message.success(t('保存成功'))
                         },
                         onDelete: async key => delete_config(key as string),
