@@ -12,7 +12,7 @@ import type { Options as TSLoaderOptions } from 'ts-loader'
 import * as sass from 'sass'
 import type { Options as SassOptions } from 'sass-loader'
 
-import { fexists, fwrite, Lock } from 'xshell'
+import { fcopy, fequals, fexists, fwrite, Lock } from 'xshell'
 import { Git } from 'xshell/git.js'
 
 
@@ -38,6 +38,8 @@ export const fpd_src_cloud = `${fpd_root}cloud/`
 export const fpd_out = !ci && ramdisk ? fpd_ramdisk_root : fpd_root
 export const fpd_out_console = `${fpd_out}web/`
 export const fpd_out_cloud = `${fpd_out}web.cloud/`
+
+const fpd_pre_bundle = `${fpd_root}pre-bundle/`
 
 
 export function get_base_config (production: boolean): Webpack.Configuration {
@@ -249,7 +251,7 @@ export let webpack = {
                     '@ant-design/plots': 'Plots',
                     
                     // 使用官方的 node_modules/@ant-design/pro-components/dist/pro-components.min.js 会有样式问题
-                    // '@ant-design/pro-components': 'ProComponents',
+                    '@ant-design/pro-components': ['module ./pre-bundle/antd-pro-components.js', 'ProComponents'],
                     
                     echarts: 'echarts',
                     
@@ -351,6 +353,118 @@ export let webpack = {
         })
         
         await this.run()
+    },
+    
+    
+    /** 将 pre-bundle/entries/{entry}.ts 打包到 {fpd_pre_bundle_dist}{entry}.js */
+    async build_bundles (production?: boolean) {
+        const fp_project_package_json = `${fpd_root}package.json`
+        const fpd_pre_bundle_dist = `${ ramdisk ? `${fpd_ramdisk_root}pre-bundle/` : `${fpd_pre_bundle}dist/` }${ production ? 'production' : 'dev' }/`
+        const fp_cache_package_json = `${fpd_pre_bundle_dist}package.json`
+        
+        const entries = ['formily', 'antd-pro-components']
+        
+        async function fcopy_dist_to_out (entry: string) {
+            return Promise.all([
+                fcopy(`${fpd_pre_bundle_dist}${entry}.js`, `${fpd_out_console}pre-bundle/${entry}.js`, { print: false }),
+                !production && fcopy(`${fpd_pre_bundle_dist}${entry}.js.map`, `${fpd_out_console}pre-bundle/${entry}.js.map`, { print: false })
+            ])
+        }
+        
+        // pre-bundle/entries 中的文件内容改了之后需要禁用这个缓存逻辑（一般不会改）
+        if (await fequals(fp_project_package_json, fp_cache_package_json, { print: false }))  // 已有 pre-bundle 缓存
+            await Promise.all(
+                entries.map(async entry => {
+                    console.log(`${entry} 已有预打包文件`)
+                    await fcopy_dist_to_out(entry)
+                }))
+        else {
+            await Promise.all(
+                entries.map(async entry => {
+                    const base_config = get_base_config(production)
+                    
+                    const compiler = Webpack({
+                        ... base_config,
+                        
+                        name: entry,
+                        
+                        entry: `${fpd_pre_bundle}entries/${entry}.ts`,
+                        
+                        output: {
+                            path: fpd_pre_bundle_dist,
+                            filename: `${entry}.js`,
+                            publicPath: '/',
+                            globalObject: 'globalThis',
+                            module: true,
+                            library: {
+                                type: 'module'
+                            }
+                        },
+                        
+                        externalsType: 'global',
+                        
+                        externals: {
+                            react: 'React',
+                            'react-dom': 'ReactDOM',
+                            lodash: '_',
+                            antd: 'antd',
+                            dayjs: 'dayjs',
+                            '@ant-design/icons': 'icons',
+                        },
+                        
+                        resolve: {
+                            symlinks: true,
+                        },
+                        
+                        cache: {
+                            type: 'filesystem',
+                            
+                            ... !ci && ramdisk ? {
+                                cacheDirectory: `${fpd_ramdisk_root}webpack/`,
+                                compression: false
+                            } : {
+                                compression: ci ? false : 'brotli',
+                            }
+                        },
+                        
+                        // ... entry === 'antd-pro-components' ? {
+                        //     plugins: [
+                        //         // 需要分析 bundle 大小时开启
+                        //         new BundleAnalyzerPlugin({ analyzerPort: 8880, openAnalyzer: false }),
+                        //     ]
+                        // } : { }
+                    })
+                    
+                    await new Promise<Stats>((resolve, reject) => {
+                        compiler.run((error, stats) => {
+                            if (stats)
+                                console.log(
+                                    stats.toString(base_config.stats)
+                                        .replace(new RegExp(`\\n\\s*.*${entry}.* compiled .*successfully.* in (.*)`), `\n${entry} 预打包成功，用时 $1`.green)
+                                )
+                            
+                            if (error)
+                                reject(error)
+                            else if (stats.hasErrors())
+                                reject(new Error('编译失败'))
+                            else
+                                resolve(stats)
+                        })
+                    })
+                    
+                    
+                    await Promise.all([
+                        new Promise(resolve => {
+                            compiler.close(resolve)
+                        }),
+                        
+                        fcopy_dist_to_out(entry)
+                    ])
+                })
+            )
+            
+            await fcopy(fp_project_package_json, fp_cache_package_json, { print: false })
+        }
     },
     
     
