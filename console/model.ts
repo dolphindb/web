@@ -199,7 +199,7 @@ export class DdbModel extends Model<DdbModel> {
             this.get_node_type(),
             this.get_node_alias(),
             this.get_controller_alias(),
-            this.get_login_required(),
+            this.get_login_required()
         ])
         
         if (this.autologin)
@@ -218,13 +218,14 @@ export class DdbModel extends Model<DdbModel> {
         
         await this.get_cluster_perf(true)
         
-        await config.load_nodes_config()
-        this.get_modules()
         
         await Promise.all([
             this.check_leader_and_redirect(),
             this.get_factor_platform_enabled(),
+            config.load_nodes_config()
         ])
+        
+        this.get_modules()
         
         console.log(t('web 初始化成功'))
         
@@ -907,7 +908,7 @@ export class DdbModel extends Model<DdbModel> {
             this.enable_modules.delete(key)
         else
             this.enable_modules.add(key)
-        await config.change_nodes_config([['webModules', { name: 'webModules', value: Array.from(this.enable_modules).join(','), qualifier: '' } as unknown as NodesConfig]])
+        await config.change_nodes_config([['webModules', { name: 'webModules', value: Array.from(this.enable_modules).join(','), qualifier: '' } as NodesConfig]])
         this.get_modules()
     }
     

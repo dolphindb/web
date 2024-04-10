@@ -89,7 +89,7 @@ export function DdbSider () {
         }}
     >
         <Menu
-            className={`menu ${admin ? 'manager' : ''}`}
+            className={`menu ${admin ? 'module-settings' : ''}`}
             mode='inline'
             theme='light'
             selectedKeys={[view]}
