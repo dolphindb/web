@@ -1,6 +1,6 @@
 import { Model } from 'react-object-model'
 
-import { DdbFunctionType, type DdbObj, type DdbValue, DdbVectorString } from 'dolphindb/browser.js'
+import { DdbFunctionType, type DdbObj, type DdbValue, DdbVectorString, type DdbVectorStringObj } from 'dolphindb/browser.js'
 
 import { NodeType, model } from '../model.js'
 
@@ -29,8 +29,9 @@ class ConfigModel extends Model<ConfigModel> {
     async load_nodes_config () {
         this.set({ 
             nodes_configs: strs_2_nodes_config(
-                (await this.call('loadClusterNodesConfigs')).value as string[]
-            ) 
+                (await this.call<DdbVectorStringObj>('loadClusterNodesConfigs'))
+                    .value
+            )
         })
     }
     
@@ -39,7 +40,7 @@ class ConfigModel extends Model<ConfigModel> {
         configs.forEach(([key, value]) => {
             this.nodes_configs.set(key, { ...value, category: get_category(value.name) })
         }) 
-    
+        
         await this.save_nodes_config()
     }
     
@@ -48,12 +49,14 @@ class ConfigModel extends Model<ConfigModel> {
         configs.forEach(config => {
             this.nodes_configs.delete(config)
         })
+        
         await this.save_nodes_config()
     }
     
     
     async save_nodes_config () {
         const new_nodes_configs = new Map<string, NodesConfig>()
+        
         await this.call(
             'saveClusterNodesConfigs', 
             [new DdbVectorString(Array.from(this.nodes_configs).map(([key, config]) => {
@@ -62,12 +65,16 @@ class ConfigModel extends Model<ConfigModel> {
                 return `${key}=${value}`
             }))]
         )
+        
         this.set({ nodes_configs: new_nodes_configs })
     }
     
     
-    async call (name: string, args?: (string | boolean | DdbObj<DdbValue>)[], options?) {
-        return model.ddb.call(name, args || [ ], options || { ... model.node_type === NodeType.controller || model.node_type === NodeType.single ? { } : { node: model.controller_alias, func_type: DdbFunctionType.SystemFunc } })
+    async call <TResult extends DdbObj> (name: string, args?: (string | boolean | DdbObj<DdbValue>)[]) {
+        return model.ddb.call<TResult>(
+            name, 
+            args,
+            { ... model.node_type === NodeType.controller || model.node_type === NodeType.single ? { } : { node: model.controller_alias, func_type: DdbFunctionType.SystemFunc } })
     }
 }
 

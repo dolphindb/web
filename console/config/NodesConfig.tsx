@@ -9,7 +9,7 @@ import { model } from '../model.js'
 
 import { NodesConfigAddModal } from './NodesConfigAddModal.js'
 import { config } from './model.js'
-import { CONFIG_CLASSIFICATION, type ControllerConfig, type NodesConfig } from './type.js'
+import { CONFIG_CLASSIFICATION, type NodesConfig } from './type.js'
 import { _2_strs } from './utils.js'
 
 const { Search } = Input
@@ -119,7 +119,7 @@ export function NodesConfig () {
     const items: CollapseProps['items'] = useMemo(() => {
         let clsed_configs = Object.fromEntries([...Object.keys(CONFIG_CLASSIFICATION), t('其它')].map(cfg => [cfg, [ ]]))
         
-        Array.from(nodes_configs).forEach(([key, nodes_config]) => {
+        nodes_configs.forEach(nodes_config => {
             const { category } = nodes_config
             clsed_configs[category].push(nodes_config)
         })
@@ -198,7 +198,7 @@ export function NodesConfig () {
                     }}
                     onSearch={async () => {
                         let keys = [ ]
-                        Array.from(nodes_configs).forEach(([key, config]) => {
+                        nodes_configs.forEach(config => {
                             const { category, name } = config
                             if (name.toLowerCase().includes(search_key.toLowerCase()))
                                 keys.push(category)

@@ -20,7 +20,6 @@ import { language, t } from '../i18n/index.js'
 
 import type { FormatErrorOptions } from './components/GlobalErrorBoundary.js'
 import { config } from './config/model.js'
-import { type NodesConfig } from './config/type.js'
 
 
 export const storage_keys = {
@@ -137,10 +136,10 @@ export class DdbModel extends Model<DdbModel> {
     notification: NotificationInstance
     
     /** 记录启用了哪些可选功能 */
-    enable_modules: Set<string>
+    enabled_modules: Set<string>
     
     /** 记录所有可选功能 */
-    optional_modules = new Set([ 'test', 'finance-tools', 'iot-tools'])
+    optional_modules = new Set(['test', 'finance-tools', 'iot-tools'])
     
     
     constructor () {
@@ -218,14 +217,18 @@ export class DdbModel extends Model<DdbModel> {
         
         await this.get_cluster_perf(true)
         
+        await this.check_leader_and_redirect()
         
         await Promise.all([
-            this.check_leader_and_redirect(),
             this.get_factor_platform_enabled(),
             config.load_nodes_config()
         ])
         
-        this.get_modules()
+        const webModules = config.nodes_configs.get('webModules')
+        
+        this.set({
+            enabled_modules: (webModules?.value) ? new Set(webModules.value.split(',')) : new Set()
+        })
         
         console.log(t('web 初始化成功'))
         
@@ -897,24 +900,8 @@ export class DdbModel extends Model<DdbModel> {
     }
     
     
-    get_modules () {
-        const webModules = config.nodes_configs.get('webModules')
-        this.set({ enable_modules: (webModules?.value) ? new Set(webModules.value.split(',')) : new Set() })
-    }
-    
-    
-    async change_modules (key: string, is_delete: boolean) {
-        if (is_delete)
-            this.enable_modules.delete(key)
-        else
-            this.enable_modules.add(key)
-        await config.change_nodes_config([['webModules', { name: 'webModules', value: Array.from(this.enable_modules).join(','), qualifier: '' } as NodesConfig]])
-        this.get_modules()
-    }
-    
-    
     is_module_visible (key: string): boolean {
-        return this.enable_modules.has(key) || !this.optional_modules.has(key)
+        return this.enabled_modules.has(key) || !this.optional_modules.has(key)
     }
 }
 

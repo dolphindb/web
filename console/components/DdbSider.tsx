@@ -48,9 +48,10 @@ function MenuIcon ({ view }: { view: DdbModel['view'] }) {
 }
 
 export function DdbSider () {
-    const { view, node_type, collapsed, logined, admin, login_required, is_v1, dev, test, is_factor_platform_enabled, enable_modules } 
-        = model.use(['view', 'node_type', 'collapsed', 'logined', 'admin', 'login_required', 'is_v1', 'dev', 'test', 'is_factor_platform_enabled', 'enable_modules'])
+    const { view, node_type, collapsed, logined, admin, login_required, is_v1, dev, test, is_factor_platform_enabled } 
+        = model.use(['view', 'node_type', 'collapsed', 'logined', 'admin', 'login_required', 'is_v1', 'dev', 'test', 'is_factor_platform_enabled', 'enabled_modules'])
     
+    // debugger
     
     const factor_href = useMemo(() => {
         const search_params = new URLSearchParams(location.search)
