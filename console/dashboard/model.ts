@@ -396,12 +396,16 @@ export class DashBoardModel extends Model<DashBoardModel> {
     /** 根据 id 获取单个 DashboardConfig */
     async get_dashboard_config (id: number) {
         const data = (await model.ddb.call('dashboard_get_config', [new DdbDict({ id: new DdbLong(BigInt(id)) })])).to_rows()
-        return data.length ? { ...data[0], 
+        const res: any =  data.length ? {
+            ...data[0], 
                                 id: Number(data[0].id), 
                                 data: JSON.parse(JSON.parse(typeof data[0].data === 'string' ? 
                                                                             data[0].data
                                                                                 : 
-                                                                            new TextDecoder().decode(data[0].data) )) } as DashBoardConfig : null
+                                    new TextDecoder().decode(data[0].data)))
+        } as DashBoardConfig : null
+        // datasource 历史数据默认类型为表格
+        return { ...res, data: { ...res.data, datasources: res?.data?.datasources.map(item => ({ type: DdbForm.table, ...item })) } }
 }
     
     
