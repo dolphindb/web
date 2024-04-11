@@ -2,7 +2,7 @@ import './Header.sass'
 
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { Button, Input, Modal, Popconfirm, Select, Tag, Tooltip, Segmented, Switch } from 'antd'
-import { CopyOutlined, DeleteOutlined, EditOutlined, FileAddOutlined, HomeOutlined, SaveOutlined, UploadOutlined } from '@ant-design/icons'
+import { CopyOutlined, DeleteOutlined, EditOutlined, EyeOutlined, FileAddOutlined, HomeOutlined, SaveOutlined, UploadOutlined } from '@ant-design/icons'
 
 import { use_modal } from 'react-object-model/hooks.js'
 import { genid } from 'xshell/utils.browser.js'
@@ -382,6 +382,18 @@ export function Header () {
             {model.dev && <CompileAndRefresh />}
         </div>
         
+        {
+            config?.permission !== DashboardPermission.view && <Segmented
+                options={[
+                    { label: <><EditOutlined /> {t('编辑')}</>, value: DashboardMode.EDITING },
+                    { label: <><EyeOutlined /> {t('预览')}</>, value: DashboardMode.PREVIEW }
+                ]}
+                onChange={on_change_mode}
+                className="dashboard-modes"
+                defaultValue={editing ? DashboardMode.EDITING : DashboardMode.PREVIEW}
+            />
+        }
+        
         <div className='padding' />
         
         <Tooltip title="开启自动保存后，将每隔 3 分钟保存一次当前 Dashboard 的配置">
@@ -396,18 +408,6 @@ export function Header () {
                 <VariableConfig/>
                 <DataSourceConfig/>
             </div>
-        }
-        
-        {
-            config?.permission !== DashboardPermission.view && <Segmented
-                options={[
-                    { label: t("编辑"), value: DashboardMode.EDITING },
-                    { label: t("预览"), value: DashboardMode.PREVIEW }
-                ]}
-                onChange={on_change_mode}
-                className="dashboard-modes"
-                defaultValue={editing ? DashboardMode.EDITING : DashboardMode.PREVIEW}
-            />
         }
     </div>
 }
