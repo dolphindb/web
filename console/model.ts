@@ -19,6 +19,7 @@ import {
 import { language, t } from '../i18n/index.js'
 
 import type { FormatErrorOptions } from './components/GlobalErrorBoundary.js'
+import { config } from './config/model.js'
 
 
 export const storage_keys = {
@@ -134,6 +135,11 @@ export class DdbModel extends Model<DdbModel> {
     
     notification: NotificationInstance
     
+    /** 记录启用了哪些可选功能 */
+    enabled_modules: Set<string>
+    
+    /** 记录所有可选功能 */
+    optional_modules = new Set(['test', 'finance-tools', 'iot-tools'])
     
     
     constructor () {
@@ -211,10 +217,18 @@ export class DdbModel extends Model<DdbModel> {
         
         await this.get_cluster_perf(true)
         
+        await this.check_leader_and_redirect()
+        
         await Promise.all([
-            this.check_leader_and_redirect(),
             this.get_factor_platform_enabled(),
+            config.load_nodes_config()
         ])
+        
+        const webModules = config.nodes_configs.get('webModules')
+        
+        this.set({
+            enabled_modules: (webModules?.value) ? new Set(webModules.value.split(',')) : new Set()
+        })
         
         console.log(t('web 初始化成功'))
         
@@ -883,6 +897,11 @@ export class DdbModel extends Model<DdbModel> {
         return language === 'en'
             ? `https://docs.dolphindb.com/en/Maintenance/ErrorCodeReference/${ref_id}.html`
             : `https://docs.dolphindb.cn/zh/error_codes/${ref_id}.html`
+    }
+    
+    
+    is_module_visible (key: string): boolean {
+        return this.enabled_modules.has(key) || !this.optional_modules.has(key)
     }
 }
 

@@ -3970,6 +3970,20 @@
     },
     "流订阅": {
         "en": "streaming_sub"
+    },
+    "停用": {
+        "en": "deactivate"
+    },
+    "启用": {
+        "en": "activate"
+    },
+    "{{label}}{{active_label}}提示": {
+        "en": "{{label}} {{active_label}} tips"
+    },
+    "{{label}}{{active_label}}成功": {
+        "en": "{{label}} {{active_label}} successfully"
+    },
+    "可选模块": {
+        "en": "Optional Modules"
     }
-    
 }
