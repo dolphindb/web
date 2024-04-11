@@ -42,6 +42,7 @@ import { Log } from './log.js'
 import { Computing } from './computing/index.js'
 import { DashBoard } from './dashboard/index.js'
 import { User, Group } from './access/index.js'
+import { Settings } from './settings/index.js'
 
 
 createRoot(
@@ -135,7 +136,8 @@ const views = {
     computing: Computing,
     dashboard: DashBoard,
     user: User,
-    group: Group
+    group: Group,
+    settings: Settings
 }
 
 
@@ -144,7 +146,7 @@ function DdbContent () {
     
     const View = views[view]
     
-    if (!View)
+    if (!View || !model.is_module_visible(view))
         return null
     
     return <div className={`view-card ${view}`}>

@@ -130,8 +130,9 @@ html, body
                 
                 &.expand
                     .collapse-icon
-                        margin-left: 20px
-                        margin-right: 8px
+                        font-size: 16px
+                        margin-left: 14px
+                        margin-right: 10px
                 
                 &.collapsed
                     .collapse-icon
@@ -145,6 +146,10 @@ html, body
             
             
             .menu
+                display: flex
+                
+                flex-direction: column
+                
                 height: 100%
                 
                 background: #fafafa
@@ -154,6 +159,9 @@ html, body
                 border-right: unset
                 
                 color: #707070
+                
+                &.module-settings > li:last-child
+                    margin-top: auto
                 
                 &.ant-menu-light .ant-menu-submenu-selected >.ant-menu-submenu-title, .ant-menu-light>.ant-menu .ant-menu-submenu-selected >.ant-menu-submenu-title
                     color: #282828
@@ -174,7 +182,8 @@ html, body
                 
                 .ant-menu-item
                     padding-inline: unset
-                
+                    margin-block-end: 0
+                    
                 .ant-menu-item-selected::after
                     transform: none
                 
@@ -196,7 +205,6 @@ html, body
                     
                     .icon-menu
                         color: #2e2e2e
-                        
                     
             
         .view

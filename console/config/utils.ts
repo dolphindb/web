@@ -31,23 +31,34 @@ export const strs_2_nodes = (strs: string[]): ClusterNode[] =>
     })
 
     
-export const strs_2_nodes_config = (strs: string[]): NodesConfig[] =>
-    strs.map(str => {
+export function strs_2_nodes_config (strs: string[]) {
+    const nodes_configs = new Map<string, NodesConfig>()
+    strs.forEach(str => {
         const [rest, value] = str.split('=')
         const [first, second] = rest.split('.')
         const qualifier =  second ? first : ''
         const name = second ? second : first
-        let category = t('其它')
-        let clses = Object.keys(CONFIG_CLASSIFICATION)
-        for (let cls of clses) 
-            if (CONFIG_CLASSIFICATION[cls].has(name))
-                category = cls
         
-        return {
-            id: str,
-            category,
-            qualifier,
-            name,
-            value,
-        }
+        nodes_configs.set(
+            rest,
+            {
+                key: rest,
+                category: get_category(name),
+                qualifier,
+                name,
+                value,
+            }
+        )
     })
+    return nodes_configs
+}
+
+
+export function get_category (name: string) {
+    let category = t('其它')
+    let clses = Object.keys(CONFIG_CLASSIFICATION)
+    for (let cls of clses) 
+        if (CONFIG_CLASSIFICATION[cls].has(name))
+            category = cls
+    return category
+}

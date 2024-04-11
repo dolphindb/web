@@ -11,14 +11,7 @@ import { CONFIG_CLASSIFICATION } from './type.js'
 import { config } from './model.js'
 
 
-interface NodesConfigAddModalProps {
-    configs: string[]
-    refresher: () => void
-}
-
-export const NodesConfigAddModal = NiceModal.create((props: NodesConfigAddModalProps) => {
-    const { configs, refresher } = props
-    
+export const NodesConfigAddModal = NiceModal.create(() => {
     const modal = NiceModal.useModal()
     
     const [add_config_form] = Form.useForm()
@@ -90,9 +83,8 @@ export const NodesConfigAddModal = NiceModal.create((props: NodesConfigAddModalP
                         onClick={
                             async () => {
                                 const { qualifier, name, value } = await add_config_form.validateFields()
-                                const new_config = (qualifier ? qualifier + '.' : '') + name + '=' + value 
-                                await config.save_nodes_config([new_config, ...configs])
-                                refresher()
+                                const key = (qualifier ? qualifier + '.' : '') + name
+                                await config.change_nodes_config([[key, { qualifier, name, value, key }]])
                                 model.message.success(t('保存成功'))
                                 modal.hide()
                             }
