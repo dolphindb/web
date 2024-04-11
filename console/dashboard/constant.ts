@@ -8,4 +8,4 @@ export const DATA_SOURCE_TYPE_MAP = {
 }
 
 
-export const AUTO_SAVE_KEY = "dashboard_auto_save"
+export const AUTO_SAVE_KEY = 'dashboard_auto_save'

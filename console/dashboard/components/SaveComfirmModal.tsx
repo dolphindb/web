@@ -1,21 +1,22 @@
-import NiceModal, { useModal } from "@ebay/nice-modal-react";
-import { ConfigProvider, Modal, theme, type ModalProps } from "antd";
-import { useCallback } from "react";
-import { t } from "../../../i18n/index.js";
+import NiceModal, { useModal } from '@ebay/nice-modal-react'
+import { ConfigProvider, Modal, theme, type ModalProps } from 'antd'
+import { useCallback } from 'react'
+
+import { t } from '../../../i18n/index.js'
 
 export const SaveConfirmModal = NiceModal.create((props: ModalProps) => { 
     const modal = useModal()
     const { onOk, onCancel } = props
     
-    const on_ok = useCallback<ModalProps['onOk']>(async (e) => { 
-        await onOk?.(e)
+    const on_ok = useCallback<ModalProps['onOk']>(async e => { 
+        onOk?.(e)
         modal.hide()
-    },[onOk])
-
-    const on_cancel = useCallback<ModalProps['onCancel']>(async (e) => { 
-        await onCancel?.(e)
+    }, [onOk])
+    
+    const on_cancel = useCallback<ModalProps['onCancel']>(async e => { 
+        onCancel?.(e)
         modal.hide()
-    },[onCancel])
+    }, [onCancel])
     
     
     return <ConfigProvider theme={{
@@ -31,7 +32,7 @@ export const SaveConfirmModal = NiceModal.create((props: ModalProps) => {
     }}>
          <Modal
             open={modal.visible}
-            afterClose={() => modal.remove()}
+            afterClose={() => { modal.remove() }}
             maskClosable={false}
             onCancel={on_cancel}
             onOk={on_ok}
