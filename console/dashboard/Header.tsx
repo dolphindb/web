@@ -394,7 +394,7 @@ export function Header () {
                     { label: <><EyeOutlined /> {t('预览')}</>, value: DashboardMode.PREVIEW }
                 ]}
                 onChange={on_change_mode}
-                className="dashboard-modes"
+                className='dashboard-modes'
                 defaultValue={editing ? DashboardMode.EDITING : DashboardMode.PREVIEW}
             />
         }
