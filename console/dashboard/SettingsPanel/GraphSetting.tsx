@@ -39,9 +39,9 @@ export function GraphSetting () {
     
     
     const on_form_change = useCallback((_, values) => {  
-        if (widget) { 
+        if (widget)  
             dashboard.update_widget({ ...widget, config: values })
-        }
+        
     }, [widget])
     
     

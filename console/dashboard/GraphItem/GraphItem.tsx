@@ -43,7 +43,7 @@ function GraphComponent ({ widget }: { widget: Widget }) {
     
     const Component = useMemo(() => graph_config[widget.type].component, [widget.type])
     
-    const {variable_cols, with_search_btn, search_btn_label, variable_form_label_col } = widget.config
+    const { variable_cols, with_search_btn, search_btn_label, variable_form_label_col } = widget.config
     
     return <div
             style={{ padding: get_padding_style(widget.config?.padding) }}
