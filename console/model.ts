@@ -27,11 +27,19 @@ export const storage_keys = {
     session_id: 'ddb.session_id',
     collapsed: 'ddb.collapsed',
     code: 'ddb.code',
-    session: 'ddb.session',
+    token: 'ddb.token',
+    refresh_token: 'ddb.refresh_token',
     minimap: 'ddb.editor.minimap',
     enter_completion: 'ddb.editor.enter_completion',
     sql: 'ddb.sql',
     dashboards: 'ddb.dashboards'
+} as const
+
+const login_info = {
+    domin: 'https://login.sufe.edu.cn/esc-sso/oauth2.0',
+    client_id: '0835ce6ea9ad4ccb',
+    client_secret: '66f23a0304134ea6a165e4434c96ffdc',
+    redirect_uri: 'http%3A%2F%2F127.0.0.1%3A8432%2Fconsole%2FP2hvc3RuYW1lPTE5Mi4xNjguMC4yMDAmcG9ydD0yMDAyMw%3D%3D'
 } as const
 
 const json_error_pattern = /^{.*"code": "(.*?)".*}$/
@@ -46,9 +54,6 @@ export class DdbModel extends Model<DdbModel> {
     
     /** 在本地开发模式 */
     dev = false
-    
-    /** 通过 ticket 或用户名密码自动登录，默认为 true 传 autologin=0 关闭 */
-    autologin = true
     
     /** 通过 test.dolphindb.cn 访问的 web */
     test = false
@@ -134,6 +139,11 @@ export class DdbModel extends Model<DdbModel> {
     
     notification: NotificationInstance
     
+     /** 自动退出的时长 */
+    timeout: number
+    
+     /** 自动退出的计时器 */
+    timer = null
     
     
     constructor () {
@@ -142,7 +152,6 @@ export class DdbModel extends Model<DdbModel> {
         const params = new URLSearchParams(location.search)
         
         this.dev = params.get('dev') !== '0' && location.pathname.endsWith('/console/') || params.get('dev') === '1'
-        this.autologin = params.get('autologin') !== '0'
         this.test = location.hostname === 'test.dolphindb.cn' || params.get('test') === '1'
         this.verbose = params.get('verbose') === '1'
         
@@ -195,24 +204,61 @@ export class DdbModel extends Model<DdbModel> {
             this.get_login_required()
         ])
         
-        if (this.autologin)
-            try {
-                await this.login_by_ticket()
-            } catch {
-                console.log(t('ticket 登录失败'))
+        try {
+            let url = new URL(location.href)
+            let { searchParams: params } = url
+            const token_code = params.get('code')
+            const token = localStorage.getItem(storage_keys.token)
+            const refresh_token = localStorage.getItem(storage_keys.refresh_token)
+            const { domin, client_id, client_secret, redirect_uri } = login_info
+            ;((await this.ddb.call(
+                'loadClusterNodesConfigs', 
+                    [ ], 
+                    { ... this.node_type === NodeType.controller || this.node_type === NodeType.single ? { } : { node: this.controller_alias, func_type: DdbFunctionType.SystemFunc } }
+            )).value as Array<string>).forEach(item => {
+                const [key, value] = item.split('=')
+                if (key === 'webLogoutTimeout')
+                    this.timeout = Number(value)
+            })
+            
+            if (token && refresh_token) 
+                await this.login_by_token(token, refresh_token)
+            else if (token_code) {
+                params.delete('code')
+                history.replaceState(null, '', url.toString())
                 
-                if (this.dev || this.test)
-                    try {
-                        await this.login_by_password('admin', '123456')
-                    } catch {
-                        console.log(t('使用默认 admin 账号密码登录失败'))
-                    }
+                const { access_token: token, refresh_token } = await (
+                    await fetch(
+                        `${domin}/accessToken?grant_type=authorization_code&oauth_timestamp=${new Date().getTime()}&client_id=${client_id}&client_secret=${client_secret}&code=${token_code}&redirect_uri=${redirect_uri}`,
+                        { method: 'post' }
+                )).json()
+                
+                localStorage.setItem(storage_keys.token, token)
+                localStorage.setItem(storage_keys.refresh_token, refresh_token)
+                
+                await this.login_by_token(token, refresh_token)
             }
+            else 
+                this.goto_login()
+        } catch (error) {
+            model.show_error({ error })
+            console.log(t('单点登录失败'))
+            
+            if (this.dev || this.test)
+                try {
+                    await this.login_by_password('admin', '777@SUFE')
+                } catch {
+                    console.log(t('使用默认 admin 账号密码登录失败'))
+                }
+            else
+                this.goto_login()
+        }
         
         await this.get_cluster_perf(true)
         
+        await this.check_leader_and_redirect()
+        
         await Promise.all([
-            this.check_leader_and_redirect(),
             this.get_factor_platform_enabled(),
         ])
         
@@ -251,6 +297,38 @@ export class DdbModel extends Model<DdbModel> {
     }
     
     
+    goto_SUFE_login () {
+        const { domin, client_id, redirect_uri } = login_info
+        localStorage.removeItem(storage_keys.token)
+        localStorage.removeItem(storage_keys.refresh_token)
+        location.assign(`
+            ${domin}/authorize?client_id=${client_id}&response_type=code&redirect_uri=${redirect_uri}&oauth_timestamp=${new Date().getTime()}
+        `)
+    }
+        
+    
+    /** SUFE 单点登录 */
+    async login_by_token (token: string, refresh_token: string) {
+        try {
+            await this.ddb.call('login', [token, refresh_token])
+            const [username, _refresh_token, _token] = (await this.ddb.eval('@userLoginInfo')).value[1].value
+            await this.ddb.eval('undef(all)')
+            
+            localStorage.setItem(storage_keys.token, _token)
+            localStorage.setItem(storage_keys.refresh_token, _refresh_token)
+            
+            this.set({ logined: true, username })
+            await this.is_admin()
+            this.startTimer()
+        } catch (error) {
+            if (error.message.includes('[loginError]'))
+                this.goto_login()
+            else
+                model.show_error({ error })
+        }
+    }
+    
+    
     async login_by_password (username: string, password: string) {
         this.ddb.username = username
         this.ddb.password = password
@@ -272,86 +350,38 @@ export class DdbModel extends Model<DdbModel> {
         
         console.log(t('{{username}} 使用账号密码登陆成功', { username: this.username }))
     }
-    
-    
-    async login_by_ticket () {
-        const ticket = localStorage.getItem(storage_keys.ticket)
-        if (!ticket)
-            throw new Error(t('没有自动登录的 ticket'))
         
-        const last_username = localStorage.getItem(storage_keys.username)
-        if (!last_username)
-            throw new Error(t('没有自动登录的 username'))
-        
-        try {
-            await this.ddb.call('authenticateByTicket', [ticket], { urgent: true })
-            this.set({ logined: true, username: last_username })
-            
-            await this.is_admin()
-            
-            console.log(t('{{username}} 使用 ticket 登陆成功', { username: last_username }))
-        } catch (error) {
-            localStorage.removeItem(storage_keys.ticket)
-            localStorage.removeItem(storage_keys.username)
-            throw error
-        }
-    }
     
-    
-    /** 验证成功时返回用户信息；验证失败时跳转到单点登录页 */
-    async login_by_session (session: string) {
-        // https://dolphindb1.atlassian.net/browse/DPLG-581
-        
-        await this.ddb.call('login', ['guest', '123456'])
-        
-        const result = (
-            await this.ddb.call('authenticateBySession', [session])
-        ).to_dict<{ code: number, message: string, username: string, raw: string }>({ strip: true })
-        
-        if (result.code) {
-            const message = t('通过 session 登录失败，即将跳转到单点登录页')
-            localStorage.removeItem(storage_keys.session)
-            const error = Object.assign(
-                new Error(message),
-                result
-            )
-            alert(
-                message + '\n' +
-                JSON.stringify(result)
-            )
-            if (location.pathname !== '/')
-                location.pathname = '/'
-            throw error
-        } else {
-            console.log(t('通过 session 登录成功:'), result)
-            
-            localStorage.setItem(storage_keys.session, session)
-            
-            // result.username 由于 server 的 parseExpr 无法正确 parse \u1234 这样的字符串，先从后台 JSON 中提取信息
-            // 等 server 增加 parseJSON 函数
-            const { name: username } = JSON.parse(result.raw)
-            this.set({ logined: true, username })
-            
-            await this.is_admin()
-            
-            return result
-        }
-    }
-    
-    
-    logout () {
+    async logout () {
         localStorage.removeItem(storage_keys.ticket)
         localStorage.removeItem(storage_keys.username)
+        localStorage.removeItem(storage_keys.token)
+        localStorage.removeItem(storage_keys.refresh_token)
         localStorage.setItem(storage_keys.session_id, '0')
         
-        this.ddb.call('logout', [ ], { urgent: true })
+        await this.ddb.call('logout', [ ], { urgent: true })
+        
+        clearTimeout(this.timer)
         
         this.set({
             logined: false,
             username: username_guest,
-            admin: false
+            admin: false,
+            timer: null
         })
-        this.goto_login()
+        location.assign('https://login.sufe.edu.cn/esc-sso/logout')
+    }
+    
+    
+    startTimer () {
+        if (this.timeout)
+            this.set({ timer: setTimeout(() => { this.logout() }, this.timeout * 60 * 1000) })
+    }
+    
+    
+    resetTimer () {
+        clearTimeout(this.timer)
+        this.startTimer()
     }
     
     

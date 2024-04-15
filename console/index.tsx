@@ -18,9 +18,10 @@ import ko from 'antd/locale/ko_KR.js'
 
 import { ProConfigProvider } from '@ant-design/pro-components'
 
+import dayjs from 'dayjs'
+
 import { language } from '../i18n/index.js'
 
-import dayjs from 'dayjs'
 import 'dayjs/locale/zh-cn'
 dayjs.locale(language === 'zh' ? 'zh-cn' : language)
 
@@ -40,8 +41,7 @@ import { Job } from './job.js'
 import { Log } from './log.js'
 import { Computing } from './computing/index.js'
 import { DashBoard } from './dashboard/index.js'
-import { User } from './access/index.js'
-import { Group } from './access/index.js'
+import { User, Group } from './access/index.js'
 
 
 createRoot(
@@ -82,26 +82,36 @@ function MainLayout () {
     
     
     useEffect(() => {
-        if (model.dev) {
-            async function on_keydown (event: KeyboardEvent) {
-                const { key, target, ctrlKey: ctrl, altKey: alt } = event
-                
-                if (
-                    key === 'r' && 
-                    (target as HTMLElement).tagName !== 'INPUT' && 
-                    (target as HTMLElement).tagName !== 'TEXTAREA' && 
-                    !ctrl && 
-                    !alt
-                ) {
-                    event.preventDefault()
-                    await model.recompile_and_refresh()
-                }
+        async function on_keydown (event: KeyboardEvent) {
+            const { key, target, ctrlKey: ctrl, altKey: alt } = event
+            
+            if (
+                key === 'r' && 
+                (target as HTMLElement).tagName !== 'INPUT' && 
+                (target as HTMLElement).tagName !== 'TEXTAREA' && 
+                !ctrl && 
+                !alt
+            ) {
+                event.preventDefault()
+                await model.recompile_and_refresh()
             }
-            
-            window.addEventListener('keydown', on_keydown)
-            
-            return () => { window.removeEventListener('keydown', on_keydown) }
         }
+        
+        function resetTimer () {
+            model.resetTimer()
+        }
+        
+        if (model.dev) 
+            window.addEventListener('keydown', on_keydown)
+        window.addEventListener('click', resetTimer)
+        window.addEventListener('keydown', resetTimer)
+        
+        return () => { 
+            window.removeEventListener('click', resetTimer)
+            window.removeEventListener('keydown', resetTimer)
+            window.removeEventListener('keydown', on_keydown) 
+        }
+        
     }, [ ])
     
     if (!inited)

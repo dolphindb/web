@@ -4,6 +4,7 @@ import { Form, Input, Button } from 'antd'
 import { LockOutlined, UserOutlined } from '@ant-design/icons'
 
 import { t } from '../i18n/index.js'
+
 import { model } from './model.js'
 
 
@@ -48,5 +49,6 @@ export function Login () {
                 </Form.Item>
             </Form>
         </div>
+        <div className='sufe' onClick={() => { model.goto_SUFE_login() }}>使用统一身份认证登录</div>
     </>
 }

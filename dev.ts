@@ -46,6 +46,9 @@ class DevServer extends Server {
             return true
         }
         
+        if (request.path === '/console/P2hvc3RuYW1lPTE5Mi4xNjguMC4yMDAmcG9ydD0yMDAyMw==') 
+            response.redirect(`/console/?hostname=192.168.100.43&port=8962&code=${query.code}`)
+        
         if (request.path === '/console/') {
             this.ddb_backend = `${query.hostname || '127.0.0.1'}:${query.port || '8848'}`
             request.path = '/console/index.dev.html'
