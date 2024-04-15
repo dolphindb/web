@@ -206,16 +206,16 @@ export class DdbModel extends Model<DdbModel> {
         
         try {
             let url = new URL(location.href)
-            let { searchParams: params } = url
-            const token_code = params.get('code')
+            let { searchParams } = url
+            const token_code = searchParams.get('code')
             const token = localStorage.getItem(storage_keys.token)
             const refresh_token = localStorage.getItem(storage_keys.refresh_token)
             const { domin, client_id, client_secret, redirect_uri } = login_info
-            ;((await this.ddb.call(
+            ;((await this.ddb.call<DdbVectorString>(
                 'loadClusterNodesConfigs', 
                     [ ], 
                     { ... this.node_type === NodeType.controller || this.node_type === NodeType.single ? { } : { node: this.controller_alias, func_type: DdbFunctionType.SystemFunc } }
-            )).value as Array<string>).forEach(item => {
+            )).value).forEach(item => {
                 const [key, value] = item.split('=')
                 if (key === 'webLogoutTimeout')
                     this.timeout = Number(value)
@@ -224,7 +224,7 @@ export class DdbModel extends Model<DdbModel> {
             if (token && refresh_token) 
                 await this.login_by_token(token, refresh_token)
             else if (token_code) {
-                params.delete('code')
+                searchParams.delete('code')
                 history.replaceState(null, '', url.toString())
                 
                 const { access_token: token, refresh_token } = await (
@@ -256,9 +256,8 @@ export class DdbModel extends Model<DdbModel> {
         
         await this.get_cluster_perf(true)
         
-        await this.check_leader_and_redirect()
-        
         await Promise.all([
+            this.check_leader_and_redirect(),
             this.get_factor_platform_enabled(),
         ])
         
