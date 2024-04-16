@@ -97,18 +97,18 @@ function MainLayout () {
             }
         }
         
-        function resetTimer () {
-            model.resetTimer()
+        function reset_timer () {
+            model.reset_timer()
         }
         
         if (model.dev) 
             window.addEventListener('keydown', on_keydown)
-        window.addEventListener('click', resetTimer)
-        window.addEventListener('keydown', resetTimer)
+        window.addEventListener('click', reset_timer)
+        window.addEventListener('keydown', reset_timer)
         
         return () => { 
-            window.removeEventListener('click', resetTimer)
-            window.removeEventListener('keydown', resetTimer)
+            window.removeEventListener('click', reset_timer)
+            window.removeEventListener('keydown', reset_timer)
             window.removeEventListener('keydown', on_keydown) 
         }
         

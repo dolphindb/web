@@ -39,7 +39,7 @@ const login_info = {
     domin: 'https://login.sufe.edu.cn/esc-sso/oauth2.0',
     client_id: '0835ce6ea9ad4ccb',
     client_secret: '66f23a0304134ea6a165e4434c96ffdc',
-    redirect_uri: 'http%3A%2F%2F127.0.0.1%3A8432%2Fconsole%2FP2hvc3RuYW1lPTE5Mi4xNjguMC4yMDAmcG9ydD0yMDAyMw%3D%3D'
+    redirect_uri: encodeURI('http://127.0.0.1:8432/console/P2hvc3RuYW1lPTE5Mi4xNjguMC4yMDAmcG9ydD0yMDAyMw==')
 } as const
 
 const json_error_pattern = /^{.*"code": "(.*?)".*}$/
@@ -244,14 +244,7 @@ export class DdbModel extends Model<DdbModel> {
             model.show_error({ error })
             console.log(t('单点登录失败'))
             
-            if (this.dev || this.test)
-                try {
-                    await this.login_by_password('admin', '777@SUFE')
-                } catch {
-                    console.log(t('使用默认 admin 账号密码登录失败'))
-                }
-            else
-                this.goto_login()
+            this.goto_login()
         }
         
         await this.get_cluster_perf(true)
@@ -296,13 +289,16 @@ export class DdbModel extends Model<DdbModel> {
     }
     
     
-    goto_SUFE_login () {
+    goto_sufe_login () {
         const { domin, client_id, redirect_uri } = login_info
         localStorage.removeItem(storage_keys.token)
         localStorage.removeItem(storage_keys.refresh_token)
-        location.assign(`
-            ${domin}/authorize?client_id=${client_id}&response_type=code&redirect_uri=${redirect_uri}&oauth_timestamp=${new Date().getTime()}
-        `)
+        location.assign(new URL(`${domin}/authorize?` + new URLSearchParams({
+            client_id,
+            response_type: 'code',
+            redirect_uri,
+            oauth_timestamp: new Date().getTime().toString(),
+        })).toString())
     }
         
     
@@ -310,15 +306,20 @@ export class DdbModel extends Model<DdbModel> {
     async login_by_token (token: string, refresh_token: string) {
         try {
             await this.ddb.call('login', [token, refresh_token])
-            const [username, _refresh_token, _token] = (await this.ddb.eval('@userLoginInfo')).value[1].value
-            await this.ddb.eval('undef(all)')
+            const { username, refresh_token: _refresh_token, token: _token } = JSON.parse((await this.ddb.eval(`
+                name = exec name from rpc(getControllerAlias(), getClusterPerf) where state = 1 limit 1
+                def runFunc(funcName){
+                    return funcByName(funcName).call();
+                }
+                rpc(name[0], runFunc, "getUserLoginInfo")`
+            )).value as string)
             
             localStorage.setItem(storage_keys.token, _token)
             localStorage.setItem(storage_keys.refresh_token, _refresh_token)
             
             this.set({ logined: true, username })
             await this.is_admin()
-            this.startTimer()
+            this.start_timer()
         } catch (error) {
             if (error.message.includes('[loginError]'))
                 this.goto_login()
@@ -372,15 +373,15 @@ export class DdbModel extends Model<DdbModel> {
     }
     
     
-    startTimer () {
+    start_timer () {
         if (this.timeout)
             this.set({ timer: setTimeout(() => { this.logout() }, this.timeout * 60 * 1000) })
     }
     
     
-    resetTimer () {
+    reset_timer () {
         clearTimeout(this.timer)
-        this.startTimer()
+        this.start_timer()
     }
     
     
