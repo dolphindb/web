@@ -8,20 +8,19 @@ import { DdbForm, type DdbVoid, type DdbObj, type DdbValue, DdbVectorLong, DdbLo
 
 import { GridStack, type GridStackNode, type GridItemHTMLElement } from 'gridstack'
 
-import { assert, genid } from 'xshell/utils.browser.js'
+import { assert, decode, genid } from 'xshell/utils.browser.js'
 
 import type { MessageInstance } from 'antd/es/message/interface.js'
 import type { ModalStaticFunctions } from 'antd/es/modal/confirm.js'
 import type { NotificationInstance } from 'antd/es/notification/interface.js'
 
-import { model, show_error } from '../model.js'
+import { model, show_error, storage_keys } from '../model.js'
 import { type Monaco } from '../shell/Editor/index.js'
 import type { FormatErrorOptions } from '../components/GlobalErrorBoundary.js'
 
 import { type DataSource, type ExportDataSource, import_data_sources, unsubscribe_data_source, type DataType, clear_data_sources } from './DataSource/date-source.js'
 import { type IEditorConfig, type IChartConfig, type ITableConfig, type ITextConfig, type IGaugeConfig, type IHeatMapChartConfig, type IOrderBookConfig } from './type.js'
 import { type Variable, import_variables, type ExportVariable } from './Variable/variable.js'
-import { AUTO_SAVE_KEY } from './constant.js'
 
 
 /** 0 表示隐藏dashboard（未查询到结果、 server 版本为 v1 或 language 非中文），1 表示没有初始化，2 表示已经初始化，3 表示为控制节点 */
@@ -81,7 +80,7 @@ export class DashBoardModel extends Model<DashBoardModel> {
     show_config_modal = true
     
     /** 是否开启自动保存 */
-    auto_save: boolean = localStorage.getItem(AUTO_SAVE_KEY) === 'true'
+    auto_save = localStorage.getItem(storage_keys.dashboard_autosave) === '1'
     
     monaco: Monaco
     
@@ -396,16 +395,23 @@ export class DashBoardModel extends Model<DashBoardModel> {
     /** 根据 id 获取单个 DashboardConfig */
     async get_dashboard_config (id: number) {
         const data = (await model.ddb.call('dashboard_get_config', [new DdbDict({ id: new DdbLong(BigInt(id)) })])).to_rows()
-        const res: any =  data.length ? {
-            ...data[0], 
-                                id: Number(data[0].id), 
-                                data: JSON.parse(JSON.parse(typeof data[0].data === 'string' ? 
-                                                                            data[0].data
-                                                                                : 
-                                    new TextDecoder().decode(data[0].data)))
-        } as DashBoardConfig : null
+        
+        const res: any = data.length
+            ? ({
+                  ...data[0],
+                  id: Number(data[0].id),
+                  data: JSON.parse(JSON.parse(typeof data[0].data === 'string' ? data[0].data : decode(data[0].data)))
+              } as DashBoardConfig)
+            : null
+        
         // datasource 历史数据默认类型为表格
-        return { ...res, data: { ...res.data, datasources: res?.data?.datasources.map(item => ({ type: DdbForm.table, ...item })) } }
+        return {
+            ...res,
+            data: {
+                ...res.data,
+                datasources: res?.data?.datasources.map(item => ({ type: DdbForm.table, ...item }))
+            }
+        }
 }
     
     

@@ -278,6 +278,6 @@ export enum VariableMode {
 
 
 export enum DashboardMode { 
-    EDITING,
-    PREVIEW
+    editing,
+    preview
 }

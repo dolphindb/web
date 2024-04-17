@@ -202,7 +202,7 @@ function DashboardInstance () {
     
     
     useEffect(() => {
-        if (editing) {
+        if (dashboard.editing) {
             if (config?.permission === DashboardPermission.view) 
                 dashboard.on_preview()
             dashboard.set({ save_confirm: true })

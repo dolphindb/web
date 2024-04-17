@@ -13,7 +13,7 @@ import NiceModal from '@ebay/nice-modal-react'
 
 import type { SwitchProps } from 'antd/lib/index.js'
 
-import { model } from '../model.js'
+import { model, storage_keys } from '../model.js'
 import { t } from '../../i18n/index.js'
 import { CompileAndRefresh } from '../components/CompileAndRefresh.js'
 
@@ -30,9 +30,6 @@ import { Import } from './Import/Import.js'
 import { Share } from './Share/Share.js'
 import { DashboardMode } from './type.js'
 import { SaveConfirmModal } from './components/SaveComfirmModal.js'
-
-
-import { AUTO_SAVE_KEY } from './constant.js'
 
 
 export function get_widget_config (widget: Widget) {
@@ -119,8 +116,7 @@ export function Header () {
             if (timer.current)
                 clearInterval(timer.current)
             timer.current = setInterval(handle_save, 60 * 1000)
-        }
-        else
+        } else
             clearInterval(timer.current)
         
         return () => { clearInterval(timer.current) }
@@ -186,13 +182,11 @@ export function Header () {
     
     /** 切换预览与编辑模式 */
     function on_change_mode (value: DashboardMode) {
-        if (value === DashboardMode.EDITING) { 
+        if (value === DashboardMode.editing) { 
             dashboard.set_editing(true)
             model.set_query('preview', null)
-        }
-        else  
+        } else
             dashboard.on_preview()
-        
     }
     
     
@@ -226,7 +220,7 @@ export function Header () {
     
     const on_auto_save = useCallback<SwitchProps['onChange']>(value => {
         dashboard.set({ auto_save: value })
-        localStorage.setItem(AUTO_SAVE_KEY, String(value))
+        localStorage.setItem(storage_keys.dashboard_autosave, value ? '1' : '0')
     }, [ ])
     
     return <div className='dashboard-header'>
@@ -382,7 +376,7 @@ export function Header () {
                     </Tooltip>
                 </Popconfirm>
                 
-                <Tooltip title='开启自动保存后，将每隔 3 分钟保存一次当前 Dashboard 的配置'>
+                <Tooltip title='开启自动保存后，将每隔 1 分钟保存一次当前 Dashboard 的配置'>
                     <div className='auto-save-wrapper'>
                         <span className='auto-save-label'>自动保存</span>
                         <Switch size='small' defaultChecked={auto_save} onChange={on_auto_save} />
@@ -398,12 +392,12 @@ export function Header () {
         {
             config?.permission !== DashboardPermission.view && <Segmented
                 options={[
-                    { label: <><EditOutlined /> {t('编辑')}</>, value: DashboardMode.EDITING },
-                    { label: <><EyeOutlined /> {t('预览')}</>, value: DashboardMode.PREVIEW }
+                    { label: <><EditOutlined /> {t('编辑')}</>, value: DashboardMode.editing },
+                    { label: <><EyeOutlined /> {t('预览')}</>, value: DashboardMode.preview }
                 ]}
                 onChange={on_change_mode}
                 className='dashboard-modes'
-                defaultValue={editing ? DashboardMode.EDITING : DashboardMode.PREVIEW}
+                defaultValue={editing ? DashboardMode.editing : DashboardMode.preview}
             />
         }
         
