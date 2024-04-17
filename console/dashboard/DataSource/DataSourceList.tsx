@@ -73,54 +73,42 @@ export const CreateDataSourceModal = NiceModal.create((props: ICreateDataSourceM
      }, [on_after_create])
     
     
-    return <ConfigProvider theme={{
-        hashed: false,
-        token: {
-            borderRadius: 0,
-            motion: false,
-            colorBgContainer: 'rgb(40, 40, 40)',
-            colorBgElevated: '#555555',
-            colorInfoActive: 'rgb(64, 147, 211)'
-        },
-        algorithm: theme.darkAlgorithm
-    }}>
-        <Modal
-            destroyOnClose
-            open={modal.visible}
-            maskClosable={false}
-            onCancel={modal.hide}
-            afterClose={modal.remove}
-            onOk={on_create}
-            title={t('创建数据源')}
-        >
-            <Form validateTrigger={['onCompositionEnd']} autoComplete='off' form={form}  labelCol={{ span: 6 }} labelAlign='left'>
-                <Form.Item label={t('名称')} name='name'
-                    rules={
-                        [
-                            { required: true, message: '请输入名称' },
-                            {
-                                validator: async (_, val) => {
-                                    if (val?.length > 10)
-                                        return Promise.reject(new Error(t('数据源名长度不能大于10')))
-                                    else if (data_sources.find(data_source => data_source.name === val))
-                                        return Promise.reject(new Error(t('已有同名数据源，请修改')))
-                                    return Promise.resolve()
-                                },
-                            }
-                        ]
-                    }
-                >
-                    <Input placeholder={t('请输入数据源的名称')} />
-                </Form.Item>
-                <Form.Item label={t('数据类型')} name='type' initialValue={DdbForm.table} required>
-                    <Radio.Group>
-                        <Radio value={DdbForm.table}>{DATA_SOURCE_TYPE_MAP[DdbForm.table]}</Radio>
-                        <Radio value={DdbForm.matrix}>{DATA_SOURCE_TYPE_MAP[DdbForm.matrix]}</Radio>
-                    </Radio.Group>
-                </Form.Item>
-            </Form>
-        </Modal>
-    </ConfigProvider>
+    return <Modal
+        destroyOnClose
+        open={modal.visible}
+        maskClosable={false}
+        onCancel={modal.hide}
+        afterClose={modal.remove}
+        onOk={on_create}
+        title={t('创建数据源')}
+    >
+        <Form validateTrigger={['onCompositionEnd']} autoComplete='off' form={form}  labelCol={{ span: 6 }} labelAlign='left'>
+            <Form.Item label={t('名称')} name='name'
+                rules={
+                    [
+                        { required: true, message: '请输入名称' },
+                        {
+                            validator: async (_, val) => {
+                                if (val?.length > 10)
+                                    return Promise.reject(new Error(t('数据源名长度不能大于10')))
+                                else if (data_sources.find(data_source => data_source.name === val))
+                                    return Promise.reject(new Error(t('已有同名数据源，请修改')))
+                                return Promise.resolve()
+                            },
+                        }
+                    ]
+                }
+            >
+                <Input placeholder={t('请输入数据源的名称')} />
+            </Form.Item>
+            <Form.Item label={t('数据类型')} name='type' initialValue={DdbForm.table} required>
+                <Radio.Group>
+                    <Radio value={DdbForm.table}>{DATA_SOURCE_TYPE_MAP[DdbForm.table]}</Radio>
+                    <Radio value={DdbForm.matrix}>{DATA_SOURCE_TYPE_MAP[DdbForm.matrix]}</Radio>
+                </Radio.Group>
+            </Form.Item>
+        </Form>
+    </Modal>
 })
 
 export function DataSourceList ({
