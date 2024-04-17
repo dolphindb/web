@@ -238,13 +238,8 @@ export class DdbModel extends Model<DdbModel> {
                 
                 await this.login_by_token(token, refresh_token)
             }
-            else 
-                this.goto_login()
         } catch (error) {
-            model.show_error({ error })
-            console.log(t('单点登录失败'))
-            
-            this.goto_login()
+            model.message.error('单点登录失败')
         }
         
         await this.get_cluster_perf(true)
@@ -304,28 +299,21 @@ export class DdbModel extends Model<DdbModel> {
     
     /** SUFE 单点登录 */
     async login_by_token (token: string, refresh_token: string) {
-        try {
-            await this.ddb.call('login', [token, refresh_token])
-            const { username, refresh_token: _refresh_token, token: _token } = JSON.parse((await this.ddb.eval(`
-                name = exec name from rpc(getControllerAlias(), getClusterPerf) where state = 1 limit 1
-                def runFunc(funcName){
-                    return funcByName(funcName).call();
-                }
-                rpc(name[0], runFunc, "getUserLoginInfo")`
-            )).value as string)
-            
-            localStorage.setItem(storage_keys.token, _token)
-            localStorage.setItem(storage_keys.refresh_token, _refresh_token)
-            
-            this.set({ logined: true, username })
-            await this.is_admin()
-            this.start_timer()
-        } catch (error) {
-            if (error.message.includes('[loginError]'))
-                this.goto_login()
-            else
-                model.show_error({ error })
-        }
+        await this.ddb.call('login', [token, refresh_token])
+        const { username, refresh_token: _refresh_token, token: _token } = JSON.parse((await this.ddb.eval(`
+            name = exec name from rpc(getControllerAlias(), getClusterPerf) where state = 1 limit 1
+            def runFunc(funcName){
+                return funcByName(funcName).call();
+            }
+            rpc(name[0], runFunc, "getUserLoginInfo")`
+        )).value as string)
+        
+        localStorage.setItem(storage_keys.token, _token)
+        localStorage.setItem(storage_keys.refresh_token, _refresh_token)
+        
+        this.set({ logined: true, username })
+        await this.is_admin()
+        this.start_timer()
     }
     
     
