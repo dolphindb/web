@@ -250,7 +250,7 @@ export function Header () {
                     if (config.permission === DashboardPermission.view || !dashboard.save_confirm)
                         dashboard.return_to_overview()
                     else
-                        NiceModal.show(SaveConfirmModal, {
+                        NiceModal.show('dashboard-save-confirm-modal', {
                             onCancel: dashboard.return_to_overview,
                             onOk: async () => { 
                                 await handle_save()
@@ -260,6 +260,8 @@ export function Header () {
                     
                 }}><HomeOutlined /></Button>
             </Tooltip>
+            
+            <SaveConfirmModal id='dashboard-save-confirm-modal' />
             
             {editing && <>     
                 <Modal open={add_visible}

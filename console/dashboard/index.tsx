@@ -90,13 +90,11 @@ export function DashBoard () {
                         algorithm: theme.darkAlgorithm
                     }}
                 >
-                    <NiceModal.Provider>
-                        <App className='app'>
-                            <Spin spinning={loading} delay={500} size='large'>
-                                <DashboardInstance />
-                            </Spin>
-                        </App>
-                    </NiceModal.Provider>
+                    <App className='app'>
+                        <Spin spinning={loading} delay={500} size='large'>
+                            <DashboardInstance />
+                        </Spin>
+                    </App>
                 </ConfigProvider>
             :
                 <Overview />),
