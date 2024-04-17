@@ -7,6 +7,7 @@ import 'gridstack/dist/gridstack.css'
 import { useEffect, useRef } from 'react'
 import { App, Button, ConfigProvider, Popconfirm, Result, Spin, theme } from 'antd'
 import * as echarts from 'echarts'
+import NiceModal from '@ebay/nice-modal-react'
 
 import { NodeType, model } from '../model.js'
 
@@ -164,7 +165,7 @@ function DashboardInstance () {
     // App 组件通过 Context 提供上下文方法调用，因而 useApp 需要作为子组件才能使用
     Object.assign(dashboard, App.useApp())
     
-    // 监听 ctrl v事件，复制组件
+    // 监听 ctrl v 事件，复制组件
     useEffect(() => { 
         window.addEventListener('paste', paste_widget)
         return () => { window.removeEventListener('paste', paste_widget) }
@@ -199,13 +200,12 @@ function DashboardInstance () {
     
     
     useEffect(() => {
-        const params = new URLSearchParams(location.search)
-        if (!params.has('preview', '1')) {
+        if (dashboard.editing) {
             if (config?.permission === DashboardPermission.view) 
                 dashboard.on_preview()
             dashboard.set({ save_confirm: true })
         }    
-    }, [config])
+    }, [config, editing])
     
     
     return <div className='dashboard' >

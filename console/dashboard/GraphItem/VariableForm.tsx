@@ -19,6 +19,7 @@ interface IProps {
     with_search_btn: boolean
     search_btn_label: string
     className?: string
+    label_col: number
 }
 
 interface IStringMultiSelectProps { 
@@ -85,7 +86,7 @@ function ControlField ({ variable }: { variable: Variable }) {
 
 
 export function VariableForm (props: IProps) {
-    const { ids = [ ], cols = 3, with_search_btn, className, search_btn_label } = props
+    const { ids = [ ], cols = 3, with_search_btn, className, search_btn_label, label_col } = props
     
     const [form] = Form.useForm()
     
@@ -101,7 +102,7 @@ export function VariableForm (props: IProps) {
     }, [ ])
     
     return !!ids.length && <div className={classNames('variable-wrapper', { [className]: true })}>
-        <Form form={form} className='variable-form' onValuesChange={!with_search_btn && on_variables_change} labelCol={{ span: 6 }} labelAlign='left'>
+        <Form form={form} className='variable-form' onValuesChange={!with_search_btn && on_variables_change} labelCol={{ span: label_col }} labelAlign='left'>
             <Row gutter={[24, 16]}>
                 {ids.map(id => variables_obj[id]).filter(Boolean).map(item => <Col span={24 / cols} key={item?.id}><ControlField variable={item} key={item?.id} /></Col>) }
             </Row>

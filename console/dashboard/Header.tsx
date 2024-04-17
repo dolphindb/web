@@ -1,7 +1,7 @@
 import './Header.sass'
 
-import { useState } from 'react'
-import { Button, Input, Modal, Popconfirm, Select, Tag, Tooltip, } from 'antd'
+import { useCallback, useEffect, useRef, useState } from 'react'
+import { Button, Input, Modal, Popconfirm, Select, Tag, Tooltip, Segmented, Switch } from 'antd'
 import { CopyOutlined, DeleteOutlined, EditOutlined, EyeOutlined, FileAddOutlined, HomeOutlined, SaveOutlined, UploadOutlined } from '@ant-design/icons'
 
 import { use_modal } from 'react-object-model/hooks.js'
@@ -9,7 +9,11 @@ import { genid } from 'xshell/utils.browser.js'
 
 import cn from 'classnames'
 
-import { model } from '../model.js'
+import NiceModal from '@ebay/nice-modal-react'
+
+import type { SwitchProps } from 'antd/lib/index.js'
+
+import { model, storage_keys } from '../model.js'
 import { t } from '../../i18n/index.js'
 import { CompileAndRefresh } from '../components/CompileAndRefresh.js'
 
@@ -24,6 +28,8 @@ import { export_variables } from './Variable/variable.js'
 import { check_name } from './utils.js'
 import { Import } from './Import/Import.js'
 import { Share } from './Share/Share.js'
+import { DashboardMode } from './type.js'
+import { SaveConfirmModal } from './components/SaveComfirmModal.js'
 
 
 export function get_widget_config (widget: Widget) {
@@ -48,7 +54,7 @@ interface DashboardOption {
 
 
 export function Header () {
-    const { editing, widgets, configs, config } = dashboard.use(['editing', 'widgets', 'configs', 'config'])
+    const { editing, widgets, configs, config, auto_save } = dashboard.use(['editing', 'widgets', 'configs', 'config', 'auto_save'])
     const [new_dashboard_id, set_new_dashboard_id] = useState<number>()
     const [new_dashboard_name, set_new_dashboard_name] = useState('')
     const [edit_dashboard_name, set_edit_dashboard_name] = useState('')
@@ -56,10 +62,11 @@ export function Header () {
     
     const { visible: add_visible, open: add_open, close: add_close } = use_modal()
     const { visible: edit_visible, open: edit_open, close: edit_close } = use_modal()
-    const { visible: save_visible, open: save_open, close: save_close } = use_modal()
     const { visible: copy_visible, open: copy_open, close: copy_close } = use_modal()
     
-    async function get_latest_config () {
+    const timer = useRef<NodeJS.Timeout>()
+    
+    const get_latest_config = useCallback(async () => {
         const updated_config = {
             ...config,
             data: {
@@ -73,7 +80,8 @@ export function Header () {
         }
         // await dashboard.update_config(updated_config)
         return updated_config
-    }
+    }, [widgets]) 
+    
     
     /** 生成可以比较的 config */
     // function exact_config (config: DashBoardConfig) {
@@ -94,12 +102,25 @@ export function Header () {
     // }
     
     
-    async function handle_save () {
+    const handle_save = useCallback(async () => {
         const updated_config = await get_latest_config()
+        console.log(updated_config, 'updated_config')
         await dashboard.update_dashboard_config(updated_config)
         dashboard.set({ save_confirm: false })
         dashboard.message.success(t('数据面板保存成功'))
-    }
+    }, [get_latest_config]) 
+    
+    
+    useEffect(() => { 
+        if (auto_save && editing) { 
+            if (timer.current)
+                clearInterval(timer.current)
+            timer.current = setInterval(handle_save, 60 * 1000)
+        } else
+            clearInterval(timer.current)
+        
+        return () => { clearInterval(timer.current) }
+    }, [auto_save, handle_save, editing])
     
     
     async function handle_add () {
@@ -159,13 +180,48 @@ export function Header () {
         dashboard.message.success(t('删除成功'))
     }
     
-    
-    function on_edit () { 
-        dashboard.set_editing(true)
-        dashboard.set({ save_confirm: true })
-        model.set_query('preview', null)
+    /** 切换预览与编辑模式 */
+    function on_change_mode (value: DashboardMode) {
+        if (value === DashboardMode.editing) { 
+            dashboard.set_editing(true)
+            model.set_query('preview', null)
+        } else
+            dashboard.on_preview()
     }
     
+    
+    /** 切换 dashboard */
+    async function on_change_dashboard (_, option: DashboardOption) { 
+        async function handle_change () { 
+            const current_dashboard = configs.find(({ id }) => id === option.key)
+            clear_data_sources()
+            await dashboard.render_with_config(current_dashboard)
+            if (current_dashboard.permission === DashboardPermission.view)
+                dashboard.on_preview()
+        }
+        if (config.permission === DashboardPermission.view || !dashboard.save_confirm) 
+            await handle_change()
+         else  
+            /** 未保存提示 */
+            await NiceModal.show(SaveConfirmModal, {
+                onCancel: async () => { 
+                    dashboard.set({ save_confirm: false })
+                    await handle_change()
+                },
+                onOK: async () => { 
+                    dashboard.set({ save_confirm: false })
+                    await handle_save()
+                    await handle_change()
+                }
+            })
+            
+          
+    }
+    
+    const on_auto_save = useCallback<SwitchProps['onChange']>(value => {
+        dashboard.set({ auto_save: value })
+        localStorage.setItem(storage_keys.dashboard_autosave, value ? '1' : '0')
+    }, [ ])
     
     return <div className='dashboard-header'>
         {
@@ -173,13 +229,7 @@ export function Header () {
                 ? <Select
                         className='switcher'
                         placeholder={t('选择 dashboard')}
-                        onChange={async (_, option: DashboardOption) => {
-                            const current_dashboard = configs.find(({ id }) => id === option.key)
-                            clear_data_sources()
-                            await dashboard.render_with_config(current_dashboard)
-                            if (current_dashboard.permission === DashboardPermission.view)
-                                dashboard.on_preview()
-                        }}
+                        onChange={on_change_dashboard}
                         value={config?.id}
                         variant='borderless'
                         options={configs?.map(({ id, name, permission }) => ({
@@ -196,28 +246,22 @@ export function Header () {
         
         <div className='actions'>
             <Tooltip title={t('返回主界面')}>
-                <Button className='action' onClick={async () => { 
+                <Button className='action' onClick={async () => {
                     if (config.permission === DashboardPermission.view || !dashboard.save_confirm)
                         dashboard.return_to_overview()
                     else
-                        save_open()
+                        NiceModal.show('dashboard-save-confirm-modal', {
+                            onCancel: dashboard.return_to_overview,
+                            onOk: async () => { 
+                                await handle_save()
+                                dashboard.return_to_overview()                                    
+                            }
+                        })
                     
                 }}><HomeOutlined /></Button>
             </Tooltip>
             
-               
-            <Modal open={save_visible}
-                maskClosable={false}
-                onCancel={dashboard.return_to_overview}
-                onOk={async () => { 
-                    await handle_save()
-                    save_close()
-                    dashboard.return_to_overview()                                    
-                }}
-                okText={t('保存')}
-                cancelText={t('不保存')}
-                closeIcon={false}
-                title={t('离开此界面您当前更改会丢失，是否需要保存当前更改')} />
+            <SaveConfirmModal id='dashboard-save-confirm-modal' />
             
             {editing && <>     
                 <Modal open={add_visible}
@@ -333,29 +377,30 @@ export function Header () {
                         <Button className='action'><DeleteOutlined /></Button>
                     </Tooltip>
                 </Popconfirm>
+                
+                <Tooltip title='开启自动保存后，将每隔 1 分钟保存一次配置'>
+                    <div className='auto-save-wrapper'>
+                        <span className='auto-save-label'>自动保存</span>
+                        <Switch size='small' defaultChecked={auto_save} onChange={on_auto_save} />
+                    </div>
+                </Tooltip>
             </>}
+            
             {(model.dev || model.test ) && <HostSelect />}
         
             {model.dev && <CompileAndRefresh />}
         </div>
         
         {
-            config?.permission !== DashboardPermission.view && <div className='modes'>
-            <span
-                className={`right-editormode-editor ${editing ? 'editormode-selected' : ''}`}
-                onClick={on_edit}
-            >
-                <EditOutlined /> {t('编辑')}
-            </span>
-            <span className='divider'>|</span>
-            <span
-                className={`right-editormode-preview ${editing ? '' : 'editormode-selected'} `}
-                onClick={dashboard.on_preview}
-            >
-                <EyeOutlined /> {t('预览')}
-            </span>
-        </div>
-        
+            config?.permission !== DashboardPermission.view && <Segmented
+                options={[
+                    { label: <><EditOutlined /> {t('编辑')}</>, value: DashboardMode.editing },
+                    { label: <><EyeOutlined /> {t('预览')}</>, value: DashboardMode.preview }
+                ]}
+                onChange={on_change_mode}
+                className='dashboard-modes'
+                defaultValue={editing ? DashboardMode.editing : DashboardMode.preview}
+            />
         }
         
         <div className='padding' />

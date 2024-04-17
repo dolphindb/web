@@ -275,3 +275,9 @@ export enum VariableMode {
     TEXT = 'text',
     DATE = 'date'
 }
+
+
+export enum DashboardMode { 
+    editing,
+    preview
+}

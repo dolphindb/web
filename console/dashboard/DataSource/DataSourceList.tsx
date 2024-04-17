@@ -1,5 +1,5 @@
-import { type MutableRefObject, type ReactNode, createElement, useEffect, useRef, useState, useMemo, useCallback, type Key } from 'react'
-import { ConfigProvider, Form, Input, Modal, Radio, Tag, Tree, theme } from 'antd'
+import { type MutableRefObject, type ReactNode, createElement, useEffect, useRef, useState, useMemo, useCallback } from 'react'
+import { Form, Input, Modal, Radio, Tag, Tree } from 'antd'
 import { CopyOutlined, DatabaseOutlined, DeleteOutlined, EditOutlined, FileOutlined } from '@ant-design/icons'
 
 import NiceModal, { useModal } from '@ebay/nice-modal-react'
@@ -8,9 +8,9 @@ import { DdbForm } from 'dolphindb'
 import { t } from '../../../i18n/index.js'
 import { type Widget, WidgetChartType, dashboard } from '../model.js'
 import { DATA_SOURCE_TYPE_MAP } from '../constant.js'
-import { check_name, get_chart_data_type } from '../utils.js'
+import { get_chart_data_type } from '../utils.js'
 
-import { create_data_source, data_sources, delete_data_source, rename_data_source, type DataSource, type DataSourcePropertyType, copy_data_source, paste_data_source, get_data_source } from './date-source.js'
+import { create_data_source, data_sources, delete_data_source, rename_data_source, type DataSource, type DataSourcePropertyType, copy_data_source, paste_data_source } from './date-source.js'
 
 
 interface PropsType {
@@ -73,54 +73,42 @@ export const CreateDataSourceModal = NiceModal.create((props: ICreateDataSourceM
      }, [on_after_create])
     
     
-    return <ConfigProvider theme={{
-        hashed: false,
-        token: {
-            borderRadius: 0,
-            motion: false,
-            colorBgContainer: 'rgb(40, 40, 40)',
-            colorBgElevated: '#555555',
-            colorInfoActive: 'rgb(64, 147, 211)'
-        },
-        algorithm: theme.darkAlgorithm
-    }}>
-        <Modal
-            destroyOnClose
-            open={modal.visible}
-            maskClosable={false}
-            onCancel={modal.hide}
-            afterClose={modal.remove}
-            onOk={on_create}
-            title={t('创建数据源')}
-        >
-            <Form validateTrigger={['onCompositionEnd']} autoComplete='off' form={form}  labelCol={{ span: 6 }} labelAlign='left'>
-                <Form.Item label={t('名称')} name='name'
-                    rules={
-                        [
-                            { required: true, message: '请输入名称' },
-                            {
-                                validator: async (_, val) => {
-                                    if (val?.length > 10)
-                                        return Promise.reject(new Error(t('数据源名长度不能大于10')))
-                                    else if (data_sources.find(data_source => data_source.name === val))
-                                        return Promise.reject(new Error(t('已有同名数据源，请修改')))
-                                    return Promise.resolve()
-                                },
-                            }
-                        ]
-                    }
-                >
-                    <Input placeholder={t('请输入数据源的名称')} />
-                </Form.Item>
-                <Form.Item label={t('数据类型')} name='type' initialValue={DdbForm.table} required>
-                    <Radio.Group>
-                        <Radio value={DdbForm.table}>{DATA_SOURCE_TYPE_MAP[DdbForm.table]}</Radio>
-                        <Radio value={DdbForm.matrix}>{DATA_SOURCE_TYPE_MAP[DdbForm.matrix]}</Radio>
-                    </Radio.Group>
-                </Form.Item>
-            </Form>
-        </Modal>
-    </ConfigProvider>
+    return <Modal
+        destroyOnClose
+        open={modal.visible}
+        maskClosable={false}
+        onCancel={modal.hide}
+        afterClose={modal.remove}
+        onOk={on_create}
+        title={t('创建数据源')}
+    >
+        <Form validateTrigger={['onCompositionEnd']} autoComplete='off' form={form}  labelCol={{ span: 6 }} labelAlign='left'>
+            <Form.Item label={t('名称')} name='name'
+                rules={
+                    [
+                        { required: true, message: '请输入名称' },
+                        {
+                            validator: async (_, val) => {
+                                if (val?.length > 10)
+                                    return Promise.reject(new Error(t('数据源名长度不能大于10')))
+                                else if (data_sources.find(data_source => data_source.name === val))
+                                    return Promise.reject(new Error(t('已有同名数据源，请修改')))
+                                return Promise.resolve()
+                            },
+                        }
+                    ]
+                }
+            >
+                <Input placeholder={t('请输入数据源的名称')} />
+            </Form.Item>
+            <Form.Item label={t('数据类型')} name='type' initialValue={DdbForm.table} required>
+                <Radio.Group>
+                    <Radio value={DdbForm.table}>{DATA_SOURCE_TYPE_MAP[DdbForm.table]}</Radio>
+                    <Radio value={DdbForm.matrix}>{DATA_SOURCE_TYPE_MAP[DdbForm.matrix]}</Radio>
+                </Radio.Group>
+            </Form.Item>
+        </Form>
+    </Modal>
 })
 
 export function DataSourceList ({
@@ -212,15 +200,21 @@ export function DataSourceList ({
                         onClick={async () => {
                             if (loading)
                                 return
+                            
                             if (no_save_flag.current && (await save_confirm()))  
                                 await handle_save()
+                            
                             no_save_flag.current = false
-                            NiceModal.show(CreateDataSourceModal, { on_after_create })
+                            
+                            await NiceModal.show('dashboard-create-datasource-modal', { on_after_create })
                         }}
                     >
                         <FileOutlined className='data-source-list-top-item-icon' />
                         {t('新建')}
                     </div>
+                    
+                    <CreateDataSourceModal id='dashboard-create-datasource-modal' on_after_create={on_after_create} />
+                    
                     <div
                         className='data-source-list-top-item'
                         onClick={() => {

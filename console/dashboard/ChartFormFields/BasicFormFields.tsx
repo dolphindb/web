@@ -39,8 +39,11 @@ export function VariableSetting () {
             }))} />
         </Form.Item>
             
-        <Form.Item  name='variable_cols' label={t('每行变量数')} initialValue={3}>
+        <Form.Item name='variable_cols' label={t('每行变量数')} initialValue={3}>
             <Select options={convert_list_to_options([1, 2, 3, 4, 6, 8, 12])} allowClear />
+        </Form.Item>
+        <Form.Item name='variable_form_label_col' label={t('标签占位')} tooltip={t('标签相对单个变量的百分比占位')}>
+            <InputNumber min={20} max={80} addonAfter='%' />
         </Form.Item>
         <Form.Item name='with_search_btn' label={t('查询按钮')} initialValue={false} tooltip={t('不展示查询按钮的情况，表单更新即会进行查询，在变量设置较多的情况下，建议使用查询按钮，点击之后再运行数据源代码')}>
             <BoolRadioGroup />

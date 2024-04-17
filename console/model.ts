@@ -32,7 +32,7 @@ export const storage_keys = {
     minimap: 'ddb.editor.minimap',
     enter_completion: 'ddb.editor.enter_completion',
     sql: 'ddb.sql',
-    dashboards: 'ddb.dashboards'
+    dashboard_autosave: 'ddb.dashboard.autosave',
 } as const
 
 const json_error_pattern = /^{.*"code": "(.*?)".*}$/

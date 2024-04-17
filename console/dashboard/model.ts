@@ -8,13 +8,13 @@ import { DdbForm, type DdbVoid, type DdbObj, type DdbValue, DdbVectorLong, DdbLo
 
 import { GridStack, type GridStackNode, type GridItemHTMLElement } from 'gridstack'
 
-import { assert, genid } from 'xshell/utils.browser.js'
+import { assert, decode, genid } from 'xshell/utils.browser.js'
 
 import type { MessageInstance } from 'antd/es/message/interface.js'
 import type { ModalStaticFunctions } from 'antd/es/modal/confirm.js'
 import type { NotificationInstance } from 'antd/es/notification/interface.js'
 
-import { model, show_error } from '../model.js'
+import { model, show_error, storage_keys } from '../model.js'
 import { type Monaco } from '../shell/Editor/index.js'
 import type { FormatErrorOptions } from '../components/GlobalErrorBoundary.js'
 
@@ -78,6 +78,9 @@ export class DashBoardModel extends Model<DashBoardModel> {
     maxrows = 12
     
     show_config_modal = true
+    
+    /** 是否开启自动保存 */
+    auto_save = localStorage.getItem(storage_keys.dashboard_autosave) === '1'
     
     monaco: Monaco
     
@@ -392,12 +395,23 @@ export class DashBoardModel extends Model<DashBoardModel> {
     /** 根据 id 获取单个 DashboardConfig */
     async get_dashboard_config (id: number) {
         const data = (await model.ddb.call('dashboard_get_config', [new DdbDict({ id: new DdbLong(BigInt(id)) })])).to_rows()
-        return data.length ? { ...data[0], 
-                                id: Number(data[0].id), 
-                                data: JSON.parse(JSON.parse(typeof data[0].data === 'string' ? 
-                                                                            data[0].data
-                                                                                : 
-                                                                            new TextDecoder().decode(data[0].data) )) } as DashBoardConfig : null
+        
+        const res: any = data.length
+            ? ({
+                  ...data[0],
+                  id: Number(data[0].id),
+                  data: JSON.parse(JSON.parse(typeof data[0].data === 'string' ? data[0].data : decode(data[0].data)))
+              } as DashBoardConfig)
+            : null
+        
+        // datasource 历史数据默认类型为表格
+        return {
+            ...res,
+            data: {
+                ...res.data,
+                datasources: res?.data?.datasources.map(item => ({ type: DdbForm.table, ...item }))
+            }
+        }
 }
     
     
@@ -513,6 +527,7 @@ export interface Widget extends GridStackNode {
         variable_cols?: number
         with_search_btn?: boolean
         search_btn_label?: string
+        variable_form_label_col?: number
         padding?: {
             left: number
             right: number
