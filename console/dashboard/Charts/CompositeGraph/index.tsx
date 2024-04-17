@@ -10,8 +10,8 @@ import type { EChartsInstance } from 'echarts-for-react'
 
 import { AxisType, MatchRuleType, ThresholdType } from '../../ChartFormFields/type.js'
 import { convert_chart_config, get_axis_range } from '../../utils.js'
-import { type Widget } from '../../model.js'
-import { type ISeriesConfig, type IChartConfig } from '../../type.js'
+import type { Widget } from '../../model.js'
+import type { ISeriesConfig, IChartConfig } from '../../type.js'
 import { get_data_source } from '../../DataSource/date-source.js'
 
 import { VALUE_TYPES, TIME_TYPES } from './constant.js'

@@ -7,6 +7,7 @@ import 'gridstack/dist/gridstack.css'
 import { useEffect, useRef } from 'react'
 import { App, Button, ConfigProvider, Popconfirm, Result, Spin, theme } from 'antd'
 import * as echarts from 'echarts'
+import NiceModal from '@ebay/nice-modal-react'
 
 import { NodeType, model } from '../model.js'
 
@@ -89,11 +90,13 @@ export function DashBoard () {
                         algorithm: theme.darkAlgorithm
                     }}
                 >
-                    <App className='app'>
-                        <Spin spinning={loading} delay={500} size='large'>
-                            <DashboardInstance />
-                        </Spin>
-                    </App>
+                    <NiceModal.Provider>
+                        <App className='app'>
+                            <Spin spinning={loading} delay={500} size='large'>
+                                <DashboardInstance />
+                            </Spin>
+                        </App>
+                    </NiceModal.Provider>
                 </ConfigProvider>
             :
                 <Overview />),
