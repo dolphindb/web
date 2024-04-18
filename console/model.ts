@@ -239,7 +239,7 @@ export class DdbModel extends Model<DdbModel> {
                 await this.login_by_token(token, refresh_token)
             }
         } catch (error) {
-            model.message.error('单点登录失败')
+            model.message.error('单点登录失败，请重试')
         }
         
         await this.get_cluster_perf(true)
