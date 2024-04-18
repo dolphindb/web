@@ -2,7 +2,7 @@
     "name": "dolphindb-web",
     "type": "module",
     "engines": {
-        "node": ">=21.0.0"
+        "node": ">=21.7.2"
     },
     "scripts": {
         "install.ci": "pnpm ci --include=dev",
@@ -34,7 +34,6 @@
         "css-loader": "^7.1.1",
         "eslint": "^9.0.0",
         "license-webpack-plugin": "^4.0.2",
-        "rc-table": "^7.45.4",
         "react": "^18.2.0",
         "sass": "^1.75.0",
         "sass-loader": "^14.2.1",

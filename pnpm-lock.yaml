@@ -164,9 +164,6 @@ importers:
       license-webpack-plugin:
         specifier: ^4.0.2
         version: 4.0.2(webpack@5.91.0)
-      rc-table:
-        specifier: ^7.45.4
-        version: 7.45.4(react-dom@18.2.0(react@18.2.0))(react@18.2.0)
       react:
         specifier: ^18.2.0
         version: 18.2.0
