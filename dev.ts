@@ -1,5 +1,3 @@
-#!/usr/bin/env node
-
 import type { Context } from 'koa'
 
 import {

@@ -1,5 +1,3 @@
-import { fileURLToPath } from 'url'
-
 import dayjs from 'dayjs'
 
 import { default as Webpack, type Compiler, type Configuration, type Stats } from 'webpack'
@@ -23,7 +21,7 @@ const fp_api = ''
 // const fp_api = 'D:/2/ddb/api/js/browser.ts'
 
 
-export const fpd_root = fileURLToPath(import.meta.url).fdir
+export const fpd_root = import.meta.dirname.fpd
 
 export const ramdisk = fexists('T:/TEMP/', { print: false })
 export const ci = process.argv.includes('--ci')
