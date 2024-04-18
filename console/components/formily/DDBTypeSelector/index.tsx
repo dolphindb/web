@@ -37,9 +37,7 @@ const ADD_COLUMN_EXCLUED_TYPES: DDBColumnTypeNames[] = [
 export function DDBTypeSelectorSchemaFields (props: DDBTypeSelectorSchemaFieldsProps) {
     const { isTSDBEngine, isAddColumn, scaleField, typeField } = props
     
-    const { is_v2, is_v3 } = model.use(['is_v2', 'is_v3'])
-    
-    const support_decimal = is_v2 || is_v3
+    const support_decimal = model.v2 || model.v3
     
     const dataTypesOptions: SelectProps['options'] = useMemo(() =>
         DDB_COLUMN_DATA_TYPES.map(type => ({

@@ -46,12 +46,12 @@ echarts.registerTheme('my-theme', config.theme)
 export function DashBoard () {
     const { loading, inited_state } = dashboard.use(['loading', 'inited_state'])
     
-    const { node_type, is_v1, logined } = model.use(['node_type', 'is_v1', 'logined'])
+    const { node_type, v1, logined } = model.use(['node_type', 'v1', 'logined'])
     
     useEffect(() => {
         (async () => {
             try {
-                if (language !== 'zh' || is_v1)
+                if (language !== 'zh' || v1)
                     return
                 else if (!logined) 
                     dashboard.set({ inited_state: InitedState.unlogined })
