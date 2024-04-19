@@ -220,7 +220,7 @@ export class DdbModel extends Model<DdbModel> {
         
         await Promise.all([
             this.get_factor_platform_enabled(),
-            config.load_nodes_config()
+            // config.load_nodes_config()
         ])
         
         // const webModules = config.nodes_configs.get('webModules')
