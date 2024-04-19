@@ -23,6 +23,7 @@ import SvgComputing from '../computing/icons/computing.icon.svg'
 import SvgAccess from '../access/icons/access.icon.svg'
 import SvgUser from '../access/icons/user.icon.svg'
 import SvgGroup from '../access/icons/group.icon.svg'
+import SvgTools from '../icons/tools.icon.svg'
 
 
 const { Text, Link } = Typography
@@ -39,7 +40,8 @@ const svgs = {
     computing: SvgComputing,
     access: SvgAccess,
     user: SvgUser,
-    group: SvgGroup
+    group: SvgGroup,
+    tools: SvgTools
 }
 
 
@@ -171,6 +173,21 @@ export function DdbSider () {
                     icon: <MenuIcon view='factor' />,
                     label: <Link target='_blank' href={factor_href}>{t('因子平台')}</Link>
                 }] : [ ],
+                {
+                    key: 'tools',
+                    icon: <MenuIcon view='tools' />,
+                    label: t('运维工具'),
+                    children: [
+                        {
+                            key: 'iot-guide',
+                            label: t('物联网库表创建引导')
+                        },
+                        {
+                            key: 'finance-guide',
+                            label: t('金融库表创建引导')
+                        }
+                    ]
+                },
                 ... dev || test ? [
                     {
                         key: 'test',

@@ -43,6 +43,8 @@ import { Computing } from './computing/index.js'
 import { DashBoard } from './dashboard/index.js'
 import { User, Group } from './access/index.js'
 import { Settings } from './settings/index.js'
+import { CreateGuide } from './guide/iot-guide/index.js'
+import { FinanceGuide } from './guide/finance-guide/index.js'
 
 
 createRoot(
@@ -137,7 +139,10 @@ const views = {
     dashboard: DashBoard,
     user: User,
     group: Group,
-    settings: Settings
+    settings: Settings,
+    'iot-guide': CreateGuide,
+    'finance-guide': FinanceGuide,
+    
 }
 
 

@@ -52,9 +52,6 @@ importers:
       client-zip:
         specifier: ^2.4.4
         version: 2.4.4
-      compare-versions:
-        specifier: ^6.1.0
-        version: 6.1.0
       copy-to-clipboard:
         specifier: ^3.3.3
         version: 3.3.3
@@ -2082,9 +2079,6 @@ packages:
   commander@9.5.0:
     resolution: {integrity: sha512-KRs7WVDKg86PWiuAqhDrAQnTXZKraVcCc6vFdL14qrZ/DcWwuRo7VoiYXalXO7S5GKpqYiVEwCbgFDfxNHKJBQ==}
     engines: {node: ^12.20.0 || >=14}
-
-  compare-versions@6.1.0:
-    resolution: {integrity: sha512-LNZQXhqUvqUTotpZ00qLSaify3b4VFD588aRr8MKFw4CMUr98ytzCW5wDH5qx/DEY5kCDXcbcRuCqL0szEf2tg==}
 
   compress-commons@6.0.2:
     resolution: {integrity: sha512-6FqVXeETqWPoGcfzrXb37E50NP0LXT8kAMu5ooZayhWWdgEY4lBEEcbQNXtkuKQsGduxiIcI4gOTsxTmuq/bSg==}
@@ -7315,8 +7309,6 @@ snapshots:
   commander@7.2.0: {}
 
   commander@9.5.0: {}
-
-  compare-versions@6.1.0: {}
 
   compress-commons@6.0.2:
     dependencies:
