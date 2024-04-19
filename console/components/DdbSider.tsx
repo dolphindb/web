@@ -90,7 +90,7 @@ export function DdbSider () {
         }}
     >
         <Menu
-            className={`menu ${admin ? 'module-settings' : ''}`}
+            className={`menu ${admin && (dev || test) ? 'module-settings' : ''}`}
             mode='inline'
             theme='light'
             selectedKeys={[view]}
@@ -177,7 +177,7 @@ export function DdbSider () {
                         icon: <ExperimentOutlined className='icon-menu' />,
                         label: '测试模块'
                 }] : [ ],
-                ... admin ? [
+                ... (admin && (dev || test)) ? [
                     {
                         key: 'settings',
                         icon: <SettingOutlined  className='icon-menu' />,
