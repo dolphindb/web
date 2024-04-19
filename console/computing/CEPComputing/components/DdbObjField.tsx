@@ -124,8 +124,6 @@ export function DdbObjInputField ({ form, onChange, value, type_id, type = '', .
             case DdbType.long:
             case DdbType.double:
             case DdbType.float:
-            case DdbType.complex:
-            case DdbType.point:
             case DdbType.bool:
                 execute_str = `${type?.toLocaleLowerCase()}(${execute_str})`
                 break
@@ -140,7 +138,6 @@ export function DdbObjInputField ({ form, onChange, value, type_id, type = '', .
         try {
             const obj = await model.ddb.eval(execute_str)
             onChange(obj)
-            console.log(obj, 'obj')
         } catch (e) { 
             onChange(execute_str)
         }

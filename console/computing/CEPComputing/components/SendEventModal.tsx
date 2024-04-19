@@ -28,12 +28,15 @@ export const SendEventModal = NiceModal.create(({ on_refresh, engine_info }: IPr
     const [form] = Form.useForm()
     
     const on_send = useCallback(async () => {
-        const values = await form.validateFields()
-        const params = new DdbDict(values)
-        await model.ddb.call('appendEvent', [name, params])
-        message.success(t('发送成功'))
-        on_refresh?.()
-        modal.hide()
+        try { 
+            const values = await form.validateFields() 
+            const params = new DdbDict(values)
+            await model.ddb.call('appendEvent', [name, params])
+            message.success(t('发送成功'))
+            on_refresh?.()
+            modal.hide()
+        }
+        catch { }
     }, [name, eventSchema, on_refresh])
     
     const event_type = Form.useWatch('eventType', form)
@@ -72,6 +75,7 @@ export const SendEventModal = NiceModal.create(({ on_refresh, engine_info }: IPr
                             key={key}
                             label={key}
                             required
+                            tooltip={msg_item.type_ids[idx] === DdbType.point && (msg_item.forms[idx] === 0) ? '格式为 a,b，例如(1, 2)则填入1,2' : null}
                             rules={[
                                 {
                                     validator: async (_, value: DdbObj | undefined) => { 
