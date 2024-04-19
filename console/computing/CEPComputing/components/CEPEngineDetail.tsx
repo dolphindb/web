@@ -262,7 +262,7 @@ function DataView ({ info }: { info: ICEPEngineDetail }) {
         const name = e.target.value
         if (!name)
             set_key_info(val => ({ ...val, keys: view_keys }))
-        set_key_info(val => ({ ...val, keys: view_keys.filter(item => item.includes(name)) }))
+        set_key_info(val => ({ ...val, page: 1, keys: view_keys.filter(item => item.includes(name)) }))
     }, [view_keys])
     
     const table_data_source = useMemo(() => {
