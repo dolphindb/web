@@ -189,14 +189,16 @@ export function DdbObjField ({ type, type_id: server_type_id, placeholder, form,
     let type_id = server_type_id
     let scale = null
     const is_decimal = type.includes('DECIMAL')
-    
-    if (is_decimal) {
+    const is_vector = useMemo(() => form === 1, [form])
+    if (is_decimal)
         [type_id, scale] = convertDecimalType(server_type_id)
+    
+    if (is_decimal && !is_vector) 
         return <DecimalObjInputField type={type} type_id={type_id} {...others} scale={scale} />
-    }
+    
       
-    else if (form === 1)
-        return <DdbObjInputField form={form} placeholder={`请输入 ${type}[]`} type={type} type_id={type_id} {...others} />
+    else if (is_vector)
+        return <DdbObjInputField form={form} placeholder={`数据类型为 ${type}[]`} type={type} type_id={type_id} {...others} />
     
     switch (type_id) { 
         case DdbType.date:
