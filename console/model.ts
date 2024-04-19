@@ -135,7 +135,7 @@ export class DdbModel extends Model<DdbModel> {
     notification: NotificationInstance
     
     /** 记录启用了哪些可选功能 */
-    enabled_modules: Set<string>
+    enabled_modules = new Set<string>()
     
     /** 记录所有可选功能 */
     optional_modules = new Set(['test', 'finance-tools', 'iot-tools'])
@@ -223,11 +223,11 @@ export class DdbModel extends Model<DdbModel> {
             config.load_nodes_config()
         ])
         
-        const webModules = config.nodes_configs.get('webModules')
+        // const webModules = config.nodes_configs.get('webModules')
         
-        this.set({
-            enabled_modules: (webModules?.value) ? new Set(webModules.value.split(',')) : new Set()
-        })
+        // this.set({
+        //     enabled_modules: (webModules?.value) ? new Set(webModules.value.split(',')) : new Set()
+        // })
         
         console.log(t('web 初始化成功'))
         
