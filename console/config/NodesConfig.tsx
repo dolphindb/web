@@ -2,7 +2,7 @@ import { PlusOutlined, ReloadOutlined } from '@ant-design/icons'
 import { EditableProTable, type ProColumns } from '@ant-design/pro-components'
 import NiceModal from '@ebay/nice-modal-react'
 import { Button, Collapse, Input, Popconfirm, type CollapseProps } from 'antd'
-import { useCallback, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 
 import { t } from '../../i18n/index.js'
 import { model } from '../model.js'
@@ -20,6 +20,10 @@ export function NodesConfig () {
     const [active_key, set_active_key] = useState<string | string[]>('thread')
     
     const [search_key, set_search_key] = useState('')
+    
+    useEffect(() => { (async () => {
+        await config.load_nodes_config()
+    })() }, [ ])
     
     const cols: ProColumns<NodesConfig>[] = useMemo(
         () => [
@@ -119,7 +123,7 @@ export function NodesConfig () {
     const items: CollapseProps['items'] = useMemo(() => {
         let clsed_configs = Object.fromEntries([...Object.keys(CONFIG_CLASSIFICATION), t('其它')].map(cfg => [cfg, [ ]]))
         
-        nodes_configs.forEach(nodes_config => {
+        nodes_configs?.forEach(nodes_config => {
             const { category } = nodes_config
             clsed_configs[category].push(nodes_config)
         })
@@ -198,7 +202,7 @@ export function NodesConfig () {
                     }}
                     onSearch={async () => {
                         let keys = [ ]
-                        nodes_configs.forEach(config => {
+                        nodes_configs?.forEach(config => {
                             const { category, name } = config
                             if (name.toLowerCase().includes(search_key.toLowerCase()))
                                 keys.push(category)
