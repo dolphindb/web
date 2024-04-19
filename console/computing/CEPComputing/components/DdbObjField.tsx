@@ -213,7 +213,7 @@ export function DdbObjField ({ type, type_id: server_type_id, placeholder, form,
     }
       
     else if (form === 1)
-        return <DdbObjInputField form={form} placeholder={placeholder} type={type} type_id={type_id} {...others} />
+        return <DdbObjInputField form={form} placeholder={`请输入 ${type}[]`} type={type} type_id={type_id} {...others} />
     
     switch (type_id) { 
         case DdbType.date:
