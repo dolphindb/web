@@ -41,7 +41,7 @@ export function CEPComputing () {
     return <Spin spinning={loading}>
         {
             engine_list.length === 0
-                ? <Empty className='cep-engine-empty' />
+                ? <Empty className='cep-engine-empty' image={Empty.PRESENTED_IMAGE_SIMPLE}/>
                 : <div className='cep-computing-wrapper'> 
                     {/* 仅有一个引擎的时候直接展示该引擎的信息，不需要展示列表 */}
                     {engine_list.length > 1 && <CEPEngineList

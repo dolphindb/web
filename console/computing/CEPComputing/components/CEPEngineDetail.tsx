@@ -314,7 +314,7 @@ function DataView ({ info }: { info: ICEPEngineDetail }) {
                                 hideOnSinglePage
                             />
                         </>
-                        : <Empty />
+                        : <Empty image={Empty.PRESENTED_IMAGE_SIMPLE}/>
                     }
                 </Spin>
             </div>
