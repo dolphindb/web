@@ -110,14 +110,6 @@ export function DdbObjInputField ({ form, onChange, value, type_id, type = '', .
                 if (!is_vector)
                     execute_str = `'${execute_str}'`
                 break
-            case DdbType.blob:
-            case DdbType.ipaddr:
-            case DdbType.uuid:
-                if (is_vector)
-                    execute_str = `${type?.toLocaleLowerCase()}(${execute_str})`
-                else 
-                    execute_str = `${type?.toLocaleLowerCase()}(${JSON.stringify(execute_str)})`
-                break
             case DdbType.nanotimestamp:
             case DdbType.nanotime:
             case DdbType.short:
@@ -126,12 +118,6 @@ export function DdbObjInputField ({ form, onChange, value, type_id, type = '', .
             case DdbType.float:
             case DdbType.bool:
                 execute_str = `${type?.toLocaleLowerCase()}(${execute_str})`
-                break
-            case DdbType.int128:
-                if (!is_vector)
-                    execute_str = `int128(${JSON.stringify(execute_str)})`
-                else
-                    execute_str = `int128(${execute_str})`
                 break
         }
         
