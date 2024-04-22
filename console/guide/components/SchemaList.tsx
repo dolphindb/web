@@ -2,17 +2,24 @@ import './index.scss'
 
 import { CloudUploadOutlined, DeleteOutlined, PlusCircleOutlined } from '@ant-design/icons'
 import { Button, Form, Input, InputNumber, Modal, Radio, Select, Tooltip, Typography } from 'antd'
-import { FormDependencies } from '../../components/formily/FormDependcies/index.js'
+
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { UploadFileField } from './UploadFileField.js'
-import { check_tb_valid, request } from '../utils.js'
+
 import NiceModal, { useModal } from '@ebay/nice-modal-react'
+
+import { countBy, isNumber } from 'lodash'
+
+import { check_tb_valid, request } from '../utils.js'
 import { type BasicInfoFormValues } from '../iot-guide/type.js'
 import { convert_list_to_options } from '../../dashboard/utils.js'
-import { countBy, isNumber } from 'lodash'
+
+
+import { FormDependencies } from '../../components/formily/FormDependcies/index.js'
 import { model } from '../../model.js'
 import { ARRAY_VECTOR_DATA_TYPES, BASIC_DATA_TYPES, ENUM_TYPES, LOW_VERSION_DATA_TYPES, TIME_TYPES } from '../constant.js'
 import { t } from '../../../i18n/index.js'
+
+import { UploadFileField } from './UploadFileField.js'
 
 interface ISchemaUploadModal { 
     on_apply: (values) => void
@@ -34,31 +41,35 @@ export const SchemaUploadModal = NiceModal.create((props: ISchemaUploadModal) =>
     const on_submit = useCallback(async () => {
         set_loading(true)
         try { 
-            const { delimiter, file_path, file, upload_type } =  await form.validateFields()
-            let params = { 
-                type: upload_type,
-                content: { }
+            await form.validateFields()
+        } 
+        catch { }
+        
+        const { delimiter, file_path, file, upload_type } = await form.getFieldsValue()
+        let params = { 
+            type: upload_type,
+            content: { }
+        }
+        if (upload_type === 0) {
+            // 本地上传，截取 100kb，避免文件内容过大传输失败
+            const split_file = file.file.slice(0, 1024 * 100)
+            const content = await split_file.text()
+            params.content = {
+                fileName: file.file.name,
+                fileContent: content,
+                delimiter,
             }
-            if (upload_type === 0) {
-                // 本地上传，截取 100kb，避免文件内容过大传输失败
-                const split_file = file.file.slice(0, 1024 * 100)
-                const content = await split_file.text()
-                params.content = {
-                    fileName: file.file.name,
-                    fileContent: content,
-                    delimiter,
-                }
-            } else  
-                // 服务器上传
-                params.content = {
-                    filePath: file_path,
-                    delimiter
-                }
-            const schema = await request<BasicInfoFormValues['schema']>('DBMSIOT_getSchema', params)
-            on_apply(schema)
-            modal.resolve()
-            modal.hide()
-        } catch { }
+        } else  
+            // 服务器上传
+            params.content = {
+                filePath: file_path,
+                delimiter
+            }
+        const schema = await request<BasicInfoFormValues['schema']>('DBMSIOT_getSchema', params)
+        on_apply(schema)
+        modal.resolve()
+        modal.hide()
+        
         set_loading(false)
     }, [ on_apply ])
     

@@ -5,6 +5,7 @@ import { Button, Form, InputNumber, Select, Tooltip } from 'antd'
 import { type SelectProps } from 'antd/lib'
 import { countBy } from 'lodash'
 import { useCallback } from 'react'
+
 import { t } from '../../../../i18n/index.js'
 
 interface IProps {
@@ -57,7 +58,7 @@ export function CommonSortCols (props: IProps) {
                         </Form.Item>
                         {fields.length > 1 && <Tooltip title={t('删除')}><DeleteOutlined className='delete-icon' onClick={() => { remove(field.name) }} /></Tooltip>}
                     </div>)}
-                {fields.length < max && <Button onClick={add} block type='dashed' icon={<PlusCircleOutlined />}>{t('增加筛选列')}</Button>}
+                {fields.length < max && <Button onClick={() => { add() }} block type='dashed' icon={<PlusCircleOutlined />}>{t('增加筛选列')}</Button>}
             </>}
         </Form.List>
     </div>
