@@ -39,7 +39,7 @@ const login_info = {
     domin: 'https://login.sufe.edu.cn/esc-sso/oauth2.0',
     client_id: '0835ce6ea9ad4ccb',
     client_secret: '66f23a0304134ea6a165e4434c96ffdc',
-    redirect_uri: encodeURI('http://127.0.0.1:8432/console/P2hvc3RuYW1lPTE5Mi4xNjguMC4yMDAmcG9ydD0yMDAyMw==')
+    redirect_uri: encodeURI('http://10.2.47.64:22212/')
 } as const
 
 const json_error_pattern = /^{.*"code": "(.*?)".*}$/
@@ -229,7 +229,15 @@ export class DdbModel extends Model<DdbModel> {
                 
                 const { access_token: token, refresh_token } = await (
                     await fetch(
-                        `${domin}/accessToken?grant_type=authorization_code&oauth_timestamp=${new Date().getTime()}&client_id=${client_id}&client_secret=${client_secret}&code=${token_code}&redirect_uri=${redirect_uri}`,
+                        new URL(`${domin}/accessToken?` + new URLSearchParams({
+                            grant_type: 'authorization_code',
+                            client_id,
+                            client_secret,
+                            code: token_code,
+                            response_type: 'code',
+                            redirect_uri,
+                            oauth_timestamp: new Date().getTime().toString(),
+                        })).toString(),
                         { method: 'post' }
                 )).json()
                 
