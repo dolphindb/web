@@ -180,12 +180,17 @@ export function DdbSider () {
                     children: [
                         {
                             key: 'iot-guide',
-                            label: t('物联网库表创建引导')
+                            label: t('物联网库表'),
+                            title: t('物联网库表创建引导'),
+                            icon: <MenuIcon view='tools' />,
                         },
                         {
                             key: 'finance-guide',
-                            label: t('金融库表创建引导')
-                        }
+                            label: t('金融库表'),
+                            title: t('金融库表创建引导'),
+                            icon: <MenuIcon view='tools' />,
+                        },
+                        
                     ]
                 },
                 ... dev || test ? [
