@@ -23,6 +23,7 @@ import SvgComputing from '../computing/icons/computing.icon.svg'
 import SvgAccess from '../access/icons/access.icon.svg'
 import SvgUser from '../access/icons/user.icon.svg'
 import SvgGroup from '../access/icons/group.icon.svg'
+import SvgDataCollection from '../access/icons/data-collection.icon.svg'
 
 
 const { Text, Link } = Typography
@@ -39,7 +40,8 @@ const svgs = {
     computing: SvgComputing,
     access: SvgAccess,
     user: SvgUser,
-    group: SvgGroup
+    group: SvgGroup,
+    'data-collection': SvgDataCollection
 }
 
 
@@ -165,6 +167,11 @@ export function DdbSider () {
                     key: 'log',
                     icon: <MenuIcon view='log' />,
                     label: t('日志查看'),
+                },
+                {
+                    key: 'data-collection',
+                    icon: <MenuIcon view='data-collection' />,
+                    label: t('数据采集平台')
                 },
                 ... is_factor_platform_enabled ? [{
                     key: 'factor',
