@@ -242,6 +242,8 @@ export function SchemaList (props: { mode: 'finance' | 'ito', engine: string, ne
     }, [schema])
     
     const validate_schema = useCallback(async (_, values) => {
+        if (values.length < 3)
+            return Promise.reject(new Error(t('表结构必须大于等于三列')))
         const types = values.filter(item => item?.dataType).map(item => item.dataType)
         // 物联网场景，且为时序数据或者数据总量大于200w的非时序数据
         if (mode === 'ito' 

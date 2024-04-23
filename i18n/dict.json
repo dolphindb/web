@@ -3985,5 +3985,8 @@
     },
     "可选模块": {
         "en": "Optional Modules"
+    },
+    "表结构必须大于等于三列": {
+        "en": "The table structure must be greater than or equal to three columns"
     }
 }
