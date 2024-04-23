@@ -1,8 +1,12 @@
 import { useState, useCallback, useEffect, useMemo } from 'react'
+
+import { Form, Select, Spin } from 'antd'
+
+import useSWR from 'swr'
+
 import { type ITableInfo, type IFinanceInfo } from '../type.js'
 import { request } from '../../utils.js'
-import { Form, Select, Spin } from 'antd'
-import useSWR from 'swr'
+
 import { ENUM_TYPES, TIME_TYPES } from '../../constant.js'
 import { CUSTOM } from '../constant.js'
 import { t } from '../../../../i18n/index.js'
@@ -64,7 +68,7 @@ export function PartitionColSelect (props: IProps) {
     
     
     return database?.isExist ? <Spin spinning={isLoading}>
-        <Form.List name='partitionCols' rules={[{ validator: validate_partition_col }] }>
+        {!!partition_info?.length && <Form.List name='partitionCols' rules={[{ validator: validate_partition_col }] }>
         {fields => fields.map(field => {
                 const data_types = partition_info[field.name]
                 return <Form.Item
@@ -78,7 +82,7 @@ export function PartitionColSelect (props: IProps) {
                 </Form.Item>
             })
         }
-        </Form.List>
+        </Form.List>}
         
     </Spin>
     : <>

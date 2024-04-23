@@ -1,13 +1,25 @@
 import { Button, Form, Input, Space } from 'antd'
-import { type IFinanceInfo } from './type.js'
-import { SchemaList } from '../components/SchemaList.js'
+
 import { useCallback, useEffect, useState } from 'react'
+
+import useSWR from 'swr'
+
+import { SchemaList } from '../components/SchemaList.js'
+
 import { check_tb_valid, request } from '../utils.js'
+
+import { model } from '../../model.js'
+
+import { t } from '../../../i18n/index.js'
+
+import { type IFinanceInfo } from './type.js'
+
+
 import { PartitionColSelect } from './components/PartitionColSelect.js'
 import { CommonFilterCols } from './components/CommonFilterCols.js'
-import { model } from '../../model.js'
-import useSWR from 'swr'
-import { t } from '../../../i18n/index.js'
+
+
+
 
 interface IProps { 
     info: IFinanceInfo
@@ -28,10 +40,16 @@ export function TableInfo (props: IProps) {
         { onSuccess: data => { set_engine(data?.value as ('OLAP' | 'TSDB')) } }
     )
     
-    const on_submit = useCallback(async values => {
+    const on_submit = useCallback(async () => {
+        try {
+            await form.validateFields()
+        } catch {
+            return
+        }
+        const values = await form.getFieldsValue()
         let table_params = { }
         if (values.partitionCols)
-            table_params = { ...values, partitionCols: values.partitionCols?.map(item => item.colName) }
+            table_params = { ...values, partitionCols: values?.partitionCols?.map(item => item.colName) }
         else
             table_params = values
         const { code } = await request<{ code: string }>('autoCreateDBTB', {
@@ -81,7 +99,7 @@ export function TableInfo (props: IProps) {
         <Form.Item className='btn-group'>
             <Space>
                 <Button onClick={back}>{t('上一步')}</Button>
-                <Button type='primary' htmlType='submit'>{t('生成脚本') }</Button>
+                <Button type='primary' onClick={on_submit}>{t('生成脚本') }</Button>
             </Space>
         </Form.Item>
         

@@ -2,16 +2,23 @@ import './index.scss'
 
 import { Steps, Typography } from 'antd'
 import { useCallback, useMemo, useState } from 'react'
-import { DatabaseInfo } from './DatabaseInfo.js'
+
+import NiceModal from '@ebay/nice-modal-react'
+
 import { CodeViewStep } from '../components/CodeViewStep.js'
-import { type IFinanceInfo } from './type.js'
-import { TableInfo } from './TableInfo.js'
+
+
 import { ExecuteResult } from '../iot-guide/type.js'
 import { GuideFailResultPage } from '../components/GuideFailResultPage.js'
 import { GuideSuccessResultPage } from '../components/GuideSuccessResultPage.js'
 import { UploadConfigModal } from '../components/UploadConfigModal.js'
-import NiceModal from '@ebay/nice-modal-react'
+
+
 import { t } from '../../../i18n/index.js'
+
+import { TableInfo } from './TableInfo.js'
+import { type IFinanceInfo } from './type.js'
+import { DatabaseInfo } from './DatabaseInfo.js'
 
 export function FinanceGuide () {
     

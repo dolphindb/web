@@ -32,7 +32,7 @@ export function HostSelect () {
             },
             {
                 label: '运维工具',
-                value: '183.136.170.173:1001'
+                value: '192.168.0.69:18921'
             },
             {
                 label: '本地',
