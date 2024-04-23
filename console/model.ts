@@ -873,7 +873,7 @@ export class DdbModel extends Model<DdbModel> {
                 
                 case 'function':
                     s += t('调用 {{func}} 函数时出错，参数为:\n', { func: error.options.func }) +
-                        options.args.map(arg => arg.toString())
+                        options.args.map(arg => arg.toString({ quote: true, grouping: false, nullstr: true }))
                             .join_lines()
                     break
             }
