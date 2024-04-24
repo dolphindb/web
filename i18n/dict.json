@@ -1233,7 +1233,7 @@
         "en": " {{type}} set"
     },
     "的 {{type}} 向量": {
-        "en": " vector"
+        "en": "{{type}} vector"
     },
     "的表格": {
         "en": " table"
