@@ -115,9 +115,9 @@ export function GroupList () {
                         filterOption={(val, user) => user.title.includes(val)}
                         targetKeys={target_users}
                         selectedKeys={selected_users}
-                        onChange={set_target_users}
+                        onChange={(keys)=>set_target_users(keys as string[])}
                         onSelectChange={(s, t) => {
-                            set_selected_users([...s, ...t])
+                            set_selected_users([...s, ...t] as string[])
                         }}
                         render={item => item.title}
                     />
@@ -148,9 +148,9 @@ export function GroupList () {
                 filterOption={(val, user) => user.title.includes(val)}
                 targetKeys={target_users}
                 selectedKeys={selected_users}
-                onChange={set_target_users}
+                onChange={(keys)=>set_target_users(keys as string[])}
                 onSelectChange={(s, t) => {
-                    set_selected_users([...s, ...t])
+                    set_selected_users([...s, ...t] as string[])
                 }}
                 render={item => item.title}
             />
