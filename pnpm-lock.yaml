@@ -52,9 +52,6 @@ importers:
       client-zip:
         specifier: ^2.4.4
         version: 2.4.4
-      compare-versions:
-        specifier: ^6.1.0
-        version: 6.1.0
       copy-to-clipboard:
         specifier: ^3.3.3
         version: 3.3.3
@@ -62,8 +59,8 @@ importers:
         specifier: ^1.11.10
         version: 1.11.10
       dolphindb:
-        specifier: ^3.0.0
-        version: 3.0.0(react-dom@18.2.0(react@18.2.0))
+        specifier: ^3.0.1
+        version: 3.0.1(react-dom@18.2.0(react@18.2.0))
       echarts:
         specifier: ^5.5.0
         version: 5.5.0(patch_hash=vfhko7qsujlqz2bjiq6cbgl6e4)
@@ -84,7 +81,7 @@ importers:
         version: 4.17.21
       monaco-dolphindb:
         specifier: 0.0.20
-        version: 0.0.20(dolphindb@3.0.0(react-dom@18.2.0(react@18.2.0)))(monaco-editor@0.47.0)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)(vscode-oniguruma@2.0.1)(vscode-textmate@9.0.0)
+        version: 0.0.20(dolphindb@3.0.1(react-dom@18.2.0(react@18.2.0)))(monaco-editor@0.47.0)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)(vscode-oniguruma@2.0.1)(vscode-textmate@9.0.0)
       monaco-editor:
         specifier: ^0.47.0
         version: 0.47.0
@@ -2083,9 +2080,6 @@ packages:
     resolution: {integrity: sha512-KRs7WVDKg86PWiuAqhDrAQnTXZKraVcCc6vFdL14qrZ/DcWwuRo7VoiYXalXO7S5GKpqYiVEwCbgFDfxNHKJBQ==}
     engines: {node: ^12.20.0 || >=14}
 
-  compare-versions@6.1.0:
-    resolution: {integrity: sha512-LNZQXhqUvqUTotpZ00qLSaify3b4VFD588aRr8MKFw4CMUr98ytzCW5wDH5qx/DEY5kCDXcbcRuCqL0szEf2tg==}
-
   compress-commons@6.0.2:
     resolution: {integrity: sha512-6FqVXeETqWPoGcfzrXb37E50NP0LXT8kAMu5ooZayhWWdgEY4lBEEcbQNXtkuKQsGduxiIcI4gOTsxTmuq/bSg==}
     engines: {node: '>= 14'}
@@ -2321,8 +2315,8 @@ packages:
     resolution: {integrity: sha512-35mSku4ZXK0vfCuHEDAwt55dg2jNajHZ1odvF+8SSr82EsZY4QmXfuWso8oEd8zRhVObSN18aM0CjSdoBX7zIw==}
     engines: {node: '>=0.10.0'}
 
-  dolphindb@3.0.0:
-    resolution: {integrity: sha512-8U9mbstJYlCTzC9p+fPXd/ZEmRlZspMz8fNq3DjOqA57cESD8r8t+wQbr51xsfyAIMDYdso6mZqkcds5H9ZVJA==}
+  dolphindb@3.0.1:
+    resolution: {integrity: sha512-v3M9V+/JkW50HH+BTctCX3zwxxey3pxZ4RmfLxZPBfUVnNlSFL/lFirHt+jUjxbUQqnznmTPIzPPHXNB/tY2dw==}
     engines: {node: '>=20.6.1'}
 
   dom-serializer@2.0.0:
@@ -7316,8 +7310,6 @@ snapshots:
 
   commander@9.5.0: {}
 
-  compare-versions@6.1.0: {}
-
   compress-commons@6.0.2:
     dependencies:
       crc-32: 1.2.2
@@ -7538,7 +7530,7 @@ snapshots:
     dependencies:
       esutils: 2.0.3
 
-  dolphindb@3.0.0(react-dom@18.2.0(react@18.2.0)):
+  dolphindb@3.0.1(react-dom@18.2.0(react@18.2.0)):
     dependencies:
       dayjs: 1.11.10
       ipaddr.js: 2.1.0
@@ -8611,9 +8603,9 @@ snapshots:
       hasown: 2.0.2
       isarray: 2.0.5
 
-  monaco-dolphindb@0.0.20(dolphindb@3.0.0(react-dom@18.2.0(react@18.2.0)))(monaco-editor@0.47.0)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)(vscode-oniguruma@2.0.1)(vscode-textmate@9.0.0):
+  monaco-dolphindb@0.0.20(dolphindb@3.0.1(react-dom@18.2.0(react@18.2.0)))(monaco-editor@0.47.0)(react-dom@18.2.0(react@18.2.0))(react@18.2.0)(vscode-oniguruma@2.0.1)(vscode-textmate@9.0.0):
     dependencies:
-      dolphindb: 3.0.0(react-dom@18.2.0(react@18.2.0))
+      dolphindb: 3.0.1(react-dom@18.2.0(react@18.2.0))
       monaco-editor: 0.47.0
       vscode-oniguruma: 2.0.1
       vscode-textmate: 9.0.0
