@@ -1801,6 +1801,7 @@ function Chart ({
                                 text: titles.y_axis
                             }
                         }}
+                        // @ts-ignore
                         stack={stacking}
                         isStack={stacking}
                         padding='auto'
