@@ -94,7 +94,7 @@ export function TableInfo (props: IProps) {
         <SchemaList engine={engine} mode='finance'/>
         <PartitionColSelect info={info} schema={schema} />
         
-        <CommonFilterCols schema={schema}/>
+        { info.database.engine === 'TSDB' && <CommonFilterCols schema={schema}/> }
         
         <Form.Item className='btn-group'>
             <Space>

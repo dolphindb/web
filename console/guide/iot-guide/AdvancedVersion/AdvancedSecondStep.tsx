@@ -1,12 +1,16 @@
 import './index.scss'
 import { Button, Form, Radio, Select, Space, Typography } from 'antd'
-import { type RecommendInfo, type SecondStepInfo, type AdvancedInfos, type ExecuteResult } from '../type.js'
+
 import { useCallback, useEffect, useMemo, useState } from 'react'
+
+import { type RecommendInfo, type SecondStepInfo, type AdvancedInfos, type ExecuteResult } from '../type.js'
 import { FormDependencies } from '../../../components/formily/FormDependcies/index.js'
-import { CommonSortCols } from './CommonSortCols.js'
+
 import { request } from '../../utils.js'
 import { ENUM_TYPES, TIME_TYPES } from '../../constant.js'
 import { t } from '../../../../i18n/index.js'
+
+import { CommonSortCols } from './CommonSortCols.js'
 
 interface IProps { 
     info: AdvancedInfos
@@ -145,23 +149,25 @@ export function AdvancedSecondStep (props: IProps) {
         </Form.Item>
         
         <FormDependencies dependencies={['engine']}>
-            {({ engine }) => { 
-                if (engine === 'TSDB' && (info?.first?.totalNum?.gap === 1 || info?.first?.totalNum?.custom > 2000000))
-                    return <Form.Item name='dataTimeCol' label={t('数据时间列')} >
-                        <Select options={time_options} placeholder={t('请选择数据时间列')} />
-                    </Form.Item>
+            {({ engine }) => {
+                if (engine === 'TSDB')
+                    return <>
+                        {(info?.first?.totalNum?.gap === 1 || info?.first?.totalNum?.custom > 2000000) && <Form.Item name='dataTimeCol' label={t('数据时间列')} >
+                            <Select options={time_options} placeholder={t('请选择数据时间列')} />
+                        </Form.Item>}
+                             {/* 常用筛选列 */}
+                        <CommonSortCols options={common_sort_options ?? [ ]} max={recommend_info?.sortColumnInfo?.maxOtherSortKeyNum} />
+                        <Typography.Text className='other-sortkey-tip' type='secondary'>
+                            {t(recommend_info.sortColumnInfo?.context)}
+                        </Typography.Text> 
+                    </>
                 else
                     return null
             } }
         </FormDependencies>
         
                            
-        {/* 常用筛选列 */}
-        <CommonSortCols options={common_sort_options ?? [ ]} max={recommend_info?.sortColumnInfo?.maxOtherSortKeyNum} />
-        <Typography.Text className='other-sortkey-tip' type='secondary'>
-            {t(recommend_info.sortColumnInfo?.context)}
-        </Typography.Text>
-        
+   
        
         <FormDependencies dependencies={['engine']}>
             {({ engine }) => {

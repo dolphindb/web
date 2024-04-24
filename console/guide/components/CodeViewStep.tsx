@@ -2,12 +2,17 @@ import './index.scss'
 
 import { Button, Popconfirm, Space } from 'antd'
 import { useCallback } from 'react'
-import { model } from '../../model.js'
+
 import NiceModal from '@ebay/nice-modal-react'
-import { DownloadConfigModal } from './DownloadConfigModal.js'
+
+import { model } from '../../model.js'
+
+
 import { ExecuteResult } from '../iot-guide/type.js'
 import { ReadonlyEditor } from '../../components/ReadonlyEditor/index.js'
 import { t } from '../../../i18n/index.js'
+
+import { DownloadConfigModal } from './DownloadConfigModal.js'
 
 interface IProps { 
     code: string
