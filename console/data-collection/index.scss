@@ -5,28 +5,79 @@
     .connection-list {
         border: 1px solid #f3f1f1;
         padding: 12px;
-        h4 {
-            margin: 0px;
+        
+       
+        
+        
+        .connection-list-title {
+            width: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            h4 {
+                margin: 0px;
+            }
+            .delete-link {
+                font-size: 12px;
+                &-icon {
+                    margin-right: 4px;
+                }
+            }
         }
+        
+        
+        
+        
         .connection-menu {
             width: 300px;
-           
+            border-inline-end: none;
             .protocol_menu_item {
                 display: flex;
                 .protocol_menu_label {
                     flex: 1;
                     display: flex;
-                    justify-content: space-between;
                     margin-left: 12px;
+                    align-items: center;
+                    
+                    .add-connection-icon {
+                        visibility: hidden;
+                        display: inline-block;
+                        margin-left: 8px;
+                        transform: translateY(2px);
+                        font-size: 12px;
+                    }
+                    
+                    &:hover {
+                        .add-connection-icon {
+                            visibility: visible;
+                        }
+                    }
+                }
+            }
+            
+            .connection-menu-item {
+                display: flex;
+                width: 100%;
+                align-items: center;
+                justify-content: space-between;
+                .delete-icon {
+                    visibility: hidden;
+                    color: red;
+                    font-size: 12px;
+                }
+                
+                &:hover {
+                    .delete-icon {
+                        visibility: visible;
+                    }
                 }
             }
         }
     }
-   
-    
-    .connection-detail {
-        display: flex;
-        justify-content: center;
-        flex: 1;
-    }
+}
+
+
+.center-spin-div {
+    width: 100%;
+    height: 400px;
 }

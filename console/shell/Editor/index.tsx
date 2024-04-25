@@ -60,7 +60,7 @@ export function Editor ({
     theme?: 'light' | 'dark'
 }) {
     const finalOptions = useMemo<monacoapi.editor.IStandaloneEditorConstructionOptions>(() => ({
-            fontSize: 16,
+            fontSize: 14,
             
             minimap: { enabled: minimap },
             

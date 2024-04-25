@@ -1,0 +1,24 @@
+.connection-detail {
+    margin-left: 16px;
+    .base-info {
+        margin-bottom: 16px;
+    }
+    
+    .parser-template {
+        .view-btn {
+            display: inline-block;
+            margin-left: 8px;
+        }
+    }
+    
+    .describe-title {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+}
+
+.template-view-editor {
+    height: 600px;
+    overflow: auto;
+}

@@ -17,6 +17,7 @@ import ja from 'antd/locale/ja_JP.js'
 import ko from 'antd/locale/ko_KR.js'
 
 import { ProConfigProvider } from '@ant-design/pro-components'
+import { SWRConfig } from 'swr'
 
 import dayjs from 'dayjs'
 
@@ -46,6 +47,8 @@ import { Settings } from './settings/index.js'
 import { DataCollection } from './data-collection/index.js'
 
 
+
+
 createRoot(
     document.querySelector('.root')
 ).render(<DolphinDB />)
@@ -59,13 +62,20 @@ function DolphinDB () {
         autoInsertSpaceInButton={false}
         theme={{ hashed: false, token: { borderRadius: 0, motion: false } }}
     >
-        <ProConfigProvider hashed={false} token={{ borderRadius: 0, motion: false }}>
-            <NiceModal.Provider>
-                <App className='app'>
-                    <MainLayout />
-                </App>
-            </NiceModal.Provider>
-        </ProConfigProvider>
+        <SWRConfig value={{
+            revalidateOnFocus: false,
+            revalidateOnReconnect: false,
+            errorRetryCount: 0
+        }}>
+            <ProConfigProvider hashed={false} token={{ borderRadius: 0, motion: false }}>
+                <NiceModal.Provider>
+                    <App className='app'>
+                        <MainLayout />
+                    </App>
+                </NiceModal.Provider>
+            </ProConfigProvider>
+            
+        </SWRConfig>
     </ConfigProvider>
 }
 
