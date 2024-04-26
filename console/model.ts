@@ -140,7 +140,6 @@ export class DdbModel extends Model<DdbModel> {
     /** 记录所有可选功能 */
     optional_modules = new Set(['test', 'finance-tools', 'iot-tools'])
     
-    
     constructor () {
         super()
         
@@ -242,6 +241,7 @@ export class DdbModel extends Model<DdbModel> {
         
         this.get_version()
     }
+    
     
     
     /** 设置 url 上的 query 参数

@@ -1,16 +1,14 @@
-import { useCallback, useMemo, useState } from 'react'
+import { useCallback, useEffect, useId, useMemo, useState } from 'react'
 import useSWR from 'swr'
 
 import { Checkbox, Empty, Menu, Modal, Spin, Tooltip, Typography, message } from 'antd'
 
 import { useMemoizedFn } from 'ahooks'
 
-import { DeleteOutlined, PlusCircleOutlined, PlusOutlined } from '@ant-design/icons'
+import { DeleteOutlined, FolderOpenOutlined, PlusCircleOutlined, PlusOutlined } from '@ant-design/icons'
 
 
 import NiceModal from '@ebay/nice-modal-react'
-
-import { model } from '../model.js'
 
 import { t } from '../../i18n/index.js'
 
@@ -21,6 +19,8 @@ import code from './script.dos'
 import './index.scss'
 import { CreateConnectionModal } from './components/create-connection-modal/index.js'
 import { ConnectionDetailPage } from './components/connection-detail-page/index.js'
+import { dcp_model } from './model.js'
+import { InitPage } from './components/init-page/index.js'
 
 
 
@@ -29,16 +29,16 @@ export function DataCollection () {
     const [connection, set_connection] = useState<number>()
     const [selected_connections, set_selected_connections] = useState<number[]>([ ])
     
-    const { is_data_collection_func_inited } = model.use(['is_data_collection_func_inited'])
+    const { database_inited } = dcp_model.use(['database_inited', 'func_inited' ])
+    const id = useId()
     
-    const { isLoading: initLoading } = useSWR(
-        !is_data_collection_func_inited ? 'dcp_loading' : null, 
-        async () => model.ddb.eval(code),
-        { onSuccess: () => { model.set({ is_data_collection_func_inited: true }) } }
-    )
+    
+    useEffect(() => {
+        dcp_model.init()
+    }, [ ])
     
     const { isLoading, mutate, data } = useSWR(
-        protocol ? ['dcp_getConnectList', protocol] : null,
+        protocol && database_inited === 'inited' ? ['dcp_getConnectList', protocol, id] : null,
         async () => request<{ connections: Connection[] }>('dcp_getConnectList', { protocol })
     )
     
@@ -86,7 +86,7 @@ export function DataCollection () {
         return protocols.map(item => {
             return {
                 label: <div className='protocol_menu_item'>
-                    {/* <FolderOpenOutlined /> */}
+                    <FolderOpenOutlined />
                     <div className='protocol_menu_label'>
                         {item}
                         <Tooltip title={t('新建连接')} >
@@ -100,7 +100,7 @@ export function DataCollection () {
                 key: item,
                 children: item !== protocol 
                 ? [ ]
-                : data.connections.map(connection => ({
+                : data?.connections?.map(connection => ({
                     label: <div className='connection-menu-item'>
                             <Checkbox onClick={e => {
                             e.stopPropagation()
@@ -134,42 +134,44 @@ export function DataCollection () {
         set_connection(key)
     }, [ ])
     
+    console.log(database_inited, 'database_inited')
     
-    return (isLoading || initLoading) 
-    ? <Spin>
-        <div className='center-spin-div'/>
-    </Spin> 
-    : <div className='data-collection-wrapper'>
-            <div className='connection-list'>
-               
-                <div className='connection-list-title'>
-                    <h4>连接</h4>
-                    <Typography.Link 
-                        className='delete-link' 
-                        type='danger' 
-                        onClick={on_delete_connection} 
-                        disabled={!selected_connections.length}
-                    >
-                        <DeleteOutlined className='delete-link-icon'/>
-                        批量删除
-                    </Typography.Link>
-                </div>
-                <Menu 
-                    mode='inline' 
-                    items={menu_items} 
-                    onOpenChange={on_click_protocol} 
-                    openKeys={ protocol ? [protocol] : [ ]} 
-                    className='connection-menu'
-                    onClick={on_click_connection}
-                />
+    if (isLoading || database_inited === 'unknow')
+        return  <Spin>
+            <div className='center-spin-div'/>
+        </Spin> 
+    
+    return database_inited === 'inited' ? <div className='data-collection-wrapper'>
+        <div className='connection-list'>
+        
+            <div className='connection-list-title'>
+                <h4>连接</h4>
+                <Typography.Link 
+                    className='delete-link' 
+                    type='danger' 
+                    onClick={on_delete_connection} 
+                    disabled={!selected_connections.length}
+                >
+                    <DeleteOutlined className='delete-link-icon'/>
+                    批量删除
+                </Typography.Link>
             </div>
-            
-            <div className='connection-detail'>
-                {
-                !!connection 
-                    ? <ConnectionDetailPage connection={connection}/>
-                    : <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description={t('请选择连接')}/>
-                }
-            </div>
+            <Menu 
+                mode='inline' 
+                items={menu_items} 
+                onOpenChange={on_click_protocol} 
+                openKeys={ protocol ? [protocol] : [ ]} 
+                className='connection-menu'
+                onClick={on_click_connection}
+            />
         </div>
+        
+        <div className='connection-detail'>
+            {
+            !!connection 
+                ? <ConnectionDetailPage connection={connection}/>
+                : <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description={t('请选择连接')}/>
+            }
+        </div>
+    </div> : <InitPage />
 }
