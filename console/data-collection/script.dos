@@ -1,5 +1,3 @@
-try{installPlugin("mqtt")}catch(ex){print(ex)}
-try{loadPlugin("mqtt")}catch(ex){print(ex)}
 shareStreamingTable = select * from objs(true) where type=`REALTIME and form=`TABLE and shared=true
 if(!(`dcp_test in shareStreamingTable.name)){
     share streamTable(1:0,["ts","id","metric","value"],[TIMESTAMP,LONG,STRING,STRING]) as dcp_test
