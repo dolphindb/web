@@ -65,8 +65,7 @@ https://github.com/dolphindb/Tutorials_CN/blob/master/%E5%AE%89%E8%A3%85%E5%92%8
 # https://nodejs.org/en/download/current/
 
 # 安装 pnpm 包管理器
-corepack enable
-corepack prepare pnpm@latest --activate
+npm install -g pnpm
 
 git clone https://github.com/dolphindb/web.git
 
