@@ -4,6 +4,7 @@ import { model } from '../model.js'
 
 import { request } from './utils.js'
 import code from './script.dos'
+import installMqttCode from './mqttInstallAndLoad.dos'
 
 export class DcpModel extends Model<DcpModel> {
     func_inited: boolean = false
@@ -11,6 +12,7 @@ export class DcpModel extends Model<DcpModel> {
     database_inited: 'unknow' | 'inited' | 'not_inited' = 'unknow'
     
     async init () {
+        await model.ddb.eval(installMqttCode)
         await model.ddb.eval(code)
         this.set({ func_inited: true })
         
