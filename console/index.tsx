@@ -20,6 +20,8 @@ import { ProConfigProvider } from '@ant-design/pro-components'
 
 import dayjs from 'dayjs'
 
+import { SWRConfig } from 'swr'
+
 import { language } from '../i18n/index.js'
 
 import 'dayjs/locale/zh-cn'
@@ -47,6 +49,8 @@ import { CreateGuide } from './guide/iot-guide/index.js'
 import { FinanceGuide } from './guide/finance-guide/index.js'
 
 
+
+
 createRoot(
     document.querySelector('.root')
 ).render(<DolphinDB />)
@@ -60,13 +64,22 @@ function DolphinDB () {
         autoInsertSpaceInButton={false}
         theme={{ hashed: false, token: { borderRadius: 0, motion: false } }}
     >
-        <ProConfigProvider hashed={false} token={{ borderRadius: 0, motion: false }}>
+        <SWRConfig 
+            value={{ 
+                revalidateOnFocus: false,
+                revalidateOnReconnect: false,
+                errorRetryCount: 0 
+            }}>
+         <ProConfigProvider hashed={false} token={{ borderRadius: 0, motion: false }}>
             <NiceModal.Provider>
                 <App className='app'>
                     <MainLayout />
                 </App>
             </NiceModal.Provider>
         </ProConfigProvider>
+        
+    </SWRConfig>
+       
     </ConfigProvider>
 }
 

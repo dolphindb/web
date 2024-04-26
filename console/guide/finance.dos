@@ -1,0 +1,424 @@
+/* *
+*  @ Function name: autoCreateDBTB
+*  @ Brief: Generate a string to create database and table with the params given by user
+*  @ Param:
+*  param: the string of parameters
+*  @ Return: a string to create database and table with the params given by user
+*  @ Sample usage: autoCreateTB("'{"database":{"isExist":1,"name":"TL_Level2"},"table": {"name": "test2","schema": [{"colName": "meimei","dataType": "TIMESTAMP"},{"colName": "id","dataType": "SYMBOL"},{"colName": "volume","dataType": "TIMESTAMP"},{"colName": "qyt","dataType": "DOUBLE"},{"colName": "f1","dataType": "DOUBLE"}],"partitionCols": ["volume","id"],"filterCols": [{"colName": "id","uniqueNum": 500},{"colName": "meimei","uniqueNum": 500}]}}')
+ */
+def autoCreateDBTB(param){
+	paramDict=param.parseExpr().eval()
+	dbName = "dfs://"+paramDict.database.name
+	tbName = paramDict.table.name
+
+	colNames = array(STRING,0,paramDict.table.schema.size())
+	colTypes = array(STRING,0,paramDict.table.schema.size())
+	comment = "{"
+	for (i in paramDict.table.schema){
+		colNames.append!(i.colName)
+		colTypes.append!(i.dataType)
+		if(i.comment != NULL){
+			if(comment !="{")
+				comment += ","
+			comment += i.colName
+			comment += ':"'+i.comment+'"'
+		}
+	}
+	comment +="}"
+	
+
+	filterCols = array(STRING,0,paramDict.table.filterCols.size())
+	filterNum = array(INT,0,paramDict.table.filterCols.size())
+	for (i in paramDict.table.filterCols){
+		filterCols.append!(i.colName)
+		filterNum.append!(i.uniqueNum)
+	}
+
+	hashCount=-1
+	//todo
+	if (paramDict.database.isExist==0){
+		engineType = paramDict.database.engine
+		timeCol = paramDict.table.timeCol
+		hashCol = paramDict.table.hashCol
+		if(paramDict.database.dailyTotalNum.gap!=0){
+			gap = dict(INT,INT)
+			gap[1]=50000
+			gap[2]=500000
+			gap[3]=5000000
+			gap[4]=50000000
+			gap[5]=500000000
+			gap[6]=5000000000
+			gap[7]=50000000000
+			gap[8]=500000
+			gap[-1]=paramDict.database.dailyTotalNum.custom
+
+			dailyIncreaseAmount=gap[paramDict.database.dailyTotalNum.gap]
+			if(version().substr(0,4)=="1.30"){
+				if (dailyIncreaseAmount <1000000){
+					if (dailyIncreaseAmount <=5000){
+						res = 'if (!existsDatabase("'+dbName+'")){\n\tdb1 = database("'+dbName+'", RANGE,date(datetimeAdd(2008.01M,0..42*12,"M")))\n}\n'
+					}
+					else if (dailyIncreaseAmount <=50000){
+						res = 'if (!existsDatabase("'+dbName+'")){\n\tdb1 = database("'+dbName+'", VALUE, 2020.01M..2020.02M)\n}\n'
+					}
+					else{
+						res = 'if (!existsDatabase("'+dbName+'")){\n\tdb1 = database("'+dbName+'", VALUE, 2020.01.01..2020.01.02)\n}\n'
+					}
+				}
+				else{
+					hashCount=string(dailyIncreaseAmount/1000000+1)
+					res = 'if(!existsDatabase("'+dbName+'")){\n\tdb1 = database(, VALUE, 2020.01.01..2020.01.02)\n\tdb2 = database(, HASH, [SYMBOL,'+hashCount+'])\n\tdb12 = database("'+dbName+'", COMPO, [db1, db2])\n}\n'
+				}
+			}
+			else{
+				if (dailyIncreaseAmount <1000000){
+					if (dailyIncreaseAmount <=5000){
+						res = 'if (!existsDatabase("'+dbName+'")){\n\tdb1 = database("'+dbName+'", RANGE,date(datetimeAdd(2008.01M,0..42*12,"M")),engine="'+engineType+'")\n}\n'
+					}
+					else if (dailyIncreaseAmount <=50000){
+						res = 'if (!existsDatabase("'+dbName+'")){\n\tdb1 = database("'+dbName+'", VALUE, 2020.01M..2020.02M,engine="'+engineType+'")\n}\n'
+					}
+					else{
+						res = 'if (!existsDatabase("'+dbName+'")){\n\tdb1 = database("'+dbName+'", VALUE, 2020.01.01..2020.01.02,engine="'+engineType+'")\n}\n'
+					}
+				}
+				else{
+					hashCount=string(dailyIncreaseAmount/1000000+1)
+					res = 'if(!existsDatabase("'+dbName+'")){\n\tdb1 = database(, VALUE, 2020.01.01..2020.01.02)\n\tdb2 = database(, HASH, [SYMBOL,'+hashCount+'])\n\tdb12 = database("'+dbName+'", COMPO, [db1, db2],engine="'+engineType+'")\n}\n'
+				}
+			}
+
+		}
+		else{
+			res = 'if (!existsDatabase("'+dbName+'")){\n\tdb1 = database("'+dbName+'", RANGE,date(datetimeAdd(2008.01M,0..42*12,"M")))\n}\n'
+		}
+	}else{
+		ptCols = paramDict.table.partitionCols
+		engineType = database(dbName).schema().engineType
+		if(database(dbName).schema().partitionTypeName.typestr() like "%VECTOR%"){
+			hashCol = ptCols[at(database(dbName).schema().partitionTypeName==`HASH)]
+		}
+		else{
+			hashCol = iif(database(dbName).schema().partitionTypeName==`HASH, ptCols[0], NULL)
+		}
+		res=""
+	}
+	res +=  'db = database("'+dbName+'")\n'
+
+	tbSchema = "tbSchema=table(1:0, `"+concat(colNames,"`")+",["+concat(colTypes,",")+"]"+")"
+
+	resCode = dict(STRING,ANY)
+
+
+	if (paramDict.database.isExist==0){
+		if (engineType=="OLAP"){
+			if (hashCol==NULL){
+				createTB = "db.createPartitionedTable(tbSchema, `"+tbName+", `"+timeCol+")"
+				setCom=""
+				if (comment != "{}"){
+					setCom = '\nsetColumnComment(loadTable("'+dbName+'","'+tbName+'"),'+comment+")"
+				}
+				res = res+tbSchema+"\n"+createTB+setCom
+				resCode["code"]=res
+				return toStdJson(resCode)
+			}
+			else if (timeCol!=NULL and hashCol!=NULL){
+				createTB= "db.createPartitionedTable(tbSchema, `"+tbName+", `"+timeCol+"`"+hashCol+")"
+				setCom=""
+				if (comment != "{}"){
+					setCom = '\nsetColumnComment(loadTable("'+dbName+'","'+tbName+'"),'+comment+")"
+				}
+				res = res+tbSchema+"\n"+createTB+setCom
+				resCode["code"]=res
+				return toStdJson(resCode)
+			}
+		}
+		else{
+			sortMapFunc=""
+			if (filterCols.size() >0){
+				if (filterCols.size()==1){
+					if (hashCol in filterCols and int(hashCount)%500==0 and filterNum[0]>500){
+						sortMapFunc="sortMapFunc=[hashBucket{,499}]"
+					}
+					else if(filterNum[0]>500){
+						sortMapFunc="sortMapFunc=[hashBucket{,500}]"
+					}
+				}
+				else if (filterCols.size()==2){
+					if (hashCol in filterCols and int(hashCount)%20==0 and filterNum[0]*filterNum[1]>500){
+						if (at(filterCols==hashCol)[0]==0){
+							sortMapFunc="sortMapFunc=[hashBucket{,21},hashBucket{,25}]"
+						}
+						else{
+							sortMapFunc="sortMapFunc=[hashBucket{,25},hashBucket{,21}]"
+						}
+					}
+					else if (filterNum[0]*filterNum[1]>500){
+						sortMapFunc="sortMapFunc=[hashBucket{,20}, hashBucket{,25}]"
+					}
+				}
+				if (hashCount==-1){
+					if (filterCols.size()==1){
+						filter = filterCols[0]
+					}else{
+						filter=concat(filterCols,"`")
+					}
+
+					if(sortMapFunc!=""){
+						createTB= "db.createPartitionedTable(tbSchema, `"+tbName+", `"+timeCol+", sortColumns=`"+filter+"`"+timeCol+",sortKeyMappingFunction=sortMapFunc)"
+					}
+					else{
+						createTB= "db.createPartitionedTable(tbSchema, `"+tbName+", `"+timeCol+", sortColumns=`"+filter+"`"+timeCol+")"
+					}
+					setCom=""
+					if (comment != "{}"){
+						setCom = '\nsetColumnComment(loadTable("'+dbName+'","'+tbName+'"),'+comment+")"
+					}
+					res = res+tbSchema+"\n"+sortMapFunc+"\n"+createTB+setCom
+					resCode["code"]=res
+					return toStdJson(resCode)
+				}
+				else{
+					if (filterCols.size()==1){
+						filter = filterCols[0]
+					}else{
+						filter=concat(filterCols,"`")
+					}
+
+					if(sortMapFunc!=""){
+						createTB = "db.createPartitionedTable(tbSchema, `"+tbName+", `"+timeCol+"`"+hashCol+", sortColumns=`"+filter+"`"+timeCol+",sortKeyMappingFunction=sortMapFunc)"
+					}
+					else{
+						createTB= "db.createPartitionedTable(tbSchema, `"+tbName+", `"+timeCol+"`"+hashCol+", sortColumns=`"+filter+"`"+timeCol+")"
+					}
+					setCom=""
+					if (comment != "{}"){
+						setCom = '\nsetColumnComment(loadTable("'+dbName+'","'+tbName+'"),'+comment+")"
+					}
+					res += tbSchema+"\n"+sortMapFunc+"\n"+createTB+setCom
+					resCode["code"]=res
+					return toStdJson(resCode)
+				}
+			}
+			else{
+				if (hashCount==-1){
+					createTB= "db.createPartitionedTable(tbSchema, `"+tbName+", `"+timeCol+")"
+					setCom=""
+					if (comment != "{}"){
+						setCom = '\nsetColumnComment(loadTable("'+dbName+'","'+tbName+'"),'+comment+")"
+					}
+					res = res+tbSchema+"\n"+createTB+setCom
+					resCode["code"]=res
+					return toStdJson(resCode)
+				}
+				else{
+					createTB= "db.createPartitionedTable(tbSchema, `"+tbName+", `"+timeCol+"`"+hashCol+")"
+					setCom=""
+					if (comment != "{}"){
+						setCom = '\nsetColumnComment(loadTable("'+dbName+'","'+tbName+'"),'+comment+")"
+					}
+					res += tbSchema+"\n"+createTB+setCom
+					resCode["code"]=res
+					return toStdJson(resCode)
+				}
+			}
+		}
+	}
+	else{
+		if (engineType=="OLAP"){
+			if (ptCols.size()==1){
+				createTB = "db.createPartitionedTable(tbSchema, `"+tbName+", `"+ptCols[0]+")"
+				setCom=""
+				if (comment != "{}"){
+					setCom = '\nsetColumnComment(loadTable("'+dbName+'","'+tbName+'"),'+comment+")"
+				}
+				res = res+tbSchema+"\n"+createTB+setCom
+				resCode["code"]=res
+				return toStdJson(resCode)
+			}
+			else if (ptCols.size()>1){
+				ptc = concat(ptCols,"`")
+				createTB= "db.createPartitionedTable(tbSchema, `"+tbName+", `"+ptc+")"
+				setCom=""
+				if (comment != "{}"){
+					setCom = '\nsetColumnComment(loadTable("'+dbName+'","'+tbName+'"),'+comment+")"
+				}
+				res = res+tbSchema+"\n"+createTB+setCom
+				resCode["code"]=res
+				return toStdJson(resCode)
+			}
+		}
+		else{
+			sortMapFunc=""
+			if (filterCols.size() >0){
+				if(database(dbName).schema().partitionTypeName.typestr() like "%VECTOR%"){
+					hashCol = ptCols[at(database(dbName).schema().partitionTypeName==`HASH)]
+				}
+				else{
+					hashCol = iif(database(dbName).schema().partitionTypeName==`HASH, ptCols[0], NULL)
+				}
+				hasHash = filterCols[at(filterCols in hashCol)]
+				if(database(dbName).schema().partitionTypeName.typestr() like "%VECTOR%"){
+					timeCol = ptCols[at(database(dbName).schema().partitionColumnType.between(6:14))][0]
+					loc = at(database(dbName).schema().partitionTypeName==`HASH)
+				}
+				else{
+					timeCol = iif(database(dbName).schema().partitionColumnType.between(6:14), ptCols[0], NULL)
+					loc = iif(database(dbName).schema().partitionTypeName==`HASH,0,NULL)
+				}
+				hashNum = filterNum[at(filterCols in hashCol)]
+				
+				hashCount = dict(STRING,INT)
+				if(loc.count() !=0){
+					n=0
+					for(i in loc){
+						hashCount[hashCol[n]]=database(dbName).schema().partitionSchema[i]
+						n += 1
+					}
+				}
+				if (filterCols.size()==1){
+					if (hasHash.size()!=0 and hashCount[hasHash[0]]%500==0 and hashNum[0]>500){
+						sortMapFunc="sortMapFunc=[hashBucket{,499}]"
+					}
+					else if(filterNum[0]>500){
+						sortMapFunc="sortMapFunc=[hashBucket{,500}]"
+					}
+				}
+				else if (filterCols.size()==2){
+					if (hasHash.size()!=0){
+						if(hasHash.size()==1 and hashCount[hasHash[0]]%20==0 and filterNum[0]*filterNum[1]>500){
+							if (at(filterCols==hasHash[0])[0]==0){
+								sortMapFunc="sortMapFunc=[hashBucket{,21},hashBucket{,25}]"
+							}
+							else{
+								sortMapFunc="sortMapFunc=[hashBucket{,25},hashBucket{,21}]"
+							}
+						}
+						else if(filterNum[0]*filterNum[1]>500){
+							bucketNum1 = iif(hashCount[hasHash[0]]%20==0,21,20)
+							bucketNum2 = iif(hashCount[hasHash[1]]%25==0,26,25)
+							sortMapFunc="sortMapFunc=[hashBucket{,"+string(bucketNum1)+"},hashBucket{,"+string(bucketNum2)+"}]"
+						}
+					}
+					else if (filterNum[0]*filterNum[1]>500){
+						sortMapFunc="sortMapFunc=[hashBucket{,20}, hashBucket{,25}]"
+					}
+				}
+				if (timeCol in filterCols){
+					filterCols = filterCols[filterCols != timeCol]
+				}
+				if (filterCols.size()==1){
+					filter = filterCols[0]
+				}else{
+					filter=concat(filterCols,"`")
+				}
+				if(ptCols.size()==1){
+					ptc=ptCols[0]
+				}
+				else{
+					ptc = concat(ptCols,"`")
+				}
+				if(sortMapFunc!=""){
+					createTB= "db.createPartitionedTable(tbSchema, `"+tbName+", `"+ptc+", sortColumns=`"+filter+"`"+timeCol+",sortKeyMappingFunction=sortMapFunc)"
+				}
+				else{
+					createTB= "db.createPartitionedTable(tbSchema, `"+tbName+", `"+ptc+", sortColumns=`"+filter+"`"+timeCol+")"
+				}
+				setCom=""
+				if (comment != "{}"){
+					setCom = '\nsetColumnComment(loadTable("'+dbName+'","'+tbName+'"),'+comment+")"
+				}
+				res = res+tbSchema+"\n"+sortMapFunc+"\n"+createTB+setCom
+				resCode["code"]=res
+				return toStdJson(resCode)
+			}
+			else{
+				if(ptCols.size()==1){
+					ptc=ptCols[0]
+				}
+				else{
+					ptc = concat(ptCols,"`")
+				}
+
+				createTB= "db.createPartitionedTable(tbSchema, `"+tbName+", `"+ptc+")"
+				setCom=""
+				if (comment != "{}"){
+					setCom = '\nsetColumnComment(loadTable("'+dbName+'","'+tbName+'"),'+comment+")"
+				}
+				res = res+tbSchema+"\n"+createTB+setCom
+				resCode["code"]=res
+				return toStdJson(resCode)
+			}
+		}
+	}
+}
+
+
+/* *
+*  @ Function name: getPartitionColumns
+*  @ Brief: Generate the partition columns' types of an existing database.
+*  @ Param:
+*  param: the string of parameters
+*  @ Return: a string of the vector of the partition columns' types.
+*  @ Sample usage: getPartitionColumns('{"dbName":"TSDB_OB"}')
+ */
+
+def getPartitionColumns(param){
+	dbName = "dfs://"+parseExpr(param).eval().dbName
+	ptColumnType = database(dbName).schema().partitionColumnType
+	colNum = ptColumnType.size()
+	
+	d = dict(STRING,STRING)
+	d["STRING"]="STRING,SYMBOL"
+	d["SYMBOL"]="SYMBOL,STRING"
+	d["DATE"]="DATE,TIMESTAMP,DATETIME,NANOTIMESTAMP,DATEHOUR"
+	d["MONTH"]="MONTH,DATE,TIMESTAMP,DATETIME,NANOTIMESTAMP,DATEHOUR"
+	d["TIME"] = "TIME,TIMESTAMP,NANOTIME,NANOTIMESTAMP"
+	d["MINUTE"]="MINUTE,TIME,SECOND,DATETIME,TIMESTAMP,NANOTIME,NANOTIMESTAMP"
+	d["SECOND"]="SECOND,TIME,DATETIME,TIMESTAMP,NANOTIME,NANOTIMESTAMP"
+	d["DATETIME"]="DATETIME,TIMESTAMP,NANOTIMESTAMP"
+	d["DATEHOUR"]="DATEHOUR,DATETIME,TIMESTAMP,NANOTIMESTAMP"
+
+	typeDict = dict(INT,STRING)
+	typeDict[2] = "CHAR"
+	typeDict[3] = "SHORT"
+	typeDict[4] = "INT"
+	typeDict[6] = "DATE"
+	typeDict[7] = "MONTH"
+	typeDict[8] = "TIME"
+	typeDict[9] = "MINUTE"
+	typeDict[10] = "SECOND"
+	typeDict[11] = "DATETIME"
+	typeDict[18] = "STRING"
+	typeDict[17] = "SYMBOL"
+	typeDict[28] = "DATEHOUR"
+	typeDict[5] = "LONG"
+	typeDict[19] = "UUID"
+	typeDict[30] = "IPADDR"
+	typeDict[31] = "INT128"
+	
+	code = array(STRING,0,colNum)
+
+	if (colNum==1){
+		if (typeDict[ptColumnType[0]] in d){
+			code.append!(d[typeDict[ptColumnType[0]]])
+		}
+		else{
+			code.append!(typeDict[ptColumnType[0]])
+		}
+	}
+	else{
+		for (i in 0..(colNum-1)){
+			if (typeDict[ptColumnType[i]] in d){
+				code.append!(d[typeDict[ptColumnType[i]]])
+			}
+			else{
+				code.append!(typeDict[ptColumnType[i]])
+			}
+		}
+	}
+
+	ptColTypes = dict(STRING,ANY)
+	ptColTypes["cols"]=code
+	return toStdJson(ptColTypes)
+}

@@ -1,9 +1,11 @@
 import './index.scss'
 
-import { Steps, Typography } from 'antd'
+import { Spin, Steps, Typography } from 'antd'
 import { useCallback, useMemo, useState } from 'react'
 
 import NiceModal from '@ebay/nice-modal-react'
+
+import useSWR from 'swr'
 
 import { CodeViewStep } from '../components/CodeViewStep.js'
 
@@ -16,16 +18,26 @@ import { UploadConfigModal } from '../components/UploadConfigModal.js'
 
 import { t } from '../../../i18n/index.js'
 
+import { model } from '../../model.js'
+
+import finance_code from '../finance.dos'
+
+import { create_guide } from '../model.js'
+
 import { TableInfo } from './TableInfo.js'
 import { type IFinanceInfo } from './type.js'
 import { DatabaseInfo } from './DatabaseInfo.js'
-
 export function FinanceGuide () {
     
     const [current_step, set_current_step] = useState(0)
     const [info, set_info] = useState<IFinanceInfo>()
     const [result, set_result] = useState<ExecuteResult>(ExecuteResult.SUCCESS)
     const [error_msg, set_error_msg] = useState<string>()
+    
+    const { isLoading } = useSWR(
+        'load_finance_guide_code',
+        async () => create_guide.define_finance_guide()
+    )
     
     const go = useCallback((info: IFinanceInfo & { result: ExecuteResult, error_msg?: string }) => {
         const { result, error_msg, ...others } = info
@@ -71,7 +83,8 @@ export function FinanceGuide () {
         NiceModal.show(UploadConfigModal, { apply: info => { set_info(prev => ({ ...prev, ...info })) } })
     }, [ ])
     
-    return <div className='finance-guide-wrapper'>
+    return <Spin spinning={isLoading}>
+        <div className='finance-guide-wrapper'>
         <Steps size='small' className='finance-guide-steps' items={steps} current={current_step} />
         { (current_step === 0) &&  <div className='apply-config-btn-wrapper'>
             <Typography.Link onClick={on_apply_config}>{t('导入配置')}</Typography.Link>
@@ -80,4 +93,5 @@ export function FinanceGuide () {
             { steps[current_step].children }
         </div>
     </div>    
+    </Spin>
 }

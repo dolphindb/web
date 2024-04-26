@@ -42,15 +42,12 @@ export function PartitionColSelect (props: IProps) {
         database.dailyTotalNum?.gap !== 8
         , [database])
     
-    console.log(show_time_col, 'show_time_col')
-    
     const show_hash_col = useMemo(() => 
         // 日增量选择【总数据量为小于 200 万且不新增】【0-1w】【1-10w】【10-100w】的时候不展示标的列
         [3, 4, 5, 6, 7].includes(database.dailyTotalNum?.gap) || (database.dailyTotalNum?.gap === CUSTOM && database.dailyTotalNum?.custom > 2000000)
     , [database])
     
     useEffect(() => { 
-        console.log(partition_info, 'partition_info')
         if (partition_info?.length && !table?.partitionCols)
             form.setFieldValue('partitionCols', partition_info.map(() => ({ })) )
     }, [partition_info, database])
