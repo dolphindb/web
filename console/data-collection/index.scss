@@ -60,14 +60,14 @@
                 width: 100%;
                 align-items: center;
                 justify-content: space-between;
-                .delete-icon {
+                .connection-delete-icon {
                     visibility: hidden;
                     color: red;
                     font-size: 12px;
                 }
                 
                 &:hover {
-                    .delete-icon {
+                    .connection-delete-icon {
                         visibility: visible;
                     }
                 }

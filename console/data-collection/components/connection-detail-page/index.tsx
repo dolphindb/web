@@ -28,7 +28,7 @@ import { TemplateViewModal } from './parser-template-view-modal.js'
 
 
 interface IProps {
-    connection: string
+    connection: number
 }
 
 const DEFAULT_TEMPLATES = {
@@ -54,7 +54,7 @@ export function ConnectionDetailPage (props: IProps) {
     const desp_items = useMemo<DescriptionsProps['items']>(() => {
         if (!data?.connectInfo)
             return [ ]
-        const { name, username, port, protocol, host, batchSize = '-', sendbufSize = '-' } = data.connectInfo
+        const { name, username, port, protocol, host } = data.connectInfo
         return [
             {
                 label: t('连接名称'),
@@ -80,16 +80,6 @@ export function ConnectionDetailPage (props: IProps) {
                 label: t('端口'),
                 key: '5',
                 children: port
-            },
-            {
-                label: t('数据包大小'),
-                key: '6',
-                children: batchSize
-            },
-            {
-                label: t('发送缓冲区大小'),
-                key: '7',
-                children: sendbufSize
             }
         ]
     }, [ data?.connectInfo ])
@@ -127,7 +117,7 @@ export function ConnectionDetailPage (props: IProps) {
                 if (status)
                     await request('dcp_startSubscribe', { subId })
                 else
-                    await request('dcp_stopSubscribe', { subId })
+                    await request('dcp_stopSubscribe', { subId: [subId] })
                 message.success(status ? t('订阅成功') : t('停用订阅'))
                 mutate()
             },
@@ -167,13 +157,14 @@ export function ConnectionDetailPage (props: IProps) {
             dataIndex: 'operations',
             render: (_, record) => <Space>
                 <Typography.Link 
+                disabled={record.status === 1}
                 onClick={async () => {
                     // @ts-ignore
                     NiceModal.show(CreateSubscribeModal, { refresh: mutate, parser_templates: templates, edited_subscribe: record })
                 } }>
                     编辑
                 </Typography.Link>
-                <Typography.Link type='danger' onClick={() => { on_delete(record) }}>删除</Typography.Link>
+                <Typography.Link disabled={record.status === 1} type='danger' onClick={() => { on_delete(record) }}>删除</Typography.Link>
             </Space>
         }
     ], [ templates, on_delete, mutate, on_change_status ])
@@ -183,7 +174,6 @@ export function ConnectionDetailPage (props: IProps) {
     ? <Spin spinning={isLoading}/> 
     : <div className='connection-detail'>
         <Descriptions 
-            column={4}
             className='base-info'
             title={t('基本信息')}
             items={desp_items}
@@ -192,7 +182,10 @@ export function ConnectionDetailPage (props: IProps) {
         <div className='describe-title'>
             <h3>{t('订阅列表')}</h3>
             <Space>
-                <Button icon={<PlusOutlined />} type='primary' onClick={async () => NiceModal.show(CreateSubscribeModal, { connection_id: connection, refresh: mutate, parser_templates: templates })}>新增订阅</Button>
+                <Button icon={<PlusOutlined />} type='primary' onClick={async () => 
+                    // @ts-ignore
+                    NiceModal.show(CreateSubscribeModal, { connection_id: connection, refresh: mutate, parser_templates: templates         
+                })}>新增订阅</Button>
                 <Button icon={<DeleteOutlined />} danger onClick={on_batch_delete} disabled={!selected_subscribes.length}>批量删除</Button>
             </Space>
         </div>

@@ -54,13 +54,6 @@ export const CreateConnectionModal = NiceModal.create((props: IProps) => {
         <Form.Item label={t('密码')} name='password'  rules={[{ required: true, message: t('请输入密码') }]}>
             <Input placeholder={t('请输入密码')}/>
         </Form.Item>
-        <Form.Item name='batchSize' label={t('数据包大小')} tooltip={t('当待发布内容是一个表时，可以分批发送，表示每次发送的记录行数')}>
-            <InputNumber min={1} placeholder={t('请输入数据包大小')} />
-        </Form.Item>
-        <Form.Item name='sendbufSize' label={t('发送缓冲区大小')} tooltip={t('不填默认为 40960')}>
-            <InputNumber min={1} placeholder={t('请输入发送缓冲区大小')}/>
-        </Form.Item>
-        
         <Form.Item className='submit-btn-form-item'>
             <Button htmlType='submit' type='primary'>{t('确定')}</Button>
         </Form.Item>

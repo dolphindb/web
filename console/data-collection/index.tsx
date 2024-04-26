@@ -27,7 +27,7 @@ import { ConnectionDetailPage } from './components/connection-detail-page/index.
 
 export function DataCollection () {
     const [protocol, set_protocol] = useState('mqtt')
-    const [connection, set_connection] = useState<string>()
+    const [connection, set_connection] = useState<number>()
     const [selected_connections, set_selected_connections] = useState<number[]>([ ])
     
     const { is_data_collection_func_inited } = model.use(['is_data_collection_func_inited'])
@@ -43,6 +43,10 @@ export function DataCollection () {
         async () => request<{ connections: Connection[] }>('dcp_getConnectList', { protocol })
     )
     
+    console.log(connection, 'connnection')
+    
+    
+    
     const on_delete_connection = useCallback(async () => {
         Modal.confirm({
             title: t(`确定要删除选中的 ${selected_connections.length} 项连接吗`),
@@ -50,10 +54,28 @@ export function DataCollection () {
             onOk: async () => {
                 await request('dcp_deleteConnect', { ids: selected_connections })
                 message.success('删除成功')
+                console.log(selected_connections, connection, 'kkkk')
+                if (selected_connections.includes(Number(connection)))
+                    set_connection(null)
+                set_selected_connections([ ])
                 mutate()
             }
         })
     }, [ mutate, selected_connections ])
+    
+    const on_delete_single_connection = useCallback(async ({ name, id }: Connection) => {
+        Modal.confirm({
+            title: t('确定要删除连接 {{name}}吗？', { name }),
+            okButtonProps: { style: { backgroundColor: 'red' } },
+            onOk: async () => {
+                await request('dcp_deleteConnect', { ids: [id] })
+                message.success('删除成功')
+                if (selected_connections.includes(Number(id)))
+                    set_connection(null)
+                mutate()
+            }
+        })
+    }, [ ])
    
     const on_select_connection = useCallback((id: number) => {
         if (selected_connections.includes(id))
@@ -69,7 +91,7 @@ export function DataCollection () {
         return protocols.map(item => {
             return {
                 label: <div className='protocol_menu_item'>
-                    <FolderOpenOutlined />
+                    {/* <FolderOpenOutlined /> */}
                     <div className='protocol_menu_label'>
                         {item}
                         <Tooltip title={t('新建连接')} >
@@ -84,13 +106,20 @@ export function DataCollection () {
                 children: item !== protocol 
                 ? [ ]
                 : data.connections.map(connection => ({
-                    label: <Checkbox onClick={e => {
-                        e.stopPropagation()
-                        console.log(111)
-                        on_select_connection(connection.id)
-                    }}>
-                        {connection.name}
-                    </Checkbox>,
+                    label: <div className='connection-menu-item'>
+                            <Checkbox onClick={e => {
+                            e.stopPropagation()
+                            on_select_connection(connection.id)
+                        }}>
+                            {connection.name}
+                        </Checkbox>
+                        <DeleteOutlined 
+                        onClick={async e => { 
+                            e.stopPropagation() 
+                            on_delete_single_connection(connection) 
+                        }} 
+                        className='connection-delete-icon'/>
+                    </div>,
                     key: connection.id
                 }))
             }

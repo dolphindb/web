@@ -68,12 +68,12 @@ def dcp_updateConnect(args){
 /*
 删除连接
 参数：args 为标准json，包含以下字段：
-ids: 连接ID  int数组
+id: 连接ID  int数组
 */
 def dcp_deleteConnect(args){
     connectArgs = parseExpr(args).eval()
-    ids = connectArgs[`ids]
-    delete from loadTable("dfs://dataAcquisition","connectInfo") where id in connectArgs[`ids]
+    id = connectArgs[`id]
+    delete from loadTable("dfs://dataAcquisition","connectInfo") where id in connectArgs[`id]
     return '{"status":1}'
 }
 

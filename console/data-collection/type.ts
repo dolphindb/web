@@ -13,10 +13,6 @@ export interface Connection {
     username: string
     // 密码
     password: string
-    // 数据包大小
-    batchSize: number
-    // 发送缓冲区大小
-    sendbufSize: number
 }
 
 
