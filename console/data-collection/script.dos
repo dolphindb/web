@@ -1,7 +1,9 @@
 try{installPlugin("mqtt")}catch(ex){print(ex)}
 try{loadPlugin("mqtt")}catch(ex){print(ex)}
-share streamTable(1:0,["ts","id","metric","value"],[TIMESTAMP,LONG,STRING,STRING]) as test
-
+shareStreamingTable = select * from objs(true) where type=`REALTIME and form=`TABLE and shared=true
+if(!(`dcp_test in shareStreamingTable.name)){
+    share streamTable(1:0,["ts","id","metric","value"],[TIMESTAMP,LONG,STRING,STRING]) as dcp_test
+}
 
 /*
 增加连接
@@ -305,5 +307,3 @@ def dcp_init(){
     '
     loadTable("dfs://dataAcquisition","ParserTemplate").append!(table([0] as id,["test"] as name,[handler] as handler))
 }
-
-
