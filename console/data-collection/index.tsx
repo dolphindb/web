@@ -172,7 +172,7 @@ export function DataCollection () {
                 {
                 !!connection 
                     ? <ConnectionDetailPage connection={connection}/>
-                    : <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} />
+                    : <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description={t('请选择连接')}/>
                 }
             </div>
         </div>
