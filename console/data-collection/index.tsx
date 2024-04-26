@@ -5,8 +5,7 @@ import { Checkbox, Empty, Menu, Modal, Spin, Tooltip, Typography, message } from
 
 import { useMemoizedFn } from 'ahooks'
 
-import { DeleteOutlined, FolderOpenOutlined, PlusCircleOutlined, PlusOutlined } from '@ant-design/icons'
-import cn from 'classnames'
+import { DeleteOutlined, PlusCircleOutlined, PlusOutlined } from '@ant-design/icons'
 
 
 import NiceModal from '@ebay/nice-modal-react'

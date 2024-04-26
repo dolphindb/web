@@ -130,12 +130,14 @@ name：订阅名称               字符串
 topic: 订阅主题              字符串
 handlerId：使用的解析模板     整数
 recvbufSize: 接收缓冲区大小   整数
+status：连接状态              整数
+subID：订阅ID                字符串    
 */
 def dcp_updateSubscribe(args){
     subArgs = parseExpr(args).eval()
     tmp = select * from loadTable("dfs://dataAcquisition","subscribeInfo") where id = subArgs[`id]
     for(col in subArgs.keys()){
-        if(col in [`name,`topic,`handlerId,`recvbufSize]){
+        if(col in [`name,`topic,`handlerId,`recvbufSize,`status,`subID]){
             tmp[col]=subArgs[col]
         }   
     }
@@ -187,7 +189,8 @@ def dcp_startSubscribe(args){
     argsNew='{"id":'+subArgs[`subId]+',"subID":"'+subscriptionId+'","status":1}' 
     dcp_updateSubscribe(argsNew)
 }
-args = {"1":1}
+
+
 /*
 停止订阅
 参数：args 为标准json，需要包含以下字段：
@@ -195,13 +198,16 @@ subId: 订阅ID  int数组
 */
 def dcp_stopSubscribe(args){
     subArgs = parseExpr(args).eval()
-    subid = (exec subID from loadTable("dfs://dataAcquisition","subscribeInfo") where id in subArgs[`subId])[0]
+    subid = exec subID from loadTable("dfs://dataAcquisition","subscribeInfo") where id in subArgs[`subId]
     for(i in subid){
         mqtt::unsubscribe(i)
     }
     argsNew='{"id":'+subArgs[`subId]+',"subID":" ","status":0}' 
     dcp_updateSubscribe(argsNew) 
 }
+
+args = '{"subId":[0]}'
+dcp_startSubscribe(args)
 
 
 /*
