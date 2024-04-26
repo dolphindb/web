@@ -198,17 +198,15 @@ subId: 订阅ID  int数组
 */
 def dcp_stopSubscribe(args){
     subArgs = parseExpr(args).eval()
-    subid = exec subID from loadTable("dfs://dataAcquisition","subscribeInfo") where id in subArgs[`subId]
-    for(i in subid){
-        mqtt::unsubscribe(i)
+    subid = exec id,subID from loadTable("dfs://dataAcquisition","subscribeInfo") where id in subArgs[`subId]
+    id = subid.id
+    subID = subid.subID
+    for(i in (0..(subID.size()-1))){  
+        mqtt::unsubscribe(subID[i])
+        argsNew='{"id":'+id[i]+',"subID":" ","status":0}' 
+        dcp_updateSubscribe(argsNew) 
     }
-    argsNew='{"id":'+subArgs[`subId]+',"subID":" ","status":0}' 
-    dcp_updateSubscribe(argsNew) 
 }
-
-args = '{"subId":[0]}'
-dcp_startSubscribe(args)
-
 
 /*
 获取点位解析模板列表
