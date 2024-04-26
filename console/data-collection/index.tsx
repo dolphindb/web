@@ -42,10 +42,6 @@ export function DataCollection () {
         async () => request<{ connections: Connection[] }>('dcp_getConnectList', { protocol })
     )
     
-    console.log(connection, 'connnection')
-    
-    
-    
     const on_delete_connection = useCallback(async () => {
         Modal.confirm({
             title: t(`确定要删除选中的 ${selected_connections.length} 项连接吗`),

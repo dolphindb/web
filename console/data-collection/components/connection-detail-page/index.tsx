@@ -150,7 +150,7 @@ export function ConnectionDetailPage (props: IProps) {
         {
             title: t('状态'),
             dataIndex: 'status',
-            render: (status, record) => <Switch checked={status === 1} onChange={async checked => on_change_status(record, checked)}/>
+            render: (status, record) => <Switch checked={status === 1} onClick={async checked => on_change_status(record, checked)}/>
         },
         {
             title: t('操作'),
