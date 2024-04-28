@@ -23,7 +23,6 @@ import SvgComputing from '../computing/icons/computing.icon.svg'
 import SvgAccess from '../access/icons/access.icon.svg'
 import SvgUser from '../access/icons/user.icon.svg'
 import SvgGroup from '../access/icons/group.icon.svg'
-import SvgTools from '../access/icons/tools.icon.svg'
 import SvgFinance from '../access/icons/finance.icon.svg'
 import SvgIot from '../access/icons/iot.icon.svg'
 
@@ -43,7 +42,6 @@ const svgs = {
     access: SvgAccess,
     user: SvgUser,
     group: SvgGroup,
-    tools: SvgTools,
     'iot-guide': SvgIot,
     'finance-guide': SvgFinance 
 }
