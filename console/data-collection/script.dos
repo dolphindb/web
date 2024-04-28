@@ -293,8 +293,8 @@ def dcp_createAllTable(){
     colTypes = [INT,INT,STRING,STRING,STRING,INT,INT,STRING,STRING,INT,INT,STRING,TIMESTAMP,TIMESTAMP]
     createTable(db,table(1:0,colNames,colTypes),`subscribeInfo)
 
-    colNames = `id`name`handler
-    colTypes=[INT,STRING,STRING]
+    colNames = `id`name`handler`comment`createTime`updateTime
+    colTypes=[INT,STRING,STRING,STRING,TIMESTAMP,TIMESTAMP]
     createTable(db,table(1:0,colNames,colTypes),`ParserTemplate)
 }
 
@@ -348,7 +348,7 @@ def dcp_init(){
 
     //初始化解析模板
     handler = '
-    def msgHandler(mutable t,timeColumn,idColumn,topic,message){
+    def msgHandler(outputTableName,timeColumn,idColumn,topic,message){
         tempdict = parseExpr(message).eval()
         keys = tempdict.keys()
         if(timeColumn==NULL){
@@ -359,10 +359,11 @@ def dcp_init(){
         id = tempdict[idColumn] 
         for(i in keys){
             if(!(i in [timeColumn,idColumn] )){
-                insert into t values(ts,id,i,tempdict[i])   
+                tmp = table([ts] as ts,[id] as id,[i] as metric,[tempdict[i]] as value)
+                objByName(outputTableName).append!(tmp)            
             }
         }
     }
     '
-    loadTable("dfs://dataAcquisition","ParserTemplate").append!(table([0] as id,["test"] as name,[handler] as handler))
+    loadTable("dfs://dataAcquisition","ParserTemplate").append!(table([0] as id,["test"] as name,[handler] as handler,["测试解析模板"] as comment,[now()] as c1,[now()] as col2))
 }
