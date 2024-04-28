@@ -177,26 +177,20 @@ export function DdbSider () {
                     icon: <MenuIcon view='factor' />,
                     label: <Link target='_blank' href={factor_href}>{t('因子平台')}</Link>
                 }] : [ ],
-                {
-                    key: 'tools',
-                    icon: <MenuIcon view='tools' />,
-                    label: t('运维工具'),
-                    children: [
-                        {
-                            key: 'iot-guide',
-                            label: t('物联网库表'),
-                            title: t('物联网库表创建引导'),
-                            icon: <MenuIcon view='iot-guide'/>
-                        },
-                        {
-                            key: 'finance-guide',
-                            label: t('金融库表'),
-                            title: t('金融库表创建引导'),
-                            icon: <MenuIcon view='finance-guide'/>
-                        },
-                        
-                    ]
-                },
+                ...[
+                    {
+                        key: 'iot-guide',
+                        label: t('物联网库表向导'),
+                        title: t('物联网库表创建引导'),
+                        icon: <MenuIcon view='iot-guide'/>
+                    },
+                    {
+                        key: 'finance-guide',
+                        label: t('金融库表向导'),
+                        title: t('金融库表创建引导'),
+                        icon: <MenuIcon view='finance-guide'/>
+                    },
+                ],
                 ... dev || test ? [
                     {
                         key: 'test',

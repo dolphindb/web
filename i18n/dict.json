@@ -4361,11 +4361,11 @@
     "运维工具": {
         "en": "Management Tools"
     },
-    "物联网库表": {
-        "en": "For IoT Scenario"
+    "物联网库表向导": {
+        "en": "Guide for IoT Scenario"
     },
-    "金融库表": {
-        "en": "For Financial Scenario"
+    "金融库表向导": {
+        "en": "Guide for Financial Scenario"
     },
     "执行结果": {
         "en": "Execution Result"
