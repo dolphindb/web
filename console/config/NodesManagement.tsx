@@ -143,7 +143,7 @@ export function NodesManagement () {
     
     return <EditableProTable
         rowKey='id'
-        columns={cols}
+        columns={cols as any}
         actionRef={actionRef}
         recordCreatorProps={
             {

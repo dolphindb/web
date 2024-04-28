@@ -3,6 +3,7 @@
     "typescript.preferences.preferTypeOnlyAutoImports": true,
     "typescript.preferences.importModuleSpecifierEnding": "js",
     "files.trimTrailingWhitespace": false,
+    "files.eol": "\n",
     "editor.trimAutoWhitespace": false,
     "editor.formatOnSave": false,
     "editor.formatOnPaste": false,

@@ -23,7 +23,7 @@ import { Header } from './Header.js'
 import { Overview } from './Overview.js'
 import { Doc } from './components/Doc.js'
 
-import config from './chart.config.json' assert { type: 'json' }
+import config from './chart.config.json' with { type: 'json' }
 
 import { paste_widget } from './utils.js'
 

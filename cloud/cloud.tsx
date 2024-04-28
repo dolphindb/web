@@ -1,6 +1,6 @@
 import './cloud.sass'
 
-import { useEffect, useRef, useState, Component, type FC } from 'react'
+import { useEffect, useRef, useState, Component } from 'react'
 
 import { default as dayjs } from 'dayjs'
 
@@ -37,7 +37,8 @@ import { PageHeader } from '@ant-design/pro-layout'
 
 import { InboxOutlined, ReloadOutlined, SearchOutlined } from '@ant-design/icons'
 import type { PresetStatusColorType } from 'antd/es/_util/colors.js'
-import type { AlignType } from 'rc-table/lib/interface.js'
+import type { ColumnType } from 'antd/es/table/index.js'
+type AlignType = ColumnType<any>['align']
 
 import { delay } from 'xshell/utils.browser.js'
 import { type RequestOptions, request_json } from 'xshell/net.browser.js'

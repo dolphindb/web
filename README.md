@@ -58,8 +58,7 @@ https://github.com/dolphindb/Tutorials_EN/blob/master/k8s_deployment.md
 # https://nodejs.org/en/download/current/
 
 # Install the pnpm package manager
-corepack enable
-corepack prepare pnpm@latest --activate
+npm install -g pnpm
 
 git clone https://github.com/dolphindb/web.git
 

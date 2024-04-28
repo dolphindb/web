@@ -110,37 +110,20 @@ export function DdbObjInputField ({ form, onChange, value, type_id, type = '', .
                 if (!is_vector)
                     execute_str = `'${execute_str}'`
                 break
-            case DdbType.blob:
-            case DdbType.ipaddr:
-            case DdbType.uuid:
-                if (is_vector)
-                    execute_str = `${type?.toLocaleLowerCase()}(${execute_str})`
-                else 
-                    execute_str = `${type?.toLocaleLowerCase()}(${JSON.stringify(execute_str)})`
-                break
             case DdbType.nanotimestamp:
             case DdbType.nanotime:
             case DdbType.short:
             case DdbType.long:
             case DdbType.double:
             case DdbType.float:
-            case DdbType.complex:
-            case DdbType.point:
             case DdbType.bool:
                 execute_str = `${type?.toLocaleLowerCase()}(${execute_str})`
-                break
-            case DdbType.int128:
-                if (!is_vector)
-                    execute_str = `int128(${JSON.stringify(execute_str)})`
-                else
-                    execute_str = `int128(${execute_str})`
                 break
         }
         
         try {
             const obj = await model.ddb.eval(execute_str)
             onChange(obj)
-            console.log(obj, 'obj')
         } catch (e) { 
             onChange(execute_str)
         }
@@ -206,14 +189,16 @@ export function DdbObjField ({ type, type_id: server_type_id, placeholder, form,
     let type_id = server_type_id
     let scale = null
     const is_decimal = type.includes('DECIMAL')
-    
-    if (is_decimal) {
+    const is_vector = useMemo(() => form === 1, [form])
+    if (is_decimal)
         [type_id, scale] = convertDecimalType(server_type_id)
+    
+    if (is_decimal && !is_vector) 
         return <DecimalObjInputField type={type} type_id={type_id} {...others} scale={scale} />
-    }
+    
       
-    else if (form === 1)
-        return <DdbObjInputField form={form} placeholder={placeholder} type={type} type_id={type_id} {...others} />
+    else if (is_vector)
+        return <DdbObjInputField form={form} placeholder={`数据类型为 ${type}[]`} type={type} type_id={type_id} {...others} />
     
     switch (type_id) { 
         case DdbType.date:

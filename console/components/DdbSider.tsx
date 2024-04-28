@@ -197,7 +197,7 @@ export function DdbSider () {
                         icon: <ExperimentOutlined className='icon-menu' />,
                         label: '测试模块'
                 }] : [ ],
-                ... (admin && (dev || test)) ? [
+                ... admin ? [
                     {
                         key: 'settings',
                         icon: <SettingOutlined  className='icon-menu' />,
