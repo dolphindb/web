@@ -263,7 +263,7 @@ export function Header () {
             
             <SaveConfirmModal id='dashboard-save-confirm-modal' />
             
-            {editing && <>     
+            {editing && <>
                 <Modal open={add_visible}
                     maskClosable={false}
                     onCancel={add_close}
