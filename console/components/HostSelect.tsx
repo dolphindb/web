@@ -40,7 +40,7 @@ export function HostSelect () {
             },
             {
                 label: '采集平台',
-                value: '192.168.0.19:8848'
+                value: '183.134.101.140:7748'
             }
         ]}
         onSelect={(host: string) => { 

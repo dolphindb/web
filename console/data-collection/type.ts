@@ -34,6 +34,15 @@ export interface Subscribe {
 
 export interface ParserTemplate {
     handler: string
-    id: string
+    id: number
     name: string
+    comment?: string
+    createTime: string
+    updateTime?: string
+}
+
+
+export interface ListData<T> {
+    items: T[]
+    number: number
 }
