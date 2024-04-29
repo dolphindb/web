@@ -110,7 +110,7 @@ def dcp_addSubscribe(args){
     update connectInfo set recvbufSize = iif(subArgs['recvbufSize']==NULL,20480,subArgs['recvbufSize'])
     update connectInfo set createTime = now()
     update connectInfo set updateTime = now()
-    update connectInfo set subID=string(NULL)
+    update connectInfo set subID=" "
     update connectInfo set status=0
     connectInfo.reorderColumns!(`id`connectId`topic`name`host`port`handlerId`username`password`recvbufSize`status`subID`createTime`updateTime)
     loadTable("dfs://dataAcquisition","subscribeInfo").append!(connectInfo)
@@ -177,15 +177,30 @@ def dcp_getConnectAndSubInfo(args){
 /*
 开始订阅
 参数：args 为标准json，需要包含以下字段：
-subId: 订阅ID     整数
+subId: 订阅ID   
+mqsubArgs: 解析模板的参数列表
 */
 def dcp_startSubscribe(args){
     subArgs = parseExpr(args).eval()
     tmp = (exec * from loadTable("dfs://dataAcquisition","subscribeInfo") where id = subArgs[`subId])[0]
-    runScript((exec handler from loadTable("dfs://dataAcquisition","ParserTemplate") where id = tmp[`handlerId])[0])
-    runScript('tmp = (exec * from loadTable("dfs://dataAcquisition","subscribeInfo") where id ='+ subArgs[`subId]+')[0];
-    mqtt::subscribe(tmp["host"],tmp["port"],tmp["topic"],,msgHandler{objByName(`test),`ts,`id},tmp["username"],tmp["password"],tmp["recvbufSize"])')
-    subscriptionId=exec last(subscriptionId) from mqtt::getSubscriberStat()
+    handler = (exec handler from loadTable("dfs://dataAcquisition","ParserTemplate") where id = tmp[`handlerId])[0]
+    runScript(handler)
+    handlerName = handler.split("\n")
+    handlerName  = (handlerName[strpos(handlerName,"def")!=-1].split("(")[0].split("def ")[1])[0]
+    subscribeStr = 'tmp = (exec * from loadTable("dfs://dataAcquisition","subscribeInfo") where id ='+ subArgs[`subId]+')[0];
+    mqtt::subscribe(tmp["host"],tmp["port"],tmp["topic"],,'+handlerName+'{'
+    mqsubArgs = subArgs[`mqsubArgs]
+    for(i in (0..(mqsubArgs.size()-1))){    
+        if(i < mqsubArgs.size()-1 ){
+            subscribeStr += "`"+mqsubArgs[i]+","
+        }
+        else{
+            subscribeStr += "`"+mqsubArgs[i]
+        }
+    }
+    subscribeStr += '},tmp["username"],tmp["password"],tmp["recvbufSize"])'
+    runScript(subscribeStr)
+    subscriptionId=exec last(subscriptionId) from mqtt::getSubscriberStat() order by createTimestamp
     argsNew='{"id":'+subArgs[`subId]+',"subID":"'+subscriptionId+'","status":1}' 
     dcp_updateSubscribe(argsNew)
 }
@@ -203,9 +218,50 @@ def dcp_stopSubscribe(args){
     subID = subid.subID
     for(i in (0..(subID.size()-1))){  
         mqtt::unsubscribe(subID[i])
-        argsNew='{"id":'+id[i]+',"subID":" ","status":0}' 
+        argsNew='{"id":'+id[i]+',"subID":" "),"status":0}' 
         dcp_updateSubscribe(argsNew) 
     }
+}
+
+/*
+检测订阅状态
+将已经不存在的订阅关闭
+@args connectId:连接ID int整数  
+
+*/
+def dcp_subStatusMonitor(args){
+    subArgs = parseExpr(args).eval()
+    subs =exec id,subID from loadTable("dfs://dataAcquisition","subscribeInfo") where connectId=subArgs[`connectId]
+    id = subs[`id]
+    subID = subs[`subID]
+    nowSub = mqtt::getSubscriberStat().subscriptionId
+    for(i in (0..(subID.size()-1))){  
+        if(subID[0] == " "){
+            print(subID[i])
+        }  
+        if(!(subID[i] in nowSub)){
+            argsNew='{"id":'+id[i]+',"subID":" ","status":0}' 
+            dcp_updateSubscribe(argsNew) 
+        }
+    }
+}
+
+
+/*
+获取模板参数
+@args handlerId:模板ID int整数
+@return 返回一个包含模板参数的json，键为returnArgs，值为参数列表   
+*/
+def dcp_getTemplateArgs(args){
+    handlerArgs = parseExpr(args).eval()
+    handler = (exec handler from loadTable("dfs://dataAcquisition","ParserTemplate") where id = handlerArgs['handlerId'])[0]
+    tmp = handler.split("\n")
+    tmp  = tmp[strpos(tmp,"def")!=-1].split("(")[1].split(")")[0].split(",")
+    res = array(STRING,tmp.rowSize()-2)
+    for(i in (0..(tmp.rowSize()[0]-3))){
+        res[i] = tmp[i]
+    }
+    return '{"returnArgs":'+res.toStdJson()+'}'    
 }
 
 /*
@@ -237,8 +293,8 @@ def dcp_createAllTable(){
     colTypes = [INT,INT,STRING,STRING,STRING,INT,INT,STRING,STRING,INT,INT,STRING,TIMESTAMP,TIMESTAMP]
     createTable(db,table(1:0,colNames,colTypes),`subscribeInfo)
 
-    colNames = `id`name`handler
-    colTypes=[INT,STRING,STRING]
+    colNames = `id`name`handler`comment`createTime`updateTime
+    colTypes=[INT,STRING,STRING,STRING,TIMESTAMP,TIMESTAMP]
     createTable(db,table(1:0,colNames,colTypes),`ParserTemplate)
 }
 
@@ -262,6 +318,8 @@ def dcp_dropAllFunctionView(){
     dropFunctionView(`dcp_getConnectList) 
     dropFunctionView(`dcp_getConnectAndSubInfo) 
     dropFunctionView(`dcp_getParserTemplateList)
+    dropFunctionView(`dcp_getTemplateArgs) 
+    dropFunctionView(`dcp_subStatusMonitor)
 }
 
 def dcp_clearEnv(){
@@ -285,9 +343,12 @@ def dcp_init(){
     addFunctionView(dcp_getConnectList)
     addFunctionView(dcp_getConnectAndSubInfo)
     addFunctionView(dcp_getParserTemplateList)
+    addFunctionView(dcp_getTemplateArgs)
+    addFunctionView(dcp_subStatusMonitor)
+
     //初始化解析模板
     handler = '
-    def msgHandler(mutable t,timeColumn,idColumn,topic,message){
+    def msgHandler(outputTableName,timeColumn,idColumn,topic,message){
         tempdict = parseExpr(message).eval()
         keys = tempdict.keys()
         if(timeColumn==NULL){
@@ -298,10 +359,11 @@ def dcp_init(){
         id = tempdict[idColumn] 
         for(i in keys){
             if(!(i in [timeColumn,idColumn] )){
-                insert into t values(ts,id,i,tempdict[i])   
+                tmp = table([ts] as ts,[id] as id,[i] as metric,[tempdict[i]] as value)
+                objByName(outputTableName).append!(tmp)            
             }
         }
     }
     '
-    loadTable("dfs://dataAcquisition","ParserTemplate").append!(table([0] as id,["test"] as name,[handler] as handler))
+    loadTable("dfs://dataAcquisition","ParserTemplate").append!(table([0] as id,["test"] as name,[handler] as handler,["测试解析模板"] as comment,[now()] as c1,[now()] as col2))
 }
