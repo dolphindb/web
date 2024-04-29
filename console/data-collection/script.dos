@@ -246,6 +246,58 @@ def dcp_subStatusMonitor(args){
     }
 }
 
+/*
+添加模板
+@args 
+name:模板名称 字符串
+code:函数定义 字符串
+comment:模板备注 字符串
+@return 无
+*/
+
+def dcp_addHandler(args){
+    handlerArgs = parseExpr(args).eval()
+    maxId = (exec max(id) from loadTable("dfs://dataAcquisition","ParserTemplate"))[0]
+    id = iif(maxId==NULL,0,maxId+1)
+    tmp = table([id] as id, [handlerArgs['name']] as name, [handlerArgs['code']] as handler, [handlerArgs['comment']] as comment,[now()] as createTime,[now()] as updateTime)  
+    loadTable("dfs://dataAcquisition","ParserTemplate").append!(tmp)
+    return '{"status":1}'   
+}
+
+/*
+修改模板
+@args 
+必选：
+id:模板id 整数
+可选：
+name:模板名称 字符串
+code:函数定义 字符串
+comment:模板备注 字符串
+@return 无
+*/
+def dcp_updateHandler(args){
+    handlerArgs = parseExpr(args).eval()    
+    tmp = select * from loadTable("dfs://dataAcquisition","ParserTemplate") where id=handlerArgs[`id]
+    for(i in handlerArgs.keys()){
+       if(i != `id){
+            tmp[i]=handlerArgs[i]
+       }
+    }
+    tmp[`updateTime]=now()
+    return '{"status":1}'   //更新成功  
+}    
+
+/*
+删除模板
+@args 
+id:模板id 整数
+*/
+def dcp_deleteHandler(args){
+    handlerArgs = parseExpr(args).eval()
+    delete from loadTable("dfs://dataAcquisition","ParserTemplate") where id=handlerArgs[`id]
+    return '{"status":1}'   //删除成功  
+}
+
 
 /*
 获取模板参数
@@ -320,6 +372,10 @@ def dcp_dropAllFunctionView(){
     dropFunctionView(`dcp_getParserTemplateList)
     dropFunctionView(`dcp_getTemplateArgs) 
     dropFunctionView(`dcp_subStatusMonitor)
+    dropFunctionView(`dcp_addHandler)
+    dropFunctionView(`dcp_updateHandler)
+    dropFunctionView(`dcp_deleteHandler)
+
 }
 
 def dcp_clearEnv(){
@@ -345,6 +401,9 @@ def dcp_init(){
     addFunctionView(dcp_getParserTemplateList)
     addFunctionView(dcp_getTemplateArgs)
     addFunctionView(dcp_subStatusMonitor)
+    addFunctionView(dcp_addHandler)
+    addFunctionView(dcp_updateHandler)
+    addFunctionView(dcp_deleteHandler)
 
     //初始化解析模板
     handler = '
