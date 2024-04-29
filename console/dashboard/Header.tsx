@@ -203,7 +203,7 @@ export function Header () {
             await handle_change()
          else  
             /** 未保存提示 */
-            await NiceModal.show(SaveConfirmModal, {
+            await NiceModal.show('dashboard-save-confirm-modal', {
                 onCancel: async () => { 
                     dashboard.set({ save_confirm: false })
                     await handle_change()
