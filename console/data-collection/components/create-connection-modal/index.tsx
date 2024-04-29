@@ -7,8 +7,10 @@ import NiceModal, { useModal } from '@ebay/nice-modal-react'
 
 import { t } from '../../../../i18n/index.js'
 import { model } from '../../../model.js'
+import type { Connection } from '../../type.js'
 
 interface IProps {
+    editedConnection?: Connection
     protocol: string
     refresh: () => void
 }

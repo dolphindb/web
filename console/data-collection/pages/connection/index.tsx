@@ -3,11 +3,11 @@ import './index.scss'
 import { useCallback, useEffect, useId, useMemo, useState } from 'react'
 import useSWR from 'swr'
 
-import { Checkbox, Empty, Menu, Modal, Spin, Tooltip, Typography, message } from 'antd'
+import { Checkbox, Empty, Menu, Modal, Space, Spin, Tooltip, Typography, message } from 'antd'
 
 import { useMemoizedFn } from 'ahooks'
 
-import { DeleteOutlined, FolderOpenOutlined, PlusCircleOutlined } from '@ant-design/icons'
+import { DeleteOutlined, EditOutlined, FolderOpenOutlined, PlusCircleOutlined } from '@ant-design/icons'
 
 
 import NiceModal from '@ebay/nice-modal-react'
@@ -91,10 +91,12 @@ export function Connections () {
                     <div className='protocol_menu_label'>
                         {item}
                         <Tooltip title={t('新建连接')} >
-                        <PlusCircleOutlined className='add-connection-icon' onClick={async e => { 
-                            e.stopPropagation()
-                            await NiceModal.show(CreateConnectionModal, { protocol: item, refresh: mutate })
-                        }}/>
+                        <PlusCircleOutlined 
+                            className='add-connection-icon' 
+                            onClick={async e => { 
+                                e.stopPropagation()
+                                await NiceModal.show(CreateConnectionModal, { protocol: item, refresh: mutate })
+                            }}/>
                         </Tooltip>
                     </div>
                 </div>,
@@ -109,12 +111,23 @@ export function Connections () {
                         }}>
                             {connection.name}
                         </Checkbox>
-                        <DeleteOutlined 
-                        onClick={async e => { 
-                            e.stopPropagation() 
-                            on_delete_single_connection(connection) 
-                        }} 
-                        className='connection-delete-icon'/>
+                        <Space>
+                            <EditOutlined 
+                                className='connection-edit-icon'
+                                onClick={e => {
+                                    e.stopPropagation()
+                                    
+                                }}
+                            />
+                            <DeleteOutlined 
+                                onClick={async e => { 
+                                    e.stopPropagation() 
+                                    on_delete_single_connection(connection) 
+                                }} 
+                                className='connection-delete-icon'
+                            />
+                            
+                        </Space>
                     </div>,
                     key: connection.id
                 }))
@@ -133,8 +146,6 @@ export function Connections () {
     const on_click_connection = useCallback(({ key }) => {
         set_connection(key)
     }, [ ])
-    
-    console.log(database_inited, 'database_inited')
     
     if (isLoading || database_inited === 'unknow')
         return  <Spin>

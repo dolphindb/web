@@ -30,22 +30,20 @@ export const CreateSubscribeModal = NiceModal.create((props: IProps) => {
     
     
     const { data, isLoading } = useSWR(
-        !isNil(handlerId) ? ['dcp_getTemplateArgs', handlerId] : null,
+        isNil(handlerId) ? null : ['dcp_getTemplateArgs', handlerId],
         async () => request<{ returnArgs: string[] }>('dcp_getTemplateArgs', { handlerId }),
         { 
-            onSuccess: data => { form.setFieldValue('templateParams', data.returnArgs.map(item => ({ key: item }))) },
+            onSuccess: data => { form.setFieldValue('templateParams', data?.returnArgs?.map(item => ({ key: item }))) },
         }
     )
     
     const on_submit = useCallback(async () => {
         if (isLoading)
             return
-        try {
-            await form.validateFields()
-        } catch {
-            return
-        }
-        let values = form.getFieldsValue()
+        
+        let values
+        try { values = await form.validateFields() } catch { return }
+        
         values = { ...values, templateParams: JSON.stringify(values?.params) }
         
         if (edited_subscribe) 
@@ -56,7 +54,7 @@ export const CreateSubscribeModal = NiceModal.create((props: IProps) => {
             message.success(edited_subscribe ? t('修改成功') : t('创建成功'))
         modal.hide()
         refresh()
-    }, [edited_subscribe, connection_id])
+    }, [edited_subscribe, connection_id, isLoading])
     
     return <Modal 
         className='create-subscribe-modal'

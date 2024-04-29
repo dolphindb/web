@@ -30,9 +30,6 @@ export function ParserTemplates () {
         async () => request<ListData<ParserTemplate>>('dcp_getParserTemplateList', { })   
     )
     
-    console.log(data, 'data')
-    
-    
     const on_create = useCallback(() => {
         NiceModal.show(ParserTemplateModal, { refresh })
     }, [refresh])
@@ -114,7 +111,7 @@ export function ParserTemplates () {
             </Space>   
         }
         
-    ], [ ])
+    ], [on_edit, on_delete])
     
     return <>
         <div className='parser-template-title'>

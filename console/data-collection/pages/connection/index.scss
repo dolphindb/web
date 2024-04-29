@@ -6,9 +6,6 @@
         border: 1px solid #f3f1f1;
         padding: 12px;
         
-       
-        
-        
         .connection-list-title {
             width: 100%;
             display: flex;
@@ -60,6 +57,13 @@
                 width: 100%;
                 align-items: center;
                 justify-content: space-between;
+                
+                .connection-edit-icon {
+                    visibility: hidden;
+                    color: #1677ff;
+                    font-size: 12px;
+                }
+                
                 .connection-delete-icon {
                     visibility: hidden;
                     color: red;
@@ -67,7 +71,7 @@
                 }
                 
                 &:hover {
-                    .connection-delete-icon {
+                    .connection-delete-icon, .connection-edit-icon {
                         visibility: visible;
                     }
                 }

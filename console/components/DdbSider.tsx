@@ -24,6 +24,8 @@ import SvgAccess from '../access/icons/access.icon.svg'
 import SvgUser from '../access/icons/user.icon.svg'
 import SvgGroup from '../access/icons/group.icon.svg'
 import SvgDataCollection from '../access/icons/data-collection.icon.svg'
+import SvgConnection from '../access/icons/connection.icon.svg'
+import SvgParserTemplate from '../access/icons/parser-template.icon.svg'
 
 
 const { Text, Link } = Typography
@@ -41,7 +43,9 @@ const svgs = {
     access: SvgAccess,
     user: SvgUser,
     group: SvgGroup,
-    'data-collection': SvgDataCollection
+    'data-collection': SvgDataCollection,
+    connection: SvgConnection,
+    'parser-template': SvgParserTemplate
 }
 
 
@@ -73,7 +77,7 @@ export function DdbSider () {
     }, [logined])
     
     return <Layout.Sider
-        width={150}
+        width={180}
         className='sider'
         theme='light'
         collapsible
@@ -174,10 +178,12 @@ export function DdbSider () {
                     label: t('数据采集平台'),
                     children: [
                         {
+                            icon: <MenuIcon view='connection' />,
                             label: t('连接信息'),
                             key: 'connection'
                         },
                         {
+                            icon: <MenuIcon view='parser-template' />,
                             label: t('解析模板'),
                             key: 'parser-template'
                         }
