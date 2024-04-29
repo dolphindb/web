@@ -250,7 +250,7 @@ def dcp_subStatusMonitor(args){
 添加模板
 @args 
 name:模板名称 字符串
-code:函数定义 字符串
+handler:函数定义 字符串
 comment:模板备注 字符串
 @return 无
 */
@@ -259,9 +259,10 @@ def dcp_addHandler(args){
     handlerArgs = parseExpr(args).eval()
     maxId = (exec max(id) from loadTable("dfs://dataAcquisition","ParserTemplate"))[0]
     id = iif(maxId==NULL,0,maxId+1)
-    tmp = table([id] as id, [handlerArgs['name']] as name, [handlerArgs['code']] as handler, [handlerArgs['comment']] as comment,[now()] as createTime,[now()] as updateTime)  
+    tmp = table([id] as id, [handlerArgs['name']] as name, [handlerArgs['handler']] as handler, [handlerArgs['protocol']] as `protocol,
+    [handlerArgs['comment']] as comment,[now()] as createTime,[now()] as updateTime)  
     loadTable("dfs://dataAcquisition","ParserTemplate").append!(tmp)
-    return '{"status":1}'   
+    return '{"status":1,"id":'+id+'}'   //添加成功  
 }
 
 /*
@@ -271,7 +272,8 @@ def dcp_addHandler(args){
 id:模板id 整数
 可选：
 name:模板名称 字符串
-code:函数定义 字符串
+handler:函数定义 字符串
+protocol:解析模板协议 字符串
 comment:模板备注 字符串
 @return 无
 */
@@ -345,8 +347,8 @@ def dcp_createAllTable(){
     colTypes = [INT,INT,STRING,STRING,STRING,INT,INT,STRING,STRING,INT,INT,STRING,TIMESTAMP,TIMESTAMP]
     createTable(db,table(1:0,colNames,colTypes),`subscribeInfo)
 
-    colNames = `id`name`handler`comment`createTime`updateTime
-    colTypes=[INT,STRING,STRING,STRING,TIMESTAMP,TIMESTAMP]
+    colNames = `id`name`handler`protocol`comment`createTime`updateTime
+    colTypes=[INT,STRING,STRING,STRING,STRING,TIMESTAMP,TIMESTAMP]
     createTable(db,table(1:0,colNames,colTypes),`ParserTemplate)
 }
 
@@ -424,5 +426,6 @@ def dcp_init(){
         }
     }
     '
-    loadTable("dfs://dataAcquisition","ParserTemplate").append!(table([0] as id,["test"] as name,[handler] as handler,["测试解析模板"] as comment,[now()] as c1,[now()] as col2))
+    loadTable("dfs://dataAcquisition","ParserTemplate").append!(table([0] as id,["test"] as name,[handler] as handler,[`mqtt] as protocol,
+    ["测试解析模板"] as comment,[now()] as c1,[now()] as col2))
 }
