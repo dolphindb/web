@@ -290,7 +290,7 @@ def dcp_updateHandler(args){
        }
     }
     tmp[`updateTime]=now()
-    delete loadTable("dfs://dataAcquisition","ParserTemplate") where id=handlerArgs[`id]
+    delete from loadTable("dfs://dataAcquisition","ParserTemplate") where id=handlerArgs[`id]
     loadTable("dfs://dataAcquisition","ParserTemplate").append!(tmp)    
     return '{"status":1}'   //更新成功  
 }    
