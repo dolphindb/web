@@ -208,7 +208,7 @@ export function Header () {
                     dashboard.set({ save_confirm: false })
                     await handle_change()
                 },
-                onOK: async () => { 
+                onOk: async () => { 
                     dashboard.set({ save_confirm: false })
                     await handle_save()
                     await handle_change()
