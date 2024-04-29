@@ -261,7 +261,7 @@ def dcp_addHandler(args){
     id = iif(maxId==NULL,0,maxId+1)
     tmp = table([id] as id, [handlerArgs['name']] as name, [handlerArgs['code']] as handler, [handlerArgs['comment']] as comment,[now()] as createTime,[now()] as updateTime)  
     loadTable("dfs://dataAcquisition","ParserTemplate").append!(tmp)
-    return '{"status":1}'   
+    return '{"status":1,"id":'+id+'}'   //添加成功  
 }
 
 /*
