@@ -35,7 +35,7 @@ export function Variables (props: IProps) {
             ids={config?.variable_ids}
             cols={config?.variable_cols}
             with_search_btn={config?.with_search_btn}
-            search_btn_label={config?.search_btn_label }
+            search_btn_label={config?.search_btn_label}
         />
     </>
 }
