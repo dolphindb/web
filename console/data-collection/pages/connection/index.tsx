@@ -51,7 +51,7 @@ export function Connections () {
                 await request('dcp_deleteConnect', { ids: selected_connections })
                 message.success('删除成功')
                 
-                if (selected_connections.includes(Number(connection)))
+                if (selected_connections.includes(Number(connection))) 
                     set_connection(null)
                 set_selected_connections([ ])
                 mutate()
@@ -114,9 +114,9 @@ export function Connections () {
                         <Space>
                             <EditOutlined 
                                 className='connection-edit-icon'
-                                onClick={e => {
+                                onClick={async e => {
                                     e.stopPropagation()
-                                    
+                                    await NiceModal.show(CreateConnectionModal, { protocol: item, refresh: mutate, editedConnection: connection })
                                 }}
                             />
                             <DeleteOutlined 

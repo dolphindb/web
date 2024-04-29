@@ -6,8 +6,8 @@ import { useCallback } from 'react'
 import NiceModal, { useModal } from '@ebay/nice-modal-react'
 
 import { t } from '../../../../i18n/index.js'
-import { model } from '../../../model.js'
 import type { Connection } from '../../type.js'
+import { request } from '../../utils.js'
 
 interface IProps {
     editedConnection?: Connection
@@ -17,15 +17,16 @@ interface IProps {
 
 export const CreateConnectionModal = NiceModal.create((props: IProps) => {
     const [form] = Form.useForm()
-    const { protocol, refresh } = props
+    const { protocol, refresh, editedConnection } = props
     
     const modal = useModal()
     
-    const on_create = useCallback(async values => {
-        await model.ddb.call('dcp_addConnect', [
-          JSON.stringify({ ...values, protocol })  
-        ])   
-        message.success(t('创建成功'))
+    const on_submit = useCallback(async values => {
+        if (editedConnection)
+            await request('dcp_updateConnect', { ...values, id: editedConnection.id })
+        else
+            await request('dcp_addConnect', { ...values, protocol })   
+        message.success(editedConnection ? t('编辑成功') : t('创建成功'))
         modal.hide()
         refresh()
     }, [ refresh, protocol ])
@@ -35,12 +36,11 @@ export const CreateConnectionModal = NiceModal.create((props: IProps) => {
         open={modal.visible} 
         onCancel={modal.hide} 
         afterClose={modal.remove}
-        onOk={on_create}
         width={800}
         footer={null}
         className='create-connection-modal'
     >
-        <Form labelAlign='left' labelCol={{ span: 6 }} form={form} onFinish={on_create}>
+        <Form labelAlign='left' labelCol={{ span: 6 }} form={form} onFinish={on_submit} initialValues={editedConnection}>
         <Form.Item label={t('名称')} name='name' rules={[{ required: true, message: t('请输入名称') }]}>
             <Input placeholder={t('请输入名称')}/>
         </Form.Item>
