@@ -171,7 +171,17 @@ export function DdbSider () {
                 {
                     key: 'data-collection',
                     icon: <MenuIcon view='data-collection' />,
-                    label: t('数据采集平台')
+                    label: t('数据采集平台'),
+                    children: [
+                        {
+                            label: t('连接信息'),
+                            key: 'connection'
+                        },
+                        {
+                            label: t('解析模板'),
+                            key: 'parser-template'
+                        }
+                    ]
                 },
                 ... is_factor_platform_enabled ? [{
                     key: 'factor',

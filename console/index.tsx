@@ -44,7 +44,8 @@ import { Computing } from './computing/index.js'
 import { DashBoard } from './dashboard/index.js'
 import { User, Group } from './access/index.js'
 import { Settings } from './settings/index.js'
-import { DataCollection } from './data-collection/index.js'
+import { Connections } from './data-collection/pages/connection/index.js'
+import { ParserTemplate } from './data-collection/pages/parser-template/index.js'
 
 
 
@@ -149,7 +150,8 @@ const views = {
     user: User,
     group: Group,
     settings: Settings,
-    'data-collection': DataCollection
+    connection: Connections,
+    'parser-template': ParserTemplate
 }
 
 
