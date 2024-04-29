@@ -45,7 +45,7 @@ import { DashBoard } from './dashboard/index.js'
 import { User, Group } from './access/index.js'
 import { Settings } from './settings/index.js'
 import { Connections } from './data-collection/pages/connection/index.js'
-import { ParserTemplate } from './data-collection/pages/parser-template/index.js'
+import { ParserTemplates } from './data-collection/pages/parser-template/index.js'
 
 
 
@@ -151,7 +151,7 @@ const views = {
     group: Group,
     settings: Settings,
     connection: Connections,
-    'parser-template': ParserTemplate
+    'parser-template': ParserTemplates
 }
 
 

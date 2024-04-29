@@ -36,7 +36,7 @@ const DEFAULT_TEMPLATES = {
     total: 0
 }
 
-export function ConnectionDetailPage (props: IProps) {
+export function ConnectionDetail (props: IProps) {
     const { connection } = props
     
     const [selected_subscribes, set_selected_subscribes] = useState<string[]>([ ])

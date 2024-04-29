@@ -14,7 +14,7 @@ import NiceModal from '@ebay/nice-modal-react'
 
 
 import { t } from '../../../../i18n/index.js'
-import { ConnectionDetailPage } from '../../components/connection-detail-page/index.js'
+import { ConnectionDetail } from '../../components/connection-detail/index.js'
 import { CreateConnectionModal } from '../../components/create-connection-modal/index.js'
 import { InitPage } from '../../components/init-page/index.js'
 import { protocols } from '../../constant.js'
@@ -46,11 +46,11 @@ export function Connections () {
     const on_delete_connection = useCallback(async () => {
         Modal.confirm({
             title: t(`确定要删除选中的 ${selected_connections.length} 项连接吗`),
-            okButtonProps: { style: { backgroundColor: 'red' } },
+            okButtonProps: { type: 'primary', danger: true  },
             onOk: async () => {
                 await request('dcp_deleteConnect', { ids: selected_connections })
                 message.success('删除成功')
-                console.log(selected_connections, connection, 'kkkk')
+                
                 if (selected_connections.includes(Number(connection)))
                     set_connection(null)
                 set_selected_connections([ ])
@@ -62,7 +62,7 @@ export function Connections () {
     const on_delete_single_connection = useCallback(async ({ name, id }: Connection) => {
         Modal.confirm({
             title: t('确定要删除连接 {{name}}吗？', { name }),
-            okButtonProps: { style: { backgroundColor: 'red' } },
+            okButtonProps: { type: 'primary', danger: true  },
             onOk: async () => {
                 await request('dcp_deleteConnect', { ids: [id] })
                 message.success('删除成功')
@@ -170,7 +170,7 @@ export function Connections () {
         <div className='connection-detail'>
             {
             !!connection 
-                ? <ConnectionDetailPage connection={connection}/>
+                ? <ConnectionDetail connection={connection}/>
                 : <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description={t('请选择连接')}/>
             }
         </div>
