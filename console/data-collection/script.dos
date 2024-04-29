@@ -260,7 +260,7 @@ def dcp_addHandler(args){
     maxId = (exec max(id) from loadTable("dfs://dataAcquisition","ParserTemplate"))[0]
     id = iif(maxId==NULL,0,maxId+1)
     tmp = table([id] as id, [handlerArgs['name']] as name, [handlerArgs['handler']] as handler, [handlerArgs['protocol']] as `protocol,
-    [handlerArgs['comment']] as comment,[now()] as createTime,[now()] as updateTime)  
+    string([handlerArgs['comment']]) as comment,[now()] as createTime,[now()] as updateTime)  
     loadTable("dfs://dataAcquisition","ParserTemplate").append!(tmp)
     return '{"status":1,"id":'+id+'}'   //添加成功  
 }
@@ -320,12 +320,18 @@ def dcp_getTemplateArgs(args){
 
 /*
 获取点位解析模板列表
+@args "protocol":解析模板协议 字符串(可为空)
+@return 返回一个包含解析模板信息的json，键为items，值为解析模板列表 
 */  
-def dcp_getParserTemplateList(){
-    tmp = select * from loadTable("dfs://dataAcquisition","ParserTemplate")
+def dcp_getParserTemplateList(args){
+    protocolType=parseExpr(args).eval()['protocol']
+    if(protocolType==string(NULL)){
+        tmp = select * from loadTable("dfs://dataAcquisition","ParserTemplate")
+    }else{
+        tmp = select * from loadTable("dfs://dataAcquisition","ParserTemplate") where protocol=protocolType 
+    } 
     return '{"items":'+toStdJson(tmp)+',"total":'+tmp.size()+'}'  
 }
-
 
 
 def dcp_exitsDataAcquisition(){
