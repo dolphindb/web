@@ -1,3 +1,5 @@
+import './index.scss'
+
 import { useCallback, useEffect, useId, useMemo, useState } from 'react'
 import useSWR from 'swr'
 
@@ -5,26 +7,25 @@ import { Checkbox, Empty, Menu, Modal, Spin, Tooltip, Typography, message } from
 
 import { useMemoizedFn } from 'ahooks'
 
-import { DeleteOutlined, FolderOpenOutlined, PlusCircleOutlined, PlusOutlined } from '@ant-design/icons'
+import { DeleteOutlined, FolderOpenOutlined, PlusCircleOutlined } from '@ant-design/icons'
 
 
 import NiceModal from '@ebay/nice-modal-react'
 
-import { t } from '../../i18n/index.js'
 
-import type { Connection } from './type.js'
-import { request } from './utils.js'
-import { protocols } from './constant.js'
-import code from './script.dos'
-import './index.scss'
-import { CreateConnectionModal } from './components/create-connection-modal/index.js'
-import { ConnectionDetailPage } from './components/connection-detail-page/index.js'
-import { dcp_model } from './model.js'
-import { InitPage } from './components/init-page/index.js'
+import { t } from '../../../../i18n/index.js'
+import { ConnectionDetailPage } from '../../components/connection-detail-page/index.js'
+import { CreateConnectionModal } from '../../components/create-connection-modal/index.js'
+import { InitPage } from '../../components/init-page/index.js'
+import { protocols } from '../../constant.js'
+import { dcp_model } from '../../model.js'
+import { request } from '../../utils.js'
 
+import { type Connection } from '../../type.js'
 
 
-export function DataCollection () {
+
+export function Connections () {
     const [protocol, set_protocol] = useState('mqtt')
     const [connection, set_connection] = useState<number>()
     const [selected_connections, set_selected_connections] = useState<number[]>([ ])
@@ -124,7 +125,6 @@ export function DataCollection () {
     const on_click_protocol = useMemoizedFn((open_keys: string[]) => {
         if (!open_keys?.length) {
             set_connection(null)
-            
             set_protocol(null)
         } else
             set_protocol(open_keys?.[0])
@@ -140,6 +140,7 @@ export function DataCollection () {
         return  <Spin>
             <div className='center-spin-div'/>
         </Spin> 
+    
     
     return database_inited === 'inited' ? <div className='data-collection-wrapper'>
         <div className='connection-list'>
