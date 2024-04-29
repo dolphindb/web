@@ -91,11 +91,12 @@ def dcp_getConnectList(args){
 /*
 添加订阅信息：
 参数：args 为标准json，需要包含以下字段：
-name: 订阅名称              字符串
-topic: 订阅主题             字符串
-connectId：使用的连接        整数
-handlerId：使用的解析模板    整数
-recvbufSize：接收缓冲区大小  整数
+name: 订阅名称
+topic: 订阅主题
+connectId：使用的连接
+handlerId：使用的解析模板
+recvbufSize：接收缓冲区大小
+templateParams: 模板参数    
 */
 def dcp_addSubscribe(args){
     subArgs = parseExpr(args).eval()
@@ -112,7 +113,8 @@ def dcp_addSubscribe(args){
     update connectInfo set updateTime = now()
     update connectInfo set subID=" "
     update connectInfo set status=0
-    connectInfo.reorderColumns!(`id`connectId`topic`name`host`port`handlerId`username`password`recvbufSize`status`subID`createTime`updateTime)
+    update connectInfo set templateParams=subArgs['templateParams'] 
+    connectInfo.reorderColumns!(`id`connectId`topic`name`host`port`handlerId`templateParams`username`password`recvbufSize`status`subID`createTime`updateTime)
     loadTable("dfs://dataAcquisition","subscribeInfo").append!(connectInfo)
     return '{"status":1,"id":'+id+'}'  
 }
@@ -178,7 +180,6 @@ def dcp_getConnectAndSubInfo(args){
 开始订阅
 参数：args 为标准json，需要包含以下字段：
 subId: 订阅ID   
-mqsubArgs: 解析模板的参数列表
 */
 def dcp_startSubscribe(args){
     subArgs = parseExpr(args).eval()
@@ -189,13 +190,14 @@ def dcp_startSubscribe(args){
     handlerName  = (handlerName[strpos(handlerName,"def")!=-1].split("(")[0].split("def ")[1])[0]
     subscribeStr = 'tmp = (exec * from loadTable("dfs://dataAcquisition","subscribeInfo") where id ='+ subArgs[`subId]+')[0];
     mqtt::subscribe(tmp["host"],tmp["port"],tmp["topic"],,'+handlerName+'{'
-    mqsubArgs = subArgs[`mqsubArgs]
+    mqsubArgs = (exec templateParams from  loadTable("dfs://dataAcquisition","subscribeInfo") where id = subArgs[`subId])[0]
+    mqsubArgs = parseExpr(mqsubArgs).eval() 
     for(i in (0..(mqsubArgs.size()-1))){    
         if(i < mqsubArgs.size()-1 ){
-            subscribeStr += "`"+mqsubArgs[i]+","
+            subscribeStr += "`"+mqsubArgs[i][`value]+","
         }
         else{
-            subscribeStr += "`"+mqsubArgs[i]
+            subscribeStr += "`"+mqsubArgs[i][`value]
         }
     }
     subscribeStr += '},tmp["username"],tmp["password"],tmp["recvbufSize"])'
@@ -246,21 +248,24 @@ def dcp_subStatusMonitor(args){
     }
 }
 
+
+
 /*
 添加模板
 @args 
 name:模板名称 字符串
 handler:函数定义 字符串
+protocol:模板协议 字符串
 comment:模板备注 字符串
+templateParams：模板参数 字符串
 @return 无
 */
-
 def dcp_addHandler(args){
     handlerArgs = parseExpr(args).eval()
     maxId = (exec max(id) from loadTable("dfs://dataAcquisition","ParserTemplate"))[0]
     id = iif(maxId==NULL,0,maxId+1)
     tmp = table([id] as id, [handlerArgs['name']] as name, [handlerArgs['handler']] as handler, [handlerArgs['protocol']] as `protocol,
-    string([handlerArgs['comment']]) as comment,[now()] as createTime,[now()] as updateTime)  
+    string([handlerArgs['comment']]) as comment,[handlerArgs['templateParams']] as templateParams,[now()] as createTime,[now()] as updateTime)  
     loadTable("dfs://dataAcquisition","ParserTemplate").append!(tmp)
     return '{"status":1,"id":'+id+'}'   //添加成功  
 }
@@ -272,8 +277,7 @@ def dcp_addHandler(args){
 id:模板id 整数
 可选：
 name:模板名称 字符串
-handler:函数定义 字符串
-protocol:解析模板协议 字符串
+code:函数定义 字符串
 comment:模板备注 字符串
 @return 无
 */
@@ -286,20 +290,38 @@ def dcp_updateHandler(args){
        }
     }
     tmp[`updateTime]=now()
+    delete loadTable("dfs://dataAcquisition","ParserTemplate") where id=handlerArgs[`id]
+    loadTable("dfs://dataAcquisition","ParserTemplate").append!(tmp)    
     return '{"status":1}'   //更新成功  
 }    
 
 /*
 删除模板
 @args 
-id:模板id 整数
+id:模板id int数组
 */
 def dcp_deleteHandler(args){
     handlerArgs = parseExpr(args).eval()
-    delete from loadTable("dfs://dataAcquisition","ParserTemplate") where id=handlerArgs[`id]
+    delete from loadTable("dfs://dataAcquisition","ParserTemplate") where id in handlerArgs[`id]
     return '{"status":1}'   //删除成功  
 }
 
+
+
+/*
+获取点位解析模板列表
+@args "protocol":解析模板协议 字符串(默认为空)
+@return 返回一个包含解析模板信息的json，键为items，值为解析模板列表 
+*/  
+def dcp_getParserTemplateList(args="{}"){
+    protocolType=parseExpr(args).eval()['protocol']
+    if(protocolType==string(NULL)){
+        tmp = select * from loadTable("dfs://dataAcquisition","ParserTemplate")
+    }else{
+        tmp = select * from loadTable("dfs://dataAcquisition","ParserTemplate") where protocol=protocolType 
+    } 
+    return '{"items":'+toStdJson(tmp)+',"total":'+tmp.size()+'}'  
+}
 
 /*
 获取模板参数
@@ -308,29 +330,8 @@ def dcp_deleteHandler(args){
 */
 def dcp_getTemplateArgs(args){
     handlerArgs = parseExpr(args).eval()
-    handler = (exec handler from loadTable("dfs://dataAcquisition","ParserTemplate") where id = handlerArgs['handlerId'])[0]
-    tmp = handler.split("\n")
-    tmp  = tmp[strpos(tmp,"def")!=-1].split("(")[1].split(")")[0].split(",")
-    res = array(STRING,tmp.rowSize()-2)
-    for(i in (0..(tmp.rowSize()[0]-3))){
-        res[i] = tmp[i]
-    }
-    return '{"returnArgs":'+res.toStdJson()+'}'    
-}
-
-/*
-获取点位解析模板列表
-@args "protocol":解析模板协议 字符串(可为空)
-@return 返回一个包含解析模板信息的json，键为items，值为解析模板列表 
-*/  
-def dcp_getParserTemplateList(args){
-    protocolType=parseExpr(args).eval()['protocol']
-    if(protocolType==string(NULL)){
-        tmp = select * from loadTable("dfs://dataAcquisition","ParserTemplate")
-    }else{
-        tmp = select * from loadTable("dfs://dataAcquisition","ParserTemplate") where protocol=protocolType 
-    } 
-    return '{"items":'+toStdJson(tmp)+',"total":'+tmp.size()+'}'  
+    handler = (exec templateParams from loadTable("dfs://dataAcquisition","ParserTemplate") where id = handlerArgs['handlerId'])[0]
+    return '{"returnArgs":'+handler+'}'    
 }
 
 
@@ -349,12 +350,12 @@ def dcp_createAllTable(){
     colTypes = [INT,STRING,STRING,STRING,INT,STRING,STRING,TIMESTAMP,TIMESTAMP]
     createTable(db,table(1:0,colNames,colTypes),`connectInfo)
 
-    colNames = `id`connectId`topic`name`host`port`handlerId`username`password`recvbufSize`status`subID`createTime`updateTime  
-    colTypes = [INT,INT,STRING,STRING,STRING,INT,INT,STRING,STRING,INT,INT,STRING,TIMESTAMP,TIMESTAMP]
+    colNames = `id`connectId`topic`name`host`port`handlerId`templateParams`username`password`recvbufSize`status`subID`createTime`updateTime  
+    colTypes = [INT,INT,STRING,STRING,STRING,INT,INT,STRING,STRING,STRING,INT,INT,STRING,TIMESTAMP,TIMESTAMP]
     createTable(db,table(1:0,colNames,colTypes),`subscribeInfo)
 
-    colNames = `id`name`handler`protocol`comment`createTime`updateTime
-    colTypes=[INT,STRING,STRING,STRING,STRING,TIMESTAMP,TIMESTAMP]
+    colNames = `id`name`handler`protocol`comment`templateParams`createTime`updateTime
+    colTypes=[INT,STRING,STRING,STRING,STRING,STRING,TIMESTAMP,TIMESTAMP]
     createTable(db,table(1:0,colNames,colTypes),`ParserTemplate)
 }
 
@@ -433,5 +434,5 @@ def dcp_init(){
     }
     '
     loadTable("dfs://dataAcquisition","ParserTemplate").append!(table([0] as id,["test"] as name,[handler] as handler,[`mqtt] as protocol,
-    ["测试解析模板"] as comment,[now()] as c1,[now()] as col2))
+    ["测试解析模板"] as comment,'["outputTableName","timeColumn","idColumn"]' as templateParams,[now()] as c1,[now()] as col2))
 }
