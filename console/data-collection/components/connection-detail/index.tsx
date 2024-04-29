@@ -48,7 +48,7 @@ export function ConnectionDetail (props: IProps) {
     
     const { data: { items: templates } = DEFAULT_TEMPLATES } = useSWR(
         'dcp_getParserTemplateList',
-        async () => request<{ items: ParserTemplate[], total: number }>('dcp_getParserTemplateList')
+        async () => request<{ items: ParserTemplate[], total: number }>('dcp_getParserTemplateList', { protocol: data?.connectInfo?.protocol })
     )
     
     const desp_items = useMemo<DescriptionsProps['items']>(() => {

@@ -2,7 +2,7 @@ import './index.scss'
 
 import NiceModal, { useModal } from '@ebay/nice-modal-react'
 
-import { Modal, Form, Input, message } from 'antd'
+import { Modal, Form, Input, message, Select } from 'antd'
 
 import { useCallback } from 'react'
 
@@ -10,6 +10,7 @@ import type { ParserTemplate } from '../../type.js'
 import { t } from '../../../../i18n/index.js'
 import { Editor } from '../../../shell/Editor/index.js'
 import { request } from '../../utils.js'
+import { protocols } from '../../constant.js'
 
 interface IProps {
     editedTemplate?: ParserTemplate
@@ -50,6 +51,9 @@ export const ParserTemplateModal = NiceModal.create(({ refresh, editedTemplate }
         <Form initialValues={editedTemplate} form={form} labelAlign='left' labelCol={{ span: 2 }}>
             <Form.Item label={t('名称')} name='name' rules={[{ required: true, message: t('请输入名称') }]}>
                 <Input placeholder={t('请输入模板名称')} />
+            </Form.Item>
+            <Form.Item label={t('协议')} name='protocol' rules={[{ required: true, message: t('请选择协议') }]}>
+                <Select placeholder={t('请选择协议')} options={protocols.map(item => ({ label: item, value: item }))}/>
             </Form.Item>
             <Form.Item label={t('备注')} name='comment'>
                 <Input placeholder={t('请输入备注')}/>

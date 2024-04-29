@@ -1,12 +1,15 @@
 import './index.scss'
 import NiceModal, { useModal } from '@ebay/nice-modal-react'
-import type { Subscribe } from 'ahooks/lib/useRequest/src/types.js'
-import { Button, Form, Input, InputNumber, Modal, Select, message } from 'antd'
+import { Button, Form, Input, InputNumber, Modal, Select, Spin, Tag, message } from 'antd'
 
-import { useCallback } from 'react'
+import { useCallback, useState } from 'react'
+
+import useSWR from 'swr'
+
+import { isNil } from 'lodash'
 
 import { t } from '../../../../i18n/index.js'
-import type { ParserTemplate } from '../../type.js'
+import type { ParserTemplate, Subscribe } from '../../type.js'
 import { request } from '../../utils.js'
 
 interface IProps {
@@ -23,20 +26,34 @@ export const CreateSubscribeModal = NiceModal.create((props: IProps) => {
     const modal = useModal()
     const [form] = Form.useForm()
     
-    console.log(edited_subscribe, 'edited_subscribe')
+    const [handlerId, setHanderId] = useState<number>()
+    
+    
+    const { data, isLoading } = useSWR(
+        !isNil(handlerId) ? ['dcp_getTemplateArgs', handlerId] : null,
+        async () => request<{ returnArgs: string[] }>('dcp_getTemplateArgs', { handlerId }),
+        { 
+            onSuccess: data => { form.setFieldValue('templateParams', data.returnArgs.map(item => ({ key: item }))) },
+        }
+    )
     
     const on_submit = useCallback(async () => {
+        if (isLoading)
+            return
         try {
             await form.validateFields()
         } catch {
             return
         }
-        const values = form.getFieldsValue()
+        let values = form.getFieldsValue()
+        values = { ...values, templateParams: JSON.stringify(values?.params) }
+        
         if (edited_subscribe) 
             await request('dcp_updateSubscribe', { ...edited_subscribe, ...values })
         else
             await request('dcp_addSubscribe', { ...values, connectId: Number(connection_id) })
-        message.success(edited_subscribe ? t('修改成功') : t('创建成功'))
+        
+            message.success(edited_subscribe ? t('修改成功') : t('创建成功'))
         modal.hide()
         refresh()
     }, [edited_subscribe, connection_id])
@@ -53,7 +70,7 @@ export const CreateSubscribeModal = NiceModal.create((props: IProps) => {
     >
         <Form 
             form={form} 
-            initialValues={edited_subscribe} 
+            initialValues={edited_subscribe ? { ...edited_subscribe, templateParams: JSON.parse(edited_subscribe.templateParams) } : undefined} 
             labelAlign='left' 
             labelCol={{ span: 6 }}
         >
@@ -65,10 +82,36 @@ export const CreateSubscribeModal = NiceModal.create((props: IProps) => {
             </Form.Item>
             <Form.Item label={t('点位解析模板')} name='handlerId' rules={[{ required: true, message: t('请选择点位解析模板') }]}>
                 <Select 
-                    options={parser_templates.map(item => ({ label: item.name, value: item.id }))} 
+                    onSelect={val => { setHanderId(val) }}
+                    options={parser_templates.map(item => (
+                        { 
+                            value: item.id, 
+                            label: <div className='parser-template-label'>
+                                {item.name}
+                                <Tag color='processing' bordered={false}>{item.protocol}</Tag>
+                            </div> 
+                        }))} 
                     placeholder={t('请选择点位解析模板')}
                 />
             </Form.Item>
+            
+            
+            {isLoading 
+            ? <Spin spinning><div /></Spin>
+            : !!data?.returnArgs?.length && <div className='parser-template-params'>
+                <h4>{t('模板参数')}</h4>
+                <Form.List name='templateParams'>
+                    {fields => fields.map(field => <div key={field.key}>
+                        <Form.Item name={[field.name, 'key']} hidden>
+                            <Input />
+                        </Form.Item>
+                        <Form.Item name={[field.name, 'value']} label={data.returnArgs[field.key]}>
+                            <Input placeholder={t('请输入参数值')} />
+                        </Form.Item>
+                    </div>)}
+                </Form.List>    
+            </div>}
+                
             <Form.Item label='接收缓冲区大小' name='recvbufSize' tooltip={t('默认为 20480')}>
                 <InputNumber placeholder={t('请输入接收缓冲区大小')}/>
             </Form.Item>

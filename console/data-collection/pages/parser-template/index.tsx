@@ -2,7 +2,7 @@ import useSWR from 'swr'
 import './index.scss'
 import { useCallback, useId, useMemo, useState } from 'react'
 
-import { Button, Modal, Space, Table, Typography, message, type TableProps } from 'antd'
+import { Button, Modal, Space, Table, Tag, Typography, message, type TableProps } from 'antd'
 
 import { DeleteOutlined, PlusOutlined } from '@ant-design/icons'
 
@@ -27,8 +27,10 @@ export function ParserTemplates () {
     
     const { data = DEFAULT_TEMPLATE_DATA, isLoading, mutate: refresh } = useSWR(
         ['dcp_getParserTemplateList', id],
-        async () => request<ListData<ParserTemplate>>('dcp_getParserTemplateList')   
+        async () => request<ListData<ParserTemplate>>('dcp_getParserTemplateList', { })   
     )
+    
+    console.log(data, 'data')
     
     
     const on_create = useCallback(() => {
@@ -71,7 +73,20 @@ export function ParserTemplates () {
             title: t('模板名称'),
             dataIndex: 'name',
             key: 'name',
-            width: 300,
+            width: 200,
+        },
+        {
+            title: t('协议'),
+            dataIndex: 'protocol',
+            width: 100,
+            render: protocol => <Tag color='processing' bordered={false}>{protocol}</Tag> 
+        },
+        {
+            title: t('备注'),
+            dataIndex: 'comment',
+            key: 'comment',
+            width: 400,
+            render: comment => <Typography.Paragraph className='parser-template-comment' ellipsis={{ rows: 2 }}>{comment}</Typography.Paragraph>
         },
         {
             title: t('创建时间'),
@@ -86,13 +101,6 @@ export function ParserTemplates () {
             key: 'updateTime',
             render: time => format_time(time, 'YYYY-MM-DD HH:mm:ss'),
             width: 300
-        },
-        {
-            title: t('备注'),
-            dataIndex: 'comment',
-            key: 'comment',
-            width: 400,
-            render: comment => <Typography.Paragraph className='parser-template-comment' ellipsis={{ rows: 2 }}>{comment}</Typography.Paragraph>
         },
         {
             dataIndex: 'operations',

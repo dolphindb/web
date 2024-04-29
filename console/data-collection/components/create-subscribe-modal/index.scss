@@ -3,7 +3,26 @@
         width: 100%;
         text-align: end;
     }
+    
+    
+    .parser-template-params {
+        padding: 16px;
+        background-color: rgba(0, 0, 0, 0.02);
+        margin-bottom: 16px;
+        
+        h4 {
+            margin-top: 0px;
+        }
+    }
+
+    
     .ant-input-number {
         width: 300px;
     }
+}
+
+.parser-template-label {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
 }

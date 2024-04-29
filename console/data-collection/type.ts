@@ -29,6 +29,7 @@ export interface Subscribe {
     recvbufSize: number
     // 状态 0 未连接 1 连接
     status: 0 | 1
+    templateParams: string
 }
 
 
@@ -39,6 +40,7 @@ export interface ParserTemplate {
     comment?: string
     createTime: string
     updateTime?: string
+    protocol: string
 }
 
 
