@@ -41,24 +41,24 @@ export const CreateConnectionModal = NiceModal.create((props: IProps) => {
         className='create-connection-modal'
     >
         <Form labelAlign='left' labelCol={{ span: 6 }} form={form} onFinish={on_submit} initialValues={editedConnection}>
-        <Form.Item label={t('名称')} name='name' rules={[{ required: true, message: t('请输入名称') }]}>
-            <Input placeholder={t('请输入名称')}/>
-        </Form.Item>
-        <Form.Item label={t('服务器地址')} name='host' rules={[{ required: true, message: t('请输入服务器地址') }]}>
-            <Input placeholder={t('请输入服务器地址')}/>
-        </Form.Item>
-        <Form.Item label={t('端口')} name='port' rules={[{ required: true, message: t('请输入端口') }]}>
-            <InputNumber min={0} placeholder={t('请输入端口')}/>
-        </Form.Item>
-        <Form.Item label={t('用户名')} name='username' rules={[{ required: true, message: t('请输入用户名') }]}>
-            <Input placeholder={t('请输入用户名')}/>           
-        </Form.Item>
-        <Form.Item label={t('密码')} name='password'  rules={[{ required: true, message: t('请输入密码') }]}>
-            <Input placeholder={t('请输入密码')}/>
-        </Form.Item>
-        <Form.Item className='submit-btn-form-item'>
-            <Button htmlType='submit' type='primary'>{t('确定')}</Button>
-        </Form.Item>
-    </Form>
+            <Form.Item label={t('名称')} name='name' rules={[{ required: true, message: t('请输入名称') }]}>
+                <Input placeholder={t('请输入名称')}/>
+            </Form.Item>
+            <Form.Item label={t('服务器地址')} name='host' rules={[{ required: true, message: t('请输入服务器地址') }]}>
+                <Input placeholder={t('请输入服务器地址')}/>
+            </Form.Item>
+            <Form.Item label={t('端口')} name='port' rules={[{ required: true, message: t('请输入端口') }]}>
+                <InputNumber min={0} placeholder={t('请输入端口')}/>
+            </Form.Item>
+            <Form.Item label={t('用户名')} name='username' rules={[{ required: true, message: t('请输入用户名') }]}>
+                <Input placeholder={t('请输入用户名')}/>           
+            </Form.Item>
+            <Form.Item label={t('密码')} name='password'  rules={[{ required: true, message: t('请输入密码') }]}>
+                <Input placeholder={t('请输入密码')}/>
+            </Form.Item>
+            <Form.Item className='submit-btn-form-item'>
+                <Button htmlType='submit' type='primary'>{t('确定')}</Button>
+            </Form.Item>
+        </Form>
     </Modal>
 })

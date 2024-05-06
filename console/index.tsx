@@ -44,8 +44,8 @@ import { Computing } from './computing/index.js'
 import { DashBoard } from './dashboard/index.js'
 import { User, Group } from './access/index.js'
 import { Settings } from './settings/index.js'
-import { Connections } from './data-collection/pages/connection/index.js'
-import { ParserTemplates } from './data-collection/pages/parser-template/index.js'
+import { Connections } from './data-collection/Connection.js'
+import { ParserTemplates } from './data-collection/ParserTemplates.js'
 
 
 
