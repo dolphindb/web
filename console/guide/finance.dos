@@ -61,38 +61,38 @@
 						res = 'if (!existsDatabase("'+dbName+'")){\n\tdb1 = database("directory='+dbName+'", partitionType=RANGE,partitionScheme=date(datetimeAdd(2008.01M,0..42*12,"M")))\n}\n'
 					}
 					else if (dailyIncreaseAmount <=50000){
-						res = 'if (!existsDatabase("'+dbName+'")){\n\tdb1 = database("directory='+dbName+'", partitionType=VALUE, partitionScheme=2020.01M..2020.02M)\n}\n'
+						res = 'if (!existsDatabase("'+dbName+'")){\n\tdb1 = database(directory="'+dbName+'", partitionType=VALUE, partitionScheme=2020.01M..2020.02M)\n}\n'
 					}
 					else{
-						res = 'if (!existsDatabase("'+dbName+'")){\n\tdb1 = database("directory='+dbName+'", partitionType=VALUE, partitionScheme=2020.01.01..2020.01.02)\n}\n'
+						res = 'if (!existsDatabase("'+dbName+'")){\n\tdb1 = database(directory="'+dbName+'", partitionType=VALUE, partitionScheme=2020.01.01..2020.01.02)\n}\n'
 					}
 				}
 				else{
 					hashCount=string(dailyIncreaseAmount/1000000+1)
-					res = 'if(!existsDatabase("'+dbName+'")){\n\tdb1 = database(, partitionType=VALUE, partitionScheme=2020.01.01..2020.01.02)\n\tdb2 = database(, partitionType=HASH, partitionScheme=[SYMBOL,'+hashCount+'])\n\tdb12 = database("directory='+dbName+'", partitionType=COMPO, partitionScheme=[db1, db2])\n}\n'
+					res = 'if(!existsDatabase("'+dbName+'")){\n\tdb1 = database(, partitionType=VALUE, partitionScheme=2020.01.01..2020.01.02)\n\tdb2 = database(, partitionType=HASH, partitionScheme=[SYMBOL,'+hashCount+'])\n\tdb12 = database(directory="'+dbName+'", partitionType=COMPO, partitionScheme=[db1, db2])\n}\n'
 				}
 			}
 			else{
 				if (dailyIncreaseAmount <1000000){
 					if (dailyIncreaseAmount <=5000){
-						res = 'if (!existsDatabase("'+dbName+'")){\n\tdb1 = database("directory='+dbName+'", partitionType=RANGE, partitionScheme=date(datetimeAdd(2008.01M,0..42*12,"M")),engine="'+engineType+'")\n}\n'
+						res = 'if (!existsDatabase("'+dbName+'")){\n\tdb1 = database(directory="'+dbName+'", partitionType=RANGE, partitionScheme=date(datetimeAdd(2008.01M,0..42*12,"M")),engine="'+engineType+'")\n}\n'
 					}
 					else if (dailyIncreaseAmount <=50000){
-						res = 'if (!existsDatabase("'+dbName+'")){\n\tdb1 = database("directory='+dbName+'", partitionType=VALUE, partitionScheme=2020.01M..2020.02M,engine="'+engineType+'")\n}\n'
+						res = 'if (!existsDatabase("'+dbName+'")){\n\tdb1 = database(directory="'+dbName+'", partitionType=VALUE, partitionScheme=2020.01M..2020.02M,engine="'+engineType+'")\n}\n'
 					}
 					else{
-						res = 'if (!existsDatabase("'+dbName+'")){\n\tdb1 = database("directory='+dbName+'", partitionType=VALUE, partitionScheme=2020.01.01..2020.01.02,engine="'+engineType+'")\n}\n'
+						res = 'if (!existsDatabase("'+dbName+'")){\n\tdb1 = database(directory="'+dbName+'", partitionType=VALUE, partitionScheme=2020.01.01..2020.01.02,engine="'+engineType+'")\n}\n'
 					}
 				}
 				else{
 					hashCount=string(dailyIncreaseAmount/1000000+1)
-					res = 'if(!existsDatabase("'+dbName+'")){\n\tdb1 = database(, partitionType=VALUE, partitionScheme=2020.01.01..2020.01.02)\n\tdb2 = database(, partitionType=HASH, partitionScheme=[SYMBOL,'+hashCount+'])\n\tdb12 = database("directory='+dbName+'", partitionType=COMPO, partitionScheme=[db1, db2],engine="'+engineType+'")\n}\n'
+					res = 'if(!existsDatabase("'+dbName+'")){\n\tdb1 = database(, partitionType=VALUE, partitionScheme=2020.01.01..2020.01.02)\n\tdb2 = database(, partitionType=HASH, partitionScheme=[SYMBOL,'+hashCount+'])\n\tdb12 = database(directory="'+dbName+'", partitionType=COMPO, partitionScheme=[db1, db2],engine="'+engineType+'")\n}\n'
 				}
 			}
 
 		}
 		else{
-			res = 'if (!existsDatabase("'+dbName+'")){\n\tdb1 = database("directory='+dbName+'", partitionType=RANGE,partitionScheme=date(datetimeAdd(2008.01M,0..42*12,"M")))\n}\n'
+			res = 'if (!existsDatabase("'+dbName+'")){\n\tdb1 = database(directory="'+dbName+'", partitionType=RANGE,partitionScheme=date(datetimeAdd(2008.01M,0..42*12,"M")))\n}\n'
 		}
 	}else{
 		ptCols = paramDict.table.partitionCols
@@ -105,7 +105,7 @@
 		}
 		res=""
 	}
-	res +=  'db = database("directory='+dbName+'")\n'
+	res +=  'db = database(directory="'+dbName+'")\n'
 
 	tbSchema = "tbSchema=table(1:0, `"+concat(colNames,"`")+",["+concat(colTypes,",")+"]"+")"
 
@@ -175,7 +175,7 @@
 					setCom=""
 					if (comment != "{}"){
 						setCom = '\nsetColumnComment(table=loadTable("'+dbName+'","'+tbName+'"), columnComments='+comment+")"
-					}， 
+					}
 					res = res+tbSchema+"\n"+sortMapFunc+"\n"+createTB+setCom
 					resCode["code"]=res
 					return toStdJson(resCode)
@@ -354,6 +354,7 @@
 		}
 	}
 }
+
 
 
 /* *
