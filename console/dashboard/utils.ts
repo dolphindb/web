@@ -1,6 +1,5 @@
 import { type NamePath } from 'antd/es/form/interface'
-import { type DdbObj, DdbForm, DdbType, nulls, type DdbValue, format, type InspectOptions, type DdbMatrixValue } from 'dolphindb/browser.js'
-import { is_decimal_null_value } from 'dolphindb'
+import { type DdbObj, DdbForm, DdbType, nulls, is_decimal_null_value, type DdbValue, format, type InspectOptions, type DdbMatrixValue } from 'dolphindb/browser.js'
 import { isNil, pickBy } from 'lodash'
 import { createRef } from 'react'
 import { genid } from 'xshell/utils.browser.js'
