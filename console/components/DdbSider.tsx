@@ -71,7 +71,7 @@ export function DdbSider () {
     }, [logined])
     
     return <Layout.Sider
-        width={150}
+        width={100}
         className='sider'
         theme='light'
         collapsible
