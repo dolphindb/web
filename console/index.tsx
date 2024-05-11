@@ -55,7 +55,7 @@ const locales = { zh, en, ja, ko }
 function DolphinDB () {
     return <ConfigProvider
         locale={locales[language] as any}
-        autoInsertSpaceInButton={false}
+        button={{ autoInsertSpace: false }}
         theme={{ hashed: false, token: { borderRadius: 0, motion: false } }}
     >
         <ProConfigProvider hashed={false} token={{ borderRadius: 0, motion: false }}>

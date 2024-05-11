@@ -12,7 +12,8 @@ import { request } from 'xshell/net.browser.js'
 
 import {
     DDB, SqlStandard, DdbFunctionType, DdbVectorString, type DdbObj, DdbInt, DdbLong, type InspectOptions,
-    DdbDatabaseError, type DdbStringObj, type DdbDictObj, type DdbVectorStringObj
+    DdbDatabaseError, type DdbStringObj, type DdbDictObj, type DdbVectorStringObj,
+    type DdbTableData
 } from 'dolphindb/browser.js'
 
 import { language, t } from '../i18n/index.js'
@@ -554,7 +555,7 @@ export class DdbModel extends Model<DdbModel> {
         Only master or single mode supports function getClusterPerf. */
     async get_cluster_perf (print: boolean) {
         const nodes = (
-            await this.ddb.call<DdbObj<DdbObj[]>>('getClusterPerf', [true], {
+            await this.ddb.invoke<DdbTableData>('getClusterPerf', [true], {
                 urgent: true,
                 
                 ... this.node_type === NodeType.controller || this.node_type === NodeType.single ? 
@@ -565,7 +566,7 @@ export class DdbModel extends Model<DdbModel> {
                         func_type: DdbFunctionType.SystemFunc
                     },
             })
-        ).to_rows<DdbNode>()
+        ).data
         .sort((a, b) => strcmp(a.name, b.name))
         
         if (print)
