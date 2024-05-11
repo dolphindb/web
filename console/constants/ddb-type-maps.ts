@@ -7,7 +7,7 @@ export const DDB_TYPE_MAP = {
     [DdbType.short]: 'SHORT',
     [DdbType.int]: 'INT',
     [DdbType.long]: 'LONG',
-    [DdbType.compress]: 'COMPRESS',
+    [DdbType.compressed]: 'COMPRESSED',
     [DdbType.date]: 'DATE',
     [DdbType.month]: 'MONTH',
     [DdbType.time]: 'TIME',
