@@ -187,7 +187,12 @@ export let webpack = {
                 await git.get_last_commits(1)
             )[0]
             
-            const version = `${branch} (${dayjs(time).format('YYYY.MM.DD HH:mm:ss')} ${hash.slice(0, 6)})`
+            const prefix_version = '--version='
+            
+            const version_name = process.argv.find(arg => arg.includes(prefix_version))
+                ?.slice(prefix_version.length)
+            
+            const version = `${version_name || branch} (${dayjs(time).format('YYYY.MM.DD HH:mm:ss')} ${hash.slice(0, 6)})`
             
             await fwrite(`${fpd_out_console}version.json`, { version }, { print: false })
             
