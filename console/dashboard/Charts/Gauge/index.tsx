@@ -102,7 +102,7 @@ export function GaugeConfigForm (props: { col_names: string[] } ) {
     const { widget } = dashboard.use(['widget'])
     
     return <>
-        <BasicFormFields />
+        <BasicFormFields type='chart' chart_fields={[ ]}/>
         <Collapse items={[{
             key: 'data',
             label: '数据配置',
