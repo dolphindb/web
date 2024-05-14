@@ -190,11 +190,20 @@ export let webpack = {
             const prefix_version = '--version='
             
             const version_name = process.argv.find(arg => arg.includes(prefix_version))
-                ?.slice(prefix_version.length)
+                ?.slice(prefix_version.length) || branch
             
-            const version = `${version_name || branch} (${dayjs(time).format('YYYY.MM.DD HH:mm:ss')} ${hash.slice(0, 6)})`
+            const timestr = time.to_formal_str()
             
-            await fwrite(`${fpd_out_console}version.json`, { version }, { print: false })
+            const commit = hash.slice(0, 6)
+            
+            const web_version = `${version_name} (${timestr} ${commit})`
+            
+            await fwrite(`${fpd_out_console}version.json`, {
+                version: version_name,
+                branch,
+                time: timestr,
+                commit
+            }, { print: false })
             
             
             this.lcompiler.resource = Webpack(this.config = {
@@ -289,7 +298,7 @@ export let webpack = {
                 
                 plugins: [
                     new Webpack.DefinePlugin({
-                        WEB_VERSION: version.quote(),
+                        WEB_VERSION: web_version.quote(),
                     }),
                     
                     // 使用 IgnorePlugin 能够不打包，但是一旦导入就会报错
