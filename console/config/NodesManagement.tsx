@@ -76,6 +76,12 @@ export function NodesManagement () {
             key: 'host',
             fieldProps: {
                 placeholder: t('请输入主机名 / IP 地址'),
+            },
+            formItemProps: {
+                rules: [{
+                    required: true,
+                    message: t('请输入主机名 / IP 地址')
+                }]
             }
         },
         {
