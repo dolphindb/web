@@ -60,7 +60,7 @@
         "client-zip": "^2.4.5",
         "copy-to-clipboard": "^3.3.3",
         "dayjs": "^1.11.11",
-        "dolphindb": "^3.0.24",
+        "dolphindb": "^3.0.25",
         "echarts": "^5.5.0",
         "echarts-for-react": "^3.0.2",
         "final-form": "^4.20.10",
@@ -78,7 +78,7 @@
         "tslib": "^2.6.2",
         "vscode-oniguruma": "^2.0.1",
         "vscode-textmate": "^9.0.0",
-        "xshell": "^1.0.105",
+        "xshell": "^1.0.106",
         "xterm": "^5.3.0",
         "xterm-addon-fit": "^0.8.0",
         "xterm-addon-webgl": "^0.16.0"
