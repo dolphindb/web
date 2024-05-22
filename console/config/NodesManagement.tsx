@@ -76,16 +76,6 @@ export function NodesManagement () {
             key: 'host',
             fieldProps: {
                 placeholder: t('请输入主机名 / IP 地址'),
-            },
-            formItemProps: {
-                rules: [{
-                    required: true,
-                    message: t('请输入主机名 / IP 地址')
-                }, {
-                    pattern: /^(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])$|^(https?:\/\/)?([a-zA-Z0-9-]+\.)*[a-zA-Z0-9-]+(\.[a-zA-Z]{2,})+([/?].*)?$/,
-                    message: t('请输入正确的主机名 / IP 地址')
-                }
-            ]
             }
         },
         {
