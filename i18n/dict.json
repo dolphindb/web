@@ -3600,13 +3600,13 @@
         "en": "Please enter the fields."
     },
     "请选择事件类型": {
-        "en": "Please select the event type."    
+        "en": "Please select the event type."
     },
     "数据类型为 {{name}}": {
         "en": "Please enter data of {{name}} type."
     },
     "最近错误时间": {
-        "en": "Last Error Time" 
+        "en": "Last Error Time"
     },
     "请选择数据视图": {
         "en": "Please select a data view"
@@ -3670,9 +3670,6 @@
     },
     "请输入主机名": {
         "en": "Please enter host"
-    },
-    "请输入正确的主机名": {
-        "en": "Please enter the correct"
     },
     "端口号": {
         "en": "Port"
@@ -3806,7 +3803,7 @@
     "用户组管理": {
         "en": "group management"
     },
-    "列名完全匹配":  {
+    "列名完全匹配": {
         "en": "Column names match exactly"
     },
     "为指定名称的列定制配置": {
