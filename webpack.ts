@@ -1,5 +1,3 @@
-import dayjs from 'dayjs'
-
 import { default as Webpack, type Compiler, type Configuration, type Stats } from 'webpack'
 
 // 需要分析 bundle 大小时开启
@@ -173,7 +171,15 @@ export let webpack = {
     lcompiler: new Lock<Compiler>(null),
     
     
-    async build ({ production, is_cloud }: { production: boolean, is_cloud?: boolean }) {
+    async build ({
+        production, 
+        is_cloud, 
+        version_name
+    }: {
+        production: boolean
+        is_cloud?: boolean
+        version_name?: string
+    }) {
         console.log(`开始构建${production ? '生产' : '开发'}模式的 web`)
         
         const base_config = get_base_config(production)
@@ -187,10 +193,7 @@ export let webpack = {
                 await git.get_last_commits(1)
             )[0]
             
-            const prefix_version = '--version='
-            
-            const version_name = process.argv.find(arg => arg.includes(prefix_version))
-                ?.slice(prefix_version.length) || branch
+            version_name ||= branch
             
             const timestr = time.to_formal_str()
             

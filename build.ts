@@ -29,6 +29,8 @@ if (process.argv.includes('cloud')) {
 } else {
     await fdclear(fpd_out_console)
     
+    const prefix_version = '--version='
+    
     await Promise.all([
         fcopy(`${fpd_root}src/`, fpd_out_console, { print: verbose }),
         
@@ -52,7 +54,13 @@ if (process.argv.includes('cloud')) {
         
         webpack.build_bundles(true),
         
-        webpack.build({ production: true, is_cloud: false })
+        webpack.build({
+            production: true,
+            is_cloud: false,
+            version_name: process.argv
+                .find(arg => arg.startsWith(prefix_version))
+                ?.strip_start(prefix_version)
+        })
     ])
 }
 
