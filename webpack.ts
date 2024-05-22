@@ -1,5 +1,3 @@
-import dayjs from 'dayjs'
-
 import { default as Webpack, type Compiler, type Configuration, type Stats } from 'webpack'
 
 // 需要分析 bundle 大小时开启
@@ -189,8 +187,8 @@ export let webpack = {
             
             const prefix_version = '--version='
             
-            const version_name = process.argv.find(arg => arg.includes(prefix_version))
-                ?.slice(prefix_version.length) || branch
+            const version_name = process.argv.find(arg => arg.startsWith(prefix_version))
+                ?.strip_start(prefix_version) || branch
             
             const timestr = time.to_formal_str()
             
