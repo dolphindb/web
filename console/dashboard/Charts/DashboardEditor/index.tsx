@@ -13,17 +13,16 @@ import { get_widget_config } from '../../Header.js'
 
 
 export function DashboardEditor ({ widget }: { widget: Widget }) {
-    const { config } = dashboard.use(['config'])
+    const { config, widgets } = dashboard.use(['config', 'widgets'])
     const [code, set_code] = useState((widget?.config as IEditorConfig)?.code || '')
     
     async function save (code: string) {
-        const new_widget = { ...get_widget_config(widget), config: { ...widget.config, code } }
-        const index = config.data.canvas.widgets.findIndex(({ id }) => id === widget.id)
-        const new_config = {
-            ...config,
-            data: { ...config.data, canvas: { widgets: config.data.canvas.widgets.toSpliced(index, 1, new_widget) } }
-        }
-        await dashboard.update_dashboard_config(new_config)
+        // 本地的 widgets 更新
+        (widgets.find(({ id }) => id === widget.id).config as IEditorConfig).code = code
+        
+        // server 的 widgets 更新
+        config.data.canvas.widgets.find(({ id }) => id === widget.id).config.code = code
+        await dashboard.update_dashboard_config(config)
     }
     
     const save_debounced = useMemo(() => debounce(save, 1000, { leading: false, trailing: true }), [ ])
