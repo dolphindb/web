@@ -9,7 +9,6 @@ import { Editor } from '../../../shell/Editor/index.js'
 
 import { EditorFields } from '../../ChartFormFields/EditorFields.js'
 import { type IEditorConfig } from '../../type.js'
-import { get_widget_config } from '../../Header.js'
 
 
 export function DashboardEditor ({ widget }: { widget: Widget }) {
