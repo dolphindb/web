@@ -227,7 +227,7 @@ function DataView ({ info }: { info: ICEPEngineDetail }) {
                         return
                     }
                     
-                    const streaming_data = stream_formatter(message.data, 0, message.colnames)
+                    const streaming_data = stream_formatter(message.obj, 0, message.data.columns)
     
                     for (let item of streaming_data)  
                         set_key_data_map(data => ({ ...data, [item[key_column]]: item }))                    
