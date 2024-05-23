@@ -15,11 +15,11 @@
 ### Console: DolphinDB 数据库 Web 管理界面
 ![](./console/demo.png)
 
-#### 在线版本
+<!-- #### 在线版本
 最新内部版本的 web 已经部署到 CDN 。可以通过设置 URL 中的 hostname 和 port 参数将打开的 web 界面连接到远程的或者本地的任何 DolphinDB 服务器，比如： 
 http://cdn.dolphindb.cn/web/index.html?view=shell&language=zh&hostname=115.239.209.123&port=8892 
 
-(如果打开后显示空白页，需要手动点击地址栏，将 url 改为 http:// 开头的链接)
+(如果打开后显示空白页，需要手动点击地址栏，将 url 改为 http:// 开头的链接) -->
 
 #### 离线本地部署 (不用重启 server, 可以热替换)
 ```shell

@@ -41,8 +41,8 @@ importers:
         specifier: ^4.6.0
         version: 4.6.0(monaco-editor@0.48.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       ahooks:
-        specifier: ^3.7.11
-        version: 3.7.11(react@18.3.1)
+        specifier: ^3.8.0
+        version: 3.8.0(react@18.3.1)
       antd:
         specifier: ^5.17.3
         version: 5.17.3(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -59,8 +59,8 @@ importers:
         specifier: ^1.11.11
         version: 1.11.11
       dolphindb:
-        specifier: ^3.0.25
-        version: 3.0.25(react-dom@18.3.1(react@18.3.1))
+        specifier: ^3.0.28
+        version: 3.0.28(react-dom@18.3.1(react@18.3.1))
       echarts:
         specifier: ^5.5.0
         version: 5.5.0(patch_hash=vfhko7qsujlqz2bjiq6cbgl6e4)
@@ -81,7 +81,7 @@ importers:
         version: 4.17.21
       monaco-dolphindb:
         specifier: ^0.0.20
-        version: 0.0.20(dolphindb@3.0.25(react-dom@18.3.1(react@18.3.1)))(monaco-editor@0.48.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(vscode-oniguruma@2.0.1)(vscode-textmate@9.0.0)
+        version: 0.0.20(dolphindb@3.0.28(react-dom@18.3.1(react@18.3.1)))(monaco-editor@0.48.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(vscode-oniguruma@2.0.1)(vscode-textmate@9.0.0)
       monaco-editor:
         specifier: ^0.48.0
         version: 0.48.0
@@ -153,8 +153,8 @@ importers:
         specifier: ^4.7.0
         version: 4.7.0
       css-loader:
-        specifier: ^7.1.1
-        version: 7.1.1(webpack@5.91.0)
+        specifier: ^7.1.2
+        version: 7.1.2(webpack@5.91.0)
       eslint:
         specifier: ^9.3.0
         version: 9.3.0
@@ -997,10 +997,6 @@ packages:
     resolution: {integrity: sha512-wDb5pWm4WDdF6LFUde3Jl8WzPA+3ZbxYqkC6xAXuD3irdEHN1k0NfTRrJD8ZD378SJ61miMLCqIOXYhd8x+AJQ==}
     engines: {node: '>=6.9.0'}
 
-  '@babel/runtime@7.24.1':
-    resolution: {integrity: sha512-+BIznRzyqBf+2wCTxcKE3wDjfGeCoVE61KSHGpkzqrLi8qxqFwBeUFyId2cxkTmm55fzDGnm0+yCxaxygrLUnQ==}
-    engines: {node: '>=6.9.0'}
-
   '@babel/runtime@7.24.4':
     resolution: {integrity: sha512-dkxf7+hn8mFBwKjs9bvBlArzLVxVbS8usaPUDd5p2a9JCL9tB8OaOVN1isD4+Xyk4ns89/xeOmbQvgdK7IIVdA==}
     engines: {node: '>=6.9.0'}
@@ -1738,8 +1734,8 @@ packages:
     resolution: {integrity: sha512-e0L/HNe6qkQ7H19kTlRRqUibEAwDK5AFk6y3PtMsuut2VAH6+Q4xZml1tNDJD7kSAyqmbG/K08K5WEJYtUrSlQ==}
     engines: {node: '>= 4.0.0'}
 
-  ahooks@3.7.11:
-    resolution: {integrity: sha512-BfSq7HJ9wk/7a2vX7WbLdwzHyQHmbNe21ipX1PfIzssXIzQfAl79WVJ9GjZaqNl4PFPsJusj/Xjg2OF+gIgGaQ==}
+  ahooks@3.8.0:
+    resolution: {integrity: sha512-M01m+mxLRNNeJ/PCT3Fom26UyreTj6oMqJBetUrJnK4VNI5j6eMA543Xxo53OBXn6XibA2FXKcCCgrT6YCTtKQ==}
     engines: {node: '>=8.0.0'}
     peerDependencies:
       react: ^16.8.0 || ^17.0.0 || ^18.0.0
@@ -2140,8 +2136,8 @@ packages:
     resolution: {integrity: sha512-iRDPJKUPVEND7dHPO8rkbOnPpyDygcDFtWjpeWNCgy8WP2rXcxXL8TskReQl6OrB2G7+UJrags1q15Fudc7G6w==}
     engines: {node: '>= 8'}
 
-  css-loader@7.1.1:
-    resolution: {integrity: sha512-OxIR5P2mjO1PSXk44bWuQ8XtMK4dpEqpIyERCx3ewOo3I8EmbcxMPUc5ScLtQfgXtOojoMv57So4V/C02HQLsw==}
+  css-loader@7.1.2:
+    resolution: {integrity: sha512-6WvYYn7l/XEGN8Xu2vWFt9nVzrCn39vKyTEFf/ExEyoksJjjSZV/0/35XPlMbpnr6VGhZIUg5yJrL8tGfes/FA==}
     engines: {node: '>= 18.12.0'}
     peerDependencies:
       '@rspack/core': 0.x || 1.x
@@ -2311,8 +2307,8 @@ packages:
     resolution: {integrity: sha512-35mSku4ZXK0vfCuHEDAwt55dg2jNajHZ1odvF+8SSr82EsZY4QmXfuWso8oEd8zRhVObSN18aM0CjSdoBX7zIw==}
     engines: {node: '>=0.10.0'}
 
-  dolphindb@3.0.25:
-    resolution: {integrity: sha512-aENXvBlnd2EuTjyd6m0D/VpU85jzzNfnO9li/vEL0jrOUy+pfSYKq4zWFMvUhBH75UKx0U53xRzs6r7oK+uwJQ==}
+  dolphindb@3.0.28:
+    resolution: {integrity: sha512-okxWKojN2wDJlwwm32fk/I0NZlmJAeL2t2t6C5kq4YFLX+WYdDCQi3M6zpiDeIuamNBydSGcJb1gAMUsTVk+bw==}
     engines: {node: '>=22.1.0'}
 
   dom-serializer@2.0.0:
@@ -5945,10 +5941,6 @@ snapshots:
     dependencies:
       regenerator-runtime: 0.13.11
 
-  '@babel/runtime@7.24.1':
-    dependencies:
-      regenerator-runtime: 0.14.0
-
   '@babel/runtime@7.24.4':
     dependencies:
       regenerator-runtime: 0.14.0
@@ -6837,9 +6829,9 @@ snapshots:
     dependencies:
       humanize-ms: 1.2.1
 
-  ahooks@3.7.11(react@18.3.1):
+  ahooks@3.8.0(react@18.3.1):
     dependencies:
-      '@babel/runtime': 7.24.1
+      '@babel/runtime': 7.24.5
       dayjs: 1.11.11
       intersection-observer: 0.12.2
       js-cookie: 2.2.1
@@ -7363,7 +7355,7 @@ snapshots:
       shebang-command: 2.0.0
       which: 2.0.2
 
-  css-loader@7.1.1(webpack@5.91.0):
+  css-loader@7.1.2(webpack@5.91.0):
     dependencies:
       icss-utils: 5.1.0(postcss@8.4.35)
       postcss: 8.4.35
@@ -7518,7 +7510,7 @@ snapshots:
     dependencies:
       esutils: 2.0.3
 
-  dolphindb@3.0.25(react-dom@18.3.1(react@18.3.1)):
+  dolphindb@3.0.28(react-dom@18.3.1(react@18.3.1)):
     dependencies:
       dayjs: 1.11.11
       ipaddr.js: 2.2.0
@@ -8594,9 +8586,9 @@ snapshots:
       hasown: 2.0.2
       isarray: 2.0.5
 
-  monaco-dolphindb@0.0.20(dolphindb@3.0.25(react-dom@18.3.1(react@18.3.1)))(monaco-editor@0.48.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(vscode-oniguruma@2.0.1)(vscode-textmate@9.0.0):
+  monaco-dolphindb@0.0.20(dolphindb@3.0.28(react-dom@18.3.1(react@18.3.1)))(monaco-editor@0.48.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(vscode-oniguruma@2.0.1)(vscode-textmate@9.0.0):
     dependencies:
-      dolphindb: 3.0.25(react-dom@18.3.1(react@18.3.1))
+      dolphindb: 3.0.28(react-dom@18.3.1(react@18.3.1))
       monaco-editor: 0.48.0
       vscode-oniguruma: 2.0.1
       vscode-textmate: 9.0.0
