@@ -137,7 +137,7 @@ export async function save_data_source ( new_data_source: DataSource, code?: str
                             }
                             new_data_source.data = sql_formatter(result, new_data_source.max_line)
                             new_data_source.cols = get_cols(result)
-                            new_data_source.type_map = get_sql_col_type_map(result as unknown as DdbTable)
+                            new_data_source.type_map = result.form === DdbForm.table ? get_sql_col_type_map(result as unknown as DdbTable) : { }
                         }
                         if (code === undefined)  
                             dashboard.message.success(`${data_source.name} ${t('保存成功')}`)
