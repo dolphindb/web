@@ -906,7 +906,7 @@ export class DdbModel extends Model<DdbModel> {
 }
 
 
-if (!Promise.withResolvers) {
+if (!Promise.withResolvers) 
     Promise.withResolvers = function PromiseWithResolvers () {
         let resolve: any, reject: any
         let promise = new Promise((_resolve, _reject) => {
@@ -915,7 +915,7 @@ if (!Promise.withResolvers) {
         })
         return { promise, resolve, reject }
     } as any
-}
+
 
 if (!Array.prototype.toReversed)
     Object.defineProperty(Array.prototype, 'toReversed', {
