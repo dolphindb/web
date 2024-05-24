@@ -30,13 +30,13 @@ importers:
         version: 1.2.13(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@formily/antd-v5':
         specifier: ^1.2.0
-        version: 1.2.0(@types/react-dom@18.3.0)(@types/react@18.3.2)(antd@5.17.3(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(react-dom@18.3.1(react@18.3.1))(react-is@18.2.0)(react@18.3.1)(typescript@5.4.5)
+        version: 1.2.0(@types/react-dom@18.3.0)(@types/react@18.3.3)(antd@5.17.3(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(react-dom@18.3.1(react@18.3.1))(react-is@18.2.0)(react@18.3.1)(typescript@5.4.5)
       '@formily/core':
         specifier: ^2.3.1
         version: 2.3.1
       '@formily/react':
         specifier: ^2.3.1
-        version: 2.3.1(@types/react-dom@18.3.0)(@types/react@18.3.2)(react-dom@18.3.1(react@18.3.1))(react-is@18.2.0)(react@18.3.1)(typescript@5.4.5)
+        version: 2.3.1(@types/react-dom@18.3.0)(@types/react@18.3.3)(react-dom@18.3.1(react@18.3.1))(react-is@18.2.0)(react@18.3.1)(typescript@5.4.5)
       '@monaco-editor/react':
         specifier: ^4.6.0
         version: 4.6.0(monaco-editor@0.48.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -59,8 +59,8 @@ importers:
         specifier: ^1.11.11
         version: 1.11.11
       dolphindb:
-        specifier: ^3.0.28
-        version: 3.0.28(react-dom@18.3.1(react@18.3.1))
+        specifier: ^3.0.30
+        version: 3.0.30(react-dom@18.3.1(react@18.3.1))
       echarts:
         specifier: ^5.5.0
         version: 5.5.0(patch_hash=vfhko7qsujlqz2bjiq6cbgl6e4)
@@ -81,7 +81,7 @@ importers:
         version: 4.17.21
       monaco-dolphindb:
         specifier: ^0.0.20
-        version: 0.0.20(dolphindb@3.0.28(react-dom@18.3.1(react@18.3.1)))(monaco-editor@0.48.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(vscode-oniguruma@2.0.1)(vscode-textmate@9.0.0)
+        version: 0.0.20(dolphindb@3.0.30(react-dom@18.3.1(react@18.3.1)))(monaco-editor@0.48.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(vscode-oniguruma@2.0.1)(vscode-textmate@9.0.0)
       monaco-editor:
         specifier: ^0.48.0
         version: 0.48.0
@@ -141,8 +141,8 @@ importers:
         specifier: ^20.12.12
         version: 20.12.12
       '@types/react':
-        specifier: ^18.3.2
-        version: 18.3.2
+        specifier: ^18.3.3
+        version: 18.3.3
       '@types/react-dom':
         specifier: ^18.3.0
         version: 18.3.0
@@ -1492,8 +1492,8 @@ packages:
   '@types/react-dom@18.3.0':
     resolution: {integrity: sha512-EhwApuTmMBmXuFOikhQLIBUn6uFg81SwLMOAUgodJF14SOBOCMdU04gDoYi0WOJJHD144TL32z4yDqCW3dnkQg==}
 
-  '@types/react@18.3.2':
-    resolution: {integrity: sha512-Btgg89dAnqD4vV7R3hlwOxgqobUQKgx3MmrQRi0yYbs/P0ym8XozIAlkqVilPqHQwXs4e9Tf63rrCgl58BcO4w==}
+  '@types/react@18.3.3':
+    resolution: {integrity: sha512-hti/R0pS0q1/xx+TsI73XIqk26eBsISZ2R0wUijXIngRK9R/e7Xw/cXVxQK7R5JjW+SV4zGcn5hXjudkN/pLIw==}
 
   '@types/sass-loader@8.0.8':
     resolution: {integrity: sha512-hjP8aUyTDde2blD6clAGso/+ctC+9Rch/mDpvMe/kZrpXGZBDqf1K/48jWzXOX7hbd4jXQKQMPWdbBv4MRp0yQ==}
@@ -2307,8 +2307,8 @@ packages:
     resolution: {integrity: sha512-35mSku4ZXK0vfCuHEDAwt55dg2jNajHZ1odvF+8SSr82EsZY4QmXfuWso8oEd8zRhVObSN18aM0CjSdoBX7zIw==}
     engines: {node: '>=0.10.0'}
 
-  dolphindb@3.0.28:
-    resolution: {integrity: sha512-okxWKojN2wDJlwwm32fk/I0NZlmJAeL2t2t6C5kq4YFLX+WYdDCQi3M6zpiDeIuamNBydSGcJb1gAMUsTVk+bw==}
+  dolphindb@3.0.30:
+    resolution: {integrity: sha512-ZxblFlXvM7nKarSVYtq+qHTetKBEs5fBthivFqMvilZpaqKCALiMrXInopXs5CbJEzv9SPy7C+df150WTHkdFA==}
     engines: {node: '>=22.1.0'}
 
   dom-serializer@2.0.0:
@@ -6080,7 +6080,7 @@ snapshots:
 
   '@eslint/js@9.3.0': {}
 
-  '@formily/antd-v5@1.2.0(@types/react-dom@18.3.0)(@types/react@18.3.2)(antd@5.17.3(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(react-dom@18.3.1(react@18.3.1))(react-is@18.2.0)(react@18.3.1)(typescript@5.4.5)':
+  '@formily/antd-v5@1.2.0(@types/react-dom@18.3.0)(@types/react@18.3.3)(antd@5.17.3(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(react-dom@18.3.1(react@18.3.1))(react-is@18.2.0)(react@18.3.1)(typescript@5.4.5)':
     dependencies:
       '@ant-design/cssinjs': 1.18.5(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@ant-design/icons': 5.3.7(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -6089,11 +6089,11 @@ snapshots:
       '@formily/core': 2.3.1
       '@formily/grid': 2.2.22(typescript@5.4.5)
       '@formily/json-schema': 2.3.1(typescript@5.4.5)
-      '@formily/react': 2.3.1(@types/react-dom@18.3.0)(@types/react@18.3.2)(react-dom@18.3.1(react@18.3.1))(react-is@18.2.0)(react@18.3.1)(typescript@5.4.5)
+      '@formily/react': 2.3.1(@types/react-dom@18.3.0)(@types/react@18.3.3)(react-dom@18.3.1(react@18.3.1))(react-is@18.2.0)(react@18.3.1)(typescript@5.4.5)
       '@formily/reactive': 2.3.1
-      '@formily/reactive-react': 2.3.1(@types/react-dom@18.3.0)(@types/react@18.3.2)(react-dom@18.3.1(react@18.3.1))(react-is@18.2.0)(react@18.3.1)
+      '@formily/reactive-react': 2.3.1(@types/react-dom@18.3.0)(@types/react@18.3.3)(react-dom@18.3.1(react@18.3.1))(react-is@18.2.0)(react@18.3.1)
       '@formily/shared': 2.3.1
-      '@types/react': 18.3.2
+      '@types/react': 18.3.3
       '@types/react-dom': 18.3.0
       antd: 5.17.3(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       classnames: 2.5.1
@@ -6125,12 +6125,12 @@ snapshots:
 
   '@formily/path@2.3.1': {}
 
-  '@formily/react@2.3.1(@types/react-dom@18.3.0)(@types/react@18.3.2)(react-dom@18.3.1(react@18.3.1))(react-is@18.2.0)(react@18.3.1)(typescript@5.4.5)':
+  '@formily/react@2.3.1(@types/react-dom@18.3.0)(@types/react@18.3.3)(react-dom@18.3.1(react@18.3.1))(react-is@18.2.0)(react@18.3.1)(typescript@5.4.5)':
     dependencies:
       '@formily/core': 2.3.1
       '@formily/json-schema': 2.3.1(typescript@5.4.5)
       '@formily/reactive': 2.3.1
-      '@formily/reactive-react': 2.3.1(@types/react-dom@18.3.0)(@types/react@18.3.2)(react-dom@18.3.1(react@18.3.1))(react-is@18.2.0)(react@18.3.1)
+      '@formily/reactive-react': 2.3.1(@types/react-dom@18.3.0)(@types/react@18.3.3)(react-dom@18.3.1(react@18.3.1))(react-is@18.2.0)(react@18.3.1)
       '@formily/shared': 2.3.1
       '@formily/validator': 2.3.1
       hoist-non-react-statics: 3.3.2
@@ -6138,12 +6138,12 @@ snapshots:
       react-dom: 18.3.1(react@18.3.1)
       react-is: 18.2.0
     optionalDependencies:
-      '@types/react': 18.3.2
+      '@types/react': 18.3.3
       '@types/react-dom': 18.3.0
     transitivePeerDependencies:
       - typescript
 
-  '@formily/reactive-react@2.3.1(@types/react-dom@18.3.0)(@types/react@18.3.2)(react-dom@18.3.1(react@18.3.1))(react-is@18.2.0)(react@18.3.1)':
+  '@formily/reactive-react@2.3.1(@types/react-dom@18.3.0)(@types/react@18.3.3)(react-dom@18.3.1(react@18.3.1))(react-is@18.2.0)(react@18.3.1)':
     dependencies:
       '@formily/reactive': 2.3.1
       hoist-non-react-statics: 3.3.2
@@ -6151,7 +6151,7 @@ snapshots:
       react-dom: 18.3.1(react@18.3.1)
       react-is: 18.2.0
     optionalDependencies:
-      '@types/react': 18.3.2
+      '@types/react': 18.3.3
       '@types/react-dom': 18.3.0
 
   '@formily/reactive@2.2.22': {}
@@ -6526,9 +6526,9 @@ snapshots:
 
   '@types/react-dom@18.3.0':
     dependencies:
-      '@types/react': 18.3.2
+      '@types/react': 18.3.3
 
-  '@types/react@18.3.2':
+  '@types/react@18.3.3':
     dependencies:
       '@types/prop-types': 15.7.5
       csstype: 3.1.3
@@ -7510,7 +7510,7 @@ snapshots:
     dependencies:
       esutils: 2.0.3
 
-  dolphindb@3.0.28(react-dom@18.3.1(react@18.3.1)):
+  dolphindb@3.0.30(react-dom@18.3.1(react@18.3.1)):
     dependencies:
       dayjs: 1.11.11
       ipaddr.js: 2.2.0
@@ -8586,9 +8586,9 @@ snapshots:
       hasown: 2.0.2
       isarray: 2.0.5
 
-  monaco-dolphindb@0.0.20(dolphindb@3.0.28(react-dom@18.3.1(react@18.3.1)))(monaco-editor@0.48.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(vscode-oniguruma@2.0.1)(vscode-textmate@9.0.0):
+  monaco-dolphindb@0.0.20(dolphindb@3.0.30(react-dom@18.3.1(react@18.3.1)))(monaco-editor@0.48.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(vscode-oniguruma@2.0.1)(vscode-textmate@9.0.0):
     dependencies:
-      dolphindb: 3.0.28(react-dom@18.3.1(react@18.3.1))
+      dolphindb: 3.0.30(react-dom@18.3.1(react@18.3.1))
       monaco-editor: 0.48.0
       vscode-oniguruma: 2.0.1
       vscode-textmate: 9.0.0
