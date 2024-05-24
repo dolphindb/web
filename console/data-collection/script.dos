@@ -1,8 +1,7 @@
-shareStreamingTable = select * from objs(true) where type=`REALTIME and form=`TABLE and shared=true
-if(!(`dcp_test in shareStreamingTable.name)){
-    share streamTable(1:0,["ts","id","metric","value"],[TIMESTAMP,LONG,STRING,STRING]) as dcp_test
-}
-
+// shareStreamingTable = select * from objs(true) where type=`REALTIME and form=`TABLE and shared=true
+// if(!(`dcp_test in shareStreamingTable.name)){
+    // share streamTable(1:0,["ts","id","metric","value"],[TIMESTAMP,LONG,STRING,STRING]) as dcp_test
+// }
 /*
 增加连接
 参数：args 为标准json，需要包含以下字段：
@@ -13,6 +12,7 @@ port: 端口         整数
 username: 用户名   字符串
 password: 密码     字符串
 */
+
 
 def dcp_addConnect(args){
     connectTable = parseJsonTable(args)
@@ -66,13 +66,17 @@ def dcp_updateConnect(args){
 
 
 /*
-删除连接
+删除连接,删除连接时会同时清理该连接下的所有订阅及订阅信息
 参数：args 为标准json，包含以下字段：
 ids: 连接ID  int数组
 */
 def dcp_deleteConnect(args){
     connectArgs = parseExpr(args).eval()
-    ids = connectArgs[`ids]
+    subIds = exec subId from  loadTable("dfs://dataAcquisition","subscribeInfo") where connectId in connectArgs[`ids]
+    for(subId in subIds){
+        mqtt::unsubscribe(subId)
+    }
+    delete from loadTable("dfs://dataAcquisition","subscribeInfo") where id in connectArgs[`ids]
     delete from loadTable("dfs://dataAcquisition","connectInfo") where id in connectArgs[`ids]
     return '{"status":1}'
 }
@@ -101,54 +105,53 @@ templateParams: 模板参数
 def dcp_addSubscribe(args){
     subArgs = parseExpr(args).eval()
     connectId = subArgs['connectId']
-    connectInfo = select id as connectId,host,port,username,password from loadTable("dfs://dataAcquisition","connectInfo") where id = connectId 
+    connectInfo = select id as connectId from loadTable("dfs://dataAcquisition","connectInfo") where id = connectId 
     maxId = (exec max(id) from loadTable("dfs://dataAcquisition","subscribeInfo"))[0]
     id = iif(maxId==NULL,0,maxId+1)
     update connectInfo set id = id 
     update connectInfo set topic = subArgs['topic']
     update connectInfo set name = subArgs['name']
-    update connectInfo set handlerId = subArgs['handlerId']
     update connectInfo set recvbufSize = iif(subArgs['recvbufSize']==NULL,20480,subArgs['recvbufSize'])
+    update connectInfo set handlerId = subArgs['handlerId']
     update connectInfo set createTime = now()
     update connectInfo set updateTime = now()
-    update connectInfo set subID=" "
+    update connectInfo set subId=" "
     update connectInfo set status=0
     update connectInfo set templateParams=subArgs['templateParams'] 
-    connectInfo.reorderColumns!(`id`connectId`topic`name`host`port`handlerId`templateParams`username`password`recvbufSize`status`subID`createTime`updateTime)
+    connectInfo.reorderColumns!(`id`connectId`topic`name`recvbufSize`handlerId`templateParams`status`subId`createTime`updateTime)
     loadTable("dfs://dataAcquisition","subscribeInfo").append!(connectInfo)
     return '{"status":1,"id":'+id+'}'  
 }
-
-
-
 
 /*
 修改连接
 参数：args 为标准json，需要包含以下字段：
 必选参数：
 id: 订阅ID                   整数
-可选参数：
+必选参数：
 name：订阅名称               字符串    
 topic: 订阅主题              字符串
 handlerId：使用的解析模板     整数
-recvbufSize: 接收缓冲区大小   整数
-status：连接状态              整数
-subID：订阅ID                字符串    
+templateParams: 模板参数     修改handlerId,必须同时有templateParams参数
+recvbufSize: 接收缓冲区大小   整数   
 */
 def dcp_updateSubscribe(args){
     subArgs = parseExpr(args).eval()
-    tmp = select * from loadTable("dfs://dataAcquisition","subscribeInfo") where id = subArgs[`id]
-    for(col in subArgs.keys()){
-        if(col in [`name,`topic,`handlerId,`recvbufSize,`status,`subID]){
-            tmp[col]=subArgs[col]
-        }   
+    subscribeInfo = loadTable("dfs://dataAcquisition","subscribeInfo")
+    if(subArgs[`name] is not null){
+        update subscribeInfo set name = subArgs[`name] where id=subArgs[`id]
+        update subscribeInfo set topic = subArgs[`topic] where id=subArgs[`id]
+        update subscribeInfo set recvbufSize = subArgs[`recvbufSize] where id=subArgs[`id]
+        update subscribeInfo set handlerId = subArgs[`handlerId] where id=subArgs[`id]
+        update subscribeInfo set templateParams = subArgs[`templateParams] where id=subArgs[`id]
     }
-    tmp[`updateTime]=now()  
-    delete from loadTable("dfs://dataAcquisition","subscribeInfo") where id = subArgs[`id]
-    loadTable("dfs://dataAcquisition","subscribeInfo").append!(tmp)
+    if(subArgs[`subId] is not null){
+        update subscribeInfo set subId = subArgs[`subId] where id=subArgs[`id]
+        update subscribeInfo set status = subArgs[`status] where id=subArgs[`id]
+    }
+    update loadTable("dfs://dataAcquisition","subscribeInfo") set updateTime = now() where id=subArgs[`id]
     return '{"status":1}'
 }
-
 
 
 /*
@@ -203,7 +206,7 @@ def dcp_startSubscribe(args){
     subscribeStr += '},tmp["username"],tmp["password"],tmp["recvbufSize"])'
     runScript(subscribeStr)
     subscriptionId=exec last(subscriptionId) from mqtt::getSubscriberStat() order by createTimestamp
-    argsNew='{"id":'+subArgs[`subId]+',"subID":"'+subscriptionId+'","status":1}' 
+    argsNew='{"id":'+subArgs[`subId]+',"subId":"'+subscriptionId+'","status":1}' 
     dcp_updateSubscribe(argsNew)
 }
 
@@ -215,15 +218,16 @@ subId: 订阅ID  int数组
 */
 def dcp_stopSubscribe(args){
     subArgs = parseExpr(args).eval()
-    subid = exec id,subID from loadTable("dfs://dataAcquisition","subscribeInfo") where id in subArgs[`subId]
-    id = subid.id
-    subID = subid.subID
-    for(i in (0..(subID.size()-1))){  
-        mqtt::unsubscribe(subID[i])
-        argsNew='{"id":'+id[i]+',"subID":" "),"status":0}' 
+    subId = exec id,subId from loadTable("dfs://dataAcquisition","subscribeInfo") where id in subArgs[`subId]
+    id = subId.id
+    subId = subId.subId
+    for(i in (0..(subId.size()-1))){  
+        mqtt::unsubscribe(subId[i])
+        argsNew='{"id":'+id[i]+',"subId":" ","status":0}' 
         dcp_updateSubscribe(argsNew) 
     }
 }
+
 
 /*
 检测订阅状态
@@ -233,20 +237,19 @@ def dcp_stopSubscribe(args){
 */
 def dcp_subStatusMonitor(args){
     subArgs = parseExpr(args).eval()
-    subs =exec id,subID from loadTable("dfs://dataAcquisition","subscribeInfo") where connectId=subArgs[`connectId]
+    subs =exec id,subId from loadTable("dfs://dataAcquisition","subscribeInfo") where connectId=subArgs[`connectId]
     id = subs[`id]
-    subID = subs[`subID]
+    subId = subs[`subId]
     nowSub = mqtt::getSubscriberStat().subscriptionId
-    for(i in (0..(subID.size()-1))){  
-        if(subID[0] == " "){
-            print(subID[i])
-        }  
-        if(!(subID[i] in nowSub)){
-            argsNew='{"id":'+id[i]+',"subID":" ","status":0}' 
+    for(i in (0..(subId.size()-1))){  
+        if((!(subId[i] in nowSub)) and subId[i]!=" "){
+            argsNew='{"id":'+id[i]+',"subId":" ","status":0}' 
             dcp_updateSubscribe(argsNew) 
         }
     }
 }
+
+args='{"connectId":0}'
 
 
 
@@ -270,6 +273,7 @@ def dcp_addHandler(args){
     return '{"status":1,"id":'+id+'}'   //添加成功  
 }
 
+
 /*
 修改模板
 @args 
@@ -277,21 +281,19 @@ def dcp_addHandler(args){
 id:模板id 整数
 可选：
 name:模板名称 字符串
+protocol:协议 字符串
 code:函数定义 字符串
 comment:模板备注 字符串
 @return 无
 */
 def dcp_updateHandler(args){
     handlerArgs = parseExpr(args).eval()    
-    tmp = select * from loadTable("dfs://dataAcquisition","ParserTemplate") where id=handlerArgs[`id]
-    for(i in handlerArgs.keys()){
-       if(i != `id){
-            tmp[i]=handlerArgs[i]
-       }
-    }
-    tmp[`updateTime]=now()
-    delete from loadTable("dfs://dataAcquisition","ParserTemplate") where id=handlerArgs[`id]
-    loadTable("dfs://dataAcquisition","ParserTemplate").append!(tmp)    
+    ParserTemplate = loadTable("dfs://dataAcquisition","ParserTemplate")
+    update ParserTemplate set name = handlerArgs[`name]
+    update ParserTemplate set protocol = handlerArgs[`protocol]
+    update ParserTemplate set handler = handlerArgs[`code]
+    update ParserTemplate set comment = handlerArgs[`comment]
+    update ParserTemplate set updateTime = now()  
     return '{"status":1}'   //更新成功  
 }    
 
@@ -350,8 +352,8 @@ def dcp_createAllTable(){
     colTypes = [INT,STRING,STRING,STRING,INT,STRING,STRING,TIMESTAMP,TIMESTAMP]
     createTable(db,table(1:0,colNames,colTypes),`connectInfo)
 
-    colNames = `id`connectId`topic`name`host`port`handlerId`templateParams`username`password`recvbufSize`status`subID`createTime`updateTime  
-    colTypes = [INT,INT,STRING,STRING,STRING,INT,INT,STRING,STRING,STRING,INT,INT,STRING,TIMESTAMP,TIMESTAMP]
+    colNames = `id`connectId`topic`name`recvbufSize`handlerId`templateParams`status`subId`createTime`updateTime  
+    colTypes = [INT,INT,STRING,STRING,INT,INT,STRING,INT,STRING,TIMESTAMP,TIMESTAMP]
     createTable(db,table(1:0,colNames,colTypes),`subscribeInfo)
 
     colNames = `id`name`handler`protocol`comment`templateParams`createTime`updateTime
@@ -384,7 +386,6 @@ def dcp_dropAllFunctionView(){
     dropFunctionView(`dcp_addHandler)
     dropFunctionView(`dcp_updateHandler)
     dropFunctionView(`dcp_deleteHandler)
-
 }
 
 def dcp_clearEnv(){
