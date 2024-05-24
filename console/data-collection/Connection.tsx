@@ -1,4 +1,4 @@
-import './index.scss'
+import './Connection.scss'
 
 import { useCallback, useEffect, useId, useMemo, useState } from 'react'
 import useSWR from 'swr'
@@ -13,15 +13,16 @@ import { DeleteOutlined, EditOutlined, FolderOpenOutlined, PlusCircleOutlined } 
 import NiceModal from '@ebay/nice-modal-react'
 
 
-import { t } from '../../../../i18n/index.js'
-import { ConnectionDetail } from '../../components/connection-detail/index.js'
-import { CreateConnectionModal } from '../../components/create-connection-modal/index.js'
-import { InitPage } from '../../components/init-page/index.js'
-import { protocols } from '../../constant.js'
-import { dcp_model } from '../../model.js'
-import { request } from '../../utils.js'
+import { t } from '../../i18n/index.js'
 
-import { type Connection } from '../../type.js'
+import { ConnectionDetail } from './components/connection-detail/index.js'
+import { CreateConnectionModal } from './components/create-connection-modal/index.js'
+import { InitPage } from './components/init-page/index.js'
+import { protocols } from './constant.js'
+import { dcp_model } from './model.js'
+import { request } from './utils.js'
+
+import { type Connection } from './type.js'
 
 
 
@@ -51,7 +52,7 @@ export function Connections () {
                 await request('dcp_deleteConnect', { ids: selected_connections })
                 message.success('删除成功')
                 
-                if (selected_connections.includes(Number(connection)))
+                if (selected_connections.includes(Number(connection))) 
                     set_connection(null)
                 set_selected_connections([ ])
                 mutate()
@@ -95,7 +96,7 @@ export function Connections () {
                             className='add-connection-icon' 
                             onClick={async e => { 
                                 e.stopPropagation()
-                                await NiceModal.show(CreateConnectionModal, { protocol: item, refresh: mutate })
+                                NiceModal.show(CreateConnectionModal, { protocol: item, refresh: mutate })
                             }}/>
                         </Tooltip>
                     </div>
@@ -114,9 +115,9 @@ export function Connections () {
                         <Space>
                             <EditOutlined 
                                 className='connection-edit-icon'
-                                onClick={e => {
+                                onClick={async e => {
                                     e.stopPropagation()
-                                    
+                                    NiceModal.show(CreateConnectionModal, { protocol: item, refresh: mutate, editedConnection: connection })
                                 }}
                             />
                             <DeleteOutlined 

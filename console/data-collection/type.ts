@@ -24,7 +24,7 @@ export interface Subscribe {
     // 名称
     name: string
     // 点位解析模板 id
-    handlerId: string
+    handlerId: number
     // 是一个整数，省略时默认是 20480，用于指定接收缓冲区大小。
     recvbufSize: number
     // 状态 0 未连接 1 连接
@@ -41,6 +41,7 @@ export interface ParserTemplate {
     createTime: string
     updateTime?: string
     protocol: string
+    templateParams: string
 }
 
 

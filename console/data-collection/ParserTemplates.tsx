@@ -1,6 +1,6 @@
 import useSWR from 'swr'
-import './index.scss'
-import { useCallback, useId, useMemo, useState } from 'react'
+import './ParserTemplates.scss'
+import { useCallback, useEffect, useId, useMemo, useState } from 'react'
 
 import { Button, Modal, Space, Table, Tag, Typography, message, type TableProps } from 'antd'
 
@@ -8,11 +8,16 @@ import { DeleteOutlined, PlusOutlined } from '@ant-design/icons'
 
 import NiceModal from '@ebay/nice-modal-react'
 
-import { request } from '../../utils.js'
-import type { ListData, ParserTemplate } from '../../type.js'
-import { t } from '../../../../i18n/index.js'
-import { ParserTemplateModal } from '../../components/create-parser-template-modal/index.js'
-import { format_time } from '../../../dashboard/utils.js'
+import { t } from '../../i18n/index.js'
+
+import { format_time } from '../dashboard/utils.js'
+
+import { request } from './utils.js'
+import type { ListData, ParserTemplate } from './type.js'
+import { ParserTemplateModal } from './components/create-parser-template-modal/index.js'
+
+
+import { dcp_model } from './model.js'
 
 const DEFAULT_TEMPLATE_DATA = {
     items: [ ],
@@ -29,6 +34,10 @@ export function ParserTemplates () {
         ['dcp_getParserTemplateList', id],
         async () => request<ListData<ParserTemplate>>('dcp_getParserTemplateList', { })   
     )
+    
+    useEffect(() => {
+        dcp_model.init()
+    }, [ ])
     
     const on_create = useCallback(() => {
         NiceModal.show(ParserTemplateModal, { refresh })
