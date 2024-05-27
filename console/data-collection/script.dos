@@ -186,12 +186,15 @@ subId: 订阅ID
 */
 def dcp_startSubscribe(args){
     subArgs = parseExpr(args).eval()
-    tmp = (exec * from loadTable("dfs://dataAcquisition","subscribeInfo") where id = subArgs[`subId])[0]
+    tmp = select * from loadTable("dfs://dataAcquisition","subscribeInfo")  where id = subArgs[`subId]
+    tmp = (exec * from tmp left join loadTable("dfs://dataAcquisition","connectInfo") as t on tmp.connectId=t.id)[0]
     handler = (exec handler from loadTable("dfs://dataAcquisition","ParserTemplate") where id = tmp[`handlerId])[0]
     runScript(handler)
     handlerName = handler.split("\n")
     handlerName  = (handlerName[strpos(handlerName,"def")!=-1].split("(")[0].split("def ")[1])[0]
-    subscribeStr = 'tmp = (exec * from loadTable("dfs://dataAcquisition","subscribeInfo") where id ='+ subArgs[`subId]+')[0];
+    subscribeStr = 
+    'tmp = select * from loadTable("dfs://dataAcquisition","subscribeInfo")  where id='+ subArgs[`subId]+';
+    tmp = (exec * from tmp left join loadTable("dfs://dataAcquisition","connectInfo") as t on tmp.connectId=t.id)[0];
     mqtt::subscribe(tmp["host"],tmp["port"],tmp["topic"],,'+handlerName+'{'
     mqsubArgs = (exec templateParams from  loadTable("dfs://dataAcquisition","subscribeInfo") where id = subArgs[`subId])[0]
     mqsubArgs = parseExpr(mqsubArgs).eval() 
@@ -210,6 +213,7 @@ def dcp_startSubscribe(args){
     dcp_updateSubscribe(argsNew)
 }
 
+args='{"subId":1}'
 
 /*
 停止订阅
