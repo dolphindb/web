@@ -1,10 +1,10 @@
 import ReactEChartsCore from 'echarts-for-react/lib/core'
 import * as echarts from 'echarts'
-import { useMemo } from 'react'
+import { useEffect, useMemo, useRef } from 'react'
 
 import { isNil, pickBy } from 'lodash'
 
-import { dashboard, type Widget } from '../../model.js'
+import { type Widget } from '../../model.js'
 
 import { SeriesFormFields } from '../../ChartFormFields/PieChartFields.js'
 import { BasicFormFields } from '../../ChartFormFields/BasicFormFields.js'
@@ -20,6 +20,8 @@ const radius = {
 
 export function Pie ({ widget, data_source }: { widget: Widget, data_source: any[] }) {
     const { title, title_size = 18, legend, series, animation, tooltip } = widget.config as IChartConfig
+    
+    const chart_ref = useRef(null)
     
     const option = useMemo(
         () => {
@@ -51,6 +53,7 @@ export function Pie ({ widget, data_source }: { widget: Widget, data_source: any
                 },
                 series: series.map((serie, index) => {
                     return {
+                        id: index,
                         type: 'pie',
                         radius: radius[series.length][index],
                         label: {
@@ -75,9 +78,17 @@ export function Pie ({ widget, data_source }: { widget: Widget, data_source: any
         },
         [title, animation, series, title_size, data_source, legend, tooltip]
     )
+   
+    // 设置 notMerge 为 true 会导致报错，详见 WEB-887
+    // 设置 notMerge 为 false 会导致删减数据环失败，因为此时 echarts 使用普通合并。需设置 replaceMerge 让 echarts 使用 替换合并。
+    // echarts-for-react 不支持直接设置 replaceMerge，需手动设置。
+    useEffect(() => {
+        chart_ref.current?.getEchartsInstance()?.setOption(option, {
+            replaceMerge: ['series'],
+        })
+    }, [chart_ref, option])
     
-    // 编辑模式下 notMerge 为 true ，因为要修改配置，预览模式下 notMerge 为 false ，避免数据更新，导致选中的 label失效
-    return <ReactEChartsCore notMerge={dashboard.editing} echarts={echarts} option={option} lazyUpdate theme='ohlc_theme' />
+    return <ReactEChartsCore ref={chart_ref} echarts={echarts} option={option} lazyUpdate theme='ohlc_theme'/>
 }
 
 export function PieConfigForm (props: { col_names: string[] } ) {
