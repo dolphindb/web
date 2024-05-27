@@ -79,7 +79,7 @@ export function Pie ({ widget, data_source }: { widget: Widget, data_source: any
         [title, animation, series, title_size, data_source, legend, tooltip]
     )
    
-    // 设置 notMerge 为 true 会导致报错，详见 WEB-887
+    // 设置 notMerge 为 true 会导致报错，详见 WEB-887。
     // 设置 notMerge 为 false 会导致删减数据环失败，因为此时 echarts 使用普通合并。需设置 replaceMerge 让 echarts 使用 替换合并。
     // echarts-for-react 不支持直接设置 replaceMerge，需手动设置。
     useEffect(() => {
