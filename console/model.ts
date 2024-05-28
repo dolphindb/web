@@ -566,7 +566,8 @@ export class DdbModel extends Model<DdbModel> {
                         func_type: DdbFunctionType.SystemFunc
                     },
             })
-        ).data()
+        ).data<DdbTableData>()
+        .data
         .sort((a, b) => strcmp(a.name, b.name))
         
         if (print)
