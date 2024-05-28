@@ -16,7 +16,7 @@ import { useMemoizedFn } from 'ahooks'
 
 import NiceModal from '@ebay/nice-modal-react'
 
-import { DeleteOutlined, PlusOutlined } from '@ant-design/icons'
+import { DeleteOutlined, PlusOutlined, RedoOutlined } from '@ant-design/icons'
 
 import type { Connection, ParserTemplate, Subscribe } from '../../type.js'
 import { t } from '../../../../i18n/index.js'
@@ -39,17 +39,18 @@ const DEFAULT_TEMPLATES = {
 export function ConnectionDetail (props: IProps) {
     const { connection } = props
     
-    const [selected_subscribes, set_selected_subscribes] = useState<string[]>([ ])
+    const [selected_subscribes, set_selected_subscribes] = useState<string[]>([ ])    
     
     const { data, isLoading, mutate } = useSWR(
         ['dcp_getConnectAndSubInfo', connection],
-        async () =>  request<{ subscribes: Subscribe[], total: number, connectInfo: Connection }>('dcp_getConnectAndSubInfo', { connectId: Number(connection) })
+        async () => request<{ subscribes: Subscribe[], total: number, connectInfo: Connection }>('dcp_getConnectAndSubInfo', { connectId: Number(connection) })
     )
     
     const { data: { items: templates } = DEFAULT_TEMPLATES } = useSWR(
         'dcp_getParserTemplateList',
         async () => request<{ items: ParserTemplate[], total: number }>('dcp_getParserTemplateList', { protocol: data?.connectInfo?.protocol })
     )
+    
     
     const desp_items = useMemo<DescriptionsProps['items']>(() => {
         if (!data?.connectInfo)
@@ -109,6 +110,12 @@ export function ConnectionDetail (props: IProps) {
             okButtonProps: { style: { backgroundColor: 'red' } }
         })
     }, [ mutate ])
+    
+    
+    const on_detect = useCallback(async () => {
+        await request('dcp_subStatusMonitor', { connectId: Number(connection) })
+        await mutate()
+    }, [ mutate, connection])
     
     const on_change_status = useCallback(async ({ id: subId, name }: Subscribe, status: boolean) => {
         Modal.confirm({
@@ -170,7 +177,7 @@ export function ConnectionDetail (props: IProps) {
     ], [ templates, on_delete, mutate, on_change_status ])
     
     
-    return isLoading 
+    return isLoading
     ? <Spin spinning={isLoading}/> 
     : <div className='connection-detail'>
         <Descriptions 
@@ -187,6 +194,7 @@ export function ConnectionDetail (props: IProps) {
                     NiceModal.show(CreateSubscribeModal, { connection_id: connection, refresh: mutate, parser_templates: templates         
                 })}>新增订阅</Button>
                 <Button icon={<DeleteOutlined />} danger onClick={on_batch_delete} disabled={!selected_subscribes.length}>批量删除</Button>
+                <Button icon={<RedoOutlined />} onClick={on_detect}>检测订阅状态</Button>
             </Space>
         </div>
         
