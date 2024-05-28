@@ -135,6 +135,7 @@ export function OptionList ({
         },
         {
             title: t('操作'),
+            width: 50,
             dataIndex: 'operation',
             render: (_, record) => { 
                 let disabled = false
@@ -210,11 +211,9 @@ export function OptionList ({
         }
     })
     
-    return <div className='variable-editor-main-options'>
-                <div className='variable-editor-main-options-top'>
-                    <div className='variable-editor-main-options-top-lable'>
-                        {t('可选项：')}
-                    </div>
+    return <div className='main-select'>
+                <div className='main-select-top'>
+                    {t('可选项：')}
                     <Button type='primary' onClick={handleAdd} size='small' icon={<PlusOutlined />}>{t('新增')}</Button>
                 </div>
                 <Table
@@ -223,7 +222,7 @@ export function OptionList ({
                     bordered
                     size='small'
                     dataSource={current_options}
-                    pagination={{ pageSize: 6, position: ['bottomCenter'] }}
+                    pagination={{ pageSize: 5, position: ['bottomCenter'] }}
                     columns={columns as ColumnTypes}
                 />
             </div>

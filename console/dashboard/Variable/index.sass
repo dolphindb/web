@@ -9,11 +9,9 @@ $border_color: #333333
         .ant-modal-title
             background-color: $canvas_back_color
 
-.variable-config-trigger-navigation   
-    cursor: pointer
     
-    .variable-config-trigger-navigation-icon
-        margin-right: 5px
+.variable-trigge
+    margin-right: 5px
 
 .variable-config-main
     width: 100%
@@ -21,31 +19,31 @@ $border_color: #333333
     color: $font_color
     display: flex
 
-    .config-variable-list
+    .variable-list
         width: 200px
         border-right: 1px solid $border_color
         display: flex
         flex-direction: column
         
-        .variable-list-top
+        .top
             padding-right: 10px
             height: 45px
             display: flex
             align-items: center
             justify-content: space-between
             
-            .variable-list-top-item
+            .top-item
                 cursor: pointer
                 font-size: 12px
                 
-                .variable-list-top-item-icon
+                .top-item-icon
                     margin-right: 2px
             
-        .variable-list-bottom
+        .bottom
             flex: 1
             padding-right: 10px
             
-            .variable-list-bottom-menu
+            .bottom-menu
                 height: 100%
                 
                 .bottom-menu-rename-input
@@ -70,48 +68,58 @@ $border_color: #333333
             height: 100%
             padding: 0 15px
             
-            .variable-editor-main
+            .main
                 display: flex
                 flex-direction: column
                 height: 100%
                 
-                .variable-editor-main-display-name
-                    display: flex
-                    justify-content: space-between 
-                    width: 450px
-                    margin: 8px 0 10px 0
-                    
-                    .variable-editor-main-display-name-input
-                        width: 350px
                 
-                .variable-editor-main-mode
+                .main-top
                     display: flex
-                    justify-content: space-between 
-                    width: 450px
+                    
+                    .main-config
+                        width: 445px
+                        margin: 10px 10px 10px 0
+                        
+                        .main-config-input
+                            width: 290px
+                            margin: 0  10px
+                        
+                    .main-value-top
+                        flex: 1
+                        display: flex
+                        margin: 10px 0
+                        
+                        .main-value-control-top
+                            flex: 1
+                            margin-left: 10px
+                            
+                .main-value
                     margin: 10px 0
                     
-                    .variable-editor-main-mode-select
-                        width: 350px
-                    
-                .variable-editor-main-value
-                    display: flex
-                    justify-content: space-between 
-                    width: 450px
-                    margin: 10px 0
-                    
-                    .variable-editor-main-value-control
-                        width: 350px
-                
-                .variable-editor-main-options
+                    .main-value-control-text
+                        display: block
+                        width: 826px
+                        margin-top:10px
+                            
+                    .main-value-control-date
+                        width: 290px
+                        margin-left: 24px
+                        
+                .main-select
                     display: flex
                     flex-direction: column
-                    margin: 10px 0
+                    margin-top: 10px
                     
-                    .variable-editor-main-options-top
+                    .main-select-top
                         display: flex
                         justify-content: space-between
-                        margin-bottom: 8px
+                        margin-bottom: 10px
                         
-                        .variable-editor-main-options-top-add
-                            cursor: pointer
-                            color: #1668DC
+                        .tooltip
+                            color: #666666
+                            margin-left: 10px
+                            cursor: pointer 
+                        
+                .main-editor
+                    height: 120px

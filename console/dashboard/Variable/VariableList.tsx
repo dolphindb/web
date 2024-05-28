@@ -149,10 +149,10 @@ export function VariableList ({
                     onChange={event => { set_new_name(event.target.value) }}
                 />
             </Modal>
-            <div className='config-variable-list'>
-                <div className='variable-list-top'>
+            <div className='variable-list'>
+                <div className='top'>
                     <div
-                        className='variable-list-top-item'
+                        className='top-item'
                         onClick={async () => {
                             if (no_save_flag.current && (await save_confirm()))
                                 await handle_save()
@@ -160,21 +160,21 @@ export function VariableList ({
                             add_open()
                         }}
                     >
-                        <FileOutlined className='variable-list-top-item-icon' />
+                        <FileOutlined className='top-item-icon' />
                         {t('新建')}
                     </div>
                     <div
-                        className='variable-list-top-item'
+                        className='top-item'
                         onClick={() => {
                             if (current_variable)
                                 rename_variable_handler(menu_items, current_select, current_variable.name)
                         }}
                     >
-                        <EditOutlined className='variable-list-top-item-icon' />
+                        <EditOutlined className='top-item-icon' />
                         {t('重命名')}
                     </div>
                     <div
-                        className='variable-list-top-item'
+                        className='top-item'
                         onClick={() => {
                             const delete_index = delete_variable(current_variable.id)
                             if (delete_index >= 0) {
@@ -190,11 +190,11 @@ export function VariableList ({
                             }
                         }}
                     >
-                        <DeleteOutlined className='variable-list-top-item-icon' />
+                        <DeleteOutlined className='top-item-icon' />
                         {t('删除')}
                     </div>
                     <div
-                        className='variable-list-top-item'
+                        className='top-item'
                         onClick={async () => {
                             if (!current_variable)
                                 return
@@ -204,11 +204,11 @@ export function VariableList ({
                             copy_variables([current_variable.id])
                         }}
                     >
-                        <CopyOutlined className='variable-list-top-item-icon' />
+                        <CopyOutlined className='top-item-icon' />
                         {t('复制')}
                     </div>
                 </div>
-                { current_variable && <div className='variable-list-bottom'>
+                { current_variable && <div className='bottom'>
                     {variable_infos.length && 
                         <Tree
                             ref={tree_ref}
@@ -216,7 +216,7 @@ export function VariableList ({
                             height={450}
                             blockNode
                             selectedKeys={[current_select]}
-                            className='variable-list-bottom-menu'
+                            className='bottom-menu'
                             onSelect={async key => {
                                 if (key.length) {
                                     if (no_save_flag.current && (await save_confirm()))

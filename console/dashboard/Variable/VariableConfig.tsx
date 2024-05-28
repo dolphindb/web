@@ -78,7 +78,7 @@ export function VariableConfig () {
     
     return <>
         <Button
-            icon={<ToolOutlined className='variable-config-trigger-navigation-icon' />}
+            icon={<ToolOutlined className='variable-trigge' />}
             onClick={open}
         >
             {t('变量')}
