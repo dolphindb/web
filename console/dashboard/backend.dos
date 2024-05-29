@@ -9,7 +9,7 @@ def dropAllFunctionViews(prefix) {
         try{dropFunctionView(func);}catch(ex){}
     }
 }
-dropAllFunctionViews("dashboard_%");go
+dropAllFunctionViews("dashboard_%");go;
 
 def createDashboardConfigDb() {
     if (existsDatabase("dfs://dashboardConfigDb")){
@@ -162,12 +162,13 @@ def addAllFunctionViews(prefix) {
     onlyAdminFuncs = ["dashboard_grant_functionviews", "dashboard_delete_user_cfg", "dashboard_delete_user"]
 
     for(func in funcs) {
-        try{addFunctionView(funcByName(func))}catch(ex){}
+        addFunctionView(funcByName(func))
+        undef(func, DEF)     
     }
     
     grantFuncs = (set(funcs) - set(onlyAdminFuncs)).keys()
     for (gfunc in grantFuncs) {
-        try{each(grant, getUserList(), take(VIEW_EXEC, count(getUserList())), take(gfunc, count(getUserList())))}catch(ex){}
+        each(grant, getUserList(), take(VIEW_EXEC, count(getUserList())), take(gfunc, count(getUserList()))) 
     }
 }
 
@@ -176,9 +177,5 @@ def initializeDashboard(){
     addAllFunctionViews("dashboard_%")
 }
 
-initializeDashboard()
-undef all
-
-
-print('dashboard backend loaded')
-
+try{initializeDashboard()}catch(ex){writeLog("Dashboard Initialization Failed: " + ex)}
+undef(`createDashboardConfigDb`dropAllFunctionViews`addAllFunctionViews`initializeDashboard, DEF)

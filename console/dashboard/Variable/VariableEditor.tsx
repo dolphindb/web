@@ -4,11 +4,15 @@ import { Button, DatePicker, Input, Popover, Select } from 'antd'
 
 import { QuestionCircleOutlined } from '@ant-design/icons'
 
+import { useEffect } from 'react'
+
 import { Editor } from '../../shell/Editor/index.js'
 
 import { safe_json_parse } from '../utils.js'
 import { t } from '../../../i18n/index.js'
 import { VariableMode } from '../type.js'
+
+import { dashboard } from '../model.js'
 
 import { OptionList } from './OptionList.js'
 import { type Variable, type VariablePropertyType } from './variable.js'
@@ -25,7 +29,7 @@ export function VariableEditor ({
         change_current_variable_property: (key: string, value: VariablePropertyType, save_confirm?: boolean) => void
     }) 
 { 
-    const is_select = [VariableMode.MULTI_SELECT, VariableMode.SELECT].includes(current_variable.mode)
+    const is_select = current_variable.mode === VariableMode.SELECT || current_variable.mode === VariableMode.MULTI_SELECT
     
     const value_editor = {
         [VariableMode.SELECT]: <Select
@@ -64,6 +68,12 @@ export function VariableEditor ({
                     }} 
                 />
     }
+    
+    useEffect(() => {
+        if (dashboard.variable_editor)
+            dashboard.variable_editor.setValue(current_variable?.code || '')
+        change_no_save_flag(false)
+    }, [current_variable.id])
     
     return <>
         <div className='variable-editor'>
@@ -136,10 +146,10 @@ export function VariableEditor ({
                             </div>
                             <Editor 
                                 enter_completion
-                                // on_mount={(editor, monaco) => {
-                                //     editor?.setValue(get_data_source(current_data_source.id).code)
-                                //     dashboard.set({ sql_editor: editor, monaco })
-                                // }}
+                                on_mount={(editor, monaco) => {
+                                    editor?.setValue(current_variable.code)
+                                    dashboard.set({ variable_editor: editor, monaco })
+                                }}
                                 on_change={() => { change_no_save_flag(true) }}
                                 theme='dark'
                             />

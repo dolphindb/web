@@ -17,6 +17,8 @@ export type ExportVariable = {
     
     mode: VariableMode
     
+    code: string
+    
     deps: string[]
     
     value: string
@@ -32,6 +34,8 @@ export class Variable  {
     display_name: string
     
     mode = VariableMode.SELECT
+    
+    code = ''
     
     deps: Set<string>
     
@@ -102,6 +106,9 @@ export function get_variable_value (variable_name: string): string {
 
 export async function save_variable ( new_variable: Variable, is_import = false) {
     const id = new_variable.id
+    
+    if (!is_import && (new_variable.mode === VariableMode.MULTI_SELECT || new_variable.mode === VariableMode.SELECT))
+        new_variable.code = dashboard.variable_editor?.getValue()
     
     variables.set({ [id]: { ...new_variable, deps: variables[id].deps } })
     
@@ -223,10 +230,11 @@ export async function import_variables (_variables: ExportVariable[]) {
     tmp_deps.clear()
     
     for (let variable of _variables) {
-        const import_variable = new Variable(variable.id, variable.name, variable.display_name)
+        const { id, name, display_name } = variable
+        const import_variable = new Variable(id, name, display_name)
         Object.assign(import_variable, variable, { deps: import_variable.deps })
-        variables[variable.id] = import_variable
-        variables.variable_infos.push({ id: variable.id, name: variable.name })
+        variables[id] = import_variable
+        variables.variable_infos.push({ id, name })
         await save_variable(import_variable, true)
     }
     return variables.variable_infos.map(variable_info => variables[variable_info.id])

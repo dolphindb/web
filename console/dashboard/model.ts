@@ -90,6 +90,8 @@ export class DashBoardModel extends Model<DashBoardModel> {
     
     filter_expression_editor: monacoapi.editor.IStandaloneCodeEditor
     
+    variable_editor: monacoapi.editor.IStandaloneCodeEditor
+    
     result: Result
     
     // console/model.js 对应黑色主题的版本
@@ -394,7 +396,7 @@ export class DashBoardModel extends Model<DashBoardModel> {
     
     /** 根据 id 获取单个 DashboardConfig */
     async get_dashboard_config (id: number) {
-        const data = (await model.ddb.call('dashboard_get_config', [new DdbDict({ id: new DdbLong(BigInt(id)) })])).to_rows()
+        const { data } = (await model.ddb.invoke('dashboard_get_config', [{ id }]))
         
         const res: any = data.length
             ? ({
