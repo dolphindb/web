@@ -334,7 +334,7 @@ export class DashBoardModel extends Model<DashBoardModel> {
             const result = await this.eval(code, ddb, preview)
             return {
                 type: 'success',
-                result: result
+                result
             }
         } catch (error) {
             return {

@@ -303,7 +303,7 @@ export function StreamingLine ({
     }, [pres_data])
     // 用于处理数据格式
     function handleMessage2Data (message: StreamingMessage): any {
-        let keys = message.colnames
+        let keys = message.data.columns
         // 查看表格所在编号
         let time_variable_index = keys.indexOf(time_variable)
         // 必须包含time相关变量
@@ -311,7 +311,7 @@ export function StreamingLine ({
             return null
         
         let data: Array<Record<string, string | number>> = [ ]
-        message.data.value.forEach((item, index) => {
+        message.obj.value.forEach((item, index) => {
             if (item.rows)
                 for (let i = 0;  i < item.rows;  i++) {
                     data[i] ??= { }
@@ -385,9 +385,9 @@ export function StreamingSection ({
     
     // 用于处理数据格式
     function handleMessage2Data (message: StreamingMessage): any {
-        let keys = message.colnames
+        let keys = message.data.columns
         let data = { }
-        message.data.value.forEach((item, index) => {
+        message.obj.value.forEach((item, index) => {
             if (item.rows && item.rows > 0 && properties_set.has(keys[index]))
                 data[keys[index]] = formati(item, item.rows - 1, undefined)
         })
@@ -483,9 +483,9 @@ export function StreamingHeatMap ({
     }, [data])
     // 用于处理数据格式
     function handleMessage2Data (message: StreamingMessage): any {
-        let keys = message.colnames
+        let keys = message.data.columns
         let data = { }
-        message.data.value.forEach((item, index) => {
+        message.obj.value.forEach((item, index) => {
             if (item.rows && item.rows > 0 && properties_set.has(keys[index]))
                 data[keys[index]] = formati(item, item.rows - 1, undefined)
         })
@@ -683,9 +683,9 @@ export function StreamingSortBar ({
     }, [data])
     // 用于处理数据格式
     function handleMessage2Data (message: StreamingMessage): any {
-        let keys = message.colnames
+        let keys = message.data.columns
         let data = { }
-        message.data.value.forEach((item, index) => {
+        message.obj.value.forEach((item, index) => {
             if (item.rows > 0 && properties_set.has(keys[index]))
                 data[keys[index]] = formati(item, item.rows - 1, undefined)
         })
@@ -867,7 +867,7 @@ export function StreamingKLine ({
     }, [pres_data])
     // 用于处理数据格式
     function handleMessage2Data (message: StreamingMessage): any {
-        let keys = message.colnames
+        let keys = message.data.columns
         // 查看表格所在编号
         const variable_indexs = {
             time_variable_index: keys.indexOf(time_variable),
@@ -887,7 +887,7 @@ export function StreamingKLine ({
             minimum_price_variable_index: MINIMUM_PRICE_VARIABLE_INDEX
         } = variable_indexs
         let data = [ ]
-        message.data.value.forEach((item, index) => {
+        message.obj.value.forEach((item, index) => {
             for (let i = 0;  i < item.rows;  i++) {
                 data[i] ??= { }
                 switch (index) {
@@ -1114,7 +1114,7 @@ export function StreamingScatter ({
     }, [pres_data])
     // 用于处理数据格式
     function handleMessage2Data (message: StreamingMessage): any {
-        let keys = message.colnames
+        let keys = message.data.columns
         // 查看表格所在编号
         const variable_indexs = {
             X_VARIABLE_INDEX: keys.indexOf(x_variable),
@@ -1124,7 +1124,7 @@ export function StreamingScatter ({
         }
         const { X_VARIABLE_INDEX, Y_PRICE_VARIABLE_INDEX, SIZE_PRICE_VARIABLE_INDEX, COLOR_PRICE_VARIABLE_INDEX } = variable_indexs
         let data: any = [ ]
-        message.data.value.forEach((item, index) => {
+        message.obj.value.forEach((item, index) => {
             if (item.rows)
                 for (let i = 0;  i < item.rows;  i++) {
                     data[i] ??= { }

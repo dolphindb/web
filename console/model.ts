@@ -12,7 +12,8 @@ import { request } from 'xshell/net.browser.js'
 
 import {
     DDB, SqlStandard, DdbFunctionType, DdbVectorString, type DdbObj, DdbInt, DdbLong, type InspectOptions,
-    DdbDatabaseError, type DdbStringObj, type DdbDictObj, type DdbVectorStringObj
+    DdbDatabaseError, type DdbStringObj, type DdbDictObj, type DdbVectorStringObj,
+    type DdbTableData
 } from 'dolphindb/browser.js'
 
 import { language, t } from '../i18n/index.js'
@@ -220,14 +221,14 @@ export class DdbModel extends Model<DdbModel> {
         
         await Promise.all([
             this.get_factor_platform_enabled(),
-            config.load_nodes_config()
+            // config.load_nodes_config()
         ])
         
-        const webModules = config.nodes_configs.get('webModules')
+        // const webModules = config.nodes_configs.get('webModules')
         
-        this.set({
-            enabled_modules: (webModules?.value) ? new Set(webModules.value.split(',')) : new Set()
-        })
+        // this.set({
+        //     enabled_modules: (webModules?.value) ? new Set(webModules.value.split(',')) : new Set()
+        // })
         
         console.log(t('web 初始化成功'))
         
@@ -565,7 +566,8 @@ export class DdbModel extends Model<DdbModel> {
                         func_type: DdbFunctionType.SystemFunc
                     },
             })
-        ).to_rows<DdbNode>()
+        ).data<DdbTableData>()
+        .data
         .sort((a, b) => strcmp(a.name, b.name))
         
         if (print)
@@ -903,6 +905,17 @@ export class DdbModel extends Model<DdbModel> {
         return this.enabled_modules.has(key) || !this.optional_modules.has(key)
     }
 }
+
+
+if (!Promise.withResolvers)
+    Promise.withResolvers = function PromiseWithResolvers () {
+        let resolve: any, reject: any
+        let promise = new Promise((_resolve, _reject) => {
+            resolve = _resolve
+            reject = _reject
+        })
+        return { promise, resolve, reject }
+    } as any
 
 
 if (!Array.prototype.toReversed)

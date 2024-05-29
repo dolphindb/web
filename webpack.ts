@@ -1,5 +1,3 @@
-import dayjs from 'dayjs'
-
 import { default as Webpack, type Compiler, type Configuration, type Stats } from 'webpack'
 
 // 需要分析 bundle 大小时开启
@@ -173,7 +171,15 @@ export let webpack = {
     lcompiler: new Lock<Compiler>(null),
     
     
-    async build ({ production, is_cloud }: { production: boolean, is_cloud?: boolean }) {
+    async build ({
+        production, 
+        is_cloud, 
+        version_name
+    }: {
+        production: boolean
+        is_cloud?: boolean
+        version_name?: string
+    }) {
         console.log(`开始构建${production ? '生产' : '开发'}模式的 web`)
         
         const base_config = get_base_config(production)
@@ -187,9 +193,20 @@ export let webpack = {
                 await git.get_last_commits(1)
             )[0]
             
-            const version = `${branch} (${dayjs(time).format('YYYY.MM.DD HH:mm:ss')} ${hash.slice(0, 6)})`
+            version_name ||= branch
             
-            await fwrite(`${fpd_out_console}version.json`, { version }, { print: false })
+            const timestr = time.to_formal_str()
+            
+            const commit = hash.slice(0, 6)
+            
+            const web_version = `${version_name} (${timestr} ${commit})`
+            
+            await fwrite(`${fpd_out_console}version.json`, {
+                version: version_name,
+                branch,
+                time: timestr,
+                commit
+            }, { print: false })
             
             
             this.lcompiler.resource = Webpack(this.config = {
@@ -284,7 +301,7 @@ export let webpack = {
                 
                 plugins: [
                     new Webpack.DefinePlugin({
-                        WEB_VERSION: version.quote(),
+                        WEB_VERSION: web_version.quote(),
                     }),
                     
                     // 使用 IgnorePlugin 能够不打包，但是一旦导入就会报错
