@@ -555,7 +555,7 @@ export class DdbModel extends Model<DdbModel> {
         Only master or single mode supports function getClusterPerf. */
     async get_cluster_perf (print: boolean) {
         const nodes = (
-            await this.ddb.invoke<DdbTableData>('getClusterPerf', [true], {
+            await this.ddb.call<DdbObj<DdbObj[]>>('getClusterPerf', [true], {
                 urgent: true,
                 
                 ... this.node_type === NodeType.controller || this.node_type === NodeType.single ? 
@@ -566,7 +566,8 @@ export class DdbModel extends Model<DdbModel> {
                         func_type: DdbFunctionType.SystemFunc
                     },
             })
-        ).data
+        ).data<DdbTableData>()
+        .data
         .sort((a, b) => strcmp(a.name, b.name))
         
         if (print)
