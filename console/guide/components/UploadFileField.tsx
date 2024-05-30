@@ -2,6 +2,7 @@ import './index.scss'
 import { CloudUploadOutlined, DeleteOutlined, FileOutlined } from '@ant-design/icons'
 import { Form, Typography, Upload } from 'antd'
 import { useState } from 'react'
+
 import { t } from '../../../i18n/index.js'
 
 interface IProps { 
