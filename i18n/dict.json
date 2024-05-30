@@ -4007,7 +4007,7 @@
     "按时间顺序记录的数据": {
         "en": "A sequence of data points collected over time intervals"
     },
-    "日增数据量":{
+    "日增数据量": {
         "en": "Daily Increment"
     },
     "0 - 10 万": {
@@ -4070,7 +4070,7 @@
     "DECIMAL 精度": {
         "en": "scale"
     },
-    "DECIMAL32 精度有效范围是[0, 9]，DECIMAL64 精度有效范围是[0, 18]，DECIMAL128 精度有效范围是[0,38]":{
+    "DECIMAL32 精度有效范围是[0, 9]，DECIMAL64 精度有效范围是[0, 18]，DECIMAL128 精度有效范围是[0,38]": {
         "en": "The scale range is [0,9] for DECIMAL32, [0,18] for DECIMAL64, and [0,38] for DECIMAL128."
     },
     "请输入备注": {
@@ -4103,7 +4103,7 @@
     "自定义分隔符": {
         "en": "Custom Delimiter"
     },
-    "默认分隔符为 ','，可自定义分隔符":{
+    "默认分隔符为 ','，可自定义分隔符": {
         "en": "The default delimiter is ',' (comma). Please enter a custom delimiter."
     },
     "仅支持上传 csv 文件与 txt 文件": {
@@ -4127,7 +4127,7 @@
     "请选择两个常用筛选列，时序数据或者数据总量大于 200 万的非时序第一列需为时间列，第二列需为设备编号列，其余情况第一列需为设备编号列": {
         "en": "Select two filter columns. For time-series data or non-time-series data with total volume over 2M, the first column must be a time column, and the second column must be a device ID column. For other cases, the first column must be a device ID column."
     },
-    "表结构中无 {{name}} 列，请修改":{
+    "表结构中无 {{name}} 列，请修改": {
         "en": "Column {{name}} does not exist."
     },
     "请选择两个常用筛选列": {
@@ -4187,7 +4187,7 @@
     "增加筛选列": {
         "en": "Add Filter Column"
     },
-    "除分区列外，请选择查询时常作为过滤条件的列。越重要的过滤条件，在过滤列中的位置越靠前。结合您提供的信息，最多可选择1个常用筛选列,建议第一个过滤列为设备编号列。":{
+    "除分区列外，请选择查询时常作为过滤条件的列。越重要的过滤条件，在过滤列中的位置越靠前。结合您提供的信息，最多可选择1个常用筛选列,建议第一个过滤列为设备编号列。": {
         "en": "Apart from the partitioning columns, please select columns that are frequently used as filtering conditions during queries. It is recommended to arrange these columns by query frequency, with the most commonly used one at the beginning of the list. You can specify at most 2 filter columns, and the first one is recommended to be the device ID column."
     },
     "重复数据保留策略": {
@@ -4332,7 +4332,7 @@
         "en": "Apart from the partitioning columns, please select columns that are frequently used as filtering conditions during queries. It is recommended to arrange these columns by query frequency, with the most commonly used one at the beginning of the list. You can specify at most one filter column."
     },
     "简易版": {
-        "en":"Basic"
+        "en": "Basic"
     },
     "进阶版": {
         "en": "Advanced"
@@ -4341,7 +4341,7 @@
         "en": "Step 1"
     },
     "第二步": {
-        "en":"Step 2"
+        "en": "Step 2"
     },
     "导入配置": {
         "en": "Import Database Configuration"
