@@ -1934,114 +1934,6 @@
     "因子平台": {
         "en": "FactorLab"
     },
-    "标题": {
-        "en": "Title"
-    },
-    "数据源": {
-        "en": "DataSource"
-    },
-    "基本属性": {
-        "en": "Basic properties"
-    },
-    "数值轴，适用于连续数据": {
-        "en": "Numerical axis, suitable for continuous data"
-    },
-    "类目轴，适用于离散的类目数据": {
-        "en": "Category axis, suitable for discrete category data"
-    },
-    "时间轴，适用于连续的时序数据": {
-        "en": "Time axis, suitable for continuous time series data"
-    },
-    "对数轴，适用于对数数据": {
-        "en": "Logarithmic axis, suitable for logarithmic data"
-    },
-    "X 轴名称": {
-        "en": "X-axis name"
-    },
-    "增加数据列": {
-        "en": "Add data column"
-    },
-    "增加 Y 轴": {
-        "en": "Add Y axis"
-    },
-    "坐标列": {
-        "en": "Axis column"
-    },
-    "是否展示 X 缩略轴": {
-        "en": "Display the X thumbnail axis"
-    },
-    "是否展示 Y 缩略轴": {
-        "en": "Display the Y thumbnail axis"
-    },
-    "保存并应用": {
-        "en": "Save and Apply"
-    },
-    "请先选中您需要更改配置的图表": {
-        "en": "Please select the chart you want to change the configuration first"
-    },
-    "请为您的图表配置数据源": {
-        "en": "Please configure the data source for your chart"
-    },
-    "画布": {
-        "en": "Canvas"
-    },
-    "图表": {
-        "en": "Charts"
-    },
-    "图例": {
-        "en": "Legend"
-    },
-    "提示": {
-        "en": "Hint"
-    },
-    "X 轴缩略轴": {
-        "en": "X-axis abbreviated axis"
-    },
-    "Y 轴缩略轴": {
-        "en": "Y-axis abbreviated axis"
-    },
-    "位置": {
-        "en": "Position"
-    },
-    "左侧": {
-        "en": "Left"
-    },
-    "关联 Y 轴": {
-        "en": "Associated Y axis"
-    },
-    "列配置": {
-        "en": "Column configuration"
-    },
-    "增加映射": {
-        "en": "Add mapping"
-    },
-    "原始列名": {
-        "en": "Original column name"
-    },
-    "展示列名": {
-        "en": "Show column names"
-    },
-    "分页设置": {
-        "en": "Pagination settings"
-    },
-    "需要分页": {
-        "en": "Need pagination"
-    },
-    "默认分页数": {
-        "en": "Default number of pages"
-    },
-    "编辑数据源": {
-        "en": "Edit data source"
-    },
-    "堆叠值": {
-        "en": "Stack value"
-    },
-    "同个类目轴上为数据列配置相同的堆叠值可以堆叠放置": {
-        "en": "Series configurations with the same stack value on the same category axis can be stacked."
-    },
-    "关联变量": {
-        "en": "Associated variables"
-    },
     "实时计算": {
         "en": "Computing"
     },
@@ -2587,6 +2479,782 @@
     },
     "内存大小": {
         "en": "Memory Size"
+    },
+    "查看数据库 {{db_name}} 用户权限": {
+        "en": "View database {{db_name}} user permissions"
+    },
+    "查看用户权限": {
+        "en": "View user permissions"
+    },
+    "确认{{action}}选中的 ": {
+        "en": "Confirm {{action}} Selected "
+    },
+    " 个{{item}}吗?": {
+        "en": " {{item}} ?"
+    },
+    "请选择想要添加的用户": {
+        "en": "Please select the user you want to add."
+    },
+    "请输入要搜索的流表名": {
+        "en": "Please enter the table name you want to search."
+    },
+    "以下内容已复制到剪切板": {
+        "en": "The following content has been copied to the clipboard."
+    },
+    "请编辑代码": {
+        "en": "Please edit the code"
+    },
+    "新建查询": {
+        "en": "Create query"
+    },
+    "向导查询": {
+        "en": "Use Query Builder"
+    },
+    "脚本查询": {
+        "en": "Use Script Editor"
+    },
+    "筛选查询列": {
+        "en": "Select Columns"
+    },
+    "查询列": {
+        "en": "Selected"
+    },
+    "非查询列": {
+        "en": "Unselected"
+    },
+    "增加查询列": {
+        "en": "Add Column"
+    },
+    "删除查询列": {
+        "en": "Remove Column"
+    },
+    "查询列不可为空，请重新筛选！": {
+        "en": "Select at least 1 column."
+    },
+    "添加查询条件": {
+        "en": "Set Query Conditions"
+    },
+    "分区列查询条件": {
+        "en": "Partitioning Columns"
+    },
+    "必填项，仅支持【且满足】，与”其他查询条件”亦为【且满足】关系。": {
+        "en": "Set at least 1 condition. Conditions on partitioning columns can only be combined with others (on either partitioning or non-partitioning columns) using the AND operator."
+    },
+    "请选择列名": {
+        "en": "Select column"
+    },
+    "请选择运算符": {
+        "en": "Select operator"
+    },
+    "请输入对比值": {
+        "en": "Enter at least 1 value."
+    },
+    "且满足": {
+        "en": "AND"
+    },
+    "增加且条件项": {
+        "en": "Add AND condition"
+    },
+    "删除该条件项": {
+        "en": "Delete condition"
+    },
+    "删除该条件块": {
+        "en": "Delete condition group"
+    },
+    "其他查询条件": {
+        "en": "Non-Partitioning Columns"
+    },
+    "或满足": {
+        "en": "OR"
+    },
+    "新增条件块": {
+        "en": "Add Condition Group"
+    },
+    "重置条件": {
+        "en": "Reset"
+    },
+    "查看 SQL 语句": {
+        "en": "View Generated Query"
+    },
+    "返回修改": {
+        "en": "Go Back"
+    },
+    "预览数据": {
+        "en": "Preview Data"
+    },
+    "导出数据": {
+        "en": "Export Data"
+    },
+    "当前数据量已达 50 万行，暂不支持导出功能。": {
+        "en": "Cannot export data exceeding 500,000 rows."
+    },
+    "当前数据为空，暂不支持导出功能。": {
+        "en": "No rows to export. Query returned no data."
+    },
+    "当前数据量已达 2000 万行的预览上限，此处仅显示部分截断数据。": {
+        "en": "Showing a partial preview of the data. The full dataset exceeds 20 million rows."
+    },
+    "输入对比值时须带有通配符 “%”。“%” 表示任意 0 个或者多个字符，可匹配任意类型和长度的字符。使用时请注意区分大小写。以下为使用示例：": {
+        "en": "The LIKE/NOT LIKE pattern must include the wildcard character %, which represents zero, one, or multiple characters of any type or length. It is case-sensitive. For example:"
+    },
+    "688%（匹配以 “688” 开头的字符串，能够匹配例如 “688101.SH”、”688101”的字符串）": {
+        "en": "688% matches strings starting with \"688\", like \"688101\"."
+    },
+    "%SZ%（匹配包含 “SZ” 的字符串， 能够匹配例如 “300951.SZ”、 “SZ.300951”的字符串）": {
+        "en": "%SZ% matches strings that contain \"SZ\", such as \"001SZ\"."
+    },
+    "%6（匹配以 “6” 结尾的字符串，能够匹配例如 “abcd6” 的字符串）": {
+        "en": "%6 matches strings ending with \"6\", like \"abcd6\"."
+    },
+    "在对比值的下拉框中选择一个或多个枚举值。注意，下拉框中仅展示部分枚举值，且存在响应延时。": {
+        "en": "For IN and NOT IN operators, the dropdown shows a subset of available values with a brief delay."
+    },
+    "请手动输入未显示的枚举值，单击回车键以完成操作。": {
+        "en": "Alternatively, enter one or more values manually in the field, pressing 'Enter' after each."
+    },
+    "复制代码": {
+        "en": "Copy"
+    },
+    "文件名": {
+        "en": "File Name"
+    },
+    "请输入文件名": {
+        "en": "Specify a file name."
+    },
+    "等于 (=)": {
+        "en": "= (Equal to)"
+    },
+    "不等于 (!=)": {
+        "en": "!= (Not equal to)"
+    },
+    "匹配 (like)": {
+        "en": "Like"
+    },
+    "不匹配 (not like)": {
+        "en": "Not like"
+    },
+    "包含 (in)": {
+        "en": "In"
+    },
+    "不包含 (not in)": {
+        "en": "Not in"
+    },
+    "大于 (>)": {
+        "en": "> (Greater than)"
+    },
+    "小于 (<)": {
+        "en": "< (Less than)"
+    },
+    "大于等于 (>=)": {
+        "en": ">= (Greater than or equal to)"
+    },
+    "小于等于 (<=)": {
+        "en": "<= (Less than or equal to)"
+    },
+    "导出成功": {
+        "en": "Export successfully"
+    },
+    "共 {{total}} 条数据": {
+        "en": "Number of Rows: {{total}}"
+    },
+    "请注意，无法删除或者编辑当前选中的选项": {
+        "en": "Please note that currently selected options cannot be deleted or edited"
+    },
+    "仅单机节点、数据节点和计算节点支持新建查询": {
+        "en": "Queries can only be created on data/compute nodes, or on a standalone server."
+    },
+    "CEP 流计算引擎": {
+        "en": "CEP Streaming Engine"
+    },
+    "引擎信息": {
+        "en": "Engine Info"
+    },
+    "数据视图": {
+        "en": "Data View"
+    },
+    "发送事件到引擎": {
+        "en": "Send Event"
+    },
+    "CEP 引擎": {
+        "en": "CEP Engine"
+    },
+    "引擎名称": {
+        "en": "Engine Name"
+    },
+    "创建人": {
+        "en": "Creator"
+    },
+    "子引擎数": {
+        "en": "Sub Engines"
+    },
+    "子引擎数：{{num}}": {
+        "en": "Sub Engines: {{num}}"
+    },
+    "接收事件数": {
+        "en": "Received Events"
+    },
+    "发送事件数": {
+        "en": "Sent Events"
+    },
+    "事件队列最大深度": {
+        "en": "Maximum Event Queue Depth"
+    },
+    "队列中发送事件数": {
+        "en": "Sent Events in Output Queue"
+    },
+    "子引擎信息": {
+        "en": "Sub Engine Info"
+    },
+    "事件队列中待处理事件数": {
+        "en": "Pending Events in Event Queue"
+    },
+    "事件监听数": {
+        "en": "Event Listeners"
+    },
+    "计时器数": {
+        "en": "Timers"
+    },
+    "插入队列头事件数": {
+        "en": "Events Sent to Queue Head"
+    },
+    "插入队列尾事件数": {
+        "en": "Events Sent to Queue Tail"
+    },
+    "匹配成功事件数": {
+        "en": "Matched Events"
+    },
+    "最近接收事件的时间": {
+        "en": "Timestamp of the Last Received Event"
+    },
+    "请输入要查询的 key": {
+        "en": "Please enter a key for query."
+    },
+    "发送事件到 {{name}} 引擎": {
+        "en": "Send An Event to {{name}} Engine"
+    },
+    "事件类型": {
+        "en": "Event Type"
+    },
+    "事件字段": {
+        "en": "Fields"
+    },
+    "类型说明": {
+        "en": "DataTypes"
+    },
+    "{{type}} 的值": {
+        "en": "Value of {{type}}"
+    },
+    "{{type}} 的精度": {
+        "en": "Scale of {{type}}"
+    },
+    "发送成功": {
+        "en": "Success"
+    },
+    "字段类型有误，请检查": {
+        "en": "The entered field type is incorrect."
+    },
+    "请输入事件字段": {
+        "en": "Please enter the fields."
+    },
+    "请选择事件类型": {
+        "en": "Please select the event type."
+    },
+    "数据类型为 {{name}}": {
+        "en": "Please enter data of {{name}} type."
+    },
+    "最近错误时间": {
+        "en": "Last Error Time"
+    },
+    "请选择数据视图": {
+        "en": "Please select a data view"
+    },
+    "监视器数": {
+        "en": "Monitors"
+    },
+    "k 线图仅支持时间轴": {
+        "en": "K-line only supports timeline"
+    },
+    "配置管理": {
+        "en": "Config"
+    },
+    "请输入配置名": {
+        "en": "Please enter config name"
+    },
+    "请输入配置名！": {
+        "en": "Please enter config name!"
+    },
+    "数值": {
+        "en": "Value"
+    },
+    "请输入配置值": {
+        "en": "Please enter config value"
+    },
+    "请输入配置值！": {
+        "en": "Please enter config value!"
+    },
+    "确认删除此配置项？": {
+        "en": "Confirm to delete this config item?"
+    },
+    "新增控制节点配置": {
+        "en": "Add controller config"
+    },
+    "请输入想要查找的配置项": {
+        "en": "Please enter config name"
+    },
+    "集群节点管理": {
+        "en": "Cluster node management"
+    },
+    "限定词": {
+        "en": "Qualifier"
+    },
+    "请输入选择器": {
+        "en": "Please enter qualifier"
+    },
+    "其它": {
+        "en": "others"
+    },
+    "新增配置": {
+        "en": "New config"
+    },
+    "请输入或选择配置项名": {
+        "en": "Please enter or select a config item name"
+    },
+    "请输入配置项值": {
+        "en": "Please enter the config item value"
+    },
+    "主机名": {
+        "en": "Host"
+    },
+    "请输入主机名": {
+        "en": "Please enter host"
+    },
+    "端口号": {
+        "en": "Port"
+    },
+    "请输入端口号": {
+        "en": "Please enter the port"
+    },
+    "别名": {
+        "en": "Alias"
+    },
+    "请输入别名": {
+        "en": "Please enter an alias"
+    },
+    "请选择节点类型": {
+        "en": "Please select node mode"
+    },
+    "确认删除此节点？": {
+        "en": "Confirm to delete this node?"
+    },
+    "新增节点": {
+        "en": "Add new node"
+    },
+    "请输入想要查找的节点别名": {
+        "en": "Please enter the node alias"
+    },
+    "线程": {
+        "en": "thread"
+    },
+    "发布流": {
+        "en": "streaming_pub"
+    },
+    "订阅流": {
+        "en": "streaming_sub"
+    },
+    "系统": {
+        "en": "system"
+    },
+    "返回": {
+        "en": "Return"
+    },
+    "动作": {
+        "en": "Actions"
+    },
+    "撤销权限": {
+        "en": "Revoke"
+    },
+    "确认 revoke 该权限吗？": {
+        "en": "Confirm revoke permission?"
+    },
+    "Revoke": {
+        "en": "Revoke"
+    },
+    "确认添加": {
+        "en": "Confirm"
+    },
+    "添加权限": {
+        "en": "Add Access"
+    },
+    "请选择权限应用范围": {
+        "en": "Please select the access object."
+    },
+    "应用范围为全局": {
+        "en": "Global level"
+    },
+    "预添加": {
+        "en": "Add"
+    },
+    "移除": {
+        "en": "remove"
+    },
+    "Revoke 成功": {
+        "en": "Revoke successfully"
+    },
+    "确认 revoke 选中的 {{num}} 条权限吗？": {
+        "en": "Confirm {{num}} permissions selected by revoke?"
+    },
+    "全局权限": {
+        "en": "Global"
+    },
+    "请输入组名": {
+        "en": "Please enter a group name"
+    },
+    "组名长度不能超过 30 个字符": {
+        "en": "Group name must be less than 30 characters."
+    },
+    "预览修改": {
+        "en": "Preview"
+    },
+    "确认对组 {{group}} 进行以下改动吗？": {
+        "en": "Confirm the following changes to {{group}}?"
+    },
+    "组内用户修改成功": {
+        "en": "Users in the group have been modified successfully"
+    },
+    "原组内用户:": {
+        "en": "Users in the original group"
+    },
+    "移入用户:": {
+        "en": "Add"
+    },
+    "移出用户:": {
+        "en": "Remove"
+    },
+    "非管理员不能查看权限管理模块。": {
+        "en": "Available only for administrators."
+    },
+    "重置用户 ": {
+        "en": "Reset user "
+    },
+    "用户 {{user}} 所属组管理": {
+        "en": "Manage Groups for {{user}}"
+    },
+    "请输入想查找的组": {
+        "en": "Search Groups"
+    },
+    "确认对用户 {{user}} 进行以下改动吗？": {
+        "en": "Confirm the following changes to {{user}}?"
+    },
+    "用户所属组修改成功": {
+        "en": "Successfully Changed"
+    },
+    "原有组:": {
+        "en": "Groups"
+    },
+    "移入组:": {
+        "en": "Move into"
+    },
+    "移出组:": {
+        "en": "Move out"
+    },
+    "用户组管理": {
+        "en": "group management"
+    },
+    "管理权限": {
+        "en": "Manage Access"
+    },
+    "批量撤销": {
+        "en": "Revoke Access"
+    },
+    "DFS 表名": {
+        "en": "DFS tables"
+    },
+    "确认撤销该权限吗？": {
+        "en": "Are you sure to revoke this access?"
+    },
+    "确认撤销选中的 {{num}} 条权限吗？": {
+        "en": "Are you sure to delete selected access?"
+    },
+    "当前{{role}}:": {
+        "en": "Current {{role}}"
+    },
+    "组成员": {
+        "en": "Members"
+    },
+    "组名只能包含字母、下划线或数字，并且不能以数字或下划线开头": {
+        "en": "Group name can only use letters, digits or underscores (_), and must start with letters."
+    },
+    "非组成员": {
+        "en": "Non-Members"
+    },
+    "组成员修改成功": {
+        "en": "Successfully Changed"
+    },
+    "管理成员": {
+        "en": "Manage Members"
+    },
+    "所属组": {
+        "en": "Group"
+    },
+    "请输入用户名!": {
+        "en": "Please enter user ID."
+    },
+    "用户名长度不能超过 30 个字符": {
+        "en": "User ID must be less than 30 characters."
+    },
+    "用户名只能包含字母、下划线或数字，并且不能以数字或下划线开头": {
+        "en": "User ID can only use letters, digits or underscores (_), and must start with letters."
+    },
+    "请输入密码!": {
+        "en": "Please enter password."
+    },
+    "密码长度为 6-20 个字符，且不包含空格或中文": {
+        "en": "Use a password 6-20 characters long. Spaces and Chinese characters are not allowed."
+    },
+    "请再次输入密码!": {
+        "en": "Please confirm your password."
+    },
+    "两次输入密码需要保持一致!": {
+        "en": "Your passwords do not match."
+    },
+    "未所属组": {
+        "en": "Other Groups"
+    },
+    "管理用户组": {
+        "en": "Manage Groups"
+    },
+    "范围": {
+        "en": "Scope"
+    },
+    "原组成员:": {
+        "en": "Members"
+    },
+    "设置密码": {
+        "en": "Set Password"
+    },
+    "设置权限": {
+        "en": "Manage Access"
+    },
+    "设置用户组": {
+        "en": "Manage Groups"
+    },
+    "配置项": {
+        "en": "key"
+    },
+    "请输入配置项": {
+        "en": "Please enter key"
+    },
+    "请输入配置项！": {
+        "en": "Please enter key"
+    },
+    "请输入或选择配置项": {
+        "en": "Please enter or select key"
+    },
+    "主机名 / IP 地址": {
+        "en": "Hostname/IP address"
+    },
+    "请输入主机名 / IP 地址": {
+        "en": "Please enter hostname/IP address"
+    },
+    "请输入正确的主机名 / IP 地址": {
+        "en": "Please enter correct hostname/IP address"
+    },
+    "流发布": {
+        "en": "streaming_pub"
+    },
+    "流订阅": {
+        "en": "streaming_sub"
+    },
+    "停用": {
+        "en": "deactivate"
+    },
+    "启用": {
+        "en": "activate"
+    },
+    "{{label}}{{active_label}}提示": {
+        "en": "{{label}} {{active_label}} tips"
+    },
+    "{{label}}{{active_label}}成功": {
+        "en": "{{label}} {{active_label}} successfully"
+    },
+    "可选模块": {
+        "en": "Optional Modules"
+    },
+    
+    
+    "已存在，粘贴失败!": {
+        "en": "already exists, paste failed!"
+    },
+    "初始化数据面板成功！": {
+        "en": "Dashboard initialization successful!"
+    },
+    "新数据面板": {
+        "en": "New dashboard"
+    },
+    "提示：初始化后请完善相关配置（详见文档），并重启服务器": {
+        "en": "Tip: After initialization, please complete the relevant configuration (see the documentation for details) and restart the server"
+    },
+    "新数据源": {
+        "en": "New data source"
+    },
+    "请输入新数据源的名称": {
+        "en": "Please enter a name for the new data source"
+    },
+    "新变量": {
+        "en": "New variable"
+    },
+    "请输入新变量的名称": {
+        "en": "Please enter a name for the new variable"
+    },
+    "web 版本": {
+        "en": "web version"
+    },
+    "是否排序": {
+        "en": "Sort or not"
+    },
+    "为多列设置排序时需设置优先级，该值越高表明优先级越高": {
+        "en": "When setting sorting for multiple columns, you need to set a priority. The higher the value, the higher the priority."
+    },
+    "排序优先级": {
+        "en": "Sort priority"
+    },
+    "请输入优先级": {
+        "en": "Please enter priority"
+    },
+    "自定义端标签": {
+        "en": "Custom end tag"
+    },
+    "支持静态标签与模板变量，其中模板变量包含以下几种": {
+        "en": "Supports static tags and template variables, where template variables include the following types"
+    },
+    "{a}：数据列名称": {
+        "en": "{a}: data column name"
+    },
+    "{c}：当 x 轴为类目轴时显示 y 轴值，其余轴的情况下显示 x 轴值, y 轴值": {
+        "en": "When the x-axis is the category axis, the y-axis value is displayed. When the x-axis is the other axes, the x-axis value and y-axis value are displayed."
+    },
+    "{b}：x 轴值": {
+        "en": "{b}: x-axis value"
+    },
+    "示例: 名称-{a}": {
+        "en": "Example: name-{a}"
+    },
+    "请注意，不填自定义端标签时默认展示 y 轴值": {
+        "en": "Please note that when the custom end label is not filled in, the y-axis value is displayed by default."
+    },
+    "请输入自定义端标签": {
+        "en": "Please enter custom end tag"
+    },
+    "仅数值类型可支持排序": {
+        "en": "Only numeric types support sorting"
+    },
+    "标题": {
+        "en": "Title"
+    },
+    "数据源": {
+        "en": "DataSource"
+    },
+    "基本属性": {
+        "en": "Basic properties"
+    },
+    "数值轴，适用于连续数据": {
+        "en": "Numerical axis, suitable for continuous data"
+    },
+    "类目轴，适用于离散的类目数据": {
+        "en": "Category axis, suitable for discrete category data"
+    },
+    "时间轴，适用于连续的时序数据": {
+        "en": "Time axis, suitable for continuous time series data"
+    },
+    "对数轴，适用于对数数据": {
+        "en": "Logarithmic axis, suitable for logarithmic data"
+    },
+    "X 轴名称": {
+        "en": "X-axis name"
+    },
+    "增加数据列": {
+        "en": "Add data column"
+    },
+    "增加 Y 轴": {
+        "en": "Add Y axis"
+    },
+    "坐标列": {
+        "en": "Axis column"
+    },
+    "是否展示 X 缩略轴": {
+        "en": "Display the X thumbnail axis"
+    },
+    "是否展示 Y 缩略轴": {
+        "en": "Display the Y thumbnail axis"
+    },
+    "保存并应用": {
+        "en": "Save and Apply"
+    },
+    "请先选中您需要更改配置的图表": {
+        "en": "Please select the chart you want to change the configuration first"
+    },
+    "请为您的图表配置数据源": {
+        "en": "Please configure the data source for your chart"
+    },
+    "画布": {
+        "en": "Canvas"
+    },
+    "图表": {
+        "en": "Charts"
+    },
+    "图例": {
+        "en": "Legend"
+    },
+    "提示": {
+        "en": "Hint"
+    },
+    "X 轴缩略轴": {
+        "en": "X-axis abbreviated axis"
+    },
+    "Y 轴缩略轴": {
+        "en": "Y-axis abbreviated axis"
+    },
+    "位置": {
+        "en": "Position"
+    },
+    "左侧": {
+        "en": "Left"
+    },
+    "关联 Y 轴": {
+        "en": "Associated Y axis"
+    },
+    "列配置": {
+        "en": "Column configuration"
+    },
+    "增加映射": {
+        "en": "Add mapping"
+    },
+    "原始列名": {
+        "en": "Original column name"
+    },
+    "展示列名": {
+        "en": "Show column names"
+    },
+    "分页设置": {
+        "en": "Pagination settings"
+    },
+    "需要分页": {
+        "en": "Need pagination"
+    },
+    "默认分页数": {
+        "en": "Default number of pages"
+    },
+    "编辑数据源": {
+        "en": "Edit data source"
+    },
+    "堆叠值": {
+        "en": "Stack value"
+    },
+    "同个类目轴上为数据列配置相同的堆叠值可以堆叠放置": {
+        "en": "Series configurations with the same stack value on the same category axis can be stacked."
+    },
+    "关联变量": {
+        "en": "Associated variables"
     },
     "类目轴，适用于离散的类目数据，或者时序数据": {
         "en": "Category axis, suitable for discrete category data or time series data"
@@ -3257,552 +3925,6 @@
     "编辑文本": {
         "en": "Edit text"
     },
-    "查看数据库 {{db_name}} 用户权限": {
-        "en": "View database {{db_name}} user permissions"
-    },
-    "查看用户权限": {
-        "en": "View user permissions"
-    },
-    "确认{{action}}选中的 ": {
-        "en": "Confirm {{action}} Selected "
-    },
-    " 个{{item}}吗?": {
-        "en": " {{item}} ?"
-    },
-    "请选择想要添加的用户": {
-        "en": "Please select the user you want to add."
-    },
-    "请输入要搜索的流表名": {
-        "en": "Please enter the table name you want to search."
-    },
-    "以下内容已复制到剪切板": {
-        "en": "The following content has been copied to the clipboard."
-    },
-    "已存在，粘贴失败!": {
-        "en": "already exists, paste failed!"
-    },
-    "初始化数据面板成功！": {
-        "en": "Dashboard initialization successful!"
-    },
-    "新数据面板": {
-        "en": "New dashboard"
-    },
-    "提示：初始化后请完善相关配置（详见文档），并重启服务器": {
-        "en": "Tip: After initialization, please complete the relevant configuration (see the documentation for details) and restart the server"
-    },
-    "新数据源": {
-        "en": "New data source"
-    },
-    "请输入新数据源的名称": {
-        "en": "Please enter a name for the new data source"
-    },
-    "新变量": {
-        "en": "New variable"
-    },
-    "请输入新变量的名称": {
-        "en": "Please enter a name for the new variable"
-    },
-    "web 版本": {
-        "en": "web version"
-    },
-    "是否排序": {
-        "en": "Sort or not"
-    },
-    "为多列设置排序时需设置优先级，该值越高表明优先级越高": {
-        "en": "When setting sorting for multiple columns, you need to set a priority. The higher the value, the higher the priority."
-    },
-    "排序优先级": {
-        "en": "Sort priority"
-    },
-    "请输入优先级": {
-        "en": "Please enter priority"
-    },
-    "自定义端标签": {
-        "en": "Custom end tag"
-    },
-    "支持静态标签与模板变量，其中模板变量包含以下几种": {
-        "en": "Supports static tags and template variables, where template variables include the following types"
-    },
-    "{a}：数据列名称": {
-        "en": "{a}: data column name"
-    },
-    "{c}：当 x 轴为类目轴时显示 y 轴值，当 x 轴为其余轴时显示 x轴值,y轴值": {
-        "en": "When the x-axis is the category axis, the y-axis value is displayed. When the x-axis is the other axes, the x-axis value and y-axis value are displayed."
-    },
-    "{b}：x轴值": {
-        "en": "{b}: x-axis value"
-    },
-    "示例: 名称-{a}": {
-        "en": "Example: name-{a}"
-    },
-    "请注意，不填自定义端标签时默认展示 y 轴值": {
-        "en": "Please note that when the custom end label is not filled in, the y-axis value is displayed by default."
-    },
-    "请输入自定义端标签": {
-        "en": "Please enter custom end tag"
-    },
-    "仅数值类型可支持排序": {
-        "en": "Only numeric types support sorting"
-    },
-    "请编辑代码": {
-        "en": "Please edit the code"
-    },
-    "新建查询": {
-        "en": "Create query"
-    },
-    "向导查询": {
-        "en": "Use Query Builder"
-    },
-    "脚本查询": {
-        "en": "Use Script Editor"
-    },
-    "筛选查询列": {
-        "en": "Select Columns"
-    },
-    "查询列": {
-        "en": "Selected"
-    },
-    "非查询列": {
-        "en": "Unselected"
-    },
-    "增加查询列": {
-        "en": "Add Column"
-    },
-    "删除查询列": {
-        "en": "Remove Column"
-    },
-    "查询列不可为空，请重新筛选！": {
-        "en": "Select at least 1 column."
-    },
-    "添加查询条件": {
-        "en": "Set Query Conditions"
-    },
-    "分区列查询条件": {
-        "en": "Partitioning Columns"
-    },
-    "必填项，仅支持【且满足】，与”其他查询条件”亦为【且满足】关系。": {
-        "en": "Set at least 1 condition. Conditions on partitioning columns can only be combined with others (on either partitioning or non-partitioning columns) using the AND operator."
-    },
-    "请选择列名": {
-        "en": "Select column"
-    },
-    "请选择运算符": {
-        "en": "Select operator"
-    },
-    "请输入对比值": {
-        "en": "Enter at least 1 value."
-    },
-    "且满足": {
-        "en": "AND"
-    },
-    "增加且条件项": {
-        "en": "Add AND condition"
-    },
-    "删除该条件项": {
-        "en": "Delete condition"
-    },
-    "删除该条件块": {
-        "en": "Delete condition group"
-    },
-    "其他查询条件": {
-        "en": "Non-Partitioning Columns"
-    },
-    "或满足": {
-        "en": "OR"
-    },
-    "新增条件块": {
-        "en": "Add Condition Group"
-    },
-    "重置条件": {
-        "en": "Reset"
-    },
-    "查看 SQL 语句": {
-        "en": "View Generated Query"
-    },
-    "返回修改": {
-        "en": "Go Back"
-    },
-    "预览数据": {
-        "en": "Preview Data"
-    },
-    "导出数据": {
-        "en": "Export Data"
-    },
-    "当前数据量已达 50 万行，暂不支持导出功能。": {
-        "en": "Cannot export data exceeding 500,000 rows."
-    },
-    "当前数据为空，暂不支持导出功能。": {
-        "en": "No rows to export. Query returned no data."
-    },
-    "当前数据量已达 2000 万行的预览上限，此处仅显示部分截断数据。": {
-        "en": "Showing a partial preview of the data. The full dataset exceeds 20 million rows."
-    },
-    "输入对比值时须带有通配符 “%”。“%” 表示任意 0 个或者多个字符，可匹配任意类型和长度的字符。使用时请注意区分大小写。以下为使用示例：": {
-        "en": "The LIKE/NOT LIKE pattern must include the wildcard character %, which represents zero, one, or multiple characters of any type or length. It is case-sensitive. For example:"
-    },
-    "688%（匹配以 “688” 开头的字符串，能够匹配例如 “688101.SH”、”688101”的字符串）": {
-        "en": "688% matches strings starting with \"688\", like \"688101\"."
-    },
-    "%SZ%（匹配包含 “SZ” 的字符串， 能够匹配例如 “300951.SZ”、 “SZ.300951”的字符串）": {
-        "en": "%SZ% matches strings that contain \"SZ\", such as \"001SZ\"."
-    },
-    "%6（匹配以 “6” 结尾的字符串，能够匹配例如 “abcd6” 的字符串）": {
-        "en": "%6 matches strings ending with \"6\", like \"abcd6\"."
-    },
-    "在对比值的下拉框中选择一个或多个枚举值。注意，下拉框中仅展示部分枚举值，且存在响应延时。": {
-        "en": "For IN and NOT IN operators, the dropdown shows a subset of available values with a brief delay."
-    },
-    "请手动输入未显示的枚举值，单击回车键以完成操作。": {
-        "en": "Alternatively, enter one or more values manually in the field, pressing 'Enter' after each."
-    },
-    "复制代码": {
-        "en": "Copy"
-    },
-    "文件名": {
-        "en": "File Name"
-    },
-    "请输入文件名": {
-        "en": "Specify a file name."
-    },
-    "等于 (=)": {
-        "en": "= (Equal to)"
-    },
-    "不等于 (!=)": {
-        "en": "!= (Not equal to)"
-    },
-    "匹配 (like)": {
-        "en": "Like"
-    },
-    "不匹配 (not like)": {
-        "en": "Not like"
-    },
-    "包含 (in)": {
-        "en": "In"
-    },
-    "不包含 (not in)": {
-        "en": "Not in"
-    },
-    "大于 (>)": {
-        "en": "> (Greater than)"
-    },
-    "小于 (<)": {
-        "en": "< (Less than)"
-    },
-    "大于等于 (>=)": {
-        "en": ">= (Greater than or equal to)"
-    },
-    "小于等于 (<=)": {
-        "en": "<= (Less than or equal to)"
-    },
-    "导出成功": {
-        "en": "Export successfully"
-    },
-    "共 {{total}} 条数据": {
-        "en": "Number of Rows: {{total}}"
-    },
-    "请注意，无法删除或者编辑当前选中的选项": {
-        "en": "Please note that currently selected options cannot be deleted or edited"
-    },
-    "仅单机节点、数据节点和计算节点支持新建查询": {
-        "en": "Queries can only be created on data/compute nodes, or on a standalone server."
-    },
-    "CEP 流计算引擎": {
-        "en": "CEP Streaming Engine"
-    },
-    "引擎信息": {
-        "en": "Engine Info"
-    },
-    "数据视图": {
-        "en": "Data View"
-    },
-    "发送事件到引擎": {
-        "en": "Send Event"
-    },
-    "CEP 引擎": {
-        "en": "CEP Engine"
-    },
-    "引擎名称": {
-        "en": "Engine Name"
-    },
-    "创建人": {
-        "en": "Creator"
-    },
-    "子引擎数": {
-        "en": "Sub Engines"
-    },
-    "子引擎数：{{num}}": {
-        "en": "Sub Engines: {{num}}"
-    },
-    "接收事件数": {
-        "en": "Received Events"
-    },
-    "发送事件数": {
-        "en": "Sent Events"
-    },
-    "事件队列最大深度": {
-        "en": "Maximum Event Queue Depth"
-    },
-    "队列中发送事件数": {
-        "en": "Sent Events in Output Queue"
-    },
-    "子引擎信息": {
-        "en": "Sub Engine Info"
-    },
-    "事件队列中待处理事件数": {
-        "en": "Pending Events in Event Queue"
-    },
-    "事件监听数": {
-        "en": "Event Listeners"
-    },
-    "计时器数": {
-        "en": "Timers"
-    },
-    "插入队列头事件数": {
-        "en": "Events Sent to Queue Head"
-    },
-    "插入队列尾事件数": {
-        "en": "Events Sent to Queue Tail"
-    },
-    "匹配成功事件数": {
-        "en": "Matched Events"
-    },
-    "最近接收事件的时间": {
-        "en": "Timestamp of the Last Received Event"
-    },
-    "请输入要查询的 key": {
-        "en": "Please enter a key for query."
-    },
-    "发送事件到 {{name}} 引擎": {
-        "en": "Send An Event to {{name}} Engine"
-    },
-    "事件类型": {
-        "en": "Event Type"
-    },
-    "事件字段": {
-        "en": "Fields"
-    },
-    "类型说明": {
-        "en": "DataTypes"
-    },
-    "{{type}} 的值": {
-        "en": "Value of {{type}}"
-    },
-    "{{type}} 的精度": {
-        "en": "Scale of {{type}}"
-    },
-    "发送成功": {
-        "en": "Success"
-    },
-    "字段类型有误，请检查": {
-        "en": "The entered field type is incorrect."
-    },
-    "请输入事件字段": {
-        "en": "Please enter the fields."
-    },
-    "请选择事件类型": {
-        "en": "Please select the event type."
-    },
-    "数据类型为 {{name}}": {
-        "en": "Please enter data of {{name}} type."
-    },
-    "最近错误时间": {
-        "en": "Last Error Time"
-    },
-    "请选择数据视图": {
-        "en": "Please select a data view"
-    },
-    "监视器数": {
-        "en": "Monitors"
-    },
-    "k 线图仅支持时间轴": {
-        "en": "K-line only supports timeline"
-    },
-    "配置管理": {
-        "en": "Config"
-    },
-    "请输入配置名": {
-        "en": "Please enter config name"
-    },
-    "请输入配置名！": {
-        "en": "Please enter config name!"
-    },
-    "数值": {
-        "en": "Value"
-    },
-    "请输入配置值": {
-        "en": "Please enter config value"
-    },
-    "请输入配置值！": {
-        "en": "Please enter config value!"
-    },
-    "确认删除此配置项？": {
-        "en": "Confirm to delete this config item?"
-    },
-    "新增控制节点配置": {
-        "en": "Add controller config"
-    },
-    "请输入想要查找的配置项": {
-        "en": "Please enter config name"
-    },
-    "集群节点管理": {
-        "en": "Cluster node management"
-    },
-    "限定词": {
-        "en": "Qualifier"
-    },
-    "请输入选择器": {
-        "en": "Please enter qualifier"
-    },
-    "其它": {
-        "en": "others"
-    },
-    "新增配置": {
-        "en": "New config"
-    },
-    "请输入或选择配置项名": {
-        "en": "Please enter or select a config item name"
-    },
-    "请输入配置项值": {
-        "en": "Please enter the config item value"
-    },
-    "主机名": {
-        "en": "Host"
-    },
-    "请输入主机名": {
-        "en": "Please enter host"
-    },
-    "端口号": {
-        "en": "Port"
-    },
-    "请输入端口号": {
-        "en": "Please enter the port"
-    },
-    "别名": {
-        "en": "Alias"
-    },
-    "请输入别名": {
-        "en": "Please enter an alias"
-    },
-    "请选择节点类型": {
-        "en": "Please select node mode"
-    },
-    "确认删除此节点？": {
-        "en": "Confirm to delete this node?"
-    },
-    "新增节点": {
-        "en": "Add new node"
-    },
-    "请输入想要查找的节点别名": {
-        "en": "Please enter the node alias"
-    },
-    "线程": {
-        "en": "thread"
-    },
-    "发布流": {
-        "en": "streaming_pub"
-    },
-    "订阅流": {
-        "en": "streaming_sub"
-    },
-    "系统": {
-        "en": "system"
-    },
-    "返回": {
-        "en": "Return"
-    },
-    "动作": {
-        "en": "Actions"
-    },
-    "撤销权限": {
-        "en": "Revoke"
-    },
-    "确认 revoke 该权限吗？": {
-        "en": "Confirm revoke permission?"
-    },
-    "Revoke": {
-        "en": "Revoke"
-    },
-    "确认添加": {
-        "en": "Confirm"
-    },
-    "添加权限": {
-        "en": "Add Access"
-    },
-    "请选择权限应用范围": {
-        "en": "Please select the access object."
-    },
-    "应用范围为全局": {
-        "en": "Global level"
-    },
-    "预添加": {
-        "en": "Add"
-    },
-    "移除": {
-        "en": "remove"
-    },
-    "Revoke 成功": {
-        "en": "Revoke successfully"
-    },
-    "确认 revoke 选中的 {{num}} 条权限吗？": {
-        "en": "Confirm {{num}} permissions selected by revoke?"
-    },
-    "全局权限": {
-        "en": "Global"
-    },
-    "请输入组名": {
-        "en": "Please enter a group name"
-    },
-    "组名长度不能超过 30 个字符": {
-        "en": "Group name must be less than 30 characters."
-    },
-    "预览修改": {
-        "en": "Preview"
-    },
-    "确认对组 {{group}} 进行以下改动吗？": {
-        "en": "Confirm the following changes to {{group}}?"
-    },
-    "组内用户修改成功": {
-        "en": "Users in the group have been modified successfully"
-    },
-    "原组内用户:": {
-        "en": "Users in the original group"
-    },
-    "移入用户:": {
-        "en": "Add"
-    },
-    "移出用户:": {
-        "en": "Remove"
-    },
-    "非管理员不能查看权限管理模块。": {
-        "en": "Available only for administrators."
-    },
-    "重置用户 ": {
-        "en": "Reset user "
-    },
-    "用户 {{user}} 所属组管理": {
-        "en": "Manage Groups for {{user}}"
-    },
-    "请输入想查找的组": {
-        "en": "Search Groups"
-    },
-    "确认对用户 {{user}} 进行以下改动吗？": {
-        "en": "Confirm the following changes to {{user}}?"
-    },
-    "用户所属组修改成功": {
-        "en": "Successfully Changed"
-    },
-    "原有组:": {
-        "en": "Groups"
-    },
-    "移入组:": {
-        "en": "Move into"
-    },
-    "移出组:": {
-        "en": "Move out"
-    },
-    "用户组管理": {
-        "en": "group management"
-    },
     "列名完全匹配": {
         "en": "Column names match exactly"
     },
@@ -3863,539 +3985,242 @@
     "百分比": {
         "en": "Percentage"
     },
-    "管理权限": {
-        "en": "Manage Access"
-    },
-    "批量撤销": {
-        "en": "Revoke Access"
-    },
-    "DFS 表名": {
-        "en": "DFS tables"
-    },
-    "确认撤销该权限吗？": {
-        "en": "Are you sure to revoke this access?"
-    },
-    "确认撤销选中的 {{num}} 条权限吗？": {
-        "en": "Are you sure to delete selected access?"
-    },
-    "当前{{role}}:": {
-        "en": "Current {{role}}"
-    },
-    "组成员": {
-        "en": "Members"
-    },
-    "组名只能包含字母、下划线或数字，并且不能以数字或下划线开头": {
-        "en": "Group name can only use letters, digits or underscores (_), and must start with letters."
-    },
-    "非组成员": {
-        "en": "Non-Members"
-    },
-    "组成员修改成功": {
-        "en": "Successfully Changed"
-    },
-    "管理成员": {
-        "en": "Manage Members"
-    },
-    "所属组": {
-        "en": "Group"
-    },
-    "请输入用户名!": {
-        "en": "Please enter user ID."
-    },
-    "用户名长度不能超过 30 个字符": {
-        "en": "User ID must be less than 30 characters."
-    },
-    "用户名只能包含字母、下划线或数字，并且不能以数字或下划线开头": {
-        "en": "User ID can only use letters, digits or underscores (_), and must start with letters."
-    },
-    "请输入密码!": {
-        "en": "Please enter password."
-    },
-    "密码长度为 6-20 个字符，且不包含空格或中文": {
-        "en": "Use a password 6-20 characters long. Spaces and Chinese characters are not allowed."
-    },
-    "请再次输入密码!": {
-        "en": "Please confirm your password."
-    },
-    "两次输入密码需要保持一致!": {
-        "en": "Your passwords do not match."
-    },
-    "未所属组": {
-        "en": "Other Groups"
-    },
-    "管理用户组": {
-        "en": "Manage Groups"
-    },
-    "范围": {
-        "en": "Scope"
-    },
-    "原组成员:": {
-        "en": "Members"
-    },
-    "设置密码": {
-        "en": "Set Password"
-    },
-    "设置权限": {
-        "en": "Manage Access"
-    },
-    "设置用户组": {
-        "en": "Manage Groups"
-    },
-    "配置项": {
-        "en": "key"
-    },
-    "请输入配置项": {
-        "en": "Please enter key"
-    },
-    "请输入配置项！": {
-        "en": "Please enter key"
-    },
-    "请输入或选择配置项": {
-        "en": "Please enter or select key"
-    },
-    "主机名 / IP 地址": {
-        "en": "Hostname/IP address"
-    },
-    "请输入主机名 / IP 地址": {
-        "en": "Please enter hostname/IP address"
-    },
-    "请输入正确的主机名 / IP 地址": {
-        "en": "Please enter correct hostname/IP address"
-    },
-    "流发布": {
-        "en": "streaming_pub"
-    },
-    "流订阅": {
-        "en": "streaming_sub"
-    },
-    "停用": {
-        "en": "deactivate"
-    },
-    "启用": {
-        "en": "activate"
-    },
-    "{{label}}{{active_label}}提示": {
-        "en": "{{label}} {{active_label}} tips"
-    },
-    "{{label}}{{active_label}}成功": {
-        "en": "{{label}} {{active_label}} successfully"
-    },
-    "可选模块": {
-        "en": "Optional Modules"
-    },
     "个": {
-        "en": "",
-        "ja": "",
-        "ko": ""
-    },
-    "流计算监控_menu": {
-        "en": "",
-        "ja": "",
-        "ko": ""
+        "en": ""
     },
     "展开": {
-        "en": "",
-        "ja": "",
-        "ko": ""
+        "en": ""
     },
     "请选择需要观测的 key": {
-        "en": "",
-        "ja": "",
-        "ko": ""
+        "en": ""
     },
     "创建人：{{name}}": {
-        "en": "",
-        "ja": "",
-        "ko": ""
+        "en": ""
     },
     "请输入": {
-        "en": "",
-        "ja": "",
-        "ko": ""
+        "en": ""
     },
     "刻度间隔": {
-        "en": "",
-        "ja": "",
-        "ko": ""
+        "en": ""
     },
     "标签占位": {
-        "en": "",
-        "ja": "",
-        "ko": ""
+        "en": ""
     },
     "标签相对单个变量的百分比占位": {
-        "en": "",
-        "ja": "",
-        "ko": ""
+        "en": ""
     },
     "按钮文案": {
-        "en": "",
-        "ja": "",
-        "ko": ""
+        "en": ""
     },
     "是否开启动画": {
-        "en": "",
-        "ja": "",
-        "ko": ""
+        "en": ""
     },
     "自动画图模式": {
-        "en": "",
-        "ja": "",
-        "ko": ""
+        "en": ""
     },
     "自动画图模式会自动查找各数据源选定类型的列（默认为时间类型）作为 X 轴，各数据源数值列作为数据列，在数据列配置区域可对特定数据列进行个性化配置": {
-        "en": "",
-        "ja": "",
-        "ko": ""
+        "en": ""
     },
     "X 轴类型": {
-        "en": "",
-        "ja": "",
-        "ko": ""
+        "en": ""
     },
     "请选择类型": {
-        "en": "",
-        "ja": "",
-        "ko": ""
+        "en": ""
     },
     "网格线": {
-        "en": "",
-        "ja": "",
-        "ko": ""
+        "en": ""
     },
     "缩略轴": {
-        "en": "",
-        "ja": "",
-        "ko": ""
+        "en": ""
     },
     "展示名称": {
-        "en": "",
-        "ja": "",
-        "ko": ""
+        "en": ""
     },
     "列样式": {
-        "en": "",
-        "ja": "",
-        "ko": ""
+        "en": ""
     },
     "从左到右依次为字号、文字色与背景色": {
-        "en": "",
-        "ja": "",
-        "ko": ""
+        "en": ""
     },
     "表头样式": {
-        "en": "",
-        "ja": "",
-        "ko": ""
+        "en": ""
     },
     "布局": {
-        "en": "",
-        "ja": "",
-        "ko": ""
+        "en": ""
     },
     "横向布局": {
-        "en": "",
-        "ja": "",
-        "ko": ""
+        "en": ""
     },
     "纵向布局": {
-        "en": "",
-        "ja": "",
-        "ko": ""
+        "en": ""
     },
     "图例类型": {
-        "en": "",
-        "ja": "",
-        "ko": ""
+        "en": ""
     },
     "当图例数量较多时可以使用滚动布局": {
-        "en": "",
-        "ja": "",
-        "ko": ""
+        "en": ""
     },
     "普通图例": {
-        "en": "",
-        "ja": "",
-        "ko": ""
+        "en": ""
     },
     "滚动图例": {
-        "en": "",
-        "ja": "",
-        "ko": ""
+        "en": ""
     },
     "下方四个输入框可依次输入离容器上侧、下侧、左侧、右侧的距离，以下是对填入值的说明：": {
-        "en": "",
-        "ja": "",
-        "ko": ""
+        "en": ""
     },
     "具体像素值，如 20；": {
-        "en": "",
-        "ja": "",
-        "ko": ""
+        "en": ""
     },
     "相对于容器宽高百分比，如 20%；": {
-        "en": "",
-        "ja": "",
-        "ko": ""
+        "en": ""
     },
     "可以设置为 left、center、right，组件会根据相应的位置自动对齐。": {
-        "en": "",
-        "ja": "",
-        "ko": ""
+        "en": ""
     },
     "上侧距离": {
-        "en": "",
-        "ja": "",
-        "ko": ""
+        "en": ""
     },
     "下侧距离": {
-        "en": "",
-        "ja": "",
-        "ko": ""
+        "en": ""
     },
     "左侧距离": {
-        "en": "",
-        "ja": "",
-        "ko": ""
+        "en": ""
     },
     "右侧距离": {
-        "en": "",
-        "ja": "",
-        "ko": ""
+        "en": ""
     },
     "图例间隔": {
-        "en": "",
-        "ja": "",
-        "ko": ""
+        "en": ""
     },
     "标记大小": {
-        "en": "",
-        "ja": "",
-        "ko": ""
+        "en": ""
     },
     "文字颜色": {
-        "en": "",
-        "ja": "",
-        "ko": ""
+        "en": ""
     },
     "X 轴数据列": {
-        "en": "",
-        "ja": "",
-        "ko": ""
+        "en": ""
     },
     "Y 轴数据列": {
-        "en": "",
-        "ja": "",
-        "ko": ""
+        "en": ""
     },
     "线宽": {
-        "en": "",
-        "ja": "",
-        "ko": ""
+        "en": ""
     },
     "是否填充": {
-        "en": "",
-        "ja": "",
-        "ko": ""
+        "en": ""
     },
     "透明度": {
-        "en": "",
-        "ja": "",
-        "ko": ""
+        "en": ""
     },
-    "{b}：x 轴值": {
-        "en": "",
-        "ja": "",
-        "ko": ""
-    },
-    "{c}：当 x 轴为类目轴时显示 y 轴值，其余轴的情况下显示 x轴值,y轴值": {
-        "en": "",
-        "ja": "",
-        "ko": ""
-    },
+    
     "不展示": {
-        "en": "",
-        "ja": "",
-        "ko": ""
+        "en": ""
     },
     "区域填充": {
-        "en": "",
-        "ja": "",
-        "ko": ""
+        "en": ""
     },
     "线条": {
-        "en": "",
-        "ja": "",
-        "ko": ""
+        "en": ""
     },
     "阈值 {{name}}": {
-        "en": "",
-        "ja": "",
-        "ko": ""
+        "en": ""
     },
     "关联轴类型": {
-        "en": "",
-        "ja": "",
-        "ko": ""
+        "en": ""
     },
     "X 轴": {
-        "en": "",
-        "ja": "",
-        "ko": ""
+        "en": ""
     },
     "仅支持数据轴": {
-        "en": "",
-        "ja": "",
-        "ko": ""
+        "en": ""
     },
     "关联 X 轴": {
-        "en": "",
-        "ja": "",
-        "ko": ""
+        "en": ""
     },
     "展示类型": {
-        "en": "",
-        "ja": "",
-        "ko": ""
+        "en": ""
     },
     "增加阈值": {
-        "en": "",
-        "ja": "",
-        "ko": ""
+        "en": ""
     },
     "增加阈值设置": {
-        "en": "",
-        "ja": "",
-        "ko": ""
+        "en": ""
     },
     "数据源匹配": {
-        "en": "",
-        "ja": "",
-        "ko": ""
+        "en": ""
     },
     "同数据源的数值列采用同配置": {
-        "en": "",
-        "ja": "",
-        "ko": ""
+        "en": ""
     },
     "数据列配置": {
-        "en": "",
-        "ja": "",
-        "ko": ""
+        "en": ""
     },
     "单条数据列若命中多个配置规则，以第一项命中的为准": {
-        "en": "",
-        "ja": "",
-        "ko": ""
+        "en": ""
     },
     "支持字面量形式和构造函数形式的正则对象": {
-        "en": "",
-        "ja": "",
-        "ko": ""
+        "en": ""
     },
     "字面量：/abc/g": {
-        "en": "",
-        "ja": "",
-        "ko": ""
-    },
-    "x 轴数据列": {
-        "en": "",
-        "ja": "",
-        "ko": ""
+        "en": ""
     },
     "分段数": {
-        "en": "",
-        "ja": "",
-        "ko": ""
+        "en": ""
     },
     "图配置": {
-        "en": "",
-        "ja": "",
-        "ko": ""
+        "en": ""
     },
     "文档": {
-        "en": "",
-        "ja": "",
-        "ko": ""
+        "en": ""
     },
     "请选择数据源": {
-        "en": "",
-        "ja": "",
-        "ko": ""
+        "en": ""
     },
     "创建数据源": {
-        "en": "",
-        "ja": "",
-        "ko": ""
+        "en": ""
     },
     "已有同名数据源，请修改": {
-        "en": "",
-        "ja": "",
-        "ko": ""
+        "en": ""
     },
     "请输入数据源的名称": {
-        "en": "",
-        "ja": "",
-        "ko": ""
+        "en": ""
     },
     "sql 执行得到的数据类型与数据源类型不符，请修改": {
-        "en": "",
-        "ja": "",
-        "ko": ""
+        "en": ""
     },
     "当前数据源: [{{source_name}}] 配置的流数据表 [{{table_name}}] 于当前节点不存在": {
-        "en": "",
-        "ja": "",
-        "ko": ""
+        "en": ""
     },
     "IP 端口": {
-        "en": "",
-        "ja": "",
-        "ko": ""
+        "en": ""
     },
     "数据面板未初始化，请联系管理员在数据节点完成初始化。": {
-        "en": "",
-        "ja": "",
-        "ko": ""
+        "en": ""
     },
     "提示：初始化后请完善用户相关配置（详见": {
-        "en": "",
-        "ja": "",
-        "ko": ""
+        "en": ""
     },
     "dashboard 不存在": {
-        "en": "",
-        "ja": "",
-        "ko": ""
+        "en": ""
     },
     "检测到以下配置不存在，请及时配置并重启数据库，避免影响数据面板功能使用，详见": {
-        "en": "",
-        "ja": "",
-        "ko": ""
+        "en": ""
     },
     "待配置项：": {
-        "en": "",
-        "ja": "",
-        "ko": ""
+        "en": ""
     },
     "SQL 导入：": {
-        "en": "",
-        "ja": "",
-        "ko": ""
+        "en": ""
     },
     "需返回一个两列的表格，第一列用作标签，第二列用作值。 ( 无法在此处使用变量  )": {
-        "en": "",
-        "ja": "",
-        "ko": ""
+        "en": ""
     },
     "测试环境部署时无法使用配置管理": {
-        "en": "",
-        "ja": "",
-        "ko": ""
+        "en": ""
     },
     "数据库路径": {
-        "en": "",
-        "ja": "",
-        "ko": ""
+        "en": ""
     }
 }
