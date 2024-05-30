@@ -1,5 +1,5 @@
-import React, { useContext, useEffect, useMemo, useRef, useState } from 'react'
-import { Form, Input, Popconfirm, Table, type  InputRef, Typography, Alert, Button } from 'antd'
+import React, { useContext, useEffect, useRef, useState } from 'react'
+import { Form, Input, Popconfirm, Table, type  InputRef, Typography, Button } from 'antd'
 import type { FormInstance } from 'antd/es/form'
 import { genid } from 'xshell/utils.browser.js'
 
@@ -14,21 +14,109 @@ type EditableTableProps = Parameters<typeof Table>[0]
 
 type ColumnTypes = Exclude<EditableTableProps['columns'], undefined>
 
-interface PropsType {
-    current_variable: Variable
-    change_current_variable_property: (key: string, value: VariablePropertyType, save_confirm?: boolean) => void
-    change_no_save_flag: (value: boolean) => void
-}
-
 const EditableContext = React.createContext<FormInstance<any> | null>(null)
 
 export function OptionList ({ 
     current_variable, 
     change_current_variable_property,
-    change_no_save_flag
-}: PropsType)  
-{
-    let first = useRef(true)
+}: {
+    current_variable: Variable
+    change_current_variable_property: (key: string, value: VariablePropertyType, save_confirm?: boolean) => void
+})  
+{   
+    const defaultColumns: (ColumnTypes[number] & { editable?: boolean, dataIndex: string })[] = [
+        {
+            title: t('标签'),
+            dataIndex: 'label',
+            editable: true,
+            width: 300,
+        },
+        {
+            title: t('值'),
+            dataIndex: 'value',
+            editable: true,
+            width: 300
+        },
+        {
+            title: t('操作'),
+            width: 50,
+            dataIndex: 'operation',
+            render: (_, record) => { 
+                let disabled = false
+                if (current_variable.mode === VariableMode.SELECT && current_variable.value === record.value)
+                    disabled = true
+                else if (current_variable.mode === VariableMode.MULTI_SELECT && JSON.parse(current_variable.value)?.includes?.(record.value))
+                    disabled = true
+                return current_variable.options.length >= 1 ? (
+                        <Popconfirm title={t('确定要删除该选项吗？')} onConfirm={() => { handleDelete(record.key as string) }}>
+                            <Typography.Link
+                                disabled={disabled}
+                                type='danger'
+                            >
+                                {t('删除')}
+                            </Typography.Link>
+                        </Popconfirm>
+                ) : null 
+            }
+                   
+        },
+    ]
+    
+    const components = {
+        body: {
+            row: EditableRow,
+            cell: EditableCell,
+        },
+    }
+    
+    const columns = defaultColumns.map(col => {
+        if (!col.editable)
+            return col
+        
+        return {
+        ...col,
+            onCell: (record: OptionType) => {     
+                // 当前选中变量值无法编辑
+                let disable_editable = false
+                if (current_variable.mode === VariableMode.SELECT && current_variable.value === record.value)
+                    disable_editable = true
+                else if (current_variable.mode === VariableMode.MULTI_SELECT && JSON.parse(current_variable.value)?.includes?.(record.value))
+                    disable_editable = true
+                return {
+                    record,
+                    editable: col.editable && !disable_editable,
+                    dataIndex: col.dataIndex,
+                    title: col.title,
+                    handleSave,
+                }
+            },
+        }
+    })
+    
+    function handleDelete (key: string) {
+        change_current_variable_property('options', current_variable.options.filter(item => item.key !== key))
+    } 
+    
+    function handleAdd () {
+        const id = String(genid())
+        
+        change_current_variable_property('options', [...current_variable.options, {
+            label: `label ${id.slice(0, 4)}`,
+            value: `value ${id.slice(0, 4)}`,
+            key: id
+        }])
+    } 
+    
+    function handleSave (row: OptionType) {
+        const new_options = [...current_variable.options]
+        const index = new_options.findIndex(item => row.key === item.key)
+        const item = new_options[index]
+        new_options.splice(index, 1, {
+            ...item,
+            ...row,
+        })
+        change_current_variable_property('options', new_options)
+    }
     
     function EditableRow ({ index, ...props }) {
         const [form] = Form.useForm()
@@ -99,121 +187,9 @@ export function OptionList ({
         return <td {...restProps}>{childNode}</td>
     }
     
-    const [current_options, set_current_options] = useState<OptionType[]>(current_variable.options)
-    
-    const [count, setCount] = useState(current_variable.options.length)
-    
-    useEffect(() => {
-        first.current = true
-        set_current_options(current_variable.options)
-    }, [current_variable.id])
-    
-    useEffect(() => {
-        change_current_variable_property('options', current_options)
-        if (first.current) {
-            change_no_save_flag(false)
-            first.current = false
-        }
-    }, [current_options])
-    
-    function handleDelete (key: string) {
-        const newData = current_options.filter(item => item.key !== key)
-        set_current_options(newData)
-    } 
-    const defaultColumns: (ColumnTypes[number] & { editable?: boolean, dataIndex: string })[] = [
-        {
-            title: t('标签'),
-            dataIndex: 'label',
-            editable: true,
-            width: 300,
-        },
-        {
-            title: t('值'),
-            dataIndex: 'value',
-            editable: true,
-            width: 300
-        },
-        {
-            title: t('操作'),
-            width: 50,
-            dataIndex: 'operation',
-            render: (_, record) => { 
-                let disabled = false
-                if (current_variable.mode === VariableMode.SELECT && current_variable.value === record.value)
-                    disabled = true
-                else if (current_variable.mode === VariableMode.MULTI_SELECT && JSON.parse(current_variable.value)?.includes?.(record.value))
-                    disabled = true
-                return current_options.length >= 1 ? (
-                        <Popconfirm title={t('确定要删除该选项吗？')} onConfirm={() => { handleDelete(record.key as string) }}>
-                            <Typography.Link
-                                disabled={disabled}
-                                type='danger'
-                            >
-                                {t('删除')}
-                            </Typography.Link>
-                        </Popconfirm>
-                ) : null 
-            }
-                   
-        },
-    ]
-    
-    function handleAdd () {
-        const id = String(genid())
-        const newData: OptionType = {
-            label: `label ${id.slice(0, 4)}`,
-            value: `value ${id.slice(0, 4)}`,
-            key: id
-        }
-        set_current_options([...current_options, newData])
-        setCount(count + 1)
-    } 
-    
-    function handleSave (row: OptionType) {
-        const newData = [...current_options]
-        const index = newData.findIndex(item => row.key === item.key)
-        const item = newData[index]
-        newData.splice(index, 1, {
-            ...item,
-            ...row,
-        })
-        set_current_options(newData)
-    }
-    
-    const components = {
-        body: {
-            row: EditableRow,
-            cell: EditableCell,
-        },
-    }
-    
-    const columns = defaultColumns.map(col => {
-        if (!col.editable)
-            return col
-        
-        return {
-        ...col,
-            onCell: (record: OptionType) => {     
-                // 当前选中变量值无法编辑
-                let disable_editable = false
-                if (current_variable.mode === VariableMode.SELECT && current_variable.value === record.value)
-                    disable_editable = true
-                else if (current_variable.mode === VariableMode.MULTI_SELECT && JSON.parse(current_variable.value)?.includes?.(record.value))
-                    disable_editable = true
-                return {
-                    record,
-                    editable: col.editable && !disable_editable,
-                    dataIndex: col.dataIndex,
-                    title: col.title,
-                    handleSave,
-                }
-            },
-        }
-    })
-    
     return <div className='main-select'>
                 <div className='main-select-top'>
-                    {t('可选项：')}
+                    {t('可选项（共{{length}}项）：', { length: current_variable.options.length })}
                     <Button type='primary' onClick={handleAdd} size='small' icon={<PlusOutlined />}>{t('新增')}</Button>
                 </div>
                 <Table
@@ -221,7 +197,7 @@ export function OptionList ({
                     rowClassName={() => 'editable-row'}
                     bordered
                     size='small'
-                    dataSource={current_options}
+                    dataSource={current_variable.options}
                     pagination={{ pageSize: 5, position: ['bottomCenter'] }}
                     columns={columns as ColumnTypes}
                 />

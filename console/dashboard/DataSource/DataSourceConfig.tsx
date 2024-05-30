@@ -37,8 +37,7 @@ import {
 const save_confirm_config = {
     cancelText: t('不保存'),
     okText: t('保存'),
-    style: { top: '250px' },
-    maskStyle: { backgroundColor: 'rgba(0,0,0,.2)' },
+    styles: { top: '250px', mask: { backgroundColor: 'rgba(0,0,0,.2)' } },
     title: t('此数据源存在未保存的更改。你想保存吗？'),   
 }
 

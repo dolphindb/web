@@ -402,7 +402,7 @@ export class DashBoardModel extends Model<DashBoardModel> {
             ? ({
                   ...data[0],
                   id: Number(data[0].id),
-                  data: JSON.parse(JSON.parse(typeof data[0].data === 'string' ? data[0].data : decode(data[0].data)))
+                  data: JSON.parse(JSON.parse(data[0].data))
               } as DashBoardConfig)
             : null
         
