@@ -6,13 +6,19 @@ import { QuestionCircleOutlined } from '@ant-design/icons'
 
 import { useEffect } from 'react'
 
+import { DdbForm } from 'dolphindb/browser.js'
+
+import { genid } from 'xshell/utils.browser.js'
+
 import { Editor } from '../../shell/Editor/index.js'
 
-import { safe_json_parse } from '../utils.js'
+import { safe_json_parse, sql_formatter } from '../utils.js'
 import { t } from '../../../i18n/index.js'
 import { VariableMode } from '../type.js'
 
 import { dashboard } from '../model.js'
+
+import { model } from '../../model.js'
 
 import { OptionList } from './OptionList.js'
 import { type Variable, type VariablePropertyType } from './variable.js'
@@ -77,7 +83,7 @@ export function VariableEditor ({
     
     return <>
         <div className='variable-editor'>
-            <div className='main'>
+            <div className='editor-main'>
                 <div className='main-top'>
                     <div className='main-config'>
                         {t('显示名称：')}
@@ -142,7 +148,28 @@ export function VariableEditor ({
                                         <QuestionCircleOutlined className='tooltip'/>
                                     </Popover>
                                 </div>
-                                <Button type='primary' onClick={() => { }} size='small'>{t('查询')}</Button>
+                                <Button 
+                                    type='primary' 
+                                    onClick={async () => { 
+                                        const res = await model.ddb.eval(dashboard.variable_editor.getValue())
+                                        if (res.form !== DdbForm.table)
+                                            dashboard.message.error(t('返回结果必须是 table'))
+                                        else if (res.cols !== 2)
+                                            dashboard.message.error(t('返回结果的列数必须是 2'))
+                                        else
+                                            change_current_variable_property('options', sql_formatter(res).map(row => {
+                                                const keys = Object.keys(row)
+                                                return {
+                                                    key: String(genid()).slice(0, 4),
+                                                    label: row[keys[0]],
+                                                    value: row[keys[1]]
+                                                }
+                                            }))
+                                    }} 
+                                    size='small'
+                                >
+                                    {t('查询')}
+                                </Button>
                             </div>
                             <Editor 
                                 enter_completion
@@ -157,7 +184,6 @@ export function VariableEditor ({
                         <OptionList
                             current_variable={current_variable}
                             change_current_variable_property={change_current_variable_property}
-                            change_no_save_flag={change_no_save_flag}
                         />
                     </>
                     : <div className='main-value'>
