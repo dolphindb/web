@@ -14,6 +14,7 @@ import SvgIot from '../access/icons/iot.icon.svg'
 
 import { Card } from './Card.js'
 
+const icon_style = { fontSize: '20px' }
 
 export function Settings () {
     const { admin, dev, test } = model.use(['admin', 'dev', 'test'])
@@ -22,7 +23,7 @@ export function Settings () {
         <div className='title'>{t('可选模块')}</div>
         <Card 
             module_key='finance-guide'
-            icon={<Icon className='label-icon' component={SvgFinance}/>}
+            icon={<Icon className='label-icon' component={SvgFinance} style={icon_style}/>}
             label={t('金融库表创建引导')}
             description='金融建库建表工具描述'
             activate_prompt='金融建库建表工具加载提示'
@@ -33,7 +34,7 @@ export function Settings () {
         
         <Card
             module_key='iot-guide'
-            icon={<Icon className='label-icon' component={SvgIot}/>}
+            icon={<Icon className='label-icon' component={SvgIot} style={icon_style}/>}
             label={t('物联网库表创建引导')}
             description='金融建库建表工具描述金融建库建表工具描述金融建库建表工具描述金融建库建表工具描述金融建库建表工具描述金融建库建表工具描述金融建库建表工具描述金融建库建表工具描述金融建库建表工具描述金融建库建表工具描述金融建库建表工具描述金融建库建表工具描述金融建库建表工具描述金融建库建表工具描述金融建库建表工具描述金融建库建表工具描述金融建库建表工具描述金融建库建表工具描述金融建库建表工具描述金融建库建表工具描述金融建库建表工具描述金融建库建表工具描述金融建库建表工具描述金融建库建表工具描述金融建库建表工具描述金融建库建表工具描述金融建库建表工具描述金融建库建表工具描述金融建库建表工具描述金融建库建表工具描述'
             activate_prompt='物联网建库建表工具安装提示'
