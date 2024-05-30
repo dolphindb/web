@@ -199,7 +199,7 @@ export function SeriesItem (props: SeriesItemProps) {
                                         <br />
                                         {t('{b}：x 轴值')}
                                         <br />
-                                        {t('{c}：当 x 轴为类目轴时显示 y 轴值，其余轴的情况下显示 x轴值,y轴值')}
+                                        {t('{c}：当 x 轴为类目轴时显示 y 轴值，其余轴的情况下显示 x 轴值, y 轴值')}
                                         <br />
                                         {t('示例: 名称-{a}')}
                                         <br />
