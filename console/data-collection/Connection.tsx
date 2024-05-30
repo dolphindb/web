@@ -7,7 +7,7 @@ import { Checkbox, Empty, Menu, Modal, Space, Spin, Tooltip, Typography, message
 
 import { useMemoizedFn } from 'ahooks'
 
-import { DeleteOutlined, EditOutlined, FolderOpenOutlined, PlusCircleOutlined } from '@ant-design/icons'
+import { DeleteOutlined, EditOutlined, LinkOutlined, PlusCircleOutlined } from '@ant-design/icons'
 
 
 import NiceModal from '@ebay/nice-modal-react'
@@ -46,11 +46,11 @@ export function Connections () {
     
     const on_delete_connection = useCallback(async () => {
         Modal.confirm({
-            title: t(`确定要删除选中的 ${selected_connections.length} 项连接吗`),
+            title: t('确定要删除选中的 {{num}} 项连接吗', { num: selected_connections.length }),
             okButtonProps: { type: 'primary', danger: true  },
             onOk: async () => {
                 await request('dcp_deleteConnect', { ids: selected_connections })
-                message.success('删除成功')
+                message.success(t('删除成功'))
                 
                 if (selected_connections.includes(Number(connection))) 
                     set_connection(null)
@@ -66,7 +66,7 @@ export function Connections () {
             okButtonProps: { type: 'primary', danger: true  },
             onOk: async () => {
                 await request('dcp_deleteConnect', { ids: [id] })
-                message.success('删除成功')
+                message.success(t('删除成功'))
                 if (selected_connections.includes(Number(id)))
                     set_connection(null)
                 mutate()
@@ -88,7 +88,7 @@ export function Connections () {
         return protocols.map(item => {
             return {
                 label: <div className='protocol_menu_item'>
-                    <FolderOpenOutlined />
+                    <LinkOutlined />
                     <div className='protocol_menu_label'>
                         {item}
                         <Tooltip title={t('新建连接')} >
@@ -158,7 +158,7 @@ export function Connections () {
         <div className='connection-list'>
         
             <div className='connection-list-title'>
-                <h4>连接</h4>
+                <h4>{t('连接')}</h4>
                 <Typography.Link 
                     className='delete-link' 
                     type='danger' 
@@ -166,7 +166,7 @@ export function Connections () {
                     disabled={!selected_connections.length}
                 >
                     <DeleteOutlined className='delete-link-icon'/>
-                    批量删除
+                    {t('批量删除')}
                 </Typography.Link>
             </div>
             <Menu 
