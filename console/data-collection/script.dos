@@ -76,7 +76,7 @@ def dcp_deleteConnect(args){
     for(subId in subIds){
         mqtt::unsubscribe(subId)
     }
-    delete from loadTable("dfs://dataAcquisition","subscribeInfo") where id in connectArgs[`ids]
+    delete from loadTable("dfs://dataAcquisition","subscribeInfo") where connectId in connectArgs[`ids]
     delete from loadTable("dfs://dataAcquisition","connectInfo") where id in connectArgs[`ids]
     return '{"status":1}'
 }
