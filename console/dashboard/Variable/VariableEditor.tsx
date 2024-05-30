@@ -4,7 +4,7 @@ import { Button, DatePicker, Input, Popover, Select } from 'antd'
 
 import { QuestionCircleOutlined } from '@ant-design/icons'
 
-import { useEffect } from 'react'
+import { useEffect, type Dispatch, type SetStateAction } from 'react'
 
 import { DdbForm } from 'dolphindb/browser.js'
 
@@ -27,10 +27,14 @@ const { TextArea } = Input
 
 export function VariableEditor ({ 
         current_variable, 
+        loading,
+        set_loading,
         change_current_variable_property,
         change_no_save_flag
     }: { 
         current_variable: Variable
+        loading: boolean
+        set_loading: Dispatch<SetStateAction<boolean>>
         change_no_save_flag: (value: boolean) => void
         change_current_variable_property: (key: string, value: VariablePropertyType, save_confirm?: boolean) => void
     }) 
@@ -150,21 +154,29 @@ export function VariableEditor ({
                                 </div>
                                 <Button 
                                     type='primary' 
+                                    disabled={loading}
                                     onClick={async () => { 
-                                        const res = await model.ddb.eval(dashboard.variable_editor.getValue())
-                                        if (res.form !== DdbForm.table)
-                                            dashboard.message.error(t('返回结果必须是 table'))
-                                        else if (res.cols !== 2)
-                                            dashboard.message.error(t('返回结果的列数必须是 2'))
-                                        else
-                                            change_current_variable_property('options', sql_formatter(res).map(row => {
-                                                const keys = Object.keys(row)
-                                                return {
-                                                    key: String(genid()).slice(0, 4),
-                                                    label: row[keys[0]],
-                                                    value: row[keys[1]]
-                                                }
-                                            }))
+                                        try {
+                                            set_loading(true)
+                                            const res = await model.ddb.eval(dashboard.variable_editor.getValue())
+                                            if (res.form !== DdbForm.table)
+                                                dashboard.message.error(t('返回结果必须是 table'))
+                                            else if (res.cols !== 2)
+                                                dashboard.message.error(t('返回结果的列数必须是 2'))
+                                            else if (is_select)
+                                                change_current_variable_property('options', [
+                                                    ...current_variable.options, 
+                                                    ...sql_formatter(res).map(row => {
+                                                        const keys = Object.keys(row)
+                                                        return {
+                                                            key: String(genid()).slice(0, 4),
+                                                            label: row[keys[0]],
+                                                            value: row[keys[1]]
+                                                        }
+                                                })])
+                                        } finally {
+                                            set_loading(false)
+                                        }
                                     }} 
                                     size='small'
                                 >

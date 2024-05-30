@@ -109,6 +109,8 @@ export async function save_variable ( new_variable: Variable, is_import = false)
     
     if (!is_import && (new_variable.mode === VariableMode.MULTI_SELECT || new_variable.mode === VariableMode.SELECT))
         new_variable.code = dashboard.variable_editor?.getValue()
+    else
+        new_variable.options = [ ]
     
     variables.set({ [id]: { ...new_variable, deps: variables[id].deps } })
     

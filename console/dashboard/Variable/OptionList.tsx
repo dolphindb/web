@@ -198,7 +198,7 @@ export function OptionList ({
                     bordered
                     size='small'
                     dataSource={current_variable.options}
-                    pagination={{ pageSize: 5, position: ['bottomCenter'] }}
+                    pagination={{ pageSize: 5, position: ['bottomCenter'], showSizeChanger: false }}
                     columns={columns as ColumnTypes}
                 />
             </div>

@@ -15,7 +15,7 @@ import { create_data_source, data_sources, delete_data_source, rename_data_sourc
 
 interface PropsType {
     widget: Widget
-    loading: Boolean
+    loading: boolean
     current_data_source: DataSource
     no_save_flag: MutableRefObject<boolean>
     save_confirm: () => {
@@ -252,6 +252,8 @@ export function DataSourceList ({
                     <div
                         className='data-source-list-top-item'
                         onClick={async () => {
+                            if (loading)
+                                return
                             if (!current_data_source)
                                 return
                             if (no_save_flag.current && (await save_confirm()))
