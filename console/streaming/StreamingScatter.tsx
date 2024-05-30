@@ -197,7 +197,7 @@ export function StreamingScatter ({
     }, [options])
     // 用于处理数据格式
     function handleMessage2Data (message: StreamingMessage): any {
-        let keys = message.colnames
+        let keys = message.data.columns
         // 查看表格所在编号
         const variable_indexs = {
             X_VARIABLE_INDEX: keys.indexOf(x_variable),
@@ -207,7 +207,7 @@ export function StreamingScatter ({
         }
         const { X_VARIABLE_INDEX, Y_PRICE_VARIABLE_INDEX, SIZE_PRICE_VARIABLE_INDEX, COLOR_PRICE_VARIABLE_INDEX } = variable_indexs
         let data: any = [ ]
-        message.data.value.forEach((item, index) => {
+        message.obj.value.forEach((item, index) => {
             if (item.rows)
                 for (let i = 0;  i < item.rows;  i++) {
                     data[i] ??= { }

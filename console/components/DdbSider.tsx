@@ -75,7 +75,7 @@ export function DdbSider () {
     }, [logined])
     
     return <Layout.Sider
-        width={200}
+        width={140}
         className='sider'
         theme='light'
         collapsible
@@ -195,7 +195,7 @@ export function DdbSider () {
                         icon: <ExperimentOutlined className='icon-menu' />,
                         label: '测试模块'
                 }] : [ ],
-                ... admin ? [
+                ... admin && (dev || test) ? [
                     {
                         key: 'settings',
                         icon: <SettingOutlined  className='icon-menu' />,

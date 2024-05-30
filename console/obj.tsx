@@ -497,11 +497,7 @@ class VectorColumn implements TableColumnType <number> {
 
 
 function StreamingCell ({
-    window: {
-        segments,
-        rows,
-        offset,
-    },
+    window: { objs },
     
     icol,
     irow,
@@ -517,12 +513,12 @@ function StreamingCell ({
     
     options?: InspectOptions
 }) {
-    // 在 segments 中从后往前查找 index 所属的 segment, 这样能更快找到（最新的记录都在最后面）
+    // 在 objs 中从后往前查找 index 所属的 segment, 这样能更快找到（最新的记录都在最后面）
     // 最坏复杂度 O(page.size)，整个表格的渲染复杂度 page.size^2 * ncols
     
     let _rows = 0
-    for (let i = segments.length - 1;  i >= 0;  i--) {
-        const segment = segments[i]
+    for (let i = objs.length - 1;  i >= 0;  i--) {
+        const segment = objs[i]
         
         const { rows } = segment.value[0]  // 当前 segment 所包含的 rows
         
@@ -837,7 +833,7 @@ export function StreamingTable ({
                                             
                                             const time = new Date().getTime()
                                             
-                                            rreceived.current += message.rows
+                                            rreceived.current += message.data.data.length
                                             
                                             // 冻结或者未到更新时间
                                             if (rrate.current === -1 || time - rlast.current < rrate.current)
@@ -986,10 +982,9 @@ export function StreamingTable ({
     
     
     const { current: message } = rmessage
-    const { colnames } = message
     
     const cols = seq(
-        colnames.length,
+        message.data.columns.length,
         index => new StreamingTableColumn({
             rmessage,
             index,
@@ -1149,14 +1144,14 @@ class StreamingTableColumn implements TableColumnType <number> {
         
         this.key = this.index
         
-        const { current: { data: mdata, colnames } } = this.rmessage
+        const { current: { obj, data: { columns } } } = this.rmessage
         
-        this.col = mdata.value[this.index]
+        this.col = obj.value[this.index]
         assert(this.col.form === DdbForm.vector, t('this.streaming.data 中的元素应该是 vector'))
         
         this.title = <Tooltip
                 title={DdbType[this.col.type === DdbType.symbol_extended ? DdbType.symbol : this.col.type]}
-            >{colnames[this.index]}</Tooltip>
+            >{columns[this.index]}</Tooltip>
         
         this.align = TableColumn.left_align_types.has(this.col.type) ? 'left' : 'right'
     }
@@ -1543,8 +1538,7 @@ function Chart ({
             
             const { multi_y_axes = false } = extras || { }
             
-            let col_labels = (cols_?.value || [ ]) as any[]
-            let col_lables_ = new Array(col_labels.length)
+            const col_labels_ = ((cols_?.value || seq(cols)) as any[]).map(col_label => col_label?.value?.name || col_label)
             
             const row_labels = (() => {
                 // 没有设置 label 的话直接以序号赋值并返回
@@ -1567,28 +1561,22 @@ function Chart ({
                             let dataobj: any = { }
                             dataobj.row = row_labels[j]
                             for (let i = 0;  i < cols;  i++) {
-                                const col = col_labels[i]?.value?.name || col_labels[i]
-                                col_lables_[i] = col
-                                
                                 let idata = i * rows + j
-                                dataobj[col] = to_chart_data(data[idata], datatype)
+                                dataobj[col_labels_[i]] = to_chart_data(data[idata], datatype)
                             }
                             data_[j] = dataobj
                         }
                      else
-                        for (let i = 0;  i < cols;  i++) {
-                            const col = col_labels[i]?.value?.name || col_labels[i]
-                            col_lables_[i] = col
-                            
+                        for (let i = 0;  i < cols;  i++) 
                             for (let j = 0;  j < rows;  j++) {
                                 const idata = i * rows + j
                                 data_[idata] = {
                                     row: row_labels[j],
-                                    col,
+                                    col: col_labels_[i],
                                     value: to_chart_data(data[idata], datatype)
                                 }
                             }
-                        }
+                        
                     break
                     
                 case DdbChartType.kline:
@@ -1612,19 +1600,16 @@ function Chart ({
                     break
                     
                 default:
-                    for (let i = 0;  i < cols;  i++) {
-                        const col = col_labels[i]?.value?.name || col_labels[i]
-                        col_lables_[i] = col
-                        
+                    for (let i = 0;  i < cols;  i++) 
                         for (let j = 0;  j < rows;  j++) {
                             const idata = i * rows + j
                             data_[idata] = {
                                 row: row_labels[j],
-                                col,
+                                col: col_labels_[i],
                                 value: to_chart_data(data[idata], datatype)
                             }
                         }
-                    }
+                    
                     
                     if (charttype === DdbChartType.histogram && bin_start && bin_end)
                         data_ = data_.filter(data => 
@@ -1642,7 +1627,7 @@ function Chart ({
                 titles,
                 stacking,
                 multi_y_axes,
-                col_labels: col_lables_,
+                col_labels: col_labels_,
                 bin_count,
                 bin_start,
                 bin_end,

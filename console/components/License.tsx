@@ -18,6 +18,7 @@ const licenseTypes: Record<DdbLicense['licenseType'], string> = {
 
 const authorizations = {
     trial: t('试用版'),
+    free: t('社区版'),
     community: t('社区版'),
     commercial: t('商业版'),
     test: t('测试版'),
