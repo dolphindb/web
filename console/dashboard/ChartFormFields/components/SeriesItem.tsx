@@ -186,7 +186,7 @@ export function SeriesItem (props: SeriesItemProps) {
                         <FormDependencies dependencies={[concat_name_path(path, name, 'end_label')]}>
                             {value => { 
                                 const end_label = get(value, concat_name_path(path, name, 'end_label'))
-                                if (end_label)
+                                if (!end_label)
                                     return null
                                 
                                 return <Form.Item
