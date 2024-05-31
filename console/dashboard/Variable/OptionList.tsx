@@ -3,7 +3,7 @@ import { Form, Input, Popconfirm, Table, type  InputRef, Typography, Button } fr
 import type { FormInstance } from 'antd/es/form'
 import { genid } from 'xshell/utils.browser.js'
 
-import { PlusOutlined } from '@ant-design/icons'
+import { DeleteOutlined, PlusOutlined } from '@ant-design/icons'
 
 import { t } from '../../../i18n/index.js'
 import { VariableMode } from '../type.js'
@@ -190,7 +190,20 @@ export function OptionList ({
     return <div className='main-select'>
                 <div className='main-select-top'>
                     {t('可选项（共{{length}}项）：', { length: current_variable.options.length })}
-                    <Button type='primary' onClick={handleAdd} size='small' icon={<PlusOutlined />}>{t('新增')}</Button>
+                    <div>
+                        <Popconfirm title={t('确定要清空所有选项吗？')} onConfirm={() => { change_current_variable_property('options', [ ]) }}>
+                            <Button 
+                                type='primary' 
+                                size='small' 
+                                className='main-select-top-btn' 
+                                danger
+                                icon={<DeleteOutlined />}
+                            >
+                                {t('清空')}
+                            </Button>
+                        </Popconfirm>
+                        <Button type='primary' onClick={handleAdd} size='small' icon={<PlusOutlined />}>{t('新增')}</Button>
+                    </div>
                 </div>
                 <Table
                     components={components}

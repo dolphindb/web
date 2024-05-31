@@ -154,7 +154,7 @@ export function VariableEditor ({
                                 </div>
                                 <Button 
                                     type='primary' 
-                                    disabled={loading}
+                                    loading={loading}
                                     onClick={async () => { 
                                         try {
                                             set_loading(true)
