@@ -13,6 +13,7 @@ import { create_variable, delete_variable, rename_variable, type Variable, type 
 interface PropsType {
     current_variable: Variable
     no_save_flag: MutableRefObject<boolean>
+    loading: boolean
     save_confirm: () => {
         destroy: () => void
         update: (configUpdate: any) => void
@@ -33,6 +34,7 @@ interface MenuItemType {
 export function VariableList ({
     current_variable,
     no_save_flag,
+    loading,
     save_confirm,
     handle_save,
     change_current_variable,
@@ -154,6 +156,8 @@ export function VariableList ({
                     <div
                         className='top-item'
                         onClick={async () => {
+                            if (loading)
+                                return
                             if (no_save_flag.current && (await save_confirm()))
                                 await handle_save()
                             no_save_flag.current = false
@@ -166,6 +170,8 @@ export function VariableList ({
                     <div
                         className='top-item'
                         onClick={() => {
+                            if (loading)
+                                return
                             if (current_variable)
                                 rename_variable_handler(menu_items, current_select, current_variable.name)
                         }}
@@ -176,6 +182,8 @@ export function VariableList ({
                     <div
                         className='top-item'
                         onClick={() => {
+                            if (loading)
+                                return
                             const delete_index = delete_variable(current_variable.id)
                             if (delete_index >= 0) {
                                 menu_items.splice(delete_index, 1)
@@ -196,6 +204,8 @@ export function VariableList ({
                     <div
                         className='top-item'
                         onClick={async () => {
+                            if (loading)
+                                return
                             if (!current_variable)
                                 return
                             if (no_save_flag.current && (await save_confirm()))
@@ -218,6 +228,8 @@ export function VariableList ({
                             selectedKeys={[current_select]}
                             className='bottom-menu'
                             onSelect={async key => {
+                                if (loading)
+                                    return
                                 if (key.length) {
                                     if (no_save_flag.current && (await save_confirm()))
                                         await handle_save()

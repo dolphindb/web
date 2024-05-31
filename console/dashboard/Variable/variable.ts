@@ -107,8 +107,13 @@ export function get_variable_value (variable_name: string): string {
 export async function save_variable ( new_variable: Variable, is_import = false) {
     const id = new_variable.id
     
-    if (!is_import && (new_variable.mode === VariableMode.MULTI_SELECT || new_variable.mode === VariableMode.SELECT))
+    const is_select = new_variable.mode === VariableMode.MULTI_SELECT || new_variable.mode === VariableMode.SELECT
+    
+    if (!is_import && is_select)
         new_variable.code = dashboard.variable_editor?.getValue()
+    
+    if (!is_select)
+        new_variable.options = [ ]
     
     variables.set({ [id]: { ...new_variable, deps: variables[id].deps } })
     
