@@ -1023,7 +1023,7 @@
         "en": "items"
     },
     "表格": {
-        "en": "table"
+        "en": "Table"
     },
     "行": {
         "en": "rows"
@@ -3149,7 +3149,7 @@
         "en": "Data source"
     },
     "基本属性": {
-        "en": "Basic properties"
+        "en": "Properties"
     },
     "数值轴，适用于连续数据": {
         "en": "Numerical axis, for continuous data"
@@ -3302,10 +3302,10 @@
         "en": "Bright color"
     },
     "最小值": {
-        "en": "Minimum value"
+        "en": "Minimum"
     },
     "最大值": {
-        "en": "Maximum value"
+        "en": "Maximum"
     },
     "展示标签": {
         "en": "Display labels"
@@ -3332,16 +3332,16 @@
         "en": "Without setting a query button, updates on forms will trigger queries. It's recommended to set and click the query button for view with multiple variables before running the data source code."
     },
     "上内边距": {
-        "en": "Top padding"
+        "en": "Top"
     },
     "下内边距": {
-        "en": "Bottom padding"
+        "en": "Bottom"
     },
     "左内边距": {
-        "en": "Left padding"
+        "en": "Left"
     },
     "右内边距": {
-        "en": "Right padding"
+        "en": "Right"
     },
     "标题字号": {
         "en": "Title font size"
@@ -3461,7 +3461,7 @@
         "en": "Level of quotes"
     },
     "订单图": {
-        "en": "Order Graph"
+        "en": "Order chart"
     },
     "数据环": {
         "en": "Data loop"
@@ -3989,7 +3989,7 @@
         "en": "Button text"
     },
     "是否开启动画": {
-        "en": "Enable animation"
+        "en": "Animation"
     },
     "自动画图模式": {
         "en": "Auto charting"
@@ -4025,10 +4025,10 @@
         "en": "Layout"
     },
     "横向布局": {
-        "en": "Horizontal layout"
+        "en": "Horizontal"
     },
     "纵向布局": {
-        "en": "Vertical layout"
+        "en": "Vertical"
     },
     "图例类型": {
         "en": "Legend type"
@@ -4037,10 +4037,10 @@
         "en": "Use scrolling layout with multiple legends"
     },
     "普通图例": {
-        "en": "Normal legend"
+        "en": "General"
     },
     "滚动图例": {
-        "en": "Scrolling legend"
+        "en": "Scrollable"
     },
     "下方四个输入框可依次输入离容器上侧、下侧、左侧、右侧的距离，以下是对填入值的说明：": {
         "en": "Enter top/bottom/left/right padding. Value descriptions:"
@@ -4052,19 +4052,19 @@
         "en": "Percentage relative to the height, e.g. 20%"
     },
     "可以设置为 left、center、right，组件会根据相应的位置自动对齐。": {
-        "en": "Set to left/center/right for auto alignment"
+        "en": "Left/center/right for auto alignment"
     },
     "上侧距离": {
-        "en": "Top padding"
+        "en": "Top"
     },
     "下侧距离": {
-        "en": "Bottom padding"
+        "en": "Bottom"
     },
     "左侧距离": {
-        "en": "Left padding"
+        "en": "Left"
     },
     "右侧距离": {
-        "en": "Right padding"
+        "en": "Right"
     },
     "图例间隔": {
         "en": "Legend spacing"
