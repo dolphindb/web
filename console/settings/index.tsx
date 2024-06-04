@@ -19,7 +19,7 @@ const icon_style = { fontSize: '20px' }
 export function Settings () {
     const { admin, dev, test } = model.use(['admin', 'dev', 'test'])
     
-    return admin && (dev || test) && <div className='module-settings'>
+    return admin && <div className='module-settings'>
         <div className='title'>{t('可选模块')}</div>
         <Card 
             module_key='finance-guide'
