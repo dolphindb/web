@@ -12,6 +12,7 @@ import { safe_json_parse } from '../utils.js'
 
 
 import { VariableMode } from '../type.js'
+import { t } from '../../../i18n/index.js'
 
 interface IProps { 
     ids: string[]
@@ -109,7 +110,7 @@ export function VariableForm (props: IProps) {
         </Form>
         {
             with_search_btn && <Button type='primary' onClick={on_search} className='search-btn'>
-                {search_btn_label || '查询' }
+                {search_btn_label || t('查询') }
             </Button> 
         }
     </div>

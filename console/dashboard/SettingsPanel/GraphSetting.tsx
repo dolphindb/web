@@ -6,7 +6,7 @@ import { UndoOutlined } from '@ant-design/icons'
 import { graph_config } from '../graph-config.js'
 import { dashboard } from '../model.js'
 import { get_data_source } from '../DataSource/date-source.js'
-import { t } from '../../../i18n/index.js'
+import { language, t } from '../../../i18n/index.js'
 
 export function GraphSetting () { 
     const { widget } = dashboard.use(['widget'])
@@ -51,7 +51,7 @@ export function GraphSetting () {
         <Form
             onValuesChange={on_form_change}
             form={form}
-            labelCol={{ span: 10 }}
+            labelCol={{ span: language === 'zh' ? 10 : 12 }}
             labelAlign='left'
             colon={false}
             className='graph-setting-form'
