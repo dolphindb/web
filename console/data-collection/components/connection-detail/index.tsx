@@ -25,6 +25,7 @@ import { request } from '../../utils.js'
 import { CreateSubscribeModal } from '../create-subscribe-modal/index.js'
 
 import { TemplateViewModal } from './parser-template-view-modal.js'
+import { DeleteDescribeModal } from './delete-describe-modal.js'
 
 
 interface IProps {
@@ -39,7 +40,7 @@ const DEFAULT_TEMPLATES = {
 export function ConnectionDetail (props: IProps) {
     const { connection } = props
     
-    const [selected_subscribes, set_selected_subscribes] = useState<string[]>([ ])    
+    const [selected_subscribes, set_selected_subscribes] = useState<number[]>([ ])    
     
     const { data, isLoading, mutate } = useSWR(
         ['dcp_getConnectAndSubInfo', connection],
@@ -87,33 +88,12 @@ export function ConnectionDetail (props: IProps) {
                 children: port
             }
         ]
-    }, [ data?.connectInfo ])
+    }, [ data ])
     
     const onViewTemplate = useMemoizedFn((template: ParserTemplate) => {
         NiceModal.show(TemplateViewModal, { template })
     })
     
-    const on_batch_delete = useCallback(() => {
-        Modal.confirm({
-            title: t('确定要删除选中的 {{num}} 项订阅吗？', { num: selected_subscribes.length }),
-            onOk: async () => {
-                request('dcp_deleteSubscribe', { ids: selected_subscribes })
-                mutate()
-            },
-            okButtonProps: { style: { backgroundColor: 'red' } }
-        })
-    }, [ mutate, selected_subscribes ])
-    
-    const on_delete = useCallback(({ name, id }: Subscribe) => {
-        Modal.confirm({
-            title: t('确定要删除订阅 【{{name}}】吗？', { name }),
-            onOk: async () => {
-                request('dcp_deleteSubscribe', { ids: [id] })
-                mutate()
-            },
-            okButtonProps: { style: { backgroundColor: 'red' } }
-        })
-    }, [ mutate ])
     
     const on_change_status = useCallback(async ({ id: subId, name }: Subscribe, status: boolean) => {
         Modal.confirm({
@@ -164,15 +144,22 @@ export function ConnectionDetail (props: IProps) {
                 <Typography.Link 
                 disabled={record.status === 1}
                 onClick={async () => {
-                    // @ts-ignore
                     NiceModal.show(CreateSubscribeModal, { refresh: mutate, parser_templates: templates, edited_subscribe: record })
                 } }>
                     {t('编辑')}
                 </Typography.Link>
-                <Typography.Link disabled={record.status === 1} type='danger' onClick={() => { on_delete(record) }}>{t('删除')}</Typography.Link>
+                
+                <Typography.Link 
+                    disabled={record.status === 1} 
+                    onClick={async () => { await NiceModal.show(DeleteDescribeModal, { ids: [record.id], refresh: mutate }) }}
+                    type='danger' 
+                >
+                    {t('删除')}
+                </Typography.Link>
+               
             </Space>
         }
-    ], [ templates, on_delete, mutate, on_change_status ])
+    ], [ templates, mutate, on_change_status ])
     
     
     return isLoading
@@ -191,12 +178,18 @@ export function ConnectionDetail (props: IProps) {
                     icon={<PlusOutlined />} 
                     type='primary' 
                     onClick={async () => 
-                        // @ts-ignore
                         NiceModal.show(CreateSubscribeModal, { connection_id: connection, refresh: mutate, parser_templates: templates })}
                 >
                     {t('新增订阅')}
                 </Button>
-                <Button icon={<DeleteOutlined />} danger onClick={on_batch_delete} disabled={!selected_subscribes.length}>{t('批量删除')}</Button>
+                <Button 
+                    icon={<DeleteOutlined />} 
+                    danger 
+                    onClick={async () => { await NiceModal.show(DeleteDescribeModal, { ids: selected_subscribes, refresh: mutate }) }} 
+                    disabled={!selected_subscribes.length}
+                >
+                    {t('批量删除')}
+                </Button>
                 <Button icon={<RedoOutlined />} onClick={async () => mutate()}>
                     {t('检测订阅状态')}
                 </Button>
@@ -209,7 +202,7 @@ export function ConnectionDetail (props: IProps) {
             dataSource={data?.subscribes ?? [ ]}
             rowKey='id'
             rowSelection={{
-                onChange: selected_keys => { set_selected_subscribes(selected_keys as string[]) },
+                onChange: selected_keys => { set_selected_subscribes(selected_keys as number[]) },
                 getCheckboxProps: (subscribe: Subscribe) => ({ disabled: subscribe.status === 1 })
             }}
         />

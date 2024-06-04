@@ -1,7 +1,7 @@
 import './index.scss'
 
 import NiceModal, { useModal } from '@ebay/nice-modal-react'
-import { Button, Form, Input, InputNumber, Modal, Select, Spin, Tag, message } from 'antd'
+import { Button, Form, Input, InputNumber, Modal, Select, Spin, Switch, Tag, message } from 'antd'
 
 import { useCallback, useState } from 'react'
 
@@ -17,7 +17,7 @@ interface IProps {
     edited_subscribe?: Subscribe
     parser_templates: ParserTemplate[]
     // 创建时传
-    connection_id?: string
+    connection_id?: number
     refresh: () => void
 }
 
@@ -46,7 +46,7 @@ export const CreateSubscribeModal = NiceModal.create((props: IProps) => {
             message.success(edited_subscribe ? t('修改成功') : t('创建成功'))
         modal.hide()
         refresh()
-    }, [edited_subscribe, connection_id])
+    }, [edited_subscribe, connection_id, refresh])
     
     return <Modal 
         className='create-subscribe-modal'
@@ -81,10 +81,10 @@ export const CreateSubscribeModal = NiceModal.create((props: IProps) => {
                     options={parser_templates.map(item => (
                         { 
                             value: item.id, 
-                            label: <div className='parser-template-label'>
+                            label: (<div className='parser-template-label'>
                                 {item.name}
                                 <Tag color='processing' bordered={false}>{item.protocol}</Tag>
-                            </div> 
+                            </div> )
                         }))} 
                     placeholder={t('请选择点位解析模板')}
                 />
@@ -93,6 +93,12 @@ export const CreateSubscribeModal = NiceModal.create((props: IProps) => {
             
             {!isNil(handlerId) && <div className='parser-template-params'>
                 <h4>{t('模板参数')}</h4>
+                {!edited_subscribe && <Form.Item 
+                    label={t('创建默认流表')} 
+                    name='createDefaultTable'
+                >
+                    <Switch />
+                </Form.Item>}
                 <Form.List name='templateParams'>
                     {fields => fields.map(field => <div key={field.key}>
                         <Form.Item name={[field.name, 'key']} hidden>
