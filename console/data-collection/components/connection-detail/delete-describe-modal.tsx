@@ -20,6 +20,7 @@ export const DeleteDescribeModal = NiceModal.create(({ ids = [ ], refresh }: IPr
     
     const on_delete = useCallback(async (params: { dropUseTable: boolean }) => {
         await request('dcp_deleteSubscribe', { ...params, ids })
+        modal.hide()
         refresh()
     }, [ids, refresh])
     
