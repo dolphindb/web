@@ -33,9 +33,10 @@ export const ParserTemplateModal = NiceModal.create(({ refresh, editedTemplate }
         try {
             params = await form.validateFields()
         } catch { return }
+        
         if (editedTemplate) {
             await request('dcp_updateHandler', { ...params, id: editedTemplate.id })
-            message.success('修改成功')
+            message.success(t('修改成功'))
         }
         else {
             await request('dcp_addHandler', params)

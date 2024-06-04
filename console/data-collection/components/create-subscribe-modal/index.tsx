@@ -10,6 +10,7 @@ import { isNil } from 'lodash'
 import { t } from '../../../../i18n/index.js'
 import type { ParserTemplate, Subscribe } from '../../type.js'
 import { request } from '../../utils.js'
+import { safe_json_parse } from '../../../dashboard/utils.js'
 
 interface IProps {
     /** 修改时传 */
@@ -26,7 +27,12 @@ export const CreateSubscribeModal = NiceModal.create((props: IProps) => {
     const [form] = Form.useForm()
     
     const [handlerId, setHandlerId] = useState<number>(edited_subscribe?.handlerId)
-    const [template_params_names, set_template_params_names] = useState([ ])
+    const [template_params_names, set_template_params_names] = useState(
+        edited_subscribe 
+        ? safe_json_parse(edited_subscribe.templateParams).map(item => item?.key)
+        : [ ]
+    )
+    
     
     const on_submit = useCallback(async () => {        
         try { await form.validateFields() } catch { return }
@@ -101,7 +107,7 @@ export const CreateSubscribeModal = NiceModal.create((props: IProps) => {
              
            
                 
-            <Form.Item label='接收缓冲区大小' name='recvbufSize' tooltip={t('默认为 20480')}>
+            <Form.Item label={t('接收缓冲区大小')} name='recvbufSize' tooltip={t('默认为 20480')}>
                 <InputNumber placeholder={t('请输入接收缓冲区大小')}/>
             </Form.Item>
         </Form>

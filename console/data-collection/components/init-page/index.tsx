@@ -18,6 +18,6 @@ export function InitPage () {
             {t('初始化操作将新增以下数据库')}
             <div>dfs://dataAcquisition</div>
         </>}
-        extra={<Button type='primary' onClick={on_init}>初始化</Button>}
+        extra={<Button type='primary' onClick={on_init}>{t('初始化')}</Button>}
     />
 }

@@ -43,7 +43,11 @@ export function ConnectionDetail (props: IProps) {
     
     const { data, isLoading, mutate } = useSWR(
         ['dcp_getConnectAndSubInfo', connection],
-        async () => request<{ subscribes: Subscribe[], total: number, connectInfo: Connection }>('dcp_getConnectAndSubInfo', { connectId: Number(connection) })
+        async () => {
+            await request('dcp_subStatusMonitor', { connectId: Number(connection) })
+            const res = await request<{ subscribes: Subscribe[], total: number, connectInfo: Connection }>('dcp_getConnectAndSubInfo', { connectId: Number(connection) })
+            return res
+        } 
     )
     
     const { data: { items: templates } = DEFAULT_TEMPLATES } = useSWR(
@@ -111,12 +115,6 @@ export function ConnectionDetail (props: IProps) {
         })
     }, [ mutate ])
     
-    
-    const on_detect = useCallback(async () => {
-        await request('dcp_subStatusMonitor', { connectId: Number(connection) })
-        await mutate()
-    }, [ mutate, connection])
-    
     const on_change_status = useCallback(async ({ id: subId, name }: Subscribe, status: boolean) => {
         Modal.confirm({
             title: t('确定要{{action}}{{name}}吗？', { action: status ? '启用' : '停用', name }),
@@ -150,7 +148,7 @@ export function ConnectionDetail (props: IProps) {
                 const template = templates?.find(item => item.id === handlerId)
                 return <div className='parser-template'>
                     {template?.name}
-                    <Link className='view-btn' onClick={() => { onViewTemplate(template) }}>查看</Link>
+                    <Link className='view-btn' onClick={() => { onViewTemplate(template) }}>{t('查看')}</Link>
                 </div>
             }
         },
@@ -169,9 +167,9 @@ export function ConnectionDetail (props: IProps) {
                     // @ts-ignore
                     NiceModal.show(CreateSubscribeModal, { refresh: mutate, parser_templates: templates, edited_subscribe: record })
                 } }>
-                    编辑
+                    {t('编辑')}
                 </Typography.Link>
-                <Typography.Link disabled={record.status === 1} type='danger' onClick={() => { on_delete(record) }}>删除</Typography.Link>
+                <Typography.Link disabled={record.status === 1} type='danger' onClick={() => { on_delete(record) }}>{t('删除')}</Typography.Link>
             </Space>
         }
     ], [ templates, on_delete, mutate, on_change_status ])
@@ -189,12 +187,19 @@ export function ConnectionDetail (props: IProps) {
         <div className='describe-title'>
             <h3>{t('订阅列表')}</h3>
             <Space>
-                <Button icon={<PlusOutlined />} type='primary' onClick={async () => 
-                    // @ts-ignore
-                    NiceModal.show(CreateSubscribeModal, { connection_id: connection, refresh: mutate, parser_templates: templates         
-                })}>新增订阅</Button>
-                <Button icon={<DeleteOutlined />} danger onClick={on_batch_delete} disabled={!selected_subscribes.length}>批量删除</Button>
-                <Button icon={<RedoOutlined />} onClick={on_detect}>检测订阅状态</Button>
+                <Button 
+                    icon={<PlusOutlined />} 
+                    type='primary' 
+                    onClick={async () => 
+                        // @ts-ignore
+                        NiceModal.show(CreateSubscribeModal, { connection_id: connection, refresh: mutate, parser_templates: templates })}
+                >
+                    {t('新增订阅')}
+                </Button>
+                <Button icon={<DeleteOutlined />} danger onClick={on_batch_delete} disabled={!selected_subscribes.length}>{t('批量删除')}</Button>
+                <Button icon={<RedoOutlined />} onClick={async () => mutate()}>
+                    {t('检测订阅状态')}
+                </Button>
             </Space>
         </div>
         
