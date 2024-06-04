@@ -4212,5 +4212,41 @@
     },
     "多源图": {
         "en": "Multi-source chart"
+    },
+    "数据配置": {
+        "en": "Data configuration"
+    },
+    "最小范围": {
+        "en": "Minimum"
+    },
+    "最大范围": {
+        "en": "Maximum"
+    },
+    "值精度": {
+        "en": "Precision"
+    },
+    "指针颜色": {
+        "en": "Pointer color"
+    },
+    "标题水平偏移": {
+        "en": "Title horizontal offset"
+    },
+    "标题垂直偏移": {
+        "en": "Title vertical offset"
+    },
+    "数值水平偏移": {
+        "en": "Value horizontal offset"
+    },
+    "数值垂直偏移": {
+        "en": "Value vertical offset"
+    },
+    "返回结果必须是 table 或 matrix": {
+        "en": "Must return a table or matrix"
+    },
+    "相对仪表盘中心的水平偏移位置": {
+        "en": "Horizontal offset position relative to the center of gauge"
+    },
+    "相对仪表盘中心的垂直偏移位置": {
+        "en": "Vertical offset position relative to the center of gauge"
     }
 }

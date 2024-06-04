@@ -114,7 +114,7 @@ function Series (props: { col_names: string[] }) {
                         key: field.name,
                         label: <div className='collapse-label'>
                             {/* {`数据列 ${field.name + 1}`} */}
-                            {series?.[field.name]?.name || `数据列 ${field.name + 1}` }
+                            {series?.[field.name]?.name || t('数据列') + field.name + 1 }
                             {
                                 fields.length > 1 &&
                                 <DeleteOutlined
