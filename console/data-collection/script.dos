@@ -277,14 +277,15 @@ def dcp_subStatusMonitor(args){
     id = subs[`id]
     subId = subs[`subId]
     nowSub = mqtt::getSubscriberStat().subscriptionId
-    for(i in (0..(subId.size()-1))){  
-        if((!(subId[i] in nowSub)) and subId[i]!=" "){
-            argsNew='{"id":'+id[i]+',"subId":" ","status":0}' 
-            dcp_updateSubscribe(argsNew) 
+    if(subId.size() > 0 ){
+        for(i in (0..(subId.size()-1))){  //i=0
+            if((!(subId[i] in nowSub)) and subId[i]!=""){
+                argsNew='{"id":'+id[i]+',"subId":" ","status":0}' 
+                dcp_updateSubscribe(argsNew) 
+            }
         }
     }
 }
-
 
 
 /*
