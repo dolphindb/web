@@ -120,7 +120,7 @@ export async function save_variable ( new_variable: Variable, is_import = false)
     if (!is_import) {
         for (let source_id of variables[id].deps)
             await execute(source_id)
-        dashboard.message.success(`${new_variable.name} ${('保存成功！')}`)
+        dashboard.message.success(`${new_variable.name} ${t('保存成功')}`)
     }
 }
 

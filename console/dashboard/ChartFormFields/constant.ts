@@ -61,15 +61,15 @@ export const line_type_options = [
 
 export const chart_type_options = [
     {
-        label: WidgetType.BAR,
+        label: t(WidgetType.BAR),
         value: WidgetChartType.BAR
     },
     {
-        label: WidgetType.LINE,
+        label: t(WidgetType.BAR),
         value:  WidgetChartType.LINE
     },
     {
-        label: WidgetType.SCATTER,
+        label: t(WidgetChartType.SCATTER),
         value: WidgetChartType.SCATTER
     }
 ]

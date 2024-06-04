@@ -11,7 +11,7 @@ import NiceModal from '@ebay/nice-modal-react'
 
 import { NodeType, model } from '../model.js'
 
-import { t, language } from '../../i18n/index.js'
+import { t } from '../../i18n/index.js'
 
 import { Unlogin } from '../components/Unlogin.js'
 
@@ -51,7 +51,7 @@ export function DashBoard () {
     useEffect(() => {
         (async () => {
             try {
-                if (language !== 'zh' || v1)
+                if (v1)
                     return
                 else if (!logined) 
                     dashboard.set({ inited_state: InitedState.unlogined })

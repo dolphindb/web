@@ -7,7 +7,7 @@ import { Alert } from 'antd'
 import cn from 'classnames'
 
 
-import { t } from '../../../i18n/index.js'
+import { language, t } from '../../../i18n/index.js'
 
 import { WidgetTypeWithoutDatasource, dashboard } from '../model.js'
 
@@ -27,7 +27,7 @@ export function SettingsPanel (props: { hidden: boolean }) {
             return <GraphSetting />
     }, [widget])
     
-    return <div className={cn('dashboard-settings-panel', { hidden })}>
+    return <div className={cn('dashboard-settings-panel', { hidden,  'dashboard-settings-panel_en': language !== 'zh' })}>
         { setting }
     </div>
 }
