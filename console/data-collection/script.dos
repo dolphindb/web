@@ -94,22 +94,6 @@ def dcp_getConnectList(args){
 
 
 /*
-根据模板参数，自动创建流表
-参数：args 为标准json，需要包含以下字段：
-templateParams 参数列表
-*/
-def dcp_createDefaultStreamTable(args){
-    subArgs = parseExpr(args).eval()
-    templateParams=subArgs['templateParams']    
-    paramsInfo = parseJsonTable(templateParams)
-    tableName = paramsInfo[0].value
-    timeColumn = paramsInfo[1].value
-    idColumn = paramsInfo[2].value
-    enableTableShareAndPersistence(streamTable(1:0,[timeColumn,idColumn,`metric,`value],[TIMESTAMP,STRING,STRING,DOUBLE]),tableName,,,100000,,,100000)
-}
-
-
-/*
 添加订阅信息：
 参数：args 为标准json，需要包含以下字段：
 name: 订阅名称
@@ -117,7 +101,8 @@ topic: 订阅主题
 connectId：使用的连接
 handlerId：使用的解析模板
 recvbufSize：接收缓冲区大小
-templateParams: 模板参数    
+templateParams: 模板参数  
+createDefaultTable: 是否创建默认流表模板 bool  
 */
 def dcp_addSubscribe(args){
     subArgs = parseExpr(args).eval()
@@ -135,6 +120,14 @@ def dcp_addSubscribe(args){
     update connectInfo set subId=" "
     update connectInfo set status=0
     update connectInfo set templateParams=subArgs['templateParams'] 
+    if(subArgs[`createDefaultTable]){
+        templateParams=subArgs['templateParams']    
+        paramsInfo = parseJsonTable(templateParams)
+        tableName = paramsInfo[0].value
+        timeColumn = paramsInfo[1].value
+        idColumn = paramsInfo[2].value
+        enableTableShareAndPersistence(streamTable(1:0,[timeColumn,idColumn,`metric,`value],[TIMESTAMP,STRING,STRING,DOUBLE]),tableName,,,100000,,,100000)
+    }
     connectInfo.reorderColumns!(`id`connectId`topic`name`recvbufSize`handlerId`templateParams`status`subId`createTime`updateTime)
     loadTable("dfs://dataAcquisition","subscribeInfo").append!(connectInfo)
     return '{"status":1,"id":'+id+'}'  
@@ -176,11 +169,11 @@ def dcp_updateSubscribe(args){
 删除订阅
 参数：args 为标准json，需要包含以下字段：
 ids: 订阅ID int数组
-dropTable:删除订阅时是否删除流表 bool
+dropUseTable:删除订阅时是否删除流表 bool
 */
 def dcp_deleteSubscribe(args){
     subArgs = parseExpr(args).eval()
-    if(subArgs[`dropTable]){
+    if(subArgs[`dropUseTable]){
         templateParams = exec templateParams from loadTable("dfs://dataAcquisition","subscribeInfo") where id in subArgs[`ids]
         for(i in templateParams){//i = templateParams[1]
             t = parseJsonTable(i)
@@ -411,7 +404,6 @@ def dcp_stopAllSub(){
 }
 
 def dcp_dropAllFunctionView(){
-    dropFunctionView(`dcp_createDefaultStreamTable)
     dropFunctionView(`dcp_addConnect)
     dropFunctionView(`dcp_updateConnect)
     dropFunctionView(`dcp_deleteConnect)
@@ -440,7 +432,6 @@ def dcp_clearEnv(){
 
 def dcp_init(){
     dcp_createAllTable()
-    addFunctionView(dcp_createDefaultStreamTable)
     addFunctionView(dcp_addConnect)
     addFunctionView(dcp_updateConnect)
     addFunctionView(dcp_deleteConnect)
@@ -480,3 +471,4 @@ def dcp_init(){
     loadTable("dfs://dataAcquisition","ParserTemplate").append!(table([0] as id,["test"] as name,[handler] as handler,[`mqtt] as protocol,
     ["测试解析模板"] as comment,'["outputTableName","timeColumn","idColumn"]' as templateParams,[now()] as c1,[now()] as col2))
 }
+
