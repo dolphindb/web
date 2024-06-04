@@ -17,7 +17,7 @@ import { Card } from './Card.js'
 const icon_style = { fontSize: '20px' }
 
 export function Settings () {
-    const { admin, dev, test } = model.use(['admin', 'dev', 'test'])
+    const { admin } = model.use(['admin'])
     
     return admin && <div className='module-settings'>
         <div className='title'>{t('可选模块')}</div>
