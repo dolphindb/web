@@ -139,7 +139,7 @@ export function GaugeConfigForm (props: { col_names: string[] } ) {
                         const items = fields.map(field => { 
                             return {
                                 key: field.name,
-                                label: <div className='data-setting-label'>{t('数据列') + field.name + 1}<DeleteOutlined onClick={() => { remove(field.name) }} /></div>,
+                                label: <div className='data-setting-label'>{t('数据列') + (field.name + 1)}<DeleteOutlined onClick={() => { remove(field.name) }} /></div>,
                                 forceRender: true,
                                 children: <>
                                     <Form.Item name={[field.name, 'col']} label={t('数据列')}>

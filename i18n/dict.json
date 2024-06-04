@@ -192,7 +192,7 @@
         "en": "Submit changes?"
     },
     "名称": {
-        "en": "name"
+        "en": "Name"
     },
     "模式": {
         "en": "mode"
@@ -711,7 +711,7 @@
         "en": "window"
     },
     "偏移量": {
-        "en": "offset"
+        "en": "Offset"
     },
     "继续显示流表更新": {
         "en": "continue to show flow table updates"
@@ -1491,7 +1491,7 @@
         "en": "A table with the same name already exists"
     },
     "数据列": {
-        "en": "data columns"
+        "en": "Data column"
     },
     "分区列": {
         "en": "partition columns"

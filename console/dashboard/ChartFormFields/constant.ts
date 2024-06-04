@@ -65,11 +65,11 @@ export const chart_type_options = [
         value: WidgetChartType.BAR
     },
     {
-        label: t(WidgetType.BAR),
+        label: t(WidgetType.LINE),
         value:  WidgetChartType.LINE
     },
     {
-        label: t(WidgetChartType.SCATTER),
+        label: t(WidgetType.SCATTER),
         value: WidgetChartType.SCATTER
     }
 ]
