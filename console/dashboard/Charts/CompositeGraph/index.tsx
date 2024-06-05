@@ -10,7 +10,7 @@ import type { EChartsInstance } from 'echarts-for-react'
 
 import { AxisType, MatchRuleType, ThresholdType } from '../../ChartFormFields/type.js'
 import { convert_chart_config, get_axis_range } from '../../utils.js'
-import type { Widget } from '../../model.js'
+import { dashboard, type Widget } from '../../model.js'
 import type { ISeriesConfig, IChartConfig } from '../../type.js'
 import { get_data_source } from '../../DataSource/date-source.js'
 
@@ -157,7 +157,7 @@ export function CompositeChart (props: ICompositeChartProps) {
         {widget.source_id.map(id => <SingleDataSourceUpdate key={id} source_id={id} force_update={() => { set_update({ }) }}/>) }
         <ReactEChartsCore
             echarts={echarts}
-            notMerge
+            notMerge={dashboard.editing}
             option={options}
             className='dashboard-line-chart'
             theme='my-theme'
