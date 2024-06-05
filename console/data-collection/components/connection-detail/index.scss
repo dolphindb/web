@@ -26,3 +26,14 @@
     height: 600px;
     overflow: auto;
 }
+
+.subscribe-delete-form {
+    &-item {
+        margin-bottom: 0px;
+        
+        &.delete-form-item {
+            text-align: end;
+        }
+    }
+}
+
