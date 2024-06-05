@@ -74,7 +74,9 @@ def dcp_deleteConnect(args){
     connectArgs = parseExpr(args).eval()
     subIds = exec subId from  loadTable("dfs://dataAcquisition","subscribeInfo") where connectId in connectArgs[`ids]
     for(subId in subIds){
-        mqtt::unsubscribe(subId)
+        if(subId !=" "){
+            mqtt::unsubscribe(subId)
+        }
     }
     delete from loadTable("dfs://dataAcquisition","subscribeInfo") where connectId in connectArgs[`ids]
     delete from loadTable("dfs://dataAcquisition","connectInfo") where id in connectArgs[`ids]
@@ -102,7 +104,7 @@ connectId：使用的连接
 handlerId：使用的解析模板
 recvbufSize：接收缓冲区大小
 templateParams: 模板参数  
-createDefaultTable: 是否创建默认流表模板 bool  
+parseJson: 是否解析json数据 bool  
 */
 def dcp_addSubscribe(args){
     subArgs = parseExpr(args).eval()
@@ -114,25 +116,23 @@ def dcp_addSubscribe(args){
     update connectInfo set topic = subArgs['topic']
     update connectInfo set name = subArgs['name']
     update connectInfo set recvbufSize = iif(subArgs['recvbufSize']==NULL,20480,subArgs['recvbufSize'])
-    update connectInfo set handlerId = subArgs['handlerId']
     update connectInfo set createTime = now()
     update connectInfo set updateTime = now()
     update connectInfo set subId=" "
     update connectInfo set status=0
     update connectInfo set templateParams=subArgs['templateParams'] 
-    if(subArgs[`createDefaultTable]){
-        templateParams=subArgs['templateParams']    
-        paramsInfo = parseJsonTable(templateParams)
-        tableName = paramsInfo[0].value
-        timeColumn = paramsInfo[1].value
-        idColumn = paramsInfo[2].value
-        enableTableShareAndPersistence(streamTable(1:0,[timeColumn,idColumn,`metric,`value],[TIMESTAMP,STRING,STRING,DOUBLE]),tableName,,,100000,,,100000)
+    if(subArgs[`parseJson]){
+        update connectInfo set handlerId = subArgs['handlerId']
+    }
+    else{
+        update connectInfo set handlerId = 0
+        tableName = parseJsonTable(subArgs['templateParams']).value[0]
+        enableTableShareAndPersistence(streamTable(1:0,[`topic,`msg,`ts],[STRING,STRING,TIMESTAMP]),tableName,,,100000,,,100000)
     }
     connectInfo.reorderColumns!(`id`connectId`topic`name`recvbufSize`handlerId`templateParams`status`subId`createTime`updateTime)
     loadTable("dfs://dataAcquisition","subscribeInfo").append!(connectInfo)
     return '{"status":1,"id":'+id+'}'  
 }
-
 
 /*
 修改连接
@@ -372,6 +372,23 @@ def dcp_getTemplateArgs(args){
 }
 
 
+/*
+mqtt 调试日志
+@args null
+@return 最近一小时与mqtt相关的日志，字符串向量
+*/
+def dcp_getMQTTLog(){
+    cmd = 'awk -v end="$(date +'+"'%Y-%m-%d %H:%M:%S' --date='1 hour ago'"+')"' +' -F","'+' \'$1 >= end\' ./dolphindb.log |grep "MQTT" > ./mqtt_log_last_hour.txt'
+    shell(cmd)
+    logArr = exec col0 from ploadText("./mqtt_log_last_hour.txt","?",,,,false)
+    return logArr
+}
+
+/*
+初始化检测函数
+@args null
+@return 返回一个json，键为status，值为0或1，表示是否初始化完成  
+*/
 def dcp_exitsDataAcquisition(){
     if(existsDatabase("dfs://dataAcquisition")){
         return '{"status":1,"message":"初始化已完成"}'
@@ -421,6 +438,7 @@ def dcp_dropAllFunctionView(){
     dropFunctionView(`dcp_addHandler)
     dropFunctionView(`dcp_updateHandler)
     dropFunctionView(`dcp_deleteHandler)
+    dropFunctionView(`dcp_getMQTTLog)
 }
 
 def dcp_clearEnv(){
@@ -433,6 +451,7 @@ def dcp_clearEnv(){
 
 def dcp_init(){
     dcp_createAllTable()
+    addFunctionView(dcp_getMQTTLog)
     addFunctionView(dcp_addConnect)
     addFunctionView(dcp_updateConnect)
     addFunctionView(dcp_deleteConnect)
@@ -469,7 +488,15 @@ def dcp_init(){
         }
     }
     '
-    loadTable("dfs://dataAcquisition","ParserTemplate").append!(table([0] as id,["test"] as name,[handler] as handler,[`mqtt] as protocol,
+    loadTable("dfs://dataAcquisition","ParserTemplate").append!(table([1] as id,["test"] as name,[handler] as handler,[`mqtt] as protocol,
     ["测试解析模板"] as comment,'["outputTableName","timeColumn","idColumn"]' as templateParams,[now()] as c1,[now()] as col2))
+
+    handler = "
+    def saveJsonMsg(outputTableName,topic,msg){
+        objByName(outputTableName).append!(table([topic]as topic,[msg] as msg,[now()] as ts))
+    }
+    "
+    loadTable("dfs://dataAcquisition","ParserTemplate").append!(table([0] as id,["saveJsonMsg"] as name,[handler] as handler,[`mqtt] as protocol,
+    ["转存json数据"] as comment,'["outputTableName"]' as templateParams,[now()] as c1,[now()] as col2))
 }
 
