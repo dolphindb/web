@@ -197,6 +197,7 @@ class ShellModel extends Model<ShellModel> {
                 )
             
             this.term.writeln(red(message))
+            console.log(error)
             throw error
         } finally {
             this.set({ executing: false })
