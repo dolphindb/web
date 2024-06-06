@@ -38,7 +38,7 @@ loader.config({
     } : { },
 })
 
-let monaco_initing = false
+let docs_initing = false
 
 
 export function Editor ({
@@ -66,12 +66,12 @@ export function Editor ({
     
     useEffect(() => {
         (async () => {
-            if (!docs && !monaco_initing) {
-                monaco_initing = true
+            if (!docs && !docs_initing) {
+                docs_initing = true
                 try {
-                    model.set({ docs: await request_json(`docs.${ language === 'zh' ? 'zh' : 'en' }.json`) })
+                    model.set({ docs: await request_json(`./docs.${ language === 'zh' ? 'zh' : 'en' }.json`) })
                 } finally {
-                    monaco_initing = false
+                    docs_initing = false
                 }
             }
         })()
