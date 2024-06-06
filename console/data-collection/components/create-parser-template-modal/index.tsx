@@ -8,9 +8,9 @@ import { useCallback } from 'react'
 
 import type { ParserTemplate } from '../../type.js'
 import { t } from '../../../../i18n/index.js'
-import { Editor } from '../../../shell/Editor/index.js'
 import { request } from '../../utils.js'
 import { protocols } from '../../constant.js'
+import { Editor } from '../../../components/Editor/index.js'
 
 interface IProps {
     editedTemplate?: ParserTemplate
