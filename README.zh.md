@@ -12,8 +12,8 @@
 
 ## [English](./README.md) | 中文
 
-### Console: DolphinDB 数据库 Web 管理界面
-![](./console/demo.png)
+### DolphinDB 数据库 Web 管理界面
+![](./console/demo.zh.png)
 
 <!-- #### 在线版本
 最新内部版本的 web 已经部署到 CDN 。可以通过设置 URL 中的 hostname 和 port 参数将打开的 web 界面连接到远程的或者本地的任何 DolphinDB 服务器，比如： 
@@ -47,7 +47,7 @@ rsync -av --delete ./web/ root@192.168.1.204:/path/to/dolphindb-dir/web/
 如果需要通过 nginx 部署到子路径下（不建议，多转发一次会降低性能），可以参考 [./nginx.conf](./nginx.conf)
 
 
-### Cloud: DolphinDB K8S 云平台 Web 管理界面
+### DolphinDB K8S 云平台 Web 管理界面
 ![](./cloud/demo.png)
 
 https://github.com/dolphindb/Tutorials_CN/blob/master/%E5%AE%89%E8%A3%85%E5%92%8C%E9%83%A8%E7%BD%B2/k8s_deployment.md

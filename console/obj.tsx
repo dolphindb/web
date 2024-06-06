@@ -1538,8 +1538,7 @@ function Chart ({
             
             const { multi_y_axes = false } = extras || { }
             
-            let col_labels = (cols_?.value || [ ]) as any[]
-            let col_lables_ = new Array(col_labels.length)
+            const col_labels_ = ((cols_?.value || seq(cols)) as any[]).map(col_label => col_label?.value?.name || col_label)
             
             const row_labels = (() => {
                 // 没有设置 label 的话直接以序号赋值并返回
@@ -1562,28 +1561,22 @@ function Chart ({
                             let dataobj: any = { }
                             dataobj.row = row_labels[j]
                             for (let i = 0;  i < cols;  i++) {
-                                const col = col_labels[i]?.value?.name || col_labels[i]
-                                col_lables_[i] = col
-                                
                                 let idata = i * rows + j
-                                dataobj[col] = to_chart_data(data[idata], datatype)
+                                dataobj[col_labels_[i]] = to_chart_data(data[idata], datatype)
                             }
                             data_[j] = dataobj
                         }
                      else
-                        for (let i = 0;  i < cols;  i++) {
-                            const col = col_labels[i]?.value?.name || col_labels[i]
-                            col_lables_[i] = col
-                            
+                        for (let i = 0;  i < cols;  i++) 
                             for (let j = 0;  j < rows;  j++) {
                                 const idata = i * rows + j
                                 data_[idata] = {
                                     row: row_labels[j],
-                                    col,
+                                    col: col_labels_[i],
                                     value: to_chart_data(data[idata], datatype)
                                 }
                             }
-                        }
+                        
                     break
                     
                 case DdbChartType.kline:
@@ -1607,19 +1600,16 @@ function Chart ({
                     break
                     
                 default:
-                    for (let i = 0;  i < cols;  i++) {
-                        const col = col_labels[i]?.value?.name || col_labels[i]
-                        col_lables_[i] = col
-                        
+                    for (let i = 0;  i < cols;  i++) 
                         for (let j = 0;  j < rows;  j++) {
                             const idata = i * rows + j
                             data_[idata] = {
                                 row: row_labels[j],
-                                col,
+                                col: col_labels_[i],
                                 value: to_chart_data(data[idata], datatype)
                             }
                         }
-                    }
+                    
                     
                     if (charttype === DdbChartType.histogram && bin_start && bin_end)
                         data_ = data_.filter(data => 
@@ -1637,7 +1627,7 @@ function Chart ({
                 titles,
                 stacking,
                 multi_y_axes,
-                col_labels: col_lables_,
+                col_labels: col_labels_,
                 bin_count,
                 bin_start,
                 bin_end,
