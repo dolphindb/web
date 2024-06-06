@@ -4,13 +4,14 @@ import { useMemo } from 'react'
 
 import { isNil, pickBy } from 'lodash'
 
-import { dashboard, type Widget } from '../../model.js'
+import { type Widget } from '../../model.js'
 
 import { SeriesFormFields } from '../../ChartFormFields/PieChartFields.js'
 import { BasicFormFields } from '../../ChartFormFields/BasicFormFields.js'
 import { type IChartConfig } from '../../type.js'
 import { parse_text } from '../../utils.js'
 import { ChartField } from '../../ChartFormFields/type.js'
+import { useMerge } from '../hooks.js'
 
 const radius = {
     1: [[0, '70%']],
@@ -51,6 +52,7 @@ export function Pie ({ widget, data_source }: { widget: Widget, data_source: any
                 },
                 series: series.map((serie, index) => {
                     return {
+                        id: index,
                         type: 'pie',
                         radius: radius[series.length][index],
                         label: {
@@ -76,8 +78,9 @@ export function Pie ({ widget, data_source }: { widget: Widget, data_source: any
         [title, animation, series, title_size, data_source, legend, tooltip]
     )
     
-    // 编辑模式下 notMerge 为 true ，因为要修改配置，预览模式下 notMerge 为 false ，避免数据更新，导致选中的 label失效
-    return <ReactEChartsCore notMerge={dashboard.editing} echarts={echarts} option={option} lazyUpdate theme='ohlc_theme' />
+    const chart_ref = useMerge(option)
+    
+    return <ReactEChartsCore ref={chart_ref} echarts={echarts} option={option} lazyUpdate theme='ohlc_theme' />
 }
 
 export function PieConfigForm (props: { col_names: string[] } ) {
