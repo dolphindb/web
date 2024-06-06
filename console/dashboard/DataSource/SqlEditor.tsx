@@ -5,7 +5,7 @@ import { InputNumber, Popover, Switch } from 'antd'
 
 import { DdbForm } from 'dolphindb'
 
-import { Editor } from '../../shell/Editor/index.js'
+import { Editor } from '../../components/Editor/index.js'
 
 import { dashboard } from '../model.js'
 
