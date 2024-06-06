@@ -10,8 +10,6 @@ import { DdbForm } from 'dolphindb/browser.js'
 
 import { genid } from 'xshell/utils.browser.js'
 
-import { Editor } from '../../shell/Editor/index.js'
-
 import { safe_json_parse, sql_formatter } from '../utils.js'
 import { t } from '../../../i18n/index.js'
 import { VariableMode } from '../type.js'
@@ -19,6 +17,8 @@ import { VariableMode } from '../type.js'
 import { dashboard } from '../model.js'
 
 import { model } from '../../model.js'
+
+import { Editor } from '../../components/Editor/index.js'
 
 import { OptionList } from './OptionList.js'
 import { type Variable, type VariablePropertyType } from './variable.js'
