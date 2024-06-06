@@ -38,6 +38,9 @@ loader.config({
 })
 
 
+const docs = await(await fetch(`docs.${ language === 'zh' ? 'zh' : 'en' }.json`)).json()
+
+
 export function Editor ({
     readonly,
     default_value,
@@ -80,8 +83,7 @@ export function Editor ({
     
     return <MonacoDolphinDBEditor
             dolphinDBLanguageOptions={{
-                docs: `docs.${ language === 'zh' ? 'zh' : 'en' }.json`,
-                language: language === 'zh' ? 'zh' : 'en',
+                docs,
                 theme
             }}
             
