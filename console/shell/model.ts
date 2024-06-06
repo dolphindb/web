@@ -193,11 +193,13 @@ class ShellModel extends Model<ShellModel> {
             if (message.includes('RefId:'))
                 message = message.replaceAll(/RefId:\s*(\w+)/g, (_, ref_id) =>
                     // xterm link写法 https://stackoverflow.com/questions/64759060/how-to-create-links-in-xterm-js
-                    blue(`\x1b]8;;${model.get_error_code_doc_link(ref_id)}\x07RefId: ${ref_id}\x1b]8;;\x07`)   
+                    blue(`\x1b]8;;${model.get_error_code_doc_link(ref_id)}\x07RefId: ${ref_id}\x1b]8;;\x07`)
                 )
             
             this.term.writeln(red(message))
+            
             console.log(error)
+            
             throw error
         } finally {
             this.set({ executing: false })
