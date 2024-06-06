@@ -7,7 +7,7 @@ import { Checkbox, Empty, Menu, Modal, Space, Spin, Tooltip, Typography, message
 
 import { useMemoizedFn } from 'ahooks'
 
-import { DeleteOutlined, EditOutlined, LinkOutlined, PlusCircleOutlined } from '@ant-design/icons'
+import { DeleteOutlined, EditOutlined, FileTextOutlined, LinkOutlined, PlusCircleOutlined } from '@ant-design/icons'
 
 
 import NiceModal from '@ebay/nice-modal-react'
@@ -23,6 +23,7 @@ import { dcp_model } from './model.js'
 import { request } from './utils.js'
 
 import { type Connection } from './type.js'
+import { ViewLogModal } from './components/view-log-modal/index.js'
 
 
 
@@ -92,13 +93,25 @@ export function Connections () {
                     <div className='protocol_menu_label'>
                         {item}
                         <Tooltip title={t('新建连接')} >
-                        <PlusCircleOutlined 
-                            className='add-connection-icon' 
-                            onClick={async e => { 
-                                e.stopPropagation()
-                                NiceModal.show(CreateConnectionModal, { protocol: item, refresh: mutate })
+                            <PlusCircleOutlined 
+                                className='add-connection-icon' 
+                                onClick={async e => { 
+                                    e.stopPropagation()
+                                    NiceModal.show(CreateConnectionModal, { protocol: item, refresh: mutate })
                             }}/>
                         </Tooltip>
+                        
+                        <Tooltip title={t('查看日志')}>
+                            <FileTextOutlined 
+                                onClick={async e => {
+                                    e.stopPropagation()
+                                    console.log(111)
+                                    await NiceModal.show(ViewLogModal)
+                                }} 
+                                className='add-connection-icon' 
+                            />
+                        </Tooltip>
+                        
                     </div>
                 </div>,
                 key: item,
