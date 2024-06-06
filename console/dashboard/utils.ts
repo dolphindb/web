@@ -394,7 +394,7 @@ export function convert_chart_config (
         }
     }
     
-    let echarts_series = series.filter(Boolean).map(convert_series)
+    let echarts_series = series.filter(Boolean).map((serie, index) => ({ id: index, ...convert_series(serie) }))
     const valid_thresholds = thresholds.filter(item => item && item.show_type !== ThresholdShowType.NONE)
     
     // 根据阈值，为 series 添加 markArea 或者 markLine

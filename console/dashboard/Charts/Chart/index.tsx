@@ -8,11 +8,12 @@ import { type EChartsInstance } from 'echarts-for-react'
 import { useSize } from 'ahooks'
 
 import { convert_chart_config, get_axis_range } from '../../utils.js'
-import { dashboard, type Widget } from '../../model.js'
+import { type Widget } from '../../model.js'
 import { AxisFormFields, SeriesFormFields, ThresholdFormFields } from '../../ChartFormFields/BasicChartFields.js'
 import { BasicFormFields } from '../../ChartFormFields/BasicFormFields.js'
 import type { IChartConfig } from '../../type'
 import { ThresholdType } from '../../ChartFormFields/type.js'
+import { useMerge } from '../hooks.js'
 
 
 interface IProps { 
@@ -25,19 +26,10 @@ export function Chart (props: IProps) {
     const { widget, data_source } = props
     const [echart_instance, set_echart_instance] = useState<EChartsInstance>()
     
-    const ref = useRef<ReactEChartsCore>()
-    const size = useSize(ref.current?.ele)
-    
     // 用来存储阈值对应的轴范围
     const [axis_range_map, set_axis_range_map] = useState<{ [key: string]: { min: number, max: number } }>()
     
-    useEffect(() => {
-        // 初始化的时候，有概率会出现图表 canvas 高度为 0 无法展示的情况，是因为父元素的宽高非直接写死，所以需要在宽高改变时调用 resize
-        // https://github.com/hustcc/echarts-for-react/issues/193
-        echart_instance?.resize?.()
-    }, [size])
-    
-    const options = useMemo(
+    const option = useMemo(
         () => convert_chart_config(widget, data_source, axis_range_map)
         , [widget.config, data_source, axis_range_map])
     
@@ -56,14 +48,22 @@ export function Chart (props: IProps) {
                 if (axis_range_map?.[key]?.min !== min || axis_range_map?.[key]?.max !== max)  
                     set_axis_range_map(val => ({ ...val, [key]: { min, max } }))
             }
-    }, [options, echart_instance])
+    }, [option, echart_instance])
     
-    // 编辑模式下 notMerge 为 true ，因为要修改配置，预览模式下 notMerge 为 false ，避免数据更新，导致选中的 label 失效
+    
+    const ref = useMerge(option)
+    const size = useSize(ref.current?.ele)
+    
+    useEffect(() => {
+        // 初始化的时候，有概率会出现图表 canvas 高度为 0 无法展示的情况，是因为父元素的宽高非直接写死，所以需要在宽高改变时调用 resize
+        // https://github.com/hustcc/echarts-for-react/issues/193
+        echart_instance?.resize?.()
+    }, [size])
+    
     return <ReactEChartsCore
         ref={ref}
         echarts={echarts}
-        notMerge={dashboard.editing}
-        option={options}
+        option={option}
         className='dashboard-line-chart'
         theme='my-theme'
         onChartReady={(ins: EChartsInstance) => { 

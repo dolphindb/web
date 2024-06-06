@@ -78,9 +78,9 @@ export function Pie ({ widget, data_source }: { widget: Widget, data_source: any
         [title, animation, series, title_size, data_source, legend, tooltip]
     )
     
-    const chart_ref = useMerge(option)
+    const ref = useMerge(option)
     
-    return <ReactEChartsCore ref={chart_ref} echarts={echarts} option={option} lazyUpdate theme='ohlc_theme' />
+    return <ReactEChartsCore ref={ref} echarts={echarts} option={option} lazyUpdate theme='ohlc_theme' />
 }
 
 export function PieConfigForm (props: { col_names: string[] } ) {
