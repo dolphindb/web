@@ -16,6 +16,8 @@ import {
     type DdbTableData
 } from 'dolphindb/browser.js'
 
+import type { Docs } from 'dolphindb/docs.js'
+
 import { language, t } from '../i18n/index.js'
 
 import type { FormatErrorOptions } from './components/GlobalErrorBoundary.js'
@@ -140,6 +142,9 @@ export class DdbModel extends Model<DdbModel> {
     
     /** 记录所有可选功能 */
     optional_modules = new Set(['test', 'finance-tools', 'iot-tools'])
+    
+    docs: Docs
+    
     
     constructor () {
         super()

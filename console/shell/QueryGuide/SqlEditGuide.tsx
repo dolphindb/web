@@ -7,7 +7,7 @@ import NiceModal from '@ebay/nice-modal-react'
 
 import { t } from '../../../i18n/index.js'
 
-import { Editor } from '../Editor/index.js'
+import { Editor } from '../../components/Editor/index.js'
 
 import { QueryDataView } from './components/QueryDataView.js'
 import { ExportFileModal } from './components/ExportFileModal.js'

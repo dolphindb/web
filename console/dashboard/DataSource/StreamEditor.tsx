@@ -5,7 +5,7 @@ import { throttle } from 'lodash'
 
 import { type editor } from 'monaco-editor'
 
-import { Editor } from '../../shell/Editor/index.js'
+import { Editor } from '../../components/Editor/index.js'
 
 import { dashboard } from '../model.js'
 import { model } from '../../model.js'

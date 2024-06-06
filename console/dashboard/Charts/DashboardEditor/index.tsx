@@ -5,7 +5,7 @@ import { useMemo, useState } from 'react'
 import { debounce } from 'lodash'
 
 import { type Widget, dashboard } from '../../model.js'
-import { Editor } from '../../../shell/Editor/index.js'
+import { Editor } from '../../../components/Editor/index.js'
 
 import { EditorFields } from '../../ChartFormFields/EditorFields.js'
 import { type IEditorConfig } from '../../type.js'
