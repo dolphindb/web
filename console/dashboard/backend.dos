@@ -177,7 +177,6 @@ def initializeDashboard(){
 }
 
 initializeDashboard()
-undef all
 
 
 print('dashboard backend loaded')

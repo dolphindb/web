@@ -45,7 +45,7 @@ export function Overview () {
                 version += (version.split('.').length < 4) ? '.0' : ''
                 if (vercmp(version, '2.00.11.0') >= 0) {
                     for (let i of ['Create', 'Delete']) 
-                        if (!(await model.ddb.eval(`rpc(getControllerAlias(), getConfig, \`thirdParty${i}UserCallback)`)).value)
+                        if (!await model.ddb.execute(`rpc(getControllerAlias(), getConfig, \`thirdParty${i}UserCallback)`))
                             config_infos.push(i === 'Create' ? 'thirdPartyCreateUserCallback=dashboard_grant_functionviews' : 'thirdPartyDeleteUserCallback=dashboard_delete_user')  
                     if (config_infos.length) {
                         set_config_infos(config_infos)

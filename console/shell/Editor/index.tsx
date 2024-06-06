@@ -59,8 +59,8 @@ export function Editor ({
     options?: monacoapi.editor.IStandaloneEditorConstructionOptions
     theme?: 'light' | 'dark'
 }) {
-    const finalOptions = useMemo<monacoapi.editor.IStandaloneEditorConstructionOptions>(() => ({
-            fontSize: 14,
+    const monaco_options = useMemo<monacoapi.editor.IStandaloneEditorConstructionOptions>(() => ({
+            fontSize: 16,
             
             minimap: { enabled: minimap },
             
@@ -99,7 +99,7 @@ export function Editor ({
             
             onMonacoInitFailed={error => { model.show_error({ error }) }}
             
-            options={finalOptions}
+            options={monaco_options}
             
             onMount={on_mount}
             

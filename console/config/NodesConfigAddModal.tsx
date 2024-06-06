@@ -3,6 +3,8 @@ import { AutoComplete, Button, Form, Input, Modal } from 'antd'
 
 import { useCallback } from 'react'
 
+import { DdbDatabaseError } from 'dolphindb/browser.js'
+
 import { t } from '../../i18n/index.js'
 
 import { model } from '../model.js'
@@ -82,11 +84,17 @@ export const NodesConfigAddModal = NiceModal.create(() => {
                         htmlType='submit'
                         onClick={
                             async () => {
-                                const { qualifier, name, value } = await add_config_form.validateFields()
-                                const key = (qualifier ? qualifier + '.' : '') + name
-                                await config.change_nodes_config([[key, { qualifier, name, value, key }]])
-                                model.message.success(t('保存成功'))
-                                modal.hide()
+                                try {
+                                    const { qualifier, name, value } = await add_config_form.validateFields()
+                                    const key = (qualifier ? qualifier + '.' : '') + name
+                                    await config.change_nodes_config([[key, { qualifier, name, value, key }]])
+                                    model.message.success(t('保存成功'))
+                                    modal.hide()
+                                } catch (error) {
+                                    // 数据校验不需要展示报错弹窗
+                                    if (error instanceof DdbDatabaseError)
+                                        throw error
+                                }
                             }
                         }
                         >

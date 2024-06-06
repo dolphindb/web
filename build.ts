@@ -2,7 +2,7 @@
 
 import process from 'process'
 
-import { fcopy, fdelete, fmkdir } from 'xshell'
+import { fcopy, fdclear, fmkdir } from 'xshell'
 
 import { webpack, fpd_root, fpd_out_console, fpd_out_cloud, fpd_src_console, fpd_src_cloud, fpd_node_modules } from './webpack.js'
 
@@ -10,8 +10,7 @@ import { webpack, fpd_root, fpd_out_console, fpd_out_cloud, fpd_src_console, fpd
 const verbose = false
 
 if (process.argv.includes('cloud')) {
-    await fdelete(fpd_out_cloud)
-    await fmkdir(fpd_out_cloud)
+    await fdclear(fpd_out_cloud)
     
     await Promise.all([
         ... ['index.html', 'cloud.svg', 'ddb.png'].map(async fname => 
@@ -28,8 +27,9 @@ if (process.argv.includes('cloud')) {
         webpack.build({ production: true, is_cloud: true })
     ])
 } else {
-    await fdelete(fpd_out_console)
-    await fmkdir(fpd_out_console)
+    await fdclear(fpd_out_console)
+    
+    const prefix_version = '--version='
     
     await Promise.all([
         fcopy(`${fpd_root}src/`, fpd_out_console, { print: verbose }),
@@ -54,7 +54,13 @@ if (process.argv.includes('cloud')) {
         
         webpack.build_bundles(true),
         
-        webpack.build({ production: true, is_cloud: false })
+        webpack.build({
+            production: true,
+            is_cloud: false,
+            version_name: process.argv
+                .find(arg => arg.startsWith(prefix_version))
+                ?.strip_start(prefix_version)
+        })
     ])
 }
 

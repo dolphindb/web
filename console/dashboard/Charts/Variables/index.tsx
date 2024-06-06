@@ -16,7 +16,10 @@ interface IVariableConfig {
     variable_cols: number
     with_search_btn: boolean
     search_btn_label?: string
+    variable_form_label_col?: number
 }
+
+
 export function Variables (props: IProps) { 
     
     const { widget } = props
@@ -35,7 +38,8 @@ export function Variables (props: IProps) {
             ids={config?.variable_ids}
             cols={config?.variable_cols}
             with_search_btn={config?.with_search_btn}
-            search_btn_label={config?.search_btn_label}
+            search_btn_label={config?.search_btn_label }
+            label_col={config?.variable_form_label_col ? Math.floor(config?.variable_form_label_col * 24 / 100) : 6}
         />
     </>
 }

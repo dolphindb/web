@@ -12,7 +12,8 @@ import { request } from 'xshell/net.browser.js'
 
 import {
     DDB, SqlStandard, DdbFunctionType, DdbVectorString, type DdbObj, DdbInt, DdbLong, type InspectOptions,
-    DdbDatabaseError, type DdbStringObj, type DdbDictObj, type DdbVectorStringObj
+    DdbDatabaseError, type DdbStringObj, type DdbDictObj, type DdbVectorStringObj,
+    type DdbTableData
 } from 'dolphindb/browser.js'
 
 import { language, t } from '../i18n/index.js'
@@ -565,7 +566,8 @@ export class DdbModel extends Model<DdbModel> {
                         func_type: DdbFunctionType.SystemFunc
                     },
             })
-        ).to_rows<DdbNode>()
+        ).data<DdbTableData>()
+        .data
         .sort((a, b) => strcmp(a.name, b.name))
         
         if (print)
@@ -873,7 +875,7 @@ export class DdbModel extends Model<DdbModel> {
                 
                 case 'function':
                     s += t('调用 {{func}} 函数时出错，参数为:\n', { func: error.options.func }) +
-                        options.args.map(arg => arg.toString())
+                        options.args.map(arg => arg.toString({ quote: true, grouping: false, nullstr: true }))
                             .join_lines()
                     break
             }
@@ -903,6 +905,17 @@ export class DdbModel extends Model<DdbModel> {
         return this.enabled_modules.has(key) || !this.optional_modules.has(key)
     }
 }
+
+
+if (!Promise.withResolvers)
+    Promise.withResolvers = function PromiseWithResolvers () {
+        let resolve: any, reject: any
+        let promise = new Promise((_resolve, _reject) => {
+            resolve = _resolve
+            reject = _reject
+        })
+        return { promise, resolve, reject }
+    } as any
 
 
 if (!Array.prototype.toReversed)

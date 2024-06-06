@@ -27,6 +27,10 @@ export function HostSelect () {
                 value: '183.134.101.138:8666'
             },
             {
+                label: 'indi',
+                value: '192.168.100.45:8633',
+            },
+            {
                 label: '因子管理',
                 value: '183.136.170.16:8820'
             },

@@ -18,8 +18,8 @@ interface IProps {
     cols: number
     with_search_btn: boolean
     search_btn_label: string
-    className?: string
     label_col?: number
+    className?: string
 }
 
 interface IStringMultiSelectProps { 

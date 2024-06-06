@@ -137,7 +137,7 @@ export async function save_data_source ( new_data_source: DataSource, code?: str
                             }
                             new_data_source.data = sql_formatter(result, new_data_source.max_line)
                             new_data_source.cols = get_cols(result)
-                            new_data_source.type_map = get_sql_col_type_map(result as unknown as DdbTable)
+                            new_data_source.type_map = result.form === DdbForm.table ? get_sql_col_type_map(result as unknown as DdbTable) : { }
                         }
                         if (code === undefined)  
                             dashboard.message.success(`${data_source.name} ${t('保存成功')}`)
@@ -408,7 +408,7 @@ async function subscribe_stream (data_source: DataSource) {
                             dashboard.message.error(error.message)
                         else {
                             
-                            data_source.data.push(...stream_formatter(message.data, data_source.max_line, data_source.cols))
+                            data_source.data.push(...stream_formatter(message.obj, data_source.max_line, data_source.cols))
                             if (data_source.max_line && data_source.data.length > data_source.max_line)
                                 data_source.data = data_source.data.splice(data_source.data.length - data_source.max_line)
                             data_source.set({
