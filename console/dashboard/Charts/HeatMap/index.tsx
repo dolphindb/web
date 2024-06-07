@@ -20,6 +20,7 @@ import { t } from '../../../../i18n/index.js'
 import { BoolRadioGroup } from '../../../components/BoolRadioGroup/index.js'
 import { StringColorPicker } from '../../../components/StringColorPicker/index.js'
 import { type MatrixData, type IChartConfig, type ISeriesConfig } from '../../type.js'
+import { useMerge } from '../hooks.js'
 
 interface IProps { 
     widget: Widget
@@ -35,7 +36,7 @@ export function HeatMap (props: IProps) {
     const node = get_data_source(widget.source_id[0])
     const { data } = node.use(['data'])
     
-    const options = useMemo(() => { 
+    const option = useMemo(() => { 
         const default_options = convert_chart_config({ ...widget, config: { ...widget.config, series: [ ] } }, [ ])
         const { series } = config
          
@@ -91,12 +92,12 @@ export function HeatMap (props: IProps) {
         }
     }, [widget.config, data])
     
+    const ref = useMerge(option)
     
-    // 编辑模式下 notMerge 为 true ，因为要修改配置，预览模式下 notMerge 为 false ，避免数据更新，导致选中的 label失效
     return <ReactEChartsCore
         echarts={echarts}
-        notMerge={dashboard.editing}
-        option={options}
+        ref={ref}
+        option={option}
         className='dashboard-line-chart'
         theme='my-theme'
     />

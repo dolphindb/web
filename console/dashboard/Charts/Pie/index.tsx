@@ -11,6 +11,7 @@ import { BasicFormFields } from '../../ChartFormFields/BasicFormFields.js'
 import { type IChartConfig } from '../../type.js'
 import { parse_text } from '../../utils.js'
 import { ChartField } from '../../ChartFormFields/type.js'
+import { useMerge } from '../hooks.js'
 
 const radius = {
     1: [[0, '70%']],
@@ -88,7 +89,9 @@ export function Pie ({ widget, data_source }: { widget: Widget, data_source: any
         })
     }, [chart_ref, option])
     
-    return <ReactEChartsCore ref={chart_ref} echarts={echarts} option={option} lazyUpdate theme='ohlc_theme'/>
+    const ref = useMerge(option)
+    
+    return <ReactEChartsCore ref={ref} echarts={echarts} option={option} lazyUpdate theme='ohlc_theme' />
 }
 
 export function PieConfigForm (props: { col_names: string[] } ) {

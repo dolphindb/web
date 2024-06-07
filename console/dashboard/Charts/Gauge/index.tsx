@@ -18,6 +18,7 @@ import { type IGaugeConfig } from '../../type.js'
 import { BasicFormFields } from '../../ChartFormFields/BasicFormFields.js'
 import { StringColorPicker } from '../../../components/StringColorPicker/index.js'
 import { t } from '../../../../i18n/index.js'
+import { useMerge } from '../hooks.js'
 
 
 interface IProps { 
@@ -32,7 +33,7 @@ export function Gauge (props: IProps) {
     
     const config = useMemo(() => widget.config as IGaugeConfig, [widget.config])
     
-    const options = useMemo<echarts.EChartsCoreOption>(() => { 
+    const option = useMemo<echarts.EChartsCoreOption>(() => { 
         const { title, title_size, max, min, data_setting, label_size, value_size, animation, split_number, value_precision } = config
         
         return {
@@ -85,11 +86,12 @@ export function Gauge (props: IProps) {
         }
     }, [config, data_source])
     
-    // 编辑模式下 notMerge 为 true ，因为要修改配置，预览模式下 notMerge 为 false ，避免数据更新，导致选中的 label失效
+    const ref = useMerge(option)
+    
     return  <ReactEChartsCore
                 echarts={echarts}
-                notMerge={dashboard.editing}
-                option={options}
+                ref={ref}
+                option={option}
                 style={{ backgroundColor: '#282828' }}
                 theme='dark'
             />
