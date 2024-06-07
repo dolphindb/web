@@ -23,8 +23,8 @@ import SvgComputing from '../computing/icons/computing.icon.svg'
 import SvgAccess from '../access/icons/access.icon.svg'
 import SvgUser from '../access/icons/user.icon.svg'
 import SvgGroup from '../access/icons/group.icon.svg'
-import SvgFinance from '../access/icons/finance.icon.svg'
-import SvgIot from '../access/icons/iot.icon.svg'
+import SvgFinance from '../guide/icons/finance.icon.svg'
+import SvgIot from '../guide/icons/iot.icon.svg'
 
 
 const { Text, Link } = Typography

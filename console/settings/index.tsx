@@ -9,8 +9,8 @@ import { t } from '../../i18n/index.js'
 import { model } from '../model.js'
 
 
-import SvgFinance from '../access/icons/finance.icon.svg'
-import SvgIot from '../access/icons/iot.icon.svg'
+import SvgFinance from '../guide/icons/finance.icon.svg'
+import SvgIot from '../guide/icons/iot.icon.svg'
 
 import { Card } from './Card.js'
 
