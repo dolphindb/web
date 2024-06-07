@@ -2,7 +2,7 @@ import dayjs from 'dayjs'
 
 import { Button, DatePicker, Input, Popover, Select } from 'antd'
 
-import { QuestionCircleOutlined } from '@ant-design/icons'
+import { FormOutlined, QuestionCircleOutlined } from '@ant-design/icons'
 
 import { useEffect, type Dispatch, type SetStateAction } from 'react'
 
@@ -153,8 +153,9 @@ export function VariableEditor ({
                                     </Popover>
                                 </div>
                                 <Button 
-                                    type='primary' 
+                                    type='link' 
                                     loading={loading}
+                                    icon={<FormOutlined />}
                                     onClick={async () => { 
                                         try {
                                             set_loading(true)

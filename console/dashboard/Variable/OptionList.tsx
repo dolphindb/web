@@ -191,9 +191,15 @@ export function OptionList ({
                 <div className='main-select-top'>
                     {t('可选项（共{{length}}项）：', { length: current_variable.options.length })}
                     <div>
-                        <Popconfirm title={t('确定要清空所有选项吗？')} onConfirm={() => { change_current_variable_property('options', [ ]) }}>
+                        <Popconfirm 
+                            title={t('确定要清空所有选项吗？')} 
+                            onConfirm={() => { 
+                                change_current_variable_property('options', [ ]) 
+                                change_current_variable_property('value', '') 
+                            }}
+                        >
                             <Button 
-                                type='primary' 
+                                type='link' 
                                 size='small' 
                                 className='main-select-top-btn' 
                                 danger
@@ -202,7 +208,7 @@ export function OptionList ({
                                 {t('清空')}
                             </Button>
                         </Popconfirm>
-                        <Button type='primary' onClick={handleAdd} size='small' icon={<PlusOutlined />}>{t('新增')}</Button>
+                        <Button type='link' onClick={handleAdd} size='small' icon={<PlusOutlined />}>{t('新增')}</Button>
                     </div>
                 </div>
                 <Table
