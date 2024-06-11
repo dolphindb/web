@@ -164,6 +164,7 @@ export function DataSourceConfig (props: IProps, ref) {
                     <Button
                         key='save'
                         type='primary'
+                        disabled={widget?.type === WidgetChartType.HEATMAP && current_data_source?.type !== DdbForm.matrix}
                         loading={loading === 'save'}
                         onClick={async () => {
                             try {
