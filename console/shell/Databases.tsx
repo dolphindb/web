@@ -166,7 +166,7 @@ export function Databases () {
                                         case 'partition-root':
                                         case 'partition-directory':
                                         case 'table':
-                                            await node.self.load_children()
+                                            node.self.load_children()
                                             
                                             shell.set({ dbs: [...dbs] })
                                             
@@ -180,7 +180,7 @@ export function Databases () {
                             onLoad={ keys => { set_loaded_keys(keys) }}
                             
                             expandedKeys={expanded_keys}
-                            onExpand={ async (keys, { node: { self, type } }) => { 
+                            onExpand={async (keys, { node: { self, type } }) => { 
                                 if (type === 'database' && !self.loaded) {
                                     await self.load_children()           
                                     shell.set({ dbs: [...dbs] })
@@ -233,7 +233,7 @@ export function Databases () {
                                             keys_.push(key)
                                             
                                             await node.load_children()
-                                                 
+                                            
                                             shell.set({ dbs: [...dbs] })
                                             
                                             // 显示 schema
@@ -887,7 +887,7 @@ export class Database implements DataNode {
         if (!this.loaded) {
             await shell.define_load_table_schema()
             
-            for (let table_path of this.table_paths) {
+            for (const table_path of this.table_paths) {
                 const schema = await model.ddb.call<DdbDictObj<DdbVectorStringObj>>(
                     // 这个函数在 define_load_schema 中已定义
                     'load_table_schema',
@@ -895,7 +895,7 @@ export class Database implements DataNode {
                     [this.path.slice(0, -1), table_path.slice(this.path.length, -1)],
                     model.node_type === NodeType.controller ? { node: model.datanode.name, func_type: DdbFunctionType.UserDefinedFunc } : { }
                 )
-                this.children.push(new Table(this, table_path, schema)) 
+                this.children.push(new Table(this, table_path, schema))
                 this.loaded = true
             }
         }
@@ -912,6 +912,13 @@ export class Database implements DataNode {
             }
         )
     }
+}
+
+
+interface SchemaData {
+    tableComment: string
+    partitionColumnIndex: number
+    colDefs: { data: any[] }
 }
 
 
@@ -948,8 +955,9 @@ export class Table implements DataNode {
     
     schema: DdbDictObj<DdbVectorStringObj>
     
-    comment = ''
+    schema_data: SchemaData
     
+    comment = ''
     
     constructor (db: Database, path: string, schema: DdbDictObj<DdbVectorStringObj>) {
         this.self = this
@@ -957,7 +965,8 @@ export class Table implements DataNode {
         this.key = this.path = path
         this.name = path.slice(db.path.length, -1)
         this.schema = schema
-        this.comment = schema.data<{ tableComment: string }>().tableComment
+        this.schema_data = schema.data<SchemaData>()
+        this.comment = schema.data<{ tableComment: string }>().tableComment || ''
         
         const enable_create_query = [NodeType.computing, NodeType.single, NodeType.data].includes(model.node_type)
         
@@ -970,8 +979,8 @@ export class Table implements DataNode {
         }
         
         this.title = <div className='table-title'>
-            <div title={`${this.name} (${this.comment}) `}>
-                <span> {this.name} </span>
+            <div title={`${this.name}${this.comment ? ` ${this.comment.bracket()}` : ''} `}>
+                <span> {this.name}</span>
                 <span className='table-comment'> {this.comment} </span>
             </div>
             <div className='table-actions'>
@@ -1001,11 +1010,11 @@ export class Table implements DataNode {
     }
     
     
-    async load_children () {
+    load_children () {
         if (!this.children && !this.kind) {
-            this.kind = 
+            this.kind =
                 this.schema.data<{ partitionColumnIndex: number }>().partitionColumnIndex
-             < 0 ? 
+             < 0 ?
                     TableKind.Table
                 :
                     TableKind.PartitionedTable
