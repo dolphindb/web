@@ -11,55 +11,65 @@ host: 主机地址     字符串
 port: 端口         整数
 username: 用户名   字符串
 password: 密码     字符串
+参数示例：
+args = '{ "name":"emqx", "protocol":"mqtt", "host":"183.134.101.140", "port":1883, "username":"admin1", "password":"DolphinDB123"}'  
+args = '{ "name":"kafka1", "protocol":"kafka", "host":"183.134.101.140", "port":9092}'  
 */
 
-
 def dcp_addConnect(args){
-    connectTable = parseJsonTable(args)
-    nowConnect = exec makeKey(name,protocol,host,port) from connectTable
-    exits = select * from loadTable("dfs://dataAcquisition","connectInfo") where makeKey(name,protocol,host,port) = nowConnect[0]
+    connArgs = parseExpr(args).eval()
+    nowConnect = makeKey(connArgs[`name],connArgs[`protocol],connArgs[`host],connArgs[`port],connArgs[`username],connArgs[`password],)    
+    exits = select * from loadTable("dfs://dataAcquisition","connectInfo") where makeKey(name,protocol,host,port,username,password) = nowConnect
     if(exits.size()!=0){
-         return '{"status":0}'
+         throw('this connect exists,please check the connect info')   
     }else{
-        maxId = (exec max(id) from loadTable("dfs://dataAcquisition","connectInfo"))[0]
-        id = iif(maxId==NULL,0,maxId+1)
-        replaceColumn!(connectTable,`host,string(connectTable['host']))
-        replaceColumn!(connectTable,`password,string(connectTable['password']))
-        update connectTable set id = id
+        id = rand(uuid(),1)[0]
+        if(connArgs[`protocol]=="kafka"){
+            connArgs[`username]=string(NULL)
+            connArgs[`password]=string(NULL)    
+        }
+        connectTable = table(id as id,connArgs[`name] as name ,connArgs[`protocol] as protocol,
+        connArgs[`host] as host,connArgs[`port] as port,connArgs[`username] as username,connArgs[`password] as password)
         update connectTable set createTime = now()
         update connectTable set updateTime = now()
         connectTable.reorderColumns!(`id`name`protocol`host`port`username`password`createTime`updateTime)
         loadTable("dfs://dataAcquisition","connectInfo").append!(connectTable)
-        return '{"status":1,"id":'+id+'}'  
+        return '{"status":1,"id":"'+string(id)+'"}'  
     }
 }
+
+
+
 
 /*
 修改连接
 参数：args 为标准json，可包含以下字段：
-必选参数：
-id: 连接ID          整数
-可选参数：
+参数：
+id(必选): 连接ID          整数
 name: 连接名称      字符串
-protocol: 协议类型  字符串
 host: 主机地址      字符串
 port: 端口         整数
 username: 用户名    字符串
 password: 密码      字符串
+参数示例：
+args = '{ "name":"emqx", "id":"cc2a890b-bd79-f243-da4c-7604bc9e4970", "host":"183.134.101.141", "port":1883, "username":"admin1", "password":"DolphinDB123"}'  
+args = '{ "name":"KAFKA", "id":"e5d6a0ed-600d-d701-3fcb-8d046883d517", "host":"183.134.101.142", "port":9092}'  
 */
 def dcp_updateConnect(args){
     connectArgs = parseExpr(args).eval()
-    tmp = select * from loadTable("dfs://dataAcquisition","connectInfo") where id = connectArgs[`id]
+    nowConnect = makeKey(connectArgs[`name],connectArgs[`host],connectArgs[`port],connectArgs[`username],connectArgs[`password])    
+    tmp = select * from loadTable("dfs://dataAcquisition","connectInfo") where id = uuid(connectArgs[`id])
+    exits = select * from loadTable("dfs://dataAcquisition","connectInfo") where makeKey(name,host,port,username,password) = nowConnect and protocol = tmp[`protocol][0] 
+    if(exits.size()!=0){
+         throw('this connect exists,please check the connect info')   
+    }
     for(col in connectArgs.keys()){
-        if(col !=`id){
-            if(col in [`host,`password]){
-                tmp[col]=string(connectArgs[col])
-            }   
+        if(col !=`id){ 
             tmp[col]=connectArgs[col]
         }
     }
     tmp[`updateTime]=now()  
-    delete from loadTable("dfs://dataAcquisition","connectInfo") where id = connectArgs[`id]
+    delete from loadTable("dfs://dataAcquisition","connectInfo") where id = uuid(connectArgs[`id])
     loadTable("dfs://dataAcquisition","connectInfo").append!(tmp)
     return '{"status":1}'
 }
@@ -69,17 +79,23 @@ def dcp_updateConnect(args){
 删除连接,删除连接时会同时清理该连接下的所有订阅及订阅信息
 参数：args 为标准json，包含以下字段：
 ids: 连接ID  int数组
+参数示例：
+args = '{"ids":["cc2a890b-bd79-f243-da4c-7604bc9e4970","e5d6a0ed-600d-d701-3fcb-8d046883d517"]}'
 */
 def dcp_deleteConnect(args){
     connectArgs = parseExpr(args).eval()
-    subIds = exec subId from  loadTable("dfs://dataAcquisition","subscribeInfo") where connectId in connectArgs[`ids]
-    for(subId in subIds){
-        if(subId !=" "){
-            mqtt::unsubscribe(subId)
+    connectInfo =select * from loadTable("dfs://dataAcquisition","connectInfo") where id in uuid(connectArgs[`ids])
+    subIds = select connectId,subId from  loadTable("dfs://dataAcquisition","subscribeInfo") where connectId in uuid(connectArgs[`ids])
+    tmp = select * from connectInfo left join subIds on connectInfo.id=subIds.connectId   
+    for(index in 0..(tmp.size()-1)){
+        if(tmp[index].protocol=="mqtt" and tmp[index].subId!=string(NULL)){
+            mqtt::unsubscribe(tmp[index].subId)  // 取消订阅
+        }else if(tmp[index].protocol=="kafka" and tmp[index].subId!=string(NULL)){
+            kafka::cancelSubJob(tmp[index].subId)  // 取消订阅    
         }
     }
-    delete from loadTable("dfs://dataAcquisition","subscribeInfo") where connectId in connectArgs[`ids]
-    delete from loadTable("dfs://dataAcquisition","connectInfo") where id in connectArgs[`ids]
+    delete from loadTable("dfs://dataAcquisition","subscribeInfo") where connectId in uuid(connectArgs[`ids])
+    delete from loadTable("dfs://dataAcquisition","connectInfo") where id in uuid(connectArgs[`ids])
     return '{"status":1}'
 }
 
@@ -87,13 +103,15 @@ def dcp_deleteConnect(args){
 获取连接列表  
 参数：args 为标准json，包含以下字段：
 protocol: 连接协议 字符串
+参数示：
+args = '{"protocol":"mqtt"}'    
+args = '{"protocol":"kafka"}'    
 */
 def dcp_getConnectList(args){
     protocolType = parseExpr(args).eval()
     tmp = select * from loadTable("dfs://dataAcquisition","connectInfo") where protocol=protocolType['protocol']
     return '{"connections":'+toStdJson(tmp)+',"total":'+tmp.size()+'}'  
 }
-
 
 /*
 添加订阅信息：
@@ -105,76 +123,107 @@ handlerId：使用的解析模板
 recvbufSize：接收缓冲区大小
 templateParams: 模板参数  
 parseJson: 是否解析json数据 bool  
+参数示例：
+args = '{"name":"test","topic":"topic1","parseJson":false,
+"templateParams":\'[{\"key\":\"outputTableName\",\"value\":\"dcp_test\"}]\',"connectId":"e185558d-822c-d2e1-71f6-905c7d2b13f6"}'
+args = '{"name":"test","topic":"topic1","parseJson":false,
+"templateParams":\'[{\"key\":\"outputTableName\",\"value\":\"dcp_test1\"}]\',
+"consumerCfg":\'[{\"key\":\"group.id\",\"value\":\"test\"}]\',
+"connectId":"ecffc67c-e6d2-4a72-63cf-386e097016bc"}'
 */
 def dcp_addSubscribe(args){
     subArgs = parseExpr(args).eval()
     connectId = subArgs['connectId']
-    connectInfo = select id as connectId from loadTable("dfs://dataAcquisition","connectInfo") where id = connectId 
-    maxId = (exec max(id) from loadTable("dfs://dataAcquisition","subscribeInfo"))[0]
-    id = iif(maxId==NULL,0,maxId+1)
-    update connectInfo set id = id 
-    update connectInfo set topic = subArgs['topic']
-    update connectInfo set name = subArgs['name']
-    update connectInfo set recvbufSize = iif(subArgs['recvbufSize']==NULL,20480,subArgs['recvbufSize'])
-    update connectInfo set createTime = now()
-    update connectInfo set updateTime = now()
-    update connectInfo set subId=" "
-    update connectInfo set status=0
-    update connectInfo set templateParams=subArgs['templateParams'] 
+    proto = (exec protocol from loadTable("dfs://dataAcquisition","connectInfo") where id = uuid(connectId))[0]
+    id  = rand(uuid(),1)
+    subInfo = table(id as id,[uuid(subArgs['connectId'])] as connectId)
+    update subInfo set topic = subArgs['topic']
+    update subInfo set name = subArgs['name']
+    update subInfo set createTime = now()
+    update subInfo set updateTime = now()
+    update subInfo set subId=string(NULL)
+    update subInfo set status=0
+    update subInfo set templateParams=subArgs['templateParams']
+    update subInfo set parseJson=subArgs['parseJson']
+    if(proto=="mqtt"){
+        update subInfo set recvbufSize = iif(subArgs['recvbufSize']==string(NULL),20480,subArgs['recvbufSize'])
+        update subInfo set consumerCfg = string(NULL)
+        update subInfo set partition = int(NULL)
+        update subInfo set offset = int(NULL)
+    }else if(proto=="kafka"){
+        update subInfo set recvbufSize = int(NULL)
+        update subInfo set consumerCfg = iif(subArgs['consumerCfg']==string(NULL),string(NULL),subArgs['consumerCfg'])  
+        update subInfo set partition = iif(subArgs['partition']==int(NULL),int(NULL),subArgs['partition'])   
+        update subInfo set offset = iif(subArgs['offset']==int(NULL),int(NULL),subArgs['offset'])   
+    }else{
+        throw("the protocol: "+proto + " is not supported ")    
+    }   
     if(subArgs[`parseJson]){
-        update connectInfo set handlerId = subArgs['handlerId']
+        update subInfo set handlerId = uuid(subArgs['handlerId'])
     }
     else{
-        update connectInfo set handlerId = 0
+        handlerId = (exec id from loadTable("dfs://dataAcquisition","ParserTemplate") where name like "saveJsonMsg%" and protocol =  proto )[0]
+        update subInfo set handlerId = handlerId
         tableName = parseJsonTable(subArgs['templateParams']).value[0]
         enableTableShareAndPersistence(streamTable(1:0,[`topic,`msg,`ts],[STRING,STRING,TIMESTAMP]),tableName,,,100000,,,100000)
     }
-    connectInfo.reorderColumns!(`id`connectId`topic`name`recvbufSize`handlerId`templateParams`status`subId`createTime`updateTime)
-    loadTable("dfs://dataAcquisition","subscribeInfo").append!(connectInfo)
-    return '{"status":1,"id":'+id+'}'  
+    subInfo.reorderColumns!(`id`connectId`topic`partition`offset`name`recvbufSize`handlerId`templateParams`consumerCfg`parseJson`status`subId`createTime`updateTime)
+    loadTable("dfs://dataAcquisition","subscribeInfo").append!(subInfo)
+    return '{"status":1,"id":"'+string(id)[0]+'"}'  
 }
+
 
 /*
 修改连接
 参数：args 为标准json，需要包含以下字段：
 必选参数：
 id: 订阅ID                   整数
-必选参数：
+可选参数：
 name：订阅名称               字符串    
 topic: 订阅主题              字符串
+partition: 分区              整数
+offset: 偏移量              整数
 handlerId：使用的解析模板     整数
 templateParams: 模板参数     修改handlerId,必须同时有templateParams参数
 recvbufSize: 接收缓冲区大小   整数   
+comsumerCfg:kafka消费配置     字符串
+parseJson: 是否解析json数据 bool  
+参数示例:
+args = '{"name":"test","topic":"topic1","handlerId":1,"parseJson":true, 
+"templateParams":\'[{\"key\":\"outputTableName\",\"value\":\"dcp_test\"}]\',"id":"cd74510d-e947-6b20-236e-22b313d532ae"}'
 */
 def dcp_updateSubscribe(args){
     subArgs = parseExpr(args).eval()
-    subscribeInfo = loadTable("dfs://dataAcquisition","subscribeInfo")
-    if(subArgs[`name] is not null){
-        update subscribeInfo set name = subArgs[`name] where id=subArgs[`id]
-        update subscribeInfo set topic = subArgs[`topic] where id=subArgs[`id]
-        update subscribeInfo set recvbufSize = subArgs[`recvbufSize] where id=subArgs[`id]
-        update subscribeInfo set handlerId = subArgs[`handlerId] where id=subArgs[`id]
-        update subscribeInfo set templateParams = subArgs[`templateParams] where id=subArgs[`id]
+    subscribeInfo = select * from loadTable("dfs://dataAcquisition","subscribeInfo") where id=uuid(subArgs[`id])
+    for(col in subArgs.keys()){
+        if(col != "id")
+            subscribeInfo[col] = subArgs[col] 
     }
-    if(subArgs[`subId] is not null){
-        update subscribeInfo set subId = subArgs[`subId] where id=subArgs[`id]
-        update subscribeInfo set status = subArgs[`status] where id=subArgs[`id]
+    if(!subArgs[`parseJson]){
+        handlerId = (exec id from loadTable("dfs://dataAcquisition","ParserTemplate") where name like "saveJsonMsg%" and protocol =  protocol)[0]
+        update subscribeInfo set handlerId = handlerId
+        tableName = parseJsonTable(subArgs['templateParams']).value[0]
+        enableTableShareAndPersistence(streamTable(1:0,[`topic,`msg,`ts],[STRING,STRING,TIMESTAMP]),tableName,,,100000,,,100000)
     }
-    update loadTable("dfs://dataAcquisition","subscribeInfo") set updateTime = now() where id=subArgs[`id]
+    subscribeInfo[`updateTime] = now()  
+    subscribeInfo.reorderColumns!(`id`connectId`topic`partition`offset`name`recvbufSize`handlerId`templateParams`consumerCfg`parseJson`status`subId`createTime`updateTime)  
+    delete from loadTable("dfs://dataAcquisition","subscribeInfo") where id=uuid(subArgs[`id])  
+    loadTable("dfs://dataAcquisition","subscribeInfo").append!(subscribeInfo)
     return '{"status":1}'
 }
-
 
 /*
 删除订阅
 参数：args 为标准json，需要包含以下字段：
 ids: 订阅ID int数组
 dropUseTable:删除订阅时是否删除流表 bool
+参数示例：
+args = '{"ids":["cd74510d-e947-6b20-236e-22b313d532ae"],"dropUseTable":true}' 
 */
 def dcp_deleteSubscribe(args){
     subArgs = parseExpr(args).eval()
     if(subArgs[`dropUseTable]){
-        templateParams = exec templateParams from loadTable("dfs://dataAcquisition","subscribeInfo") where id in subArgs[`ids]
+        templateParams = exec templateParams from loadTable("dfs://dataAcquisition","subscribeInfo") where id in uuid(subArgs[`ids])
         for(i in templateParams){//i = templateParams[1]
             t = parseJsonTable(i)
             tbName = t[0].value
@@ -193,7 +242,7 @@ def dcp_deleteSubscribe(args){
             }
         }
     }
-    delete from loadTable("dfs://dataAcquisition","subscribeInfo") where id in subArgs[`ids]
+    delete from loadTable("dfs://dataAcquisition","subscribeInfo") where id in uuid(subArgs[`ids])
     return '{"status":1}'
 }
 
@@ -206,8 +255,8 @@ connectId: 连接ID   整数
 */
 def dcp_getConnectAndSubInfo(args){
     subArgs = parseExpr(args).eval()
-    connect = select * from loadTable("dfs://dataAcquisition","connectInfo") where id = subArgs['connectId']
-    subscribe = select * from loadTable("dfs://dataAcquisition","subscribeInfo") where connectId = subArgs['connectId']
+    connect = select * from loadTable("dfs://dataAcquisition","connectInfo") where id = uuid(subArgs['connectId'])
+    subscribe = select * from loadTable("dfs://dataAcquisition","subscribeInfo") where connectId = uuid(subArgs['connectId'])
     return '{"connectInfo":'+toStdJson(connect[0])+',"subscribes":'+toStdJson(subscribe)+',"total":'+subscribe.size()+'}'      
 }
 
@@ -217,32 +266,79 @@ def dcp_getConnectAndSubInfo(args){
 参数：args 为标准json，需要包含以下字段：
 subId: 订阅ID   
 */
+
 def dcp_startSubscribe(args){
     subArgs = parseExpr(args).eval()
-    tmp = select * from loadTable("dfs://dataAcquisition","subscribeInfo")  where id = subArgs[`subId]
-    tmp = (exec * from tmp left join loadTable("dfs://dataAcquisition","connectInfo") as t on tmp.connectId=t.id)[0]
-    handler = (exec handler from loadTable("dfs://dataAcquisition","ParserTemplate") where id = tmp[`handlerId])[0]
+    //通过订阅id获取链接信息，解析模板信息
+    sub = select * from loadTable("dfs://dataAcquisition","subscribeInfo")  where id = uuid(subArgs[`subId])
+    connInfo = select * from loadTable("dfs://dataAcquisition","connectInfo")  where id in sub.connectId
+    tmp =  (exec * from sub left join connInfo  on connInfo.id=sub.connectId)[0]
+    //初始化解析函数
+    handler = (exec handler from loadTable("dfs://dataAcquisition","ParserTemplate") where id = uuid(tmp[`handlerId]))[0]
     runScript(handler)
+    //获取解析函数名
     handlerName = handler.split("\n")
     handlerName  = (handlerName[strpos(handlerName,"def")!=-1].split("(")[0].split("def ")[1])[0]
+    //拼接订阅脚本，在定义函数时，因为handlerName是动态的，所以无法直接在订阅时指定函数名并执行，需要拼接成字符串后，在调用时通过runScript延迟执行   
     subscribeStr = 
-    'tmp = select * from loadTable("dfs://dataAcquisition","subscribeInfo")  where id='+ subArgs[`subId]+';
-    tmp = (exec * from tmp left join loadTable("dfs://dataAcquisition","connectInfo") as t on tmp.connectId=t.id)[0];
-    mqtt::subscribe(tmp["host"],tmp["port"],tmp["topic"],,'+handlerName+'{'
-    mqsubArgs = (exec templateParams from  loadTable("dfs://dataAcquisition","subscribeInfo") where id = subArgs[`subId])[0]
-    mqsubArgs = parseExpr(mqsubArgs).eval() 
-    for(i in (0..(mqsubArgs.size()-1))){    
-        if(i < mqsubArgs.size()-1 ){
-            subscribeStr += "`"+mqsubArgs[i][`value]+","
+    'sub = select * from loadTable("dfs://dataAcquisition","subscribeInfo")  where id=uuid("'+ subArgs[`subId]+'");
+    connInfo = select * from loadTable("dfs://dataAcquisition","connectInfo")  where id in sub.connectId;
+    tmp =  (exec * from sub left join connInfo  on connInfo.id=sub.connectId)[0];'
+    if(tmp.protocol == "mqtt"){
+        //拼接mqtt
+        subscribeStr +=  'mqtt::subscribe(tmp["host"],tmp["port"],tmp["topic"],,'+handlerName+'{'
+        mqsubArgs = parseExpr(tmp.templateParams).eval() 
+        for(i in (0..(mqsubArgs.size()-1))){    
+            if(i < mqsubArgs.size()-1 ){
+                subscribeStr += "`"+mqsubArgs[i][`value]+","
+            }
+            else{
+                subscribeStr += "`"+mqsubArgs[i][`value]
+            }
         }
-        else{
-            subscribeStr += "`"+mqsubArgs[i][`value]
-        }
+        subscribeStr += '},tmp["username"],tmp["password"],tmp["recvbufSize"]);'
     }
-    subscribeStr += '},tmp["username"],tmp["password"],tmp["recvbufSize"])'
+    else if(tmp.protocol == "kafka"){
+        //初始化消费者配置
+        subscribeStr +='consumerCfg = dict(string, any);
+        consumerCfg["metadata.broker.list"] = tmp.host+":"+tmp.port;
+        cfgTable = parseJsonTable(tmp.consumerCfg);
+        for(i in cfgTable){
+            consumerCfg[i.key]=i.value
+        }
+        consumer = kafka::consumer(consumerCfg);
+        topic,partition,offset=[tmp.topic],[tmp.partition],[tmp.offset]; 
+        //根据参数选择订阅方式，订阅主题还是分区
+        if(partition[0]==int(NULL)){
+            kafka::subscribe(consumer, topic);
+        }else{
+            kafka::assign(consumer, topic, partition, offset)  
+        };'
+        kasubArgs = parseExpr(tmp.templateParams).eval()
+        //第一个解析模板参数必须为表明，根据是否有其他参数，拼接subscribe函数   
+        if(kasubArgs.size()==1){
+            subscribeStr += 'kafka::createSubJob(consumer,'+kasubArgs[0].value+','+handlerName+',"'+tmp.topic+'");' 
+        }else{
+            subscribeStr += 'kafka::createSubJob(consumer,'+kasubArgs[0].value+','+handlerName+'{'  
+            for(i in (1..(kasubArgs.size()-1))){    
+                if(i < kasubArgs.size()-1 ){
+                    subscribeStr += "`"+kasubArgs[i][`value]+","
+                }
+                else{
+                    subscribeStr += "`"+kasubArgs[i][`value]
+                }
+            }
+            subscribeStr += '},"'+tmp.topic+'");'      
+        } 
+    }   
     runScript(subscribeStr)
-    subscriptionId=exec last(subscriptionId) from mqtt::getSubscriberStat() order by createTimestamp
-    argsNew='{"id":'+subArgs[`subId]+',"subId":"'+subscriptionId+'","status":1}' 
+    if(tmp.protocol == "mqtt"){
+        //获取mqtt订阅ID
+        subscriptionId=exec last(subscriptionId) from mqtt::getSubscriberStat() order by createTimestamp
+    }else if(tmp.protocol == "kafka"){
+        subscriptionId=exec last(subscriptionId) from kafka::getJobStat()  order by createTimestamp
+    }   
+    argsNew='{"id":"'+subArgs[`subId]+'","subId":"'+subscriptionId+'","status":1}' 
     dcp_updateSubscribe(argsNew)
 }
 
@@ -251,18 +347,27 @@ def dcp_startSubscribe(args){
 停止订阅
 参数：args 为标准json，需要包含以下字段：
 subId: 订阅ID  int数组 
+参数示例：
+args = '{"subId":["094e2d21-4e80-8122-e9d8-081877491210","6be513ba-719a-7d8e-4062-1735bf44a27c"]}'  
 */
 def dcp_stopSubscribe(args){
     subArgs = parseExpr(args).eval()
-    subId = exec id,subId from loadTable("dfs://dataAcquisition","subscribeInfo") where id in subArgs[`subId]
-    id = subId.id
-    subId = subId.subId
-    for(i in (0..(subId.size()-1))){  
-        mqtt::unsubscribe(subId[i])
-        argsNew='{"id":'+id[i]+',"subId":" ","status":0}' 
-        dcp_updateSubscribe(argsNew) 
+    subId = select id,subId,connectId from loadTable("dfs://dataAcquisition","subscribeInfo") where id in uuid(subArgs[`subId])
+    protocol = select id,protocol from loadTable("dfs://dataAcquisition","connectInfo") where id in subId.connectId  
+    info = select * from subId left join protocol on protocol.id=subId.connectId    
+    for(i in (0..(subId.size()-1))){  //i=1
+        if(info[i].subId != string(NULL)){
+            if(info[i].protocol == "mqtt"){
+                mqtt::unsubscribe(info[i].subId)
+            }else if(info[i].protocol == "kafka"){
+                kafka::cancelSubJob(info[i].subId)
+            }
+            argsNew='{"id":"'+string(info[i].id)+'","subId":NULL,"status":0}' 
+            dcp_updateSubscribe(argsNew) 
+        }   
     }
 }
+
 
 
 /*
@@ -273,20 +378,24 @@ def dcp_stopSubscribe(args){
 */
 def dcp_subStatusMonitor(args){
     subArgs = parseExpr(args).eval()
-    subs =exec id,subId from loadTable("dfs://dataAcquisition","subscribeInfo") where connectId=subArgs[`connectId]
-    id = subs[`id]
-    subId = subs[`subId]
-    nowSub = mqtt::getSubscriberStat().subscriptionId
+    subs =select id,subId,connectId from loadTable("dfs://dataAcquisition","subscribeInfo") where connectId=uuid(subArgs[`connectId])
+    connInfo = select id,protocol from loadTable("dfs://dataAcquisition","connectInfo") where id = uuid(subArgs[`connectId])    
+    if(connInfo.protocol == "mqtt"){
+        nowSub = mqtt::getSubscriberStat().subscriptionId
+    }else if(connInfo.protocol=="kafka"){
+        nowSub = kafka::getJobStat().subscriptionId
+    }
+    id = subs.id
+    subId = subs.subId  
     if(subId.size() > 0 ){
         for(i in (0..(subId.size()-1))){  //i=0
-            if((!(subId[i] in nowSub)) and subId[i]!=""){
-                argsNew='{"id":'+id[i]+',"subId":" ","status":0}' 
+            if((!(subId[i] in nowSub)) and subId[i]!=string(NULL)){ 
+                argsNew='{"id":"'+string(id[i])+'","subId":NULL,"status":0}' 
                 dcp_updateSubscribe(argsNew) 
             }
         }
     }
 }
-
 
 /*
 添加模板
@@ -367,20 +476,112 @@ def dcp_getParserTemplateList(args="{}"){
 */
 def dcp_getTemplateArgs(args){
     handlerArgs = parseExpr(args).eval()
-    handler = (exec templateParams from loadTable("dfs://dataAcquisition","ParserTemplate") where id = handlerArgs['handlerId'])[0]
+    handler = (exec templateParams from loadTable("dfs://dataAcquisition","ParserTemplate") where id = uuid(handlerArgs['handlerId']))[0]
     return '{"returnArgs":'+handler+'}'    
 }
 
+/*
+解析模板参数
+@args handlerId:模板ID uuid
+@return 返回一个包含模板参数的json，键为returnArgs，值为参数列表   
+*/
+def dcp_parseTemplateArgs(args){
+    handlerArgs = parseExpr(args).eval()
+    handler = select handler,protocol from loadTable("dfs://dataAcquisition","ParserTemplate") where id = uuid(handlerArgs['handlerId'])
+    if(handler.protocol==`mqtt){
+        handlerParam = handler.handler[0].split("){")[0].split("(")[1].split(",")
+        handlerParam = handlerParam[0:(handlerParam.size()-2)]    
+    }else if(handler.protocol==`kafka){
+        handlerParam = handler.handler[0].split("){")[0].split("(")[1].split(",")
+        handlerParam = [`outTableName] <- handlerParam[0:(handlerParam.size()-3)] 
+    }
+    returnMsg = '{"returnArgs":['
+    for(index in 0..(handlerParam.size()-1)){   
+        if(index < (handlerParam.size()-1)){    
+            returnMsg += '"'+handlerParam[index]+'",'  
+        }else{
+            returnMsg += '"'+handlerParam[index]+'"]'
+        }
+    }
+    return returnMsg   
+}
+
+
+def initParserTemplate(){   
+    //初始化解析模板
+    handler = '
+    def msgHandler(outputTableName,timeColumn,idColumn,topic,message){
+        tempdict = parseExpr(message).eval()
+        keys = tempdict.keys()
+        if(timeColumn==NULL){
+            ts = now()
+        }else{
+            ts = temporalParse(tempdict[timeColumn],"yyyy-MM-dd HH:mm:ss")
+        }
+        id = tempdict[idColumn] 
+        for(i in keys){
+            if(!(i in [timeColumn,idColumn] )){
+                tmp = table([ts] as ts,[id] as id,[i] as metric,[tempdict[i]] as value)
+                objByName(outputTableName).append!(tmp)            
+            }
+        }
+    }
+    '
+    loadTable("dfs://dataAcquisition","ParserTemplate").append!(table(rand(uuid(),1) as id,["test"] as name,[handler] as handler,[`mqtt] as protocol,
+    ["测试解析模板"] as comment,[now()] as c1,[now()] as col2))
+
+    handler = "
+    def saveJsonMsg(outputTableName,topic,msg){
+        objByName(outputTableName).append!(table([topic]as topic,[msg] as msg,[now()] as ts))
+    }
+    "
+    loadTable("dfs://dataAcquisition","ParserTemplate").append!(table(rand(uuid(),1) as id,["saveJsonMsg"] as name,[handler] as handler,[`mqtt] as protocol,
+    ["转存json数据"] as comment,[now()] as c1,[now()] as col2))
+
+    handler = "
+    def saveMsg(msg,key,topic){
+        return table([topic] as topic,[msg] as dataContent,[now(true) as startTime])    
+    }
+    "
+    loadTable("dfs://dataAcquisition","ParserTemplate").append!(table(rand(uuid(),1) as id,["saveJsonMsg_kafka"] as name,[handler] as handler,[`kafka] as protocol,
+    ["转存json数据"] as comment,[now()] as c1,[now()] as col2))
+
+    handler='
+    def parseKafka(timeColumn,idColumn,msg,key,topic){
+        tempdict = parseExpr(msg).eval()
+        keys = tempdict.keys()
+        rowNum = keys.size()-2
+        tmp = table(rowNum:rowNum,[`ts,`id,`metric,`value],[TIMESTAMP,STRING,STRING,DOUBLE])    
+        if(timeColumn==NULL or tempdict[timeColumn]==NULL){ 
+            ts = now()
+        }else{
+            ts = temporalParse(tempdict[timeColumn],"yyyy-MM-dd HH:mm:ss")
+        }
+        id = tempdict[idColumn] 
+        for(i in keys){
+            if(!(i in [timeColumn,idColumn] )){
+                tmp.append!(table([ts] as ts,[id] as id,[i] as metric,[tempdict[i]] as value))            
+            }
+        }
+        return tmp  
+    }'
+    loadTable("dfs://dataAcquisition","ParserTemplate").append!(table(rand(uuid(),1) as id,["parseKafka"] as name,[handler] as handler,[`kafka] as protocol,
+    ["解析kafka json数据"] as comment,[now()] as c1,[now()] as col2))
+
+}
 
 /*
-mqtt 调试日志
-@args null
+获取调试日志
+@args 标准json，需要包含以下字段：
+protocol 协议 字符串
 @return 最近一小时与mqtt相关的日志，字符串向量
 */
-def dcp_getMQTTLog(){
-    cmd = 'awk -v end="$(date +'+"'%Y-%m-%d %H:%M:%S' --date='1 hour ago'"+')"' +' -F","'+' \'$1 >= end\' ./dolphindb.log |grep "MQTT" > ./mqtt_log_last_hour.txt'
+def dcp_getLog(args){
+    protocol = upper(parseExpr(args).eval()[`protocol])
+    cmd = 'awk -v end="$(date +'+"'%Y-%m-%d %H:%M:%S' --date='1 hour ago'"+')"' +' -F","'+' \'$1 >= end\' ./dolphindb.log |grep "'+protocol +'" > ./'+protocol+'.log'
     shell(cmd)
-    logArr = exec col0 from ploadText("./mqtt_log_last_hour.txt","?",,,,false)
+    parttern = "%"+cmd+"%"
+    logArr = exec col0 from ploadText("./"+protocol+".log","?",,,,false) where col0 not like parttern   
     return logArr
 }
 
@@ -401,16 +602,16 @@ def dcp_exitsDataAcquisition(){
 def dcp_createAllTable(){
     db = database("dfs://dataAcquisition",VALUE,[`1])
     colNames = `id`name`protocol`host`port`username`password`createTime`updateTime
-    colTypes = [INT,STRING,STRING,STRING,INT,STRING,STRING,TIMESTAMP,TIMESTAMP]
+    colTypes = [UUID,STRING,STRING,STRING,INT,STRING,STRING,TIMESTAMP,TIMESTAMP]
     createTable(db,table(1:0,colNames,colTypes),`connectInfo)
 
-    colNames = `id`connectId`topic`name`recvbufSize`handlerId`templateParams`status`subId`createTime`updateTime  
-    colTypes = [INT,INT,STRING,STRING,INT,INT,STRING,INT,STRING,TIMESTAMP,TIMESTAMP]
-    createTable(db,table(1:0,colNames,colTypes),`subscribeInfo)
+    colNames = `id`connectId`topic`partition`offset`name`recvbufSize`handlerId`templateParams`consumerCfg`parseJson`status`subId`createTime`updateTime  
+    colTypes = [UUID,UUID,STRING,INT,INT,STRING,INT,UUID,STRING,STRING,BOOL,INT,STRING,TIMESTAMP,TIMESTAMP]
+    createTable(database("dfs://dataAcquisition"),table(1:0,colNames,colTypes),`subscribeInfo)  
 
-    colNames = `id`name`handler`protocol`comment`templateParams`createTime`updateTime
-    colTypes=[INT,STRING,STRING,STRING,STRING,STRING,TIMESTAMP,TIMESTAMP]
-    createTable(db,table(1:0,colNames,colTypes),`ParserTemplate)
+    colNames = `id`name`handler`protocol`comment`createTime`updateTime
+    colTypes=[UUID,STRING,STRING,STRING,STRING,TIMESTAMP,TIMESTAMP]
+    createTable(database("dfs://dataAcquisition"),table(1:0,colNames,colTypes),`ParserTemplate)
 }
 
 
@@ -433,12 +634,12 @@ def dcp_dropAllFunctionView(){
     dropFunctionView(`dcp_getConnectList) 
     dropFunctionView(`dcp_getConnectAndSubInfo) 
     dropFunctionView(`dcp_getParserTemplateList)
-    dropFunctionView(`dcp_getTemplateArgs) 
+    dropFunctionView(`dcp_parseTemplateArgs) 
     dropFunctionView(`dcp_subStatusMonitor)
     dropFunctionView(`dcp_addHandler)
     dropFunctionView(`dcp_updateHandler)
     dropFunctionView(`dcp_deleteHandler)
-    dropFunctionView(`dcp_getMQTTLog)
+    dropFunctionView(`dcp_getLog)
 }
 
 def dcp_clearEnv(){
@@ -451,7 +652,8 @@ def dcp_clearEnv(){
 
 def dcp_init(){
     dcp_createAllTable()
-    addFunctionView(dcp_getMQTTLog)
+    initParserTemplate()
+    addFunctionView(dcp_getLog)
     addFunctionView(dcp_addConnect)
     addFunctionView(dcp_updateConnect)
     addFunctionView(dcp_deleteConnect)
@@ -463,40 +665,10 @@ def dcp_init(){
     addFunctionView(dcp_getConnectList)
     addFunctionView(dcp_getConnectAndSubInfo)
     addFunctionView(dcp_getParserTemplateList)
-    addFunctionView(dcp_getTemplateArgs)
+    addFunctionView(dcp_parseTemplateArgs)
     addFunctionView(dcp_subStatusMonitor)
     addFunctionView(dcp_addHandler)
     addFunctionView(dcp_updateHandler)
     addFunctionView(dcp_deleteHandler)
-
-    //初始化解析模板
-    handler = '
-    def msgHandler(outputTableName,timeColumn,idColumn,topic,message){
-        tempdict = parseExpr(message).eval()
-        keys = tempdict.keys()
-        if(timeColumn==NULL){
-            ts = now()
-        }else{
-            ts = temporalParse(tempdict[timeColumn],"yyyy-MM-dd HH:mm:ss")
-        }
-        id = tempdict[idColumn] 
-        for(i in keys){
-            if(!(i in [timeColumn,idColumn] )){
-                tmp = table([ts] as ts,[id] as id,[i] as metric,[tempdict[i]] as value)
-                objByName(outputTableName).append!(tmp)            
-            }
-        }
-    }
-    '
-    loadTable("dfs://dataAcquisition","ParserTemplate").append!(table([1] as id,["test"] as name,[handler] as handler,[`mqtt] as protocol,
-    ["测试解析模板"] as comment,'["outputTableName","timeColumn","idColumn"]' as templateParams,[now()] as c1,[now()] as col2))
-
-    handler = "
-    def saveJsonMsg(outputTableName,topic,msg){
-        objByName(outputTableName).append!(table([topic]as topic,[msg] as msg,[now()] as ts))
-    }
-    "
-    loadTable("dfs://dataAcquisition","ParserTemplate").append!(table([0] as id,["saveJsonMsg"] as name,[handler] as handler,[`mqtt] as protocol,
-    ["转存json数据"] as comment,'["outputTableName"]' as templateParams,[now()] as c1,[now()] as col2))
 }
 
