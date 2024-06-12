@@ -410,11 +410,11 @@ templateParams：模板参数 字符串
 def dcp_addHandler(args){
     handlerArgs = parseExpr(args).eval()
     maxId = (exec max(id) from loadTable("dfs://dataAcquisition","ParserTemplate"))[0]
-    id = iif(maxId==NULL,0,maxId+1)
-    tmp = table([id] as id, [handlerArgs['name']] as name, [handlerArgs['handler']] as handler, [handlerArgs['protocol']] as `protocol,
+    id = rand(uuid(),1)
+    tmp = table(id as id, [handlerArgs['name']] as name, [handlerArgs['handler']] as handler, [handlerArgs['protocol']] as `protocol,
     string([handlerArgs['comment']]) as comment,[handlerArgs['templateParams']] as templateParams,[now()] as createTime,[now()] as updateTime)  
     loadTable("dfs://dataAcquisition","ParserTemplate").append!(tmp)
-    return '{"status":1,"id":'+id+'}'   //添加成功  
+    return '{"status":1,"id":"'+string(id[0])+'"}'    
 }
 
 
@@ -433,11 +433,11 @@ comment:模板备注 字符串
 def dcp_updateHandler(args){
     handlerArgs = parseExpr(args).eval()    
     ParserTemplate = loadTable("dfs://dataAcquisition","ParserTemplate")
-    update ParserTemplate set name = handlerArgs[`name]
-    update ParserTemplate set protocol = handlerArgs[`protocol]
-    update ParserTemplate set handler = handlerArgs[`code]
-    update ParserTemplate set comment = handlerArgs[`comment]
-    update ParserTemplate set updateTime = now()  
+    update ParserTemplate set name = handlerArgs[`name] where id=uuid(handlerArgs)[`id]
+    update ParserTemplate set protocol = handlerArgs[`protocol] where id=uuid(handlerArgs)[`id]
+    update ParserTemplate set handler = handlerArgs[`code] where id=uuid(handlerArgs)[`id]
+    update ParserTemplate set comment = handlerArgs[`comment] where id=uuid(handlerArgs)[`id]
+    update ParserTemplate set updateTime = now()  where id=uuid(handlerArgs)[`id]
     return '{"status":1}'   //更新成功  
 }    
 
@@ -448,7 +448,7 @@ id:模板id int数组
 */
 def dcp_deleteHandler(args){
     handlerArgs = parseExpr(args).eval()
-    delete from loadTable("dfs://dataAcquisition","ParserTemplate") where id in handlerArgs[`id]
+    delete from loadTable("dfs://dataAcquisition","ParserTemplate") where id in uuid(handlerArgs[`id])
     return '{"status":1}'   //删除成功  
 }
 
