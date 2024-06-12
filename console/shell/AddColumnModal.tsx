@@ -52,9 +52,9 @@ export const AddColumnModal = NiceModal.create<Props>(({ node }) => {
             generateDDBDataTypeLiteral(formValues)
         ])
         model.message.success(t('添加成功'))
+        await table.get_schema()
         node.children = null
-        table.schema = null
-        await node.load_children()
+        node.load_children()
         shell.set({ dbs: [...shell.dbs] })
         modal.resolve()
         modal.hide()

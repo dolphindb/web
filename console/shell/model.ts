@@ -32,7 +32,7 @@ import { type DdbObjRef } from '../obj.js'
 import { model, NodeType, storage_keys } from '../model.js'
 
 import type { Monaco } from './Editor/index.js'
-import { Database, DatabaseGroup, type Column, type ColumnRoot, PartitionDirectory, type PartitionRoot, PartitionFile, Table } from './Databases.js'
+import { Database, DatabaseGroup, type Column, type ColumnRoot, PartitionDirectory, type PartitionRoot, PartitionFile, type Table } from './Databases.js'
 import { DdbVar } from './Variables.js'
 
 
@@ -77,11 +77,13 @@ class ShellModel extends Model<ShellModel> {
     
     set_column_comment_defined = false
     
+    set_table_comment_defined = false
     
-    current_node: ColumnRoot | Column
-    
+    current_node: ColumnRoot | Column | Table
     
     set_column_comment_modal_visible = false
+    
+    set_table_comment_modal_visible = false
     
     create_database_modal_visible = false
     
@@ -599,6 +601,20 @@ class ShellModel extends Model<ShellModel> {
         )
         
         shell.set({ set_column_comment_defined: true })
+    }
+    
+    
+    async define_set_table_comment () {
+        if (this.set_table_comment_defined)
+            return
+        
+        await model.ddb.execute(
+            'def set_table_comment (db_path, tb_name, table_comment) {\n' +
+            '    setTableComment(loadTable(database(db_path), tb_name), table_comment)\n' +
+            '}\n'
+        )
+        
+        shell.set({ set_table_comment_defined: true })
     }
     
     
