@@ -12,9 +12,9 @@ import { Card } from './Card.js'
 
 
 export function Settings () {
-    const { admin } = model.use(['admin'])
+    const { admin, dev, test } = model.use(['admin', 'dev', 'test'])
     
-    return admin && <div className='module-settings'>
+    return admin && (dev || test) && <div className='module-settings'>
         <div className='title'>{t('可选模块')}</div>
         
         <Card 

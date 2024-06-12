@@ -72,11 +72,6 @@
         "noUnusedLocals": false,
         "noUnusedParameters": false,
         "skipLibCheck": true,
-    },
-    
-    "ts-node": {
-        "esm": true,
-        "transpileOnly": true
     }
 }
 

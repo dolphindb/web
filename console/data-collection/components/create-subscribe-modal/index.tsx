@@ -11,6 +11,7 @@ import { t } from '../../../../i18n/index.js'
 import type { ParserTemplate, Subscribe } from '../../type.js'
 import { request } from '../../utils.js'
 import { safe_json_parse } from '../../../dashboard/utils.js'
+import { FormDependencies } from '../../../components/formily/FormDependcies/index.js'
 
 interface IProps {
     /** 修改时传 */
@@ -70,35 +71,54 @@ export const CreateSubscribeModal = NiceModal.create((props: IProps) => {
             <Form.Item label={t('主题')} name='topic' rules={[{ required: true, message: t('请输入主题') }]} >
                 <Input placeholder={t('请输入主题')}/>
             </Form.Item>
-            <Form.Item label={t('点位解析模板')} name='handlerId' rules={[{ required: true, message: t('请选择点位解析模板') }]}>
-                <Select 
-                    onSelect={val => { 
-                        setHandlerId(val) 
-                        const names = JSON.parse(parser_templates?.find(item => item.id === val)?.templateParams || '[]')
-                        set_template_params_names(names)
-                        form.setFieldValue('templateParams', names.map(key => ({ key })))
-                    }}
-                    options={parser_templates.map(item => (
-                        { 
-                            value: item.id, 
-                            label: (<div className='parser-template-label'>
-                                {item.name}
-                                <Tag color='processing' bordered={false}>{item.protocol}</Tag>
-                            </div> )
-                        }))} 
-                    placeholder={t('请选择点位解析模板')}
-                />
+            <Form.Item label={t('是否需要点位解析')} initialValue={false} name='parseJson'>
+                <Switch />
             </Form.Item>
+            <FormDependencies dependencies={['parseJson']}>
+                {({ parseJson }) => {
+                    if (!parseJson)
+                        return <Form.List name='templateParams' initialValue={[{ }]}>
+                            {() => {
+                                return <>
+                                    <Form.Item name={[0, 'key']} hidden initialValue='outputTableName'>
+                                        <Input />
+                                    </Form.Item>
+                                    <Form.Item 
+                                        label={t('默认流表名称')} 
+                                        name={[0, 'value']} 
+                                        rules={[{ required: true, message: t('请输入默认流表名称') }]}
+                                    >
+                                        <Input placeholder={t('请输入默认流表名称')}/>
+                                    </Form.Item>
+                                
+                                </>
+                            }}
+                        </Form.List>
+                    return <Form.Item label={t('点位解析模板')} name='handlerId' rules={[{ required: true, message: t('请选择点位解析模板') }]}>
+                        <Select 
+                            onSelect={val => { 
+                                setHandlerId(val) 
+                                const names = JSON.parse(parser_templates?.find(item => item.id === val)?.templateParams || '[]')
+                                set_template_params_names(names)
+                                form.setFieldValue('templateParams', names.map(key => ({ key })))
+                            }}
+                            options={parser_templates.map(item => (
+                                { 
+                                    value: item.id, 
+                                    label: (<div className='parser-template-label'>
+                                        {item.name}
+                                        <Tag color='processing' bordered={false}>{item.protocol}</Tag>
+                                    </div> )
+                                }))} 
+                            placeholder={t('请选择点位解析模板')}
+                        />
+                    </Form.Item>
+                }}
+            </FormDependencies>
             
             
             {!isNil(handlerId) && <div className='parser-template-params'>
                 <h4>{t('模板参数')}</h4>
-                {!edited_subscribe && <Form.Item 
-                    label={t('创建默认流表')} 
-                    name='createDefaultTable'
-                >
-                    <Switch />
-                </Form.Item>}
                 <Form.List name='templateParams'>
                     {fields => fields.map(field => <div key={field.key}>
                         <Form.Item name={[field.name, 'key']} hidden>

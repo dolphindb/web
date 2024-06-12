@@ -3,8 +3,8 @@ import { Model } from 'react-object-model'
 import { model } from '../model.js'
 
 import { request } from './utils.js'
-import code from './script.dos'
-import installMqttCode from './mqttInstallAndLoad.dos'
+import code from './dolphindb-scripts/script.dos'
+import installMqttCode from './dolphindb-scripts/mqttInstallAndLoad.dos'
 
 export class DcpModel extends Model<DcpModel> {
     func_inited: boolean = false

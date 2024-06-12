@@ -3,6 +3,8 @@ import { EditableProTable, type ActionType, type ProColumns } from '@ant-design/
 import { Button, Input, Popconfirm } from 'antd'
 import { useCallback, useMemo, useRef, useState } from 'react'
 
+import useSWR from 'swr'
+
 import { t } from '../../i18n/index.js'
 import { model } from '../model.js'
 
@@ -20,6 +22,13 @@ export function NodesManagement () {
     const [search_key, set_search_key] = useState('')
     
     const actionRef = useRef<ActionType>()
+    
+    const { mutate } = useSWR('/get/nodes', async () =>  config.get_cluster_nodes(), {
+        onSuccess: data => {
+            const nodes = strs_2_nodes(data.value as any[])
+            set_nodes(nodes)
+        }
+    }) 
     
     const cols: ProColumns<ClusterNode>[] = useMemo(() => ([
         {
@@ -81,11 +90,7 @@ export function NodesManagement () {
                 rules: [{
                     required: true,
                     message: t('请输入主机名 / IP 地址')
-                }, {
-                    pattern: /^(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])\.(\d{1,2}|1\d\d|2[0-4]\d|25[0-5])$/,
-                    message: t('请输入正确的主机名 / IP 地址')
-                }
-            ]
+                }]
             }
         },
         {
@@ -136,14 +141,14 @@ export function NodesManagement () {
     const delete_nodes = useCallback(async (node_id: string) => {
             const new_nodes = _2_strs(nodes).filter(nod => nod !== node_id)
             await config.save_cluster_nodes(new_nodes)
-            await actionRef.current.reload()
+            await mutate()
         }
     , [nodes])
    
     
     return <EditableProTable
         rowKey='id'
-        columns={cols}
+        columns={cols as any}
         actionRef={actionRef}
         recordCreatorProps={
             {
@@ -163,21 +168,12 @@ export function NodesManagement () {
             }
         }
         scroll={{ y: 'calc(100vh - 250px)' }}
-        request={async () => {
-            const value = (await config.get_cluster_nodes()).value as any[]
-            const nodes = strs_2_nodes(value)
-            set_nodes(nodes)
-            return {
-                data: nodes.filter(({ alias }) => alias.toLowerCase().includes(search_key.toLowerCase())),
-                success: true,
-                total: value.length
-            }
-        }}
+        value={search_key ? nodes.filter(({ alias }) => alias.toLocaleLowerCase().includes(search_key.toLocaleLowerCase())) : nodes}
         toolBarRender={() => [
             <Button
                 icon={<ReloadOutlined />}
                 onClick={async () => {
-                        await actionRef.current.reload()
+                        await mutate()
                         model.message.success(t('刷新成功'))
                     }}
                 >
@@ -186,9 +182,7 @@ export function NodesManagement () {
             <Search
                 className='toolbar-search'
                 placeholder={t('请输入想要查找的节点别名')}
-                value={search_key}
-                onChange={e => { set_search_key(e.target.value) }}
-                onSearch={async () => actionRef.current.reload()}
+                onSearch={set_search_key}
             />
         ]
         }
@@ -203,7 +197,7 @@ export function NodesManagement () {
                         await config.save_cluster_nodes([`${data.host}:${data.port}:${data.alias},${data.mode}`, ...node_strs])
                     else 
                         await config.save_cluster_nodes(node_strs.toSpliced(idx, 1, `${data.host}:${data.port}:${data.alias},${data.mode}`))
-                    await actionRef.current.reload()
+                    mutate()
                     model.message.success(t('保存成功'))
                 },
                 onDelete: async (key, row) => delete_nodes(row.id),

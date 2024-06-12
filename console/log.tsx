@@ -71,9 +71,9 @@ export function Log () {
             )}
         </div>
         {
-            show_login_required_info ? (
+            show_login_required_info ?
                 <Unlogin info='当前节点日志'/>
-            ) : (
+            :
                 <>
                     <div className='log-block' ref={ref}>
                         {logs.map((line, i) => {
@@ -107,7 +107,6 @@ export function Log () {
                         total={Math.ceil(Number(log_length) / Number(default_length))}
                     />
                 </>
-            )
         }
     </div>
 }

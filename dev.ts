@@ -2,7 +2,7 @@ import type { Context } from 'koa'
 
 import {
     request_json, inspect, Remote, set_inspect_options,
-    type RequestError, type RemoteReconnectingOptions, fexists, assert
+    type RequestError, fexists, assert
 } from 'xshell'
 import { Server } from 'xshell/server.js'
 
@@ -201,16 +201,13 @@ else {
 
 
 if (ramdisk) {
-    const reconnecting_options: RemoteReconnectingOptions = {
-        func: 'register',
-        args: ['ddb.web'],
-        on_error (error: Error) {
-            console.log(error.message)
-        }
-    }
-    
     remote = new Remote({
         url: 'ws://localhost',
+        
+        keeper: {
+            func: 'register',
+            args: ['ddb.web'],
+        },
         
         funcs: {
             async recompile () {
@@ -223,15 +220,10 @@ if (ramdisk) {
                 remote.disconnect()
                 process.exit()
             }
-        },
-        
-        on_error (error) {
-            console.log(error.message)
-            remote.start_reconnecting({ ...reconnecting_options, first_delay: 1000 })
         }
     })
     
-    remote.start_reconnecting(reconnecting_options)
+    await remote.connect()
 }
 
 

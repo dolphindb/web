@@ -15,7 +15,7 @@ import type { ModalStaticFunctions } from 'antd/es/modal/confirm.js'
 import type { NotificationInstance } from 'antd/es/notification/interface.js'
 
 import { model, show_error, storage_keys } from '../model.js'
-import { type Monaco } from '../shell/Editor/index.js'
+import type { Monaco } from '../components/Editor/index.js'
 import type { FormatErrorOptions } from '../components/GlobalErrorBoundary.js'
 
 import { type DataSource, type ExportDataSource, import_data_sources, unsubscribe_data_source, type DataType, clear_data_sources } from './DataSource/date-source.js'
@@ -334,7 +334,7 @@ export class DashBoardModel extends Model<DashBoardModel> {
             const result = await this.eval(code, ddb, preview)
             return {
                 type: 'success',
-                result: result
+                result
             }
         } catch (error) {
             return {

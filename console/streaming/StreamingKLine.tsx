@@ -177,7 +177,7 @@ export function StreamingKLine ({
     }, [options])
     // 用于处理数据格式
     function handleMessage2Data (message: StreamingMessage): any {
-        let keys = message.colnames
+        let keys = message.data.columns
         // 查看表格所在编号
         const variable_indexs = {
             time_variable_index: keys.indexOf(time_variable),
@@ -197,7 +197,7 @@ export function StreamingKLine ({
             minimum_price_variable_index: MINIMUM_PRICE_VARIABLE_INDEX
         } = variable_indexs
         let data: Record<string, number>[] = [ ]
-        message.data.value.forEach((item, index) => {
+        message.obj.value.forEach((item, index) => {
             if (item.rows)
                 for (let i = 0;  i < item.rows;  i++) {
                     data[i] ??= { }

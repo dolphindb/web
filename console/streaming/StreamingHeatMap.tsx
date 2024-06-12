@@ -94,9 +94,9 @@ export function StreamingHeatMap ({
     // 用于处理数据格式
     function handleMessage2Data (message: StreamingMessage): any {
         const properties_set = new Set(properties)
-        const keys = message.colnames
+        const keys = message.data.columns
         const data = { }
-        message.data.value.forEach((item, index) => {
+        message.obj.value.forEach((item, index) => {
             if (item.rows && item.rows > 0 && properties_set.has(keys[index]))
                 data[keys[index]] = formati(item, item.rows - 1, undefined)
         })

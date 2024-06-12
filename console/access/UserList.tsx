@@ -283,9 +283,9 @@ export function UserList () {
                 filterOption={(val, user) => user.title.includes(val)}
                 targetKeys={target_groups}
                 selectedKeys={selected_groups}
-                onChange={set_target_groups}
+                onChange={(keys)=>set_target_groups(keys as string[])}
                 onSelectChange={(s, t) => {
-                    set_selected_groups([...s, ...t])
+                    set_selected_groups([...s, ...t] as string[])
                 }}
                 render={item => item.title}
             />
