@@ -11,7 +11,7 @@ import { type IChartConfig } from '../../type.js'
 import { parse_text } from '../../utils.js'
 import { BasicFormFields } from '../../ChartFormFields/BasicFormFields.js'
 import { ChartField } from '../../ChartFormFields/type.js'
-import { useMerge } from '../hooks.js'
+import { useChart } from '../hooks.js'
 
 
 export function Radar ({ widget, data_source }: { widget: Widget, data_source: any[] }) {
@@ -74,7 +74,7 @@ export function Radar ({ widget, data_source }: { widget: Widget, data_source: a
         [title, tooltip, series, title_size, labels, data_source, legend]
     )
     
-    const ref = useMerge(option)
+    const ref = useChart(option)
     
     return <ReactEChartsCore
         ref={ref}

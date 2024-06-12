@@ -18,7 +18,7 @@ import { type IGaugeConfig } from '../../type.js'
 import { BasicFormFields } from '../../ChartFormFields/BasicFormFields.js'
 import { StringColorPicker } from '../../../components/StringColorPicker/index.js'
 import { t } from '../../../../i18n/index.js'
-import { useMerge } from '../hooks.js'
+import { useChart } from '../hooks.js'
 
 
 interface IProps { 
@@ -86,7 +86,7 @@ export function Gauge (props: IProps) {
         }
     }, [config, data_source])
     
-    const ref = useMerge(option)
+    const ref = useChart(option)
     
     return  <ReactEChartsCore
                 echarts={echarts}

@@ -20,7 +20,7 @@ import { t } from '../../../../i18n/index.js'
 import { BoolRadioGroup } from '../../../components/BoolRadioGroup/index.js'
 import { StringColorPicker } from '../../../components/StringColorPicker/index.js'
 import { type MatrixData, type IChartConfig, type ISeriesConfig } from '../../type.js'
-import { useMerge } from '../hooks.js'
+import { useChart } from '../hooks.js'
 
 interface IProps { 
     widget: Widget
@@ -92,7 +92,7 @@ export function HeatMap (props: IProps) {
         }
     }, [widget.config, data])
     
-    const ref = useMerge(option)
+    const ref = useChart(option)
     
     return <ReactEChartsCore
         echarts={echarts}

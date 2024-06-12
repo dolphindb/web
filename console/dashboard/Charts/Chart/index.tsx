@@ -13,7 +13,7 @@ import { AxisFormFields, SeriesFormFields, ThresholdFormFields } from '../../Cha
 import { BasicFormFields } from '../../ChartFormFields/BasicFormFields.js'
 import type { IChartConfig } from '../../type'
 import { ThresholdType } from '../../ChartFormFields/type.js'
-import { useMerge } from '../hooks.js'
+import { useChart } from '../hooks.js'
 
 
 interface IProps { 
@@ -51,14 +51,7 @@ export function Chart (props: IProps) {
     }, [option, echart_instance])
     
     
-    const ref = useMerge(option)
-    const size = useSize(ref.current?.ele)
-    
-    useEffect(() => {
-        // 初始化的时候，有概率会出现图表 canvas 高度为 0 无法展示的情况，是因为父元素的宽高非直接写死，所以需要在宽高改变时调用 resize
-        // https://github.com/hustcc/echarts-for-react/issues/193
-        echart_instance?.resize?.()
-    }, [size])
+    const ref = useChart(option)
     
     return <ReactEChartsCore
         ref={ref}
