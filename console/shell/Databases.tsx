@@ -180,7 +180,14 @@ export function Databases () {
                             onLoad={ keys => { set_loaded_keys(keys) }}
                             
                             expandedKeys={expanded_keys}
-                            onExpand={ keys => { set_expanded_keys(keys) }}
+                            onExpand={ async (keys, { node: { self, type } }) => { 
+                                if (type === 'database' && !self.loaded) {
+                                    await self.load_children()           
+                                    shell.set({ dbs: [...dbs] })
+                                }
+                                
+                                set_expanded_keys(keys)
+                             }}
                             
                             onClick={async (event, { self: node, type }: EventDataNode<DatabaseGroup | Database | Table | ColumnRoot | PartitionRoot | Column | PartitionDirectory | PartitionFile | Schema>) => {
                                 const previous = previous_clicked_node.current
@@ -214,14 +221,20 @@ export function Databases () {
                                         let found = false
                                         let keys_ = [ ]
                                         
-                                        for (const key of expanded_keys)
-                                            if (key === node.key)
+                                        const { key } = node
+                                        
+                                        for (const expanded_key of expanded_keys)
+                                            if (key === expanded_key)
                                                 found = true
                                             else
-                                                keys_.push(key)
+                                                keys_.push(expanded_key)
                                         
                                         if (!found) {
-                                            keys_.push(node.key)
+                                            keys_.push(key)
+                                            
+                                            await node.load_children()
+                                                 
+                                            shell.set({ dbs: [...dbs] })
                                             
                                             // 显示 schema
                                             await node.inspect()
@@ -797,6 +810,11 @@ export class Database implements DataNode {
     
     schema: DdbDictObj<DdbVectorStringObj>
     
+    /** 标记是否加载过子节点 */
+    loaded = false
+    
+    table_paths: string[] = [ ]
+    
     
     constructor (path: string) {
         this.self = this
@@ -865,6 +883,25 @@ export class Database implements DataNode {
     }
     
     
+    async load_children () {
+        if (!this.loaded) {
+            await shell.define_load_table_schema()
+            
+            for (let table_path of this.table_paths) {
+                const schema = await model.ddb.call<DdbDictObj<DdbVectorStringObj>>(
+                    // 这个函数在 define_load_schema 中已定义
+                    'load_table_schema',
+                    // 调用该函数时，数据库路径不能以 / 结尾
+                    [this.path.slice(0, -1), table_path.slice(this.path.length, -1)],
+                    model.node_type === NodeType.controller ? { node: model.datanode.name, func_type: DdbFunctionType.UserDefinedFunc } : { }
+                )
+                this.children.push(new Table(this, table_path, schema)) 
+                this.loaded = true
+            }
+        }
+    }
+    
+    
     async inspect () {
         shell.set(
             {
@@ -911,12 +948,16 @@ export class Table implements DataNode {
     
     schema: DdbDictObj<DdbVectorStringObj>
     
+    comment = ''
     
-    constructor (db: Database, path: string) {
+    
+    constructor (db: Database, path: string, schema: DdbDictObj<DdbVectorStringObj>) {
         this.self = this
         this.db = db
         this.key = this.path = path
         this.name = path.slice(db.path.length, -1)
+        this.schema = schema
+        this.comment = schema.data<{ tableComment: string }>().tableComment
         
         const enable_create_query = [NodeType.computing, NodeType.single, NodeType.data].includes(model.node_type)
         
@@ -929,7 +970,10 @@ export class Table implements DataNode {
         }
         
         this.title = <div className='table-title'>
-            <span> {path.slice(db.path.length, -1)} </span>
+            <div title={`${this.name} (${this.comment}) `}>
+                <span> {this.name} </span>
+                <span className='table-comment'> {this.comment} </span>
+            </div>
             <div className='table-actions'>
                 <Tooltip title={enable_create_query ? t('新建查询') : t('仅单机节点、数据节点和计算节点支持新建查询')} color='grey'>
                     <Icon 
@@ -938,7 +982,6 @@ export class Table implements DataNode {
                         component={SvgQueryGuide}
                         onClick={create_query} 
                     />
-                
                 </Tooltip>
             </div>
         </div>
@@ -958,28 +1001,11 @@ export class Table implements DataNode {
     }
     
     
-    async get_schema () {
-        if (!this.schema) {
-            await shell.define_load_table_schema()
-            this.schema = await model.ddb.call<DdbDictObj<DdbVectorStringObj>>(
-                // 这个函数在 define_load_schema 中已定义
-                'load_table_schema',
-                // 调用该函数时，数据库路径不能以 / 结尾
-                [this.db.path.slice(0, -1), this.name],
-                model.node_type === NodeType.controller ? { node: model.datanode.name, func_type: DdbFunctionType.UserDefinedFunc } : { }
-            )
-        }
-        
-        return this.schema
-    }
-    
-    
     async load_children () {
         if (!this.children && !this.kind) {
-            this.kind = Number(
-                (await this.get_schema())
-                    .to_dict().partitionColumnIndex.value
-            ) < 0 ? 
+            this.kind = 
+                this.schema.data<{ partitionColumnIndex: number }>().partitionColumnIndex
+             < 0 ? 
                     TableKind.Table
                 :
                     TableKind.PartitionedTable
@@ -1024,7 +1050,7 @@ class Schema implements DataNode {
             {
                 result: {
                     type: 'object',
-                    data: await this.table.get_schema()
+                    data: this.table.schema
                 }
             }
         )
@@ -1253,11 +1279,7 @@ export class ColumnRoot implements DataNode {
     
     async load_children () {
         if (!this.children) {
-            const schema_coldefs = (
-                await this.table.get_schema()
-            ).to_dict<{ colDefs: DdbTableObj }>()
-            .colDefs
-            .to_rows<{ comment: string, extra: number, name: string, typeInt: number, typeString: string }>()
+            const schema_coldefs = this.table.schema.data<{ colDefs: { data: [] } }>().colDefs.data
             
             this.children = schema_coldefs.map(col => new Column(this, col))
         }

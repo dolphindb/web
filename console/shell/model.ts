@@ -25,7 +25,7 @@ import {
 } from 'dolphindb/browser.js'
 
 
-import { t, language } from '../../i18n/index.js'
+import { t } from '../../i18n/index.js'
 
 import { type DdbObjRef } from '../obj.js'
 
@@ -421,10 +421,9 @@ class ShellModel extends Model<ShellModel> {
             }
             
             // 处理 table，如果 table_name 为空表明当前路径是 db_path 则不处理
-            if (table_name) {
-                const table = new Table(parent as Database, `${path}/`)
-                parent.children.push(table)
-            }
+            if (table_name) 
+                parent.table_paths.push(`${path}/`)
+            
         }
         
         // TEST: 测试多级数据库树
