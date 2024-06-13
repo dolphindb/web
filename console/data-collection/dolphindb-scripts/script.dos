@@ -523,12 +523,12 @@ def dcp_parseTemplateArgs(handler,protocol){
     paramList = '['
     for(index in 0..(handlerParam.size()-1)){   
         if(index < (handlerParam.size()-1)){    
-            returnMsg += '"'+handlerParam[index]+'",'  
+            paramList += '"'+handlerParam[index]+'",'  
         }else{
-            returnMsg += '"'+handlerParam[index]+'"]'
+            paramList += '"'+handlerParam[index]+'"]'
         }
     }
-    return returnMsg   
+    return paramList   
 }
 
 
