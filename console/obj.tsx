@@ -47,6 +47,7 @@ import {
     type DdbChartObj,
     type StreamingParams,
     type StreamingMessage,
+    ddbType2Byte
 } from 'dolphindb/browser.js'
 
 import { t } from '../i18n/index.js'
@@ -66,6 +67,7 @@ const views = {
     [DdbForm.matrix]: Matrix,
     [DdbForm.chart]: Chart,
     [DdbForm.dict]: Dict,
+    [DdbForm.tensor]: Tensor,
 }
 
 const UpSelect: FC<SelectProps> & { Option: typeof Select.Option } = Object.assign(
@@ -103,7 +105,6 @@ export function Obj ({
     options?: InspectOptions
 }) {
     const info = obj || objref
-    
     const View = views[info.form] || Default
     
     return <View obj={obj} objref={objref} ctx={ctx} remote={remote} ddb={ddb} options={options} />
@@ -235,6 +236,123 @@ function Dict ({
                 <span className='desc'>{_obj.rows} {t('个键')}{ objref ? ` (${Number(objref.bytes).to_fsize_str()}) ` : '' }</span>
                 <span className='type'>{t('的词典')}</span>
             </div> 
+        </div>
+    </div>
+}
+
+function Tensor ({
+    obj,
+    objref,
+    remote,
+    ddb,
+    ctx,
+    options,
+}: {
+    obj?: DdbTensorObj
+    objref?: DdbObjRef<DdbTensorObj['value']>
+    remote?: Remote
+    ddb?: DDB
+    ctx?: Context
+    options?: InspectOptions
+}) {
+    const render = useState({ })[1]
+    
+    const _obj = obj || objref.obj
+    
+    useEffect(() => {
+        (async () => {
+            if (_obj)
+                return
+            
+            const { node, name } = objref
+            
+            console.log('tensor.fetch:', name)
+            
+            objref.obj = ddb ?
+                await ddb.eval<DdbTensorObj>(name)
+            :
+                DdbObj.parse(... await remote.call<[Uint8Array, boolean]>('eval', [node, name])) as DdbTensorObj
+            
+            render({ })
+        })()
+    }, [obj, objref])
+    
+    
+    if (!_obj)
+        return null
+    
+    console.log(_obj)
+    
+    // 第 i 个维度的 size
+    const shape:number[] = _obj.value.shape
+    // 第 i 个维度，元素间距离
+    const strides:number[] = _obj.value.strides
+    // 元素间跳字节
+    const dataByte: number = ddbType2Byte[_obj.value.dataType]
+    
+    const typeName = DdbType[_obj.value.dataType]
+    
+    // 接下来开始写当前浏览状态的维护
+    const [currentDir, setCurrentDir]= useState<number[]>([])
+    const [pageSize,setPageSize] = useState(10)
+    const [pageIndex,setPageIndex] = useState(0)
+    const currentDim = currentDir.length;
+    const isLeaf = currentDim === _obj.value.dimensions - 1;
+    const thisDimSize = shape[currentDim]
+    const data:Uint8Array = _obj.value.data
+    
+    const pushDimIndex = (index:number)=>{
+        setCurrentDir([...currentDir, index])
+    }
+    
+    const popDimIndexTo = (index:number) =>{
+        setCurrentDir(currentDir.slice(0,index))
+    }
+    
+    // 如果不是最高维，没有数据，比较简单
+    // 只需要展示有一些低维数组存在就可以了
+    const currentDimSize:number = _obj.value.shape[currentDim]
+    // 搞这么多元素来
+    const elems = [];
+    const offset = currentDir.reduce((prev,curr,index)=>{
+        return prev + strides[index] * curr * dataByte
+    },0)
+    if(!isLeaf)
+    for(let i = 0; i < currentDimSize; i++){
+        // 搞清楚后面的维度的 size
+        let arrstr = ''
+        for(let j = currentDim + 1; j< _obj.value.dimensions;j++){
+            // j 代表当前维度
+            arrstr = arrstr + `[${shape[j]}]`
+        }
+        arrstr = `${typeName}`+arrstr
+        elems.push(
+            <div onClick={()=>pushDimIndex(i)} className='tensor-elem' key={'dim'+ `${i}`}>
+                <span className='tensor-elem-count'>{i}</span>: {arrstr}
+            </div>
+        )
+    }
+    else{
+        for(let i = pageIndex * pageSize; i< pageIndex * pageSize + pageSize && i < thisDimSize;i++){
+            const offsetElem = offset + i * dataByte
+            const targetArr = data.subarray(offsetElem,offsetElem + dataByte)
+            const val = getValueFromUint8Array(_obj.value.dataType,targetArr,_obj.le)
+            elems.push(<div key={`tensor-elem-offset-${offsetElem}`} className='tensor-elem'>
+                <span className='tensor-elem-count'>{i}</span>: {val.toString()}
+            </div>)
+        }
+    }
+    
+    const navItems = currentDir.map((e,i)=>{
+        return <div className='tensor-nav-elem' key={`tensor-index-${i}`} onClick={()=>popDimIndexTo(i + 1)}>[{e}]</div>
+    })
+    
+    return <div className='tensor'>
+        <div className='tensor-nav'>
+            <span className='tensor-title' onClick={()=>popDimIndexTo(0)}>Tensor</span>{navItems}
+        </div>
+        <div>
+            {elems}
         </div>
     </div>
 }
@@ -1963,4 +2081,52 @@ function Chart ({
             </div>
         </div> }
     </div>
+}
+
+function getValueFromUint8Array(dataType: DdbType,data:Uint8Array,le:boolean){
+    const dv = new DataView(data.buffer, data.byteOffset)
+    switch (dataType) {
+        case DdbType.bool:
+            {
+                const value = dv.getInt8(0)
+                return (value === nulls.int8 ? null : Boolean(value))
+            }
+            break
+        case DdbType.char:
+            {
+                const value = dv.getInt8(0)
+                return (value === nulls.int8 ? null : value)
+            }
+            break
+        case DdbType.short:
+            {
+                const value = dv.getInt16(0, le)
+                return (value === nulls.int16 ? null : value)
+            }
+            break
+        case DdbType.int:
+            {
+                const value = dv.getInt32(0, le)
+                return (value === nulls.int32 ? null : value)
+            }
+            break
+        case DdbType.long:
+            {
+                const value = dv.getBigInt64(0, le)
+                return (value === nulls.int64 ? null : value)
+            }
+            break
+        case DdbType.float:
+            {
+                const value = dv.getFloat32(0, le)
+                return (value === nulls.float32 ? null : value)
+            }
+            break
+        case DdbType.double:
+            {
+                const value = dv.getFloat64(0, le)
+                return (value === nulls.double ? null : value)
+            }
+            break
+    }
 }

@@ -158,7 +158,8 @@ class ShellModel extends Model<ShellModel> {
                 ddbobj.form === DdbForm.matrix ||
                 ddbobj.form === DdbForm.set ||
                 ddbobj.form === DdbForm.table ||
-                ddbobj.form === DdbForm.vector
+                ddbobj.form === DdbForm.vector ||
+                ddbobj.form === DdbForm.tensor
             )
                 this.set({
                     result: {
