@@ -60,7 +60,7 @@
         "client-zip": "^2.4.5",
         "copy-to-clipboard": "^3.3.3",
         "dayjs": "^1.11.11",
-        "dolphindb": "^3.0.36",
+        "dolphindb": "^3.0.38",
         "echarts": "^5.5.0",
         "echarts-for-react": "^3.0.2",
         "final-form": "^4.20.10",
