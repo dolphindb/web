@@ -31,7 +31,8 @@ import { type DdbObjRef } from '../obj.js'
 
 import { model, NodeType, storage_keys } from '../model.js'
 
-import type { Monaco } from './Editor/index.js'
+import type { Monaco } from '../components/Editor/index.js'
+
 import { Database, DatabaseGroup, type Column, type ColumnRoot, PartitionDirectory, type PartitionRoot, PartitionFile, Table } from './Databases.js'
 import { DdbVar } from './Variables.js'
 

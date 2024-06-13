@@ -1,6 +1,6 @@
 import './index.sass'
 
-import { useMemo } from 'react'
+import { useEffect, useMemo } from 'react'
 
 import { Editor as MonacoEditor, loader, type OnChange, type OnMount } from '@monaco-editor/react'
 
@@ -12,6 +12,7 @@ import { MonacoDolphinDBEditor } from 'monaco-dolphindb/react'
 
 import { loadWASM } from 'vscode-oniguruma'
 
+import { request_json } from 'xshell/net.browser.js'
 
 import { t, language } from '../../../i18n/index.js'
 
@@ -37,6 +38,8 @@ loader.config({
     } : { },
 })
 
+let docs_initing = false
+
 
 export function Editor ({
     readonly,
@@ -59,6 +62,21 @@ export function Editor ({
     options?: monacoapi.editor.IStandaloneEditorConstructionOptions
     theme?: 'light' | 'dark'
 }) {
+    const { docs } = model.use(['docs'])
+    
+    useEffect(() => {
+        (async () => {
+            if (!docs && !docs_initing) {
+                docs_initing = true
+                try {
+                    model.set({ docs: await request_json(`./docs.${ language === 'zh' ? 'zh' : 'en' }.json`) })
+                } finally {
+                    docs_initing = false
+                }
+            }
+        })()
+    }, [ ])
+    
     const monaco_options = useMemo<monacoapi.editor.IStandaloneEditorConstructionOptions>(() => ({
             fontSize: 16,
             
@@ -78,10 +96,9 @@ export function Editor ({
         [minimap, enter_completion, readonly, options]
     )
     
-    return <MonacoDolphinDBEditor
+    return docs ? <MonacoDolphinDBEditor
             dolphinDBLanguageOptions={{
-                docs: `docs.${ language === 'zh' ? 'zh' : 'en' }.json`,
-                language: language === 'zh' ? 'zh' : 'en',
+                docs,
                 theme
             }}
             
@@ -105,5 +122,7 @@ export function Editor ({
             
             onChange={on_change}
         />
+    :
+        <div className='editor-loading'>{t('正在加载代码编辑器...')}</div>
 }
 
