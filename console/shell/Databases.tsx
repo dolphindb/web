@@ -29,9 +29,10 @@ import { CopyIconButton } from '../components/copy/CopyIconButton.js'
 
 import { model, NodeType } from '../model.js'
 
+import { Editor } from '../components/Editor/index.js'
+
 import { shell } from './model.js'
 
-import { Editor } from './Editor/index.js'
 import { CreateTableModal } from './CreateTableModal.js'
 import { AddColumnModal } from './AddColumnModal.js'
 import { AccessModal } from './AccessModal.js'
