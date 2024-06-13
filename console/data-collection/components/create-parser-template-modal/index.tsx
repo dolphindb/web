@@ -2,24 +2,32 @@ import './index.scss'
 
 import NiceModal, { useModal } from '@ebay/nice-modal-react'
 
-import { Modal, Form, Input, message, Select } from 'antd'
+import { Modal, Form, Input, message, Select, Segmented } from 'antd'
 
-import { useCallback } from 'react'
+import { useCallback, useState } from 'react'
 
-import type { ParserTemplate } from '../../type.js'
+import type { IParserTemplate } from '../../type.js'
 import { t } from '../../../../i18n/index.js'
 import { request } from '../../utils.js'
-import { protocols } from '../../constant.js'
+import { protocols, template_code } from '../../constant.js'
 import { Editor } from '../../../components/Editor/index.js'
 
 interface IProps {
-    editedTemplate?: ParserTemplate
+    editedTemplate?: IParserTemplate
     refresh: () => void
 }
 
 
 export function EditorField ({ onChange, ...others }: any) {
-    return <Editor on_change={onChange} {...others}/>   
+    
+    const [mode, set_mode] = useState(0)
+    
+    return <>
+        <Segmented className='editor-segmented' onChange={val => { set_mode(val) }} options={[{ label: t('自定义模板'), value: 0 }, { label: t('模板参考'), value: 1 }]} />
+        {mode === 0 && <Editor on_change={onChange} {...others}/> }
+        {mode === 1 && <Editor value={template_code} />}
+    
+    </>  
 }
 
 export const ParserTemplateModal = NiceModal.create(({ refresh, editedTemplate }: IProps) => {

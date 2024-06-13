@@ -6,7 +6,7 @@ import { useCallback } from 'react'
 import NiceModal, { useModal } from '@ebay/nice-modal-react'
 
 import { t } from '../../../../i18n/index.js'
-import type { Connection } from '../../type.js'
+import { Protocol, type Connection } from '../../type.js'
 import { request } from '../../utils.js'
 
 interface IProps {
@@ -50,12 +50,16 @@ export const CreateConnectionModal = NiceModal.create((props: IProps) => {
             <Form.Item label={t('端口')} name='port' rules={[{ required: true, message: t('请输入端口') }]}>
                 <InputNumber min={0} placeholder={t('请输入端口')}/>
             </Form.Item>
-            <Form.Item label={t('用户名')} name='username' rules={[{ required: true, message: t('请输入用户名') }]}>
-                <Input placeholder={t('请输入用户名')}/>           
-            </Form.Item>
-            <Form.Item label={t('密码')} name='password'  rules={[{ required: true, message: t('请输入密码') }]}>
-                <Input placeholder={t('请输入密码')}/>
-            </Form.Item>
+            {
+                protocol === Protocol.MQTT && <>
+                    <Form.Item label={t('用户名')} name='username' rules={[{ required: true, message: t('请输入用户名') }]}>
+                        <Input placeholder={t('请输入用户名')}/>           
+                    </Form.Item>
+                    <Form.Item label={t('密码')} name='password'  rules={[{ required: true, message: t('请输入密码') }]}>
+                        <Input placeholder={t('请输入密码')}/>
+                    </Form.Item>
+                </>
+            }
             <Form.Item className='submit-btn-form-item'>
                 <Button htmlType='submit' type='primary'>{t('确定')}</Button>
             </Form.Item>

@@ -4,10 +4,10 @@ import NiceModal, { useModal } from '@ebay/nice-modal-react'
 import { Modal } from 'antd'
 
 import { ReadonlyEditor } from '../../../components/ReadonlyEditor/index.js'
-import type { ParserTemplate } from '../../type.js'
+import type { IParserTemplate } from '../../type.js'
 
 interface IProps {
-    template: ParserTemplate
+    template: IParserTemplate
 }
 
 export const TemplateViewModal = NiceModal.create(({ template }: IProps) => {

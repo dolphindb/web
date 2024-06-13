@@ -13,11 +13,12 @@ import { t } from '../../i18n/index.js'
 import { format_time } from '../dashboard/utils.js'
 
 import { request } from './utils.js'
-import type { ListData, ParserTemplate } from './type.js'
+import type { IParserTemplate } from './type.js'
 import { ParserTemplateModal } from './components/create-parser-template-modal/index.js'
 
 
 import { dcp_model } from './model.js'
+import { get_parser_templates } from './api.js'
 
 const DEFAULT_TEMPLATE_DATA = {
     items: [ ],
@@ -28,11 +29,11 @@ const DEFAULT_TEMPLATE_DATA = {
 export function ParserTemplates () {
     const id = useId()
     
-    const [selected_keys, set_selected_keys] = useState<number[]>([ ])
+    const [selected_keys, set_selected_keys] = useState<string[]>([ ])
     
     const { data = DEFAULT_TEMPLATE_DATA, isLoading, mutate: refresh } = useSWR(
-        ['dcp_getParserTemplateList', id],
-        async () => request<ListData<ParserTemplate>>('dcp_getParserTemplateList', { })   
+        [get_parser_templates.KEY, id],
+        async () => get_parser_templates()
     )
     
     useEffect(() => {
@@ -43,7 +44,7 @@ export function ParserTemplates () {
         NiceModal.show(ParserTemplateModal, { refresh })
     }, [refresh])
     
-    const on_edit = useCallback((editedTemplate: ParserTemplate) => {
+    const on_edit = useCallback((editedTemplate: IParserTemplate) => {
         NiceModal.show(ParserTemplateModal, { refresh, editedTemplate })
     }, [refresh])
     
@@ -60,7 +61,7 @@ export function ParserTemplates () {
         })
     }, [selected_keys, refresh])
     
-    const on_delete = useCallback(({ name, id }: ParserTemplate) => {
+    const on_delete = useCallback(({ name, id }: IParserTemplate) => {
         Modal.confirm({
             title: t('确定要删除模板【{{name}}】吗？', { name }),
             okButtonProps: { type: 'primary', danger: true },
@@ -74,7 +75,7 @@ export function ParserTemplates () {
         })
     }, [selected_keys, refresh])
     
-    const columns = useMemo<TableProps<ParserTemplate>['columns']>(() => [
+    const columns = useMemo<TableProps<IParserTemplate>['columns']>(() => [
         {
             title: t('模板名称'),
             dataIndex: 'name',
@@ -137,7 +138,7 @@ export function ParserTemplates () {
             loading={isLoading} 
             columns={columns}
             rowSelection={{
-                onChange: keys => { set_selected_keys(keys as number[]) }
+                onChange: keys => { set_selected_keys(keys as string[]) }
             }}
         />
     </>
