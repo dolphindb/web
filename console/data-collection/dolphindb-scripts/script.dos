@@ -330,6 +330,7 @@ def dcp_getConnectAndSubInfo(args){
 参数：args 为标准json，需要包含以下字段：
 subId: 订阅ID   
 */
+
 def dcp_startSubscribe(args){
     subArgs = parseExpr(args).eval()
     //通过订阅id获取链接信息，解析模板信息
@@ -365,9 +366,11 @@ def dcp_startSubscribe(args){
         //初始化消费者配置
         subscribeStr +='consumerCfg = dict(string, any);
         consumerCfg["metadata.broker.list"] = tmp.host+":"+tmp.port;
-        cfgTable = parseJsonTable(tmp.consumerCfg);
-        for(i in cfgTable){
-            consumerCfg[i.key]=i.value
+        if(tmp.consumerCfg != string(NULL)){
+            cfgTable = parseJsonTable(tmp.consumerCfg);
+            for(i in cfgTable){
+                consumerCfg[i.key]=i.value
+            }
         }
         consumer = kafka::consumer(consumerCfg);
         topic,partition,offset=[tmp.topic],[tmp.partition],[tmp.offset]; 
