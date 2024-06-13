@@ -607,16 +607,15 @@ class ShellModel extends Model<ShellModel> {
     
     
     async define_set_table_comment () {
-        if (this.set_table_comment_defined)
-            return
-        
-        await model.ddb.execute(
-            'def set_table_comment (db_path, tb_name, table_comment) {\n' +
-            '    setTableComment(loadTable(database(db_path), tb_name), table_comment)\n' +
-            '}\n'
-        )
-        
-        shell.set({ set_table_comment_defined: true })
+        if (!this.set_table_comment_defined) {
+            await model.ddb.execute(
+                'def set_table_comment (db_path, tb_name, table_comment) {\n' +
+                '    setTableComment(loadTable(database(db_path), tb_name), table_comment)\n' +
+                '}\n'
+            )
+            
+            shell.set({ set_table_comment_defined: true })
+        }
     }
     
     

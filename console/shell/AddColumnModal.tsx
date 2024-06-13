@@ -44,6 +44,7 @@ export const AddColumnModal = NiceModal.create<Props>(({ node }) => {
         const { table } = node
         
         await shell.define_add_column()
+        
         // 调用该函数时，数据库路径不能以 / 结尾
         await model.ddb.call('add_column', [
             table.db.path.slice(0, -1),
@@ -51,10 +52,14 @@ export const AddColumnModal = NiceModal.create<Props>(({ node }) => {
             formValues.column,
             generateDDBDataTypeLiteral(formValues)
         ])
+        
         model.message.success(t('添加成功'))
+        
         await table.get_schema()
+        
         node.children = null
         node.load_children()
+        
         shell.set({ dbs: [...shell.dbs] })
         modal.resolve()
         modal.hide()

@@ -325,7 +325,7 @@ function SetTableComment () {
         <Form
             labelWrap
             name='edit-comment'
-            onFinish={ async ({ comment }: { comment: string }) => {
+            onFinish={async ({ comment }: { comment: string }) => {
                 await shell.define_set_table_comment()
                 await model.ddb.invoke('set_table_comment', [
                     db.path.slice(0, -1),
@@ -1054,7 +1054,7 @@ export class Table implements DataNode {
                 <span className='table-comment'> {this.schema_data.tableComment} </span>
             </div>
             <div className='table-actions'>
-                <div className='edit-comment-button' onClick={ event => {
+                <div className='edit-comment-button' onClick={event => {
                         shell.set({ current_node: this, set_table_comment_modal_visible: true })
                         event.stopPropagation()
                     }}
@@ -1106,7 +1106,7 @@ export class Table implements DataNode {
     load_children () {
         if (!this.children && !this.kind) {
             this.kind =
-                this.schema.data<{ partitionColumnIndex: number }>().partitionColumnIndex
+                this.schema_data.partitionColumnIndex
              < 0 ?
                     TableKind.Table
                 :
@@ -1203,7 +1203,7 @@ export class Column implements DataNode {
             <div>
                 <span className='column-name'>{name}</span>: {typeString.toLowerCase()} {comment} 
             </div>
-            <div className='edit-comment-button' onClick={ event => {
+            <div className='edit-comment-button' onClick={event => {
                     shell.set({ current_node: this, set_column_comment_modal_visible: true })
                     event.stopPropagation()
                 }}
