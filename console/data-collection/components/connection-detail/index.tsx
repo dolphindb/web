@@ -18,44 +18,47 @@ import NiceModal from '@ebay/nice-modal-react'
 
 import { DeleteOutlined, PlusOutlined, RedoOutlined } from '@ant-design/icons'
 
-import type { Connection, ParserTemplate, Subscribe } from '../../type.js'
+import { Protocol, type ISubscribe, type ConnectionDetail, type IParserTemplate } from '../../type.js'
 import { t } from '../../../../i18n/index.js'
 import { request } from '../../utils.js'
 
 import { CreateSubscribeModal } from '../create-subscribe-modal/index.js'
+
+import { safe_json_parse } from '../../../dashboard/utils.js'
+
+import { get_connect_detail, get_parser_templates } from '../../api.js'
 
 import { TemplateViewModal } from './parser-template-view-modal.js'
 import { DeleteDescribeModal } from './delete-describe-modal.js'
 
 
 interface IProps {
-    connection: number
+    connection: string
 }
 
 const DEFAULT_TEMPLATES = {
-    items: [ ],
+    items: [ ] as IParserTemplate[],
     total: 0
 }
 
 export function ConnectionDetail (props: IProps) {
     const { connection } = props
     
-    const [selected_subscribes, set_selected_subscribes] = useState<number[]>([ ])    
+    const [selected_subscribes, set_selected_subscribes] = useState<string[]>([ ])    
     
     const { data, isLoading, mutate } = useSWR(
         ['dcp_getConnectAndSubInfo', connection],
         async () => {
-            await request('dcp_subStatusMonitor', { connectId: Number(connection) })
-            const res = await request<{ subscribes: Subscribe[], total: number, connectInfo: Connection }>('dcp_getConnectAndSubInfo', { connectId: Number(connection) })
+            await request('dcp_subStatusMonitor', { connectId: connection })
+            const res = await get_connect_detail(connection)
             return res
         } 
     )
     
     const { data: { items: templates } = DEFAULT_TEMPLATES } = useSWR(
-        'dcp_getParserTemplateList',
-        async () => request<{ items: ParserTemplate[], total: number }>('dcp_getParserTemplateList', { protocol: data?.connectInfo?.protocol })
+        data ? ['dcp_getParserTemplateList', data.connectInfo.protocol] : null,
+        async () => get_parser_templates(data.connectInfo.protocol)
     )
-    
     
     const desp_items = useMemo<DescriptionsProps['items']>(() => {
         if (!data?.connectInfo)
@@ -64,40 +67,40 @@ export function ConnectionDetail (props: IProps) {
         return [
             {
                 label: t('连接名称'),
-                key: '1',
+                key: 'name',
                 children: name
             },
-            {
-                label: t('用户名'),
-                key: '2',
-                children: username
-            },
+            ...(protocol === Protocol.MQTT ? [{
+                    label: t('用户名'),
+                    key: 'username',
+                    children: username
+            }] : [ ]),
             {
                 label: t('协议'),
-                key: '3',
+                key: 'protocol',
                 children: protocol,
             },
             {
                 label: t('服务器地址'),
-                key: '4',
+                key: 'host',
                 children: host
             }, 
             {
                 label: t('端口'),
-                key: '5',
+                key: 'port',
                 children: port
             }
         ]
     }, [ data ])
     
-    const onViewTemplate = useMemoizedFn((template: ParserTemplate) => {
+    const onViewTemplate = useMemoizedFn((template: IParserTemplate) => {
         NiceModal.show(TemplateViewModal, { template })
     })
     
     
-    const on_change_status = useCallback(async ({ id: subId, name }: Subscribe, status: boolean) => {
+    const on_change_status = useCallback(async ({ id: subId, name }: ISubscribe, status: boolean) => {
         Modal.confirm({
-            title: t('确定要{{action}}{{name}}吗？', { action: status ? '启用' : '停用', name }),
+            title: t('确定要{{action}}{{name}}吗？', { action: status ? t('启用') : t('停用'), name }),
             onOk: async () => {
                 if (status)
                     await request('dcp_startSubscribe', { subId })
@@ -110,7 +113,7 @@ export function ConnectionDetail (props: IProps) {
         })
     }, [ mutate ])
     
-    const columns = useMemo<Array<ColumnProps<Subscribe>>>(() => [
+    const columns = useMemo<Array<ColumnProps<ISubscribe>>>(() => [
         {
             title: t('名称'),
             dataIndex: 'name',
@@ -144,7 +147,7 @@ export function ConnectionDetail (props: IProps) {
                 <Typography.Link 
                 disabled={record.status === 1}
                 onClick={async () => {
-                    NiceModal.show(CreateSubscribeModal, { refresh: mutate, parser_templates: templates, edited_subscribe: record })
+                    NiceModal.show(CreateSubscribeModal, { protocol: data.connectInfo.protocol, refresh: mutate, parser_templates: templates, edited_subscribe: record })
                 } }>
                     {t('编辑')}
                 </Typography.Link>
@@ -159,7 +162,7 @@ export function ConnectionDetail (props: IProps) {
                
             </Space>
         }
-    ], [ templates, mutate, on_change_status ])
+    ], [ templates, mutate, on_change_status, data ])
     
     
     return isLoading
@@ -178,7 +181,7 @@ export function ConnectionDetail (props: IProps) {
                     icon={<PlusOutlined />} 
                     type='primary' 
                     onClick={async () => 
-                        NiceModal.show(CreateSubscribeModal, { connection_id: connection, refresh: mutate, parser_templates: templates })}
+                        NiceModal.show(CreateSubscribeModal, { protocol: data.connectInfo.protocol, connection_id: connection, refresh: mutate, parser_templates: templates })}
                 >
                     {t('新增订阅')}
                 </Button>
@@ -202,8 +205,8 @@ export function ConnectionDetail (props: IProps) {
             dataSource={data?.subscribes ?? [ ]}
             rowKey='id'
             rowSelection={{
-                onChange: selected_keys => { set_selected_subscribes(selected_keys as number[]) },
-                getCheckboxProps: (subscribe: Subscribe) => ({ disabled: subscribe.status === 1 })
+                onChange: selected_keys => { set_selected_subscribes(selected_keys as string[]) },
+                getCheckboxProps: (subscribe: ISubscribe) => ({ disabled: subscribe.status === 1 })
             }}
         />
         

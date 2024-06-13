@@ -1,5 +1,10 @@
 .data-collection-wrapper {
     display: flex;
+    
+    .link-btn {
+        padding: 0px !important;
+        border-radius: 4px;
+    }
    
     
     .connection-list {
@@ -60,13 +65,11 @@
                 
                 .connection-edit-icon {
                     visibility: hidden;
-                    color: #1677ff;
                     font-size: 12px;
                 }
                 
                 .connection-delete-icon {
                     visibility: hidden;
-                    color: red;
                     font-size: 12px;
                 }
                 

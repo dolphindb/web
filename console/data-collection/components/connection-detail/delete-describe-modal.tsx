@@ -9,7 +9,7 @@ import { t } from '../../../../i18n/index.js'
 import { request } from '../../utils.js'
 
 interface IProps {
-    ids: number[]
+    ids: string[]
     refresh: () => void
 }
 

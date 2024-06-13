@@ -1,9 +1,10 @@
 .create-subscribe-modal {
-    .submit-btn-form-item {
-        width: 100%;
-        text-align: end;
-    }
+   
     
+    .ant-modal-body {
+        max-height: 640px;
+        overflow: auto;
+    }
     
     .parser-template-params {
         padding: 16px;
@@ -26,3 +27,30 @@
     justify-content: space-between;
     align-items: center;
 }
+
+.kafka-params-list-wrapper {
+    padding: 16px;
+    background-color: rgba(0, 0, 0, 0.02);
+    margin-bottom: 16px;
+    
+    .kafka-params-title {
+        font-weight: 600;
+        margin-bottom: 16px;
+        
+        .kafka-link-doc {
+            display: inline-block;
+            margin-right: 4px;
+        }
+    }
+    
+    .kafka-params-item {
+        width: 100%;
+        display: flex;
+        justify-content: space-around;
+        
+        .delete-icon-btn {
+            padding: 4px !important;
+        }
+    }
+}
+

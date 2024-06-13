@@ -1,10 +1,10 @@
 export interface Connection {
     // 连接 id
-    id: number
+    id: string
     // 连接名称
     name: string
     // 协议
-    protocol: string
+    protocol: Protocol
     // 服务器地址
     host: string
     // 端口
@@ -16,26 +16,44 @@ export interface Connection {
 }
 
 
-export interface Subscribe {
+export interface ServerSubscribe {
     // 订阅 id
-    id: number
+    id: string
     // 主题
     topic: string
     // 名称
     name: string
     // 点位解析模板 id
-    handlerId: number
-    // 是一个整数，省略时默认是 20480，用于指定接收缓冲区大小。
-    recvbufSize: number
+    handlerId: string
+    // mqtt 有 是一个整数，省略时默认是 20480，用于指定接收缓冲区大小。
+    recvbufSize?: number
     // 状态 0 未连接 1 连接
     status: 0 | 1
     templateParams: string
+    // kafka 参数
+    partition?: number
+    offset?: number            
+    consumerCfg?: string
 }
 
 
-export interface ParserTemplate {
+export interface KeyValueItem {
+    key: string
+    value: string
+}
+export interface ISubscribe extends Omit<ServerSubscribe, 'templateParams' | 'consumerCfg'> {
+    templateParams: Array<KeyValueItem>
+    consumerCfg: Array<KeyValueItem>
+}
+
+export interface  ConnectionDetail {
+    connectInfo: Connection
+    subscribes: ISubscribe[]
+    total: number
+}
+export interface ServerParserTemplate {
     handler: string
-    id: number
+    id: string
     name: string
     comment?: string
     createTime: string
@@ -44,8 +62,18 @@ export interface ParserTemplate {
     templateParams: string
 }
 
+export interface IParserTemplate extends Omit<ServerParserTemplate, 'templateParams'> {
+    templateParams: Array<KeyValueItem>
+}
+
 
 export interface ListData<T> {
     items: T[]
-    number: number
+    total: number
+}
+
+
+export enum Protocol {
+    KAFKA = 'kafka',
+    MQTT = 'mqtt'
 }
