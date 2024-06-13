@@ -254,8 +254,13 @@ def dcp_updateSubscribe(args){
     subArgs = parseExpr(args).eval()
     subscribeInfo = select * from loadTable("dfs://dataAcquisition","subscribeInfo") where id=uuid(subArgs[`id])
     for(col in subArgs.keys()){
-        if(col != "id")
-            subscribeInfo[col] = subArgs[col] 
+        if(col != "id"){
+            if(col !="handlerId"){
+                subscribeInfo[col] = subArgs[col]  
+            }else{
+                subscribeInfo[col] = uuid(subArgs[col])
+            }
+        }
     }
     if(!subArgs[`parseJson]){
         handlerId = (exec id from loadTable("dfs://dataAcquisition","ParserTemplate") where name like "saveJsonMsg%" and protocol =  protocol)[0]
