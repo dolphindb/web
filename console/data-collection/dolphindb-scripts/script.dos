@@ -496,11 +496,11 @@ comment:模板备注 字符串
 def dcp_updateHandler(args){
     handlerArgs = parseExpr(args).eval()    
     ParserTemplate = loadTable("dfs://dataAcquisition","ParserTemplate")
-    update ParserTemplate set name = handlerArgs[`name] where id=uuid(handlerArgs)[`id]
-    update ParserTemplate set protocol = handlerArgs[`protocol] where id=uuid(handlerArgs)[`id]
-    update ParserTemplate set handler = handlerArgs[`code] where id=uuid(handlerArgs)[`id]
-    update ParserTemplate set comment = handlerArgs[`comment] where id=uuid(handlerArgs)[`id]
-    update ParserTemplate set updateTime = now()  where id=uuid(handlerArgs)[`id]
+    update ParserTemplate set name = handlerArgs[`name] where id=uuid(handlerArgs[`id])
+    update ParserTemplate set protocol = handlerArgs[`protocol] where id=uuid(handlerArgs[`id])
+    update ParserTemplate set handler = handlerArgs[`code] where id=uuid(handlerArgs[`id])
+    update ParserTemplate set comment = handlerArgs[`comment] where id=uuid(handlerArgs[`id])
+    update ParserTemplate set updateTime = now()  where id=uuid(handlerArgs[`id])
     return '{"status":1}'   //更新成功  
 }    
 
