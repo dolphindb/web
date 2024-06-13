@@ -5,15 +5,19 @@
 /*
 增加连接
 参数：args 为标准json，需要包含以下字段：
+commonParams:
 name: 连接名称     字符串
 protocol: 协议类型 字符串
 host: 主机地址     字符串
 port: 端口         整数
+mqttParams：
 username: 用户名   字符串
 password: 密码     字符串
-参数示例：
-args = '{ "name":"emqx", "protocol":"mqtt", "host":"183.134.101.140", "port":1883, "username":"admin1", "password":"DolphinDB123"}'  
+使用示例：
+args = '{ "name":"emqx", "protocol":"mqtt", "host":"183.134.101.140", "port":1883, "username":"admin1", "password":"DolphinDB123"}' 
+dcp_addConnect(args) 
 args = '{ "name":"kafka1", "protocol":"kafka", "host":"183.134.101.140", "port":9092}'  
+dcp_addConnect(args)
 */
 
 def dcp_addConnect(args){
@@ -44,16 +48,19 @@ def dcp_addConnect(args){
 /*
 修改连接
 参数：args 为标准json，可包含以下字段：
-参数：
-id(必选): 连接ID          整数
+commonParams：
+id(必选): 连接ID    字符串
 name: 连接名称      字符串
 host: 主机地址      字符串
 port: 端口         整数
+mqttParams:
 username: 用户名    字符串
 password: 密码      字符串
-参数示例：
-args = '{ "name":"emqx", "id":"cc2a890b-bd79-f243-da4c-7604bc9e4970", "host":"183.134.101.141", "port":1883, "username":"admin1", "password":"DolphinDB123"}'  
+使用示例：
+args = '{ "name":"emqx", "id":"cc2a890b-bd79-f243-da4c-7604bc9e4970", "host":"183.134.101.141", "port":1883, "username":"admin1", "password":"DolphinDB123"}'
+dcp_updateConnect(args)  
 args = '{ "name":"KAFKA", "id":"e5d6a0ed-600d-d701-3fcb-8d046883d517", "host":"183.134.101.142", "port":9092}'  
+dcp_updateConnect(args)
 */
 def dcp_updateConnect(args){
     connectArgs = parseExpr(args).eval()
@@ -78,9 +85,10 @@ def dcp_updateConnect(args){
 /*
 删除连接,删除连接时会同时清理该连接下的所有订阅及订阅信息
 参数：args 为标准json，包含以下字段：
-ids: 连接ID  int数组
-参数示例：
+ids: 连接ID  string数组
+使用示例：
 args = '{"ids":["cc2a890b-bd79-f243-da4c-7604bc9e4970","e5d6a0ed-600d-d701-3fcb-8d046883d517"]}'
+dcp_deleteConnect(args)
 */
 def dcp_deleteConnect(args){
     connectArgs = parseExpr(args).eval()
@@ -101,35 +109,50 @@ def dcp_deleteConnect(args){
 
 /*
 获取连接列表  
-参数：args 为标准json，包含以下字段：
-protocol: 连接协议 字符串
-参数示：
-args = '{"protocol":"mqtt"}'    
-args = '{"protocol":"kafka"}'    
+@args 无
+@return 连接列表json,{"mqtt": [], "kafka": []}
 */
-def dcp_getConnectList(args){
-    protocolType = parseExpr(args).eval()
-    tmp = select * from loadTable("dfs://dataAcquisition","connectInfo") where protocol=protocolType['protocol']
-    return '{"connections":'+toStdJson(tmp)+',"total":'+tmp.size()+'}'  
+def dcp_getConnectList(){
+    connectAll = select * from loadTable("dfs://dataAcquisition","connectInfo") 
+    protocolList = exec distinct protocol from connectAll
+    res = '{'
+    for(index in 0..(protocolList.size()-1)){
+        tmp = select * from connectAll where protocol = protocolList[index]
+        res +='"'+protocolList[index]+'":'+toStdJson(tmp)
+        if(index == protocolList.size()-1){
+            res +='}'        
+        }else{
+            res +=','        
+        }
+    }
+    return res
 }
 
 /*
 添加订阅信息：
 参数：args 为标准json，需要包含以下字段：
-name: 订阅名称
-topic: 订阅主题
-connectId：使用的连接
-handlerId：使用的解析模板
-recvbufSize：接收缓冲区大小
-templateParams: 模板参数  
-parseJson: 是否解析json数据 bool  
-参数示例：
+commonParams:
+name: 订阅名称                    字符串
+topic: 订阅主题                   字符串
+connectId：使用的连接             字符串
+handlerId：使用的解析模板         字符串（parseJson为false时不需要该参数） 
+templateParams: 模板参数          字符串
+parseJson: 是否解析json数据        bool  
+mqttParams:
+recvbufSize：接收缓冲区大小       整数（默认20480）
+kafkaParams:
+partition: 分区                    整数（默认为NULL）
+offset: 偏移量                     整数（默认为NULL）
+consumerCfg：kafka消费配置         字符串   
+使用示例：
 args = '{"name":"test","topic":"topic1","parseJson":false,
 "templateParams":\'[{\"key\":\"outputTableName\",\"value\":\"dcp_test\"}]\',"connectId":"e185558d-822c-d2e1-71f6-905c7d2b13f6"}'
+dcp_addSubscribe(args)
 args = '{"name":"test","topic":"topic1","parseJson":false,
 "templateParams":\'[{\"key\":\"outputTableName\",\"value\":\"dcp_test1\"}]\',
 "consumerCfg":\'[{\"key\":\"group.id\",\"value\":\"test\"}]\',
 "connectId":"ecffc67c-e6d2-4a72-63cf-386e097016bc"}'
+dcp_addSubscribe(args)
 */
 def dcp_addSubscribe(args){
     subArgs = parseExpr(args).eval()
@@ -162,7 +185,7 @@ def dcp_addSubscribe(args){
         update subInfo set handlerId = uuid(subArgs['handlerId'])
     }
     else{
-        handlerId = (exec id from loadTable("dfs://dataAcquisition","ParserTemplate") where name like "saveJsonMsg%" and protocol =  proto )[0]
+        handlerId = (exec id from loadTable("dfs://dataAcquisition","ParserTemplate") where comment = "转存json数据" and protocol =  proto )[0]
         update subInfo set handlerId = handlerId
         tableName = parseJsonTable(subArgs['templateParams']).value[0]
         enableTableShareAndPersistence(streamTable(1:0,[`topic,`msg,`ts],[STRING,STRING,TIMESTAMP]),tableName,,,100000,,,100000)
@@ -176,21 +199,23 @@ def dcp_addSubscribe(args){
 /*
 修改连接
 参数：args 为标准json，需要包含以下字段：
-必选参数：
-id: 订阅ID                   整数
-可选参数：
+commonParam：
+id: 订阅ID                  字符串
 name：订阅名称               字符串    
 topic: 订阅主题              字符串
-partition: 分区              整数
-offset: 偏移量              整数
-handlerId：使用的解析模板     整数
+handlerId：使用的解析模板     字符串
 templateParams: 模板参数     修改handlerId,必须同时有templateParams参数
+parseJson: 是否解析json数据   bool  
+mqttParam:
 recvbufSize: 接收缓冲区大小   整数   
-comsumerCfg:kafka消费配置     字符串
-parseJson: 是否解析json数据 bool  
-参数示例:
+kafkaParam:
+partition: 分区              整数
+offset: 偏移量                整数
+consumerCfg: kafka消费配置    字符串    
+使用示例:
 args = '{"name":"test","topic":"topic1","handlerId":1,"parseJson":true, 
 "templateParams":\'[{\"key\":\"outputTableName\",\"value\":\"dcp_test\"}]\',"id":"cd74510d-e947-6b20-236e-22b313d532ae"}'
+dcp_updateSubscribe(args)
 */
 def dcp_updateSubscribe(args){
     subArgs = parseExpr(args).eval()
@@ -217,8 +242,9 @@ def dcp_updateSubscribe(args){
 参数：args 为标准json，需要包含以下字段：
 ids: 订阅ID int数组
 dropUseTable:删除订阅时是否删除流表 bool
-参数示例：
+使用示例：
 args = '{"ids":["cd74510d-e947-6b20-236e-22b313d532ae"],"dropUseTable":true}' 
+dcp_deleteSubscribe(args)
 */
 def dcp_deleteSubscribe(args){
     subArgs = parseExpr(args).eval()
@@ -266,7 +292,6 @@ def dcp_getConnectAndSubInfo(args){
 参数：args 为标准json，需要包含以下字段：
 subId: 订阅ID   
 */
-
 def dcp_startSubscribe(args){
     subArgs = parseExpr(args).eval()
     //通过订阅id获取链接信息，解析模板信息
@@ -346,9 +371,10 @@ def dcp_startSubscribe(args){
 /*
 停止订阅
 参数：args 为标准json，需要包含以下字段：
-subId: 订阅ID  int数组 
-参数示例：
+subId: 订阅ID  string数组 
+使用示例：
 args = '{"subId":["094e2d21-4e80-8122-e9d8-081877491210","6be513ba-719a-7d8e-4062-1735bf44a27c"]}'  
+dcp_stopSubscribe(args)
 */
 def dcp_stopSubscribe(args){
     subArgs = parseExpr(args).eval()
@@ -404,15 +430,14 @@ name:模板名称 字符串
 handler:函数定义 字符串
 protocol:模板协议 字符串
 comment:模板备注 字符串
-templateParams：模板参数 字符串
 @return 无
 */
 def dcp_addHandler(args){
     handlerArgs = parseExpr(args).eval()
-    maxId = (exec max(id) from loadTable("dfs://dataAcquisition","ParserTemplate"))[0]
     id = rand(uuid(),1)
+    templateParams = dcp_parseTemplateArgs(handlerArgs['handler'],handlerArgs['protocol'])
     tmp = table(id as id, [handlerArgs['name']] as name, [handlerArgs['handler']] as handler, [handlerArgs['protocol']] as `protocol,
-    string([handlerArgs['comment']]) as comment,[handlerArgs['templateParams']] as templateParams,[now()] as createTime,[now()] as updateTime)  
+    string([handlerArgs['comment']]) as comment,[templateParams] as templateParams,[now()] as createTime,[now()] as updateTime)  
     loadTable("dfs://dataAcquisition","ParserTemplate").append!(tmp)
     return '{"status":1,"id":"'+string(id[0])+'"}'    
 }
@@ -482,20 +507,20 @@ def dcp_getTemplateArgs(args){
 
 /*
 解析模板参数
-@args handlerId:模板ID uuid
-@return 返回一个包含模板参数的json，键为returnArgs，值为参数列表   
+@args 
+handler:解析函数的函数体 string
+protocol:解析函数对应的协议 string
+@return 返回一个参数列表（拼接为字符串）
 */
-def dcp_parseTemplateArgs(args){
-    handlerArgs = parseExpr(args).eval()
-    handler = select handler,protocol from loadTable("dfs://dataAcquisition","ParserTemplate") where id = uuid(handlerArgs['handlerId'])
-    if(handler.protocol==`mqtt){
-        handlerParam = handler.handler[0].split("){")[0].split("(")[1].split(",")
+def dcp_parseTemplateArgs(handler,protocol){
+    if(protocol==`mqtt){
+        handlerParam = handler.split("){")[0].split("(")[1].split(",")
         handlerParam = handlerParam[0:(handlerParam.size()-2)]    
-    }else if(handler.protocol==`kafka){
-        handlerParam = handler.handler[0].split("){")[0].split("(")[1].split(",")
+    }else if(protocol==`kafka){
+        handlerParam = handler.split("){")[0].split("(")[1].split(",")
         handlerParam = [`outTableName] <- handlerParam[0:(handlerParam.size()-3)] 
     }
-    returnMsg = '{"returnArgs":['
+    paramList = '['
     for(index in 0..(handlerParam.size()-1)){   
         if(index < (handlerParam.size()-1)){    
             returnMsg += '"'+handlerParam[index]+'",'  
@@ -527,24 +552,27 @@ def initParserTemplate(){
         }
     }
     '
-    loadTable("dfs://dataAcquisition","ParserTemplate").append!(table(rand(uuid(),1) as id,["test"] as name,[handler] as handler,[`mqtt] as protocol,
-    ["测试解析模板"] as comment,[now()] as c1,[now()] as col2))
+    args = '{"name":"parseMqtt","handler":\''+handler+'\',"protocol":"mqtt","comment":"测试解析模板"}'   
+    dcp_addHandler(args)
+
 
     handler = "
     def saveJsonMsg(outputTableName,topic,msg){
         objByName(outputTableName).append!(table([topic]as topic,[msg] as msg,[now()] as ts))
     }
     "
-    loadTable("dfs://dataAcquisition","ParserTemplate").append!(table(rand(uuid(),1) as id,["saveJsonMsg"] as name,[handler] as handler,[`mqtt] as protocol,
-    ["转存json数据"] as comment,[now()] as c1,[now()] as col2))
+    args = '{"name":"saveJsonMsg","handler":\''+handler+'\',"protocol":"mqtt","comment":"转存json数据"}'   
+    dcp_addHandler(args)
+
 
     handler = "
     def saveMsg(msg,key,topic){
         return table([topic] as topic,[msg] as dataContent,[now(true) as startTime])    
     }
     "
-    loadTable("dfs://dataAcquisition","ParserTemplate").append!(table(rand(uuid(),1) as id,["saveJsonMsg_kafka"] as name,[handler] as handler,[`kafka] as protocol,
-    ["转存json数据"] as comment,[now()] as c1,[now()] as col2))
+    args = '{"name":"saveJsonMsg_kafka","handler":\''+handler+'\',"protocol":"kafka","comment":"转存json数据"}'   
+    dcp_addHandler(args)
+
 
     handler='
     def parseKafka(timeColumn,idColumn,msg,key,topic){
@@ -565,8 +593,8 @@ def initParserTemplate(){
         }
         return tmp  
     }'
-    loadTable("dfs://dataAcquisition","ParserTemplate").append!(table(rand(uuid(),1) as id,["parseKafka"] as name,[handler] as handler,[`kafka] as protocol,
-    ["解析kafka json数据"] as comment,[now()] as c1,[now()] as col2))
+    args = '{"name":"parseKafka","handler":\''+handler+'\',"protocol":"kafka","comment":"解析kafka json数据"}'   
+    dcp_addHandler(args)
 
 }
 
@@ -609,8 +637,8 @@ def dcp_createAllTable(){
     colTypes = [UUID,UUID,STRING,INT,INT,STRING,INT,UUID,STRING,STRING,BOOL,INT,STRING,TIMESTAMP,TIMESTAMP]
     createTable(database("dfs://dataAcquisition"),table(1:0,colNames,colTypes),`subscribeInfo)  
 
-    colNames = `id`name`handler`protocol`comment`createTime`updateTime
-    colTypes=[UUID,STRING,STRING,STRING,STRING,TIMESTAMP,TIMESTAMP]
+    colNames = `id`name`handler`templateParams`protocol`comment`createTime`updateTime
+    colTypes=[UUID,STRING,STRING,STRING,STRING,STRING,TIMESTAMP,TIMESTAMP]
     createTable(database("dfs://dataAcquisition"),table(1:0,colNames,colTypes),`ParserTemplate)
 }
 
