@@ -5,16 +5,23 @@ import { List, Modal, Spin, Typography } from 'antd'
 
 import useSWR from 'swr'
 
+import { useId } from 'react'
+
 import { t } from '../../../../i18n/index.js'
 import { request } from '../../utils.js'
+import type { Protocol } from '../../type.js'
 
-export const ViewLogModal = NiceModal.create(() => {
+interface IProps {
+    protocol: Protocol
+}
+
+export const ViewLogModal = NiceModal.create(({ protocol }: IProps) => {
     
     const modal  = useModal()
     
     const { data = [ ], isLoading } = useSWR(
-        'dcp_getMQTTLog',
-        async () => request<string[]>('dcp_getMQTTLog')
+        ['dcp_getLog', protocol],
+        async () => request<string[]>('dcp_getLog', { protocol })
     )
     
     console.log(data, 'data')
