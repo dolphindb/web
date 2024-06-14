@@ -1,13 +1,17 @@
 import './index.scss'
 
 import { Form, Input, InputNumber, Radio, Select, type SelectProps } from 'antd'
+
+import { useMemo } from 'react'
+
 import { FormDependencies } from '../../components/formily/FormDependcies/index.js'
-import { SchemaList } from './SchemaList.js'
+
 import { GuideType } from '../iot-guide/type.js'
 import { check_tb_valid, request } from '../utils.js'
 import { ENUM_TYPES, TIME_TYPES } from '../constant.js'
-import { useMemo } from 'react'
 import { t } from '../../../i18n/index.js'
+
+import { SchemaList } from './SchemaList.js'
 
 const CUSTOM_VALUE = -1
 
@@ -147,7 +151,7 @@ export function BasicInfoFields (props: IProps) {
                 {({ isFreqIncrease, totalNum, schema = [ ] }) => 
                     // 时序数据，或者非时序数据，但是数据总量大于200w需要选常用筛选列
                     isFreqIncrease || totalNum.gap === 1 || totalNum.custom > 2000000 ? <Form.Item
-                            help={t('请选择两个常用筛选列，时序数据或者数据总量大于 200 万的非时序第一列需为时间列，第二列需为设备编号列，其余情况第一列需为设备编号列')}
+                            help={t('请选择两个常用筛选列，时序数据或者数据总量大于 200 万的非时序第一列需为时间列，第二列需为设备编号列')}
                             tooltip={t('常用筛选列是查询时常作为常选条件的列，越重要的过滤条件，在筛选列中的位置越靠前。')}
                             name='sortColumn'
                             label={t('常用筛选列')}

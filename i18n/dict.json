@@ -4124,7 +4124,7 @@
     "常用筛选列是查询时常作为常选条件的列，越重要的过滤条件，在筛选列中的位置越靠前。": {
         "en": "The filter columns are columns that are frequently used as filtering conditions in queries. It is recommended to arrange these columns by query frequency, with the most commonly used one at the beginning of the list."
     },
-    "请选择两个常用筛选列，时序数据或者数据总量大于 200 万的非时序第一列需为时间列，第二列需为设备编号列，其余情况第一列需为设备编号列": {
+    "请选择两个常用筛选列，时序数据或者数据总量大于 200 万的非时序第一列需为时间列，第二列需为设备编号列": {
         "en": "Select two filter columns. For time-series data or non-time-series data with total volume over 2M, the first column must be a time column, and the second column must be a device ID column. For other cases, the first column must be a device ID column."
     },
     "表结构中无 {{name}} 列，请修改": {
