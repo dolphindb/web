@@ -181,7 +181,14 @@ export function Databases () {
                             onLoad={ keys => { set_loaded_keys(keys) }}
                             
                             expandedKeys={expanded_keys}
-                            onExpand={ keys => { set_expanded_keys(keys) }}
+                            onExpand={async (keys, { node: { self, type } }) => { 
+                                if (type === 'database' && !self.loaded) {
+                                    await self.load_children()           
+                                    shell.set({ dbs: [...dbs] })
+                                }
+                                
+                                set_expanded_keys(keys)
+                             }}
                             
                             onClick={async (event, { self: node, type }: EventDataNode<DatabaseGroup | Database | Table | ColumnRoot | PartitionRoot | Column | PartitionDirectory | PartitionFile | Schema>) => {
                                 const previous = previous_clicked_node.current
@@ -215,14 +222,20 @@ export function Databases () {
                                         let found = false
                                         let keys_ = [ ]
                                         
-                                        for (const key of expanded_keys)
-                                            if (key === node.key)
+                                        const { key } = node
+                                        
+                                        for (const expanded_key of expanded_keys)
+                                            if (key === expanded_key)
                                                 found = true
                                             else
-                                                keys_.push(key)
+                                                keys_.push(expanded_key)
                                         
                                         if (!found) {
-                                            keys_.push(node.key)
+                                            keys_.push(key)
+                                            
+                                            await node.load_children()
+                                            
+                                            shell.set({ dbs: [...dbs] })
                                             
                                             // 显示 schema
                                             await node.inspect()
@@ -279,12 +292,76 @@ export function Databases () {
                         <a onClick={() => { model.goto_login() }}>{t('去登录')}</a>
                     </div>
                 }
+                <SetTableComment />
                 <SetColumnComment />
                 <CreateDatabase />
                 <ConfirmCommand />
             </div>
         </div>
     </Resizable>
+}
+
+
+function SetTableComment () {
+    const { current_node, set_table_comment_modal_visible } = shell.use(['current_node', 'set_table_comment_modal_visible']) as { current_node: Table, set_table_comment_modal_visible: boolean }
+    const [form] = Form.useForm()
+    
+    useEffect(() => {
+        if (current_node?.type === 'table')
+            form.setFieldsValue({ comment: current_node.schema_data.tableComment })
+    }, [current_node])
+    
+    if (!current_node)
+        return
+        
+    let { name, db } = current_node
+    
+    return <Modal 
+        className='db-modal' 
+        open={set_table_comment_modal_visible} 
+        onCancel={() => { shell.set({ set_table_comment_modal_visible: false }) }} 
+        title={t('设置注释')}
+    >
+        <Form
+            labelWrap
+            name='edit-comment'
+            onFinish={async ({ comment }: { comment: string }) => {
+                await shell.define_set_table_comment()
+                await model.ddb.invoke('set_table_comment', [
+                    db.path.slice(0, -1),
+                    name,
+                    comment
+                ])
+                model.message.success(t('设置注释成功'))
+                
+                await current_node.init()
+                
+                shell.set({ dbs: [...shell.dbs] })
+                
+                form.resetFields()
+                shell.set({ set_table_comment_modal_visible: false })
+            }}
+            labelCol={{ span: 4 }}
+            wrapperCol={{ span: 20 }}
+            className='db-modal-form'
+            form={form}
+        >
+            <Form.Item label={t('注释')} name='comment'>
+                <Input />
+            </Form.Item>
+            <Form.Item className='db-modal-content-button-group'>
+                <Button type='primary' htmlType='submit'>
+                    {t('确定')}
+                </Button>
+                <Button htmlType='button' onClick={() => {
+                    form.resetFields()
+                    shell.set({ set_table_comment_modal_visible: false })
+                }}>
+                    {t('取消')}
+                </Button>
+            </Form.Item>
+        </Form>
+    </Modal>
 }
 
 
@@ -320,9 +397,9 @@ function SetColumnComment () {
                     comment
                 ])
                 model.message.success(t('设置注释成功'))
+                await root.table.get_schema()
                 root.children = null
-                root.table.schema = null
-                await root.load_children()
+                root.load_children()
                 shell.set({ dbs: [...shell.dbs] })
                 
                 form.resetFields()
@@ -798,6 +875,11 @@ export class Database implements DataNode {
     
     schema: DdbDictObj<DdbVectorStringObj>
     
+    /** 标记是否加载过子节点 */
+    loaded = false
+    
+    table_paths: string[] = [ ]
+    
     
     constructor (path: string) {
         this.self = this
@@ -866,6 +948,24 @@ export class Database implements DataNode {
     }
     
     
+    async load_children () {
+        if (!this.loaded) {
+            await shell.define_load_table_schema()
+            
+            for (const table_path of this.table_paths) {
+                const table = new Table(this, table_path)
+        
+                await table.init()
+                
+                this.children.push(table)
+            }
+                
+            
+            this.loaded = true
+        }
+    }
+    
+    
     async inspect () {
         shell.set(
             {
@@ -876,6 +976,13 @@ export class Database implements DataNode {
             }
         )
     }
+}
+
+
+interface SchemaData {
+    tableComment: string
+    partitionColumnIndex: number
+    colDefs: { data: any[] }
 }
 
 
@@ -912,13 +1019,25 @@ export class Table implements DataNode {
     
     schema: DdbDictObj<DdbVectorStringObj>
     
+    schema_data: SchemaData
+    
     
     constructor (db: Database, path: string) {
         this.self = this
         this.db = db
         this.key = this.path = path
         this.name = path.slice(db.path.length, -1)
+    }
+    
+    
+    async init () {
+        await this.get_schema()
         
+        this.set_title()
+    }
+    
+    
+    set_title () {
         const enable_create_query = [NodeType.computing, NodeType.single, NodeType.data].includes(model.node_type)
         
         const create_query: React.MouseEventHandler<HTMLSpanElement> = e => { 
@@ -930,8 +1049,20 @@ export class Table implements DataNode {
         }
         
         this.title = <div className='table-title'>
-            <span> {path.slice(db.path.length, -1)} </span>
+            <div title={`${this.name}${this.schema_data.tableComment ? ` ${this.schema_data.tableComment.bracket()}` : ''}`}>
+                <span> {this.name}</span>
+                <span className='table-comment'> {this.schema_data.tableComment} </span>
+            </div>
             <div className='table-actions'>
+                <div className='edit-comment-button' onClick={event => {
+                        shell.set({ current_node: this, set_table_comment_modal_visible: true })
+                        event.stopPropagation()
+                    }}
+                >
+                    <Tooltip title={t('设置注释')} color='grey'>
+                        <EditOutlined />
+                    </Tooltip>
+                </div>
                 <Tooltip title={enable_create_query ? t('新建查询') : t('仅单机节点、数据节点和计算节点支持新建查询')} color='grey'>
                     <Icon 
                         disabled={!enable_create_query}
@@ -939,11 +1070,24 @@ export class Table implements DataNode {
                         component={SvgQueryGuide}
                         onClick={create_query} 
                     />
-                
                 </Tooltip>
             </div>
         </div>
-       
+    }
+    
+    
+    async get_schema () {
+        const { db, path } = this
+        const schema = await model.ddb.call<DdbDictObj<DdbVectorStringObj>>(
+            // 这个函数在 define_load_schema 中已定义
+            'load_table_schema',
+            // 调用该函数时，数据库路径不能以 / 结尾
+            [db.path.slice(0, -1), path.slice(db.path.length, -1)],
+            model.node_type === NodeType.controller ? { node: model.datanode.name, func_type: DdbFunctionType.UserDefinedFunc } : { }
+        )
+        
+        this.schema = schema
+        this.schema_data = schema.data<SchemaData>()
     }
     
     
@@ -959,28 +1103,11 @@ export class Table implements DataNode {
     }
     
     
-    async get_schema () {
-        if (!this.schema) {
-            await shell.define_load_table_schema()
-            this.schema = await model.ddb.call<DdbDictObj<DdbVectorStringObj>>(
-                // 这个函数在 define_load_schema 中已定义
-                'load_table_schema',
-                // 调用该函数时，数据库路径不能以 / 结尾
-                [this.db.path.slice(0, -1), this.name],
-                model.node_type === NodeType.controller ? { node: model.datanode.name, func_type: DdbFunctionType.UserDefinedFunc } : { }
-            )
-        }
-        
-        return this.schema
-    }
-    
-    
-    async load_children () {
+    load_children () {
         if (!this.children && !this.kind) {
-            this.kind = Number(
-                (await this.get_schema())
-                    .to_dict().partitionColumnIndex.value
-            ) < 0 ? 
+            this.kind =
+                this.schema_data.partitionColumnIndex
+             < 0 ?
                     TableKind.Table
                 :
                     TableKind.PartitionedTable
@@ -1020,12 +1147,12 @@ class Schema implements DataNode {
     }
     
     
-    async inspect () {
+    inspect () {
         shell.set(
             {
                 result: {
                     type: 'object',
-                    data: await this.table.get_schema()
+                    data: this.table.schema
                 }
             }
         )
@@ -1076,11 +1203,11 @@ export class Column implements DataNode {
             <div>
                 <span className='column-name'>{name}</span>: {typeString.toLowerCase()} {comment} 
             </div>
-            <div className='edit-comment-button' onClick={ event => {
-                shell.set({ current_node: this, set_column_comment_modal_visible: true })
-                event.stopPropagation()
-            }}
-        >
+            <div className='edit-comment-button' onClick={event => {
+                    shell.set({ current_node: this, set_column_comment_modal_visible: true })
+                    event.stopPropagation()
+                }}
+            >
                 <Tooltip title={t('设置注释')} color='grey'>
                     <EditOutlined />
                 </Tooltip>
@@ -1252,13 +1379,9 @@ export class ColumnRoot implements DataNode {
     }
     
     
-    async load_children () {
+    load_children () {
         if (!this.children) {
-            const schema_coldefs = (
-                await this.table.get_schema()
-            ).to_dict<{ colDefs: DdbTableObj }>()
-            .colDefs
-            .to_rows<{ comment: string, extra: number, name: string, typeInt: number, typeString: string }>()
+            const schema_coldefs = this.table.schema_data.colDefs.data
             
             this.children = schema_coldefs.map(col => new Column(this, col))
         }

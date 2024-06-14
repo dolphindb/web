@@ -163,6 +163,10 @@ export function DataSourceConfig (props: IProps, ref) {
                     <Button
                         key='save'
                         type='primary'
+                        disabled={
+                            (widget?.type === WidgetChartType.HEATMAP && current_data_source?.type !== DdbForm.matrix) ||
+                            (widget?.type !== WidgetChartType.HEATMAP && current_data_source?.type === DdbForm.matrix)
+                        }
                         loading={loading === 'save'}
                         onClick={async () => {
                             try {
@@ -179,8 +183,8 @@ export function DataSourceConfig (props: IProps, ref) {
                                         await subscribe_data_source(widget, id)
                                     dashboard.update_widget({ ...widget, source_id: selected_data_sources })
                                     set_show_preview(false)
+                                    close()
                                 }
-                                close()
                             } finally {
                                 set_loading('')
                             }
