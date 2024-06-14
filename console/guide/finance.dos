@@ -69,7 +69,10 @@
 				}
 				else{
 					hashCount=string(dailyIncreaseAmount/1000000+1)
-					res = 'if(!existsDatabase("'+dbName+'")){\n\tdb1 = database(, partitionType=VALUE, partitionScheme=2020.01.01..2020.01.02)\n\tdb2 = database(, partitionType=HASH, partitionScheme=[SYMBOL,'+hashCount+'])\n\tdb12 = database(directory="'+dbName+'", partitionType=COMPO, partitionScheme=[db1, db2])\n}\n'
+					f = def (x, y){if(x[`colName]==y) return x[`dataType]}
+					a = each(f{, paramDict.table.hashCol}, paramDict.table.schema)
+					type = a[a!=NULL][0]
+					res = 'if(!existsDatabase("'+dbName+'")){\n\tdb1 = database(, partitionType=VALUE, partitionScheme=2020.01.01..2020.01.02)\n\tdb2 = database(, partitionType=HASH, partitionScheme=['+type+','+hashCount+'])\n\tdb12 = database(directory="'+dbName+'", partitionType=COMPO, partitionScheme=[db1, db2])\n}\n'
 				}
 			}
 			else{
@@ -86,7 +89,10 @@
 				}
 				else{
 					hashCount=string(dailyIncreaseAmount/1000000+1)
-					res = 'if(!existsDatabase("'+dbName+'")){\n\tdb1 = database(, partitionType=VALUE, partitionScheme=2020.01.01..2020.01.02)\n\tdb2 = database(, partitionType=HASH, partitionScheme=[SYMBOL,'+hashCount+'])\n\tdb12 = database(directory="'+dbName+'", partitionType=COMPO, partitionScheme=[db1, db2],engine="'+engineType+'")\n}\n'
+					f = def (x, y){if(x[`colName]==y) return x[`dataType]}
+					a = each(f{, paramDict.table.hashCol}, paramDict.table.schema)
+					type = a[a!=NULL][0]
+					res = 'if(!existsDatabase("'+dbName+'")){\n\tdb1 = database(, partitionType=VALUE, partitionScheme=2020.01.01..2020.01.02)\n\tdb2 = database(, partitionType=HASH, partitionScheme=['+type+','+hashCount+'])\n\tdb12 = database(directory="'+dbName+'", partitionType=COMPO, partitionScheme=[db1, db2],engine="'+engineType+'")\n}\n'
 				}
 			}
 
