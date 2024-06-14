@@ -7,9 +7,10 @@ import { t } from '../../i18n/index.js'
 
 import { model, storage_keys } from '../model.js'
 
+import { Editor, type monacoapi } from '../components/Editor/index.js'
+
 import { shell } from './model.js'
 
-import { Editor, type monacoapi } from './Editor/index.js'
 import { SelectSqlModal } from './SelectSqlModal.js'
 import { ExecuteAction } from './ExecuteAction.js'
 

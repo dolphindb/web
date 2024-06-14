@@ -11,12 +11,21 @@
         display: flex
         justify-content: space-between
         width: 100%
+        
+        .table-comment
+            margin-left: 5px
+            font-weight: 400
+        
         &:hover
             .table-actions
-                display: flex
+                visibility: visible
+        
         .table-actions
-            display: none
-            margin-right: 6px
+            padding: 0 10px
+            visibility: hidden
+            display: flex
+            column-gap: 10px
+            
             .anticon.disabled
                 cursor: not-allowed
                 color: #aaaaaa

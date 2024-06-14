@@ -26,7 +26,8 @@ import { useAsyncEffect } from '../utils/hooks/use-async-effect.js'
 import { DDBTypeSelectorSchemaFields, SchemaField } from '../components/formily/index.js'
 import { PartitionTypeName } from '../constants/partition-type.js'
 
-import { Editor } from './Editor/index.js'
+import { Editor } from '../components/Editor/index.js'
+
 import { type Database } from './Databases.js'
 
 

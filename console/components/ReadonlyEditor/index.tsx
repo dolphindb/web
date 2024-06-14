@@ -7,7 +7,7 @@ import copy from 'copy-to-clipboard'
 import { useCallback } from 'react'
 import classNames from 'classnames'
 
-import { Editor } from '../../shell/Editor/index.js'
+import { Editor } from '../Editor/index.js'
 import { t } from '../../../i18n/index.js'
 
 interface IProps { 
