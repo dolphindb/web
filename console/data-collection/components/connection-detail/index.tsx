@@ -30,6 +30,7 @@ import { get_connect_detail, get_parser_templates } from '../../api.js'
 
 import { TemplateViewModal } from './parser-template-view-modal.js'
 import { DeleteDescribeModal } from './delete-describe-modal.js'
+import { ViewStatusModal } from './view-status-modal.js'
 
 
 interface IProps {
@@ -49,7 +50,7 @@ export function ConnectionDetail (props: IProps) {
     const { data, isLoading, mutate } = useSWR(
         ['dcp_getConnectAndSubInfo', connection],
         async () => {
-            await request('dcp_subStatusMonitor', { connectId: connection })
+            await request('dcp_checkSubStatus', { connectId: connection })
             const res = await get_connect_detail(connection)
             return res
         } 
@@ -152,6 +153,10 @@ export function ConnectionDetail (props: IProps) {
                     {t('编辑')}
                 </Typography.Link>
                 
+                {/* <Typography.Link onClick={ async () => NiceModal.show(ViewStatusModal, { id: record.id })}>
+                    {t('状态')}
+                </Typography.Link> */}
+                
                 <Typography.Link 
                     disabled={record.status === 1} 
                     onClick={async () => { await NiceModal.show(DeleteDescribeModal, { ids: [record.id], refresh: mutate }) }}
@@ -192,9 +197,6 @@ export function ConnectionDetail (props: IProps) {
                     disabled={!selected_subscribes.length}
                 >
                     {t('批量删除')}
-                </Button>
-                <Button icon={<RedoOutlined />} onClick={async () => mutate()}>
-                    {t('检测订阅状态')}
                 </Button>
             </Space>
         </div>

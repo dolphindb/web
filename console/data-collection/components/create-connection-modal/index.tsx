@@ -56,7 +56,7 @@ export const CreateConnectionModal = NiceModal.create((props: IProps) => {
                         <Input placeholder={t('请输入用户名')}/>           
                     </Form.Item>
                     <Form.Item label={t('密码')} name='password'  rules={[{ required: true, message: t('请输入密码') }]}>
-                        <Input placeholder={t('请输入密码')}/>
+                        <Input.Password placeholder={t('请输入密码')}/>
                     </Form.Item>
                 </>
             }
