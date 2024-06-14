@@ -296,6 +296,7 @@ function Tensor ({
     const [currentDir, setCurrentDir]= useState<number[]>([])
     const [pageSize,setPageSize] = useState(10)
     const [pageIndex,setPageIndex] = useState(0)
+    const [previewLimit,setPreviewLimit] = useState(10)
     const currentDim = currentDir.length;
     const isLeaf = currentDim === _obj.value.dimensions - 1;
     const thisDimSize = shape[currentDim]
@@ -318,7 +319,7 @@ function Tensor ({
         return prev + strides[index] * curr * dataByte
     },0)
     if(!isLeaf)
-    for(let i = 0; i < currentDimSize; i++){
+    for(let i = pageIndex * pageSize; i< pageIndex * pageSize + pageSize && i < thisDimSize ; i++){
         // 搞清楚后面的维度的 size
         let arrstr = ''
         for(let j = currentDim + 1; j< _obj.value.dimensions;j++){
@@ -326,9 +327,34 @@ function Tensor ({
             arrstr = arrstr + `[${shape[j]}]`
         }
         arrstr = `${typeName}`+arrstr
+        
+        // 如果是倒数第二维
+        let previewStr = '';
+        if(currentDim === _obj.value.dimensions - 2){
+            previewStr = '['
+            // 取每个维度的前 10 个
+                for(let k = 0;k<shape[currentDim + 1];k++){
+                    const offsetElem = offset + i * dataByte * strides[currentDim] + k * dataByte * strides[currentDim+ 1]
+                    const targetArr = data.subarray(offsetElem,offsetElem + dataByte)
+                    const val = getValueFromUint8Array(_obj.value.dataType,targetArr,_obj.le)
+                    previewStr = previewStr + `${val}`
+                    if( k === previewLimit){
+                        previewStr = previewStr + ', ...'
+                        break;
+                    }
+                    else
+                    if(k !== shape[currentDim + 1] - 1){
+                        previewStr = previewStr + ', '
+                    }
+                    
+                }
+                previewStr = previewStr + ']'
+        }
+
+        
         elems.push(
             <div onClick={()=>pushDimIndex(i)} className='tensor-elem' key={'dim'+ `${i}`}>
-                <span className='tensor-elem-count'>{i}</span>: {arrstr}
+                <span className='tensor-elem-count'>{i}</span>: {arrstr} {previewStr}
             </div>
         )
     }
