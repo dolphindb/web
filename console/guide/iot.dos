@@ -721,7 +721,7 @@ def DBMSIOT_createDB2(args){
                         }
                     }
                 }else{
-                    sortColumn = partitionColumn  join join otherSortKey
+                    sortColumn = partitionColumn  join otherSortKey
                     sortKeyNum = tmp[`firstSortKeyNum] join  otherSortKeyUniqueNum
                 }                
             }
