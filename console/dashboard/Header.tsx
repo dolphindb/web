@@ -378,12 +378,12 @@ export function Header () {
                     </Tooltip>
                 </Popconfirm>
                 
-                {/* <Tooltip title='开启自动保存后，将每隔 1 分钟保存一次配置'>
+                <Tooltip title='开启自动保存后，将每隔 1 分钟保存一次配置'>
                     <div className='auto-save-wrapper'>
                         <span className='auto-save-label'>自动保存</span>
                         <Switch size='small' defaultChecked={auto_save} onChange={on_auto_save} />
                     </div>
-                </Tooltip> */}
+                </Tooltip>
             </>}
             
             {(model.dev || model.test ) && <HostSelect />}
