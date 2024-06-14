@@ -113,7 +113,7 @@ def dcp_deleteConnect(args){
 @return 连接列表json,{"mqtt": [], "kafka": []}
 */
 def dcp_getConnectList(){
-    connectAll = select * from loadTable("dfs://dataAcquisition","connectInfo") 
+    connectAll = select * from loadTable("dfs://dataAcquisition","connectInfo") order by updateTime desc
     protocolList = exec distinct protocol from connectAll
     res = '{'
     for(index in 0..(protocolList.size()-1)){
@@ -319,8 +319,8 @@ connectId: 连接ID   整数
 */
 def dcp_getConnectAndSubInfo(args){
     subArgs = parseExpr(args).eval()
-    connect = select * from loadTable("dfs://dataAcquisition","connectInfo") where id = uuid(subArgs['connectId'])
-    subscribe = select * from loadTable("dfs://dataAcquisition","subscribeInfo") where connectId = uuid(subArgs['connectId'])
+    connect = select * from loadTable("dfs://dataAcquisition","connectInfo") where id = uuid(subArgs['connectId']) order by updateTime desc
+    subscribe = select * from loadTable("dfs://dataAcquisition","subscribeInfo") where connectId = uuid(subArgs['connectId']) order by updateTime desc
     return '{"connectInfo":'+toStdJson(connect[0])+',"subscribes":'+toStdJson(subscribe)+',"total":'+subscribe.size()+'}'      
 }
 
@@ -330,7 +330,6 @@ def dcp_getConnectAndSubInfo(args){
 参数：args 为标准json，需要包含以下字段：
 subId: 订阅ID   
 */
-
 def dcp_startSubscribe(args){
     subArgs = parseExpr(args).eval()
     //通过订阅id获取链接信息，解析模板信息
@@ -366,11 +365,9 @@ def dcp_startSubscribe(args){
         //初始化消费者配置
         subscribeStr +='consumerCfg = dict(string, any);
         consumerCfg["metadata.broker.list"] = tmp.host+":"+tmp.port;
-        if(tmp.consumerCfg != string(NULL)){
-            cfgTable = parseJsonTable(tmp.consumerCfg);
-            for(i in cfgTable){
-                consumerCfg[i.key]=i.value
-            }
+        cfgTable = parseJsonTable(tmp.consumerCfg);
+        for(i in cfgTable){
+            consumerCfg[i.key]=i.value
         }
         consumer = kafka::consumer(consumerCfg);
         topic,partition,offset=[tmp.topic],[tmp.partition],[tmp.offset]; 
@@ -438,12 +435,30 @@ def dcp_stopSubscribe(args){
 
 
 /*
+查看订阅状态
+@args subId:订阅ID 字符串
+@return 返回一个包含订阅状态的json，键为subStatus   
+*/
+def dcp_getSubStatus(args){
+    subArgs = parseExpr(args).eval()
+    subs =select id,subId,connectId from loadTable("dfs://dataAcquisition","subscribeInfo") where id=uuid(subArgs[`subId])
+    connInfo = select id,protocol from loadTable("dfs://dataAcquisition","connectInfo") where id = uuid(subs.connectId[0])    
+    if(connInfo.protocol == "mqtt"){
+        tmp = select * from mqtt::getSubscriberStat() where subscriptionId = subs.subId
+    }else if(connInfo.protocol=="kafka"){
+        tmp = select * from kafka::getJobStat() where subscriptionId = subs.subId
+    }
+    return '{"subStatus":'+toStdJson(tmp)+'}'
+}
+
+
+/*
 检测订阅状态
-将已经不存在的订阅关闭
+将库中状态为开启状态但实际已经不存在的订阅关闭
 @args connectId:连接ID int整数  
 
 */
-def dcp_subStatusMonitor(args){
+def dcp_checkSubStatus(args){
     subArgs = parseExpr(args).eval()
     subs =select id,subId,connectId from loadTable("dfs://dataAcquisition","subscribeInfo") where connectId=uuid(subArgs[`connectId])
     connInfo = select id,protocol from loadTable("dfs://dataAcquisition","connectInfo") where id = uuid(subArgs[`connectId])    
@@ -474,15 +489,14 @@ comment:模板备注 字符串
 @return 无
 */
 def dcp_addHandler(args){
-    handlerArgs = parseExpr(args).eval()
+    handlerArgs = parseExpr(args).eval() 
     id = rand(uuid(),1)
-    templateParams = dcp_parseTemplateArgs(handlerArgs['handler'],handlerArgs['protocol'])
-    tmp = table(id as id, [handlerArgs['name']] as name, [handlerArgs['handler']] as handler, [handlerArgs['protocol']] as `protocol,
+    templateParams = dcp_parseTemplateArgs(handlerArgs[`handler],handlerArgs['protocol'])
+    tmp = table(id as id, [handlerArgs['name']] as name, [handlerArgs[`handler]] as handler, [handlerArgs['protocol']] as `protocol,
     string([handlerArgs['comment']]) as comment,[templateParams] as templateParams,[now()] as createTime,[now()] as updateTime)  
     loadTable("dfs://dataAcquisition","ParserTemplate").append!(tmp)
     return '{"status":1,"id":"'+string(id[0])+'"}'    
 }
-
 
 /*
 修改模板
@@ -492,20 +506,26 @@ id:模板id 整数
 可选：
 name:模板名称 字符串
 protocol:协议 字符串
-code:函数定义 字符串
+handler:函数定义 字符串
 comment:模板备注 字符串
 @return 无
 */
-def dcp_updateHandler(args){
+def dcp_updateHandler(args){  
+    // tmp = args.split('"handler":"')
+    // handlers = tmp[1].split('","id":')[0]   
+    // argsTmp = tmp[0] + '"id":' +  tmp[1].split(',"id":')[1]
     handlerArgs = parseExpr(args).eval()    
-    ParserTemplate = loadTable("dfs://dataAcquisition","ParserTemplate")
-    update ParserTemplate set name = handlerArgs[`name] where id=uuid(handlerArgs[`id])
-    update ParserTemplate set protocol = handlerArgs[`protocol] where id=uuid(handlerArgs[`id])
-    update ParserTemplate set handler = handlerArgs[`code] where id=uuid(handlerArgs[`id])
-    update ParserTemplate set comment = handlerArgs[`comment] where id=uuid(handlerArgs[`id])
-    update ParserTemplate set updateTime = now()  where id=uuid(handlerArgs[`id])
+    ParserTemplate = select * from loadTable("dfs://dataAcquisition","ParserTemplate") where id=uuid(handlerArgs[`id])
+    update ParserTemplate set name = handlerArgs[`name] 
+    update ParserTemplate set protocol = handlerArgs[`protocol] 
+    update ParserTemplate set handler = handlerArgs[`handler] 
+    update ParserTemplate set comment = handlerArgs[`comment] 
+    update ParserTemplate set updateTime = now() 
+    delete from loadTable("dfs://dataAcquisition","ParserTemplate") where id=uuid(handlerArgs[`id])
+    loadTable("dfs://dataAcquisition","ParserTemplate").append!(ParserTemplate) 
     return '{"status":1}'   //更新成功  
 }    
+
 
 /*
 删除模板
@@ -514,7 +534,7 @@ id:模板id int数组
 */
 def dcp_deleteHandler(args){
     handlerArgs = parseExpr(args).eval()
-    delete from loadTable("dfs://dataAcquisition","ParserTemplate") where id in uuid(handlerArgs[`id])
+    delete from loadTable("dfs://dataAcquisition","ParserTemplate") where id in uuid(handlerArgs[`ids])
     return '{"status":1}'   //删除成功  
 }
 
@@ -528,9 +548,9 @@ def dcp_deleteHandler(args){
 def dcp_getParserTemplateList(args="{}"){
     protocolType=parseExpr(args).eval()['protocol']
     if(protocolType==string(NULL)){
-        tmp = select * from loadTable("dfs://dataAcquisition","ParserTemplate")
+        tmp = select * from loadTable("dfs://dataAcquisition","ParserTemplate") order by updateTime desc    
     }else{
-        tmp = select * from loadTable("dfs://dataAcquisition","ParserTemplate") where protocol=protocolType 
+        tmp = select * from loadTable("dfs://dataAcquisition","ParserTemplate") where protocol=protocolType order by updateTime desc
     } 
     return '{"items":'+toStdJson(tmp)+',"total":'+tmp.size()+'}'  
 }
@@ -572,7 +592,7 @@ def dcp_parseTemplateArgs(handler,protocol){
     return paramList   
 }
 
-
+//初始化解析模板
 def initParserTemplate(){   
     //初始化解析模板
     handler = '
@@ -605,10 +625,9 @@ def initParserTemplate(){
     args = '{"name":"saveJsonMsg","handler":\''+handler+'\',"protocol":"mqtt","comment":"转存json数据"}'   
     dcp_addHandler(args)
 
-
     handler = "
     def saveMsg(msg,key,topic){
-        return table([topic] as topic,[msg] as dataContent,[now(true) as startTime])    
+        return table([topic] as topic,[msg] as dataContent,[now(true)] as startTime)    
     }
     "
     args = '{"name":"saveJsonMsg_kafka","handler":\''+handler+'\',"protocol":"kafka","comment":"转存json数据"}'   
@@ -616,20 +635,23 @@ def initParserTemplate(){
 
 
     handler='
-    def parseKafka(timeColumn,idColumn,msg,key,topic){
+     def parseKafka(timeColumn,idColumn,msg,key,topic){
         tempdict = parseExpr(msg).eval()
+        writeLog("KAFKA DATA:"+msg)
         keys = tempdict.keys()
         rowNum = keys.size()-2
         tmp = table(rowNum:rowNum,[`ts,`id,`metric,`value],[TIMESTAMP,STRING,STRING,DOUBLE])    
         if(timeColumn==NULL or tempdict[timeColumn]==NULL){ 
             ts = now()
         }else{
-            ts = temporalParse(tempdict[timeColumn],"yyyy-MM-dd HH:mm:ss")
+            ts = temporalParse(tempdict[timeColumn],"yyyy.MM.ddTHH:mm:ss.SSS")
         }
-        id = tempdict[idColumn] 
+        tmp[`ts] = ts
+        tmp[`id] = tempdict[idColumn] 
         for(i in keys){
             if(!(i in [timeColumn,idColumn] )){
-                tmp.append!(table([ts] as ts,[id] as id,[i] as metric,[tempdict[i]] as value))            
+                tmp[`metric] =  take(i,rowNum) 
+                tmp[`value] =   tempdict[i]
             }
         }
         return tmp  
@@ -647,11 +669,10 @@ protocol 协议 字符串
 */
 def dcp_getLog(args){
     protocol = upper(parseExpr(args).eval()[`protocol])
-    cmd = 'awk -v end="$(date +'+"'%Y-%m-%d %H:%M:%S' --date='1 hour ago'"+')"' +' -F","'+' \'$1 >= end\' ./dolphindb.log |grep "'+protocol +'" > ./'+protocol+'.log'
-    shell(cmd)
-    parttern = "%"+cmd+"%"
-    logArr = exec col0 from ploadText("./"+protocol+".log","?",,,,false) where col0 not like parttern   
-    return logArr
+    rowBytes = 5000000
+    log = getServerLog(rowBytes,getServerLogLength(getNodeAlias())-rowBytes,true,getNodeAlias()) as log
+    res = log[regexFind(log,protocol)!=-1]
+    return res
 }
 
 /*
@@ -704,11 +725,12 @@ def dcp_dropAllFunctionView(){
     dropFunctionView(`dcp_getConnectAndSubInfo) 
     dropFunctionView(`dcp_getParserTemplateList)
     dropFunctionView(`dcp_parseTemplateArgs) 
-    dropFunctionView(`dcp_subStatusMonitor)
     dropFunctionView(`dcp_addHandler)
     dropFunctionView(`dcp_updateHandler)
     dropFunctionView(`dcp_deleteHandler)
     dropFunctionView(`dcp_getLog)
+    dropFunctionView(`dcp_checkSubStatus)
+    dropFunctionView(`dcp_getSubStatus)
 }
 
 def dcp_clearEnv(){
@@ -735,9 +757,10 @@ def dcp_init(){
     addFunctionView(dcp_getConnectAndSubInfo)
     addFunctionView(dcp_getParserTemplateList)
     addFunctionView(dcp_parseTemplateArgs)
-    addFunctionView(dcp_subStatusMonitor)
     addFunctionView(dcp_addHandler)
     addFunctionView(dcp_updateHandler)
     addFunctionView(dcp_deleteHandler)
+    addFunctionView(dcp_checkSubStatus)
+    addFunctionView(dcp_getSubStatus)
 }
 
