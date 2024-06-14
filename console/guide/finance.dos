@@ -29,8 +29,8 @@
 
 	filterCols = array(STRING,0,paramDict.table.filterCols.size())
 	filterNum = array(INT,0,paramDict.table.filterCols.size())
-	for (i in paramDict.table.filterCols){
-		if (i != NULL){
+	if (paramDict.table.filterCols.count() != 0){
+		for (i in paramDict.table.filterCols){
 			filterCols.append!(i.colName)
 			filterNum.append!(i.uniqueNum)
 		}
@@ -136,27 +136,27 @@
 			}
 		}
 		else{
-			sortMapFunc=""
+			sortKeyMappingFunction=""
 			if (filterCols.size() >0){
 				if (filterCols.size()==1){
 					if (hashCol in filterCols and int(hashCount)%500==0 and filterNum[0]>500){
-						sortMapFunc="sortMapFunc=[hashBucket{,499}]"
+						sortKeyMappingFunction="sortKeyMappingFunction=[hashBucket{,499}]"
 					}
 					else if(filterNum[0]>500){
-						sortMapFunc="sortMapFunc=[hashBucket{,500}]"
+						sortKeyMappingFunction="sortKeyMappingFunction=[hashBucket{,500}]"
 					}
 				}
 				else if (filterCols.size()==2){
 					if (hashCol in filterCols and int(hashCount)%20==0 and filterNum[0]*filterNum[1]>500){
 						if (at(filterCols==hashCol)[0]==0){
-							sortMapFunc="sortMapFunc=[hashBucket{,21},hashBucket{,25}]"
+							sortKeyMappingFunction="sortKeyMappingFunction=[hashBucket{,21},hashBucket{,25}]"
 						}
 						else{
-							sortMapFunc="sortMapFunc=[hashBucket{,25},hashBucket{,21}]"
+							sortKeyMappingFunction="sortKeyMappingFunction=[hashBucket{,25},hashBucket{,21}]"
 						}
 					}
 					else if (filterNum[0]*filterNum[1]>500){
-						sortMapFunc="sortMapFunc=[hashBucket{,20}, hashBucket{,25}]"
+						sortKeyMappingFunction="sortKeyMappingFunction=[hashBucket{,20}, hashBucket{,25}]"
 					}
 				}
 				if (hashCount==-1){
@@ -166,8 +166,8 @@
 						filter=concat(filterCols,"`")
 					}
 
-					if(sortMapFunc!=""){
-						createTB= "db.createPartitionedTable(table=tbSchema, tableName=`"+tbName+", partitionColumns=`"+timeCol+", sortColumns=`"+filter+"`"+timeCol+",sortKeyMappingFunction=sortMapFunc)"
+					if(sortKeyMappingFunction!=""){
+						createTB= "db.createPartitionedTable(table=tbSchema, tableName=`"+tbName+", partitionColumns=`"+timeCol+", sortColumns=`"+filter+"`"+timeCol+",sortKeyMappingFunction=sortKeyMappingFunction)"
 					}
 					else{
 						createTB= "db.createPartitionedTable(table=tbSchema, tableName=`"+tbName+", partitionColumns=`"+timeCol+", sortColumns=`"+filter+"`"+timeCol+")"
@@ -176,7 +176,7 @@
 					if (comment != "{}"){
 						setCom = '\nsetColumnComment(table=loadTable("'+dbName+'","'+tbName+'"), columnComments='+comment+")"
 					}
-					res = res+tbSchema+"\n"+sortMapFunc+"\n"+createTB+setCom
+					res = res+tbSchema+"\n"+sortKeyMappingFunction+"\n"+createTB+setCom
 					resCode["code"]=res
 					return toStdJson(resCode)
 				}
@@ -187,8 +187,8 @@
 						filter=concat(filterCols,"`")
 					}
 
-					if(sortMapFunc!=""){
-						createTB = "db.createPartitionedTable(table=tbSchema, tableName=`"+tbName+", partitionColumns=`"+timeCol+"`"+hashCol+", sortColumns=`"+filter+"`"+timeCol+",sortKeyMappingFunction=sortMapFunc)"
+					if(sortKeyMappingFunction!=""){
+						createTB = "db.createPartitionedTable(table=tbSchema, tableName=`"+tbName+", partitionColumns=`"+timeCol+"`"+hashCol+", sortColumns=`"+filter+"`"+timeCol+",sortKeyMappingFunction=sortKeyMappingFunction)"
 					}
 					else{
 						createTB= "db.createPartitionedTable(table=tbSchema, tableName=`"+tbName+", partitionColumns=`"+timeCol+"`"+hashCol+", sortColumns=`"+filter+"`"+timeCol+")"
@@ -197,7 +197,7 @@
 					if (comment != "{}"){
 						setCom = '\nsetColumnComment(table=loadTable("'+dbName+'","'+tbName+'"), columnComments='+comment+")"
 					}
-					res += tbSchema+"\n"+sortMapFunc+"\n"+createTB+setCom
+					res += tbSchema+"\n"+sortKeyMappingFunction+"\n"+createTB+setCom
 					resCode["code"]=res
 					return toStdJson(resCode)
 				}
@@ -251,7 +251,7 @@
 			}
 		}
 		else{
-			sortMapFunc=""
+			sortKeyMappingFunction=""
 			if (filterCols.size() >0){
 				if(database(dbName).schema().partitionTypeName.typestr() like "%VECTOR%"){
 					hashCol = ptCols[at(database(dbName).schema().partitionTypeName==`HASH)]
@@ -280,30 +280,30 @@
 				}
 				if (filterCols.size()==1){
 					if (hasHash.size()!=0 and hashCount[hasHash[0]]%500==0 and hashNum[0]>500){
-						sortMapFunc="sortMapFunc=[hashBucket{,499}]"
+						sortKeyMappingFunction="sortKeyMappingFunction=[hashBucket{,499}]"
 					}
 					else if(filterNum[0]>500){
-						sortMapFunc="sortMapFunc=[hashBucket{,500}]"
+						sortKeyMappingFunction="sortKeyMappingFunction=[hashBucket{,500}]"
 					}
 				}
 				else if (filterCols.size()==2){
 					if (hasHash.size()!=0){
 						if(hasHash.size()==1 and hashCount[hasHash[0]]%20==0 and filterNum[0]*filterNum[1]>500){
 							if (at(filterCols==hasHash[0])[0]==0){
-								sortMapFunc="sortMapFunc=[hashBucket{,21},hashBucket{,25}]"
+								sortKeyMappingFunction="sortKeyMappingFunction=[hashBucket{,21},hashBucket{,25}]"
 							}
 							else{
-								sortMapFunc="sortMapFunc=[hashBucket{,25},hashBucket{,21}]"
+								sortKeyMappingFunction="sortKeyMappingFunction=[hashBucket{,25},hashBucket{,21}]"
 							}
 						}
 						else if(filterNum[0]*filterNum[1]>500){
 							bucketNum1 = iif(hashCount[hasHash[0]]%20==0,21,20)
 							bucketNum2 = iif(hashCount[hasHash[1]]%25==0,26,25)
-							sortMapFunc="sortMapFunc=[hashBucket{,"+string(bucketNum1)+"},hashBucket{,"+string(bucketNum2)+"}]"
+							sortKeyMappingFunction="sortKeyMappingFunction=[hashBucket{,"+string(bucketNum1)+"},hashBucket{,"+string(bucketNum2)+"}]"
 						}
 					}
 					else if (filterNum[0]*filterNum[1]>500){
-						sortMapFunc="sortMapFunc=[hashBucket{,20}, hashBucket{,25}]"
+						sortKeyMappingFunction="sortKeyMappingFunction=[hashBucket{,20}, hashBucket{,25}]"
 					}
 				}
 				if (timeCol in filterCols){
@@ -320,8 +320,8 @@
 				else{
 					ptc = concat(ptCols,"`")
 				}
-				if(sortMapFunc!=""){
-					createTB= "db.createPartitionedTable(table=tbSchema, tableName=`"+tbName+", partitionColumns=`"+ptc+", sortColumns=`"+filter+"`"+timeCol+",sortKeyMappingFunction=sortMapFunc)"
+				if(sortKeyMappingFunction!=""){
+					createTB= "db.createPartitionedTable(table=tbSchema, tableName=`"+tbName+", partitionColumns=`"+ptc+", sortColumns=`"+filter+"`"+timeCol+",sortKeyMappingFunction=sortKeyMappingFunction)"
 				}
 				else{
 					createTB= "db.createPartitionedTable(table=tbSchema, tableName=`"+tbName+", partitionColumns=`"+ptc+", sortColumns=`"+filter+"`"+timeCol+")"
@@ -330,7 +330,7 @@
 				if (comment != "{}"){
 					setCom = '\nsetColumnComment(table=loadTable("'+dbName+'","'+tbName+'"),columnComments='+comment+")"
 				}
-				res = res+tbSchema+"\n"+sortMapFunc+"\n"+createTB+setCom
+				res = res+tbSchema+"\n"+sortKeyMappingFunction+"\n"+createTB+setCom
 				resCode["code"]=res
 				return toStdJson(resCode)
 			}
