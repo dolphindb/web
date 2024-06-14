@@ -1,3 +1,8 @@
+/*
+    1.修复建库失败，抛出异常，但是并未将新建的库删掉的BUG
+    2.修复重复sortColumns导致建库失败的BUG
+*/
+
 def DBMSIOT_checkDatabase(args){
 //检查是否存在库
     dbName = "dfs://"+args.parseExpr().eval()[`dbName]
@@ -184,13 +189,14 @@ def DBMSIOT_getDimensionTable(dbName,tbName,colName,colType,deltaDict,comment){
 
 
         if(deltaDict.keys().size() == 0){
-            dt = dt + ");"+setcomment+"}" + "catch(ex){"+"if(!existsTable('"+dbName+"','"+tbName+"'))throw ex ;"+"dropDatabase("+'"'+dbName+'")}'
+            // dt = dt + ");"+setcomment+"}" + "catch(ex){"+"if(!existsTable('"+dbName+"','"+tbName+"'))throw ex ;"+"dropDatabase("+'"'+dbName+'")}'
+            dt = dt + ");"+setcomment+"}" + "catch(ex){"+"if(!existsTable('"+dbName+"','"+tbName+"')){dropDatabase("+'"'+dbName+'");throw ex}}'
         }else{
             dt = dt + ",compressMethods={"
             for(x in deltaDict.keys()){
                 dt = dt + x +":" + '"delta"'+","
             }
-            dt = dt.substr(0,strlen(dt)-1)+"});"+setcomment+"}"+"catch(ex){"+"if(!existsTable('"+dbName+"','"+tbName+"'))throw ex; "+"dropDatabase("+'"'+dbName+'")}' 
+            dt = dt.substr(0,strlen(dt)-1)+"});"+setcomment+"}"+"catch(ex){"+"if(!existsTable('"+dbName+"','"+tbName+"')){dropDatabase("+'"'+dbName+'");throw ex}}' 
         }
         return db+"\n" + dt
 }
@@ -236,7 +242,7 @@ def DBMSIOT_getStaticPartitionTable(dbName,tbName,colName,colType,totalNum,sortC
     }
     pt = pt + ",sortColumns=" 
 
-    pt = pt + "`"+sortColumn[1]+"`"+sortColumn[0]+");"+setcomment+"}" + "catch(ex){"+"if(!existsTable('"+dbName+"','"+tbName+"'))throw ex ;"+"dropDatabase("+'"'+dbName+'")}'   //静态数据大于200w，不进行降维
+    pt = pt + "`"+sortColumn[1]+"`"+sortColumn[0]+");"+setcomment+"}" + "catch(ex){"+"if(!existsTable('"+dbName+"','"+tbName+"')){dropDatabase("+'"'+dbName+'");throw ex}}'   //静态数据大于200w，不进行降维
 
     return db + "\n" + pt
 }
@@ -372,10 +378,10 @@ def DBMSIOT_createDB(args){
         }
 
         if(sum(sortKeyHashMapNum)==0){
-            pt = pt+");"+setcomment+"}" + "catch(ex){"+"if(!existsTable('"+dbName+"','"+tbName+"'))throw ex ;"+"dropDatabase("+'"'+dbName+'")}'
+            pt = pt+");"+setcomment+"}" + "catch(ex){"+"if(!existsTable('"+dbName+"','"+tbName+"')){dropDatabase("+'"'+dbName+'");throw ex}}'
             return dbcode + "\n" + pt
         }else{
-            mapCode = ",sortKeyMappingFunction=[hashBucket{"+","+sortKeyHashMapNum[0]+"}]);"+setcomment+"}" + "catch(ex){"+"if(!existsTable('"+dbName+"','"+tbName+"'))throw ex ;"+"dropDatabase("+'"'+dbName+'")}' 
+            mapCode = ",sortKeyMappingFunction=[hashBucket{"+","+sortKeyHashMapNum[0]+"}]);"+setcomment+"}" + "catch(ex){"+"if(!existsTable('"+dbName+"','"+tbName+"')){dropDatabase("+'"'+dbName+'");throw ex}}' 
             pt = pt+ mapCode
             return dbcode + "\n" + pt
         }
@@ -502,7 +508,7 @@ def DBMSIOT_getStaticPartitionTableOLAP(dbName,tbName,colName,colType,totalNum,a
         pt = pt.substr(0,strlen(pt)-1)+"}"
     }
 
-    pt = pt + ");"+setcomment+"}" + "catch(ex){"+"if(!existsTable('"+dbName+"','"+tbName+"'))throw ex ;"+"dropDatabase("+'"'+dbName+'")}' 
+    pt = pt + ");"+setcomment+"}" + "catch(ex){"+"if(!existsTable('"+dbName+"','"+tbName+"')){dropDatabase("+'"'+dbName+'");throw ex}}' 
     return db + "\n" + pt
 }
 
@@ -559,7 +565,7 @@ def DBMSIOT_getStaticPartitionTableTSDB(dbName,tbName,colName,colType,totalNum,a
     }
     pt = pt +"`"+sortColumn[0]+",keepDuplicates="+keepDuplicates
     if(sum(sortKeyHashMapNum)==0){
-        pt = pt + ");"+setcomment+"}" + "catch(ex){"+"if(!existsTable('"+dbName+"','"+tbName+"'))throw ex ;"+"dropDatabase("+'"'+dbName+'")}'   
+        pt = pt + ");"+setcomment+"}" + "catch(ex){"+"if(!existsTable('"+dbName+"','"+tbName+"')){dropDatabase("+'"'+dbName+'");throw ex}}'   
     }else{
         mapCode = ",sortKeyMappingFunction=[,"
         for(x in sortKeyHashMapNum[1:]){
@@ -569,7 +575,7 @@ def DBMSIOT_getStaticPartitionTableTSDB(dbName,tbName,colName,colType,totalNum,a
                 mapCode = mapCode + "hashBucket{"+","+x+"}"+","
             }
         }
-        mapCode = mapCode.substr(0,strlen(mapCode)-1)+"]);"+setcomment+"}" + "catch(ex){"+"if(!existsTable('"+dbName+"','"+tbName+"'))throw ex ;"+"dropDatabase("+'"'+dbName+'")}'
+        mapCode = mapCode.substr(0,strlen(mapCode)-1)+"]);"+setcomment+"}" + "catch(ex){"+"if(!existsTable('"+dbName+"','"+tbName+"')){dropDatabase("+'"'+dbName+'");throw ex}}'
         pt = pt + mapCode
     }
     return db + "\n" + pt
@@ -684,7 +690,7 @@ def DBMSIOT_createDB2(args){
                 pt = pt.substr(0,strlen(pt)-1)+"}"
             }
             
-            pt = pt + ");"+setcomment+"}" + "catch(ex){"+"if(!existsTable('"+dbName+"','"+tbName+"'))throw ex ;"+"dropDatabase("+'"'+dbName+'")}'
+            pt = pt + ");"+setcomment+"}" + "catch(ex){"+"if(!existsTable('"+dbName+"','"+tbName+"')){dropDatabase("+'"'+dbName+'");throw ex}}'
             return dbcode + "\n" + pt
         }else{  //TSDB引擎  
             keepDuplicates = iif(q[`keepDuplicates]==0,"ALL",iif(q[`keepDuplicates]==1,"FIRST","LAST"))
@@ -768,7 +774,7 @@ def DBMSIOT_createDB2(args){
             pt = pt +"`"+sortColumn[0]+",keepDuplicates="+keepDuplicates
 
             if(sum(sortKeyHashMapNum)==0){
-                pt = pt+");"+setcomment+"}" + "catch(ex){"+"if(!existsTable('"+dbName+"','"+tbName+"'))throw ex ;"+"dropDatabase("+'"'+dbName+'")}' 
+                pt = pt+");"+setcomment+"}" + "catch(ex){"+"if(!existsTable('"+dbName+"','"+tbName+"')){dropDatabase("+'"'+dbName+'");throw ex}}' 
             }else{
                 mapCode = ",sortKeyMappingFunction=["
                 for(x in sortKeyHashMapNum){
@@ -778,7 +784,7 @@ def DBMSIOT_createDB2(args){
                         mapCode = mapCode + "hashBucket{"+","+x+"}"+","
                     }
                 }
-                mapCode = mapCode.substr(0,strlen(mapCode)-1)+"]);"+setcomment+"}" + "catch(ex){"+"if(!existsTable('"+dbName+"','"+tbName+"'))throw ex ;"+"dropDatabase("+'"'+dbName+'")}'  
+                mapCode = mapCode.substr(0,strlen(mapCode)-1)+"]);"+setcomment+"}" + "catch(ex){"+"if(!existsTable('"+dbName+"','"+tbName+"')){dropDatabase("+'"'+dbName+'");throw ex}}'  
                 pt = pt +mapCode
             }
             return dbcode + "\n" + pt
@@ -809,7 +815,11 @@ def DBMSIOT_createDB2(args){
                 otherSortKey = [q[`otherSortKeyInfo][0][`colName]]
                 otherSortKeyUniqueNum = [q[`otherSortKeyInfo][0][`uniqueNum]]
 
-                sortColumn = dataTimeCol join [partitionColumn] join otherSortKey
+                second_sortColumn = [partitionColumn join otherSortKey].distinct()
+                sortColumn = dataTimeCol join partitionColumn join otherSortKey //这种情况下，需要校验 partitionColumn 和otherSortKey 是否重复
+
+
+
                 sortKeyNum = [1] join  otherSortKeyUniqueNum
                 code = DBMSIOT_getStaticPartitionTableTSDB(dbName,tbName,colName,colType,totalNum,atomic,partitionColumn,partitionColumnType,keepDuplicates,sortColumn,sortKeyNum,deltaDict,comment)
             }
