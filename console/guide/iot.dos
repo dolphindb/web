@@ -694,6 +694,7 @@ def DBMSIOT_createDB2(args){
             return dbcode + "\n" + pt
         }else{  //TSDB引擎  
             keepDuplicates = iif(q[`keepDuplicates]==0,"ALL",iif(q[`keepDuplicates]==1,"FIRST","LAST"))
+
             if(q[`otherSortKeyInfo].size()==1){
                 otherSortKey = [q[`otherSortKeyInfo][0][`colName]]
                 otherSortKeyUniqueNum = [q[`otherSortKeyInfo][0][`uniqueNum]]
@@ -701,6 +702,7 @@ def DBMSIOT_createDB2(args){
                 otherSortKey =  each(values,q[`otherSortKeyInfo])[,0].flatten()
                 otherSortKeyUniqueNum = each(values,q[`otherSortKeyInfo])[,1].flatten()
             }
+
             if(tmp[`secondPartitionType][0]==`null){  //一层分区为时间列，设备id列在otherSortKey中
                 sortColumn = partitionColumn  join otherSortKey
                 sortKeyNum = otherSortKeyUniqueNum  
@@ -708,9 +710,23 @@ def DBMSIOT_createDB2(args){
                 sortColumn = partitionColumn[0]  join otherSortKey
                 sortKeyNum = otherSortKeyUniqueNum  
             }else{   //一层分区时间列，二层分区设备id列，sortColumn不必包含设备id列
-                sortColumn = partitionColumn  join otherSortKey
-                sortKeyNum = tmp[`firstSortKeyNum] join  otherSortKeyUniqueNum 
+                if(partitionColumn[1] in otherSortKey){  //如果otherSortKey中包含了hash分区的id列，那么需要做去重
+                    index = find(otherSortKey,partitionColumn[1])
+                    sortColumn = partitionColumn
+                    sortKeyNum = tmp[`firstSortKeyNum]
+                    for( i in (0..(otherSortKey.size()-1))){
+                        if(i != index){
+                            sortColumn = sortColumn join otherSortKey[i]
+                            sortKeyNum = sortKeyNum join otherSortKeyUniqueNum[i]
+                        }
+                    }
+                }else{
+                    sortColumn = partitionColumn  join join otherSortKey
+                    sortKeyNum = tmp[`firstSortKeyNum] join  otherSortKeyUniqueNum
+                }                
             }
+
+
 
             if(cumprod(sortKeyNum)[sortKeyNum.size()-1]<1000){
                 sortKeyHashMapNum = take(0,sortKeyNum.size())
@@ -730,11 +746,13 @@ def DBMSIOT_createDB2(args){
                             sortKeyHashMapNum.append!(5)
                         }
                     }
-                    for(i in 1..(sortKeyNum.size()-1)){
-                        if(sortKeyNum[i]<10){
-                            sortKeyHashMapNum.append!(0)
-                        }else{
-                            sortKeyHashMapNum.append!(5)
+                    if(sortKeyNum.size() > 1){
+                        for(i in 1..(sortKeyNum.size()-1)){
+                            if(sortKeyNum[i]<10){
+                                sortKeyHashMapNum.append!(0)
+                            }else{
+                                sortKeyHashMapNum.append!(5)
+                            }
                         }
                     }
                 }else{
@@ -827,6 +845,7 @@ def DBMSIOT_createDB2(args){
         }
     }
 }
+
 
 addFunctionView(DBMSIOT_checkDatabase)
 addFunctionView(DBMSIOT_getSchema)
