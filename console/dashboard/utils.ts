@@ -210,7 +210,7 @@ export function parse_code (code: string, data_source?: DataSource): string {
         code = code.replace(/\{\{(.*?)\}\}/g, function (match, variable) {
             if (data_source)
                 subscribe_variable(data_source, variable)
-            return get_variable_value(variable.trim()) || ''
+            return get_variable_value(variable.trim())
         })
         return code
     } catch (error) {
