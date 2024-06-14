@@ -93,7 +93,8 @@ export function Connections () {
     const menu_items = useMemo(() => {
         if (isLoading)
             return [ ]
-        return Object.entries(data).map(([protocol, connections]) => {
+        return protocols.map(protocol => {
+            const connections = data[protocol] ?? [ ]
             return {
                 label: <div className='protocol_menu_item'>
                     <LinkOutlined />
@@ -116,7 +117,7 @@ export function Connections () {
                                 <FileTextOutlined 
                                     onClick={async e => {
                                         e.stopPropagation()
-                                        await NiceModal.show(ViewLogModal)
+                                        await NiceModal.show(ViewLogModal, { protocol })
                                     }} 
                                     className='add-connection-icon' 
                                 />
