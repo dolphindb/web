@@ -19,11 +19,17 @@ export function CommonSortCols (props: IProps) {
     
     const form = Form.useFormInstance()
     
+    
     const validator = useCallback(async (_, value) => { 
-        const otherSortKeyInfo = form.getFieldValue('otherSortKeyInfo') ?? [ ]
-        const name_list = otherSortKeyInfo.map(item => item?.colName)
+        const other_sortkey_info = form.getFieldValue('otherSortKeyInfo') ?? [ ]
+        // 分区列
+        const partition_column = form.getFieldValue('partitionColumn') ?? [ ]
+        const name_list = other_sortkey_info.map(item => item?.colName)
         if (countBy(name_list)?.[value] > 1)  
             return Promise.reject(t('已配置该常用筛选列，请修改'))
+        if (partition_column.includes(value)) 
+            return Promise.reject(t('常用筛选列不能包含分区列'))
+        
         for (let i = 0;  i < name_list.length;  i++)  
             if (name_list[i] && !options.find(item => item.value === name_list[i]) && name_list[i])
                 return Promise.reject(t('表结构中无 {{name}} 列，请修改', { name: name_list[i] }))

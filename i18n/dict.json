@@ -4372,5 +4372,8 @@
     },
     "数据表：{{name}}": {
         "en": "Table: {{name}}"
+    },
+    "常用筛选列不能包含分区列": {
+        "en": "Common filter columns cannot contain partition columns"
     }
 }
