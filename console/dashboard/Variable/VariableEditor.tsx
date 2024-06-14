@@ -145,7 +145,7 @@ export function VariableEditor ({
                                     <Popover 
                                         content={(
                                             <div>
-                                                {t('需返回一个两列的表格，第一列用作标签，第二列用作值。 ( 无法在此处使用变量  )')}
+                                                {t('需返回一个两列的表格，第一列用作标签，第二列用作值。 ( 无法在此处使用变量 )')}
                                             </div>
                                         )} 
                                     >
@@ -159,7 +159,7 @@ export function VariableEditor ({
                                     onClick={async () => { 
                                         try {
                                             set_loading(true)
-                                            const res = await model.ddb.eval(dashboard.variable_editor.getValue())
+                                            const res = await model.ddb.eval(dashboard.variable_editor.getValue().replaceAll('\r\n', '\n'))
                                             if (res.form !== DdbForm.table)
                                                 dashboard.message.error(t('返回结果必须是 table'))
                                             else if (res.cols !== 2)

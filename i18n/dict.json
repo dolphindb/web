@@ -4189,7 +4189,7 @@
     "SQL 导入：": {
         "en": "SQL import:"
     },
-    "需返回一个两列的表格，第一列用作标签，第二列用作值。 ( 无法在此处使用变量  )": {
+    "需返回一个两列的表格，第一列用作标签，第二列用作值。 ( 无法在此处使用变量 )": {
         "en": "A table with two columns should be returned, the first column as labels, and the second column as values. Variables cannot be used."
     },
     "测试环境部署时无法使用配置管理": {
