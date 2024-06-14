@@ -193,7 +193,7 @@ export function DataTypeSelect (props: IDataTypeSelect) {
                 max={limit.max}
                 value={decimal}
                 onChange={val => { set_decimal(val) }}
-                placeholder={t('DECIMAL 精度')}
+                placeholder='scale'
                 precision={0}
             />
         </div>
