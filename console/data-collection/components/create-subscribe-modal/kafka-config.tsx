@@ -28,14 +28,14 @@ export function KafkaConfig () {
                 <FileTextOutlined />
             </Link>
         </Space>
-        <Form.List name='consumerCfg' initialValue={[ ]}>
+        <Form.List name='consumerCfg' initialValue={[{ key: 'group.id' } ]}>
             {(fields, { add, remove }) => <>
                 {
-                    fields.map(field => {
-                        return <Row key={field.name} className='kafka-params-item' gutter={[8, 0]}>
+                    fields.map((field, idx) => {
+                        return <Row key={field.name} className='kafka-params-item' gutter={[16, 0]}>
                             <Col span={11}>
                                 <Form.Item label={t('参数')} name={[field.name, 'key']} rules={[{ required: true, message: t('请选择参数') }]}>
-                                    <Select showSearch placeholder={t('请选择参数')} options={data.consumerCfgList.map(item => ({ label: item, value: item }))} />
+                                    <Select disabled={idx === 0} showSearch placeholder={t('请选择参数')} options={data.consumerCfgList.filter(item => item !== 'group.id').map(item => ({ label: item, value: item }))} />
                                 </Form.Item>
                             </Col>
                             <Col span={11}>
@@ -44,9 +44,7 @@ export function KafkaConfig () {
                                 </Form.Item>
                             </Col>
                             <Col span={2}>
-                                <Button type='link' danger className='delete-icon-btn' onClick={() => { remove(field.name) }}>
-                                    <DeleteOutlined />
-                                </Button>
+                                <Button icon={<DeleteOutlined />} type='link' disabled={idx === 0} danger className='delete-icon-btn' onClick={() => { remove(field.name) }} />
                             </Col>
                         </Row>
                     }) 
