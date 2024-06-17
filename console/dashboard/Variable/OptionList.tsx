@@ -21,9 +21,14 @@ export function OptionList ({
     change_current_variable_property,
 }: {
     current_variable: Variable
-    change_current_variable_property: (key: string, value: VariablePropertyType, save_confirm?: boolean) => void
+    change_current_variable_property: (key: string[], value: VariablePropertyType[], save_confirm?: boolean) => void
 })  
 {   
+    function is_disabled (record) {
+        return (current_variable.mode === VariableMode.SELECT && current_variable.select_key === record.key)
+            || (current_variable.mode === VariableMode.MULTI_SELECT && current_variable.select_key?.includes?.(record.key))
+    }    
+    
     const defaultColumns: (ColumnTypes[number] & { editable?: boolean, dataIndex: string })[] = [
         {
             title: t('标签'),
@@ -42,15 +47,10 @@ export function OptionList ({
             width: 50,
             dataIndex: 'operation',
             render: (_, record) => { 
-                let disabled = false
-                if (current_variable.mode === VariableMode.SELECT && current_variable.value === record.value)
-                    disabled = true
-                else if (current_variable.mode === VariableMode.MULTI_SELECT && JSON.parse(current_variable.value)?.includes?.(record.value))
-                    disabled = true
                 return current_variable.options.length >= 1 ? (
                         <Popconfirm title={t('确定要删除该选项吗？')} onConfirm={() => { handleDelete(record.key as string) }}>
                             <Typography.Link
-                                disabled={disabled}
+                                disabled={is_disabled(record)}
                                 type='danger'
                             >
                                 {t('删除')}
@@ -76,15 +76,9 @@ export function OptionList ({
         return {
         ...col,
             onCell: (record: OptionType) => {     
-                // 当前选中变量值无法编辑
-                let disable_editable = false
-                if (current_variable.mode === VariableMode.SELECT && current_variable.value === record.value)
-                    disable_editable = true
-                else if (current_variable.mode === VariableMode.MULTI_SELECT && JSON.parse(current_variable.value)?.includes?.(record.value))
-                    disable_editable = true
                 return {
                     record,
-                    editable: col.editable && !disable_editable,
+                    editable: col.editable && !is_disabled(record),
                     dataIndex: col.dataIndex,
                     title: col.title,
                     handleSave,
@@ -94,17 +88,17 @@ export function OptionList ({
     })
     
     function handleDelete (key: string) {
-        change_current_variable_property('options', current_variable.options.filter(item => item.key !== key))
+        change_current_variable_property(['options'], [current_variable.options.filter(item => item.key !== key)])
     } 
     
     function handleAdd () {
         const id = String(genid())
         
-        change_current_variable_property('options', [...current_variable.options, {
+        change_current_variable_property(['options'], [[...current_variable.options, {
             label: `label ${id.slice(0, 4)}`,
             value: `value ${id.slice(0, 4)}`,
             key: id
-        }])
+        }]])
     } 
     
     function handleSave (row: OptionType) {
@@ -115,15 +109,15 @@ export function OptionList ({
             ...item,
             ...row,
         })
-        change_current_variable_property('options', new_options)
+        change_current_variable_property(['options'], [new_options])
     }
     
     function EditableRow ({ index, ...props }) {
         const [form] = Form.useForm()
         return <Form form={form} component={false}>
-            <EditableContext.Provider value={form}>
-                <tr {...props} />
-            </EditableContext.Provider>
+                <EditableContext.Provider value={form}>
+                    <tr {...props} />
+                </EditableContext.Provider>
             </Form>
     }
     
@@ -194,8 +188,7 @@ export function OptionList ({
                         <Popconfirm 
                             title={t('确定要清空所有选项吗？')} 
                             onConfirm={() => { 
-                                change_current_variable_property('options', [ ]) 
-                                change_current_variable_property('value', '') 
+                                change_current_variable_property(['options', 'value'], [[ ], ''])  
                             }}
                         >
                             <Button 

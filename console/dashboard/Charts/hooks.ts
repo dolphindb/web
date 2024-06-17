@@ -17,7 +17,7 @@ export function useChart ( option) {
             instance = ref.current?.getEchartsInstance()
         
         instance?.setOption(option, {
-            replaceMerge: ['series', 'dataZoom'],
+            replaceMerge: ['series', 'dataZoom', 'yAxis'],
         })
     }, [ref, option])
     

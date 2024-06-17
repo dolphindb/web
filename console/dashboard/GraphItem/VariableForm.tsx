@@ -8,7 +8,6 @@ import { genid } from 'xshell/utils.browser'
 
 import { type Variable, variables, update_variable_value } from '../Variable/variable.js'
 import { StringDatePicker } from '../../components/StringDatePicker/index.js'
-import { safe_json_parse } from '../utils.js'
 
 
 import { VariableMode } from '../type.js'
@@ -23,38 +22,23 @@ interface IProps {
     className?: string
 }
 
-interface IStringMultiSelectProps { 
-    value?: string
-    onChange?: (val: string) => void
-    options: SelectProps['options']
-}
-
-function StringMultiSelect (props: IStringMultiSelectProps) {
-    const { options, onChange, value } = props
-    
-    const on_change = useCallback(val => { 
-        onChange(JSON.stringify(val))
-    }, [ ])
-    
-    return <Select
-        allowClear
-        mode='multiple'
-        options={options}
-        value={safe_json_parse(value)}
-        onChange={on_change} />
-}
-
 
 function ControlField ({ variable }: { variable: Variable }) {
     const { id, mode, options, display_name } = variable
     
     const variable_obj = variables.use()
     const form = Form.useFormInstance()
+    
+    { /* https://github.com/ant-design/ant-design/issues/38244 */ }
+    { /* 拖拽元素下， select 下拉列表会有闪烁问题，每次选择之后更新 key，强制重新渲染，可解决闪烁问题 */ }
     const [key, set_key] = useState(genid())
     
     useEffect(() => { 
-        form.setFieldValue(id, variable_obj[id].mode === 'multiple' ? safe_json_parse(variable_obj[id].value) : variable_obj[id].value)
-    }, [variable_obj[id].value, id])
+        form.setFieldValue(id, (variable_obj[id].mode === VariableMode.MULTI_SELECT || variable_obj[id].mode === VariableMode.SELECT) 
+            ? variable_obj[id].select_key
+            : variable_obj[id].value
+        )
+    }, [variable_obj[id].value, variable_obj[id].select, id])
     
     switch (mode) {
         case VariableMode.DATE:
@@ -63,16 +47,20 @@ function ControlField ({ variable }: { variable: Variable }) {
             </Form.Item>
         case VariableMode.MULTI_SELECT:
             return <Form.Item name={id} label={display_name}>
-               <StringMultiSelect options={options}/>
+               <Select 
+                    key={key}
+                    onBlur={() => { set_key(genid()) }}
+                    allowClear 
+                    mode='multiple' 
+                    options={options.map(({ label, key }) => ({ label, value: key }))}
+                />
             </Form.Item>
         case VariableMode.SELECT:
             return <Form.Item name={id} label={display_name}>
-                {/* https://github.com/ant-design/ant-design/issues/38244 */}
-                {/* 拖拽元素下， select 下拉列表会有闪烁问题，每次选择之后更新 key，强制重新渲染，可解决闪烁问题 */}
                 <Select
                     key={key}
-                    onSelect={() => { set_key(genid()) } }
-                    options={options}
+                    onBlur={() => { set_key(genid()) } }
+                    options={options.map(({ label, key }) => ({ label, value: key }))}
                     allowClear
                 />
             </Form.Item>

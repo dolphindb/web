@@ -24,6 +24,8 @@ export type ExportVariable = {
     value: string
     
     options: OptionType[] 
+    
+    select_key: string | string[]
 }
 
 export class Variable  {
@@ -41,8 +43,11 @@ export class Variable  {
     
     value = ''
     
-    /** select 模式专用，可选的key*/
+    /** select 模式专用，可选的选项*/
     options: OptionType[] = [ ]
+    
+    /** select 模式专用，选中的 key，3.0.1.0 版本新增 */
+    select_key: string | string[] = ''
     
     
     constructor (id: string, name: string, display_name: string, deps = new Set<string>()) {
@@ -81,10 +86,32 @@ export function find_variable_by_name (variable_name: string): Variable {
 }
 
 
+export function find_value (variable: Variable, key: string | string[]): string {
+    function find_value_by_key (key: string) {
+        return variable.options.find(option => option.key === key).value
+    }
+    
+    return key?.length
+        ? ((typeof key === 'string') ? find_value_by_key(key) : JSON.stringify(key.map(key_item => find_value_by_key(key_item))))
+        : ''
+}
+
+
 export async function update_variable_value (change_variables: {})  {
     const data_sources = new Set<string>()
     Object.entries(change_variables).forEach(([variable_id, value]) => { 
-        variables.set({ [variable_id]: { ...variables[variable_id], value } })
+        const variable = variables[variable_id]
+        
+        variables.set({ [variable_id]: { ...variable, 
+            ...(variable.mode === VariableMode.MULTI_SELECT || variable.mode === VariableMode.SELECT)
+            ? {
+                value: find_value(variable, value as string | string[]),
+                select_key: value
+            }
+            : {
+                value
+            },
+        } })
         variables[variable_id].deps.forEach((data_source: string) => data_sources.add(data_source))
     })
     
@@ -105,15 +132,26 @@ export function get_variable_value (variable_name: string): string {
 
 
 export async function save_variable ( new_variable: Variable, is_import = false) {
-    const id = new_variable.id
+    const { id, mode, value, select_key, options } = new_variable
     
-    const is_select = new_variable.mode === VariableMode.MULTI_SELECT || new_variable.mode === VariableMode.SELECT
+    const is_select = mode === VariableMode.MULTI_SELECT || mode === VariableMode.SELECT
     
     if (!is_import && is_select)
         new_variable.code = dashboard.variable_editor?.getValue()
     
     if (!is_select)
         new_variable.options = [ ]
+    
+    // 此处兼容 3.0.1.0 之前的旧 dashboard 配置
+    if (is_select && is_import && value && !select_key.length) 
+        switch (mode) {
+            case VariableMode.SELECT:
+                new_variable.select_key = [options[options.findIndex(option => option.value === value)].key]
+                break
+            case VariableMode.MULTI_SELECT:
+                new_variable.select_key = safe_json_parse(value).map(value_item => options[options.findIndex(option => option.value === value_item)].key)
+                break
+        }
     
     variables.set({ [id]: { ...new_variable, deps: variables[id].deps } })
     

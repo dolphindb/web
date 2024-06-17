@@ -54,9 +54,9 @@ export function VariableConfig () {
     }, [ ])
     
     const change_current_variable_property = useCallback(
-        (key: string, value: VariablePropertyType, save_confirm = true) => {
+        (keys: string[], values: VariablePropertyType[], save_confirm = true) => {
             set_current_variable((pre: Variable) => {
-                pre[key] = value
+                keys.forEach((key, index) => { pre[key] = values[index] })
                 return cloneDeep(pre)
             })
             if (save_confirm)

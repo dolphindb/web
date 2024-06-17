@@ -18,6 +18,9 @@ $border_color: #333333
     height: 500px
     color: $font_color
     display: flex
+    
+    ::-webkit-scrollbar, ::-webkit-scrollbar:horizontal, ::-webkit-scrollbar:vertical
+        display: none !important
 
     .variable-list
         width: 240px
@@ -62,7 +65,7 @@ $border_color: #333333
         flex: 1
         display: flex
         flex-direction: column
-        overflow: hidden
+        overflow-y: scroll
             
         .variable-editor
             height: 100%

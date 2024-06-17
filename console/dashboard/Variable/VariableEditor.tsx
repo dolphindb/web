@@ -21,7 +21,7 @@ import { model } from '../../model.js'
 import { Editor } from '../../components/Editor/index.js'
 
 import { OptionList } from './OptionList.js'
-import { type Variable, type VariablePropertyType } from './variable.js'
+import { find_value, type Variable, type VariablePropertyType } from './variable.js'
 
 const { TextArea } = Input
 
@@ -36,7 +36,7 @@ export function VariableEditor ({
         loading: boolean
         set_loading: Dispatch<SetStateAction<boolean>>
         change_no_save_flag: (value: boolean) => void
-        change_current_variable_property: (key: string, value: VariablePropertyType, save_confirm?: boolean) => void
+        change_current_variable_property: (key: string[], value: VariablePropertyType[], save_confirm?: boolean) => void
     }) 
 { 
     const is_select = current_variable.mode === VariableMode.SELECT || current_variable.mode === VariableMode.MULTI_SELECT
@@ -46,18 +46,22 @@ export function VariableEditor ({
                     allowClear
                     size='small'
                     className='main-value-control-top'
-                    value={current_variable.value}
-                    onChange={value => { change_current_variable_property('value', value) }}
-                    options={current_variable.options}
+                    value={current_variable.select_key}
+                    onChange={value => { 
+                        change_current_variable_property(['select_key', 'value'], [value, find_value(current_variable, value)])
+                     }}
+                    options={current_variable.options.map(({ label, key }) => ({ label, value: key }))}
                 />,
         [VariableMode.MULTI_SELECT]: <Select
                     allowClear
                     size='small'
                     mode='multiple'
                     className='main-value-control-top'
-                    value={safe_json_parse(current_variable.value)}
-                    onChange={value => { change_current_variable_property('value', JSON.stringify(value)) }}
-                    options={current_variable.options}
+                    value={current_variable.select_key}
+                    onChange={value => {
+                        change_current_variable_property(['select_key', 'value'], [value, find_value(current_variable, value)])
+                    }}
+                    options={current_variable.options.map(({ label, key }) => ({ label, value: key }))}
                 />,
         [VariableMode.TEXT]: <TextArea 
                     size='small' 
@@ -65,7 +69,7 @@ export function VariableEditor ({
                     className='main-value-control-text'
                     value={current_variable.value}
                     onChange={event => {
-                        change_current_variable_property('value', event.target.value) 
+                        change_current_variable_property(['value'], [event.target.value]) 
                     }}
                 />,
         [VariableMode.DATE]: <DatePicker 
@@ -74,7 +78,7 @@ export function VariableEditor ({
                     className='main-value-control-date'
                     value={current_variable.value ? dayjs(current_variable.value) : null}
                     onChange={date => {
-                        change_current_variable_property('value', date ? date.format('YYYY.MM.DD') : '')
+                        change_current_variable_property(['value'], [date ? date.format('YYYY.MM.DD') : ''])
                     }} 
                 />
     }
@@ -97,7 +101,7 @@ export function VariableEditor ({
                             value={current_variable.display_name}
                             onChange={event => {
                                 if (event !== null)
-                                    change_current_variable_property('display_name', event.target.value.trim()) 
+                                    change_current_variable_property(['display_name'], [event.target.value.trim()]) 
                             }}
                         />
                     </div>
@@ -108,25 +112,24 @@ export function VariableEditor ({
                             className='main-config-input'
                             size='small'
                             onChange={(value: string) => { 
-                                change_current_variable_property('mode', value) 
-                                change_current_variable_property('value', value === 'multi_select' ? '[]' : '')
+                                change_current_variable_property(['mode', 'select_key', 'value'], [value, value === VariableMode.MULTI_SELECT ? [ ] : '', '']) 
                             }}
                             options={[
                                 {
                                     label: t('单选'),
-                                    value: 'select',
+                                    value: VariableMode.SELECT,
                                 },
                                 {
                                     label: t('多选'),
-                                    value: 'multi_select',
+                                    value: VariableMode.MULTI_SELECT,
                                 },
                                 {
                                     label: t('自由文本'),
-                                    value: 'text'
+                                    value: VariableMode.TEXT
                                 },
                                 {
                                     label: t('日期'),
-                                    value: 'date'
+                                    value: VariableMode.DATE
                                 }
                             ]}
                         />
@@ -165,16 +168,16 @@ export function VariableEditor ({
                                             else if (res.cols !== 2)
                                                 dashboard.message.error(t('返回结果的列数必须是 2'))
                                             else if (is_select)
-                                                change_current_variable_property('options', [
+                                                change_current_variable_property(['options'], [[
                                                     ...current_variable.options, 
                                                     ...sql_formatter(res).map(row => {
                                                         const keys = Object.keys(row)
                                                         return {
-                                                            key: String(genid()).slice(0, 4),
+                                                            key: String(genid()),
                                                             label: row[keys[0]],
                                                             value: row[keys[1]]
                                                         }
-                                                })])
+                                                })]])
                                         } finally {
                                             set_loading(false)
                                         }
