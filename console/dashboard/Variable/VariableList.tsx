@@ -22,7 +22,7 @@ interface PropsType {
     }
     handle_save: () => Promise<void>
     change_current_variable: (key: string) => void
-    change_current_variable_property: (key: string, value: VariablePropertyType, save_confirm?: boolean) => void
+    change_current_variable_property: (key: string[], value: VariablePropertyType[], save_confirm?: boolean) => void
 }
 
 interface MenuItemType {
@@ -99,7 +99,7 @@ export function VariableList ({
             let new_name = event.target.value
             try {
                 rename_variable(select_key, new_name)
-                change_current_variable_property('name', new_name, old_name !== new_name)
+                change_current_variable_property(['name'], [new_name], old_name !== new_name)
             } catch (error) {
                 dashboard.message.error(error.message)
                 new_name = old_name
