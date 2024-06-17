@@ -833,7 +833,7 @@ def DBMSIOT_createDB2(args){
                 otherSortKey = [q[`otherSortKeyInfo][0][`colName]]
                 otherSortKeyUniqueNum = [q[`otherSortKeyInfo][0][`uniqueNum]]
 
-                second_sortColumn = [partitionColumn join otherSortKey].distinct()
+                second_sortColumn = (partitionColumn join otherSortKey).distinct()
                 sortColumn = dataTimeCol join partitionColumn join otherSortKey //这种情况下，需要校验 partitionColumn 和otherSortKey 是否重复
 
 
