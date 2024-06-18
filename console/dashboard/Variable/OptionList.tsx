@@ -1,12 +1,14 @@
 import React, { useContext, useEffect, useRef, useState } from 'react'
-import { Form, Input, Popconfirm, Table, type  InputRef, Typography, Button } from 'antd'
+import { Form, Input, Popconfirm, Table, type  InputRef, Typography, Button, Popover } from 'antd'
 import type { FormInstance } from 'antd/es/form'
 import { genid } from 'xshell/utils.browser.js'
 
-import { DeleteOutlined, PlusOutlined } from '@ant-design/icons'
+import { DeleteOutlined, ExclamationCircleOutlined, PlusOutlined } from '@ant-design/icons'
 
 import { t } from '../../../i18n/index.js'
 import { VariableMode } from '../type.js'
+
+import { dashboard } from '../model.js'
 
 import { type Variable, type VariablePropertyType, type OptionType } from './variable'
 
@@ -18,9 +20,13 @@ const EditableContext = React.createContext<FormInstance<any> | null>(null)
 
 export function OptionList ({ 
     current_variable, 
+    variable_map,
+    update_variable_map,
     change_current_variable_property,
 }: {
     current_variable: Variable
+    variable_map: Map<string, number>
+    update_variable_map: (options?: OptionType[]) => void
     change_current_variable_property: (key: string[], value: VariablePropertyType[], save_confirm?: boolean) => void
 })  
 {   
@@ -31,7 +37,18 @@ export function OptionList ({
     
     const defaultColumns: (ColumnTypes[number] & { editable?: boolean, dataIndex: string })[] = [
         {
-            title: t('标签'),
+            title: <div> 
+                    {t('标签')}                  
+                    <Popover 
+                        content={(
+                            <div>
+                                {t('标签不可重复，重复会自动覆盖')}
+                            </div>
+                        )} 
+                    >
+                        <ExclamationCircleOutlined className='title-icon'/>
+                    </Popover>
+            </div>,
             dataIndex: 'label',
             editable: true,
             width: 300,
@@ -48,7 +65,7 @@ export function OptionList ({
             dataIndex: 'operation',
             render: (_, record) => { 
                 return current_variable.options.length >= 1 ? (
-                        <Popconfirm title={t('确定要删除该选项吗？')} onConfirm={() => { handleDelete(record.key as string) }}>
+                        <Popconfirm title={t('确定要删除该选项吗？')} onConfirm={() => { handleDelete(record as OptionType) }}>
                             <Typography.Link
                                 disabled={is_disabled(record)}
                                 type='danger'
@@ -87,29 +104,44 @@ export function OptionList ({
         }
     })
     
-    function handleDelete (key: string) {
-        change_current_variable_property(['options'], [current_variable.options.filter(item => item.key !== key)])
+    function handleDelete (record: OptionType) {
+        const new_options = current_variable.options.filter(item => item.key !== record.key)
+        change_current_variable_property(['options'], [new_options])
+        update_variable_map(new_options)
     } 
     
     function handleAdd () {
         const id = String(genid())
+        const suffix = id.slice(0, 4)
         
-        change_current_variable_property(['options'], [[...current_variable.options, {
-            label: `label ${id.slice(0, 4)}`,
-            value: `value ${id.slice(0, 4)}`,
-            key: id
-        }]])
+        const label = `label ${suffix}`
+        
+        if (variable_map.has(label)) 
+            dashboard.message.error(t('标签已存在，选项添加失败，请重试，必要时请修改现有标签'))
+        else {
+            change_current_variable_property(['options'], [[...current_variable.options, {
+                label,
+                value: `value ${suffix}`,
+                key: id
+            }]])
+            variable_map.set(label, variable_map.size - 1)
+        }
     } 
     
     function handleSave (row: OptionType) {
         const new_options = [...current_variable.options]
-        const index = new_options.findIndex(item => row.key === item.key)
-        const item = new_options[index]
-        new_options.splice(index, 1, {
-            ...item,
-            ...row,
-        })
+        const { label, value, key } = row
+        const index = new_options.findIndex(item => key === item.key)
+        const map_index = variable_map.get(label)
+        
+        if (variable_map.has(label) && map_index !== index) {
+            new_options[map_index].value = value
+            new_options.splice(index, 1)
+        }
+        else
+            new_options.splice(index, 1, { ...row })
         change_current_variable_property(['options'], [new_options])
+        update_variable_map(new_options)
     }
     
     function EditableRow ({ index, ...props }) {
@@ -166,7 +198,7 @@ export function OptionList ({
                 rules={[
                     {
                         required: true,
-                        message: `${title} is required.`,
+                        message: t('不能为空'),
                     },
                 ]}
             >
@@ -188,7 +220,8 @@ export function OptionList ({
                         <Popconfirm 
                             title={t('确定要清空所有选项吗？')} 
                             onConfirm={() => { 
-                                change_current_variable_property(['options', 'value'], [[ ], ''])  
+                                change_current_variable_property(['options', 'value'], [[ ], ''])
+                                variable_map.clear()
                             }}
                         >
                             <Button 

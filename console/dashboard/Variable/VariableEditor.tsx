@@ -4,13 +4,13 @@ import { Button, DatePicker, Input, Popover, Select } from 'antd'
 
 import { FormOutlined, QuestionCircleOutlined } from '@ant-design/icons'
 
-import { useEffect, type Dispatch, type SetStateAction } from 'react'
+import { useCallback, useEffect, type Dispatch, type SetStateAction } from 'react'
 
 import { DdbForm } from 'dolphindb/browser.js'
 
 import { genid } from 'xshell/utils.browser.js'
 
-import { safe_json_parse, sql_formatter } from '../utils.js'
+import { sql_formatter } from '../utils.js'
 import { t } from '../../../i18n/index.js'
 import { VariableMode } from '../type.js'
 
@@ -21,9 +21,11 @@ import { model } from '../../model.js'
 import { Editor } from '../../components/Editor/index.js'
 
 import { OptionList } from './OptionList.js'
-import { find_value, type Variable, type VariablePropertyType } from './variable.js'
+import { find_value, type OptionType, type Variable, type VariablePropertyType } from './variable.js'
 
 const { TextArea } = Input
+
+const variable_map = new Map<string, number>()
 
 export function VariableEditor ({ 
         current_variable, 
@@ -83,9 +85,18 @@ export function VariableEditor ({
                 />
     }
     
+    const update_variable_map = useCallback((options?: OptionType[]) => {
+        if (is_select) 
+            variable_map.clear()
+            ;(options ?? current_variable.options).forEach(({ label }, index) => variable_map.set(label, index))
+    }, [ ])
+    
     useEffect(() => {
         if (dashboard.variable_editor)
             dashboard.variable_editor.setValue(current_variable?.code || '')
+        
+        update_variable_map()
+            
         change_no_save_flag(false)
     }, [current_variable.id])
     
@@ -167,17 +178,24 @@ export function VariableEditor ({
                                                 dashboard.message.error(t('返回结果必须是 table'))
                                             else if (res.cols !== 2)
                                                 dashboard.message.error(t('返回结果的列数必须是 2'))
-                                            else if (is_select)
-                                                change_current_variable_property(['options'], [[
-                                                    ...current_variable.options, 
-                                                    ...sql_formatter(res).map(row => {
-                                                        const keys = Object.keys(row)
-                                                        return {
-                                                            key: String(genid()),
-                                                            label: row[keys[0]],
-                                                            value: row[keys[1]]
-                                                        }
-                                                })]])
+                                            else if (is_select) {
+                                                const new_options = [...current_variable.options]
+                                                const rows = sql_formatter(res)
+                                                const keys = Object.keys(rows[0])
+                                                
+                                                rows.forEach(row => {
+                                                    const label = row[keys[0]], value = row[keys[1]]
+                                                    if (variable_map.has(label)) 
+                                                        new_options[variable_map.get(label)].value = value
+                                                    else {
+                                                        new_options.push({ key: String(genid()), label, value })
+                                                        variable_map.set(label, new_options.length - 1)
+                                                    }
+                                                })
+                                                
+                                                change_current_variable_property(['options'], [new_options])
+                                            }
+                                            
                                         } finally {
                                             set_loading(false)
                                         }
@@ -199,6 +217,8 @@ export function VariableEditor ({
                         </div>
                         <OptionList
                             current_variable={current_variable}
+                            variable_map={variable_map}
+                            update_variable_map={update_variable_map}
                             change_current_variable_property={change_current_variable_property}
                         />
                     </>

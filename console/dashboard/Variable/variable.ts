@@ -64,7 +64,7 @@ export class Variables extends Model<Variables> {
 
 export type VariablePropertyType = string | string[] | OptionType[]
 
-
+// 需求：label 不能重复，编辑或新增时有重复则覆盖原有的 value
 export interface OptionType {
     label: string
     value: string

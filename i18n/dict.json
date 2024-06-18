@@ -3080,8 +3080,6 @@
     "可选模块": {
         "en": "Optional Modules"
     },
-    
-    
     "已存在，粘贴失败!": {
         "en": "already exists, paste failed"
     },
@@ -4248,5 +4246,11 @@
     },
     "相对仪表盘中心的垂直偏移位置": {
         "en": "Vertical offset position relative to the center of gauge"
+    },
+    "标签不可重复，重复会自动覆盖": {
+        "en": "Labels cannot be repeated, and will be automatically overwritten if repeated."
+    },
+    "标签已存在，选项添加失败，请重试，必要时请修改现有标签": {
+        "en": "The label already exists. Failed to add the option. Please try again. If necessary, please modify the existing label."
     }
 }
