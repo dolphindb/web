@@ -370,7 +370,7 @@ export function Header () {
                     title={t('删除')}
                     description={t('确定当前 dashboard 删除吗？')}
                     onConfirm={async () => { handle_destroy() }}
-                    okText={t('确认删除')}
+                    okText={t('确定')}
                     cancelText={t('取消')}
                 >
                     <Tooltip title={t('删除')}>
@@ -378,9 +378,9 @@ export function Header () {
                     </Tooltip>
                 </Popconfirm>
                 
-                <Tooltip title='开启自动保存后，将每隔 1 分钟保存一次配置'>
+                <Tooltip title={t('开启自动保存后，将每隔 1 分钟保存一次配置')}>
                     <div className='auto-save-wrapper'>
-                        <span className='auto-save-label'>自动保存</span>
+                        <span className='auto-save-label'>{t('自动保存')}</span>
                         <Switch size='small' defaultChecked={auto_save} onChange={on_auto_save} />
                     </div>
                 </Tooltip>

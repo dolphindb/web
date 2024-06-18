@@ -4252,5 +4252,11 @@
     },
     "标签已存在，选项添加失败，请重试，必要时请修改现有标签": {
         "en": "The label already exists. Failed to add the option. Please try again. If necessary, please modify the existing label."
+    },
+    "自动保存": {
+        "en": "Autosave"
+    },
+    "开启自动保存后，将每隔 1 分钟保存一次配置": {
+        "en": "After turning on auto-save, the configuration will be saved every 1 minute."
     }
 }

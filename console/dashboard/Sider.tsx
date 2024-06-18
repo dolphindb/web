@@ -51,7 +51,7 @@ export function Sider ({ visible }: { visible: boolean }) {
                     title={t(value)}
                 >
                     {icons[value]}
-                    <span className='name'>{collapsed ? '' : t(value)}</span>
+                    <div className='name'>{collapsed ? '' : t(value)}</div>
                 </div>)}
         </div>
         <div className='collapser' onClick={() => { set_collapsed(!collapsed) }}>{
