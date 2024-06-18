@@ -18,23 +18,23 @@ import { UserDeleteModal } from './components/user/UserDeleteModal.js'
 import { ResetPasswordModal } from './components/user/ResetPasswordModal.js'
 import { UserGroupEditModal } from './components/user/UserGroupEditModal.js'
 
-export function UserList () {
+export function UserList() {
     const { users } = access.use(['users'])
-    
-    const [users_info, set_users_info] = useState([ ])
-    
+
+    const [users_info, set_users_info] = useState([])
+
     const [search_key, set_search_key] = useState('')
-    
-    const [selected_users, set_selected_users] = useState([ ])
-    
-    const reset_selected = useCallback(()=> set_selected_users([]), [])
-    
+
+    const [selected_users, set_selected_users] = useState([])
+
+    const reset_selected = useCallback(() => set_selected_users([]), [])
+
     useEffect(() => {
         (async () => {
             set_users_info(await access.get_user_access(users))
         })()
     }, [users])
-    
+
     const cols: TableColumnType<Record<string, any>>[] = useMemo(
         () => [
             {
@@ -76,11 +76,11 @@ export function UserList () {
         ],
         [users_info]
     )
-    
+
     return <>
         <div className='header'>
             <div className='actions'>
-                <Button type='primary' icon={<PlusOutlined />} onClick={()=>NiceModal.show(UserCreateModal)}>
+                <Button type='primary' icon={<PlusOutlined />} onClick={() => NiceModal.show(UserCreateModal)}>
                     {t('新建用户')}
                 </Button>
                 <Button
@@ -88,7 +88,7 @@ export function UserList () {
                     icon={<DeleteOutlined />}
                     onClick={() => {
                         if (selected_users.length)
-                            NiceModal.show(UserDeleteModal,{selected_users, reset_selected})
+                            NiceModal.show(UserDeleteModal, { selected_users, reset_selected })
                     }}
                 >
                     {t('批量删除')}
@@ -134,8 +134,8 @@ export function UserList () {
                         <div>
                             {current_user.groups &&
                                 current_user.groups.split(',').map((group: string) => <Tag color='cyan' key={group}>
-                                        {group}
-                                    </Tag>)}
+                                    {group}
+                                </Tag>)}
                         </div>
                     ),
                     actions: (
@@ -148,7 +148,7 @@ export function UserList () {
                             >
                                 {t('查看权限')}
                             </Button>
-                            
+
                             <Button
                                 type='link'
                                 onClick={() => {
@@ -157,17 +157,17 @@ export function UserList () {
                             >
                                 {t('设置权限')}
                             </Button>
-                            
+
                             <Button
                                 type='link'
                                 onClick={async () => {
                                     access.set({ current: { name: current_user.userId } })
-                                    await NiceModal.show(UserGroupEditModal,{userId:current_user.userId,set_users_info})
+                                    await NiceModal.show(UserGroupEditModal, { userId: current_user.userId, set_users_info })
                                 }}
                             >
                                 {t('设置用户组')}
                             </Button>
-                            
+
                             <Button
                                 type='link'
                                 onClick={async () => {
@@ -177,7 +177,7 @@ export function UserList () {
                             >
                                 {t('设置密码')}
                             </Button>
-                            
+
                             <Popconfirm
                                 title={t('删除用户')}
                                 description={t('确认删除用户 {{user}} 吗', { user: current_user.userId })}

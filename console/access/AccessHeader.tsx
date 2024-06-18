@@ -37,7 +37,7 @@ export function AccessHeader({
             type='default'
             icon={<ArrowLeftOutlined />}
             onClick={() => {
-                access.set({ current: null })
+                access.set({ current: { role: current.role } })
             }}
         >
             {t('返回')}
@@ -48,7 +48,7 @@ export function AccessHeader({
                 type='primary'
                 icon={<SettingOutlined />}
                 onClick={() => {
-                    access.set({ current: { ...access.current, view: 'manage' } })
+                    access.set({ current: { ...current, view: 'manage' } })
                 }}
             >
                 {t('设置权限')}

@@ -7,7 +7,7 @@ import { GroupUserConfirmModal } from "./GroupUserConfirmModal.js";
 
 export const GroupUserEditModal = NiceModal.create(() => {
 
-    const { users, current } = access.use(['users', 'groups', 'current'])
+    const { users, current } = access.use(['users', 'current'])
 
     const modal = useModal()
 

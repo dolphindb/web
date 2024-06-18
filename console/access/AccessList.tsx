@@ -9,7 +9,6 @@ import { AccessHeader } from './AccessHeader.js'
 
 
 function handle_access(accesses: Record<string, any>, type: string, name: string) {
-    console.log("name", name, type)
     // DB_OWNER 单独处理
     if (type === 'DB_OWNER') {
         if (accesses.DB_OWNER === 'allow') {

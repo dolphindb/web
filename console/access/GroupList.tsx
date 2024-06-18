@@ -16,7 +16,7 @@ import { GroupDeleteModal } from './components/group/GroupDeleteModal.js'
 import { GroupUserEditModal } from './components/group/GroupUserEditModal.js'
 
 export function GroupList() {
-    const { groups } = access.use(['groups'])
+    const { groups, current } = access.use(['groups', 'current'])
 
     const [groups_info, set_groups_info] = useState([])
 
@@ -132,7 +132,7 @@ export function GroupList() {
                             <Button
                                 type='link'
                                 onClick={async () => {
-                                    access.set({ current: { name: group.groupName } })
+                                    access.set({ current: { role: 'group', name: group.groupName, ...current } })
                                     NiceModal.show(GroupUserEditModal)
                                 }}
                             >

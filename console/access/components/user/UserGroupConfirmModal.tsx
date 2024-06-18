@@ -44,7 +44,6 @@ export const UserGroupConfirmModal = NiceModal.create(({
                 const origin_groups = (await access.get_user_access([current?.name]))[0].groups.split(',').filter(group => group !== '')
                 const delete_groups = origin_groups.filter(u => !target_groups.includes(u)).filter(group => group !== '')
                 const add_groups = target_groups.filter((u: string) => !origin_groups.includes(u)).filter(group => group !== '')
-                console.log("🚀 ~ onOk={ ~ add_groups:", origin_groups, delete_groups, add_groups)
                 if (delete_groups.length || add_groups.length) {
                     await Promise.all([
                         ...(delete_groups.length ? [access.delete_group_member(current?.name, delete_groups)] : []),

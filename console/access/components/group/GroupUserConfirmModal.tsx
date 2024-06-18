@@ -35,7 +35,7 @@ export const GroupUserConfirmModal = NiceModal.create(({
             className='edit-confirm-modal'
             open={modal.visible}
             onCancel={modal.hide}
-            destroyOnClose
+            afterClose={modal.remove}
             title={<div>{t('确认对组 {{group}} 进行以下改动吗？', { group: current?.name })}</div>}
             onOk={async () => {
                 const delete_users = origin_users.filter(u => !target_users.includes(u)).filter(group => group !== '')
@@ -48,7 +48,7 @@ export const GroupUserConfirmModal = NiceModal.create(({
                     model.message.success(t('组成员修改成功'))
                 }
                 edit_close()
-                modal.hide()
+                modal.remove()
                 set_selected_users([])
                 set_target_users([])
                 await access.get_group_list()
