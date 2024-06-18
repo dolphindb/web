@@ -4258,5 +4258,8 @@
     },
     "开启自动保存后，将每隔 1 分钟保存一次配置": {
         "en": "After turning on auto-save, the configuration will be saved every 1 minute."
+    },
+    "不能为空": {
+        "en": "Can not be empty"
     }
 }

@@ -185,12 +185,14 @@ export function VariableEditor ({
                                                 
                                                 rows.forEach(row => {
                                                     const label = row[keys[0]], value = row[keys[1]]
-                                                    if (variable_map.has(label)) 
-                                                        new_options[variable_map.get(label)].value = value
-                                                    else {
-                                                        new_options.push({ key: String(genid()), label, value })
-                                                        variable_map.set(label, new_options.length - 1)
-                                                    }
+                                                    
+                                                    if (label && value) 
+                                                        if (variable_map.has(label))
+                                                            new_options[variable_map.get(label)].value = value
+                                                        else {
+                                                            new_options.push({ key: String(genid()), label, value })
+                                                            variable_map.set(label, new_options.length - 1)
+                                                        }
                                                 })
                                                 
                                                 change_current_variable_property(['options'], [new_options])
