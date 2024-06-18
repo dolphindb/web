@@ -151,7 +151,7 @@ export function NodesConfig() {
                             if (rowKey !== key)
                                 config.nodes_configs.delete(rowKey as string)
                             await config.change_nodes_config([[key, { name, qualifier, value, key }]])
-                            model.message.success(t('保存成功'))
+                            model.message.success(t('保存成功，重启控制/数据节点生效'))
                         },
                         onDelete: async key => delete_config(key as string),
                         deletePopconfirmMessage: t('确认删除此配置项？'),

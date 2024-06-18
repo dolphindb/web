@@ -15,21 +15,21 @@ import { _2_strs, strs_2_nodes } from './utils.js'
 
 const { Search } = Input
 
-export function NodesManagement () {
-    
-    const [nodes, set_nodes] = useState<ClusterNode[]>([ ])
-    
+export function NodesManagement() {
+
+    const [nodes, set_nodes] = useState<ClusterNode[]>([])
+
     const [search_key, set_search_key] = useState('')
-    
+
     const actionRef = useRef<ActionType>()
-    
-    const { mutate } = useSWR('/get/nodes', async () =>  config.get_cluster_nodes(), {
+
+    const { mutate } = useSWR('/get/nodes', async () => config.get_cluster_nodes(), {
         onSuccess: data => {
             const nodes = strs_2_nodes(data.value as any[])
             set_nodes(nodes)
         }
-    }) 
-    
+    })
+
     const cols: ProColumns<ClusterNode>[] = useMemo(() => ([
         {
             title: t('别名'),
@@ -67,7 +67,7 @@ export function NodesManagement () {
                     text: t('代理节点'),
                     value: 'agent',
                 },
-                
+
             },
             fieldProps: {
                 placeholder: t('请选择节点类型'),
@@ -114,38 +114,38 @@ export function NodesManagement () {
             key: 'actions',
             width: 240,
             render: (text, record, _, action) => [
-              <Button
-                type='link'
-                key='editable'
-                className='mr-btn'
-                onClick={() => {
-                    action?.startEditable?.(record.id)
-                }}
-              >
-                {t('编辑')}
-              </Button>,
-              <Popconfirm 
-                title={t('确认删除此节点？')}
-                key='delete'
-                onConfirm={async () => delete_nodes(record.id as string)}>
                 <Button
                     type='link'
+                    key='editable'
+                    className='mr-btn'
+                    onClick={() => {
+                        action?.startEditable?.(record.id)
+                    }}
                 >
-                    {t('删除')}
-                </Button>
-              </Popconfirm>
+                    {t('编辑')}
+                </Button>,
+                <Popconfirm
+                    title={t('确认删除此节点？')}
+                    key='delete'
+                    onConfirm={async () => delete_nodes(record.id as string)}>
+                    <Button
+                        type='link'
+                    >
+                        {t('删除')}
+                    </Button>
+                </Popconfirm>
             ],
-          },
-    ]), [ nodes ])
-    
+        },
+    ]), [nodes])
+
     const delete_nodes = useCallback(async (node_id: string) => {
-            const new_nodes = _2_strs(nodes).filter(nod => nod !== node_id)
-            await config.save_cluster_nodes(new_nodes)
-            await mutate()
-        }
-    , [nodes])
-   
-    
+        const new_nodes = _2_strs(nodes).filter(nod => nod !== node_id)
+        await config.save_cluster_nodes(new_nodes)
+        await mutate()
+    }
+        , [nodes])
+
+
     return <EditableProTable
         rowKey='id'
         columns={cols as any}
@@ -161,7 +161,7 @@ export function NodesManagement () {
                     mode: ''
                 }),
                 creatorButtonText: t('新增节点'),
-                onClick: () => { 
+                onClick: () => {
                     const tbody = document.querySelector('.ant-table-body')
                     setTimeout(() => tbody.scrollTop = tbody.scrollHeight, 1)
                 }
@@ -173,11 +173,11 @@ export function NodesManagement () {
             <Button
                 icon={<ReloadOutlined />}
                 onClick={async () => {
-                        await mutate()
-                        model.message.success(t('刷新成功'))
-                    }}
-                >
-                    {t('刷新')}
+                    await mutate()
+                    model.message.success(t('刷新成功'))
+                }}
+            >
+                {t('刷新')}
             </Button>,
             <Search
                 className='toolbar-search'
@@ -189,20 +189,20 @@ export function NodesManagement () {
         editable={
             {
                 type: 'single',
-                
+
                 onSave: async (rowKey, data, row) => {
                     const node_strs = _2_strs(nodes)
                     let idx = node_strs.indexOf(rowKey as string)
-                    if (idx === -1) 
+                    if (idx === -1)
                         await config.save_cluster_nodes([`${data.host}:${data.port}:${data.alias},${data.mode}`, ...node_strs])
-                    else 
+                    else
                         await config.save_cluster_nodes(node_strs.toSpliced(idx, 1, `${data.host}:${data.port}:${data.alias},${data.mode}`))
                     mutate()
-                    model.message.success(t('保存成功'))
+                    model.message.success(t('保存成功，重启控制/数据节点生效'))
                 },
                 onDelete: async (key, row) => delete_nodes(row.id),
                 deletePopconfirmMessage: t('确认删除此节点？'),
-                saveText: 
+                saveText:
                     <Button
                         type='link'
                         key='editable'
@@ -210,7 +210,7 @@ export function NodesManagement () {
                     >
                         {t('保存')}
                     </Button>,
-                deleteText: 
+                deleteText:
                     <Button
                         type='link'
                         key='delete'
