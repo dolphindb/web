@@ -9,12 +9,36 @@ import { AccessHeader } from './AccessHeader.js'
 
 
 function handle_access(accesses: Record<string, any>, type: string, name: string) {
-    if (accesses[type + '_allowed'] && accesses[type + '_allowed'].split(',').includes(name))
-        return [type, 'allow']
-    else if (accesses[type + '_denied'] && accesses[type + '_denied'].split(',').includes(name))
-        return [type, 'deny']
-    else
-        return [type, 'none']
+    console.log("name", name, type)
+    // DB_OWNER 单独处理
+    if (type === 'DB_OWNER') {
+        if (accesses.DB_OWNER === 'allow') {
+            if (!accesses.DB_OWNER_allowed) {
+                return [type, 'allow']
+            } else {
+                let objs = accesses.DB_OWNER_allowed.split(',')
+                for (let obj of objs) {
+                    let reg = new RegExp(obj)
+                    if (reg.test(name)) {
+                        return [type, 'allow']
+                    }
+                }
+                return [type, 'none']
+            }
+        } else if (accesses.DB_OWNER === 'deny') {
+            return [type, 'deny']
+        } else {
+            return [type, 'none']
+        }
+    } else {
+        if (accesses[type + '_allowed'] && accesses[type + '_allowed'].split(',').includes(name))
+            return [type, 'allow']
+        else if (accesses[type + '_denied'] && accesses[type + '_denied'].split(',').includes(name))
+            return [type, 'deny']
+        else
+            return [type, 'none']
+    }
+
 }
 
 
@@ -34,9 +58,7 @@ export function AccessList({ category }: { category: 'database' | 'shared' | 'st
 
     useEffect(() => {
         (async () => {
-            let final_accesses = accesses
-
-            // 用户权限列表需要单独获取最终权限去展示
+            let final_accesses = accesses            // 用户权限列表需要单独获取最终权限去展示
             if (current.role === 'user')
                 final_accesses = (await access.get_user_access([current.name], true))[0]
 
@@ -116,48 +138,51 @@ export function AccessList({ category }: { category: 'database' | 'shared' | 'st
         ],
         []
     )
-    return <Table
-        columns={cols}
-        dataSource={showed_accesses
-            .filter(({ name }) => name.toLowerCase().includes(search_key.toLowerCase()))
-            .map((tb_access: TABLE_ACCESS) => ({
-                key: tb_access.name,
-                name: tb_access.name,
-                ...(category === 'database' ? { tables: tb_access.tables } : {}),
-                ...(category !== 'script'
-                    ? Object.fromEntries(Object.entries(tb_access.access).map(([key, value]) => [key, STAT_ICONS[value as string]]))
-                    : { stat: STAT_ICONS[tb_access.stat] })
-            }))}
-        title={() => <AccessHeader category={category} preview search_key={search_key} set_search_key={set_search_key} />}
-        tableLayout='fixed'
-        expandable={
-            category === 'database'
-                ? {
-                    expandedRowRender: db => <Table
-                        columns={[
-                            {
-                                title: t('DFS 表名'),
-                                dataIndex: 'table_name',
-                                key: 'table_name'
-                            },
-                            ...ACCESS_TYPE.table
-                                .filter(t => t !== 'TABLE_WRITE')
-                                .map(type => ({
-                                    title: type,
-                                    dataIndex: type,
-                                    key: type
-                                }))
-                        ]}
-                        dataSource={db.tables.map(table => ({
-                            key: table.name,
-                            table_name: table.name,
-                            ...Object.fromEntries(Object.entries(table.access).map(([key, value]) => [key, STAT_ICONS[value as string]]))
-                        }))}
-                        pagination={false}
-                        tableLayout='fixed'
-                    />
-                }
-                : {}
-        }
-    />
+
+    return (
+        <Table
+            columns={cols}
+            dataSource={showed_accesses
+                .filter(({ name }) => name.toLowerCase().includes(search_key.toLowerCase()))
+                .map((tb_access: TABLE_ACCESS) => ({
+                    key: tb_access.name,
+                    name: tb_access.name,
+                    ...(category === 'database' ? { tables: tb_access.tables } : {}),
+                    ...(category !== 'script'
+                        ? Object.fromEntries(Object.entries(tb_access.access).map(([key, value]) => [key, STAT_ICONS[value as string]]))
+                        : { stat: STAT_ICONS[tb_access.stat] })
+                }))}
+            title={() => <AccessHeader category={category} preview search_key={search_key} set_search_key={set_search_key} />}
+            tableLayout='fixed'
+            expandable={
+                category === 'database'
+                    ? {
+                        expandedRowRender: db => <Table
+                            columns={[
+                                {
+                                    title: t('DFS 表名'),
+                                    dataIndex: 'table_name',
+                                    key: 'table_name'
+                                },
+                                ...ACCESS_TYPE.table
+                                    .filter(t => t !== 'TABLE_WRITE')
+                                    .map(type => ({
+                                        title: type,
+                                        dataIndex: type,
+                                        key: type
+                                    }))
+                            ]}
+                            dataSource={db.tables.map(table => ({
+                                key: table.name,
+                                table_name: table.name,
+                                ...Object.fromEntries(Object.entries(table.access).map(([key, value]) => [key, STAT_ICONS[value as string]]))
+                            }))}
+                            pagination={false}
+                            tableLayout='fixed'
+                        />
+                    }
+                    : {}
+            }
+        />
+    )
 }

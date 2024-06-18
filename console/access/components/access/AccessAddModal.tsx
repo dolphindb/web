@@ -131,7 +131,6 @@ export const AccessAddModal = NiceModal.create(({ category }: { category: 'datab
                     />
                     <Select
                         className='access-select'
-                        // 对于当前用户是管理员，不能赋予 VIEW_OWNER 权限
                         options={filterAccessOptions(category, current.role, accesses.is_admin).map(ac => ({
                             label: ac,
                             value: ac
@@ -144,84 +143,98 @@ export const AccessAddModal = NiceModal.create(({ category }: { category: 'datab
                             set_add_rule_selected(selected)
                         }}
                     />
-                    {NeedInputAccess.includes(add_rule_selected.access) ? <Input className='table-select' /> : (category === 'database' && ACCESS_TYPE.table.includes(add_rule_selected.access) ? (
-                        <TreeSelect
+                    {NeedInputAccess.includes(add_rule_selected.access) ?
+                        <Input
                             className='table-select'
-                            multiple
-                            maxTagCount='responsive'
-                            placeholder={t('请选择权限应用范围')}
-                            treeDefaultExpandAll
                             value={add_rule_selected.obj}
-                            onChange={vals => {
+                            onChange={e => {
                                 const selected = { ...add_rule_selected }
-                                selected.obj = vals
+                                selected.obj = [e.target.value]
                                 set_add_rule_selected(selected)
                             }}
-                            dropdownRender={originNode => <div>
-                                <Checkbox
-                                    className='check-all'
-                                    checked={add_rule_selected.obj.length === databases.reduce((count, db) => count + db.tables.length, 0)}
-                                    indeterminate={
-                                        add_rule_selected.obj.length > 0 &&
-                                        add_rule_selected.obj.length < databases.reduce((count, db) => count + db.tables.length, 0)
-                                    }
-                                    onChange={e => {
-                                        if (e.target.checked)
-                                            set_add_rule_selected({ ...add_rule_selected, obj: databases.map(db => [...db.tables]).flat() })
-                                        else
-                                            set_add_rule_selected({ ...add_rule_selected, obj: [] })
-                                    }}
-                                >
-                                    {t('全选')}
-                                </Checkbox>
-                                <Divider className='divider' />
-                                {originNode}
-                            </div>}
-                            treeData={databases.map(db => ({
-                                title: db.name,
-                                value: db.name,
-                                selectable: false,
-                                children: db.tables.map(tb => ({
-                                    title: tb,
-                                    value: tb
-                                }))
-                            }))}
-                        />
-                    ) : (
-                        <Select
-                            className='table-select'
-                            mode='multiple'
-                            maxTagCount='responsive'
-                            disabled={category === 'script'}
-                            placeholder={category === 'script' ? t('应用范围为全局') : t('请选择权限应用范围')}
-                            value={add_rule_selected.obj}
-                            dropdownRender={originNode => <div>
-                                <Checkbox
-                                    className='check-all'
-                                    checked={add_rule_selected.obj.length === obj_options.length}
-                                    indeterminate={add_rule_selected.obj.length > 0 && add_rule_selected.obj.length < obj_options.length}
-                                    onChange={e => {
-                                        if (e.target.checked)
-                                            set_add_rule_selected({ ...add_rule_selected, obj: obj_options })
-                                        else
-                                            set_add_rule_selected({ ...add_rule_selected, obj: [] })
-                                    }}
-                                >
-                                    {t('全选')}
-                                </Checkbox>
-                                <Divider className='divider' />
-                                {originNode}
-                            </div>}
-                            onChange={vals => {
-                                set_add_rule_selected({ ...add_rule_selected, obj: vals })
-                            }}
-                            options={obj_options.map(obj => ({
-                                key: obj,
-                                label: obj,
-                                value: obj
-                            }))}
-                        />
-                    ))}
+                            placeholder={add_rule_selected.access === 'DB_OWNER' ?
+                                t('以"*"结尾，表示指定某个 dbName 的前缀范围，例如"dfs://test0*"')
+                                :
+                                t('输入限制内存大小，单位为 GB')} />
+                        :
+                        (category === 'database' && ACCESS_TYPE.table.includes(add_rule_selected.access) ? (
+                            <TreeSelect
+                                className='table-select'
+                                multiple
+                                maxTagCount='responsive'
+                                placeholder={t('请选择权限应用范围')}
+                                treeDefaultExpandAll
+                                value={add_rule_selected.obj}
+                                onChange={vals => {
+                                    const selected = { ...add_rule_selected }
+                                    selected.obj = vals
+                                    set_add_rule_selected(selected)
+                                }}
+                                dropdownRender={originNode => <div>
+                                    <Checkbox
+                                        className='check-all'
+                                        checked={add_rule_selected.obj.length === databases.reduce((count, db) => count + db.tables.length, 0)}
+                                        indeterminate={
+                                            add_rule_selected.obj.length > 0 &&
+                                            add_rule_selected.obj.length < databases.reduce((count, db) => count + db.tables.length, 0)
+                                        }
+                                        onChange={e => {
+                                            if (e.target.checked)
+                                                set_add_rule_selected({ ...add_rule_selected, obj: databases.map(db => [...db.tables]).flat() })
+                                            else
+                                                set_add_rule_selected({ ...add_rule_selected, obj: [] })
+                                        }}
+                                    >
+                                        {t('全选')}
+                                    </Checkbox>
+                                    <Divider className='divider' />
+                                    {originNode}
+                                </div>}
+                                treeData={databases.map(db => ({
+                                    title: db.name,
+                                    value: db.name,
+                                    selectable: false,
+                                    children: db.tables.map(tb => ({
+                                        title: tb,
+                                        value: tb
+                                    }))
+                                }))}
+                            />
+                        ) : (
+                            <Select
+                                className='table-select'
+                                mode='multiple'
+                                maxTagCount='responsive'
+                                disabled={category === 'script'}
+                                placeholder={category === 'script' ? t('应用范围为全局') : t('请选择权限应用范围')}
+                                value={add_rule_selected.obj}
+                                dropdownRender={originNode => <div>
+                                    <Checkbox
+                                        className='check-all'
+                                        checked={add_rule_selected.obj.length === obj_options.length}
+                                        indeterminate={add_rule_selected.obj.length > 0 && add_rule_selected.obj.length < obj_options.length}
+                                        onChange={e => {
+                                            if (e.target.checked)
+                                                set_add_rule_selected({ ...add_rule_selected, obj: obj_options })
+                                            else
+                                                set_add_rule_selected({ ...add_rule_selected, obj: [] })
+                                        }}
+                                    >
+                                        {t('全选')}
+                                    </Checkbox>
+                                    <Divider className='divider' />
+                                    {originNode}
+                                </div>}
+                                onChange={vals => {
+                                    set_add_rule_selected({ ...add_rule_selected, obj: vals })
+                                }}
+                                options={obj_options.map(obj => ({
+                                    key: obj,
+                                    label: obj,
+                                    value: obj
+                                }))}
+                            />
+                        ))}
 
                     <Button
                         type='primary'

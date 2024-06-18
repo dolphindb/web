@@ -13,6 +13,7 @@ import { access } from './model.js'
 import { AccessAddModal } from './components/access/AccessAddModal.js'
 import NiceModal from '@ebay/nice-modal-react'
 import { AccessRevokeModal } from './components/access/AccessRevokeModal.js'
+import { RevokeConfirm } from './components/revoke-confirm.js'
 
 interface ACCESS {
     key: string
@@ -100,43 +101,38 @@ export function AccessManage({ category }: { category: 'database' | 'shared' | '
         []
     )
 
+    const updateAccesses = useCallback(async () => {
+        access.set({
+            accesses:
+                current.role === 'user'
+                    ? (await access.get_user_access([current.name]))[0]
+                    : (await access.get_group_access([current.name]))[0]
+        })
+    }, [current])
 
 
     const access_rules = useMemo(() => {
         if (!accesses)
             return []
         let tb_rows = []
-
         for (let [k, v] of Object.entries(accesses as Record<string, any>))
-            if (v && v !== 'none')
+            if (v && v !== 'none') {
                 if (category === 'script' && showed_aces_types.includes(k))
                     tb_rows.push({
                         key: k,
                         access: k,
                         type: v === 'allow' ? 'grant' : v,
                         action: (
-                            <Popconfirm
-                                title={t('撤销权限')}
-                                description={t('确认撤销该权限吗？')}
-                                onConfirm={async () => {
-                                    await access.revoke(current.name, k)
-                                    model.message.success(t('撤销成功'))
-                                    access.set({
-                                        accesses:
-                                            current.role === 'user'
-                                                ? (await access.get_user_access([current.name]))[0]
-                                                : (await access.get_group_access([current.name]))[0]
-                                    })
-                                }}
-                            >
-                                <Button type='link' danger>
-                                    {t('撤销')}
-                                </Button>
-                            </Popconfirm>
+                            <RevokeConfirm onConfirm={async () => {
+                                await access.revoke(current.name, k)
+                                model.message.success(t('撤销成功'))
+                                await updateAccesses()
+                            }} />
                         )
                     })
                 else if (
-                    showed_aces_types.map(aces => aces + '_allowed').includes(k) ||
+                    // DB_OWNER 单独处理
+                    showed_aces_types.filter((item) => item !== 'DB_OWNER').map(aces => aces + '_allowed').includes(k) ||
                     showed_aces_types.map(aces => aces + '_denied').includes(k)
                 ) {
                     let objs = v.split(',')
@@ -154,27 +150,34 @@ export function AccessManage({ category }: { category: 'database' | 'shared' | '
                             access: k.slice(0, k.indexOf(allowed ? '_allowed' : '_denied')),
                             type: allowed ? 'grant' : 'deny',
                             action: (
-                                <Popconfirm
-                                    title={t('撤销权限')}
-                                    description={t('确认撤销该权限吗？')}
-                                    onConfirm={async () => {
-                                        await access.revoke(current.name, k.slice(0, k.indexOf(allowed ? '_allowed' : '_denied')), obj)
-                                        model.message.success(t('撤销成功'))
-                                        access.set({
-                                            accesses:
-                                                current.role === 'user'
-                                                    ? (await access.get_user_access([current.name]))[0]
-                                                    : (await access.get_group_access([current.name]))[0]
-                                        })
-                                    }}
-                                >
-                                    <Button type='link' danger>
-                                        {t('撤销')}
-                                    </Button>
-                                </Popconfirm>
+                                <RevokeConfirm onConfirm={async () => {
+                                    await access.revoke(current.name, k.slice(0, k.indexOf(allowed ? '_allowed' : '_denied')), obj)
+                                    model.message.success(t('撤销成功'))
+                                    await updateAccesses()
+                                }} />
+                            )
+                        })
+                } else if (k === 'DB_OWNER') {
+                    // 对于 DB_OWNER，如果为 allow 并且 DB_OWNER_allowed 为空，则为全部数据库生效，即 *
+                    // 如果是 deny，则必定为 *
+                    let objs = accesses.DB_OWNER_allowed && v === 'allow' ? accesses.DB_OWNER_allowed.split(',') : ['*']
+                    for (let obj of objs)
+                        tb_rows.push({
+                            key: obj + k,
+                            name: obj,
+                            access: 'DB_OWNER',
+                            type: v === 'allow' ? 'grant' : 'deny',
+                            action: (
+                                <RevokeConfirm onConfirm={async () => {
+                                    await access.revoke(current.name, k, obj)
+                                    model.message.success(t('撤销成功'))
+                                    await updateAccesses()
+                                }} />
                             )
                         })
                 }
+            }
+
         return tb_rows
     }, [accesses, category])
 
@@ -196,37 +199,38 @@ export function AccessManage({ category }: { category: 'database' | 'shared' | '
             break
     }
 
-    return (<Table
-        rowSelection={{
-            selectedRowKeys: selected_access.map(ac => ac.key),
-            onChange: (_, selectedRows: any[], info) => {
-                if (info.type === 'all')
-                    return
-                set_selected_access(selectedRows)
-            },
-            onSelectAll() {
-                const all_access = access_rules.filter(row =>
-                    row[category === 'script' ? 'access' : 'name'].toLowerCase().includes(search_key.toLowerCase())
-                )
-                if (selected_access.length < all_access.length)
-                    set_selected_access(all_access)
-                else
-                    set_selected_access([])
-            }
-        }}
-        title={() => <AccessHeader
-            category={category}
-            preview={false}
-            search_key={search_key}
-            set_search_key={set_search_key}
-            add_open={async () => await NiceModal.show(AccessAddModal, { category })}
-            delete_open={async () => await NiceModal.show(AccessRevokeModal, { category, selected_access, reset_selected })}
-            selected_length={selected_access.length}
-        />}
-        columns={showed_aces_cols}
-        dataSource={access_rules.filter(row =>
-            row[category === 'script' ? 'access' : 'name'].toLowerCase().includes(search_key.toLowerCase())
-        )}
-    />
+    return (
+        <Table
+            rowSelection={{
+                selectedRowKeys: selected_access.map(ac => ac.key),
+                onChange: (_, selectedRows: any[], info) => {
+                    if (info.type === 'all')
+                        return
+                    set_selected_access(selectedRows)
+                },
+                onSelectAll() {
+                    const all_access = access_rules.filter(row =>
+                        row[category === 'script' ? 'access' : 'name'].toLowerCase().includes(search_key.toLowerCase())
+                    )
+                    if (selected_access.length < all_access.length)
+                        set_selected_access(all_access)
+                    else
+                        set_selected_access([])
+                }
+            }}
+            title={() => <AccessHeader
+                category={category}
+                preview={false}
+                search_key={search_key}
+                set_search_key={set_search_key}
+                add_open={async () => await NiceModal.show(AccessAddModal, { category })}
+                delete_open={async () => await NiceModal.show(AccessRevokeModal, { category, selected_access, reset_selected })}
+                selected_length={selected_access.length}
+            />}
+            columns={showed_aces_cols}
+            dataSource={access_rules.filter(row =>
+                row[category === 'script' ? 'access' : 'name'].toLowerCase().includes(search_key.toLowerCase())
+            )}
+        />
     )
 }
