@@ -2,7 +2,7 @@ import { CheckCircleFilled, CloseCircleFilled, MinusCircleFilled } from '@ant-de
 
 import { t } from '../../i18n/index.js'
 
-export const NeedInputAccess = ['DB_OWNER', 'QUERY_RESULT_MEM_LIMIT', 'TASK_GROUP_MEM_LIMI']
+export const NeedInputAccess = ['DB_OWNER', 'QUERY_RESULT_MEM_LIMIT', 'TASK_GROUP_MEM_LIMIT']
 
 export const ACCESS_TYPE = {
     database: ['DB_MANAGE', 'DB_OWNER', 'DB_WRITE', 'DBOBJ_CREATE', 'DBOBJ_DELETE', 'DB_INSERT', 'DB_UPDATE', 'DB_DELETE', 'DB_READ'],
@@ -10,7 +10,7 @@ export const ACCESS_TYPE = {
     shared: ['TABLE_WRITE', 'TABLE_READ', 'TABLE_INSERT', 'TABLE_UPDATE', 'TABLE_DELETE'],
     stream: ['TABLE_WRITE', 'TABLE_READ', 'TABLE_INSERT', 'TABLE_UPDATE', 'TABLE_DELETE'],
     function_view: ['VIEW_EXEC'],
-    script: ['SCRIPT_EXEC', 'TEST_EXEC', 'VIEW_OWNER', 'QUERY_RESULT_MEM_LIMIT', 'TASK_GROUP_MEM_LIMI']
+    script: ['SCRIPT_EXEC', 'TEST_EXEC', 'VIEW_OWNER', 'QUERY_RESULT_MEM_LIMIT', 'TASK_GROUP_MEM_LIMIT']
 }
 
 export const TABLE_NAMES = {

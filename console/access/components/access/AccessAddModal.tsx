@@ -42,15 +42,11 @@ export const AccessAddModal = NiceModal.create(({ category }: { category: 'datab
                 key: 'access',
                 wdith: 300
             },
-            ...(category !== 'script'
-                ? [
-                    {
-                        title: t('范围'),
-                        dataIndex: 'name',
-                        key: 'name'
-                    }
-                ]
-                : []),
+            {
+                title: category === 'script' ? t('值') : t('范围'),
+                dataIndex: 'name',
+                key: 'name'
+            },
             {
                 title: t('动作'),
                 dataIndex: 'remove',
@@ -94,7 +90,17 @@ export const AccessAddModal = NiceModal.create(({ category }: { category: 'datab
                 modal.hide()
             }}
             onOk={async () => {
-                await Promise.all(add_access_rows.map(async rule => access[rule.type](current.name, rule.access, rule.name)))
+                await Promise.all(add_access_rows.
+                    map(async rule =>
+                        access[rule.type](
+                            current.name,
+                            rule.access,
+                            rule.access ===
+                                'QUERY_RESULT_MEM_LIMIT' || rule.access === 'TASK_GROUP_MEM_LIMIT'
+                                ?
+                                Number(rule.name)
+                                :
+                                rule.name)))
                 model.message.success(t('权限赋予成功'))
                 set_add_rule_selected({ access: access_options[category][0], type: 'grant', obj: [] })
                 set_add_access_rows([])
@@ -122,8 +128,11 @@ export const AccessAddModal = NiceModal.create(({ category }: { category: 'datab
                         }))}
                         value={add_rule_selected.type}
                         onChange={e => {
-                            const selected = { ...add_rule_selected }
-                            selected.type = e.target.value
+                            const selected = {
+                                type: e.target.value,
+                                access: filterAccessOptions(category, current.role, accesses.is_admin, e.target.value)?.[0],
+                                obj: []
+                            }
                             set_add_rule_selected(selected)
                         }}
                         optionType='button'
@@ -131,7 +140,7 @@ export const AccessAddModal = NiceModal.create(({ category }: { category: 'datab
                     />
                     <Select
                         className='access-select'
-                        options={filterAccessOptions(category, current.role, accesses.is_admin).map(ac => ({
+                        options={filterAccessOptions(category, current.role, accesses.is_admin, add_rule_selected.type).map(ac => ({
                             label: ac,
                             value: ac
                         }))}
@@ -241,7 +250,7 @@ export const AccessAddModal = NiceModal.create(({ category }: { category: 'datab
                         onClick={() => {
                             const { access, type, obj } = add_rule_selected
                             const rows =
-                                category !== 'script'
+                                category !== 'script' || NeedInputAccess.includes(access)
                                     ? obj.map(oj => ({
                                         key: access + type + oj,
                                         access,

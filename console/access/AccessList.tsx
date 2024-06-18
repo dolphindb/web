@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState } from 'react'
 import { t } from '../../i18n/index.js'
 
 import { access } from './model.js'
-import { ACCESS_TYPE, STAT_ICONS, TABLE_NAMES, type TABLE_ACCESS } from './constants.js'
+import { ACCESS_TYPE, NeedInputAccess, STAT_ICONS, TABLE_NAMES, type TABLE_ACCESS } from './constants.js'
 import { AccessHeader } from './AccessHeader.js'
 
 
@@ -119,7 +119,8 @@ export function AccessList({ category }: { category: 'database' | 'shared' | 'st
             },
             ...(category !== 'script'
                 ? ACCESS_TYPE[category]
-                    .filter(t => t !== 'TABLE_WRITE')
+                    // getUserAccess 并不会返回这两类权限
+                    .filter(t => t !== 'TABLE_WRITE' && t !== 'DB_WRITE')
                     .map(type => ({
                         title: type,
                         dataIndex: type,
@@ -150,7 +151,7 @@ export function AccessList({ category }: { category: 'database' | 'shared' | 'st
                     ...(category === 'database' ? { tables: tb_access.tables } : {}),
                     ...(category !== 'script'
                         ? Object.fromEntries(Object.entries(tb_access.access).map(([key, value]) => [key, STAT_ICONS[value as string]]))
-                        : { stat: STAT_ICONS[tb_access.stat] })
+                        : { stat: NeedInputAccess.includes(tb_access.name) ? tb_access.stat : STAT_ICONS[tb_access.stat] })
                 }))}
             title={() => <AccessHeader category={category} preview search_key={search_key} set_search_key={set_search_key} />}
             tableLayout='fixed'

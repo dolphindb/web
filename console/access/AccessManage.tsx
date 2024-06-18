@@ -7,7 +7,7 @@ import { t } from '../../i18n/index.js'
 import { model } from '../model.js'
 
 import { AccessHeader } from './AccessHeader.js'
-import { ACCESS_TYPE, access_options } from './constants.js'
+import { ACCESS_TYPE, NeedInputAccess, access_options } from './constants.js'
 import { access } from './model.js'
 
 import { AccessAddModal } from './components/access/AccessAddModal.js'
@@ -80,17 +80,12 @@ export function AccessManage({ category }: { category: 'database' | 'shared' | '
                         onFilter: (value, record) => record.access === value
                     })
             },
-            ...(category !== 'script'
-                ? [
-                    {
-                        title: t('范围'),
-                        dataIndex: 'name',
-                        key: 'name',
-                        width: 600
-                    }
-                ]
-                : []),
-
+            {
+                title: category === 'script' ? t('值') : t('范围'),
+                dataIndex: 'name',
+                key: 'name',
+                width: 600
+            },
             {
                 title: t('操作'),
                 dataIndex: 'action',
@@ -121,7 +116,8 @@ export function AccessManage({ category }: { category: 'database' | 'shared' | '
                     tb_rows.push({
                         key: k,
                         access: k,
-                        type: v === 'allow' ? 'grant' : v,
+                        name: NeedInputAccess.includes(k) ? v : '',
+                        type: v === 'deny' ? 'deny' : 'grant',
                         action: (
                             <RevokeConfirm onConfirm={async () => {
                                 await access.revoke(current.name, k)
@@ -157,7 +153,7 @@ export function AccessManage({ category }: { category: 'database' | 'shared' | '
                                 }} />
                             )
                         })
-                } else if (k === 'DB_OWNER') {
+                } else if (k === 'DB_OWNER' && category === 'database') {
                     // 对于 DB_OWNER，如果为 allow 并且 DB_OWNER_allowed 为空，则为全部数据库生效，即 *
                     // 如果是 deny，则必定为 *
                     let objs = accesses.DB_OWNER_allowed && v === 'allow' ? accesses.DB_OWNER_allowed.split(',') : ['*']
@@ -177,7 +173,6 @@ export function AccessManage({ category }: { category: 'database' | 'shared' | '
                         })
                 }
             }
-
         return tb_rows
     }, [accesses, category])
 
@@ -198,7 +193,6 @@ export function AccessManage({ category }: { category: 'database' | 'shared' | '
         default:
             break
     }
-
     return (
         <Table
             rowSelection={{
