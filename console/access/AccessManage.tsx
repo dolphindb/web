@@ -7,7 +7,7 @@ import { t } from '../../i18n/index.js'
 import { model } from '../model.js'
 
 import { AccessHeader } from './AccessHeader.js'
-import { ACCESS_TYPE, access_options } from './constant.js'
+import { ACCESS_TYPE, access_options } from './constants.js'
 import { access } from './model.js'
 
 import { AccessAddModal } from './components/access/AccessAddModal.js'
@@ -20,8 +20,8 @@ interface ACCESS {
     name?: string
 }
 
-export function AccessManage ({ category }: { category: 'database' | 'shared' | 'stream' | 'function_view' | 'script' }) {
-    
+export function AccessManage({ category }: { category: 'database' | 'shared' | 'stream' | 'function_view' | 'script' }) {
+
     const { databases, shared_tables, stream_tables, function_views, current, accesses } = access.use([
         'databases',
         'shared_tables',
@@ -30,20 +30,20 @@ export function AccessManage ({ category }: { category: 'database' | 'shared' | 
         'current',
         'accesses'
     ])
-    
+
     const [search_key, set_search_key] = useState('')
-    
-    const [selected_access, set_selected_access] = useState<ACCESS[]>([ ])
-    
-    const reset_selected = useCallback(()=>set_selected_access([]),[])
-    
+
+    const [selected_access, set_selected_access] = useState<ACCESS[]>([])
+
+    const reset_selected = useCallback(() => set_selected_access([]), [])
+
     const showed_aces_types = useMemo(
         () => (category === 'database' ? ACCESS_TYPE.database.concat(ACCESS_TYPE.table) : ACCESS_TYPE[category]).filter(ac => ac !== 'TABLE_WRITE'),
         [category]
     )
-    
+
     useEffect(reset_selected, [current])
-    
+
     const showed_aces_cols: TableColumnType<Record<string, any>>[] = useMemo(
         () => [
             {
@@ -52,44 +52,44 @@ export function AccessManage ({ category }: { category: 'database' | 'shared' | 
                 key: 'type',
                 wdith: 100,
                 ...(category === 'script'
-                    ? { }
+                    ? {}
                     : {
-                          filters: ['grant', 'deny'].map(at => ({
-                              text: at,
-                              value: at
-                          })),
-                          filterMultiple: false,
-                          onFilter: (value, record) => record.type === value
-                      })
+                        filters: ['grant', 'deny'].map(at => ({
+                            text: at,
+                            value: at
+                        })),
+                        filterMultiple: false,
+                        onFilter: (value, record) => record.type === value
+                    })
             },
-            
+
             {
                 title: t('权限'),
                 dataIndex: 'access',
                 key: 'access',
                 wdith: 200,
                 ...(['function_view', 'script'].includes(category)
-                    ? { }
+                    ? {}
                     : {
-                          filters: showed_aces_types.map(at => ({
-                              text: at,
-                              value: at
-                          })),
-                          filterMultiple: true,
-                          onFilter: (value, record) => record.access === value
-                      })
+                        filters: showed_aces_types.map(at => ({
+                            text: at,
+                            value: at
+                        })),
+                        filterMultiple: true,
+                        onFilter: (value, record) => record.access === value
+                    })
             },
             ...(category !== 'script'
                 ? [
-                      {
-                          title: t('范围'),
-                          dataIndex: 'name',
-                          key: 'name',
-                          width: 600
-                      }
-                  ]
-                : [ ]),
-                
+                    {
+                        title: t('范围'),
+                        dataIndex: 'name',
+                        key: 'name',
+                        width: 600
+                    }
+                ]
+                : []),
+
             {
                 title: t('操作'),
                 dataIndex: 'action',
@@ -97,16 +97,16 @@ export function AccessManage ({ category }: { category: 'database' | 'shared' | 
                 wdith: 100
             }
         ],
-        [ ]
+        []
     )
-    
-  
-    
+
+
+
     const access_rules = useMemo(() => {
         if (!accesses)
-            return [ ]
-        let tb_rows = [ ]
-        
+            return []
+        let tb_rows = []
+
         for (let [k, v] of Object.entries(accesses as Record<string, any>))
             if (v && v !== 'none')
                 if (category === 'script' && showed_aces_types.includes(k))
@@ -177,8 +177,8 @@ export function AccessManage ({ category }: { category: 'database' | 'shared' | 
                 }
         return tb_rows
     }, [accesses, category])
-    
-    let obj_options = [ ]
+
+    let obj_options = []
     switch (category) {
         case 'database':
             obj_options = databases.map(db => db.name)
@@ -195,38 +195,38 @@ export function AccessManage ({ category }: { category: 'database' | 'shared' | 
         default:
             break
     }
-    
-    return ( <Table
-                rowSelection={{
-                    selectedRowKeys: selected_access.map(ac => ac.key),
-                    onChange: (_, selectedRows: any[], info) => {
-                        if (info.type === 'all')
-                            return
-                        set_selected_access(selectedRows)
-                    },
-                    onSelectAll () {
-                        const all_access = access_rules.filter(row =>
-                            row[category === 'script' ? 'access' : 'name'].toLowerCase().includes(search_key.toLowerCase())
-                        )
-                        if (selected_access.length < all_access.length)
-                            set_selected_access(all_access)
-                        else
-                            set_selected_access([ ])
-                    }
-                }}
-                title={() => <AccessHeader
-                        category={category}
-                        preview={false}
-                        search_key={search_key}
-                        set_search_key={set_search_key}
-                        add_open={async ()=>  await NiceModal.show(AccessAddModal, { category })}
-                        delete_open={async ()=>  await NiceModal.show(AccessRevokeModal, { category,selected_access,reset_selected })}
-                        selected_length={selected_access.length}
-                    />}
-                columns={showed_aces_cols}
-                dataSource={access_rules.filter(row =>
+
+    return (<Table
+        rowSelection={{
+            selectedRowKeys: selected_access.map(ac => ac.key),
+            onChange: (_, selectedRows: any[], info) => {
+                if (info.type === 'all')
+                    return
+                set_selected_access(selectedRows)
+            },
+            onSelectAll() {
+                const all_access = access_rules.filter(row =>
                     row[category === 'script' ? 'access' : 'name'].toLowerCase().includes(search_key.toLowerCase())
-                )}
-            />
+                )
+                if (selected_access.length < all_access.length)
+                    set_selected_access(all_access)
+                else
+                    set_selected_access([])
+            }
+        }}
+        title={() => <AccessHeader
+            category={category}
+            preview={false}
+            search_key={search_key}
+            set_search_key={set_search_key}
+            add_open={async () => await NiceModal.show(AccessAddModal, { category })}
+            delete_open={async () => await NiceModal.show(AccessRevokeModal, { category, selected_access, reset_selected })}
+            selected_length={selected_access.length}
+        />}
+        columns={showed_aces_cols}
+        dataSource={access_rules.filter(row =>
+            row[category === 'script' ? 'access' : 'name'].toLowerCase().includes(search_key.toLowerCase())
+        )}
+    />
     )
 }

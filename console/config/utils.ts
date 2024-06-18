@@ -1,8 +1,9 @@
 import { t } from '../../i18n/index.js'
+import { CONFIG_CLASSIFICATION } from './constants.js'
 
-import { type NodeType, type ControllerConfig, type ClusterNode, type NodesConfig, CONFIG_CLASSIFICATION } from './type.js'
+import { type NodeType, type ControllerConfig, type ClusterNode, type NodesConfig } from './type.js'
 
-export const strs_2_controller_configs  = (strs: string[]): ControllerConfig[] =>
+export const strs_2_controller_configs = (strs: string[]): ControllerConfig[] =>
     strs.map(str => {
         const [name, value] = str.split('=')
         return {
@@ -13,9 +14,9 @@ export const strs_2_controller_configs  = (strs: string[]): ControllerConfig[] =
     })
 
 
-export const _2_strs  = (items: ControllerConfig[] | ClusterNode[]): string[] =>
+export const _2_strs = (items: ControllerConfig[] | ClusterNode[]): string[] =>
     items.map(i => i.id)
-    
+
 
 export const strs_2_nodes = (strs: string[]): ClusterNode[] =>
     strs.map(str => {
@@ -30,15 +31,15 @@ export const strs_2_nodes = (strs: string[]): ClusterNode[] =>
         }
     })
 
-    
-export function strs_2_nodes_config (strs: string[]) {
+
+export function strs_2_nodes_config(strs: string[]) {
     const nodes_configs = new Map<string, NodesConfig>()
     strs.forEach(str => {
         const [rest, value] = str.split('=')
         const [first, second] = rest.split('.')
-        const qualifier =  second ? first : ''
+        const qualifier = second ? first : ''
         const name = second ? second : first
-        
+
         nodes_configs.set(
             rest,
             {
@@ -54,10 +55,10 @@ export function strs_2_nodes_config (strs: string[]) {
 }
 
 
-export function get_category (name: string) {
+export function get_category(name: string) {
     let category = t('其它')
     let clses = Object.keys(CONFIG_CLASSIFICATION)
-    for (let cls of clses) 
+    for (let cls of clses)
         if (CONFIG_CLASSIFICATION[cls].has(name))
             category = cls
     return category
