@@ -24,7 +24,7 @@ export function CommonFilterCols (props: IProps) {
         // 获取分区列中第一列为时间类型的列以及时间列，常用筛选列默认会带上这列，需要去除
         const time_col = timeCol || partitionCols?.filter(Boolean)?.find(item => TIME_TYPES.includes(schema?.find(col => col?.colName === item?.colName)?.dataType))?.colName
         return schema
-            .filter(item => !['DOUBLE', 'LONG', 'SHORT', 'DECIMAL', 'FLOAT', 'DATETIME'].includes(item?.dataType) && item?.colName !== time_col)
+            .filter(item => !['DOUBLE', 'LONG', 'SHORT', 'DECIMAL', 'FLOAT', 'DATETIME', 'TIME', 'TIMESTAMP', 'NANOTIME', 'NANOTIMESTAMP'].includes(item?.dataType) && item?.colName !== time_col)
             .map(item => ({ label: item?.colName, value: item?.colName }))
     }, [schema, timeCol, partitionCols])
     
