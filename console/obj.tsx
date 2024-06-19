@@ -51,15 +51,14 @@ import {
     DdbInt,
 } from 'dolphindb/browser.js'
 
-import { useBoolean } from 'ahooks'
-
 import { t } from '../i18n/index.js'
 
 import SvgLink from './link.icon.svg'
+import SvgExport from './export.icon.svg'
 import { type WindowModel } from './window.js'
 import { shell } from './shell/model.js'
 import { model } from './model.js'
-import { download_csv } from './utils/csv.js'
+import { download_file } from './utils/index.js'
 
 
 const max_strlen = 10000
@@ -578,7 +577,7 @@ export function Table ({
     
     const { visible, open, close } = use_modal()
     
-    const [loading, action] = useBoolean(false)
+    const [loading, set_loading] = useState(false)
     
     const [form] = Form.useForm()
     
@@ -694,7 +693,7 @@ export function Table ({
                     <Icon
                         className='icon-link'
                         title={t('导出 CSV')}
-                        component={SvgLink}
+                        component={SvgExport}
                         onClick={open}
                     />
                     <Modal 
@@ -708,7 +707,7 @@ export function Table ({
                             try {
                                 await form.validateFields()
                                 
-                                action.setTrue()
+                                set_loading(true)
                                 
                                 let { name, start, end } = form.getFieldsValue()
                             
@@ -717,9 +716,9 @@ export function Table ({
                                 
                                 await shell.define_get_csv_content()
                                 
-                                download_csv(name, (await model.ddb.call('get_csv_content', [obj ?? info.name, new DdbInt(start), new DdbInt(end)])).data().join(''))
+                                download_file(`${name}.csv`, (await model.ddb.call('get_csv_content', [obj ?? info.name, new DdbInt(start), new DdbInt(end)])).data().join(''))
                             } finally {
-                                action.setFalse()
+                                set_loading(false)
                                 close()
                             }
                         }} 

@@ -8,7 +8,7 @@ import { request } from '../../../guide/utils.js'
 import { safe_json_parse } from '../../../dashboard/utils.js'
 
 import { t } from '../../../../i18n/index.js'
-import { download_csv } from '../../../utils/csv.js'
+import { download_file } from '../../../utils/index.js'
 
 interface IProps { 
     table: string
@@ -34,7 +34,7 @@ export const ExportFileModal = NiceModal.create((props: IProps) => {
              else
                 text = (safe_json_parse(new TextDecoder().decode((await request('dbms_executeQuery', { code }))))).csvContent
             
-            download_csv(name, text)
+            download_file(`${name}.csv`, text)
                 
             action.setFalse()
             modal.hide()

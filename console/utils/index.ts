@@ -1,4 +1,4 @@
-export function download_csv (name: string, content: string) {
+export function download_file (name: string, content: string) {
     // 创建指向 Blob 的 URL
     const url = URL.createObjectURL(new Blob([content], { type: 'text/plain' }))
     
@@ -6,7 +6,7 @@ export function download_csv (name: string, content: string) {
     const a = document.createElement('a')
     a.style.display = 'none'
     a.href = url
-    a.download = `${name}.csv`
+    a.download = name
     
     // 将 <a> 元素添加到 DOM 中
     document.body.appendChild(a)
