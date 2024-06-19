@@ -36,6 +36,7 @@ function Access({ role }: { role: 'group' | 'user' }) {
     useEffect(() => {
         if (current && current.role !== role)
             access.set({ current: { role } })
+        return () => access.set({ current:null, inited:false })
     }, [role])
 
     return admin ? (
