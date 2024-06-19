@@ -356,7 +356,7 @@ function Tensor ({
                         
                         
                 }
-                previewStr += + ']'
+                previewStr += ']'
             }
             
             
