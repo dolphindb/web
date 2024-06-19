@@ -78,15 +78,25 @@ class AccessModel extends Model<AccessModel> {
 
     async get_databases_with_tables() {
         const databases = await this.get_databases()
-        const dbs = []
-        for (let db of databases) {
-            let tables = await this.get_tables(db + '/')
-            dbs.push({
+        const tables = await this.get_tables();
+        const databases_sort = [...databases].sort((a, b) => b.length - a.length)
+        const dbs_map = new Map<string, string[]>()
+        tables.forEach((tb) => {
+            for (let db of databases_sort) {
+                if (tb.startsWith(db)) {
+                    if (!dbs_map.has(db)) dbs_map.set(db, [])
+                    let tbs = dbs_map.get(db)
+                    tbs.push(tb)
+                    break
+                }
+            }
+        })
+        this.set({
+            databases: databases.map((db) => ({
                 name: db,
-                tables
-            })
-        }
-        this.set({ databases: dbs })
+                tables: dbs_map.get(db) ?? []
+            }))
+        })
     }
 
 
@@ -170,8 +180,8 @@ class AccessModel extends Model<AccessModel> {
     }
 
 
-    async get_tables(database: string): Promise<string[]> {
-        return (await model.ddb.call<DdbVectorStringObj>('getDFSTablesByDatabase', [database])).value
+    async get_tables(): Promise<string[]> {
+        return (await model.ddb.call<DdbVectorStringObj>('getDFSTablesByDatabase', ["dfs://"])).value
     }
 
 
