@@ -153,11 +153,12 @@ def dbms_generateEnumerate(input_json){
     query =  "EXEC " + col + ' FROM ( SELECT ' + col + ' FROM loadTable("' + dbName + '", "' + tbName +  '") LIMIT 100000)' + ' GROUP BY ' + col;
     enumList = query.parseExpr().eval()
     newEnumList = array(STRING, 0)
-    if (type(enumList) in [4, 17, 18]){
-        rawenumList = string(enumList)
-        for(i in 1..size(enumList) ){
-            if(enumList[i-1] != null and enumList[i-1] != "")
-            newEnumList.append!(strReplace(enumList[i-1], "\"", '\\\"')) 
+    // 2CHAR, 4INT, 17SYMBOL, 18STRING
+    if (type(enumList) in [2, 4, 17, 18]){
+        stringEnumList = string(enumList)
+        for(i in 1..size(stringEnumList) ){
+            if(stringEnumList[i-1] != null and stringEnumList[i-1] != "")
+            newEnumList.append!(strReplace(stringEnumList[i-1], "\"", '\\\"')) 
         }
     } 
     if (size(enumList) == 0){
