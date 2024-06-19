@@ -177,6 +177,7 @@ class ShellModel extends Model<ShellModel> {
                         case DdbForm.set:
                         case DdbForm.table:
                         case DdbForm.vector:
+                        case DdbForm.tensor:
                             return blue(
                                 ddbobj.inspect_type()
                             ) + '\n'
