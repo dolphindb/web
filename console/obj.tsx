@@ -690,13 +690,15 @@ export function Table ({
                             await open_obj({ obj, objref, remote, ddb, options })
                         }}
                     />
+                    
                     <Icon
                         className='icon-link'
                         title={t('导出 CSV')}
                         component={SvgExport}
                         onClick={open}
                     />
-                    <Modal 
+                    
+                    <Modal
                         width='50%'
                         forceRender
                         maskClosable={false}
