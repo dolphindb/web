@@ -4007,8 +4007,8 @@
     "请输入起始行": {
         "en": "Please enter the starting row"
     },
-    "结束行需为大于等于 0 的整数": {
-        "en": "The ending row must be an integer greater than or equal to 0"
+    "结束行需为大于等于 0 且小于表格实际行数的整数": {
+        "en": "The end row must be an integer greater than or equal to 0 and less than the actual number of rows in the table"
     },
     "结束行需大于等于起始行": {
         "en": "The ending row must be greater than or equal to the starting row"

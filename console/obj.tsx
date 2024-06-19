@@ -619,7 +619,7 @@ export function Table ({
             name: info.name || t('表格'),
             scope: 'all',
             start: 0,
-            end: info.rows
+            end: info.rows - 1
         })
         set_scope(false)
     }, [info])
@@ -713,7 +713,7 @@ export function Table ({
                                 let { name, start, end } = form.getFieldsValue()
                             
                                 start ??= 0
-                                end ??= info.rows
+                                end ??= info.rows - 1
                                 
                                 await shell.define_get_csv_content()
                                 
@@ -762,8 +762,8 @@ export function Table ({
                                         ({ getFieldValue }) => ({
                                             async validator (_, value) {
                                                 const start = getFieldValue('start')
-                                                if (value === undefined  || !Number.isInteger(value) || value < 0)
-                                                    return Promise.reject(new Error(t('结束行需为大于等于 0 的整数')))
+                                                if (value === undefined  || !Number.isInteger(value) || value < 0 || value > info.rows - 1)
+                                                    return Promise.reject(new Error(t('结束行需为大于等于 0 且小于表格实际行数的整数')))
                                                 else if (start > value)
                                                     return Promise.reject(new Error(t('结束行需大于等于起始行')))
                                                 
