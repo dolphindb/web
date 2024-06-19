@@ -17,7 +17,9 @@ function handle_access(accesses: Record<string, any>, type: string, name: string
             } else {
                 let objs = accesses.DB_OWNER_allowed.split(',')
                 for (let obj of objs) {
-                    let reg = new RegExp(obj)
+                    // dfs://test* 变成 dfs://test.*
+                    let reg = new RegExp(obj.replace('*', ".*"))
+                    console.log(obj, name, reg.test(name))
                     if (reg.test(name)) {
                         return [type, 'allow']
                     }
