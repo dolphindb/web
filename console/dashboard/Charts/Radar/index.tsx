@@ -4,13 +4,14 @@ import { useMemo } from 'react'
 
 import { isNil, pickBy } from 'lodash'
 
-import { dashboard, type Widget } from '../../model.js'
+import { type Widget } from '../../model.js'
 
 import { LabelsFormFields, SeriesFormFields } from '../../ChartFormFields/RadarChartFields.js'
 import { type IChartConfig } from '../../type.js'
 import { parse_text } from '../../utils.js'
 import { BasicFormFields } from '../../ChartFormFields/BasicFormFields.js'
 import { ChartField } from '../../ChartFormFields/type.js'
+import { useMerge } from '../hooks.js'
 
 
 export function Radar ({ widget, data_source }: { widget: Widget, data_source: any[] }) {
@@ -29,7 +30,7 @@ export function Radar ({ widget, data_source }: { widget: Widget, data_source: a
                     if (index === 0)
                         indicators.push({ name: serie?.col_name, max: serie?.max })
                 })  
-                datas.push({ value: values, name: label })     
+                datas.push({ id: index, value: values, name: label })     
             })
             
             return {
@@ -73,14 +74,15 @@ export function Radar ({ widget, data_source }: { widget: Widget, data_source: a
         [title, tooltip, series, title_size, labels, data_source, legend]
     )
     
-    // 编辑模式下 notMerge 为 true ，因为要修改配置，预览模式下 notMerge 为 false ，避免数据更新，导致选中的 label失效
+    const ref = useMerge(option)
+    
     return <ReactEChartsCore
-        notMerge={dashboard.editing}
+        ref={ref}
         echarts={echarts}
         option={option}
         lazyUpdate
         theme='ohlc_theme' 
-        />
+    />
 }
 
 export function RadarConfigForm (props: { col_names: string[] } ) {

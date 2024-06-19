@@ -14,6 +14,8 @@ import type { Widget } from '../../model.js'
 import type { ISeriesConfig, IChartConfig } from '../../type.js'
 import { get_data_source } from '../../DataSource/date-source.js'
 
+import { useMerge } from '../hooks.js'
+
 import { VALUE_TYPES, TIME_TYPES } from './constant.js'
 
 
@@ -77,7 +79,7 @@ export function CompositeChart (props: ICompositeChartProps) {
     }, [type_map, config.automatic_mode, config.x_col_types, widget.source_id])
     
     
-    const options = useMemo(() => { 
+    const option = useMemo(() => { 
         const { automatic_mode, series: series_config = [ ], yAxis = [ ], ...others } = config
         let series = [ ]
         
@@ -150,15 +152,16 @@ export function CompositeChart (props: ICompositeChartProps) {
                 if (axis_range_map?.[key]?.min !== min || axis_range_map?.[key]?.max !== max)  
                     set_axis_range_map(val => ({ ...val, [key]: { min, max } }))
             }
-    }, [options, echart_instance, config.thresholds])
+    }, [option, echart_instance, config.thresholds])
     
+    const ref = useMerge(option)
     
     return <>
         {widget.source_id.map(id => <SingleDataSourceUpdate key={id} source_id={id} force_update={() => { set_update({ }) }}/>) }
         <ReactEChartsCore
             echarts={echarts}
-            notMerge
-            option={options}
+            ref={ref}
+            option={option}
             className='dashboard-line-chart'
             theme='my-theme'
             onChartReady={(ins: EChartsInstance) => { set_echart_instance(ins) }}
