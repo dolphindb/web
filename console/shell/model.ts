@@ -77,6 +77,7 @@ class ShellModel extends Model<ShellModel> {
     
     set_column_comment_defined = false
     
+    get_csv_content_defined = false
     
     current_node: ColumnRoot | Column
     
@@ -600,6 +601,26 @@ class ShellModel extends Model<ShellModel> {
         )
         
         shell.set({ set_column_comment_defined: true })
+    }
+    
+    
+    async define_get_csv_content () {
+        if (!this.get_csv_content_defined) {
+            await model.ddb.eval(
+                'def get_csv_content (name_or_obj, start, end) {\n' +
+                '    type = typestr name_or_obj\n' +
+                "    if (type =='CHAR' || type =='STRING')\n" +
+                '        obj = objByName(name_or_obj)\n' +
+                '    else\n' +
+                '        obj = name_or_obj\n' +
+                '        \n' +
+                '    table_size = size obj\n' +
+                "    return generateTextFromTable(obj, start, end - start + 1, 0, ',', true)\n" +
+                '}\n'
+            )
+            
+            this.set({ get_csv_content_defined: true })
+        }
     }
     
     
