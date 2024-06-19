@@ -37,6 +37,7 @@ import {
     nulls,
     formati,
     format,
+    DdbInt,
     type InspectOptions,
     type DdbValue,
     type DdbVectorValue,
@@ -48,16 +49,15 @@ import {
     type DdbMatrixObj,
     type DdbChartObj,
     type StreamingMessage,
-    DdbInt,
 } from 'dolphindb/browser.js'
 
 import { t } from '../i18n/index.js'
 
 import SvgLink from './link.icon.svg'
 import SvgExport from './export.icon.svg'
+
 import { type WindowModel } from './window.js'
 import { shell } from './shell/model.js'
-import { model } from './model.js'
 import { download_file } from './utils/index.js'
 
 
@@ -716,7 +716,7 @@ export function Table ({
                                 
                                 await shell.define_get_csv_content()
                                 
-                                download_file(`${name}.csv`, (await model.ddb.call('get_csv_content', [obj ?? info.name, new DdbInt(start), new DdbInt(end)])).data().join(''))
+                                download_file(`${name}.csv`, (await ddb.call('get_csv_content', [obj ?? info.name, new DdbInt(start), new DdbInt(end)])).data().join(''))
                             } finally {
                                 set_loading(false)
                                 close()
