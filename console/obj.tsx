@@ -390,7 +390,7 @@ function Tensor ({
     
     return <div className='tensor'>
         <div className='tensor-nav'>
-            <span className='tensor-title' onClick={() => { popDimIndexTo(0) }}>Tensor <RightOutlined style={{ transform: 'scale(0.8,0.8) translate(0,2px)' }}/></span>{navItems}
+            <span className='tensor-title' onClick={() => { popDimIndexTo(0) }}>Tensor<RightOutlined style={{ transform: 'scale(0.8,0.8) translate(0,2px)' }}/></span>{navItems}
         </div>
         <div className='tensor-view'>
             {elems}
