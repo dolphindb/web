@@ -266,6 +266,11 @@ function Tensor ({
     
     const _obj = obj || objref.obj
     
+    // 接下来开始写当前浏览状态的维护
+    const [currentDir, setCurrentDir] = useState<number[]>([])
+    const [pageSize, setPageSize] = useState(10)
+    const [page, setPage] = useState(1)
+    
     useEffect(() => {
         (async () => {
             if (_obj)
@@ -282,6 +287,10 @@ function Tensor ({
             
             render({ })
         })()
+        
+        setCurrentDir([]);
+        setPageSize(10);
+        setPage(1);
     }, [obj, objref])
     
     
@@ -299,10 +308,6 @@ function Tensor ({
     
     const typeName = DdbType[_obj.value.data_type]
     
-    // 接下来开始写当前浏览状态的维护
-    const [currentDir, setCurrentDir] = useState<number[]>([ ])
-    const [pageSize, setPageSize] = useState(10)
-    const [page, setPage] = useState(1)
     const pageIndex = page - 1
     const [previewLimit, setPreviewLimit] = useState(10)
     const currentDim = currentDir.length
