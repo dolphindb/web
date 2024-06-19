@@ -86,10 +86,11 @@ export function VariableEditor ({
     }
     
     const update_variable_map = useCallback((options?: OptionType[]) => {
-        if (is_select) 
+        if (is_select) {
             variable_map.clear()
             ;(options ?? current_variable.options).forEach(({ label }, index) => variable_map.set(label, index))
-    }, [ ])
+        } 
+    }, [current_variable ])
     
     useEffect(() => {
         if (dashboard.variable_editor)
