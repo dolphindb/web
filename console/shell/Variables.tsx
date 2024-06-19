@@ -76,8 +76,6 @@ export function Variables ({ shared }: { shared?: boolean }) {
     let objects: TreeDataItem[] = [ ]
     let tensors: TreeDataItem[] = [ ]
     
-    console.log(vars_)
-    
     for (const v of vars_)
         switch (v.form) {
             case DdbForm.scalar:
