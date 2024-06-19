@@ -717,7 +717,10 @@ export function Table ({
                                 
                                 await shell.define_get_csv_content()
                                 
-                                download_file(`${name}.csv`, (await ddb.call('get_csv_content', [obj ?? info.name, new DdbInt(start), new DdbInt(end)])).data().join(''))
+                                download_file(
+                                    `${name}.csv`, 
+                                    (await ddb.call('get_csv_content', [obj ?? info.name, new DdbInt(start), new DdbInt(end)])).data().join('\t')
+                                )
                             } finally {
                                 set_loading(false)
                                 close()
