@@ -63,6 +63,7 @@ export function Variables ({ shared }: { shared?: boolean }) {
     let table   = new TreeDataItem({ title: 'table',  key: '6', icon: <Icon component={SvgTable} /> })
     let chart   = new TreeDataItem({ title: 'chart',  key: '7', icon: <Icon component={SvgChart} /> })
     let object  = new TreeDataItem({ title: 'object', key: '8', icon: <Icon component={SvgObject} /> })
+    let tensor  = new TreeDataItem({ title: 'tensor', key: '9', icon: <Icon component={SvgVector} /> })
     
     let scalars: TreeDataItem[] = [ ]
     let vectors: TreeDataItem[] = [ ]
@@ -73,6 +74,9 @@ export function Variables ({ shared }: { shared?: boolean }) {
     let tables: TreeDataItem[] = [ ]
     let charts: TreeDataItem[] = [ ]
     let objects: TreeDataItem[] = [ ]
+    let tensors: TreeDataItem[] = [ ]
+    
+    console.log(vars_)
     
     for (const v of vars_)
         switch (v.form) {
@@ -120,6 +124,11 @@ export function Variables ({ shared }: { shared?: boolean }) {
                 objects.push(new TreeDataItem({ title: v.label, key: v.name }))
                 object.children = objects
                 break
+            
+            case DdbForm.tensor:
+                tensors.push(new TreeDataItem({ title: v.label, key: v.name }))
+                tensor.children = tensors
+                break
         }
     
     
@@ -139,7 +148,7 @@ export function Variables ({ shared }: { shared?: boolean }) {
                 blockNode
                 showLine
                 motion={null}
-                treeData={[scalar, object, pair, vector, set, dict, matrix, table, chart].filter(node => node.children)}
+                treeData={[scalar, object, pair, vector, set, dict, matrix, table, chart, tensor].filter(node => node.children)}
                 
                 expandedKeys={expanded_keys}
                 onExpand={(keys: string[]) => { set_expanded_keys(keys) }}
@@ -160,7 +169,8 @@ export function Variables ({ shared }: { shared?: boolean }) {
                         v.form === DdbForm.matrix ||
                         v.form === DdbForm.set ||
                         v.form === DdbForm.table ||
-                        v.form === DdbForm.vector
+                        v.form === DdbForm.vector ||
+                        v.form === DdbForm.tensor
                     )
                         shell.set({
                             result: v.obj ? {
