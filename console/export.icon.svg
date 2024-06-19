@@ -1,26 +1,19 @@
-<?xml version="1.0" encoding="UTF-8"?>
-<svg xmlns="http://www.w3.org/2000/svg" version="1.1" viewBox="0 0 16 16">
-  <defs>
-    <style>
-      .cls-1 {
-        fill: currentColor;
-        stroke-width: 0px;
-      }
-
-      .cls-2 {
-        display: none;
-        opacity: .5;
-      }
-    </style>
-  </defs>
-  <g id="_图层_1" data-name="图层 1" class="cls-2">
-    <g>
-      <path class="cls-1" d="M8,3l1.8,1.8-3.8,3.8,1.4,1.4,3.8-3.8,1.8,1.8V3h-5Z"/>
-      <path class="cls-1" d="M11,11h-6v-6h2v-2H3v10h10v-4h-2v2Z"/>
-    </g>
-  </g>
-  <g id="_图层_2" data-name="图层 2">
-    <path class="cls-1" d="M3,9v4h10v-4h-2v2h-6v-2"/>
-    <path class="cls-1" d="M4.5,5.1h2.5v5.4h2v-5.4s2.5,0,2.5,0l-3.5-3.5-3.5,3.5Z"/>
-  </g>
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Generator: Adobe Illustrator 26.0.3, SVG Export Plug-In . SVG Version: 6.00 Build 0)  -->
+<svg version="1.1" id="图层_1" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink" x="0px" y="0px"
+	 viewBox="0 0 16 16" xml:space="preserve">
+<style type="text/css">
+	.st0{display:none;opacity:0.5;fill:currentColor;}
+	.st1{display:inline;}
+</style>
+<g id="_图层_1" class="st0">
+	<g class="st1">
+		<path d="M8,3l1.8,1.8L6,8.6L7.4,10l3.8-3.8L13,8V3H8z"/>
+		<path d="M11,11H5V5h2V3H3v10h10V9h-2V11z"/>
+	</g>
+</g>
+<g id="_图层_2">
+	<path d="M3,9v4h10V9h-2v2H5V9"/>
+	<path d="M11.5,7H9V1.6H7V7H4.5L8,10.5L11.5,7z"/>
+</g>
 </svg>
