@@ -327,6 +327,9 @@
 				}else{
 					filter=concat(filterCols,"`")
 				}
+				if (filter != ""){
+					filter = "`"+filter
+				}
 				if(ptCols.size()==1){
 					ptc=ptCols[0]
 				}
@@ -334,10 +337,10 @@
 					ptc = concat(ptCols,"`")
 				}
 				if(sortKeyMappingFunction!=""){
-					createTB= "db.createPartitionedTable(table=tbSchema, tableName=`"+tbName+", partitionColumns=`"+ptc+", sortColumns=`"+filter+timeCol+",sortKeyMappingFunction=sortKeyMappingFunction)"
+					createTB= "db.createPartitionedTable(table=tbSchema, tableName=`"+tbName+", partitionColumns=`"+ptc+", sortColumns="+filter+timeCol+",sortKeyMappingFunction=sortKeyMappingFunction)"
 				}
 				else{
-					createTB= "db.createPartitionedTable(table=tbSchema, tableName=`"+tbName+", partitionColumns=`"+ptc+", sortColumns=`"+filter+timeCol+")"
+					createTB= "db.createPartitionedTable(table=tbSchema, tableName=`"+tbName+", partitionColumns=`"+ptc+", sortColumns="+filter+timeCol+")"
 				}
 				setCom=""
 				if (comment != "{}"){
