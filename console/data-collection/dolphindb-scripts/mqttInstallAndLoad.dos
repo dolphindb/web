@@ -1,2 +1,1 @@
-try{installPlugin("mqtt")}catch(ex){print(ex)}
 try{loadPlugin("mqtt")}catch(ex){print(ex)}
