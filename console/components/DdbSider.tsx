@@ -175,7 +175,7 @@ export function DdbSider () {
                 {
                     key: 'data-collection',
                     icon: <MenuIcon view='data-collection' />,
-                    label: t('数据采集平台'),
+                    label: t('数采平台'),
                     children: [
                         {
                             icon: <MenuIcon view='connection' />,
