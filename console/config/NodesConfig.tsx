@@ -9,8 +9,9 @@ import { model } from '../model.js'
 
 import { NodesConfigAddModal } from './NodesConfigAddModal.js'
 import { config } from './model.js'
-import { CONFIG_CLASSIFICATION, type NodesConfig } from './type.js'
+import { type NodesConfig } from './type.js'
 import { _2_strs } from './utils.js'
+import { CONFIG_CLASSIFICATION } from './constants.js'
 
 const { Search } = Input
 
@@ -21,9 +22,11 @@ export function NodesConfig () {
     
     const [search_key, set_search_key] = useState('')
     
-    useEffect(() => { (async () => {
-        await config.load_nodes_config()
-    })() }, [ ])
+    useEffect(() => {
+        (async () => {
+            await config.load_nodes_config()
+        })()
+    }, [ ])
     
     const cols: ProColumns<NodesConfig>[] = useMemo(
         () => [
@@ -148,7 +151,7 @@ export function NodesConfig () {
                             if (rowKey !== key)
                                 config.nodes_configs.delete(rowKey as string)
                             await config.change_nodes_config([[key, { name, qualifier, value, key }]])
-                            model.message.success(t('保存成功'))
+                            model.message.success(t('保存成功，重启控制/数据节点生效'))
                         },
                         onDelete: async key => delete_config(key as string),
                         deletePopconfirmMessage: t('确认删除此配置项？'),
@@ -174,50 +177,50 @@ export function NodesConfig () {
     }, [nodes_configs, search_key])
     
     return <div className='nodes-config-container'>
-            <div className='toolbar'>
-                <Button
-                    icon={<ReloadOutlined />}
-                    onClick={async () => {
-                        await config.load_nodes_config()
-                        model.message.success(t('刷新成功'))
-                    }}
-                >
-                    {t('刷新')}
-                </Button>
-                
-                <Button
-                    icon={<PlusOutlined />}
-                    onClick={async () =>
-                        NiceModal.show(NodesConfigAddModal)
-                    }
-                >
-                    {t('新增配置')}
-                </Button>
-                
-                <Search
-                    placeholder={t('请输入想要查找的配置项')}
-                    value={search_key}
-                    onChange={e => {
-                        set_search_key(e.target.value)
-                    }}
-                    onSearch={async () => {
-                        let keys = [ ]
-                        nodes_configs?.forEach(config => {
-                            const { category, name } = config
-                            if (name.toLowerCase().includes(search_key.toLowerCase()))
-                                keys.push(category)
-                        })
-                        set_active_key(keys)
-                    }}
-                />
-            </div>
-            <Collapse
-                items={items}
-                bordered={false}
-                activeKey={active_key}
-                onChange={key => {
-                    set_active_key(key)
+        <div className='toolbar'>
+            <Button
+                icon={<ReloadOutlined />}
+                onClick={async () => {
+                    await config.load_nodes_config()
+                    model.message.success(t('刷新成功'))
+                }}
+            >
+                {t('刷新')}
+            </Button>
+            
+            <Button
+                icon={<PlusOutlined />}
+                onClick={async () =>
+                    NiceModal.show(NodesConfigAddModal)
+                }
+            >
+                {t('新增配置')}
+            </Button>
+            
+            <Search
+                placeholder={t('请输入想要查找的配置项')}
+                value={search_key}
+                onChange={e => {
+                    set_search_key(e.target.value)
+                }}
+                onSearch={async () => {
+                    let keys = [ ]
+                    nodes_configs?.forEach(config => {
+                        const { category, name } = config
+                        if (name.toLowerCase().includes(search_key.toLowerCase()))
+                            keys.push(category)
+                    })
+                    set_active_key(keys)
                 }}
             />
         </div>
+        <Collapse
+            items={items}
+            bordered={false}
+            activeKey={active_key}
+            onChange={key => {
+                set_active_key(key)
+            }}
+        />
+    </div>
 }
