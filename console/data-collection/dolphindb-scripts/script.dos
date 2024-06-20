@@ -487,7 +487,7 @@ def dcp_startSubscribe(args){
         }else if(tmp.protocol == "kafka"){
             subscriptionId=exec last(subscriptionId) from kafka::getJobStat()  order by createTimestamp
         }   
-        writeLog("the subscribe "+tmp.name+" of "+upper(tmp.protocol)+" connection "+tmp.connInfo_name+" successully started")
+        writeLog("the subscribe "+tmp.name+" of "+upper(tmp.protocol)+" connection "+tmp.connInfo_name+" successfully started")
         argsNew='{"id":"'+subArgs[`subId]+'","subId":"'+subscriptionId+'","status":1}' 
         dcp_updateSubscribe(argsNew)
     }catch(ex){
@@ -521,7 +521,7 @@ def dcp_stopSubscribe(args){
                 }else if(info[i].protocol == "kafka"){
                     kafka::cancelSubJob(info[i].subId)
                 }
-                writeLog("The subscribe "+info[i].name+" of "+upper(info[i].protocol)+" connection "+info[i].connInfo_name+" successully stoped")
+                writeLog("The subscribe "+info[i].name+" of "+upper(info[i].protocol)+" connection "+info[i].connInfo_name+" successfully stoped")
                 argsNew='{"id":"'+string(info[i].id)+'","subId":NULL,"status":0}' 
                 dcp_updateSubscribe(argsNew) 
             }   
