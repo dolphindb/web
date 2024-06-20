@@ -13,11 +13,12 @@ export class DcpModel extends Model<DcpModel> {
     
     async init () {
         await model.ddb.eval(installMqttCode)
-        await model.ddb.eval(code)
         this.set({ func_inited: true })
+        const is_inited = await model.ddb.eval('existsDatabase("dfs://dataAcquisition")')
         
-        const { status } = await request<{ status: 0 | 1 }>('dcp_exitsDataAcquisition')
-        this.set({ database_inited: status === 1 ? 'inited' : 'not_inited' } )        
+        this.set({ database_inited:  is_inited ? 'inited' : 'not_inited' } )        
+        if (!is_inited)
+            await model.ddb.eval(code)
     }
     
     async init_database () {
