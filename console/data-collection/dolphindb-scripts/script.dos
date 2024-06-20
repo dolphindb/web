@@ -43,6 +43,7 @@ def dcp_addConnect(args){
         }
     }catch(ex){
         writeLog("An error occured when adding "+upper(connectArgs[`protocol])+" connection, the reason is:"+ex[1])
+        throw(ex)
     }
 }
 
@@ -86,6 +87,7 @@ def dcp_updateConnect(args){
         return '{"status":1}'
     }catch(ex){
         writeLog("An error occured when updating "+upper(connectArgs[`protocol])+" connection, the reason is:"+ex[1])
+        throw(ex)
     }
 }
 
@@ -126,6 +128,7 @@ def dcp_deleteConnect(args){
         return '{"status":1}'
     }catch(ex){
         writeLog("An error occured when deleting "+upper(tmp[index].protocol)+" connection "+tmp[index].name+", the reason is:"+ex[1])
+        throw(ex)
     }
 }
 
@@ -259,6 +262,7 @@ def dcp_addSubscribe(args){
         return '{"status":1,"id":"'+string(id)[0]+'"}'  
     }catch(ex){
         writeLog("An error occured when adding "+upper(proto)+" subscribe info, the reason is:"+ex[1])
+        throw(ex)
     }
 }
 
@@ -323,6 +327,7 @@ def dcp_updateSubscribe(args){
         return '{"status":1}'
     }catch(ex){
         writeLog("An error occured when updating "+upper(proto)+" subscribe info, the reason is:"+ex[1])
+        throw(ex)
     }
 }
 
@@ -365,6 +370,7 @@ def dcp_deleteSubscribe(args){
         return '{"status":1}'
     }catch(ex){
         writeLog("An error occured when deleting "+upper(proto)+" subscribe info, the reason is:"+ex[1])
+        throw(ex)
     }
 }
 
@@ -465,6 +471,7 @@ def dcp_startSubscribe(args){
         dcp_updateSubscribe(argsNew)
     }catch(ex){
         writeLog("An error occured when starting subscribe "+tmp.name+" of "+upper(tmp.protocol)+" connection "+tmp.connInfo_name+" , the reason is:"+ex[1])
+        throw(ex)
     }
 }
 
@@ -497,6 +504,7 @@ def dcp_stopSubscribe(args){
         }
     }catch(ex){
         writeLog("An error occured when stoping subscribe of "+upper(info[i].protocol)+" connection "+info[i].connInfo_name+" , the reason is:"+ex[1])
+        throw(ex)
     }
     
 }
@@ -549,6 +557,32 @@ def dcp_checkSubStatus(args){
 }
 
 /*
+解析模板参数
+@args 
+handler:解析函数的函数体 string
+protocol:解析函数对应的协议 string
+@return 返回一个参数列表（拼接为字符串）
+*/
+def dcp_parseTemplateArgs(handler,protocol){
+    if(protocol==`mqtt){
+        handlerParam = handler.split("){")[0].split("(")[1].split(",")
+        handlerParam = handlerParam[0:(handlerParam.size()-2)]    
+    }else if(protocol==`kafka){
+        handlerParam = handler.split("){")[0].split("(")[1].split(",")
+        handlerParam = [`outTableName] <- handlerParam[0:(handlerParam.size()-3)] 
+    }
+    paramList = '['
+    for(index in 0..(handlerParam.size()-1)){   
+        if(index < (handlerParam.size()-1)){    
+            paramList += '"'+handlerParam[index]+'",'  
+        }else{
+            paramList += '"'+handlerParam[index]+'"]'
+        }
+    }
+    return paramList   
+}
+
+/*
 添加模板
 @args 
 name:模板名称 字符串
@@ -570,6 +604,7 @@ def dcp_addHandler(args){
         return '{"status":1,"id":"'+string(id[0])+'"}'   
     }catch(ex){
         writeLog("An error occured when adding The "+upper(handlerArgs[`protocol])+ " handler "+handlerArgs[`name]+", the reason is:"+ex[1])
+        throw(ex)
     } 
 }
 
@@ -600,6 +635,7 @@ def dcp_updateHandler(args){
         return '{"status":1}'   //更新成功  
     }catch(ex){
         writeLog("An error occured when updating The "+upper(handlerArgs[`protocol])+ " handler "+handlerArgs[`name]+", the reason is:"+ex[1])
+        throw(ex)
     }
 }    
 
@@ -619,6 +655,7 @@ def dcp_deleteHandler(args){
         return '{"status":1}'   //删除成功  
     }catch(ex){
         writeLog("An error occured when deleting the handler "+handlerArgs[`name]+", the reason is:"+ex[1])
+        throw(ex)
     }
 }
 
@@ -650,31 +687,6 @@ def dcp_getTemplateArgs(args){
     return '{"returnArgs":'+handler+'}'    
 }
 
-/*
-解析模板参数
-@args 
-handler:解析函数的函数体 string
-protocol:解析函数对应的协议 string
-@return 返回一个参数列表（拼接为字符串）
-*/
-def dcp_parseTemplateArgs(handler,protocol){
-    if(protocol==`mqtt){
-        handlerParam = handler.split("){")[0].split("(")[1].split(",")
-        handlerParam = handlerParam[0:(handlerParam.size()-2)]    
-    }else if(protocol==`kafka){
-        handlerParam = handler.split("){")[0].split("(")[1].split(",")
-        handlerParam = [`outTableName] <- handlerParam[0:(handlerParam.size()-3)] 
-    }
-    paramList = '['
-    for(index in 0..(handlerParam.size()-1)){   
-        if(index < (handlerParam.size()-1)){    
-            paramList += '"'+handlerParam[index]+'",'  
-        }else{
-            paramList += '"'+handlerParam[index]+'"]'
-        }
-    }
-    return paramList   
-}
 
 //初始化解析模板
 def initParserTemplate(){   
