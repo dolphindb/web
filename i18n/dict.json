@@ -3982,5 +3982,17 @@
     },
     "可选模块": {
         "en": "Optional Modules"
+    },
+    "以\"*\"结尾，表示指定某个 dbName 的前缀范围，例如\"dfs://test0*\"": {
+        "en": "Ending with \"*\" means specifying the prefix range of a certain dbName, such as \"dfs://test0*\""
+    },
+    "输入限制内存大小，单位为 GB": {
+        "en": "Enter the limit memory size in GB"
+    },
+    "以 \"*\" 结尾，表示指定某个 dbName 的前缀范围，例如 \"dfs://test0*\"": {
+        "en": "Ending with \"*\" means specifying the prefix range of a certain dbName, such as \"dfs://test0*\""
+    },
+    "上限值": {
+        "en": "Limit"
     }
 }

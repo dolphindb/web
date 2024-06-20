@@ -1,16 +1,19 @@
-import NiceModal, { useModal } from "@ebay/nice-modal-react";
-import { Modal, Transfer } from "antd";
-import { t } from "../../../../i18n/index.js";
-import { access } from "../../model.js";
-import { useEffect, useState } from "react";
-import { UserGroupConfirmModal } from "./UserGroupConfirmModal.js";
+import NiceModal, { useModal } from '@ebay/nice-modal-react'
+import { Modal, Transfer } from 'antd'
+
+import { useEffect, useState } from 'react'
+
+import { t } from '../../../../i18n/index.js'
+import { access } from '../../model.js'
+
+import { UserGroupConfirmModal } from './UserGroupConfirmModal.js'
 
 export const UserGroupEditModal = NiceModal.create(({ 
         set_users_info, 
     }:
     {   
-        set_users_info: (users:any[]) => void 
-    })=>{
+        set_users_info: (users: any[]) => void 
+    }) => {
     const { groups, current } = access.use(['users', 'groups', 'current'])
         
     const [target_groups, set_target_groups] = useState<string[]>([ ])
@@ -25,15 +28,14 @@ export const UserGroupEditModal = NiceModal.create(({
         })()
     }, [current.name])
     
-    return (
-        <Modal
+    return <Modal
             className='edit-user-group-modal'
             open={modal.visible}
             onCancel={modal.hide}
             afterClose={modal.remove}
             title={<div>{t('用户 {{user}} 所属组管理', { user: current?.name })}</div>}
             onOk={async () => {
-                NiceModal.show(UserGroupConfirmModal,{
+                NiceModal.show(UserGroupConfirmModal, {
                     edit_close: modal.hide,
                     target_groups,
                     set_target_groups,
@@ -54,12 +56,11 @@ export const UserGroupEditModal = NiceModal.create(({
                 filterOption={(val, user) => user.title.includes(val)}
                 targetKeys={target_groups}
                 selectedKeys={selected_groups}
-                onChange={(keys)=>set_target_groups(keys as string[])}
+                onChange={keys => { set_target_groups(keys as string[]) }}
                 onSelectChange={(s, t) => {
                     set_selected_groups([...s, ...t] as string[])
                 }}
                 render={item => item.title}
             />
         </Modal>
-    )
 })

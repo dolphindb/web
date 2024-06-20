@@ -1,14 +1,14 @@
-import NiceModal, { useModal } from "@ebay/nice-modal-react";
-import { Modal, Tooltip } from "antd";
-import { access } from "../../model.js";
-import { model } from "../../../model.js";
-import { t } from "../../../../i18n/index.js";
+import NiceModal, { useModal } from '@ebay/nice-modal-react'
+import { Modal, Tooltip } from 'antd'
 
-export const UserDeleteModal = NiceModal.create(({ selected_users, reset_selected }: {selected_users:string[]; reset_selected:()=>void })=>{
+import { access } from '../../model.js'
+import { model } from '../../../model.js'
+import { t } from '../../../../i18n/index.js'
+
+export const UserDeleteModal = NiceModal.create(({ selected_users, reset_selected }: { selected_users: string[], reset_selected: () => void }) => {
     const modal = useModal()
     
-    return (
-        <Modal
+    return <Modal
             className='delete-user-modal'
             open={modal.visible}
             onCancel={modal.hide}
@@ -22,5 +22,4 @@ export const UserDeleteModal = NiceModal.create(({ selected_users, reset_selecte
             }}
             title={<Tooltip>{t('确认删除选中的 {{num}} 个用户吗？', { num: selected_users.length })}</Tooltip>}
         />
-    )
 })

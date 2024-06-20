@@ -13,7 +13,7 @@ import { t } from '../../i18n/index.js'
 import { TABLE_NAMES } from './constants.js'
 import { access } from './model.js'
 
-export function AccessHeader({
+export function AccessHeader ({
     category,
     preview,
     search_key,
@@ -31,7 +31,7 @@ export function AccessHeader({
     selected_length?: number
 }) {
     const { current } = access.use(['current', 'users', 'groups'])
-
+    
     return <div className='actions'>
         <Button
             type='default'
@@ -42,7 +42,7 @@ export function AccessHeader({
         >
             {t('返回')}
         </Button>
-
+        
         {preview ? (
             <Button
                 type='primary'

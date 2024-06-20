@@ -1,18 +1,18 @@
-import { useModal } from "@ebay/nice-modal-react"
-import { Form, Input, Modal } from "antd"
-import { access } from "../../model.js"
-import { model } from "../../../model.js"
-import { language, t } from "../../../../i18n/index.js"
+import { useModal } from '@ebay/nice-modal-react'
+import { Form, Input, Modal } from 'antd'
 
-export const ResetPasswordModal = (()=>{
+import { access } from '../../model.js'
+import { model } from '../../../model.js'
+import { language, t } from '../../../../i18n/index.js'
+
+export function ResetPasswordModal () {
     const { current } = access.use(['users', 'groups', 'current'])
     
     const modal = useModal()
     
     const [reset_password_form] = Form.useForm()
     
-    return (
-        <Modal
+    return <Modal
             className='edit-user-modal'
             open={modal.visible}
             afterClose={modal.remove}
@@ -73,5 +73,4 @@ export const ResetPasswordModal = (()=>{
                 </Form.Item>
             </Form>
         </Modal>
-    )
-})
+}

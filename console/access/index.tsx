@@ -14,31 +14,31 @@ import { GroupList } from './GroupList.js'
 import { UserList } from './UserList.js'
 
 
-export function User() {
+export function User () {
     return <Access role='user' />
 }
 
-export function Group() {
+export function Group () {
     return <Access role='group' />
 }
 
 
-function Access({ role }: { role: 'group' | 'user' }) {
+function Access ({ role }: { role: 'group' | 'user' }) {
     const { current } = access.use(['current'])
     const { admin } = model.use(['admin'])
-
+    
     useEffect(() => {
         if (admin && !access.inited)
             access.init()
-    }, [])
-
-
+    }, [ ])
+    
+    
     useEffect(() => {
         if (current && current.role !== role)
             access.set({ current: { role } })
-        return () => access.set({ current:null, inited:false })
+        return () => { access.set({ current: null, inited: false }) }
     }, [role])
-
+    
     return admin ? (
         current?.view ?
             <AccessView />

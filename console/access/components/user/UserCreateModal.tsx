@@ -1,10 +1,11 @@
-import NiceModal, { useModal } from "@ebay/nice-modal-react";
-import { Form, Input, Modal, Select, Switch } from "antd";
-import { language, t } from "../../../../i18n/index.js";
-import { access } from "../../model.js";
-import { model } from "../../../model.js";
+import NiceModal, { useModal } from '@ebay/nice-modal-react'
+import { Form, Input, Modal, Select, Switch } from 'antd'
 
-export const UserCreateModal = NiceModal.create(()=>{
+import { language, t } from '../../../../i18n/index.js'
+import { access } from '../../model.js'
+import { model } from '../../../model.js'
+
+export const UserCreateModal = NiceModal.create(() => {
     const modal = useModal()
     const [add_user_form] = Form.useForm()
     
@@ -12,8 +13,7 @@ export const UserCreateModal = NiceModal.create(()=>{
     
     
     
-    return (
-        <Modal
+    return <Modal
             className='add-user-modal'
             open={modal.visible}
             onCancel={() => {
@@ -109,5 +109,4 @@ export const UserCreateModal = NiceModal.create(()=>{
                 </Form.Item>
             </Form>
         </Modal>
-    )
 })

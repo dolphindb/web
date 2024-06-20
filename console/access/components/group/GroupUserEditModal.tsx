@@ -1,28 +1,30 @@
-import NiceModal, { useModal } from "@ebay/nice-modal-react";
-import { Modal, Transfer } from "antd";
-import { access } from "../../model.js";
-import { t } from "../../../../i18n/index.js";
-import { useEffect, useState } from "react";
-import { GroupUserConfirmModal } from "./GroupUserConfirmModal.js";
+import NiceModal, { useModal } from '@ebay/nice-modal-react'
+import { Modal, Transfer } from 'antd'
+
+import { useEffect, useState } from 'react'
+
+import { access } from '../../model.js'
+import { t } from '../../../../i18n/index.js'
+
+import { GroupUserConfirmModal } from './GroupUserConfirmModal.js'
 
 export const GroupUserEditModal = NiceModal.create(() => {
 
     const { users, current } = access.use(['users', 'current'])
-
+    
     const modal = useModal()
-
-    const [target_users, set_target_users] = useState<string[]>([])
-
-    const [selected_users, set_selected_users] = useState<string[]>([])
-
+    
+    const [target_users, set_target_users] = useState<string[]>([ ])
+    
+    const [selected_users, set_selected_users] = useState<string[]>([ ])
+    
     useEffect(() => {
         (async () => {
             set_target_users(await access.get_users_by_group(current?.name))
         })()
     }, [current])
-
-    return (
-        <Modal
+    
+    return <Modal
             className='edit-group-modal'
             open={modal.visible}
             onCancel={modal.hide}
@@ -49,12 +51,11 @@ export const GroupUserEditModal = NiceModal.create(() => {
                 filterOption={(val, user) => user.title.includes(val)}
                 targetKeys={target_users}
                 selectedKeys={selected_users}
-                onChange={(keys) => set_target_users(keys as string[])}
+                onChange={keys => { set_target_users(keys as string[]) }}
                 onSelectChange={(s, t) => {
                     set_selected_users([...s, ...t] as string[])
                 }}
                 render={item => item.title}
             />
         </Modal>
-    )
 })

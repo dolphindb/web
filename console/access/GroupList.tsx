@@ -6,33 +6,34 @@ import { DeleteOutlined, PlusOutlined, ReloadOutlined, SearchOutlined } from '@a
 import { Button, Input, Popconfirm, Table, Tag, type TableColumnType } from 'antd'
 
 
+import NiceModal from '@ebay/nice-modal-react'
+
 import { t, language } from '../../i18n/index.js'
 import { model } from '../model.js'
 
 import { access } from './model.js'
-import NiceModal from '@ebay/nice-modal-react'
 import { GroupCreateModal } from './components/group/GroupCreateModal.js'
 import { GroupDeleteModal } from './components/group/GroupDeleteModal.js'
 import { GroupUserEditModal } from './components/group/GroupUserEditModal.js'
 
-export function GroupList() {
+export function GroupList () {
     const { groups, current } = access.use(['groups', 'current'])
-
-    const [groups_info, set_groups_info] = useState([])
-
+    
+    const [groups_info, set_groups_info] = useState([ ])
+    
     const [search_key, set_search_key] = useState('')
-
-    const [selected_groups, set_selected_groups] = useState([])
-
+    
+    const [selected_groups, set_selected_groups] = useState([ ])
+    
     useEffect(() => {
         (async () => {
             set_groups_info(await access.get_group_access(groups))
         })()
     }, [groups])
-
-    const reset_selected_groups = useCallback(() => set_selected_groups([]), [])
-
-
+    
+    const reset_selected_groups = useCallback(() => { set_selected_groups([ ]) }, [ ])
+    
+    
     const cols: TableColumnType<Record<string, any>>[] = useMemo(
         () => [
             {
@@ -53,13 +54,13 @@ export function GroupList() {
                 width: language === 'zh' ? 300 : 400
             }
         ],
-        []
+        [ ]
     )
-
+    
     return <>
         <div className='header'>
             <div className='actions'>
-                <Button type='primary' icon={<PlusOutlined />} onClick={async () => await NiceModal.show(GroupCreateModal)}>
+                <Button type='primary' icon={<PlusOutlined />} onClick={async () => NiceModal.show(GroupCreateModal)}>
                     {t('新建组')}
                 </Button>
                 <Button
@@ -86,7 +87,7 @@ export function GroupList() {
                 />
             </div>
         </div>
-
+        
         <Table
             rowSelection={{
                 selectedRowKeys: selected_groups,
@@ -119,7 +120,7 @@ export function GroupList() {
                             >
                                 {t('查看权限')}
                             </Button>
-
+                            
                             <Button
                                 type='link'
                                 onClick={() => {
@@ -128,7 +129,7 @@ export function GroupList() {
                             >
                                 {t('设置权限')}
                             </Button>
-
+                            
                             <Button
                                 type='link'
                                 onClick={async () => {
@@ -138,7 +139,7 @@ export function GroupList() {
                             >
                                 {t('管理成员')}
                             </Button>
-
+                            
                             <Popconfirm
                                 title={t('删除组')}
                                 description={t('确认删除组 {{group}} 吗', { group: group.groupName })}

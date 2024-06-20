@@ -11,21 +11,21 @@ import { access } from './model.js'
 import { AccessList } from './AccessList.js'
 import { AccessManage } from './AccessManage.js'
 
-export function AccessView() {
+export function AccessView () {
     const { current, users, groups } = access.use(['current', 'users', 'groups'])
-
+    
     const { role, name, view } = current
-
+    
     const [tab_key, set_tab_key] = useState('database')
-
-    const [refresher, set_refresher] = useState({})
-
+    
+    const [refresher, set_refresher] = useState({ })
+    
     useEffect(() => {
         (async () => {
             access.set({ accesses: role === 'user' ? (await access.get_user_access([name]))[0] : (await access.get_group_access([name]))[0] })
         })()
     }, [refresher, role, name])
-
+    
     const tabs: TabsProps['items'] = useMemo(
         () => [
             {
@@ -56,7 +56,7 @@ export function AccessView() {
         ],
         [view]
     )
-
+    
     const OperationsSlot: Record<'left' | 'right', React.ReactNode> = {
         left: (
             <div className='switch-user'>
@@ -77,7 +77,7 @@ export function AccessView() {
             <Button
                 icon={<ReloadOutlined />}
                 onClick={() => {
-                    set_refresher({})
+                    set_refresher({ })
                     model.message.success(t('刷新成功'))
                 }}
             >
@@ -85,6 +85,6 @@ export function AccessView() {
             </Button>
         )
     }
-
+    
     return <Tabs type='card' items={tabs} accessKey={tab_key} onChange={set_tab_key} tabBarExtraContent={OperationsSlot} />
 }

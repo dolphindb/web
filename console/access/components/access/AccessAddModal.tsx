@@ -1,11 +1,13 @@
-import NiceModal, { useModal } from "@ebay/nice-modal-react";
-import { Button, Checkbox, Divider, Input, Modal, Radio, Select, Table, TableColumnType, TreeSelect } from "antd";
-import { t } from "../../../../i18n/index.js";
-import { access } from "../../model.js";
-import { ACCESS_TYPE, NeedInputAccess, access_options } from "../../constants.js";
-import { useMemo, useState } from "react";
-import { model } from "../../../model.js";
-import { filterAccessOptions } from "../../utils/filter-access-options.js";
+import NiceModal, { useModal } from '@ebay/nice-modal-react'
+import { Button, Checkbox, Divider, Input, Modal, Radio, Select, Table, type TableColumnType, TreeSelect } from 'antd'
+
+import { useMemo, useState } from 'react'
+
+import {  t } from '../../../../i18n/index.js'
+import { access } from '../../model.js'
+import { ACCESS_TYPE, NeedInputAccess, access_options } from '../../constants.js'
+import { model } from '../../../model.js'
+import { filterAccessOptions } from '../../utils/filter-access-options.js'
 
 export interface ACCESS {
     key: string
@@ -23,11 +25,11 @@ export const AccessAddModal = NiceModal.create(({ category }: { category: 'datab
         'current',
         'accesses'
     ])
-
-    const [add_rule_selected, set_add_rule_selected] = useState({ access: access_options[category][0], type: 'grant', obj: [] })
-
-
-
+    
+    const [add_rule_selected, set_add_rule_selected] = useState({ access: access_options[category][0], type: 'grant', obj: [ ] })
+    
+    
+    
     const add_access_cols: TableColumnType<Record<string, any>>[] = useMemo(
         () => [
             {
@@ -43,7 +45,7 @@ export const AccessAddModal = NiceModal.create(({ category }: { category: 'datab
                 wdith: 300
             },
             {
-                title: category === 'script' ? t('值') : t('范围'),
+                title: category === 'script' ? t('上限值') : t('范围'),
                 dataIndex: 'name',
                 key: 'name'
             },
@@ -54,12 +56,12 @@ export const AccessAddModal = NiceModal.create(({ category }: { category: 'datab
                 wdith: 100
             }
         ],
-        []
+        [ ]
     )
-
-    const [add_access_rows, set_add_access_rows] = useState([])
-
-    let obj_options = []
+    
+    const [add_access_rows, set_add_access_rows] = useState([ ])
+    
+    let obj_options = [ ]
     switch (category) {
         case 'database':
             obj_options = databases.map(db => db.name)
@@ -76,17 +78,16 @@ export const AccessAddModal = NiceModal.create(({ category }: { category: 'datab
         default:
             break
     }
-
+    
     const modal = useModal()
-
-    return (
-        <Modal
+    
+    return <Modal
             className='add-rule-modal'
             open={modal.visible}
             afterClose={modal.remove}
             onCancel={() => {
-                set_add_rule_selected({ access: access_options[category][0], type: 'grant', obj: [] })
-                set_add_access_rows([])
+                set_add_rule_selected({ access: access_options[category][0], type: 'grant', obj: [ ] })
+                set_add_access_rows([ ])
                 modal.hide()
             }}
             onOk={async () => {
@@ -102,8 +103,8 @@ export const AccessAddModal = NiceModal.create(({ category }: { category: 'datab
                                 :
                                 rule.name)))
                 model.message.success(t('权限赋予成功'))
-                set_add_rule_selected({ access: access_options[category][0], type: 'grant', obj: [] })
-                set_add_access_rows([])
+                set_add_rule_selected({ access: access_options[category][0], type: 'grant', obj: [ ] })
+                set_add_access_rows([ ])
                 modal.hide()
                 access.set({
                     accesses:
@@ -131,7 +132,7 @@ export const AccessAddModal = NiceModal.create(({ category }: { category: 'datab
                             const selected = {
                                 type: e.target.value,
                                 access: filterAccessOptions(category, current.role, accesses.is_admin, e.target.value)?.[0],
-                                obj: []
+                                obj: [ ]
                             }
                             set_add_rule_selected(selected)
                         }}
@@ -148,7 +149,7 @@ export const AccessAddModal = NiceModal.create(({ category }: { category: 'datab
                         onChange={value => {
                             const selected = { ...add_rule_selected }
                             selected.access = value
-                            selected.obj = []
+                            selected.obj = [ ]
                             set_add_rule_selected(selected)
                         }}
                     />
@@ -162,7 +163,7 @@ export const AccessAddModal = NiceModal.create(({ category }: { category: 'datab
                                 set_add_rule_selected(selected)
                             }}
                             placeholder={add_rule_selected.access === 'DB_OWNER' ?
-                                t('以"*"结尾，表示指定某个 dbName 的前缀范围，例如"dfs://test0*"')
+                                t('以 "*" 结尾，表示指定某个 dbName 的前缀范围，例如 "dfs://test0*"')
                                 :
                                 t('输入限制内存大小，单位为 GB')} />
                         :
@@ -191,7 +192,7 @@ export const AccessAddModal = NiceModal.create(({ category }: { category: 'datab
                                             if (e.target.checked)
                                                 set_add_rule_selected({ ...add_rule_selected, obj: databases.map(db => [...db.tables]).flat() })
                                             else
-                                                set_add_rule_selected({ ...add_rule_selected, obj: [] })
+                                                set_add_rule_selected({ ...add_rule_selected, obj: [ ] })
                                         }}
                                     >
                                         {t('全选')}
@@ -199,7 +200,7 @@ export const AccessAddModal = NiceModal.create(({ category }: { category: 'datab
                                     <Divider className='divider' />
                                     {originNode}
                                 </div>}
-                                treeData={databases.map(db => ({
+                                treeData={databases.filter(db => db.tables.length).map(db => ({
                                     title: db.name,
                                     value: db.name,
                                     selectable: false,
@@ -226,7 +227,7 @@ export const AccessAddModal = NiceModal.create(({ category }: { category: 'datab
                                             if (e.target.checked)
                                                 set_add_rule_selected({ ...add_rule_selected, obj: obj_options })
                                             else
-                                                set_add_rule_selected({ ...add_rule_selected, obj: [] })
+                                                set_add_rule_selected({ ...add_rule_selected, obj: [ ] })
                                         }}
                                     >
                                         {t('全选')}
@@ -244,7 +245,7 @@ export const AccessAddModal = NiceModal.create(({ category }: { category: 'datab
                                 }))}
                             />
                         ))}
-
+                        
                     <Button
                         type='primary'
                         onClick={() => {
@@ -268,7 +269,7 @@ export const AccessAddModal = NiceModal.create(({ category }: { category: 'datab
                             let set = new Set()
                             const unique_rows = total_rows.filter(obj => !set.has(obj.key) && set.add(obj.key))
                             set_add_access_rows(unique_rows)
-                            set_add_rule_selected({ access: access_options[category][0], type: 'grant', obj: [] })
+                            set_add_rule_selected({ access: access_options[category][0], type: 'grant', obj: [ ] })
                         }}
                     >
                         {t('预添加')}
@@ -293,5 +294,5 @@ export const AccessAddModal = NiceModal.create(({ category }: { category: 'datab
                     }))}
                 />
             </div>
-        </Modal>)
+        </Modal>
 })

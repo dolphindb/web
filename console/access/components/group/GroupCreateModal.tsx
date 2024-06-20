@@ -1,23 +1,24 @@
-import NiceModal, { useModal } from "@ebay/nice-modal-react";
-import { Form, Input, Modal, Transfer } from "antd";
-import { language, t } from "../../../../i18n/index.js";
-import { access } from "../../model.js";
-import { useState } from "react";
-import { model } from "../../../model.js";
+import NiceModal, { useModal } from '@ebay/nice-modal-react'
+import { Form, Input, Modal, Transfer } from 'antd'
+
+import { useState } from 'react'
+
+import { language, t } from '../../../../i18n/index.js'
+import { access } from '../../model.js'
+import { model } from '../../../model.js'
 
 export const GroupCreateModal = NiceModal.create(() => {
     const { users } = access.use(['users'])
-
-    const [target_users, set_target_users] = useState<string[]>([])
-
-    const [selected_users, set_selected_users] = useState<string[]>([])
-
+    
+    const [target_users, set_target_users] = useState<string[]>([ ])
+    
+    const [selected_users, set_selected_users] = useState<string[]>([ ])
+    
     const [add_group_form] = Form.useForm()
-
+    
     const modal = useModal()
-
-    return (
-        <Modal
+    
+    return <Modal
             className='add-group-modal'
             open={modal.visible}
             onCancel={() => {
@@ -29,11 +30,11 @@ export const GroupCreateModal = NiceModal.create(() => {
             onOk={async () => {
                 try {
                     const { group_name, users } = await add_group_form.validateFields()
-                    await access.create_group(group_name, users ?? [])
+                    await access.create_group(group_name, users ?? [ ])
                     model.message.success(t('组创建成功'))
                     modal.hide()
-                    set_selected_users([])
-                    set_target_users([])
+                    set_selected_users([ ])
+                    set_target_users([ ])
                     add_group_form.resetFields()
                     await access.get_group_list()
                 } catch (error) {
@@ -68,7 +69,7 @@ export const GroupCreateModal = NiceModal.create(() => {
                         filterOption={(val, user) => user.title.includes(val)}
                         targetKeys={target_users}
                         selectedKeys={selected_users}
-                        onChange={(keys) => set_target_users(keys as string[])}
+                        onChange={keys => { set_target_users(keys as string[]) }}
                         onSelectChange={(s, t) => {
                             set_selected_users([...s, ...t] as string[])
                         }}
@@ -77,5 +78,4 @@ export const GroupCreateModal = NiceModal.create(() => {
                 </Form.Item>
             </Form>
         </Modal>
-    )
 })

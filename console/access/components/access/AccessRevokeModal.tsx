@@ -1,11 +1,14 @@
-import NiceModal, { useModal } from "@ebay/nice-modal-react";
-import { Modal, Tooltip } from "antd";
-import { access } from "../../model.js";
-import { model } from "../../../model.js";
-import { ACCESS } from "./AccessAddModal.js";
-import { t } from "../../../../i18n/index.js";
+import NiceModal, { useModal } from '@ebay/nice-modal-react'
+import { Modal, Tooltip } from 'antd'
 
-export const AccessRevokeModal = NiceModal.create(({ category, selected_access, reset_selected }: { category: 'database' | 'shared' | 'stream' | 'function_view' | 'script'; selected_access: ACCESS[]; reset_selected: () => void }) => {
+import { access } from '../../model.js'
+import { model } from '../../../model.js'
+
+import { t } from '../../../../i18n/index.js'
+
+import { type ACCESS } from './AccessAddModal.js'
+
+export const AccessRevokeModal = NiceModal.create(({ category, selected_access, reset_selected }: { category: 'database' | 'shared' | 'stream' | 'function_view' | 'script', selected_access: ACCESS[], reset_selected: () => void }) => {
 
     const { databases, shared_tables, stream_tables, function_views, current } = access.use([
         'databases',
@@ -15,8 +18,8 @@ export const AccessRevokeModal = NiceModal.create(({ category, selected_access, 
         'current',
         'accesses'
     ])
-
-    let obj_options = []
+    
+    let obj_options = [ ]
     switch (category) {
         case 'database':
             obj_options = databases.map(db => db.name)
@@ -34,9 +37,8 @@ export const AccessRevokeModal = NiceModal.create(({ category, selected_access, 
             break
     }
     const modal = useModal()
-
-    return (
-        <Modal
+    
+    return <Modal
             className='delete-user-modal'
             open={modal.visible}
             onCancel={modal.hide}
@@ -47,7 +49,7 @@ export const AccessRevokeModal = NiceModal.create(({ category, selected_access, 
                         category === 'script' ? access.revoke(current.name, ac.access) : access.revoke(current.name, ac.access, ac.name)
                     )
                 )
-
+                
                 model.message.success(t('撤销成功'))
                 reset_selected()
                 modal.hide()
@@ -60,5 +62,4 @@ export const AccessRevokeModal = NiceModal.create(({ category, selected_access, 
             }}
             title={<Tooltip>{t('确认撤销选中的 {{num}} 条权限吗？', { num: selected_access.length })}</Tooltip>}
         />
-    )
 })
