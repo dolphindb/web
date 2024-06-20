@@ -613,9 +613,7 @@ class ShellModel extends Model<ShellModel> {
                 '        obj = objByName(name_or_obj)\n' +
                 '    else\n' +
                 '        obj = name_or_obj\n' +
-                '        \n' +
-                '    table_size = size obj\n' +
-                "    return generateTextFromTable(obj, start, end - start + 1, 0, ',', true)\n" +
+                "    return generateTextFromTable(select * from obj, start, end - start + 1, 0, ',', true)\n" +
                 '}\n'
             )
             
