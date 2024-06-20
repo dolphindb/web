@@ -5,8 +5,6 @@ import { List, Modal, Spin, Typography } from 'antd'
 
 import useSWR from 'swr'
 
-import { useId } from 'react'
-
 import { t } from '../../../../i18n/index.js'
 import { request } from '../../utils.js'
 import type { Protocol } from '../../type.js'
