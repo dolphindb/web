@@ -3969,10 +3969,10 @@
         "en": "streaming_sub"
     },
     "停用": {
-        "en": "deactivate"
+        "en": "Disable"
     },
     "启用": {
-        "en": "activate"
+        "en": "Enable"
     },
     "{{label}}{{active_label}}提示": {
         "en": "{{label}} {{active_label}} tips"
@@ -3980,8 +3980,8 @@
     "{{label}}{{active_label}}成功": {
         "en": "{{label}} {{active_label}} successfully"
     },
-    "可选模块": {
-        "en": "Optional Modules"
+    "可选功能": {
+        "en": "Optional Features"
     },
     "表结构必须大于等于三列": {
         "en": "The table structure must be greater than or equal to three columns"
@@ -4376,14 +4376,20 @@
     "常用筛选列不能包含分区列": {
         "en": "Common filter columns cannot contain partition columns"
     },
-    "此工具专为金融用户设计。用户通过此工具无需设计分区方案或编写复杂的 SQL 语句，只需输入库表名称、列名等基本信息，并通过列表选择参数，即可快速生成建库建表脚本，进而完成库表创建。": {
-        "en": "Guided database and table creation for financial scenarios. This tool allows you to create databases and tables by providing basic information such as database, table, and column names. Simply select parameter values from a list, and the script is automatically generated. No need to worry about partitioning design or write complex SQL statements."
+    "此功能专为金融用户设计。用户通过此功能无需设计分区方案或编写复杂的 SQL 语句，只需输入库表名称、列名等基本信息，并通过列表选择参数，即可快速生成建库建表脚本，进而完成库表创建。": {
+        "en": "Guided database and table creation for financial scenarios. This feature allows you to create databases and tables by providing basic information such as database, table, and column names. Simply select parameter values from a list, and the script is automatically generated. No need to worry about partitioning design or write complex SQL statements."
     },
     "您确定要启用此功能吗": {
         "en": "Enable this feature?"
     },
-    "您确定要禁用此功能吗": {
+    "您确定要停用此功能吗": {
         "en": "Disable this feature?"
+    },
+    "此功能专为物联网用户设计。用户通过此功能无需设计分区方案或编写复杂的 SQL 语句，只需输入库表名称、列名等基本信息，并通过列表选择参数，即可快速生成建库建表脚本，进而完成库表创建。": {
+        "en": "Guided database and table creation for IoT scenarios.  This feature allows you to create databases and tables by providing basic information such as database, table, and column names. Simply select parameter values from a list, and the script is automatically generated. No need to worry about partitioning design or write complex SQL statements."
+    },
+    "功能设置": {
+        "en": "Feature Settings"
     },
     "此工具专为物联网用户设计。用户通过此工具无需设计分区方案或编写复杂的 SQL 语句，只需输入库表名称、列名等基本信息，并通过列表选择参数，即可快速生成建库建表脚本，进而完成库表创建。": {
         "en": "Guided database and table creation for IoT scenarios.  This tool allows you to create databases and tables by providing basic information such as database, table, and column names. Simply select parameter values from a list, and the script is automatically generated. No need to worry about partitioning design or write complex SQL statements."
