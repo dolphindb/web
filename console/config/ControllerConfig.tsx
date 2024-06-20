@@ -38,7 +38,7 @@ export function ControllerConfig () {
                     required: true,
                     message: t('请输入配置项！')
                 },
-            ]
+                ]
             }
         },
         {
@@ -71,7 +71,7 @@ export function ControllerConfig () {
                 >
                     {t('编辑')}
                 </Button>,
-                <Popconfirm 
+                <Popconfirm
                     title={t('确认删除此配置项？')}
                     key='delete'
                     onConfirm={async () => delete_config(record.id as string)}>
@@ -80,7 +80,7 @@ export function ControllerConfig () {
                     </Button>
                 </Popconfirm>
             ],
-          },
+        },
     ]), [configs])
     
     const delete_config = useCallback(async (config_id: string) => {
@@ -89,7 +89,7 @@ export function ControllerConfig () {
         actionRef.current.reload()
     }, [configs])
     
-    return <EditableProTable 
+    return <EditableProTable
         rowKey='id'
         actionRef={actionRef}
         columns={cols}
@@ -126,7 +126,7 @@ export function ControllerConfig () {
             <Button
                 icon={<ReloadOutlined />}
                 onClick={async () => {
-                    await actionRef.current.reload() 
+                    await actionRef.current.reload()
                     model.message.success(t('刷新成功'))
                 }}
             >
@@ -144,16 +144,16 @@ export function ControllerConfig () {
             onSave: async (rowKey, data, row) => {
                 const config_strs = _2_strs(configs)
                 let idx = config_strs.indexOf(rowKey as string)
-                if (idx === -1) 
-                    await config.save_controller_configs([ data.name + '=' + data.value, ...config_strs])
-                else 
+                if (idx === -1)
+                    await config.save_controller_configs([data.name + '=' + data.value, ...config_strs])
+                else
                     await config.save_controller_configs(config_strs.toSpliced(idx, 1, data.name + '=' + data.value))
                 actionRef.current.reload()
-                model.message.success(t('保存成功'))
+                model.message.success(t('保存成功，重启控制/数据节点生效'))
             },
             onDelete: async (key, row) => delete_config(row.id as string),
             deletePopconfirmMessage: t('确认删除此配置项？'),
-            saveText: 
+            saveText:
                 <Button
                     type='link'
                     key='editable'
@@ -161,7 +161,7 @@ export function ControllerConfig () {
                 >
                     {t('保存')}
                 </Button>,
-            deleteText: 
+            deleteText:
                 <Button
                     type='link'
                     key='delete'

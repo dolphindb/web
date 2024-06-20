@@ -14,13 +14,16 @@ import {
     Input,
     Form,
     type TableProps,
+    Modal,
+    Radio,
+    InputNumber,
 } from 'antd'
 
 import { default as Icon, CaretRightOutlined, PauseOutlined, RightOutlined } from '@ant-design/icons'
 
 import { Line, Pie, Bar, Column, Scatter, Area, DualAxes, Histogram, Stock } from '@ant-design/plots'
 
-import { use_rerender } from 'react-object-model/hooks.js'
+import { use_modal, use_rerender } from 'react-object-model/hooks.js'
 
 import { genid, seq, assert, delay } from 'xshell/utils.browser.js'
 
@@ -34,7 +37,7 @@ import {
     nulls,
     formati,
     format,
-    winsize,
+    DdbInt,
     type InspectOptions,
     type DdbValue,
     type DdbVectorValue,
@@ -45,7 +48,6 @@ import {
     type DdbTableObj,
     type DdbMatrixObj,
     type DdbChartObj,
-    type StreamingParams,
     type StreamingMessage,
     ddb_tensor_bytes,
     type DdbTensorObj
@@ -54,7 +56,11 @@ import {
 import { t } from '../i18n/index.js'
 
 import SvgLink from './link.icon.svg'
+import SvgExport from './export.icon.svg'
+
 import { type WindowModel } from './window.js'
+import { shell } from './shell/model.js'
+import { download_file } from './utils/index.js'
 
 
 const max_strlen = 10000
@@ -240,6 +246,7 @@ function Dict ({
         </div>
     </div>
 }
+
 
 function Tensor ({
     obj,
@@ -732,11 +739,19 @@ export function Table ({
         (ctx === 'page' || ctx === 'window') ? 20 : 10
     )
     
+    const [scope, set_scope] = useState(false)
+    
     const nrows = Math.min(page_size, info.rows)
     
     const [page_index, set_page_index] = useState(0)
     
     const render = use_rerender()
+    
+    const { visible, open, close } = use_modal()
+    
+    const [loading, set_loading] = useState(false)
+    
+    const [form] = Form.useForm()
     
     useEffect(() => {
         set_page_index(0)
@@ -769,6 +784,16 @@ export function Table ({
             }
         })()
     }, [obj, objref, page_index, page_size])
+    
+    useEffect(() => {
+        form.setFieldsValue({
+            name: info.name || t('表格'),
+            scope: 'all',
+            start: 0,
+            end: info.rows - 1
+        })
+        set_scope(false)
+    }, [info])
     
     
     return <div className='table'>
@@ -828,14 +853,110 @@ export function Table ({
             />
             
             <div className='actions'>
-                {(ctx === 'page' || ctx === 'embed') && <Icon
-                    className='icon-link'
-                    title={t('在新窗口中打开')}
-                    component={SvgLink}
-                    onClick={async () => {
-                        await open_obj({ obj, objref, remote, ddb, options })
-                    }}
-                />}
+                {(ctx === 'page' || ctx === 'embed') && <>
+                    <Icon
+                        className='icon-link'
+                        title={t('在新窗口中打开')}
+                        component={SvgLink}
+                        onClick={async () => {
+                            await open_obj({ obj, objref, remote, ddb, options })
+                        }}
+                    />
+                    
+                    <Icon
+                        className='icon-link'
+                        title={t('导出 CSV')}
+                        component={SvgExport}
+                        onClick={open}
+                    />
+                    
+                    <Modal
+                        width='50%'
+                        forceRender
+                        maskClosable={false}
+                        title={t('导出 CSV')} 
+                        open={visible} 
+                        okButtonProps={{ loading }}
+                        onOk={async () => { 
+                            try {
+                                await form.validateFields()
+                                
+                                set_loading(true)
+                                
+                                let { name, start, end } = form.getFieldsValue()
+                            
+                                start ??= 0
+                                end ??= info.rows - 1
+                                
+                                await shell.define_get_csv_content()
+                                
+                                download_file(`${name}.csv`, (await ddb.call('get_csv_content', [obj ?? info.name, new DdbInt(start), new DdbInt(end)])).data().join(''))
+                            } finally {
+                                set_loading(false)
+                                close()
+                            }
+                        }} 
+                        onCancel={() => {
+                            if (!loading)
+                                close()
+                        }}
+                    >
+                        <Form form={form} labelCol={{ span: 4 }} wrapperCol={{ span: 18 }} disabled={loading}>
+                            <Form.Item rules={[{ required: true, message: t('请输入文件名') }]} name='name' label={t('文件名')}>
+                                <Input addonAfter='.csv' placeholder={t('请输入文件名')} />
+                            </Form.Item>
+                            <Form.Item name='scope' label={t('导出范围')} initialValue='all'>
+                                <Radio.Group onChange={event => { set_scope(event.target.value === 'part') }}>
+                                    <Radio value='all'> {t('全部')} </Radio>
+                                    <Radio value='part'> {t('部分')} </Radio>
+                                </Radio.Group>
+                            </Form.Item>
+                            {scope && <>
+                                <Form.Item 
+                                    rules={[
+                                        ({ getFieldValue }) => ({
+                                            async validator (_, value) {
+                                                const end = getFieldValue('end')
+                                                if (value === undefined || !Number.isInteger(value) || value < 0)
+                                                    return Promise.reject(new Error(t('起始行需为大于等于 0 的整数')))
+                                                else if (value > end)
+                                                    return Promise.reject(new Error(t('起始行需小于等于结束行')))
+                                                
+                                                return Promise.resolve()
+                                            },
+                                        }),
+                                    ]} 
+                                    name='start' label={t('起始行')} 
+                                >
+                                    <InputNumber style={{ width: 120 }} placeholder={t('请输入起始行')}/>
+                                </Form.Item>
+                                <Form.Item 
+                                    rules={[
+                                        ({ getFieldValue }) => ({
+                                            async validator (_, value) {
+                                                const start = getFieldValue('start')
+                                                if (value === undefined  || !Number.isInteger(value) || value < 0 || value > info.rows - 1)
+                                                    return Promise.reject(new Error(t('结束行需为大于等于 0 且小于表格实际行数的整数')))
+                                                else if (start > value)
+                                                    return Promise.reject(new Error(t('结束行需大于等于起始行')))
+                                                
+                                                return Promise.resolve()
+                                            },
+                                        }),
+                                    ]} 
+                                    name='end' 
+                                    label={t('结束行')} 
+                                >
+                                    <InputNumber style={{ width: 120 }} placeholder={t('请输入结束行')}/>
+                                </Form.Item>
+                            </>}
+                        </Form>
+                        <div className='export-prompt'>
+                            {t('注意：请根据实际的硬件情况选择导出范围，过大的范围可能导致浏览器崩溃！')}
+                        </div>
+                        
+                    </Modal>
+                </>}
             </div>
         </div>}
     </div>
