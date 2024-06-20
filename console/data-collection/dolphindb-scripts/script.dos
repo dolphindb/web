@@ -22,6 +22,7 @@ dcp_addConnect(args)
 
 def dcp_addConnect(args){
     connectArgs = parseExpr(args).eval()
+    ex=["user",NULL]
     try{
         exits = select * from loadTable("dfs://dataAcquisition","connectInfo") where name = connectArgs[`name]
         if(exits.size()!=0){
@@ -43,7 +44,9 @@ def dcp_addConnect(args){
         }
     }catch(ex){
         writeLog("An error occured when adding "+upper(connectArgs[`protocol])+" connection, the reason is:"+ex[1])
-        throw(ex)
+    }
+    if(ex[1]!=NULL){
+        throw(ex[1])
     }
 }
 
@@ -67,11 +70,14 @@ dcp_updateConnect(args)
 args = '{ "name":"KAFKA", "id":"e5d6a0ed-600d-d701-3fcb-8d046883d517", "host":"183.134.101.142", "port":9092}'  
 dcp_updateConnect(args)
 */
+args = '{"name":"EMQX1","host":"183.134.101.141","port":1883,"username":"admin1","password":"123456","id":"f2288bc9-615b-2d31-cb66-e6f6d7cdfe91"}'
 def dcp_updateConnect(args){
     connectArgs = parseExpr(args).eval()
+    ex=["user",NULL]
+    tmp = select * from loadTable("dfs://dataAcquisition","connectInfo") where id = uuid(connectArgs[`id])
     try{
-        tmp = select * from loadTable("dfs://dataAcquisition","connectInfo") where id = uuid(connectArgs[`id])
-        exits = select * from loadTable("dfs://dataAcquisition","connectInfo") where name = connectArgs[`name] and protocol = tmp[`protocol][0] 
+        exits = select * from loadTable("dfs://dataAcquisition","connectInfo") 
+        where name = connectArgs[`name] and protocol = tmp[`protocol][0] and id != uuid(connectArgs[`id])    
         if(exits.size()!=0){
             throw("The connection name already exists, please verify the connection information")
         }
@@ -83,11 +89,13 @@ def dcp_updateConnect(args){
         tmp[`updateTime]=now()  
         delete from loadTable("dfs://dataAcquisition","connectInfo") where id = uuid(connectArgs[`id])
         loadTable("dfs://dataAcquisition","connectInfo").append!(tmp)
-        writeLog("The "+ upper(connectArgs[`protocol]) +" connection named " + connectArgs[`name]+" successfully updated")
+        writeLog("The "+ upper(tmp[`protocol][0]) +" connection named " + connectArgs[`name]+" successfully updated")
         return '{"status":1}'
     }catch(ex){
-        writeLog("An error occured when updating "+upper(connectArgs[`protocol])+" connection, the reason is:"+ex[1])
-        throw(ex)
+        writeLog("An error occured when updating "+upper(tmp[`protocol][0])+" connection, the reason is:"+ex[1])
+    }
+    if(ex[1]!=NULL){
+        throw(ex[1])
     }
 }
 
@@ -102,6 +110,7 @@ dcp_deleteConnect(args)
 */
 def dcp_deleteConnect(args){
     connectArgs = parseExpr(args).eval()
+    ex=["user",NULL]
     connectInfo =select * from loadTable("dfs://dataAcquisition","connectInfo") where id in uuid(connectArgs[`ids])
     subIds = select connectId,subId,name as subName from  loadTable("dfs://dataAcquisition","subscribeInfo") where connectId in uuid(connectArgs[`ids])
     tmp = select * from connectInfo left join subIds on connectInfo.id=subIds.connectId  
@@ -128,7 +137,9 @@ def dcp_deleteConnect(args){
         return '{"status":1}'
     }catch(ex){
         writeLog("An error occured when deleting "+upper(tmp[index].protocol)+" connection "+tmp[index].name+", the reason is:"+ex[1])
-        throw(ex)
+    }
+    if(ex[1]!=NULL){
+        throw(ex[1])
     }
 }
 
@@ -218,6 +229,7 @@ def dcp_addSubscribe(args){
     connectInfo = exec protocol,name from loadTable("dfs://dataAcquisition","connectInfo") where id = uuid(subArgs['connectId'])
     proto = connectInfo[`protocol][0]
     connectName = connectInfo[`name][0]
+    ex = ["user",NULL]
     try{
         cnt = exec count(*) from loadTable("dfs://dataAcquisition","subscribeInfo") where name = subArgs['name'] and connectId=uuid(subArgs['connectId'])
         if(cnt !=0){
@@ -262,7 +274,9 @@ def dcp_addSubscribe(args){
         return '{"status":1,"id":"'+string(id)[0]+'"}'  
     }catch(ex){
         writeLog("An error occured when adding "+upper(proto)+" subscribe info, the reason is:"+ex[1])
-        throw(ex)
+    }
+    if(ex[1]!=NULL){
+        throw(ex[1])
     }
 }
 
@@ -293,6 +307,7 @@ def dcp_updateSubscribe(args){
     subscribeInfo = select * from loadTable("dfs://dataAcquisition","subscribeInfo") where id=uuid(subArgs[`id])
     connectInfo = exec * from loadTable("dfs://dataAcquisition","connectInfo") where id=uuid(subscribeInfo[`connectId][0])
     proto,connectName,connectId = connectInfo[`protocol][0],connectInfo[`name][0],connectInfo[`id][0]
+    ex = ["user",NULL]
     try{
         cnt = exec count(*) from loadTable("dfs://dataAcquisition","subscribeInfo") where name = subArgs['name'] and connectId=uuid(connectId)
         and id != uuid(subArgs['id'])
@@ -321,13 +336,15 @@ def dcp_updateSubscribe(args){
         subscribeInfo.reorderColumns!(`id`connectId`topic`partition`offset`name`recvbufSize`handlerId`templateParams`consumerCfg`parseJson`status`subId`createTime`updateTime)  
         delete from loadTable("dfs://dataAcquisition","subscribeInfo") where id=uuid(subArgs[`id])  
         loadTable("dfs://dataAcquisition","subscribeInfo").append!(subscribeInfo)
-        if(subArgs[`status]!=int(NULL)){
+        if(subArgs[`status]==int(NULL)){
             writeLog("the subscribe "+subArgs['name']+" of "+ upper(proto) +" connection named " + connectName+" successfully updated")
         }
         return '{"status":1}'
     }catch(ex){
         writeLog("An error occured when updating "+upper(proto)+" subscribe info, the reason is:"+ex[1])
-        throw(ex)
+    }
+    if(ex[1]!=NULL){
+        throw(ex[1])
     }
 }
 
@@ -345,6 +362,7 @@ def dcp_deleteSubscribe(args){
     subInfo = select * from loadTable("dfs://dataAcquisition","subscribeInfo") where id in uuid(subArgs[`ids])
     connectInfo = select protocol,name from loadTable("dfs://dataAcquisition","connectInfo") where id in subInfo[`connectId]
     proto,connectName = connectInfo[`protocol][0],connectInfo[`name][0]
+    ex=["user",NULL]
     try{
         if(subArgs[`dropUseTable]){
             for(i in subInfo.templateParams){//i = templateParams[1]
@@ -366,11 +384,13 @@ def dcp_deleteSubscribe(args){
             }
         }
         delete from loadTable("dfs://dataAcquisition","subscribeInfo") where id in uuid(subArgs[`ids])
-        writeLog("the subscribe "+subArgs['name']+" of "+ upper(proto) +" connection named " + connectName+" successfully deleted")
+        writeLog("the subscribe ["+concat(subInfo.name,",")+"] of "+ upper(proto) +" connection named " + connectName+" successfully deleted")
         return '{"status":1}'
     }catch(ex){
         writeLog("An error occured when deleting "+upper(proto)+" subscribe info, the reason is:"+ex[1])
-        throw(ex)
+    }
+    if(ex[1]!=NULL){
+        throw(ex[1])
     }
 }
 
@@ -400,6 +420,7 @@ def dcp_startSubscribe(args){
     sub = select * from loadTable("dfs://dataAcquisition","subscribeInfo")  where id = uuid(subArgs[`subId])
     connInfo = select * from loadTable("dfs://dataAcquisition","connectInfo")  where id in sub.connectId
     tmp =  (exec * from sub left join connInfo  on connInfo.id=sub.connectId)[0]
+    ex=['user',NULL]
     //初始化解析函数
     try{
         handler = (exec handler from loadTable("dfs://dataAcquisition","ParserTemplate") where id = uuid(tmp[`handlerId]))[0]
@@ -466,12 +487,14 @@ def dcp_startSubscribe(args){
         }else if(tmp.protocol == "kafka"){
             subscriptionId=exec last(subscriptionId) from kafka::getJobStat()  order by createTimestamp
         }   
-        writeLog("the subscribe "+tmp.name+" of "+upper(tmp.protocol)+" connection "+tmp.connInfo_name+" successully started")
+        writeLog("the subscribe "+tmp.name+" of "+upper(tmp.protocol)+" connection "+tmp.connInfo_name+" successfully started")
         argsNew='{"id":"'+subArgs[`subId]+'","subId":"'+subscriptionId+'","status":1}' 
         dcp_updateSubscribe(argsNew)
     }catch(ex){
         writeLog("An error occured when starting subscribe "+tmp.name+" of "+upper(tmp.protocol)+" connection "+tmp.connInfo_name+" , the reason is:"+ex[1])
-        throw(ex)
+    }
+    if(ex[1]!=NULL){
+        throw(ex[1])
     }
 }
 
@@ -488,7 +511,8 @@ def dcp_stopSubscribe(args){
     subArgs = parseExpr(args).eval()
     subId = select id,subId,connectId,name from loadTable("dfs://dataAcquisition","subscribeInfo") where id in uuid(subArgs[`subId])
     connInfo = select id,protocol,name from loadTable("dfs://dataAcquisition","connectInfo") where id in subId.connectId  
-    info = select * from subId left join connInfo on connInfo.id=subId.connectId  
+    info = select * from subId left join connInfo on connInfo.id=subId.connectId 
+    ex=['user',NULL] 
     try{  
         for(i in (0..(subId.size()-1))){  //i=1
             if(info[i].subId != string(NULL)){
@@ -497,14 +521,16 @@ def dcp_stopSubscribe(args){
                 }else if(info[i].protocol == "kafka"){
                     kafka::cancelSubJob(info[i].subId)
                 }
-                writeLog("The subscribe "+info[i].name+" of "+upper(info[i].protocol)+" connection "+info[i].connInfo_name+" successully stoped")
+                writeLog("The subscribe "+info[i].name+" of "+upper(info[i].protocol)+" connection "+info[i].connInfo_name+" successfully stoped")
                 argsNew='{"id":"'+string(info[i].id)+'","subId":NULL,"status":0}' 
                 dcp_updateSubscribe(argsNew) 
             }   
         }
     }catch(ex){
         writeLog("An error occured when stoping subscribe of "+upper(info[i].protocol)+" connection "+info[i].connInfo_name+" , the reason is:"+ex[1])
-        throw(ex)
+    }
+    if(ex[1]!=NULL){
+        throw(ex[1])
     }
     
 }
@@ -591,9 +617,9 @@ protocol:模板协议 字符串
 comment:模板备注 字符串
 @return 无
 */
-args = '{"name":"test11","protocol":"mqtt","comment":"test","handler":"def test(){\r\n    \r\n}"}'
 def dcp_addHandler(args){
     handlerArgs = parseExpr(args).eval() 
+    ex=['user',NULL]
     try{
         id = rand(uuid(),1)
         templateParams = dcp_parseTemplateArgs(handlerArgs[`handler],handlerArgs['protocol'])
@@ -604,8 +630,10 @@ def dcp_addHandler(args){
         return '{"status":1,"id":"'+string(id[0])+'"}'   
     }catch(ex){
         writeLog("An error occured when adding The "+upper(handlerArgs[`protocol])+ " handler "+handlerArgs[`name]+", the reason is:"+ex[1])
-        throw(ex)
     } 
+    if(ex[1]!=NULL){
+        throw(ex[1])
+    }
 }
 
 /*
@@ -622,6 +650,7 @@ comment:模板备注 字符串
 */
 def dcp_updateHandler(args){  
     handlerArgs = parseExpr(args).eval()    
+    ex=['user',NULL]
     try{
         ParserTemplate = select * from loadTable("dfs://dataAcquisition","ParserTemplate") where id=uuid(handlerArgs[`id])
         update ParserTemplate set name = handlerArgs[`name] 
@@ -635,7 +664,9 @@ def dcp_updateHandler(args){
         return '{"status":1}'   //更新成功  
     }catch(ex){
         writeLog("An error occured when updating The "+upper(handlerArgs[`protocol])+ " handler "+handlerArgs[`name]+", the reason is:"+ex[1])
-        throw(ex)
+    }
+    if(ex[1]!=NULL){
+        throw(ex[1])
     }
 }    
 
@@ -649,19 +680,29 @@ args = '{"ids":[]}'
 def dcp_deleteHandler(args){
     handlerArgs = parseExpr(args).eval()
     handlerInfo = select * from loadTable("dfs://dataAcquisition","ParserTemplate") where id in uuid(handlerArgs[`ids])
+    mqttInfo = select * from handlerInfo where protocol=`mqtt
+    kafkaInfo = select * from handlerInfo where protocol=`kafka
+    ex=['user',NULL]
     try{
         delete from loadTable("dfs://dataAcquisition","ParserTemplate") where id in uuid(handlerArgs[`ids])
-        writeLog("The handler "+handlerArgs[`name]+" successfully deleted")
+        if(mqttInfo.size()!=0){
+            writeLog("The MQTT handler ["+concat(mqttInfo[`name],",")+"] successfully deleted")
+        }
+        if(kafkaInfo.size()!=0){
+            writeLog("The KAFKA handler ["+concat(kafkaInfo[`name],",")+"] successfully deleted")
+        }
         return '{"status":1}'   //删除成功  
     }catch(ex){
         writeLog("An error occured when deleting the handler "+handlerArgs[`name]+", the reason is:"+ex[1])
-        throw(ex)
+    }
+    if(ex[1]!=NULL){
+        throw(ex[1])
     }
 }
 
 
 
-/*
+/*s
 获取点位解析模板列表
 @args "protocol":解析模板协议 字符串(默认为空)
 @return 返回一个包含解析模板信息的json，键为items，值为解析模板列表 
@@ -768,7 +809,7 @@ def dcp_getLog(args){
     rowBytes = 5000000
     log = getServerLog(rowBytes,getServerLogLength(getNodeAlias())-rowBytes,true,getNodeAlias()) as log
     res = log[regexFind(log,protocol)!=-1]
-    return res
+    return reverse(res)
 }
 
 /*
@@ -840,7 +881,6 @@ def dcp_clearEnv(){
 def dcp_init(){
     dcp_createAllTable()
     initParserTemplate()
-    addFunctionView(dcp_getLog)
     addFunctionView(dcp_addConnect)
     addFunctionView(dcp_updateConnect)
     addFunctionView(dcp_deleteConnect)
@@ -856,7 +896,7 @@ def dcp_init(){
     addFunctionView(dcp_addHandler)
     addFunctionView(dcp_updateHandler)
     addFunctionView(dcp_deleteHandler)
+    addFunctionView(dcp_getLog)
     addFunctionView(dcp_checkSubStatus)
     addFunctionView(dcp_getSubStatus)
 }
-
