@@ -10,32 +10,8 @@ import { type ACCESS } from './AccessAddModal.js'
 
 export const AccessRevokeModal = NiceModal.create(({ category, selected_access, reset_selected }: { category: 'database' | 'shared' | 'stream' | 'function_view' | 'script', selected_access: ACCESS[], reset_selected: () => void }) => {
 
-    const { databases, shared_tables, stream_tables, function_views, current } = access.use([
-        'databases',
-        'shared_tables',
-        'stream_tables',
-        'function_views',
-        'current',
-        'accesses'
-    ])
+    const { current } = access.use(['current'])
     
-    let obj_options = [ ]
-    switch (category) {
-        case 'database':
-            obj_options = databases.map(db => db.name)
-            break
-        case 'shared':
-            obj_options = shared_tables
-            break
-        case 'stream':
-            obj_options = stream_tables
-            break
-        case 'function_view':
-            obj_options = function_views
-            break
-        default:
-            break
-    }
     const modal = useModal()
     
     return <Modal
