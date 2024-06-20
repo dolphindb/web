@@ -720,7 +720,7 @@ export function Table ({
                                 download_file(
                                     `${name}.csv`, 
                                     (await ddb.call('get_csv_content', [obj ?? info.name, new DdbInt(start), new DdbInt(end)]))
-                                        .data<string[]>().join('\t').replaceAll('\t"\t', '"')
+                                        .data<string[]>().join('')
                                 )
                             } finally {
                                 set_loading(false)
