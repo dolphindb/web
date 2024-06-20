@@ -1,62 +1,64 @@
-.advanced-version-wrapper {
-    height: 100%;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    
-    .advanced-step-panel {
-        width: 1000px;
-    }
-    
-    .guide-step {
-        width: 600px;
-        margin: 32px 0px;
-    }
-    
-    .ant-input-number {
-        width: 100%;
-    }
-    
-    .sort-cols-wrapper {
-        margin-top: 40px;
-        background-color: #EFEFEF;
-        border-radius: 8px;
-        padding: 16px;
+.finance-guide {
+    .advanced-version-wrapper {
+        height: 100%;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
         
-        h4 {
-            margin-top: 0px;
-            margin-bottom: 16px;
+        .advanced-step-panel {
+            width: 1000px;
         }
         
-        .sort-col-item {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            margin-bottom: 16px;
-
-            .ant-form-item {
-                width: 48%;
-                margin-bottom: 0px;
+        .guide-step {
+            width: 600px;
+            margin: 32px 0px;
+        }
+        
+        .ant-input-number {
+            width: 100%;
+        }
+        
+        .sort-cols-wrapper {
+            margin-top: 40px;
+            background-color: #EFEFEF;
+            border-radius: 8px;
+            padding: 16px;
+            
+            h4 {
+                margin-top: 0px;
+                margin-bottom: 16px;
             }
             
+            .sort-col-item {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                margin-bottom: 16px;
+    
+                .ant-form-item {
+                    width: 48%;
+                    margin-bottom: 0px;
+                }
+                
+            }
+           
         }
-       
     }
-}
-
-.btn-group {
-    display: flex;
-    flex-direction: end;
-}
-
-.other-sortkey-tip {
-    display: inline-block;
-    margin-bottom: 24px;
-}
-
-.apply-config-wrapper {
-    width: 1000px;
-    text-align: end;
-    margin-bottom: 16px;
+    
+    .btn-group {
+        display: flex;
+        flex-direction: end;
+    }
+    
+    .other-sortkey-tip {
+        display: inline-block;
+        margin-bottom: 24px;
+    }
+    
+    .apply-config-wrapper {
+        width: 1000px;
+        text-align: end;
+        margin-bottom: 16px;
+    }
 }

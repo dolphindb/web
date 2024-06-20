@@ -1,14 +1,17 @@
 import './index.scss'
 import { Steps, Typography } from 'antd'
 import { useCallback, useMemo, useState } from 'react'
-import { ExecuteResult, type SimpleInfos } from '../type.js'
-import { CodeViewStep } from '../../components/CodeViewStep.js'
-import { SimpleFirstStep } from './SimpleFirstStep.js'
+
 import NiceModal from '@ebay/nice-modal-react'
+
+import { CodeViewStep } from '../../components/CodeViewStep.js'
+import { ExecuteResult, type SimpleInfos } from '../type.js'
 import { UploadConfigModal } from '../../components/UploadConfigModal.js'
 import { GuideFailResultPage } from '../../components/GuideFailResultPage.js'
 import { GuideSuccessResultPage } from '../../components/GuideSuccessResultPage.js'
 import { t } from '../../../../i18n/index.js'
+
+import { SimpleFirstStep } from './SimpleFirstStep.js'
 
 
 export function SimpleVersion () {
