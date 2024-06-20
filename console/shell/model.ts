@@ -25,14 +25,16 @@ import {
 } from 'dolphindb/browser.js'
 
 
-import { t, language } from '../../i18n/index.js'
+import { t } from '../../i18n/index.js'
 
 import { type DdbObjRef } from '../obj.js'
 
 import { model, NodeType, storage_keys } from '../model.js'
 
-import type { Monaco } from './Editor/index.js'
-import { Database, DatabaseGroup, type Column, type ColumnRoot, PartitionDirectory, type PartitionRoot, PartitionFile, Table } from './Databases.js'
+import type { Monaco } from '../components/Editor/index.js'
+
+import { Database, DatabaseGroup, type Column, type ColumnRoot, PartitionDirectory, type PartitionRoot, PartitionFile, type Table } from './Databases.js'
+
 import { DdbVar } from './Variables.js'
 
 
@@ -77,11 +79,15 @@ class ShellModel extends Model<ShellModel> {
     
     set_column_comment_defined = false
     
+    set_table_comment_defined = false
     
-    current_node: ColumnRoot | Column
+    get_csv_content_defined = false
     
+    current_node: ColumnRoot | Column | Table
     
     set_column_comment_modal_visible = false
+    
+    set_table_comment_modal_visible = false
     
     create_database_modal_visible = false
     
@@ -154,7 +160,8 @@ class ShellModel extends Model<ShellModel> {
                 ddbobj.form === DdbForm.matrix ||
                 ddbobj.form === DdbForm.set ||
                 ddbobj.form === DdbForm.table ||
-                ddbobj.form === DdbForm.vector
+                ddbobj.form === DdbForm.vector ||
+                ddbobj.form === DdbForm.tensor
             )
                 this.set({
                     result: {
@@ -172,6 +179,7 @@ class ShellModel extends Model<ShellModel> {
                         case DdbForm.set:
                         case DdbForm.table:
                         case DdbForm.vector:
+                        case DdbForm.tensor:
                             return blue(
                                 ddbobj.inspect_type()
                             ) + '\n'
@@ -421,10 +429,9 @@ class ShellModel extends Model<ShellModel> {
             }
             
             // 处理 table，如果 table_name 为空表明当前路径是 db_path 则不处理
-            if (table_name) {
-                const table = new Table(parent as Database, `${path}/`)
-                parent.children.push(table)
-            }
+            if (table_name) 
+                parent.table_paths.push(`${path}/`)
+            
         }
         
         // TEST: 测试多级数据库树
@@ -603,6 +610,19 @@ class ShellModel extends Model<ShellModel> {
     }
     
     
+    async define_set_table_comment () {
+        if (!this.set_table_comment_defined) {
+            await model.ddb.execute(
+                'def set_table_comment (db_path, tb_name, table_comment) {\n' +
+                '    setTableComment(loadTable(database(db_path), tb_name), table_comment)\n' +
+                '}\n'
+            )
+            
+            shell.set({ set_table_comment_defined: true })
+        }
+    }
+    
+    
     async define_get_user_grant () {
         if (this.get_access_defined)
             return
@@ -623,6 +643,26 @@ class ShellModel extends Model<ShellModel> {
             '}\n'
         )
         this.set({ get_access_defined: true })
+    }
+    
+    
+    async define_get_csv_content () {
+        if (!this.get_csv_content_defined) {
+            await model.ddb.eval(
+                'def get_csv_content (name_or_obj, start, end) {\n' +
+                '    type = typestr name_or_obj\n' +
+                "    if (type =='CHAR' || type =='STRING')\n" +
+                '        obj = objByName(name_or_obj)\n' +
+                '    else\n' +
+                '        obj = name_or_obj\n' +
+                '        \n' +
+                '    table_size = size obj\n' +
+                "    return generateTextFromTable(obj, start, end - start + 1, 0, ',', true)\n" +
+                '}\n'
+            )
+            
+            this.set({ get_csv_content_defined: true })
+        }
     }
 }
 

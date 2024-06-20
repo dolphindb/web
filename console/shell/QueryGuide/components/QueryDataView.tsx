@@ -1,7 +1,6 @@
 import { Alert, Spin, Typography } from 'antd'
 import { useCallback, useEffect, useState } from 'react'
 
-import { request } from '../../../guide/utils.js'
 import { Table } from '../../../obj.js'
 import { t } from '../../../../i18n/index.js'
 import { model } from '../../../model.js'
