@@ -249,7 +249,7 @@ export class DdbVar <T extends DdbObj = DdbObj> {
                                
                     case DdbForm.tensor:
                         return `<${DdbType[this.type]}>`
-                        
+                    
                     default:
                         return ` ${DdbForm[this.form]} ${tname}`
                 }
