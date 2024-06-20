@@ -680,11 +680,17 @@ args = '{"ids":[]}'
 def dcp_deleteHandler(args){
     handlerArgs = parseExpr(args).eval()
     handlerInfo = select * from loadTable("dfs://dataAcquisition","ParserTemplate") where id in uuid(handlerArgs[`ids])
-    mqttInfo = 
+    mqttInfo = select * from handlerInfo where protocol=`mqtt
+    kafkaInfo = select * from handlerInfo where protocol=`kafkaInfo
     ex=['user',NULL]
     try{
         delete from loadTable("dfs://dataAcquisition","ParserTemplate") where id in uuid(handlerArgs[`ids])
-        writeLog("The handler "+handlerArgs[`name]+" successfully deleted")
+        if(mqttInfo.size()!=0){
+            writeLog("The MQTT handler "+handlerArgs[`name]+" successfully deleted")
+        }
+        if(kafkaInfo.size()!=0){
+            writeLog("The KAFKA handler "+handlerArgs[`name]+" successfully deleted")
+        }
         return '{"status":1}'   //删除成功  
     }catch(ex){
         writeLog("An error occured when deleting the handler "+handlerArgs[`name]+", the reason is:"+ex[1])
