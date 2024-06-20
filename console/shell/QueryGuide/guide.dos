@@ -16,31 +16,35 @@ def dbms_generateQuery(input_json){
     dbName = input_dict["dbName"]
     tbName = input_dict["tbName"]
     queryCols = concat(input_dict['queryCols'], ", ")
-    opt_map = dict([1,2,3,4,5,6,7,8,9,10], 
-        ["=","!=", ">", "<",">=","<=", "LIKE", "NOT LIKE", "IN", "NOT IN"])
+    opt_map = dict([1,2,3,4,5,6,7,8,9,10,11,12], 
+        ["=","!=", ">", "<",">=","<=", "LIKE", "NOT LIKE", "IN", "NOT IN","is null", "is not null"])
     temp_list = []
     for(tempCondition in input_dict["partitionColQuerys"]){
         value = string(tempCondition["value"])
         value = strReplace(value, "\\", '\\\\')
         value = strReplace(value, "\"", '\\\"')
-        if (tempCondition["dataType"] in `STRING`SYMBOL){
-            if (tempCondition["opt"] in [9, 10]){
-                temp_con = tempCondition["col"] + ' ' +  opt_map[tempCondition["opt"]] + ' ["' + concat(value, '","')  + '"]'
+        if (tempCondition["opt"] in [11, 12]) {
+            temp_con = tempCondition["col"] + ' ' +  opt_map[tempCondition["opt"]]
+        } else  {
+            if (tempCondition["dataType"] in `STRING`SYMBOL){
+                if (tempCondition["opt"] in [9, 10]){
+                    temp_con = tempCondition["col"] + ' ' +  opt_map[tempCondition["opt"]] + ' ["' + concat(value, '","')  + '"]'
+                } else {
+                    temp_con = tempCondition["col"] + ' ' +  opt_map[tempCondition["opt"]] + ' "' + value + '"'
+                }
+            } else if (tempCondition["dataType"] == `CHAR){
+                temp_con = tempCondition["col"] + ' ' +  opt_map[tempCondition["opt"]] + " '" + value + "' "
+            } else if (tempCondition["dataType"] == `BLOB){
+                temp_con = tempCondition["col"] + ' ' +  opt_map[tempCondition["opt"]] + ' blob("' + tempCondition["value"] + '")'
+            } else if (tempCondition["dataType"] in `TIME`TIMESTAMP) {
+                temp_con = tempCondition["col"] + " " +  opt_map[tempCondition["opt"]] + " " + tempCondition["value"] + ".000"
+            } else if (tempCondition["dataType"] in `NANOTIME`NANOTIMESTAMP){
+                temp_con = tempCondition["col"] + " " +  opt_map[tempCondition["opt"]] + " " + tempCondition["value"] + ".000000000"
+            } else if (tempCondition["dataType"] == `DATEHOUR){
+                temp_con = tempCondition["col"] + " " +  opt_map[tempCondition["opt"]] + " datehour(\"" + tempCondition["value"] + "\")"
             } else{
-                temp_con = tempCondition["col"] + ' ' +  opt_map[tempCondition["opt"]] + ' "' + value + '"'
+                temp_con = tempCondition["col"] + " " +  opt_map[tempCondition["opt"]] + " " + value
             }
-        } else if (tempCondition["dataType"] == `CHAR){
-            temp_con = tempCondition["col"] + ' ' +  opt_map[tempCondition["opt"]] + " '" + value + "' "
-        } else if (tempCondition["dataType"] == `BLOB){
-            temp_con = tempCondition["col"] + ' ' +  opt_map[tempCondition["opt"]] + ' blob("' + tempCondition["value"] + '")'
-        } else if (tempCondition["dataType"] in `TIME`TIMESTAMP) {
-            temp_con = tempCondition["col"] + " " +  opt_map[tempCondition["opt"]] + " " + tempCondition["value"] + ".000"
-        } else if (tempCondition["dataType"] in `NANOTIME`NANOTIMESTAMP){
-            temp_con = tempCondition["col"] + " " +  opt_map[tempCondition["opt"]] + " " + tempCondition["value"] + ".000000000"
-        } else if (tempCondition["dataType"] == `DATEHOUR){
-            temp_con = tempCondition["col"] + " " +  opt_map[tempCondition["opt"]] + " datehour(\"" + tempCondition["value"] + "\")"
-        } else{
-            temp_con = tempCondition["col"] + " " +  opt_map[tempCondition["opt"]] + " " + value
         }
         temp_list.append!(temp_con)
     }
@@ -53,24 +57,28 @@ def dbms_generateQuery(input_json){
             value = string(tempCondition["value"])
             value = strReplace(value, "\\", '\\\\')
             value = strReplace(value, "\"", '\\\"') 
-            if (tempCondition["dataType"] in `STRING`SYMBOL){
-                if (tempCondition["opt"] in [9, 10]){
-                    temp_con = tempCondition["col"] + ' ' +  opt_map[tempCondition["opt"]] + ' ["' + concat(value, '","')  + '"]'
-                }else{
-                    temp_con = tempCondition["col"] + ' ' +  opt_map[tempCondition["opt"]] + ' "' + value + '"'
+            if (tempCondition["opt"] in [11, 12]) {
+                temp_con = tempCondition["col"] + ' ' +  opt_map[tempCondition["opt"]]
+            } else  {
+                if (tempCondition["dataType"] in `STRING`SYMBOL){
+                    if (tempCondition["opt"] in [9, 10]){
+                        temp_con = tempCondition["col"] + ' ' +  opt_map[tempCondition["opt"]] + ' ["' + concat(value, '","')  + '"]'
+                    }else{
+                        temp_con = tempCondition["col"] + ' ' +  opt_map[tempCondition["opt"]] + ' "' + value + '"'
+                    }
+                } else if (tempCondition["dataType"] == `CHAR){
+                        temp_con = tempCondition["col"] + ' ' +  opt_map[tempCondition["opt"]] + " '" + value + "' "
+                } else if (tempCondition["dataType"] == `BLOB){
+                    temp_con = tempCondition["col"] + ' ' +  opt_map[tempCondition["opt"]] + ' blob("' + tempCondition["value"] + '")'
+                } else if (tempCondition["dataType"] in `TIME`TIMESTAMP) {
+                    temp_con = tempCondition["col"] + " " +  opt_map[tempCondition["opt"]] + " " + tempCondition["value"] + ".000"
+                } else if (tempCondition["dataType"] in `NANOTIME`NANOTIMESTAMP){
+                    temp_con = tempCondition["col"] + " " +  opt_map[tempCondition["opt"]] + " " + tempCondition["value"] + ".000000000"
+                } else if (tempCondition["dataType"] == `DATEHOUR){
+                    temp_con = tempCondition["col"] + " " +  opt_map[tempCondition["opt"]] + " datehour(\"" + tempCondition["value"] + "\")"
+                } else{
+                    temp_con = tempCondition["col"] + " " +  opt_map[tempCondition["opt"]] + " " + value
                 }
-            } else if (tempCondition["dataType"] == `CHAR){
-                    temp_con = tempCondition["col"] + ' ' +  opt_map[tempCondition["opt"]] + " '" + value + "' "
-            } else if (tempCondition["dataType"] == `BLOB){
-                temp_con = tempCondition["col"] + ' ' +  opt_map[tempCondition["opt"]] + ' blob("' + tempCondition["value"] + '")'
-            } else if (tempCondition["dataType"] in `TIME`TIMESTAMP) {
-                temp_con = tempCondition["col"] + " " +  opt_map[tempCondition["opt"]] + " " + tempCondition["value"] + ".000"
-            } else if (tempCondition["dataType"] in `NANOTIME`NANOTIMESTAMP){
-                temp_con = tempCondition["col"] + " " +  opt_map[tempCondition["opt"]] + " " + tempCondition["value"] + ".000000000"
-            } else if (tempCondition["dataType"] == `DATEHOUR){
-                temp_con = tempCondition["col"] + " " +  opt_map[tempCondition["opt"]] + " datehour(\"" + tempCondition["value"] + "\")"
-            } else{
-                temp_con = tempCondition["col"] + " " +  opt_map[tempCondition["opt"]] + " " + value
             }
             temp_list.append!(temp_con)
         }
@@ -145,11 +153,12 @@ def dbms_generateEnumerate(input_json){
     query =  "EXEC " + col + ' FROM ( SELECT ' + col + ' FROM loadTable("' + dbName + '", "' + tbName +  '") LIMIT 100000)' + ' GROUP BY ' + col;
     enumList = query.parseExpr().eval()
     newEnumList = array(STRING, 0)
-    if (type(enumList) in [4, 17, 18]){
-        rawenumList = string(enumList)
-        for(i in 1..size(enumList) ){
-            if(enumList[i-1] != null and enumList[i-1] != "")
-            newEnumList.append!(strReplace(enumList[i-1], "\"", '\\\"')) 
+    // 2CHAR, 4INT, 17SYMBOL, 18STRING
+    if (type(enumList) in [2, 4, 17, 18]){
+        stringEnumList = string(enumList)
+        for(i in 1..size(stringEnumList) ){
+            if(stringEnumList[i-1] != null and stringEnumList[i-1] != "")
+            newEnumList.append!(strReplace(stringEnumList[i-1], "\"", '\\\"')) 
         }
     } 
     if (size(enumList) == 0){

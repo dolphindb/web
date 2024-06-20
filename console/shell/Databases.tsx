@@ -309,7 +309,7 @@ function SetTableComment () {
     useEffect(() => {
         if (current_node?.type === 'table')
             form.setFieldsValue({ comment: current_node.schema_data.tableComment })
-    }, [current_node])
+    }, [set_table_comment_modal_visible])
     
     if (!current_node)
         return
@@ -338,7 +338,6 @@ function SetTableComment () {
                 
                 shell.set({ dbs: [...shell.dbs] })
                 
-                form.resetFields()
                 shell.set({ set_table_comment_modal_visible: false })
             }}
             labelCol={{ span: 4 }}
@@ -372,7 +371,7 @@ function SetColumnComment () {
     useEffect(() => {
         if (current_node?.type === 'column')
             form.setFieldsValue({ comment: current_node.comment })
-    }, [current_node])
+    }, [set_column_comment_modal_visible])
     
     if (!current_node)
         return
@@ -402,7 +401,6 @@ function SetColumnComment () {
                 root.load_children()
                 shell.set({ dbs: [...shell.dbs] })
                 
-                form.resetFields()
                 shell.set({ set_column_comment_modal_visible: false })
             }}
             labelCol={{ span: 4 }}
@@ -418,7 +416,6 @@ function SetColumnComment () {
                     {t('确定')}
                 </Button>
                 <Button htmlType='button' onClick={() => {
-                    form.resetFields()
                     shell.set({ set_column_comment_modal_visible: false })
                 }}>
                     {t('取消')}

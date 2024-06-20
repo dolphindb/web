@@ -18,10 +18,6 @@ import { UploadConfigModal } from '../components/UploadConfigModal.js'
 
 import { t } from '../../../i18n/index.js'
 
-import { model } from '../../model.js'
-
-import finance_code from '../finance.dos'
-
 import { create_guide } from '../model.js'
 
 import { TableInfo } from './TableInfo.js'

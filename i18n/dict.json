@@ -4390,5 +4390,56 @@
     },
     "功能设置": {
         "en": "Feature Settings"
+    },
+    "此工具专为物联网用户设计。用户通过此工具无需设计分区方案或编写复杂的 SQL 语句，只需输入库表名称、列名等基本信息，并通过列表选择参数，即可快速生成建库建表脚本，进而完成库表创建。": {
+        "en": "Guided database and table creation for IoT scenarios.  This tool allows you to create databases and tables by providing basic information such as database, table, and column names. Simply select parameter values from a list, and the script is automatically generated. No need to worry about partitioning design or write complex SQL statements."
+    },
+    "导出 CSV": {
+        "en": "Export CSV"
+    },
+    "导出范围": {
+        "en": "Export Range"
+    },
+    "全部": {
+        "en": "All"
+    },
+    "部分": {
+        "en": "Part"
+    },
+    "起始行需为大于等于 0 的整数": {
+        "en": "The starting row must be an integer greater than or equal to 0"
+    },
+    "起始行需小于等于结束行": {
+        "en": "The starting row must be less than or equal to the ending row"
+    },
+    "起始行": {
+        "en": "Starting Row"
+    },
+    "请输入起始行": {
+        "en": "Please enter the starting row"
+    },
+    "结束行需为大于等于 0 且小于表格实际行数的整数": {
+        "en": "The end row must be an integer greater than or equal to 0 and less than the actual number of rows in the table"
+    },
+    "结束行需大于等于起始行": {
+        "en": "The ending row must be greater than or equal to the starting row"
+    },
+    "结束行": {
+        "en": "Ending Row"
+    },
+    "请输入结束行": {
+        "en": "Please enter the ending row"
+    },
+    "注意：请根据实际的硬件情况选择导出范围，过大的范围可能导致浏览器崩溃！": {
+        "en": "Note: Please select the range according to the actual situation. Too large a range may cause the browser to crash!"
+    },
+    "输入限制内存大小，单位为 GB": {
+        "en": "Enter the limit memory size in GB"
+    },
+    "以 \"*\" 结尾，表示指定某个 dbName 的前缀范围，例如 \"dfs://test0*\"": {
+        "en": "Ending with \"*\" means specifying the prefix range of a certain dbName, such as \"dfs://test0*\""
+    },
+    "上限值": {
+        "en": "Limit"
     }
 }
