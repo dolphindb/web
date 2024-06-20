@@ -38,7 +38,7 @@ export const ViewLogModal = NiceModal.create(({ protocol }: IProps) => {
         <List 
             loading={isLoading}
             className='log-list'
-            pagination={{ pageSize: 10, showQuickJumper: true }}
+            pagination={{ defaultPageSize: 10, showQuickJumper: true }}
             dataSource={data} 
             size='small'
             bordered={false}
