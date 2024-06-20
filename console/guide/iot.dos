@@ -828,13 +828,13 @@ def DBMSIOT_createDB2(args){
             if(engine == "OLAP"){
                 code = DBMSIOT_getStaticPartitionTableOLAP(dbName,tbName,colName,colType,totalNum,atomic,partitionColumn,partitionColumnType,deltaDict,comment)
             }else{
-                keepDuplicates = q[`keepDuplicates]
+                keepDuplicates = iif(q[`keepDuplicates]==0,"ALL",iif(q[`keepDuplicates]==1,"FIRST","LAST"))
                 dataTimeCol = [q[`dataTimeCol]]
                 otherSortKey = [q[`otherSortKeyInfo][0][`colName]]
                 otherSortKeyUniqueNum = [q[`otherSortKeyInfo][0][`uniqueNum]]
 
                 second_sortColumn = (partitionColumn join otherSortKey).distinct()
-                sortColumn = dataTimeCol join partitionColumn join otherSortKey //这种情况下，需要校验 partitionColumn 和otherSortKey 是否重复
+                sortColumn = dataTimeCol join second_sortColumn //这种情况下，需要校验 partitionColumn 和otherSortKey 是否重复
 
 
 
