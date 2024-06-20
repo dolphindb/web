@@ -42,101 +42,102 @@ enum Access {
 }
 
 class AccessModel extends Model<AccessModel> {
-    users: string[] = []
-
-    groups: string[] = []
-
-    databases: Database[] = []
-
-    shared_tables: string[] = []
-
-    stream_tables: string[] = []
-
-    function_views: string[] = []
-
+    users: string[] = [ ]
+    
+    groups: string[] = [ ]
+    
+    databases: Database[] = [ ]
+    
+    shared_tables: string[] = [ ]
+    
+    stream_tables: string[] = [ ]
+    
+    function_views: string[] = [ ]
+    
     inited = false
-
+    
     current: {
         role?: 'user' | 'group'
         name?: string
         view?: string
     } = null
-
+    
     accesses = null
-
-    async init() {
+    
+    async init () {
         this.get_user_list()
         this.get_group_list()
         this.get_databases_with_tables()
         this.get_share_tables()
         this.get_stream_tables()
         this.get_function_views()
-
+        
         this.set({ inited: true })
     }
-
-
-    async get_databases_with_tables() {
+    
+    
+    async get_databases_with_tables () {
         const databases = await this.get_databases()
-        const tables = await this.get_tables();
+        const tables = await this.get_tables()
         const databases_sort = [...databases].sort((a, b) => b.length - a.length)
         const dbs_map = new Map<string, string[]>()
-        tables.forEach((tb) => {
-            for (let db of databases_sort) {
+        tables.forEach(tb => {
+            for (let db of databases_sort) 
                 if (tb.startsWith(db)) {
-                    if (!dbs_map.has(db)) dbs_map.set(db, [])
+                    if (!dbs_map.has(db))
+                        dbs_map.set(db, [ ])
                     let tbs = dbs_map.get(db)
                     tbs.push(tb)
                     break
                 }
-            }
+            
         })
         this.set({
-            databases: databases.map((db) => ({
+            databases: databases.map(db => ({
                 name: db,
-                tables: dbs_map.get(db) ?? []
+                tables: dbs_map.get(db) ?? [ ]
             }))
         })
     }
-
-
-    async get_user_list() {
-        this.set({ users: (await model.ddb.call<DdbVectorStringObj>('getUserList', [])).value })
+    
+    
+    async get_user_list () {
+        this.set({ users: (await model.ddb.call<DdbVectorStringObj>('getUserList', [ ])).value })
     }
-
+    
     // final 属性代表是否获取用户最终权限，只有在用户查看权限界面需要 final = true
-    async get_user_access(users: string[], final: boolean = false) {
+    async get_user_access (users: string[], final: boolean = false) {
         return (await model.ddb.call('getUserAccess', [...final ? [new DdbVectorString(users), true] : [new DdbVectorString(users)]])).to_rows()
     }
-
-
-    async get_group_list() {
-        this.set({ groups: (await model.ddb.call('getGroupList', [])).value as string[] })
+    
+    
+    async get_group_list () {
+        this.set({ groups: (await model.ddb.call('getGroupList', [ ])).value as string[] })
     }
-
-
-    async get_group_access(groups: string[]) {
+    
+    
+    async get_group_access (groups: string[]) {
         return (await model.ddb.call('getGroupAccess', [new DdbVectorString(groups)])).to_rows()
     }
-
-
-    async create_user(user: User) {
-        const { userId, password, groupIds = [], isAdmin = false } = user
+    
+    
+    async create_user (user: User) {
+        const { userId, password, groupIds = [ ], isAdmin = false } = user
         await model.ddb.call('createUser', [userId, password, new DdbVectorString(groupIds), isAdmin])
     }
-
-
-    async delete_user(user: string) {
+    
+    
+    async delete_user (user: string) {
         await model.ddb.call('deleteUser', [user])
     }
-
-
-    async reset_password(user: string, password: string) {
+    
+    
+    async reset_password (user: string, password: string) {
         await model.ddb.call('resetPwd', [user, password])
     }
-
+    
     // user_names 和 group_names 不能同时为数组
-    async add_group_member(users: string[] | string, groups: string[] | string) {
+    async add_group_member (users: string[] | string, groups: string[] | string) {
         if (!users || !groups || !users.length || !groups.length)
             return
         await model.ddb.call(
@@ -144,25 +145,25 @@ class AccessModel extends Model<AccessModel> {
             [Array.isArray(users) ? new DdbVectorString(users) : users, Array.isArray(groups) ? new DdbVectorString(groups) : groups]
         )
     }
-
-
-    async create_group(group: string, users: string[]) {
+    
+    
+    async create_group (group: string, users: string[]) {
         await model.ddb.call('createGroup', [group, new DdbVectorString(users)])
     }
-
-
-    async delete_group(group: string) {
+    
+    
+    async delete_group (group: string) {
         await model.ddb.call('deleteGroup', [group])
     }
-
-
-    async get_users_by_group(group: string) {
+    
+    
+    async get_users_by_group (group: string) {
         return (await model.ddb.call<DdbVectorStringObj>('getUsersByGroupId', [group])).value
     }
-
-
+    
+    
     // user_names 和 group_names 不能同时为数组
-    async delete_group_member(users: string[] | string, groups: string[] | string) {
+    async delete_group_member (users: string[] | string, groups: string[] | string) {
         if (!users || !groups || !users.length || !groups.length)
             return
         await model.ddb.call(
@@ -173,28 +174,28 @@ class AccessModel extends Model<AccessModel> {
             ]
         )
     }
-
-
-    async get_databases(): Promise<string[]> {
-        return (await (model.ddb.call<DdbVectorStringObj>('getClusterDFSDatabases', []))).value
+    
+    
+    async get_databases (): Promise<string[]> {
+        return (await (model.ddb.call<DdbVectorStringObj>('getClusterDFSDatabases', [ ]))).value
     }
-
-
-    async get_tables(): Promise<string[]> {
-        return (await model.ddb.call<DdbVectorStringObj>('getDFSTablesByDatabase', ["dfs://"])).value
+    
+    
+    async get_tables (): Promise<string[]> {
+        return (await model.ddb.call<DdbVectorStringObj>('getDFSTablesByDatabase', ['dfs://'])).value
     }
-
-
-    async get_share_tables() {
+    
+    
+    async get_share_tables () {
         const tables = (await model.ddb.call('objs', [true])).to_rows()
         this.set({
             shared_tables: tables.filter(table => table.shared && table.type === 'BASIC' && table.form === 'TABLE')
                 .map(table => table.name)
         })
     }
-
-
-    async get_stream_tables() {
+    
+    
+    async get_stream_tables () {
         this.set({
             stream_tables: (await model.ddb.call('getStreamTables', [new DdbInt(0)]))
                 .to_rows()
@@ -202,27 +203,27 @@ class AccessModel extends Model<AccessModel> {
                 .map(tb => tb.name)
         })
     }
-
-
-    async get_function_views() {
-        this.set({ function_views: (await model.ddb.call('getFunctionViews', [])).to_rows().map(fv => fv.name) })
+    
+    
+    async get_function_views () {
+        this.set({ function_views: (await model.ddb.call('getFunctionViews', [ ])).to_rows().map(fv => fv.name) })
     }
-
-
-    async grant(user: string, access: string, obj?: string | number) {
+    
+    
+    async grant (user: string, access: string, obj?: string | number) {
         await model.ddb.call('grant', obj ? [user, new DdbInt(Access[access]), typeof obj === 'number' ? new DdbInt(obj) : obj] : [user, new DdbInt(Access[access])])
     }
-
-
-    async deny(user: string, access: string, obj?: string) {
+    
+    
+    async deny (user: string, access: string, obj?: string) {
         await model.ddb.call('deny', obj ? [user, new DdbInt(Access[access]), obj] : [user, new DdbInt(Access[access])])
     }
-
-
-    async revoke(user: string, access: string, obj?: string) {
+    
+    
+    async revoke (user: string, access: string, obj?: string) {
         await model.ddb.call('revoke', obj ? [user, new DdbInt(Access[access]), obj] : [user, new DdbInt(Access[access])])
     }
-
+    
     // async handle_validate_error (func: Function) {
     //     try {
     //         await func()
