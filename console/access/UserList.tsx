@@ -3,13 +3,11 @@ import './index.sass'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 
 import { CheckCircleFilled, DeleteOutlined, MinusCircleFilled, PlusOutlined, ReloadOutlined, SearchOutlined } from '@ant-design/icons'
-import { Button, Form, Input, Modal, Popconfirm, Select, Switch, Table, Tag, Tooltip, Transfer, type TableColumnType } from 'antd'
-
-import { use_modal } from 'react-object-model/hooks.js'
+import { Button, Input, Popconfirm, Table, Tag, type TableColumnType } from 'antd'
 
 import NiceModal from '@ebay/nice-modal-react'
 
-import { t, language } from '../../i18n/index.js'
+import { t } from '../../i18n/index.js'
 
 import { model } from '../model.js'
 

@@ -1,7 +1,5 @@
-import { Button, Checkbox, Divider, Modal, Radio, Select, Table, TreeSelect, type TableColumnType, Tooltip, Popconfirm } from 'antd'
+import { Table, type TableColumnType } from 'antd'
 import { useCallback, useEffect, useMemo, useState } from 'react'
-
-import { use_modal } from 'react-object-model/hooks.js'
 
 import NiceModal from '@ebay/nice-modal-react'
 
@@ -9,7 +7,7 @@ import { t } from '../../i18n/index.js'
 import { model } from '../model.js'
 
 import { AccessHeader } from './AccessHeader.js'
-import { ACCESS_TYPE, NeedInputAccess, access_options } from './constants.js'
+import { ACCESS_TYPE, NeedInputAccess } from './constants.js'
 import { access } from './model.js'
 
 import { AccessAddModal } from './components/access/AccessAddModal.js'
