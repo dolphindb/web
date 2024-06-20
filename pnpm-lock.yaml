@@ -144,8 +144,8 @@ importers:
         specifier: ^4.17.5
         version: 4.17.5
       '@types/node':
-        specifier: ^20.14.5
-        version: 20.14.5
+        specifier: ^20.14.6
+        version: 20.14.6
       '@types/react':
         specifier: ^18.3.3
         version: 18.3.3
@@ -160,13 +160,13 @@ importers:
         version: 4.7.0
       css-loader:
         specifier: ^7.1.2
-        version: 7.1.2(webpack@5.92.0)
+        version: 7.1.2(webpack@5.92.1)
       eslint:
         specifier: ^9.5.0
         version: 9.5.0
       license-webpack-plugin:
         specifier: ^4.0.2
-        version: 4.0.2(webpack@5.92.0)
+        version: 4.0.2(webpack@5.92.1)
       react:
         specifier: ^18.3.1
         version: 18.3.1
@@ -175,22 +175,22 @@ importers:
         version: 1.77.6
       sass-loader:
         specifier: ^14.2.1
-        version: 14.2.1(sass@1.77.6)(webpack@5.92.0)
+        version: 14.2.1(sass@1.77.6)(webpack@5.92.1)
       source-map-loader:
         specifier: ^5.0.0
-        version: 5.0.0(webpack@5.92.0)
+        version: 5.0.0(webpack@5.92.1)
       style-loader:
         specifier: ^4.0.0
-        version: 4.0.0(webpack@5.92.0)
+        version: 4.0.0(webpack@5.92.1)
       ts-loader:
         specifier: ^9.5.1
-        version: 9.5.1(typescript@5.4.5)(webpack@5.92.0)
+        version: 9.5.1(typescript@5.4.5)(webpack@5.92.1)
       typescript:
         specifier: ^5.4.5
         version: 5.4.5
       webpack:
-        specifier: ^5.92.0
-        version: 5.92.0
+        specifier: ^5.92.1
+        version: 5.92.1
       webpack-bundle-analyzer:
         specifier: ^4.10.2
         version: 4.10.2
@@ -1580,8 +1580,8 @@ packages:
   '@types/node-sass@4.11.3':
     resolution: {integrity: sha512-wXPCn3t9uu5rR4zXNSLasZHQMuRzUKBsdi4MsgT8uq4Lp1gQQo+T2G23tGj4SSgDHeNBle6vGseZtM2XV/X9bw==}
 
-  '@types/node@20.14.5':
-    resolution: {integrity: sha512-aoRR+fJkZT2l0aGOJhuA8frnCSoNX6W7U2mpNq63+BxBIj5BQFt8rHy627kijCmm63ijdSdwvGgpUsU6MBsZZA==}
+  '@types/node@20.14.6':
+    resolution: {integrity: sha512-JbA0XIJPL1IiNnU7PFxDXyfAwcwVVrOoqyzzyQTyMeVhBzkJVMSkC1LlVsRQ2lpqiY4n6Bb9oCS6lzDKVQxbZw==}
 
   '@types/prop-types@15.7.5':
     resolution: {integrity: sha512-JCB8C6SnDoQf0cNycqd/35A7MjcnK+ZTqE7judS6o7utxUCg6imJg3QK2qzHKszlTjcj2cn+NwMB2i96ubpj7w==}
@@ -4968,8 +4968,8 @@ packages:
     resolution: {integrity: sha512-/DyMEOrDgLKKIG0fmvtz+4dUX/3Ghozwgm6iPp8KRhvn+eQf9+Q7GWxVNMk3+uCPWfdXYC4ExGBckIXdFEfH1w==}
     engines: {node: '>=10.13.0'}
 
-  webpack@5.92.0:
-    resolution: {integrity: sha512-Bsw2X39MYIgxouNATyVpCNVWBCuUwDgWtN78g6lSdPJRLaQ/PUVm/oXcaRAyY/sMFoKFQrsPeqvTizWtq7QPCA==}
+  webpack@5.92.1:
+    resolution: {integrity: sha512-JECQ7IwJb+7fgUFBlrJzbyu3GEuNBcdqr1LD7IbSzwkSmIevTm8PF+wej3Oxuz/JFBUZ6O1o43zsPkwm1C4TmA==}
     engines: {node: '>=10.13.0'}
     hasBin: true
     peerDependencies:
@@ -6932,16 +6932,16 @@ snapshots:
 
   '@types/accepts@1.3.5':
     dependencies:
-      '@types/node': 20.14.5
+      '@types/node': 20.14.6
 
   '@types/body-parser@1.19.2':
     dependencies:
       '@types/connect': 3.4.35
-      '@types/node': 20.14.5
+      '@types/node': 20.14.6
 
   '@types/connect@3.4.35':
     dependencies:
-      '@types/node': 20.14.5
+      '@types/node': 20.14.6
 
   '@types/content-disposition@0.5.5': {}
 
@@ -6950,7 +6950,7 @@ snapshots:
       '@types/connect': 3.4.35
       '@types/express': 4.17.17
       '@types/keygrip': 1.0.2
-      '@types/node': 20.14.5
+      '@types/node': 20.14.6
 
   '@types/d3-timer@2.0.3': {}
 
@@ -6976,7 +6976,7 @@ snapshots:
 
   '@types/express-serve-static-core@4.17.33':
     dependencies:
-      '@types/node': 20.14.5
+      '@types/node': 20.14.6
       '@types/qs': 6.9.7
       '@types/range-parser': 1.2.4
 
@@ -7016,7 +7016,7 @@ snapshots:
       '@types/http-errors': 2.0.1
       '@types/keygrip': 1.0.2
       '@types/koa-compose': 3.2.5
-      '@types/node': 20.14.5
+      '@types/node': 20.14.6
 
   '@types/lodash@4.17.5': {}
 
@@ -7030,9 +7030,9 @@ snapshots:
 
   '@types/node-sass@4.11.3':
     dependencies:
-      '@types/node': 20.14.5
+      '@types/node': 20.14.6
 
-  '@types/node@20.14.5':
+  '@types/node@20.14.6':
     dependencies:
       undici-types: 5.26.5
 
@@ -7057,7 +7057,7 @@ snapshots:
 
   '@types/sass-loader@8.0.8':
     dependencies:
-      '@types/node': 20.14.5
+      '@types/node': 20.14.6
       '@types/node-sass': 4.11.3
       '@types/webpack': 4.41.33
       sass: 1.77.6
@@ -7065,7 +7065,7 @@ snapshots:
   '@types/serve-static@1.15.0':
     dependencies:
       '@types/mime': 3.0.1
-      '@types/node': 20.14.5
+      '@types/node': 20.14.6
 
   '@types/source-list-map@0.1.2': {}
 
@@ -7081,9 +7081,9 @@ snapshots:
 
   '@types/webpack-bundle-analyzer@4.7.0':
     dependencies:
-      '@types/node': 20.14.5
+      '@types/node': 20.14.6
       tapable: 2.2.1
-      webpack: 5.92.0
+      webpack: 5.92.1
     transitivePeerDependencies:
       - '@swc/core'
       - esbuild
@@ -7092,13 +7092,13 @@ snapshots:
 
   '@types/webpack-sources@3.2.0':
     dependencies:
-      '@types/node': 20.14.5
+      '@types/node': 20.14.6
       '@types/source-list-map': 0.1.2
       source-map: 0.7.4
 
   '@types/webpack@4.41.33':
     dependencies:
-      '@types/node': 20.14.5
+      '@types/node': 20.14.6
       '@types/tapable': 1.0.8
       '@types/uglify-js': 3.17.1
       '@types/webpack-sources': 3.2.0
@@ -7107,7 +7107,7 @@ snapshots:
 
   '@types/ws@8.5.10':
     dependencies:
-      '@types/node': 20.14.5
+      '@types/node': 20.14.6
 
   '@typescript-eslint/eslint-plugin@7.13.0(@typescript-eslint/parser@7.13.0(eslint@9.5.0)(typescript@5.4.5))(eslint@9.5.0)(typescript@5.4.5)':
     dependencies:
@@ -7893,7 +7893,7 @@ snapshots:
       shebang-command: 2.0.0
       which: 2.0.2
 
-  css-loader@7.1.2(webpack@5.92.0):
+  css-loader@7.1.2(webpack@5.92.1):
     dependencies:
       icss-utils: 5.1.0(postcss@8.4.35)
       postcss: 8.4.35
@@ -7904,7 +7904,7 @@ snapshots:
       postcss-value-parser: 4.2.0
       semver: 7.6.0
     optionalDependencies:
-      webpack: 5.92.0
+      webpack: 5.92.1
 
   css-select@5.1.0:
     dependencies:
@@ -8949,7 +8949,7 @@ snapshots:
 
   jest-worker@27.5.1:
     dependencies:
-      '@types/node': 20.14.5
+      '@types/node': 20.14.6
       merge-stream: 2.0.0
       supports-color: 8.1.1
 
@@ -9069,11 +9069,11 @@ snapshots:
       prelude-ls: 1.2.1
       type-check: 0.4.0
 
-  license-webpack-plugin@4.0.2(webpack@5.92.0):
+  license-webpack-plugin@4.0.2(webpack@5.92.1):
     dependencies:
       webpack-sources: 3.2.3
     optionalDependencies:
-      webpack: 5.92.0
+      webpack: 5.92.1
 
   lines-and-columns@1.2.4: {}
 
@@ -10464,12 +10464,12 @@ snapshots:
 
   safer-buffer@2.1.2: {}
 
-  sass-loader@14.2.1(sass@1.77.6)(webpack@5.92.0):
+  sass-loader@14.2.1(sass@1.77.6)(webpack@5.92.1):
     dependencies:
       neo-async: 2.6.2
     optionalDependencies:
       sass: 1.77.6
-      webpack: 5.92.0
+      webpack: 5.92.1
 
   sass@1.77.6:
     dependencies:
@@ -10582,11 +10582,11 @@ snapshots:
 
   source-map-js@1.0.2: {}
 
-  source-map-loader@5.0.0(webpack@5.92.0):
+  source-map-loader@5.0.0(webpack@5.92.1):
     dependencies:
       iconv-lite: 0.6.3
       source-map-js: 1.0.2
-      webpack: 5.92.0
+      webpack: 5.92.1
 
   source-map-support@0.3.3:
     dependencies:
@@ -10717,9 +10717,9 @@ snapshots:
 
   strip-json-comments@3.1.1: {}
 
-  style-loader@4.0.0(webpack@5.92.0):
+  style-loader@4.0.0(webpack@5.92.1):
     dependencies:
-      webpack: 5.92.0
+      webpack: 5.92.1
 
   style-to-object@1.0.6:
     dependencies:
@@ -10791,14 +10791,14 @@ snapshots:
     dependencies:
       streamx: 2.15.0
 
-  terser-webpack-plugin@5.3.10(webpack@5.92.0):
+  terser-webpack-plugin@5.3.10(webpack@5.92.1):
     dependencies:
       '@jridgewell/trace-mapping': 0.3.25
       jest-worker: 27.5.1
       schema-utils: 3.3.0
       serialize-javascript: 6.0.1
       terser: 5.27.2
-      webpack: 5.92.0
+      webpack: 5.92.1
 
   terser@5.27.2:
     dependencies:
@@ -10865,7 +10865,7 @@ snapshots:
     dependencies:
       typescript: 5.4.5
 
-  ts-loader@9.5.1(typescript@5.4.5)(webpack@5.92.0):
+  ts-loader@9.5.1(typescript@5.4.5)(webpack@5.92.1):
     dependencies:
       chalk: 4.1.2
       enhanced-resolve: 5.15.0
@@ -10873,7 +10873,7 @@ snapshots:
       semver: 7.5.4
       source-map: 0.7.4
       typescript: 5.4.5
-      webpack: 5.92.0
+      webpack: 5.92.1
 
   tsconfig-paths@3.15.0:
     dependencies:
@@ -11152,7 +11152,7 @@ snapshots:
 
   webpack-sources@3.2.3: {}
 
-  webpack@5.92.0:
+  webpack@5.92.1:
     dependencies:
       '@types/eslint-scope': 3.7.4
       '@types/estree': 1.0.5
@@ -11175,7 +11175,7 @@ snapshots:
       neo-async: 2.6.2
       schema-utils: 3.3.0
       tapable: 2.2.1
-      terser-webpack-plugin: 5.3.10(webpack@5.92.0)
+      terser-webpack-plugin: 5.3.10(webpack@5.92.1)
       watchpack: 2.4.1
       webpack-sources: 3.2.3
     transitivePeerDependencies:
@@ -11283,7 +11283,7 @@ snapshots:
       cli-truncate: 4.0.0
       colors: 1.4.0
       commander: 12.1.0
-      css-loader: 7.1.2(webpack@5.92.0)
+      css-loader: 7.1.2(webpack@5.92.1)
       emoji-regex: 10.3.0
       eslint: 9.5.0
       eslint-plugin-import: 2.29.1(@typescript-eslint/parser@7.13.0(eslint@9.5.0)(typescript@5.4.5))(eslint@9.5.0)
@@ -11295,7 +11295,7 @@ snapshots:
       i18next-scanner: 4.4.0
       koa: 2.15.3
       koa-compress: 5.1.1
-      license-webpack-plugin: 4.0.2(webpack@5.92.0)
+      license-webpack-plugin: 4.0.2(webpack@5.92.1)
       lodash: 4.17.21
       map-stream: 0.0.7
       mime-types: 2.1.35
@@ -11305,20 +11305,20 @@ snapshots:
       react-object-model: 1.2.6(react@18.3.1)
       resolve-path: 1.4.0
       sass: 1.77.6
-      sass-loader: 14.2.1(sass@1.77.6)(webpack@5.92.0)
-      source-map-loader: 5.0.0(webpack@5.92.0)
+      sass-loader: 14.2.1(sass@1.77.6)(webpack@5.92.1)
+      source-map-loader: 5.0.0(webpack@5.92.1)
       strip-ansi: 7.1.0
-      style-loader: 4.0.0(webpack@5.92.0)
+      style-loader: 4.0.0(webpack@5.92.1)
       through2: 4.0.2
       tough-cookie: 4.1.4
-      ts-loader: 9.5.1(typescript@5.4.5)(webpack@5.92.0)
+      ts-loader: 9.5.1(typescript@5.4.5)(webpack@5.92.1)
       tslib: 2.6.3
       typescript: 5.4.5
       ua-parser-js: 2.0.0-beta.3
       undici: 6.18.2
       vinyl: 3.0.0
       vinyl-fs: 4.0.0
-      webpack: 5.92.0
+      webpack: 5.92.1
       webpack-bundle-analyzer: 4.10.2
       ws: 8.17.0
     transitivePeerDependencies:
