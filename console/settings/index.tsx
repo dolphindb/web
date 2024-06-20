@@ -1,7 +1,5 @@
 import './index.sass'
 
-import { SettingOutlined } from '@ant-design/icons'
-
 import Icon from '@ant-design/icons/lib/components/Icon.js'
 
 import { t } from '../../i18n/index.js'

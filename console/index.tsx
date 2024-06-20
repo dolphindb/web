@@ -64,22 +64,19 @@ function DolphinDB () {
         button={{ autoInsertSpace: false }}
         theme={{ hashed: false, token: { borderRadius: 0, motion: false } }}
     >
-        <SWRConfig 
-            value={{ 
-                revalidateOnFocus: false,
-                revalidateOnReconnect: false,
-                errorRetryCount: 0 
-            }}>
-         <ProConfigProvider hashed={false} token={{ borderRadius: 0, motion: false }}>
-            <NiceModal.Provider>
-                <App className='app'>
-                    <MainLayout />
-                </App>
-            </NiceModal.Provider>
-        </ProConfigProvider>
-        
-    </SWRConfig>
-       
+        <SWRConfig value={{
+            revalidateOnFocus: false,
+            revalidateOnReconnect: false,
+            errorRetryCount: 0 
+        }}>
+            <ProConfigProvider hashed={false} token={{ borderRadius: 0, motion: false }}>
+                <NiceModal.Provider>
+                    <App className='app'>
+                        <MainLayout />
+                    </App>
+                </NiceModal.Provider>
+            </ProConfigProvider>
+        </SWRConfig>
     </ConfigProvider>
 }
 
@@ -155,7 +152,6 @@ const views = {
     settings: Settings,
     'iot-guide': CreateGuide,
     'finance-guide': FinanceGuide,
-    
 }
 
 
