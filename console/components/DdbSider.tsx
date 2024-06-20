@@ -75,7 +75,7 @@ export function DdbSider () {
     }, [logined])
     
     return <Layout.Sider
-        width={150}
+        width={language === 'zh' ? 150 : 220}
         className='sider'
         theme='light'
         collapsible
@@ -199,7 +199,7 @@ export function DdbSider () {
                     {
                         key: 'settings',
                         icon: <SettingOutlined  className='icon-menu' />,
-                        label: '功能设置'
+                        label: t('功能设置')
                 }] : [ ],
             ].filter(item => model.is_module_visible(item.key))}
         />
