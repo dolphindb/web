@@ -15,19 +15,19 @@ import { CONFIG_CLASSIFICATION } from './constants.js'
 
 const { Search } = Input
 
-export function NodesConfig() {
+export function NodesConfig () {
     const { nodes_configs } = config.use(['nodes_configs'])
-
+    
     const [active_key, set_active_key] = useState<string | string[]>('thread')
-
+    
     const [search_key, set_search_key] = useState('')
-
+    
     useEffect(() => {
         (async () => {
             await config.load_nodes_config()
         })()
-    }, [])
-
+    }, [ ])
+    
     const cols: ProColumns<NodesConfig>[] = useMemo(
         () => [
             {
@@ -101,17 +101,17 @@ export function NodesConfig() {
                 ]
             }
         ],
-        []
+        [ ]
     )
-
+    
     const delete_config = useCallback(
         async (config_name: string) => {
             await config.delete_nodes_config([config_name])
             model.message.success(t('删除成功'))
         },
-        []
+        [ ]
     )
-
+    
     const search_row = useCallback(
         (record, index) => {
             if (search_key === '')
@@ -122,15 +122,15 @@ export function NodesConfig() {
         },
         [search_key]
     )
-
+    
     const items: CollapseProps['items'] = useMemo(() => {
-        let clsed_configs = Object.fromEntries([...Object.keys(CONFIG_CLASSIFICATION), t('其它')].map(cfg => [cfg, []]))
-
+        let clsed_configs = Object.fromEntries([...Object.keys(CONFIG_CLASSIFICATION), t('其它')].map(cfg => [cfg, [ ]]))
+        
         nodes_configs?.forEach(nodes_config => {
             const { category } = nodes_config
             clsed_configs[category].push(nodes_config)
         })
-
+        
         return Object.entries(clsed_configs).map(([key, clsed_config]) => ({
             key,
             label: <div className='collapse-title'>{key}</div>,
@@ -175,7 +175,7 @@ export function NodesConfig() {
             )
         }))
     }, [nodes_configs, search_key])
-
+    
     return <div className='nodes-config-container'>
         <div className='toolbar'>
             <Button
@@ -187,7 +187,7 @@ export function NodesConfig() {
             >
                 {t('刷新')}
             </Button>
-
+            
             <Button
                 icon={<PlusOutlined />}
                 onClick={async () =>
@@ -196,7 +196,7 @@ export function NodesConfig() {
             >
                 {t('新增配置')}
             </Button>
-
+            
             <Search
                 placeholder={t('请输入想要查找的配置项')}
                 value={search_key}
@@ -204,7 +204,7 @@ export function NodesConfig() {
                     set_search_key(e.target.value)
                 }}
                 onSearch={async () => {
-                    let keys = []
+                    let keys = [ ]
                     nodes_configs?.forEach(config => {
                         const { category, name } = config
                         if (name.toLowerCase().includes(search_key.toLowerCase()))

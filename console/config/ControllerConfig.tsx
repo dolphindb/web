@@ -17,13 +17,13 @@ import { _2_strs, strs_2_controller_configs } from './utils.js'
 
 const { Search } = Input
 
-export function ControllerConfig() {
-    const [configs, set_configs] = useState<ControllerConfig[]>([])
-
+export function ControllerConfig () {
+    const [configs, set_configs] = useState<ControllerConfig[]>([ ])
+    
     const [search_key, set_search_key] = useState('')
-
+    
     const actionRef = useRef<ActionType>()
-
+    
     const cols: ProColumns<ControllerConfig>[] = useMemo(() => ([
         {
             title: t('配置项'),
@@ -82,13 +82,13 @@ export function ControllerConfig() {
             ],
         },
     ]), [configs])
-
+    
     const delete_config = useCallback(async (config_id: string) => {
         const new_configs = _2_strs(configs).filter(cfg => cfg !== config_id)
         await config.save_controller_configs(new_configs)
         actionRef.current.reload()
     }, [configs])
-
+    
     return <EditableProTable
         rowKey='id'
         actionRef={actionRef}
@@ -113,7 +113,7 @@ export function ControllerConfig() {
                     value: ''
                 }),
                 creatorButtonText: t('新增控制节点配置'),
-                onClick() {
+                onClick () {
                     (async () => {
                         let $tbody = document.querySelector('.ant-table-body')
                         await delay(0)

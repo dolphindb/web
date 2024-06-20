@@ -15,13 +15,13 @@ import { config } from './model.js'
 
 export const NodesConfigAddModal = NiceModal.create(() => {
     const modal = NiceModal.useModal()
-
+    
     const [add_config_form] = Form.useForm()
-
+    
     const filter_config = useCallback(
         (input: string, option?: { label: string, options: string }) =>
-            (option?.label ?? '').toLowerCase().includes(input.toLowerCase()), [])
-
+            (option?.label ?? '').toLowerCase().includes(input.toLowerCase()), [ ])
+            
     return <Modal
         className='add-config-modal'
         open={modal.visible}
@@ -30,7 +30,7 @@ export const NodesConfigAddModal = NiceModal.create(() => {
         title={t('新增配置')}
         footer={false}
         afterClose={modal.remove}>
-
+        
         <Form
             labelCol={{ span: 4 }}
             wrapperCol={{ span: 20 }}
@@ -42,7 +42,7 @@ export const NodesConfigAddModal = NiceModal.create(() => {
             >
                 <Input placeholder='eg dn1 or dn% or empty' />
             </Form.Item>
-
+            
             <Form.Item
                 label={t('配置项')}
                 name='name'
@@ -62,7 +62,7 @@ export const NodesConfigAddModal = NiceModal.create(() => {
                         }))
                     }))} />
             </Form.Item>
-
+            
             <Form.Item
                 label={t('值')}
                 name='value'
@@ -70,7 +70,7 @@ export const NodesConfigAddModal = NiceModal.create(() => {
             >
                 <Input />
             </Form.Item>
-
+            
             <Form.Item wrapperCol={{ offset: 9, span: 15 }}>
                 <Button
                     className='mr-btn'
@@ -78,7 +78,7 @@ export const NodesConfigAddModal = NiceModal.create(() => {
                 >
                     {t('取消')}
                 </Button>
-
+                
                 <Button
                     type='primary'
                     htmlType='submit'

@@ -15,21 +15,21 @@ import { _2_strs, strs_2_nodes } from './utils.js'
 
 const { Search } = Input
 
-export function NodesManagement() {
+export function NodesManagement () {
 
-    const [nodes, set_nodes] = useState<ClusterNode[]>([])
-
+    const [nodes, set_nodes] = useState<ClusterNode[]>([ ])
+    
     const [search_key, set_search_key] = useState('')
-
+    
     const actionRef = useRef<ActionType>()
-
+    
     const { mutate } = useSWR('/get/nodes', async () => config.get_cluster_nodes(), {
         onSuccess: data => {
             const nodes = strs_2_nodes(data.value as any[])
             set_nodes(nodes)
         }
     })
-
+    
     const cols: ProColumns<ClusterNode>[] = useMemo(() => ([
         {
             title: t('别名'),
@@ -67,7 +67,7 @@ export function NodesManagement() {
                     text: t('代理节点'),
                     value: 'agent',
                 },
-
+                
             },
             fieldProps: {
                 placeholder: t('请选择节点类型'),
@@ -137,15 +137,15 @@ export function NodesManagement() {
             ],
         },
     ]), [nodes])
-
+    
     const delete_nodes = useCallback(async (node_id: string) => {
         const new_nodes = _2_strs(nodes).filter(nod => nod !== node_id)
         await config.save_cluster_nodes(new_nodes)
         await mutate()
     }
         , [nodes])
-
-
+        
+        
     return <EditableProTable
         rowKey='id'
         columns={cols as any}
@@ -189,7 +189,7 @@ export function NodesManagement() {
         editable={
             {
                 type: 'single',
-
+                
                 onSave: async (rowKey, data, row) => {
                     const node_strs = _2_strs(nodes)
                     let idx = node_strs.indexOf(rowKey as string)
