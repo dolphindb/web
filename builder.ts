@@ -75,8 +75,8 @@ export let builder = {
                         title: 'DolphinDB',
                         icon: './ico/logo.png',
                         mscripts: [
-                            './pre-bundle/entries/formily.js',
-                            './pre-bundle/entries/antd-pro-components.js'
+                            './pre-bundle/formily.js',
+                            './pre-bundle/antd-pro-components.js'
                         ],
                         dependencies: ['antd-icons', 'antd-plots', 'lodash'],
                     },
@@ -148,7 +148,7 @@ export let builder = {
                         fpd_root,
                         fpd_pre_bundle_dist,
                         `${fpd_ramdisk_root}webpack/`,
-                        { [`${entry}.js`]: `pre-bundle/${entry}.ts` },
+                        { [`${entry}.js`]: `pre-bundle/entries/${entry}.ts` },
                         {
                             source_map: !production,
                             external_dayjs: true,
