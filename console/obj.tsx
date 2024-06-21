@@ -719,8 +719,13 @@ export function Table ({
                                 
                                 download_file(
                                     `${name}.csv`, 
-                                    (await ddb.call('get_csv_content', [obj ?? info.name, new DdbInt(start), new DdbInt(end)]))
-                                        .data<string[]>().join('')
+                                    URL.createObjectURL(new Blob(
+                                        [
+                                            new Uint8Array([0xEF, 0xBB, 0xBF]),
+                                            (await ddb.call('get_csv_content', [obj ?? info.name, new DdbInt(start), new DdbInt(end)])).value as Uint8Array
+                                        ], 
+                                        { type: 'text/plain' }
+                                    ))
                                 )
                             } finally {
                                 set_loading(false)

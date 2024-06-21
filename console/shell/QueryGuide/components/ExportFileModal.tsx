@@ -34,7 +34,13 @@ export const ExportFileModal = NiceModal.create((props: IProps) => {
             else
                 text = (safe_json_parse(new TextDecoder().decode((await request('dbms_executeQuery', { code }))))).csvContent
             
-            download_file(`${name}.csv`, text)
+            download_file(`${name}.csv`, URL.createObjectURL(new Blob(
+                [
+                    new Uint8Array([0xEF, 0xBB, 0xBF]),
+                    text
+                ], 
+                { type: 'text/plain' }
+            )))
                 
             action.setFalse()
             modal.hide()
