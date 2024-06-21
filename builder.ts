@@ -75,8 +75,8 @@ export let builder = {
                         title: 'DolphinDB',
                         icon: './ico/logo.png',
                         mscripts: [
-                            './pre-bundle/formily.js',
-                            './pre-bundle/antd-pro-components.js'
+                            './pre-bundle/entries/formily.js',
+                            './pre-bundle/entries/antd-pro-components.js'
                         ],
                         dependencies: ['antd-icons', 'antd-plots', 'lodash'],
                     },
