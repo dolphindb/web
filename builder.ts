@@ -25,12 +25,20 @@ export let builder = {
     bundler: null as Bundler,
     
     
+    pre_bundle_entries: ['formily', 'antd-pro-components'],
+    
+    
     async build (production: boolean, version_name?: string) {
         console.log(`开始构建${production ? '生产' : '开发'}模式的 web`)
         
         let git = new Git(fpd_root)
         
         let info = await git.get_version_info(version_name)
+        
+        const source_map = !production
+        
+        // 和 build_bundles 中的保持一致
+        const fpd_pre_bundle_dist = `${ ramdisk ? `${fpd_ramdisk_root}pre-bundle/` : `${fpd_pre_bundle}dist/` }${ production ? 'production' : 'dev' }/`
         
         this.bundler ??= new Bundler(
             'web',
@@ -43,7 +51,7 @@ export let builder = {
                 'window.js': './console/window.tsx'
             },
             {
-                source_map: !production,
+                source_map,
                 external_dayjs: true,
                 externals: {
                     // 使用官方的 node_modules/@ant-design/pro-components/dist/pro-components.min.js 会有样式问题
@@ -77,10 +85,10 @@ export let builder = {
                             src: 'src/ico/logo.png',
                             out: 'ico/logo.png'
                         },
-                        mscripts: [
-                            './pre-bundle/formily.js',
-                            './pre-bundle/antd-pro-components.js'
-                        ],
+                        mscripts: this.pre_bundle_entries.map((entry: string) => ({
+                            src: `${fpd_pre_bundle_dist}${entry}.js`, 
+                            out: 'pre-bundle/formily.js'
+                        })),
                         dependencies: ['antd-icons', 'antd-plots', 'lodash'],
                     },
                     
@@ -111,7 +119,12 @@ export let builder = {
                         ... ['zh', 'en'].map(language => 
                             ({ src: `node_modules/dolphindb/docs.${language}.json`, out: `docs.${language}.json` })),
                         
-                        'src/'
+                        'src/',
+                        
+                        ... source_map ? this.pre_bundle_entries.map(entry => ({
+                            src: `${fpd_pre_bundle_dist}${entry}.js.map`, 
+                            out: `pre-bundle/${entry}.js.map`
+                        })) : [ ],
                     ]
                 }
             }
@@ -129,25 +142,14 @@ export let builder = {
         const fpd_pre_bundle_dist = `${ ramdisk ? `${fpd_ramdisk_root}pre-bundle/` : `${fpd_pre_bundle}dist/` }${ production ? 'production' : 'dev' }/`
         const fp_cache_package_json = `${fpd_pre_bundle_dist}package.json`
         
-        const entries = ['formily', 'antd-pro-components']
-        
-        async function fcopy_dist_to_out (entry: string) {
-            return Promise.all([
-                fcopy(`${fpd_pre_bundle_dist}${entry}.js`, `${fpd_out}pre-bundle/${entry}.js`, { print: false }),
-                !production && fcopy(`${fpd_pre_bundle_dist}${entry}.js.map`, `${fpd_out}pre-bundle/${entry}.js.map`, { print: false })
-            ])
-        }
-        
         // pre-bundle/entries 中的文件内容改了之后需要禁用这个缓存逻辑（一般不会改）
-        if (await fequals(fp_project_package_json, fp_cache_package_json, { print: false }))  // 已有 pre-bundle 缓存
-            await Promise.all(
-                entries.map(async entry => {
-                    console.log(`${entry} 已有预打包文件`)
-                    await fcopy_dist_to_out(entry)
-                }))
+        if (await fequals(fp_project_package_json, fp_cache_package_json, noprint))  // 已有 pre-bundle 缓存
+            this.pre_bundle_entries.forEach(entry => {
+                console.log(`${entry} 已有预打包文件`)
+            })
         else {
             await Promise.all(
-                entries.map(async entry => {
+                this.pre_bundle_entries.map(async entry => {
                     let bundler = new Bundler(
                         entry,
                         'web',
@@ -156,19 +158,15 @@ export let builder = {
                         `${fpd_ramdisk_root}webpack/`,
                         { [`${entry}.js`]: `./pre-bundle/entries/${entry}.ts` },
                         {
-                            source_map: !production,
                             external_dayjs: true,
                         }
                     )
                     
-                    await Promise.all([
-                        bundler.build_all_and_close(),
-                        fcopy_dist_to_out(entry)
-                    ])
+                    await bundler.build_all_and_close()
                 })
             )
             
-            await fcopy(fp_project_package_json, fp_cache_package_json, { print: false })
+            await fcopy(fp_project_package_json, fp_cache_package_json, noprint)
         }
     },
     
