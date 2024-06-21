@@ -74,7 +74,7 @@ export let builder = {
                     'index.html': {
                         title: 'DolphinDB',
                         icon: {
-                            src: 'console/ico/logo.png',
+                            src: 'src/ico/logo.png',
                             out: 'ico/logo.png'
                         },
                         mscripts: [
@@ -87,7 +87,7 @@ export let builder = {
                     'window.html': {
                         title: 'DdbObj',
                         icon: {
-                            src: 'console/ico/logo.png',
+                            src: 'src/ico/logo.png',
                             out: 'ico/logo.png'
                         },
                         fp_entry: './window.js',
