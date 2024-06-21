@@ -85,11 +85,11 @@ export let builder = {
                             src: 'src/ico/logo.png',
                             out: 'ico/logo.png'
                         },
-                        mscripts: this.pre_bundle_entries.map((entry: string) => ({
+                        mscripts: this.pre_bundle_entries.map(entry => ({
                             src: `${fpd_pre_bundle_dist}${entry}.js`, 
-                            out: 'pre-bundle/formily.js'
+                            out: `pre-bundle/${entry}.js`
                         })),
-                        dependencies: ['antd-icons', 'antd-plots', 'lodash'],
+                        dependencies: ['antd-icons', 'antd-plots', 'xterm', 'lodash', 'echarts', 'gridstack'],
                     },
                     
                     'window.html': {
