@@ -148,7 +148,7 @@ export let builder = {
                         fpd_root,
                         fpd_pre_bundle_dist,
                         `${fpd_ramdisk_root}webpack/`,
-                        { [`${entry}.js`]: `pre-bundle/entries/${entry}.ts` },
+                        { [`${entry}.js`]: `./pre-bundle/entries/${entry}.ts` },
                         {
                             source_map: !production,
                             external_dayjs: true,
