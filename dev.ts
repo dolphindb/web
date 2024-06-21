@@ -2,11 +2,11 @@ import type { Context } from 'koa'
 
 import {
     request_json, inspect, Remote, set_inspect_options,
-    type RequestError, fexists, assert
+    fexists, assert, ramdisk
 } from 'xshell'
 import { Server } from 'xshell/server.js'
 
-import { webpack, fpd_root, fpd_node_modules, fpd_src_console, fpd_src_cloud, ramdisk } from './webpack.js'
+import { builder, fpd_root, fpd_out } from './builder.js'
 
 
 // k8s 开发环境需要使用自签名的证书
@@ -27,38 +27,20 @@ class DevServer extends Server {
                     'x-ddb': dapi
                 }
             },
-            headers
         } = ctx
         
         let { request, response } = ctx
         
-        if (
-            request.path === '/console' ||
-            request.path === '/cloud'
-        ) {
-            const path_ = `${request.path}/`
-            response.redirect(path_)
-            response.status = 301
-            console.log(`301 重定向  ${request.originalUrl} → ${path_}`.yellow)
-            return true
-        }
-        
-        if (request.path === '/console/') {
+        if (request.path === '/') {
             this.ddb_backend = `${query.hostname || '127.0.0.1'}:${query.port || '8848'}`
-            request.path = '/console/index.dev.html'
+            request.path = '/index.dev.html'
         }
-        
-        if (request.path === '/cloud/')
-            request.path = '/cloud/index.dev.html'
-        
-        if (request.path === '/cloud/ddb.svg')
-            request.path = '/console/ddb.svg'
         
         const { path } = request
         
         if (path === '/api/recompile') {
             response.status = 200
-            await webpack.run()
+            await builder.run()
             return true
         }
         
@@ -69,71 +51,12 @@ class DevServer extends Server {
             return true
         }
         
-        if (path.startsWith('/v1/') || path === '/login') {
-            try {
-                response.body = await request_json(`https://192.168.0.107:30443${path}`, {
-                    method: method as any,
-                    queries: query,
-                    headers: headers as Record<string, string>,
-                    body,
-                })
-            } catch (error) {
-                console.log(error)
-                if (error.response) {
-                    const { body, status }: RequestError['response'] = error.response
-                    response.body = body
-                    response.status = status
-                    response.type = 'json'
-                } else {
-                    response.status = 500
-                    response.body = inspect(error, { colors: false })
-                }
-            }
-            return true
-        }
-        
-        for (const prefix of ['/console/vs/', '/min-maps/vs/'] as const)
-            if (path.startsWith(prefix)) {
-                await this.try_send(ctx, `${fpd_node_modules}monaco-editor/dev/vs/`, path.slice(prefix.length), true)
-                return true
-            }
-        
-        for (const prefix of ['/console/vendors/', '/cloud/vendors/'] as const)
-            if (path.startsWith(prefix)) {
-                await this.try_send(ctx, fpd_node_modules, path.slice(prefix.length), true)
-                return true
-            }
-        
-        if (path === '/console/docs.zh.json' || path === '/console/docs.en.json') {
-            await this.fsend(ctx, `${fpd_node_modules}dolphindb/${path.slice('/console/'.length)}`, { absolute: true })
-            return true
-        }
-        
-        const project = /^\/(console|cloud)\//.exec(path)?.[1] as undefined | 'console' | 'cloud'
-        if (project) {
-            // 去掉前面 /console/ 部分的剩余路径
-            const fp = path.slice(project.length + 2)
-            
-            return (
-                (project === 'console' && await this.try_send(ctx, `${fpd_root}src/`, fp, false)) ||
-                
-                // index.js
-                await this.try_send(
-                    ctx,
-                    `${webpack.config.output.path}${ project === 'console' ? 'web' : 'web.cloud' }/`,
-                    fp,
-                    false
-                ) ||
-                
-                // index.html
-                this.try_send(
-                    ctx,
-                    project === 'console' ? fpd_src_console : fpd_src_cloud,
-                    fp,
-                    true
-                )
-            )
-        }
+        await this.try_send(
+            ctx,
+            fpd_out,
+            path.slice(1),
+            true
+        )
     }
 }
 
@@ -152,52 +75,48 @@ let server = new DevServer({
 
 await Promise.all([
     server.start(),
-    webpack.build_bundles(false),
-    webpack.build({ production: false })
+    builder.build_bundles(false),
+    builder.build(false)
 ])
 
 
 let remote: Remote
 
 
-if (process.argv.includes('--watch')) 
-    webpack.watch()
-else {
-    // 监听终端快捷键
-    // https://stackoverflow.com/a/12506613/7609214
+// 监听终端快捷键
+// https://stackoverflow.com/a/12506613/7609214
+
+let { stdin } = process
+
+stdin.setRawMode(true)
+
+stdin.resume()
+
+stdin.setEncoding('utf-8')
+
+// on any data into stdin
+stdin.on('data', function (key: any) {
+    // ctrl-c ( end of text )
+    if (key === '\u0003')
+        process.exit()
     
-    let { stdin } = process
+    // write the key to stdout all normal like
+    console.log(key)
     
-    stdin.setRawMode(true)
-    
-    stdin.resume()
-    
-    stdin.setEncoding('utf-8')
-    
-    // on any data into stdin
-    stdin.on('data', function (key: any) {
-        // ctrl-c ( end of text )
-        if (key === '\u0003')
+    switch (key) {
+        case 'r':
+            builder.run()
+            break
+            
+        case 'x':
+            remote?.disconnect()
             process.exit()
-        
-        // write the key to stdout all normal like
-        console.log(key)
-        
-        switch (key) {
-            case 'r':
-                webpack.run()
-                break
-                
-            case 'x':
-                remote?.disconnect()
-                process.exit()
-                
-            case 'i':
-                console.log(info)
-                break
-        }
-    })
-}
+            
+        case 'i':
+            console.log(info)
+            break
+    }
+})
 
 
 if (ramdisk) {
@@ -211,12 +130,12 @@ if (ramdisk) {
         
         funcs: {
             async recompile () {
-                await webpack.run()
+                await builder.run()
                 return [ ]
             },
             
             async exit () {
-                await webpack.close()
+                await builder.close()
                 remote.disconnect()
                 process.exit()
             }
