@@ -145,20 +145,18 @@ export let builder = {
                     let bundler = new Bundler(
                         entry,
                         'web',
-                        `${fpd_pre_bundle}entries/`,
+                        fpd_root,
                         fpd_pre_bundle_dist,
                         `${fpd_ramdisk_root}webpack/`,
-                        { [`${entry}.js`]: `./${entry}.ts` },
+                        { [`${entry}.js`]: `pre-bundle/${entry}.ts` },
                         {
                             source_map: !production,
                             external_dayjs: true,
                         }
                     )
                     
-                    await bundler.build()
-                    
                     await Promise.all([
-                        bundler.close(),
+                        bundler.build_all_and_close(),
                         fcopy_dist_to_out(entry)
                     ])
                 })
