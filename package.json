@@ -54,6 +54,9 @@
         "@formily/core": "^2.3.1",
         "@formily/react": "^2.3.1",
         "@monaco-editor/react": "^4.6.0",
+        "@xterm/addon-fit": "^0.10.0",
+        "@xterm/addon-webgl": "^0.18.0",
+        "@xterm/xterm": "^5.5.0",
         "ahooks": "^3.8.0",
         "antd": "^5.18.3",
         "classnames": "^2.5.1",
@@ -80,10 +83,7 @@
         "tslib": "^2.6.3",
         "vscode-oniguruma": "^2.0.1",
         "vscode-textmate": "^9.0.0",
-        "xshell": "^1.0.141",
-        "xterm": "^5.3.0",
-        "xterm-addon-fit": "^0.8.0",
-        "xterm-addon-webgl": "^0.16.0"
+        "xshell": "^1.0.141"
     },
     "pnpm": {
         "patchedDependencies": {
