@@ -77,7 +77,7 @@ export let builder = {
                 license: {
                     ignores: ['dolphindb-web']
                 },
-                dependencies: ['antd-icons', 'antd-plots', 'lodash', 'xterm', 'gridstack', 'echarts'],
+                dependencies: ['antd-icons', 'antd-plots', 'lodash', 'xterm', 'gridstack', 'echarts', 'quill', 'vscode-oniguruma', 'monaco'],
                 htmls: {
                     'index.html': {
                         title: 'DolphinDB',
