@@ -119,8 +119,8 @@ export let builder = {
                         ... ['zh', 'en'].map(language => 
                             ({ src: `node_modules/dolphindb/docs.${language}.json`, out: `docs.${language}.json` })),
                         
-                        // ... (await flist(`${fpd_root}src/`, noprint))
-                        //         .map(fp => ({ src: `src/${fp}`, out: fp })),
+                        ... (await flist(`${fpd_root}src/`, noprint))
+                                .map(fp => ({ src: `src/${fp}`, out: fp })),
                         
                         ... source_map ? this.pre_bundle_entries.map(entry => ({
                             src: `${fpd_pre_bundle_dist}${entry}.js.map`, 
