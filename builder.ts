@@ -73,7 +73,10 @@ export let builder = {
                 htmls: {
                     'index.html': {
                         title: 'DolphinDB',
-                        icon: './ico/logo.png',
+                        icon: {
+                            src: 'console/ico/logo.png',
+                            out: 'ico/logo.png'
+                        },
                         mscripts: [
                             './pre-bundle/formily.js',
                             './pre-bundle/antd-pro-components.js'
@@ -83,7 +86,10 @@ export let builder = {
                     
                     'window.html': {
                         title: 'DdbObj',
-                        icon: './ico/logo.png',
+                        icon: {
+                            src: 'console/ico/logo.png',
+                            out: 'ico/logo.png'
+                        },
                         fp_entry: './window.js',
                         dependencies: ['antd-icons', 'antd-plots', 'lodash'],
                     }
