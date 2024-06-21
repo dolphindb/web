@@ -1,4 +1,4 @@
-import { fcopy, fequals, ramdisk, fwrite, noprint } from 'xshell'
+import { fcopy, fequals, ramdisk, fwrite, noprint, flist } from 'xshell'
 import { Git } from 'xshell/git.js'
 import { Bundler } from 'xshell/builder.js'
 
@@ -119,7 +119,8 @@ export let builder = {
                         ... ['zh', 'en'].map(language => 
                             ({ src: `node_modules/dolphindb/docs.${language}.json`, out: `docs.${language}.json` })),
                         
-                        'src/',
+                        ... (await flist(`${fpd_root}src/`, noprint))
+                                .map(async fp => ({ src: `src/${fp}`, out: fp })),
                         
                         ... source_map ? this.pre_bundle_entries.map(entry => ({
                             src: `${fpd_pre_bundle_dist}${entry}.js.map`, 
