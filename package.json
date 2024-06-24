@@ -7,7 +7,6 @@
     "scripts": {
         "install.ci": "pnpm ci --include=dev",
         "dev": "tsc --project ./tsconfig.node.json && node ./dev.js",
-        "dev:watch": "tsc --project ./tsconfig.node.json && node ./dev.js --watch",
         "typecheck": "tsc --noEmit",
         "build": "tsc --project ./tsconfig.node.json && node ./build.js",
         "build.cloud": "tsc --project ./tsconfig.node.json && node ./build.js cloud",
