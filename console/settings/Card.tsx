@@ -43,8 +43,7 @@ export function Card ({
         </div>
         <div className='right'>
             <Popconfirm
-                title={t('{{label}}{{active_label}}提示', { active_label, label })}
-                description={active ? deactivate_prompt : activate_prompt}
+                title={active ? deactivate_prompt : activate_prompt}
                 onConfirm={async () => {
                     let enabled_modules_ = new Set(enabled_modules)
                     

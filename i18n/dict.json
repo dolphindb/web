@@ -3969,10 +3969,10 @@
         "en": "streaming_sub"
     },
     "停用": {
-        "en": "deactivate"
+        "en": "Disable"
     },
     "启用": {
-        "en": "activate"
+        "en": "Enable"
     },
     "{{label}}{{active_label}}提示": {
         "en": "{{label}} {{active_label}} tips"
@@ -3980,8 +3980,419 @@
     "{{label}}{{active_label}}成功": {
         "en": "{{label}} {{active_label}} successfully"
     },
-    "可选模块": {
-        "en": "Optional Modules"
+    "可选功能": {
+        "en": "Optional Features"
+    },
+    "表结构必须大于等于三列": {
+        "en": "The table structure must be greater than or equal to three columns"
+    },
+    "库名": {
+        "en": "Database Name"
+    },
+    "请输入库名": {
+        "en": "Please enter a database name."
+    },
+    "已有同名库，请修改": {
+        "en": "A database with the same name already exists."
+    },
+    "请输入表名": {
+        "en": "Please enter a table name."
+    },
+    "仅支持数字、大小写字母、中文以及下划线，且必须以中文或英文字母开头": {
+        "en": "The name can only use letters, digits or underscores (_), and must start with letters."
+    },
+    "是否为时序数据": {
+        "en": "Time-Series Data"
+    },
+    "按时间顺序记录的数据": {
+        "en": "A sequence of data points collected over time intervals"
+    },
+    "日增数据量": {
+        "en": "Daily Increment"
+    },
+    "0 - 10 万": {
+        "en": "0 - 100K"
+    },
+    "10 万 - 100 万": {
+        "en": "100K - 1M"
+    },
+    "100 万 - 1000 万": {
+        "en": "1M - 10M"
+    },
+    "1000 万 - 1 亿": {
+        "en": "10M - 100M"
+    },
+    "1 亿 - 10 亿": {
+        "en": "100M - 1B"
+    },
+    "10 亿 - 100 亿": {
+        "en": "1B - 10B"
+    },
+    "100 亿以上": {
+        "en": "Over 10B"
+    },
+    "自定义日增数据量": {
+        "en": "Custom Daily Increment"
+    },
+    "请输入自定义日增数据量": {
+        "en": "Please enter a daily increment."
+    },
+    "数据总量": {
+        "en": "Total Data Volume"
+    },
+    "0 - 200 万": {
+        "en": "0 - 2M"
+    },
+    "200 万以上": {
+        "en": "Over 2M"
+    },
+    "自定义数据总量": {
+        "en": "Custom Total Data Volume"
+    },
+    "请输入自定义数据总量": {
+        "en": "Please enter a total data volume"
+    },
+    "测点数": {
+        "en": "Number of Measurements"
+    },
+    "以车联网数据采集场景为例说明测点含义。一辆车有发动机、轮胎、油箱等传感器，需要采集发动机、轮胎、油箱等数据，在这个场景中，测点是车辆，而不是传感器。": {
+        "en": "Supposing a vehicle has multiple sensors collecting data from its components (such as engines, tires, and tanks), the measurement refers to the vehicle, not the sensor."
+    },
+    "请输入测点数": {
+        "en": "Please enter the number of measurements."
+    },
+    "已配置该列，请修改": {
+        "en": "This column is already set."
+    },
+    "请选择数据类型": {
+        "en": "Please select the column type."
+    },
+    "DECIMAL 精度": {
+        "en": "scale"
+    },
+    "DECIMAL32 精度有效范围是[0, 9]，DECIMAL64 精度有效范围是[0, 18]，DECIMAL128 精度有效范围是[0,38]": {
+        "en": "The scale range is [0,9] for DECIMAL32, [0,18] for DECIMAL64, and [0,38] for DECIMAL128."
+    },
+    "请输入备注": {
+        "en": "Please set the column comment."
+    },
+    "增加列配置": {
+        "en": "Add Column"
+    },
+    "时序数据或总数据量大于 200 万的非时序数据，表结构至少有一列时间列与枚举列": {
+        "en": "For time-series data (or non-time-series data with volume over 2M), the table must contain at least one time column and one enumeration column."
+    },
+    "表结构至少包含一列时间列": {
+        "en": "The table must contain at least one time column."
+    },
+    "请注意，时序数据或总数据量大于200万的非时序数据的表结构至少需要一列时间列与枚举列，其余数据表结构至少需要一列枚举列，时间列类型包括DATE、DATETIME、TIMESTAMP、NANOTIMESTAMP，枚举列类型包括STRING、SYMBOL、CHAR。": {
+        "en": "Note: For time-series data (or non-time-series data with volume over 2M), at least one time column and one enumeration column are required. For other cases, at least one enumeration column is required. A temporal type can be DATE, DATETIME, TIMESTAMP, or NANOTIMESTAMP, and an enumerated type can be STRING, SYMBOL, or CHAR."
+    },
+    "导入表文件": {
+        "en": "Import Table"
+    },
+    "导入方式": {
+        "en": "Source"
+    },
+    "本地导入": {
+        "en": "Local"
+    },
+    "服务器导入": {
+        "en": "Remote"
+    },
+    "自定义分隔符": {
+        "en": "Custom Delimiter"
+    },
+    "默认分隔符为 ','，可自定义分隔符": {
+        "en": "The default delimiter is ',' (comma). Please enter a custom delimiter."
+    },
+    "仅支持上传 csv 文件与 txt 文件": {
+        "en": "Only CSV and TXT files are supported."
+    },
+    "文件地址": {
+        "en": "File Path"
+    },
+    "请输入文件在服务器的绝对路径地址": {
+        "en": "Please enter the absolute path of the file on the server."
+    },
+    "常用筛选列": {
+        "en": "Filter Columns"
+    },
+    "请选择常用筛选列": {
+        "en": "Please select filter columns"
+    },
+    "常用筛选列是查询时常作为常选条件的列，越重要的过滤条件，在筛选列中的位置越靠前。": {
+        "en": "The filter columns are columns that are frequently used as filtering conditions in queries. It is recommended to arrange these columns by query frequency, with the most commonly used one at the beginning of the list."
+    },
+    "请选择两个常用筛选列，时序数据或者数据总量大于 200 万的非时序第一列需为时间列，第二列需为设备编号列": {
+        "en": "Select two filter columns. For time-series data or non-time-series data with total volume over 2M, the first column must be a time column, and the second column must be a device ID column. For other cases, the first column must be a device ID column."
+    },
+    "表结构中无 {{name}} 列，请修改": {
+        "en": "Column {{name}} does not exist."
+    },
+    "请选择两个常用筛选列": {
+        "en": "Please select two filter columns."
+    },
+    "第一个常用筛选列必须为时间类型（DATE、DATETIME、TIMESTAMP、NANOTIMESTAMP）": {
+        "en": "The first filter column must be of temporal type (DATE, DATETIME, TIMESTAMP, or NANOTIMESTAMP)."
+    },
+    "第二个常用筛选列必须为枚举类型（CHAR、SYMBOL、STRING）": {
+        "en": "The second filter column must be of enumerated type (CHAR, SYMBOL, or STRING)."
+    },
+    "存储引擎": {
+        "en": "Storage Engine"
+    },
+    "存储引擎的选择与业务有关，若您的计算需求常以一定的时间跨度进行，推荐使用 TSDB 存储引擎；若您的查询常用于全量数据的密集计算，推荐使用 OLAP 存储引擎": {
+        "en": "TSDB storage engine is recommended for computations over data within a specific time period; OLAP is recommended for queries on the entire dataset."
+    },
+    "是否允许并发写入同一分区": {
+        "en": "Enable Concurrent Writes to the Same Partition"
+    },
+    "允许并发写入同一分区，会降低写入速度，且有极小概率导致数据不一致": {
+        "en": "Enabling concurrent writes will decrease the write speed and could pose a minimal risk of data inconsistency."
+    },
+    "建议不允许并发写入同一分区": {
+        "en": "It is recommended to disable this feature."
+    },
+    "请选择分区列": {
+        "en": "Please select the partitioning columns."
+    },
+    "请选择两个分区列，第一个分区列为数据时间列，第二个分区列为设备编号列。": {
+        "en": "Please select two partitioning columns: The first is a time column and the second is a deviceID column."
+    },
+    "第一个分区列需为时间类型 DATE、DATETIME、TIMESTAMP 或 NANOTIMESTAMP": {
+        "en": "The first partitioning column must be of DATE, DATETIME, TIMESTAMP or NANOTIMESTAMP type"
+    },
+    "除第一列外，其余分区列的数据类型需为 STRING、SYMBOL 或 CHAR": {
+        "en": "The data type of other partitioning columns must be STRING, SYMBOL or CHAR"
+    },
+    "分区列的数据类型需为 STRING、SYMBOL 或 CHAR": {
+        "en": "The data type of the partitioning column must be STRING, SYMBOL or CHAR"
+    },
+    "数据时间列": {
+        "en": "Time Column"
+    },
+    "请选择数据时间列": {
+        "en": "Please select the time column"
+    },
+    "唯一值数量": {
+        "en": "Number of Distinct Values"
+    },
+    "请填入唯一值数量": {
+        "en": "Please enter the number of distinct values."
+    },
+    "已配置该常用筛选列，请修改": {
+        "en": "This filter column is already set."
+    },
+    "增加筛选列": {
+        "en": "Add Filter Column"
+    },
+    "除分区列外，请选择查询时常作为过滤条件的列。越重要的过滤条件，在过滤列中的位置越靠前。结合您提供的信息，最多可选择1个常用筛选列,建议第一个过滤列为设备编号列。": {
+        "en": "Apart from the partitioning columns, please select columns that are frequently used as filtering conditions during queries. It is recommended to arrange these columns by query frequency, with the most commonly used one at the beginning of the list. You can specify at most 2 filter columns, and the first one is recommended to be the device ID column."
+    },
+    "重复数据保留策略": {
+        "en": "Keep Duplicates"
+    },
+    "在同一个分区内，常用筛选列与时间列值相同的数据的处理策略，DolphinDB提供了三种策略": {
+        "en": "How to deal with records with duplicate filter columns and time column values."
+    },
+    "ALL：保留所有数据": {
+        "en": "ALL (recommended): keep all records;"
+    },
+    "LAST：仅保留最新数据": {
+        "en": "LAST: only keep the last record;"
+    },
+    "FIRST：仅保留第一条数据": {
+        "en": "FIRST: only keep the first record."
+    },
+    "请选择重复数据保留策略": {
+        "en": "Please select the policy for keeping duplicates."
+    },
+    "生成脚本": {
+        "en": "Generate Script"
+    },
+    "导出表单配置": {
+        "en": "Export Database Configuration"
+    },
+    "立即执行": {
+        "en": "Execute Script"
+    },
+    "确认要执行当前建库脚本吗?": {
+        "en": "Execute the current script?"
+    },
+    "数据库 {{name}}": {
+        "en": "Database: {{name}}"
+    },
+    "数据表 {{name}}": {
+        "en": "Table: {{name}}"
+    },
+    "再次创建": {
+        "en": "Retry"
+    },
+    "错误信息: {{error_msg}}": {
+        "en": "Error Message: {{error_msg}}"
+    },
+    "建库信息": {
+        "en": "Create Database"
+    },
+    "建表信息": {
+        "en": "Create Table"
+    },
+    "是否使用现有库": {
+        "en": "Use Existing Database"
+    },
+    "现有库": {
+        "en": "Database"
+    },
+    "请选择现有库": {
+        "en": "Please select an existing database."
+    },
+    "新建库名": {
+        "en": "Database Name"
+    },
+    "请输入新建库名": {
+        "en": "Please enter a database name."
+    },
+    "日增量": {
+        "en": "Daily Increment"
+    },
+    "请选择日增量": {
+        "en": "Please select a daily increment."
+    },
+    "0 - 1 万": {
+        "en": "0 - 10k"
+    },
+    "1 万 - 10 万": {
+        "en": "10k - 100k"
+    },
+    "总数据量小于 200 万且不新增": {
+        "en": "Total data volume under 2M with no new additions"
+    },
+    "分区列 {{name}}": {
+        "en": "Partitioning Column {{name}}"
+    },
+    "数据类型为 {{data_types}}": {
+        "en": "Data type: {{data_types}}"
+    },
+    "时间列": {
+        "en": "Time Column"
+    },
+    "严格按时序增长排列的时间类型列,将按该列对数据进行分区": {
+        "en": "Specify a partitioning column with time series data collected chronologically."
+    },
+    "请选择时间列": {
+        "en": "Please select the time column."
+    },
+    "标的列": {
+        "en": "Symbol Column"
+    },
+    "如股票ID、期货品种这样的枚举类型列,将按该列对数据进行分区": {
+        "en": "Specify a partitioning column with enumerated values such as security ID and futures contract."
+    },
+    "请选择标的列": {
+        "en": "Please select the symbol column."
+    },
+    "经常用于查询时筛选数据的列，不能是除 INT 外的数值类型，最多只可选两列": {
+        "en": "The filter columns are columns that are frequently used as filtering conditions in queries. It cannot be of numeric types other than INT. At most 2 filter columns can be specified."
+    },
+    "请注意，表结构至少需要一列时间列，时间列类型包括 {{name}}": {
+        "en": "Note: The table must contain at least one time column. A temporal type can be {{name}}."
+    },
+    "请输入唯一值数量": {
+        "en": "Please enter the number of distinct values."
+    },
+    "根据已有数据库的分区信息，选择需要作为划分数据依据的列": {
+        "en": "Select the partitioning columns based on the current partitioning scheme."
+    },
+    "请选择日增数据量": {
+        "en": "Please select a daily increment."
+    },
+    "请输入文件名称": {
+        "en": "Please enter a file name."
+    },
+    "库 {{name}} 下已有该表，请修改表名": {
+        "en": "The table name must be unique in database {{name}}."
+    },
+    "请选择一个分区列（数据时间列）。": {
+        "en": "Please select a partitioning column (time column)."
+    },
+    "除分区列外，请选择查询时常作为过滤条件的列。越重要的过滤条件，在过滤列中的位置越靠前。结合您提供的信息，最多可选择2个常用筛选列,建议第一个过滤列为设备编号列。": {
+        "en": "Apart from the partitioning columns, please select columns that are frequently used as filtering conditions during queries. It is recommended to arrange these columns by query frequency, with the most commonly used one at the beginning of the list."
+    },
+    "结合您提供的信息，最多可选择2个常用筛选列,建议第一个过滤列为设备编号列。": {
+        "en": "You can specify at most two filter columns, and the first one is recommended to be the device ID column."
+    },
+    "结合您提供的信息，最多可选择2个常用筛选列。": {
+        "en": "You can specify at most two filter columns."
+    },
+    "结合您提供的信息，最多可选择1个常用筛选列。": {
+        "en": "You can specify at most one filter column."
+    },
+    "除分区列外，请选择查询时常作为过滤条件的列。越重要的过滤条件，在过滤列中的位置越靠前。结合您提供的信息，最多可选择1个常用筛选列。": {
+        "en": "Apart from the partitioning columns, please select columns that are frequently used as filtering conditions during queries. It is recommended to arrange these columns by query frequency, with the most commonly used one at the beginning of the list. You can specify at most one filter column."
+    },
+    "简易版": {
+        "en": "Basic"
+    },
+    "进阶版": {
+        "en": "Advanced"
+    },
+    "第一步": {
+        "en": "Step 1"
+    },
+    "第二步": {
+        "en": "Step 2"
+    },
+    "导入配置": {
+        "en": "Import Database Configuration"
+    },
+    "点击或将文件拖拽到此区域": {
+        "en": "Drag & drop or click here "
+    },
+    "仅支持上传 JSON 文件": {
+        "en": "to upload a JSON file"
+    },
+    "请上传文件": {
+        "en": " Please upload a database configuration file."
+    },
+    "运维工具": {
+        "en": "Management Tools"
+    },
+    "物联网库表向导": {
+        "en": "Guide for IoT Scenario"
+    },
+    "金融库表向导": {
+        "en": "Guide for Financial Scenario"
+    },
+    "执行结果": {
+        "en": "Execution Result"
+    },
+    "数据库：{{name}}": {
+        "en": "Database: {{name}}"
+    },
+    "数据表：{{name}}": {
+        "en": "Table: {{name}}"
+    },
+    "常用筛选列不能包含分区列": {
+        "en": "Common filter columns cannot contain partition columns"
+    },
+    "此功能专为金融用户设计。用户通过此功能无需设计分区方案或编写复杂的 SQL 语句，只需输入库表名称、列名等基本信息，并通过列表选择参数，即可快速生成建库建表脚本，进而完成库表创建。": {
+        "en": "Guided database and table creation for financial scenarios. This feature allows you to create databases and tables by providing basic information such as database, table, and column names. Simply select parameter values from a list, and the script is automatically generated. No need to worry about partitioning design or write complex SQL statements."
+    },
+    "您确定要启用此功能吗": {
+        "en": "Enable this feature?"
+    },
+    "您确定要停用此功能吗": {
+        "en": "Disable this feature?"
+    },
+    "此功能专为物联网用户设计。用户通过此功能无需设计分区方案或编写复杂的 SQL 语句，只需输入库表名称、列名等基本信息，并通过列表选择参数，即可快速生成建库建表脚本，进而完成库表创建。": {
+        "en": "Guided database and table creation for IoT scenarios.  This feature allows you to create databases and tables by providing basic information such as database, table, and column names. Simply select parameter values from a list, and the script is automatically generated. No need to worry about partitioning design or write complex SQL statements."
+    },
+    "功能设置": {
+        "en": "Feature Settings"
+    },
+    "此工具专为物联网用户设计。用户通过此工具无需设计分区方案或编写复杂的 SQL 语句，只需输入库表名称、列名等基本信息，并通过列表选择参数，即可快速生成建库建表脚本，进而完成库表创建。": {
+        "en": "Guided database and table creation for IoT scenarios.  This tool allows you to create databases and tables by providing basic information such as database, table, and column names. Simply select parameter values from a list, and the script is automatically generated. No need to worry about partitioning design or write complex SQL statements."
     },
     "导出 CSV": {
         "en": "Export CSV"
@@ -4021,5 +4432,14 @@
     },
     "注意：请根据实际的硬件情况选择导出范围，过大的范围可能导致浏览器崩溃！": {
         "en": "Note: Please select the range according to the actual situation. Too large a range may cause the browser to crash!"
+    },
+    "输入限制内存大小，单位为 GB": {
+        "en": "Enter the limit memory size in GB"
+    },
+    "以 \"*\" 结尾，表示指定某个 dbName 的前缀范围，例如 \"dfs://test0*\"": {
+        "en": "Ending with \"*\" means specifying the prefix range of a certain dbName, such as \"dfs://test0*\""
+    },
+    "上限值": {
+        "en": "Limit"
     }
 }

@@ -1,0 +1,862 @@
+/*
+    1.修复建库失败，抛出异常，但是并未将新建的库删掉的BUG
+    2.修复重复sortColumns导致建库失败的BUG
+*/
+
+def DBMSIOT_checkDatabase(args){
+//检查是否存在库
+    dbName = "dfs://"+args.parseExpr().eval()[`dbName]
+    output = dict(STRING,INT)
+    output[`isExist] = iif(existsDatabase(dbName),1,0)
+    return toStdJson(output)
+}
+
+def DBMSIOT_getSchema(args){
+//解析用户上传文件中表的schema,给前端调用的函数             
+    argsJson = args.parseExpr().eval()
+    type = argsJson[`type]
+    content = argsJson[`content]
+    if(type){
+        filePath = content[`filePath]
+        delimiter = content[`delimiter]
+        tmp = select name as colName,type as dataType from  extractTextSchema(filePath,delimiter)
+    }else{
+        filePath = getHomeDir()+"/"+content[`fileName]
+        saveTextFile(content[`fileContent],filePath)
+        delimiter = content[`delimiter]
+        tmp = select name as colName,type as dataType from  extractTextSchema(filePath,delimiter)
+        cmd = "rm -rf " + filePath
+        shell(cmd)
+    }
+    schemaVector = []
+    for(x in tmp){
+        schemaVector.append!(toStdJson(x))
+    }
+    if(schemaVector.size()==1){
+        result = "[" +schemaVector[0]+"]"
+    }else{
+        result = "[" +schemaVector[0]+','
+        for( i in 1..(schemaVector.size()-1)){
+            result = result+schemaVector[i]+","
+        }
+        result = result.substr(0,strlen(result)-1)+"]"
+    }
+    return result
+}
+
+def DBMSIOT_getPerRowSize(colType){
+//获取每一行的大小
+    typeStr = ["BOOL","CHAR","SHORT","INT","FLOAT","DOUBLE","LONG",
+                    "TIME","MINUTE","SECOND","DATETIME",
+                    "DATE","DATEHOUR","DATETIME","TIMESTAMP",
+                    "NANOTIMESTAMP","SYMBOL","STRING","BLOB","DECIMAL32","DECIMAL64","DECIMAL128",
+                    "MONTH","NANOTIME","UUID","IPADDR","INT128","COMPLEX","POINT"
+                ]
+    typeInt =  1 2 4 4 4 8 8 join 
+                4 4 4 4 join 
+                4 4 4 8 8 4 30 102400 4 8 16 join 
+                4 8 16 16 16 16 16
+    typeDict = dict(typeStr,typeInt)
+
+    tmpColType = iif(colType like "DECIMAL32%","DECIAML32",iif(colType like "DECIMAL64%","DECIMAL64",iif(colType like "DECIMAL128%","DECIMAL128",colType)))
+
+    perRowSize = sum(typeDict[tmpColType])
+    return perRowSize    
+}
+
+def DBMSIOT_getPartitionMessage(fstSchema,fstType,sedType,perSize,pointNum){
+//获取每种分区组合下的各种信息
+    planDict = syncDict(STRING,ANY,,true)
+    planDict["firstPartitionType"] = fstType 
+    planDict["firstPartitionSchema"] = fstSchema
+    planDict["sencodPartitionType"] = sedType 
+    totalSize = perSize*pointNum
+    if(sedType == "null"){   //只有一层分区
+        planDict["perPartitionMemSize"] = totalSize
+        planDict["hashNum"] = 0
+        planDict["firstSortKeyNum"] = pointNum
+    }else if(sedType == "value"){ //二层分区为值分区时
+        planDict["perPartitionMemSize"] = perSize
+        planDict["hashNum"] = 0
+        planDict["firstSortKeyNum"] = 1 
+    }else{ //二层分区为hash分区时
+        hashNum = round(totalSize\512)
+        i = 0 
+        do{  //每个分区的大小一定是单个设备大小的整数倍，且要大于512MB
+            i = i+1
+            perPartitionMemSize = perSize * i
+        }while(perPartitionMemSize < totalSize\hashNum)
+        //每个分区大小大于所有分区大小；哈希分区个数等于1；每个hash桶设备的个数小于等于3时，
+        //hash分区方式不成立
+        if(totalSize<perPartitionMemSize || hashNum <= 1  || i<=3){
+            planDict["perPartitionMemSize"] = -1
+            planDict["hashNum"] = -1
+            planDict["firstSortKeyNum"] = -1
+        }else{
+            planDict["perPartitionMemSize"] = perPartitionMemSize
+            planDict["hashNum"] = hashNum
+            planDict["firstSortKeyNum"] = i 
+        }
+    }
+    return planDict 
+}
+
+def DBMSIOT_getPartitionMessages(colType,pointNum,dailyTotalNum){
+//获取所有分区组合下的各种信息
+    t = table(1:0,`firstPartitionType`firstPartitionSchema`secondPartitionType join 
+                    `perPartitionMemSize`hashNum`firstSortKeyNum,
+                    `STRING`STRING`STRING`DOUBLE`INT`INT)
+    perRowSize = DBMSIOT_getPerRowSize(colType)
+        
+    fstSchema = ["hour","daily","month","year"]
+    fstType = ["value"]
+    sedType = ["value","hash","null"]
+    dailyPerPointMemSize = perRowSize*dailyTotalNum\pointNum\1024\1024
+    eachSchemaSize = [dailyPerPointMemSize\24,dailyPerPointMemSize,dailyPerPointMemSize*31,
+        dailyPerPointMemSize*365]
+        
+    for(i in 0..3){
+        for(j in 0..2){
+            tmp = DBMSIOT_getPartitionMessage(fstSchema[i],"value",sedType[j],eachSchemaSize[i],pointNum)
+            insert into t values(tmp.values())
+        }
+    }
+    return t 
+}
+
+def DBMSIOT_getBestPlan(colType,pointNum,dailyTotalNum){
+//获取最佳的分区
+    t = DBMSIOT_getPartitionMessages(colType,pointNum,dailyTotalNum)
+    tmp = select * from t where perPartitionMemSize between 100 and 1000
+    if(tmp.size() == 0){  //为空，证明单个分区太大或者太小
+        t = select * from t where perPartitionMemSize != -1
+        if(max(t[`perPartitionMemSize])<100){  //分区太小，选最大的
+            tmp = select * from t  order by perPartitionMemSize desc limit 1
+        }else if(min(t[`perPartitionMemSize])>1000){  //分区太大，选最小的
+            tmp = select * from t  order by perPartitionMemSize asc limit 1
+        }
+        if(tmp.size()==0){   //这里会存在一种情况，就是测点数只有一个，一级天分区+二级value分区，和一级天分区的结果是一样的。
+            a = select * from t where perPartitionMemSize < 100 order by perPartitionMemSize desc limit 1
+            b = select * from t where perPartitionMemSize > 1000 order by perPartitionMemSize limit 1
+            aa = 100 - a[`perPartitionMemSize][0]
+            bb = b[`perPartitionMemSize][0] - 1000
+            if(aa<=bb){
+                tmp = a
+            }else{
+                tmp = b
+            }
+        }
+    }
+    if(tmp.size()>1){  //如果有多个方案，选择分区schema为daily的方案
+        tmp1 = select * from tmp where  firstPartitionSchema = "daily"
+        if(tmp1.size() == 0){  //如果不存在schema为daily的方案，选择firstSortKeyNum最大的方案
+            tmp2 = select * from tmp order by firstSortKeyNum asc limit 1
+        }else if(tmp1.size()>1){//如果有多个schema为daily的方案，选择firstSortKeyNum最小的方案
+            tmp2 = select * from tmp1 order by   firstSortKeyNum asc limit 1
+        }else{
+            tmp2 = tmp1
+        }
+        tmp = tmp2
+    }
+    return tmp
+}
+
+
+def DBMSIOT_getDimensionTable(dbName,tbName,colName,colType,deltaDict,comment){
+//静态数据小于200w
+        if(sum(comment==null)!=comment.size()){
+            setcomment = "setColumnComment(dt,{"
+            for(i in (0..(comment.size()-1))){
+                if(comment[i]!=null){
+                    setcomment = setcomment + colName[i]+":"+'"'+comment[i]+'"'+","
+                }
+            }
+            setcomment = setcomment.substr(0,strlen(setcomment)-1)+"})"
+        }else{
+            setcomment = null
+        }
+
+        db = "db = database(directory ="+'"'+dbName+'"'+","+"partitionType=VALUE"+","+"partitionScheme=2023.01.01..2023.01.10,engine='OLAP')"
+        dt = "try{dt = db.createTable(table=table(1:0,["
+        for(x in colName){
+            dt = dt + '"'+x+'"'+","
+        }
+        dt = dt.substr(0,strlen(dt)-1)+"],["
+        for(y in colType){
+            dt = dt + '"'+y+'"'+","
+        }
+        dt = dt.substr(0,strlen(dt)-1)+"]),"+'tableName="'+tbName +'"'
+
+
+        if(deltaDict.keys().size() == 0){
+            // dt = dt + ");"+setcomment+"}" + "catch(ex){"+"if(!existsTable('"+dbName+"','"+tbName+"'))throw ex ;"+"dropDatabase("+'"'+dbName+'")}'
+            dt = dt + ");"+setcomment+"}" + "catch(ex){"+"if(!existsTable('"+dbName+"','"+tbName+"')){dropDatabase("+'"'+dbName+'");throw ex}}'
+        }else{
+            dt = dt + ",compressMethods={"
+            for(x in deltaDict.keys()){
+                dt = dt + x +":" + '"delta"'+","
+            }
+            dt = dt.substr(0,strlen(dt)-1)+"});"+setcomment+"}"+"catch(ex){"+"if(!existsTable('"+dbName+"','"+tbName+"')){dropDatabase("+'"'+dbName+'");throw ex}}' 
+        }
+        return db+"\n" + dt
+}
+
+
+def DBMSIOT_getStaticPartitionTable(dbName,tbName,colName,colType,totalNum,sortColumn,deltaDict,comment){
+//静态数据大于200w
+    if(sum(comment==null)!=comment.size()){
+        setcomment = "setColumnComment(pt,{"
+        for(i in (0..(comment.size()-1))){
+            if(comment[i]!=null){
+                setcomment = setcomment + colName[i]+":"+'"'+comment[i]+'"'+","
+            }
+        }
+        setcomment = setcomment.substr(0,strlen(setcomment)-1)+"})"
+    }else{
+        setcomment = null
+    }
+    perRowSize = DBMSIOT_getPerRowSize(colType)
+    totalMemSize = perRowSize * totalNum\1024\1024
+    hashNum = iif(totalMemSize<= 3*512,3,ceil(totalMemSize\512))
+    partitionColumn = [sortColumn[1]] 
+    partitionColumnType = colType[colName  in partitionColumn]
+    db = "db = database(directory ="+'"'+dbName+'"'+",partitionType=HASH,partitionScheme=["+partitionColumnType[0]+","+hashNum+"],engine='TSDB')"
+    pt = "try{pt = db.createPartitionedTable(table=table(1:0,["
+    for(x in colName){
+        pt = pt  + '"'+x+'"'+","
+    }
+    pt = pt.substr(0,strlen(pt)-1)+"],["
+    for(y in colType){
+        pt = pt+ '"'+y+'"'+","
+    }
+    pt = pt.substr(0,strlen(pt)-1)+"]),"+'tableName="'+tbName+'",partitionColumns='
+    for(x in partitionColumn){
+        pt = pt +"`"+x
+    }
+    if(deltaDict.keys().size() != 0){
+        pt = pt + ",compressMethods={"
+        for(x in deltaDict.keys()){
+            pt = pt + x +":" + '"delta"'+","
+        }
+        pt = pt.substr(0,strlen(pt)-1)+"}"
+    }
+    pt = pt + ",sortColumns=" 
+
+    pt = pt + "`"+sortColumn[1]+"`"+sortColumn[0]+");"+setcomment+"}" + "catch(ex){"+"if(!existsTable('"+dbName+"','"+tbName+"')){dropDatabase("+'"'+dbName+'");throw ex}}'   //静态数据大于200w，不进行降维
+
+    return db + "\n" + pt
+}
+
+def DBMSIOT_createDB(args){
+//代码生成
+    q = args.parseExpr().eval()
+    isFreqIncrease = q[`isFreqIncrease]
+    colName = array(STRING)
+    colType = array(STRING)
+    comment = array(STRING)
+    for( i in (0..(q[`schema].size()-1))){
+        msg = q[`schema][i]
+        colName.append!(msg.colName)
+        colType.append!(msg.dataType)
+        comment.append!(msg.comment)
+    }
+    dbName = "dfs://"+q[`dbName]
+    tbName = q[`tbName]
+
+
+    deltaDict = dict(STRING,STRING)
+    deltaCol = colName[colType in [`DATE`DATEHOUR`DATETIME`TIMESTAMP`NANOTIMESTAMP]]
+    deltaDict[deltaCol] = "delta"  //压缩算法
+
+    if(isFreqIncrease){
+        tmp = q[`dailyTotalNum]
+        if(tmp[`gap] == -1){
+            dailyTotalNum = tmp[`custom]
+        }else{
+            gap = dict(INT,LONG)
+            gap[0..6] = 100000 1000000 10000000 100000000 1000000000 10000000000 30000000000
+            dailyTotalNum = gap[tmp[`gap]]/2  //1-10w,取5w；10w-100w，取50w；100w-1000w,取500w...
+        }
+        pointNum = q[`pointNum]
+        sortColumn = q[`sortColumn] //sortColumn
+
+        tmp = DBMSIOT_getBestPlan(colType,pointNum,dailyTotalNum)
+
+        partitionColumn = iif(tmp[`secondPartitionType][0] == "null",sortColumn[0:1],sortColumn[0:2])
+        partitionColumnType = array(STRING)
+        for(x in partitionColumn ){
+            for(i in (0..(colName.size()-1))){
+                if(x == colName[i]){
+                    partitionColumnType.append!(colType[i])
+                }
+            }
+        }
+
+        mapNum = 0
+        if(tmp[`firstSortKeyNum]>1000){
+            if(tmp[`secondPartitionType][0]=="hash"){
+                if(tmp[`hashNum][0]%5 == 0){
+                    mapNum = 5
+                    do{
+                        mapNum = mapNum + 1
+                    }while(tmp[`hashNum][0]%mapNum == 0 )
+                }else{
+                    mapNum = 5
+                }
+            }else{
+                mapNum = 5
+            }
+        }
+        if(tmp[`secondPartitionType][0] == "null"){  //一层分区
+            if(tmp[`firstPartitionSchema]=="year"){
+                db = "db = database(directory ="+'"'+dbName+'"'+","+"partitionType=RANGE"+","+"partitionScheme=yearBegin(1971.01.01..2050.01.01).distinct().sort(),engine='TSDB')"
+            }else if(tmp[`firstPartitionSchema]=="month"){
+                db = "db = database(directory ="+'"'+dbName+'"'+","+"partitionType=VALUE"+","+"partitionScheme=month(2023.01.01)..month(2023.12.01),engine='TSDB')"
+            }else if(tmp[`firstPartitionSchema]=="daily"){
+                db = "db = database(directory ="+'"'+dbName+'"'+","+"partitionType=VALUE"+","+"partitionScheme=2023.01.01..2023.01.10,engine='TSDB')"
+            }else{
+                db = "db = database(directory ="+'"'+dbName+'"'+","+"partitionType=VALUE"+","+"partitionScheme=datehour(2023.01.01T00:00:00)..datehour(2023.01.01T23:00:00),engine='TSDB')"
+            }
+            dbcode = db            
+        }else{ //两层分区
+            if(tmp[`firstPartitionSchema][0]=="year"){
+                fstdb = "fstdb = database(partitionType=RANGE,partitionScheme=yearBegin(1971.01.01..2050.01.01).distinct().sort())"
+            }else if(tmp[`firstPartitionSchema][0]=="month"){
+                fstdb = "fstdb = database(partitionType=VALUE,partitionScheme=month(2023.01.01)..month(2023.12.01))"
+            }else if(tmp[`firstPartitionSchema][0]=="daily"){
+                fstdb = "fstdb = database(partitionType=VALUE,partitionScheme=2023.01.01..2023.01.10)"
+            }else{
+                fstdb = "fstdb = database(partitionType=VALUE,partitionScheme=datehour(2023.01.01T00:00:00)..datehour(2023.01.01T23:00:00))"
+            }
+            if(tmp[`secondPartitionType][0]=="value"){
+                if(partitionColumnType[1] in `STRING`SYMBOL){  
+                    seddb = "seddb = database(partitionType=VALUE,partitionScheme=`deviceId001`deviceId002`deviceId003)"
+                }else{
+                    seddb = "seddb = database(partitionType=VALUE,partitionScheme= 1 2 3 4)"
+                }
+            }else{
+                seddb = "seddb = database(partitionType=HASH,partitionScheme=["+partitionColumnType[1]+","+tmp[`hashNum][0]+"])"
+            }
+            db = "db = database(directory ="+'"'+dbName+'"' +",partitionType=COMPO,partitionScheme=[fstdb,seddb],engine='TSDB')" 
+            dbcode = fstdb + "\n" + seddb + "\n" + db           
+        }
+
+        sortKeyHashMapNum = [mapNum]
+
+        pt = "try{pt = db.createPartitionedTable(table=table(1:0,["
+        for(x in colName){
+            pt = pt + '"'+x+'"'+","
+        }
+        pt = pt.substr(0,strlen(pt)-1)+"],["
+        for(y in colType){
+            pt = pt + '"'+y+'"'+","
+        }
+        pt = pt.substr(0,strlen(pt)-1)+"]),"+'tableName="'+tbName+'",partitionColumns='
+        for(x in partitionColumn){
+            pt = pt +"`"+x
+        }
+        pt = pt + ",compressMethods={"
+        for(x in deltaDict.keys()){
+            pt = pt + x +":" + '"delta"'+","
+        }
+        pt = pt.substr(0,strlen(pt)-1)+"},sortColumns="
+        for( x in sortColumn[1:]){
+            pt = pt + "`" + x
+        }
+        pt = pt +"`"+sortColumn[0]
+
+        if(sum(comment==null)!=comment.size()){
+            setcomment = "setColumnComment(pt,{"
+            for(i in (0..(comment.size()-1))){
+                if(comment[i]!=null){
+                    setcomment = setcomment + colName[i]+":"+'"'+comment[i]+'"'+","
+                }
+            }
+            setcomment = setcomment.substr(0,strlen(setcomment)-1)+"})"
+        }else{
+            setcomment = null
+        }
+
+        if(sum(sortKeyHashMapNum)==0){
+            pt = pt+");"+setcomment+"}" + "catch(ex){"+"if(!existsTable('"+dbName+"','"+tbName+"')){dropDatabase("+'"'+dbName+'");throw ex}}'
+            return dbcode + "\n" + pt
+        }else{
+            mapCode = ",sortKeyMappingFunction=[hashBucket{"+","+sortKeyHashMapNum[0]+"}]);"+setcomment+"}" + "catch(ex){"+"if(!existsTable('"+dbName+"','"+tbName+"')){dropDatabase("+'"'+dbName+'");throw ex}}' 
+            pt = pt+ mapCode
+            return dbcode + "\n" + pt
+        }
+    }else{
+        tmp = q[`totalNum]
+        if(tmp[`gap] == -1){
+            totalNum = tmp[`custom]
+        }else{
+            gap = dict(INT,LONG)
+            gap[0..1] = 2000000 5000000
+            totalNum = gap[tmp[`gap]]
+        }
+        if(totalNum<=2000000){
+            return DBMSIOT_getDimensionTable(dbName,tbName,colName,colType,deltaDict,comment)
+        }else{
+            sortColumn = q[`sortColumn]
+            return DBMSIOT_getStaticPartitionTable(dbName,tbName,colName,colType,totalNum,sortColumn,deltaDict,comment)
+        }            
+    }    
+}
+
+def DBMSIOT_recommendInfo(args){
+    q = args.parseExpr().eval()
+    isFreqIncrease = q[`isFreqIncrease]
+    colName = array(STRING)
+    colType = array(STRING)
+    for( i in (0..(q[`schema].size()-1))){
+        msg = q[`schema][i]
+        colName.append!(msg.colName)
+        colType.append!(msg.dataType)
+    }
+    dbName = "dfs://"+q[`dbName]
+    tbName = q[`tbName]
+    if(isFreqIncrease){
+        tmp = q[`dailyTotalNum]
+        if(tmp[`gap][0] == -1){
+            dailyTotalNum = tmp[`custom]
+        }else{
+            gap = dict(INT,LONG)
+            gap[0..6] = 100000 1000000 10000000 100000000 1000000000 10000000000 30000000000
+            dailyTotalNum = gap[tmp[`gap]]/2
+        }
+        pointNum = q[`pointNum]
+        tmp = DBMSIOT_getBestPlan(colType,pointNum,dailyTotalNum)
+        if(tmp[`secondPartitionType][0]==`null){  //只有一层分区
+            partitionContext="请选择一个分区列（数据时间列）。"
+            sortColumnContextf="除分区列外，请选择查询时常作为过滤条件的列。越重要的过滤条件，在过滤列中的位置越靠前。"
+            sortColumnContexts = "结合您提供的信息，最多可选择2个常用筛选列,建议第一个过滤列为设备编号列。" 
+            partitionNum = 1
+            maxOtherSortKeyNum = 2
+        }else if(tmp[`secondPartitionType][0]==`value){  //第二层分区为value分区
+            partitionContext="请选择两个分区列，第一个分区列为数据时间列，第二个分区列为设备编号列。"
+            sortColumnContextf="除分区列外，请选择查询时常作为过滤条件的列。越重要的过滤条件，在过滤列中的位置越靠前。"
+            sortColumnContexts = "结合您提供的信息，最多可选择2个常用筛选列。" 
+            partitionNum = 2
+            maxOtherSortKeyNum = 2
+        }else{ //第二层分区为hash分区
+            partitionContext="请选择两个分区列，第一个分区列为数据时间列，第二个分区列为设备编号列。"
+            sortColumnContextf="除分区列外，请选择查询时常作为过滤条件的列。越重要的过滤条件，在过滤列中的位置越靠前。"
+            sortColumnContexts = "结合您提供的信息，最多可选择1个常用筛选列。" 
+            partitionNum = 2
+            maxOtherSortKeyNum = 1
+        }
+        result = '{"partitionInfo":{"context":"'+partitionContext+'"'+',"partitionNum":'+partitionNum+'},"sortColumnInfo":{"context":"'+sortColumnContextf+sortColumnContexts+'","maxOtherSortKeyNum":'+maxOtherSortKeyNum+'}}'
+        // result = "{'partitionInfo':{'context':'"+partitionContext+"'"+",'partitionNum':"+partitionNum+"},'sortColumnInfo':{'context':'"+sortColumnContextf+"\n"+sortColumnContexts+"','maxOtherSortKeyNum':"+maxOtherSortKeyNum+"}}"
+        return result
+    }else{
+        tmp = q[`totalNum]
+        if(tmp[`gap][0] == -1){
+            totalNum = tmp[`custom]
+        }else{
+            gap = dict(INT,LONG)
+            gap[0..1] =  2000000 4000000
+            totalNum = gap[tmp[`gap]]
+        }
+        if(totalNum<=2000000){
+            return
+        }else{
+            partitionContext="请选择一个分区列（设备编号列）。"
+            sortColumnContextf="除分区列外，请选择查询时常作为过滤条件的列。越重要的过滤条件，在过滤列中的位置越靠前"
+            sortColumnContexts = "结合您提供的信息,最多可选择1个常用筛选列,建议第一个过滤列为数据时间列。" 
+            partitionNum = 1
+            maxOtherSortKeyNum = 2
+            result = '{"partitionInfo":{"context":"'+partitionContext+'"'+',"partitionNum":'+partitionNum+'},"sortColumnInfo":{"context":"'+sortColumnContextf+sortColumnContexts+'","maxOtherSortKeyNum":'+maxOtherSortKeyNum+'}}'
+            return result
+        }
+    }
+}
+
+def DBMSIOT_getStaticPartitionTableOLAP(dbName,tbName,colName,colType,totalNum,atomic,partitionColumn,partitionColumnType,deltaDict,comment){
+    if(sum(comment==null)!=comment.size()){
+        setcomment = "setColumnComment(pt,{"
+        for(i in (0..(comment.size()-1))){
+            if(comment[i]!=null){
+                setcomment = setcomment + colName[i]+":"+'"'+comment[i]+'"'+","
+            }
+        }
+        setcomment = setcomment.substr(0,strlen(setcomment)-1)+"})"
+    }else{
+        setcomment = null
+    }
+    perRowSize = DBMSIOT_getPerRowSize(colType)
+    totalMemSize = perRowSize * totalNum\1024\1024
+    hashNum = iif(totalMemSize<= 3*512,3,ceil(totalMemSize\512))
+    db = "db = database(directory ="+'"'+dbName+'"'+",partitionType=HASH,partitionScheme=["+partitionColumnType[0]+","+hashNum+"],engine='OLAP',atomic="+'"'+atomic+'")'
+    pt = "try{pt = db.createPartitionedTable(table=table(1:0,["
+    for(x in colName){
+        pt = pt + '"'+x+'"'+","
+    }
+    pt = pt.substr(0,strlen(pt)-1)+"],["
+    for(y in colType){
+        pt = pt+'"'+y+'"'+","
+    }
+    pt = pt.substr(0,strlen(pt)-1)+"]),"+'tableName="'+tbName+'",partitionColumns='
+    for(x in partitionColumn){
+        pt = pt +"`"+x
+    }
+
+    if(deltaDict.keys().size() != 0){
+        pt = pt + ",compressMethods={"
+        for(x in deltaDict.keys()){
+            pt = pt + x +":" + '"delta"'+","
+        }
+        pt = pt.substr(0,strlen(pt)-1)+"}"
+    }
+
+    pt = pt + ");"+setcomment+"}" + "catch(ex){"+"if(!existsTable('"+dbName+"','"+tbName+"')){dropDatabase("+'"'+dbName+'");throw ex}}' 
+    return db + "\n" + pt
+}
+
+def DBMSIOT_getStaticPartitionTableTSDB(dbName,tbName,colName,colType,totalNum,atomic,partitionColumn,partitionColumnType,keepDuplicates,sortColumn,sortKeyNum,deltaDict,comment){
+    if(sum(comment==null)!=comment.size()){
+        setcomment = "setColumnComment(pt,{"
+        for(i in (0..(comment.size()-1))){
+            if(comment[i]!=null){
+                setcomment = setcomment + colName[i]+":"+'"'+comment[i]+'"'+","
+            }
+        }
+        setcomment = setcomment.substr(0,strlen(setcomment)-1)+"})"
+    }else{
+        setcomment = null
+    }
+    
+    perRowSize = DBMSIOT_getPerRowSize(colType)
+    totalMemSize = perRowSize * totalNum\1024\1024
+    hashNum = iif(totalMemSize<= 3*512,3,ceil(totalMemSize\512))
+
+    if(cumprod(sortKeyNum)[sortKeyNum.size()-1]<1000){
+        sortKeyHashMapNum = take(0,sortKeyNum.size())
+    }else{
+        sortKeyHashMapNum = array(INT).append!(0)
+        for(x in sortKeyNum[1:]){
+            if(x < 10){
+                sortKeyHashMapNum.append!(0)
+            }else{
+                sortKeyHashMapNum.append!(10)
+            }
+        }
+    }    
+    db = "db = database(directory ="+'"'+dbName+'"'+",partitionType=HASH,partitionScheme=["+partitionColumnType[0]+","+hashNum+"],engine='TSDB',atomic="+'"'+atomic+'")'
+
+    pt = "try{pt = db.createPartitionedTable(table=table(1:0,["
+    for(x in colName){
+        pt = pt  + '"'+x+'"'+","
+    }
+    pt =pt.substr(0,strlen(pt)-1)+"],["
+    for(y in colType){
+        pt = pt+'"'+y+'"'+","
+    }
+    pt =pt.substr(0,strlen(pt)-1)+"]),"+'tableName="'+tbName+'",partitionColumns=`' + partitionColumn[0]
+    if(deltaDict.keys().size() != 0){
+        pt = pt + ",compressMethods={"
+        for(x in deltaDict.keys()){
+            pt = pt + x +":" + '"delta"'+","
+        }
+        pt = pt.substr(0,strlen(pt)-1) + "}"
+    }
+    pt = pt + ",sortColumns="
+    for( x in sortColumn[1:]){
+        pt = pt + "`" + x
+    }
+    pt = pt +"`"+sortColumn[0]+",keepDuplicates="+keepDuplicates
+    if(sum(sortKeyHashMapNum)==0){
+        pt = pt + ");"+setcomment+"}" + "catch(ex){"+"if(!existsTable('"+dbName+"','"+tbName+"')){dropDatabase("+'"'+dbName+'");throw ex}}'   
+    }else{
+        mapCode = ",sortKeyMappingFunction=[,"
+        for(x in sortKeyHashMapNum[1:]){
+            if(x == 0){
+                mapCode = mapCode + ","
+            }else{
+                mapCode = mapCode + "hashBucket{"+","+x+"}"+","
+            }
+        }
+        mapCode = mapCode.substr(0,strlen(mapCode)-1)+"]);"+setcomment+"}" + "catch(ex){"+"if(!existsTable('"+dbName+"','"+tbName+"')){dropDatabase("+'"'+dbName+'");throw ex}}'
+        pt = pt + mapCode
+    }
+    return db + "\n" + pt
+}
+
+def DBMSIOT_createDB2(args){
+    q = args.parseExpr().eval()
+    isFreqIncrease = q[`isFreqIncrease]
+    colName = array(STRING)
+    colType = array(STRING)
+    comment = array(STRING)
+    for( i in (0..(q[`schema].size()-1))){
+        msg = q[`schema][i]
+        colName.append!(msg.colName)
+        colType.append!(msg.dataType)
+        comment.append!(msg.comment)
+    }
+    dbName = "dfs://"+q[`dbName]
+    tbName = q[`tbName]
+
+    deltaDict = dict(STRING,STRING)
+    deltaCol = colName[colType in [`DATE`DATEHOUR`DATETIME`TIMESTAMP`NANOTIMESTAMP]]
+    deltaDict[deltaCol] = "delta"
+      
+    if(isFreqIncrease){  //时序数据
+        tmp = q[`dailyTotalNum]
+        if(tmp[`gap] == -1){
+            dailyTotalNum = tmp[`custom]
+        }else{
+            gap = dict(INT,LONG)
+            gap[0..6] = 100000 1000000 10000000 100000000 1000000000 10000000000 30000000000
+            dailyTotalNum = gap[tmp[`gap]]/2
+        }
+        pointNum = q[`pointNum]
+        engine = q[`engine]
+        atomic = iif(q[`atomic]==0,"TRANS","CHUNK")
+        partitionColumn = q[`partitionColumn]
+        partitionColumnType = array(STRING)
+        for(x in partitionColumn ){
+            for(i in (0..(colName.size()-1))){
+                if(x == colName[i]){
+                    partitionColumnType.append!(colType[i])
+                }
+            }
+        }
+
+        tmp = DBMSIOT_getBestPlan(colType,pointNum,dailyTotalNum)
+
+        if(tmp[`secondPartitionType][0] == "null"){  //一层分区
+            if(tmp[`firstPartitionSchema][0]=="year"){
+                db = "db = database(directory ="+'"'+dbName+'"'+","+"partitionType=RANGE"+","+"partitionScheme=yearBegin(1971.01.01..2050.01.01).distinct().sort(),engine="+'"'+engine+'",atomic='+'"'+atomic+'")'
+            }else if(tmp[`firstPartitionSchema][0]=="month"){
+                db = "db = database(directory ="+'"'+dbName+'"'+","+"partitionType=VALUE"+","+"partitionScheme=month(2023.01.01)..month(2023.12.01),engine="+'"'+engine+'",atomic='+'"'+atomic+'")'
+            }else if(tmp[`firstPartitionSchema][0]=="daily"){
+                db = "db = database(directory ="+'"'+dbName+'"'+","+"partitionType=VALUE"+","+"partitionScheme=2023.01.01..2023.01.10,engine="+'"'+engine+'",atomic='+'"'+atomic+'")'
+            }else{
+                db = "db = database(directory ="+'"'+dbName+'"'+","+"partitionType=VALUE"+","+"partitionScheme=datehour(2023.01.01T00:00:00)..datehour(2023.01.01T23:00:00),engine="+'"'+engine+'",atomic='+'"'+atomic+'")'
+            }
+            dbcode = db 
+        }else{  //两层分区
+            if(tmp[`firstPartitionSchema][0]=="year"){
+                fstdb = "fstdb = database(partitionType=RANGE,partitionScheme=yearBegin(1971.01.01..2050.01.01).distinct().sort())"
+            }else if(tmp[`firstPartitionSchema][0]=="month"){
+                fstdb = "fstdb = database(partitionType=VALUE,partitionScheme=month(2023.01.01)..month(2023.12.01))"
+            }else if(tmp[`firstPartitionSchema][0]=="daily"){
+                fstdb = "fstdb = database(partitionType=VALUE,partitionScheme=2023.01.01..2023.01.10)"
+            }else{
+                fstdb = "fstdb = database(partitionType=VALUE,partitionScheme=datehour(2023.01.01T00:00:00)..datehour(2023.01.01T23:00:00))"
+            }
+            if(tmp[`secondPartitionType][0]=="value"){
+                if(partitionColumnType[1] in `STRING`SYMBOL){  
+                    seddb = "seddb = database(partitionType=VALUE,partitionScheme=`deviceId001`deviceId002`deviceId003)"
+                }else{
+                    seddb = "seddb = database(partitionType=VALUE,partitionScheme= 1 2 3 4)"
+                }
+            }else{
+                seddb = "seddb = database(partitionType=HASH,partitionScheme=["+partitionColumnType[1]+","+tmp[`hashNum][0]+"])"
+            }
+            db = "db = database(directory ="+'"'+dbName+'"' +",partitionType=COMPO,partitionScheme=[fstdb,seddb],engine="+'"'+engine+'",atomic='+'"'+atomic+'")'
+            dbcode = fstdb +"\n" + seddb + "\n" + db
+        }
+        if(sum(comment==null)!=comment.size()){
+            setcomment = "setColumnComment(pt,{"
+            for(i in (0..(comment.size()-1))){
+                if(comment[i]!=null){
+                    setcomment = setcomment + colName[i]+":"+'"'+comment[i]+'"'+","
+                }
+            }
+            setcomment = setcomment.substr(0,strlen(setcomment)-1)+"})"
+        }else{
+            setcomment = null
+        }
+        
+        if(engine==`OLAP){  //OLAP引擎
+            pt = "try{pt = db.createPartitionedTable(table=table(1:0,["
+            for(x in colName){
+                pt = pt +'"'+x+'"'+","
+            }
+            pt = pt.substr(0,strlen(pt)-1)+"],["
+            for(y in colType){
+                pt = pt+'"'+y+'"'+","
+            }
+            pt =pt.substr(0,strlen(pt)-1)+"]),"+'tableName="'+tbName+'",partitionColumns='
+            for(x in partitionColumn){
+                pt = pt +"`"+x
+            }
+            if(deltaDict.keys().size() != 0){
+                pt = pt + ",compressMethods={"
+                for(x in deltaDict.keys()){
+                    pt = pt + x +":" + '"delta"'+","
+                }
+                pt = pt.substr(0,strlen(pt)-1)+"}"
+            }
+            
+            pt = pt + ");"+setcomment+"}" + "catch(ex){"+"if(!existsTable('"+dbName+"','"+tbName+"')){dropDatabase("+'"'+dbName+'");throw ex}}'
+            return dbcode + "\n" + pt
+        }else{  //TSDB引擎  
+            keepDuplicates = iif(q[`keepDuplicates]==0,"ALL",iif(q[`keepDuplicates]==1,"FIRST","LAST"))
+
+            if(q[`otherSortKeyInfo].size()==1){
+                otherSortKey = [q[`otherSortKeyInfo][0][`colName]]
+                otherSortKeyUniqueNum = [q[`otherSortKeyInfo][0][`uniqueNum]]
+            }else{
+                otherSortKey =  each(values,q[`otherSortKeyInfo])[,0].flatten()
+                otherSortKeyUniqueNum = each(values,q[`otherSortKeyInfo])[,1].flatten()
+            }
+
+            if(tmp[`secondPartitionType][0]==`null){  //一层分区为时间列，设备id列在otherSortKey中
+                sortColumn = partitionColumn  join otherSortKey
+                sortKeyNum = otherSortKeyUniqueNum  
+            }else if(tmp[`secondPartitionType][0]==`value){ //一层分区时间列，二层分区设备id列，sortColumn不必包含设备id列
+                sortColumn = partitionColumn[0]  join otherSortKey
+                sortKeyNum = otherSortKeyUniqueNum  
+            }else{   //一层分区时间列，二层分区设备id列，sortColumn不必包含设备id列
+                if(partitionColumn[1] in otherSortKey){  //如果otherSortKey中包含了hash分区的id列，那么需要做去重
+                    index = find(otherSortKey,partitionColumn[1])
+                    sortColumn = partitionColumn
+                    sortKeyNum = tmp[`firstSortKeyNum]
+                    for( i in (0..(otherSortKey.size()-1))){
+                        if(i != index){
+                            sortColumn = sortColumn join otherSortKey[i]
+                            sortKeyNum = sortKeyNum join otherSortKeyUniqueNum[i]
+                        }
+                    }
+                }else{
+                    sortColumn = partitionColumn  join otherSortKey
+                    sortKeyNum = tmp[`firstSortKeyNum] join  otherSortKeyUniqueNum
+                }                
+            }
+
+
+
+            if(cumprod(sortKeyNum)[sortKeyNum.size()-1]<1000){
+                sortKeyHashMapNum = take(0,sortKeyNum.size())
+            }else{
+                sortKeyHashMapNum = array(INT)
+                if(tmp[`secondPartitionType][0]==`hash){
+                    if(sortKeyNum[0]<100){
+                        sortKeyHashMapNum.append!(0)
+                    }else{ 
+                        if(tmp[`hashNum][0]%5 == 0){
+                            aim = 5
+                            do{
+                                aim = aim + 1
+                            }while(tmp[`hashNum][0]%aim == 0 )
+                            sortKeyHashMapNum.append!(aim)
+                        }else{
+                            sortKeyHashMapNum.append!(5)
+                        }
+                    }
+                    if(sortKeyNum.size() > 1){
+                        for(i in 1..(sortKeyNum.size()-1)){
+                            if(sortKeyNum[i]<10){
+                                sortKeyHashMapNum.append!(0)
+                            }else{
+                                sortKeyHashMapNum.append!(5)
+                            }
+                        }
+                    }
+                }else{
+                    for(i in 0..(sortKeyNum.size()-1)){
+                        if(sortKeyNum[i]<10){
+                            sortKeyHashMapNum.append!(0)
+                        }else{
+                            sortKeyHashMapNum.append!(5)
+                        }
+                    }
+                }
+            }
+            pt = "try{pt = db.createPartitionedTable(table=table(1:0,["
+            for(x in colName){
+                pt = pt+'"'+x+'"'+","
+            }
+            pt = pt.substr(0,strlen(pt)-1)+"],["
+            for(y in colType){
+                pt = pt+'"'+y+'"'+","
+            }
+            pt = pt.substr(0,strlen(pt)-1)+"]),"+'tableName="'+tbName+'",partitionColumns='
+            for(x in partitionColumn){
+                pt = pt +"`"+x
+            }
+            if(deltaDict.keys().size()!=0){
+                pt = pt + ",compressMethods={"
+                for(x in deltaDict.keys()){
+                    pt = pt + x +":" + '"delta"'+","
+                }
+                pt = pt.substr(0,strlen(pt)-1) + "}"
+            }
+            pt = pt + ",sortColumns="
+
+            for( x in sortColumn[1:]){
+                pt = pt + "`" + x
+            }
+            pt = pt +"`"+sortColumn[0]+",keepDuplicates="+keepDuplicates
+
+            if(sum(sortKeyHashMapNum)==0){
+                pt = pt+");"+setcomment+"}" + "catch(ex){"+"if(!existsTable('"+dbName+"','"+tbName+"')){dropDatabase("+'"'+dbName+'");throw ex}}' 
+            }else{
+                mapCode = ",sortKeyMappingFunction=["
+                for(x in sortKeyHashMapNum){
+                    if(x == 0){
+                        mapCode = mapCode + ","
+                    }else{
+                        mapCode = mapCode + "hashBucket{"+","+x+"}"+","
+                    }
+                }
+                mapCode = mapCode.substr(0,strlen(mapCode)-1)+"]);"+setcomment+"}" + "catch(ex){"+"if(!existsTable('"+dbName+"','"+tbName+"')){dropDatabase("+'"'+dbName+'");throw ex}}'  
+                pt = pt +mapCode
+            }
+            return dbcode + "\n" + pt
+        }
+    }else{  //非时序数据
+        tmp = q[`totalNum]
+        if(tmp[`gap] == -1){
+            totalNum = tmp[`custom]
+        }else{
+            gap = dict(INT,LONG)
+            gap[0..1] = 2000000 5000000
+            totalNum = gap[tmp[`gap]]
+        }
+
+        if(totalNum<= 2000000){  //数据总量小于200w
+            code = DBMSIOT_getDimensionTable(dbName,tbName,colName,colType,deltaDict,comment)
+            return code 
+        }else{  //数据总量大于200w
+            engine = q[`engine]
+            atomic = iif(q[`atomic]==0,"TRANS","CHUNK")
+            partitionColumn = q[`partitionColumn]
+            partitionColumnType = colType[colName  in partitionColumn]
+            if(engine == "OLAP"){
+                code = DBMSIOT_getStaticPartitionTableOLAP(dbName,tbName,colName,colType,totalNum,atomic,partitionColumn,partitionColumnType,deltaDict,comment)
+            }else{
+                keepDuplicates = iif(q[`keepDuplicates]==0,"ALL",iif(q[`keepDuplicates]==1,"FIRST","LAST"))
+                dataTimeCol = [q[`dataTimeCol]]
+                otherSortKey = [q[`otherSortKeyInfo][0][`colName]]
+                otherSortKeyUniqueNum = [q[`otherSortKeyInfo][0][`uniqueNum]]
+
+                second_sortColumn = (partitionColumn join otherSortKey).distinct()
+                sortColumn = dataTimeCol join second_sortColumn //这种情况下，需要校验 partitionColumn 和otherSortKey 是否重复
+
+
+
+                sortKeyNum = [1] join  otherSortKeyUniqueNum
+                code = DBMSIOT_getStaticPartitionTableTSDB(dbName,tbName,colName,colType,totalNum,atomic,partitionColumn,partitionColumnType,keepDuplicates,sortColumn,sortKeyNum,deltaDict,comment)
+            }
+            return code
+        }
+    }
+}
+
+
+addFunctionView(DBMSIOT_checkDatabase)
+addFunctionView(DBMSIOT_getSchema)
+addFunctionView(DBMSIOT_getPerRowSize)
+addFunctionView(DBMSIOT_getPartitionMessage)
+addFunctionView(DBMSIOT_getPartitionMessages)
+addFunctionView(DBMSIOT_getBestPlan)
+addFunctionView(DBMSIOT_getDimensionTable)
+addFunctionView(DBMSIOT_getStaticPartitionTable)
+addFunctionView(DBMSIOT_createDB)
+addFunctionView(DBMSIOT_recommendInfo)
+addFunctionView(DBMSIOT_getStaticPartitionTableOLAP)
+addFunctionView(DBMSIOT_getStaticPartitionTableTSDB)
+addFunctionView(DBMSIOT_createDB2)
