@@ -868,6 +868,7 @@ def dcp_dropAllFunctionView(){
     dropFunctionView(`dcp_getLog)
     dropFunctionView(`dcp_checkSubStatus)
     dropFunctionView(`dcp_getSubStatus)
+    dropFunctionView(`dcp_getKafkaConsumerCfgList)
 }
 
 def dcp_clearEnv(){
@@ -899,4 +900,5 @@ def dcp_init(){
     addFunctionView(dcp_getLog)
     addFunctionView(dcp_checkSubStatus)
     addFunctionView(dcp_getSubStatus)
+    addFunctionView(dcp_getKafkaConsumerCfgList)
 }
