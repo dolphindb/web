@@ -83,7 +83,7 @@
         "tslib": "^2.6.3",
         "vscode-oniguruma": "^2.0.1",
         "vscode-textmate": "^9.0.0",
-        "xshell": "^1.0.146"
+        "xshell": "^1.0.147"
     },
     "pnpm": {
         "patchedDependencies": {
