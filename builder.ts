@@ -53,6 +53,7 @@ export let builder = {
             {
                 source_map,
                 external_dayjs: true,
+                production,
                 externals: {
                     // 使用官方的 node_modules/@ant-design/pro-components/dist/pro-components.min.js 会有样式问题
                     '@ant-design/pro-components': ['module ./pre-bundle/antd-pro-components.js', 'ProComponents'],
@@ -68,10 +69,13 @@ export let builder = {
                     '@formily/core': ['module ./pre-bundle/formily.js', 'Core'],
                     '@formily/react': ['module ./pre-bundle/formily.js', 'React'],
                     '@formily/antd-v5': ['module ./pre-bundle/formily.js', 'AntdV5'],
+                    
+                    dolphindb: null,
                 },
                 resolve_alias: fp_api ? { 'dolphindb/browser.js': fp_api } : { },
                 globals: {
                     WEB_VERSION: `${info.version} (${info.time} ${info.hash})`.quote(),
+                    PRODUCTION: production ? 'true' : 'false'
                 },
                 cache_version: fp_api ? 'web.api' : 'web',
                 license: {

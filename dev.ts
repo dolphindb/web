@@ -2,7 +2,7 @@ import type { Context } from 'koa'
 
 import {
     request_json, inspect, Remote, set_inspect_options,
-    fexists, assert, ramdisk
+    fexists, assert, ramdisk, noprint
 } from 'xshell'
 import { Server } from 'xshell/server.js'
 
@@ -33,7 +33,7 @@ class DevServer extends Server {
         
         if (request.path === '/') {
             this.ddb_backend = `${query.hostname || '127.0.0.1'}:${query.port || '8848'}`
-            request.path = '/index.dev.html'
+            request.path = '/index.html'
         }
         
         const { path } = request
@@ -65,7 +65,7 @@ set_inspect_options()
 
 console.log('项目根目录:', fpd_root)
 
-assert(ramdisk || fexists(`${fpd_root}.vscode/settings.json`), '需要将 .vscode/settings.template.json 复制为 .vscode/settings.json')
+assert(ramdisk || fexists(`${fpd_root}.vscode/settings.json`, noprint), '需要将 .vscode/settings.template.json 复制为 .vscode/settings.json')
 
 let server = new DevServer({
     name: 'web 开发服务器',
@@ -75,8 +75,10 @@ let server = new DevServer({
 
 await Promise.all([
     server.start(),
-    builder.build_bundles(false),
-    builder.build(false)
+    (async () => {
+        await builder.build_bundles(false)
+        await builder.build(false)
+    })()
 ])
 
 
@@ -148,7 +150,7 @@ if (ramdisk) {
 
 const info = 
     'web:\n' +
-    'http://localhost:8432/console/?hostname=192.168.0.200&port=20023\n'.blue.underline
+    'http://localhost:8432/?hostname=192.168.0.200&port=20023\n'.blue.underline
     // '\n' +
     // 'cloud:\n' +
     // 'http://localhost:8432/cloud/\n'.blue.underline +
