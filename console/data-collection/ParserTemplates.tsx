@@ -19,6 +19,7 @@ import { ParserTemplateModal } from './components/create-parser-template-modal/i
 
 import { dcp_model } from './model.js'
 import { get_parser_templates } from './api.js'
+import { InitPage } from './components/init-page/index.js'
 
 const DEFAULT_TEMPLATE_DATA = {
     items: [ ],
@@ -30,6 +31,8 @@ export function ParserTemplates () {
     const id = useId()
     
     const [selected_keys, set_selected_keys] = useState<string[]>([ ])
+    
+    const { database_inited } = dcp_model.use(['database_inited', 'func_inited' ])
     
     const { data = DEFAULT_TEMPLATE_DATA, isLoading, mutate: refresh } = useSWR(
         [get_parser_templates.KEY, id],
@@ -123,7 +126,7 @@ export function ParserTemplates () {
         
     ], [on_edit, on_delete])
     
-    return <>
+    return database_inited === 'inited' ? <>
         <div className='parser-template-title'>
             <h3>{t('解析模板')}</h3>
             <Space>
@@ -141,5 +144,5 @@ export function ParserTemplates () {
                 onChange: keys => { set_selected_keys(keys as string[]) }
             }}
         />
-    </>
+    </> : <InitPage />
 }
