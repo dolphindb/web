@@ -151,7 +151,7 @@ export class DdbModel extends Model<DdbModel> {
         
         const params = new URLSearchParams(location.search)
         
-        this.dev = params.get('dev') !== '0' && location.pathname.endsWith('/console/') || params.get('dev') === '1'
+        this.dev = params.get('dev') !== '0' && location.host === 'localhost:8432' || params.get('dev') === '1'
         this.autologin = params.get('autologin') !== '0'
         this.test = location.hostname === 'test.dolphindb.cn' || params.get('test') === '1'
         this.verbose = params.get('verbose') === '1'

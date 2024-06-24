@@ -1,10 +1,10 @@
-import 'xterm/css/xterm.css'
+import '@xterm/xterm/css/xterm.css'
 
 import { useEffect, useRef, useState } from 'react'
 
-import { Terminal as XTermTerminal } from 'xterm'
-import { FitAddon } from 'xterm-addon-fit'
-import { WebglAddon } from 'xterm-addon-webgl'
+import { Terminal as XTerminal } from '@xterm/xterm'
+import { FitAddon } from '@xterm/addon-fit'
+import { WebglAddon } from '@xterm/addon-webgl'
 
 import { debounce } from 'lodash'
 
@@ -54,7 +54,7 @@ export function Terminal () {
         
         ;(async () => {
             // --- init term
-            let term = shell.term = new XTermTerminal({
+            let term = shell.term = new XTerminal({
                 fontFamily: 'MyFont, Menlo, Ubuntu Mono, Consolas, Dejavu Sans Mono, Noto Sans Mono, PingFangSC, Microsoft YaHei, monospace',
                 fontSize: 16,
                 

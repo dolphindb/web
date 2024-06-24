@@ -4,8 +4,8 @@ import dayjs from 'dayjs'
 
 import { debounce } from 'lodash'
 
-import type { Terminal } from 'xterm'
-import type { FitAddon } from 'xterm-addon-fit'
+import type { Terminal } from '@xterm/xterm'
+import type { FitAddon } from '@xterm/addon-fit'
 
 import type * as monacoapi from 'monaco-editor/esm/vs/editor/editor.api.js'
 
