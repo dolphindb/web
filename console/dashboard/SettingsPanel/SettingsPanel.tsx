@@ -27,7 +27,7 @@ export function SettingsPanel (props: { hidden: boolean }) {
             return <GraphSetting />
     }, [widget])
     
-    return <div className={cn('dashboard-settings-panel', { hidden,  'dashboard-settings-panel_en': language !== 'zh' })}>
+    return <div className={cn('dashboard-settings-panel', language, { hidden })}>
         { setting }
     </div>
 }

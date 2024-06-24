@@ -34,10 +34,9 @@ const icons = {
 export function Sider ({ visible }: { visible: boolean }) {
     const [collapsed, set_collapsed] = useState(false)
     return <div 
-        className={cn('sider', {
+        className={cn('sider', language, {
             collapsed,
             hidden: !visible,
-            sider_en: language !== 'zh'
         })}
     >
         <div className='graph-items'>

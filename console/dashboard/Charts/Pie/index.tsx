@@ -1,6 +1,6 @@
 import ReactEChartsCore from 'echarts-for-react/lib/core'
 import * as echarts from 'echarts'
-import { useEffect, useMemo, useRef } from 'react'
+import { useMemo } from 'react'
 
 import { isNil, pickBy } from 'lodash'
 
