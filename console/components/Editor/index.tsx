@@ -27,7 +27,7 @@ loader.config({
         // vs: 'https://cdn.jsdelivr.net/npm/monaco-editor@0.34.0/min/vs'
         
         // 必须是　vs, 否则 /vs/base/common/worker/simpleWorker.nls.js 路径找不到实际文件
-        vs: './vs'
+        vs: `./vendors/monaco-editor/${ PRODUCTION ? 'min' : 'dev' }/vs`
     },
     ... language === 'zh' ? {
         'vs/nls': {

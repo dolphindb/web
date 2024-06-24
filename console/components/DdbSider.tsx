@@ -23,6 +23,8 @@ import SvgComputing from '../computing/icons/computing.icon.svg'
 import SvgAccess from '../access/icons/access.icon.svg'
 import SvgUser from '../access/icons/user.icon.svg'
 import SvgGroup from '../access/icons/group.icon.svg'
+import SvgFinance from '../guide/icons/finance.icon.svg'
+import SvgIot from '../guide/icons/iot.icon.svg'
 
 
 const { Text, Link } = Typography
@@ -39,7 +41,9 @@ const svgs = {
     computing: SvgComputing,
     access: SvgAccess,
     user: SvgUser,
-    group: SvgGroup
+    group: SvgGroup,
+    'iot-guide': SvgIot,
+    'finance-guide': SvgFinance 
 }
 
 
@@ -71,7 +75,7 @@ export function DdbSider () {
     }, [logined])
     
     return <Layout.Sider
-        width={140}
+        width={ language === 'zh' ? 150 : 220 }
         className='sider'
         theme='light'
         collapsible
@@ -171,6 +175,18 @@ export function DdbSider () {
                     icon: <MenuIcon view='factor' />,
                     label: <Link target='_blank' href={factor_href}>{t('因子平台')}</Link>
                 }] : [ ],
+                {
+                    key: 'finance-guide',
+                    label: t('金融库表向导'),
+                    title: t('金融库表向导'),
+                    icon: <MenuIcon view='finance-guide'/>
+                },
+                {
+                    key: 'iot-guide',
+                    label: t('物联网库表向导'),
+                    title: t('物联网库表向导'),
+                    icon: <MenuIcon view='iot-guide'/>
+                },
                 ... dev || test ? [
                     {
                         key: 'test',
@@ -181,7 +197,7 @@ export function DdbSider () {
                     {
                         key: 'settings',
                         icon: <SettingOutlined  className='icon-menu' />,
-                        label: '功能设置'
+                        label: t('功能设置')
                 }] : [ ],
             ].filter(item => model.is_module_visible(item.key))}
         />

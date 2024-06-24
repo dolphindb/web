@@ -20,6 +20,8 @@ import { ProConfigProvider } from '@ant-design/pro-components'
 
 import dayjs from 'dayjs'
 
+import { SWRConfig } from 'swr'
+
 import { language } from '../i18n/index.js'
 
 import 'dayjs/locale/zh-cn'
@@ -43,6 +45,10 @@ import { Computing } from './computing/index.js'
 import { DashBoard } from './dashboard/index.js'
 import { User, Group } from './access/index.js'
 import { Settings } from './settings/index.js'
+import { CreateGuide } from './guide/iot-guide/index.js'
+import { FinanceGuide } from './guide/finance-guide/index.js'
+
+
 
 
 createRoot(
@@ -58,13 +64,19 @@ function DolphinDB () {
         button={{ autoInsertSpace: false }}
         theme={{ hashed: false, token: { borderRadius: 0, motion: false } }}
     >
-        <ProConfigProvider hashed={false} token={{ borderRadius: 0, motion: false }}>
-            <NiceModal.Provider>
-                <App className='app'>
-                    <MainLayout />
-                </App>
-            </NiceModal.Provider>
-        </ProConfigProvider>
+        <SWRConfig value={{
+            revalidateOnFocus: false,
+            revalidateOnReconnect: false,
+            errorRetryCount: 0 
+        }}>
+            <ProConfigProvider hashed={false} token={{ borderRadius: 0, motion: false }}>
+                <NiceModal.Provider>
+                    <App className='app'>
+                        <MainLayout />
+                    </App>
+                </NiceModal.Provider>
+            </ProConfigProvider>
+        </SWRConfig>
     </ConfigProvider>
 }
 
@@ -137,7 +149,9 @@ const views = {
     dashboard: DashBoard,
     user: User,
     group: Group,
-    settings: Settings
+    settings: Settings,
+    'iot-guide': CreateGuide,
+    'finance-guide': FinanceGuide,
 }
 
 

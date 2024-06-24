@@ -141,7 +141,7 @@ export class DdbModel extends Model<DdbModel> {
     enabled_modules = new Set<string>()
     
     /** 记录所有可选功能 */
-    optional_modules = new Set(['test', 'finance-tools', 'iot-tools'])
+    optional_modules = new Set(['finance-guide', 'iot-guide'])
     
     docs: Docs
     
@@ -151,7 +151,7 @@ export class DdbModel extends Model<DdbModel> {
         
         const params = new URLSearchParams(location.search)
         
-        this.dev = params.get('dev') !== '0' && location.pathname.endsWith('/console/') || params.get('dev') === '1'
+        this.dev = params.get('dev') !== '0' && location.host === 'localhost:8432' || params.get('dev') === '1'
         this.autologin = params.get('autologin') !== '0'
         this.test = location.hostname === 'test.dolphindb.cn' || params.get('test') === '1'
         this.verbose = params.get('verbose') === '1'
@@ -225,14 +225,14 @@ export class DdbModel extends Model<DdbModel> {
         
         await Promise.all([
             this.get_factor_platform_enabled(),
-            // config.load_nodes_config()
+            config.load_nodes_config()
         ])
         
-        // const webModules = config.nodes_configs.get('webModules')
+        const webModules = config.nodes_configs.get('webModules')
         
-        // this.set({
-        //     enabled_modules: (webModules?.value) ? new Set(webModules.value.split(',')) : new Set()
-        // })
+        this.set({
+            enabled_modules: (webModules?.value) ? new Set(webModules.value.split(',')) : new Set()
+        })
         
         console.log(t('web 初始化成功'))
         

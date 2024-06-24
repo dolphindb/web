@@ -268,7 +268,7 @@ function Tensor ({
     const _obj = obj || objref.obj
     
     // 接下来开始写当前浏览状态的维护
-    const [currentDir, setCurrentDir] = useState<number[]>([])
+    const [currentDir, setCurrentDir] = useState<number[]>([ ])
     const [pageSize, setPageSize] = useState(10)
     const [page, setPage] = useState(1)
     const [previewLimit, setPreviewLimit] = useState(10)
@@ -290,9 +290,9 @@ function Tensor ({
             render({ })
         })()
         
-        setCurrentDir([]);
-        setPageSize(10);
-        setPage(1);
+        setCurrentDir([ ])
+        setPageSize(10)
+        setPage(1)
     }, [obj, objref])
     
     
@@ -739,11 +739,11 @@ export function Table ({
         (ctx === 'page' || ctx === 'window') ? 20 : 10
     )
     
-    const [scope, set_scope] = useState(false)
-    
     const nrows = Math.min(page_size, info.rows)
     
     const [page_index, set_page_index] = useState(0)
+    
+    const [scope, set_scope] = useState(false)
     
     const render = use_rerender()
     
@@ -890,7 +890,16 @@ export function Table ({
                                 
                                 await shell.define_get_csv_content()
                                 
-                                download_file(`${name}.csv`, (await ddb.call('get_csv_content', [obj ?? info.name, new DdbInt(start), new DdbInt(end)])).data().join(''))
+                                download_file(
+                                    `${name}.csv`, 
+                                    URL.createObjectURL(new Blob(
+                                        [
+                                            new Uint8Array([0xEF, 0xBB, 0xBF]),
+                                            (await ddb.call('get_csv_content', [obj ?? info.name, new DdbInt(start), new DdbInt(end)])).value as Uint8Array
+                                        ], 
+                                        { type: 'text/plain' }
+                                    ))
+                                )
                             } finally {
                                 set_loading(false)
                                 close()
@@ -905,55 +914,57 @@ export function Table ({
                             <Form.Item rules={[{ required: true, message: t('请输入文件名') }]} name='name' label={t('文件名')}>
                                 <Input addonAfter='.csv' placeholder={t('请输入文件名')} />
                             </Form.Item>
-                            <Form.Item name='scope' label={t('导出范围')} initialValue='all'>
-                                <Radio.Group onChange={event => { set_scope(event.target.value === 'part') }}>
-                                    <Radio value='all'> {t('全部')} </Radio>
-                                    <Radio value='part'> {t('部分')} </Radio>
-                                </Radio.Group>
-                            </Form.Item>
-                            {scope && <>
-                                <Form.Item 
-                                    rules={[
-                                        ({ getFieldValue }) => ({
-                                            async validator (_, value) {
-                                                const end = getFieldValue('end')
-                                                if (value === undefined || !Number.isInteger(value) || value < 0)
-                                                    return Promise.reject(new Error(t('起始行需为大于等于 0 的整数')))
-                                                else if (value > end)
-                                                    return Promise.reject(new Error(t('起始行需小于等于结束行')))
-                                                
-                                                return Promise.resolve()
-                                            },
-                                        }),
-                                    ]} 
-                                    name='start' label={t('起始行')} 
-                                >
-                                    <InputNumber style={{ width: 120 }} placeholder={t('请输入起始行')}/>
+                            {info.rows > 0 && <>
+                                <Form.Item name='scope' label={t('导出范围')} initialValue='all'>
+                                    <Radio.Group onChange={event => { set_scope(event.target.value === 'part') }}>
+                                        <Radio value='all'> {t('全部')} </Radio>
+                                        <Radio value='part'> {t('部分')} </Radio>
+                                    </Radio.Group>
                                 </Form.Item>
-                                <Form.Item 
-                                    rules={[
-                                        ({ getFieldValue }) => ({
-                                            async validator (_, value) {
-                                                const start = getFieldValue('start')
-                                                if (value === undefined  || !Number.isInteger(value) || value < 0 || value > info.rows - 1)
-                                                    return Promise.reject(new Error(t('结束行需为大于等于 0 且小于表格实际行数的整数')))
-                                                else if (start > value)
-                                                    return Promise.reject(new Error(t('结束行需大于等于起始行')))
-                                                
-                                                return Promise.resolve()
-                                            },
-                                        }),
-                                    ]} 
-                                    name='end' 
-                                    label={t('结束行')} 
-                                >
-                                    <InputNumber style={{ width: 120 }} placeholder={t('请输入结束行')}/>
-                                </Form.Item>
+                                {scope && <>
+                                    <Form.Item 
+                                        rules={[
+                                            ({ getFieldValue }) => ({
+                                                async validator (_, value) {
+                                                    const end = getFieldValue('end')
+                                                    if (value === undefined || !Number.isInteger(value) || value < 0)
+                                                        return Promise.reject(new Error(t('起始行需为大于等于 0 的整数')))
+                                                    else if (value > end)
+                                                        return Promise.reject(new Error(t('起始行需小于等于结束行')))
+                                                    
+                                                    return Promise.resolve()
+                                                },
+                                            }),
+                                        ]} 
+                                        name='start' label={t('起始行')} 
+                                    >
+                                        <InputNumber style={{ width: 120 }} placeholder={t('请输入起始行')}/>
+                                    </Form.Item>
+                                    <Form.Item 
+                                        rules={[
+                                            ({ getFieldValue }) => ({
+                                                async validator (_, value) {
+                                                    const start = getFieldValue('start')
+                                                    if (value === undefined  || !Number.isInteger(value) || value < 0 || value > info.rows - 1)
+                                                        return Promise.reject(new Error(t('结束行需为大于等于 0 且小于表格实际行数的整数')))
+                                                    else if (start > value)
+                                                        return Promise.reject(new Error(t('结束行需大于等于起始行')))
+                                                    
+                                                    return Promise.resolve()
+                                                },
+                                            }),
+                                        ]} 
+                                        name='end' 
+                                        label={t('结束行')} 
+                                    >
+                                        <InputNumber style={{ width: 120 }} placeholder={t('请输入结束行')}/>
+                                    </Form.Item>
+                                </>}
                             </>}
                         </Form>
-                        <div className='export-prompt'>
+                        { info.rows > 0 && <div className='export-prompt'>
                             {t('注意：请根据实际的硬件情况选择导出范围，过大的范围可能导致浏览器崩溃！')}
-                        </div>
+                        </div> }
                         
                     </Modal>
                 </>}

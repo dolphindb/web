@@ -1,0 +1,147 @@
+.schema-wrapper {
+    h4 {
+        margin-top: 0px;
+        margin-bottom: 16px;
+    }
+    border-radius: 8px;
+    background-color: #EFEFEF;
+    padding: 16px;
+    
+    
+    .schema-item {
+        display: flex;
+        width: 100%;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 16px;
+        .delete-icon {
+            cursor: pointer;
+        }
+        .ant-form-item {
+            width: 32%;
+            margin-bottom: 0px;
+        }
+    }
+    
+    .upload-schema {
+        &-wrapper {
+            margin-top: 12px;
+            width: 100%;
+            text-align: end;
+        }
+        
+        &-icon {
+            margin-right: 4px;
+        }
+       
+    }
+}
+
+
+.button-group {
+    display: flex;
+    justify-content: end;
+    margin-top: 24px;
+}
+
+.code-view-wrapper {
+    width: 1000px;
+    margin-top: 32px;
+}
+
+.json-upload {
+    .ant-upload {
+        width: 100% !important;
+        
+        .upload-icon {
+            color:#8E9AF9;
+            svg {
+                width: 48px;
+                height: 48px;
+            }
+        }
+        
+        .upload-tip {
+            margin-top: 12px;
+            font-size: 12px;
+        }
+    }
+}
+
+
+.preview-file {
+    display: flex;
+    justify-content: space-between;
+    
+    border: 1px solid #efefef;
+    border-radius: 8px;
+    padding: 16px;
+    
+    .file-icon {
+        margin-right: 4px;
+    }
+    
+    .delete-icon {
+        cursor: pointer;
+    }
+}
+
+
+.upload-icon {
+    svg {
+        width: 32px;
+        height: 32px;
+        color: #8E9AF9;
+    }
+}
+
+.upload-tip {
+    font-size: 12px;
+}
+
+.upload-file-preview {
+    border-radius: 8px;
+    padding: 16px;
+    border: 1px solid #efefef;
+    display: flex;
+    justify-content: space-between;
+    
+    .file-icon {
+        margin-right: 4px;
+    }
+    
+    .delete-icon {
+        cursor: pointer;
+
+    }
+}
+
+
+.upload-file-form-item {
+    width: 100%;
+}
+
+
+
+
+.data-type-wrapper {
+    width: 100%;
+    display: flex;
+    justify-content: space-between;
+}
+
+.schema-list-error {
+    color: red;
+    margin-top: 12px;
+}
+
+.schema-tips {
+    margin-top: 4px;
+    display: inline-block;
+    margin-bottom: 24px;
+}
+
+.view-code-editor {
+    width: 1000px;
+    height: 600px;
+}

@@ -1,56 +1,44 @@
 import './index.sass'
 
-import { SettingOutlined } from '@ant-design/icons'
-
-import { delay } from 'xshell/utils.browser.js'
+import { default as Icon } from '@ant-design/icons'
 
 import { t } from '../../i18n/index.js'
 
 import { model } from '../model.js'
 
+
+import SvgFinance from '../guide/icons/finance.icon.svg'
+import SvgIot from '../guide/icons/iot.icon.svg'
+
 import { Card } from './Card.js'
 
+const icon_style = { fontSize: '20px' }
 
 export function Settings () {
-    const { admin, dev, test } = model.use(['admin', 'dev', 'test'])
+    const { admin } = model.use(['admin'])
     
-    return admin && (dev || test) && <div className='module-settings'>
-        <div className='title'>{t('可选模块')}</div>
-        
+    return admin && <div className='module-settings'>
+        <div className='title'>{t('可选功能')}</div>
         <Card 
-            module_key='test'
-            icon={<SettingOutlined className='label-icon' />}
-            label='测试模块'
-            description='测试模块描述测试模块描述测试模块描述测试模块描述测试模块描述测试模块描述测试模块描述测试模块描述测试模块描述测试模块描述测试模块描述'
-            activate_prompt='测试模块安装提示'
-            deactivate_prompt='测试模块卸载提示'
-            on_activate={async () => { 
-                await delay(1000)
-                console.log('测试模块加载成功') 
-            }}
-            on_deactivate={() => { console.log('测试模块卸载成功') }}
-        />
-        
-        <Card 
-            module_key='finance-tools'
-            icon={<SettingOutlined className='label-icon' />}
-            label='金融建库建表工具'
-            description='金融建库建表工具描述'
-            activate_prompt='金融建库建表工具加载提示'
-            deactivate_prompt='金融建库建表工具卸载提示'
-            on_activate={() => { console.log('金融建库建表工具加载成功') }}
-            on_deactivate={() => { console.log('金融建库建表工具卸载成功') }}
+            module_key='finance-guide'
+            icon={<Icon className='label-icon' component={SvgFinance} style={icon_style}/>}
+            label={t('金融库表向导')}
+            description={t('此功能专为金融用户设计。用户通过此功能无需设计分区方案或编写复杂的 SQL 语句，只需输入库表名称、列名等基本信息，并通过列表选择参数，即可快速生成建库建表脚本，进而完成库表创建。')}
+            activate_prompt={t('您确定要启用此功能吗')}
+            deactivate_prompt={t('您确定要停用此功能吗')}
+            on_activate={() => { console.log('金融库表向导启用成功') }}
+            on_deactivate={() => { console.log('金融库表向导停用成功') }}
         />
         
         <Card
-            module_key='iot-tools'
-            icon={<SettingOutlined className='label-icon' />}
-            label='物联网建库建表工具'
-            description='金融建库建表工具描述金融建库建表工具描述金融建库建表工具描述金融建库建表工具描述金融建库建表工具描述金融建库建表工具描述金融建库建表工具描述金融建库建表工具描述金融建库建表工具描述金融建库建表工具描述金融建库建表工具描述金融建库建表工具描述金融建库建表工具描述金融建库建表工具描述金融建库建表工具描述金融建库建表工具描述金融建库建表工具描述金融建库建表工具描述金融建库建表工具描述金融建库建表工具描述金融建库建表工具描述金融建库建表工具描述金融建库建表工具描述金融建库建表工具描述金融建库建表工具描述金融建库建表工具描述金融建库建表工具描述金融建库建表工具描述金融建库建表工具描述金融建库建表工具描述'
-            activate_prompt='物联网建库建表工具安装提示'
-            deactivate_prompt='物联网建库建表工具卸载提示'
-            on_activate={() => { console.log('物联网建库建表工具加载成功') }}
-            on_deactivate={() => { console.log('物联网建库建表工具卸载成功') }}
+            module_key='iot-guide'
+            icon={<Icon className='label-icon' component={SvgIot} style={icon_style}/>}
+            label={t('物联网库表向导')}
+            description={t('此功能专为物联网用户设计。用户通过此功能无需设计分区方案或编写复杂的 SQL 语句，只需输入库表名称、列名等基本信息，并通过列表选择参数，即可快速生成建库建表脚本，进而完成库表创建。')}
+            activate_prompt={t('您确定要启用此功能吗')}
+            deactivate_prompt={t('您确定要停用此功能吗')}
+            on_activate={() => { console.log('物联网库表向导启用成功') }}
+            on_deactivate={() => { console.log('物联网库表向导停用成功') }}
         />
     </div>
 }

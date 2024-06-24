@@ -1,6 +1,4 @@
-export function download_file (name: string, content: string) {
-    // 创建指向 Blob 的 URL
-    const url = URL.createObjectURL(new Blob([content], { type: 'text/plain' }))
+export function download_file (name: string, url: string) {
     
     // 创建一个隐藏的 <a> 元素
     const a = document.createElement('a')
