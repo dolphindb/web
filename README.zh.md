@@ -21,7 +21,7 @@ http://cdn.dolphindb.cn/web/index.html?view=shell&language=zh&hostname=115.239.2
 
 (如果打开后显示空白页，需要手动点击地址栏，将 url 改为 http:// 开头的链接) -->
 
-#### 离线本地部署 (不用重启 server, 可以热替换)
+<!-- #### 离线本地部署 (不用重启 server, 可以热替换)
 ```shell
 # cd dolphindb 可执行文件所在的目录
 cd /path/to/dolphindb-dir/
@@ -40,24 +40,12 @@ ls -lhF ./web/
 
 # 如果是集群，通过 rsync 同步到其他机器，保证时间戳 (mtime) 一致，否则 http 缓存不生效
 rsync -av --delete ./web/ root@192.168.1.204:/path/to/dolphindb-dir/web/
-```
+``` -->
 
 用浏览器访问 DolphinDB server 的 `ip:端口` 即可使用
 
 如果需要通过 nginx 部署到子路径下（不建议，多转发一次会降低性能），可以参考 [./nginx.conf](./nginx.conf)
 
-
-### DolphinDB K8S 云平台 Web 管理界面
-![](./cloud/demo.png)
-
-https://github.com/dolphindb/Tutorials_CN/blob/master/%E5%AE%89%E8%A3%85%E5%92%8C%E9%83%A8%E7%BD%B2/k8s_deployment.md
-
-
-### server 版本依赖
-支持 .json 后缀的文档 docs.zh.json: v1.30.21, v2.00.9
-    解决方法 5c33e01aba4103fba5ecf6387a6807a5848e4197, 分支 server-2.00.8_1.30.20
-
-支持 .wasm 文件: v1.30.20, v2.00.8
 
 ### 开发
 ```shell
