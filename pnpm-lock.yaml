@@ -68,8 +68,8 @@ importers:
         specifier: ^1.11.11
         version: 1.11.11
       dolphindb:
-        specifier: ^3.0.40
-        version: 3.0.40(react-dom@18.3.1(react@18.3.1))
+        specifier: ^3.0.41
+        version: 3.0.41(react-dom@18.3.1(react@18.3.1))
       echarts:
         specifier: ^5.5.0
         version: 5.5.0(patch_hash=vfhko7qsujlqz2bjiq6cbgl6e4)
@@ -80,8 +80,8 @@ importers:
         specifier: ^4.20.10
         version: 4.20.10
       gridstack:
-        specifier: ^10.2.0
-        version: 10.2.0
+        specifier: ^10.2.1
+        version: 10.2.1
       js-cookie:
         specifier: ^3.0.5
         version: 3.0.5
@@ -90,7 +90,7 @@ importers:
         version: 4.17.21
       monaco-dolphindb:
         specifier: ^0.0.25
-        version: 0.0.25(dolphindb@3.0.40(react-dom@18.3.1(react@18.3.1)))(monaco-editor@0.50.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(vscode-oniguruma@2.0.1)(vscode-textmate@9.0.0)
+        version: 0.0.25(dolphindb@3.0.41(react-dom@18.3.1(react@18.3.1)))(monaco-editor@0.50.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(vscode-oniguruma@2.0.1)(vscode-textmate@9.0.0)
       monaco-editor:
         specifier: ^0.50.0
         version: 0.50.0
@@ -128,8 +128,8 @@ importers:
         specifier: ^9.0.0
         version: 9.0.0
       xshell:
-        specifier: ^1.0.142
-        version: 1.0.142(react-dom@18.3.1(react@18.3.1))
+        specifier: ^1.0.145
+        version: 1.0.145(react-dom@18.3.1(react@18.3.1))
     devDependencies:
       '@svgr/webpack':
         specifier: ^8.1.0
@@ -144,8 +144,8 @@ importers:
         specifier: ^4.17.5
         version: 4.17.5
       '@types/node':
-        specifier: ^20.14.7
-        version: 20.14.7
+        specifier: ^20.14.8
+        version: 20.14.8
       '@types/react':
         specifier: ^18.3.3
         version: 18.3.3
@@ -1580,8 +1580,8 @@ packages:
   '@types/node-sass@4.11.3':
     resolution: {integrity: sha512-wXPCn3t9uu5rR4zXNSLasZHQMuRzUKBsdi4MsgT8uq4Lp1gQQo+T2G23tGj4SSgDHeNBle6vGseZtM2XV/X9bw==}
 
-  '@types/node@20.14.7':
-    resolution: {integrity: sha512-uTr2m2IbJJucF3KUxgnGOZvYbN0QgkGyWxG6973HCpMYFy2KfcgYuIwkJQMQkt1VbBMlvWRbpshFTLxnxCZjKQ==}
+  '@types/node@20.14.8':
+    resolution: {integrity: sha512-DO+2/jZinXfROG7j7WKFn/3C6nFwxy2lLpgLjEXJz+0XKphZlTLJ14mo8Vfg8X5BWN6XjyESXq+LcYdT7tR3bA==}
 
   '@types/prop-types@15.7.5':
     resolution: {integrity: sha512-JCB8C6SnDoQf0cNycqd/35A7MjcnK+ZTqE7judS6o7utxUCg6imJg3QK2qzHKszlTjcj2cn+NwMB2i96ubpj7w==}
@@ -2443,8 +2443,8 @@ packages:
     resolution: {integrity: sha512-35mSku4ZXK0vfCuHEDAwt55dg2jNajHZ1odvF+8SSr82EsZY4QmXfuWso8oEd8zRhVObSN18aM0CjSdoBX7zIw==}
     engines: {node: '>=0.10.0'}
 
-  dolphindb@3.0.40:
-    resolution: {integrity: sha512-W7LrK5jgCVz/tlRpRtCCynR1eU85kuhwstOoNeLacF7dawXv/zbemffhtlq6pyIRT2E2m+ex1HTFPw7BznF73w==}
+  dolphindb@3.0.41:
+    resolution: {integrity: sha512-2+pE+mj4lmdlff1zA1N4xVCoRclQhr90q+ol5mCKBrchEKwkaLuKDLwiU9vMvSezNWe/V7IHspNtW2YIP0x2bw==}
     engines: {node: '>=22.1.0'}
 
   dom-serializer@2.0.0:
@@ -2854,8 +2854,8 @@ packages:
   graphemer@1.4.0:
     resolution: {integrity: sha512-EtKwoO6kxCL9WO5xipiHTZlSzBm7WLT627TqC/uVRd0HKmq8NXyebnNYxDoBi7wt8eTWrUrKXCOVaFq9x1kgag==}
 
-  gridstack@10.2.0:
-    resolution: {integrity: sha512-svKAOq/dfinpvhe/nnxdyZOOEd9qynXiOPHvL96PALE0yWChWp/6lechnqKwud0tL/rRyAfMJ6Hh/z2fS13pBA==}
+  gridstack@10.2.1:
+    resolution: {integrity: sha512-UAPKnIvd9sIqPDFMtKMqj0G5GDj8MUFPcelRJq7FzQFSxSYBblKts/Gd52iEJg0EvTFP51t6ZuMWGx0pSSFBdw==}
 
   gulp-sort@2.0.0:
     resolution: {integrity: sha512-MyTel3FXOdh1qhw1yKhpimQrAmur9q1X0ZigLmCOxouQD+BD3za9/89O+HfbgBQvvh4igEbp0/PUWO+VqGYG1g==}
@@ -5053,8 +5053,8 @@ packages:
     resolution: {integrity: sha512-fDlsI/kFEx7gLvbecc0/ohLG50fugQp8ryHzMTuW9vSa1GJ0XYWKnhsUx7oie3G98+r56aTQIUB4kht42R3JvA==}
     engines: {node: '>=4.0'}
 
-  xshell@1.0.142:
-    resolution: {integrity: sha512-IkdbbldYzGhidPeDbEKG+xWCD9WWPdP0WRBgd3ZmxwLHDqf0YzxW3ZprzfprVCQ9kywy21opR3I1ajF6AIbwOw==}
+  xshell@1.0.145:
+    resolution: {integrity: sha512-ZbEw3NqGti2D5mbtzdP/Je6jmVj1r3jMT3VsqNDq4oI7cKKxKyh2PvL+ukEGxsMezlvDdjUWp0cs9lEijyeAiA==}
     hasBin: true
 
   xtend@4.0.2:
@@ -6920,16 +6920,16 @@ snapshots:
 
   '@types/accepts@1.3.5':
     dependencies:
-      '@types/node': 20.14.7
+      '@types/node': 20.14.8
 
   '@types/body-parser@1.19.2':
     dependencies:
       '@types/connect': 3.4.35
-      '@types/node': 20.14.7
+      '@types/node': 20.14.8
 
   '@types/connect@3.4.35':
     dependencies:
-      '@types/node': 20.14.7
+      '@types/node': 20.14.8
 
   '@types/content-disposition@0.5.5': {}
 
@@ -6938,7 +6938,7 @@ snapshots:
       '@types/connect': 3.4.35
       '@types/express': 4.17.17
       '@types/keygrip': 1.0.2
-      '@types/node': 20.14.7
+      '@types/node': 20.14.8
 
   '@types/d3-timer@2.0.3': {}
 
@@ -6964,7 +6964,7 @@ snapshots:
 
   '@types/express-serve-static-core@4.17.33':
     dependencies:
-      '@types/node': 20.14.7
+      '@types/node': 20.14.8
       '@types/qs': 6.9.7
       '@types/range-parser': 1.2.4
 
@@ -7004,7 +7004,7 @@ snapshots:
       '@types/http-errors': 2.0.1
       '@types/keygrip': 1.0.2
       '@types/koa-compose': 3.2.5
-      '@types/node': 20.14.7
+      '@types/node': 20.14.8
 
   '@types/lodash@4.17.5': {}
 
@@ -7018,9 +7018,9 @@ snapshots:
 
   '@types/node-sass@4.11.3':
     dependencies:
-      '@types/node': 20.14.7
+      '@types/node': 20.14.8
 
-  '@types/node@20.14.7':
+  '@types/node@20.14.8':
     dependencies:
       undici-types: 5.26.5
 
@@ -7045,7 +7045,7 @@ snapshots:
 
   '@types/sass-loader@8.0.8':
     dependencies:
-      '@types/node': 20.14.7
+      '@types/node': 20.14.8
       '@types/node-sass': 4.11.3
       '@types/webpack': 4.41.33
       sass: 1.77.6
@@ -7053,7 +7053,7 @@ snapshots:
   '@types/serve-static@1.15.0':
     dependencies:
       '@types/mime': 3.0.1
-      '@types/node': 20.14.7
+      '@types/node': 20.14.8
 
   '@types/source-list-map@0.1.2': {}
 
@@ -7069,7 +7069,7 @@ snapshots:
 
   '@types/webpack-bundle-analyzer@4.7.0':
     dependencies:
-      '@types/node': 20.14.7
+      '@types/node': 20.14.8
       tapable: 2.2.1
       webpack: 5.92.1
     transitivePeerDependencies:
@@ -7080,13 +7080,13 @@ snapshots:
 
   '@types/webpack-sources@3.2.0':
     dependencies:
-      '@types/node': 20.14.7
+      '@types/node': 20.14.8
       '@types/source-list-map': 0.1.2
       source-map: 0.7.4
 
   '@types/webpack@4.41.33':
     dependencies:
-      '@types/node': 20.14.7
+      '@types/node': 20.14.8
       '@types/tapable': 1.0.8
       '@types/uglify-js': 3.17.1
       '@types/webpack-sources': 3.2.0
@@ -7095,7 +7095,7 @@ snapshots:
 
   '@types/ws@8.5.10':
     dependencies:
-      '@types/node': 20.14.7
+      '@types/node': 20.14.8
 
   '@typescript-eslint/eslint-plugin@7.13.1(@typescript-eslint/parser@7.13.1(eslint@9.5.0)(typescript@5.5.2))(eslint@9.5.0)(typescript@5.5.2)':
     dependencies:
@@ -8037,12 +8037,12 @@ snapshots:
     dependencies:
       esutils: 2.0.3
 
-  dolphindb@3.0.40(react-dom@18.3.1(react@18.3.1)):
+  dolphindb@3.0.41(react-dom@18.3.1(react@18.3.1)):
     dependencies:
       dayjs: 1.11.11
       ipaddr.js: 2.2.0
       tslib: 2.6.3
-      xshell: 1.0.142(react-dom@18.3.1(react@18.3.1))
+      xshell: 1.0.145(react-dom@18.3.1(react@18.3.1))
     transitivePeerDependencies:
       - '@rspack/core'
       - '@swc/core'
@@ -8582,7 +8582,7 @@ snapshots:
 
   graphemer@1.4.0: {}
 
-  gridstack@10.2.0: {}
+  gridstack@10.2.1: {}
 
   gulp-sort@2.0.0:
     dependencies:
@@ -8937,7 +8937,7 @@ snapshots:
 
   jest-worker@27.5.1:
     dependencies:
-      '@types/node': 20.14.7
+      '@types/node': 20.14.8
       merge-stream: 2.0.0
       supports-color: 8.1.1
 
@@ -9512,9 +9512,9 @@ snapshots:
       hasown: 2.0.2
       isarray: 2.0.5
 
-  monaco-dolphindb@0.0.25(dolphindb@3.0.40(react-dom@18.3.1(react@18.3.1)))(monaco-editor@0.50.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(vscode-oniguruma@2.0.1)(vscode-textmate@9.0.0):
+  monaco-dolphindb@0.0.25(dolphindb@3.0.41(react-dom@18.3.1(react@18.3.1)))(monaco-editor@0.50.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(vscode-oniguruma@2.0.1)(vscode-textmate@9.0.0):
     dependencies:
-      dolphindb: 3.0.40(react-dom@18.3.1(react@18.3.1))
+      dolphindb: 3.0.41(react-dom@18.3.1(react@18.3.1))
       monaco-editor: 0.50.0
       vscode-oniguruma: 2.0.1
       vscode-textmate: 9.0.0
@@ -11246,7 +11246,7 @@ snapshots:
 
   xmlbuilder@11.0.1: {}
 
-  xshell@1.0.142(react-dom@18.3.1(react@18.3.1)):
+  xshell@1.0.145(react-dom@18.3.1(react@18.3.1)):
     dependencies:
       '@babel/core': 7.24.7
       '@babel/parser': 7.24.7
