@@ -57,6 +57,7 @@ import { t } from '../i18n/index.js'
 
 import SvgLink from './link.icon.svg'
 import SvgExport from './export.icon.svg'
+
 import { type WindowModel } from './window.js'
 import { shell } from './shell/model.js'
 import { download_file } from './utils/index.js'
@@ -290,7 +291,7 @@ function Tensor ({
         })()
         
         setCurrentDir([ ])
-setPageSize(10)
+        setPageSize(10)
         setPage(1)
     }, [obj, objref])
     
@@ -852,7 +853,7 @@ export function Table ({
             />
             
             <div className='actions'>
-            {(ctx === 'page' || ctx === 'embed') && <>
+                {(ctx === 'page' || ctx === 'embed') && <>
                     <Icon
                         className='icon-link'
                         title={t('在新窗口中打开')}
@@ -961,9 +962,9 @@ export function Table ({
                                 </>}
                             </>}
                         </Form>
-                        {info.rows > 0 && <div className='export-prompt'>
+                        { info.rows > 0 && <div className='export-prompt'>
                             {t('注意：请根据实际的硬件情况选择导出范围，过大的范围可能导致浏览器崩溃！')}
-                        </div>}
+                        </div> }
                         
                     </Modal>
                 </>}
