@@ -14,9 +14,8 @@ export class DcpModel extends Model<DcpModel> {
     async init () {
         await model.ddb.eval(installMqttCode)
         this.set({ func_inited: true })
-        const { value: is_inited } = await model.ddb.eval('existsDatabase("dfs://dataAcquisition")')
-        console.log(typeof is_inited, 'is_inited')
-        this.set({ database_inited: is_inited ? 'inited' : 'not_inited' } )        
+        const res = await model.ddb.eval('existsDatabase("dfs://dataAcquisition")')
+        this.set({ database_inited: res.value ? 'inited' : 'not_inited' } )        
     }
     
     async init_database () {
