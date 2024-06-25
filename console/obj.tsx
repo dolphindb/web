@@ -95,7 +95,7 @@ export function Obj ({
     ctx = 'webview',
     remote,
     ddb,
-    export_csv,
+    ExportCsv,
     options,
 }: {
     obj?: DdbObj
@@ -103,13 +103,13 @@ export function Obj ({
     ctx?: Context
     remote?: Remote
     ddb?: DDB
-    export_csv?: React.FC<DdbTableObj | DdbObjRef<DdbObj<DdbVectorValue>[]>>
+    ExportCsv?: React.FC<{ info: DdbTableObj | DdbObjRef<DdbObj<DdbVectorValue>[]> }>
     options?: InspectOptions
 }) {
     const info = obj || objref
     const View = views[info.form] || Default
     
-    return <View obj={obj} objref={objref} ctx={ctx} remote={remote} ddb={ddb} options={options} export_csv={export_csv}/>
+    return <View obj={obj} objref={objref} ctx={ctx} remote={remote} ddb={ddb} options={options} ExportCsv={ExportCsv}/>
 }
 
 
@@ -715,7 +715,7 @@ export function Table ({
     remote,
     ddb,
     options,
-    export_csv,
+    ExportCsv,
     show_bottom_bar = true,
     ...others
 }: {
@@ -725,7 +725,7 @@ export function Table ({
     remote?: Remote
     ddb?: DDB
     options?: InspectOptions
-    export_csv?: React.FC<DdbTableObj | DdbObjRef<DdbObj<DdbVectorValue>[]>>
+    ExportCsv?: React.FC<{ info: DdbTableObj | DdbObjRef<DdbObj<DdbVectorValue>[]> }>
     show_bottom_bar?: boolean
 } & TableProps<any>) {
     const info = obj || objref
@@ -841,7 +841,7 @@ export function Table ({
                             await open_obj({ obj, objref, remote, ddb, options })
                         }}
                     />
-                    {export_csv && export_csv(info)}
+                    {ExportCsv && <ExportCsv info={info} />}
                 </>}
             </div>
         </div>}

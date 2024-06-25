@@ -26,10 +26,13 @@ export function DataView () {
             )
                 return
             
-            return type === 'object' ?
-                <Obj obj={data} ddb={model.ddb} ctx='embed' options={options} export_csv={ExportCsv}/>
-            :
-                <Obj objref={data} ddb={model.ddb} ctx='embed' options={options} export_csv={ExportCsv}/>
+            return <Obj 
+                ddb={model.ddb} 
+                ctx='embed' 
+                options={options} 
+                ExportCsv={ExportCsv} 
+                {...type === 'object' ? { obj: data } : { objref: data }}
+            />
         })()
     }</div>
 }

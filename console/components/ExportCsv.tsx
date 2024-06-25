@@ -15,7 +15,7 @@ import { model } from '../model.js'
 
 import SvgExport from './icons/export.icon.svg'
 
-export function ExportCsv (info: DdbTableObj | DdbObjRef<DdbObj<DdbVectorValue>[]>) {
+export function ExportCsv ({ info }: { info: DdbTableObj | DdbObjRef<DdbObj<DdbVectorValue>[]> }) {
     const { visible, open, close } = use_modal()
     
     const [form] = Form.useForm()
