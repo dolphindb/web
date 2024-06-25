@@ -47,10 +47,11 @@ Use a browser to access `ip:port` of DolphinDB server to use
 If you need to deploy to a subpath through nginx (not recommended, one more forwarding will reduce performance), you can refer to [./nginx.conf](./nginx.conf)
 
 ### Development
-```shell
-# Install the latest version of nodejs
-# https://nodejs.org/en/download/current/
+Install the latest version of Node.js and browser on your machine.
+- windows: https://nodejs.org/en/download/prebuilt-installer/current
+- linux: https://github.com/nodesource/distributions?tab=readme-ov-file#debian-and-ubuntu-based-distributions  
 
+```shell
 # Install the pnpm package manager
 npm install -g pnpm
 
