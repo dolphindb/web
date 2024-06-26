@@ -118,7 +118,7 @@ function MainLayout () {
     }, [ ])
     
     if (!inited)
-        return null
+        return <GlobalErrorBoundary />
     
     return <Layout className='root-layout'>
         { header && <Layout.Header className='ddb-header'>
