@@ -144,14 +144,21 @@ export function BasicInfoFields (props: IProps) {
             }
         </FormDependencies>
         
-        <SchemaList engine='TSDB' mode='ito' need_time_col={need_time_col} />
+        <SchemaList 
+            engine='TSDB' 
+            mode='ito' 
+            need_time_col={need_time_col} 
+            helpTip={is_freq_increase || total_num?.gap === 1 || total_num?.custom > 2000000 
+                ? t('请注意，至少需要一列时间列与枚举列，时间列类型包括DATE、DATETIME、TIMESTAMP、NANOTIMESTAMP，枚举列类型包括STRING、SYMBOL、CHAR。') 
+                : t('请注意，至少需要一列枚举列，枚举列类型包括STRING、SYMBOL、CHAR。')}
+        />
         
         {
             type === GuideType.SIMPLE && <FormDependencies dependencies={['isFreqIncrease', 'totalNum', 'schema']}>
                 {({ isFreqIncrease, totalNum, schema = [ ] }) => 
                     // 时序数据，或者非时序数据，但是数据总量大于200w需要选常用筛选列
                     isFreqIncrease || totalNum.gap === 1 || totalNum.custom > 2000000 ? <Form.Item
-                            help={t('请选择两个常用筛选列，时序数据或者数据总量大于 200 万的非时序第一列需为时间列，第二列需为设备编号列')}
+                            help={t('请选择两个常用筛选列，第一列需为时间列，第二列需为设备编号列')}
                             tooltip={t('常用筛选列是查询时常作为常选条件的列，越重要的过滤条件，在筛选列中的位置越靠前。')}
                             name='sortColumn'
                             label={t('常用筛选列')}
