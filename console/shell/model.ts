@@ -33,7 +33,7 @@ import { model, NodeType, storage_keys } from '../model.js'
 
 import type { Monaco } from '../components/Editor/index.js'
 
-import { Database, DatabaseGroup, type Column, type ColumnRoot, PartitionDirectory, type PartitionRoot, PartitionFile, type Table } from './Databases.js'
+import { Database, DatabaseGroup, type Column, type ColumnRoot, PartitionDirectory, type PartitionRoot, PartitionFile, type Table, type Catalog } from './Databases.js'
 
 import { DdbVar } from './Variables.js'
 
@@ -54,7 +54,7 @@ class ShellModel extends Model<ShellModel> {
     
     vars: DdbVar[]
     
-    dbs: (Database | DatabaseGroup)[]
+    dbs: (Catalog | Database | DatabaseGroup)[]
     
     options?: InspectOptions
     
@@ -355,7 +355,8 @@ class ShellModel extends Model<ShellModel> {
         // ['dfs://数据库路径(可能包含/)/表名', ...]
         // 不能直接使用 getClusterDFSDatabases, 因为新的数据库权限版本 (2.00.9) 之后，用户如果只有表的权限，调用 getClusterDFSDatabases 无法拿到该表对应的数据库
         // 但对于无数据表的数据库，仍然需要通过 getClusterDFSDatabases 来获取。因此要组合使用
-        const [{ value: table_paths }, { value: db_paths }] = await Promise.all([
+        const [{ value: catalogs }, { value: table_paths }, { value: db_paths }] = await Promise.all([
+            model.ddb.call<DdbVectorStringObj>('getAllCatalogs'),
             model.ddb.call<DdbVectorStringObj>('getClusterDFSTables'),
             // 可能因为用户没有数据库的权限报错，单独 catch 并返回空数组
             model.ddb.call<DdbVectorStringObj>('getClusterDFSDatabases').catch(() => {
@@ -363,7 +364,7 @@ class ShellModel extends Model<ShellModel> {
                 return { value: [ ] }
             }),
         ])
-        
+        console.log(catalogs)
         // const db_paths = [
         //     'dfs://db1',
         //     'dfs://g1.db1',
@@ -393,7 +394,7 @@ class ShellModel extends Model<ShellModel> {
         // 库和表之间以最后一个 / 隔开。表名不可能有 /
         // 全路径中可能没有组（也就是没有点号），但一定有库和表
         let hash_map = new Map<string, Database | DatabaseGroup>()
-        let root: (Database | DatabaseGroup)[] = [ ]
+        let root: (Catalog | Database | DatabaseGroup)[] = [ ]
         for (const path of merged_paths) {
             // 找到数据库最后一个斜杠位置，截取前面部分的字符串作为库名
             const index_slash = path.lastIndexOf('/')
@@ -401,7 +402,7 @@ class ShellModel extends Model<ShellModel> {
             const db_path = `${path.slice(0, index_slash)}/`
             const table_name = path.slice(index_slash + 1)
             
-            let parent: Database | DatabaseGroup | { children: (Database | DatabaseGroup)[] } = { children: root }
+            let parent: Catalog | Database | DatabaseGroup | { children: (Catalog | Database | DatabaseGroup)[] } = { children: root }
             
             // for 循环用来处理 database group
             for (let index = 0;  index = db_path.indexOf('.', index) + 1;  ) {

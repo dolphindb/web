@@ -70,7 +70,7 @@ export function Databases () {
     
     const [expanded_keys, set_expanded_keys] = useState([ ])
     const [loaded_keys, set_loaded_keys] = useState([ ])
-    const previous_clicked_node = useRef<DatabaseGroup | Database | Table | ColumnRoot | PartitionRoot | Column | PartitionDirectory | PartitionFile | Schema>()
+    const previous_clicked_node = useRef<Catalog | DatabaseGroup | Database | Table | ColumnRoot | PartitionRoot | Column | PartitionDirectory | PartitionFile | Schema>()
     
     const enable_create_db = [NodeType.data, NodeType.single].includes(node_type)
     const [refresh_spin, set_refresh_spin] = useState(false)
@@ -160,7 +160,7 @@ export function Databases () {
                             treeData={dbs}
                             
                             loadedKeys={loaded_keys}
-                            loadData={async (node: EventDataNode<DatabaseGroup | Database | Table | ColumnRoot | PartitionRoot | Column | PartitionDirectory | PartitionFile>) => {
+                            loadData={async (node: EventDataNode<Catalog | DatabaseGroup | Database | Table | ColumnRoot | PartitionRoot | Column | PartitionDirectory | PartitionFile>) => {
                                 try {
                                     switch (node.type) {
                                         case 'column-root':
@@ -190,7 +190,7 @@ export function Databases () {
                                 set_expanded_keys(keys)
                              }}
                             
-                            onClick={async (event, { self: node, type }: EventDataNode<DatabaseGroup | Database | Table | ColumnRoot | PartitionRoot | Column | PartitionDirectory | PartitionFile | Schema>) => {
+                            onClick={async (event, { self: node, type }: EventDataNode<Catalog | DatabaseGroup | Database | Table | ColumnRoot | PartitionRoot | Column | PartitionDirectory | PartitionFile | Schema>) => {
                                 const previous = previous_clicked_node.current
                                 if (previous && previous.key !== node.key && previous.type === 'table')
                                     previous.peeked = false
@@ -819,6 +819,32 @@ function CreateDatabase () {
         </Form>
     }
     </Modal>
+}
+
+
+export class Catalog implements DataNode {
+    type = 'catalog' as const
+    
+    self: Catalog
+    
+    key: string
+    
+    title: string
+    
+    className = 'database-group'
+    
+    icon = <Icon component={SvgDatabaseGroup} />
+    
+    isLeaf = false as const
+    
+    children: (Database | DatabaseGroup)[] = [ ]
+    
+    
+    constructor (key: string) {
+        this.self = this
+        this.key = key
+        this.title = key
+    }
 }
 
 
