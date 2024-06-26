@@ -4723,5 +4723,8 @@
     },
     "上限值": {
         "en": "Limit"
+    },
+    "保存成功，重启集群生效": {
+        "en": "Save successfully and restart the cluster to take effect."
     }
 }

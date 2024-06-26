@@ -149,7 +149,7 @@ export function ControllerConfig () {
                 else
                     await config.save_controller_configs(config_strs.toSpliced(idx, 1, data.name + '=' + data.value))
                 actionRef.current.reload()
-                model.message.success(t('保存成功，重启控制/数据节点生效'))
+                model.message.success(t('保存成功，重启集群生效'))
             },
             onDelete: async (key, row) => delete_config(row.id as string),
             deletePopconfirmMessage: t('确认删除此配置项？'),
