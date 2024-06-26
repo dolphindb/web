@@ -122,7 +122,7 @@ export function Databases () {
                     {t('数据库')}
                     <span className='extra'>
                         {v3 && <span onClick={() => {
-                                shell.set({ create_catalog_modal_visible: true })
+                            shell.set({ create_catalog_modal_visible: true })
                         }}>
                             <Tooltip title={t('创建目录')} color='grey'>
                                 <Icon 
@@ -895,7 +895,7 @@ export class Catalog implements DataNode {
     
     isLeaf = false as const
     
-    children: (Database | DatabaseGroup)[] = [ ]
+    children: Database[] = [ ]
     
     
     constructor (key: string) {
