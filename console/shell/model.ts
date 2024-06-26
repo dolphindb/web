@@ -350,6 +350,8 @@ class ShellModel extends Model<ShellModel> {
     async load_dbs () {
         await model.get_cluster_perf(false)
         
+        const { v3, ddb } = model
+        
         // 当前无数据节点和计算节点存活，且当前节点不为单机节点，则不进行数据库表获取
         if (model.node.mode !== NodeType.single && !model.has_data_and_computing_nodes_alive()) 
             return
@@ -358,10 +360,10 @@ class ShellModel extends Model<ShellModel> {
         // 不能直接使用 getClusterDFSDatabases, 因为新的数据库权限版本 (2.00.9) 之后，用户如果只有表的权限，调用 getClusterDFSDatabases 无法拿到该表对应的数据库
         // 但对于无数据表的数据库，仍然需要通过 getClusterDFSDatabases 来获取。因此要组合使用
         const [{ value: catalogs }, { value: table_paths }, { value: db_paths }] = await Promise.all([
-            model.ddb.call<DdbVectorStringObj>('getAllCatalogs'),
-            model.ddb.call<DdbVectorStringObj>('getClusterDFSTables'),
+            ...v3 ? [ddb.call<DdbVectorStringObj>('getAllCatalogs')] : [ ],
+            ddb.call<DdbVectorStringObj>('getClusterDFSTables'),
             // 可能因为用户没有数据库的权限报错，单独 catch 并返回空数组
-            model.ddb.call<DdbVectorStringObj>('getClusterDFSDatabases').catch(() => {
+            ddb.call<DdbVectorStringObj>('getClusterDFSDatabases').catch(() => {
                 console.error('load_dbs: getClusterDFSDatabases error')
                 return { value: [ ] }
             }),
@@ -400,18 +402,19 @@ class ShellModel extends Model<ShellModel> {
         let root: (Catalog | Database | DatabaseGroup)[] = [ ]
         
         
-        await Promise.all(catalogs.sort().map(async catalog => {
-            const catalog_node = new Catalog(catalog)
-            root.push(catalog_node)
-            ;(await model.ddb.invoke('getSchemaByCatalog', [catalog])).data
-                .sort((a, b) => strcmp(a.schema, b.schema))
-                .map(({ schema, dbUrl }) => {
-                    const db_path = `${dbUrl}/`
-                    const database = new Database(db_path, schema)
-                    catalog_map.set(db_path, database)
-                    catalog_node.children.push(database)
-                })
-        }))
+        if (v3) 
+            await Promise.all(catalogs.sort().map(async catalog => {
+                const catalog_node = new Catalog(catalog)
+                root.push(catalog_node)
+                ;(await ddb.invoke('getSchemaByCatalog', [catalog])).data
+                    .sort((a, b) => strcmp(a.schema, b.schema))
+                    .map(({ schema, dbUrl }) => {
+                        const db_path = `${dbUrl}/`
+                        const database = new Database(db_path, schema)
+                        catalog_map.set(db_path, database)
+                        catalog_node.children.push(database)
+                    })
+            }))
         
         for (const path of merged_paths) {
             // 找到数据库最后一个斜杠位置，截取前面部分的字符串作为库名

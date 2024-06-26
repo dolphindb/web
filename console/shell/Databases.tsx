@@ -64,7 +64,7 @@ enum TableKind {
 
 export function Databases () {
     const { dbs } = shell.use(['dbs'])
-    const { node, logined, node_type } = model.use(['node', 'logined', 'node_type'])
+    const { node, logined, node_type, v3 } = model.use(['node', 'logined', 'node_type', 'v3'])
     
     const [db_height, set_db_height] = useState(256)
     
@@ -121,18 +121,16 @@ export function Databases () {
                 <div className='type'>
                     {t('数据库')}
                     <span className='extra'>
-                        <span onClick={() => {
-                            if (enable_create_db)
+                        {v3 && <span onClick={() => {
                                 shell.set({ create_catalog_modal_visible: true })
                         }}>
-                            <Tooltip title={enable_create_db ? t('创建目录') : t('仅支持单机节点和数据节点创建数据库')} color='grey'>
+                            <Tooltip title={t('创建目录')} color='grey'>
                                 <Icon 
-                                    className={cn('create-database-icon', { disabled: !enable_create_db })}
-                                    disabled={!enable_create_db}
+                                    className='create-database-icon'
                                     component={SvgCreateDatabase}
                                 />
                             </Tooltip>
-                        </span>
+                        </span>}
                         <span onClick={() => {
                             if (enable_create_db)
                                 shell.set({ create_database_modal_visible: true })
@@ -306,6 +304,7 @@ export function Databases () {
                 }
                 <SetTableComment />
                 <SetColumnComment />
+                {v3 && <CreateCatalog />}
                 <CreateDatabase />
                 <ConfirmCommand />
             </div>
@@ -525,6 +524,53 @@ interface CreateDatabaseFormInfo {
     storageEngine?: StorageEngine | undefined
     atomicLevel: AtomicLevel
     chunkGranularity?: ChunkGranularity | undefined
+}
+
+function CreateCatalog () {
+    const { create_catalog_modal_visible } = shell.use(['create_catalog_modal_visible'])
+    const [form] = Form.useForm()
+    
+    const [loading, set_loading] = useState(false)
+    
+    return <Modal
+            width='30%'
+            forceRender
+            maskClosable={false}
+            title={t('创建 Catalog')} 
+            open={create_catalog_modal_visible} 
+            onOk={async () => { 
+                try {
+                    set_loading(true)
+                    
+                    await form.validateFields()
+                    await model.ddb.eval(`createCatalog("${form.getFieldValue('name')}")`)
+                    
+                    await shell.load_dbs()
+                    
+                    shell.set({ create_catalog_modal_visible: false })
+                } finally {
+                    set_loading(false)
+                }
+            }} 
+            onCancel={() => {
+                if (loading)
+                    return
+                shell.set({ create_catalog_modal_visible: false })
+            }}
+        >
+            <Form form={form} labelCol={{ span: 4 }} wrapperCol={{ span: 18 }} disabled={loading}>
+                <Form.Item 
+                    rules={[
+                        { required: true, message: t('请输入目录名') },
+                        { pattern: /^[A-Za-z][A-Za-z0-9_]*$/, message: t('必须由大小写字母开头，且只能由大小写字母、数字、下划线(_)组成') }
+                    ]} 
+                    name='name' 
+                    label={t('目录名')}
+                >
+                    <Input placeholder={t('请输入目录名')} />
+                </Form.Item>
+            </Form>
+        </Modal>
 }
 
 function CreateDatabase () {
