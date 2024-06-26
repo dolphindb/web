@@ -123,6 +123,18 @@ export function Databases () {
                     <span className='extra'>
                         <span onClick={() => {
                             if (enable_create_db)
+                                shell.set({ create_catalog_modal_visible: true })
+                        }}>
+                            <Tooltip title={enable_create_db ? t('创建目录') : t('仅支持单机节点和数据节点创建数据库')} color='grey'>
+                                <Icon 
+                                    className={cn('create-database-icon', { disabled: !enable_create_db })}
+                                    disabled={!enable_create_db}
+                                    component={SvgCreateDatabase}
+                                />
+                            </Tooltip>
+                        </span>
+                        <span onClick={() => {
+                            if (enable_create_db)
                                 shell.set({ create_database_modal_visible: true })
                         }}>
                             <Tooltip title={enable_create_db ? t('创建数据库') : t('仅支持单机节点和数据节点创建数据库')} color='grey'>
@@ -831,7 +843,7 @@ export class Catalog implements DataNode {
     
     title: string
     
-    className = 'database-group'
+    className = 'catalog'
     
     icon = <Icon component={SvgDatabaseGroup} />
     
@@ -842,8 +854,7 @@ export class Catalog implements DataNode {
     
     constructor (key: string) {
         this.self = this
-        this.key = key
-        this.title = key
+        this.key = this.title = key
     }
 }
 
@@ -904,7 +915,7 @@ export class Database implements DataNode {
     table_paths: string[] = [ ]
     
     
-    constructor (path: string) {
+    constructor (path: string, title?: string) {
         this.self = this
         assert(path.startsWith('dfs://'), t('数据库路径应该以 dfs:// 开头'))
         this.key = this.path = path
@@ -927,7 +938,7 @@ export class Database implements DataNode {
             }
         
         this.title = <div className='database-title'>
-            <span title={path.slice(0, -1)}>{path.slice('dfs://'.length, -1).split('.').at(-1)}</span>
+            <span title={path.slice(0, -1)}>{title ?? path.slice('dfs://'.length, -1).split('.').at(-1)}</span>
             
             <div className='database-actions'>
                 {

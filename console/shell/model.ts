@@ -9,7 +9,7 @@ import type { FitAddon } from '@xterm/addon-fit'
 
 import type * as monacoapi from 'monaco-editor/esm/vs/editor/editor.api.js'
 
-import { delta2str, assert, delay } from 'xshell/utils.browser.js'
+import { delta2str, assert, delay, strcmp } from 'xshell/utils.browser.js'
 import { red, blue } from 'xshell/chalk.browser.js'
 
 import {
@@ -33,7 +33,7 @@ import { model, NodeType, storage_keys } from '../model.js'
 
 import type { Monaco } from '../components/Editor/index.js'
 
-import { Database, DatabaseGroup, type Column, type ColumnRoot, PartitionDirectory, type PartitionRoot, PartitionFile, type Table, type Catalog } from './Databases.js'
+import { Database, DatabaseGroup, type Column, type ColumnRoot, PartitionDirectory, type PartitionRoot, PartitionFile, type Table, Catalog } from './Databases.js'
 
 import { DdbVar } from './Variables.js'
 
@@ -90,6 +90,8 @@ class ShellModel extends Model<ShellModel> {
     set_table_comment_modal_visible = false
     
     create_database_modal_visible = false
+    
+    create_catalog_modal_visible = false
     
     create_database_partition_count = 1
     
@@ -364,7 +366,7 @@ class ShellModel extends Model<ShellModel> {
                 return { value: [ ] }
             }),
         ])
-        console.log(catalogs)
+        
         // const db_paths = [
         //     'dfs://db1',
         //     'dfs://g1.db1',
@@ -394,7 +396,23 @@ class ShellModel extends Model<ShellModel> {
         // 库和表之间以最后一个 / 隔开。表名不可能有 /
         // 全路径中可能没有组（也就是没有点号），但一定有库和表
         let hash_map = new Map<string, Database | DatabaseGroup>()
+        let catalog_map = new Map<string, Database>()
         let root: (Catalog | Database | DatabaseGroup)[] = [ ]
+        
+        
+        await Promise.all(catalogs.sort().map(async catalog => {
+            const catalog_node = new Catalog(catalog)
+            root.push(catalog_node)
+            ;(await model.ddb.invoke('getSchemaByCatalog', [catalog])).data
+                .sort((a, b) => strcmp(a.schema, b.schema))
+                .map(({ schema, dbUrl }) => {
+                    const db_path = `${dbUrl}/`
+                    const database = new Database(db_path, schema)
+                    catalog_map.set(db_path, database)
+                    catalog_node.children.push(database)
+                })
+        }))
+        
         for (const path of merged_paths) {
             // 找到数据库最后一个斜杠位置，截取前面部分的字符串作为库名
             const index_slash = path.lastIndexOf('/')
@@ -404,29 +422,33 @@ class ShellModel extends Model<ShellModel> {
             
             let parent: Catalog | Database | DatabaseGroup | { children: (Catalog | Database | DatabaseGroup)[] } = { children: root }
             
-            // for 循环用来处理 database group
-            for (let index = 0;  index = db_path.indexOf('.', index) + 1;  ) {
-                const group_key = path.slice(0, index)
-                const group = hash_map.get(group_key)
-                if (group)
-                    parent = group
-                else {
-                    const group = new DatabaseGroup(group_key)
-                    ;(parent as DatabaseGroup).children.push(group)
-                    hash_map.set(group_key, group)
-                    parent = group
-                }
-            }
-            
-            // 处理 database
-            const db = hash_map.get(db_path) as Database
-            if (db)
-                parent = db
+            if (catalog_map.has(db_path)) 
+                parent = catalog_map.get(db_path)
             else {
-                const db = new Database(db_path)
-                ;(parent as DatabaseGroup).children.push(db)
-                hash_map.set(db_path, db)
-                parent = db
+                // for 循环用来处理 database group
+                for (let index = 0;  index = db_path.indexOf('.', index) + 1;  ) {
+                    const group_key = path.slice(0, index)
+                    const group = hash_map.get(group_key)
+                    if (group)
+                        parent = group
+                    else {
+                        const group = new DatabaseGroup(group_key)
+                        ;(parent as DatabaseGroup).children.push(group)
+                        hash_map.set(group_key, group)
+                        parent = group
+                    }
+                }
+                
+                // 处理 database
+                const db = hash_map.get(db_path) as Database
+                if (db)
+                    parent = db
+                else {
+                    const db = new Database(db_path)
+                    ;(parent as DatabaseGroup).children.push(db)
+                    hash_map.set(db_path, db)
+                    parent = db
+                }
             }
             
             // 处理 table，如果 table_name 为空表明当前路径是 db_path 则不处理
