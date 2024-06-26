@@ -198,7 +198,7 @@ export function NodesManagement () {
                     else
                         await config.save_cluster_nodes(node_strs.toSpliced(idx, 1, `${data.host}:${data.port}:${data.alias},${data.mode}`))
                     mutate()
-                    model.message.success(t('保存成功，重启控制/数据节点生效'))
+                    model.message.success(t('保存成功，重启集群生效'))
                 },
                 onDelete: async (key, row) => delete_nodes(row.id),
                 deletePopconfirmMessage: t('确认删除此节点？'),

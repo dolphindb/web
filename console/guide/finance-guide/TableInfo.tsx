@@ -12,6 +12,8 @@ import { model } from '../../model.js'
 
 import { t } from '../../../i18n/index.js'
 
+import { TIME_TYPES } from '../constant.js'
+
 import { type IFinanceInfo } from './type.js'
 
 
@@ -91,7 +93,7 @@ export function TableInfo (props: IProps) {
         >
             <Input placeholder={t('请输入表名')} />
         </Form.Item>
-        <SchemaList engine={engine} mode='finance'/>
+        <SchemaList engine={engine} mode='finance' helpTip={t('请注意，表结构至少需要一列时间列，时间列类型包括 {{name}}', { name: TIME_TYPES.join(', ') })}/>
         <PartitionColSelect info={info} schema={schema} />
         
         { engine === 'TSDB' && <CommonFilterCols schema={schema}/> }

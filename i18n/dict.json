@@ -3182,8 +3182,11 @@
     "表结构至少包含一列时间列": {
         "en": "The table must contain at least one time column."
     },
-    "请注意，时序数据或总数据量大于200万的非时序数据的表结构至少需要一列时间列与枚举列，其余数据表结构至少需要一列枚举列，时间列类型包括DATE、DATETIME、TIMESTAMP、NANOTIMESTAMP，枚举列类型包括STRING、SYMBOL、CHAR。": {
-        "en": "Note: For time-series data (or non-time-series data with volume over 2M), at least one time column and one enumeration column are required. For other cases, at least one enumeration column is required. A temporal type can be DATE, DATETIME, TIMESTAMP, or NANOTIMESTAMP, and an enumerated type can be STRING, SYMBOL, or CHAR."
+    "请注意，至少需要一列时间列与枚举列，时间列类型包括DATE、DATETIME、TIMESTAMP、NANOTIMESTAMP，枚举列类型包括STRING、SYMBOL、CHAR。": {
+        "en": "Note: at least one time column and one enumeration column are required. A temporal type can be DATE, DATETIME, TIMESTAMP, or NANOTIMESTAMP, and an enumerated type can be STRING, SYMBOL, or CHAR."
+    },
+    "请注意，至少需要一列枚举列，枚举列类型包括STRING、SYMBOL、CHAR。": {
+        "en": "Note: at least one enumeration column are required. An enumerated type can be STRING, SYMBOL, or CHAR."
     },
     "导入表文件": {
         "en": "Import Table"
@@ -3221,8 +3224,8 @@
     "常用筛选列是查询时常作为常选条件的列，越重要的过滤条件，在筛选列中的位置越靠前。": {
         "en": "The filter columns are columns that are frequently used as filtering conditions in queries. It is recommended to arrange these columns by query frequency, with the most commonly used one at the beginning of the list."
     },
-    "请选择两个常用筛选列，时序数据或者数据总量大于 200 万的非时序第一列需为时间列，第二列需为设备编号列": {
-        "en": "Select two filter columns. For time-series data or non-time-series data with total volume over 2M, the first column must be a time column, and the second column must be a device ID column. For other cases, the first column must be a device ID column."
+    "请选择两个常用筛选列，第一列需为时间列，第二列需为设备编号列": {
+        "en": "Select two filter columns. The first column must be a time column, and the second column must be a device ID column."
     },
     "表结构中无 {{name}} 列，请修改": {
         "en": "Column {{name}} does not exist."
@@ -4720,5 +4723,8 @@
     },
     "上限值": {
         "en": "Limit"
+    },
+    "保存成功，重启集群生效": {
+        "en": "Save successfully and restart the cluster to take effect."
     }
 }
