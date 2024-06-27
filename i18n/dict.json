@@ -4741,5 +4741,8 @@
     },
     "错误信息：{{error_msg}}": {
         "en": "Error message: {{error_msg}}"
-    }
+    },
+    "除分区列外，请选择查询时常作为过滤条件的列。越重要的过滤条件，在过滤列中的位置越靠前。结合您提供的信息，最多可选择2个常用筛选列。": {
+        "en": "Apart from the partitioning columns, please select columns that are frequently used as filtering conditions during queries. It is recommended to arrange these columns by query frequency, with the most commonly used one at the beginning of the list. You can specify at most 2 filter columns."
+    }   
 }
