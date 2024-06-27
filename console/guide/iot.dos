@@ -429,7 +429,7 @@ def DBMSIOT_recommendInfo(args){
         if(tmp[`secondPartitionType][0]==`null){  //只有一层分区
             partitionContext="请选择一个分区列（数据时间列）。"
             sortColumnContextf="除分区列外，请选择查询时常作为过滤条件的列。越重要的过滤条件，在过滤列中的位置越靠前。"
-            sortColumnContexts = "结合您提供的信息，最多可选择2个常用筛选列,建议第一个过滤列为设备编号列。" 
+            sortColumnContexts = "结合您提供的信息，最多可选择2个常用筛选列，建议第一个过滤列为设备编号列。" 
             partitionNum = 1
             maxOtherSortKeyNum = 2
         }else if(tmp[`secondPartitionType][0]==`value){  //第二层分区为value分区
@@ -461,8 +461,8 @@ def DBMSIOT_recommendInfo(args){
             return
         }else{
             partitionContext="请选择一个分区列（设备编号列）。"
-            sortColumnContextf="除分区列外，请选择查询时常作为过滤条件的列。越重要的过滤条件，在过滤列中的位置越靠前"
-            sortColumnContexts = "结合您提供的信息,最多可选择1个常用筛选列,建议第一个过滤列为数据时间列。" 
+            sortColumnContextf="除分区列外，请选择查询时常作为过滤条件的列。越重要的过滤条件，在过滤列中的位置越靠前。"
+            sortColumnContexts = "结合您提供的信息，最多可选择1个常用筛选列，建议第一个过滤列为数据时间列。" 
             partitionNum = 1
             maxOtherSortKeyNum = 2
             result = '{"partitionInfo":{"context":"'+partitionContext+'"'+',"partitionNum":'+partitionNum+'},"sortColumnInfo":{"context":"'+sortColumnContextf+sortColumnContexts+'","maxOtherSortKeyNum":'+maxOtherSortKeyNum+'}}'
