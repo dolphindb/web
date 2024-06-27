@@ -499,6 +499,7 @@ interface Partition {
 }
 
 interface CreateDatabaseFormInfo {
+    use_catalog: boolean
     catalog: string
     schema: string
     // dbPath 无 dfs:// 前缀
@@ -521,14 +522,14 @@ function CreateCatalog () {
             width='30%'
             forceRender
             maskClosable={false}
-            title={t('创建 Catalog')} 
+            title={t('创建 catalog')} 
             open={create_catalog_modal_visible} 
             onOk={async () => { 
                 try {
                     set_loading(true)
                     
                     await form.validateFields()
-                    await model.ddb.eval(`createCatalog("${form.getFieldValue('name')}")`)
+                    await model.ddb.invoke('createCatalog', [form.getFieldValue('name')])
                     
                     await shell.load_dbs()
                     
@@ -562,9 +563,8 @@ function CreateDatabase () {
     const { create_database_modal_visible, create_database_partition_count, dbs } = shell.use(['create_database_modal_visible', 'create_database_partition_count', 'dbs'])
     const { node_type, node, v2, v3 } = model.use(['node_type', 'node', 'v2', 'v3'])
     
-    const [catalog, set_catalog] = useState(false)
-    
     const [form] = Form.useForm()
+    const use_catalog = Form.useWatch('use_catalog', form)
     
     const catalogs = useMemo(() => 
         shell.dbs?.filter(db => db instanceof Catalog)?.map(({ title }) => ({
@@ -688,7 +688,7 @@ function CreateDatabase () {
                 
                 // NOTE: `partitioned by paritionType(partitionScheme), ...paritionType(partitionScheme)` must be placed in one line, or
                 // the parser will complain about syntax error.
-                createDBScript = `create database ${catalog ? `${table.catalog}.${table.schema}` : `"dfs://${table.dbPath}"`}\npartitioned by `
+                createDBScript = `create database ${table.use_catalog ? `${table.catalog}.${table.schema}` : `"dfs://${table.dbPath}"`}\npartitioned by `
                 
                 for (let i = 0;  i < partitionCount;  i++) {
                     const { type, scheme } = table.partitions[i]
@@ -713,11 +713,11 @@ function CreateDatabase () {
                 })
             }}
         >
-            { v3 && <Form.Item label={t('是否在目录 (catalog) 下创建')} name='is_catalog'>
-                <Checkbox onChange={event => { set_catalog(event.target.checked) }}/>
+            { v3 && <Form.Item label={t('是否在目录 (catalog) 下创建')} name='use_catalog' valuePropName='checked'>
+                <Checkbox />
             </Form.Item> }
             {
-                catalog && v3
+                use_catalog && v3
                     ? <>
                         <Form.Item label={t('目录 (catalog)')} name='catalog' required>
                             <Select
@@ -877,7 +877,6 @@ function CreateDatabase () {
                     form.setFieldValue('partitions', [ ])
                     form.setFieldValue('partitionCount', 1)
                     
-                    set_catalog(false)
                     shell.set({ create_database_partition_count: 1 })
                 }}>
                     {t('清空')}
