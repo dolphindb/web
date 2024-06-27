@@ -104,7 +104,7 @@ export function PartitionColSelect (props: IProps) {
                         { required: true, message: t('请选择标的列') },
                         { validator: async (_, value) => is_col_exist([value]) }
                     ]}>
-                <Select options={filter_col_options(ENUM_TYPES)} placeholder='请选择标的列'/>
+                <Select options={filter_col_options(ENUM_TYPES)} placeholder={t('请选择标的列')}/>
             </Form.Item>
         }
     </>
