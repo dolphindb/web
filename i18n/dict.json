@@ -4739,8 +4739,8 @@
     "保存成功，重启集群生效": {
         "en": "Save successfully and restart the cluster to take effect."
     },
-    "创建 Catalog": {
-        "en": "Create catalog"
+    "创建 catalog": {
+        "en": "Create Catalog"
     },
     "请输入名称": {
         "en": "Please enter a name"

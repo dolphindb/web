@@ -401,12 +401,14 @@ class ShellModel extends Model<ShellModel> {
         let catalog_map = new Map<string, Database>()
         let root: (Catalog | Database | DatabaseGroup)[] = [ ]
         
-        
         if (v3) 
             await Promise.all(catalogs.sort().map(async catalog => {
-                const catalog_node = new Catalog(catalog)
+                let catalog_node = new Catalog(catalog)
                 root.push(catalog_node)
-                ;(await ddb.invoke('getSchemaByCatalog', [catalog])).data
+                
+                ;(
+                    await ddb.invoke('getSchemaByCatalog', [catalog])
+                ).data
                     .sort((a, b) => strcmp(a.schema, b.schema))
                     .map(({ schema, dbUrl }) => {
                         const db_path = `${dbUrl}/`

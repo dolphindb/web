@@ -36,6 +36,7 @@ import { shell } from './model.js'
 import { CreateTableModal } from './CreateTableModal.js'
 import { AddColumnModal } from './AddColumnModal.js'
 import { AccessModal } from './AccessModal.js'
+import { QueryGuideModal } from './QueryGuide/index.js'
 
 import SvgDatabase from './icons/database.icon.svg'
 import SvgCreateDatabase from './icons/create-database.icon.svg'
@@ -53,7 +54,6 @@ import SvgTable from './icons/table.icon.svg'
 import SvgQueryGuide from './icons/query-guide.icon.svg'
 import SvgCatalog from './icons/catalog.icon.svg'
 import SvgCreateCatalog from './icons/create-catalog.icon.svg'
-import { QueryGuideModal } from './QueryGuide/index.js'
 
 
 
@@ -138,11 +138,8 @@ export function Databases () {
                         {v3 && <span onClick={() => {
                             shell.set({ create_catalog_modal_visible: true })
                         }}>
-                            <Tooltip title={t('创建 Catalog')} color='grey'>
-                                <Icon 
-                                    className='create-database-icon'
-                                    component={SvgCreateCatalog}
-                                />
+                            <Tooltip title={t('创建 catalog')} color='grey'>
+                                <Icon className='create-database-icon' component={SvgCreateCatalog} />
                             </Tooltip>
                         </span>}
                         <span onClick={shell.refresh_db}>
@@ -236,11 +233,11 @@ export function Databases () {
                                                 await node.inspect() 
                                             }
                                         }
-                                            
                                         
                                         set_expanded_keys(keys_)
                                         break
                                     }
+                                    
                                     case 'partition-file':
                                     case 'schema':
                                         await node.inspect()
@@ -716,11 +713,9 @@ function CreateDatabase () {
                 })
             }}
         >
-            {
-                v3 && <Form.Item label={t('是否在目录 (catalog) 下创建')} name='is_catalog'>
-                        <Checkbox onChange={event => { set_catalog(event.target.checked) }}/>
-                    </Form.Item>      
-            }
+            { v3 && <Form.Item label={t('是否在目录 (catalog) 下创建')} name='is_catalog'>
+                <Checkbox onChange={event => { set_catalog(event.target.checked) }}/>
+            </Form.Item> }
             {
                 catalog && v3
                     ? <>
