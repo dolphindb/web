@@ -3407,6 +3407,9 @@
     "请选择日增数据量": {
         "en": "Please select a daily increment."
     },
+    "总数据量": {
+        "en": "Total data volume"
+    },
     "请输入文件名称": {
         "en": "Please enter a file name."
     },
