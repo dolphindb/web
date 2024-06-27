@@ -3246,7 +3246,7 @@
         "en": "TSDB storage engine is recommended for computations over data within a specific time period; OLAP is recommended for queries on the entire dataset."
     },
     "是否允许并发写入同一分区": {
-        "en": "Enable Concurrent Writes to the Same Partition"
+        "en": "Concurrent Writes to the Same Partition"
     },
     "允许并发写入同一分区，会降低写入速度，且有极小概率导致数据不一致": {
         "en": "Enabling concurrent writes will decrease the write speed and could pose a minimal risk of data inconsistency."
@@ -3377,7 +3377,7 @@
     "时间列": {
         "en": "Time Column"
     },
-    "严格按时序增长排列的时间类型列,将按该列对数据进行分区": {
+    "严格按时序增长排列的时间类型列，将按该列对数据进行分区": {
         "en": "Specify a partitioning column with time series data collected chronologically."
     },
     "请选择时间列": {
@@ -3386,7 +3386,7 @@
     "标的列": {
         "en": "Symbol Column"
     },
-    "如股票ID、期货品种这样的枚举类型列,将按该列对数据进行分区": {
+    "如股票ID、期货品种这样的枚举类型列，将按该列对数据进行分区": {
         "en": "Specify a partitioning column with enumerated values such as security ID and futures contract."
     },
     "请选择标的列": {

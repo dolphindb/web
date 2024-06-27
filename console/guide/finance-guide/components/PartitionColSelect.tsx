@@ -85,23 +85,23 @@ export function PartitionColSelect (props: IProps) {
     : <>
         {
                 show_time_col && <Form.Item
-                    tooltip='严格按时序增长排列的时间类型列，将按该列对数据进行分区'
-                    label='时间列'
+                    tooltip={t('严格按时序增长排列的时间类型列，将按该列对数据进行分区')}
+                    label={t('时间列')}
                     name='timeCol'
                     rules={[
-                        { required: true, message: '请选择时间列' },
+                        { required: true, message: t('请选择时间列') },
                         { validator: async (_, value) => is_col_exist([value]) }
                     ]}
                 >
-                <Select placeholder='请选择时间列' options={filter_col_options(TIME_TYPES)}/>
+                <Select placeholder={t('请选择时间列')} options={filter_col_options(TIME_TYPES)}/>
             </Form.Item>
         }
         {
                 show_hash_col && <Form.Item
-                    tooltip='如股票ID、期货品种这样的枚举类型列，将按该列对数据进行分区'
-                    label='标的列' name='hashCol'
+                    tooltip={t('如股票ID、期货品种这样的枚举类型列，将按该列对数据进行分区')}
+                    label={t('标的列')} name='hashCol'
                     rules={[
-                        { required: true, message: '请选择标的列' },
+                        { required: true, message: t('请选择标的列') },
                         { validator: async (_, value) => is_col_exist([value]) }
                     ]}>
                 <Select options={filter_col_options(ENUM_TYPES)} placeholder='请选择标的列'/>
