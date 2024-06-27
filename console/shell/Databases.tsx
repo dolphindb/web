@@ -124,7 +124,7 @@ export function Databases () {
                         {v3 && <span onClick={() => {
                             shell.set({ create_catalog_modal_visible: true })
                         }}>
-                            <Tooltip title={t('创建目录')} color='grey'>
+                            <Tooltip title={t('创建 Catalog')} color='grey'>
                                 <Icon 
                                     className='create-database-icon'
                                     component={SvgCreateDatabase}
@@ -206,7 +206,9 @@ export function Databases () {
                                     previous.peeked = false
                                 
                                 switch (type) {
-                                    case 'database-group': 
+                                    case 'catalog':
+                                    case 'database-group':
+                                    case 'database': 
                                     case 'partition-root': 
                                     case 'column-root': 
                                     case 'partition-directory': {
@@ -220,41 +222,23 @@ export function Databases () {
                                             else
                                                 keys_.push(key)
                                         
-                                        if (!found)
-                                            keys_.push(node.key)
-                                        
-                                        set_expanded_keys(keys_)
-                                        break
-                                    }
-                                    
-                                    case 'database': {
-                                        // 切换展开状态
-                                        let found = false
-                                        let keys_ = [ ]
-                                        
-                                        const { key } = node
-                                        
-                                        for (const expanded_key of expanded_keys)
-                                            if (key === expanded_key)
-                                                found = true
-                                            else
-                                                keys_.push(expanded_key)
-                                        
                                         if (!found) {
-                                            keys_.push(key)
+                                            keys_.push(node.key)
                                             
-                                            await node.load_children()
+                                            if (type === 'database') {
+                                                await node.load_children()
                                             
-                                            shell.set({ dbs: [...dbs] })
-                                            
-                                            // 显示 schema
-                                            await node.inspect()
+                                                shell.set({ dbs: [...dbs] })
+                                                
+                                                // 显示 schema
+                                                await node.inspect() 
+                                            }
                                         }
+                                            
                                         
                                         set_expanded_keys(keys_)
                                         break
                                     }
-                                    
                                     case 'partition-file':
                                     case 'schema':
                                         await node.inspect()
@@ -516,6 +500,8 @@ interface Partition {
 }
 
 interface CreateDatabaseFormInfo {
+    catalog: string
+    schema: string
     // dbPath 无 dfs:// 前缀
     dbPath: string
     partitionCount: string
@@ -547,6 +533,7 @@ function CreateCatalog () {
                     
                     await shell.load_dbs()
                     
+                    form.resetFields()
                     shell.set({ create_catalog_modal_visible: false })
                 } finally {
                     set_loading(false)
@@ -555,19 +542,21 @@ function CreateCatalog () {
             onCancel={() => {
                 if (loading)
                     return
+                form.resetFields()
                 shell.set({ create_catalog_modal_visible: false })
             }}
         >
             <Form form={form} labelCol={{ span: 4 }} wrapperCol={{ span: 18 }} disabled={loading}>
                 <Form.Item 
+                    required
                     rules={[
-                        { required: true, message: t('请输入目录名') },
+                        { required: true, message: t('请输入名称') },
                         { pattern: /^[A-Za-z][A-Za-z0-9_]*$/, message: t('必须由大小写字母开头，且只能由大小写字母、数字、下划线(_)组成') }
                     ]} 
                     name='name' 
-                    label={t('目录名')}
+                    label={t('名称')}
                 >
-                    <Input placeholder={t('请输入目录名')} />
+                    <Input placeholder={t('请输入名称')} />
                 </Form.Item>
             </Form>
         </Modal>
@@ -576,6 +565,9 @@ function CreateCatalog () {
 function CreateDatabase () {
     const { create_database_modal_visible, create_database_partition_count } = shell.use(['create_database_modal_visible', 'create_database_partition_count'])
     const { node_type, node, v2, v3 } = model.use(['node_type', 'node', 'v2', 'v3'])
+    
+    const [catalog, set_catalog] = useState(false)
+    
     const [form] = Form.useForm()
     
     // We just assume this is always turned on in dolphindb.cfg
@@ -692,7 +684,7 @@ function CreateDatabase () {
                 
                 // NOTE: `partitioned by paritionType(partitionScheme), ...paritionType(partitionScheme)` must be placed in one line, or
                 // the parser will complain about syntax error.
-                createDBScript = `create database "dfs://${table.dbPath}"\npartitioned by `
+                createDBScript = `create database ${catalog ? `${table.catalog}.${table.schema}` : `"dfs://${table.dbPath}"`}\npartitioned by `
                 
                 for (let i = 0;  i < partitionCount;  i++) {
                     const { type, scheme } = table.partitions[i]
@@ -717,18 +709,41 @@ function CreateDatabase () {
                 })
             }}
         >
-            <Form.Item label={t('数据库路径 (directory)')} name='dbPath' required rules={[{
-                required: true,
-                validator: async (_, val: string) => {
-                    if (!val)
-                        throw new TypeError(t('数据库路径不能为空'))
-                    
-                    if (val.includes('"'))
-                        throw new TypeError(t('数据库路径不能包含双引号'))
-                }
-            }]}>
-                <Input addonBefore='dfs://' placeholder={t('请输入数据库路径')} />
+            <Form.Item label='catalog' name='catalog'>
+                <Select
+                    allowClear 
+                    placeholder={t('请选择 catalog')} 
+                    options={[
+                        ...shell.dbs?.filter(db => db instanceof Catalog)?.map(({ title }) => ({
+                            label: title,
+                            value: title,
+                        })) ?? [ ]
+                    ]} 
+                    onChange={value => { set_catalog(Boolean(value)) }}
+                />
             </Form.Item>
+            
+            {
+                catalog 
+                    ? <Form.Item label='schema' name='schema' required rules={[
+                        { required: true, message: t('请输入 schema') },
+                        { pattern: /^[A-Za-z][A-Za-z0-9_]*$/, message: t('必须由大小写字母开头，且只能由大小写字母、数字、下划线(_)组成') }
+                    ]}>
+                        <Input placeholder={t('请输入 schema')} />
+                    </Form.Item> 
+                    : <Form.Item label={t('数据库路径 (directory)')} name='dbPath' required rules={[{
+                        required: true,
+                        validator: async (_, val: string) => {
+                            if (!val)
+                                throw new TypeError(t('数据库路径不能为空'))
+                            
+                            if (val.includes('"'))
+                                throw new TypeError(t('数据库路径不能包含双引号'))
+                        }
+                    }]}>
+                        <Input addonBefore='dfs://' placeholder={t('请输入数据库路径')} />
+                    </Form.Item>
+            }
             
             <Form.Item label={t('分区层级')} name='partitionCount' required initialValue={create_database_partition_count} rules={[{
                 required: true,
