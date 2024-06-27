@@ -879,6 +879,7 @@ function CreateDatabase () {
                     form.setFieldValue('partitions', [ ])
                     form.setFieldValue('partitionCount', 1)
                     
+                    set_catalog(false)
                     shell.set({ create_database_partition_count: 1 })
                 }}>
                     {t('清空')}
