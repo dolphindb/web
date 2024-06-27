@@ -709,7 +709,7 @@ function CreateDatabase () {
                 })
             }}
         >
-            <Form.Item label='catalog' name='catalog'>
+            {v3 && <Form.Item label='catalog' name='catalog'>
                 <Select
                     allowClear 
                     placeholder={t('请选择 catalog')} 
@@ -721,10 +721,10 @@ function CreateDatabase () {
                     ]} 
                     onChange={value => { set_catalog(Boolean(value)) }}
                 />
-            </Form.Item>
+            </Form.Item>}
             
             {
-                catalog 
+                catalog && v3
                     ? <Form.Item label='schema' name='schema' required rules={[
                         { required: true, message: t('请输入 schema') },
                         { pattern: /^[A-Za-z][A-Za-z0-9_]*$/, message: t('必须由大小写字母开头，且只能由大小写字母、数字、下划线(_)组成') }
