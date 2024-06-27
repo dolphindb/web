@@ -4731,18 +4731,24 @@
         "en": "Save successfully and restart the cluster to take effect."
     },
     "创建 Catalog": {
-        "en": "Create Catalog"
+        "en": "Create catalog"
     },
     "请输入名称": {
         "en": "Please enter a name"
-    },
-    "必须由大小写字母开头，且只能由大小写字母、数字、下划线(_)组成": {
-        "en": "It must start with an uppercase or lowercase letter and can only consist of uppercase or lowercase letters, numbers, and underscores"
     },
     "请选择 catalog": {
         "en": "Please select catalog"
     },
     "请输入 schema": {
         "en": "Please enter a schema"
+    },
+    "是否在目录 (catalog) 下创建": {
+        "en": "Use a catalog"
+    },
+    "目录 (catalog)": {
+        "en": "catalog"
+    },
+    "名称 (schema)": {
+        "en": "schema"
     }
 }
