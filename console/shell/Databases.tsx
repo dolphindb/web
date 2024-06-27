@@ -1,11 +1,11 @@
-import { default as React, useCallback, useEffect, useRef, useState } from 'react'
+import { default as React, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
 import NiceModal from '@ebay/nice-modal-react'
 
 import { Resizable } from 're-resizable'
 import cn from 'classnames'
 
-import { Tooltip, Tree, Modal, Form, Input, Select, Button, InputNumber } from 'antd'
+import { Tooltip, Tree, Modal, Form, Input, Select, Button, InputNumber, Checkbox } from 'antd'
 
 import type { DataNode, EventDataNode } from 'antd/es/tree'
 
@@ -51,6 +51,8 @@ import SvgColumnRoot from './icons/column-root.icon.svg'
 import SvgPartitionDirectory from './icons/partition-directory.icon.svg'
 import SvgTable from './icons/table.icon.svg'
 import SvgQueryGuide from './icons/query-guide.icon.svg'
+import SvgCatalog from './icons/catalog.icon.svg'
+import SvgCreateCatalog from './icons/create-catalog.icon.svg'
 import { QueryGuideModal } from './QueryGuide/index.js'
 
 
@@ -121,16 +123,6 @@ export function Databases () {
                 <div className='type'>
                     {t('数据库')}
                     <span className='extra'>
-                        {v3 && <span onClick={() => {
-                            shell.set({ create_catalog_modal_visible: true })
-                        }}>
-                            <Tooltip title={t('创建 Catalog')} color='grey'>
-                                <Icon 
-                                    className='create-database-icon'
-                                    component={SvgCreateDatabase}
-                                />
-                            </Tooltip>
-                        </span>}
                         <span onClick={() => {
                             if (enable_create_db)
                                 shell.set({ create_database_modal_visible: true })
@@ -143,6 +135,16 @@ export function Databases () {
                                 />
                             </Tooltip>
                         </span>
+                        {v3 && <span onClick={() => {
+                            shell.set({ create_catalog_modal_visible: true })
+                        }}>
+                            <Tooltip title={t('创建 Catalog')} color='grey'>
+                                <Icon 
+                                    className='create-database-icon'
+                                    component={SvgCreateCatalog}
+                                />
+                            </Tooltip>
+                        </span>}
                         <span onClick={shell.refresh_db}>
                             <Tooltip title={t('刷新')} color='grey'>
                                 <SyncOutlined spin={refresh_spin}/>
@@ -549,10 +551,7 @@ function CreateCatalog () {
             <Form form={form} labelCol={{ span: 4 }} wrapperCol={{ span: 18 }} disabled={loading}>
                 <Form.Item 
                     required
-                    rules={[
-                        { required: true, message: t('请输入名称') },
-                        { pattern: /^[A-Za-z][A-Za-z0-9_]*$/, message: t('必须由大小写字母开头，且只能由大小写字母、数字、下划线(_)组成') }
-                    ]} 
+                    rules={[{ required: true, message: t('请输入名称') }]} 
                     name='name' 
                     label={t('名称')}
                 >
@@ -563,12 +562,20 @@ function CreateCatalog () {
 }
 
 function CreateDatabase () {
-    const { create_database_modal_visible, create_database_partition_count } = shell.use(['create_database_modal_visible', 'create_database_partition_count'])
+    const { create_database_modal_visible, create_database_partition_count, dbs } = shell.use(['create_database_modal_visible', 'create_database_partition_count', 'dbs'])
     const { node_type, node, v2, v3 } = model.use(['node_type', 'node', 'v2', 'v3'])
     
     const [catalog, set_catalog] = useState(false)
     
     const [form] = Form.useForm()
+    
+    const catalogs = useMemo(() => 
+        shell.dbs?.filter(db => db instanceof Catalog)?.map(({ title }) => ({
+            label: title,
+            value: title,
+        })) ?? [ ]
+    , [dbs])
+    
     
     // We just assume this is always turned on in dolphindb.cfg
     const enableChunkGranularityConfig = true
@@ -709,28 +716,24 @@ function CreateDatabase () {
                 })
             }}
         >
-            {v3 && <Form.Item label='catalog' name='catalog'>
-                <Select
-                    allowClear 
-                    placeholder={t('请选择 catalog')} 
-                    options={[
-                        ...shell.dbs?.filter(db => db instanceof Catalog)?.map(({ title }) => ({
-                            label: title,
-                            value: title,
-                        })) ?? [ ]
-                    ]} 
-                    onChange={value => { set_catalog(Boolean(value)) }}
-                />
-            </Form.Item>}
-            
+            {
+                v3 && <Form.Item label={t('是否在目录 (catalog) 下创建')} name='is_catalog'>
+                        <Checkbox onChange={event => { set_catalog(event.target.checked) }}/>
+                    </Form.Item>      
+            }
             {
                 catalog && v3
-                    ? <Form.Item label='schema' name='schema' required rules={[
-                        { required: true, message: t('请输入 schema') },
-                        { pattern: /^[A-Za-z][A-Za-z0-9_]*$/, message: t('必须由大小写字母开头，且只能由大小写字母、数字、下划线(_)组成') }
-                    ]}>
-                        <Input placeholder={t('请输入 schema')} />
-                    </Form.Item> 
+                    ? <>
+                        <Form.Item label={t('目录 (catalog)')} name='catalog' required>
+                            <Select
+                                placeholder={t('请选择 catalog')} 
+                                options={catalogs} 
+                            />
+                        </Form.Item>
+                        <Form.Item label={t('名称 (schema)')} name='schema' required rules={[{ required: true, message: t('请输入 schema') }]}>
+                            <Input placeholder={t('请输入 schema')} />
+                        </Form.Item> 
+                    </>
                     : <Form.Item label={t('数据库路径 (directory)')} name='dbPath' required rules={[{
                         required: true,
                         validator: async (_, val: string) => {
@@ -907,7 +910,7 @@ export class Catalog implements DataNode {
     
     className = 'catalog'
     
-    icon = <Icon component={SvgDatabaseGroup} />
+    icon = <Icon component={SvgCatalog} />
     
     isLeaf = false as const
     

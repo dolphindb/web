@@ -4740,16 +4740,13 @@
         "en": "Save successfully and restart the cluster to take effect."
     },
     "创建 Catalog": {
-        "en": "Create Catalog"
+        "en": "Create catalog"
     },
     "请输入名称": {
         "en": "Please enter a name"
     },
-    "必须由大小写字母开头，且只能由大小写字母、数字、下划线(_)组成": {
-        "en": "It must start with an uppercase or lowercase letter and can only consist of uppercase or lowercase letters, numbers, and underscores"
-    },
     "请选择 catalog": {
-        "en": "Please select catalog"
+        "en": "Please select a catalog"
     },
     "请输入 schema": {
         "en": "Please enter a schema"
@@ -4759,5 +4756,14 @@
     },
     "除分区列外，请选择查询时常作为过滤条件的列。越重要的过滤条件，在过滤列中的位置越靠前。结合您提供的信息，最多可选择2个常用筛选列。": {
         "en": "Apart from the partitioning columns, please select columns that are frequently used as filtering conditions during queries. It is recommended to arrange these columns by query frequency, with the most commonly used one at the beginning of the list. You can specify at most 2 filter columns."
-    }   
+    },
+    "是否在目录 (catalog) 下创建": {
+        "en": "Use a catalog"
+    },
+    "目录 (catalog)": {
+        "en": "catalog"
+    },
+    "名称 (schema)": {
+        "en": "schema"
+    }
 }
