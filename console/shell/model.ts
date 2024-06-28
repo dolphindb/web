@@ -359,14 +359,14 @@ class ShellModel extends Model<ShellModel> {
         // ['dfs://数据库路径(可能包含/)/表名', ...]
         // 不能直接使用 getClusterDFSDatabases, 因为新的数据库权限版本 (2.00.9) 之后，用户如果只有表的权限，调用 getClusterDFSDatabases 无法拿到该表对应的数据库
         // 但对于无数据表的数据库，仍然需要通过 getClusterDFSDatabases 来获取。因此要组合使用
-        const [{ value: catalogs }, { value: table_paths }, { value: db_paths }] = await Promise.all([
-            ...v3 ? [ddb.call<DdbVectorStringObj>('getAllCatalogs')] : [ ],
+        const [{ value: table_paths }, { value: db_paths }, ...rest] = await Promise.all([
             ddb.call<DdbVectorStringObj>('getClusterDFSTables'),
             // 可能因为用户没有数据库的权限报错，单独 catch 并返回空数组
             ddb.call<DdbVectorStringObj>('getClusterDFSDatabases').catch(() => {
                 console.error('load_dbs: getClusterDFSDatabases error')
                 return { value: [ ] }
             }),
+            ...v3 ? [ddb.call<DdbVectorStringObj>('getAllCatalogs')] : [ ],
         ])
         
         // const db_paths = [
@@ -402,7 +402,7 @@ class ShellModel extends Model<ShellModel> {
         let root: (Catalog | Database | DatabaseGroup)[] = [ ]
         
         if (v3) 
-            await Promise.all(catalogs.sort().map(async catalog => {
+            await Promise.all(rest[0].value.sort().map(async catalog => {
                 let catalog_node = new Catalog(catalog)
                 root.push(catalog_node)
                 
