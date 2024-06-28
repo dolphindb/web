@@ -1,7 +1,7 @@
 import './index.scss'
 
 import { Spin, Steps, Typography } from 'antd'
-import { useCallback, useMemo, useState } from 'react'
+import { useCallback, useId, useMemo, useState } from 'react'
 
 import NiceModal from '@ebay/nice-modal-react'
 
@@ -30,9 +30,11 @@ export function FinanceGuide () {
     const [result, set_result] = useState<ExecuteResult>(ExecuteResult.SUCCESS)
     const [error_msg, set_error_msg] = useState<string>()
     
+    const id = useId()
+    
     const { isLoading } = useSWR(
-        'load_finance_guide_code',
-        async () => create_guide.define_finance_guide()
+        ['load_finance_guide_code', id],
+        async () => create_guide.define_func()
     )
     
     const go = useCallback((info: IFinanceInfo & { result: ExecuteResult, error_msg?: string }) => {
