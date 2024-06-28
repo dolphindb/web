@@ -151,10 +151,6 @@ if (ramdisk) {
 const info = 
     'web:\n' +
     'http://localhost:8432/?hostname=192.168.0.200&port=20023\n'.blue.underline
-    // '\n' +
-    // 'cloud:\n' +
-    // 'http://localhost:8432/cloud/\n'.blue.underline +
-    // '\n'
 
 
 console.log(
