@@ -7,12 +7,12 @@ import { t } from '../../i18n/index.js'
 import { model } from '../model.js'
 
 import { AccessHeader } from './AccessHeader.js'
-import { ACCESS_TYPE, NeedInputAccess } from './constants.js'
+import { access_options, ACCESS_TYPE, NeedInputAccess } from './constants.js'
 import { access } from './model.js'
 
 import { AccessAddModal } from './components/access/AccessAddModal.js'
 import { AccessRevokeModal } from './components/access/AccessRevokeModal.js'
-import { RevokeConfirm } from './components/revoke-confirm.js'
+import { RevokeConfirm } from './components/RevokeConfirm.js'
 
 interface ACCESS {
     key: string
@@ -38,7 +38,7 @@ export function AccessManage ({ category }: { category: 'database' | 'shared' | 
     const reset_selected = useCallback(() => { set_selected_access([ ]) }, [ ])
     
     const showed_aces_types = useMemo(
-        () => (category === 'database' ? ACCESS_TYPE.database.concat(ACCESS_TYPE.table) : ACCESS_TYPE[category]).filter(ac => ac !== 'TABLE_WRITE'),
+        () => (category === 'database' ? access_options.database : ACCESS_TYPE[category]).filter(ac => ac !== 'TABLE_WRITE'),
         [category]
     )
     
@@ -131,8 +131,9 @@ export function AccessManage ({ category }: { category: 'database' | 'shared' | 
                     showed_aces_types.map(aces => aces + '_denied').includes(k)
                 ) {
                     let objs = v.split(',')
-                    if (category === 'database')
-                        objs = objs.filter((obj: string) => obj.startsWith('dfs:'))
+                    // console.log('objs', objs)
+                    // if (category === 'database')
+                    //     objs = objs.filter((obj: string) => obj.startsWith('dfs:'))
                     if (category === 'shared')
                         objs = objs.filter((obj: string) => shared_tables.includes(obj))
                     if (category === 'stream')
@@ -171,6 +172,7 @@ export function AccessManage ({ category }: { category: 'database' | 'shared' | 
                             )
                         })
                 }
+         
             
         return tb_rows
     }, [accesses, category])
@@ -211,14 +213,14 @@ export function AccessManage ({ category }: { category: 'database' | 'shared' | 
                 }
             }}
             title={() => <AccessHeader
-                category={category}
-                preview={false}
-                search_key={search_key}
-                set_search_key={set_search_key}
-                add_open={async () => NiceModal.show(AccessAddModal, { category })}
-                delete_open={async () => NiceModal.show(AccessRevokeModal, { category, selected_access, reset_selected })}
-                selected_length={selected_access.length}
-            />}
+                            category={category}
+                            preview={false}
+                            search_key={search_key}
+                            set_search_key={set_search_key}
+                            add_open={async () => NiceModal.show(AccessAddModal, { category })}
+                            delete_open={async () => NiceModal.show(AccessRevokeModal, { category, selected_access, reset_selected })}
+                            selected_length={selected_access.length}
+                    />}
             columns={showed_aces_cols}
             dataSource={access_rules.filter(row =>
                 row[category === 'script' ? 'access' : 'name'].toLowerCase().includes(search_key.toLowerCase())

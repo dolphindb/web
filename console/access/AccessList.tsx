@@ -3,44 +3,10 @@ import { useEffect, useMemo, useState } from 'react'
 
 import { t } from '../../i18n/index.js'
 
-import { access } from './model.js'
+import { access, type Catalog } from './model.js'
 import { ACCESS_TYPE, NeedInputAccess, STAT_ICONS, TABLE_NAMES, type TABLE_ACCESS } from './constants.js'
 import { AccessHeader } from './AccessHeader.js'
-
-
-function handle_access (accesses: Record<string, any>, type: string, name: string) {
-    // DB_OWNER 单独处理
-    if (type === 'DB_OWNER') 
-        if (accesses.DB_OWNER === 'allow') 
-            if (!accesses.DB_OWNER_allowed) 
-                return [type, 'allow']
-             else {
-                let objs = accesses.DB_OWNER_allowed.split(',')
-                for (let obj of objs) {
-                    // dfs://test* 变成 dfs://test.*
-                    let reg = new RegExp(obj.replace('*', '.*'))
-                    console.log(obj, name, reg.test(name))
-                    if (reg.test(name)) 
-                        return [type, 'allow']
-                    
-                }
-                return [type, 'none']
-            }
-         else if (accesses.DB_OWNER === 'deny')
-             return [type, 'deny']
-         else
-             return [type, 'none']
-        
-     else 
-        if (accesses[type + '_allowed'] && accesses[type + '_allowed'].split(',').includes(name))
-            return [type, 'allow']
-        else if (accesses[type + '_denied'] && accesses[type + '_denied'].split(',').includes(name))
-            return [type, 'deny']
-        else
-            return [type, 'none']
-    
-    
-}
+import { generate_access_cols, handle_access } from './utils/handle-access.js'
 
 
 export function AccessList ({ category }: { category: 'database' | 'shared' | 'stream' | 'function_view' | 'script' }) {
@@ -48,9 +14,9 @@ export function AccessList ({ category }: { category: 'database' | 'shared' | 's
     
     const [search_key, set_search_key] = useState('')
     
-    const { current, databases, shared_tables, stream_tables, function_views, accesses } = access.use([
+    const { catalogs, current, shared_tables, stream_tables, function_views, accesses } = access.use([
+        'catalogs',
         'current',
-        'databases',
         'shared_tables',
         'stream_tables',
         'function_views',
@@ -65,12 +31,12 @@ export function AccessList ({ category }: { category: 'database' | 'shared' | 's
                 
             if (!final_accesses)
                 return
-            let items = [ ]
+            let items: Array<string | Catalog> = [ ]
             let tmp_tb_access = [ ]
             
             switch (category) {
                 case 'database':
-                    items = databases
+                    items = catalogs
                     break
                 case 'shared':
                     items = shared_tables
@@ -89,20 +55,28 @@ export function AccessList ({ category }: { category: 'database' | 'shared' | 's
                     break
             }
             for (let item of items) {
-                const name = typeof item === 'string' ? item : item.name
+                const name = typeof item === 'string' ? item : item.catalog_name
                 const tb_ob: TABLE_ACCESS = {
                     name,
                     ...(category === 'script'
-                        ? { stat: final_accesses[name] }
-                        : { access: Object.fromEntries(ACCESS_TYPE[category].map(type => handle_access(final_accesses, type, name))) }),
+                            ? 
+                        { stat: final_accesses[name] }
+                            : 
+                        { access: generate_access_cols(final_accesses, category === 'database' ? 'catalog' : category, name) }),
                     ...(typeof item !== 'string'
-                        ? {
-                            tables: item.tables.map(table => ({
-                                name: table,
-                                access: Object.fromEntries(ACCESS_TYPE.table.map(type => handle_access(final_accesses, type, table)))
+                            ? 
+                        {
+                            schemas: item.schemas.map(schema => ({
+                                name: schema.schema,
+                                access: generate_access_cols(final_accesses, 'database', schema.dbUrl),
+                                tables: schema.tables.map(table => ({
+                                    name: table,
+                                    access: generate_access_cols(final_accesses, 'table', table)
+                                }))
                             }))
                         }
-                        : { })
+                            : 
+                        { })
                 }
                 tmp_tb_access.push(tb_ob)
             }
@@ -119,9 +93,12 @@ export function AccessList ({ category }: { category: 'database' | 'shared' | 's
                 width: 200
             },
             ...(category !== 'script'
-                ? ACCESS_TYPE[category]
-                    // getUserAccess 并不会返回这两类权限
-                    .filter(t => t !== 'TABLE_WRITE' && t !== 'DB_WRITE')
+                ? (category === 'database' 
+                        ? 
+                    ACCESS_TYPE.catalog 
+                        : 
+                    // getUserAccess 并不会 TABLE_WRITE 、TABLE_WRITE 以及所有 SCHEMA 权限,展示时去掉
+                    ACCESS_TYPE[category].filter(t => t !== 'TABLE_WRITE' && t !== 'TABLE_WRITE'))
                     .map(type => ({
                         title: type,
                         dataIndex: type,
@@ -138,8 +115,10 @@ export function AccessList ({ category }: { category: 'database' | 'shared' | 's
                     }
                 ])
         ],
-        [ ]
+        [ category ]
     )
+    
+    
     
     return <Table
             columns={cols}
@@ -148,7 +127,7 @@ export function AccessList ({ category }: { category: 'database' | 'shared' | 's
                 .map((tb_access: TABLE_ACCESS) => ({
                     key: tb_access.name,
                     name: tb_access.name,
-                    ...(category === 'database' ? { tables: tb_access.tables } : { }),
+                    ...(category === 'database' ? { schemas: tb_access.schemas } : { }),
                     ...(category !== 'script'
                         ? Object.fromEntries(Object.entries(tb_access.access).map(([key, value]) => [key, STAT_ICONS[value as string]]))
                         : { stat: NeedInputAccess.includes(tb_access.name) ? tb_access.stat : STAT_ICONS[tb_access.stat] })
@@ -158,28 +137,57 @@ export function AccessList ({ category }: { category: 'database' | 'shared' | 's
             expandable={
                 category === 'database'
                     ? {
-                        expandedRowRender: db => <Table
+                        rowExpandable: cl => Boolean(cl.schemas.length),
+                        expandedRowRender: (cl: TABLE_ACCESS) => <Table
                             columns={[
                                 {
-                                    title: t('DFS 表名'),
+                                    title: t('DFS 数据库'),
                                     dataIndex: 'table_name',
                                     key: 'table_name'
                                 },
-                                ...ACCESS_TYPE.table
-                                    .filter(t => t !== 'TABLE_WRITE')
+                                ...ACCESS_TYPE.database
                                     .map(type => ({
                                         title: type,
                                         dataIndex: type,
                                         key: type
                                     }))
                             ]}
-                            dataSource={db.tables.map(table => ({
-                                key: table.name,
-                                table_name: table.name,
-                                ...Object.fromEntries(Object.entries(table.access).map(([key, value]) => [key, STAT_ICONS[value as string]]))
+                            dataSource={cl.schemas.map(schema => ({
+                                key: schema.name,
+                                table_name: schema.name,
+                                tables: schema.tables,
+                                ...Object.fromEntries(Object.entries(schema.access).map(([key, value]) => [key, STAT_ICONS[value as string]]))
                             }))}
                             pagination={false}
                             tableLayout='fixed'
+                            expandable={
+                                {
+                                    rowExpandable: db => Boolean(db.tables.length),
+                                    expandedRowRender: db => <Table
+                                        columns={[
+                                            {
+                                                title: t('DFS 表'),
+                                                dataIndex: 'table_name',
+                                                key: 'table_name'
+                                            },
+                                            ...ACCESS_TYPE.table
+                                                .filter(t => t !== 'TABLE_WRITE')
+                                                .map(type => ({
+                                                    title: type,
+                                                    dataIndex: type,
+                                                    key: type
+                                                }))
+                                        ]}
+                                        dataSource={db.tables.map(table => ({
+                                            key: table.name,
+                                            table_name: table.name,
+                                            ...Object.fromEntries(Object.entries(table.access).map(([key, value]) => [key, STAT_ICONS[value as string]]))
+                                        }))}
+                                        pagination={false}
+                                        tableLayout='fixed'
+                                    />
+                                }
+                            }
                         />
                     }
                     : { }

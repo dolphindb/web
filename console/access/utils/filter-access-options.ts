@@ -1,6 +1,6 @@
 import { access_options } from '../constants.js'
 
-export function filterAccessOptions (
+export function filter_access_options (
     category: 'database' | 'shared' | 'stream' | 'function_view' | 'script',
     role: 'user' | 'group',
     isAdmin: boolean,
@@ -17,6 +17,5 @@ export function filterAccessOptions (
             // deny 不支持 QUERY_RESULT_MEM_LIMIT 和 TASK_GROUP_MEM_LIMIT
             options = options.filter(item => item !== 'QUERY_RESULT_MEM_LIMIT' && item !== 'TASK_GROUP_MEM_LIMIT')
         
-    
     return options
 } 

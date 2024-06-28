@@ -1,34 +1,37 @@
 import NiceModal, { useModal } from '@ebay/nice-modal-react'
 import { Button, Checkbox, Divider, Input, Modal, Radio, Select, Table, type TableColumnType, TreeSelect } from 'antd'
 
-import { useMemo, useState } from 'react'
+import { useCallback, useMemo, useState } from 'react'
+
+import { consume_stream } from 'xshell'
 
 import {  t } from '../../../../i18n/index.js'
 import { access } from '../../model.js'
 import { ACCESS_TYPE, NeedInputAccess, access_options } from '../../constants.js'
 import { model } from '../../../model.js'
-import { filterAccessOptions } from '../../utils/filter-access-options.js'
+import { filter_access_options } from '../../utils/filter-access-options.js'
 
-export interface ACCESS {
+import { AccessObjSelect } from './AccessObjSelect.js'
+
+export interface Access {
     key: string
     access: string
     name?: string
 }
 
+export interface AccessRule {
+    access: string
+    type: string
+    obj: any[]
+}
 
-export const AccessAddModal = NiceModal.create(({ category }: { category: 'database' | 'shared' | 'stream' | 'function_view' | 'script' }) => {
-    const { databases, shared_tables, stream_tables, function_views, current, accesses } = access.use([
-        'databases',
-        'shared_tables',
-        'stream_tables',
-        'function_views',
-        'current',
-        'accesses'
-    ])
+export type AccessCategory = 'database' | 'shared' | 'stream' | 'function_view' | 'script'
+
+
+export const AccessAddModal = NiceModal.create(({ category }: { category: AccessCategory }) => {
+    const { current, accesses } = access.use(['current', 'accesses'])
     
-    const [add_rule_selected, set_add_rule_selected] = useState({ access: access_options[category][0], type: 'grant', obj: [ ] })
-    
-    
+    const [add_rule_selected, set_add_rule_selected] = useState<AccessRule>({ access: access_options[category][0], type: 'grant', obj: [ ] })
     
     const add_access_cols: TableColumnType<Record<string, any>>[] = useMemo(
         () => [
@@ -56,28 +59,10 @@ export const AccessAddModal = NiceModal.create(({ category }: { category: 'datab
                 wdith: 100
             }
         ],
-        [ ]
+        [ category]
     )
     
     const [add_access_rows, set_add_access_rows] = useState([ ])
-    
-    let obj_options = [ ]
-    switch (category) {
-        case 'database':
-            obj_options = databases.map(db => db.name)
-            break
-        case 'shared':
-            obj_options = shared_tables
-            break
-        case 'stream':
-            obj_options = stream_tables
-            break
-        case 'function_view':
-            obj_options = function_views
-            break
-        default:
-            break
-    }
     
     const modal = useModal()
     
@@ -98,9 +83,9 @@ export const AccessAddModal = NiceModal.create(({ category }: { category: 'datab
                             rule.access,
                             rule.access ===
                                 'QUERY_RESULT_MEM_LIMIT' || rule.access === 'TASK_GROUP_MEM_LIMIT'
-                                ?
+                                    ?
                                 Number(rule.name)
-                                :
+                                    :
                                 rule.name)))
                 model.message.success(t('权限赋予成功'))
                 set_add_rule_selected({ access: access_options[category][0], type: 'grant', obj: [ ] })
@@ -109,8 +94,10 @@ export const AccessAddModal = NiceModal.create(({ category }: { category: 'datab
                 access.set({
                     accesses:
                         current.role === 'user'
-                            ? (await access.get_user_access([current.name]))[0]
-                            : (await access.get_group_access([current.name]))[0]
+                                ? 
+                            (await access.get_user_access([current.name]))[0]
+                                : 
+                            (await access.get_group_access([current.name]))[0]
                 })
             }}
             destroyOnClose
@@ -131,7 +118,7 @@ export const AccessAddModal = NiceModal.create(({ category }: { category: 'datab
                         onChange={e => {
                             const selected = {
                                 type: e.target.value,
-                                access: filterAccessOptions(category, current.role, accesses.is_admin, e.target.value)?.[0],
+                                access: filter_access_options(category, current.role, accesses.is_admin, e.target.value)?.[0],
                                 obj: [ ]
                             }
                             set_add_rule_selected(selected)
@@ -141,10 +128,15 @@ export const AccessAddModal = NiceModal.create(({ category }: { category: 'datab
                     />
                     <Select
                         className='access-select'
-                        options={filterAccessOptions(category, current.role, accesses.is_admin, add_rule_selected.type).map(ac => ({
-                            label: ac,
-                            value: ac
-                        }))}
+                        options={filter_access_options(
+                                        category, 
+                                        current.role, 
+                                        accesses.is_admin, 
+                                        add_rule_selected.type).
+                                            map(ac => ({
+                                                label: ac,
+                                                value: ac
+                                            }))}
                         value={add_rule_selected.access}
                         onChange={value => {
                             const selected = { ...add_rule_selected }
@@ -153,98 +145,11 @@ export const AccessAddModal = NiceModal.create(({ category }: { category: 'datab
                             set_add_rule_selected(selected)
                         }}
                     />
-                    {NeedInputAccess.includes(add_rule_selected.access) ?
-                        <Input
-                            className='table-select'
-                            value={add_rule_selected.obj}
-                            onChange={e => {
-                                const selected = { ...add_rule_selected }
-                                selected.obj = [e.target.value]
-                                set_add_rule_selected(selected)
-                            }}
-                            placeholder={add_rule_selected.access === 'DB_OWNER' ?
-                                t('以 "*" 结尾，表示指定某个 dbName 的前缀范围，例如 "dfs://test0*"')
-                                :
-                                t('输入限制内存大小，单位为 GB')} />
-                        :
-                        (category === 'database' && ACCESS_TYPE.table.includes(add_rule_selected.access) ? (
-                            <TreeSelect
-                                className='table-select'
-                                multiple
-                                maxTagCount='responsive'
-                                placeholder={t('请选择权限应用范围')}
-                                treeDefaultExpandAll
-                                value={add_rule_selected.obj}
-                                onChange={vals => {
-                                    const selected = { ...add_rule_selected }
-                                    selected.obj = vals
-                                    set_add_rule_selected(selected)
-                                }}
-                                dropdownRender={originNode => <div>
-                                    <Checkbox
-                                        className='check-all'
-                                        checked={add_rule_selected.obj.length === databases.reduce((count, db) => count + db.tables.length, 0)}
-                                        indeterminate={
-                                            add_rule_selected.obj.length > 0 &&
-                                            add_rule_selected.obj.length < databases.reduce((count, db) => count + db.tables.length, 0)
-                                        }
-                                        onChange={e => {
-                                            if (e.target.checked)
-                                                set_add_rule_selected({ ...add_rule_selected, obj: databases.map(db => [...db.tables]).flat() })
-                                            else
-                                                set_add_rule_selected({ ...add_rule_selected, obj: [ ] })
-                                        }}
-                                    >
-                                        {t('全选')}
-                                    </Checkbox>
-                                    <Divider className='divider' />
-                                    {originNode}
-                                </div>}
-                                treeData={databases.filter(db => db.tables.length).map(db => ({
-                                    title: db.name,
-                                    value: db.name,
-                                    selectable: false,
-                                    children: db.tables.map(tb => ({
-                                        title: tb,
-                                        value: tb
-                                    }))
-                                }))}
-                            />
-                        ) : (
-                            <Select
-                                className='table-select'
-                                mode='multiple'
-                                maxTagCount='responsive'
-                                disabled={category === 'script'}
-                                placeholder={category === 'script' ? t('应用范围为全局') : t('请选择权限应用范围')}
-                                value={add_rule_selected.obj}
-                                dropdownRender={originNode => <div>
-                                    <Checkbox
-                                        className='check-all'
-                                        checked={add_rule_selected.obj.length === obj_options.length}
-                                        indeterminate={add_rule_selected.obj.length > 0 && add_rule_selected.obj.length < obj_options.length}
-                                        onChange={e => {
-                                            if (e.target.checked)
-                                                set_add_rule_selected({ ...add_rule_selected, obj: obj_options })
-                                            else
-                                                set_add_rule_selected({ ...add_rule_selected, obj: [ ] })
-                                        }}
-                                    >
-                                        {t('全选')}
-                                    </Checkbox>
-                                    <Divider className='divider' />
-                                    {originNode}
-                                </div>}
-                                onChange={vals => {
-                                    set_add_rule_selected({ ...add_rule_selected, obj: vals })
-                                }}
-                                options={obj_options.map(obj => ({
-                                    key: obj,
-                                    label: obj,
-                                    value: obj
-                                }))}
-                            />
-                        ))}
+                    <AccessObjSelect 
+                        category={category} 
+                        add_rule_selected={add_rule_selected} 
+                        set_add_rule_selected={set_add_rule_selected} 
+                    />
                         
                     <Button
                         type='primary'

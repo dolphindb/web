@@ -6,9 +6,9 @@ import { model } from '../../../model.js'
 
 import { t } from '../../../../i18n/index.js'
 
-import { type ACCESS } from './AccessAddModal.js'
+import { type Access, type AccessCategory } from './AccessAddModal.js'
 
-export const AccessRevokeModal = NiceModal.create(({ category, selected_access, reset_selected }: { category: 'database' | 'shared' | 'stream' | 'function_view' | 'script', selected_access: ACCESS[], reset_selected: () => void }) => {
+export const AccessRevokeModal = NiceModal.create(({ category, selected_access, reset_selected }: { category: AccessCategory, selected_access: Access[], reset_selected: () => void }) => {
 
     const { current } = access.use(['current'])
     
