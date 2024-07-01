@@ -4,6 +4,8 @@ import { DdbInt, DdbVectorString, type DdbVectorStringObj } from 'dolphindb/brow
 
 import { model } from '../model.js'
 
+import { DATABASES_WITHOUT_CATALOG } from './constants.js'
+
 
 export interface User {
     userId: string
@@ -19,7 +21,7 @@ export interface Database {
 }
 
 export interface Catalog {
-    catalog_name: string
+    name: string
     schemas: Schema[]
 }
 
@@ -95,7 +97,8 @@ class AccessModel extends Model<AccessModel> {
     accesses = null
     
     async init () {
-        await this.get_catelog_list()
+        if (model.v3)
+            await this.get_catelog_list()
         await this.get_user_list()
         await this.get_group_list()
         await this.get_databases_with_tables()
@@ -107,7 +110,9 @@ class AccessModel extends Model<AccessModel> {
     
     
     async get_databases_with_tables () {
-        const databases = (await this.get_databases()).filter(db => !this.schema_set.has(db))
+        let databases = (await this.get_databases())
+        if (model.v3)
+            databases = (await this.get_databases()).filter(db => !this.schema_set.has(db))
         const tables = await this.get_tables()
         const databases_sort = [...databases].sort((a, b) => b.length - a.length)
         const dbs_map = new Map<string, string[]>()
@@ -122,27 +127,30 @@ class AccessModel extends Model<AccessModel> {
                 }
             
         })
-        const databases_without_catalog: Catalog = {
-            catalog_name: 'databases_without_catalog',
-            schemas: databases.map(db => ({
-                schema: db,
-                dbUrl: db,
-                tables: dbs_map.get(db) || [ ]
-            }))
-        }    
+        if (model.v3) {
+            const databases_without_catalog: Catalog = {
+                name: DATABASES_WITHOUT_CATALOG,
+                schemas: databases.map(db => ({
+                    schema: db,
+                    dbUrl: db,
+                    tables: dbs_map.get(db) || [ ]
+                }))
+            }   
+            this.set({ catalogs: [...this.catalogs, databases_without_catalog] }) 
+        }
         this.set({
             databases: databases.map(db => ({
                 name: db,
                 tables: dbs_map.get(db) ?? [ ]
             })),
-            catalogs: [...this.catalogs, databases_without_catalog]
+         
         })
     }
     
     
     async get_catelog_list () {
         const catelog_names = (await model.ddb.call<DdbVectorStringObj>('getAllCatalogs', [ ])).data()
-        const catelogs = await Promise.all(catelog_names.map(async catalog_name => ({ catalog_name, schemas: await this.get_schemas_by_catelog(catalog_name) })))
+        const catelogs = await Promise.all(catelog_names.map(async name => ({ name, schemas: await this.get_schemas_by_catelog(name) })))
         
         this.set({ catalogs: catelogs })
     }
@@ -151,7 +159,6 @@ class AccessModel extends Model<AccessModel> {
         const schemas = (await (model.ddb.invoke('getSchemaByCatalog', [catelog]))).data
         const new_schema_set = new Set([...this.schema_set])
         schemas.forEach(({ dbUrl }) => new_schema_set.add(dbUrl))
-        console.log('new_schema_set', new_schema_set)
         this.set({ schema_set: new_schema_set })
         const schemas_with_tables = await Promise.all(schemas.map(async (schema: Schema) => ({ ...schema, tables: await this.get_tables(schema.dbUrl) })))
         return schemas_with_tables

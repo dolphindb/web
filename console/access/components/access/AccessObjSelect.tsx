@@ -3,11 +3,12 @@ import { Checkbox, Divider, Input, Select, TreeSelect } from 'antd'
 import { useMemo } from 'react'
 
 import { t } from '../../../../i18n/index.js'
-import { NeedInputAccess } from '../../constants.js'
+import { DATABASES_WITHOUT_CATALOG, NEED_INPUT_ACCESS } from '../../constants.js'
 
 import { access } from '../../model.js'
+import type { AccessCategory, AccessRule } from '../../types.js'
 
-import type { AccessCategory, AccessRule } from './AccessAddModal.js'
+
 
 export function AccessObjSelect ({
     category,
@@ -28,6 +29,8 @@ export function AccessObjSelect ({
     
     const obj_options = useMemo(() => {
         switch (category) {
+            case 'catalog':
+                return catalogs.map(cl => cl.name).filter(cl => cl !== DATABASES_WITHOUT_CATALOG)
             case 'database':
                 return databases.map(db => db.name)
             case 'shared':
@@ -43,7 +46,7 @@ export function AccessObjSelect ({
     
     
     return  (
-        NeedInputAccess.includes(add_rule_selected.access) 
+        NEED_INPUT_ACCESS.includes(add_rule_selected.access) 
                 ?
             <Input
                 className='table-select'
@@ -59,12 +62,13 @@ export function AccessObjSelect ({
                                         :
                                     t('输入限制内存大小，单位为 GB')} />
                 :
-            (category === 'database' && (
-                                    add_rule_selected.access.startsWith('TABLE_') 
-                                ||  add_rule_selected.access.startsWith('SCHEMA_'))
-                                ||  add_rule_selected.access.startsWith('DB')) 
+                // catalog 且选中 table、schema、db 三类权限 或者 databse 且选中 table 权限需要树状选择器
+                (category === 'catalog' && (    add_rule_selected.access.startsWith('TABLE') 
+                                            ||  add_rule_selected.access.startsWith('SCHEMA')
+                                            ||  add_rule_selected.access.startsWith('DB'))) 
+                            || 
+                (category === 'database' && add_rule_selected.access.startsWith('TABLE'))
                             ? 
-                (
                     <TreeSelect
                         className='table-select'
                         multiple
@@ -97,34 +101,47 @@ export function AccessObjSelect ({
                             <Divider className='divider' />
                             {originNode}
                         </div>}
-                        treeData={(add_rule_selected.access.startsWith('SCHEMA_') 
+                        treeData={category === 'catalog' 
                                             ? 
-                                        catalogs.filter(({ catalog_name }) => catalog_name !== 'databases_without_catalog') 
+                                    (add_rule_selected.access.startsWith('SCHEMA') 
+                                                    ? 
+                                                catalogs.filter(({ name: catalog_name }) => catalog_name !== DATABASES_WITHOUT_CATALOG) 
+                                                    : 
+                                                catalogs).map(cl => ({
+                                    key: cl.name,
+                                    title: cl.name,
+                                    value: cl.name,
+                                    selectable: false,
+                                    children: cl.schemas.map(sh => ({
+                                        key: `${cl.name}.${sh.schema}`,
+                                        title: sh.schema,
+                                        // schema 权限 objs 为 catalog.schema,db 权限为 dburl
+                                        value: add_rule_selected.access.startsWith('DB') ? sh.dbUrl : `${cl.name}.${sh.schema}`,
+                                        selectable: add_rule_selected.access.startsWith('SCHEMA') || add_rule_selected.access.startsWith('DB'),
+                                        isLeaf: add_rule_selected.access.startsWith('SCHEMA') || add_rule_selected.access.startsWith('DB'),
+                                        ...add_rule_selected.access.startsWith('TABLE') ? { children: sh.tables.map(tb => ({
+                                            key: `${cl.name}.${sh.schema}.${tb}`,
+                                            title: tb,
+                                            value: tb,
+                                            isLeaf: true
+                                        })) } : { }
+                                    }))
+                                    })) 
                                             : 
-                                        catalogs).map(cl => ({
-                            key: cl.catalog_name,
-                            title: cl.catalog_name,
-                            value: cl.catalog_name,
-                            selectable: false,
-                            children: cl.schemas.map(sh => ({
-                                key: `${cl.catalog_name}.${sh.schema}`,
-                                title: sh.schema,
-                                // schema 权限 objs 为 catalog.schema,db 权限为 dburl
-                                value: add_rule_selected.access.startsWith('DB') ? sh.dbUrl : `${cl.catalog_name}.${sh.schema}`,
-                                selectable: add_rule_selected.access.startsWith('SCHEMA_') || add_rule_selected.access.startsWith('DB'),
-                                isLeaf: add_rule_selected.access.startsWith('SCHEMA_') || add_rule_selected.access.startsWith('DB'),
-                                ...add_rule_selected.access.startsWith('TABLE_') ? { children: sh.tables.map(tb => ({
-                                    key: `${cl.catalog_name}.${sh.schema}.${tb}`,
-                                    title: tb,
-                                    value: tb,
-                                    isLeaf: true
-                                })) } : { }
-                            }))
-                        }))}
+                                    databases.map(db => ({
+                                        key: db.name,
+                                        title: db.name,
+                                        value: db.name,
+                                        selectable: false,
+                                        children: db.tables.map(tb => ({
+                                            key: `${db.name}.${tb}`,
+                                            title: tb,
+                                            value: tb,
+                                            isLeaf: true
+                                        }))
+                                    }))}
                     />
-                ) 
                             :            
-                (
                     <Select
                         className='table-select'
                         mode='multiple'
@@ -152,11 +169,11 @@ export function AccessObjSelect ({
                         onChange={vals => {
                             set_add_rule_selected({ ...add_rule_selected, obj: vals })
                         }}
-                        options={(add_rule_selected.access.startsWith('CATALOG') ? catalogs.map(catelog => catelog.catalog_name) : obj_options).map(obj => ({
+                        options={obj_options.map(obj => ({
                             key: obj,
                             label: obj,
                             value: obj
                         }))}
                     />
-                ))
+                )
 }

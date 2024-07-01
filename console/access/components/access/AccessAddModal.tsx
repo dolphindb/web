@@ -1,37 +1,27 @@
 import NiceModal, { useModal } from '@ebay/nice-modal-react'
-import { Button, Checkbox, Divider, Input, Modal, Radio, Select, Table, type TableColumnType, TreeSelect } from 'antd'
+import { Button, Modal, Radio, Select, Table, type TableColumnType } from 'antd'
 
-import { useCallback, useMemo, useState } from 'react'
-
-import { consume_stream } from 'xshell'
+import { useMemo, useState } from 'react'
 
 import {  t } from '../../../../i18n/index.js'
 import { access } from '../../model.js'
-import { ACCESS_TYPE, NeedInputAccess, access_options } from '../../constants.js'
+import {  NEED_INPUT_ACCESS, ACCESS_OPTIONS } from '../../constants.js'
 import { model } from '../../../model.js'
 import { filter_access_options } from '../../utils/filter-access-options.js'
 
+import type { AccessCategory, AccessRule } from '../../types.js'
+
 import { AccessObjSelect } from './AccessObjSelect.js'
-
-export interface Access {
-    key: string
-    access: string
-    name?: string
-}
-
-export interface AccessRule {
-    access: string
-    type: string
-    obj: any[]
-}
-
-export type AccessCategory = 'database' | 'shared' | 'stream' | 'function_view' | 'script'
 
 
 export const AccessAddModal = NiceModal.create(({ category }: { category: AccessCategory }) => {
     const { current, accesses } = access.use(['current', 'accesses'])
     
-    const [add_rule_selected, set_add_rule_selected] = useState<AccessRule>({ access: access_options[category][0], type: 'grant', obj: [ ] })
+    const { v3 } = model.use(['v3'])
+    
+    category = v3 && category === 'database' ? 'catalog' : category
+    
+    const [add_rule_selected, set_add_rule_selected] = useState<AccessRule>({ access: ACCESS_OPTIONS[category][0], type: 'grant', obj: [ ] })
     
     const add_access_cols: TableColumnType<Record<string, any>>[] = useMemo(
         () => [
@@ -71,7 +61,7 @@ export const AccessAddModal = NiceModal.create(({ category }: { category: Access
             open={modal.visible}
             afterClose={modal.remove}
             onCancel={() => {
-                set_add_rule_selected({ access: access_options[category][0], type: 'grant', obj: [ ] })
+                set_add_rule_selected({ access: ACCESS_OPTIONS[category][0], type: 'grant', obj: [ ] })
                 set_add_access_rows([ ])
                 modal.hide()
             }}
@@ -88,7 +78,7 @@ export const AccessAddModal = NiceModal.create(({ category }: { category: Access
                                     :
                                 rule.name)))
                 model.message.success(t('权限赋予成功'))
-                set_add_rule_selected({ access: access_options[category][0], type: 'grant', obj: [ ] })
+                set_add_rule_selected({ access: ACCESS_OPTIONS[category][0], type: 'grant', obj: [ ] })
                 set_add_access_rows([ ])
                 modal.hide()
                 access.set({
@@ -156,7 +146,7 @@ export const AccessAddModal = NiceModal.create(({ category }: { category: Access
                         onClick={() => {
                             const { access, type, obj } = add_rule_selected
                             const rows =
-                                category !== 'script' || NeedInputAccess.includes(access)
+                                category !== 'script' || NEED_INPUT_ACCESS.includes(access)
                                     ? obj.map(oj => ({
                                         key: access + type + oj,
                                         access,
@@ -174,7 +164,7 @@ export const AccessAddModal = NiceModal.create(({ category }: { category: Access
                             let set = new Set()
                             const unique_rows = total_rows.filter(obj => !set.has(obj.key) && set.add(obj.key))
                             set_add_access_rows(unique_rows)
-                            set_add_rule_selected({ access: access_options[category][0], type: 'grant', obj: [ ] })
+                            set_add_rule_selected({ access: ACCESS_OPTIONS[category][0], type: 'grant', obj: [ ] })
                         }}
                     >
                         {t('预添加')}

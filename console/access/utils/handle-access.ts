@@ -17,7 +17,6 @@ export function handle_access (accesses: Record<string, any>, type: string, name
                     let reg = new RegExp(obj.replace('*', '.*'))
                     if (reg.test(name)) 
                         return [type, 'allow']
-                    
                 }
                 return [type, 'none']
             }
@@ -25,13 +24,12 @@ export function handle_access (accesses: Record<string, any>, type: string, name
             return [type, 'deny']
         else
             return [type, 'none']
-    else {
-        console.log(type, name, accesses[type + '_allowed'])
+    else 
         if (accesses[type + '_allowed'] && accesses[type + '_allowed'].split(',').includes(name))
             return [type, 'allow']
         else if (accesses[type + '_denied'] && accesses[type + '_denied'].split(',').includes(name))
             return [type, 'deny']
         else
             return [type, 'none']
-     }        
+             
 }

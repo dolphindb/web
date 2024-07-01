@@ -8,6 +8,8 @@ import {
 } from '@ant-design/icons'
 import { Button, Input } from 'antd'
 
+import { useState } from 'react'
+
 import { t } from '../../i18n/index.js'
 
 import { TABLE_NAMES } from './constants.js'
@@ -31,6 +33,8 @@ export function AccessHeader ({
     selected_length?: number
 }) {
     const { current } = access.use(['current', 'users', 'groups'])
+    
+    const [input_value, set_input_value] = useState(search_key)
     
     return <div className='actions'>
         <Button
@@ -81,11 +85,12 @@ export function AccessHeader ({
         )}
         <Input
             className='search'
-            value={search_key}
+            value={input_value}
             prefix={<SearchOutlined />}
             onChange={e => {
-                set_search_key(e.target.value)
+                set_input_value(e.target.value)
             }}
+            onPressEnter={() => { set_search_key(input_value) }}
             placeholder={t('请输入想要搜索的{{category}}', { category: TABLE_NAMES[category] })}
         />
     </div>

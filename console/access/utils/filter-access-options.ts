@@ -1,12 +1,13 @@
-import { access_options } from '../constants.js'
+import { ACCESS_OPTIONS } from '../constants.js'
+import type { AccessCategory } from '../types.js'
 
 export function filter_access_options (
-    category: 'database' | 'shared' | 'stream' | 'function_view' | 'script',
+    category: AccessCategory,
     role: 'user' | 'group',
     isAdmin: boolean,
     type?: string
 ) {
-    let options = access_options[category]
+    let options = ACCESS_OPTIONS[category]
     
     if (category === 'script') 
         if (role === 'user' && isAdmin)

@@ -7,12 +7,13 @@ import { t } from '../../i18n/index.js'
 import { model } from '../model.js'
 
 import { AccessHeader } from './AccessHeader.js'
-import { access_options, ACCESS_TYPE, NeedInputAccess } from './constants.js'
+import { ACCESS_OPTIONS, ACCESS_TYPE, NEED_INPUT_ACCESS } from './constants.js'
 import { access } from './model.js'
 
 import { AccessAddModal } from './components/access/AccessAddModal.js'
 import { AccessRevokeModal } from './components/access/AccessRevokeModal.js'
 import { RevokeConfirm } from './components/RevokeConfirm.js'
+import type { AccessCategory } from './types.js'
 
 interface ACCESS {
     key: string
@@ -20,16 +21,15 @@ interface ACCESS {
     name?: string
 }
 
-export function AccessManage ({ category }: { category: 'database' | 'shared' | 'stream' | 'function_view' | 'script' }) {
+export function AccessManage ({ category }: { category: AccessCategory }) {
 
-    const { databases, shared_tables, stream_tables, function_views, current, accesses } = access.use([
-        'databases',
+    const { shared_tables, current, accesses } = access.use([
         'shared_tables',
-        'stream_tables',
-        'function_views',
         'current',
         'accesses'
     ])
+    
+    const { v3 } = model.use(['v3'])
     
     const [search_key, set_search_key] = useState('')
     
@@ -38,7 +38,7 @@ export function AccessManage ({ category }: { category: 'database' | 'shared' | 
     const reset_selected = useCallback(() => { set_selected_access([ ]) }, [ ])
     
     const showed_aces_types = useMemo(
-        () => (category === 'database' ? access_options.database : ACCESS_TYPE[category]).filter(ac => ac !== 'TABLE_WRITE'),
+        () => (category === 'database' ? (v3 ? ACCESS_OPTIONS.catalog :  ACCESS_OPTIONS.database) : ACCESS_TYPE[category]).filter(ac => ac !== 'TABLE_WRITE'),
         [category]
     )
     
@@ -115,7 +115,7 @@ export function AccessManage ({ category }: { category: 'database' | 'shared' | 
                     tb_rows.push({
                         key: k,
                         access: k,
-                        name: NeedInputAccess.includes(k) ? v : '',
+                        name: NEED_INPUT_ACCESS.includes(k) ? v : '',
                         type: v === 'deny' ? 'deny' : 'grant',
                         action: (
                             <RevokeConfirm onConfirm={async () => {
@@ -177,23 +177,10 @@ export function AccessManage ({ category }: { category: 'database' | 'shared' | 
         return tb_rows
     }, [accesses, category])
     
-    let obj_options = [ ]
-    switch (category) {
-        case 'database':
-            obj_options = databases.map(db => db.name)
-            break
-        case 'shared':
-            obj_options = shared_tables
-            break
-        case 'stream':
-            obj_options = stream_tables
-            break
-        case 'function_view':
-            obj_options = function_views
-            break
-        default:
-            break
-    }
+    const filtered_rules = useMemo(() => access_rules.filter(row =>
+        row[category === 'script' ? 'access' : 'name'].toLowerCase().includes(search_key.toLowerCase())
+    ), [search_key, access_rules])
+    
     return <Table
             rowSelection={{
                 selectedRowKeys: selected_access.map(ac => ac.key),
@@ -203,9 +190,7 @@ export function AccessManage ({ category }: { category: 'database' | 'shared' | 
                     set_selected_access(selectedRows)
                 },
                 onSelectAll () {
-                    const all_access = access_rules.filter(row =>
-                        row[category === 'script' ? 'access' : 'name'].toLowerCase().includes(search_key.toLowerCase())
-                    )
+                    const all_access = filtered_rules
                     if (selected_access.length < all_access.length)
                         set_selected_access(all_access)
                     else
@@ -222,8 +207,6 @@ export function AccessManage ({ category }: { category: 'database' | 'shared' | 
                             selected_length={selected_access.length}
                     />}
             columns={showed_aces_cols}
-            dataSource={access_rules.filter(row =>
-                row[category === 'script' ? 'access' : 'name'].toLowerCase().includes(search_key.toLowerCase())
-            )}
+            dataSource={filtered_rules}
         />
 }
