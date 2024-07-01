@@ -54,7 +54,7 @@ export function AccessList ({ category }: { category: AccessCategory }) {
                     items = stream_tables
                     break
                 case 'script':
-                    items = ACCESS_TYPE.script
+                    items = current.role === 'group' ? ACCESS_TYPE.script.filter(ac => !NEED_INPUT_ACCESS.includes(ac)) : ACCESS_TYPE.script
                     break
                     
                 default:
