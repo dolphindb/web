@@ -149,10 +149,9 @@ class AccessModel extends Model<AccessModel> {
     
     
     async get_catelog_list () {
-        const catelog_names = (await model.ddb.call<DdbVectorStringObj>('getAllCatalogs', [ ])).data()
-        const catelogs = await Promise.all(catelog_names.map(async name => ({ name, schemas: await this.get_schemas_by_catelog(name) })))
-        
-        this.set({ catalogs: catelogs })
+        const catelog_names = (await model.ddb.invoke<string[]>('getAllCatalogs', [ ]))
+        const catalogs = await Promise.all(catelog_names.map(async name => ({ name, schemas: await this.get_schemas_by_catelog(name) })))
+        this.set({ catalogs })
     }
     
     async get_schemas_by_catelog (catelog: string) {
@@ -165,22 +164,22 @@ class AccessModel extends Model<AccessModel> {
     }
     
     async get_user_list () {
-        this.set({ users: (await model.ddb.call<DdbVectorStringObj>('getUserList', [ ])).value })
+        this.set({ users: (await model.ddb.invoke<string[]>('getUserList', [ ])) })
     }
     
     // final 属性代表是否获取用户最终权限，只有在用户查看权限界面需要 final = true
     async get_user_access (users: string[], final: boolean = false) {
-        return (await model.ddb.call('getUserAccess', [...final ? [new DdbVectorString(users), true] : [new DdbVectorString(users)]])).to_rows()
+        return (await model.ddb.call('getUserAccess', [...final ? [new DdbVectorString(users), true] : [new DdbVectorString(users)]])).data().data
     }
     
     
     async get_group_list () {
-        this.set({ groups: (await model.ddb.call('getGroupList', [ ])).value as string[] })
+        this.set({ groups: (await model.ddb.invoke<string[]>('getGroupList', [ ])) })
     }
     
     
     async get_group_access (groups: string[]) {
-        return (await model.ddb.call('getGroupAccess', [new DdbVectorString(groups)])).to_rows()
+        return (await model.ddb.call('getGroupAccess', [new DdbVectorString(groups)])).data().data
     }
     
     
@@ -250,7 +249,7 @@ class AccessModel extends Model<AccessModel> {
     
     
     async get_share_tables () {
-        const tables = (await model.ddb.call('objs', [true])).to_rows()
+        const tables = (await model.ddb.call('objs', [true])).data().data
         this.set({
             shared_tables: tables.filter(table => table.shared && table.type === 'BASIC' && table.form === 'TABLE')
                 .map(table => table.name)
@@ -261,7 +260,7 @@ class AccessModel extends Model<AccessModel> {
     async get_stream_tables () {
         this.set({
             stream_tables: (await model.ddb.call('getStreamTables', [new DdbInt(0)]))
-                .to_rows()
+                .data().data
                 .filter(table => table.shared)
                 .map(tb => tb.name)
         })
@@ -269,7 +268,7 @@ class AccessModel extends Model<AccessModel> {
     
     
     async get_function_views () {
-        this.set({ function_views: (await model.ddb.call('getFunctionViews', [ ])).to_rows().map(fv => fv.name) })
+        this.set({ function_views: (await model.ddb.call('getFunctionViews', [ ])).data().data.map(fv => fv.name) })
     }
     
     
