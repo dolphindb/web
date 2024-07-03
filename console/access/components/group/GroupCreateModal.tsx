@@ -6,6 +6,7 @@ import { useState } from 'react'
 import { language, t } from '../../../../i18n/index.js'
 import { access } from '../../model.js'
 import { model } from '../../../model.js'
+import { NAME_CHECK_PATTERN } from '../../constants.js'
 
 export const GroupCreateModal = NiceModal.create(() => {
     const { users } = access.use(['users'])
@@ -51,7 +52,7 @@ export const GroupCreateModal = NiceModal.create(() => {
                     rules={[
                         { required: true, message: t('请输入组名') },
                         { max: 30, message: t('组名长度不能超过 30 个字符') },
-                        { pattern: /^(?![\d_])[\w\d]+$/, message: t('组名只能包含字母、下划线或数字，并且不能以数字或下划线开头') }
+                        { pattern: NAME_CHECK_PATTERN, message: t('组名只能包含字母、下划线或数字，并且不能以数字或下划线开头') }
                     ]}
                     validateFirst
                 >

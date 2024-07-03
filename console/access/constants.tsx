@@ -38,7 +38,10 @@ export const ACCESS_OPTIONS = {
 export const STAT_ICONS = {
     allow: <CheckCircleFilled className='green' />,
     deny: <CloseCircleFilled className='red' />,
-    none: <MinusCircleFilled className='gray' />
+    none: <MinusCircleFilled className='gray' />,
+    default: null
 }
 
 export const DATABASES_WITHOUT_CATALOG = 'databases_without_catalog'
+
+export const NAME_CHECK_PATTERN = /^(?![\d_])[\w\d]+$/

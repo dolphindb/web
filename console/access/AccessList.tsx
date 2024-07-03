@@ -110,7 +110,7 @@ export function AccessList ({ category }: { category: AccessCategory }) {
                         ? 
                     v3 ? ACCESS_TYPE.catalog : ACCESS_TYPE.database 
                         : 
-                    // getUserAccess 并不会 TABLE_WRITE 、TABLE_WRITE 以及所有 SCHEMA 权限,展示时去掉
+                    // getUserAccess 并不会返回 TABLE_WRITE 、TABLE_WRITE 以及所有 SCHEMA 权限,展示时去掉
                     ACCESS_TYPE[category].filter(t => t !== 'TABLE_WRITE' && t !== 'TABLE_WRITE'))
                     .map(type => ({
                         title: type,
@@ -154,6 +154,7 @@ export function AccessList ({ category }: { category: AccessCategory }) {
                             rowExpandable: cl =>  Boolean( v3 ? cl.schemas.length : cl.tables.length),
                             expandedRowRender: (cl: TABLE_ACCESS) => 
                                 <Table
+                                    className='expand-table'
                                     columns={[
                                         {
                                             title: v3 ? TABLE_NAMES.database : TABLE_NAMES.table,
@@ -185,29 +186,31 @@ export function AccessList ({ category }: { category: AccessCategory }) {
                                         v3 ? 
                                             {
                                                 rowExpandable: (db: { key: string, table_name: string, tables: TABLE_ACCESS[] }) => Boolean(db.tables.length),
-                                                expandedRowRender: (db: { key: string, table_name: string, tables: TABLE_ACCESS[] }) => <Table
-                                                    columns={[
-                                                        {
-                                                            title: t('DFS 表'),
-                                                            dataIndex: 'table_name',
-                                                            key: 'table_name'
-                                                        },
-                                                        ...ACCESS_TYPE.table
-                                                            .filter(t => t !== 'TABLE_WRITE')
-                                                            .map(type => ({
-                                                                title: type,
-                                                                dataIndex: type,
-                                                                key: type
-                                                            }))
-                                                    ]}
-                                                    dataSource={db.tables.map(table => ({
-                                                        key: table.name,
-                                                        table_name: table.name,
-                                                        ...Object.fromEntries(Object.entries(table.access).map(([key, value]) => [key, STAT_ICONS[value as string]]))
-                                                    }))}
-                                                    pagination={false}
-                                                    tableLayout='fixed'
-                                                />
+                                                expandedRowRender: (db: { key: string, table_name: string, tables: TABLE_ACCESS[] }) => 
+                                                    <Table
+                                                        className='expand-table'
+                                                        columns={[
+                                                            {
+                                                                title: t('DFS 表'),
+                                                                dataIndex: 'table_name',
+                                                                key: 'table_name'
+                                                            },
+                                                            ...ACCESS_TYPE.table
+                                                                .filter(t => t !== 'TABLE_WRITE')
+                                                                .map(type => ({
+                                                                    title: type,
+                                                                    dataIndex: type,
+                                                                    key: type
+                                                                }))
+                                                        ]}
+                                                        dataSource={db.tables.map(table => ({
+                                                            key: table.name,
+                                                            table_name: table.name,
+                                                            ...Object.fromEntries(Object.entries(table.access).map(([key, value]) => [key, STAT_ICONS[value as string]]))
+                                                        }))}
+                                                        pagination={false}
+                                                        tableLayout='fixed'
+                                                    />
                                             } : { }
                                 }
                             />

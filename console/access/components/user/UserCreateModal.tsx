@@ -4,6 +4,7 @@ import { Form, Input, Modal, Select, Switch } from 'antd'
 import { language, t } from '../../../../i18n/index.js'
 import { access } from '../../model.js'
 import { model } from '../../../model.js'
+import { NAME_CHECK_PATTERN } from '../../constants.js'
 
 export const UserCreateModal = NiceModal.create(() => {
     const modal = useModal()
@@ -50,7 +51,7 @@ export const UserCreateModal = NiceModal.create(() => {
                     rules={[
                         { required: true, message: t('请输入用户名!') },
                         { max: 30, message: t('用户名长度不能超过 30 个字符') },
-                        { pattern: /^(?![\d_])[\w\d]+$/, message: t('用户名只能包含字母、下划线或数字，并且不能以数字或下划线开头') }
+                        { pattern: NAME_CHECK_PATTERN, message: t('用户名只能包含字母、下划线或数字，并且不能以数字或下划线开头') }
                     ]}
                     validateFirst
                 >

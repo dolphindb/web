@@ -1,6 +1,8 @@
-import { ACCESS_TYPE } from '../constants.js'
+import { ACCESS_TYPE, DATABASES_WITHOUT_CATALOG } from '../constants.js'
 
 export function generate_access_cols (accesses: Record<string, any>, category: keyof typeof ACCESS_TYPE, name: string) {
+    if (category === 'catalog' && name === DATABASES_WITHOUT_CATALOG) 
+        return ACCESS_TYPE.catalog.map(type => ([type, 'default']))
     return Object.fromEntries(ACCESS_TYPE[category].map(type => handle_access(accesses, type, name)))
 }
 
