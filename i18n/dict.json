@@ -3246,7 +3246,7 @@
         "en": "TSDB storage engine is recommended for computations over data within a specific time period; OLAP is recommended for queries on the entire dataset."
     },
     "是否允许并发写入同一分区": {
-        "en": "Enable Concurrent Writes to the Same Partition"
+        "en": "Concurrent Writes to the Same Partition"
     },
     "允许并发写入同一分区，会降低写入速度，且有极小概率导致数据不一致": {
         "en": "Enabling concurrent writes will decrease the write speed and could pose a minimal risk of data inconsistency."
@@ -3287,7 +3287,7 @@
     "增加筛选列": {
         "en": "Add Filter Column"
     },
-    "除分区列外，请选择查询时常作为过滤条件的列。越重要的过滤条件，在过滤列中的位置越靠前。结合您提供的信息，最多可选择1个常用筛选列,建议第一个过滤列为设备编号列。": {
+    "除分区列外，请选择查询时常作为过滤条件的列。越重要的过滤条件，在过滤列中的位置越靠前。结合您提供的信息，最多可选择2个常用筛选列，建议第一个过滤列为设备编号列。": {
         "en": "Apart from the partitioning columns, please select columns that are frequently used as filtering conditions during queries. It is recommended to arrange these columns by query frequency, with the most commonly used one at the beginning of the list. You can specify at most 2 filter columns, and the first one is recommended to be the device ID column."
     },
     "重复数据保留策略": {
@@ -3377,7 +3377,7 @@
     "时间列": {
         "en": "Time Column"
     },
-    "严格按时序增长排列的时间类型列,将按该列对数据进行分区": {
+    "严格按时序增长排列的时间类型列，将按该列对数据进行分区": {
         "en": "Specify a partitioning column with time series data collected chronologically."
     },
     "请选择时间列": {
@@ -3386,7 +3386,7 @@
     "标的列": {
         "en": "Symbol Column"
     },
-    "如股票ID、期货品种这样的枚举类型列,将按该列对数据进行分区": {
+    "如股票ID、期货品种这样的枚举类型列，将按该列对数据进行分区": {
         "en": "Specify a partitioning column with enumerated values such as security ID and futures contract."
     },
     "请选择标的列": {
@@ -3419,10 +3419,19 @@
     "请选择一个分区列（数据时间列）。": {
         "en": "Please select a partitioning column (time column)."
     },
-    "除分区列外，请选择查询时常作为过滤条件的列。越重要的过滤条件，在过滤列中的位置越靠前。结合您提供的信息，最多可选择2个常用筛选列,建议第一个过滤列为设备编号列。": {
-        "en": "Apart from the partitioning columns, please select columns that are frequently used as filtering conditions during queries. It is recommended to arrange these columns by query frequency, with the most commonly used one at the beginning of the list."
+    "除分区列外，请选择查询时常作为过滤条件的列。越重要的过滤条件，在过滤列中的位置越靠前。结合您提供的信息，最多可选择1个常用筛选列，建议第一个过滤列为数据时间列。": {
+        "en": "Apart from the partitioning columns, please select columns that are frequently used as filtering conditions during queries. It is recommended to arrange these columns by query frequency, with the most commonly used one at the beginning of the list. You can specify at most one filter column, and is recommended to be the data time column."
     },
-    "结合您提供的信息，最多可选择2个常用筛选列,建议第一个过滤列为设备编号列。": {
+    "请选择一个分区列（设备编号列）。": {
+        "en": "Please select a partitioning column (device number column)."
+    },
+    "除分区列外，请选择查询时常作为过滤条件的列。越重要的过滤条件，在过滤列中的位置越靠前。": {
+      "en": "Apart from the partitioning columns, please select columns that are frequently used as filtering conditions during queries. It is recommended to arrange these columns by query frequency, with the most commonly used one at the beginning of the list."  
+    },
+    "除分区列外，请选择查询时常作为过滤条件的列。越重要的过滤条件，在过滤列中的位置越靠前。结合您提供的信息，最多可选择2个常用筛选列,建议第一个过滤列为设备编号列。": {
+        "en": "Apart from the partitioning columns, please select columns that are frequently used as filtering conditions during queries. It is recommended to arrange these columns by query frequency, with the most commonly used one at the beginning of the list. You can specify at most two filter columns, and the first one is recommended to be the device ID column."
+    },
+    "结合您提供的信息，最多可选择2个常用筛选列，建议第一个过滤列为设备编号列。": {
         "en": "You can specify at most two filter columns, and the first one is recommended to be the device ID column."
     },
     "结合您提供的信息，最多可选择2个常用筛选列。": {
@@ -4689,7 +4698,7 @@
         "en": "All"
     },
     "部分": {
-        "en": "Part"
+        "en": "Custom Range"
     },
     "起始行需为大于等于 0 的整数": {
         "en": "The starting row must be an integer greater than or equal to 0"
@@ -4716,7 +4725,7 @@
         "en": "Please enter the ending row"
     },
     "注意：请根据实际的硬件情况选择导出范围，过大的范围可能导致浏览器崩溃！": {
-        "en": "Note: Please select the range according to the actual situation. Too large a range may cause the browser to crash!"
+        "en": "Note: Select a reasonable range to avoid browser performance issues."
     },
     "输入限制内存大小，单位为 GB": {
         "en": "Enter the limit memory size in GB"
@@ -4729,5 +4738,17 @@
     },
     "保存成功，重启集群生效": {
         "en": "Save successfully and restart the cluster to take effect."
+    },
+    "错误信息：{{error_msg}}": {
+        "en": "Error message: {{error_msg}}"
+    },
+    "除分区列外，请选择查询时常作为过滤条件的列。越重要的过滤条件，在过滤列中的位置越靠前。结合您提供的信息，最多可选择2个常用筛选列。": {
+        "en": "Apart from the partitioning columns, please select columns that are frequently used as filtering conditions during queries. It is recommended to arrange these columns by query frequency, with the most commonly used one at the beginning of the list. You can specify at most 2 filter columns."
+    },
+    "{{label}}启用成功": {
+        "en": "{{label}} enabled successfully"
+    },
+    "{{label}}停用成功": {
+        "en": "{{label}} disabled successfully"
     }
 }
