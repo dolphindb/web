@@ -1,11 +1,11 @@
-import { default as React, useCallback, useEffect, useRef, useState } from 'react'
+import { default as React, useCallback, useEffect, useMemo, useRef, useState } from 'react'
 
 import NiceModal from '@ebay/nice-modal-react'
 
 import { Resizable } from 're-resizable'
 import cn from 'classnames'
 
-import { Tooltip, Tree, Modal, Form, Input, Select, Button, InputNumber } from 'antd'
+import { Tooltip, Tree, Modal, Form, Input, Select, Button, InputNumber, Checkbox } from 'antd'
 
 import type { DataNode, EventDataNode } from 'antd/es/tree'
 
@@ -36,6 +36,7 @@ import { shell } from './model.js'
 import { CreateTableModal } from './CreateTableModal.js'
 import { AddColumnModal } from './AddColumnModal.js'
 import { AccessModal } from './AccessModal.js'
+import { QueryGuideModal } from './QueryGuide/index.js'
 
 import SvgDatabase from './icons/database.icon.svg'
 import SvgCreateDatabase from './icons/create-database.icon.svg'
@@ -51,7 +52,8 @@ import SvgColumnRoot from './icons/column-root.icon.svg'
 import SvgPartitionDirectory from './icons/partition-directory.icon.svg'
 import SvgTable from './icons/table.icon.svg'
 import SvgQueryGuide from './icons/query-guide.icon.svg'
-import { QueryGuideModal } from './QueryGuide/index.js'
+import SvgCatalog from './icons/catalog.icon.svg'
+import SvgCreateCatalog from './icons/create-catalog.icon.svg'
 
 
 
@@ -64,13 +66,13 @@ enum TableKind {
 
 export function Databases () {
     const { dbs } = shell.use(['dbs'])
-    const { node, logined, node_type } = model.use(['node', 'logined', 'node_type'])
+    const { node, logined, node_type, v3 } = model.use(['node', 'logined', 'node_type', 'v3'])
     
     const [db_height, set_db_height] = useState(256)
     
     const [expanded_keys, set_expanded_keys] = useState([ ])
     const [loaded_keys, set_loaded_keys] = useState([ ])
-    const previous_clicked_node = useRef<DatabaseGroup | Database | Table | ColumnRoot | PartitionRoot | Column | PartitionDirectory | PartitionFile | Schema>()
+    const previous_clicked_node = useRef<Catalog | DatabaseGroup | Database | Table | ColumnRoot | PartitionRoot | Column | PartitionDirectory | PartitionFile | Schema>()
     
     const enable_create_db = [NodeType.data, NodeType.single].includes(node_type)
     const [refresh_spin, set_refresh_spin] = useState(false)
@@ -133,6 +135,13 @@ export function Databases () {
                                 />
                             </Tooltip>
                         </span>
+                        {v3 && <span onClick={() => {
+                            shell.set({ create_catalog_modal_visible: true })
+                        }}>
+                            <Tooltip title={t('创建 catalog')} color='grey'>
+                                <Icon className='create-database-icon' component={SvgCreateCatalog} />
+                            </Tooltip>
+                        </span>}
                         <span onClick={shell.refresh_db}>
                             <Tooltip title={t('刷新')} color='grey'>
                                 <SyncOutlined spin={refresh_spin}/>
@@ -160,7 +169,7 @@ export function Databases () {
                             treeData={dbs}
                             
                             loadedKeys={loaded_keys}
-                            loadData={async (node: EventDataNode<DatabaseGroup | Database | Table | ColumnRoot | PartitionRoot | Column | PartitionDirectory | PartitionFile>) => {
+                            loadData={async (node: EventDataNode<Catalog | DatabaseGroup | Database | Table | ColumnRoot | PartitionRoot | Column | PartitionDirectory | PartitionFile>) => {
                                 try {
                                     switch (node.type) {
                                         case 'column-root':
@@ -190,13 +199,15 @@ export function Databases () {
                                 set_expanded_keys(keys)
                              }}
                             
-                            onClick={async (event, { self: node, type }: EventDataNode<DatabaseGroup | Database | Table | ColumnRoot | PartitionRoot | Column | PartitionDirectory | PartitionFile | Schema>) => {
+                            onClick={async (event, { self: node, type }: EventDataNode<Catalog | DatabaseGroup | Database | Table | ColumnRoot | PartitionRoot | Column | PartitionDirectory | PartitionFile | Schema>) => {
                                 const previous = previous_clicked_node.current
                                 if (previous && previous.key !== node.key && previous.type === 'table')
                                     previous.peeked = false
                                 
                                 switch (type) {
-                                    case 'database-group': 
+                                    case 'catalog':
+                                    case 'database-group':
+                                    case 'database': 
                                     case 'partition-root': 
                                     case 'column-root': 
                                     case 'partition-directory': {
@@ -210,35 +221,17 @@ export function Databases () {
                                             else
                                                 keys_.push(key)
                                         
-                                        if (!found)
-                                            keys_.push(node.key)
-                                        
-                                        set_expanded_keys(keys_)
-                                        break
-                                    }
-                                    
-                                    case 'database': {
-                                        // 切换展开状态
-                                        let found = false
-                                        let keys_ = [ ]
-                                        
-                                        const { key } = node
-                                        
-                                        for (const expanded_key of expanded_keys)
-                                            if (key === expanded_key)
-                                                found = true
-                                            else
-                                                keys_.push(expanded_key)
-                                        
                                         if (!found) {
-                                            keys_.push(key)
+                                            keys_.push(node.key)
                                             
-                                            await node.load_children()
+                                            if (type === 'database') {
+                                                await node.load_children()
                                             
-                                            shell.set({ dbs: [...dbs] })
-                                            
-                                            // 显示 schema
-                                            await node.inspect()
+                                                shell.set({ dbs: [...dbs] })
+                                                
+                                                // 显示 schema
+                                                await node.inspect() 
+                                            }
                                         }
                                         
                                         set_expanded_keys(keys_)
@@ -294,6 +287,7 @@ export function Databases () {
                 }
                 <SetTableComment />
                 <SetColumnComment />
+                {v3 && <CreateCatalog />}
                 <CreateDatabase />
                 <ConfirmCommand />
             </div>
@@ -505,6 +499,9 @@ interface Partition {
 }
 
 interface CreateDatabaseFormInfo {
+    use_catalog: boolean
+    catalog: string
+    schema: string
     // dbPath 无 dfs:// 前缀
     dbPath: string
     partitionCount: string
@@ -515,10 +512,67 @@ interface CreateDatabaseFormInfo {
     chunkGranularity?: ChunkGranularity | undefined
 }
 
-function CreateDatabase () {
-    const { create_database_modal_visible, create_database_partition_count } = shell.use(['create_database_modal_visible', 'create_database_partition_count'])
-    const { node_type, node, v2, v3 } = model.use(['node_type', 'node', 'v2', 'v3'])
+function CreateCatalog () {
+    const { create_catalog_modal_visible } = shell.use(['create_catalog_modal_visible'])
     const [form] = Form.useForm()
+    
+    const [loading, set_loading] = useState(false)
+    
+    return <Modal
+            width='30%'
+            forceRender
+            maskClosable={false}
+            title={t('创建 catalog')} 
+            open={create_catalog_modal_visible} 
+            onOk={async () => { 
+                try {
+                    set_loading(true)
+                    
+                    await form.validateFields()
+                    await model.ddb.invoke('createCatalog', [form.getFieldValue('name')])
+                    
+                    await shell.load_dbs()
+                    
+                    form.resetFields()
+                    shell.set({ create_catalog_modal_visible: false })
+                } finally {
+                    set_loading(false)
+                }
+            }} 
+            onCancel={() => {
+                if (loading)
+                    return
+                form.resetFields()
+                shell.set({ create_catalog_modal_visible: false })
+            }}
+        >
+            <Form form={form} labelCol={{ span: 4 }} wrapperCol={{ span: 18 }} disabled={loading}>
+                <Form.Item 
+                    required
+                    rules={[{ required: true, message: t('请输入名称') }]} 
+                    name='name' 
+                    label={t('名称')}
+                >
+                    <Input placeholder={t('请输入名称')} />
+                </Form.Item>
+            </Form>
+        </Modal>
+}
+
+function CreateDatabase () {
+    const { create_database_modal_visible, create_database_partition_count, dbs } = shell.use(['create_database_modal_visible', 'create_database_partition_count', 'dbs'])
+    const { node_type, node, v2, v3 } = model.use(['node_type', 'node', 'v2', 'v3'])
+    
+    const [form] = Form.useForm()
+    const use_catalog = Form.useWatch('use_catalog', form)
+    
+    const catalogs = useMemo(() => 
+        shell.dbs?.filter(db => db instanceof Catalog)?.map(({ title }) => ({
+            label: title,
+            value: title,
+        })) ?? [ ]
+    , [dbs])
+    
     
     // We just assume this is always turned on in dolphindb.cfg
     const enableChunkGranularityConfig = true
@@ -634,7 +688,7 @@ function CreateDatabase () {
                 
                 // NOTE: `partitioned by paritionType(partitionScheme), ...paritionType(partitionScheme)` must be placed in one line, or
                 // the parser will complain about syntax error.
-                createDBScript = `create database "dfs://${table.dbPath}"\npartitioned by `
+                createDBScript = `create database ${table.use_catalog ? `${table.catalog}.${table.schema}` : `"dfs://${table.dbPath}"`}\npartitioned by `
                 
                 for (let i = 0;  i < partitionCount;  i++) {
                     const { type, scheme } = table.partitions[i]
@@ -659,18 +713,35 @@ function CreateDatabase () {
                 })
             }}
         >
-            <Form.Item label={t('数据库路径 (directory)')} name='dbPath' required rules={[{
-                required: true,
-                validator: async (_, val: string) => {
-                    if (!val)
-                        throw new TypeError(t('数据库路径不能为空'))
-                    
-                    if (val.includes('"'))
-                        throw new TypeError(t('数据库路径不能包含双引号'))
-                }
-            }]}>
-                <Input addonBefore='dfs://' placeholder={t('请输入数据库路径')} />
-            </Form.Item>
+            { v3 && <Form.Item label={t('是否在目录 (catalog) 下创建')} name='use_catalog' valuePropName='checked'>
+                <Checkbox />
+            </Form.Item> }
+            {
+                use_catalog && v3
+                    ? <>
+                        <Form.Item label={t('目录 (catalog)')} name='catalog' required>
+                            <Select
+                                placeholder={t('请选择 catalog')} 
+                                options={catalogs} 
+                            />
+                        </Form.Item>
+                        <Form.Item label={t('名称 (schema)')} name='schema' required rules={[{ required: true, message: t('请输入 schema') }]}>
+                            <Input placeholder={t('请输入 schema')} />
+                        </Form.Item> 
+                    </>
+                    : <Form.Item label={t('数据库路径 (directory)')} name='dbPath' required rules={[{
+                        required: true,
+                        validator: async (_, val: string) => {
+                            if (!val)
+                                throw new TypeError(t('数据库路径不能为空'))
+                            
+                            if (val.includes('"'))
+                                throw new TypeError(t('数据库路径不能包含双引号'))
+                        }
+                    }]}>
+                        <Input addonBefore='dfs://' placeholder={t('请输入数据库路径')} />
+                    </Form.Item>
+            }
             
             <Form.Item label={t('分区层级')} name='partitionCount' required initialValue={create_database_partition_count} rules={[{
                 required: true,
@@ -822,6 +893,31 @@ function CreateDatabase () {
 }
 
 
+export class Catalog implements DataNode {
+    type = 'catalog' as const
+    
+    self: Catalog
+    
+    key: string
+    
+    title: string
+    
+    className = 'catalog'
+    
+    icon = <Icon component={SvgCatalog} />
+    
+    isLeaf = false as const
+    
+    children: Database[] = [ ]
+    
+    
+    constructor (key: string) {
+        this.self = this
+        this.key = this.title = key
+    }
+}
+
+
 export class DatabaseGroup implements DataNode {
     type = 'database-group' as const
     
@@ -878,7 +974,7 @@ export class Database implements DataNode {
     table_paths: string[] = [ ]
     
     
-    constructor (path: string) {
+    constructor (path: string, title?: string) {
         this.self = this
         assert(path.startsWith('dfs://'), t('数据库路径应该以 dfs:// 开头'))
         this.key = this.path = path
@@ -901,7 +997,7 @@ export class Database implements DataNode {
             }
         
         this.title = <div className='database-title'>
-            <span title={path.slice(0, -1)}>{path.slice('dfs://'.length, -1).split('.').at(-1)}</span>
+            <span title={path.slice(0, -1)}>{title ?? path.slice('dfs://'.length, -1).split('.').at(-1)}</span>
             
             <div className='database-actions'>
                 {
