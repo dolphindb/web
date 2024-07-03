@@ -1,11 +1,16 @@
 import { Button, Form, Input, InputNumber, Radio, Select } from 'antd'
+
+import { useCallback, useEffect } from 'react'
+
 import { FormDependencies } from '../../components/formily/FormDependcies/index.js'
+
+import { request } from '../utils.js'
+
+import { t } from '../../../i18n/index.js'
+
 import { ExistDBSelect } from './components/ExistedDBSelect.js'
 import { CUSTOM, DAILY_INCREASE_DATA_OPTIONS } from './constant.js'
 import { type IDatabaseInfo, type IFinanceInfo } from './type.js'
-import { useCallback, useEffect } from 'react'
-import { request } from '../utils.js'
-import { t } from '../../../i18n/index.js'
 
 interface IProps { 
     info: IFinanceInfo
