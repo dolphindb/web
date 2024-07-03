@@ -1,5 +1,5 @@
 import { Radio, Spin } from 'antd'
-import { useState } from 'react'
+import { useId, useState } from 'react'
 
 import useSWR from 'swr'
 
@@ -19,10 +19,10 @@ const VersionMap = {
 export function CreateGuide () { 
     
     const [type, set_type] = useState(GuideType.SIMPLE)
-    
+    const id = useId()
     const { isLoading } = useSWR(
-        'init_code',
-        async () => create_guide.define_iot_guide()
+        ['init_code', id],
+        async () => create_guide.define_func()
     )
     
     return <Spin spinning={isLoading}>
