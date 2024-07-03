@@ -4767,9 +4767,15 @@
         "en": "schema"
     },
     "DFS 数据库": {
-        "en": "DFS database"
+        "en": "DFS DATABASE"
     },
     "catalog 名称只能包含字母、下划线或数字，并且不能以数字或下划线开头": {
         "en": "The catalog name can only contain letters, underscores, or numbers, and cannot begin with a number or an underscore."
+    },
+    "DFS 表": {
+        "en": "DFS TABLE"
+    },
+    "目录": {
+        "en": "CATALOG"
     }
 }
