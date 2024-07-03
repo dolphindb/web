@@ -167,6 +167,15 @@ class AccessModel extends Model<AccessModel> {
         this.set({ users: (await model.ddb.invoke<string[]>('getUserList', [ ])) })
     }
     
+    async update_current_access () {
+        access.set({
+            accesses:
+                this.current.role === 'user'
+                    ? (await access.get_user_access([this.current.name]))[0]
+                    : (await access.get_group_access([this.current.name]))[0]
+        })
+    }
+    
     // final 属性代表是否获取用户最终权限，只有在用户查看权限界面需要 final = true
     async get_user_access (users: string[], final: boolean = false) {
         return (await model.ddb.call('getUserAccess', [...final ? [new DdbVectorString(users), true] : [new DdbVectorString(users)]])).data().data

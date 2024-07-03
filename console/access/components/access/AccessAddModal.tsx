@@ -81,14 +81,7 @@ export const AccessAddModal = NiceModal.create(({ category }: { category: Access
                 set_add_rule_selected({ access: ACCESS_OPTIONS[category][0], type: 'grant', obj: [ ] })
                 set_add_access_rows([ ])
                 modal.hide()
-                access.set({
-                    accesses:
-                        current.role === 'user'
-                                ? 
-                            (await access.get_user_access([current.name]))[0]
-                                : 
-                            (await access.get_group_access([current.name]))[0]
-                })
+                await access.update_current_access()
             }}
             destroyOnClose
             okText={t('确认添加')}

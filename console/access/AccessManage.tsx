@@ -95,15 +95,6 @@ export function AccessManage ({ category }: { category: AccessCategory }) {
         [ ]
     )
     
-    const updateAccesses = useCallback(async () => {
-        access.set({
-            accesses:
-                current.role === 'user'
-                    ? (await access.get_user_access([current.name]))[0]
-                    : (await access.get_group_access([current.name]))[0]
-        })
-    }, [current])
-    
     
     const access_rules = useMemo(() => {
         if (!accesses)
@@ -121,7 +112,7 @@ export function AccessManage ({ category }: { category: AccessCategory }) {
                             <RevokeConfirm onConfirm={async () => {
                                 await access.revoke(current.name, k)
                                 model.message.success(t('撤销成功'))
-                                await updateAccesses()
+                                await access.update_current_access()
                             }} />
                         )
                     })
@@ -149,7 +140,7 @@ export function AccessManage ({ category }: { category: AccessCategory }) {
                                 <RevokeConfirm onConfirm={async () => {
                                     await access.revoke(current.name, k.slice(0, k.indexOf(allowed ? '_allowed' : '_denied')), obj)
                                     model.message.success(t('撤销成功'))
-                                    await updateAccesses()
+                                    await access.update_current_access()
                                 }} />
                             )
                         })
@@ -167,7 +158,7 @@ export function AccessManage ({ category }: { category: AccessCategory }) {
                                 <RevokeConfirm onConfirm={async () => {
                                     await access.revoke(current.name, k, obj)
                                     model.message.success(t('撤销成功'))
-                                    await updateAccesses()
+                                    await access.update_current_access()
                                 }} />
                             )
                         })

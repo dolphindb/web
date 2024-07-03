@@ -154,7 +154,6 @@ export function AccessList ({ category }: { category: AccessCategory }) {
                             rowExpandable: cl =>  Boolean( v3 ? cl.schemas.length : cl.tables.length),
                             expandedRowRender: (cl: TABLE_ACCESS) => 
                                 <Table
-                                    className='expand-table'
                                     columns={[
                                         {
                                             title: v3 ? TABLE_NAMES.database : TABLE_NAMES.table,
@@ -188,7 +187,6 @@ export function AccessList ({ category }: { category: AccessCategory }) {
                                                 rowExpandable: (db: { key: string, table_name: string, tables: TABLE_ACCESS[] }) => Boolean(db.tables.length),
                                                 expandedRowRender: (db: { key: string, table_name: string, tables: TABLE_ACCESS[] }) => 
                                                     <Table
-                                                        className='expand-table'
                                                         columns={[
                                                             {
                                                                 title: t('DFS 表'),

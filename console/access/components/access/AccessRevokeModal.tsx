@@ -39,12 +39,7 @@ export const AccessRevokeModal = NiceModal.create(({
                     model.message.success(t('撤销成功'))
                     reset_selected()
                     modal.hide()
-                    access.set({
-                        accesses:
-                            current.role === 'user'
-                                ? (await access.get_user_access([current.name]))[0]
-                                : (await access.get_group_access([current.name]))[0]
-                    })
+                    await access.update_current_access()
             }}
             title={<Tooltip>{t('确认撤销选中的 {{num}} 条权限吗？', { num: selected_access.length })}</Tooltip>}
         />
