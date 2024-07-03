@@ -5,6 +5,8 @@ import { useCallback, useMemo, useRef, useState } from 'react'
 
 import useSWR from 'swr'
 
+import { DdbDatabaseError } from 'dolphindb/browser.js'
+
 import { t } from '../../i18n/index.js'
 import { model } from '../model.js'
 
@@ -142,8 +144,7 @@ export function NodesManagement () {
         const new_nodes = _2_strs(nodes).filter(nod => nod !== node_id)
         await config.save_cluster_nodes(new_nodes)
         await mutate()
-    }
-        , [nodes])
+    }, [nodes])
         
         
     return <EditableProTable
@@ -190,17 +191,27 @@ export function NodesManagement () {
             {
                 type: 'single',
                 
-                onSave: async (rowKey, data, row) => {
+                onSave: async (rowKey, { host, port, alias, mode }) => {
+                  try {
                     const node_strs = _2_strs(nodes)
                     let idx = node_strs.indexOf(rowKey as string)
+                    // 代理节点先执行 addAgentToController 在线添加
+                    if (mode === 'agent') 
+                        await config.add_agent_to_controller(host, Number(port), alias)
                     if (idx === -1)
-                        await config.save_cluster_nodes([`${data.host}:${data.port}:${data.alias},${data.mode}`, ...node_strs])
+                        await config.save_cluster_nodes([`${host}:${port}:${alias},${mode}`, ...node_strs])
                     else
-                        await config.save_cluster_nodes(node_strs.toSpliced(idx, 1, `${data.host}:${data.port}:${data.alias},${data.mode}`))
+                        await config.save_cluster_nodes(node_strs.toSpliced(idx, 1, `${host}:${port}:${alias},${mode}`))
                     mutate()
                     model.message.success(t('保存成功，重启集群生效'))
+                  } catch (error) {
+                      // 数据校验不需要展示报错弹窗
+                      if (error instanceof DdbDatabaseError)
+                          // eslint-disable-next-line @typescript-eslint/no-throw-literal
+                          throw error
+                  }
                 },
-                onDelete: async (key, row) => delete_nodes(row.id),
+                onDelete: async (_, row) => delete_nodes(row.id),
                 deletePopconfirmMessage: t('确认删除此节点？'),
                 saveText:
                     <Button

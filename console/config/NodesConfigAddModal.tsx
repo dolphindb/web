@@ -93,6 +93,7 @@ export const NodesConfigAddModal = NiceModal.create(() => {
                             } catch (error) {
                                 // 数据校验不需要展示报错弹窗
                                 if (error instanceof DdbDatabaseError)
+                                    // eslint-disable-next-line @typescript-eslint/no-throw-literal
                                     throw error
                             }
                         }
