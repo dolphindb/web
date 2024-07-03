@@ -1,44 +1,56 @@
 <?xml version="1.0" encoding="UTF-8"?>
-<svg id="_图层_1" data-name="图层 1" xmlns="http://www.w3.org/2000/svg" version="1.1" width="15" height="15" viewBox="0 0 15 15">
+<svg xmlns="http://www.w3.org/2000/svg" version="1.1" viewBox="0 0 12 12">
   <defs>
     <style>
-      .cls-1, .cls-2 {
+      .cls-1, .cls-2, .cls-3 {
         fill: #000;
         stroke-width: 0px;
       }
 
-      .cls-3, .cls-4 {
-        display: none;
-      }
-
-      .cls-4 {
+      .cls-4, .cls-2 {
         opacity: .5;
       }
 
-      .cls-2 {
+      .cls-5, .cls-6 {
+        display: none;
+      }
+
+      .cls-6 {
+        opacity: .5;
+      }
+
+      .cls-3 {
         isolation: isolate;
         opacity: .2;
       }
     </style>
   </defs>
-  <g id="_图层_1-2" data-name=" 图层 1" class="cls-3">
-    <g id="_图层_1-2" data-name=" 图层 1-2" class="cls-4">
-      <g>
-        <path class="cls-1" d="M8,3l1.8,1.8-3.8,3.8,1.4,1.4,3.8-3.8,1.8,1.8V3h-5Z"/>
-        <path class="cls-1" d="M11,11h-6v-6h2v-2H3v10h10v-4h-2v2Z"/>
+  <g id="_图层_1" data-name=" 图层 1" class="cls-5">
+    <g id="_图层_1-2" data-name=" 图层 1-2" class="cls-5">
+      <g id="_图层_1-2-2" data-name=" 图层 1-2" class="cls-6">
+        <g>
+          <path class="cls-1" d="M6,1l1.8,1.8-3.8,3.8,1.4,1.4,3.8-3.8,1.8,1.8V1h-5Z"/>
+          <path class="cls-1" d="M9,9H3V3h2V1H1v10h10v-4h-2v2Z"/>
+        </g>
       </g>
     </g>
+    <g id="_图层_2" data-name=" 图层 2" class="cls-5">
+      <rect class="cls-3" width="12" height="12"/>
+    </g>
+    <g id="_图层_3" data-name=" 图层 3" class="cls-4">
+      <path class="cls-1" d="M11,1v1.5H1v-1.5h10M12,0H0v3.5h12V0h0Z"/>
+    </g>
+    <path class="cls-2" d="M9.5,7.1c-1.4,0-2.5,1.1-2.5,2.5s1.1,2.5,2.5,2.5,2.5-1.1,2.5-2.5-1.1-2.5-2.5-2.5ZM11.1,10.1h-1.1v1.1c0,.2-.2.4-.4.4h-.1c-.2,0-.4-.2-.4-.4v-1.1h-1.1c-.2,0-.4-.2-.4-.4h0c0-.4.2-.6.4-.6h1.1v-1.1c0-.2.2-.4.4-.4h.1c.2,0,.4.2.4.4v1.1h1.1c.2,0,.4.2.4.4h0c0,.4-.2.6-.4.6Z"/>
+    <path class="cls-2" d="M8.6,6.7H1v-1.5h10v1.5h-.6c.6.2,1.1.5,1.5,1h.1v-3.5H0v3.5h7.2c.4-.5.9-.8,1.5-1h0Z"/>
+    <path class="cls-2" d="M6.9,11H1v-1.5h5.5c0-.4,0-.7.2-1H0v3.5h7.8c-.4-.3-.7-.6-.9-1Z"/>
   </g>
-  <g id="_图层_2" data-name=" 图层 2" class="cls-3">
-    <rect class="cls-2" x="2" y="2" width="12" height="12"/>
+  <g id="_图层_2-2" data-name="图层 2">
+    <path class="cls-1" d="M11.2.8v1.9H.8V.8h10.4M12,0H0v3.5h12V0h0Z"/>
+    <rect class="cls-1" x="1.7" y="10" width="2.5" height=".5"/>
+    <rect class="cls-1" x="1.7" y="5.8" width="2.5" height=".5"/>
+    <rect class="cls-1" x="1.7" y="1.5" width="2.5" height=".5"/>
+    <path class="cls-1" d="M7,11.2H.8v-1.9h5.7c0-.3,0-.5.2-.8H0v3.5h7.8c-.3-.2-.6-.5-.8-.8Z"/>
+    <path class="cls-1" d="M9.5,7c-1.4,0-2.5,1.1-2.5,2.5s1.1,2.5,2.5,2.5,2.5-1.1,2.5-2.5-1.1-2.5-2.5-2.5ZM11.1,9.9h-1.2v1.2c0,.2-.2.4-.4.4s-.4-.2-.4-.4v-1.2h-1.2c-.2,0-.4-.2-.4-.4s.2-.4.4-.4h1.2v-1.2c0-.2.2-.4.4-.4s.4.2.4.4v1.2h1.2c.2,0,.4.2.4.4s-.2.4-.4.4Z"/>
+    <path class="cls-1" d="M8,6.9H.8v-1.9h10.4v1.9h-.2c.4.2.7.5.9.8h.1v-3.5H0v3.5h7.1c.2-.3.6-.6.9-.8Z"/>
   </g>
-  <g id="_图层_3" data-name=" 图层 3">
-    <path class="cls-1" d="M13,3v1.5H3v-1.5h10M14,2H2v3.5h12v-3.5h0Z"/>
-    <rect class="cls-1" x="3.7" y="3.5" width="2.5" height=".5"/>
-    <rect class="cls-1" x="3.7" y="7.8" width="2.5" height=".5"/>
-    <rect class="cls-1" x="3.7" y="12" width="2.5" height=".5"/>
-  </g>
-  <path class="cls-1" d="M11.5,9.1c-1.4,0-2.5,1.1-2.5,2.5s1.1,2.5,2.5,2.5,2.5-1.1,2.5-2.5-1.1-2.5-2.5-2.5ZM13.1,12.1h-1.1v1.1c0,.2-.2.4-.4.4h-.1c-.2,0-.4-.2-.4-.4v-1.1h-1.1c-.2,0-.4-.2-.4-.4h0c0-.4.2-.6.4-.6h1.1v-1.1c0-.2.2-.4.4-.4h.1c.2,0,.4.2.4.4v1.1h1.1c.2,0,.4.2.4.4h0c0,.4-.2.6-.4.6Z"/>
-  <path class="cls-1" d="M10.6,8.7H3v-1.5h10v1.5h-.6c.6.2,1.1.5,1.5,1h.1v-3.5H2v3.5h7.2c.4-.5.9-.8,1.5-1Z"/>
-  <path class="cls-1" d="M8.9,13H3v-1.5h5.5c0-.4,0-.7.2-1H2v3.5h7.8c-.4-.3-.7-.6-.9-1Z"/>
 </svg>
