@@ -9,8 +9,11 @@ import { Server } from 'xshell/server.js'
 import { builder, fpd_root, fpd_out } from './builder.js'
 
 
-// k8s 开发环境需要使用自签名的证书
-// process.env.NODE_TLS_REJECT_UNAUTHORIZED = '0'
+set_inspect_options()
+
+console.log('项目根目录:', fpd_root)
+
+assert(ramdisk || fexists(`${fpd_root}.vscode/settings.json`, noprint), '需要将 .vscode/settings.template.json 复制为 .vscode/settings.json')
 
 
 class DevServer extends Server {
@@ -61,17 +64,12 @@ class DevServer extends Server {
 }
 
 
-set_inspect_options()
-
-console.log('项目根目录:', fpd_root)
-
-assert(ramdisk || fexists(`${fpd_root}.vscode/settings.json`, noprint), '需要将 .vscode/settings.template.json 复制为 .vscode/settings.json')
-
 let server = new DevServer({
     name: 'web 开发服务器',
     http: true,
     http_port: 8432,
 })
+
 
 await Promise.all([
     server.start(),
