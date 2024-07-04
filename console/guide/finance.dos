@@ -441,3 +441,9 @@ def getPartitionColumns(param){
 	ptColTypes["cols"]=code
 	return toStdJson(ptColTypes)
 }
+
+
+try{
+    addFunctionView(autoCreateDBTB)
+    addFunctionView(getPartitionColumns)
+}catch(ex){}
