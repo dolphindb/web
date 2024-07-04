@@ -845,20 +845,3 @@ def DBMSIOT_createDB2(args){
         }
     }
 }
-
-
-try{
-    addFunctionView(DBMSIOT_checkDatabase)
-    addFunctionView(DBMSIOT_getSchema)
-    addFunctionView(DBMSIOT_getPerRowSize)
-    addFunctionView(DBMSIOT_getPartitionMessage)
-    addFunctionView(DBMSIOT_getPartitionMessages)
-    addFunctionView(DBMSIOT_getBestPlan)
-    addFunctionView(DBMSIOT_getDimensionTable)
-    addFunctionView(DBMSIOT_getStaticPartitionTable)
-    addFunctionView(DBMSIOT_createDB)
-    addFunctionView(DBMSIOT_recommendInfo)
-    addFunctionView(DBMSIOT_getStaticPartitionTableOLAP)
-    addFunctionView(DBMSIOT_getStaticPartitionTableTSDB)
-    addFunctionView(DBMSIOT_createDB2)
-}catch(ex){}
