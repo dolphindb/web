@@ -43,11 +43,6 @@ export function OverviewTable ({
     
     const columns: TableColumnsType<DdbNode> = useMemo(() => [
         {
-            title: t('节点类型'),
-            dataIndex: 'mode',
-            render: (mode: number) => node_mode_lables[Number(mode)]
-        },
-        {
             title: t('节点别名'),
             dataIndex: 'name',
             fixed: 'left',
@@ -95,6 +90,11 @@ export function OverviewTable ({
             render: (name: string, node: DdbNode) => <a target='_blank' href={generate_node_link(node.host, node.port)}>
                     {name}
                 </a>
+        },
+        {
+            title: t('节点类型'),
+            dataIndex: 'mode',
+            render: (mode: number) => node_mode_lables[Number(mode)]
         },
         {
             title: t('是否 Leader'),
