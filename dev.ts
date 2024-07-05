@@ -2,7 +2,7 @@ import type { Context } from 'koa'
 
 import {
     request_json, inspect, Remote, set_inspect_options,
-    fexists, assert, ramdisk, noprint
+    fexists, assert, ramdisk, noprint, MyProxy
 } from 'xshell'
 import { Server } from 'xshell/server.js'
 
@@ -48,7 +48,7 @@ class DevServer extends Server {
         }
         
         if (dapi && method === 'POST') {
-            const data = await request_json(`http://${this.ddb_backend}${path}`, { body })
+            const data = await request_json(`http://${this.ddb_backend}${path}`, { body, proxy: ramdisk ? MyProxy.work : undefined })
             console.log(`${body.functionName}(${inspect(body.params, { compact: true })})`)
             console.log(response.body = data)
             return true
