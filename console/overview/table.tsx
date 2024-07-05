@@ -2,7 +2,7 @@ import { Button, Input, Space, Table, Tooltip, type InputRef, type TableColumnsT
 
 import { CheckCircleOutlined, MinusCircleOutlined, PauseCircleOutlined, SearchOutlined } from '@ant-design/icons'
 
-import { useRef, useState } from 'react'
+import { useMemo, useRef, useState } from 'react'
 
 import { NodeType, model, type DdbNode } from '../model.js'
 
@@ -47,7 +47,7 @@ export function OverviewTable ({
     setSearchText('')
   }
   
-  const columns: TableColumnsType<DdbNode> = [
+  const columns: TableColumnsType<DdbNode> = useMemo(() => ( [
     {
       title: t('节点名称'),
       dataIndex: 'name',
@@ -252,6 +252,7 @@ export function OverviewTable ({
       sorter: (a, b) => Number(a.cumMsgLatency - b.cumMsgLatency)
     },
   ]
+  ), [ ])
       
   const { nodes } = model.use(['nodes'])   
   
