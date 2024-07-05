@@ -257,7 +257,7 @@ function ButtonIframeModal ({
 }
 
 
-const node_type = [t('数据节点'), t('代理节点'), t('控制节点'), ,t('计算节点')]
+const node_types = [t('数据节点'), t('代理节点'), t('控制节点'), ,t('计算节点')]
 
 
 function Nodes ({
@@ -298,7 +298,7 @@ function Nodes ({
         expanded switchFold={() => { }}  />
     :
         Boolean(nodes.length) && <div>
-            <div className='nodes-header'>{node_type[type] + ' (' + nodes.length + ')'}
+            <div className='nodes-header'>{node_types[type] + ' (' + nodes.length + ')'}
                 { type === NodeType.controller ?
                     <div className='controller-site'>
                         <NodeSite node={node}/>
@@ -323,14 +323,14 @@ function Nodes ({
             </div>
             {
                 nodes.map(node => <Node
-                        node={node}
-                        type={type}
-                        key={node.name}
-                        selectedNodes={selectedNodes}
-                        setSelectedNodes={setSelectedNodes}
-                        expanded={expandedNodes.some(item => item.name === node.name)}
-                        switchFold={(node: DdbNode) => { switchFold(node) }}
-                    />)
+                    node={node}
+                    type={type}
+                    key={node.name}
+                    selectedNodes={selectedNodes}
+                    setSelectedNodes={setSelectedNodes}
+                    expanded={expandedNodes.some(item => item.name === node.name)}
+                    switchFold={(node: DdbNode) => { switchFold(node) }}
+                />)
             }
         </div>
 }
@@ -567,17 +567,17 @@ function NodeInfo ({
     className: string
     children: ReactNode
 }) {
-    return <div className={'info-card' + ' ' + className}>
-            <div className='info-title'>
-                <Icon component={icon} />
-                <div className='title-text'>{title}</div>
+    return <div className={`info-card ${className}`}>
+        <div className='info-title'>
+            <Icon component={icon} />
+            <div className='title-text'>{title}</div>
+        </div>
+        <div className='info-body'>
+            <div className='info-table' >
+                {children}
             </div>
-            <div className='info-body'>
-                <div className='info-table' >
-                    {children}
-                </div>
-            </div>
-        </div> 
+        </div>
+    </div>
 }
 
 
@@ -628,7 +628,7 @@ function NodeSite ({ node }: { node: DdbNode }) {
     
     return <>
         <div className='node-site'>
-            {mode === NodeType.agent ? (
+            {mode === NodeType.agent ?
                 <Tooltip title={t('代理节点不可跳转')}>
                     <div className='control-disable'>
                         <a className='disable-link' href={privateLink} target='_blank'>
@@ -636,14 +636,14 @@ function NodeSite ({ node }: { node: DdbNode }) {
                         </a>
                     </div>
                 </Tooltip>
-            ) : (
+            : 
                 <a href={privateLink} target='_blank'>
                     {privateDomain}
                 </a>
-            )}
+            }
         </div>
         {publicDomain.map((val, idx) => <div className='node-site' key={val}>
-            {mode === NodeType.agent ? (
+            {mode === NodeType.agent ?
                 <Tooltip title={t('代理节点不可跳转')}>
                     <div className='control-disable'>
                         <a className='disable-link' href={publicLink[idx]} target='_blank'>
@@ -651,13 +651,13 @@ function NodeSite ({ node }: { node: DdbNode }) {
                         </a>
                     </div>
                 </Tooltip>
-            ) : (
-                publicLink.length && (
+            :
+                Boolean(publicLink.length) && 
                     <a href={publicLink[idx]} target='_blank'>
                         {val}
                     </a>
-                )
-            )}
+                
+            }
         </div>)}
     </>
 }
