@@ -4,6 +4,8 @@ import { CheckCircleOutlined, MinusCircleOutlined, PauseCircleOutlined } from '@
 
 import { NodeType, model, type DdbNode } from '../model.js'
 
+import { generateNodeLink } from './utils.js'
+
 const node_state_icons = [
     <MinusCircleOutlined style={{ color: 'red' }}/>, 
     <CheckCircleOutlined style={{ color: 'green' }}/>, 
@@ -27,6 +29,7 @@ const columns: TableColumnsType<DdbNode> = [
   {
     title: 'Name',
     dataIndex: 'name',
+    render: (name: string, node: DdbNode) => <a target='_blank' href={ generateNodeLink(node.host, node.port)}>{name}</a>
   },
   {
     title: 'IsLeader',
@@ -224,18 +227,35 @@ const columns: TableColumnsType<DdbNode> = [
 ]
 
 
-export function OverviewTable () {
+export function OverviewTable ({
+  selectedNodeNames,
+  setSelectedNodeNames,
+}: {
+  selectedNodeNames: string[]
+  setSelectedNodeNames: (names: string[]) => void
+}) {
       
   const { nodes } = model.use(['nodes'])   
   
   return <div className='overview-table'>
       <Table
-        rowSelection={{ 
-        
+        rowSelection={{
+          selectedRowKeys: selectedNodeNames,
+          onChange (_, nodes) {
+            setSelectedNodeNames(nodes.map(node => node.name))
+          }, 
+          getCheckboxProps (record) {
+            return {
+              disabled: record.mode === NodeType.controller || record.mode === NodeType.agent
+            }
+          },
         }}
         columns={columns}
-        dataSource={nodes}
+        dataSource={nodes.map(node => ({ ...node, key: node.name }))}
         pagination={false}
+        scroll={{
+          x: '100%'
+        }}
       />
     </div>
 }

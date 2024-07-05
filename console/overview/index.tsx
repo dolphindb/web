@@ -11,7 +11,7 @@ import { delay } from 'xshell/utils.browser.js'
 
 import { t, language } from '../../i18n/index.js'
 
-import { NodeType, DdbNodeState, model } from '../model.js'
+import { NodeType, DdbNodeState, model, type DdbNode } from '../model.js'
 
 
 import SvgRefresh from './icons/refresh.icon.svg'
@@ -38,7 +38,7 @@ export function Overview () {
     const selecteNodeNamesSet = new Set(selectedNodeNames)
     const selectedNodes = nodes.filter(node => selecteNodeNamesSet.has(node.name))
     
-    const [expandedNodes, setExpandedNodes] = useState(nodes.filter(item => (item.name !== model.node.name)))
+    const [expandedNodes, setExpandedNodes] = useState<DdbNode[]>(nodes.filter(item => (item.name !== model.node.name)))
     const icon_classname = `icon-area ${language}`
     
     return <Layout>
@@ -178,6 +178,19 @@ export function Overview () {
             />
         </Header>
     }
-       {display_mode === 'card' ? <OverviewCard/> : <OverviewTable/>}
+       {display_mode === 'card' 
+                ? 
+            <OverviewCard
+                selectedNodeNames={selectedNodeNames}
+                setSelectedNodeNames={setSelectedNodeNames}
+                expandedNodes={expandedNodes} 
+                setExpandedNodes={setExpandedNodes}
+            /> 
+                : 
+            <OverviewTable   
+                selectedNodeNames={selectedNodeNames}
+                setSelectedNodeNames={setSelectedNodeNames}
+            />
+        }
     </Layout>
 }

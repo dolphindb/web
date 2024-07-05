@@ -2,10 +2,10 @@ import './index.sass'
 
 import { type ReactNode, useState, useEffect, type JSX } from 'react'
 
-import { Layout, Button, Modal, Tooltip, Progress, Tag, Checkbox, Popconfirm, Segmented } from 'antd'
+import { Layout, Button, Modal, Tooltip, Progress, Tag, Checkbox } from 'antd'
 const { Header } = Layout
 
-import { default as Icon,  SettingOutlined, AppstoreOutlined, BarsOutlined } from '@ant-design/icons'
+import { default as Icon,  SettingOutlined } from '@ant-design/icons'
 
 import { use_modal } from 'react-object-model/hooks.js'
 
@@ -13,55 +13,40 @@ import { delay } from 'xshell/utils.browser.js'
 
 import { t, language } from '../../i18n/index.js'
 
-import { NodeType, DdbNodeState, type DdbNode, model } from '../model.js'
+import { NodeType, type DdbNode, model } from '../model.js'
 
 
 import SvgRefresh from './icons/refresh.icon.svg'
-import SvgStart from './icons/start.icon.svg'
-import SvgStop from './icons/stop.icon.svg'
-import SvgExpand from './icons/expand.icon.svg'
-import SvgCollapse from './icons/collapse.icon.svg'
+
 import SvgCPU from './icons/cpu.icon.svg'
 import SvgMemory from './icons/memory.icon.svg'
 import SvgDisk from './icons/disk.icon.svg'
 import SvgNetwork from './icons/network.icon.svg'
 import SvgTask from './icons/task.icon.svg'
+import { generateNodeLink } from './utils.js'
 
 
-export function OverviewCard () {
+export function OverviewCard ({
+    selectedNodeNames,
+    setSelectedNodeNames,
+    expandedNodes,
+    setExpandedNodes,
+}: {
+    selectedNodeNames: string[]
+    setSelectedNodeNames: (names: string[]) => void
+    expandedNodes: DdbNode[]
+    setExpandedNodes: (nodes: DdbNode[]) => void
+}) {
     const { nodes, node_type } = model.use(['nodes', 'node_type', 'logined'])   
     
-    useEffect(() => {
-        let flag = true
-        ;(async () => {
-            while (true) {
-                await delay(10000)
-                if (!flag)
-                    break
-                await model.get_cluster_perf(false)
-            }
-        })()
-        return () => {
-            flag = false
-        }
-    }, [ ])
-    
-    const [selectedNodeNames, setSelectedNodeNames] = useState<string[]>([ ])
     const selecteNodeNamesSet = new Set(selectedNodeNames)
     const selectedNodes = nodes.filter(node => selecteNodeNamesSet.has(node.name))
-    
-    const [expandedNodes, setExpandedNodes] = useState(nodes.filter(item => (item.name !== model.node.name)))
     
     return  <div className={`card content${node_type === NodeType.single ? ' single-node-content' : ''}`}>
         {node_type === NodeType.single ?
             <Nodes
                 key={NodeType.single}
                 type={NodeType.single}
-                nodes={[ ]}
-                selectedNodes={[ ]}
-                setSelectedNodes={() => { }}
-                expandedNodes={[ ]}
-                setExpandedNodes={() => { }}
             />
         :
             [NodeType.controller, NodeType.data, NodeType.computing, NodeType.agent].map(type =>
@@ -80,38 +65,6 @@ export function OverviewCard () {
     </div>
 }
 
-
-function ButtonIframeModal ({
-    button_text,
-    class_name,
-    iframe_src
-}: {
-    button_text: string
-    class_name: string
-    iframe_src: string
-}) {
-    const { test } = model
-    
-    const { visible, open, close } = use_modal()
-    
-    return <>
-        <Tooltip title={ test ? t('测试环境部署时无法使用配置管理') : '' }>
-            <Button icon={<SettingOutlined />} onClick={open} disabled={test}>{button_text}</Button>
-        </Tooltip>
-        
-        <Modal
-            className={class_name}
-            open={visible}
-            onCancel={close}
-            width='80%'
-            footer={null}
-        >
-            <iframe src={iframe_src} />
-        </Modal>
-    </>
-}
-
-
 const node_types = [t('数据节点'), t('代理节点'), t('控制节点'), ,t('计算节点')]
 
 
@@ -125,11 +78,11 @@ function Nodes ({
     
 }: {
     type: NodeType
-    nodes: DdbNode[]
-    selectedNodes: DdbNode[]
-    setSelectedNodes: (names: DdbNode[]) => void
-    expandedNodes: DdbNode[]
-    setExpandedNodes: (nodes: DdbNode[]) => void
+    nodes?: DdbNode[]
+    selectedNodes?: DdbNode[]
+    setSelectedNodes?: (names: DdbNode[]) => void
+    expandedNodes?: DdbNode[]
+    setExpandedNodes?: (nodes: DdbNode[]) => void
 }) {
     const { node } = model.use(['node'])
     const numOfNodes = nodes.filter(node => node.mode === type).length
@@ -147,11 +100,10 @@ function Nodes ({
     
     
     
-    return type === NodeType.single ? 
-        <Node node={node} type={type} key={node.name} 
-        selectedNodes={[ ]} setSelectedNodes={() => { }}
-        expanded switchFold={() => { }}  />
-    :
+    return type === NodeType.single 
+            ? 
+        <Node node={node} type={type} key={node.name} />
+            :
         Boolean(nodes.length) && <div>
             <div className='nodes-header'>{node_types[type] + ' (' + nodes.length + ')'}
                 { type === NodeType.controller ?
@@ -208,10 +160,10 @@ function Node ({
 }: {
     node: DdbNode
     type: NodeType
-    selectedNodes: DdbNode[]
-    setSelectedNodes: (names: DdbNode[]) => void
-    expanded: boolean
-    switchFold: (node: DdbNode) => void
+    selectedNodes?: DdbNode[]
+    setSelectedNodes?: (names: DdbNode[]) => void
+    expanded?: boolean
+    switchFold?: (node: DdbNode) => void
 }) {
     const {
         name,
@@ -454,31 +406,16 @@ function InfoItem ({
     </div>
 }
 
-
 function NodeSite ({ node }: { node: DdbNode }) {
     const { host, port, mode, publicName } = node
     const privateDomain = `${host}:${port}`
-    let privateLink = getUrl(host, port)
+    let privateLink = generateNodeLink(host, port)
     let publicDomain = [ ]
     let publicLink = [ ]
     
     if (publicName) {
         publicDomain = publicName.split(/,|;/).map(val => val + ':' + port)
-        publicLink = publicName.split(/,|;/).map(val => getUrl(val, port))
-    }
-    
-    function getUrl (hostname: string, port: string | number) {
-        const current_params = new URLSearchParams(location.search)
-        const is_query_params_mode = current_params.get('hostname') || current_params.get('port')
-        
-        if (is_query_params_mode) {
-            current_params.set('hostname', hostname)
-            current_params.set('port', port.toString())
-        }
-        
-        return is_query_params_mode
-            ? `${location.protocol}//${location.hostname}:${location.port}${location.pathname}?${current_params.toString()}`
-            : `${location.protocol}//${hostname}:${port}`
+        publicLink = publicName.split(/,|;/).map(val => generateNodeLink(val, port))
     }
     
     return <>
