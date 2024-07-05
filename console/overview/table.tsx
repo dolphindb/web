@@ -214,7 +214,7 @@ export function OverviewTable ({
         {
             title: t('节点内存空间上限'),
             dataIndex: 'maxMemSize',
-            render: (maxMemSize: bigint) => Number(maxMemSize).to_fsize_str(),
+            render: (maxMemSize: bigint) => maxMemSize + 'GB',
             sorter: (a, b) => Number(a.maxMemSize - b.maxMemSize)
         },
         {
