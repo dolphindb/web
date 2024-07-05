@@ -1,6 +1,6 @@
 import './index.sass'
 
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 
 import { Layout, Button, Tooltip, Popconfirm, Segmented, Input } from 'antd'
 const { Header } = Layout
@@ -31,6 +31,21 @@ export function Overview () {
     
     const [display_mode, set_display_mode] = useState<DisplayMode>(() => 
         localStorage.getItem(storage_keys.overview_display_mode) as DisplayMode || 'table')
+    
+    useEffect(() => {
+        let flag = true
+        ;(async () => {
+            while (true) {
+                await delay(10000)
+                if (!flag)
+                    break
+                await model.get_cluster_perf(false)
+            }
+        })()
+        return () => {
+            flag = false
+        }
+    }, [ ])
     
     const [isStartLoading, setIsStartLoading] = useState(false)
     const [isStopLoading, setIsStopLoading] = useState(false)
