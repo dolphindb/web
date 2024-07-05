@@ -1,9 +1,8 @@
-import React from 'react'
 import { Table, type TableColumnsType } from 'antd'
 
 import { CheckCircleOutlined, MinusCircleOutlined, PauseCircleOutlined } from '@ant-design/icons'
 
-import { model, type DdbNode } from '../model.js'
+import { NodeType, model, type DdbNode } from '../model.js'
 
 const node_state_icons = [
     <MinusCircleOutlined style={{ color: 'red' }}/>, 
@@ -59,7 +58,7 @@ const columns: TableColumnsType<DdbNode> = [
   {
     title: 'CpuUsage',
     dataIndex: 'cpuUsage',
-    render: (cpuUsage: number) => Math.round(cpuUsage) + '%',
+    render: (cpuUsage: number) => cpuUsage.toFixed(2) + '%',
     sorter: (a, b) => a.cpuUsage - b.cpuUsage
   },
   {
@@ -137,19 +136,103 @@ const columns: TableColumnsType<DdbNode> = [
   {
     title: 'DiskFreeSpaceRatio',
     dataIndex: 'diskFreeSpaceRatio',
-    render: (diskFreeSpaceRatio: number) => Math.round(diskFreeSpaceRatio) + '%',
+    render: (diskFreeSpaceRatio: number) => (diskFreeSpaceRatio * 100).toFixed(2) + '%',
     sorter: (a, b) => a.diskFreeSpaceRatio - b.diskFreeSpaceRatio
+  },
+  {
+    title: 'DiskWriteRate',
+    dataIndex: 'diskWriteRate',
+    render: (diskWriteRate: bigint) => Number(diskWriteRate).to_fsize_str() + '/s',
+    sorter: (a, b) => Number(a.diskWriteRate - b.diskWriteRate)
+  },
+  {
+    title: 'DiskReadRate',
+    dataIndex: 'diskReadRate',
+    render: (diskReadRate: bigint) => Number(diskReadRate).to_fsize_str() + '/s',
+    sorter: (a, b) => Number(a.diskReadRate - b.diskReadRate)
+  },
+  {
+    title: 'LastMinuteWriteVolume',
+    dataIndex: 'lastMinuteWriteVolume',
+    render: (lastMinuteWriteVolume: bigint) => Number(lastMinuteWriteVolume).to_fsize_str(),
+    sorter: (a, b) => Number(a.lastMinuteWriteVolume - b.lastMinuteWriteVolume)
+  },
+  {
+    title: 'LastMinuteReadVolume',
+    dataIndex: 'lastMinuteReadVolume',
+    render: (lastMinuteReadVolume: bigint) => Number(lastMinuteReadVolume).to_fsize_str(),
+    sorter: (a, b) => Number(a.lastMinuteReadVolume - b.lastMinuteReadVolume)
+  },
+  {
+    title: 'WorkerNum',
+    dataIndex: 'workerNum',
+    sorter: (a, b) => a.workerNum - b.workerNum
+  },
+  // 貌似废弃了
+  // {
+  //   title: 'ExecutorNum',
+  //   dataIndex: 'executorNum',
+  //   sorter: (a, b) => Number(a.executorNum - b.executorNum)
+  // },
+  {
+    title: 'MaxConnections',
+    dataIndex: 'maxConnections',
+    sorter: (a, b) => a.maxConnections - b.maxConnections
+  },
+  {
+    title: 'MaxMemSize',
+    dataIndex: 'maxMemSize',
+    render: (maxMemSize: bigint) => Number(maxMemSize).to_fsize_str(),
+    sorter: (a, b) => Number(a.maxMemSize - b.maxMemSize)
+  },
+  {
+    title: 'NetworkSendRate',
+    dataIndex: 'networkSendRate',
+    render: (networkSendRate: bigint) => Number(networkSendRate).to_fsize_str() + '/s',
+    sorter: (a, b) => Number(a.networkSendRate - b.networkSendRate)
+  },
+  {
+    title: 'NetworkRecvRate',
+    dataIndex: 'networkRecvRate',
+    render: (networkRecvRate: bigint) => Number(networkRecvRate).to_fsize_str() + '/s',
+    sorter: (a, b) => Number(a.networkRecvRate - b.networkRecvRate)
+  },
+  {
+    title: 'LastMinuteNetworkSend',
+    dataIndex: 'lastMinuteNetworkSend',
+    render: (lastMinuteNetworkSend: bigint) => Number(lastMinuteNetworkSend).to_fsize_str(),
+    sorter: (a, b) => Number(a.lastMinuteNetworkSend - b.lastMinuteNetworkSend)
+  },
+  {
+    title: 'LastMinuteNetworkRecv',
+    dataIndex: 'lastMinuteNetworkRecv',
+    render: (lastMinuteNetworkRecv: bigint) => Number(lastMinuteNetworkRecv).to_fsize_str(),
+    sorter: (a, b) => Number(a.lastMinuteNetworkRecv - b.lastMinuteNetworkRecv)
+  },
+  {
+    title: 'LastMsgLatency',
+    dataIndex: 'lastMsgLatency',
+    render: (lastMsgLatency: bigint) => Number(lastMsgLatency).toFixed(2) + 'ms',
+    sorter: (a, b) => Number(a.lastMsgLatency - b.lastMsgLatency)
+  },
+  {
+    title: 'CumMsgLatency',
+    dataIndex: 'cumMsgLatency',
+    render: (cumMsgLatency: bigint) => Number(cumMsgLatency).toFixed(2) + 'ms',
+    sorter: (a, b) => Number(a.cumMsgLatency - b.cumMsgLatency)
   },
 ]
 
 
 export function OverviewTable () {
       
-  const { nodes } = model.use(['nodes', 'node_type', 'logined'])   
+  const { nodes } = model.use(['nodes'])   
   
   return <div className='overview-table'>
       <Table
-        rowSelection={{ }}
+        rowSelection={{ 
+        
+        }}
         columns={columns}
         dataSource={nodes}
         pagination={false}

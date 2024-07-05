@@ -29,21 +29,6 @@ type DisplayMode = 'table' | 'card'
 export function Overview () {
     const { nodes, node_type, logined } = model.use(['nodes', 'node_type', 'logined'])   
     
-    useEffect(() => {
-        let flag = true
-        ;(async () => {
-            while (true) {
-                await delay(10000)
-                if (!flag)
-                    break
-                await model.get_cluster_perf(false)
-            }
-        })()
-        return () => {
-            flag = false
-        }
-    }, [ ])
-    
     const [display_mode, set_display_mode] = useState<DisplayMode>('table')
     
     const [isStartLoading, setIsStartLoading] = useState(false)
