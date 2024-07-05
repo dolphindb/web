@@ -47,7 +47,7 @@ export function Overview () {
         return () => {
             flag = false
         }
-    })
+    }, [ ])
     
     const [display_mode, set_display_mode] = useState<DisplayMode>('table')
     
@@ -60,7 +60,7 @@ export function Overview () {
     
     const [expandedNodes, setExpandedNodes] = useState(nodes.filter(item => (item.name !== model.node.name)))
     const icon_classname = `icon-area ${language}`
- 
+    
     return <Layout>
         { node_type !== NodeType.single && <Header className='header-bar'>
             <div className='operations'>
@@ -153,13 +153,15 @@ export function Overview () {
                     </Tooltip>
                 </div>
                 
-                <div className={`icon-expand-area ${language}`} onClick={() =>  { setExpandedNodes(nodes.filter(node => node.mode === NodeType.agent)) }}>
-                    <Button type='text' size='large' block icon={<Icon className='icon-expand' component={SvgExpand} />}>{t('全部展开')}</Button>
-                </div>
-                
-                <div className={`icon-collapse-area ${language}`} onClick={() => { setExpandedNodes(nodes) }}>
-                    <Button type='text' size='large' block icon={<Icon className='icon-collapse' component={SvgCollapse} />}>{t('全部折叠')}</Button>
-                </div>
+                { display_mode === 'card' && <>
+                    <div className={`icon-expand-area ${language}`} onClick={() =>  { setExpandedNodes(nodes.filter(node => node.mode === NodeType.agent)) }}>
+                        <Button type='text' size='large' block icon={<Icon className='icon-expand' component={SvgExpand} />}>{t('全部展开')}</Button>
+                    </div>
+                    
+                    <div className={`icon-collapse-area ${language}`} onClick={() => { setExpandedNodes(nodes) }}>
+                        <Button type='text' size='large' block icon={<Icon className='icon-collapse' component={SvgCollapse} />}>{t('全部折叠')}</Button>
+                    </div>
+                </> }
             </div>
             
             <div className='padding' />
