@@ -1,6 +1,6 @@
 import './index.sass'
 
-import { useState, useEffect } from 'react'
+import { useState } from 'react'
 
 import { Layout, Button, Tooltip, Popconfirm, Segmented } from 'antd'
 const { Header } = Layout
@@ -11,16 +11,16 @@ import { delay } from 'xshell/utils.browser.js'
 
 import { t, language } from '../../i18n/index.js'
 
-import { NodeType, DdbNodeState, model, type DdbNode } from '../model.js'
+import { NodeType, DdbNodeState, model, storage_keys, type DdbNode } from '../model.js'
 
+import { OverviewTable } from './table.js'
+import { OverviewCard } from './card.js'
 
 import SvgRefresh from './icons/refresh.icon.svg'
 import SvgStart from './icons/start.icon.svg'
 import SvgStop from './icons/stop.icon.svg'
 import SvgExpand from './icons/expand.icon.svg'
 import SvgCollapse from './icons/collapse.icon.svg'
-import { OverviewTable } from './table.js'
-import { OverviewCard } from './card.js'
 
 
 type DisplayMode = 'table' | 'card'
@@ -29,7 +29,8 @@ type DisplayMode = 'table' | 'card'
 export function Overview () {
     const { nodes, node_type, logined } = model.use(['nodes', 'node_type', 'logined'])   
     
-    const [display_mode, set_display_mode] = useState<DisplayMode>('table')
+    const [display_mode, set_display_mode] = useState<DisplayMode>(() => 
+        localStorage.getItem(storage_keys.overview_display_mode) as DisplayMode || 'table')
     
     const [isStartLoading, setIsStartLoading] = useState(false)
     const [isStopLoading, setIsStopLoading] = useState(false)
@@ -146,30 +147,13 @@ export function Overview () {
             
             <div className='padding' />
             
-            {/* { node_type === NodeType.controller &&  <div className='configs'>
-                <ButtonIframeModal 
-                    class_name='nodes-modal'
-                    button_text={t('集群节点配置')}
-                    iframe_src='./dialogs/nodesSetup.html'
-                />
-                
-                <ButtonIframeModal 
-                    class_name='controller-modal'
-                    button_text={t('控制节点配置')}
-                    iframe_src='./dialogs/controllerConfig.html'
-                />
-                
-                <ButtonIframeModal 
-                    class_name='datanode-modal'
-                    button_text={t('数据节点配置')}
-                    iframe_src='./dialogs/datanodeConfig.html'
-                />
-            </div> } */}
-            
             <Segmented<DisplayMode>
                 className='display-mode'
                 value={display_mode}
-                onChange={set_display_mode}
+                onChange={mode => {
+                    localStorage.setItem(storage_keys.overview_display_mode, mode)
+                    set_display_mode(mode)
+                }}
                 size='large'
                 options={[
                     { label: t('表格视图'), value: 'table', icon: <BarsOutlined /> },

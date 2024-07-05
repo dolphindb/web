@@ -35,13 +35,14 @@ export const storage_keys = {
     enter_completion: 'ddb.editor.enter_completion',
     sql: 'ddb.sql',
     dashboard_autosave: 'ddb.dashboard.autosave',
+    overview_display_mode: 'ddb.overview.display_mode',
 } as const
 
 const json_error_pattern = /^{.*"code": "(.*?)".*}$/
 
 const username_guest = 'guest' as const
 
-export type PageViews = 'overview' | 'overview-old' | 'shell' | 'dashboard' | 'table' | 'job' | 'login' | 'dfs' | 'log' | 'factor' | 'test' | 'computing' | 'tools' | 'iot-guide' | 'finance-guide' | 'access' | 'user' | 'group' | 'config'
+export type PageViews = 'overview' | 'shell' | 'dashboard' | 'table' | 'job' | 'login' | 'dfs' | 'log' | 'factor' | 'test' | 'computing' | 'tools' | 'iot-guide' | 'finance-guide' | 'access' | 'user' | 'group' | 'config'
 
 
 export class DdbModel extends Model<DdbModel> {
@@ -546,10 +547,7 @@ export class DdbModel extends Model<DdbModel> {
     goto_default_view () {
         this.set({
             view: new URLSearchParams(location.search).get('view') as DdbModel['view'] || 
-                (this.node_type === NodeType.controller ? 
-                    (this.dev || this.test ? 'overview' : 'overview-old')
-                :
-                    'shell')
+                (this.node_type === NodeType.controller ? 'overview' : 'shell')
         })
     }
     
