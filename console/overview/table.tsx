@@ -24,8 +24,6 @@ const node_mode_lables = [
   t('计算节点'),
 ]
 
-const is_agent_node = (node: DdbNode) => node.mode === NodeType.agent
-
 export function OverviewTable ({
   selectedNodeNames,
   setSelectedNodeNames,
@@ -273,7 +271,7 @@ export function OverviewTable ({
         columns={columns.map((col, idx) => idx < 2 ? col : 
                                 { ...col, 
                                   render: (text, node: DdbNode, idx) => 
-                                          is_agent_node(node)  ? null 
+                                            node.mode === NodeType.agent ? null 
                                             : col.render ? col.render(text, node, idx) : text } )
                             .map(col => ({
                                   ...col,
