@@ -2,8 +2,6 @@ import { Button, Input, Space, Table, Tooltip, type InputRef, type TableColumnsT
 
 import { CheckCircleOutlined, MinusCircleOutlined, PauseCircleOutlined, SearchOutlined } from '@ant-design/icons'
 
-import type { ColumnFilterItem } from 'antd/es/table/interface.js'
-
 import { useRef, useState } from 'react'
 
 import { NodeType, model, type DdbNode } from '../model.js'
@@ -51,12 +49,7 @@ export function OverviewTable ({
   
   const columns: TableColumnsType<DdbNode> = [
     {
-      title: t('节点类型'),
-      dataIndex: 'mode',
-      render: (mode: number) => node_mode_lables[Number(mode)]
-    },
-    {
-      title: t('节点别名'),
+      title: t('节点名称'),
       dataIndex: 'name',
       fixed: 'left',
       filterDropdown: ({ setSelectedKeys, selectedKeys, confirm, clearFilters, close }) => 
@@ -89,6 +82,11 @@ export function OverviewTable ({
         </div>,
       filterIcon: (filtered: boolean) => <SearchOutlined style={{ color: filtered ? '#1677ff' : undefined }} />,
       render: (name: string, node: DdbNode) => <a target='_blank' href={ generateNodeLink(node.host, node.port)}>{name}</a>
+    },
+    {
+      title: t('节点类型'),
+      dataIndex: 'mode',
+      render: (mode: number) => node_mode_lables[Number(mode)]
     },
     {
       title: t('是否 Leader'),
@@ -279,7 +277,7 @@ export function OverviewTable ({
                             .map(col => ({
                                   ...col,
                                   // @ts-ignore
-                                  title: <Tooltip title={col?.dataIndex}>{col.title}</Tooltip>,
+                                  title: <Tooltip title={col?.dataIndex[0].toUpperCase() + col?.dataIndex.slice(1)}>{col.title}</Tooltip>,
                                   showSorterTooltip: false, 
                                 }))}
         dataSource={nodes.filter(({ name }) => name.toLocaleLowerCase().includes((searchText.toLocaleLowerCase()))).map(node => ({ ...node, key: node.name }))}
