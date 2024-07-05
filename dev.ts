@@ -1,9 +1,6 @@
 import type { Context } from 'koa'
 
-import {
-    request_json, inspect, Remote, set_inspect_options,
-    fexists, assert, ramdisk, noprint, MyProxy
-} from 'xshell'
+import { Remote, set_inspect_options, fexists, assert, ramdisk, noprint, MyProxy, fdclear } from 'xshell'
 import { Server } from 'xshell/server.js'
 
 import { builder, fpd_root, fpd_out } from './builder.js'
@@ -17,27 +14,11 @@ assert(ramdisk || fexists(`${fpd_root}.vscode/settings.json`, noprint), '需要�
 
 
 class DevServer extends Server {
-    ddb_backend = '127.0.0.1:8848'
-    
-    
     override async router (ctx: Context) {
-        const {
-            request: {
-                query,
-                method,
-                body,
-                headers: {
-                    'x-ddb': dapi
-                }
-            },
-        } = ctx
-        
         let { request, response } = ctx
         
-        if (request.path === '/') {
-            this.ddb_backend = `${query.hostname || '127.0.0.1'}:${query.port || '8848'}`
+        if (request.path === '/')
             request.path = '/index.html'
-        }
         
         const { path } = request
         
@@ -47,19 +28,7 @@ class DevServer extends Server {
             return true
         }
         
-        if (dapi && method === 'POST') {
-            const data = await request_json(`http://${this.ddb_backend}${path}`, { body, proxy: ramdisk ? MyProxy.work : undefined })
-            console.log(`${body.functionName}(${inspect(body.params, { compact: true })})`)
-            console.log(response.body = data)
-            return true
-        }
-        
-        await this.try_send(
-            ctx,
-            fpd_out,
-            path.slice(1),
-            true
-        )
+        return this.try_send(ctx, fpd_out, path.slice(1), true)
     }
 }
 
@@ -74,6 +43,7 @@ let server = new DevServer({
 await Promise.all([
     server.start(),
     (async () => {
+        await fdclear(fpd_out)
         await builder.build_bundles(false)
         await builder.build(false)
     })()
