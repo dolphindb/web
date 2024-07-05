@@ -1,15 +1,11 @@
 import './index.sass'
 
-import { type ReactNode, useState, useEffect, type JSX } from 'react'
+import { type ReactNode, type JSX } from 'react'
 
-import { Layout, Button, Modal, Tooltip, Progress, Tag, Checkbox } from 'antd'
-const { Header } = Layout
+import { Button, Tooltip, Progress, Tag, Checkbox } from 'antd'
 
-import { default as Icon,  SettingOutlined } from '@ant-design/icons'
+import { default as Icon } from '@ant-design/icons'
 
-import { use_modal } from 'react-object-model/hooks.js'
-
-import { delay } from 'xshell/utils.browser.js'
 
 import { t, language } from '../../i18n/index.js'
 
@@ -23,7 +19,7 @@ import SvgMemory from './icons/memory.icon.svg'
 import SvgDisk from './icons/disk.icon.svg'
 import SvgNetwork from './icons/network.icon.svg'
 import SvgTask from './icons/task.icon.svg'
-import { generateNodeLink } from './utils.js'
+import { generate_node_link } from './utils.js'
 
 
 export function OverviewCard ({
@@ -100,45 +96,44 @@ function Nodes ({
     
     
     
-    return type === NodeType.single 
-            ? 
-        <Node node={node} type={type} key={node.name} />
-            :
-        Boolean(nodes.length) && <div>
-            <div className='nodes-header'>{node_types[type] + ' (' + nodes.length + ')'}
-                { type === NodeType.controller ?
-                    <div className='controller-site'>
-                        <NodeSite node={node}/>
-                    </div>
-                :
-                    type !== NodeType.agent && <div className='nodes-select-all'>
-                        <Checkbox
-                            checked={selectedNodes.filter(node => node.mode === type).length === numOfNodes }
-                            indeterminate={selectedNodes.filter(node => node.mode === type).length && selectedNodes.filter(node => node.mode === type).length !== numOfNodes}
-                            onChange={() => {
-                                let newSlectedNodes: DdbNode[] = [ ]
-                                if (selectedNodes.filter(node => node.mode === type).length < numOfNodes) 
-                                    newSlectedNodes = nodes.filter(node => node.mode === type && !selectedNodes.includes(node)).concat(selectedNodes)
-                                else
-                                    newSlectedNodes = selectedNodes.filter(node => node.mode !== type)        
-                                setSelectedNodes(newSlectedNodes)
-                            }}
-                        >
-                            <div className='text-select-all'>{t('全选')}</div>
-                        </Checkbox>
-                    </div> }
-            </div>
-            {
-                nodes.map(node => <Node
-                    node={node}
-                    type={type}
-                    key={node.name}
-                    selectedNodes={selectedNodes}
-                    setSelectedNodes={setSelectedNodes}
-                    expanded={expandedNodes.some(item => item.name === node.name)}
-                    switchFold={(node: DdbNode) => { switchFold(node) }}
-                />)
-            }
+    return type === NodeType.single ? 
+            <Node node={node} type={type} key={node.name} />
+        :
+            Boolean(nodes.length) && <div>
+                <div className='nodes-header'>{node_types[type] + ' (' + nodes.length + ')'}
+                    { type === NodeType.controller ?
+                        <div className='controller-site'>
+                            <NodeSite node={node}/>
+                        </div>
+                    :
+                        type !== NodeType.agent && <div className='nodes-select-all'>
+                            <Checkbox
+                                checked={selectedNodes.filter(node => node.mode === type).length === numOfNodes }
+                                indeterminate={selectedNodes.filter(node => node.mode === type).length && selectedNodes.filter(node => node.mode === type).length !== numOfNodes}
+                                onChange={() => {
+                                    let newSlectedNodes: DdbNode[] = [ ]
+                                    if (selectedNodes.filter(node => node.mode === type).length < numOfNodes) 
+                                        newSlectedNodes = nodes.filter(node => node.mode === type && !selectedNodes.includes(node)).concat(selectedNodes)
+                                    else
+                                        newSlectedNodes = selectedNodes.filter(node => node.mode !== type)        
+                                    setSelectedNodes(newSlectedNodes)
+                                }}
+                            >
+                                <div className='text-select-all'>{t('全选')}</div>
+                            </Checkbox>
+                        </div> }
+                </div>
+                {
+                    nodes.map(node => <Node
+                        node={node}
+                        type={type}
+                        key={node.name}
+                        selectedNodes={selectedNodes}
+                        setSelectedNodes={setSelectedNodes}
+                        expanded={expandedNodes.some(item => item.name === node.name)}
+                        switchFold={(node: DdbNode) => { switchFold(node) }}
+                    />)
+                }
         </div>
 }
 
@@ -409,13 +404,13 @@ function InfoItem ({
 function NodeSite ({ node }: { node: DdbNode }) {
     const { host, port, mode, publicName } = node
     const privateDomain = `${host}:${port}`
-    let privateLink = generateNodeLink(host, port)
+    let privateLink = generate_node_link(host, port)
     let publicDomain = [ ]
     let publicLink = [ ]
     
     if (publicName) {
         publicDomain = publicName.split(/,|;/).map(val => val + ':' + port)
-        publicLink = publicName.split(/,|;/).map(val => generateNodeLink(val, port))
+        publicLink = publicName.split(/,|;/).map(val => generate_node_link(val, port))
     }
     
     return <>
@@ -448,7 +443,6 @@ function NodeSite ({ node }: { node: DdbNode }) {
                     <a href={publicLink[idx]} target='_blank'>
                         {val}
                     </a>
-                
             }
         </div>)}
     </>

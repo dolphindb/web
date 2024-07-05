@@ -1,4 +1,4 @@
-export function generateNodeLink (hostname: string, port: string | number) {
+export function generate_node_link (hostname: string, port: string | number) {
     const current_params = new URLSearchParams(location.search)
     const is_query_params_mode = current_params.get('hostname') || current_params.get('port')
     

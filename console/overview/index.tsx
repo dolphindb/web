@@ -2,7 +2,7 @@ import './index.sass'
 
 import { useState } from 'react'
 
-import { Layout, Button, Tooltip, Popconfirm, Segmented, Input } from 'antd'
+import { Layout, Button, Tooltip, Popconfirm, Segmented } from 'antd'
 const { Header } = Layout
 
 import { default as Icon, AppstoreOutlined, BarsOutlined } from '@ant-design/icons'
@@ -163,15 +163,14 @@ export function Overview () {
             />
         </Header>
     }
-       {display_mode === 'card' 
-                ? 
+       {display_mode === 'card' ?
             <OverviewCard
                 selectedNodeNames={selectedNodeNames}
                 setSelectedNodeNames={setSelectedNodeNames}
                 expandedNodes={expandedNodes} 
                 setExpandedNodes={setExpandedNodes}
             /> 
-                : 
+        :
             <OverviewTable
                 selectedNodeNames={selectedNodeNames}
                 setSelectedNodeNames={setSelectedNodeNames}
