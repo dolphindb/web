@@ -118,11 +118,6 @@ export function DdbSider () {
                     icon: <MenuIcon view='overview' />,
                     label: node_type === NodeType.single ? t('单机总览') : t('集群总览'),
                 }] : [ ],
-                ... !test && node_type === NodeType.controller ? [{
-                    key: 'overview-old',
-                    icon: <MenuIcon view='overview' />,
-                    label: t('集群总览'),
-                }] : [ ],
                 ...admin && node_type === NodeType.controller ? [{
                     key: 'config',
                     icon: <MenuIcon view='config'/>,
