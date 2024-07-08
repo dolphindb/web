@@ -1,4 +1,4 @@
-import { fcopy, fequals, ramdisk, fwrite, noprint, flist } from 'xshell'
+import { fcopy, fequals, ramdisk, fwrite, noprint } from 'xshell'
 import { Git } from 'xshell/git.js'
 import { Bundler } from 'xshell/builder.js'
 
@@ -47,8 +47,8 @@ export let builder = {
             fpd_out,
             !ci && ramdisk ? `${fpd_ramdisk_root}webpack/` : undefined,
             {
-                'index.js': './console/index.tsx',
-                'window.js': './console/window.tsx'
+                'index.js': './src/index.tsx',
+                'window.js': './src/window.tsx'
             },
             {
                 source_map,
@@ -84,7 +84,7 @@ export let builder = {
                     'index.html': {
                         title: 'DolphinDB',
                         icon: {
-                            src: 'console/logo.png',
+                            src: 'src/logo.png',
                             out: 'logo.png'
                         },
                         mscripts: this.pre_bundle_entries.map(entry => ({
@@ -97,7 +97,7 @@ export let builder = {
                     'window.html': {
                         title: 'DdbObj',
                         icon: {
-                            src: 'console/logo.png',
+                            src: 'src/logo.png',
                             out: 'logo.png'
                         },
                         fp_entry: './window.js',
@@ -114,7 +114,7 @@ export let builder = {
                             'overview/icons/data-background.svg',
                             'overview/icons/computing-background.svg',
                         ].map(fp => 
-                            ({ src: `console/${fp}`, out: fp })),
+                            ({ src: `src/${fp}`, out: fp })),
                         
                         'README.md', 'README.zh.md', 'LICENSE.txt',
                         
