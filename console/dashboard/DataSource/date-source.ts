@@ -4,7 +4,7 @@ import { DDB, type DdbType, type DdbObj, type DdbValue, DdbForm } from 'dolphind
 import { cloneDeep } from 'lodash'
 import copy from 'copy-to-clipboard'
 
-import { type DdbTable } from 'dolphindb'
+import { type DdbTable } from 'dolphindb/browser.js'
 
 import { type Widget, dashboard } from '../model.js'
 import { sql_formatter, get_cols, stream_formatter, parse_code, safe_json_parse, get_sql_col_type_map, get_streaming_col_type_map } from '../utils.js'

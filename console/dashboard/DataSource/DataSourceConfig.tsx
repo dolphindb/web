@@ -7,7 +7,7 @@ import { Button, Modal, type ButtonProps, Tabs } from 'antd'
 import { DatabaseOutlined } from '@ant-design/icons'
 import { use_modal } from 'react-object-model/hooks.js'
 
-import { DdbForm } from 'dolphindb'
+import { DdbForm } from 'dolphindb/browser.js'
 
 import { WidgetChartType, dashboard, type Widget } from '../model.js'
 

@@ -1,6 +1,6 @@
 import { Model } from 'react-object-model'
 
-import { DdbFunctionType, type DdbObj, type DdbValue, DdbVectorString, type DdbVectorStringObj } from 'dolphindb/browser.js'
+import { DdbFunctionType, type DdbObj, type DdbValue, DdbVectorString, type DdbVectorStringObj, DdbInt } from 'dolphindb/browser.js'
 
 import { NodeType, model } from '../model.js'
 
@@ -24,6 +24,10 @@ class ConfigModel extends Model<ConfigModel> {
     
     async save_cluster_nodes (nodes: string[]) {
         return this.call('saveClusterNodes', [new DdbVectorString(nodes)])
+    }
+    
+    async add_agent_to_controller (host: string, port: number, alias: string) {
+        await this.call('addAgentToController', [host, new DdbInt(port), alias])
     }
     
     async load_nodes_config () {

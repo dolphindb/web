@@ -31,6 +31,8 @@ import { model, NodeType } from '../model.js'
 
 import { Editor } from '../components/Editor/index.js'
 
+import { NAME_CHECK_PATTERN } from '../access/constants.js'
+
 import { shell } from './model.js'
 
 import { CreateTableModal } from './CreateTableModal.js'
@@ -535,6 +537,10 @@ function CreateCatalog () {
                     
                     form.resetFields()
                     shell.set({ create_catalog_modal_visible: false })
+                } catch (error) {
+                    if (error instanceof Error)
+                        throw error
+                    console.error(error)
                 } finally {
                     set_loading(false)
                 }
@@ -549,7 +555,8 @@ function CreateCatalog () {
             <Form form={form} labelCol={{ span: 4 }} wrapperCol={{ span: 18 }} disabled={loading}>
                 <Form.Item 
                     required
-                    rules={[{ required: true, message: t('请输入名称') }]} 
+                    rules={[{ required: true, message: t('请输入名称') }, 
+                            { pattern: NAME_CHECK_PATTERN, message: t('catalog 名称只能包含字母、下划线或数字，并且不能以数字或下划线开头') }]} 
                     name='name' 
                     label={t('名称')}
                 >

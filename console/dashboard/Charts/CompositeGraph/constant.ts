@@ -1,4 +1,4 @@
-import { DdbType } from 'dolphindb/browser'
+import { DdbType } from 'dolphindb/browser.js'
 
 export const TIME_TYPES = [
     DdbType.date,

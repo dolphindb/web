@@ -34,7 +34,7 @@ export function Overview () {
     let editor = use_modal()
     let deletor = use_modal()
     let copyor = use_modal()
-    let configor = use_modal()
+    let configer = use_modal()
     
     const params = new URLSearchParams(location.search)
     
@@ -50,7 +50,7 @@ export function Overview () {
                     if (config_infos.length) {
                         set_config_infos(config_infos)
                         dashboard.set({ show_config_modal: false })
-                        configor.open()
+                        configer.open()
                     }   
                 }
             }    
@@ -88,10 +88,10 @@ export function Overview () {
     return <div className='dashboard-overview'>
             <Modal
                 className='user-config'
-                open={configor.visible}
+                open={configer.visible}
                 closeIcon={null}
                 footer={[
-                    <Button onClick={configor.close} type='primary' key='confirm'>{t('确定')}</Button>
+                    <Button onClick={configer.close} type='primary' key='confirm'>{t('确定')}</Button>
                 ]}
             >
                 <div>

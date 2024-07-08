@@ -7,12 +7,13 @@ import { t } from '../../i18n/index.js'
 import { model } from '../model.js'
 
 import { AccessHeader } from './AccessHeader.js'
-import { ACCESS_TYPE, NeedInputAccess } from './constants.js'
+import { ACCESS_OPTIONS, ACCESS_TYPE, NEED_INPUT_ACCESS } from './constants.js'
 import { access } from './model.js'
 
 import { AccessAddModal } from './components/access/AccessAddModal.js'
 import { AccessRevokeModal } from './components/access/AccessRevokeModal.js'
-import { RevokeConfirm } from './components/revoke-confirm.js'
+import { RevokeConfirm } from './components/RevokeConfirm.js'
+import type { AccessCategory } from './types.js'
 
 interface ACCESS {
     key: string
@@ -20,16 +21,15 @@ interface ACCESS {
     name?: string
 }
 
-export function AccessManage ({ category }: { category: 'database' | 'shared' | 'stream' | 'function_view' | 'script' }) {
+export function AccessManage ({ category }: { category: AccessCategory }) {
 
-    const { databases, shared_tables, stream_tables, function_views, current, accesses } = access.use([
-        'databases',
+    const { shared_tables, current, accesses } = access.use([
         'shared_tables',
-        'stream_tables',
-        'function_views',
         'current',
         'accesses'
     ])
+    
+    const { v3 } = model.use(['v3'])
     
     const [search_key, set_search_key] = useState('')
     
@@ -38,7 +38,7 @@ export function AccessManage ({ category }: { category: 'database' | 'shared' | 
     const reset_selected = useCallback(() => { set_selected_access([ ]) }, [ ])
     
     const showed_aces_types = useMemo(
-        () => (category === 'database' ? ACCESS_TYPE.database.concat(ACCESS_TYPE.table) : ACCESS_TYPE[category]).filter(ac => ac !== 'TABLE_WRITE'),
+        () => (category === 'database' ? (v3 ? ACCESS_OPTIONS.catalog :  ACCESS_OPTIONS.database) : ACCESS_TYPE[category]).filter(ac => ac !== 'TABLE_WRITE'),
         [category]
     )
     
@@ -95,15 +95,6 @@ export function AccessManage ({ category }: { category: 'database' | 'shared' | 
         [ ]
     )
     
-    const updateAccesses = useCallback(async () => {
-        access.set({
-            accesses:
-                current.role === 'user'
-                    ? (await access.get_user_access([current.name]))[0]
-                    : (await access.get_group_access([current.name]))[0]
-        })
-    }, [current])
-    
     
     const access_rules = useMemo(() => {
         if (!accesses)
@@ -115,13 +106,13 @@ export function AccessManage ({ category }: { category: 'database' | 'shared' | 
                     tb_rows.push({
                         key: k,
                         access: k,
-                        name: NeedInputAccess.includes(k) ? v : '',
+                        name: NEED_INPUT_ACCESS.includes(k) ? v : '',
                         type: v === 'deny' ? 'deny' : 'grant',
                         action: (
                             <RevokeConfirm onConfirm={async () => {
                                 await access.revoke(current.name, k)
                                 model.message.success(t('撤销成功'))
-                                await updateAccesses()
+                                await access.update_current_access()
                             }} />
                         )
                     })
@@ -131,8 +122,9 @@ export function AccessManage ({ category }: { category: 'database' | 'shared' | 
                     showed_aces_types.map(aces => aces + '_denied').includes(k)
                 ) {
                     let objs = v.split(',')
-                    if (category === 'database')
-                        objs = objs.filter((obj: string) => obj.startsWith('dfs:'))
+                    // console.log('objs', objs)
+                    // if (category === 'database')
+                    //     objs = objs.filter((obj: string) => obj.startsWith('dfs:'))
                     if (category === 'shared')
                         objs = objs.filter((obj: string) => shared_tables.includes(obj))
                     if (category === 'stream')
@@ -148,7 +140,7 @@ export function AccessManage ({ category }: { category: 'database' | 'shared' | 
                                 <RevokeConfirm onConfirm={async () => {
                                     await access.revoke(current.name, k.slice(0, k.indexOf(allowed ? '_allowed' : '_denied')), obj)
                                     model.message.success(t('撤销成功'))
-                                    await updateAccesses()
+                                    await access.update_current_access()
                                 }} />
                             )
                         })
@@ -166,32 +158,20 @@ export function AccessManage ({ category }: { category: 'database' | 'shared' | 
                                 <RevokeConfirm onConfirm={async () => {
                                     await access.revoke(current.name, k, obj)
                                     model.message.success(t('撤销成功'))
-                                    await updateAccesses()
+                                    await access.update_current_access()
                                 }} />
                             )
                         })
                 }
+         
             
         return tb_rows
     }, [accesses, category])
     
-    let obj_options = [ ]
-    switch (category) {
-        case 'database':
-            obj_options = databases.map(db => db.name)
-            break
-        case 'shared':
-            obj_options = shared_tables
-            break
-        case 'stream':
-            obj_options = stream_tables
-            break
-        case 'function_view':
-            obj_options = function_views
-            break
-        default:
-            break
-    }
+    const filtered_rules = useMemo(() => access_rules.filter(row =>
+        row[category === 'script' ? 'access' : 'name'].toLowerCase().includes(search_key.toLowerCase())
+    ), [search_key, access_rules])
+    
     return <Table
             rowSelection={{
                 selectedRowKeys: selected_access.map(ac => ac.key),
@@ -201,9 +181,7 @@ export function AccessManage ({ category }: { category: 'database' | 'shared' | 
                     set_selected_access(selectedRows)
                 },
                 onSelectAll () {
-                    const all_access = access_rules.filter(row =>
-                        row[category === 'script' ? 'access' : 'name'].toLowerCase().includes(search_key.toLowerCase())
-                    )
+                    const all_access = filtered_rules
                     if (selected_access.length < all_access.length)
                         set_selected_access(all_access)
                     else
@@ -218,10 +196,8 @@ export function AccessManage ({ category }: { category: 'database' | 'shared' | 
                 add_open={async () => NiceModal.show(AccessAddModal, { category })}
                 delete_open={async () => NiceModal.show(AccessRevokeModal, { category, selected_access, reset_selected })}
                 selected_length={selected_access.length}
-            />}
+        />}
             columns={showed_aces_cols}
-            dataSource={access_rules.filter(row =>
-                row[category === 'script' ? 'access' : 'name'].toLowerCase().includes(search_key.toLowerCase())
-            )}
+            dataSource={filtered_rules}
         />
 }

@@ -3,7 +3,7 @@ import { useEffect } from 'react'
 import { CloseOutlined, QuestionCircleOutlined } from '@ant-design/icons'
 import { InputNumber, Popover, Switch } from 'antd'
 
-import { DdbForm } from 'dolphindb'
+import { DdbForm } from 'dolphindb/browser.js'
 
 import { Editor } from '../../components/Editor/index.js'
 
