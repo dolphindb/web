@@ -2,7 +2,7 @@
 import { DatePicker, TimePicker, type DatePickerProps, type InputNumberProps, InputNumber, Input, type InputProps, type TimePickerProps, Space } from 'antd'
 import { useCallback, useState, useEffect, useMemo, type  FocusEventHandler } from 'react'
 
-import { DdbType } from 'dolphindb'
+import { DdbType } from 'dolphindb/browser.js'
 
 import { model } from '../../../model.js'
 import { t } from '../../../../i18n/index.js'

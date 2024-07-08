@@ -1,4 +1,4 @@
-import type { DdbType } from 'dolphindb'
+import type { DdbType } from 'dolphindb/browser.js'
 
 import { type ITimeFormat, type AxisType, type ILineType, type Position, type ThresholdType, type ThresholdShowType } from './ChartFormFields/type.js'
 

@@ -3,7 +3,7 @@ import { Form, Input, Modal, Radio, Tag, Tree } from 'antd'
 import { CopyOutlined, DatabaseOutlined, DeleteOutlined, EditOutlined, FileOutlined } from '@ant-design/icons'
 
 import NiceModal, { useModal } from '@ebay/nice-modal-react'
-import { DdbForm } from 'dolphindb'
+import { DdbForm } from 'dolphindb/browser.js'
 
 import { t } from '../../../i18n/index.js'
 import { type Widget, WidgetChartType, dashboard } from '../model.js'

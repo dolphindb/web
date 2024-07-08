@@ -4,7 +4,7 @@ import { useEffect, useMemo, useState } from 'react'
 import ReactEChartsCore from 'echarts-for-react/lib/core'
 import * as echarts from 'echarts'
 import { pickBy } from 'lodash'
-import { type DdbType } from 'dolphindb'
+import { type DdbType } from 'dolphindb/browser.js'
 import type { EChartsInstance } from 'echarts-for-react'
 
 import { AxisType, MatchRuleType, ThresholdType } from '../../ChartFormFields/type.js'

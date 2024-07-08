@@ -1,4 +1,4 @@
-import { DdbForm } from 'dolphindb'
+import { DdbForm } from 'dolphindb/browser.js'
 
 import { t } from '../../i18n/index.js'
 

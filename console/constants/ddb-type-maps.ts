@@ -1,4 +1,4 @@
-import { DdbType } from 'dolphindb'
+import { DdbType } from 'dolphindb/browser.js'
 
 export const DDB_TYPE_MAP = {
     [DdbType.void]: 'VOID',

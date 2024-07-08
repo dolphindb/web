@@ -6,7 +6,7 @@ import { genid } from 'xshell/utils.browser.js'
 import copy from 'copy-to-clipboard'
 import dayjs from 'dayjs'
 
-import { type DdbTable, formati } from 'dolphindb'
+import { type DdbTable, formati } from 'dolphindb/browser.js'
 
 import type { EChartsInstance } from 'echarts-for-react'
 
