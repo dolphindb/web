@@ -18,11 +18,18 @@ import { UploadConfigModal } from '../components/UploadConfigModal.js'
 
 import { t } from '../../../i18n/index.js'
 
-import { create_guide } from '../model.js'
+
+import { model } from '../../model.js'
+
+import finance_guide_code from '../finance.dos'
+
+import iot_guide_code from '../iot.dos'
 
 import { TableInfo } from './TableInfo.js'
 import { type IFinanceInfo } from './type.js'
 import { DatabaseInfo } from './DatabaseInfo.js'
+
+
 export function FinanceGuide () {
     
     const [current_step, set_current_step] = useState(0)
@@ -32,9 +39,13 @@ export function FinanceGuide () {
     
     const id = useId()
     
+    
     const { isLoading } = useSWR(
         ['load_finance_guide_code', id],
-        async () => create_guide.define_func()
+        async () => {
+            await model.ddb.eval(finance_guide_code)
+            await model.ddb.eval(iot_guide_code)
+        }
     )
     
     const go = useCallback((info: IFinanceInfo & { result: ExecuteResult, error_msg?: string }) => {

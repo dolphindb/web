@@ -5,7 +5,13 @@ import useSWR from 'swr'
 
 import { t } from '../../../i18n/index.js'
 
-import { create_guide } from '../model.js'
+
+import { model } from '../../model.js'
+
+import finance_guide_code from '../finance.dos'
+import iot_guide_code from '../iot.dos'
+
+
 
 import { GuideType } from './type.js'
 import { SimpleVersion } from './SimpleVersion/index.js'
@@ -21,8 +27,11 @@ export function CreateGuide () {
     const [type, set_type] = useState(GuideType.SIMPLE)
     const id = useId()
     const { isLoading } = useSWR(
-        ['init_code', id],
-        async () => create_guide.define_func()
+        ['load_code', id],
+        async () => {
+            await model.ddb.eval(finance_guide_code)
+            await model.ddb.eval(iot_guide_code)
+        }
     )
     
     return <Spin spinning={isLoading}>
