@@ -14,7 +14,7 @@ export interface User {
     isAdmin?: boolean
 }
 
-// 无 catelog 的 databse
+/** 无 catelog 的 databse */
 export interface Database {
     name: string
     tables: string[]
@@ -25,7 +25,7 @@ export interface Catalog {
     schemas: Schema[]
 }
 
-// 有 catelog 的 schema
+/** 有 catelog 的 schema */
 export interface Schema {
     schema: string
     dbUrl: string
@@ -110,9 +110,9 @@ class AccessModel extends Model<AccessModel> {
     
     
     async get_databases_with_tables () {
-        let databases = (await this.get_databases())
+        let databases = await this.get_databases()
         if (model.v3)
-            databases = (await this.get_databases()).filter(db => !this.schema_set.has(db))
+            databases = databases.filter(db => !this.schema_set.has(db))
         const tables = await this.get_tables()
         const databases_sort = [...databases].sort((a, b) => b.length - a.length)
         const dbs_map = new Map<string, string[]>()
@@ -142,8 +142,7 @@ class AccessModel extends Model<AccessModel> {
             databases: databases.map(db => ({
                 name: db,
                 tables: dbs_map.get(db) ?? [ ]
-            })),
-         
+            }))
         })
     }
     
@@ -154,18 +153,21 @@ class AccessModel extends Model<AccessModel> {
         this.set({ catalogs })
     }
     
+    
     async get_schemas_by_catelog (catelog: string) {
         const schemas = (await (model.ddb.invoke('getSchemaByCatalog', [catelog]))).data
-        const new_schema_set = new Set([...this.schema_set])
+        const new_schema_set = new Set(this.schema_set)
         schemas.forEach(({ dbUrl }) => new_schema_set.add(dbUrl))
         this.set({ schema_set: new_schema_set })
         const schemas_with_tables = await Promise.all(schemas.map(async (schema: Schema) => ({ ...schema, tables: await this.get_tables(schema.dbUrl) })))
         return schemas_with_tables
     }
     
+    
     async get_user_list () {
         this.set({ users: (await model.ddb.invoke<string[]>('getUserList', [ ])) })
     }
+    
     
     async update_current_access () {
         access.set({

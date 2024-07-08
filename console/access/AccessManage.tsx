@@ -189,14 +189,14 @@ export function AccessManage ({ category }: { category: AccessCategory }) {
                 }
             }}
             title={() => <AccessHeader
-                            category={category}
-                            preview={false}
-                            search_key={search_key}
-                            set_search_key={set_search_key}
-                            add_open={async () => NiceModal.show(AccessAddModal, { category })}
-                            delete_open={async () => NiceModal.show(AccessRevokeModal, { category, selected_access, reset_selected })}
-                            selected_length={selected_access.length}
-                    />}
+                category={category}
+                preview={false}
+                search_key={search_key}
+                set_search_key={set_search_key}
+                add_open={async () => NiceModal.show(AccessAddModal, { category })}
+                delete_open={async () => NiceModal.show(AccessRevokeModal, { category, selected_access, reset_selected })}
+                selected_length={selected_access.length}
+        />}
             columns={showed_aces_cols}
             dataSource={filtered_rules}
         />

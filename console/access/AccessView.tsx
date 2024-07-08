@@ -87,10 +87,10 @@ export function AccessView () {
     }
     
     return <Tabs 
-                type='card' 
-                items={tabs} 
-                accessKey={tab_key} 
-                onChange={set_tab_key} 
-                tabBarExtraContent={OperationsSlot} 
-            />
+        type='card' 
+        items={tabs} 
+        accessKey={tab_key} 
+        onChange={set_tab_key} 
+        tabBarExtraContent={OperationsSlot} 
+    />
 }

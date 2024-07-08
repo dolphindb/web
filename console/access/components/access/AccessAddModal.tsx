@@ -73,10 +73,8 @@ export const AccessAddModal = NiceModal.create(({ category }: { category: Access
                             rule.access,
                             rule.access ===
                                 'QUERY_RESULT_MEM_LIMIT' || rule.access === 'TASK_GROUP_MEM_LIMIT'
-                                    ?
-                                Number(rule.name)
-                                    :
-                                rule.name)))
+                                ? Number(rule.name)
+                                : rule.name)))
                 model.message.success(t('权限赋予成功'))
                 set_add_rule_selected({ access: ACCESS_OPTIONS[category][0], type: 'grant', obj: [ ] })
                 set_add_access_rows([ ])
@@ -112,14 +110,14 @@ export const AccessAddModal = NiceModal.create(({ category }: { category: Access
                     <Select
                         className='access-select'
                         options={filter_access_options(
-                                        category, 
-                                        current.role, 
-                                        accesses.is_admin, 
-                                        add_rule_selected.type).
-                                            map(ac => ({
-                                                label: ac,
-                                                value: ac
-                                            }))}
+                            category, 
+                            current.role, 
+                            accesses.is_admin, 
+                            add_rule_selected.type).
+                                map(ac => ({
+                                    label: ac,
+                                    value: ac
+                                }))}
                         value={add_rule_selected.access}
                         onChange={value => {
                             const selected = { ...add_rule_selected }
