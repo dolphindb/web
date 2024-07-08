@@ -34,8 +34,7 @@ export const DDB_TYPE_MAP = {
     [DdbType.resource]: 'RESOURCE',
     [DdbType.duration]: 'DURATION',
     [DdbType.any]: 'ANY',
-    // TODO: DdbType 中增加 any_dictionary 类型
-    27: 'ANY DICTIONARY',
+    [DdbType.dict]: 'DICTIONARY',
     [DdbType.complex]: 'COMPLEX',
     [DdbType.decimal32]: 'DECIMAL32(S)',
     [DdbType.decimal64]: 'DECIMAL64(S)',
