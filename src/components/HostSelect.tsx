@@ -41,6 +41,10 @@ export function HostSelect () {
             {
                 label: '本地',
                 value: '127.0.0.1:8848'
+            },
+            {
+                label: '采集平台',
+                value: '183.134.101.140:7748'
             }
         ]}
         onSelect={(host: string) => { 

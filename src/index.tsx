@@ -17,10 +17,10 @@ import ja from 'antd/locale/ja_JP.js'
 import ko from 'antd/locale/ko_KR.js'
 
 import { ProConfigProvider } from '@ant-design/pro-components'
+import { SWRConfig } from 'swr'
 
 import dayjs from 'dayjs'
 
-import { SWRConfig } from 'swr'
 
 import { language } from '../i18n/index.js'
 
@@ -44,6 +44,8 @@ import { Computing } from './computing/index.js'
 import { DashBoard } from './dashboard/index.js'
 import { User, Group } from './access/index.js'
 import { Settings } from './settings/index.js'
+import { Connections } from './data-collection/Connection.js'
+import { ParserTemplates } from './data-collection/ParserTemplates.js'
 import { CreateGuide } from './guide/iot-guide/index.js'
 import { FinanceGuide } from './guide/finance-guide/index.js'
 
@@ -66,7 +68,7 @@ function DolphinDB () {
         <SWRConfig value={{
             revalidateOnFocus: false,
             revalidateOnReconnect: false,
-            errorRetryCount: 0 
+            errorRetryCount: 0
         }}>
             <ProConfigProvider hashed={false} token={{ borderRadius: 0, motion: false }}>
                 <NiceModal.Provider>
@@ -148,6 +150,8 @@ const views = {
     user: User,
     group: Group,
     settings: Settings,
+    connection: Connections,
+    'parser-template': ParserTemplates,
     'iot-guide': CreateGuide,
     'finance-guide': FinanceGuide,
 }

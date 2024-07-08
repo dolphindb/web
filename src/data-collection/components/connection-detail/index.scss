@@ -1,0 +1,39 @@
+.connection-detail {
+    margin-left: 16px;
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    .base-info {
+        margin-bottom: 16px;
+    }
+    
+    .parser-template {
+        .view-btn {
+            display: inline-block;
+            margin-left: 8px;
+        }
+    }
+    
+    .describe-title {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+    }
+}
+
+.template-view-editor {
+    height: 600px;
+    overflow: auto;
+}
+
+.subscribe-delete-form {
+    &-item {
+        margin-bottom: 0px;
+        
+        &.delete-form-item {
+            text-align: end;
+        }
+    }
+}
+

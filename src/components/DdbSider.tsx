@@ -23,6 +23,9 @@ import SvgComputing from '../computing/icons/computing.icon.svg'
 import SvgAccess from '../access/icons/access.icon.svg'
 import SvgUser from '../access/icons/user.icon.svg'
 import SvgGroup from '../access/icons/group.icon.svg'
+import SvgDataCollection from '../data-collection/icons/data-collection.icon.svg'
+import SvgConnection from '../data-collection/icons/connection.icon.svg'
+import SvgParserTemplate from '../data-collection/icons/parser-template.icon.svg'
 import SvgFinance from '../guide/icons/finance.icon.svg'
 import SvgIot from '../guide/icons/iot.icon.svg'
 
@@ -42,6 +45,9 @@ const svgs = {
     access: SvgAccess,
     user: SvgUser,
     group: SvgGroup,
+    'data-collection': SvgDataCollection,
+    connection: SvgConnection,
+    'parser-template': SvgParserTemplate,
     'iot-guide': SvgIot,
     'finance-guide': SvgFinance 
 }
@@ -164,6 +170,23 @@ export function DdbSider () {
                     key: 'log',
                     icon: <MenuIcon view='log' />,
                     label: t('日志查看'),
+                },
+                {
+                    key: 'data-collection',
+                    icon: <MenuIcon view='data-collection' />,
+                    label: t('数采平台'),
+                    children: [
+                        {
+                            icon: <MenuIcon view='connection' />,
+                            label: t('连接信息'),
+                            key: 'connection'
+                        },
+                        {
+                            icon: <MenuIcon view='parser-template' />,
+                            label: t('解析模板'),
+                            key: 'parser-template'
+                        }
+                    ]
                 },
                 ... is_factor_platform_enabled ? [{
                     key: 'factor',
