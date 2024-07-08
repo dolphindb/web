@@ -1,18 +1,19 @@
 import NiceModal, { useModal } from '@ebay/nice-modal-react'
 import { Form, Input, Modal, Select, Switch } from 'antd'
 
-import { language, t } from '../../../../i18n/index.js'
-import { access } from '../../model.js'
-import { model } from '../../../model.js'
-import { NAME_CHECK_PATTERN } from '../../constants.js'
+import { language, t } from '@i18n/index.js'
+
+import { model } from '@/model.js'
+
+import { access } from '@/access/model.js'
+import { NAME_CHECK_PATTERN } from '@/access/constants.js'
+
 
 export const UserCreateModal = NiceModal.create(() => {
     const modal = useModal()
     const [add_user_form] = Form.useForm()
     
     const { groups } = access.use(['users', 'groups', 'current'])
-    
-    
     
     return <Modal
             className='add-user-modal'

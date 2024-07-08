@@ -70,7 +70,11 @@ export let builder = {
                     '@formily/react': ['module ./pre-bundle/formily.js', 'React'],
                     '@formily/antd-v5': ['module ./pre-bundle/formily.js', 'AntdV5'],
                 },
-                resolve_alias: fp_api ? { 'dolphindb/browser.js': fp_api } : { },
+                resolve_alias: {
+                    '@': `${fpd_root}src`,
+                    '@i18n': `${fpd_root}i18n`,
+                    ... fp_api ? { 'dolphindb/browser.js': fp_api } : { },
+                },
                 globals: {
                     WEB_VERSION: `${info.version} (${info.time} ${info.hash})`.quote(),
                     PRODUCTION: production ? 'true' : 'false'
