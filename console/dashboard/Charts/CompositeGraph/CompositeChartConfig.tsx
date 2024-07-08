@@ -205,7 +205,7 @@ export function CompositeChartConfig () {
                                         const data_source = get(value, concat_name_path('series', field.name, 'match_value'))
                                         return show
                                             ? <>
-                                                {match_type === MatchRuleType.DATA_SOURCE && <Form.Item name={concat_name_path(field.name, 'x_col_name')} label={t('x 轴数据列')}>
+                                                {match_type === MatchRuleType.DATA_SOURCE && <Form.Item name={concat_name_path(field.name, 'x_col_name')} label={t('X 轴数据列')}>
                                                     <Select options={convert_list_to_options(get_data_source(data_source).cols)} />
                                                 </Form.Item> }
                                                 <SeriesItem col_names={col_options.map(item => item.value) as string[]} type={type} name={field.name} path='series' />

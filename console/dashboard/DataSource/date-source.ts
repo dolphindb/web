@@ -131,7 +131,7 @@ export async function save_data_source ( new_data_source: DataSource, code?: str
                     case 'success':
                         if (typeof result === 'object' && result) {
                             // 暂时只支持table matrix
-                            if (result.form !== new_data_source.type) { 
+                            if (result.form !== new_data_source.type && code === undefined) { 
                                 dashboard.message.error(t('sql 执行得到的数据类型与数据源类型不符，请修改'))
                                 return
                             }

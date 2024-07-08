@@ -8,6 +8,7 @@ import { request } from '../../../guide/utils.js'
 import { safe_json_parse } from '../../../dashboard/utils.js'
 
 import { t } from '../../../../i18n/index.js'
+import { download_file } from '../../../utils/index.js'
 
 interface IProps { 
     table: string
@@ -30,13 +31,17 @@ export const ExportFileModal = NiceModal.create((props: IProps) => {
             let text = ''
             if (typeof res.csvContent === 'string')  
                 text = res.csvContent
-             else
+            else
                 text = (safe_json_parse(new TextDecoder().decode((await request('dbms_executeQuery', { code }))))).csvContent
-            const link = document.createElement('a')
-            link.href = 'data:application/vnd.ms-excel;charset=utf-8,\uFEFF' + encodeURIComponent(text)
-            link.download = `${name}.csv`
-            link.click()
-            link.remove()
+            
+            download_file(`${name}.csv`, URL.createObjectURL(new Blob(
+                [
+                    new Uint8Array([0xEF, 0xBB, 0xBF]),
+                    text
+                ], 
+                { type: 'text/plain' }
+            )))
+                
             action.setFalse()
             modal.hide()
             message.success(t('导出成功'))

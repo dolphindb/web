@@ -10,6 +10,7 @@ import NiceModal, { useModal } from '@ebay/nice-modal-react'
 import { countBy, isNumber } from 'lodash'
 
 import { check_tb_valid, request } from '../utils.js'
+import { type BasicInfoFormValues } from '../iot-guide/type.js'
 import { convert_list_to_options } from '../../dashboard/utils.js'
 
 
@@ -192,7 +193,7 @@ export function DataTypeSelect (props: IDataTypeSelect) {
                 max={limit.max}
                 value={decimal}
                 onChange={val => { set_decimal(val) }}
-                placeholder={t('DECIMAL 精度')}
+                placeholder='scale'
                 precision={0}
             />
         </div>
@@ -205,8 +206,8 @@ export function DataTypeSelect (props: IDataTypeSelect) {
         />
 }
 
-export function SchemaList (props: { mode: 'finance' | 'ito', engine: string, need_time_col?: boolean }) { 
-    const { need_time_col = true, mode, engine } = props
+export function SchemaList (props: { mode: 'finance' | 'ito', engine: string, need_time_col?: boolean, helpTip?: string }) { 
+    const { need_time_col = true, mode, engine, helpTip } = props
     const form = Form.useFormInstance()
     const schema = Form.useWatch('schema', form)
     const init = useRef(false)
@@ -250,12 +251,12 @@ export function SchemaList (props: { mode: 'finance' | 'ito', engine: string, ne
                     && (!types.some(type => TIME_TYPES.includes(type)) 
                             || !types.some(type => ENUM_TYPES.includes(type))))  
             // 物联网场景
-            return Promise.reject(new Error(t('时序数据或总数据量大于 200 万的非时序数据，表结构至少有一列时间列与枚举列')))
+            return Promise.reject(new Error(helpTip))
         // 金融场景必须有一列时间列
         else if (mode === 'finance' && !types.some(type => TIME_TYPES.includes(type)))
-            return Promise.reject(t('表结构至少包含一列时间列'))
+            return Promise.reject(helpTip)
         return Promise.resolve()
-    }, [need_time_col, mode])
+    }, [need_time_col, mode, helpTip])
     
     return <>
         <div className='schema-wrapper'>
@@ -315,11 +316,7 @@ export function SchemaList (props: { mode: 'finance' | 'ito', engine: string, ne
         </div>
         
         <Typography.Text type='secondary' className='schema-tips'>
-            {
-                mode === 'finance'
-                    ? t('请注意，表结构至少需要一列时间列，时间列类型包括 {{name}}', { name: TIME_TYPES.join(', ') })
-                    : t('请注意，时序数据或总数据量大于200万的非时序数据的表结构至少需要一列时间列与枚举列，其余数据表结构至少需要一列枚举列，时间列类型包括DATE、DATETIME、TIMESTAMP、NANOTIMESTAMP，枚举列类型包括STRING、SYMBOL、CHAR。')
-            }
+            { helpTip }
         </Typography.Text>
         
     </>

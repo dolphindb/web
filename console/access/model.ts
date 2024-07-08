@@ -18,8 +18,8 @@ export interface Database {
 }
 
 
-enum Access  {
-    TABLE_READ =  0,
+enum Access {
+    TABLE_READ = 0,
     TABLE_WRITE = 1,
     DBOBJ_CREATE = 2,
     DBOBJ_DELETE = 3,
@@ -27,10 +27,14 @@ enum Access  {
     VIEW_EXEC = 5,
     SCRIPT_EXEC = 6,
     TEST_EXEC = 7,
+    DB_OWNER = 10,
+    QUERY_RESULT_MEM_LIMIT = 11,
+    TASK_GROUP_MEM_LIMIT = 12,
     TABLE_INSERT = 13,
     TABLE_UPDATE = 14,
     TABLE_DELETE = 15,
     DB_READ = 16,
+    DB_WRITE = 17,
     DB_INSERT = 18,
     DB_UPDATE = 19,
     DB_DELETE = 20,
@@ -74,20 +78,31 @@ class AccessModel extends Model<AccessModel> {
     
     async get_databases_with_tables () {
         const databases = await this.get_databases()
-        const dbs = [ ]
-        for (let db of databases) {
-            let tables = await this.get_tables(db + '/')
-            dbs.push({
+        const tables = await this.get_tables()
+        const databases_sort = [...databases].sort((a, b) => b.length - a.length)
+        const dbs_map = new Map<string, string[]>()
+        tables.forEach(tb => {
+            for (let db of databases_sort) 
+                if (tb.startsWith(db)) {
+                    if (!dbs_map.has(db))
+                        dbs_map.set(db, [ ])
+                    let tbs = dbs_map.get(db)
+                    tbs.push(tb)
+                    break
+                }
+            
+        })
+        this.set({
+            databases: databases.map(db => ({
                 name: db,
-                tables
-            })
-        } 
-        this.set({ databases: dbs })
+                tables: dbs_map.get(db) ?? [ ]
+            }))
+        })
     }
     
     
     async get_user_list () {
-        this.set({ users: (await model.ddb.call<DdbVectorStringObj>('getUserList', [ ])).value  })
+        this.set({ users: (await model.ddb.call<DdbVectorStringObj>('getUserList', [ ])).value })
     }
     
     // final 属性代表是否获取用户最终权限，只有在用户查看权限界面需要 final = true
@@ -154,7 +169,7 @@ class AccessModel extends Model<AccessModel> {
         await model.ddb.call(
             'deleteGroupMember',
             [
-                Array.isArray(users) ? new DdbVectorString(users) : users, 
+                Array.isArray(users) ? new DdbVectorString(users) : users,
                 Array.isArray(groups) ? new DdbVectorString(groups) : groups
             ]
         )
@@ -166,16 +181,17 @@ class AccessModel extends Model<AccessModel> {
     }
     
     
-    async get_tables (database: string): Promise<string[]> {
-        return (await model.ddb.call<DdbVectorStringObj>('getDFSTablesByDatabase', [database])).value
+    async get_tables (): Promise<string[]> {
+        return (await model.ddb.call<DdbVectorStringObj>('getDFSTablesByDatabase', ['dfs://'])).value
     }
     
     
     async get_share_tables () {
-        const tables =  (await model.ddb.call('objs', [true])).to_rows()
+        const tables = (await model.ddb.call('objs', [true])).to_rows()
         this.set({
             shared_tables: tables.filter(table => table.shared && table.type === 'BASIC' && table.form === 'TABLE')
-                .map(table => table.name) })
+                .map(table => table.name)
+        })
     }
     
     
@@ -184,7 +200,8 @@ class AccessModel extends Model<AccessModel> {
             stream_tables: (await model.ddb.call('getStreamTables', [new DdbInt(0)]))
                 .to_rows()
                 .filter(table => table.shared)
-                .map(tb => tb.name)  })
+                .map(tb => tb.name)
+        })
     }
     
     
@@ -193,18 +210,18 @@ class AccessModel extends Model<AccessModel> {
     }
     
     
-    async grant (user: string, access: string, obj?: string) {
-        await model.ddb.call('grant', obj ? [ user, new DdbInt(Access[access]), obj ] : [user, new DdbInt(Access[access])])
+    async grant (user: string, access: string, obj?: string | number) {
+        await model.ddb.call('grant', obj ? [user, new DdbInt(Access[access]), typeof obj === 'number' ? new DdbInt(obj) : obj] : [user, new DdbInt(Access[access])])
     }
     
     
     async deny (user: string, access: string, obj?: string) {
-        await model.ddb.call('deny', obj ? [user, new DdbInt(Access[access]), obj ] :  [user, new DdbInt(Access[access])])
+        await model.ddb.call('deny', obj ? [user, new DdbInt(Access[access]), obj] : [user, new DdbInt(Access[access])])
     }
     
     
     async revoke (user: string, access: string, obj?: string) {
-        await model.ddb.call('revoke', obj ? [user, new DdbInt(Access[access]), obj ] : [user, new DdbInt(Access[access])])
+        await model.ddb.call('revoke', obj ? [user, new DdbInt(Access[access]), obj] : [user, new DdbInt(Access[access])])
     }
     
     // async handle_validate_error (func: Function) {

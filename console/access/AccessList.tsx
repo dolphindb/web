@@ -4,17 +4,42 @@ import { useEffect, useMemo, useState } from 'react'
 import { t } from '../../i18n/index.js'
 
 import { access } from './model.js'
-import { ACCESS_TYPE, STAT_ICONS, TABLE_NAMES, type TABLE_ACCESS } from './constant.js'
+import { ACCESS_TYPE, NeedInputAccess, STAT_ICONS, TABLE_NAMES, type TABLE_ACCESS } from './constants.js'
 import { AccessHeader } from './AccessHeader.js'
 
 
 function handle_access (accesses: Record<string, any>, type: string, name: string) {
-    if (accesses[type + '_allowed'] && accesses[type + '_allowed'].split(',').includes(name))
-        return [type, 'allow']
-    else if (accesses[type + '_denied'] && accesses[type + '_denied'].split(',').includes(name))
-        return [type, 'deny']
-    else
-        return [type, 'none']
+    // DB_OWNER 单独处理
+    if (type === 'DB_OWNER') 
+        if (accesses.DB_OWNER === 'allow') 
+            if (!accesses.DB_OWNER_allowed) 
+                return [type, 'allow']
+             else {
+                let objs = accesses.DB_OWNER_allowed.split(',')
+                for (let obj of objs) {
+                    // dfs://test* 变成 dfs://test.*
+                    let reg = new RegExp(obj.replace('*', '.*'))
+                    console.log(obj, name, reg.test(name))
+                    if (reg.test(name)) 
+                        return [type, 'allow']
+                    
+                }
+                return [type, 'none']
+            }
+         else if (accesses.DB_OWNER === 'deny')
+             return [type, 'deny']
+         else
+             return [type, 'none']
+        
+     else 
+        if (accesses[type + '_allowed'] && accesses[type + '_allowed'].split(',').includes(name))
+            return [type, 'allow']
+        else if (accesses[type + '_denied'] && accesses[type + '_denied'].split(',').includes(name))
+            return [type, 'deny']
+        else
+            return [type, 'none']
+    
+    
 }
 
 
@@ -34,12 +59,10 @@ export function AccessList ({ category }: { category: 'database' | 'shared' | 's
     
     useEffect(() => {
         (async () => {
-            let final_accesses = accesses
-            
-            // 用户权限列表需要单独获取最终权限去展示
+            let final_accesses = accesses            // 用户权限列表需要单独获取最终权限去展示
             if (current.role === 'user')
                 final_accesses = (await access.get_user_access([current.name], true))[0]
-            
+                
             if (!final_accesses)
                 return
             let items = [ ]
@@ -74,11 +97,11 @@ export function AccessList ({ category }: { category: 'database' | 'shared' | 's
                         : { access: Object.fromEntries(ACCESS_TYPE[category].map(type => handle_access(final_accesses, type, name))) }),
                     ...(typeof item !== 'string'
                         ? {
-                              tables: item.tables.map(table => ({
-                                  name: table,
-                                  access: Object.fromEntries(ACCESS_TYPE.table.map(type => handle_access(final_accesses, type, table)))
-                              }))
-                          }
+                            tables: item.tables.map(table => ({
+                                name: table,
+                                access: Object.fromEntries(ACCESS_TYPE.table.map(type => handle_access(final_accesses, type, table)))
+                            }))
+                        }
                         : { })
                 }
                 tmp_tb_access.push(tb_ob)
@@ -97,25 +120,27 @@ export function AccessList ({ category }: { category: 'database' | 'shared' | 's
             },
             ...(category !== 'script'
                 ? ACCESS_TYPE[category]
-                      .filter(t => t !== 'TABLE_WRITE')
-                      .map(type => ({
-                          title: type,
-                          dataIndex: type,
-                          key: type,
-                          width: 160,
-                          align: 'center' as const
-                      }))
+                    // getUserAccess 并不会返回这两类权限
+                    .filter(t => t !== 'TABLE_WRITE' && t !== 'DB_WRITE')
+                    .map(type => ({
+                        title: type,
+                        dataIndex: type,
+                        key: type,
+                        width: 160,
+                        align: 'center' as const
+                    }))
                 : [
-                      {
-                          title: 'stat',
-                          dataIndex: 'stat',
-                          key: 'stat',
-                          align: 'center' as const
-                      }
-                  ])
+                    {
+                        title: 'stat',
+                        dataIndex: 'stat',
+                        key: 'stat',
+                        align: 'center' as const
+                    }
+                ])
         ],
         [ ]
     )
+    
     return <Table
             columns={cols}
             dataSource={showed_accesses
@@ -126,37 +151,37 @@ export function AccessList ({ category }: { category: 'database' | 'shared' | 's
                     ...(category === 'database' ? { tables: tb_access.tables } : { }),
                     ...(category !== 'script'
                         ? Object.fromEntries(Object.entries(tb_access.access).map(([key, value]) => [key, STAT_ICONS[value as string]]))
-                        : { stat: STAT_ICONS[tb_access.stat] })
+                        : { stat: NeedInputAccess.includes(tb_access.name) ? tb_access.stat : STAT_ICONS[tb_access.stat] })
                 }))}
             title={() => <AccessHeader category={category} preview search_key={search_key} set_search_key={set_search_key} />}
             tableLayout='fixed'
             expandable={
                 category === 'database'
                     ? {
-                          expandedRowRender: db => <Table
-                                  columns={[
-                                      {
-                                          title: t('DFS 表名'),
-                                          dataIndex: 'table_name',
-                                          key: 'table_name'
-                                      },
-                                      ...ACCESS_TYPE.table
-                                          .filter(t => t !== 'TABLE_WRITE')
-                                          .map(type => ({
-                                              title: type,
-                                              dataIndex: type,
-                                              key: type
-                                          }))
-                                  ]}
-                                  dataSource={db.tables.map(table => ({
-                                      key: table.name,
-                                      table_name: table.name,
-                                      ...Object.fromEntries(Object.entries(table.access).map(([key, value]) => [key, STAT_ICONS[value as string]]))
-                                  }))}
-                                  pagination={false}
-                                  tableLayout='fixed'
-                              />
-                      }
+                        expandedRowRender: db => <Table
+                            columns={[
+                                {
+                                    title: t('DFS 表名'),
+                                    dataIndex: 'table_name',
+                                    key: 'table_name'
+                                },
+                                ...ACCESS_TYPE.table
+                                    .filter(t => t !== 'TABLE_WRITE')
+                                    .map(type => ({
+                                        title: type,
+                                        dataIndex: type,
+                                        key: type
+                                    }))
+                            ]}
+                            dataSource={db.tables.map(table => ({
+                                key: table.name,
+                                table_name: table.name,
+                                ...Object.fromEntries(Object.entries(table.access).map(([key, value]) => [key, STAT_ICONS[value as string]]))
+                            }))}
+                            pagination={false}
+                            tableLayout='fixed'
+                        />
+                    }
                     : { }
             }
         />

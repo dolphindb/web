@@ -4,12 +4,12 @@ import dayjs from 'dayjs'
 
 import { debounce } from 'lodash'
 
-import type { Terminal } from 'xterm'
-import type { FitAddon } from 'xterm-addon-fit'
+import type { Terminal } from '@xterm/xterm'
+import type { FitAddon } from '@xterm/addon-fit'
 
 import type * as monacoapi from 'monaco-editor/esm/vs/editor/editor.api.js'
 
-import { delta2str, assert, delay } from 'xshell/utils.browser.js'
+import { delta2str, assert, delay, strcmp } from 'xshell/utils.browser.js'
 import { red, blue } from 'xshell/chalk.browser.js'
 
 import {
@@ -25,7 +25,7 @@ import {
 } from 'dolphindb/browser.js'
 
 
-import { t, language } from '../../i18n/index.js'
+import { t } from '../../i18n/index.js'
 
 import { type DdbObjRef } from '../obj.js'
 
@@ -33,7 +33,8 @@ import { model, NodeType, storage_keys } from '../model.js'
 
 import type { Monaco } from '../components/Editor/index.js'
 
-import { Database, DatabaseGroup, type Column, type ColumnRoot, PartitionDirectory, type PartitionRoot, PartitionFile, Table } from './Databases.js'
+import { Database, DatabaseGroup, type Column, type ColumnRoot, PartitionDirectory, type PartitionRoot, PartitionFile, type Table, Catalog } from './Databases.js'
+
 import { DdbVar } from './Variables.js'
 
 
@@ -53,7 +54,7 @@ class ShellModel extends Model<ShellModel> {
     
     vars: DdbVar[]
     
-    dbs: (Database | DatabaseGroup)[]
+    dbs: (Catalog | Database | DatabaseGroup)[]
     
     options?: InspectOptions
     
@@ -78,13 +79,19 @@ class ShellModel extends Model<ShellModel> {
     
     set_column_comment_defined = false
     
+    set_table_comment_defined = false
     
-    current_node: ColumnRoot | Column
+    get_csv_content_defined = false
     
+    current_node: ColumnRoot | Column | Table
     
     set_column_comment_modal_visible = false
     
+    set_table_comment_modal_visible = false
+    
     create_database_modal_visible = false
+    
+    create_catalog_modal_visible = false
     
     create_database_partition_count = 1
     
@@ -155,7 +162,8 @@ class ShellModel extends Model<ShellModel> {
                 ddbobj.form === DdbForm.matrix ||
                 ddbobj.form === DdbForm.set ||
                 ddbobj.form === DdbForm.table ||
-                ddbobj.form === DdbForm.vector
+                ddbobj.form === DdbForm.vector ||
+                ddbobj.form === DdbForm.tensor
             )
                 this.set({
                     result: {
@@ -173,6 +181,7 @@ class ShellModel extends Model<ShellModel> {
                         case DdbForm.set:
                         case DdbForm.table:
                         case DdbForm.vector:
+                        case DdbForm.tensor:
                             return blue(
                                 ddbobj.inspect_type()
                             ) + '\n'
@@ -193,15 +202,14 @@ class ShellModel extends Model<ShellModel> {
             let message = error.message as string
             if (message.includes('RefId:'))
                 message = message.replaceAll(/RefId:\s*(\w+)/g, (_, ref_id) =>
-                    // 暂时隐藏 S00004 及以后的错误码编号及链接，待英文文档更新后再向用户暴露
-                    language === 'en' && Number(ref_id.slice(1)) >= 4
-                        ? ''
-                        :
-                        // xterm link写法 https://stackoverflow.com/questions/64759060/how-to-create-links-in-xterm-js
-                        blue(`\x1b]8;;${model.get_error_code_doc_link(ref_id)}\x07RefId: ${ref_id}\x1b]8;;\x07`)   
+                    // xterm link写法 https://stackoverflow.com/questions/64759060/how-to-create-links-in-xterm-js
+                    blue(`\x1b]8;;${model.get_error_code_doc_link(ref_id)}\x07RefId: ${ref_id}\x1b]8;;\x07`)
                 )
             
             this.term.writeln(red(message))
+            
+            console.log(error)
+            
             throw error
         } finally {
             this.set({ executing: false })
@@ -342,6 +350,8 @@ class ShellModel extends Model<ShellModel> {
     async load_dbs () {
         await model.get_cluster_perf(false)
         
+        const { v3, ddb } = model
+        
         // 当前无数据节点和计算节点存活，且当前节点不为单机节点，则不进行数据库表获取
         if (model.node.mode !== NodeType.single && !model.has_data_and_computing_nodes_alive()) 
             return
@@ -349,13 +359,14 @@ class ShellModel extends Model<ShellModel> {
         // ['dfs://数据库路径(可能包含/)/表名', ...]
         // 不能直接使用 getClusterDFSDatabases, 因为新的数据库权限版本 (2.00.9) 之后，用户如果只有表的权限，调用 getClusterDFSDatabases 无法拿到该表对应的数据库
         // 但对于无数据表的数据库，仍然需要通过 getClusterDFSDatabases 来获取。因此要组合使用
-        const [{ value: table_paths }, { value: db_paths }] = await Promise.all([
-            model.ddb.call<DdbVectorStringObj>('getClusterDFSTables'),
+        const [{ value: table_paths }, { value: db_paths }, ...rest] = await Promise.all([
+            ddb.call<DdbVectorStringObj>('getClusterDFSTables'),
             // 可能因为用户没有数据库的权限报错，单独 catch 并返回空数组
-            model.ddb.call<DdbVectorStringObj>('getClusterDFSDatabases').catch(() => {
+            ddb.call<DdbVectorStringObj>('getClusterDFSDatabases').catch(() => {
                 console.error('load_dbs: getClusterDFSDatabases error')
                 return { value: [ ] }
             }),
+            ...v3 ? [ddb.call<DdbVectorStringObj>('getAllCatalogs')] : [ ],
         ])
         
         // const db_paths = [
@@ -387,7 +398,26 @@ class ShellModel extends Model<ShellModel> {
         // 库和表之间以最后一个 / 隔开。表名不可能有 /
         // 全路径中可能没有组（也就是没有点号），但一定有库和表
         let hash_map = new Map<string, Database | DatabaseGroup>()
-        let root: (Database | DatabaseGroup)[] = [ ]
+        let catalog_map = new Map<string, Database>()
+        let root: (Catalog | Database | DatabaseGroup)[] = [ ]
+        
+        if (v3) 
+            await Promise.all(rest[0].value.sort().map(async catalog => {
+                let catalog_node = new Catalog(catalog)
+                root.push(catalog_node)
+                
+                ;(
+                    await ddb.invoke('getSchemaByCatalog', [catalog])
+                ).data
+                    .sort((a, b) => strcmp(a.schema, b.schema))
+                    .map(({ schema, dbUrl }) => {
+                        const db_path = `${dbUrl}/`
+                        const database = new Database(db_path, schema)
+                        catalog_map.set(db_path, database)
+                        catalog_node.children.push(database)
+                    })
+            }))
+        
         for (const path of merged_paths) {
             // 找到数据库最后一个斜杠位置，截取前面部分的字符串作为库名
             const index_slash = path.lastIndexOf('/')
@@ -395,38 +425,41 @@ class ShellModel extends Model<ShellModel> {
             const db_path = `${path.slice(0, index_slash)}/`
             const table_name = path.slice(index_slash + 1)
             
-            let parent: Database | DatabaseGroup | { children: (Database | DatabaseGroup)[] } = { children: root }
+            let parent: Catalog | Database | DatabaseGroup | { children: (Catalog | Database | DatabaseGroup)[] } = { children: root }
             
-            // for 循环用来处理 database group
-            for (let index = 0;  index = db_path.indexOf('.', index) + 1;  ) {
-                const group_key = path.slice(0, index)
-                const group = hash_map.get(group_key)
-                if (group)
-                    parent = group
+            if (catalog_map.has(db_path)) 
+                parent = catalog_map.get(db_path)
+            else {
+                // for 循环用来处理 database group
+                for (let index = 0;  index = db_path.indexOf('.', index) + 1;  ) {
+                    const group_key = path.slice(0, index)
+                    const group = hash_map.get(group_key)
+                    if (group)
+                        parent = group
+                    else {
+                        const group = new DatabaseGroup(group_key)
+                        ;(parent as DatabaseGroup).children.push(group)
+                        hash_map.set(group_key, group)
+                        parent = group
+                    }
+                }
+                
+                // 处理 database
+                const db = hash_map.get(db_path) as Database
+                if (db)
+                    parent = db
                 else {
-                    const group = new DatabaseGroup(group_key)
-                    ;(parent as DatabaseGroup).children.push(group)
-                    hash_map.set(group_key, group)
-                    parent = group
+                    const db = new Database(db_path)
+                    ;(parent as DatabaseGroup).children.push(db)
+                    hash_map.set(db_path, db)
+                    parent = db
                 }
             }
             
-            // 处理 database
-            const db = hash_map.get(db_path) as Database
-            if (db)
-                parent = db
-            else {
-                const db = new Database(db_path)
-                ;(parent as DatabaseGroup).children.push(db)
-                hash_map.set(db_path, db)
-                parent = db
-            }
-            
             // 处理 table，如果 table_name 为空表明当前路径是 db_path 则不处理
-            if (table_name) {
-                const table = new Table(parent as Database, `${path}/`)
-                parent.children.push(table)
-            }
+            if (table_name) 
+                parent.table_paths.push(`${path}/`)
+            
         }
         
         // TEST: 测试多级数据库树
@@ -602,6 +635,36 @@ class ShellModel extends Model<ShellModel> {
         )
         
         shell.set({ set_column_comment_defined: true })
+    }
+    
+    
+    async define_get_csv_content () {
+        if (!this.get_csv_content_defined) {
+            await model.ddb.eval(
+                'def get_csv_content (name_or_obj, start, end) {\n' +
+                '    type = typestr name_or_obj\n' +
+                "    if (type =='CHAR' || type =='STRING')\n" +
+                '        obj = objByName(name_or_obj)\n' +
+                '    else\n' +
+                '        obj = name_or_obj\n' +
+                "    return generateTextFromTable(select * from obj, start, end - start + 1, 0, ',', true)\n" +
+                '}\n'
+            )
+            
+            this.set({ get_csv_content_defined: true })
+        }
+    }
+    
+    async define_set_table_comment () {
+        if (!this.set_table_comment_defined) {
+            await model.ddb.execute(
+                'def set_table_comment (db_path, tb_name, table_comment) {\n' +
+                '    setTableComment(loadTable(database(db_path), tb_name), table_comment)\n' +
+                '}\n'
+            )
+            
+            shell.set({ set_table_comment_defined: true })
+        }
     }
     
     

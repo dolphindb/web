@@ -4,6 +4,8 @@ import { Obj } from '../obj.js'
 
 import { model } from '../model.js'
 
+import { ExportCsv } from '../components/ExportCsv.js'
+
 import { shell } from './model.js'
 
 
@@ -24,10 +26,13 @@ export function DataView () {
             )
                 return
             
-            return type === 'object' ?
-                <Obj obj={data} ddb={model.ddb} ctx='embed' options={options} />
-            :
-                <Obj objref={data} ddb={model.ddb} ctx='embed' options={options} />
+            return <Obj 
+                ddb={model.ddb} 
+                ctx='embed' 
+                options={options} 
+                ExportCsv={ExportCsv} 
+                {...type === 'object' ? { obj: data } : { objref: data }}
+            />
         })()
     }</div>
 }

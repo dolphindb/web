@@ -7,7 +7,7 @@ import { default as Icon, DoubleLeftOutlined, DoubleRightOutlined, ExperimentOut
 import { isNil, omitBy } from 'lodash'
 
 
-import { t, language } from '../../i18n/index.js'
+import { language, t } from '../../i18n/index.js'
 
 import { model, type DdbModel, NodeType, storage_keys } from '../model.js'
 
@@ -26,6 +26,8 @@ import SvgGroup from '../access/icons/group.icon.svg'
 import SvgDataCollection from '../access/icons/data-collection.icon.svg'
 import SvgConnection from '../access/icons/connection.icon.svg'
 import SvgParserTemplate from '../access/icons/parser-template.icon.svg'
+import SvgFinance from '../guide/icons/finance.icon.svg'
+import SvgIot from '../guide/icons/iot.icon.svg'
 
 
 const { Text, Link } = Typography
@@ -45,7 +47,9 @@ const svgs = {
     group: SvgGroup,
     'data-collection': SvgDataCollection,
     connection: SvgConnection,
-    'parser-template': SvgParserTemplate
+    'parser-template': SvgParserTemplate,
+    'iot-guide': SvgIot,
+    'finance-guide': SvgFinance 
 }
 
 
@@ -77,7 +81,7 @@ export function DdbSider () {
     }, [logined])
     
     return <Layout.Sider
-        width={140}
+        width={ language === 'zh' ? 150 : 220 }
         className='sider'
         theme='light'
         collapsible
@@ -96,7 +100,7 @@ export function DdbSider () {
         }}
     >
         <Menu
-            className={`menu ${admin && (dev || test) ? 'module-settings' : ''}`}
+            className={`menu ${admin ? 'module-settings' : ''}`}
             mode='inline'
             theme='light'
             selectedKeys={[view]}
@@ -120,11 +124,6 @@ export function DdbSider () {
                     icon: <MenuIcon view='overview' />,
                     label: node_type === NodeType.single ? t('单机总览') : t('集群总览'),
                 }] : [ ],
-                ... !test && node_type === NodeType.controller ? [{
-                    key: 'overview-old',
-                    icon: <MenuIcon view='overview' />,
-                    label: t('集群总览'),
-                }] : [ ],
                 ...admin && node_type === NodeType.controller ? [{
                     key: 'config',
                     icon: <MenuIcon view='config'/>,
@@ -135,7 +134,7 @@ export function DdbSider () {
                     icon: <MenuIcon view='shell' />,
                     label: t('交互编程'),
                 },
-                ... (language === 'zh' && !v1 ) ? [ {
+                ... !v1 ? [ {
                     key: 'dashboard',
                     icon: <MenuIcon view='dashboard' />,
                     label: t('数据面板'),
@@ -194,17 +193,29 @@ export function DdbSider () {
                     icon: <MenuIcon view='factor' />,
                     label: <Link target='_blank' href={factor_href}>{t('因子平台')}</Link>
                 }] : [ ],
+                {
+                    key: 'finance-guide',
+                    label: t('金融库表向导'),
+                    title: t('金融库表向导'),
+                    icon: <MenuIcon view='finance-guide'/>
+                },
+                {
+                    key: 'iot-guide',
+                    label: t('物联网库表向导'),
+                    title: t('物联网库表向导'),
+                    icon: <MenuIcon view='iot-guide'/>
+                },
                 ... dev || test ? [
                     {
                         key: 'test',
                         icon: <ExperimentOutlined className='icon-menu' />,
                         label: '测试模块'
                 }] : [ ],
-                ... admin && (dev || test) ? [
+                ... admin ? [
                     {
                         key: 'settings',
                         icon: <SettingOutlined  className='icon-menu' />,
-                        label: '功能设置'
+                        label: t('功能设置')
                 }] : [ ],
             ].filter(item => model.is_module_visible(item.key))}
         />

@@ -1,6 +1,10 @@
 import { useState } from 'react'
 import { BarChartOutlined, BarsOutlined, BoxPlotOutlined, DoubleLeftOutlined, DoubleRightOutlined, FileTextOutlined, FundOutlined, HeatMapOutlined, LineChartOutlined, PieChartOutlined, TableOutlined, CodeOutlined, CompassOutlined, FunctionOutlined, DotChartOutlined,  RadarChartOutlined, WindowsOutlined, GoldOutlined } from '@ant-design/icons'
 
+import { language } from 'xshell/i18n/instance.js'
+
+import cn from 'classnames'
+
 import { t } from '../../i18n/index.js'
 
 import { WidgetType } from './model.js'
@@ -29,7 +33,12 @@ const icons = {
 
 export function Sider ({ visible }: { visible: boolean }) {
     const [collapsed, set_collapsed] = useState(false)
-    return <div className={`sider ${collapsed ? 'collapsed' : ''} ${visible ? '' : 'hidden'}`}>
+    return <div 
+        className={cn('sider', language, {
+            collapsed,
+            hidden: !visible,
+        })}
+    >
         <div className='graph-items'>
             {Object.entries(WidgetType).map(([key, value]) =>
                 <div
@@ -41,7 +50,7 @@ export function Sider ({ visible }: { visible: boolean }) {
                     title={t(value)}
                 >
                     {icons[value]}
-                    <span className='name'>{collapsed ? '' : t(value)}</span>
+                    <div className='name'>{collapsed ? '' : t(value)}</div>
                 </div>)}
         </div>
         <div className='collapser' onClick={() => { set_collapsed(!collapsed) }}>{

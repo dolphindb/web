@@ -48,7 +48,7 @@ export function VariableSetting () {
         <Form.Item name='with_search_btn' label={t('查询按钮')} initialValue={false} tooltip={t('不展示查询按钮的情况，表单更新即会进行查询，在变量设置较多的情况下，建议使用查询按钮，点击之后再运行数据源代码')}>
             <BoolRadioGroup />
         </Form.Item>
-        <Form.Item name='search_btn_label' label={t('按钮文案')} initialValue='查询'>
+        <Form.Item name='search_btn_label' label={t('按钮文案')} initialValue={t('查询')}>
             <Input placeholder={t('请输入')} />
         </Form.Item>
     </div>

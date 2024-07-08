@@ -25,8 +25,7 @@ import {
 const save_confirm_config = {
     cancelText: t('不保存'),
     okText: t('保存'),
-    style: { top: '250px' },
-    maskStyle: { backgroundColor: 'rgba(0,0,0,.2)' },
+    styles: { top: '250px', mask: { backgroundColor: 'rgba(0,0,0,.2)' } },
     title: t('此变量存在未保存的更改。你想保存吗？'),   
 }
 
@@ -38,6 +37,7 @@ export function VariableConfig () {
     const { config } = dashboard.use(['config'])
      
     const [current_variable, set_current_variable] = useState(null)
+    const [loading, set_loading] = useState(false)
     
     const no_save_flag = useRef(false)
     
@@ -54,9 +54,9 @@ export function VariableConfig () {
     }, [ ])
     
     const change_current_variable_property = useCallback(
-        (key: string, value: VariablePropertyType, save_confirm = true) => {
+        (keys: string[], values: VariablePropertyType[], save_confirm = true) => {
             set_current_variable((pre: Variable) => {
-                pre[key] = value
+                keys.forEach((key, index) => { pre[key] = values[index] })
                 return cloneDeep(pre)
             })
             if (save_confirm)
@@ -69,16 +69,18 @@ export function VariableConfig () {
     }, [current_variable])
     
     const handle_close = useCallback(async () => {
+        if (loading)
+            return
         if (no_save_flag.current && await modal.confirm(save_confirm_config) ) {
             await handle_save()
             no_save_flag.current = false
         }    
         close()
-    }, [no_save_flag.current, handle_save])
+    }, [no_save_flag.current, handle_save, loading])
     
     return <>
         <Button
-            icon={<ToolOutlined className='variable-config-trigger-navigation-icon' />}
+            icon={<ToolOutlined className='variable-trigge' />}
             onClick={open}
         >
             {t('变量')}
@@ -100,6 +102,7 @@ export function VariableConfig () {
                     <Button 
                         key='save' 
                         type='primary' 
+                        disabled={loading}
                         onClick={async () => {
                             if (current_variable)
                                 await handle_save()
@@ -107,7 +110,7 @@ export function VariableConfig () {
                     }>
                         {t('保存')}
                     </Button>,
-                    <Button key='close' onClick={handle_close}>
+                    <Button key='close' disabled={loading} onClick={handle_close}>
                         {t('关闭')}
                     </Button>,
                 ]
@@ -118,6 +121,7 @@ export function VariableConfig () {
             <div className='variable-config-main'>
                 <VariableList 
                     current_variable={current_variable}
+                    loading={loading}
                     no_save_flag={no_save_flag}
                     save_confirm={() => modal.confirm(save_confirm_config) }
                     handle_save={handle_save}
@@ -128,6 +132,8 @@ export function VariableConfig () {
                     <div className='config-right'>
                         <VariableEditor
                             current_variable={current_variable}
+                            loading={loading}
+                            set_loading={set_loading}
                             change_no_save_flag={(value: boolean) => no_save_flag.current = value}
                             change_current_variable_property={change_current_variable_property}
                         />

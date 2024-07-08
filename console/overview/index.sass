@@ -1,43 +1,74 @@
 .overview
-    padding: 0
+    padding: unset !important
+    
     display: flex
     flex-direction: column
+    
     .header-bar
         position: sticky
         top: 0
-        z-index: 1
-        width: 100%
-        padding-top: 10px
-        height: 60px
-        box-shadow:0 2px 8px #f9f5ff
         
-    .actions
+        z-index: 1
+        
+        padding: 10px 20px
+        
+        width: 100%
+        height: 60px
+        
+        box-shadow: 0 1px 3px #f0eafa
+        
         display: flex
-        justify-content: space-between
+        
         .operations, .configs
             display: flex
             justify-content: center
             align-items: center
-            gap: 15px
-            .icon-area,.icon-expand-area,.icon-collapse-area
+            gap: 12px
+            
+            .refresh
+                .text
+                    margin-top: 3px
+            
+            .icon-area, .icon-expand-area, .icon-collapse-area
                 width: 80px
                 height: 40px
-                box-shadow: 0px 2px 10px 3px rgba(0, 0, 0, 0.0710637)
                 display: flex
                 align-items: center
                 justify-content: center
+                // border: 1px solid #d8e7ff
+                
                 button
                     width: 80px
                     height: 40px
                 
-            .icon-expand-area,.icon-collapse-area
+            .icon-expand-area, .icon-collapse-area
                 width: 100px
                 button
                     width: 100px
                     height: 40px
             
+            .icon-expand-area.en, .icon-collapse-area.en
+                width: 130px
+                height: 40px
+                display: flex
+                align-items: center
+                justify-content: center
+                button
+                    width: 120px
+                    height: 40px
+            
             .icon-expand-area
-                margin-left: 25px
+                margin-left: 40px
+            
+            .icon-area.en
+                width: 100px
+                height: 40px
+                display: flex
+                align-items: center
+                justify-content: center
+                button
+                    width: 100px
+                    height: 40px
             
             .icon-refresh
                 width: 14px
@@ -60,53 +91,40 @@
                 
             .blue-icon
                 color: #234883  
-                
-            .icon-area-en
-                width: 100px
-                height: 40px
-                box-shadow: 0px 2px 10px 3px rgba(0, 0, 0, 0.0710637)
-                display: flex
-                align-items: center
-                justify-content: center
-                button
-                    width: 100px
-                    height: 40px
-
-            .icon-expand-area-en,.icon-collapse-area-en
-                width: 130px
-                height: 40px
-                box-shadow: 0px 2px 10px 3px rgba(0, 0, 0, 0.0710637)
-                display: flex
-                align-items: center
-                justify-content: center
-                button
-                    width: 120px
-                    height: 40px
-            
-            .icon-expand-area
-                margin-left: 25px
+        
+        .padding
+            flex: 1
+    
     
     .content
+        padding: 0px 20px
+        
         .nodes-header
             display: flex
             align-items: center
-            margin: 21px 0
-            font-weight: 600
+            
+            margin: 20px 0
+            
+            font-weight: bold
             font-size: 16px
+            
             color: #666666
-            .nodes-selectAll
+            
+            .nodes-select-all
                 zoom: 100%
                 margin: 0px 10px 0 30px
                 padding-top: 2px
-                .text-selectAll
+                
+                .text-select-all
                     font-size: 14px
-                    font-weight: 400
+                    font-weight: normal
+                
             .controller-site
                 display: flex
                 // align-items: center
                 padding-top: 4px
                 margin-left: 15px
-                      
+        
         .node
             box-shadow: 0px 2px 10px rgba(51, 51, 51, 0.08)
             margin-bottom: 20px
@@ -322,14 +340,17 @@
             justify-content: end
             padding: 0 19px 13px 0
             color:#999
+            
             .node-version
                 flex-shrink: 0
-                margin-left: 30px 
+                margin-left: 30px
+        
         .node-footer-fold
             display: none    
     
     .single-node-content
         margin-top: 15px
+    
     .node-site
         margin: 0 15px
         font-weight: 500
@@ -341,15 +362,24 @@
             margin-right: 10px 
         a      
             color: #515151
+            
             &:hover
                 text-decoration: underline
+        
         .control-disable
             cursor: not-allowed
+            
             .disable-link
                 pointer-events: none
-                
-            
-            
+
+    .overview-table
+        padding: 20px
+        .ant-table-cell
+            padding: 8px !important
+        .ant-table-thead
+            .ant-table-cell
+                white-space: nowrap
+
 .nodes-modal, .controller-modal, .datanode-modal
     iframe
         border: none
@@ -357,7 +387,8 @@
         height: 80vh
         
         width: 100%
-    
+
+
 .ant-layout,.ant-layout-header
     background-color: #fff
     padding: 0

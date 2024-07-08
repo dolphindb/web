@@ -17,11 +17,15 @@ export type ExportVariable = {
     
     mode: VariableMode
     
+    code: string
+    
     deps: string[]
     
     value: string
     
     options: OptionType[] 
+    
+    select_key: string | string[]
 }
 
 export class Variable  {
@@ -33,12 +37,17 @@ export class Variable  {
     
     mode = VariableMode.SELECT
     
+    code = ''
+    
     deps: Set<string>
     
     value = ''
     
-    /** select 模式专用，可选的key*/
+    /** select 模式专用，可选的选项*/
     options: OptionType[] = [ ]
+    
+    /** select 模式专用，选中的 key，3.0.1.0 版本新增 */
+    select_key: string | string[] = ''
     
     
     constructor (id: string, name: string, display_name: string, deps = new Set<string>()) {
@@ -55,7 +64,7 @@ export class Variables extends Model<Variables> {
 
 export type VariablePropertyType = string | string[] | OptionType[]
 
-
+// 需求：label 不能重复，编辑或新增时有重复则覆盖原有的 value
 export interface OptionType {
     label: string
     value: string
@@ -77,10 +86,32 @@ export function find_variable_by_name (variable_name: string): Variable {
 }
 
 
+export function find_value (variable: Variable, key: string | string[]): string {
+    function find_value_by_key (key: string) {
+        return variable.options.find(option => option.key === key).value
+    }
+    
+    return key?.length
+        ? ((typeof key === 'string') ? find_value_by_key(key) : JSON.stringify(key.map(key_item => find_value_by_key(key_item))))
+        : ''
+}
+
+
 export async function update_variable_value (change_variables: {})  {
     const data_sources = new Set<string>()
     Object.entries(change_variables).forEach(([variable_id, value]) => { 
-        variables.set({ [variable_id]: { ...variables[variable_id], value } })
+        const variable = variables[variable_id]
+        
+        variables.set({ [variable_id]: { ...variable, 
+            ...(variable.mode === VariableMode.MULTI_SELECT || variable.mode === VariableMode.SELECT)
+            ? {
+                value: find_value(variable, value as string | string[]),
+                select_key: value
+            }
+            : {
+                value
+            },
+        } })
         variables[variable_id].deps.forEach((data_source: string) => data_sources.add(data_source))
     })
     
@@ -93,7 +124,7 @@ export async function update_variable_value (change_variables: {})  {
 export function get_variable_value (variable_name: string): string {
     const variable = find_variable_by_name(variable_name)
     if (variable) 
-        return variable.mode === 'multi_select' ? safe_json_parse(variable.value) : variable.value
+        return (variable.mode === 'multi_select' ? safe_json_parse(variable.value) : variable.value) || ''
     else
         throw new Error(`${t('变量')} ${variable_name} ${t('不存在')}`)
 }
@@ -101,14 +132,33 @@ export function get_variable_value (variable_name: string): string {
 
 
 export async function save_variable ( new_variable: Variable, is_import = false) {
-    const id = new_variable.id
+    const { id, mode, value, select_key, options } = new_variable
+    
+    const is_select = mode === VariableMode.MULTI_SELECT || mode === VariableMode.SELECT
+    
+    if (!is_import && is_select)
+        new_variable.code = dashboard.variable_editor?.getValue()
+    
+    if (!is_select)
+        new_variable.options = [ ]
+    
+    // 此处兼容 3.0.1.0 之前的旧 dashboard 配置
+    if (is_select && is_import && value && !select_key.length) 
+        switch (mode) {
+            case VariableMode.SELECT:
+                new_variable.select_key = [options[options.findIndex(option => option.value === value)].key]
+                break
+            case VariableMode.MULTI_SELECT:
+                new_variable.select_key = safe_json_parse(value).map(value_item => options[options.findIndex(option => option.value === value_item)].key)
+                break
+        }
     
     variables.set({ [id]: { ...new_variable, deps: variables[id].deps } })
     
     if (!is_import) {
         for (let source_id of variables[id].deps)
             await execute(source_id)
-        dashboard.message.success(`${new_variable.name} ${('保存成功！')}`)
+        dashboard.message.success(`${new_variable.name} ${t('保存成功')}`)
     }
 }
 
@@ -223,10 +273,11 @@ export async function import_variables (_variables: ExportVariable[]) {
     tmp_deps.clear()
     
     for (let variable of _variables) {
-        const import_variable = new Variable(variable.id, variable.name, variable.display_name)
+        const { id, name, display_name } = variable
+        const import_variable = new Variable(id, name, display_name)
         Object.assign(import_variable, variable, { deps: import_variable.deps })
-        variables[variable.id] = import_variable
-        variables.variable_infos.push({ id: variable.id, name: variable.name })
+        variables[id] = import_variable
+        variables.variable_infos.push({ id, name })
         await save_variable(import_variable, true)
     }
     return variables.variable_infos.map(variable_info => variables[variable_info.id])

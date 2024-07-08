@@ -13,6 +13,7 @@ import { create_variable, delete_variable, rename_variable, type Variable, type 
 interface PropsType {
     current_variable: Variable
     no_save_flag: MutableRefObject<boolean>
+    loading: boolean
     save_confirm: () => {
         destroy: () => void
         update: (configUpdate: any) => void
@@ -21,7 +22,7 @@ interface PropsType {
     }
     handle_save: () => Promise<void>
     change_current_variable: (key: string) => void
-    change_current_variable_property: (key: string, value: VariablePropertyType, save_confirm?: boolean) => void
+    change_current_variable_property: (key: string[], value: VariablePropertyType[], save_confirm?: boolean) => void
 }
 
 interface MenuItemType {
@@ -33,6 +34,7 @@ interface MenuItemType {
 export function VariableList ({
     current_variable,
     no_save_flag,
+    loading,
     save_confirm,
     handle_save,
     change_current_variable,
@@ -97,7 +99,7 @@ export function VariableList ({
             let new_name = event.target.value
             try {
                 rename_variable(select_key, new_name)
-                change_current_variable_property('name', new_name, old_name !== new_name)
+                change_current_variable_property(['name'], [new_name], old_name !== new_name)
             } catch (error) {
                 dashboard.message.error(error.message)
                 new_name = old_name
@@ -149,33 +151,39 @@ export function VariableList ({
                     onChange={event => { set_new_name(event.target.value) }}
                 />
             </Modal>
-            <div className='config-variable-list'>
-                <div className='variable-list-top'>
+            <div className='variable-list'>
+                <div className='top'>
                     <div
-                        className='variable-list-top-item'
+                        className='top-item'
                         onClick={async () => {
+                            if (loading)
+                                return
                             if (no_save_flag.current && (await save_confirm()))
                                 await handle_save()
                             no_save_flag.current = false
                             add_open()
                         }}
                     >
-                        <FileOutlined className='variable-list-top-item-icon' />
+                        <FileOutlined className='top-item-icon' />
                         {t('新建')}
                     </div>
                     <div
-                        className='variable-list-top-item'
+                        className='top-item'
                         onClick={() => {
+                            if (loading)
+                                return
                             if (current_variable)
                                 rename_variable_handler(menu_items, current_select, current_variable.name)
                         }}
                     >
-                        <EditOutlined className='variable-list-top-item-icon' />
+                        <EditOutlined className='top-item-icon' />
                         {t('重命名')}
                     </div>
                     <div
-                        className='variable-list-top-item'
+                        className='top-item'
                         onClick={() => {
+                            if (loading)
+                                return
                             const delete_index = delete_variable(current_variable.id)
                             if (delete_index >= 0) {
                                 menu_items.splice(delete_index, 1)
@@ -190,12 +198,14 @@ export function VariableList ({
                             }
                         }}
                     >
-                        <DeleteOutlined className='variable-list-top-item-icon' />
+                        <DeleteOutlined className='top-item-icon' />
                         {t('删除')}
                     </div>
                     <div
-                        className='variable-list-top-item'
+                        className='top-item'
                         onClick={async () => {
+                            if (loading)
+                                return
                             if (!current_variable)
                                 return
                             if (no_save_flag.current && (await save_confirm()))
@@ -204,11 +214,11 @@ export function VariableList ({
                             copy_variables([current_variable.id])
                         }}
                     >
-                        <CopyOutlined className='variable-list-top-item-icon' />
+                        <CopyOutlined className='top-item-icon' />
                         {t('复制')}
                     </div>
                 </div>
-                { current_variable && <div className='variable-list-bottom'>
+                { current_variable && <div className='bottom'>
                     {variable_infos.length && 
                         <Tree
                             ref={tree_ref}
@@ -216,8 +226,10 @@ export function VariableList ({
                             height={450}
                             blockNode
                             selectedKeys={[current_select]}
-                            className='variable-list-bottom-menu'
+                            className='bottom-menu'
                             onSelect={async key => {
+                                if (loading)
+                                    return
                                 if (key.length) {
                                     if (no_save_flag.current && (await save_confirm()))
                                         await handle_save()

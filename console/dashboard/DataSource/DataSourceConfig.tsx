@@ -37,8 +37,7 @@ import {
 const save_confirm_config = {
     cancelText: t('不保存'),
     okText: t('保存'),
-    style: { top: '250px' },
-    maskStyle: { backgroundColor: 'rgba(0,0,0,.2)' },
+    styles: { top: '250px', mask: { backgroundColor: 'rgba(0,0,0,.2)' } },
     title: t('此数据源存在未保存的更改。你想保存吗？'),   
 }
 
@@ -164,6 +163,10 @@ export function DataSourceConfig (props: IProps, ref) {
                     <Button
                         key='save'
                         type='primary'
+                        disabled={
+                            (widget?.type === WidgetChartType.HEATMAP && current_data_source?.type !== DdbForm.matrix) ||
+                            (widget?.type !== WidgetChartType.HEATMAP && current_data_source?.type === DdbForm.matrix)
+                        }
                         loading={loading === 'save'}
                         onClick={async () => {
                             try {
@@ -180,8 +183,8 @@ export function DataSourceConfig (props: IProps, ref) {
                                         await subscribe_data_source(widget, id)
                                     dashboard.update_widget({ ...widget, source_id: selected_data_sources })
                                     set_show_preview(false)
+                                    close()
                                 }
-                                close()
                             } finally {
                                 set_loading('')
                             }

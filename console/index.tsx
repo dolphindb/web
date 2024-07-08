@@ -21,6 +21,7 @@ import { SWRConfig } from 'swr'
 
 import dayjs from 'dayjs'
 
+
 import { language } from '../i18n/index.js'
 
 import 'dayjs/locale/zh-cn'
@@ -34,7 +35,6 @@ import { GlobalErrorBoundary } from './components/GlobalErrorBoundary.js'
 
 import { Login } from './login.js'
 import { Overview } from './overview/index.js'
-import { OverviewOld } from './overview/old.js'
 import { Config } from './config/index.js'
 import { Shell } from './shell/index.js'
 import { Test } from './test/index.js'
@@ -46,6 +46,8 @@ import { User, Group } from './access/index.js'
 import { Settings } from './settings/index.js'
 import { Connections } from './data-collection/Connection.js'
 import { ParserTemplates } from './data-collection/ParserTemplates.js'
+import { CreateGuide } from './guide/iot-guide/index.js'
+import { FinanceGuide } from './guide/finance-guide/index.js'
 
 
 
@@ -75,7 +77,6 @@ function DolphinDB () {
                     </App>
                 </NiceModal.Provider>
             </ProConfigProvider>
-            
         </SWRConfig>
     </ConfigProvider>
 }
@@ -118,7 +119,7 @@ function MainLayout () {
     }, [ ])
     
     if (!inited)
-        return null
+        return <GlobalErrorBoundary />
     
     return <Layout className='root-layout'>
         { header && <Layout.Header className='ddb-header'>
@@ -139,7 +140,6 @@ function MainLayout () {
 const views = {
     login: Login,
     overview: Overview,
-    'overview-old': OverviewOld,
     config: Config,
     shell: Shell,
     test: Test,
@@ -151,7 +151,9 @@ const views = {
     group: Group,
     settings: Settings,
     connection: Connections,
-    'parser-template': ParserTemplates
+    'parser-template': ParserTemplates,
+    'iot-guide': CreateGuide,
+    'finance-guide': FinanceGuide,
 }
 
 

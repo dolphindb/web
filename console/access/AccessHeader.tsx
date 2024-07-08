@@ -4,12 +4,13 @@ import {
     EyeOutlined,
     PlusOutlined,
     SearchOutlined,
-    SettingOutlined } from '@ant-design/icons'
+    SettingOutlined
+} from '@ant-design/icons'
 import { Button, Input } from 'antd'
 
 import { t } from '../../i18n/index.js'
 
-import { TABLE_NAMES } from './constant.js'
+import { TABLE_NAMES } from './constants.js'
 import { access } from './model.js'
 
 export function AccessHeader ({
@@ -32,60 +33,60 @@ export function AccessHeader ({
     const { current } = access.use(['current', 'users', 'groups'])
     
     return <div className='actions'>
+        <Button
+            type='default'
+            icon={<ArrowLeftOutlined />}
+            onClick={() => {
+                access.set({ current: { role: current.role } })
+            }}
+        >
+            {t('返回')}
+        </Button>
+        
+        {preview ? (
             <Button
-                type='default'
-                icon={<ArrowLeftOutlined />}
+                type='primary'
+                icon={<SettingOutlined />}
                 onClick={() => {
-                    access.set({ current: null })
+                    access.set({ current: { ...current, view: 'manage' } })
                 }}
             >
-                {t('返回')}
+                {t('设置权限')}
             </Button>
-            
-            {preview ? (
+        ) : (
+            <>
+                <Button type='primary' icon={<PlusOutlined />} onClick={add_open}>
+                    {t('新增权限')}
+                </Button>
                 <Button
-                    type='primary'
-                    icon={<SettingOutlined />}
+                    type='default'
+                    icon={<EyeOutlined />}
                     onClick={() => {
-                        access.set({ current: { ...access.current, view: 'manage' } })
+                        access.set({ current: { ...current, view: 'preview' } })
                     }}
                 >
-                    {t('设置权限')}
+                    {t('查看权限')}
                 </Button>
-            ) : (
-                <>
-                    <Button type='primary' icon={<PlusOutlined />} onClick={add_open}>
-                        {t('新增权限')}
-                    </Button>
-                    <Button
-                        type='default'
-                        icon={<EyeOutlined />}
-                        onClick={() => {
-                            access.set({ current: { ...current, view: 'preview' } })
-                        }}
-                    >
-                        {t('查看权限')}
-                    </Button>
-                    <Button
-                        danger
-                        icon={<DeleteOutlined />}
-                        onClick={() => {
-                            if (selected_length)
-                                delete_open()
-                        }}
-                    >
-                        {t('批量撤销')}
-                    </Button>
-                </>
-            )}
-            <Input
-                className='search'
-                value={search_key}
-                prefix={<SearchOutlined />}
-                onChange={e => {
-                    set_search_key(e.target.value)
-                }}
-                placeholder={t('请输入想要搜索的{{category}}', { category: TABLE_NAMES[category] })}
-            />
-        </div>
+                <Button
+                    danger
+                    icon={<DeleteOutlined />}
+                    onClick={() => {
+                        if (selected_length)
+                            delete_open()
+                    }}
+                >
+                    {t('批量撤销')}
+                </Button>
+            </>
+        )}
+        <Input
+            className='search'
+            value={search_key}
+            prefix={<SearchOutlined />}
+            onChange={e => {
+                set_search_key(e.target.value)
+            }}
+            placeholder={t('请输入想要搜索的{{category}}', { category: TABLE_NAMES[category] })}
+        />
+    </div>
 }

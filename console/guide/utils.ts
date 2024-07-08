@@ -8,8 +8,11 @@ export async function request<T> (func: string, params: any) {
 
 
 export function check_tb_valid (name: string) { 
-    // 表名不能以数字，. / *这些字符开头，不能有空格
-    if (['.', '*', '/'].includes(name[0]) || /^[0-9]/.test(name) || name.includes(' '))
+    // 仅支持中英文开头
+    if (!/^[a-zA-Z\u4e00-\u9fa5]/.test(name))
+        return false
+    // 仅支持中英文、数字以及下划线
+    if (!/[\u4e00-\u9fa5A-Za-z0-9_]+$/g.test(name))  
         return false
     return true
 }

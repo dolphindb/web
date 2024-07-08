@@ -1,12 +1,14 @@
-import React, { useContext, useEffect, useMemo, useRef, useState } from 'react'
-import { Form, Input, Popconfirm, Table, type  InputRef, Typography, Alert, Button } from 'antd'
+import React, { useContext, useEffect, useRef, useState } from 'react'
+import { Form, Input, Popconfirm, Table, type  InputRef, Typography, Button, Popover } from 'antd'
 import type { FormInstance } from 'antd/es/form'
 import { genid } from 'xshell/utils.browser.js'
 
-import { PlusOutlined } from '@ant-design/icons'
+import { DeleteOutlined, ExclamationCircleOutlined, PlusOutlined } from '@ant-design/icons'
 
 import { t } from '../../../i18n/index.js'
 import { VariableMode } from '../type.js'
+
+import { dashboard } from '../model.js'
 
 import { type Variable, type VariablePropertyType, type OptionType } from './variable'
 
@@ -14,28 +16,140 @@ type EditableTableProps = Parameters<typeof Table>[0]
 
 type ColumnTypes = Exclude<EditableTableProps['columns'], undefined>
 
-interface PropsType {
-    current_variable: Variable
-    change_current_variable_property: (key: string, value: VariablePropertyType, save_confirm?: boolean) => void
-    change_no_save_flag: (value: boolean) => void
-}
-
 const EditableContext = React.createContext<FormInstance<any> | null>(null)
 
 export function OptionList ({ 
     current_variable, 
+    variable_map,
+    update_variable_map,
     change_current_variable_property,
-    change_no_save_flag
-}: PropsType)  
-{
-    let first = useRef(true)
+}: {
+    current_variable: Variable
+    variable_map: Map<string, number>
+    update_variable_map: (options?: OptionType[]) => void
+    change_current_variable_property: (key: string[], value: VariablePropertyType[], save_confirm?: boolean) => void
+})  
+{   
+    function is_disabled (record) {
+        return (current_variable.mode === VariableMode.SELECT && current_variable.select_key === record.key)
+            || (current_variable.mode === VariableMode.MULTI_SELECT && current_variable.select_key?.includes?.(record.key))
+    }    
+    
+    const defaultColumns: (ColumnTypes[number] & { editable?: boolean, dataIndex: string })[] = [
+        {
+            title: <div> 
+                    {t('标签')}                  
+                    <Popover 
+                        content={(
+                            <div>
+                                {t('标签不可重复，重复会自动覆盖')}
+                            </div>
+                        )} 
+                    >
+                        <ExclamationCircleOutlined className='title-icon'/>
+                    </Popover>
+            </div>,
+            dataIndex: 'label',
+            editable: true,
+            width: 300,
+        },
+        {
+            title: t('值'),
+            dataIndex: 'value',
+            editable: true,
+            width: 300
+        },
+        {
+            title: t('操作'),
+            width: 50,
+            dataIndex: 'operation',
+            render: (_, record) => { 
+                return current_variable.options.length >= 1 ? (
+                        <Popconfirm title={t('确定要删除该选项吗？')} onConfirm={() => { handleDelete(record as OptionType) }}>
+                            <Typography.Link
+                                disabled={is_disabled(record)}
+                                type='danger'
+                            >
+                                {t('删除')}
+                            </Typography.Link>
+                        </Popconfirm>
+                ) : null 
+            }
+                   
+        },
+    ]
+    
+    const components = {
+        body: {
+            row: EditableRow,
+            cell: EditableCell,
+        },
+    }
+    
+    const columns = defaultColumns.map(col => {
+        if (!col.editable)
+            return col
+        
+        return {
+        ...col,
+            onCell: (record: OptionType) => {     
+                return {
+                    record,
+                    editable: col.editable && !is_disabled(record),
+                    dataIndex: col.dataIndex,
+                    title: col.title,
+                    handleSave,
+                }
+            },
+        }
+    })
+    
+    function handleDelete (record: OptionType) {
+        const new_options = current_variable.options.filter(item => item.key !== record.key)
+        change_current_variable_property(['options'], [new_options])
+        update_variable_map(new_options)
+    } 
+    
+    function handleAdd () {
+        const id = String(genid())
+        const suffix = id.slice(0, 4)
+        
+        const label = `label ${suffix}`
+        
+        if (variable_map.has(label)) 
+            dashboard.message.error(t('标签已存在，选项添加失败，请重试，必要时请修改现有标签'))
+        else {
+            change_current_variable_property(['options'], [[...current_variable.options, {
+                label,
+                value: `value ${suffix}`,
+                key: id
+            }]])
+            variable_map.set(label, variable_map.size - 1)
+        }
+    } 
+    
+    function handleSave (row: OptionType) {
+        const new_options = [...current_variable.options]
+        const { label, value, key } = row
+        const index = new_options.findIndex(item => key === item.key)
+        const map_index = variable_map.get(label)
+        
+        if (variable_map.has(label) && map_index !== index) {
+            new_options[map_index].value = value
+            new_options.splice(index, 1)
+        }
+        else
+            new_options.splice(index, 1, { ...row })
+        change_current_variable_property(['options'], [new_options])
+        update_variable_map(new_options)
+    }
     
     function EditableRow ({ index, ...props }) {
         const [form] = Form.useForm()
         return <Form form={form} component={false}>
-            <EditableContext.Provider value={form}>
-                <tr {...props} />
-            </EditableContext.Provider>
+                <EditableContext.Provider value={form}>
+                    <tr {...props} />
+                </EditableContext.Provider>
             </Form>
     }
     
@@ -84,7 +198,7 @@ export function OptionList ({
                 rules={[
                     {
                         required: true,
-                        message: `${title} is required.`,
+                        message: t('不能为空'),
                     },
                 ]}
             >
@@ -99,131 +213,37 @@ export function OptionList ({
         return <td {...restProps}>{childNode}</td>
     }
     
-    const [current_options, set_current_options] = useState<OptionType[]>(current_variable.options)
-    
-    const [count, setCount] = useState(current_variable.options.length)
-    
-    useEffect(() => {
-        first.current = true
-        set_current_options(current_variable.options)
-    }, [current_variable.id])
-    
-    useEffect(() => {
-        change_current_variable_property('options', current_options)
-        if (first.current) {
-            change_no_save_flag(false)
-            first.current = false
-        }
-    }, [current_options])
-    
-    function handleDelete (key: string) {
-        const newData = current_options.filter(item => item.key !== key)
-        set_current_options(newData)
-    } 
-    const defaultColumns: (ColumnTypes[number] & { editable?: boolean, dataIndex: string })[] = [
-        {
-            title: t('标签'),
-            dataIndex: 'label',
-            editable: true,
-            width: 300,
-        },
-        {
-            title: t('值'),
-            dataIndex: 'value',
-            editable: true,
-            width: 300
-        },
-        {
-            title: t('操作'),
-            dataIndex: 'operation',
-            render: (_, record) => { 
-                let disabled = false
-                if (current_variable.mode === VariableMode.SELECT && current_variable.value === record.value)
-                    disabled = true
-                else if (current_variable.mode === VariableMode.MULTI_SELECT && JSON.parse(current_variable.value)?.includes?.(record.value))
-                    disabled = true
-                return current_options.length >= 1 ? (
-                        <Popconfirm title={t('确定要删除该选项吗？')} onConfirm={() => { handleDelete(record.key as string) }}>
-                            <Typography.Link
-                                disabled={disabled}
-                                type='danger'
+    return <div className='main-select'>
+                <div className='main-select-top'>
+                    {t('可选项（共{{length}}项）：', { length: current_variable.options.length })}
+                    <div>
+                        <Popconfirm 
+                            title={t('确定要清空所有选项吗？')} 
+                            onConfirm={() => { 
+                                change_current_variable_property(['options', 'value'], [[ ], ''])
+                                variable_map.clear()
+                            }}
+                        >
+                            <Button 
+                                type='link' 
+                                size='small' 
+                                className='main-select-top-btn' 
+                                danger
+                                icon={<DeleteOutlined />}
                             >
-                                {t('删除')}
-                            </Typography.Link>
+                                {t('清空')}
+                            </Button>
                         </Popconfirm>
-                ) : null 
-            }
-                   
-        },
-    ]
-    
-    function handleAdd () {
-        const id = String(genid())
-        const newData: OptionType = {
-            label: `label ${id.slice(0, 4)}`,
-            value: `value ${id.slice(0, 4)}`,
-            key: id
-        }
-        set_current_options([...current_options, newData])
-        setCount(count + 1)
-    } 
-    
-    function handleSave (row: OptionType) {
-        const newData = [...current_options]
-        const index = newData.findIndex(item => row.key === item.key)
-        const item = newData[index]
-        newData.splice(index, 1, {
-            ...item,
-            ...row,
-        })
-        set_current_options(newData)
-    }
-    
-    const components = {
-        body: {
-            row: EditableRow,
-            cell: EditableCell,
-        },
-    }
-    
-    const columns = defaultColumns.map(col => {
-        if (!col.editable)
-            return col
-        
-        return {
-        ...col,
-            onCell: (record: OptionType) => {     
-                // 当前选中变量值无法编辑
-                let disable_editable = false
-                if (current_variable.mode === VariableMode.SELECT && current_variable.value === record.value)
-                    disable_editable = true
-                else if (current_variable.mode === VariableMode.MULTI_SELECT && JSON.parse(current_variable.value)?.includes?.(record.value))
-                    disable_editable = true
-                return {
-                    record,
-                    editable: col.editable && !disable_editable,
-                    dataIndex: col.dataIndex,
-                    title: col.title,
-                    handleSave,
-                }
-            },
-        }
-    })
-    
-    return <div className='variable-editor-main-options'>
-                <div className='variable-editor-main-options-top'>
-                    <div className='variable-editor-main-options-top-lable'>
-                        {t('可选项：')}
+                        <Button type='link' onClick={handleAdd} size='small' icon={<PlusOutlined />}>{t('新增')}</Button>
                     </div>
-                    <Button type='primary' onClick={handleAdd} size='small' icon={<PlusOutlined />}>{t('新增')}</Button>
                 </div>
                 <Table
                     components={components}
                     rowClassName={() => 'editable-row'}
                     bordered
                     size='small'
-                    dataSource={current_options}
-                    pagination={{ pageSize: 6, position: ['bottomCenter'] }}
+                    dataSource={current_variable.options}
+                    pagination={{ pageSize: 5, position: ['bottomCenter'], showSizeChanger: false }}
                     columns={columns as ColumnTypes}
                 />
             </div>

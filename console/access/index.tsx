@@ -32,18 +32,20 @@ function Access ({ role }: { role: 'group' | 'user' }) {
             access.init()
     }, [ ])
     
+    
     useEffect(() => {
         if (current && current.role !== role)
-            access.set({ current: null })
-    }, [ ])
+            access.set({ current: { role } })
+        return () => { access.set({ current: null, inited: false }) }
+    }, [role])
     
     return admin ? (
         current?.view ?
             <AccessView />
-        : role === 'group' ?
-            <GroupList />
-        :
-            <UserList />
+            : role === 'group' ?
+                <GroupList />
+                :
+                <UserList />
     ) :
         <Result status='warning' className='interceptor' title={t('非管理员不能查看权限管理模块。')} />
 }
