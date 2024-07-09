@@ -57,6 +57,9 @@ export function Overview () {
     const [expandedNodes, setExpandedNodes] = useState<DdbNode[]>(nodes.filter(item => (item.name !== model.node.name)))
     const icon_classname = `icon-area ${language}`
     
+    const [startOpen,setStartOpen] = useState(false)
+    const [stopOpen,setStopOpen] = useState(false)
+    
     return <Layout>
         { node_type !== NodeType.single && <Header className='header-bar'>
             <div className='operations'>
@@ -75,6 +78,7 @@ export function Overview () {
                 <div className={icon_classname}>
                     <Tooltip title={selectedNodes.length && !logined ? t('当前用户未登录，请登陆后再进行启停操作。') : ''}>
                         <Popconfirm
+                            open={startOpen}
                             title={t('确认启动以下节点')}
                             disabled={!selectedNodes.filter(node => node.state === DdbNodeState.offline).length || !logined}
                             description={() =>
@@ -89,10 +93,12 @@ export function Overview () {
                             }
                             onConfirm={async () => {
                                 setIsStartLoading(true)
+                                setStartOpen(false)
                                 model.start_nodes(selectedNodes.filter(node => node.state === DdbNodeState.offline))
                                 await delay(5000)
                                 setIsStartLoading(false)
                                 await model.get_cluster_perf(false)
+                                model.message.success(t('启动成功'))
                             }}
                             okText={t('确认')}
                             cancelText={t('取消')}
@@ -102,6 +108,8 @@ export function Overview () {
                                 type='text'
                                 size='large'
                                 block
+                                loading={isStartLoading}
+                                onClick={()=>setStartOpen(true)}
                                 disabled={!selectedNodes.filter(node => node.state === DdbNodeState.offline).length || !logined}
                                 icon={<Icon className={'icon-start' + (!selectedNodes.length || !logined ? ' grey-icon' : ' blue-icon')} component={SvgStart} />}
                             >
@@ -115,6 +123,7 @@ export function Overview () {
                     <Tooltip title={selectedNodes.length && !logined ? t('当前用户未登录，请登陆后再进行启停操作。') : ''}>
                         <Popconfirm
                             title={t('确认停止以下节点')}
+                            open={stopOpen}
                             disabled={!selectedNodes.filter(node => node.state === DdbNodeState.online).length || !logined}
                             description={() =>
                                 selectedNodes.map(
@@ -128,10 +137,12 @@ export function Overview () {
                             }
                             onConfirm={async () => {
                                 setIsStopLoading(true)
+                                setStopOpen(false)
                                 model.stop_nodes(selectedNodes.filter(node => node.state === DdbNodeState.online))
                                 await delay(5000)
                                 setIsStopLoading(false)
                                 await model.get_cluster_perf(false)
+                                model.message.success(t('停止成功'))
                             }}
                             okText={t('确认')}
                             cancelText={t('取消')}
@@ -141,6 +152,8 @@ export function Overview () {
                                 type='text'
                                 size='large'
                                 block
+                                loading={isStopLoading}
+                                onClick={()=>setStopOpen(true)}
                                 disabled={!selectedNodes.filter(node => node.state === DdbNodeState.online).length || !logined}
                                 icon={<Icon className={'icon-stop' + (!selectedNodes.length || !logined ? ' grey-icon' : ' blue-icon')} component={SvgStop} />}
                             >
