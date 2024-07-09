@@ -63,6 +63,7 @@ export function Overview () {
                 <div
                     className={icon_classname}
                     onClick={() => {
+                        setSelectedNodeNames([ ])
                         model.get_cluster_perf(true)
                     }}
                 >

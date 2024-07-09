@@ -8,12 +8,12 @@ import { NodeType, model, type DdbNode } from '../model.js'
 
 import { t } from '../../i18n/index.js'
 
-import { generate_node_link } from './utils.js'
+import { generate_node_link, ns_2_ms } from './utils.js'
 
 const node_state_icons = [
     <MinusCircleOutlined style={{ color: 'red' }} />,
     <CheckCircleOutlined style={{ color: 'green' }} />,
-    <PauseCircleOutlined style={{ color: 'yellow' }} />
+    <PauseCircleOutlined style={{ color: 'orange' }} />
 ]
 
 const node_mode_lables = [t('数据节点'), t('代理节点'), t('控制节点'), t('单机节点'), t('计算节点')]
@@ -107,7 +107,7 @@ export function OverviewTable ({
             render: state => node_state_icons[Number(state)]
         },
         {
-            title: t('最大连接'),
+            title: t('连接数'),
             dataIndex: 'connectionNum',
             sorter: (a, b) => Number(a.connectionNum - b.connectionNum)
         },
@@ -133,6 +133,36 @@ export function OverviewTable ({
             title: t('CPU 平均负载'),
             dataIndex: 'avgLoad',
             sorter: (a, b) => a.avgLoad - b.avgLoad
+        },
+        {
+            title: t('前 10 查询耗时中位数'),
+            dataIndex: 'medLast10QueryTime',
+            render: (medLast10QueryTime: bigint) => (ns_2_ms(Number(medLast10QueryTime))).toFixed(2) + ' ms',
+            sorter: (a, b) => Number(a.medLast10QueryTime - b.medLast10QueryTime)
+        },
+        {
+            title: t('前 10 查询耗时最大值'),
+            dataIndex: 'maxLast10QueryTime',
+            render: (maxLast10QueryTime: bigint) => (ns_2_ms(Number(maxLast10QueryTime))).toFixed(2) + ' ms',
+            sorter: (a, b) => Number(a.maxLast10QueryTime - b.maxLast10QueryTime)
+        },
+        {
+            title: t('前 100 查询耗时中位数'),
+            dataIndex: 'medLast100QueryTime',
+            render: (medLast100QueryTime: bigint) => (ns_2_ms(Number(medLast100QueryTime))).toFixed(2) + ' ms',
+            sorter: (a, b) => Number(a.medLast100QueryTime - b.medLast100QueryTime)
+        },
+        {
+            title: t('前 100 查询耗时最大值'),
+            dataIndex: 'maxLast100QueryTime',
+            render: (maxLast100QueryTime: bigint) => (ns_2_ms(Number(maxLast100QueryTime))).toFixed(2) + ' ms',
+            sorter: (a, b) => Number(a.maxLast100QueryTime - b.maxLast100QueryTime)
+        },
+        {
+            title: t('当前查询耗时最大值'),
+            dataIndex: 'maxRunningQueryTime',
+            render: (maxRunningQueryTime: bigint) => (ns_2_ms(Number(maxRunningQueryTime))).toFixed(2) + ' ms',
+            sorter: (a, b) => Number(a.maxRunningQueryTime - b.maxRunningQueryTime)
         },
         {
             title: t('运行作业'),
@@ -244,13 +274,13 @@ export function OverviewTable ({
         {
             title: t('前一批消息延时'),
             dataIndex: 'lastMsgLatency',
-            render: (lastMsgLatency: bigint) => Number(lastMsgLatency).toFixed(2) + ' ms',
+            render: (lastMsgLatency: bigint) => (ns_2_ms(Number(lastMsgLatency))).toFixed(2) + ' ms',
             sorter: (a, b) => Number(a.lastMsgLatency - b.lastMsgLatency)
         },
         {
             title: t('所有消息平均延时'),
             dataIndex: 'cumMsgLatency',
-            render: (cumMsgLatency: bigint) => Number(cumMsgLatency).toFixed(2) + ' ms',
+            render: (cumMsgLatency: bigint) => (ns_2_ms(Number(cumMsgLatency))).toFixed(2) + ' ms',
             sorter: (a, b) => Number(a.cumMsgLatency - b.cumMsgLatency)
         }
     ], [ ])
