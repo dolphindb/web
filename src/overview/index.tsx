@@ -92,14 +92,19 @@ export function Overview () {
                                 )
                             }
                             onConfirm={async () => {
+                               try {
                                 setIsStartLoading(true)
                                 setStartOpen(false)
-                                model.start_nodes(selectedNodes.filter(node => node.state === DdbNodeState.offline))
+                                await model.start_nodes(selectedNodes.filter(node => node.state === DdbNodeState.offline))
                                 await delay(5000)
-                                setIsStartLoading(false)
                                 await model.get_cluster_perf(false)
                                 model.message.success(t('启动成功'))
+                                setSelectedNodeNames([])
+                               } finally{
+                                setIsStartLoading(false)
+                               }
                             }}
+                            onCancel={()=>setStartOpen(false)}
                             okText={t('确认')}
                             cancelText={t('取消')}
                             okButtonProps={{ disabled: selectedNodes.filter(node => node.state === DdbNodeState.offline).length === 0, loading: isStartLoading }}
@@ -136,14 +141,19 @@ export function Overview () {
                                 )
                             }
                             onConfirm={async () => {
+                               try {
                                 setIsStopLoading(true)
                                 setStopOpen(false)
-                                model.stop_nodes(selectedNodes.filter(node => node.state === DdbNodeState.online))
+                                await model.stop_nodes(selectedNodes.filter(node => node.state === DdbNodeState.online))
                                 await delay(5000)
-                                setIsStopLoading(false)
                                 await model.get_cluster_perf(false)
                                 model.message.success(t('停止成功'))
+                                setSelectedNodeNames([])
+                               } finally {
+                                setIsStopLoading(false)
+                               }
                             }}
+                            onCancel={()=>setStopOpen(false)}
                             okText={t('确认')}
                             cancelText={t('取消')}
                             okButtonProps={{ disabled: selectedNodes.filter(node => node.state === DdbNodeState.online).length === 0, loading: isStopLoading }}
