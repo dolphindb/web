@@ -302,7 +302,7 @@ export function OverviewTable ({
                 // agent node 只展示前两列
                 columns={columns
                     .map((col, idx) =>
-                        idx < 2
+                        idx < 4
                             ? col
                             : {
                                   ...col,
