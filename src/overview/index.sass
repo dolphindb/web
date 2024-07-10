@@ -380,6 +380,10 @@
             .ant-table-cell
                 white-space: nowrap
 
+                
+.table-dropdown .ant-dropdown-menu .ant-dropdown-menu-item:hover
+    background-color: unset    
+
 .nodes-modal, .controller-modal, .datanode-modal
     iframe
         border: none
@@ -388,6 +392,12 @@
         
         width: 100%
 
+.col-selection-modal
+    width: 800px !important
+    .col-selection-content
+        display: grid
+        grid-template-columns: repeat(2, 360px)
+        row-gap: 8px
 
 .ant-layout,.ant-layout-header
     background-color: #fff

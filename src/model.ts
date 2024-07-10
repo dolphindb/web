@@ -36,6 +36,7 @@ export const storage_keys = {
     sql: 'ddb.sql',
     dashboard_autosave: 'ddb.dashboard.autosave',
     overview_display_mode: 'ddb.overview.display_mode',
+    overview_display_cols: 'ddb.overview.display_cols'
 } as const
 
 const json_error_pattern = /^{.*"code": "(.*?)".*}$/

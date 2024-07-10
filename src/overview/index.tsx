@@ -57,8 +57,8 @@ export function Overview () {
     const [expandedNodes, setExpandedNodes] = useState<DdbNode[]>(nodes.filter(item => (item.name !== model.node.name)))
     const icon_classname = `icon-area ${language}`
     
-    const [startOpen,setStartOpen] = useState(false)
-    const [stopOpen,setStopOpen] = useState(false)
+    const [startOpen, setStartOpen] = useState(false)
+    const [stopOpen, setStopOpen] = useState(false)
     
     return <Layout>
         { node_type !== NodeType.single && <Header className='header-bar'>
@@ -99,12 +99,12 @@ export function Overview () {
                                 await delay(5000)
                                 await model.get_cluster_perf(false)
                                 model.message.success(t('启动成功'))
-                                setSelectedNodeNames([])
-                               } finally{
+                                setSelectedNodeNames([ ])
+                               } finally {
                                 setIsStartLoading(false)
                                }
                             }}
-                            onCancel={()=>setStartOpen(false)}
+                            onCancel={() => { setStartOpen(false) }}
                             okText={t('确认')}
                             cancelText={t('取消')}
                             okButtonProps={{ disabled: selectedNodes.filter(node => node.state === DdbNodeState.offline).length === 0, loading: isStartLoading }}
@@ -114,7 +114,7 @@ export function Overview () {
                                 size='large'
                                 block
                                 loading={isStartLoading}
-                                onClick={()=>setStartOpen(true)}
+                                onClick={() => { setStartOpen(true) }}
                                 disabled={!selectedNodes.filter(node => node.state === DdbNodeState.offline).length || !logined}
                                 icon={<Icon className={'icon-start' + (!selectedNodes.length || !logined ? ' grey-icon' : ' blue-icon')} component={SvgStart} />}
                             >
@@ -148,12 +148,12 @@ export function Overview () {
                                 await delay(5000)
                                 await model.get_cluster_perf(false)
                                 model.message.success(t('停止成功'))
-                                setSelectedNodeNames([])
+                                setSelectedNodeNames([ ])
                                } finally {
                                 setIsStopLoading(false)
                                }
                             }}
-                            onCancel={()=>setStopOpen(false)}
+                            onCancel={() => { setStopOpen(false) }}
                             okText={t('确认')}
                             cancelText={t('取消')}
                             okButtonProps={{ disabled: selectedNodes.filter(node => node.state === DdbNodeState.online).length === 0, loading: isStopLoading }}
@@ -163,7 +163,7 @@ export function Overview () {
                                 size='large'
                                 block
                                 loading={isStopLoading}
-                                onClick={()=>setStopOpen(true)}
+                                onClick={() => { setStopOpen(true) }}
                                 disabled={!selectedNodes.filter(node => node.state === DdbNodeState.online).length || !logined}
                                 icon={<Icon className={'icon-stop' + (!selectedNodes.length || !logined ? ' grey-icon' : ' blue-icon')} component={SvgStop} />}
                             >
