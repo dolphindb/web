@@ -1,10 +1,14 @@
-import { Button, Input, Space, Table, Tooltip, type InputRef, type TableColumnsType } from 'antd'
+import { Button, Checkbox, Col, Dropdown, Input, Modal, Radio, Row, Space, Table, Tooltip, type InputRef, type MenuProps, type TableColumnsType } from 'antd'
 
-import { CheckCircleOutlined, MinusCircleOutlined, PauseCircleOutlined, SearchOutlined } from '@ant-design/icons'
+import { CheckCircleOutlined, MinusCircleOutlined, PauseCircleOutlined, SearchOutlined, SettingOutlined } from '@ant-design/icons'
 
-import { useMemo, useRef, useState } from 'react'
+import { useMemo, useRef, useState, type ReactNode } from 'react'
 
-import { NodeType, model, type DdbNode } from '../model.js'
+import { use_modal } from 'react-object-model/hooks.js'
+
+import type { ColumnType } from 'antd/es/table/interface.js'
+
+import { NodeType, model, storage_keys, type DdbNode } from '../model.js'
 
 import { t } from '../../i18n/index.js'
 
@@ -31,6 +35,8 @@ export function OverviewTable ({
     const [searchText, setSearchText] = useState('')
     
     const searchInput = useRef<InputRef>(null)
+    
+    const { visible, open, close } = use_modal()
     
     function handleSearch (selectedKeys: string[]) {
         setSearchText(selectedKeys[0])
@@ -285,40 +291,68 @@ export function OverviewTable ({
         }
     ], [ ])
     
+    const items: MenuProps['items'] = [
+        {
+          label: <Button icon={<SettingOutlined />} onClick={open} type='text'>Column Selection</Button>,
+          key: 'column',
+        },
+      ]
+      
+    const [displayCols, setDisplayCols] = useState<string[]>(() => 
+        JSON.parse(localStorage.getItem(storage_keys.overview_display_cols)) || columns.map(item => (item as any).dataIndex))
     
-    return <div className='overview-table'>
-            <Table
-                rowSelection={{
-                    selectedRowKeys: selectedNodeNames,
-                    onChange (_, nodes) {
-                        setSelectedNodeNames(nodes.map(node => node.name))
-                    },
-                    getCheckboxProps (record) {
-                        return {
-                            disabled: record.mode === NodeType.controller || record.mode === NodeType.agent
+    const getColName = (col: ColumnType<DdbNode>) => col.dataIndex[0].toUpperCase() + String(col.dataIndex).slice(1)
+    
+    return <>
+        <Dropdown menu={{ items }} overlayClassName='table-dropdown' trigger={['contextMenu']}>
+            <div className='overview-table'>
+                <Table
+                    rowSelection={{
+                        selectedRowKeys: selectedNodeNames,
+                        onChange (_, nodes) {
+                            setSelectedNodeNames(nodes.map(node => node.name))
+                        },
+                        getCheckboxProps (record) {
+                            return {
+                                disabled: record.mode === NodeType.controller || record.mode === NodeType.agent
+                            }
                         }
+                    }}
+                    // agent node 只展示前两列
+                    columns={columns.filter(col => displayCols.includes((col as any).dataIndex))
+                        .map((col, idx) =>
+                            idx < 4
+                                ? col
+                                : {
+                                    ...col,
+                                    render: (text, node: DdbNode, idx) => (node.mode === NodeType.agent ? null : col.render ? col.render(text, node, idx) : text)
+                                }
+                        )
+                        .map(col => ({
+                            ...col,
+                            title: <Tooltip title={getColName(col)}>{(col as any).title}</Tooltip>,
+                            showSorterTooltip: false
+                        }))}
+                    dataSource={nodes
+                        .filter(({ name }) => name.toLocaleLowerCase().includes(searchText.toLocaleLowerCase()))
+                        .map(node => ({ ...node, key: node.name }))}
+                    pagination={false}
+                    scroll={{ x: true }}
+                />
+            </div>
+        </Dropdown>
+        <Modal className='col-selection-modal' open={visible} onCancel={close} maskClosable={false} title={t('配置展示列')} footer={false}>
+            <Checkbox.Group defaultValue={displayCols} onChange={checkedValue => { setDisplayCols(checkedValue);localStorage.setItem(storage_keys.overview_display_cols, JSON.stringify(checkedValue)) }}>
+                <Row >
+                    {columns.map(col => 
+                        <Col span={12} key={(col as any).dataIndex}>
+                            <Checkbox value={(col as any).dataIndex}>
+                                {`${col.title}(${getColName(col)})`}
+                            </Checkbox>
+                        </Col>)
                     }
-                }}
-                // agent node 只展示前两列
-                columns={columns
-                    .map((col, idx) =>
-                        idx < 4
-                            ? col
-                            : {
-                                  ...col,
-                                  render: (text, node: DdbNode, idx) => (node.mode === NodeType.agent ? null : col.render ? col.render(text, node, idx) : text)
-                              }
-                    )
-                    .map(col => ({
-                        ...col,
-                        title: <Tooltip title={(col as any)?.dataIndex[0].toUpperCase() + (col as any)?.dataIndex.slice(1)}>{(col as any).title}</Tooltip>,
-                        showSorterTooltip: false
-                    }))}
-                dataSource={nodes
-                    .filter(({ name }) => name.toLocaleLowerCase().includes(searchText.toLocaleLowerCase()))
-                    .map(node => ({ ...node, key: node.name }))}
-                pagination={false}
-                scroll={{ x: true }}
-            />
-        </div>
+                </Row>
+            </Checkbox.Group>
+        </Modal>
+    </>
 }
