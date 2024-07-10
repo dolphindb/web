@@ -1,4 +1,4 @@
-import { Button, Checkbox, Col, Dropdown, Input, Modal, Radio, Row, Space, Table, Tooltip, type InputRef, type MenuProps, type TableColumnsType } from 'antd'
+import { Button, Checkbox, Col, Divider, Dropdown, Input, Modal, Radio, Row, Space, Table, Tooltip, type InputRef, type MenuProps, type TableColumnsType } from 'antd'
 
 import { CheckCircleOutlined, MinusCircleOutlined, PauseCircleOutlined, SearchOutlined, SettingOutlined } from '@ant-design/icons'
 
@@ -298,10 +298,17 @@ export function OverviewTable ({
         },
       ]
       
+    const allCols = useMemo(() => columns.map(item => (item as any).dataIndex), [ ])
+      
     const [displayCols, setDisplayCols] = useState<string[]>(() => 
-        JSON.parse(localStorage.getItem(storage_keys.overview_display_cols)) || columns.map(item => (item as any).dataIndex))
+        JSON.parse(localStorage.getItem(storage_keys.overview_display_cols)) || allCols)
     
     const getColName = (col: ColumnType<DdbNode>) => col.dataIndex[0].toUpperCase() + String(col.dataIndex).slice(1)
+    
+    function handleColsChange (cols: string[]) {
+        setDisplayCols(cols)
+        localStorage.setItem(storage_keys.overview_display_cols, JSON.stringify(cols))
+    }
     
     return <>
         <Dropdown menu={{ items }} overlayClassName='table-dropdown' trigger={['contextMenu']}>
@@ -342,7 +349,14 @@ export function OverviewTable ({
             </div>
         </Dropdown>
         <Modal className='col-selection-modal' open={visible} onCancel={close} maskClosable={false} title={t('配置展示列')} footer={false}>
-            <Checkbox.Group defaultValue={displayCols} onChange={checkedValue => { setDisplayCols(checkedValue);localStorage.setItem(storage_keys.overview_display_cols, JSON.stringify(checkedValue)) }}>
+            <Checkbox 
+                indeterminate={displayCols.length > 0 && displayCols.length < allCols.length} 
+                onChange={e => { handleColsChange(e.target.checked ? allCols : [ ]) }} 
+                checked={displayCols.length === allCols.length}>
+                {t('全选')}
+            </Checkbox>
+            <Divider className='col-selection-divider'/>
+            <Checkbox.Group value={displayCols} onChange={handleColsChange}>
                 <Row >
                     {columns.map(col => 
                         <Col span={12} key={(col as any).dataIndex}>
