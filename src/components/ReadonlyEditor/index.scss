@@ -1,6 +1,8 @@
 .readonly-editor {
     position: relative;
-
+    
+    border: 1px solid #D9D9D9;
+    
     .copy-btn {
         position: absolute;
         border-radius: 4px;
@@ -8,6 +10,4 @@
         right: 32px;
         z-index: 1000;
     }
-    
-    border: 1px solid #D9D9D9;
 }
