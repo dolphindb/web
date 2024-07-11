@@ -13,6 +13,6 @@ export function generate_node_link (hostname: string, port: string | number) {
 }
 
 
-export function ns_2_ms (num: number) {
-    return (num / 1_000_000)
+export function ns2ms (num: number) {
+    return num / 1_000_000
 }

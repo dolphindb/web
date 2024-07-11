@@ -19,7 +19,7 @@ import SvgMemory from './icons/memory.icon.svg'
 import SvgDisk from './icons/disk.icon.svg'
 import SvgNetwork from './icons/network.icon.svg'
 import SvgTask from './icons/task.icon.svg'
-import { generate_node_link, ns_2_ms } from './utils.js'
+import { generate_node_link, ns2ms } from './utils.js'
 
 
 export function OverviewCard ({
@@ -347,8 +347,8 @@ function Node ({
                     <InfoItem title={t('运行任务')}>{runningJobs}</InfoItem>
                     <InfoItem title={t('排队作业')}>{queuedJobs}</InfoItem>
                     <InfoItem title={t('排队任务')}>{queuedTasks}</InfoItem>
-                    <InfoItem title={t('前一批消息时延')}>{Number(lastMsgLatency) < Number.MIN_VALUE ? 0  : (ns_2_ms(Number(cumMsgLatency))).toFixed(2) + ' ns'}</InfoItem>
-                    <InfoItem title={t('所有消息平均时延')}>{Number(cumMsgLatency) < Number.MIN_VALUE ? 0 :  (ns_2_ms(Number(cumMsgLatency))).toFixed(2) + ' ns'}</InfoItem>
+                    <InfoItem title={t('前一批消息时延')}>{Number(lastMsgLatency) < Number.MIN_VALUE ? 0  : (ns2ms(Number(cumMsgLatency))).toFixed(2) + ' ns'}</InfoItem>
+                    <InfoItem title={t('所有消息平均时延')}>{Number(cumMsgLatency) < Number.MIN_VALUE ? 0 :  (ns2ms(Number(cumMsgLatency))).toFixed(2) + ' ns'}</InfoItem>
                 </NodeInfo>
             </div>
             <div className={expanded  ? 'node-footer-fold' : 'node-footer'}>
