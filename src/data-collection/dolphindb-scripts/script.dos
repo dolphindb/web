@@ -851,7 +851,6 @@ def dcp_stopAllSub(){
 
 def dcp_clearEnv(){
     dcp_stopAllSub()
-    dcp_dropAllFunctionView()
     dropDatabase("dfs://dataAcquisition")
 }
 

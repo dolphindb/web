@@ -17,6 +17,15 @@ export function InitPage ({ test_init }: IProps) {
     const on_init = useMemoizedFn(async () => {
         await model.ddb.eval(code)
         await model.ddb.call('dcp_init')
+        await model.ddb.eval(`
+            try{
+                installPlugin(\"mqtt\");
+                installPlugin(\"kafka\");
+            }catch(ex){
+                print(ex)
+            }
+        `)
+        
         message.success(t('采集平台初始化成功！'))
         await test_init()
     })
