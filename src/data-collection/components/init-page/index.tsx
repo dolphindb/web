@@ -3,13 +3,22 @@ import { Button, Result, message } from 'antd'
 import { useMemoizedFn } from 'ahooks'
 
 import { t } from '../../../../i18n/index.js'
-import { dcp_model } from '../../model.js'
 
-export function InitPage () {
+import code from '../../dolphindb-scripts/script.dos'
+
+import { model } from '@/model.js'
+
+interface IProps {
+    test_init: () => Promise<void>
+}
+
+export function InitPage ({ test_init }: IProps) {
     
     const on_init = useMemoizedFn(async () => {
-        await dcp_model.init_database()
+        await model.ddb.eval(code)
+        await model.ddb.call('dcp_init')
         message.success(t('采集平台初始化成功！'))
+        await test_init()
     })
     
     return <Result 

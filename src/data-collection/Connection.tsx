@@ -17,11 +17,14 @@ import { ConnectionDetail } from './components/connection-detail/index.js'
 import { CreateConnectionModal } from './components/create-connection-modal/index.js'
 import { InitPage } from './components/init-page/index.js'
 import { protocols } from './constant.js'
-import { dcp_model } from './model.js'
+
 import { request } from './utils.js'
 
-import { Protocol, type Connection } from './type.js'
+import { InitStatus, Protocol, type Connection } from './type.js'
 import { ViewLogModal } from './components/view-log-modal/index.js'
+
+import { is_inited } from './api.js'
+
 
 const DEFAULT_DATA = {
     [Protocol.KAFKA]: [ ],
@@ -31,16 +34,17 @@ const DEFAULT_DATA = {
 export function Connections () {
     const [connection, set_connection] = useState<string>()
     const [selected_connections, set_selected_connections] = useState<string[]>([ ])
+    const id = useId()
     
-    const { database_inited } = dcp_model.use(['database_inited', 'func_inited' ])
     
-    useEffect(() => {
-        dcp_model.init()
-    }, [ ])
+    const { data: isInited = InitStatus.UNKONWN, mutate: test_init } = useSWR(
+        [is_inited.KEY, id],
+        is_inited
+    )
     
     const { isLoading, mutate, data = DEFAULT_DATA } = useSWR(
-        database_inited === 'inited' ? 'dcp_getConnectList' : null,
-        async () => request<{ [key in Protocol]: Connection[] }>('dcp_getConnectList')
+        isInited === InitStatus.INITED ? ['dcp_getConnectList', isInited] : null,
+        async () =>  request<{ [key in Protocol]: Connection[] }>('dcp_getConnectList')
     )
     
     /** 批量删除连接 */
@@ -166,13 +170,13 @@ export function Connections () {
     
     
     
-    if (isLoading || database_inited === 'unknow')
+    if (isInited === InitStatus.UNKONWN)
         return  <Spin>
             <div className='center-spin-div'/>
         </Spin> 
     
     
-    return database_inited === 'inited' ? <div className='data-collection-wrapper'>
+    return  isInited === InitStatus.INITED ? <div className='data-collection-wrapper'>
         <div className='connection-list'>
         
             <div className='connection-list-title'>
@@ -202,5 +206,5 @@ export function Connections () {
                 : <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description={t('请选择连接')}/>
             }
         </div>
-    </div> : <InitPage />
+    </div> : <InitPage test_init={test_init as any}/>
 }

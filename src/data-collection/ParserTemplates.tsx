@@ -1,8 +1,8 @@
 import useSWR from 'swr'
 import './ParserTemplates.scss'
-import { useCallback, useEffect, useId, useMemo, useState } from 'react'
+import { useCallback, useId, useMemo, useState } from 'react'
 
-import { Button, Modal, Space, Table, Tag, Typography, message, type TableProps } from 'antd'
+import { Button, Modal, Space, Spin, Table, Tag, Typography, message, type TableProps } from 'antd'
 
 import { DeleteOutlined, PlusOutlined } from '@ant-design/icons'
 
@@ -13,12 +13,10 @@ import { t } from '../../i18n/index.js'
 import { format_time } from '../dashboard/utils.js'
 
 import { request } from './utils.js'
-import type { IParserTemplate } from './type.js'
+import { InitStatus, type IParserTemplate } from './type.js'
 import { ParserTemplateModal } from './components/create-parser-template-modal/index.js'
 
-
-import { dcp_model } from './model.js'
-import { get_parser_templates } from './api.js'
+import { get_parser_templates, is_inited } from './api.js'
 import { InitPage } from './components/init-page/index.js'
 
 const DEFAULT_TEMPLATE_DATA = {
@@ -32,16 +30,16 @@ export function ParserTemplates () {
     
     const [selected_keys, set_selected_keys] = useState<string[]>([ ])
     
-    const { database_inited } = dcp_model.use(['database_inited', 'func_inited' ])
+    const { data: isInited = InitStatus.UNKONWN, mutate: test_init } = useSWR(
+        [is_inited.KEY, id],
+        is_inited
+    )
     
     const { data = DEFAULT_TEMPLATE_DATA, isLoading, mutate: refresh } = useSWR(
-        [get_parser_templates.KEY, id],
+        isInited === InitStatus.INITED ? [get_parser_templates.KEY, id] : null,
         async () => get_parser_templates()
     )
     
-    useEffect(() => {
-        dcp_model.init()
-    }, [ ])
     
     const on_create = useCallback(() => {
         NiceModal.show(ParserTemplateModal, { refresh })
@@ -126,7 +124,12 @@ export function ParserTemplates () {
         
     ], [on_edit, on_delete])
     
-    return database_inited === 'inited' ? <>
+    if (isInited === InitStatus.UNKONWN || isLoading)
+        return  <Spin>
+            <div className='center-spin-div'/>
+        </Spin> 
+    
+    return isInited === InitStatus.INITED ? <>
         <div className='parser-template-title'>
             <h3>{t('解析模板')}</h3>
             <Space>
@@ -144,5 +147,5 @@ export function ParserTemplates () {
                 onChange: keys => { set_selected_keys(keys as string[]) }
             }}
         />
-    </> : <InitPage />
+    </> : <InitPage test_init={test_init as any}/>
 }

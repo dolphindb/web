@@ -77,3 +77,10 @@ export enum Protocol {
     KAFKA = 'kafka',
     MQTT = 'mqtt'
 }
+
+
+export enum InitStatus {
+    UNKONWN,
+    INITED,
+    NOT_INITED = -1
+}
