@@ -209,12 +209,13 @@ function Node ({
     
     return <div className={'node' + ' ' + (type !== NodeType.single && node.name === model.node.name ? current_node_borders[node.mode] : '')}>{
             type === NodeType.single ? 
-                <div className={'node-header' + ' ' + node_colors[mode]}>
+                <div className={'single-node-header' + ' ' + node_colors[mode]}>
                     <div className={'node-title' + ' ' + title_colors[mode]}><div className='node-name'>{name}</div>{isLeader ? <Tag className='leader-tag' color='#FFF' >leader</Tag> : null}</div>
-                    <div className='node-click-single' />
-                    <NodeSite node={node}/>
-                    <div className={node_statuses[state]}>
-                        <span>{state ? t('运行中') : t('未启动')}</span>
+                    <div className='single-node-site'>
+                        <NodeSite node={node}/>
+                        <div className={node_statuses[state]}>
+                            <span>{state ? t('运行中') : t('未启动')}</span>
+                        </div>
                     </div>
                 </div>
             :
