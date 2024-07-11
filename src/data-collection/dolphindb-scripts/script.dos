@@ -1,7 +1,5 @@
-// shareStreamingTable = select * from objs(true) where type=`REALTIME and form=`TABLE and shared=true
-// if(!(`dcp_test in shareStreamingTable.name)){
-    // share streamTable(1:0,["ts","id","metric","value"],[TIMESTAMP,LONG,STRING,STRING]) as dcp_test
-// }
+try{loadPlugin("mqtt")}catch(ex){print(ex)}
+try{loadPlugin("kafka")}catch(ex){print(ex)}
 /*
 增加连接
 参数：args 为标准json，需要包含以下字段：
@@ -702,7 +700,7 @@ def dcp_deleteHandler(args){
 
 
 
-/*s
+/*
 获取点位解析模板列表
 @args "protocol":解析模板协议 字符串(默认为空)
 @return 返回一个包含解析模板信息的json，键为items，值为解析模板列表 
@@ -716,6 +714,7 @@ def dcp_getParserTemplateList(args="{}"){
     } 
     return '{"items":'+toStdJson(tmp)+',"total":'+tmp.size()+'}'  
 }
+
 
 /*
 获取模板参数
@@ -849,27 +848,6 @@ def dcp_stopAllSub(){
     }
 }
 
-def dcp_dropAllFunctionView(){
-    dropFunctionView(`dcp_addConnect)
-    dropFunctionView(`dcp_updateConnect)
-    dropFunctionView(`dcp_deleteConnect)
-    dropFunctionView(`dcp_addSubscribe)
-    dropFunctionView(`dcp_updateSubscribe)
-    dropFunctionView(`dcp_deleteSubscribe)
-    dropFunctionView(`dcp_startSubscribe)
-    dropFunctionView(`dcp_stopSubscribe) 
-    dropFunctionView(`dcp_getConnectList) 
-    dropFunctionView(`dcp_getConnectAndSubInfo) 
-    dropFunctionView(`dcp_getParserTemplateList)
-    dropFunctionView(`dcp_parseTemplateArgs) 
-    dropFunctionView(`dcp_addHandler)
-    dropFunctionView(`dcp_updateHandler)
-    dropFunctionView(`dcp_deleteHandler)
-    dropFunctionView(`dcp_getLog)
-    dropFunctionView(`dcp_checkSubStatus)
-    dropFunctionView(`dcp_getSubStatus)
-    dropFunctionView(`dcp_getKafkaConsumerCfgList)
-}
 
 def dcp_clearEnv(){
     dcp_stopAllSub()
@@ -882,23 +860,4 @@ def dcp_clearEnv(){
 def dcp_init(){
     dcp_createAllTable()
     initParserTemplate()
-    addFunctionView(dcp_addConnect)
-    addFunctionView(dcp_updateConnect)
-    addFunctionView(dcp_deleteConnect)
-    addFunctionView(dcp_addSubscribe)
-    addFunctionView(dcp_updateSubscribe)
-    addFunctionView(dcp_deleteSubscribe)
-    addFunctionView(dcp_startSubscribe)
-    addFunctionView(dcp_stopSubscribe)
-    addFunctionView(dcp_getConnectList)
-    addFunctionView(dcp_getConnectAndSubInfo)
-    addFunctionView(dcp_getParserTemplateList)
-    addFunctionView(dcp_parseTemplateArgs)
-    addFunctionView(dcp_addHandler)
-    addFunctionView(dcp_updateHandler)
-    addFunctionView(dcp_deleteHandler)
-    addFunctionView(dcp_getLog)
-    addFunctionView(dcp_checkSubStatus)
-    addFunctionView(dcp_getSubStatus)
-    addFunctionView(dcp_getKafkaConsumerCfgList)
 }
