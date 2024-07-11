@@ -13,9 +13,9 @@ export function Plugins () {
     
     useEffect(() => {
         (async () => {
-            const plugins = await list_plugins()
-            console.log('plugins:', plugins)
-            set_plugins(plugins)
+            set_plugins(
+                await list_plugins()
+            )
         })()
     }, [ ])
     
@@ -34,7 +34,7 @@ export function Plugins () {
             },
             {
                 title: '已部署节点',
-                render: (_, { nodes }) => nodes.map(({ name }) => name).join(', ')
+                render: (_, { nodes }) => nodes.map(({ node }) => node).join(', ')
             }
         ]}
     />
@@ -44,7 +44,7 @@ export function Plugins () {
 interface Plugin {
     id: string
     least_version: string
-    nodes: { name: string, version: string }[]
+    nodes: { node: string, version: string }[]
 }
 
 
@@ -56,5 +56,9 @@ async function list_plugins () {
         script_defined = true
     }
     
-    return model.ddb.invoke('list_plugins')
+    const plugins = model.ddb.invoke('list_plugins')
+    
+    console.log('plugins:', plugins)
+    
+    return plugins
 }
