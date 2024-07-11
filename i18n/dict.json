@@ -387,7 +387,7 @@
         "en": "Create"
     },
     "控制节点": {
-        "en": "Controllers"
+        "en": "Controller"
     },
     "控制节点_node_type": {
         "en": "controller"
@@ -396,7 +396,7 @@
         "en": "Controller"
     },
     "数据节点": {
-        "en": "Datanodes"
+        "en": "Datanode"
     },
     "数据节点_node_type": {
         "en": "datanode"
@@ -420,7 +420,7 @@
         "en": "Cluster Monitor"
     },
     "计算节点": {
-        "en": "Computenodes"
+        "en": "Computenode"
     },
     "计算节点_node_type": {
         "en": "computenode"
@@ -1800,7 +1800,7 @@
         "en": "last minute sent bytes"
     },
     "代理节点": {
-        "en": "agent node"
+        "en": "Agent"
     },
     "单机总览": {
         "en": "single node overview"
@@ -4783,5 +4783,41 @@
     },
     "目录": {
         "en": "CATALOG"
+    },
+    "表格视图": {
+        "en": "Table"
+    },
+    "卡片视图": {
+        "en": "Card"
+    },
+    "节点别名": {
+        "en": "alias"
+    },
+    "节点类型": {
+        "en": "mode"
+    },
+    "是否 Leader": {
+        "en": "is leader"
+    },
+    "连接数": {
+        "en": "connection num"
+    },
+    "前 10 查询耗时中位数": {
+        "en": "median time taken by the last 10 queries"
+    },
+    "前 10 查询耗时最大值": {
+        "en": "max time taken by the last 10 queries"
+    },
+    "前 100 查询耗时中位数": {
+        "en": "median time taken by the last 100 queries"
+    },
+    "前 100 查询耗时最大值": {
+        "en": "max time taken by the last 100 queries"
+    },
+    "当前查询耗时最大值": {
+        "en": "max running query time"
+    },
+    "停止成功": {
+        "en": "Stop succeeded"
     }
 }

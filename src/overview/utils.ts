@@ -11,3 +11,8 @@ export function generate_node_link (hostname: string, port: string | number) {
         ? `${location.protocol}//${location.hostname}:${location.port}${location.pathname}?${current_params.toString()}`
         : `${location.protocol}//${hostname}:${port}`
 }
+
+
+export function ns2ms (num: number) {
+    return num / 1_000_000
+}
