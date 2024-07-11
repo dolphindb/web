@@ -81,7 +81,7 @@ function Nodes ({
     setExpandedNodes?: (nodes: DdbNode[]) => void
 }) {
     const { node } = model.use(['node'])
-    const numOfNodes = nodes.filter(node => node.mode === type).length
+    const numOfNodes = nodes ? nodes.filter(node => node.mode === type).length : 0
     
     function switchFold (node: DdbNode) {
         if (node.mode === NodeType.agent )

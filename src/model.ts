@@ -615,7 +615,8 @@ export class DdbModel extends Model<DdbModel> {
         const params = new URLSearchParams(location.search)
         const current_connect_host = params.get('hostname') || location.hostname
         
-        const hosts = [...node.publicName.split(';').map(name => name.trim()), node.host]
+        // 所有域名应该都转成小写后匹配，因为浏览器默认会将 location.hostname 转为小写
+        const hosts = [...node.publicName.split(';').map(name => name.trim().toLowerCase()), node.host.toLowerCase()]
         
         // 匹配当前域名/IP 和 hosts 中域名/IP 的相似度，动态规划最长公共子串
         function calc_host_score (hostname: string) {
@@ -637,7 +638,7 @@ export class DdbModel extends Model<DdbModel> {
             return maxlen
         }
         
-        const [closest] = hosts.slice(1).reduce<readonly [string, number]>((prev, hostname) => {
+        const [closest] = hosts.slice(1).reduce<[string, number]>((prev, hostname) => {
             if (hostname === current_connect_host)
                 return [hostname, Infinity]
             
@@ -647,7 +648,7 @@ export class DdbModel extends Model<DdbModel> {
                 return [hostname, score]
             
             return prev
-        }, [hosts[0], calc_host_score(hosts[0])] as const)
+        }, [hosts[0], calc_host_score(hosts[0])])
         
         return closest
     }

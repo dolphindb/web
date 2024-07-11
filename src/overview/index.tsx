@@ -61,7 +61,7 @@ export function Overview () {
     const [stopOpen, setStopOpen] = useState(false)
     
     return <Layout>
-        { node_type !== NodeType.single && <Header className='header-bar'>
+        <Header className='header-bar'>
             <div className='operations'>
                 <div
                     className={icon_classname}
@@ -75,105 +75,109 @@ export function Overview () {
                     </Button>
                 </div>
                 
-                <div className={icon_classname}>
-                    <Tooltip title={selectedNodes.length && !logined ? t('当前用户未登录，请登陆后再进行启停操作。') : ''}>
-                        <Popconfirm
+            {   
+                node_type !== NodeType.single && <>
+                    <div className={icon_classname}>
+                        <Tooltip title={selectedNodes.length && !logined ? t('当前用户未登录，请登陆后再进行启停操作。') : ''}>
+                            <Popconfirm
                             open={startOpen}
-                            title={t('确认启动以下节点')}
-                            disabled={!selectedNodes.filter(node => node.state === DdbNodeState.offline).length || !logined}
-                            description={() =>
-                                selectedNodes.map(
-                                    node =>
-                                        node.state === DdbNodeState.offline && (
-                                            <p className='model-node' key={node.name}>
-                                                {node.name}
-                                            </p>
-                                        )
-                                )
-                            }
-                            onConfirm={async () => {
+                                title={t('确认启动以下节点')}
+                                disabled={!selectedNodes.filter(node => node.state === DdbNodeState.offline).length || !logined}
+                                description={() =>
+                                    selectedNodes.map(
+                                        node =>
+                                            node.state === DdbNodeState.offline && (
+                                                <p className='model-node' key={node.name}>
+                                                    {node.name}
+                                                </p>
+                                            )
+                                    )
+                                }
+                                onConfirm={async () => {
                                try {
-                                setIsStartLoading(true)
-                                setStartOpen(false)
+                                    setIsStartLoading(true)
+                                    setStartOpen(false)
                                 await model.start_nodes(selectedNodes.filter(node => node.state === DdbNodeState.offline))
-                                await delay(5000)
-                                await model.get_cluster_perf(false)
+                                    await delay(5000)
+                                        await model.get_cluster_perf(false)
                                 model.message.success(t('启动成功'))
                                 setSelectedNodeNames([ ])
                                } finally {
                                 setIsStartLoading(false)
                                }
-                            }}
+                                }}
                             onCancel={() => { setStartOpen(false) }}
-                            okText={t('确认')}
-                            cancelText={t('取消')}
-                            okButtonProps={{ disabled: selectedNodes.filter(node => node.state === DdbNodeState.offline).length === 0, loading: isStartLoading }}
-                        >
-                            <Button
-                                type='text'
-                                size='large'
-                                block
+                                okText={t('确认')}
+                                cancelText={t('取消')}
+                                okButtonProps={{ disabled: selectedNodes.filter(node => node.state === DdbNodeState.offline).length === 0, loading: isStartLoading }}
+                            >
+                                <Button
+                                    type='text'
+                                    size='large'
+                                    block
                                 loading={isStartLoading}
                                 onClick={() => { setStartOpen(true) }}
-                                disabled={!selectedNodes.filter(node => node.state === DdbNodeState.offline).length || !logined}
-                                icon={<Icon className={'icon-start' + (!selectedNodes.length || !logined ? ' grey-icon' : ' blue-icon')} component={SvgStart} />}
-                            >
-                                {t('启动')}
-                            </Button>
-                        </Popconfirm>
-                    </Tooltip>
-                </div>
-                
-                <div className={icon_classname}>
-                    <Tooltip title={selectedNodes.length && !logined ? t('当前用户未登录，请登陆后再进行启停操作。') : ''}>
-                        <Popconfirm
-                            title={t('确认停止以下节点')}
+                                    disabled={!selectedNodes.filter(node => node.state === DdbNodeState.offline).length || !logined}
+                                    icon={<Icon className={'icon-start' + (!selectedNodes.length || !logined ? ' grey-icon' : ' blue-icon')} component={SvgStart} />}
+                                >
+                                    {t('启动')}
+                                </Button>
+                            </Popconfirm>
+                        </Tooltip>
+                    </div>
+                    
+                    <div className={icon_classname}>
+                        <Tooltip title={selectedNodes.length && !logined ? t('当前用户未登录，请登陆后再进行启停操作。') : ''}>
+                            <Popconfirm
+                                title={t('确认停止以下节点')}
                             open={stopOpen}
-                            disabled={!selectedNodes.filter(node => node.state === DdbNodeState.online).length || !logined}
-                            description={() =>
-                                selectedNodes.map(
-                                    node =>
-                                        node.state === DdbNodeState.online && (
-                                            <p className='model-node' key={node.name}>
-                                                {node.name}
-                                            </p>
-                                        )
-                                )
-                            }
-                            onConfirm={async () => {
+                                disabled={!selectedNodes.filter(node => node.state === DdbNodeState.online).length || !logined}
+                                description={() =>
+                                    selectedNodes.map(
+                                        node =>
+                                            node.state === DdbNodeState.online && (
+                                                <p className='model-node' key={node.name}>
+                                                    {node.name}
+                                                </p>
+                                            )
+                                    )
+                                }
+                                onConfirm={async () => {
                                try {
-                                setIsStopLoading(true)
-                                setStopOpen(false)
+                                    setIsStopLoading(true)
+                                    setStopOpen(false)
                                 await model.stop_nodes(selectedNodes.filter(node => node.state === DdbNodeState.online))
-                                await delay(5000)
-                                await model.get_cluster_perf(false)
+                                    await delay(5000)
+                                        await model.get_cluster_perf(false)
                                 model.message.success(t('停止成功'))
                                 setSelectedNodeNames([ ])
                                } finally {
                                 setIsStopLoading(false)
                                }
-                            }}
+                                }}
                             onCancel={() => { setStopOpen(false) }}
-                            okText={t('确认')}
-                            cancelText={t('取消')}
-                            okButtonProps={{ disabled: selectedNodes.filter(node => node.state === DdbNodeState.online).length === 0, loading: isStopLoading }}
-                        >
-                            <Button
-                                type='text'
-                                size='large'
-                                block
+                                okText={t('确认')}
+                                cancelText={t('取消')}
+                                okButtonProps={{ disabled: selectedNodes.filter(node => node.state === DdbNodeState.online).length === 0, loading: isStopLoading }}
+                            >
+                                <Button
+                                    type='text'
+                                    size='large'
+                                    block
                                 loading={isStopLoading}
                                 onClick={() => { setStopOpen(true) }}
-                                disabled={!selectedNodes.filter(node => node.state === DdbNodeState.online).length || !logined}
-                                icon={<Icon className={'icon-stop' + (!selectedNodes.length || !logined ? ' grey-icon' : ' blue-icon')} component={SvgStop} />}
-                            >
-                                {t('停止')}
-                            </Button>
-                        </Popconfirm>
-                    </Tooltip>
-                </div>
+                                    disabled={!selectedNodes.filter(node => node.state === DdbNodeState.online).length || !logined}
+                                    icon={<Icon className={'icon-stop' + (!selectedNodes.length || !logined ? ' grey-icon' : ' blue-icon')} component={SvgStop} />}
+                                >
+                                    {t('停止')}
+                                </Button>
+                            </Popconfirm>
+                        </Tooltip>
+                    </div>
+                </>
+            }
                 
-                { display_mode === 'card' && <>
+                { display_mode === 'card' &&  node_type !== NodeType.single && <>
                     <div className={`icon-expand-area ${language}`} onClick={() =>  { setExpandedNodes(nodes.filter(node => node.mode === NodeType.agent)) }}>
                         <Button type='text' size='large' block icon={<Icon className='icon-expand' component={SvgExpand} />}>{t('全部展开')}</Button>
                     </div>
@@ -201,7 +205,6 @@ export function Overview () {
                 ]}
             />
         </Header>
-    }
        {display_mode === 'card' ?
             <OverviewCard
                 selectedNodeNames={selectedNodeNames}

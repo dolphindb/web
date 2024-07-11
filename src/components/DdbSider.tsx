@@ -113,11 +113,11 @@ export function DdbSider () {
             }}
             inlineIndent={10}
             items={[
-                ... dev || test ? [{
+                {
                     key: 'overview',
                     icon: <MenuIcon view='overview' />,
                     label: node_type === NodeType.single ? t('单机总览') : t('集群总览'),
-                }] : [ ],
+                },
                 ...admin && node_type === NodeType.controller ? [{
                     key: 'config',
                     icon: <MenuIcon view='config'/>,

@@ -1,11 +1,12 @@
 .field-wrapper {
+    padding: 8px 0px;
+    
     .ant-space {
         width: 100%;
         .ant-space-item:first-child {
             flex-grow: 1;
         }
     }
-    padding: 8px 0px;
 }
 
 .axis-wrapper {

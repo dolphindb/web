@@ -22,6 +22,7 @@ import {
     type DdbTableObj,
     type DdbVectorInt,
     type DdbVectorLong,
+    SqlStandard,
 } from 'dolphindb/browser.js'
 
 
@@ -643,11 +644,13 @@ class ShellModel extends Model<ShellModel> {
             await model.ddb.eval(
                 'def get_csv_content (name_or_obj, start, end) {\n' +
                 '    type = typestr name_or_obj\n' +
-                "    if (type =='CHAR' || type =='STRING')\n" +
+                // oracle 或运算符为 or
+                `    if (type =='CHAR' ${model.sql === SqlStandard.Oracle ? 'or' : '||'} type =='STRING')\n` +
                 '        obj = objByName(name_or_obj)\n' +
                 '    else\n' +
                 '        obj = name_or_obj\n' +
-                "    return generateTextFromTable(select * from obj, start, end - start + 1, 0, ',', true)\n" +
+                // char(44) 构造一个逗号
+                '    return generateTextFromTable(select * from obj, start, end - start + 1, 0, char(44), true)\n' +
                 '}\n'
             )
             
