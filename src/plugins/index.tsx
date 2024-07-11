@@ -9,7 +9,7 @@ import script from './index.dos'
 
 
 export function Plugins () {
-    const [plugins, set_plugins] = useState()
+    const [plugins, set_plugins] = useState<Plugin[]>([ ])
     
     useEffect(() => {
         (async () => {
@@ -21,8 +21,30 @@ export function Plugins () {
     
     return <Table
         dataSource={plugins}
-        columns={[]}
+        rowKey='id'
+        pagination={false}
+        columns={[
+            {
+                title: '插件 ID',
+                dataIndex: 'id'
+            },
+            {
+                title: '集群已安装的最低版本', 
+                dataIndex: 'least_version'
+            },
+            {
+                title: '已部署节点',
+                render: (_, { nodes }) => nodes.map(({ name }) => name).join(', ')
+            }
+        ]}
     />
+}
+
+
+interface Plugin {
+    id: string
+    least_version: string
+    nodes: { name: string, version: string }[]
 }
 
 
