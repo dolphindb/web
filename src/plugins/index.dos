@@ -9,7 +9,7 @@ def list_plugins() {
                 pluginDir = "./" + pluginDir
             }
         }
-        pluginNames = exec filename from files("../plugins") where isDir = true
+        pluginNames = exec filename from files(pluginDir) where isDir = true
         ret = table(1:0, `pluginName`version, [STRING, STRING])
         for (pluginName in pluginNames) {
             // pluginName = pluginNames[0]
