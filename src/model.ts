@@ -636,7 +636,7 @@ export class DdbModel extends Model<DdbModel> {
             return maxlen
         }
         
-        const [closest] = hosts.slice(1).reduce<readonly [string, number]>((prev, hostname) => {
+        const [closest] = hosts.slice(1).reduce<[string, number]>((prev, hostname) => {
             if (hostname === current_connect_host)
                 return [hostname, Infinity]
             
@@ -646,7 +646,7 @@ export class DdbModel extends Model<DdbModel> {
                 return [hostname, score]
             
             return prev
-        }, [hosts[0], calc_host_score(hosts[0])] as const)
+        }, [hosts[0], calc_host_score(hosts[0])])
         
         return closest
     }
