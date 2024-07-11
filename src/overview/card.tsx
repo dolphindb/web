@@ -12,7 +12,6 @@ import { t, language } from '../../i18n/index.js'
 import { NodeType, type DdbNode, model } from '../model.js'
 
 
-import SvgRefresh from './icons/refresh.icon.svg'
 
 import SvgCPU from './icons/cpu.icon.svg'
 import SvgMemory from './icons/memory.icon.svg'
@@ -212,18 +211,7 @@ function Node ({
             type === NodeType.single ? 
                 <div className={'node-header' + ' ' + node_colors[mode]}>
                     <div className={'node-title' + ' ' + title_colors[mode]}><div className='node-name'>{name}</div>{isLeader ? <Tag className='leader-tag' color='#FFF' >leader</Tag> : null}</div>
-                    <div className='node-click-single'>
-                        <div
-                            className={`single-refresh-container${language === 'en' ? ' en-width' : ''}`}
-                            onClick={() => {
-                                model.get_cluster_perf(true)
-                            }}
-                        >
-                            <Button type='text' block icon={<Icon className='icon-refresh' component={SvgRefresh} />}>
-                                {t('刷新')}
-                            </Button>
-                        </div>
-                    </div>
+                    <div className='node-click-single' />
                     <NodeSite node={node}/>
                     <div className={node_statuses[state]}>
                         <span>{state ? t('运行中') : t('未启动')}</span>
