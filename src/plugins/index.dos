@@ -1,0 +1,53 @@
+def list_plugins() {
+    listPluginsInner = def() {
+        pluginDir = getConfig("pluginDir")
+        if (!pluginDir.startsWith("/")) {
+            nodeCnt = exec count(*) from rpc(getControllerAlias(), getClusterPerf)
+            if (nodeCnt > 1) {
+                pluginDir = "../" + pluginDir
+            } else {
+                pluginDir = "./" + pluginDir
+            }
+        }
+        pluginNames = exec filename from files("../plugins") where isDir = true
+        ret = table(1:0, `pluginName`version, [STRING, STRING])
+        for (pluginName in pluginNames) {
+            // pluginName = pluginNames[0]
+            dir = pluginDir + "/" + pluginName
+            txtName = exec first(filename) from files(dir, "%.txt")
+            if (txtName.strlen() == 0) {
+                continue
+            }
+            f = file(dir + "/" + txtName)
+            line = readLine(f)
+            s = line.split(",")
+            if (s.size() < 3) {
+                continue
+            }
+            pluginName = s.first()
+            pluginVersion = s.last()
+            tableInsert(ret, (pluginName, pluginVersion))
+        }
+        return ret
+    }
+    
+    info = pnodeRun(listPluginsInner)
+    pluginNames = exec distinct(pluginName) from info
+    ret = []
+    
+    for (pluginName_ in pluginNames) {
+        // pluginName_ = pluginNames[0]
+        item = dict(STRING, ANY)
+        item["id"] = pluginName_
+        item["least_version"] = exec min(version) from info where pluginName = pluginName_
+        nodes = []
+        info_ = select node, version from info where pluginName = pluginName_
+        for (item_ in info_) {
+            nodes.append!(item_)
+        }
+        item["nodes"] = nodes
+        ret.append!(item)
+    }
+    
+    return ret
+}

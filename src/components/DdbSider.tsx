@@ -7,24 +7,25 @@ import { default as Icon, DoubleLeftOutlined, DoubleRightOutlined, ExperimentOut
 import { isNil, omitBy } from 'lodash'
 
 
-import { language, t } from '../../i18n/index.js'
+import { language, t } from '@i18n/index.js'
 
 import { model, type DdbModel, NodeType, storage_keys } from '../model.js'
 
 
-import SvgOverview from '../overview/icons/overview.icon.svg'
-import SvgConfig from '../config/icons/config.icon.svg'
-import SvgShell from '../shell/index.icon.svg'
-import SvgDashboard from '../dashboard/icons/dashboard.icon.svg'
-import SvgJob from '../job.icon.svg'
-import SvgLog from '../log.icon.svg'
-import SvgFactor from '../factor.icon.svg'
-import SvgComputing from '../computing/icons/computing.icon.svg'
-import SvgAccess from '../access/icons/access.icon.svg'
-import SvgUser from '../access/icons/user.icon.svg'
-import SvgGroup from '../access/icons/group.icon.svg'
-import SvgFinance from '../guide/icons/finance.icon.svg'
-import SvgIot from '../guide/icons/iot.icon.svg'
+import SvgOverview from '@/overview/icons/overview.icon.svg'
+import SvgConfig from '@/config/icons/config.icon.svg'
+import SvgShell from '@/shell/index.icon.svg'
+import SvgDashboard from '@/dashboard/icons/dashboard.icon.svg'
+import SvgJob from '@/job.icon.svg'
+import SvgLog from '@/log.icon.svg'
+import SvgFactor from '@/factor.icon.svg'
+import SvgComputing from '@/computing/icons/computing.icon.svg'
+import SvgAccess from '@/access/icons/access.icon.svg'
+import SvgUser from '@/access/icons/user.icon.svg'
+import SvgGroup from '@/access/icons/group.icon.svg'
+import SvgFinance from '@/guide/icons/finance.icon.svg'
+import SvgIot from '@/guide/icons/iot.icon.svg'
+import SvgPlugins from '@/plugins/plugins.icon.svg'
 
 
 const { Text, Link } = Typography
@@ -43,7 +44,8 @@ const svgs = {
     user: SvgUser,
     group: SvgGroup,
     'iot-guide': SvgIot,
-    'finance-guide': SvgFinance 
+    'finance-guide': SvgFinance,
+    plugins: SvgPlugins
 }
 
 
@@ -165,6 +167,12 @@ export function DdbSider () {
                     icon: <MenuIcon view='log' />,
                     label: t('日志查看'),
                 },
+                ... admin ? [
+                    {
+                        key: 'plugins',
+                        icon: <MenuIcon view='plugins' />,
+                        label: t('插件管理'),
+                }] : [ ],
                 ... is_factor_platform_enabled ? [{
                     key: 'factor',
                     icon: <MenuIcon view='factor' />,
