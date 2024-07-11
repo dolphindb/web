@@ -447,9 +447,9 @@ def dcp_startSubscribe(args){
         }
         else if(tmp.protocol == "kafka"){
             //初始化消费者配置
-            subscribeStr +='consumerCfg = dict(string, any);
+            subscribeStr +='consumerCfg = dict(string, string);
             consumerCfg["metadata.broker.list"] = tmp.host+":"+tmp.port;
-            cfgTable = parseJsonTable(tmp.consumerCfg);
+            cfgTable = parseJsonTable(tmp.consumerCfg,table([`key,`value] as name,[`STRING,`STRING] as type));
             for(i in cfgTable){
                 consumerCfg[i.key]=i.value
             }
