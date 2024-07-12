@@ -121,10 +121,11 @@ function InstallModal ({ installer }: { installer: ModalController }) {
     let [file, set_file] = useState<UploadFile>()
     let [status, set_status] = useState<'preparing' | 'uploading'>('preparing')
     
-    let rnodes = useRef(
-        model.nodes.filter(({ mode }) => mode !== NodeType.agent && mode !== NodeType.controller )
-            .map(({ name }) => name)
-    )
+    const default_nodes = model.nodes.filter(({ mode }) => mode !== NodeType.agent)
+        .map(({ name }) => name)
+    
+    let rnodes = useRef(default_nodes)
+    
     
     return <Modal
         title={t('安装或更新插件')}
@@ -215,10 +216,7 @@ function InstallModal ({ installer }: { installer: ModalController }) {
             <span className='title'>{t('部署节点:')}</span>
             
             <Checkbox.Group
-                options={
-                    model.nodes.filter(({ mode }) => mode !== NodeType.agent)
-                        .map(({ name }) => name)
-                    }
+                options={default_nodes}
                 defaultValue={rnodes.current}
                 onChange={nodes => { rnodes.current = nodes }}
             />
