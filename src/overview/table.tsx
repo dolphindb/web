@@ -39,7 +39,7 @@ export function OverviewTable ({
     const { visible, open, close } = use_modal()
     
     function handleSearch (selectedKeys: string[]) {
-        setSearchText(selectedKeys[0])
+        setSearchText(selectedKeys[0] ?? '')
     }
     
     function handleReset (clearFilters: () => void) {
@@ -281,13 +281,13 @@ export function OverviewTable ({
             title: t('前一批消息延时'),
             dataIndex: 'lastMsgLatency',
             render: (lastMsgLatency: bigint) => (ns2ms(Number(lastMsgLatency))).toFixed(2) + ' ms',
-            sorter: (a, b) => Number(a.lastMsgLatency - b.lastMsgLatency)
+            sorter: (a, b) => Number(a.lastMsgLatency) - Number(b.lastMsgLatency)
         },
         {
             title: t('所有消息平均延时'),
             dataIndex: 'cumMsgLatency',
             render: (cumMsgLatency: bigint) => (ns2ms(Number(cumMsgLatency))).toFixed(2) + ' ms',
-            sorter: (a, b) => Number(a.cumMsgLatency - b.cumMsgLatency)
+            sorter: (a, b) => Number(a.cumMsgLatency) - Number(b.cumMsgLatency)
         }
     ], [ ])
     
