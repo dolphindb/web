@@ -806,7 +806,8 @@ protocol 协议 字符串
 def dcp_getLog(args){
     protocol = upper(parseExpr(args).eval()[`protocol])
     rowBytes = 5000000
-    log = getServerLog(rowBytes,getServerLogLength(getNodeAlias())-rowBytes,true,getNodeAlias()) as log
+    offset = iif(getServerLogLength(getNodeAlias())-rowBytes>0,getServerLogLength(getNodeAlias())-rowBytes,0)   
+    log = getServerLog(rowBytes,offset,true,getNodeAlias()) as log
     res = log[regexFind(log,protocol)!=-1]
     return reverse(res)
 }
