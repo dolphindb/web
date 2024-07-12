@@ -138,10 +138,14 @@ function InstallModal ({ installer }: { installer: ModalController }) {
             
             await define_script()
             
-            await model.ddb.call('install_plugin', [
-                new DdbVectorString(rnodes.current),
-                new DdbBlob(await file.originFileObj.arrayBuffer())
-            ])
+            try {
+                await model.ddb.call('install_plugin', [
+                    new DdbVectorString(rnodes.current),
+                    new DdbBlob(await file.originFileObj.arrayBuffer())
+                ])
+            } finally {
+                set_status('preparing')
+            }
             
             installer.close()
         }}
