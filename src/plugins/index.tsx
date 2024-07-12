@@ -1,16 +1,24 @@
 import './index.sass'
 
-import { useEffect, useState, type ReactElement, type ReactNode } from 'react'
-import { Button, Input, Table, Typography } from 'antd'
-import { ReloadOutlined } from '@ant-design/icons'
+import { useEffect, useState } from 'react'
+import { Button, Empty, Input, Modal, Result, Table, Typography, Upload, type UploadFile } from 'antd'
+import { ReloadOutlined, default as Icon, InboxOutlined } from '@ant-design/icons'
+import { noop } from 'xshell/utils.browser.js'
+
+import { use_modal, type ModalController } from 'react-object-model/hooks.js'
+import { join_elements } from 'react-object-model/utils.js'
+
+import { t } from '@i18n/index.js'
 
 import { model } from '@/model.js'
 
 import script from './index.dos'
-import { t } from '@i18n/index.js'
+import SvgUpgrade from './upgrade.icon.svg'
+import zip_png from './zip.png'
 
 
-const { Text } = Typography
+
+const { Text, Link } = Typography
 
 
 export function Plugins () {
@@ -18,6 +26,8 @@ export function Plugins () {
     
     const [plugins, set_plugins] = useState<Plugin[]>([ ])
     const [query, set_query] = useState('')
+    
+    let installer = use_modal()
     
     
     useEffect(() => {
@@ -31,12 +41,22 @@ export function Plugins () {
     return <>
         <div className='actions'>
             <Button
+                className='install'
+                type='primary'
+                icon={<Icon component={SvgUpgrade} />}
+                onClick={installer.open}
+            >{t('安装或更新插件')}</Button>
+            
+            <InstallModal installer={installer} />
+            
+            <Button
                 className='refresh'
                 icon={<ReloadOutlined/>}
                 onClick={() => {
                     set_refresher({ })
                 }}
             >{t('刷新')}</Button>
+            
             <Input.Search className='search' placeholder={t('输入关键字后按回车可搜索插件')} onSearch={ value => { set_query(value) }} />
         </div>
         
@@ -95,19 +115,78 @@ export function Plugins () {
 }
 
 
-function join_elements (elements: ReactNode[], seperator: ReactElement) {
-    const nelements = elements.length
-    let results = new Array(nelements * 2 - 1)
+function InstallModal ({ installer }: { installer: ModalController }) {
+    let [file, set_file] = useState<UploadFile>()
+    let [status, set_status] = useState<'preparing' | 'uploading'>('preparing')
     
-    for (let i = 0;  i < nelements;  i++) {
-        results[i * 2] = elements[i]
-        if (i < nelements - 1) {
-            const key = i * 2 + 1
-            results[key] = { ...seperator, key }
-        }
-    }
-    
-    return results
+    return <Modal
+        title={t('安装或更新插件')}
+        className='plugins-install-modal'
+        open={installer.visible}
+        onCancel={installer.close}
+        okText={t('安装或更新')}
+        width='80%'
+        onOk={() => {
+            console.log('file:', file)
+        }}
+    >
+        <Upload.Dragger
+            showUploadList={false}
+            customRequest={noop}
+            accept='.zip'
+            onChange={({ file }) => {
+                set_file(file)
+            }}
+        >
+            <Result
+                className='result'
+                icon={<InboxOutlined />}
+                title='拖拽文件到这里，或点击后弹框选择文件'
+            />
+        </Upload.Dragger>
+        
+        <Table<UploadFile>
+            className='files' 
+            size='middle'
+            sticky
+            pagination={false}
+            
+            dataSource={file ? [file] : [ ] as UploadFile[]}
+            rowKey='uid'
+            
+            locale={{ emptyText: <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description='暂无文件' />,  }}
+            
+            columns={[
+                {
+                    className: 'fp',
+                    key: 'fp',
+                    title: '待上传文件',
+                    render: (_, { originFileObj: { name: fp } }) => <>
+                        <img className='zip-icon' src={zip_png} />
+                        <span className='text'>{fp}</span>
+                    </>
+                },
+                {
+                    className: 'size',
+                    key: 'size',
+                    title: '大小',
+                    align: 'right',
+                    width: 130,
+                    render: (_, { size }) => size.to_fsize_str()
+                },
+                {
+                    className: 'actions',
+                    key: 'actions',
+                    title: '操作',
+                    width: 80,
+                    render: () =>
+                        status === 'preparing' && <Link onClick={() => {
+                            set_file(null)
+                        }}>删除</Link>
+                }
+            ]}
+        />
+    </Modal>
 }
 
 
