@@ -1,3 +1,10 @@
+try {
+    loadPlugin('zip')
+} catch (error) {
+    // todo: 处理非重复加载的错误
+}
+go
+
 def list_plugins () {
     listPluginsInner = def() {
         pluginDir = getConfig("pluginDir")
