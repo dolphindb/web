@@ -1,3 +1,15 @@
+def loadZipPlugin() {
+    if (defs("zip::zip").size() == 0) {
+        loadPlugin("zip")
+    }
+}
+pnodeRun(loadZipPlugin)
+controllers = exec name from rpc(getControllerAlias(), getClusterPerf{true}) where mode = 2
+for (controller in controllers) {
+    rpc(controller, loadZipPlugin)
+}
+go
+
 def list_plugins () {
     listPluginsInner = def() {
         pluginDir = getConfig("pluginDir")
