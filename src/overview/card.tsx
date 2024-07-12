@@ -209,7 +209,7 @@ function Node ({
     
     return <div className={'node' + ' ' + (type !== NodeType.single && node.name === model.node.name ? current_node_borders[node.mode] : '')}>{
             type === NodeType.single ? 
-                <div className={'single-node-header' + ' ' + node_colors[mode]}>
+                <div className={`single-node-header ${node_colors[mode]}`}>
                     <div className={'node-title' + ' ' + title_colors[mode]}><div className='node-name'>{name}</div>{isLeader ? <Tag className='leader-tag' color='#FFF' >leader</Tag> : null}</div>
                     <div className='single-node-site'>
                         <NodeSite node={node}/>

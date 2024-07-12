@@ -1,4 +1,4 @@
-import { Button, Checkbox, Col, Divider, Dropdown, Input, Modal, Row, Space, Table, Tooltip, type CollapseProps, type InputRef, type MenuProps, type TableColumnsType } from 'antd'
+import { Button, Checkbox, Col, Divider, Dropdown, Input, Modal, Row, Space, Table, Tooltip, type CollapseProps, type InputRef, type MenuProps, type TableColumnsType, Collapse } from 'antd'
 
 import { CheckCircleOutlined, MinusCircleOutlined, PauseCircleOutlined, SearchOutlined, SettingOutlined } from '@ant-design/icons'
 
@@ -7,8 +7,6 @@ import { useMemo, useRef, useState } from 'react'
 import { use_modal } from 'react-object-model/hooks.js'
 
 import type { ColumnType } from 'antd/es/table/interface.js'
-
-import { Collapse } from 'antd/lib/index.js'
 
 import { NodeType, model, storage_keys, type DdbNode } from '../model.js'
 
@@ -314,19 +312,20 @@ export function OverviewTable ({
     
     const collapseItems: CollapseProps['items'] = [
         {
-          key: 'agent',
-          label: <span className='agent-node-title'>{t('代理节点')}</span>,
-          children: <div className='agent-node-card'>
-                        { nodes.filter(({ mode }) => mode === NodeType.agent)
-                                .map(({ name, state }) => 
-                            <div className='agent-node-item'>
+            key: 'agent',
+            label: <span className='agent-node-title'>{t('代理节点')}</span>,
+            children: (
+                <div className='agent-node-card'>
+                    {nodes
+                        .filter(({ mode }) => mode === NodeType.agent)
+                        .map(({ name, state }) => <div className='agent-node-item'>
                                 {name}
                                 {node_state_icons[Number(state)]}
-                            </div>)
-                        }
-                    </div>
-        },
-      ]
+                            </div>)}
+                </div>
+            )
+        }
+    ]
     
     return <div className='overview-table'>
         <Collapse items={collapseItems} bordered={false}/>
@@ -351,7 +350,7 @@ export function OverviewTable ({
                                         showSorterTooltip: false
                             }))}
                     dataSource={nodes
-                        .filter(({ name, mode }) => name.toLocaleLowerCase().includes(searchText.toLocaleLowerCase()) && mode !== NodeType.agent)
+                        .filter(({ name, mode }) => name.toLowerCase().includes(searchText.toLowerCase()) && mode !== NodeType.agent)
                         .map(node => ({ ...node, key: node.name }))}
                     pagination={false}
                     scroll={{ x: true }}
