@@ -138,6 +138,7 @@ export function OverviewTable ({
         {
             title: t('CPU 平均负载'),
             dataIndex: 'avgLoad',
+            render: (avgLoad: number) => avgLoad.toFixed(6),
             sorter: (a, b) => a.avgLoad - b.avgLoad
         },
         {
