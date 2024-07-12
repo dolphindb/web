@@ -152,7 +152,7 @@
         .single-color
             background: linear-gradient(270deg, rgba(189, 217, 254, 0) 0%, rgba(189, 217, 254, 0) 34.9%, #BDD9FE 100%)
             
-        .node-header 
+        .node-header, .single-node-header
             display: flex
             align-items: center
             justify-content: end
@@ -246,7 +246,11 @@
                 span
                     padding-left: 75px
         
-            
+        .single-node-header
+            justify-content: space-between
+            .single-node-site
+                display: flex
+                align-items: center
                                  
         .node-body
             display: flex
@@ -374,6 +378,20 @@
 
     .overview-table
         padding: 20px
+        display: flex
+        flex-direction: column
+        row-gap: 20px
+        .ant-collapse
+            border-radius: 0
+        .agent-node-title
+            font-weight: 600
+        .agent-node-card
+            display: flex
+            column-gap: 20px
+            row-gap: 10px
+            .agent-node-item
+                display: flex
+                column-gap: 10px
         .ant-table-cell
             padding: 8px !important
         .ant-table-thead

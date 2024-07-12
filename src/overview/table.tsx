@@ -1,4 +1,4 @@
-import { Button, Checkbox, Col, Divider, Dropdown, Input, Modal, Row, Space, Table, Tooltip, type InputRef, type MenuProps, type TableColumnsType } from 'antd'
+import { Button, Checkbox, Col, Divider, Dropdown, Input, Modal, Row, Space, Table, Tooltip, type CollapseProps, type InputRef, type MenuProps, type TableColumnsType, Collapse } from 'antd'
 
 import { CheckCircleOutlined, MinusCircleOutlined, PauseCircleOutlined, SearchOutlined, SettingOutlined } from '@ant-design/icons'
 
@@ -310,9 +310,27 @@ export function OverviewTable ({
         localStorage.setItem(storage_keys.overview_display_columns, JSON.stringify(cols))
     }
     
-    return <>
+    const collapseItems: CollapseProps['items'] = [
+        {
+            key: 'agent',
+            label: <span className='agent-node-title'>{t('代理节点')}</span>,
+            children: (
+                <div className='agent-node-card'>
+                    {nodes
+                        .filter(({ mode }) => mode === NodeType.agent)
+                        .map(({ name, state }) => <div className='agent-node-item'>
+                                {name}
+                                {node_state_icons[Number(state)]}
+                            </div>)}
+                </div>
+            )
+        }
+    ]
+    
+    return <div className='overview-table'>
+        <Collapse items={collapseItems} bordered={false}/>
         <Dropdown menu={{ items }} overlayClassName='table-dropdown' trigger={['contextMenu']}>
-            <div className='overview-table'>
+            <div>
                 <Table
                     rowSelection={{
                         selectedRowKeys: selectedNodeNames,
@@ -325,23 +343,14 @@ export function OverviewTable ({
                             }
                         }
                     }}
-                    // agent node 只展示前两列
                     columns={columns.filter(col => displayCols.includes((col as any).dataIndex))
-                        .map((col, idx) =>
-                            idx < 4
-                                ? col
-                                : {
-                                    ...col,
-                                    render: (text, node: DdbNode, idx) => (node.mode === NodeType.agent ? null : col.render ? col.render(text, node, idx) : text)
-                                }
-                        )
-                        .map(col => ({
-                            ...col,
-                            title: <Tooltip title={getColName(col)}>{(col as any).title}</Tooltip>,
-                            showSorterTooltip: false
-                        }))}
+                                    .map(col => ({
+                                        ...col,
+                                        title: <Tooltip title={getColName(col)}>{(col as any).title}</Tooltip>,
+                                        showSorterTooltip: false
+                            }))}
                     dataSource={nodes
-                        .filter(({ name }) => name.toLocaleLowerCase().includes(searchText.toLocaleLowerCase()))
+                        .filter(({ name, mode }) => name.toLowerCase().includes(searchText.toLowerCase()) && mode !== NodeType.agent)
                         .map(node => ({ ...node, key: node.name }))}
                     pagination={false}
                     scroll={{ x: true }}
@@ -368,5 +377,5 @@ export function OverviewTable ({
                 </Row>
             </Checkbox.Group>
         </Modal>
-    </>
+    </div>
 }
