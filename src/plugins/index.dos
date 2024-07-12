@@ -53,7 +53,27 @@ def list_plugins () {
 }
 
 
-def install_plugin (nodes, zip) {
-    print(nodes)
-    print(zip)
+def install_plugin(nodes, zip) {
+    install_plugin_inner = def(zip) {
+        pluginDir = getConfig("pluginDir")
+        if (!pluginDir.startsWith("/")) {
+            nodeCnt = exec count(*) from rpc(getControllerAlias(), getClusterPerf)
+            if (nodeCnt > 1) {
+                pluginDir = "../" + pluginDir
+            } else {
+                pluginDir = "./" + pluginDir
+            }
+        }
+        
+        tmpZipPath = pluginDir + "/tmp.zip"
+        f = file(tmpZipPath, "w")
+        f.writeObject(zip)
+        zip::unzip(tmpZipPath)
+        rm(tmpZipPath)
+    }
+    
+    // 顺序执行，因为存在一台机器上有多个节点的情况，并发会互相覆盖文件
+    for (node in nodes) {
+        rpc(node, install_plugin_inner, zip)
+    }
 }
