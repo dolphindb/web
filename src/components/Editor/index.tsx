@@ -84,6 +84,9 @@ export function Editor ({
             
             fixedOverflowWidgets: true,
             
+            balancedBracketSelectors: ['*'],
+            unbalancedBracketSelectors: [ ],
+            
             acceptSuggestionOnEnter: enter_completion ? 'on' : 'off',
             
             ... readonly ? {
@@ -99,7 +102,7 @@ export function Editor ({
     return docs ? <MonacoDolphinDBEditor
             dolphinDBLanguageOptions={{
                 docs,
-                theme
+                theme,
             }}
             
             wrapperProps={{ className: `monaco-editor-container ${theme}` }}

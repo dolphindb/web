@@ -30,7 +30,7 @@ export function OverviewTable ({
     selectedNodeNames: string[]
     setSelectedNodeNames: (names: string[]) => void
 }) {
-    const { nodes } = model.use(['nodes'])
+    const { nodes, node_type } = model.use(['nodes', 'node_type'])
     
     const [searchText, setSearchText] = useState('')
     
@@ -328,7 +328,7 @@ export function OverviewTable ({
     ]
     
     return <div className='overview-table'>
-        <Collapse items={collapseItems} bordered={false}/>
+       {node_type !== NodeType.single &&  <Collapse items={collapseItems} bordered={false}/>}
         <Dropdown menu={{ items }} overlayClassName='table-dropdown' trigger={['contextMenu']}>
             <div>
                 <Table
