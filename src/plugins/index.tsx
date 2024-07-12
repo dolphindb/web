@@ -1,16 +1,18 @@
 import './index.sass'
 
-import { useEffect, useState } from 'react'
-import { Button, Empty, Input, Modal, Result, Table, Typography, Upload, type UploadFile } from 'antd'
+import { useEffect, useRef, useState } from 'react'
+import { Button, Checkbox, Empty, Input, Modal, Result, Table, Typography, Upload, type UploadFile } from 'antd'
 import { ReloadOutlined, default as Icon, InboxOutlined } from '@ant-design/icons'
 import { noop } from 'xshell/utils.browser.js'
 
 import { use_modal, type ModalController } from 'react-object-model/hooks.js'
 import { join_elements } from 'react-object-model/utils.js'
 
+import { DdbBlob, DdbVectorString } from 'dolphindb/browser.js'
+
 import { t } from '@i18n/index.js'
 
-import { model } from '@/model.js'
+import { model, NodeType } from '@/model.js'
 
 import script from './index.dos'
 import SvgUpgrade from './upgrade.icon.svg'
@@ -119,6 +121,11 @@ function InstallModal ({ installer }: { installer: ModalController }) {
     let [file, set_file] = useState<UploadFile>()
     let [status, set_status] = useState<'preparing' | 'uploading'>('preparing')
     
+    let rnodes = useRef(
+        model.nodes.filter(({ mode }) => mode !== NodeType.agent && mode !== NodeType.controller )
+            .map(({ name }) => name)
+    )
+    
     return <Modal
         title={t('安装或更新插件')}
         className='plugins-install-modal'
@@ -126,8 +133,17 @@ function InstallModal ({ installer }: { installer: ModalController }) {
         onCancel={installer.close}
         okText={t('安装或更新')}
         width='80%'
-        onOk={() => {
-            console.log('file:', file)
+        onOk={async () => {
+            set_status('uploading')
+            
+            await define_script()
+            
+            await model.ddb.call('install_plugin', [
+                new DdbVectorString(rnodes.current),
+                new DdbBlob(await file.originFileObj.arrayBuffer())
+            ])
+            
+            installer.close()
         }}
     >
         <Upload.Dragger
@@ -186,6 +202,19 @@ function InstallModal ({ installer }: { installer: ModalController }) {
                 }
             ]}
         />
+        
+        <div className='nodes'>
+            <span className='title'>{t('部署节点:')}</span>
+            
+            <Checkbox.Group
+                options={
+                    model.nodes.filter(({ mode }) => mode !== NodeType.agent)
+                        .map(({ name }) => name)
+                    }
+                defaultValue={rnodes.current}
+                onChange={nodes => { rnodes.current = nodes }}
+            />
+        </div>
     </Modal>
 }
 
@@ -199,11 +228,17 @@ interface Plugin {
 
 let script_defined = false
 
-async function list_plugins (query = '') {
+
+async function define_script () {
     if (!script_defined) {
         await model.ddb.execute(script)
         script_defined = true
     }
+}
+
+
+async function list_plugins (query = '') {
+    await define_script()
     
     const plugins = (await model.ddb.invoke<Plugin[]>('list_plugins'))
         .filter(({ id, least_version, nodes }) => 
