@@ -30,6 +30,7 @@ export function Plugins () {
     const [query, set_query] = useState('')
     
     let installer = use_modal()
+    let syncer = use_modal()
     
     
     useEffect(() => {
@@ -69,23 +70,23 @@ export function Plugins () {
             // size='small'
             columns={[
                 {
-                    title: '插件 ID',
+                    title: t('插件 ID'),
                     dataIndex: 'id',
                     width: 200,
                 },
                 {
-                    title: '集群已安装的最低版本', 
+                    title: t('集群已安装的最低版本'), 
                     width: 400,
                     render: (_, { least_version }) => {
                         const match = least_version.startsWith(
                             model.version.split('.').slice(0, 3).join('.')  // 去掉 patch 部分
                         )
                         
-                        return <Text type={ match ? undefined : 'danger'}>{least_version}{ !match && ' (与数据库版本不一致，无法加载)' }</Text>
+                        return <Text type={ match ? undefined : 'danger'}>{least_version}{ !match && t(' (与数据库版本不一致，无法加载)') }</Text>
                     }
                 },
                 {
-                    title: '已部署节点',
+                    title: t('已部署节点'),
                     render: (_, { nodes, least_version }, j) => {
                         let all_match = true
                         
@@ -108,6 +109,25 @@ export function Plugins () {
                         return <>
                             { join_elements(elements, <span>{', '}</span>) }
                             { !all_match && <Text type='danger'> (不同节点插件版本不一致，需要同步)</Text> }
+                        </>
+                    }
+                },
+                {
+                    title: t('操作'),
+                    render: (_, { nodes, least_version }) => {
+                        const all_match = nodes.every(({ version }) => version === least_version)
+                        
+                        
+                        return <>
+                            <Button
+                                type='link'
+                                disabled={all_match}
+                                onClick={() => {
+                                    
+                                }}
+                            >同步</Button>
+                            
+                            {/* <SyncModal syncer={syncer} /> */}
                         </>
                     }
                 }
@@ -223,6 +243,21 @@ function InstallModal ({ installer }: { installer: ModalController }) {
         </div>
     </Modal>
 }
+
+
+// function SyncModal ({ syncer }: { syncer: ModalController }) {
+//     return <Modal>
+//         <div className='nodes'>
+//             <span className='title'>{t('同步到这些节点:')}</span>
+            
+//             <Checkbox.Group
+//                 options={default_nodes}
+//                 defaultValue={rnodes.current}
+//                 onChange={nodes => { rnodes.current = nodes }}
+//             />
+//         </div>
+//     </Modal>
+// }
 
 
 interface Plugin {
