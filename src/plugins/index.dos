@@ -1,4 +1,4 @@
-def list_plugins() {
+def list_plugins () {
     listPluginsInner = def() {
         pluginDir = getConfig("pluginDir")
         if (!pluginDir.startsWith("/")) {
@@ -50,4 +50,10 @@ def list_plugins() {
     }
     
     return ret
+}
+
+
+def install_plugin (nodes, zip) {
+    print(nodes)
+    print(zip)
 }

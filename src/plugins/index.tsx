@@ -145,6 +145,10 @@ function InstallModal ({ installer }: { installer: ModalController }) {
             
             installer.close()
         }}
+        
+        okButtonProps={{
+            disabled: !file
+        }}
     >
         <Upload.Dragger
             showUploadList={false}
