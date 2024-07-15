@@ -138,7 +138,7 @@ export function Connections () {
                             e.stopPropagation()
                             on_select_connection(connection.id)
                         }}>
-                            {connection.name}
+                            <span className='connection-menu-label'>{connection.name}</span>
                         </Checkbox>
                         <Space>
                             <Button type='link' className='link-btn'>
