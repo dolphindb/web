@@ -2,7 +2,7 @@ import './index.sass'
 
 import { type ReactNode, type JSX } from 'react'
 
-import { Button, Tooltip, Progress, Tag, Checkbox } from 'antd'
+import { Tooltip, Progress, Tag, Checkbox } from 'antd'
 
 import { default as Icon } from '@ant-design/icons'
 
