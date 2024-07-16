@@ -1,9 +1,9 @@
 import './index.sass'
 
 import { useEffect, useRef, useState } from 'react'
-import { Button, Checkbox, Empty, Input, Modal, Result, Table, Typography, Upload, type UploadFile } from 'antd'
+import { Button, Checkbox, Empty, Form, Input, Modal, Radio, Result, Table, Typography, Upload, type UploadFile } from 'antd'
 import { ReloadOutlined, default as Icon, InboxOutlined } from '@ant-design/icons'
-import { noop } from 'xshell/utils.browser.js'
+import { noop, vercmp } from 'xshell/utils.browser.js'
 
 import { use_modal, type ModalController } from 'react-object-model/hooks.js'
 import { join_elements } from 'react-object-model/utils.js'
@@ -12,7 +12,8 @@ import { DdbBlob, DdbVectorString } from 'dolphindb/browser.js'
 
 import { t } from '@i18n/index.js'
 
-import { model, NodeType } from '@/model.js'
+import { DdbNodeState, model, NodeType } from '@/model.js'
+import { required } from '@/utils/index.js'
 
 import script from './index.dos'
 import SvgUpgrade from './upgrade.icon.svg'
@@ -27,10 +28,20 @@ export function Plugins () {
     const [refresher, set_refresher] = useState({ })
     
     const [plugins, set_plugins] = useState<Plugin[]>([ ])
+    
+    // 待同步的插件
+    const [plugin, set_plugin] = useState<Plugin>()
+    
+    // 搜索内容
     const [query, set_query] = useState('')
     
     let installer = use_modal()
     let syncer = use_modal()
+    
+    
+    // local
+    if (plugins.length)
+        plugins[0].nodes[0].version = '2.00.10'
     
     
     useEffect(() => {
@@ -114,25 +125,27 @@ export function Plugins () {
                 },
                 {
                     title: t('操作'),
-                    render: (_, { nodes, least_version }) => {
+                    className: 'actions',
+                    render: (_, plugin) => {
+                        const { nodes, least_version } = plugin
+                        
                         const all_match = nodes.every(({ version }) => version === least_version)
                         
-                        
-                        return <>
-                            <Button
-                                type='link'
-                                disabled={all_match}
-                                onClick={() => {
-                                    
-                                }}
-                            >同步</Button>
-                            
-                            {/* <SyncModal syncer={syncer} /> */}
-                        </>
+                        return <Button
+                            className='sync'
+                            type='link'
+                            disabled={all_match || !nodes.length}
+                            onClick={() => {
+                                set_plugin(plugin)
+                                syncer.open()
+                            }}
+                        >{t('同步')}</Button>
                     }
                 }
             ]}
         />
+        
+        <SyncModal syncer={syncer} plugin={plugin} />
     </>
 }
 
@@ -171,9 +184,7 @@ function InstallModal ({ installer }: { installer: ModalController }) {
             installer.close()
         }}
         
-        okButtonProps={{
-            disabled: !file
-        }}
+        okButtonProps={{ disabled: !file }}
     >
         <Upload.Dragger
             showUploadList={false}
@@ -245,19 +256,96 @@ function InstallModal ({ installer }: { installer: ModalController }) {
 }
 
 
-// function SyncModal ({ syncer }: { syncer: ModalController }) {
-//     return <Modal>
-//         <div className='nodes'>
-//             <span className='title'>{t('同步到这些节点:')}</span>
+function SyncModal ({ syncer, plugin }: { syncer: ModalController, plugin: Plugin }) {
+    interface Fields {
+        src: string
+        dsts: string[]
+    }
+    
+    
+    let [form] = Form.useForm<Fields>()
+    
+    const src_name = Form.useWatch(['src'], form)
+    
+    let [status, set_status] = useState<'preparing' | 'syncing'>('preparing')
+    
+    if (!plugin)
+        return null
+    
+    const { nodes } = plugin
+    
+    const sorted_nodes = nodes.toSorted(
+        (l, r) => -vercmp(l.version, r.version, true))
+    
+    const src_node = sorted_nodes[0]
+    
+    
+    const versions = Object.fromEntries(
+        nodes.map(({ node, version }) => [node, version]))
+    
+    
+    return <Modal
+        title={t('同步插件')}
+        className='plugins-sync-modal'
+        open={syncer.visible}
+        onCancel={syncer.close}
+        okText={t('同步')}
+        width='80%'
+        onOk={async () => {
+            const values = await form.validateFields()
             
-//             <Checkbox.Group
-//                 options={default_nodes}
-//                 defaultValue={rnodes.current}
-//                 onChange={nodes => { rnodes.current = nodes }}
-//             />
-//         </div>
-//     </Modal>
-// }
+            console.log('values:', values)
+            
+            set_status('syncing')
+            
+            await define_script()
+            
+            try {
+                await model.ddb.call('sync_plugin', [])
+            } finally {
+                set_status('preparing')
+            }
+            
+            syncer.close()
+        }}
+        okButtonProps={{
+            disabled: !form.getFieldValue('dsts')?.length
+        }}
+    >
+        <Form<Fields>
+            className='sync-form'
+            name='sync'
+            form={form}
+            initialValues={{
+                // 版本最大的节点
+                src: src_node.node,
+                
+                dsts: nodes.filter(({ version }) => 
+                        version !== src_node.version)
+                    .map(({ node }) => node)
+            }}
+        >
+            <Form.Item<Fields> name='src' label='插件来源节点' {...required}>
+                <Radio.Group options={sorted_nodes.map(({ node, version }) => ({
+                    label: `${node} (${version})`,
+                    value: node
+                }))} />
+            </Form.Item>
+            
+            <Form.Item<Fields> name='dsts' label='部署目标节点' {...required} dependencies={['src']}>
+                <Checkbox.Group options={
+                    model.nodes.filter(
+                        ({ mode, name }) => mode !== NodeType.agent && name !== src_name)
+                    .map(({ name, state }) => ({
+                        label: versions[name] ? `${name} (${versions[name]})` : name,
+                        value: name,
+                        disabled: state === DdbNodeState.offline,
+                    }))
+                }/>
+            </Form.Item>
+        </Form>
+    </Modal>
+}
 
 
 interface Plugin {

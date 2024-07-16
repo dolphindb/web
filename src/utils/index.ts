@@ -16,3 +16,6 @@ export function download_file (name: string, url: string) {
     document.body.removeChild(a)
     URL.revokeObjectURL(url)
 }
+
+
+export const required = { required: true, rules: [{ required: true }] }
