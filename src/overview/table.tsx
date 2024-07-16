@@ -329,7 +329,7 @@ export function OverviewTable ({
     ]
     
     return <div className='overview-table'>
-       {node_type !== NodeType.single &&  <Collapse items={collapseItems} bordered={false}/>}
+       { node_type !== NodeType.single &&  <Collapse items={collapseItems} bordered={false}/> }
         <Dropdown menu={{ items }} overlayClassName='table-dropdown' trigger={['contextMenu']}>
             <div>
                 <Table
