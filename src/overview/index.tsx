@@ -1,6 +1,6 @@
 import './index.sass'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 
 import { Layout, Button, Tooltip, Popconfirm, Segmented } from 'antd'
 const { Header } = Layout
@@ -59,6 +59,9 @@ export function Overview () {
     const [startOpen, setStartOpen] = useState(false)
     const [stopOpen, setStopOpen] = useState(false)
     
+    const onlineNodes = useMemo(() => selectedNodes.filter(node => node.state === DdbNodeState.online), [selectedNodes]) 
+    const offlineNodes = useMemo(() => selectedNodes.filter(node => node.state === DdbNodeState.offline), [selectedNodes])
+    
     return <Layout>
             <Header className='header-bar'>
                 <div className='operations'>
@@ -80,7 +83,7 @@ export function Overview () {
                                     <Popconfirm
                                         open={startOpen}
                                         title={t('确认启动以下节点')}
-                                        disabled={!selectedNodes.filter(node => node.state === DdbNodeState.offline).length || !logined}
+                                        disabled={!offlineNodes.length || !logined}
                                         description={() =>
                                             selectedNodes.map(
                                                 node =>
@@ -95,7 +98,7 @@ export function Overview () {
                                             try {
                                                 setIsStartLoading(true)
                                                 setStartOpen(false)
-                                                await model.start_nodes(selectedNodes.filter(node => node.state === DdbNodeState.offline))
+                                                await model.start_nodes(offlineNodes)
                                                 await delay(5000)
                                                 await model.get_cluster_perf(false)
                                                 model.message.success(t('启动成功'))
@@ -110,11 +113,11 @@ export function Overview () {
                                         okText={t('确认')}
                                         cancelText={t('取消')}
                                         okButtonProps={{
-                                            disabled: selectedNodes.filter(node => node.state === DdbNodeState.offline).length === 0,
+                                            disabled: !offlineNodes.length,
                                             loading: isStartLoading
                                         }}
                                     >
-                                         <Tooltip title={ t('当前用户未登录，请登陆后再进行启停操作。') }>
+                                         <Tooltip title={offlineNodes.length && !logined ? t('当前用户未登录，请登陆后再进行启停操作。') : ''}>
                                             <Button
                                                 type='text'
                                                 size='large'
@@ -123,7 +126,7 @@ export function Overview () {
                                                 onClick={() => {
                                                     setStartOpen(true)
                                                 }}
-                                                disabled={!selectedNodes.filter(node => node.state === DdbNodeState.offline).length || !logined}
+                                                disabled={!offlineNodes.length || !logined}
                                                 icon={
                                                     <Icon
                                                         className={'icon-start' + (!selectedNodes.length || !logined ? ' grey-icon' : ' blue-icon')}
@@ -142,7 +145,7 @@ export function Overview () {
                                     <Popconfirm
                                         title={t('确认停止以下节点')}
                                         open={stopOpen}
-                                        disabled={!selectedNodes.filter(node => node.state === DdbNodeState.online).length || !logined}
+                                        disabled={!onlineNodes.length || !logined}
                                         description={() =>
                                             selectedNodes.map(
                                                 node =>
@@ -157,7 +160,7 @@ export function Overview () {
                                             try {
                                                 setIsStopLoading(true)
                                                 setStopOpen(false)
-                                                await model.stop_nodes(selectedNodes.filter(node => node.state === DdbNodeState.online))
+                                                await model.stop_nodes(onlineNodes)
                                                 await delay(5000)
                                                 await model.get_cluster_perf(false)
                                                 model.message.success(t('停止成功'))
@@ -172,11 +175,11 @@ export function Overview () {
                                         okText={t('确认')}
                                         cancelText={t('取消')}
                                         okButtonProps={{
-                                            disabled: selectedNodes.filter(node => node.state === DdbNodeState.online).length === 0,
+                                            disabled: !onlineNodes.length,
                                             loading: isStopLoading
                                         }}
                                     >
-                                        <Tooltip title={selectedNodes.length && !logined ? t('当前用户未登录，请登陆后再进行启停操作。') : ''}>
+                                        <Tooltip title={onlineNodes.length && !logined ? t('当前用户未登录，请登陆后再进行启停操作。') : ''}>
                                             <Button
                                                 type='text'
                                                 size='large'
@@ -185,7 +188,7 @@ export function Overview () {
                                                 onClick={() => {
                                                     setStopOpen(true)
                                                 }}
-                                                disabled={!selectedNodes.filter(node => node.state === DdbNodeState.online).length || !logined}
+                                                disabled={!onlineNodes.length || !logined}
                                                 icon={
                                                     <Icon
                                                         className={'icon-stop' + (!selectedNodes.length || !logined ? ' grey-icon' : ' blue-icon')}
