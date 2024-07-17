@@ -12,7 +12,7 @@ import { DdbBlob } from 'dolphindb/browser.js'
 
 import { t } from '@i18n/index.js'
 
-import { model } from '@/model.js'
+import { model, DdbNodeState, NodeType } from '@/model.js'
 import { required } from '@/utils/index.js'
 
 import script from './index.dos'
@@ -84,11 +84,11 @@ export function Plugins () {
                 {
                     title: t('插件 ID'),
                     dataIndex: 'id',
-                    width: 200,
+                    width: 160,
                 },
                 {
                     title: t('集群已安装的最低版本'), 
-                    width: 400,
+                    width: 320,
                     render: (_, { least_version }) => {
                         const match = least_version.startsWith(
                             model.version.split('.').slice(0, 3).join('.')  // 去掉 patch 部分
@@ -98,8 +98,8 @@ export function Plugins () {
                     }
                 },
                 {
-                    title: t('已部署节点'),
-                    render: (_, { nodes, least_version }, j) => {
+                    title: t('已安装节点'),
+                    render: (_, { nodes, least_version, installables }) => {
                         let all_match = true
                         
                         const elements = nodes.map(({ node, version }, index) => {
@@ -113,29 +113,40 @@ export function Plugins () {
                             
                             return match
                                 ? node
-                                : <Text key={node} className='danger-node' type={ match ? undefined : 'danger'}>
+                                : <Text key={node} className='danger-node' type='danger'>
                                     {node} ({version})
                                 </Text>
                         })
                         
                         return <>
-                            { join_elements(elements, <span>{', '}</span>) }
+                            { installables.length
+                                ? join_elements(elements, <span>{', '}</span>)
+                                : t('全部节点')
+                            }
                             { !all_match && <Text type='danger'> (不同节点插件版本不一致，需要同步)</Text> }
                         </>
                     }
                 },
                 {
+                    title: t('待安装节点'),
+                    render: (_, { installables }) =>
+                        installables.length > 0 && <>
+                            { join_elements([...installables], <span>{', '}</span>) }
+                            <Text type='danger'> (存在未安装节点，需要同步)</Text>
+                        </>
+                },
+                {
                     title: t('操作'),
                     className: 'actions',
                     render: (_, plugin) => {
-                        const { nodes, least_version } = plugin
+                        const { nodes, least_version, installables } = plugin
                         
                         const all_match = nodes.every(({ version }) => version === least_version)
                         
                         return <Button
                             className='sync'
                             type='link'
-                            disabled={all_match || !nodes.length}
+                            disabled={all_match && !installables.length}
                             onClick={() => {
                                 set_plugin(plugin)
                                 syncer.open()
@@ -310,6 +321,9 @@ interface Plugin {
     id: string
     least_version: string
     nodes: { node: string, version: string }[]
+    
+    /** 计算出的集群中剩余的可安装节点 */
+    installables: string[]
 }
 
 
@@ -327,13 +341,31 @@ async function define_script () {
 async function list_plugins (query = '') {
     await define_script()
     
-    const plugins = (await model.ddb.invoke<Plugin[]>('list_plugins'))
-        .filter(({ id, least_version, nodes }) => 
-            id.includes(query) || 
-            least_version.includes(query) || 
-            nodes.map(({ node }) => node)
-                .find(node => node.includes(query))
-        )
+    const all_nodes = model.nodes.filter(({ mode, state, isLeader }) => 
+        mode !== NodeType.agent && 
+        state === DdbNodeState.online && 
+        (mode !== NodeType.controller || mode === NodeType.controller && isLeader)  // 仅 leader 节点能安装
+    ).map(({ name }) => name)
+    
+    let plugins = (await model.ddb.invoke<Plugin[]>('list_plugins'))
+        .map(plugin => {
+            const installeds = new Set(
+                plugin.nodes.map(({ node }) => node))
+            
+            return {
+                ...plugin,
+                installables: all_nodes.filter(node => !installeds.has(node))
+            }
+        })
+    
+    if (query)
+        plugins = plugins
+            .filter(({ id, least_version, nodes }) => 
+                id.includes(query) || 
+                least_version.includes(query) || 
+                nodes.map(({ node }) => node)
+                    .find(node => node.includes(query))
+            )
     
     console.log('插件:', plugins)
     
