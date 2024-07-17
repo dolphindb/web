@@ -75,6 +75,7 @@ export function Plugins () {
         </div>
         
         <Table
+            className='plugins-table'
             dataSource={plugins}
             rowKey='id'
             pagination={false}
