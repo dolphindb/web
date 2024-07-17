@@ -119,7 +119,7 @@ export function Plugins () {
                         })
                         
                         return <>
-                            { installables.length
+                            { installables.length || !all_match
                                 ? join_elements(elements, <span>{', '}</span>)
                                 : t('全部节点')
                             }
