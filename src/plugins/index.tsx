@@ -1,18 +1,18 @@
 import './index.sass'
 
-import { useEffect, useRef, useState } from 'react'
-import { Button, Checkbox, Empty, Form, Input, Modal, Radio, Result, Table, Typography, Upload, type UploadFile } from 'antd'
+import { useEffect, useState } from 'react'
+import { Button, Empty, Form, Input, Modal, Radio, Result, Table, Typography, Upload, type UploadFile } from 'antd'
 import { ReloadOutlined, default as Icon, InboxOutlined } from '@ant-design/icons'
 import { noop, vercmp } from 'xshell/utils.browser.js'
 
 import { use_modal, type ModalController } from 'react-object-model/hooks.js'
 import { join_elements } from 'react-object-model/utils.js'
 
-import { DdbBlob, DdbVectorString } from 'dolphindb/browser.js'
+import { DdbBlob } from 'dolphindb/browser.js'
 
 import { t } from '@i18n/index.js'
 
-import { DdbNodeState, model, NodeType } from '@/model.js'
+import { model } from '@/model.js'
 import { required } from '@/utils/index.js'
 
 import script from './index.dos'
@@ -155,14 +155,8 @@ function InstallModal ({ installer }: { installer: ModalController }) {
     let [file, set_file] = useState<UploadFile>()
     let [status, set_status] = useState<'preparing' | 'uploading'>('preparing')
     
-    const default_nodes = model.nodes.filter(({ mode }) => mode !== NodeType.agent)
-        .map(({ name }) => name)
-    
-    let rnodes = useRef(default_nodes)
-    
-    
     return <Modal
-        title={t('安装或更新插件')}
+        title={t('安装或更新插件至集群内全部节点')}
         className='plugins-install-modal'
         open={installer.visible}
         onCancel={installer.close}
@@ -175,8 +169,9 @@ function InstallModal ({ installer }: { installer: ModalController }) {
             
             try {
                 await model.ddb.call('install_plugin', [
-                    new DdbVectorString(rnodes.current),
-                    new DdbBlob(await file.originFileObj.arrayBuffer())
+                    new DdbBlob(
+                        await file.originFileObj.arrayBuffer()
+                    )
                 ])
             } finally {
                 set_status('preparing')
@@ -185,7 +180,10 @@ function InstallModal ({ installer }: { installer: ModalController }) {
             installer.close()
         }}
         
-        okButtonProps={{ disabled: !file }}
+        okButtonProps={{
+            disabled: !file,
+            loading: status === 'uploading'
+        }}
     >
         <Upload.Dragger
             showUploadList={false}
@@ -243,16 +241,6 @@ function InstallModal ({ installer }: { installer: ModalController }) {
                 }
             ]}
         />
-        
-        <div className='nodes'>
-            <span className='title'>{t('部署节点:')}</span>
-            
-            <Checkbox.Group
-                options={default_nodes}
-                defaultValue={rnodes.current}
-                onChange={nodes => { rnodes.current = nodes }}
-            />
-        </div>
     </Modal>
 }
 
@@ -260,47 +248,34 @@ function InstallModal ({ installer }: { installer: ModalController }) {
 function SyncModal ({ syncer, plugin }: { syncer: ModalController, plugin: Plugin }) {
     interface Fields {
         src: string
-        dsts: string[]
     }
     
-    
     let [form] = Form.useForm<Fields>()
-    
-    const src_name = Form.useWatch(['src'], form)
     
     let [status, set_status] = useState<'preparing' | 'syncing'>('preparing')
     
     if (!plugin)
         return null
     
-    const { nodes } = plugin
-    
-    const sorted_nodes = nodes.toSorted(
+    const sorted_nodes = plugin.nodes.toSorted(
         (l, r) => -vercmp(l.version, r.version, true))
     
-    const src_node = sorted_nodes[0]
-    
-    
-    const versions = Object.fromEntries(
-        nodes.map(({ node, version }) => [node, version]))
-    
-    
     return <Modal
-        title={t('同步插件')}
+        title={t('同步插件至集群内其他节点')}
         className='plugins-sync-modal'
         open={syncer.visible}
         onCancel={syncer.close}
         okText={t('同步')}
         width='80%'
         onOk={async () => {
-            const { src, dsts } = await form.validateFields()
+            const { src } = await form.validateFields()
             
             set_status('syncing')
             
             try {
                 await define_script()
                 
-                await model.ddb.invoke('sync_plugin', [src, dsts])
+                await model.ddb.invoke('sync_plugin', [src])
             } finally {
                 set_status('preparing')
             }
@@ -308,7 +283,7 @@ function SyncModal ({ syncer, plugin }: { syncer: ModalController, plugin: Plugi
             syncer.close()
         }}
         okButtonProps={{
-            disabled: !form.getFieldValue('dsts')?.length
+            loading: status === 'syncing'
         }}
     >
         <Form<Fields>
@@ -317,11 +292,7 @@ function SyncModal ({ syncer, plugin }: { syncer: ModalController, plugin: Plugi
             form={form}
             initialValues={{
                 // 版本最大的节点
-                src: src_node.node,
-                
-                dsts: nodes.filter(({ version }) => 
-                        version !== src_node.version)
-                    .map(({ node }) => node)
+                src: sorted_nodes[0].node
             }}
         >
             <Form.Item<Fields> name='src' label='插件来源节点' {...required}>
@@ -329,24 +300,6 @@ function SyncModal ({ syncer, plugin }: { syncer: ModalController, plugin: Plugi
                     label: `${node} (${version})`,
                     value: node
                 }))} />
-            </Form.Item>
-            
-            <Form.Item<Fields> name='dsts' label='部署目标节点' {...required} dependencies={['src']}>
-                <Checkbox.Group options={
-                    model.nodes.filter(
-                        ({ mode, name }) => mode !== NodeType.agent && name !== src_name)
-                    .map(({ name, state }) => {
-                        const disabled = state === DdbNodeState.offline
-                        
-                        return {
-                            label: disabled 
-                                ? `${name} (${t('未启动')})`
-                                : `${name} (${versions[name] || t('未安装')})`,
-                            value: name,
-                            disabled,
-                        }
-                    })
-                } />
             </Form.Item>
         </Form>
     </Modal>

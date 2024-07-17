@@ -100,7 +100,6 @@ def install_plugin(nodes, zip) {
 }
 
 
-def sync_plugin (src, dsts) {
+def sync_plugin (src) {
     print(src)
-    print(dsts)
 }
