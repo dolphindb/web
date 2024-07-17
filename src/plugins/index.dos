@@ -1,34 +1,25 @@
-// def loadZipPlugin() {
-//     if (defs("zip::zip").size() == 0) {
-//         loadPlugin("zip")
-//     }
-// }
-// pnodeRun(loadZipPlugin)
-// controllers = exec name from rpc(getControllerAlias(), getClusterPerf{true}) where mode = 2
-// for (controller in controllers) {
-//     rpc(controller, loadZipPlugin)
-// }
-// go
-
-
-try {
-    loadPlugin('zip')
-} catch (error) {
-    // todo: 处理非重复加载的错误
+if (defs("zip::unzip").size() == 0) {
+    loadPlugin("zip")
 }
 go
 
+def getPluginDir() {
+    pluginDir = getConfig("pluginDir")
+    if (!pluginDir.startsWith("/")) {
+        nodeCnt = exec count(*) from rpc(getControllerAlias(), getClusterPerf)
+        if (nodeCnt > 1) {
+            pluginDir = "../" + pluginDir
+        } else {
+            pluginDir = "./" + pluginDir
+        }
+    }
+    
+    return pluginDir
+}
+
 def list_plugins () {
     listPluginsInner = def() {
-        pluginDir = getConfig("pluginDir")
-        if (!pluginDir.startsWith("/")) {
-            nodeCnt = exec count(*) from rpc(getControllerAlias(), getClusterPerf)
-            if (nodeCnt > 1) {
-                pluginDir = "../" + pluginDir
-            } else {
-                pluginDir = "./" + pluginDir
-            }
-        }
+        pluginDir = getPluginDir()
         pluginNames = exec filename from files(pluginDir) where isDir = true
         ret = table(1:0, `pluginName`version, [STRING, STRING])
         for (pluginName in pluginNames) {
@@ -72,18 +63,22 @@ def list_plugins () {
     return ret
 }
 
+def getClusterPluginDirs() {
+    nodes = select * from rpc(getControllerAlias(), getClusterPerf{true}) where (mode != 2 or (mode == 2 and isLeader = true)) and mode != 1
+    addColumn(nodes, "pluginDir", STRING)
+    for (node in nodes) {
+        name = node["name"]
+        pluginDir_ = rpc(name, getPluginDir)
+        update nodes set pluginDir = pluginDir_
+    }
+    // 若host和pluginDir相同，则只需要部署一次
+    nodes = select first(name) as name from nodes group by host, pluginDir
+    return nodes
+}
 
-def install_plugin(nodes, zip) {
+def install_plugin(zip) {
     install_plugin_inner = def(zip) {
-        pluginDir = getConfig("pluginDir")
-        if (!pluginDir.startsWith("/")) {
-            nodeCnt = exec count(*) from rpc(getControllerAlias(), getClusterPerf)
-            if (nodeCnt > 1) {
-                pluginDir = "../" + pluginDir
-            } else {
-                pluginDir = "./" + pluginDir
-            }
-        }
+        pluginDir = getPluginDir()
         
         tmpZipPath = pluginDir + "/tmp.zip"
         f = file(tmpZipPath, "w")
@@ -94,12 +89,70 @@ def install_plugin(nodes, zip) {
     }
     
     // 顺序执行，因为存在一台机器上有多个节点的情况，并发会互相覆盖文件
+    nodes = select * from rpc(getControllerAlias(), getClusterPerf{true}) where (mode != 2 or (mode == 2 and isLeader = true)) and mode != 1
+    addColumn(nodes, "pluginDir", STRING)
     for (node in nodes) {
-        rpc(node, install_plugin_inner, zip)
+        name = node["name"]
+        pluginDir_ = rpc(name, getConfig, "pluginDir")
+        update nodes set pluginDir = pluginDir_
+    }
+    // 若host和pluginDir相同，则只需要部署一次
+    nodes = select first(name) from nodes group by host, pluginDir
+    for (node in nodes) {
+        name = node["name"]
+        rpc(name, install_plugin, zip)
     }
 }
 
+def copyFolderToRemoteNode(src, destNodeAlias, dest) {
+    // src = "/hdd/hdd8/btxie/ddb_deploy/server/plugins/kafka"
+    // destNodeAlias = "P3-dnode1"
+    // dest = "/hdd/hdd8/btxie/ddb_deploy/server/plugins/kafka"
+    writeBytesRemote = def(filePath, bytes) {
+        f = file(filePath, "w")
+        f.writeBytes(bytes)
+    }
+    
+    print(getNodeAlias() + ": " + src+"\n -> \n" + destNodeAlias + ": " + dest);
+    if (getNodeAlias()==destNodeAlias)
+        return
+    if (rpc(destNodeAlias, exists, dest)==false)
+        rpc(destNodeAlias, mkdir, dest)
+    for(oneFile in files(src)) {
+        // oneFile = files(src)[0]
+        if(oneFile.isDir){
+            copyFolderToRemoteNode(src+"/"+oneFile.filename, destNodeAlias, dest+"/"+oneFile.filename);
+            continue;
+        }
+        
+        print(oneFile.filename);
+        srcFile=file(src+"/"+oneFile.filename);
+        len = srcFile.seek(0,TAIL)
+        srcFile.seek(0,HEAD)
+        if (len==0) {
+            continue
+        }
+        buf = srcFile.readBytes(len)
+        rpc(destNodeAlias, writeBytesRemote, dest+"/"+oneFile.filename, buf)
+    }
+}
 
-def sync_plugin (src) {
-    print(src)
+def sync_plugins(src) {
+    sync_plugins_inner = def() {
+        pluginDir = getPluginDir()
+        pluginNames = exec filename from files(pluginDir) where isDir == true
+        destInfo = select * from getClusterPluginDirs() where host != getNodeHost()
+        for (item in destInfo) {
+            // item = destInfo[0]
+            for (pluginName in pluginNames) {
+                // pluginName = pluginNames[0]
+                src = pluginDir + "/" + pluginName
+                destNodeAlias = item["name"]
+                dest = item["pluginDir"] + "/" + pluginName
+                copyFolderToRemoteNode(src, destNodeAlias, dest)
+            }
+        }
+    }
+    
+    rpc(src, sync_plugins_inner)
 }
