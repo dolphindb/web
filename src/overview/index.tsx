@@ -77,7 +77,6 @@ export function Overview () {
                     {node_type !== NodeType.single && (
                         <>
                             <div className={icon_classname}>
-                                <Tooltip title={selectedNodes.length && !logined ? t('当前用户未登录，请登陆后再进行启停操作。') : ''}>
                                     <Popconfirm
                                         open={startOpen}
                                         title={t('确认启动以下节点')}
@@ -115,30 +114,31 @@ export function Overview () {
                                             loading: isStartLoading
                                         }}
                                     >
-                                        <Button
-                                            type='text'
-                                            size='large'
-                                            block
-                                            loading={isStartLoading}
-                                            onClick={() => {
-                                                setStartOpen(true)
-                                            }}
-                                            disabled={!selectedNodes.filter(node => node.state === DdbNodeState.offline).length || !logined}
-                                            icon={
-                                                <Icon
-                                                    className={'icon-start' + (!selectedNodes.length || !logined ? ' grey-icon' : ' blue-icon')}
-                                                    component={SvgStart}
-                                                />
-                                            }
-                                        >
-                                            {t('启动')}
-                                        </Button>
+                                         <Tooltip title={ t('当前用户未登录，请登陆后再进行启停操作。') }>
+                                            <Button
+                                                type='text'
+                                                size='large'
+                                                block
+                                                loading={isStartLoading}
+                                                onClick={() => {
+                                                    setStartOpen(true)
+                                                }}
+                                                disabled={!selectedNodes.filter(node => node.state === DdbNodeState.offline).length || !logined}
+                                                icon={
+                                                    <Icon
+                                                        className={'icon-start' + (!selectedNodes.length || !logined ? ' grey-icon' : ' blue-icon')}
+                                                        component={SvgStart}
+                                                    />
+                                                }
+                                            >
+                                                {t('启动')}
+                                            </Button>
+                                        </Tooltip>
                                     </Popconfirm>
-                                </Tooltip>
                             </div>
                             
                             <div className={icon_classname}>
-                                <Tooltip title={selectedNodes.length && !logined ? t('当前用户未登录，请登陆后再进行启停操作。') : ''}>
+                              
                                     <Popconfirm
                                         title={t('确认停止以下节点')}
                                         open={stopOpen}
@@ -176,26 +176,27 @@ export function Overview () {
                                             loading: isStopLoading
                                         }}
                                     >
-                                        <Button
-                                            type='text'
-                                            size='large'
-                                            block
-                                            loading={isStopLoading}
-                                            onClick={() => {
-                                                setStopOpen(true)
-                                            }}
-                                            disabled={!selectedNodes.filter(node => node.state === DdbNodeState.online).length || !logined}
-                                            icon={
-                                                <Icon
-                                                    className={'icon-stop' + (!selectedNodes.length || !logined ? ' grey-icon' : ' blue-icon')}
-                                                    component={SvgStop}
-                                                />
-                                            }
-                                        >
-                                            {t('停止')}
-                                        </Button>
+                                        <Tooltip title={selectedNodes.length && !logined ? t('当前用户未登录，请登陆后再进行启停操作。') : ''}>
+                                            <Button
+                                                type='text'
+                                                size='large'
+                                                block
+                                                loading={isStopLoading}
+                                                onClick={() => {
+                                                    setStopOpen(true)
+                                                }}
+                                                disabled={!selectedNodes.filter(node => node.state === DdbNodeState.online).length || !logined}
+                                                icon={
+                                                    <Icon
+                                                        className={'icon-stop' + (!selectedNodes.length || !logined ? ' grey-icon' : ' blue-icon')}
+                                                        component={SvgStop}
+                                                    />
+                                                }
+                                            >
+                                                {t('停止')}
+                                            </Button>
+                                        </Tooltip>
                                     </Popconfirm>
-                                </Tooltip>
                             </div>
                         </>
                     )}
