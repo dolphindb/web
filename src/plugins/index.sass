@@ -1,4 +1,6 @@
 .plugins
+    height: 100%
+    
     display: flex
     flex-direction: column
     
@@ -14,6 +16,11 @@
             margin-left: 20px
             
     .plugins-table
+        flex: 1
+        min-height: 0px
+        
+        overflow-y: scroll
+        
         thead
             .actions
                 padding-left: 30px

@@ -88,7 +88,7 @@ export function Plugins () {
                 },
                 {
                     title: t('集群已安装的最低版本'), 
-                    width: 320,
+                    width: 360,
                     render: (_, { least_version }) => {
                         const match = least_version.startsWith(
                             model.version.split('.').slice(0, 3).join('.')  // 去掉 patch 部分
@@ -132,7 +132,7 @@ export function Plugins () {
                     render: (_, { installables }) =>
                         installables.length > 0 && <>
                             { join_elements([...installables], <span>{', '}</span>) }
-                            <Text type='danger'> (存在未安装节点，需要同步)</Text>
+                            <Text type='danger'> (需要同步)</Text>
                         </>
                 },
                 {
