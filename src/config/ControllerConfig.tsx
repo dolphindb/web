@@ -1,6 +1,6 @@
 import { ReloadOutlined } from '@ant-design/icons'
 import { EditableProTable, type ActionType, type ProColumns } from '@ant-design/pro-components'
-import { Button, Input, Popconfirm } from 'antd'
+import { AutoComplete, Button, Input, Popconfirm } from 'antd'
 
 import { useCallback, useMemo, useRef, useState } from 'react'
 
@@ -15,12 +15,18 @@ import { config } from './model.js'
 import type { ControllerConfig } from './type.js'
 import { _2_strs, strs_2_controller_configs } from './utils.js'
 
+import { CONTROLLER_CONFIG } from './constants.js'
+
 const { Search } = Input
 
 export function ControllerConfig () {
     const [configs, set_configs] = useState<ControllerConfig[]>([ ])
     
     const [search_key, set_search_key] = useState('')
+    
+    const filter_config = useCallback(
+        (input: string, option?: { label: string, options: string }) =>
+            (option?.label ?? '').toLowerCase().includes(input.toLowerCase()), [ ])
     
     const actionRef = useRef<ActionType>()
     
@@ -39,7 +45,16 @@ export function ControllerConfig () {
                     message: t('请输入配置项！')
                 },
                 ]
-            }
+            },
+            renderFormItem: () =>  
+                        <AutoComplete
+                            showSearch
+                            optionFilterProp='label'
+                            options={CONTROLLER_CONFIG.map(config => ({
+                                label: config,
+                                value: config
+                            }))} 
+                        />
         },
         {
             title: t('值'),
@@ -132,12 +147,26 @@ export function ControllerConfig () {
             >
                 {t('刷新')}
             </Button>,
-            <Search
+             <AutoComplete
+                showSearch
                 placeholder={t('请输入想要查找的配置项')}
+                optionFilterProp='label'
                 value={search_key}
-                onChange={e => { set_search_key(e.target.value) }}
-                onSearch={async () => actionRef.current.reload()}
-            />
+                onChange={set_search_key}
+                // @ts-ignore
+                filterOption={filter_config}
+                // @ts-ignore
+                options={CONTROLLER_CONFIG.map(config => ({
+                    label: config,
+                    value: config
+                    }))
+                } />
+            // <Search
+            //     placeholder={t('请输入想要查找的配置项')}
+            //     value={search_key}
+            //     onChange={e => { set_search_key(e.target.value) }}
+            //     onSearch={async () => actionRef.current.reload()}
+            // />
         ]}
         editable={{
             type: 'single',

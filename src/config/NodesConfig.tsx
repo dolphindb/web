@@ -1,7 +1,7 @@
 import { PlusOutlined, ReloadOutlined } from '@ant-design/icons'
 import { EditableProTable, type ProColumns } from '@ant-design/pro-components'
 import NiceModal from '@ebay/nice-modal-react'
-import { Button, Collapse, Input, Popconfirm, type CollapseProps } from 'antd'
+import { AutoComplete, Button, Collapse, Input, Popconfirm, type CollapseProps } from 'antd'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 
 import { t } from '../../i18n/index.js'
@@ -27,82 +27,6 @@ export function NodesConfig () {
             await config.load_nodes_config()
         })()
     }, [ ])
-    
-    const cols: ProColumns<NodesConfig>[] = useMemo(
-        () => [
-            {
-                title: t('限定词'),
-                dataIndex: 'qualifier',
-                key: 'qualifier',
-                width: 300,
-                fieldProps: {
-                    placeholder: t('请输入选择器')
-                },
-                formItemProps: {
-                    rules: [
-                        {
-                            required: false
-                        }
-                    ]
-                }
-            },
-            {
-                title: t('配置项'),
-                dataIndex: 'name',
-                key: 'name',
-                width: 400,
-                fieldProps: {
-                    placeholder: t('请输入配置项')
-                },
-                formItemProps: {
-                    rules: [
-                        {
-                            required: true,
-                            message: t('请输入配置项')
-                        }
-                    ]
-                }
-            },
-            {
-                title: t('值'),
-                dataIndex: 'value',
-                key: 'value',
-                fieldProps: {
-                    placeholder: t('请输入配置值')
-                },
-                formItemProps: {
-                    rules: [
-                        {
-                            required: true,
-                            message: t('请输入配置值')
-                        }
-                    ]
-                }
-            },
-            {
-                title: t('操作'),
-                valueType: 'option',
-                key: 'actions',
-                width: 240,
-                render: (text, record, _, action) => [
-                    <Button
-                        type='link'
-                        key='editable'
-                        className='mr-btn'
-                        onClick={() => {
-                            action?.startEditable?.(record.key)
-                        }}
-                    >
-                        {t('编辑')}
-                    </Button>,
-                    <Popconfirm title={t('确认删除此配置项？')} key='delete' onConfirm={async () => delete_config(record.key as string)}>
-                        <Button type='link'>{t('删除')}</Button>
-                    </Popconfirm>
-                ]
-            }
-        ],
-        [ ]
-    )
     
     const delete_config = useCallback(
         async (config_name: string) => {
@@ -138,7 +62,89 @@ export function NodesConfig () {
                 <EditableProTable
                     className='nodes-config-table'
                     rowKey='key'
-                    columns={cols}
+                    columns={[
+                        {
+                            title: t('限定词'),
+                            dataIndex: 'qualifier',
+                            key: 'qualifier',
+                            width: 300,
+                            fieldProps: {
+                                placeholder: t('请输入选择器')
+                            },
+                            formItemProps: {
+                                rules: [
+                                    {
+                                        required: false
+                                    }
+                                ]
+                            }
+                        },
+                        {
+                            title: t('配置项'),
+                            dataIndex: 'name',
+                            key: 'name',
+                            width: 400,
+                            fieldProps: {
+                                placeholder: t('请输入配置项')
+                            },
+                            formItemProps: {
+                                rules: [
+                                    {
+                                        required: true,
+                                        message: t('请输入配置项')
+                                    }
+                                ]
+                            },
+                            renderFormItem: () =>  
+                                <AutoComplete
+                                    showSearch
+                                    optionFilterProp='label'
+                                    // @ts-ignore
+                                    options={(CONFIG_CLASSIFICATION[key] || [ ]).map(config => ({
+                                        label: config,
+                                        value: config
+                                        }))
+                                    } />
+                               
+                        },
+                        {
+                            title: t('值'),
+                            dataIndex: 'value',
+                            key: 'value',
+                            fieldProps: {
+                                placeholder: t('请输入配置值')
+                            },
+                            formItemProps: {
+                                rules: [
+                                    {
+                                        required: true,
+                                        message: t('请输入配置值')
+                                    }
+                                ]
+                            }
+                        },
+                        {
+                            title: t('操作'),
+                            valueType: 'option',
+                            key: 'actions',
+                            width: 240,
+                            render: (text, record, _, action) => [
+                                <Button
+                                    type='link'
+                                    key='editable'
+                                    className='mr-btn'
+                                    onClick={() => {
+                                        action?.startEditable?.(record.key)
+                                    }}
+                                >
+                                    {t('编辑')}
+                                </Button>,
+                                <Popconfirm title={t('确认删除此配置项？')} key='delete' onConfirm={async () => delete_config(record.key as string)}>
+                                    <Button type='link'>{t('删除')}</Button>
+                                </Popconfirm>
+                            ]
+                        }
+                    ]}
                     value={clsed_config}
                     recordCreatorProps={false}
                     tableLayout='fixed'
