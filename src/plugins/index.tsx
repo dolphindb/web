@@ -40,8 +40,8 @@ export function Plugins () {
     
     
     // local
-    if (plugins.length)
-        plugins[0].nodes[0].version = '2.00.10'
+    // if (plugins.length)
+    //     plugins[0].nodes[0].version = '2.00.10'
     
     
     useEffect(() => {
