@@ -98,3 +98,9 @@ def install_plugin(nodes, zip) {
         rpc(node, install_plugin_inner, zip)
     }
 }
+
+
+def sync_plugin (src, dsts) {
+    print(src)
+    print(dsts)
+}

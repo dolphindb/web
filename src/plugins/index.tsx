@@ -292,16 +292,14 @@ function SyncModal ({ syncer, plugin }: { syncer: ModalController, plugin: Plugi
         okText={t('同步')}
         width='80%'
         onOk={async () => {
-            const values = await form.validateFields()
-            
-            console.log('values:', values)
+            const { src, dsts } = await form.validateFields()
             
             set_status('syncing')
             
-            await define_script()
-            
             try {
-                await model.ddb.call('sync_plugin', [])
+                await define_script()
+                
+                await model.ddb.invoke('sync_plugin', [src, dsts])
             } finally {
                 set_status('preparing')
             }
@@ -336,12 +334,18 @@ function SyncModal ({ syncer, plugin }: { syncer: ModalController, plugin: Plugi
                 <Checkbox.Group options={
                     model.nodes.filter(
                         ({ mode, name }) => mode !== NodeType.agent && name !== src_name)
-                    .map(({ name, state }) => ({
-                        label: versions[name] ? `${name} (${versions[name]})` : name,
-                        value: name,
-                        disabled: state === DdbNodeState.offline,
-                    }))
-                }/>
+                    .map(({ name, state }) => {
+                        const disabled = state === DdbNodeState.offline
+                        
+                        return {
+                            label: disabled 
+                                ? `${name} (${t('未启动')})`
+                                : `${name} (${versions[name] || t('未安装')})`,
+                            value: name,
+                            disabled,
+                        }
+                    })
+                } />
             </Form.Item>
         </Form>
     </Modal>
