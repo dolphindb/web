@@ -44,12 +44,15 @@ export function Plugins () {
     //     plugins[0].nodes[0].version = '2.00.10'
     
     
+    async function update_plugins () {
+        set_plugins(
+            await list_plugins(query)
+        )
+    }
+    
+    
     useEffect(() => {
-        (async () => {
-            set_plugins(
-                await list_plugins(query)
-            )
-        })()
+        update_plugins()
     }, [refresher, query])
     
     return <>
@@ -61,7 +64,7 @@ export function Plugins () {
                 onClick={installer.open}
             >{t('安装或更新插件')}</Button>
             
-            <InstallModal installer={installer} />
+            <InstallModal installer={installer} update_plugins={update_plugins} />
             
             <Button
                 className='refresh'
@@ -157,12 +160,18 @@ export function Plugins () {
             ]}
         />
         
-        <SyncModal syncer={syncer} plugin={plugin} />
+        <SyncModal syncer={syncer} plugin={plugin} update_plugins={update_plugins} />
     </>
 }
 
 
-function InstallModal ({ installer }: { installer: ModalController }) {
+function InstallModal ({
+    installer,
+    update_plugins
+}: {
+    installer: ModalController
+    update_plugins: () => Promise<void>
+}) {
     let [file, set_file] = useState<UploadFile>()
     let [status, set_status] = useState<'preparing' | 'uploading'>('preparing')
     
@@ -176,14 +185,16 @@ function InstallModal ({ installer }: { installer: ModalController }) {
         onOk={async () => {
             set_status('uploading')
             
-            await define_script()
-            
             try {
+                await define_script()
+                
                 await model.ddb.call('install_plugin', [
                     new DdbBlob(
                         await file.originFileObj.arrayBuffer()
                     )
                 ])
+                
+                await update_plugins()
             } finally {
                 set_status('preparing')
             }
@@ -256,7 +267,15 @@ function InstallModal ({ installer }: { installer: ModalController }) {
 }
 
 
-function SyncModal ({ syncer, plugin }: { syncer: ModalController, plugin: Plugin }) {
+function SyncModal ({
+    syncer,
+    plugin,
+    update_plugins
+}: {
+    syncer: ModalController
+    plugin: Plugin
+    update_plugins: () => Promise<void>
+}) {
     interface Fields {
         src: string
     }
@@ -287,6 +306,8 @@ function SyncModal ({ syncer, plugin }: { syncer: ModalController, plugin: Plugi
                 await define_script()
                 
                 await model.ddb.invoke('sync_plugin', [plugin.id, src])
+                
+                await update_plugins()
             } finally {
                 set_status('preparing')
             }
