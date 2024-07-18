@@ -1,6 +1,10 @@
-if (defs("zip::unzip").size() == 0) {
-    loadPlugin("zip")
+def loadZipPlugin() {
+    if (defs("zip::zip").size() == 0) {
+        loadPlugin("zip")
+    }
 }
+pnodeRun(loadZipPlugin)
+rpc(getControllerAlias(), loadZipPlugin)
 go
 
 def getPluginDir() {
