@@ -128,17 +128,21 @@ class ShellModel extends Model<ShellModel> {
         return lines_
     }
     
+    
     async refresh_db () {
         
     }
     
-    async eval (code = this.editor.getValue(), start: number) {
+    
+    async eval (code = this.editor.getValue(), istart: number) {
         const time_start = dayjs()
+        const lines = code.split_lines()
+        
         this.term.write(
             '\n' +
             time_start.format('HH:mm:ss.SSS') + '\n' + 
             (code.trim() ?
-                this.truncate_text(code.split_lines()).join_lines()
+                this.truncate_text(lines).join_lines()
             : '')
         )
         
@@ -207,14 +211,15 @@ class ShellModel extends Model<ShellModel> {
                     blue(`\x1b]8;;${model.get_error_code_doc_link(ref_id)}\x07RefId: ${ref_id}\x1b]8;;\x07`)
                 )
                 
-            let original_line = -1
-            message = message.replace(/\[line #(\d+)\]/, (_, line) => {
-                original_line = line
-                return  `[line #${start + Number(line) - 1}]`
+            let icode = -1
+            message = message.replace(/\[line #(\d+)\]/, (_, _icode) => {
+                icode = _icode
+                return `[line #${istart + Number(_icode) - 1}]`
             })
-            if (original_line !== -1)
-                message += `\n${t('错误行：')}${code.split_lines()[original_line - 1]}`
-      
+            
+            if (icode !== -1)
+                message += `\n${t('错误行:')} ${lines[icode - 1]}`
+            
             this.term.writeln(red(message))
             
             console.log(error)
@@ -329,12 +334,14 @@ class ShellModel extends Model<ShellModel> {
                 default_selection === 'line' ?
                     model.getLineContent(selection.startLineNumber)
                 :
-                    model.getValue(this.monaco.editor.EndOfLinePreference.LF)
-                ,
+                    model.getValue(this.monaco.editor.EndOfLinePreference.LF),
                 selection.startLineNumber
             )
         else
-            await this.eval(model.getValueInRange(selection, this.monaco.editor.EndOfLinePreference.LF), selection.startLineNumber)
+            await this.eval(
+                model.getValueInRange(selection, this.monaco.editor.EndOfLinePreference.LF), 
+                selection.startLineNumber
+            )
         
         await this.update_vars()
     }
