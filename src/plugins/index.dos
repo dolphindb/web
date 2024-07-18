@@ -48,6 +48,9 @@ def list_plugins () {
     }
     
     info = pnodeRun(listPluginsInner)
+    info_ = rpc(getControllerAlias(), listPluginsInner)
+    update info_ set node = getControllerAlias()
+    info.append!(info_)
     pluginNames = exec distinct(pluginName) from info
     ret = []
     
