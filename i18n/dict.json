@@ -4819,5 +4819,8 @@
     },
     "停止成功": {
         "en": "Stop succeeded"
+    },
+    "错误行:": {
+        "en": "Error Line:"
     }
 }
