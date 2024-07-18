@@ -1761,7 +1761,7 @@
         "en": "Stop node"
     },
     "集群节点配置": {
-        "en": "Cluster node configuration"
+        "en": "Cluster Node Configuration"
     },
     "已启动": {
         "en": "activated"
@@ -2775,7 +2775,7 @@
         "en": "K-line only supports timeline"
     },
     "配置管理": {
-        "en": "Config"
+        "en": "Configuration"
     },
     "请输入配置名": {
         "en": "Please enter config name"
@@ -2802,7 +2802,7 @@
         "en": "Please enter config name"
     },
     "集群节点管理": {
-        "en": "Cluster node management"
+        "en": "Cluster Node Management"
     },
     "限定词": {
         "en": "Qualifier"
@@ -3039,7 +3039,7 @@
         "en": "Manage Groups"
     },
     "配置项": {
-        "en": "key"
+        "en": "Key"
     },
     "请输入配置项": {
         "en": "Please enter key"
@@ -4819,5 +4819,8 @@
     },
     "停止成功": {
         "en": "Stop succeeded"
+    },
+    "错误行:": {
+        "en": "Error Line:"
     }
 }

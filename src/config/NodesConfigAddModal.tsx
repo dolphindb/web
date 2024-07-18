@@ -40,7 +40,7 @@ export const NodesConfigAddModal = NiceModal.create(() => {
                 label={t('限定词')}
                 name='qualifier'
             >
-                <Input placeholder='eg dn1 or dn% or empty' />
+                <Input placeholder='e.g. dn1 or dn% or empty' />
             </Form.Item>
             
             <Form.Item
@@ -93,7 +93,6 @@ export const NodesConfigAddModal = NiceModal.create(() => {
                             } catch (error) {
                                 // 数据校验不需要展示报错弹窗
                                 if (error instanceof DdbDatabaseError)
-                                    // eslint-disable-next-line @typescript-eslint/no-throw-literal
                                     throw error
                             }
                         }

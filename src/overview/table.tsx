@@ -30,7 +30,7 @@ export function OverviewTable ({
     selectedNodeNames: string[]
     setSelectedNodeNames: (names: string[]) => void
 }) {
-    const { nodes } = model.use(['nodes'])
+    const { nodes, node_type } = model.use(['nodes', 'node_type'])
     
     const [searchText, setSearchText] = useState('')
     
@@ -39,7 +39,7 @@ export function OverviewTable ({
     const { visible, open, close } = use_modal()
     
     function handleSearch (selectedKeys: string[]) {
-        setSearchText(selectedKeys[0])
+        setSearchText(selectedKeys[0] ?? '')
     }
     
     function handleReset (clearFilters: () => void) {
@@ -138,6 +138,7 @@ export function OverviewTable ({
         {
             title: t('CPU 平均负载'),
             dataIndex: 'avgLoad',
+            render: (avgLoad: number) => avgLoad.toFixed(6),
             sorter: (a, b) => a.avgLoad - b.avgLoad
         },
         {
@@ -281,13 +282,13 @@ export function OverviewTable ({
             title: t('前一批消息延时'),
             dataIndex: 'lastMsgLatency',
             render: (lastMsgLatency: bigint) => (ns2ms(Number(lastMsgLatency))).toFixed(2) + ' ms',
-            sorter: (a, b) => Number(a.lastMsgLatency - b.lastMsgLatency)
+            sorter: (a, b) => Number(a.lastMsgLatency) - Number(b.lastMsgLatency)
         },
         {
             title: t('所有消息平均延时'),
             dataIndex: 'cumMsgLatency',
             render: (cumMsgLatency: bigint) => (ns2ms(Number(cumMsgLatency))).toFixed(2) + ' ms',
-            sorter: (a, b) => Number(a.cumMsgLatency - b.cumMsgLatency)
+            sorter: (a, b) => Number(a.cumMsgLatency) - Number(b.cumMsgLatency)
         }
     ], [ ])
     
@@ -328,7 +329,7 @@ export function OverviewTable ({
     ]
     
     return <div className='overview-table'>
-        <Collapse items={collapseItems} bordered={false}/>
+       { node_type !== NodeType.single &&  <Collapse items={collapseItems} bordered={false}/> }
         <Dropdown menu={{ items }} overlayClassName='table-dropdown' trigger={['contextMenu']}>
             <div>
                 <Table

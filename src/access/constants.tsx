@@ -42,6 +42,6 @@ export const STAT_ICONS = {
     default: null
 }
 
-export const DATABASES_WITHOUT_CATALOG = 'databases_without_catalog'
+export const DATABASES_WITHOUT_CATALOG = '[DATABASES WITHOUT CATALOG]'
 
 export const NAME_CHECK_PATTERN = /^(?![\d_])[\w\d]+$/

@@ -1872,7 +1872,8 @@ function Chart ({
                             yAxis={{
                                 title: {
                                     text: titles.y_axis
-                                }
+                                },
+                                min: null,
                             }}
                             isStack={stacking}
                             padding='auto'
