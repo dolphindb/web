@@ -286,7 +286,7 @@ function SyncModal ({ syncer, plugin }: { syncer: ModalController, plugin: Plugi
             try {
                 await define_script()
                 
-                await model.ddb.invoke('sync_plugin', [src])
+                await model.ddb.invoke('sync_plugin', [plugin.id, src])
             } finally {
                 set_status('preparing')
             }
