@@ -1,6 +1,6 @@
 import { ReloadOutlined } from '@ant-design/icons'
 import { EditableProTable, type ActionType, type ProColumns } from '@ant-design/pro-components'
-import { Button, Input, Popconfirm } from 'antd'
+import { AutoComplete, Button, Input, Popconfirm } from 'antd'
 import { useCallback, useMemo, useRef, useState } from 'react'
 
 import useSWR from 'swr'
@@ -12,7 +12,7 @@ import { model } from '../model.js'
 
 import { config } from './model.js'
 import { type ClusterNode } from './type.js'
-import { _2_strs, strs_2_nodes } from './utils.js'
+import { _2_strs, strs_2_nodes, filter_config } from './utils.js'
 
 
 const { Search } = Input
@@ -22,6 +22,8 @@ export function NodesManagement () {
     const [nodes, set_nodes] = useState<ClusterNode[]>([ ])
     
     const [search_key, set_search_key] = useState('')
+    const [search_value, set_search_value] = useState('')
+    
     
     const actionRef = useRef<ActionType>()
     
@@ -169,7 +171,7 @@ export function NodesManagement () {
             }
         }
         scroll={{ y: 'calc(100vh - 250px)' }}
-        value={search_key ? nodes.filter(({ alias }) => alias.toLocaleLowerCase().includes(search_key.toLocaleLowerCase())) : nodes}
+        value={search_value ? nodes.filter(({ alias }) => alias.toLocaleLowerCase().includes(search_value.toLocaleLowerCase())) : nodes}
         toolBarRender={() => [
             <Button
                 icon={<ReloadOutlined />}
@@ -180,11 +182,25 @@ export function NodesManagement () {
             >
                 {t('刷新')}
             </Button>,
-            <Search
-                className='toolbar-search'
-                placeholder={t('请输入想要查找的节点别名')}
-                onSearch={set_search_key}
-            />
+              <AutoComplete
+              showSearch
+              placeholder={t('请输入想要查找的节点别名')}
+              optionFilterProp='label'
+              value={search_key}
+              onChange={value => {
+                set_search_key(value)
+                if (value === '')
+                    set_search_value('')
+              }}
+              // @ts-ignore
+              filterOption={filter_config}
+              // @ts-ignore
+              options={nodes.map(({ alias }) => ({
+                label: alias,
+                value: alias
+              }))} >
+                  <Input.Search size='middle' enterButton onSearch={() => { set_search_value(search_key) }}/>
+          </AutoComplete>
         ]
         }
         editable={
@@ -207,7 +223,7 @@ export function NodesManagement () {
                   } catch (error) {
                       // 数据校验不需要展示报错弹窗
                       if (error instanceof DdbDatabaseError)
-                          // eslint-disable-next-line @typescript-eslint/no-throw-literal
+                           
                           throw error
                   }
                 },

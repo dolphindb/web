@@ -13,20 +13,16 @@ import { model } from '../model.js'
 import { config } from './model.js'
 
 import type { ControllerConfig } from './type.js'
-import { _2_strs, strs_2_controller_configs } from './utils.js'
+import { _2_strs, strs_2_controller_configs, filter_config } from './utils.js'
 
 import { CONTROLLER_CONFIG } from './constants.js'
 
-const { Search } = Input
 
 export function ControllerConfig () {
     const [configs, set_configs] = useState<ControllerConfig[]>([ ])
     
     const [search_key, set_search_key] = useState('')
-    
-    const filter_config = useCallback(
-        (input: string, option?: { label: string, options: string }) =>
-            (option?.label ?? '').toLowerCase().includes(input.toLowerCase()), [ ])
+    const [search_value, set_search_value] = useState('')
     
     const actionRef = useRef<ActionType>()
     
@@ -50,6 +46,9 @@ export function ControllerConfig () {
                         <AutoComplete
                             showSearch
                             optionFilterProp='label'
+                             // @ts-ignore
+                            filterOption={filter_config}
+                            // @ts-ignore
                             options={CONTROLLER_CONFIG.map(config => ({
                                 label: config,
                                 value: config
@@ -108,12 +107,13 @@ export function ControllerConfig () {
         rowKey='id'
         actionRef={actionRef}
         columns={cols}
+        params={{ search_value }}
         request={async () => {
             const value = Array.from(new Set((await config.load_controller_configs()).value as any[]))
             const configs = strs_2_controller_configs(value)
             set_configs(configs)
             return {
-                data: configs.filter(({ name }) => name.toLowerCase().includes(search_key.toLowerCase())),
+                data: configs.filter(({ name }) => name.toLowerCase().includes(search_value.toLowerCase())),
                 success: true,
                 total: value.length
             }
@@ -152,7 +152,11 @@ export function ControllerConfig () {
                 placeholder={t('请输入想要查找的配置项')}
                 optionFilterProp='label'
                 value={search_key}
-                onChange={set_search_key}
+                onChange={value => {
+                    set_search_key(value)
+                    if (value === '')
+                        set_search_value(value)
+                }}
                 // @ts-ignore
                 filterOption={filter_config}
                 // @ts-ignore
@@ -160,13 +164,9 @@ export function ControllerConfig () {
                     label: config,
                     value: config
                     }))
-                } />
-            // <Search
-            //     placeholder={t('请输入想要查找的配置项')}
-            //     value={search_key}
-            //     onChange={e => { set_search_key(e.target.value) }}
-            //     onSearch={async () => actionRef.current.reload()}
-            // />
+                } >
+                    <Input.Search size='middle' enterButton onSearch={() => { set_search_value(search_key) }}/>
+                </AutoComplete>
         ]}
         editable={{
             type: 'single',

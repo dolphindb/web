@@ -10,10 +10,8 @@ import { model } from '../model.js'
 import { NodesConfigAddModal } from './NodesConfigAddModal.js'
 import { config } from './model.js'
 import { type NodesConfig } from './type.js'
-import { _2_strs } from './utils.js'
+import { _2_strs, filter_config } from './utils.js'
 import { CONFIG_CLASSIFICATION } from './constants.js'
-
-const { Search } = Input
 
 export function NodesConfig () {
     const { nodes_configs } = config.use(['nodes_configs'])
@@ -202,23 +200,33 @@ export function NodesConfig () {
             >
                 {t('新增配置')}
             </Button>
-            
-            <Search
+            <AutoComplete
+                showSearch
                 placeholder={t('请输入想要查找的配置项')}
+                optionFilterProp='label'
                 value={search_key}
-                onChange={e => {
-                    set_search_key(e.target.value)
-                }}
-                onSearch={async () => {
-                    let keys = [ ]
-                    nodes_configs?.forEach(config => {
-                        const { category, name } = config
-                        if (name.toLowerCase().includes(search_key.toLowerCase()))
-                            keys.push(category)
-                    })
-                    set_active_key(keys)
-                }}
-            />
+                onChange={set_search_key}
+                // @ts-ignore
+                filterOption={filter_config}
+                // @ts-ignore
+                options={Object.entries(CONFIG_CLASSIFICATION).map(([cfg_cls, configs]) => ({
+                    label: cfg_cls,
+                    options: Array.from(configs).map(cfg => ({
+                        label: cfg,
+                        value: cfg
+                    }))
+                }))} >
+                    <Input.Search size='middle' enterButton onSearch={async () => {
+                        let keys = [ ]
+                        nodes_configs?.forEach(config => {
+                            const { category, name } = config
+                            if (name.toLowerCase().includes(search_key.toLowerCase()))
+                                keys.push(category)
+                        })
+                        set_active_key(keys)
+                    }}/>
+            </AutoComplete>
+           
         </div>
         <Collapse
             items={items}
