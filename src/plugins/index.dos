@@ -75,9 +75,9 @@ def getClusterPluginDirs() {
     nodes = select * from rpc(getControllerAlias(), getClusterPerf{true}) where (mode != 2 or (mode == 2 and isLeader = true)) and mode != 1
     addColumn(nodes, "pluginDir", STRING)
     for (node in nodes) {
-        name = node["name"]
-        pluginDir_ = rpc(name, getPluginDir)
-        update nodes set pluginDir = pluginDir_
+        name_ = node["name"]
+        pluginDir_ = rpc(name_, getPluginDir)
+        update nodes set pluginDir = pluginDir_ where name = name_
     }
     // 若host和pluginDir相同，则只需要部署一次
     nodes = select first(name) as name from nodes group by host, pluginDir
