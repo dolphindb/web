@@ -350,7 +350,6 @@ interface Plugin {
 
 let script_defined = false
 
-
 async function define_script () {
     if (!script_defined) {
         await model.ddb.execute(script)
