@@ -97,7 +97,7 @@ def install_plugin(zip) {
         update nodes set pluginDir = pluginDir_
     }
     // 若host和pluginDir相同，则只需要部署一次
-    nodes = select first(name) from nodes group by host, pluginDir
+    nodes = select first(name) as name from nodes group by host, pluginDir
     for (node in nodes) {
         name = node["name"]
         rpc(name, install_plugin, zip)
