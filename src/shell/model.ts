@@ -210,7 +210,7 @@ class ShellModel extends Model<ShellModel> {
             let original_line = -1
             message = message.replace(/\[line #(\d+)\]/, (_, line) => {
                 original_line = line
-                return  `[line #${start + line - 1}]`
+                return  `[line #${start + Number(line) - 1}]`
             })
             if (original_line !== -1)
                 message += `\n${t('错误行：')}${code.split_lines()[original_line - 1]}`
