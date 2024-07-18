@@ -207,14 +207,12 @@ class ShellModel extends Model<ShellModel> {
                     blue(`\x1b]8;;${model.get_error_code_doc_link(ref_id)}\x07RefId: ${ref_id}\x1b]8;;\x07`)
                 )
                 
-            const line_reg = /\[line #(\d+)\]/g
-            const line_reg_match = line_reg.exec(message)
-            if (line_reg_match) {
-                const original_line = Number(line_reg_match[1])
-                const real_line = start + Number(original_line) - 1
-                message = message.replace(line_reg, `[line #${real_line}]`)
-                message += `\n${t('错误行[{{line}}]：', { line: real_line })}${code.split_lines()[original_line - 1]}`
-            }
+            let original_line = 0
+            if (message = message.replace(/\[line #(\d+)\]/, (_, line) => {
+                original_line = line
+                return  `[line #${start + line - 1}]`
+            })) 
+                message += `\n${t('错误行：')}${code.split_lines()[original_line - 1]}`
       
             this.term.writeln(red(message))
             
