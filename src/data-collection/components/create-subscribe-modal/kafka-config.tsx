@@ -38,7 +38,7 @@ export function KafkaConfig () {
                     fields.map((field, idx) => {
                         return <Row key={field.name} className='kafka-params-item' gutter={[16, 0]}>
                             <Col span={11}>
-                                <Form.Item label={t('参数')} name={[field.name, 'key']} rules={[{ required: true, message: t('请选择参数') }]}>
+                                <Form.Item tooltip={t('设置偏移量与分区会忽略 group.id 参数')} label={t('参数')} name={[field.name, 'key']} rules={[{ required: true, message: t('请选择参数') }]}>
                                     <Select 
                                         disabled={idx === 0} 
                                         showSearch 

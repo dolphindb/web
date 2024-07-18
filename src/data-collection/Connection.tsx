@@ -199,12 +199,10 @@ export function Connections () {
             />
         </div>
         
-        <div className='connection-detail'>
-            {
-            !!connection 
-                ? <ConnectionDetail connection={connection}/>
-                : <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description={t('请选择连接')}/>
-            }
-        </div>
+        {
+        !!connection 
+            ? <ConnectionDetail connection={connection}/>
+            : <Empty className='empty-content' image={Empty.PRESENTED_IMAGE_SIMPLE} description={t('请选择连接')}/>
+        }
     </div> : <InitPage test_init={test_init as any}/>
 }
