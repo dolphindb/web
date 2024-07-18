@@ -20,6 +20,7 @@ const DEFAULT_DATA = {
 }
 
 export function KafkaConfig () {
+    
     const { data = DEFAULT_DATA } = useSWR(
         'dcp_getKafkaConsumerCfgList',
         async () => request<{ consumerCfgList: string[] }>('dcp_getKafkaConsumerCfgList')
@@ -38,7 +39,7 @@ export function KafkaConfig () {
                     fields.map((field, idx) => {
                         return <Row key={field.name} className='kafka-params-item' gutter={[16, 0]}>
                             <Col span={11}>
-                                <Form.Item tooltip={t('设置偏移量与分区会忽略 group.id 参数')} label={t('参数')} name={[field.name, 'key']} rules={[{ required: true, message: t('请选择参数') }]}>
+                                <Form.Item tooltip={t('设置偏移量与分区，group.id 参数会失效')} label={t('参数')} name={[field.name, 'key']} rules={[{ required: true, message: t('请选择参数') }]}>
                                     <Select 
                                         disabled={idx === 0} 
                                         showSearch 
@@ -54,7 +55,11 @@ export function KafkaConfig () {
                                 <FormDependencies dependencies={[['consumerCfg', field.name, 'key']]}>
                                     {(values => {
                                         const key = get(values, ['consumerCfg', field.name, 'key'])
-                                        return <Form.Item label={t('参数值')} name={[field.name, 'value']} rules={[{ required: true, message: t('请输入参数值') }]}>
+                                        return <Form.Item 
+                                            label={t('参数值')} 
+                                            name={[field.name, 'value']} 
+                                            rules={[{ required: true, message: t('请输入参数值') }]}
+                                            >
                                             {key?.includes('password') ? <Input.Password  placeholder={t('请输入参数值')}/> : <Input  placeholder={t('请输入参数值')}/>}
                                         </Form.Item>
                                     })}
