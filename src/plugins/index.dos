@@ -104,7 +104,7 @@ def install_plugin(zip) {
     nodes = select first(name) as name from nodes group by host, pluginDir
     for (node in nodes) {
         name = node["name"]
-        rpc(name, install_plugin, zip)
+        rpc(name, install_plugin_inner, zip)
     }
 }
 
