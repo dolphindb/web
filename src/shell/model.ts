@@ -335,7 +335,7 @@ class ShellModel extends Model<ShellModel> {
                     model.getLineContent(selection.startLineNumber)
                 :
                     model.getValue(this.monaco.editor.EndOfLinePreference.LF),
-                selection.startLineNumber
+                default_selection === 'line' ? selection.startLineNumber : 1
             )
         else
             await this.eval(
