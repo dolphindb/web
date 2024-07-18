@@ -137,20 +137,17 @@ def copyFolderToRemoteNode(src, destNodeAlias, dest) {
     }
 }
 
-def sync_plugins(src) {
+def sync_plugin(pluginName, src) {
     sync_plugins_inner = def() {
         pluginDir = getPluginDir()
-        pluginNames = exec filename from files(pluginDir) where isDir == true
+        pluginName = exec filename from files(pluginDir) where isDir == true and filename = pluginName limit 1
         destInfo = select * from getClusterPluginDirs() where host != getNodeHost()
         for (item in destInfo) {
             // item = destInfo[0]
-            for (pluginName in pluginNames) {
-                // pluginName = pluginNames[0]
-                src = pluginDir + "/" + pluginName
-                destNodeAlias = item["name"]
-                dest = item["pluginDir"] + "/" + pluginName
-                copyFolderToRemoteNode(src, destNodeAlias, dest)
-            }
+            src = pluginDir + "/" + pluginName
+            destNodeAlias = item["name"]
+            dest = item["pluginDir"] + "/" + pluginName
+            copyFolderToRemoteNode(src, destNodeAlias, dest)
         }
     }
     
