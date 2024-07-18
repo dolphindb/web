@@ -29,7 +29,8 @@ def list_plugins () {
         for (pluginName in pluginNames) {
             // pluginName = pluginNames[0]
             dir = pluginDir + "/" + pluginName
-            txtName = exec first(filename) from files(dir, "%.txt")
+            pattern = "Plugin" + upper(pluginName[0]) + pluginName[1:] + ".txt"
+            txtName = exec first(filename) from files(dir, "%.txt") where filename ilike pattern
             if (txtName.strlen() == 0) {
                 continue
             }
