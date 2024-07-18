@@ -107,6 +107,7 @@ def install_plugin(zip) {
         name = node["name"]
         rpc(name, install_plugin_inner, zip)
     }
+    rpc(getControllerAlias(), install_plugin_inner, zip)
 }
 
 def copyFolderToRemoteNode(src, destNodeAlias, dest) {
