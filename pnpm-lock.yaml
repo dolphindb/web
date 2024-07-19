@@ -84,8 +84,8 @@ importers:
         specifier: ^4.17.21
         version: 4.17.21
       monaco-dolphindb:
-        specifier: ^1.0.2
-        version: 1.0.2(dolphindb@3.0.106(react-dom@18.3.1(react@18.3.1)))(monaco-editor@0.50.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(vscode-oniguruma@2.0.1)(vscode-textmate@9.1.0)
+        specifier: ^1.0.3
+        version: 1.0.3(dolphindb@3.0.106(react-dom@18.3.1(react@18.3.1)))(monaco-editor@0.50.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(vscode-oniguruma@2.0.1)(vscode-textmate@9.1.0)
       monaco-editor:
         specifier: ^0.50.0
         version: 0.50.0
@@ -3672,8 +3672,8 @@ packages:
     resolution: {integrity: sha512-2emPTb1reeLLYwHxyVx993iYyCHEiRRO+y8NFXFPL5kl5q14sgTK76cXyEKkeKCHeRw35SfdkUJ10Q1KfHuiIQ==}
     engines: {node: '>= 0.4'}
 
-  monaco-dolphindb@1.0.2:
-    resolution: {integrity: sha512-xChc8hvP/OWoBBSAjVSUAj7mSD8xmOSWN/Vk5fZPaKjQ0BdozTu1X+L5ttIdMYR3NtF8jtqINRENUp6Smg/mHw==}
+  monaco-dolphindb@1.0.3:
+    resolution: {integrity: sha512-GtDiHMgjAz33M/459BKAPnf7YHPMggtg1ul/6SZbKiwWW5wQzYaq7yB5iBxKesrmQ5j8l+n+7RAW87daw35fwg==}
     peerDependencies:
       dolphindb: ^3.0.35
       monaco-editor: '>=0.47.0'
@@ -9694,7 +9694,7 @@ snapshots:
       hasown: 2.0.2
       isarray: 2.0.5
 
-  monaco-dolphindb@1.0.2(dolphindb@3.0.106(react-dom@18.3.1(react@18.3.1)))(monaco-editor@0.50.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(vscode-oniguruma@2.0.1)(vscode-textmate@9.1.0):
+  monaco-dolphindb@1.0.3(dolphindb@3.0.106(react-dom@18.3.1(react@18.3.1)))(monaco-editor@0.50.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(vscode-oniguruma@2.0.1)(vscode-textmate@9.1.0):
     dependencies:
       dolphindb: 3.0.106(react-dom@18.3.1(react@18.3.1))
       monaco-editor: 0.50.0
