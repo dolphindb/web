@@ -29,9 +29,6 @@
             .anticon.disabled
                 cursor: not-allowed
                 color: #aaaaaa
-                
-    
-    
     
     .left-panels
         display: flex
@@ -281,7 +278,6 @@
         
         .treeview-resizable-split22
             max-height: calc(100% - 22px) !important
-        
     
     .content
         flex: 1
@@ -390,6 +386,11 @@
             
             .term-loading
                 padding: 10px
+        
+        /* 括号高亮样式 */
+        .monaco-editor, .monaco-diff-editor, .monaco-component 
+            --vscode-editorBracketMatch-background: #f9a2ffab !important
+            --vscode-editorBracketMatch-border: #ff0000 !important
         
         .dataview
             flex: 1
