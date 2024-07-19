@@ -829,8 +829,8 @@ def dcp_createAllTable(){
     colTypes = [UUID,STRING,STRING,STRING,INT,STRING,STRING,TIMESTAMP,TIMESTAMP]
     createTable(db,table(1:0,colNames,colTypes),`connectInfo)
 
-    colNames = `id`connectId`topic`partition`offset`name`recvbufSize`handlerId`templateParams`consumerCfg`parseJson`status`subId`createTime`updateTime  
-    colTypes = [UUID,UUID,STRING,INT,INT,STRING,INT,UUID,STRING,STRING,BOOL,INT,STRING,TIMESTAMP,TIMESTAMP]
+    colNames = `id`connectId`subNode`topic`partition`offset`name`recvbufSize`handlerId`templateParams`consumerCfg`parseJson`status`subId`createTime`updateTime  
+    colTypes = [UUID,UUID,STRING,STRING,INT,INT,STRING,INT,UUID,STRING,STRING,BOOL,INT,STRING,TIMESTAMP,TIMESTAMP]
     createTable(database("dfs://dataAcquisition"),table(1:0,colNames,colTypes),`subscribeInfo)  
 
     colNames = `id`name`handler`protocol`comment`templateParams`createTime`updateTime
