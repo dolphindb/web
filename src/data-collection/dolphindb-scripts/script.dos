@@ -833,8 +833,8 @@ def dcp_createAllTable(){
     colTypes = [UUID,UUID,STRING,STRING,INT,INT,STRING,INT,UUID,STRING,STRING,BOOL,INT,STRING,TIMESTAMP,TIMESTAMP]
     createTable(database("dfs://dataAcquisition"),table(1:0,colNames,colTypes),`subscribeInfo)  
 
-    colNames = `id`name`handler`protocol`comment`templateParams`createTime`updateTime
-    colTypes=[UUID,STRING,STRING,STRING,STRING,STRING,TIMESTAMP,TIMESTAMP]
+    colNames = `id`name`handler`protocol`comment`flag`templateParams`createTime`updateTime
+    colTypes=[UUID,STRING,STRING,STRING,STRING,INT,STRING,TIMESTAMP,TIMESTAMP]
     createTable(database("dfs://dataAcquisition"),table(1:0,colNames,colTypes),`ParserTemplate)
 }
 
