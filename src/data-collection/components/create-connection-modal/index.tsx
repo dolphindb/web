@@ -44,10 +44,28 @@ export const CreateConnectionModal = NiceModal.create((props: IProps) => {
             <Form.Item label={t('名称')} name='name' rules={[{ required: true, message: t('请输入名称') }]}>
                 <Input placeholder={t('请输入名称')}/>
             </Form.Item>
-            <Form.Item label={t('服务器地址')} name='host' rules={[{ required: true, message: t('请输入服务器地址') }]}>
+            <Form.Item 
+                label={t('服务器地址')}
+                name='host' 
+                rules={[
+                    { required: true, message: t('请输入服务器地址') },
+                    { 
+                        pattern: /^(\d|[1-9]\d|1\d{2}|2[0-4]\d|25[0-5])\.(\d|[1-9]\d|1\d{2}|2[0-4]\d|25[0-5])\.(\d|[1-9]\d|1\d{2}|2[0-4]\d|25[0-5])\.(\d|[1-9]\d|1\d{2}|2[0-4]\d|25[0-5])$/g,
+                        message: t('请输入有效的服务器地址') 
+                    } 
+                ]}>
                 <Input placeholder={t('请输入服务器地址')}/>
             </Form.Item>
-            <Form.Item label={t('端口')} name='port' rules={[{ required: true, message: t('请输入端口') }]}>
+            <Form.Item 
+                label={t('端口')} 
+                name='port' 
+                rules={[
+                    { required: true, message: t('请输入端口') },
+                    { 
+                        pattern: /^([0-9]{1,4}|[1-5][0-9]{4}|6[0-4][0-9]{3}|65[0-4][0-9]{2}|655[0-2][0-9]|6553[0-5])$/g, 
+                        message: t('请输入有效的端口') 
+                    }
+                ]}>
                 <InputNumber min={0} placeholder={t('请输入端口')}/>
             </Form.Item>
             {

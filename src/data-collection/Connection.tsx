@@ -138,7 +138,7 @@ export function Connections () {
                             e.stopPropagation()
                             on_select_connection(connection.id)
                         }}>
-                            {connection.name}
+                            <span className='connection-menu-label'>{connection.name}</span>
                         </Checkbox>
                         <Space>
                             <Button type='link' className='link-btn'>
@@ -199,12 +199,10 @@ export function Connections () {
             />
         </div>
         
-        <div className='connection-detail'>
-            {
-            !!connection 
-                ? <ConnectionDetail connection={connection}/>
-                : <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description={t('请选择连接')}/>
-            }
-        </div>
+        {
+        !!connection 
+            ? <ConnectionDetail connection={connection}/>
+            : <Empty className='empty-content' image={Empty.PRESENTED_IMAGE_SIMPLE} description={t('请选择连接')}/>
+        }
     </div> : <InitPage test_init={test_init as any}/>
 }

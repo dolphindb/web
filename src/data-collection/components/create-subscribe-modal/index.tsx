@@ -9,7 +9,6 @@ import { isNil } from 'lodash'
 
 import { t } from '../../../../i18n/index.js'
 import { Protocol, type ISubscribe, type IParserTemplate } from '../../type.js'
-import { request } from '../../utils.js'
 import { safe_json_parse } from '../../../dashboard/utils.js'
 import { FormDependencies } from '../../../components/formily/FormDependcies/index.js'
 
@@ -41,28 +40,59 @@ export const CreateSubscribeModal = NiceModal.create((props: IProps) => {
         : [ ]
     )
     
+    const partition = Form.useWatch('partition', form)
+    const offset = Form.useWatch('offset', form)
+    
     const protocol_params = useMemo(() => {
         switch (protocol) {
             case Protocol.MQTT:
                 return <Form.Item label={t('接收缓冲区大小')} name='recvbufSize' tooltip={t('默认为 20480')}>
-                    <InputNumber placeholder={t('请输入接收缓冲区大小')}/>
+                    <InputNumber min={0} placeholder={t('请输入接收缓冲区大小')}/>
                 </Form.Item>
             case Protocol.KAFKA:
                 return <>
-                    <Form.Item label={t('分区')} name='partition' initialValue={null}>
-                        <InputNumber placeholder={t('请输入分区数')}/>
+                    <Form.Item 
+                        rules={[
+                            { 
+                                validator: async (_, value) => {
+                                    console.log(value)
+                                    if ((offset && !value) || (value && !offset)) 
+                                        return Promise.reject(t('偏移量与分区需同时设置，或者均不设置'))        
+                                    return Promise.resolve()
+                                },
+                                validateTrigger: ['onSubmit']
+                            }
+                        ]} 
+                        label={t('分区')} 
+                        name='partition' 
+                        initialValue={null}
+                    >
+                        <InputNumber min={0} placeholder={t('请输入分区数')}/>
                     </Form.Item>
-                    <Form.Item label={t('偏移量')} name='offset' initialValue={null}>
-                        <InputNumber placeholder={t('请输入偏移量')}/>
+                    <Form.Item 
+                        label={t('偏移量')} 
+                        name='offset' 
+                        initialValue={null}
+                        rules={[
+                            { 
+                                validator: async (_, value) => {
+                                    if ((partition && !value) || (value && !partition)) 
+                                        return Promise.reject(t('偏移量与分区需同时设置，或者均不设置'))        
+                                    return Promise.resolve()
+                                },
+                                validateTrigger: ['onSubmit']
+                            }
+                        ]} 
+                    >
+                        <InputNumber min={0} placeholder={t('请输入偏移量')}/>
                     </Form.Item>
                     {/* kafka 消费配置 */}
                     <KafkaConfig />
-                
                 </>
             default:
                 return  null
         }
-    }, [protocol])
+    }, [protocol, offset, partition])
     
     const on_submit = useCallback(async () => {        
         try { await form.validateFields() } catch { return }

@@ -1,6 +1,10 @@
 .data-collection-wrapper {
     display: flex;
     
+    .empty-content {
+        margin: 0 auto;
+    }
+    
     .link-btn {
         padding: 0px !important;
         border-radius: 4px;
@@ -10,6 +14,8 @@
     .connection-list {
         border: 1px solid #f3f1f1;
         padding: 12px;
+        height: calc(100vh - 80px);
+        overflow: auto;
         
         .connection-list-title {
             width: 100%;
@@ -62,6 +68,14 @@
                 width: 100%;
                 align-items: center;
                 justify-content: space-between;
+                
+                .connection-menu-label {
+                    width: 150px;
+                    display: inline-block;
+                    overflow: hidden;
+                    text-overflow: ellipsis;
+                    white-space: nowrap;
+                }
                 
                 .connection-edit-icon {
                     visibility: hidden;
