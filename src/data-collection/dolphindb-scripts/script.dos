@@ -68,12 +68,15 @@ dcp_updateConnect(args)
 args = '{ "name":"KAFKA", "id":"e5d6a0ed-600d-d701-3fcb-8d046883d517", "host":"183.134.101.142", "port":9092}'  
 dcp_updateConnect(args)
 */
-args = '{"name":"EMQX1","host":"183.134.101.141","port":1883,"username":"admin1","password":"123456","id":"f2288bc9-615b-2d31-cb66-e6f6d7cdfe91"}'
 def dcp_updateConnect(args){
     connectArgs = parseExpr(args).eval()
     ex=["user",NULL]
     tmp = select * from loadTable("dfs://dataAcquisition","connectInfo") where id = uuid(connectArgs[`id])
+    exitsSub = select * from loadTable("dfs://dataAcquisition","subscribeInfo") where connectId	= uuid(connectArgs[`id]) and subId is not null  
     try{
+        if(exitsSub.size() != 0){
+            throw("There are started subscription under the connection "+tmp[`name][0]+", the connection cannot be modified.")
+        } 
         exits = select * from loadTable("dfs://dataAcquisition","connectInfo") 
         where name = connectArgs[`name] and protocol = tmp[`protocol][0] and id != uuid(connectArgs[`id])    
         if(exits.size()!=0){
@@ -106,6 +109,7 @@ ids: 连接ID  string数组
 args = '{"ids":["f88c0d8b-7f53-0f64-3cc3-e79ff6568154","45d4aa2a-5bab-a4d0-27a2-c8131c9f5a0a"]}'
 dcp_deleteConnect(args)
 */
+args = '{"ids":["c6c8e111-e157-ba35-cfa1-fc152933d070","945e2b34-9e46-bfcc-bad7-4e2817e33ea7"]}'
 def dcp_deleteConnect(args){
     connectArgs = parseExpr(args).eval()
     ex=["user",NULL]
@@ -115,24 +119,17 @@ def dcp_deleteConnect(args){
     mqttInfo = select * from tmp where protocol = `mqtt
     kafkaInfo  = select * from tmp where protocol = `kafka
     try{ 
-        for(index in 0..(tmp.size()-1)){
-            if(tmp[index].protocol=="mqtt" and tmp[index].subId!=string(NULL)){
-                mqtt::unsubscribe(tmp[index].subId)  // 取消订阅
-            }else if(tmp[index].protocol=="kafka" and tmp[index].subId!=string(NULL)){
-                kafka::cancelSubJob(tmp[index].subId)  // 取消订阅    
-            }
-        }
-        delete from loadTable("dfs://dataAcquisition","subscribeInfo") where connectId in uuid(connectArgs[`ids])
+        exitsSubConnectNames = exec name from tmp group by name having(count(subId)>0) 
+        if(exitsSubConnectNames.size() != 0){
+            throw("There are started subscription under the connection ["+concat(exitsSubConnectNames,",")+"], the connection cannot be deleted.")
+        } 
         delete from loadTable("dfs://dataAcquisition","connectInfo") where id in uuid(connectArgs[`ids])
         if(mqttInfo.size()!=0){
-            writeLog("The MQTT subscribe ["+concat(mqttInfo[`subName],",")+"] successfully calceled")
             writeLog("The MQTT connection named [" + concat(distinct(mqttInfo[`name]),",")+"] successfully deleted")
         }
         if(kafkaInfo.size()!=0){
-            writeLog("The KAFKA subscribe ["+concat(kafkaInfo[`subName],",")+"] successfully calceled")
             writeLog("The KAFKA connection named [" + concat(distinct(kafkaInfo[`name]),",")+"] successfully deleted")
         }
-        return '{"status":1}'
     }catch(ex){
         writeLog("An error occured when deleting "+upper(tmp[index].protocol)+" connection "+tmp[index].name+", the reason is:"+ex[1])
     }
