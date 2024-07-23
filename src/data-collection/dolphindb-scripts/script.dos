@@ -162,7 +162,7 @@ def dcp_getConnectList(){
 
 //返回kafka消費者參數列表
 def dcp_getKafkaConsumerCfgList(){
-    consumerCfgList = '["builtin.features","client.id","metadata.broker.list","bootstrap.servers","message.max.bytes","message.copy.max.bytes",
+    consumerCfgList = '["builtin.features","client.id","message.max.bytes","message.copy.max.bytes",
     "receive.message.max.bytes","max.in.flight.requests.per.connection","max.in.flight","topic.metadata.refresh.interval.ms","metadata.max.age.ms",
     "topic.metadata.refresh.fast.interval.ms","topic.metadata.refresh.fast.cnt","topic.metadata.refresh.sparse","topic.metadata.propagation.max.ms",
     "topic.blacklist","debug","socket.timeout.ms","socket.blocking.max.ms","socket.send.buffer.bytes","socket.receive.buffer.bytes","socket.keepalive.enable",
