@@ -108,6 +108,7 @@ def install_plugin(zip_name, zip) {
         f.close()
         pluginName = zip_name.split("-").first() 
         pluginDir_ = pluginDir + "/" + pluginName
+        // 需要先删除目标插件文件夹，详见 WEB-1042
         if (exists(pluginDir_)) {
             rmdir(pluginDir_, true)
         }
@@ -161,12 +162,6 @@ def copyFolderToRemoteNode(src, destNodeAlias, dest) {
             continue
         }
         buf = srcFile.readBytes(len)
-        rmDirIfExists = def(dir) {
-            if (exists(dir)) {
-                rm(dir)
-            }
-        }
-        rpc(destNodeAlias, rmDirIfExists, dest)
         rpc(destNodeAlias, writeBytesRemote, dest+"/"+oneFile.filename, buf)
     }
 }
@@ -178,10 +173,17 @@ def sync_plugin(pluginName, src) {
         destInfo = select * from getClusterPluginDirs() where host != getNodeHost() or pluginDir != pluginDir_
         for (item in destInfo) {
             // item = destInfo[0]
-            src = pluginDir_ + "/" + pluginName_
+            srcDir = pluginDir_ + "/" + pluginName_
             destNodeAlias = item["name"]
-            dest = item["pluginDir"] + "/" + pluginName_
-            copyFolderToRemoteNode(src, destNodeAlias, dest)
+            destDir = item["pluginDir"] + "/" + pluginName_
+            // 需要先删除目标插件文件夹，详见 WEB-1042
+            rmDirIfExists = def(dir) {
+                if (exists(dir)) {
+                    rm(dir)
+                }
+            }
+            rpc(destNodeAlias, rmDirIfExists, destDir)
+            copyFolderToRemoteNode(srcDir, destNodeAlias, destDir)
         }
     }
     
