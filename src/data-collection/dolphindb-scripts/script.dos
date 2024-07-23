@@ -829,11 +829,24 @@ protocol 协议 字符串
 def dcp_getLog(args){
     protocol = upper(parseExpr(args).eval()[`protocol])
     rowBytes = 5000000
-    offset = iif(getServerLogLength(getNodeAlias())-rowBytes>0,getServerLogLength(getNodeAlias())-rowBytes,0)   
-    log = getServerLog(rowBytes,offset,true,getNodeAlias()) as log
-    res = log[regexFind(log,protocol)!=-1]
+    if(getNodeType()==3 or getNodeType()==2){
+        offset = iif(getServerLogLength(getNodeAlias())-rowBytes>0,getServerLogLength(getNodeAlias())-rowBytes,0)   
+        log = getServerLog(rowBytes,offset,true,getNodeAlias()) as log
+        res = log[regexFind(log,protocol)!=-1]
+    }else if{
+        nodeInfo = select * from rpc(getControllerAlias(),getClusterPerf) where name = getNodeAlias()
+        agentHost = nodeInfo[`agentSite].split(":")[0][0]  
+        agentPort = nodeInfo[`agentSite].split(":")[1][0]  
+        conn_agent = xdb(host=agentHost,port=int(agentPort))
+        serverLogLength = remoteRun(conn_agent,"getServerLogLength",getNodeAlias())
+        offset = iif(serverLogLength-rowBytes>0,serverLogLength-rowBytes,0)   
+        log  = remoteRun(conn_agent,"getServerLog",rowBytes,offset,true,getNodeAlias()) as log
+        res = log[regexFind(log,protocol)!=-1]  
+        close(conn_agent)
+    }
     return reverse(res)
 }
+
 
 /*
 初始化检测函数
