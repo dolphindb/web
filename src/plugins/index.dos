@@ -84,14 +84,33 @@ def getClusterPluginDirs() {
     return nodes
 }
 
-def install_plugin(zip) {
-    install_plugin_inner = def(zip) {
+def checkPluginName(zipName) {
+    // zipName = "arrow-Linux-X86-3.00.1-3.00.1.zip"
+    pattern = "^([^-]+)-[^-]+-[^-]+-[^-]+-[^-]+\.zip$"
+    res = regexFind(pluginName, pattern)
+    
+    if (res != 0) {
+        throw "invalid plugin name: " + pluginName + ", please use the official format"
+    }
+    
+    return true
+}
+
+def install_plugin(zip_name, zip) {
+    checkPluginName(zip_name)
+    
+    install_plugin_inner = def(zip_name, zip) {
         pluginDir = getPluginDir()
         
         tmpZipPath = pluginDir + "/tmp.zip"
         f = file(tmpZipPath, "w")
         f.writeObject(zip)
         f.close()
+        pluginName = zip_name.split("-").first() 
+        pluginDir_ = pluginDir + "/" + pluginName
+        if (exists(pluginDir_)) {
+            rmdir(pluginDir_, true)
+        }
         zip::unzip(tmpZipPath)
         rm(tmpZipPath)
     }
@@ -108,9 +127,9 @@ def install_plugin(zip) {
     nodes = select first(name) as name from nodes group by host, pluginDir
     for (node in nodes) {
         name = node["name"]
-        rpc(name, install_plugin_inner, zip)
+        rpc(name, install_plugin_inner, zip_name, zip)
     }
-    rpc(getControllerAlias(), install_plugin_inner, zip)
+    rpc(getControllerAlias(), install_plugin_inner, zip_name, zip)
 }
 
 def copyFolderToRemoteNode(src, destNodeAlias, dest) {
@@ -142,6 +161,12 @@ def copyFolderToRemoteNode(src, destNodeAlias, dest) {
             continue
         }
         buf = srcFile.readBytes(len)
+        rmDirIfExists = def(dir) {
+            if (exists(dir)) {
+                rm(dir)
+            }
+        }
+        rpc(destNodeAlias, rmDirIfExists, dest)
         rpc(destNodeAlias, writeBytesRemote, dest+"/"+oneFile.filename, buf)
     }
 }
