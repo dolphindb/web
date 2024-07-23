@@ -830,6 +830,7 @@ def dcp_getLog(args){
     protocol = upper(parseExpr(args).eval()[`protocol])
     rowBytes = 5000000
     if(getNodeType()==3 or getNodeType()==2){
+        //日志过短则offset为0   
         offset = iif(getServerLogLength(getNodeAlias())-rowBytes>0,getServerLogLength(getNodeAlias())-rowBytes,0)   
         log = getServerLog(rowBytes,offset,true,getNodeAlias()) as log
         res = log[regexFind(log,protocol)!=-1]
