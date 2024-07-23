@@ -60,6 +60,7 @@ export interface ServerParserTemplate {
     updateTime?: string
     protocol: string
     templateParams: string
+    flag: 0 | 1
 }
 
 export interface IParserTemplate extends Omit<ServerParserTemplate, 'templateParams'> {

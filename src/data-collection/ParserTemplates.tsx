@@ -19,6 +19,7 @@ import { ParserTemplateModal } from './components/create-parser-template-modal/i
 import { get_parser_templates, is_inited } from './api.js'
 import { InitPage } from './components/init-page/index.js'
 
+
 const DEFAULT_TEMPLATE_DATA = {
     items: [ ],
     total: 0
@@ -39,6 +40,8 @@ export function ParserTemplates () {
         isInited === InitStatus.INITED ? [get_parser_templates.KEY, id] : null,
         async () => get_parser_templates()
     )
+    
+    console.log(data, 'data')
     
     
     const on_create = useCallback(() => {
@@ -117,8 +120,18 @@ export function ParserTemplates () {
             fixed: 'right',
             width: 200,
             render: (_, record) => <Space size='large'>
-                <Typography.Link onClick={() => { on_edit(record) }}>{t('编辑')}</Typography.Link>
-                <Typography.Link onClick={async () => { on_delete(record) }} type='danger'>{t('删除')}</Typography.Link>
+                {
+                    record.flag === 0 && <>
+                        <Typography.Link onClick={() => { on_edit(record) }}>{t('编辑')}</Typography.Link>
+                        <Typography.Link onClick={async () => { on_delete(record) }} type='danger'>{t('删除')}</Typography.Link>
+                    </>
+                }
+                
+                {
+                    
+                    record.flag === 1 && <Typography.Link onClick={async () => NiceModal.show(ParserTemplateModal, { refresh, editedTemplate: record, mode: 'view' })}>{t('查看')}</Typography.Link>
+                }
+                
             </Space>   
         }
         
