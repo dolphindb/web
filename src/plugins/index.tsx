@@ -188,9 +188,12 @@ function InstallModal ({
             try {
                 await define_script()
                 
+                const { originFileObj } = file
+                
                 await model.ddb.call('install_plugin', [
+                    originFileObj.name,
                     new DdbBlob(
-                        await file.originFileObj.arrayBuffer()
+                        await originFileObj.arrayBuffer()
                     )
                 ])
                 

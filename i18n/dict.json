@@ -4822,5 +4822,83 @@
     },
     "错误行:": {
         "en": "Error Line:"
+    },
+    "流计算监控_menu": {
+        "en": "Streaming"
+    },
+    "插件管理": {
+        "en": "Plugins"
+    },
+    "拥有": {
+        "en": "has"
+    },
+    "来源于 ": {
+        "en": "from "
+    },
+    "确认撤销": {
+        "en": "Confirm Revocation"
+    },
+    "全部仅预览": {
+        "en": "All preview only"
+    },
+    "全部无": {
+        "en": "All None"
+    },
+    "请选择文件": {
+        "en": "Please select file"
+    },
+    "请选择是否使用现有库": {
+        "en": "Please select whether to use an existing library"
+    },
+    "请输入日增数据量": {
+        "en": "Please enter the daily increase in data volume"
+    },
+    "请选择引擎类型": {
+        "en": "Please select the engine type"
+    },
+    "配置展示列": {
+        "en": "Configure display columns"
+    },
+    "安装或更新插件": {
+        "en": "Install or Update a Plugin"
+    },
+    "输入关键字后按回车可搜索插件": {
+        "en": "Enter a keyword and press Enter to search for plugins"
+    },
+    "插件 ID": {
+        "en": "Plugin ID"
+    },
+    "集群已安装的最低版本": {
+        "en": "Minimum Installed Version"
+    },
+    " (与数据库版本不一致，无法加载)": {
+        "en": " (Unable to load due to inconsistent database version)"
+    },
+    "已安装节点": {
+        "en": "Nodes Installed"
+    },
+    "全部节点": {
+        "en": "All Nodes"
+    },
+    "待安装节点": {
+        "en": "Nodes to Install"
+    },
+    "同步": {
+        "en": "Sync"
+    },
+    "安装或更新插件至集群内全部节点": {
+        "en": "Install or update the plugin to all nodes in the cluster"
+    },
+    "安装或更新": {
+        "en": "Install or Update"
+    },
+    "同步插件至集群内其他节点": {
+        "en": "Sync to other Nodes"
+    },
+    "为空": {
+        "en": "is empty"
+    },
+    "非空": {
+        "en": "not empty"
     }
 }
