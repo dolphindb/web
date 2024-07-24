@@ -43,12 +43,10 @@ export function ControllerConfig () {
                 ]
             },
             renderFormItem: () =>  
-                        <AutoComplete
+                        <AutoComplete<{ label: string, value: string }>
                             showSearch
                             optionFilterProp='label'
-                             // @ts-ignore
                             filterOption={filter_config}
-                            // @ts-ignore
                             options={CONTROLLER_CONFIG.map(config => ({
                                 label: config,
                                 value: config
@@ -147,7 +145,7 @@ export function ControllerConfig () {
             >
                 {t('刷新')}
             </Button>,
-             <AutoComplete
+             <AutoComplete<string>
                 showSearch
                 placeholder={t('请输入想要查找的配置项')}
                 optionFilterProp='label'
@@ -157,9 +155,7 @@ export function ControllerConfig () {
                     if (value === '')
                         set_search_value(value)
                 }}
-                // @ts-ignore
                 filterOption={filter_config}
-                // @ts-ignore
                 options={CONTROLLER_CONFIG.map(config => ({
                     label: config,
                     value: config

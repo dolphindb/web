@@ -182,23 +182,21 @@ export function NodesManagement () {
             >
                 {t('刷新')}
             </Button>,
-              <AutoComplete
-              showSearch
-              placeholder={t('请输入想要查找的节点别名')}
-              optionFilterProp='label'
-              value={search_key}
-              onChange={value => {
-                set_search_key(value)
-                if (value === '')
-                    set_search_value('')
-              }}
-              // @ts-ignore
-              filterOption={filter_config}
-              // @ts-ignore
-              options={nodes.map(({ alias }) => ({
-                label: alias,
-                value: alias
-              }))} >
+              <AutoComplete<string>
+                showSearch
+                placeholder={t('请输入想要查找的节点别名')}
+                optionFilterProp='label'
+                value={search_key}
+                onChange={value => {
+                    set_search_key(value)
+                    if (value === '')
+                        set_search_value('')
+                }}
+                filterOption={filter_config}
+                options={nodes.map(({ alias }) => ({
+                    label: alias,
+                    value: alias
+                }))} >
                   <Input.Search size='middle' enterButton onSearch={() => { set_search_value(search_key) }}/>
           </AutoComplete>
         ]

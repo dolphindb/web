@@ -94,11 +94,10 @@ export function NodesConfig () {
                                 ]
                             },
                             renderFormItem: () =>  
-                                <AutoComplete
+                                <AutoComplete<{ label: string, value: string }>
                                     showSearch
                                     optionFilterProp='label'
-                                    // @ts-ignore
-                                    options={(CONFIG_CLASSIFICATION[key] || [ ]).map(config => ({
+                                    options={(CONFIG_CLASSIFICATION[key] || [ ]).map((config: string) => ({
                                         label: config,
                                         value: config
                                         }))
@@ -200,15 +199,13 @@ export function NodesConfig () {
             >
                 {t('新增配置')}
             </Button>
-            <AutoComplete
+            <AutoComplete<string>
                 showSearch
                 placeholder={t('请输入想要查找的配置项')}
                 optionFilterProp='label'
                 value={search_key}
                 onChange={set_search_key}
-                // @ts-ignore
                 filterOption={filter_config}
-                // @ts-ignore
                 options={Object.entries(CONFIG_CLASSIFICATION).map(([cfg_cls, configs]) => ({
                     label: cfg_cls,
                     options: Array.from(configs).map(cfg => ({
