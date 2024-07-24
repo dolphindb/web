@@ -1,5 +1,5 @@
 import { PlusOutlined, ReloadOutlined } from '@ant-design/icons'
-import { EditableProTable, type ProColumns } from '@ant-design/pro-components'
+import { EditableProTable } from '@ant-design/pro-components'
 import NiceModal from '@ebay/nice-modal-react'
 import { AutoComplete, Button, Collapse, Input, Popconfirm, type CollapseProps } from 'antd'
 import { useCallback, useEffect, useMemo, useState } from 'react'

@@ -15,8 +15,6 @@ import { type ClusterNode } from './type.js'
 import { _2_strs, strs_2_nodes, filter_config } from './utils.js'
 
 
-const { Search } = Input
-
 export function NodesManagement () {
 
     const [nodes, set_nodes] = useState<ClusterNode[]>([ ])
@@ -221,7 +219,6 @@ export function NodesManagement () {
                   } catch (error) {
                       // 数据校验不需要展示报错弹窗
                       if (error instanceof DdbDatabaseError)
-                           
                           throw error
                   }
                 },

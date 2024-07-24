@@ -43,15 +43,15 @@ export function ControllerConfig () {
                 ]
             },
             renderFormItem: () =>  
-                        <AutoComplete<{ label: string, value: string }>
-                            showSearch
-                            optionFilterProp='label'
-                            filterOption={filter_config}
-                            options={CONTROLLER_CONFIG.map(config => ({
-                                label: config,
-                                value: config
-                            }))} 
-                        />
+                <AutoComplete<{ label: string, value: string }>
+                    showSearch
+                    optionFilterProp='label'
+                    filterOption={filter_config}
+                    options={CONTROLLER_CONFIG.map(config => ({
+                        label: config,
+                        value: config
+                    }))} 
+                />
         },
         {
             title: t('值'),
@@ -152,17 +152,15 @@ export function ControllerConfig () {
                 value={search_key}
                 onChange={value => {
                     set_search_key(value)
-                    if (value === '')
-                        set_search_value(value)
                 }}
                 filterOption={filter_config}
                 options={CONTROLLER_CONFIG.map(config => ({
                     label: config,
                     value: config
                     }))
-                } >
-                    <Input.Search size='middle' enterButton onSearch={() => { set_search_value(search_key) }}/>
-                </AutoComplete>
+            }>
+                <Input.Search size='middle' enterButton onSearch={() => { set_search_value(search_key) }}/>
+            </AutoComplete>
         ]}
         editable={{
             type: 'single',
