@@ -43,17 +43,15 @@ export function ControllerConfig () {
                 ]
             },
             renderFormItem: () =>  
-                        <AutoComplete
-                            showSearch
-                            optionFilterProp='label'
-                             // @ts-ignore
-                            filterOption={filter_config}
-                            // @ts-ignore
-                            options={CONTROLLER_CONFIG.map(config => ({
-                                label: config,
-                                value: config
-                            }))} 
-                        />
+                <AutoComplete<{ value: string, label: string }>
+                    showSearch
+                    optionFilterProp='label'
+                    filterOption={filter_config}
+                    options={CONTROLLER_CONFIG.map(config => ({
+                        label: config,
+                        value: config
+                    }))} 
+                />
         },
         {
             title: t('值'),
