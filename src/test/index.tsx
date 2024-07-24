@@ -1,8 +1,8 @@
 import './index.sass'
 
-import { model } from '../model.js'
+import { model } from '@/model.js'
 
-import { StreamingTable } from '../obj.js'
+import { StreamingTable } from '@/obj.js'
 // import { StreamingTest } from '../streaming/StreamingTest.js'
 
 

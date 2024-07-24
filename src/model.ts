@@ -7,6 +7,7 @@ import type { MessageInstance } from 'antd/es/message/interface.js'
 import type { ModalStaticFunctions } from 'antd/es/modal/confirm.js'
 import type { NotificationInstance } from 'antd/es/notification/interface.js'
 
+import 'xshell/polyfill.browser.js'
 import { strcmp } from 'xshell/utils.browser.js'
 import { request } from 'xshell/net.browser.js'
 
@@ -43,7 +44,7 @@ const json_error_pattern = /^{.*"code": "(.*?)".*}$/
 
 const username_guest = 'guest' as const
 
-export type PageViews = 'overview' | 'shell' | 'dashboard' | 'table' | 'job' | 'login' | 'dfs' | 'log' | 'factor' | 'test' | 'computing' | 'tools' | 'iot-guide' | 'finance-guide' | 'access' | 'user' | 'group' | 'config'
+export type PageViews = 'overview' | 'shell' | 'dashboard' | 'table' | 'job' | 'plugins' | 'login' | 'dfs' | 'log' | 'factor' | 'test' | 'computing' | 'tools' | 'iot-guide' | 'finance-guide' | 'access' | 'user' | 'group' | 'config'
 
 
 export class DdbModel extends Model<DdbModel> {
@@ -909,51 +910,6 @@ export class DdbModel extends Model<DdbModel> {
         return this.enabled_modules.has(key) || !this.optional_modules.has(key)
     }
 }
-
-
-if (!Promise.withResolvers)
-    Promise.withResolvers = function PromiseWithResolvers () {
-        let resolve: any, reject: any
-        let promise = new Promise((_resolve, _reject) => {
-            resolve = _resolve
-            reject = _reject
-        })
-        return { promise, resolve, reject }
-    } as any
-
-
-if (!Array.prototype.toReversed)
-    Object.defineProperty(Array.prototype, 'toReversed', {
-        configurable: true,
-        writable: true,
-        enumerable: false,
-        value: function toReversed (this: Array<any>) {
-            return [...this].reverse()
-        }
-    })
-
-if (!Array.prototype.toSpliced)
-    Object.defineProperty(Array.prototype, 'toSpliced', {
-        configurable: true,
-        writable: true,
-        enumerable: false,
-        value: function toSpliced (...args: [start: number, deleteCount?: number, ...items: any[]]) {
-            const copy = [...this]
-            copy.splice(...args)
-            return copy
-        }
-    })
-
-if (!Array.prototype.at)
-    Object.defineProperty(Array.prototype, 'at', {
-        configurable: true,
-        writable: true,
-        enumerable: false,
-        value: function at (index: number) {
-            return index >= 0 ? this[index] : this[index + this.length]
-        }
-    })
-
 
 
 export enum NodeType {

@@ -40,6 +40,7 @@ import { Shell } from './shell/index.js'
 import { Test } from './test/index.js'
 import { Job } from './job.js'
 import { Log } from './log.js'
+import { Plugins } from './plugins/index.js'
 import { Computing } from './computing/index.js'
 import { DashBoard } from './dashboard/index.js'
 import { User, Group } from './access/index.js'
@@ -143,6 +144,7 @@ const views = {
     test: Test,
     job: Job,
     log: Log,
+    plugins: Plugins,
     computing: Computing,
     dashboard: DashBoard,
     user: User,
