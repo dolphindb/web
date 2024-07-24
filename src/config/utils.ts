@@ -64,3 +64,6 @@ export function get_category (name: string) {
             category = cls
     return category
 }
+
+export const filter_config = (input: string, option?: { label: string, options: any }) =>
+    (option?.label ?? '').toLowerCase().includes(input.toLowerCase())

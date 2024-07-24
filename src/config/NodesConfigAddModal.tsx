@@ -48,12 +48,10 @@ export const NodesConfigAddModal = NiceModal.create(() => {
                 name='name'
                 rules={[{ required: true, message: t('请输入或选择配置项') }]}
             >
-                <AutoComplete
+                <AutoComplete<{ label: string, otpions: { label: string, value: string } }>
                     showSearch
                     optionFilterProp='label'
-                    // @ts-ignore
                     filterOption={filter_config}
-                    // @ts-ignore
                     options={Object.entries(CONFIG_CLASSIFICATION).map(([cfg_cls, configs]) => ({
                         label: cfg_cls,
                         options: Array.from(configs).map(cfg => ({
