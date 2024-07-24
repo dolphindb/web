@@ -641,6 +641,10 @@ def dcp_addHandler(args){
     handlerArgs = parseExpr(args).eval() 
     ex=['user',NULL]
     try{
+        cnt = exec count(*) from loadTable("dfs://dataAcquisition","ParserTemplate") where name = handlerArgs['name'] and protocol=handlerArgs[`protocol]
+        if(cnt !=0){
+            throw("The "+ upper(handlerArgs[`protocol])+" parserTemplate name "+handlerArgs[`name]+" already exists, please verify the template information")
+        }
         id = rand(uuid(),1)
         templateParams = dcp_parseTemplateArgs(handlerArgs[`handler],handlerArgs['protocol'])
         flag = iif(handlerArgs["flag"]==NULL,0,1)
@@ -673,6 +677,11 @@ def dcp_updateHandler(args){
     handlerArgs = parseExpr(args).eval()    
     ex=['user',NULL]
     try{
+        exits = select * from loadTable("dfs://dataAcquisition","ParserTemplate") 
+        where name = handlerArgs[`name] and protocol = handlerArgs[`protocol] and id != uuid(handlerArgs[`id])    
+        if(exits.size()!=0){
+            throw("The "+ upper(handlerArgs[`protocol])+" parserTemplate name "+handlerArgs[`name]+" already exists, please verify the template information")
+        }
         ParserTemplate = select * from loadTable("dfs://dataAcquisition","ParserTemplate") where id=uuid(handlerArgs[`id])
         update ParserTemplate set name = handlerArgs[`name] 
         update ParserTemplate set protocol = handlerArgs[`protocol] 
@@ -834,7 +843,7 @@ def dcp_getLog(args){
         offset = iif(getServerLogLength(getNodeAlias())-rowBytes>0,getServerLogLength(getNodeAlias())-rowBytes,0)   
         log = getServerLog(rowBytes,offset,true,getNodeAlias()) as log
         res = log[regexFind(log,protocol)!=-1]
-    }else if{
+    }else if(getNodeType()==0){
         nodeInfo = select * from rpc(getControllerAlias(),getClusterPerf) where name = getNodeAlias()
         agentHost = nodeInfo[`agentSite].split(":")[0][0]  
         agentPort = nodeInfo[`agentSite].split(":")[1][0]  
