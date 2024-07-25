@@ -77,44 +77,44 @@ export function Overview () {
                     {node_type !== NodeType.single && (
                         <>
                             <div className={icon_classname}>
-                                <Tooltip title={selectedNodes.length && !logined ? t('当前用户未登录，请登陆后再进行启停操作。') : ''}>
-                                    <Popconfirm
-                                        open={startOpen}
-                                        title={t('确认启动以下节点')}
-                                        disabled={!selectedNodes.filter(node => node.state === DdbNodeState.offline).length || !logined}
-                                        description={() =>
-                                            selectedNodes.map(
-                                                node =>
-                                                    node.state === DdbNodeState.offline && (
-                                                        <p className='model-node' key={node.name}>
-                                                            {node.name}
-                                                        </p>
-                                                    )
-                                            )
-                                        }
-                                        onConfirm={async () => {
-                                            try {
-                                                setIsStartLoading(true)
-                                                setStartOpen(false)
-                                                await model.start_nodes(selectedNodes.filter(node => node.state === DdbNodeState.offline))
-                                                await delay(5000)
-                                                await model.get_cluster_perf(false)
-                                                model.message.success(t('启动成功'))
-                                                setSelectedNodeNames([ ])
-                                            } finally {
-                                                setIsStartLoading(false)
-                                            }
-                                        }}
-                                        onCancel={() => {
+                                <Popconfirm
+                                    open={startOpen}
+                                    title={t('确认启动以下节点')}
+                                    disabled={!selectedNodes.filter(node => node.state === DdbNodeState.offline).length || !logined}
+                                    description={() =>
+                                        selectedNodes.map(
+                                            node =>
+                                                node.state === DdbNodeState.offline && (
+                                                    <p className='model-node' key={node.name}>
+                                                        {node.name}
+                                                    </p>
+                                                )
+                                        )
+                                    }
+                                    onConfirm={async () => {
+                                        try {
+                                            setIsStartLoading(true)
                                             setStartOpen(false)
-                                        }}
-                                        okText={t('确认')}
-                                        cancelText={t('取消')}
-                                        okButtonProps={{
-                                            disabled: selectedNodes.filter(node => node.state === DdbNodeState.offline).length === 0,
-                                            loading: isStartLoading
-                                        }}
-                                    >
+                                            await model.start_nodes(selectedNodes.filter(node => node.state === DdbNodeState.offline))
+                                            await delay(5000)
+                                            await model.get_cluster_perf(false)
+                                            model.message.success(t('启动成功'))
+                                            setSelectedNodeNames([ ])
+                                        } finally {
+                                            setIsStartLoading(false)
+                                        }
+                                    }}
+                                    onCancel={() => {
+                                        setStartOpen(false)
+                                    }}
+                                    okText={t('确认')}
+                                    cancelText={t('取消')}
+                                    okButtonProps={{
+                                        disabled: selectedNodes.filter(node => node.state === DdbNodeState.offline).length === 0,
+                                        loading: isStartLoading
+                                    }}
+                                >
+                                    <Tooltip title={selectedNodes.length && !logined ? t('当前用户未登录，请登陆后再进行启停操作。') : ''}>
                                         <Button
                                             type='text'
                                             size='large'
@@ -133,49 +133,50 @@ export function Overview () {
                                         >
                                             {t('启动')}
                                         </Button>
-                                    </Popconfirm>
-                                </Tooltip>
+                                    </Tooltip>
+                                    
+                                </Popconfirm>
                             </div>
                             
                             <div className={icon_classname}>
-                                <Tooltip title={selectedNodes.length && !logined ? t('当前用户未登录，请登陆后再进行启停操作。') : ''}>
-                                    <Popconfirm
-                                        title={t('确认停止以下节点')}
-                                        open={stopOpen}
-                                        disabled={!selectedNodes.filter(node => node.state === DdbNodeState.online).length || !logined}
-                                        description={() =>
-                                            selectedNodes.map(
-                                                node =>
-                                                    node.state === DdbNodeState.online && (
-                                                        <p className='model-node' key={node.name}>
-                                                            {node.name}
-                                                        </p>
-                                                    )
-                                            )
-                                        }
-                                        onConfirm={async () => {
-                                            try {
-                                                setIsStopLoading(true)
-                                                setStopOpen(false)
-                                                await model.stop_nodes(selectedNodes.filter(node => node.state === DdbNodeState.online))
-                                                await delay(5000)
-                                                await model.get_cluster_perf(false)
-                                                model.message.success(t('停止成功'))
-                                                setSelectedNodeNames([ ])
-                                            } finally {
-                                                setIsStopLoading(false)
-                                            }
-                                        }}
-                                        onCancel={() => {
+                                <Popconfirm
+                                    title={t('确认停止以下节点')}
+                                    open={stopOpen}
+                                    disabled={!selectedNodes.filter(node => node.state === DdbNodeState.online).length || !logined}
+                                    description={() =>
+                                        selectedNodes.map(
+                                            node =>
+                                                node.state === DdbNodeState.online && (
+                                                    <p className='model-node' key={node.name}>
+                                                        {node.name}
+                                                    </p>
+                                                )
+                                        )
+                                    }
+                                    onConfirm={async () => {
+                                        try {
+                                            setIsStopLoading(true)
                                             setStopOpen(false)
-                                        }}
-                                        okText={t('确认')}
-                                        cancelText={t('取消')}
-                                        okButtonProps={{
-                                            disabled: selectedNodes.filter(node => node.state === DdbNodeState.online).length === 0,
-                                            loading: isStopLoading
-                                        }}
-                                    >
+                                            await model.stop_nodes(selectedNodes.filter(node => node.state === DdbNodeState.online))
+                                            await delay(5000)
+                                            await model.get_cluster_perf(false)
+                                            model.message.success(t('停止成功'))
+                                            setSelectedNodeNames([ ])
+                                        } finally {
+                                            setIsStopLoading(false)
+                                        }
+                                    }}
+                                    onCancel={() => {
+                                        setStopOpen(false)
+                                    }}
+                                    okText={t('确认')}
+                                    cancelText={t('取消')}
+                                    okButtonProps={{
+                                        disabled: selectedNodes.filter(node => node.state === DdbNodeState.online).length === 0,
+                                        loading: isStopLoading
+                                    }}
+                                >
+                                    <Tooltip title={selectedNodes.length && !logined ? t('当前用户未登录，请登陆后再进行启停操作。') : ''}>
                                         <Button
                                             type='text'
                                             size='large'
@@ -194,8 +195,8 @@ export function Overview () {
                                         >
                                             {t('停止')}
                                         </Button>
-                                    </Popconfirm>
-                                </Tooltip>
+                                    </Tooltip>
+                                </Popconfirm>
                             </div>
                         </>
                     )}
