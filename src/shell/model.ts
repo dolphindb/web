@@ -134,7 +134,7 @@ class ShellModel extends Model<ShellModel> {
     }
     
     
-    async eval (code = this.editor.getValue()) {
+    async eval (code = this.editor.getValue(), istart: number) {
         const time_start = dayjs()
         const lines = code.split_lines()
         
@@ -153,7 +153,7 @@ class ShellModel extends Model<ShellModel> {
             // throw new Error('xxxxx. RefId: S00001. xxxx RefId:S00002')
             
             let ddbobj = await model.ddb.eval(
-                code.replaceAll('\r\n', '\n')
+                `line://${istart}\n${code.replaceAll('\r\n', '\n')}`
             )
             
             console.log('执行代码返回了:', ddbobj)
@@ -211,14 +211,6 @@ class ShellModel extends Model<ShellModel> {
                     blue(`\x1b]8;;${model.get_error_code_doc_link(ref_id)}\x07RefId: ${ref_id}\x1b]8;;\x07`)
                 )
                 
-            // let icode = -1
-            // message = message.replace(/\[line #(\d+)\]/, (_, _icode) => {
-            //     icode = _icode
-            //     return `[line #${istart + Number(_icode) - 1}]`
-            // })
-            
-            // if (icode !== -1)
-            //     message += `\n${t('错误行:')} ${lines[icode - 1]}`
             
             this.term.writeln(red(message))
             
@@ -334,11 +326,13 @@ class ShellModel extends Model<ShellModel> {
                 default_selection === 'line' ?
                     model.getLineContent(selection.startLineNumber)
                 :
-                    model.getValue(this.monaco.editor.EndOfLinePreference.LF)
+                    model.getValue(this.monaco.editor.EndOfLinePreference.LF),
+                default_selection === 'line' ? selection.startLineNumber : 1
             )
         else
             await this.eval(
-                model.getValueInRange(selection, this.monaco.editor.EndOfLinePreference.LF)
+                model.getValueInRange(selection, this.monaco.editor.EndOfLinePreference.LF), 
+                selection.startLineNumber
             )
         
         await this.update_vars()
