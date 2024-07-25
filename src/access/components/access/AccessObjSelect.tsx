@@ -82,9 +82,9 @@ export function AccessObjSelect ({
                 else if (add_rule_selected.access.startsWith('DB') )
                     options = catalogs.map(cl => cl.schemas.map(sh => sh.dbUrl)).flat()
                 else if (add_rule_selected.access.startsWith('SCHEMA') )
-                    options = catalogs.filter(cl => cl.name !== DATABASES_WITHOUT_CATALOG).map(cl => cl.schemas.map(sh => sh.schema)).flat()
+                    options = catalogs.filter(cl => cl.name !== DATABASES_WITHOUT_CATALOG).map(cl => cl.schemas.map(sh => `${cl.name}.${sh.schema}`)).flat()
                 
-                console.log('options', options.length && add_rule_selected.obj.length === options.length)
+                console.log('options', options)
                 return  <div>
                 <Checkbox
                     className='check-all'
@@ -94,8 +94,6 @@ export function AccessObjSelect ({
                         add_rule_selected.obj.length < options.length
                     }
                     onChange={e => {
-                
-                        console.log('obj_options', databases)
                         
                         if (e.target.checked)
                             set_add_rule_selected({ ...add_rule_selected, obj: options })
@@ -120,8 +118,8 @@ export function AccessObjSelect ({
                           value: cl.name,
                           selectable: false,
                           children: cl.schemas.map(sh => ({
-                              key: `${cl.name}.${sh.schema}`,
-                              title: sh.schema,
+                              key: sh.dbUrl,
+                              title: sh.dbUrl,
                               // schema 权限 objs 为 catalog.schema,db 权限为 dburl
                               value: add_rule_selected.access.startsWith('DB') ? sh.dbUrl : `${cl.name}.${sh.schema}`,
                               selectable: add_rule_selected.access.startsWith('SCHEMA') || add_rule_selected.access.startsWith('DB'),
