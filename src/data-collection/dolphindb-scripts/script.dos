@@ -256,10 +256,12 @@ def dcp_addSubscribe(args){
         }   
         if(subArgs[`parseJson]){
             update subInfo set handlerId = uuid(subArgs['handlerId'])
+            update loadTable("dfs://dataAcquisition","ParserTemplate") set citeNumber = citeNumber+1 where id = uuid(subArgs['handlerId'])   
         }
         else{
             handlerId = (exec id from loadTable("dfs://dataAcquisition","ParserTemplate") where flag=1 and protocol =  proto )[0]
             update subInfo set handlerId = handlerId
+            update loadTable("dfs://dataAcquisition","ParserTemplate") set citeNumber = citeNumber+1 where id = handlerId   
             tableName = parseJsonTable(subArgs['templateParams']).value[0]
             if(!rpc(subNode,existsStreamTable{tableName})){
                 rpc(subNode,enableTableShareAndPersistence{streamTable(1:0,[`topic,`msg,`ts],[STRING,STRING,TIMESTAMP]),tableName,,,100000,,,100000})
@@ -327,6 +329,10 @@ def dcp_updateSubscribe(args){
                 }
             }
         }
+        if(subscribeInfo[`handlerId][0]!=uuid(subArgs[`handlerId]) and subArgs[`handlerId]!=NULL){
+            update loadTable("dfs://dataAcquisition","ParserTemplate") set citeNumber = citeNumber+1 where id = uuid(subArgs[`handlerId])
+            update loadTable("dfs://dataAcquisition","ParserTemplate") set citeNumber = citeNumber-1 where id = subscribeInfo[`handlerId]   
+        }
         if(!subArgs[`parseJson]){
             handlerId = (exec id from loadTable("dfs://dataAcquisition","ParserTemplate") where flag=1 and protocol =  proto)[0]
             update subscribeInfo set handlerId = handlerId
@@ -360,7 +366,7 @@ def dcp_updateSubscribe(args){
 ids: 订阅ID int数组
 dropUseTable:删除订阅时是否删除流表 bool
 使用示例：
-args = '{"ids":["192c3a31-dee3-b6b3-a3e6-4e08a861df02"],"dropUseTable":true}' 
+args = '{"ids":["aef4faac-f6d7-6c4e-d122-c96d7e3ebab1","eb07cafb-4e15-e795-5ffc-422177abe8c9"],"dropUseTable":true}' 
 dcp_deleteSubscribe(args)
 */
 def dcp_deleteSubscribe(args){
@@ -389,6 +395,10 @@ def dcp_deleteSubscribe(args){
             }
         }
         delete from loadTable("dfs://dataAcquisition","subscribeInfo") where id in uuid(subArgs[`ids])
+        citeNumber = select count(*)  from subInfo group by handlerId
+        for(i in citeNumber){
+            update loadTable("dfs://dataAcquisition","ParserTemplate") set citeNumber = citeNumber - i.count where id = uuid(i.handlerId)
+        }
         writeLog("the subscribe ["+concat(subInfo.name,",")+"] of "+ upper(proto) +" connection named " + connectName+" successfully deleted")
     }catch(ex){
         writeLog("An error occured when deleting "+upper(proto)+" subscribe info, the reason is:"+ex[1])
@@ -418,7 +428,6 @@ def dcp_getConnectAndSubInfo(args){
 参数：args 为标准json，需要包含以下字段：
 subId: 订阅ID   
 */
-args = '{"subId":"dff94d45-ca64-ec2a-197f-247950f972a4"}'
 def dcp_startSubscribe(args){
     subArgs = parseExpr(args).eval()
     //通过订阅id获取链接信息，解析模板信息
@@ -495,6 +504,7 @@ def dcp_startSubscribe(args){
         }   
         logInfo = "the subscribe "+tmp.name+" of "+upper(tmp.protocol)+" connection "+tmp.connInfo_name+" successfully started"
         rpc(node,writeLog{logInfo})
+        update loadTable("dfs://dataAcquisition","ParserTemplate") set useNumber = useNumber + 1 where id = uuid(tmp[`handlerId])
         argsNew='{"id":"'+subArgs[`subId]+'","subId":"'+subscriptionId+'","status":1}' 
         dcp_updateSubscribe(argsNew)
     }catch(ex){
@@ -517,7 +527,7 @@ args='{"subId":["dff94d45-ca64-ec2a-197f-247950f972a4","01948441-ade6-00b7-5eaf-
 */
 def dcp_stopSubscribe(args){
     subArgs = parseExpr(args).eval()
-    subId = select id,subNode,subId,connectId,name from loadTable("dfs://dataAcquisition","subscribeInfo") where id in uuid(subArgs[`subId])
+    subId = select id,subNode,subId,handlerId,connectId,name from loadTable("dfs://dataAcquisition","subscribeInfo") where id in uuid(subArgs[`subId])
     connInfo = select id,protocol,name from loadTable("dfs://dataAcquisition","connectInfo") where id in subId.connectId  
     info = select * from subId left join connInfo on connInfo.id=subId.connectId 
     ex=['user',NULL] 
@@ -531,6 +541,7 @@ def dcp_stopSubscribe(args){
                 }
                 logInfo = "The subscribe "+info[i].name+" of "+upper(info[i].protocol)+" connection "+info[i].connInfo_name+" successfully stoped"
                 rpc(info[i].subNode,writeLog{logInfo})
+                update loadTable("dfs://dataAcquisition","ParserTemplate") set useNumber = useNumber - 1 where id = uuid(info[i].handlerId)
                 argsNew='{"id":"'+string(info[i].id)+'","subId":NULL,"status":0}' 
                 dcp_updateSubscribe(argsNew) 
             }   
@@ -568,13 +579,16 @@ def dcp_getSubStatus(args){
 检测订阅状态
 将库中状态为开启状态但实际已经不存在的订阅关闭
 @args connectId:连接ID int整数  
-args='{"connectId":"bbdb7453-f61d-b7e0-944e-4db41a881390"}'
+args='{"connectId":"8c50939f-51c6-382f-b501-c4a495c240ca"}'
 */
 def dcp_checkSubStatus(args){
     subArgs = parseExpr(args).eval()
     subs =select id,subNode,subId,connectId from loadTable("dfs://dataAcquisition","subscribeInfo") where connectId=uuid(subArgs[`connectId])
     connInfo = select id,protocol from loadTable("dfs://dataAcquisition","connectInfo") where id = uuid(subArgs[`connectId])    
     subNodes = distinct(subs.subNode)
+    if(subNodes.size()==0){
+        return '{"status":1}'
+    }
     if(connInfo.protocol == "mqtt"){
         res = each(rpc{,mqtt::getSubscriberStat},subNodes)
         for(i in (0..(subNodes.size()-1))){
@@ -600,6 +614,7 @@ def dcp_checkSubStatus(args){
             }
         }
     }
+    return '{"status":1}'
 }
 
 /*
@@ -649,7 +664,8 @@ def dcp_addHandler(args){
         templateParams = dcp_parseTemplateArgs(handlerArgs[`handler],handlerArgs['protocol'])
         flag = iif(handlerArgs["flag"]==NULL,0,1)
         tmp = table(id as id, [handlerArgs['name']] as name, [handlerArgs[`handler]] as handler, [handlerArgs['protocol']] as `protocol,
-        string([handlerArgs['comment']]) as comment,[flag] as flag,[templateParams] as templateParams,[now()] as createTime,[now()] as updateTime)  
+        string([handlerArgs['comment']]) as comment,[flag] as flag,[templateParams] as templateParams,[0] as citeNumber,[0] as useNumber,
+        [now()] as createTime,[now()] as updateTime)  
         loadTable("dfs://dataAcquisition","ParserTemplate").append!(tmp)
         writeLog("The "+upper(handlerArgs[`protocol])+ " handler "+handlerArgs[`name]+" successfully added")
         return '{"status":1,"id":"'+string(id[0])+'"}'   
@@ -882,8 +898,8 @@ def dcp_createAllTable(){
     colTypes = [UUID,UUID,STRING,STRING,INT,INT,STRING,INT,UUID,STRING,STRING,BOOL,INT,STRING,TIMESTAMP,TIMESTAMP]
     createTable(database("dfs://dataAcquisition"),table(1:0,colNames,colTypes),`subscribeInfo)  
 
-    colNames = `id`name`handler`protocol`comment`flag`templateParams`createTime`updateTime
-    colTypes=[UUID,STRING,STRING,STRING,STRING,INT,STRING,TIMESTAMP,TIMESTAMP]
+    colNames = `id`name`handler`protocol`comment`flag`templateParams`citeNumber`useNumber`createTime`updateTime
+    colTypes=[UUID,STRING,STRING,STRING,STRING,INT,STRING,INT,INT,TIMESTAMP,TIMESTAMP]
     createTable(database("dfs://dataAcquisition"),table(1:0,colNames,colTypes),`ParserTemplate)
 }
 
