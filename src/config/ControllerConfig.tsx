@@ -1,6 +1,6 @@
 import { ReloadOutlined, SearchOutlined } from '@ant-design/icons'
 import { EditableProTable, type ActionType, type ProColumns } from '@ant-design/pro-components'
-import { AutoComplete, Button, Input, Popconfirm } from 'antd'
+import { AutoComplete, Button, Popconfirm } from 'antd'
 
 import { useCallback, useMemo, useRef, useState } from 'react'
 

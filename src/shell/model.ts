@@ -153,7 +153,8 @@ class ShellModel extends Model<ShellModel> {
             // throw new Error('xxxxx. RefId: S00001. xxxx RefId:S00002')
             
             let ddbobj = await model.ddb.eval(
-                `line://${istart}\n${code.replaceAll('\r\n', '\n')}`
+                `line://${istart}\n` +
+                `${code.replaceAll('\r\n', '\n')}`
             )
             
             console.log('执行代码返回了:', ddbobj)

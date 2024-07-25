@@ -63,8 +63,6 @@ export function NodesConfig () {
             clsed_configs[category].push(nodes_config)
         })
         
-       
-        
         return Object.entries(clsed_configs).map(([key, clsed_config]) => ({
             key,
             label: <div className='collapse-title'>{key}</div>,
