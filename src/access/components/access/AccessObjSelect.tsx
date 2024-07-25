@@ -82,7 +82,7 @@ export function AccessObjSelect ({
                 else if (add_rule_selected.access.startsWith('DB') )
                     options = catalogs.map(cl => cl.schemas.map(sh => sh.dbUrl)).flat()
                 else if (add_rule_selected.access.startsWith('SCHEMA') )
-                    options = catalogs.filter(cl => cl.name !== DATABASES_WITHOUT_CATALOG).map(cl => cl.schemas.map(sh => sh.dbUrl)).flat()
+                    options = catalogs.filter(cl => cl.name !== DATABASES_WITHOUT_CATALOG).map(cl => cl.schemas.map(sh => sh.schema)).flat()
                 
                 console.log('options', catalogs.filter(cl => cl.name !== DATABASES_WITHOUT_CATALOG).map(cl => cl.schemas.map(sh => sh.dbUrl)).flat(), options)
                 return  <div>
