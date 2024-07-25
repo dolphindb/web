@@ -165,7 +165,6 @@ class AccessModel extends Model<AccessModel> {
     
     
     async get_user_list () {
-        this.set({ users: (await model.ddb.invoke<string[]>('getUserList', [ ])) })
     }
     
     

@@ -24,13 +24,13 @@ export function Group () {
 
 
 function Access ({ role }: { role: 'group' | 'user' }) {
-    const { current } = access.use(['current'])
+    const { current, inited } = access.use(['current', 'inited'])
     const { admin } = model.use(['admin'])
     
     useEffect(() => {
-        if (admin && !access.inited)
+        if (admin && !inited)
             access.init()
-    }, [ ])
+    }, [ admin, inited])
     
     
     useEffect(() => {
