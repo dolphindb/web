@@ -1,4 +1,4 @@
-import { ReloadOutlined } from '@ant-design/icons'
+import { ReloadOutlined, SearchOutlined } from '@ant-design/icons'
 import { EditableProTable, type ActionType, type ProColumns } from '@ant-design/pro-components'
 import { AutoComplete, Button, Input, Popconfirm } from 'antd'
 import { useCallback, useMemo, useRef, useState } from 'react'
@@ -175,11 +175,14 @@ export function NodesManagement () {
                 icon={<ReloadOutlined />}
                 onClick={async () => {
                     await mutate()
+                    set_search_key('')
+                    set_search_value('')
                     model.message.success(t('刷新成功'))
                 }}
             >
                 {t('刷新')}
             </Button>,
+           <div className='auto-search'>
               <AutoComplete<string>
                 showSearch
                 placeholder={t('请输入想要查找的节点别名')}
@@ -187,16 +190,19 @@ export function NodesManagement () {
                 value={search_key}
                 onChange={value => {
                     set_search_key(value)
-                    if (value === '')
-                        set_search_value('')
+                }}
+                onKeyDown={e => {
+                    if (e.key === 'Enter') 
+                        set_search_value(search_key)
                 }}
                 filterOption={filter_config}
                 options={nodes.map(({ alias }) => ({
                     label: alias,
                     value: alias
-                }))} >
-                  <Input.Search size='middle' enterButton onSearch={() => { set_search_value(search_key) }}/>
-          </AutoComplete>
+                }))} />
+                <Button type='primary' icon={<SearchOutlined />} onClick={() => { set_search_value(search_key) }}/>
+            </div>
+          
         ]
         }
         editable={

@@ -1,4 +1,4 @@
-import { PlusOutlined, ReloadOutlined } from '@ant-design/icons'
+import { PlusOutlined, ReloadOutlined, SearchOutlined } from '@ant-design/icons'
 import { EditableProTable } from '@ant-design/pro-components'
 import NiceModal from '@ebay/nice-modal-react'
 import { AutoComplete, Button, Collapse, Input, Popconfirm, type CollapseProps } from 'antd'
@@ -45,6 +45,16 @@ export function NodesConfig () {
         [search_key]
     )
     
+    function on_search () {
+        let keys = [ ]
+        nodes_configs?.forEach(config => {
+            const { category, name } = config
+            if (name.toLowerCase().includes(search_key.toLowerCase()))
+                keys.push(category)
+        })
+        set_active_key(keys)
+    }
+    
     const items: CollapseProps['items'] = useMemo(() => {
         let clsed_configs = Object.fromEntries([...Object.keys(CONFIG_CLASSIFICATION), t('其它')].map(cfg => [cfg, [ ]]))
         
@@ -52,6 +62,8 @@ export function NodesConfig () {
             const { category } = nodes_config
             clsed_configs[category].push(nodes_config)
         })
+        
+       
         
         return Object.entries(clsed_configs).map(([key, clsed_config]) => ({
             key,
@@ -185,6 +197,8 @@ export function NodesConfig () {
                 icon={<ReloadOutlined />}
                 onClick={async () => {
                     await config.load_nodes_config()
+                    set_search_key('')
+                    set_active_key('')
                     model.message.success(t('刷新成功'))
                 }}
             >
@@ -199,30 +213,29 @@ export function NodesConfig () {
             >
                 {t('新增配置')}
             </Button>
-            <AutoComplete<string>
-                showSearch
-                placeholder={t('请输入想要查找的配置项')}
-                optionFilterProp='label'
-                value={search_key}
-                onChange={set_search_key}
-                filterOption={filter_config}
-                options={Object.entries(CONFIG_CLASSIFICATION).map(([cfg_cls, configs]) => ({
-                    label: cfg_cls,
-                    options: Array.from(configs).map(cfg => ({
-                        label: cfg,
-                        value: cfg
-                    }))
-                }))} >
-                    <Input.Search size='middle' enterButton onSearch={async () => {
-                        let keys = [ ]
-                        nodes_configs?.forEach(config => {
-                            const { category, name } = config
-                            if (name.toLowerCase().includes(search_key.toLowerCase()))
-                                keys.push(category)
-                        })
-                        set_active_key(keys)
-                    }}/>
-            </AutoComplete>
+            
+            <div className='auto-search'>
+                <AutoComplete<string>
+                    showSearch
+                    placeholder={t('请输入想要查找的配置项')}
+                    optionFilterProp='label'
+                    value={search_key}
+                    onChange={set_search_key}
+                    filterOption={filter_config}
+                    onKeyDown={e => {
+                        if (e.key === 'Enter') 
+                            on_search()
+                    }}
+                    options={Object.entries(CONFIG_CLASSIFICATION).map(([cfg_cls, configs]) => ({
+                        label: cfg_cls,
+                        options: Array.from(configs).map(cfg => ({
+                            label: cfg,
+                            value: cfg
+                        }))
+                    }))} />
+                    
+                <Button type='primary' icon={<SearchOutlined />} onClick={on_search}/>
+            </div>
            
         </div>
         <Collapse

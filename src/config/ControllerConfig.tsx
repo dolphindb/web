@@ -1,4 +1,4 @@
-import { ReloadOutlined } from '@ant-design/icons'
+import { ReloadOutlined, SearchOutlined } from '@ant-design/icons'
 import { EditableProTable, type ActionType, type ProColumns } from '@ant-design/pro-components'
 import { AutoComplete, Button, Input, Popconfirm } from 'antd'
 
@@ -140,27 +140,35 @@ export function ControllerConfig () {
                 icon={<ReloadOutlined />}
                 onClick={async () => {
                     await actionRef.current.reload()
+                    set_search_key('')
+                    set_search_value('')
                     model.message.success(t('刷新成功'))
                 }}
             >
                 {t('刷新')}
             </Button>,
-             <AutoComplete<string>
-                showSearch
-                placeholder={t('请输入想要查找的配置项')}
-                optionFilterProp='label'
-                value={search_key}
-                onChange={value => {
-                    set_search_key(value)
-                }}
-                filterOption={filter_config}
-                options={CONTROLLER_CONFIG.map(config => ({
-                    label: config,
-                    value: config
-                    }))
-            }>
-                <Input.Search size='middle' enterButton onSearch={() => { set_search_value(search_key) }}/>
-            </AutoComplete>
+            <div className='auto-search'>
+                <AutoComplete<string>
+                    showSearch
+                    placeholder={t('请输入想要查找的配置项')}
+                    optionFilterProp='label'
+                    value={search_key}
+                    onChange={value => {
+                        set_search_key(value)
+                    }}
+                    filterOption={filter_config}
+                    onKeyDown={e => {
+                        if (e.key === 'Enter') 
+                            set_search_value(search_key)
+                    }}
+                    options={CONTROLLER_CONFIG.map(config => ({
+                        label: config,
+                        value: config
+                        }))
+                        
+                } />
+                <Button type='primary' icon={<SearchOutlined />} onClick={() => { set_search_value(search_key) }}/>
+            </div>
         ]}
         editable={{
             type: 'single',
