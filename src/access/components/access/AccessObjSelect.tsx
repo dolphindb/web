@@ -84,7 +84,7 @@ export function AccessObjSelect ({
                 else if (add_rule_selected.access.startsWith('SCHEMA') )
                     options = catalogs.filter(cl => cl.name !== DATABASES_WITHOUT_CATALOG).map(cl => cl.schemas.map(sh => sh.schema)).flat()
                 
-                console.log('options', catalogs.filter(cl => cl.name !== DATABASES_WITHOUT_CATALOG).map(cl => cl.schemas.map(sh => sh.dbUrl)).flat(), options)
+                console.log('options', options.length && add_rule_selected.obj.length === options.length)
                 return  <div>
                 <Checkbox
                     className='check-all'
@@ -163,7 +163,7 @@ export function AccessObjSelect ({
             dropdownRender={originNode => <div>
                     <Checkbox
                         className='check-all'
-                        checked={add_rule_selected.obj.length === obj_options.length}
+                        checked={obj_options.length && add_rule_selected.obj.length === obj_options.length}
                         indeterminate={add_rule_selected.obj.length > 0 && add_rule_selected.obj.length < obj_options.length}
                         onChange={e => {
                             console.log('obj', obj_options)
