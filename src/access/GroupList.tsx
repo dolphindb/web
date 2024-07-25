@@ -105,7 +105,7 @@ export function GroupList () {
                     users: (
                         <div>
                             {group.users &&
-                                group.users.split(',').map((user: string) => <Tag color='cyan' key={user}>
+                                group.users.split(',').filter(name => name !== 'admin').map((user: string) => <Tag color='cyan' key={user}>
                                     {user}
                                 </Tag>)}
                         </div>

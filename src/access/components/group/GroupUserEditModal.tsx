@@ -20,7 +20,7 @@ export const GroupUserEditModal = NiceModal.create(() => {
     
     useEffect(() => {
         (async () => {
-            set_target_users(await access.get_users_by_group(current?.name))
+            set_target_users((await access.get_users_by_group(current?.name)).filter(name => name !== 'admin'))
         })()
     }, [current])
     
