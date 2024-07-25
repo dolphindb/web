@@ -57,14 +57,16 @@ export const GroupUserConfirmModal = NiceModal.create(({
         >
             <div>
                 <h4>{t('原组成员:')}</h4>
-                {origin_users.map(group => <Tag color='cyan'>{group}</Tag>)}
+                {origin_users.filter(name => name !== 'admin').map(group => <Tag color='cyan'>{group}</Tag>)}
                 <h4>{t('移入用户:')}</h4>
                 {target_users
+                    .filter(name => name !== 'admin')
                     .filter((u: string) => !origin_users.includes(u))
                     .filter(group => group !== '')
                     .map(group => <Tag color='green'>{group}</Tag>)}
                 <h4>{t('移出用户:')}</h4>
                 {origin_users
+                    .filter(name => name !== 'admin')
                     .filter(u => !target_users.includes(u))
                     .filter(group => group !== '')
                     .map(group => <Tag color='red'>{group}</Tag>)}
