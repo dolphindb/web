@@ -278,7 +278,7 @@ def dcp_addSubscribe(args){
             handlerId = (exec id from loadTable("dfs://dataAcquisition","ParserTemplate") where flag=1 and protocol =  proto )[0]
             update subInfo set handlerId = handlerId
             update loadTable("dfs://dataAcquisition","ParserTemplate") set citeNumber = citeNumber+1 where id = handlerId   
-            tableName = parseJsonTable(subArgs['templateParams']).value[0]
+            tableName = string(parseJsonTable(subArgs['templateParams']).value[0])
             if(!rpc(subNode,existsStreamTable{tableName})){
                 rpc(subNode,enableTableShareAndPersistence{streamTable(1:0,[`topic,`msg,`ts],[STRING,STRING,TIMESTAMP]),tableName,,,100000,,,100000})
                 logInfo ="successfuly initialized the default streamTable "+tableName+" for subscribe "+subArgs['name']+" of "+upper(proto)+" connection "+connectName 
@@ -352,7 +352,7 @@ def dcp_updateSubscribe(args){
         if(!subArgs[`parseJson]){
             handlerId = (exec id from loadTable("dfs://dataAcquisition","ParserTemplate") where flag=1 and protocol =  proto)[0]
             update subscribeInfo set handlerId = handlerId
-            tableName = parseJsonTable(subArgs['templateParams']).value[0]
+            tableName = string(parseJsonTable(subArgs['templateParams']).value[0])
             if(!rpc(subNode,existsStreamTable{tableName})){
                 rpc(subNode,enableTableShareAndPersistence{streamTable(1:0,[`topic,`msg,`ts],[STRING,STRING,TIMESTAMP]),tableName,,,100000,,,100000})
                 logInfo = "successfuly initialized the default streamTable "+tableName+" for subscribe "+subArgs['name']+" of "+upper(proto)+" connection "+connectName
