@@ -260,10 +260,10 @@ class AccessModel extends Model<AccessModel> {
     
     
     async get_share_tables () {
-        const tables = (await model.ddb.call('objs', [true])).data().data
+        const tables = (await model.ddb.eval('pnodeRun(objs{true})')).data().data
         this.set({
             shared_tables: tables.filter(table => table.shared && table.type === 'BASIC' && table.form === 'TABLE')
-                .map(table => table.name)
+                .map(table => `${table.node}:${table.name}`),
         })
     }
     
