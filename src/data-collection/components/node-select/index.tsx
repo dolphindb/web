@@ -1,8 +1,9 @@
 import { Select, type SelectProps } from 'antd'
 import useSWR from 'swr'
 
-import { request } from '@/data-collection/utils.js'
 import type { DefaultOptionType } from 'antd/es/select/index.js'
+
+import { request } from '@/data-collection/utils.js'
 
 export function NodeSelect (props: SelectProps) {
     
