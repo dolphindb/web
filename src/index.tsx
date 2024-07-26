@@ -95,36 +95,26 @@ function MainLayout () {
     
     
     useEffect(() => {
-        async function on_keydown (event: KeyboardEvent) {
-            const { key, target, ctrlKey: ctrl, altKey: alt } = event
-            
-            if (
-                key === 'r' && 
-                (target as HTMLElement).tagName !== 'INPUT' && 
-                (target as HTMLElement).tagName !== 'TEXTAREA' && 
-                !ctrl && 
-                !alt
-            ) {
-                event.preventDefault()
-                await model.recompile_and_refresh()
+        if (model.dev) {
+            async function on_keydown (event: KeyboardEvent) {
+                const { key, target, ctrlKey: ctrl, altKey: alt } = event
+                
+                if (
+                    key === 'r' && 
+                    (target as HTMLElement).tagName !== 'INPUT' && 
+                    (target as HTMLElement).tagName !== 'TEXTAREA' && 
+                    !ctrl && 
+                    !alt
+                ) {
+                    event.preventDefault()
+                    await model.recompile_and_refresh()
+                }
             }
-        }
-        
-        function reset_timer () {
-            model.reset_timer()
-        }
-        
-        if (model.dev) 
+            
             window.addEventListener('keydown', on_keydown)
-        window.addEventListener('click', reset_timer)
-        window.addEventListener('keydown', reset_timer)
-        
-        return () => { 
-            window.removeEventListener('click', reset_timer)
-            window.removeEventListener('keydown', reset_timer)
-            window.removeEventListener('keydown', on_keydown) 
+            
+            return () => { window.removeEventListener('keydown', on_keydown) }
         }
-        
     }, [ ])
     
     if (!inited)

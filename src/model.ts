@@ -61,6 +61,9 @@ export class DdbModel extends Model<DdbModel> {
     /** 在本地开发模式 */
     dev = false
     
+    /** 通过 ticket 或用户名密码自动登录，默认为 true 传 autologin=0 关闭 */
+    autologin = false
+    
     /** 通过 test.dolphindb.cn 访问的 web */
     test = false
     
@@ -145,11 +148,6 @@ export class DdbModel extends Model<DdbModel> {
     
     notification: NotificationInstance
     
-     /** 自动退出的时长 */
-    timeout: number
-    
-     /** 自动退出的计时器 */
-    timer = null
     /** 记录启用了哪些可选功能 */
     enabled_modules = new Set<string>()
     
@@ -165,6 +163,7 @@ export class DdbModel extends Model<DdbModel> {
         const params = new URLSearchParams(location.search)
         
         this.dev = params.get('dev') !== '0' && location.host === 'localhost:8432' || params.get('dev') === '1'
+        this.autologin = false
         this.test = location.hostname === 'test.dolphindb.cn' || params.get('test') === '1'
         this.verbose = params.get('verbose') === '1'
         
@@ -217,50 +216,37 @@ export class DdbModel extends Model<DdbModel> {
             this.get_login_required()
         ])
         
-        try {
-            let url = new URL(location.href)
-            let { searchParams } = url
-            const token_code = searchParams.get('code')
-            const token = localStorage.getItem(storage_keys.token)
-            const refresh_token = localStorage.getItem(storage_keys.refresh_token)
-            const { domin, client_id, client_secret, redirect_uri } = login_info
-            ;((await this.ddb.call<DdbVectorString>(
-                'loadClusterNodesConfigs', 
-                    [ ], 
-                    { ... this.node_type === NodeType.controller || this.node_type === NodeType.single ? { } : { node: this.controller_alias, func_type: DdbFunctionType.SystemFunc } }
-            )).value).forEach(item => {
-                const [key, value] = item.split('=')
-                if (key === 'webLogoutTimeout')
-                    this.timeout = Number(value)
-            })
+        let url = new URL(location.href)
+        let { searchParams } = url
+        const token_code = searchParams.get('code')
+        const token = localStorage.getItem(storage_keys.token)
+        const refresh_token = localStorage.getItem(storage_keys.refresh_token)
+        const { domin, client_id, client_secret, redirect_uri } = login_info
+        
+        if (token && refresh_token) 
+            await this.login_by_token(token, refresh_token)
+        else if (token_code) {
+            searchParams.delete('code')
+            history.replaceState(null, '', url.toString())
             
-            if (token && refresh_token) 
-                await this.login_by_token(token, refresh_token)
-            else if (token_code) {
-                searchParams.delete('code')
-                history.replaceState(null, '', url.toString())
-                
-                const { access_token: token, refresh_token } = await (
-                    await fetch(
-                        new URL(`${domin}/accessToken?` + new URLSearchParams({
-                            grant_type: 'authorization_code',
-                            client_id,
-                            client_secret,
-                            code: token_code,
-                            response_type: 'code',
-                            redirect_uri,
-                            oauth_timestamp: new Date().getTime().toString(),
-                        })).toString(),
-                        { method: 'post' }
-                )).json()
-                
-                localStorage.setItem(storage_keys.token, token)
-                localStorage.setItem(storage_keys.refresh_token, refresh_token)
-                
-                await this.login_by_token(token, refresh_token)
-            }
-        } catch (error) {
-            model.message.error('单点登录失败，请重试')
+            const { access_token: token, refresh_token } = await (
+                await fetch(
+                    new URL(`${domin}/accessToken?` + new URLSearchParams({
+                        grant_type: 'authorization_code',
+                        client_id,
+                        client_secret,
+                        code: token_code,
+                        response_type: 'code',
+                        redirect_uri,
+                        oauth_timestamp: new Date().getTime().toString(),
+                    })).toString(),
+                    { method: 'post' }
+            )).json()
+            
+            localStorage.setItem(storage_keys.token, token)
+            localStorage.setItem(storage_keys.refresh_token, refresh_token)
+            
+            await this.login_by_token(token, refresh_token)
         }
         
         await this.get_cluster_perf(true)
@@ -367,7 +353,7 @@ export class DdbModel extends Model<DdbModel> {
         
         console.log(t('{{username}} 使用账号密码登陆成功', { username: this.username }))
     }
-        
+    
     
     async logout () {
         localStorage.removeItem(storage_keys.ticket)
@@ -378,27 +364,13 @@ export class DdbModel extends Model<DdbModel> {
         
         await this.ddb.call('logout', [ ], { urgent: true })
         
-        clearTimeout(this.timer)
-        
         this.set({
             logined: false,
             username: username_guest,
-            admin: false,
-            timer: null
+            admin: false
         })
-        location.assign('https://login.sufe.edu.cn/esc-sso/logout')
-    }
-    
-    
-    start_timer () {
-        if (this.timeout)
-            this.set({ timer: setTimeout(() => { this.logout() }, this.timeout * 60 * 1000) })
-    }
-    
-    
-    reset_timer () {
-        clearTimeout(this.timer)
-        this.start_timer()
+        
+        location.href = 'https://login.sufe.edu.cn/esc-sso/logout'
     }
     
     

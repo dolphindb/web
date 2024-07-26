@@ -49,6 +49,5 @@ export function Login () {
                 </Form.Item>
             </Form>
         </div>
-        <div className='sufe' onClick={() => { model.goto_sufe_login() }}>使用统一身份认证登录</div>
     </>
 }
