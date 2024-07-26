@@ -28,7 +28,7 @@ export const GroupUserConfirmModal = NiceModal.create(({
     
     useEffect(() => {
         (async () => {
-            set_origin_users(await access.get_users_by_group(current?.name))
+            set_origin_users((await access.get_users_by_group(current?.name)).filter(name => name !== 'admin'))
         })()
     }, [current])
     
@@ -39,8 +39,8 @@ export const GroupUserConfirmModal = NiceModal.create(({
             afterClose={modal.remove}
             title={<div>{t('确认对组 {{group}} 进行以下改动吗？', { group: current?.name })}</div>}
             onOk={async () => {
-                const delete_users = origin_users.filter(u => !target_users.includes(u)).filter(group => group !== '')
-                const add_users = target_users.filter((u: string) => !origin_users.includes(u)).filter(group => group !== '')
+                const delete_users = origin_users.filter(u => !target_users.includes(u)).filter(group => group )
+                const add_users = target_users.filter((u: string) => !origin_users.includes(u)).filter(group => group)
                 if (delete_users.length || add_users.length) {
                     await Promise.all([
                         ...(delete_users.length ? [access.delete_group_member(delete_users, current?.name)] : [ ]),
@@ -57,16 +57,14 @@ export const GroupUserConfirmModal = NiceModal.create(({
         >
             <div>
                 <h4>{t('原组成员:')}</h4>
-                {origin_users.filter(name => name !== 'admin').map(group => <Tag color='cyan'>{group}</Tag>)}
+                {origin_users.map(group => <Tag color='cyan'>{group}</Tag>)}
                 <h4>{t('移入用户:')}</h4>
                 {target_users
-                    .filter(name => name !== 'admin')
                     .filter((u: string) => !origin_users.includes(u))
                     .filter(group => group !== '')
                     .map(group => <Tag color='green'>{group}</Tag>)}
                 <h4>{t('移出用户:')}</h4>
                 {origin_users
-                    .filter(name => name !== 'admin')
                     .filter(u => !target_users.includes(u))
                     .filter(group => group !== '')
                     .map(group => <Tag color='red'>{group}</Tag>)}

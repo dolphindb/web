@@ -134,7 +134,7 @@ export function GroupList () {
                                 type='link'
                                 onClick={async () => {
                                     access.set({ current: { role: 'group', name: group.groupName, ...current } })
-                                    NiceModal.show(GroupUserEditModal)
+                                    NiceModal.show(GroupUserEditModal, { groupname: group.groupName })
                                 }}
                             >
                                 {t('管理成员')}

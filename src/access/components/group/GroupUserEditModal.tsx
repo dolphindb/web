@@ -8,11 +8,13 @@ import { t } from '../../../../i18n/index.js'
 
 import { GroupUserConfirmModal } from './GroupUserConfirmModal.js'
 
-export const GroupUserEditModal = NiceModal.create(() => {
+export const GroupUserEditModal = NiceModal.create(({
+    groupname
+}: { groupname: string }) => {
 
-    const { users, current } = access.use(['users', 'current'])
+    const { users } = access.use(['users'])
     
-    const modal = useModal()
+    const modal = useModal() 
     
     const [target_users, set_target_users] = useState<string[]>([ ])
     
@@ -20,16 +22,16 @@ export const GroupUserEditModal = NiceModal.create(() => {
     
     useEffect(() => {
         (async () => {
-            set_target_users((await access.get_users_by_group(current?.name)).filter(name => name !== 'admin'))
+            set_target_users((await access.get_users_by_group(groupname)).filter(name => name !== 'admin'))
         })()
-    }, [current])
+    }, [groupname])
     
     return <Modal
             className='edit-group-modal'
             open={modal.visible}
             onCancel={modal.hide}
             afterClose={modal.remove}
-            title={<div>{t('组 {{group}} 成员管理', { group: current?.name })}</div>}
+            title={<div>{t('组 {{group}} 成员管理', { group: groupname })}</div>}
             onOk={async () => {
                 await NiceModal.show(GroupUserConfirmModal, {
                     edit_close: modal.hide,
