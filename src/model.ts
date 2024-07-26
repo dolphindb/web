@@ -31,8 +31,12 @@ export const storage_keys = {
     session_id: 'ddb.session_id',
     collapsed: 'ddb.collapsed',
     code: 'ddb.code',
+    session: 'ddb.session',
+    
+    // sso 单点登录
     token: 'ddb.token',
     refresh_token: 'ddb.refresh_token',
+    
     minimap: 'ddb.editor.minimap',
     enter_completion: 'ddb.editor.enter_completion',
     sql: 'ddb.sql',
@@ -41,12 +45,15 @@ export const storage_keys = {
     overview_display_columns: 'ddb.overview.display_columns'
 } as const
 
+
+// sso 单点登录
 const login_info = {
     domin: 'https://login.sufe.edu.cn/esc-sso/oauth2.0',
     client_id: '0835ce6ea9ad4ccb',
     client_secret: '66f23a0304134ea6a165e4434c96ffdc',
     redirect_uri: encodeURI('http://10.2.47.64:22212/')
 } as const
+
 
 const json_error_pattern = /^{.*"code": "(.*?)".*}$/
 
@@ -62,7 +69,10 @@ export class DdbModel extends Model<DdbModel> {
     dev = false
     
     /** 通过 ticket 或用户名密码自动登录，默认为 true 传 autologin=0 关闭 */
-    autologin = false
+    autologin = true
+    
+    /** 是否启用 sso 登录 */
+    sso = false
     
     /** 通过 test.dolphindb.cn 访问的 web */
     test = false
@@ -163,7 +173,7 @@ export class DdbModel extends Model<DdbModel> {
         const params = new URLSearchParams(location.search)
         
         this.dev = params.get('dev') !== '0' && location.host === 'localhost:8432' || params.get('dev') === '1'
-        this.autologin = false
+        this.autologin = params.get('autologin') !== '0'
         this.test = location.hostname === 'test.dolphindb.cn' || params.get('test') === '1'
         this.verbose = params.get('verbose') === '1'
         
@@ -213,50 +223,36 @@ export class DdbModel extends Model<DdbModel> {
             this.get_node_type(),
             this.get_node_alias(),
             this.get_controller_alias(),
-            this.get_login_required()
+            this.get_login_required(),
+            config.load_nodes_config()
         ])
         
-        let url = new URL(location.href)
-        let { searchParams } = url
-        const token_code = searchParams.get('code')
-        const token = localStorage.getItem(storage_keys.token)
-        const refresh_token = localStorage.getItem(storage_keys.refresh_token)
-        const { domin, client_id, client_secret, redirect_uri } = login_info
+        const { value: sso_str } = config.nodes_configs.get('sso')
+        this.set({ sso: sso_str === '1' || sso_str === 'true' })
         
-        if (token && refresh_token) 
-            await this.login_by_token(token, refresh_token)
-        else if (token_code) {
-            searchParams.delete('code')
-            history.replaceState(null, '', url.toString())
-            
-            const { access_token: token, refresh_token } = await (
-                await fetch(
-                    new URL(`${domin}/accessToken?` + new URLSearchParams({
-                        grant_type: 'authorization_code',
-                        client_id,
-                        client_secret,
-                        code: token_code,
-                        response_type: 'code',
-                        redirect_uri,
-                        oauth_timestamp: new Date().getTime().toString(),
-                    })).toString(),
-                    { method: 'post' }
-            )).json()
-            
-            localStorage.setItem(storage_keys.token, token)
-            localStorage.setItem(storage_keys.refresh_token, refresh_token)
-            
-            await this.login_by_token(token, refresh_token)
+        if (this.autologin) {
+            if (this.sso)
+                await this.login_by_sso()
+            else
+                try {
+                    await this.login_by_ticket()
+                } catch {
+                    console.log(t('ticket 登录失败'))
+                    
+                    if (this.dev || this.test)
+                        try {
+                            await this.login_by_password('admin', '123456')
+                        } catch {
+                            console.log(t('使用默认 admin 账号密码登录失败'))
+                        }
+                }
         }
         
         await this.get_cluster_perf(true)
         
         await this.check_leader_and_redirect()
         
-        await Promise.all([
-            this.get_factor_platform_enabled(),
-            config.load_nodes_config()
-        ])
+        await this.get_factor_platform_enabled()
         
         const webModules = config.nodes_configs.get('webModules')
         
@@ -299,39 +295,6 @@ export class DdbModel extends Model<DdbModel> {
     }
     
     
-    goto_sufe_login () {
-        const { domin, client_id, redirect_uri } = login_info
-        localStorage.removeItem(storage_keys.token)
-        localStorage.removeItem(storage_keys.refresh_token)
-        location.assign(new URL(`${domin}/authorize?` + new URLSearchParams({
-            client_id,
-            response_type: 'code',
-            redirect_uri,
-            oauth_timestamp: new Date().getTime().toString(),
-        })).toString())
-    }
-        
-    
-    /** SUFE 单点登录 */
-    async login_by_token (token: string, refresh_token: string) {
-        await this.ddb.call('login', [token, refresh_token])
-        const { username, refresh_token: _refresh_token, token: _token } = JSON.parse((await this.ddb.eval(`
-            name = exec name from rpc(getControllerAlias(), getClusterPerf) where state = 1 limit 1
-            def runFunc(funcName){
-                return funcByName(funcName).call();
-            }
-            rpc(name[0], runFunc, "getUserLoginInfo")`
-        )).value as string)
-        
-        localStorage.setItem(storage_keys.token, _token)
-        localStorage.setItem(storage_keys.refresh_token, _refresh_token)
-        
-        this.set({ logined: true, username })
-        await this.is_admin()
-        this.start_timer()
-    }
-    
-    
     async login_by_password (username: string, password: string) {
         this.ddb.username = username
         this.ddb.password = password
@@ -355,11 +318,136 @@ export class DdbModel extends Model<DdbModel> {
     }
     
     
+    async login_by_ticket () {
+        const ticket = localStorage.getItem(storage_keys.ticket)
+        if (!ticket)
+            throw new Error(t('没有自动登录的 ticket'))
+        
+        const last_username = localStorage.getItem(storage_keys.username)
+        if (!last_username)
+            throw new Error(t('没有自动登录的 username'))
+        
+        try {
+            await this.ddb.call('authenticateByTicket', [ticket], { urgent: true })
+            this.set({ logined: true, username: last_username })
+            
+            await this.is_admin()
+            
+            console.log(t('{{username}} 使用 ticket 登陆成功', { username: last_username }))
+        } catch (error) {
+            localStorage.removeItem(storage_keys.ticket)
+            localStorage.removeItem(storage_keys.username)
+            throw error
+        }
+    }
+    
+    
+    /** 验证成功时返回用户信息；验证失败时跳转到单点登录页 */
+    async login_by_session (session: string) {
+        // https://dolphindb1.atlassian.net/browse/DPLG-581
+        
+        await this.ddb.call('login', ['guest', '123456'])
+        
+        const result = (
+            await this.ddb.call('authenticateBySession', [session])
+        ).to_dict<{ code: number, message: string, username: string, raw: string }>({ strip: true })
+        
+        if (result.code) {
+            const message = t('通过 session 登录失败，即将跳转到单点登录页')
+            localStorage.removeItem(storage_keys.session)
+            const error = Object.assign(
+                new Error(message),
+                result
+            )
+            alert(
+                message + '\n' +
+                JSON.stringify(result)
+            )
+            if (location.pathname !== '/')
+                location.pathname = '/'
+            throw error
+        } else {
+            console.log(t('通过 session 登录成功:'), result)
+            
+            localStorage.setItem(storage_keys.session, session)
+            
+            // result.username 由于 server 的 parseExpr 无法正确 parse \u1234 这样的字符串，先从后台 JSON 中提取信息
+            // 等 server 增加 parseJSON 函数
+            const { name: username } = JSON.parse(result.raw)
+            this.set({ logined: true, username })
+            
+            await this.is_admin()
+            
+            return result
+        }
+    }
+    
+    
+    async login_by_sso () {
+        let url = new URL(location.href)
+        let { searchParams } = url
+        const token_code = searchParams.get('code')
+        
+        const token = localStorage.getItem(storage_keys.token)
+        const refresh_token = localStorage.getItem(storage_keys.refresh_token)
+        
+        const { domin, client_id, client_secret, redirect_uri } = login_info
+        
+        if (token && refresh_token) 
+            await this.login_by_token(token, refresh_token)
+        else if (token_code) {
+            searchParams.delete('code')
+            history.replaceState(null, '', url.toString())
+            
+            const { access_token: token, refresh_token } = await (
+                await fetch(
+                    new URL(`${domin}/accessToken?` + new URLSearchParams({
+                        grant_type: 'authorization_code',
+                        client_id,
+                        client_secret,
+                        code: token_code,
+                        response_type: 'code',
+                        redirect_uri,
+                        oauth_timestamp: new Date().getTime().toString(),
+                    })).toString(),
+                    { method: 'post' }
+            )).json()
+            
+            localStorage.setItem(storage_keys.token, token)
+            localStorage.setItem(storage_keys.refresh_token, refresh_token)
+            
+            await this.login_by_token(token, refresh_token)
+        }
+    }
+    
+    
+    async login_by_token (token: string, refresh_token: string) {
+        await this.ddb.call('login', [token, refresh_token])
+        const { username, refresh_token: _refresh_token, token: _token } = JSON.parse((await this.ddb.eval(`
+            name = exec name from rpc(getControllerAlias(), getClusterPerf) where state = 1 limit 1
+            def runFunc(funcName){
+                return funcByName(funcName).call();
+            }
+            rpc(name[0], runFunc, "getUserLoginInfo")`
+        )).value as string)
+        
+        localStorage.setItem(storage_keys.token, _token)
+        localStorage.setItem(storage_keys.refresh_token, _refresh_token)
+        
+        this.set({ logined: true, username })
+        await this.is_admin()
+    }
+    
+    
     async logout () {
         localStorage.removeItem(storage_keys.ticket)
         localStorage.removeItem(storage_keys.username)
-        localStorage.removeItem(storage_keys.token)
-        localStorage.removeItem(storage_keys.refresh_token)
+        
+        if (this.sso) {
+            localStorage.removeItem(storage_keys.token)
+            localStorage.removeItem(storage_keys.refresh_token)
+        }
+        
         localStorage.setItem(storage_keys.session_id, '0')
         
         await this.ddb.call('logout', [ ], { urgent: true })
@@ -370,7 +458,10 @@ export class DdbModel extends Model<DdbModel> {
             admin: false
         })
         
-        location.href = 'https://login.sufe.edu.cn/esc-sso/logout'
+        if (this.sso)
+            location.href = 'https://login.sufe.edu.cn/esc-sso/logout'
+        else
+            this.goto_login()
     }
     
     
@@ -536,6 +627,20 @@ export class DdbModel extends Model<DdbModel> {
         })
     }
     
+    
+    goto_sso_login () {
+        const { domin, client_id, redirect_uri } = login_info
+        localStorage.removeItem(storage_keys.token)
+        localStorage.removeItem(storage_keys.refresh_token)
+        location.assign(new URL(`${domin}/authorize?` + new URLSearchParams({
+            client_id,
+            response_type: 'code',
+            redirect_uri,
+            oauth_timestamp: new Date().getTime().toString(),
+        })).toString())
+    }
+    
+    
     goto_redirection () {
         if (this.redirection) 
             this.set({ view: this.redirection })
@@ -543,6 +648,7 @@ export class DdbModel extends Model<DdbModel> {
             // 保留旧跳转逻辑
             this.goto_default_view()
     }
+    
     
     goto_default_view () {
         this.set({

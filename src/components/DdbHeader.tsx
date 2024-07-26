@@ -50,7 +50,7 @@ export function DdbHeader () {
                                 {
                                     key: 'logout',
                                     icon: <LogoutOutlined />,
-                                    label: <a className='logout' onClick={() => { model.logout() }}>{t('注销')}</a>,
+                                    label: <a className='logout' onClick={async () => { await model.logout() }}>{t('注销')}</a>,
                                 }
                             :
                                 {
