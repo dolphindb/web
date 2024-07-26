@@ -1,0 +1,380 @@
+@import './variables.sass'
+
+
+html, body
+    margin: 0
+    padding: 0
+    height: 100%
+    overscroll-behavior-y: contain
+
+*, :before, :after
+    box-sizing: border-box
+
+.root
+    height: 100%
+    
+    .app
+        height: 100%
+    
+    .root-layout
+        height: 100%
+    
+    .ddb-header
+        padding: 0px 10px
+        height: 40px
+        line-height: 40px
+        
+        display: flex
+        
+        background: #f2f2f2
+        
+        box-shadow: 0px 1px 0px 0px #e5e5e5
+        
+        border-bottom: #e5e5e5 1px solid
+        
+        z-index: 10
+        
+        align-items: center
+        
+        .refresh-button
+            margin-left: 16px
+            background-color: #f2f2f2
+            
+            &:hover
+                background-color: unset
+        
+        .ant-avatar-sm
+            width: 20px
+            height: 20px
+            line-height: 20px
+        
+        .section
+            display: flex
+            align-items: center
+        
+        .header-settings
+            overflow: hidden
+            display: flex
+            align-items: center
+            cursor: pointer
+            
+            .header-settings-icon
+                margin-right: 6px
+            
+        .logo
+            margin-left: 5px
+            width: 90px
+            height: 40px
+        
+        .padding
+            flex: 1
+        
+        .node-info, .license
+            color: #000000
+            padding: 1px 8px 2px 8px
+            border-style: solid
+            border-color: #bbbbbb
+            margin-right: 10px
+            cursor: pointer
+            background-color: #f2f2f2
+        
+        
+        .user
+            margin-top: -2px
+            
+            .avatar
+                background-color: #707070
+                
+            .username
+                padding: 8px 4px
+                
+                color: #2e2e2e
+                font-size: 14px
+                
+                &:hover
+                    background-color: #d8d8d8
+                    
+                .avatar
+                    margin-right: 3px
+                
+                .arrow-down
+                    margin-left: 3px
+                    font-size: 12px
+    
+    
+    .body
+        height: 100%
+        
+        .sider
+            margin-top: 1px
+            
+            user-select: none
+            
+            background: #fafafa
+            
+            .collapse-trigger
+                display: flex
+                justify-content: left
+                align-items: center
+                
+                color: #707070
+                
+                height: 100%
+                
+                .text
+                    margin-top: 1px
+                    color: #707070
+                
+                &:hover
+                    background-color: #e6e6e6
+                
+                &.expand
+                    .collapse-icon
+                        font-size: 16px
+                        margin-left: 14px
+                        margin-right: 10px
+                
+                &.collapsed
+                    .collapse-icon
+                        flex: 1
+                        display: flex
+                        justify-content: center
+            
+            .ant-layout-sider-trigger
+                background: #fafafa
+                box-shadow: inset -1px 0 0 #e5e5e5
+            
+            
+            .menu
+                display: flex
+                
+                flex-direction: column
+                
+                height: 100%
+                
+                background: #fafafa
+                
+                box-shadow: inset -1px 0 0 #e5e5e5
+                
+                border-right: unset
+                
+                color: #707070
+                
+                &.module-settings > li:last-child
+                    margin-top: auto
+                
+                &.ant-menu-light .ant-menu-submenu-selected >.ant-menu-submenu-title, .ant-menu-light>.ant-menu .ant-menu-submenu-selected >.ant-menu-submenu-title
+                    color: #282828
+                    
+                .ant-menu-sub
+                    color: #707070
+                
+                &.ant-menu-inline-collapsed
+                    width: 50px
+                
+                .icon-menu
+                    font-size: 16px
+                    color: #707070
+                    display: flex
+                    align-items: center
+                    justify-content: center
+                    height: 100%
+                
+                .ant-menu-item
+                    padding-inline: unset
+                    margin-block-end: 0
+                    
+                .ant-menu-item-selected::after
+                    transform: none
+                
+                .ant-menu-item-selected
+                    background-color: #e6e6e6
+                    color: #2e2e2e
+                    font-weight: bold
+                    
+                    .icon-menu
+                        color: #2e2e2e
+                    
+                .ant-menu-item:hover
+                    color: #2e2e2e
+                    background-color: #e6e6e6
+                    
+                .ant-menu-item-active
+                    color: unset
+                    background-color: #e6e6e6
+                    
+                    .icon-menu
+                        color: #2e2e2e
+                    
+            
+        .view
+            overflow: auto
+            
+            background-color: #ffffff
+            
+            display: flex
+            
+            flex-direction: column
+            
+            .view-card
+                padding: 20px
+                
+                background-color: #ffffff
+
+.head-bar-info
+    .ant-card
+        box-shadow: unset
+        
+        .ant-card-head
+            border-bottom: none !important
+        
+        .ant-descriptions-bordered.ant-descriptions-small .ant-descriptions-item-label, .ant-descriptions-bordered.ant-descriptions-small .ant-descriptions-item-content
+            padding: 2px 6px
+        
+        .ant-card-head-title
+            font-weight: bold
+        
+        .build-time
+            margin-top: 10px
+            color: #e6e6e6
+    
+    .refresh
+        cursor: pointer
+
+.decimals-toolbar
+    display: flex
+    flex-direction: column
+    
+    gap: 16px
+    margin-top: 8px
+    
+    .decimals-toolbar-input
+        .ant-input-number-sm.ant-input-number,.ant-input-number-affix-wrapper
+            width: 150px
+        .ant-input-number-handler
+            border: 0px
+            height: 50%
+            .decimals-toolbar-wrap 
+                display: flex
+                flex-direction: column
+                justify-content: space-around
+            svg
+                height: 13px
+                width: 15px
+            .decimals-toolbar-up 
+                height: 50% !important
+            .decimals-toolbar-down
+                height: 50% !important
+            .decimals-toolbar-up-inner
+                height: 100%
+                overflow: hidden
+            .decimals-toolbar-down-inner
+                height: 100%
+                overflow: hidden
+        
+        .ant-input-number-handler:hover .ant-input-number-handler-up-inner, .ant-input-number-handler:hover .ant-input-number-handler-down-inner
+            color: #3760f0 !important
+        .ant-input-number:hover:not(.ant-input-number-borderless) .ant-input-number-handler-down, .ant-input-number-focused:not(.ant-input-number-borderless) .ant-input-number-handler-down
+            border-top: 0px
+        .ant-input-number-handler:active
+            background: unset
+    
+    
+    .decimals-toolbar-button-group
+        display: flex
+        justify-content: flex-end
+        gap: 10px
+
+.perf
+    display: flex
+    flex-direction: column
+    align-items: stretch
+    justify-content: space-around
+    gap: 10px
+    
+    .ant-card-head
+        border-bottom: none !important
+    
+    .ant-descriptions-header
+        margin-bottom: 4px
+        .ant-descriptions-title
+            font-size: 14px
+            
+    .ant-descriptions-item-content
+        color: #6a5acd
+    
+    .table
+        flex: 1
+        
+    .ant-descriptions-bordered.ant-descriptions-small .ant-descriptions-item-label, .ant-descriptions-bordered.ant-descriptions-small .ant-descriptions-item-content
+        padding: 2px 6px
+        
+    .refresh
+        background: #fafafa
+        
+        border-top: 1px solid #f0f0f0
+        border-right: 1px solid #f0f0f0
+        border-bottom: 1px solid #f0f0f0
+        
+        display: flex
+        
+        flex-direction: column
+        align-items: center
+        
+        justify-content: center
+        
+        width: 50px
+        
+        cursor: pointer
+        
+        padding-top: 4px
+        
+        .icon
+            font-size: 16px
+        
+        .text
+            margin-top: 4px
+            color: #000000
+
+
+.host-select.ant-select
+    margin-left: 24px
+    
+    .ant-select-selector
+        background-color: transparent !important
+
+
+// ------------ antd 样式覆写
+.ant-dropdown
+    .login
+        align-items: flex-start
+    
+    .ant-dropdown-menu
+        background-color: #fafafa
+
+.ant-message
+    z-index: 1031
+    
+    // 防止遮挡 dashboard 顶栏中的编辑预览按钮，目前无法在 .ant-message 这一层级区分 dashboard 和非 dashboard，
+    // 所以只能统一下移，交互编程中的 header 有两层，按这个高度来
+    top: 80px !important
+
+.ant-message .ant-message-notice-wrapper .ant-message-notice-content
+    border-radius: unset
+    
+.ant-modal-root
+    .ant-modal-mask
+        background-color: unset
+    
+    .ant-modal
+        .ant-modal-content
+            padding: 20px
+
+.ant-btn
+    transition: unset
+
+.ant-btn-primary
+    box-shadow: unset
+    
+.ant-btn-default
+    box-shadow: unset

@@ -192,7 +192,7 @@
         "en": "Submit changes?"
     },
     "名称": {
-        "en": "name"
+        "en": "Name"
     },
     "模式": {
         "en": "mode"
@@ -387,7 +387,7 @@
         "en": "Create"
     },
     "控制节点": {
-        "en": "Controllers"
+        "en": "Controller"
     },
     "控制节点_node_type": {
         "en": "controller"
@@ -396,7 +396,7 @@
         "en": "Controller"
     },
     "数据节点": {
-        "en": "Datanodes"
+        "en": "Datanode"
     },
     "数据节点_node_type": {
         "en": "datanode"
@@ -420,7 +420,7 @@
         "en": "Cluster Monitor"
     },
     "计算节点": {
-        "en": "Computenodes"
+        "en": "Computenode"
     },
     "计算节点_node_type": {
         "en": "computenode"
@@ -711,7 +711,7 @@
         "en": "window"
     },
     "偏移量": {
-        "en": "offset"
+        "en": "Offset"
     },
     "继续显示流表更新": {
         "en": "continue to show flow table updates"
@@ -1023,7 +1023,7 @@
         "en": "items"
     },
     "表格": {
-        "en": "table"
+        "en": "Table"
     },
     "行": {
         "en": "rows"
@@ -1229,11 +1229,11 @@
     "的词典": {
         "en": " dict"
     },
-    "的集合": {
-        "en": " set"
+    "的 {{type}} 集合": {
+        "en": " {{type}} set"
     },
-    "的向量": {
-        "en": " vector"
+    "的 {{type}} 向量": {
+        "en": " {{type}} vector"
     },
     "的表格": {
         "en": " table"
@@ -1491,7 +1491,7 @@
         "en": "A table with the same name already exists"
     },
     "数据列": {
-        "en": "data columns"
+        "en": "Data column"
     },
     "分区列": {
         "en": "partition columns"
@@ -1653,7 +1653,7 @@
         "en": "Preview"
     },
     "脚本预览": {
-        "en": "script Preview"
+        "en": "Script Preview"
     },
     "创建数据库的脚本:": {
         "en": "Scripts for creating database:"
@@ -1761,7 +1761,7 @@
         "en": "Stop node"
     },
     "集群节点配置": {
-        "en": "Cluster node configuration"
+        "en": "Cluster Node Configuration"
     },
     "已启动": {
         "en": "activated"
@@ -1800,7 +1800,7 @@
         "en": "last minute sent bytes"
     },
     "代理节点": {
-        "en": "agent node"
+        "en": "Agent"
     },
     "单机总览": {
         "en": "single node overview"
@@ -1933,114 +1933,6 @@
     },
     "因子平台": {
         "en": "FactorLab"
-    },
-    "标题": {
-        "en": "Title"
-    },
-    "数据源": {
-        "en": "DataSource"
-    },
-    "基本属性": {
-        "en": "Basic properties"
-    },
-    "数值轴，适用于连续数据": {
-        "en": "Numerical axis, suitable for continuous data"
-    },
-    "类目轴，适用于离散的类目数据": {
-        "en": "Category axis, suitable for discrete category data"
-    },
-    "时间轴，适用于连续的时序数据": {
-        "en": "Time axis, suitable for continuous time series data"
-    },
-    "对数轴，适用于对数数据": {
-        "en": "Logarithmic axis, suitable for logarithmic data"
-    },
-    "X 轴名称": {
-        "en": "X-axis name"
-    },
-    "增加数据列": {
-        "en": "Add data column"
-    },
-    "增加 Y 轴": {
-        "en": "Add Y axis"
-    },
-    "坐标列": {
-        "en": "Axis column"
-    },
-    "是否展示 X 缩略轴": {
-        "en": "Display the X thumbnail axis"
-    },
-    "是否展示 Y 缩略轴": {
-        "en": "Display the Y thumbnail axis"
-    },
-    "保存并应用": {
-        "en": "Save and Apply"
-    },
-    "请先选中您需要更改配置的图表": {
-        "en": "Please select the chart you want to change the configuration first"
-    },
-    "请为您的图表配置数据源": {
-        "en": "Please configure the data source for your chart"
-    },
-    "画布": {
-        "en": "Canvas"
-    },
-    "图表": {
-        "en": "Charts"
-    },
-    "图例": {
-        "en": "Legend"
-    },
-    "提示": {
-        "en": "Hint"
-    },
-    "X 轴缩略轴": {
-        "en": "X-axis abbreviated axis"
-    },
-    "Y 轴缩略轴": {
-        "en": "Y-axis abbreviated axis"
-    },
-    "位置": {
-        "en": "Position"
-    },
-    "左侧": {
-        "en": "Left"
-    },
-    "关联 Y 轴": {
-        "en": "Associated Y axis"
-    },
-    "列配置": {
-        "en": "Column configuration"
-    },
-    "增加映射": {
-        "en": "Add mapping"
-    },
-    "原始列名": {
-        "en": "Original column name"
-    },
-    "展示列名": {
-        "en": "Show column names"
-    },
-    "分页设置": {
-        "en": "Pagination settings"
-    },
-    "需要分页": {
-        "en": "Need pagination"
-    },
-    "默认分页数": {
-        "en": "Default number of pages"
-    },
-    "编辑数据源": {
-        "en": "Edit data source"
-    },
-    "堆叠值": {
-        "en": "Stack value"
-    },
-    "同个类目轴上为数据列配置相同的堆叠值可以堆叠放置": {
-        "en": "Series configurations with the same stack value on the same category axis can be stacked."
-    },
-    "关联变量": {
-        "en": "Associated variables"
     },
     "实时计算": {
         "en": "Computing"
@@ -2588,675 +2480,6 @@
     "内存大小": {
         "en": "Memory Size"
     },
-    "类目轴，适用于离散的类目数据，或者时序数据": {
-        "en": "Category axis, suitable for discrete category data or time series data"
-    },
-    "字号": {
-        "en": "font size"
-    },
-    "强制包含零刻度": {
-        "en": "force include zero scale"
-    },
-    "底数": {
-        "en": "base"
-    },
-    "时间格式化": {
-        "en": "time formatting"
-    },
-    "数据列 1": {
-        "en": "data column 1"
-    },
-    "热力值列": {
-        "en": "heatmap value column"
-    },
-    "颜色": {
-        "en": "color"
-    },
-    "标记点": {
-        "en": "marker points"
-    },
-    "水平线": {
-        "en": "horizontal line"
-    },
-    "阈值": {
-        "en": "threshold"
-    },
-    "低于阈值配色": {
-        "en": "color below threshold"
-    },
-    "高于阈值配色": {
-        "en": "color above threshold"
-    },
-    "线类型": {
-        "en": "line type"
-    },
-    "展示端标签": {
-        "en": "display end labels"
-    },
-    "散点大小": {
-        "en": "scatter plot size"
-    },
-    "散点标记": {
-        "en": "scatter plot marker"
-    },
-    "阴暗色": {
-        "en": "dark color"
-    },
-    "明亮色": {
-        "en": "bright color"
-    },
-    "最小值": {
-        "en": "minimum value"
-    },
-    "最大值": {
-        "en": "maximum value"
-    },
-    "展示标签": {
-        "en": "display labels"
-    },
-    "Y 轴相对于左右默认位置的偏移": {
-        "en": "Y-axis offset relative to default left/right position"
-    },
-    "Y 轴": {
-        "en": "Y-axis"
-    },
-    "X 轴配置": {
-        "en": "X-axis configuration"
-    },
-    "Y 轴配置": {
-        "en": "Y-axis configuration"
-    },
-    "每行变量数": {
-        "en": "number of variables per row"
-    },
-    "查询按钮": {
-        "en": "query button"
-    },
-    "不展示查询按钮的情况，表单更新即会进行查询，在变量设置较多的情况下，建议使用查询按钮，点击之后再运行数据源代码": {
-        "en": "In cases where the query button is not displayed, the form will be queried upon update. In situations with a large number of variable settings, it is recommended to use the query button and click it before running the data source code."
-    },
-    "上内边距": {
-        "en": "top padding"
-    },
-    "下内边距": {
-        "en": "bottom padding"
-    },
-    "左内边距": {
-        "en": "left padding"
-    },
-    "右内边距": {
-        "en": "right padding"
-    },
-    "标题字号": {
-        "en": "title font size"
-    },
-    "提示框": {
-        "en": "tooltip"
-    },
-    "展示网格线": {
-        "en": "display grid lines"
-    },
-    "展示边框": {
-        "en": "display border"
-    },
-    "展示列选择": {
-        "en": "display column selection"
-    },
-    "倒序展示": {
-        "en": "display in reverse order"
-    },
-    "流数据开启此功能可将最新的数据插入到表格头部": {
-        "en": "Enable this function for streaming data to insert the latest data at the top of the table"
-    },
-    "启用此选项之后，会在表格内层滚动": {
-        "en": "After enabling this option, the table will have inner scrolling"
-    },
-    "禁止滚动": {
-        "en": "Disable scrolling"
-    },
-    "变量设置": {
-        "en": "variable settings"
-    },
-    "是否展示": {
-        "en": "whether to display"
-    },
-    "列宽": {
-        "en": "column width"
-    },
-    "数值列可设置阈值，设置之后后超过阈值的数值展示为红色，低于阈值则展示为绿色，非数值列不生效": {
-        "en": "Numeric columns can have thresholds set. After setting, values exceeding the threshold will be displayed in red, while values below the threshold will be displayed in green. This does not apply to non-numeric columns."
-    },
-    "字体颜色": {
-        "en": "font color"
-    },
-    "背景颜色": {
-        "en": "background color"
-    },
-    "是否千分位": {
-        "en": "whether to display thousands separator"
-    },
-    "对齐方式": {
-        "en": "alignment"
-    },
-    "数据轴": {
-        "en": "data axis"
-    },
-    "类目轴": {
-        "en": "category axis"
-    },
-    "对数": {
-        "en": "logarithmic"
-    },
-    "右侧": {
-        "en": "right side"
-    },
-    "平均值": {
-        "en": "average value"
-    },
-    "实线": {
-        "en": "solid line"
-    },
-    "虚线": {
-        "en": "dashed line"
-    },
-    "点线": {
-        "en": "dotted line"
-    },
-    "运行按钮文字": {
-        "en": "text for the run button"
-    },
-    "按钮文字": {
-        "en": "button text"
-    },
-    "时间轴": {
-        "en": "time axis"
-    },
-    "数值轴，适用于连续数据\n类目轴，适用于离散的类目数据或者时序数据\n对数轴，适用于对数数据": {
-        "en": "Numeric axis, suitable for continuous data\ncategory axis, suitable for discrete category data or time series data\nlogarithmic axis, suitable for logarithmic data"
-    },
-    "交易量": {
-        "en": "trading volume"
-    },
-    "k 线颜色（涨）": {
-        "en": "k-line color (up)"
-    },
-    "k 线颜色（跌）": {
-        "en": "k-line color (down)"
-    },
-    "线条颜色": {
-        "en": "line color"
-    },
-    "k 线": {
-        "en": "k-line"
-    },
-    "Y 轴分割线": {
-        "en": "Y-axis gridline"
-    },
-    "柱状图颜色": {
-        "en": "bar chart color"
-    },
-    "曲线颜色": {
-        "en": "curve color"
-    },
-    "倍率": {
-        "en": "multiplier"
-    },
-    "行情数据档数": {
-        "en": "quotation data level"
-    },
-    "订单图": {
-        "en": "Order"
-    },
-    "数据环": {
-        "en": "data loop"
-    },
-    "增加环": {
-        "en": "add loop"
-    },
-    "标签列": {
-        "en": "label column"
-    },
-    "正在加载 ReactQuill": {
-        "en": "loading ReactQuill"
-    },
-    "添加文本": {
-        "en": "add text"
-    },
-    "不保存": {
-        "en": "Don't save"
-    },
-    "此数据源存在未保存的更改。你想保存吗？": {
-        "en": "There are unsaved changes in this data source. do you want to save?"
-    },
-    "点击填充数据源": {
-        "en": "populate data source"
-    },
-    "配置数据源": {
-        "en": "configure data source"
-    },
-    "应用": {
-        "en": "apply"
-    },
-    "关闭": {
-        "en": "Close"
-    },
-    "重命名": {
-        "en": "Rename"
-    },
-    "保存成功": {
-        "en": "save successful"
-    },
-    "当前数据源已被图表绑定无法删除": {
-        "en": "current data source is bound to a chart and cannot be deleted"
-    },
-    "该数据源名已存在": {
-        "en": "this data source name already exists"
-    },
-    "数据源名长度不能大于10": {
-        "en": "data source name cannot be longer than 10 characters"
-    },
-    "数据源名不能为空": {
-        "en": "data source name cannot be empty"
-    },
-    "当前数据源存在错误": {
-        "en": "current data source has errors"
-    },
-    "轮询启动失败": {
-        "en": "polling failed to start"
-    },
-    "无法订阅到流数据表": {
-        "en": "unable to subscribe to streaming data table"
-    },
-    "复制失败": {
-        "en": "copy failed"
-    },
-    "插入变量": {
-        "en": "insert variable"
-    },
-    "数据预览": {
-        "en": "data preview"
-    },
-    "自动刷新": {
-        "en": "Auto refresh"
-    },
-    "间隔时间": {
-        "en": "Interval time"
-    },
-    "最大展示行数": {
-        "en": "Maximum display rows"
-    },
-    "若该值为空则表示不对最大展示行数进行限制": {
-        "en": "If the value is empty, it means that there is no limit on the maximum number of display rows"
-    },
-    "自定义": {
-        "en": "custom"
-    },
-    "列名预览（共{{length}}列）：": {
-        "en": "column name preview ({{length}} columns):"
-    },
-    "列过滤": {
-        "en": "Column filter"
-    },
-    "值过滤、范围过滤、哈希过滤": {
-        "en": "value filter, range filter, hash filter"
-    },
-    "当前过滤列为:": {
-        "en": "Current filter column is:"
-    },
-    "当前流表无过滤列": {
-        "en": "Current streaming table has no filter columns"
-    },
-    "表达式过滤": {
-        "en": "Expression filter"
-    },
-    "无可用流表": {
-        "en": "No available streaming table"
-    },
-    "过滤": {
-        "en": "Filter"
-    },
-    "数据面板保存成功": {
-        "en": "dashboard saved successfully"
-    },
-    "修改成功": {
-        "en": "modification successful"
-    },
-    "当前数据面板列表为空": {
-        "en": "Current dashboard list is empty"
-    },
-    "撤销成功": {
-        "en": "undo successful"
-    },
-    "删除成功": {
-        "en": "deletion successful"
-    },
-    "选择 dashboard": {
-        "en": "select dashboard"
-    },
-    "仅编辑": {
-        "en": "edit only"
-    },
-    "仅预览": {
-        "en": "preview only"
-    },
-    "返回主界面": {
-        "en": "Return to overview"
-    },
-    "离开此界面您当前更改会丢失，是否需要保存当前更改": {
-        "en": "Leaving this interface will result in the loss of your current changes. Do you want to save the changes?"
-    },
-    "请输入数据面板的名称": {
-        "en": "Please enter the name of the dashboard"
-    },
-    "请输入新的数据面板名称": {
-        "en": "Please enter a new name for the dashboard"
-    },
-    "创建副本成功": {
-        "en": "copy created successfully"
-    },
-    "请输入 dashboard 副本名称": {
-        "en": "Please enter the name of the dashboard copy"
-    },
-    "新增": {
-        "en": "Add"
-    },
-    "导出": {
-        "en": "Export"
-    },
-    "创建副本": {
-        "en": "Create copy"
-    },
-    "修改名称": {
-        "en": "Rename"
-    },
-    "分享": {
-        "en": "Share"
-    },
-    "确定当前 dashboard 删除吗？": {
-        "en": "Are you sure you want to delete the current dashboard?"
-    },
-    "确认删除": {
-        "en": "confirm deletion"
-    },
-    "撤销": {
-        "en": "Revoke"
-    },
-    "编辑": {
-        "en": "Edit"
-    },
-    "批量导入": {
-        "en": "Batch import"
-    },
-    "导入": {
-        "en": "Import"
-    },
-    "你确定要导入这 {{length}} 个 dashboard 吗？": {
-        "en": "Are you sure you want to import these {{length}} dashboards?"
-    },
-    "已存在": {
-        "en": "already exists"
-    },
-    "导入成功！": {
-        "en": "Import successful!"
-    },
-    "覆盖": {
-        "en": "overwrite"
-    },
-    "重命名后导入": {
-        "en": "import after renaming"
-    },
-    "控制节点不支持数据面板，请跳转到数据节点或计算节点查看。": {
-        "en": "Control nodes do not support dashboards. Please navigate to data nodes or compute nodes to view."
-    },
-    "请点击下方按钮完成初始化": {
-        "en": "Please click the button below to complete initialization"
-    },
-    "初始化操作将新增以下数据库表：": {
-        "en": "The initialization operation will add the following database tables:"
-    },
-    "以及 11 个以 dashboard_ 开头的函数视图（FunctionView）": {
-        "en": "and 11 function views starting with dashboard_"
-    },
-    "你确定要初始化数据面板功能吗？": {
-        "en": "Are you sure you want to initialize dashboard functionality?"
-    },
-    "初始化": {
-        "en": "Initialize"
-    },
-    "数据面板功能未初始化，请联系管理员初始化数据面板功能": {
-        "en": "Datshboard functionality is not initialized. Please contact the administrator to initialize dashboard functionality"
-    },
-    "dashboard 配置加载成功": {
-        "en": "Dashboard configuration loaded successfully"
-    },
-    "当前 url 所指向的 dashboard 不存在": {
-        "en": "The dashboard pointed to by the current URL does not exist"
-    },
-    "请输入新数据面板的名称": {
-        "en": "Please enter a new name for the dashboard"
-    },
-    "请输入新的 dashboard 名称": {
-        "en": "Please enter a new name for the dashboard"
-    },
-    "您没有删除 {{name}} 的权限": {
-        "en": "you do not have permission to delete {{name}}"
-    },
-    "确认删除选中的 {{length}} 个数据面板吗？": {
-        "en": "Are you sure to delete the {{length}} selected dashboard"
-    },
-    "拥有": {
-        "en": "own"
-    },
-    "来源于 ": {
-        "en": "source from"
-    },
-    "确定删除 {{name}} 吗？": {
-        "en": "Are you sure you want to delete {{name}}?"
-    },
-    "当前 dashboard 列表为空": {
-        "en": "the current dashboard list is empty"
-    },
-    "确认撤销": {
-        "en": "confirm Undo"
-    },
-    "请选择至少一个面板进行导出": {
-        "en": "please select at least one panel to export"
-    },
-    "您没有导出 {{name}} 的权限": {
-        "en": "you do not have permission to export {{name}}"
-    },
-    "批量导出": {
-        "en": "Batch export"
-    },
-    "请至少选中一个数据面板后再删除": {
-        "en": "please select at least one dashboard before deleting"
-    },
-    "基础": {
-        "en": "basic"
-    },
-    "画布样式": {
-        "en": "canvas style"
-    },
-    "确定要重置配置吗？": {
-        "en": "Are you sure you want to reset the configuration?"
-    },
-    "重置配置": {
-        "en": "reset configuration"
-    },
-    "配置表单与数据源结构相关，如修改数据源结构，建议重置表单以适应最新结构": {
-        "en": "The configuration form is related to the data source structure. If you modify the data source structure, it is recommended to reset the form to adapt to the latest structure"
-    },
-    "请至少选中一个数据面板后再分享": {
-        "en": "please select at least one dashboard before sharing"
-    },
-    "批量分享": {
-        "en": "Batch share"
-    },
-    "请选择需要分享的用户": {
-        "en": "please select the users to share with"
-    },
-    "全部编辑": {
-        "en": "edit all"
-    },
-    "全部仅预览": {
-        "en": "preview only"
-    },
-    "全部无": {
-        "en": "none"
-    },
-    "请选择想要分享的 dashboard": {
-        "en": "please select the dashboard to share"
-    },
-    "您没有分享 {{name}} 的权限": {
-        "en": "You don't have permission to share {{name}}"
-    },
-    "分享成功": {
-        "en": "share successful"
-    },
-    "权限": {
-        "en": "Access"
-    },
-    "无": {
-        "en": "none"
-    },
-    "dashboard 名称不允许为空": {
-        "en": "dashboard name cannot be empty"
-    },
-    "dashboard 名称中不允许包含 \"/\" 或 \"\\\" ": {
-        "en": "dashboard names are not allowed to contain \"/\" or \"\\\""
-    },
-    "名称重复，请重新输入": {
-        "en": "duplicate name, please enter a different name"
-    },
-    "标签": {
-        "en": "label"
-    },
-    "值": {
-        "en": "value"
-    },
-    "确定要删除该选项吗？": {
-        "en": "Are you sure you want to delete this option?"
-    },
-    "可选项：": {
-        "en": "options:"
-    },
-    "变量": {
-        "en": "Variable"
-    },
-    "不存在": {
-        "en": "does not exist"
-    },
-    "当前变量已被数据源使用无法删除": {
-        "en": "the current variable is being used by a data source and cannot be deleted"
-    },
-    "该变量名已存在": {
-        "en": "variable name already exists"
-    },
-    "变量名长度不能大于10": {
-        "en": "variable name cannot be longer than 10 characters"
-    },
-    "变量名不能为空": {
-        "en": "variable name cannot be empty"
-    },
-    "此变量已被数据源引用无法修改名称": {
-        "en": "this variable is referenced by a data source and cannot have its name modified"
-    },
-    "变量冲突，复制失败": {
-        "en": "variable conflict, copy failed"
-    },
-    "此变量存在未保存的更改。你想保存吗？": {
-        "en": "There are unsaved changes to this variable. Do you want to save them?"
-    },
-    "配置变量": {
-        "en": "configure variable"
-    },
-    "显示名称：": {
-        "en": "display name:"
-    },
-    "变量类型：": {
-        "en": "variable type:"
-    },
-    "单选": {
-        "en": "single select"
-    },
-    "多选": {
-        "en": "multi-select"
-    },
-    "自由文本": {
-        "en": "free text"
-    },
-    "日期": {
-        "en": "date"
-    },
-    "变量值：": {
-        "en": "variable value:"
-    },
-    "使用默认 admin 账号密码登录失败": {
-        "en": "failed to log in using the default admin account password"
-    },
-    "柱状图": {
-        "en": "Bar"
-    },
-    "折线图": {
-        "en": "Line"
-    },
-    "饼图": {
-        "en": "Pie"
-    },
-    "K 线": {
-        "en": "K-line"
-    },
-    "混合图": {
-        "en": "Mix"
-    },
-    "富文本": {
-        "en": "Text"
-    },
-    "描述表": {
-        "en": "Describe"
-    },
-    "编辑器": {
-        "en": "Editor"
-    },
-    "仪表盘": {
-        "en": "Gauge"
-    },
-    "雷达图": {
-        "en": "Radar"
-    },
-    "散点图": {
-        "en": "Scatter"
-    },
-    "热力图": {
-        "en": "Heat"
-    },
-    "保留时间（分钟）": {
-        "en": "retention time (minutes)"
-    },
-    "气泡提示": {
-        "en": "tooltip"
-    },
-    "值列": {
-        "en": "value column"
-    },
-    "标签字号": {
-        "en": "label font size"
-    },
-    "值字号": {
-        "en": "value font size"
-    },
-    "每行展示数量": {
-        "en": "number of items per row"
-    },
-    "值颜色": {
-        "en": "value color"
-    },
-    "列属性": {
-        "en": "column attributes"
-    },
-    "编辑文本": {
-        "en": "Edit text"
-    },
     "查看数据库 {{db_name}} 用户权限": {
         "en": "View database {{db_name}} user permissions"
     },
@@ -3277,72 +2500,6 @@
     },
     "以下内容已复制到剪切板": {
         "en": "The following content has been copied to the clipboard."
-    },
-    "已存在，粘贴失败!": {
-        "en": "already exists, paste failed!"
-    },
-    "初始化数据面板成功！": {
-        "en": "Dashboard initialization successful!"
-    },
-    "新数据面板": {
-        "en": "New dashboard"
-    },
-    "提示：初始化后请完善相关配置（详见文档），并重启服务器": {
-        "en": "Tip: After initialization, please complete the relevant configuration (see the documentation for details) and restart the server"
-    },
-    "新数据源": {
-        "en": "New data source"
-    },
-    "请输入新数据源的名称": {
-        "en": "Please enter a name for the new data source"
-    },
-    "新变量": {
-        "en": "New variable"
-    },
-    "请输入新变量的名称": {
-        "en": "Please enter a name for the new variable"
-    },
-    "web 版本": {
-        "en": "web version"
-    },
-    "是否排序": {
-        "en": "Sort or not"
-    },
-    "为多列设置排序时需设置优先级，该值越高表明优先级越高": {
-        "en": "When setting sorting for multiple columns, you need to set a priority. The higher the value, the higher the priority."
-    },
-    "排序优先级": {
-        "en": "Sort priority"
-    },
-    "请输入优先级": {
-        "en": "Please enter priority"
-    },
-    "自定义端标签": {
-        "en": "Custom end tag"
-    },
-    "支持静态标签与模板变量，其中模板变量包含以下几种": {
-        "en": "Supports static tags and template variables, where template variables include the following types"
-    },
-    "{a}：数据列名称": {
-        "en": "{a}: data column name"
-    },
-    "{c}：当 x 轴为类目轴时显示 y 轴值，当 x 轴为其余轴时显示 x轴值,y轴值": {
-        "en": "When the x-axis is the category axis, the y-axis value is displayed. When the x-axis is the other axes, the x-axis value and y-axis value are displayed."
-    },
-    "{b}：x轴值": {
-        "en": "{b}: x-axis value"
-    },
-    "示例: 名称-{a}": {
-        "en": "Example: name-{a}"
-    },
-    "请注意，不填自定义端标签时默认展示 y 轴值": {
-        "en": "Please note that when the custom end label is not filled in, the y-axis value is displayed by default."
-    },
-    "请输入自定义端标签": {
-        "en": "Please enter custom end tag"
-    },
-    "仅数值类型可支持排序": {
-        "en": "Only numeric types support sorting"
     },
     "请编辑代码": {
         "en": "Please edit the code"
@@ -3600,13 +2757,13 @@
         "en": "Please enter the fields."
     },
     "请选择事件类型": {
-        "en": "Please select the event type."    
+        "en": "Please select the event type."
     },
     "数据类型为 {{name}}": {
         "en": "Please enter data of {{name}} type."
     },
     "最近错误时间": {
-        "en": "Last Error Time" 
+        "en": "Last Error Time"
     },
     "请选择数据视图": {
         "en": "Please select a data view"
@@ -3618,7 +2775,7 @@
         "en": "K-line only supports timeline"
     },
     "配置管理": {
-        "en": "Config"
+        "en": "Configuration"
     },
     "请输入配置名": {
         "en": "Please enter config name"
@@ -3645,7 +2802,7 @@
         "en": "Please enter config name"
     },
     "集群节点管理": {
-        "en": "Cluster node management"
+        "en": "Cluster Node Management"
     },
     "限定词": {
         "en": "Qualifier"
@@ -3670,9 +2827,6 @@
     },
     "请输入主机名": {
         "en": "Please enter host"
-    },
-    "请输入正确的主机名": {
-        "en": "Please enter the correct"
     },
     "端口号": {
         "en": "Port"
@@ -3806,66 +2960,6 @@
     "用户组管理": {
         "en": "group management"
     },
-    "列名完全匹配":  {
-        "en": "Column names match exactly"
-    },
-    "为指定名称的列定制配置": {
-        "en": "Customize the configuration for a column with a specified name"
-    },
-    "列名正则匹配": {
-        "en": "Column name regular matching"
-    },
-    "为列名匹配正则表达式的列定制配置": {
-        "en": "Customize configuration for columns whose column names match regular expressions"
-    },
-    "类型匹配": {
-        "en": "type matching"
-    },
-    "为特定 DolphinDB 数据类型的列定制配置，如 INT, DOUBLE": {
-        "en": "Custom configuration for columns of specific DolphinDB data types, such as INT, DOUBLE"
-    },
-    "配置规则 {{name}}": {
-        "en": "Configure rule {{name}}"
-    },
-    "匹配类型": {
-        "en": "Match Type"
-    },
-    "筛选列": {
-        "en": "Filter Columns"
-    },
-    "正则表达式": {
-        "en": "Regular Expression"
-    },
-    "支持子面量形式和构造函数形式的正则对象": {
-        "en": "Supports regular objects in literal form and constructor form"
-    },
-    "子面量：/abc/g": {
-        "en": "Amount of sub-face: /abc/g"
-    },
-    "构造函数：new RegExp(\"abc\", \"g\")": {
-        "en": "Constructor: new RegExp(\"abc\", \"g\")"
-    },
-    "正则表达式书写规则": {
-        "en": "Regular expression writing rules"
-    },
-    "请输入正则表达式": {
-        "en": "Please enter a regular expression"
-    },
-    "增加配置规则": {
-        "en": "Add configuration rules"
-    },
-    "阈值设置": {
-        "en": "Threshold setting"
-    },
-    "阈值类型": {
-        "en": "Threshold type"
-    },
-    "绝对值": {
-        "en": "Absolute Value"
-    },
-    "百分比": {
-        "en": "Percentage"
-    },
     "管理权限": {
         "en": "Manage Access"
     },
@@ -3945,7 +3039,7 @@
         "en": "Manage Groups"
     },
     "配置项": {
-        "en": "key"
+        "en": "Key"
     },
     "请输入配置项": {
         "en": "Please enter key"
@@ -3970,6 +3064,1841 @@
     },
     "流订阅": {
         "en": "streaming_sub"
+    },
+    "停用": {
+        "en": "Disable"
+    },
+    "启用": {
+        "en": "Enable"
+    },
+    "{{label}}{{active_label}}提示": {
+        "en": "{{label}} {{active_label}} tips"
+    },
+    "{{label}}{{active_label}}成功": {
+        "en": "{{label}} {{active_label}} successfully"
+    },
+    "可选功能": {
+        "en": "Optional Features"
+    },
+    "表结构必须大于等于三列": {
+        "en": "The table structure must be greater than or equal to three columns"
+    },
+    "库名": {
+        "en": "Database Name"
+    },
+    "请输入库名": {
+        "en": "Please enter a database name."
+    },
+    "已有同名库，请修改": {
+        "en": "A database with the same name already exists."
+    },
+    "请输入表名": {
+        "en": "Please enter a table name."
+    },
+    "仅支持数字、大小写字母、中文以及下划线，且必须以中文或英文字母开头": {
+        "en": "The name can only use letters, digits or underscores (_), and must start with letters."
+    },
+    "是否为时序数据": {
+        "en": "Time-Series Data"
+    },
+    "按时间顺序记录的数据": {
+        "en": "A sequence of data points collected over time intervals"
+    },
+    "日增数据量": {
+        "en": "Daily Increment"
+    },
+    "0 - 10 万": {
+        "en": "0 - 100K"
+    },
+    "10 万 - 100 万": {
+        "en": "100K - 1M"
+    },
+    "100 万 - 1000 万": {
+        "en": "1M - 10M"
+    },
+    "1000 万 - 1 亿": {
+        "en": "10M - 100M"
+    },
+    "1 亿 - 10 亿": {
+        "en": "100M - 1B"
+    },
+    "10 亿 - 100 亿": {
+        "en": "1B - 10B"
+    },
+    "100 亿以上": {
+        "en": "Over 10B"
+    },
+    "自定义日增数据量": {
+        "en": "Custom Daily Increment"
+    },
+    "请输入自定义日增数据量": {
+        "en": "Please enter a daily increment."
+    },
+    "数据总量": {
+        "en": "Total Data Volume"
+    },
+    "0 - 200 万": {
+        "en": "0 - 2M"
+    },
+    "200 万以上": {
+        "en": "Over 2M"
+    },
+    "自定义数据总量": {
+        "en": "Custom Total Data Volume"
+    },
+    "请输入自定义数据总量": {
+        "en": "Please enter a total data volume"
+    },
+    "测点数": {
+        "en": "Number of Measurements"
+    },
+    "以车联网数据采集场景为例说明测点含义。一辆车有发动机、轮胎、油箱等传感器，需要采集发动机、轮胎、油箱等数据，在这个场景中，测点是车辆，而不是传感器。": {
+        "en": "Supposing a vehicle has multiple sensors collecting data from its components (such as engines, tires, and tanks), the measurement refers to the vehicle, not the sensor."
+    },
+    "请输入测点数": {
+        "en": "Please enter the number of measurements."
+    },
+    "已配置该列，请修改": {
+        "en": "This column is already set."
+    },
+    "请选择数据类型": {
+        "en": "Please select the column type."
+    },
+    "DECIMAL 精度": {
+        "en": "scale"
+    },
+    "DECIMAL32 精度有效范围是[0, 9]，DECIMAL64 精度有效范围是[0, 18]，DECIMAL128 精度有效范围是[0,38]": {
+        "en": "The scale range is [0,9] for DECIMAL32, [0,18] for DECIMAL64, and [0,38] for DECIMAL128."
+    },
+    "请输入备注": {
+        "en": "Please set the column comment."
+    },
+    "增加列配置": {
+        "en": "Add Column"
+    },
+    "时序数据或总数据量大于 200 万的非时序数据，表结构至少有一列时间列与枚举列": {
+        "en": "For time-series data (or non-time-series data with volume over 2M), the table must contain at least one time column and one enumeration column."
+    },
+    "表结构至少包含一列时间列": {
+        "en": "The table must contain at least one time column."
+    },
+    "请注意，至少需要一列时间列与枚举列，时间列类型包括DATE、DATETIME、TIMESTAMP、NANOTIMESTAMP，枚举列类型包括STRING、SYMBOL、CHAR。": {
+        "en": "Note: at least one time column and one enumeration column are required. A temporal type can be DATE, DATETIME, TIMESTAMP, or NANOTIMESTAMP, and an enumerated type can be STRING, SYMBOL, or CHAR."
+    },
+    "请注意，至少需要一列枚举列，枚举列类型包括STRING、SYMBOL、CHAR。": {
+        "en": "Note: at least one enumeration column are required. An enumerated type can be STRING, SYMBOL, or CHAR."
+    },
+    "导入表文件": {
+        "en": "Import Table"
+    },
+    "导入方式": {
+        "en": "Source"
+    },
+    "本地导入": {
+        "en": "Local"
+    },
+    "服务器导入": {
+        "en": "Remote"
+    },
+    "自定义分隔符": {
+        "en": "Custom Delimiter"
+    },
+    "默认分隔符为 ','，可自定义分隔符": {
+        "en": "The default delimiter is ',' (comma). Please enter a custom delimiter."
+    },
+    "仅支持上传 csv 文件与 txt 文件": {
+        "en": "Only CSV and TXT files are supported."
+    },
+    "文件地址": {
+        "en": "File Path"
+    },
+    "请输入文件在服务器的绝对路径地址": {
+        "en": "Please enter the absolute path of the file on the server."
+    },
+    "常用筛选列": {
+        "en": "Filter Columns"
+    },
+    "请选择常用筛选列": {
+        "en": "Please select filter columns"
+    },
+    "常用筛选列是查询时常作为常选条件的列，越重要的过滤条件，在筛选列中的位置越靠前。": {
+        "en": "The filter columns are columns that are frequently used as filtering conditions in queries. It is recommended to arrange these columns by query frequency, with the most commonly used one at the beginning of the list."
+    },
+    "请选择两个常用筛选列，第一列需为时间列，第二列需为设备编号列": {
+        "en": "Select two filter columns. The first column must be a time column, and the second column must be a device ID column."
+    },
+    "表结构中无 {{name}} 列，请修改": {
+        "en": "Column {{name}} does not exist."
+    },
+    "请选择两个常用筛选列": {
+        "en": "Please select two filter columns."
+    },
+    "第一个常用筛选列必须为时间类型（DATE、DATETIME、TIMESTAMP、NANOTIMESTAMP）": {
+        "en": "The first filter column must be of temporal type (DATE, DATETIME, TIMESTAMP, or NANOTIMESTAMP)."
+    },
+    "第二个常用筛选列必须为枚举类型（CHAR、SYMBOL、STRING）": {
+        "en": "The second filter column must be of enumerated type (CHAR, SYMBOL, or STRING)."
+    },
+    "存储引擎": {
+        "en": "Storage Engine"
+    },
+    "存储引擎的选择与业务有关，若您的计算需求常以一定的时间跨度进行，推荐使用 TSDB 存储引擎；若您的查询常用于全量数据的密集计算，推荐使用 OLAP 存储引擎": {
+        "en": "TSDB storage engine is recommended for computations over data within a specific time period; OLAP is recommended for queries on the entire dataset."
+    },
+    "是否允许并发写入同一分区": {
+        "en": "Concurrent Writes to the Same Partition"
+    },
+    "允许并发写入同一分区，会降低写入速度，且有极小概率导致数据不一致": {
+        "en": "Enabling concurrent writes will decrease the write speed and could pose a minimal risk of data inconsistency."
+    },
+    "建议不允许并发写入同一分区": {
+        "en": "It is recommended to disable this feature."
+    },
+    "请选择分区列": {
+        "en": "Please select the partitioning columns."
+    },
+    "请选择两个分区列，第一个分区列为数据时间列，第二个分区列为设备编号列。": {
+        "en": "Please select two partitioning columns: The first is a time column and the second is a deviceID column."
+    },
+    "第一个分区列需为时间类型 DATE、DATETIME、TIMESTAMP 或 NANOTIMESTAMP": {
+        "en": "The first partitioning column must be of DATE, DATETIME, TIMESTAMP or NANOTIMESTAMP type"
+    },
+    "除第一列外，其余分区列的数据类型需为 STRING、SYMBOL 或 CHAR": {
+        "en": "The data type of other partitioning columns must be STRING, SYMBOL or CHAR"
+    },
+    "分区列的数据类型需为 STRING、SYMBOL 或 CHAR": {
+        "en": "The data type of the partitioning column must be STRING, SYMBOL or CHAR"
+    },
+    "数据时间列": {
+        "en": "Time Column"
+    },
+    "请选择数据时间列": {
+        "en": "Please select the time column"
+    },
+    "唯一值数量": {
+        "en": "Number of Distinct Values"
+    },
+    "请填入唯一值数量": {
+        "en": "Please enter the number of distinct values."
+    },
+    "已配置该常用筛选列，请修改": {
+        "en": "This filter column is already set."
+    },
+    "增加筛选列": {
+        "en": "Add Filter Column"
+    },
+    "除分区列外，请选择查询时常作为过滤条件的列。越重要的过滤条件，在过滤列中的位置越靠前。结合您提供的信息，最多可选择2个常用筛选列，建议第一个过滤列为设备编号列。": {
+        "en": "Apart from the partitioning columns, please select columns that are frequently used as filtering conditions during queries. It is recommended to arrange these columns by query frequency, with the most commonly used one at the beginning of the list. You can specify at most 2 filter columns, and the first one is recommended to be the device ID column."
+    },
+    "重复数据保留策略": {
+        "en": "Keep Duplicates"
+    },
+    "在同一个分区内，常用筛选列与时间列值相同的数据的处理策略，DolphinDB提供了三种策略": {
+        "en": "How to deal with records with duplicate filter columns and time column values."
+    },
+    "ALL：保留所有数据": {
+        "en": "ALL (recommended): keep all records;"
+    },
+    "LAST：仅保留最新数据": {
+        "en": "LAST: only keep the last record;"
+    },
+    "FIRST：仅保留第一条数据": {
+        "en": "FIRST: only keep the first record."
+    },
+    "请选择重复数据保留策略": {
+        "en": "Please select the policy for keeping duplicates."
+    },
+    "生成脚本": {
+        "en": "Generate Script"
+    },
+    "导出表单配置": {
+        "en": "Export Database Configuration"
+    },
+    "立即执行": {
+        "en": "Execute Script"
+    },
+    "确认要执行当前建库脚本吗?": {
+        "en": "Execute the current script?"
+    },
+    "数据库 {{name}}": {
+        "en": "Database: {{name}}"
+    },
+    "数据表 {{name}}": {
+        "en": "Table: {{name}}"
+    },
+    "再次创建": {
+        "en": "Retry"
+    },
+    "错误信息: {{error_msg}}": {
+        "en": "Error Message: {{error_msg}}"
+    },
+    "建库信息": {
+        "en": "Create Database"
+    },
+    "建表信息": {
+        "en": "Create Table"
+    },
+    "是否使用现有库": {
+        "en": "Use Existing Database"
+    },
+    "现有库": {
+        "en": "Database"
+    },
+    "请选择现有库": {
+        "en": "Please select an existing database."
+    },
+    "新建库名": {
+        "en": "Database Name"
+    },
+    "请输入新建库名": {
+        "en": "Please enter a database name."
+    },
+    "日增量": {
+        "en": "Daily Increment"
+    },
+    "请选择日增量": {
+        "en": "Please select a daily increment."
+    },
+    "0 - 1 万": {
+        "en": "0 - 10k"
+    },
+    "1 万 - 10 万": {
+        "en": "10k - 100k"
+    },
+    "总数据量小于 200 万且不新增": {
+        "en": "Total data volume under 2M with no new additions"
+    },
+    "分区列 {{name}}": {
+        "en": "Partitioning Column {{name}}"
+    },
+    "数据类型为 {{data_types}}": {
+        "en": "Data type: {{data_types}}"
+    },
+    "时间列": {
+        "en": "Time Column"
+    },
+    "严格按时序增长排列的时间类型列，将按该列对数据进行分区": {
+        "en": "Specify a partitioning column with time series data collected chronologically."
+    },
+    "请选择时间列": {
+        "en": "Please select the time column."
+    },
+    "标的列": {
+        "en": "Symbol Column"
+    },
+    "如股票ID、期货品种这样的枚举类型列，将按该列对数据进行分区": {
+        "en": "Specify a partitioning column with enumerated values such as security ID and futures contract."
+    },
+    "请选择标的列": {
+        "en": "Please select the symbol column."
+    },
+    "经常用于查询时筛选数据的列，不能是除 INT 外的数值类型，最多只可选两列": {
+        "en": "The filter columns are columns that are frequently used as filtering conditions in queries. It cannot be of numeric types other than INT. At most 2 filter columns can be specified."
+    },
+    "请注意，表结构至少需要一列时间列，时间列类型包括 {{name}}": {
+        "en": "Note: The table must contain at least one time column. A temporal type can be {{name}}."
+    },
+    "请输入唯一值数量": {
+        "en": "Please enter the number of distinct values."
+    },
+    "根据已有数据库的分区信息，选择需要作为划分数据依据的列": {
+        "en": "Select the partitioning columns based on the current partitioning scheme."
+    },
+    "请选择日增数据量": {
+        "en": "Please select a daily increment."
+    },
+    "总数据量": {
+        "en": "Total data volume"
+    },
+    "请输入文件名称": {
+        "en": "Please enter a file name."
+    },
+    "库 {{name}} 下已有该表，请修改表名": {
+        "en": "The table name must be unique in database {{name}}."
+    },
+    "请选择一个分区列（数据时间列）。": {
+        "en": "Please select a partitioning column (time column)."
+    },
+    "除分区列外，请选择查询时常作为过滤条件的列。越重要的过滤条件，在过滤列中的位置越靠前。结合您提供的信息，最多可选择1个常用筛选列，建议第一个过滤列为数据时间列。": {
+        "en": "Apart from the partitioning columns, please select columns that are frequently used as filtering conditions during queries. It is recommended to arrange these columns by query frequency, with the most commonly used one at the beginning of the list. You can specify at most one filter column, and is recommended to be the data time column."
+    },
+    "请选择一个分区列（设备编号列）。": {
+        "en": "Please select a partitioning column (device number column)."
+    },
+    "除分区列外，请选择查询时常作为过滤条件的列。越重要的过滤条件，在过滤列中的位置越靠前。": {
+        "en": "Apart from the partitioning columns, please select columns that are frequently used as filtering conditions during queries. It is recommended to arrange these columns by query frequency, with the most commonly used one at the beginning of the list."
+    },
+    "除分区列外，请选择查询时常作为过滤条件的列。越重要的过滤条件，在过滤列中的位置越靠前。结合您提供的信息，最多可选择2个常用筛选列,建议第一个过滤列为设备编号列。": {
+        "en": "Apart from the partitioning columns, please select columns that are frequently used as filtering conditions during queries. It is recommended to arrange these columns by query frequency, with the most commonly used one at the beginning of the list. You can specify at most two filter columns, and the first one is recommended to be the device ID column."
+    },
+    "结合您提供的信息，最多可选择2个常用筛选列，建议第一个过滤列为设备编号列。": {
+        "en": "You can specify at most two filter columns, and the first one is recommended to be the device ID column."
+    },
+    "结合您提供的信息，最多可选择2个常用筛选列。": {
+        "en": "You can specify at most two filter columns."
+    },
+    "结合您提供的信息，最多可选择1个常用筛选列。": {
+        "en": "You can specify at most one filter column."
+    },
+    "除分区列外，请选择查询时常作为过滤条件的列。越重要的过滤条件，在过滤列中的位置越靠前。结合您提供的信息，最多可选择1个常用筛选列。": {
+        "en": "Apart from the partitioning columns, please select columns that are frequently used as filtering conditions during queries. It is recommended to arrange these columns by query frequency, with the most commonly used one at the beginning of the list. You can specify at most one filter column."
+    },
+    "简易版": {
+        "en": "Basic"
+    },
+    "进阶版": {
+        "en": "Advanced"
+    },
+    "第一步": {
+        "en": "Step 1"
+    },
+    "第二步": {
+        "en": "Step 2"
+    },
+    "导入配置": {
+        "en": "Import Database Configuration"
+    },
+    "点击或将文件拖拽到此区域": {
+        "en": "Drag & drop or click here "
+    },
+    "仅支持上传 JSON 文件": {
+        "en": "to upload a JSON file"
+    },
+    "请上传文件": {
+        "en": " Please upload a database configuration file."
+    },
+    "运维工具": {
+        "en": "Management Tools"
+    },
+    "物联网库表向导": {
+        "en": "Guide for IoT Scenario"
+    },
+    "金融库表向导": {
+        "en": "Guide for Financial Scenario"
+    },
+    "执行结果": {
+        "en": "Execution Result"
+    },
+    "数据库：{{name}}": {
+        "en": "Database: {{name}}"
+    },
+    "数据表：{{name}}": {
+        "en": "Table: {{name}}"
+    },
+    "常用筛选列不能包含分区列": {
+        "en": "Common filter columns cannot contain partition columns"
+    },
+    "此功能专为金融用户设计。用户通过此功能无需设计分区方案或编写复杂的 SQL 语句，只需输入库表名称、列名等基本信息，并通过列表选择参数，即可快速生成建库建表脚本，进而完成库表创建。": {
+        "en": "Guided database and table creation for financial scenarios. This feature allows you to create databases and tables by providing basic information such as database, table, and column names. Simply select parameter values from a list, and the script is automatically generated. No need to worry about partitioning design or write complex SQL statements."
+    },
+    "您确定要启用此功能吗": {
+        "en": "Enable this feature?"
+    },
+    "您确定要停用此功能吗": {
+        "en": "Disable this feature?"
+    },
+    "此功能专为物联网用户设计。用户通过此功能无需设计分区方案或编写复杂的 SQL 语句，只需输入库表名称、列名等基本信息，并通过列表选择参数，即可快速生成建库建表脚本，进而完成库表创建。": {
+        "en": "Guided database and table creation for IoT scenarios.  This feature allows you to create databases and tables by providing basic information such as database, table, and column names. Simply select parameter values from a list, and the script is automatically generated. No need to worry about partitioning design or write complex SQL statements."
+    },
+    "功能设置": {
+        "en": "Feature Settings"
+    },
+    "此工具专为物联网用户设计。用户通过此工具无需设计分区方案或编写复杂的 SQL 语句，只需输入库表名称、列名等基本信息，并通过列表选择参数，即可快速生成建库建表脚本，进而完成库表创建。": {
+        "en": "Guided database and table creation for IoT scenarios.  This tool allows you to create databases and tables by providing basic information such as database, table, and column names. Simply select parameter values from a list, and the script is automatically generated. No need to worry about partitioning design or write complex SQL statements."
+    },
+    "已存在，粘贴失败!": {
+        "en": "already exists, paste failed"
+    },
+    "初始化数据面板成功！": {
+        "en": "Dashboard initialized successfully"
+    },
+    "新数据面板": {
+        "en": "New dashboard"
+    },
+    "提示：初始化后请完善相关配置（详见文档），并重启服务器": {
+        "en": "After initialization, please set configuration parameters (see user manual) and restart the server."
+    },
+    "新数据源": {
+        "en": "New data source"
+    },
+    "请输入新数据源的名称": {
+        "en": "Enter a name for the data source"
+    },
+    "新变量": {
+        "en": "New variable"
+    },
+    "请输入新变量的名称": {
+        "en": "Enter a name for the variable"
+    },
+    "web 版本": {
+        "en": "web version"
+    },
+    "是否排序": {
+        "en": "Sort"
+    },
+    "为多列设置排序时需设置优先级，该值越高表明优先级越高": {
+        "en": "Set a priority when sorting multiple columns. Higher value means higher priority."
+    },
+    "自定义端标签": {
+        "en": "Custom end label"
+    },
+    "支持静态标签与模板变量，其中模板变量包含以下几种": {
+        "en": "Supports static labels and template variables. Template variables include:"
+    },
+    "{a}：数据列名称": {
+        "en": "{a}: Column name"
+    },
+    "{c}：当 x 轴为类目轴时显示 y 轴值，其余轴的情况下显示 x 轴值, y 轴值": {
+        "en": "{c}: Display Y-axis value for a categorical X-axis, Otherwise, display both X and Y axes values."
+    },
+    "{b}：x 轴值": {
+        "en": "{b}: X-axis value"
+    },
+    "示例: 名称-{a}": {
+        "en": "Example: name-{a}"
+    },
+    "请注意，不填自定义端标签时默认展示 y 轴值": {
+        "en": "Note: Y-axis is displayed by default if no custom end label is not filled."
+    },
+    "请输入自定义端标签": {
+        "en": "Enter custom end label"
+    },
+    "仅数值类型可支持排序": {
+        "en": "Only numeric types can be sorted"
+    },
+    "标题": {
+        "en": "Title"
+    },
+    "数据源": {
+        "en": "Data source"
+    },
+    "基本属性": {
+        "en": "Properties"
+    },
+    "数值轴，适用于连续数据": {
+        "en": "Numerical axis, for continuous data"
+    },
+    "时间轴，适用于连续的时序数据": {
+        "en": "Time axis, for continuous time-series data"
+    },
+    "对数轴，适用于对数数据": {
+        "en": "Logarithmic axis, for logarithmic data"
+    },
+    "X 轴名称": {
+        "en": "X-axis name"
+    },
+    "增加数据列": {
+        "en": "Add data column"
+    },
+    "增加 Y 轴": {
+        "en": "Add Y-axis"
+    },
+    "坐标列": {
+        "en": "Axis column"
+    },
+    "是否展示 X 缩略轴": {
+        "en": "Abbreviated X-axis"
+    },
+    "是否展示 Y 缩略轴": {
+        "en": "Abbreviated Y-axis"
+    },
+    "保存并应用": {
+        "en": "Save and Apply"
+    },
+    "请先选中您需要更改配置的图表": {
+        "en": "Select the chart to change configuration"
+    },
+    "请为您的图表配置数据源": {
+        "en": "Configure data source for your chart"
+    },
+    "图表": {
+        "en": "Charts"
+    },
+    "图例": {
+        "en": "Legend"
+    },
+    "提示": {
+        "en": "Hint"
+    },
+    "X 轴缩略轴": {
+        "en": "Abbreviated X-axis"
+    },
+    "Y 轴缩略轴": {
+        "en": "Abbreviated Y-axis"
+    },
+    "位置": {
+        "en": "Position"
+    },
+    "左侧": {
+        "en": "Left"
+    },
+    "关联 Y 轴": {
+        "en": "Associated Y-axis"
+    },
+    "列配置": {
+        "en": "Column configuration"
+    },
+    "增加映射": {
+        "en": "Add mappings"
+    },
+    "原始列名": {
+        "en": "Original column name"
+    },
+    "展示列名": {
+        "en": "Displayed column name"
+    },
+    "分页设置": {
+        "en": "Pagination settings"
+    },
+    "需要分页": {
+        "en": "Pagination required"
+    },
+    "默认分页数": {
+        "en": "Default page count"
+    },
+    "编辑数据源": {
+        "en": "Edit data source"
+    },
+    "堆叠值": {
+        "en": "Stack value"
+    },
+    "同个类目轴上为数据列配置相同的堆叠值可以堆叠放置": {
+        "en": "Columns with the same stack value on the same categorical axis can be stacked."
+    },
+    "关联变量": {
+        "en": "Associated variables"
+    },
+    "类目轴，适用于离散的类目数据，或者时序数据": {
+        "en": "Categorical axis, for discrete categorical data or time-series data"
+    },
+    "字号": {
+        "en": "Font size"
+    },
+    "强制包含零刻度": {
+        "en": "Include zero"
+    },
+    "底数": {
+        "en": "Base"
+    },
+    "时间格式化": {
+        "en": "Time format"
+    },
+    "数据列 1": {
+        "en": "Data column 1"
+    },
+    "热力值列": {
+        "en": "Heatmap column"
+    },
+    "颜色": {
+        "en": "Color"
+    },
+    "标记点": {
+        "en": "Marker points"
+    },
+    "水平线": {
+        "en": "Horizontal line"
+    },
+    "阈值": {
+        "en": "Threshold"
+    },
+    "低于阈值配色": {
+        "en": "Color below threshold"
+    },
+    "高于阈值配色": {
+        "en": "Color above threshold"
+    },
+    "线类型": {
+        "en": "Line type"
+    },
+    "展示端标签": {
+        "en": "Display end labels"
+    },
+    "散点大小": {
+        "en": "Scatter size"
+    },
+    "散点标记": {
+        "en": "Scatter marker"
+    },
+    "阴暗色": {
+        "en": "Dark color"
+    },
+    "明亮色": {
+        "en": "Bright color"
+    },
+    "最小值": {
+        "en": "Minimum"
+    },
+    "最大值": {
+        "en": "Maximum"
+    },
+    "展示标签": {
+        "en": "Display labels"
+    },
+    "Y 轴相对于左右默认位置的偏移": {
+        "en": "Y-axis offset from default left/right position"
+    },
+    "Y 轴": {
+        "en": "Y-axis"
+    },
+    "X 轴配置": {
+        "en": "X-axis configuration"
+    },
+    "Y 轴配置": {
+        "en": "Y-axis configuration"
+    },
+    "每行变量数": {
+        "en": "Variables per row"
+    },
+    "查询按钮": {
+        "en": "Query button"
+    },
+    "不展示查询按钮的情况，表单更新即会进行查询，在变量设置较多的情况下，建议使用查询按钮，点击之后再运行数据源代码": {
+        "en": "Without setting a query button, updates on forms will trigger queries. It's recommended to set and click the query button for view with multiple variables before running the data source code."
+    },
+    "上内边距": {
+        "en": "Top"
+    },
+    "下内边距": {
+        "en": "Bottom"
+    },
+    "左内边距": {
+        "en": "Left"
+    },
+    "右内边距": {
+        "en": "Right"
+    },
+    "标题字号": {
+        "en": "Title font size"
+    },
+    "提示框": {
+        "en": "Tooltip"
+    },
+    "展示网格线": {
+        "en": "Display grid lines"
+    },
+    "展示边框": {
+        "en": "Display border"
+    },
+    "展示列选择": {
+        "en": "Display column selection"
+    },
+    "倒序展示": {
+        "en": "Display in reverse order"
+    },
+    "流数据开启此功能可将最新的数据插入到表格头部": {
+        "en": "Enable to display new data on top"
+    },
+    "启用此选项之后，会在表格内层滚动": {
+        "en": "Enable inner scroll in table"
+    },
+    "禁止滚动": {
+        "en": "Disable scrolling"
+    },
+    "变量设置": {
+        "en": "Variable settings"
+    },
+    "是否展示": {
+        "en": "Display"
+    },
+    "列宽": {
+        "en": "Column width"
+    },
+    "数值列可设置阈值，设置之后后超过阈值的数值展示为红色，低于阈值则展示为绿色，非数值列不生效": {
+        "en": "Thresholds can be set for numeric columns. Values above the threshold will be red, below green."
+    },
+    "字体颜色": {
+        "en": "Font color"
+    },
+    "背景颜色": {
+        "en": "Background color"
+    },
+    "是否千分位": {
+        "en": "Thousands separator"
+    },
+    "对齐方式": {
+        "en": "Alignment"
+    },
+    "数据轴": {
+        "en": "Numerical axis"
+    },
+    "类目轴": {
+        "en": "Categorical axis"
+    },
+    "对数": {
+        "en": "Logarithmic"
+    },
+    "右侧": {
+        "en": "Right"
+    },
+    "平均值": {
+        "en": "Average value"
+    },
+    "实线": {
+        "en": "Solid line"
+    },
+    "虚线": {
+        "en": "Dashed line"
+    },
+    "点线": {
+        "en": "Dotted line"
+    },
+    "运行按钮文字": {
+        "en": "Text for the run button"
+    },
+    "按钮文字": {
+        "en": "Button text"
+    },
+    "时间轴": {
+        "en": "Time axis"
+    },
+    "数值轴，适用于连续数据\n类目轴，适用于离散的类目数据或者时序数据\n对数轴，适用于对数数据": {
+        "en": "Numerical axis, for continuous data \nCategorical axis, for discrete categorical data or time-series data \nLogarithmic axis, for logarithmic data"
+    },
+    "交易量": {
+        "en": "Trading volume"
+    },
+    "k 线颜色（涨）": {
+        "en": "Candlestick color (up)"
+    },
+    "k 线颜色（跌）": {
+        "en": "Candlestick  color (down)"
+    },
+    "线条颜色": {
+        "en": "line color"
+    },
+    "k 线": {
+        "en": "Candlestick "
+    },
+    "Y 轴分割线": {
+        "en": "Y-axis grid line"
+    },
+    "柱状图颜色": {
+        "en": "Bar color"
+    },
+    "曲线颜色": {
+        "en": "Curve color"
+    },
+    "倍率": {
+        "en": "Multiplier"
+    },
+    "行情数据档数": {
+        "en": "Level of quotes"
+    },
+    "订单图": {
+        "en": "Order chart"
+    },
+    "数据环": {
+        "en": "Data loop"
+    },
+    "增加环": {
+        "en": "Add loop"
+    },
+    "标签列": {
+        "en": "Label column"
+    },
+    "正在加载 ReactQuill": {
+        "en": "Loading ReactQuill"
+    },
+    "添加文本": {
+        "en": "Add text"
+    },
+    "不保存": {
+        "en": "Don't save"
+    },
+    "此数据源存在未保存的更改。你想保存吗？": {
+        "en": "Do you want to save your changes on this data source?"
+    },
+    "点击填充数据源": {
+        "en": "Populate data source"
+    },
+    "配置数据源": {
+        "en": "Configure data source"
+    },
+    "应用": {
+        "en": "Apply"
+    },
+    "关闭": {
+        "en": "Close"
+    },
+    "重命名": {
+        "en": "Rename"
+    },
+    "保存成功": {
+        "en": "Saved successfully"
+    },
+    "当前数据源已被图表绑定无法删除": {
+        "en": "This data source has been bound to a chart and cannot be deleted."
+    },
+    "该数据源名已存在": {
+        "en": "Data source name already exists"
+    },
+    "数据源名长度不能大于10": {
+        "en": "Data source name cannot be longer than 10 characters"
+    },
+    "数据源名不能为空": {
+        "en": "Data source name cannot be empty"
+    },
+    "当前数据源存在错误": {
+        "en": "Error occurred in current data source"
+    },
+    "轮询启动失败": {
+        "en": "Polling failed"
+    },
+    "无法订阅到流数据表": {
+        "en": "Failed to subscribe to stream table"
+    },
+    "复制失败": {
+        "en": "Copy failed"
+    },
+    "插入变量": {
+        "en": "Insert a variable"
+    },
+    "数据预览": {
+        "en": "Preview"
+    },
+    "自动刷新": {
+        "en": "Auto refresh"
+    },
+    "间隔时间": {
+        "en": "Interval"
+    },
+    "最大展示行数": {
+        "en": "Maximum rows to display"
+    },
+    "若该值为空则表示不对最大展示行数进行限制": {
+        "en": "Empty means to set no limit on the maximum rows"
+    },
+    "自定义": {
+        "en": "Custom"
+    },
+    "列名预览（共{{length}}列）：": {
+        "en": "Column name preview ({{length}} columns):"
+    },
+    "列过滤": {
+        "en": "Column filter"
+    },
+    "值过滤、范围过滤、哈希过滤": {
+        "en": "VALUE, RANGE, HASH"
+    },
+    "当前过滤列为:": {
+        "en": "Current filter column:"
+    },
+    "当前流表无过滤列": {
+        "en": "No filter column is specified for the current stream table"
+    },
+    "表达式过滤": {
+        "en": "Expression"
+    },
+    "无可用流表": {
+        "en": "No available stream table"
+    },
+    "过滤": {
+        "en": "Filter"
+    },
+    "数据面板保存成功": {
+        "en": "Dashboard saved successfully"
+    },
+    "修改成功": {
+        "en": "Modified successfully"
+    },
+    "当前数据面板列表为空": {
+        "en": "Current dashboard list is empty"
+    },
+    "撤销成功": {
+        "en": "Revoked successfully"
+    },
+    "删除成功": {
+        "en": "Deleted successfully"
+    },
+    "选择 dashboard": {
+        "en": "Select dashboard"
+    },
+    "仅编辑": {
+        "en": "Edit only"
+    },
+    "仅预览": {
+        "en": "Preview only"
+    },
+    "返回主界面": {
+        "en": "Return to overview"
+    },
+    "离开此界面您当前更改会丢失，是否需要保存当前更改": {
+        "en": "Leaving this page will discard unsaved changes. Do you want to save changes?"
+    },
+    "请输入数据面板的名称": {
+        "en": "Enter the dashboard name"
+    },
+    "请输入新的数据面板名称": {
+        "en": "Enter a new dashboard name"
+    },
+    "创建副本成功": {
+        "en": "Copy created successfully"
+    },
+    "请输入 dashboard 副本名称": {
+        "en": "Enter the dashboard copy name"
+    },
+    "新增": {
+        "en": "Add"
+    },
+    "导出": {
+        "en": "Export"
+    },
+    "创建副本": {
+        "en": "Create copy"
+    },
+    "修改名称": {
+        "en": "Rename"
+    },
+    "分享": {
+        "en": "Share"
+    },
+    "确定当前 dashboard 删除吗？": {
+        "en": "Do you want to delete the current dashboard?"
+    },
+    "确认删除": {
+        "en": "Delete Confirmation"
+    },
+    "撤销": {
+        "en": "Revoke"
+    },
+    "编辑": {
+        "en": "Edit"
+    },
+    "批量导入": {
+        "en": "Batch import"
+    },
+    "导入": {
+        "en": "Import"
+    },
+    "你确定要导入这 {{length}} 个 dashboard 吗？": {
+        "en": "Do you want to import {{length}} dashboards?"
+    },
+    "已存在": {
+        "en": "already exists"
+    },
+    "导入成功！": {
+        "en": "Import successful"
+    },
+    "覆盖": {
+        "en": "Overwrite"
+    },
+    "重命名后导入": {
+        "en": "Import after renaming"
+    },
+    "控制节点不支持数据面板，请跳转到数据节点或计算节点查看。": {
+        "en": "Dashboard is not supported on controller. Please switch to a data node or compute node."
+    },
+    "请点击下方按钮完成初始化": {
+        "en": "Click the button to complete initialization"
+    },
+    "初始化操作将新增以下数据库表：": {
+        "en": "The following databases/tables will be added:"
+    },
+    "以及 11 个以 dashboard_ 开头的函数视图（FunctionView）": {
+        "en": "and 11 function views starting with dashboard_"
+    },
+    "你确定要初始化数据面板功能吗？": {
+        "en": "Do you want to initialize the dashboard?"
+    },
+    "初始化": {
+        "en": "Initialize"
+    },
+    "数据面板功能未初始化，请联系管理员初始化数据面板功能": {
+        "en": "Dashboard not initialized. Only administrators are allowed to initialize dashboard."
+    },
+    "dashboard 配置加载成功": {
+        "en": "Dashboard configuration loaded successfully"
+    },
+    "当前 url 所指向的 dashboard 不存在": {
+        "en": "The dashboard URL does not exist"
+    },
+    "请输入新数据面板的名称": {
+        "en": "Enter a new dashboard name"
+    },
+    "请输入新的 dashboard 名称": {
+        "en": "Enter a new dashboard name"
+    },
+    "您没有删除 {{name}} 的权限": {
+        "en": "Not granted to delete {{name}}"
+    },
+    "确认删除选中的 {{length}} 个数据面板吗？": {
+        "en": "Do you want to delete the {{length}} selected dashboard"
+    },
+    "来源于": {
+        "en": "From"
+    },
+    "确定删除 {{name}} 吗？": {
+        "en": "Do you want to delete {{name}}?"
+    },
+    "当前 dashboard 列表为空": {
+        "en": "Current dashboard list is empty"
+    },
+    "请选择至少一个面板进行导出": {
+        "en": "Select at least one dashboard to export"
+    },
+    "您没有导出 {{name}} 的权限": {
+        "en": "Not granted to export {{name}}"
+    },
+    "批量导出": {
+        "en": "Batch export"
+    },
+    "请至少选中一个数据面板后再删除": {
+        "en": "Select at least one dashboard"
+    },
+    "基础": {
+        "en": "Basic"
+    },
+    "画布样式": {
+        "en": "Canvas style"
+    },
+    "确定要重置配置吗？": {
+        "en": "Do you want to reset the configuration?"
+    },
+    "重置配置": {
+        "en": "Reset"
+    },
+    "配置表单与数据源结构相关，如修改数据源结构，建议重置表单以适应最新结构": {
+        "en": "The configured form is associated with the data source structure. Reset the form to adapt to updated data structure."
+    },
+    "请至少选中一个数据面板后再分享": {
+        "en": "Select at least one dashboard"
+    },
+    "批量分享": {
+        "en": "Batch share"
+    },
+    "请选择需要分享的用户": {
+        "en": "Select users to share with"
+    },
+    "全部编辑": {
+        "en": "Edit all"
+    },
+    "请选择想要分享的 dashboard": {
+        "en": "Select dashboard to share"
+    },
+    "您没有分享 {{name}} 的权限": {
+        "en": "Not granted to share {{name}}"
+    },
+    "分享成功": {
+        "en": "Share successful"
+    },
+    "权限": {
+        "en": "Access"
+    },
+    "无": {
+        "en": "None"
+    },
+    "dashboard 名称不允许为空": {
+        "en": "Dashboard name cannot be empty"
+    },
+    "dashboard 名称中不允许包含 \"/\" 或 \"\\\" ": {
+        "en": "Dashboard names cannot contain \"/\" or \"\\\" "
+    },
+    "名称重复，请重新输入": {
+        "en": "Duplicate name, enter a different name"
+    },
+    "标签": {
+        "en": "Label"
+    },
+    "值": {
+        "en": "Value"
+    },
+    "确定要删除该选项吗？": {
+        "en": "Do you want to delete this option?"
+    },
+    "可选项：": {
+        "en": "Options:"
+    },
+    "变量": {
+        "en": "Variable"
+    },
+    "不存在": {
+        "en": "not exist"
+    },
+    "当前变量已被数据源使用无法删除": {
+        "en": "Variable is referenced by a data source and cannot be deleted"
+    },
+    "该变量名已存在": {
+        "en": "Variable name already exists"
+    },
+    "变量名长度不能大于10": {
+        "en": "Variable name cannot be longer than 10 characters"
+    },
+    "变量名不能为空": {
+        "en": "Variable name cannot be empty"
+    },
+    "此变量已被数据源引用无法修改名称": {
+        "en": "Variable is referenced by a data source and cannot be modified"
+    },
+    "变量冲突，复制失败": {
+        "en": "copy filed. Variable with the same name already exists"
+    },
+    "此变量存在未保存的更改。你想保存吗？": {
+        "en": "Do you want to save changes on this variable?"
+    },
+    "配置变量": {
+        "en": "Configure variables"
+    },
+    "显示名称：": {
+        "en": "Display name:"
+    },
+    "变量类型：": {
+        "en": "Variable type:"
+    },
+    "单选": {
+        "en": "Single-select"
+    },
+    "多选": {
+        "en": "Multi-select"
+    },
+    "自由文本": {
+        "en": "Free text"
+    },
+    "日期": {
+        "en": "Date"
+    },
+    "变量值：": {
+        "en": "Variable value:"
+    },
+    "使用默认 admin 账号密码登录失败": {
+        "en": "Failed to log in with default admin account"
+    },
+    "柱状图": {
+        "en": "Bar chart"
+    },
+    "折线图": {
+        "en": "Line chart"
+    },
+    "饼图": {
+        "en": "Pie chart"
+    },
+    "K 线": {
+        "en": "Candlestick"
+    },
+    "混合图": {
+        "en": "Mixed chart"
+    },
+    "富文本": {
+        "en": "Rich text"
+    },
+    "描述表": {
+        "en": "Description table"
+    },
+    "编辑器": {
+        "en": "Editor"
+    },
+    "仪表盘": {
+        "en": "Gauge"
+    },
+    "雷达图": {
+        "en": "Radar chart"
+    },
+    "散点图": {
+        "en": "Scatter plot"
+    },
+    "热力图": {
+        "en": "Heatmap"
+    },
+    "保留时间（分钟）": {
+        "en": "Retention minutes"
+    },
+    "气泡提示": {
+        "en": "Tooltip"
+    },
+    "值列": {
+        "en": "Value column"
+    },
+    "标签字号": {
+        "en": "Label font size"
+    },
+    "值字号": {
+        "en": "Value font size"
+    },
+    "每行展示数量": {
+        "en": "Items per row"
+    },
+    "值颜色": {
+        "en": "Value color"
+    },
+    "列属性": {
+        "en": "Column attributes"
+    },
+    "编辑文本": {
+        "en": "Edit text"
+    },
+    "列名完全匹配": {
+        "en": "Exact match"
+    },
+    "为指定名称的列定制配置": {
+        "en": "Configure for matched columns"
+    },
+    "列名正则匹配": {
+        "en": "Regex match"
+    },
+    "为列名匹配正则表达式的列定制配置": {
+        "en": "Configure for matched columns"
+    },
+    "类型匹配": {
+        "en": "Type match"
+    },
+    "为特定 DolphinDB 数据类型的列定制配置，如 INT, DOUBLE": {
+        "en": "Configure for columns of specific DolphinDB data types (e.g. INT, DOUBLE)"
+    },
+    "配置规则 {{name}}": {
+        "en": "Configure rule {{name}}"
+    },
+    "匹配类型": {
+        "en": "Type"
+    },
+    "筛选列": {
+        "en": "Filter Columns"
+    },
+    "正则表达式": {
+        "en": "Regular Expression"
+    },
+    "支持子面量形式和构造函数形式的正则对象": {
+        "en": "Supports regular objects in literal and constructor form"
+    },
+    "子面量：/abc/g": {
+        "en": "Literal: /abc/g"
+    },
+    "构造函数：new RegExp(\"abc\", \"g\")": {
+        "en": "Constructor: new RegExp(\"abc\", \"g\")"
+    },
+    "正则表达式书写规则": {
+        "en": "Regular expression rules"
+    },
+    "请输入正则表达式": {
+        "en": "Enter a regular expression"
+    },
+    "增加配置规则": {
+        "en": "Add configuration rules"
+    },
+    "阈值设置": {
+        "en": "Threshold setting"
+    },
+    "阈值类型": {
+        "en": "Threshold type"
+    },
+    "绝对值": {
+        "en": "Absolute value"
+    },
+    "百分比": {
+        "en": "Percentage"
+    },
+    "个": {
+        "en": "Count"
+    },
+    "展开": {
+        "en": "Expand"
+    },
+    "请选择需要观测的 key": {
+        "en": "Select key to monitor"
+    },
+    "创建人：{{name}}": {
+        "en": "Creator: {{name}}"
+    },
+    "请输入": {
+        "en": "Enter"
+    },
+    "刻度间隔": {
+        "en": "Tick interval"
+    },
+    "标签占位": {
+        "en": "Label placeholder"
+    },
+    "标签相对单个变量的百分比占位": {
+        "en": "Label percentage placeholder per variable"
+    },
+    "按钮文案": {
+        "en": "Button text"
+    },
+    "是否开启动画": {
+        "en": "Animation"
+    },
+    "自动画图模式": {
+        "en": "Auto charting"
+    },
+    "自动画图模式会自动查找各数据源选定类型的列（默认为时间类型）作为 X 轴，各数据源数值列作为数据列，在数据列配置区域可对特定数据列进行个性化配置": {
+        "en": "Enable auto charting to select columns of specified types (default temporal) as X-axis, and numeric columns as data columns. You can configure for specific data columns in the configuration window."
+    },
+    "X 轴类型": {
+        "en": "X-axis type"
+    },
+    "请选择类型": {
+        "en": "Select type"
+    },
+    "网格线": {
+        "en": "Grid lines"
+    },
+    "缩略轴": {
+        "en": "Abbreviated axis"
+    },
+    "展示名称": {
+        "en": "Displayed name"
+    },
+    "列样式": {
+        "en": "Column style"
+    },
+    "从左到右依次为字号、文字色与背景色": {
+        "en": "From left to right: font size, text color, background color"
+    },
+    "表头样式": {
+        "en": "Header style"
+    },
+    "布局": {
+        "en": "Layout"
+    },
+    "横向布局": {
+        "en": "Horizontal"
+    },
+    "纵向布局": {
+        "en": "Vertical"
+    },
+    "图例类型": {
+        "en": "Legend type"
+    },
+    "当图例数量较多时可以使用滚动布局": {
+        "en": "Use scrolling layout with multiple legends"
+    },
+    "普通图例": {
+        "en": "General"
+    },
+    "滚动图例": {
+        "en": "Scrollable"
+    },
+    "下方四个输入框可依次输入离容器上侧、下侧、左侧、右侧的距离，以下是对填入值的说明：": {
+        "en": "Enter top/bottom/left/right padding. Value descriptions:"
+    },
+    "具体像素值，如 20；": {
+        "en": "Pixel value, e.g. 20"
+    },
+    "相对于容器宽高百分比，如 20%；": {
+        "en": "Percentage relative to the height, e.g. 20%"
+    },
+    "可以设置为 left、center、right，组件会根据相应的位置自动对齐。": {
+        "en": "Left/center/right for auto alignment"
+    },
+    "上侧距离": {
+        "en": "Top"
+    },
+    "下侧距离": {
+        "en": "Bottom"
+    },
+    "左侧距离": {
+        "en": "Left"
+    },
+    "右侧距离": {
+        "en": "Right"
+    },
+    "图例间隔": {
+        "en": "Legend spacing"
+    },
+    "标记大小": {
+        "en": "Marker size"
+    },
+    "文字颜色": {
+        "en": "Text color"
+    },
+    "X 轴数据列": {
+        "en": "X-axis data column"
+    },
+    "Y 轴数据列": {
+        "en": "Y-axis data column"
+    },
+    "线宽": {
+        "en": "Line width"
+    },
+    "是否填充": {
+        "en": "Fill"
+    },
+    "透明度": {
+        "en": "Opacity"
+    },
+    "不展示": {
+        "en": "Do not display"
+    },
+    "区域填充": {
+        "en": "Area fill"
+    },
+    "线条": {
+        "en": "Line"
+    },
+    "阈值 {{name}}": {
+        "en": "Threshold {{name}}"
+    },
+    "关联轴类型": {
+        "en": "Associated axis type"
+    },
+    "X 轴": {
+        "en": "X-axis"
+    },
+    "仅支持数据轴": {
+        "en": "Only numerical axis supported"
+    },
+    "关联 X 轴": {
+        "en": "Associated X-axis"
+    },
+    "展示类型": {
+        "en": "Display type"
+    },
+    "增加阈值": {
+        "en": "Add threshold"
+    },
+    "增加阈值设置": {
+        "en": "Add threshold setting"
+    },
+    "数据源匹配": {
+        "en": "Match data source"
+    },
+    "同数据源的数值列采用同配置": {
+        "en": "Apply the same configuration for numeric columns from one data source"
+    },
+    "数据列配置": {
+        "en": "Data column configuration"
+    },
+    "单条数据列若命中多个配置规则，以第一项命中的为准": {
+        "en": "Apply the first matched rule for data column"
+    },
+    "支持字面量形式和构造函数形式的正则对象": {
+        "en": "Supports regular objects in literal and constructor form"
+    },
+    "字面量：/abc/g": {
+        "en": "Literal: /abc/g"
+    },
+    "分段数": {
+        "en": "Number of segments"
+    },
+    "图配置": {
+        "en": "Chart configuration"
+    },
+    "文档": {
+        "en": "Docs"
+    },
+    "请选择数据源": {
+        "en": "Select data source"
+    },
+    "创建数据源": {
+        "en": "Create data source"
+    },
+    "已有同名数据源，请修改": {
+        "en": "A data source with the same name already exists"
+    },
+    "请输入数据源的名称": {
+        "en": "Enter a data source name"
+    },
+    "sql 执行得到的数据类型与数据源类型不符，请修改": {
+        "en": "Data type mismatch between the SQL result and the data source"
+    },
+    "当前数据源: [{{source_name}}] 配置的流数据表 [{{table_name}}] 于当前节点不存在": {
+        "en": "The stream table [{{table_name}}] configured for data source [{{source_name}}] does not exist on the current node"
+    },
+    "IP 端口": {
+        "en": "IP Port"
+    },
+    "数据面板未初始化，请联系管理员在数据节点完成初始化。": {
+        "en": "Dashboard not initialized. Only administrators are allowed to initialize dashboard."
+    },
+    "提示：初始化后请完善用户相关配置（详见": {
+        "en": "After initialization, please set configuration parameters"
+    },
+    "dashboard 不存在": {
+        "en": "dashboard does not exist"
+    },
+    "检测到以下配置不存在，请及时配置并重启数据库，避免影响数据面板功能使用，详见": {
+        "en": "The following configuration parameters are missing. Please configure properly and restart the database."
+    },
+    "待配置项：": {
+        "en": "Required configuration parameters:"
+    },
+    "SQL 导入：": {
+        "en": "SQL import:"
+    },
+    "需返回一个两列的表格，第一列用作标签，第二列用作值。 ( 无法在此处使用变量 )": {
+        "en": "A table with two columns should be returned, the first column as labels, and the second column as values. Variables cannot be used."
+    },
+    "测试环境部署时无法使用配置管理": {
+        "en": "Configuration management cannot be used in the test environment"
+    },
+    "数据库路径": {
+        "en": "Database path"
+    },
+    "可选项（共{{length}}项）：": {
+        "en": "Options ({{length}} in total)"
+    },
+    "确定要清空所有选项吗？": {
+        "en": "Do you want to clear all options?"
+    },
+    "返回结果必须是 table": {
+        "en": "Must return a table with 2 columns"
+    },
+    "返回结果的列数必须是 2": {
+        "en": "Must return a table with 2 columns"
+    },
+    "多源图": {
+        "en": "Multi-source chart"
+    },
+    "数据配置": {
+        "en": "Data configuration"
+    },
+    "最小范围": {
+        "en": "Minimum"
+    },
+    "最大范围": {
+        "en": "Maximum"
+    },
+    "值精度": {
+        "en": "Precision"
+    },
+    "指针颜色": {
+        "en": "Pointer color"
+    },
+    "标题水平偏移": {
+        "en": "Title horizontal offset"
+    },
+    "标题垂直偏移": {
+        "en": "Title vertical offset"
+    },
+    "数值水平偏移": {
+        "en": "Value horizontal offset"
+    },
+    "数值垂直偏移": {
+        "en": "Value vertical offset"
+    },
+    "返回结果必须是 table 或 matrix": {
+        "en": "Must return a table or matrix"
+    },
+    "相对仪表盘中心的水平偏移位置": {
+        "en": "Horizontal offset position relative to the center of gauge"
+    },
+    "相对仪表盘中心的垂直偏移位置": {
+        "en": "Vertical offset position relative to the center of gauge"
+    },
+    "标签不可重复，重复会自动覆盖": {
+        "en": "Labels cannot be repeated, and will be automatically overwritten if repeated."
+    },
+    "标签已存在，选项添加失败，请重试，必要时请修改现有标签": {
+        "en": "The label already exists. Failed to add the option. Please try again. If necessary, please modify the existing label."
+    },
+    "自动保存": {
+        "en": "Autosave"
+    },
+    "开启自动保存后，将每隔 1 分钟保存一次配置": {
+        "en": "After turning on autosave, the configuration will be saved every 1 minute."
+    },
+    "不能为空": {
+        "en": "Can not be empty"
+    },
+    "导出 CSV": {
+        "en": "Export CSV"
+    },
+    "导出范围": {
+        "en": "Export Range"
+    },
+    "全部": {
+        "en": "All"
+    },
+    "部分": {
+        "en": "Custom Range"
+    },
+    "起始行需为大于等于 0 的整数": {
+        "en": "The starting row must be an integer greater than or equal to 0"
+    },
+    "起始行需小于等于结束行": {
+        "en": "The starting row must be less than or equal to the ending row"
+    },
+    "起始行": {
+        "en": "Starting Row"
+    },
+    "请输入起始行": {
+        "en": "Please enter the starting row"
+    },
+    "结束行需为大于等于 0 且小于表格实际行数的整数": {
+        "en": "The end row must be an integer greater than or equal to 0 and less than the actual number of rows in the table"
+    },
+    "结束行需大于等于起始行": {
+        "en": "The ending row must be greater than or equal to the starting row"
+    },
+    "结束行": {
+        "en": "Ending Row"
+    },
+    "请输入结束行": {
+        "en": "Please enter the ending row"
+    },
+    "注意：请根据实际的硬件情况选择导出范围，过大的范围可能导致浏览器崩溃！": {
+        "en": "Note: Select a reasonable range to avoid browser performance issues."
+    },
+    "输入限制内存大小，单位为 GB": {
+        "en": "Enter the limit memory size in GB"
+    },
+    "以 \"*\" 结尾，表示指定某个 dbName 的前缀范围，例如 \"dfs://test0*\"": {
+        "en": "Ending with \"*\" means specifying the prefix range of a certain dbName, such as \"dfs://test0*\""
+    },
+    "上限值": {
+        "en": "Limit"
+    },
+    "保存成功，重启集群生效": {
+        "en": "Save successfully and restart the cluster to take effect."
+    },
+    "创建 catalog": {
+        "en": "Create Catalog"
+    },
+    "请输入名称": {
+        "en": "Please enter a name"
+    },
+    "请选择 catalog": {
+        "en": "Please select a catalog"
+    },
+    "请输入 schema": {
+        "en": "Please enter a schema"
+    },
+    "错误信息：{{error_msg}}": {
+        "en": "Error message: {{error_msg}}"
+    },
+    "除分区列外，请选择查询时常作为过滤条件的列。越重要的过滤条件，在过滤列中的位置越靠前。结合您提供的信息，最多可选择2个常用筛选列。": {
+        "en": "Apart from the partitioning columns, please select columns that are frequently used as filtering conditions during queries. It is recommended to arrange these columns by query frequency, with the most commonly used one at the beginning of the list. You can specify at most 2 filter columns."
+    },
+    "{{label}}启用成功": {
+        "en": "{{label}} enabled successfully"
+    },
+    "{{label}}停用成功": {
+        "en": "{{label}} disabled successfully"
+    },
+    "是否在目录 (catalog) 下创建": {
+        "en": "Use a catalog"
+    },
+    "目录 (catalog)": {
+        "en": "catalog"
+    },
+    "名称 (schema)": {
+        "en": "schema"
+    },
+    "DFS 数据库": {
+        "en": "DFS DATABASE"
+    },
+    "catalog 名称只能包含字母、下划线或数字，并且不能以数字或下划线开头": {
+        "en": "The catalog name can only contain letters, underscores, or numbers, and cannot begin with a number or an underscore."
+    },
+    "DFS 表": {
+        "en": "DFS TABLE"
+    },
+    "目录": {
+        "en": "CATALOG"
+    },
+    "表格视图": {
+        "en": "Table"
+    },
+    "卡片视图": {
+        "en": "Card"
+    },
+    "节点别名": {
+        "en": "alias"
+    },
+    "节点类型": {
+        "en": "mode"
+    },
+    "是否 Leader": {
+        "en": "is leader"
+    },
+    "连接数": {
+        "en": "connection num"
+    },
+    "前 10 查询耗时中位数": {
+        "en": "median time taken by the last 10 queries"
+    },
+    "前 10 查询耗时最大值": {
+        "en": "max time taken by the last 10 queries"
+    },
+    "前 100 查询耗时中位数": {
+        "en": "median time taken by the last 100 queries"
+    },
+    "前 100 查询耗时最大值": {
+        "en": "max time taken by the last 100 queries"
+    },
+    "当前查询耗时最大值": {
+        "en": "max running query time"
+    },
+    "停止成功": {
+        "en": "Stop succeeded"
+    },
+    "错误行:": {
+        "en": "Error Line:"
+    },
+    "流计算监控_menu": {
+        "en": "Streaming"
+    },
+    "插件管理": {
+        "en": "Plugins"
+    },
+    "拥有": {
+        "en": "has"
+    },
+    "来源于 ": {
+        "en": "from "
+    },
+    "确认撤销": {
+        "en": "Confirm Revocation"
+    },
+    "全部仅预览": {
+        "en": "All preview only"
+    },
+    "全部无": {
+        "en": "All None"
+    },
+    "请选择文件": {
+        "en": "Please select file"
+    },
+    "请选择是否使用现有库": {
+        "en": "Please select whether to use an existing library"
+    },
+    "请输入日增数据量": {
+        "en": "Please enter the daily increase in data volume"
+    },
+    "请选择引擎类型": {
+        "en": "Please select the engine type"
+    },
+    "配置展示列": {
+        "en": "Configure display columns"
+    },
+    "安装或更新插件": {
+        "en": "Install or Update a Plugin"
+    },
+    "输入关键字后按回车可搜索插件": {
+        "en": "Enter a keyword and press Enter to search for plugins"
+    },
+    "插件 ID": {
+        "en": "Plugin ID"
+    },
+    "集群已安装的最低版本": {
+        "en": "Minimum Installed Version"
+    },
+    " (与数据库版本不一致，无法加载)": {
+        "en": " (Unable to load due to inconsistent database version)"
+    },
+    "已安装节点": {
+        "en": "Nodes Installed"
+    },
+    "全部节点": {
+        "en": "All Nodes"
+    },
+    "待安装节点": {
+        "en": "Nodes to Install"
+    },
+    "同步": {
+        "en": "Sync"
+    },
+    "安装或更新插件至集群内全部节点": {
+        "en": "Install or update the plugin to all nodes in the cluster"
+    },
+    "安装或更新": {
+        "en": "Install or Update"
+    },
+    "同步插件至集群内其他节点": {
+        "en": "Sync to other Nodes"
+    },
+    "为空": {
+        "en": "is empty"
+    },
+    "非空": {
+        "en": "not empty"
     }
-    
 }

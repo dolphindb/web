@@ -1,0 +1,191 @@
+def loadZipPlugin() {
+    if (defs("zip::zip").size() == 0) {
+        loadPlugin("zip")
+    }
+}
+pnodeRun(loadZipPlugin)
+rpc(getControllerAlias(), loadZipPlugin)
+go
+
+def getPluginDir() {
+    pluginDir = getConfig("pluginDir")
+    if (!pluginDir.startsWith("/")) {
+        nodeCnt = exec count(*) from rpc(getControllerAlias(), getClusterPerf)
+        if (nodeCnt > 1) {
+            pluginDir = "../" + pluginDir
+        } else {
+            pluginDir = "./" + pluginDir
+        }
+    }
+    
+    return pluginDir
+}
+
+def list_plugins () {
+    listPluginsInner = def() {
+        pluginDir = getPluginDir()
+        pluginNames = exec filename from files(pluginDir) where isDir = true
+        ret = table(1:0, `pluginName`version, [STRING, STRING])
+        for (pluginName in pluginNames) {
+            // pluginName = pluginNames[0]
+            dir = pluginDir + "/" + pluginName
+            pattern = "Plugin" + upper(pluginName[0]) + pluginName[1:] + ".txt"
+            txtName = exec first(filename) from files(dir, "%.txt") where filename ilike pattern
+            if (txtName.strlen() == 0) {
+                continue
+            }
+            f = file(dir + "/" + txtName)
+            line = readLine(f)
+            s = line.split(",")
+            if (s.size() < 3) {
+                continue
+            }
+            pluginName = s.first()
+            pluginVersion = s.last()
+            tableInsert(ret, (pluginName, pluginVersion))
+        }
+        return ret
+    }
+    
+    info = pnodeRun(listPluginsInner)
+    info_ = rpc(getControllerAlias(), listPluginsInner)
+    update info_ set node = getControllerAlias()
+    info.append!(info_)
+    pluginNames = exec distinct(pluginName) from info
+    ret = []
+    
+    for (pluginName_ in pluginNames) {
+        // pluginName_ = pluginNames[0]
+        item = dict(STRING, ANY)
+        item["id"] = pluginName_
+        item["least_version"] = exec min(version) from info where pluginName = pluginName_
+        nodes = []
+        info_ = select node, version from info where pluginName = pluginName_
+        for (item_ in info_) {
+            nodes.append!(item_)
+        }
+        item["nodes"] = nodes
+        ret.append!(item)
+    }
+    
+    return ret
+}
+
+def getClusterPluginDirs() {
+    nodes = select * from rpc(getControllerAlias(), getClusterPerf{true}) where (mode != 2 or (mode == 2 and isLeader = true)) and mode != 1
+    addColumn(nodes, "pluginDir", STRING)
+    for (node in nodes) {
+        name_ = node["name"]
+        pluginDir_ = rpc(name_, getPluginDir)
+        update nodes set pluginDir = pluginDir_ where name = name_
+    }
+    // 若host和pluginDir相同，则只需要部署一次
+    nodes = select first(name) as name from nodes group by host, pluginDir
+    return nodes
+}
+
+def checkPluginName(zipName) {
+    // zipName = "arrow-Linux-X86-3.00.1-3.00.1.zip"
+    pattern = "^([^-]+)-[^-]+-[^-]+-[^-]+-[^-]+\.zip$"
+    res = regexFind(pluginName, pattern)
+    
+    if (res != 0) {
+        throw "invalid plugin name: " + pluginName + ", please use the official format"
+    }
+    
+    return true
+}
+
+def install_plugin(zip_name, zip) {
+    checkPluginName(zip_name)
+    
+    install_plugin_inner = def(zip_name, zip) {
+        pluginDir = getPluginDir()
+        
+        tmpZipPath = pluginDir + "/tmp.zip"
+        f = file(tmpZipPath, "w")
+        f.writeObject(zip)
+        f.close()
+        pluginName = zip_name.split("-").first() 
+        pluginDir_ = pluginDir + "/" + pluginName
+        // 需要先删除目标插件文件夹，详见 WEB-1042
+        if (exists(pluginDir_)) {
+            rmdir(pluginDir_, true)
+        }
+        zip::unzip(tmpZipPath)
+        rm(tmpZipPath)
+    }
+    
+    // 顺序执行，因为存在一台机器上有多个节点的情况，并发会互相覆盖文件
+    nodes = select * from rpc(getControllerAlias(), getClusterPerf{true}) where (mode != 2 or (mode == 2 and isLeader = true)) and mode != 1
+    addColumn(nodes, "pluginDir", STRING)
+    for (node in nodes) {
+        name_ = node["name"]
+        pluginDir_ = rpc(name_, getConfig, "pluginDir")
+        update nodes set pluginDir = pluginDir_ where name = name_
+    }
+    // 若host和pluginDir相同，则只需要部署一次
+    nodes = select first(name) as name from nodes group by host, pluginDir
+    for (node in nodes) {
+        name = node["name"]
+        rpc(name, install_plugin_inner, zip_name, zip)
+    }
+    rpc(getControllerAlias(), install_plugin_inner, zip_name, zip)
+}
+
+def copyFolderToRemoteNode(src, destNodeAlias, dest) {
+    // src = "/hdd/hdd8/btxie/ddb_deploy/server/plugins/kafka"
+    // destNodeAlias = "P3-dnode1"
+    // dest = "/hdd/hdd8/btxie/ddb_deploy/server/plugins/kafka"
+    writeBytesRemote = def(filePath, bytes) {
+        f = file(filePath, "w")
+        f.writeBytes(bytes)
+    }
+    
+    print(getNodeAlias() + ": " + src+"\n -> \n" + destNodeAlias + ": " + dest);
+    if (getNodeAlias()==destNodeAlias)
+        return
+    if (rpc(destNodeAlias, exists, dest)==false)
+        rpc(destNodeAlias, mkdir, dest)
+    for(oneFile in files(src)) {
+        // oneFile = files(src)[0]
+        if(oneFile.isDir){
+            copyFolderToRemoteNode(src+"/"+oneFile.filename, destNodeAlias, dest+"/"+oneFile.filename);
+            continue;
+        }
+        
+        print(oneFile.filename);
+        srcFile=file(src+"/"+oneFile.filename);
+        len = srcFile.seek(0,TAIL)
+        srcFile.seek(0,HEAD)
+        if (len==0) {
+            continue
+        }
+        buf = srcFile.readBytes(len)
+        rpc(destNodeAlias, writeBytesRemote, dest+"/"+oneFile.filename, buf)
+    }
+}
+
+def sync_plugin(pluginName, src) {
+    sync_plugin_inner = def(pluginName) {
+        pluginDir_ = getPluginDir()
+        pluginName_ = exec first(filename) from files(pluginDir_) where isDir == true and filename = pluginName
+        destInfo = select * from getClusterPluginDirs() where host != getNodeHost() or pluginDir != pluginDir_
+        for (item in destInfo) {
+            // item = destInfo[0]
+            srcDir = pluginDir_ + "/" + pluginName_
+            destNodeAlias = item["name"]
+            destDir = item["pluginDir"] + "/" + pluginName_
+            // 需要先删除目标插件文件夹，详见 WEB-1042
+            rmDirIfExists = def(dir) {
+                if (exists(dir)) {
+                    rm(dir)
+                }
+            }
+            rpc(destNodeAlias, rmDirIfExists, destDir)
+            copyFolderToRemoteNode(srcDir, destNodeAlias, destDir)
+        }
+    }
+    
+    rpc(src, sync_plugin_inner, pluginName)
+}

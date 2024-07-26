@@ -1,10 +1,7 @@
 node_modules/
 
-/bak/
 /web/
-/web.*.zip
 /web.cloud/
-/web.cloud.zip
 
 /pre-bundle/dist/
 /pre-bundle/index.js
@@ -13,12 +10,7 @@ node_modules/
 *.map
 *.d.ts
 
-.DS_Store
-
-/.eslintrc.schema.json
-
 /i18n/untranslateds.json
-/i18n/stats.json
 
 /.vscode/settings.json
 /.vscode/launch.json

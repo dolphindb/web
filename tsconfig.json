@@ -2,23 +2,27 @@
     "include": [
         "./dev.ts",
         "./build.ts",
+        "./eslint.config.ts",
         "./pre-bundle/entries/",
         
         "./global.d.ts",
         
-        "./console/",
-        
-        "./cloud/",
+        "./src/",
+        "./i18n/index.ts"
     ],
     
     "compilerOptions": {
-        // 关闭绝对路径引入
-        // "baseUrl": ".",
+        "baseUrl": ".",
         
         // --- 用来控制输出文件结构
         // "rootDir": "./lib/",
         // "outDir": "./build/",
         // "outFile": "",
+        
+        "paths": {
+            "@/*": ["./src/*"],
+            "@i18n/*": ["./i18n/*"],
+        },
         
         
         // --- module
@@ -71,11 +75,6 @@
         "noUnusedLocals": false,
         "noUnusedParameters": false,
         "skipLibCheck": true,
-    },
-    
-    "ts-node": {
-        "esm": true,
-        "transpileOnly": true
     }
 }
 

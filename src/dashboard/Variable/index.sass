@@ -1,0 +1,131 @@
+$canvas_back_color: rgb(40, 40, 40)
+$font_color: rgb(215, 215, 215)
+$blue: rgb(22, 104, 220)
+$border_color: #333333
+    
+.variable
+    .ant-modal-content
+        background-color: $canvas_back_color
+        .ant-modal-title
+            background-color: $canvas_back_color
+
+    
+.variable-trigge
+    margin-right: 5px
+
+.variable-config-main
+    width: 100%
+    height: 500px
+    color: $font_color
+    display: flex
+
+    .variable-list
+        width: 240px
+        border-right: 1px solid $border_color
+        display: flex
+        flex-direction: column
+        
+        .top
+            padding-right: 10px
+            height: 45px
+            display: flex
+            align-items: center
+            justify-content: space-between
+            
+            .top-item
+                cursor: pointer
+                font-size: 12px
+                
+                .top-item-icon
+                    margin-right: 2px
+            
+        .bottom
+            flex: 1
+            padding-right: 10px
+            
+            .bottom-menu
+                height: 100%
+                
+                .bottom-menu-rename-input
+                    width: 150px
+                
+                .ant-tree-switcher-noop
+                    display: none
+                    
+                .ant-tree-node-content-wrapper
+                    height: 40px
+                    padding-left: 10px
+                    display: flex
+                    align-items: center
+        
+    .config-right
+        flex: 1
+        display: flex
+        flex-direction: column
+        overflow-y: auto
+            
+        .variable-editor
+            height: 100%
+            padding: 0 15px
+            
+            .editor-main
+                display: flex
+                flex-direction: column
+                height: 100%
+                
+                
+                .main-top
+                    display: flex
+                    
+                    .main-config
+                        width: 445px
+                        margin: 6px 10px 6px 0
+                        
+                        .main-config-input
+                            width: 290px
+                            margin: 0  10px
+                        
+                    .main-value-top
+                        flex: 1
+                        display: flex
+                        margin: 6px 0
+                        
+                        .main-value-control-top
+                            flex: 1
+                            margin-left: 10px
+                            
+                .main-value
+                    margin: 6px 0
+                    
+                    .main-value-control-text
+                        display: block
+                        width: 826px
+                        margin-top:10px
+                            
+                    .main-value-control-date
+                        width: 290px
+                        margin-left: 24px
+                        
+                .main-select
+                    display: flex
+                    flex-direction: column
+                    margin-top: 6px
+                    
+                    .title-icon
+                        margin-left: 10px
+                    
+                    .main-select-top
+                        display: flex
+                        justify-content: space-between
+                        margin-bottom: 6px
+                        
+                        .main-select-top-btn
+                            margin-right: 20px
+                        
+                        .tooltip
+                            color: #666666
+                            margin-left: 10px
+                            cursor: pointer 
+                        
+                .main-editor
+                    height: 120px
