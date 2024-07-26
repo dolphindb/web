@@ -18,6 +18,8 @@ import NiceModal from '@ebay/nice-modal-react'
 
 import { DeleteOutlined, PlusOutlined, RedoOutlined } from '@ant-design/icons'
 
+import dayjs from 'dayjs'
+
 import { Protocol, type ISubscribe, type ConnectionDetail, type IParserTemplate } from '../../type.js'
 import { t } from '../../../../i18n/index.js'
 import { request } from '../../utils.js'
@@ -60,6 +62,8 @@ export function ConnectionDetail (props: IProps) {
         data ? ['dcp_getParserTemplateList', data.connectInfo.protocol] : null,
         async () => get_parser_templates(data.connectInfo.protocol)
     )
+    
+    console.log(data, 'data')
     
     const desp_items = useMemo<DescriptionsProps['items']>(() => {
         if (!data?.connectInfo)
@@ -135,6 +139,16 @@ export function ConnectionDetail (props: IProps) {
                     <Link className='view-btn' onClick={() => { onViewTemplate(template) }}>{t('查看')}</Link>
                 </div>
             }
+        },
+        {
+            title: t('创建时间'),
+            dataIndex: 'createTime',
+            sorter: (a, b ) => dayjs(a.createTime).valueOf() - dayjs(b.createTime).valueOf()
+        },
+        {
+            title: t('更新时间'),
+            dataIndex: 'updateTime',
+            sorter: (a, b) => dayjs(a.updateTime).valueOf() - dayjs(b.updateTime).valueOf()
         },
         {
             title: t('状态'),

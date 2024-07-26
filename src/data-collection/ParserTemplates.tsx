@@ -2,7 +2,7 @@ import useSWR from 'swr'
 import './ParserTemplates.scss'
 import { useCallback, useId, useMemo, useState } from 'react'
 
-import { Button, Modal, Space, Spin, Table, Tag, Typography, message, type TableProps } from 'antd'
+import { Button, Modal, Space, Spin, Table, Tag, Tooltip, Typography, message, type TableProps } from 'antd'
 
 import { DeleteOutlined, PlusOutlined } from '@ant-design/icons'
 
@@ -65,9 +65,11 @@ export function ParserTemplates () {
         })
     }, [selected_keys, refresh])
     
-    const on_delete = useCallback(({ name, id }: IParserTemplate) => {
+    const on_delete = useCallback(({ name, id, citeNumber }: IParserTemplate) => {
         Modal.confirm({
-            title: t('确定要删除模板【{{name}}】吗？', { name }),
+            title: citeNumber 
+            ? t('该解析模板被引用 {{citeNumber}} 次, 确定要删除吗？', { citeNumber }) 
+            : t('确定要删除模板【{{name}}】吗？', { name }),
             okButtonProps: { type: 'primary', danger: true },
             onOk: async () => {
                 await await request('dcp_deleteHandler', { ids: [id] })
@@ -78,6 +80,12 @@ export function ParserTemplates () {
             }
         })
     }, [selected_keys, refresh])
+    
+    const canEdit = useCallback((template: IParserTemplate ) => {
+        if (template.flag === 1 || template.useNumber > 0)
+            return true
+        return false
+    }, [ ])
     
     const columns = useMemo<TableProps<IParserTemplate>['columns']>(() => [
         {
@@ -100,18 +108,28 @@ export function ParserTemplates () {
             render: comment => <Typography.Paragraph className='parser-template-comment' ellipsis={{ rows: 2 }}>{comment}</Typography.Paragraph>
         },
         {
+            title: t('使用数'),
+            dataIndex: 'useNumber',
+            width: 100,
+        },
+        {
+            title: t('引用数'),
+            dataIndex: 'citeNumber',
+            width: 100
+        },
+        {
             title: t('创建时间'),
             dataIndex: 'createTime',
             key: 'createTime',
             render: time => format_time(time, 'YYYY-MM-DD HH:mm:ss'),
-            width: 300
+            width: 250
         },
         {
             title: t('更新时间'),
             dataIndex: 'updateTime',
             key: 'updateTime',
             render: time => format_time(time, 'YYYY-MM-DD HH:mm:ss'),
-            width: 300
+            width: 250
         },
         {
             dataIndex: 'operations',
@@ -121,15 +139,17 @@ export function ParserTemplates () {
             width: 200,
             render: (_, record) => <Space size='large'>
                 {
-                    record.flag === 0 && <>
-                        <Typography.Link onClick={() => { on_edit(record) }}>{t('编辑')}</Typography.Link>
+                    canEdit(record) && <>
+                        <Tooltip title={record.citeNumber ? t('当前解析模板已被引用，请谨慎修改') : null}>
+                            <Typography.Link onClick={() => { on_edit(record) }}>{t('编辑')}</Typography.Link>
+                        </Tooltip>
+                        
                         <Typography.Link onClick={async () => { on_delete(record) }} type='danger'>{t('删除')}</Typography.Link>
+                       
                     </>
                 }
-                
                 {
-                    
-                    record.flag === 1 && <Typography.Link onClick={async () => NiceModal.show(ParserTemplateModal, { refresh, editedTemplate: record, mode: 'view' })}>{t('查看')}</Typography.Link>
+                    !canEdit(record) && <Typography.Link onClick={async () => NiceModal.show(ParserTemplateModal, { refresh, editedTemplate: record, mode: 'view' })}>{t('查看')}</Typography.Link>
                 }
                 
             </Space>   

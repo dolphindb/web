@@ -34,6 +34,7 @@ const DEFAULT_DATA = {
 export function Connections () {
     const [connection, set_connection] = useState<string>()
     const [selected_connections, set_selected_connections] = useState<string[]>([ ])
+    const [all_connections, set_all_connections] = useState<string[]>([ ])
     const id = useId()
     
     
@@ -44,8 +45,24 @@ export function Connections () {
     
     const { isLoading, mutate, data = DEFAULT_DATA } = useSWR(
         isInited === InitStatus.INITED ? ['dcp_getConnectList', isInited] : null,
-        async () =>  request<{ [key in Protocol]: Connection[] }>('dcp_getConnectList')
+        async () =>  request<{ [key in Protocol]: Connection[] }>('dcp_getConnectList'),
+        {
+            onSuccess: data => {
+                const all_connections = Object.values(data).reduce((prev, cur) => {
+                    prev = prev.concat(cur)
+                    return prev
+                }, [ ] )
+                set_all_connections(all_connections.map(item => item.id))
+            }
+        }
     )
+    
+    const on_select_all_connections = useCallback(() => {
+        if (selected_connections.length < all_connections.length)
+            set_selected_connections(all_connections)
+        else
+            set_selected_connections([ ])
+    }, [all_connections, selected_connections])
     
     /** 批量删除连接 */
     const on_batch_delete_connection = useCallback(async () => {
@@ -134,10 +151,12 @@ export function Connections () {
                 key: protocol,
                 children: connections?.map(connection => ({
                     label: <div className='connection-menu-item'>
-                            <Checkbox onClick={e => {
-                            e.stopPropagation()
-                            on_select_connection(connection.id)
-                        }}>
+                            <Checkbox 
+                            checked={selected_connections.includes(connection.id)}
+                            onClick={e => {
+                                e.stopPropagation()
+                                on_select_connection(connection.id)
+                            }}>
                             <span className='connection-menu-label'>{connection.name}</span>
                         </Checkbox>
                         <Space>
@@ -180,7 +199,14 @@ export function Connections () {
         <div className='connection-list'>
         
             <div className='connection-list-title'>
-                <h4>{t('连接')}</h4>
+                <Space>
+                    <Checkbox 
+                        checked={all_connections.length === selected_connections.length}
+                        indeterminate={selected_connections.length < all_connections.length && !!selected_connections.length}  
+                        onClick={on_select_all_connections}
+                    />
+                    <h4>{t('连接')}</h4>
+                </Space>
                 <Typography.Link 
                     className='delete-link' 
                     type='danger' 
@@ -196,6 +222,7 @@ export function Connections () {
                 items={menu_items} 
                 className='connection-menu'
                 onClick={on_click_connection}
+                defaultOpenKeys={all_connections}
             />
         </div>
         
