@@ -386,7 +386,7 @@ export class DdbModel extends Model<DdbModel> {
     async login_by_sso () {
         let url = new URL(location.href)
         let { searchParams } = url
-        const token_code = searchParams.get('code')
+        const code = searchParams.get('code')
         
         const token = localStorage.getItem(storage_keys.token)
         const refresh_token = localStorage.getItem(storage_keys.refresh_token)
@@ -395,7 +395,7 @@ export class DdbModel extends Model<DdbModel> {
         
         if (token && refresh_token) 
             await this.login_by_token(token, refresh_token)
-        else if (token_code) {
+        else if (code) {
             searchParams.delete('code')
             history.replaceState(null, '', url.toString())
             
@@ -405,7 +405,7 @@ export class DdbModel extends Model<DdbModel> {
                         grant_type: 'authorization_code',
                         client_id,
                         client_secret,
-                        code: token_code,
+                        code: code,
                         response_type: 'code',
                         redirect_uri,
                         oauth_timestamp: new Date().getTime().toString(),
@@ -630,14 +630,16 @@ export class DdbModel extends Model<DdbModel> {
     
     goto_sso_login () {
         const { domin, client_id, redirect_uri } = login_info
+        
         localStorage.removeItem(storage_keys.token)
         localStorage.removeItem(storage_keys.refresh_token)
-        location.assign(new URL(`${domin}/authorize?` + new URLSearchParams({
+        
+        location.href = new URL(`${domin}/authorize?` + new URLSearchParams({
             client_id,
             response_type: 'code',
             redirect_uri,
             oauth_timestamp: new Date().getTime().toString(),
-        })).toString())
+        })).toString()
     }
     
     
