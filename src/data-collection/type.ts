@@ -34,6 +34,8 @@ export interface ServerSubscribe {
     partition?: number
     offset?: number            
     consumerCfg?: string
+    createTime: string
+    updateTime: string
 }
 
 
@@ -61,6 +63,8 @@ export interface ServerParserTemplate {
     protocol: string
     templateParams: string
     flag: 0 | 1
+    citeNumber: number
+    useNumber: number
 }
 
 export interface IParserTemplate extends Omit<ServerParserTemplate, 'templateParams'> {
