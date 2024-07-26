@@ -8,9 +8,7 @@ import { t } from '../../../../i18n/index.js'
 
 import { GroupUserConfirmModal } from './GroupUserConfirmModal.js'
 
-export const GroupUserEditModal = NiceModal.create(({
-    groupname
-}: { groupname: string }) => {
+export const GroupUserEditModal = NiceModal.create(({ groupname }: { groupname: string }) => {
 
     const { users } = access.use(['users'])
     
@@ -22,7 +20,9 @@ export const GroupUserEditModal = NiceModal.create(({
     
     useEffect(() => {
         (async () => {
-            set_target_users((await access.get_users_by_group(groupname)).filter(name => name !== 'admin'))
+            set_target_users(
+                (await access.get_users_by_group(groupname))
+                    .filter(name => name !== 'admin'))
         })()
     }, [groupname])
     

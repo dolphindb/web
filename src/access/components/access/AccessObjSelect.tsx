@@ -162,7 +162,6 @@ export function AccessObjSelect ({
                         checked={obj_options.length && add_rule_selected.obj.length === obj_options.length}
                         indeterminate={add_rule_selected.obj.length > 0 && add_rule_selected.obj.length < obj_options.length}
                         onChange={e => {
-                            console.log('obj', obj_options)
                             if (e.target.checked)
                                 set_add_rule_selected({ ...add_rule_selected, obj: obj_options })
                             else
