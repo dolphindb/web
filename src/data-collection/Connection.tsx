@@ -35,8 +35,6 @@ const DEFAULT_DATA = {
     [Protocol.MQTT]: [ ]
 }
 
-const { DirectoryTree } = Tree
-
 export function Connections () {
     const [connection, set_connection] = useState<string>()
     const [selected_connections, set_selected_connections] = useState<string[]>([ ])
@@ -84,14 +82,6 @@ export function Connections () {
             }
         })
     }, [ ])
-   
-    /** 选择连接， 主要用于批量删除 */
-    const on_select_connection = useCallback((id: string) => {
-        if (selected_connections.includes(id))
-            set_selected_connections(list => list.filter(item => item !== id))
-        else
-            set_selected_connections(list => [...list, id])
-    }, [ selected_connections ])
     
     const menu_items = useMemo<TreeDataNode[]>(() => {
         if (isLoading)
@@ -167,7 +157,7 @@ export function Connections () {
                 }))
             }
         })
-    }, [isLoading, data, on_select_connection, selected_connections])
+    }, [isLoading, data, selected_connections])
     
     if (isInited === InitStatus.UNKONWN)
         return  <Spin>
