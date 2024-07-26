@@ -209,6 +209,15 @@ def dcp_getKafkaConsumerCfgList(){
 }
 
 /*
+获取可用节点列表（数据节点+计算节点）
+*/
+def dcp_getNodes(){
+    nodes = exec name from rpc(getControllerAlias(),getClusterPerf) where mode in [0,3,4]
+    return '{"nodes":'+toStdJson(nodes)+'}'
+}
+
+
+/*
 添加订阅信息：
 参数：args 为标准json，需要包含以下字段：
 commonParams:
@@ -328,7 +337,7 @@ def dcp_updateSubscribe(args){
     subscribeInfo = select * from loadTable("dfs://dataAcquisition","subscribeInfo") where id=uuid(subArgs[`id])
     connectInfo = exec * from loadTable("dfs://dataAcquisition","connectInfo") where id=uuid(subscribeInfo[`connectId][0])
     proto,connectName,connectId = connectInfo[`protocol][0],connectInfo[`name][0],connectInfo[`id][0]
-    subNode = subArgs[`subNode]
+    subNode = subscribeInfo[`subNode][0]
     ex = ["user",NULL]
     try{
         cnt = exec count(*) from loadTable("dfs://dataAcquisition","subscribeInfo") where name = subArgs['name'] and connectId=uuid(connectId)
