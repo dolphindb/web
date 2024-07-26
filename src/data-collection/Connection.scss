@@ -13,86 +13,97 @@
     
     .connection-list {
         border: 1px solid #f3f1f1;
-        padding: 12px;
+        padding: 0 12px 12px 12px;
         height: calc(100vh - 80px);
         overflow: auto;
         
         .connection-list-title {
-            width: 100%;
             display: flex;
-            align-items: center;
             justify-content: space-between;
-            h4 {
-                margin: 0px;
-            }
+            align-items: center;
+            
             .delete-link {
-                font-size: 12px;
-                &-icon {
+                .delete-link-icon {
                     margin-right: 4px;
                 }
             }
         }
         
+        .ant-tree-checkbox {
+            transform: translateY(12px);
+        }
+        
+        .ant-tree-treenode {
+            display: flex;
+            align-items: center;
+        }
+
+        
+        .ant-tree .ant-tree-switcher {
+            margin: auto;
+        }
         
         
         
-        .connection-menu {
+        
+        .connection-tree {
             width: 360px;
-            border-inline-end: none;
-            .protocol_menu_item {
+
+            .ant-tree-treenode-selected {
+                background-color: #e7f5ff;
+            }
+            
+            .ant-tree-node-content-wrapper {
                 display: flex;
-                .protocol_menu_label {
-                    flex: 1;
+                flex: 1;
+                .ant-tree-title {
+                    height: 48px;
                     display: flex;
-                    margin-left: 12px;
                     align-items: center;
-                    
-                    .add-connection-icon {
-                        visibility: hidden;
-                        display: inline-block;
-                        margin-left: 8px;
-                        transform: translateY(2px);
-                        font-size: 12px;
-                    }
-                    
-                    &:hover {
-                        .add-connection-icon {
-                            visibility: visible;
-                        }
-                    }
                 }
             }
             
-            .connection-menu-item {
+            .connection-tree-item {
                 display: flex;
-                width: 100%;
                 align-items: center;
                 justify-content: space-between;
+                height: 48px;
                 
-                .connection-menu-label {
-                    width: 150px;
+                .connection-tree-label {
                     display: inline-block;
+                    width: 210px;
                     overflow: hidden;
                     text-overflow: ellipsis;
                     white-space: nowrap;
                 }
                 
-                .connection-edit-icon {
+                .connection-operations {
                     visibility: hidden;
-                    font-size: 12px;
-                }
-                
-                .connection-delete-icon {
-                    visibility: hidden;
-                    font-size: 12px;
                 }
                 
                 &:hover {
-                    .connection-delete-icon, .connection-edit-icon {
+                    .connection-operations {
                         visibility: visible;
                     }
                 }
             }
+            
+            .protocol-tree-item {
+                .protocol-icon {
+                    margin-right: 4px;
+                }
+                .protocol-operations {
+                    visibility: hidden;
+                    margin-left: 12px;
+                }
+                
+                &:hover {
+                    .protocol-operations {
+                        visibility: visible;
+                    }
+                }
+            }
+           
         }
     }
 }

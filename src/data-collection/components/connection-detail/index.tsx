@@ -52,15 +52,14 @@ export function ConnectionDetail (props: IProps) {
     const { data, isLoading, mutate } = useSWR(
         ['dcp_getConnectAndSubInfo', connection],
         async () => {
-            await request('dcp_checkSubStatus', { connectId: connection })
             const res = await get_connect_detail(connection)
             return res
         } 
     )
     
     const { data: { items: templates } = DEFAULT_TEMPLATES } = useSWR(
-        data ? ['dcp_getParserTemplateList', data.connectInfo.protocol] : null,
-        async () => get_parser_templates(data.connectInfo.protocol)
+        data ? ['dcp_getParserTemplateList', data?.connectInfo?.protocol] : null,
+        async () => get_parser_templates(data?.connectInfo?.protocol)
     )
     
     console.log(data, 'data')
@@ -141,6 +140,11 @@ export function ConnectionDetail (props: IProps) {
             }
         },
         {
+            title: t('节点'),
+            dataIndex: 'subNode',
+            width: 200,
+        },
+        {
             title: t('创建时间'),
             dataIndex: 'createTime',
             sorter: (a, b ) => dayjs(a.createTime).valueOf() - dayjs(b.createTime).valueOf()
@@ -162,7 +166,7 @@ export function ConnectionDetail (props: IProps) {
                 <Typography.Link 
                 disabled={record.status === 1}
                 onClick={async () => {
-                    NiceModal.show(CreateSubscribeModal, { protocol: data.connectInfo.protocol, refresh: mutate, parser_templates: templates, edited_subscribe: record })
+                    NiceModal.show(CreateSubscribeModal, { protocol: data?.connectInfo?.protocol, refresh: mutate, parser_templates: templates, edited_subscribe: record })
                 } }>
                     {t('编辑')}
                 </Typography.Link>
@@ -200,7 +204,12 @@ export function ConnectionDetail (props: IProps) {
                     icon={<PlusOutlined />} 
                     type='primary' 
                     onClick={async () => 
-                        NiceModal.show(CreateSubscribeModal, { protocol: data.connectInfo.protocol, connection_id: connection, refresh: mutate, parser_templates: templates })}
+                        NiceModal.show(CreateSubscribeModal, { 
+                            protocol: data.connectInfo.protocol, 
+                            connection_id: connection, 
+                            refresh: mutate, 
+                            parser_templates: templates 
+                        })}
                 >
                     {t('新增订阅')}
                 </Button>

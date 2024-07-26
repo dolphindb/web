@@ -1,6 +1,6 @@
 import useSWR from 'swr'
 
-import { Button, Col, Form, Input, Row, Select, Space } from 'antd'
+import { AutoComplete, Button, Col, Form, Input, Row, Select, Space } from 'antd'
 
 import { t } from 'xshell/i18n/instance.js'
 
@@ -40,7 +40,7 @@ export function KafkaConfig () {
                         return <Row key={field.name} className='kafka-params-item' gutter={[16, 0]}>
                             <Col span={11}>
                                 <Form.Item tooltip={t('设置偏移量与分区，group.id 参数会失效')} label={t('参数')} name={[field.name, 'key']} rules={[{ required: true, message: t('请选择参数') }]}>
-                                    <Select 
+                                    <AutoComplete 
                                         disabled={idx === 0} 
                                         showSearch 
                                         placeholder={t('请选择参数')} 
