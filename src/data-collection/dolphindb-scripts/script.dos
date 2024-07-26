@@ -432,14 +432,74 @@ def dcp_deleteSubscribe(args){
     }
 }
 
+/*
+查看订阅状态
+@args subId:订阅ID 字符串
+@return 返回一个包含订阅状态的json，键为subStatus   
+*/
+def dcp_getSubStatus(args){
+    subArgs = parseExpr(args).eval()
+    subs =select id,subId,connectId from loadTable("dfs://dataAcquisition","subscribeInfo") where id=uuid(subArgs[`subId])
+    connInfo = select id,protocol from loadTable("dfs://dataAcquisition","connectInfo") where id = uuid(subs.connectId[0])    
+    if(connInfo.protocol == "mqtt"){
+        tmp = select * from mqtt::getSubscriberStat() where subscriptionId = subs.subId
+    }else if(connInfo.protocol=="kafka"){
+        tmp = select * from kafka::getJobStat() where subscriptionId = subs.subId
+    }
+    return '{"subStatus":'+toStdJson(tmp)+'}'
+}
+
+
+/*
+检测连接下的订阅状态
+将库中状态为开启状态但实际已经不存在的订阅关闭
+@args connectId:连接ID UUID
+args='{"connectId":"8c50939f-51c6-382f-b501-c4a495c240ca"}'
+*/
+def dcp_checkSubStatus(args){
+    subArgs = parseExpr(args).eval()
+    subs =select id,subNode,subId,connectId from loadTable("dfs://dataAcquisition","subscribeInfo") where connectId=uuid(subArgs[`connectId])
+    connInfo = select id,protocol from loadTable("dfs://dataAcquisition","connectInfo") where id = uuid(subArgs[`connectId])    
+    subNodes = distinct(subs.subNode)
+    if(subNodes.size()==0){
+        return '{"status":1}'
+    }
+    if(connInfo.protocol == "mqtt"){
+        res = each(rpc{,mqtt::getSubscriberStat},subNodes)
+        for(i in (0..(subNodes.size()-1))){
+            update res[i] set node = subNodes[i] 
+        }
+        nowSub = res.unionAll()
+    }else if(connInfo.protocol=="kafka"){
+        res = each(rpc{,kafka::getJobStat},subNodes)
+        for(i in (0..(subNodes.size()-1))){
+            update res[i] set node = subNodes[i] 
+        }
+        nowSub = res.unionAll()
+    }
+    tmp = select * from subs left join nowSub on subs.subId = nowSub.subscriptionId and subs.subNode = nowSub.node
+    id = tmp.id 
+    subId = tmp.subId  
+    user = tmp.user 
+    if(subId.size() > 0 ){
+        for(i in (0..(subId.size()-1))){  //i=0
+            if(user[i]==NULL){ 
+                argsNew='{"id":"'+string(id[i])+'","subId":NULL,"status":0}' 
+                dcp_updateSubscribe(argsNew) 
+            }
+        }
+    }
+    return '{"status":1}'
+}
 
 
 /*
 获取订阅列表
 参数：args 为标准json，需要包含以下字段：
-connectId: 连接ID   整数
+connectId: 连接ID   UUID
 */
 def dcp_getConnectAndSubInfo(args){
+    try{dcp_checkSubStatus(args)}catch(ex){throw ex[1]}
     subArgs = parseExpr(args).eval()
     connect = select * from loadTable("dfs://dataAcquisition","connectInfo") where id = uuid(subArgs['connectId']) order by updateTime desc
     subscribe = select * from loadTable("dfs://dataAcquisition","subscribeInfo") where connectId = uuid(subArgs['connectId']) order by updateTime desc
@@ -579,67 +639,6 @@ def dcp_stopSubscribe(args){
     
 }
 
-
-
-/*
-查看订阅状态
-@args subId:订阅ID 字符串
-@return 返回一个包含订阅状态的json，键为subStatus   
-*/
-def dcp_getSubStatus(args){
-    subArgs = parseExpr(args).eval()
-    subs =select id,subId,connectId from loadTable("dfs://dataAcquisition","subscribeInfo") where id=uuid(subArgs[`subId])
-    connInfo = select id,protocol from loadTable("dfs://dataAcquisition","connectInfo") where id = uuid(subs.connectId[0])    
-    if(connInfo.protocol == "mqtt"){
-        tmp = select * from mqtt::getSubscriberStat() where subscriptionId = subs.subId
-    }else if(connInfo.protocol=="kafka"){
-        tmp = select * from kafka::getJobStat() where subscriptionId = subs.subId
-    }
-    return '{"subStatus":'+toStdJson(tmp)+'}'
-}
-
-
-/*
-检测订阅状态
-将库中状态为开启状态但实际已经不存在的订阅关闭
-@args connectId:连接ID int整数  
-args='{"connectId":"8c50939f-51c6-382f-b501-c4a495c240ca"}'
-*/
-def dcp_checkSubStatus(args){
-    subArgs = parseExpr(args).eval()
-    subs =select id,subNode,subId,connectId from loadTable("dfs://dataAcquisition","subscribeInfo") where connectId=uuid(subArgs[`connectId])
-    connInfo = select id,protocol from loadTable("dfs://dataAcquisition","connectInfo") where id = uuid(subArgs[`connectId])    
-    subNodes = distinct(subs.subNode)
-    if(subNodes.size()==0){
-        return '{"status":1}'
-    }
-    if(connInfo.protocol == "mqtt"){
-        res = each(rpc{,mqtt::getSubscriberStat},subNodes)
-        for(i in (0..(subNodes.size()-1))){
-            update res[i] set node = subNodes[i] 
-        }
-        nowSub = res.unionAll()
-    }else if(connInfo.protocol=="kafka"){
-        res = each(rpc{,kafka::getJobStat},subNodes)
-        for(i in (0..(subNodes.size()-1))){
-            update res[i] set node = subNodes[i] 
-        }
-        nowSub = res.unionAll()
-    }
-    tmp = select * from subs left join nowSub on subs.subId = nowSub.subscriptionId and subs.subNode = nowSub.node
-    id = tmp.id 
-    subId = tmp.subId  
-    user = tmp.user 
-    if(subId.size() > 0 ){
-        for(i in (0..(subId.size()-1))){  //i=0
-            if(user[i]==NULL){ 
-                argsNew='{"id":"'+string(id[i])+'","subId":NULL,"status":0}' 
-                dcp_updateSubscribe(argsNew) 
-            }
-        }
-    }
-    return '{"status":1}'
-}
 
 /*
 解析模板参数
