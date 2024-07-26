@@ -75,26 +75,36 @@ export function AccessObjSelect ({
                 selected.obj = vals
                 set_add_rule_selected(selected)
             }}
-            dropdownRender={originNode => <div>
-                    <Checkbox
-                        className='check-all'
-                        checked={add_rule_selected.obj.length === databases.reduce((count, db) => count + db.tables.length, 0)}
-                        indeterminate={
-                            add_rule_selected.obj.length > 0 &&
-                            add_rule_selected.obj.length < databases.reduce((count, db) => count + db.tables.length, 0)
-                        }
-                        onChange={e => {
-                            if (e.target.checked)
-                                set_add_rule_selected({ ...add_rule_selected, obj: databases.map(db => [...db.tables]).flat() })
-                            else
-                                set_add_rule_selected({ ...add_rule_selected, obj: [ ] })
-                        }}
-                    >
-                        {t('全选')}
-                    </Checkbox>
-                    <Divider className='divider' />
-                    {originNode}
-                </div>}
+            dropdownRender={originNode => {
+                let options = [ ]
+                if (add_rule_selected.access.startsWith('TABLE') ) 
+                    options = catalogs.map(cl => cl.schemas.map(sh => sh.tables)).flat(2)
+                else if (add_rule_selected.access.startsWith('DB') )
+                    options = catalogs.map(cl => cl.schemas.map(sh => sh.dbUrl)).flat()
+                else if (add_rule_selected.access.startsWith('SCHEMA') )
+                    options = catalogs.filter(cl => cl.name !== DATABASES_WITHOUT_CATALOG).map(cl => cl.schemas.map(sh => `${cl.name}.${sh.schema}`)).flat()
+                
+                return  <div>
+                <Checkbox
+                    className='check-all'
+                    checked={options.length && add_rule_selected.obj.length === options.length}
+                    indeterminate={
+                        add_rule_selected.obj.length > 0 &&
+                        add_rule_selected.obj.length < options.length
+                    }
+                    onChange={e => {
+                        if (e.target.checked)
+                            set_add_rule_selected({ ...add_rule_selected, obj: options })
+                        else
+                            set_add_rule_selected({ ...add_rule_selected, obj: [ ] })
+                    }}
+                >
+                    {t('全选')}
+                </Checkbox>
+                <Divider className='divider' />
+                {originNode}
+            </div>
+            }}
             treeData={
                 category === 'catalog'
                     ? (add_rule_selected.access.startsWith('SCHEMA')
@@ -106,7 +116,7 @@ export function AccessObjSelect ({
                           value: cl.name,
                           selectable: false,
                           children: cl.schemas.map(sh => ({
-                              key: `${cl.name}.${sh.schema}`,
+                              key: sh.dbUrl,
                               title: sh.schema,
                               // schema 权限 objs 为 catalog.schema,db 权限为 dburl
                               value: add_rule_selected.access.startsWith('DB') ? sh.dbUrl : `${cl.name}.${sh.schema}`,
@@ -149,7 +159,7 @@ export function AccessObjSelect ({
             dropdownRender={originNode => <div>
                     <Checkbox
                         className='check-all'
-                        checked={add_rule_selected.obj.length === obj_options.length}
+                        checked={obj_options.length && add_rule_selected.obj.length === obj_options.length}
                         indeterminate={add_rule_selected.obj.length > 0 && add_rule_selected.obj.length < obj_options.length}
                         onChange={e => {
                             if (e.target.checked)

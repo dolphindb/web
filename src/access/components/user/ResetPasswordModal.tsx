@@ -1,12 +1,12 @@
-import { useModal } from '@ebay/nice-modal-react'
+import NiceModal, { useModal } from '@ebay/nice-modal-react'
 import { Form, Input, Modal } from 'antd'
 
 import { access } from '../../model.js'
 import { model } from '../../../model.js'
 import { language, t } from '../../../../i18n/index.js'
 
-export function ResetPasswordModal () {
-    const { current } = access.use(['users', 'groups', 'current'])
+export const ResetPasswordModal = NiceModal.create(() => {
+    const { current } = access.use([ 'current'])
     
     const modal = useModal()
     
@@ -73,4 +73,4 @@ export function ResetPasswordModal () {
                 </Form.Item>
             </Form>
         </Modal>
-}
+})

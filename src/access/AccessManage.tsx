@@ -122,9 +122,6 @@ export function AccessManage ({ category }: { category: AccessCategory }) {
                     showed_aces_types.map(aces => aces + '_denied').includes(k)
                 ) {
                     let objs = v.split(',')
-                    // console.log('objs', objs)
-                    // if (category === 'database')
-                    //     objs = objs.filter((obj: string) => obj.startsWith('dfs:'))
                     if (category === 'shared')
                         objs = objs.filter((obj: string) => shared_tables.includes(obj))
                     if (category === 'stream')
