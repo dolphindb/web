@@ -62,6 +62,9 @@ const username_guest = 'guest' as const
 export type PageViews = 'overview' | 'shell' | 'dashboard' | 'table' | 'job' | 'plugins' | 'login' | 'dfs' | 'log' | 'factor' | 'test' | 'computing' | 'tools' | 'iot-guide' | 'finance-guide' | 'access' | 'user' | 'group' | 'config'
 
 
+type OAuthType = 'authorization code' | 'implicit'
+
+
 export class DdbModel extends Model<DdbModel> {
     params: URLSearchParams
     
@@ -75,6 +78,8 @@ export class DdbModel extends Model<DdbModel> {
     
     /** 是否启用 sso 登录 */
     oauth = false
+    
+    oauth_type: OAuthType
     
     /** 通过 test.dolphindb.cn 访问的 web */
     test = false
@@ -232,6 +237,18 @@ export class DdbModel extends Model<DdbModel> {
         
         const oauth_str = config.nodes_configs.get('oauth')?.value
         this.set({ oauth: oauth_str === '1' || oauth_str === 'true' })
+        
+        if (this.oauth) {
+            this.oauth_type = (config.nodes_configs.get('oauthType')?.value || 'implicit') as OAuthType
+            
+            assert(
+                this.oauth_type === 'implicit' || this.oauth_type === 'authorization code', 
+                t('oauthType 配置参数的值必须为 authorization code 或 implicit，默认为 implicit')
+            )
+        }
+        
+        // local
+        // await this.ddb.call('login', ['admin', '123456'], { urgent: true })
         
         if (this.autologin) {
             if (this.oauth)
@@ -393,13 +410,6 @@ export class DdbModel extends Model<DdbModel> {
         https://www.ruanyifeng.com/blog/2019/04/oauth-grant-types.html  
         https://datatracker.ietf.org/doc/html/rfc6749 */
     async login_by_oauth () {
-        const type = config.nodes_configs.get('oauthType') || 'implicit' as 'authorization code' | 'implicit'
-        
-        assert(
-            type === 'implicit' || type === 'authorization code', 
-            t('oauthType 配置参数的值必须为 authorization code 或 implicit，默认为 implicit')
-        )
-        
         let url = new URL(location.href)
         let { searchParams, hash } = url
         
@@ -407,17 +417,17 @@ export class DdbModel extends Model<DdbModel> {
         const refresh_token = localStorage.getItem(storage_keys.refresh_token)
         
         // https://datatracker.ietf.org/doc/html/rfc6749#section-4.2.2
-        if (type === 'implicit') {
-            const params = new URLSearchParams(
-                hash.slice(1)
-            )
+        if (this.oauth_type === 'implicit') {
+            const params = new URLSearchParams(hash.slice(1))
             
             const access_token = params.get('access_token') || params.get('accessToken')
+            const token_type = params.get('token_type') || params.get('tokenType')
             
             if (access_token) {
-                console.log(t('尝试 oauth 单点登录，类型是 implicit, access_token 为 {{token}}', { token: access_token }))
+                console.log(t('尝试 oauth 单点登录，类型是 implicit, token_type 为 {{token_type}}, access_token 为 {{access_token}}', { token_type, access_token }))
+                await this.ddb.invoke('oauthLogin', [this.oauth_type, { token_type, access_token }])
             } else
-                console.log(t(''))
+                console.log(t('尝试 oauth 单点登录，类型是 implicit, 无 access_token, 重定向到登录页'))
         } else {
             const code = searchParams.get('code')
             
@@ -653,17 +663,24 @@ export class DdbModel extends Model<DdbModel> {
         @param redirection 设置登录完成后的回跳页面，默认取当前 view */
     goto_login (redirection: PageViews = this.view) {
         if (this.oauth) {
-            const { domin, client_id, redirect_uri } = login_info
-            
             localStorage.removeItem(storage_keys.token)
             localStorage.removeItem(storage_keys.refresh_token)
             
-            location.href = new URL(`${domin}/authorize?` + new URLSearchParams({
-                client_id,
-                response_type: 'code',
-                redirect_uri,
-                oauth_timestamp: new Date().getTime().toString(),
+            const curi = config.nodes_configs.get('oauthAuthUri')
+            const cclient = config.nodes_configs.get('oauthClientId')
+            const credirect = config.nodes_configs.get('oauthRedirectUri')
+            if (!curi || !cclient)
+                throw new Error(t('必须配置 oauthAuthUri, oauthClientId 参数'))
+            
+            const url = new URL(curi.value + '?' + new URLSearchParams({
+                response_type: this.oauth_type === 'implicit' ? 'token' : 'code',
+                client_id: cclient.value,
+                ... credirect?.value ? { redirect_uri: credirect.value } : { },
             })).toString()
+            
+            console.log(t('跳转到 oauth 验证页面:'), url)
+            
+            location.href = url
         } else
             this.set({
                 view: 'login',
