@@ -220,17 +220,17 @@ export class DdbModel extends Model<DdbModel> {
             version: WEB_VERSION
         }))
         
-        await config.load_nodes_config()
-        
         await Promise.all([
             this.get_node_type(),
             this.get_node_alias(),
             this.get_controller_alias(),
             this.get_login_required(),
-            config.load_nodes_config()
         ])
         
-        const { value: oauth_str } = config.nodes_configs.get('oauth')
+        // 必须先调用上面的函数，之后再调用这个函数才不会报错
+        await config.load_nodes_config()
+        
+        const oauth_str = config.nodes_configs.get('oauth')?.value
         this.set({ oauth: oauth_str === '1' || oauth_str === 'true' })
         
         if (this.autologin) {
