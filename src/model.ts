@@ -220,6 +220,7 @@ export class DdbModel extends Model<DdbModel> {
             version: WEB_VERSION
         }))
         
+        await config.load_nodes_config()
         
         await Promise.all([
             this.get_node_type(),
