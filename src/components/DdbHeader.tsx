@@ -5,9 +5,9 @@ import { Dropdown, Avatar } from 'antd'
 import { default as Icon, LoginOutlined, LogoutOutlined, UserOutlined } from '@ant-design/icons'
 
 
-import { t } from '../../i18n/index.js'
+import { t } from '@i18n/index.js'
 
-import { model } from '../model.js'
+import { model } from '@/model.js'
 
 import { License } from './License.js'
 import { Status } from './Status.js'

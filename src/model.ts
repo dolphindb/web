@@ -8,7 +8,7 @@ import type { ModalStaticFunctions } from 'antd/es/modal/confirm.js'
 import type { NotificationInstance } from 'antd/es/notification/interface.js'
 
 import 'xshell/polyfill.browser.js'
-import { strcmp } from 'xshell/utils.browser.js'
+import { assert, strcmp } from 'xshell/utils.browser.js'
 import { request } from 'xshell/net.browser.js'
 
 import {
@@ -33,7 +33,7 @@ export const storage_keys = {
     code: 'ddb.code',
     session: 'ddb.session',
     
-    // sso 单点登录
+    // oauth 单点登录
     token: 'ddb.token',
     refresh_token: 'ddb.refresh_token',
     
@@ -63,6 +63,8 @@ export type PageViews = 'overview' | 'shell' | 'dashboard' | 'table' | 'job' | '
 
 
 export class DdbModel extends Model<DdbModel> {
+    params: URLSearchParams
+    
     inited = false
     
     /** 在本地开发模式 */
@@ -72,7 +74,7 @@ export class DdbModel extends Model<DdbModel> {
     autologin = true
     
     /** 是否启用 sso 登录 */
-    sso = false
+    oauth = false
     
     /** 通过 test.dolphindb.cn 访问的 web */
     test = false
@@ -170,7 +172,7 @@ export class DdbModel extends Model<DdbModel> {
     constructor () {
         super()
         
-        const params = new URLSearchParams(location.search)
+        const params = this.params = new URLSearchParams(location.search)
         
         this.dev = params.get('dev') !== '0' && location.host === 'localhost:8432' || params.get('dev') === '1'
         this.autologin = params.get('autologin') !== '0'
@@ -227,12 +229,12 @@ export class DdbModel extends Model<DdbModel> {
             config.load_nodes_config()
         ])
         
-        const { value: sso_str } = config.nodes_configs.get('sso')
-        this.set({ sso: sso_str === '1' || sso_str === 'true' })
+        const { value: oauth_str } = config.nodes_configs.get('oauth')
+        this.set({ oauth: oauth_str === '1' || oauth_str === 'true' })
         
         if (this.autologin) {
-            if (this.sso)
-                await this.login_by_sso()
+            if (this.oauth)
+                await this.login_by_oauth()
             else
                 try {
                     await this.login_by_ticket()
@@ -383,40 +385,68 @@ export class DdbModel extends Model<DdbModel> {
     }
     
     
-    async login_by_sso () {
+    /** 实现了两种 oauth 方法: 
+        - authorization code
+        - implicit
+        
+        https://www.ruanyifeng.com/blog/2019/04/oauth-grant-types.html  
+        https://datatracker.ietf.org/doc/html/rfc6749 */
+    async login_by_oauth () {
+        const type = config.nodes_configs.get('oauthType') || 'implicit' as 'authorization code' | 'implicit'
+        
+        assert(
+            type === 'implicit' || type === 'authorization code', 
+            t('oauthType 配置参数的值必须为 authorization code 或 implicit，默认为 implicit')
+        )
+        
         let url = new URL(location.href)
-        let { searchParams } = url
-        const code = searchParams.get('code')
+        let { searchParams, hash } = url
         
         const token = localStorage.getItem(storage_keys.token)
         const refresh_token = localStorage.getItem(storage_keys.refresh_token)
         
-        const { domin, client_id, client_secret, redirect_uri } = login_info
-        
-        if (token && refresh_token) 
-            await this.login_by_token(token, refresh_token)
-        else if (code) {
-            searchParams.delete('code')
-            history.replaceState(null, '', url.toString())
+        // https://datatracker.ietf.org/doc/html/rfc6749#section-4.2.2
+        if (type === 'implicit') {
+            const params = new URLSearchParams(
+                hash.slice(1)
+            )
             
-            const { access_token: token, refresh_token } = await (
-                await fetch(
-                    new URL(`${domin}/accessToken?` + new URLSearchParams({
-                        grant_type: 'authorization_code',
-                        client_id,
-                        client_secret,
-                        code: code,
-                        response_type: 'code',
-                        redirect_uri,
-                        oauth_timestamp: new Date().getTime().toString(),
-                    })).toString(),
-                    { method: 'post' }
-            )).json()
+            const access_token = params.get('access_token') || params.get('accessToken')
             
-            localStorage.setItem(storage_keys.token, token)
-            localStorage.setItem(storage_keys.refresh_token, refresh_token)
+            if (access_token) {
+                console.log(t('尝试 oauth 单点登录，类型是 implicit, access_token 为 {{token}}', { token: access_token }))
+            } else
+                console.log(t(''))
+        } else {
+            const code = searchParams.get('code')
             
-            await this.login_by_token(token, refresh_token)
+            const { domin, client_id, client_secret, redirect_uri } = login_info
+            
+            if (token && refresh_token) 
+                await this.login_by_token(token, refresh_token)
+            else if (code) {
+                searchParams.delete('code')
+                history.replaceState(null, '', url.toString())
+                
+                const { access_token: token, refresh_token } = await (
+                    await fetch(
+                        new URL(`${domin}/accessToken?` + new URLSearchParams({
+                            grant_type: 'authorization_code',
+                            client_id,
+                            client_secret,
+                            code: code,
+                            response_type: 'code',
+                            redirect_uri,
+                            oauth_timestamp: new Date().getTime().toString(),
+                        })).toString(),
+                        { method: 'post' }
+                )).json()
+                
+                localStorage.setItem(storage_keys.token, token)
+                localStorage.setItem(storage_keys.refresh_token, refresh_token)
+                
+                await this.login_by_token(token, refresh_token)
+            }
         }
     }
     
@@ -443,7 +473,7 @@ export class DdbModel extends Model<DdbModel> {
         localStorage.removeItem(storage_keys.ticket)
         localStorage.removeItem(storage_keys.username)
         
-        if (this.sso) {
+        if (this.oauth) {
             localStorage.removeItem(storage_keys.token)
             localStorage.removeItem(storage_keys.refresh_token)
         }
@@ -458,7 +488,7 @@ export class DdbModel extends Model<DdbModel> {
             admin: false
         })
         
-        if (this.sso)
+        if (this.oauth)
             location.href = 'https://login.sufe.edu.cn/esc-sso/logout'
         else
             this.goto_login()
@@ -621,25 +651,23 @@ export class DdbModel extends Model<DdbModel> {
     /** 去登录页
         @param redirection 设置登录完成后的回跳页面，默认取当前 view */
     goto_login (redirection: PageViews = this.view) {
-        this.set({
-            view: 'login',
-            ... redirection === 'login' ? { } : { redirection }
-        })
-    }
-    
-    
-    goto_sso_login () {
-        const { domin, client_id, redirect_uri } = login_info
-        
-        localStorage.removeItem(storage_keys.token)
-        localStorage.removeItem(storage_keys.refresh_token)
-        
-        location.href = new URL(`${domin}/authorize?` + new URLSearchParams({
-            client_id,
-            response_type: 'code',
-            redirect_uri,
-            oauth_timestamp: new Date().getTime().toString(),
-        })).toString()
+        if (this.oauth) {
+            const { domin, client_id, redirect_uri } = login_info
+            
+            localStorage.removeItem(storage_keys.token)
+            localStorage.removeItem(storage_keys.refresh_token)
+            
+            location.href = new URL(`${domin}/authorize?` + new URLSearchParams({
+                client_id,
+                response_type: 'code',
+                redirect_uri,
+                oauth_timestamp: new Date().getTime().toString(),
+            })).toString()
+        } else
+            this.set({
+                view: 'login',
+                ... redirection === 'login' ? { } : { redirection }
+            })
     }
     
     
