@@ -109,11 +109,12 @@ ids: 连接ID  string数组
 args = '{"ids":["8c50939f-51c6-382f-b501-c4a495c240ca","45d4aa2a-5bab-a4d0-27a2-c8131c9f5a0a"]}'
 dcp_deleteConnect(args)
 */
+args='{"ids":["4eff2be2-d3a7-460f-0eba-8fdc0a76189e"]}'
 def dcp_deleteConnect(args){
     connectArgs = parseExpr(args).eval()
     ex=["user",NULL]
     connectInfo =select * from loadTable("dfs://dataAcquisition","connectInfo") where id in uuid(connectArgs[`ids])
-    subIds = select connectId,subId,name as subName,subNode,templateParams from  loadTable("dfs://dataAcquisition","subscribeInfo") where connectId in uuid(connectArgs[`ids])
+    subIds = select connectId,subId,name as subName,subNode,templateParams,handlerId from  loadTable("dfs://dataAcquisition","subscribeInfo") where connectId in uuid(connectArgs[`ids])
     tmp = select * from connectInfo left join subIds on connectInfo.id=subIds.connectId  
     mqttInfo = select * from tmp where protocol = `mqtt
     kafkaInfo  = select * from tmp where protocol = `kafka
@@ -139,7 +140,12 @@ def dcp_deleteConnect(args){
                 rpc(node,runScript,scripts)
             }
         }
+        delete from loadTable("dfs://dataAcquisition","subscribeInfo") where connectId in uuid(connectArgs[`ids])   
         delete from loadTable("dfs://dataAcquisition","connectInfo") where id in uuid(connectArgs[`ids])
+        handerIds = subIds.handlerId    
+        for(handlerId in handerIds){
+            update loadTable("dfs://dataAcquisition","ParserTemplate") set citeNumber = citeNumber-1 where id=uuid(handlerId)
+        }
         if(mqttInfo.size()!=0){
             writeLog("The MQTT connection named [" + concat(distinct(mqttInfo[`name]),",")+"] successfully deleted")
         }
