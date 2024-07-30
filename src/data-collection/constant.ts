@@ -1,3 +1,7 @@
+import type { FormItemProps } from 'antd'
+
+import { t } from '@i18n/index.js'
+
 import { Protocol } from './type.js'
 
 export const protocols = [Protocol.MQTT, Protocol.KAFKA]
@@ -25,3 +29,16 @@ export const template_code = `
         */
     }
 `
+
+
+export const NAME_RULES: FormItemProps['rules'] = [
+    { required: true, message: t('请输入名称') },
+    { max: 50, message: t('名称不能超过 50 个字符') },
+    {
+        validator: async (_rule, value) => {
+            if (value.includes(' ')) 
+                return Promise.reject(t('名称不能包含空格'))
+            return Promise.resolve()
+        }
+    }
+]

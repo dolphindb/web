@@ -98,7 +98,7 @@ export function ParserTemplates () {
             title: t('模板名称'),
             dataIndex: 'name',
             key: 'name',
-            width: 200,
+            width: 300,
         },
         {
             title: t('协议'),
@@ -111,7 +111,7 @@ export function ParserTemplates () {
             dataIndex: 'comment',
             key: 'comment',
             width: 400,
-            render: comment => <Typography.Paragraph className='parser-template-comment' ellipsis={{ rows: 2 }}>{comment}</Typography.Paragraph>
+            render: comment => <Typography.Paragraph className='parser-template-comment' ellipsis={{ rows: 2, expandable: 'collapsible' }}>{comment}</Typography.Paragraph>
         },
         {
             title: t('使用数'),
