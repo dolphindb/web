@@ -80,7 +80,19 @@ export const ParserTemplateModal = NiceModal.create(({ refresh, editedTemplate, 
             labelAlign='left' 
             labelCol={{ span: 2 }}
         >
-            <Form.Item label={t('名称')} name='name' rules={[{ required: true, message: t('请输入名称') }]}>
+            <Form.Item 
+                label={t('名称')} 
+                name='name' 
+                rules={[
+                    { required: true, message: t('请输入名称') },
+                    {
+                        validator: async (_rule, value) => {
+                            if (value.includes(' ')) 
+                                return Promise.reject(t('名称不能包含空格'))
+                            return Promise.resolve()
+                        }
+                    }
+                ]}>
                 <Input placeholder={t('请输入模板名称')} />
             </Form.Item>
             <Form.Item label={t('协议')} name='protocol' rules={[{ required: true, message: t('请选择协议') }]}>

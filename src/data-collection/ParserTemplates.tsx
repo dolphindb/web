@@ -2,7 +2,7 @@ import useSWR from 'swr'
 import './ParserTemplates.scss'
 import { useCallback, useId, useMemo, useState } from 'react'
 
-import { Button, Modal, Space, Spin, Table, Tag, Tooltip, Typography, message, type TableProps } from 'antd'
+import { Button, Modal, Result, Space, Spin, Table, Tag, Tooltip, Typography, message, type TableProps } from 'antd'
 
 import { DeleteOutlined, PlusOutlined } from '@ant-design/icons'
 
@@ -19,6 +19,8 @@ import { ParserTemplateModal } from './components/create-parser-template-modal/i
 import { get_parser_templates, is_inited } from './api.js'
 import { InitPage } from './components/init-page/index.js'
 
+import { model, NodeType } from '@/model.js'
+
 
 const DEFAULT_TEMPLATE_DATA = {
     items: [ ],
@@ -27,8 +29,16 @@ const DEFAULT_TEMPLATE_DATA = {
 
 
 export function ParserTemplates () {
-    const id = useId()
     
+    
+    if (model.node_type === NodeType.controller) 
+        return <Result
+            status='warning'
+            title={t('请注意，控制节点无法使用数采平台')}
+        />
+    
+    
+    const id = useId()
     const [selected_keys, set_selected_keys] = useState<string[]>([ ])
     
     const { data: isInited = InitStatus.UNKONWN, mutate: test_init } = useSWR(
@@ -40,9 +50,6 @@ export function ParserTemplates () {
         isInited === InitStatus.INITED ? [get_parser_templates.KEY, id] : null,
         async () => get_parser_templates()
     )
-    
-    console.log(data, 'data')
-    
     
     const on_create = useCallback(() => {
         NiceModal.show(ParserTemplateModal, { refresh })
@@ -82,9 +89,8 @@ export function ParserTemplates () {
     }, [selected_keys, refresh])
     
     const canEdit = useCallback((template: IParserTemplate ) => {
-        if (template.flag === 1 || template.useNumber > 0)
+        if (template.flag === 0 && template.useNumber === 0)
             return true
-        return false
     }, [ ])
     
     const columns = useMemo<TableProps<IParserTemplate>['columns']>(() => [
@@ -177,7 +183,10 @@ export function ParserTemplates () {
             loading={isLoading} 
             columns={columns}
             rowSelection={{
-                onChange: keys => { set_selected_keys(keys as string[]) }
+                onChange: keys => { set_selected_keys(keys as string[]) },
+                getCheckboxProps: record => ({
+                    disabled: !canEdit(record)
+                }),
             }}
         />
     </> : <InitPage test_init={test_init as any}/>
