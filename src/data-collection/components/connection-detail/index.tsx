@@ -121,8 +121,7 @@ export function ConnectionDetail (props: IProps) {
             title: t('名称'),
             dataIndex: 'name',
             key: 'name',
-            width: 200,
-            render: name => <Typography.Paragraph ellipsis={{ rows: 2, expandable: true }}>{name}</Typography.Paragraph>
+            width: 250
         },
         {
             title: t('主题'),
