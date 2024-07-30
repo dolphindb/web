@@ -20,6 +20,8 @@ import { NodeSelect } from '../node-select/index.js'
 
 import { KafkaConfig } from './kafka-config.js'
 
+import { NAME_RULES } from '@/data-collection/constant.js'
+
 interface IProps {
     /** 修改时传 */
     edited_subscribe?: ISubscribe
@@ -131,16 +133,7 @@ export const CreateSubscribeModal = NiceModal.create((props: IProps) => {
             <Form.Item 
                 label={t('名称')} 
                 name='name' 
-                rules={[
-                    { required: true, message: t('请输入名称') },
-                    {
-                        validator: async (_rule, value) => {
-                            if (value.includes(' ')) 
-                                return Promise.reject(t('名称不能包含空格'))
-                            return Promise.resolve()
-                        }
-                    }
-                ]}
+                rules={NAME_RULES}
             >
                 <Input placeholder={t('请输入名称')}/>
             </Form.Item>

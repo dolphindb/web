@@ -9,6 +9,8 @@ import { t } from '../../../../i18n/index.js'
 import { Protocol, type Connection } from '../../type.js'
 import { request } from '../../utils.js'
 
+import { NAME_RULES } from '@/data-collection/constant.js'
+
 interface IProps {
     editedConnection?: Connection
     protocol: string
@@ -44,16 +46,7 @@ export const CreateConnectionModal = NiceModal.create((props: IProps) => {
             <Form.Item 
                 label={t('名称')} 
                 name='name' 
-                rules={[
-                    { required: true, message: t('请输入名称') },
-                    {
-                        validator: async (_rule, value) => {
-                            if (value.includes(' ')) 
-                                return Promise.reject(t('名称不能包含空格'))
-                            return Promise.resolve()
-                        }
-                    }
-                ]}>
+                rules={NAME_RULES}>
                 <Input placeholder={t('请输入名称')}/>
             </Form.Item>
             <Form.Item 
