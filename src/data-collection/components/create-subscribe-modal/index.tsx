@@ -14,6 +14,8 @@ import { FormDependencies } from '../../../components/formily/FormDependcies/ind
 
 import { create_subscribe, edit_subscribe } from '../../api.js'
 
+import { NodeSelect } from '../node-select/index.js'
+
 import { KafkaConfig } from './kafka-config.js'
 
 interface IProps {
@@ -129,6 +131,9 @@ export const CreateSubscribeModal = NiceModal.create((props: IProps) => {
             </Form.Item>
             <Form.Item label={t('主题')} name='topic' rules={[{ required: true, message: t('请输入主题') }]} >
                 <Input placeholder={t('请输入主题')}/>
+            </Form.Item>
+            <Form.Item label={t('节点')} name='subNode' tooltip={t('默认为当前节点')}>
+                <NodeSelect />
             </Form.Item>
             <Form.Item label={t('是否需要点位解析')} initialValue={false} name='parseJson'>
                 <Switch />

@@ -3,13 +3,17 @@ import './Connection.scss'
 import { useCallback, useEffect, useId, useMemo, useState } from 'react'
 import useSWR from 'swr'
 
-import { Button, Checkbox, Empty, Menu, Modal, Space, Spin, Tooltip, Typography, message } from 'antd'
+import { Button, Checkbox, Empty, Menu, Modal, Space, Spin, Tooltip, Tree, Typography, message, type TreeDataNode } from 'antd'
 
 import { DeleteOutlined, EditOutlined, FileTextOutlined, LinkOutlined, PlusCircleOutlined } from '@ant-design/icons'
 
 
 import NiceModal from '@ebay/nice-modal-react'
 
+
+import { uniq } from 'lodash'
+
+import type { TreeNode } from 'echarts/types/src/data/Tree.js'
 
 import { t } from '../../i18n/index.js'
 
@@ -34,7 +38,6 @@ const DEFAULT_DATA = {
 export function Connections () {
     const [connection, set_connection] = useState<string>()
     const [selected_connections, set_selected_connections] = useState<string[]>([ ])
-    const [all_connections, set_all_connections] = useState<string[]>([ ])
     const id = useId()
     
     
@@ -46,23 +49,7 @@ export function Connections () {
     const { isLoading, mutate, data = DEFAULT_DATA } = useSWR(
         isInited === InitStatus.INITED ? ['dcp_getConnectList', isInited] : null,
         async () =>  request<{ [key in Protocol]: Connection[] }>('dcp_getConnectList'),
-        {
-            onSuccess: data => {
-                const all_connections = Object.values(data).reduce((prev, cur) => {
-                    prev = prev.concat(cur)
-                    return prev
-                }, [ ] )
-                set_all_connections(all_connections.map(item => item.id))
-            }
-        }
     )
-    
-    const on_select_all_connections = useCallback(() => {
-        if (selected_connections.length < all_connections.length)
-            set_selected_connections(all_connections)
-        else
-            set_selected_connections([ ])
-    }, [all_connections, selected_connections])
     
     /** 批量删除连接 */
     const on_batch_delete_connection = useCallback(async () => {
@@ -95,71 +82,56 @@ export function Connections () {
             }
         })
     }, [ ])
-   
-    /** 选择连接， 主要用于批量删除 */
-    const on_select_connection = useCallback((id: string) => {
-        if (selected_connections.includes(id))
-            set_selected_connections(list => list.filter(item => item !== id))
-        else
-            set_selected_connections(list => [...list, id])
-    }, [ selected_connections ])
     
-    
-    /** 点击连接 */
-    const on_click_connection = useCallback(({ key }) => {
-        set_connection(key)
-    }, [ ])
-    
-    
-    const menu_items = useMemo(() => {
+    const menu_items = useMemo<TreeDataNode[]>(() => {
         if (isLoading)
             return [ ]
         return protocols.map(protocol => {
             const connections = data[protocol] ?? [ ]
             return {
-                label: <div className='protocol_menu_item'>
-                    <LinkOutlined />
-                    <div className='protocol_menu_label'>
+                icon: <LinkOutlined />,
+                title: <div className='protocol-tree-item'>
+                        <LinkOutlined className='protocol-icon'/>
                         {protocol}
+                    <Space className='protocol-operations'>
                         <Tooltip title={t('新建连接')} >
-                           <Button type='link' className='link-btn'>
-                                <PlusCircleOutlined 
-                                    className='add-connection-icon' 
-                                    onClick={async e => { 
-                                        e.stopPropagation()
-                                        NiceModal.show(CreateConnectionModal, { protocol, refresh: mutate })
-                                    }}
-                                />
-                           </Button>
-                        </Tooltip>
-                        
-                        <Tooltip title={t('查看日志')} >
                             <Button type='link' className='link-btn'>
-                                <FileTextOutlined 
-                                    onClick={async e => {
-                                        e.stopPropagation()
-                                        await NiceModal.show(ViewLogModal, { protocol })
-                                    }} 
-                                    className='add-connection-icon' 
-                                />
-                                
+                                    <PlusCircleOutlined 
+                                        className='add-connection-icon' 
+                                        onClick={async e => { 
+                                            e.stopPropagation()
+                                            NiceModal.show(CreateConnectionModal, { protocol, refresh: mutate })
+                                        }}
+                                    />
                             </Button>
-                        </Tooltip>
+                            </Tooltip>
                         
-                    </div>
+                            <Tooltip title={t('查看日志')} >
+                                <Button type='link' className='link-btn'>
+                                    <FileTextOutlined 
+                                        onClick={async e => {
+                                            e.stopPropagation()
+                                            await NiceModal.show(ViewLogModal, { protocol })
+                                        }} 
+                                        className='add-connection-icon' 
+                                    />
+                                    
+                                </Button>
+                            </Tooltip>
+                       </Space>
                 </div>,
                 key: protocol,
+                value: protocol,
+                isLeaf: false,
+                selectable: false,
+                checkable: !!connections?.length,
                 children: connections?.map(connection => ({
-                    label: <div className='connection-menu-item'>
-                            <Checkbox 
-                            checked={selected_connections.includes(connection.id)}
-                            onClick={e => {
-                                e.stopPropagation()
-                                on_select_connection(connection.id)
-                            }}>
-                            <span className='connection-menu-label'>{connection.name}</span>
-                        </Checkbox>
-                        <Space>
+                    isLeaf: true,
+                    title: <div className='connection-tree-item'>
+                        <div className='connection-tree-label'>
+                            {connection.name}
+                        </div>
+                        <Space className='connection-operations'>
                             <Button type='link' className='link-btn'>
                                 <EditOutlined 
                                     className='connection-edit-icon'
@@ -178,16 +150,14 @@ export function Connections () {
                                     className='connection-delete-icon'
                                 />
                             </Button>
-                            
                         </Space>
                     </div>,
-                    key: connection.id
+                    key: connection.id,
+                    value: connection.id
                 }))
             }
         })
-    }, [isLoading, data, on_select_connection])
-    
-    
+    }, [isLoading, data, selected_connections])
     
     if (isInited === InitStatus.UNKONWN)
         return  <Spin>
@@ -199,14 +169,7 @@ export function Connections () {
         <div className='connection-list'>
         
             <div className='connection-list-title'>
-                <Space>
-                    <Checkbox 
-                        checked={all_connections.length === selected_connections.length}
-                        indeterminate={selected_connections.length < all_connections.length && !!selected_connections.length}  
-                        onClick={on_select_all_connections}
-                    />
-                    <h4>{t('连接')}</h4>
-                </Space>
+                <h4>{t('连接')}</h4>
                 <Typography.Link 
                     className='delete-link' 
                     type='danger' 
@@ -217,12 +180,15 @@ export function Connections () {
                     {t('批量删除')}
                 </Typography.Link>
             </div>
-            <Menu 
-                mode='inline' 
-                items={menu_items} 
-                className='connection-menu'
-                onClick={on_click_connection}
-                defaultOpenKeys={all_connections}
+            <Tree  
+                treeData={menu_items} 
+                className='connection-tree'
+                checkable
+                blockNode
+                onSelect={keys => { set_connection(keys[0] as string) }}
+                onCheck={keys => { 
+                    set_selected_connections((keys as string[]).filter(item => !protocols.includes(item as any)))
+                }}
             />
         </div>
         
