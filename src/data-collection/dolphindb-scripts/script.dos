@@ -22,6 +22,9 @@ def dcp_addConnect(args){
     connectArgs = parseExpr(args).eval()
     ex=["user",NULL]
     try{
+        if(strlen(connectArgs[`name])>50){
+            throw("The connection name cannot be longer than 50 characters")
+        }
         exits = select * from loadTable("dfs://dataAcquisition","connectInfo") where name = connectArgs[`name]
         if(exits.size()!=0){
             throw("The connection name already exists, please verify the connection information")
@@ -74,6 +77,9 @@ def dcp_updateConnect(args){
     tmp = select * from loadTable("dfs://dataAcquisition","connectInfo") where id = uuid(connectArgs[`id])
     exitsSub = select * from loadTable("dfs://dataAcquisition","subscribeInfo") where connectId	= uuid(connectArgs[`id]) and subId is not null  
     try{
+        if(strlen(connectArgs[`name])>50){
+            throw("The connection name cannot be longer than 50 characters")
+        }
         if(exitsSub.size() != 0){
             throw("There are started subscription under the connection "+tmp[`name][0]+", the connection cannot be modified.")
         } 
@@ -256,6 +262,9 @@ def dcp_addSubscribe(args){
     subNode = iif(subArgs['subNode']==string(NULL),getNodeAlias(),subArgs['subNode'])
     ex = ["user",NULL]
     try{
+        if(strlen(subArgs[`name])>50){
+            throw("The subscribe name cannot be longer than 50 characters") 
+        }
         cnt = exec count(*) from loadTable("dfs://dataAcquisition","subscribeInfo") where name = subArgs['name'] and connectId=uuid(subArgs['connectId'])
         if(cnt !=0){
             throw("The "+ upper(proto)+" subscribe name already exists in connection " +connectName+" , please verify the subscribe information")
@@ -346,6 +355,9 @@ def dcp_updateSubscribe(args){
     subNode = subscribeInfo[`subNode][0]
     ex = ["user",NULL]
     try{
+        if(strlen(subArgs[`name])>50){
+            throw("The subscribe name cannot be longer than 50 characters") 
+        }
         cnt = exec count(*) from loadTable("dfs://dataAcquisition","subscribeInfo") where name = subArgs['name'] and connectId=uuid(connectId)
         and id != uuid(subArgs['id'])
         if(cnt !=0){
@@ -463,7 +475,6 @@ def dcp_getSubStatus(args){
 @args connectId:连接ID UUID
 args='{"connectId":"8c50939f-51c6-382f-b501-c4a495c240ca"}'
 */
-args='{"connectId":"679e8c6f-5619-ac1c-4bc5-3529cc8f3743"}'
 def dcp_checkSubStatus(args){
     subArgs = parseExpr(args).eval()
     subs =select id,subNode,subId,connectId from loadTable("dfs://dataAcquisition","subscribeInfo") where connectId=uuid(subArgs[`connectId])
@@ -687,6 +698,9 @@ def dcp_addHandler(args){
     handlerArgs = parseExpr(args).eval() 
     ex=['user',NULL]
     try{
+        if(strlen(handlerArgs[`name])>50){
+            throw("The parserTemplate name cannot be longer than 50 characters")    
+        }
         cnt = exec count(*) from loadTable("dfs://dataAcquisition","ParserTemplate") where name = handlerArgs['name'] and protocol=handlerArgs[`protocol]
         if(cnt !=0){
             throw("The "+ upper(handlerArgs[`protocol])+" parserTemplate name "+handlerArgs[`name]+" already exists, please verify the template information")
@@ -724,6 +738,9 @@ def dcp_updateHandler(args){
     handlerArgs = parseExpr(args).eval()    
     ex=['user',NULL]
     try{
+        if(strlen(handlerArgs[`name])>50){
+            throw("The parserTemplate name cannot be longer than 50 characters")    
+        }
         exits = select * from loadTable("dfs://dataAcquisition","ParserTemplate") 
         where name = handlerArgs[`name] and protocol = handlerArgs[`protocol] and id != uuid(handlerArgs[`id])    
         if(exits.size()!=0){
