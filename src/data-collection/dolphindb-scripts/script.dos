@@ -289,7 +289,8 @@ def dcp_addSubscribe(args){
             update loadTable("dfs://dataAcquisition","ParserTemplate") set citeNumber = citeNumber+1 where id = handlerId   
             tableName = string(parseJsonTable(subArgs['templateParams']).value[0])
             if(!rpc(subNode,existsStreamTable{tableName})){
-                rpc(subNode,enableTableShareAndPersistence{streamTable(1:0,[`topic,`msg,`ts],[STRING,STRING,TIMESTAMP]),tableName,,,100000,,,100000})
+                streamTableScripts = "enableTableShareAndPersistence(streamTable(1:0,[`topic,`msg,`ts],[STRING,STRING,TIMESTAMP]),string(`"+tableName+"),,,100000,,,100000)"
+                rpc(subNode,runScript,streamTableScripts)
                 logInfo ="successfuly initialized the default streamTable "+tableName+" for subscribe "+subArgs['name']+" of "+upper(proto)+" connection "+connectName 
                 rpc(subNode,writeLog{logInfo})
             }
@@ -363,7 +364,8 @@ def dcp_updateSubscribe(args){
             update subscribeInfo set handlerId = handlerId
             tableName = string(parseJsonTable(subArgs['templateParams']).value[0])
             if(!rpc(subNode,existsStreamTable{tableName})){
-                rpc(subNode,enableTableShareAndPersistence{streamTable(1:0,[`topic,`msg,`ts],[STRING,STRING,TIMESTAMP]),tableName,,,100000,,,100000})
+                streamTableScripts = "enableTableShareAndPersistence(streamTable(1:0,[`topic,`msg,`ts],[STRING,STRING,TIMESTAMP]),string(`"+tableName+"),,,100000,,,100000)"
+                rpc(subNode,runScript,streamTableScripts)
                 logInfo = "successfuly initialized the default streamTable "+tableName+" for subscribe "+subArgs['name']+" of "+upper(proto)+" connection "+connectName
                 rpc(subNode,writeLog{logInfo})
             }
@@ -741,7 +743,7 @@ def dcp_updateHandler(args){
 
 
 /*
-删除模板
+删除链接
 @args 
 ids:模板id string数组
 args = '{"ids":[]}'
@@ -882,7 +884,7 @@ def dcp_getLog(args){
         offset = iif(getServerLogLength(getNodeAlias())-rowBytes>0,getServerLogLength(getNodeAlias())-rowBytes,0)   
         log = getServerLog(rowBytes,offset,true,getNodeAlias()) as log
         res = log[regexFind(log,protocol)!=-1]
-    }else if(getNodeType()==0){
+    }else if(getNodeType()==0 or getNodeType()==4){
         nodeInfo = select * from rpc(getControllerAlias(),getClusterPerf) where name = getNodeAlias()
         agentHost = nodeInfo[`agentSite].split(":")[0][0]  
         agentPort = nodeInfo[`agentSite].split(":")[1][0]  
@@ -892,6 +894,9 @@ def dcp_getLog(args){
         log  = remoteRun(conn_agent,"getServerLog",rowBytes,offset,true,getNodeAlias()) as log
         res = log[regexFind(log,protocol)!=-1]  
         close(conn_agent)
+    }else{
+        ex = "the node type is not supported"
+        throw(ex)
     }
     return reverse(res)
 }
