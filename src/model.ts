@@ -413,9 +413,6 @@ export class DdbModel extends Model<DdbModel> {
         let url = new URL(location.href)
         let { searchParams, hash } = url
         
-        const token = localStorage.getItem(storage_keys.token)
-        const refresh_token = localStorage.getItem(storage_keys.refresh_token)
-        
         // https://datatracker.ietf.org/doc/html/rfc6749#section-4.2.2
         if (this.oauth_type === 'implicit') {
             const params = new URLSearchParams(hash.slice(1))
@@ -425,39 +422,20 @@ export class DdbModel extends Model<DdbModel> {
             
             if (access_token) {
                 console.log(t('尝试 oauth 单点登录，类型是 implicit, token_type 为 {{token_type}}, access_token 为 {{access_token}}', { token_type, access_token }))
-                await this.ddb.invoke('oauthLogin', [this.oauth_type, { token_type, access_token }])
+                await this.ddb.invoke('login', [this.oauth_type, `${token_type} ${access_token}`])
             } else
-                console.log(t('尝试 oauth 单点登录，类型是 implicit, 无 access_token, 重定向到登录页'))
+                console.log(t('尝试 oauth 单点登录，类型是 implicit, 无 access_token'))
         } else {
             const code = searchParams.get('code')
             
-            const { domin, client_id, client_secret, redirect_uri } = login_info
-            
-            if (token && refresh_token) 
-                await this.login_by_token(token, refresh_token)
-            else if (code) {
+            if (code) {
+                console.log(t('尝试 oauth 单点登录，类型是 authorization code, code 为 {{code}}', { code }))
+                await this.ddb.invoke('login', [this.oauth_type, code])
+                
                 searchParams.delete('code')
                 history.replaceState(null, '', url.toString())
-                
-                const { access_token: token, refresh_token } = await (
-                    await fetch(
-                        new URL(`${domin}/accessToken?` + new URLSearchParams({
-                            grant_type: 'authorization_code',
-                            client_id,
-                            client_secret,
-                            code: code,
-                            response_type: 'code',
-                            redirect_uri,
-                            oauth_timestamp: new Date().getTime().toString(),
-                        })).toString(),
-                        { method: 'post' }
-                )).json()
-                
-                localStorage.setItem(storage_keys.token, token)
-                localStorage.setItem(storage_keys.refresh_token, refresh_token)
-                
-                await this.login_by_token(token, refresh_token)
-            }
+            } else
+                console.log(t('尝试 oauth 单点登录，类型是 authorization code, 无 code', { code }))
         }
     }
     
@@ -672,11 +650,13 @@ export class DdbModel extends Model<DdbModel> {
             if (!curi || !cclient)
                 throw new Error(t('必须配置 oauthAuthUri, oauthClientId 参数'))
             
-            const url = new URL(curi.value + '?' + new URLSearchParams({
-                response_type: this.oauth_type === 'implicit' ? 'token' : 'code',
-                client_id: cclient.value,
-                ... credirect?.value ? { redirect_uri: credirect.value } : { },
-            })).toString()
+            const url = new URL(
+                curi.value + '?' + new URLSearchParams({
+                    response_type: this.oauth_type === 'implicit' ? 'token' : 'code',
+                    client_id: cclient.value,
+                    ... credirect?.value ? { redirect_uri: credirect.value } : { },
+                }).toString()
+            ).toString()
             
             console.log(t('跳转到 oauth 验证页面:'), url)
             
