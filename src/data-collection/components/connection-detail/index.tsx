@@ -32,7 +32,6 @@ import { get_connect_detail, get_parser_templates } from '../../api.js'
 
 import { TemplateViewModal } from './parser-template-view-modal.js'
 import { DeleteDescribeModal } from './delete-describe-modal.js'
-import { ViewStatusModal } from './view-status-modal.js'
 
 
 interface IProps {
@@ -121,16 +120,20 @@ export function ConnectionDetail (props: IProps) {
         {
             title: t('名称'),
             dataIndex: 'name',
-            key: 'name'
+            key: 'name',
+            width: 200,
+            render: name => <Typography.Paragraph ellipsis={{ rows: 2, expandable: true }}>{name}</Typography.Paragraph>
         },
         {
             title: t('主题'),
             dataIndex: 'topic',
-            key: 'topic'
+            key: 'topic',
+            width: 100,
         },
         {
             title: t('点位解析模板'),
             dataIndex: 'handlerId',
+            width: 300,
             render: handlerId => {
                 const template = templates?.find(item => item.id === handlerId)
                 return <div className='parser-template'>
@@ -147,21 +150,25 @@ export function ConnectionDetail (props: IProps) {
         {
             title: t('创建时间'),
             dataIndex: 'createTime',
+            width: 250,
             sorter: (a, b ) => dayjs(a.createTime).valueOf() - dayjs(b.createTime).valueOf()
         },
         {
             title: t('更新时间'),
             dataIndex: 'updateTime',
+            width: 250,
             sorter: (a, b) => dayjs(a.updateTime).valueOf() - dayjs(b.updateTime).valueOf()
         },
         {
             title: t('状态'),
             dataIndex: 'status',
+            width: 100,
             render: (status, record) => <Switch checked={status === 1} onClick={async checked => on_change_status(record, checked)}/>
         },
         {
             title: t('操作'),
             dataIndex: 'operations',
+            width: 200,
             render: (_, record) => <Space>
                 <Typography.Link 
                 disabled={record.status === 1}
@@ -227,6 +234,7 @@ export function ConnectionDetail (props: IProps) {
         
         <Table
             columns={columns} 
+            scroll={{ x: '100%' }}
             dataSource={data?.subscribes ?? [ ]}
             rowKey='id'
             rowSelection={{

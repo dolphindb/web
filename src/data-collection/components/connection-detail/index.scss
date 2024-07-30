@@ -1,8 +1,6 @@
 .connection-detail {
     margin-left: 16px;
-    display: flex;
-    flex: 1;
-    flex-direction: column;
+    width: calc(100% - 400px);
     .base-info {
         margin-bottom: 16px;
     }

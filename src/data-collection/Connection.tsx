@@ -1,19 +1,15 @@
 import './Connection.scss'
 
-import { useCallback, useEffect, useId, useMemo, useState } from 'react'
+import { useCallback, useId, useMemo, useState } from 'react'
 import useSWR from 'swr'
 
-import { Button, Checkbox, Empty, Menu, Modal, Space, Spin, Tooltip, Tree, Typography, message, type TreeDataNode } from 'antd'
+import { Button, Empty, Result, Space, Spin, Tooltip, Tree, Typography, type TreeDataNode } from 'antd'
 
 import { DeleteOutlined, EditOutlined, FileTextOutlined, LinkOutlined, PlusCircleOutlined } from '@ant-design/icons'
 
 
 import NiceModal from '@ebay/nice-modal-react'
 
-
-import { uniq } from 'lodash'
-
-import type { TreeNode } from 'echarts/types/src/data/Tree.js'
 
 import { t } from '../../i18n/index.js'
 
@@ -29,6 +25,10 @@ import { ViewLogModal } from './components/view-log-modal/index.js'
 
 import { is_inited } from './api.js'
 
+import { DeleteConnectionModal } from './components/delete-connections-modal/index.js'
+
+import { model, NodeType } from '@/model.js'
+
 
 const DEFAULT_DATA = {
     [Protocol.KAFKA]: [ ],
@@ -39,6 +39,14 @@ export function Connections () {
     const [connection, set_connection] = useState<string>()
     const [selected_connections, set_selected_connections] = useState<string[]>([ ])
     const id = useId()
+    
+    
+    if (model.node_type === NodeType.controller) 
+        return  <Result
+        status='warning'
+        title={t('请注意，控制节点无法使用数采平台')}
+      />
+    
     
     
     const { data: isInited = InitStatus.UNKONWN, mutate: test_init } = useSWR(
@@ -53,35 +61,37 @@ export function Connections () {
     
     /** 批量删除连接 */
     const on_batch_delete_connection = useCallback(async () => {
-        Modal.confirm({
-            title: t('确定要删除选中的 {{num}} 项连接吗', { num: selected_connections.length }),
-            okButtonProps: { type: 'primary', danger: true  },
-            onOk: async () => {
-                await request('dcp_deleteConnect', { ids: selected_connections })
-                message.success(t('删除成功'))
-                
+        NiceModal.show(DeleteConnectionModal, {
+            ids: selected_connections,
+            after_delete: async () => {
                 if (selected_connections.includes(connection)) 
                     set_connection(null)
                 set_selected_connections([ ])
                 mutate()
             }
         })
-    }, [ mutate, selected_connections ])
+    }, [ mutate, selected_connections, connection ])
+    
+    
+    console.log(connection, 'connection')
     
     /** 删除单个连接 */
-    const on_delete_single_connection = useCallback(async ({ name, id }: Connection) => {
-        Modal.confirm({
-            title: t('确定要删除连接 {{name}}吗？', { name }),
-            okButtonProps: { type: 'primary', danger: true  },
-            onOk: async () => {
-                await request('dcp_deleteConnect', { ids: [id] })
-                message.success(t('删除成功'))
-                if (selected_connections.includes(id))
+    const on_delete_connection = useCallback(async ({ name, id }: Connection) => {
+        console.log(connection, 'connection')
+        NiceModal.show(DeleteConnectionModal, { 
+            ids: [id], 
+            name,
+            after_delete: async () => {
+                // console.log(connection, 111)
+                console.log(connection, id, connection === id, 'isEqual')
+                if (connection === id) {
+                    console.log('ttt')
                     set_connection(null)
+                }
                 mutate()
-            }
+            } 
         })
-    }, [ ])
+    }, [connection])
     
     const menu_items = useMemo<TreeDataNode[]>(() => {
         if (isLoading)
@@ -145,7 +155,7 @@ export function Connections () {
                                 <DeleteOutlined 
                                     onClick={async e => { 
                                         e.stopPropagation() 
-                                        on_delete_single_connection(connection) 
+                                        on_delete_connection(connection) 
                                     }} 
                                     className='connection-delete-icon'
                                 />
@@ -157,7 +167,7 @@ export function Connections () {
                 }))
             }
         })
-    }, [isLoading, data, selected_connections])
+    }, [isLoading, data, selected_connections, on_delete_connection])
     
     if (isInited === InitStatus.UNKONWN)
         return  <Spin>
@@ -167,7 +177,6 @@ export function Connections () {
     
     return  isInited === InitStatus.INITED ? <div className='data-collection-wrapper'>
         <div className='connection-list'>
-        
             <div className='connection-list-title'>
                 <h4>{t('连接')}</h4>
                 <Typography.Link 
@@ -185,7 +194,9 @@ export function Connections () {
                 className='connection-tree'
                 checkable
                 blockNode
-                onSelect={keys => { set_connection(keys[0] as string) }}
+                onSelect={keys => { 
+                    set_connection(keys[0] as string) 
+                }}
                 onCheck={keys => { 
                     set_selected_connections((keys as string[]).filter(item => !protocols.includes(item as any)))
                 }}

@@ -1,11 +1,13 @@
 import './index.scss'
 
 import NiceModal, { useModal } from '@ebay/nice-modal-react'
-import { Button, Form, Input, InputNumber, Modal, Select, Spin, Switch, Tag, message } from 'antd'
+import { Form, Input, InputNumber, Modal, Select, Space, Spin, Switch, Tag, Tooltip, message } from 'antd'
 
 import { useCallback, useMemo, useState } from 'react'
 
 import { isNil } from 'lodash'
+
+import { QuestionCircleOutlined } from '@ant-design/icons'
 
 import { t } from '../../../../i18n/index.js'
 import { Protocol, type ISubscribe, type IParserTemplate } from '../../type.js'
@@ -126,7 +128,20 @@ export const CreateSubscribeModal = NiceModal.create((props: IProps) => {
             labelAlign='left' 
             labelCol={{ span: 6 }}
         >
-            <Form.Item label={t('名称')} name='name' rules={[{ required: true, message: t('请输入名称') }]}>
+            <Form.Item 
+                label={t('名称')} 
+                name='name' 
+                rules={[
+                    { required: true, message: t('请输入名称') },
+                    {
+                        validator: async (_rule, value) => {
+                            if (value.includes(' ')) 
+                                return Promise.reject(t('名称不能包含空格'))
+                            return Promise.resolve()
+                        }
+                    }
+                ]}
+            >
                 <Input placeholder={t('请输入名称')}/>
             </Form.Item>
             <Form.Item label={t('主题')} name='topic' rules={[{ required: true, message: t('请输入主题') }]} >
@@ -181,7 +196,15 @@ export const CreateSubscribeModal = NiceModal.create((props: IProps) => {
                             </Form.Item>
                             
                             {!isNil(handlerId) && <div className='parser-template-params'>
-                                <h4>{t('模板参数')}</h4>
+                                {/* <Space className="parser"> */}
+                                    <h4>
+                                        {t('模板参数')}
+                                        <Tooltip title={t('请注意，自定义解析模板的输出流表需要自行创建')}>
+                                            <QuestionCircleOutlined className='parser-template-header-icon'/>
+                                        </Tooltip>
+                                    </h4>
+                                    
+                                {/* </Space> */}
                                 <Form.List name='templateParams'>
                                     {fields => fields.map(field => <div key={field.key}>
                                         <Form.Item name={[field.name, 'key']} hidden>
