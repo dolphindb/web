@@ -89,9 +89,8 @@ export function ParserTemplates () {
     }, [selected_keys, refresh])
     
     const canEdit = useCallback((template: IParserTemplate ) => {
-        if (template.flag === 0 || template.useNumber === 0)
+        if (template.flag === 0 && template.useNumber === 0)
             return true
-        return false
     }, [ ])
     
     const columns = useMemo<TableProps<IParserTemplate>['columns']>(() => [
