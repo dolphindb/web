@@ -106,10 +106,9 @@ def dcp_updateConnect(args){
 参数：args 为标准json，包含以下字段：
 ids: 连接ID  string数组
 使用示例：
-args = '{"ids":["8c50939f-51c6-382f-b501-c4a495c240ca","45d4aa2a-5bab-a4d0-27a2-c8131c9f5a0a"]}'
+args = '{"ids":["8a6a92fe-7622-8a1d-446d-00af0c835906","45d4aa2a-5bab-a4d0-27a2-c8131c9f5a0a"],"dropUseTable":true}'
 dcp_deleteConnect(args)
 */
-args='{"ids":["4eff2be2-d3a7-460f-0eba-8fdc0a76189e"]}'
 def dcp_deleteConnect(args){
     connectArgs = parseExpr(args).eval()
     ex=["user",NULL]
@@ -123,7 +122,7 @@ def dcp_deleteConnect(args){
         if(exitsSubConnectNames.size() != 0){
             throw("There are started subscription under the connection ["+concat(exitsSubConnectNames,",")+"], the connection cannot be deleted.")
         } 
-        if(connectArgs[`dropUseTable]){
+        if(connectArgs[`dropUseTable] and subIds.size()!=0){    
             templateParams = subIds.templateParams
             subNodes = subIds.subNode
             for(i in (0..(templateParams.size()-1))){//i = 0
