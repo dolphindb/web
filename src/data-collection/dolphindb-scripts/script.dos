@@ -895,7 +895,7 @@ def dcp_getLog(args){
         res = log[regexFind(log,protocol)!=-1]  
         close(conn_agent)
     }else{
-        ex = "the node type is not supported"
+        ex = "the node type is not supported."
         throw(ex)
     }
     return reverse(res)
