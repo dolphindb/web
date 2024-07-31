@@ -242,7 +242,7 @@ export class DdbModel extends Model<DdbModel> {
             config.set_nodes_config('oauthWebType', 'authorization code')
             config.set_nodes_config('oauthAuthUri', 'https://dolphindb.net/oauth/authorize')
             config.set_nodes_config('oauthClientId', 'd7a10c46e0c34815a2eb213d5651c01bf4432d046bbe8a77ebd13da6783c91e5')
-            config.set_nodes_config('oauthRedirectUri', 'http://localhost:8432/?hostname=192.168.0.200&port=20023')
+            config.set_nodes_config('oauthRedirectUri', 'http://test.dolphindb.cn/web/?view=shell&hostname=192.168.0.200&port=20023')
             
             await config.save_nodes_configs()
             
