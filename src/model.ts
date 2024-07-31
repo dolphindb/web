@@ -8,7 +8,7 @@ import type { ModalStaticFunctions } from 'antd/es/modal/confirm.js'
 import type { NotificationInstance } from 'antd/es/notification/interface.js'
 
 import 'xshell/polyfill.browser.js'
-import { assert, strcmp } from 'xshell/utils.browser.js'
+import { strcmp } from 'xshell/utils.browser.js'
 import { request } from 'xshell/net.browser.js'
 
 import {
@@ -28,15 +28,9 @@ import { config } from './config/model.js'
 export const storage_keys = {
     ticket: 'ddb.ticket',
     username: 'ddb.username',
-    session_id: 'ddb.session_id',
     collapsed: 'ddb.collapsed',
     code: 'ddb.code',
     session: 'ddb.session',
-    
-    // oauth 单点登录
-    token: 'ddb.token',
-    refresh_token: 'ddb.refresh_token',
-    
     minimap: 'ddb.editor.minimap',
     enter_completion: 'ddb.editor.enter_completion',
     sql: 'ddb.sql',
@@ -44,16 +38,6 @@ export const storage_keys = {
     overview_display_mode: 'ddb.overview.display_mode',
     overview_display_columns: 'ddb.overview.display_columns'
 } as const
-
-
-// sso 单点登录
-const login_info = {
-    domin: 'https://login.sufe.edu.cn/esc-sso/oauth2.0',
-    client_id: '0835ce6ea9ad4ccb',
-    client_secret: '66f23a0304134ea6a165e4434c96ffdc',
-    redirect_uri: encodeURI('http://10.2.47.64:22212/')
-} as const
-
 
 const json_error_pattern = /^{.*"code": "(.*?)".*}$/
 
@@ -228,12 +212,11 @@ export class DdbModel extends Model<DdbModel> {
         await Promise.all([
             this.get_node_type(),
             this.get_node_alias(),
-            this.get_controller_alias(),
-            this.get_login_required(),
+            this.get_controller_alias()
         ])
         
-        // 必须先调用上面的函数，load_nodes_configs 依赖 controller alias 等信息
-        await config.load_nodes_configs()
+        // 必须先调用上面的函数，load_configs 依赖 controller alias 等信息
+        await config.load_configs()
         
         // local
         // await this.login_by_password('admin', '123456')
@@ -241,22 +224,26 @@ export class DdbModel extends Model<DdbModel> {
         if (this.params.get('set-oauth') === '1') {
             await this.login_by_password('admin', '123456')
             
-            config.set_nodes_config('oauth', '1')
-            config.set_nodes_config('oauthWebType', 'authorization code')
-            config.set_nodes_config('oauthAuthUri', 'https://dolphindb.net/oauth/authorize')
-            config.set_nodes_config('oauthClientId', 'd7a10c46e0c34815a2eb213d5651c01bf4432d046bbe8a77ebd13da6783c91e5')
-            config.set_nodes_config('oauthRedirectUri', 'http://test.dolphindb.cn/web/?view=shell&hostname=192.168.0.200&port=20023')
+            config.set_config('oauth', '1')
+            config.set_config('oauthWebType', 'authorization code')
+            config.set_config('oauthAuthUri', 'https://dolphindb.net/oauth/authorize')
+            config.set_config('oauthClientId', 'd7a10c46e0c34815a2eb213d5651c01bf4432d046bbe8a77ebd13da6783c91e5')
+            config.set_config('oauthRedirectUri', 'http://test.dolphindb.cn/web/?view=shell&hostname=192.168.0.200&port=20023')
             
-            await config.save_nodes_configs()
+            await config.save_configs()
             
             await this.logout()
         }
         
-        const oauth_str = config.nodes_configs.get('oauth')?.value
-        this.set({ oauth: oauth_str === '1' || oauth_str === 'true' })
+        this.set({
+            oauth: config.get_boolean_config('oauth'),
+            login_required: config.get_boolean_config('webLoginRequired')
+        })
+        
+        console.log(t('web 强制登录:'), this.login_required)
         
         if (this.oauth) {
-            this.oauth_type = (config.nodes_configs.get('oauthWebType')?.value || 'implicit') as OAuthType
+            this.oauth_type = config.get_config<OAuthType>('oauthWebType') || 'implicit'
             
             if (!['implicit', 'authorization code'].includes(this.oauth_type))
                 throw new Error(t('oauthType 配置参数的值必须为 authorization code 或 implicit，默认为 implicit'))
@@ -286,10 +273,10 @@ export class DdbModel extends Model<DdbModel> {
         
         await this.get_factor_platform_enabled()
         
-        const webModules = config.nodes_configs.get('webModules')
-        
         this.set({
-            enabled_modules: (webModules?.value) ? new Set(webModules.value.split(',')) : new Set()
+            enabled_modules: new Set(
+                config.get_config('webModules')?.split(',') || [ ]
+            )
         })
         
         console.log(t('web 初始化成功'))
@@ -344,7 +331,7 @@ export class DdbModel extends Model<DdbModel> {
         
         this.set({ logined: true, username })
         
-        await this.update_admin()
+        await this.is_admin()
         
         console.log(t('{{username}} 使用账号密码登陆成功', { username: this.username }))
     }
@@ -363,7 +350,7 @@ export class DdbModel extends Model<DdbModel> {
             await this.ddb.call('authenticateByTicket', [ticket], { urgent: true })
             this.set({ logined: true, username: last_username })
             
-            await this.update_admin()
+            await this.is_admin()
             
             console.log(t('{{username}} 使用 ticket 登陆成功', { username: last_username }))
         } catch (error) {
@@ -408,7 +395,7 @@ export class DdbModel extends Model<DdbModel> {
             const { name: username } = JSON.parse(result.raw)
             this.set({ logined: true, username })
             
-            await this.update_admin()
+            await this.is_admin()
             
             return result
         }
@@ -423,7 +410,6 @@ export class DdbModel extends Model<DdbModel> {
         https://datatracker.ietf.org/doc/html/rfc6749 */
     async login_by_oauth () {
         let url = new URL(location.href)
-        let { searchParams, hash } = url
         
         /** server 是否实现了 oauthLogin 函数 */
         let oauth_login = false
@@ -439,7 +425,7 @@ export class DdbModel extends Model<DdbModel> {
         
         // https://datatracker.ietf.org/doc/html/rfc6749#section-4.2.2
         if (this.oauth_type === 'implicit') {
-            const params = new URLSearchParams(hash.slice(1))
+            const params = new URLSearchParams(url.hash.slice(1))
             
             const access_token = params.get('access_token') || params.get('accessToken')
             const token_type = params.get('token_type') || params.get('tokenType')
@@ -462,6 +448,7 @@ export class DdbModel extends Model<DdbModel> {
             } else
                 console.log(t('尝试 oauth 单点登录，类型是 implicit, 无 access_token'))
         } else {
+            let { searchParams } = url
             const code = searchParams.get('code')
             
             if (code) {
@@ -486,10 +473,10 @@ export class DdbModel extends Model<DdbModel> {
         if (logined) {
             const [session, username] = await this.ddb.invoke<[string, string]>('getCurrentSessionAndUser')
             
-            if (username === 'guest')
-                throw new Error('通过 oauth 单点登录之后的 username 不能是 guest')
+            if (username === username_guest)
+                throw new Error(t('通过 oauth 单点登录之后的 username 不能是 {{guest}}', { guest: username_guest }))
             
-            await this.update_admin()
+            await this.is_admin()
             
             this.set({
                 logined: true,
@@ -502,8 +489,6 @@ export class DdbModel extends Model<DdbModel> {
     async logout () {
         localStorage.removeItem(storage_keys.ticket)
         localStorage.removeItem(storage_keys.username)
-        
-        localStorage.setItem(storage_keys.session_id, '0')
         
         await this.ddb.call('logout', [ ], { urgent: true })
         
@@ -518,30 +503,39 @@ export class DdbModel extends Model<DdbModel> {
     }
     
     
-    async update_admin () {
-        if (this.node_type !== NodeType.computing) {
-            const { data: [{ isAdmin }] } = await this.ddb.invoke<DdbTableData<{ isAdmin: boolean }>>('getUserAccess', undefined, { urgent: true })
+    async is_admin () {
+        const { data: [{ isAdmin }] } = await this.ddb.invoke<DdbTableData<{ isAdmin: boolean }>>(
+            'getUserAccess', 
+            undefined, 
+            { urgent: true }
+        )
+        
+        this.set({ admin: isAdmin })
+        
+        return isAdmin
+    }
+    
+    
+    /** 获取是否启用因子平台 */
+    async get_factor_platform_enabled () {
+        try {
+            this.set({
+                is_factor_platform_enabled: 
+                    await this.ddb.execute<boolean>(
+                        'use factorPlatform::facplf\n' +
+                        'factorPlatform::facplf::is_factor_platform_enabled()\n'
+                    , { urgent: true })
+            })
             
-            this.set({ admin: isAdmin })
+            return this.is_factor_platform_enabled
+        } catch {
+            return false
         }
     }
     
     
-    /** 获取是否启用因子平台，待 server 实现 */
-    async get_factor_platform_enabled () {
-        try {
-            const { value } = await this.ddb.eval<DdbObj<boolean>>(
-                'use factorPlatform::facplf\n' +
-                'factorPlatform::facplf::is_factor_platform_enabled()\n'
-                , { urgent: true })
-            this.set({ is_factor_platform_enabled: value })
-            return value
-        } catch { }
-    }
-    
-    
     async start_nodes (nodes: DdbNode[]) {
-        await this.ddb.call('startDataNode', [new DdbVectorString(nodes.map(node => node.name))], {
+        await this.ddb.invoke('startDataNode', [nodes.map(node => node.name)], {
             node: this.controller_alias, 
             func_type: DdbFunctionType.SystemProc
         })
@@ -549,7 +543,7 @@ export class DdbModel extends Model<DdbModel> {
     
     
     async stop_nodes (nodes: DdbNode[]) {
-        await this.ddb.call('stopDataNode', [new DdbVectorString(nodes.map(node => node.name))], {
+        await this.ddb.invoke('stopDataNode', [nodes.map(node => node.name)], {
             node: this.controller_alias, 
             func_type: DdbFunctionType.SystemProc
         })
@@ -557,7 +551,7 @@ export class DdbModel extends Model<DdbModel> {
     
     
     async get_node_type () {
-        const { value: node_type } = await this.ddb.call<DdbObj<NodeType>>('getNodeType', [ ], { urgent: true })
+        const node_type = await this.ddb.invoke<NodeType>('getNodeType', undefined, { urgent: true })
         this.set({ node_type })
         console.log(t('节点类型:'), NodeType[node_type])
         return node_type
@@ -565,7 +559,7 @@ export class DdbModel extends Model<DdbModel> {
     
     
     async get_node_alias () {
-        const { value: node_alias } = await this.ddb.call<DdbObj<string>>('getNodeAlias', [ ], { urgent: true })
+        const node_alias = await this.ddb.invoke<string>('getNodeAlias', undefined, { urgent: true })
         this.set({ node_alias })
         console.log(t('节点名称:'), node_alias)
         return node_alias
@@ -573,33 +567,26 @@ export class DdbModel extends Model<DdbModel> {
     
     
     async get_controller_alias () {
-        const { value: controller_alias } = await this.ddb.call<DdbObj<string>>('getControllerAlias', [ ], { urgent: true })
+        const controller_alias = await this.ddb.invoke('getControllerAlias', undefined, { urgent: true })
         this.set({ controller_alias })
         console.log(t('控制节点:'), controller_alias)
         return controller_alias
     }
     
     
-    async get_login_required () {
-        const { value } = await this.ddb.call<DdbStringObj>('getConfig', ['webLoginRequired'], { urgent: true })
-        const login_required = value === '1' || value === 'true'
-        this.set({ login_required })
-        // 开发用 this.set({ login_required: true })
-        console.log(t('web 强制登录:'), login_required)
-        return login_required
-    }
-    
-    
     async get_version () {
-        let { value: version } = await this.ddb.call<DdbObj<string>>('version')
-        version = version.split(' ')[0]
+        const version = (await this.ddb.invoke<string>('version'))
+            .split(' ')[0]
+        
         this.set({
             version,
             v1: version.startsWith('1.'),
             v2: version.startsWith('2.'),
             v3: version.startsWith('3.')
         })
+        
         console.log(t('版本:'), version)
+        
         return version
     }
     
@@ -678,20 +665,17 @@ export class DdbModel extends Model<DdbModel> {
         @param redirection 设置登录完成后的回跳页面，默认取当前 view */
     goto_login (redirection: PageViews = this.view) {
         if (this.oauth) {
-            localStorage.removeItem(storage_keys.token)
-            localStorage.removeItem(storage_keys.refresh_token)
-            
-            const curi = config.nodes_configs.get('oauthAuthUri')
-            const cclient = config.nodes_configs.get('oauthClientId')
-            const credirect = config.nodes_configs.get('oauthRedirectUri')
-            if (!curi || !cclient)
+            const auth_uri = config.get_config('oauthAuthUri')
+            const client_id = config.get_config('oauthClientId')
+            const redirect_uri = config.get_config('oauthRedirectUri')
+            if (!auth_uri || !client_id)
                 throw new Error(t('必须配置 oauthAuthUri, oauthClientId 参数'))
             
             const url = new URL(
-                curi.value + '?' + new URLSearchParams({
+                auth_uri + '?' + new URLSearchParams({
                     response_type: this.oauth_type === 'implicit' ? 'token' : 'code',
-                    client_id: cclient.value,
-                    ... credirect?.value ? { redirect_uri: credirect.value } : { },
+                    client_id: client_id,
+                    ... redirect_uri ? { redirect_uri } : { },
                 }).toString()
             ).toString()
             

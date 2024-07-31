@@ -1,11 +1,13 @@
 import { Model } from 'react-object-model'
 
-import { DdbFunctionType, type DdbObj, type DdbValue, DdbVectorString, type DdbVectorStringObj, DdbInt } from 'dolphindb/browser.js'
+import { DdbFunctionType, type DdbObj, type DdbValue, DdbVectorString, type DdbVectorStringObj, DdbInt, type DdbCallOptions } from 'dolphindb/browser.js'
 
 import { NodeType, model } from '../model.js'
 
 import { type NodesConfig } from './type.js'
-import { _2_strs, get_category, strs_2_nodes_config } from './utils.js'
+import { _2_strs, get_category, parse_nodes_configs } from './utils.js'
+
+const trusies = ['1', 'true'] as const
 
 class ConfigModel extends Model<ConfigModel> {
     nodes_configs: Map<string, NodesConfig>
@@ -30,17 +32,28 @@ class ConfigModel extends Model<ConfigModel> {
         await this.call('addAgentToController', [host, new DdbInt(port), alias])
     }
     
-    async load_nodes_configs () {
+    
+    /** load_configs 依赖 controller alias 等信息 */
+    async load_configs () {
         this.set({ 
-            nodes_configs: strs_2_nodes_config(
-                (await this.call<DdbVectorStringObj>('loadClusterNodesConfigs'))
-                    .value
-            )
+            nodes_configs: parse_nodes_configs(
+                (await this.call<DdbVectorStringObj>('loadClusterNodesConfigs', undefined, { urgent: true }))
+                    .value)
         })
     }
     
     
-    set_nodes_config (key: string, value: string) {
+    get_config <TValue extends string> (key: string): TValue | undefined {
+        return this.nodes_configs.get(key)?.value as TValue
+    }
+    
+    
+    get_boolean_config (key: string) {
+        return trusies.includes(this.get_config(key))
+    }
+    
+    
+    set_config (key: string, value: string) {
         this.nodes_configs.set(key, {
             name: key,
             key,
@@ -51,25 +64,25 @@ class ConfigModel extends Model<ConfigModel> {
     }
     
     
-    async change_nodes_configs (configs: Array<[string, NodesConfig]>) {
+    async change_configs (configs: Array<[string, NodesConfig]>) {
         configs.forEach(([key, value]) => {
             this.nodes_configs.set(key, { ...value, category: get_category(value.name) })
         }) 
         
-        await this.save_nodes_configs()
+        await this.save_configs()
     }
     
     
-    async delete_nodes_configs (configs: Array<string>) {
+    async delete_configs (configs: Array<string>) {
         configs.forEach(config => {
             this.nodes_configs.delete(config)
         })
         
-        await this.save_nodes_configs()
+        await this.save_configs()
     }
     
     
-    async save_nodes_configs () {
+    async save_configs () {
         const new_nodes_configs = new Map<string, NodesConfig>()
         
         await this.call(
@@ -85,11 +98,20 @@ class ConfigModel extends Model<ConfigModel> {
     }
     
     
-    async call <TResult extends DdbObj> (name: string, args?: (string | boolean | DdbObj<DdbValue>)[]) {
+    async call <TResult extends DdbObj> (
+        name: string, 
+        args?: (string | boolean | DdbObj<DdbValue>)[], 
+        options?: DdbCallOptions
+    ) {
         return model.ddb.call<TResult>(
             name, 
             args,
-            { ... model.node_type === NodeType.controller || model.node_type === NodeType.single ? { } : { node: model.controller_alias, func_type: DdbFunctionType.SystemFunc } })
+            {
+                ... model.node_type === NodeType.controller || model.node_type === NodeType.single
+                    ? { }
+                    : { node: model.controller_alias, func_type: DdbFunctionType.SystemFunc },
+                ...options
+            })
     }
 }
 

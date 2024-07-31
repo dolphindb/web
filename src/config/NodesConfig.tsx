@@ -22,13 +22,13 @@ export function NodesConfig () {
     
     useEffect(() => {
         (async () => {
-            await config.load_nodes_configs()
+            await config.load_configs()
         })()
     }, [ ])
     
     const delete_config = useCallback(
         async (config_name: string) => {
-            await config.delete_nodes_configs([config_name])
+            await config.delete_configs([config_name])
             model.message.success(t('删除成功'))
         },
         [ ]
@@ -163,7 +163,7 @@ export function NodesConfig () {
                             const key = (qualifier ? qualifier + '.' : '') + name
                             if (rowKey !== key)
                                 config.nodes_configs.delete(rowKey as string)
-                            await config.change_nodes_configs([[key, { name, qualifier, value, key }]])
+                            await config.change_configs([[key, { name, qualifier, value, key }]])
                             model.message.success(t('保存成功，重启集群生效'))
                         },
                         onDelete: async key => delete_config(key as string),
@@ -194,7 +194,7 @@ export function NodesConfig () {
             <Button
                 icon={<ReloadOutlined />}
                 onClick={async () => {
-                    await config.load_nodes_configs()
+                    await config.load_configs()
                     set_search_key('')
                     set_active_key('')
                     model.message.success(t('刷新成功'))
