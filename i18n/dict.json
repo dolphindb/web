@@ -4900,5 +4900,35 @@
     },
     "非空": {
         "en": "not empty"
+    },
+    "oauthType 配置参数的值必须为 authorization code 或 implicit，默认为 implicit": {
+        "en": "The value of the oauthType configuration parameter must be authorization code or implicit. The default value is implicit."
+    },
+    "实现了": {
+        "en": " implements "
+    },
+    "未实现": {
+        "en": " doesn't implemnt "
+    },
+    "尝试 oauth 单点登录，{{implemented}} oauthLogin, 类型是 implicit, token_type 为 {{token_type}}, access_token 为 {{access_token}}": {
+        "en": "Try oauth single sign-on, {{implemented}} oauthLogin, type is implicit, token_type is {{token_type}}, access_token is {{access_token}}"
+    },
+    "尝试 oauth 单点登录，类型是 implicit, 无 access_token": {
+        "en": "Try oauth single sign-on, type is implicit, no access_token"
+    },
+    "尝试 oauth 单点登录，{{implemented}} oauthLogin, 类型是 authorization code, code 为 {{code}}": {
+        "en": "Try oauth single sign-on, {{implemented}} oauthLogin, type is authorization code, code is {{code}}"
+    },
+    "尝试 oauth 单点登录，类型是 authorization code, 无 code": {
+        "en": "Try oauth single sign-on, type is authorization code, no code"
+    },
+    "通过 oauth 单点登录之后的 username 不能是 {{guest}}": {
+        "en": "The username after single sign-on through oauth cannot be {{guest}}"
+    },
+    "必须配置 oauthAuthUri, oauthClientId 参数": {
+        "en": "oauthAuthUri, oauthClientId parameters must be configured"
+    },
+    "跳转到 oauth 验证页面:": {
+        "en": "Jump to the oauth verification page"
     }
 }
