@@ -8,7 +8,7 @@ export const strs_2_controller_configs = (strs: string[]): ControllerConfig[] =>
     strs.map(str => {
         const iequal = str.indexOf('=')
         const name = str.slice(0, iequal)
-        const value = str.slice(iequal + 1, str.length - 1)
+        const value = str.slice(iequal + 1)
         return {
             id: str,
             name,
@@ -38,13 +38,12 @@ export const strs_2_nodes = (strs: string[]): ClusterNode[] =>
 export function strs_2_nodes_config (strs: string[]) {
     const nodes_configs = new Map<string, NodesConfig>()
     strs.forEach(str => {
-    
         const iequal = str.indexOf('=')
         const left = str.slice(0, iequal)
         const idot = left.indexOf('.')
         const qualifier = idot !== -1  ? left.slice(0, idot) : ''
-        const name = left.slice(idot + 1, left.length - 1)
-        const value = str.slice(iequal + 1, str.length - 1)
+        const name = left.slice(idot + 1)
+        const value = str.slice(iequal + 1)
         
         nodes_configs.set(
             name,
