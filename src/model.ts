@@ -239,12 +239,10 @@ export class DdbModel extends Model<DdbModel> {
         this.set({ oauth: oauth_str === '1' || oauth_str === 'true' })
         
         if (this.oauth) {
-            this.oauth_type = (config.nodes_configs.get('oauthType')?.value || 'implicit') as OAuthType
+            this.oauth_type = (config.nodes_configs.get('oauthWebType')?.value || 'implicit') as OAuthType
             
-            assert(
-                this.oauth_type === 'implicit' || this.oauth_type === 'authorization code', 
-                t('oauthType 配置参数的值必须为 authorization code 或 implicit，默认为 implicit')
-            )
+            if (!['implicit', 'authorization code'].includes(this.oauth_type))
+                throw new Error(t('oauthType 配置参数的值必须为 authorization code 或 implicit，默认为 implicit'))
         }
         
         // local
@@ -437,24 +435,6 @@ export class DdbModel extends Model<DdbModel> {
             } else
                 console.log(t('尝试 oauth 单点登录，类型是 authorization code, 无 code', { code }))
         }
-    }
-    
-    
-    async login_by_token (token: string, refresh_token: string) {
-        await this.ddb.call('login', [token, refresh_token])
-        const { username, refresh_token: _refresh_token, token: _token } = JSON.parse((await this.ddb.eval(`
-            name = exec name from rpc(getControllerAlias(), getClusterPerf) where state = 1 limit 1
-            def runFunc(funcName){
-                return funcByName(funcName).call();
-            }
-            rpc(name[0], runFunc, "getUserLoginInfo")`
-        )).value as string)
-        
-        localStorage.setItem(storage_keys.token, _token)
-        localStorage.setItem(storage_keys.refresh_token, _refresh_token)
-        
-        this.set({ logined: true, username })
-        await this.is_admin()
     }
     
     
