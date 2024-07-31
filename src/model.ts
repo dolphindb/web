@@ -250,7 +250,7 @@ export class DdbModel extends Model<DdbModel> {
                 throw new Error(t('oauthType 配置参数的值必须为 authorization code 或 implicit，默认为 implicit'))
         }
         
-        if (this.autologin) {
+        if (this.autologin) 
             if (this.oauth)
                 await this.login_by_oauth()
             else
@@ -266,7 +266,7 @@ export class DdbModel extends Model<DdbModel> {
                             console.log(t('使用默认 admin 账号密码登录失败'))
                         }
                 }
-        }
+        
         
         await this.get_cluster_perf(true)
         
@@ -675,7 +675,7 @@ export class DdbModel extends Model<DdbModel> {
             const url = new URL(
                 auth_uri + '?' + new URLSearchParams({
                     response_type: this.oauth_type === 'implicit' ? 'token' : 'code',
-                    client_id: client_id,
+                    client_id,
                     ... redirect_uri ? { redirect_uri } : { },
                 }).toString()
             ).toString()
