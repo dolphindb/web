@@ -6,7 +6,9 @@ import { type NodeType, type ControllerConfig, type ClusterNode, type NodesConfi
 
 export const strs_2_controller_configs = (strs: string[]): ControllerConfig[] =>
     strs.map(str => {
-        const [name, value] = str.split('=')
+        const iequal = str.indexOf('=')
+        const name = str.slice(0, iequal)
+        const value = str.slice(iequal + 1)
         return {
             id: str,
             name,
@@ -36,15 +38,17 @@ export const strs_2_nodes = (strs: string[]): ClusterNode[] =>
 export function strs_2_nodes_config (strs: string[]) {
     const nodes_configs = new Map<string, NodesConfig>()
     strs.forEach(str => {
-        const [rest, value] = str.split('=')
-        const [first, second] = rest.split('.')
-        const qualifier = second ? first : ''
-        const name = second ? second : first
+        const iequal = str.indexOf('=')
+        const left = str.slice(0, iequal)
+        const idot = left.indexOf('.')
+        const qualifier = idot !== -1  ? left.slice(0, idot) : ''
+        const name = left.slice(idot + 1)
+        const value = str.slice(iequal + 1)
         
         nodes_configs.set(
-            rest,
+            name,
             {
-                key: rest,
+                key: name,
                 category: get_category(name),
                 qualifier,
                 name,
