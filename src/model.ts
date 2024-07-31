@@ -235,6 +235,9 @@ export class DdbModel extends Model<DdbModel> {
         // 必须先调用上面的函数，load_nodes_configs 依赖 controller alias 等信息
         await config.load_nodes_configs()
         
+        // local
+        // await this.login_by_password('admin', '123456')
+        
         if (this.params.get('set-oauth') === '1') {
             await this.login_by_password('admin', '123456')
             
@@ -341,7 +344,7 @@ export class DdbModel extends Model<DdbModel> {
         
         this.set({ logined: true, username })
         
-        await this.is_admin()
+        await this.update_admin()
         
         console.log(t('{{username}} 使用账号密码登陆成功', { username: this.username }))
     }
@@ -360,7 +363,7 @@ export class DdbModel extends Model<DdbModel> {
             await this.ddb.call('authenticateByTicket', [ticket], { urgent: true })
             this.set({ logined: true, username: last_username })
             
-            await this.is_admin()
+            await this.update_admin()
             
             console.log(t('{{username}} 使用 ticket 登陆成功', { username: last_username }))
         } catch (error) {
@@ -405,7 +408,7 @@ export class DdbModel extends Model<DdbModel> {
             const { name: username } = JSON.parse(result.raw)
             this.set({ logined: true, username })
             
-            await this.is_admin()
+            await this.update_admin()
             
             return result
         }
@@ -432,6 +435,8 @@ export class DdbModel extends Model<DdbModel> {
         
         const implemented = oauth_login ? t('实现了') : t('未实现')
         
+        let logined = false
+        
         // https://datatracker.ietf.org/doc/html/rfc6749#section-4.2.2
         if (this.oauth_type === 'implicit') {
             const params = new URLSearchParams(hash.slice(1))
@@ -452,6 +457,8 @@ export class DdbModel extends Model<DdbModel> {
                     await this.ddb.invoke('oauthLogin', [this.oauth_type, { token_type, access_token }])
                 else
                     await this.ddb.invoke('login', [this.oauth_type, `${token_type} ${access_token}`])
+                
+                logined = true
             } else
                 console.log(t('尝试 oauth 单点登录，类型是 implicit, 无 access_token'))
         } else {
@@ -469,8 +476,25 @@ export class DdbModel extends Model<DdbModel> {
                 
                 searchParams.delete('code')
                 history.replaceState(null, '', url.toString())
+                
+                logined = true
             } else
                 console.log(t('尝试 oauth 单点登录，类型是 authorization code, 无 code'))
+        }
+        
+        
+        if (logined) {
+            const [session, username] = await this.ddb.invoke<[string, string]>('getCurrentSessionAndUser')
+            
+            if (username === 'guest')
+                throw new Error('通过 oauth 单点登录之后的 username 不能是 guest')
+            
+            await this.update_admin()
+            
+            this.set({
+                logined: true,
+                username,
+            })
         }
     }
     
@@ -494,9 +518,12 @@ export class DdbModel extends Model<DdbModel> {
     }
     
     
-    async is_admin () {
-        if (this.node_type !== NodeType.computing)
-            this.set({ admin: (await this.ddb.call<DdbObj<DdbObj[]>>('getUserAccess', [ ], { urgent: true })).to_rows()[0].isAdmin })
+    async update_admin () {
+        if (this.node_type !== NodeType.computing) {
+            const { data: [{ isAdmin }] } = await this.ddb.invoke<DdbTableData<{ isAdmin: boolean }>>('getUserAccess', undefined, { urgent: true })
+            
+            this.set({ admin: isAdmin })
+        }
     }
     
     
