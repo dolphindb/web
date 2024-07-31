@@ -232,8 +232,22 @@ export class DdbModel extends Model<DdbModel> {
             this.get_login_required(),
         ])
         
-        // 必须先调用上面的函数，之后再调用这个函数才不会报错
-        await config.load_nodes_config()
+        // 必须先调用上面的函数，load_nodes_configs 依赖 controller alias 等信息
+        await config.load_nodes_configs()
+        
+        if (this.params.get('set-oauth') === '1') {
+            await this.login_by_password('admin', '123456')
+            
+            config.set_nodes_config('oauth', '1')
+            config.set_nodes_config('oauthWebType', 'authorization code')
+            config.set_nodes_config('oauthAuthUri', 'https://dolphindb.net/oauth/authorize')
+            config.set_nodes_config('oauthClientId', 'd7a10c46e0c34815a2eb213d5651c01bf4432d046bbe8a77ebd13da6783c91e5')
+            config.set_nodes_config('oauthRedirectUri', 'http://localhost:8432/?hostname=192.168.0.200&port=20023')
+            
+            await config.save_nodes_configs()
+            
+            await this.logout()
+        }
         
         const oauth_str = config.nodes_configs.get('oauth')?.value
         this.set({ oauth: oauth_str === '1' || oauth_str === 'true' })
@@ -442,11 +456,6 @@ export class DdbModel extends Model<DdbModel> {
         localStorage.removeItem(storage_keys.ticket)
         localStorage.removeItem(storage_keys.username)
         
-        if (this.oauth) {
-            localStorage.removeItem(storage_keys.token)
-            localStorage.removeItem(storage_keys.refresh_token)
-        }
-        
         localStorage.setItem(storage_keys.session_id, '0')
         
         await this.ddb.call('logout', [ ], { urgent: true })
@@ -457,9 +466,7 @@ export class DdbModel extends Model<DdbModel> {
             admin: false
         })
         
-        if (this.oauth)
-            location.href = 'https://login.sufe.edu.cn/esc-sso/logout'
-        else
+        if (this.login_required)
             this.goto_login()
     }
     

@@ -85,7 +85,7 @@ export const NodesConfigAddModal = NiceModal.create(() => {
                             try {
                                 const { qualifier, name, value } = await add_config_form.validateFields()
                                 const key = (qualifier ? qualifier + '.' : '') + name
-                                await config.change_nodes_config([[key, { qualifier, name, value, key }]])
+                                await config.change_nodes_configs([[key, { qualifier, name, value, key }]])
                                 model.message.success(t('保存成功，重启集群生效'))
                                 modal.hide()
                             } catch (error) {

@@ -30,7 +30,7 @@ class ConfigModel extends Model<ConfigModel> {
         await this.call('addAgentToController', [host, new DdbInt(port), alias])
     }
     
-    async load_nodes_config () {
+    async load_nodes_configs () {
         this.set({ 
             nodes_configs: strs_2_nodes_config(
                 (await this.call<DdbVectorStringObj>('loadClusterNodesConfigs'))
@@ -40,25 +40,36 @@ class ConfigModel extends Model<ConfigModel> {
     }
     
     
-    async change_nodes_config (configs: Array<[string, NodesConfig]>) {
+    set_nodes_config (key: string, value: string) {
+        this.nodes_configs.set(key, {
+            name: key,
+            key,
+            value,
+            qualifier: '',
+            category: get_category(key)
+        })
+    }
+    
+    
+    async change_nodes_configs (configs: Array<[string, NodesConfig]>) {
         configs.forEach(([key, value]) => {
             this.nodes_configs.set(key, { ...value, category: get_category(value.name) })
         }) 
         
-        await this.save_nodes_config()
+        await this.save_nodes_configs()
     }
     
     
-    async delete_nodes_config (configs: Array<string>) {
+    async delete_nodes_configs (configs: Array<string>) {
         configs.forEach(config => {
             this.nodes_configs.delete(config)
         })
         
-        await this.save_nodes_config()
+        await this.save_nodes_configs()
     }
     
     
-    async save_nodes_config () {
+    async save_nodes_configs () {
         const new_nodes_configs = new Map<string, NodesConfig>()
         
         await this.call(
