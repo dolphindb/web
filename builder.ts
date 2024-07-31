@@ -35,7 +35,7 @@ export let builder = {
         
         let info = await git.get_version_info(version_name)
         
-        const source_map = !production
+        const source_map = !production || version_name === 'dev'
         
         // 和 build_bundles 中的保持一致
         const fpd_pre_bundle_dist = `${ ramdisk ? `${fpd_ramdisk_root}pre-bundle/` : `${fpd_pre_bundle}dist/` }${ production ? 'production' : 'dev' }/`
