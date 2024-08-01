@@ -12,12 +12,13 @@ import { DdbBlob } from 'dolphindb/browser.js'
 
 import { t } from '@i18n/index.js'
 
-import { model, DdbNodeState, NodeType } from '@/model.js'
-import { required } from '@/utils/index.js'
 
 import script from './index.dos'
 import SvgUpgrade from './upgrade.icon.svg'
 import zip_png from './zip.png'
+
+import { required } from '@/utils/index.js'
+import { model, DdbNodeState, NodeType } from '@/model.js'
 
 
 

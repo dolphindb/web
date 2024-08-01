@@ -7,7 +7,6 @@ import { default as Icon, LoginOutlined, LogoutOutlined, UserOutlined } from '@a
 
 import { t } from '@i18n/index.js'
 
-import { model } from '@/model.js'
 
 import { License } from './License.js'
 import { Status } from './Status.js'
@@ -16,6 +15,8 @@ import { CompileAndRefresh } from './CompileAndRefresh.js'
 import { HostSelect } from './HostSelect.js'
 
 import SvgArrowDown from './icons/arrow.down.icon.svg'
+
+import { model } from '@/model.js'
 
 
 export function DdbHeader () {
