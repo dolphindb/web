@@ -351,14 +351,14 @@ def dcp_updateSubscribe(args){
     subArgs = parseExpr(args).eval()
     subscribeInfo = select * from loadTable("dfs://dataAcquisition","subscribeInfo") where id=uuid(subArgs[`id])
     connectInfo = exec * from loadTable("dfs://dataAcquisition","connectInfo") where id=uuid(subscribeInfo[`connectId][0])
-    proto,connectName,connectId = connectInfo[`protocol][0],connectInfo[`name][0],connectInfo[`id][0]
+    proto,connectName,connectIdNow = connectInfo[`protocol][0],connectInfo[`name][0],connectInfo[`id][0]
     subNode = subscribeInfo[`subNode][0]
     ex = ["user",NULL]
     try{
         if(strlen(subArgs[`name])>50){
             throw("The subscribe name cannot be longer than 50 characters") 
         }
-        cnt = exec count(*) from loadTable("dfs://dataAcquisition","subscribeInfo") where name = subArgs['name'] and connectId=uuid(connectId)
+        cnt = exec count(*) from loadTable("dfs://dataAcquisition","subscribeInfo") where name = subArgs['name'] and connectId=uuid(connectIdNow)
         and id != uuid(subArgs['id'])
         if(cnt !=0){
             throw("The "+ upper(proto)+" subscribe name already exists in connection "+connectName+", please verify the subscribe information")
