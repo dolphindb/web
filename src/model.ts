@@ -229,7 +229,7 @@ export class DdbModel extends Model<DdbModel> {
             config.set_config('oauthAuthUri', 'https://dolphindb.net/oauth/authorize')
             config.set_config('oauthClientId', 'd7a10c46e0c34815a2eb213d5651c01bf4432d046bbe8a77ebd13da6783c91e5')
             config.set_config('oauthClientSecret', '4c61a584d2bedaf64347f64a6de37226a1a2b5e15ecfba3e185b730e805d0862')
-            config.set_config('oauthRedirectUri', 'http://test.dolphindb.cn/web/?view=shell&hostname=192.168.0.200&port=20023')
+            config.set_config('oauthRedirectUri', 'http://test.dolphindb.cn/web/?view=shell&hostname=192.168.0.200&port=20023'.quote())
             
             await config.save_configs()
             
@@ -668,7 +668,16 @@ export class DdbModel extends Model<DdbModel> {
         if (this.oauth) {
             const auth_uri = config.get_config('oauthAuthUri')
             const client_id = config.get_config('oauthClientId')
-            const redirect_uri = config.get_config('oauthRedirectUri')
+            let redirect_uri = config.get_config('oauthRedirectUri')
+            if (
+                redirect_uri && 
+                (
+                    redirect_uri.startsWith("'") && redirect_uri.endsWith("'") ||
+                    redirect_uri.startsWith('"') && redirect_uri.endsWith('"')
+                )
+            )
+                redirect_uri = redirect_uri.slice(1, -1)
+            
             if (!auth_uri || !client_id)
                 throw new Error(t('必须配置 oauthAuthUri, oauthClientId 参数'))
             
