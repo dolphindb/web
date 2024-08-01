@@ -483,6 +483,8 @@ export class DdbModel extends Model<DdbModel> {
                 logined: true,
                 username,
             })
+            
+            console.log(t('oauth 单点登录成功, username:'), username)
         }
     }
     
