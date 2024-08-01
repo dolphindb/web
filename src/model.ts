@@ -12,7 +12,7 @@ import { strcmp } from 'xshell/utils.browser.js'
 import { request } from 'xshell/net.browser.js'
 
 import {
-    DDB, SqlStandard, DdbFunctionType, DdbVectorString, type DdbObj, DdbInt, DdbLong, type InspectOptions,
+    DDB, SqlStandard, DdbFunctionType, type DdbObj, DdbInt, DdbLong, type InspectOptions,
     DdbDatabaseError, type DdbStringObj, type DdbDictObj, type DdbVectorStringObj,
     type DdbTableData
 } from 'dolphindb/browser.js'
