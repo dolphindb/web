@@ -220,11 +220,27 @@ def dcp_getKafkaConsumerCfgList(){
 }
 
 /*
-获取可用节点列表（数据节点+计算节点）
+获取可用节点列表（数据节点+计算节点），
+参数：args 为标准json，需要包含以下字段：
+protocol： 协议类型 字符串
+使用示例：
+args = '{"protocol":"mqtt"}'    
+dcp_getNodes(args)
 */
-def dcp_getNodes(){
-    nodes = exec name from rpc(getControllerAlias(),getClusterPerf) where mode in [0,3,4]
-    return '{"nodes":'+toStdJson(nodes)+'}'
+def dcp_getNodes(args){
+    nodes = exec name from rpc(getControllerAlias(),getClusterPerf) where mode in [0,3,4] and state=1
+    res = array(STRING)
+    protocol=parseExpr(args).eval()[`protocol]
+    existsFunc = def(protocol){
+        func =protocol+"::%"
+        return (exec count(*) from defs() where name like func)>0
+    }
+    for(node in nodes){
+        if(rpc(node,existsFunc{protocol})){
+            res.append!(node)
+        }
+    }
+    return '{"nodes":'+toStdJson(res)+'}'
 }
 
 
