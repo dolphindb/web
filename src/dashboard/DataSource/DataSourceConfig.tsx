@@ -46,17 +46,20 @@ interface IProps extends ButtonProps {
     text?: string
 }
 
-export function DataSourceConfig (props: IProps, ref) {
+export function DataSourceConfig (props: IProps) {
     const { widget, text, ...btn_props } = props
     const { visible, open, close } = use_modal()
     const [modal, contextHolder] = Modal.useModal()
     const { config } = dashboard.use(['config'])
     
-    const [show_preview, set_show_preview] = useState(false) 
+    const [show_preview, set_show_preview] = useState(false)
+    
     // 当前选择应用的数据源
     const [selected_data_sources, set_selected_data_sources] = useState<string[]>(widget?.source_id ?? [ ])
+    
     // 当前点击查看的数据源
     const [current_data_source, set_current_data_source] = useState<DataSource>(null)
+    
     const [loading, set_loading] = useState('')
     
     const no_save_flag = useRef(false)
@@ -90,6 +93,7 @@ export function DataSourceConfig (props: IProps, ref) {
                 pre[key] = value
                 return cloneDeep(pre)
             })
+            
             if (save_confirm)
                 no_save_flag.current = true 
         }, [ ])
@@ -140,7 +144,7 @@ export function DataSourceConfig (props: IProps, ref) {
             footer={
                 [
                     current_data_source?.mode === 'sql'
-                    ? <Button 
+                    ? <Button
                         key='preview' 
                         loading={loading === 'preview'}
                         onClick={
@@ -149,7 +153,11 @@ export function DataSourceConfig (props: IProps, ref) {
                                     return
                                 try {
                                     set_loading('preview')
-                                    const { type, result } = await dashboard.execute_code(parse_code(dashboard.sql_editor.getValue()), model.ddb, true)
+                                    const { type, result } = await dashboard.execute_code(
+                                        parse_code(dashboard.sql_editor.getValue()), 
+                                        model.ddb, 
+                                        true
+                                    )
                                     change_current_data_source_property('error_message', type === 'success' ? '' : result as string, false)
                                     set_show_preview(true)
                                 } finally {

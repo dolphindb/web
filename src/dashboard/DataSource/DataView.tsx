@@ -1,5 +1,3 @@
-import { DdbForm } from 'dolphindb/browser.js'
-
 import { Obj } from '../../obj.js'
 
 import { model } from '../../model.js'
@@ -11,19 +9,6 @@ export function DataView () {
     const { options } = model.use(['options'])
     
     return <div className='dataview obj-result embed'>{
-        (() => {
-            if (!result)
-                return
-            
-            const { data } = result
-            
-            if (
-                data.form === DdbForm.scalar || 
-                data.form === DdbForm.pair
-            )
-                return
-            
-            return <Obj obj={data} ddb={model.ddb} ctx='dashboard' options={options} />
-        })()
+        result ? <Obj obj={result.data} ddb={model.ddb} ctx='dashboard' options={options} /> : null
     }</div>
 }
