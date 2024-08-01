@@ -317,13 +317,13 @@ def dcp_addSubscribe(args){
             handlerId = (exec id from loadTable("dfs://dataAcquisition","ParserTemplate") where flag=1 and protocol =  proto )[0]
             update subInfo set handlerId = handlerId
             update loadTable("dfs://dataAcquisition","ParserTemplate") set citeNumber = citeNumber+1 where id = handlerId   
-            tableName = string(parseJsonTable(subArgs['templateParams']).value[0])
-            if(!rpc(subNode,existsStreamTable{tableName})){
-                streamTableScripts = "enableTableShareAndPersistence(streamTable(1:0,[`topic,`msg,`ts],[STRING,STRING,TIMESTAMP]),string(`"+tableName+"),,,100000,,,100000)"
-                rpc(subNode,runScript,streamTableScripts)
-                logInfo ="successfuly initialized the default streamTable "+tableName+" for subscribe "+subArgs['name']+" of "+upper(proto)+" connection "+connectName 
-                rpc(subNode,writeLog{logInfo})
-            }
+            // tableName = string(parseJsonTable(subArgs['templateParams']).value[0])
+            // if(!rpc(subNode,existsStreamTable{tableName})){
+            //     streamTableScripts = "enableTableShareAndPersistence(streamTable(1:0,[`topic,`msg,`ts],[STRING,STRING,TIMESTAMP]),string(`"+tableName+"),,,100000,,,100000)"
+            //     rpc(subNode,runScript,streamTableScripts)
+            //     logInfo ="successfuly initialized the default streamTable "+tableName+" for subscribe "+subArgs['name']+" of "+upper(proto)+" connection "+connectName 
+            //     rpc(subNode,writeLog{logInfo})
+            // }
         }
         subInfo.reorderColumns!(loadTable("dfs://dataAcquisition","subscribeInfo").columnNames())
         loadTable("dfs://dataAcquisition","subscribeInfo").append!(subInfo)
@@ -395,13 +395,13 @@ def dcp_updateSubscribe(args){
         if(!subArgs[`parseJson]){
             handlerId = (exec id from loadTable("dfs://dataAcquisition","ParserTemplate") where flag=1 and protocol =  proto)[0]
             update subscribeInfo set handlerId = handlerId
-            tableName = string(parseJsonTable(subArgs['templateParams']).value[0])
-            if(!rpc(subNode,existsStreamTable{tableName})){
-                streamTableScripts = "enableTableShareAndPersistence(streamTable(1:0,[`topic,`msg,`ts],[STRING,STRING,TIMESTAMP]),string(`"+tableName+"),,,100000,,,100000)"
-                rpc(subNode,runScript,streamTableScripts)
-                logInfo = "successfuly initialized the default streamTable "+tableName+" for subscribe "+subArgs['name']+" of "+upper(proto)+" connection "+connectName
-                rpc(subNode,writeLog{logInfo})
-            }
+            // tableName = string(parseJsonTable(subArgs['templateParams']).value[0])
+            // if(!rpc(subNode,existsStreamTable{tableName})){
+            //     streamTableScripts = "enableTableShareAndPersistence(streamTable(1:0,[`topic,`msg,`ts],[STRING,STRING,TIMESTAMP]),string(`"+tableName+"),,,100000,,,100000)"
+            //     rpc(subNode,runScript,streamTableScripts)
+            //     logInfo = "successfuly initialized the default streamTable "+tableName+" for subscribe "+subArgs['name']+" of "+upper(proto)+" connection "+connectName
+            //     rpc(subNode,writeLog{logInfo})
+            // }
         }
         subscribeInfo[`updateTime] = now()  
         subscribeInfo.reorderColumns!(loadTable("dfs://dataAcquisition","subscribeInfo").columnNames())  
@@ -546,6 +546,7 @@ def dcp_getConnectAndSubInfo(args){
 开始订阅
 参数：args 为标准json，需要包含以下字段：
 subId: 订阅ID   
+args = '{"subId":"a2b93d41-cda6-868b-53cc-d6346380c8f4"}'
 */
 def dcp_startSubscribe(args){
     subArgs = parseExpr(args).eval()
@@ -555,8 +556,22 @@ def dcp_startSubscribe(args){
     tmp =  (exec * from sub left join connInfo  on connInfo.id=sub.connectId)[0]
     node = sub[`subNode][0]
     ex=['user',NULL]
-    //初始化解析函数
     try{
+        if(!sub.parseJson){
+            tableName = string(parseJsonTable(sub['templateParams'][0]).value[0])
+            if(!rpc(node,existsStreamTable{tableName})){
+                streamTableScripts = "enableTableShareAndPersistence(streamTable(1:0,[`topic,`msg,`ts],[STRING,STRING,TIMESTAMP]),string(`"+tableName+"),,,100000,,,100000)"
+                rpc(node,runScript,streamTableScripts)
+                logInfo ="successfuly initialized the default streamTable "+tableName+" for subscribe "+subArgs['name']+" of "+upper(proto)+" connection "+connectName 
+                rpc(node,writeLog{logInfo})
+            }
+        }else{
+            tableName = string(parseJsonTable(sub['templateParams'][0]).value[0])
+            if(!rpc(node,existsStreamTable{tableName})){
+                throw("The table "+tableName+" doesn't exist in the node "+ node+"!") 
+            }
+        }
+        //初始化解析函数
         handler = (exec handler from loadTable("dfs://dataAcquisition","ParserTemplate") where id = uuid(tmp[`handlerId]))[0]
         rpc(node,runScript,handler)
         //获取解析函数名
