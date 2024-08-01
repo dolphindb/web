@@ -323,7 +323,9 @@ export class DdbModel extends Model<DdbModel> {
         const ticket = (
             await this.ddb.call<DdbObj<string>>('getAuthenticatedUserTicket', [ ], {
                 urgent: true,
-                ... this.node_type === NodeType.controller || this.node_type === NodeType.single ? { } : { node: this.controller_alias, func_type: DdbFunctionType.SystemFunc }
+                ... this.node_type === NodeType.controller || this.node_type === NodeType.single 
+                    ? { }
+                    : { node: this.controller_alias, func_type: DdbFunctionType.SystemFunc }
             })
         ).value
         
