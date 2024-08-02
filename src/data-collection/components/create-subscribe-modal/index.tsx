@@ -52,7 +52,7 @@ export const CreateSubscribeModal = NiceModal.create((props: IProps) => {
     const protocol_params = useMemo(() => {
         switch (protocol) {
             case Protocol.MQTT:
-                return <Form.Item label={t('接收缓冲区大小')} name='recvbufSize' tooltip={t('默认为 20480')}>
+                return <Form.Item label={t('接收缓冲区大小')} name='recvbufSize' tooltip={t('默认为 20480 字节')}>
                     <InputNumber min={0} placeholder={t('请输入接收缓冲区大小')}/>
                 </Form.Item>
             case Protocol.KAFKA:
@@ -73,7 +73,7 @@ export const CreateSubscribeModal = NiceModal.create((props: IProps) => {
                         name='partition' 
                         initialValue={null}
                     >
-                        <InputNumber min={0} placeholder={t('请输入分区数')}/>
+                        <InputNumber min={0} placeholder={t('请输入分区数')} precision={0}/>
                     </Form.Item>
                     <Form.Item 
                         label={t('偏移量')} 
@@ -90,7 +90,7 @@ export const CreateSubscribeModal = NiceModal.create((props: IProps) => {
                             }
                         ]} 
                     >
-                        <InputNumber min={0} placeholder={t('请输入偏移量')}/>
+                        <InputNumber min={0} placeholder={t('请输入偏移量')} precision={0}/>
                     </Form.Item>
                     {/* kafka 消费配置 */}
                     <KafkaConfig />
@@ -137,11 +137,11 @@ export const CreateSubscribeModal = NiceModal.create((props: IProps) => {
             >
                 <Input placeholder={t('请输入名称')}/>
             </Form.Item>
-            <Form.Item label={t('主题')} name='topic' rules={[{ required: true, message: t('请输入主题') }]} >
+            <Form.Item label={t('主题')} name='topic' rules={[{ required: true, message: t('请输入主题') }, ...NAME_RULES.slice(1)]} >
                 <Input placeholder={t('请输入主题')}/>
             </Form.Item>
             <Form.Item label={t('节点')} name='subNode' tooltip={t('默认为当前节点')}>
-                <NodeSelect />
+                <NodeSelect protocol={protocol}/>
             </Form.Item>
             <Form.Item label={t('是否需要点位解析')} initialValue={false} name='parseJson'>
                 <Switch />
@@ -158,7 +158,14 @@ export const CreateSubscribeModal = NiceModal.create((props: IProps) => {
                                     <Form.Item 
                                         label={t('默认流表名称')} 
                                         name={[0, 'value']} 
-                                        rules={[{ required: true, message: t('请输入默认流表名称') }]}
+                                        rules={[
+                                            { required: true, message: t('请输入默认流表名称') },
+                                            { validator: async (_rule, value) => {
+                                                if (value && value.includes(' '))
+                                                    return Promise.reject(t('默认流表名称不能包含空格'))
+                                                return Promise.resolve()
+                                            } }
+                                        ]}
                                     >
                                         <Input placeholder={t('请输入默认流表名称')}/>
                                     </Form.Item>
@@ -203,7 +210,18 @@ export const CreateSubscribeModal = NiceModal.create((props: IProps) => {
                                         <Form.Item name={[field.name, 'key']} hidden>
                                             <Input />
                                         </Form.Item>
-                                        <Form.Item rules={[{ required: true, message: t('请输入参数值') }]} name={[field.name, 'value']} label={template_params_names[field.key]}>
+                                        <Form.Item 
+                                            rules={[
+                                                { 
+                                                    validator: async (_rule, value) => {
+                                                        if (!!value && value?.includes(' '))
+                                                            return Promise.reject(t('参数值不能包含空格'))
+                                                        return Promise.resolve()
+                                                    },
+                                             }]} 
+                                            name={[field.name, 'value']} 
+                                            label={template_params_names[field.key]}
+                                        >
                                             <Input placeholder={t('请输入参数值')} />
                                         </Form.Item>
                                     </div>)}

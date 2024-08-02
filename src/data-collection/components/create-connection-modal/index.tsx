@@ -34,7 +34,9 @@ export const CreateConnectionModal = NiceModal.create((props: IProps) => {
     }, [ refresh, protocol ])
     
     return <Modal 
-        title={t('创建 {{name}}连接', { name: protocol + ' 协议' })}
+        title={ editedConnection 
+            ? t('编辑 {{name}}连接', { name: protocol + ' 协议' }) 
+            : t('创建 {{name}}连接', { name: protocol + ' 协议' })}
         open={modal.visible} 
         onCancel={modal.hide} 
         afterClose={modal.remove}
@@ -75,7 +77,7 @@ export const CreateConnectionModal = NiceModal.create((props: IProps) => {
             </Form.Item>
             {
                 protocol === Protocol.MQTT && <>
-                    <Form.Item label={t('用户名')} name='username' rules={[{ required: true, message: t('请输入用户名') }]}>
+                    <Form.Item label={t('用户名')} name='username' rules={NAME_RULES}>
                         <Input placeholder={t('请输入用户名')}/>           
                     </Form.Item>
                     <Form.Item label={t('密码')} name='password'  rules={[{ required: true, message: t('请输入密码') }]}>
