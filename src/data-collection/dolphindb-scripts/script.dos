@@ -1,5 +1,11 @@
-try{loadPlugin("mqtt")}catch(ex){print(ex)}
-try{loadPlugin("kafka")}catch(ex){print(ex)}
+cntMqtt = exec count(*) from defs() where name like "mqtt::%"
+if(cnt == 0){
+    loadPlugin("mqtt")
+}   
+cntKafka = exec count(*) from defs() where name like "kafka::%"
+if(cnt == 0){
+    loadPlugin("kafka")
+}   
 /*
 增加连接
 参数：args 为标准json，需要包含以下字段：
@@ -546,7 +552,7 @@ def dcp_getConnectAndSubInfo(args){
 开始订阅
 参数：args 为标准json，需要包含以下字段：
 subId: 订阅ID   
-args = '{"subId":"a2b93d41-cda6-868b-53cc-d6346380c8f4"}'
+args = '{"subId":"729127e1-32f5-fc1f-8fb2-e2c80986ec94"}'
 */
 def dcp_startSubscribe(args){
     subArgs = parseExpr(args).eval()
@@ -562,7 +568,7 @@ def dcp_startSubscribe(args){
             if(!rpc(node,existsStreamTable{tableName})){
                 streamTableScripts = "enableTableShareAndPersistence(streamTable(1:0,[`topic,`msg,`ts],[STRING,STRING,TIMESTAMP]),string(`"+tableName+"),,,100000,,,100000)"
                 rpc(node,runScript,streamTableScripts)
-                logInfo ="successfuly initialized the default streamTable "+tableName+" for subscribe "+subArgs['name']+" of "+upper(proto)+" connection "+connectName 
+                logInfo ="successfuly initialized the default streamTable "+tableName+" for subscribe "+sub.name[0]+" of "+upper(connInfo.protocol[0])+" connection "+connInfo.name[0] 
                 rpc(node,writeLog{logInfo})
             }
         }else{
@@ -928,7 +934,7 @@ def initParserTemplate(){
 获取调试日志
 @args 标准json，需要包含以下字段：
 protocol 协议 字符串
-@return 最近一小时与mqtt相关的日志，字符串向量
+@return 协议相关日志
 */
 def dcp_getLog(args){
     protocol = upper(parseExpr(args).eval()[`protocol])
@@ -962,7 +968,8 @@ def dcp_getLog(args){
 @return 返回一个json，键为status，值为0或1，表示是否初始化完成  
 */
 def dcp_exitsDataAcquisition(){
-    if(existsDatabase("dfs://dataAcquisition")){
+    cnt = exec count(*) from getFunctionViews() where name = "dcp_initFlag"
+    if(existsDatabase("dfs://dataAcquisition") and cnt==1){
         return '{"status":1,"message":"初始化已完成"}'
     }else{
         return '{"status":0,"message":"还未初始化库表及函数视图"}'
@@ -986,22 +993,24 @@ def dcp_createAllTable(){
 }
 
 
-def dcp_stopAllSub(){
-    ids = exec subscriptionId from mqtt::getSubscriberStat()
-    for(id in ids){
-        mqtt::unsubscribe(id)    
-    }
+def dcp_initFlag(){
+    return 1
 }
 
-
-def dcp_clearEnv(){
-    dcp_stopAllSub()
-    dropDatabase("dfs://dataAcquisition")
-}
-
-
-
-def dcp_init(){
+/*
+初始化函数
+@args 标准json，需要包含以下字段：
+installFlag 是否安装插件 bool
+@return null
+args='{"installFlag":true}'
+*/
+def dcp_init(args){
+    flag = parseExpr(args).eval()[`installFlag]
     dcp_createAllTable()
     initParserTemplate()
+    addFunctionView(dcp_initFlag)
+    if(flag){
+        installPlugin("mqtt")
+        installPlugin("kafka")
+    }
 }
