@@ -1,11 +1,32 @@
-cntMqtt = exec count(*) from defs() where name like "mqtt::%"
-if(cnt == 0){
-    loadPlugin("mqtt")
-}   
-cntKafka = exec count(*) from defs() where name like "kafka::%"
-if(cnt == 0){
-    loadPlugin("kafka")
-}   
+/*
+初始化加载插件
+*/
+def initPlugin(){
+    plugins = select * from files(getHomeDir().split("/clusterDemo/")[0]+"/plugins") where isDir=true
+    ex = ["user",NULL]
+    try{
+        if(!(`mqtt in plugins[`filename])){
+            installPlugin("mqtt")
+        }
+        if(!(`kafka in plugins[`filename])){
+            installPlugin("kafka")
+        }
+        cntMqtt = exec count(*) from defs() where name like "mqtt::%"
+        if(cntMqtt == 0){
+            loadPlugin("mqtt")
+        }   
+        cntKafka = exec count(*) from defs() where name like "kafka::%"
+        if(cntKafka == 0){
+            loadPlugin("kafka")
+        }  
+    }catch(ex){}
+    if(ex[1]!=NULL){
+        throw(ex[1])
+    }
+}
+initPlugin();
+go;
+
 /*
 增加连接
 参数：args 为标准json，需要包含以下字段：
@@ -1007,17 +1028,4 @@ def dcp_init(){
     dcp_createAllTable()
     initParserTemplate()
     addFunctionView(dcp_initFlag)
-    plugins = select * from files(getHomeDir()+"/plugins") where isDir=true
-    ex = ["user",NULL]
-    try{
-        if(!(`mqtt in plugins[`filename])){
-            installPlugin("mqtt")
-        }
-        if(!(`kafka in plugins[`filename])){
-            installPlugin("kafka")
-        }
-    }catch(ex){}
-    if(ex[1]!=NULL){
-        throw(ex[1])
-    }
 }
