@@ -579,6 +579,9 @@ def dcp_startSubscribe(args){
         }
         //初始化解析函数
         handler = (exec handler from loadTable("dfs://dataAcquisition","ParserTemplate") where id = uuid(tmp[`handlerId]))[0]
+        if(handler==NULL){
+            throw("The handler of subscribe "+sub.name+" doesn't exist!")   
+        }
         rpc(node,runScript,handler)
         //获取解析函数名
         handlerName = handler.split("\n")
