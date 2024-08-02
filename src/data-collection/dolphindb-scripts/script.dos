@@ -999,18 +999,22 @@ def dcp_initFlag(){
 
 /*
 初始化函数
-@args 标准json，需要包含以下字段：
-installFlag 是否安装插件 bool
-@return null
-args='{"installFlag":true}'
 */
-def dcp_init(args){
-    flag = parseExpr(args).eval()[`installFlag]
+def dcp_init(){
     dcp_createAllTable()
     initParserTemplate()
     addFunctionView(dcp_initFlag)
-    if(flag){
-        installPlugin("mqtt")
-        installPlugin("kafka")
+    plugins = select * from files(getHomeDir()+"/plugins") where isDir=true
+    ex = ["user",NULL]
+    try{
+        if(!(`mqtt in plugins[`filename])){
+            installPlugin("mqtt")
+        }
+        if(!(`kafka in plugins[`filename])){
+            installPlugin("kafka")
+        }
+    }catch(ex){}
+    if(ex[1]!=NULL){
+        throw(ex[1])
     }
 }
