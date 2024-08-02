@@ -1,5 +1,11 @@
-try{loadPlugin("mqtt")}catch(ex){print(ex)}
-try{loadPlugin("kafka")}catch(ex){print(ex)}
+cntMqtt = exec count(*) from defs() where name like "mqtt::%"
+if(cnt == 0){
+    loadPlugin("mqtt")
+}   
+cntKafka = exec count(*) from defs() where name like "kafka::%"
+if(cnt == 0){
+    loadPlugin("kafka")
+}   
 /*
 增加连接
 参数：args 为标准json，需要包含以下字段：
@@ -22,6 +28,9 @@ def dcp_addConnect(args){
     connectArgs = parseExpr(args).eval()
     ex=["user",NULL]
     try{
+        if(strlen(connectArgs[`name])>50){
+            throw("The connection name cannot be longer than 50 characters")
+        }
         exits = select * from loadTable("dfs://dataAcquisition","connectInfo") where name = connectArgs[`name]
         if(exits.size()!=0){
             throw("The connection name already exists, please verify the connection information")
@@ -74,6 +83,9 @@ def dcp_updateConnect(args){
     tmp = select * from loadTable("dfs://dataAcquisition","connectInfo") where id = uuid(connectArgs[`id])
     exitsSub = select * from loadTable("dfs://dataAcquisition","subscribeInfo") where connectId	= uuid(connectArgs[`id]) and subId is not null  
     try{
+        if(strlen(connectArgs[`name])>50){
+            throw("The connection name cannot be longer than 50 characters")
+        }
         if(exitsSub.size() != 0){
             throw("There are started subscription under the connection "+tmp[`name][0]+", the connection cannot be modified.")
         } 
@@ -214,11 +226,27 @@ def dcp_getKafkaConsumerCfgList(){
 }
 
 /*
-获取可用节点列表（数据节点+计算节点）
+获取可用节点列表（数据节点+计算节点），
+参数：args 为标准json，需要包含以下字段：
+protocol： 协议类型 字符串
+使用示例：
+args = '{"protocol":"mqtt"}'    
+dcp_getNodes(args)
 */
-def dcp_getNodes(){
-    nodes = exec name from rpc(getControllerAlias(),getClusterPerf) where mode in [0,3,4]
-    return '{"nodes":'+toStdJson(nodes)+'}'
+def dcp_getNodes(args){
+    nodes = exec name from rpc(getControllerAlias(),getClusterPerf) where mode in [0,3,4] and state=1
+    res = array(STRING)
+    protocol=parseExpr(args).eval()[`protocol]
+    existsFunc = def(protocol){
+        func =protocol+"::%"
+        return (exec count(*) from defs() where name like func)>0
+    }
+    for(node in nodes){
+        if(rpc(node,existsFunc{protocol})){
+            res.append!(node)
+        }
+    }
+    return '{"nodes":'+toStdJson(res)+'}'
 }
 
 
@@ -256,6 +284,9 @@ def dcp_addSubscribe(args){
     subNode = iif(subArgs['subNode']==string(NULL),getNodeAlias(),subArgs['subNode'])
     ex = ["user",NULL]
     try{
+        if(strlen(subArgs[`name])>50){
+            throw("The subscribe name cannot be longer than 50 characters") 
+        }
         cnt = exec count(*) from loadTable("dfs://dataAcquisition","subscribeInfo") where name = subArgs['name'] and connectId=uuid(subArgs['connectId'])
         if(cnt !=0){
             throw("The "+ upper(proto)+" subscribe name already exists in connection " +connectName+" , please verify the subscribe information")
@@ -292,13 +323,13 @@ def dcp_addSubscribe(args){
             handlerId = (exec id from loadTable("dfs://dataAcquisition","ParserTemplate") where flag=1 and protocol =  proto )[0]
             update subInfo set handlerId = handlerId
             update loadTable("dfs://dataAcquisition","ParserTemplate") set citeNumber = citeNumber+1 where id = handlerId   
-            tableName = string(parseJsonTable(subArgs['templateParams']).value[0])
-            if(!rpc(subNode,existsStreamTable{tableName})){
-                streamTableScripts = "enableTableShareAndPersistence(streamTable(1:0,[`topic,`msg,`ts],[STRING,STRING,TIMESTAMP]),string(`"+tableName+"),,,100000,,,100000)"
-                rpc(subNode,runScript,streamTableScripts)
-                logInfo ="successfuly initialized the default streamTable "+tableName+" for subscribe "+subArgs['name']+" of "+upper(proto)+" connection "+connectName 
-                rpc(subNode,writeLog{logInfo})
-            }
+            // tableName = string(parseJsonTable(subArgs['templateParams']).value[0])
+            // if(!rpc(subNode,existsStreamTable{tableName})){
+            //     streamTableScripts = "enableTableShareAndPersistence(streamTable(1:0,[`topic,`msg,`ts],[STRING,STRING,TIMESTAMP]),string(`"+tableName+"),,,100000,,,100000)"
+            //     rpc(subNode,runScript,streamTableScripts)
+            //     logInfo ="successfuly initialized the default streamTable "+tableName+" for subscribe "+subArgs['name']+" of "+upper(proto)+" connection "+connectName 
+            //     rpc(subNode,writeLog{logInfo})
+            // }
         }
         subInfo.reorderColumns!(loadTable("dfs://dataAcquisition","subscribeInfo").columnNames())
         loadTable("dfs://dataAcquisition","subscribeInfo").append!(subInfo)
@@ -342,11 +373,14 @@ def dcp_updateSubscribe(args){
     subArgs = parseExpr(args).eval()
     subscribeInfo = select * from loadTable("dfs://dataAcquisition","subscribeInfo") where id=uuid(subArgs[`id])
     connectInfo = exec * from loadTable("dfs://dataAcquisition","connectInfo") where id=uuid(subscribeInfo[`connectId][0])
-    proto,connectName,connectId = connectInfo[`protocol][0],connectInfo[`name][0],connectInfo[`id][0]
+    proto,connectName,connectIdNow = connectInfo[`protocol][0],connectInfo[`name][0],connectInfo[`id][0]
     subNode = subscribeInfo[`subNode][0]
     ex = ["user",NULL]
     try{
-        cnt = exec count(*) from loadTable("dfs://dataAcquisition","subscribeInfo") where name = subArgs['name'] and connectId=uuid(connectId)
+        if(strlen(subArgs[`name])>50){
+            throw("The subscribe name cannot be longer than 50 characters") 
+        }
+        cnt = exec count(*) from loadTable("dfs://dataAcquisition","subscribeInfo") where name = subArgs['name'] and connectId=uuid(connectIdNow)
         and id != uuid(subArgs['id'])
         if(cnt !=0){
             throw("The "+ upper(proto)+" subscribe name already exists in connection "+connectName+", please verify the subscribe information")
@@ -367,13 +401,13 @@ def dcp_updateSubscribe(args){
         if(!subArgs[`parseJson]){
             handlerId = (exec id from loadTable("dfs://dataAcquisition","ParserTemplate") where flag=1 and protocol =  proto)[0]
             update subscribeInfo set handlerId = handlerId
-            tableName = string(parseJsonTable(subArgs['templateParams']).value[0])
-            if(!rpc(subNode,existsStreamTable{tableName})){
-                streamTableScripts = "enableTableShareAndPersistence(streamTable(1:0,[`topic,`msg,`ts],[STRING,STRING,TIMESTAMP]),string(`"+tableName+"),,,100000,,,100000)"
-                rpc(subNode,runScript,streamTableScripts)
-                logInfo = "successfuly initialized the default streamTable "+tableName+" for subscribe "+subArgs['name']+" of "+upper(proto)+" connection "+connectName
-                rpc(subNode,writeLog{logInfo})
-            }
+            // tableName = string(parseJsonTable(subArgs['templateParams']).value[0])
+            // if(!rpc(subNode,existsStreamTable{tableName})){
+            //     streamTableScripts = "enableTableShareAndPersistence(streamTable(1:0,[`topic,`msg,`ts],[STRING,STRING,TIMESTAMP]),string(`"+tableName+"),,,100000,,,100000)"
+            //     rpc(subNode,runScript,streamTableScripts)
+            //     logInfo = "successfuly initialized the default streamTable "+tableName+" for subscribe "+subArgs['name']+" of "+upper(proto)+" connection "+connectName
+            //     rpc(subNode,writeLog{logInfo})
+            // }
         }
         subscribeInfo[`updateTime] = now()  
         subscribeInfo.reorderColumns!(loadTable("dfs://dataAcquisition","subscribeInfo").columnNames())  
@@ -463,7 +497,6 @@ def dcp_getSubStatus(args){
 @args connectId:连接ID UUID
 args='{"connectId":"8c50939f-51c6-382f-b501-c4a495c240ca"}'
 */
-args='{"connectId":"679e8c6f-5619-ac1c-4bc5-3529cc8f3743"}'
 def dcp_checkSubStatus(args){
     subArgs = parseExpr(args).eval()
     subs =select id,subNode,subId,connectId from loadTable("dfs://dataAcquisition","subscribeInfo") where connectId=uuid(subArgs[`connectId])
@@ -519,6 +552,7 @@ def dcp_getConnectAndSubInfo(args){
 开始订阅
 参数：args 为标准json，需要包含以下字段：
 subId: 订阅ID   
+args = '{"subId":"729127e1-32f5-fc1f-8fb2-e2c80986ec94"}'
 */
 def dcp_startSubscribe(args){
     subArgs = parseExpr(args).eval()
@@ -528,8 +562,22 @@ def dcp_startSubscribe(args){
     tmp =  (exec * from sub left join connInfo  on connInfo.id=sub.connectId)[0]
     node = sub[`subNode][0]
     ex=['user',NULL]
-    //初始化解析函数
     try{
+        if(!sub.parseJson){
+            tableName = string(parseJsonTable(sub['templateParams'][0]).value[0])
+            if(!rpc(node,existsStreamTable{tableName})){
+                streamTableScripts = "enableTableShareAndPersistence(streamTable(1:0,[`topic,`msg,`ts],[STRING,STRING,TIMESTAMP]),string(`"+tableName+"),,,100000,,,100000)"
+                rpc(node,runScript,streamTableScripts)
+                logInfo ="successfuly initialized the default streamTable "+tableName+" for subscribe "+sub.name[0]+" of "+upper(connInfo.protocol[0])+" connection "+connInfo.name[0] 
+                rpc(node,writeLog{logInfo})
+            }
+        }else{
+            tableName = string(parseJsonTable(sub['templateParams'][0]).value[0])
+            if(!rpc(node,existsStreamTable{tableName})){
+                throw("The table "+tableName+" doesn't exist in the node "+ node+"!") 
+            }
+        }
+        //初始化解析函数
         handler = (exec handler from loadTable("dfs://dataAcquisition","ParserTemplate") where id = uuid(tmp[`handlerId]))[0]
         rpc(node,runScript,handler)
         //获取解析函数名
@@ -687,6 +735,9 @@ def dcp_addHandler(args){
     handlerArgs = parseExpr(args).eval() 
     ex=['user',NULL]
     try{
+        if(strlen(handlerArgs[`name])>50){
+            throw("The parserTemplate name cannot be longer than 50 characters")    
+        }
         cnt = exec count(*) from loadTable("dfs://dataAcquisition","ParserTemplate") where name = handlerArgs['name'] and protocol=handlerArgs[`protocol]
         if(cnt !=0){
             throw("The "+ upper(handlerArgs[`protocol])+" parserTemplate name "+handlerArgs[`name]+" already exists, please verify the template information")
@@ -724,6 +775,9 @@ def dcp_updateHandler(args){
     handlerArgs = parseExpr(args).eval()    
     ex=['user',NULL]
     try{
+        if(strlen(handlerArgs[`name])>50){
+            throw("The parserTemplate name cannot be longer than 50 characters")    
+        }
         exits = select * from loadTable("dfs://dataAcquisition","ParserTemplate") 
         where name = handlerArgs[`name] and protocol = handlerArgs[`protocol] and id != uuid(handlerArgs[`id])    
         if(exits.size()!=0){
@@ -880,7 +934,7 @@ def initParserTemplate(){
 获取调试日志
 @args 标准json，需要包含以下字段：
 protocol 协议 字符串
-@return 最近一小时与mqtt相关的日志，字符串向量
+@return 协议相关日志
 */
 def dcp_getLog(args){
     protocol = upper(parseExpr(args).eval()[`protocol])
@@ -914,7 +968,8 @@ def dcp_getLog(args){
 @return 返回一个json，键为status，值为0或1，表示是否初始化完成  
 */
 def dcp_exitsDataAcquisition(){
-    if(existsDatabase("dfs://dataAcquisition")){
+    cnt = exec count(*) from getFunctionViews() where name = "dcp_initFlag"
+    if(existsDatabase("dfs://dataAcquisition") and cnt==1){
         return '{"status":1,"message":"初始化已完成"}'
     }else{
         return '{"status":0,"message":"还未初始化库表及函数视图"}'
@@ -938,22 +993,24 @@ def dcp_createAllTable(){
 }
 
 
-def dcp_stopAllSub(){
-    ids = exec subscriptionId from mqtt::getSubscriberStat()
-    for(id in ids){
-        mqtt::unsubscribe(id)    
-    }
+def dcp_initFlag(){
+    return 1
 }
 
-
-def dcp_clearEnv(){
-    dcp_stopAllSub()
-    dropDatabase("dfs://dataAcquisition")
-}
-
-
-
-def dcp_init(){
+/*
+初始化函数
+@args 标准json，需要包含以下字段：
+installFlag 是否安装插件 bool
+@return null
+args='{"installFlag":true}'
+*/
+def dcp_init(args){
+    flag = parseExpr(args).eval()[`installFlag]
     dcp_createAllTable()
     initParserTemplate()
+    addFunctionView(dcp_initFlag)
+    if(flag){
+        installPlugin("mqtt")
+        installPlugin("kafka")
+    }
 }
