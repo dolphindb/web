@@ -36,7 +36,7 @@ export const NAME_RULES: FormItemProps['rules'] = [
     { max: 50, message: t('名称不能超过 50 个字符') },
     {
         validator: async (_rule, value) => {
-            if (value.includes(' ')) 
+            if (!!value && value?.includes(' ')) 
                 return Promise.reject(t('名称不能包含空格'))
             return Promise.resolve()
         }

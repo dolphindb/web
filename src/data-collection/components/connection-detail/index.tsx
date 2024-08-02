@@ -105,8 +105,12 @@ export function ConnectionDetail (props: IProps) {
         Modal.confirm({
             title: t('确定要{{action}}{{name}}吗？', { action: status ? t('启用') : t('停用'), name }),
             onOk: async () => {
-                if (status)
+                if (status) {
                     await request('dcp_startSubscribe', { subId })
+                    if (selected_subscribes.includes(subId))
+                        set_selected_subscribes(selected_subscribes.filter(item => item !== subId))
+                }
+                    
                 else
                     await request('dcp_stopSubscribe', { subId: [subId] })
                 message.success(status ? t('订阅成功') : t('停用订阅'))
@@ -114,7 +118,7 @@ export function ConnectionDetail (props: IProps) {
             },
             okButtonProps: status ? undefined : { style: { backgroundColor: 'red' } }
         })
-    }, [ mutate ])
+    }, [ mutate, selected_subscribes ])
     
     const columns = useMemo<Array<ColumnProps<ISubscribe>>>(() => [
         {

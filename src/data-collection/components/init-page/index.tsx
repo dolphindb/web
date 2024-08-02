@@ -36,6 +36,7 @@ export function InitPage ({ test_init }: IProps) {
         subTitle={<>
             {t('初始化操作将新增以下数据库')}
             <div>dfs://dataAcquisition</div>
+            {t('以及一个函数视图 dcp_initFlag')}
         </>}
         extra={<Button type='primary' onClick={on_init}>{t('初始化')}</Button>}
     />
