@@ -67,7 +67,7 @@ export function KafkaConfig () {
                                                     validator: async (_rule, value) => {
                                                         if (!value) 
                                                             return Promise.reject(t('请输入参数值'))
-                                                        if (value?.includes(''))
+                                                        if (value?.includes(' '))
                                                             return Promise.reject(t('参数值不能含有空格'))
                                                         return Promise.resolve()
                                                     }
