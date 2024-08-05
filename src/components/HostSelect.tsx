@@ -15,6 +15,10 @@ export function HostSelect () {
                 value: '192.168.0.200:20000'
             },
             {
+                label: '高峰',
+                value: '183.134.101.138:8017'
+            },
+            {
                 label: '单机',
                 value: '183.134.101.134:8892'
             },
