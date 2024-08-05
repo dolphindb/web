@@ -49,7 +49,7 @@ def dcp_addConnect(args){
     connectArgs = parseExpr(args).eval()
     ex=["user",NULL]
     try{
-        if(strlen(connectArgs[`name])>50){
+        if(strlen(string(connectArgs[`name]))>50){
             throw("The connection name cannot be longer than 50 characters")
         }
         exits = select * from loadTable("dfs://dataAcquisition","connectInfo") where name = connectArgs[`name]
@@ -104,7 +104,7 @@ def dcp_updateConnect(args){
     tmp = select * from loadTable("dfs://dataAcquisition","connectInfo") where id = uuid(connectArgs[`id])
     exitsSub = select * from loadTable("dfs://dataAcquisition","subscribeInfo") where connectId	= uuid(connectArgs[`id]) and subId is not null  
     try{
-        if(strlen(connectArgs[`name])>50){
+        if(strlen(string(connectArgs[`name]))>50){
             throw("The connection name cannot be longer than 50 characters")
         }
         if(exitsSub.size() != 0){
@@ -305,7 +305,7 @@ def dcp_addSubscribe(args){
     subNode = iif(subArgs['subNode']==string(NULL),getNodeAlias(),subArgs['subNode'])
     ex = ["user",NULL]
     try{
-        if(strlen(subArgs[`name])>50){
+        if(strlen(string(subArgs[`name]))>50){
             throw("The subscribe name cannot be longer than 50 characters") 
         }
         cnt = exec count(*) from loadTable("dfs://dataAcquisition","subscribeInfo") where name = subArgs['name'] and connectId=uuid(subArgs['connectId'])
@@ -344,13 +344,6 @@ def dcp_addSubscribe(args){
             handlerId = (exec id from loadTable("dfs://dataAcquisition","ParserTemplate") where flag=1 and protocol =  proto )[0]
             update subInfo set handlerId = handlerId
             update loadTable("dfs://dataAcquisition","ParserTemplate") set citeNumber = citeNumber+1 where id = handlerId   
-            // tableName = string(parseJsonTable(subArgs['templateParams']).value[0])
-            // if(!rpc(subNode,existsStreamTable{tableName})){
-            //     streamTableScripts = "enableTableShareAndPersistence(streamTable(1:0,[`topic,`msg,`ts],[STRING,STRING,TIMESTAMP]),string(`"+tableName+"),,,100000,,,100000)"
-            //     rpc(subNode,runScript,streamTableScripts)
-            //     logInfo ="successfuly initialized the default streamTable "+tableName+" for subscribe "+subArgs['name']+" of "+upper(proto)+" connection "+connectName 
-            //     rpc(subNode,writeLog{logInfo})
-            // }
         }
         subInfo.reorderColumns!(loadTable("dfs://dataAcquisition","subscribeInfo").columnNames())
         loadTable("dfs://dataAcquisition","subscribeInfo").append!(subInfo)
@@ -390,6 +383,7 @@ args = '{"name":"test","topic":"topic1","handlerId":1,"parseJson":false,
 "templateParams":\'[{\"key\":\"outputTableName\",\"value\":\"dcp_test\"}]\',"id":"e7183216-9f11-4d12-b227-4477f9f20313"}'
 dcp_updateSubscribe(args)
 */
+args = '{"id":"123456","subId":"123456"}'
 def dcp_updateSubscribe(args){
     subArgs = parseExpr(args).eval()
     subscribeInfo = select * from loadTable("dfs://dataAcquisition","subscribeInfo") where id=uuid(subArgs[`id])
@@ -398,7 +392,7 @@ def dcp_updateSubscribe(args){
     subNode = subscribeInfo[`subNode][0]
     ex = ["user",NULL]
     try{
-        if(strlen(subArgs[`name])>50){
+        if(strlen(string(subArgs[`name]))>50){
             throw("The subscribe name cannot be longer than 50 characters") 
         }
         cnt = exec count(*) from loadTable("dfs://dataAcquisition","subscribeInfo") where name = subArgs['name'] and connectId=uuid(connectIdNow)
@@ -422,13 +416,6 @@ def dcp_updateSubscribe(args){
         if(!subArgs[`parseJson]){
             handlerId = (exec id from loadTable("dfs://dataAcquisition","ParserTemplate") where flag=1 and protocol =  proto)[0]
             update subscribeInfo set handlerId = handlerId
-            // tableName = string(parseJsonTable(subArgs['templateParams']).value[0])
-            // if(!rpc(subNode,existsStreamTable{tableName})){
-            //     streamTableScripts = "enableTableShareAndPersistence(streamTable(1:0,[`topic,`msg,`ts],[STRING,STRING,TIMESTAMP]),string(`"+tableName+"),,,100000,,,100000)"
-            //     rpc(subNode,runScript,streamTableScripts)
-            //     logInfo = "successfuly initialized the default streamTable "+tableName+" for subscribe "+subArgs['name']+" of "+upper(proto)+" connection "+connectName
-            //     rpc(subNode,writeLog{logInfo})
-            // }
         }
         subscribeInfo[`updateTime] = now()  
         subscribeInfo.reorderColumns!(loadTable("dfs://dataAcquisition","subscribeInfo").columnNames())  
@@ -759,7 +746,7 @@ def dcp_addHandler(args){
     handlerArgs = parseExpr(args).eval() 
     ex=['user',NULL]
     try{
-        if(strlen(handlerArgs[`name])>50){
+        if(strlen(string(handlerArgs[`name]))>50){
             throw("The parserTemplate name cannot be longer than 50 characters")    
         }
         cnt = exec count(*) from loadTable("dfs://dataAcquisition","ParserTemplate") where name = handlerArgs['name'] and protocol=handlerArgs[`protocol]
@@ -799,7 +786,7 @@ def dcp_updateHandler(args){
     handlerArgs = parseExpr(args).eval()    
     ex=['user',NULL]
     try{
-        if(strlen(handlerArgs[`name])>50){
+        if(strlen(string(handlerArgs[`name]))>50){
             throw("The parserTemplate name cannot be longer than 50 characters")    
         }
         exits = select * from loadTable("dfs://dataAcquisition","ParserTemplate") 
