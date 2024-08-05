@@ -1,11 +1,32 @@
-cntMqtt = exec count(*) from defs() where name like "mqtt::%"
-if(cnt == 0){
-    loadPlugin("mqtt")
-}   
-cntKafka = exec count(*) from defs() where name like "kafka::%"
-if(cnt == 0){
-    loadPlugin("kafka")
-}   
+/*
+初始化加载插件
+*/
+def initPlugin(){
+    plugins = select * from files(getHomeDir().split("/clusterDemo/")[0]+"/plugins") where isDir=true
+    ex = ["user",NULL]
+    try{
+        if(!(`mqtt in plugins[`filename])){
+            installPlugin("mqtt")
+        }
+        if(!(`kafka in plugins[`filename])){
+            installPlugin("kafka")
+        }
+        cntMqtt = exec count(*) from defs() where name like "mqtt::%"
+        if(cntMqtt == 0){
+            loadPlugin("mqtt")
+        }   
+        cntKafka = exec count(*) from defs() where name like "kafka::%"
+        if(cntKafka == 0){
+            loadPlugin("kafka")
+        }  
+    }catch(ex){}
+    if(ex[1]!=NULL){
+        throw(ex[1])
+    }
+}
+initPlugin();
+go;
+
 /*
 增加连接
 参数：args 为标准json，需要包含以下字段：
@@ -579,6 +600,9 @@ def dcp_startSubscribe(args){
         }
         //初始化解析函数
         handler = (exec handler from loadTable("dfs://dataAcquisition","ParserTemplate") where id = uuid(tmp[`handlerId]))[0]
+        if(handler==NULL){
+            throw("The handler of subscribe "+sub.name+" doesn't exist!")   
+        }
         rpc(node,runScript,handler)
         //获取解析函数名
         handlerName = handler.split("\n")
@@ -999,18 +1023,9 @@ def dcp_initFlag(){
 
 /*
 初始化函数
-@args 标准json，需要包含以下字段：
-installFlag 是否安装插件 bool
-@return null
-args='{"installFlag":true}'
 */
-def dcp_init(args){
-    flag = parseExpr(args).eval()[`installFlag]
+def dcp_init(){
     dcp_createAllTable()
     initParserTemplate()
     addFunctionView(dcp_initFlag)
-    if(flag){
-        installPlugin("mqtt")
-        installPlugin("kafka")
-    }
 }
