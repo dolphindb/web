@@ -52,9 +52,9 @@ def dcp_addConnect(args){
         if(strlen(string(connectArgs[`name]))>50){
             throw("The connection name cannot be longer than 50 characters")
         }
-        exits = select * from loadTable("dfs://dataAcquisition","connectInfo") where name = connectArgs[`name]
+        exits = select * from loadTable("dfs://dataAcquisition","connectInfo") where name = connectArgs[`name] and protocol = connectArgs[`protocol]
         if(exits.size()!=0){
-            throw("The connection name already exists, please verify the connection information")
+            throw("The connection name already exists, please verify the connection information")   
         }else{
                 id = rand(uuid(),1)[0]
                 if(connectArgs[`protocol]=="kafka"){
@@ -990,11 +990,10 @@ def dcp_getLog(args){
 @return 返回一个json，键为status，值为0或1，表示是否初始化完成  
 */
 def dcp_exitsDataAcquisition(){
-    cnt = exec count(*) from getFunctionViews() where name = "dcp_initFlag"
-    if(existsDatabase("dfs://dataAcquisition") and cnt==1){
+    if(existsDatabase("dfs://dataAcquisition")){
         return '{"status":1,"message":"初始化已完成"}'
     }else{
-        return '{"status":0,"message":"还未初始化库表及函数视图"}'
+        return '{"status":0,"message":"还未初始化库表，请执行初始化"}'
     }   
 }
 
@@ -1014,16 +1013,11 @@ def dcp_createAllTable(){
     createTable(database("dfs://dataAcquisition"),table(1:0,colNames,colTypes),`ParserTemplate)
 }
 
-
-def dcp_initFlag(){
-    return 1
-}
-
 /*
 初始化函数
 */
 def dcp_init(){
     dcp_createAllTable()
     initParserTemplate()
-    addFunctionView(dcp_initFlag)
+    pnodeRun(initPlugin)
 }
