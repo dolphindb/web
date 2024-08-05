@@ -742,7 +742,6 @@ protocol:模板协议 字符串
 comment:模板备注 字符串
 @return 无
 */
-args='{"name":"parseKafka","protocol":"mqtt","comment":"test","handler":"    def mqttTemplate(outTableName,args,topic,msg){\r\n        /*\r\n            outTableName 为数据存储表名\r\n            args 为自定义参数（可任意自定义）\r\n            topic 为订阅mqtt数据的topic名称\r\n            msg 为接收到的消息\r\n        */\r\n    }\r\n     "}'
 def dcp_addHandler(args){
     handlerArgs = parseExpr(args).eval() 
     ex=['user',NULL]
@@ -800,16 +799,15 @@ def dcp_updateHandler(args){
             throw("The "+ upper(handlerArgs[`protocol])+" parserTemplate name "+handlerArgs[`name]+" already exists, please verify the template information")
         }
         ParserTemplate = select * from loadTable("dfs://dataAcquisition","ParserTemplate") where id=uuid(handlerArgs[`id])
-        templateParams = dcp_parseTemplateArgs(handlerArgs[`handler],handlerArgs['protocol'])
-        templateParams.split("\"")[1]
-        if(templateParams.split("\"")[1]!="outTableName"){
+        templateParamsTmp = dcp_parseTemplateArgs(handlerArgs[`handler],handlerArgs['protocol'])
+        if(templateParamsTmp.split("\"")[1]!="outTableName"){
             throw("The first argument of the  handler must be outTableName")    
         }
         update ParserTemplate set name = handlerArgs[`name] 
         update ParserTemplate set protocol = handlerArgs[`protocol] 
         update ParserTemplate set handler = handlerArgs[`handler] 
         update ParserTemplate set comment = handlerArgs[`comment] 
-        update ParserTemplate set templateParams = templateParams
+        update ParserTemplate set templateParams = templateParamsTmp
         update ParserTemplate set updateTime = now() 
         delete from loadTable("dfs://dataAcquisition","ParserTemplate") where id=uuid(handlerArgs[`id])
         loadTable("dfs://dataAcquisition","ParserTemplate").append!(ParserTemplate)
