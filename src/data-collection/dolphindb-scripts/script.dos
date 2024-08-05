@@ -742,6 +742,7 @@ protocol:模板协议 字符串
 comment:模板备注 字符串
 @return 无
 */
+args='{"name":"parseKafka","protocol":"mqtt","comment":"test","handler":"    def mqttTemplate(outTableName,args,topic,msg){\r\n        /*\r\n            outTableName 为数据存储表名\r\n            args 为自定义参数（可任意自定义）\r\n            topic 为订阅mqtt数据的topic名称\r\n            msg 为接收到的消息\r\n        */\r\n    }\r\n     "}'
 def dcp_addHandler(args){
     handlerArgs = parseExpr(args).eval() 
     ex=['user',NULL]
@@ -755,6 +756,9 @@ def dcp_addHandler(args){
         }
         id = rand(uuid(),1)
         templateParams = dcp_parseTemplateArgs(handlerArgs[`handler],handlerArgs['protocol'])
+        if(templateParams.split("\"")[1]!="outTableName"){
+            throw("The first argument of the  handler must be outTableName")    
+        }
         flag = iif(handlerArgs["flag"]==NULL,0,1)
         tmp = table(id as id, [handlerArgs['name']] as name, [handlerArgs[`handler]] as handler, [handlerArgs['protocol']] as `protocol,
         string([handlerArgs['comment']]) as comment,[flag] as flag,[templateParams] as templateParams,[0] as citeNumber,[0] as useNumber,
@@ -782,6 +786,7 @@ handler:函数定义 字符串
 comment:模板备注 字符串
 @return 无
 */
+args='{"name":"parseMqtt","protocol":"mqtt","comment":"测试解析模板","handler":"\n    def msgHandler(outputTableName,timeColumn,idColumn,topic,message){\n        tempdict = parseExpr(message).eval()\n        keys = tempdict.keys()\n        if(timeColumn==NULL){\n            ts = now()\n        }else{\n            ts = temporalParse(tempdict[timeColumn],\'yyyy-MM-dd HH:mm:ss\')\n        }\n        id = tempdict[idColumn] \n        for(i in keys){\n            if(!(i in [timeColumn,idColumn] )){\n                tmp = table([ts] as ts,[id] as id,[i] as metric,[tempdict[i]] as value)\n                objByName(outputTableName).append!(tmp)            \n            }\n        }\n    }\n    ","id":"e9c6fad1-5c36-c449-0c23-e7aac61ed9a1"}'
 def dcp_updateHandler(args){  
     handlerArgs = parseExpr(args).eval()    
     ex=['user',NULL]
@@ -795,10 +800,16 @@ def dcp_updateHandler(args){
             throw("The "+ upper(handlerArgs[`protocol])+" parserTemplate name "+handlerArgs[`name]+" already exists, please verify the template information")
         }
         ParserTemplate = select * from loadTable("dfs://dataAcquisition","ParserTemplate") where id=uuid(handlerArgs[`id])
+        templateParams = dcp_parseTemplateArgs(handlerArgs[`handler],handlerArgs['protocol'])
+        templateParams.split("\"")[1]
+        if(templateParams.split("\"")[1]!="outTableName"){
+            throw("The first argument of the  handler must be outTableName")    
+        }
         update ParserTemplate set name = handlerArgs[`name] 
         update ParserTemplate set protocol = handlerArgs[`protocol] 
         update ParserTemplate set handler = handlerArgs[`handler] 
         update ParserTemplate set comment = handlerArgs[`comment] 
+        update ParserTemplate set templateParams = templateParams
         update ParserTemplate set updateTime = now() 
         delete from loadTable("dfs://dataAcquisition","ParserTemplate") where id=uuid(handlerArgs[`id])
         loadTable("dfs://dataAcquisition","ParserTemplate").append!(ParserTemplate)
@@ -876,7 +887,7 @@ def dcp_getTemplateArgs(args){
 def initParserTemplate(){   
     //初始化解析模板
     handler = '
-    def msgHandler(outputTableName,timeColumn,idColumn,topic,message){
+    def msgHandler(outTableName,timeColumn,idColumn,topic,message){
         tempdict = parseExpr(message).eval()
         keys = tempdict.keys()
         if(timeColumn==NULL){
@@ -888,7 +899,7 @@ def initParserTemplate(){
         for(i in keys){
             if(!(i in [timeColumn,idColumn] )){
                 tmp = table([ts] as ts,[id] as id,[i] as metric,[tempdict[i]] as value)
-                objByName(outputTableName).append!(tmp)            
+                objByName(outTableName).append!(tmp)            
             }
         }
     }
@@ -898,8 +909,8 @@ def initParserTemplate(){
 
 
     handler = "
-    def saveJsonMsg(outputTableName,topic,msg){
-        objByName(outputTableName).append!(table([topic]as topic,[msg] as msg,[now()] as ts))
+    def saveJsonMsg(outTableName,topic,msg){
+        objByName(outTableName).append!(table([topic]as topic,[msg] as msg,[now()] as ts))
     }
     "
     args = '{"name":"saveJsonMsg","handler":\''+handler+'\',"protocol":"mqtt","comment":"转存json数据","flag":0}'   
