@@ -1099,6 +1099,7 @@ const error_messages = {
 
 
 export interface DdbNode {
+    computeGroup: string
     name: string
     state: DdbNodeState
     mode: NodeType
