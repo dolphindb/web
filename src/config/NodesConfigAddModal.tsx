@@ -13,7 +13,7 @@ import { CONFIG_CLASSIFICATION } from './constants.js'
 import { config } from './model.js'
 
 
-export const NodesConfigAddModal = NiceModal.create(() => {
+export const NodesConfigAddModal = NiceModal.create((props: { compute_group?: string, on_save?: () => void }) => {
     const modal = NiceModal.useModal()
     
     const [add_config_form] = Form.useForm()
@@ -36,12 +36,12 @@ export const NodesConfigAddModal = NiceModal.create(() => {
             wrapperCol={{ span: 20 }}
             form={add_config_form}
         >
-            <Form.Item
+            {!props.compute_group && <Form.Item
                 label={t('限定词')}
                 name='qualifier'
             >
                 <Input placeholder='e.g. dn1 or dn% or empty' />
-            </Form.Item>
+            </Form.Item>}
             
             <Form.Item
                 label={t('配置项')}
@@ -84,9 +84,13 @@ export const NodesConfigAddModal = NiceModal.create(() => {
                         async () => {
                             try {
                                 const { qualifier, name, value } = await add_config_form.validateFields()
-                                const key = (qualifier ? qualifier + '.' : '') + name
+                                let key = (qualifier ? qualifier + '.' : '') + name
+                                if (props.compute_group)
+                                    key = props.compute_group + '%.' + key
                                 await config.change_configs([[key, { qualifier, name, value, key }]])
                                 model.message.success(t('保存成功，重启集群生效'))
+                                if (props.on_save)
+                                    props.on_save()
                                 modal.hide()
                             } catch (error) {
                                 // 数据校验不需要展示报错弹窗

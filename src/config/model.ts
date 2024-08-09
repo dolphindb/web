@@ -35,11 +35,13 @@ class ConfigModel extends Model<ConfigModel> {
     
     /** load_configs 依赖 controller alias 等信息 */
     async load_configs () {
+        const configs = parse_nodes_configs(
+            (await this.call<DdbVectorStringObj>('loadClusterNodesConfigs', undefined, { urgent: true }))
+                .value)
         this.set({ 
-            nodes_configs: parse_nodes_configs(
-                (await this.call<DdbVectorStringObj>('loadClusterNodesConfigs', undefined, { urgent: true }))
-                    .value)
+            nodes_configs: configs
         })
+        return configs
     }
     
     
