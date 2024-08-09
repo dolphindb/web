@@ -1,25 +1,34 @@
-import { useEffect, useState, useRef } from 'react'
+import { useEffect, useState, useRef, useCallback } from 'react'
 
 import { t } from '@i18n/index.js'
 
-import { Button, Popconfirm } from 'antd'
+import { AutoComplete, Button, Popconfirm } from 'antd'
+
+import type { DdbVectorStringObj } from 'dolphindb/browser.js'
 
 import { EditableProTable, type ActionType, type ProColumns } from '@ant-design/pro-components'
+
+import './index.sass'
+import { PlusOutlined, ReloadOutlined, SearchOutlined } from '@ant-design/icons'
+import NiceModal from '@ebay/nice-modal-react'
+
+import { filter_config } from './utils.js'
+import { CONFIG_CLASSIFICATION } from './constants.js'
+import { NodesConfigAddModal } from './NodesConfigAddModal.js'
 
 import { config } from './model.js'
 
 import { model } from '@/model.js'
 
-import './index.sass'
 
 export function ComputeGroupConfig () {
 
-    const { nodes_configs: nodesConfigRaw } = config.use(['nodes_configs']) // 获取原始的 nodes_configs 字符串数组
-    const { nodes, node_type, logined } = model.use(['nodes', 'node_type', 'logined'])
+    const { nodes } = model.use(['nodes', 'node_type', 'logined'])
     const [current_compute_group, set_current_compute_group] = useState<string>('')
     
-    // 将 nodes_configs 字符串数组转换为 NodesConfig 对象数组
-    const nodes_configs = Array.from(nodesConfigRaw.values())
+    const [search_kw, set_search_kw] = useState('')
+    
+    
     
     const compute_groups = new Map()
     nodes.forEach(config => {
@@ -32,6 +41,8 @@ export function ComputeGroupConfig () {
     })
     
     const groups = Array.from(compute_groups.keys()) as unknown as string[]
+    
+    
     
     useEffect(() => {
         if (groups.length > 0 && current_compute_group === '')
@@ -53,20 +64,33 @@ export function ComputeGroupConfig () {
         </div>
     })
     
-    
-    // 筛选配置项
-    const filtered_configs = nodes_configs.filter(config => {
-        return config.qualifier.startsWith(`${current_compute_group}%`)
-    })
-    
-    
     const actionRef = useRef<ActionType>()
+    
+    const delete_config = useCallback(
+        async (config_name: string) => {
+            await config.delete_configs([config_name])
+            model.message.success(t('删除成功'))
+            if (actionRef.current)
+                actionRef.current.reload()
+        },
+        [ ]
+    )
+    
+    useEffect(() => {
+        if (actionRef.current)
+            actionRef.current.reload()
+    }, [current_compute_group])
+    
+    async function on_search () {
+        if (actionRef.current)
+            await actionRef.current.reload()
+    }
     
     const columns: ProColumns<any>[] = [
         {
             title: t('配置项'),
-            dataIndex: 'key',
-            key: 'qualifier',
+            dataIndex: 'name',
+            key: 'key',
             width: 400,
         },
         {
@@ -85,7 +109,7 @@ export function ComputeGroupConfig () {
                     key='editable'
                     className='mr-btn'
                     onClick={() => {
-                        action?.startEditable?.(record.id)
+                        action?.startEditable?.(record.key)
                     }}
                 >
                     {t('编辑')}
@@ -94,6 +118,7 @@ export function ComputeGroupConfig () {
                     title={t('确认删除此配置项？')}
                     key='delete'
                     onConfirm={async () => {
+                        await delete_config(record.key)
                     }}
                 >
                     <Button type='link'>
@@ -108,26 +133,92 @@ export function ComputeGroupConfig () {
         <div className='select' >
             {select_items}
         </div>
-        <EditableProTable
-            rowKey='key'
-            actionRef={actionRef}
-            columns={columns}
-            dataSource={filtered_configs}
-            request={async () => {
-                return {
-                    data: filtered_configs,
-                    success: true,
-                    total: filtered_configs.length
-                }
-            }}
-            editable={{
-                type: 'single',
-                onSave: async (rowKey, data, row) => {
-                },
-                onDelete: async (key, row) => {
-                },
-                deletePopconfirmMessage: t('确认删除此配置项？'),
-            }}
-        />
+        <div>
+            <div className='toolbar'>
+                <Button
+                    icon={<ReloadOutlined />}
+                    onClick={async () => {
+                        set_search_kw('')
+                        if (actionRef.current)
+                            await actionRef.current.reload()
+                        model.message.success(t('刷新成功'))
+                    }}
+                >
+                    {t('刷新')}
+                </Button>
+                
+                <Button
+                    icon={<PlusOutlined />}
+                    onClick={async () =>
+                        NiceModal.show(NodesConfigAddModal, { compute_group: current_compute_group, on_save: () => {
+                            if (actionRef.current)
+                                actionRef.current.reload()
+                        } })
+                    }
+                >
+                    {t('新增配置')}
+                </Button>
+                
+                <div className='auto-search'>
+                    <AutoComplete<string>
+                        showSearch
+                        placeholder={t('请输入想要查找的配置项')}
+                        optionFilterProp='label'
+                        value={search_kw}
+                        style={{ width: 300, flex: '1' }}
+                        onChange={set_search_kw}
+                        filterOption={filter_config}
+                        onKeyDown={e => {
+                            if (e.key === 'Enter')
+                                on_search()
+                        }}
+                        options={Object.entries(CONFIG_CLASSIFICATION).map(([cfg_cls, configs]) => ({
+                            label: cfg_cls,
+                            options: Array.from(configs).map(cfg => ({
+                                label: cfg,
+                                value: cfg
+                            }))
+                        }))} />
+                    <Button type='primary' icon={<SearchOutlined />} onClick={on_search} />
+                </div>
+                
+            </div>
+            <EditableProTable
+                rowKey='key'
+                actionRef={actionRef}
+                columns={columns}
+                request={async () => {
+                    const nodesConfigRaw = await config.load_configs()
+                            
+                    // 将 nodes_configs 字符串数组转换为 NodesConfig 对象数组
+                    const nodes_configs = Array.from(nodesConfigRaw.values())
+                    
+                    // 筛选配置项
+                    const filtered_configs = nodes_configs.filter(config => {
+                        return config.qualifier.startsWith(`${current_compute_group}%`)
+                    }).filter(config => config.key.includes(search_kw))
+                    return {
+                        data: filtered_configs,
+                        success: true,
+                        total: filtered_configs.length
+                    }
+                }}
+                recordCreatorProps={false}
+                editable={{
+                    type: 'single',
+                    onSave: async (rowKey, data, row) => {
+                        const { name, qualifier, value } = data
+                        const key = (qualifier ? qualifier + '.' : '') + name
+                        if (rowKey !== key)
+                            config.nodes_configs.delete(rowKey as string)
+                        await config.change_configs([[key, { name, qualifier, value, key }]])
+                        model.message.success(t('保存成功，重启集群生效'))
+                    },
+                    onDelete: async key => delete_config(key as string),
+                    deletePopconfirmMessage: t('确认删除此配置项？'),
+                }}
+            />
+        </div>
+        
     </div>
 }
