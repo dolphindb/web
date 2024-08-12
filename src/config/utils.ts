@@ -17,6 +17,9 @@ export const strs_2_controller_configs = (strs: string[]): ControllerConfig[] =>
     })
 
 
+/** 节点配置项转字符串 
+    @param {ControllerConfig[] | ClusterNode[]} items - 节点配置
+    @return {string[]} 转换的字符串，拼接形成的一行字符串，是以逗号分隔的节点的全部信息 */
 export const _2_strs = (items: ControllerConfig[] | ClusterNode[]): string[] =>
     items.map(i => i.id)
 
