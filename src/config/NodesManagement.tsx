@@ -32,6 +32,32 @@ export function NodesManagement () {
         }
     })
     
+    const delete_nodes = useCallback(async (node_id: string) => {
+        const new_nodes = _2_strs(all_nodes).filter(nod => nod !== node_id)
+        await config.save_cluster_nodes(new_nodes)
+        await mutate()
+    }, [all_nodes])
+    
+    async function save_node_impl ({ rowKey, host, port, alias, mode, group }) {
+        try {
+            const node_strs = _2_strs(all_nodes)
+            let idx = node_strs.indexOf(rowKey as string) 
+            // 代理节点先执行 addAgentToController 在线添加
+            if (mode === 'agent')
+                await config.add_agent_to_controller(host, Number(port), alias)
+            if (idx === -1) // 新增
+                await config.save_cluster_nodes([`${host}:${port}:${alias},${mode},${group}`, ...node_strs])
+            else // 修改
+                await config.save_cluster_nodes(node_strs.toSpliced(idx, 1, `${host}:${port}:${alias},${mode},${group}`))
+            mutate()
+            model.message.success(t('保存成功，重启集群生效'))
+        } catch (error) {
+            // 数据校验不需要展示报错弹窗
+            if (error instanceof DdbDatabaseError)
+                throw error
+        }
+    }
+    
     function get_cols (is_group = false) {
         return [
             {
@@ -142,12 +168,6 @@ export function NodesManagement () {
         ]
     }
     
-    const delete_nodes = useCallback(async (node_id: string) => {
-        const new_nodes = _2_strs(all_nodes).filter(nod => nod !== node_id)
-        await config.save_cluster_nodes(new_nodes)
-        await mutate()
-    }, [all_nodes])
-    
     const search_filtered_nodes = search_value ? all_nodes.filter(({ alias }) => alias.toLocaleLowerCase().includes(search_value.toLocaleLowerCase())) : all_nodes
     
     const ungrouped_nodes = search_filtered_nodes.filter(node => !node.computeGroup)
@@ -162,7 +182,7 @@ export function NodesManagement () {
                 
     })
     
-    const groups = Array.from(compute_groups.keys()) as unknown as string[]
+    const groups = (Array.from(compute_groups.keys()) as unknown as string[]).sort()
     
     const group_nodes = groups.map(group => {
         const nodes = search_filtered_nodes.filter(node => node.computeGroup === group)
@@ -196,23 +216,7 @@ export function NodesManagement () {
                     {
                         type: 'single',
                         onSave: async (rowKey, { host, port, alias, mode }) => {
-                            try {
-                                const node_strs = _2_strs(all_nodes)
-                                let idx = node_strs.indexOf(rowKey as string)
-                                // 代理节点先执行 addAgentToController 在线添加
-                                if (mode === 'agent')
-                                    await config.add_agent_to_controller(host, Number(port), alias)
-                                if (idx === -1)
-                                    await config.save_cluster_nodes([`${host}:${port}:${alias},${mode},${group}`, ...node_strs])
-                                else
-                                    await config.save_cluster_nodes(node_strs.toSpliced(idx, 1, `${host}:${port}:${alias},${mode},${group}`))
-                                mutate()
-                                model.message.success(t('保存成功，重启集群生效'))
-                            } catch (error) {
-                                // 数据校验不需要展示报错弹窗
-                                if (error instanceof DdbDatabaseError)
-                                    throw error
-                            }
+                            await save_node_impl({ rowKey, host, port, alias, mode, group: group })
                         },
                         onDelete: async (_, row) => delete_nodes(row.id),
                         deletePopconfirmMessage: t('确认删除此节点？'),
@@ -316,23 +320,7 @@ export function NodesManagement () {
                 {
                     type: 'single',
                     onSave: async (rowKey, { host, port, alias, mode }) => {
-                        try {
-                            const node_strs = _2_strs(all_nodes)
-                            let idx = node_strs.indexOf(rowKey as string)
-                            // 代理节点先执行 addAgentToController 在线添加
-                            if (mode === 'agent')
-                                await config.add_agent_to_controller(host, Number(port), alias)
-                            if (idx === -1)
-                                await config.save_cluster_nodes([`${host}:${port}:${alias},${mode}`, ...node_strs])
-                            else
-                                await config.save_cluster_nodes(node_strs.toSpliced(idx, 1, `${host}:${port}:${alias},${mode}`))
-                            mutate()
-                            model.message.success(t('保存成功，重启集群生效'))
-                        } catch (error) {
-                            // 数据校验不需要展示报错弹窗
-                            if (error instanceof DdbDatabaseError)
-                                throw error
-                        }
+                        await save_node_impl({ rowKey, host, port, alias, mode, group: '' })
                     },
                     onDelete: async (_, row) => delete_nodes(row.id),
                     deletePopconfirmMessage: t('确认删除此节点？'),
