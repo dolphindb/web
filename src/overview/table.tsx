@@ -32,6 +32,20 @@ export function OverviewTable ({
 }) {
     const { nodes, node_type } = model.use(['nodes', 'node_type'])
     
+    const groups_set = new Set<string>()
+    nodes.forEach(node => {
+        if (node.computeGroup)
+            groups_set.add(node.computeGroup)
+    })
+    
+    const group_names: string[] = Array.from(groups_set)
+    
+    const groups = group_names.map(name => {
+        return { name: name, nodes: nodes.filter(node => node.computeGroup === name) }
+    })
+    
+    const ungrouped_nodes = { name: t('未分组'), nodes: nodes.filter(node => !node.computeGroup) }
+    
     const [searchText, setSearchText] = useState('')
     
     const searchInput = useRef<InputRef>(null)
@@ -328,11 +342,12 @@ export function OverviewTable ({
         }
     ]
     
-    return <div className='overview-table'>
-       { node_type !== NodeType.single &&  <Collapse items={collapseItems} bordered={false}/> }
-        <Dropdown menu={{ items }} overlayClassName='table-dropdown' trigger={['contextMenu']}>
+    const tables = [ungrouped_nodes, ...groups].map(group => {
+        const group_nodes = group.nodes
+        return <div key={group.name}>
+            <div className='group-title'>{group.name}</div>
             <div>
-                <Table
+            <Table
                     rowSelection={{
                         selectedRowKeys: selectedNodeNames,
                         onChange (_, nodes) {
@@ -350,12 +365,21 @@ export function OverviewTable ({
                                         title: <Tooltip title={getColName(col)}>{(col as any).title}</Tooltip>,
                                         showSorterTooltip: false
                             }))}
-                    dataSource={nodes
+                    dataSource={group_nodes
                         .filter(({ name, mode }) => name.toLowerCase().includes(searchText.toLowerCase()) && mode !== NodeType.agent)
                         .map(node => ({ ...node, key: node.name }))}
                     pagination={false}
                     scroll={{ x: true }}
                 />
+            </div>
+        </div>
+    })
+    
+    return <div className='overview-table'>
+       { node_type !== NodeType.single &&  <Collapse items={collapseItems} bordered={false}/> }
+        <Dropdown menu={{ items }} overlayClassName='table-dropdown' trigger={['contextMenu']}>
+            <div>
+                {tables}
             </div>
         </Dropdown>
         <Modal className='col-selection-modal' open={visible} onCancel={close} maskClosable={false} title={t('配置展示列')} footer={false}>

@@ -1,11 +1,13 @@
 import { PlusOutlined, ReloadOutlined, SearchOutlined } from '@ant-design/icons'
-import { EditableProTable, type ActionType, type ProColumns } from '@ant-design/pro-components'
-import { AutoComplete, Button, Input, Popconfirm } from 'antd'
-import { useCallback, useMemo, useRef, useState } from 'react'
+import { EditableProTable, type ActionType } from '@ant-design/pro-components'
+import { AutoComplete, Button, Popconfirm } from 'antd'
+import { useCallback, useRef, useState } from 'react'
 
 import useSWR from 'swr'
 
 import { DdbDatabaseError } from 'dolphindb/browser.js'
+
+import NiceModal from '@ebay/nice-modal-react'
 
 import { t } from '../../i18n/index.js'
 import { model } from '../model.js'
@@ -13,6 +15,7 @@ import { model } from '../model.js'
 import { config } from './model.js'
 import { type ClusterNode } from './type.js'
 import { _2_strs, strs_2_nodes, filter_config } from './utils.js'
+import { GroupAddModal } from './GroupAddModal.js'
 
 
 export function NodesManagement () {
@@ -41,7 +44,7 @@ export function NodesManagement () {
     async function save_node_impl ({ rowKey, host, port, alias, mode, group }) {
         try {
             const node_strs = _2_strs(all_nodes)
-            let idx = node_strs.indexOf(rowKey as string) 
+            let idx = node_strs.indexOf(rowKey as string)
             // 代理节点先执行 addAgentToController 在线添加
             if (mode === 'agent')
                 await config.add_agent_to_controller(host, Number(port), alias)
@@ -58,6 +61,95 @@ export function NodesManagement () {
         }
     }
     
+    const search_filtered_nodes = search_value ? all_nodes.filter(({ alias }) => alias.toLocaleLowerCase().includes(search_value.toLocaleLowerCase())) : all_nodes
+    
+    const ungrouped_nodes = search_filtered_nodes.filter(node => !node.computeGroup)
+    
+    const compute_groups = new Map()
+    search_filtered_nodes.forEach(config => {
+        if (config.computeGroup)
+            if (!compute_groups.has(config.computeGroup))
+                compute_groups.set(config.computeGroup, 1)
+            else
+                compute_groups.set(config.computeGroup, compute_groups.get(config.computeGroup) + 1)
+                
+    })
+    
+    const groups = (Array.from(compute_groups.keys()) as unknown as string[]).sort()
+    
+    const group_nodes = groups.map(group => {
+        const nodes = search_filtered_nodes.filter(node => node.computeGroup === group)
+        return <div key={group}>
+            <div key={group} className='group-title'>
+                {group}
+            </div>
+            <NodeTable nodes={nodes} group={group} onSave={save_node_impl} onDelete={delete_nodes} />
+        </div>
+    })
+    
+    
+    return <div className='nodes-management'>
+        <div className='search-line'>
+            <Button
+                icon={<ReloadOutlined />}
+                onClick={async () => {
+                    await mutate()
+                    set_search_key('')
+                    set_search_value('')
+                    model.message.success(t('刷新成功'))
+                }}
+            >
+                {t('刷新')}
+            </Button>
+            <Button
+                icon={<PlusOutlined />}
+                onClick={async () => {
+                    NiceModal.show(GroupAddModal, { on_save: () => {
+                        mutate()
+                    } })
+                }}
+            >
+                {t('新建计算组')}
+            </Button>
+            <AutoComplete<string>
+                showSearch
+                placeholder={t('请输入想要查找的节点别名')}
+                optionFilterProp='label'
+                value={search_key}
+                onChange={value => {
+                    set_search_key(value)
+                }}
+                style={{ width: 300, flex: '1' }}
+                onKeyDown={e => {
+                    if (e.key === 'Enter')
+                        set_search_value(search_key)
+                }}
+                filterOption={filter_config}
+                options={all_nodes.map(({ alias }) => ({
+                    label: alias,
+                    value: alias
+                }))} />
+            <Button type='primary' icon={<SearchOutlined />} onClick={() => { set_search_value(search_key) }} />
+        </div>
+        <div className='group-title'>
+            {t('未分组节点')}
+        </div>
+        <NodeTable nodes={ungrouped_nodes} onSave={save_node_impl} onDelete={delete_nodes} />
+        {group_nodes}
+    </div>
+}
+
+
+
+interface NodeTableProps {
+    nodes: ClusterNode[]
+    group?: string
+    onSave: (params: any) => Promise<void>
+    onDelete: (nodeId: string) => Promise<void>
+}
+
+function NodeTable ({ nodes, group, onSave, onDelete }: NodeTableProps) {
+
     function get_cols (is_group = false) {
         return [
             {
@@ -156,7 +248,7 @@ export function NodesManagement () {
                     <Popconfirm
                         title={t('确认删除此节点？')}
                         key='delete'
-                        onConfirm={async () => delete_nodes(record.id as string)}>
+                        onConfirm={async () => onDelete(record.id as string)}>
                         <Button
                             type='link'
                         >
@@ -168,188 +260,63 @@ export function NodesManagement () {
         ]
     }
     
-    const search_filtered_nodes = search_value ? all_nodes.filter(({ alias }) => alias.toLocaleLowerCase().includes(search_value.toLocaleLowerCase())) : all_nodes
+    const actionRef = useRef<ActionType>()
     
-    const ungrouped_nodes = search_filtered_nodes.filter(node => !node.computeGroup)
-    
-    const compute_groups = new Map()
-    search_filtered_nodes.forEach(config => {
-        if (config.computeGroup)
-            if (!compute_groups.has(config.computeGroup))
-                compute_groups.set(config.computeGroup, 1)
-            else
-                compute_groups.set(config.computeGroup, compute_groups.get(config.computeGroup) + 1)
-                
-    })
-    
-    const groups = (Array.from(compute_groups.keys()) as unknown as string[]).sort()
-    
-    const group_nodes = groups.map(group => {
-        const nodes = search_filtered_nodes.filter(node => node.computeGroup === group)
-        return <div key={group}><div key={group} className='group-title'>
-            {group}
-        </div>
-            <EditableProTable
-                rowKey='id'
-                columns={get_cols(true) as any}
-                actionRef={actionRef}
-                recordCreatorProps={
-                    {
-                        position: 'bottom',
-                        record: () => ({
-                            id: String(Date.now()),
-                            host: '',
-                            port: '',
-                            alias: '',
-                            mode: ''
-                        }),
-                        creatorButtonText: t('新增节点'),
-                        onClick: () => {
-                            const tbody = document.querySelector('.ant-table-body')
-                            setTimeout(() => tbody.scrollTop = tbody.scrollHeight, 1)
-                        }
-                    }
-                }
-                scroll={{ y: 'calc(100vh - 250px)' }}
-                value={nodes}
-                editable={
-                    {
-                        type: 'single',
-                        onSave: async (rowKey, { host, port, alias, mode }) => {
-                            await save_node_impl({ rowKey, host, port, alias, mode, group: group })
-                        },
-                        onDelete: async (_, row) => delete_nodes(row.id),
-                        deletePopconfirmMessage: t('确认删除此节点？'),
-                        saveText:
-                            <Button
-                                type='link'
-                                key='editable'
-                                className='mr-btn'
-                            >
-                                {t('保存')}
-                            </Button>,
-                        deleteText:
-                            <Button
-                                type='link'
-                                key='delete'
-                                className='mr-btn'
-                            >
-                                {t('删除')}
-                            </Button>,
-                        cancelText:
-                            <Button
-                                type='link'
-                                key='cancal'
-                            >
-                                {t('取消')}
-                            </Button>,
-                    }
-                }
-            /></div>
-    })
-    
-    
-    return <div className='nodes-management'>
-        <div className='search-line'>
-            <Button
-                icon={<ReloadOutlined />}
-                onClick={async () => {
-                    await mutate()
-                    set_search_key('')
-                    set_search_value('')
-                    model.message.success(t('刷新成功'))
-                }}
-            >
-                {t('刷新')}
-            </Button>
-            <Button
-                icon={<PlusOutlined />}
-                onClick={async () => {
-                    model.message.success(t('新建计算组'))
-                }}
-            >
-                {t('新建计算组')}
-            </Button>
-            <AutoComplete<string>
-                showSearch
-                placeholder={t('请输入想要查找的节点别名')}
-                optionFilterProp='label'
-                value={search_key}
-                onChange={value => {
-                    set_search_key(value)
-                }}
-                style={{ width: 300, flex: '1' }}
-                onKeyDown={e => {
-                    if (e.key === 'Enter')
-                        set_search_value(search_key)
-                }}
-                filterOption={filter_config}
-                options={all_nodes.map(({ alias }) => ({
-                    label: alias,
-                    value: alias
-                }))} />
-            <Button type='primary' icon={<SearchOutlined />} onClick={() => { set_search_value(search_key) }} />
-        </div>
-        <div className='group-title'>
-            {t('未分组节点')}
-        </div>
-        <EditableProTable
-            rowKey='id'
-            columns={get_cols() as any}
-            actionRef={actionRef}
-            recordCreatorProps={
-                {
-                    position: 'bottom',
-                    record: () => ({
-                        id: String(Date.now()),
-                        host: '',
-                        port: '',
-                        alias: '',
-                        mode: ''
-                    }),
-                    creatorButtonText: t('新增节点'),
-                    onClick: () => {
-                        const tbody = document.querySelector('.ant-table-body')
-                        setTimeout(() => tbody.scrollTop = tbody.scrollHeight, 1)
-                    }
+    return <EditableProTable
+        rowKey='id'
+        columns={get_cols(!!group) as any}
+        actionRef={actionRef}
+        recordCreatorProps={
+            {
+                position: 'bottom',
+                record: () => ({
+                    id: String(Date.now()),
+                    host: '',
+                    port: '',
+                    alias: '',
+                    mode: ''
+                }),
+                creatorButtonText: t('新增节点'),
+                onClick: () => {
+                    const tbody = document.querySelector('.ant-table-body')
+                    setTimeout(() => tbody.scrollTop = tbody.scrollHeight, 1)
                 }
             }
-            scroll={{ y: 'calc(100vh - 250px)' }}
-            value={ungrouped_nodes}
-            editable={
-                {
-                    type: 'single',
-                    onSave: async (rowKey, { host, port, alias, mode }) => {
-                        await save_node_impl({ rowKey, host, port, alias, mode, group: '' })
-                    },
-                    onDelete: async (_, row) => delete_nodes(row.id),
-                    deletePopconfirmMessage: t('确认删除此节点？'),
-                    saveText:
-                        <Button
-                            type='link'
-                            key='editable'
-                            className='mr-btn'
-                        >
-                            {t('保存')}
-                        </Button>,
-                    deleteText:
-                        <Button
-                            type='link'
-                            key='delete'
-                            className='mr-btn'
-                        >
-                            {t('删除')}
-                        </Button>,
-                    cancelText:
-                        <Button
-                            type='link'
-                            key='cancal'
-                        >
-                            {t('取消')}
-                        </Button>,
-                }
+        }
+        scroll={{ y: 'calc(100vh - 250px)' }}
+        value={nodes}
+        editable={
+            {
+                type: 'single',
+                onSave: async (rowKey, { host, port, alias, mode }) => {
+                    await onSave({ rowKey, host, port, alias, mode, group: group || '' })
+                },
+                onDelete: async (_, row) => onDelete(row.id),
+                deletePopconfirmMessage: t('确认删除此节点？'),
+                saveText:
+                    <Button
+                        type='link'
+                        key='editable'
+                        className='mr-btn'
+                    >
+                        {t('保存')}
+                    </Button>,
+                deleteText:
+                    <Button
+                        type='link'
+                        key='delete'
+                        className='mr-btn'
+                    >
+                        {t('删除')}
+                    </Button>,
+                cancelText:
+                    <Button
+                        type='link'
+                        key='cancal'
+                    >
+                        {t('取消')}
+                    </Button>,
             }
-        />
-        {group_nodes}
-    </div>
+        }
+    />
 }
