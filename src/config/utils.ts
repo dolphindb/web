@@ -23,14 +23,15 @@ export const _2_strs = (items: ControllerConfig[] | ClusterNode[]): string[] =>
 
 export const strs_2_nodes = (strs: string[]): ClusterNode[] =>
     strs.map(str => {
-        const [rest, mode] = str.split(',')
+        const [rest, mode, group] = str.split(',')
         const [host, port, alias] = rest.split(':')
         return {
             id: str,
             host,
             port,
             alias,
-            mode: mode as NodeType
+            mode: mode as NodeType,
+            computeGroup: group ? group : undefined
         }
     })
 
