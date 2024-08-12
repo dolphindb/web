@@ -7,6 +7,7 @@ export type ControllerConfig = {
 }
 
 export type ClusterNode = {
+    computeGroup?: string
     id: string
     host: string
     port: string

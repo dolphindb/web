@@ -7,7 +7,8 @@ export const CONFIG_CLASSIFICATION = {
     [t('网络')]: new Set(['enableHTTPS', 'localSite', 'maxConnections', 'maxConnectionPerSite', 'tcpNoDelay']),
     [t('流发布')]: new Set(['maxMsgNumPerBlock', 'maxPersistenceQueueDepth', 'maxPubQueueDepthPerSite', 'maxPubConnections', 'persistenceDir', 'persistenceWorkerNum']),
     [t('流订阅')]: new Set(['maxSubConnections', 'maxSubQueueDepth', 'persistOffsetDir', 'subExecutorPooling', 'subExecutors', 'subPort', 'subThrottle']),
-    [t('系统')]: new Set(['console', 'config', 'home', 'maxPartitionNumPerQuery', 'mode', 'moduleDir', 'newValuePartitionPolicy', 'perfMonitoring', 'pluginDir', 'preloadModules', 'init', 'startup', 'run', 'tzdb', 'webRoot', 'webLoginRequired', 'enableShellFunction', 'enablePKEYEngine'])
+    [t('系统')]: new Set(['console', 'config', 'home', 'maxPartitionNumPerQuery', 'mode', 'moduleDir', 'newValuePartitionPolicy', 'perfMonitoring', 'pluginDir', 'preloadModules', 'init', 'startup', 'run', 'tzdb', 'webRoot', 'webLoginRequired', 'enableShellFunction', 'enablePKEYEngine']),
+    [t('计算组')]: new Set(['computeNodeCacheDir', 'computeNodeMemCacheSize', 'computeNodeDiskCacheSize',]),
 }
 
 
@@ -41,5 +42,8 @@ export const CONTROLLER_CONFIG = [
     'clusterReplicationMasterCtl',
     'metricsToken',
     'strictPermissionMode',
-    'enableLocalDatabase'
+    'enableLocalDatabase',
+    'computeNodeCacheDir',
+    'computeNodeMemCacheSize',
+    'computeNodeDiskCacheSize',
 ]
