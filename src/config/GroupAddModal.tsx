@@ -177,5 +177,5 @@ export const GroupAddModal = NiceModal.create((props: { on_save: (form: { group_
     </Modal>
 })
 
-interface GroupNodesDatatype { key: string, host: string, port: string, alias: string }
-interface GroupConfigDatatype { key: string, name: string, value: string }
+export interface GroupNodesDatatype { key: string, host: string, port: string, alias: string }
+export interface GroupConfigDatatype { key: string, name: string, value: string }
