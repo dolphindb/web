@@ -1,6 +1,6 @@
 import { PlusOutlined, ReloadOutlined, SearchOutlined } from '@ant-design/icons'
 import { EditableProTable, type ActionType } from '@ant-design/pro-components'
-import { AutoComplete, Button, Popconfirm } from 'antd'
+import { AutoComplete, Button, Modal, Popconfirm } from 'antd'
 import { useCallback, useRef, useState } from 'react'
 
 import useSWR from 'swr'
@@ -13,9 +13,9 @@ import { t } from '../../i18n/index.js'
 import { model } from '../model.js'
 
 import { config } from './model.js'
-import { type ClusterNode } from './type.js'
-import { _2_strs, strs_2_nodes, filter_config } from './utils.js'
-import { GroupAddModal } from './GroupAddModal.js'
+import { type ClusterNode, type NodesConfig } from './type.js'
+import { _2_strs, strs_2_nodes, filter_config, get_category } from './utils.js'
+import { GroupAddModal, type GroupConfigDatatype, type GroupNodesDatatype } from './GroupAddModal.js'
 
 
 export function NodesManagement () {
@@ -77,16 +77,61 @@ export function NodesManagement () {
     
     const groups = (Array.from(compute_groups.keys()) as unknown as string[]).sort()
     
+    
+    
+    async function add_group (form: { group_name: string, group_nodes: GroupNodesDatatype[], group_configs: GroupConfigDatatype[] }) {
+        const { group_name, group_nodes, group_configs } = form
+        await config.load_configs()
+        const configs: Array<[string, NodesConfig]> = [ ]
+        for (const config of group_configs) {
+            const { name, value } = config
+            const qualifier = `${group_name}%`
+            const key = qualifier + '.' + name
+            configs.push([key, { name, key, value, qualifier, category: get_category(name) }])
+        }
+        await config.change_configs(configs)
+        await config.load_configs()
+        const node_strs = _2_strs(all_nodes)
+        const new_nodes = group_nodes.map(node => `${node.host}:${node.port}:${node.alias},computenode,${group_name}`)
+        const new_node_strs = [...node_strs, ...new_nodes]
+        const unique_node_strs = Array.from(new Set(new_node_strs))
+        await config.save_cluster_nodes(unique_node_strs)
+        await mutate()
+    }
+    
+    async function delete_group (group_name: string) {
+        console.log(group_name)
+        await config.load_configs()
+        const config_map = config.nodes_configs
+        const keys_to_delete = [ ]
+        for (const key of config_map.keys())
+            if (config_map.get(key)?.qualifier === group_name + '%')
+                keys_to_delete.push(key)
+        await config.delete_configs(keys_to_delete)
+        await config.load_configs()
+        const new_nodes = all_nodes.filter(node => node.computeGroup !== group_name)
+        await config.save_cluster_nodes(_2_strs(new_nodes))
+        await mutate()
+    }
+    
     const group_nodes = groups.map(group => {
         const nodes = search_filtered_nodes.filter(node => node.computeGroup === group)
         return <div key={group}>
             <div key={group} className='group-title'>
-                {group}
+                {group} <Button onClick={() => {
+                    Modal.confirm({
+                        title: t('确认删除'),
+                        content: t('确定要删除计算组 ') + group + t(' 吗？'), // 使用占位符替换组名
+                        onOk: async () => {
+                            await delete_group(group)
+                        },
+                        onCancel () { },
+                    })
+                }} type='link'>{t('删除计算组')}</Button>
             </div>
             <NodeTable nodes={nodes} group={group} onSave={save_node_impl} onDelete={delete_nodes} />
         </div>
     })
-    
     
     return <div className='nodes-management'>
         <div className='search-line'>
@@ -104,10 +149,7 @@ export function NodesManagement () {
             <Button
                 icon={<PlusOutlined />}
                 onClick={async () => {
-                    NiceModal.show(GroupAddModal, { on_save: async form => {
-                        console.log(form)
-                        await mutate()
-                    } })
+                    NiceModal.show(GroupAddModal, { on_save: add_group })
                 }}
             >
                 {t('新建计算组')}

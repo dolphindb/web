@@ -12,7 +12,9 @@ import './index.sass'
 import { PlusOutlined, ReloadOutlined, SearchOutlined } from '@ant-design/icons'
 import NiceModal from '@ebay/nice-modal-react'
 
-import { filter_config } from './utils.js'
+import useSWR from 'swr'
+
+import { filter_config, strs_2_nodes } from './utils.js'
 import { CONFIG_CLASSIFICATION } from './constants.js'
 import { NodesConfigAddModal } from './NodesConfigAddModal.js'
 
@@ -23,12 +25,17 @@ import { model } from '@/model.js'
 
 export function ComputeGroupConfig () {
 
-    const { nodes } = model.use(['nodes', 'node_type', 'logined'])
+    // 这里指的是配置节点的文件，不是节点配置文件
+    const { mutate, data } = useSWR('/get/nodes_config_file', async () => { 
+        const result = await config.get_cluster_nodes() 
+        const nodes = strs_2_nodes(result.value as any[])
+        return nodes
+    }, { revalidateOnMount: true, revalidateOnFocus: true })
     const [current_compute_group, set_current_compute_group] = useState<string>('')
     
     const [search_kw, set_search_kw] = useState('')
     
-    
+    const nodes = data ?? [ ]
     
     const compute_groups = new Map()
     nodes.forEach(config => {
@@ -141,6 +148,7 @@ export function ComputeGroupConfig () {
                         set_search_kw('')
                         if (actionRef.current)
                             await actionRef.current.reload()
+                        await mutate()
                         model.message.success(t('刷新成功'))
                     }}
                 >
@@ -150,10 +158,12 @@ export function ComputeGroupConfig () {
                 <Button
                     icon={<PlusOutlined />}
                     onClick={async () =>
-                        NiceModal.show(NodesConfigAddModal, { compute_group: current_compute_group, on_save: () => {
-                            if (actionRef.current)
-                                actionRef.current.reload()
-                        } })
+                        NiceModal.show(NodesConfigAddModal, {
+                            compute_group: current_compute_group, on_save: () => {
+                                if (actionRef.current)
+                                    actionRef.current.reload()
+                            }
+                        })
                     }
                 >
                     {t('新增配置')}
@@ -189,7 +199,7 @@ export function ComputeGroupConfig () {
                 columns={columns}
                 request={async () => {
                     const nodesConfigRaw = await config.load_configs()
-                            
+                    
                     // 将 nodes_configs 字符串数组转换为 NodesConfig 对象数组
                     const nodes_configs = Array.from(nodesConfigRaw.values())
                     
