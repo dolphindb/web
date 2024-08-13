@@ -104,8 +104,9 @@ export function NodesManagement () {
             <Button
                 icon={<PlusOutlined />}
                 onClick={async () => {
-                    NiceModal.show(GroupAddModal, { on_save: () => {
-                        mutate()
+                    NiceModal.show(GroupAddModal, { on_save: async form => {
+                        console.log(form)
+                        await mutate()
                     } })
                 }}
             >
