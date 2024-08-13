@@ -75,7 +75,7 @@
         "react-dom": "^18.3.1",
         "react-draggable": "^4.4.6",
         "react-markdown": "^9.0.1",
-        "react-object-model": "^1.2.10",
+        "react-object-model": "^1.2.11",
         "react-quill": "^2.0.0",
         "remark-gfm": "^4.0.0",
         "swr": "^2.2.5",
