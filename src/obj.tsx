@@ -1873,7 +1873,7 @@ function Chart ({
                                 title: {
                                     text: titles.y_axis
                                 },
-                                min: null,
+                                min: Math.floor(Math.min(...data.map(item => item.value))),
                             }}
                             isStack={stacking}
                             padding='auto'
