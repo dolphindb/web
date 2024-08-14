@@ -766,6 +766,7 @@ export class DdbModel extends Model<DdbModel> {
         }
         
         this.set({ nodes, node, controller, datanode })
+        return nodes as unknown as DdbNode[]
     }
     
     
