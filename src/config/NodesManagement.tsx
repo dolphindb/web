@@ -36,11 +36,14 @@ export function NodesManagement () {
     })
     
     const delete_nodes = useCallback(async (node_id: string) => {
+        if (!isNaN(Number(node_id))) 
+            return 
+        
         const nodes = await model.get_cluster_perf(false)
         const [rest, mode, group] = node_id.split(',')
         const [host, port, alias] = rest.split(':')
         const this_node = nodes.find(n => n.name === alias)
-        if (this_node.state === DdbNodeState.online) {
+        if (this_node?.state === DdbNodeState.online) {
             message.error(t('不能删除在线节点'))
             return 
         }
