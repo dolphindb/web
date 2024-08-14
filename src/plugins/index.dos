@@ -87,10 +87,10 @@ def getClusterPluginDirs() {
 def checkPluginName(zipName) {
     // zipName = "arrow-Linux-X86-3.00.1-3.00.1.zip"
     pattern = "^([^-]+)-[^-]+-[^-]+-[^-]+-[^-]+\.zip$"
-    res = regexFind(pluginName, pattern)
+    res = regexFind(zipName, pattern)
     
     if (res != 0) {
-        throw "invalid plugin name: " + pluginName + ", please use the official format"
+        throw "invalid plugin name: " + zipName + ", please use the official format"
     }
     
     return true
