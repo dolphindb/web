@@ -1,6 +1,6 @@
 import { PlusOutlined, ReloadOutlined, SearchOutlined } from '@ant-design/icons'
 import { EditableProTable, type ActionType } from '@ant-design/pro-components'
-import { AutoComplete, Button, Modal, Popconfirm } from 'antd'
+import { AutoComplete, Button, message, Modal, Popconfirm } from 'antd'
 import { useCallback, useRef, useState } from 'react'
 
 import useSWR from 'swr'
@@ -10,7 +10,7 @@ import { DdbDatabaseError } from 'dolphindb/browser.js'
 import NiceModal from '@ebay/nice-modal-react'
 
 import { t } from '../../i18n/index.js'
-import { model } from '../model.js'
+import { DdbNodeState, model } from '../model.js'
 
 import { config } from './model.js'
 import { type ClusterNode, type NodesConfig } from './type.js'
@@ -36,6 +36,14 @@ export function NodesManagement () {
     })
     
     const delete_nodes = useCallback(async (node_id: string) => {
+        const nodes = await model.get_cluster_perf(false)
+        const [rest, mode, group] = node_id.split(',')
+        const [host, port, alias] = rest.split(':')
+        const this_node = nodes.find(n => n.name === alias)
+        if (this_node.state === DdbNodeState.online) {
+            message.error(t('不能删除在线节点'))
+            return 
+        }
         const new_nodes = _2_strs(all_nodes).filter(nod => nod !== node_id)
         await config.save_cluster_nodes(new_nodes)
         await mutate()
@@ -49,7 +57,7 @@ export function NodesManagement () {
             if (mode === 'agent')
                 await config.add_agent_to_controller(host, Number(port), alias)
             if (idx === -1) // 新增
-                await config.save_cluster_nodes([`${host}:${port}:${alias},${mode},${group}`, ...node_strs])
+                await config.save_cluster_nodes([...node_strs, `${host}:${port}:${alias},${mode},${group}`,])
             else // 修改
                 await config.save_cluster_nodes(node_strs.toSpliced(idx, 1, `${host}:${port}:${alias},${mode},${group}`))
             mutate()
@@ -100,7 +108,17 @@ export function NodesManagement () {
     }
     
     async function delete_group (group_name: string) {
-        console.log(group_name)
+        const nodes = await model.get_cluster_perf(false)
+        const group_nodes = nodes.filter(node => node.computeGroup === group_name)
+        let can_delete = true
+        for (const node of group_nodes) 
+            if (node.state === DdbNodeState.online) 
+                can_delete = false
+            
+        if (!can_delete) {
+            message.error(t('组内有在线节点，无法删除'))
+            return 
+        }
         await config.load_configs()
         const config_map = config.nodes_configs
         const keys_to_delete = [ ]
@@ -206,7 +224,10 @@ function NodeTable ({ nodes, group, onSave, onDelete }: NodeTableProps) {
                     rules: [{
                         required: true,
                         message: t('请输入别名')
-                    }]
+                    }, is_group ? {
+                        pattern: new RegExp(`^${group}`),
+                        message: t('别名必须以组名 ') + group + t(' 开头')
+                    } : undefined]
                 }
             },
             {

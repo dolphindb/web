@@ -1,9 +1,11 @@
 import NiceModal from '@ebay/nice-modal-react'
-import { AutoComplete, Button, Form, Input, Modal } from 'antd'
+import { AutoComplete, Button, Form, Input, Modal, Tooltip } from 'antd'
 
 import { useCallback } from 'react'
 
 import { DdbDatabaseError } from 'dolphindb/browser.js'
+
+import { QuestionCircleOutlined } from '@ant-design/icons'
 
 import { t } from '../../i18n/index.js'
 
@@ -37,7 +39,12 @@ export const NodesConfigAddModal = NiceModal.create((props: { compute_group?: st
             form={add_config_form}
         >
             {!props.compute_group && <Form.Item
-                label={t('限定词')}
+                label={<span>
+                    {t('限定词')}
+                    <Tooltip title={t('指定此配置适用的节点名或节点名前缀（例如：node1 或 node%）')}>
+                        <span style={{ margin: '0 4px' }}><QuestionCircleOutlined /></span>
+                    </Tooltip>
+                </span>}
                 name='qualifier'
             >
                 <Input placeholder='e.g. dn1 or dn% or empty' />

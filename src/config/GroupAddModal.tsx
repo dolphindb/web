@@ -23,17 +23,17 @@ export const GroupAddModal = NiceModal.create((props: { on_save: (form: { group_
     const [batch_add_node_count, set_batch_add_node_count] = useState(1)
     
     function validate (): boolean {
-        if (group_name === '') 
+        if (group_name === '')
             return false
-        
-        for (const node of group_nodes) 
-            if (node.host === '' || node.port === '' || node.alias === '') 
-                return false
             
+        for (const node of group_nodes) // 非空校验，并且别名必须包含 group_name
+            if (node.host === '' || node.port === '' || node.alias === '' || (!node.alias.startsWith(group_name)))
+                return false
+                
         for (const config of group_configs)
             if (config.name === '' || config.value === '')
                 return false
-        
+                
         return true
     }
     
@@ -78,7 +78,14 @@ export const GroupAddModal = NiceModal.create((props: { on_save: (form: { group_
     
     
     const group_nodes_columns: TableProps<GroupNodesDatatype>['columns'] = [
-        { title: t('别名'), key: 'alias', render: (_, { key, alias }) => <Input status={(validating && alias === '') ? 'error' : undefined} placeholder={t('请输入别名')} value={alias} onChange={e => { update_group_node_by_field(key, 'alias', e.target.value) }} /> },
+        {
+            title: t('别名'), key: 'alias', render: (_, { key, alias }) => {
+                return <div>
+                    <Input status={(validating && (alias === '' || !alias.startsWith(group_name))) ? 'error' : undefined} placeholder={t('请输入别名')} value={alias} onChange={e => { update_group_node_by_field(key, 'alias', e.target.value) }} />
+                    {validating && !alias.startsWith(group_name) && <p className='validate-error'>{t('别名必须以组名')} {group_name} {t('开头')}</p>}
+                </div>
+            }
+        },
         { title: t('主机名 / IP 地址'), key: 'host', render: (_, { key, host }) => <Input status={(validating && host === '') ? 'error' : undefined} placeholder={t('请输入主机名 / IP 地址')} value={host} onChange={e => { update_group_node_by_field(key, 'host', e.target.value) }} /> },
         { title: t('端口号'), key: 'port', render: (_, { key, port }) => <Input status={(validating && port === '') ? 'error' : undefined} type='number' placeholder={t('请输入端口号')} value={port} onChange={e => { update_group_node_by_field(key, 'port', e.target.value) }} /> },
         
