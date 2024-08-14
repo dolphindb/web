@@ -4,7 +4,7 @@ import { type ReactNode, type JSX } from 'react'
 
 import { Tooltip, Progress, Tag, Checkbox } from 'antd'
 
-import { default as Icon } from '@ant-design/icons'
+import { default as Icon, LinkOutlined } from '@ant-design/icons'
 
 
 import { t, language } from '../../i18n/index.js'
@@ -238,7 +238,7 @@ function Node ({
                         </Tooltip>
                     </div>
                     <div className={'node-title' + ' ' + title_colors[mode]}>
-                        <div className='node-name'>{name}</div>
+                        <div className='node-name'>{name}<a target='_blank' href={generate_node_link(model.find_closest_node_host(node), node.port)} className='link-icon'><LinkOutlined /></a></div>
                         {isLeader && <Tag className='leader-tag' color='#FFF' >leader</Tag> }
                     </div>
                     <div className='node-click' onClick={() => { switchFold(node) }} />
