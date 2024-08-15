@@ -93,7 +93,8 @@ export function OverviewTable ({
                     </Space>
                 </div>,
             filterIcon: (filtered: boolean) => <SearchOutlined style={{ color: filtered ? '#1677ff' : undefined }} />,
-            render: (name: string, node: DdbNode) => <a target='_blank' href={generate_node_link(model.find_closest_node_host(node), node.port)}>
+            render: (name: string, node: DdbNode) =>
+                <a target='_blank' href={generate_node_link(model.find_closest_node_host(node), node.port)}>
                     {name}
                 </a>
         },

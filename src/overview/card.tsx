@@ -238,7 +238,15 @@ function Node ({
                         </Tooltip>
                     </div>
                     <div className={'node-title' + ' ' + title_colors[mode]}>
-                        <div className='node-name'>{name}<a target='_blank' href={generate_node_link(model.find_closest_node_host(node), node.port)} className='link-icon'><LinkOutlined /></a></div>
+                        <div className='node-name'>
+                            {name}
+                            <a
+                                target='_blank'
+                                href={generate_node_link(model.find_closest_node_host(node), node.port)} className='link-icon'
+                            >
+                                <LinkOutlined />
+                            </a>
+                        </div>
                         {isLeader && <Tag className='leader-tag' color='#FFF' >leader</Tag> }
                     </div>
                     <div className='node-click' onClick={() => { switchFold(node) }} />
