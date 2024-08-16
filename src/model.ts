@@ -230,8 +230,8 @@ export class DdbModel extends Model<DdbModel> {
             config.set_config('oauthWebType', 'authorization code')
             config.set_config('oauthAuthUri', 'https://dolphindb.net/oauth/authorize')
             config.set_config('oauthClientId', 'd7a10c46e0c34815a2eb213d5651c01bf4432d046bbe8a77ebd13da6783c91e5')
-            config.set_config('oauthClientSecret', '4c61a584d2bedaf64347f64a6de37226a1a2b5e15ecfba3e185b730e805d0862')
-            config.set_config('oauthRedirectUri', 'http://test.dolphindb.cn/web/?view=shell&hostname=192.168.0.200&port=20023'.quote())
+            config.set_config('oauthClientSecret', 'd819591ab7d9bb1c5adc0262a2d639979ba9c85c178227afbd0095f83e97af10')
+            config.set_config('oauthRedirectUri', 'http://localhost:8432/?hostname=192.168.0.147&port=8900'.quote())
             
             await config.save_configs()
             
@@ -253,21 +253,21 @@ export class DdbModel extends Model<DdbModel> {
         }
         
         if (this.autologin) 
-            if (this.oauth)
-                await this.login_by_oauth()
-            else
-                try {
-                    await this.login_by_ticket()
-                } catch {
-                    console.log(t('ticket 登录失败'))
-                    
+            try {
+                await this.login_by_ticket()
+            } catch {
+                console.log(t('ticket 登录失败'))
+                
+                if (this.oauth)
+                    await this.login_by_oauth()
+                else
                     if (this.dev || this.test)
                         try {
                             await this.login_by_password('admin', '123456')
                         } catch {
                             console.log(t('使用默认 admin 账号密码登录失败'))
                         }
-                }
+            }
         
         
         await this.get_cluster_perf(true)
@@ -323,13 +323,13 @@ export class DdbModel extends Model<DdbModel> {
         await this.ddb.call('login', [username, password], { urgent: true })
         
         const ticket = (
-            await this.ddb.call<DdbObj<string>>('getAuthenticatedUserTicket', [ ], {
+            await this.ddb.invoke<string>('getAuthenticatedUserTicket', undefined, {
                 urgent: true,
                 ... this.node_type === NodeType.controller || this.node_type === NodeType.single 
                     ? { }
                     : { node: this.controller_alias, func_type: DdbFunctionType.SystemFunc }
             })
-        ).value
+        )
         
         localStorage.setItem(storage_keys.username, username)
         localStorage.setItem(storage_keys.ticket, ticket)
@@ -342,6 +342,7 @@ export class DdbModel extends Model<DdbModel> {
     }
     
     
+    /** 通过 oauthLogin 和 getAuthenticatedUserTicket 拿到的两种 ticket 登录 */
     async login_by_ticket () {
         const ticket = localStorage.getItem(storage_keys.ticket)
         if (!ticket)
@@ -416,17 +417,8 @@ export class DdbModel extends Model<DdbModel> {
     async login_by_oauth () {
         let url = new URL(location.href)
         
-        /** server 是否实现了 oauthLogin 函数 */
-        let oauth_login = false
-        
-        try {
-            await this.ddb.execute('oauthLogin')
-            oauth_login = true
-        } catch { }
-        
-        const implemented = oauth_login ? t('实现了') : t('未实现')
-        
-        let logined = false
+        // 有 ticket 说明 oauthLogin 登录成功
+        let ticket: string
         
         // https://datatracker.ietf.org/doc/html/rfc6749#section-4.2.2
         if (this.oauth_type === 'implicit') {
@@ -437,19 +429,10 @@ export class DdbModel extends Model<DdbModel> {
             
             if (access_token) {
                 console.log(t(
-                    '尝试 oauth 单点登录，{{implemented}} oauthLogin, 类型是 implicit, token_type 为 {{token_type}}, access_token 为 {{access_token}}',
-                    {
-                        token_type,
-                        access_token,
-                        implemented
-                    }))
+                    '尝试 oauth 单点登录，类型是 implicit, token_type 为 {{token_type}}, access_token 为 {{access_token}}',
+                    { token_type, access_token }))
                 
-                if (oauth_login)
-                    await this.ddb.invoke('oauthLogin', [this.oauth_type, { token_type, access_token }])
-                else
-                    await this.ddb.invoke('login', [this.oauth_type, `${token_type} ${access_token}`])
-                
-                logined = true
+                ticket = await this.ddb.invoke<string>('oauthLogin', [this.oauth_type, { token_type, access_token }])
             } else
                 console.log(t('尝试 oauth 单点登录，类型是 implicit, 无 access_token'))
         } else {
@@ -458,37 +441,32 @@ export class DdbModel extends Model<DdbModel> {
             
             if (code) {
                 console.log(
-                    t('尝试 oauth 单点登录，{{implemented}} oauthLogin, 类型是 authorization code, code 为 {{code}}',
-                    { code, implemented }))
+                    t('尝试 oauth 单点登录，类型是 authorization code, code 为 {{code}}',
+                    { code }))
                 
-                if (oauth_login)
-                    await this.ddb.invoke('oauthLogin', [this.oauth_type, { code }])
-                else
-                    await this.ddb.invoke('login', [this.oauth_type, code])
+                ticket = await this.ddb.invoke<string>('oauthLogin', [this.oauth_type, { code }])
                 
                 searchParams.delete('code')
                 history.replaceState(null, '', url.toString())
-                
-                logined = true
             } else
                 console.log(t('尝试 oauth 单点登录，类型是 authorization code, 无 code'))
         }
         
         
-        if (logined) {
+        if (ticket) {
             const [session, username] = await this.ddb.invoke<[string, string]>('getCurrentSessionAndUser')
             
             if (username === username_guest)
                 throw new Error(t('通过 oauth 单点登录之后的 username 不能是 {{guest}}', { guest: username_guest }))
             
+            localStorage.setItem(storage_keys.username, username)
+            localStorage.setItem(storage_keys.ticket, ticket)
+            
+            this.set({ logined: true, username })
+            
             await this.is_admin()
             
-            this.set({
-                logined: true,
-                username,
-            })
-            
-            console.log(t('oauth 单点登录成功, username:'), username)
+            console.log(t('{{username}} 使用 oauth 单点登录成功', { username: this.username }))
         }
     }
     

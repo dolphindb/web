@@ -43,6 +43,7 @@ class ConfigModel extends Model<ConfigModel> {
     }
     
     
+    /** 读取配置文件 key 配置项对应的值，返回字符串值或 undefined */
     get_config <TValue extends string> (key: string): TValue | undefined {
         return this.nodes_configs.get(key)?.value as TValue
     }

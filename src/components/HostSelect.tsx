@@ -19,6 +19,10 @@ export function HostSelect () {
                 value: '192.168.0.90:8848'
             },
             {
+                label: '单点登录',
+                value: '192.168.0.147:8900'
+            },
+            {
                 label: '外汇交易中心',
                 value: '183.134.101.138:8018'
             },
