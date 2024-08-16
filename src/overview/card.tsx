@@ -18,7 +18,7 @@ import SvgMemory from './icons/memory.icon.svg'
 import SvgDisk from './icons/disk.icon.svg'
 import SvgNetwork from './icons/network.icon.svg'
 import SvgTask from './icons/task.icon.svg'
-import { generate_node_link, ns2ms } from './utils.js'
+import { ns2ms } from './utils.js'
 
 
 export function OverviewCard ({
@@ -242,7 +242,7 @@ function Node ({
                             {name}
                             <a
                                 target='_blank'
-                                href={generate_node_link(model.find_closest_node_host(node), node.port)} className='link-icon'
+                                href={model.get_node_url(node)} className='link-icon'
                             >
                                 <LinkOutlined />
                             </a>

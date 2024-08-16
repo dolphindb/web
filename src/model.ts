@@ -420,6 +420,14 @@ export class DdbModel extends Model<DdbModel> {
         // 有 ticket 说明 oauthLogin 登录成功
         let ticket: string
         
+        /** redirect_uri 只能跳转到其中某个节点，需要带参数跳回到原发起登录的节点 */
+        const jump = (state: string) => {
+            if (state !== this.node_alias)
+                location.href = this.get_node_url(
+                    this.nodes.find(({ name }) => name === state)
+                )
+        }
+        
         // https://datatracker.ietf.org/doc/html/rfc6749#section-4.2.2
         if (this.oauth_type === 'implicit') {
             const params = new URLSearchParams(url.hash.slice(1))
@@ -427,6 +435,10 @@ export class DdbModel extends Model<DdbModel> {
             const access_token = params.get('access_token') || params.get('accessToken')
             const token_type = params.get('token_type') || params.get('tokenType')
             const expires_in = params.get('expires_in') || params.get('expiresIn')
+            
+            jump(
+                params.get('state')
+            )
             
             if (access_token) {
                 console.log(t(
@@ -443,8 +455,12 @@ export class DdbModel extends Model<DdbModel> {
             } else
                 console.log(t('尝试 oauth 单点登录，类型是 implicit, 无 access_token'))
         } else {
-            let { searchParams } = url
-            const code = searchParams.get('code')
+            let { searchParams: params } = url
+            const code = params.get('code')
+            
+            jump(
+                params.get('state')
+            )
             
             if (code) {
                 console.log(
@@ -453,7 +469,7 @@ export class DdbModel extends Model<DdbModel> {
                 
                 ticket = await this.ddb.invoke<string>('oauthLogin', [this.oauth_type, { code }])
                 
-                searchParams.delete('code')
+                params.delete('code')
                 history.replaceState(null, '', url.toString())
             } else
                 console.log(t('尝试 oauth 单点登录，类型是 authorization code, 无 code'))
@@ -677,6 +693,7 @@ export class DdbModel extends Model<DdbModel> {
                     response_type: this.oauth_type === 'implicit' ? 'token' : 'code',
                     client_id,
                     ... redirect_uri ? { redirect_uri } : { },
+                    state: this.node_alias,
                 }).toString()
             ).toString()
             
@@ -766,7 +783,7 @@ export class DdbModel extends Model<DdbModel> {
     }
     
     
-    find_closest_node_host (node: DdbNode) {
+    find_node_closest_hostname (node: DdbNode) {
         const params = new URLSearchParams(location.search)
         const current_connect_host = params.get('hostname') || location.hostname
         
@@ -814,12 +831,13 @@ export class DdbModel extends Model<DdbModel> {
             const leader = this.nodes.find(node => node.isLeader)
             
             if (leader) {
-                const host = this.find_closest_node_host(leader)
+                const url = this.get_node_url(leader)
                 alert(
                     t('您访问的这个控制节点现在不是高可用 (raft) 集群的 leader 节点, 将会为您自动跳转到集群当前的 leader 节点: ') + 
-                    `${host}:${leader.port}`
+                    `${url}`
                 )
-                this.navigate_to(host, leader.port, { keep_current_query: true })
+                
+                location.href = url
             }
         }
     }
@@ -953,47 +971,47 @@ export class DdbModel extends Model<DdbModel> {
     }
     
     
-    navigate_to_node (node: DdbNode, options?: NavigateToOptions) {
-        this.navigate_to(node.publicName || node.host, node.port, options)
-    }
-    
-    
-    navigate_to (
-        hostname: string,
-        port: string | number,
-        options: NavigateToOptions = { }
-    ) {
-        const {
+    /** 获取 node 最优跳转 url */
+    get_node_url (
+        node: DdbNode, 
+        {
             pathname = location.pathname,
-            query: extra_query,
-            keep_current_query = false,
-            open = false
-        } = options
+            queries,
+            keep_current_queries = true,
+        }: {
+            pathname?: string
+            queries?: ConstructorParameters<typeof URLSearchParams>[0]
+            keep_current_queries?: boolean
+        } = { }
+    ) {
+        const { port } = node
+        const hostname = this.find_node_closest_hostname(node)
         
-        const current_params = new URLSearchParams(location.search)
-        const is_query_params_mode = current_params.get('hostname') || current_params.get('port')
+        const current_queries = new URLSearchParams(location.search)
+        const is_query_params_mode = current_queries.get('hostname') || current_queries.get('port')
         
-        const new_params = new URLSearchParams(extra_query)
+        const queries_ = new URLSearchParams(queries)
         
-        if (keep_current_query) 
-            current_params.forEach((v, key) => {
-                !new_params.has(key) && new_params.set(key, v)
+        if (keep_current_queries) 
+            current_queries.forEach((v, key) => {
+                if (!queries_.has(key))
+                    queries_.set(key, v)
             })
-            
         
         if (is_query_params_mode) {
-            new_params.set('hostname', hostname)
-            new_params.set('port', port.toString())
+            queries_.set('hostname', hostname)
+            queries_.set('port', port.toString())
         }
         
-        const url_hostname = is_query_params_mode ? location.hostname : hostname
-        const url_port = is_query_params_mode ? location.port : port
-        const url = `${location.protocol}//${url_hostname}:${url_port}${pathname}?${new_params.toString()}`
+        const port_ = is_query_params_mode ? location.port : port
+        const query_string = queries_.toString()
         
-        if (open) 
-            window.open(url, '_blank')
-         else
-            location.href = url
+        return location.protocol + '//' +
+            (is_query_params_mode ? location.hostname : hostname) + 
+            (port_ ? `:${port_}` : '') +
+            pathname + 
+            (query_string ? `?${query_string}` : '') +
+            location.hash
     }
     
     
@@ -1250,14 +1268,6 @@ export interface DdbJob {
 export enum DdbNodeState {
     online = 1,
     offline = 0,
-}
-
-
-interface NavigateToOptions {
-    pathname?: string
-    query?: ConstructorParameters<typeof URLSearchParams>[0]
-    keep_current_query?: boolean
-    open?: boolean
 }
 
 
