@@ -27,7 +27,7 @@ import { language } from '../i18n/index.js'
 import 'dayjs/locale/zh-cn'
 dayjs.locale(language === 'zh' ? 'zh-cn' : language)
 
-import { model } from './model.js'
+import { model, type PageViews } from './model.js'
 
 import { DdbHeader } from './components/DdbHeader.js'
 import { DdbSider } from './components/DdbSider.js'
@@ -136,7 +136,7 @@ function MainLayout () {
 }
 
 
-const views = {
+const views: Partial<Record<PageViews, React.FunctionComponent>> = {
     login: Login,
     overview: Overview,
     config: Config,

@@ -43,7 +43,9 @@ const json_error_pattern = /^{.*"code": "(.*?)".*}$/
 
 const username_guest = 'guest' as const
 
-export type PageViews = 'overview' | 'shell' | 'dashboard' | 'table' | 'job' | 'plugins' | 'login' | 'dfs' | 'log' | 'factor' | 'test' | 'computing' | 'tools' | 'iot-guide' | 'finance-guide' | 'access' | 'user' | 'group' | 'config'
+export type PageViews = 'overview' | 'shell' | 'dashboard' | 'table' | 'job' | 'plugins' | 'login' | 'dfs' | 'log' | 
+    'factor' | 'test' | 'computing' | 'tools' | 'iot-guide' | 'finance-guide' | 'access' | 'user' | 'group' | 'config' |
+    'settings'
 
 
 type OAuthType = 'authorization code' | 'implicit'

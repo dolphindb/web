@@ -1,5 +1,3 @@
-#!/usr/bin/env node
-
 import process from 'process'
 
 import { fdclear } from 'xshell'
