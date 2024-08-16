@@ -235,7 +235,13 @@ export class DdbModel extends Model<DdbModel> {
             config.set_config('oauthAuthUri', 'https://github.com/login/oauth/authorize')
             config.set_config('oauthClientId', 'Ov23liZJ5nXZvunhpJLI')
             config.set_config('oauthClientSecret', '3c289d4ab4cee18f834d66a94b38c736fc52e40a')
+            
+            config.delete_config('oauthRedirectUri')
             config.set_config('oauthRedirectUri', 'http://test.dolphindb.cn/web/?hostname=192.168.0.200&port=20023'.quote())
+            
+            config.set_config('oauthTokenUri', 'https://github.com/login/oauth/access_token')
+            config.set_config('oauthUserUri', 'https://api.github.com/user')
+            config.set_config('oauthUserField', 'name')
             
             await config.save_configs()
             
