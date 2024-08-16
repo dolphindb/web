@@ -426,13 +426,20 @@ export class DdbModel extends Model<DdbModel> {
             
             const access_token = params.get('access_token') || params.get('accessToken')
             const token_type = params.get('token_type') || params.get('tokenType')
+            const expires_in = params.get('expires_in') || params.get('expiresIn')
             
             if (access_token) {
                 console.log(t(
-                    '尝试 oauth 单点登录，类型是 implicit, token_type 为 {{token_type}}, access_token 为 {{access_token}}',
-                    { token_type, access_token }))
+                    '尝试 oauth 单点登录，类型是 implicit, token_type 为 {{token_type}}, access_token 为 {{access_token}}, expires_in 为 {{expires_in}}',
+                    { token_type, access_token, expires_in }))
                 
-                ticket = await this.ddb.invoke<string>('oauthLogin', [this.oauth_type, { token_type, access_token }])
+                ticket = await this.ddb.invoke<string>('oauthLogin', [this.oauth_type, {
+                    token_type,
+                    access_token,
+                    expires_in
+                }])
+                
+                url.hash = ''
             } else
                 console.log(t('尝试 oauth 单点登录，类型是 implicit, 无 access_token'))
         } else {
