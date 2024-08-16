@@ -5,12 +5,12 @@ import { useCallback, useRef, useState } from 'react'
 
 import useSWR from 'swr'
 
-import { DdbDatabaseError } from 'dolphindb/browser.js'
+import { DdbDatabaseError, DdbInt } from 'dolphindb/browser.js'
 
 import NiceModal from '@ebay/nice-modal-react'
 
 import { t } from '../../i18n/index.js'
-import { DdbNodeState, model } from '../model.js'
+import { DdbNodeState, model, NodeType } from '../model.js'
 
 import { config } from './model.js'
 import { type ClusterNode, type NodesConfig } from './type.js'
@@ -47,6 +47,9 @@ export function NodesManagement () {
             message.error(t('不能删除在线节点'))
             return 
         }
+        if (this_node && this_node.mode === NodeType.computing) // 必须是计算节点才能在线删除
+            model.ddb.call('removeNode', [this_node.name])
+        
         const new_nodes = _2_strs(all_nodes).filter(nod => nod !== node_id)
         await config.save_cluster_nodes(new_nodes)
         await mutate()
@@ -55,16 +58,29 @@ export function NodesManagement () {
     async function save_node_impl ({ rowKey, host, port, alias, mode, group }) {
         try {
             const node_strs = _2_strs(all_nodes)
-            let idx = node_strs.indexOf(rowKey as string)
+            let idx = all_nodes.findIndex(node => node.alias === alias)
             // 代理节点先执行 addAgentToController 在线添加
             if (mode === 'agent')
                 await config.add_agent_to_controller(host, Number(port), alias)
-            if (idx === -1) // 新增
+            if (idx < 0) { // 新增
                 await config.save_cluster_nodes([...node_strs, `${host}:${port}:${alias},${mode},${group}`,])
-            else // 修改
+                const add_node_arg = [host, new DdbInt(Number(port)), alias, true, mode]
+                if (group)
+                    add_node_arg.push(group)
+                const perf = await model.get_cluster_perf(false)
+                if (perf.findIndex(node => node.name === alias) < 0) // 如果集群中没有该节点
+                    await model.ddb.call('addNode', add_node_arg)
+                model.message.success(t('新增成功，请到集群总览启动'))
+                mutate()
+            }
+            else { // 修改
                 await config.save_cluster_nodes(node_strs.toSpliced(idx, 1, `${host}:${port}:${alias},${mode},${group}`))
-            mutate()
-            model.message.success(t('保存成功，重启集群生效'))
+                
+                mutate()
+                model.message.success(t('保存成功，重启集群生效'))
+            }
+            
+            
         } catch (error) {
             // 数据校验不需要展示报错弹窗
             if (error instanceof DdbDatabaseError)
@@ -92,6 +108,7 @@ export function NodesManagement () {
     
     async function add_group (form: { group_name: string, group_nodes: GroupNodesDatatype[], group_configs: GroupConfigDatatype[] }) {
         const { group_name, group_nodes, group_configs } = form
+        const group_nodes_to_add = group_nodes.filter(node => all_nodes.findIndex(exist_node => exist_node.alias === node.alias) < 0)
         await config.load_configs()
         const configs: Array<[string, NodesConfig]> = [ ]
         for (const config of group_configs) {
@@ -103,10 +120,15 @@ export function NodesManagement () {
         await config.change_configs(configs)
         await config.load_configs()
         const node_strs = _2_strs(all_nodes)
-        const new_nodes = group_nodes.map(node => `${node.host}:${node.port}:${node.alias},computenode,${group_name}`)
+        const new_nodes = group_nodes_to_add.map(node => `${node.host}:${node.port}:${node.alias},computenode,${group_name}`)
         const new_node_strs = [...node_strs, ...new_nodes]
         const unique_node_strs = Array.from(new Set(new_node_strs))
         await config.save_cluster_nodes(unique_node_strs)
+        const perf = await model.get_cluster_perf(false)
+        for (const node_to_add of group_nodes_to_add) 
+            if (perf.findIndex(node => node.name === node_to_add.alias) < 0)
+                await model.ddb.call('addNode', [node_to_add.host, new DdbInt(Number(node_to_add.port)), node_to_add.alias, true, 'computenode', group_name])
+        
         await mutate()
     }
     
@@ -132,6 +154,11 @@ export function NodesManagement () {
         await config.load_configs()
         const new_nodes = all_nodes.filter(node => node.computeGroup !== group_name)
         await config.save_cluster_nodes(_2_strs(new_nodes))
+        
+        // 调用删除节点 API
+        for (const node of group_nodes)
+            await model.ddb.call('removeNode', [node.name])
+        
         await mutate()
     }
     

@@ -2,7 +2,7 @@ import { Button, Checkbox, Col, Divider, Dropdown, Input, Modal, Row, Space, Tab
 
 import { CheckCircleOutlined, MinusCircleOutlined, PauseCircleOutlined, SearchOutlined, SettingOutlined } from '@ant-design/icons'
 
-import { useMemo, useRef, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 
 import { use_modal } from 'react-object-model/hooks.js'
 
@@ -44,7 +44,8 @@ export function OverviewTable ({
         return { name: name, nodes: nodes.filter(node => node.computeGroup === name) }
     })
     
-    const ungrouped_nodes = { name: t('未分组'), nodes: nodes.filter(node => !node.computeGroup) }
+    const ungrouped_nodes = { name: t('未分组'), nodes: nodes.filter(node => !node.computeGroup && node.mode !== NodeType.data) }
+    const data_nodes = { name: t('存储集群'), nodes: nodes.filter(node => node.mode === NodeType.data) }
     
     const [searchText, setSearchText] = useState('')
     
@@ -60,6 +61,10 @@ export function OverviewTable ({
         clearFilters()
         setSearchText('')
     }
+    
+    useEffect(() => {
+        model.get_cluster_perf(true)
+    }, [ ])
     
     const columns: TableColumnsType<DdbNode> = useMemo(() => [
         {
@@ -331,10 +336,10 @@ export function OverviewTable ({
             key: 'agent',
             label: <span className='agent-node-title'>{t('代理节点')}</span>,
             children: (
-                <div className='agent-node-card'>
+                <div className='agent-node-card' key='agents'>
                     {nodes
                         .filter(({ mode }) => mode === NodeType.agent)
-                        .map(({ name, state }) => <div className='agent-node-item'>
+                        .map(({ name, state }) => <div className='agent-node-item' key={`agent-${name}`}>
                                 {name}
                                 {node_state_icons[Number(state)]}
                             </div>)}
@@ -343,7 +348,9 @@ export function OverviewTable ({
         }
     ]
     
-    const tables = [ungrouped_nodes, ...groups].map(group => {
+    const tables = [ungrouped_nodes, data_nodes.nodes.length > 0 ? data_nodes : undefined, ...groups].map(group => {
+        if (!group)
+            return null
         const group_nodes = group.nodes
         return <div key={group.name}>
             <div className='group-title'>{group.name}</div>
