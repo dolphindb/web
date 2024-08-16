@@ -834,7 +834,7 @@ export class DdbModel extends Model<DdbModel> {
                 const url = this.get_node_url(leader)
                 alert(
                     t('您访问的这个控制节点现在不是高可用 (raft) 集群的 leader 节点, 将会为您自动跳转到集群当前的 leader 节点: ') + 
-                    `${url}`
+                    url
                 )
                 
                 location.href = url
