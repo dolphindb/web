@@ -232,10 +232,11 @@ export class DdbModel extends Model<DdbModel> {
             
             config.set_config('oauth', '1')
             config.set_config('oauthWebType', 'authorization code')
-            config.set_config('oauthAuthUri', 'https://dolphindb.net/oauth/authorize')
-            config.set_config('oauthClientId', 'd7a10c46e0c34815a2eb213d5651c01bf4432d046bbe8a77ebd13da6783c91e5')
-            config.set_config('oauthClientSecret', 'd819591ab7d9bb1c5adc0262a2d639979ba9c85c178227afbd0095f83e97af10')
-            config.set_config('oauthRedirectUri', 'http://localhost:8432/?hostname=192.168.0.147&port=8900'.quote())
+            config.set_config('oauthAuthUri', 'https://github.com/login/oauth/authorize')
+            config.set_config('oauthClientId', 'Ov23liZJ5nXZvunhpJLI')
+            config.set_config('oauthClientSecret', '3c289d4ab4cee18f834d66a94b38c736fc52e40a')
+            config.delete_config('oauthRedirectUri')
+            // config.set_config('oauthRedirectUri', 'http://localhost:8432/?hostname=192.168.0.200&port=20023'.quote())
             
             await config.save_configs()
             
@@ -424,7 +425,7 @@ export class DdbModel extends Model<DdbModel> {
         
         /** redirect_uri 只能跳转到其中某个节点，需要带参数跳回到原发起登录的节点 */
         const jump = (state: string) => {
-            if (state !== this.node_alias)
+            if (state && state !== this.node_alias)
                 location.href = this.get_node_url(
                     this.nodes.find(({ name }) => name === state)
                 )
@@ -438,14 +439,14 @@ export class DdbModel extends Model<DdbModel> {
             const token_type = params.get('token_type') || params.get('tokenType')
             const expires_in = params.get('expires_in') || params.get('expiresIn')
             
-            jump(
-                params.get('state')
-            )
-            
             if (access_token) {
                 console.log(t(
                     '尝试 oauth 单点登录，类型是 implicit, token_type 为 {{token_type}}, access_token 为 {{access_token}}, expires_in 为 {{expires_in}}',
                     { token_type, access_token, expires_in }))
+                
+                jump(
+                    params.get('state')
+                )
                 
                 ticket = await this.ddb.invoke<string>('oauthLogin', [this.oauth_type, {
                     token_type,
@@ -460,14 +461,14 @@ export class DdbModel extends Model<DdbModel> {
             let { searchParams: params } = url
             const code = params.get('code')
             
-            jump(
-                params.get('state')
-            )
-            
             if (code) {
                 console.log(
                     t('尝试 oauth 单点登录，类型是 authorization code, code 为 {{code}}',
                     { code }))
+                
+                jump(
+                    params.get('state')
+                )
                 
                 ticket = await this.ddb.invoke<string>('oauthLogin', [this.oauth_type, { code }])
                 
