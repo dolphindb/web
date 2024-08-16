@@ -723,7 +723,7 @@ export class DdbModel extends Model<DdbModel> {
                     response_type: this.oauth_type === 'implicit' ? 'token' : 'code',
                     client_id,
                     ... redirect_uri ? { redirect_uri } : { },
-                    state: this.node_alias,
+                    ... redirect_uri?.includes('dolphindb.net') ? { } : { state: this.node_alias }
                 }).toString()
             ).toString()
             
