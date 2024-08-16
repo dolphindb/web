@@ -217,8 +217,12 @@ export class DdbModel extends Model<DdbModel> {
             this.get_controller_alias()
         ])
         
-        // 必须先调用上面的函数，load_configs 依赖 controller alias 等信息
-        await config.load_configs()
+        await Promise.all([
+            // 必须先调用上面的函数，load_configs 依赖 controller alias 等信息
+            config.load_configs(),
+            
+            this.get_cluster_perf(true)
+        ])
         
         // local
         // await this.login_by_password('admin', '123456')
@@ -269,8 +273,6 @@ export class DdbModel extends Model<DdbModel> {
                         }
             }
         
-        
-        await this.get_cluster_perf(true)
         
         await this.check_leader_and_redirect()
         
