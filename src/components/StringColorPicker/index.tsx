@@ -10,7 +10,7 @@ interface IProps extends Omit<ColorPickerProps, 'onChange' | 'value'> {
 export function StringColorPicker (props: IProps) { 
     const { onChange, ...others } = props  
     
-    const on_color_change = useCallback<ColorPickerProps['onChange']>((color: Color, hex) => {
+    const on_color_change = useCallback<ColorPickerProps['onChange']>((_color: Color, hex) => {
         onChange?.(hex)
     }, [ ])
     
