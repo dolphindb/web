@@ -54,6 +54,9 @@ export function ComputeGroupConfig () {
     useEffect(() => {
         if (groups.length > 0 && current_compute_group === '')
             set_current_compute_group(groups[0])
+        
+        if (groups.length <= 0)
+            set_current_compute_group('')
             
     }, [JSON.stringify(groups)])
     
@@ -155,7 +158,7 @@ export function ComputeGroupConfig () {
                     {t('刷新')}
                 </Button>
                 
-                <Button
+                {current_compute_group !== '' && <Button
                     icon={<PlusOutlined />}
                     onClick={async () =>
                         NiceModal.show(NodesConfigAddModal, {
@@ -167,7 +170,7 @@ export function ComputeGroupConfig () {
                     }
                 >
                     {t('新增配置')}
-                </Button>
+                </Button>}
                 
                 <div className='auto-search'>
                     <AutoComplete<string>
