@@ -227,7 +227,7 @@ export class DdbModel extends Model<DdbModel> {
         // local
         // await this.login_by_password('admin', '123456')
         
-        if (this.params.get('set-oauth') === '1') {
+        if (this.params.get('set-oauth') === 'github') {
             await this.login_by_password('admin', '123456')
             
             config.set_config('oauth', '1')
@@ -236,6 +236,7 @@ export class DdbModel extends Model<DdbModel> {
             config.set_config('oauthClientId', 'Ov23liZJ5nXZvunhpJLI')
             config.set_config('oauthClientSecret', '3c289d4ab4cee18f834d66a94b38c736fc52e40a')
             
+            // todo: 测试 github 是否支持不传 redirect_uri
             // config.delete_config('oauthRedirectUri')
             config.set_config('oauthRedirectUri', 'http://test.dolphindb.cn/web/?hostname=192.168.0.200&port=20023'.quote())
             
@@ -247,6 +248,27 @@ export class DdbModel extends Model<DdbModel> {
             
             await this.logout()
         }
+        
+        if (this.params.get('set-oauth') === 'gitlab') {
+            await this.login_by_password('admin', '123456')
+            
+            config.set_config('oauth', '1')
+            config.set_config('oauthWebType', 'authorization code')
+            config.set_config('oauthAuthUri', 'https://dolphindb.net/oauth/authorize')
+            config.set_config('oauthClientId', 'd7a10c46e0c34815a2eb213d5651c01bf4432d046bbe8a77ebd13da6783c91e5')
+            config.set_config('oauthClientSecret', 'd819591ab7d9bb1c5adc0262a2d639979ba9c85c178227afbd0095f83e97af10')
+            
+            config.set_config('oauthRedirectUri', 'http://test.dolphindb.cn/web/?hostname=192.168.0.200&port=20023'.quote())
+            
+            config.set_config('oauthTokenUri', 'https://dolphindb.net/oauth/token')
+            config.set_config('oauthUserUri', 'https://dolphindb.net/api/v4/user')
+            config.set_config('oauthUserField', 'username')
+            
+            await config.save_configs()
+            
+            await this.logout()
+        }
+        
         
         this.set({
             oauth: config.get_boolean_config('oauth'),
