@@ -23,6 +23,7 @@ import { language, t } from '../i18n/index.js'
 
 import type { FormatErrorOptions } from './components/GlobalErrorBoundary.js'
 import { config } from './config/model.js'
+import { strip_quotes } from './utils/index.js'
 
 
 export const storage_keys = {
@@ -710,17 +711,13 @@ export class DdbModel extends Model<DdbModel> {
         @param redirection 设置登录完成后的回跳页面，默认取当前 view */
     goto_login (redirection: PageViews = this.view) {
         if (this.oauth) {
-            const auth_uri = config.get_config('oauthAuthUri')
-            const client_id = config.get_config('oauthClientId')
-            let redirect_uri = config.get_config('oauthRedirectUri')
-            if (
-                redirect_uri && 
-                (
-                    redirect_uri.startsWith("'") && redirect_uri.endsWith("'") ||
-                    redirect_uri.startsWith('"') && redirect_uri.endsWith('"')
-                )
+            const auth_uri = strip_quotes(
+                config.get_config('oauthAuthUri')
             )
-                redirect_uri = redirect_uri.slice(1, -1)
+            const client_id = config.get_config('oauthClientId')
+            const redirect_uri = strip_quotes(
+                config.get_config('oauthRedirectUri')
+            )
             
             if (!auth_uri || !client_id)
                 throw new Error(t('必须配置 oauthAuthUri, oauthClientId 参数'))
