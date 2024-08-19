@@ -2,6 +2,8 @@ import { Model } from 'react-object-model'
 
 import { DdbFunctionType, type DdbObj, type DdbValue, DdbVectorString, type DdbVectorStringObj, DdbInt, type DdbCallOptions } from 'dolphindb/browser.js'
 
+import { t } from '@i18n/index.js'
+
 import { NodeType, model } from '../model.js'
 
 import { type NodesConfig } from './type.js'
@@ -40,6 +42,16 @@ class ConfigModel extends Model<ConfigModel> {
                 (await this.call<DdbVectorStringObj>('loadClusterNodesConfigs', undefined, { urgent: true }))
                     .value)
         })
+        
+        
+        console.log(
+            t('配置:'),
+            Object.fromEntries(
+                // @ts-ignore
+                // todo: polyfill
+                this.nodes_configs.entries().map(([key, { value }]) => [key, value])
+            )
+        )
     }
     
     

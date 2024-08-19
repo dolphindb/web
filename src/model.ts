@@ -227,7 +227,7 @@ export class DdbModel extends Model<DdbModel> {
         // local
         // await this.login_by_password('admin', '123456')
         
-        if (this.params.get('set-oauth') === 'github') {
+        if (this.params.get('oauth') === 'github') {
             await this.login_by_password('admin', '123456')
             
             config.set_config('oauth', '1')
@@ -238,7 +238,10 @@ export class DdbModel extends Model<DdbModel> {
             
             // todo: 测试 github 是否支持不传 redirect_uri
             // config.delete_config('oauthRedirectUri')
-            config.set_config('oauthRedirectUri', 'http://test.dolphindb.cn/web/?hostname=192.168.0.200&port=20023'.quote())
+            
+            // 和 github application 保持一致
+            // https://github.com/settings/applications/2674516
+            config.set_config('oauthRedirectUri', 'http://localhost:8432/?hostname=192.168.0.129&port=8900'.quote())
             
             config.set_config('oauthTokenUri', 'https://github.com/login/oauth/access_token')
             config.set_config('oauthUserUri', 'https://api.github.com/user')
@@ -249,7 +252,7 @@ export class DdbModel extends Model<DdbModel> {
             await this.logout()
         }
         
-        if (this.params.get('set-oauth') === 'gitlab') {
+        if (this.params.get('oauth') === 'gitlab') {
             await this.login_by_password('admin', '123456')
             
             config.set_config('oauth', '1')
@@ -258,7 +261,9 @@ export class DdbModel extends Model<DdbModel> {
             config.set_config('oauthClientId', 'd7a10c46e0c34815a2eb213d5651c01bf4432d046bbe8a77ebd13da6783c91e5')
             config.set_config('oauthClientSecret', 'd819591ab7d9bb1c5adc0262a2d639979ba9c85c178227afbd0095f83e97af10')
             
-            config.set_config('oauthRedirectUri', 'http://test.dolphindb.cn/web/?hostname=192.168.0.200&port=20023'.quote())
+            // 和 gitlab application 保持一致
+            // https://dolphindb.net/oauth/applications/17
+            config.set_config('oauthRedirectUri', 'http://localhost:8432/?hostname=192.168.0.129&port=8900'.quote())
             
             config.set_config('oauthTokenUri', 'https://dolphindb.net/oauth/token')
             config.set_config('oauthUserUri', 'https://dolphindb.net/api/v4/user')
@@ -452,10 +457,12 @@ export class DdbModel extends Model<DdbModel> {
         
         /** redirect_uri 只能跳转到其中某个节点，需要带参数跳回到原发起登录的节点 */
         const jump = (state: string) => {
-            if (state && state !== this.node_alias)
-                location.href = this.get_node_url(
-                    this.nodes.find(({ name }) => name === state)
-                )
+            if (state && state !== this.node_alias) {
+                const node = this.nodes.find(({ name }) => name === state)
+                if (!node)
+                    throw new Error(t('无法从当前节点 {{current}} 跳转回发起登录的节点 {{origin}}，找不到节点信息', { current: this.node_alias, origin: state }))
+                location.href = this.get_node_url(node)
+            }
         }
         
         // https://datatracker.ietf.org/doc/html/rfc6749#section-4.2.2
@@ -723,7 +730,7 @@ export class DdbModel extends Model<DdbModel> {
                     response_type: this.oauth_type === 'implicit' ? 'token' : 'code',
                     client_id,
                     ... redirect_uri ? { redirect_uri } : { },
-                    ... auth_uri?.includes('dolphindb.net') ? { } : { state: this.node_alias }
+                    state: this.node_alias
                 }).toString()
             ).toString()
             

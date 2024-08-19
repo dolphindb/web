@@ -58,8 +58,6 @@ export function parse_nodes_configs (strs: string[]) {
         )
     })
     
-    console.log(t('配置:'), nodes_configs)
-    
     return nodes_configs
 }
 
