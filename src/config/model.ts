@@ -74,6 +74,11 @@ class ConfigModel extends Model<ConfigModel> {
     }
     
     
+    delete_config (key: string) {
+        this.nodes_configs.delete(key)
+    }
+    
+    
     async delete_configs (configs: Array<string>) {
         configs.forEach(config => {
             this.nodes_configs.delete(config)

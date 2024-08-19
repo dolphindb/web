@@ -37,6 +37,7 @@ export const strs_2_nodes = (strs: string[]): ClusterNode[] =>
 
 export function parse_nodes_configs (strs: string[]) {
     const nodes_configs = new Map<string, NodesConfig>()
+    
     strs.forEach(str => {
         const iequal = str.indexOf('=')
         const left = str.slice(0, iequal)
@@ -56,6 +57,9 @@ export function parse_nodes_configs (strs: string[]) {
             }
         )
     })
+    
+    console.log(t('配置:'), nodes_configs)
+    
     return nodes_configs
 }
 
