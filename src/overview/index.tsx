@@ -98,7 +98,7 @@ export function Overview () {
                                             await model.start_nodes(selectedNodes.filter(node => node.state === DdbNodeState.offline))
                                             await delay(5000)
                                             await model.get_cluster_perf(false)
-                                            model.message.success(t('启动成功'))
+                                            model.message.success(t('启动指令发送成功'))
                                             setSelectedNodeNames([ ])
                                         } finally {
                                             setIsStartLoading(false)
@@ -160,7 +160,7 @@ export function Overview () {
                                             await model.stop_nodes(selectedNodes.filter(node => node.state === DdbNodeState.online))
                                             await delay(5000)
                                             await model.get_cluster_perf(false)
-                                            model.message.success(t('停止成功'))
+                                            model.message.success(t('停止指令发送成功'))
                                             setSelectedNodeNames([ ])
                                         } finally {
                                             setIsStopLoading(false)

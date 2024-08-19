@@ -4930,5 +4930,11 @@
     },
     "跳转到 oauth 验证页面:": {
         "en": "Jump to the oauth verification page"
+    },
+    "启动指令发送成功": {
+        "en": "The start command was sent successfully"
+    },
+    "停止指令发送成功": {
+        "en": "The stop command was sent successfully"
     }
 }
