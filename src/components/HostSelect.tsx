@@ -20,7 +20,7 @@ export function HostSelect () {
             },
             {
                 label: '单点登录',
-                value: '192.168.0.147:8900'
+                value: '192.168.0.129:8900'
             },
             {
                 label: '外汇交易中心',
