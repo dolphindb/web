@@ -13,8 +13,7 @@ import { request } from 'xshell/net.browser.js'
 
 import {
     DDB, SqlStandard, DdbFunctionType, type DdbObj, DdbInt, DdbLong, type InspectOptions,
-    DdbDatabaseError, type DdbStringObj, type DdbDictObj, type DdbVectorStringObj,
-    type DdbTableData
+    DdbDatabaseError, type DdbTableData
 } from 'dolphindb/browser.js'
 
 import type { Docs } from 'dolphindb/docs.js'
