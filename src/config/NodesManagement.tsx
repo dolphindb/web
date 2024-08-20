@@ -44,7 +44,7 @@ export function NodesManagement () {
         const [host, port, alias] = rest.split(':')
         const this_node = nodes.find(n => n.name === alias)
         if (this_node?.state === DdbNodeState.online) {
-            message.error(t('不能删除在线节点'))
+            message.error(t('无法移除在线节点，请到集群总览中停止后移除'))
             return 
         }
         if (this_node && this_node.mode === NodeType.computing) // 必须是计算节点才能在线删除
@@ -141,7 +141,7 @@ export function NodesManagement () {
                 can_delete = false
             
         if (!can_delete) {
-            message.error(t('组内有在线节点，无法删除'))
+            message.error(t('组内有在线节点，请到集群总览中停止节点后移除'))
             return 
         }
         await config.load_configs()
