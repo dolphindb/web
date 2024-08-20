@@ -19,3 +19,14 @@ export function download_file (name: string, url: string) {
 
 
 export const required = { required: true, rules: [{ required: true }] }
+
+
+export function strip_quotes (str: string) {
+    if (str && (
+        str.startsWith("'") && str.endsWith("'") ||
+        str.startsWith('"') && str.endsWith('"')
+    ))
+        return str.slice(1, -1)
+    else
+        return str
+}

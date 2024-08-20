@@ -32,6 +32,7 @@ import { model, type PageViews } from './model.js'
 import { DdbHeader } from './components/DdbHeader.js'
 import { DdbSider } from './components/DdbSider.js'
 import { GlobalErrorBoundary } from './components/GlobalErrorBoundary.js'
+import { HostSelect } from './components/HostSelect.js'
 
 import { Login } from './login.js'
 import { Overview } from './overview/index.js'
@@ -117,22 +118,24 @@ function MainLayout () {
         }
     }, [ ])
     
-    if (!inited)
-        return <GlobalErrorBoundary />
-    
-    return <Layout className='root-layout'>
-        { header && <Layout.Header className='ddb-header'>
-            <DdbHeader />
-        </Layout.Header> }
-        <Layout className='body' hasSider>
-            { sider && <DdbSider />}
-            <Layout.Content className='view'>
-                <GlobalErrorBoundary>
-                    <DdbContent />
-                </GlobalErrorBoundary>
-            </Layout.Content>
+    return inited ?
+        <Layout className='root-layout'>
+            { header && <Layout.Header className='ddb-header'>
+                <DdbHeader />
+            </Layout.Header> }
+            <Layout className='body' hasSider>
+                { sider && <DdbSider />}
+                <Layout.Content className='view'>
+                    <GlobalErrorBoundary>
+                        <DdbContent />
+                    </GlobalErrorBoundary>
+                </Layout.Content>
+            </Layout>
         </Layout>
-    </Layout>
+    :
+        <GlobalErrorBoundary>
+            { (model.dev || model.test) && <HostSelect /> }
+        </GlobalErrorBoundary>
 }
 
 

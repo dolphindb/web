@@ -12,7 +12,7 @@ import { NodeType, model, storage_keys, type DdbNode } from '../model.js'
 
 import { t } from '../../i18n/index.js'
 
-import { generate_node_link, ns2ms } from './utils.js'
+import { ns2ms } from './utils.js'
 
 const node_state_icons = [
     <MinusCircleOutlined style={{ color: 'red' }} />,
@@ -113,7 +113,7 @@ export function OverviewTable ({
                 </div>,
             filterIcon: (filtered: boolean) => <SearchOutlined style={{ color: filtered ? '#1677ff' : undefined }} />,
             render: (name: string, node: DdbNode) =>
-                <a target='_blank' href={generate_node_link(model.find_closest_node_host(node), node.port)}>
+                <a target='_blank' href={model.get_node_url(node)}>
                     {name}
                 </a>
         },
