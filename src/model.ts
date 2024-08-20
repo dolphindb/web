@@ -225,6 +225,8 @@ export class DdbModel extends Model<DdbModel> {
             this.get_cluster_perf(true)
         ])
         
+        console.log(t('配置:'), await this.ddb.invoke<Record<string, string>>('getConfig'))
+        
         
         if (this.params.get('oauth') === 'github') {
             await this.login_by_password('admin', '123456')

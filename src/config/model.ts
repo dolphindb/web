@@ -45,7 +45,7 @@ class ConfigModel extends Model<ConfigModel> {
         
         
         console.log(
-            t('配置:'),
+            t('配置文件:'),
             Object.fromEntries(
                 // @ts-ignore
                 typeof Iterator !== 'undefined' && Iterator.prototype?.map
