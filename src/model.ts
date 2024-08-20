@@ -541,7 +541,7 @@ export class DdbModel extends Model<DdbModel> {
         localStorage.removeItem(storage_keys.ticket)
         localStorage.removeItem(storage_keys.username)
         
-        await this.ddb.call('logout', [ ], { urgent: true })
+        await this.ddb.invoke('logout', undefined, { urgent: true })
         
         this.set({
             logined: false,
@@ -657,7 +657,7 @@ export class DdbModel extends Model<DdbModel> {
         const license = this.license
         
         // license.expiration 是以 date 为单位的数字
-        const expiration_date = dayjs(license.expiration * 86400000)
+        const expiration_date = dayjs(license.expiration)
         const now = dayjs()
         const after_two_week = now.add(2, 'week')
         const is_license_expired = now.isAfter(expiration_date, 'day')
@@ -680,10 +680,7 @@ export class DdbModel extends Model<DdbModel> {
     
     /** 获取节点的 license 信息 */
     async get_license_self_info () {
-        const license = (
-            await this.ddb.call<DdbObj<DdbObj[]>>('license')
-        ).to_dict<DdbLicense>({ strip: true })
-        
+        const license = await this.ddb.invoke<DdbLicense>('license')
         console.log('license:', license)
         this.set({ license })
         return license
@@ -692,14 +689,12 @@ export class DdbModel extends Model<DdbModel> {
     
     /** 如果节点是 license server, 获取 license server 相关信息 */
     async get_license_server_info () {
-        const license_server_site = (
-            await this.ddb.call<DdbStringObj>('getConfig', ['licenseServerSite'])
-        ).value
+        const license_server_site = await this.ddb.invoke<string>('getConfig', ['licenseServerSite'])
         
         const is_license_server_node = this.license.licenseType === LicenseTypes.LicenseServerVerify && license_server_site === this.node.site
         
         const license_server_resource = is_license_server_node 
-            ? (await this.ddb.call<DdbDictObj<DdbVectorStringObj>>('getLicenseServerResourceInfo')).to_dict<DdbLicenseServerResource>({ strip: true }) 
+            ? await this.ddb.invoke<DdbLicenseServerResource>('getLicenseServerResourceInfo')
             : null
         
         this.set({ 
@@ -1241,7 +1236,7 @@ export interface DdbLicense {
     maxCoresPerNode: number
     clientName: string
     bindCPU: boolean
-    expiration: number
+    expiration: string
     maxNodes: number
     version: string
     modules: bigint

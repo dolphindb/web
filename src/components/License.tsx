@@ -1,6 +1,3 @@
-
-import { date2str } from 'dolphindb/browser.js'
-
 import { Tag, Popover, Descriptions, Card } from 'antd'
 
 
@@ -9,7 +6,7 @@ import { t } from '../../i18n/index.js'
 import { model, type DdbLicense, LicenseTypes } from '../model.js'
 
 
-const licenseTypes: Record<DdbLicense['licenseType'], string> = {
+const license_types: Record<DdbLicense['licenseType'], string> = {
     [LicenseTypes.Other]: t('其他方式'),
     [LicenseTypes.MachineFingerprintBind]: t('机器指纹绑定'),
     [LicenseTypes.OnlineVerify]: t('在线验证'),
@@ -31,7 +28,7 @@ export function License () {
         return
     
     const auth = authorizations[license.authorization] || license.authorization
-    const license_type = licenseTypes[license.licenseType] || license.licenseType
+    const license_type = license_types[license.licenseType] || license.licenseType
     const is_license_server_node = license_server?.is_license_server_node
     
     return <Popover
@@ -46,7 +43,7 @@ export function License () {
                         <Descriptions.Item label={t('授权客户')}>{license.clientName}</Descriptions.Item>
                         <Descriptions.Item label={t('许可类型')}>{license_type}</Descriptions.Item>
                         {license.licenseType === LicenseTypes.LicenseServerVerify && <Descriptions.Item label={t('是否为 LicenseServer')}>{is_license_server_node ? t('是') : t('否')}</Descriptions.Item>}
-                        <Descriptions.Item label={t('过期时间')}>{date2str(license.expiration)}</Descriptions.Item>
+                        <Descriptions.Item label={t('过期时间')}>{license.expiration}</Descriptions.Item>
                         <Descriptions.Item label={t('绑定 CPU')}>{String(license.bindCPU)}</Descriptions.Item>
                         <Descriptions.Item label={t('license 版本')}>{license.version}</Descriptions.Item>
                         <Descriptions.Item label={t('模块数量')}>{ license.modules === -1n ? '∞' : String(license.modules) }</Descriptions.Item>

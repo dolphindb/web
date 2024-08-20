@@ -5,7 +5,6 @@ import { type DdbObj } from 'dolphindb/browser.js'
 import { model } from '../model.js'
 
 class ComputingModel extends Model<ComputingModel> {
-    
     inited = false
     
     persistence_dir = ''
@@ -18,6 +17,7 @@ class ComputingModel extends Model<ComputingModel> {
     
     shared_table_stat: DdbObj
     
+    
     async init () {
         await this.get_persistence_dir()
         if (this.persistence_dir)
@@ -27,18 +27,22 @@ class ComputingModel extends Model<ComputingModel> {
         this.set({ inited: true })
     }
     
+    
     async get_persistence_dir () {
         this.set({ persistence_dir: (await model.ddb.call('getConfig', ['persistenceDir'], { urgent: true })).value as string })
     }
     
-     /** 处理流计算引擎状态，给每一个引擎添加 engineType 字段，合并所有类型的引擎 */
+    
+    /** 处理流计算引擎状态，给每一个引擎添加 engineType 字段，合并所有类型的引擎 */
     async get_streaming_pub_sub_stat () {
         this.set({ streaming_stat: (await model.ddb.call('getStreamingStat', [ ], { urgent: true })).to_dict() })
     }
     
+    
     async get_streaming_engine_stat () {
         this.set({ origin_streaming_engine_stat: (await model.ddb.call('getStreamEngineStat', [ ], { urgent: true })).to_dict() })
     }
+    
     
     async get_streaming_table_stat () {
         if (this.persistence_dir)
