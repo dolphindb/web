@@ -48,8 +48,10 @@ class ConfigModel extends Model<ConfigModel> {
             t('配置:'),
             Object.fromEntries(
                 // @ts-ignore
-                // todo: polyfill
-                this.nodes_configs.entries().map(([key, { value }]) => [key, value])
+                typeof Iterator !== 'undefined' && Iterator.prototype?.map
+                    // @ts-ignore
+                    ? this.nodes_configs.entries().map(([key, { value }]) => [key, value])
+                    : [...this.nodes_configs].map(([key, { value }]) => [key, value])
             )
         )
     }
