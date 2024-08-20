@@ -82,6 +82,6 @@
         "tslib": "^2.6.3",
         "vscode-oniguruma": "^2.0.1",
         "vscode-textmate": "^9.1.0",
-        "xshell": "^1.0.158"
+        "xshell": "^1.0.159"
     }
 }
