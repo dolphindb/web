@@ -237,16 +237,10 @@ function Node ({
                             />
                         </Tooltip>
                     </div>
-                    <div className={'node-title' + ' ' + title_colors[mode]}>
-                        <div className='node-name'>
+                    <div className={`node-title ${title_colors[mode]}`}>
+                        <a className={`node-name ${title_colors[mode]}`} target='_blank' href={model.get_node_url(node)}>
                             {name}
-                            <a
-                                target='_blank'
-                                href={model.get_node_url(node)} className='link-icon'
-                            >
-                                <LinkOutlined />
-                            </a>
-                        </div>
+                        </a>
                         {isLeader && <Tag className='leader-tag' color='#FFF' >leader</Tag> }
                     </div>
                     <div className='node-click' onClick={() => { switchFold(node) }} />
