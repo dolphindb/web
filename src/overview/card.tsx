@@ -400,14 +400,14 @@ function InfoItem ({
 
 function NodeSite ({ node }: { node: DdbNode }) {
     const { host, port, mode, publicName } = node
-    const privateDomain = `${host}:${port}`
-    let privateLink = generate_node_link(host, port)
-    let publicDomain = [ ]
-    let publicLink = [ ]
+    const private_host = `${host}:${port}`
+    let private_link = model.get_url(host, port)
+    let public_hosts = [ ]
+    let public_link = [ ]
     
     if (publicName) {
-        publicDomain = publicName.split(/,|;/).map(val => val + ':' + port)
-        publicLink = publicName.split(/,|;/).map(val => generate_node_link(val, port))
+        public_hosts = publicName.split(/,|;/).map(val => val + ':' + port)
+        public_link = publicName.split(/,|;/).map(val => model.get_url(val, port))
     }
     
     return <>
@@ -415,29 +415,29 @@ function NodeSite ({ node }: { node: DdbNode }) {
             {mode === NodeType.agent ?
                 <Tooltip title={t('代理节点不可跳转')}>
                     <div className='control-disable'>
-                        <a className='disable-link' href={privateLink} target='_blank'>
-                            {privateDomain}
+                        <a className='disable-link' href={private_link} target='_blank'>
+                            {private_host}
                         </a>
                     </div>
                 </Tooltip>
             : 
-                <a href={privateLink} target='_blank'>
-                    {privateDomain}
+                <a href={private_link} target='_blank'>
+                    {private_host}
                 </a>
             }
         </div>
-        {publicDomain.map((val, idx) => <div className='node-site' key={val}>
+        {public_hosts.map((val, idx) => <div className='node-site' key={val}>
             {mode === NodeType.agent ?
                 <Tooltip title={t('代理节点不可跳转')}>
                     <div className='control-disable'>
-                        <a className='disable-link' href={publicLink[idx]} target='_blank'>
+                        <a className='disable-link' href={public_link[idx]} target='_blank'>
                             {val}
                         </a>
                     </div>
                 </Tooltip>
             :
-                Boolean(publicLink.length) && 
-                    <a href={publicLink[idx]} target='_blank'>
+                Boolean(public_link.length) && 
+                    <a href={public_link[idx]} target='_blank'>
                         {val}
                     </a>
             }

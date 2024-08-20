@@ -1006,21 +1006,24 @@ export class DdbModel extends Model<DdbModel> {
     
     
     /** 获取 node 最优跳转 url */
-    get_node_url (
-        node: DdbNode, 
+    get_node_url (node: DdbNode, options?: GetUrlOptions ) {
+        return this.get_url(
+            this.find_node_closest_hostname(node), 
+            node.port, 
+            options
+        )
+    }
+    
+    
+    get_url (
+        hostname: string, 
+        port: number,
         {
             pathname = location.pathname,
             queries,
-            keep_current_queries = true,
-        }: {
-            pathname?: string
-            queries?: ConstructorParameters<typeof URLSearchParams>[0]
-            keep_current_queries?: boolean
-        } = { }
+            keep_current_queries = true
+        }: GetUrlOptions = { }
     ) {
-        const { port } = node
-        const hostname = this.find_node_closest_hostname(node)
-        
         const current_queries = new URLSearchParams(location.search)
         const is_query_params_mode = current_queries.get('hostname') || current_queries.get('port')
         
@@ -1302,6 +1305,13 @@ export interface DdbJob {
 export enum DdbNodeState {
     online = 1,
     offline = 0,
+}
+
+
+export interface GetUrlOptions {
+    pathname?: string
+    queries?: ConstructorParameters<typeof URLSearchParams>[0]
+    keep_current_queries?: boolean
 }
 
 
