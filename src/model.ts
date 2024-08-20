@@ -355,23 +355,10 @@ export class DdbModel extends Model<DdbModel> {
     async login_by_password (username: string, password: string) {
         this.ddb.username = username
         this.ddb.password = password
+        
         await this.ddb.call('login', [username, password], { urgent: true })
         
-        const ticket = (
-            await this.ddb.invoke<string>('getAuthenticatedUserTicket', undefined, {
-                urgent: true,
-                ... this.node_type === NodeType.controller || this.node_type === NodeType.single 
-                    ? { }
-                    : { node: this.controller_alias, func_type: DdbFunctionType.SystemFunc }
-            })
-        )
-        
-        localStorage.setItem(storage_keys.username, username)
-        localStorage.setItem(storage_keys.ticket, ticket)
-        
-        this.set({ logined: true, username })
-        
-        await this.is_admin()
+        await this.update_user()
         
         console.log(t('{{username}} 使用账号密码登陆成功', { username: this.username }))
     }
@@ -514,25 +501,37 @@ export class DdbModel extends Model<DdbModel> {
         
         
         if (ticket) {
-            const username = await this.update_user()
+            const username = await this.update_user(ticket)
             
-            if (username === username_guest)
+            if (this.logined)
+                console.log(t('{{username}} 使用 oauth 单点登录成功', { username }))
+            else
                 throw new Error(t('通过 oauth 单点登录之后的 username 不能是 {{guest}}', { guest: username_guest }))
-            
-            localStorage.setItem(storage_keys.username, username)
-            localStorage.setItem(storage_keys.ticket, ticket)
-            
-            console.log(t('{{username}} 使用 oauth 单点登录成功', { username: this.username }))
         }
     }
     
     
-    async update_user () {
+    async update_user (ticket?: string) {
         const [session, username] = await this.ddb.invoke<[string, string]>('getCurrentSessionAndUser')
         
-        this.set({ logined: username !== username_guest, username })
+        const logined = username !== username_guest
+        
+        this.set({ logined, username })
         
         await this.is_admin()
+        
+        if (logined) {
+            if (!ticket)
+                ticket = await this.ddb.invoke<string>('getAuthenticatedUserTicket', undefined, {
+                    urgent: true,
+                    ... this.node_type === NodeType.controller || this.node_type === NodeType.single 
+                        ? { }
+                        : { node: this.controller_alias, func_type: DdbFunctionType.SystemFunc }
+                })
+            
+            localStorage.setItem(storage_keys.username, username)
+            localStorage.setItem(storage_keys.ticket, ticket)
+        }
         
         return username
     }
