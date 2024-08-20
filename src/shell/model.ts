@@ -28,17 +28,15 @@ import {
 
 import { t } from '@i18n/index.js'
 
-import { Database, DatabaseGroup, type Column, type ColumnRoot, PartitionDirectory, type PartitionRoot, PartitionFile, type Table, Catalog } from './Databases.js'
-
-import { DdbVar } from './Variables.js'
-
 import { type DdbObjRef } from '@/obj.js'
 
 import { model, NodeType, storage_keys } from '@/model.js'
 
 import type { Monaco } from '@/components/Editor/index.js'
 
+import { Database, DatabaseGroup, type Column, type ColumnRoot, PartitionDirectory, type PartitionRoot, PartitionFile, type Table, Catalog } from './Databases.js'
 
+import { DdbVar } from './Variables.js'
 
 
 type Result = { type: 'object', data: DdbObj } | { type: 'objref', data: DdbObjRef }
