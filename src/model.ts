@@ -225,8 +225,6 @@ export class DdbModel extends Model<DdbModel> {
             this.get_cluster_perf(true)
         ])
         
-        // local
-        // await this.login_by_password('admin', '123456')
         
         if (this.params.get('oauth') === 'github') {
             await this.login_by_password('admin', '123456')
@@ -515,7 +513,7 @@ export class DdbModel extends Model<DdbModel> {
         
         
         if (ticket) {
-            const [session, username] = await this.ddb.invoke<[string, string]>('getCurrentSessionAndUser')
+            const username = await this.update_user()
             
             if (username === username_guest)
                 throw new Error(t('通过 oauth 单点登录之后的 username 不能是 {{guest}}', { guest: username_guest }))
@@ -523,12 +521,19 @@ export class DdbModel extends Model<DdbModel> {
             localStorage.setItem(storage_keys.username, username)
             localStorage.setItem(storage_keys.ticket, ticket)
             
-            this.set({ logined: true, username })
-            
-            await this.is_admin()
-            
             console.log(t('{{username}} 使用 oauth 单点登录成功', { username: this.username }))
         }
+    }
+    
+    
+    async update_user () {
+        const [session, username] = await this.ddb.invoke<[string, string]>('getCurrentSessionAndUser')
+        
+        this.set({ logined: username !== username_guest, username })
+        
+        await this.is_admin()
+        
+        return username
     }
     
     
