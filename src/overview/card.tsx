@@ -244,7 +244,7 @@ function Node ({
                         {isLeader && <Tag className='leader-tag' color='#FFF' >leader</Tag> }
                     </div>
                     <div className='node-click' onClick={() => { switchFold(node) }} />
-                    <NodeSite node={node}/>
+                    <NodeSite node={node} />
                     <div className={node_statuses[state]}><span>{state ? t('运行中') : t('未启动')}</span></div>
                 </div>
             }
