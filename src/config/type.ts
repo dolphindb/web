@@ -7,12 +7,12 @@ export type ControllerConfig = {
 }
 
 export type ClusterNode = {
-    computeGroup?: string
     id: string
     host: string
     port: string
     alias: string
     mode: NodeType
+    computeGroup?: string
 }
 
 export type NodesConfig = {

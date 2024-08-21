@@ -1,14 +1,13 @@
+import './index.sass'
+
 import { useEffect, useState, useRef, useCallback } from 'react'
 
 import { t } from '@i18n/index.js'
 
 import { AutoComplete, Button, Popconfirm } from 'antd'
 
-import type { DdbVectorStringObj } from 'dolphindb/browser.js'
-
 import { EditableProTable, type ActionType, type ProColumns } from '@ant-design/pro-components'
 
-import './index.sass'
 import { PlusOutlined, ReloadOutlined, SearchOutlined } from '@ant-design/icons'
 import NiceModal from '@ebay/nice-modal-react'
 
@@ -24,7 +23,6 @@ import { model } from '@/model.js'
 
 
 export function ComputeGroupConfig () {
-
     // 这里指的是配置节点的文件，不是节点配置文件
     const { mutate, data: nodes = [ ] } = useSWR('/get/nodes_config_file', async () => { 
         const result = await config.get_cluster_nodes() 
@@ -35,18 +33,16 @@ export function ComputeGroupConfig () {
     
     const [search_kw, set_search_kw] = useState('')
     
-    const compute_groups = new Map()
+    const compute_groups = new Map<string, any>()
     nodes.forEach(config => {
         if (config.computeGroup)
             compute_groups.set(config.computeGroup, compute_groups.get(config.computeGroup) || 0 + 1)
-                
     })
     
-    const groups = Array.from(compute_groups.keys()) as unknown as string[]
+    const groups = Array.from(compute_groups.keys())
     
     useEffect(() => {
         set_current_compute_group(groups.length && current_compute_group === '' ? groups[0] : '')
-            
     }, [JSON.stringify(groups)])
     
     const select_items = groups.map(group => {
@@ -54,7 +50,9 @@ export function ComputeGroupConfig () {
         return <div
             key={group}
             className={`select-item ${current_compute_group === group ? 'active' : ''}`}
-            onClick={() => { set_current_compute_group(group) }}
+            onClick={() => {
+                set_current_compute_group(group)
+            }}
         >
             <div className='title'>
                 {group}
