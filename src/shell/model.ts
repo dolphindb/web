@@ -157,7 +157,7 @@ class ShellModel extends Model<ShellModel> {
                 `${code.replaceAll('\r\n', '\n')}`
             )
             
-            console.log('执行代码返回了:', ddbobj)
+            console.log('执行代码返回了:', ddbobj.data())
             
             if (model.verbose)
                 console.log('=>', ddbobj.toString())
