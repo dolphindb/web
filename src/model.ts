@@ -226,7 +226,66 @@ export class DdbModel extends Model<DdbModel> {
         
         console.log(t('配置:'), await this.ddb.invoke<Record<string, string>>('getConfig'))
         
+        await this.check_leader_and_redirect()
         
+        await this.set_oauth_config()
+        
+        this.set({
+            oauth: config.get_boolean_config('oauth'),
+            login_required: config.get_boolean_config('webLoginRequired')
+        })
+        
+        console.log(t('web 强制登录:'), this.login_required)
+        
+        if (this.oauth) {
+            this.oauth_type = config.get_config<OAuthType>('oauthWebType') || 'implicit'
+            
+            if (!['implicit', 'authorization code'].includes(this.oauth_type))
+                throw new Error(t('oauthType 配置参数的值必须为 authorization code 或 implicit，默认为 implicit'))
+        }
+        
+        if (this.autologin) 
+            try {
+                await this.login_by_ticket()
+            } catch {
+                console.log(t('ticket 登录失败'))
+                
+                if (this.oauth)
+                    await this.login_by_oauth()
+                else
+                    if (this.dev || this.test)
+                        try {
+                            await this.login_by_password('admin', '123456')
+                        } catch {
+                            console.log(t('使用默认 admin 账号密码登录失败'))
+                        }
+            }
+        
+        
+        await this.get_factor_platform_enabled()
+        
+        this.set({
+            enabled_modules: new Set(
+                config.get_config('webModules')?.split(',') || [ ]
+            )
+        })
+        
+        console.log(t('web 初始化成功'))
+        
+        this.get_license_info()
+        
+        this.goto_default_view()
+        
+        if (this.login_required && !this.logined)
+            this.goto_login()
+        
+        this.set({ inited: true })
+        
+        this.get_version()
+    }
+    
+    
+    async set_oauth_config () {
         if (this.params.get('oauth') === 'github') {
             await this.login_by_password('admin', '123456')
             
@@ -273,62 +332,6 @@ export class DdbModel extends Model<DdbModel> {
             
             await this.logout()
         }
-        
-        
-        this.set({
-            oauth: config.get_boolean_config('oauth'),
-            login_required: config.get_boolean_config('webLoginRequired')
-        })
-        
-        console.log(t('web 强制登录:'), this.login_required)
-        
-        if (this.oauth) {
-            this.oauth_type = config.get_config<OAuthType>('oauthWebType') || 'implicit'
-            
-            if (!['implicit', 'authorization code'].includes(this.oauth_type))
-                throw new Error(t('oauthType 配置参数的值必须为 authorization code 或 implicit，默认为 implicit'))
-        }
-        
-        if (this.autologin) 
-            try {
-                await this.login_by_ticket()
-            } catch {
-                console.log(t('ticket 登录失败'))
-                
-                if (this.oauth)
-                    await this.login_by_oauth()
-                else
-                    if (this.dev || this.test)
-                        try {
-                            await this.login_by_password('admin', '123456')
-                        } catch {
-                            console.log(t('使用默认 admin 账号密码登录失败'))
-                        }
-            }
-        
-        
-        await this.check_leader_and_redirect()
-        
-        await this.get_factor_platform_enabled()
-        
-        this.set({
-            enabled_modules: new Set(
-                config.get_config('webModules')?.split(',') || [ ]
-            )
-        })
-        
-        console.log(t('web 初始化成功'))
-        
-        this.get_license_info()
-        
-        this.goto_default_view()
-        
-        if (this.login_required && !this.logined)
-            this.goto_login()
-        
-        this.set({ inited: true })
-        
-        this.get_version()
     }
     
     
@@ -446,9 +449,10 @@ export class DdbModel extends Model<DdbModel> {
                 const node = this.nodes.find(({ name }) => name === state)
                 if (!node)
                     throw new Error(t('无法从当前节点 {{current}} 跳转回发起登录的节点 {{origin}}，找不到节点信息', { current: this.node_alias, origin: state }))
+                
                 location.href = this.get_node_url(node)
                 
-                // todo: 去掉应该也是一样的行为
+                // location.href 赋值后可能没有立即执行，需要
                 throw new Error(t('正在跳转'))
             }
         }
@@ -735,6 +739,8 @@ export class DdbModel extends Model<DdbModel> {
             console.log(t('跳转到 oauth 验证页面:'), url)
             
             location.href = url
+            
+            throw new Error(t('正在跳转'))
         } else
             this.set({
                 view: 'login',
@@ -873,6 +879,8 @@ export class DdbModel extends Model<DdbModel> {
                 )
                 
                 location.href = url
+                
+                throw new Error(t('正在跳转'))
             }
         }
     }
