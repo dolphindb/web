@@ -1,5 +1,5 @@
 import NiceModal from '@ebay/nice-modal-react'
-import { AutoComplete, Button, Form, Input, message, Modal, Table, type TableProps } from 'antd'
+import { AutoComplete, Button, Input, message, Modal, Table, type TableProps } from 'antd'
 
 import { useCallback, useState } from 'react'
 
@@ -65,8 +65,8 @@ export const GroupAddModal = NiceModal.create((props: { on_save: (form: { group_
         }))
     }
     
-    function batch_add_empty_config (count: number) {
-        set_group_configs([...group_configs, ...new Array(count).fill({ key: String((new Date()).getTime()), name: '', value: '' })])
+    function batch_add_empty_config () {
+        set_group_configs([...group_configs, { key: String((new Date()).getTime()), name: '', value: '' }])
     }
     
     function batch_add_empty_node (count: number) {
@@ -166,7 +166,7 @@ export const GroupAddModal = NiceModal.create((props: { on_save: (form: { group_
             />
         </div>
         <div className='add-nodes'>
-            <Button onClick={() => { batch_add_empty_config(1) }}>{t('新增一条配置')}</Button>
+            <Button onClick={batch_add_empty_config}>{t('新增一条配置')}</Button>
         </div>
         <div className='add-nodes' style={{ flexFlow: 'row-reverse' }}>
             <Button onClick={() => {

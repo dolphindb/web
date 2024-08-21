@@ -54,10 +54,7 @@ class ConfigModel extends Model<ConfigModel> {
                     : [...this.nodes_configs].map(([key, { value }]) => [key, value])
             )
         )
-        return configs
-        
-        
-        
+        return configs        
     }
     
     

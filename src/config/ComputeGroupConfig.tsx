@@ -26,7 +26,7 @@ import { model } from '@/model.js'
 export function ComputeGroupConfig () {
 
     // 这里指的是配置节点的文件，不是节点配置文件
-    const { mutate, data } = useSWR('/get/nodes_config_file', async () => { 
+    const { mutate, data: nodes = [ ] } = useSWR('/get/nodes_config_file', async () => { 
         const result = await config.get_cluster_nodes() 
         const nodes = strs_2_nodes(result.value as any[])
         return nodes
@@ -35,28 +35,17 @@ export function ComputeGroupConfig () {
     
     const [search_kw, set_search_kw] = useState('')
     
-    const nodes = data ?? [ ]
-    
     const compute_groups = new Map()
     nodes.forEach(config => {
         if (config.computeGroup)
-            if (!compute_groups.has(config.computeGroup))
-                compute_groups.set(config.computeGroup, 1)
-            else
-                compute_groups.set(config.computeGroup, compute_groups.get(config.computeGroup) + 1)
+            compute_groups.set(config.computeGroup, compute_groups.get(config.computeGroup) || 0 + 1)
                 
     })
     
     const groups = Array.from(compute_groups.keys()) as unknown as string[]
     
-    
-    
     useEffect(() => {
-        if (groups.length > 0 && current_compute_group === '')
-            set_current_compute_group(groups[0])
-        
-        if (groups.length <= 0)
-            set_current_compute_group('')
+        set_current_compute_group(groups.length && current_compute_group === '' ? groups[0] : '')
             
     }, [JSON.stringify(groups)])
     
@@ -80,20 +69,18 @@ export function ComputeGroupConfig () {
         async (config_name: string) => {
             await config.delete_configs([config_name])
             model.message.success(t('删除成功'))
-            if (actionRef.current)
-                actionRef.current.reload()
+            actionRef.current?.reload()
+            
         },
         [ ]
     )
     
     useEffect(() => {
-        if (actionRef.current)
-            actionRef.current.reload()
+        actionRef.current?.reload()
     }, [current_compute_group])
     
     async function on_search () {
-        if (actionRef.current)
-            await actionRef.current.reload()
+        actionRef.current?.reload()
     }
     
     const columns: ProColumns<any>[] = [
@@ -149,8 +136,7 @@ export function ComputeGroupConfig () {
                     icon={<ReloadOutlined />}
                     onClick={async () => {
                         set_search_kw('')
-                        if (actionRef.current)
-                            await actionRef.current.reload()
+                        await actionRef.current?.reload()
                         await mutate()
                         model.message.success(t('刷新成功'))
                     }}
@@ -162,10 +148,7 @@ export function ComputeGroupConfig () {
                     icon={<PlusOutlined />}
                     onClick={async () =>
                         NiceModal.show(NodesConfigAddModal, {
-                            compute_group: current_compute_group, on_save: () => {
-                                if (actionRef.current)
-                                    actionRef.current.reload()
-                            }
+                            compute_group: current_compute_group, on_save: actionRef.current?.reload
                         })
                     }
                 >
@@ -207,9 +190,9 @@ export function ComputeGroupConfig () {
                     const nodes_configs = Array.from(nodesConfigRaw.values())
                     
                     // 筛选配置项
-                    const filtered_configs = nodes_configs.filter(config => {
-                        return config.qualifier.startsWith(`${current_compute_group}%`)
-                    }).filter(config => config.key.includes(search_kw))
+                    const filtered_configs = nodes_configs.filter(config => 
+                        config.qualifier.startsWith(`${current_compute_group}%`) && config.key.includes(search_kw)
+                    )
                     return {
                         data: filtered_configs,
                         success: true,
@@ -219,7 +202,7 @@ export function ComputeGroupConfig () {
                 recordCreatorProps={false}
                 editable={{
                     type: 'single',
-                    onSave: async (rowKey, data, row) => {
+                    onSave: async (rowKey, data) => {
                         const { name, qualifier, value } = data
                         const key = (qualifier ? qualifier + '.' : '') + name
                         if (rowKey !== key)

@@ -1,5 +1,5 @@
 import { PlusOutlined, ReloadOutlined, SearchOutlined } from '@ant-design/icons'
-import { EditableProTable, type ActionType } from '@ant-design/pro-components'
+import { EditableProTable, type ActionType, type ProColumns } from '@ant-design/pro-components'
 import { AutoComplete, Button, message, Modal, Popconfirm } from 'antd'
 import { useCallback, useRef, useState } from 'react'
 
@@ -25,9 +25,6 @@ export function NodesManagement () {
     const [search_key, set_search_key] = useState('')
     const [search_value, set_search_value] = useState('')
     
-    
-    const actionRef = useRef<ActionType>()
-    
     const { mutate } = useSWR('/get/nodes', async () => config.get_cluster_nodes(), {
         onSuccess: data => {
             const nodes = strs_2_nodes(data.value as any[])
@@ -40,15 +37,15 @@ export function NodesManagement () {
             return 
         
         const nodes = await model.get_cluster_perf(false)
-        const [rest, mode, group] = node_id.split(',')
-        const [host, port, alias] = rest.split(':')
+        const [rest] = node_id.split(',')
+        const [, , alias] = rest.split(':')
         const this_node = nodes.find(n => n.name === alias)
         if (this_node?.state === DdbNodeState.online) {
             message.error(t('无法移除在线节点，请到集群总览中停止后移除'))
             return 
         }
         if (this_node && this_node.mode === NodeType.computing) // 必须是计算节点才能在线删除
-            model.ddb.call('removeNode', [this_node.name])
+            await model.ddb.call('removeNode', [this_node.name])
         
         const new_nodes = _2_strs(all_nodes).filter(nod => nod !== node_id)
         await config.save_cluster_nodes(new_nodes)
@@ -71,14 +68,13 @@ export function NodesManagement () {
                 if (perf.findIndex(node => node.name === alias) < 0) // 如果集群中没有该节点
                     await model.ddb.call('addNode', add_node_arg)
                 model.message.success(t('新增成功，请到集群总览启动'))
-                mutate()
             }
             else { // 修改
                 await config.save_cluster_nodes(node_strs.toSpliced(idx, 1, `${host}:${port}:${alias},${mode},${group}`))
                 
-                mutate()
                 model.message.success(t('保存成功，重启集群生效'))
             }
+            mutate()
             
             
         } catch (error) {
@@ -132,13 +128,14 @@ export function NodesManagement () {
         await mutate()
     }
     
+    
     async function delete_group (group_name: string) {
         const nodes = await model.get_cluster_perf(false)
         const group_nodes = nodes.filter(node => node.computeGroup === group_name)
-        let can_delete = true
-        for (const node of group_nodes) 
-            if (node.state === DdbNodeState.online) 
-                can_delete = false
+        let can_delete = group_nodes.findIndex(node => node.state === DdbNodeState.online) < 0
+        // for (const node of group_nodes) 
+        //     if (node.state === DdbNodeState.online) 
+        //         can_delete = false
             
         if (!can_delete) {
             message.error(t('组内有在线节点，请到集群总览中停止节点后移除'))
@@ -169,11 +166,10 @@ export function NodesManagement () {
                 {group} <Button onClick={() => {
                     Modal.confirm({
                         title: t('确认删除'),
-                        content: t('确定要删除计算组 ') + group + t(' 吗？'), // 使用占位符替换组名
+                        content: t('确定要删除计算组 {{group}} 吗？', { group }), // 使用占位符替换组名
                         onOk: async () => {
                             await delete_group(group)
                         },
-                        onCancel () { },
                     })
                 }} type='link'>{t('删除计算组')}</Button>
             </div>
@@ -266,22 +262,25 @@ function NodeTable ({ nodes, group, onSave, onDelete }: NodeTableProps) {
                 key: 'mode',
                 valueType: 'select',
                 valueEnum: {
-                    datanode: is_group ? undefined : {
-                        text: t('数据节点'),
-                        value: 'datanode'
-                    },
                     computenode: {
                         text: t('计算节点'),
                         value: 'computenode'
                     },
-                    controller: is_group ? undefined : {
-                        text: t('控制节点'),
-                        value: 'controller',
-                    },
-                    agent: is_group ? undefined : {
-                        text: t('代理节点'),
-                        value: 'agent',
-                    },
+                    ...is_group ?  [ ] : [
+                        {
+                            text: t('数据节点'),
+                            value: 'datanode'
+                        },
+                        {
+                            text: t('控制节点'),
+                            value: 'controller',
+                        },
+                        {
+                            text: t('代理节点'),
+                            value: 'agent',
+                        }
+                        
+                    ] 
                     
                 },
                 fieldProps: {
