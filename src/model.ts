@@ -226,7 +226,66 @@ export class DdbModel extends Model<DdbModel> {
         
         console.log(t('配置:'), await this.ddb.invoke<Record<string, string>>('getConfig'))
         
+        await this.check_leader_and_redirect()
         
+        await this.set_oauth_config()
+        
+        this.set({
+            oauth: config.get_boolean_config('oauth'),
+            login_required: config.get_boolean_config('webLoginRequired')
+        })
+        
+        console.log(t('web 强制登录:'), this.login_required)
+        
+        if (this.oauth) {
+            this.oauth_type = config.get_config<OAuthType>('oauthWebType') || 'implicit'
+            
+            if (!['implicit', 'authorization code'].includes(this.oauth_type))
+                throw new Error(t('oauthType 配置参数的值必须为 authorization code 或 implicit，默认为 implicit'))
+        }
+        
+        if (this.autologin) 
+            try {
+                await this.login_by_ticket()
+            } catch {
+                console.log(t('ticket 登录失败'))
+                
+                if (this.oauth)
+                    await this.login_by_oauth()
+                else
+                    if (this.dev || this.test)
+                        try {
+                            await this.login_by_password('admin', '123456')
+                        } catch {
+                            console.log(t('使用默认 admin 账号密码登录失败'))
+                        }
+            }
+        
+        
+        await this.get_factor_platform_enabled()
+        
+        this.set({
+            enabled_modules: new Set(
+                config.get_config('webModules')?.split(',') || [ ]
+            )
+        })
+        
+        console.log(t('web 初始化成功'))
+        
+        this.get_license_info()
+        
+        this.goto_default_view()
+        
+        if (this.login_required && !this.logined)
+            this.goto_login()
+        
+        this.set({ inited: true })
+        
+        this.get_version()
+    }
+    
+    
+    async set_oauth_config () {
         if (this.params.get('oauth') === 'github') {
             await this.login_by_password('admin', '123456')
             
@@ -273,62 +332,6 @@ export class DdbModel extends Model<DdbModel> {
             
             await this.logout()
         }
-        
-        
-        this.set({
-            oauth: config.get_boolean_config('oauth'),
-            login_required: config.get_boolean_config('webLoginRequired')
-        })
-        
-        console.log(t('web 强制登录:'), this.login_required)
-        
-        if (this.oauth) {
-            this.oauth_type = config.get_config<OAuthType>('oauthWebType') || 'implicit'
-            
-            if (!['implicit', 'authorization code'].includes(this.oauth_type))
-                throw new Error(t('oauthType 配置参数的值必须为 authorization code 或 implicit，默认为 implicit'))
-        }
-        
-        if (this.autologin) 
-            try {
-                await this.login_by_ticket()
-            } catch {
-                console.log(t('ticket 登录失败'))
-                
-                if (this.oauth)
-                    await this.login_by_oauth()
-                else
-                    if (this.dev || this.test)
-                        try {
-                            await this.login_by_password('admin', '123456')
-                        } catch {
-                            console.log(t('使用默认 admin 账号密码登录失败'))
-                        }
-            }
-        
-        
-        await this.check_leader_and_redirect()
-        
-        await this.get_factor_platform_enabled()
-        
-        this.set({
-            enabled_modules: new Set(
-                config.get_config('webModules')?.split(',') || [ ]
-            )
-        })
-        
-        console.log(t('web 初始化成功'))
-        
-        this.get_license_info()
-        
-        this.goto_default_view()
-        
-        if (this.login_required && !this.logined)
-            this.goto_login()
-        
-        this.set({ inited: true })
-        
-        this.get_version()
     }
     
     
@@ -356,7 +359,7 @@ export class DdbModel extends Model<DdbModel> {
         this.ddb.username = username
         this.ddb.password = password
         
-        await this.ddb.call('login', [username, password], { urgent: true })
+        await this.ddb.invoke('login', [username, password], { urgent: true })
         
         await this.update_user()
         
@@ -375,7 +378,7 @@ export class DdbModel extends Model<DdbModel> {
             throw new Error(t('没有自动登录的 username'))
         
         try {
-            await this.ddb.call('authenticateByTicket', [ticket], { urgent: true })
+            await this.ddb.invoke('authenticateByTicket', [ticket], { urgent: true })
             this.set({ logined: true, username: last_username })
             
             await this.is_admin()
@@ -393,11 +396,9 @@ export class DdbModel extends Model<DdbModel> {
     async login_by_session (session: string) {
         // https://dolphindb1.atlassian.net/browse/DPLG-581
         
-        await this.ddb.call('login', ['guest', '123456'])
+        await this.ddb.invoke('login', ['guest', '123456'])
         
-        const result = (
-            await this.ddb.call('authenticateBySession', [session])
-        ).to_dict<{ code: number, message: string, username: string, raw: string }>({ strip: true })
+        const result = await this.ddb.invoke<{ code: number, message: string, username: string, raw: string }>('authenticateBySession', [session])
         
         if (result.code) {
             const message = t('通过 session 登录失败，即将跳转到单点登录页')
@@ -448,7 +449,11 @@ export class DdbModel extends Model<DdbModel> {
                 const node = this.nodes.find(({ name }) => name === state)
                 if (!node)
                     throw new Error(t('无法从当前节点 {{current}} 跳转回发起登录的节点 {{origin}}，找不到节点信息', { current: this.node_alias, origin: state }))
+                
                 location.href = this.get_node_url(node)
+                
+                // location.href 赋值后可能没有立即执行，需要
+                throw new Error(t('正在跳转'))
             }
         }
         
@@ -734,6 +739,8 @@ export class DdbModel extends Model<DdbModel> {
             console.log(t('跳转到 oauth 验证页面:'), url)
             
             location.href = url
+            
+            throw new Error(t('正在跳转'))
         } else
             this.set({
                 view: 'login',
@@ -775,7 +782,8 @@ export class DdbModel extends Model<DdbModel> {
                         func_type: DdbFunctionType.SystemFunc
                     },
             })
-        ).data
+        )
+        .data
         .sort((a, b) => strcmp(a.name, b.name))
         
         if (print)
@@ -873,13 +881,15 @@ export class DdbModel extends Model<DdbModel> {
                 )
                 
                 location.href = url
+                
+                throw new Error(t('正在跳转'))
             }
         }
     }
     
     
     async get_console_jobs () {
-        return this.ddb.call<DdbObj<DdbObj[]>>('getConsoleJobs', [ ], {
+        return this.ddb.call<DdbObj<DdbObj[]>>('getConsoleJobs', undefined, {
             urgent: true,
             nodes: this.node_type === NodeType.controller ? 
                     this.nodes.filter(node => 
@@ -894,7 +904,7 @@ export class DdbModel extends Model<DdbModel> {
     
     
     async get_recent_jobs () {
-        return this.ddb.call<DdbObj<DdbObj[]>>('getRecentJobs', [ ], {
+        return this.ddb.call<DdbObj<DdbObj[]>>('getRecentJobs', undefined, {
             urgent: true,
             nodes: this.node_type === NodeType.controller ? 
                     this.nodes.filter(node => 
@@ -909,7 +919,7 @@ export class DdbModel extends Model<DdbModel> {
     
     
     async get_scheduled_jobs () {
-        return this.ddb.call<DdbObj<DdbObj[]>>('getScheduledJobs', [ ], {
+        return this.ddb.call<DdbObj<DdbObj[]>>('getScheduledJobs', undefined, {
             urgent: true,
             nodes: this.node_type === NodeType.controller ? 
                 this.nodes.filter(node => node.state === DdbNodeState.online && node.mode !== NodeType.agent)
@@ -921,12 +931,12 @@ export class DdbModel extends Model<DdbModel> {
     
     
     async cancel_console_job (job: DdbJob) {
-        return this.ddb.call('cancelConsoleJob', [job.rootJobId], { urgent: true })
+        return this.ddb.invoke('cancelConsoleJob', [job.rootJobId], { urgent: true })
     }
     
     
     async cancel_job (job: DdbJob) {
-        return this.ddb.call('cancelJob', [job.jobId], {
+        return this.ddb.invoke('cancelJob', [job.jobId], {
             urgent: true,
             ... (!job.node || this.node_alias === job.node) ? { } : { node: job.node, func_type: DdbFunctionType.SystemProc }
         })
@@ -934,7 +944,7 @@ export class DdbModel extends Model<DdbModel> {
     
     
     async delete_scheduled_job (job: DdbJob) {
-        return this.ddb.call('deleteScheduledJob', [job.jobId], {
+        return this.ddb.invoke('deleteScheduledJob', [job.jobId], {
             urgent: true,
             ... (!job.node || this.node_alias === job.node) ? { } : { node: job.node, func_type: DdbFunctionType.SystemProc }
         })
@@ -957,12 +967,12 @@ export class DdbModel extends Model<DdbModel> {
                 this.first_get_server_log_length = false
             }
             const [host, port] = this.node.agentSite.split(':')
-            ;({ value: length } = await this.ddb.call<DdbObj<bigint>>(
+            length = await this.ddb.invoke<bigint>(
                 'get_server_log_length_by_agent',
                 [host, new DdbInt(Number(port)), this.node_alias]
-            ))
+            )
         } else
-            ({ value: length } = await this.ddb.call<DdbObj<bigint>>('getServerLogLength', [this.node_alias]))
+            length = await this.ddb.invoke<bigint>('getServerLogLength', [this.node_alias])
         
         console.log('get_server_log_length', length)
         
@@ -988,15 +998,15 @@ export class DdbModel extends Model<DdbModel> {
             
             const [host, port] = this.node.agentSite.split(':')
             
-            ;({ value: logs } = await this.ddb.call<DdbObj<string[]>>(
+            logs = await this.ddb.invoke<string[]>(
                 'get_server_log_by_agent',
                 [host, new DdbInt(Number(port)), new DdbLong(length), new DdbLong(offset), this.node_alias]
-            ))
+            )
         } else
-            ({ value: logs } = await this.ddb.call<DdbObj<string[]>>(
+            logs = await this.ddb.invoke<string[]>(
                 'getServerLog',
                 [new DdbLong(length), new DdbLong(offset), true, this.node_alias]
-            ))
+            )
         
         logs.reverse()
         
@@ -1155,7 +1165,6 @@ const error_messages = {
 
 
 export interface DdbNode {
-    computeGroup: string
     name: string
     state: DdbNodeState
     mode: NodeType
@@ -1163,6 +1172,8 @@ export interface DdbNode {
     port: number
     site: string
     agentSite: string
+    computeGroup: string
+    
     maxConnections: number
     maxMemSize: number
     workerNum: number
