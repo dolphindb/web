@@ -198,25 +198,26 @@ export function NodesManagement () {
             >
                 {t('新建计算组')}
             </Button>
-            <AutoComplete<string>
-                showSearch
-                placeholder={t('请输入想要查找的节点别名')}
-                optionFilterProp='label'
-                value={search_key}
-                onChange={value => {
-                    set_search_key(value)
-                }}
-                style={{ width: 300, flex: '1' }}
-                onKeyDown={e => {
-                    if (e.key === 'Enter')
-                        set_search_value(search_key)
-                }}
-                filterOption={filter_config}
-                options={all_nodes.map(({ alias }) => ({
-                    label: alias,
-                    value: alias
-                }))} />
-            <Button type='primary' icon={<SearchOutlined />} onClick={() => { set_search_value(search_key) }} />
+            <div className='search-comp'>
+                <AutoComplete<string>
+                    showSearch
+                    placeholder={t('请输入想要查找的节点别名')}
+                    optionFilterProp='label'
+                    value={search_key}
+                    onChange={value => {
+                        set_search_key(value)
+                    }}
+                    onKeyDown={e => {
+                        if (e.key === 'Enter')
+                            set_search_value(search_key)
+                    }}
+                    filterOption={filter_config}
+                    options={all_nodes.map(({ alias }) => ({
+                        label: alias,
+                        value: alias
+                    }))} />
+                <Button type='primary' icon={<SearchOutlined />} onClick={() => { set_search_value(search_key) }} />
+            </div>
         </div>
         <NodeTable nodes={ungrouped_nodes} onSave={save_node_impl} onDelete={delete_nodes} />
         {group_nodes}
