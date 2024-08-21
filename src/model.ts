@@ -1165,7 +1165,6 @@ const error_messages = {
 
 
 export interface DdbNode {
-    computeGroup: string
     name: string
     state: DdbNodeState
     mode: NodeType
@@ -1173,6 +1172,8 @@ export interface DdbNode {
     port: number
     site: string
     agentSite: string
+    computeGroup: string
+    
     maxConnections: number
     maxMemSize: number
     workerNum: number
