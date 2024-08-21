@@ -40,9 +40,8 @@ class ConfigModel extends Model<ConfigModel> {
         const configs = parse_nodes_configs(
             (await this.call<DdbVectorStringObj>('loadClusterNodesConfigs', undefined, { urgent: true }))
                 .value)
-        this.set({ 
-            nodes_configs: configs
-        })
+        
+        this.set({ nodes_configs: configs })
         
         console.log(
             t('配置文件:'),
@@ -54,6 +53,7 @@ class ConfigModel extends Model<ConfigModel> {
                     : [...this.nodes_configs].map(([key, { value }]) => [key, value])
             )
         )
+        
         return configs        
     }
     

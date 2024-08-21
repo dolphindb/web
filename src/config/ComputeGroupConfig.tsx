@@ -1,4 +1,6 @@
-import { useEffect, useState, useRef, useCallback, useMemo } from 'react'
+import './index.sass'
+
+import { useEffect, useState, useRef, useCallback } from 'react'
 
 import { t } from '@i18n/index.js'
 
@@ -6,7 +8,6 @@ import { AutoComplete, Button, Popconfirm } from 'antd'
 
 import { EditableProTable, type ActionType, type ProColumns } from '@ant-design/pro-components'
 
-import './index.sass'
 import { PlusOutlined, ReloadOutlined, SearchOutlined } from '@ant-design/icons'
 import NiceModal from '@ebay/nice-modal-react'
 
@@ -22,7 +23,6 @@ import { model } from '@/model.js'
 
 
 export function ComputeGroupConfig () {
-
     // 这里指的是配置节点的文件，不是节点配置文件
     const { mutate, data: nodes = [ ] } = useSWR('/get/nodes_config_file', async () => { 
         const result = await config.get_cluster_nodes() 
@@ -43,6 +43,7 @@ export function ComputeGroupConfig () {
       }, [nodes])
     
     const groups = Array.from(compute_groups.keys())
+    const groups = Array.from(compute_groups.keys())
     
     useEffect(() => {
         const is_current_select_in_groups = groups.includes(current_compute_group)
@@ -54,7 +55,9 @@ export function ComputeGroupConfig () {
         return <div
             key={group}
             className={`select-item ${current_compute_group === group ? 'active' : ''}`}
-            onClick={() => { set_current_compute_group(group) }}
+            onClick={() => {
+                set_current_compute_group(group)
+            }}
         >
             <div className='title'>
                 {group}

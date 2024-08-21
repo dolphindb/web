@@ -93,7 +93,7 @@ export const NodesConfigAddModal = NiceModal.create((props: { compute_group?: st
                                 const { qualifier, name, value } = await add_config_form.validateFields()
                                 let key = (qualifier ? qualifier + '.' : '') + name
                                 if (props.compute_group)
-                                    key = props.compute_group + '%.' + key
+                                    key = `${props.compute_group}%.${key}`
                                 await config.change_configs([[key, { qualifier, name, value, key }]])
                                 model.message.success(t('保存成功，重启集群生效'))
                                 props.on_save?.()
