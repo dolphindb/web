@@ -218,9 +218,6 @@ export function NodesManagement () {
                 }))} />
             <Button type='primary' icon={<SearchOutlined />} onClick={() => { set_search_value(search_key) }} />
         </div>
-        <div className='group-title'>
-            {t('未分组节点')}
-        </div>
         <NodeTable nodes={ungrouped_nodes} onSave={save_node_impl} onDelete={delete_nodes} />
         {group_nodes}
     </div>

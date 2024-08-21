@@ -40,7 +40,7 @@ export function OverviewTable ({
         ).map(([name, nodes]) => ({ name, nodes }))  
     , [nodes])
     
-    const ungrouped_nodes = { name: t('未分组'), nodes: nodes.filter(node => !node.computeGroup && node.mode !== NodeType.data) }
+    const ungrouped_nodes = { name: '', nodes: nodes.filter(node => !node.computeGroup && node.mode !== NodeType.data) }
     const data_nodes = { name: t('存储集群'), nodes: nodes.filter(node => node.mode === NodeType.data) }
     
     const [search_text, set_search_text] = useState('')
@@ -351,7 +351,7 @@ export function OverviewTable ({
     ].map(group => {
         const group_nodes = group.nodes
         return <div key={group.name}>
-            <div className='group-title'>{group.name}</div>
+            {group.name && <div className='group-title'>{group.name}</div>}
             <div>
                 <Table
                     rowSelection={{
