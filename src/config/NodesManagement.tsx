@@ -1,7 +1,7 @@
 import { PlusOutlined, ReloadOutlined, SearchOutlined } from '@ant-design/icons'
 import { EditableProTable, type ActionType, type ProColumns } from '@ant-design/pro-components'
 import { AutoComplete, Button, message, Modal, Popconfirm } from 'antd'
-import { useCallback, useRef, useState } from 'react'
+import { useCallback, useMemo, useRef, useState } from 'react'
 
 import useSWR from 'swr'
 
@@ -88,17 +88,17 @@ export function NodesManagement () {
     
     const ungrouped_nodes = search_filtered_nodes.filter(node => !node.computeGroup)
     
-    const compute_groups = new Map()
-    search_filtered_nodes.forEach(config => {
-        if (config.computeGroup)
-            if (!compute_groups.has(config.computeGroup))
-                compute_groups.set(config.computeGroup, 1)
-            else
-                compute_groups.set(config.computeGroup, compute_groups.get(config.computeGroup) + 1)
-                
-    })
-    
-    const groups = (Array.from(compute_groups.keys()) as unknown as string[]).sort()
+    const groups = useMemo(() => {
+        const compute_groups = new Map()
+        search_filtered_nodes.forEach(config => {
+          if (config.computeGroup)
+              if (!compute_groups.has(config.computeGroup))
+                  compute_groups.set(config.computeGroup, 1)
+             else
+                  compute_groups.set(config.computeGroup, compute_groups.get(config.computeGroup) + 1)
+        })
+        return (Array.from(compute_groups.keys()) as unknown as string[]).sort()
+      }, [search_filtered_nodes])
     
     
     
