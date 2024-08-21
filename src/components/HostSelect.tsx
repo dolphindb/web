@@ -35,7 +35,7 @@ export function HostSelect ({ size = 'small' }: { size?: SizeType }) {
                 value: '183.134.101.134:8892'
             },
             {
-                label: 'indi',
+                label: '指标平台单机',
                 value: '192.168.100.45:8633',
             },
             {
