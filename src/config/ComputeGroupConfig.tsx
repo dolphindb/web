@@ -1,6 +1,6 @@
 import './index.sass'
 
-import { useEffect, useState, useRef, useCallback } from 'react'
+import { useEffect, useState, useRef, useCallback, useMemo } from 'react'
 
 import { t } from '@i18n/index.js'
 
@@ -42,7 +42,6 @@ export function ComputeGroupConfig () {
         return groups_map
       }, [nodes])
     
-    const groups = Array.from(compute_groups.keys())
     const groups = Array.from(compute_groups.keys())
     
     useEffect(() => {
