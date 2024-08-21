@@ -49,12 +49,12 @@ export function OverviewTable ({
     
     const { visible, open, close } = use_modal()
     
-    function handleSearch (selectedKeys: string[]) {
+    function on_search (selectedKeys: string[]) {
         set_search_text(selectedKeys[0] ?? '')
     }
     
-    function handleReset (clearFilters: () => void) {
-        clearFilters()
+    function on_reset (clear_filters: () => void) {
+        clear_filters()
         set_search_text('')
     }
     
@@ -80,7 +80,7 @@ export function OverviewTable ({
                             setSelectedKeys(e.target.value ? [e.target.value] : [ ])
                         }}
                         onPressEnter={() => {
-                            handleSearch(selectedKeys as string[])
+                            on_search(selectedKeys as string[])
                         }}
                         style={{ marginBottom: 8, display: 'block' }}
                     />
@@ -88,7 +88,7 @@ export function OverviewTable ({
                         <Button
                             type='primary'
                             onClick={() => {
-                                handleSearch(selectedKeys as string[])
+                                on_search(selectedKeys as string[])
                             }}
                             icon={<SearchOutlined />}
                             size='small'
@@ -98,7 +98,7 @@ export function OverviewTable ({
                         </Button>
                         <Button
                             onClick={() => {
-                                clearFilters && handleReset(clearFilters)
+                                clearFilters && on_reset(clearFilters)
                             }}
                             size='small'
                             style={{ width: 90 }}
@@ -344,14 +344,16 @@ export function OverviewTable ({
         }
     ]
     
-    const tables = [ungrouped_nodes, data_nodes.nodes.length > 0 ? data_nodes : undefined, ...groups].map(group => {
-        if (!group)
-            return null
+    const tables = [
+        ungrouped_nodes,
+        ... data_nodes.nodes.length > 0 ? [data_nodes] : [ ], 
+        ...groups
+    ].map(group => {
         const group_nodes = group.nodes
         return <div key={group.name}>
             <div className='group-title'>{group.name}</div>
             <div>
-            <Table
+                <Table
                     rowSelection={{
                         selectedRowKeys: selectedNodeNames,
                         onChange (_, nodes) {
