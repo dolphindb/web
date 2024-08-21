@@ -962,7 +962,7 @@ export class DdbModel extends Model<DdbModel> {
                 [host, new DdbInt(Number(port)), this.node_alias]
             )
         } else
-            length = await this.ddb.invoke<bigint>('getServerLogLength', [this.node_alias]))
+            length = await this.ddb.invoke<bigint>('getServerLogLength', [this.node_alias])
         
         console.log('get_server_log_length', length)
         
