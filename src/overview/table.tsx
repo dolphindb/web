@@ -43,19 +43,19 @@ export function OverviewTable ({
     const ungrouped_nodes = { name: t('未分组'), nodes: nodes.filter(node => !node.computeGroup && node.mode !== NodeType.data) }
     const data_nodes = { name: t('存储集群'), nodes: nodes.filter(node => node.mode === NodeType.data) }
     
-    const [searchText, setSearchText] = useState('')
+    const [search_text, set_search_text] = useState('')
     
-    const searchInput = useRef<InputRef>(null)
+    const search_input = useRef<InputRef>(null)
     
     const { visible, open, close } = use_modal()
     
     function handleSearch (selectedKeys: string[]) {
-        setSearchText(selectedKeys[0] ?? '')
+        set_search_text(selectedKeys[0] ?? '')
     }
     
     function handleReset (clearFilters: () => void) {
         clearFilters()
-        setSearchText('')
+        set_search_text('')
     }
     
     useEffect(() => {
@@ -74,7 +74,7 @@ export function OverviewTable ({
                     }}
                 >
                     <Input
-                        ref={searchInput}
+                        ref={search_input}
                         value={selectedKeys[0]}
                         onChange={e => {
                             setSelectedKeys(e.target.value ? [e.target.value] : [ ])
@@ -370,7 +370,7 @@ export function OverviewTable ({
                                         showSorterTooltip: false
                             }))}
                     dataSource={group_nodes
-                        .filter(({ name, mode }) => name.toLowerCase().includes(searchText.toLowerCase()) && mode !== NodeType.agent)
+                        .filter(({ name, mode }) => name.toLowerCase().includes(search_text.toLowerCase()) && mode !== NodeType.agent)
                         .map(node => ({ ...node, key: node.name }))}
                     pagination={false}
                     scroll={{ x: true }}
