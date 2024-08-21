@@ -356,7 +356,7 @@ export class DdbModel extends Model<DdbModel> {
         this.ddb.username = username
         this.ddb.password = password
         
-        await this.ddb.call('login', [username, password], { urgent: true })
+        await this.ddb.invoke('login', [username, password], { urgent: true })
         
         await this.update_user()
         
@@ -375,7 +375,7 @@ export class DdbModel extends Model<DdbModel> {
             throw new Error(t('没有自动登录的 username'))
         
         try {
-            await this.ddb.call('authenticateByTicket', [ticket], { urgent: true })
+            await this.ddb.invoke('authenticateByTicket', [ticket], { urgent: true })
             this.set({ logined: true, username: last_username })
             
             await this.is_admin()
@@ -393,11 +393,9 @@ export class DdbModel extends Model<DdbModel> {
     async login_by_session (session: string) {
         // https://dolphindb1.atlassian.net/browse/DPLG-581
         
-        await this.ddb.call('login', ['guest', '123456'])
+        await this.ddb.invoke('login', ['guest', '123456'])
         
-        const result = (
-            await this.ddb.call('authenticateBySession', [session])
-        ).to_dict<{ code: number, message: string, username: string, raw: string }>({ strip: true })
+        const result = await this.ddb.invoke<{ code: number, message: string, username: string, raw: string }>('authenticateBySession', [session])
         
         if (result.code) {
             const message = t('通过 session 登录失败，即将跳转到单点登录页')
@@ -764,7 +762,7 @@ export class DdbModel extends Model<DdbModel> {
         Only master or single mode supports function getClusterPerf. */
     async get_cluster_perf (print: boolean) {
         const nodes = (
-            await this.ddb.call<DdbObj<DdbObj[]>>('getClusterPerf', [true], {
+            await this.ddb.invoke<DdbTableData<DdbNode>>('getClusterPerf', [true], {
                 urgent: true,
                 
                 ... this.node_type === NodeType.controller || this.node_type === NodeType.single ? 
@@ -775,7 +773,7 @@ export class DdbModel extends Model<DdbModel> {
                         func_type: DdbFunctionType.SystemFunc
                     },
             })
-        ).data<DdbTableData>()
+        )
         .data
         .sort((a, b) => strcmp(a.name, b.name))
         
@@ -878,7 +876,7 @@ export class DdbModel extends Model<DdbModel> {
     
     
     async get_console_jobs () {
-        return this.ddb.call<DdbObj<DdbObj[]>>('getConsoleJobs', [ ], {
+        return this.ddb.call<DdbObj<DdbObj[]>>('getConsoleJobs', undefined, {
             urgent: true,
             nodes: this.node_type === NodeType.controller ? 
                     this.nodes.filter(node => 
@@ -893,7 +891,7 @@ export class DdbModel extends Model<DdbModel> {
     
     
     async get_recent_jobs () {
-        return this.ddb.call<DdbObj<DdbObj[]>>('getRecentJobs', [ ], {
+        return this.ddb.call<DdbObj<DdbObj[]>>('getRecentJobs', undefined, {
             urgent: true,
             nodes: this.node_type === NodeType.controller ? 
                     this.nodes.filter(node => 
@@ -908,7 +906,7 @@ export class DdbModel extends Model<DdbModel> {
     
     
     async get_scheduled_jobs () {
-        return this.ddb.call<DdbObj<DdbObj[]>>('getScheduledJobs', [ ], {
+        return this.ddb.call<DdbObj<DdbObj[]>>('getScheduledJobs', undefined, {
             urgent: true,
             nodes: this.node_type === NodeType.controller ? 
                 this.nodes.filter(node => node.state === DdbNodeState.online && node.mode !== NodeType.agent)
@@ -920,12 +918,12 @@ export class DdbModel extends Model<DdbModel> {
     
     
     async cancel_console_job (job: DdbJob) {
-        return this.ddb.call('cancelConsoleJob', [job.rootJobId], { urgent: true })
+        return this.ddb.invoke('cancelConsoleJob', [job.rootJobId], { urgent: true })
     }
     
     
     async cancel_job (job: DdbJob) {
-        return this.ddb.call('cancelJob', [job.jobId], {
+        return this.ddb.invoke('cancelJob', [job.jobId], {
             urgent: true,
             ... (!job.node || this.node_alias === job.node) ? { } : { node: job.node, func_type: DdbFunctionType.SystemProc }
         })
@@ -933,7 +931,7 @@ export class DdbModel extends Model<DdbModel> {
     
     
     async delete_scheduled_job (job: DdbJob) {
-        return this.ddb.call('deleteScheduledJob', [job.jobId], {
+        return this.ddb.invoke('deleteScheduledJob', [job.jobId], {
             urgent: true,
             ... (!job.node || this.node_alias === job.node) ? { } : { node: job.node, func_type: DdbFunctionType.SystemProc }
         })
@@ -956,12 +954,12 @@ export class DdbModel extends Model<DdbModel> {
                 this.first_get_server_log_length = false
             }
             const [host, port] = this.node.agentSite.split(':')
-            ;({ value: length } = await this.ddb.call<DdbObj<bigint>>(
+            length = await this.ddb.invoke<bigint>(
                 'get_server_log_length_by_agent',
                 [host, new DdbInt(Number(port)), this.node_alias]
-            ))
+            )
         } else
-            ({ value: length } = await this.ddb.call<DdbObj<bigint>>('getServerLogLength', [this.node_alias]))
+            length = await this.ddb.invoke<bigint>('getServerLogLength', [this.node_alias]))
         
         console.log('get_server_log_length', length)
         
@@ -987,15 +985,15 @@ export class DdbModel extends Model<DdbModel> {
             
             const [host, port] = this.node.agentSite.split(':')
             
-            ;({ value: logs } = await this.ddb.call<DdbObj<string[]>>(
+            logs = await this.ddb.invoke<string[]>(
                 'get_server_log_by_agent',
                 [host, new DdbInt(Number(port)), new DdbLong(length), new DdbLong(offset), this.node_alias]
-            ))
+            )
         } else
-            ({ value: logs } = await this.ddb.call<DdbObj<string[]>>(
+            logs = await this.ddb.invoke<string[]>(
                 'getServerLog',
                 [new DdbLong(length), new DdbLong(offset), true, this.node_alias]
-            ))
+            )
         
         logs.reverse()
         
