@@ -1,10 +1,8 @@
-import { useEffect, useState, useRef, useCallback } from 'react'
+import { useEffect, useState, useRef, useCallback, useMemo } from 'react'
 
 import { t } from '@i18n/index.js'
 
 import { AutoComplete, Button, Popconfirm } from 'antd'
-
-import type { DdbVectorStringObj } from 'dolphindb/browser.js'
 
 import { EditableProTable, type ActionType, type ProColumns } from '@ant-design/pro-components'
 
@@ -35,19 +33,21 @@ export function ComputeGroupConfig () {
     
     const [search_kw, set_search_kw] = useState('')
     
-    const compute_groups = new Map()
-    nodes.forEach(config => {
-        if (config.computeGroup)
-            compute_groups.set(config.computeGroup, compute_groups.get(config.computeGroup) || 0 + 1)
-                
-    })
+    const compute_groups = useMemo(() => {
+        const groups_map = new Map()
+        nodes.forEach(config => {
+          if (config.computeGroup)
+              groups_map.set(config.computeGroup, (groups_map.get(config.computeGroup) || 0) + 1)
+        })
+        return groups_map
+      }, [nodes])
     
-    const groups = Array.from(compute_groups.keys()) as unknown as string[]
+    const groups = Array.from(compute_groups.keys())
     
     useEffect(() => {
-        set_current_compute_group(groups.length && current_compute_group === '' ? groups[0] : '')
-            
-    }, [JSON.stringify(groups)])
+        const is_current_select_in_groups = groups.includes(current_compute_group)
+        set_current_compute_group(groups.length && !is_current_select_in_groups ? groups[0] : '')
+    }, [nodes])
     
     const select_items = groups.map(group => {
         const count = compute_groups.get(group)
