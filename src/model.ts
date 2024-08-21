@@ -447,6 +447,9 @@ export class DdbModel extends Model<DdbModel> {
                 if (!node)
                     throw new Error(t('无法从当前节点 {{current}} 跳转回发起登录的节点 {{origin}}，找不到节点信息', { current: this.node_alias, origin: state }))
                 location.href = this.get_node_url(node)
+                
+                // todo: 去掉应该也是一样的行为
+                throw new Error(t('正在跳转'))
             }
         }
         
