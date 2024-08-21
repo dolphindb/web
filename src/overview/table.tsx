@@ -32,17 +32,13 @@ export function OverviewTable ({
 }) {
     const { nodes, node_type } = model.use(['nodes', 'node_type'])
     
-    const groups_set = new Set<string>()
-    nodes.forEach(node => {
-        if (node.computeGroup)
-            groups_set.add(node.computeGroup)
-    })
-    
-    const group_names: string[] = Array.from(groups_set)
-    
-    const groups = group_names.map(name => {
-        return { name: name, nodes: nodes.filter(node => node.computeGroup === name) }
-    })
+    const groups = useMemo(() =>
+        Object.entries(
+            Object.groupBy(
+                nodes.filter(({ computeGroup }) => computeGroup),
+                ({ computeGroup }) => computeGroup)
+        ).map(([name, nodes]) => ({ name, nodes }))  
+    , [nodes])
     
     const ungrouped_nodes = { name: t('未分组'), nodes: nodes.filter(node => !node.computeGroup && node.mode !== NodeType.data) }
     const data_nodes = { name: t('存储集群'), nodes: nodes.filter(node => node.mode === NodeType.data) }
