@@ -125,9 +125,9 @@ export function ComputeGroupConfig () {
     ]
     
     return <div className='config compute-group'>
-        <div className='select' >
+        {select_items.length > 0 && <div className='select' >
             {select_items}
-        </div>
+        </div>}
         <div>
             <div className='toolbar'>
                 <Button
