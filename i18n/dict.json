@@ -4930,5 +4930,26 @@
     },
     "跳转到 oauth 验证页面:": {
         "en": "Jump to the oauth verification page"
+    },
+    "配置文件:": {
+        "en": "config file:"
+    },
+    "配置:": {
+        "en": "config:"
+    },
+    "无法从当前节点 {{current}} 跳转回发起登录的节点 {{origin}}，找不到节点信息": {
+        "en": "Unable to jump from the current node {{current}} back to the node {{origin}} where login was initiated. Node information cannot be found."
+    },
+    "正在跳转": {
+        "en": "jumping"
+    },
+    "尝试 oauth 单点登录，类型是 implicit, token_type 为 {{token_type}}, access_token 为 {{access_token}}, expires_in 为 {{expires_in}}": {
+        "en": "Try oauth single sign-on, type is implicit, token_type is {{token_type}}, access_token is {{access_token}}, expires_in is {{expires_in}}"
+    },
+    "尝试 oauth 单点登录，类型是 authorization code, code 为 {{code}}": {
+        "en": "Try oauth single sign-on, type is authorization code, code is {{code}}"
+    },
+    "{{username}} 使用 oauth 单点登录成功": {
+        "en": "{{username}} successfully signed in using oauth"
     }
 }
