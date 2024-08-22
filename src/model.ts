@@ -562,8 +562,8 @@ export class DdbModel extends Model<DdbModel> {
     async is_admin () {
         const admin = this.logined && (
             await this.ddb.invoke<DdbTableData<{ isAdmin: boolean }>>(
-                'getUserAccess', 
-                [this.username], 
+                'getUserAccess',
+                [this.username],
                 { urgent: true }
             )
         ).data[0].isAdmin
