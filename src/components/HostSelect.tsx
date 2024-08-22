@@ -47,7 +47,7 @@ export function HostSelect ({ size = 'small' }: { size?: SizeType }) {
                 value: '127.0.0.1:8848'
             }
         ]}
-        onSelect={(host: string) => { 
+        onSelect={host => { 
             const [hostname, port] = host.split(':')
             location.href = model.get_url(hostname, Number(port))
         }}
