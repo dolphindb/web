@@ -560,15 +560,17 @@ export class DdbModel extends Model<DdbModel> {
     
     
     async is_admin () {
-        const { data: [{ isAdmin }] } = await this.ddb.invoke<DdbTableData<{ isAdmin: boolean }>>(
-            'getUserAccess', 
-            undefined, 
-            { urgent: true }
-        )
+        const admin = this.logined && (
+            await this.ddb.invoke<DdbTableData<{ isAdmin: boolean }>>(
+                'getUserAccess', 
+                [this.username], 
+                { urgent: true }
+            )
+        ).data[0].isAdmin
         
-        this.set({ admin: isAdmin })
+        this.set({ admin })
         
-        return isAdmin
+        return admin
     }
     
     
