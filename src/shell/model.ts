@@ -26,13 +26,13 @@ import {
 } from 'dolphindb/browser.js'
 
 
-import { t } from '../../i18n/index.js'
+import { t } from '@i18n/index.js'
 
-import { type DdbObjRef } from '../obj.js'
+import { type DdbObjRef } from '@/obj.js'
 
-import { model, NodeType, storage_keys } from '../model.js'
+import { model, NodeType, storage_keys } from '@/model.js'
 
-import type { Monaco } from '../components/Editor/index.js'
+import type { Monaco } from '@/components/Editor/index.js'
 
 import { Database, DatabaseGroup, type Column, type ColumnRoot, PartitionDirectory, type PartitionRoot, PartitionFile, type Table, Catalog } from './Databases.js'
 
@@ -320,23 +320,27 @@ class ShellModel extends Model<ShellModel> {
         const { editor } = this
         
         const selection = editor.getSelection()
-        const model = editor.getModel()
+        const emodel = editor.getModel()
+        let code: string
         
         if (selection.isEmpty())
             await this.eval(
-                default_selection === 'line' ?
-                    model.getLineContent(selection.startLineNumber)
+                code = default_selection === 'line' ?
+                    emodel.getLineContent(selection.startLineNumber)
                 :
-                    model.getValue(this.monaco.editor.EndOfLinePreference.LF),
+                    emodel.getValue(this.monaco.editor.EndOfLinePreference.LF),
                 default_selection === 'line' ? selection.startLineNumber : 1
             )
         else
             await this.eval(
-                model.getValueInRange(selection, this.monaco.editor.EndOfLinePreference.LF), 
+                code = emodel.getValueInRange(selection, this.monaco.editor.EndOfLinePreference.LF), 
                 selection.startLineNumber
             )
         
         await this.update_vars()
+        
+        if (code.includes('login') || code.includes('logout'))
+            await model.update_user()
     }
     
     
