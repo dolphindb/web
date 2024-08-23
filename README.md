@@ -65,6 +65,8 @@ pnpm install
 # Copy .vscode/settings.template.json to .vscode/settings.json
 cp .vscode/settings.template.json .vscode/settings.json
 
+# Set environment variable NODE_OPTIONS='--experimental-transform-types'
+
 # Refer to scripts in package.json
 
 # development

@@ -1,10 +1,14 @@
 import { Select } from 'antd'
+import type { SizeType } from 'antd/es/config-provider/SizeContext.js'
+
+import { model } from '@/model.js'
 
 
-export function HostSelect () {
+export function HostSelect ({ size = 'small' }: { size?: SizeType }) {
     return <Select
         className='host-select'
-        size='small'
+        size={size}
+        listHeight={512}
         options={[
             {
                 label: '测试数据节点',
@@ -31,7 +35,7 @@ export function HostSelect () {
                 value: '183.134.101.134:8892'
             },
             {
-                label: 'indi',
+                label: '指标平台单机',
                 value: '192.168.100.45:8633',
             },
             {
@@ -43,21 +47,11 @@ export function HostSelect () {
                 value: '127.0.0.1:8848'
             }
         ]}
-        onSelect={(host: string) => { 
+        onSelect={host => { 
             const [hostname, port] = host.split(':')
-            
-            let url = new URL(location.href)
-            
-            url.searchParams.set('hostname', hostname)
-            url.searchParams.set('port', port)
-            url.searchParams.delete('dashboard')
-            
-            location.href = url.toString()
+            location.href = model.get_url(hostname, Number(port))
         }}
         popupMatchSelectWidth={false}
-        defaultValue={(() => {
-            const { searchParams } = new URL(location.href)
-            return `${searchParams.get('hostname')}:${searchParams.get('port')}`
-        })()}
+        defaultValue={`${model.params.get('hostname')}:${model.params.get('port')}`}
     />
  }

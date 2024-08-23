@@ -25,13 +25,13 @@ importers:
         version: 1.2.13(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@formily/antd-v5':
         specifier: ^1.2.3
-        version: 1.2.3(@types/react-dom@18.3.0)(@types/react@18.3.3)(antd@5.20.2(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(react-dom@18.3.1(react@18.3.1))(react-is@18.2.0)(react@18.3.1)(typescript@5.5.4)
+        version: 1.2.3(@types/react-dom@18.3.0)(@types/react@18.3.4)(antd@5.20.2(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(react-dom@18.3.1(react@18.3.1))(react-is@18.2.0)(react@18.3.1)(typescript@5.5.4)
       '@formily/core':
         specifier: ^2.3.2
         version: 2.3.2
       '@formily/react':
         specifier: ^2.3.2
-        version: 2.3.2(@types/react-dom@18.3.0)(@types/react@18.3.3)(react-dom@18.3.1(react@18.3.1))(react-is@18.2.0)(react@18.3.1)(typescript@5.5.4)
+        version: 2.3.2(@types/react-dom@18.3.0)(@types/react@18.3.4)(react-dom@18.3.1(react@18.3.1))(react-is@18.2.0)(react@18.3.1)(typescript@5.5.4)
       '@monaco-editor/react':
         specifier: ^4.6.0
         version: 4.6.0(monaco-editor@0.50.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -60,11 +60,11 @@ importers:
         specifier: ^3.3.3
         version: 3.3.3
       dayjs:
-        specifier: ^1.11.12
-        version: 1.11.12
+        specifier: ^1.11.13
+        version: 1.11.13
       dolphindb:
-        specifier: ^3.0.108
-        version: 3.0.108(react-dom@18.3.1(react@18.3.1))
+        specifier: ^3.0.112
+        version: 3.0.112(react-dom@18.3.1(react@18.3.1))
       echarts:
         specifier: ^5.5.1
         version: 5.5.1
@@ -85,7 +85,7 @@ importers:
         version: 4.17.21
       monaco-dolphindb:
         specifier: ^1.0.5
-        version: 1.0.5(dolphindb@3.0.108(react-dom@18.3.1(react@18.3.1)))(monaco-editor@0.50.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(vscode-oniguruma@2.0.1)(vscode-textmate@9.1.0)
+        version: 1.0.5(dolphindb@3.0.112(react-dom@18.3.1(react@18.3.1)))(monaco-editor@0.50.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(vscode-oniguruma@2.0.1)(vscode-textmate@9.1.0)
       monaco-editor:
         specifier: ^0.50.0
         version: 0.50.0
@@ -100,7 +100,7 @@ importers:
         version: 4.4.6(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       react-markdown:
         specifier: ^9.0.1
-        version: 9.0.1(@types/react@18.3.3)(react@18.3.1)
+        version: 9.0.1(@types/react@18.3.4)(react@18.3.1)
       react-object-model:
         specifier: ^1.2.11
         version: 1.2.11(react@18.3.1)
@@ -123,8 +123,8 @@ importers:
         specifier: ^9.1.0
         version: 9.1.0
       xshell:
-        specifier: ^1.0.161
-        version: 1.0.161(react-dom@18.3.1(react@18.3.1))
+        specifier: ^1.0.162
+        version: 1.0.162(react-dom@18.3.1(react@18.3.1))
     devDependencies:
       '@svgr/webpack':
         specifier: ^8.1.0
@@ -139,11 +139,11 @@ importers:
         specifier: ^4.17.7
         version: 4.17.7
       '@types/node':
-        specifier: ^22.4.1
-        version: 22.4.1
+        specifier: ^22.5.0
+        version: 22.5.0
       '@types/react':
-        specifier: ^18.3.3
-        version: 18.3.3
+        specifier: ^18.3.4
+        version: 18.3.4
       '@types/react-dom':
         specifier: ^18.3.0
         version: 18.3.0
@@ -155,13 +155,13 @@ importers:
         version: 4.7.0
       css-loader:
         specifier: ^7.1.2
-        version: 7.1.2(webpack@5.93.0)
+        version: 7.1.2(webpack@5.94.0)
       eslint:
         specifier: ^9.9.0
         version: 9.9.0
       license-webpack-plugin:
         specifier: ^4.0.2
-        version: 4.0.2(webpack@5.93.0)
+        version: 4.0.2(webpack@5.94.0)
       react:
         specifier: ^18.3.1
         version: 18.3.1
@@ -170,22 +170,22 @@ importers:
         version: 1.77.8
       sass-loader:
         specifier: ^16.0.1
-        version: 16.0.1(sass@1.77.8)(webpack@5.93.0)
+        version: 16.0.1(sass@1.77.8)(webpack@5.94.0)
       source-map-loader:
         specifier: ^5.0.0
-        version: 5.0.0(webpack@5.93.0)
+        version: 5.0.0(webpack@5.94.0)
       style-loader:
         specifier: ^4.0.0
-        version: 4.0.0(webpack@5.93.0)
+        version: 4.0.0(webpack@5.94.0)
       ts-loader:
         specifier: ^9.5.1
-        version: 9.5.1(typescript@5.5.4)(webpack@5.93.0)
+        version: 9.5.1(typescript@5.5.4)(webpack@5.94.0)
       typescript:
         specifier: ^5.5.4
         version: 5.5.4
       webpack:
-        specifier: ^5.93.0
-        version: 5.93.0
+        specifier: ^5.94.0
+        version: 5.94.0
       webpack-bundle-analyzer:
         specifier: ^4.10.2
         version: 4.10.2
@@ -1602,12 +1602,6 @@ packages:
   '@types/debug@4.1.12':
     resolution: {integrity: sha512-vIChWdVG3LG1SMxEvI/AK+FWJthlrqlTu7fbrlywTkkaONwk/UAGaULXRlf8vkzFBLVm0zkMdCquhL5aOjhXPQ==}
 
-  '@types/eslint-scope@3.7.4':
-    resolution: {integrity: sha512-9K4zoImiZc3HlIp6AVUDE4CWYx22a+lhSZMYNpbjW04+YF0KWj4pJXnEMjdnFTiQibFFmElcsasJXDbdI/EPhA==}
-
-  '@types/eslint@8.56.3':
-    resolution: {integrity: sha512-PvSf1wfv2wJpVIFUMSb+i4PvqNYkB9Rkp9ZDO3oaWzq4SKhsQk4mrMBr3ZH06I0hKrVGLBacmgl8JM4WVjb9dg==}
-
   '@types/eslint@9.6.0':
     resolution: {integrity: sha512-gi6WQJ7cHRgZxtkQEoyHMppPjq9Kxo5Tjn2prSKDSmZrCz8TZ3jSRCeTJm+WoM+oB0WG37bRqLzaaU3q7JypGg==}
 
@@ -1665,8 +1659,8 @@ packages:
   '@types/node-sass@4.11.3':
     resolution: {integrity: sha512-wXPCn3t9uu5rR4zXNSLasZHQMuRzUKBsdi4MsgT8uq4Lp1gQQo+T2G23tGj4SSgDHeNBle6vGseZtM2XV/X9bw==}
 
-  '@types/node@22.4.1':
-    resolution: {integrity: sha512-1tbpb9325+gPnKK0dMm+/LMriX0vKxf6RnB0SZUqfyVkQ4fMgUSySqhxE/y8Jvs4NyF1yHzTfG9KlnkIODxPKg==}
+  '@types/node@22.5.0':
+    resolution: {integrity: sha512-DkFrJOe+rfdHTqqMg0bSNlGlQ85hSoh2TPzZyhHsXnMtligRWpxUySiyw8FY14ITt24HVCiQPWxS3KO/QlGmWg==}
 
   '@types/prop-types@15.7.5':
     resolution: {integrity: sha512-JCB8C6SnDoQf0cNycqd/35A7MjcnK+ZTqE7judS6o7utxUCg6imJg3QK2qzHKszlTjcj2cn+NwMB2i96ubpj7w==}
@@ -1683,8 +1677,8 @@ packages:
   '@types/react-dom@18.3.0':
     resolution: {integrity: sha512-EhwApuTmMBmXuFOikhQLIBUn6uFg81SwLMOAUgodJF14SOBOCMdU04gDoYi0WOJJHD144TL32z4yDqCW3dnkQg==}
 
-  '@types/react@18.3.3':
-    resolution: {integrity: sha512-hti/R0pS0q1/xx+TsI73XIqk26eBsISZ2R0wUijXIngRK9R/e7Xw/cXVxQK7R5JjW+SV4zGcn5hXjudkN/pLIw==}
+  '@types/react@18.3.4':
+    resolution: {integrity: sha512-J7W30FTdfCxDDjmfRM+/JqLHBIyl7xUIp9kwK637FGmY7+mkSFSe6L4jpZzhj5QMfLssSDP4/i75AKkrdC7/Jw==}
 
   '@types/sass-loader@8.0.9':
     resolution: {integrity: sha512-OAzsrLMYVMprsR5Je2eIGqwsJ6FulUG5fHkzPemv5ejhyX05lpqNw5tbvdJqZi31RFELVeoR9yij17Xu6Qk1xA==}
@@ -1913,11 +1907,6 @@ packages:
     engines: {node: '>=0.4.0'}
     hasBin: true
 
-  acorn@8.12.0:
-    resolution: {integrity: sha512-RTvkC4w+KNXrM39/lWCUaG0IbRkWdCv7W/IOW9oU6SawyxulvkQy5HQPVTKxEjczcUvapcrw3cFx/60VN/NRNw==}
-    engines: {node: '>=0.4.0'}
-    hasBin: true
-
   acorn@8.12.1:
     resolution: {integrity: sha512-tcpGyI9zbizT9JbV6oYE477V6mTlXvvi0T0G3SNIYE2apm/G5huBa1+K89VGeovbg+jycCrfhl3ADxErOuO6Jg==}
     engines: {node: '>=0.4.0'}
@@ -2112,11 +2101,6 @@ packages:
     resolution: {integrity: sha512-b8um+L1RzM3WDSzvhm6gIz1yfTbBt6YTlcEKAvsmqCZZFw46z626lVj9j1yEPW33H5H+lBQpZMP1k8l+78Ha0A==}
     engines: {node: '>=8'}
 
-  browserslist@4.22.2:
-    resolution: {integrity: sha512-0UgcrvQmBDvZHFGdYUehrCNIazki7/lUP3kkoi/r3YB2amZbFM9J43ZRkJTXBUZK4gmx56+Sqk9+Vs9mwZx9+A==}
-    engines: {node: ^6 || ^7 || ^8 || ^9 || ^10 || ^11 || ^12 || >=13.7}
-    hasBin: true
-
   browserslist@4.23.2:
     resolution: {integrity: sha512-qkqSyistMYdxAcw+CzbZwlBy8AGmS/eEWs+sEV5TnLRGDOL+C5M2EnH6tlZyg0YoAxGJAFKh61En9BR941GnHA==}
     engines: {node: ^6 || ^7 || ^8 || ^9 || ^10 || ^11 || ^12 || >=13.7}
@@ -2165,9 +2149,6 @@ packages:
   camelcase@6.3.0:
     resolution: {integrity: sha512-Gmy6FhYlCY7uOElZUSbxo2UCDH8owEk996gkbrpsgGtrJLM3J7jGxl9Ic7Qwwj4ivOE5AWZWRMecDdF7hqGjFA==}
     engines: {node: '>=10'}
-
-  caniuse-lite@1.0.30001570:
-    resolution: {integrity: sha512-+3e0ASu4sw1SWaoCtvPeyXp+5PsjigkSt8OXZbF9StH5pQWbxEjLAZE3n8Aup5udop1uRiKA7a4utUk/uoSpUw==}
 
   caniuse-lite@1.0.30001642:
     resolution: {integrity: sha512-3XQ0DoRgLijXJErLSl+bLnJ+Et4KqV1PY6JJBGAFlsNsz31zeAIncyeZfLCabHK/jtSh+671RM9YMldxjUPZtA==}
@@ -2438,8 +2419,8 @@ packages:
   dateformat@2.2.0:
     resolution: {integrity: sha512-GODcnWq3YGoTnygPfi02ygEiRxqUxpJwuRHjdhJYuxpcZmDq4rjBiXYmbCCzStxo176ixfLT6i4NPwQooRySnw==}
 
-  dayjs@1.11.12:
-    resolution: {integrity: sha512-Rt2g+nTbLlDWZTwwrIXjy9MeiZmSDI375FvZs72ngxx8PDC6YXOeR3q5LAuPzjZQxhiWdRKac7RKV+YyQYfYIg==}
+  dayjs@1.11.13:
+    resolution: {integrity: sha512-oaMBel6gjolK862uaPQOVTA7q3TZhuSvuMQAAglQDOWYO9A91IrAOUJEyKVlqJlHE0vq5p5UXxzdPfMH/x6xNg==}
 
   debounce@1.2.1:
     resolution: {integrity: sha512-XRRe6Glud4rd/ZGQfiV1ruXSfbvfJedlV9Y6zOlP+2K04vBYiJEte6stfFkCP03aMnY5tsipamumUjL14fofug==}
@@ -2534,8 +2515,8 @@ packages:
     resolution: {integrity: sha512-35mSku4ZXK0vfCuHEDAwt55dg2jNajHZ1odvF+8SSr82EsZY4QmXfuWso8oEd8zRhVObSN18aM0CjSdoBX7zIw==}
     engines: {node: '>=0.10.0'}
 
-  dolphindb@3.0.108:
-    resolution: {integrity: sha512-UI98WG/FzluhDUusG72rcELBNS3e3xYx5hrSzxR3qtohW+HzhYiaQ+DH1u+hAj1SjX0CUqgI2TfoF6vKFWo34A==}
+  dolphindb@3.0.112:
+    resolution: {integrity: sha512-08nBL1a47C31FspycFjt8lXafi36yEq9zfKhqLAcWhTDe3qWlmend/Yjw4yQJk5s6ONmWwYQ8u5ZgFJlZySLDQ==}
     engines: {node: '>=22.1.0'}
 
   dom-serializer@2.0.0:
@@ -2576,9 +2557,6 @@ packages:
   ee-first@1.1.1:
     resolution: {integrity: sha512-WMwm9LhRUo+WUaRN+vRuETqG89IgZphVSNkdFgeb6sS/E4OrDIN7t48CAewSHXc6C8lefD8KKfr5vY61brQlow==}
 
-  electron-to-chromium@1.4.612:
-    resolution: {integrity: sha512-dM8BMtXtlH237ecSMnYdYuCkib2QHq0kpWfUnavjdYsyr/6OsAwg5ZGUfnQ9KD1Ga4QgB2sqXlB2NT8zy2GnVg==}
-
   electron-to-chromium@1.4.828:
     resolution: {integrity: sha512-QOIJiWpQJDHAVO4P58pwb133Cwee0nbvy/MV1CwzZVGpkH1RX33N3vsaWRCpR6bF63AAq366neZrRTu7Qlsbbw==}
 
@@ -2606,8 +2584,8 @@ packages:
     resolution: {integrity: sha512-LXYT42KJ7lpIKECr2mAXIaMldcNCh/7E0KBKOu4KSfkHmP+mZmSs+8V5gBAqisWBy0OO4W5Oyys0GO1Y8KtdKg==}
     engines: {node: '>=10.13.0'}
 
-  enhanced-resolve@5.17.0:
-    resolution: {integrity: sha512-dwDPwZL0dmye8Txp2gzFmA6sxALaSvdRDjPH0viLcKrtlOL3tw62nWWweVD1SdILDTJrbrL6tdWVN58Wo6U3eA==}
+  enhanced-resolve@5.17.1:
+    resolution: {integrity: sha512-LMHl3dXhTcfv8gM4kEzIUeTQ+7fpdA0l2tUf34BddXPkz2A5xJ5L/Pchd5BL6rdccM9QGvu0sWZzK1Z1t4wwyg==}
     engines: {node: '>=10.13.0'}
 
   ensure-type@1.5.1:
@@ -2656,10 +2634,6 @@ packages:
   es-to-primitive@1.2.1:
     resolution: {integrity: sha512-QCOllgZJtaUo9miYBcLChTUaHNjJF3PYs1VidD7AwiEj1kYxKeQTctLAezAOH5ZKRH0g2IgPn6KwB4IT8iRpvA==}
     engines: {node: '>= 0.4'}
-
-  escalade@3.1.1:
-    resolution: {integrity: sha512-k0er2gUkLf8O0zKJiAhmkTnJlTvINGv7ygDNPbeIsX/TJjGJZHuh9B2UxbsaEkmlEo9MfhrSzmhIlhRlI2GXnw==}
-    engines: {node: '>=6'}
 
   escalade@3.1.2:
     resolution: {integrity: sha512-ErCHMCae19vR8vQGe50xIsVomy19rg6gFu3+r3jkEO46suLMWBksvVyoGgQV+jOfl84ZSOSlmv6Gxa89PmTGmA==}
@@ -4953,12 +4927,6 @@ packages:
     resolution: {integrity: sha512-CJ1QgKmNg3CwvAv/kOFmtnEN05f0D/cn9QntgNOQlQF9dgvVTHj3t+8JPdjqawCHk7V/KA+fbUqzZ9XWhcqPUg==}
     engines: {node: '>= 4.0.0'}
 
-  update-browserslist-db@1.0.13:
-    resolution: {integrity: sha512-xebP81SNcPuNpPP3uzeW1NYXxI3rxyJzF3pD6sH4jE7o/IX+WtSpwnVU+qIsDPyk0d3hmFQ7mjqc6AtV604hbg==}
-    hasBin: true
-    peerDependencies:
-      browserslist: '>= 4.21.0'
-
   update-browserslist-db@1.1.0:
     resolution: {integrity: sha512-EdRAaAyk2cUE1wOf2DkEhzxqOQvFOoRJFNS6NeyJ01Gp2beMRpBAINjM2iDXE3KCuKhwnvHIQCJm6ThL2Z+HzQ==}
     hasBin: true
@@ -5051,8 +5019,8 @@ packages:
     resolution: {integrity: sha512-/DyMEOrDgLKKIG0fmvtz+4dUX/3Ghozwgm6iPp8KRhvn+eQf9+Q7GWxVNMk3+uCPWfdXYC4ExGBckIXdFEfH1w==}
     engines: {node: '>=10.13.0'}
 
-  webpack@5.93.0:
-    resolution: {integrity: sha512-Y0m5oEY1LRuwly578VqluorkXbvXKh7U3rLoQCEO04M97ScRr44afGVkI0FQFsXzysk5OgFAxjZAb9rsGQVihA==}
+  webpack@5.94.0:
+    resolution: {integrity: sha512-KcsGn50VT+06JH/iunZJedYGUJS5FGjow8wb9c0v5n1Om8O1g4L6LjtfxwlXIATopoQu+vOXXa7gYisWxCoPyg==}
     engines: {node: '>=10.13.0'}
     hasBin: true
     peerDependencies:
@@ -5135,8 +5103,8 @@ packages:
     resolution: {integrity: sha512-fDlsI/kFEx7gLvbecc0/ohLG50fugQp8ryHzMTuW9vSa1GJ0XYWKnhsUx7oie3G98+r56aTQIUB4kht42R3JvA==}
     engines: {node: '>=4.0'}
 
-  xshell@1.0.161:
-    resolution: {integrity: sha512-GXGuWdtW7N8Aim7A6TBW8iqJbnPwCRTg+lWr5WLoI+rgoCcp2psJHUf6Z04QNU3lvCtUKNRN52KpfKrtM6xxuQ==}
+  xshell@1.0.162:
+    resolution: {integrity: sha512-3OWgLGqXrieNE4uf3jiSZPHpeXF0Fe5PFm/U84x+NFiwA4rIBR/PqK/qRBfD8TRBCvsxNfIfRNNLT+00mecHDg==}
     hasBin: true
 
   xtend@4.0.2:
@@ -5288,7 +5256,7 @@ snapshots:
       '@chenshuai2144/sketch-color': 1.0.9(react@18.3.1)
       antd: 5.20.2(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       classnames: 2.5.1
-      dayjs: 1.11.12
+      dayjs: 1.11.13
       lodash-es: 4.17.21
       omit.js: 2.0.2
       rc-util: 5.43.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -5308,7 +5276,7 @@ snapshots:
       '@umijs/use-params': 1.0.9(react@18.3.1)
       antd: 5.20.2(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       classnames: 2.5.1
-      dayjs: 1.11.12
+      dayjs: 1.11.13
       lodash-es: 4.17.21
       omit.js: 2.0.2
       rc-field-form: 2.4.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -5347,7 +5315,7 @@ snapshots:
       '@babel/runtime': 7.25.0
       antd: 5.20.2(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       classnames: 2.5.1
-      dayjs: 1.11.12
+      dayjs: 1.11.13
       rc-resize-observer: 1.4.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       rc-util: 4.21.1
       react: 18.3.1
@@ -5389,7 +5357,7 @@ snapshots:
       '@dnd-kit/utilities': 3.2.1(react@18.3.1)
       antd: 5.20.2(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       classnames: 2.5.1
-      dayjs: 1.11.12
+      dayjs: 1.11.13
       lodash-es: 4.17.21
       omit.js: 2.0.2
       rc-field-form: 2.4.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -5407,7 +5375,7 @@ snapshots:
       '@babel/runtime': 7.25.0
       antd: 5.20.2(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       classnames: 2.5.1
-      dayjs: 1.11.12
+      dayjs: 1.11.13
       lodash-es: 4.17.21
       rc-util: 5.43.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       react: 18.3.1
@@ -5703,7 +5671,7 @@ snapshots:
     dependencies:
       '@babel/compat-data': 7.24.6
       '@babel/helper-validator-option': 7.24.6
-      browserslist: 4.22.2
+      browserslist: 4.23.2
       lru-cache: 5.1.1
       semver: 6.3.1
 
@@ -5711,7 +5679,7 @@ snapshots:
     dependencies:
       '@babel/compat-data': 7.24.6
       '@babel/helper-validator-option': 7.24.6
-      browserslist: 4.22.2
+      browserslist: 4.23.2
       lru-cache: 5.1.1
       semver: 6.3.1
 
@@ -5719,7 +5687,7 @@ snapshots:
     dependencies:
       '@babel/compat-data': 7.24.7
       '@babel/helper-validator-option': 7.24.7
-      browserslist: 4.22.2
+      browserslist: 4.23.2
       lru-cache: 5.1.1
       semver: 6.3.1
 
@@ -6736,7 +6704,7 @@ snapshots:
 
   '@eslint/object-schema@2.1.4': {}
 
-  '@formily/antd-v5@1.2.3(@types/react-dom@18.3.0)(@types/react@18.3.3)(antd@5.20.2(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(react-dom@18.3.1(react@18.3.1))(react-is@18.2.0)(react@18.3.1)(typescript@5.5.4)':
+  '@formily/antd-v5@1.2.3(@types/react-dom@18.3.0)(@types/react@18.3.4)(antd@5.20.2(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(react-dom@18.3.1(react@18.3.1))(react-is@18.2.0)(react@18.3.1)(typescript@5.5.4)':
     dependencies:
       '@ant-design/cssinjs': 1.21.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@ant-design/icons': 5.4.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -6745,11 +6713,11 @@ snapshots:
       '@formily/core': 2.3.2
       '@formily/grid': 2.2.22(typescript@5.5.4)
       '@formily/json-schema': 2.3.2(typescript@5.5.4)
-      '@formily/react': 2.3.2(@types/react-dom@18.3.0)(@types/react@18.3.3)(react-dom@18.3.1(react@18.3.1))(react-is@18.2.0)(react@18.3.1)(typescript@5.5.4)
+      '@formily/react': 2.3.2(@types/react-dom@18.3.0)(@types/react@18.3.4)(react-dom@18.3.1(react@18.3.1))(react-is@18.2.0)(react@18.3.1)(typescript@5.5.4)
       '@formily/reactive': 2.3.2
-      '@formily/reactive-react': 2.3.2(@types/react-dom@18.3.0)(@types/react@18.3.3)(react-dom@18.3.1(react@18.3.1))(react-is@18.2.0)(react@18.3.1)
+      '@formily/reactive-react': 2.3.2(@types/react-dom@18.3.0)(@types/react@18.3.4)(react-dom@18.3.1(react@18.3.1))(react-is@18.2.0)(react@18.3.1)
       '@formily/shared': 2.3.2
-      '@types/react': 18.3.3
+      '@types/react': 18.3.4
       '@types/react-dom': 18.3.0
       antd: 5.20.2(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       classnames: 2.5.1
@@ -6781,12 +6749,12 @@ snapshots:
 
   '@formily/path@2.3.2': {}
 
-  '@formily/react@2.3.2(@types/react-dom@18.3.0)(@types/react@18.3.3)(react-dom@18.3.1(react@18.3.1))(react-is@18.2.0)(react@18.3.1)(typescript@5.5.4)':
+  '@formily/react@2.3.2(@types/react-dom@18.3.0)(@types/react@18.3.4)(react-dom@18.3.1(react@18.3.1))(react-is@18.2.0)(react@18.3.1)(typescript@5.5.4)':
     dependencies:
       '@formily/core': 2.3.2
       '@formily/json-schema': 2.3.2(typescript@5.5.4)
       '@formily/reactive': 2.3.2
-      '@formily/reactive-react': 2.3.2(@types/react-dom@18.3.0)(@types/react@18.3.3)(react-dom@18.3.1(react@18.3.1))(react-is@18.2.0)(react@18.3.1)
+      '@formily/reactive-react': 2.3.2(@types/react-dom@18.3.0)(@types/react@18.3.4)(react-dom@18.3.1(react@18.3.1))(react-is@18.2.0)(react@18.3.1)
       '@formily/shared': 2.3.2
       '@formily/validator': 2.3.2
       hoist-non-react-statics: 3.3.2
@@ -6794,12 +6762,12 @@ snapshots:
       react-dom: 18.3.1(react@18.3.1)
       react-is: 18.2.0
     optionalDependencies:
-      '@types/react': 18.3.3
+      '@types/react': 18.3.4
       '@types/react-dom': 18.3.0
     transitivePeerDependencies:
       - typescript
 
-  '@formily/reactive-react@2.3.2(@types/react-dom@18.3.0)(@types/react@18.3.3)(react-dom@18.3.1(react@18.3.1))(react-is@18.2.0)(react@18.3.1)':
+  '@formily/reactive-react@2.3.2(@types/react-dom@18.3.0)(@types/react@18.3.4)(react-dom@18.3.1(react@18.3.1))(react-is@18.2.0)(react@18.3.1)':
     dependencies:
       '@formily/reactive': 2.3.2
       hoist-non-react-statics: 3.3.2
@@ -6807,7 +6775,7 @@ snapshots:
       react-dom: 18.3.1(react@18.3.1)
       react-is: 18.2.0
     optionalDependencies:
-      '@types/react': 18.3.3
+      '@types/react': 18.3.4
       '@types/react-dom': 18.3.0
 
   '@formily/reactive@2.2.22': {}
@@ -7122,16 +7090,16 @@ snapshots:
 
   '@types/accepts@1.3.5':
     dependencies:
-      '@types/node': 22.4.1
+      '@types/node': 22.5.0
 
   '@types/body-parser@1.19.2':
     dependencies:
       '@types/connect': 3.4.35
-      '@types/node': 22.4.1
+      '@types/node': 22.5.0
 
   '@types/connect@3.4.35':
     dependencies:
-      '@types/node': 22.4.1
+      '@types/node': 22.5.0
 
   '@types/content-disposition@0.5.5': {}
 
@@ -7140,23 +7108,13 @@ snapshots:
       '@types/connect': 3.4.35
       '@types/express': 4.17.17
       '@types/keygrip': 1.0.2
-      '@types/node': 22.4.1
+      '@types/node': 22.5.0
 
   '@types/d3-timer@2.0.3': {}
 
   '@types/debug@4.1.12':
     dependencies:
       '@types/ms': 0.7.34
-
-  '@types/eslint-scope@3.7.4':
-    dependencies:
-      '@types/eslint': 8.56.3
-      '@types/estree': 1.0.5
-
-  '@types/eslint@8.56.3':
-    dependencies:
-      '@types/estree': 1.0.5
-      '@types/json-schema': 7.0.12
 
   '@types/eslint@9.6.0':
     dependencies:
@@ -7171,7 +7129,7 @@ snapshots:
 
   '@types/express-serve-static-core@4.17.33':
     dependencies:
-      '@types/node': 22.4.1
+      '@types/node': 22.5.0
       '@types/qs': 6.9.7
       '@types/range-parser': 1.2.4
 
@@ -7211,7 +7169,7 @@ snapshots:
       '@types/http-errors': 2.0.1
       '@types/keygrip': 1.0.2
       '@types/koa-compose': 3.2.5
-      '@types/node': 22.4.1
+      '@types/node': 22.5.0
 
   '@types/lodash@4.17.7': {}
 
@@ -7225,9 +7183,9 @@ snapshots:
 
   '@types/node-sass@4.11.3':
     dependencies:
-      '@types/node': 22.4.1
+      '@types/node': 22.5.0
 
-  '@types/node@22.4.1':
+  '@types/node@22.5.0':
     dependencies:
       undici-types: 6.19.6
 
@@ -7243,16 +7201,16 @@ snapshots:
 
   '@types/react-dom@18.3.0':
     dependencies:
-      '@types/react': 18.3.3
+      '@types/react': 18.3.4
 
-  '@types/react@18.3.3':
+  '@types/react@18.3.4':
     dependencies:
       '@types/prop-types': 15.7.5
       csstype: 3.1.3
 
   '@types/sass-loader@8.0.9':
     dependencies:
-      '@types/node': 22.4.1
+      '@types/node': 22.5.0
       '@types/node-sass': 4.11.3
       '@types/webpack': 4.41.33
       sass: 1.77.8
@@ -7260,7 +7218,7 @@ snapshots:
   '@types/serve-static@1.15.0':
     dependencies:
       '@types/mime': 3.0.1
-      '@types/node': 22.4.1
+      '@types/node': 22.5.0
 
   '@types/source-list-map@0.1.2': {}
 
@@ -7276,9 +7234,9 @@ snapshots:
 
   '@types/webpack-bundle-analyzer@4.7.0':
     dependencies:
-      '@types/node': 22.4.1
+      '@types/node': 22.5.0
       tapable: 2.2.1
-      webpack: 5.93.0
+      webpack: 5.94.0
     transitivePeerDependencies:
       - '@swc/core'
       - esbuild
@@ -7287,13 +7245,13 @@ snapshots:
 
   '@types/webpack-sources@3.2.0':
     dependencies:
-      '@types/node': 22.4.1
+      '@types/node': 22.5.0
       '@types/source-list-map': 0.1.2
       source-map: 0.7.4
 
   '@types/webpack@4.41.33':
     dependencies:
-      '@types/node': 22.4.1
+      '@types/node': 22.5.0
       '@types/tapable': 1.0.8
       '@types/uglify-js': 3.17.1
       '@types/webpack-sources': 3.2.0
@@ -7302,7 +7260,7 @@ snapshots:
 
   '@types/ws@8.5.12':
     dependencies:
-      '@types/node': 22.4.1
+      '@types/node': 22.5.0
 
   '@typescript-eslint/eslint-plugin@8.2.0(@typescript-eslint/parser@8.2.0(eslint@9.9.0)(typescript@5.5.4))(eslint@9.9.0)(typescript@5.5.4)':
     dependencies:
@@ -7501,9 +7459,9 @@ snapshots:
       acorn: 8.12.1
       acorn-private-class-elements: 0.2.7(acorn@8.12.1)
 
-  acorn-import-attributes@1.9.5(acorn@8.12.0):
+  acorn-import-attributes@1.9.5(acorn@8.12.1):
     dependencies:
-      acorn: 8.12.0
+      acorn: 8.12.1
 
   acorn-jsx@5.3.2(acorn@8.12.1):
     dependencies:
@@ -7534,8 +7492,6 @@ snapshots:
 
   acorn@8.11.3: {}
 
-  acorn@8.12.0: {}
-
   acorn@8.12.1: {}
 
   add-dom-event-listener@1.1.0:
@@ -7557,7 +7513,7 @@ snapshots:
   ahooks@3.8.1(react@18.3.1):
     dependencies:
       '@babel/runtime': 7.25.0
-      dayjs: 1.11.12
+      dayjs: 1.11.13
       intersection-observer: 0.12.2
       js-cookie: 3.0.5
       lodash: 4.17.21
@@ -7651,7 +7607,7 @@ snapshots:
       '@rc-component/trigger': 2.2.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       classnames: 2.5.1
       copy-to-clipboard: 3.3.3
-      dayjs: 1.11.12
+      dayjs: 1.11.13
       rc-cascader: 3.27.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       rc-checkbox: 3.3.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       rc-collapse: 3.7.3(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -7667,7 +7623,7 @@ snapshots:
       rc-motion: 2.9.2(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       rc-notification: 5.6.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       rc-pagination: 4.2.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      rc-picker: 4.6.13(dayjs@1.11.12)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      rc-picker: 4.6.13(dayjs@1.11.13)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       rc-progress: 4.0.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       rc-rate: 2.13.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       rc-resize-observer: 1.4.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -7854,13 +7810,6 @@ snapshots:
     dependencies:
       fill-range: 7.0.1
 
-  browserslist@4.22.2:
-    dependencies:
-      caniuse-lite: 1.0.30001570
-      electron-to-chromium: 1.4.612
-      node-releases: 2.0.14
-      update-browserslist-db: 1.0.13(browserslist@4.22.2)
-
   browserslist@4.23.2:
     dependencies:
       caniuse-lite: 1.0.30001642
@@ -7906,8 +7855,6 @@ snapshots:
   camelcase@1.2.1: {}
 
   camelcase@6.3.0: {}
-
-  caniuse-lite@1.0.30001570: {}
 
   caniuse-lite@1.0.30001642: {}
 
@@ -8071,7 +8018,7 @@ snapshots:
 
   core-js-compat@3.27.2:
     dependencies:
-      browserslist: 4.22.2
+      browserslist: 4.23.2
 
   core-util-is@1.0.3: {}
 
@@ -8095,7 +8042,7 @@ snapshots:
       shebang-command: 2.0.0
       which: 2.0.2
 
-  css-loader@7.1.2(webpack@5.93.0):
+  css-loader@7.1.2(webpack@5.94.0):
     dependencies:
       icss-utils: 5.1.0(postcss@8.4.35)
       postcss: 8.4.35
@@ -8106,7 +8053,7 @@ snapshots:
       postcss-value-parser: 4.2.0
       semver: 7.6.0
     optionalDependencies:
-      webpack: 5.93.0
+      webpack: 5.94.0
 
   css-select@5.1.0:
     dependencies:
@@ -8170,7 +8117,7 @@ snapshots:
 
   dateformat@2.2.0: {}
 
-  dayjs@1.11.12: {}
+  dayjs@1.11.13: {}
 
   debounce@1.2.1: {}
 
@@ -8247,12 +8194,12 @@ snapshots:
     dependencies:
       esutils: 2.0.3
 
-  dolphindb@3.0.108(react-dom@18.3.1(react@18.3.1)):
+  dolphindb@3.0.112(react-dom@18.3.1(react@18.3.1)):
     dependencies:
-      dayjs: 1.11.12
+      dayjs: 1.11.13
       ipaddr.js: 2.2.0
       tslib: 2.6.3
-      xshell: 1.0.161(react-dom@18.3.1(react@18.3.1))
+      xshell: 1.0.162(react-dom@18.3.1(react@18.3.1))
     transitivePeerDependencies:
       - '@rspack/core'
       - '@swc/core'
@@ -8316,8 +8263,6 @@ snapshots:
 
   ee-first@1.1.1: {}
 
-  electron-to-chromium@1.4.612: {}
-
   electron-to-chromium@1.4.828: {}
 
   emoji-regex@10.3.0: {}
@@ -8339,7 +8284,7 @@ snapshots:
       graceful-fs: 4.2.10
       tapable: 2.2.1
 
-  enhanced-resolve@5.17.0:
+  enhanced-resolve@5.17.1:
     dependencies:
       graceful-fs: 4.2.11
       tapable: 2.2.1
@@ -8447,8 +8392,6 @@ snapshots:
       is-callable: 1.2.7
       is-date-object: 1.0.5
       is-symbol: 1.0.4
-
-  escalade@3.1.1: {}
 
   escalade@3.1.2: {}
 
@@ -9146,7 +9089,7 @@ snapshots:
 
   jest-worker@27.5.1:
     dependencies:
-      '@types/node': 22.4.1
+      '@types/node': 22.5.0
       merge-stream: 2.0.0
       supports-color: 8.1.1
 
@@ -9264,11 +9207,11 @@ snapshots:
       prelude-ls: 1.2.1
       type-check: 0.4.0
 
-  license-webpack-plugin@4.0.2(webpack@5.93.0):
+  license-webpack-plugin@4.0.2(webpack@5.94.0):
     dependencies:
       webpack-sources: 3.2.3
     optionalDependencies:
-      webpack: 5.93.0
+      webpack: 5.94.0
 
   lines-and-columns@1.2.4: {}
 
@@ -9717,9 +9660,9 @@ snapshots:
       hasown: 2.0.2
       isarray: 2.0.5
 
-  monaco-dolphindb@1.0.5(dolphindb@3.0.108(react-dom@18.3.1(react@18.3.1)))(monaco-editor@0.50.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(vscode-oniguruma@2.0.1)(vscode-textmate@9.1.0):
+  monaco-dolphindb@1.0.5(dolphindb@3.0.112(react-dom@18.3.1(react@18.3.1)))(monaco-editor@0.50.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(vscode-oniguruma@2.0.1)(vscode-textmate@9.1.0):
     dependencies:
-      dolphindb: 3.0.108(react-dom@18.3.1(react@18.3.1))
+      dolphindb: 3.0.112(react-dom@18.3.1(react@18.3.1))
       monaco-editor: 0.50.0
       vscode-oniguruma: 2.0.1
       vscode-textmate: 9.1.0
@@ -10177,7 +10120,7 @@ snapshots:
       react: 18.3.1
       react-dom: 18.3.1(react@18.3.1)
 
-  rc-picker@4.6.13(dayjs@1.11.12)(react-dom@18.3.1(react@18.3.1))(react@18.3.1):
+  rc-picker@4.6.13(dayjs@1.11.13)(react-dom@18.3.1(react@18.3.1))(react@18.3.1):
     dependencies:
       '@babel/runtime': 7.25.0
       '@rc-component/trigger': 2.2.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -10188,7 +10131,7 @@ snapshots:
       react: 18.3.1
       react-dom: 18.3.1(react@18.3.1)
     optionalDependencies:
-      dayjs: 1.11.12
+      dayjs: 1.11.13
 
   rc-progress@4.0.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1):
     dependencies:
@@ -10401,10 +10344,10 @@ snapshots:
 
   react-lifecycles-compat@3.0.4: {}
 
-  react-markdown@9.0.1(@types/react@18.3.3)(react@18.3.1):
+  react-markdown@9.0.1(@types/react@18.3.4)(react@18.3.1):
     dependencies:
       '@types/hast': 3.0.4
-      '@types/react': 18.3.3
+      '@types/react': 18.3.4
       devlop: 1.1.0
       hast-util-to-jsx-runtime: 2.3.0
       html-url-attributes: 3.0.0
@@ -10635,12 +10578,12 @@ snapshots:
 
   safer-buffer@2.1.2: {}
 
-  sass-loader@16.0.1(sass@1.77.8)(webpack@5.93.0):
+  sass-loader@16.0.1(sass@1.77.8)(webpack@5.94.0):
     dependencies:
       neo-async: 2.6.2
     optionalDependencies:
       sass: 1.77.8
-      webpack: 5.93.0
+      webpack: 5.94.0
 
   sass@1.77.8:
     dependencies:
@@ -10753,11 +10696,11 @@ snapshots:
 
   source-map-js@1.0.2: {}
 
-  source-map-loader@5.0.0(webpack@5.93.0):
+  source-map-loader@5.0.0(webpack@5.94.0):
     dependencies:
       iconv-lite: 0.6.3
       source-map-js: 1.0.2
-      webpack: 5.93.0
+      webpack: 5.94.0
 
   source-map-support@0.3.3:
     dependencies:
@@ -10893,9 +10836,9 @@ snapshots:
 
   strip-json-comments@3.1.1: {}
 
-  style-loader@4.0.0(webpack@5.93.0):
+  style-loader@4.0.0(webpack@5.94.0):
     dependencies:
-      webpack: 5.93.0
+      webpack: 5.94.0
 
   style-to-object@1.0.6:
     dependencies:
@@ -10967,19 +10910,19 @@ snapshots:
     dependencies:
       streamx: 2.15.0
 
-  terser-webpack-plugin@5.3.10(webpack@5.93.0):
+  terser-webpack-plugin@5.3.10(webpack@5.94.0):
     dependencies:
       '@jridgewell/trace-mapping': 0.3.25
       jest-worker: 27.5.1
       schema-utils: 3.3.0
       serialize-javascript: 6.0.1
       terser: 5.27.2
-      webpack: 5.93.0
+      webpack: 5.94.0
 
   terser@5.27.2:
     dependencies:
       '@jridgewell/source-map': 0.3.5
-      acorn: 8.12.0
+      acorn: 8.12.1
       commander: 2.20.3
       source-map-support: 0.5.21
 
@@ -11041,7 +10984,7 @@ snapshots:
     dependencies:
       typescript: 5.5.4
 
-  ts-loader@9.5.1(typescript@5.5.4)(webpack@5.93.0):
+  ts-loader@9.5.1(typescript@5.5.4)(webpack@5.94.0):
     dependencies:
       chalk: 4.1.2
       enhanced-resolve: 5.15.0
@@ -11049,7 +10992,7 @@ snapshots:
       semver: 7.5.4
       source-map: 0.7.4
       typescript: 5.5.4
-      webpack: 5.93.0
+      webpack: 5.94.0
 
   tsconfig-paths@3.15.0:
     dependencies:
@@ -11186,12 +11129,6 @@ snapshots:
       unist-util-visit-parents: 6.0.1
 
   universalify@0.2.0: {}
-
-  update-browserslist-db@1.0.13(browserslist@4.22.2):
-    dependencies:
-      browserslist: 4.22.2
-      escalade: 3.1.1
-      picocolors: 1.0.0
 
   update-browserslist-db@1.1.0(browserslist@4.23.2):
     dependencies:
@@ -11330,18 +11267,17 @@ snapshots:
 
   webpack-sources@3.2.3: {}
 
-  webpack@5.93.0:
+  webpack@5.94.0:
     dependencies:
-      '@types/eslint-scope': 3.7.4
       '@types/estree': 1.0.5
       '@webassemblyjs/ast': 1.12.1
       '@webassemblyjs/wasm-edit': 1.12.1
       '@webassemblyjs/wasm-parser': 1.12.1
-      acorn: 8.12.0
-      acorn-import-attributes: 1.9.5(acorn@8.12.0)
-      browserslist: 4.22.2
+      acorn: 8.12.1
+      acorn-import-attributes: 1.9.5(acorn@8.12.1)
+      browserslist: 4.23.2
       chrome-trace-event: 1.0.3
-      enhanced-resolve: 5.17.0
+      enhanced-resolve: 5.17.1
       es-module-lexer: 1.2.1
       eslint-scope: 5.1.1
       events: 3.3.0
@@ -11353,7 +11289,7 @@ snapshots:
       neo-async: 2.6.2
       schema-utils: 3.3.0
       tapable: 2.2.1
-      terser-webpack-plugin: 5.3.10(webpack@5.93.0)
+      terser-webpack-plugin: 5.3.10(webpack@5.94.0)
       watchpack: 2.4.1
       webpack-sources: 3.2.3
     transitivePeerDependencies:
@@ -11436,7 +11372,7 @@ snapshots:
 
   xmlbuilder@11.0.1: {}
 
-  xshell@1.0.161(react-dom@18.3.1(react@18.3.1)):
+  xshell@1.0.162(react-dom@18.3.1(react@18.3.1)):
     dependencies:
       '@babel/core': 7.25.2
       '@babel/parser': 7.25.3
@@ -11462,7 +11398,7 @@ snapshots:
       cli-truncate: 4.0.0
       colors: 1.4.0
       commander: 12.1.0
-      css-loader: 7.1.2(webpack@5.93.0)
+      css-loader: 7.1.2(webpack@5.94.0)
       emoji-regex: 10.3.0
       eslint: 9.9.0
       eslint-plugin-import: 2.29.1(@typescript-eslint/parser@8.2.0(eslint@9.9.0)(typescript@5.5.4))(eslint@9.9.0)
@@ -11474,7 +11410,7 @@ snapshots:
       i18next-scanner: 4.5.0
       koa: 2.15.3
       koa-compress: 5.1.1
-      license-webpack-plugin: 4.0.2(webpack@5.93.0)
+      license-webpack-plugin: 4.0.2(webpack@5.94.0)
       lodash: 4.17.21
       map-stream: 0.0.7
       mime-types: 2.1.35
@@ -11484,20 +11420,20 @@ snapshots:
       react-object-model: 1.2.11(react@18.3.1)
       resolve-path: 1.4.0
       sass: 1.77.8
-      sass-loader: 16.0.1(sass@1.77.8)(webpack@5.93.0)
-      source-map-loader: 5.0.0(webpack@5.93.0)
+      sass-loader: 16.0.1(sass@1.77.8)(webpack@5.94.0)
+      source-map-loader: 5.0.0(webpack@5.94.0)
       strip-ansi: 7.1.0
-      style-loader: 4.0.0(webpack@5.93.0)
+      style-loader: 4.0.0(webpack@5.94.0)
       through2: 4.0.2
       tough-cookie: 4.1.4
-      ts-loader: 9.5.1(typescript@5.5.4)(webpack@5.93.0)
+      ts-loader: 9.5.1(typescript@5.5.4)(webpack@5.94.0)
       tslib: 2.6.3
       typescript: 5.5.4
       ua-parser-js: 2.0.0-beta.3
       undici: 6.19.8
       vinyl: 3.0.0
       vinyl-fs: 4.0.0
-      webpack: 5.93.0
+      webpack: 5.94.0
       webpack-bundle-analyzer: 4.10.2
       ws: 8.18.0
     transitivePeerDependencies:

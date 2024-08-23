@@ -3,7 +3,7 @@ import type { Context } from 'koa'
 import { Remote, set_inspect_options, fexists, assert, ramdisk, noprint, fdclear } from 'xshell'
 import { Server } from 'xshell/server.js'
 
-import { builder, fpd_root, fpd_out } from './builder.js'
+import { builder, fpd_root, fpd_out } from './builder.ts'
 
 
 set_inspect_options()
