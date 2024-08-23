@@ -2,7 +2,7 @@ import process from 'process'
 
 import { fdclear } from 'xshell'
 
-import { builder, fpd_out } from './builder.js'
+import { builder, fpd_out } from './builder.ts'
 
 
 await fdclear(fpd_out)
