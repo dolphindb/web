@@ -264,21 +264,21 @@ function NodeTable ({ nodes, group, onSave, onDelete }: NodeTableProps) {
                         text: t('计算节点'),
                         value: 'computenode'
                     },
-                    ...is_group ?  [ ] : [
-                        {
+                    ...is_group ?  {} : {
+                        datanode:{
                             text: t('数据节点'),
                             value: 'datanode'
                         },
-                        {
+                        controller: {
                             text: t('控制节点'),
                             value: 'controller',
                         },
-                        {
+                        agent: {
                             text: t('代理节点'),
                             value: 'agent',
                         }
                         
-                    ] 
+                    } 
                     
                 },
                 fieldProps: {
