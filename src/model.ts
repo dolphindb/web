@@ -244,7 +244,7 @@ export class DdbModel extends Model<DdbModel> {
                 throw new Error(t('oauthType 配置参数的值必须为 authorization code 或 implicit，默认为 implicit'))
         }
         
-        if (this.autologin) 
+        if (this.autologin)
             try {
                 await this.login_by_ticket()
             } catch {
