@@ -10,7 +10,6 @@
         "./src/",
         "./i18n/index.ts"
     ],
-    
     "compilerOptions": {
         "baseUrl": ".",
         
@@ -65,7 +64,6 @@
         "preserveConstEnums": true,
         "forceConsistentCasingInFileNames": true,
         "allowImportingTsExtensions": true,
-        
         
         // --- type checking
         "strict": false,

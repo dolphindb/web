@@ -1,3 +1,5 @@
+import { inspect } from 'util'
+
 import { useMemo } from 'react'
 
 import { Layout, Menu, Typography } from 'antd'
@@ -23,6 +25,7 @@ import SvgComputing from '@/computing/icons/computing.icon.svg'
 import SvgAccess from '@/access/icons/access.icon.svg'
 import SvgUser from '@/access/icons/user.icon.svg'
 import SvgGroup from '@/access/icons/group.icon.svg'
+import SvgInspection from '@/inspection/icons/inspection.icon.svg'
 import SvgFinance from '@/guide/icons/finance.icon.svg'
 import SvgIot from '@/guide/icons/iot.icon.svg'
 import SvgPlugins from '@/plugins/plugins.icon.svg'
@@ -43,6 +46,7 @@ const svgs = {
     access: SvgAccess,
     user: SvgUser,
     group: SvgGroup,
+    inspection: SvgInspection,
     'iot-guide': SvgIot,
     'finance-guide': SvgFinance,
     plugins: SvgPlugins
@@ -160,6 +164,11 @@ export function DdbSider () {
                         },
                     ]
                 }] : [ ],
+                {
+                    key: 'inspection',
+                    icon: <MenuIcon view='inspection' />,
+                    label: t('自动化巡检'),
+                },
                 {
                     key: 'log',
                     icon: <MenuIcon view='log' />,

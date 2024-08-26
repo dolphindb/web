@@ -45,6 +45,7 @@ import { Plugins } from './plugins/index.js'
 import { Computing } from './computing/index.js'
 import { DashBoard } from './dashboard/index.js'
 import { User, Group } from './access/index.js'
+import { Inspection } from './inspection/index.js'
 import { Settings } from './settings/index.js'
 import { CreateGuide } from './guide/iot-guide/index.js'
 import { FinanceGuide } from './guide/finance-guide/index.js'
@@ -154,6 +155,7 @@ const views: Partial<Record<PageViews, React.FunctionComponent>> = {
     dashboard: DashBoard,
     user: User,
     group: Group,
+    inspection: Inspection,
     settings: Settings,
     'iot-guide': CreateGuide,
     'finance-guide': FinanceGuide,
