@@ -6,10 +6,6 @@ node_modules/
 /pre-bundle/dist/
 /pre-bundle/index.js
 
-/*.js
-*.map
-*.d.ts
-
 /i18n/untranslateds.json
 
 /.vscode/settings.json

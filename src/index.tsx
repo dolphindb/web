@@ -134,7 +134,9 @@ function MainLayout () {
         </Layout>
     :
         <GlobalErrorBoundary>
-            { (model.dev || model.test) && <HostSelect /> }
+            { (model.dev || model.test) && <div className='host-select-container'>
+                <HostSelect size='middle' />
+            </div> }
         </GlobalErrorBoundary>
 }
 

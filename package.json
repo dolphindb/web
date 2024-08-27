@@ -6,10 +6,9 @@
     },
     "scripts": {
         "install.ci": "pnpm ci --include=dev",
-        "dev": "tsc --project ./tsconfig.node.json && node ./dev.js",
+        "dev": "node ./dev.ts",
         "typecheck": "tsc --noEmit",
-        "build": "tsc --project ./tsconfig.node.json && node ./build.js",
-        "build.cloud": "tsc --project ./tsconfig.node.json && node ./build.js cloud",
+        "build": "node ./build.ts",
         "scan": "i18n-scan --input \"**/*.{ts,tsx}\"",
         "lint": "eslint \"**/*.{ts,tsx}\"",
         "fix": "eslint --fix \"**/*.{ts,tsx}\""
@@ -25,7 +24,7 @@
         "@types/js-cookie": "^3.0.6",
         "@types/koa": "^2.15.0",
         "@types/lodash": "^4.17.7",
-        "@types/node": "^22.4.2",
+        "@types/node": "^22.5.0",
         "@types/react": "^18.3.4",
         "@types/react-dom": "^18.3.0",
         "@types/sass-loader": "^8.0.9",
@@ -40,7 +39,7 @@
         "style-loader": "^4.0.0",
         "ts-loader": "^9.5.1",
         "typescript": "^5.5.4",
-        "webpack": "^5.93.0",
+        "webpack": "^5.94.0",
         "webpack-bundle-analyzer": "^4.10.2"
     },
     "dependencies": {
@@ -62,7 +61,7 @@
         "client-zip": "^2.4.5",
         "copy-to-clipboard": "^3.3.3",
         "dayjs": "^1.11.13",
-        "dolphindb": "^3.0.111",
+        "dolphindb": "^3.0.112",
         "echarts": "^5.5.1",
         "echarts-for-react": "^3.0.2",
         "final-form": "^4.20.10",
