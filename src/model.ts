@@ -1050,6 +1050,8 @@ export class DdbModel extends Model<DdbModel> {
             queries_.set('hostname', hostname)
             queries_.set('port', port.toString())
         }
+        // 默认跳转到交互编程
+        queries_.set('view','shell')
         
         const port_ = is_query_params_mode ? location.port : port
         const query_string = queries_.toString()
