@@ -22,32 +22,32 @@ import dayjs from 'dayjs'
 
 import { SWRConfig } from 'swr'
 
-import { language } from '../i18n/index.js'
+import { language } from '../i18n/index.ts'
 
 import 'dayjs/locale/zh-cn'
 dayjs.locale(language === 'zh' ? 'zh-cn' : language)
 
-import { model, type PageViews } from './model.js'
+import { model, type PageViews } from './model.ts'
 
-import { DdbHeader } from './components/DdbHeader.js'
-import { DdbSider } from './components/DdbSider.js'
-import { GlobalErrorBoundary } from './components/GlobalErrorBoundary.js'
-import { HostSelect } from './components/HostSelect.js'
+import { DdbHeader } from './components/DdbHeader.tsx'
+import { DdbSider } from './components/DdbSider.tsx'
+import { GlobalErrorBoundary } from './components/GlobalErrorBoundary.tsx'
+import { HostSelect } from './components/HostSelect.tsx'
 
-import { Login } from './login.js'
-import { Overview } from './overview/index.js'
-import { Config } from './config/index.js'
-import { Shell } from './shell/index.js'
-import { Test } from './test/index.js'
-import { Job } from './job.js'
-import { Log } from './log.js'
-import { Plugins } from './plugins/index.js'
-import { Computing } from './computing/index.js'
-import { DashBoard } from './dashboard/index.js'
-import { User, Group } from './access/index.js'
-import { Settings } from './settings/index.js'
-import { CreateGuide } from './guide/iot-guide/index.js'
-import { FinanceGuide } from './guide/finance-guide/index.js'
+import { Login } from './login.tsx'
+import { Overview } from './overview/index.tsx'
+import { Config } from './config/index.tsx'
+import { Shell } from './shell/index.tsx'
+import { Test } from './test/index.tsx'
+import { Job } from './job.tsx'
+import { Log } from './log.tsx'
+import { Plugins } from './plugins/index.tsx'
+import { Computing } from './computing/index.tsx'
+import { DashBoard } from './dashboard/index.tsx'
+import { User, Group } from './access/index.tsx'
+import { Settings } from './settings/index.tsx'
+import { CreateGuide } from './guide/iot-guide/index.tsx'
+import { FinanceGuide } from './guide/finance-guide/index.tsx'
 
 
 
