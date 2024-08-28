@@ -2,13 +2,25 @@ import NiceModal from '@ebay/nice-modal-react'
 import './index.sass'
 
 import { t } from '@i18n/index.ts'
-import { Button, Input, Table } from 'antd'
-import { useMemo } from 'react'
+import { Button, Input, Table, type TableColumnsType } from 'antd'
+import { useEffect, useMemo } from 'react'
+
+import useSWR from 'swr'
+
+import { CheckOutlined, CloseOutlined } from '@ant-design/icons'
 
 import { addInspectionModal } from './addInspectionModal.tsx'
+import { inspection } from './model.tsx'
 
 
 export function Inspection () {
+     
+    useEffect(() => {
+        if (!inspection.inited) 
+            inspection.init()
+        
+    }, [ ])
+    
     return <div>
         <InspectionHeader/>
         <InspectionResultTable/>
@@ -17,6 +29,7 @@ export function Inspection () {
 }
 
 function InspectionHeader () {
+   
     return <div className='inspection-header'>
         <div className='inspection-header-left'>
             <Button>{t('刷新')}</Button>
@@ -28,21 +41,21 @@ function InspectionHeader () {
 
 function InspectionResultTable  () {
     
-    const cols = useMemo(() => [ 
+    const cols: TableColumnsType = useMemo(() => [ 
         {
             title: 'ID',
-            dataIndex: 'key',
-            key: 'key',
+            dataIndex: 'id',
+            key: 'id',
         },
         {
             title: '描述',
-            dataIndex: 'description',
-            key: 'description',
+            dataIndex: 'desc',
+            key: 'desc',
         },
         {
             title: '提交人',
-            dataIndex: 'subbmiter',
-            key: 'subbmiter',
+            dataIndex: 'user',
+            key: 'user',
         },
         {
             title: '开始时间',
@@ -56,8 +69,9 @@ function InspectionResultTable  () {
         },
         {
             title: '结果',
-            dataIndex: 'result',
-            key: 'result',
+            dataIndex: 'success',
+            key: 'success',
+            render: ( success: boolean ) => success ? <CheckOutlined color='green'/> : <CloseOutlined color='red'/>
         },
         {
             title: '操作',
@@ -66,29 +80,41 @@ function InspectionResultTable  () {
         },
     ], [ ])
     
+    const { data: reports } = useSWR('get_reports', inspection.get_reports)
+    
     return <div>
-        <h2>巡检结果</h2>
-        <Table dataSource={[ ]} columns={cols} />
+        <h2>{t('巡检结果')}</h2>
+        <Table dataSource={reports} columns={cols} />
     </div>
 }
 
 function InspectionPlanTable  ()  {
     
-    const cols = useMemo(() => [ 
+    const cols: TableColumnsType = useMemo(() => [ 
         {
             title: 'ID',
-            dataIndex: 'key',
-            key: 'key',
+            dataIndex: 'id',
+            key: 'id',
         },
         {
             title: '描述',
-            dataIndex: 'description',
-            key: 'description',
+            dataIndex: 'desc',
+            key: 'desc',
         },
         {
             title: '提交人',
-            dataIndex: 'subbmiter',
-            key: 'subbmiter',
+            dataIndex: 'user',
+            key: 'user',
+        },
+        {
+            title: '开始日期',
+            dataIndex: 'startDate',
+            key: 'startDate',
+        },
+        {
+            title: '结束日期',
+            dataIndex: 'endDate',
+            key: 'endDate',
         },
         {
             title: '执行频率',
@@ -96,9 +122,14 @@ function InspectionPlanTable  ()  {
             key: 'frequency',
         },
         {
-            title: '执行时间',
-            dataIndex: 'executeTime',
-            key: 'executeTime',
+            title: '巡检日期',
+            dataIndex: 'days',
+            key: 'days',
+        },
+        {
+            title: '巡检时间',
+            dataIndex: 'scheduleTime',
+            key: 'scheduleTime',
         },
         {
             title: '操作',
@@ -107,8 +138,10 @@ function InspectionPlanTable  ()  {
         },
     ], [ ])
     
+    const { data: plans } = useSWR('get_plans', inspection.get_plans)
+    
     return <div>
-        <h2>巡检方案</h2>
-        <Table dataSource={[ ]} columns={cols} />
+        <h2>{t('巡检方案')}</h2>
+        <Table dataSource={plans} columns={cols} />
     </div>
 }
