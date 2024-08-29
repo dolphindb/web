@@ -320,21 +320,31 @@ class ShellModel extends Model<ShellModel> {
         const selection = editor.getSelection()
         const emodel = editor.getModel()
         let code: string
+        let istart = 1
         
-        if (selection.isEmpty())
-            await this.eval(
-                code = default_selection === 'line' ?
-                    emodel.getLineContent(selection.startLineNumber)
-                :
-                    emodel.getValue(this.monaco.editor.EndOfLinePreference.LF),
-                default_selection === 'line' ? selection.startLineNumber : 1
-            )
-        else
-            await this.eval(
-                code = emodel.getValueInRange(selection, this.monaco.editor.EndOfLinePreference.LF), 
-                selection.startLineNumber
-            )
+        if (selection.isEmpty()) {
+            code = default_selection === 'line' ?
+                emodel.getLineContent(selection.startLineNumber)
+            :
+                emodel.getValue(this.monaco.editor.EndOfLinePreference.LF)
+            istart = default_selection === 'line' ? selection.startLineNumber : 1
+        } 
+        else {
+            code = emodel.getValueInRange(selection, this.monaco.editor.EndOfLinePreference.LF)
+            istart = selection.startLineNumber
+        } 
         
+        if (!code.includes('undef all'))
+            await this.eval(code, istart)
+        else if (await model.modal.confirm({ content: t('"undef all"会删除所有自定义对象, 确定执行吗？') })) {
+            await this.eval(code, istart)
+            model.modal.warning({
+                content: t('执行 "undef all" 后需要刷新 ，是否立即刷新？'),
+                onOk: () => { location.reload() },
+                okText: '刷新'
+            })
+        }             
+            
         await this.update_vars()
         
         if (code.includes('login') || code.includes('logout'))
@@ -567,11 +577,6 @@ class ShellModel extends Model<ShellModel> {
         if (this.load_table_schema_defined)
             return
         
-        await model.ddb.eval(
-            'def load_table_schema (db_path, tb_name) {\n' +
-            '    return schema(loadTable(db_path, tb_name))\n' +
-            '}\n'
-        )
         
         shell.set({ load_table_schema_defined: true })
     }
