@@ -18,6 +18,6 @@ export const addInspectionModal = NiceModal.create(() => {
         okText={t('确定')}
         cancelText={t('取消')}
     >
-        <InspectionForm/>
+        <InspectionForm close={modal.hide}/>
     </Modal>
 })

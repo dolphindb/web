@@ -20,7 +20,15 @@
     .inspection-form
         display: flex
         flex-direction: column
-        row-gap: 20px
+        
+        .inspection-form-inline
+            display: flex
+            flex-direction: column
+            .inspection-form-inline-time
+                display: flex
+                column-gap: 20px
+            .ant-form-item
+                margin-bottom: 0px
         
         .script-popover
             max-width: 500px
@@ -29,7 +37,11 @@
         .date-select
             min-width: 200px
             
+        .nodes-select
+            width: 240px
+            
         .inspection-form-footer
             display: flex
             column-gap: 20px
+            margin-top: 20px
             align-self: flex-end

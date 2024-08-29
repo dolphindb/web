@@ -22,7 +22,7 @@ class InspectionModel extends Model<InspectionModel> {
         return (await model.ddb.invoke('autoInspection::getReports', [ ])).data
     }
     
-    async get_metrics () {
+    async get_metrics (): Promise<Metric[]> {
         return (await model.ddb.invoke('autoInspection::getMetrics', [ ])).data
     }
     
