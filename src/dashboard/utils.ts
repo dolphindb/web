@@ -246,7 +246,13 @@ export function convert_chart_config (
 ) {
     const { config } = widget
     
-    const { title, title_size, splitLine, xAxis, series, yAxis, x_datazoom, y_datazoom, legend, animation, tooltip, thresholds = [ ] } = config as IChartConfig
+    let { title, title_size, splitLine, xAxis, series, yAxis, x_datazoom, y_datazoom, legend, animation, tooltip, thresholds = [ ] } = config as IChartConfig
+    
+    
+    // Form.List 增加的瞬间，新增的数据列和 y轴会是  undefined, 需要去除 undefined 的情况
+    series = series.filter(Boolean)
+    yAxis = yAxis.filter(Boolean)
+    thresholds = thresholds.filter(Boolean)
     
     function convert_data_zoom (x_datazoom: boolean, y_datazoom: boolean) { 
         const total_data_zoom = [
@@ -275,10 +281,6 @@ export function convert_chart_config (
     }
     
     function convert_axis (axis: AxisConfig, index?: number) {
-        let data = undefined
-        // 类目轴下需要定义类目数据, 其他轴线类型下 data 不生效
-        if (axis.type === AxisType.CATEGORY)
-            data = axis.col_name ? data_source.map(item => format_time(item?.[axis.col_name], axis.time_format)) : [ ]
         
         const axis_config = {
             show: true,
