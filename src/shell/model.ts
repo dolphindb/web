@@ -577,6 +577,11 @@ class ShellModel extends Model<ShellModel> {
         if (this.load_table_schema_defined)
             return
         
+        await model.ddb.eval(
+            'def load_table_schema (db_path, tb_name) {\n' +
+            '    return schema(loadTable(db_path, tb_name))\n' +
+            '}\n'
+        )
         
         shell.set({ load_table_schema_defined: true })
     }
