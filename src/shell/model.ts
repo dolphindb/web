@@ -333,17 +333,19 @@ class ShellModel extends Model<ShellModel> {
             istart = selection.startLineNumber
         }
         
-        if (!code.includes('undef all'))
-            await this.eval(code, istart)
-        else if (await model.modal.confirm({ content: t('"undef all"会删除所有自定义对象, 确定执行吗？') })) {
-            await this.eval(code, istart)
-            model.modal.warning({
-                content: t('执行 "undef all" 后需要刷新 ，是否立即刷新？'),
-                onOk: () => { location.reload() },
-                okText: '刷新'
-            })
-        }
-        
+        if (code.includes('undef all') || code.includes('undef(all)')) {
+            if (await model.modal.confirm({ content: t('执行 "undef all" 会导致 web 部分功能不可用，执行完成后需要刷新才能恢复, 确定执行吗？') })) {
+                await this.eval(code, istart)
+                model.modal.warning({
+                    content: t('执行 "undef all" 后需要刷新以恢复 web 功能，是否立即刷新？'),
+                    onOk: () => { location.reload() },
+                    okText: t('刷新')
+                })
+            } 
+        } 
+        else
+            await this.eval(code, istart)        
+            
         await this.update_vars()
         
         if (code.includes('login') || code.includes('logout'))
