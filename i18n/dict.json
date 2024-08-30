@@ -4957,5 +4957,17 @@
     },
     "停止指令发送成功": {
         "en": "The stop command was sent successfully"
+    },
+    "\"undef all\" 会导致 web 部分功能不可用，执行后需要刷新才能恢复, 确定执行吗？": {
+        "en": "Executing \"undef all\" will cause some web functions to be unavailable. After execution, you need to refresh to restore. Are you sure you want to execute it?"
+    },
+    "执行 \"undef all\" 后需要刷新恢复 web 功能，是否立即刷新？": {
+        "en": "After executing \"undef all\", you need to refresh to restore web functions. Do you want to refresh now?"
+    },
+    "执行 undef all 会导致 web 部分功能不可用，执行完成后需要刷新才能恢复, 确定执行吗？": {
+        "en": "Executing undef all will cause some web functions to be unavailable. After execution, you need to refresh to restore. Are you sure you want to execute it?"
+    },
+    "执行 undef all 后需要刷新以恢复 web 功能，是否立即刷新？": {
+        "en": "After executing undef all, a refresh is required to restore web functions. Do you want to refresh now?"
     }
 }
