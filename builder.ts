@@ -16,7 +16,9 @@ const ci = process.argv.includes('--ci')
 
 const fpd_ramdisk_root = 'T:/2/ddb/web/'
 
-export const fpd_out = `${!ci && ramdisk ? fpd_ramdisk_root : fpd_root}web/`
+const external = !ci && ramdisk
+
+export const fpd_out = `${ external ? fpd_ramdisk_root : fpd_root }web/`
 
 const fpd_pre_bundle = `${fpd_root}pre-bundle/`
 
@@ -38,14 +40,14 @@ export let builder = {
         const source_map = !production || version_name === 'dev'
         
         // 和 build_bundles 中的保持一致
-        const fpd_pre_bundle_dist = `${ ramdisk ? `${fpd_ramdisk_root}pre-bundle/` : `${fpd_pre_bundle}dist/` }${ production ? 'production' : 'dev' }/`
+        const fpd_pre_bundle_dist = `${ external ? `${fpd_ramdisk_root}pre-bundle/` : `${fpd_pre_bundle}dist/` }${ production ? 'production' : 'dev' }/`
         
         this.bundler ??= new Bundler(
             'web',
             'web',
             fpd_root,
             fpd_out,
-            !ci && ramdisk ? `${fpd_ramdisk_root}webpack/` : undefined,
+            external ? `${fpd_ramdisk_root}webpack/` : undefined,
             {
                 'index.js': './src/index.tsx',
                 'window.js': './src/window.tsx'
@@ -143,7 +145,7 @@ export let builder = {
     /** 将 pre-bundle/entries/{entry}.ts 打包到 {fpd_pre_bundle_dist}{entry}.js */
     async build_bundles (production?: boolean) {
         const fp_project_package_json = `${fpd_root}package.json`
-        const fpd_pre_bundle_dist = `${ ramdisk ? `${fpd_ramdisk_root}pre-bundle/` : `${fpd_pre_bundle}dist/` }${ production ? 'production' : 'dev' }/`
+        const fpd_pre_bundle_dist = `${ external ? `${fpd_ramdisk_root}pre-bundle/` : `${fpd_pre_bundle}dist/` }${ production ? 'production' : 'dev' }/`
         const fp_cache_package_json = `${fpd_pre_bundle_dist}package.json`
         
         // pre-bundle/entries 中的文件内容改了之后需要禁用这个缓存逻辑（一般不会改）
@@ -159,7 +161,7 @@ export let builder = {
                         'web',
                         fpd_root,
                         fpd_pre_bundle_dist,
-                        !ci && ramdisk ? `${fpd_ramdisk_root}webpack/` : undefined,
+                        external ? `${fpd_ramdisk_root}webpack/` : undefined,
                         { [`${entry}.js`]: `./pre-bundle/entries/${entry}.ts` },
                         {
                             external_dayjs: true,
