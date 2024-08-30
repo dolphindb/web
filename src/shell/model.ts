@@ -320,7 +320,7 @@ class ShellModel extends Model<ShellModel> {
         const selection = editor.getSelection()
         const emodel = editor.getModel()
         let code: string
-        let istart = 1
+        let istart: number
         
         if (selection.isEmpty()) {
             code = default_selection === 'line' ?
@@ -334,18 +334,18 @@ class ShellModel extends Model<ShellModel> {
         }
         
         if (code.includes('undef all') || code.includes('undef(all)')) {
-            if (await model.modal.confirm({ content: t('执行 "undef all" 会导致 web 部分功能不可用，执行完成后需要刷新才能恢复, 确定执行吗？') })) {
+            if (await model.modal.confirm({ content: t('执行 undef all 会导致 web 部分功能不可用，执行完成后需要刷新才能恢复, 确定执行吗？') })) {
                 await this.eval(code, istart)
                 model.modal.warning({
                     content: t('执行 "undef all" 后需要刷新以恢复 web 功能，是否立即刷新？'),
                     onOk: () => { location.reload() },
                     okText: t('刷新')
                 })
-            } 
-        } 
-        else
-            await this.eval(code, istart)        
-            
+            } else
+                return
+        } else
+            await this.eval(code, istart)
+        
         await this.update_vars()
         
         if (code.includes('login') || code.includes('logout'))
