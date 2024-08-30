@@ -159,7 +159,7 @@ export let builder = {
                         'web',
                         fpd_root,
                         fpd_pre_bundle_dist,
-                        `${fpd_pre_bundle_dist}webpack/`,
+                        !ci && ramdisk ? `${fpd_ramdisk_root}webpack/` : undefined,
                         { [`${entry}.js`]: `./pre-bundle/entries/${entry}.ts` },
                         {
                             external_dayjs: true,
