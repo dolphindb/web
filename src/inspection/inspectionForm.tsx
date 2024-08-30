@@ -1,30 +1,37 @@
 import { t } from '@i18n/index.ts'
 import { Button, Form, Input, Popover, Select, Table, TimePicker, Tooltip, type TableColumnsType } from 'antd'
-import dayjs from 'dayjs'
+import dayjs, { type Dayjs } from 'dayjs'
 import { useMemo, useState } from 'react'
 import useSWR from 'swr'
+
+import { genid } from 'xshell/utils.browser'
 
 import { model } from '@/model.ts'
 
 import { inspection } from './model.tsx'
 import { inspectionFrequencyOptions, metricGroups } from './constants.ts'
+import type { Metric, MetricsWithNodes, PlanParams } from './type.ts'
 
 export function InspectionForm ({ close }: { close: () => void }) {
     
     // 保存指标是否选中以及每个指标巡检的节点
-    const [checkedMetrics, setCheckedMetrics] = useState<Map<string, MetricsWithNodes>>(new Map())
+    const [checked_metrics, set_checked_metrics] = useState<Map<string, MetricsWithNodes>>(new Map())
+    
+    const [inspection_form] = Form.useForm<Pick<PlanParams, 'desc' | 'frequency' | 'days' | 'scheduleTime'> >()
     
     return <div className='inspection-form'>
         <h3>{t('指标列表')}</h3>
-        <MetricTable checkedMetrics={checkedMetrics} setCheckedMetrics={setCheckedMetrics}/>
+        <MetricTable checked_metrics={checked_metrics} set_checked_metrics={set_checked_metrics}/>
         
         <h3>{t('巡检周期')}</h3>
-        <Form className='inspection-form-inline'>
+        <Form 
+            className='inspection-form-inline' 
+            form={inspection_form} 
+            initialValues={{ scheduleTime: dayjs(), frequency: 'W', days: [1], desc: t('巡检描述') }}>
             <div className='inspection-form-inline-time'>
                 <Form.Item label={t('巡检频率')} name='frequency'>
                     <Select 
                         options={inspectionFrequencyOptions} 
-                        defaultValue={inspectionFrequencyOptions[0].value}
                     />
                 </Form.Item>
                 
@@ -35,11 +42,9 @@ export function InspectionForm ({ close }: { close: () => void }) {
                     {
                         ({ getFieldValue }) => {
                             const frequency = getFieldValue('frequency')
-                            return <Form.Item name='date'>
+                            return <Form.Item name='days'>
                                     <Select
                                         mode='multiple'
-                                        defaultValue={[1]}
-                                        // options={[ ]}
                                         className='date-select'
                                         optionLabelProp='value'
                                         options={Array.from({ length: frequency === 'monthly' ? dayjs().daysInMonth() : frequency === 'weekly' ? 7 : 1 }, (_, i) => i + 1).
@@ -53,13 +58,12 @@ export function InspectionForm ({ close }: { close: () => void }) {
                     }
                 </Form.Item>
                 
-                <Form.Item label={t('巡检时间')} name='time'>
-                    <TimePicker />
+                <Form.Item label={t('巡检时间')} name='scheduleTime'>
+                    <TimePicker format='HH:mm:ss'/>
                 </Form.Item>
             </div>
         
-            <Form.Item name='time' style={{ display: 'block' }}>
-                <h3>{t('巡检计划描述')}</h3>
+            <Form.Item name='desc' layout='vertical' label={<h3>{t('巡检计划描述')}</h3>} style={{ display: 'block' }}>
                 <Input/>
             </Form.Item>
             
@@ -72,7 +76,27 @@ export function InspectionForm ({ close }: { close: () => void }) {
                 <Button type='primary'>{t('立即巡检')}</Button>
             </Tooltip>
             <Tooltip title={t('保存当前方案')}>
-                <Button type='primary'>{t('保存')}</Button>
+                <Button type='primary' onClick={async () => {
+                    const values = await inspection_form.validateFields()
+                    const metrics = Array.from(checked_metrics.values()).filter(({ checked }) => checked)
+                    try {
+                        await inspection.create_plan(
+                            {   id: String(genid()),
+                                desc: values.desc,
+                                metrics: metrics.map(({ name }) => name),
+                                nodes: metrics.map(({ nodes }) => nodes),
+                                params: metrics.map(({ name }) => name),
+                                frequency: values.frequency,
+                                days: values.days,                                
+                                scheduleTime: DDB(values.scheduleTime as Dayjs).format('HH:mm') + 'm',
+                                runNow: false
+                            })
+                        model.message.success(t('保存成功'))
+                    } catch (error) {
+                        model.show_error({ error })
+                    }
+                   
+                }}>{t('保存')}</Button>
             </Tooltip>
         </div>
         
@@ -81,12 +105,12 @@ export function InspectionForm ({ close }: { close: () => void }) {
 
 
 function MetricTable ({ 
-    checkedMetrics,
-    setCheckedMetrics 
+    checked_metrics,
+    set_checked_metrics 
 }: 
 { 
-    checkedMetrics: Map<string, MetricsWithNodes>
-    setCheckedMetrics: (metrics: Map<string, MetricsWithNodes>) => void 
+    checked_metrics: Map<string, MetricsWithNodes>
+    set_checked_metrics: (metrics: Map<string, MetricsWithNodes>) => void 
 }) {
     const cols: TableColumnsType = useMemo(() => [ 
         {
@@ -125,15 +149,15 @@ function MetricTable ({
             title: t('巡检节点'),
             dataIndex: 'nodes',
             key: 'nodes',
-            render: (nodesstr: string, record: Metric) => nodesstr && checkedMetrics.size ? 
+            render: (nodesstr: string, record: Metric) => nodesstr && checked_metrics.size ? 
                     <Select 
                         mode='multiple' 
                         className='nodes-select'
-                        value={checkedMetrics.get(record.name).nodes}
+                        value={checked_metrics.get(record.name).nodes}
                         onChange={nodes => {
-                            let newCheckedMetrics = new Map(checkedMetrics)
-                            newCheckedMetrics.set(record.name, { ...newCheckedMetrics.get(record.name), nodes })
-                            setCheckedMetrics(newCheckedMetrics)
+                            let new_checked_metrics = new Map(checked_metrics)
+                            new_checked_metrics.set(record.name, { ...new_checked_metrics.get(record.name), nodes })
+                            set_checked_metrics(new_checked_metrics)
                         }}
                         placeholder={t('请选择需要巡检的节点')} 
                         options={nodesstr.split(',').map(node => ({
@@ -160,23 +184,23 @@ function MetricTable ({
                 </Button>
             </>
         },
-    ], [ checkedMetrics ])
+    ], [ checked_metrics, set_checked_metrics ])
     
     const { data: metrics } = useSWR('get_metrics', inspection.get_metrics, {
-        onSuccess: metrics => { setCheckedMetrics(
+        onSuccess: metrics => { set_checked_metrics(
             metrics.reduce((map, metric) => {
-                map.set(metric.name, { ...metric, checked: false, nodes: [ ] })
+                map.set(metric.name, { name: metric.name, checked: true, nodes: metric.nodes ? metric.nodes.split(',') : null })
                 return map
             }, new Map<string, MetricsWithNodes>())
         ) } })
     
     return <Table 
-        rowSelection={ checkedMetrics.size && { 
-            selectedRowKeys: Array.from(checkedMetrics.values()).filter(({ checked }) => checked).map(({ name }) => name),
+        rowSelection={ checked_metrics.size && { 
+            selectedRowKeys: Array.from(checked_metrics.values()).filter(({ checked }) => checked).map(({ name }) => name),
             onChange: names => {
                 // 1.保留每个指标选中的节点
                 let newCheckedMetrics = new Map(metrics.reduce((map, metric) => {
-                    map.set(metric.name, { ...metric, checked: false, nodes: checkedMetrics.get(metric.name).nodes })
+                    map.set(metric.name, { ...metric, checked: false, nodes: checked_metrics.get(metric.name).nodes })
                     return map
                 }, new Map<string, MetricsWithNodes>()))
                 // 2.将选中的指标的 checked 更新为 true
@@ -185,7 +209,7 @@ function MetricTable ({
                     metric.checked = true
                     newCheckedMetrics.set(name, metric)
                 })
-                setCheckedMetrics(newCheckedMetrics)
+                set_checked_metrics(newCheckedMetrics)
             }
         }}
         rowKey='name'

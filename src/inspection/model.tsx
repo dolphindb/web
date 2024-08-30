@@ -2,6 +2,8 @@ import { Model } from 'react-object-model'
 
 import {  model } from '@/model.ts'
 
+import type { Metric, PlanParams } from './type.ts'
+
 class InspectionModel extends Model<InspectionModel> {
     inited = false
     
@@ -16,6 +18,10 @@ class InspectionModel extends Model<InspectionModel> {
     
     async get_plans () {
         return (await model.ddb.invoke('autoInspection::getPlans', [ ])).data
+    }
+    
+    async create_plan (params: PlanParams) {
+        await model.ddb.invoke('autoInspection::createPlan', Object.values(params))
     }
     
     async get_reports () {

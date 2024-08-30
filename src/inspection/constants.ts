@@ -1,15 +1,15 @@
 export const inspectionFrequencyOptions = [
     {
         label: '每日',
-        value: 'daily',
+        value: 'D',
     },
     {
         label: '每周',
-        value: 'weekly',
+        value: 'W',
     },
     {
         label: '每月',
-        value: 'monthly',
+        value: 'M',
     },
 ]
 
