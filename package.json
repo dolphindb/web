@@ -1,9 +1,6 @@
 {
     "name": "dolphindb-web",
     "type": "module",
-    "engines": {
-        "node": ">=22.2.0"
-    },
     "scripts": {
         "install.ci": "pnpm ci --include=dev",
         "dev": "node ./dev.ts",
