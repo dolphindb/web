@@ -328,11 +328,10 @@ class ShellModel extends Model<ShellModel> {
             :
                 emodel.getValue(this.monaco.editor.EndOfLinePreference.LF)
             istart = default_selection === 'line' ? selection.startLineNumber : 1
-        } 
-        else {
+        } else {
             code = emodel.getValueInRange(selection, this.monaco.editor.EndOfLinePreference.LF)
             istart = selection.startLineNumber
-        } 
+        }
         
         if (!code.includes('undef all'))
             await this.eval(code, istart)
@@ -343,8 +342,8 @@ class ShellModel extends Model<ShellModel> {
                 onOk: () => { location.reload() },
                 okText: '刷新'
             })
-        }             
-            
+        }
+        
         await this.update_vars()
         
         if (code.includes('login') || code.includes('logout'))
