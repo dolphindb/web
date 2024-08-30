@@ -333,8 +333,8 @@ class ShellModel extends Model<ShellModel> {
             istart = selection.startLineNumber
         }
         
-        if (code.includes('undef all') || code.includes('undef(all)')) 
-            if (await model.modal.confirm({ content: t('执行 undef all 会导致 web 部分功能不可用，执行完成后需要刷新才能恢复, 确定执行吗？') })) 
+        if (code.includes('undef all') || code.includes('undef(all)'))
+            if (await model.modal.confirm({ content: t('执行 undef all 会导致 web 部分功能不可用，执行完成后需要刷新才能恢复, 确定执行吗？') }))
                 try {
                     await this.eval(code, istart)
                 } finally {
