@@ -165,7 +165,7 @@ export function DdbSider () {
                     icon: <MenuIcon view='log' />,
                     label: t('日志查看'),
                 },
-                ... admin && (model.dev || model.test) ? [
+                ... admin ? [
                     {
                         key: 'plugins',
                         icon: <MenuIcon view='plugins' />,

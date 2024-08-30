@@ -127,7 +127,7 @@ export function Plugins () {
                                 ? join_elements(elements, <span>{', '}</span>)
                                 : t('全部节点')
                             }
-                            { !all_match && <Text type='danger'> (不同节点插件版本不一致，需要同步)</Text> }
+                            { !all_match && <Text type='danger'> ({t('不同节点插件版本不一致，需要同步')})</Text> }
                         </>
                     }
                 },
@@ -136,7 +136,7 @@ export function Plugins () {
                     render: (_, { installables }) =>
                         installables.length > 0 && <>
                             { join_elements([...installables], <span>{', '}</span>) }
-                            <Text type='danger'> (需要同步)</Text>
+                            <Text type='danger'> ({t('需要同步')})</Text>
                         </>
                 },
                 {
@@ -222,7 +222,7 @@ function InstallModal ({
             <Result
                 className='result'
                 icon={<InboxOutlined />}
-                title='拖拽文件到这里，或点击后弹框选择文件'
+                title={t('拖拽文件到这里，或点击后弹框选择文件')}
             />
         </Upload.Dragger>
         
@@ -235,13 +235,13 @@ function InstallModal ({
             dataSource={file ? [file] : [ ] as UploadFile[]}
             rowKey='uid'
             
-            locale={{ emptyText: <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description='暂无文件' />,  }}
+            locale={{ emptyText: <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description={t('暂无文件')} />,  }}
             
             columns={[
                 {
                     className: 'fp',
                     key: 'fp',
-                    title: '待上传文件',
+                    title: t('待上传文件'),
                     render: (_, { originFileObj: { name: fp } }) => <>
                         <img className='zip-icon' src={zip_png} />
                         <span className='text'>{fp}</span>
@@ -250,7 +250,7 @@ function InstallModal ({
                 {
                     className: 'size',
                     key: 'size',
-                    title: '大小',
+                    title: t('大小'),
                     align: 'right',
                     width: 130,
                     render: (_, { size }) => size.to_fsize_str()
@@ -258,12 +258,12 @@ function InstallModal ({
                 {
                     className: 'actions',
                     key: 'actions',
-                    title: '操作',
+                    title: t('操作'),
                     width: 80,
                     render: () =>
                         status === 'preparing' && <Link onClick={() => {
                             set_file(null)
-                        }}>删除</Link>
+                        }}>{t('删除')}</Link>
                 }
             ]}
         />
@@ -331,7 +331,7 @@ function SyncModal ({
                 src: sorted_nodes[0].node
             }}
         >
-            <Form.Item<Fields> name='src' label='插件来源节点' {...required}>
+            <Form.Item<Fields> name='src' label={t('插件来源节点')} {...required}>
                 <Radio.Group options={sorted_nodes.map(({ node, version }) => ({
                     label: `${node} (${version})`,
                     value: node
@@ -391,7 +391,7 @@ async function list_plugins (query = '') {
                     .find(node => node.includes(query))
             )
     
-    console.log('插件:', plugins)
+    console.log(t('插件:'), plugins)
     
     return plugins
 }
