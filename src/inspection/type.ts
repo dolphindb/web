@@ -1,4 +1,5 @@
 import type { Dayjs } from 'dayjs'
+import type { DdbObj, DdbValue } from 'dolphindb/browser'
 
 export interface Metric {
     name: string

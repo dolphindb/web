@@ -6,6 +6,10 @@ import useSWR from 'swr'
 
 import { genid } from 'xshell/utils.browser'
 
+import { DdbObj, DdbType } from 'dolphindb/browser'
+
+import { DdbForm } from 'dolphindb'
+
 import { model } from '@/model.ts'
 
 import { inspection } from './model.tsx'
@@ -85,10 +89,10 @@ export function InspectionForm ({ close }: { close: () => void }) {
                                 desc: values.desc,
                                 metrics: metrics.map(({ name }) => name),
                                 nodes: metrics.map(({ nodes }) => nodes),
-                                params: metrics.map(({ name }) => name),
+                                params: new Array(metrics.length).fill('1'),
                                 frequency: values.frequency,
                                 days: values.days,                                
-                                scheduleTime: DDB(values.scheduleTime as Dayjs).format('HH:mm') + 'm',
+                                scheduleTime: '11:11m', 
                                 runNow: false
                             })
                         model.message.success(t('保存成功'))
