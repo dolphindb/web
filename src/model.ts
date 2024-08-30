@@ -18,11 +18,11 @@ import {
 
 import type { Docs } from 'dolphindb/docs.js'
 
-import { language, t } from '../i18n/index.js'
+import { language, t } from '../i18n/index.ts'
 
-import type { FormatErrorOptions } from './components/GlobalErrorBoundary.js'
-import { config } from './config/model.js'
-import { strip_quotes } from './utils/index.js'
+import type { FormatErrorOptions } from './components/GlobalErrorBoundary.tsx'
+import { config } from './config/model.ts'
+import { strip_quotes } from './utils/index.ts'
 
 
 export const storage_keys = {
@@ -244,7 +244,7 @@ export class DdbModel extends Model<DdbModel> {
                 throw new Error(t('oauthType 配置参数的值必须为 authorization code 或 implicit，默认为 implicit'))
         }
         
-        if (this.autologin) 
+        if (this.autologin)
             try {
                 await this.login_by_ticket()
             } catch {
