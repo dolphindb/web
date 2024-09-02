@@ -277,7 +277,7 @@ export class DdbModel extends Model<DdbModel> {
         this.goto_default_view()
         
         if (this.login_required && !this.logined)
-            this.goto_login()
+            await this.goto_login()
         
         this.set({ inited: true })
         
@@ -453,7 +453,7 @@ export class DdbModel extends Model<DdbModel> {
                 location.href = this.get_node_url(node)
                 
                 // 避免马上弹出后面的错误弹窗
-                await delay(1000 * 5)
+                await delay(1000 * 3)
                 
                 // location.href 赋值后可能没有立即执行，需要
                 throw new Error(t('正在跳转'))
@@ -558,7 +558,7 @@ export class DdbModel extends Model<DdbModel> {
         })
         
         if (this.login_required)
-            this.goto_login()
+            await this.goto_login()
     }
     
     
@@ -719,7 +719,7 @@ export class DdbModel extends Model<DdbModel> {
     
     /** 去登录页
         @param redirection 设置登录完成后的回跳页面，默认取当前 view */
-    goto_login (redirection: PageViews = this.view) {
+    async goto_login (redirection: PageViews = this.view) {
         if (this.oauth) {
             const auth_uri = strip_quotes(
                 config.get_config('oauthAuthUri')
@@ -744,6 +744,8 @@ export class DdbModel extends Model<DdbModel> {
             console.log(t('跳转到 oauth 验证页面:'), url)
             
             location.href = url
+            
+            await delay(1000 * 3)
             
             throw new Error(t('正在跳转'))
         } else

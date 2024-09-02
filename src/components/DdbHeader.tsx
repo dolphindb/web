@@ -57,7 +57,7 @@ export function DdbHeader () {
                                 {
                                     key: 'login',
                                     icon: <LoginOutlined />,
-                                    label: <a className='login' onClick={() => { model.goto_login() }}>{t('登录')}</a>,
+                                    label: <a className='login' onClick={async () => { await model.goto_login() }}>{t('登录')}</a>,
                                 }
                         ]
                     }}
