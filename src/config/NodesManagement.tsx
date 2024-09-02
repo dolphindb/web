@@ -216,10 +216,11 @@ export function NodesManagement () {
                         label: alias,
                         value: alias
                     }))} />
-                <Button type='primary' icon={<SearchOutlined />} onClick={() => { set_search_value(search_key) }} />
+                <Button icon={<SearchOutlined />} onClick={() => { set_search_value(search_key) }} />
             </div>
         </div>
-        <NodeTable nodes={ungrouped_nodes} onSave={save_node_impl} onDelete={delete_nodes} />
+        {/* 被搜索筛选了，且没有非计算组节点，不展示 */}
+        {(ungrouped_nodes.length > 0 || search_value === '') && <NodeTable nodes={ungrouped_nodes} onSave={save_node_impl} onDelete={delete_nodes} />}
         {group_nodes}
     </div>
 }
@@ -264,8 +265,8 @@ function NodeTable ({ nodes, group, onSave, onDelete }: NodeTableProps) {
                         text: t('计算节点'),
                         value: 'computenode'
                     },
-                    ...is_group ?  {} : {
-                        datanode:{
+                    ...is_group ?  { } : {
+                        datanode: {
                             text: t('数据节点'),
                             value: 'datanode'
                         },
