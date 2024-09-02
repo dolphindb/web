@@ -177,7 +177,7 @@ export function ComputeGroupConfig () {
                                 value: cfg
                             }))
                         }))} />
-                    <Button type='primary' icon={<SearchOutlined />} onClick={on_search} />
+                    <Button icon={<SearchOutlined />} onClick={on_search} />
                 </div>
                 
             </div>
