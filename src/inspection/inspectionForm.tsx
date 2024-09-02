@@ -6,7 +6,6 @@ import useSWR from 'swr'
 
 import { genid } from 'xshell/utils.browser'
 
-import { DdbObj, DdbType } from 'dolphindb/browser'
 
 import { DdbForm } from 'dolphindb'
 
@@ -52,10 +51,10 @@ export function InspectionForm ({ close }: { close: () => void }) {
                                         className='date-select'
                                         optionLabelProp='value'
                                         options={Array.from({ length: frequency === 'monthly' ? dayjs().daysInMonth() : frequency === 'weekly' ? 7 : 1 }, (_, i) => i + 1).
-                                            map(idx => ({
-                                                label: t('第 {{day}} 天', { day: idx }),
-                                                value: idx
-                                            }))} 
+                                                map(idx => ({
+                                                    label: t('第 {{day}} 天', { day: idx }),
+                                                    value: idx
+                                                }))} 
                                         /> 
                             </Form.Item>
                         }
@@ -92,7 +91,7 @@ export function InspectionForm ({ close }: { close: () => void }) {
                                 params: new Array(metrics.length).fill('1'),
                                 frequency: values.frequency,
                                 days: values.days,                                
-                                scheduleTime: '11:11m', 
+                                scheduleTime: (values.scheduleTime as Dayjs).format('HH:mm') + 'm', 
                                 runNow: false
                             })
                         model.message.success(t('保存成功'))
