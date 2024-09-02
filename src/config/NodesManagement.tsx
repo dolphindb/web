@@ -239,7 +239,7 @@ function NodeTable ({ nodes, group, onSave, onDelete }: NodeTableProps) {
     function get_cols (is_group = false) {
         return [
             {
-                title: t('别名'),
+                title: t('节点别名'),
                 dataIndex: 'alias',
                 key: 'alias',
                 fieldProps: {
