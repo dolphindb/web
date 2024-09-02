@@ -4957,5 +4957,35 @@
     },
     "停止指令发送成功": {
         "en": "The stop command was sent successfully"
+    },
+    "不同节点插件版本不一致，需要同步": {
+        "en": "The plug-in versions of different nodes are inconsistent and need to be synchronized"
+    },
+    "需要同步": {
+        "en": "Requires synchronization"
+    },
+    "拖拽文件到这里，或点击后弹框选择文件": {
+        "en": "Drag and drop files here, or click on the pop-up window to select files"
+    },
+    "暂无文件": {
+        "en": "No files yet"
+    },
+    "待上传文件": {
+        "en": "Files to upload"
+    },
+    "大小": {
+        "en": "Size"
+    },
+    "插件来源节点": {
+        "en": "Plugin source node"
+    },
+    "插件:": {
+        "en": "plugins:"
+    },
+    "执行 undef all 会导致 web 部分功能不可用，执行完成后需要刷新才能恢复, 确定执行吗？": {
+        "en": "Executing undef all will cause some web functions to be unavailable. After execution, you need to refresh to restore. Are you sure you want to execute it?"
+    },
+    "执行 undef all 后需要刷新以恢复 web 功能，是否立即刷新？": {
+        "en": "After executing undef all, a refresh is required to restore web functions. Do you want to refresh now?"
     }
 }

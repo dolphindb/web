@@ -4,7 +4,7 @@ import { type ReactNode, type JSX } from 'react'
 
 import { Tooltip, Progress, Tag, Checkbox } from 'antd'
 
-import { default as Icon, LinkOutlined } from '@ant-design/icons'
+import { default as Icon } from '@ant-design/icons'
 
 
 import { t, language } from '../../i18n/index.js'
@@ -395,13 +395,17 @@ function InfoItem ({
 function NodeSite ({ node }: { node: DdbNode }) {
     const { host, port, mode, publicName } = node
     const private_host = `${host}:${port}`
-    let private_link = model.get_url(host, port)
+    const private_link = model.get_url(host, port, { queries: { view: null } })
     let public_hosts = [ ]
     let public_link = [ ]
     
     if (publicName) {
-        public_hosts = publicName.split(/,|;/).map(val => val + ':' + port)
-        public_link = publicName.split(/,|;/).map(val => model.get_url(val, port))
+        public_hosts = publicName.split(/,|;/).map(hostname => `${hostname}:${port}`)
+        public_link = publicName.split(/,|;/).map(hostname => 
+            model.get_url(
+                hostname, 
+                port,
+                { queries: { view: null } }))
     }
     
     return <>

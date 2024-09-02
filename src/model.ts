@@ -8,7 +8,7 @@ import type { ModalStaticFunctions } from 'antd/es/modal/confirm.js'
 import type { NotificationInstance } from 'antd/es/notification/interface.js'
 
 import 'xshell/polyfill.browser.js'
-import { strcmp } from 'xshell/utils.browser.js'
+import { filter_values, strcmp } from 'xshell/utils.browser.js'
 import { request } from 'xshell/net.browser.js'
 
 import {
@@ -18,11 +18,11 @@ import {
 
 import type { Docs } from 'dolphindb/docs.js'
 
-import { language, t } from '../i18n/index.js'
+import { language, t } from '@i18n/index.ts'
 
-import type { FormatErrorOptions } from './components/GlobalErrorBoundary.js'
-import { config } from './config/model.js'
-import { strip_quotes } from './utils/index.js'
+import type { FormatErrorOptions } from '@/components/GlobalErrorBoundary.tsx'
+import { config } from '@/config/model.ts'
+import { goto_url, strip_quotes } from '@/utils/index.ts'
 
 
 export const storage_keys = {
@@ -277,7 +277,7 @@ export class DdbModel extends Model<DdbModel> {
         this.goto_default_view()
         
         if (this.login_required && !this.logined)
-            this.goto_login()
+            await this.goto_login()
         
         this.set({ inited: true })
         
@@ -444,16 +444,13 @@ export class DdbModel extends Model<DdbModel> {
         let ticket: string
         
         /** redirect_uri 只能跳转到其中某个节点，需要带参数跳回到原发起登录的节点 */
-        const jump = (state: string) => {
+        const jump = async (state: string) => {
             if (state && state !== this.node_alias) {
                 const node = this.nodes.find(({ name }) => name === state)
                 if (!node)
                     throw new Error(t('无法从当前节点 {{current}} 跳转回发起登录的节点 {{origin}}，找不到节点信息', { current: this.node_alias, origin: state }))
                 
-                location.href = this.get_node_url(node)
-                
-                // location.href 赋值后可能没有立即执行，需要
-                throw new Error(t('正在跳转'))
+                await goto_url(this.get_node_url(node))
             }
         }
         
@@ -470,7 +467,7 @@ export class DdbModel extends Model<DdbModel> {
                     '尝试 oauth 单点登录，类型是 implicit, token_type 为 {{token_type}}, access_token 为 {{access_token}}, expires_in 为 {{expires_in}}',
                     { token_type, access_token, expires_in }))
                 
-                jump(
+                await jump(
                     params.get('state')
                 )
                 
@@ -492,7 +489,7 @@ export class DdbModel extends Model<DdbModel> {
                     t('尝试 oauth 单点登录，类型是 authorization code, code 为 {{code}}',
                     { code }))
                 
-                jump(
+                await jump(
                     params.get('state')
                 )
                 
@@ -555,7 +552,7 @@ export class DdbModel extends Model<DdbModel> {
         })
         
         if (this.login_required)
-            this.goto_login()
+            await this.goto_login()
     }
     
     
@@ -563,7 +560,7 @@ export class DdbModel extends Model<DdbModel> {
         const admin = this.logined && (
             await this.ddb.invoke<DdbTableData<{ isAdmin: boolean }>>(
                 'getUserAccess',
-                [this.username],
+                undefined,
                 { urgent: true }
             )
         ).data[0].isAdmin
@@ -716,7 +713,7 @@ export class DdbModel extends Model<DdbModel> {
     
     /** 去登录页
         @param redirection 设置登录完成后的回跳页面，默认取当前 view */
-    goto_login (redirection: PageViews = this.view) {
+    async goto_login (redirection: PageViews = this.view) {
         if (this.oauth) {
             const auth_uri = strip_quotes(
                 config.get_config('oauthAuthUri')
@@ -740,9 +737,7 @@ export class DdbModel extends Model<DdbModel> {
             
             console.log(t('跳转到 oauth 验证页面:'), url)
             
-            location.href = url
-            
-            throw new Error(t('正在跳转'))
+            await goto_url(url)
         } else
             this.set({
                 view: 'login',
@@ -882,9 +877,7 @@ export class DdbModel extends Model<DdbModel> {
                     url
                 )
                 
-                location.href = url
-                
-                throw new Error(t('正在跳转'))
+                await goto_url(url)
             }
         }
     }
@@ -1037,26 +1030,18 @@ export class DdbModel extends Model<DdbModel> {
             keep_current_queries = true
         }: GetUrlOptions = { }
     ) {
-        const current_queries = new URLSearchParams(location.search)
-        const is_query_params_mode = current_queries.get('hostname') || current_queries.get('port')
-        
-        const queries_ = new URLSearchParams(queries)
-        
-        if (keep_current_queries) 
-            current_queries.forEach((v, key) => {
-                if (!queries_.has(key))
-                    queries_.set(key, v)
-            })
-        
-        if (is_query_params_mode) {
-            queries_.set('hostname', hostname)
-            queries_.set('port', port.toString())
-        }
-        // 默认跳转到交互编程
-        queries_.set('view','shell')
-        
+        const _queries = new URLSearchParams(location.search)
+        const is_query_params_mode = _queries.get('hostname') || _queries.get('port')
         const port_ = is_query_params_mode ? location.port : port
-        const query_string = queries_.toString()
+        
+        const query_string = new URLSearchParams(filter_values({
+            ... keep_current_queries ? Object.fromEntries(_queries.entries()) : { },
+            ... is_query_params_mode ? {
+                hostname,
+                port: String(port)
+            } : { },
+            ... queries,
+        })).toString()
         
         return location.protocol + '//' +
             (is_query_params_mode ? location.hostname : hostname) + 
@@ -1327,7 +1312,7 @@ export enum DdbNodeState {
 
 export interface GetUrlOptions {
     pathname?: string
-    queries?: ConstructorParameters<typeof URLSearchParams>[0]
+    queries?: Record<string, string>
     keep_current_queries?: boolean
 }
 

@@ -320,20 +320,34 @@ class ShellModel extends Model<ShellModel> {
         const selection = editor.getSelection()
         const emodel = editor.getModel()
         let code: string
+        let istart: number
         
-        if (selection.isEmpty())
-            await this.eval(
-                code = default_selection === 'line' ?
-                    emodel.getLineContent(selection.startLineNumber)
-                :
-                    emodel.getValue(this.monaco.editor.EndOfLinePreference.LF),
-                default_selection === 'line' ? selection.startLineNumber : 1
-            )
-        else
-            await this.eval(
-                code = emodel.getValueInRange(selection, this.monaco.editor.EndOfLinePreference.LF), 
-                selection.startLineNumber
-            )
+        if (selection.isEmpty()) {
+            code = default_selection === 'line' ?
+                emodel.getLineContent(selection.startLineNumber)
+            :
+                emodel.getValue(this.monaco.editor.EndOfLinePreference.LF)
+            istart = default_selection === 'line' ? selection.startLineNumber : 1
+        } else {
+            code = emodel.getValueInRange(selection, this.monaco.editor.EndOfLinePreference.LF)
+            istart = selection.startLineNumber
+        }
+        
+        if (code.includes('undef all') || code.includes('undef(all)'))
+            if (await model.modal.confirm({ content: t('执行 undef all 会导致 web 部分功能不可用，执行完成后需要刷新才能恢复, 确定执行吗？') }))
+                try {
+                    await this.eval(code, istart)
+                } finally {
+                    model.modal.warning({
+                        content: t('执行 undef all 后需要刷新以恢复 web 功能，是否立即刷新？'),
+                        onOk: () => { location.reload() },
+                        okText: t('刷新')
+                    })
+                }
+             else
+                return
+         else
+            await this.eval(code, istart)
         
         await this.update_vars()
         
