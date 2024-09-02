@@ -8,7 +8,7 @@ import type { ModalStaticFunctions } from 'antd/es/modal/confirm.js'
 import type { NotificationInstance } from 'antd/es/notification/interface.js'
 
 import 'xshell/polyfill.browser.js'
-import { strcmp } from 'xshell/utils.browser.js'
+import { filter_values, strcmp } from 'xshell/utils.browser.js'
 import { request } from 'xshell/net.browser.js'
 
 import {
@@ -1028,24 +1028,18 @@ export class DdbModel extends Model<DdbModel> {
             keep_current_queries = true
         }: GetUrlOptions = { }
     ) {
-        const current_queries = new URLSearchParams(location.search)
-        const is_query_params_mode = current_queries.get('hostname') || current_queries.get('port')
-        
-        const queries_ = new URLSearchParams(queries)
-        
-        if (keep_current_queries) 
-            current_queries.forEach((v, key) => {
-                if (!queries_.has(key))
-                    queries_.set(key, v)
-            })
-        
-        if (is_query_params_mode) {
-            queries_.set('hostname', hostname)
-            queries_.set('port', port.toString())
-        }
-        
+        const _queries = new URLSearchParams(location.search)
+        const is_query_params_mode = _queries.get('hostname') || _queries.get('port')
         const port_ = is_query_params_mode ? location.port : port
-        const query_string = queries_.toString()
+        
+        const query_string = new URLSearchParams(filter_values({
+            ... keep_current_queries ? Object.fromEntries(_queries.entries()) : { },
+            ... is_query_params_mode ? {
+                hostname,
+                port: String(port)
+            } : { },
+            ... queries,
+        })).toString()
         
         return location.protocol + '//' +
             (is_query_params_mode ? location.hostname : hostname) + 
@@ -1314,7 +1308,7 @@ export enum DdbNodeState {
 
 export interface GetUrlOptions {
     pathname?: string
-    queries?: ConstructorParameters<typeof URLSearchParams>[0]
+    queries?: Record<string, string>
     keep_current_queries?: boolean
 }
 
