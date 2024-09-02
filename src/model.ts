@@ -8,7 +8,7 @@ import type { ModalStaticFunctions } from 'antd/es/modal/confirm.js'
 import type { NotificationInstance } from 'antd/es/notification/interface.js'
 
 import 'xshell/polyfill.browser.js'
-import { delay, strcmp } from 'xshell/utils.browser.js'
+import { strcmp } from 'xshell/utils.browser.js'
 import { request } from 'xshell/net.browser.js'
 
 import {
@@ -18,11 +18,11 @@ import {
 
 import type { Docs } from 'dolphindb/docs.js'
 
-import { language, t } from '../i18n/index.ts'
+import { language, t } from '@i18n/index.ts'
 
-import type { FormatErrorOptions } from './components/GlobalErrorBoundary.tsx'
-import { config } from './config/model.ts'
-import { strip_quotes } from './utils/index.ts'
+import type { FormatErrorOptions } from '@/components/GlobalErrorBoundary.tsx'
+import { config } from '@/config/model.ts'
+import { goto_url, strip_quotes } from '@/utils/index.ts'
 
 
 export const storage_keys = {
@@ -450,13 +450,7 @@ export class DdbModel extends Model<DdbModel> {
                 if (!node)
                     throw new Error(t('无法从当前节点 {{current}} 跳转回发起登录的节点 {{origin}}，找不到节点信息', { current: this.node_alias, origin: state }))
                 
-                location.href = this.get_node_url(node)
-                
-                // 避免马上弹出后面的错误弹窗
-                await delay(1000 * 3)
-                
-                // location.href 赋值后可能没有立即执行，需要
-                throw new Error(t('正在跳转'))
+                await goto_url(this.get_node_url(node))
             }
         }
         
@@ -743,11 +737,7 @@ export class DdbModel extends Model<DdbModel> {
             
             console.log(t('跳转到 oauth 验证页面:'), url)
             
-            location.href = url
-            
-            await delay(1000 * 3)
-            
-            throw new Error(t('正在跳转'))
+            await goto_url(url)
         } else
             this.set({
                 view: 'login',
@@ -885,9 +875,7 @@ export class DdbModel extends Model<DdbModel> {
                     url
                 )
                 
-                location.href = url
-                
-                throw new Error(t('正在跳转'))
+                await goto_url(url)
             }
         }
     }
