@@ -4,7 +4,7 @@ import { Modal } from 'antd'
 
 import { InspectionForm } from './inspectionForm.tsx'
 
-export const addInspectionModal = NiceModal.create(() => {
+export const addInspectionModal = NiceModal.create(({ mutate_plans }: { mutate_plans: ( ) => void }) => {
         
     const modal = useModal()   
     return <Modal
@@ -18,6 +18,6 @@ export const addInspectionModal = NiceModal.create(() => {
         okText={t('确定')}
         cancelText={t('取消')}
     >
-        <InspectionForm close={modal.hide}/>
+        <InspectionForm close={modal.hide} mutate_plans={mutate_plans}/>
     </Modal>
 })

@@ -6,21 +6,18 @@ import useSWR from 'swr'
 
 import { genid } from 'xshell/utils.browser'
 
-
-import { DdbForm } from 'dolphindb'
-
 import { model } from '@/model.ts'
 
 import { inspection } from './model.tsx'
 import { inspectionFrequencyOptions, metricGroups } from './constants.ts'
-import type { Metric, MetricsWithNodes, PlanParams } from './type.ts'
+import type { Metric, MetricsWithNodes, Plan } from './type.ts'
 
-export function InspectionForm ({ close }: { close: () => void }) {
+export function InspectionForm ({ close, mutate_plans }: { close: () => void, mutate_plans: () => void }) {
     
     // 保存指标是否选中以及每个指标巡检的节点
     const [checked_metrics, set_checked_metrics] = useState<Map<string, MetricsWithNodes>>(new Map())
     
-    const [inspection_form] = Form.useForm<Pick<PlanParams, 'desc' | 'frequency' | 'days' | 'scheduleTime'> >()
+    const [inspection_form] = Form.useForm<Pick<Plan, 'desc' | 'frequency' | 'days' | 'scheduleTime'> >()
     
     return <div className='inspection-form'>
         <h3>{t('指标列表')}</h3>
@@ -49,10 +46,9 @@ export function InspectionForm ({ close }: { close: () => void }) {
                                     <Select
                                         mode='multiple'
                                         className='date-select'
-                                        optionLabelProp='value'
-                                        options={Array.from({ length: frequency === 'monthly' ? dayjs().daysInMonth() : frequency === 'weekly' ? 7 : 1 }, (_, i) => i + 1).
+                                        options={Array.from({ length: frequency === 'M' ? dayjs().daysInMonth() : frequency === 'W' ? 7 : 1 }, (_, i) => i).
                                                 map(idx => ({
-                                                    label: t('第 {{day}} 天', { day: idx }),
+                                                    label: t('第 {{day}} 天', { day: idx + 1 }),
                                                     value: idx
                                                 }))} 
                                         /> 
@@ -95,6 +91,7 @@ export function InspectionForm ({ close }: { close: () => void }) {
                                 runNow: false
                             })
                         model.message.success(t('保存成功'))
+                        mutate_plans()
                     } catch (error) {
                         model.show_error({ error })
                     }

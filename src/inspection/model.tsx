@@ -2,7 +2,7 @@ import { Model } from 'react-object-model'
 
 import {  model } from '@/model.ts'
 
-import type { Metric, PlanParams } from './type.ts'
+import type { Metric, Plan } from './type.ts'
 
 class InspectionModel extends Model<InspectionModel> {
     inited = false
@@ -16,12 +16,16 @@ class InspectionModel extends Model<InspectionModel> {
     }
     
     
-    async get_plans () {
+    async get_plans (): Promise<Plan[]> {
         return (await model.ddb.invoke('autoInspection::getPlans', [ ])).data
     }
     
-    async create_plan (params: PlanParams) {
-        await model.ddb.invoke('autoInspection::createPlan', Object.values(params))
+    async delete_plans (ids: string[]) {
+        await model.ddb.invoke('autoInspection::deletePlan', [ ids ])
+    }
+    
+    async create_plan (plan: Plan) {
+        await model.ddb.invoke('autoInspection::createPlan', Object.values(plan))
     }
     
     async get_reports () {

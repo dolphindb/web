@@ -17,7 +17,7 @@ export interface MetricsWithNodes {
 }
 
 
-export interface PlanParams { 
+export interface Plan { 
     id: string
     metrics: string[]
     nodes: Array<string[] | null>
