@@ -20,19 +20,21 @@ import { GroupAddModal, type GroupConfigDatatype, type GroupNodesDatatype } from
 
 export function NodesManagement () {
 
-    const [all_nodes, set_all_nodes] = useState<ClusterNode[]>([ ])
-    
     const [search_key, set_search_key] = useState('')
     const [search_value, set_search_value] = useState('')
     
-    const { mutate } = useSWR('/get/nodes', async () => config.get_cluster_nodes(), {
-        onSuccess: data => {
+    const { mutate, data } = useSWR('/get/nodes', async () => {
+            const data = await config.get_cluster_nodes()
             const nodes = strs_2_nodes(data.value as any[])
-            set_all_nodes(nodes)
+            return nodes
         },
-        revalidateOnFocus: true,
-        revalidateOnReconnect: true,
-    })
+        { 
+            revalidateOnFocus: true,
+            revalidateOnReconnect: true,
+        }
+    )
+    
+    const all_nodes: ClusterNode[] = data ?? [ ]
     
     const delete_nodes = useCallback(async (node_id: string) => {
         if (!isNaN(Number(node_id)))
