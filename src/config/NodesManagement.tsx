@@ -52,7 +52,7 @@ export function NodesManagement () {
         await mutate()
     }, [all_nodes])
     
-    async function save_node_impl ({ rowKey, host, port, alias, mode, group }) {
+    async function save_node_impl ({ rowKey, host, port, alias, mode, group }, changed_alias = false) {
         try {
             const node_strs = _2_strs(all_nodes)
             let idx = all_nodes.findIndex(node => node.alias === alias)
@@ -73,11 +73,14 @@ export function NodesManagement () {
                         model.message.error(t('新增节点失败，服务端报错：') + err.message)
                     }
             }
-            else { // 修改
-                await config.save_cluster_nodes(node_strs.toSpliced(idx, 1, `${host}:${port}:${alias},${mode},${group}`))
+            else  // 修改
+                if (changed_alias) 
+                    model.message.error(t('该节点别名已存在，无法修改或添加'))
                 
-                model.message.success(t('保存成功，重启集群生效'))
-            }
+                else {
+                    await config.save_cluster_nodes(node_strs.toSpliced(idx, 1, `${host}:${port}:${alias},${mode},${group}`))
+                    model.message.success(t('保存成功，重启集群生效'))
+                }
             mutate()
             
             
@@ -234,13 +237,27 @@ export function NodesManagement () {
 interface NodeTableProps {
     nodes: ClusterNode[]
     group?: string
-    onSave: (params: any) => Promise<void>
+    onSave: (params: any, changed_alias?: boolean) => Promise<void> // 如果节点名变了，需要特别检查是否有存在的别名
     onDelete: (nodeId: string) => Promise<void>
 }
 
 function NodeTable ({ nodes, group, onSave, onDelete }: NodeTableProps) {
 
     function get_cols (is_group = false) {
+    
+        const alias_rule: { required?: boolean, message?: string, pattern?: RegExp }[] = [{
+            required: true,
+            message: t('请输入别名')
+        }]
+        
+        if (is_group)
+            alias_rule.push(
+                {
+                    pattern: new RegExp(`^${group}`),
+                    message: t('别名必须以组名 ') + group + t(' 开头')
+                }
+            )
+            
         return [
             {
                 title: t('节点别名'),
@@ -250,13 +267,7 @@ function NodeTable ({ nodes, group, onSave, onDelete }: NodeTableProps) {
                     placeholder: t('请输入别名'),
                 },
                 formItemProps: {
-                    rules: [{
-                        required: true,
-                        message: t('请输入别名')
-                    }, is_group ? {
-                        pattern: new RegExp(`^${group}`),
-                        message: t('别名必须以组名 ') + group + t(' 开头')
-                    } : undefined]
+                    rules: alias_rule
                 }
             },
             {
@@ -384,8 +395,9 @@ function NodeTable ({ nodes, group, onSave, onDelete }: NodeTableProps) {
         editable={
             {
                 type: 'single',
-                onSave: async (rowKey, { host, port, alias, mode }) => {
-                    await onSave({ rowKey, host, port, alias, mode, group: group || '' })
+                onSave: async (rowKey, { host, port, alias, mode }, originRow) => {
+                    const changed_alias = originRow.alias === alias || originRow.alias === ''
+                    await onSave({ rowKey, host, port, alias, mode, group: group || '' }, changed_alias)
                 },
                 onDelete: async (_, row) => onDelete(row.id),
                 deletePopconfirmMessage: t('确认删除此节点？'),
