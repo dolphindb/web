@@ -29,7 +29,9 @@ export function NodesManagement () {
         onSuccess: data => {
             const nodes = strs_2_nodes(data.value as any[])
             set_all_nodes(nodes)
-        }
+        },
+        revalidateOnFocus: true,
+        revalidateOnReconnect: true,
     })
     
     const delete_nodes = useCallback(async (node_id: string) => {
