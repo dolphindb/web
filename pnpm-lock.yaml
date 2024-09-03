@@ -123,8 +123,8 @@ importers:
         specifier: ^9.1.0
         version: 9.1.0
       xshell:
-        specifier: ^1.0.165
-        version: 1.0.165(react-dom@18.3.1(react@18.3.1))
+        specifier: ^1.0.166
+        version: 1.0.166(react-dom@18.3.1(react@18.3.1))
     devDependencies:
       '@svgr/webpack':
         specifier: ^8.1.0
@@ -431,10 +431,6 @@ packages:
 
   '@babel/generator@7.24.9':
     resolution: {integrity: sha512-G8v3jRg+z8IwY1jHFxvCNhOPYPterE4XljNgdGTYfSTtzzwjIswIzIaSPSLs3R7yFuqnqNeay5rjICfqVr+/6A==}
-    engines: {node: '>=6.9.0'}
-
-  '@babel/generator@7.25.5':
-    resolution: {integrity: sha512-abd43wyLfbWoxC6ahM8xTkqLpGB2iWBVyuKC9/srhFunCd1SDNrV1s72bBpK4hLj8KLzHBBcOblvLQZBNw9r3w==}
     engines: {node: '>=6.9.0'}
 
   '@babel/generator@7.25.6':
@@ -1166,10 +1162,6 @@ packages:
 
   '@babel/types@7.24.9':
     resolution: {integrity: sha512-xm8XrMKz0IlUdocVbYJe0Z9xEgidU7msskG8BbhnTPK/HZ2z/7FP7ykqPgrUH+C+r414mNfNWam1f2vqOjqjYQ==}
-    engines: {node: '>=6.9.0'}
-
-  '@babel/types@7.25.4':
-    resolution: {integrity: sha512-zQ1ijeeCXVEh+aNL0RlmkPkG8HUiDcU2pzQQFjtbntgAczRASFzj4H+6+bV+dy1ntKR14I/DypeuRG1uma98iQ==}
     engines: {node: '>=6.9.0'}
 
   '@babel/types@7.25.6':
@@ -5059,8 +5051,8 @@ packages:
     resolution: {integrity: sha512-fDlsI/kFEx7gLvbecc0/ohLG50fugQp8ryHzMTuW9vSa1GJ0XYWKnhsUx7oie3G98+r56aTQIUB4kht42R3JvA==}
     engines: {node: '>=4.0'}
 
-  xshell@1.0.165:
-    resolution: {integrity: sha512-lUw6y6yr0DwExEDQk2px5PB0WrPAtkr6dkBiv2TYozUaE8CkljFo2/JLBGkJcvB17z6xJC0PoM3BSmaOfDwp/w==}
+  xshell@1.0.166:
+    resolution: {integrity: sha512-pU76vUCn/jKxeUVCITmifDY+H5YOwvlIqY8ZWSsBo1F8+B45VAr5V2ZkqT9e2kkXxoHBP1QSVNu6t/LlrRlBFQ==}
     hasBin: true
 
   xtend@4.0.2:
@@ -5563,14 +5555,14 @@ snapshots:
     dependencies:
       '@ampproject/remapping': 2.2.0
       '@babel/code-frame': 7.24.7
-      '@babel/generator': 7.25.5
+      '@babel/generator': 7.25.6
       '@babel/helper-compilation-targets': 7.25.2
       '@babel/helper-module-transforms': 7.25.2(@babel/core@7.25.2)
       '@babel/helpers': 7.25.0
       '@babel/parser': 7.25.6
       '@babel/template': 7.25.0
       '@babel/traverse': 7.25.6
-      '@babel/types': 7.25.4
+      '@babel/types': 7.25.6
       convert-source-map: 2.0.0
       debug: 4.3.4
       gensync: 1.0.0-beta.2
@@ -5603,13 +5595,6 @@ snapshots:
   '@babel/generator@7.24.9':
     dependencies:
       '@babel/types': 7.24.9
-      '@jridgewell/gen-mapping': 0.3.5
-      '@jridgewell/trace-mapping': 0.3.25
-      jsesc: 2.5.2
-
-  '@babel/generator@7.25.5':
-    dependencies:
-      '@babel/types': 7.25.4
       '@jridgewell/gen-mapping': 0.3.5
       '@jridgewell/trace-mapping': 0.3.25
       jsesc: 2.5.2
@@ -5869,7 +5854,7 @@ snapshots:
   '@babel/helpers@7.25.0':
     dependencies:
       '@babel/template': 7.25.0
-      '@babel/types': 7.25.4
+      '@babel/types': 7.25.6
 
   '@babel/highlight@7.24.6':
     dependencies:
@@ -6491,7 +6476,7 @@ snapshots:
     dependencies:
       '@babel/code-frame': 7.24.7
       '@babel/parser': 7.25.6
-      '@babel/types': 7.25.4
+      '@babel/types': 7.25.6
 
   '@babel/traverse@7.24.5':
     dependencies:
@@ -6569,12 +6554,6 @@ snapshots:
       to-fast-properties: 2.0.0
 
   '@babel/types@7.24.9':
-    dependencies:
-      '@babel/helper-string-parser': 7.24.8
-      '@babel/helper-validator-identifier': 7.24.7
-      to-fast-properties: 2.0.0
-
-  '@babel/types@7.25.4':
     dependencies:
       '@babel/helper-string-parser': 7.24.8
       '@babel/helper-validator-identifier': 7.24.7
@@ -8130,7 +8109,7 @@ snapshots:
       dayjs: 1.11.13
       ipaddr.js: 2.2.0
       tslib: 2.7.0
-      xshell: 1.0.165(react-dom@18.3.1(react@18.3.1))
+      xshell: 1.0.166(react-dom@18.3.1(react@18.3.1))
     transitivePeerDependencies:
       - '@rspack/core'
       - '@swc/core'
@@ -11280,7 +11259,7 @@ snapshots:
 
   xmlbuilder@11.0.1: {}
 
-  xshell@1.0.165(react-dom@18.3.1(react@18.3.1)):
+  xshell@1.0.166(react-dom@18.3.1(react@18.3.1)):
     dependencies:
       '@babel/core': 7.25.2
       '@babel/parser': 7.25.6
