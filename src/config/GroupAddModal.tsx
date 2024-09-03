@@ -8,7 +8,7 @@ import { t } from '../../i18n/index.js'
 import { CONFIG_CLASSIFICATION } from './constants.js'
 
 
-export const GroupAddModal = NiceModal.create((props: { on_save: (form: { group_name: string, group_nodes: GroupNodesDatatype[], group_configs: GroupConfigDatatype[] }) => Promise<void> }) => {
+export const GroupAddModal = NiceModal.create((props: { on_save: (form: { group_name: string, group_nodes: GroupNodesDatatype[], group_configs: GroupConfigDatatype[] }) => Promise<{ success: boolean, message?: string }> }) => {
     const modal = NiceModal.useModal()
     
     const [group_name, set_group_name] = useState('')
@@ -175,7 +175,10 @@ export const GroupAddModal = NiceModal.create((props: { on_save: (form: { group_
                     return
                 }
                 if (validate())
-                    props.on_save({ group_name, group_nodes, group_configs }).then(async () => modal.hide())
+                    props.on_save({ group_name, group_nodes, group_configs }).then(r => {
+                    if (r.success)
+                        modal.hide()
+                    })
                 else
                     set_validating(true)
             }} type='primary'>{t('完成')}</Button>

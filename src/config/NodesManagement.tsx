@@ -111,9 +111,18 @@ export function NodesManagement () {
     
     
     
-    async function add_group (form: { group_name: string, group_nodes: GroupNodesDatatype[], group_configs: GroupConfigDatatype[] }) {
+    async function add_group (form: { group_name: string, group_nodes: GroupNodesDatatype[], group_configs: GroupConfigDatatype[] }): Promise<{ success: boolean, message?: string }> {
         const { group_name, group_nodes, group_configs } = form
         const group_nodes_to_add = group_nodes.filter(node => all_nodes.findIndex(exist_node => exist_node.alias === node.alias) < 0)
+        const perf = await model.get_cluster_perf(false)
+        for (const node_to_add of group_nodes_to_add)
+            if (perf.findIndex(node => node.name === node_to_add.alias) < 0)
+                try {
+                    await model.ddb.call('addNode', [node_to_add.host, new DdbInt(Number(node_to_add.port)), node_to_add.alias, true, 'computenode', group_name])
+                } catch (e) {
+                    message.error(t('新增节点失败，服务端报错：') + e.message)
+                    return { success: false, message: t('新增节点失败，服务端报错：') + e.message }
+                }
         await config.load_configs()
         const configs: Array<[string, NodesConfig]> = [ ]
         for (const config of group_configs) {
@@ -129,12 +138,10 @@ export function NodesManagement () {
         const new_node_strs = [...node_strs, ...new_nodes]
         const unique_node_strs = Array.from(new Set(new_node_strs))
         await config.save_cluster_nodes(unique_node_strs)
-        const perf = await model.get_cluster_perf(false)
-        for (const node_to_add of group_nodes_to_add)
-            if (perf.findIndex(node => node.name === node_to_add.alias) < 0)
-                await model.ddb.call('addNode', [node_to_add.host, new DdbInt(Number(node_to_add.port)), node_to_add.alias, true, 'computenode', group_name])
+        
                 
         await mutate()
+        return { success: true }
     }
     
     
