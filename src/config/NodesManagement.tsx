@@ -396,7 +396,7 @@ function NodeTable ({ nodes, group, onSave, onDelete }: NodeTableProps) {
             {
                 type: 'single',
                 onSave: async (rowKey, { host, port, alias, mode }, originRow) => {
-                    const changed_alias = originRow.alias === alias || originRow.alias === ''
+                    const changed_alias = originRow.alias !== alias || originRow.alias === ''
                     await onSave({ rowKey, host, port, alias, mode, group: group || '' }, changed_alias)
                 },
                 onDelete: async (_, row) => onDelete(row.id),
