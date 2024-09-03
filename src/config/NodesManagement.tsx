@@ -33,20 +33,20 @@ export function NodesManagement () {
     })
     
     const delete_nodes = useCallback(async (node_id: string) => {
-        if (!isNaN(Number(node_id))) 
-            return 
-        
+        if (!isNaN(Number(node_id)))
+            return
+            
         const nodes = await model.get_cluster_perf(false)
         const [rest] = node_id.split(',')
         const [, , alias] = rest.split(':')
         const this_node = nodes.find(n => n.name === alias)
         if (this_node?.state === DdbNodeState.online) {
             message.error(t('无法移除在线节点，请到集群总览中停止后移除'))
-            return 
+            return
         }
         if (this_node && this_node.mode === NodeType.computing) // 必须是计算节点才能在线删除
             await model.ddb.call('removeNode', [this_node.name])
-        
+            
         const new_nodes = _2_strs(all_nodes).filter(nod => nod !== node_id)
         await config.save_cluster_nodes(new_nodes)
         await mutate()
@@ -65,9 +65,13 @@ export function NodesManagement () {
                 if (group)
                     add_node_arg.push(group)
                 const perf = await model.get_cluster_perf(false)
-                if (perf.findIndex(node => node.name === alias) < 0) // 如果集群中没有该节点
-                    await model.ddb.call('addNode', add_node_arg)
-                model.message.success(t('新增成功，请到集群总览启动'))
+                if (perf.findIndex(node => node.name === alias) < 0)
+                    try {
+                        await model.ddb.call('addNode', add_node_arg)
+                        model.message.success(t('新增节点成功，请到集群总览启动'))
+                    } catch (err) {
+                        model.message.error(t('新增节点失败，服务端报错：') + err.message)
+                    }
             }
             else { // 修改
                 await config.save_cluster_nodes(node_strs.toSpliced(idx, 1, `${host}:${port}:${alias},${mode},${group}`))
@@ -91,14 +95,14 @@ export function NodesManagement () {
     const groups = useMemo(() => {
         const compute_groups = new Map()
         search_filtered_nodes.forEach(config => {
-          if (config.computeGroup)
-              if (!compute_groups.has(config.computeGroup))
-                  compute_groups.set(config.computeGroup, 1)
-             else
-                  compute_groups.set(config.computeGroup, compute_groups.get(config.computeGroup) + 1)
+            if (config.computeGroup)
+                if (!compute_groups.has(config.computeGroup))
+                    compute_groups.set(config.computeGroup, 1)
+                else
+                    compute_groups.set(config.computeGroup, compute_groups.get(config.computeGroup) + 1)
         })
         return (Array.from(compute_groups.keys()) as unknown as string[]).sort()
-      }, [search_filtered_nodes])
+    }, [search_filtered_nodes])
     
     
     
@@ -121,10 +125,10 @@ export function NodesManagement () {
         const unique_node_strs = Array.from(new Set(new_node_strs))
         await config.save_cluster_nodes(unique_node_strs)
         const perf = await model.get_cluster_perf(false)
-        for (const node_to_add of group_nodes_to_add) 
+        for (const node_to_add of group_nodes_to_add)
             if (perf.findIndex(node => node.name === node_to_add.alias) < 0)
                 await model.ddb.call('addNode', [node_to_add.host, new DdbInt(Number(node_to_add.port)), node_to_add.alias, true, 'computenode', group_name])
-        
+                
         await mutate()
     }
     
@@ -136,10 +140,10 @@ export function NodesManagement () {
         // for (const node of group_nodes) 
         //     if (node.state === DdbNodeState.online) 
         //         can_delete = false
-            
+        
         if (!can_delete) {
             message.error(t('组内有在线节点，请到集群总览中停止节点后移除'))
-            return 
+            return
         }
         await config.load_configs()
         const config_map = config.nodes_configs
@@ -155,7 +159,7 @@ export function NodesManagement () {
         // 调用删除节点 API
         for (const node of group_nodes)
             await model.ddb.call('removeNode', [node.name])
-        
+            
         await mutate()
     }
     
@@ -265,7 +269,7 @@ function NodeTable ({ nodes, group, onSave, onDelete }: NodeTableProps) {
                         text: t('计算节点'),
                         value: 'computenode'
                     },
-                    ...is_group ?  { } : {
+                    ...is_group ? { } : {
                         datanode: {
                             text: t('数据节点'),
                             value: 'datanode'
@@ -279,7 +283,7 @@ function NodeTable ({ nodes, group, onSave, onDelete }: NodeTableProps) {
                             value: 'agent',
                         }
                         
-                    } 
+                    }
                     
                 },
                 fieldProps: {
