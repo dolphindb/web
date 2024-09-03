@@ -4987,5 +4987,314 @@
     },
     "执行 undef all 后需要刷新以恢复 web 功能，是否立即刷新？": {
         "en": "After executing undef all, a refresh is required to restore web functions. Do you want to refresh now?"
+    },
+    "数采平台": {
+        "en": "Data Acquisition Platform"
+    },
+    "连接信息": {
+        "en": "Connection Information"
+    },
+    "解析模板": {
+        "en": "Parsing Template"
+    },
+    "交易中心": {
+        "en": "Trading Center"
+    },
+    "个节点": {
+        "en": " nodes"
+    },
+    "计算组": {
+        "en": "Compute Group"
+    },
+    "别名必须以组名": {
+        "en": "Alias must start with group name"
+    },
+    "请输入值": {
+        "en": "Please enter a value"
+    },
+    "新增计算组": {
+        "en": "New Compute Group"
+    },
+    "计算组名称": {
+        "en": "Compute Group Name"
+    },
+    "请输入计算组名称": {
+        "en": "Please enter compute group name"
+    },
+    "计算组名称不能包含特殊字符": {
+        "en": "Compute group name cannot contain special characters"
+    },
+    "批量添加节点": {
+        "en": "Batch Add Nodes"
+    },
+    "在列表后添加": {
+        "en": "Add after list"
+    },
+    "批量添加": {
+        "en": "Batch Add"
+    },
+    "计算组配置": {
+        "en": "Compute Group Configuration"
+    },
+    "新增一条配置": {
+        "en": "Add a Configuration"
+    },
+    "请添加至少 1 个节点": {
+        "en": "Please add at least 1 node"
+    },
+    "指定此配置适用的节点名或节点名前缀（例如：node1 或 node%）": {
+        "en": "Specify the node name or node name prefix to which this configuration applies (e.g., node1 or node%)"
+    },
+    "无法移除在线节点，请到集群总览中停止后移除": {
+        "en": "Cannot remove online nodes, please stop them in the cluster overview before removing"
+    },
+    "新增节点成功，请到集群总览启动": {
+        "en": "New node added successfully, please go to cluster overview to start"
+    },
+    "新增节点失败，服务端报错：": {
+        "en": "Failed to add new node, server error:"
+    },
+    "该节点别名已存在，无法修改或添加": {
+        "en": "The node alias already exists and cannot be modified or added"
+    },
+    "组内有在线节点，请到集群总览中停止节点后移除": {
+        "en": "There are online nodes in the group, please stop the nodes in the cluster overview before removing"
+    },
+    "确定要删除计算组 {{group}} 吗？": {
+        "en": "Are you sure you want to delete compute group {{group}}?"
+    },
+    "删除计算组": {
+        "en": "Delete Compute Group"
+    },
+    "新建计算组": {
+        "en": "New Compute Group"
+    },
+    "别名必须以组名 ": {
+        "en": "Alias must start with group name "
+    },
+    "删除订阅": {
+        "en": "Delete Subscription"
+    },
+    "是否销毁流表": {
+        "en": "Destroy Stream Table?"
+    },
+    "连接名称": {
+        "en": "Connection Name"
+    },
+    "协议": {
+        "en": "Protocol"
+    },
+    "服务器地址": {
+        "en": "Server Address"
+    },
+    "确定要{{action}}{{name}}吗？": {
+        "en": "Are you sure you want to {{action}} {{name}}?"
+    },
+    "订阅成功": {
+        "en": "Subscription Successful"
+    },
+    "停用订阅": {
+        "en": "Deactivate Subscription"
+    },
+    "点位解析模板": {
+        "en": "Point Parsing Template"
+    },
+    "查看": {
+        "en": "View"
+    },
+    "更新时间": {
+        "en": "Update Time"
+    },
+    "订阅列表": {
+        "en": "Subscription List"
+    },
+    "新增订阅": {
+        "en": "New Subscription"
+    },
+    "编辑成功": {
+        "en": "Edit Successful"
+    },
+    "编辑 {{name}}连接": {
+        "en": "Edit {{name}} Connection"
+    },
+    "创建 {{name}}连接": {
+        "en": "Create {{name}} Connection"
+    },
+    "请输入服务器地址": {
+        "en": "Please enter server address"
+    },
+    "请输入有效的服务器地址": {
+        "en": "Please enter a valid server address"
+    },
+    "请输入端口": {
+        "en": "Please enter port"
+    },
+    "请输入有效的端口": {
+        "en": "Please enter a valid port"
+    },
+    "自定义模板": {
+        "en": "Custom Template"
+    },
+    "模板参考": {
+        "en": "Template Reference"
+    },
+    "编辑模板": {
+        "en": "Edit Template"
+    },
+    "创建模板": {
+        "en": "Create Template"
+    },
+    "请输入模板名称": {
+        "en": "Please enter template name"
+    },
+    "请选择协议": {
+        "en": "Please select protocol"
+    },
+    "代码": {
+        "en": "Code"
+    },
+    "请输入代码": {
+        "en": "Please enter code"
+    },
+    "接收缓冲区大小": {
+        "en": "Receive Buffer Size"
+    },
+    "默认为 20480 字节": {
+        "en": "Default is 20480 bytes"
+    },
+    "请输入接收缓冲区大小": {
+        "en": "Please enter receive buffer size"
+    },
+    "偏移量与分区需同时设置，或者均不设置": {
+        "en": "Offset and partition must be set at the same time, or neither"
+    },
+    "请输入分区数": {
+        "en": "Please enter number of partitions"
+    },
+    "请输入偏移量": {
+        "en": "Please enter offset"
+    },
+    "修改订阅": {
+        "en": "Modify Subscription"
+    },
+    "创建订阅": {
+        "en": "Create Subscription"
+    },
+    "请输入主题": {
+        "en": "Please enter topic"
+    },
+    "默认为当前节点": {
+        "en": "Default is current node"
+    },
+    "是否需要点位解析": {
+        "en": "Need Point Parsing?"
+    },
+    "默认流表名称": {
+        "en": "Default Stream Table Name"
+    },
+    "请输入默认流表名称": {
+        "en": "Please enter default stream table name"
+    },
+    "默认流表名称不能包含空格": {
+        "en": "Default stream table name cannot contain spaces"
+    },
+    "请选择点位解析模板": {
+        "en": "Please select point parsing template"
+    },
+    "模板参数": {
+        "en": "Template Parameters"
+    },
+    "请注意，自定义解析模板的输出流表需要自行创建": {
+        "en": "Please note that the output stream table of the custom parsing template needs to be created by yourself"
+    },
+    "参数值不能包含空格": {
+        "en": "Parameter value cannot contain spaces"
+    },
+    "kafka 消费参数配置": {
+        "en": "Kafka Consumer Parameter Configuration"
+    },
+    "设置偏移量与分区，group.id 参数会失效": {
+        "en": "Setting the offset and partition will invalidate the group.id parameter"
+    },
+    "参数": {
+        "en": "Parameter"
+    },
+    "请选择参数": {
+        "en": "Please select parameter"
+    },
+    "参数值": {
+        "en": "Parameter Value"
+    },
+    "参数值不能含有空格": {
+        "en": "Parameter value cannot contain spaces"
+    },
+    "增加消费参数配置": {
+        "en": "Add Consumer Parameter Configuration"
+    },
+    "确定要删除连接 {{name}} 吗？": {
+        "en": "Are you sure you want to delete connection {{name}}?"
+    },
+    "确定要删除选中的 {{num}} 个连接吗": {
+        "en": "Are you sure you want to delete the selected {{num}} connections?"
+    },
+    "采集平台初始化成功！": {
+        "en": "Data acquisition platform initialized successfully!"
+    },
+    "初始化数据采集平台": {
+        "en": "Initialize Data Acquisition Platform"
+    },
+    "初始化操作将新增以下数据库": {
+        "en": "The initialization operation will add the following databases"
+    },
+    "请注意，控制节点无法使用数采平台": {
+        "en": "Please note that the control node cannot use the data acquisition platform"
+    },
+    "新建连接": {
+        "en": "New Connection"
+    },
+    "查看日志": {
+        "en": "View Logs"
+    },
+    "连接": {
+        "en": "Connection"
+    },
+    "请选择连接": {
+        "en": "Please select connection"
+    },
+    "名称不能超过 50 个字符": {
+        "en": "Name cannot exceed 50 characters"
+    },
+    "名称不能包含空格": {
+        "en": "Name cannot contain spaces"
+    },
+    "确定要删除选中的 {{num}} 项模板吗？": {
+        "en": "Are you sure you want to delete the selected {{num}} templates?"
+    },
+    "该解析模板被引用 {{citeNumber}} 次, 确定要删除吗？": {
+        "en": "This parsing template has been cited {{citeNumber}} times, are you sure you want to delete it?"
+    },
+    "确定要删除模板【{{name}}】吗？": {
+        "en": "Are you sure you want to delete template [{{name}}]?"
+    },
+    "模板名称": {
+        "en": "Template Name"
+    },
+    "使用数": {
+        "en": "Usage Count"
+    },
+    "引用数": {
+        "en": "Citation Count"
+    },
+    "当前解析模板已被引用，请谨慎修改": {
+        "en": "The current parsing template has been cited, please modify it with caution"
+    },
+    "存储集群": {
+        "en": "Storage Cluster"
+    },
+    "开头": {
+        "en": " "
+    },
+    " 开头": {
+        "en": " "
     }
 }
