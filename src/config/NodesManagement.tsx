@@ -60,7 +60,6 @@ export function NodesManagement () {
             if (mode === 'agent')
                 await config.add_agent_to_controller(host, Number(port), alias)
             if (idx < 0) { // 新增
-                await config.save_cluster_nodes([...node_strs, `${host}:${port}:${alias},${mode},${group}`,])
                 const add_node_arg = [host, new DdbInt(Number(port)), alias, true, mode]
                 if (group)
                     add_node_arg.push(group)
@@ -71,7 +70,10 @@ export function NodesManagement () {
                         model.message.success(t('新增节点成功，请到集群总览启动'))
                     } catch (err) {
                         model.message.error(t('新增节点失败，服务端报错：') + err.message)
+                        return
                     }
+                await config.save_cluster_nodes([...node_strs, `${host}:${port}:${alias},${mode},${group}`,])
+                
             }
             else  // 修改
                 if (changed_alias) 
