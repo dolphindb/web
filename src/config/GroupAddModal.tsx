@@ -25,7 +25,7 @@ export const GroupAddModal = NiceModal.create((props: { on_save: (form: { group_
     function validate (): boolean {
         if (group_name === '')
             return false
-        if (/[^a-zA-Z0-9\u4e00-\u9fa5]/.test(group_name))
+        if (/[^a-zA-Z0-9\u4e00-\u9fa5-_]/.test(group_name))
             return false
             
         for (const node of group_nodes) // 非空校验，并且别名必须包含 group_name
@@ -137,8 +137,8 @@ export const GroupAddModal = NiceModal.create((props: { on_save: (form: { group_
             {t('计算组名称')}
         </div>
         <div style={{ position: 'relative' }}>
-            <Input placeholder={t('请输入计算组名称')} status={(validating && (group_name === '' || /[^a-zA-Z0-9\u4e00-\u9fa5]/.test(group_name))) ? 'error' : undefined} value={group_name} onChange={e => { set_group_name(e.target.value) }} />
-            {validating && /[^a-zA-Z0-9\u4e00-\u9fa5]/.test(group_name) && <div className='validate-error-name'>
+            <Input placeholder={t('请输入计算组名称')} status={(validating && (group_name === '' || /[^a-zA-Z0-9\u4e00-\u9fa5-_]/.test(group_name))) ? 'error' : undefined} value={group_name} onChange={e => { set_group_name(e.target.value) }} />
+            {validating && /[^a-zA-Z0-9\u4e00-\u9fa5-_]/.test(group_name) && <div className='validate-error-name'>
                 {t('计算组名称不能包含特殊字符')}
             </div>}
         </div>
