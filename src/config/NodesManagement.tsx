@@ -263,7 +263,7 @@ function NodeTable ({ nodes, group, onSave, onDelete }: NodeTableProps) {
 
     function get_cols (is_group = false) {
     
-        const alias_rule: { required?: boolean, message?: string, pattern?: RegExp }[] = [{
+        const alias_rule: { required?: boolean, message?: string, validator?: (_: any, value: string) => Promise<void> }[] = [{
             required: true,
             message: t('请输入别名')
         }]
@@ -271,7 +271,11 @@ function NodeTable ({ nodes, group, onSave, onDelete }: NodeTableProps) {
         if (is_group)
             alias_rule.push(
                 {
-                    pattern: new RegExp(`^${group}`),
+                    validator: async (_, value) => {
+                        if (!value.startsWith(group))
+                            return Promise.reject(new Error(t('别名必须以组名 ') + group + t(' 开头')))
+                        return Promise.resolve()
+                    },
                     message: t('别名必须以组名 ') + group + t(' 开头')
                 }
             )
