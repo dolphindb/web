@@ -56,39 +56,50 @@ export function NodesManagement () {
         await mutate()
     }, [all_nodes])
     
-    async function save_node_impl ({ rowKey, host, port, alias, mode, group }, changed_alias = false) {
+    async function save_node_impl ({ rowKey, host, port, alias, mode, group }, changed_alias, is_add, old_alias) {
         try {
+            
+            // 1、检查别名是否重复
+            if ((changed_alias || is_add) && all_nodes.findIndex(node => node.alias === alias) >= 0) {
+                model.message.error(t('该节点别名已存在，无法修改或添加'))
+                throw new Error(t('该节点别名已存在，无法修改或添加'))
+            }
+            
             const node_strs = _2_strs(all_nodes)
-            let idx = all_nodes.findIndex(node => node.alias === alias)
-            // 代理节点先执行 addAgentToController 在线添加
-            if (mode === 'agent')
-                try {
-                    await config.add_agent_to_controller(host, Number(port), alias)
-                } catch (err) {
-                    model.message.error(t('新增节点失败，服务端报错：') + err.message)
-                    return
-                }
-            if (idx < 0) { // 新增
+            // 2、检查主机名和端口号是否重复
+            const duplicate = all_nodes.find(node => node.host === host && node.port === port)
+            // 如果找到重复的节点，除非找到的这个恰好就是我们正在修改的节点，否则报错
+            if (duplicate && !(old_alias === duplicate.alias)) {
+                message.error(t('集群中已存在主机名和端口号相同的节点'))
+                throw new Error(t('集群中已存在主机名和端口号相同的节点'))
+            }
+            
+            if (is_add) { // 新增
                 const add_node_arg = [host, new DdbInt(Number(port)), alias, true, mode]
                 if (group)
                     add_node_arg.push(group)
                 const perf = await model.get_cluster_perf(false)
-                if (perf.findIndex(node => node.name === alias) < 0)
-                    try {
-                        await model.ddb.call('addNode', add_node_arg)
-                        model.message.success(t('新增节点成功，请到集群总览启动'))
-                    } catch (err) {
-                        model.message.error(t('新增节点失败，服务端报错：') + err.message)
-                        return
-                    }
-                await config.save_cluster_nodes([...node_strs, `${host}:${port}:${alias},${mode},${group}`,])
-                
+                if (perf.findIndex(node => node.name === alias) < 0) // perf 里面没有相同别名的节点，才可以添加
+                    if (mode === 'agent')
+                        try {
+                            await config.add_agent_to_controller(host, Number(port), alias)
+                        } catch (err) {
+                            model.message.error(t('新增节点失败，服务端报错：') + err.message)
+                            throw new Error(t('新增节点失败，服务端报错：') + err.message)
+                        }
+                    else
+                        try {
+                            await model.ddb.call('addNode', add_node_arg)
+                            model.message.success(t('新增节点成功，请到集群总览启动'))
+                        } catch (err) {
+                            model.message.error(t('新增节点失败，服务端报错：') + err.message)
+                            throw new Error(t('新增节点失败，服务端报错：') + err.message)
+                        }        
+                await config.save_cluster_nodes([...node_strs, `${host}:${port}:${alias},${mode},${group}`,])    
             }
             else  // 修改
-                if (changed_alias) 
-                    model.message.error(t('该节点别名已存在，无法修改或添加'))
-                
-                else {
+                 {
+                    const idx = all_nodes.findIndex(node => node.alias === old_alias)
                     await config.save_cluster_nodes(node_strs.toSpliced(idx, 1, `${host}:${port}:${alias},${mode},${group}`))
                     model.message.success(t('保存成功，重启集群生效'))
                 }
@@ -99,6 +110,7 @@ export function NodesManagement () {
             // 数据校验不需要展示报错弹窗
             if (error instanceof DdbDatabaseError)
                 throw error
+            throw new Error(error)
         }
     }
     
@@ -255,7 +267,7 @@ export function NodesManagement () {
 interface NodeTableProps {
     nodes: ClusterNode[]
     group?: string
-    onSave: (params: any, changed_alias?: boolean) => Promise<void> // 如果节点名变了，需要特别检查是否有存在的别名
+    onSave: (params: any, changed_alias: boolean, is_add: boolean, old_alias: string) => Promise<void> // 如果节点名变了，需要特别检查是否有存在的别名
     onDelete: (nodeId: string) => Promise<void>
 }
 
@@ -418,8 +430,9 @@ function NodeTable ({ nodes, group, onSave, onDelete }: NodeTableProps) {
             {
                 type: 'single',
                 onSave: async (rowKey, { host, port, alias, mode }, originRow) => {
-                    const changed_alias = originRow.alias !== alias || originRow.alias === ''
-                    await onSave({ rowKey, host, port, alias, mode, group: group || '' }, changed_alias)
+                    const changed_alias = originRow.alias !== alias
+                    const is_add = originRow.alias === ''
+                    await onSave({ rowKey, host, port, alias, mode, group: group || '' }, changed_alias, is_add, originRow.alias)
                 },
                 onDelete: async (_, row) => onDelete(row.id),
                 deletePopconfirmMessage: t('确认删除此节点？'),
