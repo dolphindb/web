@@ -2,16 +2,20 @@ import { Model } from 'react-object-model'
 
 import {  model } from '@/model.ts'
 
-import type { Metric, Plan } from './type.ts'
+import type { Metric, Plan, PlanDetail } from './type.ts'
 
 class InspectionModel extends Model<InspectionModel> {
     inited = false
+    
+    metrics: Map<string, Metric> = new Map()
     
     async init () {
         await model.ddb.execute(
             'clearCachedModules()\n' +
             'use autoInspection'
         )
+        const metrics_obj = await inspection.get_metrics()
+        this.set({ metrics: new Map(metrics_obj.map(m => [ m.name, m ])) })
         this.set({ inited: true })
     }
     
@@ -26,6 +30,14 @@ class InspectionModel extends Model<InspectionModel> {
     
     async create_plan (plan: Plan) {
         await model.ddb.invoke('autoInspection::createPlan', Object.values(plan))
+    }
+    
+    async update_plan (plan: Plan) {
+        await model.ddb.invoke('autoInspection::updatePlan', Object.values(plan))
+    }
+    
+    async get_plan_detail (planId: string): Promise<PlanDetail[]> {
+        return (await model.ddb.invoke('autoInspection::getPlanDetails', [planId])).data
     }
     
     async get_reports () {

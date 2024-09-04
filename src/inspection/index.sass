@@ -17,13 +17,20 @@
         justify-content: space-between
         align-items: flex-end
 
-.add-inspection-modal
+.add-inspection-modal,
+.edit-inspection-modal
     .ant-table-cell
         padding: 6px 6px !important
     
     .inspection-form
         display: flex
         flex-direction: column
+        
+        .ellipsis
+            width: 120px
+            overflow: hidden
+            white-space: nowrap
+            text-overflow: ellipsis
         
         .inspection-form-inline
             display: flex

@@ -14,6 +14,7 @@ import { model } from '@/model.ts'
 import { addInspectionModal } from './addInspectionModal.tsx'
 import { inspection } from './model.tsx'
 import type { Plan } from './type.ts'
+import { editInspectionModal } from './editInspectionModal.tsx'
 
 
 export function Inspection () {
@@ -93,8 +94,7 @@ function InspectionResultTable  () {
     const { data: reports } = useSWR('get_reports', inspection.get_reports)
     
     return <div>
-        <h2>{t('巡检结果')}</h2>
-        <Table dataSource={reports} columns={cols} />
+        <Table title={() => <h2>{t('巡检结果')}</h2>} dataSource={reports} columns={cols} />
     </div>
 }
 
@@ -153,38 +153,45 @@ function InspectionPlanTable  ({
             title: '操作',
             dataIndex: 'action',
             key: 'action',
-            render: (_, record) => <Popconfirm 
-                                        title={t('删除方案')} 
-                                        description={t('确认删除此巡检方案吗？')} 
-                                        onConfirm={async () => {
-                                            await inspection.delete_plans([record.id])
-                                            model.message.success(t('删除成功'))
-                                            mutate_plans()
-                                        }} >
-                                        <Button type='text' danger >{t('删除')}</Button>
-                                    </Popconfirm> 
+            render: (_, record) => 
+                <>
+                    <Button 
+                        type='link'
+                        onClick={async () => NiceModal.show(editInspectionModal, { plan: record, mutate_plans })}
+                    >
+                        {t('修改')}
+                    </Button>
+                    <Popconfirm 
+                        title={t('删除方案')} 
+                        description={t('确认删除此巡检方案吗？')} 
+                        onConfirm={async () => {
+                            await inspection.delete_plans([record.id])
+                            model.message.success(t('删除成功'))
+                            mutate_plans()
+                        }} >
+                        <Button type='text' danger >{t('删除')}</Button>
+                    </Popconfirm> 
+                </>
         },
     ], [ ])
     
-    return <div>
-        
-        <Table
-            title={() => <div className='table-header'>
-                            <h2>{t('巡检方案')}</h2>
-                            <Popconfirm   
-                                title={t('批量删除巡检方案')} 
-                                description={t('确认删除选种的巡检方案吗？')} 
-                                onConfirm={async () => {
-                                    await inspection.delete_plans(ids)
-                                    model.message.success(t('批量删除成功'))
-                                    mutate_plans()
-                                }} >
-                                    <Button danger disabled={ids.length === 0}>{t('批量删除')}</Button>
-                            </Popconfirm>
-                        </div>}
+    return <Table
+            title={() => 
+                <div className='table-header'>
+                    <h2>{t('巡检方案')}</h2>
+                    <Popconfirm   
+                        title={t('批量删除巡检方案')} 
+                        description={t('确认删除选种的巡检方案吗？')} 
+                        onConfirm={async () => {
+                            await inspection.delete_plans(ids)
+                            model.message.success(t('批量删除成功'))
+                            mutate_plans()
+                        }} >
+                            <Button danger disabled={ids.length === 0}>{t('批量删除')}</Button>
+                    </Popconfirm>
+                </div>}
             rowSelection={{ type: 'checkbox', selectedRowKeys: ids, onChange: set_ids }}
             rowKey='id' 
             dataSource={plans} 
-            columns={cols} />
-    </div>
+            columns={cols} />        
 }
