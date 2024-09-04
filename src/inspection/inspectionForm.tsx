@@ -75,7 +75,7 @@ export function InspectionForm ({
         try {
             const new_plan =  
                 {   
-                    id: is_editing ? plan.id : 'a' + String(genid()),
+                    id: is_editing ? plan.id : values.desc,
                     desc: values.desc,
                     metrics: metrics.map(({ name }) => name),
                     nodes: metrics.map(({ nodes }) => nodes.length ? nodes : null),
@@ -127,7 +127,7 @@ export function InspectionForm ({
                         pattern: /^[A-Za-z].*$/,
                         message: t('巡检 ID 需以字母开头'),
                     },]}>
-                <Input/>
+                <Input disabled={is_editing}/>
             </Form.Item>
             <div className='metric-table'>
                 <h3>{t('指标列表')}</h3>
