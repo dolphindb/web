@@ -62,7 +62,12 @@ export function NodesManagement () {
             let idx = all_nodes.findIndex(node => node.alias === alias)
             // 代理节点先执行 addAgentToController 在线添加
             if (mode === 'agent')
-                await config.add_agent_to_controller(host, Number(port), alias)
+                try {
+                    await config.add_agent_to_controller(host, Number(port), alias)
+                } catch (err) {
+                    model.message.error(t('新增节点失败，服务端报错：') + err.message)
+                    return
+                }
             if (idx < 0) { // 新增
                 const add_node_arg = [host, new DdbInt(Number(port)), alias, true, mode]
                 if (group)
