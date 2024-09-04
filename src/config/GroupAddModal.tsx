@@ -1,5 +1,5 @@
 import NiceModal from '@ebay/nice-modal-react'
-import { AutoComplete, Button, Input, message, Modal, Table, type TableProps } from 'antd'
+import { AutoComplete, Button, Input, message, Modal, Popover, Table, Tooltip, type TableProps } from 'antd'
 
 import { useCallback, useState } from 'react'
 
@@ -82,9 +82,22 @@ export const GroupAddModal = NiceModal.create((props: { on_save: (form: { group_
     const group_nodes_columns: TableProps<GroupNodesDatatype>['columns'] = [
         {
             title: t('别名'), key: 'alias', render: (_, { key, alias }) => {
+                const isError = validating && (alias === '' || !alias.startsWith(group_name))
                 return <div>
-                    <Input status={(validating && (alias === '' || !alias.startsWith(group_name))) ? 'error' : undefined} placeholder={t('请输入别名')} value={alias} onChange={e => { update_group_node_by_field(key, 'alias', e.target.value) }} />
-                    {validating && !alias.startsWith(group_name) && <p className='validate-error'>{t('别名必须以组名')} {group_name} {t('开头')}</p>}
+                    <Tooltip
+                        title={<span className='validate-error-node'>{t('别名必须以组名')} {group_name} {t('开头')}</span>}
+                        placement='topLeft'
+                        open={isError ? undefined : false}
+                        color='white'
+                        trigger='focus'
+                    >
+                        <Input
+                            status={isError ? 'error' : undefined}
+                            placeholder={t('请输入别名')}
+                            value={alias}
+                            onChange={e => { update_group_node_by_field(key, 'alias', e.target.value) }}
+                        />
+                    </Tooltip>
                 </div>
             }
         },
