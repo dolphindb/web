@@ -35,3 +35,26 @@ export interface Plan {
     desc: string 
     runNow?: boolean
 }
+
+export interface PlanReport {
+    id: string
+    planId: string
+    desc: string
+    user: string
+    startTime: string
+    endTime: string
+    success: boolean
+}
+
+
+export interface PlanReportDetail {
+    reportId: string
+    metricName: string
+    metricVersion: string
+    nodes: string
+    startTime: string
+    endTime: string
+    detail: string
+    suggestion: string
+    success: boolean
+}

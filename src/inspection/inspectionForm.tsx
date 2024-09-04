@@ -67,6 +67,39 @@ export function InspectionForm ({
     
     const [inspection_form] = Form.useForm<Pick<Plan, 'desc' | 'frequency' | 'days' | 'scheduleTime'> >()
     
+    async function on_save  (run_now: boolean) {
+        const values = await inspection_form.validateFields()
+        const metrics = Array.from(metrics_with_nodes.values()).filter(({ checked }) => checked)
+        if (!verify_metrics())
+            return
+        try {
+            const new_plan =  
+                {   
+                    id: is_editing ? plan.id : 'a' + String(genid()),
+                    desc: values.desc,
+                    metrics: metrics.map(({ name }) => name),
+                    nodes: metrics.map(({ nodes }) => nodes.length ? nodes : null),
+                    params: new Array(metrics.length).fill('1'),
+                    frequency: values.frequency,
+                    days: (values.days as number[]).map(Number),                                
+                    scheduleTime: (values.scheduleTime as Dayjs).format('HH:mm') + 'm', 
+                    ... is_editing ? {  } : { runNow: run_now }
+                }
+            if (is_editing)
+                await inspection.update_plan(new_plan)
+            else
+                await inspection.create_plan(new_plan)
+            model.message.success(is_editing ? t('修改成功') : t('创建成功'))
+            mutate_plans()
+            mutate_plan_detail()
+            close()
+        } catch (error) {
+            model.show_error({ error })
+        }
+    }
+    
+    
+    
     return <div className='inspection-form'>
         <h3>{t('指标列表')}</h3>
         <MetricTable
@@ -134,40 +167,10 @@ export function InspectionForm ({
         <div className='inspection-form-footer'>
             <Button onClick={close}>{t('取消')}</Button>
             <Tooltip title={t('保存当前方案并立即执行一次巡检')}>
-                <Button type='primary'>{t('立即巡检')}</Button>
+                <Button type='primary'  onClick={async () => on_save(true)}>{t('立即巡检')}</Button>
             </Tooltip>
             <Tooltip title={t('保存当前方案')}>
-                <Button type='primary' onClick={async () => {
-                    const values = await inspection_form.validateFields()
-                    const metrics = Array.from(metrics_with_nodes.values()).filter(({ checked }) => checked)
-                    if (!verify_metrics())
-                        return
-                    try {
-                        const new_plan =  
-                            {   
-                                id: is_editing ? plan.id : String(genid()),
-                                desc: values.desc,
-                                metrics: metrics.map(({ name }) => name),
-                                nodes: metrics.map(({ nodes }) => nodes.length ? nodes : null),
-                                params: new Array(metrics.length).fill('1'),
-                                frequency: values.frequency,
-                                days: (values.days as number[]).map(Number),                                
-                                scheduleTime: (values.scheduleTime as Dayjs).format('HH:mm') + 'm', 
-                                ... is_editing ? {  } : { runNow: false }
-                            }
-                        if (is_editing)
-                            await inspection.update_plan(new_plan)
-                        else
-                            await inspection.create_plan(new_plan)
-                        model.message.success(is_editing ? t('修改成功') : t('创建成功'))
-                        mutate_plans()
-                        mutate_plan_detail()
-                        close()
-                    } catch (error) {
-                        model.show_error({ error })
-                    }
-                   
-                }}>{t('保存')}</Button>
+                <Button type='primary' onClick={async () => on_save(false)}>{t('保存')}</Button>
             </Tooltip>
         </div>
         

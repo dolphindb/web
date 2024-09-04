@@ -13,8 +13,9 @@ import { model } from '@/model.ts'
 
 import { addInspectionModal } from './addInspectionModal.tsx'
 import { inspection } from './model.tsx'
-import type { Plan } from './type.ts'
+import type { Plan, PlanReport } from './type.ts'
 import { editInspectionModal } from './editInspectionModal.tsx'
+import { reportDetailModal } from './reportDetailModal.tsx'
 
 
 export function Inspection () {
@@ -30,8 +31,8 @@ export function Inspection () {
     
     return <div>
         <InspectionHeader mutate_plans={mutate_plans}/>
-        <InspectionResultTable/>
-        <InspectionPlanTable plans={plans} mutate_plans={mutate_plans}/>
+        <ReportListTable/>
+        <PlanListTable plans={plans} mutate_plans={mutate_plans}/>
     </div>
 }
 
@@ -50,9 +51,9 @@ function InspectionHeader ({
     </div>
 }
 
-function InspectionResultTable  () {
+function ReportListTable  () {
     
-    const cols: TableColumnsType = useMemo(() => [ 
+    const cols: TableColumnsType<PlanReport> = useMemo(() => [ 
         {
             title: 'ID',
             dataIndex: 'id',
@@ -82,12 +83,20 @@ function InspectionResultTable  () {
             title: '结果',
             dataIndex: 'success',
             key: 'success',
-            render: ( success: boolean ) => success ? <CheckOutlined color='green'/> : <CloseOutlined color='red'/>
+            render: ( success: boolean ) => success ? <CheckOutlined className='green'/> : <CloseOutlined className='red'/>
         },
         {
             title: '操作',
             dataIndex: 'action',
             key: 'action',
+            render: (_, record) => <Button 
+                        type='link'
+                        onClick={async () => NiceModal.show(reportDetailModal, { report: record })}
+                    >
+                        {t('查看详细报告')}
+                    </Button>
+               
+                
         },
     ], [ ])
     
@@ -98,7 +107,7 @@ function InspectionResultTable  () {
     </div>
 }
 
-function InspectionPlanTable  ({
+function PlanListTable  ({
     plans,
     mutate_plans
 }: {
