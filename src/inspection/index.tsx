@@ -22,6 +22,8 @@ export function Inspection () {
     
     const { inited } = inspection.use(['inited'])
     
+    const [seatch_key, set_search_key ] = useState('')
+    
     const { data: plans, mutate: mutate_plans } = useSWR([inited, 'get_plans'], async () => {
         if (inited) 
             return inspection.get_plans()
@@ -29,29 +31,46 @@ export function Inspection () {
             inspection.init()
     })
     
+    const { data: reports, mutate: mutate_reports } = useSWR('get_reports', async () =>  inspection.get_reports())
+    
+    function refresh () {
+        mutate_plans()
+        mutate_reports()
+    }
+    
+    
     return <div>
-        <InspectionHeader mutate_plans={mutate_plans}/>
-        <ReportListTable/>
-        <PlanListTable plans={plans} mutate_plans={mutate_plans}/>
+        <InspectionHeader refresh={refresh} set_search_key={set_search_key}/>
+        <ReportListTable reports={reports?.filter(report => report.id.includes(seatch_key))}/>
+        <PlanListTable plans={plans?.filter(plan => plan.id.includes(seatch_key))} mutate_plans={mutate_plans}/>
     </div>
 }
 
 function InspectionHeader ({
-    mutate_plans
+    refresh,
+    set_search_key
 }: {
-    mutate_plans: () => void
+    refresh: () => void
+    set_search_key: (str: string) => void
 }) {
     
     return <div className='inspection-header'>
         <div className='inspection-header-left'>
-            <Button>{t('刷新')}</Button>
-            <Input.Search placeholder={t('搜索')} className='inspection-search'/>
+            <Button onClick={() => {
+                refresh()
+                model.message.success(t('刷新成功'))
+            }}>{t('刷新')}</Button>
+            <Input.Search placeholder={t('搜索')} onSearch={set_search_key} className='inspection-search'/>
         </div>
-        <Button onClick={async () => NiceModal.show(addInspectionModal, { mutate_plans })}>{t('新增巡检')}</Button>
+        <Button onClick={async () => NiceModal.show(addInspectionModal, { refresh })}>{t('新增巡检')}</Button>
     </div>
 }
 
-function ReportListTable  () {
+function ReportListTable  ({
+    reports,
+}: {
+    reports: PlanReport[]
+}) {
     
     const cols: TableColumnsType<PlanReport> = useMemo(() => [ 
         {
@@ -99,8 +118,6 @@ function ReportListTable  () {
                 
         },
     ], [ ])
-    
-    const { data: reports } = useSWR('get_reports', inspection.get_reports)
     
     return <div>
         <Table title={() => <h2>{t('巡检结果')}</h2>} dataSource={reports} columns={cols} />

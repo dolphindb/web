@@ -2,7 +2,7 @@ import { Model } from 'react-object-model'
 
 import {  model } from '@/model.ts'
 
-import type { Metric, Plan, PlanDetail, PlanReportDetail } from './type.ts'
+import type { Metric, Plan, PlanDetail, PlanReport, PlanReportDetail } from './type.ts'
 
 class InspectionModel extends Model<InspectionModel> {
     inited = false
@@ -40,7 +40,7 @@ class InspectionModel extends Model<InspectionModel> {
         return (await model.ddb.invoke('autoInspection::getPlanDetails', [planId])).data
     }
     
-    async get_reports () {
+    async get_reports (): Promise<PlanReport[]> {
         return (await model.ddb.invoke('autoInspection::getReports', [ ])).data
     }
     

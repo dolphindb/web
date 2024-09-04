@@ -15,11 +15,11 @@ import { parse_minute } from './utils.ts'
 
 export function InspectionForm ({ 
     close, 
-    mutate_plans, 
+    refresh, 
     plan = null
 }: { 
     close: () => void
-    mutate_plans: () => void
+    refresh: () => void
     plan?: Plan 
 }) {
     
@@ -79,7 +79,7 @@ export function InspectionForm ({
                     desc: values.desc,
                     metrics: metrics.map(({ name }) => name),
                     nodes: metrics.map(({ nodes }) => nodes.length ? nodes : null),
-                    params: new Array(metrics.length).fill('1'),
+                    params: new Array(metrics.length).fill(null),
                     frequency: values.frequency,
                     days: (values.days as number[]).map(Number),                                
                     scheduleTime: (values.scheduleTime as Dayjs).format('HH:mm') + 'm', 
@@ -90,7 +90,7 @@ export function InspectionForm ({
             else
                 await inspection.create_plan(new_plan)
             model.message.success(is_editing ? t('修改成功') : t('创建成功'))
-            mutate_plans()
+            refresh()
             mutate_plan_detail()
             close()
         } catch (error) {
@@ -101,16 +101,10 @@ export function InspectionForm ({
     
     
     return <div className='inspection-form'>
-        <h3>{t('指标列表')}</h3>
-        <MetricTable
-            checked_metrics={metrics_with_nodes} 
-            set_checked_metrics={set_metrics_with_nodes}
-        />
-        
-        <h3>{t('巡检周期')}</h3>
         <Form 
             className='inspection-form-inline' 
-            form={inspection_form} 
+            form={inspection_form}
+            requiredMark={false}
             initialValues={plan ? 
                 { 
                     ...plan,
@@ -123,8 +117,28 @@ export function InspectionForm ({
                     days: [1], 
                     desc: t('巡检描述') 
                 }}>
+            <Form.Item 
+                name='id' 
+                layout='vertical'
+                label={<h3>{t('巡检 ID')}</h3>} 
+                rules={[
+                    { required: true, message: t('请输入巡检 ID') }, 
+                    {
+                        pattern: /^[A-Za-z].*$/,
+                        message: t('巡检 ID 需以字母开头'),
+                    },]}>
+                <Input/>
+            </Form.Item>
+            <div className='metric-table'>
+                <h3>{t('指标列表')}</h3>
+                <MetricTable
+                    checked_metrics={metrics_with_nodes} 
+                    set_checked_metrics={set_metrics_with_nodes}
+                />
+            </div>
+            <h3>{t('巡检周期')}</h3>
             <div className='inspection-form-inline-time'>
-                <Form.Item label={t('巡检频率')} name='frequency'>
+                <Form.Item label={t('巡检频率')} name='frequency' required>
                     <Select 
                         options={inspectionFrequencyOptions} 
                     />
@@ -137,7 +151,7 @@ export function InspectionForm ({
                     {
                         ({ getFieldValue }) => {
                             const frequency = getFieldValue('frequency')
-                            return <Form.Item name='days'>
+                            return <Form.Item name='days' rules={[{ required: true, message: t('请选择巡检日期') }]}>
                                     <Select
                                         mode='multiple'
                                         className='date-select'
@@ -152,12 +166,12 @@ export function InspectionForm ({
                     }
                 </Form.Item>
                 
-                <Form.Item label={t('巡检时间')} name='scheduleTime'>
+                <Form.Item label={t('巡检时间')} name='scheduleTime' rules={[{ required: true, message: t('请选择巡检时间') }]}>
                     <TimePicker format='HH:mm:ss'/>
                 </Form.Item>
             </div>
         
-            <Form.Item name='desc' layout='vertical' label={<h3>{t('巡检计划描述')}</h3>} style={{ display: 'block' }}>
+            <Form.Item name='desc' layout='vertical' label={<h3>{t('巡检计划描述')}</h3>} rules={[{ required: true, message: t('请输入巡检计划描述') }]}>
                 <Input/>
             </Form.Item>
             
@@ -186,8 +200,6 @@ function MetricTable ({
     checked_metrics: Map<string, MetricsWithNodes>
     set_checked_metrics: (metrics: Map<string, MetricsWithNodes>) => void
 }) {
-    console.log('🚀 ~ checked_metrics:', checked_metrics.values())
-    
     const { metrics } = inspection.use(['metrics'])
     
     const cols: TableColumnsType = useMemo(() => [ 
@@ -230,7 +242,6 @@ function MetricTable ({
             key: 'nodes',
             render: (nodesstr: string, record: Metric) => nodesstr && checked_metrics.size ? 
                     <Select 
-                        
                         mode='multiple' 
                         className='nodes-select'
                         value={checked_metrics.get(record.name).nodes}

@@ -29,7 +29,7 @@ export const editInspectionModal = NiceModal.create((
     >
         <InspectionForm 
             close={modal.hide} 
-            mutate_plans={mutate_plans}
+            refresh={mutate_plans}
             plan={plan}
         />
     </Modal>

@@ -1,6 +1,6 @@
 import NiceModal, { useModal } from '@ebay/nice-modal-react'
 import { t } from '@i18n/index.ts'
-import { Modal, Table, type TableColumnsType } from 'antd'
+import { Descriptions, Modal, Table, type TableColumnsType } from 'antd'
 import useSWR from 'swr'
 
 import { useMemo } from 'react'
@@ -9,6 +9,7 @@ import { CheckOutlined, CloseOutlined } from '@ant-design/icons'
 
 import type { PlanReport, PlanReportDetail } from './type.ts'
 import { inspection } from './model.tsx'
+import { reportLables } from './constants.ts'
 
 export const reportDetailModal = NiceModal.create((
 { 
@@ -19,7 +20,8 @@ export const reportDetailModal = NiceModal.create((
 }) => {
         
     const { data: plan_report_detail } = useSWR([report, 'get_report_detail'],  async () =>  inspection.get_report_detail(report.id))
-    const modal = useModal()   
+    const modal = useModal()
+    
     return <Modal
         className='report-detail-modal'       
         width='80%'    
@@ -27,17 +29,21 @@ export const reportDetailModal = NiceModal.create((
         afterClose={modal.remove}
         onCancel={modal.hide}
         footer={null}
-        title={t('巡检报告')}
+        title={t('{{report_id}} 巡检报告', { report_id: report.id })}
     >
-        <ReportDetailTable plan_report_detail={plan_report_detail}/>
+        <Descriptions column={4} items={Object.entries(reportLables).map(([key, value]) => ({ key, label: value, children: report[key] }))} />
+        {plan_report_detail && plan_report_detail.some(({ success }) => !success) && <ReportDetailTable title={t('异常指标列表')} plan_report_detail={plan_report_detail.filter(({ success }) => !success)}/>}
+        {plan_report_detail && plan_report_detail.some(({ success }) => success) && <ReportDetailTable title={t('正常指标列表')} plan_report_detail={plan_report_detail.filter(({ success }) => success)}/>}
     </Modal>
 })
 
 
 function ReportDetailTable  (
     {
+        title,
         plan_report_detail
     }: {
+        title: string
         plan_report_detail: PlanReportDetail[]
     }
 ) {
@@ -88,5 +94,10 @@ function ReportDetailTable  (
     ], [ ])
     
     
-    return <Table dataSource={plan_report_detail} columns={cols} />
+    return <Table 
+                title={() => <h3>{title}</h3>}
+                dataSource={plan_report_detail} 
+                columns={cols} 
+                pagination={false}
+                />
 }
