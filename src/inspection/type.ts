@@ -47,14 +47,29 @@ export interface PlanReport {
 }
 
 
-export interface PlanReportDetail {
+export interface PlanReportDetailMetric {
     reportId: string
     metricName: string
     metricVersion: string
+    desc: string
     nodes: string
     startTime: string
     endTime: string
+    runingTime: number
+    success: boolean
+    detail_nodes: PlanReportDetailNode[]
+}
+
+
+export interface PlanReportDetailNode {
+    reportId: string
+    metricName: string
+    metricVersion: string
+    node: string
+    startTime: string
+    endTime: string
+    runingTime: number
+    success: boolean
     detail: string
     suggestion: string
-    success: boolean
 }

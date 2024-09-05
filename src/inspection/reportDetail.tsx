@@ -1,10 +1,6 @@
 import { t } from '@i18n/index.ts'
-import { Button, Descriptions, Table, type TableColumnsType } from 'antd'
+import { Button, Descriptions, Table, Typography } from 'antd'
 import useSWR from 'swr'
-
-import { useMemo } from 'react'
-
-import { CheckOutlined, CloseOutlined } from '@ant-design/icons'
 
 import html2canvas from 'html2canvas'
 
@@ -12,17 +8,35 @@ import jsPDF from 'jspdf'
 
 import { model } from '@/model.ts'
 
-import type {  PlanReportDetail } from './type.ts'
+import type {  PlanReportDetailMetric } from './type.ts'
 import { inspection } from './model.tsx'
 import { reportLables } from './constants.ts'
+import { FailedStatus, SuccessStatus } from './index.tsx'
 
+const { Title } = Typography
 
 export function ReportDetailPage () {
 
     const { current_report } = inspection.use(['current_report'])
     
-    const { data: plan_report_detail } = useSWR([current_report, 'get_report_detail'],  async () =>  inspection.get_report_detail(current_report.id))
-    
+    const { data: plan_report_detail } = useSWR([current_report, 'get_report_detail_metrics'],  async () => {
+        const metrics =  await inspection.get_report_detail_metrics(current_report.id)
+        const nodes = await inspection.get_report_detail_nodes(current_report.id)
+        let metrics_map = new Map<string, PlanReportDetailMetric>()
+        metrics.forEach(m => metrics_map.set(m.metricName, { ...m, detail_nodes: [ ] }))
+        nodes.forEach(node => {
+            let { metricName } = node
+            const current_metric = metrics_map.get(metricName)
+            metrics_map.set(metricName, {
+                ...current_metric,
+                detail_nodes: [...current_metric.detail_nodes, node]
+            })
+        })
+        const failures = Array.from(metrics_map.values()).filter(m => !m.success)
+        const successes = Array.from(metrics_map.values()).filter(m => m.success)
+        return { successes, failures }
+    })
+   
     async function export_report  () {
         const element = document.getElementById('report-detail-content')
         if (!element)
@@ -80,73 +94,93 @@ export function ReportDetailPage () {
         <div id='report-detail-content'>
             <h1>{t('{{report_id}} 巡检报告', { report_id: current_report.id })}</h1>
             <Descriptions column={4} items={Object.entries(reportLables).map(([key, value]) => ({ key, label: value, children: current_report[key] }))} />
-            {plan_report_detail && plan_report_detail.some(({ success }) => !success) && <ReportDetailTable title={t('异常指标列表')} plan_report_detail={plan_report_detail.filter(({ success }) => !success)}/>}
-            {plan_report_detail && plan_report_detail && plan_report_detail.some(({ success }) => success) && <ReportDetailTable title={t('正常指标列表')} plan_report_detail={plan_report_detail.filter(({ success }) => success)}/>}
+            
+            {   Boolean(plan_report_detail?.failures?.length) &&
+                <>
+                    <h2 className='red'>{t('异常指标列表')}</h2>
+                    {
+                        plan_report_detail.failures.
+                        map(metric => <DetailDescription key={metric.metricName} metric={metric}/>)
+                    }
+                </>
+                    
+            }
+           
+            {  Boolean(plan_report_detail?.successes?.length) &&
+                <>
+                    <h2 className='green'>{t('正常指标列表')}</h2>
+                    {
+                        plan_report_detail.successes.
+                        map(metric => <DetailDescription key={metric.metricName} metric={metric}/>)
+                    }
+                </>
+                   
+            }
         </div>
     </div>
 }
 
-
-function ReportDetailTable  (
-    {
-        title,
-        plan_report_detail
-    }: {
-        title: string
-        plan_report_detail: PlanReportDetail[]
-    }
-) {
-    
-    const cols: TableColumnsType<PlanReportDetail> = useMemo(() => [ 
+function DetailDescription ({
+    metric,
+}: {
+    metric: PlanReportDetailMetric
+}) {
+    return <Typography key={metric.metricName}>
+    <Title level={4}>{metric.desc}</Title>
         {
-            title: '指标名',
-            dataIndex: 'metricName',
-            key: 'metricName',
-        },
-        {
-            title: '指标版本',
-            dataIndex: 'metricVersion',
-            key: 'metricVersion',
-        },
-        {
-            title: '节点',
-            dataIndex: 'node',
-            key: 'node',
-        },
-        {
-            title: '开始时间',
-            dataIndex: 'startTime',
-            key: 'startTime',
-        },
-        {
-            title: '结束时间',
-            dataIndex: 'endTime',
-            key: 'endTime',
-        },
-        {
-            title: '结果',
-            dataIndex: 'success',
-            key: 'success',
-            render: ( success: boolean ) => success ? <CheckOutlined className='green'/> : <CloseOutlined className='red'/>
-        },
-        {
-            title: '详细结果',
-            dataIndex: 'detail',
-            key: 'detail',
-        },
-        {
-            title: '建议',
-            dataIndex: 'suggestion',
-            key: 'suggestion',
-        },
-       
-    ], [ ])
-    
-    
-    return <Table 
-                title={() => <h3>{title}</h3>}
-                dataSource={plan_report_detail} 
-                columns={cols} 
-                pagination={false}
+            metric.detail_nodes.map(n => <div
+                key={n.node}
+            >
+                <Title level={5}>{n.node}</Title>
+                <Descriptions
+                    bordered     
+                    column={3}
+                    items={[ {
+                        key: 'startTime',
+                        label:  t('开始时间'),
+                        children: n.startTime,
+                    },
+                    {
+                        key: 'endTime',
+                        label: t('结束时间'),
+                        children: n.endTime,
+                    },
+                    {
+                        key: 'success',
+                        label: t('是否正常'),
+                        children: n.success ? SuccessStatus : FailedStatus,
+                    },
+                    {
+                        key: 'detail',
+                        label: t('详情'),
+                        children: <DetailTable content={n.detail}/>,
+                        span: 3,
+                    },
+                    {
+                        key: 'suggestion',
+                        label: t('建议'),
+                        children: n.suggestion,
+                        span: 3,
+                    }]}
                 />
+            </div>)
+        }
+    </Typography>
 }
+
+function DetailTable ({
+   content 
+}: {
+    content: string
+}) {
+    const ds = JSON.parse(content)
+    return Array.isArray(ds) 
+        ? 
+        <Table 
+            columns={Object.keys(ds[0]).map(k => ({ title: k, dataIndex: k, key: k }))} 
+            dataSource={ds}
+            pagination={false}
+        /> 
+    : ds    
+}
+

@@ -2,12 +2,14 @@ import NiceModal from '@ebay/nice-modal-react'
 import './index.sass'
 
 import { t } from '@i18n/index.ts'
-import { Button, Input, Popconfirm, Table, type TableColumnsType } from 'antd'
+import { Button, Input, Popconfirm, Table, DatePicker, type TableColumnsType } from 'antd'
 import { useMemo, useState } from 'react'
 
 import useSWR from 'swr'
 
 import { CheckOutlined, CloseOutlined } from '@ant-design/icons'
+
+import type { Dayjs } from 'dayjs'
 
 import { model } from '@/model.ts'
 
@@ -24,29 +26,25 @@ export function Inspection () {
     
     const [seatch_key, set_search_key ] = useState('')
     
-    const [report_limit, set_report_limit] = useState(5)
-    const [report_page, set_report_page] = useState(1)
-    
-    const [plan_limit, set_plan_limit] = useState(5)
-    const [plan_page, set_plan_page] = useState(5)
-    
-    const { data: plans, mutate: mutate_plans } = useSWR([inited, 'get_plans', plan_limit, plan_page], async () => {
+    const { data: plans, mutate: mutate_plans } = useSWR([inited, 'get_plans'], async () => {
         if (inited) 
             return inspection.get_plans()
          else 
             inspection.init()
     })
     
-    const { data: reports, mutate: mutate_reports } = useSWR([inited, 'get_reports', report_limit, report_page], async () =>  {
-        if (inited)
-            return inspection.get_reports()
-        else
+    const [dates, set_dates] = useState<[Dayjs | null, Dayjs | null] | null>([ null, null ])
+    
+    const { data: reports, mutate: mutate_reports } = useSWR([inited, 'get_reports', dates], async () =>  {
+        if (inited) 
+            return inspection.get_reports(dates.map(d => d && d.format('YYYY-MM-DD')))
+        else 
             inspection.init()
     })
     
     function refresh () {
-        set_report_page(1)
-        set_plan_page(1)
+        mutate_plans()
+        mutate_reports()
     }
     
     
@@ -61,15 +59,19 @@ export function Inspection () {
             </div>
             <Button onClick={async () => NiceModal.show(addInspectionModal, { refresh })}>{t('新增巡检')}</Button>
         </div>
-        <ReportListTable reports={reports?.filter(report => report.id.includes(seatch_key))}/>
+        <ReportListTable reports={reports?.filter(report => report.id.includes(seatch_key))} dates={dates} set_dates={set_dates}/>
         <PlanListTable plans={plans?.filter(plan => plan.id.includes(seatch_key))} mutate_plans={mutate_plans}/>
     </div>
 }
 
 function ReportListTable  ({
     reports,
+    dates,
+    set_dates
 }: {
     reports: PlanReport[]
+    dates: [Dayjs | null, Dayjs | null]
+    set_dates: (dates: [Dayjs | null, Dayjs | null]) => void
 }) {
     
     const cols: TableColumnsType<PlanReport> = useMemo(() => [ 
@@ -102,7 +104,7 @@ function ReportListTable  ({
             title: '结果',
             dataIndex: 'success',
             key: 'success',
-            render: ( success: boolean ) => success ? <CheckOutlined className='green'/> : <CloseOutlined className='red'/>
+            render: ( success: boolean ) => success ? SuccessStatus : FailedStatus
         },
         {
             title: '操作',
@@ -119,7 +121,13 @@ function ReportListTable  ({
         },
     ], [ ])
     
-    return <Table title={() => <h2>{t('巡检结果')}</h2>} dataSource={reports} columns={cols} />
+    return <Table 
+        title={() => <div className='report-table-header'>
+            <h2>{t('巡检结果')}</h2>
+            <DatePicker.RangePicker value={dates} onChange={set_dates} showTime placeholder={[t('开始时间'), t('结束时间')]}/>
+        </div>} 
+        dataSource={reports} 
+        columns={cols} />
 }
 
 function PlanListTable  ({
@@ -201,7 +209,7 @@ function PlanListTable  ({
     
     return <Table
             title={() => 
-                <div className='table-header'>
+                <div className='plan-table-header'>
                     <h2>{t('巡检方案')}</h2>
                     <Popconfirm   
                         title={t('批量删除巡检方案')} 
@@ -219,3 +227,6 @@ function PlanListTable  ({
             dataSource={plans} 
             columns={cols} />        
 }
+
+export const SuccessStatus = <CheckOutlined className='green'/>
+export const FailedStatus = <CloseOutlined className='red'/>

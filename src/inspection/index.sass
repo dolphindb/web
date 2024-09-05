@@ -15,11 +15,16 @@
         padding: 4px 4px !important
         
     
-    .table-header
+    .plan-table-header
         display: flex
         justify-content: space-between
         align-items: flex-end
-    
+        
+    .report-table-header
+        display: flex
+        column-gap: 20px
+        align-items: center
+        
     .green
         color: #6ED86C
 
@@ -31,6 +36,13 @@
             display: flex
             justify-content: space-between
             align-items: flex-end
+        
+        .ant-descriptions-item-label,.ant-descriptions-item-content
+            padding: 6px !important
+        
+        .ant-descriptions-item-label
+            font-weight: bold
+            min-width: 120px
         
 
 .add-inspection-modal,
@@ -83,9 +95,3 @@
             margin-top: 40px
             align-self: flex-end
             
-.report-detail-modal
-    .green
-        color: #6ED86C
-
-    .red
-        color: #EE0000
