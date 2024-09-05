@@ -37,7 +37,7 @@ export function Inspection () {
     
     const { data: reports, mutate: mutate_reports } = useSWR([inited, 'get_reports', dates], async () =>  {
         if (inited) 
-            return inspection.get_reports(dates.map(d => d && d.format('YYYY-MM-DD')))
+            return inspection.get_reports(dates.map(d => d && d.format('YYYY-MM-DD HH:mm:ss')))
         else 
             inspection.init()
     })
@@ -208,24 +208,24 @@ function PlanListTable  ({
     ], [ ])
     
     return <Table
-            title={() => 
-                <div className='plan-table-header'>
-                    <h2>{t('巡检方案')}</h2>
-                    <Popconfirm   
-                        title={t('批量删除巡检方案')} 
-                        description={t('确认删除选种的巡检方案吗？')} 
-                        onConfirm={async () => {
-                            await inspection.delete_plans(ids)
-                            model.message.success(t('批量删除成功'))
-                            mutate_plans()
-                        }} >
-                            <Button danger disabled={ids.length === 0}>{t('批量删除')}</Button>
-                    </Popconfirm>
-                </div>}
-            rowSelection={{ type: 'checkbox', selectedRowKeys: ids, onChange: set_ids }}
-            rowKey='id' 
-            dataSource={plans} 
-            columns={cols} />        
+                title={() => 
+                    <div className='plan-table-header'>
+                        <h2>{t('巡检方案')}</h2>
+                        <Popconfirm   
+                            title={t('批量删除巡检方案')} 
+                            description={t('确认删除选种的巡检方案吗？')} 
+                            onConfirm={async () => {
+                                await inspection.delete_plans(ids)
+                                model.message.success(t('批量删除成功'))
+                                mutate_plans()
+                            }} >
+                                <Button danger disabled={ids.length === 0}>{t('批量删除')}</Button>
+                        </Popconfirm>
+                    </div>}
+                rowSelection={{ type: 'checkbox', selectedRowKeys: ids, onChange: set_ids }}
+                rowKey='id' 
+                dataSource={plans} 
+                columns={cols} />        
 }
 
 export const SuccessStatus = <CheckOutlined className='green'/>
