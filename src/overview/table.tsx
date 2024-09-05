@@ -43,10 +43,10 @@ export function OverviewTable ({
         ).map(([name, nodes]) => ({ name, nodes }))  
     , [nodes])
     
-    groups = groups.map(group => ({ ...group, nodes: group.nodes.filter(node => node.name.startsWith(search_values_by_group[group.name] ?? '')) }))
+    groups = groups.map(group => ({ ...group, nodes: group.nodes.filter(node => node.name.includes(search_values_by_group[group.name] ?? '')) }))
     
-    const ungrouped_nodes = { name: '', nodes: nodes.filter(node => !node.computeGroup && node.mode !== NodeType.data).filter(node => node.name.startsWith(search_values_by_group[''] ?? '')) }
-    const data_nodes = { name: t('存储集群'), nodes: nodes.filter(node => node.mode === NodeType.data).filter(node => node.name.startsWith(search_values_by_group[t('存储集群')] ?? '')) }
+    const ungrouped_nodes = { name: '', nodes: nodes.filter(node => !node.computeGroup && node.mode !== NodeType.data).filter(node => node.name.includes(search_values_by_group[''] ?? '')) }
+    const data_nodes = { name: t('存储集群'), nodes: nodes.filter(node => node.mode === NodeType.data).filter(node => node.name.includes(search_values_by_group[t('存储集群')] ?? '')) }
     const data_nodes_count = nodes.filter(node => node.mode === NodeType.data).length
     const [search_text, set_search_text] = useState('')
     
