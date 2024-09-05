@@ -37,7 +37,7 @@ export function Inspection () {
     
     const { data: reports, mutate: mutate_reports } = useSWR([inited, 'get_reports', dates], async () =>  {
         if (inited) 
-            return inspection.get_reports(dates.map(d => d && d.format('YYYY-MM-DD HH:mm:ss')))
+            return inspection.get_reports(dates.map(d => d && d.format('YYYY.MM.DD HH:mm:ss')))
         else 
             inspection.init()
     })
