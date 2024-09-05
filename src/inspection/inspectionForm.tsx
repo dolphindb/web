@@ -65,7 +65,7 @@ export function InspectionForm ({
         return true
     }
     
-    const [inspection_form] = Form.useForm<Pick<Plan, 'desc' | 'frequency' | 'days' | 'scheduleTime'> >()
+    const [inspection_form] = Form.useForm<Pick<Plan, 'id' | 'desc' | 'frequency' | 'days' | 'scheduleTime'> >()
     
     async function on_save  (run_now: boolean) {
         const values = await inspection_form.validateFields()
@@ -75,7 +75,7 @@ export function InspectionForm ({
         try {
             const new_plan =  
                 {   
-                    id: is_editing ? plan.id : values.desc,
+                    id: is_editing ? plan.id : values.id,
                     desc: values.desc,
                     metrics: metrics.map(({ name }) => name),
                     nodes: metrics.map(({ nodes }) => nodes.length ? nodes : null),

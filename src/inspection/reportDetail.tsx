@@ -10,6 +10,8 @@ import html2canvas from 'html2canvas'
 
 import jsPDF from 'jspdf'
 
+import { model } from '@/model.ts'
+
 import type {  PlanReportDetail } from './type.ts'
 import { inspection } from './model.tsx'
 import { reportLables } from './constants.ts'
@@ -22,32 +24,64 @@ export function ReportDetailPage () {
     const { data: plan_report_detail } = useSWR([current_report, 'get_report_detail'],  async () =>  inspection.get_report_detail(current_report.id))
     
     async function export_report  () {
-        const element = document.getElementById('report-content')
+        const element = document.getElementById('report-detail-content')
         if (!element)
             return
         
-        const canvas = await html2canvas(element)
-        const imgData = canvas.toDataURL('image/png')
-        
-        const pdf = new jsPDF()
-        const imgProps = pdf.getImageProperties(imgData)
-        const pdfWidth = pdf.internal.pageSize.getWidth()
-        const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width
-        
-        pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight)
-        pdf.save(`巡检报告_${report.id}.pdf`)
+        try {
+            const padding = 40
+            const canvas = await html2canvas(element, {
+                logging: true,
+                useCORS: true,
+                // 增加canvas的尺寸以容纳padding
+                width: element.offsetWidth + (padding * 2),
+                height: element.offsetHeight + (padding * 2),
+                x: -padding,
+                y: -padding
+            })
+            const img = canvas.toDataURL('image/png')
+            
+            const pdf = new jsPDF({
+                orientation: 'portrait',
+                unit: 'mm',
+                format: 'a4'
+            })
+            const img_props = pdf.getImageProperties(img)
+            const width = pdf.internal.pageSize.getWidth()
+            const height = (img_props.height * width) / img_props.width
+            
+            pdf.addImage(img, 'PNG', 0, 0, width, height)
+            const pdfBlob = pdf.output('blob')
+            const url = URL.createObjectURL(pdfBlob)
+            const link = document.createElement('a')
+            link.href = url
+            link.download = `巡检报告_${current_report.id}.pdf`
+            document.body.appendChild(link)
+            link.click()
+            document.body.removeChild(link)
+            URL.revokeObjectURL(url)
+            
+            model.message.success(t('PDF生成成功'))
+        } catch (error) {
+            model.message.error(t('PDF生成失败'), error)
+        }
+      
     }
     
     
     return <div
         className='report-detail'       
     >
-        <Button onClick={() => { inspection.set({ current_report: null }) }}>{t('返回')}</Button>
-        <h1>{t('{{report_id}} 巡检报告', { report_id: current_report.id })}</h1>
-        <div className='report-detail-content'>
+        <div className='report-detail-header'>
+            <Button onClick={() => { inspection.set({ current_report: null }) }}>{t('返回')}</Button>
+            <Button type='primary' onClick={export_report}>{t('下载巡检报告')}</Button>
+        </div>
+       
+        <div id='report-detail-content'>
+            <h1>{t('{{report_id}} 巡检报告', { report_id: current_report.id })}</h1>
             <Descriptions column={4} items={Object.entries(reportLables).map(([key, value]) => ({ key, label: value, children: current_report[key] }))} />
             {plan_report_detail && plan_report_detail.some(({ success }) => !success) && <ReportDetailTable title={t('异常指标列表')} plan_report_detail={plan_report_detail.filter(({ success }) => !success)}/>}
-            {plan_report_detail && plan_report_detail.some(({ success }) => success) && <ReportDetailTable title={t('正常指标列表')} plan_report_detail={plan_report_detail.filter(({ success }) => success)}/>}
+            {plan_report_detail && plan_report_detail && plan_report_detail.some(({ success }) => success) && <ReportDetailTable title={t('正常指标列表')} plan_report_detail={plan_report_detail.filter(({ success }) => success)}/>}
         </div>
     </div>
 }

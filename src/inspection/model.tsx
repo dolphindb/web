@@ -5,7 +5,10 @@ import {  model } from '@/model.ts'
 import type { Metric, Plan, PlanDetail, PlanReport, PlanReportDetail } from './type.ts'
 
 class InspectionModel extends Model<InspectionModel> {
+    
     inited = false
+    
+    current_report: PlanReport | null = null
     
     metrics: Map<string, Metric> = new Map()
     

@@ -15,54 +15,54 @@ import { addInspectionModal } from './addInspectionModal.tsx'
 import { inspection } from './model.tsx'
 import type { Plan, PlanReport } from './type.ts'
 import { editInspectionModal } from './editInspectionModal.tsx'
-import { reportDetailModal } from './reportDetailModal.tsx'
+import { ReportDetailPage } from './reportDetail.tsx'
 
 
 export function Inspection () {
     
-    const { inited } = inspection.use(['inited'])
+    const { inited, current_report } = inspection.use(['inited', 'current_report'])
     
     const [seatch_key, set_search_key ] = useState('')
     
-    const { data: plans, mutate: mutate_plans } = useSWR([inited, 'get_plans'], async () => {
+    const [report_limit, set_report_limit] = useState(5)
+    const [report_page, set_report_page] = useState(1)
+    
+    const [plan_limit, set_plan_limit] = useState(5)
+    const [plan_page, set_plan_page] = useState(5)
+    
+    const { data: plans, mutate: mutate_plans } = useSWR([inited, 'get_plans', plan_limit, plan_page], async () => {
         if (inited) 
             return inspection.get_plans()
          else 
             inspection.init()
     })
     
-    const { data: reports, mutate: mutate_reports } = useSWR('get_reports', async () =>  inspection.get_reports())
+    const { data: reports, mutate: mutate_reports } = useSWR([inited, 'get_reports', report_limit, report_page], async () =>  {
+        if (inited)
+            return inspection.get_reports()
+        else
+            inspection.init()
+    })
     
     function refresh () {
-        mutate_plans()
-        mutate_reports()
+        set_report_page(1)
+        set_plan_page(1)
     }
     
     
-    return <div>
-        <InspectionHeader refresh={refresh} set_search_key={set_search_key}/>
+    return current_report ? <ReportDetailPage/> : <div>
+        <div className='inspection-header'>
+            <div className='inspection-header-left'>
+                <Button onClick={() => {
+                    refresh()
+                    model.message.success(t('刷新成功'))
+                }}>{t('刷新')}</Button>
+                <Input.Search placeholder={t('搜索')} onSearch={set_search_key} className='inspection-search'/>
+            </div>
+            <Button onClick={async () => NiceModal.show(addInspectionModal, { refresh })}>{t('新增巡检')}</Button>
+        </div>
         <ReportListTable reports={reports?.filter(report => report.id.includes(seatch_key))}/>
         <PlanListTable plans={plans?.filter(plan => plan.id.includes(seatch_key))} mutate_plans={mutate_plans}/>
-    </div>
-}
-
-function InspectionHeader ({
-    refresh,
-    set_search_key
-}: {
-    refresh: () => void
-    set_search_key: (str: string) => void
-}) {
-    
-    return <div className='inspection-header'>
-        <div className='inspection-header-left'>
-            <Button onClick={() => {
-                refresh()
-                model.message.success(t('刷新成功'))
-            }}>{t('刷新')}</Button>
-            <Input.Search placeholder={t('搜索')} onSearch={set_search_key} className='inspection-search'/>
-        </div>
-        <Button onClick={async () => NiceModal.show(addInspectionModal, { refresh })}>{t('新增巡检')}</Button>
     </div>
 }
 
@@ -108,9 +108,9 @@ function ReportListTable  ({
             title: '操作',
             dataIndex: 'action',
             key: 'action',
-            render: (_, record) => <Button 
+            render: (_, record) => <Button
                         type='link'
-                        onClick={async () => NiceModal.show(reportDetailModal, { report: record })}
+                        onClick={() => { inspection.set({ current_report: record }) }}
                     >
                         {t('查看详细报告')}
                     </Button>
@@ -119,9 +119,7 @@ function ReportListTable  ({
         },
     ], [ ])
     
-    return <div>
-        <Table title={() => <h2>{t('巡检结果')}</h2>} dataSource={reports} columns={cols} />
-    </div>
+    return <Table title={() => <h2>{t('巡检结果')}</h2>} dataSource={reports} columns={cols} />
 }
 
 function PlanListTable  ({
