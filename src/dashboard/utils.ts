@@ -275,10 +275,6 @@ export function convert_chart_config (
     }
     
     function convert_axis (axis: AxisConfig, index?: number) {
-        let data = undefined
-        // 类目轴下需要定义类目数据, 其他轴线类型下 data 不生效
-        if (axis.type === AxisType.CATEGORY)
-            data = axis.col_name ? data_source.map(item => format_time(item?.[axis.col_name], axis.time_format)) : [ ]
         const axis_config = {
             show: true,
             name: axis.name,
