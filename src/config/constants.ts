@@ -9,3 +9,37 @@ export const CONFIG_CLASSIFICATION = {
     [t('流订阅')]: new Set(['maxSubConnections', 'maxSubQueueDepth', 'persistOffsetDir', 'subExecutorPooling', 'subExecutors', 'subPort', 'subThrottle']),
     [t('系统')]: new Set(['console', 'config', 'home', 'maxPartitionNumPerQuery', 'mode', 'moduleDir', 'newValuePartitionPolicy', 'perfMonitoring', 'pluginDir', 'preloadModules', 'init', 'startup', 'run', 'tzdb', 'webRoot', 'webLoginRequired', 'enableShellFunction', 'enablePKEYEngine'])
 }
+
+
+export const CONTROLLER_CONFIG = [
+    'mode',
+    'preloadModules',
+    'localSite',
+    'clusterConfig',
+    'nodesFile',
+    'localExecutors',
+    'maxBatchJobWorker',
+    'maxConnections',
+    'maxConnectionPerSite',
+    'maxDynamicWorker',
+    'maxMemSize',
+    'webWorkerNum',
+    'dfsMetaDir',
+    'dfsMetaLogFilename',
+    'dfsReplicationFactor',
+    'dfsReplicaReliabilityLevel',
+    'dfsRecoveryWaitTime',
+    'enableDFS',
+    'enableHTTPS',
+    'dataSync',
+    'webLoginRequired',
+    'PublicName',
+    'datanodeRestartInterval',
+    'dfsHAMode',
+    'clusterReplicationSlaveNum',
+    'dfsChunkNodeHeartBeatTimeout',
+    'clusterReplicationMasterCtl',
+    'metricsToken',
+    'strictPermissionMode',
+    'enableLocalDatabase'
+]

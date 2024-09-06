@@ -299,25 +299,15 @@ export class DashBoardModel extends Model<DashBoardModel> {
             if (model.verbose)
                 console.log('=>', ddbobj.toString())
             
-            if (
-                (ddbobj.form === DdbForm.chart ||
-                ddbobj.form === DdbForm.dict ||
-                ddbobj.form === DdbForm.matrix ||
-                ddbobj.form === DdbForm.set ||
-                ddbobj.form === DdbForm.table ||
-                ddbobj.form === DdbForm.vector) && preview
-            )     
+            if (preview)
                 this.set({
                     result: {
                         type: 'object',
-                        data:  ddbobj
-                    },
-                }) 
-            else if (preview)
-                this.set({
-                    result: null,
+                        data: ddbobj
+                    }
                 })
-            return ddbobj   
+            
+            return ddbobj
         } catch (error) {
             if (preview)
                 this.set({
@@ -328,7 +318,11 @@ export class DashBoardModel extends Model<DashBoardModel> {
     }
     
     
-    async execute_code (code = this.sql_editor.getValue(), ddb = model.ddb, preview = false): Promise<{
+    async execute_code (
+        code = this.sql_editor.getValue(), 
+        ddb = model.ddb, 
+        preview = false
+    ): Promise<{
         type: 'success' | 'error'
         result: string | DdbObj<DdbValue>
     }> {

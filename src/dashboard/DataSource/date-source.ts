@@ -1,10 +1,9 @@
 import { Model } from 'react-object-model'
 import { genid } from 'xshell/utils.browser.js'
-import { DDB, type DdbType, type DdbObj, type DdbValue, DdbForm } from 'dolphindb/browser.js'
+import { DDB, type DdbType, type DdbObj, type DdbValue, DdbForm, type DdbTable } from 'dolphindb/browser.js'
 import { cloneDeep } from 'lodash'
 import copy from 'copy-to-clipboard'
 
-import { type DdbTable } from 'dolphindb/browser.js'
 
 import { type Widget, dashboard } from '../model.js'
 import { sql_formatter, get_cols, stream_formatter, parse_code, safe_json_parse, get_sql_col_type_map, get_streaming_col_type_map } from '../utils.js'
@@ -130,7 +129,7 @@ export async function save_data_source ( new_data_source: DataSource, code?: str
                 switch (type) {
                     case 'success':
                         if (typeof result === 'object' && result) {
-                            // 暂时只支持table matrix
+                            // 暂时只支持 table, matrix
                             if (result.form !== new_data_source.type && code === undefined) { 
                                 dashboard.message.error(t('sql 执行得到的数据类型与数据源类型不符，请修改'))
                                 return
@@ -139,9 +138,12 @@ export async function save_data_source ( new_data_source: DataSource, code?: str
                             new_data_source.cols = get_cols(result)
                             new_data_source.type_map = result.form === DdbForm.table ? get_sql_col_type_map(result as unknown as DdbTable) : { }
                         }
+                        
                         if (code === undefined)  
                             dashboard.message.success(`${data_source.name} ${t('保存成功')}`)
-                        break  
+                        
+                        break
+                    
                     case 'error':
                         throw new Error(result as string)
                 }
@@ -388,7 +390,7 @@ async function subscribe_stream (data_source: DataSource) {
             } else 
                 throw new Error(result as string)
         }
-            
+        
         const stream_connection = new DDB(
             (location.protocol === 'https:' ? 'wss' : 'ws') + '://' + data_source.ip,
             {
@@ -422,7 +424,8 @@ async function subscribe_stream (data_source: DataSource) {
         await stream_connection.connect()
         data_source.set({ data: [ ], cols: await get_stream_cols(data_source.stream_table), ddb: stream_connection })
     } catch (error) {
-        dashboard.message.error(`${t('无法订阅到流数据表')} ${data_source.stream_table}`)
+        console.error(error)
+        dashboard.message.error(`${t('无法订阅到流数据表')} ${data_source.stream_table} (${error.message})`)
         return error
     }
 }

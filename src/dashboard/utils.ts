@@ -1,12 +1,11 @@
 import { type NamePath } from 'antd/es/form/interface'
-import { type DdbObj, DdbForm, DdbType, nulls, is_decimal_null_value, type DdbValue, format, type InspectOptions, type DdbMatrixValue } from 'dolphindb/browser.js'
+import { type DdbObj, DdbForm, DdbType, nulls, is_decimal_null_value, type DdbValue, format, type InspectOptions, type DdbMatrixValue, type DdbTable, formati } from 'dolphindb/browser.js'
 import { isNil, pickBy } from 'lodash'
 import { createRef } from 'react'
 import { genid } from 'xshell/utils.browser.js'
 import copy from 'copy-to-clipboard'
 import dayjs from 'dayjs'
 
-import { type DdbTable, formati } from 'dolphindb/browser.js'
 
 import type { EChartsInstance } from 'echarts-for-react'
 

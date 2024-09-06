@@ -710,7 +710,7 @@ function handle_null (table: Record<string, any>[]) {
 }
 
 /** 统一处理删除 */
-async function handle_delete (type: string, selected: string[], ddb: DDB, refresher: () => Promise<void>, raftGroups?: string[]) {
+async function handle_delete (type: string, selected: string[], ddb: DDB, refresher: () => Promise<void>, is_admin: boolean, raftGroups?: string[]) {
     switch (type) {
         case 'subWorkers':
             await Promise.all(
@@ -731,11 +731,11 @@ async function handle_delete (type: string, selected: string[], ddb: DDB, refres
             model.message.success(t('取消订阅成功'))
             break
         case 'persistenceMeta':
-            await Promise.all(selected.map(async (streaming_table_name, idx) => ddb.call('dropStreamTable', [streaming_table_name, raftGroups[idx] ? false : true], { urgent: true })))
+            await Promise.all(selected.map(async (streaming_table_name, idx) => ddb.call('dropStreamTable', [streaming_table_name, raftGroups[idx] ? false : is_admin], { urgent: true })))
             model.message.success(t('流数据表删除成功'))
             break
         case 'sharedStreamingTableStat':
-            await Promise.all(selected.map(async streaming_table_name => ddb.call('dropStreamTable', [streaming_table_name, true], { urgent: true })))
+            await Promise.all(selected.map(async streaming_table_name => ddb.call('dropStreamTable', [streaming_table_name, is_admin], { urgent: true })))
             model.message.success(t('流数据表删除成功'))
             break
         case 'engine':
@@ -760,7 +760,7 @@ function DeleteModal ({
 }) {
     const [input_value, set_input_value] = useState<string>('')
     const { visible, open, close } = use_modal()
-    const { ddb } = model.use(['ddb'])
+    const { ddb, admin: is_admin } = model.use(['ddb', 'admin'])
     const { streaming_stat, persistent_table_stat } = computing.use(['streaming_stat', 'persistent_table_stat'])
     return <>
             <Modal
@@ -793,6 +793,7 @@ function DeleteModal ({
                         selected,
                         ddb,
                         refresher,
+                        is_admin,
                         table_name === 'subWorkers'
                             ? selected.map(row_name => streaming_stat.subWorkers.to_rows().find(({ topic }) => topic === row_name).raftGroup)
                             : table_name === 'persistenceMeta' ? selected.map(row_name => persistent_table_stat.to_rows().find(({ tablename }) => tablename === row_name).raftGroup) : [ ]

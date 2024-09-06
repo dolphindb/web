@@ -18,6 +18,9 @@
     }
     
     .query-conditions-wrapper {
+        padding: 12px 12px 12px 12px;
+        border: 1px solid #D9D9D9;
+        
         h4 {
             margin: 12px 0px;
             
@@ -25,12 +28,6 @@
                 margin-top: 0px;
             }
         }
-        
-        
-        
-        
-        padding: 12px 12px 12px 12px;
-        border: 1px solid #D9D9D9;
     }
     
     .guide-segmented {
@@ -176,16 +173,16 @@
 
     
 .col-select-label {
+    height: 100%;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    
     .table-name {
         display: inline-block;
         overflow: hidden;
         text-overflow: ellipsis;
         white-space: nowrap;
     }
-    
-    height: 100%;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
 }
 

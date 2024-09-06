@@ -2,9 +2,8 @@ import NiceModal, { useModal } from '@ebay/nice-modal-react'
 import { Form, Modal, Select, Typography, message } from 'antd'
 import { useCallback, useMemo } from 'react'
 
-import { DdbDict, DdbType } from 'dolphindb/browser.js'
+import { DdbDict, DdbType, type  DdbObj } from 'dolphindb/browser.js'
 
-import type { DdbObj } from 'dolphindb/browser.js'
 
 import { type ICEPEngineDetail } from '../type.js'
 import { t } from '../../../../i18n/index.js'

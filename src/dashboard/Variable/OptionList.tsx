@@ -220,7 +220,7 @@ export function OptionList ({
                         <Popconfirm 
                             title={t('确定要清空所有选项吗？')} 
                             onConfirm={() => { 
-                                change_current_variable_property(['options', 'value'], [[ ], ''])
+                                change_current_variable_property(['options'], [current_variable.options.filter(item => item.value === current_variable.value)])
                                 variable_map.clear()
                             }}
                         >

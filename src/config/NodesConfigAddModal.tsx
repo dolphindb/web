@@ -40,7 +40,7 @@ export const NodesConfigAddModal = NiceModal.create(() => {
                 label={t('限定词')}
                 name='qualifier'
             >
-                <Input placeholder='eg dn1 or dn% or empty' />
+                <Input placeholder='e.g. dn1 or dn% or empty' />
             </Form.Item>
             
             <Form.Item
@@ -48,12 +48,10 @@ export const NodesConfigAddModal = NiceModal.create(() => {
                 name='name'
                 rules={[{ required: true, message: t('请输入或选择配置项') }]}
             >
-                <AutoComplete
+                <AutoComplete<{ label: string, otpions: { label: string, value: string } }>
                     showSearch
                     optionFilterProp='label'
-                    // @ts-ignore
                     filterOption={filter_config}
-                    // @ts-ignore
                     options={Object.entries(CONFIG_CLASSIFICATION).map(([cfg_cls, configs]) => ({
                         label: cfg_cls,
                         options: Array.from(configs).map(cfg => ({
@@ -87,13 +85,12 @@ export const NodesConfigAddModal = NiceModal.create(() => {
                             try {
                                 const { qualifier, name, value } = await add_config_form.validateFields()
                                 const key = (qualifier ? qualifier + '.' : '') + name
-                                await config.change_nodes_config([[key, { qualifier, name, value, key }]])
+                                await config.change_configs([[key, { qualifier, name, value, key }]])
                                 model.message.success(t('保存成功，重启集群生效'))
                                 modal.hide()
                             } catch (error) {
                                 // 数据校验不需要展示报错弹窗
                                 if (error instanceof DdbDatabaseError)
-                                    // eslint-disable-next-line @typescript-eslint/no-throw-literal
                                     throw error
                             }
                         }

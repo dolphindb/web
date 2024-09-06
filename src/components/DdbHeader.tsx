@@ -5,9 +5,8 @@ import { Dropdown, Avatar } from 'antd'
 import { default as Icon, LoginOutlined, LogoutOutlined, UserOutlined } from '@ant-design/icons'
 
 
-import { t } from '../../i18n/index.js'
+import { t } from '@i18n/index.js'
 
-import { model } from '../model.js'
 
 import { License } from './License.js'
 import { Status } from './Status.js'
@@ -16,6 +15,8 @@ import { CompileAndRefresh } from './CompileAndRefresh.js'
 import { HostSelect } from './HostSelect.js'
 
 import SvgArrowDown from './icons/arrow.down.icon.svg'
+
+import { model } from '@/model.js'
 
 
 export function DdbHeader () {
@@ -50,13 +51,13 @@ export function DdbHeader () {
                                 {
                                     key: 'logout',
                                     icon: <LogoutOutlined />,
-                                    label: <a className='logout' onClick={() => { model.logout() }}>{t('注销')}</a>,
+                                    label: <a className='logout' onClick={async () => { await model.logout() }}>{t('注销')}</a>,
                                 }
                             :
                                 {
                                     key: 'login',
                                     icon: <LoginOutlined />,
-                                    label: <a className='login' onClick={() => { model.goto_login() }}>{t('登录')}</a>,
+                                    label: <a className='login' onClick={async () => { await model.goto_login() }}>{t('登录')}</a>,
                                 }
                         ]
                     }}

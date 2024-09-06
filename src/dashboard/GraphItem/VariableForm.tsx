@@ -38,7 +38,7 @@ function ControlField ({ variable }: { variable: Variable }) {
             ? variable_obj[id].select_key
             : variable_obj[id].value
         )
-    }, [variable_obj[id].value, variable_obj[id].select, id])
+    }, [variable_obj[id], id])
     
     switch (mode) {
         case VariableMode.DATE:

@@ -284,7 +284,7 @@ export function Databases () {
                 :
                     <div className='login-to-view'>
                         <span>{t('登录后查看')}</span>
-                        <a onClick={() => { model.goto_login() }}>{t('去登录')}</a>
+                        <a onClick={async () => { await model.goto_login() }}>{t('去登录')}</a>
                     </div>
                 }
                 <SetTableComment />

@@ -22,32 +22,34 @@ import { SWRConfig } from 'swr'
 import dayjs from 'dayjs'
 
 
-import { language } from '../i18n/index.js'
+import { language } from '../i18n/index.ts'
 
 import 'dayjs/locale/zh-cn'
 dayjs.locale(language === 'zh' ? 'zh-cn' : language)
 
-import { model } from './model.js'
+import { model, type PageViews } from './model.ts'
 
-import { DdbHeader } from './components/DdbHeader.js'
-import { DdbSider } from './components/DdbSider.js'
-import { GlobalErrorBoundary } from './components/GlobalErrorBoundary.js'
+import { DdbHeader } from './components/DdbHeader.tsx'
+import { DdbSider } from './components/DdbSider.tsx'
+import { GlobalErrorBoundary } from './components/GlobalErrorBoundary.tsx'
+import { HostSelect } from './components/HostSelect.tsx'
 
-import { Login } from './login.js'
-import { Overview } from './overview/index.js'
-import { Config } from './config/index.js'
-import { Shell } from './shell/index.js'
-import { Test } from './test/index.js'
-import { Job } from './job.js'
-import { Log } from './log.js'
-import { Computing } from './computing/index.js'
-import { DashBoard } from './dashboard/index.js'
-import { User, Group } from './access/index.js'
-import { Settings } from './settings/index.js'
-import { Connections } from './data-collection/Connection.js'
-import { ParserTemplates } from './data-collection/ParserTemplates.js'
-import { CreateGuide } from './guide/iot-guide/index.js'
-import { FinanceGuide } from './guide/finance-guide/index.js'
+import { Login } from './login.tsx'
+import { Overview } from './overview/index.tsx'
+import { Config } from './config/index.tsx'
+import { Shell } from './shell/index.tsx'
+import { Test } from './test/index.tsx'
+import { Job } from './job.tsx'
+import { Log } from './log.tsx'
+import { Plugins } from './plugins/index.tsx'
+import { Computing } from './computing/index.tsx'
+import { DashBoard } from './dashboard/index.tsx'
+import { User, Group } from './access/index.tsx'
+import { Settings } from './settings/index.tsx'
+import { CreateGuide } from './guide/iot-guide/index.tsx'
+import { FinanceGuide } from './guide/finance-guide/index.tsx'
+import { Connections } from './data-collection/Connection.tsx'
+import { ParserTemplates } from './data-collection/ParserTemplates.tsx'
 
 
 
@@ -118,26 +120,30 @@ function MainLayout () {
         }
     }, [ ])
     
-    if (!inited)
-        return <GlobalErrorBoundary />
-    
-    return <Layout className='root-layout'>
-        { header && <Layout.Header className='ddb-header'>
-            <DdbHeader />
-        </Layout.Header> }
-        <Layout className='body' hasSider>
-            { sider && <DdbSider />}
-            <Layout.Content className='view'>
-                <GlobalErrorBoundary>
-                    <DdbContent />
-                </GlobalErrorBoundary>
-            </Layout.Content>
+    return inited ?
+        <Layout className='root-layout'>
+            { header && <Layout.Header className='ddb-header'>
+                <DdbHeader />
+            </Layout.Header> }
+            <Layout className='body' hasSider>
+                { sider && <DdbSider />}
+                <Layout.Content className='view'>
+                    <GlobalErrorBoundary>
+                        <DdbContent />
+                    </GlobalErrorBoundary>
+                </Layout.Content>
+            </Layout>
         </Layout>
-    </Layout>
+    :
+        <GlobalErrorBoundary>
+            { (model.dev || model.test) && <div className='host-select-container'>
+                <HostSelect size='middle' />
+            </div> }
+        </GlobalErrorBoundary>
 }
 
 
-const views = {
+const views: Partial<Record<PageViews, React.FunctionComponent>> = {
     login: Login,
     overview: Overview,
     config: Config,
@@ -145,6 +151,7 @@ const views = {
     test: Test,
     job: Job,
     log: Log,
+    plugins: Plugins,
     computing: Computing,
     dashboard: DashBoard,
     user: User,

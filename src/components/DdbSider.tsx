@@ -2,32 +2,33 @@ import { useMemo } from 'react'
 
 import { Layout, Menu, Typography } from 'antd'
 
-import { default as Icon, DoubleLeftOutlined, DoubleRightOutlined, ExperimentOutlined, SettingOutlined } from '@ant-design/icons'
+import { default as Icon, DoubleLeftOutlined, DoubleRightOutlined, ExperimentOutlined, SettingOutlined, CalculatorOutlined } from '@ant-design/icons'
 
 import { isNil, omitBy } from 'lodash'
 
 
-import { language, t } from '../../i18n/index.js'
+import { language, t } from '@i18n/index.js'
 
 import { model, type DdbModel, NodeType, storage_keys } from '../model.js'
 
 
-import SvgOverview from '../overview/icons/overview.icon.svg'
-import SvgConfig from '../config/icons/config.icon.svg'
-import SvgShell from '../shell/index.icon.svg'
-import SvgDashboard from '../dashboard/icons/dashboard.icon.svg'
-import SvgJob from '../job.icon.svg'
-import SvgLog from '../log.icon.svg'
-import SvgFactor from '../factor.icon.svg'
-import SvgComputing from '../computing/icons/computing.icon.svg'
-import SvgAccess from '../access/icons/access.icon.svg'
-import SvgUser from '../access/icons/user.icon.svg'
-import SvgGroup from '../access/icons/group.icon.svg'
-import SvgDataCollection from '../data-collection/icons/data-collection.icon.svg'
-import SvgConnection from '../data-collection/icons/connection.icon.svg'
-import SvgParserTemplate from '../data-collection/icons/parser-template.icon.svg'
-import SvgFinance from '../guide/icons/finance.icon.svg'
-import SvgIot from '../guide/icons/iot.icon.svg'
+import SvgOverview from '@/overview/icons/overview.icon.svg'
+import SvgConfig from '@/config/icons/config.icon.svg'
+import SvgShell from '@/shell/index.icon.svg'
+import SvgDashboard from '@/dashboard/icons/dashboard.icon.svg'
+import SvgJob from '@/job.icon.svg'
+import SvgLog from '@/log.icon.svg'
+import SvgFactor from '@/factor.icon.svg'
+import SvgComputing from '@/computing/icons/computing.icon.svg'
+import SvgAccess from '@/access/icons/access.icon.svg'
+import SvgUser from '@/access/icons/user.icon.svg'
+import SvgGroup from '@/access/icons/group.icon.svg'
+import SvgFinance from '@/guide/icons/finance.icon.svg'
+import SvgIot from '@/guide/icons/iot.icon.svg'
+import SvgPlugins from '@/plugins/plugins.icon.svg'
+import SvgDataCollection from '@/data-collection/icons/data-collection.icon.svg'
+import SvgConnection from '@/data-collection/icons/connection.icon.svg'
+import SvgParserTemplate from '@/data-collection/icons/parser-template.icon.svg'
 
 
 const { Text, Link } = Typography
@@ -49,7 +50,8 @@ const svgs = {
     connection: SvgConnection,
     'parser-template': SvgParserTemplate,
     'iot-guide': SvgIot,
-    'finance-guide': SvgFinance 
+    'finance-guide': SvgFinance,
+    plugins: SvgPlugins
 }
 
 
@@ -60,8 +62,6 @@ function MenuIcon ({ view }: { view: DdbModel['view'] }) {
 export function DdbSider () {
     const { view, node_type, collapsed, logined, admin, login_required, v1, dev, test, is_factor_platform_enabled } 
         = model.use(['view', 'node_type', 'collapsed', 'logined', 'admin', 'login_required', 'v1', 'dev', 'test', 'is_factor_platform_enabled', 'enabled_modules'])
-    
-    // debugger
     
     const factor_href = useMemo(() => {
         const search_params = new URLSearchParams(location.search)
@@ -119,11 +119,11 @@ export function DdbSider () {
             }}
             inlineIndent={10}
             items={[
-                ... dev || test ? [{
+                {
                     key: 'overview',
                     icon: <MenuIcon view='overview' />,
                     label: node_type === NodeType.single ? t('单机总览') : t('集群总览'),
-                }] : [ ],
+                },
                 ...admin && node_type === NodeType.controller ? [{
                     key: 'config',
                     icon: <MenuIcon view='config'/>,
@@ -187,6 +187,12 @@ export function DdbSider () {
                             key: 'parser-template'
                         }
                     ]
+                }] : [],
+                ... admin ? [
+                    {
+                        key: 'plugins',
+                        icon: <MenuIcon view='plugins' />,
+                        label: t('插件管理'),
                 }] : [ ],
                 ... is_factor_platform_enabled ? [{
                     key: 'factor',
