@@ -53,6 +53,8 @@ function ControlField ({ variable }: { variable: Variable }) {
                     allowClear 
                     mode='multiple' 
                     options={options.map(({ label, key }) => ({ label, value: key }))}
+                    showSearch
+                    optionFilterProp='label'
                 />
             </Form.Item>
         case VariableMode.SELECT:
@@ -60,8 +62,10 @@ function ControlField ({ variable }: { variable: Variable }) {
                 <Select
                     key={key}
                     onBlur={() => { set_key(genid()) } }
+                    optionFilterProp='label'
                     options={options.map(({ label, key }) => ({ label, value: key }))}
                     allowClear
+                    showSearch
                 />
             </Form.Item>
         case VariableMode.TEXT:
