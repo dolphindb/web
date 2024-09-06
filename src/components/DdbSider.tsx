@@ -29,6 +29,7 @@ import SvgPlugins from '@/plugins/plugins.icon.svg'
 import SvgDataCollection from '@/data-collection/icons/data-collection.icon.svg'
 import SvgConnection from '@/data-collection/icons/connection.icon.svg'
 import SvgParserTemplate from '@/data-collection/icons/parser-template.icon.svg'
+import { os } from '@/utils/index.js'
 
 
 const { Text, Link } = Typography
@@ -187,7 +188,7 @@ export function DdbSider () {
                             key: 'parser-template'
                         }
                     ]
-                }] : [],
+                }] : [ ],
                 ... admin ? [
                     {
                         key: 'plugins',

@@ -9,23 +9,25 @@ import { isNil } from 'lodash'
 
 import { QuestionCircleOutlined } from '@ant-design/icons'
 
+import useSWR from 'swr'
+
 import { t } from '../../../../i18n/index.js'
 import { Protocol, type ISubscribe, type IParserTemplate } from '../../type.js'
 import { safe_json_parse } from '../../../dashboard/utils.js'
 import { FormDependencies } from '../../../components/formily/FormDependcies/index.js'
 
-import { create_subscribe, edit_subscribe } from '../../api.js'
+import { create_subscribe, edit_subscribe, get_parser_templates } from '../../api.js'
 
-import { NodeSelect } from '../node-select/index.js'
+import { NodeSelect } from '../../../components/node-select/index.js'
+
+import { NAME_RULES } from '@/data-collection/constant.js'
 
 import { KafkaConfig } from './kafka-config.js'
 
-import { NAME_RULES } from '@/data-collection/constant.js'
 
 interface IProps {
     /** 修改时传 */
     edited_subscribe?: ISubscribe
-    parser_templates: IParserTemplate[]
     // 创建时传
     connection_id?: string
     protocol: Protocol
@@ -34,18 +36,24 @@ interface IProps {
 
 export const CreateSubscribeModal = NiceModal.create((props: IProps) => {
 
-    const { edited_subscribe, parser_templates = [ ], connection_id, refresh, protocol } = props
-    
-    const modal = useModal()
-    const [form] = Form.useForm<ISubscribe>()
+    const { edited_subscribe, connection_id, refresh, protocol } = props
     
     const [handlerId, setHandlerId] = useState(edited_subscribe?.handlerId)
+    
+    
+    const { data: { items: templates } = { items: [ ] } } = useSWR(
+        protocol ? ['dcp_getParserTemplateList', protocol] : null,
+        async () => get_parser_templates(protocol)
+    )
+    
     const [template_params_names, set_template_params_names] = useState(
         edited_subscribe 
         ? safe_json_parse(edited_subscribe.templateParams).map(item => item?.key)
         : [ ]
     )
     
+    const modal = useModal()
+    const [form] = Form.useForm<ISubscribe>()
     const partition = Form.useWatch('partition', form)
     const offset = Form.useWatch('offset', form)
     
@@ -61,7 +69,6 @@ export const CreateSubscribeModal = NiceModal.create((props: IProps) => {
                         rules={[
                             { 
                                 validator: async (_, value) => {
-                                    console.log(value)
                                     if ((offset && !value) || (value && !offset)) 
                                         return Promise.reject(t('偏移量与分区需同时设置，或者均不设置'))        
                                     return Promise.resolve()
@@ -102,7 +109,7 @@ export const CreateSubscribeModal = NiceModal.create((props: IProps) => {
     
     const on_submit = useCallback(async () => {        
         try { await form.validateFields() } catch { return }
-        let values = await form.getFieldsValue()
+        const values = await form.getFieldsValue()
         
         if (edited_subscribe) 
             await edit_subscribe(protocol, { ...values, id: edited_subscribe.id, })
@@ -179,16 +186,16 @@ export const CreateSubscribeModal = NiceModal.create((props: IProps) => {
                                 <Select 
                                     onSelect={val => { 
                                         setHandlerId(val) 
-                                        const names = parser_templates?.find(item => item.id === val)?.templateParams || [ ]
+                                        const names = templates?.find(item => item.id === val)?.templateParams || [ ]
                                         set_template_params_names(names)
                                         form.setFieldValue('templateParams', names.map(key => ({ key })))
                                     }}
-                                    options={parser_templates.map(item => (
+                                    options={templates.map(item => (
                                         { 
                                             value: item.id, 
                                             label: (<div className='parser-template-label'>
                                                 {item.name}
-                                                <Tag color='processing' bordered={false}>{item.protocol}</Tag>
+                                                <Tag color='blue' bordered={false}>{item.protocol}</Tag>
                                             </div> )
                                         }))} 
                                     placeholder={t('请选择点位解析模板')}
@@ -196,15 +203,14 @@ export const CreateSubscribeModal = NiceModal.create((props: IProps) => {
                             </Form.Item>
                             
                             {!isNil(handlerId) && <div className='parser-template-params'>
-                                {/* <Space className="parser"> */}
-                                    <h4>
-                                        {t('模板参数')}
-                                        <Tooltip title={t('请注意，自定义解析模板的输出流表需要自行创建')}>
-                                            <QuestionCircleOutlined className='parser-template-header-icon'/>
-                                        </Tooltip>
-                                    </h4>
-                                    
-                                {/* </Space> */}
+                 
+                                <h4>
+                                    {t('模板参数')}
+                                    <Tooltip title={t('请注意，自定义解析模板的输出流表需要自行创建')}>
+                                        <QuestionCircleOutlined className='parser-template-header-icon'/>
+                                    </Tooltip>
+                                </h4>
+               
                                 <Form.List name='templateParams'>
                                     {fields => fields.map(field => <div key={field.key}>
                                         <Form.Item name={[field.name, 'key']} hidden>

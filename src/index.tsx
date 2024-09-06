@@ -48,8 +48,7 @@ import { User, Group } from './access/index.tsx'
 import { Settings } from './settings/index.tsx'
 import { CreateGuide } from './guide/iot-guide/index.tsx'
 import { FinanceGuide } from './guide/finance-guide/index.tsx'
-import { Connections } from './data-collection/Connection.tsx'
-import { ParserTemplates } from './data-collection/ParserTemplates.tsx'
+import { DataCollection } from './data-collection/index.tsx'
 
 
 
@@ -157,8 +156,8 @@ const views: Partial<Record<PageViews, React.FunctionComponent>> = {
     user: User,
     group: Group,
     settings: Settings,
-    connection: Connections,
-    'parser-template': ParserTemplates,
+    connection: DataCollection,
+    'parser-template': DataCollection,
     'iot-guide': CreateGuide,
     'finance-guide': FinanceGuide,
 }
