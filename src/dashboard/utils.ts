@@ -279,7 +279,6 @@ export function convert_chart_config (
         // 类目轴下需要定义类目数据, 其他轴线类型下 data 不生效
         if (axis.type === AxisType.CATEGORY)
             data = axis.col_name ? data_source.map(item => format_time(item?.[axis.col_name], axis.time_format)) : [ ]
-        
         const axis_config = {
             show: true,
             name: axis.name,
@@ -293,27 +292,34 @@ export function convert_chart_config (
                 },
                 ...splitLine,
             },
+            axisLine: {
+                show: true,
+                lineStyle: {
+                    color: axis.axis_color || '#6E6F7A'
+                }
+            },
             axisLabel: {
                 formatter: axis.type === AxisType.CATEGORY && (value => { 
                     if (axis.time_format)
                         return format_time(value, axis.time_format)
                     else
                         return value
-                })
-                
+                }),
+                color: () => axis.font_color || '#6E6F7A',
+                fontSize: axis.fontsize
             },
             logBase: axis.log_base || 10,
             position: axis.position,
             offset: axis.offset,
             alignTicks: true,
             id: index,
-            scale: !axis.with_zero ?? false,
+            scale: !axis.with_zero,
             nameTextStyle: {
                 fontSize: axis.fontsize ?? 12
             },
             min: [AxisType.TIME, AxisType.VALUE].includes(axis.type) ? axis.min : undefined,
             max: [AxisType.TIME, AxisType.VALUE].includes(axis.type) ? axis.max : undefined
-        }
+        } as echarts.EChartsOption['xAxis']
         
         return axis_config
     }
@@ -390,7 +396,7 @@ export function convert_chart_config (
                 opacity: series.opacity
             } : null
             
-        }
+        } as echarts.EChartsOption['series']
     }
     
     let echarts_series = series.filter(Boolean).map((serie, index) => ({ id: index, ...convert_series(serie) }))
@@ -512,7 +518,6 @@ export function convert_chart_config (
         tooltip: {
             show: true,
             ...tooltip,
-            // 与图形类型相关，一期先写死
             trigger: 'axis',
             backgroundColor: '#060606',
             borderColor: '#060606',
