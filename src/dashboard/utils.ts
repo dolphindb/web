@@ -498,6 +498,7 @@ export function convert_chart_config (
         grid: {
             containLabel: true,
             left: 10,
+            right: 10,
             bottom: x_datazoom ? 50 : 10
         },
         legend: pickBy({
