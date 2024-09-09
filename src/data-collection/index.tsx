@@ -77,7 +77,7 @@ export function DataCollection () {
     
     if (data.is_inited === InitStatus.UNKONWN || isValidating )
         return <Spin /> 
-    else if (data.is_inited === InitStatus.NOT_INITED && admin)
+    else if (data.is_inited === InitStatus.NOT_INITED)
         return admin 
             ? <Result 
                 title={t('初始化数据采集平台')} 
@@ -91,7 +91,8 @@ export function DataCollection () {
     else if (data.is_inited === InitStatus.INITED) 
         if (!data.has_auth && !admin)
             return <Result title={t('无库表权限，请联系管理员赋权')} />
-        switch (model.view) {
+        else
+            switch (model.view) {
             case 'connection':
                 return <Connections protocols={valid_protocols}/>
             case 'parser-template':
