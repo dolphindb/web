@@ -883,7 +883,7 @@ def dcp_getTemplateArgs(args){
 
 
 //初始化解析模板
-def initParserTemplate(){   
+def dcp_initParserTemplate(){   
     //初始化解析模板
     handler = '
     def msgHandler(outTableName,timeColumn,idColumn,topic,message){
@@ -1044,6 +1044,6 @@ def dcp_checkPermissions(){
 */
 def dcp_init(){
     dcp_createAllTable()
-    initParserTemplate()
-    pnodeRun(initPlugin)
+    dcp_initParserTemplate()
+    pnodeRun(dcp_initPlugin)
 }
