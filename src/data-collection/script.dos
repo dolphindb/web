@@ -1,7 +1,7 @@
 /*
 初始化加载插件 
 */
-def initPlugin(){
+def dcp_initPlugin(){
     plugins = select * from files(getHomeDir().split("/clusterDemo/")[0]+"/plugins") where isDir=true
     ex = ["user",NULL]
     try{
@@ -25,7 +25,7 @@ def initPlugin(){
         throw(ex[1])
     }
 }
-initPlugin();
+dcp_initPlugin();
 go;
 
 /*
@@ -1012,6 +1012,33 @@ def dcp_createAllTable(){
     createTable(database("dfs://dataAcquisition"),table(1:0,colNames,colTypes),`ParserTemplate)
 }
 
+//校验用户权限，用户具备 dataAcquisition 各表读取权限，返回 true，否则 false
+def dcp_checkPermissions(){
+    DBcnt = 0
+    TBcnt = 0
+    tmp = select userId,isAdmin,DB_READ_allowed,TABLE_READ_allowed,DB_INSERT_allowed,TABLE_INSERT_allowed,
+          DB_UPDATE_allowed,TABLE_UPDATE_allowed,DB_DELETE_allowed,TABLE_DELETE_allowed from getUserAccess()
+    objDB = "dfs://dataAcquisition"
+    objTB = ["dfs://dataAcquisition/ParserTemplate","dfs://dataAcquisition/connectInfo","dfs://dataAcquisition/subscribeInfo"]
+    for(access in [`DB_READ_allowed,`DB_INSERT_allowed,`DB_UPDATE_allowed,`DB_DELETE_allowed]){
+        if(objDB in tmp[access].split(",")){
+            DBcnt +=1
+        }
+    }
+    for(access in [`TABLE_READ_allowed,`TABLE_INSERT_allowed,`TABLE_UPDATE_allowed,`TABLE_DELETE_allowed]){
+        for(tb in objTB){
+            if(tb in tmp[access].split(",")){
+                TBcnt +=1
+            }
+        }
+    }
+    if(DBcnt==4 or TBcnt==12){
+        return true
+    }else{
+        return false
+    }
+}
+ 
 /*
 初始化函数
 */
