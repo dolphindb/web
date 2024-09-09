@@ -1,22 +1,23 @@
 /*
-初始化加载插件
+初始化加载插件 
 */
 def initPlugin(){
     plugins = select * from files(getHomeDir().split("/clusterDemo/")[0]+"/plugins") where isDir=true
     ex = ["user",NULL]
     try{
-        if(!(`mqtt in plugins[`filename])){
+        remotePlugins = exec PluginName from listRemotePlugins()
+        if(!(`mqtt in plugins[`filename]) and `mqtt in remotePlugins){
             installPlugin("mqtt")
         }
-        if(!(`kafka in plugins[`filename])){
+        if(!(`kafka in plugins[`filename]) and `kafka in remotePlugins){
             installPlugin("kafka")
         }
         cntMqtt = exec count(*) from defs() where name like "mqtt::%"
-        if(cntMqtt == 0){
+        if(cntMqtt == 0 and `mqtt in remotePlugins){
             loadPlugin("mqtt")
         }   
         cntKafka = exec count(*) from defs() where name like "kafka::%"
-        if(cntKafka == 0){
+        if(cntKafka == 0 and `kafka in remotePlugins){
             loadPlugin("kafka")
         }  
     }catch(ex){}
