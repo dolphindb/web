@@ -1,10 +1,14 @@
 import { Select } from 'antd'
+import type { SizeType } from 'antd/es/config-provider/SizeContext.js'
+
+import { model } from '@/model.js'
 
 
-export function HostSelect () {
+export function HostSelect ({ size = 'small' }: { size?: SizeType }) {
     return <Select
         className='host-select'
-        size='small'
+        size={size}
+        listHeight={512}
         options={[
             {
                 label: '测试数据节点',
@@ -15,24 +19,24 @@ export function HostSelect () {
                 value: '192.168.0.200:20000'
             },
             {
-                label: '单机',
+                label: '我的单机',
+                value: '192.168.0.90:8848'
+            },
+            {
+                label: '单点登录',
+                value: '192.168.0.129:8900'
+            },
+            {
+                label: '外汇交易中心',
+                value: '183.134.101.138:8018'
+            },
+            {
+                label: '新海单机',
                 value: '183.134.101.134:8892'
             },
             {
-                label: '数据面板.开发',
-                value: '192.168.100.45:8666'
-            },
-            {
-                label: '数据面板.演示',
-                value: '183.134.101.138:8666'
-            },
-            {
-                label: 'indi',
+                label: '指标平台单机',
                 value: '192.168.100.45:8633',
-            },
-            {
-                label: '因子管理',
-                value: '183.136.170.16:8820'
             },
             {
                 label: '运维工具',
@@ -47,21 +51,11 @@ export function HostSelect () {
                 value: '183.134.101.140:7748'
             }
         ]}
-        onSelect={(host: string) => { 
+        onSelect={host => { 
             const [hostname, port] = host.split(':')
-            
-            let url = new URL(location.href)
-            
-            url.searchParams.set('hostname', hostname)
-            url.searchParams.set('port', port)
-            url.searchParams.delete('dashboard')
-            
-            location.href = url.toString()
+            location.href = model.get_url(hostname, Number(port))
         }}
         popupMatchSelectWidth={false}
-        defaultValue={(() => {
-            const { searchParams } = new URL(location.href)
-            return `${searchParams.get('hostname')}:${searchParams.get('port')}`
-        })()}
+        defaultValue={`${model.params.get('hostname')}:${model.params.get('port')}`}
     />
  }

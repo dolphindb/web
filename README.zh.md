@@ -67,6 +67,8 @@ pnpm install
 # 将 .vscode/settings.template.json 复制为 .vscode/settings.json
 cp .vscode/settings.template.json .vscode/settings.json
 
+# 设置环境变量 NODE_OPTIONS='--experimental-transform-types'
+
 # 参考 package.json 中的 scripts
 
 # 开发

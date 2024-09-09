@@ -38,7 +38,7 @@ function ControlField ({ variable }: { variable: Variable }) {
             ? variable_obj[id].select_key
             : variable_obj[id].value
         )
-    }, [variable_obj[id].value, variable_obj[id].select, id])
+    }, [variable_obj[id], id])
     
     switch (mode) {
         case VariableMode.DATE:
@@ -53,6 +53,8 @@ function ControlField ({ variable }: { variable: Variable }) {
                     allowClear 
                     mode='multiple' 
                     options={options.map(({ label, key }) => ({ label, value: key }))}
+                    showSearch
+                    optionFilterProp='label'
                 />
             </Form.Item>
         case VariableMode.SELECT:
@@ -60,8 +62,10 @@ function ControlField ({ variable }: { variable: Variable }) {
                 <Select
                     key={key}
                     onBlur={() => { set_key(genid()) } }
+                    optionFilterProp='label'
                     options={options.map(({ label, key }) => ({ label, value: key }))}
                     allowClear
+                    showSearch
                 />
             </Form.Item>
         case VariableMode.TEXT:

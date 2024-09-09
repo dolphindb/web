@@ -2,13 +2,16 @@ import React, { useMemo } from 'react'
 
 import { type SelectProps } from 'antd'
 
+import { t } from '@i18n/index.js'
+
+import { SchemaField } from '../SchemaField/index.js'
+
 import { isDDBDecimalType } from '@/utils/ddb-data-types.js'
 import { getDecimalScaleRange, isAvailableDecimalScale } from '@/utils/decimal.js'
 
-import { t } from '@i18n/index.js'
 import { type DDBColumnTypeNames, DDB_COLUMN_DATA_TYPES, SUPPORT_ARRAY_VECTOR_TYPES } from '@/constants/column-data-types.js'
 
-import { SchemaField } from '../SchemaField/index.js'
+
 import { model } from '@/model.js'
 
 interface DDBTypeSelectorSchemaFieldsProps {

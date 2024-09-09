@@ -1,4 +1,4 @@
-import { Button, Checkbox, Col, Divider, Dropdown, Input, Modal, Radio, Row, Space, Table, Tooltip, type InputRef, type MenuProps, type TableColumnsType } from 'antd'
+import { Button, Checkbox, Col, Divider, Dropdown, Input, Modal, Row, Space, Table, Tooltip, type CollapseProps, type InputRef, type MenuProps, type TableColumnsType, Collapse } from 'antd'
 
 import { CheckCircleOutlined, MinusCircleOutlined, PauseCircleOutlined, SearchOutlined, SettingOutlined } from '@ant-design/icons'
 
@@ -12,7 +12,7 @@ import { NodeType, model, storage_keys, type DdbNode } from '../model.js'
 
 import { t } from '../../i18n/index.js'
 
-import { generate_node_link, ns_2_ms } from './utils.js'
+import { ns2ms } from './utils.js'
 
 const node_state_icons = [
     <MinusCircleOutlined style={{ color: 'red' }} />,
@@ -30,7 +30,7 @@ export function OverviewTable ({
     selectedNodeNames: string[]
     setSelectedNodeNames: (names: string[]) => void
 }) {
-    const { nodes } = model.use(['nodes'])
+    const { nodes, node_type } = model.use(['nodes', 'node_type'])
     
     const [searchText, setSearchText] = useState('')
     
@@ -39,7 +39,7 @@ export function OverviewTable ({
     const { visible, open, close } = use_modal()
     
     function handleSearch (selectedKeys: string[]) {
-        setSearchText(selectedKeys[0])
+        setSearchText(selectedKeys[0] ?? '')
     }
     
     function handleReset (clearFilters: () => void) {
@@ -93,7 +93,8 @@ export function OverviewTable ({
                     </Space>
                 </div>,
             filterIcon: (filtered: boolean) => <SearchOutlined style={{ color: filtered ? '#1677ff' : undefined }} />,
-            render: (name: string, node: DdbNode) => <a target='_blank' href={generate_node_link(node.host, node.port)}>
+            render: (name: string, node: DdbNode) =>
+                <a target='_blank' href={model.get_node_url(node, { queries: { view: null } })}>
                     {name}
                 </a>
         },
@@ -138,36 +139,37 @@ export function OverviewTable ({
         {
             title: t('CPU 平均负载'),
             dataIndex: 'avgLoad',
+            render: (avgLoad: number) => avgLoad.toFixed(6),
             sorter: (a, b) => a.avgLoad - b.avgLoad
         },
         {
             title: t('前 10 查询耗时中位数'),
             dataIndex: 'medLast10QueryTime',
-            render: (medLast10QueryTime: bigint) => (ns_2_ms(Number(medLast10QueryTime))).toFixed(2) + ' ms',
+            render: (medLast10QueryTime: bigint) => (ns2ms(Number(medLast10QueryTime))).toFixed(2) + ' ms',
             sorter: (a, b) => Number(a.medLast10QueryTime - b.medLast10QueryTime)
         },
         {
             title: t('前 10 查询耗时最大值'),
             dataIndex: 'maxLast10QueryTime',
-            render: (maxLast10QueryTime: bigint) => (ns_2_ms(Number(maxLast10QueryTime))).toFixed(2) + ' ms',
+            render: (maxLast10QueryTime: bigint) => (ns2ms(Number(maxLast10QueryTime))).toFixed(2) + ' ms',
             sorter: (a, b) => Number(a.maxLast10QueryTime - b.maxLast10QueryTime)
         },
         {
             title: t('前 100 查询耗时中位数'),
             dataIndex: 'medLast100QueryTime',
-            render: (medLast100QueryTime: bigint) => (ns_2_ms(Number(medLast100QueryTime))).toFixed(2) + ' ms',
+            render: (medLast100QueryTime: bigint) => (ns2ms(Number(medLast100QueryTime))).toFixed(2) + ' ms',
             sorter: (a, b) => Number(a.medLast100QueryTime - b.medLast100QueryTime)
         },
         {
             title: t('前 100 查询耗时最大值'),
             dataIndex: 'maxLast100QueryTime',
-            render: (maxLast100QueryTime: bigint) => (ns_2_ms(Number(maxLast100QueryTime))).toFixed(2) + ' ms',
+            render: (maxLast100QueryTime: bigint) => (ns2ms(Number(maxLast100QueryTime))).toFixed(2) + ' ms',
             sorter: (a, b) => Number(a.maxLast100QueryTime - b.maxLast100QueryTime)
         },
         {
             title: t('当前查询耗时最大值'),
             dataIndex: 'maxRunningQueryTime',
-            render: (maxRunningQueryTime: bigint) => (ns_2_ms(Number(maxRunningQueryTime))).toFixed(2) + ' ms',
+            render: (maxRunningQueryTime: bigint) => (ns2ms(Number(maxRunningQueryTime))).toFixed(2) + ' ms',
             sorter: (a, b) => Number(a.maxRunningQueryTime - b.maxRunningQueryTime)
         },
         {
@@ -280,14 +282,14 @@ export function OverviewTable ({
         {
             title: t('前一批消息延时'),
             dataIndex: 'lastMsgLatency',
-            render: (lastMsgLatency: bigint) => (ns_2_ms(Number(lastMsgLatency))).toFixed(2) + ' ms',
-            sorter: (a, b) => Number(a.lastMsgLatency - b.lastMsgLatency)
+            render: (lastMsgLatency: bigint) => (ns2ms(Number(lastMsgLatency))).toFixed(2) + ' ms',
+            sorter: (a, b) => Number(a.lastMsgLatency) - Number(b.lastMsgLatency)
         },
         {
             title: t('所有消息平均延时'),
             dataIndex: 'cumMsgLatency',
-            render: (cumMsgLatency: bigint) => (ns_2_ms(Number(cumMsgLatency))).toFixed(2) + ' ms',
-            sorter: (a, b) => Number(a.cumMsgLatency - b.cumMsgLatency)
+            render: (cumMsgLatency: bigint) => (ns2ms(Number(cumMsgLatency))).toFixed(2) + ' ms',
+            sorter: (a, b) => Number(a.cumMsgLatency) - Number(b.cumMsgLatency)
         }
     ], [ ])
     
@@ -301,18 +303,36 @@ export function OverviewTable ({
     const allCols = useMemo(() => columns.map(item => (item as any).dataIndex), [ ])
       
     const [displayCols, setDisplayCols] = useState<string[]>(() => 
-        JSON.parse(localStorage.getItem(storage_keys.overview_display_cols)) || allCols)
+        JSON.parse(localStorage.getItem(storage_keys.overview_display_columns)) || allCols)
     
     const getColName = (col: ColumnType<DdbNode>) => col.dataIndex[0].toUpperCase() + String(col.dataIndex).slice(1)
     
     function handleColsChange (cols: string[]) {
         setDisplayCols(cols)
-        localStorage.setItem(storage_keys.overview_display_cols, JSON.stringify(cols))
+        localStorage.setItem(storage_keys.overview_display_columns, JSON.stringify(cols))
     }
     
-    return <>
+    const collapseItems: CollapseProps['items'] = [
+        {
+            key: 'agent',
+            label: <span className='agent-node-title'>{t('代理节点')}</span>,
+            children: (
+                <div className='agent-node-card'>
+                    {nodes
+                        .filter(({ mode }) => mode === NodeType.agent)
+                        .map(({ name, state }) => <div className='agent-node-item'>
+                                {name}
+                                {node_state_icons[Number(state)]}
+                            </div>)}
+                </div>
+            )
+        }
+    ]
+    
+    return <div className='overview-table'>
+       { node_type !== NodeType.single &&  <Collapse items={collapseItems} bordered={false}/> }
         <Dropdown menu={{ items }} overlayClassName='table-dropdown' trigger={['contextMenu']}>
-            <div className='overview-table'>
+            <div>
                 <Table
                     rowSelection={{
                         selectedRowKeys: selectedNodeNames,
@@ -325,23 +345,14 @@ export function OverviewTable ({
                             }
                         }
                     }}
-                    // agent node 只展示前两列
                     columns={columns.filter(col => displayCols.includes((col as any).dataIndex))
-                        .map((col, idx) =>
-                            idx < 4
-                                ? col
-                                : {
-                                    ...col,
-                                    render: (text, node: DdbNode, idx) => (node.mode === NodeType.agent ? null : col.render ? col.render(text, node, idx) : text)
-                                }
-                        )
-                        .map(col => ({
-                            ...col,
-                            title: <Tooltip title={getColName(col)}>{(col as any).title}</Tooltip>,
-                            showSorterTooltip: false
-                        }))}
+                                    .map(col => ({
+                                        ...col,
+                                        title: <Tooltip title={getColName(col)}>{(col as any).title}</Tooltip>,
+                                        showSorterTooltip: false
+                            }))}
                     dataSource={nodes
-                        .filter(({ name }) => name.toLocaleLowerCase().includes(searchText.toLocaleLowerCase()))
+                        .filter(({ name, mode }) => name.toLowerCase().includes(searchText.toLowerCase()) && mode !== NodeType.agent)
                         .map(node => ({ ...node, key: node.name }))}
                     pagination={false}
                     scroll={{ x: true }}
@@ -368,5 +379,5 @@ export function OverviewTable ({
                 </Row>
             </Checkbox.Group>
         </Modal>
-    </>
+    </div>
 }

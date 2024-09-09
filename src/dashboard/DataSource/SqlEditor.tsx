@@ -5,13 +5,13 @@ import { InputNumber, Popover, Switch } from 'antd'
 
 import { DdbForm } from 'dolphindb/browser.js'
 
-import { Editor } from '../../components/Editor/index.js'
+import { Editor } from '@/components/Editor/index.js'
 
 import { dashboard } from '../model.js'
 
-import { use_monaco_insert } from '../../utils/hooks/use-monaco-insert.js'
+import { use_monaco_insert } from '@/utils/hooks/use-monaco-insert.js'
 
-import { t } from '../../../i18n/index.js'
+import { t } from '@/../i18n/index.js'
 
 import { DataView } from './DataView.js'
 
@@ -19,23 +19,21 @@ import { type DataSource, type DataSourcePropertyType, get_data_source } from '.
 import { InsertVariableBtn } from './InsertVariableBtn.js'
 
 
-interface PropsType { 
+export function SqlEditor ({ 
+    loading,
+    current_data_source, 
+    show_preview,
+    change_current_data_source_property,
+    change_no_save_flag,  
+    close_preview,
+}: {
     loading: boolean
     show_preview: boolean
     current_data_source: DataSource
     close_preview: () => void 
     change_no_save_flag: (value: boolean) => void
     change_current_data_source_property: (key: string, value: DataSourcePropertyType, save_confirm?: boolean) => void
-}
-export function SqlEditor ({ 
-        loading,
-        current_data_source, 
-        show_preview,
-        change_current_data_source_property,
-        change_no_save_flag,  
-        close_preview,
-    }: PropsType) 
-{     
+}) {
     const { result, sql_editor } = dashboard.use(['result', 'sql_editor'])
     
     const { on_monaco_insert } = use_monaco_insert(sql_editor)
@@ -51,6 +49,7 @@ export function SqlEditor ({
         if (current_data_source.mode === get_data_source(current_data_source.id).mode)
             change_no_save_flag(false)
     }, [current_data_source.id])
+    
     
     return <>
         <div className='sqleditor'>
@@ -78,10 +77,9 @@ export function SqlEditor ({
                         </div>
                     </div>
                     <div className='preview-main'>
-                        {result?.data
+                        { result?.data
                             ? <DataView/>
-                            : <div className='preview-main-error'>{current_data_source.error_message }</div> 
-                        }
+                            : <div className='preview-main-error'>{current_data_source.error_message }</div> }
                     </div>
                 </div>
             }
@@ -115,7 +113,7 @@ export function SqlEditor ({
                         />
                         s
                     </div> 
-                    : <></>
+                    : null
                 }
             </div>
             

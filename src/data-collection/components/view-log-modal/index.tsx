@@ -22,8 +22,6 @@ export const ViewLogModal = NiceModal.create(({ protocol }: IProps) => {
         async () => request<string[]>('dcp_getLog', { protocol })
     )
     
-    console.log(data, 'data')
-    
     return <Modal 
         title={t('日志')} 
         width='80%' 
@@ -32,7 +30,6 @@ export const ViewLogModal = NiceModal.create(({ protocol }: IProps) => {
         afterClose={modal.remove}
         footer={null}
     >
-        
         <List 
             loading={isLoading}
             className='log-list'

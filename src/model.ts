@@ -7,27 +7,27 @@ import type { MessageInstance } from 'antd/es/message/interface.js'
 import type { ModalStaticFunctions } from 'antd/es/modal/confirm.js'
 import type { NotificationInstance } from 'antd/es/notification/interface.js'
 
-import { strcmp } from 'xshell/utils.browser.js'
+import 'xshell/polyfill.browser.js'
+import { filter_values, strcmp } from 'xshell/utils.browser.js'
 import { request } from 'xshell/net.browser.js'
 
 import {
-    DDB, SqlStandard, DdbFunctionType, DdbVectorString, type DdbObj, DdbInt, DdbLong, type InspectOptions,
-    DdbDatabaseError, type DdbStringObj, type DdbDictObj, type DdbVectorStringObj,
-    type DdbTableData
+    DDB, SqlStandard, DdbFunctionType, type DdbObj, DdbInt, DdbLong, type InspectOptions,
+    DdbDatabaseError, type DdbTableData
 } from 'dolphindb/browser.js'
 
 import type { Docs } from 'dolphindb/docs.js'
 
-import { language, t } from '../i18n/index.js'
+import { language, t } from '@i18n/index.ts'
 
-import type { FormatErrorOptions } from './components/GlobalErrorBoundary.js'
-import { config } from './config/model.js'
+import type { FormatErrorOptions } from '@/components/GlobalErrorBoundary.tsx'
+import { config } from '@/config/model.ts'
+import { goto_url, strip_quotes } from '@/utils/index.ts'
 
 
 export const storage_keys = {
     ticket: 'ddb.ticket',
     username: 'ddb.username',
-    session_id: 'ddb.session_id',
     collapsed: 'ddb.collapsed',
     code: 'ddb.code',
     session: 'ddb.session',
@@ -36,17 +36,24 @@ export const storage_keys = {
     sql: 'ddb.sql',
     dashboard_autosave: 'ddb.dashboard.autosave',
     overview_display_mode: 'ddb.overview.display_mode',
-    overview_display_cols: 'ddb.overview.display_cols'
+    overview_display_columns: 'ddb.overview.display_columns'
 } as const
 
 const json_error_pattern = /^{.*"code": "(.*?)".*}$/
 
 const username_guest = 'guest' as const
 
-export type PageViews = 'overview' | 'shell' | 'dashboard' | 'table' | 'job' | 'login' | 'dfs' | 'log' | 'factor' | 'test' | 'computing' | 'tools' | 'iot-guide' | 'finance-guide' | 'access' | 'user' | 'group' | 'config' | 'data-collection' | 'parser-template' | 'connection'
+export type PageViews = 'overview' | 'shell' | 'dashboard' | 'table' | 'job' | 'plugins' | 'login' | 'dfs' | 'log' | 
+    'factor' | 'test' | 'computing' | 'tools' | 'iot-guide' | 'finance-guide' | 'access' | 'user' | 'group' | 'config' |
+    'settings' | 'connection' | 'parser-template' | 'data-collection'
+
+
+type OAuthType = 'authorization code' | 'implicit'
 
 
 export class DdbModel extends Model<DdbModel> {
+    params: URLSearchParams
+    
     inited = false
     
     /** 在本地开发模式 */
@@ -54,6 +61,11 @@ export class DdbModel extends Model<DdbModel> {
     
     /** 通过 ticket 或用户名密码自动登录，默认为 true 传 autologin=0 关闭 */
     autologin = true
+    
+    /** 是否启用 sso 登录 */
+    oauth = false
+    
+    oauth_type: OAuthType
     
     /** 通过 test.dolphindb.cn 访问的 web */
     test = false
@@ -151,9 +163,9 @@ export class DdbModel extends Model<DdbModel> {
     constructor () {
         super()
         
-        const params = new URLSearchParams(location.search)
+        const params = this.params = new URLSearchParams(location.search)
         
-        this.dev = params.get('dev') !== '0' && location.host === 'localhost:8432' || params.get('dev') === '1'
+        this.dev = params.get('dev') !== '0' && (location.host === 'localhost:8432' || params.get('dev') === '1')
         this.autologin = params.get('autologin') !== '0'
         this.test = location.hostname === 'test.dolphindb.cn' || params.get('test') === '1'
         this.verbose = params.get('verbose') === '1'
@@ -199,13 +211,38 @@ export class DdbModel extends Model<DdbModel> {
             version: WEB_VERSION
         }))
         
-        
         await Promise.all([
             this.get_node_type(),
             this.get_node_alias(),
-            this.get_controller_alias(),
-            this.get_login_required()
+            this.get_controller_alias()
         ])
+        
+        await Promise.all([
+            // 必须先调用上面的函数，load_configs 依赖 controller alias 等信息
+            config.load_configs(),
+            
+            this.get_cluster_perf(true)
+        ])
+        
+        console.log(t('配置:'), await this.ddb.invoke<Record<string, string>>('getConfig'))
+        
+        await this.check_leader_and_redirect()
+        
+        await this.set_oauth_config()
+        
+        this.set({
+            oauth: config.get_boolean_config('oauth'),
+            login_required: config.get_boolean_config('webLoginRequired')
+        })
+        
+        console.log(t('web 强制登录:'), this.login_required)
+        
+        if (this.oauth) {
+            this.oauth_type = config.get_config<OAuthType>('oauthWebType') || 'implicit'
+            
+            if (!['implicit', 'authorization code'].includes(this.oauth_type))
+                throw new Error(t('oauthType 配置参数的值必须为 authorization code 或 implicit，默认为 implicit'))
+        }
         
         if (this.autologin)
             try {
@@ -213,27 +250,24 @@ export class DdbModel extends Model<DdbModel> {
             } catch {
                 console.log(t('ticket 登录失败'))
                 
-                if (this.dev || this.test)
-                    try {
-                        await this.login_by_password('admin', '123456')
-                    } catch {
-                        console.log(t('使用默认 admin 账号密码登录失败'))
-                    }
+                if (this.oauth)
+                    await this.login_by_oauth()
+                else
+                    if (this.dev || this.test)
+                        try {
+                            await this.login_by_password('admin', '123456')
+                        } catch {
+                            console.log(t('使用默认 admin 账号密码登录失败'))
+                        }
             }
         
-        await this.get_cluster_perf(true)
         
-        await this.check_leader_and_redirect()
-        
-        await Promise.all([
-            this.get_factor_platform_enabled(),
-            config.load_nodes_config()
-        ])
-        
-        const webModules = config.nodes_configs.get('webModules')
+        await this.get_factor_platform_enabled()
         
         this.set({
-            enabled_modules: (webModules?.value) ? new Set(webModules.value.split(',')) : new Set()
+            enabled_modules: new Set(
+                config.get_config('webModules')?.split(',') || [ ]
+            )
         })
         
         console.log(t('web 初始化成功'))
@@ -243,13 +277,62 @@ export class DdbModel extends Model<DdbModel> {
         this.goto_default_view()
         
         if (this.login_required && !this.logined)
-            this.goto_login()
+            await this.goto_login()
         
         this.set({ inited: true })
         
         this.get_version()
     }
     
+    
+    async set_oauth_config () {
+        if (this.params.get('oauth') === 'github') {
+            await this.login_by_password('admin', '123456')
+            
+            config.set_config('oauth', '1')
+            config.set_config('oauthWebType', 'authorization code')
+            config.set_config('oauthAuthUri', 'https://github.com/login/oauth/authorize')
+            config.set_config('oauthClientId', 'Ov23liZJ5nXZvunhpJLI')
+            config.set_config('oauthClientSecret', '3c289d4ab4cee18f834d66a94b38c736fc52e40a')
+            
+            // todo: 测试 github 是否支持不传 redirect_uri
+            // config.delete_config('oauthRedirectUri')
+            
+            // 和 github application 保持一致
+            // https://github.com/settings/applications/2674516
+            config.set_config('oauthRedirectUri', 'http://localhost:8432/?hostname=192.168.0.129&port=8900'.quote())
+            
+            config.set_config('oauthTokenUri', 'https://github.com/login/oauth/access_token')
+            config.set_config('oauthUserUri', 'https://api.github.com/user')
+            config.set_config('oauthUserField', 'name')
+            
+            await config.save_configs()
+            
+            await this.logout()
+        }
+        
+        if (this.params.get('oauth') === 'gitlab') {
+            await this.login_by_password('admin', '123456')
+            
+            config.set_config('oauth', '1')
+            config.set_config('oauthWebType', 'authorization code')
+            config.set_config('oauthAuthUri', 'https://dolphindb.net/oauth/authorize')
+            config.set_config('oauthClientId', 'd7a10c46e0c34815a2eb213d5651c01bf4432d046bbe8a77ebd13da6783c91e5')
+            config.set_config('oauthClientSecret', 'd819591ab7d9bb1c5adc0262a2d639979ba9c85c178227afbd0095f83e97af10')
+            
+            // 和 gitlab application 保持一致
+            // https://dolphindb.net/oauth/applications/17
+            config.set_config('oauthRedirectUri', 'http://localhost:8432/?hostname=192.168.0.129&port=8900'.quote())
+            
+            config.set_config('oauthTokenUri', 'https://dolphindb.net/oauth/token')
+            config.set_config('oauthUserUri', 'https://dolphindb.net/api/v4/user')
+            config.set_config('oauthUserField', 'username')
+            
+            await config.save_configs()
+            
+            await this.logout()
+        }
+    }
     
     
     /** 设置 url 上的 query 参数
@@ -275,26 +358,16 @@ export class DdbModel extends Model<DdbModel> {
     async login_by_password (username: string, password: string) {
         this.ddb.username = username
         this.ddb.password = password
-        await this.ddb.call('login', [username, password], { urgent: true })
         
-        const ticket = (
-            await this.ddb.call<DdbObj<string>>('getAuthenticatedUserTicket', [ ], {
-                urgent: true,
-                ... this.node_type === NodeType.controller || this.node_type === NodeType.single ? { } : { node: this.controller_alias, func_type: DdbFunctionType.SystemFunc }
-            })
-        ).value
+        await this.ddb.invoke('login', [username, password], { urgent: true })
         
-        localStorage.setItem(storage_keys.username, username)
-        localStorage.setItem(storage_keys.ticket, ticket)
-        
-        this.set({ logined: true, username })
-        
-        await this.is_admin()
+        await this.update_user()
         
         console.log(t('{{username}} 使用账号密码登陆成功', { username: this.username }))
     }
     
     
+    /** 通过 oauthLogin 和 getAuthenticatedUserTicket 拿到的两种 ticket 登录 */
     async login_by_ticket () {
         const ticket = localStorage.getItem(storage_keys.ticket)
         if (!ticket)
@@ -305,7 +378,7 @@ export class DdbModel extends Model<DdbModel> {
             throw new Error(t('没有自动登录的 username'))
         
         try {
-            await this.ddb.call('authenticateByTicket', [ticket], { urgent: true })
+            await this.ddb.invoke('authenticateByTicket', [ticket], { urgent: true })
             this.set({ logined: true, username: last_username })
             
             await this.is_admin()
@@ -323,11 +396,9 @@ export class DdbModel extends Model<DdbModel> {
     async login_by_session (session: string) {
         // https://dolphindb1.atlassian.net/browse/DPLG-581
         
-        await this.ddb.call('login', ['guest', '123456'])
+        await this.ddb.invoke('login', ['guest', '123456'])
         
-        const result = (
-            await this.ddb.call('authenticateBySession', [session])
-        ).to_dict<{ code: number, message: string, username: string, raw: string }>({ strip: true })
+        const result = await this.ddb.invoke<{ code: number, message: string, username: string, raw: string }>('authenticateBySession', [session])
         
         if (result.code) {
             const message = t('通过 session 登录失败，即将跳转到单点登录页')
@@ -360,43 +431,166 @@ export class DdbModel extends Model<DdbModel> {
     }
     
     
-    logout () {
+    /** 实现了两种 oauth 方法: 
+        - authorization code
+        - implicit
+        
+        https://www.ruanyifeng.com/blog/2019/04/oauth-grant-types.html  
+        https://datatracker.ietf.org/doc/html/rfc6749 */
+    async login_by_oauth () {
+        let url = new URL(location.href)
+        
+        // 有 ticket 说明 oauthLogin 登录成功
+        let ticket: string
+        
+        /** redirect_uri 只能跳转到其中某个节点，需要带参数跳回到原发起登录的节点 */
+        const jump = async (state: string) => {
+            if (state && state !== this.node_alias) {
+                const node = this.nodes.find(({ name }) => name === state)
+                if (!node)
+                    throw new Error(t('无法从当前节点 {{current}} 跳转回发起登录的节点 {{origin}}，找不到节点信息', { current: this.node_alias, origin: state }))
+                
+                await goto_url(this.get_node_url(node))
+            }
+        }
+        
+        // https://datatracker.ietf.org/doc/html/rfc6749#section-4.2.2
+        if (this.oauth_type === 'implicit') {
+            const params = new URLSearchParams(url.hash.slice(1))
+            
+            const access_token = params.get('access_token') || params.get('accessToken')
+            const token_type = params.get('token_type') || params.get('tokenType')
+            const expires_in = params.get('expires_in') || params.get('expiresIn')
+            
+            if (access_token) {
+                console.log(t(
+                    '尝试 oauth 单点登录，类型是 implicit, token_type 为 {{token_type}}, access_token 为 {{access_token}}, expires_in 为 {{expires_in}}',
+                    { token_type, access_token, expires_in }))
+                
+                await jump(
+                    params.get('state')
+                )
+                
+                ticket = await this.ddb.invoke<string>('oauthLogin', [this.oauth_type, {
+                    token_type,
+                    access_token,
+                    expires_in
+                }])
+                
+                url.hash = ''
+            } else
+                console.log(t('尝试 oauth 单点登录，类型是 implicit, 无 access_token'))
+        } else {
+            let { searchParams: params } = url
+            const code = params.get('code')
+            
+            if (code) {
+                console.log(
+                    t('尝试 oauth 单点登录，类型是 authorization code, code 为 {{code}}',
+                    { code }))
+                
+                await jump(
+                    params.get('state')
+                )
+                
+                ticket = await this.ddb.invoke<string>('oauthLogin', [this.oauth_type, { code }])
+                
+                params.delete('code')
+                history.replaceState(null, '', url.toString())
+            } else
+                console.log(t('尝试 oauth 单点登录，类型是 authorization code, 无 code'))
+        }
+        
+        
+        if (ticket) {
+            const username = await this.update_user(ticket)
+            
+            if (this.logined)
+                console.log(t('{{username}} 使用 oauth 单点登录成功', { username }))
+            else
+                throw new Error(t('通过 oauth 单点登录之后的 username 不能是 {{guest}}', { guest: username_guest }))
+        }
+    }
+    
+    
+    async update_user (ticket?: string) {
+        const [session, username] = await this.ddb.invoke<[string, string]>('getCurrentSessionAndUser')
+        
+        const logined = username !== username_guest
+        
+        this.set({ logined, username })
+        
+        await this.is_admin()
+        
+        if (logined) {
+            if (!ticket)
+                ticket = await this.ddb.invoke<string>('getAuthenticatedUserTicket', undefined, {
+                    urgent: true,
+                    ... this.node_type === NodeType.controller || this.node_type === NodeType.single 
+                        ? { }
+                        : { node: this.controller_alias, func_type: DdbFunctionType.SystemFunc }
+                })
+            
+            localStorage.setItem(storage_keys.username, username)
+            localStorage.setItem(storage_keys.ticket, ticket)
+        }
+        
+        return username
+    }
+    
+    
+    async logout () {
         localStorage.removeItem(storage_keys.ticket)
         localStorage.removeItem(storage_keys.username)
-        localStorage.setItem(storage_keys.session_id, '0')
         
-        this.ddb.call('logout', [ ], { urgent: true })
+        await this.ddb.invoke('logout', undefined, { urgent: true })
         
         this.set({
             logined: false,
             username: username_guest,
             admin: false
         })
-        this.goto_login()
+        
+        if (this.login_required)
+            await this.goto_login()
     }
     
     
     async is_admin () {
-        if (this.node_type !== NodeType.computing)
-            this.set({ admin: (await this.ddb.call<DdbObj<DdbObj[]>>('getUserAccess', [ ], { urgent: true })).to_rows()[0].isAdmin })
+        const admin = this.logined && (
+            await this.ddb.invoke<DdbTableData<{ isAdmin: boolean }>>(
+                'getUserAccess',
+                undefined,
+                { urgent: true }
+            )
+        ).data[0].isAdmin
+        
+        this.set({ admin })
+        
+        return admin
     }
     
     
-    /** 获取是否启用因子平台，待 server 实现 */
+    /** 获取是否启用因子平台 */
     async get_factor_platform_enabled () {
         try {
-            const { value } = await this.ddb.eval<DdbObj<boolean>>(
-                'use factorPlatform::facplf\n' +
-                'factorPlatform::facplf::is_factor_platform_enabled()\n'
-                , { urgent: true })
-            this.set({ is_factor_platform_enabled: value })
-            return value
-        } catch { }
+            this.set({
+                is_factor_platform_enabled: 
+                    await this.ddb.execute<boolean>(
+                        'use factorPlatform::facplf\n' +
+                        'factorPlatform::facplf::is_factor_platform_enabled()\n'
+                    , { urgent: true })
+            })
+            
+            return this.is_factor_platform_enabled
+        } catch {
+            return false
+        }
     }
     
     
     async start_nodes (nodes: DdbNode[]) {
-        await this.ddb.call('startDataNode', [new DdbVectorString(nodes.map(node => node.name))], {
+        await this.ddb.invoke('startDataNode', [nodes.map(node => node.name)], {
             node: this.controller_alias, 
             func_type: DdbFunctionType.SystemProc
         })
@@ -404,7 +598,7 @@ export class DdbModel extends Model<DdbModel> {
     
     
     async stop_nodes (nodes: DdbNode[]) {
-        await this.ddb.call('stopDataNode', [new DdbVectorString(nodes.map(node => node.name))], {
+        await this.ddb.invoke('stopDataNode', [nodes.map(node => node.name)], {
             node: this.controller_alias, 
             func_type: DdbFunctionType.SystemProc
         })
@@ -412,7 +606,7 @@ export class DdbModel extends Model<DdbModel> {
     
     
     async get_node_type () {
-        const { value: node_type } = await this.ddb.call<DdbObj<NodeType>>('getNodeType', [ ], { urgent: true })
+        const node_type = await this.ddb.invoke<NodeType>('getNodeType', undefined, { urgent: true })
         this.set({ node_type })
         console.log(t('节点类型:'), NodeType[node_type])
         return node_type
@@ -420,7 +614,7 @@ export class DdbModel extends Model<DdbModel> {
     
     
     async get_node_alias () {
-        const { value: node_alias } = await this.ddb.call<DdbObj<string>>('getNodeAlias', [ ], { urgent: true })
+        const node_alias = await this.ddb.invoke<string>('getNodeAlias', undefined, { urgent: true })
         this.set({ node_alias })
         console.log(t('节点名称:'), node_alias)
         return node_alias
@@ -428,33 +622,26 @@ export class DdbModel extends Model<DdbModel> {
     
     
     async get_controller_alias () {
-        const { value: controller_alias } = await this.ddb.call<DdbObj<string>>('getControllerAlias', [ ], { urgent: true })
+        const controller_alias = await this.ddb.invoke('getControllerAlias', undefined, { urgent: true })
         this.set({ controller_alias })
         console.log(t('控制节点:'), controller_alias)
         return controller_alias
     }
     
     
-    async get_login_required () {
-        const { value } = await this.ddb.call<DdbStringObj>('getConfig', ['webLoginRequired'], { urgent: true })
-        const login_required = value === '1' || value === 'true'
-        this.set({ login_required })
-        // 开发用 this.set({ login_required: true })
-        console.log(t('web 强制登录:'), login_required)
-        return login_required
-    }
-    
-    
     async get_version () {
-        let { value: version } = await this.ddb.call<DdbObj<string>>('version')
-        version = version.split(' ')[0]
+        const version = (await this.ddb.invoke<string>('version'))
+            .split(' ')[0]
+        
         this.set({
             version,
             v1: version.startsWith('1.'),
             v2: version.startsWith('2.'),
             v3: version.startsWith('3.')
         })
+        
         console.log(t('版本:'), version)
+        
         return version
     }
     
@@ -474,7 +661,7 @@ export class DdbModel extends Model<DdbModel> {
         const license = this.license
         
         // license.expiration 是以 date 为单位的数字
-        const expiration_date = dayjs(license.expiration * 86400000)
+        const expiration_date = dayjs(license.expiration)
         const now = dayjs()
         const after_two_week = now.add(2, 'week')
         const is_license_expired = now.isAfter(expiration_date, 'day')
@@ -497,10 +684,7 @@ export class DdbModel extends Model<DdbModel> {
     
     /** 获取节点的 license 信息 */
     async get_license_self_info () {
-        const license = (
-            await this.ddb.call<DdbObj<DdbObj[]>>('license')
-        ).to_dict<DdbLicense>({ strip: true })
-        
+        const license = await this.ddb.invoke<DdbLicense>('license')
         console.log('license:', license)
         this.set({ license })
         return license
@@ -509,14 +693,12 @@ export class DdbModel extends Model<DdbModel> {
     
     /** 如果节点是 license server, 获取 license server 相关信息 */
     async get_license_server_info () {
-        const license_server_site = (
-            await this.ddb.call<DdbStringObj>('getConfig', ['licenseServerSite'])
-        ).value
+        const license_server_site = await this.ddb.invoke<string>('getConfig', ['licenseServerSite'])
         
         const is_license_server_node = this.license.licenseType === LicenseTypes.LicenseServerVerify && license_server_site === this.node.site
         
         const license_server_resource = is_license_server_node 
-            ? (await this.ddb.call<DdbDictObj<DdbVectorStringObj>>('getLicenseServerResourceInfo')).to_dict<DdbLicenseServerResource>({ strip: true }) 
+            ? await this.ddb.invoke<DdbLicenseServerResource>('getLicenseServerResourceInfo')
             : null
         
         this.set({ 
@@ -531,12 +713,38 @@ export class DdbModel extends Model<DdbModel> {
     
     /** 去登录页
         @param redirection 设置登录完成后的回跳页面，默认取当前 view */
-    goto_login (redirection: PageViews = this.view) {
-        this.set({
-            view: 'login',
-            ... redirection === 'login' ? { } : { redirection }
-        })
+    async goto_login (redirection: PageViews = this.view) {
+        if (this.oauth) {
+            const auth_uri = strip_quotes(
+                config.get_config('oauthAuthUri')
+            )
+            const client_id = config.get_config('oauthClientId')
+            const redirect_uri = strip_quotes(
+                config.get_config('oauthRedirectUri')
+            )
+            
+            if (!auth_uri || !client_id)
+                throw new Error(t('必须配置 oauthAuthUri, oauthClientId 参数'))
+            
+            const url = new URL(
+                auth_uri + '?' + new URLSearchParams({
+                    response_type: this.oauth_type === 'implicit' ? 'token' : 'code',
+                    client_id,
+                    ... redirect_uri ? { redirect_uri } : { },
+                    state: this.node_alias
+                }).toString()
+            ).toString()
+            
+            console.log(t('跳转到 oauth 验证页面:'), url)
+            
+            await goto_url(url)
+        } else
+            this.set({
+                view: 'login',
+                ... redirection === 'login' ? { } : { redirection }
+            })
     }
+    
     
     goto_redirection () {
         if (this.redirection) 
@@ -545,6 +753,7 @@ export class DdbModel extends Model<DdbModel> {
             // 保留旧跳转逻辑
             this.goto_default_view()
     }
+    
     
     goto_default_view () {
         this.set({
@@ -559,7 +768,7 @@ export class DdbModel extends Model<DdbModel> {
         Only master or single mode supports function getClusterPerf. */
     async get_cluster_perf (print: boolean) {
         const nodes = (
-            await this.ddb.call<DdbObj<DdbObj[]>>('getClusterPerf', [true], {
+            await this.ddb.invoke<DdbTableData<DdbNode>>('getClusterPerf', [true], {
                 urgent: true,
                 
                 ... this.node_type === NodeType.controller || this.node_type === NodeType.single ? 
@@ -570,7 +779,7 @@ export class DdbModel extends Model<DdbModel> {
                         func_type: DdbFunctionType.SystemFunc
                     },
             })
-        ).data<DdbTableData>()
+        )
         .data
         .sort((a, b) => strcmp(a.name, b.name))
         
@@ -612,11 +821,12 @@ export class DdbModel extends Model<DdbModel> {
     }
     
     
-    find_closest_node_host (node: DdbNode) {
+    find_node_closest_hostname (node: DdbNode) {
         const params = new URLSearchParams(location.search)
         const current_connect_host = params.get('hostname') || location.hostname
         
-        const hosts = [...node.publicName.split(';').map(name => name.trim()), node.host]
+        // 所有域名应该都转成小写后匹配，因为浏览器默认会将 location.hostname 转为小写
+        const hosts = [...node.publicName.split(';').map(name => name.trim().toLowerCase()), node.host.toLowerCase()]
         
         // 匹配当前域名/IP 和 hosts 中域名/IP 的相似度，动态规划最长公共子串
         function calc_host_score (hostname: string) {
@@ -638,7 +848,7 @@ export class DdbModel extends Model<DdbModel> {
             return maxlen
         }
         
-        const [closest] = hosts.slice(1).reduce<readonly [string, number]>((prev, hostname) => {
+        const [closest] = hosts.slice(1).reduce<[string, number]>((prev, hostname) => {
             if (hostname === current_connect_host)
                 return [hostname, Infinity]
             
@@ -648,7 +858,7 @@ export class DdbModel extends Model<DdbModel> {
                 return [hostname, score]
             
             return prev
-        }, [hosts[0], calc_host_score(hosts[0])] as const)
+        }, [hosts[0], calc_host_score(hosts[0])])
         
         return closest
     }
@@ -659,19 +869,20 @@ export class DdbModel extends Model<DdbModel> {
             const leader = this.nodes.find(node => node.isLeader)
             
             if (leader) {
-                const host = this.find_closest_node_host(leader)
+                const url = this.get_node_url(leader)
                 alert(
                     t('您访问的这个控制节点现在不是高可用 (raft) 集群的 leader 节点, 将会为您自动跳转到集群当前的 leader 节点: ') + 
-                    `${host}:${leader.port}`
+                    url
                 )
-                this.navigate_to(host, leader.port, { keep_current_query: true })
+                
+                await goto_url(url)
             }
         }
     }
     
     
     async get_console_jobs () {
-        return this.ddb.call<DdbObj<DdbObj[]>>('getConsoleJobs', [ ], {
+        return this.ddb.call<DdbObj<DdbObj[]>>('getConsoleJobs', undefined, {
             urgent: true,
             nodes: this.node_type === NodeType.controller ? 
                     this.nodes.filter(node => 
@@ -686,7 +897,7 @@ export class DdbModel extends Model<DdbModel> {
     
     
     async get_recent_jobs () {
-        return this.ddb.call<DdbObj<DdbObj[]>>('getRecentJobs', [ ], {
+        return this.ddb.call<DdbObj<DdbObj[]>>('getRecentJobs', undefined, {
             urgent: true,
             nodes: this.node_type === NodeType.controller ? 
                     this.nodes.filter(node => 
@@ -701,7 +912,7 @@ export class DdbModel extends Model<DdbModel> {
     
     
     async get_scheduled_jobs () {
-        return this.ddb.call<DdbObj<DdbObj[]>>('getScheduledJobs', [ ], {
+        return this.ddb.call<DdbObj<DdbObj[]>>('getScheduledJobs', undefined, {
             urgent: true,
             nodes: this.node_type === NodeType.controller ? 
                 this.nodes.filter(node => node.state === DdbNodeState.online && node.mode !== NodeType.agent)
@@ -713,12 +924,12 @@ export class DdbModel extends Model<DdbModel> {
     
     
     async cancel_console_job (job: DdbJob) {
-        return this.ddb.call('cancelConsoleJob', [job.rootJobId], { urgent: true })
+        return this.ddb.invoke('cancelConsoleJob', [job.rootJobId], { urgent: true })
     }
     
     
     async cancel_job (job: DdbJob) {
-        return this.ddb.call('cancelJob', [job.jobId], {
+        return this.ddb.invoke('cancelJob', [job.jobId], {
             urgent: true,
             ... (!job.node || this.node_alias === job.node) ? { } : { node: job.node, func_type: DdbFunctionType.SystemProc }
         })
@@ -726,7 +937,7 @@ export class DdbModel extends Model<DdbModel> {
     
     
     async delete_scheduled_job (job: DdbJob) {
-        return this.ddb.call('deleteScheduledJob', [job.jobId], {
+        return this.ddb.invoke('deleteScheduledJob', [job.jobId], {
             urgent: true,
             ... (!job.node || this.node_alias === job.node) ? { } : { node: job.node, func_type: DdbFunctionType.SystemProc }
         })
@@ -749,12 +960,12 @@ export class DdbModel extends Model<DdbModel> {
                 this.first_get_server_log_length = false
             }
             const [host, port] = this.node.agentSite.split(':')
-            ;({ value: length } = await this.ddb.call<DdbObj<bigint>>(
+            length = await this.ddb.invoke<bigint>(
                 'get_server_log_length_by_agent',
                 [host, new DdbInt(Number(port)), this.node_alias]
-            ))
+            )
         } else
-            ({ value: length } = await this.ddb.call<DdbObj<bigint>>('getServerLogLength', [this.node_alias]))
+            length = await this.ddb.invoke<bigint>('getServerLogLength', [this.node_alias])
         
         console.log('get_server_log_length', length)
         
@@ -780,15 +991,15 @@ export class DdbModel extends Model<DdbModel> {
             
             const [host, port] = this.node.agentSite.split(':')
             
-            ;({ value: logs } = await this.ddb.call<DdbObj<string[]>>(
+            logs = await this.ddb.invoke<string[]>(
                 'get_server_log_by_agent',
                 [host, new DdbInt(Number(port)), new DdbLong(length), new DdbLong(offset), this.node_alias]
-            ))
+            )
         } else
-            ({ value: logs } = await this.ddb.call<DdbObj<string[]>>(
+            logs = await this.ddb.invoke<string[]>(
                 'getServerLog',
                 [new DdbLong(length), new DdbLong(offset), true, this.node_alias]
-            ))
+            )
         
         logs.reverse()
         
@@ -798,47 +1009,44 @@ export class DdbModel extends Model<DdbModel> {
     }
     
     
-    navigate_to_node (node: DdbNode, options?: NavigateToOptions) {
-        this.navigate_to(node.publicName || node.host, node.port, options)
+    /** 获取 node 最优跳转 url */
+    get_node_url (node: DdbNode, options?: GetUrlOptions ) {
+        return this.get_url(
+            this.find_node_closest_hostname(node), 
+            node.port, 
+            options
+        )
     }
     
     
-    navigate_to (
-        hostname: string,
-        port: string | number,
-        options: NavigateToOptions = { }
-    ) {
-        const {
+    get_url (
+        hostname: string, 
+        port: number,
+        {
             pathname = location.pathname,
-            query: extra_query,
-            keep_current_query = false,
-            open = false
-        } = options
+            queries,
+            keep_current_queries = true
+        }: GetUrlOptions = { }
+    ) {
+        const _queries = new URLSearchParams(location.search)
+        const is_query_params_mode = _queries.get('hostname') || _queries.get('port')
+        const port_ = is_query_params_mode ? location.port : port
         
-        const current_params = new URLSearchParams(location.search)
-        const is_query_params_mode = current_params.get('hostname') || current_params.get('port')
+        const query_string = new URLSearchParams(filter_values({
+            ... keep_current_queries ? Object.fromEntries(_queries.entries()) : { },
+            ... is_query_params_mode ? {
+                hostname,
+                port: String(port)
+            } : { },
+            ... queries,
+        })).toString()
         
-        const new_params = new URLSearchParams(extra_query)
-        
-        if (keep_current_query) 
-            current_params.forEach((v, key) => {
-                !new_params.has(key) && new_params.set(key, v)
-            })
-            
-        
-        if (is_query_params_mode) {
-            new_params.set('hostname', hostname)
-            new_params.set('port', port.toString())
-        }
-        
-        const url_hostname = is_query_params_mode ? location.hostname : hostname
-        const url_port = is_query_params_mode ? location.port : port
-        const url = `${location.protocol}//${url_hostname}:${url_port}${pathname}?${new_params.toString()}`
-        
-        if (open) 
-            window.open(url, '_blank')
-         else
-            location.href = url
+        return location.protocol + '//' +
+            (is_query_params_mode ? location.hostname : hostname) + 
+            (port_ ? `:${port_}` : '') +
+            pathname + 
+            (query_string ? `?${query_string}` : '') +
+            location.hash
     }
     
     
@@ -909,51 +1117,6 @@ export class DdbModel extends Model<DdbModel> {
         return this.enabled_modules.has(key) || !this.optional_modules.has(key)
     }
 }
-
-
-if (!Promise.withResolvers)
-    Promise.withResolvers = function PromiseWithResolvers () {
-        let resolve: any, reject: any
-        let promise = new Promise((_resolve, _reject) => {
-            resolve = _resolve
-            reject = _reject
-        })
-        return { promise, resolve, reject }
-    } as any
-
-
-if (!Array.prototype.toReversed)
-    Object.defineProperty(Array.prototype, 'toReversed', {
-        configurable: true,
-        writable: true,
-        enumerable: false,
-        value: function toReversed (this: Array<any>) {
-            return [...this].reverse()
-        }
-    })
-
-if (!Array.prototype.toSpliced)
-    Object.defineProperty(Array.prototype, 'toSpliced', {
-        configurable: true,
-        writable: true,
-        enumerable: false,
-        value: function toSpliced (...args: [start: number, deleteCount?: number, ...items: any[]]) {
-            const copy = [...this]
-            copy.splice(...args)
-            return copy
-        }
-    })
-
-if (!Array.prototype.at)
-    Object.defineProperty(Array.prototype, 'at', {
-        configurable: true,
-        writable: true,
-        enumerable: false,
-        value: function at (index: number) {
-            return index >= 0 ? this[index] : this[index + this.length]
-        }
-    })
-
 
 
 export enum NodeType {
@@ -1071,7 +1234,7 @@ export interface DdbLicense {
     maxCoresPerNode: number
     clientName: string
     bindCPU: boolean
-    expiration: number
+    expiration: string
     maxNodes: number
     version: string
     modules: bigint
@@ -1143,11 +1306,10 @@ export enum DdbNodeState {
 }
 
 
-interface NavigateToOptions {
+export interface GetUrlOptions {
     pathname?: string
-    query?: ConstructorParameters<typeof URLSearchParams>[0]
-    keep_current_query?: boolean
-    open?: boolean
+    queries?: Record<string, string>
+    keep_current_queries?: boolean
 }
 
 

@@ -2,7 +2,7 @@ import './index.sass'
 
 import { type ReactNode, type JSX } from 'react'
 
-import { Button, Tooltip, Progress, Tag, Checkbox } from 'antd'
+import { Tooltip, Progress, Tag, Checkbox } from 'antd'
 
 import { default as Icon } from '@ant-design/icons'
 
@@ -12,14 +12,13 @@ import { t, language } from '../../i18n/index.js'
 import { NodeType, type DdbNode, model } from '../model.js'
 
 
-import SvgRefresh from './icons/refresh.icon.svg'
 
 import SvgCPU from './icons/cpu.icon.svg'
 import SvgMemory from './icons/memory.icon.svg'
 import SvgDisk from './icons/disk.icon.svg'
 import SvgNetwork from './icons/network.icon.svg'
 import SvgTask from './icons/task.icon.svg'
-import { generate_node_link, ns_2_ms } from './utils.js'
+import { ns2ms } from './utils.js'
 
 
 export function OverviewCard ({
@@ -81,7 +80,7 @@ function Nodes ({
     setExpandedNodes?: (nodes: DdbNode[]) => void
 }) {
     const { node } = model.use(['node'])
-    const numOfNodes = nodes.filter(node => node.mode === type).length
+    const numOfNodes = nodes ? nodes.filter(node => node.mode === type).length : 0
     
     function switchFold (node: DdbNode) {
         if (node.mode === NodeType.agent )
@@ -210,23 +209,13 @@ function Node ({
     
     return <div className={'node' + ' ' + (type !== NodeType.single && node.name === model.node.name ? current_node_borders[node.mode] : '')}>{
             type === NodeType.single ? 
-                <div className={'node-header' + ' ' + node_colors[mode]}>
+                <div className={`single-node-header ${node_colors[mode]}`}>
                     <div className={'node-title' + ' ' + title_colors[mode]}><div className='node-name'>{name}</div>{isLeader ? <Tag className='leader-tag' color='#FFF' >leader</Tag> : null}</div>
-                    <div className='node-click-single'>
-                        <div
-                            className={`single-refresh-container${language === 'en' ? ' en-width' : ''}`}
-                            onClick={() => {
-                                model.get_cluster_perf(true)
-                            }}
-                        >
-                            <Button type='text' block icon={<Icon className='icon-refresh' component={SvgRefresh} />}>
-                                {t('刷新')}
-                            </Button>
+                    <div className='single-node-site'>
+                        <NodeSite node={node}/>
+                        <div className={node_statuses[state]}>
+                            <span>{state ? t('运行中') : t('未启动')}</span>
                         </div>
-                    </div>
-                    <NodeSite node={node}/>
-                    <div className={node_statuses[state]}>
-                        <span>{state ? t('运行中') : t('未启动')}</span>
                     </div>
                 </div>
             :
@@ -248,12 +237,14 @@ function Node ({
                             />
                         </Tooltip>
                     </div>
-                    <div className={'node-title' + ' ' + title_colors[mode]}>
-                        <div className='node-name'>{name}</div>
+                    <div className={`node-title ${title_colors[mode]}`}>
+                        <a className={`node-name ${title_colors[mode]}`} target='_blank' href={model.get_node_url(node)}>
+                            {name}
+                        </a>
                         {isLeader && <Tag className='leader-tag' color='#FFF' >leader</Tag> }
                     </div>
                     <div className='node-click' onClick={() => { switchFold(node) }} />
-                    <NodeSite node={node}/>
+                    <NodeSite node={node} />
                     <div className={node_statuses[state]}><span>{state ? t('运行中') : t('未启动')}</span></div>
                 </div>
             }
@@ -347,8 +338,8 @@ function Node ({
                     <InfoItem title={t('运行任务')}>{runningJobs}</InfoItem>
                     <InfoItem title={t('排队作业')}>{queuedJobs}</InfoItem>
                     <InfoItem title={t('排队任务')}>{queuedTasks}</InfoItem>
-                    <InfoItem title={t('前一批消息时延')}>{Number(lastMsgLatency) < Number.MIN_VALUE ? 0  : (ns_2_ms(Number(cumMsgLatency))).toFixed(2) + ' ns'}</InfoItem>
-                    <InfoItem title={t('所有消息平均时延')}>{Number(cumMsgLatency) < Number.MIN_VALUE ? 0 :  (ns_2_ms(Number(cumMsgLatency))).toFixed(2) + ' ns'}</InfoItem>
+                    <InfoItem title={t('前一批消息时延')}>{Number(lastMsgLatency) < Number.MIN_VALUE ? 0  : (ns2ms(Number(cumMsgLatency))).toFixed(2) + ' ns'}</InfoItem>
+                    <InfoItem title={t('所有消息平均时延')}>{Number(cumMsgLatency) < Number.MIN_VALUE ? 0 :  (ns2ms(Number(cumMsgLatency))).toFixed(2) + ' ns'}</InfoItem>
                 </NodeInfo>
             </div>
             <div className={expanded  ? 'node-footer-fold' : 'node-footer'}>
@@ -403,14 +394,18 @@ function InfoItem ({
 
 function NodeSite ({ node }: { node: DdbNode }) {
     const { host, port, mode, publicName } = node
-    const privateDomain = `${host}:${port}`
-    let privateLink = generate_node_link(host, port)
-    let publicDomain = [ ]
-    let publicLink = [ ]
+    const private_host = `${host}:${port}`
+    const private_link = model.get_url(host, port, { queries: { view: null } })
+    let public_hosts = [ ]
+    let public_link = [ ]
     
     if (publicName) {
-        publicDomain = publicName.split(/,|;/).map(val => val + ':' + port)
-        publicLink = publicName.split(/,|;/).map(val => generate_node_link(val, port))
+        public_hosts = publicName.split(/,|;/).map(hostname => `${hostname}:${port}`)
+        public_link = publicName.split(/,|;/).map(hostname => 
+            model.get_url(
+                hostname, 
+                port,
+                { queries: { view: null } }))
     }
     
     return <>
@@ -418,29 +413,29 @@ function NodeSite ({ node }: { node: DdbNode }) {
             {mode === NodeType.agent ?
                 <Tooltip title={t('代理节点不可跳转')}>
                     <div className='control-disable'>
-                        <a className='disable-link' href={privateLink} target='_blank'>
-                            {privateDomain}
+                        <a className='disable-link' href={private_link} target='_blank'>
+                            {private_host}
                         </a>
                     </div>
                 </Tooltip>
             : 
-                <a href={privateLink} target='_blank'>
-                    {privateDomain}
+                <a href={private_link} target='_blank'>
+                    {private_host}
                 </a>
             }
         </div>
-        {publicDomain.map((val, idx) => <div className='node-site' key={val}>
+        {public_hosts.map((val, idx) => <div className='node-site' key={val}>
             {mode === NodeType.agent ?
                 <Tooltip title={t('代理节点不可跳转')}>
                     <div className='control-disable'>
-                        <a className='disable-link' href={publicLink[idx]} target='_blank'>
+                        <a className='disable-link' href={public_link[idx]} target='_blank'>
                             {val}
                         </a>
                     </div>
                 </Tooltip>
             :
-                Boolean(publicLink.length) && 
-                    <a href={publicLink[idx]} target='_blank'>
+                Boolean(public_link.length) && 
+                    <a href={public_link[idx]} target='_blank'>
                         {val}
                     </a>
             }

@@ -55,7 +55,7 @@ export function Card ({
                         enabled_modules_.add(module_key)
                     }
                     
-                    await config.change_nodes_config([['webModules', { key: 'webModules', name: 'webModules', value: Array.from(enabled_modules_).join(','), qualifier: '' }]])
+                    await config.change_configs([['webModules', { key: 'webModules', name: 'webModules', value: Array.from(enabled_modules_).join(','), qualifier: '' }]])
                     
                     model.set({ enabled_modules: enabled_modules_ })
                     

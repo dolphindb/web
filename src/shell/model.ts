@@ -26,13 +26,13 @@ import {
 } from 'dolphindb/browser.js'
 
 
-import { t } from '../../i18n/index.js'
+import { t } from '@i18n/index.js'
 
-import { type DdbObjRef } from '../obj.js'
+import { type DdbObjRef } from '@/obj.js'
 
-import { model, NodeType, storage_keys } from '../model.js'
+import { model, NodeType, storage_keys } from '@/model.js'
 
-import type { Monaco } from '../components/Editor/index.js'
+import type { Monaco } from '@/components/Editor/index.js'
 
 import { Database, DatabaseGroup, type Column, type ColumnRoot, PartitionDirectory, type PartitionRoot, PartitionFile, type Table, Catalog } from './Databases.js'
 
@@ -128,17 +128,21 @@ class ShellModel extends Model<ShellModel> {
         return lines_
     }
     
+    
     async refresh_db () {
         
     }
     
-    async eval (code = this.editor.getValue()) {
+    
+    async eval (code = this.editor.getValue(), istart: number) {
         const time_start = dayjs()
+        const lines = code.split_lines()
+        
         this.term.write(
             '\n' +
             time_start.format('HH:mm:ss.SSS') + '\n' + 
             (code.trim() ?
-                this.truncate_text(code.split_lines()).join_lines()
+                this.truncate_text(lines).join_lines()
             : '')
         )
         
@@ -149,13 +153,12 @@ class ShellModel extends Model<ShellModel> {
             // throw new Error('xxxxx. RefId: S00001. xxxx RefId:S00002')
             
             let ddbobj = await model.ddb.eval(
-                code.replaceAll('\r\n', '\n')
+                `line://${istart}\n` +
+                `${code.replaceAll('\r\n', '\n')}`
             )
             
-            console.log('执行代码返回了:', ddbobj)
-            
-            if (model.verbose)
-                console.log('=>', ddbobj.toString())
+            if (model.dev || model.test || model.verbose)
+                console.log('执行代码返回了:', ddbobj.data())
             
             if (
                 ddbobj.form === DdbForm.chart ||
@@ -206,6 +209,7 @@ class ShellModel extends Model<ShellModel> {
                     // xterm link写法 https://stackoverflow.com/questions/64759060/how-to-create-links-in-xterm-js
                     blue(`\x1b]8;;${model.get_error_code_doc_link(ref_id)}\x07RefId: ${ref_id}\x1b]8;;\x07`)
                 )
+                
             
             this.term.writeln(red(message))
             
@@ -314,19 +318,41 @@ class ShellModel extends Model<ShellModel> {
         const { editor } = this
         
         const selection = editor.getSelection()
-        const model = editor.getModel()
+        const emodel = editor.getModel()
+        let code: string
+        let istart: number
         
-        if (selection.isEmpty())
-            await this.eval(
-                default_selection === 'line' ?
-                    model.getLineContent(selection.startLineNumber)
-                :
-                    model.getValue(this.monaco.editor.EndOfLinePreference.LF)
-            )
-        else
-            await this.eval(model.getValueInRange(selection, this.monaco.editor.EndOfLinePreference.LF))
+        if (selection.isEmpty()) {
+            code = default_selection === 'line' ?
+                emodel.getLineContent(selection.startLineNumber)
+            :
+                emodel.getValue(this.monaco.editor.EndOfLinePreference.LF)
+            istart = default_selection === 'line' ? selection.startLineNumber : 1
+        } else {
+            code = emodel.getValueInRange(selection, this.monaco.editor.EndOfLinePreference.LF)
+            istart = selection.startLineNumber
+        }
+        
+        if (code.includes('undef all') || code.includes('undef(all)'))
+            if (await model.modal.confirm({ content: t('执行 undef all 会导致 web 部分功能不可用，执行完成后需要刷新才能恢复, 确定执行吗？') }))
+                try {
+                    await this.eval(code, istart)
+                } finally {
+                    model.modal.warning({
+                        content: t('执行 undef all 后需要刷新以恢复 web 功能，是否立即刷新？'),
+                        onOk: () => { location.reload() },
+                        okText: t('刷新')
+                    })
+                }
+             else
+                return
+         else
+            await this.eval(code, istart)
         
         await this.update_vars()
+        
+        if (code.includes('login') || code.includes('logout'))
+            await model.update_user()
     }
     
     

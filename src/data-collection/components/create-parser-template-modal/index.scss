@@ -1,16 +1,28 @@
-.handler-form-item {
-    .monaco-editor-container {
-        padding: 8px;
-        border: 1px solid #e7e3e3;
-        height: 400px !important;
-    }
-    &.ant-form-item-has-error {
+
+.create-parser-template-modal {
+    .handler-form-item {
         .monaco-editor-container {
-            border: 1px solid red;
+            padding: 8px;
+            border: 1px solid #e7e3e3;
+            height: 400px !important;
+        }
+        &.ant-form-item-has-error {
+            .monaco-editor-container {
+                border: 1px solid red;
+            }
         }
     }
+    
+    .submit-btn-form-item {
+        width: 100%;
+        text-align: end;
+    }
+    
+    .editor-segmented {
+        margin-bottom: 12px;
+    }
+    
 }
 
-.editor-segmented {
-    margin-bottom: 12px;
-}
+
+

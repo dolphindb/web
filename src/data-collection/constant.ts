@@ -2,9 +2,13 @@ import type { FormItemProps } from 'antd'
 
 import { t } from '@i18n/index.js'
 
+import { os } from '@/utils/index.js'
+
 import { Protocol } from './type.js'
 
-export const protocols = [Protocol.MQTT, Protocol.KAFKA]
+
+/** windows 端不支持 kafka 插件 */
+export const protocols = os().isWin ? [Protocol.MQTT] :  [Protocol.MQTT, Protocol.KAFKA]
 
 export const kafka_params_doc_link = 'https://github.com/confluentinc/librdkafka/blob/master/CONFIGURATION.md'
 

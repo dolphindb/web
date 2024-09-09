@@ -3,12 +3,13 @@ import type { DdbObj } from 'dolphindb/browser.js'
 import { safe_json_parse } from '../dashboard/utils.js'
 
 
+import { model } from '@/model.js'
+
 import { type ISubscribe, Protocol, type ServerSubscribe, type Connection, type ServerParserTemplate, type IParserTemplate, type ListData, type KeyValueItem, InitStatus } from './type.js'
 import { request } from './utils.js'
 
-import dcp_code from './dolphindb-scripts/script.dos'
+import dcp_code from './script.dos'
 
-import { model } from '@/model.js'
 
 
 
@@ -59,12 +60,12 @@ export async function get_parser_templates (protocol?: Protocol) {
 get_parser_templates.KEY = 'dcp_getParserTemplateList'
 
 
-export async function is_inited () {
+export async function test_init () {
     const { value } = await model.ddb.eval<DdbObj<boolean>>('existsDatabase("dfs://dataAcquisition")')
     if (value)
         // 已初始化数据库，则直接初始化脚本
         await model.ddb.eval(dcp_code)
     return value ? InitStatus.INITED : InitStatus.NOT_INITED
 }
-is_inited.KEY = 'is_inited'
+test_init.KEY = 'is_inited'
 

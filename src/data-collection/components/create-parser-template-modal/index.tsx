@@ -2,7 +2,7 @@ import './index.scss'
 
 import NiceModal, { useModal } from '@ebay/nice-modal-react'
 
-import { Modal, Form, Input, message, Select, Segmented } from 'antd'
+import { Modal, Form, Input, message, Select, Segmented, Button } from 'antd'
 
 import { useCallback, useState } from 'react'
 
@@ -38,24 +38,25 @@ export function EditorField ({ onChange, disabled = false, ...others }: any) {
     </>  
 }
 
+interface FormValues {
+    name: string
+    protocol: string
+    comment?: string
+    handler: string
+}
+
 export const ParserTemplateModal = NiceModal.create(({ refresh, editedTemplate, mode = 'edit' }: IProps) => {
     
     const modal = useModal()
-    const [form] = Form.useForm()
+    const [form] = Form.useForm<FormValues>()
     
-    const on_submit = useCallback(async () => {
-        let params
-        
-        try {
-            params = await form.validateFields()
-        } catch { return }
-        
+    const on_submit = useCallback(async (values: FormValues) => {        
         if (editedTemplate) {
-            await request('dcp_updateHandler', { ...params, id: editedTemplate.id })
+            await request('dcp_updateHandler', { ...values, id: editedTemplate.id })
             message.success(t('修改成功'))
         }
         else {
-            await request('dcp_addHandler', params)
+            await request('dcp_addHandler', values)
             message.success(t('创建成功'))
         }
         modal.hide()
@@ -65,7 +66,8 @@ export const ParserTemplateModal = NiceModal.create(({ refresh, editedTemplate, 
     
     
     return <Modal 
-        onOk={on_submit} 
+        footer={null}
+        className='create-parser-template-modal'
         title={editedTemplate ? t('编辑模板') : t('创建模板')} 
         width={1000} 
         open={modal.visible} 
@@ -73,6 +75,7 @@ export const ParserTemplateModal = NiceModal.create(({ refresh, editedTemplate, 
         afterClose={modal.remove}
         >
         <Form 
+            onFinish={on_submit}
             disabled={mode === 'view'}
             className='parser-template-form' 
             initialValues={editedTemplate} 
@@ -95,6 +98,9 @@ export const ParserTemplateModal = NiceModal.create(({ refresh, editedTemplate, 
             </Form.Item>
             <Form.Item label={t('代码')} name='handler' className='handler-form-item' rules={[{ required: true, message: t('请输入代码') }]}>
                 <EditorField disabled={mode === 'view'}/>
+            </Form.Item>
+            <Form.Item className='submit-btn-form-item'>
+                <Button htmlType='submit' type='primary'>{t('确定')}</Button>
             </Form.Item>
         </Form>
     </Modal>

@@ -53,7 +53,7 @@ export function StreamEditor ({
     
     useEffect(() => {
         const node = model.node
-        const closest_node_host = model.find_closest_node_host(node)
+        const closest_node_host = model.find_node_closest_hostname(node)
         const new_ip_list = [
             {
                 value: closest_node_host + ':' + node.port,

@@ -1,6 +1,6 @@
-import { ReloadOutlined } from '@ant-design/icons'
+import { ReloadOutlined, SearchOutlined } from '@ant-design/icons'
 import { EditableProTable, type ActionType, type ProColumns } from '@ant-design/pro-components'
-import { Button, Input, Popconfirm } from 'antd'
+import { AutoComplete, Button, Popconfirm } from 'antd'
 
 import { useCallback, useMemo, useRef, useState } from 'react'
 
@@ -13,14 +13,16 @@ import { model } from '../model.js'
 import { config } from './model.js'
 
 import type { ControllerConfig } from './type.js'
-import { _2_strs, strs_2_controller_configs } from './utils.js'
+import { _2_strs, strs_2_controller_configs, filter_config } from './utils.js'
 
-const { Search } = Input
+import { CONTROLLER_CONFIG } from './constants.js'
+
 
 export function ControllerConfig () {
     const [configs, set_configs] = useState<ControllerConfig[]>([ ])
     
     const [search_key, set_search_key] = useState('')
+    const [search_value, set_search_value] = useState('')
     
     const actionRef = useRef<ActionType>()
     
@@ -39,7 +41,17 @@ export function ControllerConfig () {
                     message: t('请输入配置项！')
                 },
                 ]
-            }
+            },
+            renderFormItem: () =>  
+                <AutoComplete<{ label: string, value: string }>
+                    showSearch
+                    optionFilterProp='label'
+                    filterOption={filter_config}
+                    options={CONTROLLER_CONFIG.map(config => ({
+                        label: config,
+                        value: config
+                    }))} 
+                />
         },
         {
             title: t('值'),
@@ -93,12 +105,13 @@ export function ControllerConfig () {
         rowKey='id'
         actionRef={actionRef}
         columns={cols}
+        params={{ search_value }}
         request={async () => {
             const value = Array.from(new Set((await config.load_controller_configs()).value as any[]))
             const configs = strs_2_controller_configs(value)
             set_configs(configs)
             return {
-                data: configs.filter(({ name }) => name.toLowerCase().includes(search_key.toLowerCase())),
+                data: configs.filter(({ name }) => name.toLowerCase().includes(search_value.toLowerCase())),
                 success: true,
                 total: value.length
             }
@@ -127,17 +140,35 @@ export function ControllerConfig () {
                 icon={<ReloadOutlined />}
                 onClick={async () => {
                     await actionRef.current.reload()
+                    set_search_key('')
+                    set_search_value('')
                     model.message.success(t('刷新成功'))
                 }}
             >
                 {t('刷新')}
             </Button>,
-            <Search
-                placeholder={t('请输入想要查找的配置项')}
-                value={search_key}
-                onChange={e => { set_search_key(e.target.value) }}
-                onSearch={async () => actionRef.current.reload()}
-            />
+            <div className='auto-search'>
+                <AutoComplete<string>
+                    showSearch
+                    placeholder={t('请输入想要查找的配置项')}
+                    optionFilterProp='label'
+                    value={search_key}
+                    onChange={value => {
+                        set_search_key(value)
+                    }}
+                    filterOption={filter_config}
+                    onKeyDown={e => {
+                        if (e.key === 'Enter') 
+                            set_search_value(search_key)
+                    }}
+                    options={CONTROLLER_CONFIG.map(config => ({
+                        label: config,
+                        value: config
+                        }))
+                        
+                } />
+                <Button icon={<SearchOutlined />} onClick={() => { set_search_value(search_key) }}/>
+            </div>
         ]}
         editable={{
             type: 'single',
