@@ -8,7 +8,7 @@ import { model } from '@/model.js'
 import { type ISubscribe, Protocol, type ServerSubscribe, type Connection, type ServerParserTemplate, type IParserTemplate, type ListData, type KeyValueItem, InitStatus } from './type.js'
 import { request } from './utils.js'
 
-import dcp_code from './dolphindb-scripts/script.dos'
+import dcp_code from './script.dos'
 
 
 

@@ -1,7 +1,7 @@
 import './index.scss'
 
 import NiceModal, { useModal } from '@ebay/nice-modal-react'
-import { Form, Input, InputNumber, Modal, Select, Space, Spin, Switch, Tag, Tooltip, message } from 'antd'
+import { Button, Form, Input, InputNumber, Modal, Select, Space, Spin, Switch, Tag, Tooltip, message } from 'antd'
 
 import { useCallback, useMemo, useState } from 'react'
 
@@ -57,6 +57,17 @@ export const CreateSubscribeModal = NiceModal.create((props: IProps) => {
     const partition = Form.useWatch('partition', form)
     const offset = Form.useWatch('offset', form)
     
+    const on_submit = useCallback(async values => {            
+        if (edited_subscribe) 
+            await edit_subscribe(protocol, { ...values, id: edited_subscribe.id, })
+        else 
+            await create_subscribe(protocol, { ...values, connectId: connection_id } )
+        message.success(edited_subscribe ? t('修改成功') : t('创建成功'))
+        modal.hide()
+        refresh()
+    }, [edited_subscribe, connection_id, refresh])
+    
+    
     const protocol_params = useMemo(() => {
         switch (protocol) {
             case Protocol.MQTT:
@@ -107,23 +118,10 @@ export const CreateSubscribeModal = NiceModal.create((props: IProps) => {
         }
     }, [protocol, offset, partition])
     
-    const on_submit = useCallback(async () => {        
-        try { await form.validateFields() } catch { return }
-        const values = await form.getFieldsValue()
-        
-        if (edited_subscribe) 
-            await edit_subscribe(protocol, { ...values, id: edited_subscribe.id, })
-        else 
-            await create_subscribe(protocol, { ...values, connectId: connection_id } )
-        message.success(edited_subscribe ? t('修改成功') : t('创建成功'))
-        modal.hide()
-        refresh()
-    }, [edited_subscribe, connection_id, refresh])
-    
     return <Modal 
         className='create-subscribe-modal'
         width='60%' 
-        onOk={on_submit}
+        footer={null}
         open={modal.visible} 
         onCancel={modal.hide} 
         afterClose={modal.remove} 
@@ -132,7 +130,8 @@ export const CreateSubscribeModal = NiceModal.create((props: IProps) => {
     >
         <Form 
             className='subscribe-form'
-            form={form} 
+            form={form}
+            onFinish={on_submit} 
             initialValues={edited_subscribe ?? undefined} 
             labelAlign='left' 
             labelCol={{ span: 6 }}
@@ -238,6 +237,10 @@ export const CreateSubscribeModal = NiceModal.create((props: IProps) => {
             </FormDependencies>
             
             {protocol_params}
+            
+            <Form.Item className='submit-btn-form-item'>
+                <Button htmlType='submit' type='primary'>{t('确定')}</Button>
+            </Form.Item>
             
         </Form>
     </Modal>

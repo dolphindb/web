@@ -17,7 +17,7 @@ import { test_init } from '@/data-collection/api.ts'
 
 import { Unlogin } from '@/components/Unlogin.tsx'
 
-import code from './dolphindb-scripts/script.dos'
+import code from './script.dos'
 
 import { ParserTemplates } from './ParserTemplates.tsx'
 import { Connections } from './Connection.tsx'
@@ -50,7 +50,7 @@ export function DataCollection () {
     if (data === InitStatus.UNKONWN)
         return <Spin /> 
     
-    if (data === InitStatus.NOT_INITED)
+    else if (data === InitStatus.NOT_INITED)
         return <Result 
             title={t('初始化数据采集平台')} 
             subTitle={<>

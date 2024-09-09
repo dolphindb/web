@@ -29,12 +29,12 @@ import { DeleteConnectionModal } from './components/delete-connections-modal/ind
 export function Connections () {
     const [connection, set_connection] = useState<string>()
     const [selected_connections, set_selected_connections] = useState<string[]>([ ])
-    const id = useId()
     
     const { isLoading, mutate, data } = useSWR(
-        ['dcp_getConnectList', id],
+        ['dcp_getConnectList'],
         async () => request<{ [key in Protocol]: Connection[] }>('dcp_getConnectList'),
     )
+    
     
     /** 批量删除连接 */
     const on_batch_delete_connection = useCallback(async () => {
