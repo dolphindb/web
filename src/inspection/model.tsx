@@ -1,7 +1,5 @@
 import { Model } from 'react-object-model'
 
-import type { Dayjs } from 'dayjs'
-
 import {  model } from '@/model.ts'
 
 import type { Metric, Plan, PlanDetail, PlanReport, PlanReportDetailMetric, PlanReportDetailNode } from './type.ts'

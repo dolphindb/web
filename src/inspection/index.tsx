@@ -122,12 +122,13 @@ function ReportListTable  ({
     ], [ ])
     
     return <Table 
-        title={() => <div className='report-table-header'>
-            <h2>{t('巡检结果')}</h2>
-            <DatePicker.RangePicker value={dates} onChange={set_dates} showTime placeholder={[t('开始时间'), t('结束时间')]}/>
-        </div>} 
-        dataSource={reports} 
-        columns={cols} />
+            title={() => <div className='report-table-header'>
+                <h2>{t('巡检结果')}</h2>
+                <DatePicker.RangePicker value={dates} onChange={set_dates} showTime placeholder={[t('开始时间'), t('结束时间')]}/>
+            </div>} 
+            dataSource={reports} 
+            columns={cols} 
+        />
 }
 
 function PlanListTable  ({
