@@ -189,3 +189,87 @@ def sync_plugin(pluginName, src) {
     
     rpc(src, sync_plugin_inner, pluginName)
 }
+
+def getLoadedPluginsCluster() {
+    nodes = exec name from rpc(getControllerAlias(), getClusterPerf{true}) where state == 1 and mode != 1
+    ret = dict(STRING, ANY)
+    
+    for (node in nodes) {
+        loadedPlugins = rpc(node, getLoadedPlugins)
+        if (loadedPlugins.size() > 0) {
+            ret[node] = loadedPlugins
+        }
+    }
+    
+    return ret
+}
+
+def getPreloadPluginsCluster() {
+    ret = table(1:0, `node`preloadPlugins, [STRING, STRING])
+    
+    // 数据节点和计算节点
+    clusterConfigs = rpc(getControllerAlias(), loadClusterNodesConfigs)
+    nodes = exec name from rpc(getControllerAlias(), getClusterPerf) where state == 1 and mode != 1
+    for (config in clusterConfigs) {
+        // config = clusterConfigs.last()
+        if (config.startsWith("preloadModules")) {
+            s = config.split("=").last().split(",")
+            for (item in s) {
+                if (item.startsWith("plugins")) {
+                    pluginName = item.split("::").at(1)
+                    ret.append!(table(nodes as node, take(pluginName, nodes.size()) as preloadPlugins))
+                }
+            }
+        }
+    }
+    
+    for (config in clusterConfigs) {
+        if (like(config, "%.preloadModules%")) {
+            node = config.split(".").first()
+            s = config.split("=").last().split(",")
+            for (item in s) {
+                if (item.startsWith("plugins")) {
+                    pluginName = item.split("::").at(1)
+                    insert into ret values (node, pluginName)
+                }
+            }
+        }
+    }
+    
+    // 控制节点
+    controllerConfigs = rpc(getControllerAlias(), loadControllerConfigs)
+    nodes = exec name from rpc(getControllerAlias(), getClusterPerf{true}) where state == 1 and mode == 2
+    for (config in controllerConfigs) {
+        if (config.startsWith("preloadModules")) {
+            s = config.split("=").last().split(",")
+            for (item in s) {
+                if (item.startsWith("plugins")) {
+                    pluginName = item.split("::").at(1)
+                    ret.append!(table(nodes as node, take(pluginName, nodes.size()) as preloadPlugins))
+                }
+            }
+        }
+    }
+    
+    for (config in controllerConfigs) {
+        if (like(config, "%.preloadModules%")) {
+            node = config.split(".").first()
+            s = config.split("=").last().split(",")
+            for (item in s) {
+                if (item.startsWith("plugins")) {
+                    pluginName = item.split("::").at(1)
+                    insert into ret values (node, pluginName)
+                }
+            }
+        }
+    }
+    
+    ret = select * from ret where isDuplicated([node,preloadPlugins],FIRST)=false
+    ret_ = dict(STRING, ANY)
+    nodes = exec distinct(node) from ret
+    for (node_ in nodes) {
+        ret_[node_] = exec preloadPlugins from ret where node == node_
+    }
+    
+    return ret_
+}
