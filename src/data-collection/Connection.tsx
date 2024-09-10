@@ -1,6 +1,6 @@
 import './Connection.scss'
 
-import { useCallback, useId, useMemo, useState } from 'react'
+import { useCallback, useMemo, useState } from 'react'
 import useSWR from 'swr'
 
 import { Button, Empty, Space, Tooltip, Tree, Typography, type TreeDataNode } from 'antd'
@@ -10,12 +10,10 @@ import { DeleteOutlined, EditOutlined, FileTextOutlined, LinkOutlined, PlusCircl
 
 import NiceModal from '@ebay/nice-modal-react'
 
-
 import { t } from '../../i18n/index.js'
 
 import { ConnectionDetail } from './components/connection-detail/index.js'
 import { CreateConnectionModal } from './components/create-connection-modal/index.js'
-import { protocols } from './constant.js'
 
 import { request } from './utils.js'
 
@@ -26,7 +24,7 @@ import { ViewLogModal } from './components/view-log-modal/index.js'
 import { DeleteConnectionModal } from './components/delete-connections-modal/index.js'
 
 
-export function Connections () {
+export function Connections ({ protocols }: { protocols: Protocol[] }) {
     const [connection, set_connection] = useState<string>()
     const [selected_connections, set_selected_connections] = useState<string[]>([ ])
     
@@ -34,7 +32,6 @@ export function Connections () {
         ['dcp_getConnectList'],
         async () => request<{ [key in Protocol]: Connection[] }>('dcp_getConnectList'),
     )
-    
     
     /** 批量删除连接 */
     const on_batch_delete_connection = useCallback(async () => {
@@ -62,7 +59,9 @@ export function Connections () {
         })
     }, [connection])
     
-    const menu_items = useMemo<TreeDataNode[]>(() => {
+    
+    
+    const menu_items = useMemo<TreeDataNode[]>( () => {
         return protocols.map(protocol => {
             const connections = data?.[protocol] ?? [ ]
             return {
@@ -134,7 +133,7 @@ export function Connections () {
                 }))
             }
         })
-    }, [isLoading, data, selected_connections, on_delete_connection])
+    }, [isLoading, data, selected_connections, on_delete_connection, protocols])
         
     return <div className='data-collection-wrapper'>
     <div className='connection-list'>

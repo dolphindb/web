@@ -49,12 +49,3 @@ export async function goto_url (url: string) {
         { shown: true }
     )
 }
-
-
-export function os () {
-    const agent = navigator.userAgent.toLowerCase()
-    return {
-        isMac: agent.toLocaleLowerCase().includes('mac'),
-        isWin: agent.toLocaleLowerCase().includes('win')
-    }
-}

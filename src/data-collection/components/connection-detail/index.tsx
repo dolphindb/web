@@ -94,17 +94,22 @@ export function ConnectionDetail (props: IProps) {
     
     
     const on_change_status = useCallback(async ({ id, name }: ISubscribe, status: boolean) => {
-        Modal.confirm({
+        const modal = Modal.confirm({
             title: t('确定要{{action}}{{name}}吗？', { action: status ? t('启用') : t('停用'), name }),
             onOk: async () => {
-                if (status) {
-                    await request('dcp_startSubscribe', { subId: id })
-                    set_selected_subscribes(selected_subscribes.filter(item => item !== id))
+                try {
+                    if (status) {
+                        await request('dcp_startSubscribe', { subId: id })
+                        set_selected_subscribes(selected_subscribes.filter(item => item !== id))
+                    }
+                    else
+                        await request('dcp_stopSubscribe', { subId: [id] })
+                    message.success(status ? t('订阅成功') : t('停用订阅'))
+                    mutate()
+                } catch (error) {
+                    modal.destroy()
+                    throw error
                 }
-                else
-                    await request('dcp_stopSubscribe', { subId: [id] })
-                message.success(status ? t('订阅成功') : t('停用订阅'))
-                mutate()
             },
             okButtonProps: status ? undefined : { style: { backgroundColor: 'red' } }
         })

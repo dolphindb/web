@@ -1,5 +1,7 @@
 import type { DdbObj } from 'dolphindb/browser.js'
 
+import { useCallback } from 'react'
+
 import { safe_json_parse } from '../dashboard/utils.js'
 
 
@@ -69,3 +71,8 @@ export async function test_init () {
 }
 test_init.KEY = 'is_inited'
 
+export async function has_data_collection_auth () {
+   const { value } = await model.ddb.call<DdbObj<boolean>>('dcp_checkPermissions')
+   return value
+}
+has_data_collection_auth.KEY = 'dcp_checkPermissions'
