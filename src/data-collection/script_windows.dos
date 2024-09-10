@@ -587,7 +587,7 @@ def dcp_startSubscribe(args){
         }else{
             tableName = string(parseJsonTable(sub['templateParams'][0]).value[0])
             if(!rpc(node,existsStreamTable{tableName})){
-                throw("The table "+tableName+" doesn't exist in the node "+ node+"!") 
+                throw("The streamTable "+tableName+" doesn't exist in the node "+ node+"!") 
             }
         }
         //初始化解析函数
@@ -757,7 +757,7 @@ def dcp_addHandler(args){
         id = rand(uuid(),1)
         templateParams = dcp_parseTemplateArgs(handlerArgs[`handler],handlerArgs['protocol'])
         if(templateParams.split("\"")[1]!="outTableName"){
-            throw("The first argument of the  handler must be outTableName")    
+            throw("The first argument of the mqtt handler must be 'outTableName'")    
         }
         flag = iif(handlerArgs["flag"]==NULL,0,1)
         tmp = table(id as id, [handlerArgs['name']] as name, [handlerArgs[`handler]] as handler, [handlerArgs['protocol']] as `protocol,
@@ -802,7 +802,7 @@ def dcp_updateHandler(args){
         ParserTemplate = select * from loadTable("dfs://dataAcquisition","ParserTemplate") where id=uuid(handlerArgs[`id])
         templateParamsTmp = dcp_parseTemplateArgs(handlerArgs[`handler],handlerArgs['protocol'])
         if(templateParamsTmp.split("\"")[1]!="outTableName"){
-            throw("The first argument of the  handler must be outTableName")    
+            throw("The first argument of the mqtt handler must be 'outTableName'")    
         }
         update ParserTemplate set name = handlerArgs[`name] 
         update ParserTemplate set protocol = handlerArgs[`protocol] 
@@ -885,20 +885,24 @@ def dcp_getTemplateArgs(args){
 //初始化解析模板
 def dcp_initParserTemplate(){   
     //初始化解析模板
-    handler = '
-    def msgHandler(outTableName,timeColumn,idColumn,topic,message){
-        tempdict = parseExpr(message).eval()
-        keys = tempdict.keys()
-        if(timeColumn==NULL){
+    handler = 'def msgHandler(outTableName,timeColumn,idColumn,topic,message){
+        //message为json类型的字符串数据:数据示例:
+        //\"{"ts":"2024.09.10 17:36:20","id":"device1","voltage":"768","humidity":"43"}\"
+        tempdict = parseExpr(message).eval() //将json数据解析为dict
+        keys = tempdict.keys()        //字典的key为字段,value为字段值
+        //timeColumn为空则采用当前时间,否则,对timeColumn进行解析,转换为DDB的数据类型
+        if(timeColumn==NULL or tempdict[timeColumn]==NULL){
             ts = now()
         }else{
-            ts = temporalParse(tempdict[timeColumn],"yyyy-MM-dd HH:mm:ss")
+            ts = temporalParse(tempdict[timeColumn],"yyyy-MM-dd HH:mm:ss.SSS")
         }
-        id = tempdict[idColumn] 
+        id = tempdict[idColumn]         //获取id列
+        //将数据转换为窄表，存入流表中，窄表结构包括 ts,id,metric,value 四列
         for(i in keys){
             if(!(i in [timeColumn,idColumn] )){
+                //非 timeColumn,idColumn 的 Key 作为指标名,value 为对应的值,写入流表
                 tmp = table([ts] as ts,[id] as id,[i] as metric,[tempdict[i]] as value)
-                objByName(outTableName).append!(tmp)            
+                objByName(outputTableName).append!(tmp)            
             }
         }
     }
