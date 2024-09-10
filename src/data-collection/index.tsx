@@ -4,14 +4,14 @@ import useSWR from 'swr'
 
 import { Button, message, Result, Spin } from 'antd'
 
-import { useMemoizedFn } from 'ahooks'
+import { useAsyncEffect, useMemoizedFn } from 'ahooks'
 
 import { t } from '@i18n/index.ts'
 
 
 import type { DdbObj } from 'dolphindb/browser'
 
-import { useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 
 import { model, NodeType } from '@/model.ts'
 
@@ -34,6 +34,14 @@ export function DataCollection () {
     const [valid_protocols, set_valid_protocols] = useState<Protocol[]>([ ])
     
     const { logined, node_type, admin } = model.use()
+    const [is_win, set_is_win] = useState<Boolean>()
+    
+    useAsyncEffect(async () => {
+        const { value: version } = await model.ddb.eval<DdbObj<string>>('version()')
+        const is_win = version.toLocaleLowerCase().includes('win')
+        set_is_win(is_win)
+        set_valid_protocols(is_win ? protocols.filter(item => item !== Protocol.KAFKA) : protocols)
+    })
     
     
     const { data = { is_inited: InitStatus.UNKONWN, has_auth: undefined }, mutate, isValidating } = useSWR(
@@ -41,9 +49,6 @@ export function DataCollection () {
         async () => {
             const { value } = await model.ddb.eval<DdbObj<boolean>>('existsDatabase("dfs://dataAcquisition")')
             let has_auth = undefined
-            const version = await model.get_version()
-            const is_win = version.toLocaleLowerCase().includes('win')
-            set_valid_protocols(is_win ? protocols.filter(item => item !== Protocol.KAFKA) : protocols)
             if (value) {
                  await model.ddb.eval(is_win ? window_code : code)
                  has_auth = await has_data_collection_auth()
@@ -57,12 +62,12 @@ export function DataCollection () {
     
     
     
-    const on_init = useMemoizedFn(async () => {
-        await model.ddb.eval(code)
+    const on_init = useCallback(async () => {
+        await model.ddb.eval(is_win ? window_code : code)
         await model.ddb.call('dcp_init')
         message.success(t('采集平台初始化成功！'))
         mutate()
-    })
+    }, [is_win])
     
     
     if (!logined)
