@@ -30,27 +30,19 @@ import { protocols } from './constant.ts'
 
 export function DataCollection () {
     
-    
-    const [valid_protocols, set_valid_protocols] = useState<Protocol[]>([ ])
-    
     const { logined, node_type, admin } = model.use()
     const [is_win, set_is_win] = useState<Boolean>()
-    
-    useAsyncEffect(async () => {
-        const { value: version } = await model.ddb.eval<DdbObj<string>>('version()')
-        const is_win = version.toLocaleLowerCase().includes('win')
-        set_is_win(is_win)
-        set_valid_protocols(is_win ? protocols.filter(item => item !== Protocol.KAFKA) : protocols)
-    })
-    
     
     const { data = { is_inited: InitStatus.UNKONWN, has_auth: undefined }, mutate, isValidating } = useSWR(
         [test_init.KEY],
         async () => {
             const { value } = await model.ddb.eval<DdbObj<boolean>>('existsDatabase("dfs://dataAcquisition")')
+            const { value: version } = await model.ddb.eval<DdbObj<string>>('version()')
+            const is_windows = version.toLocaleLowerCase().includes('win')
+            set_is_win(is_windows)
             let has_auth = undefined
             if (value) {
-                 await model.ddb.eval(is_win ? window_code : code)
+                 await model.ddb.eval(is_windows ? window_code : code)
                  has_auth = await has_data_collection_auth()
             }
             return {
@@ -99,7 +91,7 @@ export function DataCollection () {
         else
             switch (model.view) {
             case 'connection':
-                return <Connections protocols={valid_protocols}/>
+                return <Connections protocols={is_win ? protocols.filter(item => item !== Protocol.KAFKA) : protocols}/>
             case 'parser-template':
                 return <ParserTemplates />
             default: return null
