@@ -22,7 +22,7 @@ def dcp_initPlugin(){
                     if(PluginVersion != serverVersion){
                         installPlugin(plugin)
                     }
-                }catch(ex){
+                }catch(ex1){
                     installPlugin(plugin)
                 }
             }
