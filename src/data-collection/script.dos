@@ -2,24 +2,32 @@
 初始化加载插件 
 */
 def dcp_initPlugin(){
-    plugins = select * from files(getHomeDir().split("/clusterDemo/")[0]+"/plugins") where isDir=true
+    dir = getHomeDir().split("/clusterDemo/")[0]+"/plugins"
+    plugins = select * from files(dir) where isDir=true
     ex = ["user",NULL]
+    dcp_plugin = [`mqtt,`kafka]
     try{
-        remotePlugins = exec PluginName from listRemotePlugins()
-        if(!(`mqtt in plugins[`filename]) and `mqtt in remotePlugins){
-            installPlugin("mqtt")
+        for(plugin in dcp_plugin){//plugin=`mqtt
+            if(!(plugin in plugins[`filename])){
+                installPlugin(plugin)
+            }else{
+                pluginDir = dir+"/"+plugin
+                pattern = "Plugin"+plugin+".txt"
+                fileName = exec first(filename) from files(pluginDir,"%.txt") where filename ilike pattern
+                f = file(pluginDir+"/"+fileName)
+                PluginVersion = readLine(f).split(",")[2][0:6]
+                f.close()
+                serverVersion = version()[0:6]
+                if(PluginVersion != serverVersion){
+                    installPlugin(plugin)
+                }
+            }
+            pattern = plugin+"::%"
+            cnt = exec count(*) from defs() where name ilike pattern
+            if(cnt ==0){
+                loadPlugin(plugin)
+            }
         }
-        if(!(`kafka in plugins[`filename]) and `kafka in remotePlugins){
-            installPlugin("kafka")
-        }
-        cntMqtt = exec count(*) from defs() where name like "mqtt::%"
-        if(cntMqtt == 0 and `mqtt in remotePlugins){
-            loadPlugin("mqtt")
-        }   
-        cntKafka = exec count(*) from defs() where name like "kafka::%"
-        if(cntKafka == 0 and `kafka in remotePlugins){
-            loadPlugin("kafka")
-        }  
     }catch(ex){}
     if(ex[1]!=NULL){
         throw(ex[1])
