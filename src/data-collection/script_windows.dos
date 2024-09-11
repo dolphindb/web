@@ -147,6 +147,29 @@ def dcp_updateConnect(args){
 }
 
 
+
+//取消表订阅
+def dcp_unsubscribeAll(tbName=NULL) {
+    if (tbName!=NULL){
+            t = select * from getStreamingStat().pubTables where tableName = tbName
+    } else {
+            t = getStreamingStat().pubTables
+    }
+
+    for(row in t){
+            tableName = row.tableName
+            if(string(row.actions).startsWith("[")) {
+                    actions = split(substr(row.actions, 1, strlen(row.actions)-2), ",")
+            } else {
+                    actions = [].append!(row.actions)
+            }
+
+            for(action in actions){
+                    unsubscribeTable(tableName=tableName, actionName=action)
+            }
+    }
+}
+
 /*
 删除连接,删除连接时会同时清理该连接下的所有订阅及订阅信息
 参数：args 为标准json，包含以下字段：
@@ -175,10 +198,9 @@ def dcp_deleteConnect(args){
                 t = parseJsonTable(templateParams[i])
                 tbName = t[0].value
                 node = subNodes[i]
+                rpc(node,dcp_unsubscribeAll,tbName)
                 scripts = "
-                use ops;
                 tbName = `"+tbName+";   
-                unsubscribeAll(tbName);
                 if(existsStreamTable(tbName)){
                     dropStreamTable(tbName)
                 }"
@@ -470,10 +492,9 @@ def dcp_deleteSubscribe(args){
                 t = parseJsonTable(templateParams[i])
                 tbName = t[0].value
                 node = subNodes[i]
+                rpc(node,dcp_unsubscribeAll,tbName)
                 scripts = "
-                use ops;
                 tbName = `"+tbName+";   
-                unsubscribeAll(tbName);
                 if(existsStreamTable(tbName)){
                     dropStreamTable(tbName)
                 }"

@@ -156,6 +156,27 @@ def dcp_updateConnect(args){
     }
 }
 
+//取消表订阅
+def dcp_unsubscribeAll(tbName=NULL) {
+    if (tbName!=NULL){
+            t = select * from getStreamingStat().pubTables where tableName = tbName
+    } else {
+            t = getStreamingStat().pubTables
+    }
+
+    for(row in t){
+            tableName = row.tableName
+            if(string(row.actions).startsWith("[")) {
+                    actions = split(substr(row.actions, 1, strlen(row.actions)-2), ",")
+            } else {
+                    actions = [].append!(row.actions)
+            }
+
+            for(action in actions){
+                    unsubscribeTable(tableName=tableName, actionName=action)
+            }
+    }
+}
 
 /*
 删除连接,删除连接时会同时清理该连接下的所有订阅及订阅信息
@@ -471,27 +492,6 @@ def dcp_updateSubscribe(args){
 }
 
 
-
-def dcp_unsubscribeAll(tbName=NULL) {
-    if (tbName!=NULL){
-            t = select * from getStreamingStat().pubTables where tableName = tbName
-    } else {
-            t = getStreamingStat().pubTables
-    }
-
-    for(row in t){
-            tableName = row.tableName
-            if(string(row.actions).startsWith("[")) {
-                    actions = split(substr(row.actions, 1, strlen(row.actions)-2), ",")
-            } else {
-                    actions = [].append!(row.actions)
-            }
-
-            for(action in actions){
-                    unsubscribeTable(tableName=tableName, actionName=action)
-            }
-    }
-}
 
 /*
 删除订阅
