@@ -150,6 +150,7 @@ export function Connections ({ protocols }: { protocols: Protocol[] }) {
             </Typography.Link>
         </div>
         <Tree
+            defaultExpandedKeys={protocols}
             treeData={menu_items}
             className='connection-tree'
             checkable
