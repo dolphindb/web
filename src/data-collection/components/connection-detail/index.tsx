@@ -104,7 +104,7 @@ export function ConnectionDetail (props: IProps) {
                     }
                     else
                         await request('dcp_stopSubscribe', { subId: [id] })
-                    message.success(status ? t('订阅成功') : t('停用订阅'))
+                    message.success(status ? t('订阅成功') : t('已停用订阅'))
                     mutate()
                 } catch (error) {
                     modal.destroy()
