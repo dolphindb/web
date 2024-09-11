@@ -2,13 +2,14 @@ import useSWR from 'swr'
 
 import { AutoComplete, Button, Col, Form, Input, Row, Select, Space, Tooltip } from 'antd'
 
-import { t } from 'xshell/i18n/instance.js'
 
 import { DeleteOutlined, FileTextOutlined, PlusOutlined, QuestionCircleOutlined } from '@ant-design/icons'
 
 import Link from 'antd/es/typography/Link.js'
 
 import { get } from 'lodash'
+
+import { t } from '@i18n/index.js'
 
 import { request } from '../../utils.js'
 import { kafka_params_doc_link } from '../../constant.js'

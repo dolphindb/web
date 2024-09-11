@@ -5193,7 +5193,7 @@
         "en": "Initialize Data Acquisition Platform"
     },
     "初始化操作将新增以下数据库": {
-        "en": ""
+        "en": "The following databases will be created from initialization"
     },
     "数采平台功能未初始化，请联系管理员初始化数采平台功能": {
         "en": "Contact administrator for initialization."
