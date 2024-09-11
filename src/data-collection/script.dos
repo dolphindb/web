@@ -188,10 +188,9 @@ def dcp_deleteConnect(args){
                 t = parseJsonTable(templateParams[i])
                 tbName = t[0].value
                 node = subNodes[i]
+                rpc(node,dcp_unsubscribeAll,tbName)
                 scripts = "
-                use ops;
                 tbName = `"+tbName+";   
-                unsubscribeAll(tbName);
                 if(existsStreamTable(tbName)){
                     dropStreamTable(tbName)
                 }"
@@ -418,7 +417,6 @@ args = '{"name":"test","topic":"topic1","handlerId":1,"parseJson":false,
 "templateParams":\'[{\"key\":\"outputTableName\",\"value\":\"dcp_test\"}]\',"id":"e7183216-9f11-4d12-b227-4477f9f20313"}'
 dcp_updateSubscribe(args)
 */
-args = '{"id":"123456","subId":"123456"}'
 def dcp_updateSubscribe(args){
     subArgs = parseExpr(args).eval()
     subscribeInfo = select * from loadTable("dfs://dataAcquisition","subscribeInfo") where id=uuid(subArgs[`id])
@@ -472,6 +470,29 @@ def dcp_updateSubscribe(args){
     }
 }
 
+
+
+def dcp_unsubscribeAll(tbName=NULL) {
+    if (tbName!=NULL){
+            t = select * from getStreamingStat().pubTables where tableName = tbName
+    } else {
+            t = getStreamingStat().pubTables
+    }
+
+    for(row in t){
+            tableName = row.tableName
+            if(string(row.actions).startsWith("[")) {
+                    actions = split(substr(row.actions, 1, strlen(row.actions)-2), ",")
+            } else {
+                    actions = [].append!(row.actions)
+            }
+
+            for(action in actions){
+                    unsubscribeTable(tableName=tableName, actionName=action)
+            }
+    }
+}
+
 /*
 删除订阅
 参数：args 为标准json，需要包含以下字段：
@@ -496,10 +517,9 @@ def dcp_deleteSubscribe(args){
                 t = parseJsonTable(templateParams[i])
                 tbName = t[0].value
                 node = subNodes[i]
+                rpc(node,dcp_unsubscribeAll,tbName)
                 scripts = "
-                use ops;
                 tbName = `"+tbName+";   
-                unsubscribeAll(tbName);
                 if(existsStreamTable(tbName)){
                     dropStreamTable(tbName)
                 }"
