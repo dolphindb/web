@@ -26,7 +26,7 @@ def dcp_initPlugin(){
                     if(PluginVersion != serverVersion){
                         installPlugin(plugin)
                     }
-                }catch(ex){
+                }catch(ex1){
                     installPlugin(plugin)
                 }
             }
@@ -188,10 +188,9 @@ def dcp_deleteConnect(args){
                 t = parseJsonTable(templateParams[i])
                 tbName = t[0].value
                 node = subNodes[i]
+                rpc(node,dcp_unsubscribeAll,tbName)
                 scripts = "
-                use ops;
                 tbName = `"+tbName+";   
-                unsubscribeAll(tbName);
                 if(existsStreamTable(tbName)){
                     dropStreamTable(tbName)
                 }"
@@ -418,7 +417,6 @@ args = '{"name":"test","topic":"topic1","handlerId":1,"parseJson":false,
 "templateParams":\'[{\"key\":\"outputTableName\",\"value\":\"dcp_test\"}]\',"id":"e7183216-9f11-4d12-b227-4477f9f20313"}'
 dcp_updateSubscribe(args)
 */
-args = '{"id":"123456","subId":"123456"}'
 def dcp_updateSubscribe(args){
     subArgs = parseExpr(args).eval()
     subscribeInfo = select * from loadTable("dfs://dataAcquisition","subscribeInfo") where id=uuid(subArgs[`id])
@@ -472,6 +470,29 @@ def dcp_updateSubscribe(args){
     }
 }
 
+
+
+def dcp_unsubscribeAll(tbName=NULL) {
+    if (tbName!=NULL){
+            t = select * from getStreamingStat().pubTables where tableName = tbName
+    } else {
+            t = getStreamingStat().pubTables
+    }
+
+    for(row in t){
+            tableName = row.tableName
+            if(string(row.actions).startsWith("[")) {
+                    actions = split(substr(row.actions, 1, strlen(row.actions)-2), ",")
+            } else {
+                    actions = [].append!(row.actions)
+            }
+
+            for(action in actions){
+                    unsubscribeTable(tableName=tableName, actionName=action)
+            }
+    }
+}
+
 /*
 删除订阅
 参数：args 为标准json，需要包含以下字段：
@@ -496,10 +517,9 @@ def dcp_deleteSubscribe(args){
                 t = parseJsonTable(templateParams[i])
                 tbName = t[0].value
                 node = subNodes[i]
+                rpc(node,dcp_unsubscribeAll,tbName)
                 scripts = "
-                use ops;
                 tbName = `"+tbName+";   
-                unsubscribeAll(tbName);
                 if(existsStreamTable(tbName)){
                     dropStreamTable(tbName)
                 }"
@@ -625,7 +645,7 @@ def dcp_startSubscribe(args){
         }else{//非默认流表，启动时检测是否存在
             tableName = string(parseJsonTable(sub['templateParams'][0]).value[0])
             if(!rpc(node,existsStreamTable{tableName})){
-                throw("The table "+tableName+" doesn't exist in the node "+ node+"!") 
+                throw("The streamTable "+tableName+" doesn't exist in the node "+ node+"!") 
             }
         }
         //初始化解析函数
@@ -801,7 +821,7 @@ def dcp_addHandler(args){
         //对参数列表进行校验，第一个参数必须为outTableName
         templateParams = dcp_parseTemplateArgs(handlerArgs[`handler],handlerArgs['protocol'])
         if(templateParams.split("\"")[1]!="outTableName"){
-            throw("The mqtt first argument of the  handler must be outTableName")    
+            throw("The first argument of the mqtt handler must be 'outTableName'")    
         }
         flag = iif(handlerArgs["flag"]==NULL,0,1)
         tmp = table(id as id, [handlerArgs['name']] as name, [handlerArgs[`handler]] as handler, [handlerArgs['protocol']] as `protocol,
@@ -847,7 +867,7 @@ def dcp_updateHandler(args){
         //参数列表校验
         templateParamsTmp = dcp_parseTemplateArgs(handlerArgs[`handler],handlerArgs['protocol'])
         if(templateParamsTmp.split("\"")[1]!="outTableName"){
-            throw("The mqtt first argument of the  handler must be outTableName")    
+            throw("The first argument of the mqtt handler must be 'outTableName'")    
         }
         //模板信息更新
         update ParserTemplate set name = handlerArgs[`name] 
@@ -932,20 +952,24 @@ def dcp_getTemplateArgs(args){
 //初始化解析模板
 def dcp_initParserTemplate(){   
     //初始化解析模板
-    handler = '
-    def msgHandler(outTableName,timeColumn,idColumn,topic,message){
-        tempdict = parseExpr(message).eval()
-        keys = tempdict.keys()
-        if(timeColumn==NULL){
+    handler = 'def msgHandler(outTableName,timeColumn,idColumn,topic,message){
+        //message为json类型的字符串数据:数据示例:
+        //\"{"ts":"2024.09.10 17:36:20","id":"device1","voltage":"768","humidity":"43"}\"
+        tempdict = parseExpr(message).eval() //将json数据解析为dict
+        keys = tempdict.keys()        //字典的key为字段,value为字段值
+        //timeColumn为空则采用当前时间,否则,对timeColumn进行解析,转换为DDB的数据类型
+        if(timeColumn==NULL or tempdict[timeColumn]==NULL){
             ts = now()
         }else{
-            ts = temporalParse(tempdict[timeColumn],"yyyy-MM-dd HH:mm:ss")
+            ts = temporalParse(tempdict[timeColumn],"yyyy-MM-dd HH:mm:ss.SSS")
         }
-        id = tempdict[idColumn] 
+        id = tempdict[idColumn]         //获取id列
+        //将数据转换为窄表，存入流表中，窄表结构包括 ts,id,metric,value 四列
         for(i in keys){
             if(!(i in [timeColumn,idColumn] )){
+                //非 timeColumn,idColumn 的 Key 作为指标名,value 为对应的值,写入流表
                 tmp = table([ts] as ts,[id] as id,[i] as metric,[tempdict[i]] as value)
-                objByName(outTableName).append!(tmp)            
+                objByName(outputTableName).append!(tmp)            
             }
         }
     }
@@ -973,18 +997,21 @@ def dcp_initParserTemplate(){
 
     handler='
      def parseKafka(timeColumn,idColumn,msg,key,topic){
-        tempdict = parseExpr(msg).eval()
-        writeLog("KAFKA DATA:"+msg)
-        keys = tempdict.keys()
-        rowNum = keys.size()-2
-        tmp = table(rowNum:rowNum,[`ts,`id,`metric,`value],[TIMESTAMP,STRING,STRING,DOUBLE])    
+        //message为json类型的字符串数据:数据示例:
+        //\"{"ts":"2024.09.10 17:36:20","id":"device1","voltage":"768","humidity":"43"}\"
+        tempdict = parseExpr(msg).eval() //将json数据解析为dict
+        keys = tempdict.keys() //字典的key为字段,value为字段值
+        rowNum = keys.size()-2 //除去time,id列的列数作为窄表行数    
+        tmp = table(rowNum:rowNum,[`ts,`id,`metric,`value],[TIMESTAMP,STRING,STRING,DOUBLE])   
+        //timeColumn为空则采用当前时间,否则,对timeColumn进行解析,转换为DDB的数据类型 
         if(timeColumn==NULL or tempdict[timeColumn]==NULL){ 
             ts = now()
         }else{
             ts = temporalParse(tempdict[timeColumn],"yyyy.MM.ddTHH:mm:ss.SSS")
         }
         tmp[`ts] = ts
-        tmp[`id] = tempdict[idColumn] 
+        tmp[`id] = tempdict[idColumn] //获取id列
+        //将数据转换为窄表，存入流表中，窄表结构包括 ts,id,metric,value 四列
         for(i in keys){
             if(!(i in [timeColumn,idColumn] )){
                 tmp[`metric] =  take(i,rowNum) 
