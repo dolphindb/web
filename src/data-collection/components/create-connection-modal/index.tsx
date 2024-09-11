@@ -35,8 +35,8 @@ export const CreateConnectionModal = NiceModal.create((props: IProps) => {
     
     return <Modal 
         title={ editedConnection 
-            ? t('编辑 {{name}}连接', { name: protocol + ' 协议' }) 
-            : t('创建 {{name}}连接', { name: protocol + ' 协议' })}
+            ? t('编辑 {{name}}连接', { name: protocol + ' ' + t('协议') }) 
+            : t('创建 {{name}}连接', { name: protocol + ' ' + t('协议') })}
         open={modal.visible} 
         onCancel={modal.hide} 
         afterClose={modal.remove}
