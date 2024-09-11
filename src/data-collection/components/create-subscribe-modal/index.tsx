@@ -12,7 +12,7 @@ import { QuestionCircleOutlined } from '@ant-design/icons'
 import useSWR from 'swr'
 
 import { t } from '../../../../i18n/index.js'
-import { Protocol, type ISubscribe, type IParserTemplate } from '../../type.js'
+import { Protocol, type ISubscribe } from '../../type.js'
 import { safe_json_parse } from '../../../dashboard/utils.js'
 import { FormDependencies } from '../../../components/formily/FormDependcies/index.js'
 
