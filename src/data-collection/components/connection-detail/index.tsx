@@ -198,7 +198,7 @@ export function ConnectionDetail (props: IProps) {
     
     
     return isLoading
-    ? <Spin><div className='center-spin-div'/></Spin> 
+    ? <Spin className='connection-detail-spin'/> 
     : <div className='connection-detail'>
         <Descriptions 
             className='base-info'

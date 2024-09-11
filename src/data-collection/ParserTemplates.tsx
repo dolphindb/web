@@ -81,7 +81,7 @@ export function ParserTemplates () {
         {
             title: t('协议'),
             dataIndex: 'protocol',
-            width: 100,
+            width: 200,
             render: protocol => <Tag color='processing' bordered={false}>{protocol}</Tag> 
         },
         {
@@ -94,26 +94,26 @@ export function ParserTemplates () {
         {
             title: t('使用数'),
             dataIndex: 'useNumber',
-            width: 100,
+            width: 200,
         },
         {
             title: t('引用数'),
             dataIndex: 'citeNumber',
-            width: 100
+            width: 150
         },
         {
             title: t('创建时间'),
             dataIndex: 'createTime',
             key: 'createTime',
             render: time => format_time(time, 'YYYY-MM-DD HH:mm:ss'),
-            width: 250
+            width: 200
         },
         {
             title: t('更新时间'),
             dataIndex: 'updateTime',
             key: 'updateTime',
             render: time => format_time(time, 'YYYY-MM-DD HH:mm:ss'),
-            width: 250
+            width: 200
         },
         {
             dataIndex: 'operations',

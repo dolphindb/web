@@ -81,7 +81,7 @@ export const ParserTemplateModal = NiceModal.create(({ refresh, editedTemplate, 
             initialValues={editedTemplate} 
             form={form} 
             labelAlign='left' 
-            labelCol={{ span: 2 }}
+            labelCol={{ span: 4 }}
         >
             <Form.Item 
                 label={t('名称')} 

@@ -234,7 +234,7 @@
         "en": "log mode"
     },
     "创建时间": {
-        "en": "created at"
+        "en": "Created At"
     },
     "存储类": {
         "en": "storage class"
@@ -2013,6 +2013,9 @@
         "en": "Worker ID"
     },
     "订阅主题": {
+        "en": "Topic"
+    },
+    "主题_data_collection": {
         "en": "Topic"
     },
     "订阅队列深度": {
@@ -3863,9 +3866,6 @@
     "k 线颜色（跌）": {
         "en": "Candlestick  color (down)"
     },
-    "线条颜色": {
-        "en": "line color"
-    },
     "k 线": {
         "en": "Candlestick "
     },
@@ -4987,5 +4987,239 @@
     },
     "执行 undef all 后需要刷新以恢复 web 功能，是否立即刷新？": {
         "en": "After executing undef all, a refresh is required to restore web functions. Do you want to refresh now?"
+    },
+    "数采平台": { 
+            "en": "Data Acquisition"
+    },
+    "连接信息": {
+        "en": "Connections"
+    },
+    "解析模板": {
+        "en": "Parsing Templates"
+    },
+    "线颜色": {
+        "en": "Line Color"
+    },
+    "删除订阅": {
+        "en": "Delete Subscription"
+    },
+    "是否销毁流表": {
+        "en": "Destroy Stream Table"
+    },
+    "连接名称": {
+        "en": "Connection Name"
+    },
+    "协议": {
+        "en": "Messaging Protocol"
+    },
+    "服务器地址": {
+        "en": "Server Address"
+    },
+    "确定要{{action}}{{name}}吗？": {
+        "en": "{{action}} subscription {{name}}?"
+    },
+    "订阅成功": {
+        "en": "Subscription Created"
+    },
+    "已停用订阅": {
+        "en": "Subscription Disabled"
+    },
+    "点位解析模板": {
+        "en": "Parsing Template"
+    },
+    "查看": {
+        "en": "View"
+    },
+    "更新时间": {
+        "en": "Updated At"
+    },
+    "订阅列表": {
+        "en": "Subscriptions"
+    },
+    "新增订阅": {
+        "en": "New"
+    },
+    "编辑成功": {
+        "en": "Subscription Modified"
+    },
+    "编辑 {{name}}连接": {
+        "en": "Edit {{name}} Connection"
+    },
+    "创建 {{name}}连接": {
+        "en": "Create {{name}} Connection"
+    },
+    "请输入服务器地址": {
+        "en": "Enter server address."
+    },
+    "请输入有效的服务器地址": {
+        "en": "Enter a valid server address."
+    },
+    "请输入端口": {
+        "en": "Enter a port."
+    },
+    "请输入有效的端口": {
+        "en": "Enter a valid port number."
+    },
+    "自定义模板": {
+        "en": "Script"
+    },
+    "模板参考": {
+        "en": "Script Reference"
+    },
+    "编辑模板": {
+        "en": "Edit Template"
+    },
+    "创建模板": {
+        "en": "Create Template"
+    },
+    "请输入模板名称": {
+        "en": "Enter template name."
+    },
+    "请选择协议": {
+        "en": "Select a protocol."
+    },
+    "代码": {
+        "en": "Custom Template"
+    },
+    "请输入代码": {
+        "en": "Enter script."
+    },
+    "接收缓冲区大小": {
+        "en": "Receive Buffer Size (Bytes)"
+    },
+    "默认为 20480 字节": {
+        "en": "Defaults to 20480"
+    },
+    "请输入接收缓冲区大小": {
+        "en": "Enter receive buffer size."
+    },
+    "偏移量与分区需同时设置，或者均不设置": {
+        "en": "Provide both topic partitions and offset, or omit both."
+    },
+    "请输入分区数": {
+        "en": "Enter the number of partitions."
+    },
+    "请输入偏移量": {
+        "en": "Enter an offset."
+    },
+    "修改订阅": {
+        "en": "Edit Subscription"
+    },
+    "创建订阅": {
+        "en": "New Subscription"
+    },
+    "请输入主题": {
+        "en": "Enter subscription topic."
+    },
+    "默认为当前节点": {
+        "en": "Defaults to the current node."
+    },
+    "是否需要点位解析": {
+        "en": "Enable Message Parsing"
+    },
+    "默认流表名称": {
+        "en": "Name of Default Stream Table"
+    },
+    "请输入默认流表名称": {
+        "en": "Enter a table name."
+    },
+    "默认流表名称不能包含空格": {
+        "en": "Table name must not contain spaces."
+    },
+    "请选择点位解析模板": {
+        "en": "Select a parsing template."
+    },
+    "模板参数": {
+        "en": "Set Template Parameters"
+    },
+    "请注意，自定义解析模板的输出流表需要自行创建": {
+        "en": "When using a custom parsing template, the output stream table must be manually created."
+    },
+    "参数值不能包含空格": {
+        "en": "Value must not contain spaces."
+    },
+    "kafka 消费参数配置": {
+        "en": "Kafka Configuration Properties"
+    },
+    "设置偏移量与分区，group.id 参数会失效": {
+        "en": "group.id is ignored when offset and partitions are manually specified."
+    },
+    "参数": {
+        "en": "Property"
+    },
+    "请选择参数": {
+        "en": "Select a property."
+    },
+    "参数值": {
+        "en": "Value"
+    },
+    "参数值不能含有空格": {
+        "en": "Value must not contain spaces."
+    },
+    "增加消费参数配置": {
+        "en": "Add Property"
+    },
+    "确定要删除连接 {{name}} 吗？": {
+        "en": "Delete connection {{name}}?"
+    },
+    "确定要删除选中的 {{num}} 个连接吗": {
+        "en": "Delete connections? Selected: {{num}}"
+    },
+    "新建连接": {
+        "en": "New Connection"
+    },
+    "查看日志": {
+        "en": "View Logs"
+    },
+    "连接": {
+        "en": "Connections"
+    },
+    "请选择连接": {
+        "en": "Select a connection."
+    },
+    "名称不能超过 50 个字符": {
+        "en": "Name must be 50 characters or less."
+    },
+    "名称不能包含空格": {
+        "en": "Name must not contain spaces."
+    },
+    "数采平台初始化成功！": {
+        "en": "Data acquisition platform initialized"
+    },
+    "请注意，控制节点无法使用数采平台": {
+        "en": "The Data Acquisition Platform does not run on controller."
+    },
+    "初始化数采平台": {
+        "en": "Initialize Data Acquisition Platform"
+    },
+    "初始化操作将新增以下数据库": {
+        "en": ""
+    },
+    "数采平台功能未初始化，请联系管理员初始化数采平台功能": {
+        "en": "Contact administrator for initialization."
+    },
+    "无库表权限，请联系管理员赋权": {
+        "en": "No access to databases/tables. Contact administrator for authorization."
+    },
+    "确定要删除选中的 {{num}} 项模板吗？": {
+        "en": "Delete templates? Selected: {{num}}"
+    },
+    "该解析模板被引用 {{citeNumber}} 次, 确定要删除吗？": {
+        "en": "Delete template? References to this template: {{citeNumber}}"
+    },
+    "确定要删除模板【{{name}}】吗？": {
+        "en": "Delete template {{name}}?"
+    },
+    "模板名称": {
+        "en": "Template Name"
+    },
+    "使用数": {
+        "en": "Active Sub References"
+    },
+    "引用数": {
+        "en": "References"
+    },
+    "当前解析模板已被引用，请谨慎修改": {
+        "en": "This template is referenced in subscriptions. Modify with caution."
     }
 }

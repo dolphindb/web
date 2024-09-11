@@ -73,7 +73,7 @@ export function DataCollection () {
     
     
     if (data.is_inited === InitStatus.UNKONWN || isValidating )
-        return <Spin /> 
+        return <Spin className='data-collection-spin'/> 
     else if (data.is_inited === InitStatus.NOT_INITED)
         return admin 
             ? <Result 

@@ -143,7 +143,7 @@ export const CreateSubscribeModal = NiceModal.create((props: IProps) => {
             >
                 <Input placeholder={t('请输入名称')}/>
             </Form.Item>
-            <Form.Item label={t('主题')} name='topic' rules={[{ required: true, message: t('请输入主题') }, ...NAME_RULES.slice(1)]} >
+            <Form.Item label={t('主题', { context: 'data_collection' })} name='topic' rules={[{ required: true, message: t('请输入主题') }, ...NAME_RULES.slice(1)]} >
                 <Input placeholder={t('请输入主题')}/>
             </Form.Item>
             <Form.Item label={t('节点')} name='subNode' tooltip={t('默认为当前节点')}>
