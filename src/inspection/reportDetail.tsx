@@ -225,21 +225,24 @@ function DetailDescription ({
 }: {
     metric: PlanReportDetailMetric
 }) {
+    console.log('metric', metric)
+    const is_multi_node = metric.detail_nodes.length > 1
     return <Typography key={metric.metricName}>
+         {is_multi_node && <p>{t('指标说明: {{desc}}', { desc: metric.desc })}</p>}
         {
             metric.detail_nodes.map(n => <div
                 key={n.node}
             >
-                <Title level={5}>{n.node}</Title>
+                {is_multi_node && <Title level={5}>{n.node}</Title>}
                 <Descriptions
                 
                     column={4}
-                    items={[ {
+                    items={[ ...is_multi_node ? [ ] : [{
                         key: 'desc',
                         label:  t('指标说明'),
                         children: metric.desc,
                         span: 4,
-                    }, {
+                    }], {
                         key: 'startTime',
                         label:  t('开始时间'),
                         children: n.startTime,
