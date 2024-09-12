@@ -235,12 +235,12 @@ function DetailDescription ({
                         children: <DetailTable content={n.detail}/>,
                         span: 3,
                     },
-                    {
+                    ...n.suggestion ? [{
                         key: 'suggestion',
                         label: t('建议'),
                         children: n.suggestion,
                         span: 3,
-                    }]}
+                    }] : [ ]]}
                 />
             </div>)
         }
@@ -260,6 +260,6 @@ function DetailTable ({
             dataSource={ds}
             pagination={false}
         /> 
-    : ds    
+    : ds ?? t('检查通过')    
 }
 
