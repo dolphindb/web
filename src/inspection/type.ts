@@ -44,6 +44,7 @@ export interface PlanReport {
     user: string
     startTime: string
     endTime: string
+    runningTime: bigint
     success: boolean
 }
 
@@ -58,7 +59,7 @@ export interface PlanReportDetailMetric {
     nodes: string
     startTime: string
     endTime: string
-    runningTime: number
+    runningTime: bigint
     success: boolean
     detail_nodes: PlanReportDetailNode[]
 }

@@ -1,5 +1,5 @@
 import { t } from '@i18n/index.ts'
-import { Button, Collapse, Descriptions, Table, Typography } from 'antd'
+import { Affix, Button, Collapse, Descriptions, Table, Typography } from 'antd'
 import useSWR from 'swr'
 
 import html2canvas from 'html2canvas'
@@ -7,6 +7,10 @@ import html2canvas from 'html2canvas'
 import jsPDF from 'jspdf'
 
 import { useMemo, useRef, useState } from 'react'
+
+import { delta2str } from 'xshell/utils.browser.js'
+
+import { UpOutlined } from '@ant-design/icons'
 
 import { model } from '@/model.ts'
 
@@ -20,8 +24,9 @@ const { Title } = Typography
 export function ReportDetailPage () {
 
     const { current_report } = inspection.use(['current_report'])
-    
     const [active_key, set_active_key] = useState(null)
+    
+    const topRef = useRef<HTMLDivElement>(null)
     
     const { data: plan_report_detail } = useSWR([current_report, 'get_report_detail_metrics'],  async () => {
         const metrics =  await inspection.get_report_detail_metrics(current_report.id)
@@ -49,14 +54,20 @@ export function ReportDetailPage () {
             if (element) 
                 element.scrollIntoView({ behavior: 'smooth', block: 'center' })
             
-        }, 100) // 300毫秒的延迟，可以根据需要调整
+        }, 100)
+    }
+    
+    function scroll_to_top () {
+        if (topRef.current) 
+            topRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' })
+        
     }
     
     const abnormal_columns = [
         { title: '指标名', dataIndex: 'displayName', key: 'displayName' },
         { title: '指标分类', dataIndex: 'group', key: 'group', render: (group: number) => metricGroups[group] },
         { title: '开始时间', dataIndex: 'startTime', key: 'startTime' },
-        { title: '运行时间', dataIndex: 'runningTime', key: 'runningTime', render: (runningTime: bigint) => runningTime.toString() + ' ms' },
+        { title: '运行时间', dataIndex: 'runningTime', key: 'runningTime', render: (runningTime: bigint) => delta2str(Number(runningTime)) },
         {
             title: '操作',
             key: 'action',
@@ -131,7 +142,7 @@ export function ReportDetailPage () {
             items: group_items.map((detail, idx) => ({
               key: detail.metricName,
               label: <span className='report-item-header'>
-                {detail.success ? SuccessStatus : FailedStatus}{`${idx + 1}. ${detail.desc} `}
+                {detail.success ? SuccessStatus : FailedStatus}{`${idx + 1}. ${detail.displayName} `}
               </span>,
               children: <div id={`collapse-item-${detail.metricName}`}>
                 <DetailDescription key={detail.metricName} metric={detail}/>
@@ -142,8 +153,9 @@ export function ReportDetailPage () {
           }
         }).filter(group => group.items.length > 0)
       }, [plan_report_detail])
+      
     
-    return <div className='report-detail'>
+    return <div className='report-detail' ref={topRef}>
         <div className='report-detail-header'>
             <Button onClick={() => { inspection.set({ current_report: null }) }}>{t('返回')}</Button>
             <Button type='primary' onClick={export_report}>{t('下载巡检报告')}</Button>
@@ -152,30 +164,28 @@ export function ReportDetailPage () {
         <div id='report-detail-content' className='report-content'>
             <h1>{t('{{report_id}} 巡检报告', { report_id: current_report.id })}</h1>
            
-            <Descriptions column={4} items={[...Object.entries(reportLables).map(([key, value]) => ({ key, label: value, children: current_report[key] })), {
-                key: 'result',
-                label: t('结果'),
-                children: <p className='report-summary'>
-                检查项共 {plan_report_detail?.length || 0} 项，
-                <span className={abnormal_metrics.length && 'abnormal-count'}>{abnormal_metrics.length} 项异常</span>。
-            </p>
-            }]} />
+            <Descriptions column={5} items={[...Object.entries(reportLables).map(([key, value]) => ({ key, label: value, children: key === 'runningTime' ? delta2str(Number(current_report[key])) : current_report[key] }))]} />
+            
+            <h2>{t('巡检结果总览')}</h2>
+            <div className='abnormal-table-header'>
+                <p className='report-summary'>
+                    检查项共 {plan_report_detail?.length || 0} 项，
+                    <span className={abnormal_metrics.length && 'abnormal-count'}>{abnormal_metrics.length} 项异常</span>
+                    {abnormal_metrics.length ? '，异常列表指标如下:' : '。'}
+                    
+                </p>
+                {!!abnormal_metrics.length && <span className='abnormal-count'>
+                    {abnormal_metrics.length}/{plan_report_detail?.length || 0} 项异常
+                </span>}
+            </div>
             
             {abnormal_metrics.length > 0 && (
-                <>
-                    <div className='abnormal-table-header'>
-                        <h2>{t('异常指标表')}</h2>
-                        <span className='abnormal-count'>
-                            {abnormal_metrics.length}/{plan_report_detail?.length || 0} 项异常
-                        </span>
-                    </div>
                     <Table
                         dataSource={abnormal_metrics}
                         columns={abnormal_columns}
                         rowKey='metricName'
                         pagination={false}
                     />
-                </>
             )}
            
      
@@ -197,6 +207,16 @@ export function ReportDetailPage () {
                     </div>
                 })}
         </div>
+        
+        <Affix style={{ position: 'fixed', bottom: 50, right: 50 }}>
+            <Button 
+                type='primary' 
+                shape='circle' 
+                icon={<UpOutlined />} 
+                onClick={scroll_to_top}
+                size='large'
+            />
+        </Affix>
     </div>
 }
 
@@ -215,6 +235,11 @@ function DetailDescription ({
                 
                     column={4}
                     items={[ {
+                        key: 'desc',
+                        label:  t('指标说明'),
+                        children: metric.desc,
+                        span: 4,
+                    }, {
                         key: 'startTime',
                         label:  t('开始时间'),
                         children: n.startTime,
@@ -227,7 +252,7 @@ function DetailDescription ({
                     {
                         key: 'runningTime',
                         label: t('运行时间'),
-                        children: n.runningTime.toString() + ' ms',
+                        children: delta2str(Number(n.runningTime)),
                     },
                     {
                         key: 'success',
