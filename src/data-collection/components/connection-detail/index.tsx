@@ -204,27 +204,24 @@ export function ConnectionDetail (props: IProps) {
             title={t('基本信息')}
             items={desp_items}
         />
-        
-        <div className='describe-title'>
-            <h3>{t('订阅列表')}</h3>
-            <Space>
-                <Button 
-                    icon={<PlusOutlined />} 
-                    type='primary' 
-                    onClick={on_create_subscribe}
-                >
-                    {t('新增订阅')}
-                </Button>
-                <Button 
-                    icon={<DeleteOutlined />} 
-                    danger 
-                    onClick={async () => { await NiceModal.show(DeleteDescribeModal, { ids: selected_subscribes, refresh: mutate }) }} 
-                    disabled={!selected_subscribes.length}
-                >
-                    {t('批量删除')}
-                </Button>
-            </Space>
-        </div>
+        <h3>{t('订阅列表')}</h3>
+        <Space className='subscribe-btn-group'>
+            <Button 
+                icon={<PlusOutlined />} 
+                type='primary' 
+                onClick={on_create_subscribe}
+            >
+                {t('新增订阅')}
+            </Button>
+            <Button 
+                icon={<DeleteOutlined />} 
+                danger 
+                onClick={async () => { await NiceModal.show(DeleteDescribeModal, { ids: selected_subscribes, refresh: mutate }) }} 
+                disabled={!selected_subscribes.length}
+            >
+                {t('批量删除')}
+            </Button>
+        </Space>
         
         
         <Table
