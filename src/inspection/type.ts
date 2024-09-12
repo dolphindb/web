@@ -2,6 +2,7 @@ import type { Dayjs } from 'dayjs'
 
 export interface Metric {
     name: string
+    displayName: string
     group: number
     desc: string
     version: string
@@ -50,12 +51,14 @@ export interface PlanReport {
 export interface PlanReportDetailMetric {
     reportId: string
     metricName: string
+    displayName: string
     metricVersion: string
     desc: string
+    group: string
     nodes: string
     startTime: string
     endTime: string
-    runingTime: number
+    runningTime: number
     success: boolean
     detail_nodes: PlanReportDetailNode[]
 }
@@ -68,7 +71,7 @@ export interface PlanReportDetailNode {
     node: string
     startTime: string
     endTime: string
-    runingTime: number
+    runningTime: number
     success: boolean
     detail: string
     suggestion: string

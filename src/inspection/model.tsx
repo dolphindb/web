@@ -39,6 +39,10 @@ class InspectionModel extends Model<InspectionModel> {
         await model.ddb.invoke('autoInspection::updatePlan', Object.values(plan))
     }
     
+    async run_plan (planId: string) {
+        await model.ddb.invoke('autoInspection::runPlan', [planId])
+    }
+    
     async get_plan_detail (planId: string): Promise<PlanDetail[]> {
         return (await model.ddb.invoke('autoInspection::getPlanDetails', [planId])).data
     }

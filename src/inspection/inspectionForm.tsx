@@ -141,6 +141,9 @@ export function InspectionForm ({
                 <Form.Item label={t('巡检频率')} name='frequency' required>
                     <Select 
                         options={inspectionFrequencyOptions} 
+                        onChange={() => {
+                            inspection_form.setFieldsValue({ days: undefined })
+                        }}
                     />
                 </Form.Item>
                 
@@ -205,8 +208,8 @@ function MetricTable ({
     const cols: TableColumnsType = useMemo(() => [ 
         {
             title: t('名称'),
-            dataIndex: 'name',
-            key: 'name',
+            dataIndex: 'displayName',
+            key: 'displayName',
         },
         {
             title: t('分类'),

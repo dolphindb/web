@@ -31,18 +31,55 @@
     .red
         color: #EE0000
         
+    .report-item-header
+        display: flex
+        column-gap: 10px
+        align-items: center
+        font-weight: 600
+        
+        
     .report-detail
         .report-detail-header
             display: flex
             justify-content: space-between
             align-items: flex-end
-        
-        .ant-descriptions-item-label,.ant-descriptions-item-content
-            padding: 6px !important
-        
-        .ant-descriptions-item-label
-            font-weight: bold
-            min-width: 120px
+            margin-bottom: 20px
+
+        .report-content
+            h1
+                margin-bottom: 20px
+
+        .report-summary
+            margin: 0px
+            .abnormal-count
+                color: #EE0000
+
+        .abnormal-table-header
+            display: flex
+            justify-content: space-between
+            align-items: center
+            margin-bottom: 10px
+
+            h2
+                margin-bottom: 0
+
+            .abnormal-count
+                color: #EE0000
+
+        .group-header
+            display: flex
+            justify-content: space-between
+            align-items: center
+            margin-bottom: 10px
+
+            h2
+                margin-bottom: 0
+
+            .abnormal-count
+                &.green
+                    color: #6ED86C
+                &.red
+                    color: #EE0000
         
 
 .add-inspection-modal,

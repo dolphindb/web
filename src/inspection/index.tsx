@@ -60,7 +60,7 @@ export function Inspection () {
             <Button onClick={async () => NiceModal.show(addInspectionModal, { refresh })}>{t('新增巡检')}</Button>
         </div>
         <ReportListTable reports={reports?.filter(report => report.id.includes(seatch_key))} dates={dates} set_dates={set_dates}/>
-        <PlanListTable plans={plans?.filter(plan => plan.id.includes(seatch_key))} mutate_plans={mutate_plans}/>
+        <PlanListTable plans={plans?.filter(plan => plan.id.includes(seatch_key))} mutate_plans={refresh}/>
     </div>
 }
 
@@ -188,6 +188,16 @@ function PlanListTable  ({
             key: 'action',
             render: (_, record) => 
                 <>
+                    <Button 
+                        type='link'
+                        onClick={async () => {
+                            await inspection.run_plan(record.id)
+                            model.message.success(t('执行成功'))
+                            mutate_plans()
+                        }}
+                    >
+                        {t('立即巡检')}
+                    </Button>
                     <Button 
                         type='link'
                         onClick={async () => NiceModal.show(editInspectionModal, { plan: record, mutate_plans })}
