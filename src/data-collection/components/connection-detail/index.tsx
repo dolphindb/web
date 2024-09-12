@@ -197,7 +197,8 @@ export function ConnectionDetail (props: IProps) {
     ], [ templates, mutate, on_change_status, data ])
     
     
-    return isLoading ? <Spin className='connection-detail-spin'/> : <div className='connection-detail'>
+    return <Spin spinning={isLoading}>
+        <div className='connection-detail'>
         <Descriptions 
             className='base-info'
             title={t('基本信息')}
@@ -244,4 +245,5 @@ export function ConnectionDetail (props: IProps) {
         />
         
     </div>
+    </Spin>
 }
