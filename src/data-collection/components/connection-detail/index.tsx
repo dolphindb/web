@@ -231,6 +231,11 @@ export function ConnectionDetail (props: IProps) {
             scroll={{ x: '100%' }}
             dataSource={data?.subscribes ?? [ ]}
             rowKey='id'
+            pagination={{
+                defaultPageSize: 10,
+                showSizeChanger: true,
+                hideOnSinglePage: true
+            }}
             rowSelection={{
                 onChange: selected_keys => { set_selected_subscribes(selected_keys as string[]) },
                 getCheckboxProps: (subscribe: ISubscribe) => ({ disabled: subscribe.status === 1 }),
