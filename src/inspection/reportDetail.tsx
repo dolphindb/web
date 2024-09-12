@@ -131,6 +131,8 @@ export function ReportDetailPage () {
     const grouped_report_items = useMemo(() => {
         if (!plan_report_detail)
             return [ ]
+        
+        let metric_idx = 1
       
         return metricGroups.map((groupName, index) => {
           const group_items = plan_report_detail.filter(detail => Number(detail.group) === index)
@@ -139,10 +141,10 @@ export function ReportDetailPage () {
       
           return {
             groupName,
-            items: group_items.map((detail, idx) => ({
+            items: group_items.map(detail => ({
               key: detail.metricName,
               label: <span className='report-item-header'>
-                {detail.success ? SuccessStatus : FailedStatus}{`${idx + 1}. ${detail.displayName} `}
+                {detail.success ? SuccessStatus : FailedStatus}{`${metric_idx++}. ${detail.displayName} `}
               </span>,
               children: <div id={`collapse-item-${detail.metricName}`}>
                 <DetailDescription key={detail.metricName} metric={detail}/>
@@ -225,7 +227,6 @@ function DetailDescription ({
 }: {
     metric: PlanReportDetailMetric
 }) {
-    console.log('metric', metric)
     const is_multi_node = metric.detail_nodes.length > 1
     return <Typography key={metric.metricName}>
          {is_multi_node && <p>{t('指标说明: {{desc}}', { desc: metric.desc })}</p>}
