@@ -56,7 +56,7 @@ export function ReportDetailPage () {
         { title: '指标名', dataIndex: 'displayName', key: 'displayName' },
         { title: '指标分类', dataIndex: 'group', key: 'group', render: (group: number) => metricGroups[group] },
         { title: '开始时间', dataIndex: 'startTime', key: 'startTime' },
-        { title: '运行时间', dataIndex: 'runningTime', key: 'runningTime', render: (runningTime: bigint) => runningTime.toString() },
+        { title: '运行时间', dataIndex: 'runningTime', key: 'runningTime', render: (runningTime: bigint) => runningTime.toString() + ' ms' },
         {
             title: '操作',
             key: 'action',
@@ -213,7 +213,7 @@ function DetailDescription ({
                 <Title level={5}>{n.node}</Title>
                 <Descriptions
                 
-                    column={3}
+                    column={4}
                     items={[ {
                         key: 'startTime',
                         label:  t('开始时间'),
@@ -225,6 +225,11 @@ function DetailDescription ({
                         children: n.endTime,
                     },
                     {
+                        key: 'runningTime',
+                        label: t('运行时间'),
+                        children: n.runningTime.toString() + ' ms',
+                    },
+                    {
                         key: 'success',
                         label: t('是否正常'),
                         children: n.success ? SuccessStatus : FailedStatus,
@@ -233,13 +238,13 @@ function DetailDescription ({
                         key: 'detail',
                         label: t('详情'),
                         children: <DetailTable content={n.detail}/>,
-                        span: 3,
+                        span: 4,
                     },
                     ...n.suggestion ? [{
                         key: 'suggestion',
                         label: t('建议'),
                         children: n.suggestion,
-                        span: 3,
+                        span: 4,
                     }] : [ ]]}
                 />
             </div>)
