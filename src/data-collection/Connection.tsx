@@ -136,38 +136,40 @@ export function Connections ({ protocols }: { protocols: Protocol[] }) {
     }, [isLoading, data, selected_connections, on_delete_connection, protocols])
         
     return <div className='data-collection-wrapper'>
-    <div className='connection-list'>
-        <div className='connection-list-title'>
-            <h3>{t('连接')}</h3>
-            <Typography.Link
-                className='delete-link'
-                type='danger'
-                onClick={on_batch_delete_connection}
-                disabled={!selected_connections.length}
-            >
-                <DeleteOutlined className='delete-link-icon' />
-                {t('批量删除')}
-            </Typography.Link>
+        <div className='connection-list'>
+            <div className='connection-list-title'>
+                <h3>{t('连接')}</h3>
+                <Typography.Link
+                    className='delete-link'
+                    type='danger'
+                    onClick={on_batch_delete_connection}
+                    disabled={!selected_connections.length}
+                >
+                    <DeleteOutlined className='delete-link-icon' />
+                    {t('批量删除')}
+                </Typography.Link>
+            </div>
+            <Tree
+                defaultExpandedKeys={protocols}
+                treeData={menu_items}
+                className='connection-tree'
+                checkable
+                blockNode
+                onSelect={keys => {
+                    set_connection(keys[0] as string)
+                }}
+                onCheck={keys => {
+                    set_selected_connections((keys as string[]).filter(item => !protocols.includes(item as any)))
+                }}
+            />
         </div>
-        <Tree
-            defaultExpandedKeys={protocols}
-            treeData={menu_items}
-            className='connection-tree'
-            checkable
-            blockNode
-            onSelect={keys => {
-                set_connection(keys[0] as string)
-            }}
-            onCheck={keys => {
-                set_selected_connections((keys as string[]).filter(item => !protocols.includes(item as any)))
-            }}
-        />
-    </div>
     
-    {
-        !!connection
-            ? <ConnectionDetail connection={connection} />
-            : <Empty className='empty-content' image={Empty.PRESENTED_IMAGE_SIMPLE} description={t('请选择连接')} />
-    }
+        <div className='connection-left-wrapper'>
+            {
+                !!connection
+                    ? <ConnectionDetail connection={connection} />
+                    : <Empty className='empty-content' image={Empty.PRESENTED_IMAGE_SIMPLE} description={t('请选择连接')} />
+            }
+        </div>
 </div>
 }

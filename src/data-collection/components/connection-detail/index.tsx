@@ -47,7 +47,7 @@ export function ConnectionDetail (props: IProps) {
     
     const [selected_subscribes, set_selected_subscribes] = useState<string[]>([ ])    
     
-    const { data, isLoading, mutate } = useSWR(
+    const { data, mutate, isLoading } = useSWR(
         ['dcp_getConnectAndSubInfo', connection],
         async () => get_connect_detail(connection)
     )
@@ -197,9 +197,7 @@ export function ConnectionDetail (props: IProps) {
     ], [ templates, mutate, on_change_status, data ])
     
     
-    return isLoading
-    ? <Spin className='connection-detail-spin'/> 
-    : <div className='connection-detail'>
+    return isLoading ? <Spin className='connection-detail-spin'/> : <div className='connection-detail'>
         <Descriptions 
             className='base-info'
             title={t('基本信息')}
