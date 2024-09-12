@@ -1,7 +1,7 @@
 import './index.scss'
 
 import NiceModal, { useModal } from '@ebay/nice-modal-react'
-import { Button, Form, Input, InputNumber, Modal, Select, Space, Spin, Switch, Tag, Tooltip, message } from 'antd'
+import { Button, Form, Input, InputNumber, Modal, Select, Switch, Tag, Tooltip, message } from 'antd'
 
 import { useCallback, useMemo, useState } from 'react'
 
@@ -35,7 +35,6 @@ interface IProps {
 }
 
 export const CreateSubscribeModal = NiceModal.create((props: IProps) => {
-
     const { edited_subscribe, connection_id, refresh, protocol } = props
     
     const [handlerId, setHandlerId] = useState(edited_subscribe?.handlerId)

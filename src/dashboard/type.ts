@@ -28,6 +28,7 @@ export interface AxisConfig {
     
     /** 刻度线颜色 */
     axis_color?: string
+    
     /** 刻度字体颜色 */
     font_color?: string
 }

@@ -5,8 +5,8 @@ import { Modal, Form, Switch, Button } from 'antd'
 import { useCallback } from 'react'
 
 
-import { t } from '../../../../i18n/index.js'
-import { request } from '../../utils.js'
+import { t } from '@i18n/index.ts'
+import { request } from '@/data-collection/utils.ts'
 
 interface IProps {
     ids: string[]
@@ -15,7 +15,6 @@ interface IProps {
 
 
 export const DeleteDescribeModal = NiceModal.create(({ ids = [ ], refresh }: IProps) => {
-    
     const modal = useModal()
     
     const on_delete = useCallback(async (params: { dropUseTable: boolean }) => {

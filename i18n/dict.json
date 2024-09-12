@@ -4989,7 +4989,7 @@
         "en": "After executing undef all, a refresh is required to restore web functions. Do you want to refresh now?"
     },
     "数据采集平台": { 
-            "en": "Data Acquisition"
+        "en": "Data Acquisition"
     },
     "连接信息": {
         "en": "Connections"

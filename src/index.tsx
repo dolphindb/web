@@ -17,10 +17,10 @@ import ja from 'antd/locale/ja_JP.js'
 import ko from 'antd/locale/ko_KR.js'
 
 import { ProConfigProvider } from '@ant-design/pro-components'
-import { SWRConfig } from 'swr'
 
 import dayjs from 'dayjs'
 
+import { SWRConfig } from 'swr'
 
 import { language } from '../i18n/index.ts'
 

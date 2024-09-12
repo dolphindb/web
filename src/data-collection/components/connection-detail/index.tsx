@@ -16,7 +16,7 @@ import { useMemoizedFn } from 'ahooks'
 
 import NiceModal from '@ebay/nice-modal-react'
 
-import { DeleteOutlined, PlusOutlined, RedoOutlined } from '@ant-design/icons'
+import { DeleteOutlined, PlusOutlined } from '@ant-design/icons'
 
 import dayjs from 'dayjs'
 

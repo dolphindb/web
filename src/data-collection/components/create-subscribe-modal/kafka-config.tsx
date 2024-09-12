@@ -21,7 +21,6 @@ const DEFAULT_DATA = {
 }
 
 export function KafkaConfig () {
-    
     const { data = DEFAULT_DATA } = useSWR(
         'dcp_getKafkaConsumerCfgList',
         async () => request<{ consumerCfgList: string[] }>('dcp_getKafkaConsumerCfgList')

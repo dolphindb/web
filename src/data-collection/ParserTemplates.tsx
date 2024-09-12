@@ -8,16 +8,16 @@ import { DeleteOutlined, PlusOutlined } from '@ant-design/icons'
 
 import NiceModal from '@ebay/nice-modal-react'
 
-import { t } from '../../i18n/index.js'
+import { t } from '@i18n/index.js'
 
-import { format_time } from '../dashboard/utils.js'
+import { format_time } from '@/dashboard/utils.ts'
 
 
-import { request } from './utils.js'
+import { request } from './utils.ts'
 import { type IParserTemplate } from './type.js'
-import { ParserTemplateModal } from './components/create-parser-template-modal/index.js'
+import { ParserTemplateModal } from './components/create-parser-template-modal/index.tsx'
 
-import { get_parser_templates } from './api.js'
+import { get_parser_templates } from './api.ts'
 
 
 
@@ -28,7 +28,6 @@ const DEFAULT_TEMPLATE_DATA = {
 
 
 export function ParserTemplates () {
-    
     const [selected_keys, set_selected_keys] = useState<string[]>([ ])
     
     const { data = DEFAULT_TEMPLATE_DATA, isLoading, mutate: refresh } = useSWR(

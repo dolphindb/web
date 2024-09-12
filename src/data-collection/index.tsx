@@ -4,14 +4,12 @@ import useSWR from 'swr'
 
 import { Button, message, Result, Spin } from 'antd'
 
-import { useAsyncEffect, useMemoizedFn } from 'ahooks'
-
 import { t } from '@i18n/index.ts'
 
 
-import type { DdbObj } from 'dolphindb/browser'
+import type { DdbObj } from 'dolphindb/browser.js'
 
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useState } from 'react'
 
 import { model, NodeType } from '@/model.ts'
 
@@ -21,7 +19,7 @@ import { has_data_collection_auth, test_init } from '@/data-collection/api.ts'
 import { Unlogin } from '@/components/Unlogin.tsx'
 
 import code from './script.dos'
-import window_code from './script_windows.dos'
+import window_code from './script.windows.dos'
 
 import { ParserTemplates } from './ParserTemplates.tsx'
 import { Connections } from './Connection.tsx'
@@ -29,15 +27,14 @@ import { protocols } from './constant.ts'
 
 
 export function DataCollection () {
-    
-    const { logined, node_type, admin } = model.use()
-    const [is_win, set_is_win] = useState<Boolean>()
+    const { logined, node_type, admin } = model.use(['logined', 'node_type', 'admin'])
+    const [is_win, set_is_win] = useState<boolean>()
     
     const { data = { is_inited: InitStatus.UNKONWN, has_auth: undefined }, mutate, isValidating } = useSWR(
         [test_init.KEY],
         async () => {
             const { value } = await model.ddb.eval<DdbObj<boolean>>('existsDatabase("dfs://dataAcquisition")')
-            const { value: version } = await model.ddb.eval<DdbObj<string>>('version()')
+            const version = await model.ddb.invoke<string>('version')
             const is_windows = version.toLocaleLowerCase().includes('win')
             set_is_win(is_windows)
             let has_auth = undefined
@@ -90,10 +87,11 @@ export function DataCollection () {
             return <Result title={t('无库表权限，请联系管理员赋权')} />
         else
             switch (model.view) {
-            case 'connection':
-                return <Connections protocols={is_win ? protocols.filter(item => item !== Protocol.KAFKA) : protocols}/>
-            case 'parser-template':
-                return <ParserTemplates />
-            default: return null
+                case 'connection':
+                    return <Connections protocols={is_win ? protocols.filter(item => item !== Protocol.KAFKA) : protocols}/>
+                case 'parser-template':
+                    return <ParserTemplates />
+                default:
+                    return null
         }
 }

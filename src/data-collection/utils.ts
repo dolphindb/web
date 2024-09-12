@@ -1,11 +1,9 @@
-import { safe_json_parse } from '../dashboard/utils.js'
-import { model } from '../model.js'
+import { model } from '@/model.ts'
 
-export async function request<T> (func: string, params?: any) {
-    let res
-    if (params)
-        res = await model.ddb.call(func, [JSON.stringify(params)])
+export async function request <T> (func: string, params?: any) {
+    const res = await model.ddb.invoke<string | boolean>(func, params ? [JSON.stringify(params)] : undefined)
+    if (typeof res === 'string')
+        return JSON.parse(res) as T
     else
-        res = await model.ddb.eval(`${func}()`)
-    return safe_json_parse(res?.value) as T
+        return res as T
 }

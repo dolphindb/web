@@ -280,7 +280,6 @@ export function convert_chart_config (
         if (axis.type === AxisType.CATEGORY)
             data = axis.col_name ? data_source.map(item => format_time(item?.[axis.col_name], axis.time_format)) : [ ]
         
-        
         const axis_config = {
             show: true,
             data: data,
@@ -600,7 +599,7 @@ export function to_chart_data (data: DdbValue, datatype: DdbType) {
 export function safe_json_parse (val) { 
     try {
         return JSON.parse(val)
-    } catch (e) { 
+    } catch (e) {
         return val
     }
 }

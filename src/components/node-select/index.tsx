@@ -3,7 +3,7 @@ import useSWR from 'swr'
 
 import type { DefaultOptionType } from 'antd/es/select/index.js'
 
-import { request } from '@/data-collection/utils.js'
+import { request } from '@/data-collection/utils.ts'
 
 export function NodeSelect (props: SelectProps & { protocol: string }) {
     

@@ -1,7 +1,7 @@
 import './index.scss'
 
 import NiceModal, { useModal } from '@ebay/nice-modal-react'
-import { List, Modal, Spin, Typography } from 'antd'
+import { List, Modal, Typography } from 'antd'
 
 import useSWR from 'swr'
 
@@ -14,7 +14,6 @@ interface IProps {
 }
 
 export const ViewLogModal = NiceModal.create(({ protocol }: IProps) => {
-    
     const modal  = useModal()
     
     const { data = [ ], isLoading } = useSWR(
@@ -43,6 +42,5 @@ export const ViewLogModal = NiceModal.create(({ protocol }: IProps) => {
                 </Typography.Text>
             </List.Item>}
         />
-    
     </Modal>
 })

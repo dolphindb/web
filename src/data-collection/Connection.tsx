@@ -10,18 +10,18 @@ import { DeleteOutlined, EditOutlined, FileTextOutlined, LinkOutlined, PlusCircl
 
 import NiceModal from '@ebay/nice-modal-react'
 
-import { t } from '../../i18n/index.js'
+import { t } from '@i18n/index.js'
 
-import { ConnectionDetail } from './components/connection-detail/index.js'
-import { CreateConnectionModal } from './components/create-connection-modal/index.js'
+import { ConnectionDetail } from './components/connection-detail/index.tsx'
+import { CreateConnectionModal } from './components/create-connection-modal/index.tsx'
 
-import { request } from './utils.js'
+import { request } from './utils.ts'
 
-import { type Protocol, type Connection } from './type.js'
-import { ViewLogModal } from './components/view-log-modal/index.js'
+import { type Protocol, type Connection } from './type.ts'
+import { ViewLogModal } from './components/view-log-modal/index.tsx'
 
 
-import { DeleteConnectionModal } from './components/delete-connections-modal/index.js'
+import { DeleteConnectionModal } from './components/delete-connections-modal/index.tsx'
 
 
 export function Connections ({ protocols }: { protocols: Protocol[] }) {
@@ -61,8 +61,8 @@ export function Connections ({ protocols }: { protocols: Protocol[] }) {
     
     
     
-    const menu_items = useMemo<TreeDataNode[]>( () => {
-        return protocols.map(protocol => {
+    const menu_items = useMemo<TreeDataNode[]>(() =>
+        protocols.map(protocol => {
             const connections = data?.[protocol] ?? [ ]
             return {
                 icon: <LinkOutlined />,
@@ -76,7 +76,7 @@ export function Connections ({ protocols }: { protocols: Protocol[] }) {
                                     className='add-connection-icon'
                                     onClick={async e => {
                                         e.stopPropagation()
-                                        NiceModal.show(CreateConnectionModal, { protocol, refresh: mutate })
+                                        await NiceModal.show(CreateConnectionModal, { protocol, refresh: mutate })
                                     }}
                                 />
                             </Button>
@@ -113,7 +113,7 @@ export function Connections ({ protocols }: { protocols: Protocol[] }) {
                                     className='connection-edit-icon'
                                     onClick={async e => {
                                         e.stopPropagation()
-                                        NiceModal.show(CreateConnectionModal, { protocol, refresh: mutate, editedConnection: connection })
+                                        await NiceModal.show(CreateConnectionModal, { protocol, refresh: mutate, editedConnection: connection })
                                     }}
                                 />
                             </Button>
@@ -133,7 +133,7 @@ export function Connections ({ protocols }: { protocols: Protocol[] }) {
                 }))
             }
         })
-    }, [isLoading, data, selected_connections, on_delete_connection, protocols])
+    , [isLoading, data, selected_connections, on_delete_connection, protocols])
         
     return <div className='data-collection-wrapper'>
         <div className='connection-list'>
@@ -166,7 +166,7 @@ export function Connections ({ protocols }: { protocols: Protocol[] }) {
     
         <div className='connection-left-wrapper'>
             {
-                !!connection
+                connection
                     ? <ConnectionDetail connection={connection} />
                     : <Empty className='empty-content' image={Empty.PRESENTED_IMAGE_SIMPLE} description={t('请选择连接')} />
             }

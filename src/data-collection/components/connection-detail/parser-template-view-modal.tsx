@@ -11,7 +11,6 @@ interface IProps {
 }
 
 export const TemplateViewModal = NiceModal.create(({ template }: IProps) => {
-    
     const modal = useModal()
     
     return <Modal 

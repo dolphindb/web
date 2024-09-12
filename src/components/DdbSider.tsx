@@ -171,7 +171,7 @@ export function DdbSider () {
                     icon: <MenuIcon view='log' />,
                     label: t('日志查看'),
                 },
-                ...node_type !== NodeType.controller ? [ {
+                ... node_type !== NodeType.controller ? [{
                     key: 'data-collection',
                     icon: <MenuIcon view='data-collection' />,
                     label: t('数据采集平台'),
