@@ -63,12 +63,12 @@ export function DataCollection () {
     
     
     if (!logined)
-        return <Unlogin info={t('数采平台')} />
+        return <Unlogin info={t('数据采集平台')} />
         
     if (node_type === NodeType.controller) 
         return <Result
             status='warning'
-            title={t('请注意，控制节点无法使用数采平台')}
+            title={t('请注意，控制节点无法使用数据采集平台')}
         />
     
     
@@ -84,7 +84,7 @@ export function DataCollection () {
                 </>}
                 extra={<Button type='primary' onClick={on_init}>{t('初始化')}</Button>}
             /> 
-            : <Result title={t('数采平台功能未初始化，请联系管理员初始化数采平台功能')} />
+            : <Result title={t('数据采集平台功能未初始化，请联系管理员初始化数据采集平台功能')} />
     else if (data.is_inited === InitStatus.INITED) 
         if (!data.has_auth && !admin)
             return <Result title={t('无库表权限，请联系管理员赋权')} />

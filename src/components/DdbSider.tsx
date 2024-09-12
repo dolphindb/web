@@ -81,7 +81,7 @@ export function DdbSider () {
     }, [logined])
     
     return <Layout.Sider
-        width={ language === 'zh' ? 150 : 220 }
+        width={ language === 'zh' ? 170 : 220 }
         className='sider'
         theme='light'
         collapsible
@@ -174,7 +174,7 @@ export function DdbSider () {
                 ...node_type !== NodeType.controller ? [ {
                     key: 'data-collection',
                     icon: <MenuIcon view='data-collection' />,
-                    label: t('数采平台'),
+                    label: t('数据采集平台'),
                     children: [
                         {
                             icon: <MenuIcon view='connection' />,

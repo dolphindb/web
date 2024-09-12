@@ -4988,7 +4988,7 @@
     "执行 undef all 后需要刷新以恢复 web 功能，是否立即刷新？": {
         "en": "After executing undef all, a refresh is required to restore web functions. Do you want to refresh now?"
     },
-    "数采平台": { 
+    "数据采集平台": { 
             "en": "Data Acquisition"
     },
     "连接信息": {
@@ -5183,19 +5183,19 @@
     "名称不能包含空格": {
         "en": "Name must not contain spaces."
     },
-    "数采平台初始化成功！": {
+    "数据采集平台初始化成功！": {
         "en": "Data acquisition platform initialized"
     },
-    "请注意，控制节点无法使用数采平台": {
+    "请注意，控制节点无法使用数据采集平台": {
         "en": "The Data Acquisition Platform does not run on controller."
     },
-    "初始化数采平台": {
+    "初始化数据采集平台": {
         "en": "Initialize Data Acquisition Platform"
     },
     "初始化操作将新增以下数据库": {
         "en": "The following databases will be created from initialization"
     },
-    "数采平台功能未初始化，请联系管理员初始化数采平台功能": {
+    "数据采集平台功能未初始化，请联系管理员初始化数据采集平台功能": {
         "en": "Contact administrator for initialization."
     },
     "无库表权限，请联系管理员赋权": {
