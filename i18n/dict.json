@@ -5221,5 +5221,8 @@
     },
     "当前解析模板已被引用，请谨慎修改": {
         "en": "This template is referenced in subscriptions. Modify with caution."
+    },
+    "是否启用": {
+        "en": "Enabled"
     }
 }

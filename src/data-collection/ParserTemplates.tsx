@@ -140,32 +140,35 @@ export function ParserTemplates () {
     
    
     return <>
-    <div className='parser-template-title'>
-        <h3>{t('解析模板')}</h3>
-        <Space>
+        <h2>{t('解析模板')}</h2>
+        <Space className='parser-template-btn-group'>
             <Button onClick={on_create} icon={<PlusOutlined />} type='primary'>{t('新建')}</Button>
             <Button 
                 disabled={!selected_keys.length} 
                 onClick={on_batch_delete} 
                 icon={<DeleteOutlined />} 
                 danger
-            >
+                >
                 {t('批量删除')}
             </Button>
         </Space>
-    </div>
-    <Table 
-        scroll={{ x: '100%' }} 
-        rowKey='id' 
-        dataSource={data.items} 
-        loading={isLoading} 
-        columns={columns}
-        rowSelection={{
-            onChange: keys => { set_selected_keys(keys as string[]) },
-            getCheckboxProps: record => ({
-                disabled: !can_edit(record)
-            }),
-        }}
-    />
+        <Table 
+            scroll={{ x: '100%' }} 
+            rowKey='id' 
+            dataSource={data.items} 
+            loading={isLoading} 
+            columns={columns}
+            pagination={{
+                defaultPageSize: 10,
+                showSizeChanger: true,
+                hideOnSinglePage: true,
+            }}
+            rowSelection={{
+                onChange: keys => { set_selected_keys(keys as string[]) },
+                getCheckboxProps: record => ({
+                    disabled: !can_edit(record)
+                }),
+            }}
+        />
 </>
 }

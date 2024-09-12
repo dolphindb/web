@@ -2,7 +2,8 @@
     display: flex;
     
     .empty-content {
-        margin: 0 auto;
+        height: 100%;
+        margin: auto auto;
     }
     
     .link-btn {
@@ -12,8 +13,8 @@
    
     
     .connection-list {
-        border: 1px solid #f3f1f1;
-        padding: 0 12px 12px 12px;
+        border-right: 1px solid #f3f1f1;
+        padding-right: 16px;
         height: calc(100vh - 80px);
         overflow: auto;
         

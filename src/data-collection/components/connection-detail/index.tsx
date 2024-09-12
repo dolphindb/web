@@ -166,7 +166,7 @@ export function ConnectionDetail (props: IProps) {
             sorter: (a, b) => dayjs(a.updateTime).valueOf() - dayjs(b.updateTime).valueOf()
         },
         {
-            title: t('状态'),
+            title: t('是否启用'),
             dataIndex: 'status',
             width: 100,
             render: (status, record) => <Switch checked={status === 1} onClick={async checked => on_change_status(record, checked)}/>
