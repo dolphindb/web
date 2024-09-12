@@ -238,10 +238,10 @@ export class DdbModel extends Model<DdbModel> {
         console.log(t('web 强制登录:'), this.login_required)
         
         if (this.oauth) {
-            this.oauth_type = config.get_config<OAuthType>('oauthWebType') || 'implicit'
+            this.oauth_type = config.get_config<OAuthType>('oauthWebType') || 'authorization code'
             
-            if (!['implicit', 'authorization code'].includes(this.oauth_type))
-                throw new Error(t('oauthType 配置参数的值必须为 authorization code 或 implicit，默认为 implicit'))
+            if (!['authorization code', 'implicit'].includes(this.oauth_type))
+                throw new Error(t('oauthType 配置参数的值必须为 authorization code 或 implicit，默认为 authorization code'))
         }
         
         if (this.autologin)
@@ -455,7 +455,26 @@ export class DdbModel extends Model<DdbModel> {
         }
         
         // https://datatracker.ietf.org/doc/html/rfc6749#section-4.2.2
-        if (this.oauth_type === 'implicit') {
+        if (this.oauth_type === 'authorization code') {
+            let { searchParams: params } = url
+            const code = params.get('code')
+            
+            if (code) {
+                console.log(
+                    t('尝试 oauth 单点登录，类型是 authorization code, code 为 {{code}}',
+                    { code }))
+                
+                await jump(
+                    params.get('state')
+                )
+                
+                ticket = await this.ddb.invoke<string>('oauthLogin', [this.oauth_type, { code }])
+                
+                params.delete('code')
+                history.replaceState(null, '', url.toString())
+            } else
+                console.log(t('尝试 oauth 单点登录，类型是 authorization code, 无 code'))
+        } else {
             const params = new URLSearchParams(url.hash.slice(1))
             
             const access_token = params.get('access_token') || params.get('accessToken')
@@ -480,25 +499,6 @@ export class DdbModel extends Model<DdbModel> {
                 url.hash = ''
             } else
                 console.log(t('尝试 oauth 单点登录，类型是 implicit, 无 access_token'))
-        } else {
-            let { searchParams: params } = url
-            const code = params.get('code')
-            
-            if (code) {
-                console.log(
-                    t('尝试 oauth 单点登录，类型是 authorization code, code 为 {{code}}',
-                    { code }))
-                
-                await jump(
-                    params.get('state')
-                )
-                
-                ticket = await this.ddb.invoke<string>('oauthLogin', [this.oauth_type, { code }])
-                
-                params.delete('code')
-                history.replaceState(null, '', url.toString())
-            } else
-                console.log(t('尝试 oauth 单点登录，类型是 authorization code, 无 code'))
         }
         
         
@@ -728,7 +728,7 @@ export class DdbModel extends Model<DdbModel> {
             
             const url = new URL(
                 auth_uri + '?' + new URLSearchParams({
-                    response_type: this.oauth_type === 'implicit' ? 'token' : 'code',
+                    response_type: this.oauth_type === 'authorization code' ? 'code' : 'token',
                     client_id,
                     ... redirect_uri ? { redirect_uri } : { },
                     state: this.node_alias

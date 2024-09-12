@@ -65,6 +65,7 @@ function DolphinDB () {
         locale={locales[language] as any}
         button={{ autoInsertSpace: false }}
         theme={{ hashed: false, token: { borderRadius: 0, motion: false } }}
+        renderEmpty={() => <div className='empty-placeholder' />}
     >
         <SWRConfig value={{
             revalidateOnFocus: false,
