@@ -165,8 +165,11 @@ def listPlugins() {
     return ret
 }
 
-def getClusterPluginDirs() {
-    nodes = select * from rpc(getControllerAlias(), getClusterPerf{true}) where (mode != 2 or (mode == 2 and isLeader = true)) and mode != 1
+def getClusterPluginDirs(destNodeAliases=[]) {
+    nodes = select * from rpc(getControllerAlias(), getClusterPerf{true}) where mode != 1
+    if (destNodeAliases.size() > 0) {
+        nodes = select * from nodes where name in destNodeAliases
+    }
     addColumn(nodes, "pluginDir", STRING)
     for (node in nodes) {
         name_ = node["name"]
@@ -174,11 +177,11 @@ def getClusterPluginDirs() {
         update nodes set pluginDir = pluginDir_ where name = name_
     }
     // 若host和pluginDir相同，则只需要部署一次
-    nodes = select first(name) as name from nodes group by host, pluginDir
+    nodes = select first(name) as name, first(agentSite) as agentSite from nodes group by host, pluginDir
     return nodes
 }
 
-def checkPluginName(zipName) {
+def checkPluginZipName(zipName) {
     // zipName = "arrow-Linux-X86-3.00.1-3.00.1.zip"
     pattern = "^([^-]+)-[^-]+-[^-]+-[^-]+-[^-]+\.zip$"
     res = regexFind(zipName, pattern)
@@ -190,15 +193,25 @@ def checkPluginName(zipName) {
     return true
 }
 
-def installPluginToCluster(zipName, zip) {
-    checkPluginName(zipName)
+def installPluginOffline(zipName, zipBytes, destNodeAliases=[]) {
+    // destNodeAliases = ["P1_node1"]
+    checkPluginZipName(zipName)
+    if (destNodeAliases.size() == 0) {
+        throw "destNodeAliases must not be empty"
+    }
+    nodeAliases = exec name from rpc(getControllerAlias(), getClusterPerf{true}) where mode != 1
+    for (destNodeAlias in destNodeAliases) {
+        if (!in(destNodeAlias, nodeAliases)) {
+            throw "Invalid node alias: " + destNodeAlias
+        }
+    }
     
-    installPluginInner = def(zipName, zip) {
+    installPluginOfflineInner = def(zipName, zipBytes) {
         pluginDir = getPluginDir()
         
         tmpZipPath = pluginDir + "/tmp.zip"
         f = file(tmpZipPath, "w")
-        f.writeObject(zip)
+        f.writeObject(zipBytes)
         f.close()
         pluginName = zipName.split("-").first() 
         pluginDir_ = pluginDir + "/" + pluginName
@@ -210,21 +223,27 @@ def installPluginToCluster(zipName, zip) {
         rm(tmpZipPath)
     }
     
-    // 顺序执行，因为存在一台机器上有多个节点的情况，并发会互相覆盖文件
-    nodes = select * from rpc(getControllerAlias(), getClusterPerf{true}) where (mode != 2 or (mode == 2 and isLeader = true)) and mode != 1
-    addColumn(nodes, "pluginDir", STRING)
+    nodes = getClusterPluginDirs(destNodeAliases)
     for (node in nodes) {
-        name_ = node["name"]
-        pluginDir_ = rpc(name_, getConfig, "pluginDir")
-        update nodes set pluginDir = pluginDir_ where name = name_
-    }
-    // 若host和pluginDir相同，则只需要部署一次
-    nodes = select first(name) as name from nodes group by host, pluginDir
-    for (node in nodes) {
+        // node = nodes[0]
         name = node["name"]
-        rpc(name, installPluginInner, zipName, zip)
+        agentSite = node["agentSite"]
+        agentState = exec first(state) from rpc(getControllerAlias(), getClusterPerf) where site == agentSite
+        if (agentState == 1) { // 优先去节点所在的 agent 节点安装
+            agentName = agentSite.split(":").last()
+            rpc(name, installPluginOfflineInner, zipName, zipBytes)
+        } else { // agent 不在线时直连节点安装
+            rpc(name, installPluginOfflineInner, zipName, zipBytes)
+        }
     }
-    rpc(getControllerAlias(), installPluginInner, zipName, zip)
+}
+
+def installPluginOnline(pluginName, pluginVersion=NULL, pluginServerAddr=NULL, destNodeAliases=[]) {
+    if (destNodeAliases.size() == 0) {
+        throw "destNodeAliases must not be empty"
+    }
+    nodes = getClusterPluginDirs(destNodeAliases)
+    pnodeRun(installPlugin{pluginName, pluginVersion, pluginServerAddr}, nodes["name"])
 }
 
 def copyFolderToRemoteNode(src, destNodeAlias, dest) {
@@ -260,11 +279,21 @@ def copyFolderToRemoteNode(src, destNodeAlias, dest) {
     }
 }
 
-def syncPlugin(pluginName, src) {
-    syncPluginInner = def(pluginName) {
+def syncPlugin(pluginName, srcNodeAlias, destNodeAliases=[]) {
+    if (destNodeAliases.size() == 0) {
+        throw "destNodeAliases must not be empty"
+    }
+    nodeAliases = exec name from rpc(getControllerAlias(), getClusterPerf{true}) where mode != 1
+    for (destNodeAlias in destNodeAliases) {
+        if (!in(destNodeAlias, nodeAliases)) {
+            throw "Invalid node alias: " + destNodeAlias
+        }
+    }
+
+    syncPluginInner = def(pluginName, destNodeAliases) {
         pluginDir_ = getPluginDir()
         pluginName_ = exec first(filename) from files(pluginDir_) where isDir == true and filename = pluginName
-        destInfo = select * from getClusterPluginDirs() where host != getNodeHost() or pluginDir != pluginDir_
+        destInfo = select * from getClusterPluginDirs(destNodeAliases) where host != getNodeHost() or pluginDir != pluginDir_ // 排除本机的相同目录 
         for (item in destInfo) {
             // item = destInfo[0]
             srcDir = pluginDir_ + "/" + pluginName_
@@ -276,10 +305,19 @@ def syncPlugin(pluginName, src) {
                     rm(dir)
                 }
             }
-            rpc(destNodeAlias, rmDirIfExists, destDir)
-            copyFolderToRemoteNode(srcDir, destNodeAlias, destDir)
+
+            agentSite = item["agentSite"]
+            agentState = exec first(state) from rpc(getControllerAlias(), getClusterPerf) where site == agentSite
+            if (agentState == 1) { // 优先去节点所在的 agent 节点安装
+                agentName = agentSite.split(":").last()
+                rpc(agentName, rmDirIfExists, destDir)
+                copyFolderToRemoteNode(srcDir, agentName, destDir)
+            } else { // agent 不在线时直连节点安装
+                rpc(destNodeAlias, rmDirIfExists, destDir)
+                copyFolderToRemoteNode(srcDir, destNodeAlias, destDir)
+            }
         }
     }
     
-    rpc(src, syncPluginInner, pluginName)
+    rpc(srcNodeAlias, syncPluginInner, pluginName, destNodeAliases)
 }
