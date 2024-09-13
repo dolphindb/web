@@ -50,7 +50,7 @@ export async function goto_url (url: string) {
 }
 
 
-export const iterator_utils = Boolean(typeof Iterator !== 'undefined' && Iterator.prototype?.map)
+const iterator_utils = Boolean(typeof Iterator !== 'undefined' && Iterator.prototype?.map)
 
 export function iterator_map <TValue, TReturn> (
     array: IteratorObject<TValue>, 
