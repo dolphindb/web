@@ -129,6 +129,11 @@ export function InspectionForm ({
                     },]}>
                 <Input disabled={is_editing}/>
             </Form.Item>
+            
+            <Form.Item style={{ marginTop: '40px' }} name='desc' layout='vertical' label={<h3>{t('巡检计划描述')}</h3>} rules={[{ required: true, message: t('请输入巡检计划描述') }]}>
+                <Input/>
+            </Form.Item>
+            
             <div className='metric-table'>
                 <h3>{t('指标列表')}</h3>
                 <MetricTable
@@ -173,10 +178,6 @@ export function InspectionForm ({
                     <TimePicker format='HH:mm:ss'/>
                 </Form.Item>
             </div>
-        
-            <Form.Item name='desc' layout='vertical' label={<h3>{t('巡检计划描述')}</h3>} rules={[{ required: true, message: t('请输入巡检计划描述') }]}>
-                <Input/>
-            </Form.Item>
             
           
         </Form>
