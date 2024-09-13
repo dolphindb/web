@@ -4,7 +4,6 @@ import { t } from '@i18n/index.ts'
 
 
 export function download_file (name: string, url: string) {
-    
     // 创建一个隐藏的 <a> 元素
     const a = document.createElement('a')
     a.style.display = 'none'
@@ -48,4 +47,16 @@ export async function goto_url (url: string) {
         new Error(t('正在跳转')), 
         { shown: true }
     )
+}
+
+
+export const iterator_utils = Boolean(typeof Iterator !== 'undefined' && Iterator.prototype?.map)
+
+export function iterator_map <TValue, TReturn> (
+    array: IteratorObject<TValue>, 
+    mapper: (value: TValue, index: number) => TReturn
+): IteratorObject<TReturn> | TReturn[] {
+    return iterator_utils
+        ? array.map(mapper)
+        : [...array].map(mapper)
 }
