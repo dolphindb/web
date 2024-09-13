@@ -4743,7 +4743,7 @@
         "en": "Create Catalog"
     },
     "请输入名称": {
-        "en": "Please enter a name"
+        "en": "Enter name"
     },
     "请选择 catalog": {
         "en": "Please select a catalog"
@@ -5039,9 +5039,6 @@
     "新增订阅": {
         "en": "New"
     },
-    "编辑成功": {
-        "en": "Subscription Modified"
-    },
     "编辑 {{name}}连接": {
         "en": "Edit {{name}} Connection"
     },
@@ -5224,5 +5221,8 @@
     },
     "是否启用": {
         "en": "Enabled"
+    },
+    "分区_data_collection": {
+        "en": "Partitions"
     }
 }

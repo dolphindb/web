@@ -28,7 +28,7 @@ export const CreateConnectionModal = NiceModal.create((props: IProps) => {
             await request('dcp_updateConnect', { ...values, id: editedConnection.id })
         else
             await request('dcp_addConnect', { ...values, protocol })   
-        message.success(editedConnection ? t('编辑成功') : t('创建成功'))
+        message.success(editedConnection ? t('修改成功') : t('创建成功'))
         modal.hide()
         refresh()
     }, [ refresh, protocol ])

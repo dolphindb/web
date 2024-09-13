@@ -157,7 +157,7 @@ const views: Partial<Record<PageViews, React.FunctionComponent>> = {
     user: User,
     group: Group,
     settings: Settings,
-    connection: DataCollection,
+    'data-connection': DataCollection,
     'parser-template': DataCollection,
     'iot-guide': CreateGuide,
     'finance-guide': FinanceGuide,

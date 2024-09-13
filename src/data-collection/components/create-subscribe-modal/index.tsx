@@ -86,7 +86,7 @@ export const CreateSubscribeModal = NiceModal.create((props: IProps) => {
                                 validateTrigger: ['onSubmit']
                             }
                         ]} 
-                        label={t('分区')} 
+                        label={t('分区', { context: 'data_collection' })} 
                         name='partition' 
                         initialValue={null}
                     >

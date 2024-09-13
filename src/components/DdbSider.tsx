@@ -47,7 +47,7 @@ const svgs = {
     user: SvgUser,
     group: SvgGroup,
     'data-collection': SvgDataCollection,
-    connection: SvgConnection,
+    'data-connection': SvgConnection,
     'parser-template': SvgParserTemplate,
     'iot-guide': SvgIot,
     'finance-guide': SvgFinance,
@@ -177,9 +177,9 @@ export function DdbSider () {
                     label: t('数据采集平台'),
                     children: [
                         {
-                            icon: <MenuIcon view='connection' />,
+                            icon: <MenuIcon view='data-connection' />,
                             label: t('连接信息'),
-                            key: 'connection'
+                            key: 'data-connection'
                         },
                         {
                             icon: <MenuIcon view='parser-template' />,

@@ -87,7 +87,7 @@ export function DataCollection () {
             return <Result title={t('无库表权限，请联系管理员赋权')} />
         else
             switch (model.view) {
-                case 'connection':
+                case 'data-connection':
                     return <Connections protocols={is_win ? protocols.filter(item => item !== Protocol.KAFKA) : protocols}/>
                 case 'parser-template':
                     return <ParserTemplates />

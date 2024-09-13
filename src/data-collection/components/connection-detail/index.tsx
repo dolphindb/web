@@ -131,7 +131,7 @@ export function ConnectionDetail (props: IProps) {
             width: 250
         },
         {
-            title: t('主题'),
+            title: t('主题', { context: 'data_collection' }),
             dataIndex: 'topic',
             key: 'topic',
             width: 100,
