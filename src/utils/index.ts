@@ -3,6 +3,13 @@ import { delay } from 'xshell/utils.browser.js'
 import { t } from '@i18n/index.ts'
 
 
+/** 默认日期时间格式 */
+export const datetime_format = 'YYYY.MM.DD HH:mm:ss' as const
+
+/** 表单 Form.Item 必填 `<Form.Item {...required}>` */
+export const required = { required: true, rules: [{ required: true }] }
+
+
 export function download_file (name: string, url: string) {
     // 创建一个隐藏的 <a> 元素
     const a = document.createElement('a')
@@ -20,9 +27,6 @@ export function download_file (name: string, url: string) {
     document.body.removeChild(a)
     URL.revokeObjectURL(url)
 }
-
-
-export const required = { required: true, rules: [{ required: true }] }
 
 
 export function strip_quotes (str: string) {
