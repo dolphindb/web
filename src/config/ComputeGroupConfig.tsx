@@ -13,13 +13,14 @@ import NiceModal from '@ebay/nice-modal-react'
 
 import useSWR from 'swr'
 
+import { model } from '@/model.js'
+
 import { filter_config, strs_2_nodes } from './utils.js'
 import { CONFIG_CLASSIFICATION } from './constants.js'
 import { NodesConfigAddModal } from './NodesConfigAddModal.js'
 
 import { config } from './model.js'
 
-import { model } from '@/model.js'
 
 
 export function ComputeGroupConfig () {
@@ -181,7 +182,8 @@ export function ComputeGroupConfig () {
                 </div>
                 
             </div>
-            <EditableProTable
+            <div className='table-padding'>
+                <EditableProTable
                 rowKey='key'
                 actionRef={actionRef}
                 columns={columns}
@@ -216,6 +218,7 @@ export function ComputeGroupConfig () {
                     deletePopconfirmMessage: t('确认删除此配置项？'),
                 }}
             />
+            </div>
         </div>
         
     </div>

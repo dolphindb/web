@@ -256,9 +256,11 @@ export function NodesManagement () {
                 <Button icon={<SearchOutlined />} onClick={() => { set_search_value(search_key) }} />
             </div>
         </div>
-        {/* 被搜索筛选了，且没有非计算组节点，不展示 */}
-        {(ungrouped_nodes.length > 0 || search_value === '') && <NodeTable nodes={ungrouped_nodes} onSave={save_node_impl} onDelete={delete_nodes} />}
-        {group_nodes}
+        <div className='table-padding'>
+            {/* 被搜索筛选了，且没有非计算组节点，不展示 */}
+            {(ungrouped_nodes.length > 0 || search_value === '') && <NodeTable nodes={ungrouped_nodes} onSave={save_node_impl} onDelete={delete_nodes} />}
+            {group_nodes}
+        </div>
     </div>
 }
 
