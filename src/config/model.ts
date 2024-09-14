@@ -8,6 +8,7 @@ import { NodeType, model } from '../model.js'
 
 import { type NodesConfig } from './type.js'
 import { _2_strs, get_category, parse_nodes_configs } from './utils.js'
+import { iterator_map } from '@/utils/index.js'
 
 const trusies = ['1', 'true'] as const
 
@@ -47,11 +48,10 @@ class ConfigModel extends Model<ConfigModel> {
         console.log(
             t('配置文件:'),
             Object.fromEntries(
-                // @ts-ignore
-                typeof Iterator !== 'undefined' && Iterator.prototype?.map
-                    // @ts-ignore
-                    ? this.nodes_configs.entries().map(([key, { value }]) => [key, value])
-                    : [...this.nodes_configs].map(([key, { value }]) => [key, value])
+                iterator_map(
+                    this.nodes_configs.entries(),
+                    ([key, { value }]) => [key, value]
+                )
             )
         )
     }

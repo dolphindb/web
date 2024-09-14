@@ -390,7 +390,7 @@ async function subscribe_stream (data_source: DataSource) {
             } else 
                 throw new Error(result as string)
         }
-            
+        
         const stream_connection = new DDB(
             (location.protocol === 'https:' ? 'wss' : 'ws') + '://' + data_source.ip,
             {
@@ -424,7 +424,8 @@ async function subscribe_stream (data_source: DataSource) {
         await stream_connection.connect()
         data_source.set({ data: [ ], cols: await get_stream_cols(data_source.stream_table), ddb: stream_connection })
     } catch (error) {
-        dashboard.message.error(`${t('无法订阅到流数据表')} ${data_source.stream_table}`)
+        console.error(error)
+        dashboard.message.error(`${t('无法订阅到流数据表')} ${data_source.stream_table} (${error.message})`)
         return error
     }
 }

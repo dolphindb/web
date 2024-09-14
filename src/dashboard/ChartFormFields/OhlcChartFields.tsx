@@ -293,7 +293,7 @@ function Series (props: { col_names: string[] }) {
                                 </> :  
                                 <></>) :
                                 <>
-                                    <Form.Item name={[field.name, 'color']} label={t('线条颜色')} initialValue={null}>
+                                    <Form.Item name={[field.name, 'color']} label={t('线颜色')} initialValue={null}>
                                         <StringColorPicker />
                                     </Form.Item>
                                     

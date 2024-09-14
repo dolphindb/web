@@ -1,0 +1,125 @@
+.data-connection {
+    padding-top: 0px !important;
+    padding-bottom: 0px !important;
+    height: 100%;
+}
+
+.data-collection-wrapper {
+    display: flex;
+    height: 100%;
+    
+    
+    .connection-left-wrapper {
+        width: calc(100% - 360px);
+        .empty-content {
+            margin-top: calc(50vh - 35px);
+        }
+    }
+    
+    
+    
+    .link-btn {
+        padding: 0px !important;
+        border-radius: 4px;
+    }
+   
+    
+    .connection-list {
+        border-right: 1px solid #f3f1f1;
+        padding-right: 16px;
+        height: 100%;
+        overflow-y: auto;
+        width: 360px;
+
+        
+        .connection-list-title {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            
+            .delete-link {
+                .delete-link-icon {
+                    margin-right: 4px;
+                }
+            }
+        }
+        
+        .ant-tree-checkbox {
+            transform: translateY(12px);
+        }
+        
+        .ant-tree-treenode {
+            display: flex;
+            align-items: center;
+        }
+
+        
+        .ant-tree .ant-tree-switcher {
+            margin: auto;
+        }
+        
+        
+        
+        
+        .connection-tree {
+            width: 100%;
+
+            .ant-tree-treenode-selected {
+                background-color: #e7f5ff;
+            }
+            
+            .ant-tree-node-content-wrapper {
+                display: flex;
+                flex: 1;
+                .ant-tree-title {
+                    height: 48px;
+                    display: flex;
+                    align-items: center;
+                }
+            }
+            
+            .connection-tree-item {
+                display: flex;
+                align-items: center;
+                justify-content: space-between;
+                height: 48px;
+                
+                .connection-tree-label {
+                    display: inline-block;
+                    width: 210px;
+                    overflow: hidden;
+                    text-overflow: ellipsis;
+                    white-space: nowrap;
+                }
+                
+                .connection-operations {
+                    visibility: hidden;
+                }
+                
+                &:hover {
+                    .connection-operations {
+                        visibility: visible;
+                    }
+                }
+            }
+            
+            .protocol-tree-item {
+                .protocol-icon {
+                    margin-right: 4px;
+                }
+                .protocol-operations {
+                    visibility: hidden;
+                    margin-left: 12px;
+                }
+                
+                &:hover {
+                    .protocol-operations {
+                        visibility: visible;
+                    }
+                }
+            }
+           
+        }
+    }
+}
+

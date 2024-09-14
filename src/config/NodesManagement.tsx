@@ -200,7 +200,7 @@ export function NodesManagement () {
                     label: alias,
                     value: alias
                 }))} />
-                <Button type='primary' icon={<SearchOutlined />} onClick={() => { set_search_value(search_key) }}/>
+                <Button icon={<SearchOutlined />} onClick={() => { set_search_value(search_key) }}/>
             </div>
           
         ]

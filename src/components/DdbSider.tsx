@@ -29,6 +29,9 @@ import SvgInspection from '@/inspection/icons/inspection.icon.svg'
 import SvgFinance from '@/guide/icons/finance.icon.svg'
 import SvgIot from '@/guide/icons/iot.icon.svg'
 import SvgPlugins from '@/plugins/plugins.icon.svg'
+import SvgDataCollection from '@/data-collection/icons/data-collection.icon.svg'
+import SvgConnection from '@/data-collection/icons/connection.icon.svg'
+import SvgParserTemplate from '@/data-collection/icons/parser-template.icon.svg'
 
 
 const { Text, Link } = Typography
@@ -46,6 +49,9 @@ const svgs = {
     access: SvgAccess,
     user: SvgUser,
     group: SvgGroup,
+    'data-collection': SvgDataCollection,
+    'data-connection': SvgConnection,
+    'parser-template': SvgParserTemplate,
     inspection: SvgInspection,
     'iot-guide': SvgIot,
     'finance-guide': SvgFinance,
@@ -79,7 +85,7 @@ export function DdbSider () {
     }, [logined])
     
     return <Layout.Sider
-        width={ language === 'zh' ? 150 : 220 }
+        width={ language === 'zh' ? 170 : 220 }
         className='sider'
         theme='light'
         collapsible
@@ -174,7 +180,24 @@ export function DdbSider () {
                     icon: <MenuIcon view='log' />,
                     label: t('日志查看'),
                 },
-                ... admin && (model.dev || model.test) ? [
+                ... node_type !== NodeType.controller ? [{
+                    key: 'data-collection',
+                    icon: <MenuIcon view='data-collection' />,
+                    label: t('数据采集平台'),
+                    children: [
+                        {
+                            icon: <MenuIcon view='data-connection' />,
+                            label: t('连接信息'),
+                            key: 'data-connection'
+                        },
+                        {
+                            icon: <MenuIcon view='parser-template' />,
+                            label: t('解析模板'),
+                            key: 'parser-template'
+                        }
+                    ]
+                }] : [ ],
+                ... admin ? [
                     {
                         key: 'plugins',
                         icon: <MenuIcon view='plugins' />,

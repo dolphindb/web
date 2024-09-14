@@ -49,6 +49,7 @@ import { Inspection } from './inspection/index.js'
 import { Settings } from './settings/index.tsx'
 import { CreateGuide } from './guide/iot-guide/index.tsx'
 import { FinanceGuide } from './guide/finance-guide/index.tsx'
+import { DataCollection } from './data-collection/index.tsx'
 
 
 
@@ -65,11 +66,12 @@ function DolphinDB () {
         locale={locales[language] as any}
         button={{ autoInsertSpace: false }}
         theme={{ hashed: false, token: { borderRadius: 0, motion: false } }}
+        renderEmpty={() => <div className='empty-placeholder' />}
     >
         <SWRConfig value={{
             revalidateOnFocus: false,
             revalidateOnReconnect: false,
-            errorRetryCount: 0 
+            errorRetryCount: 0
         }}>
             <ProConfigProvider hashed={false} token={{ borderRadius: 0, motion: false }}>
                 <NiceModal.Provider>
@@ -157,6 +159,8 @@ const views: Partial<Record<PageViews, React.FunctionComponent>> = {
     group: Group,
     inspection: Inspection,
     settings: Settings,
+    'data-connection': DataCollection,
+    'parser-template': DataCollection,
     'iot-guide': CreateGuide,
     'finance-guide': FinanceGuide,
 }
