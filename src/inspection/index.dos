@@ -410,9 +410,9 @@ def deletePlan(id) {
     }
 }
 
-def updatePlan(id, desc, metrics, mutable nodes, params, frequency, days, scheduleTime) {
+def updatePlan(id, desc, metrics, mutable nodes, params, frequency, days, scheduleTime, enabled) {
     deletePlan(id)
-    createPlan(id, desc, metrics, nodes, params, frequency, days, scheduleTime)
+    createPlan(id, desc, metrics, nodes, params, frequency, days, scheduleTime, enabled)
 }
 
 def getPlans(planId=NULL) {
