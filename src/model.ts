@@ -2,10 +2,10 @@ import dayjs from 'dayjs'
 
 import { Model } from 'react-object-model'
 
-import type { BaseType } from 'antd/es/typography/Base/index.js'
-import type { MessageInstance } from 'antd/es/message/interface.js'
-import type { ModalStaticFunctions } from 'antd/es/modal/confirm.js'
-import type { NotificationInstance } from 'antd/es/notification/interface.js'
+import type { BaseType } from 'antd/es/typography/Base/index.d.ts'
+import type { MessageInstance } from 'antd/es/message/interface.d.ts'
+import type { HookAPI as ModalHookAPI } from 'antd/es/modal/useModal/index.d.ts'
+import type { NotificationInstance } from 'antd/es/notification/interface.d.ts'
 
 import 'xshell/polyfill.browser.js'
 import { filter_values, strcmp } from 'xshell/utils.browser.js'
@@ -147,7 +147,7 @@ export class DdbModel extends Model<DdbModel> {
     
     message: MessageInstance
     
-    modal: Omit<ModalStaticFunctions, 'warn'>
+    modal: ModalHookAPI
     
     notification: NotificationInstance
     

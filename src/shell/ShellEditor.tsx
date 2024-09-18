@@ -3,20 +3,19 @@ import { useEffect, useState } from 'react'
 import { Switch } from 'antd'
 import { DoubleLeftOutlined, DoubleRightOutlined } from '@ant-design/icons'
 
-import { t } from '../../i18n/index.js'
+import { t } from '@i18n/index.js'
 
-import { model, storage_keys } from '../model.js'
+import { model, storage_keys } from '@/model.ts'
 
-import { Editor, type monacoapi } from '../components/Editor/index.js'
+import { Editor, type monacoapi } from '@/components/Editor/index.tsx'
 
-import { shell } from './model.js'
+import { shell } from './model.ts'
 
-import { SelectSqlModal } from './SelectSqlModal.js'
-import { ExecuteAction } from './ExecuteAction.js'
+import { SelectSqlModal } from './SelectSqlModal.tsx'
+import { ExecuteAction } from './ExecuteAction.tsx'
 
 
 export function ShellEditor ({ collapser }) {
-    
     const [minimap, set_minimap] = useState(() => 
         localStorage.getItem(storage_keys.minimap) === '1'
     )
