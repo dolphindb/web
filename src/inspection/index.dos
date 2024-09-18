@@ -1,0 +1,506 @@
+module autoInspection
+
+def clearEnv() {
+    try {
+        planIds = exec id from loadTable("dfs://ddb_internal_auto_inspection", "plans")
+        for (planId in planIds) {
+            try { deleteScheduledJob(planId) } catch(err) {}
+        }
+    } catch(err) {} 
+    
+    if (existsDatabase("dfs://ddb_internal_auto_inspection")) {
+        dropDatabase("dfs://ddb_internal_auto_inspection")
+    }
+}
+
+def initDfs() {
+    years = sort(distinct(yearBegin(1985.01.01..2055.01.01)))
+    db = database("dfs://ddb_internal_auto_inspection", RANGE, years, engine='TSDB')
+
+    tb = table(1:0, `name`displayName`group`desc`nodes`script`params`version`createTime`updateTime, [STRING, STRING, SYMBOL, STRING, STRING, BLOB, STRING, INT, TIMESTAMP, TIMESTAMP])
+    pt1 = createTable(db, tb, "metrics", sortColumns="createTime")
+
+    tb = table(1:0, `id`desc`user`startDate`endDate`frequency`days`scheduleTime`enabled, [STRING, STRING, STRING, DATE, DATE, STRING, STRING, MINUTE, BOOL])
+    pt2 = createTable(db, tb, "plans", sortColumns="startDate")
+
+    tb = table(1:0, `planId`metricName`metricDisplayName`metricVersion`nodes`params, [STRING, STRING, STRING, INT, STRING, STRING])
+    pt3 = createTable(db, tb, "plan_details", sortColumns="metricVersion")
+
+    tb = table(1:0, `id`planId`desc`user`startTime`endTime`success`totalNum`failedNum, [STRING, STRING, STRING, STRING, TIMESTAMP, TIMESTAMP, BOOL, INT, INT])
+    pt4 = createPartitionedTable(db, tb, "reports", "startTime", sortColumns="startTime")
+
+    tb = table(1:0, `reportId`metricName`metricDisplayName`metricVersion`node`startTime`endTime`success`detail`suggestion, [STRING, STRING, STRING, INT, STRING, TIMESTAMP, TIMESTAMP, BOOL, STRING, STRING])
+    pt5 = createPartitionedTable(db, tb, "report_details", "startTime", sortColumns="startTime")
+}
+
+def newMetric(name, displayName, group, desc, nodes, script, params=NULL) {
+    print("new metric: " + name)
+    name_ = name
+    cnt = exec count(*) from loadTable("dfs://ddb_internal_auto_inspection", "metrics") where name == name_
+    if (cnt > 0) {
+        throw "duplicated metric name: " + name
+    }
+    if (!isVoid(params)) {
+        for (param in params) {
+            // param = params[0]
+            if (param.form() != 5) {
+                throw "param must be a dict"
+            }
+            if (!all(in(["name", "type"], param.keys()))) {
+                throw "param dict must contain \"name\" and \"type\" key"
+            }
+            for (key in param.keys()) {
+                if (key == "name") {
+                    param[key] = string(param[key])
+                } else if (key == "type") {
+                    param[key] = string(param[key])
+                    validTypes = ["TIMESTAMP", "SYMBOL"]
+                    if (!in(param[key], validTypes)) {
+                        throw "invalid param type " + params[key] + " for param " + param["name"]
+                    }
+                } else if (key == "options") {
+                    param[key] = string(param[key])
+                }
+            }
+        }
+    }
+
+    nodes_ = iif(nodes.form() == 1, nodes.concat(","), string(nodes))
+    ts = now()
+    metric = table(
+        name as name,
+        displayName as displayName,
+        group as group,
+        desc as desc,
+        nodes_ as nodes,
+        blob(script) as script,
+        toStdJson(params) as params,
+        0 as version,
+        ts as createTime,
+        ts as updateTime
+    )
+    loadTable("dfs://ddb_internal_auto_inspection", "metrics").append!(metric)
+}
+
+def updateMetric(name_, group_, desc_, nodes, script_, params_) {
+    if (isVoid(name_)) {
+        throw "name can not be empty"
+    }
+    if (isVoid(desc_) and isVoid(nodes) and isVoid(script_)) {
+        throw "at least one of desc, nodes and script should not be empty"
+    }
+    if (!isVoid(params_)) {
+        if (params_.form() != 5) {
+            throw "param must be a dict"
+        }
+    }
+    cnt = exec count(*) from loadTable("dfs://ddb_internal_auto_inspection", "metrics") where name == name_
+    if (cnt > 0) {
+        throw "metric name: " + name_ + " not found"
+    }
+
+    pt = loadTable("dfs://ddb_internal_auto_inspection", "metrics")
+    if (!isVoid(group_)) {
+        update pt set group = group_ where name == name_
+    }
+    if (!isVoid(desc_)) {
+        update pt set desc = desc_ where name == name_
+    }
+    if (!isVoid(nodes)) {
+        nodes_ = iif(nodes.form() == 1, nodes.concat(","), string(nodes))
+        update pt set nodes = nodes_ where name == name_
+    }
+    if (!isVoid(script_)) {
+        update pt set script = script_ where name == name_
+    }
+    if (!isVoid(params_)) {
+        update pt set params = toStdJson(params_) where name == name_
+    }
+    update pt set version = version + 1 where name == name_
+    update pt set updateTime = now() where name == name_
+}
+
+def generateDefaultMetricParams(planId) {
+    // planId_ = "fully"
+    planId_ = planId
+    params = dict(STRING, ANY)
+
+    startTime = exec last(startTime) from loadTable("dfs://ddb_internal_auto_inspection",  "reports") where planId == planId_ order by startTime desc
+    endTime = now()
+    if (isNull(startTime)) {
+        frequency = exec last(frequency) from loadTable("dfs://ddb_internal_auto_inspection",  "plans") where id == planId_ order by startTime desc
+        if (frequency == 'W') {
+            dur = -7d
+        } else if (frequency == 'D') {
+            dur = -1d
+        } else if (frequency == 'M') {
+            dur = -1M
+        }
+        startTime = temporalAdd(endTime, -1d)    
+    }
+    params["startTime"] = startTime
+    params["endTime"] = endTime
+    
+    params["logLevel"] = ["ERROR", "WARNING"]
+
+    params["preserved"] = 1 // 用于使 fromStdJson 转换字典值为 ANY
+
+    return params
+}
+
+def updateMetricParams(mutable params, planId, metricName) {
+    planId_ = planId
+    metricName_ = metricName
+    params_ = exec first(params) from loadTable("dfs://ddb_internal_auto_inspection", "plan_details") where planId == planId_ and metricName = metricName_
+    params_ = fromStdJson(params_)
+    if (!isNull(params_)) {
+        for (key in params_.keys()) {
+            params[key] = params_[key]
+        }
+    }
+}
+
+def runMetric(name, node, script, mutable params) {
+    print("start to run metric: " + name + " on node: " + node)
+    print("params: ")
+    print(string(params))
+    success = false
+    detail = ""
+    suggestion = ""
+    paramsJson = toStdJson(params)
+
+    try {
+        if (getNodeAlias() != node) {
+            rpc(node, runScript, script)
+            rpc(node, runScript, "params=fromStdJson(\'" + paramsJson + "\')")
+            rpc(node, runScript, "res_=" + name + "(params)")
+            success, detail, suggestion = rpc(node, objByName, "res_")
+            params = rpc(node, objByName, "params")
+        } else {
+            runScript(script)
+            runScript("params_=fromStdJson(\'" + paramsJson + "\')")
+            runScript("res_=" + name + "(params_)")
+            success, detail, suggestion = objByName("res_")
+            params = objByName("params_") 
+        }
+    } catch(err) {
+        success = false
+        detail = iif(err.form() == 0, string(err), string(err).concat(": "))
+    }
+
+    return success, toStdJson(detail), suggestion, params // 记得更新 params
+}
+
+def runPlanInner(planId) {
+    // planId = "quickly"
+    planId_ = planId
+    planDetails = select a.metricName as metricName, a.metricDisplayName as metricDisplayName, a.nodes as nodes, a.params as params, b.script as script, b.version as metricVersion from loadTable("dfs://ddb_internal_auto_inspection", "plan_details") a left join loadTable("dfs://ddb_internal_auto_inspection", "metrics") b on a.metricName == b.name where a.planId == planId_
+
+    ret = select * from loadTable("dfs://ddb_internal_auto_inspection", "report_details") limit 0
+    defaultParams = generateDefaultMetricParams(planId)
+    params = defaultParams
+    for (item in planDetails) {
+        // item = planDetails[0]
+        name = item["metricName"]
+        nodes = iif(
+            isNull(item["nodes"]), 
+            [getNodeAlias()], // 未配置执行节点时，直接在当前数据节点执行
+            item["nodes"].split(",")
+        )
+        if (nodes.size() == 0) {
+            throw "failed to find nodes to execute the plan: " + planId
+        }
+        script = item["script"]
+        displayName = item["metricDisplayName"]
+        version = item["metricVersion"]
+        for (key in defaultParams.keys()) {
+            params[key] = defaultParams[key] // 重置默认参数值
+        }
+        updateMetricParams(params, planId, name) // 更新自定义参数值
+
+        jobIds = []$STRING
+        for (node in nodes) {
+            jobId = submitJob(planId + "_runMetric_" + name, node, runMetric{name, node, script, params})
+            jobIds.append!(jobId)
+        }
+
+        for (i in 0..(nodes.size()-1)) {
+            jobId = jobIds[i]
+            success, detail, suggestion, params = getJobReturn(jobId, true)
+            res = getJobStatus(jobId)
+            node = nodes[i]
+
+            insert into ret values ("", name, displayName, version, node, res["startTime"].first(), res["endTime"].first(), success, detail, suggestion) // reportId 要在返回后 update
+        }
+    }
+
+    return ret
+}
+
+def runPlan(planId) {
+    planInfo = select * from loadTable("dfs://ddb_internal_auto_inspection", "plans") where id == planId
+    if (planInfo.size() == 0) {
+        throw "plan id: " + planId " not found"
+    }
+    desc = planInfo[0]["desc"]
+
+    print("start to run plan: " + string(planId))
+    writeLog("autoInspection: start to run plan: " + string(planId))
+    reportId_ = submitJob(planId, desc, runPlanInner, planId)
+    reportDetails = getJobReturn(reportId_, true)
+    reportJobInfo = getJobStatus(reportId_)
+    update reportDetails set reportId = reportId_
+    failedNum = exec count(*) from reportDetails where success == false
+    report = table(
+        reportId_ as id,
+        planId as planId,
+        desc as desc,
+        getCurrentSessionAndUser()[1] as user,
+        reportJobInfo[0]["startTime"] as startTime,
+        reportJobInfo[0]["endTime"] as endTime,
+        all(reportDetails["success"]) as success,
+        reportDetails.size() as totalNum,
+        failedNum as failedNum
+    )
+
+    loadTable("dfs://ddb_internal_auto_inspection", "report_details").append!(reportDetails)
+    loadTable("dfs://ddb_internal_auto_inspection", "reports").append!(report)
+
+    return reportId_
+}
+
+def createPlan(id, desc, metrics, mutable nodes, params, frequency, days, scheduleTime, enabled=false, runNow=false) {
+    print("start to create plan: " + id)
+    if (metrics.size() != nodes.size()) {
+        throw "metrics' size must be same as nodes' size"
+    }
+    if (metrics.size() != params.size()) {
+        throw "metrics' size must be same as params' size"
+    }
+    params_ = []$STRING // NULL 数组不支持作为表的列
+    for (i in (0.. (params.size() - 1))) {
+        item = params[i]
+        if (!isNull(item)) {
+            if (item.form() != 5) {
+                throw "invalid param: " + string(item) + ", index: " + i
+            }
+        }
+        params_.append!(toStdJson(item))
+    }
+
+    n = metrics.size()
+    for (i in 0..(n-1)) {
+        nodes_ = exec nodes from loadTable("dfs://ddb_internal_auto_inspection", "metrics") where name == metrics[i]
+        nodes_ = nodes_.first()
+        if (!isNull(nodes_)) { // 对于支持配置指定节点运行的指标
+            nodes_ = nodes_.split(",")
+            if (!all(in(set(nodes[i]), set(nodes_)))) { // 如果配置了不支持的节点，报错
+                throw "metric " + metrics[i] + " 's nodes does not support running on the specific node, can only run on those nodes: " + nodes_.concat(",") 
+            }
+            if (isVoid(nodes[i])) { // 如果没配置任何节点，则等价于配置了所有节点
+                nodes[i] = nodes_
+            }
+        } else { // 对于不支持配置指定节点运行的指标
+            if (!isNull(nodes[i])) { // 如果配置了指定节点运行，报错
+                throw "metric " + metrics[i] + " does not support running on the specific node"
+            }
+        }
+    }
+    user = getCurrentSessionAndUser()[1]
+    jobs = select * from getScheduledJobs() where userId = user and jobId == id
+    if (jobs.size() > 0) {
+        throw "duplicated plan id: " + id
+    }
+
+    user = getCurrentSessionAndUser().last()
+    days_ = iif(days.form() == 1, days.concat(","), days)
+    user = getCurrentSessionAndUser().last()
+    startDate = today()
+    endDate = temporalAdd(today(), 100y)
+    plan = table(
+        id as id,
+        desc as desc,
+        user as user,
+        startDate as startDate,
+        endDate as endDate,
+        frequency as frequency,
+        days_ as days,
+        minute(scheduleTime) as scheduleTime,
+        enabled as enabled
+    )
+    nodes_ = []$STRING
+    for (node in nodes) {
+        if (isVoid(node)) {
+            nodes_.append!(string(NULL))
+        } else {
+            if (node.form() == 0) {
+                nodes_.append!(node)
+            } else {
+                nodes_.append!(node.concat(","))
+            }
+        } 
+    }
+
+    planDetails = table(
+        take(id, n) as planId,
+        metrics as metricName,
+        nodes_ as nodes,
+        params_ as params
+    )
+    metricsInfo = select first(displayName) as displayName, max(version) as version from loadTable("dfs://ddb_internal_auto_inspection", "metrics") group by name
+    planDetails = select planId, metricName, displayName, version, nodes, params from planDetails left join metricsInfo on planDetails.metricName == metricsInfo.name
+    loadTable("dfs://ddb_internal_auto_inspection", "plans").append!(plan)
+    loadTable("dfs://ddb_internal_auto_inspection", "plan_details").append!(planDetails)
+
+    try {
+        if (enabled) {
+            scheduleJob(id, desc, runPlan{id}, minute(scheduleTime), date(startDate), date(endDate), string(frequency), int(days))
+        }
+        if (runNow) {
+            reportId = runPlan(id)
+            return reportId
+        }
+    } catch(err) {
+        writeLog("autoInspection: create schedule job failed: ", err)
+        id_ = id
+        delete from loadTable("dfs://ddb_internal_auto_inspection", "plans") where id = id_
+        delete from loadTable("dfs://ddb_internal_auto_inspection", "plan_details") where planId = id_
+        try { deleteScheduledJob(id) } catch(err_) {}
+        throw err
+    }
+
+    return NULL
+}
+
+def enablePlan(id) {
+    id_ = id
+    plan = select * from loadTable("dfs://ddb_internal_auto_inspection", "plans") where id = id_
+    if (plan.size() == 0) {
+        throw "plan id " + id_ + " not found"
+    }
+    if(getScheduledJobs(id_).size() > 0) {
+        throw "plan id " + id_ + " is already enabled"
+    }
+
+    plan = plan[0]
+    scheduleJob(plan.id, plan.desc, runPlan{plan.id}, minute(plan.scheduleTime), date(plan.startDate), date(plan.endDate), string(plan.frequency), int(plan.days))
+    update loadTable("dfs://ddb_internal_auto_inspection", "plans") set enabled = true where id == id_
+}
+
+def disablePlan(id) {
+    id_ = id
+    plan = select * from loadTable("dfs://ddb_internal_auto_inspection", "plans") where id = id_
+    if (plan.size() == 0) {
+        throw "plan id " + id_ + " not found"
+    }
+    if(getScheduledJobs(id_).size() == 0) {
+        throw "plan id " + id_ + " is already disabled"
+    }
+
+    deleteScheduledJob(id_)
+    update loadTable("dfs://ddb_internal_auto_inspection", "plans") set enabled = false where id == id_
+}
+
+def deletePlan(id) {
+    id_ = iif(id.form() == 0, [id], id)
+    delete from loadTable("dfs://ddb_internal_auto_inspection", "plans") where id in id_
+    delete from loadTable("dfs://ddb_internal_auto_inspection", "plan_details") where planId in id_
+    for (id__ in id_) {
+        try { deleteScheduledJob(id__) } catch(err) {}
+    }
+}
+
+def updatePlan(id, desc, metrics, mutable nodes, params, frequency, days, scheduleTime) {
+    deletePlan(id)
+    createPlan(id, desc, metrics, nodes, params, frequency, days, scheduleTime)
+}
+
+def getPlans(planId=NULL) {
+    whereCond = [<1==1>]
+
+    if (!isNull(planId)) {
+        pattern = planId + "%"
+        whereCond.append!(<like(id, pattern)>)
+    }
+    res = sql(sqlCol("*"), loadTable("dfs://ddb_internal_auto_inspection", "plans"), whereCond).eval()
+
+    return res
+}
+
+def getPlanDetails(planId=NULL) {
+    planId_ = planId
+    whereCond = <1==1>
+
+    if (!isNull(planId_)) {
+        whereCond = <planId == planId_>
+    }
+    res = sql(sqlCol("*"), loadTable("dfs://ddb_internal_auto_inspection", "plan_details"), whereCond).eval()
+
+    return res
+}
+
+def getReports(planId=NULL, reportId=NULL, startTime=NULL, endTime=NULL) {
+    whereCond = [<1==1>]
+
+    if (!isNull(planId)) {
+        pattern = planId + "%"
+        whereCond.append!(<like(id, pattern)>)
+    }
+    if (!isNull(reportId)) {
+        whereCond.append!(<id == reportId>)
+    }
+    if (!isNull(startTime)) {
+        startTime_ = timestamp(startTime)
+        whereCond.append!(<startTime >= startTime_>)
+    }
+    if (!isNull(endTime)) {
+        endTime_ = timestamp(endTime)
+        whereCond.append!(<endTime <= endTime_>)
+    }
+    res = sql(sqlCol("*"), loadTable("dfs://ddb_internal_auto_inspection", "reports"), whereCond, orderBy=sqlCol("startTime"), ascOrder=0).eval()
+
+    update res set runningTime = endTime - startTime
+
+    return res
+}
+
+def getReportDetailsOfMetrics(reportId=NULL) {
+    reportId_ = reportId
+    whereCond = <1==1>
+
+    if (!isNull(reportId_)) {
+        whereCond = <reportId == reportId_>
+    }
+    res = sql(sqlCol("*"), loadTable("dfs://ddb_internal_auto_inspection", "report_details"), whereCond).eval()
+    res = select first(metricVersion) as metricVersion, concat(node, ",") as nodes, min(startTime) as startTime, max(endTime) as endTime, all(success) as success from res group by reportId, metricName
+    metrics = select * from loadTable("dfs://ddb_internal_auto_inspection", "metrics") where name in res["metricName"]
+    res = select reportId, metricName, metrics.displayName, metrics.group, metricVersion, desc, iif(isNull(metrics.nodes), NULL, res.nodes) as nodes, startTime, endTime, endTime - startTime as runningTime, script, success from res left join metrics on res.metricName = metrics.name and res.metricVersion = metrics.version
+
+    return res
+}
+
+def getReportDetailsOfNodes(reportId=NULL) {
+    reportId_ = reportId
+    whereCond = <1==1>
+
+    if (!isNull(reportId_)) {
+        whereCond = <reportId == reportId_>
+    }
+    res = sql(sqlCol("*"), loadTable("dfs://ddb_internal_auto_inspection", "report_details"), whereCond).eval()
+    res = select reportId, metricName, metricDisplayName, group, metricVersion, iif(isNull(b.nodes), NULL, node) as node, startTime, endTime, endTime - startTime as runningTime, success, detail, suggestion from res a left join loadTable("dfs://ddb_internal_auto_inspection", "metrics") b on a.metricName == b.name and a.metricVersion == b.version
+
+    return res
+}
+
+def getMetrics(name=NULL) {
+    name_ = name
+    whereCond = <1==1>
+
+    if (!isNull(name_)) {
+        whereCond = <name == name_>
+    }
+    res = sql(sqlCol("*"), loadTable("dfs://ddb_internal_auto_inspection", "metrics"), whereCond).eval()
+
+    return res
+}
+go
