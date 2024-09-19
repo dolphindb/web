@@ -15,7 +15,7 @@ def clearEnv() {
 
 def initDfs() {
     years = sort(distinct(yearBegin(1985.01.01..2055.01.01)))
-    db = database("dfs://ddb_internal_auto_inspection", RANGE, years, engine='TSDB')
+    db = database("dfs://ddb_internal_auto_inspection", VALUE, ["reportName"], engine='TSDB')
 
     tb = table(1:0, `name`displayName`group`desc`nodes`script`params`version`createTime`updateTime, [STRING, STRING, SYMBOL, STRING, STRING, BLOB, STRING, INT, TIMESTAMP, TIMESTAMP])
     pt1 = createTable(db, tb, "metrics", sortColumns="createTime")
@@ -26,11 +26,11 @@ def initDfs() {
     tb = table(1:0, `planId`metricName`metricDisplayName`metricVersion`nodes`params, [STRING, STRING, STRING, INT, STRING, STRING])
     pt3 = createTable(db, tb, "plan_details", sortColumns="metricVersion")
 
-    tb = table(1:0, `id`planId`desc`user`startTime`endTime`success`totalNum`failedNum, [STRING, STRING, STRING, STRING, TIMESTAMP, TIMESTAMP, BOOL, INT, INT])
-    pt4 = createPartitionedTable(db, tb, "reports", "startTime", sortColumns="startTime")
+    tb = table(1:0, `id`planId`desc`user`receivedTime`startTime`endTime`success`totalNum`failedNum, [STRING, STRING, STRING, STRING, TIMESTAMP, TIMESTAMP, TIMESTAMP, BOOL, INT, INT])
+    pt4 = createPartitionedTable(db, tb, "reports", "id", sortColumns="receivedTime")
 
     tb = table(1:0, `reportId`metricName`metricDisplayName`metricVersion`metricParams`node`jobId`startTime`endTime`success`detail`suggestion, [STRING, STRING, STRING, INT, STRING, STRING, STRING, TIMESTAMP, TIMESTAMP, BOOL, BLOB, STRING])
-    pt5 = createPartitionedTable(db, tb, "report_details", "startTime", sortColumns="startTime")
+    pt5 = createPartitionedTable(db, tb, "report_details", "reportId", sortColumns="startTime")
 }
 
 def newMetric(name, displayName, group, desc, nodes, script, params=NULL) {
@@ -186,6 +186,9 @@ def runMetric(name, node, script, mutable params) {
     print("start to run metric: " + name + " on node: " + node)
     print("params: ")
     print(string(params))
+    print("script: ")
+    l = iif(script.strlen() > 20, 20, script.strlen())
+    print(string(script)[0:l])
     success = false
     detail = ""
     suggestion = ""
@@ -266,7 +269,7 @@ def runPlanInner(planId) {
     return ret
 }
 
-def runPlan(planId) {
+def runPlan(planId, blocking=false) {
     planInfo = select * from loadTable("dfs://ddb_internal_auto_inspection", "plans") where id == planId
     if (planInfo.size() == 0) {
         throw "plan id: " + planId " not found"
@@ -276,26 +279,44 @@ def runPlan(planId) {
     print("start to run plan: " + string(planId))
     writeLog("autoInspection: start to run plan: " + string(planId))
     reportId_ = submitJob(planId, desc, runPlanInner, planId)
-    reportDetails = getJobReturn(reportId_, true)
+    user = getCurrentSessionAndUser()[1]
     reportJobInfo = getJobStatus(reportId_)
-    update reportDetails set reportId = reportId_
-    failedNum = exec count(*) from reportDetails where success == false
     report = table(
         reportId_ as id,
         planId as planId,
         desc as desc,
-        getCurrentSessionAndUser()[1] as user,
-        reportJobInfo[0]["startTime"] as startTime,
-        reportJobInfo[0]["endTime"] as endTime,
-        all(reportDetails["success"]) as success,
-        reportDetails.size() as totalNum,
-        failedNum as failedNum
+        user as user,
+        reportJobInfo[0]["receivedTime"] as receivedTime,
+        timestamp(NULL) as startTime,
+        timestamp(NULL) as endTime,
+        bool(NULL) as success,
+        int(NULL) as totalNum,
+        int(NULL) as failedNum
     )
 
-    loadTable("dfs://ddb_internal_auto_inspection", "report_details").append!(reportDetails)
     loadTable("dfs://ddb_internal_auto_inspection", "reports").append!(report)
-
-    return reportId_
+    f = def(reportId_) {
+        try {
+            reportDetails = getJobReturn(reportId_, true)
+            update reportDetails set reportId = reportId_
+            loadTable("dfs://ddb_internal_auto_inspection", "report_details").append!(reportDetails)
+            reportJobInfo = getJobStatus(reportId_)
+            startTime_ = reportJobInfo[0]["startTime"]
+            endTime_ = reportJobInfo[0]["endTime"]
+            success_ = all(reportDetails["success"])
+            totalNum_ = exec count(distinct(metricName)) from reportDetails
+            failedNum_ = select count(*) from reportDetails where success == false group by metricName
+            failedNum_ = failedNum_.size()
+            update loadTable("dfs://ddb_internal_auto_inspection", "reports") set startTime = startTime_, endTime = endTime_, success = success_, totalNum = totalNum_, failedNum = failedNum_ where id = reportId_
+        } catch(err) {
+            update loadTable("dfs://ddb_internal_auto_inspection", "reports") set startTime = receivedTime, endTime = now(), success = false where id = reportId_
+        }
+    }
+    jobId = submitJob("runPlan", planId, f, reportId_)
+    if (blocking) {
+        getJobReturn(jobId, true)
+    }
+    return jobId
 }
 
 def createPlan(id, desc, metrics, mutable nodes, params, frequency, days, scheduleTime, enabled=false, runNow=false) {
@@ -386,8 +407,7 @@ def createPlan(id, desc, metrics, mutable nodes, params, frequency, days, schedu
             scheduleJob(id, desc, runPlan{id}, minute(scheduleTime), date(startDate), date(endDate), string(frequency), int(days))
         }
         if (runNow) {
-            reportId = runPlan(id)
-            return reportId
+            runPlan(id)
         }
     } catch(err) {
         writeLog("autoInspection: create schedule job failed: ", err)
@@ -398,7 +418,7 @@ def createPlan(id, desc, metrics, mutable nodes, params, frequency, days, schedu
         throw err
     }
 
-    return NULL
+    return plan
 }
 
 def enablePlan(id) {
