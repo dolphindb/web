@@ -1,10 +1,11 @@
 import './job.sass'
 
-import { useEffect, useState } from 'react'
+import { useEffect, useState, type ReactNode } from 'react'
 
 import {
     Button, Input, Popconfirm, Table, Typography, Tooltip, Spin,
-    type TablePaginationConfig, type TableColumnType
+    type TablePaginationConfig, type TableColumnType,
+    Modal
 } from 'antd'
 import { ReloadOutlined } from '@ant-design/icons'
 
@@ -375,20 +376,24 @@ function append_action_col (
             title: 'actions',
             render: (value, job) => {
                 const disabled = job.status && job.status !== 'queuing' && job.status !== 'running'
+                const no_job_id = !job.jobId
                 
-                return <Popconfirm
-                    title={ type === 'stop' ? t('确认停止作业') : t('确认删除作业')}
-                    onConfirm={async () => {
-                        await action(job)
-                        model.message.success(
-                            type === 'stop' ? t('停止作业指令发送成功') : t('删除作业成功')
-                        )
-                    }
-                }>
-                    <Link title={ disabled ? t('作业已完成') : '' } disabled={disabled}>{
-                        type === 'stop' ? t('停止') : t('删除')
-                    }</Link>
-                </Popconfirm>
+                return <div className='action-col'>
+                    <Popconfirm
+                        title={type === 'stop' ? t('确认停止作业') : t('确认删除作业')}
+                        onConfirm={async () => {
+                            await action(job)
+                            model.message.success(
+                                type === 'stop' ? t('停止作业指令发送成功') : t('删除作业成功')
+                            )
+                        }
+                        }>
+                        <Link title={disabled ? t('作业已完成') : ''} disabled={disabled}>{
+                            type === 'stop' ? t('停止') : t('删除')
+                        }</Link>
+                    </Popconfirm>
+                    {!no_job_id && <JobMessageShow job={job}/>}
+                </div>
             }
         }
     )
@@ -478,3 +483,31 @@ function compute_status_info (job: DdbJob) {
 
 type DdbJobColumn = TableColumnType<DdbJob>
 
+function JobMessageShow (props: { job: DdbJob }) {
+    const { job } = props
+    const [message, set_message] = useState<string>('')
+    const [show, set_show] = useState(false)
+    async function get_job_message () {
+        const result = await model.ddb.invoke('getJobMessage', [job.jobId ? job.jobId : job.rootJobId])
+        set_show(true)
+        set_message(result)
+    }
+    const lines = message.split('\n')
+    function copy_to_clipboard () {
+        navigator.clipboard.writeText(message)
+        model.message.success(t('复制成功'))
+    }
+    return <>
+        <Modal width='80vw' className='job-message-modal' title={t('作业日志')} footer={null} onCancel={() => { set_show(false) }} open={show}>
+            <div className='job-message'>
+                {lines.map(line => <p key={line}>{line}</p>)}
+            </div>
+            <div className='copy-button'>
+                <Link title={t('复制')} onClick={copy_to_clipboard}>{t('复制') }</Link>
+            </div>
+        </Modal>
+        <Link title={t('查看日志')} onClick={get_job_message}>{
+            t('查看日志')
+        }</Link>
+    </>
+}
