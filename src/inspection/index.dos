@@ -2,9 +2,9 @@ module autoInspection
 
 def clearEnv() {
     try {
-        planIds = exec id from loadTable("dfs://ddb_internal_auto_inspection", "plans")
-        for (planId in planIds) {
-            try { deleteScheduledJob(planId) } catch(err) {}
+        plans = select * from loadTable("dfs://ddb_internal_auto_inspection", "plans")
+        for (plan in plans) {
+            try { deleteScheduledJob(plan["name"] + plan["id"]) } catch(err) {}
         }
     } catch(err) {} 
     
@@ -432,12 +432,12 @@ def enablePlan(id) {
     if (plan.size() == 0) {
         throw "plan id " + id_ + " not found"
     }
-    if(getScheduledJobs(id_).size() > 0) {
+    plan = plan[0]
+    if(getScheduledJobs(plan.name + plan.id).size() > 0) {
         throw "plan id " + id_ + " is already enabled"
     }
 
-    plan = plan[0]
-    scheduleJob(plan.id, plan.desc, runPlan{plan.id}, minute(plan.scheduleTime), date(plan.startDate), date(plan.endDate), string(plan.frequency), int(plan.days))
+    scheduleJob(plan.name + plan.id, plan.desc, runPlan{plan.id}, minute(plan.scheduleTime), date(plan.startDate), date(plan.endDate), string(plan.frequency), int(plan.days))
     update loadTable("dfs://ddb_internal_auto_inspection", "plans") set enabled = true where id == id_
 }
 
@@ -447,20 +447,22 @@ def disablePlan(id) {
     if (plan.size() == 0) {
         throw "plan id " + id_ + " not found"
     }
-    if(getScheduledJobs(id_).size() == 0) {
+    name = plan[0]["name"]
+    if(getScheduledJobs(name + id_).size() == 0) {
         throw "plan id " + id_ + " is already disabled"
     }
 
-    deleteScheduledJob(id_)
+    deleteScheduledJob(name + id_)
     update loadTable("dfs://ddb_internal_auto_inspection", "plans") set enabled = false where id == id_
 }
 
 def deletePlan(id) {
     id_ = iif(id.form() == 0, [id], id)
+    plans = select * from loadTable("dfs://ddb_internal_auto_inspection", "plans") where id in id_
     delete from loadTable("dfs://ddb_internal_auto_inspection", "plans") where id in id_
     delete from loadTable("dfs://ddb_internal_auto_inspection", "plan_details") where planId in id_
-    for (id__ in id_) {
-        try { deleteScheduledJob(id__) } catch(err) {}
+    for (plan in plans) {
+        try { deleteScheduledJob(plan["name"] + plan["id"]) } catch(err) {}
     }
 }
 
