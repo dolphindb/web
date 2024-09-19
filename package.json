@@ -40,10 +40,10 @@
         "webpack-bundle-analyzer": "^4.10.2"
     },
     "dependencies": {
-        "@ant-design/icons": "^5.4.0",
+        "@ant-design/icons": "^5.5.0",
         "@ant-design/plots": "1.2.5",
-        "@ant-design/pro-components": "^2.7.18",
-        "@ant-design/pro-layout": "^7.20.1",
+        "@ant-design/pro-components": "^2.7.19",
+        "@ant-design/pro-layout": "^7.20.2",
         "@ebay/nice-modal-react": "^1.2.13",
         "@formily/antd-v5": "^1.2.3",
         "@formily/core": "^2.3.2",
