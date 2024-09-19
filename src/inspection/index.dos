@@ -341,7 +341,6 @@ def createPlan(name, desc, metrics, mutable nodes, params, frequency, days, sche
         }
         params_.append!(toStdJson(item))
     }
-
     n = metrics.size()
     for (i in 0..(n-1)) {
         nodes_ = exec nodes from loadTable("dfs://ddb_internal_auto_inspection", "metrics") where name == metrics[i]
@@ -360,13 +359,12 @@ def createPlan(name, desc, metrics, mutable nodes, params, frequency, days, sche
             }
         }
     }
-    user = getCurrentSessionAndUser()[1]
-    jobs = select * from getScheduledJobs() where userId = user and jobId == id
-    if (jobs.size() > 0) {
-        throw "duplicated plan id: " + id
+    name_ = name
+    cnt = exec count(*) from loadTable("dfs://ddb_internal_auto_inspection", "plans") where name == name_
+    if (cnt > 0) {
+        throw "duplicated plan name: " + name
     }
 
-    user = getCurrentSessionAndUser().last()
     days_ = iif(days.form() == 1, days.concat(","), days)
     user = getCurrentSessionAndUser().last()
     startDate = today()
