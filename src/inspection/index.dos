@@ -29,7 +29,7 @@ def initDfs() {
     tb = table(1:0, `id`planId`desc`user`startTime`endTime`success`totalNum`failedNum, [STRING, STRING, STRING, STRING, TIMESTAMP, TIMESTAMP, BOOL, INT, INT])
     pt4 = createPartitionedTable(db, tb, "reports", "startTime", sortColumns="startTime")
 
-    tb = table(1:0, `reportId`metricName`metricDisplayName`metricVersion`node`startTime`endTime`success`detail`suggestion, [STRING, STRING, STRING, INT, STRING, TIMESTAMP, TIMESTAMP, BOOL, STRING, STRING])
+    tb = table(1:0, `reportId`metricName`metricDisplayName`metricVersion`metricParams`node`jobId`startTime`endTime`success`detail`suggestion, [STRING, STRING, STRING, INT, STRING, STRING, STRING, TIMESTAMP, TIMESTAMP, BOOL, BLOB, STRING])
     pt5 = createPartitionedTable(db, tb, "report_details", "startTime", sortColumns="startTime")
 }
 
@@ -160,6 +160,28 @@ def updateMetricParams(mutable params, planId, metricName) {
     }
 }
 
+def extractUsedParams(params, metricName) {
+    definedParams = exec first(params) from loadTable("dfs://ddb_internal_auto_inspection", "metrics") where name = metricName
+    definedParams = fromStdJson(definedParams)
+    usedParams = dict(STRING, ANY)
+    definedParamNames = []$STRING
+
+    if (!isVoid(definedParams)) {
+        for (definedParam in definedParams) {
+            definedParamNames.append!(definedParam["name"])
+        }
+    }
+    for (key in params.keys()) {
+        if (key in definedParamNames) {
+            usedParams[key] = params[key]
+        } else if (key.startsWith(metricName)) {
+            usedParams[key] = params[key]
+        }
+    }
+
+    return usedParams
+}
+
 def runMetric(name, node, script, mutable params) {
     print("start to run metric: " + name + " on node: " + node)
     print("params: ")
@@ -217,20 +239,27 @@ def runPlanInner(planId) {
             params[key] = defaultParams[key] // 重置默认参数值
         }
         updateMetricParams(params, planId, name) // 更新自定义参数值
+        usedParams = extractUsedParams(params, name) // 提取出 metrics 表里定义的参数字段
 
         jobIds = []$STRING
         for (node in nodes) {
-            jobId = submitJob(planId + "_runMetric_" + name, node, runMetric{name, node, script, params})
+            jobId = submitJob(planId + "_runMetric_" + name, node, runMetric{name, node, script, usedParams})
             jobIds.append!(jobId)
         }
 
         for (i in 0..(nodes.size()-1)) {
             jobId = jobIds[i]
-            success, detail, suggestion, params = getJobReturn(jobId, true)
+            success, detail, suggestion, usedParams_ = getJobReturn(jobId, true)
+            if (!isVoid(usedParams_)) { // 手动更新 params 实现 mutable 的效果
+                for (key in usedParams_.keys()) {
+                    params[key] = usedParams_[key]
+                }
+            }
             res = getJobStatus(jobId)
             node = nodes[i]
 
-            insert into ret values ("", name, displayName, version, node, res["startTime"].first(), res["endTime"].first(), success, detail, suggestion) // reportId 要在返回后 update
+            usedParamsJson = toStdJson(iif(usedParams.keys().size() == 0, NULL, usedParams))
+            insert into ret values ("", name, displayName, version, usedParamsJson, node, jobId, res["startTime"].first(), res["endTime"].first(), success, detail, suggestion) // reportId 要在返回后 update
         }
     }
 
