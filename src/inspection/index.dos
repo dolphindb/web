@@ -22,13 +22,13 @@ def initDfs() {
     tb = table(1:0, `name`displayName`group`desc`nodes`script`params`version`createTime`updateTime, [STRING, STRING, SYMBOL, STRING, STRING, BLOB, STRING, INT, TIMESTAMP, TIMESTAMP])
     pt1 = createTable(db, tb, "metrics", sortColumns="createTime")
 
-    tb = table(1:0, `id`desc`user`startDate`endDate`frequency`days`scheduleTime`enabled, [STRING, STRING, STRING, DATE, DATE, STRING, STRING, MINUTE, BOOL])
+    tb = table(1:0, `id`name`desc`user`startDate`endDate`frequency`days`scheduleTime`enabled, [STRING, STRING, STRING, STRING, DATE, DATE, STRING, STRING, MINUTE, BOOL])
     pt2 = createTable(db, tb, "plans", sortColumns="startDate")
 
     tb = table(1:0, `planId`metricName`metricDisplayName`metricVersion`nodes`params, [STRING, STRING, STRING, INT, STRING, STRING])
     pt3 = createTable(db, tb, "plan_details", sortColumns="metricVersion")
 
-    tb = table(1:0, `id`planId`desc`user`receivedTime`startTime`endTime`success`totalNum`failedNum, [STRING, STRING, STRING, STRING, TIMESTAMP, TIMESTAMP, TIMESTAMP, BOOL, INT, INT])
+    tb = table(1:0, `id`planId`name`desc`user`receivedTime`startTime`endTime`success`totalNum`failedNum, [STRING, STRING, STRING, STRING, STRING, TIMESTAMP, TIMESTAMP, TIMESTAMP, BOOL, INT, INT])
     pt4 = createPartitionedTable(db, tb, "reports", ["id", "receivedTime"], sortColumns="receivedTime")
 
     tb = table(1:0, `reportId`metricName`metricDisplayName`metricVersion`metricParams`node`jobId`startTime`endTime`success`detail`suggestion, [STRING, STRING, STRING, INT, STRING, STRING, STRING, TIMESTAMP, TIMESTAMP, BOOL, BLOB, STRING])
@@ -219,7 +219,6 @@ def runMetric(name, node, script, mutable params) {
 }
 
 def runPlanInner(planId) {
-    // planId = "quickly"
     planId_ = planId
     planDetails = select a.metricName as metricName, a.metricDisplayName as metricDisplayName, a.nodes as nodes, a.params as params, b.script as script, b.version as metricVersion from loadTable("dfs://ddb_internal_auto_inspection", "plan_details") a left join loadTable("dfs://ddb_internal_auto_inspection", "metrics") b on a.metricName == b.name where a.planId == planId_
 
@@ -248,7 +247,7 @@ def runPlanInner(planId) {
 
         jobIds = []$STRING
         for (node in nodes) {
-            jobId = submitJob(planId + "_runMetric_" + name, node, runMetric{name, node, script, usedParams})
+            jobId = submitJob("runMetric_" + planId + "_" + name, node, runMetric{name, node, script, usedParams})
             jobIds.append!(jobId)
         }
 
@@ -276,16 +275,18 @@ def runPlan(planId, blocking=false) {
     if (planInfo.size() == 0) {
         throw "plan id: " + planId " not found"
     }
+    name = planInfo[0]["name"]
     desc = planInfo[0]["desc"]
 
     print("start to run plan: " + string(planId))
     writeLog("autoInspection: start to run plan: " + string(planId))
-    reportId_ = submitJob(planId, desc, runPlanInner, planId)
+    reportId_ = submitJob(name + planId, desc, runPlanInner, planId)
     user = getCurrentSessionAndUser()[1]
     reportJobInfo = getJobStatus(reportId_)
     report = table(
         reportId_ as id,
         planId as planId,
+        name as name,
         desc as desc,
         user as user,
         reportJobInfo[0]["receivedTime"] as receivedTime,
@@ -314,15 +315,16 @@ def runPlan(planId, blocking=false) {
             update loadTable("dfs://ddb_internal_auto_inspection", "reports") set startTime = receivedTime, endTime = now(), success = false where id = reportId_
         }
     }
-    jobId = submitJob("runPlan", planId, f, reportId_)
+    jobId = submitJob("runPlan", name + planId, f, reportId_)
     if (blocking) {
         getJobReturn(jobId, true)
     }
     return jobId
 }
 
-def createPlan(id, desc, metrics, mutable nodes, params, frequency, days, scheduleTime, enabled=false, runNow=false) {
-    print("start to create plan: " + id)
+def createPlan(name, desc, metrics, mutable nodes, params, frequency, days, scheduleTime, enabled=false, runNow=false) {
+    id = string(long(now()))
+    print("start to create plan: " + name)
     if (metrics.size() != nodes.size()) {
         throw "metrics' size must be same as nodes' size"
     }
@@ -371,6 +373,7 @@ def createPlan(id, desc, metrics, mutable nodes, params, frequency, days, schedu
     endDate = temporalAdd(today(), 100y)
     plan = table(
         id as id,
+        name as name,
         desc as desc,
         user as user,
         startDate as startDate,
@@ -406,7 +409,7 @@ def createPlan(id, desc, metrics, mutable nodes, params, frequency, days, schedu
 
     try {
         if (enabled) {
-            scheduleJob(id, desc, runPlan{id}, minute(scheduleTime), date(startDate), date(endDate), string(frequency), int(days))
+            scheduleJob(name + id, desc, runPlan{id}, minute(scheduleTime), date(startDate), date(endDate), string(frequency), int(days))
         }
         if (runNow) {
             runPlan(id)
