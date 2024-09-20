@@ -22,7 +22,7 @@ import { language, t } from '@i18n/index.ts'
 
 import type { FormatErrorOptions } from '@/components/GlobalErrorBoundary.tsx'
 import { config } from '@/config/model.ts'
-import { goto_url, strip_quotes } from '@/utils'
+import { goto_url, strip_quotes } from '@/utils.ts'
 
 
 export const storage_keys = {

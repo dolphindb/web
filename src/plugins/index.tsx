@@ -6,7 +6,7 @@ import { ReloadOutlined, default as Icon, InboxOutlined } from '@ant-design/icon
 import { noop, vercmp } from 'xshell/utils.browser.js'
 
 import { use_modal, type ModalController } from 'react-object-model/hooks.js'
-import { join_elements } from 'react-object-model/utils.ts'
+import { join_elements } from 'react-object-model/utils.js'
 
 import { DdbBlob } from 'dolphindb/browser.js'
 
