@@ -8,7 +8,7 @@ import {
 } from 'antd'
 import { ReloadOutlined } from '@ant-design/icons'
 
-import { type DdbObj, format, DdbType } from 'dolphindb/browser.js'
+import { type DdbObj, format, DdbType, DdbFunctionType } from 'dolphindb/browser.js'
 
 import { language, t } from '../i18n/index.js'
 
@@ -487,8 +487,9 @@ type DdbJobColumn = TableColumnType<DdbJob>
 function JobMessageShow ({ job }: { job: DdbJob }) {
     const [message, set_message] = useState<string>('')
     const [show, set_show] = useState(false)
+    const node = job.node
     async function get_job_message () {
-        const result = await model.ddb.invoke('getJobMessage', [job.jobId ? job.jobId : job.rootJobId])
+        const result = await model.ddb.invoke('getJobMessage', [job.jobId ? job.jobId : job.rootJobId], { node, func_type: DdbFunctionType.SystemFunc })
         set_show(true)
         set_message(result)
     }
@@ -497,6 +498,10 @@ function JobMessageShow ({ job }: { job: DdbJob }) {
         navigator.clipboard.writeText(message)
         model.message.success(t('复制成功'))
     }
+    
+    if (!node)
+        return null
+    
     return <>
         <Modal
             width='80vw'
