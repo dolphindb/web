@@ -8,11 +8,11 @@ import { DdbForm, type DdbVoid, type DdbObj, type DdbValue, DdbVectorLong, DdbLo
 
 import { GridStack, type GridStackNode, type GridItemHTMLElement } from 'gridstack'
 
-import { assert, decode, genid } from 'xshell/utils.browser.js'
+import { assert, genid } from 'xshell/utils.browser.js'
 
-import type { MessageInstance } from 'antd/es/message/interface.js'
-import type { ModalStaticFunctions } from 'antd/es/modal/confirm.js'
-import type { NotificationInstance } from 'antd/es/notification/interface.js'
+import type { MessageInstance } from 'antd/es/message/interface.d.ts'
+import type { HookAPI as ModalHookAPI } from 'antd/es/modal/useModal/index.d.ts'
+import type { NotificationInstance } from 'antd/es/notification/interface.d.ts'
 
 import { model, show_error, storage_keys } from '../model.js'
 import type { Monaco } from '../components/Editor/index.js'
@@ -97,7 +97,7 @@ export class DashBoardModel extends Model<DashBoardModel> {
     // console/model.js 对应黑色主题的版本
     message: MessageInstance
     
-    modal: Omit<ModalStaticFunctions, 'warn'>
+    modal: ModalHookAPI
     
     notification: NotificationInstance
     
