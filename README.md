@@ -13,7 +13,7 @@
 ## English | [中文](./README.zh.md)
 
 ### DolphinDB database web management interface
-![](./console/demo.en.png)
+![](./demo/demo.en.png)
 
 <!-- #### Online Version
 The latest build of the web has been deployed to a CDN . You can connect the opened web interface to any remote or local DolphinDB server by setting the hostname and port parameters in the URL, for example:
