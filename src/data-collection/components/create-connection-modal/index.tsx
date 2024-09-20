@@ -7,7 +7,7 @@ import NiceModal, { useModal } from '@ebay/nice-modal-react'
 
 import { t } from '../../../../i18n/index.js'
 import { Protocol, type Connection } from '../../type.js'
-import { request } from '../../utils.js'
+import { request } from '../../utils.ts'
 
 import { NAME_RULES } from '@/data-collection/constant.js'
 

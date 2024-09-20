@@ -6,7 +6,7 @@ import { ReloadOutlined, default as Icon, InboxOutlined } from '@ant-design/icon
 import { noop, vercmp } from 'xshell/utils.browser.js'
 
 import { use_modal, type ModalController } from 'react-object-model/hooks.js'
-import { join_elements } from 'react-object-model/utils.js'
+import { join_elements } from 'react-object-model/utils.ts'
 
 import { DdbBlob } from 'dolphindb/browser.js'
 
@@ -17,7 +17,7 @@ import script from './index.dos'
 import SvgUpgrade from './upgrade.icon.svg'
 import zip_png from './zip.png'
 
-import { required } from '@/utils/index.js'
+import { required } from '@/utils.ts'
 import { model, DdbNodeState, NodeType } from '@/model.js'
 
 

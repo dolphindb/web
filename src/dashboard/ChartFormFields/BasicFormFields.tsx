@@ -8,13 +8,13 @@ import { useMemo } from 'react'
 import { t } from '../../../i18n/index.js'
 import { BoolRadioGroup } from '../../components/BoolRadioGroup/index.js'
 import { variables } from '../Variable/variable.js'
-import { convert_list_to_options } from '../utils.js'
+import { convert_list_to_options } from '../utils.ts'
 
 import { WidgetChartType, dashboard } from '../model.js'
 
 import { FormDependencies } from '../../components/formily/FormDependcies/index.js'
 
-import { DDB_TYPE_MAP } from '@/utils/index.ts'
+import { DDB_TYPE_MAP } from '@/utils.ts'
 
 import { TitleFields } from './components/Title.js'
 import { LegendFields } from './components/Legend.js'

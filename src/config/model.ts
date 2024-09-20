@@ -7,8 +7,8 @@ import { t } from '@i18n/index.js'
 import { NodeType, model } from '../model.js'
 
 import { type NodesConfig } from './type.js'
-import { _2_strs, get_category, parse_nodes_configs } from './utils.js'
-import { iterator_map } from '@/utils/index.js'
+import { _2_strs, get_category, parse_nodes_configs } from './utils.ts'
+import { iterator_map } from '@/utils.ts'
 
 const trusies = ['1', 'true'] as const
 

@@ -1,5 +1,5 @@
-import { safe_json_parse } from '../../dashboard/utils.js'
-import { request } from '../../guide/utils.js'
+import { safe_json_parse } from '../../dashboard/utils.ts'
+import { request } from '../../guide/utils.ts'
 
 import { type Query } from './type.js'
 

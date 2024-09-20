@@ -10,7 +10,7 @@ import { model } from '../model.js'
 import { NodesConfigAddModal } from './NodesConfigAddModal.js'
 import { config } from './model.js'
 import { type NodesConfig } from './type.js'
-import { _2_strs, filter_config } from './utils.js'
+import { _2_strs, filter_config } from './utils.ts'
 import { CONFIG_CLASSIFICATION } from './constants.js'
 
 export function NodesConfig () {

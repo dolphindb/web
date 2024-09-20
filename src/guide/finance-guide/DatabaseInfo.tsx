@@ -4,7 +4,7 @@ import { useCallback, useEffect } from 'react'
 
 import { FormDependencies } from '../../components/formily/FormDependcies/index.js'
 
-import { request } from '../utils.js'
+import { request } from '../utils.ts'
 
 import { t } from '../../../i18n/index.js'
 

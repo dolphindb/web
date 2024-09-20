@@ -9,9 +9,9 @@ import { Editor } from '@/components/Editor/index.js'
 
 import { dashboard } from '../model.js'
 
-import { use_monaco_insert } from '@/utils/hooks/use-monaco-insert.js'
+import { use_monaco_insert } from '@/hooks.ts'
 
-import { t } from '@/../i18n/index.js'
+import { t } from '@i18n/index.ts'
 
 import { DataView } from './DataView.js'
 

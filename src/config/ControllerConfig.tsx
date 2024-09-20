@@ -13,7 +13,7 @@ import { model } from '../model.js'
 import { config } from './model.js'
 
 import type { ControllerConfig } from './type.js'
-import { _2_strs, strs_2_controller_configs, filter_config } from './utils.js'
+import { _2_strs, strs_2_controller_configs, filter_config } from './utils.ts'
 
 import { CONTROLLER_CONFIG } from './constants.js'
 

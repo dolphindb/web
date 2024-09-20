@@ -9,7 +9,7 @@ import { type Widget } from '../../model.js'
 import { SeriesFormFields } from '../../ChartFormFields/PieChartFields.js'
 import { BasicFormFields } from '../../ChartFormFields/BasicFormFields.js'
 import { type IChartConfig } from '../../type.js'
-import { parse_text } from '../../utils.js'
+import { parse_text } from '../../utils.ts'
 import { ChartField } from '../../ChartFormFields/type.js'
 import { useChart } from '../hooks.js'
 

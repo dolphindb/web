@@ -7,7 +7,7 @@ import { use_modal } from 'react-object-model/hooks.js'
 import { t } from '../../../i18n/index.js'
 import { model } from '../../model.js'
 import { dashboard, DashboardPermission, type DashBoardConfig } from '../model.js'
-import { check_name } from '../utils.js'
+import { check_name } from '../utils.ts'
 
 export function Import ({ type }: { type: 'icon' | 'button' }) {
     const [import_config, set_import_config] = useState<DashBoardConfig>(null)

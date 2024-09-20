@@ -3,7 +3,7 @@ import {
 } from 'echarts/types/dist/shared.js'
 
 import { type IOrderBookConfig } from '../../type'
-import { parse_text } from '../../utils.js'
+import { parse_text } from '../../utils.ts'
 
 export function convert_order_book_config (config: IOrderBookConfig, orderbook_data, line_data, bar_data): EChartsOption {
     let { title, with_tooltip, time_rate, title_size, with_split_line, bar_color, line_color } = config

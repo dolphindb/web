@@ -8,7 +8,7 @@ import { type DdbType } from 'dolphindb/browser.js'
 import type { EChartsInstance } from 'echarts-for-react'
 
 import { AxisType, MatchRuleType, ThresholdType } from '../../ChartFormFields/type.js'
-import { convert_chart_config, get_axis_range } from '../../utils.js'
+import { convert_chart_config, get_axis_range } from '../../utils.ts'
 import { type Widget } from '../../model.js'
 import type { ISeriesConfig, IChartConfig } from '../../type.js'
 import { get_data_source } from '../../DataSource/date-source.js'

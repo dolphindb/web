@@ -15,7 +15,7 @@ import { NodeType, model } from '../../../model.js'
 import { shell } from '../../model.js'
 import { t } from '../../../../i18n/index.js'
 import { ENUM_TYPES, type IColumn } from '../type.js'
-import { concat_name_path, safe_json_parse } from '../../../dashboard/utils.js'
+import { concat_name_path, safe_json_parse } from '../../../dashboard/utils.ts'
 
 import { guide_query_model } from '../model.js'
 

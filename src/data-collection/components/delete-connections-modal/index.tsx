@@ -2,7 +2,7 @@ import NiceModal, { useModal } from '@ebay/nice-modal-react'
 import { t } from '@i18n/index.js'
 import { Button, Form, message, Modal, Switch } from 'antd'
 
-import { request } from '@/data-collection/utils.js'
+import { request } from '@/data-collection/utils.ts'
 
 interface IProps {
     ids: string[]

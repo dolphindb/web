@@ -10,7 +10,7 @@ import { t } from '../../i18n/index.js'
 import { DdbObjRef } from '../obj.js'
 
 import { shell } from '../shell/model.js'
-import { download_file } from '../utils/index.js'
+import { download_file } from '../utils.ts'
 import { model } from '../model.js'
 
 import SvgExport from './icons/export.icon.svg'

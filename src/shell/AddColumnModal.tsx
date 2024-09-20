@@ -11,8 +11,8 @@ import { t } from '../../i18n/index.js'
 import { DDBTypeSelectorSchemaFields, SchemaField } from '../components/formily/index.js'
 
 import { model } from '../model.js'
-import { generateDDBDataTypeLiteral } from '../utils/ddb-data-types.js'
-import { type DDBColumnTypeNames } from '@/utils/index.ts'
+import { generateDDBDataTypeLiteral } from '@/components/formily/DDBTypeSelector/index.tsx'
+import { type DDBColumnTypeNames } from '@/utils.ts'
 
 import { shell } from './model.js'
 import type { ColumnRoot } from './Databases.js'
