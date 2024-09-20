@@ -66,7 +66,7 @@
         "js-cookie": "^3.0.5",
         "lodash": "^4.17.21",
         "monaco-dolphindb": "^1.0.5",
-        "monaco-editor": "^0.52.0",
+        "monaco-editor": "0.50.0",
         "re-resizable": "^6.9.18",
         "react-dom": "^18.3.1",
         "react-draggable": "^4.4.6",
@@ -78,6 +78,6 @@
         "tslib": "^2.7.0",
         "vscode-oniguruma": "^2.0.1",
         "vscode-textmate": "^9.1.0",
-        "xshell": "^1.0.172"
+        "xshell": "^1.0.173"
     }
 }

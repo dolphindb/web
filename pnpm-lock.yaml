@@ -34,7 +34,7 @@ importers:
         version: 2.3.2(@types/react-dom@18.3.0)(@types/react@18.3.8)(react-dom@18.3.1(react@18.3.1))(react-is@18.2.0)(react@18.3.1)(typescript@5.6.2)
       '@monaco-editor/react':
         specifier: ^4.6.0
-        version: 4.6.0(monaco-editor@0.52.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+        version: 4.6.0(monaco-editor@0.50.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@xterm/addon-fit':
         specifier: ^0.10.0
         version: 0.10.0(@xterm/xterm@5.5.0)
@@ -85,10 +85,10 @@ importers:
         version: 4.17.21
       monaco-dolphindb:
         specifier: ^1.0.5
-        version: 1.0.5(dolphindb@3.0.120(react-dom@18.3.1(react@18.3.1)))(monaco-editor@0.52.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(vscode-oniguruma@2.0.1)(vscode-textmate@9.1.0)
+        version: 1.0.5(dolphindb@3.0.120(react-dom@18.3.1(react@18.3.1)))(monaco-editor@0.50.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(vscode-oniguruma@2.0.1)(vscode-textmate@9.1.0)
       monaco-editor:
-        specifier: ^0.52.0
-        version: 0.52.0
+        specifier: 0.50.0
+        version: 0.50.0
       re-resizable:
         specifier: ^6.9.18
         version: 6.9.18(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -123,8 +123,8 @@ importers:
         specifier: ^9.1.0
         version: 9.1.0
       xshell:
-        specifier: ^1.0.172
-        version: 1.0.172(react-dom@18.3.1(react@18.3.1))
+        specifier: ^1.0.173
+        version: 1.0.173(react-dom@18.3.1(react@18.3.1))
     devDependencies:
       '@svgr/webpack':
         specifier: ^8.1.0
@@ -3609,8 +3609,8 @@ packages:
       vscode-oniguruma: ^2.0.1
       vscode-textmate: ^9.0.0
 
-  monaco-editor@0.52.0:
-    resolution: {integrity: sha512-OeWhNpABLCeTqubfqLMXGsqf6OmPU6pHM85kF3dhy6kq5hnhuVS1p3VrEW/XhWHc71P2tHyS5JFySD8mgs1crw==}
+  monaco-editor@0.50.0:
+    resolution: {integrity: sha512-8CclLCmrRRh+sul7C08BmPBP3P8wVWfBHomsTcndxg5NRCEPfu/mc2AGU8k37ajjDVXcXFc12ORAMUkmk+lkFA==}
 
   mrmime@1.0.1:
     resolution: {integrity: sha512-hzzEagAgDyoU1Q6yg5uI+AorQgdvMCur3FcKf7NhMKWsaYg+RnbTyHRa/9IlLF9rf455MOCtcqqrQQ83pPP7Uw==}
@@ -5043,8 +5043,8 @@ packages:
     resolution: {integrity: sha512-fDlsI/kFEx7gLvbecc0/ohLG50fugQp8ryHzMTuW9vSa1GJ0XYWKnhsUx7oie3G98+r56aTQIUB4kht42R3JvA==}
     engines: {node: '>=4.0'}
 
-  xshell@1.0.172:
-    resolution: {integrity: sha512-kQPiru0diRZYTAaPABt7fDzCVVz+h18jgSTmyfU7eMISmynRRQcu9ceOzpOc88pTZlw4c9xV4jQw+2Z5d5WFLA==}
+  xshell@1.0.173:
+    resolution: {integrity: sha512-rlIlVWagCFPYb4wkqCmjB7mLxYq1/pCudHA8DiYIpQKhOPzBm78ztS57ilR/Zrni4w26Ow82a78k44L3LqQCTw==}
     hasBin: true
 
   xtend@4.0.2:
@@ -6794,15 +6794,15 @@ snapshots:
     dependencies:
       call-bind: 1.0.7
 
-  '@monaco-editor/loader@1.4.0(monaco-editor@0.52.0)':
+  '@monaco-editor/loader@1.4.0(monaco-editor@0.50.0)':
     dependencies:
-      monaco-editor: 0.52.0
+      monaco-editor: 0.50.0
       state-local: 1.0.7
 
-  '@monaco-editor/react@4.6.0(monaco-editor@0.52.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
+  '@monaco-editor/react@4.6.0(monaco-editor@0.50.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)':
     dependencies:
-      '@monaco-editor/loader': 1.4.0(monaco-editor@0.52.0)
-      monaco-editor: 0.52.0
+      '@monaco-editor/loader': 1.4.0(monaco-editor@0.50.0)
+      monaco-editor: 0.50.0
       react: 18.3.1
       react-dom: 18.3.1(react@18.3.1)
 
@@ -8087,7 +8087,7 @@ snapshots:
       dayjs: 1.11.13
       ipaddr.js: 2.2.0
       tslib: 2.7.0
-      xshell: 1.0.172(react-dom@18.3.1(react@18.3.1))
+      xshell: 1.0.173(react-dom@18.3.1(react@18.3.1))
     transitivePeerDependencies:
       - '@rspack/core'
       - '@swc/core'
@@ -9537,19 +9537,19 @@ snapshots:
       hasown: 2.0.2
       isarray: 2.0.5
 
-  monaco-dolphindb@1.0.5(dolphindb@3.0.120(react-dom@18.3.1(react@18.3.1)))(monaco-editor@0.52.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(vscode-oniguruma@2.0.1)(vscode-textmate@9.1.0):
+  monaco-dolphindb@1.0.5(dolphindb@3.0.120(react-dom@18.3.1(react@18.3.1)))(monaco-editor@0.50.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)(vscode-oniguruma@2.0.1)(vscode-textmate@9.1.0):
     dependencies:
       dolphindb: 3.0.120(react-dom@18.3.1(react@18.3.1))
-      monaco-editor: 0.52.0
+      monaco-editor: 0.50.0
       vscode-oniguruma: 2.0.1
       vscode-textmate: 9.1.0
     optionalDependencies:
-      '@monaco-editor/react': 4.6.0(monaco-editor@0.52.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      '@monaco-editor/react': 4.6.0(monaco-editor@0.50.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
     transitivePeerDependencies:
       - react
       - react-dom
 
-  monaco-editor@0.52.0: {}
+  monaco-editor@0.50.0: {}
 
   mrmime@1.0.1: {}
 
@@ -11233,7 +11233,7 @@ snapshots:
 
   xmlbuilder@11.0.1: {}
 
-  xshell@1.0.172(react-dom@18.3.1(react@18.3.1)):
+  xshell@1.0.173(react-dom@18.3.1(react@18.3.1)):
     dependencies:
       '@babel/core': 7.25.2
       '@babel/parser': 7.25.6
