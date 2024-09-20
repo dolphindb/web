@@ -1,4 +1,4 @@
-import './log.sass'
+import './index.sass'
 
 import { useEffect, useRef, useState } from 'react'
 import { Pagination, Button } from 'antd'
@@ -6,8 +6,8 @@ import { ReloadOutlined } from '@ant-design/icons'
 
 import { t } from '@i18n/index.js'
 
-import { model, NodeType } from './model.js'
-import { Unlogin } from './components/Unlogin.js'
+import { model, NodeType } from '@/model.js'
+import { Unlogin } from '@/components/Unlogin.js'
 
 const default_length = 50000n
 

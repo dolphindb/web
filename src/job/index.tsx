@@ -1,4 +1,4 @@
-import './job.sass'
+import './index.sass'
 
 import { useEffect, useState } from 'react'
 
@@ -10,11 +10,11 @@ import { ReloadOutlined } from '@ant-design/icons'
 
 import { type DdbObj, format, DdbType, DdbFunctionType } from 'dolphindb/browser.js'
 
-import { language, t } from '../i18n/index.js'
+import { language, t } from '@i18n/index.ts'
 
-import { model, type DdbJob } from './model.js'
+import { model, type DdbJob } from '@/model.ts'
 
-import { TableCellDetail } from './components/TableCellDetail/index.js'
+import { TableCellDetail } from '@/components/TableCellDetail/index.tsx'
 
 const { Title, Text, Link } = Typography
 
