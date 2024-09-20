@@ -1,6 +1,6 @@
 import './job.sass'
 
-import { useEffect, useState, type ReactNode } from 'react'
+import { useEffect, useState } from 'react'
 
 import {
     Button, Input, Popconfirm, Table, Typography, Tooltip, Spin,
