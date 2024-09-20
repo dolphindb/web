@@ -4988,7 +4988,7 @@
     "执行 undef all 后需要刷新以恢复 web 功能，是否立即刷新？": {
         "en": "After executing undef all, a refresh is required to restore web functions. Do you want to refresh now?"
     },
-    "数据采集平台": { 
+    "数据采集平台": {
         "en": "Data Acquisition"
     },
     "连接信息": {
@@ -5224,5 +5224,8 @@
     },
     "分区_data_collection": {
         "en": "Partitions"
+    },
+    "作业日志": {
+        "en": "Job Message"
     }
 }
