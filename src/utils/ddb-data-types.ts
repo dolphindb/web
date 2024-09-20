@@ -1,4 +1,4 @@
-import { type DDBColumnTypeNames } from '../constants/column-data-types.js'
+import { type DDBColumnTypeNames } from '@/utils/index.ts'
 
 export function isDDBTemporalType (type: DDBColumnTypeNames) {
     return [

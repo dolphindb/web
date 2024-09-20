@@ -14,9 +14,7 @@ import { WidgetChartType, dashboard } from '../model.js'
 
 import { FormDependencies } from '../../components/formily/FormDependcies/index.js'
 
-import { DDB_TYPE_MAP } from '../../constants/ddb-type-maps.js'
-
-import { TIME_TYPES } from '../Charts/CompositeGraph/constant.js'
+import { DDB_TYPE_MAP } from '@/utils/index.ts'
 
 import { TitleFields } from './components/Title.js'
 import { LegendFields } from './components/Legend.js'

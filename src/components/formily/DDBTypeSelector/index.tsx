@@ -9,7 +9,7 @@ import { SchemaField } from '../SchemaField/index.js'
 import { isDDBDecimalType } from '@/utils/ddb-data-types.js'
 import { getDecimalScaleRange, isAvailableDecimalScale } from '@/utils/decimal.js'
 
-import { type DDBColumnTypeNames, DDB_COLUMN_DATA_TYPES, SUPPORT_ARRAY_VECTOR_TYPES } from '@/constants/column-data-types.js'
+import { type DDBColumnTypeNames } from '@/utils/index.ts'
 
 
 import { model } from '@/model.js'
@@ -139,3 +139,65 @@ DDBTypeSelectorSchemaFields.ScopeValues = {
         getDecimalScaleRange,
     }
 }
+
+
+/** 数据表的列数据类型 */
+const DDB_COLUMN_DATA_TYPES: DDBColumnTypeNames[] = [
+    'BOOL',
+    'CHAR',
+    'SHORT',
+    'INT',
+    'LONG',
+    'DATE',
+    'MONTH',
+    'TIME',
+    'MINUTE',
+    'SECOND',
+    'DATETIME',
+    'TIMESTAMP',
+    'NANOTIME',
+    'NANOTIMESTAMP',
+    'FLOAT',
+    'DOUBLE',
+    'SYMBOL',
+    'STRING',
+    'UUID',
+    'DATEHOUR',
+    'IPADDR',
+    'INT128',
+    'BLOB',
+    'COMPLEX',
+    'POINT',
+    
+    'DECIMAL32',
+    'DECIMAL64',
+    'DECIMAL128',
+]
+
+
+const SUPPORT_ARRAY_VECTOR_TYPES: DDBColumnTypeNames[] = [
+    'BOOL',
+    'CHAR',
+    'SHORT',
+    'INT',
+    'LONG',
+    'DATE',
+    'MONTH',
+    'TIME',
+    'MINUTE',
+    'SECOND',
+    'DATETIME',
+    'TIMESTAMP',
+    'NANOTIME',
+    'NANOTIMESTAMP',
+    'DATEHOUR',
+    'FLOAT',
+    'DOUBLE',
+    'IPADDR',
+    'UUID',
+    'INT128',
+    'DECIMAL32',
+    'DECIMAL64',
+    'DECIMAL128',
+]
+

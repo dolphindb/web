@@ -10,13 +10,12 @@ import {
     Submit,
 } from '@formily/antd-v5'
 import { mapKeys } from 'lodash'
-import { noop } from 'xshell/utils.browser.js'
 
 import { DdbType, type DdbObj } from 'dolphindb/browser.js'
 
 import { t } from '../../i18n/index.js'
 
-import { type DDBColumnTypeNames, SUPPORT_SORT_COLUMN_TYPES } from '../constants/column-data-types.js'
+import { type DDBColumnTypeNames } from '@/utils/index.ts'
 import { CopyIconButton } from '../components/copy/CopyIconButton.js'
 import { model } from '../model.js'
 import { generateDDBDataTypeLiteral, isDDBTemporalType } from '../utils/ddb-data-types.js'
@@ -24,7 +23,6 @@ import { useSteps } from '../utils/hooks/use-steps.js'
 import { useAsyncEffect } from '../utils/hooks/use-async-effect.js'
 
 import { DDBTypeSelectorSchemaFields, SchemaField } from '../components/formily/index.js'
-import { PartitionTypeName } from '../constants/partition-type.js'
 
 import { Editor } from '../components/Editor/index.js'
 
@@ -732,3 +730,37 @@ export const CreateTableModal = NiceModal.create<Props>(props => {
         </PropsContext.Provider>
     </Modal>
 })
+
+
+/** 支持排序的列类型 */
+export const SUPPORT_SORT_COLUMN_TYPES: DDBColumnTypeNames[] = [
+    'CHAR',
+    'SHORT',
+    'INT',
+    'LONG',
+    'DATE',
+    'MONTH',
+    'TIME',
+    'MINUTE',
+    'SECOND',
+    'DATETIME',
+    'TIMESTAMP',
+    'NANOTIME',
+    'NANOTIMESTAMP',
+    'STRING',
+    'SYMBOL',
+    
+    'DECIMAL32',
+    'DECIMAL64',
+    'DECIMAL128',
+]
+
+
+enum PartitionTypeName {
+    SEQ = 'SEQ',
+    RANGE = 'RANGE',
+    HASH = 'HASH',
+    VALUE = 'VALUE',
+    LIST = 'LIST',
+    COMPO = 'COMPO'
+}
