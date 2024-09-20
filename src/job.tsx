@@ -498,12 +498,16 @@ function JobMessageShow (props: { job: DdbJob }) {
         model.message.success(t('复制成功'))
     }
     return <>
-        <Modal width='80vw' className='job-message-modal' title={t('作业日志')} footer={null} onCancel={() => { set_show(false) }} open={show}>
+        <Modal
+            width='80vw'
+            className='job-message-modal'
+            title={t('作业日志')}
+            footer={<div className='copy-button'>
+                <Button style={{ marginRight: 8 }} onClick={copy_to_clipboard}>{t('复制')}</Button>
+                <Button onClick={() => { set_show(false) }}>{t('关闭')}</Button>
+            </div>} onCancel={() => { set_show(false) }} open={show}>
             <div className='job-message'>
                 {lines.map(line => <p key={line}>{line}</p>)}
-            </div>
-            <div className='copy-button'>
-                <Link title={t('复制')} onClick={copy_to_clipboard}>{t('复制') }</Link>
             </div>
         </Modal>
         <Link title={t('查看日志')} onClick={get_job_message}>{
