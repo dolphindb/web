@@ -490,9 +490,10 @@ function JobMessageShow ({ job }: { job: DdbJob }) {
     const node = job.node
     
     async function get_job_message () {
-        const result = await model.ddb.invoke('getJobMessage',
+        const result = await model.ddb.invoke(
+            'getJobMessage',
             [job.jobId ? job.jobId : job.rootJobId],
-            model.node_alias === node ? { } : { node, func_type: DdbFunctionType.SystemFunc }
+            model.node_alias === node ? undefined : { node, func_type: DdbFunctionType.SystemFunc }
         )
         set_show(true)
         set_message(result)
