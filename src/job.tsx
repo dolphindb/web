@@ -4,8 +4,7 @@ import { useEffect, useState } from 'react'
 
 import {
     Button, Input, Popconfirm, Table, Typography, Tooltip, Spin,
-    type TablePaginationConfig, type TableColumnType,
-    Modal
+    type TablePaginationConfig, type TableColumnType, Modal
 } from 'antd'
 import { ReloadOutlined } from '@ant-design/icons'
 
@@ -379,6 +378,8 @@ function append_action_col (
                 const no_job_id = !job.jobId
                 
                 return <div className='action-col'>
+                    {!no_job_id && <JobMessageShow job={job}/>}
+                    
                     <Popconfirm
                         title={type === 'stop' ? t('确认停止作业') : t('确认删除作业')}
                         onConfirm={async () => {
@@ -392,7 +393,6 @@ function append_action_col (
                             type === 'stop' ? t('停止') : t('删除')
                         }</Link>
                     </Popconfirm>
-                    {!no_job_id && <JobMessageShow job={job}/>}
                 </div>
             }
         }
@@ -483,8 +483,8 @@ function compute_status_info (job: DdbJob) {
 
 type DdbJobColumn = TableColumnType<DdbJob>
 
-function JobMessageShow (props: { job: DdbJob }) {
-    const { job } = props
+
+function JobMessageShow ({ job }: { job: DdbJob }) {
     const [message, set_message] = useState<string>('')
     const [show, set_show] = useState(false)
     async function get_job_message () {
@@ -505,9 +505,12 @@ function JobMessageShow (props: { job: DdbJob }) {
             footer={<div className='copy-button'>
                 <Button style={{ marginRight: 8 }} onClick={copy_to_clipboard}>{t('复制')}</Button>
                 <Button onClick={() => { set_show(false) }}>{t('关闭')}</Button>
-            </div>} onCancel={() => { set_show(false) }} open={show}>
+            </div>}
+            onCancel={() => { set_show(false) }}
+            open={show}
+        >
             <div className='job-message'>
-                {lines.map(line => <p key={line}>{line}</p>)}
+                {lines.map((line, i) => <p key={i}>{line}</p>)}
             </div>
         </Modal>
         <Link title={t('查看日志')} onClick={get_job_message}>{
