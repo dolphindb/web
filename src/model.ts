@@ -650,7 +650,8 @@ export class DdbModel extends Model<DdbModel> {
     async get_license_info () {
         const license = await this.get_license_self_info()
         
-        this.check_license_expiration()
+        if (!this.dev)
+            this.check_license_expiration()
         
         if (license.licenseType === LicenseTypes.LicenseServerVerify)
             await this.get_license_server_info()
