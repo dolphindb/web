@@ -488,12 +488,13 @@ function JobMessageShow ({ job }: { job: DdbJob }) {
     const [message, set_message] = useState<string>('')
     const [show, set_show] = useState(false)
     const node = job.node
+    
     async function get_job_message () {
         const result = await model.ddb.invoke('getJobMessage', [job.jobId ? job.jobId : job.rootJobId], { node, func_type: DdbFunctionType.SystemFunc })
         set_show(true)
         set_message(result)
     }
-    const lines = message.split('\n')
+    
     function copy_to_clipboard () {
         navigator.clipboard.writeText(message)
         model.message.success(t('复制成功'))
@@ -515,7 +516,7 @@ function JobMessageShow ({ job }: { job: DdbJob }) {
             open={show}
         >
             <div className='job-message'>
-                {lines.map((line, i) => <p key={i}>{line}</p>)}
+                {message.split_lines().map((line, i) => <p key={i}>{line}</p>)}
             </div>
         </Modal>
         <Link title={t('查看日志')} onClick={get_job_message}>{
