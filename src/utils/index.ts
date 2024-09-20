@@ -3,9 +3,6 @@ import { delay } from 'xshell/utils.browser.js'
 import { t } from '@i18n/index.ts'
 
 
-/** 默认日期时间格式 */
-export const datetime_format = 'YYYY.MM.DD HH:mm:ss' as const
-
 /** 表单 Form.Item 必填 `<Form.Item {...required}>` */
 export const required = { required: true, rules: [{ required: true }] }
 
