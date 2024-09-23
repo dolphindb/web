@@ -10,7 +10,7 @@ import { iterator_map } from '@/utils.ts'
 
 import { _2_strs, get_category, parse_nodes_configs } from './utils.ts'
 
-import { type NodesConfig } from './type.ts'
+import type { NodesConfig } from './type.ts'
 
 
 const trusies = ['1', 'true'] as const
@@ -116,7 +116,9 @@ class ConfigModel extends Model<ConfigModel> {
                 return `${key}=${value}`
             }))]
         )
+        
         await this.call('reloadClusterConfig')
+        
         this.set({ nodes_configs: new_nodes_configs })
     }
     
