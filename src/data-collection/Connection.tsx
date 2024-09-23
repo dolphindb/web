@@ -22,12 +22,7 @@ import { ViewLogModal } from './components/view-log-modal/index.tsx'
 
 
 import { DeleteConnectionModal } from './components/delete-connections-modal/index.tsx'
-
-const protocol_title_map = {
-    kafka: 'Kafka',
-    mqtt: 'MQTT'
-}
-
+import { PROTOCOL_MAP } from './constant.ts'
 
 export function Connections ({ protocols }: { protocols: Protocol[] }) {
     const [connection, set_connection] = useState<string>()
@@ -73,7 +68,7 @@ export function Connections ({ protocols }: { protocols: Protocol[] }) {
                 icon: <LinkOutlined />,
                 title: <div className='protocol-tree-item'>
                     <LinkOutlined className='protocol-icon' />
-                    {protocol_title_map[protocol]}
+                    {PROTOCOL_MAP[protocol]}
                     <Space className='protocol-operations'>
                         <Tooltip title={t('新建连接')} >
                             <Button type='link' className='link-btn'>
