@@ -485,25 +485,59 @@ type DdbJobColumn = TableColumnType<DdbJob>
 
 
 function JobMessageShow ({ job }: { job: DdbJob }) {
-    const [message, set_message] = useState<string>('')
+    const [message, set_message] = useState<string[]>([ ])
     const [show, set_show] = useState(false)
     const [show_all, set_show_all] = useState(false)
-    const message_lines = message.split_lines()
-    const show_see_more = message_lines.length > 10
+    const message_lines_limit = 500
+    const [show_see_more, set_show_see_more] = useState(false)
     const node = job.node
     
     async function get_job_message () {
-        const result = await model.ddb.invoke<string>(
-            'getJobMessage',
+        set_show_all(false)
+        await model.ddb.eval(`
+            def getJobMessageLineCount(jobId){
+            return size(split(getJobMessage(jobId),"\\n"))
+            }
+            `,
+        )
+        
+        const count = await model.ddb.invoke<number>(
+            'getJobMessageLineCount',
             [job.jobId ? job.jobId : job.rootJobId],
             model.node_alias === node ? undefined : { node }
+        )
+        if (count > message_lines_limit) 
+            set_show_see_more(true)
+        
+        await model.ddb.eval(`
+            def getJobMessageLimit(jobId){
+            count = ${message_lines_limit}
+            return subarray(split(getJobMessage(jobId),"\\n"), pair(0, int(count)))
+            }
+            `
+        )
+        
+        const result = await model.ddb.invoke<string[]>(
+            'getJobMessageLimit',
+            [job.jobId ? job.jobId : job.rootJobId],
+            model.node_alias === node ? undefined : { node, func_type: DdbFunctionType.UserDefinedFunc }
         )
         set_show(true)
         set_message(result)
     }
     
+    async function show_all_messages () {
+        set_show_all(true)
+        const result = await model.ddb.invoke<string>(
+            'getJobMessage',
+            [job.jobId ? job.jobId : job.rootJobId],
+            model.node_alias === node ? undefined : { node, func_type: DdbFunctionType.SystemFunc }
+        )
+        set_message(result.split_lines())
+    }
+    
     function copy_to_clipboard () {
-        navigator.clipboard.writeText(message)
+        navigator.clipboard.writeText(message.join('\n'))
         model.message.success(t('复制成功'))
     }
     
@@ -523,10 +557,10 @@ function JobMessageShow ({ job }: { job: DdbJob }) {
             open={show}
         >
             <div className='job-message'>
-                {message_lines.slice(0, show_all ? message_lines.length : 10).map((line, i) => <p key={i}>{line}</p>)}
+                {message.map((line, i) => <p key={i}>{line}</p>)}
             </div>
             <div>
-                {!show_all && show_see_more && <Link title={t('查看更多')} onClick={() => { set_show_all(true) }}>{t('查看更多')}</Link>}
+                {!show_all && show_see_more && <Link title={t('查看更多')} onClick={show_all_messages}>{t('查看更多')}</Link>}
             </div>
         </Modal>
         <Link title={t('查看日志')} onClick={get_job_message}>{
