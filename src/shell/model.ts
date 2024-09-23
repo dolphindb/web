@@ -102,6 +102,11 @@ class ShellModel extends Model<ShellModel> {
     
     confirm_command_modal_visible = false
     
+    /** 当前打开的 tab */
+    current_tab = ''
+    
+    /** 所有的 tabs */
+    tabs: string[] = [ ]
     
     truncate_text (lines: string[]) {
         let i_first_non_empty = null
@@ -308,7 +313,34 @@ class ShellModel extends Model<ShellModel> {
     
     
     save (code = this.editor.getValue()) {
-        localStorage.setItem(storage_keys.code, code)
+        if (this.current_tab) 
+            localStorage.setItem(`${storage_keys.code}.${this.current_tab}`, code)
+        else
+            localStorage.setItem(storage_keys.code, code)
+    }
+    
+    remove_tab (tab_name: string) {
+        localStorage.removeItem(`${storage_keys.code}.${tab_name}`)
+    }
+    
+    add_tab () {
+        const new_tab_name = t('新标签页') + (this.tabs.length + 1)
+        this.set({ current_tab: new_tab_name })
+        this.set({ tabs: [...this.tabs, new_tab_name] })
+        this.editor.setValue('')
+    }
+    
+    switch_tab (tab: string) {
+        this.save()
+        this.set({ current_tab: tab })
+        if (tab)
+            this.editor.setValue(localStorage.getItem(`${storage_keys.code}.${tab}`) || '')
+        else
+            this.editor.setValue(localStorage.getItem(`${storage_keys.code}`) || '')
+    }
+    
+    init_tabs (tabs: string[]) {
+        this.set({ tabs })
     }
     
     save_debounced = debounce(this.save.bind(this), 500, { leading: false, trailing: true })

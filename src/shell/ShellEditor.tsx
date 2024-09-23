@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useState, type MouseEvent } from 'react'
 
 import { Switch } from 'antd'
 import { DoubleLeftOutlined, DoubleRightOutlined } from '@ant-design/icons'
@@ -26,6 +26,7 @@ export function ShellEditor ({ collapser }) {
     
     const [collapsed, set_collapsed] = useState(false)
     
+    const { tabs } = shell.use(['tabs'])
     
     // 标签页关闭前自动保存代码
     useEffect(() => {
@@ -36,13 +37,57 @@ export function ShellEditor ({ collapser }) {
         
         window.addEventListener('beforeunload', beforeunload)
         
+        const keys: string[] = [ ]
+        for (let i = 0;  i < localStorage.length;  i++) 
+            keys.push(localStorage.key(i))
+        
+        const tab_keys = keys.filter(key => key.startsWith(`${storage_keys.code}.`)).map(key => key.slice(`${storage_keys.code}.`.length))
+        shell.init_tabs(tab_keys)
+        
         return () => {
             window.removeEventListener('beforeunload', beforeunload)
         }
     }, [ ])
     
+    function get_tab_views () {
+        
+        function close_tab (ev: MouseEvent<HTMLSpanElement>, tab: string) {
+            ev.stopPropagation()
+            const index = tabs.indexOf(tab)
+            const new_tabs = tabs.filter(t => t !== tab)
+            if (new_tabs.length === 0) 
+                shell.switch_tab('')
+               else if (index === 0)
+                   shell.switch_tab(new_tabs[0])
+               else
+                   shell.switch_tab(new_tabs[index - 1])
+            
+            shell.set({ tabs: new_tabs })
+            shell.remove_tab(tab)
+        }
+        
+        const tab_views = tabs.map(tab => {
+            return <div key={tab} onClick={() => { shell.switch_tab(tab) }}>
+                {tab}
+                <span onClick={ev => { close_tab(ev, tab) }}>x</span>
+            </div>
+        })
+        
+        return <>
+            <div key='default' onClick={() => { shell.switch_tab('') }}>
+                {t('默认标签')}
+            </div>
+            {tab_views}
+            <div className='add-tab' onClick={() => { shell.add_tab() }}>{t('添加标签页')}</div>
+        </>
+    }
+    
+    const tab_views = get_tab_views()
     
     return <div className='shell-editor'>
+        <div className='tabs'>
+            {tab_views}
+        </div>
         <div className='toolbar'>
             <div className='actions'>
                 <ExecuteAction />
