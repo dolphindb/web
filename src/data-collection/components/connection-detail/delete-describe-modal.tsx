@@ -6,6 +6,7 @@ import { useCallback } from 'react'
 
 
 import { t } from '@i18n/index.ts'
+
 import { request } from '@/data-collection/utils.ts'
 
 interface IProps {

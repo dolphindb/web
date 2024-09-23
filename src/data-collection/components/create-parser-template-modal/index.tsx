@@ -9,7 +9,7 @@ import { useCallback, useState } from 'react'
 import type { IParserTemplate } from '../../type.js'
 import { t } from '../../../../i18n/index.js'
 import { request } from '../../utils.ts'
-import { NAME_RULES, protocols, template_code } from '../../constant.js'
+import { NAME_RULES, PROTOCOL_MAP, protocols, template_code } from '../../constant.js'
 import { Editor } from '../../../components/Editor/index.js'
 
 interface IProps {
@@ -91,7 +91,7 @@ export const ParserTemplateModal = NiceModal.create(({ refresh, editedTemplate, 
                 <Input placeholder={t('请输入模板名称')} />
             </Form.Item>
             <Form.Item label={t('协议')} name='protocol' rules={[{ required: true, message: t('请选择协议') }]}>
-                <Select placeholder={t('请选择协议')} options={protocols.map(item => ({ label: item, value: item }))}/>
+                <Select placeholder={t('请选择协议')} options={protocols.map(item => ({ label: PROTOCOL_MAP[item], value: item }))}/>
             </Form.Item>
             <Form.Item label={t('备注')} name='comment'>
                 <Input placeholder={t('请输入备注')}/>

@@ -7,6 +7,11 @@ import { Protocol } from './type.ts'
 /** windows 端不支持 kafka 插件 */
 export const protocols =  [Protocol.MQTT, Protocol.KAFKA]
 
+export const PROTOCOL_MAP = {
+    [Protocol.MQTT]: 'MQTT',
+    [Protocol.KAFKA]: 'Kafka'
+}
+
 export const kafka_params_doc_link = 'https://github.com/confluentinc/librdkafka/blob/master/CONFIGURATION.md' as const
 
 
