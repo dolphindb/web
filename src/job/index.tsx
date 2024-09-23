@@ -510,8 +510,7 @@ function JobMessageShow ({ job }: { job: DdbJob }) {
             set_show_see_more(true)
         
         await model.ddb.eval(`
-            def getJobMessageLimit(jobId){
-            count = ${message_lines_limit}
+            def getJobMessageLimit(jobId, count){
             return subarray(split(getJobMessage(jobId),"\\n"), pair(0, int(count)))
             }
             `
@@ -519,7 +518,7 @@ function JobMessageShow ({ job }: { job: DdbJob }) {
         
         const result = await model.ddb.invoke<string[]>(
             'getJobMessageLimit',
-            [job.jobId ? job.jobId : job.rootJobId],
+            [job.jobId ? job.jobId : job.rootJobId, message_lines_limit],
             model.node_alias === node ? undefined : { node, func_type: DdbFunctionType.UserDefinedFunc }
         )
         set_show(true)
