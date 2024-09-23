@@ -487,6 +487,9 @@ type DdbJobColumn = TableColumnType<DdbJob>
 function JobMessageShow ({ job }: { job: DdbJob }) {
     const [message, set_message] = useState<string>('')
     const [show, set_show] = useState(false)
+    const [show_all, set_show_all] = useState(false)
+    const message_lines = message.split_lines()
+    const show_see_more = message_lines.length > 10
     const node = job.node
     
     async function get_job_message () {
@@ -520,7 +523,10 @@ function JobMessageShow ({ job }: { job: DdbJob }) {
             open={show}
         >
             <div className='job-message'>
-                {message.split_lines().map((line, i) => <p key={i}>{line}</p>)}
+                {message_lines.slice(0, show_all ? message_lines.length : 10).map((line, i) => <p key={i}>{line}</p>)}
+            </div>
+            <div>
+                {!show_all && show_see_more && <Link title={t('查看更多')} onClick={() => { set_show_all(true) }}>{t('查看更多')}</Link>}
             </div>
         </Modal>
         <Link title={t('查看日志')} onClick={get_job_message}>{
