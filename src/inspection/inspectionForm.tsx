@@ -4,7 +4,7 @@ import dayjs, { type Dayjs } from 'dayjs'
 import { useMemo, useState, useEffect } from 'react'
 import useSWR from 'swr'
 
-import { genid } from 'xshell/utils.browser'
+import NiceModal from '@ebay/nice-modal-react'
 
 import { model } from '@/model.ts'
 
@@ -12,18 +12,23 @@ import { inspection } from './model.tsx'
 import { inspectionFrequencyOptions, metricGroups, weekDays } from './constants.ts'
 import type { Metric, MetricsWithNodes, Plan } from './type.ts'
 import { parse_minute } from './utils.ts'
+import { EditParamModal } from './editParamModal.tsx'
 
 export function InspectionForm ({ 
     close, 
     refresh, 
-    plan = null
+    plan = null,
+    disabled = false
 }: { 
     close: () => void
     refresh: () => void
-    plan?: Plan 
+    plan?: Plan
+    disabled?: boolean 
 }) {
     
     const { metrics } = inspection.use(['metrics'])
+    
+    const [view_only, set_view_only] = useState(disabled)
     
     const is_editing = !!plan
     
@@ -65,7 +70,7 @@ export function InspectionForm ({
         return true
     }
     
-    const [inspection_form] = Form.useForm<Pick<Plan, 'id' | 'desc' | 'frequency' | 'days' | 'scheduleTime'> >()
+    const [inspection_form] = Form.useForm<Pick<Plan, 'name' | 'desc' | 'frequency' | 'days' | 'scheduleTime'> >()
     
     async function on_save  (run_now: boolean) {
         const values = await inspection_form.validateFields()
@@ -75,18 +80,18 @@ export function InspectionForm ({
         try {
             const new_plan =  
                 {   
-                    id: is_editing ? plan.id : values.id,
+                    name: is_editing ? plan.name : values.name,
                     desc: values.desc,
                     metrics: metrics.map(({ name }) => name),
-                    nodes: metrics.map(({ nodes }) => nodes.length ? nodes : null),
-                    params: new Array(metrics.length).fill(null),
+                    nodes: metrics.map(({ nodes }) => nodes.length ? nodes : ''),
+                    params: new Array(metrics.length).fill(''),
                     frequency: values.frequency,
                     days: (values.days as number[]).map(Number),                                
                     scheduleTime: (values.scheduleTime as Dayjs).format('HH:mm') + 'm', 
-                    ... is_editing ? {  } : { runNow: run_now }
+                    ... is_editing ? { } : { runNow: run_now }
                 }
             if (is_editing)
-                await inspection.update_plan(new_plan)
+                await inspection.update_plan({ ...new_plan, id: plan.id })
             else
                 await inspection.create_plan(new_plan)
             model.message.success(is_editing ? t('修改成功') : t('创建成功'))
@@ -101,7 +106,8 @@ export function InspectionForm ({
     
     
     return <div className='inspection-form'>
-        <Form 
+        <Form
+            disabled={view_only} 
             className='inspection-form-inline' 
             form={inspection_form}
             requiredMark={false}
@@ -118,15 +124,12 @@ export function InspectionForm ({
                     desc: t('巡检描述') 
                 }}>
             <Form.Item 
-                name='id' 
+                name='name' 
                 layout='vertical'
-                label={<h3>{t('巡检 ID')}</h3>} 
+                label={<h3>{t('巡检名称')}</h3>} 
                 rules={[
-                    { required: true, message: t('请输入巡检 ID') }, 
-                    {
-                        pattern: /^[A-Za-z].*$/,
-                        message: t('巡检 ID 需以字母开头'),
-                    },]}>
+                    { required: true, message: t('请输入巡检名称') }, 
+                    ]}>
                 <Input disabled={is_editing}/>
             </Form.Item>
             
@@ -184,6 +187,9 @@ export function InspectionForm ({
         
         <div className='inspection-form-footer'>
             <Button onClick={close}>{t('取消')}</Button>
+            {
+                is_editing && (view_only ? <Button onClick={() => { set_view_only(false) }}>{t('编辑计划')}</Button> : <Button onClick={() => { set_view_only(true) }}>{t('取消编辑')}</Button>)
+            }
             <Tooltip title={t('保存当前方案并立即执行一次巡检')}>
                 <Button type='primary'  onClick={async () => on_save(true)}>{t('立即巡检')}</Button>
             </Tooltip>
@@ -262,45 +268,40 @@ function MetricTable ({
             
         },
         {
-            title: t('脚本内容'),
+            title: t('编辑指标'),
             dataIndex: 'script',
             key: 'script',
-            render: (script: string) => <>
-                <Popover content={<pre className='script-popover'>{script}</pre>} title={t('指标脚本')}>
-                    <Button type='link'>{t('查看')}</Button>
-                </Popover>
+            render: (_, record) => 
                 <Button 
                     type='link' 
-                    onClick={async () => {
-                        await navigator.clipboard.writeText(script)
-                        model.message.success(t('复制成功'))
-                    }}>
-                    {t('复制')}
+                    onClick={async () => 
+                        NiceModal.show(EditParamModal, { metric: record, checked_metrics: checked_metrics, set_checked_metrics: set_checked_metrics })}>
+                            {t('编辑')}
                 </Button>
-            </>
         },
     ], [ checked_metrics, set_checked_metrics ])
     
     return <Table 
-        rowSelection={ checked_metrics.size && { 
-            selectedRowKeys: Array.from(checked_metrics.values()).filter(({ checked }) => checked).map(({ name }) => name),
-            onChange: names => {
-                // 1.保留每个指标选中的节点
-                let newCheckedMetrics = new Map(Array.from(metrics.values()).reduce((map, metric) => {
-                    map.set(metric.name, { ...metric, checked: false, nodes: checked_metrics.get(metric.name).nodes })
-                    return map
-                }, new Map<string, MetricsWithNodes>()))
-                // 2.将选中的指标的 checked 更新为 true
-                names.forEach((name: string) => {
-                    const metric = newCheckedMetrics.get(name)
-                    metric.checked = true
-                    newCheckedMetrics.set(name, metric)
-                })
-                set_checked_metrics(newCheckedMetrics)
-            }
-        }}
-        rowKey='name'
-        dataSource={Array.from(metrics.values())} 
-        columns={cols} 
+            rowSelection={ checked_metrics.size && { 
+                selectedRowKeys: Array.from(checked_metrics.values()).filter(({ checked }) => checked).map(({ name }) => name),
+                onChange: names => {
+                    // 1.保留每个指标选中的节点
+                    let newCheckedMetrics = new Map(Array.from(metrics.values()).reduce((map, metric) => {
+                        map.set(metric.name, { ...metric, checked: false, nodes: checked_metrics.get(metric.name).nodes })
+                        return map
+                    }, new Map<string, MetricsWithNodes>()))
+                    // 2.将选中的指标的 checked 更新为 true
+                    names.forEach((name: string) => {
+                        const metric = newCheckedMetrics.get(name)
+                        metric.checked = true
+                        newCheckedMetrics.set(name, metric)
+                    })
+                    set_checked_metrics(newCheckedMetrics)
+                }
+            }}
+            rowKey='name'
+            pagination={{ pageSize: 5 }}
+            dataSource={Array.from(metrics.values())} 
+            columns={cols} 
     />
 }

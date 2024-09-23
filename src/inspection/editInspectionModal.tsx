@@ -5,14 +5,16 @@ import { Modal } from 'antd'
 import { InspectionForm } from './inspectionForm.tsx'
 import type { Plan } from './type.ts'
 
-export const editInspectionModal = NiceModal.create((
+export const EditInspectionModal = NiceModal.create((
 { 
     plan, 
-    mutate_plans 
+    mutate_plans,
+    disabled = false 
 }: 
 { 
     plan: Plan 
     mutate_plans: ( ) => void 
+    disabled?: boolean
 }) => {
         
     const modal = useModal()   
@@ -31,6 +33,7 @@ export const editInspectionModal = NiceModal.create((
             close={modal.hide} 
             refresh={mutate_plans}
             plan={plan}
+            disabled={disabled}
         />
     </Modal>
 })

@@ -2,6 +2,7 @@ import type { Dayjs } from 'dayjs'
 
 export interface Metric {
     name: string
+    params: any[] | null
     displayName: string
     group: number
     desc: string
@@ -27,14 +28,16 @@ export interface PlanDetail {
 
 export interface Plan { 
     id: string
+    name: string
     metrics: string[]
-    nodes: Array<string[] | null>
-    params: string[]
+    nodes: Array<string[] | ''>
+    params:  Array<string[] | ''>
     frequency: string
     days: number[] | string
     scheduleTime: Dayjs | string
     desc: string 
     runNow?: boolean
+    enabled: boolean
 }
 
 export interface PlanReport {
@@ -46,6 +49,8 @@ export interface PlanReport {
     endTime: string
     runningTime: bigint
     success: boolean
+    failedNum: number
+    totalNum: number
 }
 
 

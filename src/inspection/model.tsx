@@ -4,6 +4,9 @@ import {  model } from '@/model.ts'
 
 import type { Metric, Plan, PlanDetail, PlanReport, PlanReportDetailMetric, PlanReportDetailNode } from './type.ts'
 
+import init_script from './index.dos'
+import demo_script from './demo.dos'
+
 class InspectionModel extends Model<InspectionModel> {
     
     inited = false
@@ -14,9 +17,9 @@ class InspectionModel extends Model<InspectionModel> {
     
     async init () {
         await model.ddb.execute(
-            'clearCachedModules()\n' +
-            'use autoInspection'
+            init_script,
         )
+        await model.ddb.execute(demo_script)
         const metrics_obj = await inspection.get_metrics()
         this.set({ metrics: new Map(metrics_obj.map(m => [ m.name, m ])) })
         this.set({ inited: true })
@@ -31,11 +34,11 @@ class InspectionModel extends Model<InspectionModel> {
         await model.ddb.invoke('autoInspection::deletePlan', [ ids ])
     }
     
-    async create_plan (plan: Plan) {
+    async create_plan (plan: Omit<Plan, 'id' | 'enabled'>) {
         await model.ddb.invoke('autoInspection::createPlan', Object.values(plan))
     }
     
-    async update_plan (plan: Plan) {
+    async update_plan (plan: Omit<Plan, 'enabled'>) {
         await model.ddb.invoke('autoInspection::updatePlan', Object.values(plan))
     }
     
@@ -43,12 +46,20 @@ class InspectionModel extends Model<InspectionModel> {
         await model.ddb.invoke('autoInspection::runPlan', [planId])
     }
     
+    async enable_plan (planId: string) {
+        await model.ddb.invoke('autoInspection::enablePlan', [planId])
+    }
+    
+    async disable_plan (planId: string) {
+        await model.ddb.invoke('autoInspection::disablePlan', [planId])
+    }
+    
     async get_plan_detail (planId: string): Promise<PlanDetail[]> {
         return (await model.ddb.invoke('autoInspection::getPlanDetails', [planId])).data
     }
     
-    async get_reports (dates: string[]): Promise<PlanReport[]> {
-        return (await model.ddb.invoke('autoInspection::getReports', [null, null, ...dates ]) ).data
+    async get_reports (dates: string[], reportId: string = null): Promise<PlanReport[]> {
+        return (await model.ddb.invoke('autoInspection::getReports', [null, reportId, ...dates ]) ).data
     }
     
     async get_report_detail_metrics (reportId: string): Promise<PlanReportDetailMetric[]> {

@@ -16,7 +16,7 @@ import { model } from '@/model.ts'
 import { addInspectionModal } from './addInspectionModal.tsx'
 import { inspection } from './model.tsx'
 import type { Plan, PlanReport } from './type.ts'
-import { editInspectionModal } from './editInspectionModal.tsx'
+import { EditInspectionModal } from './editInspectionModal.tsx'
 import { ReportDetailPage } from './reportDetail.tsx'
 
 
@@ -24,7 +24,7 @@ export function Inspection () {
     
     const { inited, current_report } = inspection.use(['inited', 'current_report'])
     
-    const [seatch_key, set_search_key ] = useState('')
+    const [search_key, set_search_key ] = useState('')
     
     const { data: plans, mutate: mutate_plans } = useSWR([inited, 'get_plans'], async () => {
         if (inited) 
@@ -47,6 +47,15 @@ export function Inspection () {
         mutate_reports()
     }
     
+    const [enabled_plans, disabled_palns] = useMemo(() => {
+        let enabled_plans = [ ]
+        let disabled_palns = [ ]
+        plans?.filter(plan => plan.id.includes(search_key)).forEach(plan => {
+            plan.enabled ? enabled_plans.push(plan) : disabled_palns.push(plan)
+            
+        })
+        return [enabled_plans, disabled_palns]
+    }, [ plans, search_key ])
     
     return current_report ? <ReportDetailPage/> : <div>
         <div className='inspection-header'>
@@ -59,8 +68,9 @@ export function Inspection () {
             </div>
             <Button onClick={async () => NiceModal.show(addInspectionModal, { refresh })}>{t('新增巡检')}</Button>
         </div>
-        <ReportListTable reports={reports?.filter(report => report.id.includes(seatch_key))} dates={dates} set_dates={set_dates}/>
-        <PlanListTable plans={plans?.filter(plan => plan.id.includes(seatch_key))} mutate_plans={refresh}/>
+        <ReportListTable reports={reports?.filter(report => report.id.includes(search_key))} dates={dates} set_dates={set_dates}/>
+        <PlanListTable type='enabled' plans={enabled_plans?.filter(({ enabled }) => enabled)} mutate_plans={refresh}/>
+        <PlanListTable type='disabled' plans={disabled_palns?.filter(({ enabled }) => !enabled)} mutate_plans={refresh}/>
     </div>
 }
 
@@ -104,7 +114,9 @@ function ReportListTable  ({
             title: '结果',
             dataIndex: 'success',
             key: 'success',
-            render: ( success: boolean ) => success ? SuccessStatus : FailedStatus
+            render: ( success: boolean, record: PlanReport ) => success ? 
+                <span className='green'>{t('{{success}}/{{total}} 正常', { success: record.totalNum, total: record.totalNum })}</span> : 
+                <span className='red'>{t('{{failedNum}}/{{total}} 异常', { failedNum: record.failedNum, total: record.totalNum })}</span>
         },
         {
             title: '操作',
@@ -132,9 +144,11 @@ function ReportListTable  ({
 }
 
 function PlanListTable  ({
+    type,
     plans,
     mutate_plans
 }: {
+    type: 'enabled' | 'disabled'
     plans: Plan[]
     mutate_plans: () => void
 })  {
@@ -143,9 +157,9 @@ function PlanListTable  ({
     
     const cols: TableColumnsType<Plan> = useMemo(() => [ 
         {
-            title: 'ID',
-            dataIndex: 'id',
-            key: 'id',
+            title: '名称',
+            dataIndex: 'name',
+            key: 'name',
         },
         {
             title: '描述',
@@ -198,11 +212,30 @@ function PlanListTable  ({
                     >
                         {t('立即巡检')}
                     </Button>
-                    <Button 
+                    {/* <Button 
                         type='link'
                         onClick={async () => NiceModal.show(editInspectionModal, { plan: record, mutate_plans })}
                     >
                         {t('修改')}
+                    </Button> */}
+                    <Button 
+                        type='link'
+                        onClick={async () => NiceModal.show(EditInspectionModal, { plan: record, mutate_plans, disabled: true })}
+                    >
+                        {t('查看详情')}
+                    </Button>
+                    <Button 
+                        type='link'
+                        onClick={async () => {
+                            if (type === 'enabled') 
+                                await inspection.disable_plan(record.id) 
+                            else
+                                await inspection.enable_plan(record.id)
+                            model.message.success(t('执行成功'))
+                            mutate_plans()
+                        }}
+                    >
+                        {type === 'enabled' ?  t('暂停') : t('启用')}
                     </Button>
                     <Popconfirm 
                         title={t('删除方案')} 
@@ -221,7 +254,7 @@ function PlanListTable  ({
     return <Table
                 title={() => 
                     <div className='plan-table-header'>
-                        <h2>{t('巡检方案')}</h2>
+                        <h2>{type === 'enabled' ? t('进行中的巡检队列') : t('未进行的巡检队列')}</h2>
                         <Popconfirm   
                             title={t('批量删除巡检方案')} 
                             description={t('确认删除选种的巡检方案吗？')} 
