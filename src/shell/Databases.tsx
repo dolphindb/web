@@ -15,7 +15,6 @@ import { assert, delay } from 'xshell/utils.browser.js'
 
 
 import {
-    DdbFunctionType,
     DdbInt,
     type DdbVectorStringObj,
     type DdbTableObj,
@@ -1040,7 +1039,7 @@ export class Database implements DataNode {
                 'load_database_schema',
                 // 调用该函数时，数据库路径不能以 / 结尾
                 [this.path.slice(0, -1)],
-                model.node_type === NodeType.controller ? { node: model.datanode.name, func_type: DdbFunctionType.UserDefinedFunc } : { }
+                model.node_type === NodeType.controller ? { node: model.datanode.name } : undefined
             )
         }
         
@@ -1183,7 +1182,7 @@ export class Table implements DataNode {
             'load_table_schema',
             // 调用该函数时，数据库路径不能以 / 结尾
             [db.path.slice(0, -1), path.slice(db.path.length, -1)],
-            model.node_type === NodeType.controller ? { node: model.datanode.name, func_type: DdbFunctionType.UserDefinedFunc } : { }
+            model.node_type === NodeType.controller ? { node: model.datanode.name } : undefined
         )
         
         this.schema = schema
@@ -1196,7 +1195,7 @@ export class Table implements DataNode {
         let obj = await model.ddb.call(
             'peek_table',
             [this.db.path.slice(0, -1), this.name],
-            model.node_type === NodeType.controller ? { node: model.datanode.name, func_type: DdbFunctionType.UserDefinedFunc } : { }
+            model.node_type === NodeType.controller ? { node: model.datanode.name } : undefined
         )
         obj.name = `${this.name} (${t('前 100 行')})`
         shell.set({ result: { type: 'object', data: obj } })
@@ -1430,7 +1429,7 @@ export class PartitionFile implements DataNode {
         let obj = await model.ddb.call<DdbTableObj>(
             'readTabletChunk',
             [this.chunk, db.path.slice(0, -1), this.path.slice('dfs:/'.length), table.name, new DdbInt(0), new DdbInt(100)],
-            this.site_node !== model.node_alias ? { node: this.site_node, func_type: DdbFunctionType.SystemFunc } : { }
+            this.site_node !== model.node_alias ? { node: this.site_node } : undefined
         )
         
         obj.name = `${this.path.slice(db.path.length, this.path.lastIndexOf('/'))} ${t('分区的数据')} (${t('前 100 行')})`
