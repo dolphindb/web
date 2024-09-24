@@ -43,8 +43,8 @@ class ConfigModel extends Model<ConfigModel> {
     async load_configs () {
         this.set({ 
             nodes_configs: parse_nodes_configs(
-                (await this.invoke<DdbVectorStringObj>('loadClusterNodesConfigs', undefined, { urgent: true }))
-                    .value)
+                await this.invoke<string[]>('loadClusterNodesConfigs', undefined, { urgent: true })
+            )
         })
         
         
@@ -121,7 +121,7 @@ class ConfigModel extends Model<ConfigModel> {
     }
     
     
-    async invoke <TResult extends DdbObj> (
+    async invoke <TResult> (
         name: string, 
         args?: (string | number | boolean | string[] )[], 
         options?: DdbCallOptions

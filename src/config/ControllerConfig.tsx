@@ -107,7 +107,7 @@ export function ControllerConfig () {
         columns={cols}
         params={{ search_value }}
         request={async () => {
-            const value = Array.from(new Set((await config.load_controller_configs()).value as any[]))
+            const value = Array.from(new Set((await config.load_controller_configs()) as any[]))
             const configs = strs_2_controller_configs(value)
             set_configs(configs)
             return {
