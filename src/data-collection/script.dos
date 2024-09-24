@@ -983,7 +983,7 @@ def dcp_initParserTemplate(){
         objByName(outTableName).append!(table([topic]as topic,[msg] as msg,[now()] as ts))
     }
     "
-    args = '{"name":"saveJsonMsg","handler":\''+handler+'\',"protocol":"mqtt","comment":"转存json数据","flag":0}'   
+    args = '{"name":"saveJsonMsg","handler":\''+handler+'\',"protocol":"mqtt","comment":"转存 JSON 数据","flag":0}'   
     dcp_addHandler(args)
 
     handler = "
@@ -991,7 +991,7 @@ def dcp_initParserTemplate(){
         return table([topic] as topic,[msg] as dataContent,[now(true)] as startTime)    
     }
     "
-    args = '{"name":"saveJsonMsg_kafka","handler":\''+handler+'\',"protocol":"kafka","comment":"转存json数据","flag":0}'   
+    args = '{"name":"saveJsonMsg_kafka","handler":\''+handler+'\',"protocol":"kafka","comment":"转存 JSON 数据","flag":0}'   
     dcp_addHandler(args)
 
 
