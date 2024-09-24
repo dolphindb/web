@@ -12,7 +12,7 @@ import { filter_values, strcmp } from 'xshell/utils.browser.js'
 import { request } from 'xshell/net.browser.js'
 
 import {
-    DDB, SqlStandard, DdbFunctionType, type DdbObj, DdbInt, DdbLong, type InspectOptions,
+    DDB, SqlStandard, type DdbObj, DdbInt, DdbLong, type InspectOptions,
     DdbDatabaseError, type DdbTableData
 } from 'dolphindb/browser.js'
 
@@ -476,7 +476,7 @@ export class DdbModel extends Model<DdbModel> {
                     urgent: true,
                     ... this.node_type === NodeType.controller || this.node_type === NodeType.single 
                         ? { }
-                        : { node: this.controller_alias, func_type: DdbFunctionType.SystemFunc }
+                        : { node: this.controller_alias }
                 })
             
             localStorage.setItem(storage_keys.username, username)
@@ -722,8 +722,7 @@ export class DdbModel extends Model<DdbModel> {
                     { }
                 :
                     {
-                        node: this.controller_alias,
-                        func_type: DdbFunctionType.SystemFunc
+                        node: this.controller_alias
                     },
             })
         )
@@ -878,7 +877,7 @@ export class DdbModel extends Model<DdbModel> {
     async cancel_job (job: DdbJob) {
         return this.ddb.invoke('cancelJob', [job.jobId], {
             urgent: true,
-            ... (!job.node || this.node_alias === job.node) ? { } : { node: job.node, func_type: DdbFunctionType.SystemProc }
+            ... (!job.node || this.node_alias === job.node) ? { } : { node: job.node }
         })
     }
     
@@ -886,7 +885,7 @@ export class DdbModel extends Model<DdbModel> {
     async delete_scheduled_job (job: DdbJob) {
         return this.ddb.invoke('deleteScheduledJob', [job.jobId], {
             urgent: true,
-            ... (!job.node || this.node_alias === job.node) ? { } : { node: job.node, func_type: DdbFunctionType.SystemProc }
+            ... (!job.node || this.node_alias === job.node) ? { } : { node: job.node }
         })
     }
     

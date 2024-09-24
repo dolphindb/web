@@ -15,7 +15,6 @@ import { assert, delay } from 'xshell/utils.browser.js'
 
 
 import {
-    DdbFunctionType,
     DdbInt,
     type DdbVectorStringObj,
     type DdbTableObj,

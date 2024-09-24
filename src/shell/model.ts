@@ -16,7 +16,6 @@ import {
     DdbForm,
     type DdbObj,
     DdbType,
-    DdbFunctionType,
     type InspectOptions,
     type DdbVectorStringObj,
     type DdbTableObj,

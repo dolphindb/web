@@ -1,7 +1,6 @@
 import { Button, Card, Form, type FormInstance, Input, InputNumber, Select, Spin, Tag, Tooltip, Typography, Row, Col, Space } from 'antd'
 import useSWR from 'swr'
 
-import { DdbFunctionType } from 'dolphindb/browser.js'
 import { get, isNumber } from 'lodash'
 import { useEffect, useId, useState } from 'react'
 
