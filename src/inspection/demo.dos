@@ -1,0 +1,1035 @@
+use autoInspection
+go
+
+clearEnv()
+initDfs()
+go
+
+// ------------- group 0 ------------------
+name = "nodeStatus"
+displayName = "节点状态"
+group = "0"
+desc = "检查所有节点是否在线。"
+nodes = NULL // NULL 指该指标不能指定节点运行，选择任一数据节点执行
+params = NULL // NULL 指无参数
+script = '
+def nodeStatus(params) {
+    nodes = select * from rpc(getControllerAlias(), getClusterPerf) where state != 1
+    if (nodes.size() > 0) {
+        detail = nodes["name"].concat(",") + " 节点下线"
+        suggestion = "查看节点日志以排查节点下线原因，参考《节点宕机》官方文档。"
+        return (false, detail, suggestion)
+    }
+    return (true, NULL, NULL)
+}
+'
+newMetric(name, displayName, group, desc, nodes, script, params)
+
+name = "licenseExpiration"
+displayName = "License 有效期"
+group = "0"
+desc = "检查所有节点 license 有效期"
+nodes = NULL
+script = '
+def licenseExpiration(params=NULL) {
+    runScript("use ops; res = select * from getAllLicenses()")
+    res = objByName("res")
+    cnt = exec count(*) from res where temporalAdd(end_date, -7d) <= today()
+    res = select node as "节点名", end_date as "到期时间" from res
+    if (cnt > 0) {
+        return (false, res, "请及时更新 license 文件")
+    }
+    return (true, res, NULL)
+}
+'
+newMetric(name, displayName, group, desc, nodes, script)
+go
+
+name = "connectionNum"
+displayName = "外部连接数"
+group = "0"
+desc = "检查指定节点的外部连接数是否超过 maxConnections 配置项阈值的 90%。"
+nodes = exec name from rpc(getControllerAlias(), getClusterPerf{true}) where mode != 1
+script = '
+def connectionNum(params) {
+    connectionNum = int(getPerf()["connectionNum"])
+    maxConnectionNum = int(getConfig("maxConnections"))
+    
+    if (connectionNum >= int(maxConnectionNum * 0.9)) {
+        return (false, "外部连接数: " + string(connectionNum) + " 大于 maxConnections 配置项阈值: " + string(maxConnectionNum), " * 90%，请使用 getCurrentSessionAndUser 方法检查所有会话并使用 closeSessions 方法适当关闭连接。")
+    }
+    
+    return (true, connectionNum, NULL)
+}
+'
+newMetric(name, displayName, group, desc, nodes, script)
+go
+
+name = "nodeVersion"
+displayName = "节点版本一致"
+group = "0"
+desc = "检查各个节点版本是否一致。"
+nodes = NULL
+script = '
+def nodeVersion(params) {
+    ver = pnodeRun(version)
+    insert into ver values (getControllerAlias(), rpc(getControllerAlias(), version))
+    cnt = select distinct(value) from ver
+    if (cnt.size() > 1) {
+        return (false, "存在节点版本不一致：\n" + string(ver), "请升级 DolphinDB 使所有节点版本一致。")
+    }
+    return (true, version(), NULL)
+}
+'
+newMetric(name, displayName, group, desc, nodes, script)
+go
+
+name = "pluginVersion"
+displayName = "插件版本与集群版本一致"
+group = "0"
+desc = "检查集群版本与插件版本是否一致。"
+nodes = NULL
+script = '
+def getPluginDir() {
+        ver = version()
+        pluginDir = getConfig("pluginDir")
+        if ((like(ver, "%LINUX%") and !pluginDir.startsWith("/")) or (like(ver, "%WIN%") and regexFind  (pluginDir, "^[a-zA-Z]:") != 0)) {
+            nodeCnt = exec count(*) from rpc(getControllerAlias(), getClusterPerf)
+            if (nodeCnt > 1) {
+                pluginDir = "../" + pluginDir
+            } else {
+                pluginDir = "./" + pluginDir
+            }
+        }
+        
+        return pluginDir
+}
+
+def pluginVersion(params) {
+    listPluginsInner = def() {
+        pluginDir = getPluginDir()
+        pluginNames = exec filename from files(pluginDir) where isDir = true
+        ret = table(1:0, `pluginName`version, [STRING, STRING])
+        for (pluginName in pluginNames) {
+            // pluginName = pluginNames[0]
+            dir = pluginDir + "/" + pluginName
+            pattern = "Plugin" + upper(pluginName[0]) + pluginName[1:] + ".txt"
+            txtName = exec first(filename) from files(dir, "%.txt") where filename ilike pattern
+            if (txtName.strlen() == 0) {
+                continue
+            }
+            f = file(dir + "/" + txtName)
+            line = readLine(f)
+            s = line.split(",")
+            if (s.size() < 3) {
+                continue
+            }
+            pluginName = s.first()
+            pluginVersion = s.last()
+            tableInsert(ret, (pluginName, pluginVersion))
+        }
+        return ret
+    }
+    
+    info = pnodeRun(listPluginsInner)
+    info_ = rpc(getControllerAlias(), listPluginsInner)
+    update info_ set node = getControllerAlias()
+    info.append!(info_)
+    
+    ddbVersion = version().split(" ").first()
+    ddbVersion_ = ddbVersion.split(".")
+    err = []
+    for (item in info) {
+        pluginVersion = item["version"].split(".")
+        for (i in 0..2) {
+            if (ddbVersion_[i] != pluginVersion[i]) {
+                err.append!((item["pluginName"], item["version"]))
+            }
+        }
+    }
+    
+    if (err.size() > 0) {
+        return (false, "下列插件的版本与 DolphinDB 版本 " + ddbVersion + " 不一致：\n" + string(err).concat(","), "请升级插件至与 DolphinDB 前三级版本一致。")
+    }
+    
+    return (true, NULL, NULL)
+}
+'
+newMetric(name, displayName, group, desc, nodes, script)
+go
+
+// -------------------------- group 1 ------------------------------
+name = "recoveryStatus1"
+displayName = "恢复事务状态1"
+group = "1"
+desc = "检查恢复事务状态是否正常。"
+nodes = NULL // NULL 指该指标不能指定节点运行，选择任一数据节点执行
+script = '
+def recoveryStatus1(mutable params){
+    failureTask=select * from rpc(getControllerAlias(),getRecoveryTaskStatus) where FailureReason!=NULL;
+    if(failureTask.size()>0){
+        params["recoveryStatus2_failureTask"]=failureTask;
+        return false,failureTask.size()+" 个副本恢复任务执行失败","调用getRecoveryTaskStatus排查错误原因";
+    }
+    inProcessTask=select * from rpc(getControllerAlias(),getRecoveryTaskStatus) where Status=="In-Progress";
+    params["recoveryStatus2_inProcessTask"]=inProcessTask;
+    return true,NULL,NULL;
+}
+'
+newMetric(name, displayName, group, desc, nodes, script)
+go
+
+name = "diskUsage"
+displayName = "存储空间"
+group = "1"
+desc = "检查数据节点总存储空间是否超过 volumeUsageThreshold 配置项阈值。"
+nodes = exec name from rpc(getControllerAlias(), getClusterPerf) where mode == 0
+script = '
+def diskUsage(params) {
+    diskUsage = 1 - getPerf().diskFreeSpaceRatio
+    threshold = double(rpc(getControllerAlias(), getConfig{"volumeUsageThreshold"}))
+    roundDiskUsage = round(diskUsage*100, 2)
+    if (diskUsage >= threshold) {
+        detail = "磁盘使用率 " + roundDiskUsage.format("0.00") + "% 大于 volumeUsageThreshold 配置项 " + round(threshold*100, 2) + "%"
+        suggestion = "
+1. 在服务器上确认是 DolphinDB 或其他程序占用过多存储空间；
+2. 删除部分表数据以腾出空间；
+3. 扩容硬盘。"
+        return (false, detail, suggestion)
+    }
+    return (true, "磁盘使用率 " + roundDiskUsage.format("0.00") + "% 小于 volumeUsageThreshold 配置项 " + round(threshold*100, 2) + "%", NULL)
+}
+'
+newMetric(name, displayName, group, desc, nodes, script)
+go
+
+name = "memUsage"
+displayName = "内存占用"
+group = "1"
+desc = "检查节点内存占用是否超过 maxMemSize 配置项 * 90%。"
+nodes = exec name from rpc(getControllerAlias(), getClusterPerf{true}) where mode != 1
+script = '
+def memUsage(params) {
+    maxMemSize = int(getConfig("maxMemSize"))
+    allocatedGB = mem()["allocatedBytes"] \\ 1024 \\ 1024 \\ 1024
+    if (allocatedGB > maxMemSize * 0.9) {
+        throw (false, "节点已分配内存 " + allocatedGB.format("0.000") + " GB 大于最大内存 " + maxMemSize + " GB * 90%", "参照《内存管理》官方文档排查内存占用情况。")
+    }
+    return (true, NULL, NULL)
+}
+'
+newMetric(name, displayName, group, desc, nodes, script)
+go
+
+name = "levelFileIndexCacheStatus"
+displayName = "TSDB 索引内存占用"
+group = "1"
+desc = "检查数据节点 TSDB 索引内存占用是否超过 TSDBLevelFileIndexCacheSize 配置项 * 90%。"
+nodes = exec name from rpc(getControllerAlias(), getClusterPerf) where mode == 0
+script = '
+def levelFileIndexCacheStatus(params) {
+    res = getLevelFileIndexCacheStatus()
+    if (res["usage"] > res["capacity"] * 0.9) {
+        throw (false, "level file 索引使用的内存 " + res["usage"] + " 字节大于上限 " + res["capacity"] + " 字节 * 90%", "调大 TSDBLevelFileIndexCacheSize 配置项。")
+    }
+    return (true, NULL, NULL)
+}
+'
+newMetric(name, displayName, group, desc, nodes, script)
+go
+
+name = "chunksStatus"
+displayName = "元数据状态"
+group = "1"
+desc = "检查元数据状态。"
+nodes = NULL
+script = '
+def chunksStatus(params) {
+    masterMeta = select * from rpc(getControllerAlias(), getClusterChunksStatus) where state != "COMPLETE" and lastUpdated - now() > 60*60*1000
+    if (masterMeta.size() > 0) {
+        return (false, "存在 " + string(masterMeta.size()) + " 条控制节点元数据状态异常超过1小时", "请参考官方教程《分区状态不一致》排查问题。")
+    }
+    
+    return (true, NULL, NULL)
+}
+'
+newMetric(name, displayName, group, desc, nodes, script)
+go
+
+name = "chunksVersion"
+displayName = "元数据版本"
+group = "1"
+desc = "检查元数据版本。"
+nodes = NULL
+script = '
+def chunksVersion(params) {
+    threshold = 10 // 事务进行中出现少量版本不一致为正常现象
+    masterMeta = rpc(getControllerAlias(), getClusterChunksStatus)
+    chunkMeta = pnodeRun(getAllChunks)
+    allNotEqual=select * from fj(masterMeta, chunkMeta, `chunkId) where chunkMeta.version != masterMeta.version 
+    detail = ""
+    if (allNotEqual.size() > threshold) {
+        detail += "存在控制节点元数据与数据节点元数据版本不一致: " + string(allNotEqual.size()) + " 条。"
+    }
+    chunkNotEqual=exec chunkId from (select * from chunkMeta context by chunkId having nunique(version)>1)
+    if (chunkNotEqual.size() > threshold) {
+        if (detail.strlen() > 0) detail += "\n"
+        detail += "存在数据节点相同副本元数据版本不一致: " + string(chunkNotEqual.size()) + " 条。"
+    }
+    if (detail.strlen() > 0) {
+        return (false, detail, "请参考官方教程《分区状态不一致》排查问题。")   
+    }
+    
+    return (true, NULL, NULL)
+}
+'
+newMetric(name, displayName, group, desc, nodes, script)
+go
+
+name = "chunksCid"
+displayName = "元数据 cid"
+group = "1"
+desc = "检查元数据 cid。"
+nodes = NULL
+script = '
+def chunksCid(params) {
+    masterMeta = select * from rpc(getControllerAlias(), getClusterChunksStatus) where state == "COMPLETE" // 只查询状态完成的元数据，因为事务中的元数据 cid 会不一致
+    update masterMeta set cid = versionChain.split(":").at(0).long()
+    chunkMeta = select * from pnodeRun(getAllChunks) where state == 0
+    addColumn(chunkMeta, "cid", LONG)
+    update chunkMeta set cid = versionList.split(",").at(0).split(":").at(1).long() where !(dfsPath.endsWith("domain") or dfsPath.endsWith(".tbl"))
+    update chunkMeta set cid = versionList.split(":").at(0).long() where dfsPath.endsWith("domain") or dfsPath.endsWith(".tbl")
+    allNotEqual=select chunkId, masterMeta.file, chunkMeta.dfsPath, masterMeta.versionChain, masterMeta.cid as masterCid, chunkMeta.versionList, chunkMeta.cid as chunkCid from fj(masterMeta, chunkMeta, `chunkId) where masterMeta.cid != chunkMeta.cid 
+    if (allNotEqual.size() > 0) {
+        return (false, "存在 " + allNotEqual.size() " 条控制节点元数据与数据节点元数据 cid 不一致", "请参考官方教程《分区状态不一致》排查问题，删除错误副本并拷贝正确副本恢复。")   
+    }
+    
+    return (true, NULL, NULL)
+}
+'
+newMetric(name, displayName, group, desc, nodes, script)
+go
+
+name = "replicaNum"
+displayName = "副本数"
+group = "1"
+desc = "检查是否存在副本数小于配置项的副本。"
+nodes = NULL
+script = '
+def replicaNum(params) {
+    dfsReplicationFactor = int(getConfig("dfsReplicationFactor"))
+    if (dfsReplicationFactor == 1) { // 单副本没必要检查
+        return (true, NULL, NULL)
+    }
+    
+    replicaNum = select count(*) as cnt from pnodeRun(getAllChunks) where state == 0 group by chunkId // 只查询状态完成的元数据，因为事务中的元数据可能副本还在构建
+    replicaNum = select * from replicaNum where cnt != dfsReplicationFactor
+    if (replicaNum.size() > 0) {
+        return (false, "存在 " + replicaNum.size() + " 个分区副本数小于 dfsReplicationFactor 配置项值 " + dfsReplicationFactor, "请参考官方教程《分区状态不一致》排查问题，拷贝副本恢复。")
+    }
+    
+    return (true, NULL, NULL)
+}
+'
+newMetric(name, displayName, group, desc, nodes, script)
+go
+
+name = "replicaRowNum"
+displayName = "副本一致"
+group = "1"
+desc = "检查双副本时是否存在副本数据条数不一致。"
+nodes = NULL
+script = '
+def getChunkidNode(nodes, replicas, chunkIds){
+    replicaArray=replicas.split(",");
+    getReplicaArray=def(nodes,chunkId,replicaArray){
+        getReplicaChunkidNode=def(nodes,chunkId,replica){
+            replicaNode=replica.split(":")[0];
+            if(in(replicaNode,nodes)==false){
+                return table(1:0,["chunkId","node"],[STRING,STRING]);
+            }
+            return table(chunkId as chunkId,replicaNode as node);
+        }
+        return unionAll(loop(getReplicaChunkidNode{nodes,chunkId},replicaArray),false);
+    }
+    return unionAll(loop(getReplicaArray{nodes},chunkIds,replicaArray),false);
+}
+def addNodeResult(mutable chunkidNodeRowArray,node,chunkIds){
+    getRowNum=def(chunkIds){
+        return exec string(chunkId) as chunkId,rowNum from getTabletsMeta(top=-1) where string(chunkId) in chunkIds;
+    }
+    chunkIdRowNum=rpc(node,getRowNum,chunkIds);
+    chunkIdRowNum.update!("node",node);
+    chunkidNodeRowArray.append!(chunkIdRowNum);
+    return chunkidNodeRowArray.size();
+}
+def addBadChunkId(mutable badChunkId,chunkId,rowNum){
+    badFlag=rowNum[first(rowNum)!=rowNum];
+    if(sum(badFlag)<1)
+        return 0;
+    badChunkId.append!(chunkId);
+    return 1;
+}
+def replicaRowNum(params){
+    if(getConfig().dfsReplicationFactor<2){
+        throw "节点副本数小于2，无法进行校验";
+    }
+    startTime= params["startTime"]
+    endTime= params["endTime"]
+    nodes = exec name from rpc(getControllerAlias(), getClusterPerf) where mode==0;
+    controllerChunks=select * from rpc(getControllerAlias(),getClusterChunksStatus) where lastUpdated>=startTime and lastUpdated<=endTime;
+    chunkidNode=getChunkidNode(nodes,controllerChunks.replicas,controllerChunks.chunkId);
+    chunkidNodeRowArray=array(ANY);
+    select addNodeResult(chunkidNodeRowArray,first(node),chunkId) from chunkidNode group by node;
+    chunkidNodeRow=unionAll(chunkidNodeRowArray,false);
+    badChunkId=array(ANY);
+    select addBadChunkId(badChunkId,first(chunkId),rowNum) from chunkidNodeRow group by chunkId;
+    if(badChunkId.size()>0){
+        return false,"存在"+badChunkId.size()+"个不一致的副本","请删除错误副本并拷贝正确副本恢复";
+    }
+    return true,"所有分区副本数完全一致","";
+}
+'
+params = [
+    dict(`name`type, ["startTime", "TIMESTAMP"]),
+    dict(`name`type, ["endTime", "TIMESTAMP"])
+]
+newMetric(name, displayName, group, desc, nodes, script, params)
+go
+
+name = "errorLogs"
+displayName = "错误日志"
+group = "1"
+desc = "检查近期日志是否有 ERROR/WARNING"
+nodes = exec name from rpc(getControllerAlias(), getClusterPerf{true}) where mode != 1 // NULL 指该指标不能指定节点运行，选择任一数据节点执行
+script = '
+def getServerLogEx(startTime, endTime) {
+    startTime_ = timestamp(startTime)
+    endTime_ = timestamp(endTime)
+    logFile = getConfig("logFile")
+    s = logFile.split("/")
+    logDir = s[:(s.size()-1)].concat("/")
+    nodeAlias = getNodeAlias()
+    pattern = "%" + nodeAlias + ".log"
+    logFiles = select * from files(logDir, pattern) where isDir == false order by filename asc
+    addColumn(logFiles, `startTime`endTime, [TIMESTAMP, TIMESTAMP])
+    update logFiles set endTime = temporalParse(substr(filename, 0, 14), "yyyyMMddHHmmss")
+    update logFiles set startTime = move(endTime, 1)
+    delete from logFiles where endTime != NULL and endTime < startTime_
+    delete from logFiles where startTime != NULL and startTime > endTime_
+    
+    ret = table(1:0, `ts`threadId`level`line, [NANOTIMESTAMP, STRING, SYMBOL, BLOB])
+    print(logFiles["filename"])
+    for (filename in logFiles["filename"]) {
+        print(filename)
+        filepath = logDir + "/" + filename
+        fin = file(filepath)
+        maxByteSize = 1024*1024
+        bytes = array(CHAR, maxByteSize)
+        lastLine = ""
+
+        do {
+            numByte=fin.read!(bytes, 0, maxByteSize)
+            text=concat(bytes[:numByte]);
+            lines=text.split("\n");
+            text=lastLine+lines[0];
+            lines[0]=text;
+            lastLine=lines.tail();
+            lines=lines[:lines.size()-1];
+            
+            ts = temporalParse(lines.substr(0, 29), "yyyy-MM-dd HH:mm:ss.nnnnnnnnn")
+            tb = table(
+                ts as ts,
+                lines as line
+            )
+            delete from tb where ts == NULL
+            delete from tb where line == NULL
+            if (ts.first() > endTime_) {
+                break
+            }
+            if (ts.last() < startTime_) {
+                continue
+            }
+            
+            update tb set threadId = line.split(" ").at(1).split(",").at(1)
+            levels = tb["line"].split(" ").at(2)
+            levels = levels.substr(1, levels.strlen()-2)
+            update tb set level = levels
+            reorderColumns!(tb, ret.schema().colDefs.name)
+            
+            ret.append!(tb)
+        } while(numByte==maxByteSize);
+        fin.close()
+    }
+    
+    delete from ret where ts < startTime_ or ts > endTime_
+    
+    return ret
+}
+
+def errorLogs(params) {
+    startTime = params["startTime"]
+    endTime = params["endTime"]
+
+    logs = getServerLogEx(startTime, endTime)
+    ret = select count(*) as count from logs where level in params["logLevel"] group by level
+
+    if (ret.size() > 0) {
+        return (false, ret, "请检查日志内容。")
+    } else {
+        return (true, NULL, NULL)
+    }
+}
+'
+params = [
+    dict(`name`type, ["startTime", "TIMESTAMP"]),
+    dict(`name`type, ["endTime", "TIMESTAMP"]),
+    dict(`name`type`options, ["logLevel", "SYMBOL", ["ERROR", "WARNING"]])
+]
+newMetric(name, displayName, group, desc, nodes, script, params)
+go
+
+name = "queryElapsed"
+displayName = "耗时最长SQL top10"
+group = "1"
+desc = "耗时最长SQL top10。"
+nodes = NULL // NULL 指该指标不能指定节点运行，选择任一数据节点执行
+script = '
+def queryElapsed(params) {
+    startTime_ = params["startTime"]
+    endTime_ = params["endTime"]
+    
+    getQueryLogInner = def() {
+		logDir = getConfig("logFile").split("/")
+		logDir = logDir[:(logDir.size()-1)].concat("/")
+        
+        logFiles = files(logDir, "%_job.log")
+        schema = table(
+            ["node","userId","sessionId","jobId","rootId","type","level","startTime","endTime","jobDesc","errorMsg"] as name,
+            [
+                "STRING", "STRING", "LONG", "UUID", "UUID",
+                "STRING", "INT", "NANOTIMESTAMP", "NANOTIMESTAMP",
+                "STRING", "STRING"
+            ] as type
+        )
+        
+		if (logFiles.size() == 0) {
+			throw "Error: no query log found in " + logDir + ", maybe you haven\'t run any sql yet."
+		}
+	
+        logs = table(1:0, schema["name"], schema["type"])
+        for (filename in logFiles["filename"]) {
+            filePath = logDir + "/" + filename
+            logs.append!(loadText(filePath, schema=schema))
+        }
+	
+		return logs
+	}
+
+    ret = pnodeRun(getQueryLogInner)
+    if (!isNull(startTime_)) {
+        ret = select * from ret where startTime >= nanotimestamp(startTime_)
+    }
+    if (!isNull(endTime_)) {
+        ret = select * from ret where endTime <= nanotimestamp(endTime_)
+    }
+    
+    res = select (endTime - startTime) \\ 1000 \\ 1000 as elapseMs, * from ret where type == "Q" order by (endTime - startTime) desc limit 10
+	return (true, res, NULL)
+}
+'
+params = [
+    dict(`name`type, ["startTime", "TIMESTAMP"]),
+    dict(`name`type, ["endTime", "TIMESTAMP"])
+]
+newMetric(name, displayName, group, desc, nodes, script, params)
+go
+
+name = "mostQueriedDFSTables"
+displayName = "访问次数最多的库表"
+group = "1"
+desc = "访问次数最多的库表。"
+nodes = NULL // NULL 指该指标不能指定节点运行，选择任一数据节点执行
+script = '
+def mostQueriedDFSTables(params) {
+    if (!bool(getConfig("enableDFSQueryLog"))) {
+        throw "未开启查询日志 enableDFSQueryLog 配置项。"
+    }
+    
+    startTime_ = params["startTime"]
+    endTime_ = params["endTime"]
+    
+    getQueryLogInner = def() {
+		logDir = getConfig("logFile").split("/")
+		logDir = logDir[:(logDir.size()-1)].concat("/")
+        logFiles = files(logDir, "%_query.log")
+        schema = table(
+            ["node","userId","sessionId","jobId","rootId","type","level","time","database","table","jobDesc"] as name,
+            ["STRING", "STRING", "LONG", "UUID", "UUID", "STRING", "INT", "NANOTIMESTAMP", "STRING", "STRING", "STRING"] as type
+        )
+		if (logFiles.size() == 0) {
+			throw "Error: no query log found in " + logDir + ", maybe you haven\'t run any sql yet."
+		}
+        logs = table(1:0, schema["name"], schema["type"])
+        for (filename in logFiles["filename"]) {
+            filePath = logDir + "/" + filename
+            logs.append!(loadText(filePath, schema=schema))
+        }
+		return logs
+	}
+    ret = pnodeRun(getQueryLogInner)
+    if (!isNull(startTime_)) {
+        ret = select * from ret where time >= nanotimestamp(startTime_)
+    }
+    if (!isNull(endTime_)) {
+        ret = select * from ret where time <= nanotimestamp(endTime_)
+    }
+    
+    delete from ret where database == NULL
+    ret = select count(*) as count from ret group by database, table order by count desc limit 10
+    
+	return (true, ret, NULL)
+}
+'
+params = [
+    dict(`name`type, ["startTime", "TIMESTAMP"]),
+    dict(`name`type, ["endTime", "TIMESTAMP"])
+]
+newMetric(name, displayName, group, desc, nodes, script, params)
+go
+
+name = "DFSTableDiskUsage"
+displayName = "数据库大小统计 top10"
+group = "1"
+desc = "数据库大小统计 top10。"
+nodes = NULL // NULL 指该指标不能指定节点运行，选择任一数据节点执行
+script = '
+def dfsPath2tableName(dfsPath){
+    fields=dfsPath.split("/");
+    dbUrl="dfs://"+fields[1];
+    res=exec tableName from listTables(dbUrl) where physicalIndex=last(fields);
+    return dbUrl,res[0];
+}
+ 
+def DFSTableDiskUsage(params) {
+    startTime = params["startTime"]
+    endTime = params["endTime"]
+    res = keyedTable(`dbName`tbName, 1:0, `dbName`tbName, [STRING, STRING])
+    meta = select * from rpc(getControllerAlias(), getClusterChunksStatus) where lastUpdated between startTime and endTime
+    for (item in meta) {
+        dfsPath = item["file"]
+        dbName, tbName = dfsPath2tableName(dfsPath)
+        insert into res values (dbName, tbName)
+    }
+    delete from res where tbName == NULL
+    if (res.size() == 0) {
+        return (true, NULL, NULL)
+    }
+    f = def(item) {
+        dbName = item["dbName"]
+        tbName = item["tbName"]
+        diskGB = select sum(diskUsage\\1024\\1024\\1024) diskGB
+                    from pnodeRun(getTabletsMeta{"/"+substr(dbName, 6)+"/%", tbName, true, -1})
+        diskGB = double(diskGB["diskGB"].first())
+        return table(
+            dbName as dbName,
+            tbName as tbName,
+            diskGB as diskGB
+        )
+    }
+    res_ = unionAll(peach(f, res))
+    delete from res_ where diskGB == 0
+    res_ = select top 10 * from res_ order by diskGB desc
+    if (res_.size() == 0) {
+        return (true, NULL, NULL)
+    }
+    return (true, res_, NULL)
+}
+'
+params = [
+    dict(`name`type, ["startTime", "TIMESTAMP"]),
+    dict(`name`type, ["endTime", "TIMESTAMP"])
+]
+newMetric(name, displayName, group, desc, nodes, script, params)
+go
+
+name = "biggestChunks"
+displayName = "过大的分区 top10"
+group = "1"
+desc = "过大的分区 top10。"
+nodes = NULL // NULL 指该指标不能指定节点运行，选择任一数据节点执行
+script = '
+def dfsPath2tableName(dfsPath){
+    fields=dfsPath.split("/");
+    dbUrl="dfs://"+fields[1];
+    res=exec tableName from listTables(dbUrl) where physicalIndex=last(fields);
+    return dbUrl,res[0];
+}
+
+def biggestChunks(params) {
+    startTime = params["startTime"]
+    endTime = params["endTime"]
+    res = table(1:0, `dbName`tbName`dfsPath`chunkId, [STRING, STRING, STRING, STRING])
+    meta = select * from rpc(getControllerAlias(), getClusterChunksStatus) where lastUpdated between startTime and endTime
+    
+    for (item in meta) {
+        chunkId = item["chunkId"]
+        dfsPath = item["file"]
+        dbName, tbName = dfsPath2tableName(dfsPath)
+        insert into res values (dbName, tbName, dfsPath, chunkId)
+    }
+    delete from res where tbName == NULL
+    
+    f = def(item) {
+        dfsPath = item["dfsPath"]
+        tbName = item["tbName"]
+        diskGB = select sum(diskUsage\\1024\\1024\\1024) as diskGB
+                    from pnodeRun(getTabletsMeta{dfsPath, tbName, true, -1})
+        return double(diskGB["diskGB"].first())
+    }
+    res_ = peach(f, res)
+    update res set diskGB = res_
+    res = select * from res order by diskGB desc limit 10
+
+    return (true, res, NULL)
+}
+'
+params = [
+    dict(`name`type, ["startTime", "TIMESTAMP"]),
+    dict(`name`type, ["endTime", "TIMESTAMP"])
+]
+newMetric(name, displayName, group, desc, nodes, script, params)
+go
+
+name = "sortKeyCount"
+displayName = "排序键"
+group = "1"
+desc = "检查排序键过多，需要哈希降维的分布式表。"
+nodes = NULL // NULL 指该指标不能指定节点运行，选择任一数据节点执行
+script = '
+def getChunksGEKeyCount(keyCount,chunkIds){
+    if(chunkIds.size()>1024)
+        chunkIdArray=cut(chunkIds,1024);
+    else
+        chunkIdArray=enlist(chunkIds);
+    getChunkIds=def(keyCount,curChunkIds){
+        keyEntry=getTSDBSortKeyEntry(curChunkIds);
+        entryCountPerChunk=select count(*) as count,first(chunkPath) as path from keyEntry group by chunkId;
+        return select chunkId,count from entryCountPerChunk where count>keyCount;
+    }
+    tables=loop(getChunkIds{keyCount},chunkIdArray);
+    result=unionAll(tables,false);
+    return result;
+}
+def dfsPath2tableName(dfsPath){
+    fields=dfsPath.split("/");
+    dbUrl="dfs://"+fields[1];
+    res=exec tableName from listTables(dbUrl) where physicalIndex=last(fields);
+    return dbUrl,res[0];
+}
+def sortKeyCount(params) {
+    startTime = params["startTime"]
+    endTime = params["endTime"]
+    meta = select * from rpc(getControllerAlias(), getClusterChunksStatus) where lastUpdated between startTime and endTime
+    ret=pnodeRun(getChunksGEKeyCount{1000, meta.chunkId});
+    if (ret.size() == 0) {
+        return (true, NULL, NULL)
+    } else {
+        return (false, ret, "存在排序键超过 1000 个的分布式表，建议重建表并做哈希降维。")
+    }
+}
+'
+params = [
+    dict(`name`type, ["startTime", "TIMESTAMP"]),
+    dict(`name`type, ["endTime", "TIMESTAMP"])
+]
+newMetric(name, displayName, group, desc, nodes, script, params)
+go
+
+name = "recoveryStatus2"
+displayName = "恢复事务状态2"
+group = "1"
+desc = "检查恢复事务执行是否推进。"
+nodes = NULL // NULL 指该指标不能指定节点运行，选择任一数据节点执行
+script = '
+def recoveryStatus2(mutable params){
+    failureTask=params["recoveryStatus2_failureTask"];
+    if(failureTask.count()>0){
+        return false,failureTask.count()+"个副本恢复任务执行失败","调用getRecoveryTaskStatus排查错误原因";
+    }
+    prevInProcessTask=params["recoveryStatus2_inProcessTask"];
+    if(prevInProcessTask.isVoid()){
+        throw "没有上次recoveryStatus运行的结果";
+    }
+    inProcessTask=select * from rpc(getControllerAlias(),getRecoveryTaskStatus) where Status=="In-Progress";
+    if(prevInProcessTask.size()>0&&inProcessTask.size()>0){
+        existTask=set(prevInProcessTask.TaskId)-set(inProcessTask.TaskId);
+        if(existTask.size()==prevInProcessTask.size()){
+            return false,prevInProcessTask.size()+"个副本恢复任务一直没有推进或推进非常缓慢","调用getRecoveryTaskStatus排查错误原因";
+        }
+    }
+    return true,NULL,NULL;
+}
+'
+newMetric(name, displayName, group, desc, nodes, script)
+go
+
+// -------------- group 2 -------------------
+name = "coredump"
+displayName = "core 文件"
+group = "2"
+desc = "检查近期是否有 core 文件。"
+nodes = select first(name) as name from rpc(getControllerAlias(), getClusterPerf) where mode != 1 group by host
+nodes = nodes["name"]
+script = '
+def coredump(params) {
+    if (!bool(getConfig("enableShellFunction"))) {
+        return (false, "未配置 enableShellFunction", "请配置 enableShellFunction=true 以支持该项检查。")
+    }
+    
+    startTime = params["startTime"]
+    endTime = params["endTime"]
+    shell("cat /proc/sys/kernel/core_pattern > /tmp/tmp.txt")
+    f = file("/tmp/tmp.txt")
+    line = readLine(f)
+    f.close()
+    if (line.startsWith("/")) { // 绝对路径
+        s = line.split("/")
+        dir = s[0:(s.size()-1)].concat("/")
+    } else if (char(line[0]).isAlpha()) { // 形如 core-%e，生成 coredump 在当前目录
+        shell("pwd > /tmp/tmp.txt")
+        f = file("/tmp/tmp.txt")
+        dir = readLine(f)
+        f.close()
+    }
+    
+    info = select * from files(dir) where isDir == false and lastModified >= startTime and lastModified <= endTime
+    
+    if (info.size() == 0) {
+        return (true, NULL, NULL)
+    }
+    
+    ret = table(1:0, `filePath`lastModified, [STRING, TIMESTAMP])
+    for (item in info) {
+        // item = info[0]
+        filename = item["filename"]
+        filePath = dir + "/" + filename
+        shell("file " + filePath + " > /tmp/tmp.txt")
+        f = file("/tmp/tmp.txt")
+        line = readLine(f)
+        f.close()
+        
+        if (strFind(line, "core") != -1 and strFind(line, "dolphindb") != -1) {
+            insert into ret values (filePath, item["lastModified"])
+        }
+    }
+    rm("/tmp/tmp.txt")
+    
+    ret = select count(*) as "coredump文件数" from ret group by date(lastModified) as "日期"
+    
+    if (ret.size() == 0) {
+        return (true, NULL, NULL)
+    } else {
+        return (false, ret, "请检查 coredump 文件内容。")
+    }
+}
+'
+params = [
+    dict(`name`type, ["startTime", "TIMESTAMP"]),
+    dict(`name`type, ["endTime", "TIMESTAMP"])
+]
+newMetric(name, displayName, group, desc, nodes, script, params)
+go
+
+name = "commonSystemConfig"
+displayName = "操作系统配置项"
+group = "2"
+desc = "检查常见操作系统配置项。"
+nodes = select first(name) as name from rpc(getControllerAlias(), getClusterPerf) where mode != 1 group by host
+nodes = nodes["name"]
+script = '
+def commonSystemConfig(params) {
+    if (!bool(getConfig("enableShellFunction"))) {
+        return (false, "未配置 enableShellFunction", "请配置 enableShellFunction=true 以支持该项检查。")
+    }
+    
+    ret = table(1:0, `command`returnValue`level`suggestion, [STRING, STRING, SYMBOL, STRING])
+    cmd = "gcc --version"
+    res = shell(cmd)
+    if (res != 0) {
+        insert into ret values (cmd, res, "ERROR", "请检查 gcc 安装情况。")
+    }
+    
+    cmd = "ulimit -c"
+    res = shell("ulimit -c")
+    if (res != 0) {
+        insert into ret values (cmd, res, "ERROR", "请检查 ulimit -c 配置。")
+    }
+    
+    shell("cat /proc/sys/kernel/core_pattern > tmp.txt")
+    f = file("tmp.txt")
+    line = readLine(f)
+    f.close()
+    if (line.startsWith("/")) { // 绝对路径
+        s = line.split("/")
+        dir = s[0:(s.size()-1)].concat("/")
+    } else if (char(line[0]).isAlpha()) { // 形如 core-%e，生成 coredump 在当前目录
+        shell("pwd > tmp.txt")
+        f = file("tmp.txt")
+        dir = readLine(f)
+        f.close()
+    }
+    folderName = "testCoredump" + temporalFormat(now(), "yMdHmsSSS")
+    folderPath = dir + "/" + folderName
+    try {
+        mkdir(folderPath) 
+    } catch(err) {
+        insert into ret values (folderPath, err, "ERROR", "请检查 core_pattern 目录 " + dir + "是否有写入权限。")
+    }
+    try {
+        rmdir(folderPath)
+    } catch(err) {}
+    
+    cmd = "ulimit -n > tmp.txt"
+    res = shell(cmd)
+    if (res != 0) {
+        insert into ret values ("ulimit -n", res, "ERROR", "请检查 ulimit -n 配置。")
+    } else {
+        f = file("tmp.txt")
+        line = readLine(f)
+        f.close()
+        if (int(line) < 102400) {
+            insert into ret values ("ulimit -n", line, "ERROR", "ulimit -n 值小于 102400，请调大 ulimit -n 配置值。")
+        }
+    }
+    
+    if (!("WARNING" in params["logLevel"])) {
+        if (ret.size() > 0) {
+            return (false, ret, NULL)
+        } else {
+            return (true, NULL, NULL)
+        }
+    }
+    
+    volumesCfg = getConfig("volumes")
+    if (volumesCfg.form() == 0) {
+        volumesCfg = [volumesCfg]
+    }
+    for (volumeCfg in volumesCfg) {
+        // volumeCfg = volumesCfg[0]
+        shell("df -hT " + volumeCfg + " > tmp.txt")
+        if (res != 0) {
+            continue
+        }
+        f = file("tmp.txt")
+        line = readLine(f)
+        line = readLine(f) // 文件类型在第二行
+        f.close()
+        if (line.strFind("xfs") == -1) {
+            insert into ret values ("df -hT " + volumeCfg, line, "WARNING", "volumes 配置项值所在的硬盘式不为 xfs，建议格式化为 xfs 以避免 inode 满问题。")
+        }
+    }
+    
+    cmd = "gdb --version"
+    res = shell(cmd)
+    if (res != 0) {
+        insert into ret values (cmd, res, "WARNING", "建议安装 gdb 以在宕机时查看堆栈，请检查 gdb 安装情况。")
+    }
+    
+    cmd = "pstack"
+    res = shell(cmd)
+    if (res != 256) {
+        insert into ret values (cmd, res, "WARNING", "建议安装 pstack 便于查看节点进程内部执行状态，请检查 pstack 安装情况。")
+    }
+    
+    cnt = exec count(*) from rpc(getControllerAlias(), getClusterPerf) where mode == 3
+    if (cnt == 0) { // 集群
+        res = shell("yum --version")
+        if (res == 0) {
+            cmd = "systemctl status ntpd" // centos
+            res = shell(cmd)
+            
+        } else { // ubuntu
+            cmd = "systemctl status ntp" 
+            res = shell(cmd)
+        }
+        if (res != 0) {
+            insert into ret values (cmd, res, "WARNING", "集群模式下建议配置 ntp 使机器间时间同步，请检查 ntp 安装和启动情况。")
+        }
+    }
+    
+    cmd = "swapon --show"
+    res = shell(cmd)
+    if (res != 0) {
+        insert into ret values (cmd, res, "WARNING", "内存充足时，建议关闭 swap 以提升性能。")
+    }
+    
+    rm("tmp.txt")
+    if (ret.size() > 0) {
+        return (false, ret, NULL)
+    } else {
+        return (true, NULL, NULL)
+    }
+}
+'
+params = [
+    dict(`name`type, ["startTime", "TIMESTAMP"]),
+    dict(`name`type, ["endTime", "TIMESTAMP"]),
+    dict(`name`type`options, ["logLevel", "SYMBOL", ["ERROR", "WARNING"]])
+]
+newMetric(name, displayName, group, desc, nodes, script, params)
+go
+
+name = "testMetric"
+displayName = "测试指标"
+group = "2"
+desc = "测试用"
+nodes = NULL
+script = '
+def testMetric(params) {
+    success = false
+    detail = "my bad"
+    suggestion = "no way"
+    return (success, detail, suggestion)
+}
+'
+newMetric(name, displayName, group, desc, nodes, script)
+go
+
+id = "quickly"
+desc = "快速巡检"
+metrics = ["licenseExpiration", "nodeStatus"]
+nodes = [string(NULL), string(NULL)]
+params = [string(NULL), string(NULL)]
+frequency = "W"
+days = [1, 2, 3, 4, 5]
+scheduleTime = 00:05m
+enable = false
+runNow = true
+createPlan(id, desc, metrics, nodes, params, frequency, days, scheduleTime, enable, runNow)
+
+id = "fully"
+desc = "全面巡检"
+metrics = exec name from loadTable("dfs://ddb_internal_auto_inspection", "metrics")
+nodes_ = exec nodes from loadTable("dfs://ddb_internal_auto_inspection", "metrics")
+nodes = []
+for (node in nodes_) {
+    nodes.append!(node.split(","))
+}
+params = take(string(NULL), metrics.size())
+frequency = "W"
+days = [6]
+scheduleTime = 00:05m
+enable = true
+runNow = true
+createPlan(id, desc, metrics, nodes, params, frequency, days, scheduleTime, enable, runNow)
+go
+
+jobs = getScheduledJobs()
+plans = getPlans()
+planDetails = getPlanDetails()
+reports = getReports(id)
+reportDetailsOfMetrics = getReportDetailsOfMetrics(reports["id"].first())
+reportDetailsOfNodes = getReportDetailsOfNodes(reports["id"].first())
+// runPlan(id)
+getRecentJobs(1)
