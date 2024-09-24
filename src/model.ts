@@ -214,6 +214,23 @@ export class DdbModel extends Model<DdbModel> {
             version: WEB_VERSION
         }))
         
+        if (this.autologin)
+            try {
+                await this.login_by_ticket()
+            } catch {
+                console.log(t('ticket 登录失败'))
+                
+                if (this.oauth)
+                    await this.login_by_oauth()
+                else
+                    if (this.dev || this.test)
+                        try {
+                            await this.login_by_password('admin', '123456')
+                        } catch {
+                            console.log(t('使用默认 admin 账号密码登录失败'))
+                        }
+            }
+        
         await Promise.all([
             this.get_node_type(),
             this.get_node_alias(),
@@ -245,22 +262,6 @@ export class DdbModel extends Model<DdbModel> {
                 throw new Error(t('oauthType 配置参数的值必须为 authorization code 或 implicit，默认为 authorization code'))
         }
         
-        if (this.autologin)
-            try {
-                await this.login_by_ticket()
-            } catch {
-                console.log(t('ticket 登录失败'))
-                
-                if (this.oauth)
-                    await this.login_by_oauth()
-                else
-                    if (this.dev || this.test)
-                        try {
-                            await this.login_by_password('admin', '123456')
-                        } catch {
-                            console.log(t('使用默认 admin 账号密码登录失败'))
-                        }
-            }
         
         
         await this.get_factor_platform_enabled()
