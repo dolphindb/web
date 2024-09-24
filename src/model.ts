@@ -475,7 +475,7 @@ export class DdbModel extends Model<DdbModel> {
                 ticket = await this.ddb.invoke<string>('getAuthenticatedUserTicket', undefined, {
                     urgent: true,
                     ... this.node_type === NodeType.controller || this.node_type === NodeType.single 
-                        ? { }
+                        ? undefined
                         : { node: this.controller_alias }
                 })
             
@@ -538,16 +538,12 @@ export class DdbModel extends Model<DdbModel> {
     
     
     async start_nodes (nodes: DdbNode[]) {
-        await this.ddb.invoke('startDataNode', [nodes.map(node => node.name)], {
-            node: this.controller_alias
-        })
+        await this.ddb.invoke('startDataNode', [nodes.map(node => node.name)], { node: this.controller_alias })
     }
     
     
     async stop_nodes (nodes: DdbNode[]) {
-        await this.ddb.invoke('stopDataNode', [nodes.map(node => node.name)], {
-            node: this.controller_alias,
-        })
+        await this.ddb.invoke('stopDataNode', [nodes.map(node => node.name)], { node: this.controller_alias })
     }
     
     
@@ -718,12 +714,9 @@ export class DdbModel extends Model<DdbModel> {
             await this.ddb.invoke<DdbTableData<DdbNode>>('getClusterPerf', [true], {
                 urgent: true,
                 
-                ... this.node_type === NodeType.controller || this.node_type === NodeType.single ? 
-                    { }
-                :
-                    {
-                        node: this.controller_alias
-                    },
+                ... this.node_type === NodeType.controller || this.node_type === NodeType.single
+                    ? undefined
+                    : { node: this.controller_alias }
             })
         )
         .data
