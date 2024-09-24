@@ -650,8 +650,8 @@ export class DdbModel extends Model<DdbModel> {
     async get_license_info () {
         const license = await this.get_license_self_info()
         
-        if (!this.dev)
-            this.check_license_expiration()
+        // 用户反馈不太友好，先去掉 license 过期提醒
+        // this.check_license_expiration()
         
         if (license.licenseType === LicenseTypes.LicenseServerVerify)
             await this.get_license_server_info()
