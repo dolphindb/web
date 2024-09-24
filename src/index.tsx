@@ -85,7 +85,7 @@ function DolphinDB () {
 
 
 function MainLayout () {
-    const { header, inited, sider } = model.use(['header', 'inited', 'sider'])
+    const { header, inited, sider, force_login } = model.use(['header', 'inited', 'sider', 'force_login'])
     
     
     // App 组件通过 Context 提供上下文方法调用，因而 useApp 需要作为子组件才能使用
@@ -139,6 +139,11 @@ function MainLayout () {
             { (model.dev || model.test) && <div className='host-select-container'>
                 <HostSelect size='middle' />
             </div> }
+            {
+                force_login && <div className='force-login login'>
+                    <Login />
+                </div>
+            }
         </GlobalErrorBoundary>
 }
 

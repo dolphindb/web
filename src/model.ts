@@ -13,7 +13,8 @@ import { request } from 'xshell/net.browser.js'
 
 import {
     DDB, SqlStandard, DdbFunctionType, type DdbObj, DdbInt, DdbLong, type InspectOptions,
-    DdbDatabaseError, type DdbTableData
+    DdbDatabaseError, type DdbTableData,
+    DdbString
 } from 'dolphindb/browser.js'
 
 import type { Docs } from 'dolphindb/docs.js'
@@ -55,6 +56,8 @@ export class DdbModel extends Model<DdbModel> {
     params: URLSearchParams
     
     inited = false
+    
+    force_login = false
     
     /** 在本地开发模式 */
     dev = false
@@ -359,7 +362,7 @@ export class DdbModel extends Model<DdbModel> {
         this.ddb.username = username
         this.ddb.password = password
         
-        await this.ddb.invoke('login', [username, password], { urgent: true })
+        await this.ddb.call('login', [new DdbString(username), new DdbString(password)], { urgent: true })
         
         await this.update_user()
         
@@ -534,6 +537,9 @@ export class DdbModel extends Model<DdbModel> {
             localStorage.setItem(storage_keys.username, username)
             localStorage.setItem(storage_keys.ticket, ticket)
         }
+        
+        if (!this.inited) 
+            this.init()
         
         return username
     }
