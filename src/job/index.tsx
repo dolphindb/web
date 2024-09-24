@@ -512,7 +512,9 @@ function JobMessageShow ({ job }: { job: DdbJob }) {
         
         await model.ddb.execute(
             'def get_job_message_limit (jobId, count) {\n' +
-            '    return subarray(split(getJobMessage(jobId),"\\n"), pair(0, int(count)))\n' +
+            '    message_arr = split(getJobMessage(jobId), "\\n")\n' +
+            '    message_size = size message_arr\n' +
+            '    return subarray(message_arr, pair(0, int(min(count, message_size - 1))))\n' +
             '}\n'
         )
         
