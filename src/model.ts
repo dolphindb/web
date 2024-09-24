@@ -663,7 +663,7 @@ export class DdbModel extends Model<DdbModel> {
     
     /** 去登录页
         @param redirection 设置登录完成后的回跳页面，默认取当前 view */
-    async goto_login (redirection: PageViews = this.view) {
+    async goto_login (redirection: PageViews = this.view, to_force_login_page = false) {
         if (this.oauth) {
             const auth_uri = strip_quotes(
                 config.get_config('oauthAuthUri')
@@ -688,8 +688,15 @@ export class DdbModel extends Model<DdbModel> {
             console.log(t('跳转到 oauth 验证页面:'), url)
             
             await goto_url(url)
-        } else
-            this.set({
+        } else 
+            if (to_force_login_page) {
+                // 登录后需要重新初始化
+                this.set({ inited: false })
+                // 进入强制登录页面，只展示登录表单
+                this.set({ force_login: true })
+            }
+            else
+                this.set({
                 view: 'login',
                 ... redirection === 'login' ? { } : { redirection }
             })

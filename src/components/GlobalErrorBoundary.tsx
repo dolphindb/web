@@ -57,8 +57,7 @@ export class GlobalErrorBoundary extends Component<PropsWithChildren<{ }>, Globa
                     return
                 
                 if (error.message.includes('RefId: S04009')) {
-                    model.set({ inited: false })
-                    model.set({ force_login: true })
+                    model.goto_login(undefined, true)
                     return
                 }
             } else {
