@@ -432,7 +432,7 @@ function SuffixIcon ({ name }: { name: string }) {
                             'load_table_variable_schema',
                             [name],
                             model.node_type === NodeType.controller ? 
-                                    { node: model.datanode.name, func_type: DdbFunctionType.UserDefinedFunc }
+                                    { node: model.datanode.name }
                                 :
                                     { }
                         )

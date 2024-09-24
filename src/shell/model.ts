@@ -518,7 +518,7 @@ class ShellModel extends Model<ShellModel> {
             // 函数要在 controller (且是 leader) 上调用
             'getDFSDirectoryContent',
             [node.path.slice('dfs:/'.length)],
-            model.node.mode !== NodeType.controller ? { node: model.controller_alias, func_type: DdbFunctionType.SystemFunc } : { }
+            model.node.mode !== NodeType.controller ? { node: model.controller_alias } : { }
         )
         
         let directories: PartitionDirectory[] = [ ]
@@ -545,7 +545,7 @@ class ShellModel extends Model<ShellModel> {
                         'getTablesByTabletChunk',
                         [chunk],
                         // sites 字段里面的就是 node_alias
-                        site_node !== model.node_alias ? { node: site_node, func_type: DdbFunctionType.SystemFunc } : { }
+                        site_node !== model.node_alias ? { node: site_node } : { }
                     )
                     
                     // 可能是空的数据库，里面还没有表，也没有数据

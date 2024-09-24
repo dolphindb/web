@@ -539,16 +539,14 @@ export class DdbModel extends Model<DdbModel> {
     
     async start_nodes (nodes: DdbNode[]) {
         await this.ddb.invoke('startDataNode', [nodes.map(node => node.name)], {
-            node: this.controller_alias, 
-            func_type: DdbFunctionType.SystemProc
+            node: this.controller_alias
         })
     }
     
     
     async stop_nodes (nodes: DdbNode[]) {
         await this.ddb.invoke('stopDataNode', [nodes.map(node => node.name)], {
-            node: this.controller_alias, 
-            func_type: DdbFunctionType.SystemProc
+            node: this.controller_alias,
         })
     }
     

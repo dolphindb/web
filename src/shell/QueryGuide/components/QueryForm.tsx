@@ -264,7 +264,7 @@ export function QueryForm (props: IProps) {
             const { value } = await model.ddb.call(
                 'load_table_schema',
                 [database, table],
-                model.node_type === NodeType.controller ? { node: model.datanode.name, func_type: DdbFunctionType.UserDefinedFunc } : { }
+                model.node_type === NodeType.controller ? { node: model.datanode.name } : { }
             )
             return value
         },
