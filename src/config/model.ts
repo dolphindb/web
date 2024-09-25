@@ -1,6 +1,6 @@
 import { Model } from 'react-object-model'
 
-import { DdbFunctionType, type DdbObj, type DdbValue, DdbVectorString, type DdbVectorStringObj, DdbInt, type DdbCallOptions } from 'dolphindb/browser.js'
+import { DdbFunctionType, type DdbObj, type DdbVectorStringObj, type DdbCallOptions } from 'dolphindb/browser.js'
 
 import { t } from '@i18n/index.ts'
 
@@ -19,23 +19,23 @@ class ConfigModel extends Model<ConfigModel> {
     nodes_configs: Map<string, NodesConfig>
     
     async load_controller_configs () {
-        return this.call('loadControllerConfigs')
+        return this.invoke('loadControllerConfigs')
     }
     
     async save_controller_configs (configs: string[]) {
-        return this.call('saveControllerConfigs', [new DdbVectorString(configs)])
+        return this.invoke('saveControllerConfigs', [configs])
     }
     
     async get_cluster_nodes () {
-        return this.call('getClusterNodesCfg')
+        return this.invoke('getClusterNodesCfg')
     }
     
     async save_cluster_nodes (nodes: string[]) {
-        return this.call('saveClusterNodes', [new DdbVectorString(nodes)])
+        return this.invoke('saveClusterNodes', [nodes])
     }
     
     async add_agent_to_controller (host: string, port: number, alias: string) {
-        await this.call('addAgentToController', [host, new DdbInt(port), alias])
+        await this.invoke('addAgentToController', [host, port, alias])
     }
     
     
@@ -43,8 +43,8 @@ class ConfigModel extends Model<ConfigModel> {
     async load_configs () {
         this.set({ 
             nodes_configs: parse_nodes_configs(
-                (await this.call<DdbVectorStringObj>('loadClusterNodesConfigs', undefined, { urgent: true }))
-                    .value)
+                await this.invoke<string[]>('loadClusterNodesConfigs', undefined, { urgent: true })
+            )
         })
         
         
@@ -108,27 +108,27 @@ class ConfigModel extends Model<ConfigModel> {
     async save_configs () {
         const new_nodes_configs = new Map<string, NodesConfig>()
         
-        await this.call(
+        await this.invoke(
             'saveClusterNodesConfigs', 
-            [new DdbVectorString(Array.from(this.nodes_configs).map(([key, config]) => {
+            [Array.from(this.nodes_configs).map(([key, config]) => {
                 new_nodes_configs.set(key, config)
                 const { value } = config
                 return `${key}=${value}`
-            }))]
+            })]
         )
         
-        await this.call('reloadClusterConfig')
+        await this.invoke('reloadClusterConfig')
         
         this.set({ nodes_configs: new_nodes_configs })
     }
     
     
-    async call <TResult extends DdbObj> (
+    async invoke <TResult> (
         name: string, 
-        args?: (string | boolean | DdbObj<DdbValue>)[], 
+        args?: (string | number | boolean | string[] )[], 
         options?: DdbCallOptions
     ) {
-        return model.ddb.call<TResult>(
+        return model.ddb.invoke<TResult>(
             name, 
             args,
             {
