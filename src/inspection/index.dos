@@ -160,7 +160,7 @@ def updateMetricParams(mutable params, planId, metricName) {
     metricName_ = metricName
     params_ = exec first(params) from loadTable("dfs://ddb_internal_auto_inspection", "plan_details") where planId == planId_ and metricName = metricName_
     params_ = fromStdJson(params_)
-    if (!isNull(params_)) {
+    if (!isVoid(params_)) {
         for (key in params_.keys()) {
             params[key] = params_[key]
         }
