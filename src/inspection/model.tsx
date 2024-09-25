@@ -2,10 +2,10 @@ import { Model } from 'react-object-model'
 
 import {  model } from '@/model.ts'
 
-import type { Metric, Plan, PlanDetail, PlanReport, PlanReportDetailMetric, PlanReportDetailNode } from './type.ts'
+import type { Metric, MetricParam, Plan, PlanDetail, PlanReport, PlanReportDetailMetric, PlanReportDetailNode } from './type.ts'
 
 import init_script from './index.dos'
-import demo_script from './demo.dos'
+import demo_script from './init.dos'
 
 class InspectionModel extends Model<InspectionModel> {
     
@@ -19,9 +19,17 @@ class InspectionModel extends Model<InspectionModel> {
         await model.ddb.execute(
             init_script,
         )
-        await model.ddb.execute(demo_script)
+        // await model.ddb.execute(demo_script)
         const metrics_obj = await inspection.get_metrics()
-        this.set({ metrics: new Map(metrics_obj.map(m => [ m.name, m ])) })
+        this.set({ metrics: new Map(metrics_obj.map(m => {
+            let params = new Map<string, MetricParam>()
+            let params_arr = JSON.parse(m.params)
+            if (Array.isArray(params_arr)) 
+                params_arr.map(param => {
+                    params.set(param.name, param)
+                })
+            return [ m.name, { ...m, params } ]
+        })) })
         this.set({ inited: true })
     }
     
@@ -38,7 +46,8 @@ class InspectionModel extends Model<InspectionModel> {
         await model.ddb.invoke('autoInspection::createPlan', Object.values(plan))
     }
     
-    async update_plan (plan: Omit<Plan, 'enabled'>) {
+    async update_plan (plan: Omit<Plan, 'enabled' | 'name'>) {
+        console.log('plan', plan)
         await model.ddb.invoke('autoInspection::updatePlan', Object.values(plan))
     }
     
@@ -70,7 +79,7 @@ class InspectionModel extends Model<InspectionModel> {
         return (await model.ddb.invoke('autoInspection::getReportDetailsOfNodes', [reportId])).data
     }
     
-    async get_metrics (): Promise<Metric[]> {
+    async get_metrics (): Promise<Array<Omit<Metric, 'params'> & { params: string }>> {
         return (await model.ddb.invoke('autoInspection::getMetrics', [ ])).data
     }
     

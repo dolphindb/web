@@ -1,18 +1,21 @@
 import { t } from '@i18n/index.ts'
-import { Button, Form, Input, Popover, Select, Table, TimePicker, Tooltip, type TableColumnsType } from 'antd'
+import { Button, Form, Input, Select, Table, TimePicker, Tooltip, type TableColumnsType } from 'antd'
 import dayjs, { type Dayjs } from 'dayjs'
 import { useMemo, useState, useEffect } from 'react'
 import useSWR from 'swr'
 
 import NiceModal from '@ebay/nice-modal-react'
 
+import { isObject } from 'lodash'
+
 import { model } from '@/model.ts'
 
 import { inspection } from './model.tsx'
 import { inspectionFrequencyOptions, metricGroups, weekDays } from './constants.ts'
-import type { Metric, MetricsWithNodes, Plan } from './type.ts'
+import type { MetricsWithStatus, Plan } from './type.ts'
 import { parse_minute } from './utils.ts'
 import { EditParamModal } from './editParamModal.tsx'
+import { addParamModal } from './addParamModal.tsx'
 
 export function InspectionForm ({ 
     close, 
@@ -37,16 +40,16 @@ export function InspectionForm ({
         async () => inspection.get_plan_detail(plan.id),
         {
             onSuccess: plan_detail => {
-                let new_checked_metrics = new Map(metrics_with_nodes) 
+                let new_checked_metrics = new Map<string, MetricsWithStatus>([ ]) 
                 plan_detail.forEach(pd => 
-                    (new_checked_metrics.set(pd.metricName, { name: pd.metricName, checked: true, nodes: pd.nodes ? pd.nodes.split(',') : [ ] }) ))
+                    (new_checked_metrics.set(pd.metricName, {  ...metrics.get(pd.metricName), checked: true, selected_nodes: pd.nodes.split(','), selected_params: JSON.parse(pd.params) }) ))
                 set_metrics_with_nodes(new_checked_metrics)
             },
         }
     )
     // 保存指标是否选中以及每个指标巡检的节点
-    const [metrics_with_nodes, set_metrics_with_nodes] = useState<Map<string, MetricsWithNodes>>(new Map(
-        Array.from(metrics.values()).map(mc => ([mc.name, { name: mc.name, checked: false, nodes: [ ] }]))
+    const [metrics_with_nodes, set_metrics_with_nodes] = useState<Map<string, MetricsWithStatus>>(new Map(
+        Array.from(metrics.values()).map(mc => ([mc.name, { ...mc, checked: false, selected_nodes: [ ], selected_params: { } }]))
     ))
     
     useEffect(() => {
@@ -75,25 +78,39 @@ export function InspectionForm ({
     async function on_save  (run_now: boolean) {
         const values = await inspection_form.validateFields()
         const metrics = Array.from(metrics_with_nodes.values()).filter(({ checked }) => checked)
+        
         if (!verify_metrics())
             return
         try {
             const new_plan =  
                 {   
-                    name: is_editing ? plan.name : values.name,
                     desc: values.desc,
                     metrics: metrics.map(({ name }) => name),
-                    nodes: metrics.map(({ nodes }) => nodes.length ? nodes : ''),
-                    params: new Array(metrics.length).fill(''),
+                    nodes: metrics.map(({ selected_nodes }) => selected_nodes),
+                    params: metrics.map(({ selected_params, params }) => {
+                        if (isObject(selected_params)) {
+                            let formatted_params = { }
+                            for (const [key, value] of Object.entries(selected_params)) {
+                                let param = params.get(key)
+                                if (param.type === 'TIMESTAMP')
+                                    formatted_params[key] = dayjs(value).format('YYYY.MM.DDTHH:mm:ss.SSS')
+                                else
+                                    formatted_params[key] = value
+                            }
+                            return JSON.stringify(formatted_params)
+                        } 
+                        else
+                            return ''
+                    }),
                     frequency: values.frequency,
                     days: (values.days as number[]).map(Number),                                
                     scheduleTime: (values.scheduleTime as Dayjs).format('HH:mm') + 'm', 
-                    ... is_editing ? { } : { runNow: run_now }
+                    ... is_editing ? { enabled: plan.enabled } : { runNow: run_now }
                 }
             if (is_editing)
-                await inspection.update_plan({ ...new_plan, id: plan.id })
+                await inspection.update_plan({ id: plan.id, ...new_plan  })
             else
-                await inspection.create_plan(new_plan)
+                await inspection.create_plan({ name: values.name, ...new_plan,  })
             model.message.success(is_editing ? t('修改成功') : t('创建成功'))
             refresh()
             mutate_plan_detail()
@@ -138,7 +155,6 @@ export function InspectionForm ({
             </Form.Item>
             
             <div className='metric-table'>
-                <h3>{t('指标列表')}</h3>
                 <MetricTable
                     checked_metrics={metrics_with_nodes} 
                     set_checked_metrics={set_metrics_with_nodes}
@@ -202,106 +218,109 @@ export function InspectionForm ({
 }
 
 
-function MetricTable ({ 
+export function MetricTable ({ 
     checked_metrics,
     set_checked_metrics,
+    editing = false
 }: 
 { 
-    checked_metrics: Map<string, MetricsWithNodes>
-    set_checked_metrics: (metrics: Map<string, MetricsWithNodes>) => void
-}) {
-    const { metrics } = inspection.use(['metrics'])
-    
-    const cols: TableColumnsType = useMemo(() => [ 
-        {
-            title: t('名称'),
-            dataIndex: 'displayName',
-            key: 'displayName',
-        },
-        {
-            title: t('分类'),
-            dataIndex: 'group',
-            key: 'group',
-            render: (group: number) => metricGroups[group]
-        },
-        {
-            title: t('描述'),
-            dataIndex: 'desc',
-            key: 'desc',
-            width: 100,
-            render: (desc: string) => <Tooltip title={desc}><p className='ellipsis'>{desc}</p></Tooltip>
-        },
-        {
-            title: t('版本'),
-            dataIndex: 'version',
-            key: 'version',
-        },
-        {
-            title: t('创建时间'),
-            dataIndex: 'createTime',
-            key: 'createTime',
-        },
-        {
-            title: t('更新时间'),
-            dataIndex: 'updateTime',
-            key: 'updateTime',
-        },
-        {
-            title: t('巡检节点'),
-            dataIndex: 'nodes',
-            key: 'nodes',
-            render: (nodesstr: string, record: Metric) => nodesstr && checked_metrics.size ? 
-                    <Select 
-                        mode='multiple' 
-                        className='nodes-select'
-                        value={checked_metrics.get(record.name).nodes}
-                        onChange={nodes => {
-                            let new_checked_metrics = new Map(checked_metrics)
-                            new_checked_metrics.set(record.name, { ...new_checked_metrics.get(record.name), nodes })
-                            set_checked_metrics(new_checked_metrics)
-                        }}
-                        placeholder={t('请选择需要巡检的节点')} 
-                        options={nodesstr.split(',').map(node => ({
-                            label: node,
-                            value: node
-                    }))}/> : <p>{t('所有节点')}</p>
-            
-        },
-        {
-            title: t('编辑指标'),
-            dataIndex: 'script',
-            key: 'script',
-            render: (_, record) => 
-                <Button 
-                    type='link' 
-                    onClick={async () => 
-                        NiceModal.show(EditParamModal, { metric: record, checked_metrics: checked_metrics, set_checked_metrics: set_checked_metrics })}>
-                            {t('编辑')}
-                </Button>
-        },
-    ], [ checked_metrics, set_checked_metrics ])
+    checked_metrics: Map<string, MetricsWithStatus>
+    set_checked_metrics: (metrics: Map<string, MetricsWithStatus>) => void
+    editing?: boolean
+}) {    
+
+    // 根据 group 对指标进行分组
+    const grouped_metrics = useMemo(() => {
+        const groups = new Map<number, MetricsWithStatus[]>()
+        checked_metrics.forEach(metric => {
+            // 非 editing 模式下只展示 cheked 的指标
+            if (editing ||  metric.checked) {
+                const group = metric.group // 假设每个指标都有 group 属性
+                if (!groups.has(group)) 
+                    groups.set(group, [ ])
+                    groups.get(group)?.push(metric)
+                }
+            })  
+        return groups
+    }, [checked_metrics])
     
     return <Table 
-            rowSelection={ checked_metrics.size && { 
-                selectedRowKeys: Array.from(checked_metrics.values()).filter(({ checked }) => checked).map(({ name }) => name),
-                onChange: names => {
-                    // 1.保留每个指标选中的节点
-                    let newCheckedMetrics = new Map(Array.from(metrics.values()).reduce((map, metric) => {
-                        map.set(metric.name, { ...metric, checked: false, nodes: checked_metrics.get(metric.name).nodes })
-                        return map
-                    }, new Map<string, MetricsWithNodes>()))
-                    // 2.将选中的指标的 checked 更新为 true
-                    names.forEach((name: string) => {
-                        const metric = newCheckedMetrics.get(name)
-                        metric.checked = true
-                        newCheckedMetrics.set(name, metric)
-                    })
-                    set_checked_metrics(newCheckedMetrics)
-                }
+            rowKey='group'
+            title={() => editing ? null :  <div className='metric-table-title'>
+                            <h3>{t('指标列表')}</h3>
+                            <div className='metric-table-title-action'>
+                                <Button onClick={async () => NiceModal.show(addParamModal, { checked_metrics, set_checked_metrics })}>{t('添加指标')}</Button>
+                                <Button danger>{t('批量删除')}</Button>
+                            </div>
+                           
+                </div>}
+            dataSource={Array.from(grouped_metrics.keys()).map(group => ({
+                group,
+                metrics: grouped_metrics.get(group) || [ ]
+            }))}
+            expandable={{
+                expandedRowRender: record => <Table
+                        rowKey='name'
+                        dataSource={record.metrics}
+                        pagination={{ pageSize: 5 }}
+                        columns={[
+                            {
+                                title: t('名称'),
+                                dataIndex: 'displayName',
+                                key: 'displayName',
+                            },
+                            {
+                                title: t('描述'),
+                                dataIndex: 'desc',
+                                key: 'desc',
+                                render: (desc: string) => <Tooltip title={desc}><p className='ellipsis'>{desc}</p></Tooltip>
+                            },
+                            {
+                                title: t('版本'),
+                                dataIndex: 'version',
+                                key: 'version',
+                            },
+                            {
+                                title: t('创建时间'),
+                                dataIndex: 'createTime',
+                                key: 'createTime',
+                            },
+                            {
+                                title: t('更新时间'),
+                                dataIndex: 'updateTime',
+                                key: 'updateTime',
+                            },
+                            ...editing ? [ ] : [{
+                                title: t('操作'),
+                                dataIndex: 'action',
+                                key: 'action',
+                                render: (_, record) => <>
+                                        <Tooltip title={t('编辑指标')}>
+                                            <Button 
+                                                type='link' 
+                                                onClick={async () => 
+                                                    NiceModal.show(EditParamModal, { metric: record, checked_metrics, set_checked_metrics })}>
+                                                        {t('编辑')}
+                                            </Button>
+                                        </Tooltip>
+                                        <Button 
+                                            type='link'
+                                            danger>
+                                            {t('删除')}
+                                        </Button>
+                                    </>
+                            }],
+                            
+                        ]}
+                    />,
+                rowExpandable: record => record.metrics.length > 0,
             }}
-            rowKey='name'
-            pagination={{ pageSize: 5 }}
-            dataSource={Array.from(metrics.values())} 
-            columns={cols} 
-    />
+            columns={[{
+                title: t('分组'),
+                dataIndex: 'group',
+                key: 'group',
+                render: (group: number) => metricGroups[group]
+            }]}
+            pagination={false}
+        />
 }

@@ -2,7 +2,6 @@ import type { Dayjs } from 'dayjs'
 
 export interface Metric {
     name: string
-    params: any[] | null
     displayName: string
     group: number
     desc: string
@@ -10,12 +9,16 @@ export interface Metric {
     createTime: string
     updateTime: string
     nodes: string
+    script: string
+    params: Map<string, MetricParam>
 }
 
-export interface MetricsWithNodes {
-    name: string
+export interface MetricParam { name: string, type: 'TIMESTAMP' | 'SYMBOL', options?: string[] }
+
+export interface MetricsWithStatus extends Metric {
     checked: boolean
-    nodes: string[]
+    selected_nodes: string[]
+    selected_params: object | null
 }
 
 
@@ -31,7 +34,7 @@ export interface Plan {
     name: string
     metrics: string[]
     nodes: Array<string[] | ''>
-    params:  Array<string[] | ''>
+    params?: object
     frequency: string
     days: number[] | string
     scheduleTime: Dayjs | string
