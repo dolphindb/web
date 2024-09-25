@@ -40,7 +40,7 @@ export function InspectionForm ({
         async () => inspection.get_plan_detail(plan.id),
         {
             onSuccess: plan_detail => {
-                let new_checked_metrics = new Map<string, MetricsWithStatus>([ ]) 
+                let new_checked_metrics = new Map<string, MetricsWithStatus>(metrics_with_nodes) 
                 plan_detail.forEach(pd => 
                     (new_checked_metrics.set(pd.metricName, {  ...metrics.get(pd.metricName), checked: true, selected_nodes: pd.nodes.split(','), selected_params: JSON.parse(pd.params) }) ))
                 set_metrics_with_nodes(new_checked_metrics)
@@ -252,9 +252,6 @@ export function MetricGroupTable ({
         set_grouped_metrics(update_checked_metrics())
     }, [checked_metrics])
     
-    
-    
-    
     return <div className='metric-table'>
             <Table 
                 rowKey='group'
@@ -276,7 +273,7 @@ export function MetricGroupTable ({
                             rowKey='name'
                             className='themed'
                             dataSource={record.metrics}
-                            pagination={{ pageSize: 5, size: 'small', showSizeChanger: false }}
+                            pagination={{ pageSize: 5, size: 'small' }}
                             rowSelection={ editing && { 
                                 selectedRowKeys: grouped_metrics.get(record.group)?.filter(metric => metric.checked).map(metric => metric.name) || [ ],
                                 onChange: keys => {
