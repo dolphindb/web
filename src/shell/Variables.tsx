@@ -431,10 +431,7 @@ function SuffixIcon ({ name }: { name: string }) {
                         data: await model.ddb.call<DdbDictObj<DdbVectorStringObj>>(
                             'load_table_variable_schema',
                             [name],
-                            model.node_type === NodeType.controller ? 
-                                    { node: model.datanode.name, func_type: DdbFunctionType.UserDefinedFunc }
-                                :
-                                    { }
+                            model.node_type === NodeType.controller ? { node: model.datanode.name } : undefined
                         )
                     }
                 }
