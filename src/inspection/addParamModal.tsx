@@ -3,7 +3,7 @@ import { t } from '@i18n/index.ts'
 import { Button, DatePicker, Form, Input, Modal, Select, Table } from 'antd'
 
 import type { Metric, MetricParam, MetricsWithStatus } from './type.ts'
-import { MetricTable } from './inspectionForm.tsx'
+import { MetricGroupTable } from './inspectionForm.tsx'
 
 export const addParamModal = NiceModal.create(({ 
     checked_metrics, 
@@ -22,11 +22,9 @@ export const addParamModal = NiceModal.create(({
         afterClose={modal.remove}
         onCancel={modal.hide}
         footer={null}
-        title={t('编辑指标')}
-        okText={t('确定')}
-        cancelText={t('取消')}
+        title={t('添加指标')}
     >
-      <MetricTable checked_metrics={checked_metrics} set_checked_metrics={set_checked_metrics} editing/>
+      <MetricGroupTable checked_metrics={checked_metrics} set_checked_metrics={set_checked_metrics} editing close={modal.hide}/>
     </Modal>
 })
  

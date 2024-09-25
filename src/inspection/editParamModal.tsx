@@ -1,6 +1,14 @@
+import { isObject } from 'util'
+
 import NiceModal, { useModal } from '@ebay/nice-modal-react'
 import { t } from '@i18n/index.ts'
 import { Button, DatePicker, Form, Input, Modal, Select } from 'antd'
+
+import { isEmpty } from 'lodash'
+
+import dayjs from 'dayjs'
+
+import { useMemo } from 'react'
 
 import type { Metric, MetricParam, MetricsWithStatus } from './type.ts'
 
@@ -10,11 +18,26 @@ export const EditParamModal = NiceModal.create(({
     set_checked_metrics 
 }: 
 { 
-    metric: Metric
+    metric: MetricsWithStatus
     checked_metrics: Map<string, MetricsWithStatus>
     set_checked_metrics: (metrics: Map<string, MetricsWithStatus>) => void 
 }) => {
     const modal = useModal()   
+    
+    const init_metric = useMemo(() => {
+        const { selected_params, params } = metric
+        let formatted_params = { }
+        if (selected_params !== null && typeof selected_params === 'object' && !isEmpty(metric.selected_params)) 
+            for (const [key, value] of Object.entries(selected_params)) {
+                let param = params.get(key)
+                if (param.type === 'TIMESTAMP')
+                    formatted_params[key] = dayjs(value)
+                else
+                    formatted_params[key] = value
+            }
+         
+        return { ...metric, selected_params: formatted_params }
+    }, [metric])
     
     return <Modal
         className='edit-param-modal'       
@@ -28,7 +51,7 @@ export const EditParamModal = NiceModal.create(({
         cancelText={t('取消')}
     >
         <Form 
-            initialValues={metric} 
+            initialValues={init_metric} 
             labelCol={{ span: 3 }} 
             wrapperCol={{ span: 21 }}
             onFinish={values => {
@@ -76,7 +99,7 @@ export const EditParamModal = NiceModal.create(({
                 <Input.TextArea disabled autoSize={{ maxRows: 10 }} />
             </Form.Item>
             
-           {metric.params.size &&  <Form.Item 
+           {Boolean(metric.params.size) &&  <Form.Item 
                 name='selected_params' 
                 label={<h3 className='form-item-label'>{t('参数配置')}</h3>} 
                 >
@@ -84,7 +107,10 @@ export const EditParamModal = NiceModal.create(({
                     [...metric.params.values()].map((param: MetricParam) => {
                         const { type, name } = param
                         
-                        return <Form.Item name={['selected_params', name]} label={name} labelCol={{ span: 2 }} wrapperCol={{ span: 22 }}>
+                        return <Form.Item 
+                                    name={['selected_params', name]}   
+                                    label={name} labelCol={{ span: 2 }} 
+                                    wrapperCol={{ span: 22 }}>
                                 {type === 'TIMESTAMP' ? 
                                 <DatePicker 
                                     showTime 

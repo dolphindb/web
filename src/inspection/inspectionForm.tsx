@@ -6,7 +6,7 @@ import useSWR from 'swr'
 
 import NiceModal from '@ebay/nice-modal-react'
 
-import { isObject } from 'lodash'
+import { isEmpty, isObject } from 'lodash'
 
 import { model } from '@/model.ts'
 
@@ -86,9 +86,9 @@ export function InspectionForm ({
                 {   
                     desc: values.desc,
                     metrics: metrics.map(({ name }) => name),
-                    nodes: metrics.map(({ selected_nodes }) => selected_nodes),
+                    nodes: metrics.map(({ selected_nodes }) => selected_nodes.length ? selected_nodes : ''),
                     params: metrics.map(({ selected_params, params }) => {
-                        if (isObject(selected_params)) {
+                        if (isObject(selected_params) && !isEmpty(selected_params)) {
                             let formatted_params = { }
                             for (const [key, value] of Object.entries(selected_params)) {
                                 let param = params.get(key)
@@ -155,7 +155,7 @@ export function InspectionForm ({
             </Form.Item>
             
             <div className='metric-table'>
-                <MetricTable
+                <MetricGroupTable
                     checked_metrics={metrics_with_nodes} 
                     set_checked_metrics={set_metrics_with_nodes}
                 />
@@ -218,19 +218,23 @@ export function InspectionForm ({
 }
 
 
-export function MetricTable ({ 
+export function MetricGroupTable ({ 
     checked_metrics,
     set_checked_metrics,
-    editing = false
+    editing = false,
+    close = () => { }
 }: 
 { 
     checked_metrics: Map<string, MetricsWithStatus>
     set_checked_metrics: (metrics: Map<string, MetricsWithStatus>) => void
     editing?: boolean
+    close?: () => void
 }) {    
 
-    // 根据 group 对指标进行分组
-    const grouped_metrics = useMemo(() => {
+    // 根据 group 对指标进行分组，同时用来管理选中状态
+    const [grouped_metrics, set_grouped_metrics] = useState(update_checked_metrics())
+    
+    function update_checked_metrics () {
         const groups = new Map<number, MetricsWithStatus[]>()
         checked_metrics.forEach(metric => {
             // 非 editing 模式下只展示 cheked 的指标
@@ -242,85 +246,119 @@ export function MetricTable ({
                 }
             })  
         return groups
+    }
+    
+    useEffect(() => {
+        set_grouped_metrics(update_checked_metrics())
     }, [checked_metrics])
     
-    return <Table 
-            rowKey='group'
-            title={() => editing ? null :  <div className='metric-table-title'>
-                            <h3>{t('指标列表')}</h3>
-                            <div className='metric-table-title-action'>
-                                <Button onClick={async () => NiceModal.show(addParamModal, { checked_metrics, set_checked_metrics })}>{t('添加指标')}</Button>
-                                <Button danger>{t('批量删除')}</Button>
-                            </div>
-                           
-                </div>}
-            dataSource={Array.from(grouped_metrics.keys()).map(group => ({
-                group,
-                metrics: grouped_metrics.get(group) || [ ]
-            }))}
-            expandable={{
-                expandedRowRender: record => <Table
-                        rowKey='name'
-                        dataSource={record.metrics}
-                        pagination={{ pageSize: 5 }}
-                        columns={[
-                            {
-                                title: t('名称'),
-                                dataIndex: 'displayName',
-                                key: 'displayName',
-                            },
-                            {
-                                title: t('描述'),
-                                dataIndex: 'desc',
-                                key: 'desc',
-                                render: (desc: string) => <Tooltip title={desc}><p className='ellipsis'>{desc}</p></Tooltip>
-                            },
-                            {
-                                title: t('版本'),
-                                dataIndex: 'version',
-                                key: 'version',
-                            },
-                            {
-                                title: t('创建时间'),
-                                dataIndex: 'createTime',
-                                key: 'createTime',
-                            },
-                            {
-                                title: t('更新时间'),
-                                dataIndex: 'updateTime',
-                                key: 'updateTime',
-                            },
-                            ...editing ? [ ] : [{
-                                title: t('操作'),
-                                dataIndex: 'action',
-                                key: 'action',
-                                render: (_, record) => <>
-                                        <Tooltip title={t('编辑指标')}>
-                                            <Button 
-                                                type='link' 
-                                                onClick={async () => 
-                                                    NiceModal.show(EditParamModal, { metric: record, checked_metrics, set_checked_metrics })}>
-                                                        {t('编辑')}
-                                            </Button>
-                                        </Tooltip>
-                                        <Button 
-                                            type='link'
-                                            danger>
-                                            {t('删除')}
-                                        </Button>
-                                    </>
-                            }],
+    
+    
+    
+    return <div className='metric-table'>
+            <Table 
+                rowKey='group'
+                title={() => editing ? null :  <div className='metric-table-title'>
+                                <h3>{t('指标列表')}</h3>
+                                <div className='metric-table-title-action'>
+                                    <Button onClick={async () => NiceModal.show(addParamModal, { checked_metrics, set_checked_metrics })}>{t('添加指标')}</Button>
+                                    <Button danger>{t('批量删除')}</Button>
+                                </div>
                             
-                        ]}
-                    />,
-                rowExpandable: record => record.metrics.length > 0,
-            }}
-            columns={[{
-                title: t('分组'),
-                dataIndex: 'group',
-                key: 'group',
-                render: (group: number) => metricGroups[group]
-            }]}
-            pagination={false}
+                    </div>}
+                dataSource={Array.from(grouped_metrics.keys()).map(group => ({
+                    group,
+                    metrics: grouped_metrics.get(group) || [ ]
+                }))}
+                expandable={{
+                    defaultExpandAllRows: true,
+                    expandedRowRender: record => <div className='expanded-table'><Table
+                            rowKey='name'
+                            className='themed'
+                            dataSource={record.metrics}
+                            pagination={{ pageSize: 5, size: 'small', showSizeChanger: false }}
+                            rowSelection={ editing && { 
+                                selectedRowKeys: grouped_metrics.get(record.group)?.filter(metric => metric.checked).map(metric => metric.name) || [ ],
+                                onChange: keys => {
+                                    let metrics = grouped_metrics.get(record.group)
+                                    metrics = metrics.map(mc => ({ ...mc, checked: keys.includes(mc.name) }))
+                                    set_grouped_metrics(new Map(grouped_metrics.set(record.group, metrics)))
+                                }
+                            }}
+                            columns={[
+                                {
+                                    title: t('名称'),
+                                    dataIndex: 'displayName',
+                                    key: 'displayName',
+                                },
+                                {
+                                    title: t('描述'),
+                                    dataIndex: 'desc',
+                                    key: 'desc',
+                                    render: (desc: string) => <Tooltip title={desc}><p className='ellipsis'>{desc}</p></Tooltip>
+                                },
+                                {
+                                    title: t('版本'),
+                                    dataIndex: 'version',
+                                    key: 'version',
+                                },
+                                {
+                                    title: t('创建时间'),
+                                    dataIndex: 'createTime',
+                                    key: 'createTime',
+                                },
+                                {
+                                    title: t('更新时间'),
+                                    dataIndex: 'updateTime',
+                                    key: 'updateTime',
+                                },
+                                ...editing ? [ ] : [{
+                                    title: t('操作'),
+                                    dataIndex: 'action',
+                                    key: 'action',
+                                    render: (_, record) => <>
+                                            <Tooltip title={t('编辑指标')}>
+                                                <Button 
+                                                    type='link' 
+                                                    onClick={async () => 
+                                                        NiceModal.show(EditParamModal, { metric: record, checked_metrics, set_checked_metrics })}>
+                                                            {t('编辑')}
+                                                </Button>
+                                            </Tooltip>
+                                            <Button 
+                                                type='link'
+                                                danger
+                                                onClick={() => {
+                                                    let new_checked_metrics = new Map(checked_metrics)
+                                                    new_checked_metrics.set(record.name, { ...record, checked: false })
+                                                    set_checked_metrics(new_checked_metrics)
+                                                }}
+                                                >
+                                                {t('删除')}
+                                            </Button>
+                                        </>
+                                }],
+                                
+                            ]}
+                        /></div>,
+                    rowExpandable: record => record.metrics.length > 0,
+                }}
+                columns={[{
+                    title: t('分组'),
+                    dataIndex: 'group',
+                    key: 'group',
+                    render: (group: number) => metricGroups[group]
+                }]}
+                pagination={false}
         />
+        {editing && <Button type='primary' onClick={() => {
+            let new_checked_metrics = new Map(checked_metrics)
+            // 更新checked
+            Array.from(grouped_metrics.values()).flat(1).forEach(metric => {
+                new_checked_metrics.set(metric.name, metric)
+            })
+            set_checked_metrics(new_checked_metrics)
+            close()
+        }}>{t('保存')}</Button>}
+        </div>
 }

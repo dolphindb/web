@@ -88,7 +88,7 @@
         
     .ant-table-title
         padding: 8px 0px
-    
+        
     h3
         margin-block: 8px
     
@@ -98,7 +98,7 @@
         
         .metric-table
             margin-top: 40px
-        
+
         .ellipsis
             width: 120px
             overflow: hidden
@@ -130,6 +130,7 @@
             margin-top: 40px
             align-self: flex-end
             
+            
         .metric-table-title
             display: flex
             justify-content: space-between
@@ -137,6 +138,11 @@
             .metric-table-title-action
                 display: flex
                 column-gap: 20px
+        
+        .expanded-table
+            .ant-table-cell
+                padding: 2px 4px !important        
+                
             
             
 .edit-param-modal
@@ -144,3 +150,10 @@
         padding: 0px !important
         .form-item-label
             margin: 10px 0
+            
+.add-param-modal
+    .metric-table
+        display: flex
+        flex-direction: column
+        row-gap: 20px
+        justify-content: end
