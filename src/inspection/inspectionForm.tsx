@@ -21,17 +21,17 @@ export function InspectionForm ({
     close, 
     refresh, 
     plan = null,
-    disabled = false
+    view_only = false,
+    set_view_only = (view_only: boolean) => { }
 }: { 
     close: () => void
     refresh: () => void
     plan?: Plan
-    disabled?: boolean 
+    view_only?: boolean 
+    set_view_only?: (view_only: boolean) => void
 }) {
     
     const { metrics } = inspection.use(['metrics'])
-    
-    const [view_only, set_view_only] = useState(disabled)
     
     const is_editing = !!plan
     
