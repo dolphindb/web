@@ -480,8 +480,10 @@ def deletePlan(id) {
 }
 
 def updatePlan(id, desc, metrics, mutable nodes, params, frequency, days, scheduleTime, enabled) {
+    id_ = id
+    name = exec first(name) from loadTable("dfs://ddb_internal_auto_inspection", "plans") where id == id_
     deletePlan(id)
-    return createPlan(id, desc, metrics, nodes, params, frequency, days, scheduleTime, enabled)
+    return createPlan(name, desc, metrics, nodes, params, frequency, days, scheduleTime, enabled)
 }
 
 def getPlans(planId=NULL) {
