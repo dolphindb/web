@@ -72,13 +72,13 @@
         "en": "Delete"
     },
     "请输入用户名": {
-        "en": "Input username"
+        "en": "Input username."
     },
     " 用户名 (默认: admin)": {
         "en": " username (default: admin)"
     },
     "请输入密码": {
-        "en": "Input password"
+        "en": "Input password."
     },
     " 密码 (默认: 123456)": {
         "en": " password (default: 123456)"
@@ -3999,7 +3999,7 @@
         "en": "Dashboard saved successfully"
     },
     "修改成功": {
-        "en": "Modified successfully"
+        "en": "Modified Successfully"
     },
     "当前数据面板列表为空": {
         "en": "Current dashboard list is empty"
@@ -5051,6 +5051,9 @@
     "请输入有效的服务器地址": {
         "en": "Enter a valid server address."
     },
+    "端口_data_collection": {
+        "en": "Port"
+    },
     "请输入端口": {
         "en": "Enter a port."
     },
@@ -5135,7 +5138,7 @@
     "参数值不能包含空格": {
         "en": "Value must not contain spaces."
     },
-    "kafka 消费参数配置": {
+    "Kafka 消费参数配置": {
         "en": "Kafka Configuration Properties"
     },
     "设置偏移量与分区，group.id 参数会失效": {
