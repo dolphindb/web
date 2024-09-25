@@ -1,5 +1,5 @@
 import { t } from '@i18n/index.ts'
-import { Button, Form, Input, Select, Table, TimePicker, Tooltip, type TableColumnsType } from 'antd'
+import { Button, Form, Input, Select, Table, TimePicker, Tooltip } from 'antd'
 import dayjs, { type Dayjs } from 'dayjs'
 import { useMemo, useState, useEffect } from 'react'
 import useSWR from 'swr'
