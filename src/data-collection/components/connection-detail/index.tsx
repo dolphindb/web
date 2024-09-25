@@ -81,7 +81,7 @@ export function ConnectionDetail (props: IProps) {
                 children: host ?? '-'
             }, 
             {
-                label: t('端口'),
+                label: t('端口', { context: 'data_collection' }),
                 key: 'port',
                 children: port ?? '-'
             }
