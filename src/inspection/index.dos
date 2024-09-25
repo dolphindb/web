@@ -318,6 +318,7 @@ def runPlan(planId, blocking=false) {
             update loadTable("dfs://ddb_internal_auto_inspection", "reports") set startTime = startTime_, endTime = endTime_, success = success_, totalNum = totalNum_, failedNum = failedNum_ where id = reportId_
         } catch(err) {
             update loadTable("dfs://ddb_internal_auto_inspection", "reports") set startTime = receivedTime, endTime = now(), success = false where id = reportId_
+            throw err
         }
     }
     jobId = submitJob("runPlan", name + planId, f, reportId_)
