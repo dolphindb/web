@@ -110,12 +110,14 @@ class ConfigModel extends Model<ConfigModel> {
         
         await this.invoke(
             'saveClusterNodesConfigs', 
-            [Array.from(this.nodes_configs).map(([key, config]) => {
-                new_nodes_configs.set(key, config)
-                const { value } = config
-                return `${key}=${value}`
-            })]
-        )
+            [[...iterator_map(
+                this.nodes_configs.entries(), 
+                ([key, config]) => {
+                    new_nodes_configs.set(key, config)
+                    const { value } = config
+                    return `${key}=${value}`
+                })
+            ]])
         
         await this.invoke('reloadClusterConfig')
         
