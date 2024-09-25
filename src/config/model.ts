@@ -23,7 +23,7 @@ class ConfigModel extends Model<ConfigModel> {
     }
     
     async save_controller_configs (configs: string[]) {
-        return this.invoke('saveControllerConfigs', [configs])
+        await this.invoke('saveControllerConfigs', [configs])
     }
     
     async get_cluster_nodes () {
@@ -125,7 +125,7 @@ class ConfigModel extends Model<ConfigModel> {
     
     async invoke <TResult> (
         name: string, 
-        args?: (string | number | boolean | string[] )[], 
+        args?: any[], 
         options?: DdbCallOptions
     ) {
         return model.ddb.invoke<TResult>(

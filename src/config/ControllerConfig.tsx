@@ -4,7 +4,7 @@ import { AutoComplete, Button, Popconfirm } from 'antd'
 
 import { useCallback, useMemo, useRef, useState } from 'react'
 
-import { genid, delay } from 'xshell/utils.browser.js'
+import { genid, delay, unique } from 'xshell/utils.browser.js'
 
 import { t } from '../../i18n/index.js'
 
@@ -107,7 +107,7 @@ export function ControllerConfig () {
         columns={cols}
         params={{ search_value }}
         request={async () => {
-            const value = Array.from(new Set((await config.load_controller_configs())))
+            const value = unique(await config.load_controller_configs())
             const configs = strs_2_controller_configs(value)
             set_configs(configs)
             return {
