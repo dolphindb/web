@@ -327,7 +327,7 @@ def runPlan(planId, blocking=false) {
     return jobId
 }
 
-def createPlan(name, desc, metrics, mutable nodes, params, frequency, days, scheduleTime, enabled=false, runNow=false) {
+def createPlan(name, desc, metrics, nodes, params, frequency, days, scheduleTime, enabled=false, runNow=false) {
     id = string(long(now()))
     print("start to create plan: " + name)
     if (metrics.size() != nodes.size()) {
@@ -354,13 +354,14 @@ def createPlan(name, desc, metrics, mutable nodes, params, frequency, days, sche
         params_.append!(toStdJson(item))
     }
     n = metrics.size()
+    nodesCopy = nodes
     for (i in 0..(n-1)) {
         nodes_ = exec nodes from loadTable("dfs://ddb_internal_auto_inspection", "metrics") where name == metrics[i]
         nodes_ = nodes_.first()
         if (!isNull(nodes_)) { // 对于支持配置指定节点运行的指标
             nodes_ = nodes_.split(",")
             if (isNull(nodes[i])) { // 如果没配置任何节点，则等价于配置了所有节点
-                nodes[i] = nodes_
+                nodesCopy[i] = nodes_
             } else {
                 if (!all(in(set(nodes[i]), set(nodes_)))) { // 如果配置了不支持的节点，报错
                     throw "metric " + metrics[i] + " 's nodes does not support running on the specific node, can only run on those nodes: " + nodes_.concat(",") 
@@ -395,7 +396,7 @@ def createPlan(name, desc, metrics, mutable nodes, params, frequency, days, sche
         enabled as enabled
     )
     nodes_ = []$STRING
-    for (node in nodes) {
+    for (node in nodesCopy) {
         if (isVoid(node)) {
             nodes_.append!(string(NULL))
         } else {
