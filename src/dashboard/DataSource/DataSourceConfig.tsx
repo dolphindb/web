@@ -11,7 +11,7 @@ import { DdbForm } from 'dolphindb/browser.js'
 
 import { WidgetChartType, dashboard, type Widget } from '../model.js'
 
-import { parse_code } from '../utils.js'
+import { parse_code } from '../utils.ts'
 
 import { model } from '../../model.js'
 

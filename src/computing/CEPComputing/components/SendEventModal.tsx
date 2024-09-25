@@ -9,7 +9,7 @@ import { type ICEPEngineDetail } from '../type.js'
 import { t } from '../../../../i18n/index.js'
 import { model } from '../../../model.js'
 
-import { convertDecimalType } from '../../../utils/decimal.js'
+import { convertDecimalType } from './DdbObjField.tsx'
 
 import { DdbObjField } from './DdbObjField.js'
 

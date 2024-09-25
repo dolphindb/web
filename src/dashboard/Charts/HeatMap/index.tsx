@@ -10,7 +10,7 @@ import { AxisFormFields } from '../../ChartFormFields/BasicChartFields.js'
 import { dashboard, type Widget } from '../../model.js'
 
 
-import { convert_chart_config, format_time } from '../../utils.js'
+import { convert_chart_config, format_time } from '../../utils.ts'
 import { BasicFormFields } from '../../ChartFormFields/BasicFormFields.js'
 import { ChartField } from '../../ChartFormFields/type.js'
 import { get_data_source } from '../../DataSource/date-source.js'

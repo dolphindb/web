@@ -1,11 +1,11 @@
-import './login.sass'
+import './index.sass'
 
 import { Form, Input, Button } from 'antd'
 import { LockOutlined, UserOutlined } from '@ant-design/icons'
 
-import { t } from '../i18n/index.js'
+import { t } from '@i18n/index.ts'
 
-import { model } from './model.js'
+import { model } from '@/model.ts'
 
 
 export function Login () {

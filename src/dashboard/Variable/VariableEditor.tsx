@@ -10,7 +10,7 @@ import { DdbForm } from 'dolphindb/browser.js'
 
 import { genid } from 'xshell/utils.browser.js'
 
-import { sql_formatter } from '../utils.js'
+import { sql_formatter } from '../utils.ts'
 import { t } from '../../../i18n/index.js'
 import { VariableMode } from '../type.js'
 

@@ -2,7 +2,7 @@ import { useMemo } from 'react'
 
 import { Layout, Menu, Typography } from 'antd'
 
-import { default as Icon, DoubleLeftOutlined, DoubleRightOutlined, ExperimentOutlined, SettingOutlined, CalculatorOutlined } from '@ant-design/icons'
+import { default as Icon, DoubleLeftOutlined, DoubleRightOutlined, ExperimentOutlined, SettingOutlined } from '@ant-design/icons'
 
 import { isNil, omitBy } from 'lodash'
 
@@ -16,9 +16,9 @@ import SvgOverview from '@/overview/icons/overview.icon.svg'
 import SvgConfig from '@/config/icons/config.icon.svg'
 import SvgShell from '@/shell/index.icon.svg'
 import SvgDashboard from '@/dashboard/icons/dashboard.icon.svg'
-import SvgJob from '@/job.icon.svg'
-import SvgLog from '@/log.icon.svg'
-import SvgFactor from '@/factor.icon.svg'
+import SvgJob from '@/job/job.icon.svg'
+import SvgLog from '@/log/log.icon.svg'
+import SvgFactor from '@/icons/factor.icon.svg'
 import SvgComputing from '@/computing/icons/computing.icon.svg'
 import SvgAccess from '@/access/icons/access.icon.svg'
 import SvgUser from '@/access/icons/user.icon.svg'

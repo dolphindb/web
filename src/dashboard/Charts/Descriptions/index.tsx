@@ -7,7 +7,7 @@ import { useMemo, useState } from 'react'
 import { isNumber, tail } from 'lodash'
 
 import { type Widget } from '../../model.js'
-import { convert_list_to_options, format_number, format_time, parse_text } from '../../utils.js'
+import { convert_list_to_options, format_number, format_time, parse_text } from '../../utils.ts'
 
 
 import { type IDescriptionsConfig } from '../../type.js'

@@ -17,7 +17,7 @@ import script from './index.dos'
 import SvgUpgrade from './upgrade.icon.svg'
 import zip_png from './zip.png'
 
-import { required } from '@/utils/index.js'
+import { required } from '@/utils.ts'
 import { model, DdbNodeState, NodeType } from '@/model.js'
 
 

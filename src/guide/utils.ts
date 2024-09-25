@@ -1,4 +1,4 @@
-import { safe_json_parse } from '../dashboard/utils.js'
+import { safe_json_parse } from '../dashboard/utils.ts'
 import { model } from '../model.js'
 
 export async function request<T> (func: string, params: any) { 

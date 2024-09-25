@@ -6,7 +6,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react'
 import { type RecommendInfo, type SecondStepInfo, type AdvancedInfos, type ExecuteResult } from '../type.js'
 import { FormDependencies } from '../../../components/formily/FormDependcies/index.js'
 
-import { request } from '../../utils.js'
+import { request } from '../../utils.ts'
 import { ENUM_TYPES, TIME_TYPES } from '../../constant.js'
 import { t } from '../../../../i18n/index.js'
 

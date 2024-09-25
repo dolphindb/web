@@ -10,7 +10,7 @@ import { DeleteOutlined, PlusCircleOutlined } from '@ant-design/icons'
 import { useMemo } from 'react'
 
 import { dashboard, type Widget } from '../../model.js'
-import { convert_list_to_options, format_number, parse_text } from '../../utils.js'
+import { convert_list_to_options, format_number, parse_text } from '../../utils.ts'
 
 import { type IGaugeConfig } from '../../type.js'
 

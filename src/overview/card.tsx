@@ -18,7 +18,7 @@ import SvgMemory from './icons/memory.icon.svg'
 import SvgDisk from './icons/disk.icon.svg'
 import SvgNetwork from './icons/network.icon.svg'
 import SvgTask from './icons/task.icon.svg'
-import { ns2ms } from './utils.js'
+import { ns2ms } from './utils.ts'
 
 
 export function OverviewCard ({
