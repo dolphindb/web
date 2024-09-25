@@ -394,7 +394,7 @@ params = [
     dict(`name`type, ["startTime", "TIMESTAMP"]),
     dict(`name`type, ["endTime", "TIMESTAMP"])
 ]
-newMetric(name, displayName, group, desc, nodes, script, params)
+newMetric(name, displayName, group, desc, nodes, script, toStdJson(params))
 go
 
 name = "errorLogs"

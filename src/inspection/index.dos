@@ -42,29 +42,34 @@ def newMetric(name, displayName, group, desc, nodes, script, params=NULL) {
     if (cnt > 0) {
         throw "duplicated metric name: " + name
     }
-    if (!isVoid(params)) {
-        for (param in params) {
-            // param = params[0]
-            if (param.form() != 5) {
-                throw "param must be a dict"
-            }
-            if (!all(in(["name", "type"], param.keys()))) {
-                throw "param dict must contain \"name\" and \"type\" key"
-            }
-            for (key in param.keys()) {
-                if (key == "name") {
-                    param[key] = string(param[key])
-                } else if (key == "type") {
-                    param[key] = string(param[key])
-                    validTypes = ["TIMESTAMP", "SYMBOL"]
-                    if (!in(param[key], validTypes)) {
-                        throw "invalid param type " + params[key] + " for param " + param["name"]
+    params_ = params
+    if (params.type() == STRING) { 
+        if (params != "null") { // 若为非 "null" 字符串，检查是否为合法 json
+            params__ = fromStdJson(params)
+            for (param in params__) {
+                // param = params__[0]
+                if (param.form() != 5) {
+                    throw "param must be a dict"
+                }
+                if (!all(in(["name", "type"], param.keys()))) {
+                    throw "param dict must contain \"name\" and \"type\" key"
+                }
+                for (key in param.keys()) {
+                    if (key == "name") {
+                        ;
+                    } else if (key == "type") {
+                        validTypes = ["TIMESTAMP", "SYMBOL"]
+                        if (!in(param[key], validTypes)) {
+                            throw "invalid param type " + params[key] + " for param " + param["name"]
+                        }
+                    } else if (key == "options") {
+                        ;
                     }
-                } else if (key == "options") {
-                    param[key] = string(param[key])
                 }
             }
         }
+    } else { // 默认值 NULL
+        params_ = toStdJson(params)
     }
 
     nodes_ = iif(nodes.form() == 1, nodes.concat(","), string(nodes))
@@ -76,7 +81,7 @@ def newMetric(name, displayName, group, desc, nodes, script, params=NULL) {
         desc as desc,
         nodes_ as nodes,
         blob(script) as script,
-        toStdJson(params) as params,
+        params_ as params,
         0 as version,
         ts as createTime,
         ts as updateTime
@@ -331,10 +336,14 @@ def createPlan(name, desc, metrics, mutable nodes, params, frequency, days, sche
     if (metrics.size() != params.size()) {
         throw "metrics' size must be same as params' size"
     }
-    params_ = []$STRING // NULL 数组不支持作为表的列
+    params_ = []$STRING // 若为 NULL 数组，不支持作为表的列
     for (i in (0.. (params.size() - 1))) {
-        item = params[i]
-        if (!isNull(item)) {
+        if (params[i].type() == STRING) {
+            item = fromStdJson(params[i])
+        } else {
+            item = params[i]
+        }
+        if (!isVoid(item)) {
             if (item.form() != 5) {
                 throw "invalid param: " + string(item) + ", index: " + i
             }
