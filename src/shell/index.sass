@@ -307,8 +307,47 @@
                     flex-direction: column
                     
                     .tabs
+                        height: 30px
                         display: flex
-                    
+                        overflow-x: auto
+                        &::-webkit-scrollbar
+                            height: 2px !important
+                        &::-webkit-scrollbar-track
+                            background: transparent
+                        &::-webkit-scrollbar-thumb
+                            background: rgba(0, 0, 0, 0.2)
+                            border-radius: 2px
+                            &:hover
+                                background: rgba(0, 0, 0, 0.3)
+                        .tab
+                            flex-shrink: 0
+                            display: flex
+                            align-items: center
+                            cursor: pointer
+                            padding: 2px 8px
+                            border-bottom: 1px solid transparent
+                            &:hover
+                                background-color: rgb(245, 246, 247)
+                            .close-icon
+                                display: flex
+                                align-items: center
+                                margin-left: 6px
+                                padding: 4px
+                                border-radius: 50%
+                                &:hover
+                                    background-color: rgb(225, 225, 225)
+                        .active
+                            border-bottom: 1px solid #3760F0
+                            background-color: #f0f0f0
+                        .add-tab
+                            cursor: pointer
+                            display: flex
+                            align-items: center
+                            padding: 2px 8px
+                            border-bottom: 1px solid transparent
+                            &:hover
+                                background-color: rgb(245, 246, 247)
+                            
                     .toolbar
                         display: flex
                         align-items: center

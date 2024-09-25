@@ -107,6 +107,8 @@ class ShellModel extends Model<ShellModel> {
     /** 所有的 tabs */
     tabs: string[] = [ ]
     
+    is_monaco_init = false
+    
     truncate_text (lines: string[]) {
         let i_first_non_empty = null
         let i_non_empty_end = null
@@ -311,7 +313,9 @@ class ShellModel extends Model<ShellModel> {
     }
     
     
-    save (code = this.editor.getValue()) {
+    save (code = this.editor?.getValue()) {
+        if (!code)
+            return
         if (this.current_tab) 
             localStorage.setItem(`${storage_keys.code}.${this.current_tab}`, code)
         else
@@ -323,19 +327,23 @@ class ShellModel extends Model<ShellModel> {
     }
     
     add_tab () {
-        const new_tab_name = t('新标签页') + (this.tabs.length + 1)
+        if (!this.is_monaco_init)
+            return
+        const new_tab_name = t('标签页') + (this.tabs.length + 1)
         this.set({ current_tab: new_tab_name })
         this.set({ tabs: [...this.tabs, new_tab_name] })
         this.editor.setValue('')
     }
     
     switch_tab (tab: string) {
+        if (!this.is_monaco_init)
+            return
         this.save()
         this.set({ current_tab: tab })
         if (tab)
-            this.editor.setValue(localStorage.getItem(`${storage_keys.code}.${tab}`) || '')
+            this.editor?.setValue(localStorage.getItem(`${storage_keys.code}.${tab}`) || '')
         else
-            this.editor.setValue(localStorage.getItem(`${storage_keys.code}`) || '')
+            this.editor?.setValue(localStorage.getItem(`${storage_keys.code}`) || '')
     }
     
     init_tabs (tabs: string[]) {

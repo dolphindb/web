@@ -1,7 +1,7 @@
 import { useEffect, useState, type MouseEvent } from 'react'
 
 import { Switch } from 'antd'
-import { DoubleLeftOutlined, DoubleRightOutlined } from '@ant-design/icons'
+import { CloseOutlined, DoubleLeftOutlined, DoubleRightOutlined, PlusOutlined } from '@ant-design/icons'
 
 import { t } from '@i18n/index.js'
 
@@ -26,7 +26,7 @@ export function ShellEditor ({ collapser }) {
     
     const [collapsed, set_collapsed] = useState(false)
     
-    const { tabs } = shell.use(['tabs'])
+    const { tabs, current_tab, is_monaco_init } = shell.use(['tabs', 'current_tab', 'is_monaco_init'])
     
     // 标签页关闭前自动保存代码
     useEffect(() => {
@@ -53,32 +53,35 @@ export function ShellEditor ({ collapser }) {
         
         function close_tab (ev: MouseEvent<HTMLSpanElement>, tab: string) {
             ev.stopPropagation()
+            if (!is_monaco_init)
+                return
             const index = tabs.indexOf(tab)
             const new_tabs = tabs.filter(t => t !== tab)
-            if (new_tabs.length === 0) 
-                shell.switch_tab('')
-               else if (index === 0)
-                   shell.switch_tab(new_tabs[0])
-               else
-                   shell.switch_tab(new_tabs[index - 1])
+            if (tab === current_tab)
+                if (new_tabs.length === 0) 
+                    shell.switch_tab('')
+                else if (index === 0)
+                    shell.switch_tab(new_tabs[0])
+                else
+                    shell.switch_tab(new_tabs[index - 1])
             
             shell.set({ tabs: new_tabs })
             shell.remove_tab(tab)
         }
         
         const tab_views = tabs.map(tab => {
-            return <div key={tab} onClick={() => { shell.switch_tab(tab) }}>
+            return <div className={`tab ${tab === current_tab ? 'active' : ''}`} key={tab} onClick={() => { shell.switch_tab(tab) }}>
                 {tab}
-                <span onClick={ev => { close_tab(ev, tab) }}>x</span>
+                <div onClick={ev => { close_tab(ev, tab) }} className='close-icon'><CloseOutlined style={{ fontSize: 12 }} /></div>
             </div>
         })
         
         return <>
-            <div key='default' onClick={() => { shell.switch_tab('') }}>
+            <div className={`tab ${!current_tab ? 'active' : ''}`} key='default' onClick={() => { shell.switch_tab('') }}>
                 {t('默认标签')}
             </div>
             {tab_views}
-            <div className='add-tab' onClick={() => { shell.add_tab() }}>{t('添加标签页')}</div>
+            <div className='add-tab' onClick={() => { shell.add_tab() }}><PlusOutlined style={{ fontSize: 12 }} /></div>
         </>
     }
     
@@ -233,6 +236,7 @@ export function ShellEditor ({ collapser }) {
                 
                 
                 shell.set({ editor, monaco })
+                shell.set({ is_monaco_init: true })
             }}
             
             on_change={(value, event) => {
