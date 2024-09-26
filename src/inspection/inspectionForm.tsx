@@ -20,18 +20,19 @@ import { addParamModal } from './addParamModal.tsx'
 export function InspectionForm ({ 
     refresh, 
     plan = null,
-    view_only = false,
-    set_view_only = (view_only: boolean) => { }
+    disabled = false,
 }: { 
     refresh: () => void
     plan?: Plan
-    view_only?: boolean 
-    set_view_only?: (view_only: boolean) => void
+    disabled?: boolean 
 }) {
+    
     
     const { metrics } = inspection.use(['metrics'])
     
     const is_editing = !!plan.id
+    
+    const [view_only, set_view_only] = useState(is_editing ? disabled : false)
     
     const {  mutate: mutate_plan_detail } = useSWR(
         is_editing ? ['get_plan_detail', plan] : null, 
@@ -131,7 +132,7 @@ export function InspectionForm ({
                 {
                     is_editing && <div>
                         <span>{t('编辑模式：')}</span>
-                        <Switch value={view_only} onChange={set_view_only}/></div>
+                        <Switch value={!view_only} onChange={checked => { set_view_only(!checked) }}/></div>
                 }
                 <Tooltip title={view_only ? t('立即执行一次巡检') : t('保存当前方案并立即执行一次巡检')}>
                     <Button type='primary'  onClick={async () => {

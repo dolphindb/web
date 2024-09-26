@@ -59,7 +59,7 @@ export function Inspection () {
         return [enabled_plans, disabled_palns]
     }, [ plans, search_key ])
     
-    return current_report ? <ReportDetailPage/> : current_plan ? <EditInspectionModal plan={current_plan} mutate_plans={refresh}/> : <div>
+    return current_report ? <ReportDetailPage/> : current_plan ? <EditInspectionModal plan={current_plan} mutate_plans={refresh} disabled/> : <div>
         <div className='inspection-header'>
             <div className='inspection-header-left'>
                 <Button onClick={() => {
