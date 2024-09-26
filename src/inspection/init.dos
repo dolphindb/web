@@ -660,9 +660,9 @@ newMetric(name, displayName, group, desc, nodes, script, params)
 go
 
 name = "biggestChunks"
-displayName = "过大的分区 top10"
+displayName = "分区大小统计 top10"
 group = "1"
-desc = "过大的分区 top10。"
+desc = "分区大小统计 top10。"
 nodes = NULL // NULL 指该指标不能指定节点运行，选择任一数据节点执行
 script = '
 def dfsPath2tableName(dfsPath){
