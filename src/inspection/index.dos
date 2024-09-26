@@ -149,7 +149,7 @@ def generateDefaultMetricParams(planId) {
     
     params["logLevel"] = ["ERROR", "WARNING"]
 
-    params["checkInterval"] = 100000
+    params["checkInterval"] = 10000
 
     params["preserved"] = 1 // 用于使 fromStdJson 转换字典值为 ANY
 
