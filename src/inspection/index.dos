@@ -541,7 +541,11 @@ def getReports(planId=NULL, reportId=NULL, startTime=NULL, endTime=NULL) {
     }
     res = sql(sqlCol("*"), loadTable("dfs://ddb_internal_auto_inspection", "reports"), whereCond, orderBy=sqlCol("startTime"), ascOrder=0).eval()
 
-    update res set runningTime = endTime - startTime
+    addColumn(res, "runningTime", LONG)
+    update res set runningTime = endTime - startTime where startTime != NULL
+    update res set startTime = receivedTime where success == NULL
+    res = select * from res order by startTime desc
+    update res set receivedTime = NULL where success == NULL
 
     return res
 }
