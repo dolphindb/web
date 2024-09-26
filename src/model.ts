@@ -10,10 +10,10 @@ import type { NotificationInstance } from 'antd/es/notification/interface.d.ts'
 import 'xshell/polyfill.browser.js'
 import { filter_values, strcmp } from 'xshell/utils.browser.js'
 import { request } from 'xshell/net.browser.js'
-
+import semver from 'semver'
 import {
-    DDB, SqlStandard, type DdbObj, DdbInt, DdbLong, type InspectOptions,
-    DdbDatabaseError, type DdbTableData,
+    DDB, SqlStandard, DdbInt, DdbLong, type InspectOptions,
+    DdbDatabaseError, type DdbObj, type DdbTableData,
     DdbString
 } from 'dolphindb/browser.js'
 
@@ -207,6 +207,24 @@ export class DdbModel extends Model<DdbModel> {
         this.redirection = params.get('redirection') as PageViews
     }
     
+    async check_client_auth (): Promise<boolean> {
+        // 获取版本
+        const raw_version = (await this.ddb.call<DdbObj<string>>('version', undefined, { urgent: true })).data()
+        const version = (raw_version.split(' ')[0] ?? '').replace('00', '0')
+        // 判断版本是否大于 2.00.14 或者 3.00.2，2 和 3 要分开判断
+        if (semver.valid(version)) {
+            const isGreaterThanRequired = semver.satisfies(version, '>=2.0.14 <3 || >=3.0.2')
+            if (isGreaterThanRequired) {
+                const is_client_auth = (await this.ddb.call<DdbObj<boolean>>('isClientAuth', undefined, { urgent: true })).data()
+                if (is_client_auth && !this.logined) {
+                    this.goto_login(undefined, true)
+                    return false
+                }
+            }
+        }
+        
+        return true
+    }
     
     async init () {
         console.log(t('web 开始初始化，当前处于{{mode}}模式，版本为 {{version}}', {
@@ -240,6 +258,10 @@ export class DdbModel extends Model<DdbModel> {
                         }
             }
         
+        const need_force_client_login = !(await this.check_client_auth())
+        if (need_force_client_login)
+            return
+            
         await config.load_configs() // 必须先调用上面的函数，load_configs 依赖 controller alias 等信息   
         
         console.log(t('配置:'), await this.ddb.invoke<Record<string, string>>('getConfig'))
