@@ -280,21 +280,14 @@ export function MetricGroupTable ({
                             rowKey='name'
                             className='themed'
                             dataSource={record.metrics}
-                            pagination={{ pageSize: 5, size: 'small' }}
+                            pagination={false}
                             rowSelection={editing && { 
                                 selectedRowKeys: grouped_metrics.get(record.group)?.filter(metric => metric.checked).map(metric => metric.name) || [ ],
-                                onChange: (keys, selectedRows, info) => {
-                                    if (info.type === 'all')
-                                        return
+                                onChange: keys => {
                                     let metrics = grouped_metrics.get(record.group)
                                     metrics = metrics.map(mc => ({ ...mc, checked: keys.includes(mc.name) }))
                                     set_grouped_metrics(new Map(grouped_metrics.set(record.group, metrics)))
                                 },
-                                onSelectAll: (checked, selectedRows, changeRows) => {
-                                    let metrics = grouped_metrics.get(record.group) || [ ]
-                                    metrics = metrics.map(mc => ({ ...mc, checked }))
-                                    set_grouped_metrics(new Map(grouped_metrics.set(record.group, metrics)))
-                                }
                                 
                             }}
                             columns={[
