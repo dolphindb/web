@@ -128,7 +128,6 @@ def updateMetric(name_, group_, desc_, nodes, script_, params_) {
 }
 
 def generateDefaultMetricParams(planId) {
-    // planId_ = "fully"
     planId_ = planId
     params = dict(STRING, ANY)
 
@@ -149,6 +148,8 @@ def generateDefaultMetricParams(planId) {
     params["endTime"] = endTime
     
     params["logLevel"] = ["ERROR", "WARNING"]
+
+    params["checkInterval"] = 100000
 
     params["preserved"] = 1 // 用于使 fromStdJson 转换字典值为 ANY
 

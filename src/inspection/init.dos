@@ -159,24 +159,41 @@ newMetric(name, displayName, group, desc, nodes, script)
 go
 
 // -------------------------- group 1 ------------------------------
-name = "recoveryStatus1"
-displayName = "恢复事务状态1"
+name = "recoveryStatus"
+displayName = "恢复事务状态"
 group = "1"
-desc = "检查恢复事务状态是否正常。"
+desc = "检查恢复事务状态是否正常，以及在指定时间内是否推进。默认检查时间间隔 10000 ms。"
 nodes = NULL // NULL 指该指标不能指定节点运行，选择任一数据节点执行
 script = '
-def recoveryStatus1(mutable params){
-    failureTask=select * from rpc(getControllerAlias(),getRecoveryTaskStatus) where FailureReason!=NULL;
+def recoveryStatus(mutable params){
+    failureTask=select * from rpc(getControllerAlias(),getRecoveryTaskStatus) where FailureReason == "Aborted";
     if(failureTask.size()>0){
         params["recoveryStatus2_failureTask"]=failureTask;
-        return false,failureTask.size()+" 个副本恢复任务执行失败","调用getRecoveryTaskStatus排查错误原因";
+        return false,failureTask.size()+" 个副本恢复任务执行失败","调用 getRecoveryTaskStatus 排查错误原因。";
     }
+    prevInProcessTask=select * from rpc(getControllerAlias(),getRecoveryTaskStatus) where Status=="In-Progress";
+
+    if(prevInProcessTask.size() == 0){
+        return (true, NULL, NULL)
+    }
+
+    checkInterval = iif(isVoid(params["checkInterval"]), 10000, int(params["checkInterval"]))
+    sleep(checkInterval)
+    
     inProcessTask=select * from rpc(getControllerAlias(),getRecoveryTaskStatus) where Status=="In-Progress";
-    params["recoveryStatus2_inProcessTask"]=inProcessTask;
+    if(prevInProcessTask.size()>0&&inProcessTask.size()>0){
+        existTask=set(prevInProcessTask.TaskId)-set(inProcessTask.TaskId);
+        if(existTask.size()==prevInProcessTask.size()){
+            return false,prevInProcessTask.size()+"个副本恢复任务在 " + checkInterval + "ms 时间内一直没有推进或推进非常缓慢","调用 getRecoveryTaskStatus 排查卡住原因。";
+        }
+    }
     return true,NULL,NULL;
 }
 '
-newMetric(name, displayName, group, desc, nodes, script)
+params = [
+    dict(`name`type, ["checkInterval", "INT"])
+]
+newMetric(name, displayName, group, desc, nodes, script, params)
 go
 
 name = "diskUsage"
@@ -750,34 +767,6 @@ params = [
     dict(`name`type, ["endTime", "TIMESTAMP"])
 ]
 newMetric(name, displayName, group, desc, nodes, script, params)
-go
-
-name = "recoveryStatus2"
-displayName = "恢复事务状态2"
-group = "1"
-desc = "检查恢复事务执行是否推进。"
-nodes = NULL // NULL 指该指标不能指定节点运行，选择任一数据节点执行
-script = '
-def recoveryStatus2(mutable params){
-    failureTask=params["recoveryStatus2_failureTask"];
-    if(failureTask.count()>0){
-        return false,failureTask.count()+"个副本恢复任务执行失败","调用getRecoveryTaskStatus排查错误原因";
-    }
-    prevInProcessTask=params["recoveryStatus2_inProcessTask"];
-    if(prevInProcessTask.isVoid()){
-        throw "没有上次recoveryStatus运行的结果";
-    }
-    inProcessTask=select * from rpc(getControllerAlias(),getRecoveryTaskStatus) where Status=="In-Progress";
-    if(prevInProcessTask.size()>0&&inProcessTask.size()>0){
-        existTask=set(prevInProcessTask.TaskId)-set(inProcessTask.TaskId);
-        if(existTask.size()==prevInProcessTask.size()){
-            return false,prevInProcessTask.size()+"个副本恢复任务一直没有推进或推进非常缓慢","调用getRecoveryTaskStatus排查错误原因";
-        }
-    }
-    return true,NULL,NULL;
-}
-'
-newMetric(name, displayName, group, desc, nodes, script)
 go
 
 name = "commonDolphinDBConfig"
