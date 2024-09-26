@@ -262,7 +262,7 @@ export function MetricGroupTable ({
     }, [checked_metrics])
     
     return <div className='metric-table'>
-            {grouped_metrics.size > 0 && <Table 
+            <Table 
                 rowKey='group'
                 title={() => editing ? null :  <div className='metric-table-title'>
                                 <h3>{t('指标列表')}</h3>
@@ -345,7 +345,7 @@ export function MetricGroupTable ({
                     render: (group: number) => metricGroups[group]
                 }]}
                 pagination={false}
-        />}
+        />
         {editing &&  <div className='modal-footer'>
                         <Button htmlType='button' onClick={close}>
                             {t('取消')}
