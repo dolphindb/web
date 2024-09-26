@@ -207,6 +207,8 @@ export class DdbModel extends Model<DdbModel> {
         this.redirection = params.get('redirection') as PageViews
     }
     
+    /** 检查是否需要客户端验证
+        @returns 是否需要客户端鉴权，且跳转到强制登录 */
     async check_client_auth (): Promise<boolean> {
         // 获取版本
         const raw_version = (await this.ddb.call<DdbObj<string>>('version', undefined, { urgent: true })).data()
@@ -218,12 +220,12 @@ export class DdbModel extends Model<DdbModel> {
                 const is_client_auth = (await this.ddb.call<DdbObj<boolean>>('isClientAuth', undefined, { urgent: true })).data()
                 if (is_client_auth && !this.logined) {
                     this.goto_login(undefined, true)
-                    return false
+                    return true
                 }
             }
         }
         
-        return true
+        return false
     }
     
     async init () {
@@ -258,9 +260,11 @@ export class DdbModel extends Model<DdbModel> {
                         }
             }
         
-        const need_force_client_login = !(await this.check_client_auth())
-        if (need_force_client_login)
+        const need_force_client_login = await this.check_client_auth()
+        if (need_force_client_login) {
+            this.goto_login(undefined, true)
             return
+        }
             
         await config.load_configs() // 必须先调用上面的函数，load_configs 依赖 controller alias 等信息   
         
