@@ -214,6 +214,15 @@ export class DdbModel extends Model<DdbModel> {
             version: WEB_VERSION
         }))
         
+        await Promise.all([
+            this.get_node_type(),
+            this.get_node_alias(),
+            this.get_controller_alias()
+        ])
+        
+        await this.get_cluster_perf(true)
+        await this.check_leader_and_redirect()
+        
         if (this.autologin)
             try {
                 await this.login_by_ticket()
@@ -231,22 +240,9 @@ export class DdbModel extends Model<DdbModel> {
                         }
             }
         
-        await Promise.all([
-            this.get_node_type(),
-            this.get_node_alias(),
-            this.get_controller_alias()
-        ])
-        
-        await Promise.all([
-            // 必须先调用上面的函数，load_configs 依赖 controller alias 等信息
-            config.load_configs(),
-            
-            this.get_cluster_perf(true)
-        ])
+        await config.load_configs() // 必须先调用上面的函数，load_configs 依赖 controller alias 等信息   
         
         console.log(t('配置:'), await this.ddb.invoke<Record<string, string>>('getConfig'))
-        
-        await this.check_leader_and_redirect()
         
         this.set({
             oauth: config.get_boolean_config('oauth'),
@@ -555,7 +551,7 @@ export class DdbModel extends Model<DdbModel> {
     
     
     async get_node_type () {
-        const node_type = await this.ddb.invoke<NodeType>('getNodeType', undefined, { urgent: true })
+        const node_type = (await this.ddb.call<DdbObj<string>>('getNodeType', undefined, { urgent: true })).data()
         this.set({ node_type })
         console.log(t('节点类型:'), NodeType[node_type])
         return node_type
@@ -563,7 +559,7 @@ export class DdbModel extends Model<DdbModel> {
     
     
     async get_node_alias () {
-        const node_alias = await this.ddb.invoke<string>('getNodeAlias', undefined, { urgent: true })
+        const node_alias = (await this.ddb.call<DdbObj<string>>('getNodeAlias', undefined, { urgent: true })).data()
         this.set({ node_alias })
         console.log(t('节点名称:'), node_alias)
         return node_alias
@@ -571,7 +567,7 @@ export class DdbModel extends Model<DdbModel> {
     
     
     async get_controller_alias () {
-        const controller_alias = await this.ddb.invoke('getControllerAlias', undefined, { urgent: true })
+        const controller_alias = (await this.ddb.call('getControllerAlias', undefined, { urgent: true })).data()
         this.set({ controller_alias })
         console.log(t('控制节点:'), controller_alias)
         return controller_alias
@@ -724,8 +720,8 @@ export class DdbModel extends Model<DdbModel> {
         https://www.dolphindb.cn/cn/help/FunctionsandCommands/FunctionReferences/g/getClusterPerf.html  
         Only master or single mode supports function getClusterPerf. */
     async get_cluster_perf (print: boolean) {
-        const nodes = (
-            await this.ddb.invoke<DdbTableData<DdbNode>>('getClusterPerf', [true], {
+        const nodesdata = (
+            await this.ddb.call('getClusterPerf', [true], {
                 urgent: true,
                 
                 ... this.node_type === NodeType.controller || this.node_type === NodeType.single
@@ -733,8 +729,8 @@ export class DdbModel extends Model<DdbModel> {
                     : { node: this.controller_alias }
             })
         )
-        .data
-        .sort((a, b) => strcmp(a.name, b.name))
+        .data().data
+        const nodes = nodesdata.sort((a, b) => strcmp(a.name, b.name))
         
         if (print)
             console.log(t('集群节点:'), nodes)
