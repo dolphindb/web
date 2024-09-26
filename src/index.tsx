@@ -64,7 +64,16 @@ function DolphinDB () {
     return <ConfigProvider
         locale={locales[language] as any}
         button={{ autoInsertSpace: false }}
-        theme={{ hashed: false, token: { borderRadius: 0, motion: false } }}
+        theme={{
+            hashed: false,
+            token: {
+                motion: false,
+                
+                borderRadius: 0,
+                
+                controlOutlineWidth: 0,
+            }
+        }}
         renderEmpty={() => <div className='empty-placeholder' />}
     >
         <SWRConfig value={{

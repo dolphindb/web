@@ -366,6 +366,16 @@ html, body
     
 
 // ------------ antd 样式覆写
+.ant-btn
+    transition: unset
+
+.ant-btn-primary
+    box-shadow: unset
+    
+.ant-btn-default
+    box-shadow: unset
+    
+
 .ant-dropdown
     .login
         align-items: flex-start
@@ -384,24 +394,14 @@ html, body
     border-radius: unset
     
 .ant-modal-root
+    // 增加 modal 标题下方空白
+    .ant-modal-header
+        margin-bottom: 18px
+    
     .ant-modal-mask
         background-color: unset
     
     .ant-modal
         .ant-modal-content
             padding: 20px
-
-.ant-btn
-    transition: unset
-
-.ant-btn-primary
-    box-shadow: unset
-    
-.ant-btn-default
-    box-shadow: unset
-
-// 增加 modal 标题下方空白
-.ant-modal-root
-    .ant-modal-header
-        margin-bottom: 18px
 

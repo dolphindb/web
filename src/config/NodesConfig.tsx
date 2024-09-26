@@ -164,7 +164,7 @@ export function NodesConfig () {
                             if (rowKey !== key)
                                 config.nodes_configs.delete(rowKey as string)
                             await config.change_configs([[key, { name, qualifier, value, key }]])
-                            model.message.success(t('保存成功，重启集群生效'))
+                            model.message.success(t('保存成功，立即生效'))
                         },
                         onDelete: async key => delete_config(key as string),
                         deletePopconfirmMessage: t('确认删除此配置项？'),
