@@ -114,7 +114,6 @@ export function InspectionForm ({
             model.message.success(is_editing ? t('修改成功') : t('创建成功'))
             refresh()
             mutate_plan_detail()
-            close()
         } catch (error) {
             model.show_error({ error })
         }

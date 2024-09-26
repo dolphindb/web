@@ -106,6 +106,11 @@ function ReportListTable  ({
             key: 'user',
         },
         {
+            title: '收到作业时间',
+            dataIndex: 'receivedTime',
+            key: 'receivedTime',
+        },
+        {
             title: '开始时间',
             dataIndex: 'startTime',
             key: 'startTime',
