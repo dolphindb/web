@@ -4,7 +4,7 @@ def clearEnv() {
     try {
         plans = select * from loadTable("dfs://ddb_internal_auto_inspection", "plans")
         for (plan in plans) {
-            try { deleteScheduledJob(plan["name"] + plan["id"]) } catch(err) {}
+            try { deleteScheduledJob("schedulePlan_" + plan["id"]) } catch(err) {}
         }
     } catch(err) {} 
     
@@ -285,7 +285,39 @@ def runPlan(planId, blocking=false) {
 
     print("start to run plan: " + string(planId))
     writeLog("autoInspection: start to run plan: " + string(planId))
-    reportId_ = submitJob(name + planId, desc, runPlanInner, planId)
+    onComplete = def(jobId, jobDesc, success, result) {
+        do {
+            info = select * from loadTable("dfs://ddb_internal_auto_inspection", "reports") where id == jobId
+            if (info.size() == 0) {
+                sleep(100) // 等 success=NULL 的记录写入
+            }
+        } while (info.size() == 0)
+        try {
+            if (success == true) {
+                jobId_ = jobId
+                update result set reportId = jobId_
+                loadTable("dfs://ddb_internal_auto_inspection", "report_details").append!(result)
+                reportJobInfo = getJobStatus(jobId)
+                startTime_ = reportJobInfo[0]["startTime"]
+                endTime_ = reportJobInfo[0]["endTime"]
+                success_ = all(result["success"])
+                totalNum_ = exec count(distinct(metricName)) from result
+                failedNum_ = select count(*) from result where success == false group by metricName
+                failedNum_ = failedNum_.size()
+                update loadTable("dfs://ddb_internal_auto_inspection", "reports") set startTime = startTime_, endTime = endTime_, success = success_, totalNum = totalNum_, failedNum = failedNum_ where id = jobId
+                writeLog("autoInspection: run plan successfully, plan id: " + info["planId"].first() + ", report id: " + jobId)
+            } else {
+                update loadTable("dfs://ddb_internal_auto_inspection", "reports") set startTime = receivedTime, endTime = now(), success = false where id = jobId
+                writeLog("autoInspection: run plan failed, plan id: " + info["planId"].first() + ", report id: " + jobId + ", err msg: " + string(result).last())
+                throw result
+            }
+        } catch(err) {
+            update loadTable("dfs://ddb_internal_auto_inspection", "reports") set startTime = receivedTime, endTime = now(), success = false where id = jobId
+            writeLog("autoInspection: run plan failed, plan id: " + info["planId"].first() + ", report id: " + jobId + ", err msg: " + string(result).last())
+            throw err
+        }
+    }
+    reportId_ = submitJobEx2("runPlan_" + planId, desc, 4, 2, onComplete, runPlanInner, planId)
     user = getCurrentSessionAndUser()[1]
     reportJobInfo = getJobStatus(reportId_)
     report = table(
@@ -301,31 +333,12 @@ def runPlan(planId, blocking=false) {
         int(NULL) as totalNum,
         int(NULL) as failedNum
     )
-
+    // 先写一条 success=NULL 的记录表示执行中
     loadTable("dfs://ddb_internal_auto_inspection", "reports").append!(report)
-    f = def(reportId_) {
-        try {
-            reportDetails = getJobReturn(reportId_, true)
-            update reportDetails set reportId = reportId_
-            loadTable("dfs://ddb_internal_auto_inspection", "report_details").append!(reportDetails)
-            reportJobInfo = getJobStatus(reportId_)
-            startTime_ = reportJobInfo[0]["startTime"]
-            endTime_ = reportJobInfo[0]["endTime"]
-            success_ = all(reportDetails["success"])
-            totalNum_ = exec count(distinct(metricName)) from reportDetails
-            failedNum_ = select count(*) from reportDetails where success == false group by metricName
-            failedNum_ = failedNum_.size()
-            update loadTable("dfs://ddb_internal_auto_inspection", "reports") set startTime = startTime_, endTime = endTime_, success = success_, totalNum = totalNum_, failedNum = failedNum_ where id = reportId_
-        } catch(err) {
-            update loadTable("dfs://ddb_internal_auto_inspection", "reports") set startTime = receivedTime, endTime = now(), success = false where id = reportId_
-            throw err
-        }
-    }
-    jobId = submitJob("runPlan", name + planId, f, reportId_)
     if (blocking) {
-        getJobReturn(jobId, true)
+        getJobReturn(reportId_, true)
     }
-    return jobId
+    return reportId_
 }
 
 def createPlan(name, desc, metrics, nodes, params, frequency, days, scheduleTime, enabled=false, runNow=false) {
@@ -422,17 +435,17 @@ def createPlan(name, desc, metrics, nodes, params, frequency, days, scheduleTime
 
     try {
         if (enabled) {
-            scheduleJob(name + id, desc, runPlan{id}, minute(scheduleTime), date(startDate), date(endDate), string(frequency), int(days))
+            scheduleJob("schedulePlan_" + id, desc, runPlan{id}, minute(scheduleTime), date(startDate), date(endDate), string(frequency), int(days))
         }
         if (runNow) {
             runPlan(id)
         }
     } catch(err) {
-        writeLog("autoInspection: create schedule job failed: ", err)
+        writeLog("autoInspection: create schedule job failed, plan id: " + id + ", err msg: " + string(err).last())
         id_ = id
         delete from loadTable("dfs://ddb_internal_auto_inspection", "plans") where id = id_
         delete from loadTable("dfs://ddb_internal_auto_inspection", "plan_details") where planId = id_
-        try { deleteScheduledJob(id) } catch(err_) {}
+        try { deleteScheduledJob("schedulePlan_" + id) } catch(err_) {}
         throw err
     }
 
@@ -446,11 +459,11 @@ def enablePlan(id) {
         throw "plan id " + id_ + " not found"
     }
     plan = plan[0]
-    if(getScheduledJobs(plan.name + plan.id).size() > 0) {
+    if(getScheduledJobs("schedulePlan_" + plan.id).size() > 0) {
         throw "plan id " + id_ + " is already enabled"
     }
 
-    scheduleJob(plan.name + plan.id, plan.desc, runPlan{plan.id}, minute(plan.scheduleTime), date(plan.startDate), date(plan.endDate), string(plan.frequency), int(plan.days))
+    scheduleJob("schedulePlan_" + plan.id, plan.desc, runPlan{plan.id}, minute(plan.scheduleTime), date(plan.startDate), date(plan.endDate), string(plan.frequency), int(plan.days))
     update loadTable("dfs://ddb_internal_auto_inspection", "plans") set enabled = true where id == id_
 }
 
@@ -460,12 +473,12 @@ def disablePlan(id) {
     if (plan.size() == 0) {
         throw "plan id " + id_ + " not found"
     }
-    name = plan[0]["name"]
-    if(getScheduledJobs(name + id_).size() == 0) {
+
+    if(getScheduledJobs("schedulePlan_" + id_).size() == 0) {
         throw "plan id " + id_ + " is already disabled"
     }
 
-    deleteScheduledJob(name + id_)
+    deleteScheduledJob("schedulePlan_" + id_)
     update loadTable("dfs://ddb_internal_auto_inspection", "plans") set enabled = false where id == id_
 }
 
@@ -475,13 +488,13 @@ def deletePlan(id) {
     delete from loadTable("dfs://ddb_internal_auto_inspection", "plans") where id in id_
     delete from loadTable("dfs://ddb_internal_auto_inspection", "plan_details") where planId in id_
     for (plan in plans) {
-        try { deleteScheduledJob(plan["name"] + plan["id"]) } catch(err) {}
+        try { deleteScheduledJob("schedulePlan_" + plan["id"]) } catch(err) {}
     }
 }
 
-def updatePlan(id, name, desc, metrics, mutable nodes, params, frequency, days, scheduleTime, enabled) {
+def updatePlan(id, name, desc, metrics, nodes, params, frequency, days, scheduleTime, enabled, runNow=false) {
     deletePlan(id)
-    return createPlan(name, desc, metrics, nodes, params, frequency, days, scheduleTime, enabled)
+    return createPlan(name, desc, metrics, nodes, params, frequency, days, scheduleTime, enabled, runNow)
 }
 
 def getPlans(planId=NULL) {
