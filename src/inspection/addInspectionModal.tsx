@@ -1,23 +1,10 @@
-import NiceModal, { useModal } from '@ebay/nice-modal-react'
-import { t } from '@i18n/index.ts'
-import { Modal } from 'antd'
-
 import { InspectionForm } from './inspectionForm.tsx'
 
-export const addInspectionModal = NiceModal.create(({ refresh }: { refresh: ( ) => void }) => {
-        
-    const modal = useModal()   
-    return <Modal
+export function addInspectionPage ({ refresh }: { refresh: ( ) => void }) {
+
+    return <div
         className='add-inspection-modal'       
-        width='80%'    
-        open={modal.visible}
-        afterClose={modal.remove}
-        onCancel={modal.hide}
-        footer={null}
-        title={t('添加巡检计划')}
-        okText={t('确定')}
-        cancelText={t('取消')}
     >
-        <InspectionForm close={modal.hide} refresh={refresh}/>
-    </Modal>
-})
+        <InspectionForm refresh={refresh}/>
+    </div>
+}

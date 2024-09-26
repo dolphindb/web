@@ -13,6 +13,8 @@ class InspectionModel extends Model<InspectionModel> {
     
     current_report: PlanReport | null = null
     
+    current_plan: Plan | null = null
+    
     metrics: Map<string, Metric> = new Map()
     
     async init () {

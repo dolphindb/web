@@ -9,13 +9,13 @@ import useSWR from 'swr'
 
 import { CheckOutlined, CloseOutlined } from '@ant-design/icons'
 
-import type { Dayjs } from 'dayjs'
+import dayjs, { type  Dayjs } from 'dayjs'
 
 import { isNull } from 'lodash'
 
 import { model } from '@/model.ts'
 
-import { addInspectionModal } from './addInspectionModal.tsx'
+import { addInspectionPage } from './addInspectionModal.tsx'
 import { inspection } from './model.tsx'
 import type { Plan, PlanReport } from './type.ts'
 import { EditInspectionModal } from './editInspectionModal.tsx'
@@ -24,7 +24,7 @@ import { ReportDetailPage } from './reportDetail.tsx'
 
 export function Inspection () {
     
-    const { inited, current_report } = inspection.use(['inited', 'current_report'])
+    const { inited, current_report, current_plan } = inspection.use(['inited', 'current_report', 'current_plan'])
     
     const [search_key, set_search_key ] = useState('')
     
@@ -59,7 +59,7 @@ export function Inspection () {
         return [enabled_plans, disabled_palns]
     }, [ plans, search_key ])
     
-    return current_report ? <ReportDetailPage/> : <div>
+    return current_report ? <ReportDetailPage/> : current_plan ? <EditInspectionModal plan={current_plan} mutate_plans={refresh}/> : <div>
         <div className='inspection-header'>
             <div className='inspection-header-left'>
                 <Button onClick={() => {
@@ -68,7 +68,10 @@ export function Inspection () {
                 }}>{t('刷新')}</Button>
                 <Input.Search placeholder={t('搜索')} onSearch={set_search_key} className='inspection-search'/>
             </div>
-            <Button onClick={async () => NiceModal.show(addInspectionModal, { refresh })}>{t('新增巡检')}</Button>
+            <Button onClick={ () => { inspection.set({ current_plan:  {   
+                    frequency: 'W', 
+                    days: '1', 
+                } as Plan }) } }>{t('新增巡检')}</Button>
         </div>
         <ReportListTable reports={reports?.filter(report => report.id.includes(search_key))} dates={dates} set_dates={set_dates}/>
         <PlanListTable type='enabled' plans={enabled_plans?.filter(({ enabled }) => enabled)} mutate_plans={refresh}/>
@@ -88,7 +91,7 @@ function ReportListTable  ({
     
     const cols: TableColumnsType<PlanReport> = useMemo(() => [ 
         {
-            title: 'Plan ID',
+            title: 'ID',
             dataIndex: 'planId',
             key: 'planId',
         },
@@ -227,7 +230,7 @@ function PlanListTable  ({
                     </Button> */}
                     <Button 
                         type='link'
-                        onClick={async () => NiceModal.show(EditInspectionModal, { plan: record, mutate_plans, disabled: true })}
+                        onClick={() => { inspection.set({ current_plan: record }) }}
                     >
                         {t('查看详情')}
                     </Button>

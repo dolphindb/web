@@ -1,5 +1,5 @@
 import { t } from '@i18n/index.ts'
-import { Button, Form, Input, Select, Table, TimePicker, Tooltip } from 'antd'
+import { Button, Form, Input, Select, Switch, Table, TimePicker, Tooltip } from 'antd'
 import dayjs, { type Dayjs } from 'dayjs'
 import { useMemo, useState, useEffect } from 'react'
 import useSWR from 'swr'
@@ -18,13 +18,11 @@ import { EditParamModal } from './editParamModal.tsx'
 import { addParamModal } from './addParamModal.tsx'
 
 export function InspectionForm ({ 
-    close, 
     refresh, 
     plan = null,
     view_only = false,
     set_view_only = (view_only: boolean) => { }
 }: { 
-    close: () => void
     refresh: () => void
     plan?: Plan
     view_only?: boolean 
@@ -33,7 +31,7 @@ export function InspectionForm ({
     
     const { metrics } = inspection.use(['metrics'])
     
-    const is_editing = !!plan
+    const is_editing = !!plan.id
     
     const {  mutate: mutate_plan_detail } = useSWR(
         is_editing ? ['get_plan_detail', plan] : null, 
@@ -124,6 +122,27 @@ export function InspectionForm ({
     
     
     return <div className='inspection-form'>
+        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
+            <div style={{ display: 'flex', alignItems: 'center', columnGap: '20px' }}>
+                <Button onClick={() => { inspection.set({ current_plan: null }) }}>{t('返回')}</Button>
+                <h3>{is_editing ? (view_only ? t('查看巡检计划') : t('修改巡检计划')) : t('新增巡检计划')}</h3>
+            </div>
+            <div className='inspection-form-action'>
+                {
+                    is_editing && <div>
+                        <span>{t('编辑模式：')}</span>
+                        <Switch value={view_only} onChange={set_view_only}/></div>
+                }
+                <Tooltip title={view_only ? t('立即执行一次巡检') : t('保存当前方案并立即执行一次巡检')}>
+                    <Button type='primary'  onClick={async () => {
+                        view_only ? inspection.run_plan(plan.id) : on_save(true)
+                    }}>{t('立即巡检')}</Button>
+                </Tooltip>
+                <Tooltip title={t('保存当前方案')}>
+                    <Button type='primary' disabled={view_only} onClick={async () => on_save(false)}>{t('保存')}</Button>
+                </Tooltip>
+            </div>
+        </div>
         <Form
             disabled={view_only} 
             className='inspection-form-inline' 
@@ -133,7 +152,7 @@ export function InspectionForm ({
             initialValues={plan ? 
                 { 
                     ...plan,
-                    scheduleTime: parse_minute(plan.scheduleTime as string),
+                    scheduleTime: plan.scheduleTime ? parse_minute(plan.scheduleTime as string) : dayjs(),
                     days: (plan.days as string).split(',').map(Number), 
                 } : 
                 {   
@@ -155,12 +174,6 @@ export function InspectionForm ({
                 <Input placeholder={t('巡检计划描述(非必填)')}/>
             </Form.Item>
             
-            <div className='metric-table'>
-                <MetricGroupTable
-                    checked_metrics={metrics_with_nodes} 
-                    set_checked_metrics={set_metrics_with_nodes}
-                />
-            </div>
             <h3>{t('巡检周期')}</h3>
             <div className='inspection-form-inline-time'>
                 <Form.Item label={t('巡检频率')} name='frequency' required>
@@ -199,21 +212,16 @@ export function InspectionForm ({
                 </Form.Item>
             </div>
             
+            <div className='metric-table'>
+                <MetricGroupTable
+                    checked_metrics={metrics_with_nodes} 
+                    set_checked_metrics={set_metrics_with_nodes}
+                />
+            </div>
+           
+            
           
         </Form>
-        
-        <div className='inspection-form-footer'>
-            <Button onClick={close}>{t('取消')}</Button>
-            {
-                is_editing && (view_only ? <Button onClick={() => { set_view_only(false) }}>{t('编辑计划')}</Button> : <Button onClick={() => { set_view_only(true) }}>{t('取消编辑')}</Button>)
-            }
-            <Tooltip title={t('保存当前方案并立即执行一次巡检')}>
-                <Button type='primary'  onClick={async () => on_save(true)}>{t('立即巡检')}</Button>
-            </Tooltip>
-            <Tooltip title={t('保存当前方案')}>
-                <Button type='primary' onClick={async () => on_save(false)}>{t('保存')}</Button>
-            </Tooltip>
-        </div>
         
     </div>
 }
@@ -254,11 +262,11 @@ export function MetricGroupTable ({
     }, [checked_metrics])
     
     return <div className='metric-table'>
-            <Table 
+            {grouped_metrics.size > 0 && <Table 
                 rowKey='group'
                 title={() => editing ? null :  <div className='metric-table-title'>
                                 <h3>{t('指标列表')}</h3>
-                                <Button onClick={async () => NiceModal.show(addParamModal, { checked_metrics, set_checked_metrics })}>{t('添加指标')}</Button>
+                                <Button type='primary' onClick={async () => NiceModal.show(addParamModal, { checked_metrics, set_checked_metrics })}>{t('管理指标')}</Button>
                             
                     </div>}
                 dataSource={Array.from(grouped_metrics.keys()).map(group => ({
@@ -274,11 +282,19 @@ export function MetricGroupTable ({
                             pagination={{ pageSize: 5, size: 'small' }}
                             rowSelection={editing && { 
                                 selectedRowKeys: grouped_metrics.get(record.group)?.filter(metric => metric.checked).map(metric => metric.name) || [ ],
-                                onChange: keys => {
+                                onChange: (keys, selectedRows, info) => {
+                                    if (info.type === 'all')
+                                        return
                                     let metrics = grouped_metrics.get(record.group)
                                     metrics = metrics.map(mc => ({ ...mc, checked: keys.includes(mc.name) }))
                                     set_grouped_metrics(new Map(grouped_metrics.set(record.group, metrics)))
+                                },
+                                onSelectAll: (checked, selectedRows, changeRows) => {
+                                    let metrics = grouped_metrics.get(record.group) || [ ]
+                                    metrics = metrics.map(mc => ({ ...mc, checked }))
+                                    set_grouped_metrics(new Map(grouped_metrics.set(record.group, metrics)))
                                 }
+                                
                             }}
                             columns={[
                                 {
@@ -329,7 +345,7 @@ export function MetricGroupTable ({
                     render: (group: number) => metricGroups[group]
                 }]}
                 pagination={false}
-        />
+        />}
         {editing &&  <div className='modal-footer'>
                         <Button htmlType='button' onClick={close}>
                             {t('取消')}
