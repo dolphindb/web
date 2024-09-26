@@ -22,7 +22,7 @@ def initDfs() {
     tb = table(1:0, `name`displayName`group`desc`nodes`script`params`version`createTime`updateTime, [STRING, STRING, SYMBOL, STRING, STRING, BLOB, STRING, INT, TIMESTAMP, TIMESTAMP])
     pt1 = createTable(db, tb, "metrics", sortColumns="createTime")
 
-    tb = table(1:0, `id`name`desc`user`startDate`endDate`frequency`days`scheduleTime`enabled, [STRING, STRING, STRING, STRING, DATE, DATE, STRING, STRING, MINUTE, BOOL])
+    tb = table(1:0, `id`name`desc`user`startDate`endDate`frequency`days`scheduleTime`enabled, [STRING, STRING, STRING, STRING, DATE, DATE, STRING, STRING, MINUTE[], BOOL])
     pt2 = createTable(db, tb, "plans", sortColumns="startDate")
 
     tb = table(1:0, `planId`metricName`metricDisplayName`metricVersion`nodes`params, [STRING, STRING, STRING, INT, STRING, STRING])
@@ -398,6 +398,7 @@ def createPlan(name, desc, metrics, nodes, params, frequency, days, scheduleTime
     user = getCurrentSessionAndUser()[1]
     startDate = today()
     endDate = temporalAdd(today(), 100y)
+    scheduleTime_ = iif(scheduleTime.form()==0, [scheduleTime], scheduleTime)
     plan = table(
         id as id,
         name as name,
@@ -407,7 +408,7 @@ def createPlan(name, desc, metrics, nodes, params, frequency, days, scheduleTime
         endDate as endDate,
         frequency as frequency,
         days_ as days,
-        minute(scheduleTime) as scheduleTime,
+        array(MINUTE[], 0).append!([scheduleTime_]) as scheduleTime,
         enabled as enabled
     )
     nodes_ = []$STRING
