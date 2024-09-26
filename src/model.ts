@@ -211,8 +211,8 @@ export class DdbModel extends Model<DdbModel> {
         @returns 是否需要客户端鉴权，且跳转到强制登录 */
     async check_client_auth (): Promise<boolean> {
         // 获取版本
-        const raw_version = (await this.ddb.call<DdbObj<string>>('version', undefined, { urgent: true })).data()
-        const version = (raw_version.split(' ')[0] ?? '').replace('00', '0')
+        const raw_version = (await this.ddb.call<DdbObj<string>>('version', undefined, { urgent: true })).data() ?? ''
+        const version = (raw_version.split(' ')[0] ?? '').split('.').map(Number).join('.')
         // 判断版本是否大于 2.00.14 或者 3.00.2，2 和 3 要分开判断
         if (semver.valid(version)) {
             const isGreaterThanRequired = semver.satisfies(version, '>=2.0.14 <3 || >=3.0.2')
