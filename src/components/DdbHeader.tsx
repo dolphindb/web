@@ -8,6 +8,8 @@ import { default as Icon, LoginOutlined, LogoutOutlined, UserOutlined } from '@a
 import { t } from '@i18n/index.js'
 
 
+import { model } from '@/model.ts'
+
 import { License } from './License.js'
 import { Status } from './Status.js'
 import { Settings } from './Settings.js'
@@ -16,7 +18,6 @@ import { HostSelect } from './HostSelect.js'
 
 import SvgArrowDown from './icons/arrow.down.icon.svg'
 
-import { model } from '@/model.js'
 
 
 export function DdbHeader () {
