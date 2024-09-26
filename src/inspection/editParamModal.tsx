@@ -89,7 +89,7 @@ export const EditParamModal = NiceModal.create(({
                         options={ metric.nodes.split(',').map(node => ({
                             label: node,
                             value: node
-                    }))}/> : <p>{t('所有节点')}</p>}
+                    }))}/> : t('所有节点')}
             </Form.Item>
             
             <Form.Item 
@@ -127,10 +127,15 @@ export const EditParamModal = NiceModal.create(({
                 }
             </Form.Item>}
             
-            <Form.Item wrapperCol={{ offset: 20, span: 4 }}>
-                <Button type='primary' htmlType='submit'>
-                    {t('保存')}
-                </Button>
+            <Form.Item wrapperCol={{ offset: 20, span: 4 }} layout='horizontal'>
+                <div className='modal-footer'>
+                    <Button htmlType='button' onClick={modal.hide}>
+                        {t('取消')}
+                    </Button>
+                    <Button type='primary' htmlType='submit'>
+                        {t('保存')}
+                    </Button>
+                </div>
             </Form.Item>
             
         </Form>

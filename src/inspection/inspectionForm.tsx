@@ -84,7 +84,8 @@ export function InspectionForm ({
         try {
             const new_plan =  
                 {   
-                    desc: values.desc,
+                    name: values.name,
+                    desc: values.desc ?? '',
                     metrics: metrics.map(({ name }) => name),
                     nodes: metrics.map(({ selected_nodes }) => selected_nodes.length ? selected_nodes : ''),
                     params: metrics.map(({ selected_params, params }) => {
@@ -105,12 +106,13 @@ export function InspectionForm ({
                     frequency: values.frequency,
                     days: (values.days as number[]).map(Number),                                
                     scheduleTime: (values.scheduleTime as Dayjs).format('HH:mm') + 'm', 
-                    ... is_editing ? { enabled: plan.enabled } : { runNow: run_now }
+                    enabled: is_editing ? plan.enabled : false,
+                    runNow: run_now
                 }
             if (is_editing)
                 await inspection.update_plan({ id: plan.id, ...new_plan  })
             else
-                await inspection.create_plan({ name: values.name, ...new_plan,  })
+                await inspection.create_plan(new_plan)
             model.message.success(is_editing ? t('修改成功') : t('创建成功'))
             refresh()
             mutate_plan_detail()
@@ -121,13 +123,13 @@ export function InspectionForm ({
     }
     
     
-    
     return <div className='inspection-form'>
         <Form
             disabled={view_only} 
             className='inspection-form-inline' 
             form={inspection_form}
             requiredMark={false}
+            layout='vertical'
             initialValues={plan ? 
                 { 
                     ...plan,
@@ -138,7 +140,6 @@ export function InspectionForm ({
                     scheduleTime: dayjs(), 
                     frequency: 'W', 
                     days: [1], 
-                    desc: t('巡检描述') 
                 }}>
             <Form.Item 
                 name='name' 
@@ -147,11 +148,11 @@ export function InspectionForm ({
                 rules={[
                     { required: true, message: t('请输入巡检名称') }, 
                     ]}>
-                <Input disabled={is_editing}/>
+                <Input/>
             </Form.Item>
             
-            <Form.Item style={{ marginTop: '40px' }} name='desc' layout='vertical' label={<h3>{t('巡检计划描述')}</h3>} rules={[{ required: true, message: t('请输入巡检计划描述') }]}>
-                <Input/>
+            <Form.Item name='desc' layout='vertical' label={<h3>{t('巡检计划描述')}</h3>} >
+                <Input placeholder={t('巡检计划描述(非必填)')}/>
             </Form.Item>
             
             <div className='metric-table'>
@@ -257,10 +258,7 @@ export function MetricGroupTable ({
                 rowKey='group'
                 title={() => editing ? null :  <div className='metric-table-title'>
                                 <h3>{t('指标列表')}</h3>
-                                <div className='metric-table-title-action'>
-                                    <Button onClick={async () => NiceModal.show(addParamModal, { checked_metrics, set_checked_metrics })}>{t('添加指标')}</Button>
-                                    <Button danger>{t('批量删除')}</Button>
-                                </div>
+                                <Button onClick={async () => NiceModal.show(addParamModal, { checked_metrics, set_checked_metrics })}>{t('添加指标')}</Button>
                             
                     </div>}
                 dataSource={Array.from(grouped_metrics.keys()).map(group => ({
@@ -274,7 +272,7 @@ export function MetricGroupTable ({
                             className='themed'
                             dataSource={record.metrics}
                             pagination={{ pageSize: 5, size: 'small' }}
-                            rowSelection={ editing && { 
+                            rowSelection={editing && { 
                                 selectedRowKeys: grouped_metrics.get(record.group)?.filter(metric => metric.checked).map(metric => metric.name) || [ ],
                                 onChange: keys => {
                                     let metrics = grouped_metrics.get(record.group)
@@ -292,22 +290,6 @@ export function MetricGroupTable ({
                                     title: t('描述'),
                                     dataIndex: 'desc',
                                     key: 'desc',
-                                    render: (desc: string) => <Tooltip title={desc}><p className='ellipsis'>{desc}</p></Tooltip>
-                                },
-                                {
-                                    title: t('版本'),
-                                    dataIndex: 'version',
-                                    key: 'version',
-                                },
-                                {
-                                    title: t('创建时间'),
-                                    dataIndex: 'createTime',
-                                    key: 'createTime',
-                                },
-                                {
-                                    title: t('更新时间'),
-                                    dataIndex: 'updateTime',
-                                    key: 'updateTime',
                                 },
                                 ...editing ? [ ] : [{
                                     title: t('操作'),
@@ -348,14 +330,19 @@ export function MetricGroupTable ({
                 }]}
                 pagination={false}
         />
-        {editing && <Button type='primary' onClick={() => {
-            let new_checked_metrics = new Map(checked_metrics)
-            // 更新checked
-            Array.from(grouped_metrics.values()).flat(1).forEach(metric => {
-                new_checked_metrics.set(metric.name, metric)
-            })
-            set_checked_metrics(new_checked_metrics)
-            close()
-        }}>{t('保存')}</Button>}
+        {editing &&  <div className='modal-footer'>
+                        <Button htmlType='button' onClick={close}>
+                            {t('取消')}
+                        </Button>
+                        <Button type='primary' onClick={() => {
+                            let new_checked_metrics = new Map(checked_metrics)
+                            // 更新checked
+                            Array.from(grouped_metrics.values()).flat().forEach(metric => {
+                                new_checked_metrics.set(metric.name, metric)
+                            })
+                            set_checked_metrics(new_checked_metrics)
+                            close()
+                        }}>{t('保存')}</Button>
+                </div>}
         </div>
 }

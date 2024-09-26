@@ -42,7 +42,7 @@ class InspectionModel extends Model<InspectionModel> {
         await model.ddb.invoke('autoInspection::deletePlan', [ ids ])
     }
     
-    async create_plan (plan: Omit<Plan, 'id' | 'enabled'>) {
+    async create_plan (plan: Omit<Plan, 'id'>) {
         await model.ddb.invoke('autoInspection::createPlan', Object.values(plan))
     }
     

@@ -25,6 +25,9 @@
         column-gap: 20px
         align-items: center
         
+    .yellow
+        color: #DDDD00
+        
     .green
         color: #6ED86C
 
@@ -49,6 +52,8 @@
         .report-content
             h1
                 margin-bottom: 20px
+            .ant-descriptions-item-container
+                align-items: center
 
         .report-summary
             margin: 0px
@@ -95,19 +100,8 @@
     .inspection-form
         display: flex
         flex-direction: column
-        
-        .metric-table
-            margin-top: 40px
 
-        .ellipsis
-            width: 120px
-            overflow: hidden
-            white-space: nowrap
-            text-overflow: ellipsis
-        
         .inspection-form-inline
-            display: flex
-            flex-direction: column
             .inspection-form-inline-time
                 display: flex
                 column-gap: 20px
@@ -134,17 +128,11 @@
         .metric-table-title
             display: flex
             justify-content: space-between
-            
-            .metric-table-title-action
-                display: flex
-                column-gap: 20px
         
         .expanded-table
             .ant-table-cell
-                padding: 2px 4px !important        
-                
-            
-            
+                padding: 2px 4px !important  
+                  
 .edit-param-modal,.add-param-modal
     .ant-form
         padding: 0px !important
@@ -154,6 +142,13 @@
     .expanded-table
         .ant-table-cell
             padding: 2px 4px !important 
+            
+    .modal-footer
+        display: flex
+        flex-direction: row
+        justify-content: center
+        column-gap: 20px
+            
     
 .add-param-modal
     .metric-table
@@ -161,10 +156,6 @@
         flex-direction: column
         row-gap: 20px
         justify-content: end
+    .modal-footer
+        align-self: end
         
-.edit-param-modal,
-.add-param-modal,
-    .ant-input-disabled
-        color: rgba(0,0,0,0.8) 
-        background-color: rgba(0,0,0,0.05)
-            

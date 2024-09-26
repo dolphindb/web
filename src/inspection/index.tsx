@@ -11,6 +11,8 @@ import { CheckOutlined, CloseOutlined } from '@ant-design/icons'
 
 import type { Dayjs } from 'dayjs'
 
+import { isNull } from 'lodash'
+
 import { model } from '@/model.ts'
 
 import { addInspectionModal } from './addInspectionModal.tsx'
@@ -86,9 +88,9 @@ function ReportListTable  ({
     
     const cols: TableColumnsType<PlanReport> = useMemo(() => [ 
         {
-            title: 'ID',
-            dataIndex: 'id',
-            key: 'id',
+            title: 'Plan ID',
+            dataIndex: 'planId',
+            key: 'planId',
         },
         {
             title: '描述',
@@ -114,7 +116,7 @@ function ReportListTable  ({
             title: '结果',
             dataIndex: 'success',
             key: 'success',
-            render: ( success: boolean, record: PlanReport ) => success ? 
+            render: ( success: boolean | null, record: PlanReport ) => isNull(success) ? <span className='yellow'>{t('执行中')}</span> : success ? 
                 <span className='green'>{t('{{success}}/{{total}} 正常', { success: record.totalNum, total: record.totalNum })}</span> : 
                 <span className='red'>{t('{{failedNum}}/{{total}} 异常', { failedNum: record.failedNum, total: record.totalNum })}</span>
         },
@@ -157,6 +159,11 @@ function PlanListTable  ({
     
     const cols: TableColumnsType<Plan> = useMemo(() => [ 
         {
+            title: 'ID',
+            dataIndex: 'id',
+            key: 'id',
+        },
+        {
             title: '名称',
             dataIndex: 'name',
             key: 'name',
@@ -182,7 +189,7 @@ function PlanListTable  ({
             key: 'endDate',
         },
         {
-            title: '执行频率',
+            title: '巡检频率',
             dataIndex: 'frequency',
             key: 'frequency',
         },
