@@ -10,11 +10,11 @@ import { t } from '@i18n/index.js'
 
 import { model } from '@/model.ts'
 
-import { License } from './License.js'
-import { Status } from './Status.js'
-import { Settings } from './Settings.js'
-import { CompileAndRefresh } from './CompileAndRefresh.js'
-import { HostSelect } from './HostSelect.js'
+import { License } from './License.tsx'
+import { Status } from './Status.tsx'
+import { Settings } from './Settings.tsx'
+import { CompileAndRefresh } from './CompileAndRefresh.tsx'
+import { HostSelect } from './HostSelect.tsx'
 
 import SvgArrowDown from './icons/arrow.down.icon.svg'
 

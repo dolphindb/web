@@ -10,6 +10,7 @@ import type { NotificationInstance } from 'antd/es/notification/interface.d.ts'
 import 'xshell/polyfill.browser.js'
 import { filter_values, strcmp } from 'xshell/utils.browser.js'
 import { request } from 'xshell/net.browser.js'
+
 import {
     DDB, SqlStandard, DdbInt, DdbLong, type InspectOptions,
     DdbDatabaseError, type DdbObj, type DdbTableData,
@@ -221,7 +222,9 @@ export class DdbModel extends Model<DdbModel> {
         await this.get_cluster_perf(true)
         await this.check_leader_and_redirect()
         
-        await config.load_configs() // 必须先调用上面的函数，load_configs 依赖 controller alias 等信息   
+        // 必须先调用上面的函数，load_configs 依赖 controller alias 等信息   
+        await config.load_configs()
+        
         this.set({
             oauth: config.get_boolean_config('oauth'),
             login_required: config.get_boolean_config('webLoginRequired')
@@ -253,12 +256,10 @@ export class DdbModel extends Model<DdbModel> {
                         }
             }
         
-        const need_force_client_login = await this.check_client_auth()
-        if (need_force_client_login) {
-            this.goto_login(undefined, true)
+        if (await this.check_client_auth()) {
+            await this.goto_login(undefined, true)
             return
         }
-            
         
         console.log(t('配置:'), await this.ddb.invoke<Record<string, string>>('getConfig'))
         
@@ -284,21 +285,15 @@ export class DdbModel extends Model<DdbModel> {
         this.get_version()
     }
     
-    /** 检查是否需要客户端验证
-    @returns 是否需要客户端鉴权，且跳转到强制登录 */
-    async check_client_auth (): Promise<boolean> {
     
+    /** 检查是否启用了客户端认证且未登录 (ClientAuth) */
+    async check_client_auth (): Promise<boolean> {
         try {
             const is_client_auth = await this.ddb.invoke<boolean>('isClientAuth', undefined, { urgent: true })
-            if (is_client_auth && !this.logined) 
-                return true
-            
-        } catch (e) {
-            console.log('无 clientAuth')
+            return is_client_auth && !this.logined
+        } catch {
             return false
         }
-        
-        return false
     }
     
     
@@ -503,7 +498,7 @@ export class DdbModel extends Model<DdbModel> {
         }
         
         if (!this.inited) 
-            this.init()
+            await this.init()
         
         return username
     }
@@ -703,18 +698,15 @@ export class DdbModel extends Model<DdbModel> {
             console.log(t('跳转到 oauth 验证页面:'), url)
             
             await goto_url(url)
-        } else 
+        } else
             if (to_force_login_page) {
-                // 登录后需要重新初始化
-                this.set({ inited: false })
-                // 进入强制登录页面，只展示登录表单
-                this.set({ force_login: true })
-            }
-            else
+                // 登录后需要重新初始化，进入强制登录页面，只展示登录表单
+                this.set({ inited: false, force_login: true })
+            } else
                 this.set({
-                view: 'login',
-                ... redirection === 'login' ? { } : { redirection }
-            })
+                    view: 'login',
+                    ... redirection === 'login' ? { } : { redirection }
+                })
     }
     
     
@@ -748,24 +740,24 @@ export class DdbModel extends Model<DdbModel> {
                     : { node: this.controller_alias }
             })
         )
-            .data
-            .sort((a, b) => strcmp(a.name, b.name))
-            
+        .data
+        .sort((a, b) => strcmp(a.name, b.name))
+        
         if (print)
             console.log(t('集群节点:'), nodes)
-            
+        
         let node: DdbNode, controller: DdbNode, datanode: DdbNode
         
         for (const _node of nodes) {
             if (_node.name === this.node_alias)
                 node = _node
-                
+            
             if (_node.mode === NodeType.controller)
                 if (_node.isLeader)
                     controller = _node
                 else
                     controller ??= _node
-                    
+            
             if (_node.mode === NodeType.data)
                 datanode ??= _node
         }
