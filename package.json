@@ -75,6 +75,7 @@
         "react-quill": "^2.0.0",
         "react-router-dom": "^6.26.2",
         "remark-gfm": "^4.0.0",
+        "semver": "^7.6.3",
         "swr": "^2.2.5",
         "tslib": "^2.7.0",
         "vscode-oniguruma": "^2.0.1",
