@@ -55,11 +55,6 @@ export class GlobalErrorBoundary extends Component<PropsWithChildren<{ }>, Globa
                 // https://github.com/microsoft/monaco-editor/issues/4325
                 if (error.message.includes('getModifierState is not a function'))
                     return
-                
-                if (error.message.includes('RefId: S04009')) {
-                    model.goto_login(undefined, true)
-                    return
-                }
             } else {
                 // 忽略 monaco editor 的错误
                 // https://github.com/suren-atoyan/monaco-react/issues/57
