@@ -558,9 +558,9 @@ def getReportDetailsOfMetrics(reportId=NULL) {
         whereCond = <reportId == reportId_>
     }
     res = sql(sqlCol("*"), loadTable("dfs://ddb_internal_auto_inspection", "report_details"), whereCond).eval()
-    res = select first(metricVersion) as metricVersion, concat(node, ",") as nodes, min(startTime) as startTime, max(endTime) as endTime, all(success) as success from res group by reportId, metricName
+    res = select first(metricVersion) as metricVersion, concat(node, ",") as nodes, min(startTime) as startTime, max(endTime) as endTime, all(success) as success, first(metricParams) as metricParams from res group by reportId, metricName
     metrics = select * from loadTable("dfs://ddb_internal_auto_inspection", "metrics") where name in res["metricName"]
-    res = select reportId, metricName, metrics.displayName, metrics.group, metricVersion, desc, iif(isNull(metrics.nodes), NULL, res.nodes) as nodes, startTime, endTime, endTime - startTime as runningTime, script, success from res left join metrics on res.metricName = metrics.name and res.metricVersion = metrics.version
+    res = select reportId, metricName, metrics.displayName, metrics.group, metricVersion, desc, iif(isNull(metrics.nodes), NULL, res.nodes) as nodes, startTime, endTime, endTime - startTime as runningTime, script, success, metricParams from res left join metrics on res.metricName = metrics.name and res.metricVersion = metrics.version
 
     return res
 }
