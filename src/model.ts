@@ -741,18 +741,18 @@ export class DdbModel extends Model<DdbModel> {
         https://www.dolphindb.cn/cn/help/FunctionsandCommands/FunctionReferences/g/getClusterPerf.html  
         Only master or single mode supports function getClusterPerf. */
     async get_cluster_perf (print: boolean) {
-        const nodesdata =
-            await this.ddb.invoke('getClusterPerf', [true], {
+        const nodes = (
+            await this.ddb.invoke<DdbTableData<DdbNode>>('getClusterPerf', [true], {
                 urgent: true,
                 
                 ... this.node_type === NodeType.controller || this.node_type === NodeType.single
                     ? undefined
                     : { node: this.controller_alias }
             })
+        )
+            .data
+            .sort((a, b) => strcmp(a.name, b.name))
             
-            
-        const nodes = nodesdata.sort((a, b) => strcmp(a.name, b.name))
-        
         if (print)
             console.log(t('集群节点:'), nodes)
             
