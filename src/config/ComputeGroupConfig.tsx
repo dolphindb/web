@@ -27,7 +27,7 @@ export function ComputeGroupConfig () {
     // 这里指的是配置节点的文件，不是节点配置文件
     const { mutate, data: nodes = [ ] } = useSWR('/get/nodes_config_file', async () => { 
         const result = await config.get_cluster_nodes() 
-        const nodes = strs_2_nodes(result.value as any[])
+        const nodes = strs_2_nodes(result as any[])
         return nodes
     }, { revalidateOnMount: true, revalidateOnFocus: true })
     const [current_compute_group, set_current_compute_group] = useState<string>('')
