@@ -10,7 +10,6 @@ import type { NotificationInstance } from 'antd/es/notification/interface.d.ts'
 import 'xshell/polyfill.browser.js'
 import { filter_values, strcmp } from 'xshell/utils.browser.js'
 import { request } from 'xshell/net.browser.js'
-import semver from 'semver'
 import {
     DDB, SqlStandard, DdbInt, DdbLong, type InspectOptions,
     DdbDatabaseError, type DdbObj, type DdbTableData,
@@ -210,19 +209,16 @@ export class DdbModel extends Model<DdbModel> {
     /** 检查是否需要客户端验证
         @returns 是否需要客户端鉴权，且跳转到强制登录 */
     async check_client_auth (): Promise<boolean> {
-        // 获取版本
-        const raw_version = (await this.ddb.call<DdbObj<string>>('version', undefined, { urgent: true })).data() ?? ''
-        const version = (raw_version.split(' ')[0] ?? '').split('.').map(Number).join('.')
-        // 判断版本是否大于 2.00.14 或者 3.00.2，2 和 3 要分开判断
-        if (semver.valid(version)) {
-            const isGreaterThanRequired = semver.satisfies(version, '>=2.0.14 <3 || >=3.0.2')
-            if (isGreaterThanRequired) {
-                const is_client_auth = (await this.ddb.call<DdbObj<boolean>>('isClientAuth', undefined, { urgent: true })).data()
-                if (is_client_auth && !this.logined) {
-                    this.goto_login(undefined, true)
-                    return true
-                }
+    
+        try {
+            const is_client_auth = (await this.ddb.call<DdbObj<boolean>>('isClientAuth', undefined, { urgent: true })).data()
+            if (is_client_auth && !this.logined) {
+                this.goto_login(undefined, true)
+                return true
             }
+        } catch (e) {
+            console.log('无 clientAuth')
+            return false
         }
         
         return false
