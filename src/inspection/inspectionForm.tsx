@@ -1,19 +1,20 @@
 import { t } from '@i18n/index.ts'
-import { Button, Form, Input, Select, Switch, Table, TimePicker, Tooltip } from 'antd'
-import dayjs, { type Dayjs } from 'dayjs'
-import { useMemo, useState, useEffect } from 'react'
+import { Button, Form, Input, Select, Space, Switch, Table, TimePicker, Tooltip } from 'antd'
+import dayjs from 'dayjs'
+import { useState, useEffect } from 'react'
 import useSWR from 'swr'
 
 import NiceModal from '@ebay/nice-modal-react'
 
 import { isEmpty, isObject } from 'lodash'
 
+import { MinusCircleOutlined, PlusOutlined } from '@ant-design/icons'
+
 import { model } from '@/model.ts'
 
 import { inspection } from './model.tsx'
 import { inspectionFrequencyOptions, metricGroups, weekDays } from './constants.ts'
 import type { MetricsWithStatus, Plan } from './type.ts'
-import { parse_minute } from './utils.ts'
 import { EditParamModal } from './editParamModal.tsx'
 import { addParamModal } from './addParamModal.tsx'
 
@@ -33,6 +34,8 @@ export function InspectionForm ({
     const is_editing = !!plan.id
     
     const [view_only, set_view_only] = useState(is_editing ? disabled : false)
+    
+    const [enabled, set_enabled] = useState(plan.enabled)
     
     const {  mutate: mutate_plan_detail } = useSWR(
         is_editing ? ['get_plan_detail', plan] : null, 
@@ -104,7 +107,7 @@ export function InspectionForm ({
                     }),
                     frequency: values.frequency,
                     days: (values.days as number[]).map(Number),                                
-                    scheduleTime: (values.scheduleTime as Dayjs).format('HH:mm') + 'm', 
+                    scheduleTime: values.scheduleTime.map(time => dayjs(time).format('HH:mm') + 'm'), 
                     enabled: is_editing ? plan.enabled : false,
                     runNow: run_now
                 }
@@ -131,6 +134,25 @@ export function InspectionForm ({
             <div className='inspection-form-action'>
                 {
                     is_editing && <div>
+                        <span>{t('启用：')}</span>
+                        <Switch value={enabled} onChange={async checked => {
+                            try {
+                                if (checked) {
+                                    await inspection.enable_plan(plan.id)
+                                    model.message.success(t('启用成功'))
+                                } else {
+                                    await inspection.disable_plan(plan.id)
+                                    model.message.success(t('禁用成功'))
+                                }
+                                set_enabled(checked)
+                            } catch (error) {
+                                model.message.error(error)
+                            }
+                           
+                        }}/></div>
+                }
+                {
+                    is_editing && <div>
                         <span>{t('编辑模式：')}</span>
                         <Switch value={!view_only} onChange={checked => { set_view_only(!checked) }}/></div>
                 }
@@ -154,7 +176,7 @@ export function InspectionForm ({
             initialValues={plan ? 
                 { 
                     ...plan,
-                    scheduleTime: plan.scheduleTime ? parse_minute(plan.scheduleTime as string) : dayjs(),
+                    scheduleTime: [ ],
                     days: (plan.days as string).split(',').map(Number), 
                 } : 
                 {   
@@ -209,9 +231,32 @@ export function InspectionForm ({
                     }
                 </Form.Item>
                 
+                <Form.Item label={t('巡检时间')} >
+                    <Form.List name='scheduleTime' >
+                        {(fields, { add, remove }) =>
+                            <Space>
+                            {
+                                fields.map(field => <Space>
+                                <Form.Item {...field} required>
+                                    <TimePicker format='HH:mm:ss'/>
+                                </Form.Item>
+                                <MinusCircleOutlined onClick={() => { remove(field.name) }} />
+                                </Space>)
+                                
+                            }
+                            <Form.Item>
+                                <Button type='dashed' onClick={() => { add() }} block icon={<PlusOutlined />}>
+                                {t('添加')}
+                                </Button>
+                            </Form.Item>
+                            </Space>
+                        }
+                    </Form.List>
+                </Form.Item>
+                {/*                 
                 <Form.Item label={t('巡检时间')} name='scheduleTime' rules={[{ required: true, message: t('请选择巡检时间') }]}>
                     <TimePicker format='HH:mm:ss'/>
-                </Form.Item>
+                </Form.Item> */}
             </div>
             
             <div className='metric-table'>

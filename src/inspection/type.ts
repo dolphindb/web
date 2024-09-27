@@ -37,7 +37,7 @@ export interface Plan {
     params?: object
     frequency: string
     days: number[] | string
-    scheduleTime: Dayjs | string
+    scheduleTime: Array<Dayjs | string>
     desc: string 
     runNow?: boolean
     enabled: boolean

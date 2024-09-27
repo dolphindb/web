@@ -1,5 +1,3 @@
-import { isObject } from 'util'
-
 import NiceModal, { useModal } from '@ebay/nice-modal-react'
 import { t } from '@i18n/index.ts'
 import { Button, DatePicker, Form, Input, Modal, Select } from 'antd'
@@ -10,7 +8,7 @@ import dayjs from 'dayjs'
 
 import { useMemo } from 'react'
 
-import type { Metric, MetricParam, MetricsWithStatus } from './type.ts'
+import type { MetricParam, MetricsWithStatus } from './type.ts'
 
 export const EditParamModal = NiceModal.create(({ 
     metric, 

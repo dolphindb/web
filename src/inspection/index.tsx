@@ -210,6 +210,7 @@ function PlanListTable  ({
             title: '巡检时间',
             dataIndex: 'scheduleTime',
             key: 'scheduleTime',
+            render: (scheduleTime: string[]) => scheduleTime.join(', ')
         },
         {
             title: '操作',
