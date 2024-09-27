@@ -292,10 +292,9 @@ export class DdbModel extends Model<DdbModel> {
     
         try {
             const is_client_auth = await this.ddb.invoke<boolean>('isClientAuth', undefined, { urgent: true })
-            if (is_client_auth && !this.logined) {
-                this.goto_login(undefined, true)
+            if (is_client_auth && !this.logined) 
                 return true
-            }
+            
         } catch (e) {
             console.log('无 clientAuth')
             return false
