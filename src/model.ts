@@ -221,6 +221,21 @@ export class DdbModel extends Model<DdbModel> {
         await this.get_cluster_perf(true)
         await this.check_leader_and_redirect()
         
+        await config.load_configs() // 必须先调用上面的函数，load_configs 依赖 controller alias 等信息   
+        this.set({
+            oauth: config.get_boolean_config('oauth'),
+            login_required: config.get_boolean_config('webLoginRequired')
+        })
+        
+        console.log(t('web 强制登录:'), this.login_required)
+        
+        if (this.oauth) {
+            this.oauth_type = config.get_config<OAuthType>('oauthWebType') || 'authorization code'
+            
+            if (!['authorization code', 'implicit'].includes(this.oauth_type))
+                throw new Error(t('oauthType 配置参数的值必须为 authorization code 或 implicit，默认为 authorization code'))
+        }
+        
         if (this.autologin)
             try {
                 await this.login_by_ticket()
@@ -244,25 +259,8 @@ export class DdbModel extends Model<DdbModel> {
             return
         }
             
-        await config.load_configs() // 必须先调用上面的函数，load_configs 依赖 controller alias 等信息   
         
         console.log(t('配置:'), await this.ddb.invoke<Record<string, string>>('getConfig'))
-        
-        this.set({
-            oauth: config.get_boolean_config('oauth'),
-            login_required: config.get_boolean_config('webLoginRequired')
-        })
-        
-        console.log(t('web 强制登录:'), this.login_required)
-        
-        if (this.oauth) {
-            this.oauth_type = config.get_config<OAuthType>('oauthWebType') || 'authorization code'
-            
-            if (!['authorization code', 'implicit'].includes(this.oauth_type))
-                throw new Error(t('oauthType 配置参数的值必须为 authorization code 或 implicit，默认为 authorization code'))
-        }
-        
-        
         
         await this.get_factor_platform_enabled()
         
