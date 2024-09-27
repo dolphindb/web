@@ -56,8 +56,6 @@ export class DdbModel extends Model<DdbModel> {
     
     inited = false
     
-    force_login = false
-    
     /** 在本地开发模式 */
     dev = false
     
@@ -161,6 +159,7 @@ export class DdbModel extends Model<DdbModel> {
     
     docs: Docs
     
+    enabled_client_auth = false
     
     constructor () {
         super()
@@ -267,14 +266,14 @@ export class DdbModel extends Model<DdbModel> {
         
         this.get_license_info()
         
-        this.goto_default_view()
-        
         this.set({ inited: true })
         
         this.get_version()
         
-        if (this.login_required && !this.logined)
+        if (!this.logined && (this.login_required || await this.check_client_auth()))
             await this.goto_login()
+        else
+            this.goto_default_view()
     }
     
     
@@ -287,8 +286,9 @@ export class DdbModel extends Model<DdbModel> {
     /** 检查是否启用了客户端认证且未登录 (ClientAuth) */
     async check_client_auth (): Promise<boolean> {
         try {
-            const is_client_auth = await this.ddb.invoke<boolean>('isClientAuth', undefined, { urgent: true })
-            return is_client_auth && !this.logined
+            const enabled_client_auth = await this.ddb.invoke<boolean>('isClientAuth', undefined, { urgent: true })
+            this.set({ enabled_client_auth })
+            return enabled_client_auth
         } catch {
             return false
         }
@@ -495,9 +495,6 @@ export class DdbModel extends Model<DdbModel> {
             localStorage.setItem(storage_keys.ticket, ticket)
         }
         
-        if (!this.inited) 
-            await this.init()
-        
         return username
     }
     
@@ -671,7 +668,7 @@ export class DdbModel extends Model<DdbModel> {
     
     /** 去登录页
         @param redirection 设置登录完成后的回跳页面，默认取当前 view */
-    async goto_login (redirection: PageViews = this.view, to_force_login_page = false) {
+    async goto_login (redirection: PageViews = this.view) {
         if (this.oauth) {
             const auth_uri = strip_quotes(
                 config.get_config('oauthAuthUri')
@@ -697,14 +694,10 @@ export class DdbModel extends Model<DdbModel> {
             
             await goto_url(url)
         } else
-            if (to_force_login_page) {
-                // 登录后需要重新初始化，进入强制登录页面，只展示登录表单
-                this.set({ inited: false, force_login: true })
-            } else
-                this.set({
-                    view: 'login',
-                    ... redirection === 'login' ? { } : { redirection }
-                })
+            this.set({
+                view: 'login',
+                ... redirection === 'login' ? { } : { redirection }
+            })
     }
     
     
