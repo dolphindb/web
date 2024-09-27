@@ -13,7 +13,6 @@ import { request } from 'xshell/net.browser.js'
 import {
     DDB, SqlStandard, DdbInt, DdbLong, type InspectOptions,
     DdbDatabaseError, type DdbObj, type DdbTableData,
-    DdbString
 } from 'dolphindb/browser.js'
 
 import type { Docs } from 'dolphindb/docs.js'
@@ -206,23 +205,6 @@ export class DdbModel extends Model<DdbModel> {
         this.redirection = params.get('redirection') as PageViews
     }
     
-    /** 检查是否需要客户端验证
-        @returns 是否需要客户端鉴权，且跳转到强制登录 */
-    async check_client_auth (): Promise<boolean> {
-    
-        try {
-            const is_client_auth = (await this.ddb.call<DdbObj<boolean>>('isClientAuth', undefined, { urgent: true })).data()
-            if (is_client_auth && !this.logined) {
-                this.goto_login(undefined, true)
-                return true
-            }
-        } catch (e) {
-            console.log('无 clientAuth')
-            return false
-        }
-        
-        return false
-    }
     
     async init () {
         console.log(t('web 开始初始化，当前处于{{mode}}模式，版本为 {{version}}', {
@@ -304,6 +286,24 @@ export class DdbModel extends Model<DdbModel> {
         this.get_version()
     }
     
+    /** 检查是否需要客户端验证
+    @returns 是否需要客户端鉴权，且跳转到强制登录 */
+    async check_client_auth (): Promise<boolean> {
+    
+        try {
+            const is_client_auth = await this.ddb.invoke<boolean>('isClientAuth', undefined, { urgent: true })
+            if (is_client_auth && !this.logined) {
+                this.goto_login(undefined, true)
+                return true
+            }
+        } catch (e) {
+            console.log('无 clientAuth')
+            return false
+        }
+        
+        return false
+    }
+    
     
     /** 设置 url 上的 query 参数
         - key: 参数名
@@ -329,7 +329,7 @@ export class DdbModel extends Model<DdbModel> {
         this.ddb.username = username
         this.ddb.password = password
         
-        await this.ddb.call('login', [new DdbString(username), new DdbString(password)], { urgent: true })
+        await this.ddb.invoke('login', [username, password], { urgent: true })
         
         await this.update_user()
         
@@ -573,7 +573,7 @@ export class DdbModel extends Model<DdbModel> {
     
     
     async get_node_type () {
-        const node_type = (await this.ddb.call<DdbObj<string>>('getNodeType', undefined, { urgent: true })).data()
+        const node_type = await this.ddb.invoke<NodeType>('getNodeType', undefined, { urgent: true })
         this.set({ node_type })
         console.log(t('节点类型:'), NodeType[node_type])
         return node_type
@@ -581,7 +581,7 @@ export class DdbModel extends Model<DdbModel> {
     
     
     async get_node_alias () {
-        const node_alias = (await this.ddb.call<DdbObj<string>>('getNodeAlias', undefined, { urgent: true })).data()
+        const node_alias = await this.ddb.invoke<string>('getNodeAlias', undefined, { urgent: true })
         this.set({ node_alias })
         console.log(t('节点名称:'), node_alias)
         return node_alias
@@ -589,7 +589,7 @@ export class DdbModel extends Model<DdbModel> {
     
     
     async get_controller_alias () {
-        const controller_alias = (await this.ddb.call('getControllerAlias', undefined, { urgent: true })).data()
+        const controller_alias = await this.ddb.invoke('getControllerAlias', undefined, { urgent: true })
         this.set({ controller_alias })
         console.log(t('控制节点:'), controller_alias)
         return controller_alias
@@ -742,33 +742,33 @@ export class DdbModel extends Model<DdbModel> {
         https://www.dolphindb.cn/cn/help/FunctionsandCommands/FunctionReferences/g/getClusterPerf.html  
         Only master or single mode supports function getClusterPerf. */
     async get_cluster_perf (print: boolean) {
-        const nodesdata = (
-            await this.ddb.call('getClusterPerf', [true], {
+        const nodesdata =
+            await this.ddb.invoke('getClusterPerf', [true], {
                 urgent: true,
                 
                 ... this.node_type === NodeType.controller || this.node_type === NodeType.single
                     ? undefined
                     : { node: this.controller_alias }
             })
-        )
-        .data().data
+            
+            
         const nodes = nodesdata.sort((a, b) => strcmp(a.name, b.name))
         
         if (print)
             console.log(t('集群节点:'), nodes)
-        
+            
         let node: DdbNode, controller: DdbNode, datanode: DdbNode
         
         for (const _node of nodes) {
             if (_node.name === this.node_alias)
                 node = _node
-            
+                
             if (_node.mode === NodeType.controller)
                 if (_node.isLeader)
                     controller = _node
                 else
                     controller ??= _node
-            
+                    
             if (_node.mode === NodeType.data)
                 datanode ??= _node
         }
