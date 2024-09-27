@@ -94,7 +94,7 @@ function DolphinDB () {
 
 
 function MainLayout () {
-    const { header, inited, sider, force_login } = model.use(['header', 'inited', 'sider', 'force_login'])
+    const { header, inited, sider, enabled_client_auth, logined } = model.use(['header', 'inited', 'sider', 'enabled_client_auth', 'logined'])
     
     
     // App 组件通过 Context 提供上下文方法调用，因而 useApp 需要作为子组件才能使用
@@ -129,6 +129,13 @@ function MainLayout () {
         }
     }, [ ])
     
+    if (!logined && enabled_client_auth)
+        return <GlobalErrorBoundary>
+            <div className='force-login login'>
+                <Login />
+            </div>
+        </GlobalErrorBoundary>
+        
     return inited ?
         <Layout className='root-layout'>
             { header && <Layout.Header className='ddb-header'>
@@ -148,11 +155,6 @@ function MainLayout () {
             { (model.dev || model.test) && <div className='host-select-container'>
                 <HostSelect size='middle' />
             </div> }
-            {
-                force_login && <div className='force-login login'>
-                    <Login />
-                </div>
-            }
         </GlobalErrorBoundary>
 }
 
