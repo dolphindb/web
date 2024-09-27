@@ -207,6 +207,7 @@ export class DdbModel extends Model<DdbModel> {
     }
     
     
+    /** 不论是否登录、是否有权限，都执行的基础初始化 */
     async init () {
         console.log(t('web 开始初始化，当前处于{{mode}}模式，版本为 {{version}}', {
             mode: this.dev ? t('开发') : t('生产'),
@@ -225,9 +226,14 @@ export class DdbModel extends Model<DdbModel> {
         // 必须先调用上面的函数，load_configs 依赖 controller alias 等信息   
         await config.load_configs()
         
+        console.log(t('配置:'), await this.ddb.invoke<Record<string, string>>('getConfig'))
+        
         this.set({
             oauth: config.get_boolean_config('oauth'),
-            login_required: config.get_boolean_config('webLoginRequired')
+            login_required: config.get_boolean_config('webLoginRequired'),
+            enabled_modules: new Set(
+                config.get_config('webModules')?.split(',') || [ ]
+            )
         })
         
         console.log(t('web 强制登录:'), this.login_required)
@@ -256,20 +262,6 @@ export class DdbModel extends Model<DdbModel> {
                         }
             }
         
-        if (await this.check_client_auth()) {
-            await this.goto_login(undefined, true)
-            return
-        }
-        
-        console.log(t('配置:'), await this.ddb.invoke<Record<string, string>>('getConfig'))
-        
-        await this.get_factor_platform_enabled()
-        
-        this.set({
-            enabled_modules: new Set(
-                config.get_config('webModules')?.split(',') || [ ]
-            )
-        })
         
         console.log(t('web 初始化成功'))
         
@@ -277,12 +269,18 @@ export class DdbModel extends Model<DdbModel> {
         
         this.goto_default_view()
         
-        if (this.login_required && !this.logined)
-            await this.goto_login()
-        
         this.set({ inited: true })
         
         this.get_version()
+        
+        if (this.login_required && !this.logined)
+            await this.goto_login()
+    }
+    
+    
+    /** 有权限执行代码时进行的初始化 */
+    async authed_init () {
+        await this.get_factor_platform_enabled()
     }
     
     
