@@ -97,6 +97,8 @@ export class DdbModel extends Model<DdbModel> {
     
     node_alias: string
     
+    client_auth_enabled = false
+    
     login_required = false
     
     
@@ -159,7 +161,6 @@ export class DdbModel extends Model<DdbModel> {
     
     docs: Docs
     
-    enabled_client_auth = false
     
     constructor () {
         super()
@@ -219,13 +220,16 @@ export class DdbModel extends Model<DdbModel> {
             this.get_controller_alias()
         ])
         
-        await this.get_cluster_perf(true)
-        await this.check_leader_and_redirect()
-        
-        // 必须先调用上面的函数，load_configs 依赖 controller alias 等信息   
-        await config.load_configs()
+        await Promise.all([
+            // 必须先调用上面的函数，load_configs 依赖 controller alias 等信息
+            config.load_configs(),
+            
+            this.get_cluster_perf(true)
+        ])
         
         console.log(t('配置:'), await this.ddb.invoke<Record<string, string>>('getConfig'))
+        
+        await this.check_leader_and_redirect()
         
         this.set({
             oauth: config.get_boolean_config('oauth'),
@@ -264,11 +268,11 @@ export class DdbModel extends Model<DdbModel> {
         
         console.log(t('web 初始化成功'))
         
-        this.get_license_info()
-        
         this.set({ inited: true })
         
         this.get_version()
+        
+        this.get_license_info()
         
         if (!this.logined && (this.login_required || await this.check_client_auth()))
             await this.goto_login()
@@ -286,9 +290,9 @@ export class DdbModel extends Model<DdbModel> {
     /** 检查是否启用了客户端认证且未登录 (ClientAuth) */
     async check_client_auth (): Promise<boolean> {
         try {
-            const enabled_client_auth = await this.ddb.invoke<boolean>('isClientAuth', undefined, { urgent: true })
-            this.set({ enabled_client_auth })
-            return enabled_client_auth
+            const client_auth_enabled = await this.ddb.invoke<boolean>('isClientAuth', undefined, { urgent: true })
+            this.set({ client_auth_enabled })
+            return client_auth_enabled
         } catch {
             return false
         }

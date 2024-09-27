@@ -94,7 +94,7 @@ function DolphinDB () {
 
 
 function MainLayout () {
-    const { header, inited, sider, enabled_client_auth, logined } = model.use(['header', 'inited', 'sider', 'enabled_client_auth', 'logined'])
+    const { header, inited, sider, client_auth_enabled, logined } = model.use(['header', 'inited', 'sider', 'client_auth_enabled', 'logined'])
     
     
     // App 组件通过 Context 提供上下文方法调用，因而 useApp 需要作为子组件才能使用
@@ -129,7 +129,7 @@ function MainLayout () {
         }
     }, [ ])
     
-    if (!logined && enabled_client_auth)
+    if (!logined && client_auth_enabled)
         return <GlobalErrorBoundary>
             <div className='force-login login'>
                 <Login />
