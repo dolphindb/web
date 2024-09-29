@@ -275,14 +275,11 @@ export class DdbModel extends Model<DdbModel> {
         
         if (!this.logined && (this.login_required || await this.check_client_auth()))
             await this.goto_login()
-        else
+        else {
+            await this.get_factor_platform_enabled()
+            
             this.goto_default_view()
-    }
-    
-    
-    /** 有权限执行代码时进行的初始化 */
-    async authed_init () {
-        await this.get_factor_platform_enabled()
+        }
     }
     
     

@@ -129,13 +129,7 @@ function MainLayout () {
         }
     }, [ ])
     
-    if (!logined && client_auth)
-        return <GlobalErrorBoundary>
-            <div className='force-login login'>
-                <Login />
-            </div>
-        </GlobalErrorBoundary>
-        
+    
     return inited ?
         <Layout className='root-layout'>
             { header && <Layout.Header className='ddb-header'>
