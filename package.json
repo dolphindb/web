@@ -21,8 +21,8 @@
         "@types/js-cookie": "^3.0.6",
         "@types/koa": "^2.15.0",
         "@types/lodash": "^4.17.9",
-        "@types/node": "^22.7.3",
-        "@types/react": "^18.3.9",
+        "@types/node": "^22.7.4",
+        "@types/react": "^18.3.10",
         "@types/react-dom": "^18.3.0",
         "@types/sass-loader": "^8.0.9",
         "@types/webpack-bundle-analyzer": "^4.7.0",
@@ -30,7 +30,7 @@
         "eslint": "^9.11.1",
         "license-webpack-plugin": "^4.0.2",
         "react": "^18.3.1",
-        "sass": "^1.79.3",
+        "sass": "^1.79.4",
         "sass-loader": "^16.0.2",
         "source-map-loader": "^5.0.0",
         "style-loader": "^4.0.0",
@@ -58,7 +58,7 @@
         "client-zip": "^2.4.5",
         "copy-to-clipboard": "^3.3.3",
         "dayjs": "^1.11.13",
-        "dolphindb": "^3.0.126",
+        "dolphindb": "^3.0.127",
         "echarts": "^5.5.1",
         "echarts-for-react": "^3.0.2",
         "final-form": "^4.20.10",
@@ -79,6 +79,6 @@
         "tslib": "^2.7.0",
         "vscode-oniguruma": "^2.0.1",
         "vscode-textmate": "^9.1.0",
-        "xshell": "^1.0.173"
+        "xshell": "^1.0.176"
     }
 }
