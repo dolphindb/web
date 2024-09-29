@@ -4,11 +4,10 @@ import { Dropdown, Avatar } from 'antd'
 
 import { default as Icon, LoginOutlined, LogoutOutlined, UserOutlined } from '@ant-design/icons'
 
+import dayjs from 'dayjs'
+
 
 import { t } from '@i18n/index.js'
-
-
-import dayjs from 'dayjs'
 
 import { date_format } from 'xshell/utils.browser.js'
 
@@ -25,7 +24,6 @@ import SvgArrowDown from './icons/arrow.down.icon.svg'
 
 export function DdbHeader () {
     const { logined, username, node_alias, admin, license } = model.use(['logined', 'username', 'node_alias', 'admin', 'license'])
-    
     
     useEffect(() => {
         if (!node_alias)
@@ -116,5 +114,6 @@ export function DdbHeader () {
         </div>
     </>
 }
+
 
 let checked_expired = false
