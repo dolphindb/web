@@ -97,7 +97,8 @@ export class DdbModel extends Model<DdbModel> {
     
     node_alias: string
     
-    client_auth_enabled = false
+    /** 是否启用了客户端认证 */
+    client_auth = false
     
     login_required = false
     
@@ -128,8 +129,6 @@ export class DdbModel extends Model<DdbModel> {
     v3: boolean
     
     license: DdbLicense
-    
-    license_server?: DdbLicenseServer
     
     first_get_server_log_length = true
     
@@ -287,12 +286,12 @@ export class DdbModel extends Model<DdbModel> {
     }
     
     
-    /** 检查是否启用了客户端认证且未登录 (ClientAuth) */
+    /** 检查是否启用了客户端认证 (ClientAuth) */
     async check_client_auth (): Promise<boolean> {
         try {
-            const client_auth_enabled = await this.ddb.invoke<boolean>('isClientAuth', undefined, { urgent: true })
-            this.set({ client_auth_enabled })
-            return client_auth_enabled
+            const client_auth = await this.ddb.invoke<boolean>('isClientAuth', undefined, { urgent: true })
+            this.set({ client_auth })
+            return client_auth
         } catch {
             return false
         }
@@ -610,9 +609,6 @@ export class DdbModel extends Model<DdbModel> {
         
         // 用户反馈不太友好，先去掉 license 过期提醒
         // this.check_license_expiration()
-        
-        if (license.licenseType === LicenseTypes.LicenseServerVerify)
-            await this.get_license_server_info()
     }
     
     
@@ -647,26 +643,6 @@ export class DdbModel extends Model<DdbModel> {
         console.log('license:', license)
         this.set({ license })
         return license
-    }
-    
-    
-    /** 如果节点是 license server, 获取 license server 相关信息 */
-    async get_license_server_info () {
-        const license_server_site = await this.ddb.invoke<string>('getConfig', ['licenseServerSite'])
-        
-        const is_license_server_node = this.license.licenseType === LicenseTypes.LicenseServerVerify && license_server_site === this.node.site
-        
-        const license_server_resource = is_license_server_node 
-            ? await this.ddb.invoke<DdbLicenseServerResource>('getLicenseServerResourceInfo')
-            : null
-        
-        this.set({ 
-            license_server: {
-                is_license_server_node,
-                site: license_server_site,
-                resource: license_server_resource
-            }
-        })
     }
     
     
