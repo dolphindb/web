@@ -232,7 +232,7 @@ export class DdbModel extends Model<DdbModel> {
         
         this.set({
             oauth: config.get_boolean_config('oauth'),
-            login_required: config.get_boolean_config('webLoginRequired'),
+            login_required: config.get_boolean_config('webLoginRequired') || await this.check_client_auth(),
             enabled_modules: new Set(
                 config.get_config('webModules')?.split(',') || [ ]
             )
@@ -273,7 +273,7 @@ export class DdbModel extends Model<DdbModel> {
         
         this.get_license_info()
         
-        if (!this.logined && (this.login_required || await this.check_client_auth()))
+        if (!this.logined && this.login_required)
             await this.goto_login()
         else {
             await this.get_factor_platform_enabled()
