@@ -5230,5 +5230,17 @@
     },
     "作业日志": {
         "en": "Job Logs"
+    },
+    "查看更多": {
+        "en": "Show More"
+    },
+    "保存成功，立即生效": {
+        "en": "Save successfully, effective immediately"
+    },
+    "执行 undef all 后需要刷新以恢复 web 功能": {
+        "en": "After executing undef all, refresh is required to restore web functionality"
+    },
+    "立即刷新": {
+        "en": "Refresh Now"
     }
 }

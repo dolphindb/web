@@ -16,7 +16,6 @@ import {
     DdbForm,
     type DdbObj,
     DdbType,
-    DdbFunctionType,
     type InspectOptions,
     type DdbVectorStringObj,
     type DdbTableObj,
@@ -339,9 +338,9 @@ class ShellModel extends Model<ShellModel> {
                     await this.eval(code, istart)
                 } finally {
                     model.modal.warning({
-                        content: t('执行 undef all 后需要刷新以恢复 web 功能，是否立即刷新？'),
+                        content: t('执行 undef all 后需要刷新以恢复 web 功能'),
                         onOk: () => { location.reload() },
-                        okText: t('刷新')
+                        okText: t('立即刷新')
                     })
                 }
              else
@@ -518,7 +517,7 @@ class ShellModel extends Model<ShellModel> {
             // 函数要在 controller (且是 leader) 上调用
             'getDFSDirectoryContent',
             [node.path.slice('dfs:/'.length)],
-            model.node.mode !== NodeType.controller ? { node: model.controller_alias, func_type: DdbFunctionType.SystemFunc } : { }
+            model.node.mode !== NodeType.controller ? { node: model.controller_alias } : undefined
         )
         
         let directories: PartitionDirectory[] = [ ]
@@ -545,7 +544,7 @@ class ShellModel extends Model<ShellModel> {
                         'getTablesByTabletChunk',
                         [chunk],
                         // sites 字段里面的就是 node_alias
-                        site_node !== model.node_alias ? { node: site_node, func_type: DdbFunctionType.SystemFunc } : { }
+                        site_node !== model.node_alias ? { node: site_node } : undefined
                     )
                     
                     // 可能是空的数据库，里面还没有表，也没有数据

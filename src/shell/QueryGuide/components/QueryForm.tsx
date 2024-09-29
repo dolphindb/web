@@ -1,7 +1,6 @@
 import { Button, Card, Form, type FormInstance, Input, InputNumber, Select, Spin, Tag, Tooltip, Typography, Row, Col, Space } from 'antd'
 import useSWR from 'swr'
 
-import { DdbFunctionType } from 'dolphindb/browser.js'
 import { get, isNumber } from 'lodash'
 import { useEffect, useId, useState } from 'react'
 
@@ -264,7 +263,7 @@ export function QueryForm (props: IProps) {
             const { value } = await model.ddb.call(
                 'load_table_schema',
                 [database, table],
-                model.node_type === NodeType.controller ? { node: model.datanode.name, func_type: DdbFunctionType.UserDefinedFunc } : { }
+                model.node_type === NodeType.controller ? { node: model.datanode.name } : undefined
             )
             return value
         },
