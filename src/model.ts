@@ -239,6 +239,7 @@ export class DdbModel extends Model<DdbModel> {
             )
         })
         
+        console.log(t('web 安全认证:'), this.client_auth)
         console.log(t('web 强制登录:'), this.login_required)
         
         if (this.oauth) {
@@ -512,7 +513,7 @@ export class DdbModel extends Model<DdbModel> {
             admin: false
         })
         
-        if (this.login_required || await this.check_client_auth())
+        if (this.login_required || this.client_auth)
             await this.goto_login()
     }
     

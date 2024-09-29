@@ -94,7 +94,7 @@ function DolphinDB () {
 
 
 function MainLayout () {
-    const { header, inited, sider, client_auth, logined } = model.use(['header', 'inited', 'sider', 'client_auth', 'logined'])
+    const { header, inited, sider } = model.use(['header', 'inited', 'sider'])
     
     
     // App 组件通过 Context 提供上下文方法调用，因而 useApp 需要作为子组件才能使用
@@ -128,7 +128,6 @@ function MainLayout () {
             return () => { window.removeEventListener('keydown', on_keydown) }
         }
     }, [ ])
-    
     
     return inited ?
         <Layout className='root-layout'>
