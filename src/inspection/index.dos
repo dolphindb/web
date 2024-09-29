@@ -15,7 +15,7 @@ def clearEnv() {
 
 def initDfs() {
     years = sort(distinct(yearBegin(1985.01.01..2055.01.01)))
-    dbValue = database(, VALUE, ["reportName"])
+    dbValue = database(, VALUE, ["planId"])
     dbRange = database(, RANGE, years)
     db = database("dfs://ddb_internal_auto_inspection", COMPO, [dbValue, dbRange], engine='TSDB')
 
@@ -29,10 +29,10 @@ def initDfs() {
     pt3 = createTable(db, tb, "plan_details", sortColumns="metricVersion")
 
     tb = table(1:0, `id`planId`name`desc`user`receivedTime`startTime`endTime`success`totalNum`failedNum, [STRING, STRING, STRING, STRING, STRING, TIMESTAMP, TIMESTAMP, TIMESTAMP, BOOL, INT, INT])
-    pt4 = createPartitionedTable(db, tb, "reports", ["id", "receivedTime"], sortColumns="receivedTime")
+    pt4 = createPartitionedTable(db, tb, "reports", ["planId", "receivedTime"], sortColumns="receivedTime")
 
-    tb = table(1:0, `reportId`metricName`metricDisplayName`metricVersion`metricParams`node`jobId`startTime`endTime`success`detail`suggestion, [STRING, STRING, STRING, INT, STRING, STRING, STRING, TIMESTAMP, TIMESTAMP, BOOL, BLOB, STRING])
-    pt5 = createPartitionedTable(db, tb, "report_details", ["reportId", "startTime"], sortColumns="startTime")
+    tb = table(1:0, `reportId`planId`metricName`metricDisplayName`metricVersion`metricParams`node`jobId`startTime`endTime`success`detail`suggestion, [STRING, STRING, STRING, STRING, INT, STRING, STRING, STRING, TIMESTAMP, TIMESTAMP, BOOL, BLOB, STRING])
+    pt5 = createPartitionedTable(db, tb, "report_details", ["planId", "startTime"], sortColumns="startTime")
 }
 
 def newMetric(name, displayName, group, desc, nodes, script, params=NULL) {
@@ -269,7 +269,7 @@ def runPlanInner(planId) {
             node = nodes[i]
 
             usedParamsJson = toStdJson(iif(usedParams.keys().size() == 0, NULL, usedParams))
-            insert into ret values ("", name, displayName, version, usedParamsJson, node, jobId, res["startTime"].first(), res["endTime"].first(), success, detail, suggestion) // reportId 要在返回后 update
+            insert into ret values ("", planId, name, displayName, version, usedParamsJson, node, jobId, res["startTime"].first(), res["endTime"].first(), success, detail, suggestion) // reportId 要在返回后 update
         }
     }
 
