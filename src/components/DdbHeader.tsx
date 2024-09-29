@@ -36,8 +36,8 @@ export function DdbHeader () {
         if (admin && license) {
             if (expiration_checked)
                 return
-                
             expiration_checked = true
+            
             const { license } = model
             
             // license.expiration 是以 date 为单位的数字
@@ -64,9 +64,7 @@ export function DdbHeader () {
                     width: 700,
                     onOk: () => { localStorage.setItem(storage_keys.license_notified_date, now.format(date_format)) },
                 })
-                
         }
-        
     }, [admin, license])
     
     return <>
