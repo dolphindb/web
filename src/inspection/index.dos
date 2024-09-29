@@ -325,31 +325,20 @@ def loadAlertConfig() {
     return ret
 }
 
-def sendReportEmail(planId, reportId) {
-    planInfo = select * from loadTable("dfs://ddb_internal_auto_inspection", "plans") where id == planId
-    reportInfo = select * from loadTable("dfs://ddb_internal_auto_inspection", "reports") where id == reportId
-    alertConfig = loadAlertConfig()
-    if (alertConfig.keys().size() == 0 or !alertConfig["inspectionAlertEnabled"]) {
-        throw "alert is disabled, please enable it in the config file first"
+def sendReportEmail(planInfo, reportInfo, alertConfig) {
+    if (all(["inspectionAlertSMTPEmailName", "inspectionAlertSMTPHost"] in alertConfig.keys())) {
+        httpClient::emailSmtpConfig(alertConfig["inspectionAlertSMTPEmailName"], alertConfig["inspectionAlertSMTPHost"], alertConfig["inspectionAlertSMTPPort"])
     }
-    planInfo = planInfo[0]
-    reportInfo = reportInfo[0]
     
-    if (alertConfig["inspectionAlertEnabled"] and planInfo["alertEnabled"] and reportInfo["success"] == false) {
-        if (all(["inspectionAlertSMTPEmailName", "inspectionAlertSMTPHost"] in alertConfig.keys())) {
-            httpClient::emailSmtpConfig(alertConfig["inspectionAlertSMTPEmailName"], alertConfig["inspectionAlertSMTPHost"], alertConfig["inspectionAlertSMTPPort"])
-        }
-        
-        subject, content = generateEmail(reportInfo)
-        userId = alertConfig["inspectionAlertUserId"]
-        pwd = alertConfig["inspectionAlertPwd"]
-        recipient = planInfo["alertRecipient"].split(",")
-        if (alertConfig["inspectionAlertStdSMTPMsgEnabled"]) {
-            smtpMsg = createSMTPMsg(userId, recipient, subject, content)
-            httpClient::sendEmail(userId, pwd, recipient, , , smtpMsg)
-        } else {
-            httpClient::sendEmail(userId, pwd, recipient, subject, content)
-        }
+    subject, content = generateEmail(reportInfo)
+    userId = alertConfig["inspectionAlertUserId"]
+    pwd = alertConfig["inspectionAlertPwd"]
+    recipient = planInfo["alertRecipient"].split(",")
+    if (alertConfig["inspectionAlertStdSMTPMsgEnabled"]) {
+        smtpMsg = createSMTPMsg(userId, recipient, subject, content)
+        httpClient::sendEmail(userId, pwd, recipient, , , smtpMsg)
+    } else {
+        httpClient::sendEmail(userId, pwd, recipient, subject, content)
     }
 
     return (userId, subject, recipient)
@@ -394,11 +383,18 @@ def runPlan(planId, blocking=false) {
                 writeLog("autoInspection: run plan successfully, plan id: " + planId + ", report id: " + jobId)
 
                 // 发送邮件
-                try {
-                    userId, subject, recipient = sendReportEmail(planId, jobId)
-                    writeLog("autoInspection: alert successfully, plan id: " + planId + ", subject: \"" + subject + "\", userId: " + userId + ", recipient: " + recipient.concat(","))
-                } catch(err) {
-                    writeLog("autoInspection: alert failed, plan id: " + planId + ", err msg: " + string(err).last())
+                alertConfig = loadAlertConfig()
+                planInfo = select * from loadTable("dfs://ddb_internal_auto_inspection", "plans") where id == planId
+                reportInfo = select * from loadTable("dfs://ddb_internal_auto_inspection", "reports") where id == jobId
+                planInfo = planInfo[0]
+                reportInfo = reportInfo[0]
+                if (alertConfig["inspectionAlertEnabled"] and planInfo["alertEnabled"] and reportInfo["success"] == false) {
+                    try {
+                        userId, subject, recipient = sendReportEmail(planInfo, reportInfo, alertConfig)
+                        writeLog("autoInspection: alert successfully, plan id: " + planId + ", subject: \"" + subject + "\", userId: " + userId + ", recipient: " + recipient.concat(","))
+                    } catch(err) {
+                        writeLog("autoInspection: alert failed, plan id: " + planId + ", err msg: " + string(err).last())
+                    }
                 }
             } else {
                 update loadTable("dfs://ddb_internal_auto_inspection", "reports") set startTime = receivedTime, endTime = now(), success = false where id = jobId
