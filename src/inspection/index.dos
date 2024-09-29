@@ -367,14 +367,14 @@ def runPlan(planId, blocking=false) {
                     }
                 }
             } while (reportInfo.size() == 0)
+            reportJobInfo = getJobStatus(jobId)
+            startTime_ = reportJobInfo[0]["startTime"]
+            endTime_ = reportJobInfo[0]["endTime"]
             if (success == true) {
                 jobId_ = jobId
                 planId = reportInfo["planId"].first()
                 update result set reportId = jobId_
                 loadTable("dfs://ddb_internal_auto_inspection", "report_details").append!(result)
-                reportJobInfo = getJobStatus(jobId)
-                startTime_ = reportJobInfo[0]["startTime"]
-                endTime_ = reportJobInfo[0]["endTime"]
                 success_ = all(result["success"])
                 totalNum_ = exec count(distinct(metricName)) from result
                 failedNum_ = select count(*) from result where success == false group by metricName
@@ -397,7 +397,7 @@ def runPlan(planId, blocking=false) {
                     }
                 }
             } else {
-                update loadTable("dfs://ddb_internal_auto_inspection", "reports") set startTime = receivedTime, endTime = now(), success = false where id = jobId
+                update loadTable("dfs://ddb_internal_auto_inspection", "reports") set startTime = startTime_, endTime = endTime_, success = false where id = jobId
                 writeLog("autoInspection: run plan failed, plan id: " + reportInfo["planId"].first() + ", report id: " + jobId + ", err msg: " + string(result).last())
                 throw result
             }
