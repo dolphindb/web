@@ -10,7 +10,9 @@ import { t } from '@i18n/index.js'
 
 import dayjs from 'dayjs'
 
-import { model } from '@/model.ts'
+import { date_format } from 'xshell'
+
+import { model, storage_keys } from '@/model.ts'
 
 import { License } from './License.js'
 import { Status } from './Status.js'
@@ -20,47 +22,10 @@ import { HostSelect } from './HostSelect.js'
 
 import SvgArrowDown from './icons/arrow.down.icon.svg'
 
-let checked_expired = false
 
 export function DdbHeader () {
-    const { logined, username, node_alias, admin, licence_loaded } = model.use(['logined', 'username', 'node_alias', 'admin', 'licence_loaded'])
+    const { logined, username, node_alias, admin, license } = model.use(['logined', 'username', 'node_alias', 'admin', 'license'])
     
-    
-    function check_license_expiration () {
-        if (checked_expired)
-            return
-        
-        checked_expired = true
-        const license = model.license
-        
-        // license.expiration 是以 date 为单位的数字
-        const expiration_date = dayjs(license.expiration)
-        const now = dayjs()
-        const after_two_week = now.add(2, 'week')
-        const is_license_expired = now.isAfter(expiration_date, 'day')
-        const is_license_expire_soon = after_two_week.isAfter(expiration_date, 'day')
-        
-        const skip_expired_date = localStorage.getItem('ddb.skip.skip_expired_date')
-        if (skip_expired_date === now.format('YYYY-MM-DD'))
-            return
-            
-        if (is_license_expired)
-            model.modal.confirm({
-                title: t('License 过期提醒'),
-                content: t('DolphinDB License 已过期，请联系管理人员立即更新，避免数据库关闭'),
-                cancelText: t('今日不再提醒'),
-                onCancel: async () => { localStorage.setItem('ddb.skip.skip_expired_date', now.format('YYYY-MM-DD')) },
-                width: 600,
-            })
-        else if (is_license_expire_soon)
-            model.modal.confirm({
-                title: t('License 过期提醒'),
-                content: t('DolphinDB License 将在两周内过期，请提醒管理人员及时更新，避免数据库过期后自动关闭'),
-                cancelText: t('今日不再提醒'),
-                onCancel: async () => { localStorage.setItem('ddb.skip.skip_expired_date', now.format('YYYY-MM-DD')) },
-                width: 700,
-            })
-    }
     
     useEffect(() => {
         if (!node_alias)
@@ -70,9 +35,44 @@ export function DdbHeader () {
     
     // 在 admin 状态变化时，弹提示
     useEffect(() => {
-        if (admin && licence_loaded)
+        function check_license_expiration () {
+            if (checked_expired)
+                return
+            
+            checked_expired = true
+            const license = model.license
+            
+            // license.expiration 是以 date 为单位的数字
+            const expiration_date = dayjs(license.expiration)
+            const now = dayjs()
+            const after_two_week = now.add(2, 'week')
+            const is_license_expired = now.isAfter(expiration_date, 'day')
+            const is_license_expire_soon = after_two_week.isAfter(expiration_date, 'day')
+            
+            const skip_expired_date = localStorage.getItem(storage_keys.license_notified_date)
+            if (skip_expired_date === now.format(date_format))
+                return
+                
+            if (is_license_expired)
+                model.modal.error({
+                    title: t('License 过期提醒'),
+                    content: t('DolphinDB License 已过期，请联系管理人员立即更新，避免数据库关闭'),
+                    width: 600,
+                    onOk: () => { localStorage.setItem(storage_keys.license_notified_date, now.format(date_format)) },
+                })
+            else if (is_license_expire_soon)
+                model.modal.warning({
+                    title: t('License 过期提醒'),
+                    content: t('DolphinDB License 将在两周内过期，请提醒管理人员及时更新，避免数据库过期后自动关闭'),
+                    width: 700,
+                    onOk: () => { localStorage.setItem(storage_keys.license_notified_date, now.format(date_format)) },
+                })
+                
+        }
+        
+        if (admin && license)
             check_license_expiration()
-    }, [admin, licence_loaded])
+    }, [admin, license])
     
     return <>
         <img className='logo' src='./ddb.svg' />
@@ -116,3 +116,5 @@ export function DdbHeader () {
         </div>
     </>
 }
+
+let checked_expired = false

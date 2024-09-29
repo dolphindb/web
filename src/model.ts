@@ -36,7 +36,8 @@ export const storage_keys = {
     sql: 'ddb.sql',
     dashboard_autosave: 'ddb.dashboard.autosave',
     overview_display_mode: 'ddb.overview.display_mode',
-    overview_display_columns: 'ddb.overview.display_columns'
+    overview_display_columns: 'ddb.overview.display_columns',
+    license_notified_date: 'ddb.license.notified_date',
 } as const
 
 const json_error_pattern = /^{.*"code": "(.*?)".*}$/
@@ -92,8 +93,6 @@ export class DdbModel extends Model<DdbModel> {
     username: string = username_guest
     
     admin = false
-    
-    licence_loaded = false
     
     node_type: NodeType
     
@@ -594,13 +593,9 @@ export class DdbModel extends Model<DdbModel> {
     async get_license_info () {
         const license = await this.get_license_self_info()
         
-        // 用户反馈不太友好，先去掉 license 过期提醒
-        // this.check_license_expiration()
         
         if (license.licenseType === LicenseTypes.LicenseServerVerify)
             await this.get_license_server_info()
-        
-        this.set({ licence_loaded: true })
     }
     
     
