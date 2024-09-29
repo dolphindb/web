@@ -368,13 +368,18 @@ def runPlan(planId, blocking=false) {
     print("start to run plan: " + string(planId))
     writeLog("autoInspection: start to run plan: " + string(planId))
     onComplete = def(jobId, jobDesc, success, result) {
-        do {
-            reportInfo = select * from loadTable("dfs://ddb_internal_auto_inspection", "reports") where id == jobId
-            if (reportInfo.size() == 0) {
-                sleep(100) // 等 success=NULL 的记录写入
-            }
-        } while (reportInfo.size() == 0)
         try {
+            cnt = 0
+            do {
+                reportInfo = select * from loadTable("dfs://ddb_internal_auto_inspection", "reports") where id == jobId
+                if (reportInfo.size() == 0) {
+                    sleep(1000) // 等 success=NULL 的记录写入
+                    cnt += 1
+                    if (cnt == 30) {
+                        throw "get report info failed after trying 30 times, report id: " + jobId
+                    }
+                }
+            } while (reportInfo.size() == 0)
             if (success == true) {
                 jobId_ = jobId
                 planId = reportInfo["planId"].first()
