@@ -279,6 +279,7 @@ def runPlanInner(planId) {
 def generateEmail(reportInfo) {
     subject = "DolphinDB 自动化巡检失败告警，巡检名称：" + reportInfo["name"]
     body = ""
+    body += "巡检 ID：" + reportInfo["planId"] + "<br>"
     body += "巡检名称：" + reportInfo["name"] + "<br>"
     body += "巡检描述：" + reportInfo["desc"] + "<br>"
     body += "提交人：" + reportInfo["user"] + "<br>"
@@ -287,9 +288,6 @@ def generateEmail(reportInfo) {
     body += "状态：" + iif(reportInfo["success"], "正常", "异常") + "<br>"
     body += "总项目数：" + string(reportInfo["totalNum"]) + "<br>"
     body += "异常项目数：" + string(reportInfo["failedNum"]) + "<br>"
-    // body = strReplace(body, "&", "&amp")
-    // body = strReplace(body, "<", "&lt")
-    // body = strReplace(body, ">", "&gt")
     return (subject, body)
 }
 
