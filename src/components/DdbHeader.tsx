@@ -33,12 +33,12 @@ export function DdbHeader () {
     
     // 在 admin 状态变化时，弹提示
     useEffect(() => {
-        function check_license_expiration () {
-            if (checked_expired)
+        if (admin && license) {
+            if (expiration_checked)
                 return
-            
-            checked_expired = true
-            const license = model.license
+                
+            expiration_checked = true
+            const { license } = model
             
             // license.expiration 是以 date 为单位的数字
             const expiration_date = dayjs(license.expiration)
@@ -47,8 +47,7 @@ export function DdbHeader () {
             const is_license_expired = now.isAfter(expiration_date, 'day')
             const is_license_expire_soon = after_two_week.isAfter(expiration_date, 'day')
             
-            const skip_expired_date = localStorage.getItem(storage_keys.license_notified_date)
-            if (skip_expired_date === now.format(date_format))
+            if (localStorage.getItem(storage_keys.license_notified_date) === now.format(date_format))
                 return
                 
             if (is_license_expired)
@@ -68,8 +67,6 @@ export function DdbHeader () {
                 
         }
         
-        if (admin && license)
-            check_license_expiration()
     }, [admin, license])
     
     return <>
@@ -116,4 +113,4 @@ export function DdbHeader () {
 }
 
 
-let checked_expired = false
+let expiration_checked = false
