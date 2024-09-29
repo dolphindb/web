@@ -17,9 +17,6 @@ class DevServer extends Server {
     override async router (ctx: Context) {
         let { request, response } = ctx
         
-        if (request.path === '/')
-            request.path = '/index.html'
-        
         const { path } = request
         
         if (path === '/api/recompile') {
@@ -28,7 +25,12 @@ class DevServer extends Server {
             return true
         }
         
-        return this.try_send(ctx, fpd_out, path.slice(1), true)
+        return this.try_send(
+            ctx, 
+            fpd_out, 
+            path.fext ? path.slice(1) : 'index.html', 
+            true
+        )
     }
 }
 

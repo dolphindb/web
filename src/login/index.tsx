@@ -10,7 +10,7 @@ import { model } from '@/model.ts'
 
 export function Login () {
     return <>
-        <img className='logo' src='./ddb.svg' />
+        <img className='logo' src={`${ASSETS_ROOT}ddb.svg`} />
         
         <div className='form-container'>
             <Form

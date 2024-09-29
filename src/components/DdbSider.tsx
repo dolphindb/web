@@ -6,6 +6,8 @@ import { default as Icon, DoubleLeftOutlined, DoubleRightOutlined, ExperimentOut
 
 import { isNil, omitBy } from 'lodash'
 
+import { useLocation, useNavigate } from 'react-router-dom'
+
 
 import { language, t } from '@i18n/index.js'
 
@@ -60,8 +62,14 @@ function MenuIcon ({ view }: { view: DdbModel['view'] }) {
 }
 
 export function DdbSider () {
-    const { view, node_type, collapsed, logined, admin, login_required, v1, dev, test, is_factor_platform_enabled } 
-        = model.use(['view', 'node_type', 'collapsed', 'logined', 'admin', 'login_required', 'v1', 'dev', 'test', 'is_factor_platform_enabled', 'enabled_modules'])
+    const { node_type, collapsed, logined, admin, login_required, v1, dev, test, is_factor_platform_enabled } 
+        = model.use(['node_type', 'collapsed', 'logined', 'admin', 'login_required', 'v1', 'dev', 'test', 'is_factor_platform_enabled', 'enabled_modules'])
+    
+    const navigate = useNavigate()
+    
+    const location = useLocation()
+    
+    const view = location.pathname.split('/')[1]
     
     const factor_href = useMemo(() => {
         const search_params = new URLSearchParams(location.search)
@@ -113,9 +121,7 @@ export function DdbSider () {
                 if (key === 'factor')
                     return
                 
-                model.set_query('view', key)
-                
-                model.set({ view: key as DdbModel['view'] })
+                navigate({ ...location, pathname: `/${key}/` })
             }}
             inlineIndent={10}
             items={[

@@ -27,7 +27,7 @@ loader.config({
         // vs: 'https://cdn.jsdelivr.net/npm/monaco-editor@0.34.0/min/vs'
         
         // 必须是　vs, 否则 /vs/base/common/worker/simpleWorker.nls.js 路径找不到实际文件
-        vs: `./vendors/monaco-editor/${ PRODUCTION ? 'min' : 'dev' }/vs`
+        vs: `${ASSETS_ROOT}vendors/monaco-editor/${ PRODUCTION ? 'min' : 'dev' }/vs`
     },
     ... language === 'zh' ? {
         'vs/nls': {
@@ -73,7 +73,7 @@ export function Editor ({
             if (!docs && !docs_initing) {
                 docs_initing = true
                 try {
-                    model.set({ docs: await request_json(`./docs.${ language === 'zh' ? 'zh' : 'en' }.json`) })
+                    model.set({ docs: await request_json(`${ASSETS_ROOT}docs.${ language === 'zh' ? 'zh' : 'en' }.json`) })
                 } finally {
                     docs_initing = false
                 }
@@ -118,7 +118,7 @@ export function Editor ({
             
             loading={<div className='editor-loading'>{t('正在加载代码编辑器...')}</div>}
             
-            beforeMonacoInit={async () => loadWASM(await fetch('./vendors/vscode-oniguruma/release/onig.wasm')) }
+            beforeMonacoInit={async () => loadWASM(await fetch(`${ASSETS_ROOT}vendors/vscode-oniguruma/release/onig.wasm`)) }
             
             onMonacoInitFailed={error => { model.show_error({ error }) }}
             

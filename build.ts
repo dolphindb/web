@@ -5,17 +5,23 @@ import { fdclear } from 'xshell'
 import { builder, fpd_out } from './builder.ts'
 
 
-await fdclear(fpd_out)
+const { argv } = process
 
 const prefix_version = '--version='
+
+const prefix_root = '--root='
+
+await fdclear(fpd_out)
 
 await builder.build_bundles(true)
 
 await builder.build(
     true, 
-    process.argv
+    argv
         .find(arg => arg.startsWith(prefix_version))
-        ?.strip_start(prefix_version)
+        ?.strip_start(prefix_version),
+    argv.find(arg => arg.startsWith(prefix_root))
+        ?.strip_start(prefix_root)
 )
 
 

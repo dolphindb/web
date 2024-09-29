@@ -52,3 +52,5 @@ interface Window {
 declare const WEB_VERSION: string
 
 declare var PRODUCTION: boolean
+
+declare var ASSETS_ROOT: string

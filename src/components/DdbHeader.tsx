@@ -29,7 +29,7 @@ export function DdbHeader () {
     }, [node_alias])
     
     return <>
-        <img className='logo' src='./ddb.svg' />
+        <img className='logo' src={`${ASSETS_ROOT}ddb.svg`} />
         {(model.dev || model.test) && <HostSelect />}
         { model.dev && <CompileAndRefresh /> }
         
