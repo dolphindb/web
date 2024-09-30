@@ -139,7 +139,7 @@ export function ParserTemplates () {
     ], [on_edit, on_delete, can_edit])
     
    
-    return <>
+    return <div className='parser-template-content'>
         <h2>{t('解析模板')}</h2>
         <Space className='parser-template-btn-group'>
             <Button onClick={on_create} icon={<PlusOutlined />} type='primary'>{t('新建')}</Button>
@@ -170,5 +170,5 @@ export function ParserTemplates () {
                 }),
             }}
         />
-</>
+</div>
 }
