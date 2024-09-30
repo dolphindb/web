@@ -62,8 +62,8 @@ function MenuIcon ({ view }: { view: DdbModel['view'] }) {
 }
 
 export function DdbSider () {
-    const { node_type, collapsed, logined, admin, login_required, v1, dev, test, is_factor_platform_enabled } 
-        = model.use(['node_type', 'collapsed', 'logined', 'admin', 'login_required', 'v1', 'dev', 'test', 'is_factor_platform_enabled', 'enabled_modules'])
+    const { node_type, collapsed, logined, admin, login_required, client_auth, v1, dev, test, is_factor_platform_enabled } 
+        = model.use(['node_type', 'collapsed', 'logined', 'admin', 'login_required', 'client_auth', 'v1', 'dev', 'test', 'is_factor_platform_enabled', 'enabled_modules'])
     
     const navigate = useNavigate()
     
@@ -113,7 +113,7 @@ export function DdbSider () {
             theme='light'
             selectedKeys={[view]}
             onSelect={({ key }) => {
-                if (login_required && !logined) {
+                if ((login_required || client_auth) && !logined) {
                     model.message.error(t('请登录'))
                     return
                 }
