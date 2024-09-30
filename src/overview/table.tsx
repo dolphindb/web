@@ -320,7 +320,7 @@ export function OverviewTable ({
                 <div className='agent-node-card'>
                     {nodes
                         .filter(({ mode }) => mode === NodeType.agent)
-                        .map(({ name, state }) => <div className='agent-node-item'>
+                        .map(({ name, state }) => <div className='agent-node-item' key={name}>
                                 {name}
                                 {node_state_icons[Number(state)]}
                             </div>)}

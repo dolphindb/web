@@ -378,9 +378,9 @@ class ShellModel extends Model<ShellModel> {
                     await this.eval(code, istart)
                 } finally {
                     model.modal.warning({
-                        content: t('执行 undef all 后需要刷新以恢复 web 功能，是否立即刷新？'),
+                        content: t('执行 undef all 后需要刷新以恢复 web 功能'),
                         onOk: () => { location.reload() },
-                        okText: t('刷新')
+                        okText: t('立即刷新')
                     })
                 }
              else

@@ -12,8 +12,8 @@ import { filter_values, strcmp } from 'xshell/utils.browser.js'
 import { request } from 'xshell/net.browser.js'
 
 import {
-    DDB, SqlStandard, type DdbObj, DdbInt, DdbLong, type InspectOptions,
-    DdbDatabaseError, type DdbTableData
+    DDB, SqlStandard, DdbInt, DdbLong, type InspectOptions,
+    DdbDatabaseError, type DdbObj, type DdbTableData,
 } from 'dolphindb/browser.js'
 
 import type { Docs } from 'dolphindb/docs.js'
@@ -36,7 +36,8 @@ export const storage_keys = {
     sql: 'ddb.sql',
     dashboard_autosave: 'ddb.dashboard.autosave',
     overview_display_mode: 'ddb.overview.display_mode',
-    overview_display_columns: 'ddb.overview.display_columns'
+    overview_display_columns: 'ddb.overview.display_columns',
+    license_notified_date: 'ddb.license.notified_date',
 } as const
 
 const json_error_pattern = /^{.*"code": "(.*?)".*}$/
@@ -97,6 +98,9 @@ export class DdbModel extends Model<DdbModel> {
     
     node_alias: string
     
+    /** 是否启用了客户端认证 */
+    client_auth = false
+    
     login_required = false
     
     
@@ -126,8 +130,6 @@ export class DdbModel extends Model<DdbModel> {
     v3: boolean
     
     license: DdbLicense
-    
-    license_server?: DdbLicenseServer
     
     first_get_server_log_length = true
     
@@ -205,6 +207,7 @@ export class DdbModel extends Model<DdbModel> {
     }
     
     
+    /** 不论是否登录、是否有权限，都执行的基础初始化 */
     async init () {
         console.log(t('web 开始初始化，当前处于{{mode}}模式，版本为 {{version}}', {
             mode: this.dev ? t('开发') : t('生产'),
@@ -230,9 +233,13 @@ export class DdbModel extends Model<DdbModel> {
         
         this.set({
             oauth: config.get_boolean_config('oauth'),
-            login_required: config.get_boolean_config('webLoginRequired')
+            login_required: config.get_boolean_config('webLoginRequired'),
+            enabled_modules: new Set(
+                config.get_config('webModules')?.split(',') || [ ]
+            )
         })
         
+        console.log(t('web 安全认证:'), this.client_auth)
         console.log(t('web 强制登录:'), this.login_required)
         
         if (this.oauth) {
@@ -260,26 +267,33 @@ export class DdbModel extends Model<DdbModel> {
             }
         
         
-        await this.get_factor_platform_enabled()
-        
-        this.set({
-            enabled_modules: new Set(
-                config.get_config('webModules')?.split(',') || [ ]
-            )
-        })
-        
         console.log(t('web 初始化成功'))
-        
-        this.get_license_info()
-        
-        this.goto_default_view()
-        
-        if (this.login_required && !this.logined)
-            await this.goto_login()
         
         this.set({ inited: true })
         
         this.get_version()
+        
+        this.get_license_info()
+        
+        if (!this.logined && (this.login_required || await this.check_client_auth()))
+            await this.goto_login()
+        else {
+            await this.get_factor_platform_enabled()
+            
+            this.goto_default_view()
+        }
+    }
+    
+    
+    /** 检查是否启用了客户端认证 (ClientAuth) */
+    async check_client_auth (): Promise<boolean> {
+        try {
+            const client_auth = await this.ddb.invoke<boolean>('isClientAuth', undefined, { urgent: true })
+            this.set({ client_auth })
+            return client_auth
+        } catch {
+            return false
+        }
     }
     
     
@@ -499,7 +513,7 @@ export class DdbModel extends Model<DdbModel> {
             admin: false
         })
         
-        if (this.login_required)
+        if (this.login_required || this.client_auth)
             await this.goto_login()
     }
     
@@ -590,67 +604,10 @@ export class DdbModel extends Model<DdbModel> {
     
     /** 获取 license 相关信息 */
     async get_license_info () {
-        const license = await this.get_license_self_info()
-        
-        // 用户反馈不太友好，先去掉 license 过期提醒
-        // this.check_license_expiration()
-        
-        if (license.licenseType === LicenseTypes.LicenseServerVerify)
-            await this.get_license_server_info()
-    }
-    
-    
-    check_license_expiration () {
-        const license = this.license
-        
-        // license.expiration 是以 date 为单位的数字
-        const expiration_date = dayjs(license.expiration)
-        const now = dayjs()
-        const after_two_week = now.add(2, 'week')
-        const is_license_expired = now.isAfter(expiration_date, 'day')
-        const is_license_expire_soon = after_two_week.isAfter(expiration_date, 'day')
-        
-        if (is_license_expired)
-            this.modal.error({
-                title: t('License 过期提醒'),
-                content: t('DolphinDB License 已过期，请联系管理人员立即更新，避免数据库关闭'),
-                width: 600,
-            })
-         else if (is_license_expire_soon)
-             this.modal.warning({
-                title: t('License 过期提醒'),
-                content: t('DolphinDB License 将在两周内过期，请提醒管理人员及时更新，避免数据库过期后自动关闭'),
-                width: 700,
-            })
-    }
-    
-    
-    /** 获取节点的 license 信息 */
-    async get_license_self_info () {
         const license = await this.ddb.invoke<DdbLicense>('license')
         console.log('license:', license)
         this.set({ license })
         return license
-    }
-    
-    
-    /** 如果节点是 license server, 获取 license server 相关信息 */
-    async get_license_server_info () {
-        const license_server_site = await this.ddb.invoke<string>('getConfig', ['licenseServerSite'])
-        
-        const is_license_server_node = this.license.licenseType === LicenseTypes.LicenseServerVerify && license_server_site === this.node.site
-        
-        const license_server_resource = is_license_server_node 
-            ? await this.ddb.invoke<DdbLicenseServerResource>('getLicenseServerResourceInfo')
-            : null
-        
-        this.set({ 
-            license_server: {
-                is_license_server_node,
-                site: license_server_site,
-                resource: license_server_resource
-            }
-        })
     }
     
     
