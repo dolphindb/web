@@ -40,6 +40,11 @@ import { DdbVar } from './Variables.js'
 
 type Result = { type: 'object', data: DdbObj } | { type: 'objref', data: DdbObjRef }
 
+interface Tab {
+    index: number
+    name: string
+    code: string
+}
 
 class ShellModel extends Model<ShellModel> {
     term: Terminal
@@ -102,10 +107,10 @@ class ShellModel extends Model<ShellModel> {
     confirm_command_modal_visible = false
     
     /** 当前打开的 tab */
-    current_tab = ''
+    current_tab_index = -1
     
     /** 所有的 tabs */
-    tabs: string[] = [ ]
+    tabs: Tab[] = [ ]
     
     is_monaco_init = false
     
@@ -316,38 +321,55 @@ class ShellModel extends Model<ShellModel> {
     save (code = this.editor?.getValue()) {
         if (!code)
             return
-        if (this.current_tab) 
-            localStorage.setItem(`${storage_keys.code}.${this.current_tab}`, code)
+        if (this.current_tab_index > -1) {
+            const index = this.tabs.findIndex(t => t.index === this.current_tab_index)
+            const new_tabs = [...this.tabs]
+            new_tabs[index].code = code
+            const tab: Tab = new_tabs[index]
+            this.set({ tabs: new_tabs })
+            localStorage.setItem(`${storage_keys.code}.${this.current_tab_index}`, JSON.stringify(tab))
+        }
+            
         else
             localStorage.setItem(storage_keys.code, code)
     }
     
-    remove_tab (tab_name: string) {
-        localStorage.removeItem(`${storage_keys.code}.${tab_name}`)
+    remove_tab (tab_index: number) {
+        this.set({ tabs: this.tabs.filter(t => t.index !== tab_index) })
+        localStorage.removeItem(`${storage_keys.code}.${tab_index}`)
     }
     
     add_tab () {
         if (!this.is_monaco_init)
             return
-        const new_tab_name = t('标签页') + (this.tabs.length + 1)
-        this.set({ current_tab: new_tab_name })
-        this.set({ tabs: [...this.tabs, new_tab_name] })
+        const new_tab_name = t('标签页 ') + (this.tabs.length + 1)
+        this.set({ current_tab_index: (this.tabs.length + 1) })
+        this.set({ tabs: [...this.tabs, { name: new_tab_name, code: '', index: (this.tabs.length + 1) }] })
         this.editor.setValue('')
     }
     
-    switch_tab (tab: string) {
+    switch_tab (tab_index: number) {
         if (!this.is_monaco_init)
             return
         this.save()
-        this.set({ current_tab: tab })
-        if (tab)
-            this.editor?.setValue(localStorage.getItem(`${storage_keys.code}.${tab}`) || '')
+        this.set({ current_tab_index: tab_index })
+        if (tab_index > -1)
+            this.editor?.setValue(this.tabs.find(t => t.index === tab_index)?.code || '')
         else
             this.editor?.setValue(localStorage.getItem(`${storage_keys.code}`) || '')
     }
     
-    init_tabs (tabs: string[]) {
-        this.set({ tabs })
+    init_tabs () {
+        const keys: string[] = [ ]
+        for (let i = 0;  i < localStorage.length;  i++) 
+            keys.push(localStorage.key(i))
+        
+        const tab_keys = keys.filter(key => key.startsWith(`${storage_keys.code}.`))
+        const tabs = tab_keys.map(key => {
+            const tab: Tab = JSON.parse(localStorage.getItem(key) || '')
+            return tab
+        })
+        this.set({ tabs: tabs.sort((a, b) => a.index - b.index) })
     }
     
     save_debounced = debounce(this.save.bind(this), 500, { leading: false, trailing: true })

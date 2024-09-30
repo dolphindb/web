@@ -26,7 +26,7 @@ export function ShellEditor ({ collapser }) {
     
     const [collapsed, set_collapsed] = useState(false)
     
-    const { tabs, current_tab, is_monaco_init } = shell.use(['tabs', 'current_tab', 'is_monaco_init'])
+    const { tabs, current_tab_index, is_monaco_init } = shell.use(['tabs', 'current_tab_index', 'is_monaco_init'])
     
     // 标签页关闭前自动保存代码
     useEffect(() => {
@@ -37,12 +37,7 @@ export function ShellEditor ({ collapser }) {
         
         window.addEventListener('beforeunload', beforeunload)
         
-        const keys: string[] = [ ]
-        for (let i = 0;  i < localStorage.length;  i++) 
-            keys.push(localStorage.key(i))
-        
-        const tab_keys = keys.filter(key => key.startsWith(`${storage_keys.code}.`)).map(key => key.slice(`${storage_keys.code}.`.length))
-        shell.init_tabs(tab_keys)
+        shell.init_tabs()
         
         return () => {
             window.removeEventListener('beforeunload', beforeunload)
@@ -51,34 +46,33 @@ export function ShellEditor ({ collapser }) {
     
     function get_tab_views () {
         
-        function close_tab (ev: MouseEvent<HTMLSpanElement>, tab: string) {
+        function close_tab (ev: MouseEvent<HTMLSpanElement>, tab_index: number) {
             ev.stopPropagation()
             if (!is_monaco_init)
                 return
-            const index = tabs.indexOf(tab)
-            const new_tabs = tabs.filter(t => t !== tab)
-            if (tab === current_tab)
+            const index = tabs.findIndex(t => t.index === tab_index)
+            const new_tabs = tabs.filter(t => t.index !== tab_index)
+            if (tab_index === current_tab_index)
                 if (new_tabs.length === 0) 
-                    shell.switch_tab('')
+                    shell.switch_tab(-1)
                 else if (index === 0)
-                    shell.switch_tab(new_tabs[0])
+                    shell.switch_tab(new_tabs[0].index)
                 else
-                    shell.switch_tab(new_tabs[index - 1])
+                    shell.switch_tab(new_tabs[index - 1].index)
             
-            shell.set({ tabs: new_tabs })
-            shell.remove_tab(tab)
+            shell.remove_tab(tab_index)
         }
         
         const tab_views = tabs.map(tab => {
-            return <div className={`tab ${tab === current_tab ? 'active' : ''}`} key={tab} onClick={() => { shell.switch_tab(tab) }}>
-                {tab}
-                <div onClick={ev => { close_tab(ev, tab) }} className='close-icon'><CloseOutlined style={{ fontSize: 12 }} /></div>
+            return <div className={`tab ${tab.index === current_tab_index ? 'active' : ''}`} key={tab.index} onClick={() => { shell.switch_tab(tab.index) }}>
+                {tab.name}
+                <div onClick={ev => { close_tab(ev, tab.index) }} className='close-icon'><CloseOutlined style={{ fontSize: 12 }} /></div>
             </div>
         })
         
         return <>
-            <div className={`tab ${!current_tab ? 'active' : ''}`} key='default' onClick={() => { shell.switch_tab('') }}>
-                {t('默认标签')}
+            <div className={`tab ${(current_tab_index < 0) ? 'active' : ''}`} key='default' onClick={() => { shell.switch_tab(-1) }}>
+                {t('默认标签页')}
             </div>
             {tab_views}
             <div className='add-tab' onClick={() => { shell.add_tab() }}><PlusOutlined style={{ fontSize: 12 }} /></div>
