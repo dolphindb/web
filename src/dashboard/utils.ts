@@ -249,11 +249,6 @@ export function convert_chart_config (
     let { title, title_size, splitLine, xAxis, series, yAxis, x_datazoom, y_datazoom, legend, animation, tooltip, thresholds = [ ] } = config as IChartConfig
     
     
-    // Form.List 增加的瞬间，新增的数据列和 y轴会是  undefined, 需要去除 undefined 的情况
-    series = series.filter(Boolean)
-    yAxis = yAxis.filter(Boolean)
-    thresholds = thresholds.filter(Boolean)
-    
     function convert_data_zoom (x_datazoom: boolean, y_datazoom: boolean) { 
         const total_data_zoom = [
             {
@@ -309,7 +304,7 @@ export function convert_chart_config (
             offset: axis.offset,
             alignTicks: true,
             id: index,
-            scale: !axis.with_zero ?? false,
+            scale: !axis.with_zero,
             nameTextStyle: {
                 fontSize: axis.fontsize ?? 12
             },
