@@ -1,6 +1,6 @@
 import { useEffect, useState, type MouseEvent } from 'react'
 
-import { Switch } from 'antd'
+import { Input, Switch } from 'antd'
 import { CloseOutlined, DoubleLeftOutlined, DoubleRightOutlined, PlusOutlined } from '@ant-design/icons'
 
 import { t } from '@i18n/index.js'
@@ -9,7 +9,7 @@ import { model, storage_keys } from '@/model.ts'
 
 import { Editor, type monacoapi } from '@/components/Editor/index.tsx'
 
-import { shell } from './model.ts'
+import { shell, type Tab } from './model.ts'
 
 import { SelectSqlModal } from './SelectSqlModal.tsx'
 import { ExecuteAction } from './ExecuteAction.tsx'
@@ -63,12 +63,23 @@ export function ShellEditor ({ collapser }) {
             shell.remove_tab(tab_index)
         }
         
-        const tab_views = tabs.map(tab => {
-            return <div className={`tab ${tab.index === current_tab_index ? 'active' : ''}`} key={tab.index} onClick={() => { shell.switch_tab(tab.index) }}>
-                {tab.name}
-                <div onClick={ev => { close_tab(ev, tab.index) }} className='close-icon'><CloseOutlined style={{ fontSize: 12 }} /></div>
-            </div>
-        })
+        function rename_tab (tab_index: number, name: string) {
+            const index = tabs.findIndex(t => t.index === tab_index)
+            const new_tabs = [...tabs]
+            new_tabs[index].name = name
+            shell.set({ tabs: new_tabs })
+            shell.save()
+        }
+        
+        const tab_views = tabs.map(tab => <DdbTab
+            tab={tab}
+            key={tab.index}
+            on_close={close_tab}
+            on_rename={rename_tab}
+            current_tab_index={current_tab_index}
+            on_click={tab_index => { shell.switch_tab(tab_index) }}
+        />
+        )
         
         return <>
             <div className={`tab ${(current_tab_index < 0) ? 'active' : ''}`} key='default' onClick={() => { shell.switch_tab(-1) }}>
@@ -237,5 +248,41 @@ export function ShellEditor ({ collapser }) {
                 shell.save_debounced(value)
             }}
         />
+    </div>
+}
+
+interface DdbSheelTabProps {
+    tab: Tab
+    on_close: (ev: MouseEvent<HTMLSpanElement>, tab_index: number) => void
+    on_rename: (tab_index: number, name: string) => void
+    on_click: (tab_index: number) => void
+    current_tab_index: number
+}
+function DdbTab (props: DdbSheelTabProps) {
+    const { tab, on_close, on_rename, on_click, current_tab_index } = props
+    const [name, set_name] = useState(tab.name)
+    const [is_rename, set_is_rename] = useState(false)
+    return <div className={`tab ${tab.index === current_tab_index ? 'active' : ''}`} key={tab.index} onClick={() => { on_click(tab.index) }}>
+        {!is_rename && <div
+            onDoubleClick={() => { set_is_rename(true) }}>
+            {tab.name}
+        </div>
+        }
+        {is_rename && <Input
+            placeholder={t('标签页名称')}
+            value={name}
+            onChange={ev => { set_name(ev.target.value) }}
+            variant='borderless'
+            size='small'
+            onBlur={
+                () => {
+                    on_rename(tab.index, name)
+                    set_is_rename(false)
+                }}
+        />}
+        <div onClick={ev => { on_close(ev, tab.index) }}
+            className='close-icon'>
+            <CloseOutlined style={{ fontSize: 12 }} />
+        </div>
     </div>
 }

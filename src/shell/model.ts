@@ -40,7 +40,7 @@ import { DdbVar } from './Variables.js'
 
 type Result = { type: 'object', data: DdbObj } | { type: 'objref', data: DdbObjRef }
 
-interface Tab {
+export interface Tab {
     index: number
     name: string
     code: string
@@ -342,6 +342,7 @@ class ShellModel extends Model<ShellModel> {
     add_tab () {
         if (!this.is_monaco_init)
             return
+        this.save()
         const new_tab_name = t('标签页 ') + (this.tabs.length + 1)
         this.set({ current_tab_index: (this.tabs.length + 1) })
         this.set({ tabs: [...this.tabs, { name: new_tab_name, code: '', index: (this.tabs.length + 1) }] })
