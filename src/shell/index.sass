@@ -307,7 +307,9 @@
                     flex-direction: column
                     
                     .tabs
+                        background-color: #f0f0f0
                         height: 30px
+                        flex-shrink: 0
                         display: flex
                         overflow-x: auto
                         &::-webkit-scrollbar
@@ -321,10 +323,12 @@
                                 background: rgba(0, 0, 0, 0.3)
                         .tab
                             flex-shrink: 0
+                            height: 30px !important
                             display: flex
                             align-items: center
                             cursor: pointer
                             padding: 2px 8px
+                            background: #F0F0F0
                             border-bottom: 1px solid transparent
                             &:hover
                                 background-color: rgb(245, 246, 247)
@@ -338,7 +342,7 @@
                                     background-color: rgb(225, 225, 225)
                         .active
                             border-bottom: 1px solid #3760F0
-                            background-color: #f0f0f0
+                            background-color: #FFFFFF !important
                         .add-tab
                             cursor: pointer
                             display: flex
@@ -352,7 +356,7 @@
                         display: flex
                         align-items: center
                         
-                        background-color: #f0f0f0
+                        background-color: #ffffff
                         box-shadow: inset -1px -2px 0 #e5e5e5
                         
                         padding: 4px 10px
