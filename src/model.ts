@@ -239,7 +239,6 @@ export class DdbModel extends Model<DdbModel> {
             )
         })
         
-        console.log(t('web 安全认证:'), this.client_auth)
         console.log(t('web 强制登录:'), this.login_required)
         
         if (this.oauth) {
@@ -289,6 +288,7 @@ export class DdbModel extends Model<DdbModel> {
     async check_client_auth (): Promise<boolean> {
         try {
             const client_auth = await this.ddb.invoke<boolean>('isClientAuth', undefined, { urgent: true })
+            console.log(t('web 安全认证:'), client_auth)
             this.set({ client_auth })
             return client_auth
         } catch {
