@@ -118,8 +118,9 @@ class ConfigModel extends Model<ConfigModel> {
                     return `${key}=${value}`
                 })
             ]])
-        
-        await this.invoke('reloadClusterConfig')
+            
+        if (model.node_type === NodeType.controller)
+            await this.invoke('reloadClusterConfig')
         
         this.set({ nodes_configs: new_nodes_configs })
     }
