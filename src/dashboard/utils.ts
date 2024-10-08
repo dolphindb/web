@@ -247,7 +247,7 @@ export function convert_chart_config (
     const { config } = widget
     
     const { title, title_size, splitLine, xAxis, series, yAxis, x_datazoom, y_datazoom, legend, animation, tooltip, thresholds = [ ] } = config as IChartConfig
-        
+    
     function convert_data_zoom (x_datazoom: boolean, y_datazoom: boolean) { 
         const total_data_zoom = [
             {
@@ -275,7 +275,6 @@ export function convert_chart_config (
     }
     
     function convert_axis (axis: AxisConfig, index?: number) {
-       
         const axis_config = {
             show: true,
             name: axis.name,
