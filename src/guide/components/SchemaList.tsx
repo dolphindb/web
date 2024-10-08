@@ -9,9 +9,9 @@ import NiceModal, { useModal } from '@ebay/nice-modal-react'
 
 import { countBy, isNumber } from 'lodash'
 
-import { check_tb_valid, request } from '../utils.js'
+import { check_tb_valid, request } from '../utils.ts'
 import { type BasicInfoFormValues } from '../iot-guide/type.js'
-import { convert_list_to_options } from '../../dashboard/utils.js'
+import { convert_list_to_options } from '../../dashboard/utils.ts'
 
 
 import { FormDependencies } from '../../components/formily/FormDependcies/index.js'

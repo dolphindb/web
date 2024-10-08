@@ -6,7 +6,7 @@ import useSWR from 'swr'
 
 import { SchemaList } from '../components/SchemaList.js'
 
-import { check_tb_valid, request } from '../utils.js'
+import { check_tb_valid, request } from '../utils.ts'
 
 import { model } from '../../model.js'
 

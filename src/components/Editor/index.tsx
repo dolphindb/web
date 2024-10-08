@@ -42,9 +42,11 @@ let docs_initing = false
 
 
 export function Editor ({
+    class_name = 'editor',
     readonly,
     default_value,
     value,
+    height,
     minimap = false,
     enter_completion,
     on_mount,
@@ -52,9 +54,11 @@ export function Editor ({
     options,
     theme = 'light'
 }: {
+    class_name?: string
     readonly?: boolean
     default_value?: string
     value?: string
+    height?: number
     minimap?: boolean
     enter_completion?: boolean
     on_mount?: OnMount
@@ -96,15 +100,17 @@ export function Editor ({
         [minimap, enter_completion, readonly, options]
     )
     
-    return docs ? <MonacoDolphinDBEditor
-            dolphinDBLanguageOptions={{
-                docs,
-                theme
-            }}
+    return docs ?
+        <MonacoDolphinDBEditor
+            className={class_name}
+            
+            dolphinDBLanguageOptions={{ docs, theme }}
             
             wrapperProps={{ className: `monaco-editor-container ${theme}` }}
             
             value={value}
+            
+            height={height}
             
             theme={theme === 'light' ? 'vs' : 'vs-dark'}
             

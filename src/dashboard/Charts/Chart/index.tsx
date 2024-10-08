@@ -7,7 +7,7 @@ import { useEffect, useMemo, useRef, useState } from 'react'
 import { type EChartsInstance } from 'echarts-for-react'
 import { useSize } from 'ahooks'
 
-import { convert_chart_config, get_axis_range } from '../../utils.js'
+import { convert_chart_config, get_axis_range } from '../../utils.ts'
 import { type Widget } from '../../model.js'
 import { AxisFormFields, SeriesFormFields, ThresholdFormFields } from '../../ChartFormFields/BasicChartFields.js'
 import { BasicFormFields } from '../../ChartFormFields/BasicFormFields.js'

@@ -12,7 +12,7 @@ import { model } from '../model.js'
 
 import { config } from './model.js'
 import { type ClusterNode } from './type.js'
-import { _2_strs, strs_2_nodes, filter_config } from './utils.js'
+import { _2_strs, strs_2_nodes, filter_config } from './utils.ts'
 
 
 export function NodesManagement () {
@@ -27,8 +27,7 @@ export function NodesManagement () {
     
     const { mutate } = useSWR('/get/nodes', async () => config.get_cluster_nodes(), {
         onSuccess: data => {
-            const nodes = strs_2_nodes(data.value as any[])
-            set_nodes(nodes)
+            set_nodes(strs_2_nodes(data))
         }
     })
     

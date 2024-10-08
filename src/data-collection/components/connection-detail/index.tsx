@@ -22,7 +22,7 @@ import dayjs from 'dayjs'
 
 import { Protocol, type ISubscribe, type ConnectionDetail, type IParserTemplate } from '../../type.js'
 import { t } from '../../../../i18n/index.js'
-import { request } from '../../utils.js'
+import { request } from '../../utils.ts'
 
 import { CreateSubscribeModal } from '../create-subscribe-modal/index.js'
 

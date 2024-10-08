@@ -1,7 +1,7 @@
 # DolphinDB Web
 
 <p align='center'>
-    <img src='./console/ddb.svg' alt='DolphinDB Web' width='256'>
+    <img src='./src/ddb.svg' alt='DolphinDB Web' width='256'>
 </p>
 
 <p align='center'>
@@ -13,7 +13,7 @@
 ## [English](./README.md) | 中文
 
 ### DolphinDB 数据库 Web 管理界面
-![](./console/demo.zh.png)
+![](./demo/demo.zh.png)
 
 <!-- #### 在线版本
 最新内部版本的 web 已经部署到 CDN 。可以通过设置 URL 中的 hostname 和 port 参数将打开的 web 界面连接到远程的或者本地的任何 DolphinDB 服务器，比如： 

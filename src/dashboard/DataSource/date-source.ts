@@ -6,7 +6,7 @@ import copy from 'copy-to-clipboard'
 
 
 import { type Widget, dashboard } from '../model.js'
-import { sql_formatter, get_cols, stream_formatter, parse_code, safe_json_parse, get_sql_col_type_map, get_streaming_col_type_map } from '../utils.js'
+import { sql_formatter, get_cols, stream_formatter, parse_code, safe_json_parse, get_sql_col_type_map, get_streaming_col_type_map } from '../utils.ts'
 import { model, storage_keys } from '../../model.js'
 import { get_variable_copy_infos, paste_variables, unsubscribe_variable } from '../Variable/variable.js'
 import { t } from '../../../i18n/index.js'

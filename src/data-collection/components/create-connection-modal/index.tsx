@@ -7,9 +7,9 @@ import NiceModal, { useModal } from '@ebay/nice-modal-react'
 
 import { t } from '../../../../i18n/index.js'
 import { Protocol, type Connection } from '../../type.js'
-import { request } from '../../utils.js'
+import { request } from '../../utils.ts'
 
-import { NAME_RULES } from '@/data-collection/constant.js'
+import { NAME_RULES, PROTOCOL_MAP } from '@/data-collection/constant.js'
 
 interface IProps {
     editedConnection?: Connection
@@ -35,8 +35,8 @@ export const CreateConnectionModal = NiceModal.create((props: IProps) => {
     
     return <Modal 
         title={ editedConnection 
-            ? t('编辑 {{name}}连接', { name: protocol + ' ' + t('协议') }) 
-            : t('创建 {{name}}连接', { name: protocol + ' ' + t('协议') })}
+            ? t('编辑 {{name}}连接', { name: PROTOCOL_MAP[protocol] + ' ' + t('协议') }) 
+            : t('创建 {{name}}连接', { name: PROTOCOL_MAP[protocol] + ' ' + t('协议') })}
         open={modal.visible} 
         onCancel={modal.hide} 
         afterClose={modal.remove}

@@ -5,7 +5,7 @@ import { Form, Select, Spin } from 'antd'
 import useSWR from 'swr'
 
 import { type ITableInfo, type IFinanceInfo } from '../type.js'
-import { request } from '../../utils.js'
+import { request } from '../../utils.ts'
 
 import { ENUM_TYPES, TIME_TYPES } from '../../constant.js'
 import { CUSTOM } from '../constant.js'

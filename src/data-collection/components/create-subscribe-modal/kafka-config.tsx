@@ -11,7 +11,7 @@ import { get } from 'lodash'
 
 import { t } from '@i18n/index.js'
 
-import { request } from '../../utils.js'
+import { request } from '../../utils.ts'
 import { kafka_params_doc_link } from '../../constant.js'
 
 import { FormDependencies } from '@/components/formily/FormDependcies/index.js'

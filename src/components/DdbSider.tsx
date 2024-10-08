@@ -4,7 +4,7 @@ import { useMemo } from 'react'
 
 import { Layout, Menu, Typography } from 'antd'
 
-import { default as Icon, DoubleLeftOutlined, DoubleRightOutlined, ExperimentOutlined, SettingOutlined, CalculatorOutlined } from '@ant-design/icons'
+import { default as Icon, DoubleLeftOutlined, DoubleRightOutlined, ExperimentOutlined, SettingOutlined } from '@ant-design/icons'
 
 import { isNil, omitBy } from 'lodash'
 
@@ -18,9 +18,9 @@ import SvgOverview from '@/overview/icons/overview.icon.svg'
 import SvgConfig from '@/config/icons/config.icon.svg'
 import SvgShell from '@/shell/index.icon.svg'
 import SvgDashboard from '@/dashboard/icons/dashboard.icon.svg'
-import SvgJob from '@/job.icon.svg'
-import SvgLog from '@/log.icon.svg'
-import SvgFactor from '@/factor.icon.svg'
+import SvgJob from '@/job/job.icon.svg'
+import SvgLog from '@/log/log.icon.svg'
+import SvgFactor from '@/icons/factor.icon.svg'
 import SvgComputing from '@/computing/icons/computing.icon.svg'
 import SvgAccess from '@/access/icons/access.icon.svg'
 import SvgUser from '@/access/icons/user.icon.svg'
@@ -64,8 +64,8 @@ function MenuIcon ({ view }: { view: DdbModel['view'] }) {
 }
 
 export function DdbSider () {
-    const { view, node_type, collapsed, logined, admin, login_required, v1, dev, test, is_factor_platform_enabled } 
-        = model.use(['view', 'node_type', 'collapsed', 'logined', 'admin', 'login_required', 'v1', 'dev', 'test', 'is_factor_platform_enabled', 'enabled_modules'])
+    const { view, node_type, collapsed, logined, admin, login_required, client_auth, v1, dev, test, is_factor_platform_enabled } 
+        = model.use(['view', 'node_type', 'collapsed', 'logined', 'admin', 'login_required', 'client_auth', 'v1', 'dev', 'test', 'is_factor_platform_enabled', 'enabled_modules'])
     
     const factor_href = useMemo(() => {
         const search_params = new URLSearchParams(location.search)
@@ -109,7 +109,7 @@ export function DdbSider () {
             theme='light'
             selectedKeys={[view]}
             onSelect={({ key }) => {
-                if (login_required && !logined) {
+                if ((login_required || client_auth) && !logined) {
                     model.message.error(t('请登录'))
                     return
                 }

@@ -10,8 +10,8 @@ import { Editor } from '../../components/Editor/index.js'
 import { dashboard } from '../model.js'
 import { model } from '../../model.js'
 
-import { use_monaco_insert } from '../../utils/hooks/use-monaco-insert.js'
-import { t } from '../../../i18n/index.js'
+import { use_monaco_insert } from '@/hooks.ts'
+import { t } from '@i18n/index.ts'
 
 import { InsertVariableBtn } from './InsertVariableBtn.js'
 import { 

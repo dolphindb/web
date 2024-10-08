@@ -25,7 +25,7 @@ import { clear_data_sources, export_data_sources } from './DataSource/date-sourc
 import { VariableConfig } from './Variable/VariableConfig.js'
 import { export_variables } from './Variable/variable.js'
 
-import { check_name } from './utils.js'
+import { check_name } from './utils.ts'
 import { Import } from './Import/Import.js'
 import { Share } from './Share/Share.js'
 import { DashboardMode } from './type.js'

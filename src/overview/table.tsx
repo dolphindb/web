@@ -12,7 +12,7 @@ import { NodeType, model, storage_keys, type DdbNode } from '../model.js'
 
 import { t } from '../../i18n/index.js'
 
-import { ns2ms } from './utils.js'
+import { ns2ms } from './utils.ts'
 
 const node_state_icons = [
     <MinusCircleOutlined style={{ color: 'red' }} />,
@@ -320,7 +320,7 @@ export function OverviewTable ({
                 <div className='agent-node-card'>
                     {nodes
                         .filter(({ mode }) => mode === NodeType.agent)
-                        .map(({ name, state }) => <div className='agent-node-item'>
+                        .map(({ name, state }) => <div className='agent-node-item' key={name}>
                                 {name}
                                 {node_state_icons[Number(state)]}
                             </div>)}

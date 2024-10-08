@@ -18,6 +18,7 @@ import { type IParserTemplate } from './type.js'
 import { ParserTemplateModal } from './components/create-parser-template-modal/index.tsx'
 
 import { get_parser_templates } from './api.ts'
+import { PROTOCOL_MAP } from './constant.ts'
 
 
 
@@ -81,7 +82,7 @@ export function ParserTemplates () {
             title: t('协议'),
             dataIndex: 'protocol',
             width: 200,
-            render: protocol => <Tag color='processing' bordered={false}>{protocol}</Tag> 
+            render: protocol => <Tag color='processing' bordered={false}>{PROTOCOL_MAP[protocol]}</Tag> 
         },
         {
             title: t('备注'),
