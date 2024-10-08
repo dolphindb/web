@@ -15,7 +15,6 @@ import { isNull } from 'lodash'
 
 import { model } from '@/model.ts'
 
-import { addInspectionPage } from './addInspectionModal.tsx'
 import { inspection } from './model.tsx'
 import type { Plan, PlanReport } from './type.ts'
 import { EditInspectionModal } from './editInspectionModal.tsx'

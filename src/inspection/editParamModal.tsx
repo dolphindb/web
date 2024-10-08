@@ -1,6 +1,6 @@
 import NiceModal, { useModal } from '@ebay/nice-modal-react'
 import { t } from '@i18n/index.ts'
-import { Button, DatePicker, Form, Input, Modal, Select } from 'antd'
+import { Button, DatePicker, Form, Input, InputNumber, Modal, Select } from 'antd'
 
 import { isEmpty } from 'lodash'
 
@@ -98,7 +98,6 @@ export const EditParamModal = NiceModal.create(({
             </Form.Item>
             
            {Boolean(metric.params.size) &&  <Form.Item 
-                name='selected_params' 
                 label={<h3 className='form-item-label'>{t('参数配置')}</h3>} 
                 >
                 {
@@ -107,18 +106,21 @@ export const EditParamModal = NiceModal.create(({
                         
                         return <Form.Item 
                                     name={['selected_params', name]}   
-                                    label={name} labelCol={{ span: 2 }} 
-                                    wrapperCol={{ span: 22 }}>
+                                    label={name}
+                                    labelCol={{ span: 4 }}
+                                    wrapperCol={{ span: 20 }}
+                                    >
                                 {type === 'TIMESTAMP' ? 
-                                <DatePicker 
-                                    showTime 
+                                    <DatePicker 
+                                        showTime 
                                     /> : 
-                                <Select 
-                                    options={param.options.map(op => ({
-                                        value: op,
-                                        label: op
-                                    }))}
-                                    />}
+                                    type === 'SYMBOL' ? 
+                                            <Select 
+                                                options={param.options.map(op => ({
+                                                    value: op,
+                                                    label: op
+                                            }))}
+                                            /> :  <InputNumber/>}
                             </Form.Item>
                       
                     })

@@ -41,6 +41,8 @@ export interface Plan {
     desc: string 
     runNow?: boolean
     enabled: boolean
+    alertEnabled?: boolean
+    alertRecipient?: string[] | string
 }
 
 export interface PlanReport {

@@ -17,6 +17,7 @@ import { inspectionFrequencyOptions, metricGroups, weekDays } from './constants.
 import type { MetricsWithStatus, Plan } from './type.ts'
 import { EditParamModal } from './editParamModal.tsx'
 import { addParamModal } from './addParamModal.tsx'
+import { parse_minute } from './utils.ts'
 
 export function InspectionForm ({ 
     refresh, 
@@ -75,7 +76,7 @@ export function InspectionForm ({
         return true
     }
     
-    const [inspection_form] = Form.useForm<Pick<Plan, 'name' | 'desc' | 'frequency' | 'days' | 'scheduleTime'> >()
+    const [inspection_form] = Form.useForm<Pick<Plan, 'name' | 'desc' | 'frequency' | 'days' | 'scheduleTime' | 'alertEnabled' | 'alertRecipient'> >()
     
     async function on_save  (run_now: boolean) {
         const values = await inspection_form.validateFields()
@@ -108,7 +109,9 @@ export function InspectionForm ({
                     frequency: values.frequency,
                     days: (values.days as number[]).map(Number),                                
                     scheduleTime: values.scheduleTime.map(time => dayjs(time).format('HH:mm') + 'm'), 
-                    enabled: is_editing ? plan.enabled : false,
+                    enabled,
+                    alertEnabled: values.alertEnabled,
+                    alertRecipient: values.alertRecipient,
                     runNow: run_now
                 }
             if (is_editing)
@@ -132,25 +135,10 @@ export function InspectionForm ({
                 <h3>{is_editing ? (view_only ? t('查看巡检计划') : t('修改巡检计划')) : t('新增巡检计划')}</h3>
             </div>
             <div className='inspection-form-action'>
-                {
-                    is_editing && <div>
-                        <span>{t('启用：')}</span>
-                        <Switch value={enabled} onChange={async checked => {
-                            try {
-                                if (checked) {
-                                    await inspection.enable_plan(plan.id)
-                                    model.message.success(t('启用成功'))
-                                } else {
-                                    await inspection.disable_plan(plan.id)
-                                    model.message.success(t('禁用成功'))
-                                }
-                                set_enabled(checked)
-                            } catch (error) {
-                                model.message.error(error)
-                            }
-                           
-                        }}/></div>
-                }
+                <div>
+                    <span>{t('启用：')}</span>
+                    <Switch disabled={view_only} value={enabled} onChange={set_enabled}/>
+                </div>
                 {
                     is_editing && <div>
                         <span>{t('编辑模式：')}</span>
@@ -176,7 +164,8 @@ export function InspectionForm ({
             initialValues={plan ? 
                 { 
                     ...plan,
-                    scheduleTime: [ ],
+                    scheduleTime: plan.scheduleTime ? plan.scheduleTime.map(time => parse_minute(time as string)) : [ ],
+                    alertRecipient: plan.alertRecipient ? (plan.alertRecipient as string).split(',') : [ ],
                     days: (plan.days as string).split(',').map(Number), 
                 } : 
                 {   
@@ -258,6 +247,33 @@ export function InspectionForm ({
                     <TimePicker format='HH:mm:ss'/>
                 </Form.Item> */}
             </div>
+            
+            <Form.Item name='alertEnabled' layout='vertical' label={<h3>{t('是否启用邮件告警')}</h3>} >
+                <Switch/>
+            </Form.Item>
+            
+            <Form.Item layout='vertical' label={<h3>{t('邮件告警接收人邮箱')}</h3>} >
+                <Form.List name='alertRecipient' >
+                    {(fields, { add, remove }) =>
+                        <Space>
+                        {
+                            fields.map(field => <Space>
+                            <Form.Item {...field} required>
+                                <Input/>
+                            </Form.Item>
+                            <MinusCircleOutlined onClick={() => { remove(field.name) }} />
+                            </Space>)
+                            
+                        }
+                        <Form.Item>
+                            <Button type='dashed' onClick={() => { add() }} block icon={<PlusOutlined />}>
+                            {t('添加')}
+                            </Button>
+                        </Form.Item>
+                        </Space>
+                    }
+                </Form.List>
+            </Form.Item>
             
             <div className='metric-table'>
                 <MetricGroupTable
