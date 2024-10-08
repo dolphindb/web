@@ -1,5 +1,3 @@
-module autoInspection
-
 def clearEnv() {
     try {
         plans = select * from loadTable("dfs://ddb_internal_auto_inspection", "plans")
