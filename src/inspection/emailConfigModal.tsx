@@ -35,19 +35,22 @@ export const emailConfigModal = NiceModal.create(() => {
                 inspectionAlertSMTPEmailName: config.get_config('inspectionAlertSMTPEmailName'),
                 inspectionAlertSMTPHost: config.get_config('inspectionAlertSMTPHost'),
                 inspectionAlertSMTPPort: config.get_config('inspectionAlertSMTPPort')
-         }}>
+            }}
+            labelCol={{ span: 8 }}
+            wrapperCol={{ span: 16 }}
+            >
             <Form.Item label={t('是否启用')}  name='inspectionAlertEnabled'><Switch/></Form.Item>
             <Form.Item label={t('邮箱名称')}  name='inspectionAlertSMTPEmailName'><Input/></Form.Item>
             
             <Form.Item label={t('邮箱 SMTP 服务器地址')}  name='inspectionAlertSMTPHost'><Input/></Form.Item>
             <Form.Item label={t('邮箱 SMTP 服务器端口')}  name='inspectionAlertSMTPPort'><Input/></Form.Item>
             
-            <Form.Item label={t('发送者邮箱账号')}  name='inspectionAlertUserId'><Input/></Form.Item>
-            <Form.Item label={t('发送者邮箱密码')}  name='inspectionAlertPwd'><Input/></Form.Item>
+            <Form.Item label={t('发送者邮箱账号')}  name='inspectionAlertUserId'><Input type='email'/></Form.Item>
+            <Form.Item label={t('发送者邮箱密码')}  name='inspectionAlertPwd'><Input.Password visibilityToggle/></Form.Item>
             <Form.Item label={t('使用标准 SMTP 消息')}  name='inspectionAlertStdSMTPMsgEnabled'><Switch/></Form.Item>
             <Form.Item wrapperCol={{ offset: 18, span: 6 }} >
                 <Space>
-                    <Button htmlType='button'>{t('取消')}</Button>
+                    <Button htmlType='button' onClick={modal.hide}>{t('取消')}</Button>
                     <Button type='primary' htmlType='submit'>{t('保存')}</Button>
                 </Space>
             </Form.Item>
