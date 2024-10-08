@@ -40,52 +40,52 @@ class InspectionModel extends Model<InspectionModel> {
     
     
     async get_plans (): Promise<Plan[]> {
-        return (await model.ddb.invoke('autoInspection::getPlans', [ ])).data
+        return (await model.ddb.invoke('getPlans', [ ])).data
     }
     
     async delete_plans (ids: string[]) {
-        await model.ddb.invoke('autoInspection::deletePlan', [ ids ])
+        await model.ddb.invoke('deletePlan', [ ids ])
     }
     
     async create_plan (plan: Omit<Plan, 'id'>) {
-        await model.ddb.invoke('autoInspection::createPlan', Object.values(plan))
+        await model.ddb.invoke('createPlan', Object.values(plan))
     }
     
     async update_plan (plan: Omit<Plan, 'enabled' | 'name'>) {
         console.log('plan', plan)
-        await model.ddb.invoke('autoInspection::updatePlan', Object.values(plan))
+        await model.ddb.invoke('updatePlan', Object.values(plan))
     }
     
     async run_plan (planId: string) {
-        await model.ddb.invoke('autoInspection::runPlan', [planId])
+        await model.ddb.invoke('runPlan', [planId])
     }
     
     async enable_plan (planId: string) {
-        await model.ddb.invoke('autoInspection::enablePlan', [planId])
+        await model.ddb.invoke('enablePlan', [planId])
     }
     
     async disable_plan (planId: string) {
-        await model.ddb.invoke('autoInspection::disablePlan', [planId])
+        await model.ddb.invoke('disablePlan', [planId])
     }
     
     async get_plan_detail (planId: string): Promise<PlanDetail[]> {
-        return (await model.ddb.invoke('autoInspection::getPlanDetails', [planId])).data
+        return (await model.ddb.invoke('getPlanDetails', [planId])).data
     }
     
     async get_reports (dates: string[], reportId: string = null): Promise<PlanReport[]> {
-        return (await model.ddb.invoke('autoInspection::getReports', [null, reportId, ...dates ]) ).data
+        return (await model.ddb.invoke('getReports', [null, reportId, ...dates ]) ).data
     }
     
     async get_report_detail_metrics (reportId: string): Promise<PlanReportDetailMetric[]> {
-        return (await model.ddb.invoke('autoInspection::getReportDetailsOfMetrics', [reportId])).data
+        return (await model.ddb.invoke('getReportDetailsOfMetrics', [reportId])).data
     }
     
     async get_report_detail_nodes (reportId: string): Promise<PlanReportDetailNode[]> {
-        return (await model.ddb.invoke('autoInspection::getReportDetailsOfNodes', [reportId])).data
+        return (await model.ddb.invoke('getReportDetailsOfNodes', [reportId])).data
     }
     
     async get_metrics (): Promise<Array<Omit<Metric, 'params'> & { params: string }>> {
-        return (await model.ddb.invoke('autoInspection::getMetrics', [ ])).data
+        return (await model.ddb.invoke('getMetrics', [ ])).data
     }
     
 }
