@@ -287,16 +287,18 @@ function DetailDescription ({
                         label: t('运行时间'),
                         children: delta2str(Number(n.runningTime)),
                     },
-                    ...JSON.parse(metric.metricParams) ? [{
-                        key: 'metricParams',
-                        label: t('指标参数'),
-                        children: metric.metricParams,
-                    }] : [ ],
+                   
                     {
                         key: 'success',
                         label: t('是否正常'),
                         children: n.success ? SuccessStatus : FailedStatus,
                     },
+                    ...JSON.parse(metric.metricParams) ? [{
+                        key: 'metricParams',
+                        label: t('指标参数'),
+                        span: 4,
+                        children: Object.entries(JSON.parse(metric.metricParams)).map(([key, value]) => <p key={key}><strong>{key}</strong>: {value as string}</p>),
+                    }] : [ ],
                     {
                         key: 'detail',
                         label: t('详情'),
