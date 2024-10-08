@@ -5,6 +5,7 @@ import { model } from '@/model.js'
 
 
 export function HostSelect ({ size = 'small' }: { size?: SizeType }) {
+    const { hostname, port } = model.use(['hostname', 'port'])
     return <Select
         className='host-select'
         size={size}
@@ -56,6 +57,6 @@ export function HostSelect ({ size = 'small' }: { size?: SizeType }) {
             location.href = model.get_url(hostname, Number(port))
         }}
         popupMatchSelectWidth={false}
-        defaultValue={`${model.params.get('hostname')}:${model.params.get('port')}`}
+        defaultValue={`${hostname}:${port}`}
     />
  }

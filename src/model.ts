@@ -161,6 +161,8 @@ export class DdbModel extends Model<DdbModel> {
     
     docs: Docs
     
+    hostname: string = ''
+    port: string = ''
     
     constructor () {
         super()
@@ -178,12 +180,12 @@ export class DdbModel extends Model<DdbModel> {
             return
         }
         
-        const port = params.get('port') || location.port
+        const [hostname, port] = this.get_hostname_and_port()
         
         this.ddb = new DDB(
             (this.dev ? (params.get('tls') === '1' ? 'wss' : 'ws') : (location.protocol === 'https:' ? 'wss' : 'ws')) +
                 '://' +
-                (params.get('hostname') || location.hostname) +
+                hostname +
                 
                 // 一般 location.port 可能是空字符串
                 (port ? `:${port}` : '') +
@@ -931,8 +933,7 @@ export class DdbModel extends Model<DdbModel> {
         const query_string = new URLSearchParams(filter_values({
             ... keep_current_queries ? Object.fromEntries(_queries.entries()) : { },
             ... is_query_params_mode ? {
-                hostname,
-                port: String(port)
+                host: `${hostname}:${port}`,
             } : { },
             ... queries,
         })).toString()
@@ -1011,6 +1012,27 @@ export class DdbModel extends Model<DdbModel> {
     
     is_module_visible (key: string): boolean {
         return this.enabled_modules.has(key) || !this.optional_modules.has(key)
+    }
+    
+    get_hostname_and_port (): [ string, string ] {
+        const params = this.params =  new URLSearchParams(location.search)
+        
+        const port = params.get('port') || location.port
+            
+        let hostname = (params.get('hostname') || location.hostname)
+        
+        let _port = (port ?? '')
+        
+        if (params.get('host')) {
+            const host = params.get('host')
+            hostname = host.split(':')[0] ?? ''
+            const port_from_host_param = host.split(':')[1]
+            _port = port_from_host_param ?? _port
+        }
+        
+        this.set({ hostname, port: _port })
+        
+        return [ hostname, _port ]
     }
 }
 
