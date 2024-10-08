@@ -1,8 +1,8 @@
 import NiceModal, { useModal } from '@ebay/nice-modal-react'
 import { t } from '@i18n/index.ts'
-import { Button, DatePicker, Form, Input, Modal, Select, Table } from 'antd'
+import { Modal } from 'antd'
 
-import type { Metric, MetricParam, MetricsWithStatus } from './type.ts'
+import type { MetricsWithStatus } from './type.ts'
 import { MetricGroupTable } from './inspectionForm.tsx'
 
 export const addParamModal = NiceModal.create(({ 

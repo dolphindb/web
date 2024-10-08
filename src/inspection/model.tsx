@@ -2,10 +2,12 @@ import { Model } from 'react-object-model'
 
 import {  model } from '@/model.ts'
 
+import { config } from '@/config/model.ts'
+
 import type { Metric, MetricParam, Plan, PlanDetail, PlanReport, PlanReportDetailMetric, PlanReportDetailNode } from './type.ts'
 
 import init_script from './index.dos'
-import demo_script from './init.dos'
+// import demo_script from './init.dos'
 
 class InspectionModel extends Model<InspectionModel> {
     
@@ -21,6 +23,7 @@ class InspectionModel extends Model<InspectionModel> {
         await model.ddb.execute(
             init_script,
         )
+        await config.load_configs()
         // await model.ddb.execute(demo_script)
         const metrics_obj = await inspection.get_metrics()
         this.set({ metrics: new Map(metrics_obj.map(m => {

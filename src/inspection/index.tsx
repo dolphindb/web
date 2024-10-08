@@ -20,6 +20,7 @@ import { inspection } from './model.tsx'
 import type { Plan, PlanReport } from './type.ts'
 import { EditInspectionModal } from './editInspectionModal.tsx'
 import { ReportDetailPage } from './reportDetail.tsx'
+import { emailConfigModal } from './emailConfigModal.tsx'
 
 
 export function Inspection () {
@@ -68,10 +69,23 @@ export function Inspection () {
                 }}>{t('刷新')}</Button>
                 <Input.Search placeholder={t('搜索')} onSearch={set_search_key} className='inspection-search'/>
             </div>
-            <Button onClick={ () => { inspection.set({ current_plan:  {   
-                    frequency: 'W', 
-                    days: '1', 
-                } as Plan }) } }>{t('新增巡检')}</Button>
+            
+            
+            <div className='inspection-header-right'>
+                <Button 
+                    onClick={ () => { NiceModal.show(emailConfigModal) } }>
+                        {t('邮件告警设置')}
+                </Button>
+                
+                <Button 
+                    onClick={ () => { inspection.set({ current_plan:  {   
+                        frequency: 'W', 
+                        days: '1', 
+                    } as Plan }) } }>
+                        {t('新增巡检')}
+                </Button>
+            </div>
+            
         </div>
         <ReportListTable reports={reports?.filter(report => report.id.includes(search_key))} dates={dates} set_dates={set_dates}/>
         <PlanListTable type='enabled' plans={enabled_plans?.filter(({ enabled }) => enabled)} mutate_plans={refresh}/>

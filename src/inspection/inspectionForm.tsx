@@ -266,8 +266,6 @@ export function InspectionForm ({
                 />
             </div>
            
-            
-          
         </Form>
         
     </div>
