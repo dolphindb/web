@@ -271,6 +271,7 @@ function DdbTab (props: DdbSheelTabProps) {
         {is_rename && <Input
             placeholder={t('标签页名称')}
             value={name}
+            autoFocus
             onChange={ev => { set_name(ev.target.value) }}
             variant='borderless'
             size='small'

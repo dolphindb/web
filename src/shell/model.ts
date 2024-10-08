@@ -319,12 +319,11 @@ class ShellModel extends Model<ShellModel> {
     
     
     save (code = this.editor?.getValue()) {
-        if (!code)
-            return
         if (this.current_tab_index > -1) {
             const index = this.tabs.findIndex(t => t.index === this.current_tab_index)
             const new_tabs = [...this.tabs]
-            new_tabs[index].code = code
+            if (code)
+                new_tabs[index].code = code
             const tab: Tab = new_tabs[index]
             this.set({ tabs: new_tabs })
             localStorage.setItem(`${storage_keys.code}.${this.current_tab_index}`, JSON.stringify(tab))
