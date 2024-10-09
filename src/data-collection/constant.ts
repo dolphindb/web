@@ -1,6 +1,6 @@
 import type { FormItemProps } from 'antd'
 
-import { t } from '@i18n/index.js'
+import { language, t } from '@i18n/index.js'
 
 import { Protocol } from './type.ts'
 
@@ -15,8 +15,26 @@ export const PROTOCOL_MAP = {
 export const kafka_params_doc_link = 'https://github.com/confluentinc/librdkafka/blob/master/CONFIGURATION.md' as const
 
 
-export const template_code =
-    '    def mqttTemplate(outTableName,args,topic,msg){\n' +
+export const template_code = language === 'en' 
+    ? '    def mqttTemplate(outTableName,args,topic,msg){\n' +
+    '        /*\n' +
+    '            outTableName: The name of the table where data will be stored\n' +
+    '            args: Custom arguments (can be defined as needed))\n' +
+    '            topic: The name of the topic to which MQTT data is subscribed\n' +
+    '            msg: The received message\n' +
+    '        */\n' +
+    '    }\n' +
+    '            \n' +
+    '     def kafkaTemplate(args,msg,key,topic){\n' +
+    '        /*\n' +
+    '            args: Custom arguments (can be defined as needed) \n' +
+    '            topic: The name of the topic to which Kafka data is subscribed \n' +
+    '            msg: The received message \n' +
+    '            key: The key corresponding to the received message \n' +
+    '            @return: A table \n' +
+    '        */\n' +
+    '    }\n' 
+    : '    def mqttTemplate(outTableName,args,topic,msg){\n' +
     '        /*\n' +
     '            outTableName 为数据存储表名\n' +
     '            args 为自定义参数（可任意自定义）\n' +

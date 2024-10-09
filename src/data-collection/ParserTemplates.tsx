@@ -76,7 +76,8 @@ export function ParserTemplates () {
             title: t('模板名称'),
             dataIndex: 'name',
             key: 'name',
-            width: 300,
+            width: 200,
+            fixed: 'left'
         },
         {
             title: t('协议'),
