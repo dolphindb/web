@@ -9,7 +9,7 @@ import useSWR from 'swr'
 
 import { CheckOutlined, CloseOutlined } from '@ant-design/icons'
 
-import dayjs, { type  Dayjs } from 'dayjs'
+import { type Dayjs } from 'dayjs'
 
 import { isNull } from 'lodash'
 
@@ -147,6 +147,7 @@ function ReportListTable  ({
             key: 'action',
             render: (_, record) => <Button
                         type='link'
+                        disabled={isNull(record.success)}
                         onClick={() => { inspection.set({ current_report: record }) }}
                     >
                         {t('查看详细报告')}

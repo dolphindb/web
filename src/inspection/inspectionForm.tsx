@@ -148,6 +148,7 @@ export function InspectionForm ({
                     <Button type='primary'  onClick={async () => {
                         view_only ? inspection.run_plan(plan.id) : on_save(true)
                         inspection.set({ current_plan: null })
+                        refresh()
                     }}>{t('立即巡检')}</Button>
                 </Tooltip>
                 <Tooltip title={t('保存当前方案')}>

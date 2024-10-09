@@ -193,7 +193,7 @@ export function ReportDetailPage () {
         </div>
        
         <div id='report-detail-content' className='report-content'>
-            <h1>{t('{{report_id}} 巡检报告', { report_id: current_report.id })}</h1>
+            <h1>{t('{{report_id}} 巡检报告', { report_id: current_report.planId })}</h1>
            
             <Descriptions column={5} items={[...Object.entries(reportLables).map(([key, value]) => ({ key, label: value, children: key === 'runningTime' ? delta2str(Number(current_report[key])) : current_report[key] }))]} />
             
@@ -257,7 +257,7 @@ function DetailDescription ({
     metric: PlanReportDetailMetric
 }) {
     const is_multi_node = metric.detail_nodes.length > 1
-    return <Typography key={metric.metricName}>
+    return <Typography key={metric.metricName} className='report-description'>
          {is_multi_node && <p>{t('指标说明: {{desc}}', { desc: metric.desc })}</p>}
         {
             metric.detail_nodes.map(n => <div
@@ -297,7 +297,7 @@ function DetailDescription ({
                         key: 'metricParams',
                         label: t('指标参数'),
                         span: 4,
-                        children: Object.entries(JSON.parse(metric.metricParams)).map(([key, value]) => <p key={key}><strong>{key}</strong>: {value as string}</p>),
+                        children: <div>{Object.entries(JSON.parse(metric.metricParams)).map(([key, value]) => <div key={key}><strong>{key}</strong>: {value as string}</div>)}</div>,
                     }] : [ ],
                     {
                         key: 'detail',
