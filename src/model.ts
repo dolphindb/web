@@ -1017,22 +1017,21 @@ export class DdbModel extends Model<DdbModel> {
     get_hostname_and_port (): [ string, string ] {
         const params = this.params =  new URLSearchParams(location.search)
         
-        const port = params.get('port') || location.port
+        let port = params.get('port') || location.port
             
         let hostname = (params.get('hostname') || location.hostname)
-        
-        let _port = (port ?? '')
         
         if (params.get('host')) {
             const host = params.get('host')
             hostname = host.split(':')[0] ?? ''
             const port_from_host_param = host.split(':')[1]
-            _port = port_from_host_param ?? _port
+            // 优先用 host 参数中的端口
+            port = port_from_host_param ?? port
         }
         
-        this.set({ hostname, port: _port })
+        this.set({ hostname, port })
         
-        return [ hostname, _port ]
+        return [ hostname, port ]
     }
 }
 
