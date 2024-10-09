@@ -5239,5 +5239,20 @@
     },
     "立即刷新": {
         "en": "Refresh Now"
+    },
+    "标签页 ": {
+        "en": "Tab"
+    },
+    "提醒": {
+        "en": "Tips"
+    },
+    "关闭标签页将会删除标签页内的所有内容，确认关闭？": {
+        "en": "Closing this tab will discard all its contents. Are you sure you want to close it?"
+    },
+    "默认标签页": {
+        "en": "Default"
+    },
+    "标签页名称": {
+        "en": "Tab Name"
     }
 }
