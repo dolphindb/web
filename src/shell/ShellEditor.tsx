@@ -50,17 +50,27 @@ export function ShellEditor ({ collapser }) {
             ev.stopPropagation()
             if (!is_monaco_init)
                 return
-            const index = tabs.findIndex(t => t.index === tab_index)
-            const new_tabs = tabs.filter(t => t.index !== tab_index)
-            if (tab_index === current_tab_index)
-                if (new_tabs.length === 0) 
-                    shell.switch_tab(-1)
-                else if (index === 0)
-                    shell.switch_tab(new_tabs[0].index)
-                else
-                    shell.switch_tab(new_tabs[index - 1].index)
-            
-            shell.remove_tab(tab_index)
+            function remove_tab () {
+                const index = tabs.findIndex(t => t.index === tab_index)
+                const new_tabs = tabs.filter(t => t.index !== tab_index)
+                if (tab_index === current_tab_index)
+                    if (new_tabs.length === 0)
+                        shell.switch_tab(-1)
+                    else if (index === 0)
+                        shell.switch_tab(new_tabs[0].index)
+                    else
+                        shell.switch_tab(new_tabs[index - 1].index)
+                        
+                shell.remove_tab(tab_index)
+            }
+            model.modal.confirm(
+                {
+                    title: t('提醒'),
+                    content: t('关闭标签页将会删除标签页内的所有内容，确认关闭？'),
+                    onOk: remove_tab,
+                    okType: 'danger',
+                }
+            )
         }
         
         function rename_tab (tab_index: number, name: string) {
