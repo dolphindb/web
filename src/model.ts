@@ -927,7 +927,7 @@ export class DdbModel extends Model<DdbModel> {
         }: GetUrlOptions = { }
     ) {
         const _queries = new URLSearchParams(location.search)
-        const is_query_params_mode = _queries.get('hostname') || _queries.get('port')
+        const is_query_params_mode = _queries.get('hostname') || _queries.get('port') || _queries.get('host')
         const port_ = is_query_params_mode ? location.port : port
         
         const query_string = new URLSearchParams(filter_values({
