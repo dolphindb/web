@@ -161,8 +161,6 @@ export class DdbModel extends Model<DdbModel> {
     
     docs: Docs
     
-    hostname: string = ''
-    port: string = ''
     
     constructor () {
         super()
@@ -180,7 +178,27 @@ export class DdbModel extends Model<DdbModel> {
             return
         }
         
-        const [hostname, port] = this.get_hostname_and_port()
+        let port = params.get('port') || location.port
+            
+        let hostname = (params.get('hostname') || location.hostname)
+        
+        let search_param = new URLSearchParams(location.search)
+        if (params.get('host')) {
+            const host = params.get('host')
+            hostname = host.split(':')[0] ?? ''
+            const port_from_host_param = host.split(':')[1]
+            // 优先用 host 参数中的端口
+            port = port_from_host_param ?? port
+            search_param.delete('host')
+            search_param.set('hostname', hostname)
+            search_param.set('port', port_from_host_param ?? port)
+            // 如果是 host，转换
+            const url = new URL(window.location.href)
+            url.search = search_param.toString()
+            history.pushState(null, '', url)
+            this.params = search_param
+        }
+        
         
         this.ddb = new DDB(
             (this.dev ? (params.get('tls') === '1' ? 'wss' : 'ws') : (location.protocol === 'https:' ? 'wss' : 'ws')) +
@@ -927,13 +945,14 @@ export class DdbModel extends Model<DdbModel> {
         }: GetUrlOptions = { }
     ) {
         const _queries = new URLSearchParams(location.search)
-        const is_query_params_mode = _queries.get('hostname') || _queries.get('port') || _queries.get('host')
+        const is_query_params_mode = _queries.get('hostname') || _queries.get('port')
         const port_ = is_query_params_mode ? location.port : port
         
         const query_string = new URLSearchParams(filter_values({
             ... keep_current_queries ? Object.fromEntries(_queries.entries()) : { },
             ... is_query_params_mode ? {
-                host: `${hostname}:${port}`,
+                hostname,
+                port: String(port)
             } : { },
             ... queries,
         })).toString()
@@ -1012,26 +1031,6 @@ export class DdbModel extends Model<DdbModel> {
     
     is_module_visible (key: string): boolean {
         return this.enabled_modules.has(key) || !this.optional_modules.has(key)
-    }
-    
-    get_hostname_and_port (): [ string, string ] {
-        const params = this.params =  new URLSearchParams(location.search)
-        
-        let port = params.get('port') || location.port
-            
-        let hostname = (params.get('hostname') || location.hostname)
-        
-        if (params.get('host')) {
-            const host = params.get('host')
-            hostname = host.split(':')[0] ?? ''
-            const port_from_host_param = host.split(':')[1]
-            // 优先用 host 参数中的端口
-            port = port_from_host_param ?? port
-        }
-        
-        this.set({ hostname, port })
-        
-        return [ hostname, port ]
     }
 }
 
