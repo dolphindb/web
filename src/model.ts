@@ -1,5 +1,3 @@
-import dayjs from 'dayjs'
-
 import { Model } from 'react-object-model'
 
 import type { BaseType } from 'antd/es/typography/Base/index.d.ts'
@@ -70,6 +68,8 @@ export class DdbModel extends Model<DdbModel> {
     
     /** 通过 test.dolphindb.cn 访问的 web */
     test = false
+    
+    assets_root = '/'
     
     /** 启用详细日志，包括执行的代码和运行代码返回的变量 */
     verbose = false
