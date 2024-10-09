@@ -65,6 +65,17 @@ export function iterator_map <TValue, TReturn> (
 }
 
 
+export function iterator_foreach <TValue, TReturn> (
+    array: IteratorObject<TValue>, 
+    foreach: (value: TValue, index: number) => void
+) {
+    if (iterator_utils)
+        array.forEach(foreach)
+    else
+        [...array].map(foreach)
+}
+
+
 export type DDBColumnTypeNames = Uppercase<keyof typeof DdbType>
 
 
