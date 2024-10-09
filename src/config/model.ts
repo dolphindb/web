@@ -1,6 +1,6 @@
 import { Model } from 'react-object-model'
 
-import { DdbFunctionType, type DdbCallOptions } from 'dolphindb/browser.js'
+import type { DdbCallOptions }  from 'dolphindb/browser.js'
 
 import { t } from '@i18n/index.ts'
 
