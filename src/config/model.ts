@@ -1,6 +1,6 @@
 import { Model } from 'react-object-model'
 
-import { DdbFunctionType, type DdbCallOptions } from 'dolphindb/browser.js'
+import type { DdbCallOptions } from 'dolphindb/browser.js'
 
 import { t } from '@i18n/index.ts'
 
@@ -118,7 +118,7 @@ class ConfigModel extends Model<ConfigModel> {
                     return `${key}=${value}`
                 })
             ]])
-            
+        
         if (model.node_type === NodeType.controller)
             await this.invoke('reloadClusterConfig')
         
