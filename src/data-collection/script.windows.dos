@@ -928,7 +928,7 @@ def dcp_initParserTemplate(){
         }
     }
     '
-    args = '{"name":"parseMqtt","handler":\''+handler+'\',"protocol":"mqtt","comment":"测试解析模板"}'   
+    args = '{"name":"parseMqtt","handler":\''+handler+'\',"protocol":"mqtt","comment":"MQTT 解析模板"}'   
     dcp_addHandler(args)
 
 
@@ -937,7 +937,7 @@ def dcp_initParserTemplate(){
         objByName(outTableName).append!(table([topic]as topic,[msg] as msg,[now()] as ts))
     }
     "
-    args = '{"name":"saveJsonMsg","handler":\''+handler+'\',"protocol":"mqtt","comment":"转存json数据","flag":0}'   
+    args = '{"name":"saveJsonMsg","handler":\''+handler+'\',"protocol":"mqtt","comment":"【内置】转存 JSON 数据","flag":0}'   
     dcp_addHandler(args)
 
 }

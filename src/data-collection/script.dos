@@ -974,7 +974,7 @@ def dcp_initParserTemplate(){
         }
     }
     '
-    args = '{"name":"parseMqtt","handler":\''+handler+'\',"protocol":"mqtt","comment":"测试解析模板"}'   
+    args = '{"name":"parseMqtt","handler":\''+handler+'\',"protocol":"mqtt","comment":"MQTT 解析模板"}'   
     dcp_addHandler(args)
 
 
@@ -983,7 +983,7 @@ def dcp_initParserTemplate(){
         objByName(outTableName).append!(table([topic]as topic,[msg] as msg,[now()] as ts))
     }
     "
-    args = '{"name":"saveJsonMsg","handler":\''+handler+'\',"protocol":"mqtt","comment":"转存 JSON 数据","flag":0}'   
+    args = '{"name":"saveJsonMsg","handler":\''+handler+'\',"protocol":"mqtt","comment":"【内置】转存 JSON 数据","flag":0}'   
     dcp_addHandler(args)
 
     handler = "
@@ -991,7 +991,7 @@ def dcp_initParserTemplate(){
         return table([topic] as topic,[msg] as dataContent,[now(true)] as startTime)    
     }
     "
-    args = '{"name":"saveJsonMsg_kafka","handler":\''+handler+'\',"protocol":"kafka","comment":"转存 JSON 数据","flag":0}'   
+    args = '{"name":"saveJsonMsg_kafka","handler":\''+handler+'\',"protocol":"kafka","comment":"【内置】转存 JSON 数据","flag":0}'   
     dcp_addHandler(args)
 
 
@@ -1020,7 +1020,7 @@ def dcp_initParserTemplate(){
         }
         return tmp  
     }'
-    args = '{"name":"parseKafka","handler":\''+handler+'\',"protocol":"kafka","comment":"解析kafka json数据"}'   
+    args = '{"name":"parseKafka","handler":\''+handler+'\',"protocol":"kafka","comment":"kafka 解析模板"}'   
     dcp_addHandler(args)
 
 }
