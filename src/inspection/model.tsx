@@ -6,8 +6,8 @@ import { config } from '@/config/model.ts'
 
 import type { Metric, MetricParam, Plan, PlanDetail, PlanReport, PlanReportDetailMetric, PlanReportDetailNode } from './type.ts'
 
-import init_script from './index.dos'
-// import demo_script from './init.dos'
+import define_script from './index.dos'
+import create_metrics_script from './init.dos'
 
 class InspectionModel extends Model<InspectionModel> {
     
@@ -21,10 +21,13 @@ class InspectionModel extends Model<InspectionModel> {
     
     async init () {
         await model.ddb.execute(
-            init_script,
+            define_script,
         )
         await config.load_configs()
-        // await model.ddb.execute(demo_script)
+         // 若无指标，重新创建指标后再拉取
+        if (!(await this.check_inited())) 
+            await model.ddb.execute(create_metrics_script)
+        
         const metrics_obj = await inspection.get_metrics()
         this.set({ metrics: new Map(metrics_obj.map(m => {
             let params = new Map<string, MetricParam>()
@@ -38,6 +41,9 @@ class InspectionModel extends Model<InspectionModel> {
         this.set({ inited: true })
     }
     
+    async check_inited (): Promise<boolean> {
+        return (model.ddb.execute('existsDatabase("dfs://ddb_internal_auto_inspection")'))
+    }
     
     async get_plans (): Promise<Plan[]> {
         return (await model.ddb.invoke('getPlans', [ ])).data

@@ -72,7 +72,7 @@ export interface PlanReportDetailMetric {
     runningTime: bigint
     success: boolean
     detail_nodes: PlanReportDetailNode[]
-    metricParams?:string
+    metricParams?: string
 }
 
 

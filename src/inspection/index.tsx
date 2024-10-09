@@ -2,7 +2,7 @@ import NiceModal from '@ebay/nice-modal-react'
 import './index.sass'
 
 import { t } from '@i18n/index.ts'
-import { Button, Input, Popconfirm, Table, DatePicker, type TableColumnsType } from 'antd'
+import { Button, Input, Popconfirm, Table, DatePicker, type TableColumnsType, Spin } from 'antd'
 import { useMemo, useState } from 'react'
 
 import useSWR from 'swr'
@@ -58,6 +58,12 @@ export function Inspection () {
         })
         return [enabled_plans, disabled_palns]
     }, [ plans, search_key ])
+    
+    if (!inited) 
+        return <div className='spin-container'>
+            <Spin size='large' delay={300} tip={t('自动化巡检模块初始化中')}/>
+        </div>
+    
     
     return current_report ? <ReportDetailPage/> : current_plan ? <EditInspectionModal plan={current_plan} mutate_plans={refresh} disabled/> : <div>
         <div className='inspection-header'>
