@@ -263,8 +263,10 @@ export class DdbModel extends Model<DdbModel> {
         
         // 单点登录跳回来时跳转到实际要登录的节点去
         const state = this.params.get('state')
-        if (state)
+        if (state) {
             await this.jump_login(state)
+            return
+        }
         
         if (this.autologin)
             try {
