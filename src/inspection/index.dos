@@ -1,3 +1,9 @@
+cnt = exec count(*) from defs() where name == "httpClient::sendEmail"
+if (cnt == 0) {
+    loadPlugin("httpClient")
+}
+go
+
 def clearEnv() {
     try {
         plans = select * from loadTable("dfs://ddb_internal_auto_inspection", "plans")

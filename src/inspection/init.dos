@@ -1,9 +1,3 @@
-cnt = exec count(*) from defs() where name == "httpClient::sendEmail"
-if (cnt == 0) {
-    loadPlugin("httpClient")
-}
-go
-
 clearEnv()
 initDfs()
 go
