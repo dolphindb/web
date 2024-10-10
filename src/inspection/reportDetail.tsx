@@ -257,6 +257,7 @@ function DetailDescription ({
     metric: PlanReportDetailMetric
 }) {
     const is_multi_node = metric.detail_nodes.length > 1
+    console.log('metric.metricParams', metric.metricParams)
     return <Typography key={metric.metricName} className='report-description'>
          {is_multi_node && <p>{t('指标说明: {{desc}}', { desc: metric.desc })}</p>}
         {
@@ -297,7 +298,7 @@ function DetailDescription ({
                         key: 'metricParams',
                         label: t('指标参数'),
                         span: 4,
-                        children: <div>{Object.entries(JSON.parse(metric.metricParams)).map(([key, value]) => <div key={key}><strong>{key}</strong>: {value as string}</div>)}</div>,
+                        children: <div>{Object.entries(JSON.parse(metric.metricParams)).map(([key, value]) => <div key={key}><strong>{key}</strong>: {Array.isArray(value) ? value.join(',') : value as string}</div>)}</div>,
                     }] : [ ],
                     {
                         key: 'detail',
