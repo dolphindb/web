@@ -12,7 +12,6 @@ import { t } from '@i18n/index.js'
 import { date_format } from 'xshell/utils.browser.js'
 
 import { model, storage_keys } from '@/model.ts'
-
 import { config } from '@/config/model.ts'
 
 import { License } from './License.tsx'
@@ -35,8 +34,7 @@ export function DdbHeader () {
     
     // 在 admin 状态变化时，弹提示
     useEffect(() => {
-        const license_expiration_warning_admin_only = config.get_boolean_config('licenseExpirationWarningAdminOnly')
-        if ( (admin || !license_expiration_warning_admin_only) && license) {
+        if ((admin || !config.get_boolean_config('licenseExpirationWarningAdminOnly')) && license) {
             if (expiration_checked)
                 return
             expiration_checked = true
