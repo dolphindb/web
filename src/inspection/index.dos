@@ -636,7 +636,7 @@ def getReports(planId=NULL, reportId=NULL, startTime=NULL, endTime=NULL) {
 
     addColumn(res, "runningTime", LONG)
     update res set runningTime = endTime - startTime where startTime != NULL
-    res = select * from res order by success asc, startTime desc
+    res = select * from res order by startTime desc
 
     return res
 }
