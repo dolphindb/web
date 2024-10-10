@@ -16,7 +16,7 @@ export const kafka_params_doc_link = 'https://github.com/confluentinc/librdkafka
 
 
 export const template_code = language === 'en' 
-    ? '    def mqttTemplate(outTableName,args,topic,msg){\n' +
+    ? '    def mqttTemplate (outTableName, args, topic, msg) {\n' +
     '        /*\n' +
     '            outTableName: The name of the table where data will be stored\n' +
     '            args: Custom arguments (can be defined as needed)\n' +
@@ -25,7 +25,7 @@ export const template_code = language === 'en'
     '        */\n' +
     '    }\n' +
     '            \n' +
-    '     def kafkaTemplate(args,msg,key,topic){\n' +
+    '     def kafkaTemplate (args, msg, key, topic) {\n' +
     '        /*\n' +
     '            args: Custom arguments (can be defined as needed) \n' +
     '            msg: The received message \n' +
@@ -34,21 +34,21 @@ export const template_code = language === 'en'
     '            @return: A table \n' +
     '        */\n' +
     '    }\n' 
-    : '    def mqttTemplate(outTableName,args,topic,msg){\n' +
+    : '    def mqttTemplate (outTableName, args, topic, msg) {\n' +
     '        /*\n' +
     '            outTableName 为数据存储表名\n' +
     '            args 为自定义参数（可任意自定义）\n' +
-    '            topic 为订阅mqtt数据的topic名称\n' +
+    '            topic 为订阅 mqtt 数据的 topic 名称\n' +
     '            msg 为接收到的消息\n' +
     '        */\n' +
     '    }\n' +
     '            \n' +
-    '     def kafkaTemplate(args,msg,key,topic){\n' +
+    '     def kafkaTemplate (args, msg, key, topic) {\n' +
     '        /*\n' +
     '            args 为自定义参数（可任意自定义）\n' +
     '            msg 为接收到的消息\n' +
     '            key 为接收到的消息所对应的key值\n' +
-    '            topic 为订阅kafka数据的topic名称\n' +
+    '            topic 为订阅 kafka 数据的 topic 名称\n' +
     '            @return 需要为一个表\n' +
     '        */\n' +
     '    }\n'
