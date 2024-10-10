@@ -5072,6 +5072,18 @@
     "别名必须以组名 ": {
         "en": "Alias must start with group name "
     },
+    "数据采集平台": {
+        "en": "Data Acquisition"
+    },
+    "连接信息": {
+        "en": "Connections"
+    },
+    "解析模板": {
+        "en": "Parsing Templates"
+    },
+    "线颜色": {
+        "en": "Line Color"
+    },
     "删除订阅": {
         "en": "Delete Subscription"
     },
@@ -5294,7 +5306,10 @@
     "开头": {
         "en": " "
     },
-    " 开头": {
-        "en": " "
+    "立即刷新": {
+        "en": "Refresh Now"
+    },
+    "保存成功，重启计算节点生效": {
+        "en": "Saved. Changes will take effect after restarting the compute node."
     }
 }
