@@ -212,7 +212,9 @@ export function ComputeGroupConfig () {
                         if (rowKey !== key)
                             config.nodes_configs.delete(rowKey as string)
                         await config.change_configs([[key, { name, qualifier, value, key }]])
-                        model.message.success(t('保存成功，重启集群生效'))
+                        model.message.success(t('保存成功，重启计算节点生效'))
+                        // 数据可能被以其他方式修改，保存后重新加载获取新的数据
+                        actionRef.current?.reload()
                     },
                     onDelete: async key => delete_config(key as string),
                     deletePopconfirmMessage: t('确认删除此配置项？'),
