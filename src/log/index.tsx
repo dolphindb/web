@@ -62,6 +62,7 @@ export function Log () {
             {!show_login_required_info && (
                 <div>
                     <Button
+                        className='refresh-button'
                         icon={<ReloadOutlined/>}
                         onClick={async () => {
                             await init()
