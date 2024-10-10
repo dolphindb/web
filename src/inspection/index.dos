@@ -641,6 +641,11 @@ def getReports(planId=NULL, reportId=NULL, startTime=NULL, endTime=NULL) {
     return res
 }
 
+def deleteReports(id) {
+    id_ = iif(id.form()==0, [id], id)
+    delete from loadTable("dfs://ddb_internal_auto_inspection", "reports") where id in id_
+}
+
 def getReportDetailsOfMetrics(reportId=NULL) {
     reportId_ = reportId
     whereCond = <1==1>
