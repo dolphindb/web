@@ -176,21 +176,21 @@ export class DdbModel extends Model<DdbModel> {
             return
         }
         
-        let port = params.get('port') || location.port
         let hostname = params.get('hostname') || location.hostname
+        let port = params.get('port') || location.port
         
-        const host_params = params.get('host')
+        const host = params.get('host')
         
-        if (host_params) {
+        if (host) {
             // 优先用 host 参数中的主机和端口
-            [ hostname, port ] = host_params.split(':')
+            [hostname, port] = host.split(':')
             params.delete('host')
             params.set('hostname', hostname)
             params.set('port', port)
             // 转换 url
-            const url = new URL(window.location.href)
+            let url = new URL(window.location.href)
             url.search = params.toString()
-            history.pushState(null, '', url)
+            history.replaceState(null, '', url)
         }
         
         this.ddb = new DDB(
