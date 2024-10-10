@@ -115,6 +115,11 @@ function ReportListTable  ({
             key: 'planId',
         },
         {
+            title: '名称',
+            dataIndex: 'name',
+            key: 'name',
+        },
+        {
             title: '描述',
             dataIndex: 'desc',
             key: 'desc',
@@ -248,12 +253,6 @@ function PlanListTable  ({
                     >
                         {t('立即巡检')}
                     </Button>
-                    {/* <Button 
-                        type='link'
-                        onClick={async () => NiceModal.show(editInspectionModal, { plan: record, mutate_plans })}
-                    >
-                        {t('修改')}
-                    </Button> */}
                     <Button 
                         type='link'
                         onClick={() => { inspection.set({ current_plan: record }) }}
