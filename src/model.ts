@@ -262,11 +262,8 @@ export class DdbModel extends Model<DdbModel> {
         }
         
         // 单点登录跳回来时跳转到实际要登录的节点去
-        const state = this.params.get('state')
-        if (state) {
-            await this.jump_login(state)
+        if (await this.maybe_jump_login(this.params.get('state')))
             return
-        }
         
         if (this.autologin)
             try {
@@ -435,7 +432,7 @@ export class DdbModel extends Model<DdbModel> {
                     t('尝试 oauth 单点登录，类型是 authorization code, code 为 {{code}}',
                     { code }))
                 
-                await this.jump_login(params.get('state'))
+                await this.maybe_jump_login(params.get('state'))
                 
                 ticket = await this.ddb.invoke<string>('oauthLogin', [this.oauth_type, { code }])
                 
@@ -455,7 +452,7 @@ export class DdbModel extends Model<DdbModel> {
                     '尝试 oauth 单点登录，类型是 implicit, token_type 为 {{token_type}}, access_token 为 {{access_token}}, expires_in 为 {{expires_in}}',
                     { token_type, access_token, expires_in }))
                 
-                await this.jump_login(params.get('state'))
+                await this.maybe_jump_login(params.get('state'))
                 
                 ticket = await this.ddb.invoke<string>('oauthLogin', [this.oauth_type, {
                     token_type,
@@ -481,14 +478,19 @@ export class DdbModel extends Model<DdbModel> {
     
     
     /** redirect_uri 只能跳转到其中某个节点，需要带参数跳回到原发起登录的节点 */
-    async jump_login (state: string) {
+    async maybe_jump_login (state: string) {
         if (state && state !== this.node_alias) {
             const node = this.nodes.find(({ name }) => name === state)
             if (!node)
                 throw new Error(t('无法从当前节点 {{current}} 跳转回发起登录的节点 {{origin}}，找不到节点信息', { current: this.node_alias, origin: state }))
             
+            console.log(t('根据 state 参数跳转到节点:'), state)
+            
             await goto_url(this.get_node_url(node))
-        }
+            
+            return true
+        } else
+            return false
     }
     
     
