@@ -43,6 +43,7 @@ export const CONTROLLER_CONFIG = [
     'metricsToken',
     'strictPermissionMode',
     'enableLocalDatabase',
+    // 'enableClientAuth',
     'computeNodeCacheDir',
     'computeNodeMemCacheSize',
     'computeNodeDiskCacheSize',
