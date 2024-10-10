@@ -29,6 +29,8 @@ import { CreateSubscribeModal } from '../create-subscribe-modal/index.js'
 
 import { get_connect_detail, get_parser_templates } from '../../api.js'
 
+import { PROTOCOL_MAP } from '@/data-collection/constant.ts'
+
 import { TemplateViewModal } from './parser-template-view-modal.js'
 import { DeleteDescribeModal } from './delete-describe-modal.js'
 
@@ -73,7 +75,7 @@ export function ConnectionDetail (props: IProps) {
             {
                 label: t('协议'),
                 key: 'protocol',
-                children: protocol ?? '-',
+                children: PROTOCOL_MAP[protocol] ?? '-',
             },
             {
                 label: t('服务器地址'),
