@@ -261,6 +261,11 @@ export class DdbModel extends Model<DdbModel> {
                 throw new Error(t('oauthType 配置参数的值必须为 authorization code 或 implicit，默认为 authorization code'))
         }
         
+        // 单点登录跳回来时跳转到实际要登录的节点去
+        const state = this.params.get('state')
+        if (state)
+            await this.jump_login(state)
+        
         if (this.autologin)
             try {
                 await this.login_by_ticket()
@@ -418,17 +423,6 @@ export class DdbModel extends Model<DdbModel> {
         // 有 ticket 说明 oauthLogin 登录成功
         let ticket: string
         
-        /** redirect_uri 只能跳转到其中某个节点，需要带参数跳回到原发起登录的节点 */
-        const jump = async (state: string) => {
-            if (state && state !== this.node_alias) {
-                const node = this.nodes.find(({ name }) => name === state)
-                if (!node)
-                    throw new Error(t('无法从当前节点 {{current}} 跳转回发起登录的节点 {{origin}}，找不到节点信息', { current: this.node_alias, origin: state }))
-                
-                await goto_url(this.get_node_url(node))
-            }
-        }
-        
         // https://datatracker.ietf.org/doc/html/rfc6749#section-4.2.2
         if (this.oauth_type === 'authorization code') {
             let { searchParams: params } = url
@@ -439,9 +433,7 @@ export class DdbModel extends Model<DdbModel> {
                     t('尝试 oauth 单点登录，类型是 authorization code, code 为 {{code}}',
                     { code }))
                 
-                await jump(
-                    params.get('state')
-                )
+                await this.jump_login(params.get('state'))
                 
                 ticket = await this.ddb.invoke<string>('oauthLogin', [this.oauth_type, { code }])
                 
@@ -461,9 +453,7 @@ export class DdbModel extends Model<DdbModel> {
                     '尝试 oauth 单点登录，类型是 implicit, token_type 为 {{token_type}}, access_token 为 {{access_token}}, expires_in 为 {{expires_in}}',
                     { token_type, access_token, expires_in }))
                 
-                await jump(
-                    params.get('state')
-                )
+                await this.jump_login(params.get('state'))
                 
                 ticket = await this.ddb.invoke<string>('oauthLogin', [this.oauth_type, {
                     token_type,
@@ -484,6 +474,18 @@ export class DdbModel extends Model<DdbModel> {
                 console.log(t('{{username}} 使用 oauth 单点登录成功', { username }))
             else
                 throw new Error(t('通过 oauth 单点登录之后的 username 不能是 {{guest}}', { guest: username_guest }))
+        }
+    }
+    
+    
+    /** redirect_uri 只能跳转到其中某个节点，需要带参数跳回到原发起登录的节点 */
+    async jump_login (state: string) {
+        if (state && state !== this.node_alias) {
+            const node = this.nodes.find(({ name }) => name === state)
+            if (!node)
+                throw new Error(t('无法从当前节点 {{current}} 跳转回发起登录的节点 {{origin}}，找不到节点信息', { current: this.node_alias, origin: state }))
+            
+            await goto_url(this.get_node_url(node))
         }
     }
     
