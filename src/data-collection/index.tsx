@@ -19,7 +19,6 @@ import { has_data_collection_auth, test_init } from '@/data-collection/api.ts'
 import { Unlogin } from '@/components/Unlogin.tsx'
 
 import code from './script.dos'
-import window_code from './script.windows.dos'
 
 import { ParserTemplates } from './ParserTemplates.tsx'
 import { Connections } from './Connection.tsx'
@@ -39,7 +38,7 @@ export function DataCollection () {
             set_is_win(is_windows)
             let has_auth = undefined
             if (value) {
-                 await model.ddb.eval(is_windows ? window_code : code)
+                 await model.ddb.eval(code)
                  has_auth = await has_data_collection_auth()
             }
             return {
@@ -52,7 +51,7 @@ export function DataCollection () {
     
     
     const on_init = useCallback(async () => {
-        await model.ddb.eval(is_win ? window_code : code)
+        await model.ddb.eval(code)
         await model.ddb.call('dcp_init')
         message.success(t('采集平台初始化成功！'))
         mutate()
