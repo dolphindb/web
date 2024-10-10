@@ -1,5 +1,3 @@
-import dayjs from 'dayjs'
-
 import { Model } from 'react-object-model'
 
 import type { BaseType } from 'antd/es/typography/Base/index.d.ts'
@@ -178,12 +176,27 @@ export class DdbModel extends Model<DdbModel> {
             return
         }
         
-        const port = params.get('port') || location.port
+        let hostname = params.get('hostname') || location.hostname
+        let port = params.get('port') || location.port
+        
+        const host = params.get('host')
+        
+        if (host) {
+            // 优先用 host 参数中的主机和端口
+            [hostname, port] = host.split(':')
+            params.delete('host')
+            params.set('hostname', hostname)
+            params.set('port', port)
+            // 转换 url
+            let url = new URL(window.location.href)
+            url.search = params.toString()
+            history.replaceState(null, '', url)
+        }
         
         this.ddb = new DDB(
             (this.dev ? (params.get('tls') === '1' ? 'wss' : 'ws') : (location.protocol === 'https:' ? 'wss' : 'ws')) +
                 '://' +
-                (params.get('hostname') || location.hostname) +
+                hostname +
                 
                 // 一般 location.port 可能是空字符串
                 (port ? `:${port}` : '') +
