@@ -1,5 +1,3 @@
-import dayjs from 'dayjs'
-
 import { Model } from 'react-object-model'
 
 import type { BaseType } from 'antd/es/typography/Base/index.d.ts'
@@ -179,7 +177,7 @@ export class DdbModel extends Model<DdbModel> {
         }
         
         let port = params.get('port') || location.port
-            
+        
         let hostname = (params.get('hostname') || location.hostname)
         
         let search_param = new URLSearchParams(location.search)
