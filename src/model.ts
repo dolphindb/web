@@ -177,16 +177,13 @@ export class DdbModel extends Model<DdbModel> {
         }
         
         let port = params.get('port') || location.port
+        let hostname = params.get('hostname') || location.hostname
         
-        let hostname = (params.get('hostname') || location.hostname)
+        const host_params = params.get('host')
         
-        if (params.get('host')) {
-            const host_params = params.get('host')
-            const hostname_from_host_param = host_params.split(':')[0]
-            const port_from_host_param = host_params.split(':')[1]
+        if (host_params) {
             // 优先用 host 参数中的主机和端口
-            hostname = hostname_from_host_param ?? hostname
-            port = port_from_host_param ?? port
+            [ hostname, port ] = host_params.split(':')
             params.delete('host')
             params.set('hostname', hostname)
             params.set('port', port)
