@@ -179,26 +179,23 @@ export class DdbModel extends Model<DdbModel> {
         }
         
         let port = params.get('port') || location.port
-            
         let hostname = (params.get('hostname') || location.hostname)
         
-        let search_param = new URLSearchParams(location.search)
         if (params.get('host')) {
-            const host = params.get('host')
-            hostname = host.split(':')[0] ?? ''
-            const port_from_host_param = host.split(':')[1]
-            // 优先用 host 参数中的端口
+            const host_params = params.get('host')
+            const hostname_from_host_param = host_params.split(':')[0]
+            const port_from_host_param = host_params.split(':')[1]
+            // 优先用 host 参数中的主机和端口
+            hostname = hostname_from_host_param ?? hostname
             port = port_from_host_param ?? port
-            search_param.delete('host')
-            search_param.set('hostname', hostname)
-            search_param.set('port', port_from_host_param ?? port)
-            // 如果是 host，转换
+            params.delete('host')
+            params.set('hostname', hostname)
+            params.set('port', port)
+            // 转换 url
             const url = new URL(window.location.href)
-            url.search = search_param.toString()
+            url.search = params.toString()
             history.pushState(null, '', url)
-            this.params = search_param
         }
-        
         
         this.ddb = new DDB(
             (this.dev ? (params.get('tls') === '1' ? 'wss' : 'ws') : (location.protocol === 'https:' ? 'wss' : 'ws')) +
