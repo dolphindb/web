@@ -22,7 +22,7 @@ const authorizations = {
 }
 
 export function License () {
-    const { version, license } = model.use(['version', 'license'])
+    const { version, version_full, license } = model.use(['version', 'version_full', 'license'])
     
     if (!license)
         return
@@ -36,7 +36,7 @@ export function License () {
         trigger='hover'
         content={
             <div className='license-card head-bar-info'>
-                <Card size='small' bordered={false} title={`${auth} v${version}`}>
+                <Card size='small' bordered={false} title={`${auth} v${version_full}`}>
                     <Descriptions bordered size='small' column={2}>
                         <Descriptions.Item label={t('授权类型')}>{auth}</Descriptions.Item>
                         <Descriptions.Item label={t('授权客户')}>{license.clientName}</Descriptions.Item>

@@ -121,6 +121,9 @@ export class DdbModel extends Model<DdbModel> {
     
     version: string
     
+    /** version() 函数的完整返回值 */
+    version_full: string
+    
     v1: boolean
     
     v2: boolean
@@ -603,17 +606,18 @@ export class DdbModel extends Model<DdbModel> {
     
     
     async get_version () {
-        const version = (await this.ddb.invoke<string>('version'))
-            .split(' ')[0]
+        const version_full = await this.ddb.invoke<string>('version')
+        const version = version_full.split(' ')[0]
         
         this.set({
             version,
+            version_full,
             v1: version.startsWith('1.'),
             v2: version.startsWith('2.'),
             v3: version.startsWith('3.')
         })
         
-        console.log(t('版本:'), version)
+        console.log(t('server 版本:'), version_full)
         
         return version
     }
