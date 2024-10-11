@@ -597,13 +597,17 @@ def updatePlan(id, name, desc, metrics, nodes, params, frequency, days, schedule
 }
 
 def getPlans(planId=NULL) {
+    planId_ = iif(planId.form()==0, [planId], planId)
     whereCond = [<1==1>]
+    whereCond_ = [<!isNull(endTime)>]
 
     if (!isNull(planId)) {
-        pattern = planId + "%"
-        whereCond.append!(<like(id, pattern)>)
+        whereCond.append!(<id in planId_>)
+        whereCond_.append!(<planId in planId_>)
     }
     res = sql(sqlCol("*"), loadTable("dfs://ddb_internal_auto_inspection", "plans"), whereCond).eval()
+    reports = sql(sqlCol("*"), loadTable("dfs://ddb_internal_auto_inspection", "reports"), whereCond_, groupBy=sqlCol("planId"), groupFlag=0, csort=sqlCol("endTime"), ascSort=0, limit=1).eval()
+    res = select res.*, reports.id as lastReportId from res left semijoin reports on res.id == reports.planId
 
     return res
 }
