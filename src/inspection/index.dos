@@ -229,6 +229,7 @@ def runMetric(name, node, script, mutable params) {
 }
 
 def runPlanInner(planId) {
+    print("start to run plan: " + string(planId))
     planId_ = planId
     planDetails = select a.metricName as metricName, a.metricDisplayName as metricDisplayName, a.nodes as nodes, a.params as params, b.script as script, b.version as metricVersion from loadTable("dfs://ddb_internal_auto_inspection", "plan_details") a left join loadTable("dfs://ddb_internal_auto_inspection", "metrics") b on a.metricName == b.name where a.planId == planId_
 
@@ -238,6 +239,7 @@ def runPlanInner(planId) {
     for (item in planDetails) {
         // item = planDetails[0]
         name = item["metricName"]
+        print("start to run metric: " + name)
         nodes = iif(
             isNull(item["nodes"]), 
             [getNodeAlias()], // 未配置执行节点时，直接在当前数据节点执行
