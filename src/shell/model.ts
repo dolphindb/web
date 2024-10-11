@@ -342,9 +342,14 @@ class ShellModel extends Model<ShellModel> {
         if (!this.is_monaco_init)
             return
         this.save()
-        const new_tab_name = t('标签页 ') + (this.tabs.length + 1)
-        this.set({ current_tab_index: (this.tabs.length + 1) })
-        this.set({ tabs: [...this.tabs, { name: new_tab_name, code: '', index: (this.tabs.length + 1) }] })
+        const current_exist_indexies = this.tabs.map(t => t.index)
+        const indexSet = new Set(current_exist_indexies)
+        let new_tab_index = 1
+        while (indexSet.has(new_tab_index))
+            new_tab_index++
+        const new_tab_name = t('标签页 ') + new_tab_index
+        this.set({ current_tab_index: new_tab_index })
+        this.set({ tabs: [...this.tabs, { name: new_tab_name, code: '', index: new_tab_index }] })
         this.editor.setValue('')
     }
     
