@@ -40,11 +40,6 @@ import { DdbVar } from './Variables.js'
 
 type Result = { type: 'object', data: DdbObj } | { type: 'objref', data: DdbObjRef }
 
-export interface Tab {
-    index: number
-    name: string
-    code: string
-}
 
 class ShellModel extends Model<ShellModel> {
     term: Terminal
@@ -324,33 +319,36 @@ class ShellModel extends Model<ShellModel> {
             const new_tabs = [...this.tabs]
             if (code)
                 new_tabs[index].code = code
-            const tab: Tab = new_tabs[index]
+            const tab = new_tabs[index]
             this.set({ tabs: new_tabs })
             localStorage.setItem(`${storage_keys.code}.${this.current_tab_index}`, JSON.stringify(tab))
-        }
-            
-        else
+        } else
             localStorage.setItem(storage_keys.code, code)
     }
+    
     
     remove_tab (tab_index: number) {
         this.set({ tabs: this.tabs.filter(t => t.index !== tab_index) })
         localStorage.removeItem(`${storage_keys.code}.${tab_index}`)
     }
     
+    
     add_tab () {
         if (!this.is_monaco_init)
             return
         this.save()
-        const indexSet = new Set(this.tabs.map(t => t.index))
+        const index_set = new Set(this.tabs.map(t => t.index))
         let new_tab_index = 1
-        while (indexSet.has(new_tab_index))
+        while (index_set.has(new_tab_index))
             new_tab_index++
         const new_tab_name = t('标签页 ') + new_tab_index
-        this.set({ current_tab_index: new_tab_index })
-        this.set({ tabs: [...this.tabs, { name: new_tab_name, code: '', index: new_tab_index }] })
+        this.set({
+            current_tab_index: new_tab_index,
+            tabs: [...this.tabs, { name: new_tab_name, code: '', index: new_tab_index }]
+        })
         this.editor.setValue('')
     }
+    
     
     switch_tab (tab_index: number) {
         if (!this.is_monaco_init)
@@ -363,11 +361,13 @@ class ShellModel extends Model<ShellModel> {
             this.editor?.setValue(localStorage.getItem(`${storage_keys.code}`) || '')
     }
     
-    init_tabs () {        
+    
+    init_tabs () {
         const tab_keys = Object.keys(localStorage).filter(key => key.startsWith(`${storage_keys.code}.`))
         const tabs: Tab[] = tab_keys.map(key => JSON.parse(localStorage.getItem(key) || ''))
         this.set({ tabs: tabs.sort((a, b) => a.index - b.index) })
     }
+    
     
     save_debounced = debounce(this.save.bind(this), 500, { leading: false, trailing: true })
     
@@ -776,6 +776,13 @@ class ShellModel extends Model<ShellModel> {
         )
         this.set({ get_access_defined: true })
     }
+}
+
+
+export interface Tab {
+    index: number
+    name: string
+    code: string
 }
 
 

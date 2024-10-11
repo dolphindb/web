@@ -45,11 +45,11 @@ export function ShellEditor ({ collapser }) {
     }, [ ])
     
     function get_tab_views () {
-        
         function close_tab (ev: MouseEvent<HTMLSpanElement>, tab_index: number) {
             ev.stopPropagation()
             if (!is_monaco_init)
                 return
+            
             function remove_tab () {
                 const index = tabs.findIndex(t => t.index === tab_index)
                 const new_tabs = tabs.filter(t => t.index !== tab_index)
@@ -60,17 +60,16 @@ export function ShellEditor ({ collapser }) {
                         shell.switch_tab(new_tabs[0].index)
                     else
                         shell.switch_tab(new_tabs[index - 1].index)
-                        
+                    
                 shell.remove_tab(tab_index)
             }
-            model.modal.confirm(
-                {
-                    title: t('提醒'),
-                    content: t('关闭标签页将会删除标签页内的所有内容，确认关闭？'),
-                    onOk: remove_tab,
-                    okType: 'danger',
-                }
-            )
+            
+            model.modal.confirm({
+                title: t('提醒'),
+                content: t('关闭标签页将会删除标签页内的所有内容，确认关闭？'),
+                onOk: remove_tab,
+                okType: 'danger'
+            })
         }
         
         function rename_tab (tab_index: number, name: string) {
@@ -81,30 +80,36 @@ export function ShellEditor ({ collapser }) {
             shell.save()
         }
         
-        const tab_views = tabs.map(tab => <DdbTab
-            tab={tab}
-            key={tab.index}
-            on_close={close_tab}
-            on_rename={rename_tab}
-            current_tab_index={current_tab_index}
-            on_click={tab_index => { shell.switch_tab(tab_index) }}
-        />
-        )
-        
         return <>
-            <div className={`tab ${(current_tab_index < 0) ? 'active' : ''}`} key='default' onClick={() => { shell.switch_tab(-1) }}>
+            <div
+                className={`tab ${current_tab_index < 0 ? 'active' : ''}`}
+                key='default'
+                onClick={() => {
+                    shell.switch_tab(-1)
+                }}
+            >
                 {t('默认标签页')}
             </div>
-            {tab_views}
-            <div className='add-tab' onClick={shell.add_tab}><PlusOutlined style={{ fontSize: 12 }} /></div>
+            {tabs.map(tab => <DdbTab
+                    tab={tab}
+                    key={tab.index}
+                    on_close={close_tab}
+                    on_rename={rename_tab}
+                    current_tab_index={current_tab_index}
+                    on_click={tab_index => {
+                        shell.switch_tab(tab_index)
+                    }}
+                />)}
+            <div className='add-tab' onClick={shell.add_tab}>
+                <PlusOutlined style={{ fontSize: 12 }} />
+            </div>
         </>
     }
     
-    const tab_views = get_tab_views()
     
     return <div className='shell-editor'>
         <div className='tabs'>
-            {tab_views}
+            {get_tab_views()}
         </div>
         <div className='toolbar'>
             <div className='actions'>
@@ -250,8 +255,11 @@ export function ShellEditor ({ collapser }) {
                 })
                 
                 
-                shell.set({ editor, monaco })
-                shell.set({ is_monaco_init: true })
+                shell.set({
+                    editor,
+                    monaco,
+                    is_monaco_init: true
+                })
             }}
             
             on_change={(value, event) => {
@@ -261,23 +269,31 @@ export function ShellEditor ({ collapser }) {
     </div>
 }
 
-interface DdbSheelTabProps {
+
+function DdbTab ({
+    tab, 
+    on_close, 
+    on_rename, 
+    on_click, 
+    current_tab_index
+}: {
     tab: Tab
     on_close: (ev: MouseEvent<HTMLSpanElement>, tab_index: number) => void
     on_rename: (tab_index: number, name: string) => void
     on_click: (tab_index: number) => void
     current_tab_index: number
-}
-function DdbTab (props: DdbSheelTabProps) {
-    const { tab, on_close, on_rename, on_click, current_tab_index } = props
+}) {
     const [name, set_name] = useState(tab.name)
     const [is_rename, set_is_rename] = useState(false)
-    return <div className={`tab ${tab.index === current_tab_index ? 'active' : ''}`} key={tab.index} onClick={() => { on_click(tab.index) }}>
-        {!is_rename && <div
-            onDoubleClick={() => { set_is_rename(true) }}>
+    
+    return <div
+        className={`tab ${tab.index === current_tab_index ? 'active' : ''}`}
+        key={tab.index}
+        onClick={() => { on_click(tab.index) }}
+    >
+        {!is_rename && <div onDoubleClick={() => { set_is_rename(true) }}>
             {tab.name}
-        </div>
-        }
+        </div>}
         {is_rename && <Input
             placeholder={t('标签页名称')}
             value={name}
