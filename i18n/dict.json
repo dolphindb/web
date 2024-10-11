@@ -5239,5 +5239,8 @@
     },
     "立即刷新": {
         "en": "Refresh Now"
+    },
+    "保存成功，重启数据节点 / 计算节点生效": {
+        "en": "Save successfully, restart the data / computing node to take effect"
     }
 }

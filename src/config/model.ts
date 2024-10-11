@@ -1,6 +1,6 @@
 import { Model } from 'react-object-model'
 
-import { DdbFunctionType, type DdbCallOptions } from 'dolphindb/browser.js'
+import type { DdbCallOptions } from 'dolphindb/browser.js'
 
 import { t } from '@i18n/index.ts'
 
@@ -119,7 +119,8 @@ class ConfigModel extends Model<ConfigModel> {
                 })
             ]])
         
-        await this.invoke('reloadClusterConfig')
+        if (model.node_type === NodeType.controller)
+            await this.invoke('reloadClusterConfig')
         
         this.set({ nodes_configs: new_nodes_configs })
     }
@@ -136,7 +137,7 @@ class ConfigModel extends Model<ConfigModel> {
             {
                 ... model.node_type === NodeType.controller || model.node_type === NodeType.single
                     ? { }
-                    : { node: model.controller_alias, func_type: DdbFunctionType.SystemFunc },
+                    : { node: model.controller_alias },
                 ...options
             })
     }
