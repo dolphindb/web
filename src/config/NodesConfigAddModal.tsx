@@ -86,7 +86,7 @@ export const NodesConfigAddModal = NiceModal.create(() => {
                                 const { qualifier, name, value } = await add_config_form.validateFields()
                                 const key = (qualifier ? qualifier + '.' : '') + name
                                 await config.change_configs([[key, { qualifier, name, value, key }]])
-                                model.message.success(t('保存成功，重启数据节点/计算节点生效'))
+                                model.message.success(t('保存成功，重启数据节点 / 计算节点生效'))
                                 modal.hide()
                             } catch (error) {
                                 // 数据校验不需要展示报错弹窗
