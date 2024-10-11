@@ -11,6 +11,8 @@ import type { DdbObj } from 'dolphindb/browser.js'
 
 import { useCallback, useState } from 'react'
 
+import useSWRMutation from 'swr/mutation'
+
 import { model, NodeType } from '@/model.ts'
 
 import { InitStatus, Protocol } from '@/data-collection/type.ts'
@@ -49,14 +51,15 @@ export function DataCollection () {
     )
     
     
-    
-    const on_init = useCallback(async () => {
-        await model.ddb.eval(code)
-        await model.ddb.call('dcp_init')
-        message.success(t('采集平台初始化成功！'))
-        mutate()
-    }, [is_win])
-    
+    const { trigger: on_init, isMutating: is_initing } = useSWRMutation(
+        'dcp_init',
+        async () => {
+            await model.ddb.eval(code)
+            await model.ddb.call('dcp_init')
+            message.success(t('采集平台初始化成功！'))
+            mutate()
+        }
+    )
     
     if (!logined)
         return <Unlogin info={t('数据采集平台')} />
@@ -78,7 +81,7 @@ export function DataCollection () {
                     {t('初始化操作将新增以下数据库')}
                     <div>dfs://dataAcquisition</div>
                 </>}
-                extra={<Button type='primary' onClick={on_init}>{t('初始化')}</Button>}
+                extra={<Button type='primary' loading={is_initing} onClick={async () => on_init()}>{t('初始化')}</Button>}
             /> 
             : <Result title={t('数据采集平台功能未初始化，请联系管理员初始化数据采集平台功能')} />
     else if (data.is_inited === InitStatus.INITED) 

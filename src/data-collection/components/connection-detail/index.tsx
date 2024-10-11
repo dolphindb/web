@@ -1,5 +1,5 @@
 import './index.scss'
-import { Button, Descriptions, Modal, Space, Spin, Switch, Table, Typography, message } from 'antd'
+import { Button, Descriptions, Modal, Popconfirm, Space, Spin, Switch, Table, Typography, message } from 'antd'
 
 import { useCallback, useMemo, useState } from 'react'
 
@@ -95,26 +95,16 @@ export function ConnectionDetail (props: IProps) {
     })
     
     
-    const on_change_status = useCallback(async ({ id, name }: ISubscribe, status: boolean) => {
-        const modal = Modal.confirm({
-            title: t('确定要{{action}}{{name}}吗？', { action: status ? t('启用') : t('停用'), name }),
-            onOk: async () => {
-                try {
-                    if (status) {
-                        await request('dcp_startSubscribe', { subId: id })
-                        set_selected_subscribes(selected_subscribes.filter(item => item !== id))
-                    }
-                    else
-                        await request('dcp_stopSubscribe', { subId: [id] })
-                    message.success(status ? t('订阅成功') : t('已停用订阅'))
-                    mutate()
-                } catch (error) {
-                    modal.destroy()
-                    throw error
-                }
-            },
-            okButtonProps: status ? undefined : { style: { backgroundColor: 'red' } }
-        })
+    const on_change_status = useCallback(async ({ id, status }: ISubscribe) => {
+        const is_enable = status === 0
+        if (is_enable) {
+            await request('dcp_startSubscribe', { subId: id })
+            set_selected_subscribes(selected_subscribes.filter(item => item !== id))
+        }
+        else
+            await request('dcp_stopSubscribe', { subId: [id] })
+        message.success(is_enable  ? t('订阅成功') : t('已停用订阅'))
+        mutate()
     }, [ mutate, selected_subscribes ])
     
     const on_create_subscribe = useCallback(async () => 
@@ -170,8 +160,14 @@ export function ConnectionDetail (props: IProps) {
         {
             title: t('是否启用'),
             dataIndex: 'status',
-            width: 100,
-            render: (status, record) => <Switch checked={status === 1} onClick={async checked => on_change_status(record, checked)}/>
+            width: 120,
+            render: (status, record) => <Popconfirm 
+                okType={status === 1 ? 'danger' : 'primary'} 
+                title={t('确定要{{action}}{{name}}吗？', { action: status !== 1 ? t('启用') : t('停用'), name })} 
+                onConfirm={async () => on_change_status(record)}
+            >
+                <Switch checked={status === 1}/>
+            </Popconfirm>
         },
         {
             title: t('操作'),
