@@ -162,7 +162,7 @@ export function ConnectionDetail (props: IProps) {
             dataIndex: 'status',
             width: 120,
             render: (status, record) => <Popconfirm 
-                okType={status === 1 ? 'danger' : 'primary'} 
+                okButtonProps={{ danger: status === 1 }}
                 title={t('确定要{{action}}{{name}}吗？', { action: status !== 1 ? t('启用') : t('停用'), name })} 
                 onConfirm={async () => on_change_status(record)}
             >
