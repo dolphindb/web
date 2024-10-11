@@ -96,7 +96,7 @@ export function ShellEditor ({ collapser }) {
                 {t('默认标签页')}
             </div>
             {tab_views}
-            <div className='add-tab' onClick={() => { shell.add_tab() }}><PlusOutlined style={{ fontSize: 12 }} /></div>
+            <div className='add-tab' onClick={shell.add_tab}><PlusOutlined style={{ fontSize: 12 }} /></div>
         </>
     }
     

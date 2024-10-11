@@ -342,8 +342,7 @@ class ShellModel extends Model<ShellModel> {
         if (!this.is_monaco_init)
             return
         this.save()
-        const current_exist_indexies = this.tabs.map(t => t.index)
-        const indexSet = new Set(current_exist_indexies)
+        const indexSet = new Set(this.tabs.map(t => t.index))
         let new_tab_index = 1
         while (indexSet.has(new_tab_index))
             new_tab_index++
@@ -364,16 +363,9 @@ class ShellModel extends Model<ShellModel> {
             this.editor?.setValue(localStorage.getItem(`${storage_keys.code}`) || '')
     }
     
-    init_tabs () {
-        const keys: string[] = [ ]
-        for (let i = 0;  i < localStorage.length;  i++) 
-            keys.push(localStorage.key(i))
-        
-        const tab_keys = keys.filter(key => key.startsWith(`${storage_keys.code}.`))
-        const tabs = tab_keys.map(key => {
-            const tab: Tab = JSON.parse(localStorage.getItem(key) || '')
-            return tab
-        })
+    init_tabs () {        
+        const tab_keys = Object.keys(localStorage).filter(key => key.startsWith(`${storage_keys.code}.`))
+        const tabs: Tab[] = tab_keys.map(key => JSON.parse(localStorage.getItem(key) || ''))
         this.set({ tabs: tabs.sort((a, b) => a.index - b.index) })
     }
     
