@@ -34,13 +34,13 @@ import { DdbSider } from './components/DdbSider.tsx'
 import { GlobalErrorBoundary } from './components/GlobalErrorBoundary.tsx'
 import { HostSelect } from './components/HostSelect.tsx'
 
-import { Login } from './login.tsx'
+import { Login } from './login/index.tsx'
 import { Overview } from './overview/index.tsx'
 import { Config } from './config/index.tsx'
 import { Shell } from './shell/index.tsx'
 import { Test } from './test/index.tsx'
-import { Job } from './job.tsx'
-import { Log } from './log.tsx'
+import { Job } from './job/index.tsx'
+import { Log } from './log/index.tsx'
 import { Plugins } from './plugins/index.tsx'
 import { Computing } from './computing/index.tsx'
 import { DashBoard } from './dashboard/index.tsx'
@@ -48,6 +48,7 @@ import { User, Group } from './access/index.tsx'
 import { Settings } from './settings/index.tsx'
 import { CreateGuide } from './guide/iot-guide/index.tsx'
 import { FinanceGuide } from './guide/finance-guide/index.tsx'
+import { DataCollection } from './data-collection/index.tsx'
 
 
 
@@ -63,12 +64,22 @@ function DolphinDB () {
     return <ConfigProvider
         locale={locales[language] as any}
         button={{ autoInsertSpace: false }}
-        theme={{ hashed: false, token: { borderRadius: 0, motion: false } }}
+        theme={{
+            hashed: false,
+            token: {
+                motion: false,
+                
+                borderRadius: 0,
+                
+                controlOutlineWidth: 0,
+            }
+        }}
+        renderEmpty={() => <div className='empty-placeholder' />}
     >
         <SWRConfig value={{
             revalidateOnFocus: false,
             revalidateOnReconnect: false,
-            errorRetryCount: 0 
+            errorRetryCount: 0
         }}>
             <ProConfigProvider hashed={false} token={{ borderRadius: 0, motion: false }}>
                 <NiceModal.Provider>
@@ -155,6 +166,8 @@ const views: Partial<Record<PageViews, React.FunctionComponent>> = {
     user: User,
     group: Group,
     settings: Settings,
+    'data-connection': DataCollection,
+    'parser-template': DataCollection,
     'iot-guide': CreateGuide,
     'finance-guide': FinanceGuide,
 }

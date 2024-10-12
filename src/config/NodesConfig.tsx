@@ -10,7 +10,7 @@ import { model } from '../model.js'
 import { NodesConfigAddModal } from './NodesConfigAddModal.js'
 import { config } from './model.js'
 import { type NodesConfig } from './type.js'
-import { _2_strs, filter_config } from './utils.js'
+import { _2_strs, filter_config } from './utils.ts'
 import { CONFIG_CLASSIFICATION } from './constants.js'
 
 export function NodesConfig () {
@@ -164,7 +164,7 @@ export function NodesConfig () {
                             if (rowKey !== key)
                                 config.nodes_configs.delete(rowKey as string)
                             await config.change_configs([[key, { name, qualifier, value, key }]])
-                            model.message.success(t('保存成功，重启集群生效'))
+                            model.message.success(t('保存成功，重启数据节点 / 计算节点生效'))
                         },
                         onDelete: async key => delete_config(key as string),
                         deletePopconfirmMessage: t('确认删除此配置项？'),

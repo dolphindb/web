@@ -14,7 +14,7 @@ import { model } from '../model.js'
 import { t } from '../../i18n/index.js'
 
 import { dashboard, DashboardPermission } from './model.js'
-import { check_name } from './utils.js'
+import { check_name } from './utils.ts'
 import { Import } from './Import/Import.js'
 import { Share } from './Share/Share.js'
 import { Doc } from './components/Doc.js'

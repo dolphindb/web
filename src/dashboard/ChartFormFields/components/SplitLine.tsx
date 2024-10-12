@@ -11,7 +11,7 @@ export function SplitLineFields () {
         <Form.Item name={['splitLine', 'show']} label={t('是否展示')} initialValue={false}>
             <BoolRadioGroup />
         </Form.Item>
-        <Form.Item name={['splitLine', 'lineStyle', 'color']} label={t('线条颜色')} initialValue='#6E6F7A'>
+        <Form.Item name={['splitLine', 'lineStyle', 'color']} label={t('线颜色')} initialValue='#6E6F7A'>
             <StringColorPicker />
         </Form.Item>
         <Form.Item name={['splitLine', 'lineStyle', 'width']} label={t('线宽')} initialValue={1}>

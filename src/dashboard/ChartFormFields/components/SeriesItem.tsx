@@ -10,7 +10,7 @@ import { StringColorPicker } from '../../../components/StringColorPicker/index.j
 import { FormDependencies } from '../../../components/formily/FormDependcies/index.js'
 import { get_data_source } from '../../DataSource/date-source.js'
 import { WidgetChartType, dashboard } from '../../model.js'
-import { concat_name_path, convert_list_to_options } from '../../utils.js'
+import { concat_name_path, convert_list_to_options } from '../../utils.ts'
 import { chart_type_options, mark_point_options, mark_line_options, line_type_options } from '../constant.js'
 import { ILineType } from '../type.js'
 

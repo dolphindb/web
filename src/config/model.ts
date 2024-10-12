@@ -1,13 +1,17 @@
 import { Model } from 'react-object-model'
 
-import { DdbFunctionType, type DdbObj, type DdbValue, DdbVectorString, type DdbVectorStringObj, DdbInt, type DdbCallOptions } from 'dolphindb/browser.js'
+import type { DdbCallOptions } from 'dolphindb/browser.js'
 
-import { t } from '@i18n/index.js'
+import { t } from '@i18n/index.ts'
 
-import { NodeType, model } from '../model.js'
+import { NodeType, model } from '@/model.ts'
 
-import { type NodesConfig } from './type.js'
-import { _2_strs, get_category, parse_nodes_configs } from './utils.js'
+import { iterator_map } from '@/utils.ts'
+
+import { _2_strs, get_category, parse_nodes_configs } from './utils.ts'
+
+import type { NodesConfig } from './type.ts'
+
 
 const trusies = ['1', 'true'] as const
 
@@ -15,42 +19,41 @@ class ConfigModel extends Model<ConfigModel> {
     nodes_configs: Map<string, NodesConfig>
     
     async load_controller_configs () {
-        return this.call('loadControllerConfigs')
+        return this.invoke<string[]>('loadControllerConfigs')
     }
     
     async save_controller_configs (configs: string[]) {
-        return this.call('saveControllerConfigs', [new DdbVectorString(configs)])
+        await this.invoke('saveControllerConfigs', [configs])
     }
     
     async get_cluster_nodes () {
-        return this.call('getClusterNodesCfg')
+        return this.invoke<string[]>('getClusterNodesCfg')
     }
     
     async save_cluster_nodes (nodes: string[]) {
-        return this.call('saveClusterNodes', [new DdbVectorString(nodes)])
+        await this.invoke('saveClusterNodes', [nodes])
     }
     
     async add_agent_to_controller (host: string, port: number, alias: string) {
-        await this.call('addAgentToController', [host, new DdbInt(port), alias])
+        await this.invoke('addAgentToController', [host, port, alias])
     }
     
     
     /** load_configs 依赖 controller alias 等信息 */
     async load_configs () {
         const configs = parse_nodes_configs(
-            (await this.call<DdbVectorStringObj>('loadClusterNodesConfigs', undefined, { urgent: true }))
-                .value)
+            await this.invoke<string[]>('loadClusterNodesConfigs', undefined, { urgent: true })
+        )
         
         this.set({ nodes_configs: configs })
         
         console.log(
             t('配置文件:'),
             Object.fromEntries(
-                // @ts-ignore
-                typeof Iterator !== 'undefined' && Iterator.prototype?.map
-                    // @ts-ignore
-                    ? this.nodes_configs.entries().map(([key, { value }]) => [key, value])
-                    : [...this.nodes_configs].map(([key, { value }]) => [key, value])
+                iterator_map(
+                    this.nodes_configs.entries(),
+                    ([key, { value }]) => [key, value]
+                )
             )
         )
         
@@ -106,31 +109,36 @@ class ConfigModel extends Model<ConfigModel> {
     async save_configs () {
         const new_nodes_configs = new Map<string, NodesConfig>()
         
-        await this.call(
+        await this.invoke(
             'saveClusterNodesConfigs', 
-            [new DdbVectorString(Array.from(this.nodes_configs).map(([key, config]) => {
-                new_nodes_configs.set(key, config)
-                const { value } = config
-                return `${key}=${value}`
-            }))]
-        )
+            [[...iterator_map(
+                this.nodes_configs.entries(), 
+                ([key, config]) => {
+                    new_nodes_configs.set(key, config)
+                    const { value } = config
+                    return `${key}=${value}`
+                })
+            ]])
+        
+        if (model.node_type === NodeType.controller)
+            await this.invoke('reloadClusterConfig')
         
         this.set({ nodes_configs: new_nodes_configs })
     }
     
     
-    async call <TResult extends DdbObj> (
+    async invoke <TResult> (
         name: string, 
-        args?: (string | boolean | DdbObj<DdbValue>)[], 
+        args?: any[], 
         options?: DdbCallOptions
     ) {
-        return model.ddb.call<TResult>(
+        return model.ddb.invoke<TResult>(
             name, 
             args,
             {
                 ... model.node_type === NodeType.controller || model.node_type === NodeType.single
                     ? { }
-                    : { node: model.controller_alias, func_type: DdbFunctionType.SystemFunc },
+                    : { node: model.controller_alias },
                 ...options
             })
     }

@@ -14,7 +14,7 @@ import { DdbNodeState, model, NodeType } from '../model.js'
 
 import { config } from './model.js'
 import { type ClusterNode, type NodesConfig } from './type.js'
-import { _2_strs, strs_2_nodes, filter_config, get_category } from './utils.js'
+import { _2_strs, strs_2_nodes, filter_config, get_category } from './utils.ts'
 import { GroupAddModal, type GroupConfigDatatype, type GroupNodesDatatype } from './GroupAddModal.js'
 
 

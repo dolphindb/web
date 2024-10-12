@@ -1,0 +1,34 @@
+.connection-detail {
+    margin-left: 16px;
+    width: 100%;
+    .base-info {
+        margin: 16px 0px;
+    }
+    
+    .parser-template {
+        .view-btn {
+            display: inline-block;
+            margin-left: 8px;
+        }
+    }
+    
+    .subscribe-btn-group {
+        margin-bottom: 16px;
+    }
+}
+
+.template-view-editor {
+    height: 600px;
+    overflow: auto;
+}
+
+.subscribe-delete-form {
+    &-item {
+        margin-bottom: 0px;
+        
+        &.delete-form-item {
+            text-align: end;
+        }
+    }
+}
+

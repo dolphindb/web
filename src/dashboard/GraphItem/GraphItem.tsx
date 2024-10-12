@@ -18,7 +18,7 @@ import { get_data_source } from '../DataSource/date-source.js'
 import { t } from '../../../i18n/index.js'
  
 
-import { copy_widget } from '../utils.js'
+import { copy_widget } from '../utils.ts'
 
 import { VariableForm } from './VariableForm.js'
 

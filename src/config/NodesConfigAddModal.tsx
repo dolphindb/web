@@ -95,10 +95,7 @@ export const NodesConfigAddModal = NiceModal.create((props: { compute_group?: st
                                 if (props.compute_group)
                                     key = `${props.compute_group}%.${key}`
                                 await config.change_configs([[key, { qualifier, name, value, key }]])
-                                // 对于计算组的配置，只需要重启计算节点就可以了
-                                const message = props.compute_group ? t('保存成功，重启计算节点生效') : t('保存成功，重启集群生效')
-                                model.message.success(message)
-                                props.on_save?.()
+                                model.message.success(t('保存成功，重启数据节点 / 计算节点生效'))
                                 modal.hide()
                             } catch (error) {
                                 // 数据校验不需要展示报错弹窗

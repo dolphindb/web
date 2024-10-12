@@ -6,10 +6,7 @@ import { t } from '@i18n/index.js'
 
 import { SchemaField } from '../SchemaField/index.js'
 
-import { isDDBDecimalType } from '@/utils/ddb-data-types.js'
-import { getDecimalScaleRange, isAvailableDecimalScale } from '@/utils/decimal.js'
-
-import { type DDBColumnTypeNames, DDB_COLUMN_DATA_TYPES, SUPPORT_ARRAY_VECTOR_TYPES } from '@/constants/column-data-types.js'
+import { type DDBColumnTypeNames } from '@/utils.ts'
 
 
 import { model } from '@/model.js'
@@ -139,3 +136,114 @@ DDBTypeSelectorSchemaFields.ScopeValues = {
         getDecimalScaleRange,
     }
 }
+
+
+/** 数据表的列数据类型 */
+const DDB_COLUMN_DATA_TYPES: DDBColumnTypeNames[] = [
+    'BOOL',
+    'CHAR',
+    'SHORT',
+    'INT',
+    'LONG',
+    'DATE',
+    'MONTH',
+    'TIME',
+    'MINUTE',
+    'SECOND',
+    'DATETIME',
+    'TIMESTAMP',
+    'NANOTIME',
+    'NANOTIMESTAMP',
+    'FLOAT',
+    'DOUBLE',
+    'SYMBOL',
+    'STRING',
+    'UUID',
+    'DATEHOUR',
+    'IPADDR',
+    'INT128',
+    'BLOB',
+    'COMPLEX',
+    'POINT',
+    
+    'DECIMAL32',
+    'DECIMAL64',
+    'DECIMAL128',
+]
+
+
+const SUPPORT_ARRAY_VECTOR_TYPES: DDBColumnTypeNames[] = [
+    'BOOL',
+    'CHAR',
+    'SHORT',
+    'INT',
+    'LONG',
+    'DATE',
+    'MONTH',
+    'TIME',
+    'MINUTE',
+    'SECOND',
+    'DATETIME',
+    'TIMESTAMP',
+    'NANOTIME',
+    'NANOTIMESTAMP',
+    'DATEHOUR',
+    'FLOAT',
+    'DOUBLE',
+    'IPADDR',
+    'UUID',
+    'INT128',
+    'DECIMAL32',
+    'DECIMAL64',
+    'DECIMAL128',
+]
+
+
+function isDDBDecimalType (type: DDBColumnTypeNames) {
+    return [
+        'DECIMAL32',
+        'DECIMAL64',
+        'DECIMAL128',
+    ].includes(type)
+}
+
+
+export function generateDDBDataTypeLiteral ({ type, scale = 0, arrayVector }: GenerateDDBDataTypeLiteralOptions) {
+    let typeLiteral = isDDBDecimalType(type) ? `${type}(${scale})` : type
+    
+    if (arrayVector)
+        typeLiteral = `${typeLiteral}[]`
+    
+    return typeLiteral
+}
+
+
+interface GenerateDDBDataTypeLiteralOptions {
+    type: DDBColumnTypeNames
+    scale?: number
+    arrayVector?: boolean
+}
+
+
+function getDecimalScaleRange (decimalType: DDBColumnTypeNames) {
+    switch (decimalType) {
+        case 'DECIMAL32':
+            return [0, 9]
+        case 'DECIMAL64':
+            return [0, 18]
+        case 'DECIMAL128':
+            return [0, 38]
+        default:
+            return null
+    }
+}
+
+function isAvailableDecimalScale (decimalType: DDBColumnTypeNames, scale: number) {
+    const range = getDecimalScaleRange(decimalType)
+    
+    if (range) 
+        return scale >= range[0] && scale <= range[1]
+    
+    return false
+}
+

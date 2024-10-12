@@ -16,7 +16,7 @@ import { type Widget } from '../../model.js'
 import { type ITableConfig } from '../../type.js'
 
 
-import { format_number, format_time, parse_text } from '../../utils.js'
+import { format_number, format_time, parse_text } from '../../utils.ts'
 
 
 

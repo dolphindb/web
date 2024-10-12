@@ -2,7 +2,7 @@ import { useMemo } from 'react'
 
 import { Layout, Menu, Typography } from 'antd'
 
-import { default as Icon, DoubleLeftOutlined, DoubleRightOutlined, ExperimentOutlined, SettingOutlined, CalculatorOutlined } from '@ant-design/icons'
+import { default as Icon, DoubleLeftOutlined, DoubleRightOutlined, ExperimentOutlined, SettingOutlined } from '@ant-design/icons'
 
 import { isNil, omitBy } from 'lodash'
 
@@ -16,9 +16,9 @@ import SvgOverview from '@/overview/icons/overview.icon.svg'
 import SvgConfig from '@/config/icons/config.icon.svg'
 import SvgShell from '@/shell/index.icon.svg'
 import SvgDashboard from '@/dashboard/icons/dashboard.icon.svg'
-import SvgJob from '@/job.icon.svg'
-import SvgLog from '@/log.icon.svg'
-import SvgFactor from '@/factor.icon.svg'
+import SvgJob from '@/job/job.icon.svg'
+import SvgLog from '@/log/log.icon.svg'
+import SvgFactor from '@/icons/factor.icon.svg'
 import SvgComputing from '@/computing/icons/computing.icon.svg'
 import SvgAccess from '@/access/icons/access.icon.svg'
 import SvgUser from '@/access/icons/user.icon.svg'
@@ -26,6 +26,9 @@ import SvgGroup from '@/access/icons/group.icon.svg'
 import SvgFinance from '@/guide/icons/finance.icon.svg'
 import SvgIot from '@/guide/icons/iot.icon.svg'
 import SvgPlugins from '@/plugins/plugins.icon.svg'
+import SvgDataCollection from '@/data-collection/icons/data-collection.icon.svg'
+import SvgConnection from '@/data-collection/icons/connection.icon.svg'
+import SvgParserTemplate from '@/data-collection/icons/parser-template.icon.svg'
 
 
 const { Text, Link } = Typography
@@ -43,6 +46,9 @@ const svgs = {
     access: SvgAccess,
     user: SvgUser,
     group: SvgGroup,
+    'data-collection': SvgDataCollection,
+    'data-connection': SvgConnection,
+    'parser-template': SvgParserTemplate,
     'iot-guide': SvgIot,
     'finance-guide': SvgFinance,
     plugins: SvgPlugins
@@ -54,8 +60,8 @@ function MenuIcon ({ view }: { view: DdbModel['view'] }) {
 }
 
 export function DdbSider () {
-    const { view, node_type, collapsed, logined, admin, login_required, v1, dev, test, is_factor_platform_enabled } 
-        = model.use(['view', 'node_type', 'collapsed', 'logined', 'admin', 'login_required', 'v1', 'dev', 'test', 'is_factor_platform_enabled', 'enabled_modules'])
+    const { view, node_type, collapsed, logined, admin, login_required, client_auth, v1, dev, test, is_factor_platform_enabled } 
+        = model.use(['view', 'node_type', 'collapsed', 'logined', 'admin', 'login_required', 'client_auth', 'v1', 'dev', 'test', 'is_factor_platform_enabled', 'enabled_modules'])
     
     const factor_href = useMemo(() => {
         const search_params = new URLSearchParams(location.search)
@@ -75,7 +81,7 @@ export function DdbSider () {
     }, [logined])
     
     return <Layout.Sider
-        width={ language === 'zh' ? 150 : 220 }
+        width={ language === 'zh' ? 170 : 220 }
         className='sider'
         theme='light'
         collapsible
@@ -99,7 +105,7 @@ export function DdbSider () {
             theme='light'
             selectedKeys={[view]}
             onSelect={({ key }) => {
-                if (login_required && !logined) {
+                if ((login_required || client_auth) && !logined) {
                     model.message.error(t('请登录'))
                     return
                 }
@@ -165,6 +171,23 @@ export function DdbSider () {
                     icon: <MenuIcon view='log' />,
                     label: t('日志查看'),
                 },
+                ... node_type !== NodeType.controller ? [{
+                    key: 'data-collection',
+                    icon: <MenuIcon view='data-collection' />,
+                    label: t('数据采集平台'),
+                    children: [
+                        {
+                            icon: <MenuIcon view='data-connection' />,
+                            label: t('连接信息'),
+                            key: 'data-connection'
+                        },
+                        {
+                            icon: <MenuIcon view='parser-template' />,
+                            label: t('解析模板'),
+                            key: 'parser-template'
+                        }
+                    ]
+                }] : [ ],
                 ... admin ? [
                     {
                         key: 'plugins',

@@ -9,7 +9,7 @@ import { BoolRadioGroup } from '../../components/BoolRadioGroup/index.js'
 
 
 import { StringColorPicker } from '../../components/StringColorPicker/index.js'
-import { convert_list_to_options } from '../utils.js'
+import { convert_list_to_options } from '../utils.ts'
 
 import { format_time_options } from './constant.js'
 

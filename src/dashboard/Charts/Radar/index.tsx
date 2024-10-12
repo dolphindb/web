@@ -8,7 +8,7 @@ import { type Widget } from '../../model.js'
 
 import { LabelsFormFields, SeriesFormFields } from '../../ChartFormFields/RadarChartFields.js'
 import { type IChartConfig } from '../../type.js'
-import { parse_text } from '../../utils.js'
+import { parse_text } from '../../utils.ts'
 import { BasicFormFields } from '../../ChartFormFields/BasicFormFields.js'
 import { ChartField } from '../../ChartFormFields/type.js'
 import { useChart } from '../hooks.js'

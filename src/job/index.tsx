@@ -1,20 +1,20 @@
-import './job.sass'
+import './index.sass'
 
 import { useEffect, useState } from 'react'
 
 import {
     Button, Input, Popconfirm, Table, Typography, Tooltip, Spin,
-    type TablePaginationConfig, type TableColumnType
+    type TablePaginationConfig, type TableColumnType, Modal
 } from 'antd'
 import { ReloadOutlined } from '@ant-design/icons'
 
 import { type DdbObj, format, DdbType } from 'dolphindb/browser.js'
 
-import { language, t } from '../i18n/index.js'
+import { language, t } from '@i18n/index.ts'
 
-import { model, type DdbJob } from './model.js'
+import { model, type DdbJob } from '@/model.ts'
 
-import { TableCellDetail } from './components/TableCellDetail/index.js'
+import { TableCellDetail } from '@/components/TableCellDetail/index.tsx'
 
 const { Title, Text, Link } = Typography
 
@@ -375,20 +375,25 @@ function append_action_col (
             title: 'actions',
             render: (value, job) => {
                 const disabled = job.status && job.status !== 'queuing' && job.status !== 'running'
+                const no_job_id = !job.jobId
                 
-                return <Popconfirm
-                    title={ type === 'stop' ? t('确认停止作业') : t('确认删除作业')}
-                    onConfirm={async () => {
-                        await action(job)
-                        model.message.success(
-                            type === 'stop' ? t('停止作业指令发送成功') : t('删除作业成功')
-                        )
-                    }
-                }>
-                    <Link title={ disabled ? t('作业已完成') : '' } disabled={disabled}>{
-                        type === 'stop' ? t('停止') : t('删除')
-                    }</Link>
-                </Popconfirm>
+                return <div className='action-col'>
+                    {!no_job_id && <JobMessageShow job={job}/>}
+                    
+                    <Popconfirm
+                        title={type === 'stop' ? t('确认停止作业') : t('确认删除作业')}
+                        onConfirm={async () => {
+                            await action(job)
+                            model.message.success(
+                                type === 'stop' ? t('停止作业指令发送成功') : t('删除作业成功')
+                            )
+                        }
+                        }>
+                        <Link title={disabled ? t('作业已完成') : ''} disabled={disabled}>{
+                            type === 'stop' ? t('停止') : t('删除')
+                        }</Link>
+                    </Popconfirm>
+                </div>
             }
         }
     )
@@ -478,3 +483,92 @@ function compute_status_info (job: DdbJob) {
 
 type DdbJobColumn = TableColumnType<DdbJob>
 
+
+const message_lines_limit = 500
+
+function JobMessageShow ({ job }: { job: DdbJob }) {
+    const [message, set_message] = useState<string[]>([ ])
+    const [show, set_show] = useState(false)
+    const [show_all, set_show_all] = useState(false)
+    const [show_see_more, set_show_see_more] = useState(false)
+    const node = job.node
+    
+    async function get_job_message () {
+        set_show_all(false)
+        await model.ddb.execute(
+            'def get_job_message_line_count (jobId) {\n' +
+            '    return size(split(getJobMessage(jobId),"\\n"))\n' +
+            '}\n'
+        )
+        
+        const count = await model.ddb.invoke<number>(
+            'get_job_message_line_count',
+            [job.jobId ? job.jobId : job.rootJobId],
+            model.node_alias === node ? undefined : { node }
+        )
+        
+        if (count > message_lines_limit) 
+            set_show_see_more(true)
+        
+        await model.ddb.execute(
+            'def get_job_message_limit (jobId, count) {\n' +
+            '    message_arr = split(getJobMessage(jobId), "\\n")\n' +
+            '    message_size = size message_arr\n' +
+            '    return subarray(message_arr, pair(0, int(min(count, message_size - 1))))\n' +
+            '}\n'
+        )
+        
+        const result = await model.ddb.invoke<string[]>(
+            'get_job_message_limit',
+            [
+                job.jobId ? job.jobId : job.rootJobId, 
+                message_lines_limit
+            ],
+            model.node_alias === node ? undefined : { node }
+        )
+        set_show(true)
+        set_message(result)
+    }
+    
+    async function show_all_messages () {
+        set_show_all(true)
+        const result = await model.ddb.invoke<string>(
+            'getJobMessage',
+            [job.jobId ? job.jobId : job.rootJobId],
+            model.node_alias === node ? undefined : { node }
+        )
+        set_message(result.split_lines())
+    }
+    
+    function copy_to_clipboard () {
+        navigator.clipboard.writeText(message.join_lines())
+        model.message.success(t('复制成功'))
+    }
+    
+    if (!node)
+        return null
+    
+    return <>
+        <Modal
+            width='80%'
+            className='job-message-modal'
+            title={t('作业日志')}
+            footer={<div className='copy-button'>
+                <Button style={{ marginRight: 8 }} onClick={copy_to_clipboard}>{t('复制')}</Button>
+                <Button onClick={() => { set_show(false) }}>{t('关闭')}</Button>
+            </div>}
+            onCancel={() => { set_show(false) }}
+            open={show}
+        >
+            <div className='job-message'>
+                {message.map((line, i) => <p key={i}>{line}</p>)}
+            </div>
+            <div>
+                {!show_all && show_see_more && <Link title={t('查看更多')} onClick={show_all_messages}>{t('查看更多')}</Link>}
+            </div>
+        </Modal>
+        <Link title={t('查看日志')} onClick={get_job_message}>{
+            t('查看日志')
+        }</Link>
+    </>
+}

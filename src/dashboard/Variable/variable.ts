@@ -4,7 +4,7 @@ import copy from 'copy-to-clipboard'
 
 import { dashboard } from '../model.js'
 import { type DataSource, execute } from '../DataSource/date-source.js'
-import { safe_json_parse } from '../utils.js'
+import { safe_json_parse } from '../utils.ts'
 import { t } from '../../../i18n/index.js'
 import { VariableMode } from '../type.js'
 

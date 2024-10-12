@@ -10,7 +10,7 @@ import { t } from '../../i18n/index.js'
 import { DdbObjRef } from '../obj.js'
 
 import { shell } from '../shell/model.js'
-import { download_file } from '../utils/index.js'
+import { download_file } from '../utils.ts'
 import { model } from '../model.js'
 
 import SvgExport from './icons/export.icon.svg'
@@ -18,7 +18,7 @@ import SvgExport from './icons/export.icon.svg'
 export function ExportCsv ({ info }: { info: DdbTableObj | DdbObjRef<DdbObj<DdbVectorValue>[]> }) {
     const { visible, open, close } = use_modal()
     
-    const [form] = Form.useForm()
+    let [form] = Form.useForm()
     
     const [loading, set_loading] = useState(false)
     
@@ -63,7 +63,7 @@ export function ExportCsv ({ info }: { info: DdbTableObj | DdbObjRef<DdbObj<DdbV
                     await shell.define_get_csv_content()
                     
                     download_file(
-                        `${name}.csv`, 
+                        `${name}.csv`,
                         URL.createObjectURL(new Blob(
                             [
                                 new Uint8Array([0xEF, 0xBB, 0xBF]),
@@ -76,7 +76,7 @@ export function ExportCsv ({ info }: { info: DdbTableObj | DdbObjRef<DdbObj<DdbV
                     set_loading(false)
                     close()
                 }
-            }} 
+            }}
             onCancel={() => {
                 if (!loading)
                     close()
@@ -107,12 +107,14 @@ export function ExportCsv ({ info }: { info: DdbTableObj | DdbObjRef<DdbObj<DdbV
                                         return Promise.resolve()
                                     },
                                 }),
-                            ]} 
+                            ]}
                             name='start' label={t('起始行')} 
                         >
                             <InputNumber style={{ width: 120 }} placeholder={t('请输入起始行')}/>
                         </Form.Item>
                         <Form.Item 
+                            name='end'
+                            label={t('结束行')} 
                             rules={[
                                 ({ getFieldValue }) => ({
                                     async validator (_, value) {
@@ -126,8 +128,6 @@ export function ExportCsv ({ info }: { info: DdbTableObj | DdbObjRef<DdbObj<DdbV
                                     },
                                 }),
                             ]} 
-                            name='end' 
-                            label={t('结束行')} 
                         >
                             <InputNumber style={{ width: 120 }} placeholder={t('请输入结束行')}/>
                         </Form.Item>

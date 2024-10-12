@@ -13,7 +13,7 @@ import { t } from '../../../../i18n/index.js'
 import { type Widget, dashboard } from '../../model.js'
 import { type ITextConfig } from '../../type.js'
 import { variables } from '../../Variable/variable.js'
-import { parse_text } from '../../utils.js'
+import { parse_text } from '../../utils.ts'
 import { InsertVariableBtn } from '../../DataSource/InsertVariableBtn.js'
 
 

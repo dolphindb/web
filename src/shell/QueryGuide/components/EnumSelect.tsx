@@ -3,7 +3,7 @@ import useSWR from 'swr'
 
 import { useCallback, useEffect, useState } from 'react'
 
-import { query_enums } from '../utils.js'
+import { query_enums } from '../utils.ts'
 import { t } from '../../../../i18n/index.js'
 
 interface IProps { 

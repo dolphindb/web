@@ -24,7 +24,7 @@ import { Doc } from './components/Doc.js'
 
 import config from './chart.config.json' with { type: 'json' }
 
-import { paste_widget } from './utils.js'
+import { paste_widget } from './utils.ts'
 
 import backend from './backend.dos'
 

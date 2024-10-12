@@ -86,7 +86,7 @@ export function Share ({ dashboard_ids, trigger_type }: IProps) {
 // import { t } from '../../../i18n/index.js'
 // import { model } from '../../model.js'
 // import { DdbLong, DdbDict } from 'dolphindb/browser'
-// import { parse_error } from '../utils.js'
+// import { parse_error } from '../utils.ts'
 
 // interface IProps {
 //     dashboard_ids: number[]
