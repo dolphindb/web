@@ -598,7 +598,7 @@ def updatePlan(id, name, desc, metrics, nodes, params, frequency, days, schedule
     return createPlan(name, desc, metrics, nodes, params, frequency, days, scheduleTime, enabled, alertEnabled, alertRecipient, runNow)
 }
 
-def getPlans(planId=NULL, page=NULL, pageLimit=NULL) {
+def getPlans(planId=NULL, enabled=NULL, page=NULL, pageLimit=NULL) {
     if (page != NULL and pageLimit == NULL or page == NULL and pageLimit != NULL) {
         throw "page and pageLimit must be NULL or not at the same time"
     }
@@ -609,6 +609,10 @@ def getPlans(planId=NULL, page=NULL, pageLimit=NULL) {
     if (!isNull(planId)) {
         whereCond.append!(<id in planId_>)
         whereCond_.append!(<planId in planId_>)
+    }
+    if (!isNull(enabled)) {
+        enabled_ = enabled
+        whereCond.append!(<enabled==enabled_>)
     }
     res = sql(sqlCol("*"), loadTable("dfs://ddb_internal_auto_inspection", "plans"), whereCond).eval()
     reports = sql(sqlCol("*"), loadTable("dfs://ddb_internal_auto_inspection", "reports"), whereCond_, groupBy=sqlCol("planId"), groupFlag=0, csort=sqlCol("endTime"), ascSort=0, limit=1).eval()
