@@ -9,7 +9,7 @@ import { t } from '@i18n/index.ts'
 
 import type { DdbObj } from 'dolphindb/browser.js'
 
-import { useCallback, useState } from 'react'
+import { useState } from 'react'
 
 import useSWRMutation from 'swr/mutation'
 
@@ -54,7 +54,7 @@ export function DataCollection () {
     const { trigger: on_init, isMutating: is_initing } = useSWRMutation(
         'dcp_init',
         async () => {
-            await model.ddb.eval(code)
+            await model.ddb.execute(code)
             await model.ddb.call('dcp_init')
             message.success(t('采集平台初始化成功！'))
             mutate()

@@ -1,5 +1,5 @@
 import './index.scss'
-import { Button, Descriptions, Modal, Popconfirm, Space, Spin, Switch, Table, Typography, message } from 'antd'
+import { Button, Descriptions, Popconfirm, Space, Spin, Switch, Table, Typography, message } from 'antd'
 
 import { useCallback, useMemo, useState } from 'react'
 
@@ -105,7 +105,7 @@ export function ConnectionDetail (props: IProps) {
             await request('dcp_stopSubscribe', { subId: [id] })
         message.success(is_enable  ? t('订阅成功') : t('已停用订阅'))
         mutate()
-    }, [ mutate, selected_subscribes ])
+    }, [mutate, selected_subscribes])
     
     const on_create_subscribe = useCallback(async () => 
         NiceModal.show(CreateSubscribeModal, { 
@@ -163,7 +163,7 @@ export function ConnectionDetail (props: IProps) {
             width: 120,
             render: (status, record) => <Popconfirm 
                 okButtonProps={{ danger: status === 1 }}
-                title={t('确定要{{action}}{{name}}吗？', { action: status !== 1 ? t('启用') : t('停用'), name })} 
+                title={t('确定要{{action}}{{name}}吗？', { action: status !== 1 ? t('启用') : t('停用'), name: record.name })} 
                 onConfirm={async () => on_change_status(record)}
             >
                 <Switch checked={status === 1}/>
