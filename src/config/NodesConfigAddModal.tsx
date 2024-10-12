@@ -1,11 +1,10 @@
 import NiceModal from '@ebay/nice-modal-react'
 import { AutoComplete, Button, Form, Input, Modal, Tooltip } from 'antd'
+import { QuestionCircleOutlined } from '@ant-design/icons'
 
 import { useCallback } from 'react'
 
 import { DdbDatabaseError } from 'dolphindb/browser.js'
-
-import { QuestionCircleOutlined } from '@ant-design/icons'
 
 import { t } from '../../i18n/index.js'
 

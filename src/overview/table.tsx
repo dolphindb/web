@@ -54,15 +54,6 @@ export function OverviewTable ({
     
     const { visible, open, close } = use_modal()
     
-    function on_search (selectedKeys: string[]) {
-        set_search_text(selectedKeys[0] ?? '')
-    }
-    
-    function on_reset (clear_filters: () => void) {
-        clear_filters()
-        set_search_text('')
-    }
-    
     useEffect(() => {
         model.get_cluster_perf(true)
     }, [ ])
@@ -318,7 +309,6 @@ export function OverviewTable ({
                 sorter: (a, b) => Number(a.cumMsgLatency) - Number(b.cumMsgLatency)
             }
         ]
-        
     }
     
     const items: MenuProps['items'] = [

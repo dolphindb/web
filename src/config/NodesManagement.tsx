@@ -19,7 +19,6 @@ import { GroupAddModal, type GroupConfigDatatype, type GroupNodesDatatype } from
 
 
 export function NodesManagement () {
-
     const [search_key, set_search_key] = useState('')
     const [search_value, set_search_value] = useState('')
     
@@ -104,8 +103,6 @@ export function NodesManagement () {
                     model.message.success(t('保存成功，重启集群生效'))
                 }
             mutate()
-            
-            
         } catch (error) {
             // 数据校验不需要展示报错弹窗
             if (error instanceof DdbDatabaseError)
@@ -274,9 +271,7 @@ interface NodeTableProps {
 }
 
 function NodeTable ({ nodes, group, onSave, onDelete }: NodeTableProps) {
-
     function get_cols (is_group = false) {
-    
         const alias_rule: { required?: boolean, message?: string, validator?: (_: any, value: string) => Promise<void> }[] = [{
             required: true,
             message: t('请输入别名')
@@ -329,9 +324,7 @@ function NodeTable ({ nodes, group, onSave, onDelete }: NodeTableProps) {
                             text: t('代理节点'),
                             value: 'agent',
                         }
-                        
                     }
-                    
                 },
                 fieldProps: {
                     placeholder: t('请选择节点类型'),
