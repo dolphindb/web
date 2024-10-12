@@ -1,5 +1,6 @@
 import NiceModal from '@ebay/nice-modal-react'
-import { AutoComplete, Button, Form, Input, Modal } from 'antd'
+import { AutoComplete, Button, Form, Input, Modal, Tooltip } from 'antd'
+import { QuestionCircleOutlined } from '@ant-design/icons'
 
 import { useCallback } from 'react'
 
@@ -13,7 +14,7 @@ import { CONFIG_CLASSIFICATION } from './constants.js'
 import { config } from './model.js'
 
 
-export const NodesConfigAddModal = NiceModal.create(() => {
+export const NodesConfigAddModal = NiceModal.create((props: { compute_group?: string, on_save?: () => void }) => {
     const modal = NiceModal.useModal()
     
     const [add_config_form] = Form.useForm()
@@ -36,12 +37,17 @@ export const NodesConfigAddModal = NiceModal.create(() => {
             wrapperCol={{ span: 20 }}
             form={add_config_form}
         >
-            <Form.Item
-                label={t('限定词')}
+            {!props.compute_group && <Form.Item
+                label={<span>
+                    {t('限定词')}
+                    <Tooltip title={t('指定此配置适用的节点名或节点名前缀（例如：node1 或 node%）')}>
+                        <span style={{ margin: '0 4px' }}><QuestionCircleOutlined /></span>
+                    </Tooltip>
+                </span>}
                 name='qualifier'
             >
                 <Input placeholder='e.g. dn1 or dn% or empty' />
-            </Form.Item>
+            </Form.Item>}
             
             <Form.Item
                 label={t('配置项')}
@@ -84,9 +90,12 @@ export const NodesConfigAddModal = NiceModal.create(() => {
                         async () => {
                             try {
                                 const { qualifier, name, value } = await add_config_form.validateFields()
-                                const key = (qualifier ? qualifier + '.' : '') + name
+                                let key = (qualifier ? qualifier + '.' : '') + name
+                                if (props.compute_group)
+                                    key = `${props.compute_group}%.${key}`
                                 await config.change_configs([[key, { qualifier, name, value, key }]])
                                 model.message.success(t('保存成功，重启数据节点 / 计算节点生效'))
+                                props.on_save?.()
                                 modal.hide()
                             } catch (error) {
                                 // 数据校验不需要展示报错弹窗

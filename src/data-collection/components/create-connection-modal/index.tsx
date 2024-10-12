@@ -64,7 +64,7 @@ export const CreateConnectionModal = NiceModal.create((props: IProps) => {
                 <Input placeholder={t('请输入服务器地址')}/>
             </Form.Item>
             <Form.Item 
-                label={t('端口')} 
+                label={t('端口', { context: 'data_collection' })} 
                 name='port' 
                 rules={[
                     { required: true, message: t('请输入端口') },

@@ -9,10 +9,12 @@ import { t } from '../../i18n/index.js'
 import { ControllerConfig } from './ControllerConfig.js'
 import { NodesManagement } from './NodesManagement.js'
 import { NodesConfig } from './NodesConfig.js'
+import { ComputeGroupConfig } from './ComputeGroupConfig.js'
 
 import SvgControllerConfig from './icons/controller.config.icon.svg'
 import SvgNodesConfig from './icons/nodes.config.icon.svg'
 import SvgNodesManagement from './icons/nodes.management.icon.svg'
+import SvgGroup from './icons/group.icon.svg'
 
 
 export function Config () {
@@ -51,6 +53,16 @@ export function Config () {
                     </div>
                 ),
                 children: <NodesConfig />
+            },
+            {
+                key: 'compute_group_config',
+                label: (
+                    <div className='tab-header'>
+                        <SvgGroup />
+                        {t('计算组配置')}
+                    </div>
+                ),
+                children: <ComputeGroupConfig />
             }
         ]}
     />

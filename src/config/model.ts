@@ -41,12 +41,11 @@ class ConfigModel extends Model<ConfigModel> {
     
     /** load_configs 依赖 controller alias 等信息 */
     async load_configs () {
-        this.set({ 
-            nodes_configs: parse_nodes_configs(
-                await this.invoke<string[]>('loadClusterNodesConfigs', undefined, { urgent: true })
-            )
-        })
+        const configs = parse_nodes_configs(
+            await this.invoke<string[]>('loadClusterNodesConfigs', undefined, { urgent: true })
+        )
         
+        this.set({ nodes_configs: configs })
         
         console.log(
             t('配置文件:'),
@@ -57,6 +56,8 @@ class ConfigModel extends Model<ConfigModel> {
                 )
             )
         )
+        
+        return configs        
     }
     
     

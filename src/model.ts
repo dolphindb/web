@@ -725,6 +725,8 @@ export class DdbModel extends Model<DdbModel> {
         }
         
         this.set({ nodes, node, controller, datanode })
+        
+        return nodes
     }
     
     
@@ -1076,6 +1078,8 @@ export interface DdbNode {
     port: number
     site: string
     agentSite: string
+    computeGroup: string
+    
     maxConnections: number
     maxMemSize: number
     workerNum: number

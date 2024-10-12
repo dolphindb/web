@@ -17,20 +17,24 @@ export const strs_2_controller_configs = (strs: string[]): ControllerConfig[] =>
     })
 
 
+/** 节点配置项转字符串 
+    @param {ControllerConfig[] | ClusterNode[]} items - 节点配置
+    @return {string[]} 转换的字符串，拼接形成的一行字符串，是以逗号分隔的节点的全部信息 */
 export const _2_strs = (items: ControllerConfig[] | ClusterNode[]): string[] =>
     items.map(i => i.id)
 
 
 export const strs_2_nodes = (strs: string[]): ClusterNode[] =>
     strs.map(str => {
-        const [rest, mode] = str.split(',')
+        const [rest, mode, group] = str.split(',')
         const [host, port, alias] = rest.split(':')
         return {
             id: str,
             host,
             port,
             alias,
-            mode: mode as NodeType
+            mode: mode as NodeType,
+            computeGroup: group
         }
     })
 
@@ -47,9 +51,9 @@ export function parse_nodes_configs (strs: string[]) {
         const value = str.slice(iequal + 1)
         
         nodes_configs.set(
-            name,
+            left,
             {
-                key: name,
+                key: left,
                 category: get_category(name),
                 qualifier,
                 name,
