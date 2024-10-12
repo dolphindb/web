@@ -96,6 +96,7 @@ export const NodesConfigAddModal = NiceModal.create((props: { compute_group?: st
                                     key = `${props.compute_group}%.${key}`
                                 await config.change_configs([[key, { qualifier, name, value, key }]])
                                 model.message.success(t('保存成功，重启数据节点 / 计算节点生效'))
+                                props.on_save?.()
                                 modal.hide()
                             } catch (error) {
                                 // 数据校验不需要展示报错弹窗
