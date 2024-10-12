@@ -25,7 +25,7 @@ export function NodesManagement () {
     
     const { mutate, data } = useSWR('/get/nodes', async () => {
             const data = await config.get_cluster_nodes()
-            const nodes = strs_2_nodes(data.value as any[])
+            const nodes = strs_2_nodes(data)
             return nodes
         },
         { 
