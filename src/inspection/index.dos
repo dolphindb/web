@@ -598,7 +598,10 @@ def updatePlan(id, name, desc, metrics, nodes, params, frequency, days, schedule
     return createPlan(name, desc, metrics, nodes, params, frequency, days, scheduleTime, enabled, alertEnabled, alertRecipient, runNow)
 }
 
-def getPlans(planId=NULL) {
+def getPlans(planId=NULL, page=NULL, pageLimit=NULL) {
+    if (page != NULL and pageLimit == NULL or page == NULL and pageLimit != NULL) {
+        throw "page and pageLimit must be NULL or not at the same time"
+    }
     planId_ = iif(planId.form()==0, [planId], planId)
     whereCond = [<1==1>]
     whereCond_ = [<!isNull(endTime)>]
@@ -610,6 +613,11 @@ def getPlans(planId=NULL) {
     res = sql(sqlCol("*"), loadTable("dfs://ddb_internal_auto_inspection", "plans"), whereCond).eval()
     reports = sql(sqlCol("*"), loadTable("dfs://ddb_internal_auto_inspection", "reports"), whereCond_, groupBy=sqlCol("planId"), groupFlag=0, csort=sqlCol("endTime"), ascSort=0, limit=1).eval()
     res = select res.*, reports.id as lastReportId from res left semijoin reports on res.id == reports.planId
+    if (page != NULL) {
+        startIndex = (page - 1) * pageLimit
+        endIndex = page * pageLimit
+        res = sql(sqlCol("*"), res, limit=pair(startIndex, endIndex)).eval()
+    }
 
     return res
 }
