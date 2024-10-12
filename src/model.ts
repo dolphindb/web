@@ -1,5 +1,3 @@
-import dayjs from 'dayjs'
-
 import { Model } from 'react-object-model'
 
 import type { BaseType } from 'antd/es/typography/Base/index.d.ts'
@@ -123,6 +121,9 @@ export class DdbModel extends Model<DdbModel> {
     
     version: string
     
+    /** version() 函数的完整返回值 */
+    version_full: string
+    
     v1: boolean
     
     v2: boolean
@@ -178,12 +179,27 @@ export class DdbModel extends Model<DdbModel> {
             return
         }
         
-        const port = params.get('port') || location.port
+        let hostname = params.get('hostname') || location.hostname
+        let port = params.get('port') || location.port
+        
+        const host = params.get('host')
+        
+        if (host) {
+            // 优先用 host 参数中的主机和端口
+            [hostname, port] = host.split(':')
+            params.delete('host')
+            params.set('hostname', hostname)
+            params.set('port', port)
+            // 转换 url
+            let url = new URL(location.href)
+            url.search = params.toString()
+            history.replaceState(null, '', url)
+        }
         
         this.ddb = new DDB(
             (this.dev ? (params.get('tls') === '1' ? 'wss' : 'ws') : (location.protocol === 'https:' ? 'wss' : 'ws')) +
                 '://' +
-                (params.get('hostname') || location.hostname) +
+                hostname +
                 
                 // 一般 location.port 可能是空字符串
                 (port ? `:${port}` : '') +
@@ -246,23 +262,25 @@ export class DdbModel extends Model<DdbModel> {
             
             if (!['authorization code', 'implicit'].includes(this.oauth_type))
                 throw new Error(t('oauthType 配置参数的值必须为 authorization code 或 implicit，默认为 authorization code'))
+            
+            // 不论是否 autologin, 都需要处理 oauth 跳转回来时 url 带有 state 的情况，
+            // 因此需要调用这个方法检查并可能再次跳转
+            await this.login_by_oauth()
         }
         
-        if (this.autologin)
+        
+        if (this.autologin && !this.logined)
             try {
                 await this.login_by_ticket()
             } catch {
                 console.log(t('ticket 登录失败'))
                 
-                if (this.oauth)
-                    await this.login_by_oauth()
-                else
-                    if (this.dev || this.test)
-                        try {
-                            await this.login_by_password('admin', '123456')
-                        } catch {
-                            console.log(t('使用默认 admin 账号密码登录失败'))
-                        }
+                if ((this.dev || this.test) && !this.oauth)
+                    try {
+                        await this.login_by_password('admin', '123456')
+                    } catch {
+                        console.log(t('使用默认 admin 账号密码登录失败'))
+                    }
             }
         
         
@@ -405,20 +423,27 @@ export class DdbModel extends Model<DdbModel> {
         // 有 ticket 说明 oauthLogin 登录成功
         let ticket: string
         
-        /** redirect_uri 只能跳转到其中某个节点，需要带参数跳回到原发起登录的节点 */
-        const jump = async (state: string) => {
+        /** redirect_uri 只能跳转到其中某个节点，需要带参数跳回到原发起登录的节点 
+            发起跳转后会抛出错误中断后续流程 */
+        const maybe_jump = async (params: URLSearchParams) => {
+            const state = params.get('state')
             if (state && state !== this.node_alias) {
                 const node = this.nodes.find(({ name }) => name === state)
                 if (!node)
                     throw new Error(t('无法从当前节点 {{current}} 跳转回发起登录的节点 {{origin}}，找不到节点信息', { current: this.node_alias, origin: state }))
                 
-                await goto_url(this.get_node_url(node))
+                console.log(t('根据 state 参数跳转到节点:'), state)
+                
+                await goto_url(this.get_node_url(node, { queries: { state: null } }))
             }
         }
         
         // https://datatracker.ietf.org/doc/html/rfc6749#section-4.2.2
         if (this.oauth_type === 'authorization code') {
             let { searchParams: params } = url
+            
+            await maybe_jump(params)
+            
             const code = params.get('code')
             
             if (code) {
@@ -426,18 +451,17 @@ export class DdbModel extends Model<DdbModel> {
                     t('尝试 oauth 单点登录，类型是 authorization code, code 为 {{code}}',
                     { code }))
                 
-                await jump(
-                    params.get('state')
-                )
-                
                 ticket = await this.ddb.invoke<string>('oauthLogin', [this.oauth_type, { code }])
                 
+                params.delete('state')
                 params.delete('code')
                 history.replaceState(null, '', url.toString())
             } else
                 console.log(t('尝试 oauth 单点登录，类型是 authorization code, 无 code'))
         } else {
             const params = new URLSearchParams(url.hash.slice(1))
+            
+            await maybe_jump(params)
             
             const access_token = params.get('access_token') || params.get('accessToken')
             const token_type = params.get('token_type') || params.get('tokenType')
@@ -447,10 +471,6 @@ export class DdbModel extends Model<DdbModel> {
                 console.log(t(
                     '尝试 oauth 单点登录，类型是 implicit, token_type 为 {{token_type}}, access_token 为 {{access_token}}, expires_in 为 {{expires_in}}',
                     { token_type, access_token, expires_in }))
-                
-                await jump(
-                    params.get('state')
-                )
                 
                 ticket = await this.ddb.invoke<string>('oauthLogin', [this.oauth_type, {
                     token_type,
@@ -586,17 +606,18 @@ export class DdbModel extends Model<DdbModel> {
     
     
     async get_version () {
-        const version = (await this.ddb.invoke<string>('version'))
-            .split(' ')[0]
+        const version_full = await this.ddb.invoke<string>('version')
+        const version = version_full.split(' ')[0]
         
         this.set({
             version,
+            version_full,
             v1: version.startsWith('1.'),
             v2: version.startsWith('2.'),
             v3: version.startsWith('3.')
         })
         
-        console.log(t('版本:'), version)
+        console.log(t('server 版本:'), version_full)
         
         return version
     }
