@@ -169,6 +169,8 @@ export function ShellEditor ({ collapser }) {
             enter_completion={enter_completion}
             
             on_mount={(editor, monaco) => {
+                // 挂载时进入默认标签页
+                shell.set({ current_tab_index: -1 })
                 editor.setValue(localStorage.getItem(storage_keys.code) || '')
                 
                 
