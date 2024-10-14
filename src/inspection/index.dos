@@ -464,6 +464,20 @@ def createPlan(name, desc, metrics, nodes, params, frequency, days, scheduleTime
     if (metrics.size() != params.size()) {
         throw "metrics' size must be same as params' size"
     }
+    if (scheduleTime.form() == 0) {
+        if (isNull(scheduleTime)) {
+            throw "scheduleTime must not be NULL"
+        }
+    } else {
+        if (scheduleTime.size() == 0) {
+            throw "scheduleTime must not be empty"
+        }
+        for (t in scheduleTime) {
+            if (isNull(t)) {
+                throw "scheduleTime must not be NULL"
+            }
+        }
+    }
     params_ = []$STRING // 若为 NULL 数组，不支持作为表的列
     for (i in (0.. (params.size() - 1))) {
         if (params[i].type() == STRING) {
@@ -512,6 +526,8 @@ def createPlan(name, desc, metrics, nodes, params, frequency, days, scheduleTime
     startDate = today()
     endDate = temporalAdd(today(), 100y)
     scheduleTime_ = minute(iif(scheduleTime.form()==0, [scheduleTime], scheduleTime))
+    enabled_ = iif(isNull(enabled), false, bool(enabled))
+    alertEnabled_ = iif(isNull(alertEnabled), false, bool(alertEnabled))
     alertRecipient_ = iif(alertRecipient.form()==0, string(alertRecipient), string(alertRecipient).strip().concat(","))
     plan = table(
         id as id,
@@ -523,8 +539,8 @@ def createPlan(name, desc, metrics, nodes, params, frequency, days, scheduleTime
         frequency as frequency,
         days_ as days,
         array(MINUTE[], 0).append!([scheduleTime_]) as scheduleTime,
-        bool(enabled) as enabled,
-        bool(alertEnabled) as alertEnabled,
+        enabled_ as enabled,
+        alertEnabled_ as alertEnabled,
         alertRecipient_ as alertRecipient
     )
     nodes_ = []$STRING
