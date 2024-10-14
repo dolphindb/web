@@ -717,12 +717,10 @@ def dcp_startSubscribe(args){
                 subscribeStr += '},"'+action+'");'      
             } 
         }   
-        t1 = now()
         rpc(node,runScript,subscribeStr)
-        t2 = now()    
         if(tmp.protocol == "mqtt"){
             //获取mqtt订阅ID
-            subscriptionId=exec last(subscriptionId) from rpc(node,funcByName("mqtt::getSubscriberStat")) where createTimestamp >=t1 and createTimestamp <= t2 order by createTimestamp 
+            subscriptionId=exec last(subscriptionId) from rpc(node,funcByName("mqtt::getSubscriberStat"))  order by createTimestamp desc
         }else if(tmp.protocol == "kafka"){
             subscriptionId=exec last(subscriptionId) from rpc(node,funcByName("kafka::getJobStat"))  where actionName = action
         }   
