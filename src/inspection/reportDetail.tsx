@@ -1,5 +1,5 @@
 import { t } from '@i18n/index.ts'
-import { Affix, Button, Collapse, Descriptions, Table, Typography } from 'antd'
+import { Affix, Button, Collapse, Descriptions, Spin, Table, Typography } from 'antd'
 import useSWR from 'swr'
 
 import html2canvas from 'html2canvas'
@@ -28,7 +28,7 @@ export function ReportDetailPage () {
     
     const topRef = useRef<HTMLDivElement>(null)
     
-    const { data: plan_report_detail } = useSWR([current_report, 'get_report_detail_metrics'],  async () => {
+    const { data: plan_report_detail, isLoading } = useSWR([current_report, 'get_report_detail_metrics'],  async () => {
         const metrics =  await inspection.get_report_detail_metrics(current_report.id)
         const nodes = await inspection.get_report_detail_nodes(current_report.id)
         let metrics_map = new Map<string, PlanReportDetailMetric>()
@@ -186,7 +186,7 @@ export function ReportDetailPage () {
       }, [plan_report_detail])
       
     
-    return <div className='report-detail' ref={topRef}>
+    return isLoading ? <div className='spin-container'><Spin size='large' spinning={isLoading}/></div> : <div className='report-detail' ref={topRef}>
         <div className='report-detail-header'>
             <Button onClick={() => { inspection.set({ current_report: null }) }}>{t('返回')}</Button>
             <Button type='primary' onClick={export_report}>{t('下载巡检报告')}</Button>
