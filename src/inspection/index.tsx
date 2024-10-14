@@ -3,7 +3,7 @@ import './index.sass'
 
 import { t } from '@i18n/index.ts'
 import { Button, Input, Popconfirm, Table, DatePicker, type TableColumnsType, Spin } from 'antd'
-import { useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useState } from 'react'
 
 import useSWR from 'swr'
 
@@ -28,36 +28,15 @@ export function Inspection () {
     
     const [search_key, set_search_key ] = useState('')
     
-    const { data: plans, mutate: mutate_plans } = useSWR([inited, 'get_plans'], async () => {
-        if (inited) 
-            return inspection.get_plans()
-         else 
+    const [refresh, set_refresh] = useState({ })
+    
+    useEffect(() => {
+        if (!inited) 
             inspection.init()
-    })
+        
+    }, [inited])
     
-    const [dates, set_dates] = useState<[Dayjs | null, Dayjs | null] | null>([ null, null ])
-    
-    const { data: reports, mutate: mutate_reports } = useSWR([inited, 'get_reports', dates], async () =>  {
-        if (inited) 
-            return inspection.get_reports(dates.map(d => d && d.format('YYYY.MM.DD HH:mm:ss')))
-        else 
-            inspection.init()
-    })
-    
-    function refresh () {
-        mutate_plans()
-        mutate_reports()
-    }
-    
-    const [enabled_plans, disabled_palns] = useMemo(() => {
-        let enabled_plans = [ ]
-        let disabled_palns = [ ]
-        plans?.filter(plan => plan.id.includes(search_key)).forEach(plan => {
-            plan.enabled ? enabled_plans.push(plan) : disabled_palns.push(plan)
-            
-        })
-        return [enabled_plans, disabled_palns]
-    }, [ plans, search_key ])
+    const refresher = useCallback(() => { set_refresh({ }) }, [ ])
     
     if (!inited) 
         return <div className='spin-container'>
@@ -65,18 +44,20 @@ export function Inspection () {
         </div>
     
     
-    return current_report ? <ReportDetailPage/> : current_plan ? <EditInspectionModal plan={current_plan} mutate_plans={refresh} disabled/> : <div>
+    return current_report ? <ReportDetailPage/> : current_plan ? <EditInspectionModal plan={current_plan} mutate_plans={refresher} disabled/> : <div>
         <div className='inspection-header'>
             <div className='inspection-header-left'>
-                <Button onClick={() => {
-                    refresh()
-                    model.message.success(t('刷新成功'))
-                }}>{t('刷新')}</Button>
                 <Input.Search placeholder={t('搜索')} onSearch={set_search_key} className='inspection-search'/>
             </div>
             
             
             <div className='inspection-header-right'>
+                    <Button 
+                        onClick={() => {
+                            set_refresh({ })
+                            model.message.success(t('刷新成功'))
+                        }}>{t('刷新')}
+                    </Button>
                 <Button 
                     onClick={ () => { NiceModal.show(emailConfigModal) } }>
                         {t('邮件告警设置')}
@@ -92,21 +73,53 @@ export function Inspection () {
             </div>
             
         </div>
-        <ReportListTable reports={reports?.filter(report => report.id.includes(search_key))} dates={dates} set_dates={set_dates}/>
-        <PlanListTable type='enabled' plans={enabled_plans?.filter(({ enabled }) => enabled)} mutate_plans={refresh}/>
-        <PlanListTable type='disabled' plans={disabled_palns?.filter(({ enabled }) => !enabled)} mutate_plans={refresh}/>
+       
+        {
+            inited &&  
+            <>
+                <PlanListTable enabled search_key={search_key}  refresh={refresh} />
+                <PlanListTable enabled={false} search_key={search_key} refresh={refresh} />
+                <ReportListTable 
+                    search_key={search_key} 
+                    refresh={refresh}
+                    />
+               
+            </>
+        }
+        
     </div>
 }
 
 function ReportListTable  ({
-    reports,
-    dates,
-    set_dates
+    search_key,
+    refresh
 }: {
-    reports: PlanReport[]
-    dates: [Dayjs | null, Dayjs | null]
-    set_dates: (dates: [Dayjs | null, Dayjs | null]) => void
-}) {
+    search_key: string
+    refresh: object
+}) {    
+    const { inited } = inspection.use(['inited'])
+    
+    const [ids, set_ids] = useState([ ])
+    
+    const [current_page, set_current_page] = useState(1)
+    const [current_page_size, set_current_page_size] = useState(5)
+    
+    const [dates, set_dates] = useState<[Dayjs | null, Dayjs | null] | null>([ null, null ])
+    
+    useEffect(() => {
+        // 刷新重新定位到第一页
+        set_current_page(1)
+    }, [refresh])
+    
+    const { data: reports_obj, mutate: mutate_reports } = 
+        useSWR([inited, refresh, 'get_reports', dates, current_page, current_page_size, search_key], async () =>  {
+            if (inited) {
+                const [startTime, endTime] = dates.map(d => d && d.format('YYYY.MM.DD HH:mm:ss'))
+                return inspection.get_reports(null, null, startTime, endTime, current_page, current_page_size, search_key)
+            }
+            else 
+                inspection.init()
+    })
     
     const cols: TableColumnsType<PlanReport> = useMemo(() => [ 
         {
@@ -156,13 +169,28 @@ function ReportListTable  ({
             title: '操作',
             dataIndex: 'action',
             key: 'action',
-            render: (_, record) => <Button
+            render: (_, record) => <>
+                    <Button
                         type='link'
                         disabled={isNull(record.success)}
                         onClick={() => { inspection.set({ current_report: record }) }}
                     >
                         {t('查看详细报告')}
                     </Button>
+                    
+                    <Button
+                        type='link'
+                        disabled={isNull(record.success)}
+                        danger
+                        onClick={async () => { 
+                            await inspection.delete_reprorts([record.id])
+                            model.message.success(t('删除成功'))
+                            mutate_reports()
+                         }}
+                    >
+                        {t('删除')}
+                    </Button>
+            </>
                
                 
         },
@@ -170,25 +198,72 @@ function ReportListTable  ({
     
     return <Table 
             title={() => <div className='report-table-header'>
-                <h2>{t('巡检结果')}</h2>
-                <DatePicker.RangePicker value={dates} onChange={set_dates} showTime placeholder={[t('开始时间'), t('结束时间')]}/>
-            </div>} 
-            dataSource={reports} 
-            columns={cols} 
+                <div className='report-table-header-left'>
+                    <h2>{t('巡检结果')}</h2>
+                    <DatePicker.RangePicker 
+                        value={dates} 
+                        onChange={set_dates} 
+                        showTime 
+                        placeholder={[t('开始时间'), t('结束时间')]}/>
+                </div>
+                <Popconfirm   
+                    title={t('批量删除巡检方案')} 
+                    description={t('确认删除选中的巡检方案吗？')} 
+                    onConfirm={async () => {
+                        await inspection.delete_reprorts(ids)
+                        model.message.success(t('批量删除成功'))
+                        set_current_page(1)
+                        mutate_reports()
+                    }} >
+                        <Button danger disabled={ids.length === 0}>{t('批量删除')}</Button>
+                </Popconfirm>
+            </div>}
+            rowSelection={{ type: 'checkbox', selectedRowKeys: ids, onChange: set_ids }}
+            dataSource={reports_obj?.records} 
+            columns={cols}
+            rowKey='id' 
+            pagination={{
+                current: current_page,
+                pageSize: current_page_size,
+                pageSizeOptions: [5, 10, 20, 50, 100],
+                total: Number(reports_obj?.total),
+                showSizeChanger: true,
+                onChange: (current_page, current_page_size) => {
+                    set_current_page(current_page)
+                    set_current_page_size(current_page_size)
+                }
+            }} 
         />
 }
 
 function PlanListTable  ({
-    type,
-    plans,
-    mutate_plans
+    search_key,
+    enabled,
+    refresh
 }: {
-    type: 'enabled' | 'disabled'
-    plans: Plan[]
-    mutate_plans: () => void
+    search_key: string
+    enabled: boolean
+    refresh: object
 })  {
+    const { inited } = inspection.use(['inited'])
     
     const [ids, set_ids] = useState([ ])
+    
+    useEffect(() => {
+        // 刷新重新定位到第一页
+        set_current_page(1)
+    }, [refresh])
+    
+    const [current_page, set_current_page] = useState(1)
+    const [current_page_size, set_current_page_size] = useState(5)
+    
+    const { data: plans_obj, mutate: mutate_plans } = 
+        useSWR([inited, 'get_plans',  enabled, search_key, refresh, current_page, current_page_size], async () => {
+            if (inited) 
+                return inspection.get_plans(enabled, current_page, current_page_size, search_key)
+            else 
+                inspection.init()
+    })
     
     const cols: TableColumnsType<Plan> = useMemo(() => [ 
         {
@@ -248,7 +323,7 @@ function PlanListTable  ({
                         onClick={async () => {
                             await inspection.run_plan(record.id)
                             model.message.success(t('执行成功'))
-                            mutate_plans()
+                            // todo
                         }}
                     >
                         {t('立即巡检')}
@@ -259,18 +334,26 @@ function PlanListTable  ({
                     >
                         {t('查看详情')}
                     </Button>
+                    
+                    <Button 
+                        type='link'
+                        disabled={isNull(record.lastReportld)}
+                        onClick={() => { inspection.set({ current_report: { id: record.lastReportld } as PlanReport }) }}
+                    >
+                        {t('查看最近一次巡检结果')}
+                    </Button>
                     <Button 
                         type='link'
                         onClick={async () => {
-                            if (type === 'enabled') 
+                            if (enabled) 
                                 await inspection.disable_plan(record.id) 
                             else
                                 await inspection.enable_plan(record.id)
                             model.message.success(t('执行成功'))
-                            mutate_plans()
+                            // 这里需要全局刷新
                         }}
                     >
-                        {type === 'enabled' ?  t('暂停') : t('启用')}
+                        {enabled ?  t('暂停') : t('启用')}
                     </Button>
                     <Popconfirm 
                         title={t('删除方案')} 
@@ -289,21 +372,33 @@ function PlanListTable  ({
     return <Table
                 title={() => 
                     <div className='plan-table-header'>
-                        <h2>{type === 'enabled' ? t('进行中的巡检队列') : t('未进行的巡检队列')}</h2>
+                        <h2>{enabled ? t('进行中的巡检队列') : t('未进行的巡检队列')}</h2>
                         <Popconfirm   
                             title={t('批量删除巡检方案')} 
                             description={t('确认删除选种的巡检方案吗？')} 
                             onConfirm={async () => {
                                 await inspection.delete_plans(ids)
                                 model.message.success(t('批量删除成功'))
+                                set_current_page(1)
                                 mutate_plans()
                             }} >
                                 <Button danger disabled={ids.length === 0}>{t('批量删除')}</Button>
                         </Popconfirm>
                     </div>}
                 rowSelection={{ type: 'checkbox', selectedRowKeys: ids, onChange: set_ids }}
+                pagination={{
+                    current: current_page,
+                    pageSize: current_page_size,
+                    pageSizeOptions: [5, 10, 20, 50, 100],
+                    total: plans_obj?.total || 0,
+                    showSizeChanger: true,
+                    onChange: (current_page, current_page_size) => {
+                        set_current_page(current_page)
+                        set_current_page_size(current_page_size)
+                    }
+                }} 
                 rowKey='id' 
-                dataSource={plans} 
+                dataSource={plans_obj?.records} 
                 columns={cols} />        
 }
 

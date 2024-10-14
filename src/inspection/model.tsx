@@ -1,5 +1,9 @@
 import { Model } from 'react-object-model'
 
+import { DdbInt } from 'dolphindb/browser'
+
+import type { DdbVectorAny } from 'dolphindb'
+
 import {  model } from '@/model.ts'
 
 import { config } from '@/config/model.ts'
@@ -45,8 +49,9 @@ class InspectionModel extends Model<InspectionModel> {
         return (model.ddb.execute('existsDatabase("dfs://ddb_internal_auto_inspection")'))
     }
     
-    async get_plans (): Promise<Plan[]> {
-        return (await model.ddb.invoke('getPlans', [ ])).data
+    async get_plans (enabled: boolean, page: number, limit: number, searchKey: string, planId: string = null): Promise<{ records: Plan[], total: number }> {
+        const [plans_obj, total] = await model.ddb.execute(`getPlans(${planId},${enabled},${page},${limit},"${searchKey}")`)
+        return { records: plans_obj.data, total }
     }
     
     async delete_plans (ids: string[]) {
@@ -58,7 +63,6 @@ class InspectionModel extends Model<InspectionModel> {
     }
     
     async update_plan (plan: Omit<Plan, 'enabled' | 'name'>) {
-        console.log('plan', plan)
         await model.ddb.invoke('updatePlan', Object.values(plan))
     }
     
@@ -78,9 +82,15 @@ class InspectionModel extends Model<InspectionModel> {
         return (await model.ddb.invoke('getPlanDetails', [planId])).data
     }
     
-    async get_reports (dates: string[], reportId: string = null): Promise<PlanReport[]> {
-        return (await model.ddb.invoke('getReports', [null, reportId, ...dates ]) ).data
+    async get_reports (planId: string = null, reportId: string = null, startTime: string = null, endTime: string = null,  page: number, limit: number, searchKey: string): Promise<{ records: PlanReport[], total: number }> {
+        const [reports, total] = await model.ddb.execute(`getReports(${planId},${reportId},${startTime},${endTime},${page},${limit},"${searchKey}")`)
+        return { records: reports.data, total }
     }
+    
+    async delete_reprorts (ids: string[]) {
+        await model.ddb.invoke('deleteReports', [ ids ])
+    }
+    
     
     async get_report_detail_metrics (reportId: string): Promise<PlanReportDetailMetric[]> {
         return (await model.ddb.invoke('getReportDetailsOfMetrics', [reportId])).data

@@ -43,6 +43,7 @@ export interface Plan {
     enabled: boolean
     alertEnabled?: boolean
     alertRecipient?: string[] | string
+    lastReportld: string
 }
 
 export interface PlanReport {
@@ -55,7 +56,7 @@ export interface PlanReport {
     runningTime: bigint
     success: boolean
     failedNum: number
-    totalNum: number
+    totalNum: number 
 }
 
 
