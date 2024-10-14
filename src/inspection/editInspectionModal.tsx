@@ -3,12 +3,12 @@ import type { Plan } from './type.ts'
 
 export function EditInspectionModal ({ 
     plan, 
-    mutate_plans,
+    refresher,
     disabled = false 
 }: 
 { 
     plan: Plan 
-    mutate_plans: ( ) => void 
+    refresher: ( ) => void 
     disabled?: boolean
 }) {
             
@@ -16,7 +16,7 @@ export function EditInspectionModal ({
         className='edit-inspection-modal'       
     >
         <InspectionForm
-            refresh={mutate_plans}
+            refresh={refresher}
             plan={plan}
             disabled={disabled}
         />

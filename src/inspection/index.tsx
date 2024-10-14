@@ -44,7 +44,7 @@ export function Inspection () {
         </div>
     
     
-    return current_report ? <ReportDetailPage/> : current_plan ? <EditInspectionModal plan={current_plan} mutate_plans={refresher} disabled/> : <div>
+    return current_report ? <ReportDetailPage/> : current_plan ? <EditInspectionModal plan={current_plan} refresher={refresher} disabled/> : <div>
         <div className='inspection-header'>
             <div className='inspection-header-left'>
                 <Input.Search placeholder={t('搜索')} onSearch={set_search_key} className='inspection-search'/>
@@ -77,8 +77,8 @@ export function Inspection () {
         {
             inited &&  
             <>
-                <PlanListTable enabled search_key={search_key}  refresh={refresh} />
-                <PlanListTable enabled={false} search_key={search_key} refresh={refresh} />
+                <PlanListTable enabled search_key={search_key}  refresh={refresh} refresher={refresher}/>
+                <PlanListTable enabled={false} search_key={search_key} refresh={refresh} refresher={refresher}/>
                 <ReportListTable 
                     search_key={search_key} 
                     refresh={refresh}
@@ -239,11 +239,13 @@ function ReportListTable  ({
 function PlanListTable  ({
     search_key,
     enabled,
-    refresh
+    refresh,
+    refresher
 }: {
     search_key: string
     enabled: boolean
     refresh: object
+    refresher: () => void
 })  {
     const { inited } = inspection.use(['inited'])
     
@@ -323,7 +325,7 @@ function PlanListTable  ({
                         onClick={async () => {
                             await inspection.run_plan(record.id)
                             model.message.success(t('执行成功'))
-                            // todo
+                            refresher()
                         }}
                     >
                         {t('立即巡检')}
@@ -351,6 +353,7 @@ function PlanListTable  ({
                                 await inspection.enable_plan(record.id)
                             model.message.success(t('执行成功'))
                             // 这里需要全局刷新
+                            refresher()
                         }}
                     >
                         {enabled ?  t('暂停') : t('启用')}
