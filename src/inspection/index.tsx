@@ -120,7 +120,8 @@ function ReportListTable  ({
             }
             else 
                 inspection.init()
-    })
+    }, { keepPreviousData: true })
+    
     
     const cols: TableColumnsType<PlanReport> = useMemo(() => [ 
         {
@@ -266,7 +267,7 @@ function PlanListTable  ({
                 return inspection.get_plans(enabled, current_page, current_page_size, search_key)
             else 
                 inspection.init()
-    })
+    }, { keepPreviousData: true })
     
     const cols: TableColumnsType<Plan> = useMemo(() => [ 
         {
