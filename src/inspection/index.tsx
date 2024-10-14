@@ -48,7 +48,6 @@ export function Inspection () {
     
     return current_report ? <ReportDetailPage/> : current_plan ? <EditInspectionModal plan={current_plan} refresher={refresher}  disabled/> : <div>
         <div className='inspection-header'>
-                
                 <Button 
                     type='primary'
                     icon={<PlusOutlined />}
