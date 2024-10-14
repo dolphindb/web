@@ -688,9 +688,9 @@ def getReports(planId=NULL, reportId=NULL, startTime=NULL, endTime=NULL, page=NU
     if (page != NULL) {
         startIndex = (page - 1) * pageLimit
         endIndex = page * pageLimit
-        sql_ = sql(sqlCol("*"), loadTable("dfs://ddb_internal_auto_inspection", "reports"), whereCond, orderBy=sqlCol("startTime"), ascOrder=0, limit=pair(startIndex, endIndex))
+        sql_ = sql(sqlCol("*"), loadTable("dfs://ddb_internal_auto_inspection", "reports"), whereCond, orderBy=sqlCol("receivedTime"), ascOrder=0, limit=pair(startIndex, endIndex))
     } else {
-        sql_ = sql(sqlCol("*"), loadTable("dfs://ddb_internal_auto_inspection", "reports"), whereCond, orderBy=sqlCol("startTime"), ascOrder=0)
+        sql_ = sql(sqlCol("*"), loadTable("dfs://ddb_internal_auto_inspection", "reports"), whereCond, orderBy=sqlCol("receivedTime"), ascOrder=0)
     }
     res = sql_.eval()
     addColumn(res, "runningTime", LONG)
