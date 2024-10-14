@@ -28,10 +28,10 @@ export const emailConfigModal = NiceModal.create(() => {
                 modal.remove()
             }}
             initialValues={{ 
-                inspectionAlertEnabled: config.get_config('inspectionAlertEnabled'),
+                inspectionAlertEnabled: config.get_config('inspectionAlertEnabled') === 'true',
                 inspectionAlertUserId: config.get_config('inspectionAlertUserId'),
                 inspectionAlertPwd: config.get_config('inspectionAlertPwd'),
-                inspectionAlertStdSMTPMsgEnabled: config.get_config('inspectionAlertStdSMTPMsgEnabled'),
+                inspectionAlertStdSMTPMsgEnabled: config.get_config('inspectionAlertStdSMTPMsgEnabled') === 'true',
                 inspectionAlertSMTPEmailName: config.get_config('inspectionAlertSMTPEmailName'),
                 inspectionAlertSMTPHost: config.get_config('inspectionAlertSMTPHost'),
                 inspectionAlertSMTPPort: config.get_config('inspectionAlertSMTPPort')

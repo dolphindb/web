@@ -7,7 +7,7 @@ import { useCallback, useEffect, useMemo, useState } from 'react'
 
 import useSWR from 'swr'
 
-import { CheckOutlined, CloseOutlined } from '@ant-design/icons'
+import { CheckOutlined, CloseOutlined, MailOutlined, PlusOutlined, ReloadOutlined } from '@ant-design/icons'
 
 import { type Dayjs } from 'dayjs'
 
@@ -48,38 +48,39 @@ export function Inspection () {
     
     return current_report ? <ReportDetailPage/> : current_plan ? <EditInspectionModal plan={current_plan} refresher={refresher}  disabled/> : <div>
         <div className='inspection-header'>
-            <div className='inspection-header-left'>
-                <Input.Search 
-                    placeholder={t('搜索')} 
-                    value={search_input_value}
-                    onChange={e => { set_search_input_value(e.target.value) }}
-                    onSearch={set_search_key} 
-                    className='inspection-search'/>
-            </div>
-            
-            
-            <div className='inspection-header-right'>
-                    <Button 
-                        onClick={() => {
-                            set_search_input_value('')
-                            set_search_key('')
-                            refresher()
-                            model.message.success(t('刷新成功'))
-                        }}>{t('刷新')}
-                    </Button>
-                <Button 
-                    onClick={ () => { NiceModal.show(emailConfigModal) } }>
-                        {t('邮件告警设置')}
-                </Button>
                 
                 <Button 
+                    type='primary'
+                    icon={<PlusOutlined />}
                     onClick={ () => { inspection.set({ current_plan:  {   
                         frequency: 'W', 
                         days: '1', 
                     } as Plan }) } }>
                         {t('新增巡检')}
                 </Button>
-            </div>
+                
+                <Button
+                    icon={<MailOutlined />}
+                    onClick={ () => { NiceModal.show(emailConfigModal) } }>
+                        {t('邮件告警设置')}
+                </Button>
+                
+                <Button 
+                    icon={<ReloadOutlined />}
+                    onClick={() => {
+                        set_search_input_value('')
+                        set_search_key('')
+                        refresher()
+                        model.message.success(t('刷新成功'))
+                    }}>{t('刷新')}
+                </Button>
+               
+                <Input.Search 
+                    placeholder={t('请输入想要搜索的巡检名称')} 
+                    value={search_input_value}
+                    onChange={e => { set_search_input_value(e.target.value) }}
+                    onSearch={set_search_key} 
+                    className='inspection-search'/>
             
         </div>
        
