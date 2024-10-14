@@ -100,7 +100,7 @@ export function ShellEditor ({ collapser }) {
                         shell.switch_tab(tab_index)
                     }}
                 />)}
-            <div className='add-tab' onClick={shell.add_tab}>
+            <div className='add-tab' onClick={() => { shell.add_tab() }}>
                 <PlusOutlined style={{ fontSize: 12 }} />
             </div>
         </>
