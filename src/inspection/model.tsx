@@ -58,11 +58,11 @@ class InspectionModel extends Model<InspectionModel> {
         await model.ddb.invoke('deletePlan', [ ids ])
     }
     
-    async create_plan (plan: Omit<Plan, 'id' | 'lastReportld'>) {
+    async create_plan (plan: Omit<Plan, 'id' | 'lastReportId'>) {
         await model.ddb.invoke('createPlan', Object.values(plan))
     }
     
-    async update_plan (plan: Omit<Plan, 'enabled' | 'name' | 'lastReportld'>) {
+    async update_plan (plan: Omit<Plan, 'enabled' | 'name' | 'lastReportId'>) {
         await model.ddb.invoke('updatePlan', Object.values(plan))
     }
     
@@ -82,8 +82,8 @@ class InspectionModel extends Model<InspectionModel> {
         return (await model.ddb.invoke('getPlanDetails', [planId])).data
     }
     
-    async get_reports (planId: string = null, reportId: string = null, startTime: string = null, endTime: string = null,  page: number, limit: number, searchKey: string): Promise<{ records: PlanReport[], total: number }> {
-        const [reports, total] = await model.ddb.execute(`getReports(${planId},${reportId},${startTime},${endTime},${page},${limit},"${searchKey}")`)
+    async get_reports (planId: string = null, reportId: string = null, startTime: string = null, endTime: string = null,  page: number = 1, limit: number = 5, searchKey: string = ''): Promise<{ records: PlanReport[], total: number }> {
+        const [reports, total] = await model.ddb.execute(`getReports(${planId},${reportId ? `"${reportId}"` : null},${startTime},${endTime},${page},${limit},"${searchKey}")`)
         return { records: reports.data, total }
     }
     

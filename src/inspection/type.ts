@@ -43,7 +43,7 @@ export interface Plan {
     enabled: boolean
     alertEnabled?: boolean
     alertRecipient?: string[] | string
-    lastReportld: string
+    lastReportId: string
 }
 
 export interface PlanReport {

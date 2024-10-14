@@ -29,6 +29,11 @@ export function ReportDetailPage () {
     const topRef = useRef<HTMLDivElement>(null)
     
     const { data: plan_report_detail, isLoading } = useSWR([current_report, 'get_report_detail_metrics'],  async () => {
+        // 如果只有 id 则执行 get_reports 获取一次 report
+        if (current_report.desc === undefined) {
+            const report = await inspection.get_reports(null, current_report.id)
+            inspection.set({ current_report: report?.records[0] })
+        }
         const metrics =  await inspection.get_report_detail_metrics(current_report.id)
         const nodes = await inspection.get_report_detail_nodes(current_report.id)
         let metrics_map = new Map<string, PlanReportDetailMetric>()

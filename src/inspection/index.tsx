@@ -28,7 +28,9 @@ export function Inspection () {
     
     const [search_key, set_search_key ] = useState('')
     
-    const [refresh, set_refresh] = useState({ })
+    const [refresh, set_refresh] = useState(0)
+    
+    const refresher = useMemo(() => () => { set_refresh(cnt => cnt + 1) }, [ ])
     
     useEffect(() => {
         if (!inited) 
@@ -36,15 +38,13 @@ export function Inspection () {
         
     }, [inited])
     
-    const refresher = useCallback(() => { set_refresh({ }) }, [ ])
-    
     if (!inited) 
         return <div className='spin-container'>
             <Spin size='large' delay={300} tip={t('自动化巡检模块初始化中')}/>
         </div>
     
     
-    return current_report ? <ReportDetailPage/> : current_plan ? <EditInspectionModal plan={current_plan} refresher={refresher} disabled/> : <div>
+    return current_report ? <ReportDetailPage/> : current_plan ? <EditInspectionModal plan={current_plan} refresher={refresher}  disabled/> : <div>
         <div className='inspection-header'>
             <div className='inspection-header-left'>
                 <Input.Search placeholder={t('搜索')} onSearch={set_search_key} className='inspection-search'/>
@@ -54,7 +54,7 @@ export function Inspection () {
             <div className='inspection-header-right'>
                     <Button 
                         onClick={() => {
-                            set_refresh({ })
+                            refresher()
                             model.message.success(t('刷新成功'))
                         }}>{t('刷新')}
                     </Button>
@@ -95,7 +95,7 @@ function ReportListTable  ({
     refresh
 }: {
     search_key: string
-    refresh: object
+    refresh: number
 }) {    
     const { inited } = inspection.use(['inited'])
     
@@ -113,6 +113,7 @@ function ReportListTable  ({
     
     const { data: reports_obj, mutate: mutate_reports } = 
         useSWR([inited, refresh, 'get_reports', dates, current_page, current_page_size, search_key], async () =>  {
+            console.log('refresher', refresh)
             if (inited) {
                 const [startTime, endTime] = dates.map(d => d && d.format('YYYY.MM.DD HH:mm:ss'))
                 return inspection.get_reports(null, null, startTime, endTime, current_page, current_page_size, search_key)
@@ -244,7 +245,7 @@ function PlanListTable  ({
 }: {
     search_key: string
     enabled: boolean
-    refresh: object
+    refresh: number
     refresher: () => void
 })  {
     const { inited } = inspection.use(['inited'])
@@ -320,16 +321,25 @@ function PlanListTable  ({
             key: 'action',
             render: (_, record) => 
                 <>
-                    <Button 
-                        type='link'
-                        onClick={async () => {
+                     <Popconfirm
+                        placement='topLeft'
+                        title={t('确定巡检')}
+                        description={t('确定立即巡检 {{name}} 吗？', { name: record.name })}
+                        okText={t('确定')}
+                        cancelText={t('取消')}
+                        onConfirm={async () => {
                             await inspection.run_plan(record.id)
                             model.message.success(t('执行成功'))
                             refresher()
                         }}
-                    >
+                        >
+                        <Button 
+                            type='link'
+                            >
                         {t('立即巡检')}
-                    </Button>
+                        </Button>
+                    </Popconfirm>
+                   
                     <Button 
                         type='link'
                         onClick={() => { inspection.set({ current_plan: record }) }}
@@ -339,8 +349,8 @@ function PlanListTable  ({
                     
                     <Button 
                         type='link'
-                        disabled={isNull(record.lastReportld)}
-                        onClick={() => { inspection.set({ current_report: { id: record.lastReportld } as PlanReport }) }}
+                        disabled={record.lastReportId === ''}
+                        onClick={() => { inspection.set({ current_report: { id: record.lastReportId } as PlanReport }) }}
                     >
                         {t('查看最近一次巡检结果')}
                     </Button>
@@ -370,7 +380,7 @@ function PlanListTable  ({
                     </Popconfirm> 
                 </>
         },
-    ], [ ])
+    ], [ refresher ])
     
     return <Table
                 title={() => 
