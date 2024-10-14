@@ -109,7 +109,7 @@ export function InspectionForm ({
                     frequency: values.frequency,
                     days: (values.days as number[]).map(Number),                                
                     scheduleTime: values.scheduleTime.map(time => dayjs(time).format('HH:mm') + 'm'), 
-                    enabled: is_editing ? plan.enabled : false,
+                    enabled,
                     alertEnabled: values.alertEnabled,
                     alertRecipient: values.alertRecipient,
                     runNow: run_now
@@ -138,13 +138,15 @@ export function InspectionForm ({
                 <div>
                     <span>{t('启用：')}</span>
                     <Switch value={enabled} onChange={ async enabled => {
-                            if (enabled) 
-                                await inspection.enable_plan(plan.id) 
-                            else
-                                await inspection.disable_plan(plan.id)
+                            if (is_editing) {
+                                if (enabled) 
+                                    await inspection.enable_plan(plan.id) 
+                                else
+                                    await inspection.disable_plan(plan.id)
+                                model.message.success(enabled ? t('启用成功') : t('禁用成功'))
+                                refresh()
+                            }
                             set_enabled(enabled)
-                            model.message.success(enabled ? t('启用成功') : t('禁用成功'))
-                            refresh()
                         }} />
                 </div>
                 {

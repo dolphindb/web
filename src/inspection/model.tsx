@@ -58,11 +58,11 @@ class InspectionModel extends Model<InspectionModel> {
         await model.ddb.invoke('deletePlan', [ ids ])
     }
     
-    async create_plan (plan: Omit<Plan, 'id'>) {
+    async create_plan (plan: Omit<Plan, 'id' | 'lastReportld'>) {
         await model.ddb.invoke('createPlan', Object.values(plan))
     }
     
-    async update_plan (plan: Omit<Plan, 'enabled' | 'name'>) {
+    async update_plan (plan: Omit<Plan, 'enabled' | 'name' | 'lastReportld'>) {
         await model.ddb.invoke('updatePlan', Object.values(plan))
     }
     
