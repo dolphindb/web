@@ -660,7 +660,7 @@ def getPlanDetails(planId=NULL) {
     return res
 }
 
-def getReports(planId=NULL, reportId=NULL, startTime=NULL, endTime=NULL, page=NULL, pageLimit=NULL, searchPattern=NULL) {
+def getReports(planId=NULL, reportId=NULL, startTime=NULL, endTime=NULL, success=NULL, page=NULL, pageLimit=NULL, searchPattern=NULL, orderBy='receivedTime', ascOrder=0) {
     if (page != NULL and pageLimit == NULL or page == NULL and pageLimit != NULL) {
         throw "page and pageLimit must be NULL or not at the same time"
     }
@@ -681,16 +681,22 @@ def getReports(planId=NULL, reportId=NULL, startTime=NULL, endTime=NULL, page=NU
         endTime_ = timestamp(endTime)
         whereCond.append!(<endTime <= endTime_>)
     }
+    if (!isNull(success)) {
+        success_ = bool(success)
+        whereCond.append!(<success == success_>)
+    }
     if (!isNull(searchPattern)) {
         whereCond.append!(<planId.startsWith(searchPattern) or name.startsWith(searchPattern) or desc.startsWith(searchPattern)>)
     }
+    orderBy_ = sqlCol(orderBy)
+    ascOrder_ = ascOrder
     cnt = sql(sqlCol("*", count), loadTable("dfs://ddb_internal_auto_inspection", "reports"), whereCond, exec=true).eval()
     if (page != NULL) {
         startIndex = (page - 1) * pageLimit
         endIndex = page * pageLimit
-        sql_ = sql(sqlCol("*"), loadTable("dfs://ddb_internal_auto_inspection", "reports"), whereCond, orderBy=sqlCol("receivedTime"), ascOrder=0, limit=pair(startIndex, endIndex))
+        sql_ = sql(sqlCol("*"), loadTable("dfs://ddb_internal_auto_inspection", "reports"), whereCond, orderBy=orderBy_, ascOrder=ascOrder_, limit=pair(startIndex, endIndex))
     } else {
-        sql_ = sql(sqlCol("*"), loadTable("dfs://ddb_internal_auto_inspection", "reports"), whereCond, orderBy=sqlCol("receivedTime"), ascOrder=0)
+        sql_ = sql(sqlCol("*"), loadTable("dfs://ddb_internal_auto_inspection", "reports"), whereCond, orderBy=orderBy_, ascOrder=ascOrder_)
     }
     res = sql_.eval()
     addColumn(res, "runningTime", LONG)
