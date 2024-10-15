@@ -250,6 +250,8 @@ function ReportListTable  ({
                 onChange={(_, filter, sorter) => {
                     if (filter?.success && filter.success.length > 0) 
                         set_success(Boolean(filter.success[0]))
+                    else
+                        set_success(null)
                     
                     if (Array.isArray(sorter))
                         sorter = sorter[0]
