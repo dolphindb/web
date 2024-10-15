@@ -170,7 +170,7 @@ export function ComputeGroupConfig () {
                             if (e.key === 'Enter')
                                 on_search()
                         }}
-                        options={Object.entries(model.get_config_classification()).map(([cfg_cls, configs]) => ({
+                        options={Object.entries(config.get_config_classification()).map(([cfg_cls, configs]) => ({
                             label: cfg_cls,
                             options: Array.from(configs).map(cfg => ({
                                 label: cfg,

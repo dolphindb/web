@@ -14,7 +14,7 @@ import { _2_strs, filter_config } from './utils.ts'
 
 export function NodesConfig () {
     const { nodes_configs } = config.use(['nodes_configs'])
-    const config_classification = model.get_config_classification()
+    const config_classification = config.get_config_classification()
     
     const [active_key, set_active_key] = useState<string | string[]>('thread')
     
