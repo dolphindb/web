@@ -2,10 +2,6 @@ import { t } from '@i18n/index.ts'
 import { Affix, Button, Collapse, Descriptions, Spin, Table, Typography } from 'antd'
 import useSWR from 'swr'
 
-import html2canvas from 'html2canvas'
-
-import jsPDF from 'jspdf'
-
 import { useMemo, useRef, useState } from 'react'
 
 import { delta2str } from 'xshell/utils.browser.js'
@@ -89,78 +85,45 @@ export function ReportDetailPage () {
         await new Promise(resolve => setTimeout(resolve, 500))
         
         try {
-            const ele = document.getElementById('report-detail-content')
-            const padding = 20
-            // 根据dpi放大，防止图片模糊
-            const scale = window.devicePixelRatio > 1 ? window.devicePixelRatio : 2
-            // 下载尺寸 a4 纸 比例
-            let pdf = new jsPDF('p', 'pt', 'a4')
-            let width = ele.offsetWidth
-            let height = ele.offsetHeight
-            console.log('height', height)
-            console.log('aa', width, height, scale)
-          
-            const canvas = document.createElement('canvas')
-            canvas.width = width * scale
-            canvas.height = height * scale
-            var contentWidth = canvas.width
-            var contentHeight = canvas.height
-          
-            console.log('contentWidth', contentWidth, contentHeight)
-            // 一页pdf显示html页面生成的canvas高度;
-            var pageHeight = contentWidth / 592.28 * 841.89
-            // 未生成pdf的html页面高度
-            var leftHeight = contentHeight
-            console.log('leftHeight', leftHeight)
-            // 页面偏移
-            var position = 0
-            // a4纸的尺寸[595.28,841.89]，html页面生成的canvas在pdf中图片的宽高
-            var imgWidth = 595.28 - padding * 2
-            var imgHeight = 592.28 / contentWidth * contentHeight - padding * 2
-            const pdfCanvas = await html2canvas(ele, {
-              useCORS: true,
-              canvas,
-              scale,
-              width,
-              height,
-              x: 0,
-              y: 0,
-            })
-            const imgDataUrl = pdfCanvas.toDataURL()
-          
-            if (height > 14400) { // 超出jspdf高度限制时
-              const ratio = 14400 / height
-              // height = 14400;
-              width = width * ratio
-            }
-          
-            // 缩放为 a4 大小  pdfpdf.internal.pageSize 获取当前pdf设定的宽高
-            height = height * pdf.internal.pageSize.getWidth() / width
-            width = pdf.internal.pageSize.getWidth()
-            if (leftHeight < pageHeight)
-                pdf.addImage(imgDataUrl, 'png', padding, padding, imgWidth, imgHeight)
-             else
-                while (leftHeight > 0) {
-                pdf.addImage(imgDataUrl, 'png', padding, position + padding, imgWidth, imgHeight)
-                leftHeight -= pageHeight
-                position -= 841.89
-                // 避免添加空白页
-                if (leftHeight > 0)
-                    pdf.addPage()
-                
-              }
+             // 保存原始标题
+            const originalTitle = document.title
             
-            // 导出下载 
-            await pdf.save(`巡检报告_${current_report.id}.pdf`)
+            // 设置新标题（这可能会影响某些浏览器生成的PDF文件名）
+            document.title = `巡检报告_${current_report.id}`
+            // 创建一个新的样式元素
+            const style = document.createElement('style')
+            style.textContent = `
+                @media print {
+                    body * {
+                        visibility: hidden;
+                    }
+                    #report-detail-content, #report-detail-content * {
+                        visibility: visible;
+                        zoom: 0.95;
+                    }
+                    #report-detail-content {
+                        position: absolute;
+                        left: 0;
+                        top: 0;
+                    }
+                }
+            `
+            // 将样式添加到文档头部
+            document.head.appendChild(style)
+    
+            // 调用打印
+            window.print()
+    
+            // 打印完成后移除样式
+            document.head.removeChild(style)
+            document.title = originalTitle
         } catch (error) {
-            model.message.error(t('PDF生成失败'), error)
+            model.message.error(t('打印失败'), error)
         } finally {
             // 恢复原来的展开状态
             set_active_key(current_active_key)
         }
-     
-      }
-      
+    }
     
     const grouped_report_items = useMemo(() => {
         if (!plan_report_detail)
