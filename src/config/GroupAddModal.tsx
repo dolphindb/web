@@ -4,7 +4,8 @@ import { AutoComplete, Button, Input, message, Modal, Popover, Table, Tooltip, t
 import { useCallback, useState } from 'react'
 
 import { t } from '../../i18n/index.js'
-import { model } from '@/model.js'
+
+import { config } from './model.ts'
 
 
 
@@ -122,7 +123,7 @@ export const GroupAddModal = NiceModal.create((props: { on_save: (form: { group_
                 onChange={e => {
                     update_config_by_field(key, 'name', e)
                 }}
-                options={Object.entries(model.get_config_classification()).map(([cfg_cls, configs]) => ({
+                options={Object.entries(config.get_config_classification()).map(([cfg_cls, configs]) => ({
                     label: cfg_cls,
                     options: Array.from(configs).map(cfg => ({
                         label: cfg,
