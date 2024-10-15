@@ -2,7 +2,6 @@ import { t } from '../../i18n/index.js'
 
 import { config } from './model.ts'
 
-
 import { type NodeType, type ControllerConfig, type ClusterNode, type NodesConfig } from './type.js'
 
 export const strs_2_controller_configs = (strs: string[]): ControllerConfig[] =>

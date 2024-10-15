@@ -8,7 +8,6 @@ import { t } from '../../i18n/index.js'
 import { config } from './model.ts'
 
 
-
 export const GroupAddModal = NiceModal.create((props: { on_save: (form: { group_name: string, group_nodes: GroupNodesDatatype[], group_configs: GroupConfigDatatype[] }) => Promise<{ success: boolean, message?: string }> }) => {
     const modal = NiceModal.useModal()
     

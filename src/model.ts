@@ -233,11 +233,12 @@ export class DdbModel extends Model<DdbModel> {
         await Promise.all([
             this.get_node_type(),
             this.get_node_alias(),
-            this.get_controller_alias()
+            this.get_controller_alias(),
+            this.get_version()
         ])
         
         await Promise.all([
-            // 必须先调用上面的函数，load_configs 依赖 controller alias 等信息
+            // 必须先调用上面的函数，load_configs 依赖 controller alias, version 等信息
             config.load_configs(),
             
             this.get_cluster_perf(true)
@@ -287,8 +288,6 @@ export class DdbModel extends Model<DdbModel> {
         console.log(t('web 初始化成功'))
         
         this.set({ inited: true })
-        
-        this.get_version()
         
         this.get_license_info()
         
