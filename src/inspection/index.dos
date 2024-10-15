@@ -682,7 +682,13 @@ def getReports(planId=NULL, reportId=NULL, startTime=NULL, endTime=NULL, success
         whereCond.append!(<endTime <= endTime_>)
     }
     if (!isNull(success)) {
-        success_ = bool(success)
+        if (int(success) == 0) {
+            success_ = false
+        } else if (int(success) == 1) {
+            success_ = true
+        } else {
+            success_ = bool(NULL)
+        }
         whereCond.append!(<success == success_>)
     }
     if (!isNull(searchPattern)) {
