@@ -90,7 +90,7 @@ export function InspectionForm ({
                     name: values.name,
                     desc: values.desc ?? '',
                     metrics: metrics.map(({ name }) => name),
-                    nodes: metrics.map(({ selected_nodes }) => selected_nodes.length ? selected_nodes : ''),
+                    nodes: metrics.map(({ selected_nodes }) => selected_nodes.length && selected_nodes[0] !== '' ? selected_nodes : ''),
                     params: metrics.map(({ selected_params, params }) => {
                         if (isObject(selected_params) && !isEmpty(selected_params)) {
                             let formatted_params = { }
