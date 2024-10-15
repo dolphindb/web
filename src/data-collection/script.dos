@@ -671,7 +671,7 @@ def dcp_startSubscribe(args){
         tmp =  (exec * from sub left join connInfo  on connInfo.id=sub.connectId)[0];'
         if(tmp.protocol == "mqtt"){
             //拼接mqtt
-            subscribeStr +=  'mqtt::subscribe(tmp["host"],tmp["port"],tmp["topic"],,'+handlerName+'{'
+            subscribeStr +=  'subscriptionId = mqtt::subscribe(tmp["host"],tmp["port"],tmp["topic"],,'+handlerName+'{'
             mqsubArgs = parseExpr(tmp.templateParams).eval() 
             for(i in (0..(mqsubArgs.size()-1))){    
                 if(i < mqsubArgs.size()-1 ){
@@ -700,11 +700,12 @@ def dcp_startSubscribe(args){
                 kafka::assign(consumer, topic, partition, offset)  
             };'
             kasubArgs = parseExpr(tmp.templateParams).eval()
-            //第一个解析模板参数必须为表明，根据是否有其他参数，拼接subscribe函数   
+            //第一个解析模板参数必须为表明，根据是否有其他参数，拼接subscribe函数
+            action = tmp.topic+long(now()) 
             if(kasubArgs.size()==1){
-                subscribeStr += 'kafka::createSubJob(consumer,'+kasubArgs[0].value+','+handlerName+',"'+tmp.topic+'");' 
+                subscribeStr += 'subscriptionId = kafka::createSubJob(consumer,'+kasubArgs[0].value+','+handlerName+',"'+action+'");' 
             }else{
-                subscribeStr += 'kafka::createSubJob(consumer,'+kasubArgs[0].value+','+handlerName+'{'  
+                subscribeStr += 'subscriptionId = kafka::createSubJob(consumer,'+kasubArgs[0].value+','+handlerName+'{'  
                 for(i in (1..(kasubArgs.size()-1))){    
                     if(i < kasubArgs.size()-1 ){
                         subscribeStr += "`"+kasubArgs[i][`value]+","
@@ -713,15 +714,15 @@ def dcp_startSubscribe(args){
                         subscribeStr += "`"+kasubArgs[i][`value]
                     }
                 }
-                subscribeStr += '},"'+tmp.topic+'");'      
+                subscribeStr += '},"'+action+'");'      
             } 
         }   
-        rpc(node,runScript,subscribeStr)    
+        rpc(node,runScript,subscribeStr)
         if(tmp.protocol == "mqtt"){
             //获取mqtt订阅ID
-            subscriptionId=exec last(subscriptionId) from rpc(node,funcByName("mqtt::getSubscriberStat")) order by createTimestamp 
+            subscriptionId=exec last(subscriptionId) from rpc(node,funcByName("mqtt::getSubscriberStat"))  order by createTimestamp desc
         }else if(tmp.protocol == "kafka"){
-            subscriptionId=exec last(subscriptionId) from rpc(node,funcByName("kafka::getJobStat"))  order by createTimestamp
+            subscriptionId=exec last(subscriptionId) from rpc(node,funcByName("kafka::getJobStat"))  where actionName = action
         }   
         logInfo = "the subscribe "+tmp.name+" of "+upper(tmp.protocol)+" connection "+tmp.connInfo_name+" successfully started"
         rpc(node,writeLog{logInfo})

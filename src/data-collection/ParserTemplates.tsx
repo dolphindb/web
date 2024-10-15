@@ -2,7 +2,7 @@ import useSWR from 'swr'
 import './ParserTemplates.scss'
 import { useCallback, useMemo, useState } from 'react'
 
-import { Button, Modal, Space, Table, Tag, Tooltip, Typography, message, type TableProps } from 'antd'
+import { Button, Space, Table, Tag, Tooltip, Typography, message, type TableProps } from 'antd'
 
 import { DeleteOutlined, PlusOutlined } from '@ant-design/icons'
 
@@ -12,6 +12,8 @@ import { t } from '@i18n/index.js'
 
 import { format_time } from '@/dashboard/utils.ts'
 
+
+import { model } from '@/model.ts'
 
 import { request } from './utils.ts'
 import { type IParserTemplate } from './type.js'
@@ -52,7 +54,7 @@ export function ParserTemplates () {
     }, [ selected_keys ])
     
     const on_batch_delete = useCallback(() => {
-        Modal.confirm({
+        model.modal.confirm({
             title: t('确定要删除选中的 {{num}} 项模板吗？', { num: selected_keys.length }),
             onOk: async () => delete_templates(selected_keys),
             okButtonProps: { type: 'primary', danger: true }
@@ -60,7 +62,7 @@ export function ParserTemplates () {
     }, [selected_keys, delete_templates])
     
     const on_delete = useCallback(({ name, id, citeNumber }: IParserTemplate) => {
-        Modal.confirm({
+        model.modal.confirm({
             title: citeNumber 
             ? t('该解析模板被引用 {{citeNumber}} 次, 确定要删除吗？', { citeNumber }) 
             : t('确定要删除模板【{{name}}】吗？', { name }),
