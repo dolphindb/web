@@ -13,6 +13,8 @@ import { type Dayjs } from 'dayjs'
 
 import { isNull } from 'lodash'
 
+import type { SorterResult } from 'antd/es/table/interface'
+
 import { model } from '@/model.ts'
 
 import { inspection } from './model.tsx'
@@ -113,6 +115,10 @@ function ReportListTable  ({
     const [current_page, set_current_page] = useState(1)
     const [current_page_size, set_current_page_size] = useState(5)
     
+    const [sorter, set_sorter] = useState<[string, 0 | 1] | null>(['receivedTime', 0])
+    
+    const [success, set_success] = useState<boolean | null>(null)
+    
     const [dates, set_dates] = useState<[Dayjs | null, Dayjs | null] | null>([ null, null ])
     
     useEffect(() => {
@@ -121,11 +127,10 @@ function ReportListTable  ({
     }, [refresh])
     
     const { data: reports_obj, mutate: mutate_reports } = 
-        useSWR([inited, refresh, 'get_reports', dates, current_page, current_page_size, search_key], async () =>  {
-            console.log('refresher', refresh)
+        useSWR([inited, refresh, 'get_reports', dates, sorter, success, current_page, current_page_size, search_key], async () =>  {
             if (inited) {
                 const [startTime, endTime] = dates.map(d => d && d.format('YYYY.MM.DD HH:mm:ss'))
-                return inspection.get_reports(null, null, startTime, endTime, current_page, current_page_size, search_key)
+                return inspection.get_reports(null, null, startTime, endTime, success, current_page, current_page_size, search_key, sorter[0], sorter[1])
             }
             else 
                 inspection.init()
@@ -157,6 +162,7 @@ function ReportListTable  ({
             title: '收到作业时间',
             dataIndex: 'receivedTime',
             key: 'receivedTime',
+            sorter: true,
         },
         {
             title: '开始时间',
@@ -172,6 +178,18 @@ function ReportListTable  ({
             title: '结果',
             dataIndex: 'success',
             key: 'success',
+            filterMultiple: false,
+            filters: [
+                {
+                  text: '正常',
+                  value: true,
+                },
+                {
+                  text: '异常',
+                  value: false,
+                },
+              ],
+            sorter: true,
             render: ( success: boolean | null, record: PlanReport ) => isNull(success) ? <span className='yellow'>{t('执行中')}</span> : success ? 
                 <span className='green'>{t('{{success}}/{{total}} 正常', { success: record.totalNum, total: record.totalNum })}</span> : 
                 <span className='red'>{t('{{failedNum}}/{{total}} 异常', { failedNum: record.failedNum, total: record.totalNum })}</span>
@@ -208,15 +226,15 @@ function ReportListTable  ({
     ], [ ])
     
     return <Table 
-            title={() => <div className='report-table-header'>
-                <div className='report-table-header-left'>
-                    <h2>{t('巡检结果')}</h2>
-                    <DatePicker.RangePicker 
-                        value={dates} 
-                        onChange={set_dates} 
-                        showTime 
-                        placeholder={[t('开始时间'), t('结束时间')]}/>
-                </div>
+                title={() => <div className='report-table-header'>
+                    <div className='report-table-header-left'>
+                        <h2>{t('巡检结果')}</h2>
+                        <DatePicker.RangePicker 
+                            value={dates} 
+                            onChange={set_dates} 
+                            showTime 
+                            placeholder={[t('开始时间'), t('结束时间')]}/>
+                    </div>
                 <Popconfirm   
                     title={t('批量删除巡检方案')} 
                     description={t('确认删除选中的巡检方案吗？')} 
@@ -228,21 +246,30 @@ function ReportListTable  ({
                     }} >
                         <Button danger disabled={ids.length === 0}>{t('批量删除')}</Button>
                 </Popconfirm>
-            </div>}
-            rowSelection={{ type: 'checkbox', selectedRowKeys: ids, onChange: set_ids }}
-            dataSource={reports_obj?.records} 
-            columns={cols}
-            rowKey='id' 
-            pagination={{
-                current: current_page,
-                pageSize: current_page_size,
-                pageSizeOptions: [5, 10, 20, 50, 100],
-                total: Number(reports_obj?.total),
-                showSizeChanger: true,
-                onChange: (current_page, current_page_size) => {
-                    set_current_page(current_page)
-                    set_current_page_size(current_page_size)
-                }
+                </div>}
+                onChange={(_, filter, sorter) => {
+                    if (filter?.success && filter.success.length > 0) 
+                        set_success(Boolean(filter.success[0]))
+                    
+                    if (Array.isArray(sorter))
+                        sorter = sorter[0]
+                    if (sorter.order) 
+                        set_sorter([String(sorter.field), sorter.order === 'ascend' ? 1 : 0])
+                }}
+                rowSelection={{ type: 'checkbox', selectedRowKeys: ids, onChange: set_ids }}
+                dataSource={reports_obj?.records} 
+                columns={cols}
+                rowKey='id' 
+                pagination={{
+                    current: current_page,
+                    pageSize: current_page_size,
+                    pageSizeOptions: [5, 10, 20, 50, 100],
+                    total: Number(reports_obj?.total),
+                    showSizeChanger: true,
+                    onChange: (current_page, current_page_size) => {
+                        set_current_page(current_page)
+                        set_current_page_size(current_page_size)
+                    }
             }} 
         />
 }
