@@ -1035,7 +1035,6 @@ export class DdbModel extends Model<DdbModel> {
     is_module_visible (key: string): boolean {
         return this.enabled_modules.has(key) || !this.optional_modules.has(key)
     }
-    
 }
 
 
