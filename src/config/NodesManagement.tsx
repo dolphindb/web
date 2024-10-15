@@ -198,7 +198,7 @@ export function NodesManagement () {
         return <div key={group}>
             <div key={group} className='group-title'>
                 {group} <Button onClick={() => {
-                    Modal.confirm({
+                    model.modal.confirm({
                         title: t('确认删除'),
                         content: t('确定要删除计算组 {{group}} 吗？', { group }), // 使用占位符替换组名
                         onOk: async () => {
