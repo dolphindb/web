@@ -1,5 +1,5 @@
 import { PlusOutlined, ReloadOutlined, SearchOutlined } from '@ant-design/icons'
-import { EditableProTable, type ActionType, type ProColumns } from '@ant-design/pro-components'
+import { EditableProTable, type ActionType } from '@ant-design/pro-components'
 import { AutoComplete, Button, message, Popconfirm } from 'antd'
 import { useCallback, useMemo, useRef, useState } from 'react'
 
