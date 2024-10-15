@@ -53,7 +53,7 @@
         "@xterm/addon-webgl": "^0.18.0",
         "@xterm/xterm": "^5.5.0",
         "ahooks": "^3.8.1",
-        "antd": "^5.21.4",
+        "antd": "^5.21.3",
         "classnames": "^2.5.1",
         "client-zip": "^2.4.5",
         "copy-to-clipboard": "^3.3.3",
@@ -66,7 +66,7 @@
         "js-cookie": "^3.0.5",
         "lodash": "^4.17.21",
         "monaco-dolphindb": "^1.0.5",
-        "monaco-editor": "^0.52.0",
+        "monaco-editor": "0.50.0",
         "re-resizable": "^6.10.0",
         "react-dom": "^18.3.1",
         "react-draggable": "^4.4.6",
@@ -79,6 +79,6 @@
         "tslib": "^2.7.0",
         "vscode-oniguruma": "^2.0.1",
         "vscode-textmate": "^9.1.0",
-        "xshell": "^1.0.178"
+        "xshell": "^1.0.176"
     }
 }
