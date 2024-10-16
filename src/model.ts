@@ -557,10 +557,7 @@ export class DdbModel extends Model<DdbModel> {
         try {
             this.set({
                 is_factor_platform_enabled: 
-                    await this.ddb.execute<boolean>(
-                        'use factorPlatform::facplf\n' +
-                        'factorPlatform::facplf::is_factor_platform_enabled()\n'
-                    , { urgent: true })
+                    await this.ddb.execute<boolean>('readLicenseAuthorization(license().modules).starfish', { urgent: true })
             })
             
             return this.is_factor_platform_enabled
