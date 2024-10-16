@@ -48,6 +48,7 @@ export interface Plan {
 
 export interface PlanReport {
     id: string
+    name: string
     planId: string
     desc: string
     user: string

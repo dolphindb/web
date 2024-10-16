@@ -211,18 +211,22 @@ function ReportListTable  ({
                         {t('查看详细报告')}
                     </Button>
                     
-                    <Button
-                        type='link'
-                        disabled={isNull(record.success)}
-                        danger
-                        onClick={async () => { 
+                    <Popconfirm   
+                        title={t('删除巡检结果')} 
+                        description={t('确认删除此巡检结果吗？')} 
+                        onConfirm={async () => { 
                             await inspection.delete_reprorts([record.id])
                             model.message.success(t('删除成功'))
                             mutate_reports()
-                         }}
-                    >
+                        }} >
+                        <Button
+                            type='link'
+                            disabled={isNull(record.success)}
+                            danger
+                        >
                         {t('删除')}
-                    </Button>
+                        </Button>
+                    </Popconfirm> 
             </>
                
                 
@@ -240,8 +244,8 @@ function ReportListTable  ({
                             placeholder={[t('开始时间'), t('结束时间')]}/>
                     </div>
                 <Popconfirm   
-                    title={t('批量删除巡检方案')} 
-                    description={t('确认删除选中的巡检方案吗？')} 
+                    title={t('批量删除巡检结果')} 
+                    description={t('确认删除选中的巡检结果吗？')} 
                     onConfirm={async () => {
                         await inspection.delete_reprorts(ids)
                         model.message.success(t('批量删除成功'))
@@ -413,7 +417,7 @@ function PlanListTable  ({
                     </Button>
                     <Popconfirm 
                         title={t('删除方案')} 
-                        description={t('确认删除此巡检方案吗？')} 
+                        description={t('确认删除巡检方案 {{plan}} 吗？', { plan: record.name })} 
                         onConfirm={async () => {
                             await inspection.delete_plans([record.id])
                             model.message.success(t('删除成功'))
@@ -431,7 +435,7 @@ function PlanListTable  ({
                         <h2>{enabled ? t('进行中的巡检队列') : t('未进行的巡检队列')}</h2>
                         <Popconfirm   
                             title={t('批量删除巡检方案')} 
-                            description={t('确认删除选种的巡检方案吗？')} 
+                            description={t('确认删除选中的巡检方案吗？')} 
                             onConfirm={async () => {
                                 await inspection.delete_plans(ids)
                                 model.message.success(t('批量删除成功'))
