@@ -456,8 +456,12 @@ def enablePlan(id) {
 }
 
 def createPlan(name, desc, metrics, nodes, params, frequency, days, scheduleTime, enabled=false, alertEnabled=false, alertRecipient=NULL, runNow=false, id=NULL) {
-    id_ = iif(isNull(id), string(long(now())), id)
     print("start to create plan: " + name)
+    id_ = iif(isNull(id), string(long(now())), id)
+    cnt = exec count(*) from loadTable("dfs://ddb_internal_auto_inspection", "plans") where id == id_
+    if (cnt > 0) {
+        throw "duplicated id: " + id_
+    }
     if (metrics.size() == 0) {
         throw "metrics' size must be greater than 0"
     }
