@@ -117,7 +117,7 @@ function ReportListTable  ({
     
     const [sorter, set_sorter] = useState<[string, 0 | 1] | null>(['receivedTime', 0])
     
-    const [success, set_success] = useState<boolean | null>(null)
+    const [success, set_success] = useState<number | null>(null)
     
     const [dates, set_dates] = useState<[Dayjs | null, Dayjs | null] | null>([ null, null ])
     
@@ -181,12 +181,16 @@ function ReportListTable  ({
             filterMultiple: false,
             filters: [
                 {
-                  text: '正常',
-                  value: true,
+                    text: '正常',
+                    value: 1,
                 },
                 {
-                  text: '异常',
-                  value: false,
+                    text: '异常',
+                    value: 0,
+                },
+                {
+                    text: '执行中',
+                    value: 2,
                 },
               ],
             sorter: true,
@@ -249,7 +253,7 @@ function ReportListTable  ({
                 </div>}
                 onChange={(_, filter, sorter) => {
                     if (filter?.success && filter.success.length > 0) 
-                        set_success(Boolean(filter.success[0]))
+                        set_success(Number(filter.success[0]))
                     else
                         set_success(null)
                     
