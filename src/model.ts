@@ -5,6 +5,8 @@ import type { MessageInstance } from 'antd/es/message/interface.d.ts'
 import type { HookAPI as ModalHookAPI } from 'antd/es/modal/useModal/index.d.ts'
 import type { NotificationInstance } from 'antd/es/notification/interface.d.ts'
 
+import type { NavigateFunction } from 'react-router-dom'
+
 import 'xshell/polyfill.browser.js'
 import { filter_values, strcmp } from 'xshell/utils.browser.js'
 import { request } from 'xshell/net.browser.js'
@@ -84,7 +86,9 @@ export class DdbModel extends Model<DdbModel> {
     
     sql: SqlStandard = SqlStandard[localStorage.getItem(storage_keys.sql)] || SqlStandard.DolphinDB
     
-    view = '' as PageViews
+    get view () {
+        return location.pathname.strip_start(this.assets_root).slice_to('/')
+    }
     
     /** 重定向 view */
     redirection?: PageViews
@@ -156,6 +160,8 @@ export class DdbModel extends Model<DdbModel> {
     modal: ModalHookAPI
     
     notification: NotificationInstance
+    
+    navigate: NavigateFunction
     
     /** 记录启用了哪些可选功能 */
     enabled_modules = new Set<string>()
@@ -310,7 +316,7 @@ export class DdbModel extends Model<DdbModel> {
         else {
             await this.get_factor_platform_enabled()
             
-            this.goto_default_view()
+            this.navigate(`/${this.node_type === NodeType.controller ? 'overview' : 'shell'}`)
         }
     }
     
@@ -647,7 +653,7 @@ export class DdbModel extends Model<DdbModel> {
     
     /** 去登录页
         @param redirection 设置登录完成后的回跳页面，默认取当前 view */
-    async goto_login (redirection: PageViews = this.view) {
+    async goto_login () {
         if (this.oauth) {
             const auth_uri = strip_quotes(
                 config.get_config('oauthAuthUri')
@@ -673,27 +679,7 @@ export class DdbModel extends Model<DdbModel> {
             
             await goto_url(url)
         } else
-            this.set({
-                view: 'login',
-                ... redirection === 'login' ? { } : { redirection }
-            })
-    }
-    
-    
-    goto_redirection () {
-        if (this.redirection) 
-            this.set({ view: this.redirection })
-        else
-            // 保留旧跳转逻辑
-            this.goto_default_view()
-    }
-    
-    
-    goto_default_view () {
-        this.set({
-            view: new URLSearchParams(location.search).get('view') as DdbModel['view'] || 
-                (this.node_type === NodeType.controller ? 'overview' : 'shell')
-        })
+            this.navigate('/login')
     }
     
     

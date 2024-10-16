@@ -33,7 +33,8 @@ export function Login () {
                     }
                     
                     model.message.success(t('登录成功'))
-                    model.goto_redirection()
+                    
+                    model.navigate(-1)
                 }}
             >
                 <Form.Item name='username' rules={[{ required: true, message: t('请输入用户名') }]}>
