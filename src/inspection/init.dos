@@ -135,18 +135,18 @@ def pluginVersion(params) {
     
     ddbVersion = version().split(" ").first()
     ddbVersion_ = ddbVersion.split(".")
-    err = []
+    err = select * from info limit 0
     for (item in info) {
         pluginVersion = item["version"].split(".")
         for (i in 0..2) {
             if (ddbVersion_[i] != pluginVersion[i]) {
-                err.append!((item["pluginName"], item["version"]))
+                tableInsert(err, item)
             }
         }
     }
     
     if (err.size() > 0) {
-        return (false, "下列插件的版本与 DolphinDB 版本 " + ddbVersion + " 不一致：\n" + string(err).concat(","), "请升级插件至与 DolphinDB 前三级版本一致。")
+        return (false, err, "请升级插件至与 DolphinDB 前三级版本一致。")
     }
     
     return (true, NULL, NULL)
@@ -315,7 +315,7 @@ def chunksCid(params) {
     update chunkMeta set cid = versionList.split(":").at(0).long() where dfsPath.endsWith("domain") or dfsPath.endsWith(".tbl")
     allNotEqual=select chunkId, masterMeta.file, chunkMeta.dfsPath, masterMeta.versionChain, masterMeta.cid as masterCid, chunkMeta.versionList, chunkMeta.cid as chunkCid from fj(masterMeta, chunkMeta, `chunkId) where masterMeta.cid != chunkMeta.cid 
     if (allNotEqual.size() > 0) {
-        return (false, "存在 " + allNotEqual.size() " 条控制节点元数据与数据节点元数据 cid 不一致", "请参考官方教程《分区状态不一致》排查问题，删除错误副本并拷贝正确副本恢复。")   
+        return (false, "存在 " + allNotEqual.size() + " 条控制节点元数据与数据节点元数据 cid 不一致", "请参考官方教程《分区状态不一致》排查问题，删除错误副本并拷贝正确副本恢复。")   
     }
     
     return (true, NULL, NULL)
@@ -1522,9 +1522,10 @@ def coredump(params) {
             insert into ret values (filePath, item["lastModified"])
         }
     }
+    ret = select * from ret order by lastModified desc
     rm("/tmp/tmp.txt")
     
-    ret = select count(*) as "coredump文件数" from ret group by date(lastModified) as "日期"
+    ret = select count(*) as "coredump 文件数", first(filePath) as "最新文件路径" from ret group by date(lastModified) as "日期"
     
     if (ret.size() == 0) {
         return (true, NULL, NULL)
