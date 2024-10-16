@@ -11,10 +11,10 @@ import { NodesConfigAddModal } from './NodesConfigAddModal.js'
 import { config } from './model.js'
 import { type NodesConfig } from './type.js'
 import { _2_strs, filter_config } from './utils.ts'
-import { CONFIG_CLASSIFICATION } from './constants.js'
 
 export function NodesConfig () {
     const { nodes_configs } = config.use(['nodes_configs'])
+    const config_classification = config.get_config_classification()
     
     const [active_key, set_active_key] = useState<string | string[]>('thread')
     
@@ -56,7 +56,7 @@ export function NodesConfig () {
     }
     
     const items: CollapseProps['items'] = useMemo(() => {
-        let clsed_configs = Object.fromEntries([...Object.keys(CONFIG_CLASSIFICATION), t('其它')].map(cfg => [cfg, [ ]]))
+        let clsed_configs = Object.fromEntries([...Object.keys(config_classification), t('其它')].map(cfg => [cfg, [ ]]))
         
         nodes_configs?.forEach(nodes_config => {
             const { category } = nodes_config
@@ -107,7 +107,7 @@ export function NodesConfig () {
                                 <AutoComplete<{ label: string, value: string }>
                                     showSearch
                                     optionFilterProp='label'
-                                    options={(CONFIG_CLASSIFICATION[key] || [ ]).map((config: string) => ({
+                                    options={(config_classification[key] || [ ]).map((config: string) => ({
                                         label: config,
                                         value: config
                                         }))
@@ -164,7 +164,7 @@ export function NodesConfig () {
                             if (rowKey !== key)
                                 config.nodes_configs.delete(rowKey as string)
                             await config.change_configs([[key, { name, qualifier, value, key }]])
-                            model.message.success(t('保存成功，立即生效'))
+                            model.message.success(t('保存成功，重启数据节点 / 计算节点生效'))
                         },
                         onDelete: async key => delete_config(key as string),
                         deletePopconfirmMessage: t('确认删除此配置项？'),
@@ -224,7 +224,7 @@ export function NodesConfig () {
                         if (e.key === 'Enter') 
                             on_search()
                     }}
-                    options={Object.entries(CONFIG_CLASSIFICATION).map(([cfg_cls, configs]) => ({
+                    options={Object.entries(config_classification).map(([cfg_cls, configs]) => ({
                         label: cfg_cls,
                         options: Array.from(configs).map(cfg => ({
                             label: cfg,

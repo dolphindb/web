@@ -1,6 +1,6 @@
 import { Model } from 'react-object-model'
 
-import { DdbFunctionType, type DdbCallOptions } from 'dolphindb/browser.js'
+import type { DdbCallOptions } from 'dolphindb/browser.js'
 
 import { t } from '@i18n/index.ts'
 
@@ -41,12 +41,11 @@ class ConfigModel extends Model<ConfigModel> {
     
     /** load_configs 依赖 controller alias 等信息 */
     async load_configs () {
-        this.set({ 
-            nodes_configs: parse_nodes_configs(
-                await this.invoke<string[]>('loadClusterNodesConfigs', undefined, { urgent: true })
-            )
-        })
+        const configs = parse_nodes_configs(
+            await this.invoke<string[]>('loadClusterNodesConfigs', undefined, { urgent: true })
+        )
         
+        this.set({ nodes_configs: configs })
         
         console.log(
             t('配置文件:'),
@@ -57,6 +56,8 @@ class ConfigModel extends Model<ConfigModel> {
                 )
             )
         )
+        
+        return configs        
     }
     
     
@@ -119,7 +120,8 @@ class ConfigModel extends Model<ConfigModel> {
                 })
             ]])
         
-        await this.invoke('reloadClusterConfig')
+        if (model.node_type === NodeType.controller)
+            await this.invoke('reloadClusterConfig')
         
         this.set({ nodes_configs: new_nodes_configs })
     }
@@ -136,9 +138,26 @@ class ConfigModel extends Model<ConfigModel> {
             {
                 ... model.node_type === NodeType.controller || model.node_type === NodeType.single
                     ? { }
-                    : { node: model.controller_alias, func_type: DdbFunctionType.SystemFunc },
+                    : { node: model.controller_alias },
                 ...options
             })
+    }
+    
+    
+    get_config_classification () {
+        return {
+            [t('线程')]: new Set(['localExecutors', 'maxBatchJobWorker', 'maxDynamicWorker', 'webWorkerNum', 'workerNum', 'PKEYBackgroundWorkerPerVolume', 'PKEYCacheFlushWorkerNumPerVolume']),
+            [t('内存')]: new Set(['chunkCacheEngineMemSize', 'maxMemSize', 'memoryReleaseRate', 'regularArrayMemoryLimit', 'warningMemSize', 'PKEYCacheEngineSize', 'PKEYBlockCacheSize', 'PKEYDeleteBitmapUpdateThreshold', 'PKEYStashedPrimaryKeyBufferSize']),
+            [t('磁盘')]: new Set(['batchJobDir', 'chunkMetaDir', 'dataSync', 'jobLogFile', 'logFile', 'logLevel', 'maxLogSize', 'redoLogDir', 'redoLogPurgeInterval', 'redoLogPurgeLimit', 'volumes', 'diskIOConcurrencyLevel', 'PKEYMetaLogDir', 'PKEYRedoLogDir']),
+            [t('网络')]: new Set(['enableHTTPS', 'localSite', 'maxConnections', 'maxConnectionPerSite', 'tcpNoDelay']),
+            [t('流发布')]: new Set(['maxMsgNumPerBlock', 'maxPersistenceQueueDepth', 'maxPubQueueDepthPerSite', 'maxPubConnections', 'persistenceDir', 'persistenceWorkerNum']),
+            [t('流订阅')]: new Set(['maxSubConnections', 'maxSubQueueDepth', 'persistOffsetDir', 'subExecutorPooling', 'subExecutors', 'subPort', 'subThrottle']),
+            [t('系统')]: new Set(['console', 'config', 'home', 'maxPartitionNumPerQuery', 'mode', 'moduleDir', 'newValuePartitionPolicy', 'perfMonitoring', 'pluginDir', 'preloadModules', 'init', 'startup', 'run', 'tzdb', 'webRoot', 'webLoginRequired', 'enableShellFunction', 'enablePKEYEngine']),
+            
+            ... model.v3 ? {
+                [t('计算组')]: new Set(['computeNodeCacheDir', 'computeNodeMemCacheSize', 'computeNodeDiskCacheSize', 'enableComputeNodeCacheEvictionFromQueryThread'])
+            } : { }
+        }
     }
 }
 

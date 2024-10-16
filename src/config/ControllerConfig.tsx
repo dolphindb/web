@@ -15,7 +15,6 @@ import { config } from './model.js'
 import type { ControllerConfig } from './type.js'
 import { _2_strs, strs_2_controller_configs, filter_config } from './utils.ts'
 
-import { CONTROLLER_CONFIG } from './constants.js'
 
 
 export function ControllerConfig () {
@@ -212,3 +211,36 @@ export function ControllerConfig () {
     />
 }
 
+const CONTROLLER_CONFIG = [
+    'mode',
+    'preloadModules',
+    'localSite',
+    'clusterConfig',
+    'nodesFile',
+    'localExecutors',
+    'maxBatchJobWorker',
+    'maxConnections',
+    'maxConnectionPerSite',
+    'maxDynamicWorker',
+    'maxMemSize',
+    'webWorkerNum',
+    'dfsMetaDir',
+    'dfsMetaLogFilename',
+    'dfsReplicationFactor',
+    'dfsReplicaReliabilityLevel',
+    'dfsRecoveryWaitTime',
+    'enableDFS',
+    'enableHTTPS',
+    'dataSync',
+    'webLoginRequired',
+    'PublicName',
+    'datanodeRestartInterval',
+    'dfsHAMode',
+    'clusterReplicationSlaveNum',
+    'dfsChunkNodeHeartBeatTimeout',
+    'clusterReplicationMasterCtl',
+    'metricsToken',
+    'strictPermissionMode',
+    'enableLocalDatabase',
+    // 'enableClientAuth',
+]

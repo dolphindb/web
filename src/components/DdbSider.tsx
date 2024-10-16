@@ -62,8 +62,10 @@ function MenuIcon ({ view }: { view: DdbModel['view'] }) {
 }
 
 export function DdbSider () {
-    const { node_type, collapsed, logined, admin, login_required, client_auth, v1, dev, test, is_factor_platform_enabled } 
-        = model.use(['node_type', 'collapsed', 'logined', 'admin', 'login_required', 'client_auth', 'v1', 'dev', 'test', 'is_factor_platform_enabled', 'enabled_modules'])
+    const { dev, test } = model
+    
+    const { node_type, collapsed, logined, admin, login_required, client_auth, v1, is_factor_platform_enabled } 
+        = model.use(['node_type', 'collapsed', 'logined', 'admin', 'login_required', 'client_auth', 'v1', 'is_factor_platform_enabled', 'enabled_modules'])
     
     const navigate = useNavigate()
     
@@ -194,7 +196,7 @@ export function DdbSider () {
                         }
                     ]
                 }] : [ ],
-                ... admin ? [
+                ... admin && (test || dev) ? [
                     {
                         key: 'plugins',
                         icon: <MenuIcon view='plugins' />,

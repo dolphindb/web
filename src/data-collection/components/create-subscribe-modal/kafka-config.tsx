@@ -28,7 +28,7 @@ export function KafkaConfig () {
     
     return <div className='kafka-params-list-wrapper'>
         <Space className='kafka-params-title' size='small'>
-            {t('kafka 消费参数配置')}
+            {t('Kafka 消费参数配置')}
             <Tooltip title={t('设置偏移量与分区，group.id 参数会失效')}>
                 <QuestionCircleOutlined />
             </Tooltip>

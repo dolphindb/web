@@ -107,10 +107,12 @@ export let builder = {
                             src: 'src/logo.png',
                             out: 'logo.png'
                         },
-                        fp_entry: './window.js',
+                        entry: 'window.js',
                         dependencies: ['antd-icons', 'antd-plots', 'lodash'],
                     }
                 },
+                
+                template: production,
                 
                 assets: {
                     productions: [

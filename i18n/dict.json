@@ -72,13 +72,13 @@
         "en": "Delete"
     },
     "请输入用户名": {
-        "en": "Input username"
+        "en": "Enter username."
     },
     " 用户名 (默认: admin)": {
         "en": " username (default: admin)"
     },
     "请输入密码": {
-        "en": "Input password"
+        "en": "Enter password."
     },
     " 密码 (默认: 123456)": {
         "en": " password (default: 123456)"
@@ -159,7 +159,7 @@
         "en": "Agent Config"
     },
     "请输入参数值": {
-        "en": "Please input a config value."
+        "en": "Enter a config value."
     },
     "保存更改": {
         "en": "Save"
@@ -3009,7 +3009,7 @@
         "en": "User ID can only use letters, digits or underscores (_), and must start with letters."
     },
     "请输入密码!": {
-        "en": "Please enter password."
+        "en": "Enter password."
     },
     "密码长度为 6-20 个字符，且不包含空格或中文": {
         "en": "Use a password 6-20 characters long. Spaces and Chinese characters are not allowed."
@@ -3999,7 +3999,7 @@
         "en": "Dashboard saved successfully"
     },
     "修改成功": {
-        "en": "Modified successfully"
+        "en": "Modified Successfully"
     },
     "当前数据面板列表为空": {
         "en": "Current dashboard list is empty"
@@ -4997,6 +4997,84 @@
     "解析模板": {
         "en": "Parsing Templates"
     },
+    "个节点": {
+        "en": " nodes"
+    },
+    "计算组": {
+        "en": "Compute Group"
+    },
+    "别名必须以组名": {
+        "en": "Alias must start with group name"
+    },
+    "请输入值": {
+        "en": "Please enter a value"
+    },
+    "新增计算组": {
+        "en": "New Compute Group"
+    },
+    "计算组名称": {
+        "en": "Compute Group Name"
+    },
+    "请输入计算组名称": {
+        "en": "Please enter compute group name"
+    },
+    "计算组名称不能包含特殊字符": {
+        "en": "Compute group name cannot contain special characters"
+    },
+    "批量添加节点": {
+        "en": "Batch Add Nodes"
+    },
+    "在列表后添加": {
+        "en": "Add after list"
+    },
+    "批量添加": {
+        "en": "Batch Add"
+    },
+    "计算组配置": {
+        "en": "Compute Group Configuration"
+    },
+    "新增一条配置": {
+        "en": "Add a Configuration"
+    },
+    "请添加至少 1 个节点": {
+        "en": "Please add at least 1 node"
+    },
+    "指定此配置适用的节点名或节点名前缀（例如：node1 或 node%）": {
+        "en": "Specify the node name or node name prefix to which this configuration applies (e.g., node1 or node%)"
+    },
+    "无法移除在线节点，请到集群总览中停止后移除": {
+        "en": "Cannot remove online nodes, please stop them in the cluster overview before removing"
+    },
+    "新增节点成功，请到集群总览启动": {
+        "en": "New node added successfully, please go to cluster overview to start"
+    },
+    "新增节点失败，服务端报错：": {
+        "en": "Failed to add new node, server error:"
+    },
+    "该节点别名已存在，无法修改或添加": {
+        "en": "The node alias already exists and cannot be modified or added"
+    },
+    "组内有在线节点，请到集群总览中停止节点后移除": {
+        "en": "There are online nodes in the group, please stop the nodes in the cluster overview before removing"
+    },
+    "确定要删除计算组 {{group}} 吗？": {
+        "en": "Are you sure you want to delete compute group {{group}}?"
+    },
+    "删除计算组": {
+        "en": "Delete Compute Group"
+    },
+    "新建计算组": {
+        "en": "New Compute Group"
+    },
+    "别名必须以组名 ": {
+        "en": "Alias must start with group name "
+    },
+    "存储集群": {
+        "en": "Storage Cluster"
+    },
+    "开头": {
+        "en": " "
+    },
     "线颜色": {
         "en": "Line Color"
     },
@@ -5050,6 +5128,9 @@
     },
     "请输入有效的服务器地址": {
         "en": "Enter a valid server address."
+    },
+    "端口_data_collection": {
+        "en": "Port"
     },
     "请输入端口": {
         "en": "Enter a port."
@@ -5135,7 +5216,7 @@
     "参数值不能包含空格": {
         "en": "Value must not contain spaces."
     },
-    "kafka 消费参数配置": {
+    "Kafka 消费参数配置": {
         "en": "Kafka Configuration Properties"
     },
     "设置偏移量与分区，group.id 参数会失效": {
@@ -5239,5 +5320,8 @@
     },
     "立即刷新": {
         "en": "Refresh Now"
+    },
+    "保存成功，重启数据节点 / 计算节点生效": {
+        "en": "Save successfully, restart the data / computing node to take effect"
     }
 }
