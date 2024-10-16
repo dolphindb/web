@@ -234,6 +234,7 @@ const router = createBrowserRouter([
                 element: <FinanceGuide />
             },
         ]
-    }
-])
+    }], 
+    model.assets_root === '/' ? undefined : { basename: model.assets_root }
+)
 
