@@ -69,6 +69,9 @@ export class DdbModel extends Model<DdbModel> {
     /** 通过 test.dolphindb.cn 访问的 web */
     test = false
     
+    /** 静态资源的根路径 */
+    assets_root = '/'
+    
     /** 启用详细日志，包括执行的代码和运行代码返回的变量 */
     verbose = false
     
@@ -169,8 +172,19 @@ export class DdbModel extends Model<DdbModel> {
         const params = this.params = new URLSearchParams(location.search)
         
         this.dev = params.get('dev') !== '0' && (location.host === 'localhost:8432' || params.get('dev') === '1')
-        this.autologin = params.get('autologin') !== '0'
+        
         this.test = location.hostname === 'test.dolphindb.cn' || params.get('test') === '1'
+        
+        // 确定 assets_root
+        if (this.test)
+            for (const web_path of ['/web/', '/web-main/'])
+                if (location.pathname.startsWith(web_path)) {
+                    this.assets_root = web_path
+                    break
+                }
+        
+        this.autologin = params.get('autologin') !== '0'
+        
         this.verbose = params.get('verbose') === '1'
         
         // test 或开发模式下，浏览器误跳转到 https 链接，自动跳转回 http
