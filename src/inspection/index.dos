@@ -455,8 +455,8 @@ def enablePlan(id) {
     return jobId
 }
 
-def createPlan(name, desc, metrics, nodes, params, frequency, days, scheduleTime, enabled=false, alertEnabled=false, alertRecipient=NULL, runNow=false) {
-    id = string(long(now()))
+def createPlan(name, desc, metrics, nodes, params, frequency, days, scheduleTime, enabled=false, alertEnabled=false, alertRecipient=NULL, runNow=false, id=NULL) {
+    id_ = iif(isNull(id), string(long(now())), id)
     print("start to create plan: " + name)
     if (metrics.size() == 0) {
         throw "metrics' size must be greater than 0"
@@ -543,7 +543,7 @@ def createPlan(name, desc, metrics, nodes, params, frequency, days, scheduleTime
     alertEnabled_ = iif(isNull(alertEnabled), false, bool(alertEnabled))
     alertRecipient_ = iif(alertRecipient.form()==0, string(alertRecipient), string(alertRecipient).strip().concat(","))
     plan = table(
-        id as id,
+        id_ as id,
         name as name,
         desc as desc,
         user as user,
@@ -570,7 +570,7 @@ def createPlan(name, desc, metrics, nodes, params, frequency, days, scheduleTime
     }
 
     planDetails = table(
-        take(id, n) as planId,
+        take(id_, n) as planId,
         metrics as metricName,
         nodes_ as nodes,
         params_ as params
@@ -582,18 +582,17 @@ def createPlan(name, desc, metrics, nodes, params, frequency, days, scheduleTime
 
     if (enabled) {
         try {
-            enablePlan(id)
+            enablePlan(id_)
         } catch(err) {
-            writeLog("autoInspection: enable plan failed, plan id: " + id + ", err msg: " + string(err).last())
-            id_ = id
+            writeLog("autoInspection: enable plan failed, plan id: " + id_ + ", err msg: " + string(err).last())
             update loadTable("dfs://ddb_internal_auto_inspection", "plans") set enabled = false where id = id_
-            try { deleteScheduledJob("schedulePlan_" + id) } catch(err_) {}
+            try { deleteScheduledJob("schedulePlan_" + id_) } catch(err_) {}
             throw err
         }
     }
 
     if (runNow) {
-        runPlan(id)
+        runPlan(id_)
     }
 
     return plan
@@ -626,7 +625,7 @@ def deletePlan(id) {
 
 def updatePlan(id, name, desc, metrics, nodes, params, frequency, days, scheduleTime, enabled, alertEnabled, alertRecipient, runNow=false) {
     deletePlan(id)
-    return createPlan(name, desc, metrics, nodes, params, frequency, days, scheduleTime, enabled, alertEnabled, alertRecipient, runNow)
+    return createPlan(name, desc, metrics, nodes, params, frequency, days, scheduleTime, enabled, alertEnabled, alertRecipient, runNow, id)
 }
 
 def getPlans(planId=NULL, enabled=NULL, page=NULL, pageLimit=NULL, searchPattern=NULL) {
