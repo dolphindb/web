@@ -213,7 +213,7 @@ function Node ({
                     <div className={'node-title' + ' ' + title_colors[mode]}><div className='node-name'>{name}</div>{isLeader ? <Tag className='leader-tag' color='#FFF' >leader</Tag> : null}</div>
                     <div className='single-node-site'>
                         <NodeSite node={node}/>
-                        <div className={node_statuses[state]} style={{ backgroundImage: `url(${model.assets_root})./overview/${state ? 'online' : 'offline'}.png` }}>
+                        <div className={node_statuses[state]} style={{ backgroundImage: `url(${model.assets_root}overview/${state ? 'online' : 'offline'}.png)` }}>
                             <span>{state ? t('运行中') : t('未启动')}</span>
                         </div>
                     </div>
@@ -250,7 +250,7 @@ function Node ({
             }
             <div 
                 className={(type !== NodeType.single && expanded ? 'node-body-fold' : 'node-body') }
-                style={{ backgroundImage: `url(${model.assets_root})./overview/icons/${node_backgrounds[node.mode]}.svg` }}
+                style={{ backgroundImage: `url(${model.assets_root}overview/icons/${node_backgrounds[node.mode]}.svg)` }}
             >
                 <NodeInfo title='CPU' icon={SvgCPU} className='cpu-info'>
                     <InfoItem
