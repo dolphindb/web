@@ -156,9 +156,12 @@ export function InspectionForm ({
                 }
                 <Tooltip title={view_only ? t('立即执行一次巡检') : t('保存当前方案并立即执行一次巡检')}>
                     <Button type='primary'  onClick={async () => {
-                        view_only ? inspection.run_plan(plan.id) : on_save(true)
-                        inspection.set({ current_plan: null })
-                        refresh()
+                        if (view_only) {
+                            await inspection.run_plan(plan.id)
+                            refresh()
+                        } else 
+                            on_save(true)
+                        
                     }}>{t('立即巡检')}</Button>
                 </Tooltip>
                 <Tooltip title={t('保存当前方案')}>
