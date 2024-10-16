@@ -72,7 +72,7 @@ export function Editor ({
             if (!docs && !docs_initing) {
                 docs_initing = true
                 try {
-                    model.set({ docs: await request_json(`${ASSETS_ROOT}docs.${ language === 'zh' ? 'zh' : 'en' }.json`) })
+                    model.set({ docs: await request_json(`${model.assets_root}docs.${ language === 'zh' ? 'zh' : 'en' }.json`) })
                 } finally {
                     docs_initing = false
                 }
@@ -117,7 +117,7 @@ export function Editor ({
             
             loading={<div className='editor-loading'>{t('正在加载代码编辑器...')}</div>}
             
-            beforeMonacoInit={async () => loadWASM(await fetch(`${ASSETS_ROOT}vendors/vscode-oniguruma/release/onig.wasm`)) }
+            beforeMonacoInit={async () => loadWASM(await fetch(`${model.assets_root}vendors/vscode-oniguruma/release/onig.wasm`)) }
             
             onMonacoInitFailed={error => { model.show_error({ error }) }}
             

@@ -30,7 +30,7 @@ export let builder = {
     pre_bundle_entries: ['formily', 'antd-pro-components'],
     
     
-    async build (production: boolean, version_name?: string, assets_root = '/') {
+    async build (production: boolean, version_name?: string) {
         console.log(`开始构建${production ? '生产' : '开发'}模式的 web`)
         
         let git = new Git(fpd_root)
@@ -79,8 +79,7 @@ export let builder = {
                 },
                 globals: {
                     WEB_VERSION: `${info.version} (${info.time} ${info.hash})`.quote(),
-                    PRODUCTION: production ? 'true' : 'false',
-                    ASSETS_ROOT: assets_root.quote(),
+                    PRODUCTION: production ? 'true' : 'false'
                 },
                 cache_version: fp_api ? 'web.api' : 'web',
                 license: {
@@ -135,9 +134,7 @@ export let builder = {
                             out: `pre-bundle/${entry}.js.map`
                         })) : [ ],
                     ]
-                },
-                
-                assets_root,
+                }
             }
         )
         
