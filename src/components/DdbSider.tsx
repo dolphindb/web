@@ -6,7 +6,7 @@ import { default as Icon, DoubleLeftOutlined, DoubleRightOutlined, ExperimentOut
 
 import { isNil, omitBy } from 'lodash'
 
-import { useLocation, useNavigate } from 'react-router-dom'
+import { useLocation } from 'react-router-dom'
 
 
 import { language, t } from '@i18n/index.js'
@@ -67,6 +67,7 @@ export function DdbSider () {
     const { node_type, collapsed, logined, admin, login_required, client_auth, v1, is_factor_platform_enabled } 
         = model.use(['node_type', 'collapsed', 'logined', 'admin', 'login_required', 'client_auth', 'v1', 'is_factor_platform_enabled', 'enabled_modules'])
     
+    // useLocation 会导致路径变化时整个组件重新渲染，尽量选择小的范围调用
     const location = model.location = useLocation()
     
     

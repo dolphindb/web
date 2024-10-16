@@ -86,6 +86,7 @@ export class DdbModel extends Model<DdbModel> {
     
     sql: SqlStandard = SqlStandard[localStorage.getItem(storage_keys.sql)] || SqlStandard.DolphinDB
     
+    // todo: 暂时兼容个，后面会把这里的逻辑去掉
     get view () {
         return location.pathname.strip_start(this.assets_root).split('/')[0] || 'shell'
     }
@@ -340,6 +341,8 @@ export class DdbModel extends Model<DdbModel> {
         - key: 参数名
         - value: 参数值，为 null 或 undefined 时删除该参数 */
     set_query (key: string, value: string | null) {
+        // todo: 这里需要用 react router 修改？
+        
         let url = new URL(location.href)
         
         if (value === null || value === undefined)
@@ -653,6 +656,7 @@ export class DdbModel extends Model<DdbModel> {
     }
     
     
+    /** 跳转路径，不改变查询参数 */
     goto (pathname: string, options?: NavigateOptions) {
         this.navigate({ ...this.location, pathname }, options)
     }
