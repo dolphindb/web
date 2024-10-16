@@ -766,5 +766,3 @@ def getMetrics(name=NULL) {
     return res
 }
 go
-
-updatePlan("1729069765002","quickly","快速巡检",["nodeStatus","licenseExpiration","diskUsage","memUsage"],["","","",""],["","","",""],"W",[1,2,3,4,5,6],["00:05m"],false,false,[],false)
