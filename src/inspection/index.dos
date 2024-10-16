@@ -496,7 +496,7 @@ def createPlan(name, desc, metrics, nodes, params, frequency, days, scheduleTime
         params_.append!(toStdJson(item))
     }
     n = metrics.size()
-    nodesCopy = nodes
+    nodesCopy = nodes$ANY
     for (i in 0..(n-1)) {
         nodes_ = exec nodes from loadTable("dfs://ddb_internal_auto_inspection", "metrics") where name == metrics[i]
         nodes_ = nodes_.first()
@@ -766,3 +766,5 @@ def getMetrics(name=NULL) {
     return res
 }
 go
+
+updatePlan("1729069765002","quickly","快速巡检",["nodeStatus","licenseExpiration","diskUsage","memUsage"],["","","",""],["","","",""],"W",[1,2,3,4,5,6],["00:05m"],false,false,[],false)
