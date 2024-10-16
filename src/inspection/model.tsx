@@ -82,7 +82,7 @@ class InspectionModel extends Model<InspectionModel> {
         return (await model.ddb.invoke('getPlanDetails', [planId])).data
     }
     
-    async get_reports (planId: string = null, reportId: string = null, startTime: string = null, endTime: string = null, success: boolean = null, page: number = 1, limit: number = 5, searchKey: string = '', orderBy: string = 'receivedTime', ascOrder: number = 0): Promise<{ records: PlanReport[], total: number }> {
+    async get_reports (planId: string = null, reportId: string = null, startTime: string = null, endTime: string = null, success: number = null, page: number = 1, limit: number = 5, searchKey: string = '', orderBy: string = 'receivedTime', ascOrder: number = 0): Promise<{ records: PlanReport[], total: number }> {
         const [reports, total] = await model.ddb.execute(`getReports(${planId},${reportId ? `"${reportId}"` : null},${startTime},${endTime},${success},${page},${limit},"${searchKey}","${orderBy}",${ascOrder})`)
         return { records: reports.data, total }
     }
