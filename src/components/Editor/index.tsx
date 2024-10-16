@@ -16,7 +16,7 @@ import { request_json } from 'xshell/net.browser.js'
 
 import { t, language } from '../../../i18n/index.js'
 
-import { model } from '../../model.js'
+import { model } from '@/model.ts'
 
 
 // 在 React DevTool 中显示的组件名字
@@ -24,10 +24,9 @@ MonacoEditor.displayName = 'MonacoEditor'
 
 loader.config({
     paths: {
-        // vs: 'https://cdn.jsdelivr.net/npm/monaco-editor@0.34.0/min/vs'
-        
         // 必须是　vs, 否则 /vs/base/common/worker/simpleWorker.nls.js 路径找不到实际文件
-        vs: `./vendors/monaco-editor/${ PRODUCTION ? 'min' : 'dev' }/vs`
+        // 必须是完整 https 前缀，不能只是路径，否则会报错
+        vs: `${location.origin}${model.assets_root}vendors/monaco-editor/${ PRODUCTION ? 'min' : 'dev' }/vs`
     },
     ... language === 'zh' ? {
         'vs/nls': {
