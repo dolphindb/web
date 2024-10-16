@@ -458,6 +458,9 @@ def enablePlan(id) {
 def createPlan(name, desc, metrics, nodes, params, frequency, days, scheduleTime, enabled=false, alertEnabled=false, alertRecipient=NULL, runNow=false) {
     id = string(long(now()))
     print("start to create plan: " + name)
+    if (metrics.size() == 0) {
+        throw "metrics' size must be greater than 0"
+    }
     if (metrics.size() != nodes.size()) {
         throw "metrics' size must be same as nodes' size"
     }
