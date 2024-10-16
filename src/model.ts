@@ -316,11 +316,8 @@ export class DdbModel extends Model<DdbModel> {
         
         if (!this.logined && (this.login_required || await this.check_client_auth()))
             await this.goto_login()
-        else {
+        else
             await this.get_factor_platform_enabled()
-            
-            this.goto(`/${this.node_type === NodeType.controller ? 'overview' : 'shell'}/`)
-        }
     }
     
     

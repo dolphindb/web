@@ -171,6 +171,10 @@ const router = createBrowserRouter([
                 element: <Shell />
             },
             {
+                index: true,
+                element: <Shell />
+            },
+            {
                 path: 'overview/',
                 element: <Overview />
             },
