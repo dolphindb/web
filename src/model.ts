@@ -5,7 +5,7 @@ import type { MessageInstance } from 'antd/es/message/interface.d.ts'
 import type { HookAPI as ModalHookAPI } from 'antd/es/modal/useModal/index.d.ts'
 import type { NotificationInstance } from 'antd/es/notification/interface.d.ts'
 
-import type { NavigateFunction } from 'react-router-dom'
+import type { Location as RouterLocation, NavigateFunction, NavigateOptions } from 'react-router-dom'
 
 import 'xshell/polyfill.browser.js'
 import { filter_values, strcmp } from 'xshell/utils.browser.js'
@@ -87,7 +87,7 @@ export class DdbModel extends Model<DdbModel> {
     sql: SqlStandard = SqlStandard[localStorage.getItem(storage_keys.sql)] || SqlStandard.DolphinDB
     
     get view () {
-        return location.pathname.strip_start(this.assets_root).slice_to('/')
+        return location.pathname.strip_start(this.assets_root).split('/')[0] || 'shell'
     }
     
     /** 重定向 view */
@@ -162,6 +162,8 @@ export class DdbModel extends Model<DdbModel> {
     notification: NotificationInstance
     
     navigate: NavigateFunction
+    
+    location: RouterLocation
     
     /** 记录启用了哪些可选功能 */
     enabled_modules = new Set<string>()
@@ -316,7 +318,7 @@ export class DdbModel extends Model<DdbModel> {
         else {
             await this.get_factor_platform_enabled()
             
-            this.navigate(`/${this.node_type === NodeType.controller ? 'overview' : 'shell'}`)
+            this.goto(`/${this.node_type === NodeType.controller ? 'overview' : 'shell'}/`)
         }
     }
     
@@ -651,6 +653,11 @@ export class DdbModel extends Model<DdbModel> {
     }
     
     
+    goto (pathname: string, options?: NavigateOptions) {
+        this.navigate({ ...this.location, pathname }, options)
+    }
+    
+    
     /** 去登录页
         @param redirection 设置登录完成后的回跳页面，默认取当前 view */
     async goto_login () {
@@ -679,7 +686,7 @@ export class DdbModel extends Model<DdbModel> {
             
             await goto_url(url)
         } else
-            this.navigate('/login')
+            this.goto('/login/')
     }
     
     

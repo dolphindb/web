@@ -98,9 +98,6 @@ function DolphinDB () {
 function MainLayout () {
     const { header, inited, sider } = model.use(['header', 'inited', 'sider'])
     
-    const { pathname } = useLocation()
-    const view = pathname.split('/')[1]
-    
     // App 组件通过 Context 提供上下文方法调用，因而 useApp 需要作为子组件才能使用
     Object.assign(model, App.useApp())
     
@@ -144,7 +141,7 @@ function MainLayout () {
                 { sider && <DdbSider />}
                 <Layout.Content className='view'>
                     <GlobalErrorBoundary>
-                        <div className={`view-card ${view}`}>
+                        <div className={`view-card ${model.view}`}>
                             <Outlet />
                         </div>
                     </GlobalErrorBoundary>

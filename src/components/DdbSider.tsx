@@ -67,11 +67,8 @@ export function DdbSider () {
     const { node_type, collapsed, logined, admin, login_required, client_auth, v1, is_factor_platform_enabled } 
         = model.use(['node_type', 'collapsed', 'logined', 'admin', 'login_required', 'client_auth', 'v1', 'is_factor_platform_enabled', 'enabled_modules'])
     
-    const navigate = useNavigate()
+    const location = model.location = useLocation()
     
-    const location = useLocation()
-    
-    const view = location.pathname.split('/')[1]
     
     const factor_href = useMemo(() => {
         const search_params = new URLSearchParams(location.search)
@@ -113,7 +110,7 @@ export function DdbSider () {
             className={`menu ${admin ? 'module-settings' : ''}`}
             mode='inline'
             theme='light'
-            selectedKeys={[view]}
+            selectedKeys={[model.view]}
             onSelect={({ key }) => {
                 if ((login_required || client_auth) && !logined) {
                     model.message.error(t('请登录'))
@@ -123,7 +120,7 @@ export function DdbSider () {
                 if (key === 'factor')
                     return
                 
-                navigate({ ...location, pathname: `/${key}/` })
+                model.goto(`/${key}/`)
             }}
             inlineIndent={10}
             items={[
