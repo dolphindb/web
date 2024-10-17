@@ -73,7 +73,7 @@ export const EditParamModal = NiceModal.create(({
                 name='desc' 
                 label={<h3 className='form-item-label'>{t('描述')}</h3>} 
                 >
-                <Input disabled/>
+                <Input.TextArea disabled style={{ whiteSpace: 'pre-wrap' }} autoSize/>
             </Form.Item>
             
             <Form.Item 
