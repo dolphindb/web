@@ -75,7 +75,7 @@ export function DashBoard () {
     }, [inited_state])
     
     const [show_dashboard, set_show_dashboard] = useState(false)
-    const location = model.location = useLocation()
+    const location = useLocation()
     
     useEffect(() => {
         const search_params = new URLSearchParams(location.search)
