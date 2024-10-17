@@ -146,7 +146,7 @@ def generateDefaultMetricParams(planId) {
         } else if (frequency == 'M') {
             dur = -1M
         }
-        startTime = temporalAdd(endTime, -1d)    
+        startTime = temporalAdd(endTime, dur)    
     }
     params["startTime"] = startTime
     params["endTime"] = endTime
