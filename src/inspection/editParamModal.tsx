@@ -63,7 +63,7 @@ export const EditParamModal = NiceModal.create(({
             }}
             >
             <Form.Item 
-                name='name' 
+                name='displayName' 
                 label={<h3 className='form-item-label'>{t('名称')}</h3>} 
                 >
                 <Input readOnly style={{ cursor: 'not-allowed' }}/>
