@@ -198,7 +198,7 @@ export function InspectionForm ({
             </Form.Item>
             
             <Form.Item name='desc' layout='vertical' label={<h3>{t('巡检计划描述')}</h3>} >
-                <Input placeholder={t('巡检计划描述(非必填)')}/>
+                <Input placeholder={t('巡检计划描述(非必填)')} style={{ whiteSpace: 'pre-wrap' }}/>
             </Form.Item>
             
             <h3>{t('巡检周期')}</h3>
@@ -374,6 +374,7 @@ export function MetricGroupTable ({
                                     title: t('描述'),
                                     dataIndex: 'desc',
                                     key: 'desc',
+                                    render: (desc: string) => <div style={{ whiteSpace: 'pre-wrap' }}>{desc}</div>
                                 },
                                 ...editing ? [ ] : [{
                                     title: t('操作'),

@@ -163,7 +163,7 @@ export function ReportDetailPage () {
         <div id='report-detail-content' className='report-content'>
             <h1>{t('{{report_id}} 巡检报告', { report_id: current_report.planId })}</h1>
            
-            <Descriptions column={5} items={[...Object.entries(reportLables).map(([key, value]) => ({ key, label: value, children: key === 'runningTime' ? delta2str(Number(current_report[key])) : current_report[key] }))]} />
+            <Descriptions column={4} items={[...Object.entries(reportLables).map(([key, value]) => ({ key, label: value, children: key === 'runningTime' ? delta2str(Number(current_report[key])) : <div style={{ whiteSpace: 'pre-wrap' }}>{current_report[key]}</div> }))]} />
             
             <h2>{t('巡检结果总览')}</h2>
             <div className='abnormal-table-header'>
@@ -239,7 +239,7 @@ function DetailDescription ({
                     items={[ ...is_multi_node ? [ ] : [{
                         key: 'desc',
                         label:  t('指标说明'),
-                        children: metric.desc,
+                        children: <div style={{ whiteSpace: 'pre-wrap' }}>{metric.desc}</div>,
                         span: 4,
                     }], {
                         key: 'startTime',
@@ -277,7 +277,7 @@ function DetailDescription ({
                     ...n.suggestion ? [{
                         key: 'suggestion',
                         label: t('建议'),
-                        children: n.suggestion,
+                        children: <div style={{ whiteSpace: 'pre-wrap' }}>{n.suggestion}</div>,
                         span: 4,
                     }] : [ ]]}
                 />
@@ -299,6 +299,6 @@ function DetailTable ({
             dataSource={ds}
             pagination={false}
         /> 
-    : ds ?? t('检查通过')    
+    : <div style={{ whiteSpace: 'pre-wrap' }}>{ds ?? t('检查通过')}</div>    
 }
 
