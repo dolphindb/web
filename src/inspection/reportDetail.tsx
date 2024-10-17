@@ -227,7 +227,7 @@ function DetailDescription ({
     const is_multi_node = metric.detail_nodes.length > 1
     console.log('metric.metricParams', metric.metricParams)
     return <Typography key={metric.metricName} className='report-description'>
-         {is_multi_node && <p>{t('指标说明: {{desc}}', { desc: metric.desc })}</p>}
+         {is_multi_node && <div style={{ whiteSpace: 'pre-wrap' }}>{t('指标说明: {{desc}}', { desc: metric.desc })}</div>}
         {
             metric.detail_nodes.map(n => <div
                 key={n.node}
