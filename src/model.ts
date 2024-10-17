@@ -338,7 +338,6 @@ export class DdbModel extends Model<DdbModel> {
         - key: 参数名
         - value: 参数值，为 null 或 undefined 时删除该参数 */
     set_query (key: string, value: string | null) {
-        // todo: 这里需要用 react router 修改？
         
         let url = new URL(location.href)
         
@@ -347,7 +346,7 @@ export class DdbModel extends Model<DdbModel> {
         else
             url.searchParams.set(key, value)
         
-        history.replaceState(null, '', url)
+        model.navigate({ search: url.search })
     }
     
     

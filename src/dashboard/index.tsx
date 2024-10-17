@@ -4,9 +4,11 @@ import 'gridstack/dist/gridstack.css'
 // 行列数为 1 - 11 时需要
 // import 'gridstack/dist/gridstack-extra.css'
 
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { App, Button, ConfigProvider, Popconfirm, Result, Spin, theme } from 'antd'
 import * as echarts from 'echarts'
+
+import { useLocation } from 'react-router-dom'
 
 import { NodeType, model } from '../model.js'
 
@@ -72,10 +74,22 @@ export function DashBoard () {
         })()
     }, [inited_state])
     
+    const [show_dashboard, set_show_dashboard] = useState(false)
+    const location = model.location = useLocation()
+    
+    useEffect(() => {
+        const search_params = new URLSearchParams(location.search)
+        const dashboard = search_params.get('dashboard')
+        if (dashboard) 
+            set_show_dashboard(true)
+        else 
+            set_show_dashboard(false)
+    }, [location.search])
+    
     const component = {
         [InitedState.hidden]: <></>,
         [InitedState.uninited]: <Init/>,
-        [InitedState.inited]: (new URLSearchParams(location.search).has('dashboard') ?
+        [InitedState.inited]: (show_dashboard ?
                 <ConfigProvider
                     theme={{
                         hashed: false,

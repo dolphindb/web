@@ -1,4 +1,4 @@
-import { useMemo } from 'react'
+import { useEffect, useMemo } from 'react'
 
 import { Layout, Menu, Typography } from 'antd'
 
@@ -69,6 +69,15 @@ export function DdbSider () {
     
     // useLocation 会导致路径变化时整个组件重新渲染，尽量选择小的范围调用
     const location = model.location = useLocation()
+    
+    useEffect(() => {
+        const search_params = new URLSearchParams(location.search)
+        const dashboard = search_params.get('dashboard')
+        if (dashboard) 
+            model.set({ header: false, sider: false })
+        else
+            model.set({ header: true, sider: true })
+    }, [location.search])
     
     
     const factor_href = useMemo(() => {
