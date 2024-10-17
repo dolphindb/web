@@ -66,14 +66,14 @@ export const EditParamModal = NiceModal.create(({
                 name='name' 
                 label={<h3 className='form-item-label'>{t('名称')}</h3>} 
                 >
-                <Input disabled/>
+                <Input readOnly style={{ cursor: 'not-allowed' }}/>
             </Form.Item>
             
             <Form.Item 
                 name='desc' 
                 label={<h3 className='form-item-label'>{t('描述')}</h3>} 
                 >
-                <Input.TextArea disabled style={{ whiteSpace: 'pre-wrap' }} autoSize/>
+                <Input.TextArea readOnly style={{ whiteSpace: 'pre-wrap', cursor: 'not-allowed' }} autoSize />
             </Form.Item>
             
             <Form.Item 
@@ -94,7 +94,7 @@ export const EditParamModal = NiceModal.create(({
                 name='script' 
                 label={<h3 className='form-item-label'>{t('脚本内容')}</h3>} 
                 >
-                <Input.TextArea disabled autoSize={{ maxRows: 10 }} />
+                <Input.TextArea readOnly autoSize={{ maxRows: 10 }} style={{ cursor: 'not-allowed', whiteSpace: 'pre-wrap' }}/>
             </Form.Item>
             
            {Boolean(metric.params.size) &&  <Form.Item 
@@ -107,8 +107,9 @@ export const EditParamModal = NiceModal.create(({
                         return <Form.Item 
                                     name={['selected_params', name]}   
                                     label={name}
-                                    labelCol={{ span: 4 }}
-                                    wrapperCol={{ span: 20 }}
+                                    labelAlign='left'
+                                    labelCol={{ span: 3 }}
+                                    wrapperCol={{ span: 21 }}
                                     >
                                 {type === 'TIMESTAMP' ? 
                                     <DatePicker 
