@@ -146,7 +146,7 @@ def pluginVersion(params) {
     }
     
     if (err.size() > 0) {
-        return (false, err, "请升级插件至与 DolphinDB 前三级版本一致。")
+        return (false, err, "请升级插件至与 DolphinDB 前三级版本一致，DolphinDB 版本：" + string(version()))
     }
     
     return (true, NULL, NULL)
@@ -159,7 +159,9 @@ go
 name = "recoveryStatus"
 displayName = "恢复事务状态"
 group = "1"
-desc = "检查恢复事务状态是否正常，以及在指定时间内是否推进。默认检查时间间隔 10000 ms。"
+desc = "检查恢复事务状态是否正常，以及在指定时间内是否推进。
+参数说明：
+- checkInterval: 正整数，检查时间间隔，单位 ms，默认 10000 ms。"
 nodes = NULL // NULL 指该指标不能指定节点运行，选择任一数据节点执行
 script = '
 def recoveryStatus(mutable params){
@@ -339,7 +341,7 @@ def replicaNum(params) {
     replicaNum = select count(*) as cnt from pnodeRun(getAllChunks) where state == 0 group by chunkId // 只查询状态完成的元数据，因为事务中的元数据可能副本还在构建
     replicaNum = select * from replicaNum where cnt != dfsReplicationFactor
     if (replicaNum.size() > 0) {
-        return (false, "存在 " + replicaNum.size() + " 个分区副本数小于 dfsReplicationFactor 配置项值 " + dfsReplicationFactor, "请参考官方教程《分区状态不一致》排查问题，拷贝副本恢复。")
+        return (false, "存在 " + replicaNum.size() + " 个分区副本数小于 dfsReplicationFactor 配置项值 " + dfsReplicationFactor + "。", "请参考官方教程《分区状态不一致》排查问题，拷贝副本恢复。")
     }
     
     return (true, NULL, NULL)
@@ -351,7 +353,10 @@ go
 name = "replicaRowNum"
 displayName = "副本一致"
 group = "1"
-desc = "检查双副本时是否存在副本数据条数不一致。"
+desc = "检查多副本时是否存在副本数据条数不一致，只统计 startTime 到 endTime 参数之间有写入的副本。
+参数说明：
+- startTime：TIMESTAMP，统计范围的开始时间，默认值为上次相同方案 ID 的报告的开始时间。
+- endTime：TIMESTAMP，统计范围的结束时间，默认值为当前报告的开始时间。"
 nodes = NULL
 script = '
 def getChunkidNode(nodes, replicas, chunkIds){
@@ -399,7 +404,7 @@ def replicaRowNum(params){
     badChunkId=array(ANY);
     select addBadChunkId(badChunkId,first(chunkId),rowNum) from chunkidNodeRow group by chunkId;
     if(badChunkId.size()>0){
-        return false,"存在"+badChunkId.size()+"个不一致的副本","请删除错误副本并拷贝正确副本恢复";
+        return false,"存在 "+badChunkId.size()+" 个不一致的副本。","请删除错误副本并拷贝正确副本恢复。";
     }
     return true,"所有分区副本数完全一致","";
 }
@@ -414,7 +419,11 @@ go
 name = "errorLogs"
 displayName = "错误日志"
 group = "1"
-desc = "检查近期日志是否有 ERROR/WARNING"
+desc = "检查近期日志是否有 ERROR/WARNING，只统计 startTime 到 endTime 参数时间范围内的日志。
+参数说明：
+- startTime：TIMESTAMP，统计范围的开始时间，默认值为上次相同方案 ID 的报告的开始时间。
+- endTime：TIMESTAMP，统计范围的结束时间，默认值为当前报告的开始时间。
+- logLevel：STRING 数组，统计的日志等级，可取值：ERROR，WARNING。"
 nodes = exec name from rpc(getControllerAlias(), getClusterPerf{true}) where mode != 1 // NULL 指该指标不能指定节点运行，选择任一数据节点执行
 script = '
 def getServerLogEx(startTime, endTime) {
@@ -511,7 +520,10 @@ go
 name = "queryElapsed"
 displayName = "耗时最长SQL top10"
 group = "1"
-desc = "耗时最长SQL top10。"
+desc = "耗时最长SQL top10，只统计 startTime 到 endTime 参数时间范围内执行的 SQL。
+参数说明：
+- startTime：TIMESTAMP，统计范围的开始时间，默认值为上次相同方案 ID 的报告的开始时间。
+- endTime：TIMESTAMP，统计范围的结束时间，默认值为当前报告的开始时间。"
 nodes = NULL // NULL 指该指标不能指定节点运行，选择任一数据节点执行
 script = '
 def queryElapsed(params) {
@@ -567,7 +579,10 @@ go
 name = "mostQueriedDFSTables"
 displayName = "访问次数最多的库表"
 group = "1"
-desc = "访问次数最多的库表。"
+desc = "访问次数最多的库表，只统计 startTime 到 endTime 参数时间范围内有访问记录的库表。
+参数说明：
+- startTime：TIMESTAMP，统计范围的开始时间，默认值为上次相同方案 ID 的报告的开始时间。
+- endTime：TIMESTAMP，统计范围的结束时间，默认值为当前报告的开始时间。"
 nodes = NULL // NULL 指该指标不能指定节点运行，选择任一数据节点执行
 script = '
 def mostQueriedDFSTables(params) {
@@ -621,7 +636,10 @@ go
 name = "DFSTableDiskUsage"
 displayName = "数据库大小统计 top10"
 group = "1"
-desc = "数据库大小统计 top10。"
+desc = "数据库大小统计 top10，只统计 startTime 到 endTime 参数范围内有访问记录的库表。
+参数说明：
+- startTime：TIMESTAMP，统计范围的开始时间，默认值为上次相同方案 ID 的报告的开始时间。
+- endTime：TIMESTAMP，统计范围的结束时间，默认值为当前报告的开始时间。"
 nodes = NULL // NULL 指该指标不能指定节点运行，选择任一数据节点执行
 script = '
 def dfsPath2tableName(dfsPath){
@@ -676,7 +694,10 @@ go
 name = "biggestChunks"
 displayName = "分区大小统计 top10"
 group = "1"
-desc = "分区大小统计 top10。"
+desc = "分区大小统计 top10，只统计 startTime 到 endTime 参数时间范围内有写入的分区。
+参数说明：
+- startTime：TIMESTAMP，统计范围的开始时间，默认值为上次相同方案 ID 的报告的开始时间。
+- endTime：TIMESTAMP，统计范围的结束时间，默认值为当前报告的开始时间。"
 nodes = NULL // NULL 指该指标不能指定节点运行，选择任一数据节点执行
 script = '
 def dfsPath2tableName(dfsPath){
@@ -724,7 +745,10 @@ go
 name = "sortKeyCount"
 displayName = "排序键"
 group = "1"
-desc = "检查排序键过多，需要哈希降维的分布式表。"
+desc = "检查排序键过多，需要哈希降维的分布式表，只统计 startTime 到 endTime 参数时间范围内有写入的表。
+参数说明：
+- startTime：TIMESTAMP，统计范围的开始时间，默认值为上次相同方案 ID 的报告的开始时间。
+- endTime：TIMESTAMP，统计范围的结束时间，默认值为当前报告的开始时间。"
 nodes = NULL // NULL 指该指标不能指定节点运行，选择任一数据节点执行
 script = '
 def getChunksGEKeyCount(keyCount,chunkIds){
@@ -1477,7 +1501,10 @@ go
 name = "coredump"
 displayName = "core 文件"
 group = "2"
-desc = "检查近期是否有 core 文件。"
+desc = "检查近期是否有 core 文件，只统计 startTime 到 endTime 参数时间范围内生成的 core 文件。
+参数说明：
+- startTime：TIMESTAMP，统计范围的开始时间，默认值为上次相同方案 ID 的报告的开始时间。
+- endTime：TIMESTAMP，统计范围的结束时间，默认值为当前报告的开始时间。"
 nodes = select first(name) as name from rpc(getControllerAlias(), getClusterPerf) where mode != 1 group by host
 nodes = nodes["name"]
 script = '
@@ -1544,7 +1571,9 @@ go
 name = "commonSystemConfig"
 displayName = "操作系统配置项"
 group = "2"
-desc = "检查常见操作系统配置项。"
+desc = "检查常见操作系统配置项。
+参数说明：
+- logLevel：STRING 数组，统计的日志等级，可取值：ERROR，WARNING。"
 nodes = select first(name) as name from rpc(getControllerAlias(), getClusterPerf) where mode != 1 group by host
 nodes = nodes["name"]
 script = '
@@ -1673,8 +1702,6 @@ def commonSystemConfig(params) {
 }
 '
 params = [
-    dict(`name`type, ["startTime", "TIMESTAMP"]),
-    dict(`name`type, ["endTime", "TIMESTAMP"]),
     dict(`name`type`options, ["logLevel", "SYMBOL", ["ERROR", "WARNING"]])
 ]
 newMetric(name, displayName, group, desc, nodes, script, params)

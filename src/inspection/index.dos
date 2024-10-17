@@ -39,7 +39,7 @@ def initDfs() {
     pt5 = createPartitionedTable(db, tb, "report_details", ["planId", "startTime"], sortColumns="startTime")
 }
 
-def newMetric(name, displayName, group, desc, nodes, script, params=NULL) {
+def newMetric(name, displayName, group, desc, nodes, script, params=NULL, version=0) {
     print("new metric: " + name)
     name_ = name
     cnt = exec count(*) from loadTable("dfs://ddb_internal_auto_inspection", "metrics") where name == name_
@@ -86,7 +86,7 @@ def newMetric(name, displayName, group, desc, nodes, script, params=NULL) {
         nodes_ as nodes,
         blob(script) as script,
         params_ as params,
-        0 as version,
+        version as version,
         ts as createTime,
         ts as updateTime
     )
@@ -146,7 +146,7 @@ def generateDefaultMetricParams(planId) {
         } else if (frequency == 'M') {
             dur = -1M
         }
-        startTime = temporalAdd(endTime, -1d)    
+        startTime = temporalAdd(endTime, dur)    
     }
     params["startTime"] = startTime
     params["endTime"] = endTime
