@@ -164,8 +164,6 @@ export class DdbModel extends Model<DdbModel> {
     
     navigate: NavigateFunction
     
-    location: RouterLocation
-    
     /** 记录启用了哪些可选功能 */
     enabled_modules = new Set<string>()
     
@@ -651,7 +649,7 @@ export class DdbModel extends Model<DdbModel> {
     
     /** 跳转路径，不改变查询参数 */
     goto (pathname: string, options?: NavigateOptions) {
-        this.navigate({ ...this.location, pathname }, options)
+        this.navigate({ pathname, search: location.search }, options)
     }
     
     
