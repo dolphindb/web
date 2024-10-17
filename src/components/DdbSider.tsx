@@ -4,14 +4,13 @@ import { Layout, Menu, Typography } from 'antd'
 
 import { default as Icon, DoubleLeftOutlined, DoubleRightOutlined, ExperimentOutlined, SettingOutlined } from '@ant-design/icons'
 
-import { isNil, omitBy } from 'lodash'
-
 import { useLocation } from 'react-router-dom'
 
+import { filter_values } from 'xshell/utils.browser.js'
 
-import { language, t } from '@i18n/index.js'
+import { language, t } from '@i18n/index.ts'
 
-import { model, type DdbModel, NodeType, storage_keys } from '../model.js'
+import { model, type DdbModel, NodeType, storage_keys } from '@/model.ts'
 
 
 import SvgOverview from '@/overview/icons/overview.icon.svg'
@@ -68,24 +67,19 @@ export function DdbSider () {
         = model.use(['node_type', 'collapsed', 'logined', 'admin', 'login_required', 'client_auth', 'v1', 'is_factor_platform_enabled', 'enabled_modules'])
     
     // useLocation 会导致路径变化时整个组件重新渲染，尽量选择小的范围调用
-    const location = model.location = useLocation()
+    const { search } = useLocation()
     
     
     const factor_href = useMemo(() => {
-        const search_params = new URLSearchParams(location.search)
+        const search_params = new URLSearchParams(search)
         
         return 'factor-platform/index.html?' +
-            new URLSearchParams(
-                omitBy(
-                    {
-                        ddb_hostname: search_params.get('hostname'),
-                        ddb_port: search_params.get('port'),
-                        logined: Number(logined).toString(),
-                        token: localStorage.getItem(storage_keys.ticket)
-                    },
-                    isNil
-                )
-            ).toString()
+            new URLSearchParams(filter_values({
+                ddb_hostname: search_params.get('hostname'),
+                ddb_port: search_params.get('port'),
+                logined: Number(logined).toString(),
+                token: localStorage.getItem(storage_keys.ticket)
+            })).toString()
     }, [logined])
     
     return <Layout.Sider
