@@ -107,7 +107,7 @@ export function InspectionForm ({
                             return ''
                     }),
                     frequency: values.frequency,
-                    days: (values.days as number[]).map(Number),                                
+                    days: values.days ? (values.days as number[]).map(Number) : [1],                                
                     scheduleTime: values.scheduleTime.map(time => dayjs(time).format('HH:mm') + 'm'), 
                     enabled,
                     alertEnabled: values.alertEnabled,
@@ -213,25 +213,29 @@ export function InspectionForm ({
                 </Form.Item>
                 
                 <Form.Item 
-                    label={t('巡检日期')} 
-                    dependencies={['frequency']} 
-                    shouldUpdate={(prevValues, curValues) => prevValues.frequency !== curValues.frequency}>
-                    {
-                        ({ getFieldValue }) => {
-                            const frequency = getFieldValue('frequency')
-                            return <Form.Item name='days' rules={[{ required: true, message: t('请选择巡检日期') }]}>
-                                    <Select
-                                        mode='multiple'
-                                        className='date-select'
-                                        options={Array.from({ length: frequency === 'M' ? 31 : frequency === 'W' ? 7 : 1 }, (_, i) => i).
-                                                map(idx => ({
-                                                    label:  frequency === 'W' ? weekDays[idx] : t('第 {{day}} 天', { day: idx + 1 }),
-                                                    value:  frequency === 'W' ? idx : idx + 1
-                                                }))} 
-                                        /> 
+                    noStyle
+                    shouldUpdate={(prevValues, curValues) => prevValues.frequency !== curValues.frequency}
+                >
+                    {({ getFieldValue }) => {
+                        const frequency = getFieldValue('frequency')
+                        return frequency !== 'D' && (
+                            <Form.Item 
+                                label={t('巡检日期')} 
+                                name='days'
+                                rules={[{ required: true, message: t('请选择巡检日期') }]}
+                            >
+                                <Select
+                                    mode='multiple'
+                                    className='date-select'
+                                    options={Array.from({ length: frequency === 'M' ? 31 : 7 }, (_, i) => i).
+                                            map(idx => ({
+                                                label:  frequency === 'W' ? weekDays[idx] : t('第 {{day}} 天', { day: idx + 1 }),
+                                                value:  frequency === 'W' ? idx : idx + 1
+                                            }))} 
+                                /> 
                             </Form.Item>
-                        }
-                    }
+                        )
+                    }}
                 </Form.Item>
                 
                 <Form.Item label={t('巡检时间')} >
