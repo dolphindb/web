@@ -10,7 +10,6 @@ import { t } from '../../i18n/index.js'
 
 import { model } from '../model.js'
 
-import { CONFIG_CLASSIFICATION } from './constants.js'
 import { config } from './model.js'
 
 
@@ -58,7 +57,7 @@ export const NodesConfigAddModal = NiceModal.create((props: { compute_group?: st
                     showSearch
                     optionFilterProp='label'
                     filterOption={filter_config}
-                    options={Object.entries(CONFIG_CLASSIFICATION).map(([cfg_cls, configs]) => ({
+                    options={Object.entries(config.get_config_classification()).map(([cfg_cls, configs]) => ({
                         label: cfg_cls,
                         options: Array.from(configs).map(cfg => ({
                             label: cfg,

@@ -5,7 +5,7 @@ import { useCallback, useState } from 'react'
 
 import { t } from '../../i18n/index.js'
 
-import { CONFIG_CLASSIFICATION } from './constants.js'
+import { config } from './model.ts'
 
 
 export const GroupAddModal = NiceModal.create((props: { on_save: (form: { group_name: string, group_nodes: GroupNodesDatatype[], group_configs: GroupConfigDatatype[] }) => Promise<{ success: boolean, message?: string }> }) => {
@@ -122,7 +122,7 @@ export const GroupAddModal = NiceModal.create((props: { on_save: (form: { group_
                 onChange={e => {
                     update_config_by_field(key, 'name', e)
                 }}
-                options={Object.entries(CONFIG_CLASSIFICATION).map(([cfg_cls, configs]) => ({
+                options={Object.entries(config.get_config_classification()).map(([cfg_cls, configs]) => ({
                     label: cfg_cls,
                     options: Array.from(configs).map(cfg => ({
                         label: cfg,

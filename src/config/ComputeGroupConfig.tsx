@@ -16,7 +16,6 @@ import useSWR from 'swr'
 import { model } from '@/model.js'
 
 import { filter_config, strs_2_nodes } from './utils.js'
-import { CONFIG_CLASSIFICATION } from './constants.js'
 import { NodesConfigAddModal } from './NodesConfigAddModal.js'
 
 import { config } from './model.js'
@@ -171,7 +170,7 @@ export function ComputeGroupConfig () {
                             if (e.key === 'Enter')
                                 on_search()
                         }}
-                        options={Object.entries(CONFIG_CLASSIFICATION).map(([cfg_cls, configs]) => ({
+                        options={Object.entries(config.get_config_classification()).map(([cfg_cls, configs]) => ({
                             label: cfg_cls,
                             options: Array.from(configs).map(cfg => ({
                                 label: cfg,

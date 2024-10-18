@@ -1,6 +1,6 @@
 import { t } from '../../i18n/index.js'
 
-import { CONFIG_CLASSIFICATION } from './constants.js'
+import { config } from './model.ts'
 
 import { type NodeType, type ControllerConfig, type ClusterNode, type NodesConfig } from './type.js'
 
@@ -68,9 +68,10 @@ export function parse_nodes_configs (strs: string[]) {
 
 export function get_category (name: string) {
     let category = t('其它')
-    let clses = Object.keys(CONFIG_CLASSIFICATION)
+    const config_classification = config.get_config_classification()
+    let clses = Object.keys(config_classification)
     for (let cls of clses)
-        if (CONFIG_CLASSIFICATION[cls].has(name))
+        if (config_classification[cls].has(name))
             category = cls
     return category
 }
