@@ -322,8 +322,9 @@ class ShellModel extends Model<ShellModel> {
             const tab = new_tabs[index]
             this.set({ tabs: new_tabs })
             localStorage.setItem(`${storage_keys.code}.${this.current_tab_index}`, JSON.stringify(tab))
-        } else
-            localStorage.setItem(storage_keys.code, code)
+        } else 
+            if (code) 
+                localStorage.setItem(storage_keys.code, code)
     }
     
     
@@ -364,7 +365,14 @@ class ShellModel extends Model<ShellModel> {
     
     init_tabs () {
         const tab_keys = Object.keys(localStorage).filter(key => key.startsWith(`${storage_keys.code}.`))
-        const tabs: Tab[] = tab_keys.map(key => JSON.parse(localStorage.getItem(key) || ''))
+        const tabs: Tab[] = [ ]
+        for (const key of tab_keys) 
+            try {
+                const result = JSON.parse(localStorage.getItem(key) || '')
+                tabs.push(result)
+            } catch (error) {
+                localStorage.removeItem(key)
+            }
         this.set({ tabs: tabs.sort((a, b) => a.index - b.index) })
     }
     
