@@ -93,7 +93,7 @@ def newMetric(name, displayName, group, desc, nodes, script, params=NULL, versio
     loadTable("dfs://ddb_internal_auto_inspection", "metrics").append!(metric)
 }
 
-def updateMetric(name_, group_, desc_, nodes, script_, params_) {
+def updateMetric(name_, displayName_, group_, desc_, nodes, script_, params_) {
     if (isVoid(name_)) {
         throw "name can not be empty"
     }
@@ -111,6 +111,9 @@ def updateMetric(name_, group_, desc_, nodes, script_, params_) {
     }
 
     pt = loadTable("dfs://ddb_internal_auto_inspection", "metrics")
+    if (!isVoid(displayName_)) {
+        update pt set displayName = displayName_ where name == name_
+    }
     if (!isVoid(group_)) {
         update pt set group = group_ where name == name_
     }
