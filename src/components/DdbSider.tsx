@@ -68,7 +68,7 @@ export function DdbSider () {
     const factor_href = useMemo(() => {
         const search_params = new URLSearchParams(location.search)
         
-        return 'factor-platform/index.html?' +
+        return 'starfish/index.html?' +
             new URLSearchParams(
                 omitBy(
                     {
