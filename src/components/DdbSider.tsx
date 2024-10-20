@@ -4,7 +4,7 @@ import { Layout, Menu, Typography } from 'antd'
 
 import { default as Icon, DoubleLeftOutlined, DoubleRightOutlined, ExperimentOutlined, SettingOutlined } from '@ant-design/icons'
 
-import { isNil, omitBy } from 'lodash'
+import { filter_values } from 'xshell/utils.browser.js'
 
 
 import { language, t } from '@i18n/index.js'
@@ -69,16 +69,13 @@ export function DdbSider () {
         const search_params = new URLSearchParams(location.search)
         
         return 'starfish/index.html?' +
-            new URLSearchParams(
-                omitBy(
-                    {
-                        ddb_hostname: search_params.get('hostname'),
-                        ddb_port: search_params.get('port'),
-                        logined: Number(logined).toString(),
-                        token: localStorage.getItem(storage_keys.ticket)
-                    },
-                    isNil
-                )
+            new URLSearchParams(filter_values(
+                {
+                    ddb_hostname: search_params.get('hostname'),
+                    ddb_port: search_params.get('port'),
+                    logined: Number(logined).toString(),
+                    token: localStorage.getItem(storage_keys.ticket)
+                })
             ).toString()
     }, [logined])
     
