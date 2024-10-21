@@ -4,7 +4,7 @@ import { Layout, Menu, Typography } from 'antd'
 
 import { default as Icon, DoubleLeftOutlined, DoubleRightOutlined, ExperimentOutlined, SettingOutlined } from '@ant-design/icons'
 
-import { isNil, omitBy } from 'lodash'
+import { filter_values } from 'xshell/utils.browser.js'
 
 
 import { language, t } from '@i18n/index.js'
@@ -68,17 +68,14 @@ export function DdbSider () {
     const factor_href = useMemo(() => {
         const search_params = new URLSearchParams(location.search)
         
-        return 'factor-platform/index.html?' +
-            new URLSearchParams(
-                omitBy(
-                    {
-                        ddb_hostname: search_params.get('hostname'),
-                        ddb_port: search_params.get('port'),
-                        logined: Number(logined).toString(),
-                        token: localStorage.getItem(storage_keys.ticket)
-                    },
-                    isNil
-                )
+        return 'starfish/index.html?' +
+            new URLSearchParams(filter_values(
+                {
+                    ddb_hostname: search_params.get('hostname'),
+                    ddb_port: search_params.get('port'),
+                    logined: Number(logined).toString(),
+                    token: localStorage.getItem(storage_keys.ticket)
+                })
             ).toString()
     }, [logined])
     
