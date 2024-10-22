@@ -4,6 +4,7 @@ import { Layout, Menu, Typography } from 'antd'
 
 import { default as Icon, DoubleLeftOutlined, DoubleRightOutlined, ExperimentOutlined, SettingOutlined } from '@ant-design/icons'
 
+import { filter_values } from 'xshell/utils.browser.js'
 import { useLocation } from 'react-router-dom'
 
 import { filter_values } from 'xshell/utils.browser.js'
@@ -82,13 +83,15 @@ export function DdbSider () {
     const factor_href = useMemo(() => {
         const search_params = new URLSearchParams(search)
         
-        return 'factor-platform/index.html?' +
-            new URLSearchParams(filter_values({
-                ddb_hostname: search_params.get('hostname'),
-                ddb_port: search_params.get('port'),
-                logined: Number(logined).toString(),
-                token: localStorage.getItem(storage_keys.ticket)
-            })).toString()
+        return 'starfish/index.html?' +
+            new URLSearchParams(filter_values(
+                {
+                    ddb_hostname: search_params.get('hostname'),
+                    ddb_port: search_params.get('port'),
+                    logined: Number(logined).toString(),
+                    token: localStorage.getItem(storage_keys.ticket)
+                })
+            ).toString()
     }, [logined])
     
     return <Layout.Sider
