@@ -7,7 +7,6 @@ import { default as Icon, DoubleLeftOutlined, DoubleRightOutlined, ExperimentOut
 import { filter_values } from 'xshell/utils.browser.js'
 import { useLocation } from 'react-router-dom'
 
-import { filter_values } from 'xshell/utils.browser.js'
 
 import { language, t } from '@i18n/index.ts'
 
