@@ -245,7 +245,7 @@ export function InspectionForm ({
                             {
                                 fields.map(field => <Space>
                                 <Form.Item {...field} required>
-                                    <TimePicker format='HH:mm:ss'/>
+                                    <TimePicker format='HH:mm'/>
                                 </Form.Item>
                                 <MinusCircleOutlined onClick={() => { remove(field.name) }} />
                                 </Space>)
