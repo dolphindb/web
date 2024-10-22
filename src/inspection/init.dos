@@ -129,9 +129,12 @@ def pluginVersion(params) {
     }
     
     info = pnodeRun(listPluginsInner)
-    info_ = rpc(getControllerAlias(), listPluginsInner)
-    update info_ set node = getControllerAlias()
-    info.append!(info_)
+    cnt = exec count(*) from rpc(getControllerAlias(), getClusterPerf) where mode == 3
+    if (cnt == 0) {
+        info_ = rpc(getControllerAlias(), listPluginsInner)
+        update info_ set node = getControllerAlias()
+        info.append!(info_)
+    }
     
     ddbVersion = version().split(" ").first()
     ddbVersion_ = ddbVersion.split(".")
@@ -141,6 +144,7 @@ def pluginVersion(params) {
         for (i in 0..2) {
             if (ddbVersion_[i] != pluginVersion[i]) {
                 tableInsert(err, item)
+                break
             }
         }
     }
