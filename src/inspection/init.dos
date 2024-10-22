@@ -1711,19 +1711,3 @@ params = [
 ]
 newMetric(name, displayName, group, desc, nodes, script, params)
 go
-
-name = "testMetric"
-displayName = "测试指标"
-group = "2"
-desc = "测试用"
-nodes = NULL
-script = '
-def testMetric(params) {
-    success = false
-    detail = "my bad"
-    suggestion = "no way"
-    return (success, detail, suggestion)
-}
-'
-newMetric(name, displayName, group, desc, nodes, script)
-go
