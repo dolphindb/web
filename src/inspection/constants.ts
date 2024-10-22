@@ -2,20 +2,20 @@ import { t } from '@i18n/index.ts'
 
 export const inspectionFrequencyOptions = [
     {
-        label: '每日',
+        label: t('每日'),
         value: 'D',
     },
     {
-        label: '每周',
+        label: t('每周'),
         value: 'W',
     },
     {
-        label: '每月',
+        label: t('每月'),
         value: 'M',
     },
 ]
 
-export const weekDays = ['周日', '周一', '周二', '周三', '周四', '周五', '周六']
+export const weekDays = [t('周日'), t('周一'), t('周二'), t('周三'), t('周四'), t('周五'), t('周六')]
 
 export const reportLables = {
     user: t('提交人'),

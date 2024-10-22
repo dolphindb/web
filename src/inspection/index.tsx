@@ -139,57 +139,57 @@ function ReportListTable  ({
     
     const cols: TableColumnsType<PlanReport> = useMemo(() => [ 
         {
-            title: 'ID',
+            title: t('ID'),
             dataIndex: 'planId',
             key: 'planId',
         },
         {
-            title: '名称',
+            title: t('名称'),
             dataIndex: 'name',
             key: 'name',
         },
         {
-            title: '描述',
+            title: t('描述'),
             dataIndex: 'desc',
             key: 'desc',
         },
         {
-            title: '提交人',
+            title: t('提交人'),
             dataIndex: 'user',
             key: 'user',
         },
         {
-            title: '收到作业时间',
+            title: t('收到作业时间'),
             dataIndex: 'receivedTime',
             key: 'receivedTime',
             sorter: true,
         },
         {
-            title: '开始时间',
+            title: t('开始时间'),
             dataIndex: 'startTime',
             key: 'startTime',
         },
         {
-            title: '结束时间',
+            title: t('结束时间'),
             dataIndex: 'endTime',
             key: 'endTime',
         },
         {
-            title: '结果',
+            title: t('结果'),
             dataIndex: 'success',
             key: 'success',
             filterMultiple: false,
             filters: [
                 {
-                    text: '正常',
+                    text: t('正常'),
                     value: 1,
                 },
                 {
-                    text: '异常',
+                    text: t('异常'),
                     value: 0,
                 },
                 {
-                    text: '执行中',
+                    text: t('执行中'),
                     value: 2,
                 },
               ],
@@ -199,7 +199,7 @@ function ReportListTable  ({
                 <span className='red'>{t('{{failedNum}}/{{total}} 异常', { failedNum: record.failedNum, total: record.totalNum })}</span>
         },
         {
-            title: '操作',
+            title: t('操作'),
             dataIndex: 'action',
             key: 'action',
             render: (_, record) => <>
@@ -317,53 +317,53 @@ function PlanListTable  ({
     
     const cols: TableColumnsType<Plan> = useMemo(() => [ 
         {
-            title: 'ID',
+            title: t('ID'),
             dataIndex: 'id',
             key: 'id',
         },
         {
-            title: '名称',
+            title: t('名称'),
             dataIndex: 'name',
             key: 'name',
         },
         {
-            title: '描述',
+            title: t('描述'),
             dataIndex: 'desc',
             key: 'desc',
         },
         {
-            title: '提交人',
+            title: t('提交人'),
             dataIndex: 'user',
             key: 'user',
         },
         {
-            title: '开始日期',
+            title: t('开始日期'),
             dataIndex: 'startDate',
             key: 'startDate',
         },
         {
-            title: '结束日期',
+            title: t('结束日期'),
             dataIndex: 'endDate',
             key: 'endDate',
         },
         {
-            title: '巡检频率',
+            title: t('巡检频率'),
             dataIndex: 'frequency',
             key: 'frequency',
         },
         {
-            title: '巡检日期',
+            title: t('巡检日期'),
             dataIndex: 'days',
             key: 'days',
         },
         {
-            title: '巡检时间',
+            title: t('巡检时间'),
             dataIndex: 'scheduleTime',
             key: 'scheduleTime',
             render: (scheduleTime: string[]) => scheduleTime.join(', ')
         },
         {
-            title: '操作',
+            title: t('操作'),
             dataIndex: 'action',
             key: 'action',
             render: (_, record) => 

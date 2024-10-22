@@ -5239,5 +5239,320 @@
     },
     "立即刷新": {
         "en": "Refresh Now"
+    },
+    "自动化巡检": {
+        "en": "Inspection"
+    },
+    "添加指标": {
+        "en": "Add indicators"
+    },
+    "提交人": {
+        "en": "Submitter"
+    },
+    "运行时间": {
+        "en": "Running time"
+    },
+    "巡检描述": {
+        "en": "Inspection description"
+    },
+    "集群基础信息": {
+        "en": "Basic cluster information"
+    },
+    "集群运行状态": {
+        "en": "Cluster operation status"
+    },
+    "服务器运行状态": {
+        "en": "Server running status"
+    },
+    "编辑指标": {
+        "en": "Edit Indicator"
+    },
+    "请选择需要巡检的节点": {
+        "en": "Please select the node that needs to be inspected"
+    },
+    "所有节点": {
+        "en": "All nodes"
+    },
+    "脚本内容": {
+        "en": "Script"
+    },
+    "参数配置": {
+        "en": "Parameter configuration"
+    },
+    "邮件告警设置": {
+        "en": "Email alert settings"
+    },
+    "邮箱名称": {
+        "en": "Email Name"
+    },
+    "邮箱 SMTP 服务器地址": {
+        "en": "Email SMTP server host"
+    },
+    "邮箱 SMTP 服务器端口": {
+        "en": "Email SMTP server port"
+    },
+    "发送者邮箱账号": {
+        "en": "Sender's email account"
+    },
+    "发送者邮箱密码": {
+        "en": "Sender's email password"
+    },
+    "使用标准 SMTP 消息": {
+        "en": "Using standard SMTP messaging"
+    },
+    "自动化巡检模块初始化中": {
+        "en": "The automatic inspection module is initializing"
+    },
+    "新增巡检": {
+        "en": "Add inspection"
+    },
+    "请输入想要搜索的巡检名称": {
+        "en": "Please enter the name of the inspection you want to search"
+    },
+    "{{success}}/{{total}} 正常": {
+        "en": "{{success}}/{{total}} OK"
+    },
+    "{{failedNum}}/{{total}} 异常": {
+        "en": "{{failedNum}}/{{total}} exception"
+    },
+    "查看详细报告": {
+        "en": "View detailed report"
+    },
+    "删除巡检结果": {
+        "en": "Deleting inspection results"
+    },
+    "确认删除此巡检结果吗？": {
+        "en": "Are you sure you want to delete this inspection result?"
+    },
+    "巡检结果": {
+        "en": "Inspection results"
+    },
+    "批量删除巡检结果": {
+        "en": "Deleting inspection results in batches"
+    },
+    "确认删除选中的巡检结果吗？": {
+        "en": "Are you sure you want to delete the selected inspection results?"
+    },
+    "批量删除成功": {
+        "en": "Batch deletion successful"
+    },
+    "确定巡检": {
+        "en": "Confirm inspection"
+    },
+    "确定立即巡检 {{name}} 吗？": {
+        "en": "Are you sure you want to inspect {{name}} now?"
+    },
+    "立即巡检": {
+        "en": "Inspect immediately"
+    },
+    "查看详情": {
+        "en": "View details"
+    },
+    "查看最近一次巡检结果": {
+        "en": "View the latest inspection results"
+    },
+    "删除方案": {
+        "en": "Deleting a plan"
+    },
+    "确认删除巡检方案 {{plan}} 吗？": {
+        "en": "Are you sure you want to delete inspection plan {{plan}}?"
+    },
+    "进行中的巡检队列": {
+        "en": "Inspections in progress"
+    },
+    "未进行的巡检队列": {
+        "en": "Unchecked inspections"
+    },
+    "批量删除巡检方案": {
+        "en": "Deleting inspection plans in batches"
+    },
+    "确认删除选中的巡检方案吗？": {
+        "en": "Are you sure you want to delete the selected inspection plan?"
+    },
+    "请至少选中一个指标": {
+        "en": "Please select at least one indicator"
+    },
+    "请至少选中一个巡检节点": {
+        "en": "Please select at least one inspection node"
+    },
+    "查看巡检计划": {
+        "en": "View inspection plan"
+    },
+    "修改巡检计划": {
+        "en": "Modify the inspection plan"
+    },
+    "新增巡检计划": {
+        "en": "New inspection plan"
+    },
+    "启用：": {
+        "en": "Enable: "
+    },
+    "启用成功": {
+        "en": "Enabled successfully"
+    },
+    "禁用成功": {
+        "en": "Disable successfully"
+    },
+    "编辑模式：": {
+        "en": "Edit Mode: "
+    },
+    "立即执行一次巡检": {
+        "en": "Perform an inspection immediately"
+    },
+    "保存当前方案并立即执行一次巡检": {
+        "en": "Save the current plan and perform an inspection immediately"
+    },
+    "保存当前方案": {
+        "en": "Save the current plan"
+    },
+    "巡检名称": {
+        "en": "Inspection Name"
+    },
+    "请输入巡检名称": {
+        "en": "Please enter the inspection name"
+    },
+    "巡检计划描述": {
+        "en": "Inspection plan description"
+    },
+    "巡检计划描述(非必填)": {
+        "en": "Inspection plan description (optional)"
+    },
+    "巡检周期": {
+        "en": "Inspection cycle"
+    },
+    "巡检频率": {
+        "en": "Inspection frequency"
+    },
+    "巡检日期": {
+        "en": "Inspection date"
+    },
+    "请选择巡检日期": {
+        "en": "Please select the inspection date"
+    },
+    "第 {{day}} 天": {
+        "en": "Day {{day}}"
+    },
+    "巡检时间": {
+        "en": "Inspection time"
+    },
+    "添加": {
+        "en": "Add"
+    },
+    "请选择巡检时间": {
+        "en": "Please select the inspection time"
+    },
+    "是否启用邮件告警": {
+        "en": "Whether to enable email alerts"
+    },
+    "邮件告警接收人邮箱": {
+        "en": "Email address of the email alert recipient"
+    },
+    "指标列表": {
+        "en": "Indicator list"
+    },
+    "管理指标": {
+        "en": "Management Indicators"
+    },
+    "分组": {
+        "en": "Group"
+    },
+    "打印失败": {
+        "en": "Printing failed"
+    },
+    "下载巡检报告": {
+        "en": "Download inspection report"
+    },
+    "{{report_id}} 巡检报告": {
+        "en": "{{report_id}} Inspection report"
+    },
+    "巡检结果总览": {
+        "en": "Inspection results overview"
+    },
+    "指标说明: {{desc}}": {
+        "en": "Indicator description: {{desc}}"
+    },
+    "指标说明": {
+        "en": "Indicator description"
+    },
+    "是否正常": {
+        "en": "Normal"
+    },
+    "指标参数": {
+        "en": "Indicator parameters"
+    },
+    "建议": {
+        "en": "Suggestions"
+    },
+    "检查通过": {
+        "en": "Check passed"
+    },
+    "ID": {
+        "en": "ID"
+    },
+    "结果": {
+        "en": "Result"
+    },
+    "正常": {
+        "en": "Normal"
+    },
+    "异常": {
+        "en": "Abnormal"
+    },
+    "指标名": {
+        "en": "Indicator name"
+    },
+    "指标分类": {
+        "en": "Indicator classification"
+    },
+    "巡检报告_{{id}}": {
+        "en": "Inspection report_{{id}}"
+    },
+    "检查项共 {{num}} 项": {
+        "en": "Check items total {{num}} items"
+    },
+    "{{num}} 项异常。": {
+        "en": "{{num}} exceptions."
+    },
+    "异常列表指标如下:": {
+        "en": "The abnormal list indicators are as follows:"
+    },
+    "{{num_abnormal}}/{{num_total}} 项异常": {
+        "en": "{{num_abnormal}}/{{num_total}} abnormal items"
+    },
+    "{{abnormalCount}}/{{totalCount}} 项异常": {
+        "en": "{{abnormalCount}}/{{totalCount}} abnormal items"
+    },
+    "{{totalCount}}/{{totalCount}} 项正常": {
+        "en": "{{totalCount}}/{{totalCount}} items are normal"
+    },
+    "每日": {
+        "en": "Daily"
+    },
+    "每周": {
+        "en": "Weekly"
+    },
+    "每月": {
+        "en": "Monthly"
+    },
+    "周日": {
+        "en": "Sunday"
+    },
+    "周一": {
+        "en": "Monday"
+    },
+    "周二": {
+        "en": "Tuesday"
+    },
+    "周三": {
+        "en": "Wednesday"
+    },
+    "周四": {
+        "en": "Thursday"
+    },
+    "周五": {
+        "en": "Friday"
+    },
+    "周六": {
+        "en": "Saturday"
     }
 }

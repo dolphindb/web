@@ -65,12 +65,12 @@ export function ReportDetailPage () {
     }
     
     const abnormal_columns = [
-        { title: '指标名', dataIndex: 'displayName', key: 'displayName' },
-        { title: '指标分类', dataIndex: 'group', key: 'group', render: (group: number) => metricGroups[group] },
-        { title: '开始时间', dataIndex: 'startTime', key: 'startTime' },
-        { title: '运行时间', dataIndex: 'runningTime', key: 'runningTime', render: (runningTime: bigint) => delta2str(Number(runningTime)) },
+        { title: t('指标名'), dataIndex: 'displayName', key: 'displayName' },
+        { title: t('指标分类'), dataIndex: 'group', key: 'group', render: (group: number) => metricGroups[group] },
+        { title: t('开始时间'), dataIndex: 'startTime', key: 'startTime' },
+        { title: t('运行时间'), dataIndex: 'runningTime', key: 'runningTime', render: (runningTime: bigint) => delta2str(Number(runningTime)) },
         {
-            title: '操作',
+            title: t('操作'),
             key: 'action',
             render: (_, record) => <a onClick={() => { scroll_to_metric(record.metricName) }}>查看详情</a>,
         },
@@ -89,7 +89,7 @@ export function ReportDetailPage () {
             const originalTitle = document.title
             
             // 设置新标题（这可能会影响某些浏览器生成的PDF文件名）
-            document.title = `巡检报告_${current_report.id}`
+            document.title = t('巡检报告_{{id}}', { id: current_report.id })
             // 创建一个新的样式元素
             const style = document.createElement('style')
             style.textContent = `
@@ -168,13 +168,13 @@ export function ReportDetailPage () {
             <h2>{t('巡检结果总览')}</h2>
             <div className='abnormal-table-header'>
                 <p className='report-summary'>
-                    检查项共 {plan_report_detail?.length || 0} 项，
-                    <span className={abnormal_metrics.length && 'abnormal-count'}>{abnormal_metrics.length} 项异常</span>
-                    {abnormal_metrics.length ? '，异常列表指标如下:' : '。'}
+                    {t('检查项共 {{num}} 项', { num: plan_report_detail?.length || 0 })}
+                    <span className={abnormal_metrics.length && 'abnormal-count'}>{t('{{num}} 项异常。', { num: abnormal_metrics.length })}</span>
+                    {abnormal_metrics.length && t('异常列表指标如下:')}
                     
                 </p>
                 {!!abnormal_metrics.length && <span className='abnormal-count'>
-                    {abnormal_metrics.length}/{plan_report_detail?.length || 0} 项异常
+                    {t('{{num_abnormal}}/{{num_total}} 项异常', { num_abnormal: abnormal_metrics.length, num_total: plan_report_detail?.length || 0 })}
                 </span>}
             </div>
             
@@ -196,6 +196,7 @@ export function ReportDetailPage () {
                         <h2>{groupName}</h2>
                         <span className={`abnormal-count ${statusClass}`}>
                         {abnormalCount ? `${abnormalCount}/${totalCount} 项异常` : `${totalCount}/${totalCount} 项正常`}
+                        {abnormalCount ? t('{{abnormalCount}}/{{totalCount}} 项异常', { abnormalCount, totalCount })  : t('{{totalCount}}/{{totalCount}} 项正常', { totalCount })}
                         </span>
                     </div>
                     <Collapse
