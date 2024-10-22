@@ -24,6 +24,7 @@ export const emailConfigModal = NiceModal.create(() => {
                     config.set_config(key, val as string)
                 })
                 await config.save_configs()
+                await config.load_configs() 
                 model.message.success(t('保存成功'))
                 modal.remove()
             }}
