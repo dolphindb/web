@@ -67,11 +67,11 @@ export function DdbSider () {
         = model.use(['node_type', 'collapsed', 'logined', 'admin', 'login_required', 'client_auth', 'v1', 'is_factor_platform_enabled', 'enabled_modules'])
     
     // useLocation 会导致路径变化时整个组件重新渲染，尽量选择小的范围调用
-    const { search } = useLocation()
+    const { search, pathname } = useLocation()
     
     useEffect(() => {
-        const search_params = new URLSearchParams(location.search)
-        const dashboard = search_params.get('dashboard')
+        const dashboard = /\/dashboard\/\d+/.exec(pathname)
+        console.log(dashboard, pathname)
         if (dashboard) 
             model.set({ header: false, sider: false })
         else

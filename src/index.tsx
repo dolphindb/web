@@ -51,6 +51,7 @@ import { Settings } from './settings/index.tsx'
 import { CreateGuide } from './guide/iot-guide/index.tsx'
 import { FinanceGuide } from './guide/finance-guide/index.tsx'
 import { DataCollection } from './data-collection/index.tsx'
+import { DashboardInstancePage } from './dashboard/dashboard_instance.tsx'
 
 
 
@@ -205,6 +206,10 @@ const router = createBrowserRouter([
             {
                 path: 'dashboard/',
                 element: <DashBoard />
+            },
+            {
+              path: 'dashboard/:id',
+              element: <DashboardInstancePage />  
             },
             {
                 path: 'user/',

@@ -452,7 +452,6 @@ export class DashBoardModel extends Model<DashBoardModel> {
             
          })
         
-        model.set_query('dashboard', String(config.id))
         this.set({ loading: false })
     }
     
@@ -460,7 +459,7 @@ export class DashBoardModel extends Model<DashBoardModel> {
     return_to_overview () {
         clear_data_sources()
         dashboard.set({ config: null, save_confirm: false })
-        model.set_query('dashboard', null)
+        model.goto('dashboard')
         model.set_query('preview', null)
         model.set({ sider: true, header: true })
     }
