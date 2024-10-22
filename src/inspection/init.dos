@@ -1527,6 +1527,8 @@ def coredump(params) {
         f = file("/tmp/tmp.txt")
         dir = readLine(f)
         f.close()
+    } else {
+        return (false, "不支持自动检测的 core_pattern: " + line, "请参考《节点宕机》教程配置 coredump。")
     }
     
     info = select * from files(dir) where isDir == false and lastModified >= startTime and lastModified <= endTime
@@ -1599,6 +1601,7 @@ def commonSystemConfig(params) {
     f = file("tmp.txt")
     line = readLine(f)
     f.close()
+    dir = NULL
     if (line.startsWith("/")) { // 绝对路径
         s = line.split("/")
         dir = s[0:(s.size()-1)].concat("/")
@@ -1608,16 +1611,18 @@ def commonSystemConfig(params) {
         dir = readLine(f)
         f.close()
     }
-    folderName = "testCoredump" + temporalFormat(now(), "yMdHmsSSS")
-    folderPath = dir + "/" + folderName
-    try {
-        mkdir(folderPath) 
-    } catch(err) {
-        insert into ret values (folderPath, err, "ERROR", "请检查 core_pattern 目录 " + dir + "是否有写入权限。")
+    if (!isNull(dir)) {
+        folderName = "testCoredump" + temporalFormat(now(), "yMdHmsSSS")
+        folderPath = dir + "/" + folderName
+        try {
+            mkdir(folderPath) 
+        } catch(err) {
+            insert into ret values (folderPath, err, "ERROR", "请检查 core_pattern 目录 " + dir + "是否有写入权限。")
+        }
+        try {
+            rmdir(folderPath)
+        } catch(err) {}
     }
-    try {
-        rmdir(folderPath)
-    } catch(err) {}
     
     cmd = "ulimit -n > tmp.txt"
     res = shell(cmd)
