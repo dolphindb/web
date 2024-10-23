@@ -117,7 +117,7 @@ export function DdbSider () {
                 if (key === 'factor')
                     return
                 
-                model.goto(`/${key}/`)
+                model.goto(key === 'shell' ? '/' : `/${key}/`)
             }}
             inlineIndent={10}
             items={[
