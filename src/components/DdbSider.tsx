@@ -4,9 +4,9 @@ import { Layout, Menu, Typography } from 'antd'
 
 import { default as Icon, DoubleLeftOutlined, DoubleRightOutlined, ExperimentOutlined, SettingOutlined } from '@ant-design/icons'
 
-import { filter_values } from 'xshell/utils.browser.js'
 import { useLocation } from 'react-router-dom'
 
+import { filter_values } from 'xshell/utils.browser.js'
 
 import { language, t } from '@i18n/index.ts'
 
@@ -71,7 +71,7 @@ export function DdbSider () {
     
     useEffect(() => {
         const dashboard = /\/dashboard\/\d+/.exec(pathname)
-        if (dashboard) 
+        if (dashboard)
             model.set({ header: false, sider: false })
         else
             model.set({ header: true, sider: true })

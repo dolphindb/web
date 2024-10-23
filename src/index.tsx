@@ -45,14 +45,16 @@ import { Job } from './job/index.tsx'
 import { Log } from './log/index.tsx'
 import { Plugins } from './plugins/index.tsx'
 import { Computing } from './computing/index.tsx'
+
 import { DashBoard } from './dashboard/index.tsx'
+import { DashboardInstancePage } from './dashboard/dashboard_instance.tsx'
+import { Overview as DashboardOverview } from './dashboard/Overview.tsx'
+
 import { User, Group } from './access/index.tsx'
 import { Settings } from './settings/index.tsx'
 import { CreateGuide } from './guide/iot-guide/index.tsx'
 import { FinanceGuide } from './guide/finance-guide/index.tsx'
 import { DataCollection } from './data-collection/index.tsx'
-import { DashboardInstancePage } from './dashboard/dashboard_instance.tsx'
-import { Overview as DashboardOverview } from './dashboard/Overview.tsx'
 
 
 
