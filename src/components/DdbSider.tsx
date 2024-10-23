@@ -71,12 +71,11 @@ export function DdbSider () {
     
     useEffect(() => {
         const dashboard = /\/dashboard\/\d+/.exec(pathname)
-        console.log(dashboard, pathname)
         if (dashboard) 
             model.set({ header: false, sider: false })
         else
             model.set({ header: true, sider: true })
-    }, [location.search])
+    }, [search, pathname])
     
     
     const factor_href = useMemo(() => {

@@ -8,6 +8,8 @@ import { useEffect } from 'react'
 import { Button, Popconfirm, Result } from 'antd'
 import * as echarts from 'echarts'
 
+import { Outlet } from 'react-router-dom'
+
 import { NodeType, model } from '../model.js'
 
 import { t } from '../../i18n/index.js'
@@ -74,7 +76,7 @@ export function DashBoard () {
         [InitedState.hidden]: <></>,
         [InitedState.uninited]: <Init />,
         [InitedState.inited]:
-            <Overview />,
+            <Outlet />,
         [InitedState.control_node]: <Result
             status='warning'
             className='interceptor'

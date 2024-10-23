@@ -29,12 +29,12 @@ export function Share ({ dashboard_ids, trigger_type }: IProps) {
         currentUrl.searchParams.set('preview', '1')
         
         if (dashboard_ids.length === 1) {
-            currentUrl.searchParams.set('dashboard', String(dashboard_ids[0]))
+            currentUrl.pathname = `/dashboard/${dashboard_ids[0]}/`
             copy_text = currentUrl.href
         }
         else
             dashboard_ids.forEach(dashboard_id => {
-                currentUrl.searchParams.set('dashboard', String(dashboard_id))
+                currentUrl.pathname = `/dashboard/${dashboard_id}/`
                 copy_text += `${dashboard.configs.find(({ id }) => id === dashboard_id).name}：${currentUrl.href}\n`
             })
             
