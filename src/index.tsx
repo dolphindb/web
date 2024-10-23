@@ -47,7 +47,7 @@ import { Plugins } from './plugins/index.tsx'
 import { Computing } from './computing/index.tsx'
 
 import { DashBoard } from './dashboard/index.tsx'
-import { DashboardInstancePage } from './dashboard/dashboard_instance.tsx'
+import { DashboardInstancePage } from './dashboard/Instance.tsx'
 import { Overview as DashboardOverview } from './dashboard/Overview.tsx'
 
 import { User, Group } from './access/index.tsx'

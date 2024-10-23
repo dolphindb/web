@@ -643,8 +643,17 @@ export class DdbModel extends Model<DdbModel> {
     
     
     /** 跳转路径，不改变查询参数 */
-    goto (pathname: string, options?: NavigateOptions) {
-        this.navigate({ pathname, search: location.search }, options)
+    goto (pathname: string, options?: NavigateOptions, query?: Record<string, string>) {
+        const search_params = new URLSearchParams(location.search)
+        if (query) 
+            Object.entries(query).forEach(([key, value]) => {
+                if (value === undefined)
+                    search_params.delete(key)
+                else
+                    search_params.set(key, value)
+            })
+        
+        this.navigate({ pathname, search: search_params.toString() }, options)
     }
     
     

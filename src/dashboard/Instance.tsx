@@ -19,7 +19,7 @@ export function DashboardInstancePage () {
     
     const { loading } = dashboard.use(['loading', 'inited_state'])
     const params = useParams()
-    const id = params.id ?? ''
+    const id = params.id
     
     return <ConfigProvider
     theme={{
