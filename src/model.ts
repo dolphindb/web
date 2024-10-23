@@ -5,7 +5,7 @@ import type { MessageInstance } from 'antd/es/message/interface.d.ts'
 import type { HookAPI as ModalHookAPI } from 'antd/es/modal/useModal/index.d.ts'
 import type { NotificationInstance } from 'antd/es/notification/interface.d.ts'
 
-import type { Location as RouterLocation, NavigateFunction, NavigateOptions } from 'react-router-dom'
+import type { NavigateFunction, NavigateOptions } from 'react-router-dom'
 
 import 'xshell/polyfill.browser.js'
 import { filter_values, strcmp } from 'xshell/utils.browser.js'
@@ -86,13 +86,10 @@ export class DdbModel extends Model<DdbModel> {
     
     sql: SqlStandard = SqlStandard[localStorage.getItem(storage_keys.sql)] || SqlStandard.DolphinDB
     
-    // todo: 暂时兼容个，后面会把这里的逻辑去掉
+    // todo: 暂时兼容，后面会把这里的逻辑去掉
     get view () {
         return location.pathname.strip_start(this.assets_root).split('/')[0] || 'shell'
     }
-    
-    /** 重定向 view */
-    redirection?: PageViews
     
     logined = false
     
@@ -240,7 +237,6 @@ export class DdbModel extends Model<DdbModel> {
         this.header = params.get('header') !== '0' && (view !== 'dashboard' || !dashboard)
         this.sider = params.get('sider') !== '0' && (view !== 'dashboard' || !dashboard)
         this.code_template = params.get('code-template') === '1'
-        this.redirection = params.get('redirection') as PageViews
     }
     
     
@@ -652,8 +648,7 @@ export class DdbModel extends Model<DdbModel> {
     }
     
     
-    /** 去登录页
-        @param redirection 设置登录完成后的回跳页面，默认取当前 view */
+    /** 去登录页 */
     async goto_login () {
         if (this.oauth) {
             const auth_uri = strip_quotes(
