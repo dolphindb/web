@@ -173,7 +173,7 @@ export function DdbSider () {
                 ... node_type !== NodeType.controller ? [{
                     key: 'data-collection',
                     icon: <MenuIcon view='data-collection' />,
-                    label: t('数据采集平台'),
+                    label: t('数据采集'),
                     children: [
                         {
                             icon: <MenuIcon view='data-connection' />,
@@ -193,7 +193,7 @@ export function DdbSider () {
                         icon: <MenuIcon view='plugins' />,
                         label: t('插件管理'),
                 }] : [ ],
-                ... is_factor_platform_enabled ? [{
+                ... is_factor_platform_enabled && node_type !== NodeType.controller ? [{
                     key: 'factor',
                     icon: <MenuIcon view='factor' />,
                     label: <Link target='_blank' href={factor_href}>{t('因子平台')}</Link>
