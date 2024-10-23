@@ -344,7 +344,7 @@ export class DdbModel extends Model<DdbModel> {
         else
             url.searchParams.set(key, value)
         
-        model.navigate({ search: url.search })
+        model.navigate({ search: url.search }, { replace: true })
     }
     
     
