@@ -5,7 +5,7 @@ import type { MessageInstance } from 'antd/es/message/interface.d.ts'
 import type { HookAPI as ModalHookAPI } from 'antd/es/modal/useModal/index.d.ts'
 import type { NotificationInstance } from 'antd/es/notification/interface.d.ts'
 
-import type { Location as RouterLocation, NavigateFunction, NavigateOptions } from 'react-router-dom'
+import type { NavigateFunction, NavigateOptions } from 'react-router-dom'
 
 import 'xshell/polyfill.browser.js'
 import { filter_values, strcmp } from 'xshell/utils.browser.js'
@@ -86,7 +86,7 @@ export class DdbModel extends Model<DdbModel> {
     
     sql: SqlStandard = SqlStandard[localStorage.getItem(storage_keys.sql)] || SqlStandard.DolphinDB
     
-    // todo: 暂时兼容个，后面会把这里的逻辑去掉
+    // todo: 暂时兼容，后面会把这里的逻辑去掉
     get view () {
         return location.pathname.strip_start(this.assets_root).split('/')[0] || 'shell'
     }
