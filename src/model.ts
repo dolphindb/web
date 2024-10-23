@@ -332,14 +332,14 @@ export class DdbModel extends Model<DdbModel> {
         - key: 参数名
         - value: 参数值，为 null 或 undefined 时删除该参数 */
     set_query (key: string, value: string | null) {
-        let url = new URL(location.href)
+        let search_params = new URLSearchParams(location.search)
         
         if (value === null || value === undefined)
-            url.searchParams.delete(key)
+            search_params.delete(key)
         else
-            url.searchParams.set(key, value)
+            search_params.set(key, value)
         
-        model.navigate({ search: url.search }, { replace: true })
+        model.navigate({ search: search_params.toString() }, { replace: true })
     }
     
     
