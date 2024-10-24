@@ -10,19 +10,17 @@ import * as echarts from 'echarts'
 
 import { Outlet } from 'react-router-dom'
 
-import { NodeType, model } from '../model.js'
+import { NodeType, model } from '@/model.ts'
 
-import { t } from '../../i18n/index.js'
+import { t } from '@i18n/index.ts'
 
-import { Unlogin } from '../components/Unlogin.js'
+import { Unlogin } from '@/components/Unlogin.tsx'
 
-import { InitedState, dashboard } from './model.js'
+import { InitedState, dashboard } from './model.ts'
 
-import { Overview } from './Overview.js'
 import { Doc } from './components/Doc.js'
 
 import config from './chart.config.json' with { type: 'json' }
-
 
 
 import backend from './backend.dos'
@@ -70,7 +68,6 @@ export function DashBoard () {
                 await dashboard.get_dashboard_configs()
         })()
     }, [inited_state])
-    
     
     const component = {
         [InitedState.hidden]: <></>,

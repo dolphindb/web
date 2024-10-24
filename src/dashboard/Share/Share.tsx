@@ -31,13 +31,12 @@ export function Share ({ dashboard_ids, trigger_type }: IProps) {
         if (dashboard_ids.length === 1) {
             currentUrl.pathname = `/dashboard/${dashboard_ids[0]}/`
             copy_text = currentUrl.href
-        }
-        else
+        } else
             dashboard_ids.forEach(dashboard_id => {
                 currentUrl.pathname = `/dashboard/${dashboard_id}/`
-                copy_text += `${dashboard.configs.find(({ id }) => id === dashboard_id).name}：${currentUrl.href}\n`
+                copy_text += `${dashboard.configs.find(({ id }) => id === dashboard_id).name}: ${currentUrl.href}\n`
             })
-            
+        
         try {
             copy(copy_text)
             api.success({

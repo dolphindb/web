@@ -4,19 +4,20 @@ import { App, ConfigProvider, Spin, theme } from 'antd'
 
 import { useParams } from 'react-router-dom'
 
-import { t } from '../../i18n/index.js'
+import { t } from '@i18n/index.js'
 
-import { model } from '../model.js'
+import { model } from '@/model.js'
 
-import { Sider } from './Sider.js'
-import { GraphItem } from './GraphItem/GraphItem.js'
-import { SettingsPanel } from './SettingsPanel/SettingsPanel.js'
-import { Header } from './Header.js'
 import { paste_widget } from './utils.ts'
-import { DashboardPermission, dashboard } from './model.js'
+
+import { Sider } from './Sider.tsx'
+import { GraphItem } from './GraphItem/GraphItem.tsx'
+import { SettingsPanel } from './SettingsPanel/SettingsPanel.tsx'
+import { Header } from './Header.tsx'
+import { DashboardPermission, dashboard } from './model.ts'
+
 
 export function DashboardInstancePage () {
-    
     const { loading } = dashboard.use(['loading', 'inited_state'])
     const params = useParams()
     const id = params.id
@@ -44,6 +45,7 @@ export function DashboardInstancePage () {
 
 function DashboardInstance ({ id }: { id: string }) {
     const { widgets, widget, config, editing } = dashboard.use(['widgets', 'widget', 'config', 'editing'])
+    
     /** div ref, 用于创建 GridStack  */
     let rdiv = useRef<HTMLDivElement>()
     
