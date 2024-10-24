@@ -1,4 +1,4 @@
-import { useEffect, useState, type MouseEvent } from 'react'
+import { useEffect, useState } from 'react'
 
 import { Input, Switch } from 'antd'
 import { CloseOutlined, DoubleLeftOutlined, DoubleRightOutlined, PlusOutlined } from '@ant-design/icons'
@@ -26,7 +26,6 @@ export function ShellEditor ({ collapser }) {
     
     const [collapsed, set_collapsed] = useState(false)
     
-    const { tabs, current_tab_index, is_monaco_init } = shell.use(['tabs', 'current_tab_index', 'is_monaco_init'])
     
     // 标签页关闭前自动保存代码
     useEffect(() => {
@@ -37,80 +36,15 @@ export function ShellEditor ({ collapser }) {
         
         window.addEventListener('beforeunload', beforeunload)
         
-        shell.init_tabs()
-        
         return () => {
             window.removeEventListener('beforeunload', beforeunload)
         }
     }, [ ])
     
-    function get_tab_views () {
-        function close_tab (ev: MouseEvent<HTMLSpanElement>, tab_index: number) {
-            ev.stopPropagation()
-            if (!is_monaco_init)
-                return
-            
-            function remove_tab () {
-                const index = tabs.findIndex(t => t.index === tab_index)
-                const new_tabs = tabs.filter(t => t.index !== tab_index)
-                if (tab_index === current_tab_index)
-                    if (new_tabs.length === 0)
-                        shell.switch_tab(-1)
-                    else if (index === 0)
-                        shell.switch_tab(new_tabs[0].index)
-                    else
-                        shell.switch_tab(new_tabs[index - 1].index)
-                    
-                shell.remove_tab(tab_index)
-            }
-            
-            model.modal.confirm({
-                title: t('提醒'),
-                content: t('关闭标签页将会删除标签页内的所有内容，确认关闭？'),
-                onOk: remove_tab,
-                okType: 'danger'
-            })
-        }
-        
-        function rename_tab (tab_index: number, name: string) {
-            const index = tabs.findIndex(t => t.index === tab_index)
-            const new_tabs = [...tabs]
-            new_tabs[index].name = name
-            shell.set({ tabs: new_tabs })
-            shell.save()
-        }
-        
-        return <>
-            <div
-                className={`tab ${current_tab_index < 0 ? 'active' : ''}`}
-                key='default'
-                onClick={() => {
-                    shell.switch_tab(-1)
-                }}
-            >
-                {t('默认标签页')}
-            </div>
-            {tabs.map(tab => <DdbTab
-                    tab={tab}
-                    key={tab.index}
-                    on_close={close_tab}
-                    on_rename={rename_tab}
-                    current_tab_index={current_tab_index}
-                    on_click={tab_index => {
-                        shell.switch_tab(tab_index)
-                    }}
-                />)}
-            <div className='add-tab' onClick={() => { shell.add_tab() }}>
-                <PlusOutlined style={{ fontSize: 12 }} />
-            </div>
-        </>
-    }
-    
     
     return <div className='shell-editor'>
-        <div className='tabs'>
-            {get_tab_views()}
-        </div>
+        <Tabs />
+        
         <div className='toolbar'>
             <div className='actions'>
                 <ExecuteAction />
@@ -170,7 +104,8 @@ export function ShellEditor ({ collapser }) {
             
             on_mount={(editor, monaco) => {
                 // 挂载时进入默认标签页
-                shell.set({ current_tab_index: -1 })
+                shell.set({ itab: -1 })
+                
                 editor.setValue(localStorage.getItem(storage_keys.code) || '')
                 
                 
@@ -272,45 +207,110 @@ export function ShellEditor ({ collapser }) {
 }
 
 
-function DdbTab ({
+function Tabs () {
+    const { tabs, itab } = shell.use(['tabs', 'itab'])
+    
+    useEffect(() => {
+        shell.init_tabs()
+    }, [ ])
+    
+    return <div className='tabs'>
+        <div
+            className={`tab ${itab < 0 ? 'active' : ''}`}
+            key='default'
+            onClick={() => {
+                shell.switch_tab(-1)
+            }}
+        >
+            {t('默认标签页')}
+        </div>
+        {tabs.map(tab => <Tab
+            tab={tab}
+            key={tab.index}
+            itab={itab}
+        />)}
+        <div className='add-tab' onClick={() => { shell.add_tab() }}>
+            <PlusOutlined style={{ fontSize: 12 }} />
+        </div>
+    </div>
+}
+
+
+function Tab ({
     tab, 
-    on_close, 
-    on_rename, 
-    on_click, 
-    current_tab_index
+    itab
 }: {
     tab: Tab
-    on_close: (ev: MouseEvent<HTMLSpanElement>, tab_index: number) => void
-    on_rename: (tab_index: number, name: string) => void
-    on_click: (tab_index: number) => void
-    current_tab_index: number
+    itab: number
 }) {
-    const [name, set_name] = useState(tab.name)
-    const [is_rename, set_is_rename] = useState(false)
+    let [name, set_name] = useState(tab.name)
+    let [renaming, set_renaming] = useState(false)
     
     return <div
-        className={`tab ${tab.index === current_tab_index ? 'active' : ''}`}
+        className={`tab ${tab.index === itab ? 'active' : ''}`}
         key={tab.index}
-        onClick={() => { on_click(tab.index) }}
-    >
-        {!is_rename && <div onDoubleClick={() => { set_is_rename(true) }}>
-            {tab.name}
-        </div>}
-        {is_rename && <Input
+        onClick={() => {
+            shell.switch_tab(tab.index)
+        }}
+    >{ renaming ? 
+        <Input
             placeholder={t('标签页名称')}
             value={name}
             autoFocus
-            onChange={ev => { set_name(ev.target.value) }}
+            onChange={event => { set_name(event.currentTarget.value) }}
             variant='borderless'
             size='small'
-            onBlur={
-                () => {
-                    on_rename(tab.index, name)
-                    set_is_rename(false)
-                }}
-        />}
-        <div onClick={ev => { on_close(ev, tab.index) }}
-            className='close-icon'>
+            onBlur={() => {
+                const { tabs } = shell
+                
+                const tab_index = tab.index
+                
+                const index = tabs.findIndex(t => t.index === tab_index)
+                const new_tabs = [...tabs]
+                new_tabs[index].name = name
+                shell.set({ tabs: new_tabs })
+                shell.save()
+                
+                set_renaming(false)
+            }}
+        />
+    :
+        <div onDoubleClick={() => { set_renaming(true) }}>
+            {tab.name}
+        </div>
+    }
+        <div
+            className='close-icon'
+            onClick={event => {
+                const { tabs } = shell
+                
+                const tab_index = tab.index
+                
+                event.stopPropagation()
+                
+                if (!shell.is_monaco_init)
+                    return
+                
+                model.modal.confirm({
+                    title: t('提醒'),
+                    content: t('关闭标签页将会删除标签页内的所有内容，确认关闭？'),
+                    onOk () {
+                        const index = tabs.findIndex(t => t.index === tab_index)
+                        const new_tabs = tabs.filter(t => t.index !== tab_index)
+                        if (tab_index === itab)
+                            if (new_tabs.length === 0)
+                                shell.switch_tab(-1)
+                            else if (index === 0)
+                                shell.switch_tab(new_tabs[0].index)
+                            else
+                                shell.switch_tab(new_tabs[index - 1].index)
+                        
+                        shell.remove_tab(tab_index)
+                    },
+                    okType: 'danger'
+                })
+            }}
+        >
             <CloseOutlined style={{ fontSize: 12 }} />
         </div>
     </div>

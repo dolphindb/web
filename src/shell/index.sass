@@ -313,15 +313,19 @@
                         display: flex
                         overflow-x: auto
                         overflow-y: hidden
+                        
                         &::-webkit-scrollbar
                             height: 2px !important
+                        
                         &::-webkit-scrollbar-track
                             background: transparent
+                        
                         &::-webkit-scrollbar-thumb
                             background: rgba(0, 0, 0, 0.2)
-                            border-radius: 2px
+                            
                             &:hover
                                 background: rgba(0, 0, 0, 0.3)
+                        
                         .tab
                             flex-shrink: 0
                             height: 100% !important
@@ -329,10 +333,12 @@
                             align-items: center
                             cursor: pointer
                             padding: 2px 8px
-                            background: #F0F0F0
+                            background: #f0f0f0
                             border-bottom: 1px solid transparent
+                            
                             &:hover
                                 background-color: rgb(245, 246, 247)
+                            
                             .close-icon
                                 display: flex
                                 align-items: center
@@ -341,15 +347,18 @@
                                 border-radius: 50%
                                 &:hover
                                     background-color: rgb(225, 225, 225)
+                        
                         .active
                             border-bottom: 1px solid #3760F0
-                            background-color: #FFFFFF !important
+                            background-color: #ffffff !important
+                        
                         .add-tab
                             cursor: pointer
                             display: flex
                             align-items: center
                             padding: 2px 8px
                             border-bottom: 1px solid transparent
+                            
                             &:hover
                                 background-color: rgb(245, 246, 247)
                             
@@ -358,7 +367,7 @@
                         align-items: center
                         
                         background-color: #ffffff
-                        border-bottom: 1px solid rgba(0,0,0,0.1)
+                        border-bottom: 1px solid rgba(0, 0, 0, 0.1)
                         
                         padding: 4px 10px
                         

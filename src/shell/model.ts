@@ -102,7 +102,7 @@ class ShellModel extends Model<ShellModel> {
     confirm_command_modal_visible = false
     
     /** 当前打开的 tab */
-    current_tab_index = -1
+    itab = -1
     
     /** 所有的 tabs */
     tabs: Tab[] = [ ]
@@ -314,16 +314,14 @@ class ShellModel extends Model<ShellModel> {
     
     
     save (code = this.editor?.getValue()) {
-        if (this.current_tab_index > -1) {
-            const index = this.tabs.findIndex(t => t.index === this.current_tab_index)
-            const new_tabs = [...this.tabs]
+        if (this.itab > -1) {
+            let tab = this.tabs.find(t => t.index === this.itab)
             if (code)
-                new_tabs[index].code = code
-            const tab = new_tabs[index]
-            this.set({ tabs: new_tabs })
-            localStorage.setItem(`${storage_keys.code}.${this.current_tab_index}`, JSON.stringify(tab))
-        } else 
-            if (code) 
+                tab.code = code
+            this.set({ tabs: [...this.tabs] })
+            localStorage.setItem(`${storage_keys.code}.${this.itab}`, JSON.stringify(tab))
+        } else
+            if (code)
                 localStorage.setItem(storage_keys.code, code)
     }
     
@@ -337,6 +335,7 @@ class ShellModel extends Model<ShellModel> {
     add_tab () {
         if (!this.is_monaco_init)
             return
+        
         this.save()
         const index_set = new Set(this.tabs.map(t => t.index))
         let new_tab_index = 1
@@ -344,9 +343,10 @@ class ShellModel extends Model<ShellModel> {
             new_tab_index++
         const new_tab_name = t('标签页 ') + new_tab_index
         this.set({
-            current_tab_index: new_tab_index,
+            itab: new_tab_index,
             tabs: [...this.tabs, { name: new_tab_name, code: '', index: new_tab_index }]
         })
+        
         this.editor.setValue('')
     }
     
@@ -354,25 +354,31 @@ class ShellModel extends Model<ShellModel> {
     switch_tab (tab_index: number) {
         if (!this.is_monaco_init)
             return
+        
         this.save()
-        this.set({ current_tab_index: tab_index })
+        this.set({ itab: tab_index })
         if (tab_index > -1)
-            this.editor?.setValue(this.tabs.find(t => t.index === tab_index)?.code || '')
+            this.editor.setValue(this.tabs.find(t => t.index === tab_index)?.code || '')
         else
-            this.editor?.setValue(localStorage.getItem(`${storage_keys.code}`) || '')
+            this.editor.setValue(localStorage.getItem(`${storage_keys.code}`) || '')
     }
     
     
     init_tabs () {
-        const tab_keys = Object.keys(localStorage).filter(key => key.startsWith(`${storage_keys.code}.`))
-        const tabs: Tab[] = [ ]
+        const tab_keys = Object.keys(localStorage)
+            .filter(key => key.startsWith(`${storage_keys.code}.`))
+        
+        let tabs: Tab[] = [ ]
+        
         for (const key of tab_keys) 
             try {
-                const result = JSON.parse(localStorage.getItem(key) || '')
-                tabs.push(result)
+                tabs.push(
+                    JSON.parse(localStorage.getItem(key) || '')
+                )
             } catch (error) {
                 localStorage.removeItem(key)
             }
+        
         this.set({ tabs: tabs.sort((a, b) => a.index - b.index) })
     }
     
