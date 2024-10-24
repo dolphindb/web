@@ -19,8 +19,7 @@ import { DashboardPermission, dashboard } from './model.ts'
 
 export function DashboardInstancePage () {
     const { loading } = dashboard.use(['loading', 'inited_state'])
-    const params = useParams()
-    const id = params.id
+    const { id } = useParams()
     
     return <ConfigProvider
     theme={{

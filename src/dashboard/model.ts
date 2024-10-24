@@ -451,7 +451,7 @@ export class DashBoardModel extends Model<DashBoardModel> {
             widget: null,
             
          })
-        
+        model.goto(`/dashboard/${config.id}/`)
         this.set({ loading: false })
     }
     

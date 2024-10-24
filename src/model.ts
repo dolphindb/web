@@ -642,9 +642,11 @@ export class DdbModel extends Model<DdbModel> {
     }
     
     
-    /** 跳转路径，不改变查询参数 */
+    /** 跳转到页面
+        @param pathname 路径
+        @param options 选项，也可以可以在此处合并 query 的修改 { queries: { key: value } } */
     goto (pathname: string, options?: NavigateOptions & { queries?: Record<string, string> }) {
-        const search_params = new URLSearchParams(location.search)
+        const params = new URLSearchParams(location.search)
         let _queries: Record<string, string> | undefined, _options: NavigateOptions | undefined
         if (options) {
             const { queries, ...__options } = options
@@ -654,13 +656,13 @@ export class DdbModel extends Model<DdbModel> {
         }
         if (_queries) 
             Object.entries(_queries).forEach(([key, value]) => {
-                if (value === undefined)
-                    search_params.delete(key)
+                if (value === undefined || value === null)
+                    params.delete(key)
                 else
-                    search_params.set(key, value)
+                    params.set(key, value)
             })
         
-        this.navigate({ pathname, search: search_params.toString() }, _options)
+        this.navigate({ pathname, search: params.toString() }, _options)
     }
     
     

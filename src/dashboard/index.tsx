@@ -10,9 +10,10 @@ import * as echarts from 'echarts'
 
 import { Outlet } from 'react-router-dom'
 
+import { t } from '@i18n/index.ts'
+
 import { NodeType, model } from '@/model.ts'
 
-import { t } from '@i18n/index.ts'
 
 import { Unlogin } from '@/components/Unlogin.tsx'
 
@@ -40,7 +41,7 @@ echarts.registerTheme('my-theme', config.theme)
     通过 GridStack.on('dropped', ...) 监听用户从外部添加拖拽 widget 到 GridStack 的事件  
     通过 GridStack.on('change', ...) 响应 GridStack 中 widget 的位置或尺寸变化的事件 */
 export function DashBoard () {
-    const { loading, inited_state } = dashboard.use(['loading', 'inited_state'])
+    const { inited_state } = dashboard.use(['loading', 'inited_state'])
     
     const { node_type, v1, logined } = model.use(['node_type', 'v1', 'logined'])
     

@@ -72,15 +72,10 @@ export function DdbSider () {
     useEffect(() => {
         const dashboard = /\/dashboard\/\d+/.exec(pathname)
         const search_params = new URLSearchParams(search)
-        let header_options
-        if (dashboard)
-            header_options = { header: false, sider: false }
-        else
-            header_options = { header: true, sider: true }
-        if (search_params.get('header') === '0') 
-            header_options.header = false
-        
-        model.set(header_options)
+        model.set({
+            header: search_params.get('header') === '0' ? false : !dashboard,
+            sider: !dashboard
+        })
     }, [search, pathname])
     
     
