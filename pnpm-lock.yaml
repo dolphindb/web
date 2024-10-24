@@ -172,11 +172,11 @@ importers:
         specifier: ^18.3.1
         version: 18.3.1
       sass:
-        specifier: ^1.80.3
-        version: 1.80.3
+        specifier: ^1.80.4
+        version: 1.80.4
       sass-loader:
         specifier: ^16.0.2
-        version: 16.0.2(sass@1.80.3)(webpack@5.95.0)
+        version: 16.0.2(sass@1.80.4)(webpack@5.95.0)
       source-map-loader:
         specifier: ^5.0.0
         version: 5.0.0(webpack@5.95.0)
@@ -4505,8 +4505,8 @@ packages:
       webpack:
         optional: true
 
-  sass@1.80.3:
-    resolution: {integrity: sha512-ptDWyVmDMVielpz/oWy3YP3nfs7LpJTHIJZboMVs8GEC9eUmtZTZhMHlTW98wY4aEorDfjN38+Wr/XjskFWcfA==}
+  sass@1.80.4:
+    resolution: {integrity: sha512-rhMQ2tSF5CsuuspvC94nPM9rToiAFw2h3JTrLlgmNw1MH79v8Cr3DH6KF6o6r+8oofY3iYVPUf66KzC8yuVN1w==}
     engines: {node: '>=14.0.0'}
     hasBin: true
 
@@ -7321,7 +7321,7 @@ snapshots:
       '@types/node': 22.7.9
       '@types/node-sass': 4.11.3
       '@types/webpack': 4.41.33
-      sass: 1.80.3
+      sass: 1.80.4
 
   '@types/serve-static@1.15.0':
     dependencies:
@@ -10685,14 +10685,14 @@ snapshots:
 
   safer-buffer@2.1.2: {}
 
-  sass-loader@16.0.2(sass@1.80.3)(webpack@5.95.0):
+  sass-loader@16.0.2(sass@1.80.4)(webpack@5.95.0):
     dependencies:
       neo-async: 2.6.2
     optionalDependencies:
-      sass: 1.80.3
+      sass: 1.80.4
       webpack: 5.95.0
 
-  sass@1.80.3:
+  sass@1.80.4:
     dependencies:
       '@parcel/watcher': 2.4.1
       chokidar: 4.0.0
@@ -11527,8 +11527,8 @@ snapshots:
       react-i18next: 15.1.0(i18next@23.16.2)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       react-object-model: 1.2.14(react@18.3.1)
       resolve-path: 1.4.0
-      sass: 1.80.3
-      sass-loader: 16.0.2(sass@1.80.3)(webpack@5.95.0)
+      sass: 1.80.4
+      sass-loader: 16.0.2(sass@1.80.4)(webpack@5.95.0)
       source-map-loader: 5.0.0(webpack@5.95.0)
       strip-ansi: 7.1.0
       style-loader: 4.0.0(webpack@5.95.0)
