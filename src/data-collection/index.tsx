@@ -62,7 +62,7 @@ export function DataCollection () {
     )
     
     if (!logined)
-        return <Unlogin info={t('数据采集平台')} />
+        return <Unlogin info={t('数据采集')} />
         
     if (node_type === NodeType.controller) 
         return <Result

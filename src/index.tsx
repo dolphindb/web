@@ -8,6 +8,8 @@ import './pagination.sass'
 import { useEffect } from 'react'
 import { createRoot } from 'react-dom/client'
 
+import { createBrowserRouter, RouterProvider, Outlet, useNavigate } from 'react-router-dom'
+
 import NiceModal from '@ebay/nice-modal-react'
 
 import { Layout, ConfigProvider, App } from 'antd'
@@ -27,7 +29,7 @@ import { language } from '../i18n/index.ts'
 import 'dayjs/locale/zh-cn'
 dayjs.locale(language === 'zh' ? 'zh-cn' : language)
 
-import { model, type PageViews } from './model.ts'
+import { model } from './model.ts'
 
 import { DdbHeader } from './components/DdbHeader.tsx'
 import { DdbSider } from './components/DdbSider.tsx'
@@ -84,7 +86,7 @@ function DolphinDB () {
             <ProConfigProvider hashed={false} token={{ borderRadius: 0, motion: false }}>
                 <NiceModal.Provider>
                     <App className='app'>
-                        <MainLayout />
+                        <RouterProvider router={router} />
                     </App>
                 </NiceModal.Provider>
             </ProConfigProvider>
@@ -96,9 +98,10 @@ function DolphinDB () {
 function MainLayout () {
     const { header, inited, sider } = model.use(['header', 'inited', 'sider'])
     
-    
     // App 组件通过 Context 提供上下文方法调用，因而 useApp 需要作为子组件才能使用
     Object.assign(model, App.useApp())
+    
+    model.navigate = useNavigate()
     
     
     useEffect(() => {
@@ -138,7 +141,9 @@ function MainLayout () {
                 { sider && <DdbSider />}
                 <Layout.Content className='view'>
                     <GlobalErrorBoundary>
-                        <DdbContent />
+                        <div className={`view-card ${model.view}`}>
+                            <Outlet />
+                        </div>
                     </GlobalErrorBoundary>
                 </Layout.Content>
             </Layout>
@@ -152,37 +157,85 @@ function MainLayout () {
 }
 
 
-const views: Partial<Record<PageViews, React.FunctionComponent>> = {
-    login: Login,
-    overview: Overview,
-    config: Config,
-    shell: Shell,
-    test: Test,
-    job: Job,
-    log: Log,
-    plugins: Plugins,
-    computing: Computing,
-    dashboard: DashBoard,
-    user: User,
-    group: Group,
-    settings: Settings,
-    'data-connection': DataCollection,
-    'parser-template': DataCollection,
-    'iot-guide': CreateGuide,
-    'finance-guide': FinanceGuide,
-}
-
-
-function DdbContent () {
-    const { view } = model.use(['view'])
-    
-    const View = views[view]
-    
-    if (!View || !model.is_module_visible(view))
-        return null
-    
-    return <div className={`view-card ${view}`}>
-        <View />
-    </div>
-}
+const router = createBrowserRouter([
+    {
+        path: '/',
+        element: <MainLayout />,
+        children: [
+            {
+                path: 'login/',
+                element: <Login />
+            },
+            {
+                path: 'shell/',
+                element: <Shell />
+            },
+            {
+                index: true,
+                element: <Shell />
+            },
+            {
+                path: 'overview/',
+                element: <Overview />
+            },
+            {
+                path: 'config/',
+                element: <Config />
+            },
+            {
+                path: 'test/',
+                element: <Test />
+            },
+            {
+                path: 'job/',
+                element: <Job />
+            },
+            {
+                path: 'log/',
+                element: <Log />
+            },
+            {
+                path: 'plugins/',
+                element: <Plugins />
+            },
+            {
+                path: 'computing/',
+                element: <Computing />
+            },
+            {
+                path: 'dashboard/',
+                element: <DashBoard />
+            },
+            {
+                path: 'user/',
+                element: <User />
+            },
+            {
+                path: 'group/',
+                element: <Group />
+            },
+            {
+                path: 'settings/',
+                element: <Settings />
+            },
+            {
+                path: 'data-connection/',
+                element: <DataCollection />
+            },
+            {
+                path: 'parser-template/',
+                element: <DataCollection />
+            },
+            {
+                path: 'iot-guide/',
+                element: <CreateGuide />
+            },
+            {
+                path: 'finance-guide/',
+                element: <FinanceGuide />
+            },
+        ]
+    }], 
+    model.assets_root === '/' ? undefined : { basename: model.assets_root }
+)
 

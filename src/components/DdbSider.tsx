@@ -4,12 +4,13 @@ import { Layout, Menu, Typography } from 'antd'
 
 import { default as Icon, DoubleLeftOutlined, DoubleRightOutlined, ExperimentOutlined, SettingOutlined } from '@ant-design/icons'
 
+import { useLocation } from 'react-router-dom'
+
 import { filter_values } from 'xshell/utils.browser.js'
 
+import { language, t } from '@i18n/index.ts'
 
-import { language, t } from '@i18n/index.js'
-
-import { model, type DdbModel, NodeType, storage_keys } from '../model.js'
+import { model, type DdbModel, NodeType, storage_keys } from '@/model.ts'
 
 
 import SvgOverview from '@/overview/icons/overview.icon.svg'
@@ -62,11 +63,15 @@ function MenuIcon ({ view }: { view: DdbModel['view'] }) {
 export function DdbSider () {
     const { dev, test } = model
     
-    const { view, node_type, collapsed, logined, admin, login_required, client_auth, v1, is_factor_platform_enabled } 
-        = model.use(['view', 'node_type', 'collapsed', 'logined', 'admin', 'login_required', 'client_auth', 'v1', 'is_factor_platform_enabled', 'enabled_modules'])
+    const { node_type, collapsed, logined, admin, login_required, client_auth, v1, is_factor_platform_enabled } 
+        = model.use(['node_type', 'collapsed', 'logined', 'admin', 'login_required', 'client_auth', 'v1', 'is_factor_platform_enabled', 'enabled_modules'])
+    
+    // useLocation 会导致路径变化时整个组件重新渲染，尽量选择小的范围调用
+    const { search } = useLocation()
+    
     
     const factor_href = useMemo(() => {
-        const search_params = new URLSearchParams(location.search)
+        const search_params = new URLSearchParams(search)
         
         return 'starfish/index.html?' +
             new URLSearchParams(filter_values(
@@ -80,7 +85,7 @@ export function DdbSider () {
     }, [logined])
     
     return <Layout.Sider
-        width={ language === 'zh' ? 170 : 220 }
+        width={ language === 'zh' ? 140 : 220 }
         className='sider'
         theme='light'
         collapsible
@@ -102,7 +107,7 @@ export function DdbSider () {
             className={`menu ${admin ? 'module-settings' : ''}`}
             mode='inline'
             theme='light'
-            selectedKeys={[view]}
+            selectedKeys={[model.view]}
             onSelect={({ key }) => {
                 if ((login_required || client_auth) && !logined) {
                     model.message.error(t('请登录'))
@@ -112,9 +117,7 @@ export function DdbSider () {
                 if (key === 'factor')
                     return
                 
-                model.set_query('view', key)
-                
-                model.set({ view: key as DdbModel['view'] })
+                model.goto(key === 'shell' ? '/' : `/${key}/`)
             }}
             inlineIndent={10}
             items={[
@@ -173,7 +176,7 @@ export function DdbSider () {
                 ... node_type !== NodeType.controller ? [{
                     key: 'data-collection',
                     icon: <MenuIcon view='data-collection' />,
-                    label: t('数据采集平台'),
+                    label: t('数据采集'),
                     children: [
                         {
                             icon: <MenuIcon view='data-connection' />,
@@ -193,7 +196,7 @@ export function DdbSider () {
                         icon: <MenuIcon view='plugins' />,
                         label: t('插件管理'),
                 }] : [ ],
-                ... is_factor_platform_enabled ? [{
+                ... is_factor_platform_enabled && node_type !== NodeType.controller ? [{
                     key: 'factor',
                     icon: <MenuIcon view='factor' />,
                     label: <Link target='_blank' href={factor_href}>{t('因子平台')}</Link>

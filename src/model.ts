@@ -5,6 +5,8 @@ import type { MessageInstance } from 'antd/es/message/interface.d.ts'
 import type { HookAPI as ModalHookAPI } from 'antd/es/modal/useModal/index.d.ts'
 import type { NotificationInstance } from 'antd/es/notification/interface.d.ts'
 
+import type { NavigateFunction, NavigateOptions } from 'react-router-dom'
+
 import 'xshell/polyfill.browser.js'
 import { filter_values, strcmp } from 'xshell/utils.browser.js'
 import { request } from 'xshell/net.browser.js'
@@ -84,10 +86,10 @@ export class DdbModel extends Model<DdbModel> {
     
     sql: SqlStandard = SqlStandard[localStorage.getItem(storage_keys.sql)] || SqlStandard.DolphinDB
     
-    view = '' as PageViews
-    
-    /** 重定向 view */
-    redirection?: PageViews
+    // todo: 暂时兼容，后面会把这里的逻辑去掉
+    get view () {
+        return location.pathname.strip_start(this.assets_root).split('/')[0] || 'shell'
+    }
     
     logined = false
     
@@ -156,6 +158,8 @@ export class DdbModel extends Model<DdbModel> {
     modal: ModalHookAPI
     
     notification: NotificationInstance
+    
+    navigate: NavigateFunction
     
     /** 记录启用了哪些可选功能 */
     enabled_modules = new Set<string>()
@@ -233,7 +237,6 @@ export class DdbModel extends Model<DdbModel> {
         this.header = params.get('header') !== '0' && (view !== 'dashboard' || !dashboard)
         this.sider = params.get('sider') !== '0' && (view !== 'dashboard' || !dashboard)
         this.code_template = params.get('code-template') === '1'
-        this.redirection = params.get('redirection') as PageViews
     }
     
     
@@ -307,11 +310,8 @@ export class DdbModel extends Model<DdbModel> {
         
         if (!this.logined && (this.login_required || await this.check_client_auth()))
             await this.goto_login()
-        else {
+        else
             await this.get_factor_platform_enabled()
-            
-            this.goto_default_view()
-        }
     }
     
     
@@ -332,6 +332,8 @@ export class DdbModel extends Model<DdbModel> {
         - key: 参数名
         - value: 参数值，为 null 或 undefined 时删除该参数 */
     set_query (key: string, value: string | null) {
+        // todo: 这里需要用 react router 修改？
+        
         let url = new URL(location.href)
         
         if (value === null || value === undefined)
@@ -642,9 +644,14 @@ export class DdbModel extends Model<DdbModel> {
     }
     
     
-    /** 去登录页
-        @param redirection 设置登录完成后的回跳页面，默认取当前 view */
-    async goto_login (redirection: PageViews = this.view) {
+    /** 跳转路径，不改变查询参数 */
+    goto (pathname: string, options?: NavigateOptions) {
+        this.navigate({ pathname, search: location.search }, options)
+    }
+    
+    
+    /** 去登录页 */
+    async goto_login () {
         if (this.oauth) {
             const auth_uri = strip_quotes(
                 config.get_config('oauthAuthUri')
@@ -670,27 +677,7 @@ export class DdbModel extends Model<DdbModel> {
             
             await goto_url(url)
         } else
-            this.set({
-                view: 'login',
-                ... redirection === 'login' ? { } : { redirection }
-            })
-    }
-    
-    
-    goto_redirection () {
-        if (this.redirection) 
-            this.set({ view: this.redirection })
-        else
-            // 保留旧跳转逻辑
-            this.goto_default_view()
-    }
-    
-    
-    goto_default_view () {
-        this.set({
-            view: new URLSearchParams(location.search).get('view') as DdbModel['view'] || 
-                (this.node_type === NodeType.controller ? 'overview' : 'shell')
-        })
+            this.goto('/login/')
     }
     
     
