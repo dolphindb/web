@@ -643,8 +643,9 @@ export class DdbModel extends Model<DdbModel> {
     
     
     /** 跳转路径，不改变查询参数 */
-    goto (pathname: string, options?: NavigateOptions, query?: Record<string, string>) {
+    goto (pathname: string, options?: NavigateOptions & { query?: Record<string, string> }) {
         const search_params = new URLSearchParams(location.search)
+        const { query, ..._options } = options
         if (query) 
             Object.entries(query).forEach(([key, value]) => {
                 if (value === undefined)
@@ -653,7 +654,7 @@ export class DdbModel extends Model<DdbModel> {
                     search_params.set(key, value)
             })
         
-        this.navigate({ pathname, search: search_params.toString() }, options)
+        this.navigate({ pathname, search: search_params.toString() }, _options)
     }
     
     
