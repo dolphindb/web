@@ -107,7 +107,7 @@ class ShellModel extends Model<ShellModel> {
     /** 所有的 tabs */
     tabs: Tab[] = [ ]
     
-    is_monaco_init = false
+    monaco_inited = false
     
     truncate_text (lines: string[]) {
         let i_first_non_empty = null
@@ -333,7 +333,7 @@ class ShellModel extends Model<ShellModel> {
     
     
     add_tab () {
-        if (!this.is_monaco_init)
+        if (!this.monaco_inited)
             return
         
         this.save()
@@ -352,7 +352,7 @@ class ShellModel extends Model<ShellModel> {
     
     
     switch_tab (tab_index: number) {
-        if (!this.is_monaco_init)
+        if (!this.monaco_inited)
             return
         
         this.save()

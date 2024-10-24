@@ -195,7 +195,7 @@ export function ShellEditor ({ collapser }) {
                 shell.set({
                     editor,
                     monaco,
-                    is_monaco_init: true
+                    monaco_inited: true
                 })
             }}
             
@@ -288,7 +288,7 @@ function Tab ({
                 
                 event.stopPropagation()
                 
-                if (!shell.is_monaco_init)
+                if (!shell.monaco_inited)
                     return
                 
                 model.modal.confirm({
