@@ -132,6 +132,10 @@ class ShellModel extends Model<ShellModel> {
         
     }
     
+    async refresh_vars () {
+        
+    }
+    
     
     async eval (code = this.editor.getValue(), istart: number) {
         const time_start = dayjs()
