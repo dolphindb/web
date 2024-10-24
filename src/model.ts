@@ -293,7 +293,7 @@ export class DdbModel extends Model<DdbModel> {
             } catch {
                 console.log(t('ticket 登录失败'))
                 
-                if ((this.dev || this.test) && !this.oauth)
+                if (this.dev || this.test)
                     try {
                         await this.login_by_password('admin', '123456')
                     } catch {
