@@ -282,14 +282,14 @@ function Tab ({
         <div
             className='close-icon'
             onClick={event => {
+                if (!shell.monaco_inited)
+                    return
+                
                 const { tabs } = shell
                 
                 const tab_index = tab.index
                 
                 event.stopPropagation()
-                
-                if (!shell.monaco_inited)
-                    return
                 
                 model.modal.confirm({
                     title: t('提醒'),
