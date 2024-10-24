@@ -245,7 +245,7 @@ function Node ({
                     </div>
                     <div className='node-click' onClick={() => { switchFold(node) }} />
                     <NodeSite node={node} />
-                    <div className={node_statuses[state]}><span>{state ? t('运行中') : t('未启动')}</span></div>
+                    <div className={node_statuses[state]} style={{ backgroundImage: `url(${model.assets_root}overview/${state ? 'online' : 'offline'}.png)` }}><span>{state ? t('运行中') : t('未启动')}</span></div>
                 </div>
             }
             <div 
