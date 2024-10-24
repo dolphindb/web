@@ -24,28 +24,28 @@ export function Share ({ dashboard_ids, trigger_type }: IProps) {
             return
         }
         
-        let copy_text = ''
-        const currentUrl = new URL(window.location.href)
-        currentUrl.searchParams.set('preview', '1')
+        let text = ''
+        let url = new URL(window.location.href)
+        
+        url.searchParams.set('preview', '1')
         
         if (dashboard_ids.length === 1) {
-            currentUrl.searchParams.set('dashboard', String(dashboard_ids[0]))
-            copy_text = currentUrl.href
-        }
-        else
+            url.pathname = `/dashboard/${dashboard_ids[0]}/`
+            text = url.href
+        } else
             dashboard_ids.forEach(dashboard_id => {
-                currentUrl.searchParams.set('dashboard', String(dashboard_id))
-                copy_text += `${dashboard.configs.find(({ id }) => id === dashboard_id).name}：${currentUrl.href}\n`
+                url.pathname = `/dashboard/${dashboard_id}/`
+                text += `${dashboard.configs.find(({ id }) => id === dashboard_id).name}: ${url.href}\n`
             })
-            
+        
         try {
-            copy(copy_text)
+            copy(text)
             api.success({
                 message: t('以下内容已复制到剪切板'),
                 style: {
                     width: 1100
                 },
-                description: copy_text.split('\n').map(item => <p>{item}</p>),
+                description: text.split('\n').map(item => <p>{item}</p>),
                 placement: 'top',
             })
          } catch (e) {

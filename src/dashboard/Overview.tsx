@@ -127,8 +127,7 @@ export function Overview () {
                     
                     await dashboard.add_dashboard_config(new_dashboard, false)
                     
-                    model.set_query('dashboard', String(new_dashboard.id))
-                    model.set({ header: false, sider: false })
+                    model.goto(`/dashboard/${new_dashboard.id}`)
                     creator.close()
                 }}
                 title={t('新数据面板')}
@@ -248,9 +247,7 @@ export function Overview () {
                                 onClick={() => {
                                     const config = configs.find(({ id }) => id === key)
                                     dashboard.set({ config, editing: false })
-                                    model.set_query('dashboard', String(config.id))
-                                    model.set_query('preview', '1')
-                                    model.set({ header: false, sider: false })
+                                    model.goto( `/dashboard/${config.id}`, { queries: { preview: '1' } })
                                 }}
                             >
                                 <div className='dashboard-cell-tag'>
@@ -281,8 +278,7 @@ export function Overview () {
                                             onClick={() => {
                                                 let config = configs.find(({ id }) => id === key)
                                                 dashboard.set({ config, editing: true, save_confirm: true })
-                                                model.set_query('dashboard', String(config.id))
-                                                model.set({ header: false, sider: false })
+                                                model.goto(`/dashboard/${config.id}`)
                                             }}
                                         >
                                             {t('编辑')}
