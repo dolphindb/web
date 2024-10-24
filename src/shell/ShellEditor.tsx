@@ -103,11 +103,11 @@ export function ShellEditor ({ collapser }) {
             enter_completion={enter_completion}
             
             on_mount={(editor, monaco) => {
-                // 挂载时进入默认标签页
-                shell.set({ itab: -1 })
                 
-                editor.setValue(localStorage.getItem(storage_keys.code) || '')
-                
+                editor.setValue(shell.itab > -1 ?
+                    shell.tabs.find(t => t.index === shell.itab).code :
+                    (localStorage.getItem(storage_keys.code) || '')
+                )
                 
                 async function execute (selection: 'line' | 'all') {
                     if (shell.executing)
