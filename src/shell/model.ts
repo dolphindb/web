@@ -109,6 +109,7 @@ class ShellModel extends Model<ShellModel> {
     
     monaco_inited = false
     
+    
     truncate_text (lines: string[]) {
         let i_first_non_empty = null
         let i_non_empty_end = null
