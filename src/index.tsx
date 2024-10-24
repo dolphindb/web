@@ -210,7 +210,7 @@ const router = createBrowserRouter([
                 element: <DashBoard />,
                 children: [
                     {
-                        path: '',
+                        index: true,
                         element: <DashboardOverview />
                     },
                     {

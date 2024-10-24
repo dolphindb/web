@@ -18,28 +18,28 @@ import { DashboardPermission, dashboard } from './model.ts'
 
 
 export function DashboardInstancePage () {
-    const { loading } = dashboard.use(['loading', 'inited_state'])
+    const { loading } = dashboard.use(['loading'])
     const { id } = useParams()
     
     return <ConfigProvider
-    theme={{
-        hashed: false,
-        token: {
-            borderRadius: 0,
-            motion: false,
-            colorBgContainer: 'rgb(40, 40, 40)',
-            colorBgElevated: '#555555',
-            colorInfoActive: 'rgb(64, 147, 211)'
-        },
-        algorithm: theme.darkAlgorithm
-    }}
->
-    <App className='app'>
-        <Spin spinning={loading} delay={500} size='large'>
-            <DashboardInstance id={id}/>
-        </Spin>
-    </App>
-</ConfigProvider>
+        theme={{
+            hashed: false,
+            token: {
+                borderRadius: 0,
+                motion: false,
+                colorBgContainer: 'rgb(40, 40, 40)',
+                colorBgElevated: '#555555',
+                colorInfoActive: 'rgb(64, 147, 211)'
+            },
+            algorithm: theme.darkAlgorithm
+        }}
+    >
+        <App className='app'>
+            <Spin spinning={loading} delay={500} size='large'>
+                <DashboardInstance id={id}/>
+            </Spin>
+        </App>
+    </ConfigProvider>
 }
 
 function DashboardInstance ({ id }: { id: string }) {

@@ -451,15 +451,20 @@ export class DashBoardModel extends Model<DashBoardModel> {
             widget: null,
             
          })
+         
         model.goto(`/dashboard/${config.id}/`)
+        
         this.set({ loading: false })
     }
     
     
     return_to_overview () {
         clear_data_sources()
+        
         dashboard.set({ config: null, save_confirm: false })
+        
         model.goto('/dashboard', { queries: { preview: '1' } } )
+        
         model.set({ sider: true, header: true })
     }
     

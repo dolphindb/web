@@ -70,10 +70,10 @@ export function DdbSider () {
     const { search, pathname } = useLocation()
     
     useEffect(() => {
-        const dashboard = /\/dashboard\/\d+/.exec(pathname)
-        const search_params = new URLSearchParams(search)
+        const dashboard = /\/dashboard\/\d+/.test(pathname)
+        const params = new URLSearchParams(search)
         model.set({
-            header: search_params.get('header') === '0' ? false : !dashboard,
+            header: params.get('header') === '0' ? false : !dashboard,
             sider: !dashboard
         })
     }, [search, pathname])

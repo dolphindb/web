@@ -8,7 +8,7 @@ import type { NotificationInstance } from 'antd/es/notification/interface.d.ts'
 import type { NavigateFunction, NavigateOptions } from 'react-router-dom'
 
 import 'xshell/polyfill.browser.js'
-import { assert, filter_values, strcmp } from 'xshell/utils.browser.js'
+import { assert, filter_values, not_empty, strcmp } from 'xshell/utils.browser.js'
 import { request } from 'xshell/net.browser.js'
 
 import {
@@ -642,27 +642,23 @@ export class DdbModel extends Model<DdbModel> {
     }
     
     
-    /** 跳转到页面
-        @param pathname 路径
-        @param options 选项，也可以可以在此处合并 query 的修改 { queries: { key: value } } */
-    goto (pathname: string, options?: NavigateOptions & { queries?: Record<string, string> }) {
-        const params = new URLSearchParams(location.search)
-        let _queries: Record<string, string> | undefined, _options: NavigateOptions | undefined
-        if (options) {
-            const { queries, ...__options } = options
-            _options = __options
-            if (queries)
-                _queries = queries
-        }
-        if (_queries) 
-            Object.entries(_queries).forEach(([key, value]) => {
-                if (value === undefined || value === null)
-                    params.delete(key)
-                else
+    /** 跳转到页面，保留查询参数
+        - pathname: 路径
+        - options?: react-router NavigateOptions 选项，也可以可以在此处传 { queries: { key: value } } 更新查询参数 */
+    goto (pathname: string, { queries, ...options }: NavigateOptions & { queries?: Record<string, string> } = { }) {
+        assert(pathname.startsWith('/'), 'model.goto 应该传入绝对路径')
+        
+        let params = new URLSearchParams(location.search)
+        
+        if (queries) 
+            Object.entries(queries).forEach(([key, value]) => {
+                if (not_empty(value))
                     params.set(key, value)
+                else
+                    params.delete(key)
             })
         
-        this.navigate({ pathname, search: params.toString() }, _options)
+        this.navigate({ pathname, search: params.toString() }, options)
     }
     
     
