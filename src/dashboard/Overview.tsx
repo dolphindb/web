@@ -247,7 +247,7 @@ export function Overview () {
                                 onClick={() => {
                                     const config = configs.find(({ id }) => id === key)
                                     dashboard.set({ config, editing: false })
-                                    model.goto( `/dashboard/${config.id}`, { query: { preview: '1' } })
+                                    model.goto( `/dashboard/${config.id}`, { queries: { preview: '1' } })
                                 }}
                             >
                                 <div className='dashboard-cell-tag'>
