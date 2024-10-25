@@ -111,7 +111,8 @@ export function ConnectionDetail (props: IProps) {
         NiceModal.show(CreateSubscribeModal, { 
             protocol: data.connectInfo.protocol, 
             connection_id: connection, 
-            refresh: mutate
+            refresh: mutate,
+            mode: 'create'
     }), [  data?.connectInfo?.protocol, connection, mutate, templates ])
     
     
@@ -173,24 +174,33 @@ export function ConnectionDetail (props: IProps) {
             title: t('操作'),
             dataIndex: 'operations',
             width: 200,
-            render: (_, record) => <Space>
-                <Typography.Link 
-                disabled={record.status === 1}
-                onClick={async () => {
-                    NiceModal.show(CreateSubscribeModal, { protocol: data?.connectInfo?.protocol, refresh: mutate, parser_templates: templates, edited_subscribe: record })
-                } }>
-                    {t('编辑')}
-                </Typography.Link>
+            render: (_, record) => {
+                const disabled = record.status === 1
+                return  <Space>
+                    <Typography.Link 
+                        onClick={() => {
+                            NiceModal.show(CreateSubscribeModal, { 
+                                protocol: data?.connectInfo?.protocol, 
+                                refresh: mutate, 
+                                parser_templates: templates, 
+                                edited_subscribe: record, 
+                                mode: disabled ?  'view' : 'edit' 
+                            })
+                        } }
+                    >
+                        {disabled ? t('查看') : t('编辑')} 
+                    </Typography.Link>
+                    
+                    <Typography.Link 
+                        disabled={record.status === 1} 
+                        onClick={async () => { await NiceModal.show(DeleteDescribeModal, { ids: [record.id], refresh: mutate }) }}
+                        type='danger' 
+                    >
+                        {t('删除')}
+                    </Typography.Link>
                 
-                <Typography.Link 
-                    disabled={record.status === 1} 
-                    onClick={async () => { await NiceModal.show(DeleteDescribeModal, { ids: [record.id], refresh: mutate }) }}
-                    type='danger' 
-                >
-                    {t('删除')}
-                </Typography.Link>
-               
-            </Space>
+                </Space>
+            }
         }
     ], [ templates, mutate, on_change_status, data ])
     

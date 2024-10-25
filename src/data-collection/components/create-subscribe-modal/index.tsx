@@ -32,10 +32,11 @@ interface IProps {
     connection_id?: string
     protocol: Protocol
     refresh: () => void
+    mode: 'create' | 'edit' | 'view'
 }
 
 export const CreateSubscribeModal = NiceModal.create((props: IProps) => {
-    const { edited_subscribe, connection_id, refresh, protocol } = props
+    const { edited_subscribe, connection_id, refresh, protocol, mode } = props
     
     const [handlerId, setHandlerId] = useState(edited_subscribe?.handlerId)
     
@@ -56,15 +57,16 @@ export const CreateSubscribeModal = NiceModal.create((props: IProps) => {
     const partition = Form.useWatch('partition', form)
     const offset = Form.useWatch('offset', form)
     
-    const on_submit = useCallback(async values => {            
-        if (edited_subscribe) 
+    const on_submit = useCallback(async values => {   
+        const is_edit = mode === 'edit'         
+        if (is_edit) 
             await edit_subscribe(protocol, { ...values, id: edited_subscribe.id, })
         else 
             await create_subscribe(protocol, { ...values, connectId: connection_id } )
-        message.success(edited_subscribe ? t('修改成功') : t('创建成功'))
+        message.success(is_edit ? t('修改成功') : t('创建成功'))
         modal.hide()
         refresh()
-    }, [edited_subscribe, connection_id, refresh])
+    }, [mode, connection_id, refresh])
     
     
     const protocol_params = useMemo(() => {
@@ -134,6 +136,7 @@ export const CreateSubscribeModal = NiceModal.create((props: IProps) => {
             initialValues={edited_subscribe ?? undefined} 
             labelAlign='left' 
             labelCol={{ span: 6 }}
+            disabled={mode === 'view'}
         >
             <Form.Item 
                 label={t('名称')} 
