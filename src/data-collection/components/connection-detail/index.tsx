@@ -20,19 +20,22 @@ import { DeleteOutlined, PlusOutlined } from '@ant-design/icons'
 
 import dayjs from 'dayjs'
 
-import { Protocol, type ISubscribe, type ConnectionDetail, type IParserTemplate } from '../../type.js'
-import { t } from '../../../../i18n/index.js'
+
+import { t } from '@i18n/index.ts'
+
 import { request } from '../../utils.ts'
 
-import { CreateSubscribeModal } from '../create-subscribe-modal/index.js'
 
 
-import { get_connect_detail, get_parser_templates } from '../../api.js'
 
 import { PROTOCOL_MAP } from '@/data-collection/constant.ts'
 
-import { TemplateViewModal } from './parser-template-view-modal.js'
+import { get_connect_detail, get_parser_templates } from '@/data-collection/api.ts'
+import { type IParserTemplate, Protocol, type ISubscribe } from '@/data-collection/type.ts'
+import { CreateSubscribeModal } from '../create-subscribe-modal/index.tsx'
+
 import { DeleteDescribeModal } from './delete-describe-modal.js'
+import { TemplateViewModal } from './parser-template-view-modal.js'
 
 
 interface IProps {
