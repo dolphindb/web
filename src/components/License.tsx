@@ -30,28 +30,29 @@ const authorizations = {
 }
 
 export function License () {
-    const { version, version_full, license, admin, dev, test } = model.use(['version', 'version_full', 'license', 'admin', 'dev', 'test'])
+    const { version, version_full, license, admin } = model.use(['version', 'version_full', 'license', 'admin'])
     
-        // 在 admin 状态变化时，弹提示
-        useEffect(() => {
-            if ((admin || !config.get_boolean_config('licenseExpirationWarningAdminOnly')) && license) {
-                if (expiration_checked)
-                    return
-                expiration_checked = true
-                
-                const { license } = model
-                
-                // license.expiration 是以 date 为单位的数字
-                const expiration_date = dayjs(license.expiration)
-                const now = dayjs()
-                const after_two_week = now.add(2, 'week')
-                const is_license_expired = now.isAfter(expiration_date, 'day')
-                const is_license_expire_soon = after_two_week.isAfter(expiration_date, 'day')
-                
-                // 今天展示过了，或者在 dev 或 test 环境
-                if (localStorage.getItem(storage_keys.license_notified_date) === now.format(date_format) || dev || test)
-                    return
-                    
+    // 在 admin 状态变化时，弹提示
+    useEffect(() => {
+        if (
+            !model.dev && !model.test && 
+            !expiration_checked && 
+            (admin || !config.get_boolean_config('licenseExpirationWarningAdminOnly')) && 
+            license
+        ) {
+            expiration_checked = true
+            
+            const { license } = model
+            
+            // license.expiration 是以 date 为单位的数字
+            const expiration_date = dayjs(license.expiration)
+            const now = dayjs()
+            const after_two_week = now.add(2, 'week')
+            const is_license_expired = now.isAfter(expiration_date, 'day')
+            const is_license_expire_soon = after_two_week.isAfter(expiration_date, 'day')
+            
+            // 今天展示过了
+            if (localStorage.getItem(storage_keys.license_notified_date) !== now.format(date_format)) {
                 if (is_license_expired)
                     model.modal.error({
                         title: t('License 过期提醒'),
@@ -67,7 +68,8 @@ export function License () {
                         onOk: () => { localStorage.setItem(storage_keys.license_notified_date, now.format(date_format)) },
                     })
             }
-        }, [admin, license])
+        }
+    }, [admin, license])
     
     if (!license)
         return
