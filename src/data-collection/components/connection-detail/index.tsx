@@ -51,7 +51,10 @@ export function ConnectionDetail (props: IProps) {
     
     const { data, mutate, isLoading } = useSWR(
         ['dcp_getConnectAndSubInfo', connection],
-        async () => get_connect_detail(connection)
+        async () => {
+            set_selected_subscribes([ ])
+            return get_connect_detail(connection)
+        }
     )
     
     const { data: { items: templates } = DEFAULT_TEMPLATES } = useSWR(
