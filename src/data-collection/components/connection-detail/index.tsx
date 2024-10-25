@@ -179,6 +179,7 @@ export function ConnectionDetail (props: IProps) {
                 return  <Space>
                     <Typography.Link 
                         onClick={() => {
+                            // @ts-ignore
                             NiceModal.show(CreateSubscribeModal, { 
                                 protocol: data?.connectInfo?.protocol, 
                                 refresh: mutate, 
