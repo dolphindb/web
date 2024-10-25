@@ -316,7 +316,7 @@ class ShellModel extends Model<ShellModel> {
     
     save (code = this.editor?.getValue()) {
         if (code === undefined) 
-            throw new Error('saving undefind code')
+            throw new Error('不能保存 undefined 的 code')
         
         if (this.itab > -1) {
             let tab = this.tabs.find(t => t.index === this.itab)

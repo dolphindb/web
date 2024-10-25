@@ -246,14 +246,10 @@ function Tab ({
     let [renaming, set_renaming] = useState(false)
     
     function commit_rename () {
-        const { tabs } = shell
+        tab.name = name
         
-        const tab_index = tab.index
+        shell.set({ tabs: [...shell.tabs] })
         
-        const index = tabs.findIndex(t => t.index === tab_index)
-        const new_tabs = [...tabs]
-        new_tabs[index].name = name
-        shell.set({ tabs: new_tabs })
         shell.save()
         
         set_renaming(false)
