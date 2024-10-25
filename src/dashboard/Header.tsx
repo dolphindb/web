@@ -173,7 +173,7 @@ export function Header () {
         
         const filtered_configs = configs.filter(({ id }) => id !== config.id)
         if (filtered_configs.length)
-            model.set_query('dashboard', String(filtered_configs[0].id))
+            model.goto(`/dashboard/${filtered_configs[0].id}`)
         else 
             dashboard.return_to_overview()
         
