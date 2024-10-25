@@ -317,12 +317,12 @@ class ShellModel extends Model<ShellModel> {
     save (code = this.editor?.getValue()) {
         if (this.itab > -1) {
             let tab = this.tabs.find(t => t.index === this.itab)
-            if (code)
+            if (code || code === '')
                 tab.code = code
             this.set({ tabs: [...this.tabs] })
             localStorage.setItem(`${storage_keys.code}.${this.itab}`, JSON.stringify(tab))
         } else
-            if (code)
+            if (code || code === '') // 空字符串也要存
                 localStorage.setItem(storage_keys.code, code)
     }
     

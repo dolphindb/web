@@ -245,6 +245,20 @@ function Tab ({
     let [name, set_name] = useState(tab.name)
     let [renaming, set_renaming] = useState(false)
     
+    function commit_rename () {
+        const { tabs } = shell
+        
+        const tab_index = tab.index
+        
+        const index = tabs.findIndex(t => t.index === tab_index)
+        const new_tabs = [...tabs]
+        new_tabs[index].name = name
+        shell.set({ tabs: new_tabs })
+        shell.save()
+        
+        set_renaming(false)
+    }
+    
     return <div
         className={`tab ${tab.index === itab ? 'active' : ''}`}
         key={tab.index}
@@ -259,18 +273,10 @@ function Tab ({
             onChange={event => { set_name(event.currentTarget.value) }}
             variant='borderless'
             size='small'
-            onBlur={() => {
-                const { tabs } = shell
-                
-                const tab_index = tab.index
-                
-                const index = tabs.findIndex(t => t.index === tab_index)
-                const new_tabs = [...tabs]
-                new_tabs[index].name = name
-                shell.set({ tabs: new_tabs })
-                shell.save()
-                
-                set_renaming(false)
+            onBlur={commit_rename}
+            onKeyDown={event => {
+                if (event.key === 'Enter')
+                    commit_rename()
             }}
         />
     :
@@ -290,24 +296,30 @@ function Tab ({
                 
                 event.stopPropagation()
                 
-                model.modal.confirm({
-                    title: t('提醒'),
-                    content: t('关闭标签页将会删除标签页内的所有内容，确认关闭？'),
-                    onOk () {
-                        const index = tabs.findIndex(t => t.index === tab_index)
-                        const new_tabs = tabs.filter(t => t.index !== tab_index)
-                        if (tab_index === itab)
-                            if (new_tabs.length === 0)
-                                shell.switch_tab(-1)
-                            else if (index === 0)
-                                shell.switch_tab(new_tabs[0].index)
-                            else
-                                shell.switch_tab(new_tabs[index - 1].index)
-                        
-                        shell.remove_tab(tab_index)
-                    },
-                    okType: 'danger'
-                })
+                function remove_tab () {
+                    const index = tabs.findIndex(t => t.index === tab_index)
+                    const new_tabs = tabs.filter(t => t.index !== tab_index)
+                    if (tab_index === itab)
+                        if (new_tabs.length === 0)
+                            shell.switch_tab(-1)
+                        else if (index === 0)
+                            shell.switch_tab(new_tabs[0].index)
+                        else
+                            shell.switch_tab(new_tabs[index - 1].index)
+                            
+                    shell.remove_tab(tab_index)
+                }
+                
+                const code = tab.code
+                if (code)
+                    model.modal.confirm({
+                        title: t('提醒'),
+                        content: t('关闭标签页将会删除标签页内的所有内容，确认关闭？'),
+                        onOk: remove_tab,
+                        okType: 'danger'
+                    })
+                else
+                    remove_tab()
             }}
         >
             <CloseOutlined style={{ fontSize: 12 }} />
