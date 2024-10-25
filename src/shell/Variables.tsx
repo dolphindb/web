@@ -58,7 +58,7 @@ export function Variables ({ shared }: { shared?: boolean }) {
         try {
             set_refresh_spin(true)
             const promise = delay(1000)
-            await shell.load_dbs()
+            await shell.update_vars()
             set_expanded_keys([ ])
             await promise
         } catch (error) {
@@ -151,15 +151,17 @@ export function Variables ({ shared }: { shared?: boolean }) {
     
     return <div className='panel'>
         <div className='type'>{shared ? t('共享变量') : t('本地变量')}
-            <span onClick={shell.refresh_vars}>
-                <Tooltip title={t('刷新')} color='grey'>
-                    <SyncOutlined spin={refresh_spin}/>
-                </Tooltip>
-            </span>
-            <span onClick={() => { set_expanded_keys([ ]) }}>
-                <Tooltip title={t('全部折叠')} color='grey'>
-                <MinusSquareOutlined />
-                </Tooltip>
+            <span className='extra'>
+                <span onClick={shell.refresh_vars}>
+                    <Tooltip title={t('刷新')} color='grey'>
+                        <SyncOutlined spin={refresh_spin}/>
+                    </Tooltip>
+                </span>
+                <span onClick={() => { set_expanded_keys([ ]) }}>
+                    <Tooltip title={t('全部折叠')} color='grey'>
+                    <MinusSquareOutlined />
+                    </Tooltip>
+                </span>
             </span>
         </div>
         <div className='tree-content'>
