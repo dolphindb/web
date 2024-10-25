@@ -195,7 +195,6 @@ export function ReportDetailPage () {
                     <div className='group-header'>
                         <h2>{groupName}</h2>
                         <span className={`abnormal-count ${statusClass}`}>
-                        {abnormalCount ? `${abnormalCount}/${totalCount} 项异常` : `${totalCount}/${totalCount} 项正常`}
                         {abnormalCount ? t('{{abnormalCount}}/{{totalCount}} 项异常', { abnormalCount, totalCount })  : t('{{totalCount}}/{{totalCount}} 项正常', { totalCount })}
                         </span>
                     </div>
