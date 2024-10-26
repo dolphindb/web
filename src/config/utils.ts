@@ -47,9 +47,9 @@ export function parse_nodes_configs (strs: string[]) {
         const value = str.slice(iequal + 1)
         
         nodes_configs.set(
-            name,
+            left,
             {
-                key: name,
+                key: left,
                 category: get_category(name),
                 qualifier,
                 name,
