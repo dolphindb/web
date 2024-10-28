@@ -1496,7 +1496,7 @@ def commonDolphinDBConfig(params) {
     }
 
     if (ret.size() > 0) {
-        throw (false, ret, "请检查配置文件。")
+        return (false, ret, "请检查配置文件。")
     }
     return (true, NULL, NULL)
 }
