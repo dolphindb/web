@@ -762,6 +762,9 @@ def getChunksGEKeyCount(keyCount,chunkIds){
         chunkIdArray=enlist(chunkIds);
     getChunkIds=def(keyCount,curChunkIds){
         keyEntry=getTSDBSortKeyEntry(curChunkIds);
+        if (isVoid(keyEntry)) {
+            return table(1:0, `chunkId`count, [STRING, INT])
+        }
         entryCountPerChunk=select count(*) as count,first(chunkPath) as path from keyEntry group by chunkId;
         return select chunkId,count from entryCountPerChunk where count>keyCount;
     }
