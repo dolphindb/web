@@ -53,7 +53,6 @@ export const EditParamModal = NiceModal.create(({
             labelCol={{ span: 3 }} 
             wrapperCol={{ span: 21 }}
             onFinish={values => {
-                console.log('🚀 ~ values:', values)
                 let new_checked_metrics = new Map(checked_metrics)
                 new_checked_metrics.set(metric.name, 
                     { ...new_checked_metrics.get(metric.name), 
@@ -117,7 +116,8 @@ export const EditParamModal = NiceModal.create(({
                                         showTime 
                                     /> : 
                                     type === 'SYMBOL' ? 
-                                            <Select 
+                                            <Select
+                                                mode='multiple'
                                                 options={param.options.map(op => ({
                                                     value: op,
                                                     label: op

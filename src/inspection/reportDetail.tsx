@@ -152,8 +152,9 @@ export function ReportDetailPage () {
           }
         }).filter(group => group.items.length > 0)
       }, [plan_report_detail])
-      
     
+    const has_abnoraml_metrics = abnormal_metrics.length > 0
+      
     return isLoading ? <div className='spin-container'><Spin size='large' spinning={isLoading}/></div> : <div className='report-detail' ref={topRef}>
         <div className='report-detail-header'>
             <Button onClick={() => { inspection.set({ current_report: null }) }}>{t('返回')}</Button>
@@ -163,38 +164,45 @@ export function ReportDetailPage () {
         <div id='report-detail-content' className='report-content'>
             <h1>{t('{{report_id}} 巡检报告', { report_id: current_report.planId })}</h1>
            
-            <Descriptions column={4} items={[...Object.entries(reportLables).map(([key, value]) => ({ key, label: value, children: key === 'runningTime' ? delta2str(Number(current_report[key])) : <div style={{ whiteSpace: 'pre-wrap' }}>{current_report[key]}</div> }))]} />
+            <Descriptions 
+                column={4} 
+                items={[...Object.entries(reportLables).map(([key, value]) => 
+                ({  key, 
+                    label: value, 
+                    children: key === 'runningTime' 
+                                    ? delta2str(Number(current_report[key])) 
+                                    : <div style={{ whiteSpace: 'pre-wrap' }}>{current_report[key]}</div> 
+                }))]} 
+            />
             
             <h2>{t('巡检结果总览')}</h2>
             <div className='abnormal-table-header'>
                 <p className='report-summary'>
                     {t('检查项共 {{num}} 项', { num: plan_report_detail?.length || 0 })}
                     <span className={abnormal_metrics.length && 'abnormal-count'}>{t(' {{num}} 项异常。', { num: abnormal_metrics.length })}</span>
-                    {Boolean(abnormal_metrics.length) && t('异常列表指标如下:')}
+                    {has_abnoraml_metrics && t('异常列表指标如下:')}
                     
                 </p>
-                {Boolean(abnormal_metrics.length) && <span className='abnormal-count'>
+                {has_abnoraml_metrics && <span className='abnormal-count'>
                     {t('{{num_abnormal}}/{{num_total}} 项异常', { num_abnormal: abnormal_metrics.length, num_total: plan_report_detail?.length || 0 })}
                 </span>}
             </div>
             
             {abnormal_metrics.length > 0 && (
-                    <Table
-                        dataSource={abnormal_metrics}
-                        columns={abnormal_columns}
-                        rowKey='metricName'
-                        pagination={false}
-                    />
+                <Table
+                    dataSource={abnormal_metrics}
+                    columns={abnormal_columns}
+                    rowKey='metricName'
+                    pagination={false}
+                />
             )}
            
      
             {grouped_report_items.map(({ groupName, items, abnormalCount, totalCount }) => {
-                const statusClass = abnormalCount === 0 ? 'green' : 'red'
-                
                 return <div key={groupName}>
                     <div className='group-header'>
                         <h2>{groupName}</h2>
-                        <span className={`abnormal-count ${statusClass}`}>
+                        <span className={`abnormal-count ${abnormalCount === 0 ? 'green' : 'red'}`}>
                         {abnormalCount ? t('{{abnormalCount}}/{{totalCount}} 项异常', { abnormalCount, totalCount })  : t('{{totalCount}}/{{totalCount}} 项正常', { totalCount })}
                         </span>
                     </div>
@@ -227,8 +235,7 @@ function DetailDescription ({
     const is_multi_node = metric.detail_nodes.length > 1
     
     const metric_params = useMemo(() => JSON.parse(metric.metricParams), [metric.metricParams])
-    
-    
+       
     return <Typography key={metric.metricName} className='report-description'>
          {is_multi_node && <div style={{ whiteSpace: 'pre-wrap' }}>{t('指标说明: {{desc}}', { desc: metric.desc })}</div>}
         {
@@ -258,7 +265,6 @@ function DetailDescription ({
                         label: t('运行时间'),
                         children: delta2str(Number(n.runningTime)),
                     },
-                   
                     {
                         key: 'success',
                         label: t('是否正常'),
