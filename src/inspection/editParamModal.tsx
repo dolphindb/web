@@ -29,7 +29,7 @@ export const EditParamModal = NiceModal.create(({
             for (const [key, value] of Object.entries(selected_params)) {
                 let param = params.get(key)
                 if (param.type === 'TIMESTAMP')
-                    formatted_params[key] = dayjs(value)
+                    formatted_params[key] = value ?  dayjs(value) : null
                 else
                     formatted_params[key] = value
             }
@@ -53,6 +53,7 @@ export const EditParamModal = NiceModal.create(({
             labelCol={{ span: 3 }} 
             wrapperCol={{ span: 21 }}
             onFinish={values => {
+                console.log('🚀 ~ values:', values)
                 let new_checked_metrics = new Map(checked_metrics)
                 new_checked_metrics.set(metric.name, 
                     { ...new_checked_metrics.get(metric.name), 
@@ -104,7 +105,7 @@ export const EditParamModal = NiceModal.create(({
                     [...metric.params.values()].map((param: MetricParam) => {
                         const { type, name } = param
                         
-                        return <Form.Item 
+                        return  <Form.Item 
                                     name={['selected_params', name]}   
                                     label={name}
                                     labelAlign='left'
@@ -112,7 +113,7 @@ export const EditParamModal = NiceModal.create(({
                                     wrapperCol={{ span: 21 }}
                                     >
                                 {type === 'TIMESTAMP' ? 
-                                    <DatePicker 
+                                    <DatePicker
                                         showTime 
                                     /> : 
                                     type === 'SYMBOL' ? 
