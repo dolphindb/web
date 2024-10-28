@@ -358,7 +358,7 @@ def sendReportEmail(planInfo, reportInfo, alertConfig) {
 def runPlan(planId, blocking=false) {
     planInfo = select * from loadTable("dfs://ddb_internal_auto_inspection", "plans") where id == planId
     if (planInfo.size() == 0) {
-        throw "plan id: " + planId " not found"
+        throw "plan id: " + planId + " not found"
     }
     name = planInfo[0]["name"]
     desc = planInfo[0]["desc"]
