@@ -1667,7 +1667,7 @@ def commonSystemConfig(params) {
         line = readLine(f) // 文件类型在第二行
         f.close()
         if (line.strFind("xfs") == -1) {
-            insert into ret values ("df -hT " + volumeCfg, line, "WARNING", "volumes 配置项值所在的硬盘式不为 xfs，建议格式化为 xfs 以避免 inode 满问题。")
+            insert into ret values ("df -hT " + volumeCfg, line, "WARNING", "volumes 配置项值所在的硬盘格式不为 xfs，建议格式化为 xfs 以避免 inode 满问题。")
         }
     }
     
