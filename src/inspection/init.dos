@@ -591,7 +591,7 @@ nodes = NULL // NULL 指该指标不能指定节点运行，选择任一数据�
 script = '
 def mostQueriedDFSTables(params) {
     if (!bool(getConfig("enableDFSQueryLog"))) {
-        throw "未开启查询日志 enableDFSQueryLog 配置项。"
+        return (false, "未配置 enableDFSQueryLog=true。", "请配置 enableDFSQueryLog=true 以支持该项检查。")
     }
     
     startTime_ = params["startTime"]
@@ -794,7 +794,7 @@ params = [
 newMetric(name, displayName, group, desc, nodes, script, params)
 go
 
-name = "commonDolphinDBConfig"
+name = "checkConfigs::commonDolphinDBConfig"
 displayName = "常见配置项检查"
 group = "1"
 desc = "检查常见的 DolphinDB 配置项错误。"
@@ -1514,7 +1514,7 @@ nodes = nodes["name"]
 script = '
 def coredump(params) {
     if (!bool(getConfig("enableShellFunction"))) {
-        return (false, "未配置 enableShellFunction", "请配置 enableShellFunction=true 以支持该项检查。")
+        return (false, "未配置 enableShellFunction=true。", "请配置 enableShellFunction=true 以支持该项检查。")
     }
     
     startTime = params["startTime"]
@@ -1585,7 +1585,7 @@ nodes = nodes["name"]
 script = '
 def commonSystemConfig(params) {
     if (!bool(getConfig("enableShellFunction"))) {
-        return (false, "未配置 enableShellFunction", "请配置 enableShellFunction=true 以支持该项检查。")
+        return (false, "未配置 enableShellFunction=true。", "请配置 enableShellFunction=true 以支持该项检查。")
     }
     
     ret = table(1:0, `command`returnValue`level`suggestion, [STRING, STRING, SYMBOL, STRING])

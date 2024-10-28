@@ -215,17 +215,13 @@ def runMetric(name, node, script, mutable params) {
 
     try {
         if (getNodeAlias() != node) {
-            rpc(node, runScript, script)
-            rpc(node, runScript, "params=fromStdJson(\'" + paramsJson + "\')")
-            rpc(node, runScript, "res_=" + name + "(params)")
-            success, detail, suggestion = rpc(node, objByName, "res_")
-            params = rpc(node, objByName, "params")
+            runScript(script)
+            params = fromStdJson(paramsJson)
+            success, detail, suggestion = rpc(node, funcByName(name), params)
         } else {
             runScript(script)
-            runScript("params_=fromStdJson(\'" + paramsJson + "\')")
-            runScript("res_=" + name + "(params_)")
-            success, detail, suggestion = objByName("res_")
-            params = objByName("params_") 
+            params = fromStdJson(paramsJson)
+            success, detail, suggestion = funcByName(name)(params)
         }
     } catch(err) {
         success = false
@@ -266,7 +262,8 @@ def runPlanInner(planId) {
 
         jobIds = []$STRING
         for (node in nodes) {
-            jobId = submitJob("runMetric_" + planId + "_" + name, node, runMetric{name, node, script, usedParams})
+            name_ = strReplace(name, "::", "_")
+            jobId = submitJob("runMetric_" + planId + "_" + name_, node, runMetric{name, node, script, usedParams})
             jobIds.append!(jobId)
         }
 
