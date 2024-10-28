@@ -91,53 +91,51 @@
                     color: #6ED86C
                 &.red
                     color: #EE0000
-        
 
-.add-inspection-modal,
-.edit-inspection-modal
+    .add-inspection,
+    .edit-inspection
+        .ant-table-title
+            padding: 8px 0px
+            
+        h3
+            margin-block: 8px
         
-    .ant-table-title
-        padding: 8px 0px
-        
-    h3
-        margin-block: 8px
-    
-    .inspection-form
-        display: flex
-        flex-direction: column
+        .inspection-form
+            display: flex
+            flex-direction: column
 
-        .inspection-form-inline
-            .inspection-form-inline-time
+            .inspection-form-inline
+                .inspection-form-inline-time
+                    display: flex
+                    column-gap: 20px
+                .ant-form-item
+                    margin-bottom: 0px
+            
+            .script-popover
+                max-width: 500px
+                padding: 8px
+                
+            .date-select
+                min-width: 200px
+                
+            .nodes-select
+                width: 240px
+                
+            .inspection-form-action
                 display: flex
                 column-gap: 20px
-            .ant-form-item
-                margin-bottom: 0px
-        
-        .script-popover
-            max-width: 500px
-            padding: 8px
+                margin-top: 40px
+                align-self: flex-end
+                align-items: center
+                
+                
+            .metric-table-title
+                display: flex
+                justify-content: space-between
             
-        .date-select
-            min-width: 200px
-            
-        .nodes-select
-            width: 240px
-            
-        .inspection-form-action
-            display: flex
-            column-gap: 20px
-            margin-top: 40px
-            align-self: flex-end
-            align-items: center
-            
-            
-        .metric-table-title
-            display: flex
-            justify-content: space-between
-        
-        .expanded-table
-            .ant-table-cell
-                padding: 2px 4px !important  
+            .expanded-table
+                .ant-table-cell
+                    padding: 2px 4px !important  
                   
 .edit-param-modal,.add-param-modal
     .ant-form

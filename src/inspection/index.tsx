@@ -13,13 +13,11 @@ import { type Dayjs } from 'dayjs'
 
 import { isNull } from 'lodash'
 
-import type { SorterResult } from 'antd/es/table/interface'
-
 import { model } from '@/model.ts'
 
 import { inspection } from './model.tsx'
 import type { Plan, PlanReport } from './type.ts'
-import { EditInspectionModal } from './editInspectionModal.tsx'
+import { EditInspection } from './editInspection.tsx'
 import { ReportDetailPage } from './reportDetail.tsx'
 import { emailConfigModal } from './emailConfigModal.tsx'
 
@@ -28,11 +26,11 @@ export function Inspection () {
     
     const { inited, current_report, current_plan } = inspection.use(['inited', 'current_report', 'current_plan'])
     
-    const [search_key, set_search_key ] = useState('')
+    const [ search_key, set_search_key ] = useState('')
     
-    const [search_input_value, set_search_input_value] = useState('')
+    const [ search_input_value, set_search_input_value ] = useState('')
     
-    const [refresh, set_refresh] = useState(0)
+    const [ refresh, set_refresh ] = useState(0)
     
     const refresher = useMemo(() => () => { set_refresh(cnt => cnt + 1) }, [ ])
     
@@ -48,40 +46,45 @@ export function Inspection () {
         </div>
     
     
-    return current_report ? <ReportDetailPage/> : current_plan ? <EditInspectionModal plan={current_plan} refresher={refresher}  disabled/> : <div>
+    return current_report 
+                ?   <ReportDetailPage/> 
+                :   current_plan 
+                        ? <EditInspection plan={current_plan} refresher={refresher}  disabled/> 
+                        : <div>
         <div className='inspection-header'>
-                <Button 
-                    type='primary'
-                    icon={<PlusOutlined />}
-                    onClick={ () => { inspection.set({ current_plan:  {   
-                        frequency: 'W', 
-                        days: '1', 
-                    } as Plan }) } }>
-                        {t('新增巡检')}
-                </Button>
+            <Button 
+                type='primary'
+                icon={<PlusOutlined />}
+                onClick={ () => { inspection.set({ current_plan:  {   
+                    frequency: 'W', 
+                    days: '1', 
+                } as Plan }) } }>
+                    {t('新增巡检')}
+            </Button>
                 
-                <Button
-                    icon={<MailOutlined />}
-                    onClick={ () => { NiceModal.show(emailConfigModal) } }>
-                        {t('邮件告警设置')}
-                </Button>
-                
-                <Button 
-                    icon={<ReloadOutlined />}
-                    onClick={() => {
-                        set_search_input_value('')
-                        set_search_key('')
-                        refresher()
-                        model.message.success(t('刷新成功'))
-                    }}>{t('刷新')}
-                </Button>
+            <Button
+                icon={<MailOutlined />}
+                onClick={ () => { NiceModal.show(emailConfigModal) } }>
+                    {t('邮件告警设置')}
+            </Button>
+            
+            <Button 
+                icon={<ReloadOutlined />}
+                onClick={() => {
+                    set_search_input_value('')
+                    set_search_key('')
+                    refresher()
+                    model.message.success(t('刷新成功'))
+                }}>{t('刷新')}
+            </Button>
                
-                <Input.Search 
-                    placeholder={t('请输入想要搜索的巡检名称')} 
-                    value={search_input_value}
-                    onChange={e => { set_search_input_value(e.target.value) }}
-                    onSearch={set_search_key} 
-                    className='inspection-search'/>
+            <Input.Search 
+                placeholder={t('请输入想要搜索的巡检名称')} 
+                value={search_input_value}
+                onChange={e => { set_search_input_value(e.target.value) }}
+                onSearch={set_search_key} 
+                className='inspection-search'
+            />
             
         </div>
        
@@ -89,12 +92,11 @@ export function Inspection () {
             inited &&  
             <>
                 <PlanListTable enabled search_key={search_key}  refresh={refresh} refresher={refresher}/>
-                <PlanListTable enabled={false} search_key={search_key} refresh={refresh} refresher={refresher}/>
-                <ReportListTable 
+                <PlanListTable search_key={search_key} refresh={refresh} refresher={refresher}/>
+                <ReportListTable
                     search_key={search_key} 
                     refresh={refresh}
-                    />
-               
+                />
             </>
         }
         
@@ -286,12 +288,12 @@ function ReportListTable  ({
 
 function PlanListTable  ({
     search_key,
-    enabled,
+    enabled = false,
     refresh,
     refresher
 }: {
     search_key: string
-    enabled: boolean
+    enabled?: boolean
     refresh: number
     refresher: () => void
 })  {

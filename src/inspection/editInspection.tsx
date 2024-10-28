@@ -1,7 +1,7 @@
 import { InspectionForm } from './inspectionForm.tsx'
 import type { Plan } from './type.ts'
 
-export function EditInspectionModal ({ 
+export function EditInspection ({ 
     plan, 
     refresher,
     disabled = false 
@@ -13,7 +13,7 @@ export function EditInspectionModal ({
 }) {
             
     return <div
-        className='edit-inspection-modal'       
+        className='edit-inspection'       
     >
         <InspectionForm
             refresh={refresher}
