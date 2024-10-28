@@ -53,7 +53,7 @@ def connectionNum(params) {
     maxConnectionNum = int(getConfig("maxConnections"))
     
     if (connectionNum >= int(maxConnectionNum * 0.9)) {
-        return (false, "外部连接数: " + string(connectionNum) + " 大于 maxConnections 配置项阈值: " + string(maxConnectionNum), " * 90%，请使用 getCurrentSessionAndUser 方法检查所有会话并使用 closeSessions 方法适当关闭连接。")
+        return (false, "外部连接数: " + string(connectionNum) + " 大于 maxConnections 配置项阈值: " + string(maxConnectionNum) + " * 90%", "请使用 getCurrentSessionAndUser 方法检查所有会话并使用 closeSessions 方法适当关闭连接。")
     }
     
     return (true, connectionNum, NULL)
