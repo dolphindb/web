@@ -170,11 +170,11 @@ export function DdbSider () {
                         },
                     ]
                 }] : [ ],
-                {
+                ...admin ? [{
                     key: 'inspection',
                     icon: <MenuIcon view='inspection' />,
                     label: t('自动化巡检'),
-                },
+                }] : [ ],
                 {
                     key: 'log',
                     icon: <MenuIcon view='log' />,
