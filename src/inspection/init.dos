@@ -210,7 +210,7 @@ def diskUsage(params) {
     threshold = double(rpc(getControllerAlias(), getConfig{"volumeUsageThreshold"}))
     roundDiskUsage = round(diskUsage*100, 2)
     if (diskUsage >= threshold) {
-        detail = "磁盘使用率 " + roundDiskUsage.format("0.00") + "% 大于 volumeUsageThreshold 配置项 " + round(threshold*100, 2) + "%"
+        detail = "磁盘使用率 " + roundDiskUsage.format("0.00") + "% 大于等于 volumeUsageThreshold 配置项 " + round(threshold*100, 2) + "%"
         suggestion = "
 1. 在服务器上确认是 DolphinDB 或其他程序占用过多存储空间；
 2. 删除部分表数据以腾出空间；
