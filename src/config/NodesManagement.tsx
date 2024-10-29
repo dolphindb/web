@@ -283,8 +283,7 @@ function NodeTable ({ nodes, group, onSave, onDelete }: NodeTableProps) {
                 {
                     validator: async (_, value) => {
                         if (!value.startsWith(group))
-                            return Promise.reject(new Error(t('别名必须以组名 {{group}} 开头', { group })))
-                        return Promise.resolve()
+                            throw new Error(t('别名必须以组名 {{group}} 开头', { group }))
                     },
                     message: t('别名必须以组名 {{group}} 开头', { group })
                 }
