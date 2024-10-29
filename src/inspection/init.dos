@@ -171,7 +171,6 @@ script = '
 def recoveryStatus(mutable params){
     failureTask=select * from rpc(getControllerAlias(),getRecoveryTaskStatus) where FailureReason == "Aborted";
     if(failureTask.size()>0){
-        params["recoveryStatus2_failureTask"]=failureTask;
         return false,failureTask.size()+" 个副本恢复任务执行失败","调用 getRecoveryTaskStatus 排查错误原因。";
     }
     prevInProcessTask=select * from rpc(getControllerAlias(),getRecoveryTaskStatus) where Status=="In-Progress";
