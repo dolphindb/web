@@ -1,7 +1,7 @@
 import './Overview.sass'
 
 import { useEffect, useState } from 'react'
-import { Button, Input, Modal, Table, Popconfirm, Spin, Tag } from 'antd'
+import { Button, Input, Modal, Table, Popconfirm, Spin, Tag, Typography } from 'antd'
 import { DeleteOutlined, PlusOutlined, UploadOutlined } from '@ant-design/icons'
 import { downloadZip } from 'client-zip'
 import cn from 'classnames'
@@ -314,6 +314,7 @@ export function Overview () {
                                         <Share dashboard_ids={[key]} trigger_type='text'/>
                                         <Popconfirm
                                             title={t('删除')}
+                                            okButtonProps={{ danger: true }}
                                             description={t('确定删除 {{name}} 吗？', { name: configs.find(({ id }) => id === key).name })}
                                             onConfirm={async () => {
                                                 if (!configs.length) {
@@ -327,12 +328,10 @@ export function Overview () {
                                                 set_selected_dashboard_ids(selected_dashboard_ids.filter(id => id !== key))
                                                 model.message.success(t('删除成功'))
                                             }}
-                                            okText={t('确认删除')}
-                                            cancelText={t('取消')}
                                         >
-                                            <a  className='delete'>
+                                            <Typography.Link type='danger'>
                                                 {t('删除')}
-                                            </a>
+                                            </Typography.Link>
                                         </Popconfirm>
                                     </>
                                     : <>
