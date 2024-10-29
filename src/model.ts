@@ -8,7 +8,7 @@ import type { NotificationInstance } from 'antd/es/notification/interface.d.ts'
 import type { NavigateFunction, NavigateOptions } from 'react-router-dom'
 
 import 'xshell/polyfill.browser.js'
-import { assert, filter_values, not_empty, strcmp } from 'xshell/utils.browser.js'
+import { assert, filter_values, not_empty, strcmp, timeout, TimeoutError } from 'xshell/utils.browser.js'
 import { request } from 'xshell/net.browser.js'
 
 import {
@@ -670,17 +670,27 @@ export class DdbModel extends Model<DdbModel> {
         https://www.dolphindb.cn/cn/help/FunctionsandCommands/FunctionReferences/g/getClusterPerf.html  
         Only master or single mode supports function getClusterPerf. */
     async get_cluster_perf (print: boolean) {
-        const nodes = (
-            await this.ddb.invoke<DdbTableData<DdbNode>>('getClusterPerf', [true], {
-                urgent: true,
-                
-                ... this.node_type === NodeType.controller || this.node_type === NodeType.single
-                    ? undefined
-                    : { node: this.controller_alias }
-            })
-        )
-        .data
-        .sort((a, b) => strcmp(a.name, b.name))
+        let nodes: DdbNode[]
+        
+        try {
+            nodes = (
+                await timeout(5000, async () => 
+                    await this.ddb.invoke<DdbTableData<DdbNode>>('getClusterPerf', [true], {
+                        urgent: true,
+                        
+                        ... this.node_type === NodeType.controller || this.node_type === NodeType.single
+                            ? undefined
+                            : { node: this.controller_alias }
+                    })
+                )
+            ).data
+        } catch (error) {
+            if (error instanceof TimeoutError)
+                error.message = t('getClusterPerf(true) 执行超时，请检查集群节点状态是否正常，任务是否阻塞')
+            throw error
+        }
+        
+        nodes.sort((a, b) => strcmp(a.name, b.name))
         
         if (print)
             console.log(t('集群节点:'), nodes)

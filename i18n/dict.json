@@ -5338,5 +5338,29 @@
     },
     "保存成功，重启数据节点 / 计算节点生效": {
         "en": "Save successfully, restart the data / computing node to take effect"
+    },
+    "保存成功，重启计算节点生效": {
+        "en": "Save successfully, restart the computing node to take effect"
+    },
+    "集群中已存在主机名和端口号相同的节点": {
+        "en": "A node with the same host name and port number already exists in the cluster"
+    },
+    "采集平台初始化成功！": {
+        "en": "The acquisition platform was initialized successfully!"
+    },
+    "oauthType 配置参数的值必须为 authorization code 或 implicit，默认为 authorization code": {
+        "en": "The value of the oauthType configuration parameter must be authorization code or implicit. The default value is authorization code."
+    },
+    "web 安全认证:": {
+        "en": "Web Security Auth:"
+    },
+    "根据 state 参数跳转到节点:": {
+        "en": "Jump to the node according to the state parameter:"
+    },
+    "server 版本:": {
+        "en": "server version:"
+    },
+    "getClusterPerf(true) 执行超时，请检查集群节点状态是否正常，任务是否阻塞": {
+        "en": "getClusterPerf(true) execution timeout, please check whether the cluster node status is normal and whether the task is blocked"
     }
 }
