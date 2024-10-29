@@ -239,42 +239,42 @@ export function InspectionForm ({
                 </Form.Item>
                 
                 <Form.Item label={t('巡检时间')} required>
-        <Form.List 
-            name='scheduleTime'
-            rules={[
-                {
-                    validator: async (_, value) => {
-                        if (!value || value.length < 1) 
-                            throw new Error(t('至少需要设置一个巡检时间'))
-                        
-                    },
-                },
-            ]}
-        >
-            {(fields, { add, remove }) =>
-                <Space>
-                {
-                    fields.map((field, idx) => <Space key={field.key}>
-                            <Form.Item 
-                                {...field}
-                                rules={[{ required: true, message: t('请选择巡检时间') }]}
-                            >
-                                <TimePicker format='HH:mm'/>
+                    <Form.List 
+                        name='scheduleTime'
+                        rules={[
+                            {
+                                validator: async (_, value) => {
+                                    if (!value || value.length < 1) 
+                                        throw new Error(t('至少需要设置一个巡检时间'))
+                                    
+                                },
+                            },
+                        ]}
+                    >
+                        {(fields, { add, remove }) =>
+                            <Space align='baseline'>
+                            {
+                                fields.map((field, idx) => <Space key={field.key} align='baseline'>
+                                        <Form.Item 
+                                            {...field}
+                                            rules={[{ required: true, message: t('请选择巡检时间') }]}
+                                        >
+                                            <TimePicker format='HH:mm'/>
+                                        </Form.Item>
+                                        {fields.length > 1 && (
+                                            <MinusCircleOutlined onClick={() => { remove(field.name) }} />
+                                        )}
+                                    </Space>)
+                            }
+                            <Form.Item>
+                                <Button type='dashed' onClick={() => { add() }} block icon={<PlusOutlined />}>
+                                    {t('添加')}
+                                </Button>
                             </Form.Item>
-                            {fields.length > 1 && (
-                                <MinusCircleOutlined onClick={() => { remove(field.name) }} />
-                            )}
-                        </Space>)
-                }
-                <Form.Item>
-                    <Button type='dashed' onClick={() => { add() }} block icon={<PlusOutlined />}>
-                        {t('添加')}
-                    </Button>
+                            </Space>
+                        }
+                    </Form.List>
                 </Form.Item>
-                </Space>
-            }
-        </Form.List>
-    </Form.Item>
                 {/*                 
                 <Form.Item label={t('巡检时间')} name='scheduleTime' rules={[{ required: true, message: t('请选择巡检时间') }]}>
                     <TimePicker format='HH:mm:ss'/>
