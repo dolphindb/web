@@ -42,7 +42,7 @@ export function Inspection () {
     
     if (!inited) 
         return <div className='spin-container'>
-            <Spin size='large' delay={300} tip={t('自动化巡检模块初始化中')}/>
+            <Spin size='large' delay={300}/>
         </div>
     
     

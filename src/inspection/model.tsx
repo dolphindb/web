@@ -1,9 +1,5 @@
 import { Model } from 'react-object-model'
 
-import { DdbInt } from 'dolphindb/browser'
-
-import type { DdbVectorAny } from 'dolphindb'
-
 import {  model } from '@/model.ts'
 
 import { config } from '@/config/model.ts'
@@ -28,7 +24,7 @@ class InspectionModel extends Model<InspectionModel> {
             define_script,
         )
         await config.load_configs()
-         // 若无指标，重新创建指标后再拉取
+         // 若无指标，创建指标后再拉取
         if (!(await this.check_inited())) 
             await model.ddb.execute(create_metrics_script)
         
@@ -84,6 +80,7 @@ class InspectionModel extends Model<InspectionModel> {
     
     async get_reports (planId: string = null, reportId: string = null, startTime: string = null, endTime: string = null, success: number = null, page: number = 1, limit: number = 5, searchKey: string = '', orderBy: string = 'receivedTime', ascOrder: number = 0): Promise<{ records: PlanReport[], total: number }> {
         const [reports, total] = await model.ddb.execute(`getReports(${planId},${reportId ? `"${reportId}"` : null},${startTime},${endTime},${success},${page},${limit},"${searchKey}","${orderBy}",${ascOrder})`)
+        // const [reports, total] = (await model.ddb.invoke('getReports', [planId, reportId, startTime, endTime, success, new DdbInt(page), new DdbInt(limit), searchKey, orderBy, ascOrder])).data
         return { records: reports.data, total }
     }
     
