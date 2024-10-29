@@ -80,15 +80,9 @@ export function InspectionForm ({
     
     async function on_save  (run_now: boolean) {
         try {
-            await inspection_form.validateFields()
-        } catch (error) {
-            return 
-        }
-        const values = inspection_form.getFieldsValue()
-        
-        if (!values || !verify_metrics())
-            return
-        try {
+            const values = await inspection_form.validateFields()
+            if (!verify_metrics())
+                return
             const metrics = Array.from(metrics_with_nodes.values()).filter(({ checked }) => checked)
             const new_plan =  
                 {   
@@ -128,7 +122,8 @@ export function InspectionForm ({
             inspection.set({ current_plan: null })
             mutate_plan_detail()
         } catch (error) {
-            model.show_error({ error })
+            if (error instanceof Error)
+                model.show_error({ error })
         }
     }
     
