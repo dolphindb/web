@@ -1507,7 +1507,7 @@ go
 name = "coredump"
 displayName = "core 文件"
 group = "2"
-desc = "检查近期是否有 core 文件，只统计 startTime 到 endTime 参数时间范围内生成的 core 文件。
+desc = "检查 Linux 系统近期是否有 core 文件，只统计 startTime 到 endTime 参数时间范围内生成的 core 文件。
 参数说明：
 - startTime：TIMESTAMP，统计范围的开始时间，默认值为上次相同方案 ID 的报告的开始时间。
 - endTime：TIMESTAMP，统计范围的结束时间，默认值为当前报告的开始时间。"
@@ -1515,6 +1515,9 @@ nodes = select first(name) as name from rpc(getControllerAlias(), getClusterPerf
 nodes = nodes["name"]
 script = '
 def coredump(params) {
+    if (getOS() != "linux") {
+        throw "不支持非 linux 系统检查 coredump。"
+    }
     if (!bool(getConfig("enableShellFunction"))) {
         return (false, "未配置 enableShellFunction=true。", "请配置 enableShellFunction=true 以支持该项检查。")
     }
@@ -1579,13 +1582,16 @@ go
 name = "commonSystemConfig"
 displayName = "操作系统配置项"
 group = "2"
-desc = "检查常见操作系统配置项。
+desc = "检查 Linux 操作系统的常见配置项。
 参数说明：
 - logLevel：STRING 数组，统计的日志等级，可取值：ERROR，WARNING。"
 nodes = select first(name) as name from rpc(getControllerAlias(), getClusterPerf) where mode != 1 group by host
 nodes = nodes["name"]
 script = '
 def commonSystemConfig(params) {
+    if (getOS() != "linux") {
+        throw "不支持非 linux 系统检查配置项。"
+    }
     if (!bool(getConfig("enableShellFunction"))) {
         return (false, "未配置 enableShellFunction=true。", "请配置 enableShellFunction=true 以支持该项检查。")
     }

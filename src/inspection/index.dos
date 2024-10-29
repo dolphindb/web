@@ -668,7 +668,7 @@ def getPlans(planId=NULL, enabled=NULL, page=NULL, pageLimit=NULL, searchPattern
     cnt = sql(sqlCol("*", count), loadTable("dfs://ddb_internal_auto_inspection", "plans"), whereCond, exec=true).eval()
     res = sql(sqlCol("*"), loadTable("dfs://ddb_internal_auto_inspection", "plans"), whereCond).eval()
     reports = sql(sqlCol("*"), loadTable("dfs://ddb_internal_auto_inspection", "reports"), whereCond_, groupBy=sqlCol("planId"), groupFlag=0, csort=sqlCol("endTime"), ascSort=0, limit=1).eval()
-    res = select res.*, reports.id as lastReportId from res left semijoin reports on res.id == reports.planId
+    res = select res.id, res.name, res.desc, res.user, res.startDate, res.endDate, res.frequency, res.days, res.scheduleTime, res.enabled, res.alertEnabled, res.alertRecipient, reports.id as lastReportId from res left semijoin reports on res.id == reports.planId
     if (page != NULL) {
         startIndex = (page - 1) * pageLimit
         endIndex = page * pageLimit
@@ -688,7 +688,7 @@ def getPlanDetails(planId=NULL, language="cn") {
     }
     res = sql(sqlCol("*"), loadTable("dfs://ddb_internal_auto_inspection", "plan_details"), whereCond).eval()
     metricsInfo = select * from loadTable("dfs://ddb_internal_auto_inspection", "metrics") where name in distinct(res["metricName"]) and language == language_
-    res = select a.*, b.displayName, b.language from res a left semijoin metricsInfo b on a.metricName == b.name and a.metricVersion == b.version
+    res = select a.planId, a.metricName, a.metricVersion, a.nodes, a.params, b.displayName, b.language from res a left semijoin metricsInfo b on a.metricName == b.name and a.metricVersion == b.version
 
     return res
 }
