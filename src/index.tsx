@@ -166,16 +166,16 @@ const router = createBrowserRouter([
         element: <MainLayout />,
         children: [
             {
-                path: 'login/',
-                element: <Login />
+                index: true,
+                element: <Shell />
             },
             {
                 path: 'shell/',
                 element: <Shell />
             },
             {
-                index: true,
-                element: <Shell />
+                path: 'login/',
+                element: <Login />
             },
             {
                 path: 'overview/',

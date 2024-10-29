@@ -25,33 +25,6 @@ import { config } from '@/config/model.ts'
 import { goto_url, strip_quotes } from '@/utils.ts'
 
 
-export const storage_keys = {
-    ticket: 'ddb.ticket',
-    username: 'ddb.username',
-    collapsed: 'ddb.collapsed',
-    code: 'ddb.code',
-    session: 'ddb.session',
-    minimap: 'ddb.editor.minimap',
-    enter_completion: 'ddb.editor.enter_completion',
-    sql: 'ddb.sql',
-    dashboard_autosave: 'ddb.dashboard.autosave',
-    overview_display_mode: 'ddb.overview.display_mode',
-    overview_display_columns: 'ddb.overview.display_columns',
-    license_notified_date: 'ddb.license.notified_date',
-} as const
-
-const json_error_pattern = /^{.*"code": "(.*?)".*}$/
-
-const username_guest = 'guest' as const
-
-export type PageViews = 'overview' | 'shell' | 'dashboard' | 'table' | 'job' | 'plugins' | 'login' | 'dfs' | 'log' | 
-    'factor' | 'test' | 'computing' | 'tools' | 'iot-guide' | 'finance-guide' | 'access' | 'user' | 'group' | 'config' |
-    'settings' | 'data-connection' | 'parser-template' | 'data-collection'
-
-
-type OAuthType = 'authorization code' | 'implicit'
-
-
 export class DdbModel extends Model<DdbModel> {
     params: URLSearchParams
     
@@ -88,7 +61,7 @@ export class DdbModel extends Model<DdbModel> {
     
     // todo: 暂时兼容，后面会把这里的逻辑去掉
     get view () {
-        return location.pathname.strip_start(this.assets_root).split('/')[0] || 'shell'
+        return location.pathname.strip_start(this.assets_root).split('/')[0] || default_view
     }
     
     logined = false
@@ -1045,6 +1018,32 @@ export class DdbModel extends Model<DdbModel> {
         return this.enabled_modules.has(key) || !this.optional_modules.has(key)
     }
 }
+
+
+export const storage_keys = {
+    ticket: 'ddb.ticket',
+    username: 'ddb.username',
+    collapsed: 'ddb.collapsed',
+    code: 'ddb.code',
+    session: 'ddb.session',
+    minimap: 'ddb.editor.minimap',
+    enter_completion: 'ddb.editor.enter_completion',
+    sql: 'ddb.sql',
+    dashboard_autosave: 'ddb.dashboard.autosave',
+    overview_display_mode: 'ddb.overview.display_mode',
+    overview_display_columns: 'ddb.overview.display_columns',
+    license_notified_date: 'ddb.license.notified_date',
+} as const
+
+
+const json_error_pattern = /^{.*"code": "(.*?)".*}$/
+
+const username_guest = 'guest' as const
+
+export const default_view = 'shell' as const
+
+
+type OAuthType = 'authorization code' | 'implicit'
 
 
 export enum NodeType {
