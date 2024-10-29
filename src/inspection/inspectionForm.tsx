@@ -129,12 +129,12 @@ export function InspectionForm ({
     
     
     return <div className='inspection-form'>
-        <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-            <div style={{ display: 'flex', alignItems: 'center', columnGap: '20px' }}>
+        <div className='inspection-form-header'>
+            <div className='inspection-form-header-left'>
                 <Button onClick={() => { inspection.set({ current_plan: null }) }}>{t('返回')}</Button>
                 <h3>{is_editing ? (view_only ? t('查看巡检计划') : t('修改巡检计划')) : t('新增巡检计划')}</h3>
             </div>
-            <div className='inspection-form-action'>
+            <div className='inspection-form-header-right'>
                 <div>
                     <span>{t('启用：')}</span>
                     <Switch value={enabled} onChange={ async enabled => {
