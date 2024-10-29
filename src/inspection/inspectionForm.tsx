@@ -97,7 +97,7 @@ export function InspectionForm ({
                             for (const [key, value] of Object.entries(selected_params)) {
                                 let param = params.get(key)
                                 if (param.type === 'TIMESTAMP')
-                                    formatted_params[key] = dayjs(value).format('YYYY.MM.DDTHH:mm:ss.SSS')
+                                    formatted_params[key] = value ? dayjs(value).format('YYYY.MM.DDTHH:mm:ss.SSS') : null
                                 else
                                     formatted_params[key] = value
                             }
@@ -108,7 +108,7 @@ export function InspectionForm ({
                     }),
                     frequency: values.frequency,
                     days: values.days ? (values.days as number[]).map(Number) : [1],                                
-                    scheduleTime: values.scheduleTime.map(time => dayjs(time).format('HH:mm') + 'm'), 
+                    scheduleTime: values.scheduleTime.filter(time => time).map(time => dayjs(time).format('HH:mm') + 'm'), 
                     enabled,
                     alertEnabled: values.alertEnabled,
                     alertRecipient: values.alertRecipient,
