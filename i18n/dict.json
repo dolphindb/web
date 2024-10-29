@@ -5362,5 +5362,8 @@
     },
     "getClusterPerf(true) 执行超时，请检查集群节点状态是否正常，任务是否阻塞": {
         "en": "getClusterPerf(true) execution timeout, please check whether the cluster node status is normal and whether the task is blocked"
+    },
+    "配置文件校验失败，将回滚配置文件": {
+        "en": "Configuration file validation fails, the configuration file will be rolled back"
     }
 }
