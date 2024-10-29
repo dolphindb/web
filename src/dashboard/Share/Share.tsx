@@ -24,19 +24,13 @@ export function Share ({ dashboard_ids, trigger_type }: IProps) {
             return
         }
         
-        let text = ''
         let url = new URL(window.location.href)
         
         url.searchParams.set('preview', '1')
+        dashboard_ids.forEach(id => { url.searchParams.append('dashboard_share_ids[]', String(id)) })
+        url.pathname = `/dashboard/${dashboard_ids[0]}/`
+        const text = url.href
         
-        if (dashboard_ids.length === 1) {
-            url.pathname = `/dashboard/${dashboard_ids[0]}/`
-            text = url.href
-        } else
-            dashboard_ids.forEach(dashboard_id => {
-                url.pathname = `/dashboard/${dashboard_id}/`
-                text += `${dashboard.configs.find(({ id }) => id === dashboard_id).name}: ${url.href}\n`
-            })
         
         try {
             copy(text)
@@ -45,7 +39,7 @@ export function Share ({ dashboard_ids, trigger_type }: IProps) {
                 style: {
                     width: 1100
                 },
-                description: text.split('\n').map(item => <p>{item}</p>),
+                description: text,
                 placement: 'top',
             })
          } catch (e) {

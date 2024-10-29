@@ -2,7 +2,7 @@ import './Overview.sass'
 
 import { useEffect, useState } from 'react'
 import { Button, Input, Modal, Table, Popconfirm, Spin, Tag } from 'antd'
-import { DeleteOutlined, PlusCircleOutlined, UploadOutlined } from '@ant-design/icons'
+import { DeleteOutlined, PlusOutlined, UploadOutlined } from '@ant-design/icons'
 import { downloadZip } from 'client-zip'
 import cn from 'classnames'
 
@@ -228,20 +228,6 @@ export function Overview () {
                         title: t('名称'),
                         dataIndex: 'name',
                         key: 'name',
-                        // filters: [
-                        //     {
-                        //         text: t('拥有'),
-                        //         value: DashboardPermission.own
-                        //     },
-                        //     {
-                        //         text: t('仅编辑'),
-                        //         value: DashboardPermission.edit
-                        //     },
-                        //     {
-                        //         text: t('仅预览'),
-                        //         value: DashboardPermission.view
-                        //     }
-                        // ],
                         onFilter: (value, { permission }) => permission === value,
                         render: (text, { key, name, permission, owner }) => <a
                                 onClick={() => {
@@ -264,6 +250,16 @@ export function Overview () {
                                     }
                                 </div>
                             </a>
+                    },
+                    {
+                        title: t('创建人'),
+                        dataIndex: 'owner',
+                        width: 400,
+                    },
+                    {
+                        title: t('创建时间'),
+                        dataIndex: 'createTime',
+                        width: 400,
                     },
                     {
                         title: t('操作'),
@@ -367,14 +363,14 @@ export function Overview () {
                         </div>
                     }
                 ]}
-                dataSource={configs?.map(({ id, name, permission, owner }) => ({ key: id, name, permission, owner }))}
+                dataSource={configs?.map(({ id, ...others }) => ({ key: id, id, ...others }))}
                 pagination={false}
                 title={() => <div className='title'>
                         <h2>{t('数据面板')}</h2>
                         <div className='toolbar'>
                         <Button
                                 type='primary'
-                                icon={<PlusCircleOutlined />}
+                                icon={<PlusOutlined />}
                                 onClick={() => {
                                     const new_id = genid()
                                     set_new_dashboard_id(new_id)                

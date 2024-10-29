@@ -1,7 +1,7 @@
 import './Header.sass'
 
 import { useCallback, useEffect, useRef, useState } from 'react'
-import { Button, Input, Modal, Popconfirm, Select, Tag, Tooltip, Segmented, Switch } from 'antd'
+import { Button, Input, Modal, Popconfirm, Select, Tag, Tooltip, Segmented, Switch, type SelectProps } from 'antd'
 import { CopyOutlined, DeleteOutlined, EditOutlined, EyeOutlined, FileAddOutlined, HomeOutlined, SaveOutlined, UploadOutlined } from '@ant-design/icons'
 
 import { use_modal } from 'react-object-model/hooks.js'
@@ -13,13 +13,17 @@ import NiceModal from '@ebay/nice-modal-react'
 
 import type { SwitchProps } from 'antd/lib/index.js'
 
+import { uniqBy } from 'lodash'
+
+import useSWR from 'swr'
+
 import { model, storage_keys } from '../model.js'
 import { t } from '../../i18n/index.js'
 import { CompileAndRefresh } from '../components/CompileAndRefresh.js'
 
 import { HostSelect } from '../components/HostSelect.js'
 
-import { type Widget, dashboard, DashboardPermission } from './model.js'
+import { type DashBoardConfig, type Widget, dashboard, DashboardPermission } from './model.js'
 import { DataSourceConfig } from './DataSource/DataSourceConfig.js'
 import { clear_data_sources, export_data_sources } from './DataSource/date-source.js'
 import { VariableConfig } from './Variable/VariableConfig.js'
@@ -54,7 +58,7 @@ interface DashboardOption {
 
 
 export function Header () {
-    const { editing, widgets, configs, config, auto_save } = dashboard.use(['editing', 'widgets', 'configs', 'config', 'auto_save'])
+    const { editing, widgets, configs = [ ], config, auto_save } = dashboard.use(['editing', 'widgets', 'configs', 'config', 'auto_save'])
     const [new_dashboard_id, set_new_dashboard_id] = useState<number>()
     const [new_dashboard_name, set_new_dashboard_name] = useState('')
     const [edit_dashboard_name, set_edit_dashboard_name] = useState('')
@@ -189,11 +193,21 @@ export function Header () {
             dashboard.on_preview()
     }
     
+    /** 获取被分享的与有权限的 dashboards */
+    const { data: dashboards, isLoading } = useSWR<DashBoardConfig[]>(
+        ['get_all_view_dashboards', configs],
+        async () => {
+            const shared_dashboard_ids = new URL(window.location.href).searchParams.getAll('dashboard_share_ids[]')
+            const dashboard_shared_list = await Promise.all(shared_dashboard_ids.map(async id => dashboard.get_dashboard_config(Number(id))))
+            return uniqBy([...dashboard_shared_list, ...configs], 'id')
+        }
+    )
+    
     
     /** 切换 dashboard */
     async function on_change_dashboard (_, option: DashboardOption) { 
         async function handle_change () { 
-            const current_dashboard = configs.find(({ id }) => id === option.key)
+            const current_dashboard = dashboards.find(({ id }) => id === option.key)
             clear_data_sources()
             await dashboard.render_with_config(current_dashboard)
             if (current_dashboard.permission === DashboardPermission.view)
@@ -214,8 +228,6 @@ export function Header () {
                     await handle_change()
                 }
             })
-            
-          
     }
     
     const on_auto_save = useCallback<SwitchProps['onChange']>(value => {
@@ -224,25 +236,24 @@ export function Header () {
     }, [ ])
     
     return <div className='dashboard-header'>
-        {
-            config?.permission === DashboardPermission.own
-                ? <Select
-                        className='switcher'
-                        placeholder={t('选择 dashboard')}
-                        onChange={on_change_dashboard}
-                        value={config?.id}
-                        variant='borderless'
-                        options={configs?.map(({ id, name, permission }) => ({
-                            key: id,
-                            value: id,
-                            label: <div className='dashboard-options-label'>
-                                <span className={cn({ 'dashboard-options-label-name': permission })}>{name}</span>
-                                {permission !== DashboardPermission.own && <Tag color='processing' className='status-tag' >{permission === DashboardPermission.edit ? t('仅编辑') : t('仅预览')}</Tag> }
-                            </div>
-                        }))}
-                    />
-                : <div className='dashboard-share-label'>{config?.name}</div>
-        }
+        <Select
+            className='switcher'
+            placeholder={t('选择 dashboard')}
+            onChange={on_change_dashboard}
+            value={config?.id}
+            variant='borderless'
+            loading={isLoading}
+            options={dashboards?.map(({ id, name, permission }) => ({
+                key: id,
+                value: id,
+                label: <div className='dashboard-options-label'>
+                    <span className={cn({ 'dashboard-options-label-name': permission })}>{name}</span>
+                    {permission !== DashboardPermission.own && <Tag color='processing' className='status-tag' >{permission === DashboardPermission.edit ? t('仅编辑') : t('仅预览')}</Tag> }
+                </div>
+            }))}
+        />
+        : <div className='dashboard-share-label'>{config?.name}</div>
+        
         
         <div className='actions'>
             <Tooltip title={t('返回主界面')}>
