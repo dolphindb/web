@@ -5554,5 +5554,8 @@
     },
     "周六": {
         "en": "Saturday"
+    },
+    " {{num}} 项异常。": {
+        "en": " {{num}} exceptions."
     }
 }
