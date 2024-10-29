@@ -5365,5 +5365,8 @@
     },
     "配置文件校验失败，将回滚配置文件": {
         "en": "Configuration file validation fails, the configuration file will be rolled back"
+    },
+    "别名必须以组名 {{group}} 开头": {
+        "en": "Aliases must start with the group name {{group}}"
     }
 }
