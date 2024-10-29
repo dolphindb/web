@@ -1,6 +1,6 @@
 import { Model } from 'react-object-model'
 
-import type { DdbCallOptions } from 'dolphindb/browser.js'
+import { DdbInt, type DdbCallOptions } from 'dolphindb/browser.js'
 
 import { t } from '@i18n/index.ts'
 
@@ -35,7 +35,7 @@ class ConfigModel extends Model<ConfigModel> {
     }
     
     async add_agent_to_controller (host: string, port: number, alias: string) {
-        await this.invoke('addAgentToController', [host, port, alias])
+        await this.invoke('addAgentToController', [host, new DdbInt(port), alias])
     }
     
     

@@ -8,7 +8,7 @@ import type { NotificationInstance } from 'antd/es/notification/interface.d.ts'
 import type { NavigateFunction, NavigateOptions } from 'react-router-dom'
 
 import 'xshell/polyfill.browser.js'
-import { assert, filter_values, not_empty, strcmp } from 'xshell/utils.browser.js'
+import { assert, filter_values, not_empty, strcmp, timeout, TimeoutError } from 'xshell/utils.browser.js'
 import { request } from 'xshell/net.browser.js'
 
 import {
@@ -23,33 +23,6 @@ import { language, t } from '@i18n/index.ts'
 import type { FormatErrorOptions } from '@/components/GlobalErrorBoundary.tsx'
 import { config } from '@/config/model.ts'
 import { goto_url, strip_quotes } from '@/utils.ts'
-
-
-export const storage_keys = {
-    ticket: 'ddb.ticket',
-    username: 'ddb.username',
-    collapsed: 'ddb.collapsed',
-    code: 'ddb.code',
-    session: 'ddb.session',
-    minimap: 'ddb.editor.minimap',
-    enter_completion: 'ddb.editor.enter_completion',
-    sql: 'ddb.sql',
-    dashboard_autosave: 'ddb.dashboard.autosave',
-    overview_display_mode: 'ddb.overview.display_mode',
-    overview_display_columns: 'ddb.overview.display_columns',
-    license_notified_date: 'ddb.license.notified_date',
-} as const
-
-const json_error_pattern = /^{.*"code": "(.*?)".*}$/
-
-const username_guest = 'guest' as const
-
-export type PageViews = 'overview' | 'shell' | 'dashboard' | 'table' | 'job' | 'plugins' | 'login' | 'dfs' | 'log' | 
-    'factor' | 'test' | 'computing' | 'tools' | 'iot-guide' | 'finance-guide' | 'access' | 'user' | 'group' | 'config' |
-    'settings' | 'data-connection' | 'parser-template' | 'data-collection'
-
-
-type OAuthType = 'authorization code' | 'implicit'
 
 
 export class DdbModel extends Model<DdbModel> {
@@ -88,7 +61,7 @@ export class DdbModel extends Model<DdbModel> {
     
     // todo: 暂时兼容，后面会把这里的逻辑去掉
     get view () {
-        return location.pathname.strip_start(this.assets_root).split('/')[0] || 'shell'
+        return location.pathname.strip_start(this.assets_root).split('/')[0] || default_view
     }
     
     logined = false
@@ -697,17 +670,27 @@ export class DdbModel extends Model<DdbModel> {
         https://www.dolphindb.cn/cn/help/FunctionsandCommands/FunctionReferences/g/getClusterPerf.html  
         Only master or single mode supports function getClusterPerf. */
     async get_cluster_perf (print: boolean) {
-        const nodes = (
-            await this.ddb.invoke<DdbTableData<DdbNode>>('getClusterPerf', [true], {
-                urgent: true,
-                
-                ... this.node_type === NodeType.controller || this.node_type === NodeType.single
-                    ? undefined
-                    : { node: this.controller_alias }
-            })
-        )
-        .data
-        .sort((a, b) => strcmp(a.name, b.name))
+        let nodes: DdbNode[]
+        
+        try {
+            nodes = (
+                await timeout(5000, async () => 
+                    await this.ddb.invoke<DdbTableData<DdbNode>>('getClusterPerf', [true], {
+                        urgent: true,
+                        
+                        ... this.node_type === NodeType.controller || this.node_type === NodeType.single
+                            ? undefined
+                            : { node: this.controller_alias }
+                    })
+                )
+            ).data
+        } catch (error) {
+            if (error instanceof TimeoutError)
+                error.message = t('getClusterPerf(true) 执行超时，请检查集群节点状态是否正常，任务是否阻塞')
+            throw error
+        }
+        
+        nodes.sort((a, b) => strcmp(a.name, b.name))
         
         if (print)
             console.log(t('集群节点:'), nodes)
@@ -1045,6 +1028,32 @@ export class DdbModel extends Model<DdbModel> {
         return this.enabled_modules.has(key) || !this.optional_modules.has(key)
     }
 }
+
+
+export const storage_keys = {
+    ticket: 'ddb.ticket',
+    username: 'ddb.username',
+    collapsed: 'ddb.collapsed',
+    code: 'ddb.code',
+    session: 'ddb.session',
+    minimap: 'ddb.editor.minimap',
+    enter_completion: 'ddb.editor.enter_completion',
+    sql: 'ddb.sql',
+    dashboard_autosave: 'ddb.dashboard.autosave',
+    overview_display_mode: 'ddb.overview.display_mode',
+    overview_display_columns: 'ddb.overview.display_columns',
+    license_notified_date: 'ddb.license.notified_date',
+} as const
+
+
+const json_error_pattern = /^{.*"code": "(.*?)".*}$/
+
+const username_guest = 'guest' as const
+
+export const default_view = 'shell' as const
+
+
+type OAuthType = 'authorization code' | 'implicit'
 
 
 export enum NodeType {
