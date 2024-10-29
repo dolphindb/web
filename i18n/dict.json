@@ -5362,5 +5362,8 @@
     },
     "getClusterPerf(true) 执行超时，请检查集群节点状态是否正常，任务是否阻塞": {
         "en": "getClusterPerf(true) execution timeout, please check whether the cluster node status is normal and whether the task is blocked"
+    },
+    "别名必须以组名 {{group}} 开头": {
+        "en": "Aliases must start with the group name {{group}}"
     }
 }
