@@ -217,15 +217,26 @@ def runMetric(name, node, script, mutable params) {
         if (getNodeAlias() != node) {
             runScript(script)
             params = fromStdJson(paramsJson)
-            success, detail, suggestion = rpc(node, funcByName(name), params)
+            ret = rpc(node, funcByName(name), params)
         } else {
             runScript(script)
             params = fromStdJson(paramsJson)
-            success, detail, suggestion = funcByName(name)(params)
+            ret = funcByName(name)(params)
         }
     } catch(err) {
         success = false
         detail = iif(err.form() == 0, string(err), string(err).concat(": "))
+    }
+    if (ret.size() == 4) {
+        success, detail, suggestion, params = ret
+    } else if (ret.size() == 3) {
+        success, detail, suggestion = ret
+    } else if (ret.size() == 2) {
+        success, detail = ret
+    } else if (ret.size() == 1) {
+        success = ret
+    } else {
+        throw "Invalid return value: " + string(ret)
     }
 
     print("result: " + string(success))
