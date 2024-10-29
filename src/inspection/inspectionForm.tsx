@@ -79,12 +79,17 @@ export function InspectionForm ({
     const [inspection_form] = Form.useForm<Pick<Plan, 'name' | 'desc' | 'frequency' | 'days' | 'scheduleTime' | 'alertEnabled' | 'alertRecipient'> >()
     
     async function on_save  (run_now: boolean) {
-        const values = await inspection_form.validateFields()
-        const metrics = Array.from(metrics_with_nodes.values()).filter(({ checked }) => checked)
+        try {
+            await inspection_form.validateFields()
+        } catch (error) {
+            return 
+        }
+        const values = inspection_form.getFieldsValue()
         
-        if (!verify_metrics())
+        if (!values || !verify_metrics())
             return
         try {
+            const metrics = Array.from(metrics_with_nodes.values()).filter(({ checked }) => checked)
             const new_plan =  
                 {   
                     name: values.name,
@@ -178,12 +183,12 @@ export function InspectionForm ({
             initialValues={plan ? 
                 { 
                     ...plan,
-                    scheduleTime: plan.scheduleTime ? plan.scheduleTime.map(time => parse_minute(time as string)) : [ ],
+                    scheduleTime: plan.scheduleTime ? plan.scheduleTime.map(time => parse_minute(time as string)) :  [dayjs()],
                     alertRecipient: plan.alertRecipient ? (plan.alertRecipient as string).split(',') : [ ],
                     days: (plan.days as string).split(',').map(Number), 
                 } : 
                 {   
-                    scheduleTime: dayjs(), 
+                    scheduleTime: [dayjs()], 
                     frequency: 'W', 
                     days: [1], 
                 }}>
@@ -238,28 +243,43 @@ export function InspectionForm ({
                     }}
                 </Form.Item>
                 
-                <Form.Item label={t('巡检时间')} >
-                    <Form.List name='scheduleTime' >
-                        {(fields, { add, remove }) =>
-                            <Space>
-                            {
-                                fields.map(field => <Space>
-                                <Form.Item {...field} required>
-                                    <TimePicker format='HH:mm'/>
-                                </Form.Item>
-                                <MinusCircleOutlined onClick={() => { remove(field.name) }} />
-                                </Space>)
-                                
-                            }
-                            <Form.Item>
-                                <Button type='dashed' onClick={() => { add() }} block icon={<PlusOutlined />}>
-                                {t('添加')}
-                                </Button>
+                <Form.Item label={t('巡检时间')} required>
+        <Form.List 
+            name='scheduleTime'
+            rules={[
+                {
+                    validator: async (_, value) => {
+                        if (!value || value.length < 1) 
+                            throw new Error(t('至少需要设置一个巡检时间'))
+                        
+                    },
+                },
+            ]}
+        >
+            {(fields, { add, remove }) =>
+                <Space>
+                {
+                    fields.map((field, idx) => <Space key={field.key}>
+                            <Form.Item 
+                                {...field}
+                                rules={[{ required: true, message: t('请选择巡检时间') }]}
+                            >
+                                <TimePicker format='HH:mm'/>
                             </Form.Item>
-                            </Space>
-                        }
-                    </Form.List>
+                            {fields.length > 1 && (
+                                <MinusCircleOutlined onClick={() => { remove(field.name) }} />
+                            )}
+                        </Space>)
+                }
+                <Form.Item>
+                    <Button type='dashed' onClick={() => { add() }} block icon={<PlusOutlined />}>
+                        {t('添加')}
+                    </Button>
                 </Form.Item>
+                </Space>
+            }
+        </Form.List>
+    </Form.Item>
                 {/*                 
                 <Form.Item label={t('巡检时间')} name='scheduleTime' rules={[{ required: true, message: t('请选择巡检时间') }]}>
                     <TimePicker format='HH:mm:ss'/>
