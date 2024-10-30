@@ -140,6 +140,7 @@ class ShellModel extends Model<ShellModel> {
         
     }
     
+    
     async refresh_vars () {
         
     }
