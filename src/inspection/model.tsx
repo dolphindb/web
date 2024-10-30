@@ -42,7 +42,7 @@ class InspectionModel extends Model<InspectionModel> {
                 })
             return [ m.name, { ...m, params } ]
         })) })
-        this.set({ email_config: await inspection.can_configure_email() })
+        this.set({ email_config: await inspection.can_conautoInspection
         this.set({ inited: true })
     }
     
