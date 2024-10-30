@@ -23,10 +23,7 @@ import dayjs from 'dayjs'
 
 import { t } from '@i18n/index.ts'
 
-import { request } from '../../utils.ts'
-
-
-
+import { request } from '@/utils.ts'
 
 import { PROTOCOL_MAP } from '@/data-collection/constant.ts'
 
@@ -185,13 +182,12 @@ export function ConnectionDetail (props: IProps) {
                 return  <Space>
                     <Typography.Link 
                         onClick={() => {
-                            // @ts-ignore
                             NiceModal.show(CreateSubscribeModal, { 
                                 protocol: data?.connectInfo?.protocol, 
                                 refresh: mutate, 
                                 parser_templates: templates, 
                                 edited_subscribe: record, 
-                                mode: disabled ?  'view' : 'edit' 
+                                mode: disabled ?  'view' as const : 'edit' as const
                             })
                         } }
                     >
