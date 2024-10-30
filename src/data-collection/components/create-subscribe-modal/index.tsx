@@ -35,6 +35,12 @@ interface IProps {
     mode: 'create' | 'edit' | 'view'
 }
 
+const title_map = {
+    create: t('创建订阅'),
+    edit: t('修改订阅'),
+    view: t('查看订阅')
+}
+
 export const CreateSubscribeModal = NiceModal.create((props: IProps) => {
     const { edited_subscribe, connection_id, refresh, protocol, mode } = props
     
@@ -126,7 +132,7 @@ export const CreateSubscribeModal = NiceModal.create((props: IProps) => {
         open={modal.visible} 
         onCancel={modal.hide} 
         afterClose={modal.remove} 
-        title={edited_subscribe ? t('修改订阅') : t('创建订阅')}
+        title={title_map[mode]}
         destroyOnClose
     >
         <Form 
