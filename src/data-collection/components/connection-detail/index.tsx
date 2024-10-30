@@ -23,7 +23,7 @@ import dayjs from 'dayjs'
 
 import { t } from '@i18n/index.ts'
 
-import { request } from '@/utils.ts'
+import { request } from '@/data-collection/utils.ts'
 
 import { PROTOCOL_MAP } from '@/data-collection/constant.ts'
 
