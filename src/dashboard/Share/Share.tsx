@@ -28,8 +28,9 @@ export function Share ({ dashboard_ids, trigger_type }: IProps) {
         url.searchParams.set('preview', '1')
         
         dashboard_ids.forEach(id => { url.searchParams.append('dashboard_share_ids[]', String(id)) })
-        /** 直接用 /dashboard/ 在测试环境会有问题，测试环境的路径是 /web/dashboard/ */
-        url.pathname = `${url.pathname}${dashboard_ids[0]}/`
+        /** 测试环境下的路径为 /web/dashboard 直接用 /dashboard 有问题 */
+        const pathname = url.pathname.endsWith('/') ? url.pathname : url.pathname + '/'
+        url.pathname = pathname + dashboard_ids[0] + '/'
         const text = url.href
         
         
