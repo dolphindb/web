@@ -1,14 +1,93 @@
-cnt = exec count(*) from defs() where name == "httpClient::sendEmail"
-if (cnt == 0) {
-    loadPlugin("httpClient")
+def getPluginDir() {
+    ver = version()
+    pluginDir = getConfig("pluginDir")
+    if ((like(ver, "%LINUX%") and !pluginDir.startsWith("/")) or (like(ver, "%WIN%") and regexFind  (pluginDir, "^[a-zA-Z]:") != 0)) {
+        nodeCnt = exec count(*) from rpc(getControllerAlias(), getClusterPerf)
+        if (nodeCnt > 1) {
+            pluginDir = "../" + pluginDir
+        } else {
+            pluginDir = "./" + pluginDir
+        }
+    }
+    
+    return pluginDir
 }
-go
+
+def canConfigureEmail() {
+    listPluginsInner = def() {
+        pluginDir = getPluginDir()
+        pluginNames = exec filename from files(pluginDir) where isDir = true
+        ret = table(1:0, `pluginName`version, [STRING, STRING])
+        for (pluginName in pluginNames) {
+            // pluginName = pluginNames[0]
+            dir = pluginDir + "/" + pluginName
+            pattern = "Plugin" + upper(pluginName[0]) + pluginName[1:] + ".txt"
+            txtName = exec first(filename) from files(dir, "%.txt") where filename ilike pattern
+            if (txtName.strlen() == 0) {
+                continue
+            }
+            f = file(dir + "/" + txtName)
+            line = readLine(f)
+            s = line.split(",")
+            if (s.size() < 3) {
+                continue
+            }
+            pluginName = s.first()
+            pluginVersion = s.last()
+            tableInsert(ret, (pluginName, pluginVersion))
+        }
+        return ret
+    }
+
+    allNodes = exec name from rpc(getControllerAlias(), getClusterPerf) where mode != 1 and mode != 2 // 排除代理节点和控制节点
+    allNodes = set(allNodes)
+    info = pnodeRun(listPluginsInner)
+    cnt = exec count(*) from rpc(getControllerAlias(), getClusterPerf) where mode == 3
+    if (cnt == 0) {
+        info_ = rpc(getControllerAlias(), listPluginsInner)
+        update info_ set node = getControllerAlias()
+        info.append!(info_)
+    }
+    info = select * from info where pluginName == "httpClient" 
+    if (info.size() == 0) {
+        throw "请安装 httpClient 插件到所有节点，未安装节点：" + string(allNodes)
+    }
+
+    nodes = exec node from info
+    nodes = set(nodes)
+    if (nodes != allNodes) {
+        throw "请安装 httpClient 插件到所有节点，未安装节点：" + string(allNodes - nodes)
+    }
+
+    ddbVersion = version().split(" ").first()
+    ddbVersion_ = ddbVersion.split(".")
+    err = select * from info limit 0
+    for (item in info) {
+        pluginVersion = item["version"].split(".")
+        for (i in 0..2) {
+            if (ddbVersion_[i] != pluginVersion[i]) {
+                tableInsert(err, item)
+                break
+            }
+        }
+    }
+
+    if (err.size() > 0) {
+        throw "请升级所有 httpClient 插件至与 DolphinDB 前三级版本一致，DolphinDB 版本：" + string(version()) + "，错误版本：\n" + string(err)
+    }
+
+    return true
+}
 
 def clearEnv() {
     try {
         plans = select * from loadTable("dfs://ddb_internal_auto_inspection", "plans")
         for (plan in plans) {
-            try { deleteScheduledJob("schedulePlan_" + plan["id"]) } catch(err) {}
+            if (plan.enabled and !isNull(plan.enabledNode)) {
+                try {
+                    rpc(plan.enabledNode, deleteScheduledJob, "schedulePlan_" + plan.id)
+                } catch(err) {}
+            }
         }
     } catch(err) {} 
     
@@ -26,7 +105,7 @@ def initDfs() {
     tb = table(1:0, `name`displayName`group`desc`nodes`script`params`version`language`createTime`updateTime, [STRING, STRING, SYMBOL, STRING, STRING, BLOB, STRING, INT, SYMBOL, TIMESTAMP, TIMESTAMP])
     pt1 = createTable(db, tb, "metrics", sortColumns="createTime")
 
-    tb = table(1:0, `id`name`desc`user`startDate`endDate`frequency`days`scheduleTime`enabled`alertEnabled`alertRecipient, [STRING, STRING, STRING, STRING, DATE, DATE, STRING, STRING, MINUTE[], BOOL, BOOL, STRING])
+    tb = table(1:0, `id`name`desc`user`startDate`endDate`frequency`days`scheduleTime`enabled`enabledNode`alertEnabled`alertRecipient, [STRING, STRING, STRING, STRING, DATE, DATE, STRING, STRING, MINUTE[], BOOL, STRING, BOOL, STRING])
     pt2 = createTable(db, tb, "plans", sortColumns="startDate")
 
     tb = table(1:0, `planId`metricName`metricVersion`nodes`params, [STRING, STRING, INT, STRING, STRING])
@@ -348,8 +427,15 @@ def loadAlertConfig() {
 }
 
 def sendReportEmail(planInfo, reportInfo, alertConfig) {
+    if (defs("httpClient::emailSmtpConfig").size() == 0 or defs("httpClient::sendEmail").size() == 0) {
+        try {
+            loadPlugin("httpClient")
+        } catch(err) {
+            throw "try to load httpClient plugin failed: " + err.concat(":")
+        }
+    }
     if (all(["inspectionAlertSMTPEmailName", "inspectionAlertSMTPHost"] in alertConfig.keys())) {
-        httpClient::emailSmtpConfig(alertConfig["inspectionAlertSMTPEmailName"], alertConfig["inspectionAlertSMTPHost"], alertConfig["inspectionAlertSMTPPort"])
+        funcByName("httpClient::emailSmtpConfig")(alertConfig["inspectionAlertSMTPEmailName"], alertConfig["inspectionAlertSMTPHost"], alertConfig["inspectionAlertSMTPPort"])
     }
     
     subject, content = generateEmail(reportInfo)
@@ -358,9 +444,9 @@ def sendReportEmail(planInfo, reportInfo, alertConfig) {
     recipient = planInfo["alertRecipient"].split(",")
     if (alertConfig["inspectionAlertStdSMTPMsgEnabled"]) {
         smtpMsg = createSMTPMsg(userId, recipient, subject, content)
-        httpClient::sendEmail(userId, pwd, recipient, , , smtpMsg)
+        funcByName("httpClient::sendEmail")(userId, pwd, recipient, , , smtpMsg)
     } else {
-        httpClient::sendEmail(userId, pwd, recipient, subject, content)
+        funcByName("httpClient::sendEmail")(userId, pwd, recipient, subject, content)
     }
 
     return (userId, subject, recipient)
@@ -371,8 +457,14 @@ def runPlan(planId, blocking=false) {
     if (planInfo.size() == 0) {
         throw "plan id: " + planId + " not found"
     }
-    name = planInfo[0]["name"]
-    desc = planInfo[0]["desc"]
+    planInfo = planInfo[0]
+    validNodes = exec name from rpc(getControllerAlias(), getClusterPerf) where mode != 1 and mode != 2
+    if (validNodes.size() == 0) {
+        throw "failed to find a valid node, please check nodes' aliveness by getClusterPerf()"
+    }
+    enabledNode = iif(isNull(planInfo.enabledNode), validNodes.first(), planInfo.enabledNode)
+    name = planInfo["name"]
+    desc = planInfo["desc"]
 
     print("start to run plan: " + string(planId))
     writeLog("autoInspection: start to run plan: " + string(planId))
@@ -385,7 +477,7 @@ def runPlan(planId, blocking=false) {
                     sleep(1000) // 等 success=NULL 的记录写入
                     cnt += 1
                     if (cnt == 30) {
-                        throw "get report info failed after trying 30 times, report id: " + jobId
+                        throw "autoInspection: get report info failed after trying 30 times, report id: " + jobId
                     }
                 }
             } while (reportInfo.size() == 0)
@@ -429,9 +521,9 @@ def runPlan(planId, blocking=false) {
             throw err
         }
     }
-    reportId_ = submitJobEx2("runPlan_" + planId, desc, 4, 2, onComplete, runPlanInner, planId)
+    reportId_ = rpc(enabledNode, submitJobEx2, "runPlan_" + planId, desc, 4, 2, onComplete, runPlanInner, planId)
     user = getCurrentSessionAndUser()[1]
-    reportJobInfo = getJobStatus(reportId_)
+    reportJobInfo = rpc(enabledNode, getJobStatus, reportId_)
     report = table(
         reportId_ as id,
         planId as planId,
@@ -448,13 +540,14 @@ def runPlan(planId, blocking=false) {
     // 先写一条 success=NULL 的记录表示执行中
     loadTable("dfs://ddb_internal_auto_inspection", "reports").append!(report)
     if (blocking) {
-        getJobReturn(reportId_, true)
+        rpc(enabledNode, getJobReturn, reportId_, true)
     }
     return reportId_
 }
 
-def enablePlan(id) {
+def enablePlan(id, enabledNode=NULL) {
     id_ = id
+    enabledNode_ = enabledNode
     plan = select * from loadTable("dfs://ddb_internal_auto_inspection", "plans") where id = id_
     if (plan.size() == 0) {
         throw "plan id " + id_ + " not found"
@@ -464,12 +557,25 @@ def enablePlan(id) {
         throw "plan id " + id_ + " is already enabled"
     }
 
-    jobId = scheduleJob("schedulePlan_" + plan.id, plan.desc, runPlan{plan.id}, minute(plan.scheduleTime), date(plan.startDate), date(plan.endDate), string(plan.frequency), int(plan.days))
+    validNodes = exec name from rpc(getControllerAlias(), getClusterPerf) where mode != 1 and mode != 2
+    if (validNodes.size() == 0) {
+        throw "failed to find a valid node, please check nodes' aliveness by getClusterPerf()"
+    }
+    if (isNull(enabledNode_) and isNull(plan.enabledNode)) {
+        enabledNode_ = validNodes.first()
+    }
+    if (!in(enabledNode_, validNodes)) {
+        throw "plan can only be enabled on data node or compute node"
+    }
+    writeLog("autoInspection: start to enable plan, plan id: " + id_ + ", node: " + enabledNode_)
+    jobId = rpc(enabledNode_, scheduleJob, "schedulePlan_" + plan.id, plan.desc, runPlan{plan.id}, minute(plan.scheduleTime), date(plan.startDate), date(plan.endDate), string(plan.frequency), int(plan.days))
     update loadTable("dfs://ddb_internal_auto_inspection", "plans") set enabled = true where id == id_
+    update loadTable("dfs://ddb_internal_auto_inspection", "plans") set enabledNode = enabledNode_ where id == id_
+    writeLog("autoInspection: eanble plan successfully, plan id: " + id_ + ", node: " + enabledNode_)
     return jobId
 }
 
-def createPlan(name, desc, metrics, nodes, params, frequency, days, scheduleTime, enabled=false, alertEnabled=false, alertRecipient=NULL, runNow=false, id=NULL) {
+def createPlan(name, desc, metrics, nodes, params, frequency, days, scheduleTime, enabled=false, enabledNode=NULL, alertEnabled=false, alertRecipient=NULL, runNow=false, id=NULL) {
     print("start to create plan: " + name)
     id_ = iif(isNull(id), string(long(now())), id)
     cnt = exec count(*) from loadTable("dfs://ddb_internal_auto_inspection", "plans") where id == id_
@@ -551,6 +657,14 @@ def createPlan(name, desc, metrics, nodes, params, frequency, days, scheduleTime
     if (cnt > 0) {
         throw "duplicated plan name: " + name
     }
+    validNodes = exec name from rpc(getControllerAlias(), getClusterPerf) where mode != 1 and mode != 2
+    if (validNodes.size() == 0) {
+        throw "failed to find a valid node, please check nodes' aliveness by getClusterPerf()"
+    }
+    enabledNode_ = iif(isNull(enabledNode), validNodes.first(), string(enabledNode))
+    if (!in(enabledNode_, validNodes)) {
+        throw "plan can only be created on data node or compute node"
+    }
 
     days_ = iif(days.form() == 1, days.concat(","), days)
     user = getCurrentSessionAndUser()[1]
@@ -571,6 +685,7 @@ def createPlan(name, desc, metrics, nodes, params, frequency, days, scheduleTime
         days_ as days,
         array(MINUTE[], 0).append!([scheduleTime_]) as scheduleTime,
         enabled_ as enabled,
+        enabledNode_ as enabledNode,
         alertEnabled_ as alertEnabled,
         alertRecipient_ as alertRecipient
     )
@@ -600,11 +715,11 @@ def createPlan(name, desc, metrics, nodes, params, frequency, days, scheduleTime
 
     if (enabled) {
         try {
-            enablePlan(id_)
+            enablePlan(id_, enabledNode_)
         } catch(err) {
             writeLog("autoInspection: enable plan failed, plan id: " + id_ + ", err msg: " + string(err).last())
-            update loadTable("dfs://ddb_internal_auto_inspection", "plans") set enabled = false where id = id_
-            try { deleteScheduledJob("schedulePlan_" + id_) } catch(err_) {}
+            update loadTable("dfs://ddb_internal_auto_inspection", "plans") set enabled = false, enabledNode = string(NULL) where id = id_
+            try { rpc(enabledNode_, deleteScheduledJob, "schedulePlan_" + id_) } catch(err_) {}
             throw err
         }
     }
@@ -622,13 +737,20 @@ def disablePlan(id) {
     if (plan.size() == 0) {
         throw "plan id " + id_ + " not found"
     }
+    plan = plan[0]
 
-    if(getScheduledJobs("schedulePlan_" + id_).size() == 0) {
-        throw "plan id " + id_ + " is already disabled"
+    if (plan.enabled and !isNull(plan.enabledNode)) {
+        writeLog("autoInspection: start to disable plan, plan id: " + id_ + ", node: " + plan.enabledNode)
+        jobId = "schedulePlan_" + id_
+        if(rpc(plan.enabledNode, getScheduledJobs, jobId).size() == 0) {
+            throw "plan id " + id_ + " is already disabled"
+        }
+    
+        rpc(plan.enabledNode, deleteScheduledJob, jobId)
+        writeLog("autoInspection: disable plan successfully, plan id: " + id_ + ", node: " + plan.enabledNode)
     }
-
-    deleteScheduledJob("schedulePlan_" + id_)
-    update loadTable("dfs://ddb_internal_auto_inspection", "plans") set enabled = false where id == id_
+    
+    update loadTable("dfs://ddb_internal_auto_inspection", "plans") set enabled = false, enabledNode = string(NULL) where id == id_
 }
 
 def deletePlan(id) {
@@ -637,13 +759,17 @@ def deletePlan(id) {
     delete from loadTable("dfs://ddb_internal_auto_inspection", "plans") where id in id_
     delete from loadTable("dfs://ddb_internal_auto_inspection", "plan_details") where planId in id_
     for (plan in plans) {
-        try { deleteScheduledJob("schedulePlan_" + plan["id"]) } catch(err) {}
+        if (plan.enabled and !isNull(plan.enabledNode)) {
+            try {
+                rpc(plan.enabledNode, deleteScheduledJob, "schedulePlan_" + id_)
+            } catch(err) {}
+        }
     }
 }
 
-def updatePlan(id, name, desc, metrics, nodes, params, frequency, days, scheduleTime, enabled, alertEnabled, alertRecipient, runNow=false) {
+def updatePlan(id, name, desc, metrics, nodes, params, frequency, days, scheduleTime, enabled, enabledNode, alertEnabled, alertRecipient, runNow=false) {
     deletePlan(id)
-    return createPlan(name, desc, metrics, nodes, params, frequency, days, scheduleTime, enabled, alertEnabled, alertRecipient, runNow, id)
+    return createPlan(name, desc, metrics, nodes, params, frequency, days, scheduleTime, enabled, enabledNode, alertEnabled, alertRecipient, runNow, id)
 }
 
 def getPlans(planId=NULL, enabled=NULL, page=NULL, pageLimit=NULL, searchPattern=NULL) {
