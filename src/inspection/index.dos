@@ -545,9 +545,8 @@ def runPlan(planId, blocking=false) {
     return reportId_
 }
 
-def enablePlan(id, enabledNode=NULL) {
+def enablePlan(id) {
     id_ = id
-    enabledNode_ = enabledNode
     plan = select * from loadTable("dfs://ddb_internal_auto_inspection", "plans") where id = id_
     if (plan.size() == 0) {
         throw "plan id " + id_ + " not found"
@@ -556,17 +555,16 @@ def enablePlan(id, enabledNode=NULL) {
     if(getScheduledJobs("schedulePlan_" + plan.id).size() > 0) {
         throw "plan id " + id_ + " is already enabled"
     }
-
-    validNodes = exec name from rpc(getControllerAlias(), getClusterPerf) where mode != 1 and mode != 2
-    if (validNodes.size() == 0) {
-        throw "failed to find a valid node, please check nodes' aliveness by getClusterPerf()"
-    }
-    if (isNull(enabledNode_) and isNull(plan.enabledNode)) {
+    if (isNull(plan.enabledNode)) {
+        validNodes = exec name from rpc(getControllerAlias(), getClusterPerf) where mode != 1 and mode != 2
+        if (validNodes.size() == 0) {
+            throw "failed to find a valid node, please check nodes' aliveness by getClusterPerf()"
+        }
         enabledNode_ = validNodes.first()
+    } else {
+        enabledNode_ = plan.enabledNode
     }
-    if (!in(enabledNode_, validNodes)) {
-        throw "plan can only be enabled on data node or compute node"
-    }
+
     writeLog("autoInspection: start to enable plan, plan id: " + id_ + ", node: " + enabledNode_)
     jobId = rpc(enabledNode_, scheduleJob, "schedulePlan_" + plan.id, plan.desc, runPlan{plan.id}, minute(plan.scheduleTime), date(plan.startDate), date(plan.endDate), string(plan.frequency), int(plan.days))
     update loadTable("dfs://ddb_internal_auto_inspection", "plans") set enabled = true where id == id_
@@ -715,7 +713,7 @@ def createPlan(name, desc, metrics, nodes, params, frequency, days, scheduleTime
 
     if (enabled) {
         try {
-            enablePlan(id_, enabledNode_)
+            enablePlan(id_)
         } catch(err) {
             writeLog("autoInspection: enable plan failed, plan id: " + id_ + ", err msg: " + string(err).last())
             update loadTable("dfs://ddb_internal_auto_inspection", "plans") set enabled = false, enabledNode = string(NULL) where id = id_
