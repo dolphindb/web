@@ -10,7 +10,7 @@ import { filter_values } from 'xshell/utils.browser.js'
 
 import { language, t } from '@i18n/index.ts'
 
-import { model, type DdbModel, NodeType, storage_keys } from '@/model.ts'
+import { model, type DdbModel, NodeType, storage_keys, default_view } from '@/model.ts'
 
 
 import SvgOverview from '@/overview/icons/overview.icon.svg'
@@ -126,7 +126,7 @@ export function DdbSider () {
                 if (key === 'factor')
                     return
                 
-                model.goto(key === 'shell' ? '/' : `/${key}/`)
+                model.goto(key === default_view ? '/' : `/${key}/`)
             }}
             inlineIndent={10}
             items={[

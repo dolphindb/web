@@ -319,15 +319,17 @@ class ShellModel extends Model<ShellModel> {
     
     
     save (code = this.editor?.getValue()) {
+        if (code === undefined) 
+            throw new Error('不能保存 undefined 的 code')
+        
         if (this.itab > -1) {
             let tab = this.tabs.find(t => t.index === this.itab)
-            if (code)
+            if (tab)
                 tab.code = code
             this.set({ tabs: [...this.tabs] })
             localStorage.setItem(`${storage_keys.code}.${this.itab}`, JSON.stringify(tab))
         } else
-            if (code)
-                localStorage.setItem(storage_keys.code, code)
+            localStorage.setItem(storage_keys.code, code)
     }
     
     

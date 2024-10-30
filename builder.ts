@@ -82,9 +82,7 @@ export let builder = {
                     PRODUCTION: production ? 'true' : 'false'
                 },
                 cache_version: fp_api ? 'web.api' : 'web',
-                license: {
-                    ignores: ['dolphindb-web']
-                },
+                license: production,
                 dependencies: ['antd-icons', 'antd-plots', 'lodash', 'xterm', 'gridstack', 'echarts', 'quill', 'vscode-oniguruma', 'monaco'],
                 htmls: {
                     'index.html': {
