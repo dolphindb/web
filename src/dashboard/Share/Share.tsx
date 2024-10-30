@@ -24,11 +24,11 @@ export function Share ({ dashboard_ids, trigger_type }: IProps) {
             return
         }
         
-        let url = new URL(window.location.href)
-        
+        let url = new URL(window.location.href) 
         url.searchParams.set('preview', '1')
         dashboard_ids.forEach(id => { url.searchParams.append('dashboard_share_ids[]', String(id)) })
-        url.pathname = `/dashboard/${dashboard_ids[0]}/`
+        /** 直接用 /dashboard/ 在测试环境会有问题，测试环境的路径是 /web/dashboard/ */
+        url.pathname = `${url.pathname}${dashboard_ids[0]}/`
         const text = url.href
         
         
