@@ -754,34 +754,37 @@ desc = "检查排序键过多，需要哈希降维的分布式表，只统计 st
 - endTime：TIMESTAMP，统计范围的结束时间，默认值为当前报告的开始时间。"
 nodes = NULL // NULL 指该指标不能指定节点运行，选择任一数据节点执行
 script = '
-def getChunksGEKeyCount(keyCount,chunkIds){
-    if(chunkIds.size()>1024)
-        chunkIdArray=cut(chunkIds,1024);
-    else
-        chunkIdArray=enlist(chunkIds);
-    getChunkIds=def(keyCount,curChunkIds){
-        keyEntry=getTSDBSortKeyEntry(curChunkIds);
-        if (isVoid(keyEntry)) {
-            return table(1:0, `chunkId`count, [STRING, INT])
-        }
-        entryCountPerChunk=select count(*) as count,first(chunkPath) as path from keyEntry group by chunkId;
-        return select chunkId,count from entryCountPerChunk where count>keyCount;
-    }
-    tables=loop(getChunkIds{keyCount},chunkIdArray);
-    result=unionAll(tables,false);
-    return result;
-}
 def dfsPath2tableName(dfsPath){
     fields=dfsPath.split("/");
     dbUrl="dfs://"+fields[1];
     res=exec tableName from listTables(dbUrl) where physicalIndex=last(fields);
     return dbUrl,res[0];
 }
+
 def sortKeyCount(params) {
     startTime = params["startTime"]
     endTime = params["endTime"]
     meta = select * from rpc(getControllerAlias(), getClusterChunksStatus) where lastUpdated between startTime and endTime
-    ret=pnodeRun(getChunksGEKeyCount{1000, meta.chunkId});
+    
+    res = table(1:0, `dbName`tbName`dfsPath`chunkId, [STRING, STRING, STRING, STRING])
+    for (item in meta) {
+        chunkId = item["chunkId"]
+        dfsPath = item["file"]
+        dbName, tbName = dfsPath2tableName(dfsPath)
+        insert into res values (dbName, tbName, dfsPath, chunkId)
+    }
+    ret = table(1:0, `dbName`tbName`maxSortKeyEntryCount, [STRING, STRING, INT])
+    for (info in getClusterDFSTables()) {
+        // info = getClusterDFSTables()[10]
+        s = info.split("/") 
+        dbName_ = "dfs://" + s[2]
+        tbName_ = s[3]
+        chunkIds = exec chunkId from res where dbName == dbName_ and tbName == tbName_ limit 1024
+        ret_ = select max(sortKeyEntryCount) as maxSortKeyEntryCount from pnodeRun(getTSDBDataStat{, , chunkIds}) group by dbName, tableName 
+        ret.append!(ret_)
+    }
+    ret = select * from ret where maxSortKeyEntryCount >= 1000 order by maxSortKeyEntryCount desc
+    
     if (ret.size() == 0) {
         return (true, NULL, NULL)
     } else {
