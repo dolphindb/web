@@ -55,9 +55,10 @@ export function Variables ({ shared }: { shared?: boolean }) {
     const [refresh_spin, set_refresh_spin] = useState(false)
     
     shell.refresh_vars = useCallback(async () => {
+        let expanded_keys_ = [ ...expanded_keys ]
         try {
             set_refresh_spin(true)
-            const promise = delay(1000)
+            const promise = delay(200)
             await shell.update_vars()
             set_expanded_keys([ ])
             await promise
@@ -65,6 +66,7 @@ export function Variables ({ shared }: { shared?: boolean }) {
             model.show_error({ error })
             throw error
         } finally {
+            set_expanded_keys(expanded_keys_)
             set_refresh_spin(false)
         }
     }, [ ])
