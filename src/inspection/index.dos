@@ -223,20 +223,20 @@ def runMetric(name, node, script, mutable params) {
             params = fromStdJson(paramsJson)
             ret = funcByName(name)(params)
         }
+        if (ret.size() == 4) {
+            success, detail, suggestion, params = ret
+        } else if (ret.size() == 3) {
+            success, detail, suggestion = ret
+        } else if (ret.size() == 2) {
+            success, detail = ret
+        } else if (ret.size() == 1) {
+            success = ret
+        } else {
+            throw "Invalid return value: " + string(ret)
+        }
     } catch(err) {
         success = false
-        detail = iif(err.form() == 0, string(err), string(err).concat(": "))
-    }
-    if (ret.size() == 4) {
-        success, detail, suggestion, params = ret
-    } else if (ret.size() == 3) {
-        success, detail, suggestion = ret
-    } else if (ret.size() == 2) {
-        success, detail = ret
-    } else if (ret.size() == 1) {
-        success = ret
-    } else {
-        throw "Invalid return value: " + string(ret)
+        detail = iif(err.form() == 0, string(err), string(err).concat(":"))
     }
 
     print("result: " + string(success))
