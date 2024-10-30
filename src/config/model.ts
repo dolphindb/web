@@ -109,6 +109,8 @@ class ConfigModel extends Model<ConfigModel> {
     async save_configs () {
         const new_nodes_configs = new Map<string, NodesConfig>()
         
+        const old_config = await this.invoke<string[]>('loadClusterNodesConfigs', undefined, { urgent: true })
+        
         await this.invoke(
             'saveClusterNodesConfigs', 
             [[...iterator_map(
@@ -121,7 +123,17 @@ class ConfigModel extends Model<ConfigModel> {
             ]])
         
         if (model.node_type === NodeType.controller)
-            await this.invoke('reloadClusterConfig')
+            try {
+                await this.invoke('reloadClusterConfig')
+            } catch (error) {
+                model.modal.error({
+                    title: t('配置文件校验失败，正在回滚配置文件')
+                })
+                
+                await this.invoke('saveClusterNodesConfigs', [old_config])
+                
+                throw error
+            }
         
         this.set({ nodes_configs: new_nodes_configs })
     }

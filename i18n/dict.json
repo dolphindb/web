@@ -5362,5 +5362,11 @@
     },
     "getClusterPerf(true) 执行超时，请检查集群节点状态是否正常，任务是否阻塞": {
         "en": "getClusterPerf(true) execution timeout, please check whether the cluster node status is normal and whether the task is blocked"
+    },
+    "配置文件校验失败，正在回滚配置文件": {
+        "en": "Configuration file verification failed, rolling back configuration file"
+    },
+    "别名必须以组名 {{group}} 开头": {
+        "en": "Aliases must start with the group name {{group}}"
     }
 }
