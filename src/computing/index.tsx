@@ -457,15 +457,15 @@ const leading_cols = {
 
 const expanded_cols = {
     subWorkers: {
-        batchSize: '批次大小',
-        throttle: '等待间隔',
-        filter: '过滤列',
-        msgAsTable: '消息是否为表',
-        hash: '订阅 hash 值',
-        persistOffset: '开启订阅偏移持久化',
-        timeTrigger: '强制按时间间隔触发',
-        handlerNeedMsgId: '包含消息 ID',
-        raftGroup: '高可用组'
+        batchSize: t('批次大小'),
+        throttle: t('等待间隔'),
+        filter: t('过滤列'),
+        msgAsTable: t('消息是否为表'),
+        hash: t('订阅 hash 值'),
+        persistOffset: t('开启订阅偏移持久化'),
+        timeTrigger: t('强制按时间间隔触发'),
+        handlerNeedMsgId: t('包含消息 ID'),
+        raftGroup: t('高可用组')
     },
     engine: {
         TimeSeriesEngine: {

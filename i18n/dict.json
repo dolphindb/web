@@ -5371,5 +5371,32 @@
     },
     "别名必须以组名 {{group}} 开头": {
         "en": "Aliases must start with the group name {{group}}"
+    },
+    "批次大小": {
+        "en": "Batch size"
+    },
+    "等待间隔": {
+        "en": "Wait interval"
+    },
+    "过滤列": {
+        "en": "Filter columns"
+    },
+    "消息是否为表": {
+        "en": "Message ingested as a table"
+    },
+    "订阅 hash 值": {
+        "en": "Subscription hash value"
+    },
+    "开启订阅偏移持久化": {
+        "en": "Offset persistence"
+    },
+    "强制按时间间隔触发": {
+        "en": "Trigger at intervals"
+    },
+    "包含消息 ID": {
+        "en": "Include message ID"
+    },
+    "高可用组": {
+        "en": "HA Raft group"
     }
 }
