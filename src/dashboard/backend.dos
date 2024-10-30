@@ -136,9 +136,13 @@ def dashboard_get_version() {
 def dashboard_grant_functionviews(userId, groupIds, isAdmin) {
     //控制节点执行
     funcs = exec name from getFunctionViews() where name like "dashboard_%"
-    onlyAdminFuncs = ["dashboard_grant_functionviews", "dashboard_delete_user"]
-    grantFuncs = (set(funcs) - set(onlyAdminFuncs)).keys()
-
+    if(isAdmin){
+        grantFuncs = funcs
+    }else{
+        onlyAdminFuncs = ["dashboard_grant_functionviews", "dashboard_delete_user"]
+        grantFuncs = (set(funcs) - set(onlyAdminFuncs)).keys()
+    }
+    
     try{
         if (count(grantFuncs) != 0) {
             each(grant, take(userId,count(grantFuncs)), take(VIEW_EXEC, count(grantFuncs)), grantFuncs)
