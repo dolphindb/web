@@ -18,6 +18,7 @@ import type { MetricsWithStatus, Plan } from './type.ts'
 import { EditParamModal } from './editParamModal.tsx'
 import { addParamModal } from './addParamModal.tsx'
 import { parse_minute } from './utils.ts'
+import { EmailConfigWarnning } from './emailConfigModal.tsx'
 
 export function InspectionForm ({ 
     refresh, 
@@ -30,7 +31,7 @@ export function InspectionForm ({
 }) {
     
     
-    const { metrics } = inspection.use(['metrics'])
+    const { metrics, email_config } = inspection.use(['metrics', 'email_config'])
     
     const is_editing = !!plan.id
     
@@ -281,7 +282,10 @@ export function InspectionForm ({
                 </Form.Item> */}
             </div>
             
-            <Form.Item name='alertEnabled' layout='vertical' label={<h3>{t('是否启用邮件告警')}</h3>} >
+            <Form.Item 
+                name='alertEnabled' 
+                layout='vertical' 
+                label={<h3 className='email-form-enable-label'>{t('是否启用邮件告警')} {email_config.error_msg && <EmailConfigWarnning/>}</h3>} >
                 <Switch/>
             </Form.Item>
             

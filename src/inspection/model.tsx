@@ -1,5 +1,7 @@
 import { Model } from 'react-object-model'
 
+import type { DdbErrorMessage } from 'dolphindb/browser'
+
 import {  model } from '@/model.ts'
 
 import { config } from '@/config/model.ts'
@@ -18,6 +20,8 @@ class InspectionModel extends Model<InspectionModel> {
     current_plan: Plan | null = null
     
     metrics: Map<string, Metric> = new Map()
+    
+    email_config: { can_config: boolean, error_msg: string } = { can_config: true, error_msg: '' }
     
     async init () {
         await model.ddb.execute(
@@ -38,6 +42,7 @@ class InspectionModel extends Model<InspectionModel> {
                 })
             return [ m.name, { ...m, params } ]
         })) })
+        this.set({ email_config: await inspection.can_configure_email() })
         this.set({ inited: true })
     }
     
@@ -99,6 +104,19 @@ class InspectionModel extends Model<InspectionModel> {
     
     async get_metrics (): Promise<Array<Omit<Metric, 'params'> & { params: string }>> {
         return (await model.ddb.invoke('getMetrics', [ ])).data
+    }
+    
+    async can_configure_email (): Promise<{ can_config: boolean, error_msg: string }> {
+        let can_config = true
+        let error_msg = ''
+        try {
+            can_config = (await model.ddb.call('canConfigureEmail')).data()
+        } catch (error) {
+            can_config = false
+            error_msg = error.message
+        }
+        console.log('{ can_config, error_msg }', { can_config, error_msg })
+        return { can_config, error_msg }
     }
     
 }

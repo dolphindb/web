@@ -19,7 +19,7 @@ import { inspection } from './model.tsx'
 import type { Plan, PlanReport } from './type.ts'
 import { EditInspection } from './editInspection.tsx'
 import { ReportDetailPage } from './reportDetail.tsx'
-import { emailConfigModal } from './emailConfigModal.tsx'
+import { EmailConfigModal } from './emailConfigModal.tsx'
 
 
 export function Inspection () {
@@ -64,7 +64,7 @@ export function Inspection () {
                 
             <Button
                 icon={<MailOutlined />}
-                onClick={ () => { NiceModal.show(emailConfigModal) } }>
+                onClick={ () => { NiceModal.show(EmailConfigModal) } }>
                     {t('邮件告警设置')}
             </Button>
             
