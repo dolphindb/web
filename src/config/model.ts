@@ -127,7 +127,7 @@ class ConfigModel extends Model<ConfigModel> {
                 await this.invoke('reloadClusterConfig')
             } catch (error) {
                 model.modal.error({
-                    title: t('配置文件校验失败，正在回滚配置文件')
+                    title: t('配置文件存在错误 {{message}} 请检查输入内容并重新尝试。', { message: error.message }),
                 })
                 
                 await this.invoke('saveClusterNodesConfigs', [old_config])
