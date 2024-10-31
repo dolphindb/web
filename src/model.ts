@@ -25,6 +25,10 @@ import { config } from '@/config/model.ts'
 import { goto_url, strip_quotes } from '@/utils.ts'
 
 
+const dev_hostname = '192.168.0.200' as const
+const dev_port = '20023' as const
+
+
 export class DdbModel extends Model<DdbModel> {
     params: URLSearchParams
     
@@ -184,8 +188,8 @@ export class DdbModel extends Model<DdbModel> {
             return
         }
         
-        let hostname = params.get('hostname') || (this.dev ? '192.168.0.200' : '') || location.hostname
-        let port = params.get('port') || (this.dev ? '20023' : '') || location.port
+        let hostname = params.get('hostname') || (this.dev ? dev_hostname : '') || location.hostname
+        let port = params.get('port') || (this.dev ? dev_port : '') || location.port
         
         const host = params.get('host')
         
