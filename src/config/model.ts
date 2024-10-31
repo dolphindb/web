@@ -129,10 +129,11 @@ class ConfigModel extends Model<ConfigModel> {
                 model.modal.error({
                     title: t('配置文件存在错误 {{message}} 请检查输入内容并重新尝试。', { message: error.message }),
                 })
+                error.shown = true
                 
                 await this.invoke('saveClusterNodesConfigs', [old_config])
                 
-                // 错误已在上面处理，不需要继续往上 throw
+                throw error
             }
         
         this.set({ nodes_configs: new_nodes_configs })
