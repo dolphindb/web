@@ -1066,6 +1066,10 @@ export enum NodeType {
 
 
 export function show_error (modal: DdbModel['modal'], { title, error, body }: FormatErrorOptions) {
+    // 已经显示过的错误就不再次显示了
+    if (error?.shown)
+        return
+    
     let title_: string, body_: string
     
     if (error)
@@ -1077,6 +1081,9 @@ export function show_error (modal: DdbModel['modal'], { title, error, body }: Fo
         content: (body || body === '') ? body : body_,
         width: 1000,
     })
+    
+    if (error)
+        error.shown = true
 }
 
 

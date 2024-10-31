@@ -425,11 +425,24 @@ function NodeTable ({ nodes, group, onSave, onDelete }: NodeTableProps) {
             {
                 type: 'single',
                 onSave: async (rowKey, { host, port, alias, mode }, originRow) => {
-                    const changed_alias = originRow.alias !== alias
-                    const is_add = originRow.alias === ''
-                    await onSave({ rowKey, host, port, alias, mode, group: group || '' }, changed_alias, is_add, originRow.alias)
+                    try {
+                        const changed_alias = originRow.alias !== alias
+                        const is_add = originRow.alias === ''
+                        await onSave({ rowKey, host, port, alias, mode, group: group || '' }, changed_alias, is_add, originRow.alias)
+                    } catch (error) {
+                        model.show_error({ error })
+                        throw error
+                    }
+                    
                 },
-                onDelete: async (_, row) => onDelete(row.id),
+                onDelete: async (_, row) => {
+                    try {
+                        await onDelete(row.id)
+                    } catch (error) {
+                        model.show_error({ error })
+                        throw error
+                    }
+                },
                 deletePopconfirmMessage: t('确认删除此节点？'),
                 saveText:
                     <Button

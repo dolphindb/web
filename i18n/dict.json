@@ -5398,5 +5398,8 @@
     },
     "高可用组": {
         "en": "HA Raft group"
+    },
+    "配置文件存在错误 {{message}} 请检查输入内容并重新尝试。": {
+        "en": "The configuration file contains an error: {{message}}. Please check your input and try again."
     }
 }

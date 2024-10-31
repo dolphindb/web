@@ -206,16 +206,28 @@ export function ComputeGroupConfig () {
                 editable={{
                     type: 'single',
                     onSave: async (rowKey, data) => {
-                        const { name, qualifier, value } = data
-                        const key = (qualifier ? qualifier + '.' : '') + name
-                        if (rowKey !== key)
-                            config.nodes_configs.delete(rowKey as string)
-                        await config.change_configs([[key, { name, qualifier, value, key }]])
-                        model.message.success(t('保存成功，重启计算节点生效'))
-                        // 数据可能被以其他方式修改，保存后重新加载获取新的数据
-                        actionRef.current?.reload()
+                        try {
+                            const { name, qualifier, value } = data
+                            const key = (qualifier ? qualifier + '.' : '') + name
+                            if (rowKey !== key)
+                                config.nodes_configs.delete(rowKey as string)
+                            await config.change_configs([[key, { name, qualifier, value, key }]])
+                            model.message.success(t('保存成功，重启计算节点生效'))
+                            // 数据可能被以其他方式修改，保存后重新加载获取新的数据
+                            actionRef.current?.reload()
+                        } catch (error) {
+                            model.show_error({ error })
+                            throw error
+                        }
                     },
-                    onDelete: async key => delete_config(key as string),
+                    onDelete: async key => {
+                        try {
+                            await delete_config(key as string)
+                        } catch (error) {
+                            model.show_error({ error })
+                            throw error
+                        }
+                    },
                     deletePopconfirmMessage: t('确认删除此配置项？'),
                 }}
             />
