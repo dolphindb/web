@@ -386,9 +386,9 @@ export function Header () {
                 </Tooltip>
             </>}
             
-            {(model.dev || model.test ) && <HostSelect />}
+            {model.dev && <HostSelect />}
         
-            {model.dev && <CompileAndRefresh />}
+            {model.local && <CompileAndRefresh />}
         </div>
         
         {

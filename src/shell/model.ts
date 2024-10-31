@@ -169,7 +169,7 @@ class ShellModel extends Model<ShellModel> {
                 `${code.replaceAll('\r\n', '\n')}`
             )
             
-            if (model.dev || model.test || model.verbose)
+            if (model.dev || model.verbose)
                 console.log('执行代码返回了:', ddbobj.data())
             
             if (
