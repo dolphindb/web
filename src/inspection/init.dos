@@ -284,7 +284,8 @@ script = '
 def chunksVersion(params) {
     threshold = 10 // 事务进行中出现少量版本不一致为正常现象
     masterMeta = rpc(getControllerAlias(), getClusterChunksStatus)
-    chunkMeta = pnodeRun(getAllChunks)
+    nodes = exec name from rpc(getControllerAlias(), getClusterPerf) where mode == 0 or mode == 3
+    chunkMeta = pnodeRun(getAllChunks, nodes)
     allNotEqual=select * from fj(masterMeta, chunkMeta, `chunkId) where chunkMeta.version != masterMeta.version 
     detail = ""
     if (allNotEqual.size() > threshold) {
@@ -314,7 +315,8 @@ script = '
 def chunksCid(params) {
     masterMeta = select * from rpc(getControllerAlias(), getClusterChunksStatus) where state == "COMPLETE" // 只查询状态完成的元数据，因为事务中的元数据 cid 会不一致
     update masterMeta set cid = versionChain.split(":").at(0).long()
-    chunkMeta = select * from pnodeRun(getAllChunks) where state == 0
+    nodes = exec name from rpc(getControllerAlias(), getClusterPerf) where mode == 0 or mode == 3
+    chunkMeta = select * from pnodeRun(getAllChunks, nodes) where state == 0
     addColumn(chunkMeta, "cid", LONG)
     update chunkMeta set cid = versionList.split(",").at(0).split(":").at(1).long() where !(dfsPath.endsWith("domain") or dfsPath.endsWith(".tbl"))
     update chunkMeta set cid = versionList.split(":").at(0).long() where dfsPath.endsWith("domain") or dfsPath.endsWith(".tbl")
@@ -970,13 +972,13 @@ def parseConfigs(rawConfigs) {
         for (i in (startIndex..(rawConfigs["cluster.nodes"].size()-1))) {
             item = rawConfigs["cluster.nodes"][i]
             s1 = item.split(":")
-            if (s1.size() != 3) {
+            if (s1.size() != 3 and s1.size() != 4) {
                 throw "cluster.nodes 行非法：" + item
             }
             host = s1[0]
             port = int(s1[1])
             s2 = s1[2].split(",")
-            if (s2.size() != 2) {
+            if (s2.size() != 2 and s2.size() != 3) {
                 throw "cluster.nodes 行非法：" + item
             }
             nodeAlias = s2[0]
