@@ -42,6 +42,10 @@ export class DdbModel extends Model<DdbModel> {
     /** 生产模式，等价于 !local && !test */
     production = true
     
+    hostname: string
+    
+    port: string
+    
     /** 通过 ticket 或用户名密码自动登录，默认为 true 传 autologin=0 关闭 */
     autologin = true
     
@@ -197,10 +201,12 @@ export class DdbModel extends Model<DdbModel> {
             history.replaceState(null, '', url)
         }
         
+        model.hostname = hostname
+        model.port = port
+        
         this.ddb = new DDB(
             (this.dev ? (params.get('tls') === '1' ? 'wss' : 'ws') : (location.protocol === 'https:' ? 'wss' : 'ws')) +
-                '://' +
-                hostname +
+                '://' + hostname +
                 
                 // 一般 location.port 可能是空字符串
                 (port ? `:${port}` : '') +
@@ -743,8 +749,7 @@ export class DdbModel extends Model<DdbModel> {
     
     
     find_node_closest_hostname (node: DdbNode) {
-        const params = new URLSearchParams(location.search)
-        const current_connect_host = params.get('hostname') || location.hostname
+        const current_connect_host = this.hostname
         
         // 所有域名应该都转成小写后匹配，因为浏览器默认会将 location.hostname 转为小写
         const hosts = [...node.publicName.split(';').map(name => name.trim().toLowerCase()), node.host.toLowerCase()]
@@ -950,7 +955,7 @@ export class DdbModel extends Model<DdbModel> {
         }: GetUrlOptions = { }
     ) {
         const _queries = new URLSearchParams(location.search)
-        const is_query_params_mode = _queries.get('hostname') || _queries.get('port')
+        const is_query_params_mode = model.hostname !== location.hostname || model.port !== location.port
         const port_ = is_query_params_mode ? location.port : port
         
         const query_string = new URLSearchParams(filter_values({

@@ -80,13 +80,11 @@ export function DdbSider () {
     
     
     const factor_href = useMemo(() => {
-        const search_params = new URLSearchParams(search)
-        
         return 'starfish/index.html?' +
             new URLSearchParams(filter_values(
                 {
-                    ddb_hostname: search_params.get('hostname'),
-                    ddb_port: search_params.get('port'),
+                    ddb_hostname: model.hostname,
+                    ddb_port: model.port,
                     logined: Number(logined).toString(),
                     token: localStorage.getItem(storage_keys.ticket)
                 })
