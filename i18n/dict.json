@@ -5401,5 +5401,11 @@
     },
     "配置文件存在错误 {{message}} 请检查输入内容并重新尝试。": {
         "en": "The configuration file contains an error: {{message}}. Please check your input and try again."
+    },
+    "别名不能包含空格": {
+        "en": "Alias cannot contain spaces"
+    },
+    "主机名 / IP地址不能包含空格": {
+        "en": "Hostname / IP cannot contain spaces"
     }
 }
