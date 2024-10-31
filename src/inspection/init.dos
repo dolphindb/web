@@ -970,13 +970,13 @@ def parseConfigs(rawConfigs) {
         for (i in (startIndex..(rawConfigs["cluster.nodes"].size()-1))) {
             item = rawConfigs["cluster.nodes"][i]
             s1 = item.split(":")
-            if (s1.size() != 3) {
+            if (s1.size() != 3 and s1.size() != 4) {
                 throw "cluster.nodes 行非法：" + item
             }
             host = s1[0]
             port = int(s1[1])
             s2 = s1[2].split(",")
-            if (s2.size() != 2) {
+            if (s2.size() != 2 and s2.size() != 3) {
                 throw "cluster.nodes 行非法：" + item
             }
             nodeAlias = s2[0]
