@@ -309,9 +309,10 @@ def runMetric(name, node, script, mutable params) {
     } catch(err) {
         success = false
         detail = iif(err.form() == 0, string(err), string(err).concat(":"))
+        print("error: " + detail)
     }
 
-    print("result: " + string(success))
+    print("success: " + string(success))
     return success, toStdJson(detail), suggestion, params // 记得更新 params
 }
 
@@ -349,20 +350,29 @@ def runPlanInner(planId) {
             jobId = submitJob("runMetric_" + planId + "_" + name_, node, runMetric{name, node, script, usedParams})
             jobIds.append!(jobId)
         }
-
+        print("job ids: ", jobIds)
+        usedParamsJson = toStdJson(iif(usedParams.keys().size() == 0, NULL, usedParams))
         for (i in 0..(nodes.size()-1)) {
             jobId = jobIds[i]
-            success, detail, suggestion, usedParams_ = getJobReturn(jobId, true)
-            if (!isVoid(usedParams_)) { // 手动更新 params 实现 mutable 的效果
-                for (key in usedParams_.keys()) {
-                    params[key] = usedParams_[key]
-                }
-            }
-            res = getJobStatus(jobId)
-            node = nodes[i]
 
-            usedParamsJson = toStdJson(iif(usedParams.keys().size() == 0, NULL, usedParams))
-            insert into ret values ("", planId, name, version, usedParamsJson, node, jobId, res["startTime"].first(), res["endTime"].first(), success, detail, suggestion) // reportId 要在返回后 update
+            try {
+                success, detail, suggestion, usedParams_ = getJobReturn(jobId, true)
+                if (!isVoid(usedParams_)) { // 手动更新 params 实现 mutable 的效果
+                    for (key in usedParams_.keys()) {
+                        params[key] = usedParams_[key]
+                    }
+                }
+                res = getJobStatus(jobId)
+                node = nodes[i]
+                insert into ret values ("", planId, name, version, usedParamsJson, node, jobId, res["startTime"].first(), res["endTime"].first(), success, detail, suggestion) // reportId 要在返回后 update
+            } catch(err) {
+                success = false
+                detail = string(iif(err.form()==0, err, err.concat(":")))
+                suggestion = string(NULL)
+                print("run metric failed! Node: " + node + ", job id: " + jobId + ", error: " + detail)
+                res = getJobStatus(jobId)
+                insert into ret values ("", planId, name, version, usedParamsJson, node, jobId, res["startTime"].first(), res["endTime"].first(), success, detail, suggestion) // reportId 要在返回后 update
+            }
         }
 
     }
