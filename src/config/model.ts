@@ -131,6 +131,8 @@ class ConfigModel extends Model<ConfigModel> {
                 })
                 
                 await this.invoke('saveClusterNodesConfigs', [old_config])
+                
+                // 错误已在上面处理，不需要继续往上 throw
             }
         
         this.set({ nodes_configs: new_nodes_configs })

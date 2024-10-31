@@ -188,7 +188,7 @@ export function ControllerConfig () {
             },
             onDelete: async (key, row) => {
                 try {
-                    await delete_config(row.id as string)
+                    await delete_config(row.id)
                 } catch (error) {
                     model.show_error({ error })
                     throw error

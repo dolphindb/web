@@ -173,7 +173,7 @@ export function NodesConfig () {
                         },
                         onDelete: async key => {
                             try {
-                                delete_config(key as string)
+                                await delete_config(key as string)
                             } catch (error) {
                                 model.show_error({ error })
                                 throw error
