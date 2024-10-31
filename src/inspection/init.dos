@@ -1658,7 +1658,7 @@ def commonSystemConfig(params) {
         line = readLine(f)
         f.close()
         if (int(line) < 102400) {
-            insert into ret values ("ulimit -n", line, "ERROR", "ulimit -n 值小于 102400，请调大 ulimit -n 配置值。")
+            insert into ret values ("ulimit -n", line, "WARNING", "ulimit -n 值小于 102400，请调大 ulimit -n 配置值。")
         }
     }
     
