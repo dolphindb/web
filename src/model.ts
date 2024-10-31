@@ -180,8 +180,8 @@ export class DdbModel extends Model<DdbModel> {
             return
         }
         
-        let hostname = params.get('hostname') || location.hostname
-        let port = params.get('port') || location.port
+        let hostname = params.get('hostname') || (this.dev ? '192.168.0.200' : '') || location.hostname
+        let port = params.get('port') || (this.dev ? '20023' : '') || location.port
         
         const host = params.get('host')
         
