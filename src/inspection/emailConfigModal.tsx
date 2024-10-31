@@ -1,46 +1,19 @@
-import { error } from 'console'
-
 import NiceModal, { useModal } from '@ebay/nice-modal-react'
 import { t } from '@i18n/index.ts'
-import { Button, Form, Input, Modal, Space, Switch, Tooltip } from 'antd'
-
-import useSWR from 'swr'
-
-import { useEffect } from 'react'
-
-import { WarningOutlined } from '@ant-design/icons'
+import { Button, Form, Input, Modal, Space, Switch } from 'antd'
 
 import { config } from '@/config/model.ts'
 import { model } from '@/model.ts'
 
-import { inspection } from './model.tsx'
-
-export function EmailConfigWarnning () {
-    return <Tooltip 
-                title={t('请安装 httpClient 插件到所有节点')}>
-            <WarningOutlined className='email-config-warning'/> 
-    </Tooltip>
-}
-
 export const EmailConfigModal = NiceModal.create(() => {
     const modal = useModal()   
-    
-    const { email_config } = inspection.use(['email_config'])
-    
-    useEffect(() => {
-        if (email_config.error_msg)
-            model.message.error(email_config.error_msg)
-    }, [email_config.error_msg ])
     
     return <Modal
         width='30%'    
         open={modal.visible}
         afterClose={modal.remove}
         onCancel={modal.hide}
-        title={<div className='email-config-modal-title'>
-            {t('邮件告警设置')}
-            {email_config.error_msg && <EmailConfigWarnning/>}
-        </div>}
+        title={t('邮件告警设置')}
         footer={null}
     >
         <Form

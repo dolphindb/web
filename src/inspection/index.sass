@@ -128,11 +128,6 @@
                     column-gap: 20px
                 .ant-form-item
                     margin-bottom: 0px
-            
-            .email-form-enable-label
-                display: flex
-                column-gap: 10px
-                align-items: center
                 
             .script-popover
                 max-width: 500px
@@ -150,7 +145,16 @@
             
             .expanded-table
                 .ant-table-cell
-                    padding: 2px 4px !important  
+                    padding: 2px 4px !important 
+                    
+            .enable-emali-form-item
+                display: flex
+                align-items: start
+                column-gap: 5px     
+                .email-config-warning
+                    color: #CCCC00
+                    cursor: pointer
+                    margin-top: 14px 
                   
 .edit-param-modal,.add-param-modal
     .ant-form
@@ -177,14 +181,6 @@
         justify-content: end
     .modal-footer
         align-self: end
-        
-.email-config-modal-title
-    display: flex
-    column-gap: 10px
-    align-items: center
-.email-config-warning
-    color: #CCCC00
-    cursor: pointer
     
 .interceptor
     height: 100%

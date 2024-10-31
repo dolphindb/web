@@ -8,7 +8,7 @@ import NiceModal from '@ebay/nice-modal-react'
 
 import { isEmpty, isObject } from 'lodash'
 
-import { MinusCircleOutlined, PlusOutlined } from '@ant-design/icons'
+import { MinusCircleOutlined, PlusOutlined, WarningOutlined } from '@ant-design/icons'
 
 import { model, NodeType } from '@/model.ts'
 
@@ -18,7 +18,6 @@ import type { MetricsWithStatus, Plan } from './type.ts'
 import { EditParamModal } from './editParamModal.tsx'
 import { addParamModal } from './addParamModal.tsx'
 import { parse_minute } from './utils.ts'
-import { EmailConfigWarnning } from './emailConfigModal.tsx'
 
 export function InspectionForm ({ 
     refresh, 
@@ -298,12 +297,22 @@ export function InspectionForm ({
                 <Select options={execute_node_names.map(name => ({ label: name, value: name }))}/>
             </Form.Item>
             
-            <Form.Item 
-                name='alertEnabled' 
-                layout='vertical' 
-                label={<h3 className='email-form-enable-label'>{t('是否启用邮件告警')} {email_config.error_msg && <EmailConfigWarnning/>}</h3>} >
-                <Switch/>
-            </Form.Item>
+            <div className='enable-emali-form-item'>
+                <Form.Item 
+                    name='alertEnabled' 
+                    layout='vertical'
+                    label={<h3 >{t('是否启用邮件告警')} </h3>} >
+                    <Switch />
+                </Form.Item>
+                {
+                    !email_config.can_config && <Tooltip 
+                        title={email_config.error_msg}>
+                        <WarningOutlined 
+                            className='email-config-warning' 
+                        /> 
+                    </Tooltip>
+                }
+            </div>
             
             <Form.Item layout='vertical' label={<h3>{t('邮件告警接收人邮箱')}</h3>} >
                 <Form.List name='alertRecipient' >

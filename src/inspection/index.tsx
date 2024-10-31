@@ -2,7 +2,7 @@ import NiceModal from '@ebay/nice-modal-react'
 import './index.sass'
 
 import { t } from '@i18n/index.ts'
-import { Button, Input, Popconfirm, Table, DatePicker, type TableColumnsType, Spin, Result } from 'antd'
+import { Button, Input, Popconfirm, Table, DatePicker, type TableColumnsType, Spin, Result, Tooltip } from 'antd'
 import { useEffect, useMemo, useState } from 'react'
 
 import useSWR from 'swr'
@@ -26,7 +26,7 @@ export function Inspection () {
     
     const { node_type } = model.use(['node_type'])
     
-    const { table_created, inited, defined, current_report, current_plan } = inspection.use(['table_created', 'inited', 'defined', 'current_report', 'current_plan'])
+    const { table_created, inited, defined, current_report, current_plan, email_config } = inspection.use(['table_created', 'inited', 'defined', 'current_report', 'current_plan', 'email_config'])
     
     const [ search_key, set_search_key ] = useState('')
     
@@ -35,7 +35,6 @@ export function Inspection () {
     const [ refresh, set_refresh ] = useState(0)
     
     const refresher = useMemo(() => () => { set_refresh(cnt => cnt + 1) }, [ ])
-    
     useEffect(() => {
         (async () => {
             await inspection.check_inited()
@@ -109,11 +108,15 @@ export function Inspection () {
                     {t('新增巡检')}
             </Button>
                 
-            <Button
-                icon={<MailOutlined />}
-                onClick={ () => { NiceModal.show(EmailConfigModal) } }>
-                    {t('邮件告警设置')}
-            </Button>
+            <Tooltip 
+                title={!email_config.can_config ? email_config.error_msg : ''}>
+                <Button
+                    icon={<MailOutlined />}
+                    disabled={!email_config.can_config}
+                    onClick={ () => { NiceModal.show(EmailConfigModal) } }>
+                        {t('邮件告警设置')}
+                </Button>
+            </Tooltip>
             
             <Button 
                 icon={<ReloadOutlined />}
