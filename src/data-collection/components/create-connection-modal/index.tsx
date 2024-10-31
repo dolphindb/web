@@ -5,11 +5,11 @@ import { useCallback } from 'react'
 
 import NiceModal, { useModal } from '@ebay/nice-modal-react'
 
-import { t } from '../../../../i18n/index.js'
-import { Protocol, type Connection } from '../../type.js'
-import { request } from '../../utils.ts'
+import { t } from '@i18n/index.ts'
 
-import { NAME_RULES, PROTOCOL_MAP } from '@/data-collection/constant.js'
+import { request } from '../../utils.ts'
+import { PROTOCOL_MAP, NAME_RULES } from '@/data-collection/constant.ts'
+import { type Connection, Protocol } from '@/data-collection/type.ts'
 
 interface IProps {
     editedConnection?: Connection

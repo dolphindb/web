@@ -53,7 +53,7 @@ export class GlobalErrorBoundary extends Component<PropsWithChildren<{ }>, Globa
             if (error instanceof Error) {
                 // 忽略 monaco editor 的错误
                 // https://github.com/microsoft/monaco-editor/issues/4325
-                if (error.message.includes('getModifierState is not a function'))
+                if (error.message.includes('getModifierState is not a function') || error.message === 'Canceled')
                     return
             } else {
                 // 忽略 monaco editor 的错误
