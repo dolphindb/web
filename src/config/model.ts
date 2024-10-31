@@ -132,6 +132,7 @@ class ConfigModel extends Model<ConfigModel> {
                 error.shown = true
                 
                 await this.invoke('saveClusterNodesConfigs', [old_config])
+                await this.load_configs()
                 
                 throw error
             }
