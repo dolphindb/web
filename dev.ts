@@ -118,7 +118,7 @@ if (ramdisk) {
 }
 
 
-const info = 'http://localhost:8432/?hostname=192.168.0.200&port=20023\n'.blue.underline
+const info = 'http://localhost:8432/\n'.blue.underline
 
 
 console.log(
