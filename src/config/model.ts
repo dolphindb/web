@@ -167,7 +167,7 @@ class ConfigModel extends Model<ConfigModel> {
             [t('流订阅')]: new Set(['maxSubConnections', 'maxSubQueueDepth', 'persistOffsetDir', 'subExecutorPooling', 'subExecutors', 'subPort', 'subThrottle']),
             [t('系统')]: new Set(['console', 'config', 'home', 'maxPartitionNumPerQuery', 'mode', 'moduleDir', 'newValuePartitionPolicy', 'perfMonitoring', 'pluginDir', 'preloadModules', 'init', 'startup', 'run', 'tzdb', 'webRoot', 'webLoginRequired', 'enableShellFunction', 'enablePKEYEngine']),
             
-            ...model.v3 ? {
+            ... model.v3 ? {
                 [t('计算组')]: new Set([
                     'computeNodeCacheDir',
                     'computeNodeCacheMeta',
