@@ -170,7 +170,7 @@ export function DdbSider () {
                         },
                     ]
                 }] : [ ],
-                ...admin && (node_type === NodeType.data || node_type === NodeType.computing)  ? [{
+                ...admin  ? [{
                     key: 'inspection',
                     icon: <MenuIcon view='inspection' />,
                     label: t('自动化巡检'),

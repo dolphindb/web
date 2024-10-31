@@ -2,8 +2,8 @@ import NiceModal from '@ebay/nice-modal-react'
 import './index.sass'
 
 import { t } from '@i18n/index.ts'
-import { Button, Input, Popconfirm, Table, DatePicker, type TableColumnsType, Spin } from 'antd'
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { Button, Input, Popconfirm, Table, DatePicker, type TableColumnsType, Spin, Result } from 'antd'
+import { useEffect, useMemo, useState } from 'react'
 
 import useSWR from 'swr'
 
@@ -13,7 +13,7 @@ import { type Dayjs } from 'dayjs'
 
 import { isNull } from 'lodash'
 
-import { model } from '@/model.ts'
+import { model, NodeType } from '@/model.ts'
 
 import { inspection } from './model.tsx'
 import type { Plan, PlanReport } from './type.ts'
@@ -24,7 +24,9 @@ import { EmailConfigModal } from './emailConfigModal.tsx'
 
 export function Inspection () {
     
-    const { inited, current_report, current_plan } = inspection.use(['inited', 'current_report', 'current_plan'])
+    const { node_type } = model.use(['node_type'])
+    
+    const { table_created, inited, defined, current_report, current_plan } = inspection.use(['table_created', 'inited', 'defined', 'current_report', 'current_plan'])
     
     const [ search_key, set_search_key ] = useState('')
     
@@ -35,12 +37,57 @@ export function Inspection () {
     const refresher = useMemo(() => () => { set_refresh(cnt => cnt + 1) }, [ ])
     
     useEffect(() => {
-        if (!inited) 
-            inspection.init()
-        
-    }, [inited])
+        (async () => {
+            await inspection.check_inited()
+        })()
+    }, [ ])
     
-    if (!inited) 
+    useSWR(['inspection', table_created, inited], async () => {
+        // 表已创建但未初始化需要 define 和 init
+        if (table_created && !inited && node_type !== NodeType.controller) {
+            await inspection.define()
+            await inspection.init()
+        }
+    })
+    
+    if (node_type === NodeType.controller) 
+        return <Result
+        status='warning'
+        className='interceptor'
+        title={t('控制节点不支持自动化巡检，请跳转到数据节点或计算节点查看。')}
+    />
+    
+    if (table_created !== null && !table_created) 
+        return  <Result
+        title={t('请点击下方按钮完成初始化')}
+        subTitle={
+            <>
+                <p>{t('初始化操作将新增以下数据库表：')}</p>
+                <p>dfs://autolnspection/metrics</p>
+                <p>dfs://autolnspection/planDetails</p>
+                <p>dfs://autolnspection/plans</p>
+                <p>dfs://autolnspection/reportDetails</p>
+                <p>dfs://autolnspection/reports</p>
+            </>
+        }
+        extra={
+            <Popconfirm
+                title={t('你确定要初始化自动化巡检功能吗？')}
+                onConfirm={async () => { 
+                    await inspection.create_table()
+                    model.message.success(t('初始化自动化巡检成功！'))
+                }}
+                okText={t('确定')}
+                cancelText={t('取消')}
+                >
+                <Button type='primary' size='large'>{t('初始化')}</Button>
+            </Popconfirm>
+        }
+    />
+    
+    
+    // table_created 未 null 代表未从 server 获取到 table_created 状态
+    if (isNull(table_created) || !inited || !defined) 
         return <div className='spin-container'>
             <Spin size='large' delay={300}/>
         </div>
@@ -89,7 +136,7 @@ export function Inspection () {
         </div>
        
         {
-            inited &&  
+            defined &&  
             <>
                 <PlanListTable enabled search_key={search_key}  refresh={refresh} refresher={refresher}/>
                 <PlanListTable search_key={search_key} refresh={refresh} refresher={refresher}/>
@@ -135,7 +182,7 @@ function ReportListTable  ({
                 return inspection.get_reports(null, null, startTime, endTime, success, current_page, current_page_size, search_key, sorter[0], sorter[1])
             }
             else 
-                inspection.init()
+                inspection.define()
     }, { keepPreviousData: true })
     
     
@@ -314,7 +361,7 @@ function PlanListTable  ({
             if (inited) 
                 return inspection.get_plans(enabled, current_page, current_page_size, search_key)
             else 
-                inspection.init()
+                inspection.define()
     }, { keepPreviousData: true })
     
     const cols: TableColumnsType<Plan> = useMemo(() => [ 

@@ -1,7 +1,5 @@
 import { Model } from 'react-object-model'
 
-import type { DdbErrorMessage } from 'dolphindb/browser'
-
 import {  model } from '@/model.ts'
 
 import { config } from '@/config/model.ts'
@@ -15,6 +13,11 @@ class InspectionModel extends Model<InspectionModel> {
     
     inited = false
     
+    defined = false
+    
+    // null 代表未从 server 获取到 table_created，此时需要处于 loading
+    table_created: boolean | null = null
+    
     current_report: PlanReport | null = null
     
     current_plan: Plan | null = null
@@ -23,15 +26,17 @@ class InspectionModel extends Model<InspectionModel> {
     
     email_config: { can_config: boolean, error_msg: string } = { can_config: true, error_msg: '' }
     
-    async init () {
+    // 定义函数
+    async define () {
         await model.ddb.execute(
             define_script,
         )
+        this.set({ defined: true })
+    }
+    
+    // 拉邮件配置，拉指标
+    async init () {
         await config.load_configs()
-         // 若无指标，创建指标后再拉取
-        if (!(await this.check_inited())) 
-            await model.ddb.execute(create_metrics_script)
-        
         const metrics_obj = await inspection.get_metrics()
         this.set({ metrics: new Map(metrics_obj.map(m => {
             let params = new Map<string, MetricParam>()
@@ -42,12 +47,22 @@ class InspectionModel extends Model<InspectionModel> {
                 })
             return [ m.name, { ...m, params } ]
         })) })
-        this.set({ email_config: await inspection.can_conautoInspection
+        await inspection.can_configure_email()
         this.set({ inited: true })
     }
     
-    async check_inited (): Promise<boolean> {
-        return (model.ddb.execute('existsDatabase("dfs://ddb_internal_auto_inspection")'))
+    // 创表
+    async create_table () {
+        // 创表依赖 define
+        await this.define()
+        // 若无指标，创建指标后再拉取
+        await model.ddb.execute(create_metrics_script)
+        this.set({ table_created: true })
+    }
+    
+    // 检查表是否已创建
+    async check_inited () {
+        this.set({ table_created: await model.ddb.execute('existsDatabase("dfs://autoInspection")') })
     }
     
     async get_plans (enabled: boolean, page: number, limit: number, searchKey: string, planId: string = null): Promise<{ records: Plan[], total: number }> {
@@ -106,7 +121,7 @@ class InspectionModel extends Model<InspectionModel> {
         return (await model.ddb.invoke('getMetrics', [ ])).data
     }
     
-    async can_configure_email (): Promise<{ can_config: boolean, error_msg: string }> {
+    async can_configure_email () {
         let can_config = true
         let error_msg = ''
         try {
@@ -115,8 +130,7 @@ class InspectionModel extends Model<InspectionModel> {
             can_config = false
             error_msg = error.message
         }
-        console.log('{ can_config, error_msg }', { can_config, error_msg })
-        return { can_config, error_msg }
+        this.set({ email_config: { can_config, error_msg } })
     }
     
 }
