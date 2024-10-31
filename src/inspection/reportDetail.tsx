@@ -303,7 +303,12 @@ function DetailTable ({
     return Array.isArray(ds) 
         ? 
         <Table 
-            columns={Object.keys(ds[0]).map(k => ({ title: k, dataIndex: k, key: k }))} 
+            columns={Object.keys(ds[0]).map(k => ({ 
+                title: k, 
+                dataIndex: k, 
+                key: k, 
+                render: (str: string) => <div style={{ whiteSpace: 'pre-wrap' }}>{str}</div> }
+            ))} 
             dataSource={ds}
             pagination={false}
         /> 
