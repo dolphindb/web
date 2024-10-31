@@ -201,8 +201,8 @@ export class DdbModel extends Model<DdbModel> {
             history.replaceState(null, '', url)
         }
         
-        model.hostname = hostname
-        model.port = port
+        this.hostname = hostname
+        this.port = port
         
         this.ddb = new DDB(
             (this.dev ? (params.get('tls') === '1' ? 'wss' : 'ws') : (location.protocol === 'https:' ? 'wss' : 'ws')) +
