@@ -131,8 +131,6 @@ class ConfigModel extends Model<ConfigModel> {
                 })
                 
                 await this.invoke('saveClusterNodesConfigs', [old_config])
-                
-                throw error
             }
         
         this.set({ nodes_configs: new_nodes_configs })
