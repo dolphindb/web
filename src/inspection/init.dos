@@ -69,7 +69,8 @@ desc = "检查各个节点版本是否一致。"
 nodes = NULL
 script = '
 def nodeVersion(params) {
-    ver = pnodeRun(version)
+    nodes = exec name from rpc(getControllerAlias(), getClusterPerf{true}) where mode != 1
+    ver = pnodeRun(version, nodes)
     insert into ver values (getControllerAlias(), rpc(getControllerAlias(), version))
     cnt = select distinct(value) from ver
     if (cnt.size() > 1) {
@@ -128,6 +129,7 @@ def pluginVersion(params) {
         return ret
     }
     
+    nodes = exec name from rpc(getControllerAlias(), getClusterPerf{true}) where mode != 1
     info = pnodeRun(listPluginsInner)
     cnt = exec count(*) from rpc(getControllerAlias(), getClusterPerf) where mode == 3
     if (cnt == 0) {
@@ -343,6 +345,7 @@ def replicaNum(params) {
         return (true, NULL, NULL)
     }
     
+    nodes = exec name from rpc(getControllerAlias(), getClusterPerf) where mode == 0 or mode == 3
     replicaNum = select count(*) as cnt from pnodeRun(getAllChunks) where state == 0 group by chunkId // 只查询状态完成的元数据，因为事务中的元数据可能副本还在构建
     replicaNum = select * from replicaNum where cnt != dfsReplicationFactor
     if (replicaNum.size() > 0) {
@@ -562,7 +565,8 @@ def queryElapsed(params) {
 		return logs
 	}
 
-    ret = pnodeRun(getQueryLogInner)
+    nodes = exec name from rpc(getControllerAlias(), getClusterPerf) where mode != 1 and mode != 2
+    ret = pnodeRun(getQueryLogInner, nodes)
     if (!isNull(startTime_)) {
         ret = select * from ret where startTime >= nanotimestamp(startTime_)
     }
@@ -617,7 +621,8 @@ def mostQueriedDFSTables(params) {
         }
 		return logs
 	}
-    ret = pnodeRun(getQueryLogInner)
+    nodes = exec name from rpc(getControllerAlias(), getClusterPerf) where mode != 1 and mode != 2
+    ret = pnodeRun(getQueryLogInner, nodes)
     if (!isNull(startTime_)) {
         ret = select * from ret where time >= nanotimestamp(startTime_)
     }
@@ -671,8 +676,9 @@ def DFSTableDiskUsage(params) {
     f = def(item) {
         dbName = item["dbName"]
         tbName = item["tbName"]
+        nodes = exec name from rpc(getControllerAlias(), getClusterPerf) where mode == 0 or mode == 3
         diskGB = select sum(diskUsage\\1024\\1024\\1024) diskGB
-                    from pnodeRun(getTabletsMeta{"/"+substr(dbName, 6)+"/%", tbName, true, -1})
+                    from pnodeRun(getTabletsMeta{"/"+substr(dbName, 6)+"/%", tbName, true, -1}, nodes)
         diskGB = double(diskGB["diskGB"].first())
         return table(
             dbName as dbName,
@@ -729,8 +735,9 @@ def biggestChunks(params) {
     f = def(item) {
         dfsPath = item["dfsPath"]
         tbName = item["tbName"]
+        nodes = exec name from rpc(getControllerAlias(), getClusterPerf) where mode == 0 or mode == 3
         diskGB = select sum(diskUsage\\1024\\1024\\1024) as diskGB
-                    from pnodeRun(getTabletsMeta{dfsPath, tbName, true, -1})
+                    from pnodeRun(getTabletsMeta{dfsPath, tbName, true, -1}, nodes)
         return double(diskGB["diskGB"].first())
     }
     res_ = peach(f, res)
@@ -782,7 +789,8 @@ def sortKeyCount(params) {
         dbName_ = "dfs://" + s[2]
         tbName_ = s[3]
         chunkIds = exec chunkId from res where dbName == dbName_ and tbName == tbName_ limit 1024
-        ret_ = select max(sortKeyEntryCount) as maxSortKeyEntryCount from pnodeRun(getTSDBDataStat{, , chunkIds}) group by dbName, tableName 
+        nodes = exec name from rpc(getControllerAlias(), getClusterPerf) where mode == 0 or mode == 3
+        ret_ = select max(sortKeyEntryCount) as maxSortKeyEntryCount from pnodeRun(getTSDBDataStat{, , chunkIds}, nodes) group by dbName, tableName 
         ret.append!(ret_)
     }
     ret = select * from ret where maxSortKeyEntryCount >= 1000 order by maxSortKeyEntryCount desc
