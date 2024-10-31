@@ -273,9 +273,12 @@ interface NodeTableProps {
 
 function NodeTable ({ nodes, group, onSave, onDelete }: NodeTableProps) {
     function get_cols (is_group = false) {
-        const alias_rule: { required?: boolean, message?: string, validator?: (_: any, value: string) => Promise<void> }[] = [{
+        const alias_rule: { required?: boolean, pattern?: RegExp, message?: string, validator?: (_: any, value: string) => Promise<void> }[] = [{
             required: true,
             message: t('请输入别名')
+        }, {
+            pattern: /^\S+$/,
+            message: t('别名不能包含空格')
         }]
         
         if (is_group)
@@ -347,6 +350,9 @@ function NodeTable ({ nodes, group, onSave, onDelete }: NodeTableProps) {
                     rules: [{
                         required: true,
                         message: t('请输入主机名 / IP 地址')
+                    }, {
+                        pattern: /^\S+$/,
+                        message: t('主机名 / IP地址不能包含空格')
                     }]
                 }
             },
