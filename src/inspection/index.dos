@@ -40,12 +40,12 @@ def canConfigureEmail() {
     }
 
     allNodes = exec name from rpc(getControllerAlias(), getClusterPerf) where mode != 1 and mode != 2 // 排除代理节点和控制节点
-    allNodes = set(allNodes)
-    info = select * from pnodeRun(listPluginsInner) where pluginName == "httpClient" 
+    info = select * from pnodeRun(listPluginsInner, allNodes) where pluginName == "httpClient" 
     if (info.size() == 0) {
         throw "请安装 httpClient 插件到所有节点，未安装节点：" + string(allNodes)
     }
 
+    allNodes = set(allNodes)
     nodes = exec node from info
     nodes = set(nodes)
     if (nodes != allNodes) {
