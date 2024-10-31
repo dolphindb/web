@@ -1,7 +1,7 @@
 import { t } from '@i18n/index.ts'
 import { Button, Form, Input, Select, Space, Switch, Table, TimePicker, Tooltip } from 'antd'
 import dayjs from 'dayjs'
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 import useSWR from 'swr'
 
 import NiceModal from '@ebay/nice-modal-react'
@@ -10,7 +10,7 @@ import { isEmpty, isObject } from 'lodash'
 
 import { MinusCircleOutlined, PlusOutlined } from '@ant-design/icons'
 
-import { model } from '@/model.ts'
+import { model, NodeType } from '@/model.ts'
 
 import { inspection } from './model.tsx'
 import { inspectionFrequencyOptions, metricGroups, weekDays } from './constants.ts'
@@ -39,7 +39,9 @@ export function InspectionForm ({
     
     const [enabled, set_enabled] = useState(plan.enabled)
     
-    const {  mutate: mutate_plan_detail } = useSWR(
+    const { nodes } = model.use(['nodes'])
+    
+    const { mutate: mutate_plan_detail } = useSWR(
         is_editing ? ['get_plan_detail', plan] : null, 
         async () => inspection.get_plan_detail(plan.id),
         {
@@ -55,6 +57,13 @@ export function InspectionForm ({
     const [metrics_with_nodes, set_metrics_with_nodes] = useState<Map<string, MetricsWithStatus>>(new Map(
         Array.from(metrics.values()).map(mc => ([mc.name, { ...mc, checked: false, selected_nodes: [ ], selected_params: { } }]))
     ))
+    
+    const execute_node_names = useMemo(
+        () => nodes.filter(({ mode }) => 
+                                mode === NodeType.data || 
+                                mode === NodeType.computing || 
+                                mode === NodeType.single)
+                    .map(({ name }) => name), [ nodes ])
     
     useEffect(() => {
         // 编辑模式下，获取巡检详情
@@ -77,7 +86,7 @@ export function InspectionForm ({
         return true
     }
     
-    const [inspection_form] = Form.useForm<Pick<Plan, 'name' | 'desc' | 'frequency' | 'days' | 'scheduleTime' | 'alertEnabled' | 'alertRecipient'> >()
+    const [inspection_form] = Form.useForm<Pick<Plan, 'name' | 'desc' | 'frequency' | 'days' | 'enabledNode' | 'scheduleTime' | 'alertEnabled' | 'alertRecipient'> >()
     
     async function on_save  (run_now: boolean) {
         try {
@@ -110,6 +119,7 @@ export function InspectionForm ({
                     days: values.days ? (values.days as number[]).map(Number) : [1],                                
                     scheduleTime: values.scheduleTime.filter(time => time).map(time => dayjs(time).format('HH:mm') + 'm'), 
                     enabled,
+                    enabledNode: values.enabledNode,
                     alertEnabled: values.alertEnabled,
                     alertRecipient: values.alertRecipient,
                     runNow: run_now
@@ -181,11 +191,13 @@ export function InspectionForm ({
                     ...plan,
                     scheduleTime: plan.scheduleTime ? plan.scheduleTime.map(time => parse_minute(time as string)) :  [dayjs()],
                     alertRecipient: plan.alertRecipient ? (plan.alertRecipient as string).split(',') : [ ],
+                    enabledNode:  plan.enabledNode ?? execute_node_names[0],
                     days: (plan.days as string).split(',').map(Number), 
                 } : 
                 {   
                     scheduleTime: [dayjs()], 
                     frequency: 'W', 
+                    enabledNode: execute_node_names[0],
                     days: [1], 
                 }}>
             <Form.Item 
@@ -281,6 +293,10 @@ export function InspectionForm ({
                     <TimePicker format='HH:mm:ss'/>
                 </Form.Item> */}
             </div>
+            
+            <Form.Item name='enabledNode' layout='vertical' label={<h3>{t('执行节点')}</h3>} >
+                <Select options={execute_node_names.map(name => ({ label: name, value: name }))}/>
+            </Form.Item>
             
             <Form.Item 
                 name='alertEnabled' 

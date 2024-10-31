@@ -41,6 +41,7 @@ export interface Plan {
     desc: string 
     runNow?: boolean
     enabled: boolean
+    enabledNode: string
     alertEnabled?: boolean
     alertRecipient?: string[] | string
     lastReportId: string
