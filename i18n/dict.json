@@ -5405,7 +5405,7 @@
     "别名不能包含空格": {
         "en": "Alias cannot contain spaces"
     },
-    "主机名 / IP地址不能包含空格": {
+    "主机名 / IP 地址不能包含空格": {
         "en": "Hostname / IP cannot contain spaces"
     }
 }

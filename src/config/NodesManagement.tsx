@@ -352,7 +352,7 @@ function NodeTable ({ nodes, group, onSave, onDelete }: NodeTableProps) {
                         message: t('请输入主机名 / IP 地址')
                     }, {
                         pattern: /^\S+$/,
-                        message: t('主机名 / IP地址不能包含空格')
+                        message: t('主机名 / IP 地址不能包含空格')
                     }]
                 }
             },
