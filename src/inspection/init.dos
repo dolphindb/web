@@ -508,7 +508,7 @@ def errorLogs(params) {
     ret = select count(*) as count from logs where level in params["logLevel"] group by level
 
     if (ret.size() > 0) {
-        return (false, ret, "请检查日志内容。")
+        return (false, ret, "请检查该节点的运行日志内容。")
     } else {
         return (true, NULL, NULL)
     }
