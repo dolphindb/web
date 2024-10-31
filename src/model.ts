@@ -1069,6 +1069,7 @@ const json_error_pattern = /^{.*"code": "(.*?)".*}$/
 
 const username_guest = 'guest' as const
 
+/** 除了改这里还需要改 src/index.tsx 中的路由配置 */
 export const default_view = 'shell' as const
 
 
