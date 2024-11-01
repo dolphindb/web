@@ -323,7 +323,7 @@ export function InspectionForm ({
                             <Form.Item {...field} required>
                                 <Input/>
                             </Form.Item>
-                            <MinusCircleOutlined onClick={() => { remove(field.name) }} />
+                            {!view_only && <MinusCircleOutlined onClick={() => { remove(field.name) }} />}
                             </Space>)
                             
                         }
