@@ -284,7 +284,7 @@ function DetailDescription ({
                         label: t('详情'),
                         children: <div className='report-detail-content'>
                             <Detail content={n.detail}/>
-                            {n.extraDetail && <Detail content={n.extraDetail}/>}
+                            {n.extraDetail && <Detail content={n.extraDetail} extra/>}
                         </div>,
                         span: 4,
                     },
@@ -315,10 +315,15 @@ function DetailDescription ({
 
 function Detail ({
    content,
+   extra = false,
 }: {
     content: string
+    extra?: boolean
 }) {
     const ds = JSON.parse(content)
+    
+    if (extra && !ds) 
+        return null
     return Array.isArray(ds) 
         ? 
         <Table 
