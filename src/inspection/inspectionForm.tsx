@@ -273,7 +273,7 @@ export function InspectionForm ({
                                         >
                                             <TimePicker format='HH:mm'/>
                                         </Form.Item>
-                                        {fields.length > 1 && (
+                                        {fields.length > 1 && !view_only && (
                                             <MinusCircleOutlined onClick={() => { remove(field.name) }} />
                                         )}
                                     </Space>)
