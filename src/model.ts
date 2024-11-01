@@ -692,23 +692,22 @@ export class DdbModel extends Model<DdbModel> {
     async get_cluster_perf (print: boolean) {
         let nodes: DdbNode[]
         
-        let pnodes = this.ddb.invoke<DdbTableData<DdbNode>>('getClusterPerf', [true], {
-            urgent: true,
-            
-            ... this.node_type === NodeType.controller || this.node_type === NodeType.single
-                ? undefined
-                : { node: this.controller_alias }
-        })
+        // 超时提醒（在手动触发或者首次加载时才弹）
+        if (print)
+            setTimeout(() => {
+                if (!nodes)
+                    this.show_error({ title: t('getClusterPerf(true) 执行超时，请检查集群节点状态是否正常，任务是否阻塞') })
+            }, 5000)
         
-        // 超时提醒
-        setTimeout(() => {
-            if (!nodes)
-                this.show_error({ title: t('getClusterPerf(true) 执行超时，请检查集群节点状态是否正常，任务是否阻塞') })
-        }, 5000)
-        
-        // 继续等待
-        nodes = (await pnodes)
-            .data
+        nodes = (
+                await this.ddb.invoke<DdbTableData<DdbNode>>('getClusterPerf', [true], {
+                urgent: true,
+                
+                ... this.node_type === NodeType.controller || this.node_type === NodeType.single
+                    ? undefined
+                    : { node: this.controller_alias }
+            })
+        ).data
             .sort((a, b) => strcmp(a.name, b.name))
         
         if (print)
