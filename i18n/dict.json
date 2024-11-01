@@ -5407,5 +5407,8 @@
     },
     "主机名 / IP 地址不能包含空格": {
         "en": "Hostname / IP cannot contain spaces"
+    },
+    "主机名 / IP 地址不能为空": {
+        "en": "Hostname / IP address cannot be empty"
     }
 }
