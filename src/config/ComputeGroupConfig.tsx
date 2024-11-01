@@ -208,7 +208,6 @@ export function ComputeGroupConfig () {
                     onSave: async (rowKey, data) => {
                         try {
                             const { name, qualifier, value } = data
-                            console.log(data)
                             const key = (qualifier ? qualifier + '.' : '') + name
                             if (rowKey !== key)
                                 config.nodes_configs.delete(rowKey as string)

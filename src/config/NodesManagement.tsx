@@ -87,7 +87,7 @@ export function NodesManagement () {
                             model.message.error(t('新增节点失败，服务端报错：') + err.message)
                             throw new Error(t('新增节点失败，服务端报错：') + err.message)
                         }
-                    else if ( mode !== 'controller')
+                    else if (mode !== 'controller')
                         try {
                             await model.ddb.call('addNode', add_node_arg)
                             model.message.success(t('新增节点成功，请到集群总览启动'))
