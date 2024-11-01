@@ -5557,5 +5557,20 @@
     },
     " {{num}} 项异常。": {
         "en": " {{num}} exceptions."
+    },
+    "控制节点不支持自动化巡检，请跳转到数据节点或计算节点查看。": {
+        "en": "The control node does not support automatic inspection. Please jump to the data node or computing node to check."
+    },
+    "你确定要初始化自动化巡检功能吗？": {
+        "en": "Are you sure you want to initialize the automatic inspection function?"
+    },
+    "初始化自动化巡检成功！": {
+        "en": "Initialization of automated inspection successful!"
+    },
+    "至少需要设置一个巡检时间": {
+        "en": "At least one inspection time must be set"
+    },
+    "执行节点": {
+        "en": "Execution node"
     }
 }
