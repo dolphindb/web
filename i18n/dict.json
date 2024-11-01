@@ -5407,5 +5407,17 @@
     },
     "主机名 / IP 地址不能包含空格": {
         "en": "Hostname / IP cannot contain spaces"
+    },
+    "持久化的消息队列深度的上限": {
+        "en": "Queue Depth Limit"
+    },
+    "持久化的当前消息队列深度": {
+        "en": "Queue Depth"
+    },
+    "已经持久化的流数据表": {
+        "en": "Tables"
+    },
+    "主机名 / IP 地址不能为空": {
+        "en": "Hostname / IP address cannot be empty"
     }
 }
