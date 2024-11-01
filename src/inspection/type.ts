@@ -55,6 +55,7 @@ export interface PlanReport {
     user: string
     startTime: string
     endTime: string
+    enabledNode: string
     runningTime: bigint
     success: boolean
     failedNum: number

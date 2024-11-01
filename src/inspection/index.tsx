@@ -20,6 +20,7 @@ import type { Plan, PlanReport } from './type.ts'
 import { EditInspection } from './editInspection.tsx'
 import { ReportDetailPage } from './reportDetail.tsx'
 import { EmailConfigModal } from './emailConfigModal.tsx'
+import { LogModal } from './logModal.tsx'
 
 
 export function Inspection () {
@@ -261,6 +262,13 @@ function ReportListTable  ({
                         onClick={() => { inspection.set({ current_report: record }) }}
                     >
                         {t('查看详细报告')}
+                    </Button>
+                    
+                    <Button
+                        type='link'
+                        onClick={() => { NiceModal.show(LogModal, { reportId: record.id, node: record.enabledNode }) }}
+                    >
+                        {t('查看日志')}
                     </Button>
                     
                     <Popconfirm   
