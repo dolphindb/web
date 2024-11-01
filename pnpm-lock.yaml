@@ -132,9 +132,6 @@ importers:
         specifier: ^1.0.194
         version: 1.0.194(react-dom@18.3.1(react@18.3.1))
     devDependencies:
-      '@svgr/webpack':
-        specifier: ^8.1.0
-        version: 8.1.0
       '@types/js-cookie':
         specifier: ^3.0.6
         version: 3.0.6
@@ -153,48 +150,15 @@ importers:
       '@types/react-dom':
         specifier: ^18.3.1
         version: 18.3.1
-      '@types/sass-loader':
-        specifier: ^8.0.9
-        version: 8.0.9
-      '@types/webpack-bundle-analyzer':
-        specifier: ^4.7.0
-        version: 4.7.0
-      css-loader:
-        specifier: ^7.1.2
-        version: 7.1.2(webpack@5.96.0)
       eslint:
         specifier: ^9.13.0
         version: 9.13.0
-      license-webpack-plugin:
-        specifier: ^4.0.2
-        version: 4.0.2(webpack@5.96.0)
       react:
         specifier: ^18.3.1
         version: 18.3.1
-      sass:
-        specifier: ^1.80.5
-        version: 1.80.5
-      sass-loader:
-        specifier: ^16.0.3
-        version: 16.0.3(sass@1.80.5)(webpack@5.96.0)
-      source-map-loader:
-        specifier: ^5.0.0
-        version: 5.0.0(webpack@5.96.0)
-      style-loader:
-        specifier: ^4.0.0
-        version: 4.0.0(webpack@5.96.0)
-      ts-loader:
-        specifier: ^9.5.1
-        version: 9.5.1(typescript@5.6.3)(webpack@5.96.0)
       typescript:
         specifier: ^5.6.3
         version: 5.6.3
-      webpack:
-        specifier: ^5.96.0
-        version: 5.96.0
-      webpack-bundle-analyzer:
-        specifier: ^4.10.2
-        version: 4.10.2
 
 packages:
 
@@ -1757,9 +1721,6 @@ packages:
 
   '@types/unist@3.0.2':
     resolution: {integrity: sha512-dqId9J8K/vGi5Zr7oo212BGii5m3q5Hxlkwy3WpYuKPklmBEvsbMYYyLxAQpSffdLl/gdW0XUpKWFvYmyoWCoQ==}
-
-  '@types/webpack-bundle-analyzer@4.7.0':
-    resolution: {integrity: sha512-c5i2ThslSNSG8W891BRvOd/RoCjI2zwph8maD22b1adtSns20j+0azDDMCK06DiVrzTgnwiDl5Ntmu1YRJw8Sg==}
 
   '@types/webpack-sources@3.2.0':
     resolution: {integrity: sha512-Ft7YH3lEVRQ6ls8k4Ff1oB4jN6oy/XmU6tQISKdhfh+1mR+viZFphS6WL0IrtDOzvefmJg5a0s7ZQoRXwqTEFg==}
@@ -7311,17 +7272,6 @@ snapshots:
   '@types/unist@2.0.10': {}
 
   '@types/unist@3.0.2': {}
-
-  '@types/webpack-bundle-analyzer@4.7.0':
-    dependencies:
-      '@types/node': 22.8.6
-      tapable: 2.2.1
-      webpack: 5.96.0
-    transitivePeerDependencies:
-      - '@swc/core'
-      - esbuild
-      - uglify-js
-      - webpack-cli
 
   '@types/webpack-sources@3.2.0':
     dependencies:
