@@ -46,7 +46,7 @@ export function ControllerConfig () {
                     showSearch
                     optionFilterProp='label'
                     filterOption={filter_config}
-                    options={CONTROLLER_CONFIG.map(config => ({
+                    options={config.get_controller_config().map(config => ({
                         label: config,
                         value: config
                     }))} 
@@ -160,7 +160,7 @@ export function ControllerConfig () {
                         if (e.key === 'Enter') 
                             set_search_value(search_key)
                     }}
-                    options={CONTROLLER_CONFIG.map(config => ({
+                    options={config.get_controller_config().map(config => ({
                         label: config,
                         value: config
                         }))
@@ -223,36 +223,3 @@ export function ControllerConfig () {
     />
 }
 
-const CONTROLLER_CONFIG = [
-    'mode',
-    'preloadModules',
-    'localSite',
-    'clusterConfig',
-    'nodesFile',
-    'localExecutors',
-    'maxBatchJobWorker',
-    'maxConnections',
-    'maxConnectionPerSite',
-    'maxDynamicWorker',
-    'maxMemSize',
-    'webWorkerNum',
-    'dfsMetaDir',
-    'dfsMetaLogFilename',
-    'dfsReplicationFactor',
-    'dfsReplicaReliabilityLevel',
-    'dfsRecoveryWaitTime',
-    'enableDFS',
-    'enableHTTPS',
-    'dataSync',
-    'webLoginRequired',
-    'PublicName',
-    'datanodeRestartInterval',
-    'dfsHAMode',
-    'clusterReplicationSlaveNum',
-    'dfsChunkNodeHeartBeatTimeout',
-    'clusterReplicationMasterCtl',
-    'metricsToken',
-    'strictPermissionMode',
-    'enableLocalDatabase',
-    // 'enableClientAuth',
-]

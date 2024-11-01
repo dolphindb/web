@@ -175,12 +175,50 @@ class ConfigModel extends Model<ConfigModel> {
                     'computeNodeMemCacheSize',
                     'computeNodeDiskCacheSize',
                     'enableComputeNodeCacheEvictionFromQueryThread',
-                    'computeNodeCachingDelay',
-                    'computeNodeCachingQueryThreshold',
-                    'enableComputeNodePrefetchData',
                 ])
             } : { }
         }
+    }
+    
+    get_controller_config () {
+        return [
+            'mode',
+            'preloadModules',
+            'localSite',
+            'clusterConfig',
+            'nodesFile',
+            'localExecutors',
+            'maxBatchJobWorker',
+            'maxConnections',
+            'maxConnectionPerSite',
+            'maxDynamicWorker',
+            'maxMemSize',
+            'webWorkerNum',
+            'dfsMetaDir',
+            'dfsMetaLogFilename',
+            'dfsReplicationFactor',
+            'dfsReplicaReliabilityLevel',
+            'dfsRecoveryWaitTime',
+            'enableDFS',
+            'enableHTTPS',
+            'dataSync',
+            'webLoginRequired',
+            'PublicName',
+            'datanodeRestartInterval',
+            'dfsHAMode',
+            'clusterReplicationSlaveNum',
+            'dfsChunkNodeHeartBeatTimeout',
+            'clusterReplicationMasterCtl',
+            'metricsToken',
+            'strictPermissionMode',
+            'enableLocalDatabase',
+            ...model.v3 ? [
+                'computeNodeCachingDelay',
+                'computeNodeCachingQueryThreshold',
+                'enableComputeNodePrefetchData',
+            ] : [ ]
+            // 'enableClientAuth',
+        ]
     }
 }
 

@@ -21,9 +21,6 @@ export const GroupAddModal = NiceModal.create((props: { on_save: (form: { group_
         { key: 'default3', name: 'computeNodeMemCacheSize', value: '1024' },
         { key: 'default4', name: 'computeNodeDiskCacheSize', value: '65536' },
         { key: 'default5', name: 'enableComputeNodeCacheEvictionFromQueryThread', value: 'true' },
-        { key: 'default6', name: 'computeNodeCachingDelay', value: '360' },
-        { key: 'default7', name: 'computeNodeCachingQueryThreshold', value: '1' },
-        { key: 'default8', name: 'enableComputeNodePrefetchData', value: '' },
     ])
     const [batch_add_node_count, set_batch_add_node_count] = useState(1)
     
