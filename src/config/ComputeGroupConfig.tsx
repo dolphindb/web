@@ -89,7 +89,7 @@ export function ComputeGroupConfig () {
         {
             title: t('配置项'),
             dataIndex: 'name',
-            key: 'key',
+            key: 'name',
             width: 400,
         },
         {
@@ -208,6 +208,7 @@ export function ComputeGroupConfig () {
                     onSave: async (rowKey, data) => {
                         try {
                             const { name, qualifier, value } = data
+                            console.log(data)
                             const key = (qualifier ? qualifier + '.' : '') + name
                             if (rowKey !== key)
                                 config.nodes_configs.delete(rowKey as string)

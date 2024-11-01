@@ -87,7 +87,7 @@ export function NodesManagement () {
                             model.message.error(t('新增节点失败，服务端报错：') + err.message)
                             throw new Error(t('新增节点失败，服务端报错：') + err.message)
                         }
-                    else
+                    else if ( mode !== 'controller')
                         try {
                             await model.ddb.call('addNode', add_node_arg)
                             model.message.success(t('新增节点成功，请到集群总览启动'))
@@ -96,6 +96,8 @@ export function NodesManagement () {
                             throw new Error(t('新增节点失败，服务端报错：') + err.message)
                         }        
                 await config.save_cluster_nodes([...node_strs, `${host}:${port}:${alias},${mode},${group}`,])    
+                if (mode === 'controller')
+                    model.message.success(t('保存成功，重启集群生效'))
             }
             else  // 修改
                  {
