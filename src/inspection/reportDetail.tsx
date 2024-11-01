@@ -75,7 +75,7 @@ export function ReportDetailPage () {
         {
             title: t('操作'),
             key: 'action',
-            render: (_, record) => <a onClick={() => { scroll_to_metric(record.metricName) }}>查看详情</a>,
+            render: (_, record) => <a onClick={() => { scroll_to_metric(record.metricName) }}>{t('查看详情')}</a>,
         },
     ]
     
