@@ -55,7 +55,7 @@ export function OverviewTable ({
     const { visible, open, close } = use_modal()
     
     useEffect(() => {
-        model.get_cluster_perf(true)
+        model.get_cluster_perf(false)
     }, [ ])
     
     function get_columns (group_name: string): ColumnType<DdbNode>[] {
