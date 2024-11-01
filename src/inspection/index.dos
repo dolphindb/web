@@ -107,7 +107,7 @@ def initDfs() {
     tb = table(1:0, `id`planId`name`desc`user`enabledNode`receivedTime`startTime`endTime`success`totalNum`failedNum, [STRING, STRING, STRING, STRING, STRING, STRING, TIMESTAMP, TIMESTAMP, TIMESTAMP, BOOL, INT, INT])
     pt4 = createPartitionedTable(db, tb, "reports", ["planId", "receivedTime"], sortColumns="receivedTime")
 
-    tb = table(1:0, `reportId`planId`metricName`metricVersion`metricParams`node`jobId`startTime`endTime`success`detail`suggestion, [STRING, STRING, STRING, INT, STRING, STRING, STRING, TIMESTAMP, TIMESTAMP, BOOL, BLOB, STRING])
+    tb = table(1:0, `reportId`planId`metricName`metricVersion`metricParams`node`jobId`startTime`endTime`success`detail`extraDetail`suggestion, [STRING, STRING, STRING, INT, STRING, STRING, STRING, TIMESTAMP, TIMESTAMP, BOOL, BLOB, BLOB, STRING])
     pt5 = createPartitionedTable(db, tb, "reportDetails", ["planId", "startTime"], sortColumns="startTime")
 }
 
@@ -281,22 +281,19 @@ def runMetric(name, node, script, mutable params) {
     l = iif(script.strlen() > 20, 20, script.strlen())
     print(string(script)[0:l])
     success = false
-    detail = ""
+    detail = NULL
     suggestion = ""
+    extraDetail = NULL
     paramsJson = toStdJson(params)
 
     try {
-        if (getNodeAlias() != node) {
-            runScript(script)
-            params = fromStdJson(paramsJson)
-            ret = rpc(node, funcByName(name), params)
-        } else {
-            runScript(script)
-            params = fromStdJson(paramsJson)
-            ret = funcByName(name)(params)
-        }
-        if (ret.size() == 4) {
-            success, detail, suggestion, params = ret
+        runScript(script)
+        params = fromStdJson(paramsJson)
+        ret = rpc(node, funcByName(name), params)
+        if (ret.size() == 5) {
+            success, detail, suggestion, extraDetail, params = ret
+        } else if (ret.size() == 4) {
+            success, detail, suggestion, extraDetail = ret
         } else if (ret.size() == 3) {
             success, detail, suggestion = ret
         } else if (ret.size() == 2) {
@@ -313,7 +310,7 @@ def runMetric(name, node, script, mutable params) {
     }
 
     print("success: " + string(success))
-    return success, toStdJson(detail), suggestion, params // 记得更新 params
+    return success, toStdJson(detail), string(suggestion), toStdJson(extraDetail), params // 记得更新 params
 }
 
 def runPlanInner(planId) {
@@ -356,7 +353,7 @@ def runPlanInner(planId) {
             jobId = jobIds[i]
 
             try {
-                success, detail, suggestion, usedParams_ = getJobReturn(jobId, true)
+                success, detail, suggestion, extraDetail, usedParams_ = getJobReturn(jobId, true)
                 if (!isVoid(usedParams_)) { // 手动更新 params 实现 mutable 的效果
                     for (key in usedParams_.keys()) {
                         params[key] = usedParams_[key]
@@ -364,14 +361,15 @@ def runPlanInner(planId) {
                 }
                 res = getJobStatus(jobId)
                 node = nodes[i]
-                insert into ret values ("", planId, name, version, usedParamsJson, node, jobId, res["startTime"].first(), res["endTime"].first(), success, detail, suggestion) // reportId 要在返回后 update
+                insert into ret values ("", planId, name, version, usedParamsJson, node, jobId, res["startTime"].first(), res["endTime"].first(), success, detail, extraDetail, suggestion) // reportId 要在返回后 update
             } catch(err) {
                 success = false
                 detail = string(iif(err.form()==0, err, err.concat(":")))
+                extraDetail = string(NULL)
                 suggestion = string(NULL)
                 print("run metric failed! Node: " + node + ", job id: " + jobId + ", error: " + detail)
                 res = getJobStatus(jobId)
-                insert into ret values ("", planId, name, version, usedParamsJson, node, jobId, res["startTime"].first(), res["endTime"].first(), success, detail, suggestion) // reportId 要在返回后 update
+                insert into ret values ("", planId, name, version, usedParamsJson, node, jobId, res["startTime"].first(), res["endTime"].first(), success, detail, extraDetail, suggestion) // reportId 要在返回后 update
             }
         }
 
@@ -902,7 +900,7 @@ def getReportDetailsOfNodes(reportId=NULL, language="cn") {
         whereCond = <reportId == reportId_>
     }
     res = sql(sqlCol("*"), loadTable("dfs://autoInspection", "reportDetails"), whereCond).eval()
-    res = select reportId, metricName, b.displayName as metricDisplayName, group, metricVersion, iif(isNull(b.nodes), NULL, node) as node, startTime, endTime, endTime - startTime as runningTime, success, detail, suggestion from res a left join loadTable("dfs://autoInspection", "metrics") b on a.metricName == b.name and a.metricVersion == b.version where b.language == language_
+    res = select reportId, metricName, b.displayName as metricDisplayName, group, metricVersion, iif(isNull(b.nodes), NULL, node) as node, startTime, endTime, endTime - startTime as runningTime, success, detail, extraDetail, suggestion from res a left join loadTable("dfs://autoInspection", "metrics") b on a.metricName == b.name and a.metricVersion == b.version where b.language == language_
 
     return res
 }
