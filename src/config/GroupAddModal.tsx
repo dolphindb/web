@@ -111,7 +111,7 @@ export const GroupAddModal = NiceModal.create((props: { on_save: (form: { group_
         },
         {
             title: t('主机名 / IP 地址'), key: 'host', render: (_, { key, host }) => {
-                const isError = validating && (!/^\S+$/.test(host) || host === '')
+                const isError = validating && /^\S*$/.test(host)
                 return <div>
                     <Tooltip
                         title={<span className='validate-error-node'>{host === '' ? t('主机名 / IP 地址不能为空') : t('主机名 / IP 地址不能包含空格')}</span>}
@@ -123,7 +123,7 @@ export const GroupAddModal = NiceModal.create((props: { on_save: (form: { group_
                             status={isError ? 'error' : undefined}
                             placeholder={t('请输入主机名 / IP 地址')}
                             value={host}
-                            onChange={e => { update_group_node_by_field(key, 'host', e.target.value) }}
+                            onChange={event => { update_group_node_by_field(key, 'host', event.target.value) }}
                         />
                     </Tooltip>
                 </div>
