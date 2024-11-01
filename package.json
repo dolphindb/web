@@ -17,27 +17,15 @@
         "url": "https://github.com/dolphindb/web.git"
     },
     "devDependencies": {
-        "@svgr/webpack": "^8.1.0",
         "@types/js-cookie": "^3.0.6",
         "@types/koa": "^2.15.0",
         "@types/lodash": "^4.17.13",
         "@types/node": "^22.8.6",
         "@types/react": "^18.3.12",
         "@types/react-dom": "^18.3.1",
-        "@types/sass-loader": "^8.0.9",
-        "@types/webpack-bundle-analyzer": "^4.7.0",
-        "css-loader": "^7.1.2",
         "eslint": "^9.13.0",
-        "license-webpack-plugin": "^4.0.2",
         "react": "^18.3.1",
-        "sass": "^1.80.5",
-        "sass-loader": "^16.0.3",
-        "source-map-loader": "^5.0.0",
-        "style-loader": "^4.0.0",
-        "ts-loader": "^9.5.1",
-        "typescript": "^5.6.3",
-        "webpack": "^5.96.0",
-        "webpack-bundle-analyzer": "^4.10.2"
+        "typescript": "^5.6.3"
     },
     "dependencies": {
         "@ant-design/icons": "^5.5.1",
