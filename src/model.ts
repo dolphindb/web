@@ -701,11 +701,10 @@ export class DdbModel extends Model<DdbModel> {
         })
         
         // 超时提醒
-        ;(async () => {
-            await delay(5000)
+        setTimeout(() => {
             if (!nodes)
                 this.show_error({ title: t('getClusterPerf(true) 执行超时，请检查集群节点状态是否正常，任务是否阻塞') })
-        })()
+        }, 5000)
         
         // 继续等待
         nodes = (await pnodes)
