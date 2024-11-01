@@ -901,7 +901,7 @@ def getReportDetailsOfNodes(reportId=NULL, language="cn") {
         whereCond = <reportId == reportId_>
     }
     res = sql(sqlCol("*"), loadTable("dfs://autoInspection", "reportDetails"), whereCond).eval()
-    res = select reportId, jobId, metricName, b.displayName as metricDisplayName, group, metricVersion, iif(isNull(b.nodes), NULL, node) as node, startTime, endTime, endTime - startTime as runningTime, success, detail, extraDetail, suggestion from res a left join loadTable("dfs://autoInspection", "metrics") b on a.metricName == b.name and a.metricVersion == b.version where b.language == language_
+    res = select reportId, jobId, metricName, b.displayName as metricDisplayName, group, metricVersion, a.node as node, startTime, endTime, endTime - startTime as runningTime, success, detail, extraDetail, suggestion from res a left join loadTable("dfs://autoInspection", "metrics") b on a.metricName == b.name and a.metricVersion == b.version where b.language == language_
 
     return res
 }
