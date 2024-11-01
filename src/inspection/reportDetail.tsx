@@ -284,7 +284,10 @@ function DetailDescription ({
                     {
                         key: 'detail',
                         label: t('详情'),
-                        children: <DetailTable content={n.detail}/>,
+                        children: <div className='report-detail-content'>
+                            <Detail content={n.detail}/>
+                            {n.extraDetail && <Detail content={n.extraDetail}/>}
+                        </div>,
                         span: 4,
                     },
                     ...n.suggestion ? [{
@@ -312,8 +315,8 @@ function DetailDescription ({
     </Typography>
 }
 
-function DetailTable ({
-   content 
+function Detail ({
+   content,
 }: {
     content: string
 }) {

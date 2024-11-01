@@ -90,5 +90,6 @@ export interface PlanReportDetailNode {
     runningTime: number
     success: boolean
     detail: string
+    extraDetail?: string
     suggestion: string
 }
