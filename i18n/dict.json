@@ -5416,5 +5416,8 @@
     },
     "已经持久化的流数据表": {
         "en": "Tables"
+    },
+    "主机名 / IP 地址不能为空": {
+        "en": "Hostname / IP address cannot be empty"
     }
 }
