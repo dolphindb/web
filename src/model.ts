@@ -8,7 +8,7 @@ import type { NotificationInstance } from 'antd/es/notification/interface.d.ts'
 import type { NavigateFunction, NavigateOptions } from 'react-router-dom'
 
 import 'xshell/polyfill.browser.js'
-import { assert, filter_values, not_empty, strcmp, timeout, TimeoutError } from 'xshell/utils.browser.js'
+import { assert, delay, filter_values, not_empty, strcmp } from 'xshell/utils.browser.js'
 import { request } from 'xshell/net.browser.js'
 
 import {
@@ -692,25 +692,25 @@ export class DdbModel extends Model<DdbModel> {
     async get_cluster_perf (print: boolean) {
         let nodes: DdbNode[]
         
-        try {
-            nodes = (
-                await timeout(5000, async () => 
-                    await this.ddb.invoke<DdbTableData<DdbNode>>('getClusterPerf', [true], {
-                        urgent: true,
-                        
-                        ... this.node_type === NodeType.controller || this.node_type === NodeType.single
-                            ? undefined
-                            : { node: this.controller_alias }
-                    })
-                )
-            ).data
-        } catch (error) {
-            if (error instanceof TimeoutError)
-                error.message = t('getClusterPerf(true) 执行超时，请检查集群节点状态是否正常，任务是否阻塞')
-            throw error
-        }
+        let pnodes = this.ddb.invoke<DdbTableData<DdbNode>>('getClusterPerf', [true], {
+            urgent: true,
+            
+            ... this.node_type === NodeType.controller || this.node_type === NodeType.single
+                ? undefined
+                : { node: this.controller_alias }
+        })
         
-        nodes.sort((a, b) => strcmp(a.name, b.name))
+        // 超时提醒
+        ;(async () => {
+            await delay(5000)
+            if (!nodes)
+                this.show_error({ title: t('getClusterPerf(true) 执行超时，请检查集群节点状态是否正常，任务是否阻塞') })
+        })()
+        
+        // 继续等待
+        nodes = (await pnodes)
+            .data
+            .sort((a, b) => strcmp(a.name, b.name))
         
         if (print)
             console.log(t('集群节点:'), nodes)
@@ -730,6 +730,7 @@ export class DdbModel extends Model<DdbModel> {
             if (_node.mode === NodeType.data)
                 datanode ??= _node
         }
+        
         if (print) {
             console.log(t('当前节点:'), node)
             if (node.mode !== NodeType.single)
