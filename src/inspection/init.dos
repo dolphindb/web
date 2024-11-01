@@ -288,18 +288,14 @@ def chunksVersion(params) {
     masterMeta = rpc(getControllerAlias(), getClusterChunksStatus)
     nodes = exec name from rpc(getControllerAlias(), getClusterPerf) where mode == 0 or mode == 3
     chunkMeta = pnodeRun(getAllChunks, nodes)
-    allNotEqual=select * from fj(masterMeta, chunkMeta, `chunkId) where chunkMeta.version != masterMeta.version 
+    allNotEqual=select masterMeta.chunkId as masterChunkId, masterMeta.version as masterVersion, chunkMeta.chunkId as datanodeChunkId, chunkMeta.version as datanodeVersion from fj(masterMeta, chunkMeta, `chunkId) where chunkMeta.version != masterMeta.version 
     detail = ""
     if (allNotEqual.size() > threshold) {
-        detail += "存在控制节点元数据与数据节点元数据版本不一致: " + string(allNotEqual.size()) + " 条。"
+        return (false, "存在控制节点元数据与数据节点元数据版本不一致: " + string(allNotEqual.size()) + " 条，部分统计结果如下：", "请参考官方教程《分区状态不一致》排查问题。", select top 10 * from allNotEqual)
     }
-    chunkNotEqual=exec chunkId from (select * from chunkMeta context by chunkId having nunique(version)>1)
+    chunkNotEqual=select * from chunkMeta context by chunkId having nunique(version)>1
     if (chunkNotEqual.size() > threshold) {
-        if (detail.strlen() > 0) detail += "\n"
-        detail += "存在数据节点相同副本元数据版本不一致: " + string(chunkNotEqual.size()) + " 条。"
-    }
-    if (detail.strlen() > 0) {
-        return (false, detail, "请参考官方教程《分区状态不一致》排查问题。")   
+        return (false, "存在数据节点相同副本元数据版本不一致: " + string(chunkNotEqual.size()) + " 条。", "请参考官方教程《分区状态不一致》排查问题。", select top 10 * from chunkNotEqual)
     }
     
     return (true, NULL, NULL)
@@ -324,7 +320,7 @@ def chunksCid(params) {
     update chunkMeta set cid = versionList.split(":").at(0).long() where dfsPath.endsWith("domain") or dfsPath.endsWith(".tbl")
     allNotEqual=select chunkId, masterMeta.file, chunkMeta.dfsPath, masterMeta.versionChain, masterMeta.cid as masterCid, chunkMeta.versionList, chunkMeta.cid as chunkCid from fj(masterMeta, chunkMeta, `chunkId) where masterMeta.cid != chunkMeta.cid 
     if (allNotEqual.size() > 0) {
-        return (false, "存在 " + allNotEqual.size() + " 条控制节点元数据与数据节点元数据 cid 不一致。", "请参考官方教程《分区状态不一致》排查问题，删除错误副本并拷贝正确副本恢复。")   
+        return (false, "存在 " + allNotEqual.size() + " 条控制节点元数据与数据节点元数据 cid 不一致，部分统计结果如下：", "请参考官方教程《分区状态不一致》排查问题，删除错误副本并拷贝正确副本恢复。", select top 10 * from allNotEqual)   
     }
     
     return (true, NULL, NULL)
@@ -349,7 +345,7 @@ def replicaNum(params) {
     replicaNum = select count(*) as cnt from pnodeRun(getAllChunks) where state == 0 group by chunkId // 只查询状态完成的元数据，因为事务中的元数据可能副本还在构建
     replicaNum = select * from replicaNum where cnt != dfsReplicationFactor
     if (replicaNum.size() > 0) {
-        return (false, "存在 " + replicaNum.size() + " 个分区副本数小于 dfsReplicationFactor 配置项值 " + dfsReplicationFactor + "。", "请参考官方教程《分区状态不一致》排查问题，拷贝副本恢复。")
+        return (false, "存在 " + replicaNum.size() + " 个分区副本数小于 dfsReplicationFactor 配置项值 " + dfsReplicationFactor + "，部分统计结果如下：", "请参考官方教程《分区状态不一致》排查问题，拷贝副本恢复。", select top 10 * from replicaNum)
     }
     
     return (true, NULL, NULL)
@@ -412,7 +408,8 @@ def replicaRowNum(params){
     badChunkId=array(ANY);
     select addBadChunkId(badChunkId,first(chunkId),rowNum) from chunkidNodeRow group by chunkId;
     if(badChunkId.size()>0){
-        return false,"存在 "+badChunkId.size()+" 个不一致的副本。","请删除错误副本并拷贝正确副本恢复。";
+        badChunkId_ = iif(badChunkId.size()>10, badChunkId[:10], badChunkId)
+        return false,"存在 "+badChunkId.size()+" 个不一致的副本。","请删除错误副本并拷贝正确副本恢复。", badChunkId_.concat(", ");
     }
     return true,"所有分区副本数完全一致","";
 }
@@ -586,7 +583,7 @@ newMetric(name, displayName, group, desc, nodes, script, params)
 go
 
 name = "mostQueriedDFSTables"
-displayName = "访问次数最多的库表"
+displayName = "访问次数最多的库表 top10"
 group = "1"
 desc = "访问次数最多的库表，只统计 startTime 到 endTime 参数时间范围内有访问记录的库表。
 参数说明：
@@ -798,7 +795,7 @@ def sortKeyCount(params) {
     if (ret.size() == 0) {
         return (true, NULL, NULL)
     } else {
-        return (false, ret, "存在排序键超过 1000 个的分布式表，建议重建表并做哈希降维。")
+        return (false, "存在 " + string(ret.size()) + " 张表最大排序键超过 1000，部分统计结果如下：", "建议重建表并做哈希降维。", select top 10 * from ret)
     }
 }
 '
