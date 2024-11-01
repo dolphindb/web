@@ -428,9 +428,9 @@ const leading_cols = {
     },
     persistWorkers: {
         workerId: t('线程 ID'),
-        queueDepthLimit: t('持久化的消息队列深度的上限'),
-        queueDepth: t('持久化的当前消息队列深度'),
-        tables: t('已经持久化的流数据表')
+        queueDepthLimit: t('持久化消息队列深度上限'),
+        queueDepth: t('持久化消息队列深度'),
+        tables: t('持久化表名')
     },
     sharedStreamingTableStat: {
         TableName: t('表名'),
