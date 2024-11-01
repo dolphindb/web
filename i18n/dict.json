@@ -5419,5 +5419,11 @@
     },
     "主机名 / IP 地址不能为空": {
         "en": "Hostname / IP address cannot be empty"
+    },
+    "别名不能为空": {
+        "en": "Alias cannot be empty"
+    },
+    "别名必须以组名 {{group_name}} 开头": {
+        "en": "The alias must start with the group name {{group_name}}."
     }
 }
