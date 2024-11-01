@@ -104,7 +104,7 @@ def initDfs() {
     tb = table(1:0, `planId`metricName`metricVersion`nodes`params, [STRING, STRING, INT, STRING, STRING])
     pt3 = createTable(db, tb, "planDetails", sortColumns="metricVersion")
 
-    tb = table(1:0, `id`planId`name`desc`user`receivedTime`startTime`endTime`success`totalNum`failedNum, [STRING, STRING, STRING, STRING, STRING, TIMESTAMP, TIMESTAMP, TIMESTAMP, BOOL, INT, INT])
+    tb = table(1:0, `id`planId`name`desc`user`enabledNode`receivedTime`startTime`endTime`success`totalNum`failedNum, [STRING, STRING, STRING, STRING, STRING, STRING, TIMESTAMP, TIMESTAMP, TIMESTAMP, BOOL, INT, INT])
     pt4 = createPartitionedTable(db, tb, "reports", ["planId", "receivedTime"], sortColumns="receivedTime")
 
     tb = table(1:0, `reportId`planId`metricName`metricVersion`metricParams`node`jobId`startTime`endTime`success`detail`suggestion, [STRING, STRING, STRING, INT, STRING, STRING, STRING, TIMESTAMP, TIMESTAMP, BOOL, BLOB, STRING])
@@ -533,6 +533,7 @@ def runPlan(planId, blocking=false) {
         name as name,
         desc as desc,
         user as user,
+        enabledNode as enabledNode,
         reportJobInfo[0]["receivedTime"] as receivedTime,
         timestamp(NULL) as startTime,
         timestamp(NULL) as endTime,
@@ -795,7 +796,7 @@ def getPlans(planId=NULL, enabled=NULL, page=NULL, pageLimit=NULL, searchPattern
     cnt = sql(sqlCol("*", count), loadTable("dfs://autoInspection", "plans"), whereCond, exec=true).eval()
     res = sql(sqlCol("*"), loadTable("dfs://autoInspection", "plans"), whereCond).eval()
     reports = sql(sqlCol("*"), loadTable("dfs://autoInspection", "reports"), whereCond_, groupBy=sqlCol("planId"), groupFlag=0, csort=sqlCol("endTime"), ascSort=0, limit=1).eval()
-    res = select res.id, res.name, res.desc, res.user, res.startDate, res.endDate, res.frequency, res.days, res.scheduleTime, res.enabled, res.alertEnabled, res.alertRecipient, reports.id as lastReportId from res left semijoin reports on res.id == reports.planId
+    res = select res.id, res.name, res.desc, res.user, res.enabledNode, res.startDate, res.endDate, res.frequency, res.days, res.scheduleTime, res.enabled, res.alertEnabled, res.alertRecipient, reports.id as lastReportId from res left semijoin reports on res.id == reports.planId
     if (page != NULL) {
         startIndex = (page - 1) * pageLimit
         endIndex = page * pageLimit
