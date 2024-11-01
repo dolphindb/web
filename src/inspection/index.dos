@@ -305,7 +305,7 @@ def runMetric(name, node, script, mutable params) {
         }
     } catch(err) {
         success = false
-        detail = iif(err.form() == 0, string(err), string(err).concat(":"))
+        detail = iif(err.form() == 0, string(err), string(err).last())
         print("error: " + detail)
     }
 
@@ -364,7 +364,7 @@ def runPlanInner(planId) {
                 insert into ret values ("", planId, name, version, usedParamsJson, node, jobId, res["startTime"].first(), res["endTime"].first(), success, detail, extraDetail, suggestion) // reportId 要在返回后 update
             } catch(err) {
                 success = false
-                detail = string(iif(err.form()==0, err, err.concat(":")))
+                detail = string(iif(err.form()==0, err, err.last()))
                 extraDetail = string(NULL)
                 suggestion = string(NULL)
                 print("run metric failed! Node: " + node + ", job id: " + jobId + ", error: " + detail)
@@ -432,7 +432,8 @@ def sendReportEmail(planInfo, reportInfo, alertConfig) {
         try {
             loadPlugin("httpClient")
         } catch(err) {
-            throw "try to load httpClient plugin failed: " + err.concat(":")
+            err_ = iif(err.form() == 0, string(err), string(err).last())
+            throw "try to load httpClient plugin failed: " + err_
         }
     }
     if (all(["inspectionAlertSMTPEmailName", "inspectionAlertSMTPHost"] in alertConfig.keys())) {
