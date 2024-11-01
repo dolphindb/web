@@ -34,6 +34,7 @@ export const GroupAddModal = NiceModal.create((props: { on_save: (form: { group_
                 || node.alias === '' 
                 || (!node.alias.startsWith(group_name))
                 || !/^\S+$/.test(node.host)
+                || !/^\S+$/.test(node.alias)
             )
                 return false
                 
@@ -87,12 +88,17 @@ export const GroupAddModal = NiceModal.create((props: { on_save: (form: { group_
     const group_nodes_columns: TableProps<GroupNodesDatatype>['columns'] = [
         {
             title: t('别名'), key: 'alias', render: (_, { key, alias }) => {
-                const isError = validating && (alias === '' || !alias.startsWith(group_name))
+                const isError = validating && (!/^\S+$/.test(alias) || !alias.startsWith(group_name))
                 return <div>
                     <Tooltip
-                        title={<span className='validate-error-node'>{t('别名必须以组名')} {group_name} {t('开头')}</span>}
+                        title={<span className='validate-error-node'>{
+                            alias === '' ? t('别名不能为空')
+                                : !alias.startsWith(group_name) ? t('别名必须以组名 {{group_name}} 开头', { group_name })
+                                    : t('别名不能包含空格')}
+                        </span>
+                        }
                         placement='topLeft'
-                        open={isError ? undefined : false}
+                        open={isError}
                         color='white'
                         trigger='focus'
                     >
@@ -113,7 +119,7 @@ export const GroupAddModal = NiceModal.create((props: { on_save: (form: { group_
                     <Tooltip
                         title={<span className='validate-error-node'>{host === '' ? t('主机名 / IP 地址不能为空') : t('主机名 / IP 地址不能包含空格')}</span>}
                         placement='topLeft'
-                        open={isError ? undefined : false}
+                        open={isError}
                         color='white'
                         trigger='focus'
                     ><Input
