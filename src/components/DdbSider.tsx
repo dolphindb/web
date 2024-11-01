@@ -61,7 +61,7 @@ function MenuIcon ({ view }: { view: DdbModel['view'] }) {
 }
 
 export function DdbSider () {
-    const { dev, test } = model
+    const { dev } = model
     
     const { node_type, collapsed, logined, admin, login_required, client_auth, v1, is_factor_platform_enabled } 
         = model.use(['node_type', 'collapsed', 'logined', 'admin', 'login_required', 'client_auth', 'v1', 'is_factor_platform_enabled', 'enabled_modules'])
@@ -80,13 +80,11 @@ export function DdbSider () {
     
     
     const factor_href = useMemo(() => {
-        const search_params = new URLSearchParams(search)
-        
         return 'starfish/index.html?' +
             new URLSearchParams(filter_values(
                 {
-                    ddb_hostname: search_params.get('hostname'),
-                    ddb_port: search_params.get('port'),
+                    ddb_hostname: model.hostname,
+                    ddb_port: model.port,
                     logined: Number(logined).toString(),
                     token: localStorage.getItem(storage_keys.ticket)
                 })
@@ -199,7 +197,7 @@ export function DdbSider () {
                         }
                     ]
                 }] : [ ],
-                ... admin && (test || dev) ? [
+                ... admin && dev ? [
                     {
                         key: 'plugins',
                         icon: <MenuIcon view='plugins' />,
@@ -222,7 +220,7 @@ export function DdbSider () {
                     title: t('物联网库表向导'),
                     icon: <MenuIcon view='iot-guide'/>
                 },
-                ... dev || test ? [
+                ... dev ? [
                     {
                         key: 'test',
                         icon: <ExperimentOutlined className='icon-menu' />,

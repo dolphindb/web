@@ -113,7 +113,7 @@ function MainLayout () {
     
     
     useEffect(() => {
-        if (model.dev) {
+        if (model.local) {
             async function on_keydown (event: KeyboardEvent) {
                 const { key, target, ctrlKey: ctrl, altKey: alt } = event
                 
@@ -153,7 +153,7 @@ function MainLayout () {
         </Layout>
     :
         <GlobalErrorBoundary>
-            { (model.dev || model.test) && <div className='host-select-container'>
+            { model.dev && <div className='host-select-container'>
                 <HostSelect size='middle' />
             </div> }
         </GlobalErrorBoundary>
@@ -165,6 +165,7 @@ const router = createBrowserRouter([
         path: '/',
         element: <MainLayout />,
         children: [
+            // 除了改这里还需要改 model 中的 defaut_view
             {
                 index: true,
                 element: <Shell />

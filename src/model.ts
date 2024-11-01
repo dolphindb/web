@@ -25,13 +25,30 @@ import { config } from '@/config/model.ts'
 import { goto_url, strip_quotes } from '@/utils.ts'
 
 
+const dev_hostname = '192.168.0.200' as const
+const dev_port = '20023' as const
+
+
 export class DdbModel extends Model<DdbModel> {
     params: URLSearchParams
     
     inited = false
     
     /** 在本地开发模式 */
+    local = false
+    
+    /** 在测试模式，通过 test.dolphindb.cn 访问的 web */
+    test = false
+    
+    /** 在开发模式（本地开发或测试），等价于 local || test */
     dev = false
+    
+    /** 生产模式，等价于 !local && !test */
+    production = true
+    
+    hostname: string
+    
+    port: string
     
     /** 通过 ticket 或用户名密码自动登录，默认为 true 传 autologin=0 关闭 */
     autologin = true
@@ -40,9 +57,6 @@ export class DdbModel extends Model<DdbModel> {
     oauth = false
     
     oauth_type: OAuthType
-    
-    /** 通过 test.dolphindb.cn 访问的 web */
-    test = false
     
     /** 静态资源的根路径 */
     assets_root = '/'
@@ -148,9 +162,13 @@ export class DdbModel extends Model<DdbModel> {
         
         const params = this.params = new URLSearchParams(location.search)
         
-        this.dev = params.get('dev') !== '0' && (location.host === 'localhost:8432' || params.get('dev') === '1')
+        this.local = location.host === 'localhost:8432' && params.get('local') !== '0'
         
-        this.test = location.hostname === 'test.dolphindb.cn' || params.get('test') === '1'
+        this.test = location.hostname === 'test.dolphindb.cn' && params.get('test') !== '0'
+        
+        this.dev = this.local || this.test
+        
+        this.production = !this.dev
         
         // 确定 assets_root
         if (this.test)
@@ -165,13 +183,13 @@ export class DdbModel extends Model<DdbModel> {
         this.verbose = params.get('verbose') === '1'
         
         // test 或开发模式下，浏览器误跳转到 https 链接，自动跳转回 http
-        if (location.protocol === 'https:' && (this.dev || this.test) && params.get('https') !== '1') {
+        if (location.protocol === 'https:' && this.dev && params.get('https') !== '1') {
             alert('请将地址栏中的链接改为 http:// 开头')
             return
         }
         
-        let hostname = params.get('hostname') || location.hostname
-        let port = params.get('port') || location.port
+        let hostname = params.get('hostname') || (this.dev ? dev_hostname : '') || location.hostname
+        let port = params.get('port') || (this.dev ? dev_port : '') || location.port
         
         const host = params.get('host')
         
@@ -187,10 +205,12 @@ export class DdbModel extends Model<DdbModel> {
             history.replaceState(null, '', url)
         }
         
+        this.hostname = hostname
+        this.port = port
+        
         this.ddb = new DDB(
             (this.dev ? (params.get('tls') === '1' ? 'wss' : 'ws') : (location.protocol === 'https:' ? 'wss' : 'ws')) +
-                '://' +
-                hostname +
+                '://' + hostname +
                 
                 // 一般 location.port 可能是空字符串
                 (port ? `:${port}` : '') +
@@ -216,7 +236,7 @@ export class DdbModel extends Model<DdbModel> {
     /** 不论是否登录、是否有权限，都执行的基础初始化 */
     async init () {
         console.log(t('web 开始初始化，当前处于{{mode}}模式，版本为 {{version}}', {
-            mode: this.dev ? t('开发') : t('生产'),
+            mode: this.production ? t('生产') : t('开发'),
             version: WEB_VERSION
         }))
         
@@ -266,7 +286,7 @@ export class DdbModel extends Model<DdbModel> {
             } catch {
                 console.log(t('ticket 登录失败'))
                 
-                if (this.dev || this.test)
+                if (this.dev)
                     try {
                         await this.login_by_password('admin', '123456')
                     } catch {
@@ -733,8 +753,7 @@ export class DdbModel extends Model<DdbModel> {
     
     
     find_node_closest_hostname (node: DdbNode) {
-        const params = new URLSearchParams(location.search)
-        const current_connect_host = params.get('hostname') || location.hostname
+        const current_connect_host = this.hostname
         
         // 所有域名应该都转成小写后匹配，因为浏览器默认会将 location.hostname 转为小写
         const hosts = [...node.publicName.split(';').map(name => name.trim().toLowerCase()), node.host.toLowerCase()]
@@ -940,7 +959,7 @@ export class DdbModel extends Model<DdbModel> {
         }: GetUrlOptions = { }
     ) {
         const _queries = new URLSearchParams(location.search)
-        const is_query_params_mode = _queries.get('hostname') || _queries.get('port')
+        const is_query_params_mode = model.hostname !== location.hostname || model.port !== location.port
         const port_ = is_query_params_mode ? location.port : port
         
         const query_string = new URLSearchParams(filter_values({
@@ -1050,6 +1069,7 @@ const json_error_pattern = /^{.*"code": "(.*?)".*}$/
 
 const username_guest = 'guest' as const
 
+/** 除了改这里还需要改 src/index.tsx 中的路由配置 */
 export const default_view = 'shell' as const
 
 

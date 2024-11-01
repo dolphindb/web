@@ -29,8 +29,8 @@ export function DdbHeader () {
     
     return <>
         <img className='logo' src={`${model.assets_root}ddb.svg`} />
-        {(model.dev || model.test) && <HostSelect />}
-        { model.dev && <CompileAndRefresh /> }
+        { model.dev && <HostSelect />}
+        { model.local && <CompileAndRefresh /> }
         
         <div className='padding' />
         

@@ -35,7 +35,7 @@ export function License () {
     // 在 admin 状态变化时，弹提示
     useEffect(() => {
         if (
-            !model.dev && !model.test && 
+            model.production && 
             !expiration_checked && 
             (admin || !config.get_boolean_config('licenseExpirationWarningAdminOnly')) && 
             license
