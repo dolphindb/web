@@ -238,8 +238,6 @@ function DetailDescription ({
     const is_multi_node = metric.detail_nodes.length > 1
     
     const metric_params = useMemo(() => JSON.parse(metric.metricParams), [metric.metricParams])
-    
-    const { current_report } = inspection.use(['current_report']) 
        
     return <Typography key={metric.metricName}>
          {is_multi_node && <div style={{ whiteSpace: 'pre-wrap' }}>{t('指标说明: {{desc}}', { desc: metric.desc })}</div>}
@@ -302,7 +300,7 @@ function DetailDescription ({
                         children:  <Button
                             type='link'
                             className='report-detail-log-button'
-                            onClick={() => { NiceModal.show(LogModal, { reportId: current_report.id, node: current_report.enabledNode }) }}
+                            onClick={() => { NiceModal.show(LogModal, { reportId: n.jobId, node: n.node }) }}
                         >
                             {t('查看日志')}
                         </Button>,

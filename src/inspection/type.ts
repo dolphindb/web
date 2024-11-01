@@ -82,6 +82,7 @@ export interface PlanReportDetailMetric {
 
 export interface PlanReportDetailNode {
     reportId: string
+    jobId: string
     metricName: string
     metricVersion: string
     node: string
