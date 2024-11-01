@@ -180,6 +180,7 @@ class ConfigModel extends Model<ConfigModel> {
         }
     }
     
+    
     get_controller_config () {
         return [
             'mode',
