@@ -8,12 +8,15 @@ import { delta2str } from 'xshell/utils.browser.js'
 
 import { UpOutlined } from '@ant-design/icons'
 
+import NiceModal from '@ebay/nice-modal-react'
+
 import { model } from '@/model.ts'
 
 import type {  PlanReportDetailMetric } from './type.ts'
 import { inspection } from './model.tsx'
 import { metricGroups, reportLables } from './constants.ts'
 import { FailedStatus, SuccessStatus } from './index.tsx'
+import { LogModal } from './logModal.tsx'
 
 const { Title } = Typography
 
@@ -235,8 +238,10 @@ function DetailDescription ({
     const is_multi_node = metric.detail_nodes.length > 1
     
     const metric_params = useMemo(() => JSON.parse(metric.metricParams), [metric.metricParams])
+    
+    const { current_report } = inspection.use(['current_report']) 
        
-    return <Typography key={metric.metricName} className='report-description'>
+    return <Typography key={metric.metricName}>
          {is_multi_node && <div style={{ whiteSpace: 'pre-wrap' }}>{t('指标说明: {{desc}}', { desc: metric.desc })}</div>}
         {
             metric.detail_nodes.map(n => <div
@@ -287,7 +292,20 @@ function DetailDescription ({
                         label: t('建议'),
                         children: <div style={{ whiteSpace: 'pre-wrap' }}>{n.suggestion}</div>,
                         span: 4,
-                    }] : [ ]]}
+                    }] : [ ], 
+                    {
+                        key: 'logs',
+                        label: t('日志'),
+                        children:  <Button
+                            type='link'
+                            className='report-detail-log-button'
+                            onClick={() => { NiceModal.show(LogModal, { reportId: current_report.id, node: current_report.enabledNode }) }}
+                        >
+                            {t('查看日志')}
+                        </Button>,
+                        span: 4,
+                    },]}
+                    
                 />
             </div>)
         }

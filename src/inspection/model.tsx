@@ -133,6 +133,10 @@ class InspectionModel extends Model<InspectionModel> {
         this.set({ email_config: { can_config, error_msg } })
     }
     
+    async get_logs (reportId: string, node: string) {
+        return (model.ddb.execute(`rpc('${node}',getJobMessage,'${reportId}')`))
+    }
+    
 }
 
 export let inspection = new InspectionModel()
