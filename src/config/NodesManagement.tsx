@@ -26,7 +26,7 @@ export function NodesManagement () {
     const { mutate, data } = useSWR('/get/nodes', async () => {
             const data = await config.get_cluster_nodes()
             const nodes = strs_2_nodes(data)
-            return nodes
+            return { nodes, data_key: (new Date()).toISOString() }
         },
         { 
             revalidateOnFocus: true,
@@ -34,7 +34,8 @@ export function NodesManagement () {
         }
     )
     
-    const all_nodes: ClusterNode[] = data ?? [ ]
+    const all_nodes: ClusterNode[] = data?.nodes ?? [ ]
+    const data_key = data?.data_key ?? ''
     
     const delete_nodes = useCallback(async (node_id: string) => {
         if (!isNaN(Number(node_id)))
@@ -210,7 +211,7 @@ export function NodesManagement () {
                     })
                 }} type='link'>{t('删除计算组')}</Button>
             </div>
-            <NodeTable nodes={nodes} group={group} onSave={save_node_impl} onDelete={delete_nodes} />
+            <NodeTable key={`${data}_group_${group}`} nodes={nodes} group={group} onSave={save_node_impl} onDelete={delete_nodes} />
         </div>
     })
     
@@ -258,7 +259,7 @@ export function NodesManagement () {
         </div>
         <div className='table-padding'>
             {/* 被搜索筛选了，且没有非计算组节点，不展示 */}
-            {(ungrouped_nodes.length > 0 || search_value === '') && <NodeTable nodes={ungrouped_nodes} onSave={save_node_impl} onDelete={delete_nodes} />}
+            {(ungrouped_nodes.length > 0 || search_value === '') && <NodeTable key={`${data_key}_ungrouped_nodes`} nodes={ungrouped_nodes} onSave={save_node_impl} onDelete={delete_nodes} />}
             {group_nodes}
         </div>
     </div>
