@@ -211,7 +211,7 @@ export function NodesManagement () {
                     })
                 }} type='link'>{t('删除计算组')}</Button>
             </div>
-            <NodeTable key={`${data}_group_${group}`} nodes={nodes} group={group} onSave={save_node_impl} onDelete={delete_nodes} />
+            <NodeTable key={`${data_key}_group_${group}`} nodes={nodes} group={group} onSave={save_node_impl} onDelete={delete_nodes} />
         </div>
     })
     
