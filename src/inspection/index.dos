@@ -672,7 +672,7 @@ def createPlan(name, desc, metrics, nodes, params, frequency, days, scheduleTime
     startDate = today()
     endDate = temporalAdd(today(), 100y)
     scheduleTime_ = minute(iif(scheduleTime.form()==0, [scheduleTime], scheduleTime))
-    enabled_ = iif(isNull(enabled), false, bool(enabled))
+    enabled_ = false // 新建时默认填入 false，如果传入了 enabled = true，会在之后创建定时任务后 update 为 true
     alertEnabled_ = iif(isNull(alertEnabled), false, bool(alertEnabled))
     alertRecipient_ = iif(alertRecipient.form()==0, string(alertRecipient), string(alertRecipient).strip().concat(","))
     plan = table(
