@@ -26,7 +26,7 @@ import { Editor } from '../components/Editor/index.js'
 
 import { generateDDBDataTypeLiteral } from '@/components/formily/DDBTypeSelector/index.tsx'
 
-import { type Database } from './Databases.js'
+import { type Database } from './Databases.tsx'
 
 
 // Table（维度表）不支持 partitionColumns
