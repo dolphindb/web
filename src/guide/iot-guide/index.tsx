@@ -13,6 +13,8 @@ import iot_guide_code from '../iot.dos'
 
 
 
+import { Unlogin } from '@/components/Unlogin.js'
+
 import { GuideType } from './type.js'
 import { SimpleVersion } from './SimpleVersion/index.js'
 import { AdvancedVersion } from './AdvancedVersion/index.js'
@@ -24,8 +26,9 @@ const VersionMap = {
 
 export function CreateGuide () { 
     
+    const { logined } = model.use(['logined'])
     const [type, set_type] = useState(GuideType.SIMPLE)
-    const id = useId()
+    const id = useId()    
     const { isLoading } = useSWR(
         ['load_code', id],
         async () => {
@@ -33,6 +36,9 @@ export function CreateGuide () {
             await model.ddb.eval(iot_guide_code)
         }
     )
+    
+    if (!logined)
+        return <Unlogin info={t('物联网库表向导')} />
     
     return <Spin spinning={isLoading}>
         <Radio.Group value={type} onChange={e => { set_type(e.target.value) }}>
