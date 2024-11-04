@@ -12,6 +12,8 @@ import NiceModal from '@ebay/nice-modal-react'
 
 import { model } from '@/model.ts'
 
+import { safe_json_parse } from '@/dashboard/utils.ts'
+
 import type {  PlanReportDetailMetric } from './type.ts'
 import { inspection } from './model.tsx'
 import { metricGroups, reportLables } from './constants.ts'
@@ -320,7 +322,7 @@ function Detail ({
     content: string
     extra?: boolean
 }) {
-    const ds = JSON.parse(content)
+    const ds = safe_json_parse(content)
     
     if (extra && !ds) 
         return null
