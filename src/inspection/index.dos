@@ -13,7 +13,11 @@ def getPluginDir() {
     return pluginDir
 }
 
-def canConfigureEmailInner() {
+def canConfigureEmail() {
+    ret = dict(STRING, ANY)
+    ret["errCode"] = 0
+    ret["errMsg"] = ""
+
     listPluginsInner = def() {
         pluginDir = getPluginDir()
         pluginNames = exec filename from files(pluginDir) where isDir = true
@@ -42,14 +46,18 @@ def canConfigureEmailInner() {
     allNodes = exec name from rpc(getControllerAlias(), getClusterPerf) where mode != 1 and mode != 2 // 排除代理节点和控制节点
     info = select * from pnodeRun(listPluginsInner, allNodes) where pluginName == "httpClient" 
     if (info.size() == 0) {
-        throw "请安装 httpClient 插件到所有节点，未安装节点：" + string(allNodes)
+        ret["errCode"] = 1
+        ret["errMsg"] = allNodes
+        throw ret
     }
 
     allNodes = set(allNodes)
     nodes = exec node from info
     nodes = set(nodes)
     if (nodes != allNodes) {
-        throw "请安装 httpClient 插件到所有节点，未安装节点：" + string(allNodes - nodes)
+        ret["errCode"] = 1
+        ret["errMsg"] = (allNodes - nodes).keys()
+        throw ret
     }
 
     ddbVersion = version().split(" ").first()
@@ -66,22 +74,9 @@ def canConfigureEmailInner() {
     }
 
     if (err.size() > 0) {
-        throw "请升级所有 httpClient 插件至与 DolphinDB 前三级版本一致，DolphinDB 版本：" + string(version()) + "，错误版本：\n" + string(err)
-    }
-
-    return true
-}
-
-def canConfigureEmail() {
-    ret = dict(STRING, ANY)
-    ret["canConfigure"] = true
-    ret["errMsg"] = ""
-
-    try {
-        canConfigureEmailInner()
-    } catch(err) {
-        ret["canConfigure"] = false
-        ret["errMsg"] = iif(err.form()==0, string(err), string(err).last())
+        ret["errCode"] = 2
+        ret["errMsg"] = err
+        throw ret
     }
 
     return ret
