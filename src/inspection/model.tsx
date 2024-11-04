@@ -122,14 +122,7 @@ class InspectionModel extends Model<InspectionModel> {
     }
     
     async can_configure_email () {
-        let can_config = true
-        let error_msg = ''
-        try {
-            can_config = (await model.ddb.call('canConfigureEmail')).data()
-        } catch (error) {
-            can_config = false
-            error_msg = error.message
-        }
+        const { canConfigure: can_config, errMsg: error_msg }  = (await model.ddb.invoke('canConfigureEmail', [ ]))
         this.set({ email_config: { can_config, error_msg } })
     }
     
