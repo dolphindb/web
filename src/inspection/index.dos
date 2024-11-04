@@ -785,8 +785,10 @@ def deletePlan(id) {
     for (plan in plans) {
         if (plan.enabled and !isNull(plan.enabledNode)) {
             try {
-                rpc(plan.enabledNode, deleteScheduledJob, "schedulePlan_" + id_)
-            } catch(err) {}
+                rpc(plan.enabledNode, deleteScheduledJob, "schedulePlan_" + plan.id)
+            } catch(err) {
+                print(err)
+            }
         }
     }
 }
