@@ -74,13 +74,13 @@ def canConfigureEmailInner() {
 
 def canConfigureEmail() {
     ret = dict(STRING, ANY)
-    ret["canConfigure"] = false
+    ret["canConfigure"] = true
     ret["errMsg"] = ""
 
     try {
         canConfigureEmailInner()
     } catch(err) {
-        ret["canConfigure"] = true
+        ret["canConfigure"] = false
         ret["errMsg"] = iif(err.form()==0, string(err), string(err).last())
     }
 
