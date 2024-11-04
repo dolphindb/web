@@ -13,7 +13,7 @@ def getPluginDir() {
     return pluginDir
 }
 
-def canConfigureEmail() {
+def canConfigureEmailInner() {
     listPluginsInner = def() {
         pluginDir = getPluginDir()
         pluginNames = exec filename from files(pluginDir) where isDir = true
@@ -70,6 +70,21 @@ def canConfigureEmail() {
     }
 
     return true
+}
+
+def canConfigureEmail() {
+    ret = dict(STRING, ANY)
+    ret["canConfigure"] = false
+    ret["errMsg"] = ""
+
+    try {
+        canConfigureEmailInner()
+    } catch(err) {
+        ret["canConfigure"] = true
+        ret["errMsg"] = iif(err.form()==0, string(err), string(err).last())
+    }
+
+    return ret
 }
 
 def clearEnv() {
