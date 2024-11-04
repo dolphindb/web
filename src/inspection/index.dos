@@ -288,8 +288,8 @@ def extractUsedParams(params, metricName) {
     return usedParams
 }
 
-def runMetric(name, node, script, mutable params) {
-    print("start to run metric: " + name + " on node: " + node)
+def runMetric(name, script, mutable params) {
+    print("start to run metric: " + name + " on node: " + getNodeAlias())
     print("params: ")
     print(string(params))
     print("script: ")
@@ -299,12 +299,10 @@ def runMetric(name, node, script, mutable params) {
     detail = NULL
     suggestion = ""
     extraDetail = NULL
-    paramsJson = toStdJson(params)
 
     try {
         runScript(script)
-        params = fromStdJson(paramsJson)
-        ret = rpc(node, funcByName(name), params)
+        ret = funcByName(name)(params)
         if (ret.size() == 5) {
             success, detail, suggestion, extraDetail, params = ret
         } else if (ret.size() == 4) {
@@ -321,9 +319,11 @@ def runMetric(name, node, script, mutable params) {
     } catch(err) {
         success = false
         detail = iif(err.form() == 0, string(err), string(err).last())
-        print("error: " + detail)
     }
 
+    if (!success) {
+        print("error: \n" + detail)
+    }
     print("success: " + string(success))
     return success, toStdJson(detail), string(suggestion), toStdJson(extraDetail), params // 记得更新 params
 }
@@ -359,13 +359,15 @@ def runPlanInner(planId) {
         jobIds = []$STRING
         for (node in nodes) {
             name_ = strReplace(name, "::", "_")
-            jobId = submitJob("runMetric_" + planId + "_" + name_, node, runMetric{name, node, script, usedParams})
+            jobId_ = "runMetric_" + planId + "_" + name_
+            jobId = rpc(node, submitJob, jobId_, node, runMetric{name, script, usedParams})
             jobIds.append!(jobId)
         }
         print("job ids: ", jobIds)
         usedParamsJson = toStdJson(iif(usedParams.keys().size() == 0, NULL, usedParams))
         for (i in 0..(nodes.size()-1)) {
             jobId = jobIds[i]
+            node = nodes[i]
 
             try {
                 success, detail, suggestion, extraDetail, usedParams_ = getJobReturn(jobId, true)
@@ -374,16 +376,15 @@ def runPlanInner(planId) {
                         params[key] = usedParams_[key]
                     }
                 }
-                res = getJobStatus(jobId)
-                node = nodes[i]
+                res = rpc(node, getJobStatus, jobId)
                 insert into ret values ("", planId, name, version, usedParamsJson, node, jobId, res["startTime"].first(), res["endTime"].first(), success, detail, extraDetail, suggestion) // reportId 要在返回后 update
             } catch(err) {
                 success = false
                 detail = string(iif(err.form()==0, err, err.last()))
                 extraDetail = string(NULL)
                 suggestion = string(NULL)
+                res = rpc(node, getJobStatus, jobId)
                 print("run metric failed! Node: " + node + ", job id: " + jobId + ", error: " + detail)
-                res = getJobStatus(jobId)
                 insert into ret values ("", planId, name, version, usedParamsJson, node, jobId, res["startTime"].first(), res["endTime"].first(), success, detail, extraDetail, suggestion) // reportId 要在返回后 update
             }
         }
