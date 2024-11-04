@@ -162,7 +162,7 @@ export let builder = {
                         fpd_root,
                         fpd_pre_bundle_dist,
                         external ? `${fpd_ramdisk_root}webpack/` : undefined,
-                        { [`${entry}.js`]: `pre-bundle/entries/${entry}.ts` },
+                        { [`${entry}.js`]: `./pre-bundle/entries/${entry}.ts` },
                         {
                             external_dayjs: true,
                         }
