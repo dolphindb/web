@@ -28,7 +28,7 @@ export function CreateGuide () {
     
     const { logined } = model.use(['logined'])
     const [type, set_type] = useState(GuideType.SIMPLE)
-    const id = useId()    
+    const id = useId()
     const { isLoading } = useSWR(
         ['load_code', id],
         async () => {
