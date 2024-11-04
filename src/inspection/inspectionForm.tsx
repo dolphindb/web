@@ -147,17 +147,7 @@ export function InspectionForm ({
             <div className='inspection-form-header-right'>
                 <div>
                     <span>{t('启用：')}</span>
-                    <Switch value={enabled} onChange={ async enabled => {
-                            if (is_editing) {
-                                if (enabled) 
-                                    await inspection.enable_plan(plan.id) 
-                                else
-                                    await inspection.disable_plan(plan.id)
-                                model.message.success(enabled ? t('启用成功') : t('禁用成功'))
-                                refresh()
-                            }
-                            set_enabled(enabled)
-                        }} />
+                    <Switch value={enabled} onChange={set_enabled} />
                 </div>
                 {
                     is_editing && <div>
