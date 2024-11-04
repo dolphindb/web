@@ -322,7 +322,8 @@ def runMetric(name, script, mutable params) {
     }
 
     if (!success) {
-        print("error: \n" + detail)
+        print("error:")
+        print(detail)
     }
     print("success: " + string(success))
     return success, toStdJson(detail), string(suggestion), toStdJson(extraDetail), params // 记得更新 params
