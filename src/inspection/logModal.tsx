@@ -16,8 +16,7 @@ interface LogModalProps {
 export const LogModal =  NiceModal.create(({ reportId, node }: LogModalProps) => {
     const modal = useModal()
     
-    const { data: logs } = useSWR(['get_logs', reportId, node], async () => inspection.get_logs(reportId, node))
-    console.log('logs:', logs)
+    const { data: logs, isLoading } = useSWR(['get_logs', reportId, node], async () => inspection.get_logs(reportId, node))
     return <Modal
         className='add-param-modal'       
         width='50%'    
@@ -28,6 +27,7 @@ export const LogModal =  NiceModal.create(({ reportId, node }: LogModalProps) =>
         title={t('查看日志')}
     >
       <Editor
+        key={logs}
         height={400}
         options={{
           readOnly: true,
@@ -36,6 +36,7 @@ export const LogModal =  NiceModal.create(({ reportId, node }: LogModalProps) =>
           },
           wordWrap: 'on',
         }}
+        loading={isLoading}
         value={logs}
         language='logs'
       />
