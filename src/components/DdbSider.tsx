@@ -92,7 +92,7 @@ export function DdbSider () {
     }, [logined])
     
     return <Layout.Sider
-        width={ language === 'zh' ? 140 : 220 }
+        width={ language === 'zh' ? 150 : 220 }
         className='sider'
         theme='light'
         collapsible
