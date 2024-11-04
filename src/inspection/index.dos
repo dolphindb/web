@@ -572,9 +572,11 @@ def enablePlan(id) {
         throw "plan id " + id_ + " not found"
     }
     plan = plan[0]
-    if(getScheduledJobs("schedulePlan_" + plan.id).size() > 0) {
+
+    if (plan.enabled) {
         throw "plan id " + id_ + " is already enabled"
     }
+
     if (isNull(plan.enabledNode)) {
         validNodes = exec name from rpc(getControllerAlias(), getClusterPerf) where mode != 1 and mode != 2
         if (validNodes.size() == 0) {
@@ -583,6 +585,10 @@ def enablePlan(id) {
         enabledNode_ = validNodes.first()
     } else {
         enabledNode_ = plan.enabledNode
+        // 如果数据库里记录为未启用，但是指定节点上存在一个同名定时任务，说明有人工误操作或存在 bug 导致定时任务残留，需要手动清理
+        if(rpc(enabledNode_, getScheduledJobs, "schedulePlan_" + plan.id).size() > 0) {
+            throw "duplicated schedule job: " + "schedulePlan_" + plan.id + ", you need to delete the job on node: " + enabledNode_ + " via deleteScheduledJob manualy"
+        }
     }
 
     writeLog("autoInspection: start to enable plan, plan id: " + id_ + ", node: " + enabledNode_)
