@@ -13,7 +13,7 @@ import iot_guide_code from '../iot.dos'
 
 
 
-import { Unlogin } from '@/components/Unlogin.js'
+import { Unlogin } from '@/components/Unlogin.tsx'
 
 import { GuideType } from './type.js'
 import { SimpleVersion } from './SimpleVersion/index.js'
@@ -25,7 +25,6 @@ const VersionMap = {
 }
 
 export function CreateGuide () { 
-    
     const { logined } = model.use(['logined'])
     const [type, set_type] = useState(GuideType.SIMPLE)
     const id = useId()

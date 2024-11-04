@@ -25,7 +25,7 @@ import finance_guide_code from '../finance.dos'
 
 import iot_guide_code from '../iot.dos'
 
-import { Unlogin } from '@/components/Unlogin.js'
+import { Unlogin } from '@/components/Unlogin.tsx'
 
 import { TableInfo } from './TableInfo.js'
 import { type IFinanceInfo } from './type.js'
@@ -33,7 +33,6 @@ import { DatabaseInfo } from './DatabaseInfo.js'
 
 
 export function FinanceGuide () {
-    
     const { logined } = model.use(['logined'])
     
     const [current_step, set_current_step] = useState(0)
