@@ -88,7 +88,7 @@ function DolphinDB () {
             /** throw error 才会被全局错误处理捕获 */
             onError (error) {
                 throw error
-            },
+            }
         }}>
             <ProConfigProvider hashed={false} token={{ borderRadius: 0, motion: false }}>
                 <NiceModal.Provider>
