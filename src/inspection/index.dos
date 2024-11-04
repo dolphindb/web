@@ -104,6 +104,18 @@ def clearEnv() {
     }
 }
 
+def getJobStatusEx(jobId) {
+    for (i in 1..10) {
+        try {
+            return getJobStatus(jobId)
+        } catch(err) {
+            sleep(100)
+        }
+    }
+
+    throw "getJobStatus failed after trying 10 times"
+}
+
 def initDfs() {
     years = sort(distinct(yearBegin(1985.01.01..2055.01.01)))
     dbValue = database(, VALUE, ["planId"])
@@ -377,14 +389,14 @@ def runPlanInner(planId) {
                         params[key] = usedParams_[key]
                     }
                 }
-                res = rpc(node, getJobStatus, jobId)
+                res = rpc(node, getJobStatusEx, jobId)
                 insert into ret values ("", planId, name, version, usedParamsJson, node, jobId, res["startTime"].first(), res["endTime"].first(), success, detail, extraDetail, suggestion) // reportId 要在返回后 update
             } catch(err) {
                 success = false
                 detail = string(iif(err.form()==0, err, err.last()))
                 extraDetail = string(NULL)
                 suggestion = string(NULL)
-                res = rpc(node, getJobStatus, jobId)
+                res = rpc(node, getJobStatusEx, jobId)
                 print("run metric failed! Node: " + node + ", job id: " + jobId + ", error: " + detail)
                 insert into ret values ("", planId, name, version, usedParamsJson, node, jobId, res["startTime"].first(), res["endTime"].first(), success, detail, extraDetail, suggestion) // reportId 要在返回后 update
             }
@@ -500,7 +512,7 @@ def runPlan(planId, blocking=false) {
                     }
                 }
             } while (reportInfo.size() == 0)
-            reportJobInfo = getJobStatus(jobId)
+            reportJobInfo = getJobStatusEx(jobId)
             startTime_ = reportJobInfo[0]["startTime"]
             endTime_ = reportJobInfo[0]["endTime"]
             if (success == true) {
@@ -542,7 +554,7 @@ def runPlan(planId, blocking=false) {
     }
     reportId_ = rpc(enabledNode, submitJobEx2, "runPlan_" + planId, desc, 4, 2, onComplete, runPlanInner, planId)
     user = getCurrentSessionAndUser()[1]
-    reportJobInfo = rpc(enabledNode, getJobStatus, reportId_)
+    reportJobInfo = rpc(enabledNode, getJobStatusEx, reportId_)
     report = table(
         reportId_ as id,
         planId as planId,
