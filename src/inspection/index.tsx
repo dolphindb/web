@@ -110,7 +110,7 @@ export function Inspection () {
             </Button>
                 
             <Tooltip 
-                title={!email_config.can_config ? email_config.error_msg : ''}>
+                title={<div style={{ whiteSpace: 'pre-wrap' }}>{!email_config.can_config ? email_config.error_msg : ''}</div>}>
                 <Button
                     icon={<MailOutlined />}
                     disabled={!email_config.can_config}

@@ -296,7 +296,7 @@ export function InspectionForm ({
                 </Form.Item>
                 {
                     !email_config.can_config && <Tooltip 
-                        title={email_config.error_msg}>
+                        title={<div style={{ whiteSpace: 'pre-wrap' }}>{email_config.error_msg}</div>}>
                         <WarningOutlined 
                             className='email-config-warning' 
                         /> 
