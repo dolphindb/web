@@ -1,10 +1,10 @@
-import { default as React, useState } from 'react'
+import { default as React, useCallback, useState } from 'react'
 
 import { Tooltip, Tree } from 'antd'
 
 import type { DataNode, EventDataNode } from 'antd/es/tree'
 
-import { default as Icon, MinusSquareOutlined } from '@ant-design/icons'
+import { default as Icon, MinusSquareOutlined, SyncOutlined } from '@ant-design/icons'
 
 import {
     DdbForm,
@@ -23,6 +23,8 @@ import {
     type DdbVectorStringObj
 } from 'dolphindb/browser.js'
 
+
+import { delay } from 'xshell/utils.browser.js'
 
 import { t } from '../../i18n/index.js'
 
@@ -49,6 +51,24 @@ export function Variables ({ shared }: { shared?: boolean }) {
     const { vars } = shell.use(['vars'])
     
     const [expanded_keys, set_expanded_keys] = useState(Array(9).fill(0).map((_x, i) => String(i)))
+    
+    const [refresh_spin, set_refresh_spin] = useState(false)
+    
+    shell.refresh_vars = useCallback(async () => {
+        try {
+            set_refresh_spin(true)
+            const promise = delay(200)
+            await shell.update_vars()
+            set_expanded_keys([ ])
+            await promise
+        } catch (error) {
+            model.show_error({ error })
+            throw error
+        } finally {
+            set_expanded_keys([...expanded_keys])
+            set_refresh_spin(false)
+        }
+    }, [ ])
     
     const vars_ = vars ? vars.filter(v => {
         return v.shared === shared
@@ -132,10 +152,17 @@ export function Variables ({ shared }: { shared?: boolean }) {
     
     return <div className='panel'>
         <div className='type'>{shared ? t('共享变量') : t('本地变量')}
-            <span onClick={() => { set_expanded_keys([ ]) }}>
-                <Tooltip title={t('全部折叠')} color='grey'>
-                <MinusSquareOutlined />
-                </Tooltip>
+            <span className='extra'>
+                <span onClick={shell.refresh_vars}>
+                    <Tooltip title={t('刷新')} color='grey'>
+                        <SyncOutlined spin={refresh_spin}/>
+                    </Tooltip>
+                </span>
+                <span onClick={() => { set_expanded_keys([ ]) }}>
+                    <Tooltip title={t('全部折叠')} color='grey'>
+                    <MinusSquareOutlined />
+                    </Tooltip>
+                </span>
             </span>
         </div>
         <div className='tree-content'>

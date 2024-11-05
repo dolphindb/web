@@ -13,7 +13,7 @@ import { t } from '../../i18n/index.js'
 
 
 export interface FormatErrorOptions {
-    error?: Error
+    error?: Error & { shown?: boolean }
     title?: string
     body?: string
 }
@@ -47,13 +47,11 @@ export class GlobalErrorBoundary extends Component<PropsWithChildren<{ }>, Globa
         error ??= reason
         
         if (!error.shown) {
-            error.shown = true
-            
             // 非 Error 类型的错误转换为 Error
             if (error instanceof Error) {
                 // 忽略 monaco editor 的错误
                 // https://github.com/microsoft/monaco-editor/issues/4325
-                if (error.message.includes('getModifierState is not a function'))
+                if (error.message.includes('getModifierState is not a function') || error.message === 'Canceled')
                     return
             } else {
                 // 忽略 monaco editor 的错误

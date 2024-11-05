@@ -159,14 +159,26 @@ export function NodesConfig () {
                     editable={{
                         type: 'single',
                         onSave: async (rowKey, data, row) => {
-                            const { name, qualifier, value } = data
-                            const key = (qualifier ? qualifier + '.' : '') + name
-                            if (rowKey !== key)
-                                config.nodes_configs.delete(rowKey as string)
-                            await config.change_configs([[key, { name, qualifier, value, key }]])
-                            model.message.success(t('保存成功，重启数据节点 / 计算节点生效'))
+                            try {
+                                const { name, qualifier, value } = data
+                                const key = (qualifier ? qualifier + '.' : '') + name
+                                if (rowKey !== key)
+                                    config.nodes_configs.delete(rowKey as string)
+                                await config.change_configs([[key, { name, qualifier, value, key }]])
+                                model.message.success(t('保存成功，重启数据节点 / 计算节点生效'))
+                            } catch (error) {
+                                model.show_error({ error })
+                                throw error
+                            }
                         },
-                        onDelete: async key => delete_config(key as string),
+                        onDelete: async key => {
+                            try {
+                                await delete_config(key as string)
+                            } catch (error) {
+                                model.show_error({ error })
+                                throw error
+                            }
+                        },
                         deletePopconfirmMessage: t('确认删除此配置项？'),
                         saveText: (
                             <Button type='link' key='editable' className='mr-btn'>

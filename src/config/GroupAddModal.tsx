@@ -17,9 +17,10 @@ export const GroupAddModal = NiceModal.create((props: { on_save: (form: { group_
     const [group_nodes, set_group_nodes] = useState<GroupNodesDatatype[]>([{ key: String((new Date()).getTime()), host: '', port: '', alias: '' }])
     const [group_configs, set_group_configs] = useState<GroupConfigDatatype[]>([
         { key: 'default1', name: 'computeNodeCacheDir', value: '' },
-        { key: 'default2', name: 'computeNodeMemCacheSize', value: '' },
-        { key: 'default3', name: 'computeNodeDiskCacheSize', value: '' },
-        { key: 'default4', name: 'enableComputeNodeCacheEvictionFromQueryThread', value: '' },
+        { key: 'default2', name: 'computeNodeCacheMeta', value: '' },
+        { key: 'default3', name: 'computeNodeMemCacheSize', value: '1024' },
+        { key: 'default4', name: 'computeNodeDiskCacheSize', value: '65536' },
+        { key: 'default5', name: 'enableComputeNodeCacheEvictionFromQueryThread', value: 'true' },
     ])
     const [batch_add_node_count, set_batch_add_node_count] = useState(1)
     
@@ -28,7 +29,13 @@ export const GroupAddModal = NiceModal.create((props: { on_save: (form: { group_
             return false
             
         for (const node of group_nodes) // 非空校验，并且别名必须包含 group_name
-            if (node.host === '' || node.port === '' || node.alias === '' || (!node.alias.startsWith(group_name)))
+            if (node.host === '' 
+                || node.port === '' 
+                || node.alias === '' 
+                || (!node.alias.startsWith(group_name))
+                || !/^\S+$/.test(node.host)
+                || !/^\S+$/.test(node.alias)
+            )
                 return false
                 
         for (const config of group_configs)
@@ -81,12 +88,17 @@ export const GroupAddModal = NiceModal.create((props: { on_save: (form: { group_
     const group_nodes_columns: TableProps<GroupNodesDatatype>['columns'] = [
         {
             title: t('别名'), key: 'alias', render: (_, { key, alias }) => {
-                const isError = validating && (alias === '' || !alias.startsWith(group_name))
+                const isError = validating && (!/^\S+$/.test(alias) || !alias.startsWith(group_name))
                 return <div>
                     <Tooltip
-                        title={<span className='validate-error-node'>{t('别名必须以组名')} {group_name} {t('开头')}</span>}
+                        title={<span className='validate-error-node'>{
+                            alias === '' ? t('别名不能为空')
+                                : !alias.startsWith(group_name) ? t('别名必须以组名 {{group_name}} 开头', { group_name })
+                                    : t('别名不能包含空格')}
+                        </span>
+                        }
                         placement='topLeft'
-                        open={isError ? undefined : false}
+                        open={isError}
                         color='white'
                         trigger='focus'
                     >
@@ -100,7 +112,26 @@ export const GroupAddModal = NiceModal.create((props: { on_save: (form: { group_
                 </div>
             }
         },
-        { title: t('主机名 / IP 地址'), key: 'host', render: (_, { key, host }) => <Input status={(validating && host === '') ? 'error' : undefined} placeholder={t('请输入主机名 / IP 地址')} value={host} onChange={e => { update_group_node_by_field(key, 'host', e.target.value) }} /> },
+        {
+            title: t('主机名 / IP 地址'), key: 'host', render: (_, { key, host }) => {
+                const isError = validating && !/^\S+$/.test(host)
+                return <div>
+                    <Tooltip
+                        title={<span className='validate-error-node'>{host === '' ? t('主机名 / IP 地址不能为空') : t('主机名 / IP 地址不能包含空格')}</span>}
+                        placement='topLeft'
+                        open={isError}
+                        color='white'
+                        trigger='focus'
+                    ><Input
+                            status={isError ? 'error' : undefined}
+                            placeholder={t('请输入主机名 / IP 地址')}
+                            value={host}
+                            onChange={event => { update_group_node_by_field(key, 'host', event.target.value) }}
+                        />
+                    </Tooltip>
+                </div>
+            }
+        },
         { title: t('端口号'), key: 'port', render: (_, { key, port }) => <Input status={(validating && port === '') ? 'error' : undefined} type='number' placeholder={t('请输入端口号')} value={port} onChange={e => { update_group_node_by_field(key, 'port', e.target.value) }} /> },
         
         {

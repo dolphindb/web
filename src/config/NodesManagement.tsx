@@ -26,7 +26,7 @@ export function NodesManagement () {
     const { mutate, data } = useSWR('/get/nodes', async () => {
             const data = await config.get_cluster_nodes()
             const nodes = strs_2_nodes(data)
-            return nodes
+            return { nodes, data_key: (new Date()).toISOString() }
         },
         { 
             revalidateOnFocus: true,
@@ -34,7 +34,8 @@ export function NodesManagement () {
         }
     )
     
-    const all_nodes: ClusterNode[] = data ?? [ ]
+    const all_nodes: ClusterNode[] = data?.nodes ?? [ ]
+    const data_key = data?.data_key ?? ''
     
     const delete_nodes = useCallback(async (node_id: string) => {
         if (!isNaN(Number(node_id)))
@@ -87,7 +88,7 @@ export function NodesManagement () {
                             model.message.error(t('新增节点失败，服务端报错：') + err.message)
                             throw new Error(t('新增节点失败，服务端报错：') + err.message)
                         }
-                    else
+                    else if (mode !== 'controller')
                         try {
                             await model.ddb.call('addNode', add_node_arg)
                             model.message.success(t('新增节点成功，请到集群总览启动'))
@@ -96,6 +97,8 @@ export function NodesManagement () {
                             throw new Error(t('新增节点失败，服务端报错：') + err.message)
                         }        
                 await config.save_cluster_nodes([...node_strs, `${host}:${port}:${alias},${mode},${group}`,])    
+                if (mode === 'controller')
+                    model.message.success(t('保存成功，重启集群生效'))
             }
             else  // 修改
                  {
@@ -208,7 +211,7 @@ export function NodesManagement () {
                     })
                 }} type='link'>{t('删除计算组')}</Button>
             </div>
-            <NodeTable nodes={nodes} group={group} onSave={save_node_impl} onDelete={delete_nodes} />
+            <NodeTable key={`${data_key}_group_${group}`} nodes={nodes} group={group} onSave={save_node_impl} onDelete={delete_nodes} />
         </div>
     })
     
@@ -256,7 +259,7 @@ export function NodesManagement () {
         </div>
         <div className='table-padding'>
             {/* 被搜索筛选了，且没有非计算组节点，不展示 */}
-            {(ungrouped_nodes.length > 0 || search_value === '') && <NodeTable nodes={ungrouped_nodes} onSave={save_node_impl} onDelete={delete_nodes} />}
+            {(ungrouped_nodes.length > 0 || search_value === '') && <NodeTable key={`${data_key}_ungrouped_nodes`} nodes={ungrouped_nodes} onSave={save_node_impl} onDelete={delete_nodes} />}
             {group_nodes}
         </div>
     </div>
@@ -273,9 +276,12 @@ interface NodeTableProps {
 
 function NodeTable ({ nodes, group, onSave, onDelete }: NodeTableProps) {
     function get_cols (is_group = false) {
-        const alias_rule: { required?: boolean, message?: string, validator?: (_: any, value: string) => Promise<void> }[] = [{
+        const alias_rule: { required?: boolean, pattern?: RegExp, message?: string, validator?: (_: any, value: string) => Promise<void> }[] = [{
             required: true,
             message: t('请输入别名')
+        }, {
+            pattern: /^\S+$/,
+            message: t('别名不能包含空格')
         }]
         
         if (is_group)
@@ -283,10 +289,9 @@ function NodeTable ({ nodes, group, onSave, onDelete }: NodeTableProps) {
                 {
                     validator: async (_, value) => {
                         if (!value.startsWith(group))
-                            return Promise.reject(new Error(t('别名必须以组名 ') + group + t(' 开头')))
-                        return Promise.resolve()
+                            throw new Error(t('别名必须以组名 {{group}} 开头', { group }))
                     },
-                    message: t('别名必须以组名 ') + group + t(' 开头')
+                    message: t('别名必须以组名 {{group}} 开头', { group })
                 }
             )
             
@@ -348,6 +353,9 @@ function NodeTable ({ nodes, group, onSave, onDelete }: NodeTableProps) {
                     rules: [{
                         required: true,
                         message: t('请输入主机名 / IP 地址')
+                    }, {
+                        pattern: /^\S+$/,
+                        message: t('主机名 / IP 地址不能包含空格')
                     }]
                 }
             },
@@ -426,11 +434,24 @@ function NodeTable ({ nodes, group, onSave, onDelete }: NodeTableProps) {
             {
                 type: 'single',
                 onSave: async (rowKey, { host, port, alias, mode }, originRow) => {
-                    const changed_alias = originRow.alias !== alias
-                    const is_add = originRow.alias === ''
-                    await onSave({ rowKey, host, port, alias, mode, group: group || '' }, changed_alias, is_add, originRow.alias)
+                    try {
+                        const changed_alias = originRow.alias !== alias
+                        const is_add = originRow.alias === ''
+                        await onSave({ rowKey, host, port, alias, mode, group: group || '' }, changed_alias, is_add, originRow.alias)
+                    } catch (error) {
+                        model.show_error({ error })
+                        throw error
+                    }
+                    
                 },
-                onDelete: async (_, row) => onDelete(row.id),
+                onDelete: async (_, row) => {
+                    try {
+                        await onDelete(row.id)
+                    } catch (error) {
+                        model.show_error({ error })
+                        throw error
+                    }
+                },
                 deletePopconfirmMessage: t('确认删除此节点？'),
                 saveText:
                     <Button

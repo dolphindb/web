@@ -8,7 +8,7 @@ import type { NotificationInstance } from 'antd/es/notification/interface.d.ts'
 import type { NavigateFunction, NavigateOptions } from 'react-router-dom'
 
 import 'xshell/polyfill.browser.js'
-import { assert, filter_values, not_empty, strcmp } from 'xshell/utils.browser.js'
+import { assert, delay, filter_values, not_empty, strcmp } from 'xshell/utils.browser.js'
 import { request } from 'xshell/net.browser.js'
 
 import {
@@ -25,31 +25,8 @@ import { config } from '@/config/model.ts'
 import { goto_url, strip_quotes } from '@/utils.ts'
 
 
-export const storage_keys = {
-    ticket: 'ddb.ticket',
-    username: 'ddb.username',
-    collapsed: 'ddb.collapsed',
-    code: 'ddb.code',
-    session: 'ddb.session',
-    minimap: 'ddb.editor.minimap',
-    enter_completion: 'ddb.editor.enter_completion',
-    sql: 'ddb.sql',
-    dashboard_autosave: 'ddb.dashboard.autosave',
-    overview_display_mode: 'ddb.overview.display_mode',
-    overview_display_columns: 'ddb.overview.display_columns',
-    license_notified_date: 'ddb.license.notified_date',
-} as const
-
-const json_error_pattern = /^{.*"code": "(.*?)".*}$/
-
-const username_guest = 'guest' as const
-
-export type PageViews = 'overview' | 'shell' | 'dashboard' | 'table' | 'job' | 'plugins' | 'login' | 'dfs' | 'log' | 
-    'factor' | 'test' | 'computing' | 'tools' | 'iot-guide' | 'finance-guide' | 'access' | 'user' | 'group' | 'config' |
-    'settings' | 'data-connection' | 'parser-template' | 'data-collection'
-
-
-type OAuthType = 'authorization code' | 'implicit'
+const dev_hostname = '192.168.0.200' as const
+const dev_port = '20023' as const
 
 
 export class DdbModel extends Model<DdbModel> {
@@ -58,7 +35,20 @@ export class DdbModel extends Model<DdbModel> {
     inited = false
     
     /** 在本地开发模式 */
+    local = false
+    
+    /** 在测试模式，通过 test.dolphindb.cn 访问的 web */
+    test = false
+    
+    /** 在开发模式（本地开发或测试），等价于 local || test */
     dev = false
+    
+    /** 生产模式，等价于 !local && !test */
+    production = true
+    
+    hostname: string
+    
+    port: string
     
     /** 通过 ticket 或用户名密码自动登录，默认为 true 传 autologin=0 关闭 */
     autologin = true
@@ -67,9 +57,6 @@ export class DdbModel extends Model<DdbModel> {
     oauth = false
     
     oauth_type: OAuthType
-    
-    /** 通过 test.dolphindb.cn 访问的 web */
-    test = false
     
     /** 静态资源的根路径 */
     assets_root = '/'
@@ -88,7 +75,7 @@ export class DdbModel extends Model<DdbModel> {
     
     // todo: 暂时兼容，后面会把这里的逻辑去掉
     get view () {
-        return location.pathname.strip_start(this.assets_root).split('/')[0] || 'shell'
+        return location.pathname.strip_start(this.assets_root).split('/')[0] || default_view
     }
     
     logined = false
@@ -175,9 +162,13 @@ export class DdbModel extends Model<DdbModel> {
         
         const params = this.params = new URLSearchParams(location.search)
         
-        this.dev = params.get('dev') !== '0' && (location.host === 'localhost:8432' || params.get('dev') === '1')
+        this.local = location.host === 'localhost:8432' && params.get('local') !== '0'
         
-        this.test = location.hostname === 'test.dolphindb.cn' || params.get('test') === '1'
+        this.test = location.hostname === 'test.dolphindb.cn' && params.get('test') !== '0'
+        
+        this.dev = this.local || this.test
+        
+        this.production = !this.dev
         
         // 确定 assets_root
         if (this.test)
@@ -192,13 +183,13 @@ export class DdbModel extends Model<DdbModel> {
         this.verbose = params.get('verbose') === '1'
         
         // test 或开发模式下，浏览器误跳转到 https 链接，自动跳转回 http
-        if (location.protocol === 'https:' && (this.dev || this.test) && params.get('https') !== '1') {
+        if (location.protocol === 'https:' && this.dev && params.get('https') !== '1') {
             alert('请将地址栏中的链接改为 http:// 开头')
             return
         }
         
-        let hostname = params.get('hostname') || location.hostname
-        let port = params.get('port') || location.port
+        let hostname = params.get('hostname') || (this.dev ? dev_hostname : '') || location.hostname
+        let port = params.get('port') || (this.dev ? dev_port : '') || location.port
         
         const host = params.get('host')
         
@@ -214,10 +205,12 @@ export class DdbModel extends Model<DdbModel> {
             history.replaceState(null, '', url)
         }
         
+        this.hostname = hostname
+        this.port = port
+        
         this.ddb = new DDB(
             (this.dev ? (params.get('tls') === '1' ? 'wss' : 'ws') : (location.protocol === 'https:' ? 'wss' : 'ws')) +
-                '://' +
-                hostname +
+                '://' + hostname +
                 
                 // 一般 location.port 可能是空字符串
                 (port ? `:${port}` : '') +
@@ -243,7 +236,7 @@ export class DdbModel extends Model<DdbModel> {
     /** 不论是否登录、是否有权限，都执行的基础初始化 */
     async init () {
         console.log(t('web 开始初始化，当前处于{{mode}}模式，版本为 {{version}}', {
-            mode: this.dev ? t('开发') : t('生产'),
+            mode: this.production ? t('生产') : t('开发'),
             version: WEB_VERSION
         }))
         
@@ -293,7 +286,7 @@ export class DdbModel extends Model<DdbModel> {
             } catch {
                 console.log(t('ticket 登录失败'))
                 
-                if (this.dev || this.test)
+                if (this.dev)
                     try {
                         await this.login_by_password('admin', '123456')
                     } catch {
@@ -697,17 +690,25 @@ export class DdbModel extends Model<DdbModel> {
         https://www.dolphindb.cn/cn/help/FunctionsandCommands/FunctionReferences/g/getClusterPerf.html  
         Only master or single mode supports function getClusterPerf. */
     async get_cluster_perf (print: boolean) {
-        const nodes = (
-            await this.ddb.invoke<DdbTableData<DdbNode>>('getClusterPerf', [true], {
+        let nodes: DdbNode[]
+        
+        // 超时提醒（在手动触发或者首次加载时才弹）
+        if (print)
+            setTimeout(() => {
+                if (!nodes)
+                    this.show_error({ title: t('getClusterPerf(true) 执行超时，请检查集群节点状态是否正常，任务是否阻塞') })
+            }, 5000)
+        
+        nodes = (
+                await this.ddb.invoke<DdbTableData<DdbNode>>('getClusterPerf', [true], {
                 urgent: true,
                 
                 ... this.node_type === NodeType.controller || this.node_type === NodeType.single
                     ? undefined
                     : { node: this.controller_alias }
             })
-        )
-        .data
-        .sort((a, b) => strcmp(a.name, b.name))
+        ).data
+            .sort((a, b) => strcmp(a.name, b.name))
         
         if (print)
             console.log(t('集群节点:'), nodes)
@@ -727,6 +728,7 @@ export class DdbModel extends Model<DdbModel> {
             if (_node.mode === NodeType.data)
                 datanode ??= _node
         }
+        
         if (print) {
             console.log(t('当前节点:'), node)
             if (node.mode !== NodeType.single)
@@ -750,8 +752,7 @@ export class DdbModel extends Model<DdbModel> {
     
     
     find_node_closest_hostname (node: DdbNode) {
-        const params = new URLSearchParams(location.search)
-        const current_connect_host = params.get('hostname') || location.hostname
+        const current_connect_host = this.hostname
         
         // 所有域名应该都转成小写后匹配，因为浏览器默认会将 location.hostname 转为小写
         const hosts = [...node.publicName.split(';').map(name => name.trim().toLowerCase()), node.host.toLowerCase()]
@@ -957,7 +958,7 @@ export class DdbModel extends Model<DdbModel> {
         }: GetUrlOptions = { }
     ) {
         const _queries = new URLSearchParams(location.search)
-        const is_query_params_mode = _queries.get('hostname') || _queries.get('port')
+        const is_query_params_mode = model.hostname !== location.hostname || model.port !== location.port
         const port_ = is_query_params_mode ? location.port : port
         
         const query_string = new URLSearchParams(filter_values({
@@ -1047,6 +1048,33 @@ export class DdbModel extends Model<DdbModel> {
 }
 
 
+export const storage_keys = {
+    ticket: 'ddb.ticket',
+    username: 'ddb.username',
+    collapsed: 'ddb.collapsed',
+    code: 'ddb.code',
+    session: 'ddb.session',
+    minimap: 'ddb.editor.minimap',
+    enter_completion: 'ddb.editor.enter_completion',
+    sql: 'ddb.sql',
+    dashboard_autosave: 'ddb.dashboard.autosave',
+    overview_display_mode: 'ddb.overview.display_mode',
+    overview_display_columns: 'ddb.overview.display_columns',
+    license_notified_date: 'ddb.license.notified_date',
+} as const
+
+
+const json_error_pattern = /^{.*"code": "(.*?)".*}$/
+
+const username_guest = 'guest' as const
+
+/** 除了改这里还需要改 src/index.tsx 中的路由配置 */
+export const default_view = 'shell' as const
+
+
+type OAuthType = 'authorization code' | 'implicit'
+
+
 export enum NodeType {
     data = 0,
     agent = 1,
@@ -1057,6 +1085,10 @@ export enum NodeType {
 
 
 export function show_error (modal: DdbModel['modal'], { title, error, body }: FormatErrorOptions) {
+    // 已经显示过的错误就不再次显示了
+    if (error?.shown)
+        return
+    
     let title_: string, body_: string
     
     if (error)
@@ -1068,6 +1100,9 @@ export function show_error (modal: DdbModel['modal'], { title, error, body }: Fo
         content: (body || body === '') ? body : body_,
         width: 1000,
     })
+    
+    if (error)
+        error.shown = true
 }
 
 

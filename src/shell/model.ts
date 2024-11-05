@@ -141,6 +141,11 @@ class ShellModel extends Model<ShellModel> {
     }
     
     
+    async refresh_vars () {
+        
+    }
+    
+    
     async eval (code = this.editor.getValue(), istart: number) {
         const time_start = dayjs()
         const lines = code.split_lines()
@@ -164,7 +169,7 @@ class ShellModel extends Model<ShellModel> {
                 `${code.replaceAll('\r\n', '\n')}`
             )
             
-            if (model.dev || model.test || model.verbose)
+            if (model.dev || model.verbose)
                 console.log('执行代码返回了:', ddbobj.data())
             
             if (

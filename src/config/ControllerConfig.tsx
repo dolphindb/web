@@ -46,7 +46,7 @@ export function ControllerConfig () {
                     showSearch
                     optionFilterProp='label'
                     filterOption={filter_config}
-                    options={CONTROLLER_CONFIG.map(config => ({
+                    options={config.get_controller_config().map(config => ({
                         label: config,
                         value: config
                     }))} 
@@ -160,7 +160,7 @@ export function ControllerConfig () {
                         if (e.key === 'Enter') 
                             set_search_value(search_key)
                     }}
-                    options={CONTROLLER_CONFIG.map(config => ({
+                    options={config.get_controller_config().map(config => ({
                         label: config,
                         value: config
                         }))
@@ -172,16 +172,28 @@ export function ControllerConfig () {
         editable={{
             type: 'single',
             onSave: async (rowKey, data, row) => {
-                const config_strs = _2_strs(configs)
-                let idx = config_strs.indexOf(rowKey as string)
-                if (idx === -1)
-                    await config.save_controller_configs([data.name + '=' + data.value, ...config_strs])
-                else
-                    await config.save_controller_configs(config_strs.toSpliced(idx, 1, data.name + '=' + data.value))
-                actionRef.current.reload()
-                model.message.success(t('保存成功，重启集群生效'))
+                try {
+                    const config_strs = _2_strs(configs)
+                    let idx = config_strs.indexOf(rowKey as string)
+                    if (idx === -1)
+                        await config.save_controller_configs([data.name + '=' + data.value, ...config_strs])
+                    else
+                        await config.save_controller_configs(config_strs.toSpliced(idx, 1, data.name + '=' + data.value))
+                    actionRef.current.reload()
+                    model.message.success(t('保存成功，重启集群生效'))
+                } catch (error) {
+                    model.show_error({ error })
+                    throw error
+                }
             },
-            onDelete: async (key, row) => delete_config(row.id as string),
+            onDelete: async (key, row) => {
+                try {
+                    await delete_config(row.id)
+                } catch (error) {
+                    model.show_error({ error })
+                    throw error
+                }
+            },
             deletePopconfirmMessage: t('确认删除此配置项？'),
             saveText:
                 <Button
@@ -211,36 +223,3 @@ export function ControllerConfig () {
     />
 }
 
-const CONTROLLER_CONFIG = [
-    'mode',
-    'preloadModules',
-    'localSite',
-    'clusterConfig',
-    'nodesFile',
-    'localExecutors',
-    'maxBatchJobWorker',
-    'maxConnections',
-    'maxConnectionPerSite',
-    'maxDynamicWorker',
-    'maxMemSize',
-    'webWorkerNum',
-    'dfsMetaDir',
-    'dfsMetaLogFilename',
-    'dfsReplicationFactor',
-    'dfsReplicaReliabilityLevel',
-    'dfsRecoveryWaitTime',
-    'enableDFS',
-    'enableHTTPS',
-    'dataSync',
-    'webLoginRequired',
-    'PublicName',
-    'datanodeRestartInterval',
-    'dfsHAMode',
-    'clusterReplicationSlaveNum',
-    'dfsChunkNodeHeartBeatTimeout',
-    'clusterReplicationMasterCtl',
-    'metricsToken',
-    'strictPermissionMode',
-    'enableLocalDatabase',
-    // 'enableClientAuth',
-]

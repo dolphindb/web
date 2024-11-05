@@ -109,6 +109,8 @@ class ConfigModel extends Model<ConfigModel> {
     async save_configs () {
         const new_nodes_configs = new Map<string, NodesConfig>()
         
+        const old_config = await this.invoke<string[]>('loadClusterNodesConfigs', undefined, { urgent: true })
+        
         await this.invoke(
             'saveClusterNodesConfigs', 
             [[...iterator_map(
@@ -121,7 +123,19 @@ class ConfigModel extends Model<ConfigModel> {
             ]])
         
         if (model.node_type === NodeType.controller)
-            await this.invoke('reloadClusterConfig')
+            try {
+                await this.invoke('reloadClusterConfig')
+            } catch (error) {
+                model.modal.error({
+                    title: t('配置文件存在错误 {{message}} 请检查输入内容并重新尝试。', { message: error.message }),
+                })
+                error.shown = true
+                
+                await this.invoke('saveClusterNodesConfigs', [old_config])
+                await this.load_configs()
+                
+                throw error
+            }
         
         this.set({ nodes_configs: new_nodes_configs })
     }
@@ -155,9 +169,57 @@ class ConfigModel extends Model<ConfigModel> {
             [t('系统')]: new Set(['console', 'config', 'home', 'maxPartitionNumPerQuery', 'mode', 'moduleDir', 'newValuePartitionPolicy', 'perfMonitoring', 'pluginDir', 'preloadModules', 'init', 'startup', 'run', 'tzdb', 'webRoot', 'webLoginRequired', 'enableShellFunction', 'enablePKEYEngine']),
             
             ... model.v3 ? {
-                [t('计算组')]: new Set(['computeNodeCacheDir', 'computeNodeMemCacheSize', 'computeNodeDiskCacheSize', 'enableComputeNodeCacheEvictionFromQueryThread'])
+                [t('计算组')]: new Set([
+                    'computeNodeCacheDir',
+                    'computeNodeCacheMeta',
+                    'computeNodeMemCacheSize',
+                    'computeNodeDiskCacheSize',
+                    'enableComputeNodeCacheEvictionFromQueryThread',
+                ])
             } : { }
         }
+    }
+    
+    
+    get_controller_config () {
+        return [
+            'mode',
+            'preloadModules',
+            'localSite',
+            'clusterConfig',
+            'nodesFile',
+            'localExecutors',
+            'maxBatchJobWorker',
+            'maxConnections',
+            'maxConnectionPerSite',
+            'maxDynamicWorker',
+            'maxMemSize',
+            'webWorkerNum',
+            'dfsMetaDir',
+            'dfsMetaLogFilename',
+            'dfsReplicationFactor',
+            'dfsReplicaReliabilityLevel',
+            'dfsRecoveryWaitTime',
+            'enableDFS',
+            'enableHTTPS',
+            'dataSync',
+            'webLoginRequired',
+            'PublicName',
+            'datanodeRestartInterval',
+            'dfsHAMode',
+            'clusterReplicationSlaveNum',
+            'dfsChunkNodeHeartBeatTimeout',
+            'clusterReplicationMasterCtl',
+            'metricsToken',
+            'strictPermissionMode',
+            'enableLocalDatabase',
+            ...model.v3 ? [
+                'computeNodeCachingDelay',
+                'computeNodeCachingQueryThreshold',
+                'enableComputeNodePrefetchData',
+            ] : [ ]
+            // 'enableClientAuth',
+        ]
     }
 }
 

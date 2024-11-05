@@ -84,7 +84,11 @@ function DolphinDB () {
         <SWRConfig value={{
             revalidateOnFocus: false,
             revalidateOnReconnect: false,
-            errorRetryCount: 0
+            errorRetryCount: 0,
+            /** throw error 才会被全局错误处理捕获 */
+            onError (error) {
+                throw error
+            }
         }}>
             <ProConfigProvider hashed={false} token={{ borderRadius: 0, motion: false }}>
                 <NiceModal.Provider>
@@ -113,7 +117,7 @@ function MainLayout () {
     
     
     useEffect(() => {
-        if (model.dev) {
+        if (model.local) {
             async function on_keydown (event: KeyboardEvent) {
                 const { key, target, ctrlKey: ctrl, altKey: alt } = event
                 
@@ -153,7 +157,7 @@ function MainLayout () {
         </Layout>
     :
         <GlobalErrorBoundary>
-            { (model.dev || model.test) && <div className='host-select-container'>
+            { model.dev && <div className='host-select-container'>
                 <HostSelect size='middle' />
             </div> }
         </GlobalErrorBoundary>
@@ -165,17 +169,18 @@ const router = createBrowserRouter([
         path: '/',
         element: <MainLayout />,
         children: [
+            // 除了改这里还需要改 model 中的 defaut_view
             {
-                path: 'login/',
-                element: <Login />
+                index: true,
+                element: <Shell />
             },
             {
                 path: 'shell/',
                 element: <Shell />
             },
             {
-                index: true,
-                element: <Shell />
+                path: 'login/',
+                element: <Login />
             },
             {
                 path: 'overview/',
