@@ -153,11 +153,11 @@ export let builder = {
             }
         )
         
+        // this.bundler 依赖 deps_bundler 生成的文件
+        await this.deps_bundler.build()
+        
         await Promise.all([
-            (async () => {
-                await this.deps_bundler.build()
-                await this.deps_bundler.close()
-            })(),
+            this.deps_bundler.close(),
             this.bundler.build_all(),
             fwrite(`${fpd_out}version.json`, info, noprint)
         ])
