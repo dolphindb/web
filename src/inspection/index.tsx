@@ -17,8 +17,8 @@ import { model, NodeType } from '@/model.ts'
 
 import { inspection } from './model.tsx'
 import type { Plan, PlanReport } from './type.ts'
-import { EditInspection } from './editInspection.tsx'
-import { ReportDetailPage } from './reportDetail.tsx'
+import { EditInspection } from './editInspectionPage.tsx'
+import { ReportDetailPage } from './reportDetailPage.tsx'
 import { EmailConfigModal } from './emailConfigModal.tsx'
 import { LogModal } from './logModal.tsx'
 
