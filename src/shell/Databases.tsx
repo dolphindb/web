@@ -788,10 +788,6 @@ function CreateDatabase () {
                         >
                             <Select placeholder={t('请选择{{i18nIndex}}分区类型', { i18nIndex })} options={[
                                 {
-                                    label: <span title={t('顺序分区。分区方案格式为：整型标量，表示分区的数量。')}>{ t('顺序分区') + ' (SEQ)' }</span>,
-                                    value: 'SEQ',
-                                },
-                                {
                                     label: <span title={t('范围分区。分区方案格式为：向量，向量的任意两个相邻元素定义分区的范围。')}>{ t('范围分区') + ' (RANGE)' }</span>,
                                     value: 'RANGE',
                                 },
@@ -806,6 +802,10 @@ function CreateDatabase () {
                                 {
                                     label: <span title={t('列表分区。分区方案格式为：嵌套向量，外层向量的每个元素定义了一个分区。')}>{ t('列表分区') + ' (LIST)' }</span>,
                                     value: 'LIST',
+                                },
+                                {
+                                    label: <span title={t('顺序分区。分区方案格式为：整型标量，表示分区的数量。')}>{ t('顺序分区') + ' (SEQ)' }</span>,
+                                    value: 'SEQ',
                                 },
                             ]} />
                         </Form.Item>
