@@ -330,14 +330,12 @@ export async function execute (source_id: string) {
 
 async function create_sql_connection (): Promise<DDB> {
     const params = new URLSearchParams(location.search)
-    const port = params.get('port') || location.port
     const connection = new DDB(
         (model.dev ? (params.get('tls') === '1' ? 'wss' : 'ws') : (location.protocol === 'https:' ? 'wss' : 'ws')) +
-            '://' +
-            (params.get('hostname') || location.hostname) +
+            '://' + model.hostname +
             
-            // 一般 location.port 可能是空字符串
-            (port ? `:${port}` : '') +
+            // model.port 可能是空字符串
+            (model.port ? `:${model.port}` : '') +
             
             // 检测 ddb 是否通过 nginx 代理，部署在子路径下
             (location.pathname === '/dolphindb/' ? '/dolphindb/' : ''),

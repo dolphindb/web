@@ -451,17 +451,20 @@ export class DashBoardModel extends Model<DashBoardModel> {
             widget: null,
             
          })
+         
+        model.goto(`/dashboard/${config.id}/`)
         
-        model.set_query('dashboard', String(config.id))
         this.set({ loading: false })
     }
     
     
     return_to_overview () {
         clear_data_sources()
+        
         dashboard.set({ config: null, save_confirm: false })
-        model.set_query('dashboard', null)
-        model.set_query('preview', null)
+        
+        model.goto('/dashboard', { queries: { preview: '1' } } )
+        
         model.set({ sider: true, header: true })
     }
     

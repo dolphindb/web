@@ -16,7 +16,7 @@ import { request_json } from 'xshell/net.browser.js'
 
 import { t, language } from '../../../i18n/index.js'
 
-import { model } from '../../model.js'
+import { model } from '@/model.ts'
 
 
 // 在 React DevTool 中显示的组件名字
@@ -24,10 +24,9 @@ MonacoEditor.displayName = 'MonacoEditor'
 
 loader.config({
     paths: {
-        // vs: 'https://cdn.jsdelivr.net/npm/monaco-editor@0.34.0/min/vs'
-        
         // 必须是　vs, 否则 /vs/base/common/worker/simpleWorker.nls.js 路径找不到实际文件
-        vs: `./vendors/monaco-editor/${ PRODUCTION ? 'min' : 'dev' }/vs`
+        // 必须是完整 https 前缀，不能只是路径，否则会报错
+        vs: `${location.origin}${model.assets_root}vendors/monaco-editor/${ PRODUCTION ? 'min' : 'dev' }/vs`
     },
     ... language === 'zh' ? {
         'vs/nls': {
@@ -73,7 +72,7 @@ export function Editor ({
             if (!docs && !docs_initing) {
                 docs_initing = true
                 try {
-                    model.set({ docs: await request_json(`./docs.${ language === 'zh' ? 'zh' : 'en' }.json`) })
+                    model.set({ docs: await request_json(`${model.assets_root}docs.${ language === 'zh' ? 'zh' : 'en' }.json`) })
                 } finally {
                     docs_initing = false
                 }
@@ -118,7 +117,7 @@ export function Editor ({
             
             loading={<div className='editor-loading'>{t('正在加载代码编辑器...')}</div>}
             
-            beforeMonacoInit={async () => loadWASM(await fetch('./vendors/vscode-oniguruma/release/onig.wasm')) }
+            beforeMonacoInit={async () => loadWASM(await fetch(`${model.assets_root}vendors/vscode-oniguruma/release/onig.wasm`)) }
             
             onMonacoInitFailed={error => { model.show_error({ error }) }}
             

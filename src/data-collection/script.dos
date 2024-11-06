@@ -7,7 +7,11 @@ def dcp_initPlugin(){
     plugins = select * from files(dir) where isDir=true
     ex = ["user",NULL]
     //需加载插件列表
-    dcp_plugin = [`mqtt,`kafka]
+    if(strpos(lower(version()),"linux")!=-1){
+        dcp_plugin = [`mqtt,`kafka]
+    }else{
+        dcp_plugin = [`mqtt]
+    }
     try{
         for(plugin in dcp_plugin){
             //插件未下载则直接下载
@@ -545,15 +549,18 @@ def dcp_deleteSubscribe(args){
 查看订阅状态
 @args subId:订阅ID 字符串
 @return 返回一个包含订阅状态的json，键为subStatus   
+args='{"subId":"1c8d7145-4ad5-deba-ef70-1513d38f53ae"}'
 */
 def dcp_getSubStatus(args){
     subArgs = parseExpr(args).eval()
     subs =select id,subId,connectId from loadTable("dfs://dataAcquisition","subscribeInfo") where id=uuid(subArgs[`subId])
-    connInfo = select id,protocol from loadTable("dfs://dataAcquisition","connectInfo") where id = uuid(subs.connectId[0])    
+    connInfo = select id,protocol from loadTable("dfs://dataAcquisition","connectInfo") where id = uuid(subs.connectId[0]) 
+    func = funcByName('mqtt::getSubscriberStat')
+    call(func)
     if(connInfo.protocol == "mqtt"){
-        tmp = select * from mqtt::getSubscriberStat() where subscriptionId = subs.subId
+        tmp = select * from call(funcByName('mqtt::getSubscriberStat')) where subscriptionId = subs.subId
     }else if(connInfo.protocol=="kafka"){
-        tmp = select * from kafka::getJobStat() where subscriptionId = subs.subId
+        tmp = select * from call(funcByName('kafka::getJobStat')) where subscriptionId = subs.subId
     }
     return '{"subStatus":'+toStdJson(tmp)+'}'
 }
@@ -576,13 +583,13 @@ def dcp_checkSubStatus(args){
     }
     //返回各节点的订阅信息
     if(connInfo.protocol == "mqtt"){
-        res = each(rpc{,mqtt::getSubscriberStat},subNodes)
+        res = each(rpc{,funcByName('mqtt::getSubscriberStat')},subNodes)
         for(i in (0..(subNodes.size()-1))){
             update res[i] set node = subNodes[i] 
         }
         nowSub = res.unionAll()
     }else if(connInfo.protocol=="kafka"){
-        res = each(rpc{,kafka::getJobStat},subNodes)
+        res = each(rpc{,funcByName('kafka::getJobStat')},subNodes)
         for(i in (0..(subNodes.size()-1))){
             update res[i] set node = subNodes[i] 
         }
@@ -664,7 +671,7 @@ def dcp_startSubscribe(args){
         tmp =  (exec * from sub left join connInfo  on connInfo.id=sub.connectId)[0];'
         if(tmp.protocol == "mqtt"){
             //拼接mqtt
-            subscribeStr +=  'mqtt::subscribe(tmp["host"],tmp["port"],tmp["topic"],,'+handlerName+'{'
+            subscribeStr +=  'subscriptionId = mqtt::subscribe(tmp["host"],tmp["port"],tmp["topic"],,'+handlerName+'{'
             mqsubArgs = parseExpr(tmp.templateParams).eval() 
             for(i in (0..(mqsubArgs.size()-1))){    
                 if(i < mqsubArgs.size()-1 ){
@@ -693,11 +700,12 @@ def dcp_startSubscribe(args){
                 kafka::assign(consumer, topic, partition, offset)  
             };'
             kasubArgs = parseExpr(tmp.templateParams).eval()
-            //第一个解析模板参数必须为表明，根据是否有其他参数，拼接subscribe函数   
+            //第一个解析模板参数必须为表明，根据是否有其他参数，拼接subscribe函数
+            action = tmp.topic+long(now()) 
             if(kasubArgs.size()==1){
-                subscribeStr += 'kafka::createSubJob(consumer,'+kasubArgs[0].value+','+handlerName+',"'+tmp.topic+'");' 
+                subscribeStr += 'subscriptionId = kafka::createSubJob(consumer,'+kasubArgs[0].value+','+handlerName+',"'+action+'");' 
             }else{
-                subscribeStr += 'kafka::createSubJob(consumer,'+kasubArgs[0].value+','+handlerName+'{'  
+                subscribeStr += 'subscriptionId = kafka::createSubJob(consumer,'+kasubArgs[0].value+','+handlerName+'{'  
                 for(i in (1..(kasubArgs.size()-1))){    
                     if(i < kasubArgs.size()-1 ){
                         subscribeStr += "`"+kasubArgs[i][`value]+","
@@ -706,15 +714,15 @@ def dcp_startSubscribe(args){
                         subscribeStr += "`"+kasubArgs[i][`value]
                     }
                 }
-                subscribeStr += '},"'+tmp.topic+'");'      
+                subscribeStr += '},"'+action+'");'      
             } 
         }   
-        rpc(node,runScript,subscribeStr)    
+        rpc(node,runScript,subscribeStr)
         if(tmp.protocol == "mqtt"){
             //获取mqtt订阅ID
-            subscriptionId=exec last(subscriptionId) from rpc(node,mqtt::getSubscriberStat) order by createTimestamp
+            subscriptionId=exec last(subscriptionId) from rpc(node,funcByName("mqtt::getSubscriberStat"))  order by createTimestamp desc
         }else if(tmp.protocol == "kafka"){
-            subscriptionId=exec last(subscriptionId) from rpc(node,kafka::getJobStat)  order by createTimestamp
+            subscriptionId=exec last(subscriptionId) from rpc(node,funcByName("kafka::getJobStat"))  where actionName = action
         }   
         logInfo = "the subscribe "+tmp.name+" of "+upper(tmp.protocol)+" connection "+tmp.connInfo_name+" successfully started"
         rpc(node,writeLog{logInfo})
@@ -749,9 +757,9 @@ def dcp_stopSubscribe(args){
         for(i in (0..(subId.size()-1))){  //i=1
             if(info[i].subId != string(NULL)){
                 if(info[i].protocol == "mqtt"){
-                    rpc(info[i].subNode,mqtt::unsubscribe{info[i].subId})
+                    rpc(info[i].subNode,funcByName('mqtt::unsubscribe'),info[i].subId)
                 }else if(info[i].protocol == "kafka"){
-                    rpc(info[i].subNode,kafka::cancelSubJob{info[i].subId})
+                    rpc(info[i].subNode,funcByName("kafka::cancelSubJob"),info[i].subId)
                 }
                 logInfo = "The subscribe "+info[i].name+" of "+upper(info[i].protocol)+" connection "+info[i].connInfo_name+" successfully stoped"
                 rpc(info[i].subNode,writeLog{logInfo})
@@ -974,7 +982,7 @@ def dcp_initParserTemplate(){
         }
     }
     '
-    args = '{"name":"parseMqtt","handler":\''+handler+'\',"protocol":"mqtt","comment":"测试解析模板"}'   
+    args = '{"name":"parseMqtt","handler":\''+handler+'\',"protocol":"mqtt","comment":"MQTT 解析模板"}'   
     dcp_addHandler(args)
 
 
@@ -983,7 +991,7 @@ def dcp_initParserTemplate(){
         objByName(outTableName).append!(table([topic]as topic,[msg] as msg,[now()] as ts))
     }
     "
-    args = '{"name":"saveJsonMsg","handler":\''+handler+'\',"protocol":"mqtt","comment":"转存json数据","flag":0}'   
+    args = '{"name":"saveJsonMsg","handler":\''+handler+'\',"protocol":"mqtt","comment":"【内置】转存 JSON 数据","flag":0}'   
     dcp_addHandler(args)
 
     handler = "
@@ -991,7 +999,7 @@ def dcp_initParserTemplate(){
         return table([topic] as topic,[msg] as dataContent,[now(true)] as startTime)    
     }
     "
-    args = '{"name":"saveJsonMsg_kafka","handler":\''+handler+'\',"protocol":"kafka","comment":"转存json数据","flag":0}'   
+    args = '{"name":"saveJsonMsg_kafka","handler":\''+handler+'\',"protocol":"kafka","comment":"【内置】转存 JSON 数据","flag":0}'   
     dcp_addHandler(args)
 
 
@@ -1020,7 +1028,7 @@ def dcp_initParserTemplate(){
         }
         return tmp  
     }'
-    args = '{"name":"parseKafka","handler":\''+handler+'\',"protocol":"kafka","comment":"解析kafka json数据"}'   
+    args = '{"name":"parseKafka","handler":\''+handler+'\',"protocol":"kafka","comment":"kafka 解析模板"}'   
     dcp_addHandler(args)
 
 }

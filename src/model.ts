@@ -1,5 +1,3 @@
-import dayjs from 'dayjs'
-
 import { Model } from 'react-object-model'
 
 import type { BaseType } from 'antd/es/typography/Base/index.d.ts'
@@ -7,8 +5,10 @@ import type { MessageInstance } from 'antd/es/message/interface.d.ts'
 import type { HookAPI as ModalHookAPI } from 'antd/es/modal/useModal/index.d.ts'
 import type { NotificationInstance } from 'antd/es/notification/interface.d.ts'
 
+import type { NavigateFunction, NavigateOptions } from 'react-router-dom'
+
 import 'xshell/polyfill.browser.js'
-import { filter_values, strcmp } from 'xshell/utils.browser.js'
+import { assert, delay, filter_values, not_empty, strcmp } from 'xshell/utils.browser.js'
 import { request } from 'xshell/net.browser.js'
 
 import {
@@ -25,31 +25,8 @@ import { config } from '@/config/model.ts'
 import { goto_url, strip_quotes } from '@/utils.ts'
 
 
-export const storage_keys = {
-    ticket: 'ddb.ticket',
-    username: 'ddb.username',
-    collapsed: 'ddb.collapsed',
-    code: 'ddb.code',
-    session: 'ddb.session',
-    minimap: 'ddb.editor.minimap',
-    enter_completion: 'ddb.editor.enter_completion',
-    sql: 'ddb.sql',
-    dashboard_autosave: 'ddb.dashboard.autosave',
-    overview_display_mode: 'ddb.overview.display_mode',
-    overview_display_columns: 'ddb.overview.display_columns',
-    license_notified_date: 'ddb.license.notified_date',
-} as const
-
-const json_error_pattern = /^{.*"code": "(.*?)".*}$/
-
-const username_guest = 'guest' as const
-
-export type PageViews = 'overview' | 'shell' | 'dashboard' | 'table' | 'job' | 'plugins' | 'login' | 'dfs' | 'log' | 
-    'factor' | 'test' | 'computing' | 'tools' | 'iot-guide' | 'finance-guide' | 'access' | 'user' | 'group' | 'inspection' | 'config' |
-    'settings' | 'data-connection' | 'parser-template' | 'data-collection'
-
-
-type OAuthType = 'authorization code' | 'implicit'
+const dev_hostname = '192.168.0.200' as const
+const dev_port = '20023' as const
 
 
 export class DdbModel extends Model<DdbModel> {
@@ -58,7 +35,20 @@ export class DdbModel extends Model<DdbModel> {
     inited = false
     
     /** 在本地开发模式 */
+    local = false
+    
+    /** 在测试模式，通过 test.dolphindb.cn 访问的 web */
+    test = false
+    
+    /** 在开发模式（本地开发或测试），等价于 local || test */
     dev = false
+    
+    /** 生产模式，等价于 !local && !test */
+    production = true
+    
+    hostname: string
+    
+    port: string
     
     /** 通过 ticket 或用户名密码自动登录，默认为 true 传 autologin=0 关闭 */
     autologin = true
@@ -68,8 +58,8 @@ export class DdbModel extends Model<DdbModel> {
     
     oauth_type: OAuthType
     
-    /** 通过 test.dolphindb.cn 访问的 web */
-    test = false
+    /** 静态资源的根路径 */
+    assets_root = '/'
     
     /** 启用详细日志，包括执行的代码和运行代码返回的变量 */
     verbose = false
@@ -83,10 +73,10 @@ export class DdbModel extends Model<DdbModel> {
     
     sql: SqlStandard = SqlStandard[localStorage.getItem(storage_keys.sql)] || SqlStandard.DolphinDB
     
-    view = '' as PageViews
-    
-    /** 重定向 view */
-    redirection?: PageViews
+    // todo: 暂时兼容，后面会把这里的逻辑去掉
+    get view () {
+        return location.pathname.strip_start(this.assets_root).split('/')[0] || default_view
+    }
     
     logined = false
     
@@ -123,6 +113,9 @@ export class DdbModel extends Model<DdbModel> {
     
     version: string
     
+    /** version() 函数的完整返回值 */
+    version_full: string
+    
     v1: boolean
     
     v2: boolean
@@ -153,6 +146,8 @@ export class DdbModel extends Model<DdbModel> {
     
     notification: NotificationInstance
     
+    navigate: NavigateFunction
+    
     /** 记录启用了哪些可选功能 */
     enabled_modules = new Set<string>()
     
@@ -167,23 +162,55 @@ export class DdbModel extends Model<DdbModel> {
         
         const params = this.params = new URLSearchParams(location.search)
         
-        this.dev = params.get('dev') !== '0' && (location.host === 'localhost:8432' || params.get('dev') === '1')
+        this.local = location.host === 'localhost:8432' && params.get('local') !== '0'
+        
+        this.test = location.hostname === 'test.dolphindb.cn' && params.get('test') !== '0'
+        
+        this.dev = this.local || this.test
+        
+        this.production = !this.dev
+        
+        // 确定 assets_root
+        if (this.test)
+            for (const web_path of ['/web/', '/web-main/'])
+                if (location.pathname.startsWith(web_path)) {
+                    this.assets_root = web_path
+                    break
+                }
+        
         this.autologin = params.get('autologin') !== '0'
-        this.test = location.hostname === 'test.dolphindb.cn' || params.get('test') === '1'
+        
         this.verbose = params.get('verbose') === '1'
         
         // test 或开发模式下，浏览器误跳转到 https 链接，自动跳转回 http
-        if (location.protocol === 'https:' && (this.dev || this.test) && params.get('https') !== '1') {
+        if (location.protocol === 'https:' && this.dev && params.get('https') !== '1') {
             alert('请将地址栏中的链接改为 http:// 开头')
             return
         }
         
-        const port = params.get('port') || location.port
+        let hostname = params.get('hostname') || (this.dev ? dev_hostname : '') || location.hostname
+        let port = params.get('port') || (this.dev ? dev_port : '') || location.port
+        
+        const host = params.get('host')
+        
+        if (host) {
+            // 优先用 host 参数中的主机和端口
+            [hostname, port] = host.split(':')
+            params.delete('host')
+            params.set('hostname', hostname)
+            params.set('port', port)
+            // 转换 url
+            let url = new URL(location.href)
+            url.search = params.toString()
+            history.replaceState(null, '', url)
+        }
+        
+        this.hostname = hostname
+        this.port = port
         
         this.ddb = new DDB(
             (this.dev ? (params.get('tls') === '1' ? 'wss' : 'ws') : (location.protocol === 'https:' ? 'wss' : 'ws')) +
-                '://' +
-                (params.get('hostname') || location.hostname) +
+                '://' + hostname +
                 
                 // 一般 location.port 可能是空字符串
                 (port ? `:${port}` : '') +
@@ -203,25 +230,25 @@ export class DdbModel extends Model<DdbModel> {
         this.header = params.get('header') !== '0' && (view !== 'dashboard' || !dashboard)
         this.sider = params.get('sider') !== '0' && (view !== 'dashboard' || !dashboard)
         this.code_template = params.get('code-template') === '1'
-        this.redirection = params.get('redirection') as PageViews
     }
     
     
     /** 不论是否登录、是否有权限，都执行的基础初始化 */
     async init () {
         console.log(t('web 开始初始化，当前处于{{mode}}模式，版本为 {{version}}', {
-            mode: this.dev ? t('开发') : t('生产'),
+            mode: this.production ? t('生产') : t('开发'),
             version: WEB_VERSION
         }))
         
         await Promise.all([
             this.get_node_type(),
             this.get_node_alias(),
-            this.get_controller_alias()
+            this.get_controller_alias(),
+            this.get_version()
         ])
         
         await Promise.all([
-            // 必须先调用上面的函数，load_configs 依赖 controller alias 等信息
+            // 必须先调用上面的函数，load_configs 依赖 controller alias, version 等信息
             config.load_configs(),
             
             this.get_cluster_perf(true)
@@ -246,23 +273,25 @@ export class DdbModel extends Model<DdbModel> {
             
             if (!['authorization code', 'implicit'].includes(this.oauth_type))
                 throw new Error(t('oauthType 配置参数的值必须为 authorization code 或 implicit，默认为 authorization code'))
+            
+            // 不论是否 autologin, 都需要处理 oauth 跳转回来时 url 带有 state 的情况，
+            // 因此需要调用这个方法检查并可能再次跳转
+            await this.login_by_oauth()
         }
         
-        if (this.autologin)
+        
+        if (this.autologin && !this.logined)
             try {
                 await this.login_by_ticket()
             } catch {
                 console.log(t('ticket 登录失败'))
                 
-                if (this.oauth)
-                    await this.login_by_oauth()
-                else
-                    if (this.dev || this.test)
-                        try {
-                            await this.login_by_password('admin', '123456')
-                        } catch {
-                            console.log(t('使用默认 admin 账号密码登录失败'))
-                        }
+                if (this.dev)
+                    try {
+                        await this.login_by_password('admin', '123456')
+                    } catch {
+                        console.log(t('使用默认 admin 账号密码登录失败'))
+                    }
             }
         
         
@@ -270,17 +299,12 @@ export class DdbModel extends Model<DdbModel> {
         
         this.set({ inited: true })
         
-        this.get_version()
-        
         this.get_license_info()
         
         if (!this.logined && (this.login_required || await this.check_client_auth()))
             await this.goto_login()
-        else {
+        else
             await this.get_factor_platform_enabled()
-            
-            this.goto_default_view()
-        }
     }
     
     
@@ -301,14 +325,14 @@ export class DdbModel extends Model<DdbModel> {
         - key: 参数名
         - value: 参数值，为 null 或 undefined 时删除该参数 */
     set_query (key: string, value: string | null) {
-        let url = new URL(location.href)
+        let params = new URLSearchParams(location.search)
         
         if (value === null || value === undefined)
-            url.searchParams.delete(key)
+            params.delete(key)
         else
-            url.searchParams.set(key, value)
+            params.set(key, value)
         
-        history.replaceState(null, '', url)
+        model.navigate({ search: params.toString() }, { replace: true })
     }
     
     
@@ -405,20 +429,27 @@ export class DdbModel extends Model<DdbModel> {
         // 有 ticket 说明 oauthLogin 登录成功
         let ticket: string
         
-        /** redirect_uri 只能跳转到其中某个节点，需要带参数跳回到原发起登录的节点 */
-        const jump = async (state: string) => {
+        /** redirect_uri 只能跳转到其中某个节点，需要带参数跳回到原发起登录的节点 
+            发起跳转后会抛出错误中断后续流程 */
+        const maybe_jump = async (params: URLSearchParams) => {
+            const state = params.get('state')
             if (state && state !== this.node_alias) {
                 const node = this.nodes.find(({ name }) => name === state)
                 if (!node)
                     throw new Error(t('无法从当前节点 {{current}} 跳转回发起登录的节点 {{origin}}，找不到节点信息', { current: this.node_alias, origin: state }))
                 
-                await goto_url(this.get_node_url(node))
+                console.log(t('根据 state 参数跳转到节点:'), state)
+                
+                await goto_url(this.get_node_url(node, { queries: { state: null } }))
             }
         }
         
         // https://datatracker.ietf.org/doc/html/rfc6749#section-4.2.2
         if (this.oauth_type === 'authorization code') {
             let { searchParams: params } = url
+            
+            await maybe_jump(params)
+            
             const code = params.get('code')
             
             if (code) {
@@ -426,18 +457,17 @@ export class DdbModel extends Model<DdbModel> {
                     t('尝试 oauth 单点登录，类型是 authorization code, code 为 {{code}}',
                     { code }))
                 
-                await jump(
-                    params.get('state')
-                )
-                
                 ticket = await this.ddb.invoke<string>('oauthLogin', [this.oauth_type, { code }])
                 
+                params.delete('state')
                 params.delete('code')
                 history.replaceState(null, '', url.toString())
             } else
                 console.log(t('尝试 oauth 单点登录，类型是 authorization code, 无 code'))
         } else {
             const params = new URLSearchParams(url.hash.slice(1))
+            
+            await maybe_jump(params)
             
             const access_token = params.get('access_token') || params.get('accessToken')
             const token_type = params.get('token_type') || params.get('tokenType')
@@ -447,10 +477,6 @@ export class DdbModel extends Model<DdbModel> {
                 console.log(t(
                     '尝试 oauth 单点登录，类型是 implicit, token_type 为 {{token_type}}, access_token 为 {{access_token}}, expires_in 为 {{expires_in}}',
                     { token_type, access_token, expires_in }))
-                
-                await jump(
-                    params.get('state')
-                )
                 
                 ticket = await this.ddb.invoke<string>('oauthLogin', [this.oauth_type, {
                     token_type,
@@ -538,10 +564,7 @@ export class DdbModel extends Model<DdbModel> {
         try {
             this.set({
                 is_factor_platform_enabled: 
-                    await this.ddb.execute<boolean>(
-                        'use factorPlatform::facplf\n' +
-                        'factorPlatform::facplf::is_factor_platform_enabled()\n'
-                    , { urgent: true })
+                    await this.ddb.execute<boolean>('readLicenseAuthorization(license().modules).starfish', { urgent: true })
             })
             
             return this.is_factor_platform_enabled
@@ -586,17 +609,18 @@ export class DdbModel extends Model<DdbModel> {
     
     
     async get_version () {
-        const version = (await this.ddb.invoke<string>('version'))
-            .split(' ')[0]
+        const version_full = await this.ddb.invoke<string>('version')
+        const version = version_full.split(' ')[0]
         
         this.set({
             version,
+            version_full,
             v1: version.startsWith('1.'),
             v2: version.startsWith('2.'),
             v3: version.startsWith('3.')
         })
         
-        console.log(t('版本:'), version)
+        console.log(t('server 版本:'), version_full)
         
         return version
     }
@@ -611,9 +635,28 @@ export class DdbModel extends Model<DdbModel> {
     }
     
     
-    /** 去登录页
-        @param redirection 设置登录完成后的回跳页面，默认取当前 view */
-    async goto_login (redirection: PageViews = this.view) {
+    /** 跳转到页面，保留查询参数
+        - pathname: 路径
+        - options?: react-router NavigateOptions 选项，也可以可以在此处传 { queries: { key: value } } 更新查询参数 */
+    goto (pathname: string, { queries, ...options }: NavigateOptions & { queries?: Record<string, string> } = { }) {
+        assert(pathname.startsWith('/'), 'model.goto 应该传入绝对路径')
+        
+        let params = new URLSearchParams(location.search)
+        
+        if (queries) 
+            Object.entries(queries).forEach(([key, value]) => {
+                if (not_empty(value))
+                    params.set(key, value)
+                else
+                    params.delete(key)
+            })
+        
+        this.navigate({ pathname, search: params.toString() }, options)
+    }
+    
+    
+    /** 去登录页 */
+    async goto_login () {
         if (this.oauth) {
             const auth_uri = strip_quotes(
                 config.get_config('oauthAuthUri')
@@ -639,27 +682,7 @@ export class DdbModel extends Model<DdbModel> {
             
             await goto_url(url)
         } else
-            this.set({
-                view: 'login',
-                ... redirection === 'login' ? { } : { redirection }
-            })
-    }
-    
-    
-    goto_redirection () {
-        if (this.redirection) 
-            this.set({ view: this.redirection })
-        else
-            // 保留旧跳转逻辑
-            this.goto_default_view()
-    }
-    
-    
-    goto_default_view () {
-        this.set({
-            view: new URLSearchParams(location.search).get('view') as DdbModel['view'] || 
-                (this.node_type === NodeType.controller ? 'overview' : 'shell')
-        })
+            this.goto('/login/')
     }
     
     
@@ -667,17 +690,25 @@ export class DdbModel extends Model<DdbModel> {
         https://www.dolphindb.cn/cn/help/FunctionsandCommands/FunctionReferences/g/getClusterPerf.html  
         Only master or single mode supports function getClusterPerf. */
     async get_cluster_perf (print: boolean) {
-        const nodes = (
-            await this.ddb.invoke<DdbTableData<DdbNode>>('getClusterPerf', [true], {
+        let nodes: DdbNode[]
+        
+        // 超时提醒（在手动触发或者首次加载时才弹）
+        if (print)
+            setTimeout(() => {
+                if (!nodes)
+                    this.show_error({ title: t('getClusterPerf(true) 执行超时，请检查集群节点状态是否正常，任务是否阻塞') })
+            }, 5000)
+        
+        nodes = (
+                await this.ddb.invoke<DdbTableData<DdbNode>>('getClusterPerf', [true], {
                 urgent: true,
                 
                 ... this.node_type === NodeType.controller || this.node_type === NodeType.single
                     ? undefined
                     : { node: this.controller_alias }
             })
-        )
-        .data
-        .sort((a, b) => strcmp(a.name, b.name))
+        ).data
+            .sort((a, b) => strcmp(a.name, b.name))
         
         if (print)
             console.log(t('集群节点:'), nodes)
@@ -697,6 +728,7 @@ export class DdbModel extends Model<DdbModel> {
             if (_node.mode === NodeType.data)
                 datanode ??= _node
         }
+        
         if (print) {
             console.log(t('当前节点:'), node)
             if (node.mode !== NodeType.single)
@@ -704,6 +736,8 @@ export class DdbModel extends Model<DdbModel> {
         }
         
         this.set({ nodes, node, controller, datanode })
+        
+        return nodes
     }
     
     
@@ -718,8 +752,7 @@ export class DdbModel extends Model<DdbModel> {
     
     
     find_node_closest_hostname (node: DdbNode) {
-        const params = new URLSearchParams(location.search)
-        const current_connect_host = params.get('hostname') || location.hostname
+        const current_connect_host = this.hostname
         
         // 所有域名应该都转成小写后匹配，因为浏览器默认会将 location.hostname 转为小写
         const hosts = [...node.publicName.split(';').map(name => name.trim().toLowerCase()), node.host.toLowerCase()]
@@ -925,7 +958,7 @@ export class DdbModel extends Model<DdbModel> {
         }: GetUrlOptions = { }
     ) {
         const _queries = new URLSearchParams(location.search)
-        const is_query_params_mode = _queries.get('hostname') || _queries.get('port')
+        const is_query_params_mode = model.hostname !== location.hostname || model.port !== location.port
         const port_ = is_query_params_mode ? location.port : port
         
         const query_string = new URLSearchParams(filter_values({
@@ -1015,6 +1048,33 @@ export class DdbModel extends Model<DdbModel> {
 }
 
 
+export const storage_keys = {
+    ticket: 'ddb.ticket',
+    username: 'ddb.username',
+    collapsed: 'ddb.collapsed',
+    code: 'ddb.code',
+    session: 'ddb.session',
+    minimap: 'ddb.editor.minimap',
+    enter_completion: 'ddb.editor.enter_completion',
+    sql: 'ddb.sql',
+    dashboard_autosave: 'ddb.dashboard.autosave',
+    overview_display_mode: 'ddb.overview.display_mode',
+    overview_display_columns: 'ddb.overview.display_columns',
+    license_notified_date: 'ddb.license.notified_date',
+} as const
+
+
+const json_error_pattern = /^{.*"code": "(.*?)".*}$/
+
+const username_guest = 'guest' as const
+
+/** 除了改这里还需要改 src/index.tsx 中的路由配置 */
+export const default_view = 'shell' as const
+
+
+type OAuthType = 'authorization code' | 'implicit'
+
+
 export enum NodeType {
     data = 0,
     agent = 1,
@@ -1025,6 +1085,10 @@ export enum NodeType {
 
 
 export function show_error (modal: DdbModel['modal'], { title, error, body }: FormatErrorOptions) {
+    // 已经显示过的错误就不再次显示了
+    if (error?.shown)
+        return
+    
     let title_: string, body_: string
     
     if (error)
@@ -1036,6 +1100,9 @@ export function show_error (modal: DdbModel['modal'], { title, error, body }: Fo
         content: (body || body === '') ? body : body_,
         width: 1000,
     })
+    
+    if (error)
+        error.shown = true
 }
 
 
@@ -1055,6 +1122,8 @@ export interface DdbNode {
     port: number
     site: string
     agentSite: string
+    computeGroup: string
+    
     maxConnections: number
     maxMemSize: number
     workerNum: number

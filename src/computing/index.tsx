@@ -428,9 +428,9 @@ const leading_cols = {
     },
     persistWorkers: {
         workerId: t('线程 ID'),
-        queueDepthLimit: t('订阅队列深度上限'),
-        queueDepth: t('订阅队列深度'),
-        tables: t('表名')
+        queueDepthLimit: t('持久化消息队列深度上限'),
+        queueDepth: t('持久化消息队列深度'),
+        tables: t('持久化表名')
     },
     sharedStreamingTableStat: {
         TableName: t('表名'),
@@ -457,15 +457,15 @@ const leading_cols = {
 
 const expanded_cols = {
     subWorkers: {
-        batchSize: '批次大小',
-        throttle: '等待间隔',
-        filter: '过滤列',
-        msgAsTable: '消息是否为表',
-        hash: '订阅 hash 值',
-        persistOffset: '开启订阅偏移持久化',
-        timeTrigger: '强制按时间间隔触发',
-        handlerNeedMsgId: '包含消息 ID',
-        raftGroup: '高可用组'
+        batchSize: t('批次大小'),
+        throttle: t('等待间隔'),
+        filter: t('过滤列'),
+        msgAsTable: t('消息是否为表'),
+        hash: t('订阅 hash 值'),
+        persistOffset: t('开启订阅偏移持久化'),
+        timeTrigger: t('强制按时间间隔触发'),
+        handlerNeedMsgId: t('包含消息 ID'),
+        raftGroup: t('高可用组')
     },
     engine: {
         TimeSeriesEngine: {

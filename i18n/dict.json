@@ -72,13 +72,13 @@
         "en": "Delete"
     },
     "请输入用户名": {
-        "en": "Input username"
+        "en": "Enter username."
     },
     " 用户名 (默认: admin)": {
         "en": " username (default: admin)"
     },
     "请输入密码": {
-        "en": "Input password"
+        "en": "Enter password."
     },
     " 密码 (默认: 123456)": {
         "en": " password (default: 123456)"
@@ -159,7 +159,7 @@
         "en": "Agent Config"
     },
     "请输入参数值": {
-        "en": "Please input a config value."
+        "en": "Enter a config value."
     },
     "保存更改": {
         "en": "Save"
@@ -1932,7 +1932,7 @@
         "en": "offset"
     },
     "因子平台": {
-        "en": "FactorLab"
+        "en": "Starfish"
     },
     "实时计算": {
         "en": "Computing"
@@ -3009,7 +3009,7 @@
         "en": "User ID can only use letters, digits or underscores (_), and must start with letters."
     },
     "请输入密码!": {
-        "en": "Please enter password."
+        "en": "Enter password."
     },
     "密码长度为 6-20 个字符，且不包含空格或中文": {
         "en": "Use a password 6-20 characters long. Spaces and Chinese characters are not allowed."
@@ -3999,7 +3999,7 @@
         "en": "Dashboard saved successfully"
     },
     "修改成功": {
-        "en": "Modified successfully"
+        "en": "Modified Successfully"
     },
     "当前数据面板列表为空": {
         "en": "Current dashboard list is empty"
@@ -4988,7 +4988,7 @@
     "执行 undef all 后需要刷新以恢复 web 功能，是否立即刷新？": {
         "en": "After executing undef all, a refresh is required to restore web functions. Do you want to refresh now?"
     },
-    "数据采集平台": {
+    "数据采集": {
         "en": "Data Acquisition"
     },
     "连接信息": {
@@ -4996,6 +4996,84 @@
     },
     "解析模板": {
         "en": "Parsing Templates"
+    },
+    "个节点": {
+        "en": " nodes"
+    },
+    "计算组": {
+        "en": "Compute Group"
+    },
+    "别名必须以组名": {
+        "en": "Alias must start with group name"
+    },
+    "请输入值": {
+        "en": "Please enter a value"
+    },
+    "新增计算组": {
+        "en": "New Compute Group"
+    },
+    "计算组名称": {
+        "en": "Compute Group Name"
+    },
+    "请输入计算组名称": {
+        "en": "Please enter compute group name"
+    },
+    "计算组名称不能包含特殊字符": {
+        "en": "Compute group name cannot contain special characters"
+    },
+    "批量添加节点": {
+        "en": "Batch Add Nodes"
+    },
+    "在列表后添加": {
+        "en": "Add after list"
+    },
+    "批量添加": {
+        "en": "Batch Add"
+    },
+    "计算组配置": {
+        "en": "Compute Group Configuration"
+    },
+    "新增一条配置": {
+        "en": "Add a Configuration"
+    },
+    "请添加至少 1 个节点": {
+        "en": "Please add at least 1 node"
+    },
+    "指定此配置适用的节点名或节点名前缀（例如：node1 或 node%）": {
+        "en": "Specify the node name or node name prefix to which this configuration applies (e.g., node1 or node%)"
+    },
+    "无法移除在线节点，请到集群总览中停止后移除": {
+        "en": "Cannot remove online nodes, please stop them in the cluster overview before removing"
+    },
+    "新增节点成功，请到集群总览启动": {
+        "en": "New node added successfully, please go to cluster overview to start"
+    },
+    "新增节点失败，服务端报错：": {
+        "en": "Failed to add new node, server error:"
+    },
+    "该节点别名已存在，无法修改或添加": {
+        "en": "The node alias already exists and cannot be modified or added"
+    },
+    "组内有在线节点，请到集群总览中停止节点后移除": {
+        "en": "There are online nodes in the group, please stop the nodes in the cluster overview before removing"
+    },
+    "确定要删除计算组 {{group}} 吗？": {
+        "en": "Are you sure you want to delete compute group {{group}}?"
+    },
+    "删除计算组": {
+        "en": "Delete Compute Group"
+    },
+    "新建计算组": {
+        "en": "New Compute Group"
+    },
+    "别名必须以组名 ": {
+        "en": "Alias must start with group name "
+    },
+    "存储集群": {
+        "en": "Storage Cluster"
+    },
+    "开头": {
+        "en": " "
     },
     "线颜色": {
         "en": "Line Color"
@@ -5051,6 +5129,9 @@
     "请输入有效的服务器地址": {
         "en": "Enter a valid server address."
     },
+    "端口_data_collection": {
+        "en": "Port"
+    },
     "请输入端口": {
         "en": "Enter a port."
     },
@@ -5102,6 +5183,9 @@
     "修改订阅": {
         "en": "Edit Subscription"
     },
+    "查看订阅": {
+        "en": "View Subscription"
+    },
     "创建订阅": {
         "en": "New Subscription"
     },
@@ -5135,7 +5219,7 @@
     "参数值不能包含空格": {
         "en": "Value must not contain spaces."
     },
-    "kafka 消费参数配置": {
+    "Kafka 消费参数配置": {
         "en": "Kafka Configuration Properties"
     },
     "设置偏移量与分区，group.id 参数会失效": {
@@ -5239,6 +5323,108 @@
     },
     "立即刷新": {
         "en": "Refresh Now"
+    },
+    "标签页 ": {
+        "en": "Tab"
+    },
+    "提醒": {
+        "en": "Tips"
+    },
+    "关闭标签页将会删除标签页内的所有内容，确认关闭？": {
+        "en": "Closing this tab will discard all its contents. Are you sure you want to close it?"
+    },
+    "默认标签页": {
+        "en": "Default"
+    },
+    "标签页名称": {
+        "en": "Tab Name"
+    },
+    "保存成功，重启数据节点 / 计算节点生效": {
+        "en": "Save successfully, restart the data / computing node to take effect"
+    },
+    "保存成功，重启计算节点生效": {
+        "en": "Save successfully, restart the computing node to take effect"
+    },
+    "集群中已存在主机名和端口号相同的节点": {
+        "en": "A node with the same host name and port number already exists in the cluster"
+    },
+    "采集平台初始化成功！": {
+        "en": "The acquisition platform was initialized successfully!"
+    },
+    "oauthType 配置参数的值必须为 authorization code 或 implicit，默认为 authorization code": {
+        "en": "The value of the oauthType configuration parameter must be authorization code or implicit. The default value is authorization code."
+    },
+    "web 安全认证:": {
+        "en": "Web Security Auth:"
+    },
+    "根据 state 参数跳转到节点:": {
+        "en": "Jump to the node according to the state parameter:"
+    },
+    "server 版本:": {
+        "en": "server version:"
+    },
+    "getClusterPerf(true) 执行超时，请检查集群节点状态是否正常，任务是否阻塞": {
+        "en": "getClusterPerf(true) execution timeout, please check whether the cluster node status is normal and whether the task is blocked"
+    },
+    "配置文件校验失败，正在回滚配置文件": {
+        "en": "Configuration file verification failed, rolling back configuration file"
+    },
+    "别名必须以组名 {{group}} 开头": {
+        "en": "Aliases must start with the group name {{group}}"
+    },
+    "批次大小": {
+        "en": "Batch size"
+    },
+    "等待间隔": {
+        "en": "Wait interval"
+    },
+    "过滤列": {
+        "en": "Filter columns"
+    },
+    "消息是否为表": {
+        "en": "Message ingested as a table"
+    },
+    "订阅 hash 值": {
+        "en": "Subscription hash value"
+    },
+    "开启订阅偏移持久化": {
+        "en": "Offset persistence"
+    },
+    "强制按时间间隔触发": {
+        "en": "Trigger at intervals"
+    },
+    "包含消息 ID": {
+        "en": "Include message ID"
+    },
+    "高可用组": {
+        "en": "HA Raft group"
+    },
+    "配置文件存在错误 {{message}} 请检查输入内容并重新尝试。": {
+        "en": "The configuration file contains an error: {{message}}. Please check your input and try again."
+    },
+    "别名不能包含空格": {
+        "en": "Alias cannot contain spaces"
+    },
+    "主机名 / IP 地址不能包含空格": {
+        "en": "Hostname / IP cannot contain spaces"
+    },
+    "持久化消息队列深度上限": {
+        "en": "Queue Depth Limit"
+    },
+    "持久化消息队列深度": {
+        "en": "Queue Depth"
+    },
+    "持久化表名": {
+        "en": "Tables"
+    },
+    "主机名 / IP 地址不能为空": {
+        "en": "Hostname / IP address cannot be empty"
+    },
+    "别名不能为空": {
+        "en": "Alias cannot be empty"
+    },
+    "别名必须以组名 {{group_name}} 开头": {
+        "en": "The alias must start with the group name {{group_name}}."
     },
     "自动化巡检": {
         "en": "Inspection"

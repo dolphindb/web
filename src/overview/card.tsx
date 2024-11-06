@@ -140,7 +140,7 @@ function Nodes ({
 const node_colors = ['data-color', 'agent-color', 'controller-color', 'single-color', 'computing-color']
 const title_colors = ['data-title-color', 'agent-title-color', 'controller-title-color', 'single-title-color', 'computing-title-color']
 const node_statuses = ['offline', 'online']
-const node_backgrounds = ['data-node-background', '', 'controller-node-background', '', 'computing-node-background']
+const node_backgrounds = ['data-background', '', 'controller-background', '', 'computing-background']
 const current_node_borders = ['data-current-node', '', 'controller-current-node', '', '', '']
 
 
@@ -213,7 +213,7 @@ function Node ({
                     <div className={'node-title' + ' ' + title_colors[mode]}><div className='node-name'>{name}</div>{isLeader ? <Tag className='leader-tag' color='#FFF' >leader</Tag> : null}</div>
                     <div className='single-node-site'>
                         <NodeSite node={node}/>
-                        <div className={node_statuses[state]}>
+                        <div className={node_statuses[state]} style={{ backgroundImage: `url(${model.assets_root}overview/${state ? 'online' : 'offline'}.png)` }}>
                             <span>{state ? t('运行中') : t('未启动')}</span>
                         </div>
                     </div>
@@ -245,10 +245,13 @@ function Node ({
                     </div>
                     <div className='node-click' onClick={() => { switchFold(node) }} />
                     <NodeSite node={node} />
-                    <div className={node_statuses[state]}><span>{state ? t('运行中') : t('未启动')}</span></div>
+                    <div className={node_statuses[state]} style={{ backgroundImage: `url(${model.assets_root}overview/${state ? 'online' : 'offline'}.png)` }}><span>{state ? t('运行中') : t('未启动')}</span></div>
                 </div>
             }
-            <div className={(type !== NodeType.single && expanded ? 'node-body-fold' : 'node-body') + ' ' + node_backgrounds[node.mode]}>
+            <div 
+                className={(type !== NodeType.single && expanded ? 'node-body-fold' : 'node-body') }
+                style={{ backgroundImage: `url(${model.assets_root}overview/icons/${node_backgrounds[node.mode]}.svg)` }}
+            >
                 <NodeInfo title='CPU' icon={SvgCPU} className='cpu-info'>
                     <InfoItem
                         title={t('占用率')}

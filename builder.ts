@@ -58,7 +58,7 @@ export let builder = {
                 production,
                 externals: {
                     // 使用官方的 node_modules/@ant-design/pro-components/dist/pro-components.min.js 会有样式问题
-                    '@ant-design/pro-components': ['module ./pre-bundle/antd-pro-components.js', 'ProComponents'],
+                    '@ant-design/pro-components': ['module /pre-bundle/antd-pro-components.js', 'ProComponents'],
                     
                     // import { GridStack } from 'gridstack'
                     // 实际上 GridStack 直接暴露在了 window 上，而不是 window.GridStack.GridStack
@@ -66,11 +66,11 @@ export let builder = {
                     
                     // await import('react-quill') 时，会先通过在 head 中增加 <script> 标签的方式加载脚本，
                     // 之后取 window.ReactQuill 作为 import 的返回值
-                    'react-quill': ['script ./vendors/react-quill/dist/react-quill.js', 'ReactQuill'],
+                    'react-quill': ['script /vendors/react-quill/dist/react-quill.js', 'ReactQuill'],
                     
-                    '@formily/core': ['module ./pre-bundle/formily.js', 'Core'],
-                    '@formily/react': ['module ./pre-bundle/formily.js', 'React'],
-                    '@formily/antd-v5': ['module ./pre-bundle/formily.js', 'AntdV5'],
+                    '@formily/core': ['module /pre-bundle/formily.js', 'Core'],
+                    '@formily/react': ['module /pre-bundle/formily.js', 'React'],
+                    '@formily/antd-v5': ['module /pre-bundle/formily.js', 'AntdV5'],
                 },
                 resolve_alias: {
                     '@': `${fpd_root}src`,
@@ -82,9 +82,7 @@ export let builder = {
                     PRODUCTION: production ? 'true' : 'false'
                 },
                 cache_version: fp_api ? 'web.api' : 'web',
-                license: {
-                    ignores: ['dolphindb-web']
-                },
+                license: production,
                 dependencies: ['antd-icons', 'antd-plots', 'lodash', 'xterm', 'gridstack', 'echarts', 'quill', 'vscode-oniguruma', 'monaco'],
                 htmls: {
                     'index.html': {
@@ -106,10 +104,12 @@ export let builder = {
                             src: 'src/logo.png',
                             out: 'logo.png'
                         },
-                        fp_entry: './window.js',
+                        entry: 'window.js',
                         dependencies: ['antd-icons', 'antd-plots', 'lodash'],
                     }
                 },
+                
+                template: production,
                 
                 assets: {
                     productions: [

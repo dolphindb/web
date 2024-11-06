@@ -5,11 +5,11 @@ import { useCallback } from 'react'
 
 import NiceModal, { useModal } from '@ebay/nice-modal-react'
 
-import { t } from '../../../../i18n/index.js'
-import { Protocol, type Connection } from '../../type.js'
-import { request } from '../../utils.ts'
+import { t } from '@i18n/index.ts'
 
-import { NAME_RULES, PROTOCOL_MAP } from '@/data-collection/constant.js'
+import { request } from '../../utils.ts'
+import { PROTOCOL_MAP, NAME_RULES } from '@/data-collection/constant.ts'
+import { type Connection, Protocol } from '@/data-collection/type.ts'
 
 interface IProps {
     editedConnection?: Connection
@@ -64,7 +64,7 @@ export const CreateConnectionModal = NiceModal.create((props: IProps) => {
                 <Input placeholder={t('请输入服务器地址')}/>
             </Form.Item>
             <Form.Item 
-                label={t('端口')} 
+                label={t('端口', { context: 'data_collection' })} 
                 name='port' 
                 rules={[
                     { required: true, message: t('请输入端口') },

@@ -1,6 +1,6 @@
 import { Model } from 'react-object-model'
 
-import { DdbFunctionType, type DdbCallOptions } from 'dolphindb/browser.js'
+import { DdbInt, type DdbCallOptions } from 'dolphindb/browser.js'
 
 import { t } from '@i18n/index.ts'
 
@@ -35,18 +35,17 @@ class ConfigModel extends Model<ConfigModel> {
     }
     
     async add_agent_to_controller (host: string, port: number, alias: string) {
-        await this.invoke('addAgentToController', [host, port, alias])
+        await this.invoke('addAgentToController', [host, new DdbInt(port), alias])
     }
     
     
     /** load_configs 依赖 controller alias 等信息 */
     async load_configs () {
-        this.set({ 
-            nodes_configs: parse_nodes_configs(
-                await this.invoke<string[]>('loadClusterNodesConfigs', undefined, { urgent: true })
-            )
-        })
+        const configs = parse_nodes_configs(
+            await this.invoke<string[]>('loadClusterNodesConfigs', undefined, { urgent: true })
+        )
         
+        this.set({ nodes_configs: configs })
         
         console.log(
             t('配置文件:'),
@@ -57,6 +56,8 @@ class ConfigModel extends Model<ConfigModel> {
                 )
             )
         )
+        
+        return configs        
     }
     
     
@@ -108,6 +109,8 @@ class ConfigModel extends Model<ConfigModel> {
     async save_configs () {
         const new_nodes_configs = new Map<string, NodesConfig>()
         
+        const old_config = await this.invoke<string[]>('loadClusterNodesConfigs', undefined, { urgent: true })
+        
         await this.invoke(
             'saveClusterNodesConfigs', 
             [[...iterator_map(
@@ -118,9 +121,21 @@ class ConfigModel extends Model<ConfigModel> {
                     return `${key}=${value}`
                 })
             ]])
-            
+        
         if (model.node_type === NodeType.controller)
-            await this.invoke('reloadClusterConfig')
+            try {
+                await this.invoke('reloadClusterConfig')
+            } catch (error) {
+                model.modal.error({
+                    title: t('配置文件存在错误 {{message}} 请检查输入内容并重新尝试。', { message: error.message }),
+                })
+                error.shown = true
+                
+                await this.invoke('saveClusterNodesConfigs', [old_config])
+                await this.load_configs()
+                
+                throw error
+            }
         
         this.set({ nodes_configs: new_nodes_configs })
     }
@@ -137,9 +152,74 @@ class ConfigModel extends Model<ConfigModel> {
             {
                 ... model.node_type === NodeType.controller || model.node_type === NodeType.single
                     ? { }
-                    : { node: model.controller_alias, func_type: DdbFunctionType.SystemFunc },
+                    : { node: model.controller_alias },
                 ...options
             })
+    }
+    
+    
+    get_config_classification () {
+        return {
+            [t('线程')]: new Set(['localExecutors', 'maxBatchJobWorker', 'maxDynamicWorker', 'webWorkerNum', 'workerNum', 'PKEYBackgroundWorkerPerVolume', 'PKEYCacheFlushWorkerNumPerVolume']),
+            [t('内存')]: new Set(['chunkCacheEngineMemSize', 'maxMemSize', 'memoryReleaseRate', 'regularArrayMemoryLimit', 'warningMemSize', 'PKEYCacheEngineSize', 'PKEYBlockCacheSize', 'PKEYDeleteBitmapUpdateThreshold', 'PKEYStashedPrimaryKeyBufferSize']),
+            [t('磁盘')]: new Set(['batchJobDir', 'chunkMetaDir', 'dataSync', 'jobLogFile', 'logFile', 'logLevel', 'maxLogSize', 'redoLogDir', 'redoLogPurgeInterval', 'redoLogPurgeLimit', 'volumes', 'diskIOConcurrencyLevel', 'PKEYMetaLogDir', 'PKEYRedoLogDir']),
+            [t('网络')]: new Set(['enableHTTPS', 'localSite', 'maxConnections', 'maxConnectionPerSite', 'tcpNoDelay']),
+            [t('流发布')]: new Set(['maxMsgNumPerBlock', 'maxPersistenceQueueDepth', 'maxPubQueueDepthPerSite', 'maxPubConnections', 'persistenceDir', 'persistenceWorkerNum']),
+            [t('流订阅')]: new Set(['maxSubConnections', 'maxSubQueueDepth', 'persistOffsetDir', 'subExecutorPooling', 'subExecutors', 'subPort', 'subThrottle']),
+            [t('系统')]: new Set(['console', 'config', 'home', 'maxPartitionNumPerQuery', 'mode', 'moduleDir', 'newValuePartitionPolicy', 'perfMonitoring', 'pluginDir', 'preloadModules', 'init', 'startup', 'run', 'tzdb', 'webRoot', 'webLoginRequired', 'enableShellFunction', 'enablePKEYEngine']),
+            
+            ... model.v3 ? {
+                [t('计算组')]: new Set([
+                    'computeNodeCacheDir',
+                    'computeNodeCacheMeta',
+                    'computeNodeMemCacheSize',
+                    'computeNodeDiskCacheSize',
+                    'enableComputeNodeCacheEvictionFromQueryThread',
+                ])
+            } : { }
+        }
+    }
+    
+    
+    get_controller_config () {
+        return [
+            'mode',
+            'preloadModules',
+            'localSite',
+            'clusterConfig',
+            'nodesFile',
+            'localExecutors',
+            'maxBatchJobWorker',
+            'maxConnections',
+            'maxConnectionPerSite',
+            'maxDynamicWorker',
+            'maxMemSize',
+            'webWorkerNum',
+            'dfsMetaDir',
+            'dfsMetaLogFilename',
+            'dfsReplicationFactor',
+            'dfsReplicaReliabilityLevel',
+            'dfsRecoveryWaitTime',
+            'enableDFS',
+            'enableHTTPS',
+            'dataSync',
+            'webLoginRequired',
+            'PublicName',
+            'datanodeRestartInterval',
+            'dfsHAMode',
+            'clusterReplicationSlaveNum',
+            'dfsChunkNodeHeartBeatTimeout',
+            'clusterReplicationMasterCtl',
+            'metricsToken',
+            'strictPermissionMode',
+            'enableLocalDatabase',
+            ...model.v3 ? [
+                'computeNodeCachingDelay',
+                'computeNodeCachingQueryThreshold',
+                'enableComputeNodePrefetchData',
+            ] : [ ]
+            // 'enableClientAuth',
+        ]
     }
 }
 
