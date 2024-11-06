@@ -1,4 +1,4 @@
-import { ramdisk, fwrite, noprint } from 'xshell'
+import { ramdisk, fwrite, noprint, fequals, fcopy } from 'xshell'
 import { Git } from 'xshell/git.js'
 import { Bundler, type BundlerOptions } from 'xshell/builder.js'
 
@@ -36,27 +36,39 @@ export let builder = {
         
         const source_map = !production || version_name === 'dev'
         
-        const fpd_cache = external ? `${fpd_ramdisk_root}webpack/` : `${fpd_root}node_modules/.cache/`
+        const fpd_cache = external ? `${fpd_ramdisk_root}webpack/` : `${fpd_root}node_modules/.cache/webpack/`
         
         const dependencies: BundlerOptions['dependencies'] = ['antd-icons', 'antd-plots', 'lodash', 'xterm', 'gridstack', 'echarts', 'quill', 'vscode-oniguruma', 'monaco']
         
-        this.deps_bundler ??= new Bundler(
-            'deps', 
-            'web',
-            fpd_root,
-            fpd_cache,
-            fpd_cache,
-            { 'deps.js': './src/deps.ts' },
-            {
-                source_map,
-                external_dayjs: true,
-                production,
-                dependencies,
-                expose: true
-            }
-        )
         
-        this.bundler ??= new Bundler(
+        // --- 根据 package.json, deps.ts 缓存 deps.js
+        const deps_src = ['package.json', 'src/deps.ts']
+        
+        if ((
+            await Promise.all(deps_src.map(async fp => 
+                fequals(`${fpd_root}${fp}`, `${fpd_cache}${fp.fname}`, { print: false })
+            ))).every(Boolean)
+        )
+            console.log('deps.js 使用已缓存的版本')
+        else
+            this.deps_bundler = new Bundler(
+                'deps', 
+                'web',
+                fpd_root,
+                fpd_cache,
+                fpd_cache,
+                { 'deps.js': './src/deps.ts' },
+                {
+                    source_map: true,
+                    external_dayjs: true,
+                    production,
+                    dependencies,
+                    expose: true
+                }
+            )
+        
+        
+        this.bundler = new Bundler(
             'web',
             'web',
             fpd_root,
@@ -153,50 +165,18 @@ export let builder = {
             }
         )
         
+        // this.bundler 依赖 deps_bundler 生成的文件
+        await this.deps_bundler?.build()
+        
         await Promise.all([
-            (async () => {
-                await this.deps_bundler.build()
-                await this.deps_bundler.close()
-            })(),
+            this.deps_bundler?.close(),
+            // 缓存依赖
+            this.deps_bundler && Promise.all(deps_src.map(async fp => 
+                fcopy(`${fpd_root}${fp}`, `${fpd_cache}${fp.fname}`, { print: false }))),
             this.bundler.build_all(),
             fwrite(`${fpd_out}version.json`, info, noprint)
         ])
     },
-    
-    
-    // /** 将 pre-bundle/entries/{entry}.ts 打包到 {fpd_pre_bundle_dist}{entry}.js */
-    // async build_bundles (production?: boolean) {
-    //     const fp_project_package_json = `${fpd_root}package.json`
-    //     const fpd_pre_bundle_dist = `${ external ? `${fpd_ramdisk_root}pre-bundle/` : `${fpd_pre_bundle}dist/` }${ production ? 'production' : 'dev' }/`
-    //     const fp_cache_package_json = `${fpd_pre_bundle_dist}package.json`
-        
-    //     // pre-bundle/entries 中的文件内容改了之后需要禁用这个缓存逻辑（一般不会改）
-    //     if (await fequals(fp_project_package_json, fp_cache_package_json, noprint))  // 已有 pre-bundle 缓存
-    //         this.pre_bundle_entries.forEach(entry => {
-    //             console.log(`${entry} 已有预打包文件`)
-    //         })
-    //     else {
-    //         await Promise.all(
-    //             this.pre_bundle_entries.map(async entry => {
-    //                 let bundler = new Bundler(
-    //                     entry,
-    //                     'web',
-    //                     fpd_root,
-    //                     fpd_pre_bundle_dist,
-    //                     external ? `${fpd_ramdisk_root}webpack/` : undefined,
-    //                     { [`${entry}.js`]: `./pre-bundle/entries/${entry}.ts` },
-    //                     {
-    //                         external_dayjs: true,
-    //                     }
-    //                 )
-                    
-    //                 await bundler.build_all_and_close()
-    //             })
-    //         )
-            
-    //         await fcopy(fp_project_package_json, fp_cache_package_json, noprint)
-    //     }
-    // },
     
     
     async run () {
