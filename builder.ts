@@ -1,6 +1,6 @@
-import { fcopy, fequals, ramdisk, fwrite, noprint } from 'xshell'
+import { ramdisk, fwrite, noprint, fequals, fcopy } from 'xshell'
 import { Git } from 'xshell/git.js'
-import { Bundler } from 'xshell/builder.js'
+import { Bundler, type BundlerOptions } from 'xshell/builder.js'
 
 
 /** LOCAL: 启用后在项目中使用本地 javascript-api 中的 browser.ts，修改后刷新 web 自动生效，调试非常方便
@@ -20,14 +20,11 @@ const external = !ci && ramdisk
 
 export const fpd_out = `${ external ? fpd_ramdisk_root : fpd_root }web/`
 
-const fpd_pre_bundle = `${fpd_root}pre-bundle/`
-
 
 export let builder = {
+    deps_bundler: null as Bundler,
+    
     bundler: null as Bundler,
-    
-    
-    pre_bundle_entries: ['formily', 'antd-pro-components'],
     
     
     async build (production: boolean, version_name?: string) {
@@ -39,10 +36,39 @@ export let builder = {
         
         const source_map = !production || version_name === 'dev'
         
-        // 和 build_bundles 中的保持一致
-        const fpd_pre_bundle_dist = `${ external ? `${fpd_ramdisk_root}pre-bundle/` : `${fpd_pre_bundle}dist/` }${ production ? 'production' : 'dev' }/`
+        const fpd_cache = external ? `${fpd_ramdisk_root}webpack/` : `${fpd_root}node_modules/.cache/webpack/`
         
-        this.bundler ??= new Bundler(
+        const dependencies: BundlerOptions['dependencies'] = ['antd-icons', 'antd-plots', 'lodash', 'xterm', 'gridstack', 'echarts', 'quill', 'vscode-oniguruma', 'monaco']
+        
+        
+        // --- 根据 package.json, deps.ts 缓存 deps.js
+        const deps_src = ['package.json', 'src/deps.ts']
+        
+        if ((
+            await Promise.all(deps_src.map(async fp => 
+                fequals(`${fpd_root}${fp}`, `${fpd_cache}${fp.fname}`, { print: false })
+            ))).every(Boolean)
+        )
+            console.log('deps.js 使用已缓存的版本')
+        else
+            this.deps_bundler = new Bundler(
+                'deps', 
+                'web',
+                fpd_root,
+                fpd_cache,
+                fpd_cache,
+                { 'deps.js': './src/deps.ts' },
+                {
+                    source_map: true,
+                    external_dayjs: true,
+                    production,
+                    dependencies,
+                    expose: true
+                }
+            )
+        
+        
+        this.bundler = new Bundler(
             'web',
             'web',
             fpd_root,
@@ -58,19 +84,19 @@ export let builder = {
                 production,
                 externals: {
                     // 使用官方的 node_modules/@ant-design/pro-components/dist/pro-components.min.js 会有样式问题
-                    '@ant-design/pro-components': ['module /pre-bundle/antd-pro-components.js', 'ProComponents'],
+                    '@ant-design/pro-components': 'AntdProComponents',
                     
                     // import { GridStack } from 'gridstack'
                     // 实际上 GridStack 直接暴露在了 window 上，而不是 window.GridStack.GridStack
                     gridstack: 'window',
                     
-                    // await import('react-quill') 时，会先通过在 head 中增加 <script> 标签的方式加载脚本，
-                    // 之后取 window.ReactQuill 作为 import 的返回值
-                    'react-quill': ['script /vendors/react-quill/dist/react-quill.js', 'ReactQuill'],
+                    // 在 .js 中手动加载脚本
+                    // 取 window.ReactQuill 作为 import 的返回值
+                    'react-quill': 'ReactQuill',
                     
-                    '@formily/core': ['module /pre-bundle/formily.js', 'Core'],
-                    '@formily/react': ['module /pre-bundle/formily.js', 'React'],
-                    '@formily/antd-v5': ['module /pre-bundle/formily.js', 'AntdV5'],
+                    '@formily/core': 'FormilyCore',
+                    '@formily/react': 'FormilyReact',
+                    '@formily/antd-v5': 'FormilyAntdV5',
                 },
                 resolve_alias: {
                     '@': `${fpd_root}src`,
@@ -83,7 +109,7 @@ export let builder = {
                 },
                 cache_version: fp_api ? 'web.api' : 'web',
                 license: production,
-                dependencies: ['antd-icons', 'antd-plots', 'lodash', 'xterm', 'gridstack', 'echarts', 'quill', 'vscode-oniguruma', 'monaco'],
+                dependencies,
                 htmls: {
                     'index.html': {
                         title: 'DolphinDB',
@@ -91,10 +117,13 @@ export let builder = {
                             src: 'src/logo.png',
                             out: 'logo.png'
                         },
-                        mscripts: this.pre_bundle_entries.map(entry => ({
-                            src: `${fpd_pre_bundle_dist}${entry}.js`, 
-                            out: `pre-bundle/${entry}.js`
-                        })),
+                        scripts: {
+                            before: [{
+                                // deps_bundler 构建出来的 deps.js 缓存
+                                src: `${fpd_cache}deps.js`,
+                                out: 'deps.js'
+                            }]
+                        },
                         dependencies: ['antd-icons', 'antd-plots', 'xterm', 'lodash', 'echarts', 'gridstack'],
                     },
                     
@@ -127,53 +156,26 @@ export let builder = {
                         ... ['zh', 'en'].map(language => 
                             ({ src: `node_modules/dolphindb/docs.${language}.json`, out: `docs.${language}.json` })),
                         
-                        ... source_map ? this.pre_bundle_entries.map(entry => ({
-                            src: `${fpd_pre_bundle_dist}${entry}.js.map`, 
-                            out: `pre-bundle/${entry}.js.map`
-                        })) : [ ],
+                        ... source_map ? [{
+                            src: `${fpd_cache}deps.js.map`,
+                            out: 'deps.js.map'
+                        }] : [ ],
                     ]
                 }
             }
         )
         
-        await this.bundler.build_all()
+        // this.bundler 依赖 deps_bundler 生成的文件
+        await this.deps_bundler?.build()
         
-        await fwrite(`${fpd_out}version.json`, info, noprint)
-    },
-    
-    
-    /** 将 pre-bundle/entries/{entry}.ts 打包到 {fpd_pre_bundle_dist}{entry}.js */
-    async build_bundles (production?: boolean) {
-        const fp_project_package_json = `${fpd_root}package.json`
-        const fpd_pre_bundle_dist = `${ external ? `${fpd_ramdisk_root}pre-bundle/` : `${fpd_pre_bundle}dist/` }${ production ? 'production' : 'dev' }/`
-        const fp_cache_package_json = `${fpd_pre_bundle_dist}package.json`
-        
-        // pre-bundle/entries 中的文件内容改了之后需要禁用这个缓存逻辑（一般不会改）
-        if (await fequals(fp_project_package_json, fp_cache_package_json, noprint))  // 已有 pre-bundle 缓存
-            this.pre_bundle_entries.forEach(entry => {
-                console.log(`${entry} 已有预打包文件`)
-            })
-        else {
-            await Promise.all(
-                this.pre_bundle_entries.map(async entry => {
-                    let bundler = new Bundler(
-                        entry,
-                        'web',
-                        fpd_root,
-                        fpd_pre_bundle_dist,
-                        external ? `${fpd_ramdisk_root}webpack/` : undefined,
-                        { [`${entry}.js`]: `./pre-bundle/entries/${entry}.ts` },
-                        {
-                            external_dayjs: true,
-                        }
-                    )
-                    
-                    await bundler.build_all_and_close()
-                })
-            )
-            
-            await fcopy(fp_project_package_json, fp_cache_package_json, noprint)
-        }
+        await Promise.all([
+            this.deps_bundler?.close(),
+            // 缓存依赖
+            this.deps_bundler && Promise.all(deps_src.map(async fp => 
+                fcopy(`${fpd_root}${fp}`, `${fpd_cache}${fp.fname}`, { print: false }))),
+            this.bundler.build_all(),
+            fwrite(`${fpd_out}version.json`, info, noprint)
+        ])
     },
     
     

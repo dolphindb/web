@@ -46,7 +46,6 @@ await Promise.all([
     server.start(),
     (async () => {
         await fdclear(fpd_out)
-        await builder.build_bundles(false)
         await builder.build(false)
     })()
 ])
