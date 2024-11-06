@@ -211,9 +211,26 @@ function Tabs () {
     
     useEffect(() => {
         shell.init_tabs()
+        
+        function handleWheel (e) {
+            if (e.deltaY !== 0) {
+                e.preventDefault()
+                const tab_container = document.querySelector('.listen_whell')
+                // 垂直移动实际上是水平移动，方便滚动标签页
+                tab_container.scrollLeft += e.deltaY
+            }
+        }
+        
+        // 注册鼠标滚轮监听
+        const tab_container = document.querySelector('.listen_whell')
+        tab_container.addEventListener('wheel', handleWheel)
+        
+        return () => {
+            tab_container.removeEventListener('wheel', handleWheel)
+        }
     }, [ ])
     
-    return <div className='tabs'>
+    return <div className='tabs listen_whell'>
         <div
             className={`tab ${itab < 0 ? 'active' : ''}`}
             key='default'
