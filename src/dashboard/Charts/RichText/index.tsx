@@ -79,13 +79,13 @@ export function RichText ({ widget, data_source }: { widget: Widget, data_source
                     // @ts-ignore
                     window.define.amd = false
                 
-                await import(`${location.origin}${model.assets_root}/vendors/react-quill/dist/react-quill.js`)
+                await import(`${model.assets_root}vendors/react-quill/dist/react-quill.js`)
                 
                 ;({ default: ReactQuill } = await import('react-quill'))
                 set_quill_loaded(true)
             }
         })()
-    }, [ visible])
+    }, [visible])
     
     
     return <>
