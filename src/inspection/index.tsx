@@ -109,15 +109,24 @@ export function Inspection () {
                     {t('新增巡检')}
             </Button>
                 
-            <Tooltip 
-                title={<div style={{ whiteSpace: 'pre-wrap' }}>{!email_config.can_config ? email_config.error_msg : ''}</div>}>
+            {!email_config.can_config ? (
+                <Tooltip title={<div style={{ whiteSpace: 'pre-wrap' }}>{email_config.error_msg}</div>}>
+                    <Button
+                        icon={<MailOutlined />}
+                        disabled
+                        onClick={ () => { NiceModal.show(EmailConfigModal) } }>
+                            {t('邮件告警设置')}
+                    </Button>
+                </Tooltip>
+            ) : (
                 <Button
                     icon={<MailOutlined />}
-                    disabled={!email_config.can_config}
+                    disabled={false}
                     onClick={ () => { NiceModal.show(EmailConfigModal) } }>
                         {t('邮件告警设置')}
                 </Button>
-            </Tooltip>
+            )}
+            
             
             <Button 
                 icon={<ReloadOutlined />}

@@ -196,6 +196,10 @@ const router = createBrowserRouter([
                 element: <Test />
             },
             {
+                path: 'inspection/',
+                element: <Inspection />
+            },
+            {
                 path: 'job/',
                 element: <Job />
             },
