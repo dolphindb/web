@@ -329,8 +329,10 @@ def runMetric(name, script, mutable params) {
     }
 
     if (!success) {
-        print("error:")
         print(detail)
+        if (!isVoid(extraDetail)) {
+            print(extraDetail)
+        }
     }
     print("success: " + string(success))
     return success, toStdJson(detail), string(suggestion), toStdJson(extraDetail), params // 记得更新 params
@@ -353,9 +355,7 @@ def runPlanInner(planId) {
             [getNodeAlias()], // 未配置执行节点时，直接在当前数据节点执行
             item["nodes"].split(",")
         )
-        if (nodes.size() == 0) {
-            throw "failed to find nodes to execute the plan: " + planId
-        }
+        print("nodes: ", nodes)
         script = item["script"]
         version = item["metricVersion"]
         for (key in defaultParams.keys()) {
@@ -451,7 +451,7 @@ def loadAlertConfig() {
     return ret
 }
 
-def sendReportEmail(planInfo, reportInfo, alertConfig) {
+def sendReportEmailInner(planInfo, reportInfo, alertConfig) {
     if (defs("httpClient::emailSmtpConfig").size() == 0 or defs("httpClient::sendEmail").size() == 0) {
         try {
             loadPlugin("httpClient")
@@ -478,6 +478,17 @@ def sendReportEmail(planInfo, reportInfo, alertConfig) {
     return (userId, subject, recipient)
 }
 
+def sendReportEmail(planInfo, reportInfo, alertConfig) {
+    planId = planInfo["id"]
+    writeLog("autoInspection: start to send alert email, plan id: " + planId)
+    try {
+        userId, subject, recipient = sendReportEmailInner(planInfo, reportInfo, alertConfig)
+        writeLog("autoInspection: send alert email successfully, plan id: " + planId + ", subject: \"" + subject + "\", userId: " + userId + ", recipient: " + recipient.concat(","))
+    } catch(err) {
+        writeLog("autoInspection: alert failed, plan id: " + planId + ", err msg: " + string(err).last())
+    }
+}
+
 def runPlan(planId, blocking=false) {
     planInfo = select * from loadTable("dfs://autoInspection", "plans") where id == planId
     if (planInfo.size() == 0) {
@@ -492,9 +503,10 @@ def runPlan(planId, blocking=false) {
     name = planInfo["name"]
     desc = planInfo["desc"]
 
-    print("start to run plan: " + string(planId))
-    writeLog("autoInspection: start to run plan: " + string(planId))
+    print("start to submit plan, planId: " + string(planId) + ", enabledNode: " + enabledNode)
+    writeLog("autoInspection: start to submit plan, planId: " + string(planId) + ", enabledNode: " + enabledNode)
     onComplete = def(jobId, jobDesc, success, result) {
+        writeLog("autoInspection: onComplete callback, report id: " + jobId + ", start to update report")
         try {
             cnt = 0
             do {
@@ -529,12 +541,7 @@ def runPlan(planId, blocking=false) {
                 planInfo = planInfo[0]
                 reportInfo = reportInfo[0]
                 if (alertConfig["inspectionAlertEnabled"] and planInfo["alertEnabled"] and reportInfo["success"] == false) {
-                    try {
-                        userId, subject, recipient = sendReportEmail(planInfo, reportInfo, alertConfig)
-                        writeLog("autoInspection: alert successfully, plan id: " + planId + ", subject: \"" + subject + "\", userId: " + userId + ", recipient: " + recipient.concat(","))
-                    } catch(err) {
-                        writeLog("autoInspection: alert failed, plan id: " + planId + ", err msg: " + string(err).last())
-                    }
+                    submitJob("sendReportEmail", planId, sendReportEmail, planInfo, reportInfo, alertConfig)
                 }
             } else {
                 update loadTable("dfs://autoInspection", "reports") set startTime = startTime_, endTime = endTime_, success = false where id = jobId
@@ -566,9 +573,12 @@ def runPlan(planId, blocking=false) {
     )
     // 先写一条 success=NULL 的记录表示执行中
     loadTable("dfs://autoInspection", "reports").append!(report)
+    print("submit plan succesefully, planId: " + string(planId) + ", enabledNode: " + enabledNode)
+    writeLog("autoInspection: submit plan succesefully, planId: " + string(planId) + ", enabledNode: " + enabledNode)
     if (blocking) {
         rpc(enabledNode, getJobReturn, reportId_, true)
     }
+    
     return reportId_
 }
 
@@ -659,7 +669,8 @@ def createPlan(name, desc, metrics, nodes, params, frequency, days, scheduleTime
         nodes_ = exec nodes from loadTable("dfs://autoInspection", "metrics") where name == metrics[i]
         nodes_ = nodes_.first()
         if (!isNull(nodes_)) { // 对于支持配置指定节点运行的指标
-            nodes_ = nodes_.split(",")
+            mode_ = nodes_.split(",").strip().int()
+            nodes_ = exec name from rpc(getControllerAlias(), getClusterPerf{true}) where mode in mode_
             // nodes[i] 为标量时只可能为 NULL，直接视为 NULL
             if (nodes[i].form() == 0) { // 如果没配置任何节点，则等价于配置了所有节点
                 nodesCopy[i] = nodes_
@@ -947,6 +958,17 @@ def getMetrics(name=NULL, language="cn") {
         whereCond = <name == name_>
     }
     res = sql(sqlCol("*"), loadTable("dfs://autoInspection", "metrics"), whereCond).eval()
+    nodes_ = []$STRING
+    for (node in res["nodes"]) {
+        if (isNull(node)) {
+            nodes_.append!(string(NULL))
+        } else {
+            mode_ = node.split(",").strip().int()
+            t = exec name from rpc(getControllerAlias(), getClusterPerf{true}) where mode in mode_
+            nodes_.append!(t.concat(","))
+        }
+    }
+    replaceColumn!(res, "nodes", nodes_)
 
     return res
 }

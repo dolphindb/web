@@ -46,7 +46,7 @@ name = "connectionNum"
 displayName = "外部连接数"
 group = "0"
 desc = "检查指定节点的外部连接数是否超过 maxConnections 配置项阈值的 90%。"
-nodes = exec name from rpc(getControllerAlias(), getClusterPerf{true}) where mode != 1
+nodes = [0, 2, 3]
 script = '
 def connectionNum(params) {
     connectionNum = int(getPerf()["connectionNum"])
@@ -204,7 +204,7 @@ name = "diskUsage"
 displayName = "存储空间"
 group = "1"
 desc = "检查数据节点总存储空间是否超过 volumeUsageThreshold 配置项阈值。"
-nodes = exec name from rpc(getControllerAlias(), getClusterPerf) where mode == 0
+nodes = [0]
 script = '
 def diskUsage(params) {
     diskUsage = 1 - getPerf().diskFreeSpaceRatio
@@ -228,7 +228,7 @@ name = "memUsage"
 displayName = "内存占用"
 group = "1"
 desc = "检查节点内存占用是否超过 maxMemSize 配置项 * 90%。"
-nodes = exec name from rpc(getControllerAlias(), getClusterPerf{true}) where mode != 1
+nodes = [0, 2, 3]
 script = '
 def memUsage(params) {
     maxMemSize = int(getConfig("maxMemSize"))
@@ -246,7 +246,7 @@ name = "levelFileIndexCacheStatus"
 displayName = "TSDB 索引内存占用"
 group = "1"
 desc = "检查数据节点 TSDB 索引内存占用是否超过 TSDBLevelFileIndexCacheSize 配置项 * 90%。"
-nodes = exec name from rpc(getControllerAlias(), getClusterPerf) where mode == 0
+nodes = [0]
 script = '
 def levelFileIndexCacheStatus(params) {
     res = getLevelFileIndexCacheStatus()
@@ -429,7 +429,7 @@ desc = "检查近期日志是否有 ERROR/WARNING，只统计 startTime 到 endT
 - startTime：TIMESTAMP，统计范围的开始时间，默认值为上次相同方案 ID 的报告的开始时间。
 - endTime：TIMESTAMP，统计范围的结束时间，默认值为当前报告的开始时间。
 - logLevel：STRING 数组，统计的日志等级，可取值：ERROR，WARNING。"
-nodes = exec name from rpc(getControllerAlias(), getClusterPerf{true}) where mode != 1 // NULL 指该指标不能指定节点运行，选择任一数据节点执行
+nodes = [0, 2, 3]
 script = '
 def getServerLogEx(startTime, endTime) {
     startTime_ = timestamp(startTime)
@@ -1521,8 +1521,7 @@ desc = "检查 Linux 系统近期是否有 core 文件，只统计 startTime 到
 参数说明：
 - startTime：TIMESTAMP，统计范围的开始时间，默认值为上次相同方案 ID 的报告的开始时间。
 - endTime：TIMESTAMP，统计范围的结束时间，默认值为当前报告的开始时间。"
-nodes = select first(name) as name from rpc(getControllerAlias(), getClusterPerf) where mode != 1 group by host
-nodes = nodes["name"]
+nodes = [0, 2, 3]
 script = '
 def coredump(params) {
     if (getOS() != "linux") {
@@ -1595,8 +1594,7 @@ group = "2"
 desc = "检查 Linux 操作系统的常见配置项。
 参数说明：
 - logLevel：STRING 数组，统计的日志等级，可取值：ERROR，WARNING。"
-nodes = select first(name) as name from rpc(getControllerAlias(), getClusterPerf) where mode != 1 group by host
-nodes = nodes["name"]
+nodes = [0, 2, 3]
 script = '
 def commonSystemConfig(params) {
     if (getOS() != "linux") {
