@@ -10,7 +10,7 @@ import { model } from '@/model.ts'
 
 export function Login () {
     return <>
-        <img className='logo' src='./ddb.svg' />
+        <img className='logo' src={`${model.assets_root}ddb.svg`} />
         
         <div className='form-container'>
             <Form
@@ -33,7 +33,8 @@ export function Login () {
                     }
                     
                     model.message.success(t('登录成功'))
-                    model.goto_redirection()
+                    
+                    model.navigate(-1)
                 }}
             >
                 <Form.Item name='username' rules={[{ required: true, message: t('请输入用户名') }]}>

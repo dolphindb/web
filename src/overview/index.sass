@@ -1,14 +1,18 @@
 .overview
     padding: unset !important
-    
     display: flex
     flex-direction: column
+    
+    .group-title
+        font-size: 16px
+        font-weight: bold
+        margin: 16px 0px
     
     .header-bar
         position: sticky
         top: 0
         
-        z-index: 1
+        z-index: 10
         
         padding: 10px 20px
         
@@ -106,7 +110,7 @@
             margin: 20px 0
             
             font-weight: bold
-            font-size: 16px
+            font-size: 18px
             
             color: #666666
             
@@ -231,7 +235,6 @@
                 width: 151px
                 height: 60px
                 background-size: 100%
-                background-image: url(./overview/offline.png)
                 background-repeat: no-repeat
                 font-weight: 600
                 font-size: 14px
@@ -245,7 +248,6 @@
                 width: 151px
                 height: 60px
                 background-size: 100%
-                background-image: url(./overview/online.png)
                 background-repeat: no-repeat
                 font-weight: 600
                 font-size: 14px
@@ -337,16 +339,6 @@
         .node-body-fold
             display: none
         
-        .controller-node-background
-            background-image: url('./overview/icons/controller-background.svg')
-                
-        .data-node-background
-            background-image: url('./overview/icons/data-background.svg')
-            
-        .computing-node-background
-            background-image: url('./overview/icons/computing-background.svg')
-            
-        
         .node-footer
             display: flex
             justify-content: end
@@ -388,7 +380,8 @@
         padding: 20px
         display: flex
         flex-direction: column
-        row-gap: 20px
+        row-gap: 16px
+        
         .ant-collapse
             border-radius: 0
         .agent-node-title
@@ -397,6 +390,8 @@
             display: flex
             column-gap: 20px
             row-gap: 10px
+            margin-left: 24px
+            
             .agent-node-item
                 display: flex
                 column-gap: 10px

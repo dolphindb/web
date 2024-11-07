@@ -6,17 +6,23 @@ import { Tabs } from 'antd'
 
 import { t } from '../../i18n/index.js'
 
+import { model } from '@/model.js'
+
 import { ControllerConfig } from './ControllerConfig.js'
 import { NodesManagement } from './NodesManagement.js'
 import { NodesConfig } from './NodesConfig.js'
+import { ComputeGroupConfig } from './ComputeGroupConfig.js'
 
 import SvgControllerConfig from './icons/controller.config.icon.svg'
 import SvgNodesConfig from './icons/nodes.config.icon.svg'
 import SvgNodesManagement from './icons/nodes.management.icon.svg'
+import SvgGroup from './icons/group.icon.svg'
 
 
 export function Config () {
     const [tab_key, set_tab_key] = useState<'controller_config' | 'nodes_config' | 'nodes_management'>('controller_config')
+    const { v3 } = model.use(['v3'])
+    
     return <Tabs
         type='card'
         accessKey={tab_key}
@@ -51,7 +57,17 @@ export function Config () {
                     </div>
                 ),
                 children: <NodesConfig />
-            }
+            },
+            ... v3 ? [{
+                key: 'compute_group_config',
+                label: (
+                    <div className='tab-header'>
+                        <SvgGroup />
+                        {t('计算组配置')}
+                    </div>
+                ),
+                children: <ComputeGroupConfig />
+            }] : [ ]
         ]}
     />
 }

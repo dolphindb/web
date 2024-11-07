@@ -19,157 +19,28 @@ import { EditParamModal } from './editParamModal.tsx'
 import { addParamModal } from './addParamModal.tsx'
 import { parse_minute } from './utils.ts'
 
-export function InspectionForm ({ 
-    refresh, 
-    plan = null,
-    disabled = false,
-}: { 
-    refresh: () => void
-    plan?: Plan
-    disabled?: boolean 
-}) {
+interface InspectionFormContentProps {
+    plan?: any
+    view_only: boolean
+    metrics_with_nodes: Map<string, MetricsWithStatus>
+    set_checked_metrics: (metrics: Map<string, MetricsWithStatus>) => void
+    execute_node_names: string[]
+    inspection_form: any
+}
+
+function InspectionFormContent ({
+    plan,
+    view_only,
+    metrics_with_nodes,
+    set_checked_metrics,
+    execute_node_names,
+    inspection_form,
+}: InspectionFormContentProps) {
     
+    const { email_config } = inspection.use(['metrics', 'email_config'])
     
-    const { metrics, email_config } = inspection.use(['metrics', 'email_config'])
-    
-    const is_editing = !!plan.id
-    
-    const [view_only, set_view_only] = useState(is_editing ? disabled : false)
-    
-    const [enabled, set_enabled] = useState(plan.enabled)
-    
-    const { nodes } = model.use(['nodes'])
-    
-    const { mutate: mutate_plan_detail } = useSWR(
-        is_editing ? ['get_plan_detail', plan] : null, 
-        async () => inspection.get_plan_detail(plan.id),
-        {
-            onSuccess: plan_detail => {
-                let new_checked_metrics = new Map<string, MetricsWithStatus>(metrics_with_nodes) 
-                plan_detail.forEach(pd => 
-                    (new_checked_metrics.set(pd.metricName, {  ...metrics.get(pd.metricName), checked: true, selected_nodes: pd.nodes.split(','), selected_params: JSON.parse(pd.params) }) ))
-                set_metrics_with_nodes(new_checked_metrics)
-            },
-        }
-    )
-    // 保存指标是否选中以及每个指标巡检的节点
-    const [metrics_with_nodes, set_metrics_with_nodes] = useState<Map<string, MetricsWithStatus>>(new Map(
-        Array.from(metrics.values()).map(mc => ([mc.name, { ...mc, checked: false, selected_nodes: [ ], selected_params: { } }]))
-    ))
-    
-    const execute_node_names = useMemo(
-        () => nodes.filter(({ mode }) => 
-                                mode === NodeType.data || 
-                                mode === NodeType.computing || 
-                                mode === NodeType.single)
-                    .map(({ name }) => name), [ nodes ])
-    
-    useEffect(() => {
-        // 编辑模式下，获取巡检详情
-        if (is_editing)
-            mutate_plan_detail()
-    }, [ is_editing, plan ])
-    
-    function verify_metrics () {
-        let selected_metrics = Array.from(metrics_with_nodes.values()).filter(({ checked }) => checked)
-        if (selected_metrics.length === 0) {
-            model.message.error(t('请至少选中一个指标'))
-            return false
-        }
-         
-        // 找出需要选择节点但没有选择的指标
-        if (selected_metrics.some(({ name, nodes }) => metrics.get(name).nodes !== '' && nodes.length === 0)) {
-            model.message.error(t('请至少选中一个巡检节点'))
-            return false
-        }
-        return true
-    }
-    
-    const [inspection_form] = Form.useForm<Pick<Plan, 'name' | 'desc' | 'frequency' | 'days' | 'enabledNode' | 'scheduleTime' | 'alertEnabled' | 'alertRecipient'> >()
-    
-    async function on_save  (run_now: boolean) {
-        try {
-            const values = await inspection_form.validateFields()
-            if (!verify_metrics())
-                return
-            const metrics = Array.from(metrics_with_nodes.values()).filter(({ checked }) => checked)
-            const new_plan =  
-                {   
-                    name: values.name,
-                    desc: values.desc ?? '',
-                    metrics: metrics.map(({ name }) => name),
-                    nodes: metrics.map(({ selected_nodes }) => selected_nodes.length && selected_nodes[0] !== '' ? selected_nodes : ''),
-                    params: metrics.map(({ selected_params, params }) => {
-                        if (isObject(selected_params) && !isEmpty(selected_params)) {
-                            let formatted_params = { }
-                            for (const [key, value] of Object.entries(selected_params)) {
-                                let param = params.get(key)
-                                if (param.type === 'TIMESTAMP')
-                                    formatted_params[key] = value ? dayjs(value).format('YYYY.MM.DDTHH:mm:ss.SSS') : null
-                                else
-                                    formatted_params[key] = value
-                            }
-                            return JSON.stringify(formatted_params)
-                        } 
-                        else
-                            return ''
-                    }),
-                    frequency: values.frequency,
-                    days: values.days ? (values.days as number[]).map(Number) : [1],                                
-                    scheduleTime: values.scheduleTime.filter(time => time).map(time => dayjs(time).format('HH:mm') + 'm'), 
-                    enabled,
-                    enabledNode: values.enabledNode,
-                    alertEnabled: values.alertEnabled,
-                    alertRecipient: values.alertRecipient,
-                    runNow: run_now
-                }
-            if (is_editing)
-                await inspection.update_plan({ id: plan.id, ...new_plan  })
-            else
-                await inspection.create_plan(new_plan)
-            model.message.success(is_editing ? t('修改成功') : t('创建成功'))
-            refresh()
-            inspection.set({ current_plan: null })
-            mutate_plan_detail()
-        } catch (error) {
-            if (error instanceof Error)
-                model.show_error({ error })
-        }
-    }
-    
-    
-    return <div className='inspection-form'>
-        <div className='inspection-form-header'>
-            <div className='inspection-form-header-left'>
-                <Button onClick={() => { inspection.set({ current_plan: null }) }}>{t('返回')}</Button>
-                <h3>{is_editing ? (view_only ? t('查看巡检计划') : t('修改巡检计划')) : t('新增巡检计划')}</h3>
-            </div>
-            <div className='inspection-form-header-right'>
-                <div>
-                    <span>{t('启用：')}</span>
-                    <Switch value={enabled} onChange={set_enabled} />
-                </div>
-                {
-                    is_editing && <div>
-                        <span>{t('编辑模式：')}</span>
-                        <Switch value={!view_only} onChange={checked => { set_view_only(!checked) }}/></div>
-                }
-                <Tooltip title={view_only ? t('立即执行一次巡检') : t('保存当前方案并立即执行一次巡检')}>
-                    <Button type='primary'  onClick={async () => {
-                        if (view_only) {
-                            await inspection.run_plan(plan.id)
-                            refresh()
-                        } else 
-                            on_save(true)
-                        
-                    }}>{t('立即巡检')}</Button>
-                </Tooltip>
-                <Tooltip title={t('保存当前方案')}>
-                    <Button type='primary' disabled={view_only} onClick={async () => on_save(false)}>{t('保存')}</Button>
-                </Tooltip>
-            </div>
-        </div>
-        <Form
+    return <Form
+            key={plan?.id}
             disabled={view_only} 
             className='inspection-form-inline' 
             form={inspection_form}
@@ -178,10 +49,10 @@ export function InspectionForm ({
             initialValues={plan ? 
                 { 
                     ...plan,
-                    scheduleTime: plan.scheduleTime ? plan.scheduleTime.map(time => parse_minute(time as string)) :  [dayjs()],
+                    scheduleTime: plan.scheduleTime ? plan.scheduleTime.map(time => parse_minute(time as string)) : [dayjs()],
                     alertRecipient: plan.alertRecipient ? (plan.alertRecipient as string).split(',') : [ ],
-                    enabledNode:  plan.enabledNode ?? execute_node_names[0],
-                    days: (plan.days as string).split(',').map(Number), 
+                    enabledNode: plan.enabledNode ?? execute_node_names[0],
+                    days: plan.days ? (plan.days as string).split(',').map(Number) : [1], 
                 } : 
                 {   
                     scheduleTime: [dayjs()], 
@@ -193,9 +64,7 @@ export function InspectionForm ({
                 name='name' 
                 layout='vertical'
                 label={<h3>{t('巡检名称')}</h3>} 
-                rules={[
-                    { required: true, message: t('请输入巡检名称') }, 
-                    ]}>
+                rules={[{ required: true, message: t('请输入巡检名称') }]}>
                 <Input/>
             </Form.Item>
             
@@ -296,7 +165,7 @@ export function InspectionForm ({
                 </Form.Item>
                 {
                     !email_config.can_config && <Tooltip 
-                        title={email_config.error_msg}>
+                        title={<div style={{ whiteSpace: 'pre-wrap' }}>{email_config.error_msg}</div>}>
                         <WarningOutlined 
                             className='email-config-warning' 
                         /> 
@@ -330,12 +199,179 @@ export function InspectionForm ({
             <div className='metric-table'>
                 <MetricGroupTable
                     checked_metrics={metrics_with_nodes} 
-                    set_checked_metrics={set_metrics_with_nodes}
+                    set_checked_metrics={set_checked_metrics}
                 />
             </div>
-           
         </Form>
-        
+}
+
+export function InspectionForm ({ 
+    plan = null,
+    disabled = false,
+}: { 
+    plan?: Plan
+    disabled?: boolean
+}) {
+    const { nodes } = model.use(['nodes'])
+    
+    const { metrics } = inspection.use(['metrics'])
+    
+    const is_editing = !!plan
+    
+    const [view_only, set_view_only] = useState(disabled)
+    
+    useSWR(
+        is_editing ? ['get_plan_detail', plan.id] : null, 
+        async () => inspection.get_plan_detail(plan.id),
+        {
+            onSuccess: plan_detail => {
+                let new_checked_metrics = new Map<string, MetricsWithStatus>(metrics_with_nodes) 
+                plan_detail.forEach(pd => 
+                    (new_checked_metrics.set(pd.metricName, {  ...metrics.get(pd.metricName), checked: true, selected_nodes: pd.nodes.split(','), selected_params: JSON.parse(pd.params) }) ))
+                set_metrics_with_nodes(new_checked_metrics)
+            },
+        }
+    )
+    
+    const [enabled, set_enabled] = useState(plan?.enabled)
+    
+    // 保存指标是否选中以及每个指标巡检的节点
+    const [metrics_with_nodes, set_metrics_with_nodes] = useState<Map<string, MetricsWithStatus>>(new Map(
+        Array.from(metrics.values()).map(mc => ([mc.name, { ...mc, checked: false, selected_nodes: [ ], selected_params: { } }]))
+    ))
+    
+    const execute_node_names = useMemo(
+        () => nodes.filter(({ mode }) => 
+                                mode === NodeType.data || 
+                                mode === NodeType.computing || 
+                                mode === NodeType.single)
+                    .map(({ name }) => name), [ nodes ])
+    
+    function verify_metrics () {
+        let selected_metrics = Array.from(metrics_with_nodes.values()).filter(({ checked }) => checked)
+        if (selected_metrics.length === 0) {
+            model.message.error(t('请至少选中一个指标'))
+            return false
+        }
+         
+        // 找出需要选择节点但没有选择的指标
+        if (selected_metrics.some(({ name, nodes }) => metrics.get(name).nodes !== '' && nodes.length === 0)) {
+            model.message.error(t('请至少选中一个巡检节点'))
+            return false
+        }
+        return true
+    }
+    
+    const [inspection_form] = Form.useForm<Pick<Plan, 'name' | 'desc' | 'frequency' | 'days' | 'enabledNode' | 'scheduleTime' | 'alertEnabled' | 'alertRecipient'> >()
+    
+    async function on_save  (run_now?: boolean) {
+        try {
+            const values = await inspection_form.validateFields()
+            if (!verify_metrics())
+                return
+            const metrics = Array.from(metrics_with_nodes.values()).filter(({ checked }) => checked)
+            const new_plan =  
+                {   
+                    name: values.name,
+                    desc: values.desc ?? '',
+                    metrics: metrics.map(({ name }) => name),
+                    nodes: metrics.map(({ selected_nodes }) => selected_nodes.length && selected_nodes[0] !== '' ? selected_nodes : ''),
+                    params: metrics.map(({ selected_params, params }) => {
+                        if (isObject(selected_params) && !isEmpty(selected_params)) {
+                            let formatted_params = { }
+                            for (const [key, value] of Object.entries(selected_params)) {
+                                let param = params.get(key)
+                                if (param.type === 'TIMESTAMP')
+                                    formatted_params[key] = value ? dayjs(value).format('YYYY.MM.DDTHH:mm:ss.SSS') : null
+                                else
+                                    formatted_params[key] = value
+                            }
+                            return JSON.stringify(formatted_params)
+                        } 
+                        else
+                            return ''
+                    }),
+                    frequency: values.frequency,
+                    days: values.days ? (values.days as number[]).map(Number) : [1],                                
+                    scheduleTime: values.scheduleTime.filter(time => time).map(time => dayjs(time).format('HH:mm') + 'm'), 
+                    enabled,
+                    enabledNode: values.enabledNode,
+                    alertEnabled: values.alertEnabled,
+                    alertRecipient: values.alertRecipient,
+                    runNow: run_now
+                }
+            if (is_editing)
+                await inspection.update_plan({ id: plan.id, ...new_plan  })
+            else
+                await inspection.create_plan(new_plan)
+            model.message.success(is_editing ? t('修改成功') : t('创建成功'))
+            model.goto('/inspection')
+            // mutate_plan_detail()
+        } catch (error) {
+            if (error instanceof Error)
+                model.show_error({ error })
+        }
+    }
+    
+    async function on_run () {
+        try {
+            await inspection.run_plan(plan.id)
+            model.message.success( t('执行成功'))
+            model.goto('/inspection')
+        } catch (error) {
+            if (error instanceof Error)
+                model.show_error({ error })
+        }
+    }
+    
+    
+    return <div className='inspection-form'>
+        <div className='inspection-form-header'>
+            <div className='inspection-form-header-left'>
+                <Button onClick={() => { model.goto('/inspection', { queries: { disabled: null } }) }}>{t('返回')}</Button>
+                <h3>{is_editing ? (view_only ? t('查看巡检计划') : t('修改巡检计划')) : t('新增巡检计划')}</h3>
+            </div>
+            <div className='inspection-form-header-right'>
+                <div>
+                    <span>{t('启用：')}</span>
+                    <Switch value={enabled} onChange={set_enabled} />
+                </div>
+                {
+                    is_editing && <div>
+                        <span>{t('编辑模式：')}</span>
+                        <Switch value={!view_only} onChange={checked => { set_view_only(!checked) }}/></div>
+                }
+                <Tooltip title={view_only ? t('立即执行一次巡检') : t('保存当前方案并立即执行一次巡检')}>
+                    <Button type='primary'  onClick={async () => {
+                        if (view_only) 
+                            await on_run()
+                         else 
+                            on_save(true)
+                        
+                    }}>{t('立即巡检')}</Button>
+                </Tooltip>
+                <Tooltip title={t('保存当前方案')}>
+                    <Button type='primary' disabled={view_only} onClick={async () => on_save(false)}>{t('保存')}</Button>
+                </Tooltip>
+            </div>
+        </div>
+        {
+            plan ? <InspectionFormContent 
+                plan={plan}
+                view_only={view_only}
+                metrics_with_nodes={metrics_with_nodes}
+                set_checked_metrics={set_metrics_with_nodes}
+                execute_node_names={execute_node_names}
+                inspection_form={inspection_form}
+                /> : 
+            <InspectionFormContent 
+                view_only={view_only}
+                metrics_with_nodes={metrics_with_nodes}
+                set_checked_metrics={set_metrics_with_nodes}
+                execute_node_names={execute_node_names}
+                inspection_form={inspection_form}
+            />
+        }
     </div>
 }
 

@@ -1,10 +1,10 @@
 import { InspectionForm } from './inspectionForm.tsx'
 
-export function addInspectionPage ({ refresh }: { refresh: ( ) => void }) {
+export function AddInspectionPage () {
 
     return <div
         className='add-inspection'       
     >
-        <InspectionForm refresh={refresh}/>
+        <InspectionForm/>
     </div>
 }

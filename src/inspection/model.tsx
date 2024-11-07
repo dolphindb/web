@@ -4,7 +4,7 @@ import {  model } from '@/model.ts'
 
 import { config } from '@/config/model.ts'
 
-import type { Metric, MetricParam, Plan, PlanDetail, PlanReport, PlanReportDetailMetric, PlanReportDetailNode } from './type.ts'
+import { EMAIL_CONFIG_MESSAGES, type Metric, type MetricParam, type Plan, type PlanDetail, type PlanReport, type PlanReportDetailMetric, type PlanReportDetailNode } from './type.ts'
 
 import define_script from './index.dos'
 import create_metrics_script from './init.dos'
@@ -17,10 +17,6 @@ class InspectionModel extends Model<InspectionModel> {
     
     // null 代表未从 server 获取到 table_created，此时需要处于 loading
     table_created: boolean | null = null
-    
-    current_report: PlanReport | null = null
-    
-    current_plan: Plan | null = null
     
     metrics: Map<string, Metric> = new Map()
     
@@ -61,13 +57,17 @@ class InspectionModel extends Model<InspectionModel> {
     }
     
     // 检查表是否已创建
-    async check_inited () {
+    async check_table_created () {
         this.set({ table_created: await model.ddb.execute('existsDatabase("dfs://autoInspection")') })
     }
     
     async get_plans (enabled: boolean, page: number, limit: number, searchKey: string, planId: string = null): Promise<{ records: Plan[], total: number }> {
         const [plans_obj, total] = await model.ddb.execute(`getPlans(${planId},${enabled},${page},${limit},"${searchKey}")`)
         return { records: plans_obj.data, total }
+    }
+    
+    async get_plan (planId: string): Promise<Plan>  {
+        return (await model.ddb.execute(`getPlans('${planId}')`))[0].data[0]
     }
     
     async delete_plans (ids: string[]) {
@@ -100,8 +100,11 @@ class InspectionModel extends Model<InspectionModel> {
     
     async get_reports (planId: string = null, reportId: string = null, startTime: string = null, endTime: string = null, success: number = null, page: number = 1, limit: number = 5, searchKey: string = '', orderBy: string = 'receivedTime', ascOrder: number = 0): Promise<{ records: PlanReport[], total: number }> {
         const [reports, total] = await model.ddb.execute(`getReports(${planId},${reportId ? `"${reportId}"` : null},${startTime},${endTime},${success},${page},${limit},"${searchKey}","${orderBy}",${ascOrder})`)
-        // const [reports, total] = (await model.ddb.invoke('getReports', [planId, reportId, startTime, endTime, success, new DdbInt(page), new DdbInt(limit), searchKey, orderBy, ascOrder])).data
         return { records: reports.data, total }
+    }
+    
+    async get_report (reportId: string): Promise<PlanReport>  {
+        return (await model.ddb.execute(`getReports('','${reportId}')`))[0].data[0]
     }
     
     async delete_reprorts (ids: string[]) {
@@ -122,8 +125,8 @@ class InspectionModel extends Model<InspectionModel> {
     }
     
     async can_configure_email () {
-        const { canConfigure: can_config, errMsg: error_msg }  = (await model.ddb.invoke('canConfigureEmail', [ ]))
-        this.set({ email_config: { can_config, error_msg } })
+        const { errCode, errMsg }  = (await model.ddb.invoke('canConfigureEmail', [ ]))
+        this.set({ email_config: { can_config: errCode === 0, error_msg: `${EMAIL_CONFIG_MESSAGES[errCode]}\n${errMsg}` } })
     }
     
     async get_logs (reportId: string, node: string) {

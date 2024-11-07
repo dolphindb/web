@@ -10,6 +10,8 @@ import { UpOutlined } from '@ant-design/icons'
 
 import NiceModal from '@ebay/nice-modal-react'
 
+import { useParams } from 'react-router-dom'
+
 import { model } from '@/model.ts'
 
 import { safe_json_parse } from '@/dashboard/utils.ts'
@@ -17,26 +19,27 @@ import { safe_json_parse } from '@/dashboard/utils.ts'
 import type {  PlanReportDetailMetric } from './type.ts'
 import { inspection } from './model.tsx'
 import { metricGroups, reportLables } from './constants.ts'
-import { FailedStatus, SuccessStatus } from './index.tsx'
 import { LogModal } from './logModal.tsx'
+import { FailedStatus, SuccessStatus } from './inspectionListPage.tsx'
 
 const { Title } = Typography
 
 export function ReportDetailPage () {
 
-    const { current_report } = inspection.use(['current_report'])
+    const { reportId } = useParams()
     const [active_key, set_active_key] = useState(null)
     
     const topRef = useRef<HTMLDivElement>(null)
     
-    const { data: plan_report_detail, isLoading } = useSWR([current_report, 'get_report_detail_metrics'],  async () => {
+    const { data: report, isLoading: get_report_loading } = useSWR([reportId, 'get_report'], async () => {
+        const report = await inspection.get_report(reportId)
+        return report
+    })
+    
+    const { data: plan_report_detail, isLoading: get_report_detail_loading } = useSWR([reportId, 'get_report_detail_metrics'],  async () => {
         // 如果只有 id 则执行 get_reports 获取一次 report
-        if (current_report.desc === undefined) {
-            const report = await inspection.get_reports(null, current_report.id)
-            inspection.set({ current_report: report?.records[0] })
-        }
-        const metrics =  await inspection.get_report_detail_metrics(current_report.id)
-        const nodes = await inspection.get_report_detail_nodes(current_report.id)
+        const metrics =  await inspection.get_report_detail_metrics(reportId)
+        const nodes = await inspection.get_report_detail_nodes(reportId)
         let metrics_map = new Map<string, PlanReportDetailMetric>()
         metrics.forEach(m => metrics_map.set(m.metricName, { ...m, detail_nodes: [ ] }))
         nodes.forEach(node => {
@@ -94,7 +97,7 @@ export function ReportDetailPage () {
             const originalTitle = document.title
             
             // 设置新标题（这可能会影响某些浏览器生成的PDF文件名）
-            document.title = t('巡检报告_{{id}}', { id: current_report.id })
+            document.title = t('巡检报告_{{id}}', { id: reportId })
             // 创建一个新的样式元素
             const style = document.createElement('style')
             style.textContent = `
@@ -160,14 +163,14 @@ export function ReportDetailPage () {
     
     const has_abnoraml_metrics = abnormal_metrics.length > 0
       
-    return isLoading ? <div className='spin-container'><Spin size='large' spinning={isLoading}/></div> : <div className='report-detail' ref={topRef}>
+    return get_report_loading || get_report_detail_loading ? <div className='spin-container'><Spin size='large' spinning={get_report_loading || get_report_detail_loading}/></div> : <div className='report-detail' ref={topRef}>
         <div className='report-detail-header'>
-            <Button onClick={() => { inspection.set({ current_report: null }) }}>{t('返回')}</Button>
+            <Button onClick={() => { model.goto('/inspection') }}>{t('返回')}</Button>
             <Button type='primary' onClick={export_report}>{t('下载巡检报告')}</Button>
         </div>
        
         <div id='report-detail-content' className='report-content'>
-            <h1>{t('{{report_id}} 巡检报告', { report_id: current_report.planId })}</h1>
+            <h1>{t('{{report_id}} 巡检报告', { report_id: reportId })}</h1>
            
             <Descriptions 
                 column={4} 
@@ -175,8 +178,8 @@ export function ReportDetailPage () {
                 ({  key, 
                     label: value, 
                     children: key === 'runningTime' 
-                                    ? delta2str(Number(current_report[key])) 
-                                    : <div style={{ whiteSpace: 'pre-wrap' }}>{current_report[key]}</div> 
+                                    ? delta2str(Number(report[key])) 
+                                    : <div style={{ whiteSpace: 'pre-wrap' }}>{report[key]}</div> 
                 }))]} 
             />
             

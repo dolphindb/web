@@ -5,9 +5,9 @@ import { fdclear } from 'xshell'
 import { builder, fpd_out } from './builder.ts'
 
 
-await fdclear(fpd_out)
-
 const prefix_version = '--version='
+
+await fdclear(fpd_out)
 
 await builder.build_bundles(true)
 
