@@ -104,45 +104,47 @@ export class DashBoardModel extends Model<DashBoardModel> {
     
     /** 初始化 GridStack 并配置事件监听器 */
     async init ($div: HTMLDivElement) {
+        console.log('init')
         let grid = GridStack.init({
             //  gridstack 有 bug ，当 grid 没有 2*3 的连续空间时，再拖入一个会使所有 widget 无法 change，暂时通过计算面积阻止拖入，后续无限行数时不会再有此问题
-            acceptWidgets: () => {
-                const canvas = Array.from({ length: 12 }, () => Array(12).fill(0))
+            acceptWidgets: () => { // 动态改变大小可能只能在这上面动了，另一种说法是在组件添加完成后，发现没空了就加。如果这里能改，那就是在拖动开始的时候加。
+                return true
+                // const canvas = Array.from({ length: 12 }, () => Array(12).fill(0))
                 
-                this.widgets.forEach(widget => {
-                for (let i = widget.x;  i < widget.x + widget.w;  i++)
-                    for (let j = widget.y;  j < widget.y + widget.h;  j++)
-                        canvas[i][j] = 1
-                })
+                // this.widgets.forEach(widget => {
+                // for (let i = widget.x;  i < widget.x + widget.w;  i++)
+                //     for (let j = widget.y;  j < widget.y + widget.h;  j++)
+                //         canvas[i][j] = 1
+                // })
                 
-                // 使用动态规划记录每个位置上的连续空白格子数量
-                const dp = Array.from({ length: 12 }, () => Array(12).fill(0))
-                for (let i = 0;  i < 12;  i++)
-                    for (let j = 0;  j < 12;  j++)
-                        if (canvas[i][j] === 0) 
-                            dp[i][j] = (j > 0 ? dp[i][j - 1] : 0) + 1
+                // // 使用动态规划记录每个位置上的连续空白格子数量
+                // const dp = Array.from({ length: 12 }, () => Array(12).fill(0))
+                // for (let i = 0;  i < 12;  i++)
+                //     for (let j = 0;  j < 12;  j++)
+                //         if (canvas[i][j] === 0) 
+                //             dp[i][j] = (j > 0 ? dp[i][j - 1] : 0) + 1
                         
                             
                     
-                // 检查是否有符合条件的3x2空白区域
-                for (let i = 0;  i < 11;  i++)
-                    for (let j = 0;  j <= 11;  j++)
-                        if (dp[i][j] >= 3 && dp[i + 1][j] >= 3) 
-                            return true
-                console.log('格子不够')
-                console.log('canvas', canvas)
-                console.log('dp', dp)        
-                return false
+                // // 检查是否有符合条件的3x2空白区域
+                // for (let i = 0;  i < 11;  i++)
+                //     for (let j = 0;  j <= 11;  j++)
+                //         if (dp[i][j] >= 3 && dp[i + 1][j] >= 3) 
+                //             return true
+                // console.log('格子不够')
+                // console.log('canvas', canvas)
+                // console.log('dp', dp)        
+                // return false
             },
             float: true,
             column: this.maxcols,
-            row: this.maxrows,
+            row: 0,
             margin: 0,
-            draggable: { scroll: false },
+            draggable: { scroll: true },
             resizable: { handles: 'n,e,se,s,w' },
         }, $div)
         
-        grid.cellHeight(Math.floor(grid.el.clientHeight / this.maxrows))
+        grid.cellHeight(Math.floor((window.innerHeight - 50) / this.maxrows))
         
         grid.enableMove(this.editing)
         grid.enableResize(this.editing)
@@ -189,7 +191,7 @@ export class DashBoardModel extends Model<DashBoardModel> {
         window.addEventListener('resize', () => {
             let { grid } = this
             if (grid?.el)
-                grid.cellHeight(Math.floor(grid.el.clientHeight / this.maxrows))
+                grid.cellHeight(Math.floor((window.innerHeight - 50) / this.maxrows))
         })
     }
     
