@@ -10,8 +10,6 @@ import { isEmpty, isObject } from 'lodash'
 
 import { MinusCircleOutlined, PlusOutlined, WarningOutlined } from '@ant-design/icons'
 
-import { useSearchParams } from 'react-router-dom'
-
 import { model, NodeType } from '@/model.ts'
 
 import { inspection } from './model.tsx'
@@ -330,7 +328,7 @@ export function InspectionForm ({
     return <div className='inspection-form'>
         <div className='inspection-form-header'>
             <div className='inspection-form-header-left'>
-                <Button onClick={() => { model.goto('/inspection') }}>{t('返回')}</Button>
+                <Button onClick={() => { model.goto('/inspection', { queries: { disabled: null } }) }}>{t('返回')}</Button>
                 <h3>{is_editing ? (view_only ? t('查看巡检计划') : t('修改巡检计划')) : t('新增巡检计划')}</h3>
             </div>
             <div className='inspection-form-header-right'>
