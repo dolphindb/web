@@ -340,6 +340,7 @@ def runMetric(name, script, mutable params) {
 
 def runPlanInner(planId) {
     print("start to run plan: " + string(planId))
+    writeLog("autoInspection: start to run plan: " + string(planId))
     planId_ = planId
     planDetails = select a.metricName as metricName, a.nodes as nodes, a.params as params, b.script as script, b.version as metricVersion from loadTable("dfs://autoInspection", "planDetails") a left join loadTable("dfs://autoInspection", "metrics") b on a.metricName == b.name where a.planId == planId_
 
@@ -506,7 +507,8 @@ def runPlan(planId, blocking=false) {
     print("start to submit plan, planId: " + string(planId) + ", enabledNode: " + enabledNode)
     writeLog("autoInspection: start to submit plan, planId: " + string(planId) + ", enabledNode: " + enabledNode)
     onComplete = def(jobId, jobDesc, success, result) {
-        writeLog("autoInspection: onComplete callback, report id: " + jobId + ", start to update report")
+        planId_ = result["planId"].first()
+        writeLog("autoInspection: onComplete callback, plan id: " + planId_ + ", report id: " + jobId + ", start to update report")
         try {
             cnt = 0
             do {
@@ -524,33 +526,32 @@ def runPlan(planId, blocking=false) {
             endTime_ = reportJobInfo[0]["endTime"]
             if (success == true) {
                 jobId_ = jobId
-                planId = reportInfo["planId"].first()
                 update result set reportId = jobId_
                 loadTable("dfs://autoInspection", "reportDetails").append!(result)
                 success_ = all(result["success"])
                 totalNum_ = exec count(distinct(metricName)) from result
                 failedNum_ = select count(*) from result where success == false group by metricName
                 failedNum_ = failedNum_.size()
-                update loadTable("dfs://autoInspection", "reports") set startTime = startTime_, endTime = endTime_, success = success_, totalNum = totalNum_, failedNum = failedNum_ where id = jobId
-                writeLog("autoInspection: run plan successfully, plan id: " + planId + ", report id: " + jobId)
+                update loadTable("dfs://autoInspection", "reports") set startTime = startTime_, endTime = endTime_, success = success_, totalNum = totalNum_, failedNum = failedNum_ where planId == planId_ and id == jobId
+                writeLog("autoInspection: run plan successfully, plan id: " + planId_ + ", report id: " + jobId)
 
                 // 发送邮件
                 alertConfig = loadAlertConfig()
-                planInfo = select * from loadTable("dfs://autoInspection", "plans") where id == planId
-                reportInfo = select * from loadTable("dfs://autoInspection", "reports") where id == jobId
+                planInfo = select * from loadTable("dfs://autoInspection", "plans") where id == planId_
+                reportInfo = select * from loadTable("dfs://autoInspection", "reports") where planId == planId_ and id == jobId
                 planInfo = planInfo[0]
                 reportInfo = reportInfo[0]
                 if (alertConfig["inspectionAlertEnabled"] and planInfo["alertEnabled"] and reportInfo["success"] == false) {
-                    submitJob("sendReportEmail", planId, sendReportEmail, planInfo, reportInfo, alertConfig)
+                    submitJob("sendReportEmail", planId_, sendReportEmail, planInfo, reportInfo, alertConfig)
                 }
             } else {
                 update loadTable("dfs://autoInspection", "reports") set startTime = startTime_, endTime = endTime_, success = false where id = jobId
-                writeLog("autoInspection: run plan failed, plan id: " + reportInfo["planId"].first() + ", report id: " + jobId + ", err msg: " + string(result).last())
+                writeLog("autoInspection: run plan failed, plan id: " + planId_ + ", report id: " + jobId + ", err msg: " + string(result).last())
                 throw result
             }
         } catch(err) {
-            update loadTable("dfs://autoInspection", "reports") set startTime = receivedTime, endTime = now(), success = false where id = jobId
-            writeLog("autoInspection: run plan failed, plan id: " + reportInfo["planId"].first() + ", report id: " + jobId + ", err msg: " + string(err).last())
+            writeLog("autoInspection: run plan failed, plan id: " + planId_ + ", report id: " + jobId + ", err msg: " + string(err).last())
+            update loadTable("dfs://autoInspection", "reports") set startTime = receivedTime, endTime = now(), success = false where planId == planId_ and id == jobId
             throw err
         }
     }
