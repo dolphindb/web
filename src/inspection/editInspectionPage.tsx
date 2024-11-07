@@ -1,24 +1,25 @@
-import { InspectionForm } from './inspectionForm.tsx'
-import type { Plan } from './type.ts'
+import { useParams, useSearchParams } from 'react-router-dom'
 
-export function EditInspection ({ 
-    plan, 
-    refresher,
-    disabled = false 
-}: 
-{ 
-    plan: Plan 
-    refresher: ( ) => void 
-    disabled?: boolean
-}) {
-            
+import useSWR from 'swr'
+
+import { InspectionForm } from './inspectionForm.tsx'
+import { inspection } from './model.tsx'
+
+export function EditInspectionPage () {
+    
+    const [searchParams] = useSearchParams()
+    
+    const disabled = searchParams.get('disabled') === '1'
+    const { planId } = useParams()
+    
+    const { data: plan } = useSWR(
+        ['get_plan', planId], 
+        async () => inspection.get_plan(planId),
+    )
+    
     return <div
         className='edit-inspection'       
     >
-        <InspectionForm
-            refresh={refresher}
-            plan={plan}
-            disabled={disabled}
-        />
+        <InspectionForm plan={plan} disabled={disabled} />
     </div>
 }

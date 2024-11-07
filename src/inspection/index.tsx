@@ -29,6 +29,10 @@ export function Inspection () {
         }
     })
     
+    useSWR('check_inited', async () => {
+        inspection.check_table_created()
+    })
+    
     if (node_type === NodeType.controller) 
         return <Result
         status='warning'
@@ -63,8 +67,6 @@ export function Inspection () {
             </Popconfirm>
         }
     />
-    
-    
     // table_created 未 null 代表未从 server 获取到 table_created 状态
     if (isNull(table_created) || !inited || !defined) 
         return <div className='spin-container'>

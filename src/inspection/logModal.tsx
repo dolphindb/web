@@ -7,7 +7,6 @@ import useSWR from 'swr'
 import { inspection } from './model.tsx'
 
 interface LogModalProps {
-    // node 代表需要 rpc
     node?: string
     reportId: string
 }

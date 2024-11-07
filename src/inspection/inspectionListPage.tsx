@@ -1,4 +1,3 @@
-import { isNull } from 'util'
 
 import { CheckOutlined, CloseOutlined, MailOutlined, PlusOutlined, ReloadOutlined } from '@ant-design/icons'
 import NiceModal from '@ebay/nice-modal-react'
@@ -12,6 +11,8 @@ import useSWR from 'swr'
 import type { Dayjs } from 'dayjs'
 
 import { useNavigate } from 'react-router-dom'
+
+import { isNull } from 'lodash'
 
 import { model } from '@/model.ts'
 
@@ -34,7 +35,7 @@ export function InspectionList () {
                 <Button 
                     type='primary'
                     icon={<PlusOutlined />}
-                    onClick={() => { navigate('plan/new') }}>
+                    onClick={() => { model.goto('/inspection/plan/new') }}>
                     {t('新增巡检')}
                 </Button>
                 
@@ -104,6 +105,7 @@ function ReportListTable  ({
     const [ids, set_ids] = useState([ ])
     
     const [current_page, set_current_page] = useState(1)
+    
     const [current_page_size, set_current_page_size] = useState(5)
     
     const [sorter, set_sorter] = useState<[string, 0 | 1] | null>(['receivedTime', 0])
@@ -197,7 +199,7 @@ function ReportListTable  ({
                     <Button
                         type='link'
                         disabled={isNull(record.success)}
-                        onClick={() => { inspection.set({ current_report: record }) }}
+                        onClick={() => { model.goto(`/inspection/report/${record.id}`) }}
                     >
                         {t('查看详细报告')}
                     </Button>
@@ -387,7 +389,7 @@ function PlanListTable  ({
                    
                     <Button 
                         type='link'
-                        onClick={() => { inspection.set({ current_plan: record }) }}
+                        onClick={() => { model.goto(`/inspection/plan/${record.id}`, { queries: { disabled: '1' } }) }}
                     >
                         {t('查看详情')}
                     </Button>
@@ -395,7 +397,7 @@ function PlanListTable  ({
                     <Button 
                         type='link'
                         disabled={record.lastReportId === ''}
-                        onClick={() => { inspection.set({ current_report: { id: record.lastReportId } as PlanReport }) }}
+                        onClick={() => { model.goto(`/inspection/report/${record.lastReportId}`) }}
                     >
                         {t('查看最近一次巡检结果')}
                     </Button>

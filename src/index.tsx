@@ -56,6 +56,10 @@ import { Settings } from './settings/index.tsx'
 import { CreateGuide } from './guide/iot-guide/index.tsx'
 import { FinanceGuide } from './guide/finance-guide/index.tsx'
 import { DataCollection } from './data-collection/index.tsx'
+import { InspectionList } from './inspection/inspectionListPage.tsx'
+import { ReportDetailPage } from './inspection/reportDetailPage.tsx'
+import { EditInspectionPage } from './inspection/editInspectionPage.tsx'
+import { AddInspectionPage } from './inspection/addInspectionPage.tsx'
 
 
 
@@ -210,11 +214,11 @@ const router = createBrowserRouter([
                     },
                     {
                         path: 'plan/:planId',
-                        element: <EditInspection />
+                        element: <EditInspectionPage />
                     },
                     {
                         path: 'plan/new',
-                        element: <EditInspection />
+                        element: <AddInspectionPage />
                     }
                 ]
             },
