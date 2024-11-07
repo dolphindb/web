@@ -105,8 +105,8 @@ importers:
         specifier: ^9.0.1
         version: 9.0.1(@types/react@18.3.12)(react@18.3.1)
       react-object-model:
-        specifier: ^1.2.16
-        version: 1.2.16(react@18.3.1)
+        specifier: ^1.2.17
+        version: 1.2.17(react@18.3.1)
       react-quill:
         specifier: ^2.0.0
         version: 2.0.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -4088,8 +4088,8 @@ packages:
       '@types/react': '>=18'
       react: '>=18'
 
-  react-object-model@1.2.16:
-    resolution: {integrity: sha512-sWvVH3V5tRSMpX/dpi222gC2XDL3NLzi+q59tV2TxsMgqBiPahg9cTgNnN/MX6EfAECKbCzJDuWgxLvsGXtx1w==}
+  react-object-model@1.2.17:
+    resolution: {integrity: sha512-ziI7JjrKWkfGimQVU7SLud2y+A8HGnsjDRxDIy32AcH5vFNwbqnYjj+pLMcnOAx4ZPP1Lml1R+xZDaHV82vD9g==}
     peerDependencies:
       react: ^18.2.0
 
@@ -9952,7 +9952,7 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  react-object-model@1.2.16(react@18.3.1):
+  react-object-model@1.2.17(react@18.3.1):
     dependencies:
       react: 18.3.1
     optionalDependencies:
@@ -11004,7 +11004,7 @@ snapshots:
       ora: 8.1.1
       react: 18.3.1
       react-i18next: 15.1.0(i18next@23.16.4)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      react-object-model: 1.2.16(react@18.3.1)
+      react-object-model: 1.2.17(react@18.3.1)
       resolve-path: 1.4.0
       sass: 1.80.6
       sass-loader: 16.0.3(sass@1.80.6)(webpack@5.96.1)
