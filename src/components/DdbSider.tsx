@@ -80,7 +80,7 @@ export function DdbSider () {
     
     
     const factor_href = useMemo(() => {
-        return location.origin + '/starfish/index.html?' +
+        return '/starfish/index.html?' +
             new URLSearchParams(filter_values(
                 {
                     ddb_hostname: model.hostname,
