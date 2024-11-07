@@ -92,7 +92,10 @@ export function Computing () {
         },
         streaming_table_stat: {
             title: t('流数据表状态'),
-            refresher: computing.get_streaming_table_stat
+            refresher: async () => {
+                await computing.get_streaming_table_stat()
+                await computing.get_streaming_pub_sub_stat()
+            }
         }
     }
     
