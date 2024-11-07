@@ -100,15 +100,17 @@ def clearEnv() {
 }
 
 def getJobStatusEx(jobId) {
+    lastErr = NULL
     for (i in 1..10) {
         try {
             return getJobStatus(jobId)
         } catch(err) {
+            lastErr = err
             sleep(100)
         }
     }
-
-    throw "getJobStatus failed after trying 10 times"
+    lastErr = iif(lastErr.form()==0, lastErr, lastErr.last())
+    throw "getJobStatus failed after trying 10 times, last error: " + lastErr
 }
 
 def initDfs() {
