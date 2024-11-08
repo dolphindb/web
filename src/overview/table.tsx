@@ -64,7 +64,6 @@ export function OverviewTable ({
                 title: t('节点别名'),
                 dataIndex: 'name',
                 fixed: 'left',
-                width: 150,
                 filterDropdown: ({ close }) => <div
                         style={{ padding: 8 }}
                         onKeyDown={e => {
