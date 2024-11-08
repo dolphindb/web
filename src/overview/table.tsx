@@ -65,7 +65,6 @@ export function OverviewTable ({
                 dataIndex: 'name',
                 fixed: 'left',
                 width: 150,
-                ellipsis: true,
                 filterDropdown: ({ close }) => <div
                         style={{ padding: 8 }}
                         onKeyDown={e => {
