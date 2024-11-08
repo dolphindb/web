@@ -66,6 +66,10 @@ pnpm install
 cp .vscode/settings.template.json .vscode/settings.json
 
 # Set environment variable NODE_OPTIONS='--experimental-transform-types'
+# 1. Set in the current session
+$env:NODE_OPTIONS = '--experimental-transform-types'
+# 2. Add to system environment variables (requires system restart)
+# [System.Environment]::SetEnvironmentVariable('NODE_OPTIONS', '--experimental-transform-types', [System.EnvironmentVariableTarget]::User)
 
 # Refer to scripts in package.json
 

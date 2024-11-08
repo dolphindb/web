@@ -378,7 +378,7 @@ export function OverviewTable ({
                         .filter(({ name, mode }) => name.toLowerCase().includes(search_text.toLowerCase()) && mode !== NodeType.agent)
                         .map(node => ({ ...node, key: node.name }))}
                     pagination={false}
-                    scroll={{ x: true }}
+                    scroll={{  x: 'max-content' }}
                 />
             </div>
         </div>
