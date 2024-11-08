@@ -64,6 +64,8 @@ export function OverviewTable ({
                 title: t('节点别名'),
                 dataIndex: 'name',
                 fixed: 'left',
+                width: 150,
+                ellipsis: true,
                 filterDropdown: ({ close }) => <div
                         style={{ padding: 8 }}
                         onKeyDown={e => {
@@ -378,7 +380,7 @@ export function OverviewTable ({
                         .filter(({ name, mode }) => name.toLowerCase().includes(search_text.toLowerCase()) && mode !== NodeType.agent)
                         .map(node => ({ ...node, key: node.name }))}
                     pagination={false}
-                    scroll={{ x: true }}
+                    scroll={{  x: 'max-content' }}
                 />
             </div>
         </div>
