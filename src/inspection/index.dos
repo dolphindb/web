@@ -48,7 +48,7 @@ def canConfigureEmail() {
     if (info.size() == 0) {
         ret["errCode"] = 1
         ret["errMsg"] = allNodes
-        throw ret
+        return ret
     }
 
     allNodes = set(allNodes)
@@ -57,7 +57,7 @@ def canConfigureEmail() {
     if (nodes != allNodes) {
         ret["errCode"] = 1
         ret["errMsg"] = (allNodes - nodes).keys()
-        throw ret
+        return ret
     }
 
     ddbVersion = version().split(" ").first()
@@ -76,7 +76,7 @@ def canConfigureEmail() {
     if (err.size() > 0) {
         ret["errCode"] = 2
         ret["errMsg"] = err
-        throw ret
+        return ret
     }
 
     return ret
