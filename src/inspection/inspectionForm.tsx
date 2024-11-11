@@ -13,7 +13,7 @@ import { MinusCircleOutlined, PlusOutlined, WarningOutlined } from '@ant-design/
 import { model, NodeType } from '@/model.ts'
 
 import { inspection } from './model.tsx'
-import { inspectionFrequencyOptions, metricGroups, weekDays } from './constants.ts'
+import { InspectionFrequencyOptions, MetricGroups, WeekDays } from './constants.ts'
 import type { MetricsWithStatus, Plan } from './type.ts'
 import { EditParamModal } from './editParamModal.tsx'
 import { addParamModal } from './addParamModal.tsx'
@@ -76,7 +76,7 @@ function InspectionFormContent ({
             <div className='inspection-form-inline-time'>
                 <Form.Item label={t('巡检频率')} name='frequency' required>
                     <Select 
-                        options={inspectionFrequencyOptions} 
+                        options={InspectionFrequencyOptions} 
                         onChange={() => {
                             inspection_form.setFieldsValue({ days: undefined })
                         }}
@@ -100,7 +100,7 @@ function InspectionFormContent ({
                                     className='date-select'
                                     options={Array.from({ length: frequency === 'M' ? 31 : 7 }, (_, i) => i).
                                             map(idx => ({
-                                                label:  frequency === 'W' ? weekDays[idx] : t('第 {{day}} 天', { day: idx + 1 }),
+                                                label:  frequency === 'W' ? WeekDays[idx] : t('第 {{day}} 天', { day: idx + 1 }),
                                                 value:  frequency === 'W' ? idx : idx + 1
                                             }))} 
                                 /> 
@@ -485,7 +485,7 @@ export function MetricGroupTable ({
                     title: t('分组'),
                     dataIndex: 'group',
                     key: 'group',
-                    render: (group: number) => metricGroups[group]
+                    render: (group: number) => MetricGroups[group]
                 }]}
                 pagination={false}
         />

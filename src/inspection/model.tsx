@@ -4,10 +4,11 @@ import {  model } from '@/model.ts'
 
 import { config } from '@/config/model.ts'
 
-import { EMAIL_CONFIG_MESSAGES, type Metric, type MetricParam, type Plan, type PlanDetail, type PlanReport, type PlanReportDetailMetric, type PlanReportDetailNode } from './type.ts'
+import type { Metric, MetricParam, Plan, PlanDetail, PlanReport, PlanReportDetailMetric, PlanReportDetailNode } from './type.ts'
 
 import define_script from './index.dos'
 import create_metrics_script from './init.dos'
+import { EmailConfigMessages } from './constants.ts'
 
 class InspectionModel extends Model<InspectionModel> {
     
@@ -126,7 +127,7 @@ class InspectionModel extends Model<InspectionModel> {
     
     async can_configure_email () {
         const { errCode, errMsg }  = (await model.ddb.invoke('canConfigureEmail', [ ]))
-        this.set({ email_config: { can_config: errCode === 0, error_msg: `${EMAIL_CONFIG_MESSAGES[errCode]}\n${errMsg}` } })
+        this.set({ email_config: { can_config: errCode === 0, error_msg: `${EmailConfigMessages[errCode]}\n${errMsg}` } })
     }
     
     async get_logs (reportId: string, node: string) {

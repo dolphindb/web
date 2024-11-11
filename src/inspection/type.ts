@@ -1,7 +1,4 @@
-import { t } from '@i18n/index.ts'
 import type { Dayjs } from 'dayjs'
-
-export const EMAIL_CONFIG_MESSAGES = [t('正常'), t('存在未安装 httpClient 插件的节点。'), t('httpClient 插件至与 DolphinDB 前三级版本不一致。')]
 
 export interface Metric {
     name: string

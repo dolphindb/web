@@ -18,7 +18,7 @@ import { safe_json_parse } from '@/dashboard/utils.ts'
 
 import type {  PlanReportDetailMetric } from './type.ts'
 import { inspection } from './model.tsx'
-import { metricGroups, reportLables } from './constants.ts'
+import { MetricGroups, ReportLables } from './constants.ts'
 import { LogModal } from './logModal.tsx'
 import { FailedStatus, SuccessStatus } from './inspectionListPage.tsx'
 
@@ -74,7 +74,7 @@ export function ReportDetailPage () {
     
     const abnormal_columns = [
         { title: t('指标名'), dataIndex: 'displayName', key: 'displayName' },
-        { title: t('指标分类'), dataIndex: 'group', key: 'group', render: (group: number) => metricGroups[group] },
+        { title: t('指标分类'), dataIndex: 'group', key: 'group', render: (group: number) => MetricGroups[group] },
         { title: t('开始时间'), dataIndex: 'startTime', key: 'startTime' },
         { title: t('运行时间'), dataIndex: 'runningTime', key: 'runningTime', render: (runningTime: bigint) => delta2str(Number(runningTime)) },
         {
@@ -139,7 +139,7 @@ export function ReportDetailPage () {
         
         let metric_idx = 1
       
-        return metricGroups.map((groupName, index) => {
+        return MetricGroups.map((groupName, index) => {
           const group_items = plan_report_detail.filter(detail => Number(detail.group) === index)
           const abnormal_count = group_items.filter(detail => !detail.success).length
           const total_count = group_items.length
@@ -174,7 +174,7 @@ export function ReportDetailPage () {
            
             <Descriptions 
                 column={4} 
-                items={[...Object.entries(reportLables).map(([key, value]) => 
+                items={[...Object.entries(ReportLables).map(([key, value]) => 
                 ({  key, 
                     label: value, 
                     children: key === 'runningTime' 
