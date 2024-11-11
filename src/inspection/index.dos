@@ -47,7 +47,7 @@ def canConfigureEmail() {
     info = select * from pnodeRun(listPluginsInner, allNodes) where pluginName == "httpClient" 
     if (info.size() == 0) {
         ret["errCode"] = 1
-        ret["errMsg"] = allNodes
+        ret["errMsg"] = toStdJson(allNodes)
         return ret
     }
 
@@ -56,7 +56,7 @@ def canConfigureEmail() {
     nodes = set(nodes)
     if (nodes != allNodes) {
         ret["errCode"] = 1
-        ret["errMsg"] = (allNodes - nodes).keys()
+        ret["errMsg"] = toStdJson((allNodes - nodes).keys())
         return ret
     }
 
@@ -75,7 +75,7 @@ def canConfigureEmail() {
 
     if (err.size() > 0) {
         ret["errCode"] = 2
-        ret["errMsg"] = err
+        ret["errMsg"] = toStdJson(err)
         return ret
     }
 
