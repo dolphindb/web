@@ -113,6 +113,20 @@ def getJobStatusEx(jobId) {
     throw "getJobStatus failed after trying 10 times, last error: " + lastErr
 }
 
+def getJobReturnEx(jobId) {
+    lastErr = NULL
+    for (i in 1..10) {
+        try {
+            return getJobReturn(jobId)
+        } catch(err) {
+            lastErr = err
+            sleep(100)
+        }
+    }
+    lastErr = iif(lastErr.form()==0, lastErr, lastErr.last())
+    throw "getJobReturn failed after trying 10 times, last error: " + lastErr
+}
+
 def initDfs() {
     years = sort(distinct(yearBegin(1985.01.01..2055.01.01)))
     dbValue = database(, VALUE, ["planId"])
@@ -381,7 +395,7 @@ def runPlanInner(planId) {
             node = nodes[i]
 
             try {
-                success, detail, suggestion, extraDetail, usedParams_ = getJobReturn(jobId, true)
+                success, detail, suggestion, extraDetail, usedParams_ = getJobReturnEx(jobId, true)
                 if (!isVoid(usedParams_)) { // 手动更新 params 实现 mutable 的效果
                     for (key in usedParams_.keys()) {
                         params[key] = usedParams_[key]
@@ -579,7 +593,7 @@ def runPlan(planId, blocking=false) {
     print("submit plan succesefully, planId: " + string(planId) + ", enabledNode: " + enabledNode)
     writeLog("autoInspection: submit plan succesefully, planId: " + string(planId) + ", enabledNode: " + enabledNode)
     if (blocking) {
-        rpc(enabledNode, getJobReturn, reportId_, true)
+        rpc(enabledNode, getJobReturnEx, reportId_, true)
     }
     
     return reportId_
