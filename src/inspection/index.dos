@@ -113,11 +113,11 @@ def getJobStatusEx(jobId) {
     throw "getJobStatus failed after trying 10 times, last error: " + lastErr
 }
 
-def getJobReturnEx(jobId) {
+def getJobReturnEx(jobId, blocking=false) {
     lastErr = NULL
     for (i in 1..10) {
         try {
-            return getJobReturn(jobId)
+            return getJobReturn(jobId, blocking)
         } catch(err) {
             lastErr = err
             sleep(100)
