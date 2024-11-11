@@ -25,7 +25,7 @@ newMetric(name, displayName, group, desc, nodes, script, params)
 name = "licenseExpiration"
 displayName = "License 有效期"
 group = "0"
-desc = "检查所有节点 license 有效期"
+desc = "检查所有节点 license 有效期。"
 nodes = NULL
 script = '
 def licenseExpiration(params=NULL) {
@@ -34,7 +34,7 @@ def licenseExpiration(params=NULL) {
     cnt = exec count(*) from res where temporalAdd(end_date, -7d) <= today()
     res = select node as "节点名", end_date as "到期时间" from res
     if (cnt > 0) {
-        return (false, res, "请及时更新 license 文件")
+        return (false, res, "请及时更新 license 文件。")
     }
     return (true, res, NULL)
 }
@@ -74,7 +74,7 @@ def nodeVersion(params) {
     insert into ver values (getControllerAlias(), rpc(getControllerAlias(), version))
     cnt = select distinct(value) from ver
     if (cnt.size() > 1) {
-        return (false, "存在节点版本不一致：\n" + string(ver), "请升级 DolphinDB 使所有节点版本一致。")
+        return (false, "存在节点版本不一致：", "请升级 DolphinDB 使所有节点版本一致。", ver)
     }
     return (true, version(), NULL)
 }
@@ -173,7 +173,7 @@ script = '
 def recoveryStatus(mutable params){
     failureTask=select * from rpc(getControllerAlias(),getRecoveryTaskStatus) where FailureReason == "Aborted";
     if(failureTask.size()>0){
-        return false,failureTask.size()+" 个副本恢复任务执行失败","调用 getRecoveryTaskStatus 排查错误原因。";
+        return false,failureTask.size()+" 个副本恢复任务执行失败。","调用 getRecoveryTaskStatus 排查错误原因。";
     }
     prevInProcessTask=select * from rpc(getControllerAlias(),getRecoveryTaskStatus) where Status=="In-Progress";
 
@@ -188,7 +188,7 @@ def recoveryStatus(mutable params){
     if(prevInProcessTask.size()>0&&inProcessTask.size()>0){
         existTask=set(prevInProcessTask.TaskId)-set(inProcessTask.TaskId);
         if(existTask.size()==prevInProcessTask.size()){
-            return false,prevInProcessTask.size()+"个副本恢复任务在 " + checkInterval + "ms 时间内一直没有推进或推进非常缓慢","调用 getRecoveryTaskStatus 排查卡住原因。";
+            return false,prevInProcessTask.size()+"个副本恢复任务在 " + checkInterval + "ms 时间内一直没有推进或推进非常缓慢。","调用 getRecoveryTaskStatus 排查卡住原因。";
         }
     }
     return true,NULL,NULL;
@@ -211,14 +211,13 @@ def diskUsage(params) {
     threshold = double(rpc(getControllerAlias(), getConfig{"volumeUsageThreshold"}))
     roundDiskUsage = round(diskUsage*100, 2)
     if (diskUsage >= threshold) {
-        detail = "磁盘使用率 " + roundDiskUsage.format("0.00") + "% 大于等于 volumeUsageThreshold 配置项 " + round(threshold*100, 2) + "%"
-        suggestion = "
-1. 在服务器上确认是 DolphinDB 或其他程序占用过多存储空间；
+        detail = "磁盘使用率 " + roundDiskUsage.format("0.00") + "% 大于等于 volumeUsageThreshold 配置项 " + round(threshold*100, 2) + "%。"
+        suggestion = "1. 在服务器上确认是 DolphinDB 或其他程序占用过多存储空间；
 2. 删除部分表数据以腾出空间；
 3. 扩容硬盘。"
         return (false, detail, suggestion)
     }
-    return (true, "磁盘使用率 " + roundDiskUsage.format("0.00") + "% 小于 volumeUsageThreshold 配置项 " + round(threshold*100, 2) + "%", NULL)
+    return (true, "磁盘使用率 " + roundDiskUsage.format("0.00") + "% 小于 volumeUsageThreshold 配置项 " + round(threshold*100, 2) + "%。", NULL)
 }
 '
 newMetric(name, displayName, group, desc, nodes, script)
@@ -233,8 +232,8 @@ script = '
 def memUsage(params) {
     maxMemSize = int(getConfig("maxMemSize"))
     allocatedGB = mem()["allocatedBytes"] \\ 1024 \\ 1024 \\ 1024
-    if (allocatedGB > maxMemSize * 0.9) {
-        throw (false, "节点已分配内存 " + allocatedGB.format("0.000") + " GB 大于最大内存 " + maxMemSize + " GB * 90%", "参照《内存管理》官方文档排查内存占用情况。")
+    if (allocatedGB >= maxMemSize * 0.9) {
+        throw (false, "节点已分配内存 " + allocatedGB.format("0.000") + " GB 大于等于最大内存 " + maxMemSize + " GB * 90%", "参照《内存管理》官方文档排查内存占用情况。")
     }
     return (true, NULL, NULL)
 }
@@ -268,7 +267,7 @@ script = '
 def chunksStatus(params) {
     masterMeta = select * from rpc(getControllerAlias(), getClusterChunksStatus) where state != "COMPLETE" and lastUpdated - now() > 60*60*1000
     if (masterMeta.size() > 0) {
-        return (false, "存在 " + string(masterMeta.size()) + " 条控制节点元数据状态异常超过1小时", "请参考官方教程《分区状态不一致》排查问题。")
+        return (false, "存在 " + string(masterMeta.size()) + " 条控制节点元数据状态异常超过1小时，部分统计结果如下：", "请参考官方教程《分区状态不一致》排查问题。", select * from masterMeta limit 10)
     }
     
     return (true, NULL, NULL)
@@ -395,7 +394,7 @@ def addBadChunkId(mutable badChunkId,chunkId,rowNum){
 }
 def replicaRowNum(params){
     if(getConfig().dfsReplicationFactor<2){
-        return (true, "节点副本数小于2，无法进行校验", NULL)
+        return (true, "节点副本数小于 2，无法进行校验", NULL)
     }
     startTime= params["startTime"]
     endTime= params["endTime"]
@@ -409,7 +408,7 @@ def replicaRowNum(params){
     select addBadChunkId(badChunkId,first(chunkId),rowNum) from chunkidNodeRow group by chunkId;
     if(badChunkId.size()>0){
         badChunkId_ = iif(badChunkId.size()>10, badChunkId[:10], badChunkId)
-        return false,"存在 "+badChunkId.size()+" 个不一致的副本。","请删除错误副本并拷贝正确副本恢复。", badChunkId_.concat(", ");
+        return false,"存在 "+badChunkId.size()+" 个不一致的副本。","请使用 deleteReplicas 删除错误副本并使用 copyReplicas 拷贝正确副本恢复。", badChunkId_.concat(", ");
     }
     return true,"所有分区副本数完全一致","";
 }
@@ -523,9 +522,9 @@ newMetric(name, displayName, group, desc, nodes, script, params)
 go
 
 name = "queryElapsed"
-displayName = "耗时最长SQL top10"
+displayName = "耗时最长 SQL top10"
 group = "1"
-desc = "耗时最长SQL top10，只统计 startTime 到 endTime 参数时间范围内执行的 SQL。
+desc = "耗时最长 SQL top10，只统计 startTime 到 endTime 参数时间范围内执行的 SQL。
 参数说明：
 - startTime：TIMESTAMP，统计范围的开始时间，默认值为上次相同方案 ID 的报告的开始时间。
 - endTime：TIMESTAMP，统计范围的结束时间，默认值为当前报告的开始时间。"
@@ -1189,7 +1188,7 @@ def newValuePartitionPolicy(parsedConfigs) {
 
     res = select * from readConfigs::getClusterConfigsEx(parsedConfigs, "newValuePartitionPolicy") where value != "add"
     if (res.size() > 0) {
-        throw "建议将 newValuePartitionPolicy 配置项配置为 add：\n" + res
+        throw "建议将 newValuePartitionPolicy 配置项配置为 add，当前值：\n" + res
     }
 }
 
@@ -1505,7 +1504,7 @@ def commonDolphinDBConfig(params) {
     }
 
     if (ret.size() > 0) {
-        return (false, ret, "请检查配置文件。")
+        return (false, ret, "请根据错误信息检查配置文件。")
     }
     return (true, NULL, NULL)
 }
