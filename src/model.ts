@@ -999,10 +999,10 @@ export class DdbModel extends Model<DdbModel> {
                 const matches = json_error_pattern.exec(message.slice(i_message_start))
                 
                 if (matches) {
-                    const { code, variables } = JSON.parse(matches[0])
+                    const { code, message, variables } = JSON.parse(matches[0])
                     
                     return {
-                        title: t(error_messages[code], { variables }),
+                        title: t(error_messages[code] || message, { variables }),
                         body: ''
                     }
                 }
@@ -1064,7 +1064,7 @@ export const storage_keys = {
 } as const
 
 
-const json_error_pattern = /^{.*"code": "(.*?)".*}$/
+const json_error_pattern = /^{.*"code": "?(.*?)"?.*}$/
 
 const username_guest = 'guest' as const
 
