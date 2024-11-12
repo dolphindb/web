@@ -5758,5 +5758,26 @@
     },
     "执行节点": {
         "en": "Execution node"
+    },
+    "存在未安装 httpClient 插件的节点。": {
+        "en": "There are nodes that do not have the httpClient plug-in installed."
+    },
+    "httpClient 插件版本与 DolphinDB 版本的前 3 位不一致。": {
+        "en": "The first 3 digits of the httpClient plugin version and the DolphinDB version are inconsistent."
+    },
+    "确定初始化自动化巡检": {
+        "en": "Confirm to initialize the automatic inspection"
+    },
+    "成功": {
+        "en": "Successfully"
+    },
+    "收到巡检计划的时间": {
+        "en": "Received inspection time"
+    },
+    "正在执行的巡检计划": {
+        "en": "Inspection plan in progress"
+    },
+    "待执行的巡检计划": {
+        "en": "Inspection plans to be implemented"
     }
 }

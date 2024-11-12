@@ -69,7 +69,7 @@ export function InspectionList () {
                 </Button>
                 
                 <Input.Search 
-                    placeholder={t('请输入想要搜索的巡检名称')} 
+                    placeholder={t('请输入巡检名称')} 
                     value={search_input_value}
                     onChange={e => { set_search_input_value(e.target.value) }}
                     onSearch={set_search_key} 
@@ -152,7 +152,7 @@ function ReportListTable  ({
             key: 'user',
         },
         {
-            title: t('收到作业时间'),
+            title: t('收到巡检计划的时间'),
             dataIndex: 'receivedTime',
             key: 'receivedTime',
             sorter: true,
@@ -432,7 +432,7 @@ function PlanListTable  ({
     return <Table
                 title={() => 
                     <div className='plan-table-header'>
-                        <h2>{enabled ? t('进行中的巡检队列') : t('未进行的巡检队列')}</h2>
+                        <h2>{enabled ? t('正在执行的巡检计划') : t('待执行的巡检计划')}</h2>
                         <Popconfirm   
                             title={t('批量删除巡检方案')} 
                             description={t('确认删除选中的巡检方案吗？')} 

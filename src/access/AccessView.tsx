@@ -8,8 +8,8 @@ import { model } from '../model.js'
 
 import { access } from './model.js'
 
-import { AccessList } from './AccessList.js'
-import { AccessManage } from './AccessManage.js'
+import { AccessList } from './AccessListPage.js'
+import { AccessManage } from './AccessManagePage.js'
 
 export function AccessView () {
     const { current, users, groups } = access.use(['current', 'users', 'groups'])
