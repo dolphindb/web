@@ -215,14 +215,14 @@ function Tabs () {
         function handleWheel (e) {
             if (e.deltaY !== 0) {
                 e.preventDefault()
-                const tab_container = document.querySelector('.listen_whell')
+                const tab_container = document.querySelector('.listen-wheel')
                 // 垂直移动实际上是水平移动，方便滚动标签页
                 tab_container.scrollLeft += e.deltaY
             }
         }
         
         // 注册鼠标滚轮监听
-        const tab_container = document.querySelector('.listen_whell')
+        const tab_container = document.querySelector('.listen-wheel')
         tab_container.addEventListener('wheel', handleWheel)
         
         return () => {
@@ -230,7 +230,7 @@ function Tabs () {
         }
     }, [ ])
     
-    return <div className='tabs listen_whell'>
+    return <div className='tabs listen-wheel'>
         <div
             className={`tab ${itab < 0 ? 'active' : ''}`}
             key='default'
