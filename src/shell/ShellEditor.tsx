@@ -214,7 +214,7 @@ function Tabs () {
     useEffect(() => {
         shell.init_tabs()
         
-        function on_wheel (event) {
+        function on_wheel (event: WheelEvent) {
             if (event.deltaY !== 0) {
                 event.preventDefault()
                 // 垂直移动实际上是水平移动，方便滚动标签页
