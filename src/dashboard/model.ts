@@ -463,7 +463,7 @@ export class DashBoardModel extends Model<DashBoardModel> {
         
         dashboard.set({ config: null, save_confirm: false })
         
-        model.goto('/dashboard', { queries: { preview: '1' } } )
+        model.goto('/dashboard/', { queries: { preview: null } })
         
         model.set({ sider: true, header: true })
     }

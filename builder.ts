@@ -36,7 +36,7 @@ export let builder = {
         
         const source_map = !production || version_name === 'dev'
         
-        const fpd_cache = external ? `${fpd_ramdisk_root}webpack/` : `${fpd_root}node_modules/.cache/`
+        const fpd_cache = external ? `${fpd_ramdisk_root}webpack/` : `${fpd_root}node_modules/.cache/webpack/`
         
         const dependencies: BundlerOptions['dependencies'] = ['antd-icons', 'antd-plots', 'lodash', 'xterm', 'gridstack', 'echarts', 'quill', 'vscode-oniguruma', 'monaco']
         
