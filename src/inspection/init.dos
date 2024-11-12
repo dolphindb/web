@@ -1532,16 +1532,17 @@ def coredump(params) {
     
     startTime = params["startTime"]
     endTime = params["endTime"]
-    shell("cat /proc/sys/kernel/core_pattern > /tmp/tmp.txt")
-    f = file("/tmp/tmp.txt")
+    tmpFilename = "autoInspection_coredump_" + getNodeAlias() + "_" + temporalFormat(now(), "yMdHmsSSS") + "_tmp.txt"
+    shell("cat /proc/sys/kernel/core_pattern > " + tmpFilename)
+    f = file(tmpFilename)
     line = readLine(f)
     f.close()
     if (line.startsWith("/")) { // 绝对路径
         s = line.split("/")
         dir = s[0:(s.size()-1)].concat("/")
     } else if (char(line[0]).isAlpha()) { // 形如 core-%e，生成 coredump 在当前目录
-        shell("pwd > /tmp/tmp.txt")
-        f = file("/tmp/tmp.txt")
+        shell("pwd > " + tmpFilename)
+        f = file(tmpFilename)
         dir = readLine(f)
         f.close()
     } else {
@@ -1559,8 +1560,8 @@ def coredump(params) {
         // item = info[0]
         filename = item["filename"]
         filePath = dir + "/" + filename
-        shell("file " + filePath + " > /tmp/tmp.txt")
-        f = file("/tmp/tmp.txt")
+        shell("file " + filePath + " > " + tmpFilename)
+        f = file(tmpFilename)
         line = readLine(f)
         f.close()
         
@@ -1569,7 +1570,7 @@ def coredump(params) {
         }
     }
     ret = select * from ret order by lastModified desc
-    rm("/tmp/tmp.txt")
+    rm(tmpFilename)
     
     ret = select count(*) as "coredump 文件数", first(filePath) as "最新文件路径" from ret group by date(lastModified) as "日期"
     
@@ -1616,8 +1617,9 @@ def commonSystemConfig(params) {
         insert into ret values (cmd, res, "ERROR", "请检查 ulimit -c 配置。")
     }
     
-    shell("cat /proc/sys/kernel/core_pattern > tmp.txt")
-    f = file("tmp.txt")
+    tmpFilename = "autoInspection_commonSystemConfig_" + getNodeAlias() + "_" + temporalFormat(now(), "yMdHmsSSS") + "_tmp.txt"
+    shell("cat /proc/sys/kernel/core_pattern > " + tmpFilename)
+    f = file(tmpFilename)
     line = readLine(f)
     f.close()
     dir = NULL
@@ -1625,8 +1627,8 @@ def commonSystemConfig(params) {
         s = line.split("/")
         dir = s[0:(s.size()-1)].concat("/")
     } else if (char(line[0]).isAlpha()) { // 形如 core-%e，生成 coredump 在当前目录
-        shell("pwd > tmp.txt")
-        f = file("tmp.txt")
+        shell("pwd > " + tmpFilename)
+        f = file(tmpFilename)
         dir = readLine(f)
         f.close()
     }
@@ -1643,12 +1645,12 @@ def commonSystemConfig(params) {
         } catch(err) {}
     }
     
-    cmd = "ulimit -n > tmp.txt"
+    cmd = "ulimit -n > " + tmpFilename
     res = shell(cmd)
     if (res != 0) {
         insert into ret values ("ulimit -n", res, "ERROR", "请检查 ulimit -n 配置。")
     } else {
-        f = file("tmp.txt")
+        f = file(tmpFilename)
         line = readLine(f)
         f.close()
         if (int(line) < 102400) {
@@ -1670,11 +1672,11 @@ def commonSystemConfig(params) {
     }
     for (volumeCfg in volumesCfg) {
         // volumeCfg = volumesCfg[0]
-        shell("df -hT " + volumeCfg + " > tmp.txt")
+        shell("df -hT " + volumeCfg + " > " + tmpFilename)
         if (res != 0) {
             continue
         }
-        f = file("tmp.txt")
+        f = file(tmpFilename)
         line = readLine(f)
         line = readLine(f) // 文件类型在第二行
         f.close()
@@ -1717,7 +1719,7 @@ def commonSystemConfig(params) {
         insert into ret values (cmd, res, "WARNING", "内存充足时，建议关闭 swap 以提升性能。")
     }
     
-    rm("tmp.txt")
+    rm(tmpFilename)
     if (ret.size() > 0) {
         return (false, ret, NULL)
     } else {

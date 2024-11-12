@@ -345,9 +345,9 @@ def runMetric(name, script, mutable params) {
     }
 
     if (!success) {
-        print(detail)
+        print("error: ", detail)
         if (!isVoid(extraDetail)) {
-            print(extraDetail)
+            print("extra detail: ", extraDetail)
         }
     }
     print("success: " + string(success))
