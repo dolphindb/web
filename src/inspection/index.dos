@@ -395,7 +395,7 @@ def runPlanInner(planId) {
             node = nodes[i]
 
             try {
-                success, detail, suggestion, extraDetail, usedParams_ = getJobReturnEx(jobId, true)
+                success, detail, suggestion, extraDetail, usedParams_ = rpc(node, getJobReturnEx, jobId, true)
                 if (!isVoid(usedParams_)) { // 手动更新 params 实现 mutable 的效果
                     for (key in usedParams_.keys()) {
                         params[key] = usedParams_[key]
