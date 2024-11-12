@@ -5,7 +5,6 @@ import { DdbInt, DdbVectorString, type DdbVectorStringObj } from 'dolphindb/brow
 import { model } from '../model.js'
 
 import { DATABASES_WITHOUT_CATALOG } from './constants.js'
-import type { AccessCategory } from './types.js'
 
 
 export interface User {
@@ -74,8 +73,6 @@ class AccessModel extends Model<AccessModel> {
     users: string[] = [ ]
     
     groups: string[] = [ ]
-    
-    access_type: AccessCategory = 'database'
     
     catalogs: Catalog[] = [ ]
     

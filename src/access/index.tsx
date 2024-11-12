@@ -10,8 +10,8 @@ import { t } from '../../i18n/index.js'
 import { access } from './model.js'
 
 import { AccessView } from './AccessView.js'
-import { GroupList } from './GroupListPage.js'
-import { UserList } from './UserListPage.js'
+import { GroupList } from './GroupList.js'
+import { UserList } from './UserList.js'
 
 
 export function User () {
