@@ -209,25 +209,24 @@ export function ShellEditor ({ collapser }) {
 function Tabs () {
     const { tabs, itab } = shell.use(['tabs', 'itab'])
     
-    const tabs_container_ref = useRef<HTMLDivElement>(null)
+    let tabs_container_ref = useRef<HTMLDivElement>()
     
     useEffect(() => {
         shell.init_tabs()
         
-        function handleWheel (e) {
-            if (e.deltaY !== 0) {
-                e.preventDefault()
-                if (tabs_container_ref.current) // 垂直移动实际上是水平移动，方便滚动标签页
-                    tabs_container_ref.current.scrollLeft += e.deltaY
+        function on_wheel (event) {
+            if (event.deltaY !== 0) {
+                event.preventDefault()
+                // 垂直移动实际上是水平移动，方便滚动标签页
+                tabs_container_ref.current.scrollLeft += event.deltaY
             }
         }
         
-        if (tabs_container_ref.current) // 注册鼠标滚轮监听
-            tabs_container_ref.current.addEventListener('wheel', handleWheel)
+        // 注册鼠标滚轮监听
+        tabs_container_ref.current.addEventListener('wheel', on_wheel)
         
         return () => {
-            if (tabs_container_ref.current)
-                tabs_container_ref.current.removeEventListener('wheel', handleWheel)
+            tabs_container_ref.current.removeEventListener('wheel', on_wheel)
         }
     }, [ ])
     
