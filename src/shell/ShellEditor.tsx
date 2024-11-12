@@ -216,15 +216,12 @@ function Tabs () {
         
         // 注册鼠标滚轮监听
         function on_wheel (event) {
-            if (event.deltaY !== 0) {
-                event.preventDefault()
-                // 垂直移动实际上是水平移动，方便滚动标签页
-                tabs_container_ref.current.scrollLeft += event.deltaY
-            }
+            event.preventDefault()
+            // 垂直移动实际上是水平移动，方便滚动标签页
+            tabs_container_ref.current.scrollLeft += event.deltaY
         }
         
         tabs_container_ref.current.addEventListener('wheel', on_wheel)
-        
         return () => { tabs_container_ref.current.removeEventListener('wheel', on_wheel) }
     }, [ ])
     
