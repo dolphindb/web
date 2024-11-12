@@ -55,10 +55,10 @@ export function Inspection () {
         }
         extra={
             <Popconfirm
-                title={t('你确定要初始化自动化巡检功能吗？')}
+                title={t('确定初始化自动化巡检？')}
                 onConfirm={async () => { 
                     await inspection.create_table()
-                    model.message.success(t('初始化自动化巡检成功！'))
+                    model.message.success(t('成功'))
                 }}
                 okText={t('确定')}
                 cancelText={t('取消')}

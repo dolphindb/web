@@ -27,4 +27,4 @@ export const ReportLables = {
 
 export const MetricGroups = [t('集群基础信息'), t('集群运行状态'), t('服务器运行状态')]
 
-export const EmailConfigMessages = [t('正常'), t('存在未安装 httpClient 插件的节点。'), t('httpClient 插件至与 DolphinDB 前三级版本不一致。')]
+export const EmailConfigMessages = [t('正常'), t('存在未安装 httpClient 插件的节点。'), t('httpClient 插件版本与 DolphinDB 版本的前3位不一致。')]
