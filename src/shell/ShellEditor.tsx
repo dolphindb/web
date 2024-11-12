@@ -214,7 +214,8 @@ function Tabs () {
     useEffect(() => {
         shell.init_tabs()
         
-        function on_wheel (event: WheelEvent) {
+        // 注册鼠标滚轮监听
+        function on_wheel (event) {
             if (event.deltaY !== 0) {
                 event.preventDefault()
                 // 垂直移动实际上是水平移动，方便滚动标签页
@@ -222,12 +223,9 @@ function Tabs () {
             }
         }
         
-        // 注册鼠标滚轮监听
         tabs_container_ref.current.addEventListener('wheel', on_wheel)
         
-        return () => {
-            tabs_container_ref.current.removeEventListener('wheel', on_wheel)
-        }
+        return () => { tabs_container_ref.current.removeEventListener('wheel', on_wheel) }
     }, [ ])
     
     return <div className='tabs' ref={tabs_container_ref}>
