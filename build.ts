@@ -9,8 +9,6 @@ const prefix_version = '--version='
 
 await fdclear(fpd_out)
 
-await builder.build_bundles(true)
-
 await builder.build(
     true, 
     process.argv

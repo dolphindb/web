@@ -93,6 +93,10 @@
                 .ant-tree-list
                     .ant-tree-list-holder-inner
                         padding-top: 2px
+                        
+                        .ant-tree-treenode:last-child
+                            box-sizing: content-box
+                            padding-bottom: 4px
                     
                     .ant-tree-node-content-wrapper
                         display: flex
@@ -147,6 +151,9 @@
                 
                 .ant-tree-switcher-leaf-line
                     width: 12px
+                    
+                .ant-tree-switcher:before
+                    visibility: hidden
             
             .ant-tree-show-line .ant-tree-indent-unit::before
                 border-right: unset !important
