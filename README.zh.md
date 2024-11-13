@@ -61,6 +61,9 @@ git clone https://github.com/dolphindb/web.git
 
 cd web
 
+# 国内网络推荐配置 registry 
+pnpm config set registry https://registry.npmmirror.com
+
 # 安装项目依赖
 pnpm install
 
@@ -68,6 +71,10 @@ pnpm install
 cp .vscode/settings.template.json .vscode/settings.json
 
 # 设置环境变量 NODE_OPTIONS='--experimental-transform-types'
+# 1. 当前会话中设置
+$env:NODE_OPTIONS = '--experimental-transform-types'
+# 2. 添加到系统环境变量 (需重启系统)
+# [System.Environment]::SetEnvironmentVariable('NODE_OPTIONS', '--experimental-transform-types', [System.EnvironmentVariableTarget]::User)
 
 # 参考 package.json 中的 scripts
 
