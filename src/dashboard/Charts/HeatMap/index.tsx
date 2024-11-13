@@ -6,21 +6,18 @@ import { useMemo } from 'react'
 
 import { Collapse, Form, InputNumber } from 'antd'
 
-import { AxisFormFields } from '../../ChartFormFields/BasicChartFields.js'
-import { type Widget } from '../../model.js'
+import { t } from '@i18n/index.js'
 
-
-import { format_time } from '../../utils.ts'
-import { BasicFormFields } from '../../ChartFormFields/BasicFormFields.js'
-import { ChartField } from '../../ChartFormFields/type.js'
-import { get_data_source } from '../../DataSource/date-source.js'
-
-
-import { t } from '../../../../i18n/index.js'
-import { BoolRadioGroup } from '../../../components/BoolRadioGroup/index.js'
-import { StringColorPicker } from '../../../components/StringColorPicker/index.js'
-import { type MatrixData, type IChartConfig, type ISeriesConfig } from '../../type.js'
 import { useChart } from '../hooks.js'
+import { BoolRadioGroup } from '@/components/BoolRadioGroup/index.js'
+import { StringColorPicker } from '@/components/StringColorPicker/index.js'
+import { AxisFormFields } from '@/dashboard/ChartFormFields/BasicChartFields.js'
+import { BasicFormFields } from '@/dashboard/ChartFormFields/BasicFormFields.js'
+import { ChartField } from '@/dashboard/ChartFormFields/type.js'
+import { get_data_source } from '@/dashboard/DataSource/date-source.js'
+import type { Widget } from '@/dashboard/model.js'
+import type { IChartConfig, MatrixData } from '@/dashboard/type.js'
+import { format_time } from '@/dashboard/utils.js'
 
 interface IProps { 
     widget: Widget
