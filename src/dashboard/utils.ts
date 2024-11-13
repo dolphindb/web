@@ -280,14 +280,7 @@ export function convert_chart_config (
             name: axis.name,
             type: axis.type,
             interval: axis.interval,
-            splitLine: {
-                show: true,
-                lineStyle: { 
-                    type: 'dashed',
-                    color: '#6E6F7A'
-                },
-                ...splitLine,
-            },
+            splitLine,
             axisLine: {
                 show: true,
                 lineStyle: {
@@ -295,12 +288,6 @@ export function convert_chart_config (
                 }
             },
             axisLabel: {
-                formatter: axis.type === AxisType.CATEGORY && (value => { 
-                    if (axis.time_format)
-                        return format_time(value, axis.time_format)
-                    else
-                        return value
-                }),
                 color: () => axis.font_color || '#6E6F7A',
                 fontSize: axis.fontsize
             },
@@ -521,27 +508,6 @@ export function convert_chart_config (
                 color: '#F5F5F5'
             },
             confine: true,
-            formatter: params => { 
-                if (!Array.isArray(params))
-                    params = [params]
-                const x = params[0].value?.[0] ?? params[0]?.data?.[0]
-                let html = `<div style="font-weight: 500;">${x}</div>`
-                for (let series of params) { 
-                    const value = series.value?.[1] ?? series.data?.[1]
-                    const text = `<div style="display: flex; justify-content: space-between;">
-                        <span style="display: inline-block; margin-right: 12px;">
-                            ${series?.marker}
-                            <span>${series?.seriesName}</span>
-                        </span>
-                        <span style="font-weight: 500">
-                            ${value}
-                        </span>
-                    </div>
-                    `
-                    html += text 
-                }
-                return html
-            }
         },
         title: {
             text: parse_text(title ?? ''),

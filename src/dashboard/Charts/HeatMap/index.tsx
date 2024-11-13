@@ -7,10 +7,10 @@ import { useMemo } from 'react'
 import { Collapse, Form, InputNumber } from 'antd'
 
 import { AxisFormFields } from '../../ChartFormFields/BasicChartFields.js'
-import { dashboard, type Widget } from '../../model.js'
+import { type Widget } from '../../model.js'
 
 
-import { convert_chart_config, format_time } from '../../utils.ts'
+import { format_time } from '../../utils.ts'
 import { BasicFormFields } from '../../ChartFormFields/BasicFormFields.js'
 import { ChartField } from '../../ChartFormFields/type.js'
 import { get_data_source } from '../../DataSource/date-source.js'
@@ -37,7 +37,6 @@ export function HeatMap (props: IProps) {
     const { data } = node.use(['data'])
     
     const option = useMemo(() => { 
-        const default_options = convert_chart_config({ ...widget, config: { ...widget.config, series: [ ] } }, [ ])
         const { series } = config
          
         const { data: matrix_data = [ ], row_labels = [ ], col_labels = [ ] } = data as unknown as MatrixData
@@ -46,27 +45,40 @@ export function HeatMap (props: IProps) {
         for (let j = 0;  j < matrix_data.length;  j++)
             for (let i = 0;  i < matrix_data[j].length;  i++)  
                 chart_data.push([i, j, matrix_data[j][i]])
+        
+        const y_data = row_labels.map(label => format_time(label, config?.yAxis[0]?.time_format))
+        const x_data = col_labels.map(label => format_time(label, config.xAxis.time_format))
             
         return {
-            ...default_options,
             grid: {
-                ...default_options.grid,
-                bottom: '15%'
+                bottom: 60,
+                containLabel: true
             },
             tooltip: {
-                ...default_options.tooltip,
-                trigger: 'item'
+                ...config.tooltip,
+                trigger: 'item',
+                backgroundColor: '#060606',
+                borderColor: '#060606',
+                textStyle: {
+                    color: '#F5F5F5'
+                },
+                confine: true,
+                formatter: params => {
+                    const [x_idx, y_idx, value] = params.data
+                    const title = `<div>${x_data[x_idx]}<div/>`
+                    const item = params.marker + y_data[y_idx] + `<span style="font-weight: 600; display: inline-block; margin-left: 8px;">${value}</span>`
+                    return title + item
+                }
+                
             },
             xAxis: {
-                ...default_options.xAxis,
                 type: 'category',
-                data: col_labels.map(label => format_time(label, config.xAxis.time_format))
+                data: x_data
             },
-            yAxis: [{
-                ...default_options.yAxis[0],
+            yAxis: {
                 type: 'category',
-                data: row_labels.map(label => format_time(label, config?.yAxis[0]?.time_format))
-            }],
+                data: y_data
+            },
             visualMap: {
                 min: series[0].min || 0,
                 max: series[0].max || 10,
@@ -89,7 +101,7 @@ export function HeatMap (props: IProps) {
                     show: series[0].with_label
                 },
             }]
-        }
+        } as echarts.EChartsOption
     }, [widget.config, data])
     
     const ref = useChart(option)
