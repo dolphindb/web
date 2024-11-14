@@ -1,6 +1,6 @@
 import { isArray } from 'lodash'
 
-import { client_id, redirect_uri, root_url } from './constants.ts'
+import { root_url, client_id, redirect_uri } from './constants.ts'
 
 interface IProject {
     id: string
