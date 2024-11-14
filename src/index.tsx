@@ -55,6 +55,7 @@ import { Settings } from './settings/index.tsx'
 import { CreateGuide } from './guide/iot-guide/index.tsx'
 import { FinanceGuide } from './guide/finance-guide/index.tsx'
 import { DataCollection } from './data-collection/index.tsx'
+import { GitOauth } from './git-oauth/oauth.tsx'
 
 
 
@@ -251,9 +252,14 @@ const router = createBrowserRouter([
             {
                 path: 'finance-guide/',
                 element: <FinanceGuide />
-            },
+            }
         ]
-    }], 
+    },
+    {
+        path: 'oauth/',
+        element: <GitOauth/>
+    }
+], 
     model.assets_root === '/' ? undefined : { basename: model.assets_root }
 )
 
