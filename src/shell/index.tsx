@@ -9,6 +9,8 @@ import { delay } from 'xshell/utils.browser.js'
 
 import { Tabs } from 'antd'
 
+import { t } from '@i18n/index.js'
+
 import { model } from '../model.js'
 
 import { shell } from './model.js'
@@ -55,8 +57,8 @@ export function Shell () {
     const [is_git, set_is_git] = useState(false)
     
     const tab_items = [
-        { key: 'shell', label: 'shell', closable: false },
-        { key: 'git', label: 'git', closable: false }
+        { key: 'shell', label: t('数据库'), closable: false },
+        { key: 'git', label: t('Git 集成'), closable: false }
     ]
     
     function handle_tab_change (key: string) {
@@ -77,7 +79,9 @@ export function Shell () {
                 shell.fit_addon?.fit()
             }}
         >
-            <Tabs items={tab_items} defaultActiveKey='shell' onChange={handle_tab_change} />
+            <div className='tabs'>
+                <Tabs size='small' items={tab_items} defaultActiveKey='shell' onChange={handle_tab_change} />
+            </div>
             {!is_git && <>
                 <Databases />
                 

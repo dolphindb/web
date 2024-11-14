@@ -1,5 +1,7 @@
 import { isArray } from 'lodash'
 
+import { t } from '@i18n/index.ts'
+
 import { root_url, client_id, redirect_uri } from './constants.ts'
 
 interface IProject {
@@ -32,7 +34,7 @@ interface IFileData {
     commit_id: string
     last_commit_id: string
     execute_filemode: boolean
-  }
+}
 
 interface IGitAdapter {
     root_url: string
@@ -44,6 +46,7 @@ interface IGitAdapter {
     get_projects(): Promise<IProject[]>
     get_access_token(code: string): Promise<string>
     get_auth_url(): Promise<string>
+    commit_file(repo: string, file_path: string, message: string, branch: string, content: string): Promise<boolean>
 }
 
 class GitLabAdapter implements IGitAdapter {
@@ -135,19 +138,21 @@ class GitLabAdapter implements IGitAdapter {
         return `Bearer ${localStorage.getItem('git-access-token')}`
     }
     
-    private get_fetch_options (method = 'GET') {
+    private get_fetch_options (method = 'GET', body?) {
         return {
             method,
             headers: {
                 Authorization: this.get_auth_header(),
                 'Content-Type': 'application/json'
-            }
+            },
+            body
         }
     }
     
     // 获取所有项目
     async get_projects (): Promise<IProject[]> {
-        const result = await fetch(`${this.root_url}${this.api_root}/projects?per_page=100&membership=true`, this.get_fetch_options()).then(async res => res.json())
+        const resp = await fetch(`${this.root_url}${this.api_root}/projects?per_page=100&membership=true`, this.get_fetch_options())
+        const result = await resp.json()
         if (isArray(result))
             return result
         else
@@ -160,10 +165,10 @@ class GitLabAdapter implements IGitAdapter {
         
         // Step 2: 将二进制字符串转换为字节数组
         const byteArray = new Uint8Array(binaryString.length)
-        for (let i = 0;  i < binaryString.length;  i++) 
-            byteArray[i] = binaryString.charCodeAt(i) 
-        
-    
+        for (let i = 0;  i < binaryString.length;  i++)
+            byteArray[i] = binaryString.charCodeAt(i)
+            
+            
         // Step 3: 使用 TextDecoder 将字节数组解码为 UTF-8 字符串
         const decoder = new TextDecoder('utf-8')
         return decoder.decode(byteArray)
@@ -172,10 +177,20 @@ class GitLabAdapter implements IGitAdapter {
     
     async get_file_by_path (repo: string, file_path: string, ref = 'main'): Promise<IFileData> {
         const file_path_encoded = encodeURIComponent(file_path)
-        const result = await fetch(`${this.root_url}${this.api_root}/projects/${repo}/repository/files/${file_path_encoded}?ref=${ref}`, this.get_fetch_options()).then(async res => res.json())
+        const resp = await fetch(`${this.root_url}${this.api_root}/projects/${repo}/repository/files/${file_path_encoded}?ref=${ref}`, this.get_fetch_options())
+        if (!resp.ok)
+            throw new Error(t('获取文件失败，请检查权限'))
+        const result = await resp.json()
         const content = this.decodeBase64ToUtf8(result.content)
         return { ...result, content }
     }
+    
+    async commit_file (repo: string, file_path: string, message: string, content: string, branch = 'main'): Promise<boolean> {
+        const resp = await fetch(`${this.root_url}${this.api_root}/projects/${repo}/repository/files/${encodeURIComponent(file_path)}?branch=${branch}`
+            , this.get_fetch_options('PUT', JSON.stringify({ branch, message, content, commit_message: message })))
+        return resp.ok
+    }
+    
 }
 
 export const gitProvider = new GitLabAdapter(root_url, client_id, redirect_uri)
