@@ -1,8 +1,13 @@
 import { useState, useCallback, useDeferredValue, useMemo } from 'react'
-import { Tree, Input, Select } from 'antd'
+import { Tree, Input, Select, Alert, Button } from 'antd'
 import useSWR from 'swr'
+import './git.sass'
+
+import { t } from '@i18n/index.ts'
 
 import { shell } from '../model.ts'
+
+import { model } from '@/model.ts'
 
 import { gitProvider } from './git-adapter.ts'
 
@@ -36,6 +41,10 @@ export function Git () {
     const [expandedKeys, setExpandedKeys] = useState<string[]>([ ])
     const deferredExpandedKeys = useDeferredValue(expandedKeys)
     const [searchValue, setSearchValue] = useState('')
+    const { itab, tabs } = shell.use(['itab', 'tabs'])
+    const current_tab = tabs.find(t => t.index === itab)
+    const is_tab_git_tab = !!current_tab?.git?.file_name
+    const is_file_edited = current_tab?.git?.raw_code !== current_tab?.code
     
     const reposResp = useSWR('git_repos', async () => {
         const result = await gitProvider.get_projects()
@@ -46,7 +55,7 @@ export function Git () {
         setSelectedRepo(id)
         const title = reposResp.data.find(repo => repo.id === id)?.name || ''
         setTreeData([{ title, key: id, isLeaf: false }])
-        setExpandedKeys([id])
+        setExpandedKeys([ ])
     }
     
     function handleExpand (expandedKeys: unknown[]) {
@@ -111,12 +120,29 @@ export function Git () {
         })
     }
     
-    return <div>
-        <div>
-            <a onClick={goto_oauth}>
-                授权
-            </a>
-        </div>
+    const is_repos_empty = !reposResp.data || reposResp.data.length === 0
+    
+    const [commit_message, setCommitMessage] = useState('')
+    
+    async function commit_to_git () {
+        const result = await gitProvider.commit_file(current_tab?.git?.repo_id, current_tab?.git?.file_path, commit_message, current_tab?.code)
+        if (result) {
+            model.modal.success({ title: t('提交成功') })
+            shell.update_git_tab_code(current_tab?.index, current_tab?.code)
+        }
+        else
+            model.modal.error({ title: t('提交失败') })
+    }
+    
+    return <div className='git'>
+        {is_repos_empty && (!reposResp.isLoading) && <div className='info'>
+            <Alert message={<>
+                无法获取仓库列表，请检查权限或{' '}
+                <a onClick={goto_oauth}>
+                    登录到 Git
+                </a>
+            </>} type='info' />
+        </div>}
         {reposResp.data && (
             <Select
                 placeholder='Select a repo'
@@ -130,10 +156,19 @@ export function Git () {
                 </Select.Option>)}
             </Select>
         )}
+        {is_tab_git_tab && <div>
+            <div>当前文件: {current_tab?.git?.file_name}</div>
+            {is_file_edited && <div>
+                <div>当前文件已修改</div>
+                <Input.TextArea value={commit_message} onChange={e => { setCommitMessage(e.target.value) }} placeholder={t('请输入提交信息')} />
+                <Button onClick={commit_to_git}>{t('提交')}</Button>
+                </div>}
+        </div>}
         {selectedRepo && (
             <>
-                <Input.Search placeholder='Search' onChange={handleSearchChange} allowClear style={{ marginBottom: 8 }} />
+                <Input.Search placeholder={t('搜索仓库文件')} onChange={handleSearchChange} allowClear style={{ marginBottom: 8 }} />
                 <Tree
+                    expandAction='click'
                     loadData={loadData}
                     treeData={filteredTreeData}
                     expandedKeys={deferredExpandedKeys}
