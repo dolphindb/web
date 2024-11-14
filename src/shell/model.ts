@@ -358,6 +358,24 @@ class ShellModel extends Model<ShellModel> {
         this.editor.setValue('')
     }
     
+    add_git_tab (file_path: string, file_name: string, repo_id: string, code: string, branch = 'main') {
+        if (!this.monaco_inited)
+            return
+        
+        this.save()
+        const index_set = new Set(this.tabs.map(t => t.index))
+        let new_tab_index = 1
+        while (index_set.has(new_tab_index))
+            new_tab_index++
+        const new_tab_name = file_name
+        this.set({
+            itab: new_tab_index,
+            tabs: [...this.tabs, { name: new_tab_name, code, index: new_tab_index, git: { repo_id, branch, file_path, file_name } }]
+        })
+        
+        this.editor.setValue(code)
+    }
+    
     
     switch_tab (tab_index: number) {
         if (!this.monaco_inited)
@@ -805,6 +823,12 @@ export interface Tab {
     index: number
     name: string
     code: string
+    git?: {
+        repo_id: string
+        branch: string
+        file_path: string
+        file_name: string
+    }
 }
 
 

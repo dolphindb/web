@@ -20,11 +20,26 @@ interface IFile {
     url?: string          // Optional URL to access the content
 }
 
+interface IFileData {
+    file_name: string
+    file_path: string
+    size: number
+    encoding: string
+    content: string
+    content_sha256: string
+    ref: string
+    blob_id: string
+    commit_id: string
+    last_commit_id: string
+    execute_filemode: boolean
+  }
+
 interface IGitAdapter {
     root_url: string
     api_root: string
     client_id: string
     get_files_by_repo(repo: string, file_path?: string): Promise<IFile[]>
+    get_file_by_path(repo: string, file_path: string, ref: string): Promise<IFileData>
     get_auth_header(): string
     get_projects(): Promise<IProject[]>
     get_access_token(code: string): Promise<string>
@@ -120,9 +135,9 @@ class GitLabAdapter implements IGitAdapter {
         return `Bearer ${localStorage.getItem('git-access-token')}`
     }
     
-    private get_fetch_options () {
+    private get_fetch_options (method = 'GET') {
         return {
-            method: 'GET',
+            method,
             headers: {
                 Authorization: this.get_auth_header(),
                 'Content-Type': 'application/json'
@@ -132,11 +147,34 @@ class GitLabAdapter implements IGitAdapter {
     
     // 获取所有项目
     async get_projects (): Promise<IProject[]> {
-        const result = await fetch(`${this.root_url}${this.api_root}/projects`, this.get_fetch_options()).then(async res => res.json())
+        const result = await fetch(`${this.root_url}${this.api_root}/projects?per_page=100&membership=true`, this.get_fetch_options()).then(async res => res.json())
         if (isArray(result))
             return result
         else
             return [ ]
+    }
+    
+    private decodeBase64ToUtf8 (base64: string): string {
+        // Step 1: 解码 Base64，得到一个字节数组
+        const binaryString = atob(base64)
+        
+        // Step 2: 将二进制字符串转换为字节数组
+        const byteArray = new Uint8Array(binaryString.length)
+        for (let i = 0;  i < binaryString.length;  i++) 
+            byteArray[i] = binaryString.charCodeAt(i) 
+        
+    
+        // Step 3: 使用 TextDecoder 将字节数组解码为 UTF-8 字符串
+        const decoder = new TextDecoder('utf-8')
+        return decoder.decode(byteArray)
+    }
+    
+    
+    async get_file_by_path (repo: string, file_path: string, ref = 'main'): Promise<IFileData> {
+        const file_path_encoded = encodeURIComponent(file_path)
+        const result = await fetch(`${this.root_url}${this.api_root}/projects/${repo}/repository/files/${file_path_encoded}?ref=${ref}`, this.get_fetch_options()).then(async res => res.json())
+        const content = this.decodeBase64ToUtf8(result.content)
+        return { ...result, content }
     }
 }
 
