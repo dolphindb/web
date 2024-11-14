@@ -78,6 +78,11 @@ function DolphinDB () {
                 borderRadius: 0,
                 
                 controlOutlineWidth: 0,
+            },
+            components: {
+                Tree: {
+                    indentSize: 12
+                }
             }
         }}
         renderEmpty={() => <div className='empty-placeholder' />}
