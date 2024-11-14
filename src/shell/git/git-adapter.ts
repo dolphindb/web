@@ -2,7 +2,7 @@ import { isArray } from 'lodash'
 
 import { t } from '@i18n/index.ts'
 
-import { root_url, client_id, redirect_uri } from './constants.ts'
+import { root_url, client_id, redirect_uri, github_root_url, github_client_id, github_secret } from './constants.ts'
 
 interface IProject {
     id: string
@@ -193,4 +193,159 @@ class GitLabAdapter implements IGitAdapter {
     
 }
 
+class GitHubAdapter implements IGitAdapter {
+    root_url: string
+    api_root: string
+    client_id: string
+    redirect_uri: string
+    
+    constructor (root_url: string, client_id: string, redirect_uri: string, api_root = '') {
+        this.root_url = root_url
+        this.api_root = api_root
+        this.client_id = client_id
+        this.redirect_uri = redirect_uri
+    }
+    
+    async get_auth_url (): Promise<string> {
+        const authUrl = `https://github.com/login/oauth/authorize?client_id=${this.client_id}&redirect_uri=${encodeURIComponent(this.redirect_uri)}&scope=repo`
+        return authUrl
+    }
+    
+    async get_access_token (code: string): Promise<string> {
+        const tokenUrl = 'https://github.com/login/oauth/access_token'
+        
+        const data = {
+            client_id: this.client_id,
+            client_secret: github_secret, // **IMPORTANT:** Replace with your actual client secret!
+            code: code,
+        }
+        
+        const result = await fetch(tokenUrl, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                Accept: 'application/json' 
+            },
+            body: JSON.stringify(data) 
+        }).then(async res => res.json())
+        
+        
+        if (result.access_token) {
+            localStorage.setItem('github-access-token', result.access_token)
+            return result.access_token
+        } else 
+            throw new Error('Failed to get access token')
+        
+    }
+    
+    
+    get_auth_header (): string {
+        return `token ${localStorage.getItem('github-access-token')}` 
+    }
+    
+    
+    private get_fetch_options (method = 'GET', body?: any) {
+        return {
+            method,
+            headers: {
+                Authorization: this.get_auth_header(),
+                'Content-Type': 'application/json',
+                Accept: 'application/json' 
+            },
+            body: body ? JSON.stringify(body) : null 
+        }
+    }
+    
+    
+    async get_projects (): Promise<IProject[]> {
+      const resp = await fetch(`${this.root_url}${this.api_root}/user/repos`, this.get_fetch_options())
+      const result = await resp.json()
+      if (isArray(result))
+          return result.map((repo: any) => ({
+          id: repo.id.toString(),
+          name: repo.name,
+          path: repo.full_name, 
+          path_with_namespace: repo.full_name 
+        }))
+       else
+          return [ ]
+      
+    }
+    
+    
+    
+    async get_files_by_repo (repo: string, file_path = ''): Promise<IFile[]> {
+        const result = await fetch(`${this.root_url}${this.api_root}/repos/${repo}/contents/${file_path}`, this.get_fetch_options()).then(async res => res.json())
+        
+        return result.map((item: any) => ({
+            id: item.sha, 
+            mode: item.mode,
+            name: item.name,
+            path: item.path,
+            type: item.type,
+            sha: item.sha,
+            size: item.size,
+            url: item.download_url || item.url // Use download_url for files, url for directories
+          }))
+    }
+    
+    
+    
+    private decodeBase64ToUtf8 (base64: string): string {
+        const binaryString = atob(base64)
+        const utf8Decoder = new TextDecoder('utf-8')
+        return utf8Decoder.decode(new Uint8Array([...binaryString.split('').map(char => char.charCodeAt(0))]))
+        
+    }
+    
+    
+    
+    async get_file_by_path (repo: string, file_path: string, ref = 'main'): Promise<IFileData> {
+        const resp = await fetch(`${this.root_url}${this.api_root}/repos/${repo}/contents/${file_path}?ref=${ref}`, this.get_fetch_options())
+        
+        if (!resp.ok) 
+            throw new Error(t('获取文件失败，请检查权限'))
+        
+        
+        const result = await resp.json()
+        const content = this.decodeBase64ToUtf8(result.content)
+        
+        
+        return {
+          file_name: result.name,
+          file_path: result.path,
+          size: result.size,
+          encoding: 'base64',  
+          content,
+          content_sha256: result.sha, 
+          ref,
+          blob_id: result.sha, 
+          commit_id: result.sha,  
+          last_commit_id: result.sha,
+          execute_filemode: result.executable || false 
+        } as IFileData
+        
+    }
+    
+    
+    async commit_file (repo: string, file_path: string, message: string, content: string, branch = 'main'): Promise<boolean> {
+        const utf8Encoder = new TextEncoder()  
+        const contentBytes = utf8Encoder.encode(content)
+        const contentBase64 = btoa(String.fromCharCode(...contentBytes))
+        
+        
+        const resp = await fetch(`${this.root_url}${this.api_root}/repos/${repo}/contents/${file_path}`, this.get_fetch_options(
+            'PUT',
+            {
+                message,
+                content: contentBase64,
+                branch
+            }
+        ))
+        return resp.ok
+        
+    }
+}
+
 export const gitProvider = new GitLabAdapter(root_url, client_id, redirect_uri)
+// export const gitProvider = new GitHubAdapter(github_root_url, github_client_id, redirect_uri)
