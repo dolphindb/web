@@ -2,6 +2,8 @@ import { useState, useCallback, useDeferredValue, useMemo } from 'react'
 import { Tree, Input, Select } from 'antd'
 import useSWR from 'swr'
 
+import { shell } from '../model.ts'
+
 import { gitProvider } from './git-adapter.ts'
 
 interface DataNode {
@@ -40,10 +42,11 @@ export function Git () {
         return result
     })
     
-    function handleRepoChange (value: string) {
-        setSelectedRepo(value)
-        setTreeData([{ title: value, key: value, isLeaf: false }])
-        setExpandedKeys([value])
+    function handleRepoChange (id: string) {
+        setSelectedRepo(id)
+        const title = reposResp.data.find(repo => repo.id === id)?.name || ''
+        setTreeData([{ title, key: id, isLeaf: false }])
+        setExpandedKeys([id])
     }
     
     function handleExpand (expandedKeys: unknown[]) {
@@ -53,18 +56,30 @@ export function Git () {
     const loadData = useCallback(async (node: DataNode) => {
         if (!selectedRepo)
             return
-    
+            
         const filePath = node.key === selectedRepo ? '' : node.key.substring(selectedRepo.length + 1)
         const files = await gitProvider.get_files_by_repo(selectedRepo, filePath)
-    
+        
         const children: DataNode[] = files.map(file => ({
             title: file.name,
             key: `${file.path}`, // Use the full path for the key
             isLeaf: file.type === 'blob',
         }))
-    
+        
         setTreeData(origin => updateTreeData(origin, node.key, children))
     }, [selectedRepo])
+    
+    async function open_git_file (key: string, file_name: string, repo_id: string) {
+        const code = await gitProvider.get_file_by_path(repo_id, key)
+        shell.add_git_tab(key, code.file_name, repo_id, code.content)
+    }
+    
+    function title_render (node: DataNode) {
+        if (node.isLeaf)
+            return <span onClick={() => { open_git_file(node.key, node.title, selectedRepo) }}>{node.title}</span>
+            
+        return <span>{node.title}</span>
+    }
     
     const filteredTreeData = useMemo(() => {
         const lowercaseValue = searchValue.toLowerCase()
@@ -123,6 +138,7 @@ export function Git () {
                     treeData={filteredTreeData}
                     expandedKeys={deferredExpandedKeys}
                     onExpand={handleExpand}
+                    titleRender={title_render}
                 />
             </>
         )}
