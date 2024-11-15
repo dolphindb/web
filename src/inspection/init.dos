@@ -46,7 +46,7 @@ name = "connectionNum"
 displayName = "外部连接数"
 group = "0"
 desc = "检查指定节点的外部连接数是否超过 maxConnections 配置值的 90%。"
-nodes = [0, 2, 3]
+nodes = [0, 2, 3, 4]
 script = '
 def connectionNum(params) {
     connectionNum = int(getPerf()["connectionNum"])
@@ -227,7 +227,7 @@ name = "memUsage"
 displayName = "内存占用"
 group = "1"
 desc = "检查节点内存占用是否超过 maxMemSize 配置值 * 90%。"
-nodes = [0, 2, 3]
+nodes = [0, 2, 3, 4]
 script = '
 def memUsage(params) {
     maxMemSize = int(getConfig("maxMemSize"))
@@ -428,7 +428,7 @@ desc = "检查指定时间范围内（startTime 到 endTime）是否存在 ERROR
 - startTime：TIMESTAMP，统计范围的开始时间，默认值为上次相同方案 ID 的报告的开始时间。
 - endTime：TIMESTAMP，统计范围的结束时间，默认值为当前报告的开始时间。
 - logLevel：STRING 数组，统计的日志等级，可取值：ERROR，WARNING。"
-nodes = [0, 2, 3]
+nodes = [0, 2, 3, 4]
 script = '
 def getServerLogEx(startTime, endTime) {
     startTime_ = timestamp(startTime)
@@ -1520,7 +1520,7 @@ desc = "检查指定时间范围内（startTime 到 endTime）是否生成了 co
 参数说明：
 - startTime：TIMESTAMP，统计范围的开始时间，默认值为上次相同方案 ID 的报告的开始时间。
 - endTime：TIMESTAMP，统计范围的结束时间，默认值为当前报告的开始时间。"
-nodes = [0, 2, 3]
+nodes = [0, 2, 3, 4]
 script = '
 def coredump(params) {
     if (getOS() != "linux") {
@@ -1594,7 +1594,7 @@ group = "2"
 desc = "检查 Linux 操作系统的常见配置项。
 参数说明：
 - logLevel：STRING 数组，统计的日志等级，可取值：ERROR，WARNING。"
-nodes = [0, 2, 3]
+nodes = [0, 2, 3, 4]
 script = '
 def commonSystemConfig(params) {
     if (getOS() != "linux") {
