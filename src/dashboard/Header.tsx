@@ -1,7 +1,7 @@
 import './Header.sass'
 
 import { useCallback, useEffect, useRef, useState } from 'react'
-import { Button, Input, Modal, Popconfirm, Select, Tag, Tooltip, Segmented, Switch } from 'antd'
+import { Button, Input, Modal, Popconfirm, Select, Tag, Tooltip, Segmented, Switch, InputNumber } from 'antd'
 import { CopyOutlined, DeleteOutlined, EditOutlined, EyeOutlined, FileAddOutlined, HomeOutlined, SaveOutlined, UploadOutlined } from '@ant-design/icons'
 
 import { use_modal } from 'react-object-model/hooks.js'
@@ -65,6 +65,7 @@ export function Header () {
     const { visible: copy_visible, open: copy_open, close: copy_close } = use_modal()
     
     const timer = useRef<NodeJS.Timeout>()
+    const page_count = config?.data?.canvas?.page_count ?? 1
     
     const get_latest_config = useCallback(async () => {
         const updated_config = {
@@ -73,14 +74,16 @@ export function Header () {
                 datasources: await export_data_sources(),
                 variables: await export_variables(),
                 canvas: {
-                    widgets: widgets.map(widget => get_widget_config(widget))
+                    widgets: widgets.map(widget => get_widget_config(widget)),
+                    page_count
                 }
             }  
             
         }
         // await dashboard.update_config(updated_config)
         return updated_config
-    }, [widgets]) 
+    }, [widgets, page_count]) 
+    
     
     
     /** 生成可以比较的 config */
@@ -409,6 +412,7 @@ export function Header () {
             editing && <div className='configs'>
                 <VariableConfig/>
                 <DataSourceConfig/>
+                <InputNumber defaultValue={1} min={1} value={page_count} onChange={count => { dashboard.update_page_count(count) }} />
             </div>
         }
     </div>

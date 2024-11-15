@@ -84,13 +84,21 @@ function DashboardInstance ({ id }: { id: string }) {
         dashboard.render_widgets()
     }, [widgets])
     
+    const page_count = config?.data?.canvas?.page_count ?? 1
+    
+    useEffect(() => {
+        if (config?.data?.canvas?.page_count) {
+            const page_count = config.data.canvas.page_count
+            dashboard.update_css_for_element_height(page_count)
+        }   
+    }, [page_count])
     
     useEffect(() => {
         if (dashboard.editing) {
             if (config?.permission === DashboardPermission.view) 
                 dashboard.on_preview()
             dashboard.set({ save_confirm: true })
-        }    
+        }
     }, [config, editing])
     
     

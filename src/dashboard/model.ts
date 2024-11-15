@@ -391,7 +391,7 @@ export class DashBoardModel extends Model<DashBoardModel> {
     
     
     /** 根据 id 获取单个 DashboardConfig */
-    async get_dashboard_config (id: number) {
+    async get_dashboard_config (id: number): Promise<DashBoardConfig> {
         const { data } = (await model.ddb.invoke('dashboard_get_config', [{ id }]))
         
         const res: any = data.length
@@ -474,6 +474,32 @@ export class DashBoardModel extends Model<DashBoardModel> {
         dashboard.set_editing(false)
         model.set_query('preview', '1')
     }
+    
+    update_page_count (page_count: number) {
+        // TODO：如果 page_count 减少，要看看减少的页面上面有没有组件，有的话就弹窗不允许减少
+        this.set({ config: { ...this.config, data: { ...this.config.data, canvas: { ...this.config.data.canvas, page_count } } } })
+        this.update_css_for_element_height(page_count)
+    }
+    
+    update_css_for_element_height (page_count, styleSheetId = 'dynamic-grid-styles') { // 添加默认 ID
+        // 计算高度值
+        let height_value = `calc(${page_count * 100}vh - ${page_count * 50}px) !important`
+        if (page_count === 1) 
+            height_value = '100%'
+        
+        // 创建新的样式表
+        let style_sheet = document.getElementById(styleSheetId)
+        
+        // 如果没有找到，则创建一个新的样式表并添加 ID
+        if (!style_sheet) {
+            style_sheet = document.createElement('style')
+            style_sheet.id = styleSheetId
+            document.head.appendChild(style_sheet)
+        }
+        
+        // 设置样式表的内容
+        style_sheet.innerHTML = `.grid-stack { height: ${height_value}; }`
+    }
 }
 
 
@@ -503,6 +529,7 @@ export interface DashboardData {
      /** 画布配置 */
      canvas: {
          widgets: any[]
+         page_count?: number
      }
 }
 
