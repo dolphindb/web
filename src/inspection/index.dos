@@ -18,9 +18,14 @@ def canConfigureEmail() {
     ret["errCode"] = 0
     ret["errMsg"] = ""
 
-    listPluginsInner = def() {
+    listPluginsInner = def(filename_=NULL) {
         pluginDir = getPluginDir()
-        pluginNames = exec filename from files(pluginDir) where isDir = true
+        if (filename_ != NULL) {
+            pluginNames = exec filename from files(pluginDir) where isDir = true and filename == filename_
+        } else {
+            pluginNames = exec filename from files(pluginDir) where isDir = true 
+        }
+        
         ret = table(1:0, `pluginName`version, [STRING, STRING])
         for (pluginName in pluginNames) {
             // pluginName = pluginNames[0]
@@ -44,7 +49,7 @@ def canConfigureEmail() {
     }
 
     allNodes = exec name from rpc(getControllerAlias(), getClusterPerf) where mode != 1 and mode != 2 // 排除代理节点和控制节点
-    info = select * from pnodeRun(listPluginsInner, allNodes) where pluginName == "httpClient" 
+    info = select * from pnodeRun(listPluginsInner{"httpClient"}, allNodes)
     if (info.size() == 0) {
         ret["errCode"] = 1
         ret["errMsg"] = toStdJson(allNodes)
