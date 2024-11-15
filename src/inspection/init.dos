@@ -23,7 +23,7 @@ def nodeStatus(params) {
 newMetric(name, displayName, group, desc, nodes, script, params)
 
 name = "licenseExpiration"
-displayName = "License 有效期"
+displayName = "license 有效期"
 group = "0"
 desc = "检查所有节点 license 有效期。"
 nodes = NULL
@@ -45,7 +45,7 @@ go
 name = "connectionNum"
 displayName = "外部连接数"
 group = "0"
-desc = "检查指定节点的外部连接数是否超过 maxConnections 配置项阈值的 90%。"
+desc = "检查指定节点的外部连接数是否超过 maxConnections 配置值的 90%。"
 nodes = [0, 2, 3]
 script = '
 def connectionNum(params) {
@@ -53,10 +53,10 @@ def connectionNum(params) {
     maxConnectionNum = int(getConfig("maxConnections"))
     
     if (connectionNum >= int(maxConnectionNum * 0.9)) {
-        return (false, "外部连接数: " + string(connectionNum) + " 大于等于 maxConnections 配置项阈值: " + string(maxConnectionNum) + " * 90%", "请使用 getCurrentSessionAndUser 方法检查所有会话并使用 closeSessions 方法适当关闭连接。")
+        return (false, "外部连接数: " + string(connectionNum) + " 大于等于 maxConnections 配置值: " + string(maxConnectionNum) + " * 90%", "请使用 getCurrentSessionAndUser 方法检查所有会话并使用 closeSessions 方法适当关闭连接。")
     }
     
-    return (true, "外部连接数: " + string(connectionNum) + " 小于 maxConnections 配置项阈值: " + string(maxConnectionNum) + " * 90%", NULL)
+    return (true, "外部连接数: " + string(connectionNum) + " 小于 maxConnections 配置值: " + string(maxConnectionNum) + " * 90%", NULL)
 }
 '
 newMetric(name, displayName, group, desc, nodes, script)
@@ -152,7 +152,7 @@ def pluginVersion(params) {
     }
     
     if (err.size() > 0) {
-        return (false, err, "请升级插件至与 DolphinDB 前三级版本一致，DolphinDB 版本：" + string(version()))
+        return (false, err, "请升级插件至与 DolphinDB 版本的前3位一致，DolphinDB 版本：" + string(version()))
     }
     
     return (true, NULL, NULL)
@@ -165,7 +165,7 @@ go
 name = "recoveryStatus"
 displayName = "恢复事务状态"
 group = "1"
-desc = "检查恢复事务状态是否正常，以及在指定时间内是否推进。
+desc = "检查恢复事务状态是否正常，以及是否在指定时间内推进。
 参数说明：
 - checkInterval: 正整数，检查时间间隔，单位 ms，默认 10000 ms。"
 nodes = NULL // NULL 指该指标不能指定节点运行，选择任一数据节点执行
@@ -173,7 +173,7 @@ script = '
 def recoveryStatus(mutable params){
     failureTask=select * from rpc(getControllerAlias(),getRecoveryTaskStatus) where FailureReason == "Aborted";
     if(failureTask.size()>0){
-        return false,failureTask.size()+" 个副本恢复任务执行失败。","调用 getRecoveryTaskStatus 排查错误原因。";
+        return false,failureTask.size()+" 个副本恢复任务执行失败。","调用 getRecoveryTaskStatus 方法排查错误原因。";
     }
     prevInProcessTask=select * from rpc(getControllerAlias(),getRecoveryTaskStatus) where Status=="In-Progress";
 
@@ -188,7 +188,7 @@ def recoveryStatus(mutable params){
     if(prevInProcessTask.size()>0&&inProcessTask.size()>0){
         existTask=set(prevInProcessTask.TaskId)-set(inProcessTask.TaskId);
         if(existTask.size()==prevInProcessTask.size()){
-            return false,prevInProcessTask.size()+"个副本恢复任务在 " + checkInterval + "ms 时间内一直没有推进或推进非常缓慢。","调用 getRecoveryTaskStatus 排查卡住原因。";
+            return false,prevInProcessTask.size()+"个副本恢复任务在 " + checkInterval + "ms 时间内一直没有推进或推进非常缓慢。","调用 getRecoveryTaskStatus 方法排查卡住原因。";
         }
     }
     return true,NULL,NULL;
@@ -203,7 +203,7 @@ go
 name = "diskUsage"
 displayName = "存储空间"
 group = "1"
-desc = "检查数据节点总存储空间是否超过 volumeUsageThreshold 配置项阈值。"
+desc = "检查数据节点总存储空间是否超过 volumeUsageThreshold 配置值。"
 nodes = [0]
 script = '
 def diskUsage(params) {
@@ -212,7 +212,7 @@ def diskUsage(params) {
     roundDiskUsage = round(diskUsage*100, 2)
     if (diskUsage >= threshold) {
         detail = "磁盘使用率 " + roundDiskUsage.format("0.00") + "% 大于等于 volumeUsageThreshold 配置项 " + round(threshold*100, 2) + "%。"
-        suggestion = "1. 在服务器上确认是 DolphinDB 或其他程序占用过多存储空间；
+        suggestion = "1. 在服务器上确认 DolphinDB 或其他程序是否占用过多存储空间；
 2. 删除部分表数据以腾出空间；
 3. 扩容硬盘。"
         return (false, detail, suggestion)
@@ -226,7 +226,7 @@ go
 name = "memUsage"
 displayName = "内存占用"
 group = "1"
-desc = "检查节点内存占用是否超过 maxMemSize 配置项 * 90%。"
+desc = "检查节点内存占用是否超过 maxMemSize 配置值 * 90%。"
 nodes = [0, 2, 3]
 script = '
 def memUsage(params) {
@@ -244,13 +244,13 @@ go
 name = "levelFileIndexCacheStatus"
 displayName = "TSDB 索引内存占用"
 group = "1"
-desc = "检查数据节点 TSDB 索引内存占用是否超过 TSDBLevelFileIndexCacheSize 配置项 * 90%。"
+desc = "检查数据节点 TSDB 索引内存占用是否超过 TSDBLevelFileIndexCacheSize 配置值 * 90%。"
 nodes = [0]
 script = '
 def levelFileIndexCacheStatus(params) {
     res = getLevelFileIndexCacheStatus()
     if (res["usage"] > res["capacity"] * 0.9) {
-        throw (false, "level file 索引使用的内存 " + res["usage"] + " 字节大于上限 " + res["capacity"] + " 字节 * 90%", "调大 TSDBLevelFileIndexCacheSize 配置项。")
+        throw (false, "level file 索引使用的内存 " + res["usage"] + " 字节大于上限 " + res["capacity"] + " 字节 * 90%", "调大 TSDBLevelFileIndexCacheSize 配置值。")
     }
     return (true, NULL, NULL)
 }
@@ -267,7 +267,7 @@ script = '
 def chunksStatus(params) {
     masterMeta = select * from rpc(getControllerAlias(), getClusterChunksStatus) where state != "COMPLETE" and lastUpdated - now() > 60*60*1000
     if (masterMeta.size() > 0) {
-        return (false, "存在 " + string(masterMeta.size()) + " 条控制节点元数据状态异常超过1小时，部分统计结果如下：", "请参考官方教程《分区状态不一致》排查问题。", select * from masterMeta limit 10)
+        return (false, "控制节点存在 " + string(masterMeta.size()) + " 条元数据状态异常超过1小时，部分统计结果如下：", "请参考官方教程《分区状态不一致》排查问题。", select * from masterMeta limit 10)
     }
     
     return (true, NULL, NULL)
@@ -290,11 +290,11 @@ def chunksVersion(params) {
     allNotEqual=select masterMeta.chunkId as masterChunkId, masterMeta.version as masterVersion, chunkMeta.chunkId as datanodeChunkId, chunkMeta.version as datanodeVersion from fj(masterMeta, chunkMeta, `chunkId) where chunkMeta.version != masterMeta.version 
     detail = ""
     if (allNotEqual.size() > threshold) {
-        return (false, "存在控制节点元数据与数据节点元数据版本不一致: " + string(allNotEqual.size()) + " 条，部分统计结果如下：", "请参考官方教程《分区状态不一致》排查问题。", select top 10 * from allNotEqual)
+        return (false, "控制节点存在元数据与数据节点元数据版本不一致: " + string(allNotEqual.size()) + " 条，部分统计结果如下：", "请参考官方教程《分区状态不一致》排查问题。", select top 10 * from allNotEqual)
     }
     chunkNotEqual=select * from chunkMeta context by chunkId having nunique(version)>1
     if (chunkNotEqual.size() > threshold) {
-        return (false, "存在数据节点相同副本元数据版本不一致: " + string(chunkNotEqual.size()) + " 条。", "请参考官方教程《分区状态不一致》排查问题。", select top 10 * from chunkNotEqual)
+        return (false, "数据节点存在相同副本元数据版本不一致: " + string(chunkNotEqual.size()) + " 条。", "请参考官方教程《分区状态不一致》排查问题。", select top 10 * from chunkNotEqual)
     }
     
     return (true, NULL, NULL)
@@ -319,7 +319,7 @@ def chunksCid(params) {
     update chunkMeta set cid = versionList.split(":").at(0).long() where dfsPath.endsWith("domain") or dfsPath.endsWith(".tbl")
     allNotEqual=select chunkId, masterMeta.file, chunkMeta.dfsPath, masterMeta.versionChain, masterMeta.cid as masterCid, chunkMeta.versionList, chunkMeta.cid as chunkCid from fj(masterMeta, chunkMeta, `chunkId) where masterMeta.cid != chunkMeta.cid 
     if (allNotEqual.size() > 0) {
-        return (false, "存在 " + allNotEqual.size() + " 条控制节点元数据与数据节点元数据 cid 不一致，部分统计结果如下：", "请参考官方教程《分区状态不一致》排查问题，删除错误副本并拷贝正确副本恢复。", select top 10 * from allNotEqual)   
+        return (false, "控制节点存在 " + allNotEqual.size() + " 条元数据与数据节点元数据 cid 不一致，部分统计结果如下：", "请参考官方教程《分区状态不一致》排查问题，删除错误副本并拷贝正确副本恢复。", select top 10 * from allNotEqual)   
     }
     
     return (true, NULL, NULL)
@@ -344,7 +344,7 @@ def replicaNum(params) {
     replicaNum = select count(*) as cnt from pnodeRun(getAllChunks) where state == 0 group by chunkId // 只查询状态完成的元数据，因为事务中的元数据可能副本还在构建
     replicaNum = select * from replicaNum where cnt != dfsReplicationFactor
     if (replicaNum.size() > 0) {
-        return (false, "存在 " + replicaNum.size() + " 个分区副本数小于 dfsReplicationFactor 配置项值 " + dfsReplicationFactor + "，部分统计结果如下：", "请参考官方教程《分区状态不一致》排查问题，拷贝副本恢复。", select top 10 * from replicaNum)
+        return (false, "存在 " + replicaNum.size() + " 个分区副本数小于 dfsReplicationFactor 配置值 " + dfsReplicationFactor + "，部分统计结果如下：", "请参考官方教程《分区状态不一致》排查问题。", select top 10 * from replicaNum)
     }
     
     return (true, NULL, NULL)
@@ -356,7 +356,7 @@ go
 name = "replicaRowNum"
 displayName = "副本一致"
 group = "1"
-desc = "检查多副本时是否存在副本数据条数不一致，只统计 startTime 到 endTime 参数之间有写入的副本。
+desc = "检查在指定的 startTime 到 endTime 之间，是否存在副本数据条数不一致，仅统计有写入的副本。
 参数说明：
 - startTime：TIMESTAMP，统计范围的开始时间，默认值为上次相同方案 ID 的报告的开始时间。
 - endTime：TIMESTAMP，统计范围的结束时间，默认值为当前报告的开始时间。"
@@ -394,7 +394,7 @@ def addBadChunkId(mutable badChunkId,chunkId,rowNum){
 }
 def replicaRowNum(params){
     if(getConfig().dfsReplicationFactor<2){
-        return (true, "节点副本数小于 2，无法进行校验", NULL)
+        return (true, "节点副本数小于 2，无法进行校验。", NULL)
     }
     startTime= params["startTime"]
     endTime= params["endTime"]
@@ -423,7 +423,7 @@ go
 name = "errorLogs"
 displayName = "错误日志"
 group = "1"
-desc = "检查近期日志是否有 ERROR/WARNING，只统计 startTime 到 endTime 参数时间范围内的日志。
+desc = "检查指定时间范围内（startTime 到 endTime）是否存在 ERROR/WARNING 日志。
 参数说明：
 - startTime：TIMESTAMP，统计范围的开始时间，默认值为上次相同方案 ID 的报告的开始时间。
 - endTime：TIMESTAMP，统计范围的结束时间，默认值为当前报告的开始时间。
@@ -522,9 +522,9 @@ newMetric(name, displayName, group, desc, nodes, script, params)
 go
 
 name = "queryElapsed"
-displayName = "耗时最长 SQL top10"
+displayName = "耗时最长的前10条 SQL"
 group = "1"
-desc = "耗时最长 SQL top10，只统计 startTime 到 endTime 参数时间范围内执行的 SQL。
+desc = "统计在指定时间范围内（startTime 到 endTime）执行的耗时最长的前10条 SQL。
 参数说明：
 - startTime：TIMESTAMP，统计范围的开始时间，默认值为上次相同方案 ID 的报告的开始时间。
 - endTime：TIMESTAMP，统计范围的结束时间，默认值为当前报告的开始时间。"
@@ -582,9 +582,9 @@ newMetric(name, displayName, group, desc, nodes, script, params)
 go
 
 name = "mostQueriedDFSTables"
-displayName = "访问次数最多的库表 top10"
+displayName = "访问次数最多的前10个库表"
 group = "1"
-desc = "访问次数最多的库表，只统计 startTime 到 endTime 参数时间范围内有访问记录的库表。
+desc = "统计在指定时间范围内（startTime 到 endTime）访问次数最多的前10个库表。
 参数说明：
 - startTime：TIMESTAMP，统计范围的开始时间，默认值为上次相同方案 ID 的报告的开始时间。
 - endTime：TIMESTAMP，统计范围的结束时间，默认值为当前报告的开始时间。"
@@ -640,9 +640,9 @@ newMetric(name, displayName, group, desc, nodes, script, params)
 go
 
 name = "DFSTableDiskUsage"
-displayName = "数据库大小统计 top10"
+displayName = "统计数据库大小前10名"
 group = "1"
-desc = "数据库大小统计 top10，只统计 startTime 到 endTime 参数范围内有访问记录的库表。
+desc = "统计在指定时间范围内（startTime 到 endTime）有访问记录的数据库大小前10名。
 参数说明：
 - startTime：TIMESTAMP，统计范围的开始时间，默认值为上次相同方案 ID 的报告的开始时间。
 - endTime：TIMESTAMP，统计范围的结束时间，默认值为当前报告的开始时间。"
@@ -699,9 +699,9 @@ newMetric(name, displayName, group, desc, nodes, script, params)
 go
 
 name = "biggestChunks"
-displayName = "分区大小统计 top10"
+displayName = "统计分区大小前10名"
 group = "1"
-desc = "分区大小统计 top10，只统计 startTime 到 endTime 参数时间范围内有写入的分区。
+desc = "统计在指定时间范围内（startTime 到 endTime）有写入记录的分区大小前10名。
 参数说明：
 - startTime：TIMESTAMP，统计范围的开始时间，默认值为上次相同方案 ID 的报告的开始时间。
 - endTime：TIMESTAMP，统计范围的结束时间，默认值为当前报告的开始时间。"
@@ -753,7 +753,7 @@ go
 name = "sortKeyCount"
 displayName = "排序键"
 group = "1"
-desc = "检查排序键过多，需要哈希降维的分布式表，只统计 startTime 到 endTime 参数时间范围内有写入的表。
+desc = "检查在指定时间范围内（startTime 到 endTime）有写入记录的表的排序键是否过多。当排序键过多时，需要进行哈希降维。
 参数说明：
 - startTime：TIMESTAMP，统计范围的开始时间，默认值为上次相同方案 ID 的报告的开始时间。
 - endTime：TIMESTAMP，统计范围的结束时间，默认值为当前报告的开始时间。"
@@ -794,7 +794,7 @@ def sortKeyCount(params) {
     if (ret.size() == 0) {
         return (true, NULL, NULL)
     } else {
-        return (false, "存在 " + string(ret.size()) + " 张表最大排序键超过 1000，部分统计结果如下：", "建议重建表并做哈希降维。", select top 10 * from ret)
+        return (false, "存在 " + string(ret.size()) + " 张表排序键超过 1000，部分统计结果如下：", "建议重建表并对排序键进行哈希降维处理。", select top 10 * from ret)
     }
 }
 '
@@ -1158,7 +1158,7 @@ def volumes(parsedConfigs) {
     res = select * from res where count > 1
     if (res.size() > 0) {
         errInfo = select host, nodeAlias, value from res inner join clusterNodes on res.host == clusterNodes.host and res.value == clusterNodes.value
-        throw "cluster.cfg 存在同一台机器上的数据节点的 " + key + " 配置项相同：\n" + string(errInfo)
+        throw "cluster.cfg 中存在同一台机器上的不同数据节点的 " + key + " 配置了相同的值：\n" + string(errInfo)
     }
 }
 
@@ -1173,7 +1173,7 @@ def persistenceDir(parsedConfigs) {
     res = select * from res where count > 1
     if (res.size() > 0) {
         errInfo = select host, nodeAlias, value from res inner join clusterNodes on res.host == clusterNodes.host and res.value == clusterNodes.value
-        throw "存在同一台机器上的数据节点的 " + key + " 配置项相同：\n" + string(errInfo)
+        throw "存在同一台机器上的不同数据节点的 " + key + " 配置了相同的值：\n" + string(errInfo)
     }
 }
 
@@ -1181,7 +1181,7 @@ def newValuePartitionPolicy(parsedConfigs) {
     if (parsedConfigs["mode"] == "single") {
         configs = readConfigs::getSingleConfigs(parsedConfigs)
         if (configs["newValuePartitionPolicy"] != "add") {
-            throw "建议将 newValuePartitionPolicy 配置项配置为 add，当前值：" + configs["newValuePartitionPolicy"]
+            throw "建议将 newValuePartitionPolicy 配置为 add，当前值：" + configs["newValuePartitionPolicy"]
         }
         return
     }
@@ -1207,7 +1207,7 @@ def checkSites(parsedConfigs) {
         localSite = cfgs["localSite"]
         s = localSite.split(":")
         if (s.size() != 3) {
-            throw "控制节点 " + nodeAlias + " 的 localSite 配置项格式非法：" + localSite
+            throw "控制节点 " + nodeAlias + " 的 localSite 格式非法：" + localSite + localSite
         }
         
         host_ = s[0]
@@ -1232,7 +1232,7 @@ def checkSites(parsedConfigs) {
         localSite = cfgs["localSite"]
         s = localSite.split(":")
         if (s.size() != 3) {
-            throw "代理节点 " + nodeAlias + " 的 localSite 配置项格式非法：" + localSite
+            throw "代理节点 " + nodeAlias + " 的 localSite 格式非法：" + localSite
         }
 
         host_ = s[0]
@@ -1246,7 +1246,7 @@ def checkSites(parsedConfigs) {
         controllerSite = cfgs["controllerSite"]
         s = localSite.split(":")
         if (s.size() != 3) {
-            throw "代理节点 " + nodeAlias + " 的 controllerSite 配置项格式非法：" + localSite
+            throw "代理节点 " + nodeAlias + " 的 controllerSite 格式非法：" + localSite
         }
 
         host_ = s[0]
@@ -1269,7 +1269,7 @@ def checkSites(parsedConfigs) {
             for (item in s_) {
                 s = item.split(":")
                 if (s_.size() != 4) {
-                    throw "代理节点 " + nodeAlias + " 的 sites 配置项格式非法"
+                    throw "代理节点 " + nodeAlias + " 的 sites 格式非法"
                 }
 
                 host_ = s[0]
@@ -1281,7 +1281,7 @@ def checkSites(parsedConfigs) {
                 } 
                 cnt = exec count(*) from readConfigs::getClusterNodes(parsedConfigs) where host == host_ and port == port_ and nodeAlias == nodeAlias_
                 if (cnt == 0) {
-                    throw "代理节点 " + nodeAlias + " 的 sites 的元素 " + host_ + ":" + port_ + ":" + nodeAlias_ + " 在 cluster.nodes 中不存在"
+                    throw “代理节点 " + nodeAlias + " 的 sites 中指定的" + host_ + ":" + port_ + ":" + nodeAlias_ + " 在 cluster.nodes 中不存在”
                 }
             }
 
@@ -1357,7 +1357,7 @@ def lanCluster(parsedConfigs) {
     }
     v = set(lanCluster.values())
     if (v.size() != 1) {
-        throw "集群的 lanCluster 配置项值不一致：\n" + lanCluster
+        throw "集群中所有节点的 lanCluster 配置值不一致：\n" + lanCluster
     } else {
         lanCluster = lanCluster.values().first()
     }
@@ -1375,7 +1375,7 @@ def lanCluster(parsedConfigs) {
         localSite = controllerConfigs["localSite"]
         host = localSite.split(":").first()
         if (!isLanIp(host)) {
-            throw nodeAlias + " 的 localSite 配置的 " + host + " 不是 LAN IP"
+            throw nodeAlias + " 的 localSite 配置的 " + host + " 不是局域网 IP"
         }
     }
 
@@ -1388,7 +1388,7 @@ def lanCluster(parsedConfigs) {
         localSite = agentConfigs["localSite"]
         host = localSite.split(":").first()
         if (!isLanIp(host)) {
-            throw nodeAlias + " 的 localSite 配置的 " + host + " 不是 LAN IP"
+            throw nodeAlias + " 的 localSite 配置的 " + host + " 不是局域网 IP"
         }
 
         if (!isVoid(agentConfigs["sites"])) {
@@ -1397,7 +1397,7 @@ def lanCluster(parsedConfigs) {
             for (item in s) {
                 host = item.split(":").first()
                 if (!isLanIp(host)) {
-                    throw nodeAlias + " 的 sites 配置的 " + host + " 不是 LAN IP"
+                    throw nodeAlias + " 的 localSite 配置的 " + host + " 不是局域网 IP"
                 }
             }
         }
@@ -1405,7 +1405,7 @@ def lanCluster(parsedConfigs) {
 
     for (host in readConfigs::getClusterNodes(parsedConfigs)["host"]) {
         if (!isLanIp(host)) {
-            throw "cluster.nodes 配置的 " + host + " 不是 LAN IP"
+            throw "cluster.nodes 配置的 " + host + " 不是局域网 IP"
         }
     }
 }
@@ -1440,7 +1440,7 @@ def checkClusterNodes(parsedConfigs) {
     res = select * from res where count > 1
 
     if (res.size() > 0) {
-        throw "cluster.nodes 存在重复节点别名：\n" + res
+        throw "cluster.nodes 存在重复的节点别名：\n" + res
     }
 }
 
@@ -1471,7 +1471,7 @@ def checkALIAS(parsedConfigs) {
 
         for (key in controllerConfigs.keys()) {
             if (controllerConfigs[key].strFind("<ALIAS>") != -1) {
-                throw nodeAlias + " 的 " + key + "=" + controllerConfigs[key] + " 配置项使用了 <ALIAS> 会导致无效" 
+                throw nodeAlias + " 的 " + key + "=" + controllerConfigs[key] + " 配置项使用了 <ALIAS> ，这会导致配置无效" 
             }
         }
     }
@@ -1479,7 +1479,7 @@ def checkALIAS(parsedConfigs) {
     clusterConfigs = readConfigs::getClusterConfigs(parsedConfigs)
     for (key in clusterConfigs.keys()) {
         if (key.strFind(".") != -1 and clusterConfigs[key].strFind("<ALIAS>") != -1) {
-            throw "cluster.cfg 的 " + key + "=" + clusterConfigs[key] + " 配置项同时使用了节点别名和 <ALIAS> 会导致无效" 
+            throw "cluster.cfg 的 " + key + "=" + clusterConfigs[key] + " 配置项同时使用了节点别名和 <ALIAS>，这会导致配置无效" 
         }
     }
 }
@@ -1516,7 +1516,7 @@ go
 name = "coredump"
 displayName = "core 文件"
 group = "2"
-desc = "检查 Linux 系统近期是否有 core 文件，只统计 startTime 到 endTime 参数时间范围内生成的 core 文件。
+desc = "检查指定时间范围内（startTime 到 endTime）是否生成了 core 文件。
 参数说明：
 - startTime：TIMESTAMP，统计范围的开始时间，默认值为上次相同方案 ID 的报告的开始时间。
 - endTime：TIMESTAMP，统计范围的结束时间，默认值为当前报告的开始时间。"
@@ -1524,7 +1524,7 @@ nodes = [0, 2, 3]
 script = '
 def coredump(params) {
     if (getOS() != "linux") {
-        throw "不支持非 linux 系统检查 coredump。"
+        throw "不支持在非 linux 系统上检查 coredump。"
     }
     if (!bool(getConfig("enableShellFunction"))) {
         return (false, "未配置 enableShellFunction=true。", "请配置 enableShellFunction=true 以支持该项检查。")
@@ -1598,7 +1598,7 @@ nodes = [0, 2, 3]
 script = '
 def commonSystemConfig(params) {
     if (getOS() != "linux") {
-        throw "不支持非 linux 系统检查配置项。"
+        throw "不支持在非 Linux 系统上检查配置项。"
     }
     if (!bool(getConfig("enableShellFunction"))) {
         return (false, "未配置 enableShellFunction=true。", "请配置 enableShellFunction=true 以支持该项检查。")
@@ -1681,20 +1681,20 @@ def commonSystemConfig(params) {
         line = readLine(f) // 文件类型在第二行
         f.close()
         if (line.strFind("xfs") == -1) {
-            insert into ret values ("df -hT " + volumeCfg, line, "WARNING", "volumes 配置项值所在的硬盘格式不为 xfs，建议格式化为 xfs 以避免 inode 满问题。")
+            insert into ret values ("df -hT " + volumeCfg, line, "WARNING", "volumes 配置项值所在的硬盘格式不为 xfs，建议将其格式化为 xfs，以避免 inode 满的问题。")
         }
     }
     
     cmd = "gdb --version"
     res = shell(cmd)
     if (res != 0) {
-        insert into ret values (cmd, res, "WARNING", "建议安装 gdb 以在宕机时查看堆栈，请检查 gdb 安装情况。")
+        insert into ret values (cmd, res, "WARNING", "建议安装 gdb 以在宕机时查看堆栈。请检查 gdb 安装情况。")
     }
     
     cmd = "pstack"
     res = shell(cmd)
     if (res != 256) {
-        insert into ret values (cmd, res, "WARNING", "建议安装 pstack 便于查看节点进程内部执行状态，请检查 pstack 安装情况。")
+        insert into ret values (cmd, res, "WARNING", "建议安装 pstack 便于查看节点进程内部执行状态。请检查 pstack 安装情况。")
     }
     
     cnt = exec count(*) from rpc(getControllerAlias(), getClusterPerf) where mode == 3
@@ -1709,7 +1709,7 @@ def commonSystemConfig(params) {
             res = shell(cmd)
         }
         if (res != 0) {
-            insert into ret values (cmd, res, "WARNING", "集群模式下建议配置 ntp 使机器间时间同步，请检查 ntp 安装和启动情况。")
+            insert into ret values (cmd, res, "WARNING", "在集群模式下，建议配置 NTP 以确保机器间时间同步。请检查 NTP 的安装和启动状态。")
         }
     }
     
