@@ -62,8 +62,9 @@ function InspectionFormContent ({
                 }}>
             <Form.Item 
                 name='name' 
+                required
                 layout='vertical'
-                label={<h3>{t('巡检名称')}</h3>} 
+                label={<h3 className='required'>{t('巡检名称')}</h3>} 
                 rules={[{ required: true, message: t('请输入巡检名称') }]}>
                 <Input/>
             </Form.Item>
@@ -72,7 +73,7 @@ function InspectionFormContent ({
                 <Input placeholder={t('巡检计划描述(非必填)')} style={{ whiteSpace: 'pre-wrap' }}/>
             </Form.Item>
             
-            <h3>{t('巡检周期')}</h3>
+            <h3 className='required'>{t('巡检周期')}</h3>
             <div className='inspection-form-inline-time'>
                 <Form.Item label={t('巡检频率')} name='frequency' required>
                     <Select 
@@ -152,7 +153,7 @@ function InspectionFormContent ({
                 </Form.Item> */}
             </div>
             
-            <Form.Item name='enabledNode' layout='vertical' label={<h3>{t('执行节点')}</h3>} >
+            <Form.Item name='enabledNode' layout='vertical' label={<h3 className='required'>{t('执行节点')}</h3>} >
                 <Select options={execute_node_names.map(name => ({ label: name, value: name }))}/>
             </Form.Item>
             
@@ -414,7 +415,7 @@ export function MetricGroupTable ({
             <Table 
                 rowKey='group'
                 title={() => editing ? null :  <div className='metric-table-title'>
-                                <h3>{t('指标列表')}</h3>
+                                <h3 className='required'>{t('指标列表')}</h3>
                                 <Button type='primary' onClick={async () => NiceModal.show(addParamModal, { checked_metrics, set_checked_metrics })}>{t('管理指标')}</Button>
                             
                     </div>}
