@@ -8,6 +8,8 @@ import { Collapse, Form, InputNumber } from 'antd'
 
 import { t } from '@i18n/index.js'
 
+import { flattenDeep, max, min } from 'lodash'
+
 import { useChart } from '../hooks.js'
 import { BoolRadioGroup } from '@/components/BoolRadioGroup/index.js'
 import { StringColorPicker } from '@/components/StringColorPicker/index.js'
@@ -37,6 +39,7 @@ export function HeatMap (props: IProps) {
         const { series } = config
          
         const { data: matrix_data = [ ], row_labels = [ ], col_labels = [ ] } = data as unknown as MatrixData
+        
         
         let chart_data = [ ]
         for (let j = 0;  j < matrix_data.length;  j++)
@@ -77,8 +80,8 @@ export function HeatMap (props: IProps) {
                 data: y_data
             },
             visualMap: {
-                min: series[0].min || 0,
-                max: series[0].max || 10,
+                min: series[0].min ?? Math.floor(min(flattenDeep(matrix_data))),
+                max: series[0].max ?? Math.ceil(max(flattenDeep(matrix_data))),
                 calculable: true,
                 orient: 'horizontal',
                 left: 'center',
@@ -129,10 +132,10 @@ export function HeatMapConfigForm ({ col_names }: { col_names: string[] }) {
                         <Form.Item label={t('明亮色')} name={[field.name, 'in_range', 'color', 'high']} initialValue='#983430'>
                             <StringColorPicker />
                         </Form.Item>
-                        <Form.Item label={t('最小值')} name={[field.name, 'min']} initialValue={0}>
+                        <Form.Item label={t('最小值')} name={[field.name, 'min']}>
                             <InputNumber />
                         </Form.Item>
-                        <Form.Item label={t('最大值')} name={[field.name, 'max']} initialValue={10}>
+                        <Form.Item label={t('最大值')} name={[field.name, 'max']}>
                             <InputNumber />
                         </Form.Item>
                         <Form.Item label={t('展示标签')} name={[field.name, 'with_label']} initialValue={false}>
