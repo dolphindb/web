@@ -177,7 +177,7 @@ export function DdbSider () {
                         },
                     ]
                 }] : [ ],
-                ...admin  ? [{
+                ...admin && language === 'zh' ? [{
                     key: 'inspection',
                     icon: <MenuIcon view='inspection' />,
                     label: t('自动化巡检'),
