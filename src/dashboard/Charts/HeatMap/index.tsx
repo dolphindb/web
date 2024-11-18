@@ -8,7 +8,7 @@ import { Collapse, Form, InputNumber } from 'antd'
 
 import { t } from '@i18n/index.js'
 
-import { flattenDeep, max, min } from 'lodash'
+import { max, min } from 'lodash'
 
 import { useChart } from '../hooks.js'
 import { BoolRadioGroup } from '@/components/BoolRadioGroup/index.js'
@@ -42,9 +42,13 @@ export function HeatMap (props: IProps) {
         
         
         let chart_data = [ ]
+        let flatten_data = [ ]
         for (let j = 0;  j < matrix_data.length;  j++)
-            for (let i = 0;  i < matrix_data[j].length;  i++)  
+            for (let i = 0;  i < matrix_data[j].length;  i++) {
                 chart_data.push([i, j, matrix_data[j][i]])
+                flatten_data.push(matrix_data[j][i])
+            }
+                
         
         const y_data = row_labels.map(label => format_time(label, config?.yAxis[0]?.time_format))
         const x_data = col_labels.map(label => format_time(label, config.xAxis.time_format))
@@ -80,8 +84,8 @@ export function HeatMap (props: IProps) {
                 data: y_data
             },
             visualMap: {
-                min: series[0].min ?? Math.floor(min(flattenDeep(matrix_data))),
-                max: series[0].max ?? Math.ceil(max(flattenDeep(matrix_data))),
+                min: series[0].min ?? Math.floor(min(flatten_data)),
+                max: series[0].max ?? Math.ceil(max(flatten_data)),
                 calculable: true,
                 orient: 'horizontal',
                 left: 'center',
