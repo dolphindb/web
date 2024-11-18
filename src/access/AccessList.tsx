@@ -12,10 +12,6 @@ import { generate_access_cols } from './utils/handle-access.js'
 import type { AccessCategory, TABLE_ACCESS } from './types.js'
 
 
-function includes_searck_key (text: string, search: string) {
-    return text.toLowerCase().includes(search.toLowerCase())
-}
-
 export function AccessList ({ category }: { category: AccessCategory }) {
     const [showed_accesses, set_showed_accesses] = useState<Record<string, any>>([ ])
     
@@ -243,4 +239,9 @@ export function AccessList ({ category }: { category: AccessCategory }) {
                         : { }
             }
         />
+}
+
+
+function includes_searck_key (text: string, search: string) {
+    return text.toLowerCase().includes(search.toLowerCase())
 }
