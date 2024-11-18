@@ -134,30 +134,30 @@ export function AccessList ({ category }: { category: AccessCategory }) {
     return <Table
                 columns={cols}
                 dataSource={showed_accesses
-                    .filter(({ name, schemas, tables }) => {
-                        return includes_searck_key(name, search_key) ||
+                    .filter(({ name, schemas, tables }) =>
+                        includes_searck_key(name, search_key) ||
                             v3 ? schemas?.some((schema: TABLE_ACCESS) => 
                                 includes_searck_key(schema.name, search_key) ||
                                 schema.tables.some(table => includes_searck_key(table.name, search_key))
                             ) : tables?.some((table: TABLE_ACCESS) => includes_searck_key(table.name, search_key))
-                    })
+                    )
                     .map((tb_access: TABLE_ACCESS) => ({
                         key: tb_access.name,
                         name: tb_access.name,  
-                        ...(category === 'database' ? { 
-                            ...v3 ? { 
+                        ...(category === 'database' ? 
+                            v3 ? {
                                 // 过滤 schemas
-                                schemas: tb_access.schemas.filter(schema => {
-                                    return includes_searck_key(schema.name, search_key) ||
+                                schemas: tb_access.schemas.filter(schema =>
+                                    includes_searck_key(schema.name, search_key) ||
                                         schema.tables.some(table => includes_searck_key(table.name, search_key))
-                                })
-                            } : { 
+                                )
+                            } : {
                                 // 过滤 tables
                                 tables: tb_access.tables.filter(table => 
                                     includes_searck_key(table.name, search_key)
                                 ) 
                             } 
-                        } : { }),
+                        : { }),
                         ...(category !== 'script'
                                 ? 
                             Object.fromEntries(Object.entries(tb_access.access).map(([key, value]) => [key, STAT_ICONS[value as string]]))
