@@ -136,11 +136,10 @@ export function AccessList ({ category }: { category: AccessCategory }) {
                 dataSource={showed_accesses
                     .filter(({ name, schemas, tables }) => {
                         return includes_searck_key(name, search_key) ||
-                            (v3 && schemas?.some((schema: TABLE_ACCESS) => 
+                            v3 ? schemas?.some((schema: TABLE_ACCESS) => 
                                 includes_searck_key(schema.name, search_key) ||
                                 schema.tables.some(table => includes_searck_key(table.name, search_key))
-                            )) ||
-                            (!v3 && tables?.some(table => includes_searck_key(table.name, search_key)))
+                            ) : tables?.some((table: TABLE_ACCESS) => includes_searck_key(table.name, search_key))
                     })
                     .map((tb_access: TABLE_ACCESS) => ({
                         key: tb_access.name,
