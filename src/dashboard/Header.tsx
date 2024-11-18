@@ -199,6 +199,7 @@ export function Header () {
             const current_dashboard = configs.find(({ id }) => id === option.key)
             clear_data_sources()
             await dashboard.render_with_config(current_dashboard)
+            dashboard.set({ config: current_dashboard })
             if (current_dashboard.permission === DashboardPermission.view)
                 dashboard.on_preview()
         }

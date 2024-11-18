@@ -87,10 +87,7 @@ function DashboardInstance ({ id }: { id: string }) {
     const page_count = config?.data?.canvas?.page_count ?? 1
     
     useEffect(() => {
-        if (config?.data?.canvas?.page_count) {
-            const page_count = config.data.canvas.page_count
-            dashboard.update_css_for_element_height(page_count)
-        }   
+        dashboard.update_css_for_element_height(page_count)
     }, [page_count])
     
     useEffect(() => {

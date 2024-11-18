@@ -14,6 +14,8 @@ import type { MessageInstance } from 'antd/es/message/interface.d.ts'
 import type { HookAPI as ModalHookAPI } from 'antd/es/modal/useModal/index.d.ts'
 import type { NotificationInstance } from 'antd/es/notification/interface.d.ts'
 
+import { t } from '@i18n/index.js'
+
 import { model, show_error, storage_keys } from '../model.js'
 import type { Monaco } from '../components/Editor/index.js'
 import type { FormatErrorOptions } from '../components/GlobalErrorBoundary.js'
@@ -104,37 +106,38 @@ export class DashBoardModel extends Model<DashBoardModel> {
     
     /** 初始化 GridStack 并配置事件监听器 */
     async init ($div: HTMLDivElement) {
-        console.log('init')
         let grid = GridStack.init({
             //  gridstack 有 bug ，当 grid 没有 2*3 的连续空间时，再拖入一个会使所有 widget 无法 change，暂时通过计算面积阻止拖入，后续无限行数时不会再有此问题
-            acceptWidgets: () => { // 动态改变大小可能只能在这上面动了，另一种说法是在组件添加完成后，发现没空了就加。如果这里能改，那就是在拖动开始的时候加。
-                return true
-                // const canvas = Array.from({ length: 12 }, () => Array(12).fill(0))
+            acceptWidgets: () => {
+                let current_page_count = this.config?.data?.canvas?.page_count ?? 1 
+                const max_rows = this.maxrows * current_page_count
+                const max_columns = 12
+                const canvas = Array.from({ length: max_columns }, () => Array(max_rows).fill(0))
                 
-                // this.widgets.forEach(widget => {
-                // for (let i = widget.x;  i < widget.x + widget.w;  i++)
-                //     for (let j = widget.y;  j < widget.y + widget.h;  j++)
-                //         canvas[i][j] = 1
-                // })
+                this.widgets.forEach(widget => {
+                    for (let i = widget.x;  i < widget.x + widget.w;  i++)
+                        for (let j = widget.y;  j < widget.y + widget.h;  j++)
+                            canvas[i][j] = 1
+                })
                 
-                // // 使用动态规划记录每个位置上的连续空白格子数量
-                // const dp = Array.from({ length: 12 }, () => Array(12).fill(0))
-                // for (let i = 0;  i < 12;  i++)
-                //     for (let j = 0;  j < 12;  j++)
-                //         if (canvas[i][j] === 0) 
-                //             dp[i][j] = (j > 0 ? dp[i][j - 1] : 0) + 1
+                // Use dynamic programming to record the number of consecutive empty cells at each position
+                const dp = Array.from({ length: max_columns }, () => Array(max_rows).fill(0))
+                for (let i = 0;  i < max_columns;  i++)
+                    for (let j = 0;  j < max_rows;  j++)
+                        if (canvas[i][j] === 0) 
+                            dp[i][j] = (j > 0 ? dp[i][j - 1] : 0) + 1
                         
                             
                     
-                // // 检查是否有符合条件的3x2空白区域
-                // for (let i = 0;  i < 11;  i++)
-                //     for (let j = 0;  j <= 11;  j++)
-                //         if (dp[i][j] >= 3 && dp[i + 1][j] >= 3) 
-                //             return true
-                // console.log('格子不够')
-                // console.log('canvas', canvas)
-                // console.log('dp', dp)        
-                // return false
+                // 检查是否有符合条件的3x2空白区域
+                for (let i = 0;  i < max_columns - 1;  i++) 
+                    for (let j = 0;  j <= max_rows - 1;  j++)
+                        if (dp[i][j] >= 3 && dp[i + 1][j] >= 3)
+                            return true
+                console.log('格子不够')
+                console.log('canvas', canvas)
+                console.log('dp', dp)        
+                return false
             },
             float: true,
             column: this.maxcols,
@@ -193,6 +196,18 @@ export class DashBoardModel extends Model<DashBoardModel> {
             if (grid?.el)
                 grid.cellHeight(Math.floor((window.innerHeight - 50) / this.maxrows))
         })
+    }
+    
+    check_available_for_reduce_page_count (target: number) {
+        let current_page_count = this.config?.data?.canvas?.page_count ?? 1 
+        if (target >= current_page_count)
+            return true
+        for (let widget of this.widgets) 
+            if (widget.y + widget.h > target * 12) {
+                model.message.warning(t('部分页面仍有图表存在，请确保所有图表已移除后再调整页面数'))
+                return false 
+            }
+        return true
     }
     
     
@@ -476,7 +491,9 @@ export class DashBoardModel extends Model<DashBoardModel> {
     }
     
     update_page_count (page_count: number) {
-        // TODO：如果 page_count 减少，要看看减少的页面上面有没有组件，有的话就弹窗不允许减少
+        // 如果 page_count 减少，要看看减少的页面上面有没有组件，有的话就弹窗不允许减少
+        if (!this.check_available_for_reduce_page_count(page_count))
+            return
         this.set({ config: { ...this.config, data: { ...this.config.data, canvas: { ...this.config.data.canvas, page_count } } } })
         this.update_css_for_element_height(page_count)
     }
@@ -498,7 +515,7 @@ export class DashBoardModel extends Model<DashBoardModel> {
         }
         
         // 设置样式表的内容
-        style_sheet.innerHTML = `.grid-stack { height: ${height_value}; }`
+        style_sheet.innerHTML = `.grid-stack { height: ${height_value}; max-height: ${height_value}; }`
     }
 }
 
