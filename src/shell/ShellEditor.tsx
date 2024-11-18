@@ -219,10 +219,12 @@ function Tabs () {
             event.preventDefault()
             // 垂直移动实际上是水平移动，方便滚动标签页
             tabs_container_ref.current.scrollLeft += event.deltaY
+            tabs_container_ref.current.scrollLeft += event.deltaX
         }
         
         tabs_container_ref.current.addEventListener('wheel', on_wheel)
-        return () => { tabs_container_ref.current.removeEventListener('wheel', on_wheel) }
+        
+        return () => { tabs_container_ref.current?.removeEventListener('wheel', on_wheel) }
     }, [ ])
     
     return <div className='tabs' ref={tabs_container_ref}>
