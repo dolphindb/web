@@ -72,6 +72,7 @@ function DashboardInstance ({ id }: { id: string }) {
                     dashboard.set({ config })
                     await dashboard.render_with_config(config)
                 } catch (error) {
+                    model.message.error(t('dashboard 不存在'))
                     const shared_dashboard_ids = new URL(window.location.href).searchParams.getAll('dashboard_share_ids')
                     if (shared_dashboard_ids.includes(String(dashboard_id)) && shared_dashboard_ids.length > 1) {
                         // 如果是分享的 dashboard 被删除, 切到下一个分享的 dashboard
@@ -81,7 +82,7 @@ function DashboardInstance ({ id }: { id: string }) {
                         window.location.href = `/dashboard/${shared_dashboard_ids[1]}/` + '?' +  searchParams.toString()
                     }
                     dashboard.return_to_overview()
-                    model.message.error(t('dashboard 不存在'))
+                    
                 }    
         })()
     }, [ ])
