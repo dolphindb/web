@@ -15,7 +15,7 @@ import { GraphItem } from './GraphItem/GraphItem.tsx'
 import { SettingsPanel } from './SettingsPanel/SettingsPanel.tsx'
 import { Header } from './Header.tsx'
 import { DashboardPermission, dashboard } from './model.ts'
-import { DASHBOARD_SHARED_PARAM } from './constant.ts'
+import { DASHBOARD_SHARED_SEARCH_KEY } from './constant.ts'
 
 
 export function DashboardInstancePage () {
@@ -74,13 +74,13 @@ function DashboardInstance ({ id }: { id: string }) {
                     await dashboard.render_with_config(config)
                 } catch (error) {
                     model.message.error(t('dashboard 不存在'))
-                    const shared_dashboard_ids = new URLSearchParams(location.search).getAll(DASHBOARD_SHARED_PARAM)
+                    const shared_dashboard_ids = new URLSearchParams(location.search).getAll(DASHBOARD_SHARED_SEARCH_KEY)
                     
                     // 如果是分享的 dashboard 被删除, 切到下一个分享的 dashboard, 修改 search
                     if (shared_dashboard_ids.includes(id) && shared_dashboard_ids.length > 1) {
                         const searchParams = new URLSearchParams(location.search)
-                        searchParams.delete(DASHBOARD_SHARED_PARAM)
-                        shared_dashboard_ids.filter(item => item !== id).forEach(shared_id => { searchParams.append(DASHBOARD_SHARED_PARAM, shared_id) })
+                        searchParams.delete(DASHBOARD_SHARED_SEARCH_KEY)
+                        shared_dashboard_ids.filter(item => item !== id).forEach(shared_id => { searchParams.append(DASHBOARD_SHARED_SEARCH_KEY, shared_id) })
                         // 一秒后跳转，先展示报错
                         setTimeout(() => {
                             window.location.href = ( model.test ? '/web/dashboard/' : '/dashboard/') +  `${shared_dashboard_ids[1]}/` + '?' +  searchParams.toString()

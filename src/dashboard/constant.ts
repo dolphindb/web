@@ -8,4 +8,4 @@ export const DATA_SOURCE_TYPE_MAP = {
 }
 
 
-export const DASHBOARD_SHARED_PARAM = 'dashboard_share_ids'
+export const DASHBOARD_SHARED_SEARCH_KEY = 'dashboard_share_ids'

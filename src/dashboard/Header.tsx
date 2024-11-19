@@ -34,7 +34,7 @@ import { Import } from './Import/Import.js'
 import { Share } from './Share/Share.js'
 import { DashboardMode } from './type.js'
 import { SaveConfirmModal } from './components/SaveComfirmModal.js'
-import { DASHBOARD_SHARED_PARAM } from './constant.ts'
+import { DASHBOARD_SHARED_SEARCH_KEY } from './constant.ts'
 
 
 export function get_widget_config (widget: Widget) {
@@ -197,7 +197,7 @@ export function Header () {
     const { data: dashboards, isLoading } = useSWR<DashBoardConfig[]>(
         ['get_all_view_dashboards', configs],
         async () => {
-            const shared_dashboard_ids = new URL(window.location.href).searchParams.getAll(DASHBOARD_SHARED_PARAM)
+            const shared_dashboard_ids = new URL(window.location.href).searchParams.getAll(DASHBOARD_SHARED_SEARCH_KEY)
             const dashboard_shared_list = await Promise.all(shared_dashboard_ids.map(async id => {
                 try {
                     return await dashboard.get_dashboard_config(Number(id))

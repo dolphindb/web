@@ -7,7 +7,7 @@ import copy from 'copy-to-clipboard'
 import { dashboard } from '../model.js'
 import { t } from '../../../i18n/index.js'
 import { model } from '../../model.js'
-import { DASHBOARD_SHARED_PARAM } from '../constant.js'
+import { DASHBOARD_SHARED_SEARCH_KEY } from '../constant.js'
 
 interface IProps {
     dashboard_ids: number[]
@@ -28,7 +28,7 @@ export function Share ({ dashboard_ids, trigger_type }: IProps) {
         let url = new URL(window.location.href) 
         url.searchParams.set('preview', '1')
         
-        dashboard_ids.forEach(id => { url.searchParams.append(DASHBOARD_SHARED_PARAM, String(id)) })
+        dashboard_ids.forEach(id => { url.searchParams.append(DASHBOARD_SHARED_SEARCH_KEY, String(id)) })
         const pathname = model.test ? '/web/dashboard/' : '/dashboard/'
         url.pathname = pathname + dashboard_ids[0] + '/'
         const text = url.href
