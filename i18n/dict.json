@@ -5783,8 +5783,8 @@
     "功能介绍": {
         "en": "Function Introduction"
     },
-    "系统监控：定期自动检查数据库性能指标，及时发现潜在问题": {
-        "en": "System Monitoring: Regularly check the database performance indicators and discover potential problems in time"
+    "系统监控：定期自动检查数据库各项指标，及时发现潜在问题": {
+        "en": "System Monitoring: Regularly check the database indicators and discover potential problems in time"
     },
     "计划任务：支持自定义巡检计划，可设置执行周期和检查项目": {
         "en": "Plan Task: Support custom inspection plans, set execution cycles and inspection items"
