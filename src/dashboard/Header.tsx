@@ -108,7 +108,6 @@ export function Header () {
     
     const handle_save = useCallback(async () => {
         const updated_config = await get_latest_config()
-        console.log(updated_config, 'updated_config')
         await dashboard.update_dashboard_config(updated_config)
         dashboard.set({ save_confirm: false })
         dashboard.message.success(t('数据面板保存成功'))
@@ -252,7 +251,6 @@ export function Header () {
                 </div>
             }))}
         />
-        : <div className='dashboard-share-label'>{config?.name}</div>
         
         
         <div className='actions'>
