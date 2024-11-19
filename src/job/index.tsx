@@ -540,9 +540,23 @@ function JobMessageShow ({ job }: { job: DdbJob }) {
         set_message(result.split_lines())
     }
     
-    function copy_to_clipboard () {
-        navigator.clipboard.writeText(message.join_lines())
-        model.message.success(t('复制成功'))
+    async function copy_to_clipboard () {
+        let text = message.join_lines()
+        if (navigator.clipboard?.writeText) {
+            await navigator.clipboard.writeText(text)
+            model.message.success(t('复制成功'))
+        } else {
+            const textarea = document.createElement('textarea')
+            textarea.value = text
+            textarea.style.position = 'fixed'  // Avoid scrolling to bottom
+            textarea.style.opacity = '0'      // Make it invisible
+            document.body.appendChild(textarea)
+            textarea.focus()
+            textarea.select()
+            if (document.execCommand('copy'))
+                model.message.success(t('复制成功'))
+            document.body.removeChild(textarea)
+        }
     }
     
     if (!node)
