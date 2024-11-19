@@ -5779,5 +5779,23 @@
     },
     "待执行的巡检计划": {
         "en": "Inspection plans to be implemented"
+    },
+    "功能介绍": {
+        "en": "Function Introduction"
+    },
+    "系统监控：定期自动检查数据库性能指标，及时发现潜在问题": {
+        "en": "System Monitoring: Regularly check the database performance indicators and discover potential problems in time"
+    },
+    "计划任务：支持自定义巡检计划，可设置执行周期和检查项目": {
+        "en": "Plan Task: Support custom inspection plans, set execution cycles and inspection items"
+    },
+    "报告生成：自动生成巡检报告，直观展示系统运行状况": {
+        "en": "Report Generation: Automatically generate inspection reports to visually display system operation status"
+    },
+    "预警提醒：发现异常时及时通知，支持邮件告警配置": {
+        "en": "Early Warning: Notify in time when anomalies are detected, support email alarm configuration"
+    },
+    "历史追溯：保存历史巡检记录，便于问题分析和追踪": {
+        "en": "Historical Traceability: Save historical inspection records for easier problem analysis and tracking"
     }
 }
