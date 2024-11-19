@@ -541,8 +541,38 @@ function JobMessageShow ({ job }: { job: DdbJob }) {
     }
     
     function copy_to_clipboard () {
-        navigator.clipboard.writeText(message.join_lines())
-        model.message.success(t('复制成功'))
+        let text = message.join_lines()
+        if (navigator.clipboard && navigator.clipboard.writeText) 
+            navigator.clipboard.writeText(text)
+                .then(() => {
+                    model.message.success(t('复制成功'))
+                })
+                .catch(err => {
+                    model.message.error(t('复制失败'))
+                    console.error('Failed to copy: ', err)
+                })
+         else {
+            // Fallback method using `execCommand`
+            const textarea = document.createElement('textarea')
+            textarea.value = text
+            textarea.style.position = 'fixed'  // Avoid scrolling to bottom
+            textarea.style.opacity = '0'      // Make it invisible
+            document.body.appendChild(textarea)
+            textarea.focus()
+            textarea.select()
+            try {
+                const successful = document.execCommand('copy')
+                if (successful) 
+                    model.message.success(t('复制成功'))
+                 else 
+                    model.message.error(t('复制失败'))
+                
+            } catch (err) {
+                model.message.error(t('复制失败'))
+                console.error('Fallback copy failed: ', err)
+            }
+            document.body.removeChild(textarea)
+        }
     }
     
     if (!node)
