@@ -134,11 +134,30 @@ export function AccessList ({ category }: { category: AccessCategory }) {
     return <Table
                 columns={cols}
                 dataSource={showed_accesses
-                    .filter(({ name }) => name.toLowerCase().includes(search_key.toLowerCase()))
+                    .filter(({ name, schemas, tables }) =>
+                        includes_searck_key(name, search_key) ||
+                            v3 ? schemas?.some((schema: TABLE_ACCESS) => 
+                                includes_searck_key(schema.name, search_key) ||
+                                schema.tables.some(table => includes_searck_key(table.name, search_key))
+                            ) : tables?.some((table: TABLE_ACCESS) => includes_searck_key(table.name, search_key))
+                    )
                     .map((tb_access: TABLE_ACCESS) => ({
                         key: tb_access.name,
-                        name: tb_access.name,
-                        ...(category === 'database' ? { ...v3 ? { schemas: tb_access.schemas } : { tables: tb_access.tables } } : { }),
+                        name: tb_access.name,  
+                        ...(category === 'database' ? 
+                            v3 ? {
+                                // 过滤 schemas
+                                schemas: tb_access.schemas.filter(schema =>
+                                    includes_searck_key(schema.name, search_key) ||
+                                        schema.tables.some(table => includes_searck_key(table.name, search_key))
+                                )
+                            } : {
+                                // 过滤 tables
+                                tables: tb_access.tables.filter(table => 
+                                    includes_searck_key(table.name, search_key)
+                                ) 
+                            } 
+                        : { }),
                         ...(category !== 'script'
                                 ? 
                             Object.fromEntries(Object.entries(tb_access.access).map(([key, value]) => [key, STAT_ICONS[value as string]]))
@@ -169,16 +188,19 @@ export function AccessList ({ category }: { category: AccessCategory }) {
                                     ]}
                                     dataSource={v3 ? 
                                         cl.schemas.map(schema => ({
-                                        key: schema.name,
-                                        table_name: schema.name,
-                                        tables: schema.tables,
-                                        ...Object.fromEntries(Object.entries(schema.access).map(([key, value]) => [key, STAT_ICONS[value as string]]))
-                                    })) : 
-                                    cl.tables.map(table => ({
-                                        key: table.name,
-                                        table_name: table.name,
-                                        ...Object.fromEntries(Object.entries(table.access).map(([key, value]) => [key, STAT_ICONS[value as string]]))
-                                    }))}
+                                            key: schema.name,
+                                            table_name: schema.name,
+                                            // 过滤 schema 下的 tables
+                                            tables: schema.tables.filter(table =>
+                                                includes_searck_key(table.name, search_key.toLowerCase())
+                                            ),
+                                            ...Object.fromEntries(Object.entries(schema.access).map(([key, value]) => [key, STAT_ICONS[value as string]]))
+                                        })) : 
+                                        cl.tables.map(table => ({
+                                            key: table.name,
+                                            table_name: table.name,
+                                            ...Object.fromEntries(Object.entries(table.access).map(([key, value]) => [key, STAT_ICONS[value as string]]))
+                                        }))}
                                     pagination={false}
                                     tableLayout='fixed'
                                     expandable={
@@ -216,4 +238,9 @@ export function AccessList ({ category }: { category: AccessCategory }) {
                         : { }
             }
         />
+}
+
+
+function includes_searck_key (text: string, search: string) {
+    return text.toLowerCase().includes(search.toLowerCase())
 }

@@ -1,4 +1,4 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 
 import { Input, Switch } from 'antd'
 import { CloseOutlined, DoubleLeftOutlined, DoubleRightOutlined, PlusOutlined } from '@ant-design/icons'
@@ -209,11 +209,25 @@ export function ShellEditor ({ collapser }) {
 function Tabs () {
     const { tabs, itab } = shell.use(['tabs', 'itab'])
     
+    let tabs_container_ref = useRef<HTMLDivElement>()
+    
     useEffect(() => {
         shell.init_tabs()
+        
+        // 注册鼠标滚轮监听
+        function on_wheel (event: WheelEvent) {
+            event.preventDefault()
+            // 垂直移动实际上是水平移动，方便滚动标签页
+            tabs_container_ref.current.scrollLeft += event.deltaY
+            tabs_container_ref.current.scrollLeft += event.deltaX
+        }
+        
+        tabs_container_ref.current.addEventListener('wheel', on_wheel)
+        
+        return () => { tabs_container_ref.current?.removeEventListener('wheel', on_wheel) }
     }, [ ])
     
-    return <div className='tabs'>
+    return <div className='tabs' ref={tabs_container_ref}>
         <div
             className={`tab ${itab < 0 ? 'active' : ''}`}
             key='default'

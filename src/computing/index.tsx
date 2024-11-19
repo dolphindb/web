@@ -2,7 +2,7 @@ import './index.sass'
 
 import { type Dispatch, type ReactNode, type SetStateAction, useEffect, useState, useMemo } from 'react'
 
-import { Button, Tabs, Table, Tooltip, Spin, Result, type TableColumnType, Input, Modal, List } from 'antd'
+import { Button, Tabs, Table, Tooltip, Spin, Result, type TableColumnType, Input, Modal, List, Typography } from 'antd'
 
 import { ReloadOutlined, QuestionCircleOutlined, WarningOutlined, FormatPainterOutlined } from '@ant-design/icons'
 
@@ -92,7 +92,11 @@ export function Computing () {
         },
         streaming_table_stat: {
             title: t('流数据表状态'),
-            refresher: computing.get_streaming_table_stat
+            refresher: async () =>
+                Promise.all([
+                    computing.get_streaming_table_stat(),
+                    computing.get_streaming_pub_sub_stat()
+                ])
         }
     }
     
@@ -690,7 +694,7 @@ function add_details_row (table: Record<string, any>[]) {
                         dataSource={detailed_keys.map(key => {
                             return `${dict[key]}: ${row[key] === -1 || row[key] === -1n || row[key] === null ? '' : row[key]}`
                         })}
-                        renderItem={item => <List.Item>{item}</List.Item>}
+                        renderItem={item => <List.Item><Typography.Paragraph ellipsis={{ tooltip: item }}>{item}</Typography.Paragraph ></List.Item>}
                         split={false}
                     />
                 )
