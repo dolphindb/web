@@ -542,11 +542,10 @@ function JobMessageShow ({ job }: { job: DdbJob }) {
     
     async function copy_to_clipboard () {
         let text = message.join_lines()
-        if (navigator.clipboard && navigator.clipboard.writeText) {
+        if (navigator.clipboard?.writeText) {
             await navigator.clipboard.writeText(text)
             model.message.success(t('复制成功'))
-        }
-        else {
+        } else {
             const textarea = document.createElement('textarea')
             textarea.value = text
             textarea.style.position = 'fixed'  // Avoid scrolling to bottom
