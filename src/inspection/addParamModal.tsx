@@ -20,6 +20,7 @@ export const AddParamModal = NiceModal.create(({
         width='80%'    
         open={modal.visible}
         afterClose={modal.remove}
+        onCancel={modal.hide}
         footer={null}
         title={t('添加指标')}
     >
