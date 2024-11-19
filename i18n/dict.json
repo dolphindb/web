@@ -2025,7 +2025,7 @@
         "en": "Queue Depth Limit"
     },
     "最近处理失败的错误信息": {
-        "en": "Last Failed Message"
+        "en": "Last Error Message"
     },
     "最近处理失败的时刻": {
         "en": "Last Failed Timestamp"
@@ -2268,7 +2268,7 @@
         "en": "Stream Table"
     },
     "取消订阅": {
-        "en": "Unsubscribe"
+        "en": "unsubscribe"
     },
     "引擎": {
         "en": "Engines"
@@ -2490,7 +2490,7 @@
         "en": "View user permissions"
     },
     "确认{{action}}选中的 ": {
-        "en": "Are You Sure to Delete the Selected {{action}} "
+        "en": "Are you sure to {{action}} "
     },
     " 个{{item}}吗?": {
         "en": " {{item}} ?"
