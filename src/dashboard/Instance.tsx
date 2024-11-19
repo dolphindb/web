@@ -74,7 +74,7 @@ function DashboardInstance ({ id }: { id: string }) {
                     await dashboard.render_with_config(config)
                 } catch (error) {
                     model.message.error(t('dashboard 不存在'))
-                    const shared_dashboard_ids = new URLSearchParams(location.search).getAll(DASHBOARD_SHARED_SEARCH_KEY)
+                    const shared_dashboard_ids = new URLSearchParams(location.search).getAll(DASHBOARD_SHARED_SEARCH_KEY) ?? [ ]
                     
                     // 如果是分享的 dashboard 被删除, 切到下一个分享的 dashboard, 修改 search
                     if (shared_dashboard_ids.includes(id) && shared_dashboard_ids.length > 1) {
