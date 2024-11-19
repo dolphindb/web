@@ -7,6 +7,7 @@ import copy from 'copy-to-clipboard'
 import { dashboard } from '../model.js'
 import { t } from '../../../i18n/index.js'
 import { model } from '../../model.js'
+import { DASHBOARD_SHARED_PARAM } from '../constant.js'
 
 interface IProps {
     dashboard_ids: number[]
@@ -27,7 +28,7 @@ export function Share ({ dashboard_ids, trigger_type }: IProps) {
         let url = new URL(window.location.href) 
         url.searchParams.set('preview', '1')
         
-        dashboard_ids.forEach(id => { url.searchParams.append('dashboard_share_ids', String(id)) })
+        dashboard_ids.forEach(id => { url.searchParams.append(DASHBOARD_SHARED_PARAM, String(id)) })
         /** 测试环境下的路径为 /web/dashboard 直接用 /dashboard 有问题 */
         const pathname = url.pathname.endsWith('/') ? url.pathname : url.pathname + '/'
         url.pathname = pathname + dashboard_ids[0] + '/'

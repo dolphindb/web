@@ -21,6 +21,7 @@ import type { FormatErrorOptions } from '../components/GlobalErrorBoundary.js'
 import { type DataSource, type ExportDataSource, import_data_sources, unsubscribe_data_source, type DataType, clear_data_sources } from './DataSource/date-source.js'
 import { type IEditorConfig, type IChartConfig, type ITableConfig, type ITextConfig, type IGaugeConfig, type IHeatMapChartConfig, type IOrderBookConfig } from './type.js'
 import { type Variable, import_variables, type ExportVariable } from './Variable/variable.js'
+import { DASHBOARD_SHARED_PARAM } from './constant.js'
 
 
 /** 0 表示隐藏dashboard（未查询到结果、 server 版本为 v1 或 language 非中文），1 表示没有初始化，2 表示已经初始化，3 表示为控制节点 */
@@ -462,7 +463,7 @@ export class DashBoardModel extends Model<DashBoardModel> {
         
         dashboard.set({ config: null, save_confirm: false })
         
-        model.goto('/dashboard/', { queries: { preview: null, dashboard_share_ids: undefined  } })
+        model.goto('/dashboard/', { queries: { preview: null, [DASHBOARD_SHARED_PARAM]: undefined  } })
         
         model.set({ sider: true, header: true })
     }
