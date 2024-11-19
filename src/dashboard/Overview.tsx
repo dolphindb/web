@@ -257,11 +257,6 @@ export function Overview () {
                         width: 400,
                     },
                     {
-                        title: t('创建时间'),
-                        dataIndex: 'createTime',
-                        width: 400,
-                    },
-                    {
                         title: t('操作'),
                         dataIndex: '',
                         key: 'actions',
