@@ -16,6 +16,8 @@ import { vercmp } from 'xshell/utils.browser'
 
 import { repeat } from 'lodash'
 
+import { language } from 'xshell/i18n/instance.js'
+
 import { model, NodeType } from '../model.js'
 
 import { TableCellDetail } from '../components/TableCellDetail/index.js'
@@ -596,9 +598,7 @@ function translate_order_col (cols: TableColumnType<Record<string, any>>[], is_s
 /** 为每一张表增加 key */
 function add_key (table: Record<string, any>, key_index = 0) {
     const { title = '' } = table
-    return table.map(row => {
-        return { ...row, key: title === 'pubConns' ? row.client + row.tables : Object.values(row)[key_index] }
-    })
+    return table.map(row => ({ ...row, key: title === 'pubConns' ? row.client + row.tables : Object.values(row)[key_index] }))
 }
 
 /** 这里需要改掉 render，原有的 render 会对数据做 format，导致抛出 NaN  */
@@ -691,9 +691,7 @@ function add_details_row (table: Record<string, any>[]) {
                 className: 'computing-show-more-modal',
                 content: (
                     <List
-                        dataSource={detailed_keys.map(key => {
-                            return `${dict[key]}: ${row[key] === -1 || row[key] === -1n || row[key] === null ? '' : row[key]}`
-                        })}
+                        dataSource={detailed_keys.map(key => `${dict[key]}: ${row[key] === -1 || row[key] === -1n || row[key] === null ? '' : row[key]}`)}
                         renderItem={item => <List.Item><Typography.Paragraph ellipsis={{ tooltip: item }}>{item}</Typography.Paragraph ></List.Item>}
                         split={false}
                     />
@@ -773,7 +771,7 @@ function DeleteModal ({
                     <div className='delete-warning-title'>
                         <WarningOutlined />
                         <span>
-                            {t('确认{{action}}选中的 ', { action: button_text[table_name].action })}
+                            {t('确认{{action}}选中的 ', { action: language === 'zh' ? button_text[table_name].action : '' })}
                             <Tooltip
                                 title={selected.map(name => <p key={name}>{name}</p>)}
                             >
