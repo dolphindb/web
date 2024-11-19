@@ -80,7 +80,10 @@ function DashboardInstance ({ id }: { id: string }) {
                     if (shared_dashboard_ids.includes(id) && shared_dashboard_ids.length > 1) {
                         const searchParams = new URLSearchParams(location.search)
                         searchParams.delete(DASHBOARD_SHARED_SEARCH_KEY)
-                        shared_dashboard_ids.filter(item => item !== id).forEach(shared_id => { searchParams.append(DASHBOARD_SHARED_SEARCH_KEY, shared_id) })
+                        shared_dashboard_ids.forEach(shared_id => { 
+                            if (shared_id !== id)
+                                searchParams.append(DASHBOARD_SHARED_SEARCH_KEY, shared_id) 
+                        })
                         // 一秒后跳转，先展示报错
                         setTimeout(() => {
                             window.location.href = ( model.test ? '/web/dashboard/' : '/dashboard/') +  `${shared_dashboard_ids[1]}/` + '?' +  searchParams.toString()
@@ -88,7 +91,6 @@ function DashboardInstance ({ id }: { id: string }) {
                     }
                     
                     dashboard.return_to_overview()
-                    
                 }    
         })()
     }, [ ])
