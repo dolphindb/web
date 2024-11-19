@@ -84,10 +84,13 @@ function DashboardInstance ({ id }: { id: string }) {
                             if (shared_id !== id)
                                 searchParams.append(DASHBOARD_SHARED_SEARCH_KEY, shared_id) 
                         })
-                        // 一秒后跳转，先展示报错
+                        // 0.5s 后跳转，让用户看到报错
                         setTimeout(() => {
-                            window.location.href = ( model.test ? '/web/dashboard/' : '/dashboard/') +  `${shared_dashboard_ids[1]}/` + '?' +  searchParams.toString()
-                        }, 1000)
+                            model.navigate({
+                                pathname: ( model.test ? '/web/dashboard/' : '/dashboard/') +  `${shared_dashboard_ids[1]}/`,
+                                search: searchParams.toString()
+                            })
+                        }, 500)
                     }
                     
                     dashboard.return_to_overview()
