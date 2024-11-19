@@ -56,16 +56,15 @@ function InspectionIndexPage () {
         inspection.check_table_created()
     })
     
-    if (node_type === NodeType.controller) 
+    if (node_type === NodeType.controller)
         return <Result
-        status='warning'
-        className='interceptor'
-        title={t('控制节点不支持自动化巡检，请跳转到数据节点或计算节点查看。')}
-    />
+            status='warning'
+            className='interceptor'
+            title={t('控制节点不支持自动化巡检，请跳转到数据节点或计算节点查看。')}
+        />
     
     if (table_created !== null && !table_created) 
-        return  <div className='initialization-container'>
-            
+        return <div className='initialization-container'>
             <Result
                 title={t('请点击下方按钮完成初始化')}
                 subTitle={

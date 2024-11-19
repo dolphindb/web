@@ -10,8 +10,6 @@ import useSWR from 'swr'
 
 import type { Dayjs } from 'dayjs'
 
-import { useNavigate } from 'react-router-dom'
-
 import { isNull } from 'lodash'
 
 import { model } from '@/model.ts'
@@ -22,7 +20,6 @@ import type { Plan, PlanReport } from './type.ts'
 import { LogModal } from './logModal.tsx'
 
 export function InspectionList () {
-    const navigate = useNavigate()
     const [ search_key, set_search_key ] = useState('')
     const [ search_input_value, set_search_input_value ] = useState('')
     const { defined, email_config } = inspection.use(['defined', 'email_config'])
@@ -187,7 +184,7 @@ function ReportListTable  ({
                 },
               ],
             sorter: true,
-            render: ( success: boolean | null, record: PlanReport ) => isNull(success) ? <span className='yellow'>{t('执行中')}</span> : success ? 
+            render: ( success: boolean | null, record) => isNull(success) ? <span className='yellow'>{t('执行中')}</span> : success ? 
                 <span className='green'>{t('{{success}}/{{total}} 正常', { success: record.totalNum, total: record.totalNum })}</span> : 
                 <span className='red'>{t('{{failedNum}}/{{total}} 异常', { failedNum: record.failedNum, total: record.totalNum })}</span>
         },
@@ -206,7 +203,7 @@ function ReportListTable  ({
                     
                     <Button
                         type='link'
-                        onClick={() => { NiceModal.show(LogModal, { reportId: record.id, node: record.enabledNode }) }}
+                        onClick={() => { NiceModal.show(LogModal, { report_id: record.id, node: record.enabledNode }) }}
                     >
                         {t('查看日志')}
                     </Button>

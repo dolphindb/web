@@ -4,9 +4,13 @@ import { Button, DatePicker, Form, Input, InputNumber, Modal, Select } from 'ant
 
 import { isEmpty } from 'lodash'
 
-import dayjs from 'dayjs'
+import dayjs, { type Dayjs } from 'dayjs'
 
 import { useMemo } from 'react'
+
+import { DdbType } from 'dolphindb/browser'
+ 
+import { DDB_TYPE_MAP } from '@/utils.ts'
 
 import type { MetricParam, MetricsWithStatus } from './type.ts'
 
@@ -24,7 +28,7 @@ export const EditParamModal = NiceModal.create(({
     
     const init_metric = useMemo(() => {
         const { selected_params, params } = metric
-        let formatted_params = { }
+        let formatted_params: Record<string, string | Dayjs | null> = { }
         if (selected_params !== null && typeof selected_params === 'object' && !isEmpty(metric.selected_params)) 
             for (const [key, value] of Object.entries(selected_params)) {
                 let param = params.get(key)
@@ -39,7 +43,7 @@ export const EditParamModal = NiceModal.create(({
     
     return <Modal
         className='edit-param-modal'       
-        width='50%'    
+        width='80%'    
         open={modal.visible}
         afterClose={modal.remove}
         onCancel={modal.hide}
@@ -111,11 +115,11 @@ export const EditParamModal = NiceModal.create(({
                                     labelCol={{ span: 3 }}
                                     wrapperCol={{ span: 21 }}
                                     >
-                                {type === 'TIMESTAMP' ? 
+                                {type === DDB_TYPE_MAP[DdbType.timestamp] ? 
                                     <DatePicker
                                         showTime 
                                     /> : 
-                                    type === 'SYMBOL' ? 
+                                    type === DDB_TYPE_MAP[DdbType.symbol_extended] ? 
                                             <Select
                                                 mode='multiple'
                                                 options={param.options.map(op => ({

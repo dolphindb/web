@@ -8,17 +8,17 @@ import { inspection } from './model.tsx'
 
 interface LogModalProps {
     node?: string
-    reportId: string
+    report_id: string
 }
 
 
-export const LogModal =  NiceModal.create(({ reportId, node }: LogModalProps) => {
+export const LogModal =  NiceModal.create(({ report_id, node }: LogModalProps) => {
     const modal = useModal()
     
-    const { data: logs, isLoading } = useSWR(['get_logs', reportId, node], async () => inspection.get_logs(reportId, node))
+    const { data: logs, isLoading } = useSWR(['get_logs', report_id, node], async () => inspection.get_logs(report_id, node))
     return <Modal
         className='add-param-modal'       
-        width='50%'    
+        width='80%'    
         open={modal.visible}
         afterClose={modal.remove}
         onCancel={modal.hide}

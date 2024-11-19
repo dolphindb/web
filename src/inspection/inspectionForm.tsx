@@ -10,17 +10,21 @@ import { isEmpty, isObject } from 'lodash'
 
 import { MinusCircleOutlined, PlusOutlined, WarningOutlined } from '@ant-design/icons'
 
+import { DdbType } from 'dolphindb/browser'
+ 
 import { model, NodeType } from '@/model.ts'
+
+import { DDB_TYPE_MAP } from '@/utils.ts'
 
 import { inspection } from './model.tsx'
 import { InspectionFrequencyOptions, MetricGroups, WeekDays } from './constants.ts'
 import type { MetricsWithStatus, Plan } from './type.ts'
 import { EditParamModal } from './editParamModal.tsx'
-import { addParamModal } from './addParamModal.tsx'
+import { AddParamModal } from './addParamModal.tsx'
 import { parse_minute } from './utils.ts'
 
 interface InspectionFormContentProps {
-    plan?: any
+    plan?: Plan
     view_only: boolean
     metrics_with_nodes: Map<string, MetricsWithStatus>
     set_checked_metrics: (metrics: Map<string, MetricsWithStatus>) => void
@@ -37,8 +41,7 @@ function InspectionFormContent ({
     inspection_form,
 }: InspectionFormContentProps) {
     
-    const { email_config } = inspection.use(['metrics', 'email_config'])
-    
+    const { email_config } = inspection.use(['email_config'])
     return <Form
             key={plan?.id}
             disabled={view_only} 
@@ -282,7 +285,7 @@ export function InspectionForm ({
                             let formatted_params = { }
                             for (const [key, value] of Object.entries(selected_params)) {
                                 let param = params.get(key)
-                                if (param.type === 'TIMESTAMP')
+                                if (param.type === DDB_TYPE_MAP[DdbType.timestamp])
                                     formatted_params[key] = value ? dayjs(value).format('YYYY.MM.DDTHH:mm:ss.SSS') : null
                                 else
                                     formatted_params[key] = value
@@ -397,13 +400,13 @@ export function MetricGroupTable ({
         const groups = new Map<number, MetricsWithStatus[]>()
         checked_metrics.forEach(metric => {
             // 非 editing 模式下只展示 cheked 的指标
-            if (editing ||  metric.checked) {
+            if (editing || metric.checked) {
                 const group = metric.group // 假设每个指标都有 group 属性
-                if (!groups.has(group)) 
+                if (!groups.has(group))
                     groups.set(group, [ ])
-                    groups.get(group)?.push(metric)
-                }
-            })  
+                groups.get(group).push(metric)
+            }
+        })
         return groups
     }
     
@@ -416,7 +419,7 @@ export function MetricGroupTable ({
                 rowKey='group'
                 title={() => editing ? null :  <div className='metric-table-title'>
                                 <h3 className='required'>{t('指标列表')}</h3>
-                                <Button type='primary' onClick={async () => NiceModal.show(addParamModal, { checked_metrics, set_checked_metrics })}>{t('管理指标')}</Button>
+                                <Button type='primary' onClick={async () => NiceModal.show(AddParamModal, { checked_metrics, set_checked_metrics })}>{t('管理指标')}</Button>
                             
                     </div>}
                 dataSource={Array.from(grouped_metrics.keys()).map(group => ({

@@ -7,9 +7,9 @@ import { inspection } from './model.tsx'
 
 export function EditInspectionPage () {
     
-    const [searchParams] = useSearchParams()
+    const [search_params] = useSearchParams()
     
-    const disabled = searchParams.get('disabled') === '1'
+    const disabled = search_params.get('disabled') === '1'
     const { planId } = useParams()
     
     const { data: plan } = useSWR(

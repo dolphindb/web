@@ -29,7 +29,7 @@ export function ReportDetailPage () {
     const { reportId } = useParams()
     const [active_key, set_active_key] = useState(null)
     
-    const topRef = useRef<HTMLDivElement>(null)
+    const top_ref = useRef<HTMLDivElement>(null)
     
     const { data: report, isLoading: get_report_loading } = useSWR([reportId, 'get_report'], async () => {
         const report = await inspection.get_report(reportId)
@@ -60,15 +60,14 @@ export function ReportDetailPage () {
         // 使用 setTimeout 延迟滚动操作
         setTimeout(() => {
             const element = document.getElementById(`collapse-item-${metric_name}`)
-            if (element) 
-                element.scrollIntoView({ behavior: 'smooth', block: 'center' })
+            element?.scrollIntoView?.({ behavior: 'smooth', block: 'center' })
             
         }, 100)
     }
     
     function scroll_to_top () {
-        if (topRef.current) 
-            topRef.current.scrollIntoView({ behavior: 'smooth', block: 'start' })
+        if (top_ref.current) 
+            top_ref.current.scrollIntoView({ behavior: 'smooth', block: 'start' })
         
     }
     
@@ -163,7 +162,7 @@ export function ReportDetailPage () {
     
     const has_abnoraml_metrics = abnormal_metrics.length > 0
       
-    return get_report_loading || get_report_detail_loading ? <div className='spin-container'><Spin size='large' spinning={get_report_loading || get_report_detail_loading}/></div> : <div className='report-detail' ref={topRef}>
+    return get_report_loading || get_report_detail_loading ? <div className='spin-container'><Spin size='large' spinning={get_report_loading || get_report_detail_loading}/></div> : <div className='report-detail' ref={top_ref}>
         <div className='report-detail-header'>
             <Button onClick={() => { model.goto('/inspection') }}>{t('返回')}</Button>
             <Button type='primary' onClick={export_report}>{t('下载巡检报告')}</Button>
@@ -305,7 +304,7 @@ function DetailDescription ({
                         children:  <Button
                             type='link'
                             className='report-detail-log-button'
-                            onClick={() => { NiceModal.show(LogModal, { reportId: n.jobId, node: n.node }) }}
+                            onClick={() => { NiceModal.show(LogModal, { report_id: n.jobId, node: n.node }) }}
                         >
                             {t('查看日志')}
                         </Button>,

@@ -18,7 +18,7 @@ export interface MetricParam { name: string, type: 'TIMESTAMP' | 'SYMBOL', optio
 export interface MetricsWithStatus extends Metric {
     checked: boolean
     selected_nodes: string[]
-    selected_params: object | null
+    selected_params: object | null | string
 }
 
 

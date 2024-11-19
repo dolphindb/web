@@ -5,7 +5,7 @@ import { Modal } from 'antd'
 import type { MetricsWithStatus } from './type.ts'
 import { MetricGroupTable } from './inspectionForm.tsx'
 
-export const addParamModal = NiceModal.create(({ 
+export const AddParamModal = NiceModal.create(({ 
     checked_metrics, 
     set_checked_metrics 
 }: 
@@ -17,10 +17,9 @@ export const addParamModal = NiceModal.create(({
     
     return <Modal
         className='add-param-modal'       
-        width='50%'    
+        width='80%'    
         open={modal.visible}
         afterClose={modal.remove}
-        onCancel={modal.hide}
         footer={null}
         title={t('添加指标')}
     >
