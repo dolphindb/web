@@ -17,7 +17,7 @@ import { model } from '@/model.ts'
 import { safe_json_parse } from '@/dashboard/utils.ts'
 
 import type {  PlanReportDetailMetric } from './type.ts'
-import { inspection } from './model.tsx'
+import { inspection } from './model.ts'
 import { MetricGroups, ReportLables } from './constants.ts'
 import { LogModal } from './logModal.tsx'
 import { FailedStatus, SuccessStatus } from './inspectionListPage.tsx'

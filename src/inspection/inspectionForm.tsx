@@ -16,7 +16,7 @@ import { model, NodeType } from '@/model.ts'
 
 import { DDB_TYPE_MAP } from '@/utils.ts'
 
-import { inspection } from './model.tsx'
+import { inspection } from './model.ts'
 import { InspectionFrequencyOptions, MetricGroups, WeekDays } from './constants.ts'
 import type { MetricsWithStatus, Plan } from './type.ts'
 import { EditParamModal } from './editParamModal.tsx'

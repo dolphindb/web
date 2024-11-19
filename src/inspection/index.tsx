@@ -11,7 +11,7 @@ import { useRoutes } from 'react-router-dom'
 
 import { model, NodeType } from '@/model.ts'
 
-import { inspection } from './model.tsx'
+import { inspection } from './model.ts'
 import { ReportDetailPage } from './reportDetailPage.tsx'
 import { EditInspectionPage } from './editInspectionPage.tsx'
 import { AddInspectionPage } from './addInspectionPage.tsx'

@@ -15,7 +15,7 @@ import { isNull } from 'lodash'
 import { model } from '@/model.ts'
 
 import { EmailConfigModal } from './emailConfigModal.tsx'
-import { inspection } from './model.tsx'
+import { inspection } from './model.ts'
 import type { Plan, PlanReport } from './type.ts'
 import { LogModal } from './logModal.tsx'
 
