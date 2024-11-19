@@ -54,7 +54,7 @@ def dashboard_get_config(param) {
     // existence check
     tb_exist = dashboard_exist_check(long(param.id))
 
-    res = select id, name, owner, config as data from tb_exist
+    res = select id, name, owner, config as data, createTime from tb_exist
     res["permission"] = iif(tb_exist["owner"] == user, 0, 2)
     return res
 }
