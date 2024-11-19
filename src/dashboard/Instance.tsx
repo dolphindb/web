@@ -76,9 +76,8 @@ function DashboardInstance ({ id }: { id: string }) {
                     model.message.error(t('dashboard 不存在'))
                     const shared_dashboard_ids = new URLSearchParams(location.search).getAll(DASHBOARD_SHARED_PARAM)
                     
-                    
+                    // 如果是分享的 dashboard 被删除, 切到下一个分享的 dashboard, 修改 search
                     if (shared_dashboard_ids.includes(id) && shared_dashboard_ids.length > 1) {
-                        // 如果是分享的 dashboard 被删除, 切到下一个分享的 dashboard, 修改 search
                         const searchParams = new URLSearchParams(location.search)
                         searchParams.delete(DASHBOARD_SHARED_PARAM)
                         shared_dashboard_ids.filter(item => item !== id).forEach(shared_id => { searchParams.append(DASHBOARD_SHARED_PARAM, shared_id) })
@@ -87,11 +86,12 @@ function DashboardInstance ({ id }: { id: string }) {
                             window.location.href = ( model.test ? '/web/dashboard/' : '/dashboard/') +  `${shared_dashboard_ids[1]}/` + '?' +  searchParams.toString()
                         }, 1000)
                     }
+                    
                     dashboard.return_to_overview()
                     
                 }    
         })()
-    }, [ id ])
+    }, [ ])
     
     
     // widget 变化时通过 GridStack.makeWidget 将画布中已有的 dom 节点交给 GridStack 管理
