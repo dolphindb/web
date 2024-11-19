@@ -197,8 +197,14 @@ export function Header () {
         ['get_all_view_dashboards', configs],
         async () => {
             const shared_dashboard_ids = new URL(window.location.href).searchParams.getAll('dashboard_share_ids')
-            const dashboard_shared_list = await Promise.all(shared_dashboard_ids.map(async id => dashboard.get_dashboard_config(Number(id))))
-            return uniqBy([...dashboard_shared_list, ...configs], 'id')
+            const dashboard_shared_list = await Promise.all(shared_dashboard_ids.map(async id => {
+                try {
+                    return await dashboard.get_dashboard_config(Number(id))
+                } catch (e) {
+                    return undefined
+                }
+            }))
+            return uniqBy([...dashboard_shared_list.filter(Boolean), ...configs], 'id')
         }
     )
     
