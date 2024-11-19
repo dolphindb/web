@@ -414,7 +414,7 @@ export class DashBoardModel extends Model<DashBoardModel> {
     
     /** 从服务器获取 dashboard 配置 */
     async get_dashboard_configs () {
-        const { data = [ ] } = await model.ddb.invoke('dashboard_get_config_list', [ ])
+        const { data = [ ] } = await model.ddb.invoke('dashboard_get_config_list')
         const configs = data.map(cfg => {
             // 有些只需要 parse 一次，有些需要 parse 两次
             let data = typeof cfg.data === 'string' ?  JSON.parse(cfg.data) : new TextDecoder().decode(cfg.data)
@@ -463,7 +463,7 @@ export class DashBoardModel extends Model<DashBoardModel> {
         
         dashboard.set({ config: null, save_confirm: false })
         
-        model.goto('/dashboard/', { queries: { preview: null, [DASHBOARD_SHARED_SEARCH_KEY]: undefined  } })
+        model.goto('/dashboard/', { queries: { preview: null, [DASHBOARD_SHARED_SEARCH_KEY]: null  } })
         
         model.set({ sider: true, header: true })
     }

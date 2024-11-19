@@ -1,7 +1,7 @@
 import './Header.sass'
 
 import { useCallback, useEffect, useRef, useState } from 'react'
-import { Button, Input, Modal, Popconfirm, Select, Tag, Tooltip, Segmented, Switch, type SelectProps, Space } from 'antd'
+import { Button, Input, Modal, Popconfirm, Select, Tag, Tooltip, Segmented, Switch } from 'antd'
 import { CopyOutlined, DeleteOutlined, EditOutlined, EyeOutlined, FileAddOutlined, HomeOutlined, SaveOutlined, UploadOutlined } from '@ant-design/icons'
 
 import { use_modal } from 'react-object-model/hooks.js'
