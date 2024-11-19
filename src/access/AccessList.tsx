@@ -146,16 +146,20 @@ export function AccessList ({ category }: { category: AccessCategory }) {
                         name: tb_access.name,  
                         ...(category === 'database' ? 
                             v3 ? {
-                                // 过滤 schemas
-                                schemas: tb_access.schemas.filter(schema =>
-                                    includes_searck_key(schema.name, search_key) ||
-                                        schema.tables.some(table => includes_searck_key(table.name, search_key))
-                                )
+                                // 如果父级名称匹配，显示所有schemas；否则进行过滤
+                                schemas: includes_searck_key(tb_access.name, search_key) 
+                                    ? tb_access.schemas 
+                                    : tb_access.schemas.filter(schema =>
+                                        includes_searck_key(schema.name, search_key) ||
+                                            schema.tables.some(table => includes_searck_key(table.name, search_key))
+                                    )
                             } : {
-                                // 过滤 tables
-                                tables: tb_access.tables.filter(table => 
-                                    includes_searck_key(table.name, search_key)
-                                ) 
+                                // 如果父级名称匹配，显示所有tables；否则进行过滤
+                                tables: includes_searck_key(tb_access.name, search_key)
+                                    ? tb_access.tables
+                                    : tb_access.tables.filter(table => 
+                                        includes_searck_key(table.name, search_key)
+                                    ) 
                             } 
                         : { }),
                         ...(category !== 'script'

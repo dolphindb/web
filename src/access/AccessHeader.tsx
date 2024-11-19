@@ -91,7 +91,7 @@ export function AccessHeader ({
                 set_input_value(e.target.value)
             }}
             onPressEnter={() => { set_search_key(input_value) }}
-            placeholder={t('请输入想要搜索的{{category}}', { category: TABLE_NAMES[category] })}
+            placeholder={t('请输入想要搜索的{{category}}', { category: category === 'catalog' ? `${TABLE_NAMES.catalog} / ${TABLE_NAMES.database} / ${TABLE_NAMES.table}` : TABLE_NAMES[category] })}
         />
     </div>
 }

@@ -2025,7 +2025,7 @@
         "en": "Queue Depth Limit"
     },
     "最近处理失败的错误信息": {
-        "en": "Last Error Message"
+        "en": "Last Failed Message"
     },
     "最近处理失败的时刻": {
         "en": "Last Failed Timestamp"
@@ -2223,7 +2223,7 @@
         "en": "Latest Error Timestamp"
     },
     "失败消息总数": {
-        "en": "Number of Failed Messages"
+        "en": "Failed Message Count"
     },
     "最近错误消息 ID": {
         "en": "Latest Error Message ID"
@@ -2280,7 +2280,7 @@
         "en": "Shared Stream Tables"
     },
     "最近处理消息 ID": {
-        "en": "Recently processed message ID"
+        "en": "Last Message ID"
     },
     "条": {
         "en": "record"
@@ -2490,7 +2490,7 @@
         "en": "View user permissions"
     },
     "确认{{action}}选中的 ": {
-        "en": "Confirm {{action}} Selected "
+        "en": "Are You Sure to Delete the Selected {{action}} "
     },
     " 个{{item}}吗?": {
         "en": " {{item}} ?"
