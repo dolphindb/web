@@ -16,7 +16,7 @@ import { vercmp } from 'xshell/utils.browser'
 
 import { repeat } from 'lodash'
 
-import { language } from 'xshell/i18n/instance.js'
+import { language } from '@i18n/index.ts'
 
 import { model, NodeType } from '../model.js'
 
