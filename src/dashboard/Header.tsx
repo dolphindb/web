@@ -255,7 +255,7 @@ export function Header () {
                     key: id,
                     value: id,
                     label: <div className='dashboard-options-label'>
-                        <span className={cn({ 'dashboard-options-label-name': permission })}>{name}</span>
+                        <span title={name} className={cn({ 'dashboard-options-label-name': permission })}>{name}</span>
                         { is_shared && <Tag color='gold' className='share-tag'>{t('分享人：')}{owner}</Tag>}
                     </div>
                 }
