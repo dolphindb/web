@@ -35,7 +35,7 @@ export function Import ({ type }: { type: 'icon' | 'button' }) {
                 >
                     <Button icon={<DownloadOutlined />}>{t('批量导入')}</Button>
                 </Upload>,
-        icon:   <Tooltip title={t('导入')}>
+        icon:  <Tooltip title={t('导入')}>
                     <Upload
                         accept='.json'
                         showUploadList={false}
