@@ -7,14 +7,38 @@ import useSWR from 'swr'
 
 import { isNull } from 'lodash'
 
-import { Outlet } from 'react-router-dom'
+import { useRoutes } from 'react-router-dom'
 
 import { model, NodeType } from '@/model.ts'
 
 import { inspection } from './model.tsx'
-
+import { ReportDetailPage } from './reportDetailPage.tsx'
+import { EditInspectionPage } from './editInspectionPage.tsx'
+import { AddInspectionPage } from './addInspectionPage.tsx'
+import { InspectionList } from './inspectionListPage.tsx'
 
 export function Inspection () {
+    return useRoutes([
+        {
+            index: true,
+            element: <InspectionIndexPage />,
+        },
+        {
+            path: 'report/:reportId',
+            element: <ReportDetailPage />
+        },
+        {
+            path: 'plan/:planId',
+            element: <EditInspectionPage />
+        },
+        {
+            path: 'plan/new',
+            element: <AddInspectionPage />
+        }
+    ])
+}
+
+function InspectionIndexPage () {
     
     const { node_type } = model.use(['node_type'])
     
@@ -92,6 +116,6 @@ export function Inspection () {
         </div>
     
     
-    return <Outlet />
+    return <InspectionList />
         
 }

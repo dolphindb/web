@@ -56,10 +56,6 @@ import { Settings } from './settings/index.tsx'
 import { CreateGuide } from './guide/iot-guide/index.tsx'
 import { FinanceGuide } from './guide/finance-guide/index.tsx'
 import { DataCollection } from './data-collection/index.tsx'
-import { InspectionList } from './inspection/inspectionListPage.tsx'
-import { ReportDetailPage } from './inspection/reportDetailPage.tsx'
-import { EditInspectionPage } from './inspection/editInspectionPage.tsx'
-import { AddInspectionPage } from './inspection/addInspectionPage.tsx'
 
 
 
@@ -201,26 +197,8 @@ const router = createBrowserRouter([
             },
             // src/index.tsx 中的路由配置
             {
-                path: 'inspection/',
+                path: 'inspection/*',
                 element: <Inspection />,
-                children: [
-                    {
-                        index: true,
-                        element: <InspectionList />
-                    },
-                    {
-                        path: 'report/:reportId',
-                        element: <ReportDetailPage />
-                    },
-                    {
-                        path: 'plan/:planId',
-                        element: <EditInspectionPage />
-                    },
-                    {
-                        path: 'plan/new',
-                        element: <AddInspectionPage />
-                    }
-                ]
             },
             {
                 path: 'job/',
