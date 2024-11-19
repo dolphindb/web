@@ -554,8 +554,7 @@ function JobMessageShow ({ job }: { job: DdbJob }) {
             document.body.appendChild(textarea)
             textarea.focus()
             textarea.select()
-            const successful = document.execCommand('copy')
-            if (successful)
+            if (document.execCommand('copy'))
                 model.message.success(t('复制成功'))
             document.body.removeChild(textarea)
         }
