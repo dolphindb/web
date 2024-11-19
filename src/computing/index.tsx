@@ -378,7 +378,7 @@ const header_text = {
 
 const button_text = {
     subWorkers: {
-        title: t('流数据表'),
+        title: t('流数据表', { context: 'computing' }),
         action: t('取消订阅')
     },
     engine: {
