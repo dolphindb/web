@@ -1,7 +1,7 @@
 import './Header.sass'
 
 import { useCallback, useEffect, useRef, useState } from 'react'
-import { Button, Input, Modal, Popconfirm, Select, Tag, Tooltip, Segmented, Switch, type SelectProps } from 'antd'
+import { Button, Input, Modal, Popconfirm, Select, Tag, Tooltip, Segmented, Switch, type SelectProps, Space } from 'antd'
 import { CopyOutlined, DeleteOutlined, EditOutlined, EyeOutlined, FileAddOutlined, HomeOutlined, SaveOutlined, UploadOutlined } from '@ant-design/icons'
 
 import { use_modal } from 'react-object-model/hooks.js'
@@ -249,14 +249,17 @@ export function Header () {
             value={config?.id}
             variant='borderless'
             loading={isLoading}
-            options={dashboards?.map(({ id, name, permission }) => ({
-                key: id,
-                value: id,
-                label: <div className='dashboard-options-label'>
-                    <span className={cn({ 'dashboard-options-label-name': permission })}>{name}</span>
-                    {permission !== DashboardPermission.own && <Tag color='processing' className='status-tag' >{permission === DashboardPermission.edit ? t('仅编辑') : t('仅预览')}</Tag> }
-                </div>
-            }))}
+            options={dashboards?.map(({ id, name, permission, owner }) => {
+                const is_shared = permission !== DashboardPermission.own
+                return {
+                    key: id,
+                    value: id,
+                    label: <div className='dashboard-options-label'>
+                        <span className={cn({ 'dashboard-options-label-name': permission })}>{name}</span>
+                        { is_shared && <Tag color='gold' className='share-tag'>{t('分享人：')}{owner}</Tag>}
+                    </div>
+                }
+            })}
         />
         
         
