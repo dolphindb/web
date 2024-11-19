@@ -82,8 +82,10 @@ function DashboardInstance ({ id }: { id: string }) {
                         const searchParams = new URLSearchParams(location.search)
                         searchParams.delete(DASHBOARD_SHARED_PARAM)
                         shared_dashboard_ids.filter(item => item !== id).forEach(shared_id => { searchParams.append(DASHBOARD_SHARED_PARAM, shared_id) })
-               
-                        window.location.href = ( model.dev ? '/web/dashboard/' : '/dashboard/') +  `${shared_dashboard_ids[1]}/` + '?' +  searchParams.toString()
+                        // 一秒后跳转，先展示报错
+                        setTimeout(() => {
+                            window.location.href = ( model.dev ? '/web/dashboard/' : '/dashboard/') +  `${shared_dashboard_ids[1]}/` + '?' +  searchParams.toString()
+                        }, 1000)
                     }
                     dashboard.return_to_overview()
                     
