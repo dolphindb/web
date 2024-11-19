@@ -12,7 +12,7 @@ import { useState } from 'react'
 
 import { t } from '../../i18n/index.js'
 
-import { model } from '@/model.js'
+import { model } from '@/model.ts'
 
 import { TABLE_NAMES } from './constants.js'
 import { access } from './model.js'
