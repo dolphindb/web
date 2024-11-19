@@ -10,6 +10,7 @@ import { shell } from '../model.ts'
 import { model } from '@/model.ts'
 
 import { gitProvider } from './git-adapter.ts'
+import { Repos } from './repos.tsx'
 
 interface DataNode {
     title: string
@@ -46,14 +47,8 @@ export function Git () {
     const is_tab_git_tab = !!current_tab?.git?.file_name
     const is_file_edited = current_tab?.git?.raw_code !== current_tab?.code
     
-    const reposResp = useSWR('git_repos', async () => {
-        const result = await gitProvider.get_projects()
-        return result
-    })
-    
-    function handleRepoChange (id: string) {
+    function handleRepoChange (id: string, title: string) {
         setSelectedRepo(id)
-        const title = reposResp.data.find(repo => repo.id === id)?.name || ''
         setTreeData([{ title, key: id, isLeaf: false }])
         setExpandedKeys([ ])
     }
@@ -120,8 +115,6 @@ export function Git () {
         })
     }
     
-    const is_repos_empty = !reposResp.data || reposResp.data.length === 0
-    
     const [commit_message, setCommitMessage] = useState('')
     
     async function commit_to_git () {
@@ -135,27 +128,7 @@ export function Git () {
     }
     
     return <div className='git'>
-        {is_repos_empty && (!reposResp.isLoading) && <div className='info'>
-            <Alert message={<>
-                无法获取仓库列表，请检查权限或{' '}
-                <a onClick={goto_oauth}>
-                    登录到 Git
-                </a>
-            </>} type='info' />
-        </div>}
-        {reposResp.data && (
-            <Select
-                placeholder='Select a repo'
-                onChange={handleRepoChange}
-                style={{ width: 200, marginBottom: 16 }}
-                value={selectedRepo}
-                allowClear
-            >
-                {reposResp.data.map(repo => <Select.Option key={repo.id} value={repo.id}>
-                    {repo.name}
-                </Select.Option>)}
-            </Select>
-        )}
+        <Repos on_select_repo={handleRepoChange} />
         {is_tab_git_tab && <div>
             <div>当前文件: {current_tab?.git?.file_name}</div>
             {is_file_edited && <div>
