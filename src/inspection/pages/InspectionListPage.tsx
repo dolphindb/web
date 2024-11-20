@@ -203,7 +203,7 @@ function ReportListTable  ({
                     
                     <Button
                         type='link'
-                        disabled={record.startTime === ''}
+                        disabled={!record.startTime}
                         onClick={() => { NiceModal.show(LogModal, { report_id: record.id, node: record.enabledNode }) }}
                     >
                         {t('查看日志')}
