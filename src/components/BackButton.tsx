@@ -3,10 +3,10 @@ import { ArrowLeftOutlined } from '@ant-design/icons'
 
 import { model } from '@/model.ts'
 
-export function BackButton ({ path }: { path: string }) {
+export function BackButton ({ to }: { to: string }) {
     return <Button
-            icon={<ArrowLeftOutlined className='icon' />}
-            type='text'
-            onClick={() => { model.goto(path) }}
-        />
+        icon={<ArrowLeftOutlined className='icon' />}
+        type='text'
+        onClick={() => { model.goto(to) }}
+    />
 }

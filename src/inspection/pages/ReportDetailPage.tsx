@@ -164,7 +164,7 @@ export function ReportDetailPage () {
         ? <div className='spin-container'><Spin size='large' spinning={get_report_loading || get_report_detail_loading}/></div>
         : <div className='report-detail' ref={top_ref}>
             <div className='report-detail-header'>
-                <BackButton path='/inspection' />
+                <BackButton to='/inspection' />
                 <Button type='primary' onClick={export_report}>{t('下载巡检报告')}</Button>
             </div>
         

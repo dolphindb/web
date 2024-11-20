@@ -144,7 +144,7 @@ export function InspectionForm ({
     return <div className='inspection-form'>
         <div className='inspection-form-header'>
             <div className='inspection-form-header-left'>
-                <BackButton path='/inspection' />
+                <BackButton to='/inspection' />
                 <h3>{is_editing ? (view_only ? t('查看巡检计划') : t('修改巡检计划')) : t('新增巡检计划')}</h3>
             </div>
             <div className='inspection-form-header-right'>
