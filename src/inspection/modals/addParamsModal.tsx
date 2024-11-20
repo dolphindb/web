@@ -6,7 +6,7 @@ import { useState } from 'react'
 
 
 import type { MetricsWithStatus } from '@/inspection/type.ts'
-import { MetricTable } from '@/inspection/components/metricTable.tsx'
+import { MetricTable } from '@/inspection/components/MetricTable.tsx'
 
 interface AddParamsModalProps {
     checked_metrics: Map<string, MetricsWithStatus>

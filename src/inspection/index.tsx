@@ -2,34 +2,31 @@ import './index.sass'
 
 import { useRoutes } from 'react-router-dom'
 
-import { ReportDetailPage } from '@/inspection/pages/reportDetailPage.tsx'
-import { EditInspectionPage } from '@/inspection/pages/editInspectionPage.tsx'
-import { AddInspectionPage } from '@/inspection/pages/addInspectionPage.tsx'
-import { InspectionListPage } from '@/inspection/pages/inspectionListPage.tsx'
-import { wrapWithGuard } from '@/inspection/components/inspectionGuard.tsx'
+import { ReportDetailPage } from '@/inspection/pages/ReportDetailPage.tsx'
+import { EditInspectionPage } from '@/inspection/pages/EditInspectionPage.tsx'
+import { AddInspectionPage } from '@/inspection/pages/AddInspectionPage.tsx'
+import { InspectionListPage } from '@/inspection/pages/InspectionListPage.tsx'
+import { wrapWithGuard } from '@/inspection/components/InspectionGuard.tsx'
 
-export function Inspection () {
-    
-    const children = useRoutes([
+export const Inspection = () => {    
+    const routes = useRoutes([
         {
             index: true,
-            element: wrapWithGuard(InspectionListPage),
+            element: <InspectionListPage />
         },
         {
             path: 'report/:reportId',
-            element: wrapWithGuard(ReportDetailPage)
+            element: <ReportDetailPage />
         },
         {
             path: 'plan/:planId',
-            element: wrapWithGuard(EditInspectionPage)
+            element: <EditInspectionPage />
         },
         {
             path: 'plan/new',
-            element: wrapWithGuard(AddInspectionPage)
+            element: <AddInspectionPage />
         }
     ])
     
-    return <>
-        {children}
-    </>
+    return wrapWithGuard(routes)
 }

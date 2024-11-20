@@ -9,7 +9,7 @@ import { InspectionFrequencyOptions, WeekDays } from '@/inspection/constants.ts'
 import type { MetricsWithStatus, Plan } from '@/inspection/type.ts'
 import { parse_minute } from '@/inspection/utils.ts'
 
-import { MetricTable } from '@/inspection/components/metricTable.tsx'
+import { MetricTable } from '@/inspection/components/MetricTable.tsx'
 
 interface InspectionFormContentProps {
     plan?: Plan
@@ -119,7 +119,7 @@ export function InspectionFormContent ({
                             {
                                 fields.map((field, idx) => <Space key={field.key} align='baseline'>
                                         <Form.Item 
-                                            {...field}
+                                            name={field.name}
                                             rules={[{ required: true, message: t('请选择巡检时间') }]}
                                         >
                                             <TimePicker format='HH:mm'/>
@@ -170,8 +170,8 @@ export function InspectionFormContent ({
                     {(fields, { add, remove }) =>
                         <Space>
                         {
-                            fields.map(field => <Space>
-                            <Form.Item {...field} required>
+                            fields.map(field => <Space key={field.key}>
+                            <Form.Item name={field.name} required>
                                 <Input/>
                             </Form.Item>
                             {!view_only && <MinusCircleOutlined onClick={() => { remove(field.name) }} />}

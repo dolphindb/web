@@ -13,7 +13,7 @@ import { inspection } from '@/inspection/model.ts'
 
 import type { MetricsWithStatus, Plan } from '@/inspection/type.ts'
 
-import { InspectionFormContent } from '@/inspection/components/inspectionFormContent.tsx'
+import { InspectionFormContent } from '@/inspection/components/InspectionFormContent.tsx'
 
 import { DDB_TYPE_MAP } from '@/utils.ts'
 

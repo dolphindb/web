@@ -1,5 +1,7 @@
 import { Model } from 'react-object-model'
 
+import { DdbFunction, DdbFunctionType, DdbInt, DdbVoid } from 'dolphindb/browser'
+
 import { model } from '@/model.ts'
 
 import { config } from '@/config/model.ts'
@@ -60,16 +62,21 @@ class InspectionModel extends Model<InspectionModel> {
     
     // 检查表是否已创建
     async check_table_created () {
-        this.set({ table_created: await model.ddb.execute('existsDatabase("dfs://autoInspection")') })
+        this.set({ table_created: await model.ddb.invoke('existsDatabase', ['dfs://autoInspection']) })
     }
     
     async get_plans (enabled: boolean, page: number, limit: number, searchKey: string, planId: string = null): Promise<{ records: Plan[], total: number }> {
-        const [plans_obj, total] = await model.ddb.execute(`getPlans(${planId},${enabled},${page},${limit},"${searchKey}")`)
+        const [plans_obj, total] = await model.ddb.invoke('getPlans', [
+            planId ? planId : new DdbVoid(),
+            enabled,
+            new DdbInt(page),
+            new DdbInt(limit),
+            searchKey
+        ])
         return { records: plans_obj.data, total }
     }
-    
     async get_plan (planId: string): Promise<Plan>  {
-        return (await model.ddb.execute(`getPlans('${planId}')`))[0].data[0]
+        return (await model.ddb.invoke('getPlans', [planId]))[0].data[0]
     }
     
     async delete_plans (ids: string[]) {
@@ -101,12 +108,23 @@ class InspectionModel extends Model<InspectionModel> {
     }
     
     async get_reports (planId: string = null, reportId: string = null, startTime: string = null, endTime: string = null, success: number = null, page: number = 1, limit: number = 5, searchKey: string = '', orderBy: string = 'receivedTime', ascOrder: number = 0): Promise<{ records: PlanReport[], total: number }> {
-        const [reports, total] = await model.ddb.execute(`getReports(${planId},${reportId ? `"${reportId}"` : null},${startTime},${endTime},${success},${page},${limit},"${searchKey}","${orderBy}",${ascOrder})`)
+        const [reports, total] = await model.ddb.invoke('getReports', [
+            planId ? planId : new DdbVoid(), 
+            reportId ? reportId : new DdbVoid(), 
+            startTime ? startTime : new DdbVoid(), 
+            endTime ? endTime : new DdbVoid(), 
+            success ? success : new DdbVoid(), 
+            new DdbInt(page), 
+            new DdbInt(limit), 
+            searchKey, 
+            orderBy, 
+            new DdbInt(ascOrder)
+        ])
         return { records: reports.data, total }
     }
     
     async get_report (reportId: string): Promise<PlanReport>  {
-        return (await model.ddb.execute(`getReports('','${reportId}')`))[0].data[0]
+        return (await model.ddb.invoke('getReports', [new DdbVoid(), reportId]))[0].data[0]
     }
     
     async delete_reprorts (ids: string[]) {
@@ -137,7 +155,7 @@ class InspectionModel extends Model<InspectionModel> {
     }
     
     async get_logs (reportId: string, node: string) {
-        return model.ddb.execute(`rpc('${node}',getJobMessage,'${reportId}')`)
+        return model.ddb.invoke('rpc', [node, new DdbFunction('getJobMessage', DdbFunctionType.SystemFunc), reportId], { node })
     }
 }
 

@@ -2,7 +2,7 @@ import { useParams, useSearchParams } from 'react-router-dom'
 
 import useSWR from 'swr'
 
-import { InspectionForm } from '@/inspection/components/inspectionForm.tsx'
+import { InspectionForm } from '@/inspection/components/InspectionForm.tsx'
 import { inspection } from '@/inspection/model.ts'
 
 export function EditInspectionPage () {

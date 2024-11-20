@@ -5,6 +5,8 @@ import useSWR from 'swr'
 
 import { isNull } from 'lodash'
 
+import type { ReactNode } from 'react'
+
 import { model, NodeType } from '@/model.ts'
 
 import { inspection } from '@/inspection/model.ts'
@@ -88,6 +90,6 @@ export function InspectionGuard ({ children }: { children: React.ReactNode }) {
 }
 
 
-export function wrapWithGuard (Component: React.ComponentType) {
-    return <InspectionGuard><Component /></InspectionGuard>
+export function wrapWithGuard (children: ReactNode) {
+    return <InspectionGuard>{children}</InspectionGuard>
 }

@@ -19,8 +19,8 @@ import { safe_json_parse } from '@/dashboard/utils.ts'
 import type {  PlanReportDetailMetric } from '@/inspection/type.ts'
 import { inspection } from '@/inspection/model.ts'
 import { MetricGroups, ReportLables } from '@/inspection/constants.ts'
-import { LogModal } from '@/inspection/modals/logModal.tsx'   
-import { FailedStatus, SuccessStatus } from '@/inspection/pages/inspectionListPage.tsx'
+import { LogModal } from '@/inspection/modals/LogModal.tsx'   
+import { FailedStatus, SuccessStatus } from '@/inspection/pages/InspectionListPage.tsx'
 
 const { Title } = Typography
 

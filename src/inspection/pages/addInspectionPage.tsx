@@ -1,4 +1,4 @@
-import { InspectionForm } from '@/inspection/components/inspectionForm.tsx'
+import { InspectionForm } from '@/inspection/components/InspectionForm.tsx'
 
 export function AddInspectionPage () {
     return <div className='add-inspection'>

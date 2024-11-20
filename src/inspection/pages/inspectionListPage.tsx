@@ -14,10 +14,10 @@ import { isNull } from 'lodash'
 
 import { model } from '@/model.ts'
 
-import { EmailConfigModal } from '@/inspection/modals/emailConfigModal.tsx'
+import { EmailConfigModal } from '@/inspection/modals/EmailConfigModal.tsx'
 import { inspection } from '@/inspection/model.ts'
 import type { Plan, PlanReport } from '@/inspection/type.ts'
-import { LogModal } from '@/inspection/modals/logModal.tsx'
+import { LogModal } from '@/inspection/modals/LogModal.tsx'
 
 
 export function InspectionListPage () {

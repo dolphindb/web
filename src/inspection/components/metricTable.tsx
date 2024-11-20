@@ -11,8 +11,8 @@ import { noop } from 'xshell/utils.browser.js'
 
 import { MetricGroups } from '@/inspection/constants.ts'
 import type { MetricsWithStatus } from '@/inspection/type.ts'
-import { EditParamModal } from '@/inspection/modals/editParamModal.tsx'
-import { AddParamsModal } from '@/inspection/modals/addParamsModal.tsx'
+import { EditParamModal } from '@/inspection/modals/EditParamModal.tsx'
+import { AddParamsModal } from '@/inspection/modals/AddParamsModal.tsx'
 
 
 interface MetricTableProps {
