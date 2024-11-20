@@ -327,7 +327,7 @@ const cols_width = {
     persistenceMeta: {
         tablename: 150,
         loaded: 100,
-        columns: 60,
+        columns: 120,
         memoryUsed: 100,
         lastLogSeqNum: 120,
         sizeInMemory: 100,
@@ -378,7 +378,7 @@ const header_text = {
 
 const button_text = {
     subWorkers: {
-        title: t('流数据表'),
+        title: t('流数据表', { context: 'computing' }),
         action: t('取消订阅')
     },
     engine: {
@@ -402,11 +402,11 @@ const leading_cols = {
         queueDepth: t('队列深度'),
         queueDepthLimit: t('队列深度上限'),
         lastErrMsg: t('最近处理失败的错误信息'),
-        lastFailedTimestamp: t('最近错误时刻'),
+        lastFailedTimestamp: t('最近处理失败的时刻'),
         failedMsgCount: t('失败消息总数'),
         processedMsgCount: t('已处理消息数'),
         lastMsgId: t('最近处理消息 ID'),
-        lastFailedMsgId: t('最近错误消息 ID')
+        lastFailedMsgId: t('最近处理失败的消息 ID')
     },
     pubConns: {
         client: t('订阅节点'),
@@ -764,6 +764,7 @@ function DeleteModal ({
     const { visible, open, close } = use_modal()
     const { ddb, admin: is_admin } = model.use(['ddb', 'admin'])
     const { streaming_stat, persistent_table_stat } = computing.use(['streaming_stat', 'persistent_table_stat'])
+    const action_text = button_text[table_name].action.charAt(0).toUpperCase() + button_text[table_name].action.slice(1)
     return <>
             <Modal
                 className='computing-delete-modal'
@@ -771,13 +772,13 @@ function DeleteModal ({
                     <div className='delete-warning-title'>
                         <WarningOutlined />
                         <span>
-                            {t('确认{{action}}选中的 ', { action: language === 'zh' ? button_text[table_name].action : '' })}
+                            {t('确认{{action}}选中的 ', { action: button_text[table_name].action.toLowerCase() })}
                             <Tooltip
                                 title={selected.map(name => <p key={name}>{name}</p>)}
                             >
                                 <span className='selected-number'>{selected.length}</span>
                             </Tooltip>
-                            {t(' 个{{item}}吗?', { item: button_text[table_name].title })}
+                            {t(' 个{{item}}吗?', { item: button_text[table_name].title.toLowerCase() })}
                         </span>
                     </div>
                 }
@@ -787,7 +788,7 @@ function DeleteModal ({
                     close()
                 }}
                 cancelButtonProps={{ className: 'hidden' }}
-                okText={button_text[table_name].action}
+                okText={action_text}
                 okButtonProps={{ disabled: input_value !== 'YES', className: input_value !== 'YES' ? 'disable-button' : 'normal-button' }}
                 onOk={async () => {
                     await handle_delete(
@@ -814,7 +815,7 @@ function DeleteModal ({
                 />
             </Modal>
             <Button className='title-button' disabled={!selected.length} onClick={open}>
-                {t('批量') + button_text[table_name].action}
+                {t('批量') + action_text}
             </Button>
         </>
 }
