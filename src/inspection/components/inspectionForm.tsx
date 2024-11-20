@@ -1,221 +1,33 @@
 import { t } from '@i18n/index.ts'
-import { Button, Form, Input, Select, Space, Switch, Table, TimePicker, Tooltip } from 'antd'
 import dayjs from 'dayjs'
-import { useState, useEffect, useMemo } from 'react'
+import { useState, useMemo } from 'react'
 import useSWR from 'swr'
-
-import NiceModal from '@ebay/nice-modal-react'
-
+import { Button, Form,  Switch, Tooltip } from 'antd'
 import { isEmpty, isObject } from 'lodash'
 
-import { MinusCircleOutlined, PlusOutlined, WarningOutlined } from '@ant-design/icons'
-
 import { DdbType } from 'dolphindb/browser'
- 
+
 import { model, NodeType } from '@/model.ts'
+
+import { inspection } from '@/inspection/model.ts'
+
+import type { MetricsWithStatus, Plan } from '@/inspection/type.ts'
+
+import { InspectionFormContent } from '@/inspection/components/inspectionFormContent.tsx'
 
 import { DDB_TYPE_MAP } from '@/utils.ts'
 
-import { inspection } from '@/inspection/model.ts'
-import { InspectionFrequencyOptions, MetricGroups, WeekDays } from '@/inspection/constants.ts'
-import type { MetricsWithStatus, Plan } from '@/inspection/type.ts'
-import { EditParamModal } from '@/inspection/modals/editParamModal.tsx'
-import { AddParamModal } from '@/inspection/modals/addParamModal.tsx'
-import { parse_minute } from '@/inspection/utils.ts'
 
-interface InspectionFormContentProps {
+
+interface InspectionFormProps {
     plan?: Plan
-    view_only: boolean
-    metrics_with_nodes: Map<string, MetricsWithStatus>
-    set_checked_metrics: (metrics: Map<string, MetricsWithStatus>) => void
-    execute_node_names: string[]
-    inspection_form: any
-}
-
-function InspectionFormContent ({
-    plan,
-    view_only,
-    metrics_with_nodes,
-    set_checked_metrics,
-    execute_node_names,
-    inspection_form,
-}: InspectionFormContentProps) {
-    
-    const { email_config } = inspection.use(['email_config'])
-    return <Form
-            key={plan?.id}
-            disabled={view_only} 
-            className='inspection-form-inline' 
-            form={inspection_form}
-            requiredMark={false}
-            layout='vertical'
-            initialValues={plan ? 
-                { 
-                    ...plan,
-                    scheduleTime: plan.scheduleTime ? plan.scheduleTime.map(time => parse_minute(time as string)) : [dayjs()],
-                    alertRecipient: plan.alertRecipient ? (plan.alertRecipient as string).split(',') : [ ],
-                    enabledNode: plan.enabledNode ?? execute_node_names[0],
-                    days: plan.days ? (plan.days as string).split(',').map(Number) : [1], 
-                } : 
-                {   
-                    scheduleTime: [dayjs()], 
-                    frequency: 'W', 
-                    enabledNode: execute_node_names[0],
-                    days: [1], 
-                }}>
-            <Form.Item 
-                name='name' 
-                required
-                layout='vertical'
-                label={<h3 className='required'>{t('巡检名称')}</h3>} 
-                rules={[{ required: true, message: t('请输入巡检名称') }]}>
-                <Input/>
-            </Form.Item>
-            
-            <Form.Item name='desc' layout='vertical' label={<h3>{t('巡检计划描述')}</h3>} >
-                <Input placeholder={t('巡检计划描述(非必填)')} style={{ whiteSpace: 'pre-wrap' }}/>
-            </Form.Item>
-            
-            <h3 className='required'>{t('巡检周期')}</h3>
-            <div className='inspection-form-inline-time'>
-                <Form.Item label={t('巡检频率')} name='frequency' required>
-                    <Select 
-                        options={InspectionFrequencyOptions} 
-                        onChange={() => {
-                            inspection_form.setFieldsValue({ days: undefined })
-                        }}
-                    />
-                </Form.Item>
-                
-                <Form.Item 
-                    noStyle
-                    shouldUpdate={(prevValues, curValues) => prevValues.frequency !== curValues.frequency}
-                >
-                    {({ getFieldValue }) => {
-                        const frequency = getFieldValue('frequency')
-                        return frequency !== 'D' && (
-                            <Form.Item 
-                                label={t('巡检日期')} 
-                                name='days'
-                                rules={[{ required: true, message: t('请选择巡检日期') }]}
-                            >
-                                <Select
-                                    mode='multiple'
-                                    className='date-select'
-                                    options={Array.from({ length: frequency === 'M' ? 31 : 7 }, (_, i) => i).
-                                            map(idx => ({
-                                                label:  frequency === 'W' ? WeekDays[idx] : t('第 {{day}} 天', { day: idx + 1 }),
-                                                value:  frequency === 'W' ? idx : idx + 1
-                                            }))} 
-                                /> 
-                            </Form.Item>
-                        )
-                    }}
-                </Form.Item>
-                
-                <Form.Item label={t('巡检时间')} required>
-                    <Form.List 
-                        name='scheduleTime'
-                        rules={[
-                            {
-                                validator: async (_, value) => {
-                                    if (!value || value.length < 1) 
-                                        throw new Error(t('至少需要设置一个巡检时间'))
-                                    
-                                },
-                            },
-                        ]}
-                    >
-                        {(fields, { add, remove }) =>
-                            <Space align='baseline'>
-                            {
-                                fields.map((field, idx) => <Space key={field.key} align='baseline'>
-                                        <Form.Item 
-                                            {...field}
-                                            rules={[{ required: true, message: t('请选择巡检时间') }]}
-                                        >
-                                            <TimePicker format='HH:mm'/>
-                                        </Form.Item>
-                                        {fields.length > 1 && !view_only && (
-                                            <MinusCircleOutlined onClick={() => { remove(field.name) }} />
-                                        )}
-                                    </Space>)
-                            }
-                            <Form.Item>
-                                <Button type='dashed' onClick={() => { add() }} block icon={<PlusOutlined />}>
-                                    {t('添加')}
-                                </Button>
-                            </Form.Item>
-                            </Space>
-                        }
-                    </Form.List>
-                </Form.Item>
-                {/*                 
-                <Form.Item label={t('巡检时间')} name='scheduleTime' rules={[{ required: true, message: t('请选择巡检时间') }]}>
-                    <TimePicker format='HH:mm:ss'/>
-                </Form.Item> */}
-            </div>
-            
-            <Form.Item name='enabledNode' layout='vertical' label={<h3 className='required'>{t('执行节点')}</h3>} >
-                <Select options={execute_node_names.map(name => ({ label: name, value: name }))}/>
-            </Form.Item>
-            
-            <div className='enable-emali-form-item'>
-                <Form.Item 
-                    name='alertEnabled' 
-                    layout='vertical'
-                    label={<h3 >{t('是否启用邮件告警')} </h3>} >
-                    <Switch />
-                </Form.Item>
-                {
-                    !email_config.can_config && <Tooltip 
-                        title={<div style={{ whiteSpace: 'pre-wrap' }}>{email_config.error_msg}</div>}>
-                        <WarningOutlined 
-                            className='email-config-warning' 
-                        /> 
-                    </Tooltip>
-                }
-            </div>
-            
-            <Form.Item layout='vertical' label={<h3>{t('邮件告警接收人邮箱')}</h3>} >
-                <Form.List name='alertRecipient' >
-                    {(fields, { add, remove }) =>
-                        <Space>
-                        {
-                            fields.map(field => <Space>
-                            <Form.Item {...field} required>
-                                <Input/>
-                            </Form.Item>
-                            {!view_only && <MinusCircleOutlined onClick={() => { remove(field.name) }} />}
-                            </Space>)
-                            
-                        }
-                        <Form.Item>
-                            <Button type='dashed' onClick={() => { add() }} block icon={<PlusOutlined />}>
-                            {t('添加')}
-                            </Button>
-                        </Form.Item>
-                        </Space>
-                    }
-                </Form.List>
-            </Form.Item>
-            
-            <div className='metric-table'>
-                <MetricGroupTable
-                    checked_metrics={metrics_with_nodes} 
-                    set_checked_metrics={set_checked_metrics}
-                />
-            </div>
-        </Form>
+    disabled?: boolean
 }
 
 export function InspectionForm ({ 
     plan = null,
     disabled = false,
-}: { 
-    plan?: Plan
-    disabled?: boolean
-}) {
+}: InspectionFormProps) {
     const { nodes } = model.use(['nodes'])
     
     const { metrics } = inspection.use(['metrics'])
@@ -310,7 +122,6 @@ export function InspectionForm ({
                 await inspection.create_plan(new_plan)
             model.message.success(is_editing ? t('修改成功') : t('创建成功'))
             model.goto('/inspection')
-            // mutate_plan_detail()
         } catch (error) {
             if (error instanceof Error)
                 model.show_error({ error })
@@ -359,153 +170,16 @@ export function InspectionForm ({
                 </Tooltip>
             </div>
         </div>
-        {
-            plan ? <InspectionFormContent 
-                plan={plan}
-                view_only={view_only}
-                metrics_with_nodes={metrics_with_nodes}
-                set_checked_metrics={set_metrics_with_nodes}
-                execute_node_names={execute_node_names}
-                inspection_form={inspection_form}
-                /> : 
-            <InspectionFormContent 
-                view_only={view_only}
-                metrics_with_nodes={metrics_with_nodes}
-                set_checked_metrics={set_metrics_with_nodes}
-                execute_node_names={execute_node_names}
-                inspection_form={inspection_form}
-            />
-        }
+        <InspectionFormContent
+            {...plan ? { plan } : { }} 
+            view_only={view_only}
+            metrics_with_nodes={metrics_with_nodes}
+            set_checked_metrics={set_metrics_with_nodes}
+            execute_node_names={execute_node_names}
+            inspection_form={inspection_form}
+        />
     </div>
 }
 
 
-export function MetricGroupTable ({ 
-    checked_metrics,
-    set_checked_metrics,
-    editing = false,
-    close = () => { }
-}: 
-{ 
-    checked_metrics: Map<string, MetricsWithStatus>
-    set_checked_metrics: (metrics: Map<string, MetricsWithStatus>) => void
-    editing?: boolean
-    close?: () => void
-}) {    
 
-    // 根据 group 对指标进行分组，同时用来管理选中状态
-    const [grouped_metrics, set_grouped_metrics] = useState(update_checked_metrics())
-    
-    function update_checked_metrics () {
-        const groups = new Map<number, MetricsWithStatus[]>()
-        checked_metrics.forEach(metric => {
-            // 非 editing 模式下只展示 cheked 的指标
-            if (editing || metric.checked) {
-                const group = metric.group // 假设每个指标都有 group 属性
-                if (!groups.has(group))
-                    groups.set(group, [ ])
-                groups.get(group).push(metric)
-            }
-        })
-        return groups
-    }
-    
-    useEffect(() => {
-        set_grouped_metrics(update_checked_metrics())
-    }, [checked_metrics])
-    
-    return <div className='metric-table'>
-            <Table 
-                rowKey='group'
-                title={() => editing ? null :  <div className='metric-table-title'>
-                                <h3 className='required'>{t('指标列表')}</h3>
-                                <Button type='primary' onClick={async () => NiceModal.show(AddParamModal, { checked_metrics, set_checked_metrics })}>{t('管理指标')}</Button>
-                            
-                    </div>}
-                dataSource={Array.from(grouped_metrics.keys()).map(group => ({
-                    group,
-                    metrics: grouped_metrics.get(group) || [ ]
-                }))}
-                expandable={{
-                    defaultExpandAllRows: true,
-                    expandedRowRender: record => <div className='expanded-table'><Table
-                            rowKey='name'
-                            className='themed'
-                            dataSource={record.metrics}
-                            pagination={false}
-                            rowSelection={editing && { 
-                                selectedRowKeys: grouped_metrics.get(record.group)?.filter(metric => metric.checked).map(metric => metric.name) || [ ],
-                                onChange: keys => {
-                                    let metrics = grouped_metrics.get(record.group)
-                                    metrics = metrics.map(mc => ({ ...mc, checked: keys.includes(mc.name) }))
-                                    set_grouped_metrics(new Map(grouped_metrics.set(record.group, metrics)))
-                                },
-                                
-                            }}
-                            columns={[
-                                {
-                                    title: t('名称'),
-                                    dataIndex: 'displayName',
-                                    key: 'displayName',
-                                },
-                                {
-                                    title: t('描述'),
-                                    dataIndex: 'desc',
-                                    key: 'desc',
-                                    render: (desc: string) => <div style={{ whiteSpace: 'pre-wrap' }}>{desc}</div>
-                                },
-                                ...editing ? [ ] : [{
-                                    title: t('操作'),
-                                    dataIndex: 'action',
-                                    key: 'action',
-                                    render: (_, record) => <>
-                                            <Tooltip title={t('编辑指标')}>
-                                                <Button 
-                                                    type='link' 
-                                                    onClick={async () => 
-                                                        NiceModal.show(EditParamModal, { metric: record, checked_metrics, set_checked_metrics })}>
-                                                            {t('编辑')}
-                                                </Button>
-                                            </Tooltip>
-                                            <Button 
-                                                type='link'
-                                                danger
-                                                onClick={() => {
-                                                    let new_checked_metrics = new Map(checked_metrics)
-                                                    new_checked_metrics.set(record.name, { ...record, checked: false })
-                                                    set_checked_metrics(new_checked_metrics)
-                                                }}
-                                                >
-                                                {t('删除')}
-                                            </Button>
-                                        </>
-                                }],
-                                
-                            ]}
-                        /></div>,
-                    rowExpandable: record => record.metrics.length > 0,
-                }}
-                columns={[{
-                    title: t('分组'),
-                    dataIndex: 'group',
-                    key: 'group',
-                    render: (group: number) => MetricGroups[group]
-                }]}
-                pagination={false}
-        />
-        {editing &&  <div className='modal-footer'>
-                        <Button htmlType='button' onClick={close}>
-                            {t('取消')}
-                        </Button>
-                        <Button type='primary' onClick={() => {
-                            let new_checked_metrics = new Map(checked_metrics)
-                            // 更新checked
-                            Array.from(grouped_metrics.values()).flat().forEach(metric => {
-                                new_checked_metrics.set(metric.name, metric)
-                            })
-                            set_checked_metrics(new_checked_metrics)
-                            close()
-                        }}>{t('保存')}</Button>
-                </div>}
-        </div>
-}

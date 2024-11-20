@@ -14,16 +14,17 @@ import { DDB_TYPE_MAP } from '@/utils.ts'
 
 import type { MetricParam, MetricsWithStatus } from '@/inspection/type.ts'
 
+interface EditParamModalProps {
+    metric: MetricsWithStatus
+    checked_metrics: Map<string, MetricsWithStatus>
+    set_checked_metrics: (metrics: Map<string, MetricsWithStatus>) => void 
+}
+
 export const EditParamModal = NiceModal.create(({ 
     metric, 
     checked_metrics, 
     set_checked_metrics 
-}: 
-{ 
-    metric: MetricsWithStatus
-    checked_metrics: Map<string, MetricsWithStatus>
-    set_checked_metrics: (metrics: Map<string, MetricsWithStatus>) => void 
-}) => {
+}: EditParamModalProps) => {
     const modal = useModal()   
     
     const init_metric = useMemo(() => {

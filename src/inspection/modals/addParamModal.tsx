@@ -3,16 +3,17 @@ import { t } from '@i18n/index.ts'
 import { Modal } from 'antd'
 
 import type { MetricsWithStatus } from '@/inspection/type.ts'
-import { MetricGroupTable } from '@/inspection/components/inspectionForm.tsx'
+import { MetricGroupTable } from '@/inspection/components/metricTable.tsx'
+
+interface AddParamModalProps {
+    checked_metrics: Map<string, MetricsWithStatus>
+    set_checked_metrics: (metrics: Map<string, MetricsWithStatus>) => void 
+}
 
 export const AddParamModal = NiceModal.create(({ 
     checked_metrics, 
     set_checked_metrics 
-}: 
-{ 
-    checked_metrics: Map<string, MetricsWithStatus>
-    set_checked_metrics: (metrics: Map<string, MetricsWithStatus>) => void 
-}) => {
+}: AddParamModalProps) => {
     const modal = useModal()   
     
     return <Modal
