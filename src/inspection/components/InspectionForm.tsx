@@ -16,6 +16,7 @@ import type { MetricsWithStatus, Plan } from '@/inspection/type.ts'
 import { InspectionFormContent } from '@/inspection/components/InspectionFormContent.tsx'
 
 import { DDB_TYPE_MAP } from '@/utils.ts'
+import { BackButton } from '@/components/BackButton.tsx'
 
 
 
@@ -143,7 +144,7 @@ export function InspectionForm ({
     return <div className='inspection-form'>
         <div className='inspection-form-header'>
             <div className='inspection-form-header-left'>
-                <Button onClick={() => { model.goto('/inspection', { queries: { disabled: null } }) }}>{t('返回')}</Button>
+                <BackButton path='/inspection' />
                 <h3>{is_editing ? (view_only ? t('查看巡检计划') : t('修改巡检计划')) : t('新增巡检计划')}</h3>
             </div>
             <div className='inspection-form-header-right'>
@@ -171,7 +172,7 @@ export function InspectionForm ({
             </div>
         </div>
         <InspectionFormContent
-            {...plan ? { plan } : { }} 
+            plan={plan}
             view_only={view_only}
             metrics_with_nodes={metrics_with_nodes}
             set_checked_metrics={set_metrics_with_nodes}

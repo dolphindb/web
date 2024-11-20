@@ -43,7 +43,7 @@ export function HostSelect ({ size = 'small' }: { size?: SizeType }) {
                 value: '192.168.0.69:18921'
             },
             {
-                label: '自动化巡检',
+                label: '自动巡检',
                 value: '192.168.100.44:7602'
             },
             {

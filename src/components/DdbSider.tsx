@@ -81,8 +81,7 @@ export function DdbSider () {
     }, [search, pathname])
     
     
-    const factor_href = useMemo(() => {
-        return model.assets_root + 'starfish/index.html?' +
+    const factor_href = useMemo(() => model.assets_root + 'starfish/index.html?' +
             new URLSearchParams(filter_values(
                 {
                     ddb_hostname: model.hostname,
@@ -90,8 +89,7 @@ export function DdbSider () {
                     logined: Number(logined).toString(),
                     token: localStorage.getItem(storage_keys.ticket)
                 })
-            ).toString()
-    }, [logined])
+            ).toString(), [logined])
     
     return <Layout.Sider
         width={ language === 'zh' ? 150 : 220 }
@@ -180,7 +178,7 @@ export function DdbSider () {
                 ... admin && language === 'zh' ? [{
                     key: 'inspection',
                     icon: <MenuIcon view='inspection' />,
-                    label: t('自动化巡检'),
+                    label: t('自动巡检'),
                 }] : [ ],
                 {
                     key: 'log',

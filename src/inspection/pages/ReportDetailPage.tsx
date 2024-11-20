@@ -21,6 +21,7 @@ import { inspection } from '@/inspection/model.ts'
 import { MetricGroups, ReportLables } from '@/inspection/constants.ts'
 import { LogModal } from '@/inspection/modals/LogModal.tsx'   
 import { FailedStatus, SuccessStatus } from '@/inspection/pages/InspectionListPage.tsx'
+import { BackButton } from '@/components/BackButton.tsx'
 
 const { Title } = Typography
 
@@ -163,7 +164,7 @@ export function ReportDetailPage () {
         ? <div className='spin-container'><Spin size='large' spinning={get_report_loading || get_report_detail_loading}/></div>
         : <div className='report-detail' ref={top_ref}>
             <div className='report-detail-header'>
-                <Button onClick={() => { model.goto('/inspection') }}>{t('返回')}</Button>
+                <BackButton path='/inspection' />
                 <Button type='primary' onClick={export_report}>{t('下载巡检报告')}</Button>
             </div>
         

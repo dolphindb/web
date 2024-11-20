@@ -27,7 +27,6 @@ export const LogModal =  NiceModal.create(({ report_id, node }: LogModalProps) =
     >
       <Editor
         key={logs}
-        height={400}
         options={{
           readOnly: true,
           minimap: {
