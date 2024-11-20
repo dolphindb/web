@@ -10,21 +10,39 @@ import NiceModal from '@ebay/nice-modal-react'
 import { MetricGroups } from '@/inspection/constants.ts'
 import type { MetricsWithStatus } from '@/inspection/type.ts'
 import { EditParamModal } from '@/inspection/modals/editParamModal.tsx'
-import { AddParamModal } from '@/inspection/modals/addParamModal.tsx'
+import { AddParamsModal } from '@/inspection/modals/addParamsModal.tsx'
+
+interface MetricGroupTableProps {
+    checked_metrics: Map<string, MetricsWithStatus>
+    set_checked_metrics: (metrics: Map<string, MetricsWithStatus>) => void
+    editing?: boolean
+    close?: () => void
+    renderFooter?: (footer: React.ReactNode) => React.ReactNode
+}
 
 export function MetricGroupTable ({ 
     checked_metrics,
     set_checked_metrics,
     editing = false,
-    close = () => { }
-}: 
-{ 
-    checked_metrics: Map<string, MetricsWithStatus>
-    set_checked_metrics: (metrics: Map<string, MetricsWithStatus>) => void
-    editing?: boolean
-    close?: () => void
-}) {    
-
+    close = () => { },
+    renderFooter
+}: MetricGroupTableProps) {    
+    const footer = editing ? (
+        <div className='modal-footer'>
+            <Button htmlType='button' onClick={close}>
+                {t('取消')}
+            </Button>
+            <Button type='primary' onClick={() => {
+                let new_checked_metrics = new Map(checked_metrics)
+                Array.from(grouped_metrics.values()).flat().forEach(metric => {
+                    new_checked_metrics.set(metric.name, metric)
+                })
+                set_checked_metrics(new_checked_metrics)
+                close()
+            }}>{t('保存')}</Button>
+        </div>
+    ) : null
+    
     // 根据 group 对指标进行分组，同时用来管理选中状态
     const [grouped_metrics, set_grouped_metrics] = useState(update_checked_metrics())
     
@@ -49,9 +67,9 @@ export function MetricGroupTable ({
     return <div className='metric-table'>
             <Table 
                 rowKey='group'
-                title={() => editing ? null :  <div className='metric-table-title'>
+                title={() => editing ? null : <div className='metric-table-title'>
                                 <h3 className='required'>{t('指标列表')}</h3>
-                                <Button type='primary' onClick={async () => NiceModal.show(AddParamModal, { checked_metrics, set_checked_metrics })}>{t('管理指标')}</Button>
+                                <Button type='primary' onClick={async () => NiceModal.show(AddParamsModal, { checked_metrics, set_checked_metrics })}>{t('管理指标')}</Button>
                             
                     </div>}
                 dataSource={Array.from(grouped_metrics.keys()).map(group => ({
@@ -125,19 +143,6 @@ export function MetricGroupTable ({
                 }]}
                 pagination={false}
         />
-        {editing &&  <div className='modal-footer'>
-                        <Button htmlType='button' onClick={close}>
-                            {t('取消')}
-                        </Button>
-                        <Button type='primary' onClick={() => {
-                            let new_checked_metrics = new Map(checked_metrics)
-                            // 更新checked
-                            Array.from(grouped_metrics.values()).flat().forEach(metric => {
-                                new_checked_metrics.set(metric.name, metric)
-                            })
-                            set_checked_metrics(new_checked_metrics)
-                            close()
-                        }}>{t('保存')}</Button>
-                </div>}
+        {editing && renderFooter ? renderFooter(footer) : footer}
         </div>
 }
