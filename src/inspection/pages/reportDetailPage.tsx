@@ -19,7 +19,7 @@ import { safe_json_parse } from '@/dashboard/utils.ts'
 import type {  PlanReportDetailMetric } from '@/inspection/type.ts'
 import { inspection } from '@/inspection/model.ts'
 import { MetricGroups, ReportLables } from '@/inspection/constants.ts'
-import { LogModal } from '@/inspection/modals/logModal'   
+import { LogModal } from '@/inspection/modals/logModal.tsx'   
 import { FailedStatus, SuccessStatus } from '@/inspection/pages/inspectionListPage.tsx'
 
 const { Title } = Typography
@@ -84,8 +84,6 @@ export function ReportDetailPage () {
     ]
     
     async function export_report () {
-        const current_active_key = active_key
-        // 展开所有面板
         set_active_key(plan_report_detail.map(d => d.metricName))
         
         // 等待DOM更新
@@ -128,7 +126,7 @@ export function ReportDetailPage () {
             model.message.error(t('打印失败'), error)
         } finally {
             // 恢复原来的展开状态
-            set_active_key(current_active_key)
+            set_active_key(active_key)
         }
     }
     

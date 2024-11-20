@@ -19,8 +19,8 @@ import { DDB_TYPE_MAP } from '@/utils.ts'
 import { inspection } from '@/inspection/model.ts'
 import { InspectionFrequencyOptions, MetricGroups, WeekDays } from '@/inspection/constants.ts'
 import type { MetricsWithStatus, Plan } from '@/inspection/type.ts'
-import { EditParamModal } from '@/inspection/modals/editParamModal'
-import { AddParamModal } from '@/inspection/modals/addParamModal'
+import { EditParamModal } from '@/inspection/modals/editParamModal.tsx'
+import { AddParamModal } from '@/inspection/modals/addParamModal.tsx'
 import { parse_minute } from '@/inspection/utils.ts'
 
 interface InspectionFormContentProps {

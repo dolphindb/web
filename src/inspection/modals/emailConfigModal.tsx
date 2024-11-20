@@ -30,12 +30,12 @@ export const EmailConfigModal = NiceModal.create(() => {
             }}
             initialValues={{ 
                 inspectionAlertEnabled: config.get_config('inspectionAlertEnabled') === 'true',
-                inspectionAlertUserId: config.get_config('inspectionAlertUserId'),
-                inspectionAlertPwd: config.get_config('inspectionAlertPwd'),
+                inspectionAlertUserId: config.get_config('inspectionAlertUserId') || '',
+                inspectionAlertPwd: config.get_config('inspectionAlertPwd') || '',
                 inspectionAlertStdSMTPMsgEnabled: config.get_config('inspectionAlertStdSMTPMsgEnabled') === 'true',
-                inspectionAlertSMTPEmailName: config.get_config('inspectionAlertSMTPEmailName'),
-                inspectionAlertSMTPHost: config.get_config('inspectionAlertSMTPHost'),
-                inspectionAlertSMTPPort: config.get_config('inspectionAlertSMTPPort')
+                inspectionAlertSMTPEmailName: config.get_config('inspectionAlertSMTPEmailName') || '',
+                inspectionAlertSMTPHost: config.get_config('inspectionAlertSMTPHost') || '',
+                inspectionAlertSMTPPort: config.get_config('inspectionAlertSMTPPort') || ''
             }}
             labelCol={{ span: 8 }}
             wrapperCol={{ span: 16 }}

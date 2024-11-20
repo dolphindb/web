@@ -14,10 +14,10 @@ import { isNull } from 'lodash'
 
 import { model } from '@/model.ts'
 
-import { EmailConfigModal } from '@/inspection/modals/emailConfigModal'
+import { EmailConfigModal } from '@/inspection/modals/emailConfigModal.tsx'
 import { inspection } from '@/inspection/model.ts'
 import type { Plan, PlanReport } from '@/inspection/type.ts'
-import { LogModal } from '@/inspection/modals/logModal'
+import { LogModal } from '@/inspection/modals/logModal.tsx'
 
 export function InspectionListPage () {
     const [ search_key, set_search_key ] = useState('')
