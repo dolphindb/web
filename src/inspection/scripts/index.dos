@@ -359,7 +359,19 @@ def runMetric(name, script, mutable params) {
     return success, toStdJson(detail), string(suggestion), toStdJson(extraDetail), params // 记得更新 params
 }
 
-def runPlanInner(planId) {
+def runPlanInner(planId, reportId) {
+    cnt = 0
+    do {
+        reportInfo = select * from loadTable("dfs://autoInspection", "reports") where id == reportId
+        if (reportInfo.size() == 0) {
+            sleep(1000) // 等 success=NULL 的记录写入
+            cnt += 1
+            if (cnt == 30) {
+                throw "autoInspection: get report info failed after trying 3times, report id: " + reportId
+            }
+        }
+    } while (reportInfo.size() == 0)
+    update loadTable("dfs://autoInspection", "reports") set startTime = now() where id == reportId
     print("start to run plan: " + string(planId))
     writeLog("autoInspection: start to run plan: " + string(planId))
     planId_ = planId
@@ -553,7 +565,7 @@ def runPlan(planId, blocking=false) {
                 totalNum_ = exec count(distinct(metricName)) from result
                 failedNum_ = select count(*) from result where success == false group by metricName
                 failedNum_ = failedNum_.size()
-                update loadTable("dfs://autoInspection", "reports") set startTime = startTime_, endTime = endTime_, success = success_, totalNum = totalNum_, failedNum = failedNum_ where planId == planId_ and id == jobId
+                update loadTable("dfs://autoInspection", "reports") set endTime = endTime_, success = success_, totalNum = totalNum_, failedNum = failedNum_ where planId == planId_ and id == jobId
                 writeLog("autoInspection: run plan successfully, plan id: " + planId_ + ", report id: " + jobId)
 
                 // 发送邮件
@@ -566,17 +578,19 @@ def runPlan(planId, blocking=false) {
                     submitJob("sendReportEmail", planId_, sendReportEmail, planInfo, reportInfo, alertConfig)
                 }
             } else {
-                update loadTable("dfs://autoInspection", "reports") set startTime = startTime_, endTime = endTime_, success = false where id = jobId
+                update loadTable("dfs://autoInspection", "reports") set endTime = endTime_, success = false where id = jobId
                 writeLog("autoInspection: run plan failed, plan id: " + planId_ + ", report id: " + jobId + ", err msg: " + string(result).last())
                 throw result
             }
         } catch(err) {
             writeLog("autoInspection: run plan failed, plan id: " + planId_ + ", report id: " + jobId + ", err msg: " + string(err).last())
-            update loadTable("dfs://autoInspection", "reports") set startTime = receivedTime, endTime = now(), success = false where planId == planId_ and id == jobId
+            update loadTable("dfs://autoInspection", "reports") set endTime = now(), success = false where planId == planId_ and id == jobId
             throw err
         }
     }
-    reportId_ = rpc(enabledNode, submitJobEx2, "runPlan_" + planId, desc, 4, 2, onComplete, runPlanInner, planId)
+    ts = rpc(enabledNode, now{true}) // 在同一节点上取 nanotimestamp 以避免并发时 reportId 相同
+    reportId_ = "runPlan_" + planId + "_" + string(long(ts))
+    reportId_ = rpc(enabledNode, submitJobEx2, reportId_, desc, 4, 2, onComplete, runPlanInner, planId, reportId_)
     user = getCurrentSessionAndUser()[1]
     reportJobInfo = rpc(enabledNode, getJobStatusEx, reportId_)
     report = table(
