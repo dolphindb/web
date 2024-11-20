@@ -1,6 +1,6 @@
 import { Model } from 'react-object-model'
 
-import {  model } from '@/model.ts'
+import { model } from '@/model.ts'
 
 import { config } from '@/config/model.ts'
 
@@ -13,7 +13,6 @@ import { EmailConfigMessages } from '@/inspection/constants.ts'
 import type { Metric, MetricParam, Plan, PlanDetail, PlanReport, PlanReportDetailMetric, PlanReportDetailNode } from './type.ts'
 
 class InspectionModel extends Model<InspectionModel> {
-    
     inited = false
     
     defined = false
@@ -27,26 +26,26 @@ class InspectionModel extends Model<InspectionModel> {
     
     // 定义函数
     async define () {
-        await model.ddb.execute(
-            define_script,
-        )
+        await model.ddb.execute(define_script)
         this.set({ defined: true })
     }
     
     // 拉邮件配置，拉指标
     async init () {
         await config.load_configs()
-        const metrics_obj = await inspection.get_metrics()
-        this.set({ metrics: new Map(metrics_obj.map(m => {
-            let params = new Map<string, MetricParam>()
-            let params_arr = JSON.parse(m.params)
-            if (Array.isArray(params_arr)) 
-                params_arr.map(param => {
-                    params.set(param.name, param)
-                })
-            return [ m.name, { ...m, params } ]
-        })) })
-        await inspection.can_configure_email()
+        const metrics_obj = await this.get_metrics()
+        this.set({
+            metrics: new Map(metrics_obj.map(m => {
+                let params = new Map<string, MetricParam>()
+                let params_arr = JSON.parse(m.params)
+                if (Array.isArray(params_arr)) 
+                    params_arr.map(param => {
+                        params.set(param.name, param)
+                    })
+                return [ m.name, { ...m, params } ]
+            }))
+        })
+        await this.can_configure_email()
         this.set({ inited: true })
     }
     
@@ -128,14 +127,18 @@ class InspectionModel extends Model<InspectionModel> {
     }
     
     async can_configure_email () {
-        const { errCode, errMsg }  = (await model.ddb.invoke('canConfigureEmail', [ ]))
-        this.set({ email_config: { can_config: errCode === 0, error_msg: `${EmailConfigMessages[errCode]}\n${errMsg}` } })
+        const { errCode, errMsg } = await model.ddb.invoke('canConfigureEmail', [ ])
+        this.set({
+            email_config: {
+                can_config: errCode === 0,
+                error_msg: `${EmailConfigMessages[errCode]}\n${errMsg}`
+            }
+        })
     }
     
     async get_logs (reportId: string, node: string) {
-        return (model.ddb.execute(`rpc('${node}',getJobMessage,'${reportId}')`))
+        return model.ddb.execute(`rpc('${node}',getJobMessage,'${reportId}')`)
     }
-    
 }
 
 export let inspection = new InspectionModel()

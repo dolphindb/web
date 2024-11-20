@@ -6,11 +6,14 @@ import { useState, useEffect } from 'react'
 
 import NiceModal from '@ebay/nice-modal-react'
 
+import { noop } from 'xshell/utils.browser.js'
+
 
 import { MetricGroups } from '@/inspection/constants.ts'
 import type { MetricsWithStatus } from '@/inspection/type.ts'
 import { EditParamModal } from '@/inspection/modals/editParamModal.tsx'
 import { AddParamsModal } from '@/inspection/modals/addParamsModal.tsx'
+
 
 interface MetricTableProps {
     checked_metrics: Map<string, MetricsWithStatus>
@@ -24,7 +27,7 @@ export function MetricTable ({
     checked_metrics,
     set_checked_metrics,
     editing = false,
-    close = () => { },
+    close = noop,
     setFooter: renderFooter
 }: MetricTableProps) {    
    

@@ -178,44 +178,45 @@
         .intro-list
             .intro-item
                 padding: 12px 0        
+
+.ant-modal-root
+    .edit-param-modal,.add-param-modal
+        .ant-form
+            padding: 0px !important
+            .form-item-label
+                margin: 10px 0
                 
-.edit-param-modal,.add-param-modal
-    .ant-form
-        padding: 0px !important
-        .form-item-label
-            margin: 10px 0
-            
-    .expanded-table
-        .ant-table-cell
-            padding: 2px 4px !important 
-            
-    .modal-footer
-        display: flex
-        flex-direction: row
-        justify-content: center
-        column-gap: 20px
-            
-    
-.add-param-modal
-    .ant-modal-content
-        display: flex
-        flex-direction: column
-        height: 80vh  
+        .expanded-table
+            .ant-table-cell
+                padding: 2px 4px !important 
+                
+        .modal-footer
+            display: flex
+            flex-direction: row
+            justify-content: center
+            column-gap: 20px
+                
         
-    .ant-modal-body
-        flex: 1
-        overflow-y: scroll  
-        
-        .modal-content
-            height: 100%
+    .add-param-modal
+        .ant-modal-content
             display: flex
             flex-direction: column
+            height: 80vh  
             
-            .metric-table
-                flex: 1
-                overflow: auto
-                padding: 24px 
-    
+        .ant-modal-body
+            flex: 1
+            overflow-y: scroll  
+            
+            .modal-content
+                height: 100%
+                display: flex
+                flex-direction: column
+                
+                .metric-table
+                    flex: 1
+                    overflow: auto
+                    padding: 24px 
+        
 .interceptor
     height: 100%
     display: flex

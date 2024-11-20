@@ -51,7 +51,7 @@ import { DashboardInstancePage } from './dashboard/Instance.tsx'
 import { Overview as DashboardOverview } from './dashboard/Overview.tsx'
 
 import { User, Group } from './access/index.tsx'
-import { Inspection } from './inspection/index.js'
+import { Inspection } from './inspection/index.tsx'
 import { Settings } from './settings/index.tsx'
 import { CreateGuide } from './guide/iot-guide/index.tsx'
 import { FinanceGuide } from './guide/finance-guide/index.tsx'

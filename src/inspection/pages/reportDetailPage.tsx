@@ -4,7 +4,7 @@ import useSWR from 'swr'
 
 import { useMemo, useRef, useState } from 'react'
 
-import { delta2str } from 'xshell/utils.browser.js'
+import { delay, delta2str } from 'xshell/utils.browser.js'
 
 import { UpOutlined } from '@ant-design/icons'
 
@@ -25,7 +25,6 @@ import { FailedStatus, SuccessStatus } from '@/inspection/pages/inspectionListPa
 const { Title } = Typography
 
 export function ReportDetailPage () {
-
     const { reportId } = useParams()
     const [active_key, set_active_key] = useState(null)
     
@@ -87,7 +86,7 @@ export function ReportDetailPage () {
         set_active_key(plan_report_detail.map(d => d.metricName))
         
         // 等待DOM更新
-        await new Promise(resolve => setTimeout(resolve, 500))
+        await delay(500)
         
         try {
              // 保存原始标题
@@ -160,73 +159,75 @@ export function ReportDetailPage () {
     
     const has_abnoraml_metrics = abnormal_metrics.length > 0
       
-    return get_report_loading || get_report_detail_loading ? <div className='spin-container'><Spin size='large' spinning={get_report_loading || get_report_detail_loading}/></div> : <div className='report-detail' ref={top_ref}>
-        <div className='report-detail-header'>
-            <Button onClick={() => { model.goto('/inspection') }}>{t('返回')}</Button>
-            <Button type='primary' onClick={export_report}>{t('下载巡检报告')}</Button>
-        </div>
-       
-        <div id='report-detail-content' className='report-content'>
-            <h1>{t('{{report_id}} 巡检报告', { report_id: reportId })}</h1>
-           
-            <Descriptions 
-                column={4} 
-                items={[...Object.entries(ReportLables).map(([key, value]) => 
-                ({  key, 
-                    label: value, 
-                    children: key === 'runningTime' 
-                                    ? delta2str(Number(report[key])) 
-                                    : <div style={{ whiteSpace: 'pre-wrap' }}>{report[key]}</div> 
-                }))]} 
-            />
+    return get_report_loading || get_report_detail_loading 
+        ? <div className='spin-container'><Spin size='large' spinning={get_report_loading || get_report_detail_loading}/></div>
+        : <div className='report-detail' ref={top_ref}>
+            <div className='report-detail-header'>
+                <Button onClick={() => { model.goto('/inspection') }}>{t('返回')}</Button>
+                <Button type='primary' onClick={export_report}>{t('下载巡检报告')}</Button>
+            </div>
+        
+            <div id='report-detail-content' className='report-content'>
+                <h1>{t('{{report_id}} 巡检报告', { report_id: reportId })}</h1>
             
-            <h2>{t('巡检结果总览')}</h2>
-            <div className='abnormal-table-header'>
-                <p className='report-summary'>
-                    {t('检查项共 {{num}} 项', { num: plan_report_detail?.length || 0 })}
-                    <span className={abnormal_metrics.length && 'abnormal-count'}>{t(' {{num}} 项异常。', { num: abnormal_metrics.length })}</span>
-                    {has_abnoraml_metrics && t('异常列表指标如下:')}
-                    
-                </p>
-                {has_abnoraml_metrics && <span className='abnormal-count'>
-                    {t('{{num_abnormal}}/{{num_total}} 项异常', { num_abnormal: abnormal_metrics.length, num_total: plan_report_detail?.length || 0 })}
-                </span>}
+                <Descriptions 
+                    column={4} 
+                    items={[...Object.entries(ReportLables).map(([key, value]) => 
+                    ({  key, 
+                        label: value, 
+                        children: key === 'runningTime' 
+                                        ? delta2str(Number(report[key])) 
+                                        : <div style={{ whiteSpace: 'pre-wrap' }}>{report[key]}</div> 
+                    }))]} 
+                />
+                
+                <h2>{t('巡检结果总览')}</h2>
+                <div className='abnormal-table-header'>
+                    <p className='report-summary'>
+                        {t('检查项共 {{num}} 项', { num: plan_report_detail?.length || 0 })}
+                        <span className={abnormal_metrics.length && 'abnormal-count'}>{t(' {{num}} 项异常。', { num: abnormal_metrics.length })}</span>
+                        {has_abnoraml_metrics && t('异常列表指标如下:')}
+                        
+                    </p>
+                    {has_abnoraml_metrics && <span className='abnormal-count'>
+                        {t('{{num_abnormal}}/{{num_total}} 项异常', { num_abnormal: abnormal_metrics.length, num_total: plan_report_detail?.length || 0 })}
+                    </span>}
+                </div>
+                
+                {abnormal_metrics.length > 0 && (
+                    <Table
+                        dataSource={abnormal_metrics}
+                        columns={abnormal_columns}
+                        rowKey='metricName'
+                        pagination={false}
+                    />
+                )}
+            
+        
+                {grouped_report_items.map(({ groupName, items, abnormalCount, totalCount }) => <div key={groupName}>
+                        <div className='group-header'>
+                            <h2>{groupName}</h2>
+                            <span className={`abnormal-count ${abnormalCount === 0 ? 'green' : 'red'}`}>
+                            {abnormalCount ? t('{{abnormalCount}}/{{totalCount}} 项异常', { abnormalCount, totalCount })  : t('{{totalCount}}/{{totalCount}} 项正常', { totalCount })}
+                            </span>
+                        </div>
+                        <Collapse
+                            activeKey={active_key}
+                            onChange={set_active_key}
+                            items={items}
+                        />
+                        </div>)}
             </div>
             
-            {abnormal_metrics.length > 0 && (
-                <Table
-                    dataSource={abnormal_metrics}
-                    columns={abnormal_columns}
-                    rowKey='metricName'
-                    pagination={false}
+            <Affix style={{ position: 'fixed', bottom: 50, right: 50 }}>
+                <Button 
+                    type='primary' 
+                    shape='circle' 
+                    icon={<UpOutlined />} 
+                    onClick={scroll_to_top}
+                    size='large'
                 />
-            )}
-           
-     
-            {grouped_report_items.map(({ groupName, items, abnormalCount, totalCount }) => <div key={groupName}>
-                    <div className='group-header'>
-                        <h2>{groupName}</h2>
-                        <span className={`abnormal-count ${abnormalCount === 0 ? 'green' : 'red'}`}>
-                        {abnormalCount ? t('{{abnormalCount}}/{{totalCount}} 项异常', { abnormalCount, totalCount })  : t('{{totalCount}}/{{totalCount}} 项正常', { totalCount })}
-                        </span>
-                    </div>
-                    <Collapse
-                        activeKey={active_key}
-                        onChange={set_active_key}
-                        items={items}
-                    />
-                    </div>)}
-        </div>
-        
-        <Affix style={{ position: 'fixed', bottom: 50, right: 50 }}>
-            <Button 
-                type='primary' 
-                shape='circle' 
-                icon={<UpOutlined />} 
-                onClick={scroll_to_top}
-                size='large'
-            />
-        </Affix>
+            </Affix>
     </div>
 }
 

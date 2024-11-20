@@ -13,7 +13,11 @@ export interface Metric {
     params: Map<string, MetricParam>
 }
 
-export interface MetricParam { name: string, type: 'TIMESTAMP' | 'SYMBOL', options?: string[] }
+export interface MetricParam {
+    name: string
+    type: 'TIMESTAMP' | 'SYMBOL'
+    options?: string[]
+}
 
 export interface MetricsWithStatus extends Metric {
     checked: boolean

@@ -19,12 +19,13 @@ import { inspection } from '@/inspection/model.ts'
 import type { Plan, PlanReport } from '@/inspection/type.ts'
 import { LogModal } from '@/inspection/modals/logModal.tsx'
 
+
 export function InspectionListPage () {
-    const [ search_key, set_search_key ] = useState('')
-    const [ search_input_value, set_search_input_value ] = useState('')
+    const [search_key, set_search_key] = useState('')
+    const [search_input_value, set_search_input_value] = useState('')
     const { defined, email_config } = inspection.use(['defined', 'email_config'])
     
-    const [ refresh, set_refresh ] = useState(0)
+    const [refresh, set_refresh] = useState(0)
     const refresher = useMemo(() => () => { set_refresh(cnt => cnt + 1) }, [ ])
     
     return <div>
@@ -72,7 +73,6 @@ export function InspectionListPage () {
                     onSearch={set_search_key} 
                     className='inspection-search'
                 />
-                
             </div>
             
             {
@@ -291,7 +291,7 @@ function PlanListTable  ({
     enabled?: boolean
     refresh: number
     refresher: () => void
-})  {
+}) {
     const { inited } = inspection.use(['inited'])
     
     const [ids, set_ids] = useState([ ])
@@ -424,39 +424,39 @@ function PlanListTable  ({
                     </Popconfirm> 
                 </>
         },
-    ], [ refresher ])
+    ], [refresher])
     
     return <Table
-                title={() => 
-                    <div className='plan-table-header'>
-                        <h2>{enabled ? t('正在执行的巡检计划') : t('待执行的巡检计划')}</h2>
-                        <Popconfirm   
-                            title={t('批量删除巡检方案')} 
-                            description={t('确认删除选中的巡检方案吗？')} 
-                            onConfirm={async () => {
-                                await inspection.delete_plans(ids)
-                                model.message.success(t('批量删除成功'))
-                                set_current_page(1)
-                                mutate_plans()
-                            }} >
-                                <Button danger disabled={ids.length === 0}>{t('批量删除')}</Button>
-                        </Popconfirm>
-                    </div>}
-                rowSelection={{ type: 'checkbox', selectedRowKeys: ids, onChange: set_ids }}
-                pagination={{
-                    current: current_page,
-                    pageSize: current_page_size,
-                    pageSizeOptions: [5, 10, 20, 50, 100],
-                    total: plans_obj?.total || 0,
-                    showSizeChanger: true,
-                    onChange: (current_page, current_page_size) => {
-                        set_current_page(current_page)
-                        set_current_page_size(current_page_size)
-                    }
-                }} 
-                rowKey='id' 
-                dataSource={plans_obj?.records} 
-                columns={cols} />        
+        title={() => 
+            <div className='plan-table-header'>
+                <h2>{enabled ? t('正在执行的巡检计划') : t('待执行的巡检计划')}</h2>
+                <Popconfirm   
+                    title={t('批量删除巡检方案')} 
+                    description={t('确认删除选中的巡检方案吗？')} 
+                    onConfirm={async () => {
+                        await inspection.delete_plans(ids)
+                        model.message.success(t('批量删除成功'))
+                        set_current_page(1)
+                        mutate_plans()
+                    }} >
+                        <Button danger disabled={ids.length === 0}>{t('批量删除')}</Button>
+                </Popconfirm>
+            </div>}
+        rowSelection={{ type: 'checkbox', selectedRowKeys: ids, onChange: set_ids }}
+        pagination={{
+            current: current_page,
+            pageSize: current_page_size,
+            pageSizeOptions: [5, 10, 20, 50, 100],
+            total: plans_obj?.total || 0,
+            showSizeChanger: true,
+            onChange: (current_page, current_page_size) => {
+                set_current_page(current_page)
+                set_current_page_size(current_page_size)
+            }
+        }} 
+        rowKey='id' 
+        dataSource={plans_obj?.records} 
+        columns={cols} />        
 }
 
 export const SuccessStatus = <CheckOutlined className='green'/>

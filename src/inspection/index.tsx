@@ -9,7 +9,8 @@ import { InspectionListPage } from '@/inspection/pages/inspectionListPage.tsx'
 import { wrapWithGuard } from '@/inspection/components/inspectionGuard.tsx'
 
 export function Inspection () {
-    return useRoutes([
+    
+    const children = useRoutes([
         {
             index: true,
             element: wrapWithGuard(InspectionListPage),
@@ -27,4 +28,8 @@ export function Inspection () {
             element: wrapWithGuard(AddInspectionPage)
         }
     ])
+    
+    return <>
+        {children}
+    </>
 }

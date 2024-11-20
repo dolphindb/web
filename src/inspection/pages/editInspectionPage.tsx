@@ -17,9 +17,7 @@ export function EditInspectionPage () {
         async () => inspection.get_plan(planId),
     )
     
-    return <div
-        className='edit-inspection'       
-    >
+    return <div className='edit-inspection'>
         <InspectionForm plan={plan} disabled={disabled} />
     </div>
 }
