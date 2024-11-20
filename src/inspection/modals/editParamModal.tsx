@@ -12,7 +12,7 @@ import { DdbType } from 'dolphindb/browser'
  
 import { DDB_TYPE_MAP } from '@/utils.ts'
 
-import type { MetricParam, MetricsWithStatus } from './type.ts'
+import type { MetricParam, MetricsWithStatus } from '@/inspection/type.ts'
 
 export const EditParamModal = NiceModal.create(({ 
     metric, 

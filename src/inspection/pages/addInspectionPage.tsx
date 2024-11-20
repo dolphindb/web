@@ -1,4 +1,4 @@
-import { InspectionForm } from './inspectionForm.tsx'
+import { InspectionForm } from '@/inspection/components/inspectionForm.tsx'
 
 export function AddInspectionPage () {
 

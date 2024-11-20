@@ -2,8 +2,8 @@ import NiceModal, { useModal } from '@ebay/nice-modal-react'
 import { t } from '@i18n/index.ts'
 import { Modal } from 'antd'
 
-import type { MetricsWithStatus } from './type.ts'
-import { MetricGroupTable } from './inspectionForm.tsx'
+import type { MetricsWithStatus } from '@/inspection/type.ts'
+import { MetricGroupTable } from '@/inspection/components/inspectionForm.tsx'
 
 export const AddParamModal = NiceModal.create(({ 
     checked_metrics, 

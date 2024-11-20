@@ -4,11 +4,13 @@ import {  model } from '@/model.ts'
 
 import { config } from '@/config/model.ts'
 
-import type { Metric, MetricParam, Plan, PlanDetail, PlanReport, PlanReportDetailMetric, PlanReportDetailNode } from './type.ts'
+import define_script from '@/inspection/scripts/index.dos'
 
-import define_script from './index.dos'
-import create_metrics_script from './init.dos'
-import { EmailConfigMessages } from './constants.ts'
+
+import create_metrics_script from '@/inspection/scripts/init.dos'
+import { EmailConfigMessages } from '@/inspection/constants.ts'
+
+import type { Metric, MetricParam, Plan, PlanDetail, PlanReport, PlanReportDetailMetric, PlanReportDetailNode } from './type.ts'
 
 class InspectionModel extends Model<InspectionModel> {
     

@@ -16,11 +16,11 @@ import { model } from '@/model.ts'
 
 import { safe_json_parse } from '@/dashboard/utils.ts'
 
-import type {  PlanReportDetailMetric } from './type.ts'
-import { inspection } from './model.ts'
-import { MetricGroups, ReportLables } from './constants.ts'
-import { LogModal } from './logModal.tsx'
-import { FailedStatus, SuccessStatus } from './inspectionListPage.tsx'
+import type {  PlanReportDetailMetric } from '@/inspection/type.ts'
+import { inspection } from '@/inspection/model.ts'
+import { MetricGroups, ReportLables } from '@/inspection/constants.ts'
+import { LogModal } from '@/inspection/modals/logModal'   
+import { FailedStatus, SuccessStatus } from '@/inspection/pages/inspectionListPage.tsx'
 
 const { Title } = Typography
 
@@ -205,8 +205,7 @@ export function ReportDetailPage () {
             )}
            
      
-            {grouped_report_items.map(({ groupName, items, abnormalCount, totalCount }) => {
-                return <div key={groupName}>
+            {grouped_report_items.map(({ groupName, items, abnormalCount, totalCount }) => <div key={groupName}>
                     <div className='group-header'>
                         <h2>{groupName}</h2>
                         <span className={`abnormal-count ${abnormalCount === 0 ? 'green' : 'red'}`}>
@@ -218,8 +217,7 @@ export function ReportDetailPage () {
                         onChange={set_active_key}
                         items={items}
                     />
-                    </div>
-                })}
+                    </div>)}
         </div>
         
         <Affix style={{ position: 'fixed', bottom: 50, right: 50 }}>

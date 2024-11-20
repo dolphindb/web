@@ -4,7 +4,7 @@ import { Editor } from '@monaco-editor/react'
 import { Modal } from 'antd'
 import useSWR from 'swr'
 
-import { inspection } from './model.ts'
+import { inspection } from '@/inspection/model.ts'
 
 interface LogModalProps {
     node?: string
