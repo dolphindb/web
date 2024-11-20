@@ -28,6 +28,7 @@ export function InspectionFormContent ({
     execute_node_names,
     inspection_form,
 }: InspectionFormContentProps) {
+    console.log('plan', plan)
     
     const { email_config } = inspection.use(['email_config'])
     return <Form
