@@ -55,7 +55,8 @@ import { Settings } from './settings/index.tsx'
 import { CreateGuide } from './guide/iot-guide/index.tsx'
 import { FinanceGuide } from './guide/finance-guide/index.tsx'
 import { DataCollection } from './data-collection/index.tsx'
-import { GitOauth } from './git-oauth/oauth.tsx'
+import { GitLabOauth } from './git-oauth/oauth-gitlab.tsx'
+import { GitHubOauth } from './git-oauth/oauth-github.tsx'
 
 
 
@@ -261,8 +262,12 @@ const router = createBrowserRouter([
         ]
     },
     {
-        path: 'oauth/',
-        element: <GitOauth/>
+        path: 'oauth-gitlab/',
+        element: <GitLabOauth/>
+    },
+    {
+        path: 'oauth-github/',
+        element: <GitHubOauth/>
     }
 ], 
     model.assets_root === '/' ? undefined : { basename: model.assets_root }
