@@ -1,7 +1,7 @@
 import { useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 
-import { gitProvider } from '@/shell/git/git-adapter.ts'
+import { git_provider } from '@/shell/git/git-adapter.ts'
 
 export function GitOauth () {
     
@@ -11,7 +11,7 @@ export function GitOauth () {
         const searchParams = new URLSearchParams(window.location.search)
         const code = searchParams.get('code')
         localStorage.setItem('git-access-code', code)
-        gitProvider.get_access_token(code).then(token => {
+        git_provider.get_access_token(code).then(token => {
             localStorage.setItem('git-access-token', token)
             navigate('/')
         })
