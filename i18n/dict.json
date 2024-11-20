@@ -2223,7 +2223,7 @@
         "en": "Latest Error Timestamp"
     },
     "失败消息总数": {
-        "en": "Number of Failed Messages"
+        "en": "Failed Message Count"
     },
     "最近错误消息 ID": {
         "en": "Latest Error Message ID"
@@ -2268,7 +2268,7 @@
         "en": "Stream Table"
     },
     "取消订阅": {
-        "en": "Unsubscribe"
+        "en": "unsubscribe"
     },
     "引擎": {
         "en": "Engines"
@@ -2280,7 +2280,7 @@
         "en": "Shared Stream Tables"
     },
     "最近处理消息 ID": {
-        "en": "Recently processed message ID"
+        "en": "Last Message ID"
     },
     "条": {
         "en": "record"
@@ -2490,7 +2490,7 @@
         "en": "View user permissions"
     },
     "确认{{action}}选中的 ": {
-        "en": "Confirm {{action}} Selected "
+        "en": "Are you sure to {{action}} the selected "
     },
     " 个{{item}}吗?": {
         "en": " {{item}} ?"
@@ -5425,6 +5425,9 @@
     },
     "别名必须以组名 {{group_name}} 开头": {
         "en": "The alias must start with the group name {{group_name}}."
+    },
+    "流数据表_computing": {
+        "en": "Stream Tables"
     },
     "自动化巡检": {
         "en": "Inspection"
