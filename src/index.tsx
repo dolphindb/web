@@ -195,7 +195,6 @@ const router = createBrowserRouter([
                 path: 'test/',
                 element: <Test />
             },
-            // src/index.tsx 中的路由配置
             {
                 path: 'inspection/*',
                 element: <Inspection />,
