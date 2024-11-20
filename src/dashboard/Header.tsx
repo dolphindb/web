@@ -29,12 +29,11 @@ import { clear_data_sources, export_data_sources } from './DataSource/date-sourc
 import { VariableConfig } from './Variable/VariableConfig.js'
 import { export_variables } from './Variable/variable.js'
 
-import { check_name } from './utils.ts'
+import { check_name, get_shared_dashboards } from './utils.ts'
 import { Import } from './Import/Import.js'
 import { Share } from './Share/Share.js'
 import { DashboardMode } from './type.js'
 import { SaveConfirmModal } from './components/SaveComfirmModal.js'
-import { DASHBOARD_SHARED_SEARCH_KEY } from './constant.ts'
 
 
 export function get_widget_config (widget: Widget) {
@@ -196,16 +195,15 @@ export function Header () {
     /** 获取被分享的与有权限的 dashboards */
     const { data: dashboards, isLoading } = useSWR<DashBoardConfig[]>(
         ['get_all_view_dashboards', configs],
-        async () => {
-            const shared_dashboard_ids = new URL(window.location.href).searchParams.getAll(DASHBOARD_SHARED_SEARCH_KEY)
-            const dashboard_shared_list = await Promise.all(shared_dashboard_ids.map(async id => {
+        async () => {            
+            const shared_list = await Promise.all(get_shared_dashboards().map(async id => {
                 try {
                     return await dashboard.get_dashboard_config(Number(id))
                 } catch (e) {
                     return undefined
                 }
             }))
-            return uniqBy([...dashboard_shared_list.filter(Boolean), ...configs], 'id')
+            return uniqBy([...shared_list.filter(Boolean), ...configs], 'id')
         }
     )
     

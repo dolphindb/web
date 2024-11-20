@@ -16,6 +16,7 @@ import { type AxisConfig, type IChartConfig, type ISeriesConfig } from './type.j
 import { subscribe_data_source, type DataSource, get_data_source } from './DataSource/date-source.js'
 import { AxisType, ILineType, MarkPresetType, ThresholdShowType, ThresholdType } from './ChartFormFields/type.js'
 import { find_variable_by_name, get_variable_copy_infos, get_variable_value, paste_variables, subscribe_variable } from './Variable/variable.js'
+import { DASHBOARD_SHARED_SEARCH_KEY } from './constant.js'
 
 
 export function format_time (time: string, format: string) {
@@ -691,4 +692,9 @@ export function get_chart_data_type (chart_type: WidgetChartType) {
         default: 
             return DdbForm.table
     }
+}
+
+
+export function get_shared_dashboards () {
+    return new URLSearchParams(location.search).get(DASHBOARD_SHARED_SEARCH_KEY)?.split(',') ?? [ ]
 }

@@ -8,7 +8,7 @@ import { t } from '@i18n/index.js'
 
 import { model } from '@/model.js'
 
-import { paste_widget } from './utils.ts'
+import { get_shared_dashboards, paste_widget } from './utils.ts'
 
 import { Sider } from './Sider.tsx'
 import { GraphItem } from './GraphItem/GraphItem.tsx'
@@ -74,24 +74,18 @@ function DashboardInstance ({ id }: { id: string }) {
                     await dashboard.render_with_config(config)
                 } catch (error) {
                     model.message.error(t('dashboard 不存在'))
-                    const shared_dashboard_ids = new URLSearchParams(location.search).getAll(DASHBOARD_SHARED_SEARCH_KEY) ?? [ ]
-                    
+                    const shared_ids = get_shared_dashboards()
                     // 如果是分享的 dashboard 被删除, 切到下一个分享的 dashboard, 修改 search
-                    if (shared_dashboard_ids.includes(id) && shared_dashboard_ids.length > 1) {
-                        const searchParams = new URLSearchParams(location.search)
-                        searchParams.delete(DASHBOARD_SHARED_SEARCH_KEY)
-                        shared_dashboard_ids.forEach(shared_id => { 
-                            if (shared_id !== id)
-                                searchParams.append(DASHBOARD_SHARED_SEARCH_KEY, shared_id) 
-                        })
+                    if (shared_ids.includes(id) && shared_ids.length > 1) 
                         // 0.5s 后跳转，让用户看到报错
                         setTimeout(() => {
-                            model.navigate({
-                                pathname: ( model.test ? '/web/dashboard/' : '/dashboard/') +  `${shared_dashboard_ids[1]}/`,
-                                search: searchParams.toString()
+                            model.goto( model.assets_root + 'dashboard/' +  `${shared_ids[1]}/`, {
+                                queries: {
+                                    [DASHBOARD_SHARED_SEARCH_KEY]: shared_ids.filter(item => item !== id).join(',')
+                                }
                             })
                         }, 500)
-                    }
+                    
                     
                     dashboard.return_to_overview()
                 }    

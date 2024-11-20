@@ -27,21 +27,18 @@ export function Share ({ dashboard_ids, trigger_type }: IProps) {
         
         let url = new URL(window.location.href) 
         url.searchParams.set('preview', '1')
+        url.searchParams.set(DASHBOARD_SHARED_SEARCH_KEY, dashboard_ids.join(','))
         
-        dashboard_ids.forEach(id => { url.searchParams.append(DASHBOARD_SHARED_SEARCH_KEY, String(id)) })
-        const pathname = model.test ? '/web/dashboard/' : '/dashboard/'
-        url.pathname = pathname + dashboard_ids[0] + '/'
-        const text = url.href
-        
+        url.pathname = model.assets_root + `dashboard/${dashboard_ids[0]}/`
         
         try {
-            copy(text)
+            copy(url.href)
             api.success({
                 message: t('以下内容已复制到剪切板'),
                 style: {
                     width: 1100
                 },
-                description: text,
+                description: url.href,
                 placement: 'top',
             })
          } catch (e) {
