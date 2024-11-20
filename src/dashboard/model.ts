@@ -21,6 +21,7 @@ import type { FormatErrorOptions } from '../components/GlobalErrorBoundary.js'
 import { type DataSource, type ExportDataSource, import_data_sources, unsubscribe_data_source, type DataType, clear_data_sources } from './DataSource/date-source.js'
 import { type IEditorConfig, type IChartConfig, type ITableConfig, type ITextConfig, type IGaugeConfig, type IHeatMapChartConfig, type IOrderBookConfig } from './type.js'
 import { type Variable, import_variables, type ExportVariable } from './Variable/variable.js'
+import { DASHBOARD_SHARED_SEARCH_KEY } from './constant.ts'
 
 
 /** 0 表示隐藏dashboard（未查询到结果、 server 版本为 v1 或 language 非中文），1 表示没有初始化，2 表示已经初始化，3 表示为控制节点 */
@@ -413,8 +414,7 @@ export class DashBoardModel extends Model<DashBoardModel> {
     
     /** 从服务器获取 dashboard 配置 */
     async get_dashboard_configs () {
-        const data = (await model.ddb.call<DdbVoid>('dashboard_get_config_list', [ ])).to_rows()
-        
+        const { data = [ ] } = await model.ddb.invoke('dashboard_get_config_list')
         const configs = data.map(cfg => {
             // 有些只需要 parse 一次，有些需要 parse 两次
             let data = typeof cfg.data === 'string' ?  JSON.parse(cfg.data) : new TextDecoder().decode(cfg.data)
@@ -463,7 +463,7 @@ export class DashBoardModel extends Model<DashBoardModel> {
         
         dashboard.set({ config: null, save_confirm: false })
         
-        model.goto('/dashboard/', { queries: { preview: null } })
+        model.goto('/dashboard/', { queries: { preview: null, [DASHBOARD_SHARED_SEARCH_KEY]: null  } })
         
         model.set({ sider: true, header: true })
     }

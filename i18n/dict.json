@@ -5426,6 +5426,9 @@
     "别名必须以组名 {{group_name}} 开头": {
         "en": "The alias must start with the group name {{group_name}}."
     },
+    "分享人：": {
+        "en": "Shared by: "
+    },
     "流数据表_computing": {
         "en": "Stream Tables"
     },
