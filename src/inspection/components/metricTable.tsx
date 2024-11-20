@@ -1,7 +1,7 @@
 import { t } from '@i18n/index.ts'
 import { Button, Table, Tooltip } from 'antd'
 
-import { useState, useEffect } from 'react'
+import { useState, useEffect, useMemo } from 'react'
 
 
 import NiceModal from '@ebay/nice-modal-react'
@@ -27,7 +27,24 @@ export function MetricGroupTable ({
     close = () => { },
     renderFooter
 }: MetricGroupTableProps) {    
-    const footer = editing ? (
+   
+    // 根据 group 对指标进行分组，同时用来管理选中状态
+    const [grouped_metrics, set_grouped_metrics] = useState(update_checked_metrics())
+    
+    function update_checked_metrics () {
+        const groups = new Map<number, MetricsWithStatus[]>()
+        checked_metrics.forEach(metric => {
+            if (editing || metric.checked) {
+                const group = metric.group 
+                if (!groups.has(group))
+                    groups.set(group, [ ])
+                groups.get(group).push(metric)
+            }
+        })
+        return groups
+    }
+    
+    const footer = useMemo(() => editing && renderFooter ? renderFooter(
         <div className='modal-footer'>
             <Button htmlType='button' onClick={close}>
                 {t('取消')}
@@ -41,24 +58,8 @@ export function MetricGroupTable ({
                 close()
             }}>{t('保存')}</Button>
         </div>
-    ) : null
+    ) : null, [editing, grouped_metrics])
     
-    // 根据 group 对指标进行分组，同时用来管理选中状态
-    const [grouped_metrics, set_grouped_metrics] = useState(update_checked_metrics())
-    
-    function update_checked_metrics () {
-        const groups = new Map<number, MetricsWithStatus[]>()
-        checked_metrics.forEach(metric => {
-            // 非 editing 模式下只展示 cheked 的指标
-            if (editing || metric.checked) {
-                const group = metric.group // 假设每个指标都有 group 属性
-                if (!groups.has(group))
-                    groups.set(group, [ ])
-                groups.get(group).push(metric)
-            }
-        })
-        return groups
-    }
     
     useEffect(() => {
         set_grouped_metrics(update_checked_metrics())
@@ -143,6 +144,6 @@ export function MetricGroupTable ({
                 }]}
                 pagination={false}
         />
-        {editing && renderFooter ? renderFooter(footer) : footer}
+        {footer}
         </div>
 }
