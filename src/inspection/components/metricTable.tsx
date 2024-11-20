@@ -1,7 +1,7 @@
 import { t } from '@i18n/index.ts'
 import { Button, Table, Tooltip } from 'antd'
 
-import { useState, useEffect, useMemo } from 'react'
+import { useState, useEffect } from 'react'
 
 
 import NiceModal from '@ebay/nice-modal-react'
@@ -12,23 +12,22 @@ import type { MetricsWithStatus } from '@/inspection/type.ts'
 import { EditParamModal } from '@/inspection/modals/editParamModal.tsx'
 import { AddParamsModal } from '@/inspection/modals/addParamsModal.tsx'
 
-interface MetricGroupTableProps {
+interface MetricTableProps {
     checked_metrics: Map<string, MetricsWithStatus>
     set_checked_metrics: (metrics: Map<string, MetricsWithStatus>) => void
     editing?: boolean
     close?: () => void
-    renderFooter?: (footer: React.ReactNode) => React.ReactNode
+    setFooter?: (footer: React.ReactNode) => void
 }
 
-export function MetricGroupTable ({ 
+export function MetricTable ({ 
     checked_metrics,
     set_checked_metrics,
     editing = false,
     close = () => { },
-    renderFooter
-}: MetricGroupTableProps) {    
+    setFooter: renderFooter
+}: MetricTableProps) {    
    
-    // 根据 group 对指标进行分组，同时用来管理选中状态
     const [grouped_metrics, set_grouped_metrics] = useState(update_checked_metrics())
     
     function update_checked_metrics () {
@@ -44,22 +43,24 @@ export function MetricGroupTable ({
         return groups
     }
     
-    const footer = useMemo(() => editing && renderFooter ? renderFooter(
-        <div className='modal-footer'>
-            <Button htmlType='button' onClick={close}>
-                {t('取消')}
-            </Button>
-            <Button type='primary' onClick={() => {
-                let new_checked_metrics = new Map(checked_metrics)
-                Array.from(grouped_metrics.values()).flat().forEach(metric => {
-                    new_checked_metrics.set(metric.name, metric)
-                })
-                set_checked_metrics(new_checked_metrics)
-                close()
-            }}>{t('保存')}</Button>
-        </div>
-    ) : null, [editing, grouped_metrics])
-    
+    useEffect(() => {
+        if (editing && renderFooter)
+            renderFooter(
+                <div className='modal-footer'>
+                    <Button htmlType='button' onClick={close}>
+                        {t('取消')}
+                    </Button>
+                    <Button type='primary' onClick={() => {
+                        let new_checked_metrics = new Map(checked_metrics)
+                        Array.from(grouped_metrics.values()).flat().forEach(metric => {
+                            new_checked_metrics.set(metric.name, metric)
+                        })
+                        set_checked_metrics(new_checked_metrics)
+                        close()
+                        }}>{t('保存')}</Button>
+                </div>  
+            )
+    }, [editing, grouped_metrics])
     
     useEffect(() => {
         set_grouped_metrics(update_checked_metrics())
@@ -143,7 +144,6 @@ export function MetricGroupTable ({
                     render: (group: number) => MetricGroups[group]
                 }]}
                 pagination={false}
-        />
-        {footer}
+            />
         </div>
 }

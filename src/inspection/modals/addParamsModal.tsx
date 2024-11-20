@@ -6,7 +6,7 @@ import { useState } from 'react'
 
 
 import type { MetricsWithStatus } from '@/inspection/type.ts'
-import { MetricGroupTable } from '@/inspection/components/metricTable.tsx'
+import { MetricTable } from '@/inspection/components/metricTable.tsx'
 
 interface AddParamsModalProps {
     checked_metrics: Map<string, MetricsWithStatus>
@@ -30,16 +30,12 @@ export const AddParamsModal = NiceModal.create(({
         title={t('添加指标')}
         footer={footer}
     >
-      <MetricGroupTable 
+      <MetricTable 
         checked_metrics={checked_metrics} 
         set_checked_metrics={set_checked_metrics} 
         editing 
         close={modal.hide}
-        renderFooter={footerNode => {
-            // 使用 setTimeout 来避免在渲染周期中更新状态陷入死循环
-            setTimeout(() => { setFooter(footerNode) }, 0)
-            return null
-        }}/>
+        setFooter={setFooter}/>
     </Modal>
 })
  

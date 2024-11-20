@@ -9,7 +9,7 @@ import { InspectionFrequencyOptions, WeekDays } from '@/inspection/constants.ts'
 import type { MetricsWithStatus, Plan } from '@/inspection/type.ts'
 import { parse_minute } from '@/inspection/utils.ts'
 
-import { MetricGroupTable } from '@/inspection/components/metricTable.tsx'
+import { MetricTable } from '@/inspection/components/metricTable.tsx'
 
 interface InspectionFormContentProps {
     plan?: Plan
@@ -189,7 +189,7 @@ export function InspectionFormContent ({
             </Form.Item>
             
             <div className='metric-table'>
-                <MetricGroupTable
+                <MetricTable
                     checked_metrics={metrics_with_nodes} 
                     set_checked_metrics={set_checked_metrics}
                 />
