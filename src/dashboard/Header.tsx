@@ -5,7 +5,7 @@ import { Button, Input, Modal, Popconfirm, Select, Tag, Tooltip, Segmented, Swit
 import { CopyOutlined, DeleteOutlined, EditOutlined, EyeOutlined, FileAddOutlined, HomeOutlined, SaveOutlined, UploadOutlined } from '@ant-design/icons'
 
 import { use_modal } from 'react-object-model/hooks.js'
-import { genid } from 'xshell/utils.browser.js'
+import { genid, unique } from 'xshell/utils.browser.js'
 
 import cn from 'classnames'
 
@@ -203,7 +203,8 @@ export function Header () {
                     return undefined
                 }
             }))
-            return uniqBy([...shared_list.filter(Boolean), ...configs], 'id')
+            
+            return unique([...shared_list.filter(Boolean), ...configs], 'id')
         }
     )
     
@@ -247,17 +248,16 @@ export function Header () {
             value={config?.id}
             variant='borderless'
             loading={isLoading}
-            options={dashboards?.map(({ id, name, permission, owner }) => {
-                const is_shared = permission !== DashboardPermission.own
-                return {
+            options={dashboards?.map(({ id, name, permission, owner }) => 
+                ({
                     key: id,
                     value: id,
                     label: <div className='dashboard-options-label'>
                         <span title={name} className={cn({ 'dashboard-options-label-name': permission })}>{name}</span>
-                        { is_shared && <Tag color='gold' className='share-tag'>{t('分享人：')}{owner}</Tag>}
+                        { permission !== DashboardPermission.own && <Tag color='gold' className='share-tag'>{t('分享人：')}{owner}</Tag>}
                     </div>
-                }
-            })}
+                })
+            )}
         />
         
         

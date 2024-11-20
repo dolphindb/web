@@ -50,12 +50,12 @@ export function HeatMap (props: IProps) {
             }
                 
         
-        const y_data = row_labels.map(label => format_time(label, config?.yAxis[0]?.time_format))
+        const y_data = row_labels.map(label => format_time(label, config.yAxis[0]?.time_format))
         const x_data = col_labels.map(label => format_time(label, config.xAxis.time_format))
         
         const min_data = min(flatten_data) ?? 0
         const max_data = max(flatten_data) ?? 10
-            
+        
         return {
             grid: {
                 bottom: 60,
