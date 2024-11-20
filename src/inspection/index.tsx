@@ -6,10 +6,11 @@ import { ReportDetailPage } from '@/inspection/pages/ReportDetailPage.tsx'
 import { EditInspectionPage } from '@/inspection/pages/EditInspectionPage.tsx'
 import { AddInspectionPage } from '@/inspection/pages/AddInspectionPage.tsx'
 import { InspectionListPage } from '@/inspection/pages/InspectionListPage.tsx'
-import { wrapWithGuard } from '@/inspection/components/InspectionGuard.tsx'
+import { InspectionGuard } from '@/inspection/components/InspectionGuard.tsx'
 
-export const Inspection = () => {    
-    const routes = useRoutes([
+
+export function Inspection () {
+    return <InspectionGuard>{useRoutes([
         {
             index: true,
             element: <InspectionListPage />
@@ -26,7 +27,5 @@ export const Inspection = () => {
             path: 'plan/new',
             element: <AddInspectionPage />
         }
-    ])
-    
-    return wrapWithGuard(routes)
+    ])}</InspectionGuard>
 }
