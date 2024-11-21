@@ -1031,22 +1031,17 @@ def cancelRunningPlan(reportId) {
     info = info[0]
     rpc(info.enabledNode, cancelJob, reportId)
 
-    // 等 reports 表更新记录完成再删除，避免分区冲突
+    lastErr = NULL
     cnt = 0
     do {
-        reports = getReports(reportId=reportId)[0]
-        if (reports.size() > 0) {
-            report = reports[0]
-            if (!isNull(report.endTime)) {
-                break
-            }
+        try {
+            return deleteReports(reportId)
+        } catch(err) {
+            lastErr = err 
         }
         sleep(1000)
         cnt += 1
-        if (cnt > 30) {
-            throw "cancel running plan failed after trying 30 times"
-        }
     } while(cnt <= 30)
-
-    deleteReports(reportId)
+    
+    throw "delete report failed after trying 30 times, report id: " + reportId + ", last error: " + string(iif(lastErr.form()==0, lastErr, lastErr.last()))
 }
