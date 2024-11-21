@@ -3,8 +3,6 @@ import { Button, Popconfirm, Spin, Result, Divider } from 'antd'
 
 import useSWR from 'swr'
 
-import { isNull } from 'lodash'
-
 import type { ReactNode } from 'react'
 
 import { model, NodeType } from '@/model.ts'
@@ -82,7 +80,7 @@ export function InspectionGuard ({ children }: { children: React.ReactNode }) {
         </div>
     
     // table_created 未 null 代表未从 server 获取到 table_created 状态
-    if (isNull(table_created) || !inited || !defined) 
+    if (table_created === null || !inited || !defined) 
         return <div className='spin-container'>
             <Spin size='large' delay={300}/>
         </div>

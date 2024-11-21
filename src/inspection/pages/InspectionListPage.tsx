@@ -10,8 +10,6 @@ import useSWR from 'swr'
 
 import type { Dayjs } from 'dayjs'
 
-import { isNull } from 'lodash'
-
 import { model } from '@/model.ts'
 
 import { EmailConfigModal } from '@/inspection/modals/EmailConfigModal.tsx'
@@ -184,7 +182,7 @@ function ReportListTable  ({
                 },
               ],
             sorter: true,
-            render: ( success: boolean | null, record) => isNull(success) ? <span className='yellow'>{t('执行中')}</span> : success ? 
+            render: ( success: boolean | null, record) => success === null ? <span className='yellow'>{t('执行中')}</span> : success ? 
                 <span className='green'>{t('{{success}}/{{total}} 正常', { success: record.totalNum, total: record.totalNum })}</span> : 
                 <span className='red'>{t('{{failedNum}}/{{total}} 异常', { failedNum: record.failedNum, total: record.totalNum })}</span>
         },
@@ -193,7 +191,7 @@ function ReportListTable  ({
             dataIndex: 'action',
             key: 'action',
             render: (_, record) => <>
-                    {isNull(record.success) && 
+                    {record.success === null && 
                         <Button
                             type='link'
                             danger
@@ -209,7 +207,7 @@ function ReportListTable  ({
             
                     <Button
                         type='link'
-                        disabled={isNull(record.success)}
+                        disabled={record.success === null}
                         onClick={() => { model.goto(`/inspection/report/${record.id}`) }}
                     >
                         {t('查看详细报告')}
@@ -233,7 +231,7 @@ function ReportListTable  ({
                         }} >
                         <Button
                             type='link'
-                            disabled={isNull(record.success)}
+                            disabled={record.success === null}
                             danger
                         >
                         {t('删除')}
