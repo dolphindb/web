@@ -360,6 +360,7 @@ def runMetric(name, script, mutable params) {
 }
 
 def runPlanInner(planId, reportId) {
+    // 执行该方法前，必须先在 reports 表写一条包含 reportId 的记录
     cnt = 0
     do {
         reportInfo = select * from loadTable("dfs://autoInspection", "reports") where id == reportId
@@ -374,10 +375,10 @@ def runPlanInner(planId, reportId) {
     update loadTable("dfs://autoInspection", "reports") set startTime = now() where id == reportId
     print("start to run plan: " + string(planId))
     writeLog("autoInspection: start to run plan: " + string(planId))
+    ts = reportId.split("_").last()
     planId_ = planId
     planDetails = select a.metricName as metricName, a.nodes as nodes, a.params as params, b.script as script, b.version as metricVersion from loadTable("dfs://autoInspection", "planDetails") a left join loadTable("dfs://autoInspection", "metrics") b on a.metricName == b.name where a.planId == planId_
 
-    ret = select * from loadTable("dfs://autoInspection", "reportDetails") limit 0
     defaultParams = generateDefaultMetricParams(planId)
     params = defaultParams
     for (item in planDetails) {
@@ -400,9 +401,9 @@ def runPlanInner(planId, reportId) {
 
         jobIds = []$STRING
         for (node in nodes) {
-            name_ = strReplace(name, "::", "_")
-            jobId_ = "runMetric_" + planId + "_" + name_
-            jobId = rpc(node, submitJob, jobId_, node, runMetric{name, script, usedParams})
+            name_ = strReplace(name, "::", "") // 例如指标名 checkConfigs::commonDolphinDBConfig 特殊处理
+            jobId_ = "runMetric_" + name_ + "_" + version + "_" + ts
+            jobId = rpc(node, submitJob, jobId_, reportId, runMetric{name, script, usedParams})
             jobIds.append!(jobId)
         }
         print("job ids: ", jobIds)
@@ -418,22 +419,33 @@ def runPlanInner(planId, reportId) {
                         params[key] = usedParams_[key]
                     }
                 }
-                res = rpc(node, getJobStatusEx, jobId)
-                insert into ret values ("", planId, name, version, usedParamsJson, node, jobId, res["startTime"].first(), res["endTime"].first(), success, detail, extraDetail, suggestion) // reportId 要在返回后 update
             } catch(err) {
                 success = false
                 detail = string(iif(err.form()==0, err, err.last()))
                 extraDetail = string(NULL)
                 suggestion = string(NULL)
-                res = rpc(node, getJobStatusEx, jobId)
                 print("run metric failed! Node: " + node + ", job id: " + jobId + ", error: " + detail)
-                insert into ret values ("", planId, name, version, usedParamsJson, node, jobId, res["startTime"].first(), res["endTime"].first(), success, detail, extraDetail, suggestion) // reportId 要在返回后 update
             }
+            res = rpc(node, getJobStatusEx, jobId)
+            reportDetail = table(
+                reportId as reportId,
+                planId as planId,
+                name as metricName,
+                version as metricVersion,
+                usedParamsJson as metricParams,
+                node as node,
+                jobId as jobId,
+                res["startTime"].first() as startTime,
+                res["endTime"].first() as endTime,
+                success as success,
+                detail as detail,
+                extraDetail as extraDetail,
+                suggestion as suggestion
+            )
+            loadTable("dfs://autoInspection", "reportDetails").append!(reportDetail)
         }
 
     }
-
-    return ret
 }
 
 def generateEmail(reportInfo) {
@@ -540,7 +552,9 @@ def runPlan(planId, blocking=false) {
     print("start to submit plan, planId: " + string(planId) + ", enabledNode: " + enabledNode)
     writeLog("autoInspection: start to submit plan, planId: " + string(planId) + ", enabledNode: " + enabledNode)
     onComplete = def(jobId, jobDesc, success, result) {
-        planId_ = result["planId"].first()
+        jobId_ = jobId
+        result_ = select * from loadTable("dfs://autoInspection", "reportDetails") where reportId == jobId_
+        planId_ = result_["planId"].first()
         writeLog("autoInspection: onComplete callback, plan id: " + planId_ + ", report id: " + jobId + ", start to update report")
         try {
             cnt = 0
@@ -557,14 +571,12 @@ def runPlan(planId, blocking=false) {
             reportJobInfo = getJobStatusEx(jobId)
             startTime_ = reportJobInfo[0]["startTime"]
             endTime_ = reportJobInfo[0]["endTime"]
+            totalNum_ = size(exec distinct(metricName) from result_)
+            failedNum_ = select count(*) from result_ where success == false group by metricName
+            failedNum_ = failedNum_.size()
+            success_ = false
             if (success == true) {
-                jobId_ = jobId
-                update result set reportId = jobId_
-                loadTable("dfs://autoInspection", "reportDetails").append!(result)
-                success_ = all(result["success"])
-                totalNum_ = exec count(distinct(metricName)) from result
-                failedNum_ = select count(*) from result where success == false group by metricName
-                failedNum_ = failedNum_.size()
+                success_ = all(result_["success"])
                 update loadTable("dfs://autoInspection", "reports") set endTime = endTime_, success = success_, totalNum = totalNum_, failedNum = failedNum_ where planId == planId_ and id == jobId
                 writeLog("autoInspection: run plan successfully, plan id: " + planId_ + ", report id: " + jobId)
 
@@ -578,7 +590,7 @@ def runPlan(planId, blocking=false) {
                     submitJob("sendReportEmail", planId_, sendReportEmail, planInfo, reportInfo, alertConfig)
                 }
             } else {
-                update loadTable("dfs://autoInspection", "reports") set endTime = endTime_, success = false where id = jobId
+                update loadTable("dfs://autoInspection", "reports") set endTime = endTime_, success = success_, totalNum = totalNum_, failedNum = failedNum_ where planId == planId_ and id == jobId
                 writeLog("autoInspection: run plan failed, plan id: " + planId_ + ", report id: " + jobId + ", err msg: " + string(result).last())
                 throw result
             }
@@ -953,6 +965,7 @@ def getReports(planId=NULL, reportId=NULL, startTime=NULL, endTime=NULL, success
 def deleteReports(id) {
     id_ = iif(id.form()==0, [id], id)
     delete from loadTable("dfs://autoInspection", "reports") where id in id_
+    delete from loadTable("dfs://autoInspection", "reportDetails") where reportId in id_
 }
 
 def getReportDetailsOfMetrics(reportId=NULL, language="cn") {
@@ -1008,4 +1021,32 @@ def getMetrics(name=NULL, language="cn") {
 
     return res
 }
-go
+
+def cancelRunningPlan(reportId) {
+    info = select * from loadTable("dfs://autoInspection", "reports") where id == reportId
+    if (info.size() == 0) {
+        throw "report id: " + reportId + " not found"
+    }
+
+    info = info[0]
+    rpc(info.enabledNode, cancelJob, reportId)
+
+    // 等 reports 表更新记录完成再删除，避免分区冲突
+    cnt = 0
+    do {
+        reports = getReports(reportId=reportId)[0]
+        if (reports.size() > 0) {
+            report = reports[0]
+            if (!isNull(report.endTime)) {
+                break
+            }
+        }
+        sleep(1000)
+        cnt += 1
+        if (cnt > 30) {
+            throw "cancel running plan failed after trying 30 times"
+        }
+    } while(cnt <= 30)
+
+    deleteReports(reportId)
+}
