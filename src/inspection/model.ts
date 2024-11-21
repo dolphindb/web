@@ -79,6 +79,10 @@ class InspectionModel extends Model<InspectionModel> {
         return (await model.ddb.invoke('getPlans', [planId]))[0].data[0]
     }
     
+    async cancel_running_plan (reportId: string) {
+        await model.ddb.invoke('cancelRunningPlan', [reportId])
+    }
+    
     async delete_plans (ids: string[]) {
         await model.ddb.invoke('deletePlan', [ ids ])
     }

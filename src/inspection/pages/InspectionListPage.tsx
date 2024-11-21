@@ -193,6 +193,20 @@ function ReportListTable  ({
             dataIndex: 'action',
             key: 'action',
             render: (_, record) => <>
+                    {isNull(record.success) && 
+                        <Button
+                            type='link'
+                            danger
+                            onClick={async () => {
+                                await inspection.cancel_running_plan(record.id)
+                                model.message.success(t('取消执行成功'))
+                                mutate_reports()
+                            }}
+                        >
+                            {t('取消执行')}
+                        </Button>
+                    }
+            
                     <Button
                         type='link'
                         disabled={isNull(record.success)}
