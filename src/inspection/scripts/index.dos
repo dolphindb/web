@@ -250,7 +250,8 @@ def updateMetric(name_, displayName_, group_, desc_, nodes, script_, params_, la
         update pt set language = language_ where name == name_
     }
     update pt set version = version + 1 where name == name_
-    update pt set updateTime = now() where name == name_
+    ts = now()
+    update pt set updateTime = ts where name == name_
 }
 
 def generateDefaultMetricParams(planId) {
@@ -372,7 +373,8 @@ def runPlanInner(planId, reportId) {
             }
         }
     } while (reportInfo.size() == 0)
-    update loadTable("dfs://autoInspection", "reports") set startTime = now() where id == reportId
+    ts = now()
+    update loadTable("dfs://autoInspection", "reports") set startTime = ts where id == reportId
     print("start to run plan: " + string(planId))
     writeLog("autoInspection: start to run plan: " + string(planId))
     ts = reportId.split("_").last()
@@ -596,7 +598,8 @@ def runPlan(planId, blocking=false) {
             }
         } catch(err) {
             writeLog("autoInspection: run plan failed, plan id: " + planId_ + ", report id: " + jobId + ", err msg: " + string(err).last())
-            update loadTable("dfs://autoInspection", "reports") set endTime = now(), success = false where planId == planId_ and id == jobId
+            ts = now()
+            update loadTable("dfs://autoInspection", "reports") set endTime = ts, success = false where planId == planId_ and id == jobId
             throw err
         }
     }
