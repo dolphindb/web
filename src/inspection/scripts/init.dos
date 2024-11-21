@@ -1281,7 +1281,7 @@ def checkSites(parsedConfigs) {
                 } 
                 cnt = exec count(*) from readConfigs::getClusterNodes(parsedConfigs) where host == host_ and port == port_ and nodeAlias == nodeAlias_
                 if (cnt == 0) {
-                    throw “代理节点 " + nodeAlias + " 的 sites 中指定的" + host_ + ":" + port_ + ":" + nodeAlias_ + " 在 cluster.nodes 中不存在”
+                    throw "代理节点 " + nodeAlias + " 的 sites 中指定的" + host_ + ":" + port_ + ":" + nodeAlias_ + " 在 cluster.nodes 中不存在"
                 }
             }
 
@@ -1546,12 +1546,14 @@ def coredump(params) {
         dir = readLine(f)
         f.close()
     } else {
+        rm(tmpFilename)
         return (false, "不支持自动检测的 core_pattern: " + line, "请参考《节点宕机》教程配置 coredump。")
     }
     
     info = select * from files(dir) where isDir == false and lastModified >= startTime and lastModified <= endTime
     
     if (info.size() == 0) {
+        rm(tmpFilename)
         return (true, NULL, NULL)
     }
     
@@ -1659,6 +1661,7 @@ def commonSystemConfig(params) {
     }
     
     if (!("WARNING" in params["logLevel"])) {
+        rm(tmpFilename)
         if (ret.size() > 0) {
             return (false, ret, NULL)
         } else {
