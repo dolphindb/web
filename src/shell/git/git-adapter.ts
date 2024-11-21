@@ -17,7 +17,7 @@ interface IFile {
     mode: string
     name: string
     path: string
-    type: 'tree' | 'blob' // Add "blob" to handle files as well
+    type: 'tree' | 'blob' | 'file' // Add "blob" to handle files as well
     sha?: string          // Optional SHA for the content
     size?: number         // Optional size for files (type: "blob")
     url?: string          // Optional URL to access the content
@@ -46,7 +46,7 @@ interface IGitAdapter {
     get_projects(): Promise<IProject[]>
     get_project(id: string): Promise<IProject>
     get_access_token(code: string, client_id: string, redirect_uri?: string, secret?: string): Promise<string>
-    commit_file(repo: string, file_path: string, message: string, branch: string, content: string): Promise<boolean>
+    commit_file(repo: string, file_path: string, message: string, branch: string, content: string, sha?: string): Promise<boolean>
 }
 
 export class GitLabAdapter implements IGitAdapter {
@@ -145,7 +145,7 @@ export class GitLabAdapter implements IGitAdapter {
     
     async get_file_by_path (repo: string, file_path: string, ref = 'main'): Promise<IFileData> {
         const file_path_encoded = encodeURIComponent(file_path)
-        const resp = await fetch(`${this.root_url}${this.api_root}/projects/${repo}/repository/files/${file_path_encoded}?ref=${ref}`, this.get_fetch_options())
+        const resp = await fetch(`${this.root_url}${this.api_root}/projects/${encodeURIComponent(repo)}/repository/files/${file_path_encoded}?ref=${ref}`, this.get_fetch_options())
         if (!resp.ok)
             throw new Error(t('获取文件失败，请检查权限'))
         const result = await resp.json()
@@ -154,7 +154,7 @@ export class GitLabAdapter implements IGitAdapter {
     }
     
     async commit_file (repo: string, file_path: string, message: string, content: string, branch = 'main'): Promise<boolean> {
-        const resp = await fetch(`${this.root_url}${this.api_root}/projects/${repo}/repository/files/${encodeURIComponent(file_path)}?branch=${branch}`
+        const resp = await fetch(`${this.root_url}${this.api_root}/projects/${encodeURIComponent(repo)}/repository/files/${encodeURIComponent(file_path)}?branch=${branch}`
             , this.get_fetch_options('PUT', JSON.stringify({ branch, message, content, commit_message: message })))
         return resp.ok
     }
@@ -201,7 +201,7 @@ export class GitHubAdapter implements IGitAdapter {
     
     
     get_auth_header (): string {
-        return `token ${localStorage.getItem('github-access-token')}`
+        return `token ${localStorage.getItem('git-access-token')}`
     }
     
     
@@ -223,11 +223,11 @@ export class GitHubAdapter implements IGitAdapter {
         const result = await resp.json()
         if (isArray(result))
             return result.map((repo: any) => ({
-                id: repo.id.toString(),
+                id: String(repo.id),
                 name: repo.name,
                 path: repo.full_name,
                 description: repo.description,
-                last_activity_at: repo.last_activity_at,
+                last_activity_at: repo.updated_at,
                 path_with_namespace: repo.full_name,
                 default_branch: repo.default_branch
             }))
@@ -237,24 +237,33 @@ export class GitHubAdapter implements IGitAdapter {
     }
     
     async get_project (id: string): Promise<IProject> {
-        return Promise.resolve({ } as IProject)
+        const resp = await fetch(`${this.root_url}${this.api_root}/repositories/${id}`, this.get_fetch_options())
+        const result = await resp.json() 
+        return {
+            id: String(result.id),
+            name: result.name,
+            path: result.full_name,
+            description: result.description,
+            last_activity_at: result.updated_at,
+            path_with_namespace: result.full_name,
+            default_branch: result.default_branch
+        }
     }
     
-    
-    
-    async get_files_by_repo (repo: string, file_path = ''): Promise<IFile[]> {
-        const result = await fetch(`${this.root_url}${this.api_root}/repos/${repo}/contents/${file_path}`, this.get_fetch_options()).then(async res => res.json())
+    async get_files_by_repo (repo: string, file_path = '', branch = 'main'): Promise<IFile[]> {
+        const result = await fetch(`${this.root_url}${this.api_root}/repos/${repo}/contents/${file_path}?ref=${branch}`, this.get_fetch_options()).then(async res => res.json())
         
-        return result.map((item: any) => ({
-            id: item.sha,
-            mode: item.mode,
+        const ret = result.map((item: any) => ({
+            id: '',
+            mode: '',
             name: item.name,
             path: item.path,
-            type: item.type,
-            sha: item.sha,
-            size: item.size,
-            url: item.download_url || item.url // Use download_url for files, url for directories
+            type: item.type
         }))
+        
+        console.log(ret)
+        
+        return ret
     }
     
     
@@ -295,19 +304,32 @@ export class GitHubAdapter implements IGitAdapter {
         
     }
     
+    private async generateSHA1 (content: string) {
+        // 将内容编码为 ArrayBuffer
+        const encoder = new TextEncoder()
+        const data = encoder.encode(content)
+      
+        // 使用 SubtleCrypto 生成 SHA-1 哈希
+        const hashBuffer = await crypto.subtle.digest('SHA-1', data)
+      
+        // 将 ArrayBuffer 转换为十六进制字符串
+        return Array.from(new Uint8Array(hashBuffer))
+          .map(byte => byte.toString(16).padStart(2, '0'))
+          .join('')
+      }
     
-    async commit_file (repo: string, file_path: string, message: string, content: string, branch = 'main'): Promise<boolean> {
+    async commit_file (repo: string, file_path: string, message: string, content: string, branch = 'main', sha?: string): Promise<boolean> {
         const utf8Encoder = new TextEncoder()
         const contentBytes = utf8Encoder.encode(content)
         const contentBase64 = btoa(String.fromCharCode(...contentBytes))
-        
         
         const resp = await fetch(`${this.root_url}${this.api_root}/repos/${repo}/contents/${file_path}`, this.get_fetch_options(
             'PUT',
             {
                 message,
                 content: contentBase64,
-                branch
+                branch,
+                sha
             }
         ))
         return resp.ok

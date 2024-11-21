@@ -18,7 +18,7 @@ export function Commit () {
     const [commit_message, set_commit_message] = useState('')
     
     async function commit_to_git () {
-        const result = await git_provider.commit_file(current_tab?.git?.repo_id, current_tab?.git?.file_path, commit_message, current_tab?.code)
+        const result = await git_provider.commit_file(current_tab?.git?.repo_id, current_tab?.git?.file_path, commit_message, current_tab?.code, undefined, current_tab?.git?.sha)
         if (result) {
             model.modal.success({ title: t('提交成功') })
             shell.update_git_tab_code(current_tab?.index, current_tab?.code)

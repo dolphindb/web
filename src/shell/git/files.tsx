@@ -38,6 +38,7 @@ export function Files ({ repo_id, on_back }: { repo_id: string, on_back: () => v
     const [expanded_keys, set_expanded_keys] = useState<string[]>([ ])
     const deferred_expanded_keys = useDeferredValue(expanded_keys)
     const [search_value, set_search_value] = useState('')
+    const [repo_path, set_repo_path] = useState('')
     
     function handle_repo_change (id: string, title: string) {
         set_tree_data([{ title, key: id, isLeaf: false }])
@@ -45,11 +46,13 @@ export function Files ({ repo_id, on_back }: { repo_id: string, on_back: () => v
     }
     
     useEffect(() => {
-        git_provider.get_project(repo_id).then(repo_info => {
+        if (repo_id)
+            git_provider.get_project(repo_id).then(repo_info => {
             const title = repo_info.name
             handle_repo_change(repo_id, title)
             set_branch(repo_info.default_branch)
             set_title(title)
+            set_repo_path(repo_info.path_with_namespace)
         })
     }, [repo_id])
     
@@ -61,26 +64,26 @@ export function Files ({ repo_id, on_back }: { repo_id: string, on_back: () => v
         if (!repo_id)
             return
             
-        const filePath = node.key === repo_id ? '' : node.key.substring(repo_id.length + 1)
-        const files = await git_provider.get_files_by_repo(repo_id, filePath)
+        const filePath = node.key === repo_id ? '' : node.key
+        const files = await git_provider.get_files_by_repo(repo_path, filePath)
         
         const children: DataNode[] = files.map(file => ({
             title: file.name,
             key: `${file.path}`, // Use the full path for the key
-            isLeaf: file.type === 'blob',
+            isLeaf: file.type === 'file' || file.type === 'blob',
         }))
         
         set_tree_data(origin => updateTreeData(origin, node.key, children))
-    }, [repo_id])
+    }, [repo_id, repo_path])
     
-    async function open_git_file (key: string, file_name: string, repo_id: string) {
-        const code = await git_provider.get_file_by_path(repo_id, key)
-        shell.add_git_tab(key, code.file_name, repo_id, title, code.content, branch)
+    async function open_git_file (key: string, file_name: string, repo_path: string) {
+        const code = await git_provider.get_file_by_path(repo_path, key)
+        shell.add_git_tab(key, code.file_name, repo_path, title, code.content, branch, code.content_sha256)
     }
     
     function title_render (node: DataNode) {
         if (node.isLeaf)
-            return <span onClick={() => { open_git_file(node.key, node.title, repo_id) }}>{node.title}</span>
+            return <span onClick={() => { open_git_file(node.key, node.title, repo_path) }}>{node.title}</span>
             
         return <span>{node.title}</span>
     }
@@ -110,6 +113,8 @@ export function Files ({ repo_id, on_back }: { repo_id: string, on_back: () => v
     }
     
     const is_repo_not_selected = !repo_id
+    
+    console.log(filtered_tree_data)
     
     return <div className='file-explore'>
         <div className='block-title'>{t('文件浏览')}</div>

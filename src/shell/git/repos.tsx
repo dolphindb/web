@@ -11,7 +11,7 @@ import { Alert, Button } from 'antd'
 import NiceModal from '@ebay/nice-modal-react'
 
 import { git_provider } from './git-adapter.ts'
-import { GitLabOauthModal } from './git-modals.tsx'
+import { GitHubAccessTokenModal, GitLabAccessTokenModal, GitLabOauthModal } from './git-modals.tsx'
 
 
 dayjs.extend(relativeTime)
@@ -68,9 +68,13 @@ export function Repos ({ on_select_repo }: { on_select_repo: (repo_id: string, t
     
     const is_repos_empty = repos.length <= 0
     
-    function goto_auth (type: 'gitlab' | 'github') {
+    function goto_auth (type: 'gitlab' | 'github' | 'gitlab-access-token' | 'github-access-token') {
         if (type === 'gitlab')
             NiceModal.show(GitLabOauthModal)
+        if (type === 'gitlab-access-token')
+            NiceModal.show(GitLabAccessTokenModal)
+        if (type === 'github-access-token')
+            NiceModal.show(GitHubAccessTokenModal)
     }
     
     return <div className='repos'>
@@ -85,10 +89,10 @@ export function Repos ({ on_select_repo }: { on_select_repo: (repo_id: string, t
             <Alert message={<>
                 无法获取仓库列表，请检查权限或：
                 <div>
-                    <a onClick={() => { goto_auth('github') }}>
+                    <a onClick={() => { goto_auth('github-access-token') }}>
                         使用 Access Token 登录到 GitHub
                     </a><br />
-                    <a onClick={() => { goto_auth('github') }}>
+                    <a onClick={() => { goto_auth('gitlab-access-token') }}>
                         使用 Access Token 登录到 GitLab
                     </a><br />
                     <a onClick={() => { goto_auth('github') }}>
