@@ -46,7 +46,6 @@ interface IGitAdapter {
     get_projects(): Promise<IProject[]>
     get_project(id: string): Promise<IProject>
     get_access_token(code: string, client_id: string, redirect_uri?: string, secret?: string): Promise<string>
-    get_auth_url(client_id: string, redirect_uri: string): Promise<string>
     commit_file(repo: string, file_path: string, message: string, branch: string, content: string): Promise<boolean>
 }
 
@@ -54,39 +53,9 @@ export class GitLabAdapter implements IGitAdapter {
     root_url: string = 'https://gitlab.com'
     api_root: string = '/api/v4'
     
-    constructor ( ) { }
-    
-    // 生成 code_verifier，随机字符串
-    private generateCodeVerifier (): string {
-        const array = new Uint8Array(43)
-        window.crypto.getRandomValues(array)
-        return this.base64UrlEncode(array)
-    }
-    
-    // 将字节数组转换为 Base64 URL 编码
-    private base64UrlEncode (array: Uint8Array): string {
-        let base64 = btoa(String.fromCharCode.apply(null, array))
-        return base64.replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '')
-    }
-    
-    // 使用 SHA256 生成 code_challenge
-    private async generateCodeChallenge (codeVerifier: string): Promise<string> {
-        const encoder = new TextEncoder()
-        const data = encoder.encode(codeVerifier)
-        return crypto.subtle.digest('SHA-256', data)
-            .then(hash => {
-                const hashArray = new Uint8Array(hash)
-                return this.base64UrlEncode(hashArray)
-            })
-    }
-    
-    // 生成 OAuth 认证的 URL
-    async get_auth_url (client_id: string, redirect_uri: string): Promise<string> {
-        const codeVerifier = this.generateCodeVerifier()
-        localStorage.setItem('git-code-verifier', codeVerifier)
-        const codeChallenge = await this.generateCodeChallenge(codeVerifier)
-        const authUrl = `${this.root_url}/oauth/authorize?client_id=${client_id}&redirect_uri=${encodeURIComponent(redirect_uri)}&response_type=code&scope=api&code_challenge=${codeChallenge}&code_challenge_method=S256`
-        return authUrl
+    constructor () {
+        this.root_url = localStorage.getItem('root_url') || this.root_url
+        this.api_root = localStorage.getItem('api_root') || this.api_root
     }
     
     // 用授权码和 code_verifier 获取访问令牌
@@ -95,7 +64,6 @@ export class GitLabAdapter implements IGitAdapter {
         
         const data = {
             client_id: client_id,
-            client_secret: '',  // 如果是纯客户端应用，通常不需要提供 client_secret
             code: code,
             grant_type: 'authorization_code',
             redirect_uri: redirect_uri,

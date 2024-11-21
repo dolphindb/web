@@ -6,7 +6,7 @@ import dayjs from 'dayjs'
 import relativeTime from 'dayjs/plugin/relativeTime'
 import localizedFormat from 'dayjs/plugin/localizedFormat'
 
-import { Alert } from 'antd'
+import { Alert, Button } from 'antd'
 
 import NiceModal from '@ebay/nice-modal-react'
 
@@ -74,7 +74,13 @@ export function Repos ({ on_select_repo }: { on_select_repo: (repo_id: string, t
     }
     
     return <div className='repos'>
-        <div className='block-title'>{t('代码仓库')}</div>
+        <div className='block-title'>
+            <div>{t('代码仓库')}</div>
+            {!reposResp.error && <div className='button-logout'><Button type='text' onClick={() => {
+                localStorage.removeItem('git-access-token')
+                reposResp.mutate()
+            }}>{t('登出')}</Button></div>}
+        </div>
         {is_repos_empty && (!reposResp.isLoading) && <div className='info'>
             <Alert message={<>
                 无法获取仓库列表，请检查权限或：
