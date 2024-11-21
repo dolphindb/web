@@ -12,13 +12,12 @@ export function GitHubOauth () {
         const code = searchParams.get('code')
         localStorage.setItem('git-access-code', code)
         const git_info = {
-            root_url: localStorage.getItem('root_url'),
             client_id: localStorage.getItem('client_id'),
             redirect_url: localStorage.getItem('redirect_url'),
-            api_root: localStorage.getItem('api_root') ?? undefined
+            client_secret: localStorage.getItem('client_secret')
         }
         const git_provider = new GitHubAdapter()
-        git_provider.get_access_token(code, git_info.client_id).then(token => {
+        git_provider.get_access_token(code, git_info.client_id, git_info.redirect_url, git_info.client_secret).then(token => {
             localStorage.setItem('git-access-token', token)
             localStorage.setItem('git-provider', 'github')
             navigate('/')

@@ -2,6 +2,8 @@ import { isArray } from 'lodash'
 
 import { t } from '@i18n/index.ts'
 
+import { model } from '@/model.ts'
+
 interface IProject {
     id: string
     name: string
@@ -167,36 +169,37 @@ export class GitHubAdapter implements IGitAdapter {
     
     constructor () { }
     
-    async get_auth_url (client_id: string, redirect_uri: string): Promise<string> {
-        const authUrl = `https://github.com/login/oauth/authorize?client_id=${client_id}&redirect_uri=${encodeURIComponent(redirect_uri)}&scope=repo`
-        return authUrl
-    }
-    
     async get_access_token (code: string, client_id: string, redirect_uri?: string, secret?: string): Promise<string> {
         const tokenUrl = 'https://github.com/login/oauth/access_token'
         
         const data = {
             client_id: client_id,
-            client_secret: secret, // **IMPORTANT:** Replace with your actual client secret!
+            client_secret: secret,
             code: code,
         }
         
-        const result = await fetch(tokenUrl, {
-            method: 'POST',
-            headers: {
-                'Content-Type': 'application/json',
-                Accept: 'application/json'
-            },
-            body: JSON.stringify(data)
-        }).then(async res => res.json())
-        
-        
-        if (result.access_token) {
-            localStorage.setItem('github-access-token', result.access_token)
-            return result.access_token
-        } else
-            throw new Error('Failed to get access token')
+        try {
+            let script = `
+            param=${JSON.stringify(data)};
+            ret = httpClient::httpPost('${tokenUrl}', param, 1000, 'Accept: application/json');
+            ret
+            `
             
+            const result = await model.ddb.execute(script)
+            
+            const text = result.text as string
+            const result_data = JSON.parse(text)
+            
+            if (result_data.access_token) {
+                localStorage.setItem('git-access-token', result_data.access_token)
+                return result_data.access_token
+            } else
+                throw new Error('Failed to get access token')
+                
+        } catch (error) {
+            throw error
+        }
+        
     }
     
     
@@ -238,7 +241,7 @@ export class GitHubAdapter implements IGitAdapter {
     
     async get_project (id: string): Promise<IProject> {
         const resp = await fetch(`${this.root_url}${this.api_root}/repositories/${id}`, this.get_fetch_options())
-        const result = await resp.json() 
+        const result = await resp.json()
         return {
             id: String(result.id),
             name: result.name,
@@ -303,20 +306,6 @@ export class GitHubAdapter implements IGitAdapter {
         } as IFileData
         
     }
-    
-    private async generateSHA1 (content: string) {
-        // 将内容编码为 ArrayBuffer
-        const encoder = new TextEncoder()
-        const data = encoder.encode(content)
-      
-        // 使用 SubtleCrypto 生成 SHA-1 哈希
-        const hashBuffer = await crypto.subtle.digest('SHA-1', data)
-      
-        // 将 ArrayBuffer 转换为十六进制字符串
-        return Array.from(new Uint8Array(hashBuffer))
-          .map(byte => byte.toString(16).padStart(2, '0'))
-          .join('')
-      }
     
     async commit_file (repo: string, file_path: string, message: string, content: string, branch = 'main', sha?: string): Promise<boolean> {
         const utf8Encoder = new TextEncoder()

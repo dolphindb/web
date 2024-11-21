@@ -11,7 +11,7 @@ import { Alert, Button } from 'antd'
 import NiceModal from '@ebay/nice-modal-react'
 
 import { git_provider } from './git-adapter.ts'
-import { GitHubAccessTokenModal, GitLabAccessTokenModal, GitLabOauthModal } from './git-modals.tsx'
+import { GitHubAccessTokenModal, GitHubOauthModal, GitLabAccessTokenModal, GitLabOauthModal } from './git-modals.tsx'
 
 
 dayjs.extend(relativeTime)
@@ -75,6 +75,8 @@ export function Repos ({ on_select_repo }: { on_select_repo: (repo_id: string, t
             NiceModal.show(GitLabAccessTokenModal)
         if (type === 'github-access-token')
             NiceModal.show(GitHubAccessTokenModal)
+        if (type === 'github')
+            NiceModal.show(GitHubOauthModal)
     }
     
     return <div className='repos'>

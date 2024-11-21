@@ -29,3 +29,8 @@ function base64UrlEncode (array: Uint8Array): string {
     let base64 = btoa(String.fromCharCode.apply(null, array))
     return base64.replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '')
 }
+
+export function get_github_auth_url (client_id: string, redirect_url: string): string {
+    const authUrl = `https://github.com/login/oauth/authorize?client_id=${client_id}&redirect_uri=${encodeURIComponent(redirect_url)}&scope=repo`
+    return authUrl
+}
