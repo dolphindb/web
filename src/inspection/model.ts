@@ -132,7 +132,7 @@ class InspectionModel extends Model<InspectionModel> {
     }
     
     async delete_reprorts (ids: string[]) {
-        await model.ddb.invoke('deleteReports', [ ids ])
+        await model.ddb.invoke('deleteReports', [ids])
     }
     
     
@@ -145,11 +145,11 @@ class InspectionModel extends Model<InspectionModel> {
     }
     
     async get_metrics (): Promise<Array<Omit<Metric, 'params'> & { params: string }>> {
-        return (await model.ddb.invoke('getMetrics', [ ])).data
+        return (await model.ddb.invoke('getMetrics')).data
     }
     
     async can_configure_email () {
-        const { errCode, errMsg } = await model.ddb.invoke('canConfigureEmail', [ ])
+        const { errCode, errMsg } = await model.ddb.invoke('canConfigureEmail')
         this.set({
             email_config: {
                 can_config: errCode === 0,
