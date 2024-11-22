@@ -89,7 +89,6 @@ export function Header () {
     }, [widgets, page_count]) 
     
     
-    
     /** 生成可以比较的 config */
     // function exact_config (config: DashBoardConfig) {
     //     return { ...config, 

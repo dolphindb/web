@@ -14,7 +14,7 @@ import type { MessageInstance } from 'antd/es/message/interface.d.ts'
 import type { HookAPI as ModalHookAPI } from 'antd/es/modal/useModal/index.d.ts'
 import type { NotificationInstance } from 'antd/es/notification/interface.d.ts'
 
-import { t } from '@i18n/index.js'
+import { t } from '@i18n/index.ts'
 
 import { model, show_error, storage_keys } from '../model.js'
 import type { Monaco } from '../components/Editor/index.js'
@@ -121,7 +121,7 @@ export class DashBoardModel extends Model<DashBoardModel> {
                             canvas[i][j] = 1
                 })
                 
-                // Use dynamic programming to record the number of consecutive empty cells at each position
+                // 使用动态规划记录每个位置上的连续空白格子数量
                 const dp = Array.from({ length: max_columns }, () => Array(max_rows).fill(0))
                 for (let i = 0;  i < max_columns;  i++)
                     for (let j = 0;  j < max_rows;  j++)
@@ -192,21 +192,19 @@ export class DashBoardModel extends Model<DashBoardModel> {
     
     
     on_resize = () => { 
-        // window.addEventListener('resize', () => {
         let { grid } = this
         if (grid?.el)
             grid.cellHeight(Math.floor(grid.el.clientHeight / this.maxrows))
-        // })
     }
     
     check_available_for_reduce_page_count (target: number) {
         let current_page_count = this.config?.data?.canvas?.page_count ?? 1 
         if (target >= current_page_count)
             return true
-        for (let widget of this.widgets) 
+        for (const widget of this.widgets) 
             if (widget.y + widget.h > target * 12) {
                 model.message.warning(t('部分页面仍有图表存在，请确保所有图表已移除后再调整页面数'))
-                return false 
+                return false
             }
         return true
     }
@@ -494,23 +492,33 @@ export class DashBoardModel extends Model<DashBoardModel> {
         // 如果 page_count 减少，要看看减少的页面上面有没有组件，有的话就弹窗不允许减少
         if (!this.check_available_for_reduce_page_count(page_count))
             return
-        this.set({ config: { ...this.config, data: { ...this.config.data, canvas: { ...this.config.data.canvas, page_count } } } })
+        
+        this.set({
+            config: {
+                ...this.config,
+                data: {
+                    ...this.config.data,
+                    canvas: { ...this.config.data.canvas, page_count }
+                }
+            }
+        })
+        
         this.update_css_for_element_height(page_count)
     }
     
-    update_css_for_element_height (page_count, styleSheetId = 'dynamic-grid-styles') { // 添加默认 ID
+    update_css_for_element_height (page_count: number, style_sheet_id = 'dynamic-grid-styles') { // 添加默认 ID
         // 计算高度值
         let height_value = `calc(${page_count * 100}vh - ${page_count * 50}px) !important`
         if (page_count === 1) 
             height_value = '100% !important'
         
         // 创建新的样式表
-        let style_sheet = document.getElementById(styleSheetId)
+        let style_sheet = document.getElementById(style_sheet_id)
         
         // 如果没有找到，则创建一个新的样式表并添加 ID
         if (!style_sheet) {
             style_sheet = document.createElement('style')
-            style_sheet.id = styleSheetId
+            style_sheet.id = style_sheet_id
             document.head.appendChild(style_sheet)
         }
         
