@@ -191,12 +191,12 @@ export class DashBoardModel extends Model<DashBoardModel> {
     }
     
     
-    on_resize = () => {
-        window.addEventListener('resize', () => {
-            let { grid } = this
-            if (grid?.el)
-                grid.cellHeight(Math.floor((window.innerHeight - 50) / this.maxrows))
-        })
+    on_resize = () => { 
+        // window.addEventListener('resize', () => {
+        let { grid } = this
+        if (grid?.el)
+            grid.cellHeight(Math.floor(grid.el.clientHeight / this.maxrows))
+        // })
     }
     
     check_available_for_reduce_page_count (target: number) {
