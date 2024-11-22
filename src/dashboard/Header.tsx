@@ -86,7 +86,7 @@ export function Header () {
         }
         // await dashboard.update_config(updated_config)
         return updated_config
-    }, [widgets, page_count]) 
+    }, [widgets, page_count])
     
     
     /** 生成可以比较的 config */
