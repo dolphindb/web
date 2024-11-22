@@ -502,7 +502,7 @@ export class DashBoardModel extends Model<DashBoardModel> {
         // 计算高度值
         let height_value = `calc(${page_count * 100}vh - ${page_count * 50}px) !important`
         if (page_count === 1) 
-            height_value = '100%'
+            height_value = '100% !important'
         
         // 创建新的样式表
         let style_sheet = document.getElementById(styleSheetId)
