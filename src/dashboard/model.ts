@@ -193,8 +193,8 @@ export class DashBoardModel extends Model<DashBoardModel> {
     
     on_resize = () => { 
         let { grid } = this
-        if (grid?.el)
-            grid.cellHeight(Math.floor(grid.el.clientHeight / this.maxrows))
+        if (grid)
+            grid.cellHeight(Math.floor((window.innerHeight - 50) / this.maxrows))
     }
     
     check_available_for_reduce_page_count (target: number) {
@@ -508,7 +508,9 @@ export class DashBoardModel extends Model<DashBoardModel> {
     
     update_css_for_element_height (page_count: number, style_sheet_id = 'dynamic-grid-styles') { // 添加默认 ID
         // 计算高度值
-        let height_value = `calc(${page_count * 100}vh - ${page_count * 50}px) !important`
+        let height_value = page_count === 1
+            ? '100% !important'
+            : `calc(${page_count * 100}vh - ${page_count * 50}px) !important`
         if (page_count === 1) 
             height_value = '100% !important'
         
