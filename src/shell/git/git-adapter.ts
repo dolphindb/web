@@ -47,6 +47,7 @@ interface IGitAdapter {
     get_auth_header(): string
     get_projects(): Promise<IProject[]>
     get_project(id: string): Promise<IProject>
+    get_branches(repo: string): Promise<string[]>
     get_access_token(code: string, client_id: string, redirect_uri?: string, secret?: string): Promise<string>
     commit_file(repo: string, file_path: string, message: string, branch: string, content: string, sha?: string): Promise<boolean>
 }
@@ -127,6 +128,12 @@ export class GitLabAdapter implements IGitAdapter {
         const resp = await fetch(`${this.root_url}${this.api_root}/projects/${id}`, this.get_fetch_options())
         const result = await resp.json()
         return result
+    }
+    
+    async get_branches (repo: string): Promise<string[]> {
+        const resp = await fetch(`${this.root_url}${this.api_root}/projects/${encodeURIComponent(repo)}/repository/branches`, this.get_fetch_options())
+        const result = await resp.json()
+        return result.map((b: any) => b.name)
     }
     
     private decodeBase64ToUtf8 (base64: string): string {
@@ -251,6 +258,12 @@ export class GitHubAdapter implements IGitAdapter {
             path_with_namespace: result.full_name,
             default_branch: result.default_branch
         }
+    }
+    
+    async get_branches (repo: string): Promise<string[]> {
+        const resp = await fetch(`${this.root_url}${this.api_root}/repos/${repo}/branches`, this.get_fetch_options())
+        const result = await resp.json()
+        return result.map((b: any) => b.name)
     }
     
     async get_files_by_repo (repo: string, file_path = '', branch = 'main'): Promise<IFile[]> {

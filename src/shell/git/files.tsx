@@ -1,5 +1,5 @@
 import { t } from '@i18n/index.ts'
-import { Input, Tree } from 'antd'
+import { Input, Select, Tree } from 'antd'
 import { useState, useDeferredValue, useCallback, useMemo, useEffect } from 'react'
 
 import { shell } from '../model.ts'
@@ -39,6 +39,8 @@ export function Files ({ repo_id, on_back }: { repo_id: string, on_back: () => v
     const deferred_expanded_keys = useDeferredValue(expanded_keys)
     const [search_value, set_search_value] = useState('')
     const [repo_path, set_repo_path] = useState('')
+    const [branches, set_branches] = useState<string[]>([ ])
+    const [loaded_keys, set_loaded_keys] = useState<string[]>([ ])
     
     function handle_repo_change (id: string, title: string) {
         set_tree_data([{ title, key: id, isLeaf: false }])
@@ -46,15 +48,23 @@ export function Files ({ repo_id, on_back }: { repo_id: string, on_back: () => v
     }
     
     useEffect(() => {
-        if (repo_id)
+        if (repo_id) 
             git_provider.get_project(repo_id).then(repo_info => {
-            const title = repo_info.name
-            handle_repo_change(repo_id, title)
-            set_branch(repo_info.default_branch)
-            set_title(title)
-            set_repo_path(repo_info.path_with_namespace)
-        })
+                const title = repo_info.name
+                handle_repo_change(repo_id, title)
+                set_branch(repo_info.default_branch)
+                set_title(title)
+                set_repo_path(repo_info.path_with_namespace)
+                git_provider.get_branches(repo_info.path_with_namespace).then(branches => {
+                    set_branches(branches)
+                })
+            })
     }, [repo_id])
+    
+    useEffect(() => {
+        set_expanded_keys([ ])
+        set_loaded_keys([ ])
+    }, [branch])
     
     function handle_expand (expandedKeys: unknown[]) {
         set_expanded_keys(expandedKeys as string[])
@@ -65,7 +75,7 @@ export function Files ({ repo_id, on_back }: { repo_id: string, on_back: () => v
             return
             
         const filePath = node.key === repo_id ? '' : node.key
-        const files = await git_provider.get_files_by_repo(repo_path, filePath)
+        const files = await git_provider.get_files_by_repo(repo_path, filePath, branch)
         
         const children: DataNode[] = files.map(file => ({
             title: file.name,
@@ -74,10 +84,11 @@ export function Files ({ repo_id, on_back }: { repo_id: string, on_back: () => v
         }))
         
         set_tree_data(origin => updateTreeData(origin, node.key, children))
-    }, [repo_id, repo_path])
+        set_loaded_keys(origin => [...origin, node.key])
+    }, [repo_id, repo_path, branch])
     
     async function open_git_file (key: string, file_name: string, repo_path: string) {
-        const code = await git_provider.get_file_by_path(repo_path, key)
+        const code = await git_provider.get_file_by_path(repo_path, key, branch)
         shell.add_git_tab(key, code.file_name, repo_path, title, code.content, branch, code.content_sha256)
     }
     
@@ -114,8 +125,6 @@ export function Files ({ repo_id, on_back }: { repo_id: string, on_back: () => v
     
     const is_repo_not_selected = !repo_id
     
-    console.log(filtered_tree_data)
-    
     return <div className='file-explore'>
         <div className='block-title'>{t('文件浏览')}</div>
         
@@ -124,9 +133,11 @@ export function Files ({ repo_id, on_back }: { repo_id: string, on_back: () => v
         </div>}
         {!is_repo_not_selected && <>
             <div className='file-explore-search'>
-                <Input.Search placeholder={t('搜索仓库文件')} onChange={handle_search_change} allowClear style={{ marginBottom: 8 }} />
+                <Input.Search placeholder={t('搜索仓库文件')} onChange={handle_search_change} allowClear />
             </div>
-            
+            <div className='file-explore-branch'>
+                <Select value={branch} options={branches.map(b => ({ label: `分支: ${b}`, value: b }))} onChange={set_branch} style={{ width: '100%' }} />
+            </div>
             <div className='file-explore-content'><Tree
                 className='file-tree'
                 expandAction='click'
