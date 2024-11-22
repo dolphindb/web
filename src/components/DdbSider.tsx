@@ -4,7 +4,7 @@ import { Layout, Menu, Typography } from 'antd'
 
 import { default as Icon, DoubleLeftOutlined, DoubleRightOutlined, ExperimentOutlined, SettingOutlined } from '@ant-design/icons'
 
-import { useLocation } from 'react-router-dom'
+import { useLocation } from 'react-router'
 
 import { filter_values } from 'xshell/utils.browser.js'
 

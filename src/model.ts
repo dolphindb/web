@@ -5,7 +5,7 @@ import type { MessageInstance } from 'antd/es/message/interface.d.ts'
 import type { HookAPI as ModalHookAPI } from 'antd/es/modal/useModal/index.d.ts'
 import type { NotificationInstance } from 'antd/es/notification/interface.d.ts'
 
-import type { NavigateFunction, NavigateOptions } from 'react-router-dom'
+import type { NavigateFunction, NavigateOptions } from 'react-router'
 
 import 'xshell/polyfill.browser.js'
 import { assert, delay, filter_values, not_empty, strcmp } from 'xshell/utils.browser.js'

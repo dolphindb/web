@@ -8,7 +8,7 @@ import { useEffect } from 'react'
 import { Button, Popconfirm, Result } from 'antd'
 import * as echarts from 'echarts'
 
-import { Outlet } from 'react-router-dom'
+import { Outlet } from 'react-router'
 
 import { t } from '@i18n/index.ts'
 
