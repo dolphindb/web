@@ -7,6 +7,7 @@ import copy from 'copy-to-clipboard'
 import { dashboard } from '../model.js'
 import { t } from '../../../i18n/index.js'
 import { model } from '../../model.js'
+import { DASHBOARD_SHARED_SEARCH_KEY } from '../constant.js'
 
 interface IProps {
     dashboard_ids: number[]
@@ -24,28 +25,21 @@ export function Share ({ dashboard_ids, trigger_type }: IProps) {
             return
         }
         
-        let text = ''
         let url = new URL(window.location.href)
-        
         url.searchParams.set('preview', '1')
+        url.searchParams.set(DASHBOARD_SHARED_SEARCH_KEY, dashboard_ids.join(','))
         
-        if (dashboard_ids.length === 1) {
-            url.pathname = `/dashboard/${dashboard_ids[0]}/`
-            text = url.href
-        } else
-            dashboard_ids.forEach(dashboard_id => {
-                url.pathname = `/dashboard/${dashboard_id}/`
-                text += `${dashboard.configs.find(({ id }) => id === dashboard_id).name}: ${url.href}\n`
-            })
+        url.pathname = `${model.assets_root}dashboard/${dashboard_ids[0]}/`
         
         try {
-            copy(text)
+            const { href } = url
+            copy(href)
             api.success({
                 message: t('以下内容已复制到剪切板'),
                 style: {
                     width: 1100
                 },
-                description: text.split('\n').map(item => <p>{item}</p>),
+                description: href,
                 placement: 'top',
             })
          } catch (e) {

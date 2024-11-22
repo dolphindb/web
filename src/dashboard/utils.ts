@@ -16,6 +16,7 @@ import { type AxisConfig, type IChartConfig, type ISeriesConfig } from './type.j
 import { subscribe_data_source, type DataSource, get_data_source } from './DataSource/date-source.js'
 import { AxisType, ILineType, MarkPresetType, ThresholdShowType, ThresholdType } from './ChartFormFields/type.js'
 import { find_variable_by_name, get_variable_copy_infos, get_variable_value, paste_variables, subscribe_variable } from './Variable/variable.js'
+import { DASHBOARD_SHARED_SEARCH_KEY } from './constant.js'
 
 
 export function format_time (time: string, format: string) {
@@ -280,14 +281,7 @@ export function convert_chart_config (
             name: axis.name,
             type: axis.type,
             interval: axis.interval,
-            splitLine: {
-                show: true,
-                lineStyle: { 
-                    type: 'dashed',
-                    color: '#6E6F7A'
-                },
-                ...splitLine,
-            },
+            splitLine,
             axisLine: {
                 show: true,
                 lineStyle: {
@@ -295,12 +289,6 @@ export function convert_chart_config (
                 }
             },
             axisLabel: {
-                formatter: axis.type === AxisType.CATEGORY && (value => { 
-                    if (axis.time_format)
-                        return format_time(value, axis.time_format)
-                    else
-                        return value
-                }),
                 color: () => axis.font_color || '#6E6F7A',
                 fontSize: axis.fontsize
             },
@@ -521,27 +509,6 @@ export function convert_chart_config (
                 color: '#F5F5F5'
             },
             confine: true,
-            formatter: params => { 
-                if (!Array.isArray(params))
-                    params = [params]
-                const x = params[0].value?.[0] ?? params[0]?.data?.[0]
-                let html = `<div style="font-weight: 500;">${x}</div>`
-                for (let series of params) { 
-                    const value = series.value?.[1] ?? series.data?.[1]
-                    const text = `<div style="display: flex; justify-content: space-between;">
-                        <span style="display: inline-block; margin-right: 12px;">
-                            ${series?.marker}
-                            <span>${series?.seriesName}</span>
-                        </span>
-                        <span style="font-weight: 500">
-                            ${value}
-                        </span>
-                    </div>
-                    `
-                    html += text 
-                }
-                return html
-            }
         },
         title: {
             text: parse_text(title ?? ''),
@@ -725,4 +692,9 @@ export function get_chart_data_type (chart_type: WidgetChartType) {
         default: 
             return DdbForm.table
     }
+}
+
+
+export function get_shared_dashboards () {
+    return new URLSearchParams(location.search).get(DASHBOARD_SHARED_SEARCH_KEY)?.split(',') ?? [ ]
 }

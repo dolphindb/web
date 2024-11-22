@@ -24,6 +24,7 @@ import SvgComputing from '@/computing/icons/computing.icon.svg'
 import SvgAccess from '@/access/icons/access.icon.svg'
 import SvgUser from '@/access/icons/user.icon.svg'
 import SvgGroup from '@/access/icons/group.icon.svg'
+import SvgInspection from '@/inspection/icons/inspection.icon.svg'
 import SvgFinance from '@/guide/icons/finance.icon.svg'
 import SvgIot from '@/guide/icons/iot.icon.svg'
 import SvgPlugins from '@/plugins/plugins.icon.svg'
@@ -50,6 +51,7 @@ const svgs = {
     'data-collection': SvgDataCollection,
     'data-connection': SvgConnection,
     'parser-template': SvgParserTemplate,
+    inspection: SvgInspection,
     'iot-guide': SvgIot,
     'finance-guide': SvgFinance,
     plugins: SvgPlugins
@@ -79,8 +81,7 @@ export function DdbSider () {
     }, [search, pathname])
     
     
-    const factor_href = useMemo(() => {
-        return 'starfish/index.html?' +
+    const factor_href = useMemo(() => model.assets_root + 'starfish/index.html?' +
             new URLSearchParams(filter_values(
                 {
                     ddb_hostname: model.hostname,
@@ -88,8 +89,7 @@ export function DdbSider () {
                     logined: Number(logined).toString(),
                     token: localStorage.getItem(storage_keys.ticket)
                 })
-            ).toString()
-    }, [logined])
+            ).toString(), [logined])
     
     return <Layout.Sider
         width={ language === 'zh' ? 150 : 220 }
@@ -174,6 +174,11 @@ export function DdbSider () {
                             label: t('组管理'),
                         },
                     ]
+                }] : [ ],
+                ... admin && language === 'zh' ? [{
+                    key: 'inspection',
+                    icon: <MenuIcon view='inspection' />,
+                    label: t('自动巡检'),
                 }] : [ ],
                 {
                     key: 'log',

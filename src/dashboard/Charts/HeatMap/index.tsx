@@ -6,21 +6,20 @@ import { useMemo } from 'react'
 
 import { Collapse, Form, InputNumber } from 'antd'
 
-import { AxisFormFields } from '../../ChartFormFields/BasicChartFields.js'
-import { dashboard, type Widget } from '../../model.js'
+import { t } from '@i18n/index.js'
 
+import { max, min } from 'lodash'
 
-import { convert_chart_config, format_time } from '../../utils.ts'
-import { BasicFormFields } from '../../ChartFormFields/BasicFormFields.js'
-import { ChartField } from '../../ChartFormFields/type.js'
-import { get_data_source } from '../../DataSource/date-source.js'
-
-
-import { t } from '../../../../i18n/index.js'
-import { BoolRadioGroup } from '../../../components/BoolRadioGroup/index.js'
-import { StringColorPicker } from '../../../components/StringColorPicker/index.js'
-import { type MatrixData, type IChartConfig, type ISeriesConfig } from '../../type.js'
 import { useChart } from '../hooks.js'
+import { BoolRadioGroup } from '@/components/BoolRadioGroup/index.js'
+import { StringColorPicker } from '@/components/StringColorPicker/index.js'
+import { AxisFormFields } from '@/dashboard/ChartFormFields/BasicChartFields.js'
+import { BasicFormFields } from '@/dashboard/ChartFormFields/BasicFormFields.js'
+import { ChartField } from '@/dashboard/ChartFormFields/type.js'
+import { get_data_source } from '@/dashboard/DataSource/date-source.js'
+import type { Widget } from '@/dashboard/model.js'
+import type { IChartConfig, MatrixData } from '@/dashboard/type.js'
+import { format_time } from '@/dashboard/utils.js'
 
 interface IProps { 
     widget: Widget
@@ -37,39 +36,59 @@ export function HeatMap (props: IProps) {
     const { data } = node.use(['data'])
     
     const option = useMemo(() => { 
-        const default_options = convert_chart_config({ ...widget, config: { ...widget.config, series: [ ] } }, [ ])
         const { series } = config
          
         const { data: matrix_data = [ ], row_labels = [ ], col_labels = [ ] } = data as unknown as MatrixData
         
+        
         let chart_data = [ ]
+        let flatten_data = [ ]
         for (let j = 0;  j < matrix_data.length;  j++)
-            for (let i = 0;  i < matrix_data[j].length;  i++)  
+            for (let i = 0;  i < matrix_data[j].length;  i++) {
                 chart_data.push([i, j, matrix_data[j][i]])
-            
+                flatten_data.push(matrix_data[j][i])
+            }
+                
+        
+        const y_data = row_labels.map(label => format_time(label, config.yAxis[0]?.time_format))
+        const x_data = col_labels.map(label => format_time(label, config.xAxis.time_format))
+        
+        const min_data = min(flatten_data) ?? 0
+        const max_data = max(flatten_data) ?? 10
+        
         return {
-            ...default_options,
             grid: {
-                ...default_options.grid,
-                bottom: '15%'
+                bottom: 60,
+                containLabel: true
             },
             tooltip: {
-                ...default_options.tooltip,
-                trigger: 'item'
+                ...config.tooltip,
+                trigger: 'item',
+                backgroundColor: '#060606',
+                borderColor: '#060606',
+                textStyle: {
+                    color: '#F5F5F5'
+                },
+                confine: true,
+                formatter: params => {
+                    const [x_idx, y_idx, value] = params.data
+                    const title = `<div>${x_data[x_idx]}<div/>`
+                    const item = params.marker + y_data[y_idx] + `<span style="font-weight: 600; display: inline-block; margin-left: 8px;">${value}</span>`
+                    return title + item
+                }
+                
             },
             xAxis: {
-                ...default_options.xAxis,
                 type: 'category',
-                data: col_labels.map(label => format_time(label, config.xAxis.time_format))
+                data: x_data
             },
-            yAxis: [{
-                ...default_options.yAxis[0],
+            yAxis: {
                 type: 'category',
-                data: row_labels.map(label => format_time(label, config?.yAxis[0]?.time_format))
-            }],
+                data: y_data
+            },
             visualMap: {
-                min: series[0].min || 0,
-                max: series[0].max || 10,
+                min: series[0].min ?? Math.floor(min_data),
+                max: series[0].max ?? Math.ceil(max_data),
                 calculable: true,
                 orient: 'horizontal',
                 left: 'center',
@@ -89,7 +108,7 @@ export function HeatMap (props: IProps) {
                     show: series[0].with_label
                 },
             }]
-        }
+        } as echarts.EChartsOption
     }, [widget.config, data])
     
     const ref = useChart(option)
@@ -120,10 +139,10 @@ export function HeatMapConfigForm ({ col_names }: { col_names: string[] }) {
                         <Form.Item label={t('明亮色')} name={[field.name, 'in_range', 'color', 'high']} initialValue='#983430'>
                             <StringColorPicker />
                         </Form.Item>
-                        <Form.Item label={t('最小值')} name={[field.name, 'min']} initialValue={0}>
+                        <Form.Item label={t('最小值')} name={[field.name, 'min']}>
                             <InputNumber />
                         </Form.Item>
-                        <Form.Item label={t('最大值')} name={[field.name, 'max']} initialValue={10}>
+                        <Form.Item label={t('最大值')} name={[field.name, 'max']}>
                             <InputNumber />
                         </Form.Item>
                         <Form.Item label={t('展示标签')} name={[field.name, 'with_label']} initialValue={false}>

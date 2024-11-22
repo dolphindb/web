@@ -1,6 +1,6 @@
 import 'xshell/scroll-bar.sass'
 
-import './formily-patch.scss'
+import './formily-patch.sass'
 import './index.sass'
 import './pagination.sass'
 
@@ -51,6 +51,7 @@ import { DashboardInstancePage } from './dashboard/Instance.tsx'
 import { Overview as DashboardOverview } from './dashboard/Overview.tsx'
 
 import { User, Group } from './access/index.tsx'
+import { Inspection } from './inspection/index.tsx'
 import { Settings } from './settings/index.tsx'
 import { CreateGuide } from './guide/iot-guide/index.tsx'
 import { FinanceGuide } from './guide/finance-guide/index.tsx'
@@ -200,6 +201,10 @@ const router = createBrowserRouter([
             {
                 path: 'test/',
                 element: <Test />
+            },
+            {
+                path: 'inspection/*',
+                element: <Inspection />,
             },
             {
                 path: 'job/',
