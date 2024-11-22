@@ -12,6 +12,8 @@ import { useState } from 'react'
 
 import { t } from '../../i18n/index.js'
 
+import { model } from '@/model.ts'
+
 import { TABLE_NAMES } from './constants.js'
 import { access } from './model.js'
 
@@ -33,6 +35,8 @@ export function AccessHeader ({
     selected_length?: number
 }) {
     const { current } = access.use(['current', 'users', 'groups'])
+    
+    const { v3 } = model.use(['v3'])
     
     const [input_value, set_input_value] = useState(search_key)
     
@@ -91,7 +95,7 @@ export function AccessHeader ({
                 set_input_value(e.target.value)
             }}
             onPressEnter={() => { set_search_key(input_value) }}
-            placeholder={t('请输入想要搜索的{{category}}', { category: TABLE_NAMES[category] })}
+            placeholder={t('请输入想要搜索的{{category}}', { category: category === 'database' && v3 ? `${TABLE_NAMES.catalog} / ${TABLE_NAMES.database} / ${TABLE_NAMES.table}` : TABLE_NAMES[category] })}
         />
     </div>
 }

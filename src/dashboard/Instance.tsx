@@ -4,17 +4,21 @@ import { App, ConfigProvider, Spin, theme } from 'antd'
 
 import { useParams } from 'react-router-dom'
 
+import { delay } from 'xshell/utils.browser.js'
+
 import { t } from '@i18n/index.js'
 
 import { model } from '@/model.js'
 
-import { paste_widget } from './utils.ts'
+import { get_shared_dashboards, paste_widget } from './utils.ts'
 
 import { Sider } from './Sider.tsx'
 import { GraphItem } from './GraphItem/GraphItem.tsx'
 import { SettingsPanel } from './SettingsPanel/SettingsPanel.tsx'
 import { Header } from './Header.tsx'
 import { DashboardPermission, dashboard } from './model.ts'
+import { DASHBOARD_SHARED_SEARCH_KEY } from './constant.ts'
+
 
 
 export function DashboardInstancePage () {
@@ -72,11 +76,22 @@ function DashboardInstance ({ id }: { id: string }) {
                     dashboard.set({ config })
                     await dashboard.render_with_config(config)
                 } catch (error) {
-                    dashboard.return_to_overview()
                     model.message.error(t('dashboard 不存在'))
-                }    
+                    const shared_ids = get_shared_dashboards()
+                    // 如果是分享的 dashboard 被删除, 切到下一个分享的 dashboard, 修改 search
+                    if (shared_ids.includes(id) && shared_ids.length > 1) {
+                        // 0.5s 后跳转，让用户看到报错
+                        await delay(500)
+                        model.goto(`${model.assets_root}dashboard/${shared_ids[1]}/`, {
+                            queries: {
+                                [DASHBOARD_SHARED_SEARCH_KEY]: shared_ids.filter(item => item !== id).join(',')
+                            }
+                        })
+                    } else
+                        dashboard.return_to_overview()   
+                }
         })()
-    }, [ ])
+    }, [id])
     
     
     // widget 变化时通过 GridStack.makeWidget 将画布中已有的 dom 节点交给 GridStack 管理

@@ -1,0 +1,229 @@
+.inspection
+    height: 100%
+    .spin-container
+        height: 90vh
+        display: flex
+        justify-content: center
+        align-items: center
+    
+    .inspection-header
+        display: flex
+        column-gap: 10px
+        margin-bottom: 10px
+        .inspection-search
+            flex: 1
+            
+    .ant-table-title
+        padding: 8px 0px
+                
+    .ant-table-cell
+        padding: 4px 8px !important
+        
+    
+    .plan-table-header
+        display: flex
+        justify-content: space-between
+        align-items: flex-end
+        
+    .report-table-header
+        display: flex
+        justify-content: space-between
+        .report-table-header-left
+            display: flex
+            column-gap: 20px
+            align-items: center
+        
+    .yellow
+        color: #DDDD00
+        
+    .green
+        color: #6ED86C
+
+    .red
+        color: #EE0000
+        
+    .report-item-header
+        display: flex
+        column-gap: 10px
+        align-items: center
+        font-weight: 600
+        
+        
+    .report-detail
+        scroll-margin-top: 20px
+        .report-detail-header
+            display: flex
+            justify-content: space-between
+            align-items: flex-end
+            margin-bottom: 20px
+
+        .report-content
+            h1
+                margin-bottom: 20px
+            .report-detail-log-button
+                padding: 0px
+                align-items: start
+                
+            .report-detail-content
+                display: flex
+                flex-direction: column
+                row-gap: 20px
+
+        .report-summary
+            margin: 0px
+            .abnormal-count
+                color: #EE0000
+
+        .abnormal-table-header
+            display: flex
+            justify-content: space-between
+            align-items: center
+            margin-bottom: 10px
+
+            h2
+                margin-bottom: 0
+
+            .abnormal-count
+                color: #EE0000
+
+        .group-header
+            display: flex
+            justify-content: space-between
+            align-items: center
+            margin-bottom: 10px
+
+            h2
+                margin-bottom: 0
+
+            .abnormal-count
+                &.green
+                    color: #6ED86C
+                &.red
+                    color: #EE0000
+
+    .add-inspection,
+    .edit-inspection
+        .ant-table-title
+            padding: 8px 0px
+            
+        h3
+            margin-block: 8px
+        
+        .inspection-form
+            display: flex
+            flex-direction: column
+            
+            .inspection-form-header
+                display: flex
+                justify-content: space-between
+                align-items: center
+                
+                .inspection-form-header-left
+                    display: flex
+                    align-items: center
+                    column-gap: 20px
+                
+                .inspection-form-header-right
+                    display: flex
+                    column-gap: 20px
+                    align-self: flex-end
+                    align-items: center
+
+            .inspection-form-inline
+                display: flex
+                flex-direction: column
+                row-gap: 10px
+                
+                .inspection-form-inline-time
+                    display: flex
+                    column-gap: 20px
+                    
+                .ant-form-item
+                    margin-bottom: 0px
+            
+            .required::before 
+                content: '*'
+                color: #ff4d4f
+                margin-right: 4px
+              
+            .script-popover
+                max-width: 500px
+                padding: 8px
+                
+            .date-select
+                min-width: 200px
+                
+            .nodes-select
+                width: 240px
+                
+            .metric-table-title
+                display: flex
+                justify-content: space-between
+            
+            .expanded-table
+                .ant-table-cell
+                    padding: 2px 4px !important 
+                    
+            .enable-emali-form-item
+                display: flex
+                align-items: start
+                column-gap: 5px     
+                .email-config-warning
+                    color: #CCCC00
+                    cursor: pointer
+                    margin-top: 14px 
+    .intro-container
+        .intro-title
+            margin-bottom: 16px
+            font-size: 24px
+            font-weight: 500
+            color: #000000
+    
+        .intro-list
+            .intro-item
+                padding: 12px 0        
+
+.ant-modal-root
+    .edit-param-modal,.add-param-modal
+        .ant-form
+            padding: 0px !important
+            .form-item-label
+                margin: 10px 0
+                
+        .expanded-table
+            .ant-table-cell
+                padding: 2px 4px !important 
+                
+        .modal-footer
+            display: flex
+            flex-direction: row
+            justify-content: center
+            column-gap: 20px
+                
+        
+    .add-param-modal
+        .ant-modal-content
+            display: flex
+            flex-direction: column
+            height: 80vh  
+            
+        .ant-modal-body
+            flex: 1
+            overflow-y: scroll  
+            
+            .modal-content
+                height: 100%
+                display: flex
+                flex-direction: column
+                
+                .metric-table
+                    flex: 1
+                    overflow: auto
+                    padding: 24px 
+        
+.interceptor
+    height: 100%
+    display: flex
+    align-items: center
+    justify-content: center
+    flex-direction: column
