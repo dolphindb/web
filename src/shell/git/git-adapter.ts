@@ -104,7 +104,7 @@ export class GitLabAdapter implements IGitAdapter {
     // 获取文件列表
     async get_files_by_repo (repo: string, file_path = '', branch = 'main'): Promise<IFile[]> {
         const result = await fetch(
-            `${this.root_url}${this.api_root}/projects/${encodeURIComponent(repo)}/repository/tree?path=${encodeURIComponent(file_path)}&ref=${branch}`,
+            `${this.root_url}${this.api_root}/projects/${encodeURIComponent(repo)}/repository/tree?path=${encodeURIComponent(file_path)}&ref=${branch}&per_page=1000`,
             this.get_fetch_options()
         ).then(async res => res.json())
         return result
@@ -180,7 +180,7 @@ export class GitLabAdapter implements IGitAdapter {
         return resp.ok
     }
     
-    async get_file_blame (repo: string, file_path: string, ref: string): Promise<any> {
+    async get_file_blame (repo: string, file_path: string, ref: string): Promise<IFileBlame[]> {
         const resp = await fetch(`${this.root_url}${this.api_root}/projects/${encodeURIComponent(repo)}/repository/files/${encodeURIComponent(file_path)}/blame?ref=${ref}`
             , this.get_fetch_options())
         const result = await resp.json()
@@ -193,7 +193,7 @@ export class GitHubAdapter implements IGitAdapter {
     api_root: string = ''
     
     constructor () { }
-    async get_file_blame (repo: string, file_path: string, ref: string): Promise<any> {
+    async get_file_blame (repo: string, file_path: string, ref: string): Promise<IFileBlame[]> {
         throw new Error('Method not implemented.')
     }
     

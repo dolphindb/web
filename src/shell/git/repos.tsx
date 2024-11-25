@@ -2,20 +2,13 @@ import useSWR from 'swr'
 
 import { t } from '@i18n/index.ts'
 
-import dayjs from 'dayjs'
-import relativeTime from 'dayjs/plugin/relativeTime'
-import localizedFormat from 'dayjs/plugin/localizedFormat'
-
 import { Alert, Button } from 'antd'
 
 import NiceModal from '@ebay/nice-modal-react'
 
 import { git_provider } from './git-adapter.ts'
 import { GitHubAccessTokenModal, GitHubOauthModal, GitLabAccessTokenModal, GitLabOauthModal } from './git-modals.tsx'
-
-
-dayjs.extend(relativeTime)
-dayjs.extend(localizedFormat)
+import { format_friendly_date } from './get-auth-url.ts'
 
 export function Repos ({ on_select_repo }: { on_select_repo: (repo_id: string, title: string) => void }) {
 
@@ -24,35 +17,6 @@ export function Repos ({ on_select_repo }: { on_select_repo: (repo_id: string, t
         return result
     })
     
-    function formatFriendlyDate (isoString: string): string {
-        if (!isoString)
-            throw new Error('Invalid date string.')
-        const date = dayjs(isoString)
-        
-        // 检查是否是有效日期
-        if (!date.isValid())
-            throw new Error('Invalid date format.')
-        if (date.isSame(dayjs(), 'day'))
-            return t('今天 {{time}}', { time: date.format('HH:mm') })
-            
-            
-        if (date.isSame(dayjs().subtract(1, 'day'), 'day'))
-            // 昨天 
-            return t('昨天 {{time}}', { time: date.format('HH:mm') })
-            
-            
-        if (date.isAfter(dayjs().subtract(7, 'day'))) {
-            // 最近7天内
-            const relative = date.fromNow()
-            return t('{{relativeTime}}', { relativeTime: relative })
-        }
-        
-        // 更久以前
-        return t('{{date}} {{time}}', {
-            date: date.format('YYYY/MM/DD'),
-            time: date.format('HH:mm'),
-        })
-    }
     
     const repos = (reposResp.data ?? [ ]).map(repo => <div className='repo' onClick={() => { on_select_repo(repo.id, repo.name) }}>
         <div className='title'>
@@ -62,7 +26,7 @@ export function Repos ({ on_select_repo }: { on_select_repo: (repo_id: string, t
             {repo.description}
         </div>
         <div className='time'>
-            {formatFriendlyDate(repo.last_activity_at)}
+            {format_friendly_date(repo.last_activity_at)}
         </div>
     </div>)
     

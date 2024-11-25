@@ -34,10 +34,10 @@ export function Commit () {
     return <div className='commit'>
         {is_tab_git_tab && <>
             <div className='block-title'>
-                {t('文件提交')}
+                {show_history ? t('提交历史') : t('提交')}
                 <div className='button-logout'>
                     <Button type='text' onClick={() => { set_show_history(!show_history) }} >
-                        {show_history ? t('关闭文件历史') : t('展示文件历史')}
+                        {show_history ? t('关闭提交历史') : t('查看提交历史')}
                     </Button>
                 </div>
             </div>

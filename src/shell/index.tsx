@@ -72,7 +72,7 @@ export function Shell () {
         {/* 左侧三个面板 */}
         <Resizable
             className='left-panels'
-            defaultSize={{ height: '100%', width: '16%' }}
+            defaultSize={{ height: '100%', width: '20%' }}
             enable={{ top: false, right: true, bottom: false, left: false, topRight: false, bottomRight: false, bottomLeft: false, topLeft: false }}
             onResizeStop={async () => {
                 await delay(200)

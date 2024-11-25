@@ -1,7 +1,7 @@
 import { useEffect } from 'react'
-import { redirect, useNavigate } from 'react-router-dom'
+import { useNavigate } from 'react-router'
 
-import { GitHubAdapter, GitLabAdapter } from '@/shell/git/git-adapter.ts'
+import { GitLabAdapter } from '@/shell/git/git-adapter.ts'
 
 export function GitLabOauth () {
     

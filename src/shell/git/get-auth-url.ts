@@ -1,3 +1,11 @@
+import { t } from '@i18n/index.ts'
+import dayjs from 'dayjs'
+import relativeTime from 'dayjs/plugin/relativeTime'
+import localizedFormat from 'dayjs/plugin/localizedFormat'
+
+dayjs.extend(relativeTime)
+dayjs.extend(localizedFormat)
+
 // 生成 OAuth 认证的 URL
 export async function get_gitlab_auth_url (root_url: string, client_id: string, redirect_uri: string): Promise<string> {
     const codeVerifier = generateCodeVerifier()
@@ -33,4 +41,34 @@ function base64UrlEncode (array: Uint8Array): string {
 export function get_github_auth_url (client_id: string, redirect_url: string): string {
     const authUrl = `https://github.com/login/oauth/authorize?client_id=${client_id}&redirect_uri=${encodeURIComponent(redirect_url)}&scope=repo`
     return authUrl
+}
+
+export function format_friendly_date (isoString: string): string {
+    if (!isoString)
+        throw new Error('Invalid date string.')
+    const date = dayjs(isoString)
+    
+    // 检查是否是有效日期
+    if (!date.isValid())
+        throw new Error('Invalid date format.')
+    if (date.isSame(dayjs(), 'day'))
+        return t('今天 {{time}}', { time: date.format('HH:mm') })
+        
+        
+    if (date.isSame(dayjs().subtract(1, 'day'), 'day'))
+        // 昨天 
+        return t('昨天 {{time}}', { time: date.format('HH:mm') })
+        
+        
+    if (date.isAfter(dayjs().subtract(7, 'day'))) {
+        // 最近7天内
+        const relative = date.fromNow()
+        return t('{{relativeTime}}', { relativeTime: relative })
+    }
+    
+    // 更久以前
+    return t('{{date}} {{time}}', {
+        date: date.format('YYYY/MM/DD'),
+        time: date.format('HH:mm'),
+    })
 }
