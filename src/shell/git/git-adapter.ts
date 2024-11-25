@@ -39,6 +39,17 @@ interface IFileData {
     execute_filemode: boolean
 }
 
+export interface IFileBlame {
+    commit: {
+        id: string
+        message: string
+        committed_date: string
+        committer_name: string
+        committer_email: string
+    }
+    lines: string[]
+}
+
 interface IGitAdapter {
     root_url: string
     api_root: string
@@ -50,6 +61,7 @@ interface IGitAdapter {
     get_branches(repo: string): Promise<string[]>
     get_access_token(code: string, client_id: string, redirect_uri?: string, secret?: string): Promise<string>
     commit_file(repo: string, file_path: string, message: string, branch: string, content: string, sha?: string): Promise<boolean>
+    get_file_blame(repo: string, file_path: string, ref: string): Promise<IFileBlame[]>
 }
 
 export class GitLabAdapter implements IGitAdapter {
@@ -168,6 +180,12 @@ export class GitLabAdapter implements IGitAdapter {
         return resp.ok
     }
     
+    async get_file_blame (repo: string, file_path: string, ref: string): Promise<any> {
+        const resp = await fetch(`${this.root_url}${this.api_root}/projects/${encodeURIComponent(repo)}/repository/files/${encodeURIComponent(file_path)}/blame?ref=${ref}`
+            , this.get_fetch_options())
+        const result = await resp.json()
+        return result
+    }
 }
 
 export class GitHubAdapter implements IGitAdapter {
@@ -175,6 +193,9 @@ export class GitHubAdapter implements IGitAdapter {
     api_root: string = ''
     
     constructor () { }
+    async get_file_blame (repo: string, file_path: string, ref: string): Promise<any> {
+        throw new Error('Method not implemented.')
+    }
     
     async get_access_token (code: string, client_id: string, redirect_uri?: string, secret?: string): Promise<string> {
         const tokenUrl = 'https://github.com/login/oauth/access_token'

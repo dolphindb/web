@@ -48,7 +48,7 @@ export function Files ({ repo_id, on_back }: { repo_id: string, on_back: () => v
     }
     
     useEffect(() => {
-        if (repo_id) 
+        if (repo_id)
             git_provider.get_project(repo_id).then(repo_info => {
                 const title = repo_info.name
                 handle_repo_change(repo_id, title)
@@ -94,9 +94,9 @@ export function Files ({ repo_id, on_back }: { repo_id: string, on_back: () => v
     
     function title_render (node: DataNode) {
         if (node.isLeaf)
-            return <span onClick={() => { open_git_file(node.key, node.title, repo_path) }}>{node.title}</span>
+            return <div className='title-render' onClick={() => { open_git_file(node.key, node.title, repo_path) }}>{node.title}</div>
             
-        return <span>{node.title}</span>
+        return <div className='title-render'>{node.title}</div>
     }
     
     const filtered_tree_data = useMemo(() => {
@@ -138,15 +138,17 @@ export function Files ({ repo_id, on_back }: { repo_id: string, on_back: () => v
             <div className='file-explore-branch'>
                 <Select value={branch} options={branches.map(b => ({ label: `分支: ${b}`, value: b }))} onChange={set_branch} style={{ width: '100%' }} />
             </div>
-            <div className='file-explore-content'><Tree
-                className='file-tree'
-                expandAction='click'
-                loadData={load_repo_data}
-                treeData={filtered_tree_data}
-                expandedKeys={deferred_expanded_keys}
-                onExpand={handle_expand}
-                titleRender={title_render}
-            /></div>
+            <div className='file-explore-content'>
+                <Tree
+                    className='file-tree'
+                    expandAction='click'
+                    loadData={load_repo_data}
+                    treeData={filtered_tree_data}
+                    expandedKeys={deferred_expanded_keys}
+                    onExpand={handle_expand}
+                    titleRender={title_render}
+                />
+            </div>
         </>}
     </div>
 }
