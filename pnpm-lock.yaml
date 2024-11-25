@@ -25,13 +25,13 @@ importers:
         version: 1.2.13(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@formily/antd-v5':
         specifier: ^1.2.3
-        version: 1.2.3(@types/react-dom@18.3.1)(@types/react@18.3.12)(antd@5.22.2(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(react-dom@18.3.1(react@18.3.1))(react-is@18.2.0)(react@18.3.1)(typescript@5.6.3)
+        version: 1.2.3(@types/react-dom@18.3.1)(@types/react@18.3.12)(antd@5.22.2(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(react-dom@18.3.1(react@18.3.1))(react-is@18.2.0)(react@18.3.1)(typescript@5.7.2)
       '@formily/core':
         specifier: ^2.3.2
         version: 2.3.2
       '@formily/react':
         specifier: ^2.3.2
-        version: 2.3.2(@types/react-dom@18.3.1)(@types/react@18.3.12)(react-dom@18.3.1(react@18.3.1))(react-is@18.2.0)(react@18.3.1)(typescript@5.6.3)
+        version: 2.3.2(@types/react-dom@18.3.1)(@types/react@18.3.12)(react-dom@18.3.1(react@18.3.1))(react-is@18.2.0)(react@18.3.1)(typescript@5.7.2)
       '@monaco-editor/react':
         specifier: ^4.6.0
         version: 4.6.0(monaco-editor@0.52.0)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
@@ -105,14 +105,14 @@ importers:
         specifier: ^9.0.1
         version: 9.0.1(@types/react@18.3.12)(react@18.3.1)
       react-object-model:
-        specifier: ^1.2.17
-        version: 1.2.17(react@18.3.1)
+        specifier: ^1.2.18
+        version: 1.2.18(react@18.3.1)
       react-quill:
         specifier: ^2.0.0
         version: 2.0.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       react-router:
-        specifier: ^7.0.0
-        version: 7.0.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+        specifier: ^7.0.1
+        version: 7.0.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       remark-gfm:
         specifier: ^4.0.0
         version: 4.0.0
@@ -129,8 +129,8 @@ importers:
         specifier: ^9.1.0
         version: 9.1.0
       xshell:
-        specifier: ^1.0.200
-        version: 1.0.200(react-dom@18.3.1(react@18.3.1))
+        specifier: ^1.0.201
+        version: 1.0.201(react-dom@18.3.1(react@18.3.1))
     devDependencies:
       '@types/js-cookie':
         specifier: ^3.0.6
@@ -142,8 +142,8 @@ importers:
         specifier: ^4.17.13
         version: 4.17.13
       '@types/node':
-        specifier: ^22.9.1
-        version: 22.9.1
+        specifier: ^22.9.3
+        version: 22.9.3
       '@types/react':
         specifier: ^18.3.12
         version: 18.3.12
@@ -157,8 +157,8 @@ importers:
         specifier: ^18.3.1
         version: 18.3.1
       typescript:
-        specifier: ^5.6.3
-        version: 5.6.3
+        specifier: ^5.7.2
+        version: 5.7.2
 
 packages:
 
@@ -1569,8 +1569,8 @@ packages:
   '@types/node-sass@4.11.3':
     resolution: {integrity: sha512-wXPCn3t9uu5rR4zXNSLasZHQMuRzUKBsdi4MsgT8uq4Lp1gQQo+T2G23tGj4SSgDHeNBle6vGseZtM2XV/X9bw==}
 
-  '@types/node@22.9.1':
-    resolution: {integrity: sha512-p8Yy/8sw1caA8CdRIQBG5tiLHmxtQKObCijiAa9Ez+d4+PRffM4054xbju0msf+cvhJpnFEeNjxmVT/0ipktrg==}
+  '@types/node@22.9.3':
+    resolution: {integrity: sha512-F3u1fs/fce3FFk+DAxbxc78DF8x0cY09RRL8GnXLmkJ1jvx3TtPdWoTT5/NiYfI5ASqXBmfqJi9dZ3gxMx4lzw==}
 
   '@types/prop-types@15.7.5':
     resolution: {integrity: sha512-JCB8C6SnDoQf0cNycqd/35A7MjcnK+ZTqE7judS6o7utxUCg6imJg3QK2qzHKszlTjcj2cn+NwMB2i96ubpj7w==}
@@ -2888,8 +2888,13 @@ packages:
     engines: {node: '>=12'}
     hasBin: true
 
-  i18next@23.16.8:
-    resolution: {integrity: sha512-06r/TitrM88Mg5FdUXAKL96dJMzgqLE5dv3ryBAra4KCwD9mJ4ndOTS95ZuymIGoE+2hzfdaMak2X11/es7ZWg==}
+  i18next@24.0.0:
+    resolution: {integrity: sha512-ORGCwMrXxpmB/AljFbGEe0UK/9Pz6umb9aZgLZ9qJGE+kjKhlnLj423WX2mt+N0MlEJ78pQXFMBmeMzrkLxriQ==}
+    peerDependencies:
+      typescript: ^5
+    peerDependenciesMeta:
+      typescript:
+        optional: true
 
   iconv-lite@0.6.3:
     resolution: {integrity: sha512-4fCk79wshMdzMp2rH06qWrJE4iolqLhCUH+OiuIgU++RB0+94NlDL81atO7GX55uUKueo0txHNtvEyI6D7WdMw==}
@@ -4096,8 +4101,8 @@ packages:
       '@types/react': '>=18'
       react: '>=18'
 
-  react-object-model@1.2.17:
-    resolution: {integrity: sha512-ziI7JjrKWkfGimQVU7SLud2y+A8HGnsjDRxDIy32AcH5vFNwbqnYjj+pLMcnOAx4ZPP1Lml1R+xZDaHV82vD9g==}
+  react-object-model@1.2.18:
+    resolution: {integrity: sha512-Db5bE1U555JVJXCBraVecxRJUndDsPq60oav/h81auHOqDGqi5xever+ErVQvhDMTBEhgooWTTlW7cqmj53fgg==}
     peerDependencies:
       react: ^18.2.0
 
@@ -4107,8 +4112,8 @@ packages:
       react: ^16 || ^17 || ^18
       react-dom: ^16 || ^17 || ^18
 
-  react-router@7.0.0:
-    resolution: {integrity: sha512-1xf+yMVhUjAzZGY90ZnYJ9KVe1R8FggpugzRBkh+p6vl4cC1sHDe3nO+r5rxWTAgCMf8uN5hfoV2M7rLVTWPUA==}
+  react-router@7.0.1:
+    resolution: {integrity: sha512-WVAhv9oWCNsja5AkK6KLpXJDSJCQizOIyOd4vvB/+eHGbYx5vkhcmcmwWjQ9yqkRClogi+xjEg9fNEOd5EX/tw==}
     engines: {node: '>=20.0.0'}
     peerDependencies:
       react: '>=18'
@@ -4642,8 +4647,8 @@ packages:
     resolution: {integrity: sha512-sf4i37nQ2LBx4m3wB74y+ubopq6W/dIzXg0FDGjsYnZHVa1Da8FH853wlL2gtUhg+xJXjfk3kUZS3BRoQeoQBQ==}
     engines: {node: '>=6'}
 
-  tough-cookie@5.0.0-rc.4:
-    resolution: {integrity: sha512-EN59UG6X/O6Nz2p21O6UK8R97zvLETOZ9+FGNdo56VuJZ8cftVCZ6tyxvedkQBfcX22avA1HY+4n04OVT2q6cw==}
+  tough-cookie@5.0.0:
+    resolution: {integrity: sha512-FRKsF7cz96xIIeMZ82ehjC3xW2E+O2+v11udrDYewUbszngYhsGa8z6YUMMzO9QJZzzyd0nGGXnML/TReX6W8Q==}
     engines: {node: '>=16'}
 
   trim-lines@3.0.1:
@@ -4708,8 +4713,8 @@ packages:
     resolution: {integrity: sha512-/OxDN6OtAk5KBpGb28T+HZc2M+ADtvRxXrKKbUwtsLgdoxgX13hyy7ek6bFRl5+aBs2yZzB0c4CnQfAtVypW/g==}
     engines: {node: '>= 0.4'}
 
-  typescript@5.6.3:
-    resolution: {integrity: sha512-hjcS1mhfuyi4WW8IWtjP7brDrG2cuDZukyrYrSauoXGNgx0S7zceP07adYkJycEr56BOUTNPzbInooiN3fn1qw==}
+  typescript@5.7.2:
+    resolution: {integrity: sha512-i5t66RHxDvVN40HfDd1PsEThGNnlMCMT3jMUuoh9/0TaqWevNontacunWyN02LA9/fIbEWlcHZcgTKb9QoaLfg==}
     engines: {node: '>=14.17'}
     hasBin: true
 
@@ -4734,8 +4739,8 @@ packages:
   undici-types@6.19.8:
     resolution: {integrity: sha512-ve2KP6f/JnbPBFyobGHuerC9g1FYGn/F8n1LWTwNxCEzd6IfqTwUQcNXgEtmmQ6DlRrC1hrSrBnCZPokRrDHjw==}
 
-  undici@6.21.0:
-    resolution: {integrity: sha512-BUgJXc752Kou3oOIuU1i+yZZypyZRqNPW0vqoMPl8VaoalSfeR0D8/t4iAS3yirs79SSMTxTag+ZC86uswv+Cw==}
+  undici@7.0.0-alpha.6:
+    resolution: {integrity: sha512-NNAU7KiklOoq5AvlHskrreJzoG8RUMK6lRwNGzGSVAQ1r7sbmAXoFrQuu/UfQUyscIz+BzLhKazfAB2cgwCjVw==}
     engines: {node: '>=18.17'}
 
   unescape@1.0.1:
@@ -4952,8 +4957,8 @@ packages:
     resolution: {integrity: sha512-fDlsI/kFEx7gLvbecc0/ohLG50fugQp8ryHzMTuW9vSa1GJ0XYWKnhsUx7oie3G98+r56aTQIUB4kht42R3JvA==}
     engines: {node: '>=4.0'}
 
-  xshell@1.0.200:
-    resolution: {integrity: sha512-cumh4IdmYGoa0JKBwO92wnZqBPyPXmXYzG7NJ/sFt298UWpDUi4kfYfjvxjXQvxOrcRlIW/2GkIBM1AkJw5L/Q==}
+  xshell@1.0.201:
+    resolution: {integrity: sha512-tQUq6Jm9+uCgFuJCKb76miD7PdbwEueOUiaECuo9dm0uL350/sbPSwslni7ZeyFGPxY8S142gweM4CKmE0ZqoQ==}
     hasBin: true
 
   xtend@4.0.2:
@@ -6333,16 +6338,16 @@ snapshots:
     dependencies:
       levn: 0.4.1
 
-  '@formily/antd-v5@1.2.3(@types/react-dom@18.3.1)(@types/react@18.3.12)(antd@5.22.2(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(react-dom@18.3.1(react@18.3.1))(react-is@18.2.0)(react@18.3.1)(typescript@5.6.3)':
+  '@formily/antd-v5@1.2.3(@types/react-dom@18.3.1)(@types/react@18.3.12)(antd@5.22.2(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(react-dom@18.3.1(react@18.3.1))(react-is@18.2.0)(react@18.3.1)(typescript@5.7.2)':
     dependencies:
       '@ant-design/cssinjs': 1.21.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@ant-design/icons': 5.5.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@dnd-kit/core': 6.0.8(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
       '@dnd-kit/sortable': 7.0.2(@dnd-kit/core@6.0.8(react-dom@18.3.1(react@18.3.1))(react@18.3.1))(react@18.3.1)
       '@formily/core': 2.3.2
-      '@formily/grid': 2.2.22(typescript@5.6.3)
-      '@formily/json-schema': 2.3.2(typescript@5.6.3)
-      '@formily/react': 2.3.2(@types/react-dom@18.3.1)(@types/react@18.3.12)(react-dom@18.3.1(react@18.3.1))(react-is@18.2.0)(react@18.3.1)(typescript@5.6.3)
+      '@formily/grid': 2.2.22(typescript@5.7.2)
+      '@formily/json-schema': 2.3.2(typescript@5.7.2)
+      '@formily/react': 2.3.2(@types/react-dom@18.3.1)(@types/react@18.3.12)(react-dom@18.3.1(react@18.3.1))(react-is@18.2.0)(react@18.3.1)(typescript@5.7.2)
       '@formily/reactive': 2.3.2
       '@formily/reactive-react': 2.3.2(@types/react-dom@18.3.1)(@types/react@18.3.12)(react-dom@18.3.1(react@18.3.1))(react-is@18.2.0)(react@18.3.1)
       '@formily/shared': 2.3.2
@@ -6363,25 +6368,25 @@ snapshots:
       '@formily/shared': 2.3.2
       '@formily/validator': 2.3.2
 
-  '@formily/grid@2.2.22(typescript@5.6.3)':
+  '@formily/grid@2.2.22(typescript@5.7.2)':
     dependencies:
       '@formily/reactive': 2.2.22
       '@juggle/resize-observer': 3.4.0
-      typescript: 5.6.3
+      typescript: 5.7.2
 
-  '@formily/json-schema@2.3.2(typescript@5.6.3)':
+  '@formily/json-schema@2.3.2(typescript@5.7.2)':
     dependencies:
       '@formily/core': 2.3.2
       '@formily/reactive': 2.3.2
       '@formily/shared': 2.3.2
-      typescript: 5.6.3
+      typescript: 5.7.2
 
   '@formily/path@2.3.2': {}
 
-  '@formily/react@2.3.2(@types/react-dom@18.3.1)(@types/react@18.3.12)(react-dom@18.3.1(react@18.3.1))(react-is@18.2.0)(react@18.3.1)(typescript@5.6.3)':
+  '@formily/react@2.3.2(@types/react-dom@18.3.1)(@types/react@18.3.12)(react-dom@18.3.1(react@18.3.1))(react-is@18.2.0)(react@18.3.1)(typescript@5.7.2)':
     dependencies:
       '@formily/core': 2.3.2
-      '@formily/json-schema': 2.3.2(typescript@5.6.3)
+      '@formily/json-schema': 2.3.2(typescript@5.7.2)
       '@formily/reactive': 2.3.2
       '@formily/reactive-react': 2.3.2(@types/react-dom@18.3.1)(@types/react@18.3.12)(react-dom@18.3.1(react@18.3.1))(react-is@18.2.0)(react@18.3.1)
       '@formily/shared': 2.3.2
@@ -6649,9 +6654,9 @@ snapshots:
 
   '@rtsao/scc@1.1.0': {}
 
-  '@stylistic/eslint-plugin@2.11.0(eslint@9.15.0)(typescript@5.6.3)':
+  '@stylistic/eslint-plugin@2.11.0(eslint@9.15.0)(typescript@5.7.2)':
     dependencies:
-      '@typescript-eslint/utils': 8.15.0(eslint@9.15.0)(typescript@5.6.3)
+      '@typescript-eslint/utils': 8.15.0(eslint@9.15.0)(typescript@5.7.2)
       eslint: 9.15.0
       eslint-visitor-keys: 4.2.0
       espree: 10.3.0
@@ -6754,16 +6759,16 @@ snapshots:
 
   '@types/accepts@1.3.5':
     dependencies:
-      '@types/node': 22.9.1
+      '@types/node': 22.9.3
 
   '@types/body-parser@1.19.2':
     dependencies:
       '@types/connect': 3.4.35
-      '@types/node': 22.9.1
+      '@types/node': 22.9.3
 
   '@types/connect@3.4.35':
     dependencies:
-      '@types/node': 22.9.1
+      '@types/node': 22.9.3
 
   '@types/content-disposition@0.5.5': {}
 
@@ -6774,7 +6779,7 @@ snapshots:
       '@types/connect': 3.4.35
       '@types/express': 4.17.17
       '@types/keygrip': 1.0.2
-      '@types/node': 22.9.1
+      '@types/node': 22.9.3
 
   '@types/d3-timer@2.0.3': {}
 
@@ -6800,7 +6805,7 @@ snapshots:
 
   '@types/express-serve-static-core@4.17.33':
     dependencies:
-      '@types/node': 22.9.1
+      '@types/node': 22.9.3
       '@types/qs': 6.9.7
       '@types/range-parser': 1.2.4
 
@@ -6840,7 +6845,7 @@ snapshots:
       '@types/http-errors': 2.0.1
       '@types/keygrip': 1.0.2
       '@types/koa-compose': 3.2.5
-      '@types/node': 22.9.1
+      '@types/node': 22.9.3
 
   '@types/lodash@4.17.13': {}
 
@@ -6854,9 +6859,9 @@ snapshots:
 
   '@types/node-sass@4.11.3':
     dependencies:
-      '@types/node': 22.9.1
+      '@types/node': 22.9.3
 
-  '@types/node@22.9.1':
+  '@types/node@22.9.3':
     dependencies:
       undici-types: 6.19.8
 
@@ -6881,7 +6886,7 @@ snapshots:
 
   '@types/sass-loader@8.0.9':
     dependencies:
-      '@types/node': 22.9.1
+      '@types/node': 22.9.3
       '@types/node-sass': 4.11.3
       '@types/webpack': 4.41.33
       sass: 1.81.0
@@ -6889,7 +6894,7 @@ snapshots:
   '@types/serve-static@1.15.0':
     dependencies:
       '@types/mime': 3.0.1
-      '@types/node': 22.9.1
+      '@types/node': 22.9.3
 
   '@types/source-list-map@0.1.2': {}
 
@@ -6905,13 +6910,13 @@ snapshots:
 
   '@types/webpack-sources@3.2.0':
     dependencies:
-      '@types/node': 22.9.1
+      '@types/node': 22.9.3
       '@types/source-list-map': 0.1.2
       source-map: 0.7.4
 
   '@types/webpack@4.41.33':
     dependencies:
-      '@types/node': 22.9.1
+      '@types/node': 22.9.3
       '@types/tapable': 1.0.8
       '@types/uglify-js': 3.17.1
       '@types/webpack-sources': 3.2.0
@@ -6920,36 +6925,36 @@ snapshots:
 
   '@types/ws@8.5.13':
     dependencies:
-      '@types/node': 22.9.1
+      '@types/node': 22.9.3
 
-  '@typescript-eslint/eslint-plugin@8.15.0(@typescript-eslint/parser@8.15.0(eslint@9.15.0)(typescript@5.6.3))(eslint@9.15.0)(typescript@5.6.3)':
+  '@typescript-eslint/eslint-plugin@8.15.0(@typescript-eslint/parser@8.15.0(eslint@9.15.0)(typescript@5.7.2))(eslint@9.15.0)(typescript@5.7.2)':
     dependencies:
       '@eslint-community/regexpp': 4.12.1
-      '@typescript-eslint/parser': 8.15.0(eslint@9.15.0)(typescript@5.6.3)
+      '@typescript-eslint/parser': 8.15.0(eslint@9.15.0)(typescript@5.7.2)
       '@typescript-eslint/scope-manager': 8.15.0
-      '@typescript-eslint/type-utils': 8.15.0(eslint@9.15.0)(typescript@5.6.3)
-      '@typescript-eslint/utils': 8.15.0(eslint@9.15.0)(typescript@5.6.3)
+      '@typescript-eslint/type-utils': 8.15.0(eslint@9.15.0)(typescript@5.7.2)
+      '@typescript-eslint/utils': 8.15.0(eslint@9.15.0)(typescript@5.7.2)
       '@typescript-eslint/visitor-keys': 8.15.0
       eslint: 9.15.0
       graphemer: 1.4.0
       ignore: 5.3.1
       natural-compare: 1.4.0
-      ts-api-utils: 1.3.0(typescript@5.6.3)
+      ts-api-utils: 1.3.0(typescript@5.7.2)
     optionalDependencies:
-      typescript: 5.6.3
+      typescript: 5.7.2
     transitivePeerDependencies:
       - supports-color
 
-  '@typescript-eslint/parser@8.15.0(eslint@9.15.0)(typescript@5.6.3)':
+  '@typescript-eslint/parser@8.15.0(eslint@9.15.0)(typescript@5.7.2)':
     dependencies:
       '@typescript-eslint/scope-manager': 8.15.0
       '@typescript-eslint/types': 8.15.0
-      '@typescript-eslint/typescript-estree': 8.15.0(typescript@5.6.3)
+      '@typescript-eslint/typescript-estree': 8.15.0(typescript@5.7.2)
       '@typescript-eslint/visitor-keys': 8.15.0
       debug: 4.3.4
       eslint: 9.15.0
     optionalDependencies:
-      typescript: 5.6.3
+      typescript: 5.7.2
     transitivePeerDependencies:
       - supports-color
 
@@ -6958,21 +6963,21 @@ snapshots:
       '@typescript-eslint/types': 8.15.0
       '@typescript-eslint/visitor-keys': 8.15.0
 
-  '@typescript-eslint/type-utils@8.15.0(eslint@9.15.0)(typescript@5.6.3)':
+  '@typescript-eslint/type-utils@8.15.0(eslint@9.15.0)(typescript@5.7.2)':
     dependencies:
-      '@typescript-eslint/typescript-estree': 8.15.0(typescript@5.6.3)
-      '@typescript-eslint/utils': 8.15.0(eslint@9.15.0)(typescript@5.6.3)
+      '@typescript-eslint/typescript-estree': 8.15.0(typescript@5.7.2)
+      '@typescript-eslint/utils': 8.15.0(eslint@9.15.0)(typescript@5.7.2)
       debug: 4.3.4
       eslint: 9.15.0
-      ts-api-utils: 1.3.0(typescript@5.6.3)
+      ts-api-utils: 1.3.0(typescript@5.7.2)
     optionalDependencies:
-      typescript: 5.6.3
+      typescript: 5.7.2
     transitivePeerDependencies:
       - supports-color
 
   '@typescript-eslint/types@8.15.0': {}
 
-  '@typescript-eslint/typescript-estree@8.15.0(typescript@5.6.3)':
+  '@typescript-eslint/typescript-estree@8.15.0(typescript@5.7.2)':
     dependencies:
       '@typescript-eslint/types': 8.15.0
       '@typescript-eslint/visitor-keys': 8.15.0
@@ -6981,21 +6986,21 @@ snapshots:
       is-glob: 4.0.3
       minimatch: 9.0.4
       semver: 7.6.0
-      ts-api-utils: 1.3.0(typescript@5.6.3)
+      ts-api-utils: 1.3.0(typescript@5.7.2)
     optionalDependencies:
-      typescript: 5.6.3
+      typescript: 5.7.2
     transitivePeerDependencies:
       - supports-color
 
-  '@typescript-eslint/utils@8.15.0(eslint@9.15.0)(typescript@5.6.3)':
+  '@typescript-eslint/utils@8.15.0(eslint@9.15.0)(typescript@5.7.2)':
     dependencies:
       '@eslint-community/eslint-utils': 4.4.0(eslint@9.15.0)
       '@typescript-eslint/scope-manager': 8.15.0
       '@typescript-eslint/types': 8.15.0
-      '@typescript-eslint/typescript-estree': 8.15.0(typescript@5.6.3)
+      '@typescript-eslint/typescript-estree': 8.15.0(typescript@5.7.2)
       eslint: 9.15.0
     optionalDependencies:
-      typescript: 5.6.3
+      typescript: 5.7.2
     transitivePeerDependencies:
       - supports-color
 
@@ -7825,7 +7830,7 @@ snapshots:
       dayjs: 1.11.13
       ipaddr.js: 2.2.0
       tslib: 2.8.1
-      xshell: 1.0.200(react-dom@18.3.1(react@18.3.1))
+      xshell: 1.0.201(react-dom@18.3.1(react@18.3.1))
     transitivePeerDependencies:
       - '@rspack/core'
       - '@swc/core'
@@ -8034,17 +8039,17 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  eslint-module-utils@2.12.0(@typescript-eslint/parser@8.15.0(eslint@9.15.0)(typescript@5.6.3))(eslint-import-resolver-node@0.3.9)(eslint@9.15.0):
+  eslint-module-utils@2.12.0(@typescript-eslint/parser@8.15.0(eslint@9.15.0)(typescript@5.7.2))(eslint-import-resolver-node@0.3.9)(eslint@9.15.0):
     dependencies:
       debug: 3.2.7
     optionalDependencies:
-      '@typescript-eslint/parser': 8.15.0(eslint@9.15.0)(typescript@5.6.3)
+      '@typescript-eslint/parser': 8.15.0(eslint@9.15.0)(typescript@5.7.2)
       eslint: 9.15.0
       eslint-import-resolver-node: 0.3.9
     transitivePeerDependencies:
       - supports-color
 
-  eslint-plugin-import@2.31.0(@typescript-eslint/parser@8.15.0(eslint@9.15.0)(typescript@5.6.3))(eslint@9.15.0):
+  eslint-plugin-import@2.31.0(@typescript-eslint/parser@8.15.0(eslint@9.15.0)(typescript@5.7.2))(eslint@9.15.0):
     dependencies:
       '@rtsao/scc': 1.1.0
       array-includes: 3.1.8
@@ -8055,7 +8060,7 @@ snapshots:
       doctrine: 2.1.0
       eslint: 9.15.0
       eslint-import-resolver-node: 0.3.9
-      eslint-module-utils: 2.12.0(@typescript-eslint/parser@8.15.0(eslint@9.15.0)(typescript@5.6.3))(eslint-import-resolver-node@0.3.9)(eslint@9.15.0)
+      eslint-module-utils: 2.12.0(@typescript-eslint/parser@8.15.0(eslint@9.15.0)(typescript@5.7.2))(eslint-import-resolver-node@0.3.9)(eslint@9.15.0)
       hasown: 2.0.2
       is-core-module: 2.15.1
       is-glob: 4.0.3
@@ -8067,7 +8072,7 @@ snapshots:
       string.prototype.trimend: 1.0.8
       tsconfig-paths: 3.15.0
     optionalDependencies:
-      '@typescript-eslint/parser': 8.15.0(eslint@9.15.0)(typescript@5.6.3)
+      '@typescript-eslint/parser': 8.15.0(eslint@9.15.0)(typescript@5.7.2)
     transitivePeerDependencies:
       - eslint-import-resolver-typescript
       - eslint-import-resolver-webpack
@@ -8457,7 +8462,7 @@ snapshots:
     dependencies:
       ms: 2.1.2
 
-  i18next-scanner@4.6.0:
+  i18next-scanner@4.6.0(typescript@5.7.2):
     dependencies:
       acorn: 8.14.0
       acorn-jsx: 5.3.2(acorn@8.14.0)
@@ -8471,17 +8476,21 @@ snapshots:
       eol: 0.9.1
       esprima-next: 5.8.4
       gulp-sort: 2.0.0
-      i18next: 23.16.8
+      i18next: 24.0.0(typescript@5.7.2)
       lodash: 4.17.21
       parse5: 6.0.1
       sortobject: 4.16.0
       through2: 4.0.2
       vinyl: 3.0.0
       vinyl-fs: 4.0.0
+    transitivePeerDependencies:
+      - typescript
 
-  i18next@23.16.8:
+  i18next@24.0.0(typescript@5.7.2):
     dependencies:
       '@babel/runtime': 7.26.0
+    optionalDependencies:
+      typescript: 5.7.2
 
   iconv-lite@0.6.3:
     dependencies:
@@ -8695,7 +8704,7 @@ snapshots:
 
   jest-worker@27.5.1:
     dependencies:
-      '@types/node': 22.9.1
+      '@types/node': 22.9.3
       merge-stream: 2.0.0
       supports-color: 8.1.1
 
@@ -9931,11 +9940,11 @@ snapshots:
 
   react-fast-compare@3.2.2: {}
 
-  react-i18next@15.1.1(i18next@23.16.8)(react-dom@18.3.1(react@18.3.1))(react@18.3.1):
+  react-i18next@15.1.1(i18next@24.0.0(typescript@5.7.2))(react-dom@18.3.1(react@18.3.1))(react@18.3.1):
     dependencies:
       '@babel/runtime': 7.26.0
       html-parse-stringify: 3.0.1
-      i18next: 23.16.8
+      i18next: 24.0.0(typescript@5.7.2)
       react: 18.3.1
     optionalDependencies:
       react-dom: 18.3.1(react@18.3.1)
@@ -9963,7 +9972,7 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  react-object-model@1.2.17(react@18.3.1):
+  react-object-model@1.2.18(react@18.3.1):
     dependencies:
       react: 18.3.1
     optionalDependencies:
@@ -9977,7 +9986,7 @@ snapshots:
       react: 18.3.1
       react-dom: 18.3.1(react@18.3.1)
 
-  react-router@7.0.0(react-dom@18.3.1(react@18.3.1))(react@18.3.1):
+  react-router@7.0.1(react-dom@18.3.1(react@18.3.1))(react@18.3.1):
     dependencies:
       '@types/cookie': 0.6.0
       cookie: 1.0.2
@@ -10571,7 +10580,7 @@ snapshots:
 
   totalist@3.0.1: {}
 
-  tough-cookie@5.0.0-rc.4:
+  tough-cookie@5.0.0:
     dependencies:
       tldts: 6.1.41
 
@@ -10579,18 +10588,18 @@ snapshots:
 
   trough@2.2.0: {}
 
-  ts-api-utils@1.3.0(typescript@5.6.3):
+  ts-api-utils@1.3.0(typescript@5.7.2):
     dependencies:
-      typescript: 5.6.3
+      typescript: 5.7.2
 
-  ts-loader@9.5.1(typescript@5.6.3)(webpack@5.96.1):
+  ts-loader@9.5.1(typescript@5.7.2)(webpack@5.96.1):
     dependencies:
       chalk: 4.1.2
       enhanced-resolve: 5.17.1
       micromatch: 4.0.5
       semver: 7.6.0
       source-map: 0.7.4
-      typescript: 5.6.3
+      typescript: 5.7.2
       webpack: 5.96.1
 
   tsconfig-paths@3.15.0:
@@ -10651,7 +10660,7 @@ snapshots:
       is-typed-array: 1.1.13
       possible-typed-array-names: 1.0.0
 
-  typescript@5.6.3: {}
+  typescript@5.7.2: {}
 
   ua-is-frozen@0.1.2: {}
 
@@ -10680,7 +10689,7 @@ snapshots:
 
   undici-types@6.19.8: {}
 
-  undici@6.21.0: {}
+  undici@7.0.0-alpha.6: {}
 
   unescape@1.0.1:
     dependencies:
@@ -10972,19 +10981,19 @@ snapshots:
 
   xmlbuilder@11.0.1: {}
 
-  xshell@1.0.200(react-dom@18.3.1(react@18.3.1)):
+  xshell@1.0.201(react-dom@18.3.1(react@18.3.1)):
     dependencies:
       '@babel/core': 7.26.0
       '@babel/parser': 7.26.2
       '@babel/traverse': 7.25.9
       '@koa/cors': 5.0.0
-      '@stylistic/eslint-plugin': 2.11.0(eslint@9.15.0)(typescript@5.6.3)
+      '@stylistic/eslint-plugin': 2.11.0(eslint@9.15.0)(typescript@5.7.2)
       '@svgr/webpack': 8.1.0
       '@types/sass-loader': 8.0.9
       '@types/ws': 8.5.13
-      '@typescript-eslint/eslint-plugin': 8.15.0(@typescript-eslint/parser@8.15.0(eslint@9.15.0)(typescript@5.6.3))(eslint@9.15.0)(typescript@5.6.3)
-      '@typescript-eslint/parser': 8.15.0(eslint@9.15.0)(typescript@5.6.3)
-      '@typescript-eslint/utils': 8.15.0(eslint@9.15.0)(typescript@5.6.3)
+      '@typescript-eslint/eslint-plugin': 8.15.0(@typescript-eslint/parser@8.15.0(eslint@9.15.0)(typescript@5.7.2))(eslint@9.15.0)(typescript@5.7.2)
+      '@typescript-eslint/parser': 8.15.0(eslint@9.15.0)(typescript@5.7.2)
+      '@typescript-eslint/utils': 8.15.0(eslint@9.15.0)(typescript@5.7.2)
       '@xterm/addon-fit': 0.10.0(@xterm/xterm@5.5.0)
       '@xterm/addon-web-links': 0.11.0(@xterm/xterm@5.5.0)
       '@xterm/addon-webgl': 0.18.0(@xterm/xterm@5.5.0)
@@ -11001,13 +11010,13 @@ snapshots:
       css-loader: 7.1.2(webpack@5.96.1)
       emoji-regex: 10.4.0
       eslint: 9.15.0
-      eslint-plugin-import: 2.31.0(@typescript-eslint/parser@8.15.0(eslint@9.15.0)(typescript@5.6.3))(eslint@9.15.0)
+      eslint-plugin-import: 2.31.0(@typescript-eslint/parser@8.15.0(eslint@9.15.0)(typescript@5.7.2))(eslint@9.15.0)
       eslint-plugin-react: 7.37.2(eslint@9.15.0)
       gulp-sort: 2.0.0
       hash-string: 1.0.0
       https-proxy-agent: 7.0.5
-      i18next: 23.16.8
-      i18next-scanner: 4.6.0
+      i18next: 24.0.0(typescript@5.7.2)
+      i18next-scanner: 4.6.0(typescript@5.7.2)
       koa: 2.15.3
       koa-compress: 5.1.1
       license-webpack-plugin: 4.0.2(webpack@5.96.1)
@@ -11016,8 +11025,8 @@ snapshots:
       mime-types: 2.1.35
       ora: 8.1.1
       react: 18.3.1
-      react-i18next: 15.1.1(i18next@23.16.8)(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
-      react-object-model: 1.2.17(react@18.3.1)
+      react-i18next: 15.1.1(i18next@24.0.0(typescript@5.7.2))(react-dom@18.3.1(react@18.3.1))(react@18.3.1)
+      react-object-model: 1.2.18(react@18.3.1)
       resolve-path: 1.4.0
       sass: 1.81.0
       sass-loader: 16.0.3(sass@1.81.0)(webpack@5.96.1)
@@ -11025,12 +11034,12 @@ snapshots:
       strip-ansi: 7.1.0
       style-loader: 4.0.0(webpack@5.96.1)
       through2: 4.0.2
-      tough-cookie: 5.0.0-rc.4
-      ts-loader: 9.5.1(typescript@5.6.3)(webpack@5.96.1)
+      tough-cookie: 5.0.0
+      ts-loader: 9.5.1(typescript@5.7.2)(webpack@5.96.1)
       tslib: 2.8.1
-      typescript: 5.6.3
+      typescript: 5.7.2
       ua-parser-js: 2.0.0
-      undici: 6.21.0
+      undici: 7.0.0-alpha.6
       vinyl: 3.0.0
       vinyl-fs: 4.0.0
       webpack: 5.96.1
