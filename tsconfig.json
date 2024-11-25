@@ -50,7 +50,6 @@
         "emitDeclarationOnly": false,
         "noEmitOnError": false,
         "listEmittedFiles": true,
-        "rewriteRelativeImportExtensions": true,
         
         // --- source maps
         "sourceMap": true,
