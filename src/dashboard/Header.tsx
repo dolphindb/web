@@ -13,8 +13,6 @@ import NiceModal from '@ebay/nice-modal-react'
 
 import type { SwitchProps } from 'antd/lib/index.js'
 
-import { uniqBy } from 'lodash'
-
 import useSWR from 'swr'
 
 import { model, storage_keys } from '../model.js'
