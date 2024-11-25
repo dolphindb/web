@@ -8,7 +8,7 @@ import type { NotificationInstance } from 'antd/es/notification/interface.d.ts'
 import type { NavigateFunction, NavigateOptions } from 'react-router'
 
 import 'xshell/polyfill.browser.js'
-import { assert, delay, filter_values, not_empty, strcmp } from 'xshell/utils.browser.js'
+import { assert, filter_values, not_empty, strcmp } from 'xshell/utils.browser.js'
 import { request } from 'xshell/net.browser.js'
 
 import {
@@ -224,11 +224,10 @@ export class DdbModel extends Model<DdbModel> {
             }
         )
         
-        const view = params.get('view')
-        const dashboard = params.get('dashboard')
+        const { header, sider } = this.get_header_sider(location.pathname, params)
+        this.header = header
+        this.sider = sider
         
-        this.header = params.get('header') !== '0' && (view !== 'dashboard' || !dashboard)
-        this.sider = params.get('sider') !== '0' && (view !== 'dashboard' || !dashboard)
         this.code_template = params.get('code-template') === '1'
     }
     
@@ -305,6 +304,16 @@ export class DdbModel extends Model<DdbModel> {
             await this.goto_login()
         else
             await this.get_factor_platform_enabled()
+    }
+    
+    
+    get_header_sider (pathname: string, params: URLSearchParams) {
+        const dashboard_instance = /\/dashboard\/\d+/.test(pathname)
+        
+        return {
+            header: !dashboard_instance && params.get('header') !== '0',
+            sider: !dashboard_instance && params.get('sider') !== '0'
+        }
     }
     
     
