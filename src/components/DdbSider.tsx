@@ -1,10 +1,8 @@
-import { useEffect, useMemo } from 'react'
+import { useMemo } from 'react'
 
 import { Layout, Menu, Typography } from 'antd'
 
 import { default as Icon, DoubleLeftOutlined, DoubleRightOutlined, ExperimentOutlined, SettingOutlined } from '@ant-design/icons'
-
-import { useLocation } from 'react-router'
 
 import { filter_values } from 'xshell/utils.browser.js'
 
@@ -65,31 +63,20 @@ function MenuIcon ({ view }: { view: DdbModel['view'] }) {
 export function DdbSider () {
     const { dev } = model
     
-    const { node_type, collapsed, logined, admin, login_required, client_auth, v1, is_factor_platform_enabled } 
-        = model.use(['node_type', 'collapsed', 'logined', 'admin', 'login_required', 'client_auth', 'v1', 'is_factor_platform_enabled', 'enabled_modules'])
+    const { node_type, collapsed, logined, admin, login_required, client_auth, v1, is_factor_platform_enabled, port, hostname } 
+        = model.use(['node_type', 'collapsed', 'logined', 'admin', 'login_required', 'client_auth', 'v1', 'is_factor_platform_enabled', 'enabled_modules', 'port', 'hostname'])
     
-    // useLocation 会导致路径变化时整个组件重新渲染，尽量选择小的范围调用
-    const { search, pathname } = useLocation()
-    
-    useEffect(() => {
-        const dashboard = /\/dashboard\/\d+/.test(pathname)
-        const params = new URLSearchParams(search)
-        model.set({
-            header: params.get('header') === '0' ? false : !dashboard,
-            sider: !dashboard
-        })
-    }, [search, pathname])
-    
-    
-    const factor_href = useMemo(() => model.assets_root + 'starfish/index.html?' +
-            new URLSearchParams(filter_values(
-                {
-                    ddb_hostname: model.hostname,
-                    ddb_port: model.port,
-                    logined: Number(logined).toString(),
-                    token: localStorage.getItem(storage_keys.ticket)
-                })
-            ).toString(), [logined])
+    const factor_href = useMemo(
+        () =>
+            `${model.assets_root}starfish/index.html?` +
+            new URLSearchParams(filter_values({
+                ddb_hostname: model.hostname,
+                ddb_port: model.port,
+                logined: Number(logined).toString(),
+                token: localStorage.getItem(storage_keys.ticket)
+            })).toString(),
+        [logined, hostname, port]
+    )
     
     return <Layout.Sider
         width={ language === 'zh' ? 150 : 220 }

@@ -8,7 +8,7 @@ import './pagination.sass'
 import { useEffect } from 'react'
 import { createRoot } from 'react-dom/client'
 
-import { createBrowserRouter, RouterProvider, Outlet, useNavigate } from 'react-router'
+import { createBrowserRouter, RouterProvider, Outlet, useNavigate, useLocation, useSearchParams } from 'react-router'
 
 import NiceModal from '@ebay/nice-modal-react'
 
@@ -149,6 +149,7 @@ function MainLayout () {
     
     return inited ?
         <Layout className='root-layout'>
+            <RouteListener />
             { header && <Layout.Header className='ddb-header'>
                 <DdbHeader />
             </Layout.Header> }
@@ -169,6 +170,20 @@ function MainLayout () {
                 <HostSelect size='middle' />
             </div> }
         </GlobalErrorBoundary>
+}
+
+
+/** 监听路由修改 */
+function RouteListener () {
+    const location = useLocation()
+    const [params] = useSearchParams()
+    
+    useEffect(() => {
+        model.set(
+            model.get_header_sider(location.pathname, params))
+    }, [location])
+    
+    return null
 }
 
 
