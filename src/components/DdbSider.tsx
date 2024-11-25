@@ -63,8 +63,8 @@ function MenuIcon ({ view }: { view: DdbModel['view'] }) {
 export function DdbSider () {
     const { dev } = model
     
-    const { node_type, collapsed, logined, admin, login_required, client_auth, v1, is_factor_platform_enabled } 
-        = model.use(['node_type', 'collapsed', 'logined', 'admin', 'login_required', 'client_auth', 'v1', 'is_factor_platform_enabled', 'enabled_modules'])
+    const { node_type, collapsed, logined, admin, login_required, client_auth, v1, is_factor_platform_enabled, port, hostname } 
+        = model.use(['node_type', 'collapsed', 'logined', 'admin', 'login_required', 'client_auth', 'v1', 'is_factor_platform_enabled', 'enabled_modules', 'port', 'hostname'])
     
     const factor_href = useMemo(
         () =>
@@ -75,7 +75,7 @@ export function DdbSider () {
                 logined: Number(logined).toString(),
                 token: localStorage.getItem(storage_keys.ticket)
             })).toString(),
-        [logined, model.hostname, model.port]
+        [logined, hostname, port]
     )
     
     return <Layout.Sider
