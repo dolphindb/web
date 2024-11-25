@@ -10,7 +10,7 @@ import { UpOutlined } from '@ant-design/icons'
 
 import NiceModal from '@ebay/nice-modal-react'
 
-import { useParams } from 'react-router-dom'
+import { useParams } from 'react-router'
 
 import { model } from '@/model.ts'
 

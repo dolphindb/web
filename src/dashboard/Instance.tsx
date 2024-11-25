@@ -2,7 +2,7 @@ import { useEffect, useRef } from 'react'
 
 import { App, ConfigProvider, Spin, theme } from 'antd'
 
-import { useParams } from 'react-router-dom'
+import { useParams } from 'react-router'
 
 import { delay } from 'xshell/utils.browser.js'
 

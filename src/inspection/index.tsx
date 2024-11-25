@@ -1,6 +1,6 @@
 import './index.sass'
 
-import { useRoutes } from 'react-router-dom'
+import { useRoutes } from 'react-router'
 
 import { ReportDetailPage } from '@/inspection/pages/ReportDetailPage.tsx'
 import { EditInspectionPage } from '@/inspection/pages/EditInspectionPage.tsx'

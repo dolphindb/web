@@ -8,7 +8,7 @@ import './pagination.sass'
 import { useEffect } from 'react'
 import { createRoot } from 'react-dom/client'
 
-import { createBrowserRouter, RouterProvider, Outlet, useNavigate } from 'react-router-dom'
+import { createBrowserRouter, RouterProvider, Outlet, useNavigate } from 'react-router'
 
 import NiceModal from '@ebay/nice-modal-react'
 
