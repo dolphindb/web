@@ -10,6 +10,8 @@ import useSWR from 'swr'
 
 import type { Dayjs } from 'dayjs'
 
+import { datetime_format } from 'xshell/utils.browser.js'
+
 import { model } from '@/model.ts'
 
 import { EmailConfigModal } from '@/inspection/modals/EmailConfigModal.tsx'
@@ -117,7 +119,7 @@ function ReportListTable  ({
     const { data: reports_obj, mutate: mutate_reports } = 
         useSWR([inited, refresh, 'get_reports', dates, sorter, success, current_page, current_page_size, search_key], async () =>  {
             if (inited) {
-                const [startTime, endTime] = Array.isArray(dates) ? dates.map(d => d && d.format('YYYY.MM.DD HH:mm:ss')) : [null, null]
+                const [startTime, endTime] = Array.isArray(dates) ? dates.map(d => d && d.format(datetime_format)) : [null, null]
                 return inspection.get_reports(null, null, startTime, endTime, success, current_page, current_page_size, search_key, sorter[0], sorter[1])
             }
             else 
