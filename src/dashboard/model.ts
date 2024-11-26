@@ -578,7 +578,6 @@ export interface Widget extends GridStackNode {
     /** 图表配置 */
     config?: (IHeatMapChartConfig | IChartConfig | ITableConfig | ITextConfig | IEditorConfig | IGaugeConfig | IOrderBookConfig) & {
         variable_ids?: string[]
-        abandon_scroll?: boolean
         variable_cols?: number
         with_search_btn?: boolean
         search_btn_label?: string
