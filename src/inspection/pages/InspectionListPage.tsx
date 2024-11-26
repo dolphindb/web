@@ -117,7 +117,7 @@ function ReportListTable  ({
     const { data: reports_obj, mutate: mutate_reports } = 
         useSWR([inited, refresh, 'get_reports', dates, sorter, success, current_page, current_page_size, search_key], async () =>  {
             if (inited) {
-                const [startTime, endTime] = dates.map(d => d && d.format('YYYY.MM.DD HH:mm:ss'))
+                const [startTime, endTime] = Array.isArray(dates) ? dates.map(d => d && d.format('YYYY.MM.DD HH:mm:ss')) : [ null, null ]
                 return inspection.get_reports(null, null, startTime, endTime, success, current_page, current_page_size, search_key, sorter[0], sorter[1])
             }
             else 
