@@ -5810,7 +5810,7 @@
     "部分页面仍有图表存在，请确保所有图表已移除后再调整页面数": {
         "en": "Some pages still have charts, please make sure all charts have been removed before adjusting the page count."
     },
-    "请注意，端标签宽度最大为 80 像素，请控制字数不超过此范围": {
-        "en": "Please note that the maximum width of the end label is 80 px. Please keep the number of characters within this range."
+    "端标签的宽度最大为 80 像素，请注意控制字数不超过此范围": {
+        "en": "The maximum width of the terminal label is 80 px. Please note that the number of control characters should not exceed this range."
     }
 }

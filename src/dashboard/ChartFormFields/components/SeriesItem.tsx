@@ -184,7 +184,7 @@ export function SeriesItem (props: SeriesItemProps) {
                             name={concat_name_path(name, 'end_label')} 
                             label={t('展示端标签')} 
                             initialValue={false}
-                            tooltip={t('请注意，端标签宽度最大为 80 像素，请控制字数不超过此范围')}
+                            tooltip={t('端标签的宽度最大为 80 像素，请注意控制字数不超过此范围')}
                         >
                             <BoolRadioGroup />
                         </Form.Item>
@@ -249,4 +249,3 @@ export function SeriesItem (props: SeriesItemProps) {
         </FormDependencies>
     </div>
 }
-
