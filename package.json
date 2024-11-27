@@ -20,7 +20,7 @@
         "@types/js-cookie": "^3.0.6",
         "@types/koa": "^2.15.0",
         "@types/lodash": "^4.17.13",
-        "@types/node": "^22.9.4",
+        "@types/node": "^22.10.0",
         "@types/react": "^18.3.12",
         "@types/react-dom": "^18.3.1",
         "eslint": "^9.15.0",
@@ -51,7 +51,7 @@
         "echarts": "^5.5.1",
         "echarts-for-react": "^3.0.2",
         "final-form": "^4.20.10",
-        "gridstack": "^11.1.0",
+        "gridstack": "^11.1.1",
         "js-cookie": "^3.0.5",
         "lodash": "^4.17.21",
         "monaco-dolphindb": "^1.0.5",
@@ -68,6 +68,6 @@
         "tslib": "^2.8.1",
         "vscode-oniguruma": "^2.0.1",
         "vscode-textmate": "^9.1.0",
-        "xshell": "^1.0.201"
+        "xshell": "^1.0.202"
     }
 }
