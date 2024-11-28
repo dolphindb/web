@@ -451,7 +451,7 @@ def runPlanInner(planId, reportId) {
 }
 
 def generateEmail(reportInfo) {
-    subject = "DolphinDB 日常巡检失败告警，巡检名称：" + reportInfo["name"]
+    subject = "DolphinDB 定时巡检失败告警，巡检名称：" + reportInfo["name"]
     body = ""
     body += "巡检 ID：" + reportInfo["planId"] + "<br>"
     body += "巡检名称：" + reportInfo["name"] + "<br>"
