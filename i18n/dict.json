@@ -5432,7 +5432,7 @@
     "流数据表_computing": {
         "en": "Stream Tables"
     },
-    "日常巡检": {
+    "定时巡检": {
         "en": "Inspection"
     },
     "添加指标": {
@@ -5492,8 +5492,8 @@
     "使用标准 SMTP 消息": {
         "en": "Standard SMTP messaging"
     },
-    "日常巡检模块初始化中": {
-        "en": "The daily inspection module is initializing"
+    "定时巡检模块初始化中": {
+        "en": "The scheduled inspection module is initializing"
     },
     "新增巡检": {
         "en": "Add inspection"
@@ -5750,14 +5750,14 @@
     " {{num}} 项异常。": {
         "en": " {{num}} exceptions."
     },
-    "控制节点不支持日常巡检，请跳转到数据节点或计算节点查看。": {
-        "en": "The control node does not support daily inspection. Please jump to the data node or computing node to check."
+    "控制节点不支持定时巡检，请跳转到数据节点或计算节点查看。": {
+        "en": "The control node does not support scheduled inspection. Please jump to the data node or computing node to check."
     },
-    "你确定要初始化日常巡检功能吗？": {
-        "en": "Are you sure you want to initialize the daily inspection function?"
+    "你确定要初始化定时巡检功能吗？": {
+        "en": "Are you sure you want to initialize the scheduled inspection function?"
     },
-    "初始化日常巡检成功！": {
-        "en": "Initialization of daily inspection successful!"
+    "初始化定时巡检成功！": {
+        "en": "Initialization of scheduled inspection successful!"
     },
     "至少需要设置一个巡检时间": {
         "en": "At least one inspection time must be set"
@@ -5771,8 +5771,8 @@
     "httpClient 插件版本与 DolphinDB 版本的前3位不一致。": {
         "en": "The first 3 digits of the httpClient plugin version and the DolphinDB version are inconsistent."
     },
-    "确定初始化日常巡检？": {
-        "en": "Are you sure you want to initialize daily inspection?"
+    "确定初始化定时巡检？": {
+        "en": "Are you sure you want to initialize scheduled inspection?"
     },
     "成功": {
         "en": "Successfully"
