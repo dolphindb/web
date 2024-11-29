@@ -174,13 +174,13 @@ export class DashBoardModel extends Model<DashBoardModel> {
         
         // 响应 GridStack 中 widget 的位置或尺寸变化的事件
         grid.on('change', (event: Event, widgets: GridStackNode[]) => {
-            
             if (widgets?.length)
                 for (const widget of widgets)
                     Object.assign(
                         this.widgets.find(({ id }) => id === widget.id), 
                         widget
                     )
+            
             this.check_and_change_page()
         })
         
@@ -216,8 +216,9 @@ export class DashBoardModel extends Model<DashBoardModel> {
             if (widget.y + widget.h > bottom_row)
                 bottom_row = widget.y + widget.h
         
-        let target_page_count = Math.ceil((bottom_row + 3) / 12)
-        this.update_page_count(target_page_count)
+        this.update_page_count(
+            Math.ceil((bottom_row + 3) / 12)
+        )
     }
     
     
@@ -287,6 +288,7 @@ export class DashBoardModel extends Model<DashBoardModel> {
             widget,
             widgets: [...this.widgets, widget]
         })
+        
         this.check_and_change_page()
     }
     
@@ -301,6 +303,7 @@ export class DashBoardModel extends Model<DashBoardModel> {
             widget: widgets[0],
             widgets
         })
+        
         this.check_and_change_page()
     }
     
@@ -309,7 +312,8 @@ export class DashBoardModel extends Model<DashBoardModel> {
         if (this.widgets.find(({ id }) => id === widget.id)) { 
             Object.assign(this.widgets.find(({ id }) => id === widget.id), widget)
             this.set({ widget })
-        } 
+        }
+        
         this.check_and_change_page()
     }
     
