@@ -375,10 +375,11 @@ function append_action_col (
             title: 'actions',
             render: (value, job) => {
                 const disabled = job.status && job.status !== 'queuing' && job.status !== 'running'
-                const no_job_id = !job.jobId
                 
                 return <div className='action-col'>
-                    {!no_job_id && <JobMessageShow job={job}/>}
+                    <JobMessageShow
+                        disabled={!(job.jobId && (job.status === 'running' || job.status === 'completed'))}
+                        job={job} />
                     
                     <Popconfirm
                         title={type === 'stop' ? t('确认停止作业') : t('确认删除作业')}
@@ -486,7 +487,7 @@ type DdbJobColumn = TableColumnType<DdbJob>
 
 const message_lines_limit = 500
 
-function JobMessageShow ({ job }: { job: DdbJob }) {
+function JobMessageShow ({ job, disabled }: { job: DdbJob, disabled?: boolean }) {
     const [message, set_message] = useState<string[]>([ ])
     const [show, set_show] = useState(false)
     const [show_all, set_show_all] = useState(false)
@@ -581,7 +582,7 @@ function JobMessageShow ({ job }: { job: DdbJob }) {
                 {!show_all && show_see_more && <Link title={t('查看更多')} onClick={show_all_messages}>{t('查看更多')}</Link>}
             </div>
         </Modal>
-        <Link title={t('查看日志')} onClick={get_job_message}>{
+        <Link disabled={disabled} title={t('查看日志')} onClick={get_job_message}>{
             t('查看日志')
         }</Link>
     </>

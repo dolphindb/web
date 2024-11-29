@@ -25,7 +25,7 @@ import { config } from '@/config/model.ts'
 import { goto_url, strip_quotes } from '@/utils.ts'
 
 
-const dev_hostname = '192.168.0.200' as const
+const dev_hostname = '192.168.0.37' as const
 const dev_port = '20023' as const
 
 
