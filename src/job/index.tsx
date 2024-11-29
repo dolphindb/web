@@ -375,10 +375,11 @@ function append_action_col (
             title: 'actions',
             render: (value, job) => {
                 const disabled = job.status && job.status !== 'queuing' && job.status !== 'running'
-                const allow_show_log = job.jobId && (job.status === 'running' || job.status === 'completed')
                 
                 return <div className='action-col'>
-                    <JobMessageShow disabled={!allow_show_log} job={job}/>
+                    <JobMessageShow
+                        disabled={!(job.jobId && (job.status === 'running' || job.status === 'completed'))}
+                        job={job} />
                     
                     <Popconfirm
                         title={type === 'stop' ? t('确认停止作业') : t('确认删除作业')}
