@@ -181,6 +181,7 @@ export class DashBoardModel extends Model<DashBoardModel> {
                         this.widgets.find(({ id }) => id === widget.id), 
                         widget
                     )
+            this.check_and_change_page()
         })
         
         window.addEventListener('resize', this.on_resize)
@@ -207,6 +208,16 @@ export class DashBoardModel extends Model<DashBoardModel> {
                 return false
             }
         return true
+    }
+    
+    check_and_change_page () {
+        let bottom_row = 0
+        for (const widget of this.widgets) 
+            if (widget.y + widget.h > bottom_row)
+                bottom_row = widget.y + widget.h
+        
+        let target_page_count = Math.ceil((bottom_row + 3) / 12)
+        this.update_page_count(target_page_count)
     }
     
     
@@ -276,6 +287,7 @@ export class DashBoardModel extends Model<DashBoardModel> {
             widget,
             widgets: [...this.widgets, widget]
         })
+        this.check_and_change_page()
     }
     
     
@@ -289,6 +301,7 @@ export class DashBoardModel extends Model<DashBoardModel> {
             widget: widgets[0],
             widgets
         })
+        this.check_and_change_page()
     }
     
     
@@ -297,6 +310,7 @@ export class DashBoardModel extends Model<DashBoardModel> {
             Object.assign(this.widgets.find(({ id }) => id === widget.id), widget)
             this.set({ widget })
         } 
+        this.check_and_change_page()
     }
     
     

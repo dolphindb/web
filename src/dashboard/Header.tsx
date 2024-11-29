@@ -425,10 +425,6 @@ export function Header () {
         
         {
             editing && <div className='configs'>
-                <div>
-                    {t('页数：')}
-                    <InputNumber defaultValue={1} min={1} value={page_count} onChange={count => { dashboard.update_page_count(count) }} />
-                </div>
                 <VariableConfig/>
                 <DataSourceConfig/>
             </div>
