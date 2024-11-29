@@ -489,7 +489,7 @@ export function convert_chart_config (
             containLabel: true,
             left: 10,
             // 如果 series 中设置了 endLabel，需要增加 right 为 endLabel 预留空间
-            right: series?.find(item => item.end_label) ? 80 : 10,
+            right: series?.find(item => item?.end_label) ? 80 : 10,
             bottom: x_datazoom ? 50 : 10
         },
         legend: pickBy({

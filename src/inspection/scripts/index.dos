@@ -451,17 +451,17 @@ def runPlanInner(planId, reportId) {
 }
 
 def generateEmail(reportInfo) {
-    subject = "DolphinDB 定时巡检失败告警，巡检名称：" + reportInfo["name"]
+    subject = "DolphinDB Health Check Alert - " + reportInfo["name"]
     body = ""
-    body += "巡检 ID：" + reportInfo["planId"] + "<br>"
-    body += "巡检名称：" + reportInfo["name"] + "<br>"
-    body += "巡检描述：" + reportInfo["desc"] + "<br>"
-    body += "提交人：" + reportInfo["user"] + "<br>"
-    body += "开始时间：" + string(reportInfo["startTime"]) + "<br>"
-    body += "结束时间：" + string(reportInfo["endTime"]) + "<br>"
-    body += "状态：" + iif(reportInfo["success"], "正常", "异常") + "<br>"
-    body += "总项目数：" + string(reportInfo["totalNum"]) + "<br>"
-    body += "异常项目数：" + string(reportInfo["failedNum"]) + "<br>"
+    body += "Health Check ID: " + reportInfo["planId"] + "<br>"
+    body += "Check Name: " + reportInfo["name"] + "<br>"
+    body += "Description: " + reportInfo["desc"] + "<br>"
+    body += "Initiated By: " + reportInfo["user"] + "<br>"
+    body += "Start Time: " + string(reportInfo["startTime"]) + "<br>"
+    body += "End Time: " + string(reportInfo["endTime"]) + "<br>"
+    body += "Status: " + iif(reportInfo["success"], "All Clear", "Alerts Detected") + "<br>"
+    body += "Total Metrics: " + string(reportInfo["totalNum"]) + "<br>"
+    body += "Alerts Triggered: " + string(reportInfo["failedNum"]) + "<br>"
     return (subject, body)
 }
 
