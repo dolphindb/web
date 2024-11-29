@@ -5432,7 +5432,7 @@
     "流数据表_computing": {
         "en": "Stream Tables"
     },
-    "自动巡检": {
+    "定时巡检": {
         "en": "Inspection"
     },
     "添加指标": {
@@ -5492,8 +5492,8 @@
     "使用标准 SMTP 消息": {
         "en": "Standard SMTP messaging"
     },
-    "自动巡检模块初始化中": {
-        "en": "The automatic inspection module is initializing"
+    "定时巡检模块初始化中": {
+        "en": "The scheduled inspection module is initializing"
     },
     "新增巡检": {
         "en": "Add inspection"
@@ -5750,14 +5750,14 @@
     " {{num}} 项异常。": {
         "en": " {{num}} exceptions."
     },
-    "控制节点不支持自动巡检，请跳转到数据节点或计算节点查看。": {
-        "en": "The control node does not support automatic inspection. Please jump to the data node or computing node to check."
+    "控制节点不支持定时巡检，请跳转到数据节点或计算节点查看。": {
+        "en": "The control node does not support scheduled inspection. Please jump to the data node or computing node to check."
     },
-    "你确定要初始化自动巡检功能吗？": {
-        "en": "Are you sure you want to initialize the automatic inspection function?"
+    "你确定要初始化定时巡检功能吗？": {
+        "en": "Are you sure you want to initialize the scheduled inspection function?"
     },
-    "初始化自动巡检成功！": {
-        "en": "Initialization of automatic inspection successful!"
+    "初始化定时巡检成功！": {
+        "en": "Initialization of scheduled inspection successful!"
     },
     "至少需要设置一个巡检时间": {
         "en": "At least one inspection time must be set"
@@ -5771,8 +5771,8 @@
     "httpClient 插件版本与 DolphinDB 版本的前3位不一致。": {
         "en": "The first 3 digits of the httpClient plugin version and the DolphinDB version are inconsistent."
     },
-    "确定初始化自动巡检？": {
-        "en": "Are you sure you want to initialize automatic inspection?"
+    "确定初始化定时巡检？": {
+        "en": "Are you sure you want to initialize scheduled inspection?"
     },
     "成功": {
         "en": "Successfully"
@@ -5809,5 +5809,23 @@
     },
     "部分页面仍有图表存在，请确保所有图表已移除后再调整页面数": {
         "en": "Some pages still have charts, please make sure all charts have been removed before adjusting the page count."
+    },
+    "端标签的宽度最大为 80 像素，请注意控制字数不超过此范围": {
+        "en": "The maximum width of the terminal label is 80 px. Please note that the number of control characters should not exceed this range."
+    },
+    "系统监控：定期自动检查数据库性能指标，及时发现潜在问题": {
+        "en": "System monitoring: Regularly check the database performance indicators to identify potential problems"
+    },
+    "报告生成：自动生成巡检报告，直观展示系统运行状况": {
+        "en": "Report generation: Automatically generate inspection reports to visually display system status"
+    },
+    "预警提醒：发现异常时及时通知，支持邮件告警配置": {
+        "en": "Alert reminder: Notify immediately when an exception is detected, support email alert configuration"
+    },
+    "取消执行成功": {
+        "en": "Cancel execution successful"
+    },
+    "取消执行": {
+        "en": "Cancel execution"
     }
 }

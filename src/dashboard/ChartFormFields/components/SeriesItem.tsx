@@ -180,7 +180,12 @@ export function SeriesItem (props: SeriesItemProps) {
                             } }
                         </FormDependencies>
                         
-                        <Form.Item name={concat_name_path(name, 'end_label')} label={t('展示端标签')} initialValue={false}>
+                        <Form.Item 
+                            name={concat_name_path(name, 'end_label')} 
+                            label={t('展示端标签')} 
+                            initialValue={false}
+                            tooltip={t('端标签的宽度最大为 80 像素，请注意控制字数不超过此范围')}
+                        >
                             <BoolRadioGroup />
                         </Form.Item>
                         <FormDependencies dependencies={[concat_name_path(path, name, 'end_label')]}>

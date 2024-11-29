@@ -63,9 +63,7 @@ function GraphComponent ({ widget }: { widget: Widget }) {
             />
         }
         
-        <div className={cn('graph-component', {
-            'graph-item-wrapper-abandon-scroll': widget.config?.abandon_scroll
-        }) }>
+        <div className='graph-component'>
             <Component data_source={data} widget={widget} col_names={cols} type_map={type_map} />
         </div>
     </div>

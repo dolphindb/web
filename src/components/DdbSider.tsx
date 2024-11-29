@@ -165,7 +165,7 @@ export function DdbSider () {
                 ... admin && language === 'zh' ? [{
                     key: 'inspection',
                     icon: <MenuIcon view='inspection' />,
-                    label: t('自动巡检'),
+                    label: t('定时巡检'),
                 }] : [ ],
                 {
                     key: 'log',

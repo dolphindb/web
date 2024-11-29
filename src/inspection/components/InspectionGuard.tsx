@@ -31,7 +31,7 @@ export function InspectionGuard ({ children }: { children: React.ReactNode }) {
         return <Result
             status='warning'
             className='interceptor'
-            title={t('控制节点不支持自动巡检，请跳转到数据节点或计算节点查看。')}
+            title={t('控制节点不支持定时巡检，请跳转到数据节点或计算节点查看。')}
         />
     
     if (table_created !== null && !table_created) 
@@ -65,7 +65,7 @@ export function InspectionGuard ({ children }: { children: React.ReactNode }) {
                 }
                 extra={
                     <Popconfirm
-                        title={t('确定初始化自动巡检？')}
+                        title={t('确定初始化定时巡检？')}
                         onConfirm={async () => { 
                             await inspection.create_table()
                             model.message.success(t('成功'))
