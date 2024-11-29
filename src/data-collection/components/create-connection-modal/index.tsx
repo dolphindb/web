@@ -56,10 +56,10 @@ export const CreateConnectionModal = NiceModal.create((props: IProps) => {
                 name='host' 
                 rules={[
                     { required: true, message: t('请输入服务器地址') },
-                    { 
-                        pattern: /^(\d|[1-9]\d|1\d{2}|2[0-4]\d|25[0-5])\.(\d|[1-9]\d|1\d{2}|2[0-4]\d|25[0-5])\.(\d|[1-9]\d|1\d{2}|2[0-4]\d|25[0-5])\.(\d|[1-9]\d|1\d{2}|2[0-4]\d|25[0-5])$/g,
-                        message: t('请输入有效的服务器地址') 
-                    } 
+                    // { 
+                    //     pattern: /^(\d|[1-9]\d|1\d{2}|2[0-4]\d|25[0-5])\.(\d|[1-9]\d|1\d{2}|2[0-4]\d|25[0-5])\.(\d|[1-9]\d|1\d{2}|2[0-4]\d|25[0-5])\.(\d|[1-9]\d|1\d{2}|2[0-4]\d|25[0-5])$/g,
+                    //     message: t('请输入有效的服务器地址') 
+                    // } 
                 ]}>
                 <Input placeholder={t('请输入服务器地址')}/>
             </Form.Item>
