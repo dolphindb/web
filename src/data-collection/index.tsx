@@ -32,7 +32,7 @@ export function DataCollection () {
     const [is_win, set_is_win] = useState<boolean>()
     
     const { data = { is_inited: InitStatus.UNKONWN, has_auth: undefined }, mutate, isValidating } = useSWR(
-        [test_init.KEY],
+        logined ? [test_init.KEY] : null,
         async () => {
             const { value } = await model.ddb.eval<DdbObj<boolean>>('existsDatabase("dfs://dataAcquisition")')
             const version = await model.ddb.invoke<string>('version')
