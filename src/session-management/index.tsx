@@ -11,9 +11,7 @@ import { genid } from 'xshell/utils.browser'
 
 import { DdbLong } from 'dolphindb/browser'
 
-import { ArrayTable } from '@formily/antd-v5'
-
-import { uniq, uniqBy } from 'lodash'
+import { uniqBy } from 'lodash'
 
 import dayjs from 'dayjs'
 
@@ -29,14 +27,6 @@ interface SessionItem {
     remotePort?: string
     createTime: string
     lastActiveTime?: string
-}
-
-
-const node_column: TableColumnProps<SessionItem> = {
-    title: t('节点'),
-    dataIndex: 'node',
-    width: 150,
-    fixed: 'left'
 }
 
 
@@ -58,7 +48,7 @@ export function SessionManagement () {
     /** 控制节点展所有节点的 session 信息，其他节点仅展示当前节点的 session 信息 */
     const is_controller = node_type === NodeType.controller
     
-    const { data, isLoading, mutate } = useSWR(
+    const { data: { user_sessions, other_sessions } = { user_sessions: [ ], other_sessions: [ ] }, isLoading, mutate } = useSWR(
         admin ? 'session_list' : null,
         async () => {
             const { data } = is_controller 
@@ -104,14 +94,19 @@ export function SessionManagement () {
                 scroll={{ x: '100%' }}
                 rowKey={() => genid()}
                 loading={isLoading}
-                dataSource={data?.user_sessions ?? [ ]} 
+                dataSource={user_sessions} 
                 columns={[
-                    ...(is_controller ? [node_column] : [ ]),
+                    ...(is_controller ? [{
+                        title: t('节点'),
+                        dataIndex: 'node',
+                        width: 150,
+                        ...get_session_filter_options('node', user_sessions)
+                    }] : [ ]),
                     {
                         title: t('用户 ID'),
                         dataIndex: 'userId',
                         width: 150,
-                        ...get_session_filter_options('userId', data?.user_sessions)
+                        ...get_session_filter_options('userId', user_sessions)
                     },
                     {
                         title: t('会话 ID'),
@@ -120,7 +115,7 @@ export function SessionManagement () {
                         render: (value: bigint) => value?.toString()
                     },
                     {
-                        title: t('占用内存/未处理的消息数'),
+                        title: t('占用内存'),
                         dataIndex: 'memSize',
                         width: 180,
                         render: (value: bigint) => value?.toString(),
@@ -130,13 +125,13 @@ export function SessionManagement () {
                         title: t('客户端 IP'),
                         dataIndex: 'remoteIP',
                         width: 150,
-                        ...get_session_filter_options('remoteIP', data?.user_sessions)
+                        ...get_session_filter_options('remoteIP', user_sessions)
                     },
                     {
                         title: t('客户端端口号'),
                         dataIndex: 'remotePort',
                         width: 150,
-                        ...get_session_filter_options('remotePort', data?.user_sessions)
+                        ...get_session_filter_options('remotePort', user_sessions)
                     },
                     {
                         title: t('会话创建时间'),
@@ -173,14 +168,23 @@ export function SessionManagement () {
                     scroll={{ x: '100%' }}
                     loading={isLoading}
                     rowKey={() => genid()}
-                    dataSource={data?.other_sessions}
+                    dataSource={other_sessions}
                     columns={[
-                        ...(is_controller ? [node_column] : [ ]),
+                        ...(
+                            is_controller 
+                            ? [{
+                                title: t('节点'),
+                                dataIndex: 'node',
+                                width: 150,
+                                ...get_session_filter_options('node', other_sessions)
+                            }] 
+                            : [ ]
+                        ),
                         {
                             title: t('缓存类型'),
                             dataIndex: 'userId',
                             width: 150,
-                            ...get_session_filter_options('userId', data?.other_sessions)
+                            ...get_session_filter_options('userId', other_sessions)
                         },
                         {
                             title: t('占用内存/未处理的消息数'),
