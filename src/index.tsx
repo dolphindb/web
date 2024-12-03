@@ -56,6 +56,7 @@ import { Settings } from './settings/index.tsx'
 import { CreateGuide } from './guide/iot-guide/index.tsx'
 import { FinanceGuide } from './guide/finance-guide/index.tsx'
 import { DataCollection } from './data-collection/index.tsx'
+import { SessionManagement } from './session-management/index.tsx'
 
 
 
@@ -272,6 +273,10 @@ const router = createBrowserRouter([
                 path: 'finance-guide/',
                 element: <FinanceGuide />
             },
+            {
+                path: 'session-management/',
+                element: <SessionManagement />
+            }
         ]
     }], 
     model.assets_root === '/' ? undefined : { basename: model.assets_root }

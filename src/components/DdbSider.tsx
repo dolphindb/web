@@ -29,6 +29,7 @@ import SvgPlugins from '@/plugins/plugins.icon.svg'
 import SvgDataCollection from '@/data-collection/icons/data-collection.icon.svg'
 import SvgConnection from '@/data-collection/icons/connection.icon.svg'
 import SvgParserTemplate from '@/data-collection/icons/parser-template.icon.svg'
+import SvgSession from '@/access/icons/session.icon.svg'
 
 
 const { Text, Link } = Typography
@@ -52,7 +53,8 @@ const svgs = {
     inspection: SvgInspection,
     'iot-guide': SvgIot,
     'finance-guide': SvgFinance,
-    plugins: SvgPlugins
+    plugins: SvgPlugins,
+    'session-management': SvgSession
 }
 
 
@@ -219,6 +221,11 @@ export function DdbSider () {
                         label: '测试模块'
                 }] : [ ],
                 ... admin ? [
+                    {
+                        key: 'session-management',
+                        icon: <MenuIcon view='session-management'/>,
+                        label: t('会话管理')
+                    },
                     {
                         key: 'settings',
                         icon: <SettingOutlined  className='icon-menu' />,
