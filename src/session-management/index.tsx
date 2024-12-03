@@ -112,7 +112,7 @@ export function SessionManagement () {
                         title: t('最近一次执行时间'),
                         dataIndex: 'lastActiveTime',
                         width: 200
-                    },
+                    },,
                     {
                         title: t('操作'),
                         fixed: 'right',
@@ -142,7 +142,7 @@ export function SessionManagement () {
                             width: 150,
                         },
                         {
-                            title: t('会话占用内存'),
+                            title: t('占用内存/未处理的消息数'),
                             dataIndex: 'memSize',
                             width: 150,
                             render: (value: bigint) => value?.toString()
