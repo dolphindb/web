@@ -26,6 +26,8 @@ export function ShellEditor ({ collapser }) {
     
     const [collapsed, set_collapsed] = useState(false)
     
+    const { itab, tabs } = shell.use(['itab', 'tabs'])
+    const current_tab = tabs.find(t => t.index === itab)
     
     // 标签页关闭前自动保存代码
     useEffect(() => {
@@ -99,6 +101,8 @@ export function ShellEditor ({ collapser }) {
         
         <Editor
             minimap={minimap}
+            
+            readonly={current_tab?.read_only}
             
             enter_completion={enter_completion}
             

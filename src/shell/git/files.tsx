@@ -45,6 +45,7 @@ export function Files ({ repo_id, on_back }: { repo_id: string, on_back: () => v
     function handle_repo_change (id: string, title: string) {
         set_tree_data([{ title, key: id, isLeaf: false }])
         set_expanded_keys([ ])
+        set_loaded_keys([ ])
     }
     
     useEffect(() => {
@@ -87,14 +88,19 @@ export function Files ({ repo_id, on_back }: { repo_id: string, on_back: () => v
         set_loaded_keys(origin => [...origin, node.key])
     }, [repo_id, repo_path, branch])
     
-    async function open_git_file (key: string, file_name: string, repo_path: string) {
+    async function open_git_file (key: string, repo_path: string) {
         const code = await git_provider.get_file_by_path(repo_path, key, branch)
-        shell.add_git_tab(key, code.file_name, repo_path, title, code.content, branch, code.content_sha256)
+        shell.add_git_tab(key, code.file_name, code.content, {
+            repo_id,
+            repo_name: title,
+            branch,
+            sha: code.content_sha256
+        })
     }
     
     function title_render (node: DataNode) {
         if (node.isLeaf)
-            return <div className='title-render' onClick={() => { open_git_file(node.key, node.title, repo_path) }}>{node.title}</div>
+            return <div className='title-render' onClick={() => { open_git_file(node.key, repo_path) }}>{node.title}</div>
             
         return <div className='title-render'>{node.title}</div>
     }
@@ -142,6 +148,7 @@ export function Files ({ repo_id, on_back }: { repo_id: string, on_back: () => v
                 <Tree
                     className='file-tree'
                     expandAction='click'
+                    loadedKeys={loaded_keys}
                     loadData={load_repo_data}
                     treeData={filtered_tree_data}
                     expandedKeys={deferred_expanded_keys}
