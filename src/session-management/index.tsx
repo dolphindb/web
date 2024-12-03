@@ -33,35 +33,6 @@ const node_column: TableColumnProps<SessionItem> = {
     fixed: 'left'
 }
 
-const common_columns = [
-    {
-        title: t('会话占用内存'),
-        dataIndex: 'memSize',
-        width: 150,
-        render: (value: bigint) => value?.toString()
-    },
-    {
-        title: t('客户端 IP'),
-        dataIndex: 'remoteIP',
-        width: 150
-    },
-    {
-        title: t('客户端端口号'),
-        dataIndex: 'remotePort',
-        width: 150,
-    },
-    {
-        title: t('会话创建时间'),
-        dataIndex: 'createTime',
-        width: 200,
-    },
-    {
-        title: t('最近一次执行时间'),
-        dataIndex: 'lastActiveTime',
-        width: 200
-    },
-]
-
 export function SessionManagement () {
     
     const { admin, logined, node_type } = model.use(['admin', 'logined', 'node_type'])
@@ -122,7 +93,26 @@ export function SessionManagement () {
                         width: 150,
                         render: (value: bigint) => value?.toString()
                     },
-                    ...common_columns,
+                    {
+                        title: t('客户端 IP'),
+                        dataIndex: 'remoteIP',
+                        width: 150
+                    },
+                    {
+                        title: t('客户端端口号'),
+                        dataIndex: 'remotePort',
+                        width: 150,
+                    },
+                    {
+                        title: t('会话创建时间'),
+                        dataIndex: 'createTime',
+                        width: 200,
+                    },
+                    {
+                        title: t('最近一次执行时间'),
+                        dataIndex: 'lastActiveTime',
+                        width: 200
+                    },
                     {
                         title: t('操作'),
                         fixed: 'right',
@@ -151,7 +141,12 @@ export function SessionManagement () {
                             dataIndex: 'userId',
                             width: 150,
                         },
-                        ...common_columns,
+                        {
+                            title: t('会话占用内存'),
+                            dataIndex: 'memSize',
+                            width: 150,
+                            render: (value: bigint) => value?.toString()
+                        },
                 ]}
                 />
             }
