@@ -11,6 +11,12 @@ import { genid } from 'xshell/utils.browser'
 
 import { DdbLong } from 'dolphindb/browser'
 
+import { ArrayTable } from '@formily/antd-v5'
+
+import { uniq, uniqBy } from 'lodash'
+
+import dayjs from 'dayjs'
+
 import { model, NodeType } from '@/model.ts'
 import { Unlogin } from '@/components/Unlogin.tsx'
 
@@ -33,6 +39,18 @@ const node_column: TableColumnProps<SessionItem> = {
     fixed: 'left'
 }
 
+
+function get_session_filter_options (key: string, data: SessionItem[] = [ ]) {
+    return {
+        filters: uniqBy(data, key).map(item => ({
+            text: item[key],
+            value: item[key]
+        })),
+        onFilter: (value, record) => record[key] === value,
+        filterSearch: true
+    } 
+}
+
 export function SessionManagement () {
     
     const { admin, logined, node_type } = model.use(['admin', 'logined', 'node_type'])
@@ -40,13 +58,19 @@ export function SessionManagement () {
     /** 控制节点展所有节点的 session 信息，其他节点仅展示当前节点的 session 信息 */
     const is_controller = node_type === NodeType.controller
     
-    const { data = [ ], isLoading, mutate } = useSWR(
+    const { data, isLoading, mutate } = useSWR(
         admin ? 'session_list' : null,
         async () => {
             const { data } = is_controller 
                 ? await model.ddb.execute<{ data: SessionItem[] }>('pnodeRun(getSessionMemoryStat)')
                 : await model.ddb.invoke<{ data: SessionItem[] }>('getSessionMemoryStat')
-            return data
+            let user_sessions: SessionItem[] = [ ]
+            let other_sessions: SessionItem[] = [ ]
+            data.forEach(item => item.sessionId ? user_sessions.push(item) : other_sessions.push(item))
+            return {
+                user_sessions,
+                other_sessions
+            }
         }
     )
     
@@ -77,15 +101,17 @@ export function SessionManagement () {
             label: t('用户会话'),
             key: 'user-session',
             children: <Table 
+                scroll={{ x: '100%' }}
                 rowKey={() => genid()}
                 loading={isLoading}
-                dataSource={data.filter(item => !!item.sessionId)} 
+                dataSource={data?.user_sessions ?? [ ]} 
                 columns={[
                     ...(is_controller ? [node_column] : [ ]),
                     {
                         title: t('用户 ID'),
                         dataIndex: 'userId',
                         width: 150,
+                        ...get_session_filter_options('userId', data?.user_sessions)
                     },
                     {
                         title: t('会话 ID'),
@@ -94,24 +120,37 @@ export function SessionManagement () {
                         render: (value: bigint) => value?.toString()
                     },
                     {
+                        title: t('占用内存/未处理的消息数'),
+                        dataIndex: 'memSize',
+                        width: 180,
+                        render: (value: bigint) => value?.toString(),
+                        sorter: (a: SessionItem, b: SessionItem) => Number(a.memSize - b.memSize),
+                    },
+                    {
                         title: t('客户端 IP'),
                         dataIndex: 'remoteIP',
-                        width: 150
+                        width: 150,
+                        ...get_session_filter_options('remoteIP', data?.user_sessions)
                     },
                     {
                         title: t('客户端端口号'),
                         dataIndex: 'remotePort',
                         width: 150,
+                        ...get_session_filter_options('remotePort', data?.user_sessions)
                     },
                     {
                         title: t('会话创建时间'),
                         dataIndex: 'createTime',
                         width: 200,
+                        showSorterTooltip: false,
+                        sorter: (a: SessionItem, b: SessionItem) => dayjs(a.createTime).valueOf() - dayjs(b.createTime).valueOf()
                     },
                     {
                         title: t('最近一次执行时间'),
                         dataIndex: 'lastActiveTime',
-                        width: 200
+                        width: 200,
+                        showSorterTooltip: false,
+                        sorter: (a: SessionItem, b: SessionItem) => dayjs(a.lastActiveTime).valueOf() - dayjs(b.lastActiveTime).valueOf()
                     },,
                     {
                         title: t('操作'),
@@ -131,21 +170,24 @@ export function SessionManagement () {
                 label: t('缓存占用情况'),
                 key: 'other-session',
                 children: <Table 
+                    scroll={{ x: '100%' }}
                     loading={isLoading}
                     rowKey={() => genid()}
-                    dataSource={data.filter(item => !item.sessionId)}
+                    dataSource={data?.other_sessions}
                     columns={[
                         ...(is_controller ? [node_column] : [ ]),
                         {
                             title: t('缓存类型'),
                             dataIndex: 'userId',
                             width: 150,
+                            ...get_session_filter_options('userId', data?.other_sessions)
                         },
                         {
                             title: t('占用内存/未处理的消息数'),
                             dataIndex: 'memSize',
-                            width: 150,
-                            render: (value: bigint) => value?.toString()
+                            width: 180,
+                            render: (value: bigint) => value?.toString(),
+                            sorter: (a: SessionItem, b: SessionItem) => Number(a.memSize - b.memSize),
                         },
                 ]}
                 />
