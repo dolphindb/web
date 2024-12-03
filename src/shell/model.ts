@@ -431,7 +431,7 @@ class ShellModel extends Model<ShellModel> {
         
         await this.update_vars()
         
-        if (code.includes('login') || code.includes('logout'))
+        if (code.includes('login') || code.includes('logout') || code.includes('authenticateByTicket '))
             await model.update_user()
     }
     
