@@ -60,7 +60,7 @@ interface IGitAdapter {
     get_project(id: string): Promise<IProject>
     get_branches(repo: string): Promise<string[]>
     get_access_token(code: string, client_id: string, redirect_uri?: string, secret?: string): Promise<string>
-    commit_file(repo: string, file_path: string, message: string, branch: string, content: string, sha?: string): Promise<boolean>
+    commit_file(repo: string, file_path: string, message: string, branch: string, content: string, sha?: string, create?: boolean): Promise<boolean>
     get_file_blame(repo: string, file_path: string, ref: string): Promise<IFileBlame[]>
 }
 
@@ -174,9 +174,9 @@ export class GitLabAdapter implements IGitAdapter {
         return { ...result, content }
     }
     
-    async commit_file (repo: string, file_path: string, message: string, content: string, branch = 'main'): Promise<boolean> {
+    async commit_file (repo: string, file_path: string, message: string, content: string, branch = 'main', sha?: string, create = false): Promise<boolean> {
         const resp = await fetch(`${this.root_url}${this.api_root}/projects/${encodeURIComponent(repo)}/repository/files/${encodeURIComponent(file_path)}?branch=${branch}`
-            , this.get_fetch_options('PUT', JSON.stringify({ branch, message, content, commit_message: message })))
+            , this.get_fetch_options(create ? 'POST' : 'PUT', JSON.stringify({ branch, message, content, commit_message: message })))
         return resp.ok
     }
     
@@ -341,13 +341,12 @@ export class GitHubAdapter implements IGitAdapter {
         
     }
     
-    async commit_file (repo: string, file_path: string, message: string, content: string, branch = 'main', sha?: string): Promise<boolean> {
+    async commit_file (repo: string, file_path: string, message: string, content: string, branch = 'main', sha?: string, create = false): Promise<boolean> {
         const utf8Encoder = new TextEncoder()
         const contentBytes = utf8Encoder.encode(content)
         const contentBase64 = btoa(String.fromCharCode(...contentBytes))
-        
         const resp = await fetch(`${this.root_url}${this.api_root}/repos/${repo}/contents/${file_path}`, this.get_fetch_options(
-            'PUT',
+            create ? 'POST' : 'PUT',
             {
                 message,
                 content: contentBase64,

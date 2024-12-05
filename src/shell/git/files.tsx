@@ -1,5 +1,5 @@
 import { t } from '@i18n/index.ts'
-import { Input, Select, Tree } from 'antd'
+import { Button, Input, Select, Tree } from 'antd'
 import { useState, useDeferredValue, useCallback, useMemo, useEffect } from 'react'
 
 import { shell } from '../model.ts'
@@ -31,7 +31,7 @@ const updateTreeData = (list: DataNode[], key: React.Key, children: DataNode[]):
         return node
     })
 
-export function Files ({ repo_id, on_back }: { repo_id: string, on_back: () => void }) {
+export function Files ({ repo_id, on_change_branch }: { repo_id: string, on_change_branch: (branch: string) => void }) {
     const [branch, set_branch] = useState('')
     const [title, set_title] = useState('')
     const [tree_data, set_tree_data] = useState<DataNode[]>([ ])
@@ -62,9 +62,14 @@ export function Files ({ repo_id, on_back }: { repo_id: string, on_back: () => v
             })
     }, [repo_id])
     
+    function reset_file_tree () {
+        set_tree_data([{ title, key: repo_id, isLeaf: false }])
+    }
+    
     useEffect(() => {
-        set_expanded_keys([ ])
         set_loaded_keys([ ])
+        reset_file_tree()
+        on_change_branch(branch)
     }, [branch])
     
     function handle_expand (expandedKeys: unknown[]) {
@@ -131,11 +136,22 @@ export function Files ({ repo_id, on_back }: { repo_id: string, on_back: () => v
     
     const is_repo_not_selected = !repo_id
     
+    function refresh () {
+        set_loaded_keys([ ])
+        reset_file_tree()
+    }
+    
     return <div className='file-explore'>
-        <div className='block-title'>{t('文件浏览')}</div>
+        <div className='block-title'>{t('文件浏览')}
+            <div className='button-logout'>
+                <Button type='text' onClick={refresh}>
+                    {t('刷新')}
+                </Button>
+            </div>
+        </div>
         
         {is_repo_not_selected && <div className='file-explore-tips'>
-            {t('未选择代码仓库，请选个一个代码仓库以查看文件')}
+            {t('未选择代码仓库，请选择一个代码仓库以查看文件')}
         </div>}
         {!is_repo_not_selected && <>
             <div className='file-explore-search'>

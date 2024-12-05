@@ -92,7 +92,10 @@ export function Editor ({
             ... readonly ? {
                 readOnly: true,
                 domReadOnly: true,
-            } : { },
+            } : { 
+                readOnly: false,
+                domReadOnly: false,
+            },
             
             ...options,
         }),

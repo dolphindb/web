@@ -6,6 +6,8 @@ import { Alert, Button } from 'antd'
 
 import NiceModal from '@ebay/nice-modal-react'
 
+import { shell } from '../model.ts'
+
 import { git_provider } from './git-adapter.ts'
 import { GitHubAccessTokenModal, GitHubOauthModal, GitLabAccessTokenModal, GitLabOauthModal } from './git-modals.tsx'
 import { format_friendly_date } from './get-auth-url.ts'
@@ -18,7 +20,7 @@ export function Repos ({ on_select_repo }: { on_select_repo: (repo_id: string, t
     })
     
     
-    const repos = (reposResp.data ?? [ ]).map(repo => <div className='repo' onClick={() => { on_select_repo(repo.id, repo.name) }}>
+    const repos = (reposResp.data ?? [ ]).map(repo => <div className='repo' key={repo.id} onClick={() => { on_select_repo(repo.id, repo.name) }}>
         <div className='title'>
             {repo.path_with_namespace}
         </div>
@@ -48,6 +50,7 @@ export function Repos ({ on_select_repo }: { on_select_repo: (repo_id: string, t
             <div>{t('代码仓库')}</div>
             {!reposResp.error && <div className='button-logout'><Button type='text' onClick={() => {
                 localStorage.removeItem('git-access-token')
+                shell.remove_git_tabs()
                 reposResp.mutate()
             }}>{t('登出')}</Button></div>}
         </div>

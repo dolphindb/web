@@ -339,6 +339,14 @@ class ShellModel extends Model<ShellModel> {
         localStorage.removeItem(`${storage_keys.code}.${tab_index}`)
     }
     
+    remove_git_tabs () {
+        const tabs_with_git = this.tabs.filter(t => t.git)
+        const tabs_with_git_indexies = tabs_with_git.map(t => t.index)
+        this.set({ tabs: this.tabs.filter(t => !t.git) })
+        for (const key of tabs_with_git_indexies)
+            localStorage.removeItem(`${storage_keys.code}.${key}`)
+    }
+    
     
     add_tab () {
         if (!this.monaco_inited)
