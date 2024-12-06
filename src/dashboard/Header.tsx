@@ -17,9 +17,9 @@ import useSWR from 'swr'
 
 import { model, storage_keys } from '../model.js'
 import { t } from '../../i18n/index.js'
-import { CompileAndRefresh } from '../components/CompileAndRefresh.js'
+import { CompileAndRefresh } from '../components/DDBHeader/CompileAndRefresh.js'
 
-import { HostSelect } from '../components/HostSelect.js'
+import { HostSelect } from '../components/DDBHeader/HostSelect.js'
 
 import { type DashBoardConfig, type Widget, dashboard, DashboardPermission } from './model.js'
 import { DataSourceConfig } from './DataSource/DataSourceConfig.js'

@@ -1,20 +1,23 @@
+import './index.sass'
 import { useEffect } from 'react'
 
-import { Dropdown, Avatar } from 'antd'
+import { Dropdown, Avatar, Space, Layout } from 'antd'
 
-import { default as Icon, LoginOutlined, LogoutOutlined, UserOutlined } from '@ant-design/icons'
+import { DownOutlined, default as Icon, LoginOutlined, LogoutOutlined, UserOutlined } from '@ant-design/icons'
 
 import { t } from '@i18n/index.js'
 
 import { model } from '@/model.ts'
 
-import { License } from './License.tsx'
+
+import SvgArrowDown from '../icons/arrow.down.icon.svg'
+
 import { Status } from './Status.tsx'
-import { Settings } from './Settings.tsx'
+
 import { CompileAndRefresh } from './CompileAndRefresh.tsx'
 import { HostSelect } from './HostSelect.tsx'
-
-import SvgArrowDown from './icons/arrow.down.icon.svg'
+import { License } from './License.tsx'
+import { Settings } from './Settings.tsx'
 
 
 export function DdbHeader () {
@@ -27,22 +30,24 @@ export function DdbHeader () {
     }, [node_alias])
     
     
-    return <>
+    return <Layout.Header className='ddb-header'>
         <img className='logo' src={`${model.assets_root}ddb.svg`} />
-        { model.dev && <HostSelect />}
+        
         { model.local && <CompileAndRefresh /> }
         
         <div className='padding' />
         
-        <div className='section'><Status /></div>
-        
-        <div className='section'><License /></div>
-        
-        <Settings />
-        
-        <div className='section'>
-            <div className='user'>
-                <Dropdown
+        <Space size='middle'>
+            { model.dev && <HostSelect />}
+            
+            <Status />
+            
+            <License />
+            
+            <Settings />
+            
+            
+            <Dropdown
                     menu={{
                         className: 'menu',
                         items: [
@@ -61,13 +66,17 @@ export function DdbHeader () {
                         ]
                     }}
                 >
-                    <a className='username'>
-                        <Avatar className='avatar' icon={<UserOutlined /> } size='small' />{username}<Icon className='arrow-down' component={SvgArrowDown} />
-                    </a>
+                    <div className='user'>
+                        <Avatar className='avatar' icon={<UserOutlined /> } size='small' />
+                        {username}
+                        {/* <Icon className='arrow-down' component={SvgArrowDown} /> */}
+                        <DownOutlined className='arrow-down'/>
+                    </div>
                 </Dropdown>
-            </div>
-        </div>
-    </>
+            
+            
+        </Space>
+    </Layout.Header>
 }
 
 

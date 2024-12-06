@@ -52,7 +52,7 @@ export function License () {
             const is_license_expire_soon = after_two_week.isAfter(expiration_date, 'day')
             
             // 今天展示过了
-            if (localStorage.getItem(storage_keys.license_notified_date) !== now.format(date_format)) {
+            if (localStorage.getItem(storage_keys.license_notified_date) !== now.format(date_format)) 
                 if (is_license_expired)
                     model.modal.error({
                         title: t('License 过期提醒'),
@@ -67,7 +67,7 @@ export function License () {
                         width: 700,
                         onOk: () => { localStorage.setItem(storage_keys.license_notified_date, now.format(date_format)) },
                     })
-            }
+            
         }
     }, [admin, license])
     

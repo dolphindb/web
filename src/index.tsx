@@ -31,10 +31,9 @@ dayjs.locale(language === 'zh' ? 'zh-cn' : language)
 
 import { model } from './model.ts'
 
-import { DdbHeader } from './components/DdbHeader.tsx'
 import { DdbSider } from './components/DdbSider.tsx'
 import { GlobalErrorBoundary } from './components/GlobalErrorBoundary.tsx'
-import { HostSelect } from './components/HostSelect.tsx'
+import { HostSelect } from './components/DDBHeader/HostSelect.tsx'
 
 import { Login } from './login/index.tsx'
 import { Overview } from './overview/index.tsx'
@@ -56,8 +55,9 @@ import { Settings } from './settings/index.tsx'
 import { CreateGuide } from './guide/iot-guide/index.tsx'
 import { FinanceGuide } from './guide/finance-guide/index.tsx'
 import { DataCollection } from './data-collection/index.tsx'
+import { DdbHeader } from './components/DDBHeader/index.tsx'
 
-
+const PRIMARY_COLOR = '#6774BD'
 
 createRoot(
     document.querySelector('.root')
@@ -74,10 +74,12 @@ function DolphinDB () {
             hashed: false,
             token: {
                 motion: false,
-                
-                borderRadius: 0,
-                
+                borderRadius: 2,
                 controlOutlineWidth: 0,
+                colorPrimary: PRIMARY_COLOR,
+                colorError: '#FF4D4F',
+                colorLink: PRIMARY_COLOR,
+                colorInfo: PRIMARY_COLOR,
             }
         }}
         renderEmpty={() => <div className='empty-placeholder' />}
@@ -143,9 +145,7 @@ function MainLayout () {
     return inited ?
         <Layout className='root-layout'>
             <RouteListener />
-            { header && <Layout.Header className='ddb-header'>
-                <DdbHeader />
-            </Layout.Header> }
+            { header && <DdbHeader />}
             <Layout className='body' hasSider>
                 { sider && <DdbSider />}
                 <Layout.Content className='view'>

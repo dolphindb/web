@@ -16,91 +16,11 @@ html, body
     
     .app
         height: 100%
+        a
+            color: #6774BD
     
     .root-layout
         height: 100%
-    
-    .ddb-header
-        padding: 0px 10px
-        height: 40px
-        line-height: 40px
-        
-        display: flex
-        
-        background: #f2f2f2
-        
-        box-shadow: 0px 1px 0px 0px #e5e5e5
-        
-        border-bottom: #e5e5e5 1px solid
-        
-        z-index: 10
-        
-        align-items: center
-        
-        .refresh-button
-            margin-left: 16px
-            background-color: #f2f2f2
-            
-            &:hover
-                background-color: unset
-        
-        .ant-avatar-sm
-            width: 20px
-            height: 20px
-            line-height: 20px
-        
-        .section
-            display: flex
-            align-items: center
-        
-        .header-settings
-            overflow: hidden
-            display: flex
-            align-items: center
-            cursor: pointer
-            
-            .header-settings-icon
-                margin-right: 6px
-            
-        .logo
-            margin-left: 5px
-            width: 90px
-            height: 40px
-        
-        .padding
-            flex: 1
-        
-        .node-info, .license
-            color: #000000
-            padding: 1px 8px 2px 8px
-            border-style: solid
-            border-color: #bbbbbb
-            margin-right: 10px
-            cursor: pointer
-            background-color: #f2f2f2
-        
-        
-        .user
-            margin-top: -2px
-            
-            .avatar
-                background-color: #707070
-                
-            .username
-                padding: 8px 4px
-                
-                color: #2e2e2e
-                font-size: 14px
-                
-                &:hover
-                    background-color: #d8d8d8
-                    
-                .avatar
-                    margin-right: 3px
-                
-                .arrow-down
-                    margin-left: 3px
-                    font-size: 12px
     
     
     .body
@@ -110,8 +30,6 @@ html, body
             margin-top: 1px
             
             user-select: none
-            
-            background: #fafafa
             
             .collapse-trigger
                 display: flex
@@ -142,7 +60,6 @@ html, body
                         justify-content: center
             
             .ant-layout-sider-trigger
-                background: #fafafa
                 box-shadow: inset -1px 0 0 #e5e5e5
             
             
@@ -152,8 +69,6 @@ html, body
                 flex-direction: column
                 
                 height: 100%
-                
-                background: #fafafa
                 
                 box-shadow: inset -1px 0 0 #e5e5e5
                 
@@ -342,20 +257,6 @@ html, body
             margin-top: 4px
             color: #000000
 
-
-.host-select.ant-select
-    margin-left: 24px
-    
-    .ant-select-selector
-        background-color: transparent !important
-
-.host-select-container
-    margin: 20px
-    
-    .host-select.ant-select
-        margin-left: unset
-        
-        width: 160px
     
 
 // ------------ antd 样式覆写
