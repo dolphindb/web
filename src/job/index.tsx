@@ -390,7 +390,7 @@ function append_action_col (
                             )
                         }
                         }>
-                        <Link title={disabled ? t('作业已完成') : ''} disabled={disabled}>{
+                        <Link type='danger' title={disabled ? t('作业已完成') : ''} disabled={disabled}>{
                             type === 'stop' ? t('停止') : t('删除')
                         }</Link>
                     </Popconfirm>

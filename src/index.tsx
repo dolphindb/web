@@ -56,6 +56,7 @@ import { CreateGuide } from './guide/iot-guide/index.tsx'
 import { FinanceGuide } from './guide/finance-guide/index.tsx'
 import { DataCollection } from './data-collection/index.tsx'
 import { DdbHeader } from './components/DDBHeader/index.tsx'
+import './antd-default-props.ts'
 
 const PRIMARY_COLOR = '#6774BD'
 
@@ -86,7 +87,8 @@ function DolphinDB () {
                     headerBg: '#F9F9FB',
                     rowSelectedBg: '#EBF0FA',
                     headerColor: '#666E7D',
-                    colorText: 'rgba(0,0,0,0.85)'
+                    colorText: 'rgba(0,0,0,0.85)',
+                    cellPaddingBlock: 10
                 },
                 Tag: {
                     borderRadius: 8,
