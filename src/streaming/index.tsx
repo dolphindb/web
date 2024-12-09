@@ -177,7 +177,7 @@ export function StreamingLine ({
     // 当前用于展示的图表数据信息
     const [pres_data, setPresData] = useState<Array<LineNodeType>>([ ])
     const [drawing, setDrawing] = useState<boolean>(true)
-    const rddb = useRef<DDB>()
+    const rddb = useRef<DDB>(undefined)
     const chart = useRef<EChartsType | null>(null)
     const options = useRef<any>(null)
     const [error, setError] = useState<ErrorType>({
@@ -434,7 +434,7 @@ export function StreamingHeatMap ({
     onError?: (res: string) => any
     onSuccess?: (err: string) => any
 }) {
-    const rddb = useRef<DDB>()
+    const rddb = useRef<DDB>(undefined)
     const [data, setData] = useState({ })
     const [max, setMax] = useState<number>(MAX || -Infinity)
     const [min, setMin] = useState<number>(MIN || Infinity)
@@ -584,7 +584,7 @@ export function StreamingSortBar ({
     // 当前用于展示的图表数据信息
     const [data, setData] = useState<Record<string, string | number>>({ })
     const [drawing, setDrawing] = useState<boolean>(true)
-    const rddb = useRef<DDB>()
+    const rddb = useRef<DDB>(undefined)
     const chart = useRef(null)
     const options = useRef(null)
     const [error, setError] = useState<ErrorType>({
@@ -752,7 +752,7 @@ export function StreamingKLine ({
     // 当前用于展示的图表数据信息
     const [pres_data, setPresData] = useState<Array<KLineNodeType>>([ ])
     const [drawing, setDrawing] = useState<boolean>(true)
-    const rddb = useRef<DDB>()
+    const rddb = useRef<DDB>(undefined)
     const chart = useRef(null)
     const options = useRef(null)
     const [error, setError] = useState<ErrorType>({

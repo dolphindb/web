@@ -66,7 +66,7 @@ export function Header () {
     const { visible: edit_visible, open: edit_open, close: edit_close } = use_modal()
     const { visible: copy_visible, open: copy_open, close: copy_close } = use_modal()
     
-    const timer = useRef<NodeJS.Timeout>()
+    const timer = useRef<NodeJS.Timeout>(undefined)
     const page_count = config?.data?.canvas?.page_count ?? 1
     
     const get_latest_config = useCallback(async () => {
