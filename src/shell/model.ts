@@ -373,15 +373,16 @@ class ShellModel extends Model<ShellModel> {
         gitInfo: {
             repo_id: string
             repo_name: string
-            branch?: string
-            sha?: string
+            branch: string
+            sha: string
+            commit_id: string
             is_history?: boolean
         },
     ) {
         if (!this.monaco_inited)
             return
             
-        const { repo_id, repo_name, branch = 'main', sha, is_history = false } = gitInfo
+        const { repo_id, repo_name, branch = 'main', sha, is_history = false, commit_id } = gitInfo
         
         // 检查是否存在当前仓库和当前分支的文件，否则只是跳转过去
         const index = this.tabs.findIndex(t => t.git?.repo_id === repo_id && t.git?.branch === branch && t.git?.file_path === file_path)
@@ -405,17 +406,22 @@ class ShellModel extends Model<ShellModel> {
                 code,
                 index: new_tab_index,
                 read_only: is_history,
-                git: { repo_id, repo_name, branch, file_path, file_name, raw_code: code, sha }
+                git: { repo_id, repo_name, branch, file_path, file_name, raw_code: code, sha, commit_id }
             }]
         })
         
         this.editor.setValue(code)
     }
     
-    update_git_tab_code (index: number, code: string) {
+    update_git_tab_code (index: number, code: string, commit_id?: string) {
         const tab = this.tabs.find(t => t.index === index)
         if (tab && tab.git) {
             tab.git.raw_code = code
+            tab.code = code
+            if (commit_id)
+                tab.git.commit_id = commit_id
+            if (this.itab === index)
+                this.editor.setValue(code)
             this.set({ tabs: [...this.tabs] })
             this.save()
         }
@@ -876,7 +882,8 @@ export interface Tab {
         file_path: string
         file_name: string
         raw_code: string
-        sha?: string
+        sha: string
+        commit_id: string
     }
 }
 

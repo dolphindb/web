@@ -99,7 +99,8 @@ export function Files ({ repo_id, on_change_branch }: { repo_id: string, on_chan
             repo_id,
             repo_name: title,
             branch,
-            sha: code.content_sha256
+            sha: code.content_sha256,
+            commit_id: code.commit_id
         })
     }
     

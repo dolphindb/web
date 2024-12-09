@@ -40,15 +40,14 @@ interface IFileData {
     execute_filemode: boolean
 }
 
-export interface IFileBlame {
-    commit: {
-        id: string
-        message: string
-        committed_date: string
-        committer_name: string
-        committer_email: string
-    }
-    lines: string[]
+export interface ICommitHistoryItem {
+    id: string
+    title: string
+    committer_name: string
+    committer_email: string
+    committed_date: string
+    message: string
+    parent_ids: string[]
 }
 
 interface IGitAdapter {
@@ -62,7 +61,7 @@ interface IGitAdapter {
     get_branches(repo: string): Promise<string[]>
     get_access_token(code: string, client_id: string, redirect_uri?: string, secret?: string): Promise<string>
     commit_file(repo: string, file_path: string, message: string, branch: string, content: string, sha?: string, create?: boolean): Promise<boolean>
-    get_file_blame(repo: string, file_path: string, ref: string): Promise<IFileBlame[]>
+    get_commit_history(repo: string, file_path: string, ref?: string): Promise<ICommitHistoryItem[]>
 }
 
 export class GitLabAdapter implements IGitAdapter {
@@ -181,12 +180,12 @@ export class GitLabAdapter implements IGitAdapter {
         return resp.ok
     }
     
-    async get_file_blame (repo: string, file_path: string, ref: string): Promise<IFileBlame[]> {
-        const resp = await fetch(`${this.root_url}${this.api_root}/projects/${encodeURIComponent(repo)}/repository/files/${encodeURIComponent(file_path)}/blame?ref=${ref}`
-            , this.get_fetch_options())
+    async get_commit_history (repo: string, file_path: string, ref?: string): Promise<ICommitHistoryItem[]> {
+        const resp = await fetch(`${this.root_url}${this.api_root}/projects/${encodeURIComponent(repo)}/repository/commits?ref_name=${ref}&path=${encodeURIComponent(file_path)}`, this.get_fetch_options())
         const result = await resp.json()
         return result
     }
+    
 }
 
 export class GitHubAdapter implements IGitAdapter {
@@ -194,7 +193,7 @@ export class GitHubAdapter implements IGitAdapter {
     api_root: string = ''
     
     constructor () { }
-    async get_file_blame (repo: string, file_path: string, ref: string): Promise<IFileBlame[]> {
+    async get_commit_history (repo: string, file_path: string, ref?: string): Promise<ICommitHistoryItem[]> {
         throw new Error('Method not implemented.')
     }
     

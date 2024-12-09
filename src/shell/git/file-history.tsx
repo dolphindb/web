@@ -2,9 +2,11 @@ import useSWR from 'swr'
 
 import dayjs from 'dayjs'
 
+import { isArray } from 'lodash'
+ 
 import { shell } from '../model.ts'
 
-import { git_provider, type IFileBlame } from './git-adapter.ts'
+import { git_provider, type ICommitHistoryItem } from './git-adapter.ts'
 import { format_friendly_date } from './get-auth-url.ts'
 
 export function FileHistory ({ file_path, repo, branch }: { file_path: string, repo: string, branch: string }) {
@@ -15,17 +17,17 @@ export function FileHistory ({ file_path, repo, branch }: { file_path: string, r
             repo_name: repo,
             branch,
             sha: code.content_sha256,
-            is_history: true
+            is_history: true,
+            commit_id
         })
     }
     
-    const file_history_resp = useSWR(['get_file_blame', repo, file_path, branch], async () => {
-        const result = await git_provider.get_file_blame(repo, file_path, branch)
+    const file_history_resp = useSWR(['get_file_commit_history', repo, file_path, branch], async () => {
+        const result = await git_provider.get_commit_history(repo, file_path, branch)
         return result
-    })
+    }, { refreshInterval: 1000 * 60 * 3 })
     
-    const commits = (file_history_resp.data ?? [ ])
-        .map((item: IFileBlame) => item.commit)
+    const commits = (isArray(file_history_resp.data) ? file_history_resp.data : [ ])
         .sort((a, b) => dayjs(b.committed_date).diff(dayjs(a.committed_date)))
         
     const commit_view = commits.map(commit => <div className='file-history-item' key={commit.id} onClick={() => { show_file_history(commit.id) }}>
