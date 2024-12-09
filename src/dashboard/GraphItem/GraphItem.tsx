@@ -76,7 +76,7 @@ export function GraphItem  ({ widget }: { widget: Widget }) {
     // 是否为选中状态
     const is_active = useMemo(() => current?.id === widget?.id, [widget, current])
     
-    const ref = useRef<HTMLDivElement>()
+    const ref = useRef<HTMLDivElement>(undefined)
     
     // grid-stack-item-content 类名不能删除，gridstack 库是通过该类名去获取改 DOM 实现拖动
     return <div

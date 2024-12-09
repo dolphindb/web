@@ -73,7 +73,7 @@ export function Databases () {
     
     const [expanded_keys, set_expanded_keys] = useState([ ])
     const [loaded_keys, set_loaded_keys] = useState([ ])
-    const previous_clicked_node = useRef<Catalog | DatabaseGroup | Database | Table | ColumnRoot | PartitionRoot | Column | PartitionDirectory | PartitionFile | Schema>()
+    const previous_clicked_node = useRef<Catalog | DatabaseGroup | Database | Table | ColumnRoot | PartitionRoot | Column | PartitionDirectory | PartitionFile | Schema>(undefined)
     
     const enable_create_db = [NodeType.data, NodeType.single].includes(node_type)
     const [refresh_spin, set_refresh_spin] = useState(false)

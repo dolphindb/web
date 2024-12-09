@@ -32,7 +32,7 @@ export function RichText ({ widget, data_source }: { widget: Widget, data_source
     
     variables.use()
     
-    const quill_ref = useRef<any>()
+    const quill_ref = useRef<any>(undefined)
     
     const toolbar_options = useMemo(
         () => [

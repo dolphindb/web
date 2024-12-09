@@ -23,7 +23,7 @@ export function ControllerConfig () {
     const [search_key, set_search_key] = useState('')
     const [search_value, set_search_value] = useState('')
     
-    const actionRef = useRef<ActionType>()
+    const actionRef = useRef<ActionType>(undefined)
     
     const cols: ProColumns<ControllerConfig>[] = useMemo(() => ([
         {
