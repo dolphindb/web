@@ -88,7 +88,11 @@ export function Commit ({ current_select_repo, current_select_branch, repo_name 
         if (result) {
             model.modal.success({ title: t('提交成功') })
             if (is_tab_git_tab)
-                shell.update_git_tab_code(current_tab?.index, current_tab?.code)
+            {
+                const updated_file = await git_provider.get_file_by_path(repo_id, path, branch)
+                shell.update_git_tab_code(current_tab?.index, updated_file.content, updated_file.commit_id)
+            }
+                
             else
                 open_git_file(commit_file_name, repo_id)
                 
