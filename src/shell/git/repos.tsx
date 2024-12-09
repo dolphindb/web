@@ -8,6 +8,8 @@ import NiceModal from '@ebay/nice-modal-react'
 
 import { shell } from '../model.ts'
 
+import { GIT_CONSTANTS } from '../constants.ts'
+ 
 import { git_provider } from './git-adapter.ts'
 import { GitHubAccessTokenModal, GitHubOauthModal, GitLabAccessTokenModal, GitLabOauthModal } from './git-modals.tsx'
 import { format_friendly_date } from './get-auth-url.ts'
