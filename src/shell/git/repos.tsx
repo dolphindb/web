@@ -49,7 +49,7 @@ export function Repos ({ on_select_repo }: { on_select_repo: (repo_id: string, t
         <div className='block-title'>
             <div>{t('代码仓库')}</div>
             {!reposResp.error && <div className='button-logout'><Button type='text' onClick={() => {
-                localStorage.removeItem('git-access-token')
+                localStorage.removeItem(GIT_CONSTANTS.ACCESS_TOKEN)
                 shell.remove_git_tabs()
                 reposResp.mutate()
             }}>{t('登出')}</Button></div>}

@@ -3,6 +3,7 @@ import { isArray } from 'lodash'
 import { t } from '@i18n/index.ts'
 
 import { model } from '@/model.ts'
+import { GIT_CONSTANTS } from '../constants.ts'
 
 interface IProject {
     id: string
@@ -69,8 +70,8 @@ export class GitLabAdapter implements IGitAdapter {
     api_root: string = '/api/v4'
     
     constructor () {
-        this.root_url = localStorage.getItem('root_url') || this.root_url
-        this.api_root = localStorage.getItem('api_root') || this.api_root
+        this.root_url = localStorage.getItem(GIT_CONSTANTS.ROOT_URL) || this.root_url
+        this.api_root = localStorage.getItem(GIT_CONSTANTS.API_ROOT) || this.api_root
     }
     
     // 用授权码和 code_verifier 获取访问令牌
@@ -94,7 +95,7 @@ export class GitLabAdapter implements IGitAdapter {
         }).then(async res => res.json())
         
         if (result.access_token) {
-            localStorage.setItem('git-access-token', result.access_token)
+            localStorage.setItem(GIT_CONSTANTS.ACCESS_TOKEN, result.access_token)
             return result.access_token
         } else
             throw new Error('Failed to get access token')
@@ -112,7 +113,7 @@ export class GitLabAdapter implements IGitAdapter {
     
     // 获取 GitLab 认证头
     get_auth_header (): string {
-        return `Bearer ${localStorage.getItem('git-access-token')}`
+        return `Bearer ${localStorage.getItem(GIT_CONSTANTS.ACCESS_TOKEN)}`
     }
     
     private get_fetch_options (method = 'GET', body?) {
@@ -219,7 +220,7 @@ export class GitHubAdapter implements IGitAdapter {
             const result_data = JSON.parse(text)
             
             if (result_data.access_token) {
-                localStorage.setItem('git-access-token', result_data.access_token)
+                localStorage.setItem(GIT_CONSTANTS.ACCESS_TOKEN, result_data.access_token)
                 return result_data.access_token
             } else
                 throw new Error('Failed to get access token')
@@ -232,7 +233,7 @@ export class GitHubAdapter implements IGitAdapter {
     
     
     get_auth_header (): string {
-        return `token ${localStorage.getItem('git-access-token')}`
+        return `token ${localStorage.getItem(GIT_CONSTANTS.ACCESS_TOKEN)}`
     }
     
     
@@ -359,4 +360,4 @@ export class GitHubAdapter implements IGitAdapter {
     }
 }
 
-export const git_provider = localStorage.getItem('git-provider') === 'github' ? new GitHubAdapter() : new GitLabAdapter()
+export const git_provider = localStorage.getItem(GIT_CONSTANTS.PROVIDER) === 'github' ? new GitHubAdapter() : new GitLabAdapter()
