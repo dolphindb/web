@@ -56,9 +56,9 @@ import { CreateGuide } from './guide/iot-guide/index.tsx'
 import { FinanceGuide } from './guide/finance-guide/index.tsx'
 import { DataCollection } from './data-collection/index.tsx'
 import { DdbHeader } from './components/DDBHeader/index.tsx'
-import './antd-default-props.ts'
+import './constant/antd-default-props.ts'
+import { ANT_LIGHT_CONFIG } from './constant/theme-config.ts'
 
-const PRIMARY_COLOR = '#6774BD'
 
 createRoot(
     document.querySelector('.root')
@@ -68,36 +68,11 @@ createRoot(
 const locales = { zh, en, ja, ko }
 
 function DolphinDB () {
+    
     return <ConfigProvider
         locale={locales[language] as any}
         button={{ autoInsertSpace: false }}
-        theme={{
-            hashed: false,
-            cssVar: true,
-            token: {
-                motion: false,
-                borderRadius: 2,
-                controlOutlineWidth: 0,
-                colorPrimary: PRIMARY_COLOR,
-                colorError: '#FF4D4F',
-                colorLink: PRIMARY_COLOR,
-                colorInfo: PRIMARY_COLOR,
-                colorBgLayout: '#F9F9FB',
-                colorBgElevated: '#F9F9FB'
-            },
-            components: {
-                Table: {
-                    headerBg: '#F9F9FB',
-                    rowSelectedBg: '#EBF0FA',
-                    headerColor: '#666E7D',
-                    colorText: 'rgba(0,0,0,0.85)',
-                    cellPaddingBlock: 10
-                },
-                Tag: {
-                    borderRadius: 8,
-                }
-            }
-        }}
+        theme={ANT_LIGHT_CONFIG}
         renderEmpty={() => <div className='empty-placeholder' />}
     >
         <SWRConfig value={{

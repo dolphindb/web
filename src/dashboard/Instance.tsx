@@ -10,6 +10,8 @@ import { t } from '@i18n/index.js'
 
 import { model } from '@/model.js'
 
+import { ANT_DARK_CONFIG } from '@/constant/theme-config.ts'
+
 import { get_shared_dashboards, paste_widget } from './utils.ts'
 
 import { Sider } from './Sider.tsx'
@@ -26,17 +28,7 @@ export function DashboardInstancePage () {
     const { id } = useParams()
     
     return <ConfigProvider
-        theme={{
-            hashed: false,
-            token: {
-                borderRadius: 0,
-                motion: false,
-                colorBgContainer: 'rgb(40, 40, 40)',
-                colorBgElevated: '#555555',
-                colorInfoActive: 'rgb(64, 147, 211)'
-            },
-            algorithm: theme.darkAlgorithm
-        }}
+        theme={ANT_DARK_CONFIG}
     >
         <App className='app'>
             <Spin spinning={loading} delay={500} size='large'>
