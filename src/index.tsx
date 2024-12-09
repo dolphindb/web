@@ -73,6 +73,7 @@ function DolphinDB () {
         button={{ autoInsertSpace: false }}
         theme={{
             hashed: false,
+            cssVar: true,
             token: {
                 motion: false,
                 borderRadius: 2,
@@ -81,6 +82,8 @@ function DolphinDB () {
                 colorError: '#FF4D4F',
                 colorLink: PRIMARY_COLOR,
                 colorInfo: PRIMARY_COLOR,
+                colorBgLayout: '#F9F9FB',
+                colorBgElevated: '#F9F9FB'
             },
             components: {
                 Table: {

@@ -77,11 +77,6 @@ html, body
                 &.module-settings > li:last-child
                     margin-top: auto
                 
-                &.ant-menu-light .ant-menu-submenu-selected >.ant-menu-submenu-title, .ant-menu-light>.ant-menu .ant-menu-submenu-selected >.ant-menu-submenu-title
-                    color: #282828
-                    
-                .ant-menu-sub
-                    color: #707070
                 
                 &.ant-menu-inline-collapsed
                     width: 50px
@@ -102,12 +97,10 @@ html, body
                     transform: none
                 
                 .ant-menu-item-selected
-                    background-color: #e6e6e6
-                    color: #2e2e2e
-                    font-weight: bold
+                    border-right: 2px solid var(--ant-color-primary)
                     
                     .icon-menu
-                        color: #2e2e2e
+                        color: var(--ant-color-primary)
                     
                 .ant-menu-item:hover
                     color: #2e2e2e
@@ -134,6 +127,9 @@ html, body
                 padding: 16px 24px
                 
                 background-color: #ffffff
+                
+                .ant-collapse-borderless
+                    background: var(--ant-color-bg-layout)
 
 
 .empty-placeholder
@@ -244,7 +240,8 @@ html, body
         
         width: 50px
         
-        cursor: pointer
+        cursor: pointer列配置
+
         
         padding-top: 4px
         
@@ -256,4 +253,4 @@ html, body
             color: #000000
 
 a
-    color: #6774BD
+    color: var(--ant-color-primary)
