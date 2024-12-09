@@ -80,6 +80,17 @@ function DolphinDB () {
                 colorError: '#FF4D4F',
                 colorLink: PRIMARY_COLOR,
                 colorInfo: PRIMARY_COLOR,
+            },
+            components: {
+                Table: {
+                    headerBg: '#F9F9FB',
+                    rowSelectedBg: '#EBF0FA',
+                    headerColor: '#666E7D',
+                    colorText: 'rgba(0,0,0,0.85)'
+                },
+                Tag: {
+                    borderRadius: 8,
+                }
             }
         }}
         renderEmpty={() => <div className='empty-placeholder' />}
