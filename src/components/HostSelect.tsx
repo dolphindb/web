@@ -23,8 +23,8 @@ export function HostSelect ({ size = 'small' }: { size?: SizeType }) {
                 value: '192.168.0.90:8848'
             },
             {
-                label: '单点登录',
-                value: '192.168.0.129:8900'
+                label: '定时巡检',
+                value: '192.168.100.44:7602'
             },
             {
                 label: '外汇交易中心',
@@ -41,10 +41,6 @@ export function HostSelect ({ size = 'small' }: { size?: SizeType }) {
             {
                 label: '运维工具',
                 value: '192.168.0.69:18921'
-            },
-            {
-                label: '定时巡检',
-                value: '192.168.100.44:7602'
             },
             {
                 label: '本地',
