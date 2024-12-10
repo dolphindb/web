@@ -90,7 +90,8 @@ export function Commit ({ current_select_repo, current_select_branch, repo_name 
             if (is_tab_git_tab)
             {
                 const updated_file = await git_provider.get_file_by_path(repo_id, path, branch)
-                shell.update_git_tab_code(current_tab?.index, updated_file.content, updated_file.commit_id)
+                shell.update_git_tab_code(current_tab?.index, updated_file.content, updated_file.commit_id, updated_file.content_sha256)
+                set_commit_message('')
             }
                 
             else
@@ -103,7 +104,7 @@ export function Commit ({ current_select_repo, current_select_branch, repo_name 
     
     async function get_file_update () {
         const result = await git_provider.get_file_by_path(repo_id, path, branch)
-        shell.update_git_tab_code(current_tab?.index, result.content, result.commit_id)
+        shell.update_git_tab_code(current_tab?.index, result.content, result.commit_id, result.content_sha256)
     }
     
     return <div className='commit'>

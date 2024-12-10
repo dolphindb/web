@@ -413,7 +413,7 @@ class ShellModel extends Model<ShellModel> {
         this.editor.setValue(code)
     }
     
-    update_git_tab_code (index: number, code: string, commit_id?: string) {
+    update_git_tab_code (index: number, code: string, commit_id: string, sha: string) {
         const tab = this.tabs.find(t => t.index === index)
         if (tab && tab.git) {
             tab.git.raw_code = code
