@@ -3,8 +3,8 @@ def loadZipPlugin() {
         loadPlugin("zip")
     }
 }
-pnodeRun(loadZipPlugin)
-rpc(getControllerAlias(), loadZipPlugin)
+nodes = exec name from rpc(getControllerAlias(), getClusterPerf{true}) where mode != 1
+pnodeRun(loadZipPlugin, nodes)
 go
 
 def getPluginDir() {
@@ -21,11 +21,12 @@ def getPluginDir() {
     return pluginDir
 }
 
-def list_plugins () {
-    listPluginsInner = def() {
+def getInstalledPluginsOfCluster() {
+    getInstalledPluginsInner = def() {
         pluginDir = getPluginDir()
         pluginNames = exec filename from files(pluginDir) where isDir = true
-        ret = table(1:0, `pluginName`version, [STRING, STRING])
+        
+        ret = table(1:0, `plugin`version, [STRING, STRING])
         for (pluginName in pluginNames) {
             // pluginName = pluginNames[0]
             dir = pluginDir + "/" + pluginName
@@ -40,39 +41,128 @@ def list_plugins () {
             if (s.size() < 3) {
                 continue
             }
+            
             pluginName = s.first()
             pluginVersion = s.last()
             tableInsert(ret, (pluginName, pluginVersion))
         }
+        
         return ret
     }
     
-    info = pnodeRun(listPluginsInner)
-    info_ = rpc(getControllerAlias(), listPluginsInner)
-    update info_ set node = getControllerAlias()
-    info.append!(info_)
-    pluginNames = exec distinct(pluginName) from info
-    ret = []
+    nodes = exec name from rpc(getControllerAlias(), getClusterPerf{true}) where mode != 1
+    info = pnodeRun(getInstalledPluginsInner, nodes)
     
-    for (pluginName_ in pluginNames) {
-        // pluginName_ = pluginNames[0]
-        item = dict(STRING, ANY)
-        item["id"] = pluginName_
-        item["least_version"] = exec min(version) from info where pluginName = pluginName_
-        nodes = []
-        info_ = select node, version from info where pluginName = pluginName_
-        for (item_ in info_) {
-            nodes.append!(item_)
+    return info
+}
+
+def getLoadedPluginsOfCluster() {
+    nodes = exec name from rpc(getControllerAlias(), getClusterPerf{true}) where mode != 1
+    ret = pnodeRun(getLoadedPlugins, nodes)
+    return ret
+}
+
+def getPreloadPluginsOfCluster() {
+    ret = table(1:0, `node`plugin, [STRING, STRING])
+    
+    // 数据节点和计算节点
+    clusterConfigs = rpc(getControllerAlias(), loadClusterNodesConfigs)
+    nodes = exec name from rpc(getControllerAlias(), getClusterPerf) where state == 1 and mode != 1
+    excludeNodes = []$STRING
+
+    // <nodeAlias>.preloadModules 配置项优先生效
+    for (config in clusterConfigs) {
+        if (like(config, "%.preloadModules%")) {
+            node = config.split(".").first()
+            excludeNodes.append!(node)
+            s = config.split("=").last().split(",")
+            for (item in s) {
+                if (item.startsWith("plugins")) {
+                    pluginName = item.split("::").at(1)
+                    insert into ret values (node, pluginName)
+                }
+            }
         }
-        item["nodes"] = nodes
-        ret.append!(item)
     }
+
+    // 未配置 <nodeAlias>.preloadModules 的节点，使用 preloadModules 配置项
+    otherNodes = (set(excludeNodes) - set(nodes)).keys()
+    for (config in clusterConfigs) {
+        // config = clusterConfigs.last()
+        if (config.startsWith("preloadModules")) {
+            s = config.split("=").last().split(",")
+            for (item in s) {
+                if (item.startsWith("plugins")) {
+                    pluginName = item.split("::").at(1)
+                    ret.append!(table(otherNodes as node, take(pluginName, otherNodes.size()) as preloadPlugins))
+                }
+            }
+        }
+    }
+    
+    // 控制节点只有 preloadModules 配置项，没有 <nodeAlias>.preloadModules
+    cnt = exec count(*) from rpc(getControllerAlias(), getClusterPerf) where mode == 3
+    if (cnt == 0) { // 控制节点
+        controllerConfigs = rpc(getControllerAlias(), loadControllerConfigs)
+        nodes = exec name from rpc(getControllerAlias(), getClusterPerf{true}) where state == 1 and mode == 2
+        for (config in controllerConfigs) {
+            if (config.startsWith("preloadModules")) {
+                s = config.split("=").last().split(",")
+                for (item in s) {
+                    if (item.startsWith("plugins")) {
+                        pluginName = item.split("::").at(1)
+                        ret.append!(table(nodes as node, take(pluginName, nodes.size()) as preloadPlugins))
+                    }
+                }
+            }
+        }  
+    }
+    
+    ret = select * from ret where isDuplicated([node,plugin],FIRST)=false
     
     return ret
 }
 
-def getClusterPluginDirs() {
-    nodes = select * from rpc(getControllerAlias(), getClusterPerf{true}) where (mode != 2 or (mode == 2 and isLeader = true)) and mode != 1
+def listPluginsByNodes() {
+    ret = table(1:0, `plugin`node, [STRING, STRING])
+    nodes = select name from rpc(getControllerAlias(), getClusterPerf{true}) where mode != 1 order by name asc
+    installedPlugins = getInstalledPluginsOfCluster()
+    plugins = exec distinct(plugin) from installedPlugins
+    for (plugin in plugins) {
+        ret.append!(table(take(plugin, nodes.size()) as plugin, nodes as node))
+    }
+    loadedPlugins = getLoadedPluginsOfCluster()
+    preloadPlugins = getPreloadPluginsOfCluster()
+    ret = select a.*, !isNull(b.plugin) as isInstalled, b.version as installedVersion from ret a left join installedPlugins b on a.plugin == b.plugin and a.node == b.node
+    ret = select a.*, !isNull(b.plugin) as isLoaded, b.version as loadedVersion from ret a left join loadedPlugins b on a.plugin == b.plugin and a.node == b.node
+    ret = select a.*, !isNull(b.plugin) as isPreloaded from ret a left join preloadPlugins b on a.plugin == b.plugin and a.node == b.node
+
+    return ret
+}
+
+def listPlugins() {
+    res = listPluginsByNodes()
+    ret = select min(installedVersion) as minInstalledVersion from res group by plugin
+    nodeCnt = exec count(*) from rpc(getControllerAlias(), getClusterPerf{true}) where mode != 1
+
+    addColumn(ret, `installedNodes`toInstallNodes`loadedNodes`preloadedNodes, [STRING, STRING, STRING, STRING])
+    for (plugin_ in ret["plugin"]) {
+        nodes = exec distinct(node) as node from res where plugin == plugin_ and isInstalled == true order by node asc
+        update ret set installedNodes = concat(nodes, ",") where plugin == plugin_
+        nodes = exec distinct(node) as node from res where plugin == plugin_ and isLoaded == true order by node asc
+        update ret set loadedNodes = concat(nodes, ",") where plugin == plugin_
+        nodes = exec distinct(node) as node from res where plugin == plugin_ and isPreloaded == true order by node asc
+        update ret set preloadedNodes = concat(nodes, ",") where plugin == plugin_
+    }
+
+    return ret
+}
+
+def getClusterPluginDirs(destNodeAliases=[]) {
+    nodes = select * from rpc(getControllerAlias(), getClusterPerf{true}) where mode != 1
+    if (destNodeAliases.size() > 0) {
+        nodes = select * from nodes where name in destNodeAliases
+    }
     addColumn(nodes, "pluginDir", STRING)
     for (node in nodes) {
         name_ = node["name"]
@@ -80,11 +170,11 @@ def getClusterPluginDirs() {
         update nodes set pluginDir = pluginDir_ where name = name_
     }
     // 若host和pluginDir相同，则只需要部署一次
-    nodes = select first(name) as name from nodes group by host, pluginDir
+    nodes = select first(name) as name, first(agentSite) as agentSite from nodes group by host, pluginDir
     return nodes
 }
 
-def checkPluginName(zipName) {
+def checkPluginZipName(zipName) {
     // zipName = "arrow-Linux-X86-3.00.1-3.00.1.zip"
     pattern = "^([^-]+)-[^-]+-[^-]+-[^-]+-[^-]+\.zip$"
     res = regexFind(zipName, pattern)
@@ -96,17 +186,27 @@ def checkPluginName(zipName) {
     return true
 }
 
-def install_plugin(zip_name, zip) {
-    checkPluginName(zip_name)
+def installPluginOffline(zipName, zipBytes, destNodeAliases=[]) {
+    // destNodeAliases = ["P1_node1"]
+    checkPluginZipName(zipName)
+    if (destNodeAliases.size() == 0) {
+        throw "destNodeAliases must not be empty"
+    }
+    nodeAliases = exec name from rpc(getControllerAlias(), getClusterPerf{true}) where mode != 1
+    for (destNodeAlias in destNodeAliases) {
+        if (!in(destNodeAlias, nodeAliases)) {
+            throw "Invalid node alias: " + destNodeAlias
+        }
+    }
     
-    install_plugin_inner = def(zip_name, zip) {
+    installPluginOfflineInner = def(zipName, zipBytes) {
         pluginDir = getPluginDir()
         
         tmpZipPath = pluginDir + "/tmp.zip"
         f = file(tmpZipPath, "w")
-        f.writeObject(zip)
+        f.writeObject(zipBytes)
         f.close()
-        pluginName = zip_name.split("-").first() 
+        pluginName = zipName.split("-").first() 
         pluginDir_ = pluginDir + "/" + pluginName
         // 需要先删除目标插件文件夹，详见 WEB-1042
         if (exists(pluginDir_)) {
@@ -116,21 +216,27 @@ def install_plugin(zip_name, zip) {
         rm(tmpZipPath)
     }
     
-    // 顺序执行，因为存在一台机器上有多个节点的情况，并发会互相覆盖文件
-    nodes = select * from rpc(getControllerAlias(), getClusterPerf{true}) where (mode != 2 or (mode == 2 and isLeader = true)) and mode != 1
-    addColumn(nodes, "pluginDir", STRING)
+    nodes = getClusterPluginDirs(destNodeAliases)
     for (node in nodes) {
-        name_ = node["name"]
-        pluginDir_ = rpc(name_, getConfig, "pluginDir")
-        update nodes set pluginDir = pluginDir_ where name = name_
-    }
-    // 若host和pluginDir相同，则只需要部署一次
-    nodes = select first(name) as name from nodes group by host, pluginDir
-    for (node in nodes) {
+        // node = nodes[0]
         name = node["name"]
-        rpc(name, install_plugin_inner, zip_name, zip)
+        agentSite = node["agentSite"]
+        agentState = exec first(state) from rpc(getControllerAlias(), getClusterPerf) where site == agentSite
+        if (agentState == 1) { // 优先去节点所在的 agent 节点安装
+            agentName = agentSite.split(":").last()
+            rpc(name, installPluginOfflineInner, zipName, zipBytes)
+        } else { // agent 不在线时直连节点安装
+            rpc(name, installPluginOfflineInner, zipName, zipBytes)
+        }
     }
-    rpc(getControllerAlias(), install_plugin_inner, zip_name, zip)
+}
+
+def installPluginOnline(pluginName, pluginVersion=NULL, pluginServerAddr=NULL, destNodeAliases=[]) {
+    if (destNodeAliases.size() == 0) {
+        throw "destNodeAliases must not be empty"
+    }
+    nodes = getClusterPluginDirs(destNodeAliases)
+    pnodeRun(installPlugin{pluginName, pluginVersion, pluginServerAddr}, nodes["name"])
 }
 
 def copyFolderToRemoteNode(src, destNodeAlias, dest) {
@@ -166,11 +272,21 @@ def copyFolderToRemoteNode(src, destNodeAlias, dest) {
     }
 }
 
-def sync_plugin(pluginName, src) {
-    sync_plugin_inner = def(pluginName) {
+def syncPlugin(pluginName, srcNodeAlias, destNodeAliases=[]) {
+    if (destNodeAliases.size() == 0) {
+        throw "destNodeAliases must not be empty"
+    }
+    nodeAliases = exec name from rpc(getControllerAlias(), getClusterPerf{true}) where mode != 1
+    for (destNodeAlias in destNodeAliases) {
+        if (!in(destNodeAlias, nodeAliases)) {
+            throw "Invalid node alias: " + destNodeAlias
+        }
+    }
+
+    syncPluginInner = def(pluginName, destNodeAliases) {
         pluginDir_ = getPluginDir()
         pluginName_ = exec first(filename) from files(pluginDir_) where isDir == true and filename = pluginName
-        destInfo = select * from getClusterPluginDirs() where host != getNodeHost() or pluginDir != pluginDir_
+        destInfo = select * from getClusterPluginDirs(destNodeAliases) where host != getNodeHost() or pluginDir != pluginDir_ // 排除本机的相同目录 
         for (item in destInfo) {
             // item = destInfo[0]
             srcDir = pluginDir_ + "/" + pluginName_
@@ -182,10 +298,19 @@ def sync_plugin(pluginName, src) {
                     rm(dir)
                 }
             }
-            rpc(destNodeAlias, rmDirIfExists, destDir)
-            copyFolderToRemoteNode(srcDir, destNodeAlias, destDir)
+
+            agentSite = item["agentSite"]
+            agentState = exec first(state) from rpc(getControllerAlias(), getClusterPerf) where site == agentSite
+            if (agentState == 1) { // 优先去节点所在的 agent 节点安装
+                agentName = agentSite.split(":").last()
+                rpc(agentName, rmDirIfExists, destDir)
+                copyFolderToRemoteNode(srcDir, agentName, destDir)
+            } else { // agent 不在线时直连节点安装
+                rpc(destNodeAlias, rmDirIfExists, destDir)
+                copyFolderToRemoteNode(srcDir, destNodeAlias, destDir)
+            }
         }
     }
     
-    rpc(src, sync_plugin_inner, pluginName)
+    rpc(srcNodeAlias, syncPluginInner, pluginName, destNodeAliases)
 }

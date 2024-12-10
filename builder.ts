@@ -1,4 +1,4 @@
-import { ramdisk, fwrite, noprint, fequals, fcopy } from 'xshell'
+import { ramdisk, fwrite, noprint, fequals, fcopy, fdclear } from 'xshell'
 import { Git } from 'xshell/git.js'
 import { Bundler, type BundlerOptions } from 'xshell/builder.js'
 
@@ -29,6 +29,8 @@ export let builder = {
     
     async build (production: boolean, version_name?: string) {
         console.log(`开始构建${production ? '生产' : '开发'}模式的 web`)
+        
+        await fdclear(fpd_out)
         
         let git = new Git(fpd_root)
         
@@ -171,8 +173,9 @@ export let builder = {
         await Promise.all([
             this.deps_bundler?.close(),
             // 缓存依赖
-            this.deps_bundler && Promise.all(deps_src.map(async fp => 
-                fcopy(`${fpd_root}${fp}`, `${fpd_cache}${fp.fname}`, { print: false }))),
+            this.deps_bundler && Promise.all(
+                deps_src.map(async fp => 
+                    fcopy(`${fpd_root}${fp}`, `${fpd_cache}${fp.fname}`, { print: false }))),
             this.bundler.build_all(),
             fwrite(`${fpd_out}version.json`, info, noprint)
         ])

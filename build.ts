@@ -1,13 +1,9 @@
 import process from 'process'
 
-import { fdclear } from 'xshell'
-
-import { builder, fpd_out } from './builder.ts'
+import { builder } from './builder.ts'
 
 
 const prefix_version = '--version='
-
-await fdclear(fpd_out)
 
 await builder.build(
     true, 
