@@ -16,6 +16,7 @@ import { type AxisConfig, type IChartConfig, type ISeriesConfig } from './type.j
 import { subscribe_data_source, type DataSource, get_data_source } from './DataSource/date-source.js'
 import { AxisType, ILineType, MarkPresetType, ThresholdShowType, ThresholdType } from './ChartFormFields/type.js'
 import { find_variable_by_name, get_variable_copy_infos, get_variable_value, paste_variables, subscribe_variable } from './Variable/variable.js'
+import { DASHBOARD_SHARED_SEARCH_KEY } from './constant.js'
 
 
 export function format_time (time: string, format: string) {
@@ -275,45 +276,34 @@ export function convert_chart_config (
     }
     
     function convert_axis (axis: AxisConfig, index?: number) {
-        let data = undefined
-        // 类目轴下需要定义类目数据, 其他轴线类型下 data 不生效
-        if (axis.type === AxisType.CATEGORY)
-            data = axis.col_name ? data_source.map(item => format_time(item?.[axis.col_name], axis.time_format)) : [ ]
-        
         const axis_config = {
             show: true,
             name: axis.name,
             type: axis.type,
             interval: axis.interval,
-            splitLine: {
+            splitLine,
+            axisLine: {
                 show: true,
-                lineStyle: { 
-                    type: 'dashed',
-                    color: '#6E6F7A'
-                },
-                ...splitLine,
+                lineStyle: {
+                    color: axis.axis_color || '#6E6F7A'
+                }
             },
             axisLabel: {
-                formatter: axis.type === AxisType.CATEGORY && (value => { 
-                    if (axis.time_format)
-                        return format_time(value, axis.time_format)
-                    else
-                        return value
-                })
-                
+                color: () => axis.font_color || '#6E6F7A',
+                fontSize: axis.fontsize
             },
             logBase: axis.log_base || 10,
             position: axis.position,
             offset: axis.offset,
             alignTicks: true,
             id: index,
-            scale: !axis.with_zero ?? false,
+            scale: !axis.with_zero,
             nameTextStyle: {
                 fontSize: axis.fontsize ?? 12
             },
             min: [AxisType.TIME, AxisType.VALUE].includes(axis.type) ? axis.min : undefined,
             max: [AxisType.TIME, AxisType.VALUE].includes(axis.type) ? axis.max : undefined
-        }
+        } as echarts.EChartsOption['xAxis']
         
         return axis_config
     }
@@ -390,7 +380,7 @@ export function convert_chart_config (
                 opacity: series.opacity
             } : null
             
-        }
+        } as echarts.EChartsOption['series']
     }
     
     let echarts_series = series.filter(Boolean).map((serie, index) => ({ id: index, ...convert_series(serie) }))
@@ -498,6 +488,8 @@ export function convert_chart_config (
         grid: {
             containLabel: true,
             left: 10,
+            // 如果 series 中设置了 endLabel，需要增加 right 为 endLabel 预留空间
+            right: series?.find(item => item?.end_label) ? 80 : 10,
             bottom: x_datazoom ? 50 : 10
         },
         legend: pickBy({
@@ -511,7 +503,6 @@ export function convert_chart_config (
         tooltip: {
             show: true,
             ...tooltip,
-            // 与图形类型相关，一期先写死
             trigger: 'axis',
             backgroundColor: '#060606',
             borderColor: '#060606',
@@ -519,27 +510,6 @@ export function convert_chart_config (
                 color: '#F5F5F5'
             },
             confine: true,
-            formatter: params => { 
-                if (!Array.isArray(params))
-                    params = [params]
-                const x = params[0].value?.[0] ?? params[0]?.data?.[0]
-                let html = `<div style="font-weight: 500;">${x}</div>`
-                for (let series of params) { 
-                    const value = series.value?.[1] ?? series.data?.[1]
-                    const text = `<div style="display: flex; justify-content: space-between;">
-                        <span style="display: inline-block; margin-right: 12px;">
-                            ${series?.marker}
-                            <span>${series?.seriesName}</span>
-                        </span>
-                        <span style="font-weight: 500">
-                            ${value}
-                        </span>
-                    </div>
-                    `
-                    html += text 
-                }
-                return html
-            }
         },
         title: {
             text: parse_text(title ?? ''),
@@ -591,7 +561,7 @@ export function to_chart_data (data: DdbValue, datatype: DdbType) {
 export function safe_json_parse (val) { 
     try {
         return JSON.parse(val)
-    } catch (e) { 
+    } catch (e) {
         return val
     }
 }
@@ -723,4 +693,9 @@ export function get_chart_data_type (chart_type: WidgetChartType) {
         default: 
             return DdbForm.table
     }
+}
+
+
+export function get_shared_dashboards () {
+    return new URLSearchParams(location.search).get(DASHBOARD_SHARED_SEARCH_KEY)?.split(',') ?? [ ]
 }

@@ -8,11 +8,13 @@ import { DdbForm, type DdbVoid, type DdbObj, type DdbValue, DdbVectorLong, DdbLo
 
 import { GridStack, type GridStackNode, type GridItemHTMLElement } from 'gridstack'
 
-import { assert, decode, genid } from 'xshell/utils.browser.js'
+import { assert, genid } from 'xshell/utils.browser.js'
 
-import type { MessageInstance } from 'antd/es/message/interface.js'
-import type { ModalStaticFunctions } from 'antd/es/modal/confirm.js'
-import type { NotificationInstance } from 'antd/es/notification/interface.js'
+import type { MessageInstance } from 'antd/es/message/interface.d.ts'
+import type { HookAPI as ModalHookAPI } from 'antd/es/modal/useModal/index.d.ts'
+import type { NotificationInstance } from 'antd/es/notification/interface.d.ts'
+
+import { t } from '@i18n/index.ts'
 
 import { model, show_error, storage_keys } from '../model.js'
 import type { Monaco } from '../components/Editor/index.js'
@@ -21,6 +23,7 @@ import type { FormatErrorOptions } from '../components/GlobalErrorBoundary.js'
 import { type DataSource, type ExportDataSource, import_data_sources, unsubscribe_data_source, type DataType, clear_data_sources } from './DataSource/date-source.js'
 import { type IEditorConfig, type IChartConfig, type ITableConfig, type ITextConfig, type IGaugeConfig, type IHeatMapChartConfig, type IOrderBookConfig } from './type.js'
 import { type Variable, import_variables, type ExportVariable } from './Variable/variable.js'
+import { DASHBOARD_SHARED_SEARCH_KEY } from './constant.ts'
 
 
 /** 0 表示隐藏dashboard（未查询到结果、 server 版本为 v1 或 language 非中文），1 表示没有初始化，2 表示已经初始化，3 表示为控制节点 */
@@ -97,7 +100,7 @@ export class DashBoardModel extends Model<DashBoardModel> {
     // console/model.js 对应黑色主题的版本
     message: MessageInstance
     
-    modal: Omit<ModalStaticFunctions, 'warn'>
+    modal: ModalHookAPI
     
     notification: NotificationInstance
     
@@ -107,27 +110,30 @@ export class DashBoardModel extends Model<DashBoardModel> {
         let grid = GridStack.init({
             //  gridstack 有 bug ，当 grid 没有 2*3 的连续空间时，再拖入一个会使所有 widget 无法 change，暂时通过计算面积阻止拖入，后续无限行数时不会再有此问题
             acceptWidgets: () => {
-                const canvas = Array.from({ length: 12 }, () => Array(12).fill(0))
+                let current_page_count = this.config?.data?.canvas?.page_count ?? 1 
+                const max_rows = this.maxrows * current_page_count
+                const max_columns = 12
+                const canvas = Array.from({ length: max_columns }, () => Array(max_rows).fill(0))
                 
                 this.widgets.forEach(widget => {
-                for (let i = widget.x;  i < widget.x + widget.w;  i++)
-                    for (let j = widget.y;  j < widget.y + widget.h;  j++)
-                        canvas[i][j] = 1
+                    for (let i = widget.x;  i < widget.x + widget.w;  i++)
+                        for (let j = widget.y;  j < widget.y + widget.h;  j++)
+                            canvas[i][j] = 1
                 })
                 
                 // 使用动态规划记录每个位置上的连续空白格子数量
-                const dp = Array.from({ length: 12 }, () => Array(12).fill(0))
-                for (let i = 0;  i < 12;  i++)
-                    for (let j = 0;  j < 12;  j++)
+                const dp = Array.from({ length: max_columns }, () => Array(max_rows).fill(0))
+                for (let i = 0;  i < max_columns;  i++)
+                    for (let j = 0;  j < max_rows;  j++)
                         if (canvas[i][j] === 0) 
                             dp[i][j] = (j > 0 ? dp[i][j - 1] : 0) + 1
                         
                             
                     
                 // 检查是否有符合条件的3x2空白区域
-                for (let i = 0;  i < 11;  i++)
-                    for (let j = 0;  j <= 11;  j++)
-                        if (dp[i][j] >= 3 && dp[i + 1][j] >= 3) 
+                for (let i = 0;  i < max_columns - 1;  i++) 
+                    for (let j = 0;  j <= max_rows - 1;  j++)
+                        if (dp[i][j] >= 3 && dp[i + 1][j] >= 3)
                             return true
                 console.log('格子不够')
                 console.log('canvas', canvas)
@@ -136,13 +142,13 @@ export class DashBoardModel extends Model<DashBoardModel> {
             },
             float: true,
             column: this.maxcols,
-            row: this.maxrows,
+            row: 0,
             margin: 0,
-            draggable: { scroll: false },
+            draggable: { scroll: true },
             resizable: { handles: 'n,e,se,s,w' },
         }, $div)
         
-        grid.cellHeight(Math.floor(grid.el.clientHeight / this.maxrows))
+        grid.cellHeight(Math.floor((window.innerHeight - 50) / this.maxrows))
         
         grid.enableMove(this.editing)
         grid.enableResize(this.editing)
@@ -168,13 +174,14 @@ export class DashBoardModel extends Model<DashBoardModel> {
         
         // 响应 GridStack 中 widget 的位置或尺寸变化的事件
         grid.on('change', (event: Event, widgets: GridStackNode[]) => {
-            
             if (widgets?.length)
                 for (const widget of widgets)
                     Object.assign(
                         this.widgets.find(({ id }) => id === widget.id), 
                         widget
                     )
+            
+            this.check_and_change_page()
         })
         
         window.addEventListener('resize', this.on_resize)
@@ -185,12 +192,33 @@ export class DashBoardModel extends Model<DashBoardModel> {
     }
     
     
-    on_resize = () => {
-        window.addEventListener('resize', () => {
-            let { grid } = this
-            if (grid?.el)
-                grid.cellHeight(Math.floor(grid.el.clientHeight / this.maxrows))
-        })
+    on_resize = () => { 
+        let { grid } = this
+        if (grid)
+            grid.cellHeight(Math.floor((window.innerHeight - 50) / this.maxrows))
+    }
+    
+    check_available_for_reduce_page_count (target: number) {
+        let current_page_count = this.config?.data?.canvas?.page_count ?? 1 
+        if (target >= current_page_count)
+            return true
+        for (const widget of this.widgets) 
+            if (widget.y + widget.h > target * 12) {
+                model.message.warning(t('部分页面仍有图表存在，请确保所有图表已移除后再调整页面数'))
+                return false
+            }
+        return true
+    }
+    
+    check_and_change_page () {
+        let bottom_row = 0
+        for (const widget of this.widgets) 
+            if (widget.y + widget.h > bottom_row)
+                bottom_row = widget.y + widget.h
+        
+        this.update_page_count(
+            Math.ceil((bottom_row + 3) / 12)
+        )
     }
     
     
@@ -260,6 +288,8 @@ export class DashBoardModel extends Model<DashBoardModel> {
             widget,
             widgets: [...this.widgets, widget]
         })
+        
+        this.check_and_change_page()
     }
     
     
@@ -273,6 +303,8 @@ export class DashBoardModel extends Model<DashBoardModel> {
             widget: widgets[0],
             widgets
         })
+        
+        this.check_and_change_page()
     }
     
     
@@ -280,7 +312,9 @@ export class DashBoardModel extends Model<DashBoardModel> {
         if (this.widgets.find(({ id }) => id === widget.id)) { 
             Object.assign(this.widgets.find(({ id }) => id === widget.id), widget)
             this.set({ widget })
-        } 
+        }
+        
+        this.check_and_change_page()
     }
     
     
@@ -389,7 +423,7 @@ export class DashBoardModel extends Model<DashBoardModel> {
     
     
     /** 根据 id 获取单个 DashboardConfig */
-    async get_dashboard_config (id: number) {
+    async get_dashboard_config (id: number): Promise<DashBoardConfig> {
         const { data } = (await model.ddb.invoke('dashboard_get_config', [{ id }]))
         
         const res: any = data.length
@@ -413,8 +447,7 @@ export class DashBoardModel extends Model<DashBoardModel> {
     
     /** 从服务器获取 dashboard 配置 */
     async get_dashboard_configs () {
-        const data = (await model.ddb.call<DdbVoid>('dashboard_get_config_list', [ ])).to_rows()
-        
+        const { data = [ ] } = await model.ddb.invoke('dashboard_get_config_list')
         const configs = data.map(cfg => {
             // 有些只需要 parse 一次，有些需要 parse 两次
             let data = typeof cfg.data === 'string' ?  JSON.parse(cfg.data) : new TextDecoder().decode(cfg.data)
@@ -451,23 +484,66 @@ export class DashBoardModel extends Model<DashBoardModel> {
             widget: null,
             
          })
+         
+        model.goto(`/dashboard/${config.id}/`)
         
-        model.set_query('dashboard', String(config.id))
         this.set({ loading: false })
     }
     
     
     return_to_overview () {
         clear_data_sources()
+        
         dashboard.set({ config: null, save_confirm: false })
-        model.set_query('dashboard', null)
-        model.set_query('preview', null)
+        
+        model.goto('/dashboard/', { queries: { preview: null, [DASHBOARD_SHARED_SEARCH_KEY]: null  } })
+        
         model.set({ sider: true, header: true })
     }
     
     on_preview () {
         dashboard.set_editing(false)
         model.set_query('preview', '1')
+    }
+    
+    update_page_count (page_count: number) {
+        // 如果 page_count 减少，要看看减少的页面上面有没有组件，有的话就弹窗不允许减少
+        if (!this.check_available_for_reduce_page_count(page_count))
+            return
+        
+        this.set({
+            config: {
+                ...this.config,
+                data: {
+                    ...this.config.data,
+                    canvas: { ...this.config.data.canvas, page_count }
+                }
+            }
+        })
+        
+        this.update_css_for_element_height(page_count)
+    }
+    
+    update_css_for_element_height (page_count: number, style_sheet_id = 'dynamic-grid-styles') { // 添加默认 ID
+        // 计算高度值
+        let height_value = page_count === 1
+            ? '100% !important'
+            : `calc(${page_count * 100}vh - ${page_count * 50}px) !important`
+        if (page_count === 1) 
+            height_value = '100% !important'
+        
+        // 创建新的样式表
+        let style_sheet = document.getElementById(style_sheet_id)
+        
+        // 如果没有找到，则创建一个新的样式表并添加 ID
+        if (!style_sheet) {
+            style_sheet = document.createElement('style')
+            style_sheet.id = style_sheet_id
+            document.head.appendChild(style_sheet)
+        }
+        
+        // 设置样式表的内容
+        style_sheet.innerHTML = `.grid-stack { height: ${height_value}; max-height: ${height_value}; }`
     }
 }
 
@@ -498,6 +574,7 @@ export interface DashboardData {
      /** 画布配置 */
      canvas: {
          widgets: any[]
+         page_count?: number
      }
 }
 
@@ -519,7 +596,6 @@ export interface Widget extends GridStackNode {
     /** 图表配置 */
     config?: (IHeatMapChartConfig | IChartConfig | ITableConfig | ITextConfig | IEditorConfig | IGaugeConfig | IOrderBookConfig) & {
         variable_ids?: string[]
-        abandon_scroll?: boolean
         variable_cols?: number
         with_search_btn?: boolean
         search_btn_label?: string

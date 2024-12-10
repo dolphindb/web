@@ -18,7 +18,7 @@ import { get_data_source } from '../DataSource/date-source.js'
 import { t } from '../../../i18n/index.js'
  
 
-import { copy_widget } from '../utils.js'
+import { copy_widget } from '../utils.ts'
 
 import { VariableForm } from './VariableForm.js'
 
@@ -63,9 +63,7 @@ function GraphComponent ({ widget }: { widget: Widget }) {
             />
         }
         
-        <div className={cn('graph-component', {
-            'graph-item-wrapper-abandon-scroll': widget.config?.abandon_scroll
-        }) }>
+        <div className='graph-component'>
             <Component data_source={data} widget={widget} col_names={cols} type_map={type_map} />
         </div>
     </div>
@@ -78,7 +76,7 @@ export function GraphItem  ({ widget }: { widget: Widget }) {
     // 是否为选中状态
     const is_active = useMemo(() => current?.id === widget?.id, [widget, current])
     
-    const ref = useRef<HTMLDivElement>()
+    const ref = useRef<HTMLDivElement>(undefined)
     
     // grid-stack-item-content 类名不能删除，gridstack 库是通过该类名去获取改 DOM 实现拖动
     return <div

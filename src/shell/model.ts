@@ -16,7 +16,6 @@ import {
     DdbForm,
     type DdbObj,
     DdbType,
-    DdbFunctionType,
     type InspectOptions,
     type DdbVectorStringObj,
     type DdbTableObj,
@@ -102,6 +101,14 @@ class ShellModel extends Model<ShellModel> {
     
     confirm_command_modal_visible = false
     
+    /** 当前打开的 tab */
+    itab = -1
+    
+    /** 所有的 tabs */
+    tabs: Tab[] = [ ]
+    
+    monaco_inited = false
+    
     
     truncate_text (lines: string[]) {
         let i_first_non_empty = null
@@ -134,6 +141,11 @@ class ShellModel extends Model<ShellModel> {
     }
     
     
+    async refresh_vars () {
+        
+    }
+    
+    
     async eval (code = this.editor.getValue(), istart: number) {
         const time_start = dayjs()
         const lines = code.split_lines()
@@ -157,7 +169,7 @@ class ShellModel extends Model<ShellModel> {
                 `${code.replaceAll('\r\n', '\n')}`
             )
             
-            if (model.dev || model.test || model.verbose)
+            if (model.dev || model.verbose)
                 console.log('执行代码返回了:', ddbobj.data())
             
             if (
@@ -307,9 +319,77 @@ class ShellModel extends Model<ShellModel> {
     }
     
     
-    save (code = this.editor.getValue()) {
-        localStorage.setItem(storage_keys.code, code)
+    save (code = this.editor?.getValue()) {
+        if (code === undefined) 
+            throw new Error('不能保存 undefined 的 code')
+        
+        if (this.itab > -1) {
+            let tab = this.tabs.find(t => t.index === this.itab)
+            if (tab)
+                tab.code = code
+            this.set({ tabs: [...this.tabs] })
+            localStorage.setItem(`${storage_keys.code}.${this.itab}`, JSON.stringify(tab))
+        } else
+            localStorage.setItem(storage_keys.code, code)
     }
+    
+    
+    remove_tab (tab_index: number) {
+        this.set({ tabs: this.tabs.filter(t => t.index !== tab_index) })
+        localStorage.removeItem(`${storage_keys.code}.${tab_index}`)
+    }
+    
+    
+    add_tab () {
+        if (!this.monaco_inited)
+            return
+        
+        this.save()
+        const index_set = new Set(this.tabs.map(t => t.index))
+        let new_tab_index = 1
+        while (index_set.has(new_tab_index))
+            new_tab_index++
+        const new_tab_name = t('标签页 ') + new_tab_index
+        this.set({
+            itab: new_tab_index,
+            tabs: [...this.tabs, { name: new_tab_name, code: '', index: new_tab_index }]
+        })
+        
+        this.editor.setValue('')
+    }
+    
+    
+    switch_tab (tab_index: number) {
+        if (!this.monaco_inited)
+            return
+        
+        this.save()
+        this.set({ itab: tab_index })
+        if (tab_index > -1)
+            this.editor.setValue(this.tabs.find(t => t.index === tab_index)?.code || '')
+        else
+            this.editor.setValue(localStorage.getItem(`${storage_keys.code}`) || '')
+    }
+    
+    
+    init_tabs () {
+        const tab_keys = Object.keys(localStorage)
+            .filter(key => key.startsWith(`${storage_keys.code}.`))
+        
+        let tabs: Tab[] = [ ]
+        
+        for (const key of tab_keys) 
+            try {
+                tabs.push(
+                    JSON.parse(localStorage.getItem(key) || '')
+                )
+            } catch (error) {
+                localStorage.removeItem(key)
+            }
+        
+        this.set({ tabs: tabs.sort((a, b) => a.index - b.index) })
+    }
+    
     
     save_debounced = debounce(this.save.bind(this), 500, { leading: false, trailing: true })
     
@@ -339,9 +419,9 @@ class ShellModel extends Model<ShellModel> {
                     await this.eval(code, istart)
                 } finally {
                     model.modal.warning({
-                        content: t('执行 undef all 后需要刷新以恢复 web 功能，是否立即刷新？'),
+                        content: t('执行 undef all 后需要刷新以恢复 web 功能'),
                         onOk: () => { location.reload() },
-                        okText: t('刷新')
+                        okText: t('立即刷新')
                     })
                 }
              else
@@ -351,7 +431,7 @@ class ShellModel extends Model<ShellModel> {
         
         await this.update_vars()
         
-        if (code.includes('login') || code.includes('logout'))
+        if (code.includes('login') || code.includes('logout') || code.includes('authenticateByTicket'))
             await model.update_user()
     }
     
@@ -518,7 +598,7 @@ class ShellModel extends Model<ShellModel> {
             // 函数要在 controller (且是 leader) 上调用
             'getDFSDirectoryContent',
             [node.path.slice('dfs:/'.length)],
-            model.node.mode !== NodeType.controller ? { node: model.controller_alias, func_type: DdbFunctionType.SystemFunc } : { }
+            model.node.mode !== NodeType.controller ? { node: model.controller_alias } : undefined
         )
         
         let directories: PartitionDirectory[] = [ ]
@@ -545,7 +625,7 @@ class ShellModel extends Model<ShellModel> {
                         'getTablesByTabletChunk',
                         [chunk],
                         // sites 字段里面的就是 node_alias
-                        site_node !== model.node_alias ? { node: site_node, func_type: DdbFunctionType.SystemFunc } : { }
+                        site_node !== model.node_alias ? { node: site_node } : undefined
                     )
                     
                     // 可能是空的数据库，里面还没有表，也没有数据
@@ -718,6 +798,13 @@ class ShellModel extends Model<ShellModel> {
         )
         this.set({ get_access_defined: true })
     }
+}
+
+
+export interface Tab {
+    index: number
+    name: string
+    code: string
 }
 
 

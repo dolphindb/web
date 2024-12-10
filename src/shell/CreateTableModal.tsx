@@ -1,6 +1,6 @@
 import './CreateTableModal.scss'
 
-import { default as React, useCallback, useContext, useMemo, useState } from 'react'
+import { default as React, useCallback, useContext, useMemo, useState, useEffect, type DependencyList } from 'react'
 import NiceModal from '@ebay/nice-modal-react'
 import { Button, Modal, Result, type SelectProps, Spin } from 'antd'
 import { createForm, type Field } from '@formily/core'
@@ -9,26 +9,24 @@ import {
     FormButtonGroup,
     Submit,
 } from '@formily/antd-v5'
-import { mapKeys } from 'lodash'
-import { noop } from 'xshell/utils.browser.js'
+import { mapKeys, isFunction } from 'lodash'
 
 import { DdbType, type DdbObj } from 'dolphindb/browser.js'
 
 import { t } from '../../i18n/index.js'
 
-import { type DDBColumnTypeNames, SUPPORT_SORT_COLUMN_TYPES } from '../constants/column-data-types.js'
+import { type DDBColumnTypeNames } from '@/utils.ts'
 import { CopyIconButton } from '../components/copy/CopyIconButton.js'
 import { model } from '../model.js'
-import { generateDDBDataTypeLiteral, isDDBTemporalType } from '../utils/ddb-data-types.js'
-import { useSteps } from '../utils/hooks/use-steps.js'
-import { useAsyncEffect } from '../utils/hooks/use-async-effect.js'
+
 
 import { DDBTypeSelectorSchemaFields, SchemaField } from '../components/formily/index.js'
-import { PartitionTypeName } from '../constants/partition-type.js'
 
 import { Editor } from '../components/Editor/index.js'
 
-import { type Database } from './Databases.js'
+import { generateDDBDataTypeLiteral } from '@/components/formily/DDBTypeSelector/index.tsx'
+
+import { type Database } from './Databases.tsx'
 
 
 // Table（维度表）不支持 partitionColumns
@@ -732,3 +730,140 @@ export const CreateTableModal = NiceModal.create<Props>(props => {
         </PropsContext.Provider>
     </Modal>
 })
+
+
+/** 支持排序的列类型 */
+export const SUPPORT_SORT_COLUMN_TYPES: DDBColumnTypeNames[] = [
+    'CHAR',
+    'SHORT',
+    'INT',
+    'LONG',
+    'DATE',
+    'MONTH',
+    'TIME',
+    'MINUTE',
+    'SECOND',
+    'DATETIME',
+    'TIMESTAMP',
+    'NANOTIME',
+    'NANOTIMESTAMP',
+    'STRING',
+    'SYMBOL',
+    
+    'DECIMAL32',
+    'DECIMAL64',
+    'DECIMAL128',
+]
+
+
+enum PartitionTypeName {
+    SEQ = 'SEQ',
+    RANGE = 'RANGE',
+    HASH = 'HASH',
+    VALUE = 'VALUE',
+    LIST = 'LIST',
+    COMPO = 'COMPO'
+}
+
+
+function isDDBTemporalType (type: DDBColumnTypeNames) {
+    return [
+        'DATE',
+        'MONTH',
+        'TIME',
+        'MINUTE',
+        'SECOND',
+        'DATETIME',
+        'TIMESTAMP',
+        'NANOTIME',
+        'NANOTIMESTAMP'
+    ].includes(type)
+}
+
+
+function isAsyncGenerator (
+    val: AsyncGenerator<void, void, void> | Promise<void>
+): val is AsyncGenerator<void, void, void> {
+    return isFunction(val[Symbol.asyncIterator])
+}
+
+/** 支持异步函数的 `useEffect`，文档参考：
+    https://ahooks.gitee.io/zh-CN/hooks/use-async-effect
+    @param effect 
+    @param deps  */
+function useAsyncEffect (
+    effect: () => AsyncGenerator<void, void, void> | Promise<void>,
+    deps?: DependencyList
+) {
+    useEffect(() => {
+        const e = effect()
+        let cancelled = false
+        async function execute () {
+            if (isAsyncGenerator(e))
+                while (true) {
+                    const result = await e.next()
+                    if (result.done || cancelled)
+                        break
+                }
+            else
+                await e
+        }
+        execute()
+        return () => {
+            cancelled = true
+        }
+    }, deps)
+}
+
+
+function useSteps <StepsEnum extends string> (
+    initial_step: StepsEnum,
+    steps: StepsEnum[]
+) {
+    const [current, set_current] = useState<StepsEnum>(initial_step)
+    
+    const [context_map, set_context_map] = useState<
+        Partial<Record<StepsEnum, any>>
+    >({ })
+    
+    function prev () {
+        const current_index = steps.indexOf(current)
+        if (current_index <= 0)
+            return
+            
+        const step = steps[current_index - 1]
+        set_context_map({
+            ...context_map,
+            // delete current step context value
+            [current]: undefined,
+        })
+        set_current(step)
+    }
+    
+    function next (context_value: any) {
+        const currentIndex = steps.indexOf(current)
+        if (currentIndex >= steps.length - 1)
+            return
+            
+        set_context_map({
+            ...context_map,
+            [current]: context_value,
+        })
+        set_current(steps[currentIndex + 1])
+    }
+    
+    function reset () {
+        set_current(initial_step)
+        set_context_map({ })
+    }
+    
+    return {
+        current,
+        context_map,
+        prev,
+        next,
+        reset,
+    }
+}
+
+

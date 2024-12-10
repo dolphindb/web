@@ -1,13 +1,17 @@
 import { Model } from 'react-object-model'
 
-import { DdbFunctionType, type DdbObj, type DdbValue, DdbVectorString, type DdbVectorStringObj, DdbInt, type DdbCallOptions } from 'dolphindb/browser.js'
+import { DdbInt, type DdbCallOptions } from 'dolphindb/browser.js'
 
-import { t } from '@i18n/index.js'
+import { t } from '@i18n/index.ts'
 
-import { NodeType, model } from '../model.js'
+import { NodeType, model } from '@/model.ts'
 
-import { type NodesConfig } from './type.js'
-import { _2_strs, get_category, parse_nodes_configs } from './utils.js'
+import { iterator_map } from '@/utils.ts'
+
+import { _2_strs, get_category, parse_nodes_configs } from './utils.ts'
+
+import type { NodesConfig } from './type.ts'
+
 
 const trusies = ['1', 'true'] as const
 
@@ -15,45 +19,45 @@ class ConfigModel extends Model<ConfigModel> {
     nodes_configs: Map<string, NodesConfig>
     
     async load_controller_configs () {
-        return this.call('loadControllerConfigs')
+        return this.invoke<string[]>('loadControllerConfigs')
     }
     
     async save_controller_configs (configs: string[]) {
-        return this.call('saveControllerConfigs', [new DdbVectorString(configs)])
+        await this.invoke('saveControllerConfigs', [configs])
     }
     
     async get_cluster_nodes () {
-        return this.call('getClusterNodesCfg')
+        return this.invoke<string[]>('getClusterNodesCfg')
     }
     
     async save_cluster_nodes (nodes: string[]) {
-        return this.call('saveClusterNodes', [new DdbVectorString(nodes)])
+        await this.invoke('saveClusterNodes', [nodes])
     }
     
     async add_agent_to_controller (host: string, port: number, alias: string) {
-        await this.call('addAgentToController', [host, new DdbInt(port), alias])
+        await this.invoke('addAgentToController', [host, new DdbInt(port), alias])
     }
     
     
     /** load_configs 依赖 controller alias 等信息 */
     async load_configs () {
-        this.set({ 
-            nodes_configs: parse_nodes_configs(
-                (await this.call<DdbVectorStringObj>('loadClusterNodesConfigs', undefined, { urgent: true }))
-                    .value)
-        })
+        const configs = parse_nodes_configs(
+            await this.invoke<string[]>('loadClusterNodesConfigs', undefined, { urgent: true })
+        )
         
+        this.set({ nodes_configs: configs })
         
         console.log(
             t('配置文件:'),
             Object.fromEntries(
-                // @ts-ignore
-                typeof Iterator !== 'undefined' && Iterator.prototype?.map
-                    // @ts-ignore
-                    ? this.nodes_configs.entries().map(([key, { value }]) => [key, value])
-                    : [...this.nodes_configs].map(([key, { value }]) => [key, value])
+                iterator_map(
+                    this.nodes_configs.entries(),
+                    ([key, { value }]) => [key, value]
+                )
             )
         )
+        
+        return configs        
     }
     
     
@@ -105,33 +109,117 @@ class ConfigModel extends Model<ConfigModel> {
     async save_configs () {
         const new_nodes_configs = new Map<string, NodesConfig>()
         
-        await this.call(
+        const old_config = await this.invoke<string[]>('loadClusterNodesConfigs', undefined, { urgent: true })
+        
+        await this.invoke(
             'saveClusterNodesConfigs', 
-            [new DdbVectorString(Array.from(this.nodes_configs).map(([key, config]) => {
-                new_nodes_configs.set(key, config)
-                const { value } = config
-                return `${key}=${value}`
-            }))]
-        )
+            [[...iterator_map(
+                this.nodes_configs.entries(), 
+                ([key, config]) => {
+                    new_nodes_configs.set(key, config)
+                    const { value } = config
+                    return `${key}=${value}`
+                })
+            ]])
+        
+        if (model.node_type === NodeType.controller)
+            try {
+                await this.invoke('reloadClusterConfig')
+            } catch (error) {
+                model.modal.error({
+                    title: t('配置文件存在错误 {{message}} 请检查输入内容并重新尝试。', { message: error.message }),
+                })
+                error.shown = true
+                
+                await this.invoke('saveClusterNodesConfigs', [old_config])
+                await this.load_configs()
+                
+                throw error
+            }
         
         this.set({ nodes_configs: new_nodes_configs })
     }
     
     
-    async call <TResult extends DdbObj> (
+    async invoke <TResult> (
         name: string, 
-        args?: (string | boolean | DdbObj<DdbValue>)[], 
+        args?: any[], 
         options?: DdbCallOptions
     ) {
-        return model.ddb.call<TResult>(
+        return model.ddb.invoke<TResult>(
             name, 
             args,
             {
                 ... model.node_type === NodeType.controller || model.node_type === NodeType.single
                     ? { }
-                    : { node: model.controller_alias, func_type: DdbFunctionType.SystemFunc },
+                    : { node: model.controller_alias },
                 ...options
             })
+    }
+    
+    
+    get_config_classification () {
+        return {
+            [t('线程')]: new Set(['localExecutors', 'maxBatchJobWorker', 'maxDynamicWorker', 'webWorkerNum', 'workerNum', 'PKEYBackgroundWorkerPerVolume', 'PKEYCacheFlushWorkerNumPerVolume']),
+            [t('内存')]: new Set(['chunkCacheEngineMemSize', 'maxMemSize', 'memoryReleaseRate', 'regularArrayMemoryLimit', 'warningMemSize', 'PKEYCacheEngineSize', 'PKEYBlockCacheSize', 'PKEYDeleteBitmapUpdateThreshold', 'PKEYStashedPrimaryKeyBufferSize']),
+            [t('磁盘')]: new Set(['batchJobDir', 'chunkMetaDir', 'dataSync', 'jobLogFile', 'logFile', 'logLevel', 'maxLogSize', 'redoLogDir', 'redoLogPurgeInterval', 'redoLogPurgeLimit', 'volumes', 'diskIOConcurrencyLevel', 'PKEYMetaLogDir', 'PKEYRedoLogDir']),
+            [t('网络')]: new Set(['enableHTTPS', 'localSite', 'maxConnections', 'maxConnectionPerSite', 'tcpNoDelay']),
+            [t('流发布')]: new Set(['maxMsgNumPerBlock', 'maxPersistenceQueueDepth', 'maxPubQueueDepthPerSite', 'maxPubConnections', 'persistenceDir', 'persistenceWorkerNum']),
+            [t('流订阅')]: new Set(['maxSubConnections', 'maxSubQueueDepth', 'persistOffsetDir', 'subExecutorPooling', 'subExecutors', 'subPort', 'subThrottle']),
+            [t('系统')]: new Set(['console', 'config', 'home', 'maxPartitionNumPerQuery', 'mode', 'moduleDir', 'newValuePartitionPolicy', 'perfMonitoring', 'pluginDir', 'preloadModules', 'init', 'startup', 'run', 'tzdb', 'webRoot', 'webLoginRequired', 'enableShellFunction', 'enablePKEYEngine']),
+            
+            ... model.v3 ? {
+                [t('计算组')]: new Set([
+                    'computeNodeCacheDir',
+                    'computeNodeCacheMeta',
+                    'computeNodeMemCacheSize',
+                    'computeNodeDiskCacheSize',
+                    'enableComputeNodeCacheEvictionFromQueryThread',
+                ])
+            } : { }
+        }
+    }
+    
+    
+    get_controller_config () {
+        return [
+            'mode',
+            'preloadModules',
+            'localSite',
+            'clusterConfig',
+            'nodesFile',
+            'localExecutors',
+            'maxBatchJobWorker',
+            'maxConnections',
+            'maxConnectionPerSite',
+            'maxDynamicWorker',
+            'maxMemSize',
+            'webWorkerNum',
+            'dfsMetaDir',
+            'dfsMetaLogFilename',
+            'dfsReplicationFactor',
+            'dfsReplicaReliabilityLevel',
+            'dfsRecoveryWaitTime',
+            'enableDFS',
+            'enableHTTPS',
+            'dataSync',
+            'webLoginRequired',
+            'PublicName',
+            'datanodeRestartInterval',
+            'dfsHAMode',
+            'clusterReplicationSlaveNum',
+            'dfsChunkNodeHeartBeatTimeout',
+            'clusterReplicationMasterCtl',
+            'metricsToken',
+            'strictPermissionMode',
+            'enableLocalDatabase',
+            ...model.v3 ? [
+                'computeNodeCachingDelay',
+                'computeNodeCachingQueryThreshold',
+                'enableComputeNodePrefetchData',
+            ] : [ ]
+            // 'enableClientAuth',
+        ]
     }
 }
 

@@ -1,8 +1,8 @@
 import './Overview.sass'
 
 import { useEffect, useState } from 'react'
-import { Button, Input, Modal, Table, Popconfirm, Spin, Tag } from 'antd'
-import { DeleteOutlined, PlusCircleOutlined, UploadOutlined } from '@ant-design/icons'
+import { Button, Input, Modal, Table, Popconfirm, Spin, Tag, Typography } from 'antd'
+import { DeleteOutlined, PlusOutlined, UploadOutlined } from '@ant-design/icons'
 import { downloadZip } from 'client-zip'
 import cn from 'classnames'
 
@@ -14,7 +14,7 @@ import { model } from '../model.js'
 import { t } from '../../i18n/index.js'
 
 import { dashboard, DashboardPermission } from './model.js'
-import { check_name } from './utils.js'
+import { check_name } from './utils.ts'
 import { Import } from './Import/Import.js'
 import { Share } from './Share/Share.js'
 import { Doc } from './components/Doc.js'
@@ -127,8 +127,7 @@ export function Overview () {
                     
                     await dashboard.add_dashboard_config(new_dashboard, false)
                     
-                    model.set_query('dashboard', String(new_dashboard.id))
-                    model.set({ header: false, sider: false })
+                    model.goto(`/dashboard/${new_dashboard.id}`)
                     creator.close()
                 }}
                 title={t('新数据面板')}
@@ -229,28 +228,12 @@ export function Overview () {
                         title: t('名称'),
                         dataIndex: 'name',
                         key: 'name',
-                        // filters: [
-                        //     {
-                        //         text: t('拥有'),
-                        //         value: DashboardPermission.own
-                        //     },
-                        //     {
-                        //         text: t('仅编辑'),
-                        //         value: DashboardPermission.edit
-                        //     },
-                        //     {
-                        //         text: t('仅预览'),
-                        //         value: DashboardPermission.view
-                        //     }
-                        // ],
                         onFilter: (value, { permission }) => permission === value,
                         render: (text, { key, name, permission, owner }) => <a
                                 onClick={() => {
                                     const config = configs.find(({ id }) => id === key)
                                     dashboard.set({ config, editing: false })
-                                    model.set_query('dashboard', String(config.id))
-                                    model.set_query('preview', '1')
-                                    model.set({ header: false, sider: false })
+                                    model.goto( `/dashboard/${config.id}`, { queries: { preview: '1' } })
                                 }}
                             >
                                 <div className='dashboard-cell-tag'>
@@ -269,6 +252,11 @@ export function Overview () {
                             </a>
                     },
                     {
+                        title: t('创建人'),
+                        dataIndex: 'owner',
+                        width: 400,
+                    },
+                    {
                         title: t('操作'),
                         dataIndex: '',
                         key: 'actions',
@@ -281,8 +269,7 @@ export function Overview () {
                                             onClick={() => {
                                                 let config = configs.find(({ id }) => id === key)
                                                 dashboard.set({ config, editing: true, save_confirm: true })
-                                                model.set_query('dashboard', String(config.id))
-                                                model.set({ header: false, sider: false })
+                                                model.goto(`/dashboard/${config.id}`)
                                             }}
                                         >
                                             {t('编辑')}
@@ -322,6 +309,7 @@ export function Overview () {
                                         <Share dashboard_ids={[key]} trigger_type='text'/>
                                         <Popconfirm
                                             title={t('删除')}
+                                            okButtonProps={{ danger: true }}
                                             description={t('确定删除 {{name}} 吗？', { name: configs.find(({ id }) => id === key).name })}
                                             onConfirm={async () => {
                                                 if (!configs.length) {
@@ -335,12 +323,10 @@ export function Overview () {
                                                 set_selected_dashboard_ids(selected_dashboard_ids.filter(id => id !== key))
                                                 model.message.success(t('删除成功'))
                                             }}
-                                            okText={t('确认删除')}
-                                            cancelText={t('取消')}
                                         >
-                                            <a  className='delete'>
+                                            <Typography.Link type='danger'>
                                                 {t('删除')}
-                                            </a>
+                                            </Typography.Link>
                                         </Popconfirm>
                                     </>
                                     : <>
@@ -371,14 +357,14 @@ export function Overview () {
                         </div>
                     }
                 ]}
-                dataSource={configs?.map(({ id, name, permission, owner }) => ({ key: id, name, permission, owner }))}
+                dataSource={configs?.map(({ id, ...others }) => ({ key: id, id, ...others }))}
                 pagination={false}
                 title={() => <div className='title'>
                         <h2>{t('数据面板')}</h2>
                         <div className='toolbar'>
                         <Button
                                 type='primary'
-                                icon={<PlusCircleOutlined />}
+                                icon={<PlusOutlined />}
                                 onClick={() => {
                                     const new_id = genid()
                                     set_new_dashboard_id(new_id)                

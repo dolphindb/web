@@ -4,19 +4,17 @@ import { Dropdown, Avatar } from 'antd'
 
 import { default as Icon, LoginOutlined, LogoutOutlined, UserOutlined } from '@ant-design/icons'
 
-
 import { t } from '@i18n/index.js'
 
+import { model } from '@/model.ts'
 
-import { License } from './License.js'
-import { Status } from './Status.js'
-import { Settings } from './Settings.js'
-import { CompileAndRefresh } from './CompileAndRefresh.js'
-import { HostSelect } from './HostSelect.js'
+import { License } from './License.tsx'
+import { Status } from './Status.tsx'
+import { Settings } from './Settings.tsx'
+import { CompileAndRefresh } from './CompileAndRefresh.tsx'
+import { HostSelect } from './HostSelect.tsx'
 
 import SvgArrowDown from './icons/arrow.down.icon.svg'
-
-import { model } from '@/model.js'
 
 
 export function DdbHeader () {
@@ -28,10 +26,11 @@ export function DdbHeader () {
         document.title = `DolphinDB - ${node_alias}`
     }, [node_alias])
     
+    
     return <>
-        <img className='logo' src='./ddb.svg' />
-        {(model.dev || model.test) && <HostSelect />}
-        { model.dev && <CompileAndRefresh /> }
+        <img className='logo' src={`${model.assets_root}ddb.svg`} />
+        { model.dev && <HostSelect />}
+        { model.local && <CompileAndRefresh /> }
         
         <div className='padding' />
         
@@ -70,3 +69,5 @@ export function DdbHeader () {
         </div>
     </>
 }
+
+

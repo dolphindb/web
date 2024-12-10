@@ -72,13 +72,13 @@
         "en": "Delete"
     },
     "请输入用户名": {
-        "en": "Input username"
+        "en": "Enter username."
     },
     " 用户名 (默认: admin)": {
         "en": " username (default: admin)"
     },
     "请输入密码": {
-        "en": "Input password"
+        "en": "Enter password."
     },
     " 密码 (默认: 123456)": {
         "en": " password (default: 123456)"
@@ -159,7 +159,7 @@
         "en": "Agent Config"
     },
     "请输入参数值": {
-        "en": "Please input a config value."
+        "en": "Enter a config value."
     },
     "保存更改": {
         "en": "Save"
@@ -234,7 +234,7 @@
         "en": "log mode"
     },
     "创建时间": {
-        "en": "created at"
+        "en": "Created At"
     },
     "存储类": {
         "en": "storage class"
@@ -1932,87 +1932,90 @@
         "en": "offset"
     },
     "因子平台": {
-        "en": "FactorLab"
+        "en": "Starfish"
     },
     "实时计算": {
         "en": "Computing"
     },
     "流计算发布订阅状态": {
-        "en": "Stream Computing Publish And Subscribe Status"
+        "en": "Publish-Subscribe Status"
     },
     "流引擎状态": {
-        "en": "Streaming Engines Status"
+        "en": "Streaming Engine Status"
     },
     "流表状态": {
-        "en": "Stream Tables Status"
+        "en": "Stream Table Status"
     },
     "刷新成功": {
-        "en": " refresh successfully"
+        "en": " refreshed successfully"
     },
     "订阅线程状态": {
         "en": "Subscriber Thread State"
     },
     "表 SubWorkers 监控订阅节点的工作线程的状态。工作线程状态信息会按照 topic 来展示。": {
-        "en": "The table SubWorkers monitors the state of worker threads of subscribing nodes. Worker thread status information will be displayed by topic."
+        "en": "Subscriber thread status. Displayed by subscription topic"
     },
     "表 PubTables 监控流数据表状态。每一行表示一个流数据表的信息。": {
-        "en": "Stream data table status"
+        "en": "Stream table status"
     },
     "订阅状态": {
-        "en": "subscriber status"
+        "en": "Subscriber status"
     },
     "表 SubConns 监控本地订阅节点和订阅节点之间的连接状态。": {
-        "en": "The table SubConns monitors the connection status between the local subscribing node and subscribing nodes."
+        "en": "Connection status between the local node and all publishing nodes"
     },
     "发布状态": {
         "en": "Publisher Status"
     },
     "表 PubConns 监控本地发布节点和它的所有订阅节点之间的连接状态。": {
-        "en": "The table PubConns monitors the connection status between the local publishing node and all its subscribing nodes."
+        "en": "Connection status between the local node and all subscribing nodes"
     },
     "持久化线程状态": {
-        "en": "Persistent Thread State"
+        "en": "Persistence thread status"
     },
     "表 PersistWorkers 监控负责持久化流数据表的工作线程的状态。": {
-        "en": "Table PersistWorkers monitors the status of worker threads responsible for persisting streaming data tables."
+        "en": "Persistence thread status"
     },
     "持久化共享流表状态": {
-        "en": "Persistent Shared Stream Table State"
+        "en": "Persisted shared stream table status"
     },
     "表 PersistenceMeta 返回启用了持久化的共享流数据表的元数据。": {
-        "en": "Table PersistenceMeta returns the metadata of a shared stream data table with persistence enabled."
+        "en": "Metadata of persisted shared stream tables"
     },
     "非持久化共享流表状态": {
-        "en": "Non-persistent Shared Stream Table State"
+        "en": "Non-persisted shared stream table status"
     },
     "表 sharedStreamingTableStat 返回未启用持久化的共享流数据表的元数据。": {
-        "en": "The table sharedStreamingTableStat returns the metadata of the shared streaming table that does not enable persistence."
+        "en": "Metadata of non-persisted shared stream tables"
     },
     "表 EngineStat 返回流计算引擎的状态。": {
-        "en": "The table EngineStat returns the status of the stream computing engine."
+        "en": "Streaming engine status"
     },
     "批量取消订阅": {
-        "en": "Batch unsubscribe"
+        "en": "Batch Unsubscribe"
     },
     "确认取消订阅选中的流数据表吗？": {
-        "en": "Are you sure to unsubscribe the selected stream data table?"
+        "en": "Are you sure to unsubscribe the selected stream tables?"
     },
     "批量删除": {
         "en": "Batch Delete"
     },
     "确认删除选中的引擎吗？": {
-        "en": "Are you sure you want to delete the selected engine?"
+        "en": "Are you sure to delete the selected engines?"
     },
     "确认删除选中的持久化共享数据流表吗？": {
-        "en": "Are you sure to delete the selected persistent shared data flow table?"
+        "en": "Are you sure to delete the selected persisted shared stream tables?"
     },
     "确认删除选中的共享流数据表吗？": {
-        "en": "Are you sure to delete the selected shared stream data table?"
+        "en": "Are you sure to delete the selected shared stream tables?"
     },
     "线程 ID": {
         "en": "Worker ID"
     },
     "订阅主题": {
+        "en": "Topic"
+    },
+    "主题_data_collection": {
         "en": "Topic"
     },
     "订阅队列深度": {
@@ -2088,13 +2091,13 @@
         "en": "Offset on Disk"
     },
     "是否异步持久化": {
-        "en": "Whether to Persist Asynchronously"
+        "en": "Asynchronous Persistence"
     },
     "保留时间": {
         "en": "Retention Minutes"
     },
     "是否压缩": {
-        "en": "Compress"
+        "en": "Compressed"
     },
     "持久化路径": {
         "en": "Persistence Dir"
@@ -2130,7 +2133,7 @@
         "en": "Number of Groups"
     },
     "行数（单表）": {
-        "en": "Number of Rows (Single Table)"
+        "en": "Number of Rows"
     },
     "行数（左表）": {
         "en": "Number of Rows (Left Table)"
@@ -2142,19 +2145,19 @@
         "en": "Memory Cleanup Threshold"
     },
     "指标数量": {
-        "en": "Number of Indicators"
+        "en": "Number of Metrics"
     },
     "指标源码": {
-        "en": "Indicator Source Code"
+        "en": "Metrics Code"
     },
     "用户": {
         "en": "User"
     },
     "窗口长度": {
-        "en": "Window Length"
+        "en": "Window Size"
     },
     "步长": {
-        "en": "Step Size"
+        "en": "Step"
     },
     "是否使用系统时间": {
         "en": "Use System Time"
@@ -2181,25 +2184,25 @@
         "en": "Time Interval"
     },
     "等待时间间隔": {
-        "en": "Waitting Time Interval"
+        "en": "Wait Interval"
     },
     "过滤条件": {
         "en": "Filter Condition"
     },
     "0 为绿色，1-10000 为橙色，10000 以上为红色。": {
-        "en": "0 is green, 1-10000 is orange, and above 10000 is red."
+        "en": "green: 0, orange: 1-10000, red: over 10000."
     },
     "取消订阅成功": {
         "en": "Successfully unsubscribed"
     },
     "引擎删除成功": {
-        "en": "Engine deleted successfully"
+        "en": "Deleted successfully"
     },
     "流数据表删除成功": {
-        "en": "Stream data table deleted successfully"
+        "en": "Deleted successfully"
     },
     "流数据表状态": {
-        "en": "Streaming tables status"
+        "en": "Stream tables status"
     },
     "最近消息延迟": {
         "en": "last message latency"
@@ -2208,7 +2211,7 @@
         "en": "last message received time"
     },
     "当前节点流计算状态": {
-        "en": "the current node stream computing status"
+        "en": "Stream computing status"
     },
     "队列深度": {
         "en": "Queue Depth"
@@ -2220,7 +2223,7 @@
         "en": "Latest Error Timestamp"
     },
     "失败消息总数": {
-        "en": "Number of Failed Messages"
+        "en": "Failed Message Count"
     },
     "最近错误消息 ID": {
         "en": "Latest Error Message ID"
@@ -2229,58 +2232,58 @@
         "en": "Receive Average Latency"
     },
     "错误详细信息": {
-        "en": "error details"
+        "en": "Errors"
     },
     "详细": {
-        "en": "details"
+        "en": "Details"
     },
     "接收平均延迟": {
-        "en": "receive average latency"
+        "en": "average receive latency"
     },
     "流计算监控": {
-        "en": "Stream"
+        "en": "Streaming Monitor"
     },
     "流计算引擎状态": {
-        "en": "Stream Computing Engine Status"
+        "en": "Streaming Engine Status"
     },
     "监控订阅节点的工作线程的状态。工作线程状态信息会按照 topic 来展示。": {
-        "en": "Monitor the status of the worker threads of subscribing nodes. Worker thread status information will be displayed according to topic."
+        "en": "Subscriber thread status. Displayed by subscription topic"
     },
     "监控本地发布节点和它的所有订阅节点之间的连接状态。": {
-        "en": "Monitors the connection status between the local publishing node and all its subscribing nodes."
+        "en": "Connection status between the local node and all subscribing nodes"
     },
     "监控负责持久化流数据表的工作线程的状态。": {
-        "en": "Monitor the status of the worker thread responsible for persisting the streaming data table."
+        "en": "Persistence thread status"
     },
     "监控启用了持久化的共享流数据表的元数据。": {
-        "en": "Monitor metadata for shared streaming data tables with persistence enabled."
+        "en": "Metadata of persisted shared stream tables"
     },
     "监控未启用持久化的共享流数据表的元数据。": {
-        "en": "Monitor metadata for shared streaming data tables that do not have persistence enabled."
+        "en": "Metadata of non-persisted shared stream tables"
     },
     "监控流计算引擎的状态。": {
-        "en": "Monitor the status of the stream computing engine."
+        "en": "Streaming engine status"
     },
     "流数据表": {
         "en": "Stream Table"
     },
     "取消订阅": {
-        "en": "Unsubscribe"
+        "en": "unsubscribe"
     },
     "引擎": {
         "en": "Engines"
     },
     "持久化共享数据流表": {
-        "en": "Persistent Shared Streaming Tables"
+        "en": "Persisted Shared Stream Tables"
     },
     "共享数据流表": {
-        "en": "Shared Streaming Tables"
+        "en": "Shared Stream Tables"
     },
     "最近处理消息 ID": {
-        "en": "Recently processed message ID"
+        "en": "Last Message ID"
     },
     "条": {
-        "en": "piece"
+        "en": "record"
     },
     "毫秒": {
         "en": "millisecond"
@@ -2295,7 +2298,7 @@
         "en": "Please enter 'YES' to confirm this action"
     },
     "控制节点不支持流数据的发布订阅，请跳转到数据节点或计算节点查看流数据状态。": {
-        "en": "The control node does not support publishing and subscription of streaming data. Please jump to the data node or computing node to view the streaming data status."
+        "en": "Publishing/subscription of streaming data is not supported on the controller. Please switch to the data node or compute node to view the streaming status."
     },
     "批量": {
         "en": "Batch "
@@ -2487,7 +2490,7 @@
         "en": "View user permissions"
     },
     "确认{{action}}选中的 ": {
-        "en": "Confirm {{action}} Selected "
+        "en": "Are you sure to {{action}} the selected "
     },
     " 个{{item}}吗?": {
         "en": " {{item}} ?"
@@ -3006,7 +3009,7 @@
         "en": "User ID can only use letters, digits or underscores (_), and must start with letters."
     },
     "请输入密码!": {
-        "en": "Please enter password."
+        "en": "Enter password."
     },
     "密码长度为 6-20 个字符，且不包含空格或中文": {
         "en": "Use a password 6-20 characters long. Spaces and Chinese characters are not allowed."
@@ -3471,10 +3474,10 @@
         "en": "Management Tools"
     },
     "物联网库表向导": {
-        "en": "Guide for IoT Scenario"
+        "en": "IoT Scenario Guide"
     },
     "金融库表向导": {
-        "en": "Guide for Financial Scenario"
+        "en": "Financial Scenario Guide"
     },
     "执行结果": {
         "en": "Execution Result"
@@ -3863,9 +3866,6 @@
     "k 线颜色（跌）": {
         "en": "Candlestick  color (down)"
     },
-    "线条颜色": {
-        "en": "line color"
-    },
     "k 线": {
         "en": "Candlestick "
     },
@@ -3999,7 +3999,7 @@
         "en": "Dashboard saved successfully"
     },
     "修改成功": {
-        "en": "Modified successfully"
+        "en": "Modified Successfully"
     },
     "当前数据面板列表为空": {
         "en": "Current dashboard list is empty"
@@ -4743,7 +4743,7 @@
         "en": "Create Catalog"
     },
     "请输入名称": {
-        "en": "Please enter a name"
+        "en": "Enter name."
     },
     "请选择 catalog": {
         "en": "Please select a catalog"
@@ -4987,5 +4987,845 @@
     },
     "执行 undef all 后需要刷新以恢复 web 功能，是否立即刷新？": {
         "en": "After executing undef all, a refresh is required to restore web functions. Do you want to refresh now?"
+    },
+    "数据采集": {
+        "en": "Data Acquisition"
+    },
+    "连接信息": {
+        "en": "Connections"
+    },
+    "解析模板": {
+        "en": "Parsing Templates"
+    },
+    "个节点": {
+        "en": " nodes"
+    },
+    "计算组": {
+        "en": "Compute Group"
+    },
+    "别名必须以组名": {
+        "en": "Alias must start with group name"
+    },
+    "请输入值": {
+        "en": "Please enter a value"
+    },
+    "新增计算组": {
+        "en": "New Compute Group"
+    },
+    "计算组名称": {
+        "en": "Compute Group Name"
+    },
+    "请输入计算组名称": {
+        "en": "Please enter compute group name"
+    },
+    "计算组名称不能包含特殊字符": {
+        "en": "Compute group name cannot contain special characters"
+    },
+    "批量添加节点": {
+        "en": "Batch Add Nodes"
+    },
+    "在列表后添加": {
+        "en": "Add after list"
+    },
+    "批量添加": {
+        "en": "Batch Add"
+    },
+    "计算组配置": {
+        "en": "Compute Group Configuration"
+    },
+    "新增一条配置": {
+        "en": "Add a Configuration"
+    },
+    "请添加至少 1 个节点": {
+        "en": "Please add at least 1 node"
+    },
+    "指定此配置适用的节点名或节点名前缀（例如：node1 或 node%）": {
+        "en": "Specify the node name or node name prefix to which this configuration applies (e.g., node1 or node%)"
+    },
+    "无法移除在线节点，请到集群总览中停止后移除": {
+        "en": "Cannot remove online nodes, please stop them in the cluster overview before removing"
+    },
+    "新增节点成功，请到集群总览启动": {
+        "en": "New node added successfully, please go to cluster overview to start"
+    },
+    "新增节点失败，服务端报错：": {
+        "en": "Failed to add new node, server error:"
+    },
+    "该节点别名已存在，无法修改或添加": {
+        "en": "The node alias already exists and cannot be modified or added"
+    },
+    "组内有在线节点，请到集群总览中停止节点后移除": {
+        "en": "There are online nodes in the group, please stop the nodes in the cluster overview before removing"
+    },
+    "确定要删除计算组 {{group}} 吗？": {
+        "en": "Are you sure you want to delete compute group {{group}}?"
+    },
+    "删除计算组": {
+        "en": "Delete Compute Group"
+    },
+    "新建计算组": {
+        "en": "New Compute Group"
+    },
+    "别名必须以组名 ": {
+        "en": "Alias must start with group name "
+    },
+    "存储集群": {
+        "en": "Storage Cluster"
+    },
+    "开头": {
+        "en": " "
+    },
+    "线颜色": {
+        "en": "Line Color"
+    },
+    "删除订阅": {
+        "en": "Delete Subscription"
+    },
+    "是否销毁流表": {
+        "en": "Destroy Stream Table"
+    },
+    "连接名称": {
+        "en": "Connection Name"
+    },
+    "协议": {
+        "en": "Messaging Protocol"
+    },
+    "服务器地址": {
+        "en": "Server Address"
+    },
+    "确定要{{action}}{{name}}吗？": {
+        "en": "{{action}} subscription {{name}}?"
+    },
+    "订阅成功": {
+        "en": "Subscription Created"
+    },
+    "已停用订阅": {
+        "en": "Subscription Disabled"
+    },
+    "点位解析模板": {
+        "en": "Parsing Template"
+    },
+    "查看": {
+        "en": "View"
+    },
+    "更新时间": {
+        "en": "Updated At"
+    },
+    "订阅列表": {
+        "en": "Subscriptions"
+    },
+    "新增订阅": {
+        "en": "New"
+    },
+    "编辑 {{name}}连接": {
+        "en": "Edit {{name}} Connection"
+    },
+    "创建 {{name}}连接": {
+        "en": "Create {{name}} Connection"
+    },
+    "请输入服务器地址": {
+        "en": "Enter server address."
+    },
+    "请输入有效的服务器地址": {
+        "en": "Enter a valid server address."
+    },
+    "端口_data_collection": {
+        "en": "Port"
+    },
+    "请输入端口": {
+        "en": "Enter a port."
+    },
+    "请输入有效的端口": {
+        "en": "Enter a valid port number."
+    },
+    "自定义模板": {
+        "en": "Script"
+    },
+    "模板参考": {
+        "en": "Script Reference"
+    },
+    "编辑模板": {
+        "en": "Edit Template"
+    },
+    "创建模板": {
+        "en": "Create Template"
+    },
+    "请输入模板名称": {
+        "en": "Enter template name."
+    },
+    "请选择协议": {
+        "en": "Select a protocol."
+    },
+    "代码": {
+        "en": "Custom Template"
+    },
+    "请输入代码": {
+        "en": "Enter script."
+    },
+    "接收缓冲区大小": {
+        "en": "Receive Buffer Size (Bytes)"
+    },
+    "默认为 20480 字节": {
+        "en": "Defaults to 20480"
+    },
+    "请输入接收缓冲区大小": {
+        "en": "Enter receive buffer size."
+    },
+    "偏移量与分区需同时设置，或者均不设置": {
+        "en": "Provide both topic partitions and offset, or omit both."
+    },
+    "请输入分区数": {
+        "en": "Enter the number of partitions."
+    },
+    "请输入偏移量": {
+        "en": "Enter an offset."
+    },
+    "修改订阅": {
+        "en": "Edit Subscription"
+    },
+    "查看订阅": {
+        "en": "View Subscription"
+    },
+    "创建订阅": {
+        "en": "New Subscription"
+    },
+    "请输入主题": {
+        "en": "Enter subscription topic."
+    },
+    "默认为当前节点": {
+        "en": "Defaults to the current node."
+    },
+    "是否需要点位解析": {
+        "en": "Enable Message Parsing"
+    },
+    "默认流表名称": {
+        "en": "Name of Default Stream Table"
+    },
+    "请输入默认流表名称": {
+        "en": "Enter a table name."
+    },
+    "默认流表名称不能包含空格": {
+        "en": "Table name must not contain spaces."
+    },
+    "请选择点位解析模板": {
+        "en": "Select a parsing template."
+    },
+    "模板参数": {
+        "en": "Set Template Parameters"
+    },
+    "请注意，自定义解析模板的输出流表需要自行创建": {
+        "en": "When using a custom parsing template, the output stream table must be manually created."
+    },
+    "参数值不能包含空格": {
+        "en": "Value must not contain spaces."
+    },
+    "Kafka 消费参数配置": {
+        "en": "Kafka Configuration Properties"
+    },
+    "设置偏移量与分区，group.id 参数会失效": {
+        "en": "group.id is ignored when offset and partitions are manually specified."
+    },
+    "参数": {
+        "en": "Property"
+    },
+    "请选择参数": {
+        "en": "Select a property."
+    },
+    "参数值": {
+        "en": "Value"
+    },
+    "参数值不能含有空格": {
+        "en": "Value must not contain spaces."
+    },
+    "增加消费参数配置": {
+        "en": "Add Property"
+    },
+    "确定要删除连接 {{name}} 吗？": {
+        "en": "Delete connection {{name}}?"
+    },
+    "确定要删除选中的 {{num}} 个连接吗": {
+        "en": "Delete connections? Selected: {{num}}"
+    },
+    "新建连接": {
+        "en": "New Connection"
+    },
+    "查看日志": {
+        "en": "View Logs"
+    },
+    "连接": {
+        "en": "Connections"
+    },
+    "请选择连接": {
+        "en": "Select a connection."
+    },
+    "名称不能超过 50 个字符": {
+        "en": "Name must be 50 characters or less."
+    },
+    "名称不能包含空格": {
+        "en": "Name must not contain spaces."
+    },
+    "数据采集平台初始化成功！": {
+        "en": "Data acquisition platform initialized"
+    },
+    "请注意，控制节点无法使用数据采集平台": {
+        "en": "The Data Acquisition Platform does not run on controller."
+    },
+    "初始化数据采集平台": {
+        "en": "Initialize Data Acquisition Platform"
+    },
+    "初始化操作将新增以下数据库": {
+        "en": "The following databases will be created from initialization"
+    },
+    "数据采集平台功能未初始化，请联系管理员初始化数据采集平台功能": {
+        "en": "Contact administrator for initialization."
+    },
+    "无库表权限，请联系管理员赋权": {
+        "en": "No access to databases/tables. Contact administrator for authorization."
+    },
+    "确定要删除选中的 {{num}} 项模板吗？": {
+        "en": "Delete templates? Selected: {{num}}"
+    },
+    "该解析模板被引用 {{citeNumber}} 次, 确定要删除吗？": {
+        "en": "Delete template? References to this template: {{citeNumber}}"
+    },
+    "确定要删除模板【{{name}}】吗？": {
+        "en": "Delete template {{name}}?"
+    },
+    "模板名称": {
+        "en": "Template Name"
+    },
+    "使用数": {
+        "en": "Active Sub References"
+    },
+    "引用数": {
+        "en": "References"
+    },
+    "当前解析模板已被引用，请谨慎修改": {
+        "en": "This template is referenced in subscriptions. Modify with caution."
+    },
+    "是否启用": {
+        "en": "Enabled"
+    },
+    "分区_data_collection": {
+        "en": "Partitions"
+    },
+    "作业日志": {
+        "en": "Job Logs"
+    },
+    "查看更多": {
+        "en": "Show More"
+    },
+    "保存成功，立即生效": {
+        "en": "Save successfully, effective immediately"
+    },
+    "执行 undef all 后需要刷新以恢复 web 功能": {
+        "en": "After executing undef all, refresh is required to restore web functionality"
+    },
+    "立即刷新": {
+        "en": "Refresh Now"
+    },
+    "标签页 ": {
+        "en": "Tab"
+    },
+    "提醒": {
+        "en": "Tips"
+    },
+    "关闭标签页将会删除标签页内的所有内容，确认关闭？": {
+        "en": "Closing this tab will discard all its contents. Are you sure you want to close it?"
+    },
+    "默认标签页": {
+        "en": "Default"
+    },
+    "标签页名称": {
+        "en": "Tab Name"
+    },
+    "保存成功，重启数据节点 / 计算节点生效": {
+        "en": "Save successfully, restart the data / computing node to take effect"
+    },
+    "保存成功，重启计算节点生效": {
+        "en": "Save successfully, restart the computing node to take effect"
+    },
+    "集群中已存在主机名和端口号相同的节点": {
+        "en": "A node with the same host name and port number already exists in the cluster"
+    },
+    "采集平台初始化成功！": {
+        "en": "The acquisition platform was initialized successfully!"
+    },
+    "oauthType 配置参数的值必须为 authorization code 或 implicit，默认为 authorization code": {
+        "en": "The value of the oauthType configuration parameter must be authorization code or implicit. The default value is authorization code."
+    },
+    "web 安全认证:": {
+        "en": "Web Security Auth:"
+    },
+    "根据 state 参数跳转到节点:": {
+        "en": "Jump to the node according to the state parameter:"
+    },
+    "server 版本:": {
+        "en": "server version:"
+    },
+    "getClusterPerf(true) 执行超时，请检查集群节点状态是否正常，任务是否阻塞": {
+        "en": "getClusterPerf(true) execution timeout, please check whether the cluster node status is normal and whether the task is blocked"
+    },
+    "配置文件校验失败，正在回滚配置文件": {
+        "en": "Configuration file verification failed, rolling back configuration file"
+    },
+    "别名必须以组名 {{group}} 开头": {
+        "en": "Aliases must start with the group name {{group}}"
+    },
+    "批次大小": {
+        "en": "Batch size"
+    },
+    "等待间隔": {
+        "en": "Wait interval"
+    },
+    "过滤列": {
+        "en": "Filter columns"
+    },
+    "消息是否为表": {
+        "en": "Message ingested as a table"
+    },
+    "订阅 hash 值": {
+        "en": "Subscription hash value"
+    },
+    "开启订阅偏移持久化": {
+        "en": "Offset persistence"
+    },
+    "强制按时间间隔触发": {
+        "en": "Trigger at intervals"
+    },
+    "包含消息 ID": {
+        "en": "Include message ID"
+    },
+    "高可用组": {
+        "en": "HA Raft group"
+    },
+    "配置文件存在错误 {{message}} 请检查输入内容并重新尝试。": {
+        "en": "The configuration file contains an error: {{message}}. Please check your input and try again."
+    },
+    "别名不能包含空格": {
+        "en": "Alias cannot contain spaces"
+    },
+    "主机名 / IP 地址不能包含空格": {
+        "en": "Hostname / IP cannot contain spaces"
+    },
+    "持久化消息队列深度上限": {
+        "en": "Queue Depth Limit"
+    },
+    "持久化消息队列深度": {
+        "en": "Queue Depth"
+    },
+    "持久化表名": {
+        "en": "Tables"
+    },
+    "主机名 / IP 地址不能为空": {
+        "en": "Hostname / IP address cannot be empty"
+    },
+    "别名不能为空": {
+        "en": "Alias cannot be empty"
+    },
+    "别名必须以组名 {{group_name}} 开头": {
+        "en": "The alias must start with the group name {{group_name}}."
+    },
+    "分享人：": {
+        "en": "Shared by: "
+    },
+    "流数据表_computing": {
+        "en": "Stream Tables"
+    },
+    "定时巡检": {
+        "en": "Inspection"
+    },
+    "添加指标": {
+        "en": "Add indicators"
+    },
+    "提交人": {
+        "en": "Submitter"
+    },
+    "运行时间": {
+        "en": "Running time"
+    },
+    "巡检描述": {
+        "en": "Inspection description"
+    },
+    "集群基础信息": {
+        "en": "Basic cluster information"
+    },
+    "集群运行状态": {
+        "en": "Cluster operation status"
+    },
+    "服务器运行状态": {
+        "en": "Server running status"
+    },
+    "编辑指标": {
+        "en": "Edit Indicator"
+    },
+    "请选择需要巡检的节点": {
+        "en": "Please select the node that needs to be inspected"
+    },
+    "所有节点": {
+        "en": "All nodes"
+    },
+    "脚本内容": {
+        "en": "Script"
+    },
+    "参数配置": {
+        "en": "Parameters"
+    },
+    "邮件告警设置": {
+        "en": "Email alert settings"
+    },
+    "邮箱名称": {
+        "en": "Email Name"
+    },
+    "邮箱 SMTP 服务器地址": {
+        "en": "Email SMTP server host"
+    },
+    "邮箱 SMTP 服务器端口": {
+        "en": "Email SMTP server port"
+    },
+    "发送者邮箱账号": {
+        "en": "Sender's email account"
+    },
+    "发送者邮箱密码": {
+        "en": "Sender's email password"
+    },
+    "使用标准 SMTP 消息": {
+        "en": "Standard SMTP messaging"
+    },
+    "定时巡检模块初始化中": {
+        "en": "The scheduled inspection module is initializing"
+    },
+    "新增巡检": {
+        "en": "Add inspection"
+    },
+    "请输入想要搜索的巡检名称": {
+        "en": "Please enter the name of the inspection you want to search"
+    },
+    "{{success}}/{{total}} 正常": {
+        "en": "{{success}}/{{total}} OK"
+    },
+    "{{failedNum}}/{{total}} 异常": {
+        "en": "{{failedNum}}/{{total}} exception"
+    },
+    "查看详细报告": {
+        "en": "View detailed report"
+    },
+    "删除巡检结果": {
+        "en": "Deleting inspection results"
+    },
+    "确认删除此巡检结果吗？": {
+        "en": "Are you sure you want to delete this inspection result?"
+    },
+    "巡检结果": {
+        "en": "Inspection results"
+    },
+    "批量删除巡检结果": {
+        "en": "Deleting inspection results in batches"
+    },
+    "确认删除选中的巡检结果吗？": {
+        "en": "Are you sure you want to delete the selected inspection results?"
+    },
+    "批量删除成功": {
+        "en": "Batch deletion successful"
+    },
+    "确定巡检": {
+        "en": "Confirm inspection"
+    },
+    "确定立即巡检 {{name}} 吗？": {
+        "en": "Are you sure you want to inspect {{name}} now?"
+    },
+    "立即巡检": {
+        "en": "Inspect immediately"
+    },
+    "查看详情": {
+        "en": "View details"
+    },
+    "查看最近一次巡检结果": {
+        "en": "View the latest inspection results"
+    },
+    "删除方案": {
+        "en": "Deleting a plan"
+    },
+    "确认删除巡检方案 {{plan}} 吗？": {
+        "en": "Are you sure you want to delete inspection plan {{plan}}?"
+    },
+    "进行中的巡检队列": {
+        "en": "Inspections in progress"
+    },
+    "未进行的巡检队列": {
+        "en": "Unchecked inspections"
+    },
+    "批量删除巡检方案": {
+        "en": "Deleting inspection plans in batches"
+    },
+    "确认删除选中的巡检方案吗？": {
+        "en": "Are you sure you want to delete the selected inspection plan?"
+    },
+    "请至少选中一个指标": {
+        "en": "Please select at least one indicator"
+    },
+    "请至少选中一个巡检节点": {
+        "en": "Please select at least one inspection node"
+    },
+    "查看巡检计划": {
+        "en": "View inspection plan"
+    },
+    "修改巡检计划": {
+        "en": "Modify the inspection plan"
+    },
+    "新增巡检计划": {
+        "en": "New inspection plan"
+    },
+    "启用：": {
+        "en": "Enable: "
+    },
+    "启用成功": {
+        "en": "Enabled successfully"
+    },
+    "禁用成功": {
+        "en": "Disable successfully"
+    },
+    "编辑模式：": {
+        "en": "Edit Mode: "
+    },
+    "立即执行一次巡检": {
+        "en": "Perform an inspection immediately"
+    },
+    "保存当前方案并立即执行一次巡检": {
+        "en": "Save the current plan and perform an inspection immediately"
+    },
+    "保存当前方案": {
+        "en": "Save the current plan"
+    },
+    "巡检名称": {
+        "en": "Inspection Name"
+    },
+    "请输入巡检名称": {
+        "en": "Please enter the inspection name"
+    },
+    "巡检计划描述": {
+        "en": "Inspection plan description"
+    },
+    "巡检计划描述(非必填)": {
+        "en": "Inspection plan description (optional)"
+    },
+    "巡检周期": {
+        "en": "Inspection cycle"
+    },
+    "巡检频率": {
+        "en": "Inspection frequency"
+    },
+    "巡检日期": {
+        "en": "Inspection date"
+    },
+    "请选择巡检日期": {
+        "en": "Please select the inspection date"
+    },
+    "第 {{day}} 天": {
+        "en": "Day {{day}}"
+    },
+    "巡检时间": {
+        "en": "Inspection time"
+    },
+    "添加": {
+        "en": "Add"
+    },
+    "请选择巡检时间": {
+        "en": "Please select the inspection time"
+    },
+    "是否启用邮件告警": {
+        "en": "Whether to enable email alerts"
+    },
+    "邮件告警接收人邮箱": {
+        "en": "Email address of the email alert recipient"
+    },
+    "指标列表": {
+        "en": "Indicator list"
+    },
+    "管理指标": {
+        "en": "Management Indicators"
+    },
+    "分组": {
+        "en": "Group"
+    },
+    "打印失败": {
+        "en": "Printing failed"
+    },
+    "下载巡检报告": {
+        "en": "Download inspection report"
+    },
+    "{{report_id}} 巡检报告": {
+        "en": "{{report_id}} Inspection report"
+    },
+    "巡检结果总览": {
+        "en": "Inspection results overview"
+    },
+    "指标说明: {{desc}}": {
+        "en": "Indicator description: {{desc}}"
+    },
+    "指标说明": {
+        "en": "Indicator description"
+    },
+    "是否正常": {
+        "en": "Normal"
+    },
+    "指标参数": {
+        "en": "Indicator parameters"
+    },
+    "建议": {
+        "en": "Suggestions"
+    },
+    "检查通过": {
+        "en": "Check passed"
+    },
+    "ID": {
+        "en": "ID"
+    },
+    "结果": {
+        "en": "Result"
+    },
+    "正常": {
+        "en": "Normal"
+    },
+    "异常": {
+        "en": "Abnormal"
+    },
+    "指标名": {
+        "en": "Indicator name"
+    },
+    "指标分类": {
+        "en": "Indicator classification"
+    },
+    "巡检报告_{{id}}": {
+        "en": "Inspection report_{{id}}"
+    },
+    "检查项共 {{num}} 项": {
+        "en": "Check items total {{num}} items"
+    },
+    "{{num}} 项异常。": {
+        "en": "{{num}} exceptions."
+    },
+    "异常列表指标如下:": {
+        "en": "The abnormal list indicators are as follows:"
+    },
+    "{{num_abnormal}}/{{num_total}} 项异常": {
+        "en": "{{num_abnormal}}/{{num_total}} abnormal items"
+    },
+    "{{abnormalCount}}/{{totalCount}} 项异常": {
+        "en": "{{abnormalCount}}/{{totalCount}} abnormal items"
+    },
+    "{{totalCount}}/{{totalCount}} 项正常": {
+        "en": "{{totalCount}}/{{totalCount}} items are normal"
+    },
+    "每日": {
+        "en": "Daily"
+    },
+    "每周": {
+        "en": "Weekly"
+    },
+    "每月": {
+        "en": "Monthly"
+    },
+    "周日": {
+        "en": "Sunday"
+    },
+    "周一": {
+        "en": "Monday"
+    },
+    "周二": {
+        "en": "Tuesday"
+    },
+    "周三": {
+        "en": "Wednesday"
+    },
+    "周四": {
+        "en": "Thursday"
+    },
+    "周五": {
+        "en": "Friday"
+    },
+    "周六": {
+        "en": "Saturday"
+    },
+    " {{num}} 项异常。": {
+        "en": " {{num}} exceptions."
+    },
+    "控制节点不支持定时巡检，请跳转到数据节点或计算节点查看。": {
+        "en": "The control node does not support scheduled inspection. Please jump to the data node or computing node to check."
+    },
+    "你确定要初始化定时巡检功能吗？": {
+        "en": "Are you sure you want to initialize the scheduled inspection function?"
+    },
+    "初始化定时巡检成功！": {
+        "en": "Initialization of scheduled inspection successful!"
+    },
+    "至少需要设置一个巡检时间": {
+        "en": "At least one inspection time must be set"
+    },
+    "执行节点": {
+        "en": "Execution node"
+    },
+    "存在未安装 httpClient 插件的节点。": {
+        "en": "There are nodes that do not have the httpClient plug-in installed."
+    },
+    "httpClient 插件版本与 DolphinDB 版本的前3位不一致。": {
+        "en": "The first 3 digits of the httpClient plugin version and the DolphinDB version are inconsistent."
+    },
+    "确定初始化定时巡检？": {
+        "en": "Are you sure you want to initialize scheduled inspection?"
+    },
+    "成功": {
+        "en": "Successfully"
+    },
+    "收到巡检计划时间": {
+        "en": "Received inspection plan time"
+    },
+    "正在执行的巡检计划": {
+        "en": "Inspection plan in progress"
+    },
+    "待执行的巡检计划": {
+        "en": "Inspection plans to be implemented"
+    },
+    "功能介绍": {
+        "en": "Function Introduction"
+    },
+    "系统监控：定期自动检查数据库各项指标，及时发现潜在问题": {
+        "en": "System Monitoring: Regularly check the database indicators and discover potential problems in time"
+    },
+    "计划任务：支持自定义巡检计划，可设置执行周期和检查项目": {
+        "en": "Plan Task: Support custom inspection plans, set execution cycles and inspection items"
+    },
+    "报告生成：生成巡检报告，展示系统运行状况": {
+        "en": "Report Generation: Generate inspection reports to visually display system operation status"
+    },
+    "预警提醒：支持邮件告警，在发现异常时及时邮件通知": {
+        "en": "Early Warning: Support email alarm, notify in time when anomalies are detected"
+    },
+    "历史追溯：保存历史巡检记录，便于问题分析和追踪": {
+        "en": "Historical Traceability: Save historical inspection records for easier problem analysis and tracking"
+    },
+    "页数：": {
+        "en": "Pages: "
+    },
+    "部分页面仍有图表存在，请确保所有图表已移除后再调整页面数": {
+        "en": "Some pages still have charts, please make sure all charts have been removed before adjusting the page count."
+    },
+    "端标签的宽度最大为 80 像素，请注意控制字数不超过此范围": {
+        "en": "The maximum width of the terminal label is 80 px. Please note that the number of control characters should not exceed this range."
+    },
+    "系统监控：定期自动检查数据库性能指标，及时发现潜在问题": {
+        "en": "System monitoring: Regularly check the database performance indicators to identify potential problems"
+    },
+    "报告生成：自动生成巡检报告，直观展示系统运行状况": {
+        "en": "Report generation: Automatically generate inspection reports to visually display system status"
+    },
+    "预警提醒：发现异常时及时通知，支持邮件告警配置": {
+        "en": "Alert reminder: Notify immediately when an exception is detected, support email alert configuration"
+    },
+    "取消执行成功": {
+        "en": "Cancel execution successful"
+    },
+    "取消执行": {
+        "en": "Cancel execution"
     }
 }

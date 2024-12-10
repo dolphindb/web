@@ -42,12 +42,14 @@ $border_color: #333333
             display: none !important
         
         .dashboard-canvas
-            padding-top: 1px
             flex-grow: 1
             background-color: $canvas_back_color
+            // 在 grid stack 的外层提供滚动，防止滚动变得奇怪
+            overflow-y: auto
             
             .grid-stack
-                height: 100% !important
+                height: 100%
+                overflow: hidden
                 min-height: 0 !important
                 background-image: radial-gradient(circle at top left, $border_color 2px, transparent 2px),radial-gradient(circle at top right, $border_color 2px, transparent 2px),radial-gradient(circle at bottom left, $border_color 2px, transparent 2px),radial-gradient(circle at bottom right, $border_color 2px, transparent 2px)
                 

@@ -19,7 +19,7 @@ import { CompositeChartConfig } from './Charts/CompositeGraph/CompositeChartConf
 
 
 type GraphConfig =  { 
-    [key in WidgetChartType]: {
+    [key in WidgetChartType]?: {
         component: JSXComponent
         config?: JSXComponent
     }

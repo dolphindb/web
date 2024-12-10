@@ -9,7 +9,7 @@ import { DeleteOutlined, PlusCircleOutlined } from '@ant-design/icons'
 import { t } from '../../../i18n/index.js'
 import { FormDependencies } from '../../components/formily/FormDependcies/index.js'
 
-import { concat_name_path, convert_list_to_options } from '../utils.js'
+import { concat_name_path, convert_list_to_options } from '../utils.ts'
 import { BoolRadioGroup } from '../../components/BoolRadioGroup/index.js'
 import { StringColorPicker } from '../../components/StringColorPicker/index.js'
 
@@ -293,7 +293,7 @@ function Series (props: { col_names: string[] }) {
                                 </> :  
                                 <></>) :
                                 <>
-                                    <Form.Item name={[field.name, 'color']} label={t('线条颜色')} initialValue={null}>
+                                    <Form.Item name={[field.name, 'color']} label={t('线颜色')} initialValue={null}>
                                         <StringColorPicker />
                                     </Form.Item>
                                     

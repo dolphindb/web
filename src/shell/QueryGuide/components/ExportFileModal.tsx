@@ -4,11 +4,11 @@ import { useCallback } from 'react'
 
 import { useBoolean } from 'ahooks'
 
-import { request } from '../../../guide/utils.js'
-import { safe_json_parse } from '../../../dashboard/utils.js'
+import { request } from '../../../guide/utils.ts'
+import { safe_json_parse } from '../../../dashboard/utils.ts'
 
 import { t } from '../../../../i18n/index.js'
-import { download_file } from '../../../utils/index.js'
+import { download_file } from '../../../utils.ts'
 
 interface IProps { 
     table: string

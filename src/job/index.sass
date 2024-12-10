@@ -1,0 +1,69 @@
+.job
+    height: 100%
+    overflow-y: auto
+    
+    .actions
+        margin-bottom: 20px
+        
+        display: flex
+        
+        .search
+            margin-left: 20px
+    
+    .spin-container
+        height: 100%
+        display: flex
+        justify-content: center
+        align-items: center
+    
+    .ant-table
+        overflow-x: auto
+        
+    .nojobs
+        margin-bottom: 20px
+    
+    .ant-table-wrapper .ant-table-pagination.ant-pagination
+        margin-bottom: 0px
+    
+    .title
+        margin: 26px 0px
+        line-height: 0.8
+        
+    .ellipsis
+        display: -webkit-box
+        -webkit-box-orient: vertical
+        -webkit-line-clamp: 2
+        overflow: hidden
+    
+    .ant-table-thead
+        white-space: nowrap
+    
+    .ant-table-thead tr td, .ant-table-thead tr th
+        background-color: #f8f8f8
+    
+    .action-col
+        display: flex
+        white-space: nowrap
+        gap: 12px
+            
+    .job-message
+        overflow: auto
+        
+.job-message-modal
+    .ant-modal-content
+        overflow: auto
+        max-height: 80vh
+        display: flex
+        flex-flow: column
+        .ant-modal-body
+            flex:1
+            height: 0
+            display: flex
+            flex-flow: column
+            overflow: auto
+            .job-message
+                height:0
+                flex:1
+                overflow: auto
+    .copy-button
+        margin-top: 8px

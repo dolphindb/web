@@ -7,7 +7,7 @@ import { useMemo } from 'react'
 import { FormDependencies } from '../../components/formily/FormDependcies/index.js'
 
 import { GuideType } from '../iot-guide/type.js'
-import { check_tb_valid, request } from '../utils.js'
+import { check_tb_valid, request } from '../utils.ts'
 import { ENUM_TYPES, TIME_TYPES } from '../constant.js'
 import { t } from '../../../i18n/index.js'
 

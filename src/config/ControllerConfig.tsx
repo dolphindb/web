@@ -4,7 +4,7 @@ import { AutoComplete, Button, Popconfirm } from 'antd'
 
 import { useCallback, useMemo, useRef, useState } from 'react'
 
-import { genid, delay } from 'xshell/utils.browser.js'
+import { genid, delay, unique } from 'xshell/utils.browser.js'
 
 import { t } from '../../i18n/index.js'
 
@@ -13,9 +13,8 @@ import { model } from '../model.js'
 import { config } from './model.js'
 
 import type { ControllerConfig } from './type.js'
-import { _2_strs, strs_2_controller_configs, filter_config } from './utils.js'
+import { _2_strs, strs_2_controller_configs, filter_config } from './utils.ts'
 
-import { CONTROLLER_CONFIG } from './constants.js'
 
 
 export function ControllerConfig () {
@@ -24,7 +23,7 @@ export function ControllerConfig () {
     const [search_key, set_search_key] = useState('')
     const [search_value, set_search_value] = useState('')
     
-    const actionRef = useRef<ActionType>()
+    const actionRef = useRef<ActionType>(undefined)
     
     const cols: ProColumns<ControllerConfig>[] = useMemo(() => ([
         {
@@ -47,7 +46,7 @@ export function ControllerConfig () {
                     showSearch
                     optionFilterProp='label'
                     filterOption={filter_config}
-                    options={CONTROLLER_CONFIG.map(config => ({
+                    options={config.get_controller_config().map(config => ({
                         label: config,
                         value: config
                     }))} 
@@ -107,7 +106,7 @@ export function ControllerConfig () {
         columns={cols}
         params={{ search_value }}
         request={async () => {
-            const value = Array.from(new Set((await config.load_controller_configs()).value as any[]))
+            const value = unique(await config.load_controller_configs())
             const configs = strs_2_controller_configs(value)
             set_configs(configs)
             return {
@@ -161,7 +160,7 @@ export function ControllerConfig () {
                         if (e.key === 'Enter') 
                             set_search_value(search_key)
                     }}
-                    options={CONTROLLER_CONFIG.map(config => ({
+                    options={config.get_controller_config().map(config => ({
                         label: config,
                         value: config
                         }))
@@ -173,16 +172,28 @@ export function ControllerConfig () {
         editable={{
             type: 'single',
             onSave: async (rowKey, data, row) => {
-                const config_strs = _2_strs(configs)
-                let idx = config_strs.indexOf(rowKey as string)
-                if (idx === -1)
-                    await config.save_controller_configs([data.name + '=' + data.value, ...config_strs])
-                else
-                    await config.save_controller_configs(config_strs.toSpliced(idx, 1, data.name + '=' + data.value))
-                actionRef.current.reload()
-                model.message.success(t('保存成功，重启集群生效'))
+                try {
+                    const config_strs = _2_strs(configs)
+                    let idx = config_strs.indexOf(rowKey as string)
+                    if (idx === -1)
+                        await config.save_controller_configs([data.name + '=' + data.value, ...config_strs])
+                    else
+                        await config.save_controller_configs(config_strs.toSpliced(idx, 1, data.name + '=' + data.value))
+                    actionRef.current.reload()
+                    model.message.success(t('保存成功，重启集群生效'))
+                } catch (error) {
+                    model.show_error({ error })
+                    throw error
+                }
             },
-            onDelete: async (key, row) => delete_config(row.id as string),
+            onDelete: async (key, row) => {
+                try {
+                    await delete_config(row.id)
+                } catch (error) {
+                    model.show_error({ error })
+                    throw error
+                }
+            },
             deletePopconfirmMessage: t('确认删除此配置项？'),
             saveText:
                 <Button

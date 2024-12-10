@@ -6,7 +6,6 @@ import { DdbType } from 'dolphindb/browser.js'
 
 import { model } from '../../../model.js'
 import { t } from '../../../../i18n/index.js'
-import { convertDecimalType } from '../../../utils/decimal.js'
 
 interface IProps extends Omit<DatePickerProps, 'onChange'> { 
     onChange?: (val: any) => void
@@ -224,3 +223,10 @@ export function DdbObjField ({ type, type_id: server_type_id, placeholder, form,
     }
 }
 
+
+// decimal 规定精度之后 type 会跟精度变化，需要解析出类型和精度
+export function convertDecimalType (type: number) { 
+    const type_id =  type & 0xffff
+    const scale = (type & (~0x80000000)) >> 16
+    return [type_id, scale]
+}

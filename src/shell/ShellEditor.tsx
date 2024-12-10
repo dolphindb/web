@@ -1,22 +1,21 @@
-import { useEffect, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 
-import { Switch } from 'antd'
-import { DoubleLeftOutlined, DoubleRightOutlined } from '@ant-design/icons'
+import { Input, Switch } from 'antd'
+import { CloseOutlined, DoubleLeftOutlined, DoubleRightOutlined, PlusOutlined } from '@ant-design/icons'
 
-import { t } from '../../i18n/index.js'
+import { t } from '@i18n/index.js'
 
-import { model, storage_keys } from '../model.js'
+import { model, storage_keys } from '@/model.ts'
 
-import { Editor, type monacoapi } from '../components/Editor/index.js'
+import { Editor, type monacoapi } from '@/components/Editor/index.tsx'
 
-import { shell } from './model.js'
+import { shell, type Tab } from './model.ts'
 
-import { SelectSqlModal } from './SelectSqlModal.js'
-import { ExecuteAction } from './ExecuteAction.js'
+import { SelectSqlModal } from './SelectSqlModal.tsx'
+import { ExecuteAction } from './ExecuteAction.tsx'
 
 
 export function ShellEditor ({ collapser }) {
-    
     const [minimap, set_minimap] = useState(() => 
         localStorage.getItem(storage_keys.minimap) === '1'
     )
@@ -44,6 +43,8 @@ export function ShellEditor ({ collapser }) {
     
     
     return <div className='shell-editor'>
+        <Tabs />
+        
         <div className='toolbar'>
             <div className='actions'>
                 <ExecuteAction />
@@ -102,8 +103,10 @@ export function ShellEditor ({ collapser }) {
             enter_completion={enter_completion}
             
             on_mount={(editor, monaco) => {
-                editor.setValue(localStorage.getItem(storage_keys.code) || '')
-                
+                editor.setValue(shell.itab > -1 
+                    ? shell.tabs.find(t => t.index === shell.itab).code
+                    : localStorage.getItem(storage_keys.code) || ''
+                )
                 
                 async function execute (selection: 'line' | 'all') {
                     if (shell.executing)
@@ -188,12 +191,148 @@ export function ShellEditor ({ collapser }) {
                 })
                 
                 
-                shell.set({ editor, monaco })
+                shell.set({
+                    editor,
+                    monaco,
+                    monaco_inited: true
+                })
             }}
             
             on_change={(value, event) => {
                 shell.save_debounced(value)
             }}
         />
+    </div>
+}
+
+
+function Tabs () {
+    const { tabs, itab } = shell.use(['tabs', 'itab'])
+    
+    let tabs_container_ref = useRef<HTMLDivElement>(undefined)
+    
+    useEffect(() => {
+        shell.init_tabs()
+        
+        // 注册鼠标滚轮监听
+        function on_wheel (event: WheelEvent) {
+            event.preventDefault()
+            // 垂直移动实际上是水平移动，方便滚动标签页
+            tabs_container_ref.current.scrollLeft += event.deltaY
+            tabs_container_ref.current.scrollLeft += event.deltaX
+        }
+        
+        tabs_container_ref.current.addEventListener('wheel', on_wheel)
+        
+        return () => { tabs_container_ref.current?.removeEventListener('wheel', on_wheel) }
+    }, [ ])
+    
+    return <div className='tabs' ref={tabs_container_ref}>
+        <div
+            className={`tab ${itab < 0 ? 'active' : ''}`}
+            key='default'
+            onClick={() => {
+                shell.switch_tab(-1)
+            }}
+        >
+            {t('默认标签页')}
+        </div>
+        {tabs.map(tab => <Tab
+            tab={tab}
+            key={tab.index}
+            itab={itab}
+        />)}
+        <div className='add-tab' onClick={() => { shell.add_tab() }}>
+            <PlusOutlined style={{ fontSize: 12 }} />
+        </div>
+    </div>
+}
+
+
+function Tab ({
+    tab, 
+    itab
+}: {
+    tab: Tab
+    itab: number
+}) {
+    let [name, set_name] = useState(tab.name)
+    let [renaming, set_renaming] = useState(false)
+    
+    function commit_rename () {
+        tab.name = name
+        
+        shell.set({ tabs: [...shell.tabs] })
+        
+        shell.save()
+        
+        set_renaming(false)
+    }
+    
+    return <div
+        className={`tab ${tab.index === itab ? 'active' : ''}`}
+        key={tab.index}
+        onClick={() => {
+            shell.switch_tab(tab.index)
+        }}
+    >{ renaming ? 
+        <Input
+            placeholder={t('标签页名称')}
+            value={name}
+            autoFocus
+            onChange={event => { set_name(event.currentTarget.value) }}
+            variant='borderless'
+            size='small'
+            onBlur={commit_rename}
+            onKeyDown={event => {
+                if (event.key === 'Enter')
+                    commit_rename()
+            }}
+        />
+    :
+        <div onDoubleClick={() => { set_renaming(true) }}>
+            {tab.name}
+        </div>
+    }
+        <div
+            className='close-icon'
+            onClick={event => {
+                if (!shell.monaco_inited)
+                    return
+                
+                const { tabs } = shell
+                
+                const tab_index = tab.index
+                
+                event.stopPropagation()
+                
+                function remove_tab () {
+                    const index = tabs.findIndex(t => t.index === tab_index)
+                    const new_tabs = tabs.filter(t => t.index !== tab_index)
+                    if (tab_index === itab)
+                        if (new_tabs.length === 0)
+                            shell.switch_tab(-1)
+                        else if (index === 0)
+                            shell.switch_tab(new_tabs[0].index)
+                        else
+                            shell.switch_tab(new_tabs[index - 1].index)
+                            
+                    shell.remove_tab(tab_index)
+                }
+                
+                const code = tab.code
+                if (code)
+                    model.modal.confirm({
+                        title: t('提醒'),
+                        content: t('关闭标签页将会删除标签页内的所有内容，确认关闭？'),
+                        onOk: remove_tab,
+                        okType: 'danger'
+                    })
+                else
+                    remove_tab()
+            }}
+        >
+            <CloseOutlined style={{ fontSize: 12 }} />
+        </div>
     </div>
 }

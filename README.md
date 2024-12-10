@@ -1,7 +1,7 @@
 # DolphinDB Web
 
 <p align='center'>
-     <img src='./console/ddb.svg' alt='DolphinDB Web' width='256'>
+     <img src='./src/ddb.svg' alt='DolphinDB Web' width='256'>
 </p>
 
 <p align='center'>
@@ -13,7 +13,7 @@
 ## English | [中文](./README.zh.md)
 
 ### DolphinDB database web management interface
-![](./console/demo.en.png)
+![](./demo/demo.en.png)
 
 <!-- #### Online Version
 The latest build of the web has been deployed to a CDN . You can connect the opened web interface to any remote or local DolphinDB server by setting the hostname and port parameters in the URL, for example:
@@ -66,6 +66,10 @@ pnpm install
 cp .vscode/settings.template.json .vscode/settings.json
 
 # Set environment variable NODE_OPTIONS='--experimental-transform-types'
+# 1. Set in the current session
+$env:NODE_OPTIONS = '--experimental-transform-types'
+# 2. Add to system environment variables (requires system restart)
+# [System.Environment]::SetEnvironmentVariable('NODE_OPTIONS', '--experimental-transform-types', [System.EnvironmentVariableTarget]::User)
 
 # Refer to scripts in package.json
 

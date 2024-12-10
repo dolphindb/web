@@ -15,7 +15,6 @@ import { assert, delay } from 'xshell/utils.browser.js'
 
 
 import {
-    DdbFunctionType,
     DdbInt,
     type DdbVectorStringObj,
     type DdbTableObj,
@@ -74,7 +73,7 @@ export function Databases () {
     
     const [expanded_keys, set_expanded_keys] = useState([ ])
     const [loaded_keys, set_loaded_keys] = useState([ ])
-    const previous_clicked_node = useRef<Catalog | DatabaseGroup | Database | Table | ColumnRoot | PartitionRoot | Column | PartitionDirectory | PartitionFile | Schema>()
+    const previous_clicked_node = useRef<Catalog | DatabaseGroup | Database | Table | ColumnRoot | PartitionRoot | Column | PartitionDirectory | PartitionFile | Schema>(undefined)
     
     const enable_create_db = [NodeType.data, NodeType.single].includes(node_type)
     const [refresh_spin, set_refresh_spin] = useState(false)
@@ -279,7 +278,7 @@ export function Databases () {
                     :
                         <div className='start-node-to-view'>
                             <span>{t('没有正在运行的数据节点和计算节点')}</span>
-                            <a onClick={() => { model.set({ view: 'overview' }) } }>{t('去启动节点')}</a>
+                            <a onClick={() => { model.goto('/overview/') } }>{t('去启动节点')}</a>
                         </div>
                 :
                     <div className='login-to-view'>
@@ -789,10 +788,6 @@ function CreateDatabase () {
                         >
                             <Select placeholder={t('请选择{{i18nIndex}}分区类型', { i18nIndex })} options={[
                                 {
-                                    label: <span title={t('顺序分区。分区方案格式为：整型标量，表示分区的数量。')}>{ t('顺序分区') + ' (SEQ)' }</span>,
-                                    value: 'SEQ',
-                                },
-                                {
                                     label: <span title={t('范围分区。分区方案格式为：向量，向量的任意两个相邻元素定义分区的范围。')}>{ t('范围分区') + ' (RANGE)' }</span>,
                                     value: 'RANGE',
                                 },
@@ -807,6 +802,10 @@ function CreateDatabase () {
                                 {
                                     label: <span title={t('列表分区。分区方案格式为：嵌套向量，外层向量的每个元素定义了一个分区。')}>{ t('列表分区') + ' (LIST)' }</span>,
                                     value: 'LIST',
+                                },
+                                {
+                                    label: <span title={t('顺序分区。分区方案格式为：整型标量，表示分区的数量。')}>{ t('顺序分区') + ' (SEQ)' }</span>,
+                                    value: 'SEQ',
                                 },
                             ]} />
                         </Form.Item>
@@ -1040,7 +1039,7 @@ export class Database implements DataNode {
                 'load_database_schema',
                 // 调用该函数时，数据库路径不能以 / 结尾
                 [this.path.slice(0, -1)],
-                model.node_type === NodeType.controller ? { node: model.datanode.name, func_type: DdbFunctionType.UserDefinedFunc } : { }
+                model.node_type === NodeType.controller ? { node: model.datanode.name } : undefined
             )
         }
         
@@ -1183,7 +1182,7 @@ export class Table implements DataNode {
             'load_table_schema',
             // 调用该函数时，数据库路径不能以 / 结尾
             [db.path.slice(0, -1), path.slice(db.path.length, -1)],
-            model.node_type === NodeType.controller ? { node: model.datanode.name, func_type: DdbFunctionType.UserDefinedFunc } : { }
+            model.node_type === NodeType.controller ? { node: model.datanode.name } : undefined
         )
         
         this.schema = schema
@@ -1196,7 +1195,7 @@ export class Table implements DataNode {
         let obj = await model.ddb.call(
             'peek_table',
             [this.db.path.slice(0, -1), this.name],
-            model.node_type === NodeType.controller ? { node: model.datanode.name, func_type: DdbFunctionType.UserDefinedFunc } : { }
+            model.node_type === NodeType.controller ? { node: model.datanode.name } : undefined
         )
         obj.name = `${this.name} (${t('前 100 行')})`
         shell.set({ result: { type: 'object', data: obj } })
@@ -1430,7 +1429,7 @@ export class PartitionFile implements DataNode {
         let obj = await model.ddb.call<DdbTableObj>(
             'readTabletChunk',
             [this.chunk, db.path.slice(0, -1), this.path.slice('dfs:/'.length), table.name, new DdbInt(0), new DdbInt(100)],
-            this.site_node !== model.node_alias ? { node: this.site_node, func_type: DdbFunctionType.SystemFunc } : { }
+            this.site_node !== model.node_alias ? { node: this.site_node } : undefined
         )
         
         obj.name = `${this.path.slice(db.path.length, this.path.lastIndexOf('/'))} ${t('分区的数据')} (${t('前 100 行')})`

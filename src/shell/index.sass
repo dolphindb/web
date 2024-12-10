@@ -84,15 +84,16 @@
             .ant-tree
                 margin-left: 4px
 
-                transition: unset !important
-                
                 .ant-tree-treenode
+                    margin-bottom: 0px
+                    
                     .column-root-title, .column-title
                         width: 100%
                     
                 .ant-tree-list
                     .ant-tree-list-holder-inner
                         padding-top: 2px
+                        
                         .ant-tree-treenode:last-child
                             box-sizing: content-box
                             padding-bottom: 4px
@@ -130,8 +131,6 @@
                     .ant-tree-node-content-wrapper 
                         padding: 0px
                         
-                        transition: unset !important
-                        
                         user-select: unset
                         
                         .ant-tree-iconEle
@@ -152,6 +151,9 @@
                 
                 .ant-tree-switcher-leaf-line
                     width: 12px
+                    
+                .ant-tree-switcher:before
+                    visibility: hidden
             
             .ant-tree-show-line .ant-tree-indent-unit::before
                 border-right: unset !important
@@ -310,12 +312,68 @@
                     display: flex
                     flex-direction: column
                     
+                    .tabs
+                        background-color: #f0f0f0
+                        height: 30px
+                        flex-shrink: 0
+                        display: flex
+                        overflow-x: auto
+                        overflow-y: hidden
+                        
+                        &::-webkit-scrollbar
+                            height: 2px !important
+                        
+                        &::-webkit-scrollbar-track
+                            background: transparent
+                        
+                        &::-webkit-scrollbar-thumb
+                            background: rgba(0, 0, 0, 0.2)
+                            
+                            &:hover
+                                background: rgba(0, 0, 0, 0.3)
+                        
+                        .tab
+                            flex-shrink: 0
+                            height: 100% !important
+                            display: flex
+                            align-items: center
+                            cursor: pointer
+                            padding: 2px 8px
+                            background: #f0f0f0
+                            border-bottom: 1px solid transparent
+                            
+                            &:hover
+                                background-color: rgb(245, 246, 247)
+                            
+                            .close-icon
+                                display: flex
+                                align-items: center
+                                margin-left: 6px
+                                padding: 4px
+                                border-radius: 50%
+                                &:hover
+                                    background-color: rgb(225, 225, 225)
+                        
+                        .active
+                            border-bottom: 1px solid #3760F0
+                            background-color: #ffffff !important
+                        
+                        .add-tab
+                            cursor: pointer
+                            display: flex
+                            align-items: center
+                            padding: 2px 8px
+                            border-bottom: 1px solid transparent
+                            
+                            &:hover
+                                background-color: rgb(245, 246, 247)
+                            
                     .toolbar
                         display: flex
                         align-items: center
                         
-                        background-color: #f0f0f0
-                        box-shadow: inset -1px -2px 0 #e5e5e5
+                        background-color: #ffffff
+                        border-bottom: 1px solid rgba(0, 0, 0, 0.1)
                         
                         padding: 4px 10px
                         
@@ -360,7 +418,6 @@
                                     width: 100px
                                     
                                 .ant-select-selector
-                                    background-color: #f0f0f0
                                     border: 0
                                     padding: 0 5px
                                     height: 100%

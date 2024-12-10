@@ -6,7 +6,7 @@ import NiceModal from '@ebay/nice-modal-react'
 
 import { t } from '../../../i18n/index.js'
 
-import { request } from '../../guide/utils.js'
+import { request } from '../../guide/utils.ts'
 
 import { ReadonlyEditor } from '../../components/ReadonlyEditor/index.js'
 
@@ -15,7 +15,7 @@ import { QueryForm } from './components/QueryForm.js'
 
 
 import { type IQueryInfos } from './type.js'
-import { transform_query } from './utils.js'
+import { transform_query } from './utils.ts'
 
 
 import { QueryDataView } from './components/QueryDataView.js'

@@ -17,9 +17,6 @@ class DevServer extends Server {
     override async router (ctx: Context) {
         let { request, response } = ctx
         
-        if (request.path === '/')
-            request.path = '/index.html'
-        
         const { path } = request
         
         if (path === '/api/recompile') {
@@ -28,7 +25,12 @@ class DevServer extends Server {
             return true
         }
         
-        return this.try_send(ctx, fpd_out, path.slice(1), true)
+        return this.try_send(
+            ctx, 
+            fpd_out, 
+            path.fext ? path.slice(1) : 'index.html', 
+            true
+        )
     }
 }
 
@@ -44,7 +46,6 @@ await Promise.all([
     server.start(),
     (async () => {
         await fdclear(fpd_out)
-        await builder.build_bundles(false)
         await builder.build(false)
     })()
 ])
@@ -116,7 +117,7 @@ if (ramdisk) {
 }
 
 
-const info = 'http://localhost:8432/?hostname=192.168.0.200&port=20023\n'.blue.underline
+const info = 'http://localhost:8432/\n'.blue.underline
 
 
 console.log(

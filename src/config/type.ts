@@ -12,6 +12,7 @@ export type ClusterNode = {
     port: string
     alias: string
     mode: NodeType
+    computeGroup?: string
 }
 
 export type NodesConfig = {

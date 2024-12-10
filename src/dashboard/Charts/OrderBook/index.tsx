@@ -11,7 +11,7 @@ import {
 
 import { dashboard, type Widget } from '../../model.js'
 import { type IOrderBookConfig, type IChartConfig } from '../../type.js'
-import { to_chart_data } from '../../utils.js'
+import { to_chart_data } from '../../utils.ts'
 
 
 import { OrderFormFields, BasicFormFields } from '../../ChartFormFields/OrderBookField.js'

@@ -7,6 +7,7 @@ import copy from 'copy-to-clipboard'
 import { dashboard } from '../model.js'
 import { t } from '../../../i18n/index.js'
 import { model } from '../../model.js'
+import { DASHBOARD_SHARED_SEARCH_KEY } from '../constant.js'
 
 interface IProps {
     dashboard_ids: number[]
@@ -24,28 +25,21 @@ export function Share ({ dashboard_ids, trigger_type }: IProps) {
             return
         }
         
-        let copy_text = ''
-        const currentUrl = new URL(window.location.href)
-        currentUrl.searchParams.set('preview', '1')
+        let url = new URL(window.location.href)
+        url.searchParams.set('preview', '1')
+        url.searchParams.set(DASHBOARD_SHARED_SEARCH_KEY, dashboard_ids.join(','))
         
-        if (dashboard_ids.length === 1) {
-            currentUrl.searchParams.set('dashboard', String(dashboard_ids[0]))
-            copy_text = currentUrl.href
-        }
-        else
-            dashboard_ids.forEach(dashboard_id => {
-                currentUrl.searchParams.set('dashboard', String(dashboard_id))
-                copy_text += `${dashboard.configs.find(({ id }) => id === dashboard_id).name}：${currentUrl.href}\n`
-            })
-            
+        url.pathname = `${model.assets_root}dashboard/${dashboard_ids[0]}/`
+        
         try {
-            copy(copy_text)
+            const { href } = url
+            copy(href)
             api.success({
                 message: t('以下内容已复制到剪切板'),
                 style: {
                     width: 1100
                 },
-                description: copy_text.split('\n').map(item => <p>{item}</p>),
+                description: href,
                 placement: 'top',
             })
          } catch (e) {
@@ -86,7 +80,7 @@ export function Share ({ dashboard_ids, trigger_type }: IProps) {
 // import { t } from '../../../i18n/index.js'
 // import { model } from '../../model.js'
 // import { DdbLong, DdbDict } from 'dolphindb/browser'
-// import { parse_error } from '../utils.js'
+// import { parse_error } from '../utils.ts'
 
 // interface IProps {
 //     dashboard_ids: number[]

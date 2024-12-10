@@ -12,11 +12,11 @@ export function HostSelect ({ size = 'small' }: { size?: SizeType }) {
         options={[
             {
                 label: '测试数据节点',
-                value: '192.168.0.200:20023'
+                value: '192.168.0.37:20023'
             },
             {
                 label: '测试控制节点',
-                value: '192.168.0.200:20000'
+                value: '192.168.0.37:20000'
             },
             {
                 label: '我的单机',
@@ -43,8 +43,16 @@ export function HostSelect ({ size = 'small' }: { size?: SizeType }) {
                 value: '192.168.0.69:18921'
             },
             {
+                label: '定时巡检',
+                value: '192.168.100.44:7602'
+            },
+            {
                 label: '本地',
                 value: '127.0.0.1:8848'
+            },
+            {
+                label: '采集平台',
+                value: '183.134.101.140:7748'
             }
         ]}
         onSelect={host => { 
@@ -52,6 +60,6 @@ export function HostSelect ({ size = 'small' }: { size?: SizeType }) {
             location.href = model.get_url(hostname, Number(port))
         }}
         popupMatchSelectWidth={false}
-        defaultValue={`${model.params.get('hostname')}:${model.params.get('port')}`}
+        defaultValue={`${model.hostname}:${model.port}`}
     />
  }

@@ -17,7 +17,7 @@ import SvgArrowDown from '../components/icons/arrow.down.icon.svg'
 export function SelectSqlModal () {
     const { visible, open, close } = use_modal()
     
-    let ref_selected_sql = useRef<string>()
+    let ref_selected_sql = useRef<string>(undefined)
     
     return <>
         <Modal

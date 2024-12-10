@@ -10,11 +10,11 @@ import { model } from '../model.js'
 import { NodesConfigAddModal } from './NodesConfigAddModal.js'
 import { config } from './model.js'
 import { type NodesConfig } from './type.js'
-import { _2_strs, filter_config } from './utils.js'
-import { CONFIG_CLASSIFICATION } from './constants.js'
+import { _2_strs, filter_config } from './utils.ts'
 
 export function NodesConfig () {
     const { nodes_configs } = config.use(['nodes_configs'])
+    const config_classification = config.get_config_classification()
     
     const [active_key, set_active_key] = useState<string | string[]>('thread')
     
@@ -56,7 +56,7 @@ export function NodesConfig () {
     }
     
     const items: CollapseProps['items'] = useMemo(() => {
-        let clsed_configs = Object.fromEntries([...Object.keys(CONFIG_CLASSIFICATION), t('其它')].map(cfg => [cfg, [ ]]))
+        let clsed_configs = Object.fromEntries([...Object.keys(config_classification), t('其它')].map(cfg => [cfg, [ ]]))
         
         nodes_configs?.forEach(nodes_config => {
             const { category } = nodes_config
@@ -107,7 +107,7 @@ export function NodesConfig () {
                                 <AutoComplete<{ label: string, value: string }>
                                     showSearch
                                     optionFilterProp='label'
-                                    options={(CONFIG_CLASSIFICATION[key] || [ ]).map((config: string) => ({
+                                    options={(config_classification[key] || [ ]).map((config: string) => ({
                                         label: config,
                                         value: config
                                         }))
@@ -159,14 +159,26 @@ export function NodesConfig () {
                     editable={{
                         type: 'single',
                         onSave: async (rowKey, data, row) => {
-                            const { name, qualifier, value } = data
-                            const key = (qualifier ? qualifier + '.' : '') + name
-                            if (rowKey !== key)
-                                config.nodes_configs.delete(rowKey as string)
-                            await config.change_configs([[key, { name, qualifier, value, key }]])
-                            model.message.success(t('保存成功，重启集群生效'))
+                            try {
+                                const { name, qualifier, value } = data
+                                const key = (qualifier ? qualifier + '.' : '') + name
+                                if (rowKey !== key)
+                                    config.nodes_configs.delete(rowKey as string)
+                                await config.change_configs([[key, { name, qualifier, value, key }]])
+                                model.message.success(t('保存成功，重启数据节点 / 计算节点生效'))
+                            } catch (error) {
+                                model.show_error({ error })
+                                throw error
+                            }
                         },
-                        onDelete: async key => delete_config(key as string),
+                        onDelete: async key => {
+                            try {
+                                await delete_config(key as string)
+                            } catch (error) {
+                                model.show_error({ error })
+                                throw error
+                            }
+                        },
                         deletePopconfirmMessage: t('确认删除此配置项？'),
                         saveText: (
                             <Button type='link' key='editable' className='mr-btn'>
@@ -224,7 +236,7 @@ export function NodesConfig () {
                         if (e.key === 'Enter') 
                             on_search()
                     }}
-                    options={Object.entries(CONFIG_CLASSIFICATION).map(([cfg_cls, configs]) => ({
+                    options={Object.entries(config_classification).map(([cfg_cls, configs]) => ({
                         label: cfg_cls,
                         options: Array.from(configs).map(cfg => ({
                             label: cfg,

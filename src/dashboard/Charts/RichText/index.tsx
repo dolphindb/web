@@ -9,12 +9,15 @@ import cn from 'classnames'
 
 import { use_modal } from 'react-object-model/hooks.js'
 
-import { t } from '../../../../i18n/index.js'
-import { type Widget, dashboard } from '../../model.js'
-import { type ITextConfig } from '../../type.js'
-import { variables } from '../../Variable/variable.js'
-import { parse_text } from '../../utils.js'
-import { InsertVariableBtn } from '../../DataSource/InsertVariableBtn.js'
+import { t } from '@i18n/index.ts'
+
+import { model } from '@/model.ts'
+
+import { type Widget, dashboard } from '@/dashboard/model.ts'
+import type { ITextConfig } from '@/dashboard/type.ts'
+import { variables } from '@/dashboard/Variable/variable.ts'
+import { parse_text } from '@/dashboard/utils.ts'
+import { InsertVariableBtn } from '@/dashboard/DataSource/InsertVariableBtn.tsx'
 
 
 let ReactQuill: typeof import('react-quill')
@@ -29,7 +32,7 @@ export function RichText ({ widget, data_source }: { widget: Widget, data_source
     
     variables.use()
     
-    const quill_ref = useRef<any>()
+    const quill_ref = useRef<any>(undefined)
     
     const toolbar_options = useMemo(
         () => [
@@ -76,11 +79,13 @@ export function RichText ({ widget, data_source }: { widget: Widget, data_source
                     // @ts-ignore
                     window.define.amd = false
                 
+                await import(/* webpackIgnore: true */ `${model.assets_root}vendors/react-quill/dist/react-quill.js`)
+                
                 ;({ default: ReactQuill } = await import('react-quill'))
                 set_quill_loaded(true)
             }
         })()
-    }, [ visible])
+    }, [visible])
     
     
     return <>

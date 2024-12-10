@@ -2,7 +2,7 @@ import './index.sass'
 
 import { type Dispatch, type ReactNode, type SetStateAction, useEffect, useState, useMemo } from 'react'
 
-import { Button, Tabs, Table, Tooltip, Spin, Result, type TableColumnType, Input, Modal, List } from 'antd'
+import { Button, Tabs, Table, Tooltip, Spin, Result, type TableColumnType, Input, Modal, List, Typography } from 'antd'
 
 import { ReloadOutlined, QuestionCircleOutlined, WarningOutlined, FormatPainterOutlined } from '@ant-design/icons'
 
@@ -15,6 +15,8 @@ import { type DDB } from 'dolphindb/browser.js'
 import { vercmp } from 'xshell/utils.browser'
 
 import { repeat } from 'lodash'
+
+import { language } from '@i18n/index.ts'
 
 import { model, NodeType } from '../model.js'
 
@@ -92,7 +94,11 @@ export function Computing () {
         },
         streaming_table_stat: {
             title: t('流数据表状态'),
-            refresher: computing.get_streaming_table_stat
+            refresher: async () =>
+                Promise.all([
+                    computing.get_streaming_table_stat(),
+                    computing.get_streaming_pub_sub_stat()
+                ])
         }
     }
     
@@ -321,7 +327,7 @@ const cols_width = {
     persistenceMeta: {
         tablename: 150,
         loaded: 100,
-        columns: 60,
+        columns: 120,
         memoryUsed: 100,
         lastLogSeqNum: 120,
         sizeInMemory: 100,
@@ -372,7 +378,7 @@ const header_text = {
 
 const button_text = {
     subWorkers: {
-        title: t('流数据表'),
+        title: t('流数据表', { context: 'computing' }),
         action: t('取消订阅')
     },
     engine: {
@@ -396,11 +402,11 @@ const leading_cols = {
         queueDepth: t('队列深度'),
         queueDepthLimit: t('队列深度上限'),
         lastErrMsg: t('最近处理失败的错误信息'),
-        lastFailedTimestamp: t('最近错误时刻'),
+        lastFailedTimestamp: t('最近处理失败的时刻'),
         failedMsgCount: t('失败消息总数'),
         processedMsgCount: t('已处理消息数'),
         lastMsgId: t('最近处理消息 ID'),
-        lastFailedMsgId: t('最近错误消息 ID')
+        lastFailedMsgId: t('最近处理失败的消息 ID')
     },
     pubConns: {
         client: t('订阅节点'),
@@ -428,9 +434,9 @@ const leading_cols = {
     },
     persistWorkers: {
         workerId: t('线程 ID'),
-        queueDepthLimit: t('订阅队列深度上限'),
-        queueDepth: t('订阅队列深度'),
-        tables: t('表名')
+        queueDepthLimit: t('持久化消息队列深度上限'),
+        queueDepth: t('持久化消息队列深度'),
+        tables: t('持久化表名')
     },
     sharedStreamingTableStat: {
         TableName: t('表名'),
@@ -457,15 +463,15 @@ const leading_cols = {
 
 const expanded_cols = {
     subWorkers: {
-        batchSize: '批次大小',
-        throttle: '等待间隔',
-        filter: '过滤列',
-        msgAsTable: '消息是否为表',
-        hash: '订阅 hash 值',
-        persistOffset: '开启订阅偏移持久化',
-        timeTrigger: '强制按时间间隔触发',
-        handlerNeedMsgId: '包含消息 ID',
-        raftGroup: '高可用组'
+        batchSize: t('批次大小'),
+        throttle: t('等待间隔'),
+        filter: t('过滤列'),
+        msgAsTable: t('消息是否为表'),
+        hash: t('订阅 hash 值'),
+        persistOffset: t('开启订阅偏移持久化'),
+        timeTrigger: t('强制按时间间隔触发'),
+        handlerNeedMsgId: t('包含消息 ID'),
+        raftGroup: t('高可用组')
     },
     engine: {
         TimeSeriesEngine: {
@@ -592,9 +598,7 @@ function translate_order_col (cols: TableColumnType<Record<string, any>>[], is_s
 /** 为每一张表增加 key */
 function add_key (table: Record<string, any>, key_index = 0) {
     const { title = '' } = table
-    return table.map(row => {
-        return { ...row, key: title === 'pubConns' ? row.client + row.tables : Object.values(row)[key_index] }
-    })
+    return table.map(row => ({ ...row, key: title === 'pubConns' ? row.client + row.tables : Object.values(row)[key_index] }))
 }
 
 /** 这里需要改掉 render，原有的 render 会对数据做 format，导致抛出 NaN  */
@@ -687,10 +691,8 @@ function add_details_row (table: Record<string, any>[]) {
                 className: 'computing-show-more-modal',
                 content: (
                     <List
-                        dataSource={detailed_keys.map(key => {
-                            return `${dict[key]}: ${row[key] === -1 || row[key] === -1n || row[key] === null ? '' : row[key]}`
-                        })}
-                        renderItem={item => <List.Item>{item}</List.Item>}
+                        dataSource={detailed_keys.map(key => `${dict[key]}: ${row[key] === -1 || row[key] === -1n || row[key] === null ? '' : row[key]}`)}
+                        renderItem={item => <List.Item><Typography.Paragraph ellipsis={{ tooltip: item }}>{item}</Typography.Paragraph ></List.Item>}
                         split={false}
                     />
                 )
@@ -762,6 +764,7 @@ function DeleteModal ({
     const { visible, open, close } = use_modal()
     const { ddb, admin: is_admin } = model.use(['ddb', 'admin'])
     const { streaming_stat, persistent_table_stat } = computing.use(['streaming_stat', 'persistent_table_stat'])
+    const action_text = button_text[table_name].action.charAt(0).toUpperCase() + button_text[table_name].action.slice(1)
     return <>
             <Modal
                 className='computing-delete-modal'
@@ -769,13 +772,13 @@ function DeleteModal ({
                     <div className='delete-warning-title'>
                         <WarningOutlined />
                         <span>
-                            {t('确认{{action}}选中的 ', { action: button_text[table_name].action })}
+                            {t('确认{{action}}选中的 ', { action: button_text[table_name].action.toLowerCase() })}
                             <Tooltip
                                 title={selected.map(name => <p key={name}>{name}</p>)}
                             >
                                 <span className='selected-number'>{selected.length}</span>
                             </Tooltip>
-                            {t(' 个{{item}}吗?', { item: button_text[table_name].title })}
+                            {t(' 个{{item}}吗?', { item: button_text[table_name].title.toLowerCase() })}
                         </span>
                     </div>
                 }
@@ -785,7 +788,7 @@ function DeleteModal ({
                     close()
                 }}
                 cancelButtonProps={{ className: 'hidden' }}
-                okText={button_text[table_name].action}
+                okText={action_text}
                 okButtonProps={{ disabled: input_value !== 'YES', className: input_value !== 'YES' ? 'disable-button' : 'normal-button' }}
                 onOk={async () => {
                     await handle_delete(
@@ -812,7 +815,7 @@ function DeleteModal ({
                 />
             </Modal>
             <Button className='title-button' disabled={!selected.length} onClick={open}>
-                {t('批量') + button_text[table_name].action}
+                {t('批量') + action_text}
             </Button>
         </>
 }
