@@ -2,6 +2,8 @@ import { isArray } from 'lodash'
 
 import { t } from '@i18n/index.ts'
 
+import dayjs from 'dayjs'
+
 import { model } from '@/model.ts'
 import { GIT_CONSTANTS } from '../constants.ts'
 
@@ -34,9 +36,7 @@ interface IFileData {
     content: string
     content_sha256: string
     ref: string
-    blob_id: string
     commit_id: string
-    last_commit_id: string
     execute_filemode: boolean
 }
 
@@ -193,9 +193,6 @@ export class GitHubAdapter implements IGitAdapter {
     api_root: string = ''
     
     constructor () { }
-    async get_commit_history (repo: string, file_path: string, ref?: string): Promise<ICommitHistoryItem[]> {
-        throw new Error('Method not implemented.')
-    }
     
     async get_access_token (code: string, client_id: string, redirect_uri?: string, secret?: string): Promise<string> {
         const tokenUrl = 'https://github.com/login/oauth/access_token'
@@ -315,7 +312,7 @@ export class GitHubAdapter implements IGitAdapter {
     
     
     async get_file_by_path (repo: string, file_path: string, ref = 'main'): Promise<IFileData> {
-        const resp = await fetch(`${this.root_url}${this.api_root}/repos/${repo}/contents/${file_path}?ref=${ref}`, this.get_fetch_options())
+        const resp = await fetch(`${this.root_url}${this.api_root}/repos/${repo}/contents/${file_path}?ref=${ref}&_=${Date.now()}`, this.get_fetch_options())
         
         if (!resp.ok)
             throw new Error(t('获取文件失败，请检查权限'))
@@ -324,6 +321,11 @@ export class GitHubAdapter implements IGitAdapter {
         const result = await resp.json()
         const content = this.decodeBase64ToUtf8(result.content)
         
+        const commit_history = await this.get_commit_history(repo, file_path, ref)
+        const commits = (isArray(commit_history) ? commit_history : [ ])
+            .sort((a, b) => dayjs(b.committed_date).diff(dayjs(a.committed_date)))
+            
+        const commit_id = commits[0]?.id ?? ''
         
         return {
             file_name: result.name,
@@ -333,9 +335,7 @@ export class GitHubAdapter implements IGitAdapter {
             content,
             content_sha256: result.sha,
             ref,
-            blob_id: result.sha,
-            commit_id: result.sha,
-            last_commit_id: result.sha,
+            commit_id,
             execute_filemode: result.executable || false
         } as IFileData
         
@@ -357,6 +357,24 @@ export class GitHubAdapter implements IGitAdapter {
         return resp.ok
         
     }
+    
+    async get_commit_history (repo_path: string, file_path: string, ref?: string): Promise<ICommitHistoryItem[]> {
+        const resp = await fetch(`${this.root_url}${this.api_root}/repos/${repo_path}/commits?path=${file_path}&sha=${ref}&_=${Date.now()}`, this.get_fetch_options())
+        let result = await resp.json()
+        if (!isArray(result))
+            result = [ ]
+        const ret = result.map((item: any) => ({
+            id: item.sha,
+            title: item.commit.message,
+            committer_name: item.commit.committer.name,
+            committer_email: item.commit.committer.email,
+            committed_date: item.commit.committer.date,
+            message: item.commit.message,
+            parent_ids: item.parents.map((parent: any) => parent.sha)
+        }))
+        return ret
+    }
+    
 }
 
 export const git_provider = localStorage.getItem(GIT_CONSTANTS.PROVIDER) === 'github' ? new GitHubAdapter() : new GitLabAdapter()

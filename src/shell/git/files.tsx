@@ -67,6 +67,8 @@ export function Files ({ repo_id, on_change_branch }: { repo_id: string, on_chan
     }
     
     useEffect(() => {
+        if (!repo_id)
+            return
         set_loaded_keys([ ])
         reset_file_tree()
         on_change_branch(branch)
@@ -97,6 +99,7 @@ export function Files ({ repo_id, on_change_branch }: { repo_id: string, on_chan
         const code = await git_provider.get_file_by_path(repo_path, key, branch)
         shell.add_git_tab(key, code.file_name, code.content, {
             repo_id,
+            repo_path,
             repo_name: title,
             branch,
             sha: code.content_sha256,
