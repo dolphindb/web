@@ -68,22 +68,13 @@ def getPreloadPluginsOfCluster() {
     // 数据节点和计算节点
     clusterConfigs = rpc(getControllerAlias(), loadClusterNodesConfigs)
     nodes = exec name from rpc(getControllerAlias(), getClusterPerf) where state == 1 and mode != 1
-    for (config in clusterConfigs) {
-        // config = clusterConfigs.last()
-        if (config.startsWith("preloadModules")) {
-            s = config.split("=").last().split(",")
-            for (item in s) {
-                if (item.startsWith("plugins")) {
-                    pluginName = item.split("::").at(1)
-                    ret.append!(table(nodes as node, take(pluginName, nodes.size()) as preloadPlugins))
-                }
-            }
-        }
-    }
-    
+    excludeNodes = []$STRING
+
+    // <nodeAlias>.preloadModules 配置项优先生效
     for (config in clusterConfigs) {
         if (like(config, "%.preloadModules%")) {
             node = config.split(".").first()
+            excludeNodes.append!(node)
             s = config.split("=").last().split(",")
             for (item in s) {
                 if (item.startsWith("plugins")) {
@@ -93,8 +84,23 @@ def getPreloadPluginsOfCluster() {
             }
         }
     }
+
+    // 未配置 <nodeAlias>.preloadModules 的节点，使用 preloadModules 配置项
+    otherNodes = (set(excludeNodes) - set(nodes)).keys()
+    for (config in clusterConfigs) {
+        // config = clusterConfigs.last()
+        if (config.startsWith("preloadModules")) {
+            s = config.split("=").last().split(",")
+            for (item in s) {
+                if (item.startsWith("plugins")) {
+                    pluginName = item.split("::").at(1)
+                    ret.append!(table(otherNodes as node, take(pluginName, otherNodes.size()) as preloadPlugins))
+                }
+            }
+        }
+    }
     
-    
+    // 控制节点只有 preloadModules 配置项，没有 <nodeAlias>.preloadModules
     cnt = exec count(*) from rpc(getControllerAlias(), getClusterPerf) where mode == 3
     if (cnt == 0) { // 控制节点
         controllerConfigs = rpc(getControllerAlias(), loadControllerConfigs)
@@ -109,20 +115,7 @@ def getPreloadPluginsOfCluster() {
                     }
                 }
             }
-        }
-        
-        for (config in controllerConfigs) {
-            if (like(config, "%.preloadModules%")) {
-                node = config.split(".").first()
-                s = config.split("=").last().split(",")
-                for (item in s) {
-                    if (item.startsWith("plugins")) {
-                        pluginName = item.split("::").at(1)
-                        insert into ret values (node, pluginName)
-                    }
-                }
-            }
-        }    
+        }  
     }
     
     ret = select * from ret where isDuplicated([node,plugin],FIRST)=false
