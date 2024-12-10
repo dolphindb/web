@@ -149,6 +149,8 @@ def listPlugins() {
     for (plugin_ in ret["plugin"]) {
         nodes = exec distinct(node) as node from res where plugin == plugin_ and isInstalled == true order by node asc
         update ret set installedNodes = concat(nodes, ",") where plugin == plugin_
+        nodes = exec distinct(node) as node from res where plugin == plugin_ and isInstalled == false order by node asc
+        update ret set toInstallNodes = concat(nodes, ",") where plugin == plugin_
         nodes = exec distinct(node) as node from res where plugin == plugin_ and isLoaded == true order by node asc
         update ret set loadedNodes = concat(nodes, ",") where plugin == plugin_
         nodes = exec distinct(node) as node from res where plugin == plugin_ and isPreloaded == true order by node asc
