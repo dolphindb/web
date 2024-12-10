@@ -86,7 +86,7 @@ def getPreloadPluginsOfCluster() {
     }
 
     // 未配置 <nodeAlias>.preloadModules 的节点，使用 preloadModules 配置项
-    otherNodes = (set(excludeNodes) - set(nodes)).keys()
+    otherNodes = nodes[!in(nodes, excludeNodes)]
     for (config in clusterConfigs) {
         // config = clusterConfigs.last()
         if (config.startsWith("preloadModules")) {
@@ -97,6 +97,7 @@ def getPreloadPluginsOfCluster() {
                     ret.append!(table(otherNodes as node, take(pluginName, otherNodes.size()) as preloadPlugins))
                 }
             }
+            break // 重复配置项只有第一条生效
         }
     }
     
@@ -114,6 +115,7 @@ def getPreloadPluginsOfCluster() {
                         ret.append!(table(nodes as node, take(pluginName, nodes.size()) as preloadPlugins))
                     }
                 }
+                break // 重复配置项只有第一条生效
             }
         }  
     }
