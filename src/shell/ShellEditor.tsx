@@ -214,7 +214,7 @@ export function ShellEditor ({ collapser }) {
 function Tabs () {
     const { tabs, itab } = shell.use(['tabs', 'itab'])
     
-    let tabs_container_ref = useRef<HTMLDivElement>()
+    let tabs_container_ref = useRef<HTMLDivElement>(undefined)
     
     useEffect(() => {
         shell.init_tabs()

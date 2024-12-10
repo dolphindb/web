@@ -50,7 +50,7 @@ function DashboardInstance ({ id }: { id: string }) {
     const { widgets, widget, config, editing } = dashboard.use(['widgets', 'widget', 'config', 'editing'])
     
     /** div ref, 用于创建 GridStack  */
-    let rdiv = useRef<HTMLDivElement>()
+    let rdiv = useRef<HTMLDivElement>(undefined)
     
     // App 组件通过 Context 提供上下文方法调用，因而 useApp 需要作为子组件才能使用
     Object.assign(dashboard, App.useApp())

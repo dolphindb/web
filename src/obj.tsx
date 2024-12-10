@@ -901,9 +901,9 @@ export function StreamingTable ({
     options?: InspectOptions
     on_error? (error: Error): void
 }) {
-    let rsddb = useRef<DDB>()
+    let rsddb = useRef<DDB>(undefined)
     
-    let rddbapi = useRef<DDB>()
+    let rddbapi = useRef<DDB>(undefined)
     
     let rauto_append = useRef<boolean>(false)
     

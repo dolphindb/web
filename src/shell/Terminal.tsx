@@ -23,7 +23,7 @@ import { shell } from './model.js'
 export function Terminal () {
     const { collapsed } = model.use(['collapsed'])
     
-    const rterminal = useRef<HTMLDivElement>()
+    const rterminal = useRef<HTMLDivElement>(undefined)
     
     const [font_loaded, set_font_loaded] = useState(false)
     
