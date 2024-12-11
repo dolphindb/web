@@ -979,10 +979,14 @@ export class DdbModel extends Model<DdbModel> {
             ... queries,
         })).toString()
         
+        // 因为原来是通过 query 确定页面的，所以这里的 pathname 要替换
+        // 但是由于页面可能部署在二级路径下，所以这里不能直接替换为 /shell
+        // 一般来说都是从 overview 跳转，所以替换 /overview 为 /shell
+        let path = pathname.replace('/overview', '/shell')
         return location.protocol + '//' +
             (is_query_params_mode ? location.hostname : hostname) + 
             (port_ ? `:${port_}` : '') +
-            pathname + 
+            path + 
             (query_string ? `?${query_string}` : '') +
             location.hash
     }
