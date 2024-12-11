@@ -49,8 +49,7 @@ export function SimpleVersion () {
         set_info({ })
     }, [ ])
     
-    const views = useMemo(() => {
-        return [
+    const views = useMemo(() => [
             {
                 title: t('第一步'),
                 children: <SimpleFirstStep
@@ -73,8 +72,7 @@ export function SimpleVersion () {
                     ? <GuideFailResultPage error_msg={error_msg} on_create_again={on_create_again} back={back}/>
                     : <GuideSuccessResultPage database={info?.first?.dbName} table={info?.first?.tbName} on_create_again={on_create_again} back={back}/>
             }
-        ]
-    }, [ info, result, on_create_again, back, error_msg])
+        ], [ info, result, on_create_again, back, error_msg])
     
     
     return <div className='simple-version-wrapper'>

@@ -15,6 +15,10 @@ import { format_time } from '@/dashboard/utils.ts'
 
 import { model } from '@/model.ts'
 
+import { DDBTag } from '@/components/tags/index.tsx'
+
+import { DDBTable } from '@/components/DDBTable/index.tsx'
+
 import { request } from './utils.ts'
 import { type IParserTemplate } from './type.js'
 import { ParserTemplateModal } from './components/create-parser-template-modal/index.tsx'
@@ -85,7 +89,7 @@ export function ParserTemplates () {
             title: t('协议'),
             dataIndex: 'protocol',
             width: 200,
-            render: protocol => <Tag color='processing' bordered={false}>{PROTOCOL_MAP[protocol]}</Tag> 
+            render: protocol => <DDBTag>{PROTOCOL_MAP[protocol]}</DDBTag> 
         },
         {
             title: t('备注'),
@@ -143,19 +147,24 @@ export function ParserTemplates () {
     
    
     return <div className='parser-template-content'>
-        <h2>{t('解析模板')}</h2>
-        <Space className='parser-template-btn-group'>
-            <Button onClick={on_create} icon={<PlusOutlined />} type='primary'>{t('新建')}</Button>
-            <Button 
-                disabled={!selected_keys.length} 
-                onClick={on_batch_delete} 
-                icon={<DeleteOutlined />} 
-                danger
-                >
-                {t('批量删除')}
-            </Button>
-        </Space>
-        <Table 
+        <DDBTable<IParserTemplate>
+            title='解析模板'
+            help='解析模板用于对接收到的数据进行处理'
+            buttons={[
+                {
+                    children: t('新建'),
+                    icon: <PlusOutlined />,
+                    type: 'primary',
+                    onClick: on_create
+                },
+                {
+                    children: t('批量删除'),
+                    disabled: !selected_keys.length,
+                    onClick: on_batch_delete,
+                    icon: <DeleteOutlined/>,
+                    danger: true
+                }
+            ]}
             scroll={{ x: '100%' }} 
             rowKey='id' 
             dataSource={data.items} 

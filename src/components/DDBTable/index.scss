@@ -1,0 +1,21 @@
+.ddb-table-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 12px;
+    
+    h2 {
+        margin-bottom: 0px;
+    }
+    
+    .ddb-table-title {
+        display: flex;
+        column-gap: 8px;
+        align-items: center;
+        
+        .help-icon {
+            cursor: pointer;
+        }
+    }
+}
+

@@ -6,6 +6,7 @@ import { type SimpleInfos, type BasicInfoFormValues, GuideType, type ExecuteResu
 import { BasicInfoFields } from '../../components/BasicInfoFields.js'
 import { request } from '../../utils.ts'
 import { t } from '../../../../i18n/index.js'
+import { BottomFixedFooter } from '@/components/BottomFixedFooter/index.tsx'
 
 
 
@@ -32,17 +33,20 @@ export function SimpleFirstStep (props: IProps) {
         set_loading(false)
     }, [go])
     
-    return <Form
-        onFinish={on_submit}
-        form={form}
-        labelAlign='left'
-        className='simple-version-form'
-        labelCol={{ span: 6 }}
-        wrapperCol={{ span: 18 }}
-    >
-        <BasicInfoFields type={GuideType.SIMPLE} />
-        <Form.Item className='button-group'>
-            <Button loading={loading} type='primary' htmlType='submit'>{t('生成脚本')}</Button>
-        </Form.Item>
-    </Form>
+    return <>
+        <Form
+            onFinish={on_submit}
+            form={form}
+            labelAlign='left'
+            className='simple-version-form'
+            labelCol={{ span: 6 }}
+            wrapperCol={{ span: 18 }}
+        >
+            <BasicInfoFields type={GuideType.SIMPLE} />
+        </Form>
+        <BottomFixedFooter>
+            <Button loading={loading} type='primary' onClick={form.submit}>{t('生成脚本')}</Button>
+        </BottomFixedFooter>
+        
+    </>
 }
