@@ -119,3 +119,8 @@ export const DDB_TYPE_MAP = {
     [DdbType.decimal64]: 'DECIMAL64(S)',
     [DdbType.decimal128]: 'DECIMAL128(S)'
 }
+
+
+export function sum (array: number[]) {
+    return array.reduce((acc, x) => acc + x, 0)
+}
