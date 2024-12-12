@@ -27,9 +27,8 @@ class DevServer extends Server {
         
         return this.try_send(
             ctx, 
-            fpd_out, 
             path.fext ? path.slice(1) : 'index.html', 
-            true
+            { fpd_root: fpd_out }
         )
     }
 }
