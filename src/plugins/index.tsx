@@ -92,7 +92,7 @@ export function Plugins () {
                 },
                 {
                     title: t('集群已安装的最低版本'), 
-                    width: 360,
+                    minWidth: 360,
                     render: (_, { min_version }) => {
                         const match = min_version.startsWith(
                             model.version.split('.').slice(0, 3).join('.')  // 去掉 patch 部分
@@ -103,28 +103,34 @@ export function Plugins () {
                 },
                 {
                     title: t('已安装节点'),
+                    width: 400,
                     render: (_, { installeds }) => {
                         return installeds.join(', ')
                     }
                 },
                 {
                     title: t('待安装节点'),
+                    width: 400,
                     render: (_, { installables }) =>
                         installables.join(', ')
                 },
                 {
                     title: t('已加载节点'),
+                    width: 400,
                     render: (_, { loadeds }) =>
                         loadeds.join(', ')
                 },
                 {
                     title: t('预加载节点'),
+                    width: 400,
                     render: (_, { preloadeds }) =>
                         preloadeds.join(', ')
                 },
                 {
                     title: t('操作'),
                     className: 'actions',
+                    fixed: 'right',
+                    width: 160,
                     render: (_, plugin) => {
                         const { installables } = plugin
                         
@@ -141,6 +147,12 @@ export function Plugins () {
                     }
                 }
             ]}
+            
+            expandable={{
+                expandedRowRender ({ id }) {
+                    return id
+                }
+            }}
         />
         
         <SyncModal syncer={syncer} plugin={plugin} update_plugins={update_plugins} />
