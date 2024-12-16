@@ -8,7 +8,7 @@ import type { NotificationInstance } from 'antd/es/notification/interface.d.ts'
 import type { NavigateFunction, NavigateOptions } from 'react-router'
 
 import 'xshell/polyfill.browser.js'
-import { assert, filter_values, not_empty, strcmp } from 'xshell/utils.browser.js'
+import { check, filter_values, not_empty, strcmp } from 'xshell/utils.browser.js'
 import { request } from 'xshell/net.browser.js'
 
 import {
@@ -648,7 +648,7 @@ export class DdbModel extends Model<DdbModel> {
         - pathname: 路径
         - options?: react-router NavigateOptions 选项，也可以可以在此处传 { queries: { key: value } } 更新查询参数 */
     goto (pathname: string, { queries, ...options }: NavigateOptions & { queries?: Record<string, string> } = { }) {
-        assert(pathname.startsWith('/'), 'model.goto 应该传入绝对路径')
+        check(pathname.startsWith('/'), 'model.goto 应该传入绝对路径')
         
         let params = new URLSearchParams(location.search)
         
@@ -989,7 +989,7 @@ export class DdbModel extends Model<DdbModel> {
     
     
     async recompile_and_refresh () {
-        await request('http://localhost:8432/api/recompile')
+        await request('/api/recompile')
         location.reload()
     }
     
