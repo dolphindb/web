@@ -162,7 +162,7 @@ export function Files ({ repo_id, on_change_branch }: { repo_id: string, on_chan
                 <Input.Search placeholder={t('搜索仓库文件')} onChange={handle_search_change} allowClear />
             </div>
             <div className='file-explore-branch'>
-                <Select value={branch} options={branches.map(b => ({ label: `分支: ${b}`, value: b }))} onChange={set_branch} style={{ width: '100%' }} />
+                <Select value={branch} options={branches.map(b => ({ label: t('分支：{{b}}', { b }), value: b }))} onChange={set_branch} style={{ width: '100%' }} />
             </div>
             <div className='file-explore-content'>
                 <Tree

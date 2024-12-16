@@ -5959,5 +5959,14 @@
     },
     "使用 SSO 登录到 GitLab": {
         "en": "Use SSO to log in to GitLab"
+    },
+    "提交文件 {{file}} 到 {{repo}} 的分支 {{branch}}": {
+        "en": "Commit file {{file}} to branch {{branch}} of {{repo}}"
+    },
+    "提交当前正在编辑的文件 {{file}} 到 {{repo}} 的分支 {{branch}}": {
+        "en": "Commit the currently editing file {{file}} to the {{branch}} branch of {{repo}}"
+    },
+    "分支：{{b}}": {
+        "en": "Branch: {{b}}"
     }
 }

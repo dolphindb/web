@@ -152,13 +152,20 @@ export function Commit ({ current_select_repo, current_select_branch, repo_name 
                         <Button type='primary' className='commit-button' onClick={get_file_update} >{t('更新文件')}</Button>
                     </div>}
                     <div className='commit-info'>
-                        {t(is_tab_git_tab ? '提交文件 {{file}} 到 {{repo}} 的分支 {{branch}}' :
-                            '提交当前正在编辑的文件 {{file}} 到 {{repo}} 的分支 {{branch}}',
-                            {
-                                file: file_name,
-                                repo: commit_repo_name,
-                                branch: branch
-                            })
+                        {
+                            is_tab_git_tab ?
+                                t('提交文件 {{file}} 到 {{repo}} 的分支 {{branch}}',
+                                    {
+                                        file: file_name,
+                                        repo: commit_repo_name,
+                                        branch: branch
+                                    }) :
+                                t('提交当前正在编辑的文件 {{file}} 到 {{repo}} 的分支 {{branch}}',
+                                    {
+                                        file: file_name,
+                                        repo: commit_repo_name,
+                                        branch: branch
+                                    })
                         }
                     </div>
                     <div className='commit-content'>
