@@ -7,6 +7,8 @@ import { Button, Input, Popconfirm, Table, Tag, type TableColumnType } from 'ant
 
 import NiceModal from '@ebay/nice-modal-react'
 
+import useSWR from 'swr'
+
 import { t } from '../../i18n/index.js'
 
 import { model } from '../model.js'
@@ -18,21 +20,21 @@ import { ResetPasswordModal } from './components/user/ResetPasswordModal.js'
 import { UserGroupEditModal } from './components/user/UserGroupEditModal.js'
 
 export function UserList () {
-    const { users } = access.use(['users'])
-    
-    const [users_info, set_users_info] = useState([ ])
-    
     const [search_key, set_search_key] = useState('')
     
     const [selected_users, set_selected_users] = useState([ ])
     
     const reset_selected = useCallback(() => { set_selected_users([ ]) }, [ ])
     
-    useEffect(() => {
-        (async () => {
-            set_users_info(await access.get_user_access(users))
-        })()
-    }, [users])
+    const { data: users } = useSWR('users', async () => access.get_user_list())
+    
+    const { data: users_access, mutate: refresh_user_access } = useSWR(
+        ['users/access', users], 
+        async ([, users]) => {
+            if (users)
+                return access.get_user_access(users)
+        }
+    )
     
     const cols: TableColumnType<Record<string, any>>[] = useMemo(
         () => [
@@ -59,7 +61,7 @@ export function UserList () {
                     }
                 ],
                 filterMultiple: false,
-                onFilter: (is_admin: boolean, record) => users_info.find(({ userId }) => userId === record.user_name).isAdmin === is_admin
+                onFilter: (is_admin: boolean, record) => users_access.find(({ userId }) => userId === record.user_name).isAdmin === is_admin
             },
             {
                 title: t('所属组'),
@@ -73,7 +75,7 @@ export function UserList () {
                 width: 360
             }
         ],
-        [users_info]
+        [users_access]
     )
     
     return <>
@@ -97,7 +99,7 @@ export function UserList () {
                     icon={<ReloadOutlined />}
                     onClick={async () => {
                         await access.get_user_list()
-                        set_users_info(await access.get_user_access(users))
+                        await refresh_user_access()
                         model.message.success(t('刷新成功'))
                     }}
                 >
@@ -123,8 +125,8 @@ export function UserList () {
             }}
             pagination={{ hideOnSinglePage: true, size: 'small' }}
             columns={cols}
-            dataSource={users_info
-                .filter(({ userId }) => userId.toLowerCase().includes(search_key.toLowerCase()))
+            dataSource={users_access
+                ?.filter(({ userId }) => userId.toLowerCase().includes(search_key.toLowerCase()))
                 .map(current_user => ({
                     key: current_user.userId,
                     user_name: current_user.userId,
@@ -141,18 +143,22 @@ export function UserList () {
                         <div className='actions'>
                             <Button
                                 type='link'
-                                onClick={() => {
-                                    access.set({ current: { role: 'user', name: current_user.userId, view: 'preview' } })
-                                }}
+                                // onClick={() => {
+                                //     access.set({ current: { role: 'user', name: current_user.userId, view: 'preview' } })
+                                // }}
+                                onClick={() => { model.goto(`/access/user/${current_user.userId}`) }}
+                                // href={`/access/view?role=user&name=${current_user.userId}`}
                             >
                                 {t('查看权限')}
                             </Button>
                             
                             <Button
                                 type='link'
-                                onClick={() => {
-                                    access.set({ current: { role: 'user', name: current_user.userId, view: 'manage' } })
-                                }}
+                                // onClick={() => {
+                                //     access.set({ current: { role: 'user', name: current_user.userId, view: 'manage' } })
+                                // }}
+                                onClick={() => { model.goto(`/access/user/${current_user.userId}/manage`) }}
+                                
                             >
                                 {t('设置权限')}
                             </Button>
@@ -161,7 +167,7 @@ export function UserList () {
                                 type='link'
                                 onClick={async () => {
                                     access.set({ current: { name: current_user.userId } })
-                                    await NiceModal.show(UserGroupEditModal, { userId: current_user.userId, set_users_info })
+                                    await NiceModal.show(UserGroupEditModal)
                                 }}
                             >
                                 {t('设置用户组')}

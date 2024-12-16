@@ -1,14 +1,15 @@
 import './index.sass'
-import { Navigate, useRoutes } from 'react-router'
+import { useRoutes, Navigate } from 'react-router'
 
 import { Result } from 'antd'
 
-import { t } from '../../i18n/index.ts'
-import { model } from '../model.ts'
+import { t } from '../../i18n/index.js'
 
-import { AccessView } from './AccessView.tsx'
-import { GroupList } from './GroupList.tsx'
-import { UserList } from './UserList.tsx'
+import { model } from '../model.js'
+
+import { AccessManagePage, AccessViewPage } from './AccessView.js'
+import { GroupList } from './GroupList.js'
+import { UserList } from './UserList.js'
 
 function AccessGuard ({ children }) {
     const { admin } = model.use(['admin'])
@@ -34,7 +35,20 @@ export function Access () {
                 },
                 {
                     path: ':id',
-                    element: <AccessView />
+                    children: [
+                        {
+                            index: true,
+                            element: <Navigate to='view' replace />
+                        },
+                        {
+                            path: 'view',
+                            element: <AccessViewPage />
+                        },
+                        {
+                            path: 'manage',
+                            element: <AccessManagePage />
+                        }
+                    ]
                 }
             ]
         },
@@ -47,7 +61,20 @@ export function Access () {
                 },
                 {
                     path: ':id',
-                    element: <AccessView />
+                    children: [
+                        {
+                            index: true,
+                            element: <Navigate to='view' replace />
+                        },
+                        {
+                            path: 'view',
+                            element: <AccessViewPage />
+                        },
+                        {
+                            path: 'manage',
+                            element: <AccessManagePage />
+                        }
+                    ]
                 }
             ]
         }

@@ -4,9 +4,12 @@ import { Modal, Tag } from 'antd'
 
 import { useEffect, useState } from 'react'
 
+import { useSWRConfig } from 'swr'
+
 import { access } from '../../model.js'
 import { t } from '../../../../i18n/index.js'
 import { model } from '../../../model.js'
+
 
 
 export const UserGroupConfirmModal = NiceModal.create(({
@@ -14,20 +17,20 @@ export const UserGroupConfirmModal = NiceModal.create(({
     target_groups,
     set_target_groups,
     set_selected_groups,
-    set_users_info
 }:
     {
         edit_close: () => Promise<unknown>
         target_groups: string[]
         set_target_groups: (groups: string[]) => void
         set_selected_groups: (groups: string[]) => void
-        set_users_info: (users: any[]) => void
     }
     
 ) => {
     const modal = useModal()
     
-    const { users, current } = access.use(['users', 'groups', 'current'])
+    const { mutate } = useSWRConfig()
+    
+    const { current } = access.use(['current'])
     
     const [origin_groups, set_origin_groups] = useState<string[]>([ ])
     
@@ -58,7 +61,7 @@ export const UserGroupConfirmModal = NiceModal.create(({
                 modal.hide()
                 set_selected_groups([ ])
                 set_target_groups([ ])
-                set_users_info(await access.get_user_access(users))
+                mutate('users/access')
             }}
         >
             <div>

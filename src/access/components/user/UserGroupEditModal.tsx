@@ -8,12 +8,7 @@ import { access } from '../../model.js'
 
 import { UserGroupConfirmModal } from './UserGroupConfirmModal.js'
 
-export const UserGroupEditModal = NiceModal.create(({ 
-        set_users_info, 
-    }:
-    {   
-        set_users_info: (users: any[]) => void 
-    }) => {
+export const UserGroupEditModal = NiceModal.create(() => {
     const { groups, current } = access.use(['users', 'groups', 'current'])
         
     const [target_groups, set_target_groups] = useState<string[]>([ ])
@@ -39,9 +34,8 @@ export const UserGroupEditModal = NiceModal.create(({
                     edit_close: modal.hide,
                     target_groups,
                     set_target_groups,
-                    set_selected_groups,
-                    set_users_info
-                    })
+                    set_selected_groups
+                })
             }}
             okText={t('预览修改')}
         >
