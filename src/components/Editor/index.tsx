@@ -72,7 +72,11 @@ export function Editor ({
             if (!docs && !docs_initing) {
                 docs_initing = true
                 try {
-                    model.set({ docs: await request_json(`${model.assets_root}docs.${ language === 'zh' ? 'zh' : 'en' }.json`) })
+                    model.set({
+                        docs: await request_json(
+                            `${model.assets_root}docs.${ language === 'zh' ? 'zh' : 'en' }.json`, 
+                            { timeout: 1000 * 60 /* 文档可能比较大，默认 5s 超时可能会导致弱网环境出现文档加载超时错误的问题 */ })
+                    })
                 } finally {
                     docs_initing = false
                 }
