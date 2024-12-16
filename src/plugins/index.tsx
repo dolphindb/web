@@ -3,7 +3,8 @@ import './index.sass'
 import { useEffect, useState } from 'react'
 import { Button, Empty, Form, Input, Modal, Radio, Result, Table, Typography, Upload, type UploadFile } from 'antd'
 import { ReloadOutlined, default as Icon, InboxOutlined } from '@ant-design/icons'
-import { log, noop, vercmp } from 'xshell/utils.browser.js'
+import { noop } from 'xshell/prototype.browser.js'
+import { log, vercmp } from 'xshell/utils.browser.js'
 
 import { use_modal, type ModalController } from 'react-object-model/hooks.js'
 import { join_elements } from 'react-object-model/utils.js'
@@ -285,6 +286,7 @@ function SyncModal ({
     if (!plugin)
         return null
     
+    // @ts-ignore
     const sorted_nodes = plugin.nodes.toSorted(
         (l, r) => -vercmp(l.version, r.version, true))
     
