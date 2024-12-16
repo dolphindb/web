@@ -5827,5 +5827,137 @@
     },
     "取消执行": {
         "en": "Cancel execution"
+    },
+    "{{file}} 的提交信息": {
+        "en": "Commit message for {{file}}"
+    },
+    "文件未修改": {
+        "en": "File not modified"
+    },
+    "请输入文件提交路径": {
+        "en": "Please enter the file submission path"
+    },
+    "提交成功": {
+        "en": "Commit Success"
+    },
+    "提交失败": {
+        "en": "Commit Failed"
+    },
+    "提交历史": {
+        "en": "Commit History"
+    },
+    "关闭提交历史": {
+        "en": "Close Commit History"
+    },
+    "查看提交历史": {
+        "en": "View Commit History"
+    },
+    "本地文件，无提交历史": {
+        "en": "Local file, no commit history"
+    },
+    "文件提交路径": {
+        "en": "File Submission Path"
+    },
+    "远程文件有更新，是否获取并覆盖当前编辑的内容": {
+        "en": "The remote file has been updated. Do you want to fetch and overwrite the current content?"
+    },
+    "更新文件": {
+        "en": "Update File"
+    },
+    "未选择代码仓库，请选择一个代码仓库": {
+        "en": "Code repository not selected, please select a code repository"
+    },
+    "文件浏览": {
+        "en": "File Browse"
+    },
+    "未选择代码仓库，请选择一个代码仓库以查看文件": {
+        "en": "Code repository not selected, please select a code repository to view files"
+    },
+    "搜索仓库文件": {
+        "en": "Search repository files"
+    },
+    "今天 {{time}}": {
+        "en": "{{time}}, Today"
+    },
+    "昨天 {{time}}": {
+        "en": "{{time}}, Yesterday"
+    },
+    "fetch 仓库列表失败": {
+        "en": "Failed to fetch repository list"
+    },
+    "获取文件失败，请检查权限": {
+        "en": "Failed to get the file, please check permissions."
+    },
+    "使用 Oauth 登录到 GitLab": {
+        "en": "Sign in to GitLab using OAuth"
+    },
+    "请输入 Client ID!": {
+        "en": "Please enter Client ID!"
+    },
+    "请输入你的 GitLab 应用 Client ID": {
+        "en": "Please enter your GitLab application Client ID"
+    },
+    "请输入 Redirect URL!": {
+        "en": "Please enter the Redirect URL!"
+    },
+    "请输入你的 GitLab 应用 Redirect URL": {
+        "en": "Please enter your GitLab application Redirect URL"
+    },
+    "请输入 GitLab 的路径!": {
+        "en": "Please enter the GitLab path!"
+    },
+    "请输入有效的 URL!": {
+        "en": "Please enter a valid URL!"
+    },
+    "请输入你的 GitLab 根路径，例如: https://gitlab.com": {
+        "en": "Please enter your GitLab root path, for example: https://gitlab.com"
+    },
+    "请输入 GitLab API Root，默认为 /api/v4": {
+        "en": "Please enter the GitLab API Root, the default is /api/v4"
+    },
+    "使用 Access Token 登录到 GitLab": {
+        "en": "Use Access Token to log in to GitLab"
+    },
+    "请输入 Access Token!": {
+        "en": "Please enter Access Token!"
+    },
+    "请输入你的 GitLab Access Token": {
+        "en": "Please enter your GitLab Access Token"
+    },
+    "使用 Access Token 登录到 GitHub": {
+        "en": "Log in to GitHub using an Access Token"
+    },
+    "请输入你的 GitHub Access Token": {
+        "en": "Please enter your GitHub Access Token"
+    },
+    "使用 Oauth 登录到 GitHub": {
+        "en": "Sign in to GitHub using OAuth"
+    },
+    "请输入你的 GitHub 应用 Client ID": {
+        "en": "Please enter your GitHub App Client ID"
+    },
+    "请输入你的 GitHub 应用 Redirect URL": {
+        "en": "Please enter your GitHub App Redirect URL"
+    },
+    "请输入 Client Secret!": {
+        "en": "Please enter your Client Secret!"
+    },
+    "请输入你的 GitHub 应用 Client Secret": {
+        "en": "Please enter your GitHub App Client Secret"
+    },
+    "代码仓库": {
+        "en": "Code Repositories"
+    },
+    "Git 集成": {
+        "en": "Git Integration"
+    },
+    "无法获取仓库列表，请检查权限或：": {
+        "en": "Unable to get the repository list. Please check your permissions or:"
+    },
+    "使用 SSO 登录到 GitHub": {
+        "en": "Use SSO to sign in to GitHub"
+    },
+    "使用 SSO 登录到 GitLab": {
+        "en": "Use SSO to log in to GitLab"
     }
 }

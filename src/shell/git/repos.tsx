@@ -61,19 +61,19 @@ export function Repos ({ on_select_repo }: { on_select_repo: (repo_id: string, t
         </div>
         {is_repos_empty && (!reposResp.isLoading) && <div className='info'>
             <Alert message={<>
-                无法获取仓库列表，请检查权限或：
+                {t('无法获取仓库列表，请检查权限或：')}
                 <div>
                     <a onClick={() => { goto_auth('github-access-token') }}>
-                        使用 Access Token 登录到 GitHub
+                        {t('使用 Access Token 登录到 GitHub')}
                     </a><br />
                     <a onClick={() => { goto_auth('gitlab-access-token') }}>
-                        使用 Access Token 登录到 GitLab
+                        {t('使用 Access Token 登录到 GitLab')}
                     </a><br />
                     <a onClick={() => { goto_auth('github') }}>
-                        使用 SSO 登录到 GitHub
+                        {t('使用 SSO 登录到 GitHub')}
                     </a><br />
                     <a onClick={() => { goto_auth('gitlab') }}>
-                        使用 SSO 登录到 GitLab
+                        {t('使用 SSO 登录到 GitLab')}
                     </a>
                 </div>
                 
