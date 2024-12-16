@@ -128,12 +128,15 @@ export class GitLabAdapter implements IGitAdapter {
     
     // 获取所有项目
     async get_projects (): Promise<IProject[]> {
-        const resp = await fetch(`${this.root_url}${this.api_root}/projects?per_page=100&membership=true`, this.get_fetch_options())
-        const result = await resp.json()
-        if (isArray(result))
-            return result
-        else
-            return [ ]
+        try {
+            const resp = await fetch(`${this.root_url}${this.api_root}/projects?per_page=100&membership=true`, this.get_fetch_options())
+            const result = await resp.json()
+            if (isArray(result))
+                return result
+        } catch (error) {
+            console.log(t('fetch 仓库列表失败'))
+        }
+        return [ ]
     }
     
     async get_project (id: string): Promise<IProject> {

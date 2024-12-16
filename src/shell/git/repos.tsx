@@ -47,14 +47,17 @@ export function Repos ({ on_select_repo }: { on_select_repo: (repo_id: string, t
             NiceModal.show(GitHubOauthModal)
     }
     
+    async function logout () {
+        localStorage.removeItem(GIT_CONSTANTS.ACCESS_TOKEN)
+        shell.remove_git_tabs()
+        on_select_repo('', '')
+        reposResp.mutate()
+    }
+    
     return <div className='repos'>
         <div className='block-title'>
             <div>{t('代码仓库')}</div>
-            {!reposResp.error && <div className='button-logout'><Button type='text' onClick={() => {
-                localStorage.removeItem(GIT_CONSTANTS.ACCESS_TOKEN)
-                shell.remove_git_tabs()
-                reposResp.mutate()
-            }}>{t('登出')}</Button></div>}
+            {!reposResp.error && <div className='button-logout'><Button type='text' onClick={logout}>{t('登出')}</Button></div>}
         </div>
         {is_repos_empty && (!reposResp.isLoading) && <div className='info'>
             <Alert message={<>
