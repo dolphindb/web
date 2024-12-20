@@ -575,6 +575,7 @@ export interface DashboardData {
      canvas: {
          widgets: any[]
          page_count?: number
+         auto_expand?: boolean
      }
 }
 
