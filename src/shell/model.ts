@@ -328,7 +328,13 @@ class ShellModel extends Model<ShellModel> {
             if (tab)
                 tab.code = code
             this.set({ tabs: [...this.tabs] })
-            localStorage.setItem(`${storage_keys.code}.${this.itab}`, JSON.stringify(tab))
+            try {
+                localStorage.setItem(`${storage_keys.code}.${this.itab}`, JSON.stringify(tab))
+            } catch (e) {
+                model.modal.error({ title: t('代码存储失败，请检查代码大小或本地存储空间剩余空间'), content: e.message })
+                this.remove_tab(this.itab)
+            }
+            
         } else
             localStorage.setItem(storage_keys.code, code)
     }
