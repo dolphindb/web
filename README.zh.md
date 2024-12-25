@@ -70,14 +70,7 @@ pnpm install
 # 将 .vscode/settings.template.json 复制为 .vscode/settings.json
 cp .vscode/settings.template.json .vscode/settings.json
 
-# 设置环境变量 NODE_OPTIONS='--experimental-transform-types'
-# 1. 当前会话中设置
-$env:NODE_OPTIONS = '--experimental-transform-types'
-# 2. 添加到系统环境变量 (需重启系统)
-# [System.Environment]::SetEnvironmentVariable('NODE_OPTIONS', '--experimental-transform-types', [System.EnvironmentVariableTarget]::User)
-
 # 参考 package.json 中的 scripts
-
 # 开发
 pnpm run dev
 
@@ -92,4 +85,9 @@ pnpm run lint
 
 # lint fix
 pnpm run fix
+
+# 构建
+pnpm run build
+
+# 生成的文件在 web 目录下
 ```

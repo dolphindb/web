@@ -6,7 +6,7 @@ import { useState, useEffect } from 'react'
 
 import NiceModal from '@ebay/nice-modal-react'
 
-import { noop } from 'xshell/utils.browser.js'
+import { noop } from 'xshell/prototype.browser.js'
 
 
 import { MetricGroups } from '@/inspection/constants.ts'
