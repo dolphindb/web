@@ -39,7 +39,6 @@ export const ANT_LIGHT_CONFIG = {
         colorLink: LIGHT_PRIMARY_COLOR,
         colorInfo: LIGHT_PRIMARY_COLOR,
         colorBgLayout: '#F9F9FB',
-        colorBgElevated: '#F9F9FB',
     },
     components: {
         Table: {
