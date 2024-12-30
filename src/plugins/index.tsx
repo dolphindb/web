@@ -3,12 +3,13 @@ import './index.sass'
 import { useEffect, useState } from 'react'
 import { Button, Empty, Form, Input, Modal, Radio, Result, Table, Typography, Upload, type UploadFile } from 'antd'
 import { ReloadOutlined, default as Icon, InboxOutlined } from '@ant-design/icons'
-import { noop, vercmp } from 'xshell/utils.browser.js'
+import { noop } from 'xshell/prototype.browser.js'
+import { log, vercmp } from 'xshell/utils.browser.js'
 
 import { use_modal, type ModalController } from 'react-object-model/hooks.js'
 import { join_elements } from 'react-object-model/utils.js'
 
-import { DdbBlob } from 'dolphindb/browser.js'
+import { DdbBlob, type DdbTableData } from 'dolphindb/browser.js'
 
 import { t } from '@i18n/index.js'
 
@@ -92,65 +93,53 @@ export function Plugins () {
                 },
                 {
                     title: t('集群已安装的最低版本'), 
-                    width: 360,
-                    render: (_, { least_version }) => {
-                        const match = least_version.startsWith(
+                    minWidth: 360,
+                    render: (_, { min_version }) => {
+                        const match = min_version.startsWith(
                             model.version.split('.').slice(0, 3).join('.')  // 去掉 patch 部分
                         )
                         
-                        return <Text type={ match ? undefined : 'danger'}>{least_version}{ !match && t(' (与数据库版本不一致，无法加载)') }</Text>
+                        return <Text type={ match ? undefined : 'danger'}>{min_version}{ !match && t(' (与数据库版本不一致，无法加载)') }</Text>
                     }
                 },
                 {
                     title: t('已安装节点'),
-                    render: (_, { nodes, least_version, installables }) => {
-                        let all_match = true
-                        
-                        const elements = nodes.map(({ node, version }, index) => {
-                            // local
-                            // if (index === 0 && j % 2 === 0)
-                            //     version = '2.00.12.1'
-                            
-                            const match = version === least_version
-                            if (!match)
-                                all_match = false
-                            
-                            return match
-                                ? node
-                                : <Text key={node} className='danger-node' type='danger'>
-                                    {node} ({version})
-                                </Text>
-                        })
-                        
-                        return <>
-                            { installables.length || !all_match
-                                ? join_elements(elements, <span>{', '}</span>)
-                                : t('全部节点')
-                            }
-                            { !all_match && <Text type='danger'> ({t('不同节点插件版本不一致，需要同步')})</Text> }
-                        </>
+                    width: 400,
+                    render: (_, { installeds }) => {
+                        return installeds.join(', ')
                     }
                 },
                 {
                     title: t('待安装节点'),
+                    width: 400,
                     render: (_, { installables }) =>
-                        installables.length > 0 && <>
-                            { join_elements([...installables], <span>{', '}</span>) }
-                            <Text type='danger'> ({t('需要同步')})</Text>
-                        </>
+                        installables.join(', ')
+                },
+                {
+                    title: t('已加载节点'),
+                    width: 400,
+                    render: (_, { loadeds }) =>
+                        loadeds.join(', ')
+                },
+                {
+                    title: t('预加载节点'),
+                    width: 400,
+                    render: (_, { preloadeds }) =>
+                        preloadeds.join(', ')
                 },
                 {
                     title: t('操作'),
                     className: 'actions',
+                    fixed: 'right',
+                    width: 160,
                     render: (_, plugin) => {
-                        const { nodes, least_version, installables } = plugin
+                        const { installables } = plugin
                         
-                        const all_match = nodes.every(({ version }) => version === least_version)
                         
                         return <Button
                             className='sync'
                             type='link'
-                            disabled={all_match && !installables.length}
+                            disabled={!installables.length}
                             onClick={() => {
                                 set_plugin(plugin)
                                 syncer.open()
@@ -159,6 +148,12 @@ export function Plugins () {
                     }
                 }
             ]}
+            
+            expandable={{
+                expandedRowRender ({ id }) {
+                    return id
+                }
+            }}
         />
         
         <SyncModal syncer={syncer} plugin={plugin} update_plugins={update_plugins} />
@@ -291,6 +286,7 @@ function SyncModal ({
     if (!plugin)
         return null
     
+    // @ts-ignore
     const sorted_nodes = plugin.nodes.toSorted(
         (l, r) => -vercmp(l.version, r.version, true))
     
@@ -344,11 +340,17 @@ function SyncModal ({
 
 interface Plugin {
     id: string
-    least_version: string
-    nodes: { node: string, version: string }[]
     
-    /** 计算出的集群中剩余的可安装节点 */
+    /** 集群已安装的最低版本 */
+    min_version: string
+    
+    installeds: string[]
+    
     installables: string[]
+    
+    loadeds: string[]
+    
+    preloadeds: string[]
 }
 
 
@@ -365,33 +367,43 @@ async function define_script () {
 async function list_plugins (query = '') {
     await define_script()
     
-    const all_nodes = model.nodes.filter(({ mode, state, isLeader }) => 
-        mode !== NodeType.agent && 
-        state === DdbNodeState.online && 
-        (mode !== NodeType.controller || mode === NodeType.controller && isLeader)  // 仅 leader 节点能安装
-    ).map(({ name }) => name)
+    // const all_nodes = model.nodes.filter(({ mode, state, isLeader }) => 
+    //     mode !== NodeType.agent && 
+    //     state === DdbNodeState.online && 
+    //     (mode !== NodeType.controller || mode === NodeType.controller && isLeader)  // 仅 leader 节点能安装
+    // ).map(({ name }) => name)
     
-    let plugins = (await model.ddb.invoke<Plugin[]>('list_plugins'))
-        .map(plugin => {
-            const installeds = new Set(
-                plugin.nodes.map(({ node }) => node))
+    let plugins = (await model.ddb.invoke<DdbTableData>('listPlugins'))
+        .data
+        .map<Plugin>(({ plugin, minInstalledVersion, installedNodes, toInstallNodes, loadedNodes, preloadedNodes }) => ({
+            id: plugin,
             
-            return {
-                ...plugin,
-                installables: all_nodes.filter(node => !installeds.has(node))
-            }
-        })
+            min_version: minInstalledVersion,
+            
+            installeds: str2arr(installedNodes),
+            
+            installables: str2arr(toInstallNodes),
+            
+            loadeds: str2arr(loadedNodes),
+            
+            preloadeds: str2arr(preloadedNodes),
+        }))
     
-    if (query)
-        plugins = plugins
-            .filter(({ id, least_version, nodes }) => 
-                id.includes(query) || 
-                least_version.includes(query) || 
-                nodes.map(({ node }) => node)
-                    .find(node => node.includes(query))
-            )
+    // if (query)
+    //     plugins = plugins
+    //         .filter(({ id, min_version, nodes }) => 
+    //             id.includes(query) || 
+    //             min_version.includes(query) || 
+    //             nodes.map(({ node }) => node)
+    //                 .find(node => node.includes(query))
+    //         )
     
-    console.log(t('插件:'), plugins)
+    console.log(t('插件列表:'), plugins)
     
     return plugins
+}
+
+
+function str2arr (str: string) {
+    return str ? str.split(',') : [ ]
 }

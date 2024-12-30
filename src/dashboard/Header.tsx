@@ -1,7 +1,7 @@
 import './Header.sass'
 
-import { useCallback, useEffect, useRef, useState } from 'react'
-import { Button, Input, Modal, Popconfirm, Select, Tag, Tooltip, Segmented, Switch, InputNumber } from 'antd'
+import { useCallback, useEffect, useRef, useState, type ReactElement } from 'react'
+import { Button, Input, Modal, Popconfirm, Select, Tag, Tooltip, Segmented, Switch } from 'antd'
 import { CopyOutlined, DeleteOutlined, EditOutlined, EyeOutlined, FileAddOutlined, HomeOutlined, SaveOutlined, UploadOutlined } from '@ant-design/icons'
 
 import { use_modal } from 'react-object-model/hooks.js'
@@ -51,7 +51,7 @@ export function get_widget_config (widget: Widget) {
 interface DashboardOption {
     key: number
     value: number
-    label: string | JSX.Element
+    label: string | ReactElement
 }
 
 
@@ -242,7 +242,7 @@ export function Header () {
     }, [ ])
     
     return <div className='dashboard-header'>
-        <Select
+        <Select<number>
             className='switcher'
             placeholder={t('选择 dashboard')}
             onChange={on_change_dashboard}

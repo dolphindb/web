@@ -111,7 +111,7 @@ export function OverviewTable ({
                     </div>,
                 filterIcon: (filtered: boolean) => <SearchOutlined style={{ color: filtered ? '#1677ff' : undefined }} />,
                 render: (name: string, node: DdbNode) =>
-                    <a target='_blank' href={model.get_node_url(node, { queries: { view: null } })}>
+                    <a target='_blank' href={model.get_node_url(node, { pathname: `${model.assets_root}shell/`, queries: { view: null } })}>
                         {name}
                     </a>
             },

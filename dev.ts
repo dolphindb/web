@@ -1,6 +1,6 @@
 import type { Context } from 'koa'
 
-import { Remote, set_inspect_options, fexists, assert, ramdisk, noprint, fdclear } from 'xshell'
+import { Remote, set_inspect_options, fexists, check, ramdisk, noprint } from 'xshell'
 import { Server } from 'xshell/server.js'
 
 import { builder, fpd_root, fpd_out } from './builder.ts'
@@ -10,7 +10,7 @@ set_inspect_options()
 
 console.log('项目根目录:', fpd_root)
 
-assert(ramdisk || fexists(`${fpd_root}.vscode/settings.json`, noprint), '需要将 .vscode/settings.template.json 复制为 .vscode/settings.json')
+check(ramdisk || fexists(`${fpd_root}.vscode/settings.json`, noprint), '需要将 .vscode/settings.template.json 复制为 .vscode/settings.json')
 
 
 class DevServer extends Server {
@@ -27,9 +27,8 @@ class DevServer extends Server {
         
         return this.try_send(
             ctx, 
-            fpd_out, 
             path.fext ? path.slice(1) : 'index.html', 
-            true
+            { fpd_root: fpd_out }
         )
     }
 }
@@ -44,10 +43,7 @@ let server = new DevServer({
 
 await Promise.all([
     server.start(),
-    (async () => {
-        await fdclear(fpd_out)
-        await builder.build(false)
-    })()
+    builder.build(false)
 ])
 
 

@@ -143,6 +143,7 @@ export function AccessObjSelect ({
                               key: `${db.name}.${tb}`,
                               title: tb,
                               value: tb,
+                              selectable: true,
                               isLeaf: true
                           }))
                       }))
