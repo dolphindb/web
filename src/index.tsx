@@ -56,7 +56,6 @@ import { CreateGuide } from './guide/iot-guide/index.tsx'
 import { FinanceGuide } from './guide/finance-guide/index.tsx'
 import { DataCollection } from './data-collection/index.tsx'
 import { DdbHeader } from './components/DDBHeader/index.tsx'
-import './constant/antd-default-props.ts'
 import { ANT_LIGHT_CONFIG } from './constant/theme-config.ts'
 
 
