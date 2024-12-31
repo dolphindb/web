@@ -5827,5 +5827,8 @@
     },
     "取消执行": {
         "en": "Cancel execution"
+    },
+    "自动拓展页面大小：": {
+        "en": "Automatically expands page size: "
     }
 }
