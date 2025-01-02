@@ -105,7 +105,7 @@ export function Commit ({ current_select_repo, current_select_branch, repo_name 
             }
             
             else
-                open_git_file(commit_file_name, repo_id)
+                open_git_file(commit_file_name, repo_path)
                 
         }
         else

@@ -349,7 +349,7 @@ export class GitHubAdapter implements IGitAdapter {
         const contentBytes = utf8Encoder.encode(content)
         const contentBase64 = btoa(String.fromCharCode(...contentBytes))
         const resp = await fetch(`${this.root_url}${this.api_root}/repos/${repo}/contents/${file_path}`, this.get_fetch_options(
-            create ? 'POST' : 'PUT',
+            'PUT',
             {
                 message,
                 content: contentBase64,
