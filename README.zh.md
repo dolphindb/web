@@ -49,7 +49,7 @@ rsync -av --delete ./web/ root@192.168.1.204:/path/to/dolphindb-dir/web/
 
 ### 开发
 
-在机器上安装最新版的 Node.js 及浏览器。  
+打开下面的链接，在机器上安装最新版的 node.js 及浏览器。  
 - windows: https://nodejs.org/en/download/prebuilt-installer/current
 - linux: https://github.com/nodesource/distributions?tab=readme-ov-file#debian-and-ubuntu-based-distributions  
 
@@ -67,9 +67,6 @@ pnpm config set registry https://registry.npmmirror.com
 # 安装项目依赖
 pnpm install
 
-# 将 .vscode/settings.template.json 复制为 .vscode/settings.json
-cp .vscode/settings.template.json .vscode/settings.json
-
 # 参考 package.json 中的 scripts
 # 开发
 pnpm run dev
@@ -80,10 +77,7 @@ pnpm run scan
 # 再次运行扫描以更新词典文件 dict.json
 pnpm run scan
 
-# lint
-pnpm run lint
-
-# lint fix
+# 格式化代码并自动修复代码错误
 pnpm run fix
 
 # 构建
