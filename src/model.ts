@@ -279,13 +279,7 @@ export class DdbModel extends Model<DdbModel> {
             await this.login_by_oauth()
         }
         
-        // 开发模式下提早检查 client_auth 避免自动登录
-        let client_auth: boolean | undefined
-        if (this.dev)
-            client_auth = await this.check_client_auth()
-        
-        
-        if (this.autologin && !this.logined && client_auth !== true)
+        if (this.autologin && !this.logined)
             try {
                 await this.login_by_ticket()
             } catch {
@@ -301,10 +295,8 @@ export class DdbModel extends Model<DdbModel> {
         
         
         // 强制登录跳转
-        if (
-            !this.logined && 
-            (this.login_required || 
-                (this.dev ? client_auth : await this.check_client_auth()))
+        if (!this.logined && 
+            (this.login_required || await this.check_client_auth())
         )
             await this.goto_login()
         
