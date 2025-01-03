@@ -213,12 +213,12 @@ class ConfigModel extends Model<ConfigModel> {
             'metricsToken',
             'strictPermissionMode',
             'enableLocalDatabase',
+            'enableClientAuth',
             ...model.v3 ? [
                 'computeNodeCachingDelay',
                 'computeNodeCachingQueryThreshold',
                 'enableComputeNodePrefetchData',
             ] : [ ]
-            // 'enableClientAuth',
         ]
     }
 }
