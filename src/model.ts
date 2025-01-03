@@ -149,6 +149,9 @@ export class DdbModel extends Model<DdbModel> {
     
     navigate: NavigateFunction
     
+    /** 记录登录之前的 pathname, 区分是首次打开页面就进入 login 还是跳转到 login 页面 */
+    pathname_before_login?: string
+    
     /** 记录启用了哪些可选功能 */
     enabled_modules = new Set<string>()
     
@@ -251,7 +254,10 @@ export class DdbModel extends Model<DdbModel> {
             // 必须先调用上面的函数，load_configs 依赖 controller alias, version 等信息
             config.load_configs(),
             
-            this.get_cluster_perf(true)
+            this.get_cluster_perf(true),
+            
+            // 需要在有可能改变 inited, logined 状态的函数之前调用，避免组件渲染出来
+            this.check_client_auth()
         ])
         
         console.log(t('配置:'), await this.ddb.invoke<Record<string, string>>('getConfig'))
@@ -637,6 +643,10 @@ export class DdbModel extends Model<DdbModel> {
     
     /** 去登录页 */
     async goto_login () {
+        const { pathname } = location
+        if (pathname !== `${this.assets_root}login/`)
+            this.pathname_before_login = pathname
+        
         if (this.oauth) {
             const auth_uri = strip_quotes(
                 config.get_config('oauthAuthUri')
