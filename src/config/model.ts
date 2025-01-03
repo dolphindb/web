@@ -39,11 +39,11 @@ class ConfigModel extends Model<ConfigModel> {
     }
     
     
-    /** load_configs 依赖 controller alias 等信息 */
     async load_configs () {
         const configs = parse_nodes_configs(
-            await this.invoke<string[]>('loadClusterNodesConfigs', undefined, { urgent: true })
-        )
+            // 2025.01.03 登录鉴权功能之后 loadClusterNodesConfigs 没有要求一定要在控制节点执行了
+            // 所以这里不用 this.invoke
+            await model.ddb.invoke<string[]>('loadClusterNodesConfigs', undefined, { urgent: true }))
         
         this.set({ nodes_configs: configs })
         
@@ -52,10 +52,7 @@ class ConfigModel extends Model<ConfigModel> {
             Object.fromEntries(
                 iterator_map(
                     this.nodes_configs.entries(),
-                    ([key, { value }]) => [key, value]
-                )
-            )
-        )
+                    ([key, { value }]) => [key, value])))
         
         return configs        
     }

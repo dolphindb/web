@@ -262,8 +262,7 @@ export class DdbModel extends Model<DdbModel> {
             oauth: config.get_boolean_config('oauth'),
             login_required: config.get_boolean_config('webLoginRequired'),
             enabled_modules: new Set(
-                config.get_config('webModules')?.split(',') || [ ]
-            )
+                config.get_config('webModules')?.split(',') || [ ])
         })
         
         console.log(t('web 强制登录:'), this.login_required)
@@ -680,15 +679,9 @@ export class DdbModel extends Model<DdbModel> {
                     this.show_error({ title: t('getClusterPerf(true) 执行超时，请检查集群节点状态是否正常，任务是否阻塞') })
             }, 5000)
         
-        nodes = (
-                await this.ddb.invoke<DdbTableData<DdbNode>>('getClusterPerf', [true], {
-                urgent: true,
-                
-                ... this.node_type === NodeType.controller || this.node_type === NodeType.single
-                    ? undefined
-                    : { node: this.controller_alias }
-            })
-        ).data
+        // 2025.01.03 登录鉴权功能之后 getClusterPerf 没有要求一定要在控制节点执行了
+        nodes = (await this.ddb.invoke<DdbTableData<DdbNode>>('getClusterPerf', [true], { urgent: true }))
+            .data
             .sort((a, b) => strcmp(a.name, b.name))
         
         if (print)
