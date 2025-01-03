@@ -74,7 +74,7 @@ export class DdbModel extends Model<DdbModel> {
     
     sql: SqlStandard = SqlStandard[localStorage.getItem(storage_keys.sql)] || SqlStandard.DolphinDB
     
-    // todo: 暂时兼容，后面会把这里的逻辑去掉
+    /** 获取路径第一级的模块 */
     get view () {
         return location.pathname.strip_start(this.assets_root).split('/')[0] || default_view
     }
