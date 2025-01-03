@@ -1,12 +1,7 @@
 import { t } from '@i18n/index.ts'
 import { Input, Button } from 'antd'
 import { useEffect, useState } from 'react'
-
-import dayjs from 'dayjs'
-
 import useSWR from 'swr'
-
-import { isArray } from 'lodash'
 
 import { model } from '@/model.ts'
 import { shell } from '../model.ts'
@@ -62,28 +57,16 @@ export function Commit ({ current_select_repo, current_select_branch, repo_name 
     if (!commit_file_name && !is_tab_git_tab)
         commit_message_placeholder = t('请输入文件提交路径')
         
-    const file_history_resp = useSWR(['get_file_commit_history', repo_path, path, branch], async () => {
-        if (!repo_path)
-            return [ ]
-        const result = await git_provider.get_commit_history(repo_path, path, branch)
+    const current_file_content = is_tab_git_tab ? current_tab?.git?.raw_code : current_tab?.code
+    
+    const currentRemoteFileResp = useSWR(['get_file_by_path_in_commit_component', repo_path, path, branch], async () => {
+        if (!is_tab_git_tab)
+            return undefined
+        const result = await git_provider.get_file_by_path(repo_path, path, branch)
         return result
-    }, { refreshInterval: 1000 * 60 * 3 })
+    }, { refreshInterval: 1000 * 60 * 3 }) // 3 分钟刷新一次
     
-    const file_commit_history = (isArray(file_history_resp.data) ? file_history_resp.data : [ ])
-        .sort((a, b) => dayjs(b.committed_date).diff(dayjs(a.committed_date)))
-        
-    const current_file_commit_id = is_tab_git_tab ? current_tab?.git?.commit_id : undefined
-    const current_file_in_repo_last_commit_id = file_commit_history[0]?.id
-    
-    let is_have_update = false
-    
-    if (current_file_commit_id && current_file_in_repo_last_commit_id && current_file_commit_id !== current_file_in_repo_last_commit_id) {
-        const current_commit = file_commit_history.find(c => c.id === current_file_commit_id)
-        const repo_last_commit = file_commit_history.find(c => c.id === current_file_in_repo_last_commit_id)
-        if (current_commit && repo_last_commit)
-            is_have_update = dayjs(current_commit.committed_date).isBefore(dayjs(repo_last_commit.committed_date))
-    }
-    
+    const is_have_update = !currentRemoteFileResp.isLoading && (currentRemoteFileResp.data?.content !== current_file_content)
     
     async function commit_to_git () {
         const content_to_commit = content ?? shell.editor.getValue()
@@ -102,6 +85,7 @@ export function Commit ({ current_select_repo, current_select_branch, repo_name 
                 const updated_file = await git_provider.get_file_by_path(repo_path, path, branch)
                 shell.update_git_tab_code(current_tab?.index, updated_file.content, updated_file.commit_id, updated_file.content_sha256)
                 set_commit_message('')
+                currentRemoteFileResp.mutate() // 更新一下，防止展示更新文件的提示
             }
             
             else
@@ -110,6 +94,17 @@ export function Commit ({ current_select_repo, current_select_branch, repo_name 
         }
         else
             model.modal.error({ title: t('提交失败') })
+    }
+    
+    async function handle_commit () {
+        if (is_have_update) 
+            model.modal.confirm({
+                title: t('覆盖远程文件'),
+                content: t('远程文件有更新，该提交将覆盖远程文件'),
+                onOk: commit_to_git
+            })
+         else
+            commit_to_git()
     }
     
     async function get_file_update () {
@@ -176,7 +171,7 @@ export function Commit ({ current_select_repo, current_select_branch, repo_name 
                                 commit_message_placeholder
                             }
                         />
-                        <Button className='commit-button' onClick={commit_to_git} disabled={!is_can_commit || read_only}>{t('提交')}</Button>
+                        <Button className='commit-button' onClick={handle_commit} disabled={!is_can_commit || read_only}>{t('提交')}</Button>
                     </div>
                 </>}
             </>}

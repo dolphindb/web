@@ -5968,5 +5968,14 @@
     },
     "分支：{{b}}": {
         "en": "Branch: {{b}}"
+    },
+    "覆盖远程文件": {
+        "en": "Overwrite remote file"
+    },
+    "远程文件有更新，该提交将覆盖远程文件": {
+        "en": "The remote file has been updated. This commit will overwrite the remote file."
+    },
+    "代码存储失败，请检查代码大小或本地存储空间剩余空间": {
+        "en": "Code saving failed. Please check the code size or the remaining space of local storage."
     }
 }
