@@ -146,7 +146,7 @@ export class GitLabAdapter implements IGitAdapter {
     }
     
     async get_branches (repo: string): Promise<string[]> {
-        const resp = await fetch(`${this.root_url}${this.api_root}/projects/${encodeURIComponent(repo)}/repository/branches`, this.get_fetch_options())
+        const resp = await fetch(`${this.root_url}${this.api_root}/projects/${encodeURIComponent(repo)}/repository/branches?per_page=1000`, this.get_fetch_options())
         const result = await resp.json()
         return result.map((b: any) => b.name)
     }
