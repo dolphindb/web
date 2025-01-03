@@ -74,7 +74,7 @@ export class DdbModel extends Model<DdbModel> {
     
     sql: SqlStandard = SqlStandard[localStorage.getItem(storage_keys.sql)] || SqlStandard.DolphinDB
     
-    /** 获取路径第一级的模块 */
+    /** 获取路径第一级的模块名 */
     get view () {
         return location.pathname.strip_start(this.assets_root).split('/')[0] || default_view
     }
@@ -254,10 +254,7 @@ export class DdbModel extends Model<DdbModel> {
             // 必须先调用上面的函数，load_configs 依赖 controller alias, version 等信息
             config.load_configs(),
             
-            this.get_cluster_perf(true),
-            
-            // 需要在有可能改变 inited, logined 状态的函数之前调用，避免组件渲染出来
-            this.check_client_auth()
+            this.get_cluster_perf(true)
         ])
         
         console.log(t('配置:'), await this.ddb.invoke<Record<string, string>>('getConfig'))
