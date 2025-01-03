@@ -7,8 +7,6 @@ import { Resizable } from 're-resizable'
 import { delay } from 'xshell/utils.browser.js'
 
 
-import { model } from '../model.js'
-
 import { shell } from './model.js'
 
 import { ShellEditor } from './ShellEditor.js'
@@ -20,8 +18,6 @@ import { Variables } from './Variables.js'
 
 
 export function Shell () {
-    const { options } = model.use(['options'])
-    
     const [editor_state, set_editor_state] = useState({
         width: '75%',
         height: '100%',
@@ -40,14 +36,6 @@ export function Shell () {
         shell.fit_addon?.fit()
     }, [ ])
     
-    useEffect(() => {
-        shell.options = options
-        shell.update_vars()
-    }, [options])
-    
-    useEffect(() => {
-        shell.load_dbs()
-    }, [ ])
     
     return <>
         {/* 左侧三个面板 */}

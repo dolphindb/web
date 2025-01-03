@@ -279,8 +279,13 @@ export class DdbModel extends Model<DdbModel> {
             await this.login_by_oauth()
         }
         
+        // 开发模式下提早检查 client_auth 避免自动登录
+        let client_auth: boolean | undefined
+        if (this.dev)
+            client_auth = await this.check_client_auth()
         
-        if (this.autologin && !this.logined)
+        
+        if (this.autologin && !this.logined && client_auth !== true)
             try {
                 await this.login_by_ticket()
             } catch {
@@ -295,16 +300,19 @@ export class DdbModel extends Model<DdbModel> {
             }
         
         
-        console.log(t('web 初始化成功'))
+        // 强制登录跳转
+        if (
+            !this.logined && 
+            (this.login_required || 
+                (this.dev ? client_auth : await this.check_client_auth()))
+        )
+            await this.goto_login()
         
         this.set({ inited: true })
         
-        this.get_license_info()
+        console.log(t('web 初始化成功'))
         
-        if (!this.logined && (this.login_required || await this.check_client_auth()))
-            await this.goto_login()
-        else
-            await this.get_factor_platform_enabled()
+        await this.get_license_info()
     }
     
     
@@ -314,19 +322,6 @@ export class DdbModel extends Model<DdbModel> {
         return {
             header: !dashboard_instance && params.get('header') !== '0',
             sider: !dashboard_instance && params.get('sider') !== '0'
-        }
-    }
-    
-    
-    /** 检查是否启用了客户端认证 (ClientAuth) */
-    async check_client_auth (): Promise<boolean> {
-        try {
-            const client_auth = await this.ddb.invoke<boolean>('isClientAuth', undefined, { urgent: true })
-            console.log(t('web 安全认证:'), client_auth)
-            this.set({ client_auth })
-            return client_auth
-        } catch {
-            return false
         }
     }
     
@@ -567,22 +562,6 @@ export class DdbModel extends Model<DdbModel> {
         
         return admin
     }
-    
-    
-    /** 获取是否启用因子平台 */
-    async get_factor_platform_enabled () {
-        try {
-            this.set({
-                is_factor_platform_enabled: 
-                    await this.ddb.execute<boolean>('readLicenseAuthorization(license().modules).starfish', { urgent: true })
-            })
-            
-            return this.is_factor_platform_enabled
-        } catch {
-            return false
-        }
-    }
-    
     
     async start_nodes (nodes: DdbNode[]) {
         await this.ddb.invoke('startDataNode', [nodes.map(node => node.name)], { node: this.controller_alias })
@@ -1054,6 +1033,19 @@ export class DdbModel extends Model<DdbModel> {
     
     is_module_visible (key: string): boolean {
         return this.enabled_modules.has(key) || !this.optional_modules.has(key)
+    }
+    
+    
+    /** 检查是否启用了客户端认证 (ClientAuth) */
+    async check_client_auth (): Promise<boolean> {
+        try {
+            const client_auth = await this.ddb.invoke<boolean>('isClientAuth', undefined, { urgent: true })
+            console.log(t('web 安全认证:'), client_auth)
+            this.set({ client_auth })
+            return client_auth
+        } catch {
+            return false
+        }
     }
 }
 

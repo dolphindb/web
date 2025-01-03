@@ -3,6 +3,8 @@ import './index.sass'
 import { Form, Input, Button } from 'antd'
 import { LockOutlined, UserOutlined } from '@ant-design/icons'
 
+import { delay } from 'xshell/utils.browser.js'
+
 import { t } from '@i18n/index.ts'
 
 import { model } from '@/model.ts'
@@ -35,6 +37,11 @@ export function Login () {
                     model.message.success(t('登录成功'))
                     
                     model.navigate(-1)
+                    
+                    // 防止登陆后一直在登录页面 (比如首次打开就是登录页面的情况)
+                    await delay(100)
+                    if (location.pathname === '/login/')
+                        model.goto('/')
                 }}
             >
                 <Form.Item name='username' rules={[{ required: true, message: t('请输入用户名') }]}>

@@ -147,7 +147,7 @@ function MainLayout () {
                 <DdbHeader />
             </Layout.Header> }
             <Layout className='body' hasSider>
-                { sider && <DdbSider />}
+                { sider && (!model.client_auth || model.logined) && <DdbSider />}
                 <Layout.Content className='view'>
                     <GlobalErrorBoundary>
                         <div className={`view-card ${model.view}`}>

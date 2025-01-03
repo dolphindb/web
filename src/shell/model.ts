@@ -56,8 +56,6 @@ class ShellModel extends Model<ShellModel> {
     
     dbs: (Catalog | Database | DatabaseGroup)[]
     
-    options?: InspectOptions
-    
     
     executing = false
     
@@ -206,7 +204,7 @@ class ShellModel extends Model<ShellModel> {
                             if (ddbobj.type === DdbType.void)
                                 return ''
                             
-                            return ddbobj.toString({ ...this.options, colors: true, nullstr: true, quote: true }) + '\n'
+                            return ddbobj.toString({ ...model.options, colors: true, nullstr: true, quote: true }) + '\n'
                         }
                     }
                 })() +
@@ -283,7 +281,7 @@ class ShellModel extends Model<ShellModel> {
                     shared,
                     extra,
                     obj: undefined as DdbObj,
-                    options: this.options,
+                    options: model.options,
                 })
             )
             .filter(
