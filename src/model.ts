@@ -14,7 +14,7 @@ import { request } from 'xshell/net.browser.js'
 
 import {
     DDB, SqlStandard, DdbInt, DdbLong, type InspectOptions,
-    DdbDatabaseError, type DdbObj, type DdbTableData,
+    DdbDatabaseError, type DdbObj, type DdbTableData, DdbDict,
 } from 'dolphindb/browser.js'
 
 import type { Docs } from 'dolphindb/docs.js'
@@ -456,7 +456,8 @@ export class DdbModel extends Model<DdbModel> {
                     t('尝试 oauth 单点登录，类型是 authorization code, code 为 {{code}}',
                     { code }))
                 
-                ticket = await this.ddb.invoke<string>('oauthLogin', [this.oauth_type, { code }])
+                // 显式 new DdbDict 避免执行脚本
+                ticket = await this.ddb.invoke<string>('oauthLogin', [this.oauth_type, new DdbDict({ code })])
                 
                 params.delete('state')
                 params.delete('code')
@@ -477,11 +478,12 @@ export class DdbModel extends Model<DdbModel> {
                     '尝试 oauth 单点登录，类型是 implicit, token_type 为 {{token_type}}, access_token 为 {{access_token}}, expires_in 为 {{expires_in}}',
                     { token_type, access_token, expires_in }))
                 
-                ticket = await this.ddb.invoke<string>('oauthLogin', [this.oauth_type, {
+                // 显式 new DdbDict 避免执行脚本
+                ticket = await this.ddb.invoke<string>('oauthLogin', [this.oauth_type, new DdbDict(filter_values({
                     token_type,
                     access_token,
                     expires_in
-                }])
+                }))])
                 
                 url.hash = ''
             } else
