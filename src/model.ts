@@ -74,7 +74,7 @@ export class DdbModel extends Model<DdbModel> {
     
     sql: SqlStandard = SqlStandard[localStorage.getItem(storage_keys.sql)] || SqlStandard.DolphinDB
     
-    // todo: 暂时兼容，后面会把这里的逻辑去掉
+    /** 获取路径第一级的模块名 */
     get view () {
         return location.pathname.strip_start(this.assets_root).split('/')[0] || default_view
     }
@@ -148,6 +148,9 @@ export class DdbModel extends Model<DdbModel> {
     notification: NotificationInstance
     
     navigate: NavigateFunction
+    
+    /** 记录登录之前的 pathname, 区分是首次打开页面就进入 login 还是跳转到 login 页面 */
+    pathname_before_login?: string
     
     /** 记录启用了哪些可选功能 */
     enabled_modules = new Set<string>()
@@ -262,8 +265,7 @@ export class DdbModel extends Model<DdbModel> {
             oauth: config.get_boolean_config('oauth'),
             login_required: config.get_boolean_config('webLoginRequired'),
             enabled_modules: new Set(
-                config.get_config('webModules')?.split(',') || [ ]
-            )
+                config.get_config('webModules')?.split(',') || [ ])
         })
         
         console.log(t('web 强制登录:'), this.login_required)
@@ -278,7 +280,6 @@ export class DdbModel extends Model<DdbModel> {
             // 因此需要调用这个方法检查并可能再次跳转
             await this.login_by_oauth()
         }
-        
         
         if (this.autologin && !this.logined)
             try {
@@ -295,16 +296,17 @@ export class DdbModel extends Model<DdbModel> {
             }
         
         
-        console.log(t('web 初始化成功'))
+        // 强制登录跳转
+        if (!this.logined && 
+            (this.login_required || await this.check_client_auth())
+        )
+            await this.goto_login()
         
         this.set({ inited: true })
         
-        this.get_license_info()
+        console.log(t('web 初始化成功'))
         
-        if (!this.logined && (this.login_required || await this.check_client_auth()))
-            await this.goto_login()
-        else
-            await this.get_factor_platform_enabled()
+        await this.get_license_info()
     }
     
     
@@ -314,19 +316,6 @@ export class DdbModel extends Model<DdbModel> {
         return {
             header: !dashboard_instance && params.get('header') !== '0',
             sider: !dashboard_instance && params.get('sider') !== '0'
-        }
-    }
-    
-    
-    /** 检查是否启用了客户端认证 (ClientAuth) */
-    async check_client_auth (): Promise<boolean> {
-        try {
-            const client_auth = await this.ddb.invoke<boolean>('isClientAuth', undefined, { urgent: true })
-            console.log(t('web 安全认证:'), client_auth)
-            this.set({ client_auth })
-            return client_auth
-        } catch {
-            return false
         }
     }
     
@@ -568,22 +557,6 @@ export class DdbModel extends Model<DdbModel> {
         return admin
     }
     
-    
-    /** 获取是否启用因子平台 */
-    async get_factor_platform_enabled () {
-        try {
-            this.set({
-                is_factor_platform_enabled: 
-                    await this.ddb.execute<boolean>('readLicenseAuthorization(license().modules).starfish', { urgent: true })
-            })
-            
-            return this.is_factor_platform_enabled
-        } catch {
-            return false
-        }
-    }
-    
-    
     async start_nodes (nodes: DdbNode[]) {
         await this.ddb.invoke('startDataNode', [nodes.map(node => node.name)], { node: this.controller_alias })
     }
@@ -667,6 +640,10 @@ export class DdbModel extends Model<DdbModel> {
     
     /** 去登录页 */
     async goto_login () {
+        const { pathname } = location
+        if (pathname !== `${this.assets_root}login/`)
+            this.pathname_before_login = pathname
+        
         if (this.oauth) {
             const auth_uri = strip_quotes(
                 config.get_config('oauthAuthUri')
@@ -709,15 +686,9 @@ export class DdbModel extends Model<DdbModel> {
                     this.show_error({ title: t('getClusterPerf(true) 执行超时，请检查集群节点状态是否正常，任务是否阻塞') })
             }, 5000)
         
-        nodes = (
-                await this.ddb.invoke<DdbTableData<DdbNode>>('getClusterPerf', [true], {
-                urgent: true,
-                
-                ... this.node_type === NodeType.controller || this.node_type === NodeType.single
-                    ? undefined
-                    : { node: this.controller_alias }
-            })
-        ).data
+        // 2025.01.03 登录鉴权功能之后 getClusterPerf 没有要求一定要在控制节点执行了
+        nodes = (await this.ddb.invoke<DdbTableData<DdbNode>>('getClusterPerf', [true], { urgent: true }))
+            .data
             .sort((a, b) => strcmp(a.name, b.name))
         
         if (print)
@@ -1054,6 +1025,19 @@ export class DdbModel extends Model<DdbModel> {
     
     is_module_visible (key: string): boolean {
         return this.enabled_modules.has(key) || !this.optional_modules.has(key)
+    }
+    
+    
+    /** 检查是否启用了客户端认证 (ClientAuth) */
+    async check_client_auth (): Promise<boolean> {
+        try {
+            const client_auth = await this.ddb.invoke<boolean>('isClientAuth', undefined, { urgent: true })
+            console.log(t('web 安全认证:'), client_auth)
+            this.set({ client_auth })
+            return client_auth
+        } catch {
+            return false
+        }
     }
 }
 

@@ -1,6 +1,6 @@
 import './index.sass'
 
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useState } from 'react'
 
 import { Resizable } from 're-resizable'
 
@@ -25,8 +25,6 @@ import { Git } from './git/git.js'
 
 
 export function Shell () {
-    const { options } = model.use(['options'])
-    
     const [editor_state, set_editor_state] = useState({
         width: '75%',
         height: '100%',
@@ -45,14 +43,6 @@ export function Shell () {
         shell.fit_addon?.fit()
     }, [ ])
     
-    useEffect(() => {
-        shell.options = options
-        shell.update_vars()
-    }, [options])
-    
-    useEffect(() => {
-        shell.load_dbs()
-    }, [ ])
     
     const [is_git, set_is_git] = useState(false)
     

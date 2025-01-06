@@ -19,7 +19,7 @@ import { ChartField } from '@/dashboard/ChartFormFields/type.js'
 import { get_data_source } from '@/dashboard/DataSource/date-source.js'
 import type { Widget } from '@/dashboard/model.js'
 import type { IChartConfig, MatrixData } from '@/dashboard/type.js'
-import { format_time } from '@/dashboard/utils.js'
+import { format_time, parse_text } from '@/dashboard/utils.js'
 
 interface IProps { 
     widget: Widget
@@ -60,6 +60,14 @@ export function HeatMap (props: IProps) {
             grid: {
                 bottom: 60,
                 containLabel: true
+            },
+            title: {
+                show: !!config?.title,
+                text: parse_text(config?.title ?? ''),
+                textStyle: {
+                    color: '#e6e6e6',
+                    fontSize: config?.title_size || 18,
+                }
             },
             tooltip: {
                 ...config.tooltip,

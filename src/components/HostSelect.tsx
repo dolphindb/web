@@ -23,6 +23,10 @@ export function HostSelect ({ size = 'small' }: { size?: SizeType }) {
                 value: '192.168.0.90:8848'
             },
             {
+                label: '剑波客户端鉴权',
+                value: '192.168.0.54:8848'
+            },
+            {
                 label: '定时巡检',
                 value: '192.168.100.44:7602'
             },

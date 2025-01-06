@@ -154,11 +154,14 @@ function MainLayout () {
                 <DdbHeader />
             </Layout.Header> }
             <Layout className='body' hasSider>
-                { sider && <DdbSider />}
+                { sider && <DdbSider /> }
                 <Layout.Content className='view'>
                     <GlobalErrorBoundary>
                         <div className={`view-card ${model.view}`}>
-                            <Outlet />
+                            {/* 不能指望延迟的 react router 的 location.pathname 状态来决定渲染哪个组件 */}
+                            { model.client_auth && !model.logined 
+                                ? <Login />
+                                : <Outlet /> }
                         </div>
                     </GlobalErrorBoundary>
                 </Layout.Content>
