@@ -288,19 +288,24 @@ export class GitHubAdapter implements IGitAdapter {
     }
     
     async get_files_by_repo (repo: string, file_path = '', branch = 'main'): Promise<IFile[]> {
-        const result = await fetch(`${this.root_url}${this.api_root}/repos/${repo}/contents/${file_path}?ref=${branch}`, this.get_fetch_options()).then(async res => res.json())
         
-        const ret = result.map((item: any) => ({
-            id: '',
-            mode: '',
-            name: item.name,
-            path: item.path,
-            type: item.type
-        }))
+        try {
+            const result = await fetch(`${this.root_url}${this.api_root}/repos/${repo}/contents/${file_path}?ref=${branch}`, this.get_fetch_options()).then(async res => res.json())
         
-        console.log(ret)
+            const ret = result.map((item: any) => ({
+                id: '',
+                mode: '',
+                name: item.name,
+                path: item.path,
+                type: item.type
+            }))
+            
+            return ret
+        } catch (error) {
+            console.log(t('获取文件列表失败或仓库为空'))
+            return [ ]
+        }
         
-        return ret
     }
     
     
