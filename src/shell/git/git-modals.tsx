@@ -21,6 +21,17 @@ export const GitLabOauthModal = NiceModal.create(() => {
     
     const defaultRedirectUrl = `${window.location.origin}/oauth-gitlab`
     
+    const is_https = window.location.protocol === 'https:'
+    
+    if (!is_https)
+        return <Modal
+            open={modal.visible}
+            onCancel={modal.hide}
+            onOk={modal.hide}
+            title={t('使用 Oauth 登录到 GitLab')}>
+            <p>{t('只支持在 HTTPS 下使用该登录方式')}</p>
+        </Modal> 
+        
     return <Modal
         open={modal.visible}
         onCancel={modal.hide}
