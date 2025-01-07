@@ -1,6 +1,6 @@
 import './obj.sass'
 
-import { useEffect, useRef, useState, type default as React, type FC, type MutableRefObject, useCallback } from 'react'
+import { useEffect, useRef, useState, type default as React, type FC, type RefObject, useCallback } from 'react'
 
 import {
     Pagination,
@@ -49,11 +49,11 @@ import {
     type DdbTensorObj
 } from 'dolphindb/browser.js'
 
-import { t } from '../i18n/index.js'
+import { t } from '@i18n/index.ts'
 
 import SvgLink from './link.icon.svg'
 
-import { type WindowModel } from './window.js'
+import { type WindowModel } from './window.tsx'
 
 
 const max_strlen = 10000
@@ -1339,7 +1339,7 @@ class StreamingTableColumn implements TableColumnType <number> {
     
     key: number
     
-    rmessage: MutableRefObject<StreamingMessage>
+    rmessage: RefObject<StreamingMessage>
     
     col: DdbVectorObj
     
