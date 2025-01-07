@@ -13,15 +13,8 @@ import { delta2str, assert, delay, strcmp } from 'xshell/utils.browser.js'
 import { red, blue } from 'xshell/chalk.browser.js'
 
 import {
-    DdbForm,
-    type DdbObj,
-    DdbType,
-    type InspectOptions,
-    type DdbVectorStringObj,
-    type DdbTableObj,
-    type DdbVectorInt,
-    type DdbVectorLong,
-    SqlStandard,
+    DdbForm, SqlStandard, type DdbObj, DdbType, type DdbVectorStringObj, type DdbTableObj,
+    type DdbVectorInt, type DdbVectorLong, 
 } from 'dolphindb/browser.js'
 
 
@@ -427,10 +420,18 @@ class ShellModel extends Model<ShellModel> {
          else
             await this.eval(code, istart)
         
-        await this.update_vars()
-        
         if (code.includes('login') || code.includes('logout') || code.includes('authenticateByTicket'))
             await model.update_user()
+        
+        // 执行了 logout 之后，跳转到登录页
+        if (!model.logined && (model.login_required || model.client_auth)) {
+            await model.goto_login()
+            
+            // 在启用了 client_auth 的情况下不调用 objs() 避免报错
+            return
+        }
+        
+        await this.update_vars()
     }
     
     
