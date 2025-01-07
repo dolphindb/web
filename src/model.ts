@@ -262,7 +262,8 @@ export class DdbModel extends Model<DdbModel> {
         await this.check_leader_and_redirect()
         
         this.set({
-            oauth: config.get_boolean_config('oauth'),
+            // 在 dev 下禁用 oauth 方便开发
+            oauth: config.get_boolean_config('oauth') && this.production,
             login_required: config.get_boolean_config('webLoginRequired'),
             enabled_modules: new Set(
                 config.get_config('webModules')?.split(',') || [ ])
