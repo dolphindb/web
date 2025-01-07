@@ -20,7 +20,7 @@ import { AccessObjSelect } from './AccessObjSelect.tsx'
 
 
 export const AccessAddModal = NiceModal.create(({ category, role, name }: { category: AccessCategory, role: AccessRole, name: string }) => {
-    const { data: accesses } = useAccess(role, name)
+    const { data: accesses, mutate: update_accesses } = useAccess(role, name)
     
     const { v3 } = model.use(['v3'])
     
@@ -87,7 +87,7 @@ export const AccessAddModal = NiceModal.create(({ category, role, name }: { cate
                 set_add_rule_selected({ access: ACCESS_OPTIONS[category][0], type: 'grant', obj: [ ] })
                 set_add_access_rows([ ])
                 modal.hide()
-                await access.update_current_access()
+                await update_accesses()
             }}
             destroyOnClose
             okText={t('确认添加')}

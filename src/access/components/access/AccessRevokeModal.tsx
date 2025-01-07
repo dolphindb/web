@@ -15,13 +15,15 @@ export const AccessRevokeModal = NiceModal.create(({
     category, 
     selected_access, 
     reset_selected,
-    name
+    name,
+    update_accesses
 }: 
 { 
     category: AccessCategory
     selected_access: Access[] 
     reset_selected: () => void
     name: string
+    update_accesses: () => Promise<void>
 }) => {
     
     const modal = useModal()
@@ -41,7 +43,7 @@ export const AccessRevokeModal = NiceModal.create(({
                     model.message.success(t('撤销成功'))
                     reset_selected()
                     modal.hide()
-                    await access.update_current_access()
+                    await update_accesses()
             }}
             title={<Tooltip>{t('确认撤销选中的 {{num}} 条权限吗？', { num: selected_access.length })}</Tooltip>}
         />

@@ -30,7 +30,7 @@ export function AccessManage ({ role, name, category }: { role: AccessRole, name
         'inited'
     ])
     
-    const { data: accesses } = useAccess(role, name)
+    const { data: accesses, mutate: update_accesses } = useAccess(role, name)
     
     useEffect(() => {
         if (!inited)
@@ -120,7 +120,7 @@ export function AccessManage ({ role, name, category }: { role: AccessRole, name
                             <RevokeConfirm onConfirm={async () => {
                                 await access.revoke(name, k)
                                 model.message.success(t('撤销成功'))
-                                await access.update_current_access()
+                                await update_accesses()
                             }} />
                         )
                     })
@@ -145,7 +145,7 @@ export function AccessManage ({ role, name, category }: { role: AccessRole, name
                                 <RevokeConfirm onConfirm={async () => {
                                     await access.revoke(name, k.slice(0, k.indexOf(allowed ? '_allowed' : '_denied')), obj)
                                     model.message.success(t('撤销成功'))
-                                    await access.update_current_access()
+                                    await update_accesses()
                                 }} />
                             )
                         })
@@ -163,7 +163,7 @@ export function AccessManage ({ role, name, category }: { role: AccessRole, name
                                 <RevokeConfirm onConfirm={async () => {
                                     await access.revoke(name, k, obj)
                                     model.message.success(t('撤销成功'))
-                                    await access.update_current_access()
+                                    await update_accesses()
                                 }} />
                             )
                         })
@@ -201,7 +201,7 @@ export function AccessManage ({ role, name, category }: { role: AccessRole, name
                 search_key={search_key}
                 set_search_key={set_search_key}
                 add_open={async () => NiceModal.show(AccessAddModal, { category, role, name })}
-                delete_open={async () => NiceModal.show(AccessRevokeModal, { category, selected_access, reset_selected, name })}
+                delete_open={async () => NiceModal.show(AccessRevokeModal, { category, selected_access, reset_selected, name, update_accesses })}
                 selected_length={selected_access.length}
         />}
             columns={showed_aces_cols}
