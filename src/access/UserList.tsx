@@ -27,7 +27,7 @@ export function UserList () {
     
     const reset_selected = useCallback(() => { set_selected_users([ ]) }, [ ])
     
-    const { data: users } = useUsers()
+    const { data: users, mutate: mutateUsers } = useUsers()
     
     const { data: users_access, mutate: refresh_user_access } = useSWR(
         ['users/access', users], 
@@ -188,7 +188,7 @@ export function UserList () {
                                 onConfirm={async () => {
                                     await access.delete_user(current_user.userId)
                                     model.message.success(t('用户删除成功'))
-                                    await access.get_user_list()
+                                    mutateUsers()
                                 }}
                             >
                                 <Button type='link' danger disabled={current_user.userId === localStorage.getItem('ddb.username')}>

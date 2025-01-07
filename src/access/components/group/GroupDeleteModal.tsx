@@ -3,6 +3,8 @@ import { Modal, Tooltip } from 'antd'
 
 import { t } from '@i18n/index.js'
 
+import { useSWRConfig } from 'swr'
+
 import { access } from '@/access/model.js'
 import { model } from '@/model.js'
 
@@ -17,7 +19,7 @@ export const GroupDeleteModal = NiceModal.create((
         }
 ) => {
     const modal = useModal()
-    
+    const { mutate } = useSWRConfig()
     return <Modal
         className='delete-user-modal'
         open={modal.visible}
@@ -27,7 +29,7 @@ export const GroupDeleteModal = NiceModal.create((
             model.message.success(t('组删除成功'))
             reset_selected_groups()
             modal.hide()
-            await access.get_group_list()
+            mutate('groups')
         }}
         title={<Tooltip>{t('确认删除选中的 {{num}} 个组吗？', { num: selected_groups.length })}</Tooltip>}
     />

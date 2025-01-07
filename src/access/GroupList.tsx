@@ -22,7 +22,7 @@ import { useGroups } from './hooks/useGroups.ts'
 
 export function GroupList () {
     
-    const { data: groups } = useGroups()
+    const { data: groups, mutate: mutateGroups } = useGroups()
     
     const { data: groups_info } = useSWR(
         ['groups/access', groups], 
@@ -152,7 +152,7 @@ export function GroupList () {
                                 onConfirm={async () => {
                                     await access.delete_group(group.groupName)
                                     model.message.success(t('组删除成功'))
-                                    await access.get_group_list()
+                                    mutateGroups()
                                 }}
                             >
                                 <Button type='link' danger>

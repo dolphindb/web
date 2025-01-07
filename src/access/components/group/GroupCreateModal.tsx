@@ -5,20 +5,25 @@ import { useState } from 'react'
 
 import { language, t } from '@i18n/index.js'
 
+import { useSWRConfig } from 'swr'
+
 import { access } from '@/access/model.js'
 
 import { model } from '@/model.js'
 
 import { NAME_CHECK_PATTERN } from '@/access/constants.js'
+import { useUsers } from '@/access/hooks/useUsers.ts'
 
 export const GroupCreateModal = NiceModal.create(() => {
-    const { users } = access.use(['users'])
+    const { data: users = [ ] } = useUsers()
     
     const [target_users, set_target_users] = useState<string[]>([ ])
     
     const [selected_users, set_selected_users] = useState<string[]>([ ])
     
-    const [add_group_form] = Form.useForm()
+    const [add_group_form] = Form.useForm() 
+    
+    const { mutate } = useSWRConfig()
     
     const modal = useModal()
     
@@ -40,7 +45,7 @@ export const GroupCreateModal = NiceModal.create(() => {
                     set_selected_users([ ])
                     set_target_users([ ])
                     add_group_form.resetFields()
-                    await access.get_group_list()
+                    mutate('groups')
                 } catch (error) {
                     if (error instanceof Error)
                         throw error
