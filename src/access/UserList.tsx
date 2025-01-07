@@ -177,7 +177,7 @@ export function UserList () {
                                 type='link'
                                 onClick={async () => {
                                     access.set({ current: { name: current_user.userId } })
-                                    await NiceModal.show(ResetPasswordModal)
+                                    await NiceModal.show(ResetPasswordModal, { name: current_user.userId })
                                 }}
                             >
                                 {t('设置密码')}

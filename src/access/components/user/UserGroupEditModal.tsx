@@ -1,15 +1,18 @@
 import NiceModal, { useModal } from '@ebay/nice-modal-react'
 import { Modal, Transfer } from 'antd'
 
-import { useEffect, useState } from 'react'
+import { useState } from 'react'
 
-import { t } from '../../../../i18n/index.js'
-import { access } from '../../model.js'
+import useSWR from 'swr'
+
+import { t } from '@i18n/index.js'
+
+import { access } from '@/access/model.js'
 
 import { UserGroupConfirmModal } from './UserGroupConfirmModal.js'
 
-export const UserGroupEditModal = NiceModal.create(() => {
-    const { groups, current } = access.use(['users', 'groups', 'current'])
+export const UserGroupEditModal = NiceModal.create(({ name }: { name: string }) => {
+    const { groups } = access.use(['users', 'groups'])
         
     const [target_groups, set_target_groups] = useState<string[]>([ ])
     
@@ -17,18 +20,18 @@ export const UserGroupEditModal = NiceModal.create(() => {
     
     const modal = useModal() 
     
-    useEffect(() => {
-        (async () => {
-            set_target_groups((await access.get_user_access([current.name]))[0].groups.split(','))
-        })()
-    }, [current.name])
+    useSWR(['user/groups', name], async () => access.get_user_access([name]), {
+        onSuccess: data => {
+            set_target_groups(data[0].groups.split(','))
+        }
+    })
     
     return <Modal
             className='edit-user-group-modal'
             open={modal.visible}
             onCancel={modal.hide}
             afterClose={modal.remove}
-            title={<div>{t('用户 {{user}} 所属组管理', { user: current?.name })}</div>}
+            title={<div>{t('用户 {{user}} 所属组管理', { user: name })}</div>}
             onOk={async () => {
                 NiceModal.show(UserGroupConfirmModal, {
                     edit_close: modal.hide,

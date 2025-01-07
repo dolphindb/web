@@ -3,50 +3,60 @@ import { useEffect, useState } from 'react'
 
 import { Modal, Tag } from 'antd'
 
-import { access } from '../../model.js'
-import { t } from '../../../../i18n/index.js'
-import { model } from '../../../model.js'
+import useSWR from 'swr'
+
+import { t } from '@i18n/index.js'
+
+import { model } from '@/model.js'
+
+import { access } from '@/access/model.js'
 
 export const GroupUserConfirmModal = NiceModal.create(({
     edit_close,
     target_users,
     set_target_users,
     set_selected_users,
+    name
 }:
     {
         edit_close: () => Promise<unknown>
         target_users: string[]
         set_target_users: (users: string[]) => void
         set_selected_users: (users: string[]) => void
+        name: string
     }) => {
-    
-    const { current } = access.use(['current'])
     
     const modal = useModal()
     
     const [origin_users, set_origin_users] = useState<string[]>([ ])
     
-    useEffect(() => {
-        (async () => {
-            set_origin_users(
-                (await access.get_users_by_group(current?.name))
-                    .filter(name => name !== 'admin'))
-        })()
-    }, [current])
+    useSWR(['group/users', name], async () => access.get_users_by_group(name), {
+        onSuccess: users => {
+            set_origin_users(users.filter(name => name !== 'admin'))
+        }
+    })
+    
+    // useEffect(() => {
+    //     (async () => {
+    //         set_origin_users(
+    //             (await access.get_users_by_group(name))
+    //                 .filter(name => name !== 'admin'))
+    //     })()
+    // }, [name])
     
     return <Modal
             className='edit-confirm-modal'
             open={modal.visible}
             onCancel={modal.hide}
             afterClose={modal.remove}
-            title={<div>{t('确认对组 {{group}} 进行以下改动吗？', { group: current?.name })}</div>}
+            title={<div>{t('确认对组 {{group}} 进行以下改动吗？', { group: name })}</div>}
             onOk={async () => {
                 const delete_users = origin_users.filter(u => !target_users.includes(u)).filter(Boolean)
                 const add_users = target_users.filter((u: string) => !origin_users.includes(u)).filter(Boolean)
                 if (delete_users.length || add_users.length) {
                     await Promise.all([
-                        ...(delete_users.length ? [access.delete_group_member(delete_users, current?.name)] : [ ]),
-                        ...(add_users.length ? [access.add_group_member(add_users, current?.name)] : [ ])
+                        ...(delete_users.length ? [access.delete_group_member(delete_users, name)] : [ ]),
+                        ...(add_users.length ? [access.add_group_member(add_users, name)] : [ ])
                     ])
                     model.message.success(t('组成员修改成功'))
                 }

@@ -2,11 +2,13 @@ import { Checkbox, Divider, Input, Select, TreeSelect } from 'antd'
 
 import { useMemo } from 'react'
 
-import { t } from '../../../../i18n/index.js'
-import { DATABASES_WITHOUT_CATALOG, NEED_INPUT_ACCESS } from '../../constants.js'
+import { t } from '@i18n/index.js'
 
-import { access } from '../../model.js'
-import type { AccessCategory, AccessRule } from '../../types.js'
+import { DATABASES_WITHOUT_CATALOG, NEED_INPUT_ACCESS } from '@/access/constants.js'
+
+import { access } from '@/access/model.js'
+
+import type { AccessCategory, AccessRule } from '@/access/types.js'
 
 export function AccessObjSelect ({
     category,

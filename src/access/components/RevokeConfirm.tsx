@@ -1,6 +1,6 @@
 import { Button, Popconfirm } from 'antd'
 
-import { t } from '../../../i18n/index.js'
+import { t } from '@i18n/index.js'
 
 export function RevokeConfirm ({ onConfirm }: { onConfirm: () => Promise<void> }) {
     return <Popconfirm

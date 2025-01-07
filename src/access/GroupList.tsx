@@ -8,13 +8,14 @@ import { Button, Input, Popconfirm, Table, Tag, type TableColumnType } from 'ant
 
 import NiceModal from '@ebay/nice-modal-react'
 
-import { t, language } from '../../i18n/index.js'
-import { model } from '../model.js'
+import { t, language } from '@i18n/index.ts'
 
-import { access } from './model.js'
-import { GroupCreateModal } from './components/group/GroupCreateModal.js'
-import { GroupDeleteModal } from './components/group/GroupDeleteModal.js'
-import { GroupUserEditModal } from './components/group/GroupUserEditModal.js'
+import { model } from '@/model.ts'
+
+import { access } from './model.ts'
+import { GroupCreateModal } from './components/group/GroupCreateModal.tsx'
+import { GroupDeleteModal } from './components/group/GroupDeleteModal.tsx'
+import { GroupUserEditModal } from './components/group/GroupUserEditModal.tsx'
 
 export function GroupList () {
     const { groups, current } = access.use(['groups', 'current'])

@@ -4,11 +4,13 @@ import { Modal, Tag } from 'antd'
 
 import { useEffect, useState } from 'react'
 
-import { useSWRConfig } from 'swr'
+import useSWR, { useSWRConfig } from 'swr'
 
-import { access } from '../../model.js'
-import { t } from '../../../../i18n/index.js'
-import { model } from '../../../model.js'
+import { t } from '@i18n/index.js'
+
+import { access } from '@/access/model.js'
+import { model } from '@/model.js'
+
 
 
 
@@ -17,12 +19,14 @@ export const UserGroupConfirmModal = NiceModal.create(({
     target_groups,
     set_target_groups,
     set_selected_groups,
+    name
 }:
     {
         edit_close: () => Promise<unknown>
         target_groups: string[]
         set_target_groups: (groups: string[]) => void
         set_selected_groups: (groups: string[]) => void
+        name: string
     }
     
 ) => {
@@ -30,30 +34,34 @@ export const UserGroupConfirmModal = NiceModal.create(({
     
     const { mutate } = useSWRConfig()
     
-    const { current } = access.use(['current'])
-    
     const [origin_groups, set_origin_groups] = useState<string[]>([ ])
     
-    useEffect(() => {
-        (async () => {
-            set_origin_groups((await access.get_user_access([current?.name]))[0].groups.split(',').filter(group => group !== ''))
-        })()
-    }, [current])
+    useSWR(['user/groups', name], async () => access.get_user_access([name]), {
+        onSuccess: data => {
+            set_origin_groups(data[0].groups.split(',').filter(group => group !== ''))
+        }
+    })
+    
+    // useEffect(() => {
+    //     (async () => {
+    //         set_origin_groups((await access.get_user_access([name]))[0].groups.split(',').filter(group => group !== ''))
+    //     })()
+    // }, [name])
     
     return <Modal
             className='edit-confirm-modal'
             open={modal.visible}
             onCancel={modal.hide}
             afterClose={modal.remove}
-            title={<div>{t('确认对用户 {{user}} 进行以下改动吗？', { user: current?.name })}</div>}
+            title={<div>{t('确认对用户 {{user}} 进行以下改动吗？', { user: name })}</div>}
             onOk={async () => {
-                const origin_groups = (await access.get_user_access([current?.name]))[0].groups.split(',').filter(group => group !== '')
+                const origin_groups = (await access.get_user_access([name]))[0].groups.split(',').filter(group => group !== '')
                 const delete_groups = origin_groups.filter(u => !target_groups.includes(u)).filter(group => group !== '')
                 const add_groups = target_groups.filter((u: string) => !origin_groups.includes(u)).filter(group => group !== '')
                 if (delete_groups.length || add_groups.length) {
                     await Promise.all([
-                        ...(delete_groups.length ? [access.delete_group_member(current?.name, delete_groups)] : [ ]),
-                        ...(add_groups.length ? [access.add_group_member(current?.name, add_groups)] : [ ])
+                        ...(delete_groups.length ? [access.delete_group_member(name, delete_groups)] : [ ]),
+                        ...(add_groups.length ? [access.add_group_member(name, add_groups)] : [ ])
                     ])
                     model.message.success(t('用户所属组修改成功'))
                 }

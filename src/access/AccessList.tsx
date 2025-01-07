@@ -1,42 +1,44 @@
 import { Table, type TableColumnType } from 'antd'
 import { useEffect, useMemo, useState } from 'react'
 
-import { t } from '../../i18n/index.js'
+import { t } from '@i18n/index.ts'
 
-import { model } from '../model.js'
+import { model } from '@/model.ts'
 
-import { access, type Catalog, type Database } from './model.js'
-import { ACCESS_TYPE, DATABASES_WITHOUT_CATALOG, NEED_INPUT_ACCESS, STAT_ICONS, TABLE_NAMES } from './constants.js'
-import { AccessHeader } from './AccessHeader.js'
-import { generate_access_cols } from './utils/handle-access.js'
-import type { AccessCategory, TABLE_ACCESS } from './types.js'
+import { access, type Catalog, type Database } from './model.ts'
+import { ACCESS_TYPE, DATABASES_WITHOUT_CATALOG, NEED_INPUT_ACCESS, STAT_ICONS, TABLE_NAMES } from './constants.tsx'
+import { AccessHeader } from './AccessHeader.tsx'
+import { generate_access_cols } from './utils/handleAccess.ts'
+import type { AccessCategory, AccessRole, TABLE_ACCESS } from './types.ts'
+import { useAccess } from './hooks/useAccess.ts'
 
 
-export function AccessList ({ category }: { category: AccessCategory }) {
+export function AccessList ({ role, name, category }: { role: AccessRole, name: string, category: AccessCategory }) {
     const [showed_accesses, set_showed_accesses] = useState<Record<string, any>>([ ])
     
     const [search_key, set_search_key] = useState('')
     
-    const { catalogs, databases, current, shared_tables, stream_tables, function_views, accesses } = access.use([
+    
+    const { inited, catalogs, databases, shared_tables, stream_tables, function_views } = access.use([
+        'inited',
         'catalogs',
         'databases',
-        'current',
         'shared_tables',
         'stream_tables',
         'function_views',
-        'accesses'
     ])
+    
+    useEffect(() => {
+        if (!inited)
+            access.init()
+    }, [inited])
     
     const { v3 } = model.use(['v3'])
     
+    const { data: accesses } = useAccess(role, name)
+    
     useEffect(() => {
         (async () => {
-            let final_accesses = accesses            // 用户权限列表需要单独获取最终权限去展示
-            if (current.role === 'user')
-                final_accesses = (await access.get_user_access([current.name], true))[0]
-                
-            if (!final_accesses)
-                return
             let items: Array<string | Catalog | Database> = [ ]
             let tmp_tb_access = [ ]
             
@@ -54,7 +56,7 @@ export function AccessList ({ category }: { category: AccessCategory }) {
                     items = stream_tables
                     break
                 case 'script':
-                    items = current.role === 'group' ? ACCESS_TYPE.script.filter(ac => !NEED_INPUT_ACCESS.includes(ac)) : ACCESS_TYPE.script
+                    items = role === 'group' ? ACCESS_TYPE.script.filter(ac => !NEED_INPUT_ACCESS.includes(ac)) : ACCESS_TYPE.script
                     break
                     
                 default:
@@ -66,25 +68,25 @@ export function AccessList ({ category }: { category: AccessCategory }) {
                     name,
                     ...(category === 'script'
                             ? 
-                        { stat: final_accesses[name] }
+                        { stat: accesses[name] }
                             : 
-                        { access: generate_access_cols(final_accesses, category === 'database' ? v3 ? 'catalog' : 'database' : category, name) }),
+                        { access: generate_access_cols(accesses, category === 'database' ? v3 ? 'catalog' : 'database' : category, name) }),
                     ...(typeof item !== 'string'
                             ? 
                         {
                            ...v3 ? {
                                 schemas: (item as Catalog).schemas.map(schema => ({
                                     name: schema.schema,
-                                    access: generate_access_cols(final_accesses, 'database', schema.dbUrl),
+                                    access: generate_access_cols(accesses, 'database', schema.dbUrl),
                                     tables: schema.tables.map(table => ({
                                         name: table,
-                                        access: generate_access_cols(final_accesses, 'table', table)
+                                        access: generate_access_cols(accesses, 'table', table)
                                     }))
                                 }))
                            } : { 
                                 tables: (item as Database).tables.map(table => ({
                                     name: table,
-                                    access: generate_access_cols(final_accesses, 'table', table)
+                                    access: generate_access_cols(accesses, 'table', table)
                                 }))
                            }
                         }
@@ -95,7 +97,7 @@ export function AccessList ({ category }: { category: AccessCategory }) {
             }
             set_showed_accesses(tmp_tb_access)
         })()
-    }, [accesses, current, category, v3])
+    }, [accesses, role, name, category, v3])
     
     const cols: TableColumnType<Record<string, any>>[] = useMemo(
         () => [
@@ -130,6 +132,9 @@ export function AccessList ({ category }: { category: AccessCategory }) {
         ],
         [ category ]
     )
+    
+    if (!inited)
+        return <div>loading...</div>
     
     return <Table
                 columns={cols}
@@ -168,7 +173,7 @@ export function AccessList ({ category }: { category: AccessCategory }) {
                                 : 
                             { stat: NEED_INPUT_ACCESS.includes(tb_access.name) ? tb_access.stat : STAT_ICONS[tb_access.stat] })
                     }))}
-                title={() => <AccessHeader category={category} preview search_key={search_key} set_search_key={set_search_key} />}
+                title={() => <AccessHeader role={role} name={name} category={category} preview search_key={search_key} set_search_key={set_search_key} />}
                 tableLayout='fixed'
                 expandable={
                     category === 'database'

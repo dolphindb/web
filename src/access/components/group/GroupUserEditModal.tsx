@@ -3,8 +3,10 @@ import { Modal, Transfer } from 'antd'
 
 import { useEffect, useState } from 'react'
 
-import { access } from '../../model.js'
-import { t } from '../../../../i18n/index.js'
+import { t } from '@i18n/index.js'
+
+import { access } from '@/access/model.js'
+
 
 import { GroupUserConfirmModal } from './GroupUserConfirmModal.js'
 
@@ -34,6 +36,7 @@ export const GroupUserEditModal = NiceModal.create(({ groupname }: { groupname: 
             title={<div>{t('组 {{group}} 成员管理', { group: groupname })}</div>}
             onOk={async () => {
                 await NiceModal.show(GroupUserConfirmModal, {
+                    name: groupname,
                     edit_close: modal.hide,
                     target_users,
                     set_target_users,

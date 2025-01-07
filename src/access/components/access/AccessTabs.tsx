@@ -2,13 +2,27 @@ import { Tabs, Button, Select, type  TabsProps } from 'antd'
 import { ReloadOutlined } from '@ant-design/icons'
 import { useState, useMemo } from 'react'
 
-import { t } from '../../../../i18n/index.js'
-import { model } from '../../../model.js'
-import { access } from '../../model.js'
+import { t } from '@i18n/index.js'
 
-export function AccessTabs ({ children }: { children: (category: string) => React.ReactNode }) {
-    const { current, users, groups } = access.use(['current', 'users', 'groups'])
-    const { role, name } = current
+import { model } from '@/model.js'
+
+import { access } from '@/access/model.js'
+
+import type { AccessRole, AccessMode, AccessCategory } from '@/access/types.js'
+
+export function AccessTabs ({ 
+    role, 
+    name, 
+    mode, 
+    children 
+}: 
+{ 
+    role: AccessRole
+    name: string
+    mode: AccessMode
+    children: (category: AccessCategory, role: AccessRole, name: string) => React.ReactNode 
+}) {
+    const { users, groups } = access.use(['users', 'groups'])
     
     const [tab_key, set_tab_key] = useState('database')
     const [refresher, set_refresher] = useState({ })
@@ -18,27 +32,27 @@ export function AccessTabs ({ children }: { children: (category: string) => Reac
             {
                 key: 'database',
                 label: t('分布式数据库'),
-                children: children('database')
+                children: children('database', role, name)
             },
             {
                 key: 'share_table',
                 label: t('共享内存表'),
-                children: children('shared')
+                children: children('shared', role, name)
             },
             {
                 key: 'stream',
                 label: t('流数据表'),
-                children: children('stream')
+                children: children('stream', role, name)
             },
             {
                 key: 'function_view',
                 label: t('函数视图'),
-                children: children('function_view')
+                children: children('function_view', role, name)
             },
             {
                 key: 'script',
                 label: t('全局权限'),
-                children: children('script')
+                children: children('script', role, name)
             }
         ],
         [children]
@@ -55,7 +69,7 @@ export function AccessTabs ({ children }: { children: (category: string) => Reac
                         label: t
                     }))}
                     onSelect={item => {
-                        access.set({ current: { ...current, name: item } })
+                        model.goto(`/access/${role}/${item}/${mode}`)
                     }}
                 />
             </div>

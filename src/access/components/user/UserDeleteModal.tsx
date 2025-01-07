@@ -1,9 +1,11 @@
 import NiceModal, { useModal } from '@ebay/nice-modal-react'
 import { Modal, Tooltip } from 'antd'
 
-import { access } from '../../model.js'
-import { model } from '../../../model.js'
-import { t } from '../../../../i18n/index.js'
+import { t } from '@i18n/index.js'
+
+import { access } from '@/access/model.js'
+import { model } from '@/model.js'
+
 
 export const UserDeleteModal = NiceModal.create(({ selected_users, reset_selected }: { selected_users: string[], reset_selected: () => void }) => {
     const modal = useModal()

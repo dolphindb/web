@@ -1,26 +1,28 @@
 import NiceModal, { useModal } from '@ebay/nice-modal-react'
 import { Modal, Tooltip } from 'antd'
 
-import { access } from '../../model.js'
-import { model } from '../../../model.js'
+import { t } from '@i18n/index.js'
 
-import { t } from '../../../../i18n/index.js'
-import type { Access, AccessCategory } from '../../types.js'
+import { access } from '@/access/model.js'
+import { model } from '@/model.js'
+
+
+import type { Access, AccessCategory } from '@/access/types.js'
 
 
 
 export const AccessRevokeModal = NiceModal.create(({ 
     category, 
     selected_access, 
-    reset_selected 
+    reset_selected,
+    name
 }: 
 { 
     category: AccessCategory
     selected_access: Access[] 
-    reset_selected: () => void 
+    reset_selected: () => void
+    name: string
 }) => {
-
-    const { current } = access.use(['current'])
     
     const modal = useModal()
     
@@ -32,7 +34,7 @@ export const AccessRevokeModal = NiceModal.create(({
             onOk={async () => {
                     await Promise.all(
                         selected_access.map(async ac =>
-                            category === 'script' ? access.revoke(current.name, ac.access) : access.revoke(current.name, ac.access, ac.name)
+                            category === 'script' ? access.revoke(name, ac.access) : access.revoke(name, ac.access, ac.name)
                         )
                     )
                     

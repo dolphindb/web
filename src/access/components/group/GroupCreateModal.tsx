@@ -3,10 +3,13 @@ import { Form, Input, Modal, Transfer } from 'antd'
 
 import { useState } from 'react'
 
-import { language, t } from '../../../../i18n/index.js'
-import { access } from '../../model.js'
-import { model } from '../../../model.js'
-import { NAME_CHECK_PATTERN } from '../../constants.js'
+import { language, t } from '@i18n/index.js'
+
+import { access } from '@/access/model.js'
+
+import { model } from '@/model.js'
+
+import { NAME_CHECK_PATTERN } from '@/access/constants.js'
 
 export const GroupCreateModal = NiceModal.create(() => {
     const { users } = access.use(['users'])

@@ -15,7 +15,7 @@ import { t } from '../../i18n/index.js'
 import { model } from '@/model.ts'
 
 import { TABLE_NAMES } from './constants.js'
-import { access } from './model.js'
+import type { AccessRole } from './types.js'
 
 export function AccessHeader ({
     category,
@@ -24,7 +24,9 @@ export function AccessHeader ({
     set_search_key,
     add_open,
     delete_open,
-    selected_length
+    selected_length,
+    role,
+    name
 }: {
     preview: boolean
     category: string
@@ -33,8 +35,9 @@ export function AccessHeader ({
     add_open?: () => void
     delete_open?: () => void
     selected_length?: number
+    role: AccessRole
+    name: string
 }) {
-    const { current } = access.use(['current', 'users', 'groups'])
     
     const { v3 } = model.use(['v3'])
     
@@ -45,7 +48,7 @@ export function AccessHeader ({
             type='default'
             icon={<ArrowLeftOutlined />}
             onClick={() => {
-                access.set({ current: { role: current.role } })
+                model.navigate(-1)
             }}
         >
             {t('返回')}
@@ -56,7 +59,7 @@ export function AccessHeader ({
                 type='primary'
                 icon={<SettingOutlined />}
                 onClick={() => {
-                    access.set({ current: { ...current, view: 'manage' } })
+                    model.goto(`/access/${role}/${name}/manage`)
                 }}
             >
                 {t('设置权限')}
@@ -70,7 +73,7 @@ export function AccessHeader ({
                     type='default'
                     icon={<EyeOutlined />}
                     onClick={() => {
-                        access.set({ current: { ...current, view: 'preview' } })
+                        model.goto(`/access/${role}/${name}/view`)
                     }}
                 >
                     {t('查看权限')}

@@ -3,13 +3,13 @@ import { useRoutes, Navigate } from 'react-router'
 
 import { Result } from 'antd'
 
-import { t } from '../../i18n/index.js'
+import { t } from '@i18n/index.ts'
 
-import { model } from '../model.js'
+import { model } from '@/model.ts'
 
-import { AccessManagePage, AccessViewPage } from './AccessView.js'
-import { GroupList } from './GroupList.js'
-import { UserList } from './UserList.js'
+import { AccessManagePage, AccessViewPage } from './AccessView.tsx'
+import { GroupList } from './GroupList.tsx'
+import { UserList } from './UserList.tsx'
 
 function AccessGuard ({ children }) {
     const { admin } = model.use(['admin'])

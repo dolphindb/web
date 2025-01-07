@@ -3,17 +3,19 @@ import { useCallback, useEffect, useMemo, useState } from 'react'
 
 import NiceModal from '@ebay/nice-modal-react'
 
-import { t } from '../../i18n/index.js'
-import { model } from '../model.js'
+import { t } from '@i18n/index.ts'
 
-import { AccessHeader } from './AccessHeader.js'
-import { ACCESS_OPTIONS, ACCESS_TYPE, NEED_INPUT_ACCESS } from './constants.js'
-import { access } from './model.js'
+import { model } from '@/model.ts'
 
-import { AccessAddModal } from './components/access/AccessAddModal.js'
-import { AccessRevokeModal } from './components/access/AccessRevokeModal.js'
-import { RevokeConfirm } from './components/RevokeConfirm.js'
-import type { AccessCategory } from './types.js'
+import { AccessHeader } from './AccessHeader.tsx'
+import { ACCESS_OPTIONS, ACCESS_TYPE, NEED_INPUT_ACCESS } from './constants.tsx'
+import { access } from './model.ts'
+
+import { AccessAddModal } from './components/access/AccessAddModal.tsx'
+import { AccessRevokeModal } from './components/access/AccessRevokeModal.tsx'
+import { RevokeConfirm } from './components/RevokeConfirm.tsx'
+import type { AccessCategory, AccessRole } from './types.ts'
+import { useAccess } from './hooks/useAccess.ts'
 
 interface ACCESS {
     key: string
@@ -21,13 +23,19 @@ interface ACCESS {
     name?: string
 }
 
-export function AccessManage ({ category }: { category: AccessCategory }) {
+export function AccessManage ({ role, name, category }: { role: AccessRole, name: string, category: AccessCategory }) {
 
-    const { shared_tables, current, accesses } = access.use([
+    const { shared_tables, inited } = access.use([
         'shared_tables',
-        'current',
-        'accesses'
+        'inited'
     ])
+    
+    const { data: accesses } = useAccess(role, name)
+    
+    useEffect(() => {
+        if (!inited)
+            access.init()
+    }, [inited])
     
     const { v3 } = model.use(['v3'])
     
@@ -42,7 +50,7 @@ export function AccessManage ({ category }: { category: AccessCategory }) {
         [category]
     )
     
-    useEffect(reset_selected, [current])
+    useEffect(reset_selected, [role, name])
     
     const showed_aces_cols: TableColumnType<Record<string, any>>[] = useMemo(
         () => [
@@ -110,7 +118,7 @@ export function AccessManage ({ category }: { category: AccessCategory }) {
                         type: v === 'deny' ? 'deny' : 'grant',
                         action: (
                             <RevokeConfirm onConfirm={async () => {
-                                await access.revoke(current.name, k)
+                                await access.revoke(name, k)
                                 model.message.success(t('撤销成功'))
                                 await access.update_current_access()
                             }} />
@@ -135,7 +143,7 @@ export function AccessManage ({ category }: { category: AccessCategory }) {
                             type: allowed ? 'grant' : 'deny',
                             action: (
                                 <RevokeConfirm onConfirm={async () => {
-                                    await access.revoke(current.name, k.slice(0, k.indexOf(allowed ? '_allowed' : '_denied')), obj)
+                                    await access.revoke(name, k.slice(0, k.indexOf(allowed ? '_allowed' : '_denied')), obj)
                                     model.message.success(t('撤销成功'))
                                     await access.update_current_access()
                                 }} />
@@ -153,7 +161,7 @@ export function AccessManage ({ category }: { category: AccessCategory }) {
                             type: v === 'allow' ? 'grant' : 'deny',
                             action: (
                                 <RevokeConfirm onConfirm={async () => {
-                                    await access.revoke(current.name, k, obj)
+                                    await access.revoke(name, k, obj)
                                     model.message.success(t('撤销成功'))
                                     await access.update_current_access()
                                 }} />
@@ -186,12 +194,14 @@ export function AccessManage ({ category }: { category: AccessCategory }) {
                 }
             }}
             title={() => <AccessHeader
+                role={role}
+                name={name}
                 category={category}
                 preview={false}
                 search_key={search_key}
                 set_search_key={set_search_key}
-                add_open={async () => NiceModal.show(AccessAddModal, { category })}
-                delete_open={async () => NiceModal.show(AccessRevokeModal, { category, selected_access, reset_selected })}
+                add_open={async () => NiceModal.show(AccessAddModal, { category, role, name })}
+                delete_open={async () => NiceModal.show(AccessRevokeModal, { category, selected_access, reset_selected, name })}
                 selected_length={selected_access.length}
         />}
             columns={showed_aces_cols}

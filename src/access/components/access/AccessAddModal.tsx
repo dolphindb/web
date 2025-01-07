@@ -3,19 +3,24 @@ import { Button, Modal, Radio, Select, Table, type TableColumnType } from 'antd'
 
 import { useMemo, useState } from 'react'
 
-import {  t } from '../../../../i18n/index.js'
-import { access } from '../../model.js'
-import {  NEED_INPUT_ACCESS, ACCESS_OPTIONS } from '../../constants.js'
-import { model } from '../../../model.js'
-import { filter_access_options } from '../../utils/filter-access-options.js'
+import { t } from '@i18n/index.ts'
 
-import type { AccessCategory, AccessRule } from '../../types.js'
+import { model } from '@/model.ts'
 
-import { AccessObjSelect } from './AccessObjSelect.js'
+import { access } from '@/access/model.ts'
+import { NEED_INPUT_ACCESS, ACCESS_OPTIONS } from '@/access/constants.tsx'
+
+import { filter_access_options } from '@/access/utils/filterAccessOptions.ts'
+
+import type { AccessCategory, AccessRole, AccessRule } from '@/access/types.ts'
+
+import { useAccess } from '@/access/hooks/useAccess.ts'
+
+import { AccessObjSelect } from './AccessObjSelect.tsx'
 
 
-export const AccessAddModal = NiceModal.create(({ category }: { category: AccessCategory }) => {
-    const { current, accesses } = access.use(['current', 'accesses'])
+export const AccessAddModal = NiceModal.create(({ category, role, name }: { category: AccessCategory, role: AccessRole, name: string }) => {
+    const { data: accesses } = useAccess(role, name)
     
     const { v3 } = model.use(['v3'])
     
@@ -56,6 +61,9 @@ export const AccessAddModal = NiceModal.create(({ category }: { category: Access
     
     const modal = useModal()
     
+    if (!accesses)
+        return <div>loading...</div>
+    
     return <Modal
             className='add-rule-modal'
             open={modal.visible}
@@ -69,7 +77,7 @@ export const AccessAddModal = NiceModal.create(({ category }: { category: Access
                 await Promise.all(add_access_rows.
                     map(async rule =>
                         access[rule.type](
-                            current.name,
+                            name,
                             rule.access,
                             rule.access ===
                                 'QUERY_RESULT_MEM_LIMIT' || rule.access === 'TASK_GROUP_MEM_LIMIT'
@@ -99,7 +107,7 @@ export const AccessAddModal = NiceModal.create(({ category }: { category: Access
                         onChange={e => {
                             const selected = {
                                 type: e.target.value,
-                                access: filter_access_options(category, current.role, accesses.is_admin, e.target.value)?.[0],
+                                access: filter_access_options(category, role, accesses.is_admin, e.target.value)?.[0],
                                 obj: [ ]
                             }
                             set_add_rule_selected(selected)
@@ -111,7 +119,7 @@ export const AccessAddModal = NiceModal.create(({ category }: { category: Access
                         className='access-select'
                         options={filter_access_options(
                             category, 
-                            current.role, 
+                            role, 
                             accesses.is_admin, 
                             add_rule_selected.type).
                                 map(ac => ({
