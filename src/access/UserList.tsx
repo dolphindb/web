@@ -9,15 +9,16 @@ import NiceModal from '@ebay/nice-modal-react'
 
 import useSWR from 'swr'
 
-import { t } from '../../i18n/index.js'
+import { t } from '@i18n/index.ts'
 
-import { model } from '../model.js'
+import { model } from '@/model.ts'
 
-import { access } from './model.js'
-import { UserCreateModal } from './components/user/UserCreateModal.js'
-import { UserDeleteModal } from './components/user/UserDeleteModal.js'
-import { ResetPasswordModal } from './components/user/ResetPasswordModal.js'
-import { UserGroupEditModal } from './components/user/UserGroupEditModal.js'
+import { access } from './model.ts'
+import { UserCreateModal } from './components/user/UserCreateModal.tsx'
+import { UserDeleteModal } from './components/user/UserDeleteModal.tsx'
+import { ResetPasswordModal } from './components/user/ResetPasswordModal.tsx'
+import { UserGroupEditModal } from './components/user/UserGroupEditModal.tsx'
+import { useUsers } from './hooks/useUsers.ts'
 
 export function UserList () {
     const [search_key, set_search_key] = useState('')
@@ -26,7 +27,7 @@ export function UserList () {
     
     const reset_selected = useCallback(() => { set_selected_users([ ]) }, [ ])
     
-    const { data: users } = useSWR('users', async () => access.get_user_list())
+    const { data: users } = useUsers()
     
     const { data: users_access, mutate: refresh_user_access } = useSWR(
         ['users/access', users], 
@@ -147,7 +148,6 @@ export function UserList () {
                                 //     access.set({ current: { role: 'user', name: current_user.userId, view: 'preview' } })
                                 // }}
                                 onClick={() => { model.goto(`/access/user/${current_user.userId}`) }}
-                                // href={`/access/view?role=user&name=${current_user.userId}`}
                             >
                                 {t('查看权限')}
                             </Button>
@@ -166,8 +166,7 @@ export function UserList () {
                             <Button
                                 type='link'
                                 onClick={async () => {
-                                    access.set({ current: { name: current_user.userId } })
-                                    await NiceModal.show(UserGroupEditModal)
+                                    await NiceModal.show(UserGroupEditModal, { name: current_user.userId })
                                 }}
                             >
                                 {t('设置用户组')}

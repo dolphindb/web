@@ -48,7 +48,7 @@ export function AccessHeader ({
             type='default'
             icon={<ArrowLeftOutlined />}
             onClick={() => {
-                model.navigate(-1)
+                model.goto(`/access/${role}`)
             }}
         >
             {t('返回')}

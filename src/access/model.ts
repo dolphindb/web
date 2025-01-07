@@ -175,7 +175,7 @@ class AccessModel extends Model<AccessModel> {
     
     
     async get_group_list () {
-        this.set({ groups: (await model.ddb.invoke<string[]>('getGroupList', [ ])) })
+        return (model.ddb.invoke<string[]>('getGroupList', [ ]))
     }
     
     

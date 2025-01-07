@@ -10,27 +10,32 @@ import NiceModal from '@ebay/nice-modal-react'
 
 import { t, language } from '@i18n/index.ts'
 
+import useSWR from 'swr'
+
 import { model } from '@/model.ts'
 
 import { access } from './model.ts'
 import { GroupCreateModal } from './components/group/GroupCreateModal.tsx'
 import { GroupDeleteModal } from './components/group/GroupDeleteModal.tsx'
 import { GroupUserEditModal } from './components/group/GroupUserEditModal.tsx'
+import { useGroups } from './hooks/useGroups.ts'
 
 export function GroupList () {
-    const { groups, current } = access.use(['groups', 'current'])
     
-    const [groups_info, set_groups_info] = useState([ ])
+    const { data: groups } = useGroups()
+    
+    const { data: groups_info } = useSWR(
+        ['groups/access', groups], 
+        async ([, groups]) => {
+            if (groups)
+                return access.get_group_access(groups)
+        }
+    )
     
     const [search_key, set_search_key] = useState('')
     
     const [selected_groups, set_selected_groups] = useState([ ])
     
-    useEffect(() => {
-        (async () => {
-            set_groups_info(await access.get_group_access(groups))
-        })()
-    }, [groups])
     
     const reset_selected_groups = useCallback(() => { set_selected_groups([ ]) }, [ ])
     
@@ -89,7 +94,7 @@ export function GroupList () {
             </div>
         </div>
         
-        <Table
+       {groups_info && <Table
             rowSelection={{
                 selectedRowKeys: selected_groups,
                 onChange: (selectedRowKeys: React.Key[]) => {
@@ -116,7 +121,8 @@ export function GroupList () {
                             <Button
                                 type='link'
                                 onClick={() => {
-                                    access.set({ current: { role: 'group', name: group.groupName, view: 'preview' } })
+                                    model.goto(`/access/group/${group.groupName}`)
+                                    // access.set({ current: { role: 'group', name: group.groupName, view: 'preview' } })
                                 }}
                             >
                                 {t('查看权限')}
@@ -125,7 +131,7 @@ export function GroupList () {
                             <Button
                                 type='link'
                                 onClick={() => {
-                                    access.set({ current: { role: 'group', name: group.groupName, view: 'manage' } })
+                                    model.goto(`/access/group/${group.groupName}/manage`)
                                 }}
                             >
                                 {t('设置权限')}
@@ -134,7 +140,6 @@ export function GroupList () {
                             <Button
                                 type='link'
                                 onClick={async () => {
-                                    access.set({ current: { role: 'group', name: group.groupName, ...current } })
                                     NiceModal.show(GroupUserEditModal, { groupname: group.groupName })
                                 }}
                             >
@@ -158,6 +163,6 @@ export function GroupList () {
                     )
                 }))}
             tableLayout='fixed'
-        />
+        />}
     </>
 }

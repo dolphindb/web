@@ -9,6 +9,8 @@ import { model } from '@/model.js'
 import { access } from '@/access/model.js'
 
 import type { AccessRole, AccessMode, AccessCategory } from '@/access/types.js'
+import { useUsers } from '@/access/hooks/useUsers.ts'
+import { useGroups } from '@/access/hooks/useGroups.ts'
 
 export function AccessTabs ({ 
     role, 
@@ -22,10 +24,12 @@ export function AccessTabs ({
     mode: AccessMode
     children: (category: AccessCategory, role: AccessRole, name: string) => React.ReactNode 
 }) {
-    const { users, groups } = access.use(['users', 'groups'])
+
+    
+    const { data: users = [ ] } = useUsers()
+    const { data: groups = [ ] } = useGroups()
     
     const [tab_key, set_tab_key] = useState('database')
-    const [refresher, set_refresher] = useState({ })
     
     const tabs: TabsProps['items'] = useMemo(
         () => [
@@ -78,7 +82,6 @@ export function AccessTabs ({
             <Button
                 icon={<ReloadOutlined />}
                 onClick={() => {
-                    set_refresher({ })
                     model.message.success(t('刷新成功'))
                 }}
             >
