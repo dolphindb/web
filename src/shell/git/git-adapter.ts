@@ -103,11 +103,18 @@ export class GitLabAdapter implements IGitAdapter {
     
     // 获取文件列表
     async get_files_by_repo (repo: string, file_path = '', branch = 'main'): Promise<IFile[]> {
-        const result = await fetch(
-            `${this.root_url}${this.api_root}/projects/${encodeURIComponent(repo)}/repository/tree?path=${encodeURIComponent(file_path)}&ref=${branch}&per_page=1000`,
-            this.get_fetch_options()
-        ).then(async res => res.json())
-        return result
+        try {
+            const result = await fetch(
+                `${this.root_url}${this.api_root}/projects/${encodeURIComponent(repo)}/repository/tree?path=${encodeURIComponent(file_path)}&ref=${branch}&per_page=1000`,
+                this.get_fetch_options()
+            ).then(async res => res.json())
+            if (!isArray(result))
+                throw new Error('Invalid response')
+            return result
+        } catch (error) {
+            console.log(t('获取文件列表失败或仓库为空'))
+            return [ ]
+        }
     }
     
     // 获取 GitLab 认证头
@@ -288,10 +295,11 @@ export class GitHubAdapter implements IGitAdapter {
     }
     
     async get_files_by_repo (repo: string, file_path = '', branch = 'main'): Promise<IFile[]> {
-        
+    
         try {
-            const result = await fetch(`${this.root_url}${this.api_root}/repos/${repo}/contents/${file_path}?ref=${branch}`, this.get_fetch_options()).then(async res => res.json())
-        
+            const result = await fetch(`${this.root_url}${this.api_root}/repos/${repo}/contents/${file_path}?ref=${branch}`, this.get_fetch_options())
+                .then(async res => res.json())
+                
             const ret = result.map((item: any) => ({
                 id: '',
                 mode: '',
