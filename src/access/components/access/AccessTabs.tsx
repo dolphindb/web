@@ -1,6 +1,6 @@
-import { Tabs, Button, Select, type  TabsProps } from 'antd'
+import { Tabs, Button, Select, type TabsProps } from 'antd'
 import { ReloadOutlined } from '@ant-design/icons'
-import { useState, useMemo } from 'react'
+import { useState, useMemo, type  JSX } from 'react'
 
 import { t } from '@i18n/index.js'
 
@@ -14,6 +14,8 @@ import type { AccessRole, AccessMode, AccessCategory } from '@/access/types.js'
 import { useUsers } from '@/access/hooks/useUsers.ts'
 import { useGroups } from '@/access/hooks/useGroups.ts'
 
+type TabItems = Required<TabsProps>['items']
+
 export function AccessTabs ({ 
     role, 
     name, 
@@ -24,7 +26,7 @@ export function AccessTabs ({
     role: AccessRole
     name: string
     mode: AccessMode
-    children: (category: AccessCategory, role: AccessRole, name: string) => React.ReactNode 
+    children: (category: AccessCategory, role: AccessRole, name: string) => JSX.Element 
 }) {
 
     
@@ -40,7 +42,7 @@ export function AccessTabs ({
         setSearchParams({ ...Object.fromEntries(searchParams), tab: key })
     }
     
-    const tabs: TabsProps['items'] = useMemo(
+    const tabs: TabItems = useMemo(
         () => [
             {
                 key: 'database',
