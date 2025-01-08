@@ -1926,7 +1926,7 @@
         "en": "To start the node"
     },
     "没有正在运行的数据节点和计算节点": {
-        "en": "No running data nodes and compute nodes"
+        "en": "No running data nodes"
     },
     "偏移": {
         "en": "offset"

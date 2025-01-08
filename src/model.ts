@@ -750,11 +750,11 @@ export class DdbModel extends Model<DdbModel> {
     }
     
     
-    /** 判断当前集群是否有数据节点或计算节点正在运行 */
+    /** 判断当前集群是否有数据节点正在运行 */
     has_data_and_computing_nodes_alive () {
         return Boolean(
             this.nodes.find(node =>
-                (node.mode === NodeType.data || node.mode === NodeType.computing) && 
+                node.mode === NodeType.data && 
                 node.state === DdbNodeState.online)
         )
     }

@@ -277,7 +277,7 @@ export function Databases () {
                         />
                     :
                         <div className='start-node-to-view'>
-                            <span>{t('没有正在运行的数据节点和计算节点')}</span>
+                            <span>{t('没有正在运行的数据节点')}</span>
                             <a onClick={() => { model.goto('/overview/') } }>{t('去启动节点')}</a>
                         </div>
                 :
