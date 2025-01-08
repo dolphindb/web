@@ -8,7 +8,7 @@ import { useEffect, useState } from 'react'
 
 import { shell } from '../model.ts'
 
-import { git_provider, type ICommitHistoryItem } from './git-adapter.ts'
+import { getToken, git_provider, type ICommitHistoryItem } from './git-adapter.ts'
 import { format_friendly_date } from './get-auth-url.ts'
 
 export function FileHistory ({ file_path, repo, branch }: { file_path: string, repo: string, branch: string }) {
@@ -35,7 +35,7 @@ export function FileHistory ({ file_path, repo, branch }: { file_path: string, r
     }
     
     const file_history_resp = useSWR(['get_file_commit_history', repo_path, file_path, branch], async () => {
-        if (!repo_path)
+        if (!repo_path || !getToken())
             return [ ]
         const result = await git_provider.get_commit_history(repo_path, file_path, branch)
         return result

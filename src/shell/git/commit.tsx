@@ -6,7 +6,7 @@ import useSWR from 'swr'
 import { model } from '@/model.ts'
 import { shell } from '../model.ts'
 
-import { git_provider } from './git-adapter.ts'
+import { getToken, git_provider } from './git-adapter.ts'
 import { FileHistory } from './file-history.tsx'
 
 export function Commit ({ current_select_repo, current_select_branch, repo_name }: { current_select_repo: string, current_select_branch: string, repo_name: string }) {
@@ -60,7 +60,7 @@ export function Commit ({ current_select_repo, current_select_branch, repo_name 
     const current_file_content = is_tab_git_tab ? current_tab?.git?.raw_code : current_tab?.code
     
     const currentRemoteFileResp = useSWR(['get_file_by_path_in_commit_component', repo_path, path, branch], async () => {
-        if (!is_tab_git_tab)
+        if (!is_tab_git_tab || !getToken())
             return undefined
         const result = await git_provider.get_file_by_path(repo_path, path, branch)
         return result

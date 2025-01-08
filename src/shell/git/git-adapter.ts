@@ -394,3 +394,6 @@ export class GitHubAdapter implements IGitAdapter {
 }
 
 export const git_provider = localStorage.getItem(GIT_CONSTANTS.PROVIDER) === 'github' ? new GitHubAdapter() : new GitLabAdapter()
+export function getToken () {
+    return localStorage.getItem(GIT_CONSTANTS.ACCESS_TOKEN)
+}
