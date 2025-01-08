@@ -90,7 +90,7 @@ export class DdbModel extends Model<DdbModel> {
     node_alias: string
     
     /** 是否启用了客户端认证 */
-    client_auth = false
+    client_auth: boolean
     
     login_required = false
     
@@ -262,13 +262,17 @@ export class DdbModel extends Model<DdbModel> {
         await this.check_leader_and_redirect()
         
         this.set({
-            oauth: config.get_boolean_config('oauth'),
+            // 在 dev 下禁用 oauth 方便开发
+            oauth: config.get_boolean_config('oauth') && this.production,
             login_required: config.get_boolean_config('webLoginRequired'),
             enabled_modules: new Set(
                 config.get_config('webModules')?.split(',') || [ ])
         })
         
         console.log(t('web 强制登录:'), this.login_required)
+        
+        // 对于完成初始化是必须的，用户登陆后可能会注销，此时需要判断是否重定向到登录页
+        let pclient_auth = this.check_client_auth()
         
         if (this.oauth) {
             this.oauth_type = config.get_config<OAuthType>('oauthWebType') || 'authorization code'
@@ -298,9 +302,12 @@ export class DdbModel extends Model<DdbModel> {
         
         // 强制登录跳转
         if (!this.logined && 
-            (this.login_required || await this.check_client_auth())
+            (this.login_required || await pclient_auth)
         )
             await this.goto_login()
+        
+        // 这里保证 client_auth 已初始化
+        await pclient_auth
         
         this.set({ inited: true })
         
@@ -1032,6 +1039,9 @@ export class DdbModel extends Model<DdbModel> {
     
     /** 检查是否启用了客户端认证 (ClientAuth) */
     async check_client_auth (): Promise<boolean> {
+        if (this.client_auth !== undefined)
+            return this.client_auth
+        
         try {
             const client_auth = await this.ddb.invoke<boolean>('isClientAuth', undefined, { urgent: true })
             console.log(t('web 安全认证:'), client_auth)
