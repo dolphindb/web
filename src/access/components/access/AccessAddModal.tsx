@@ -22,6 +22,8 @@ import { AccessObjSelect } from './AccessObjSelect.tsx'
 export const AccessAddModal = NiceModal.create(({ category, role, name }: { category: AccessCategory, role: AccessRole, name: string }) => {
     const { data: accesses, mutate: update_accesses } = useAccess(role, name)
     
+    const { node } = model.use(['node'])
+    
     const { v3 } = model.use(['v3'])
     
     category = v3 && category === 'database' ? 'catalog' : category
@@ -82,7 +84,7 @@ export const AccessAddModal = NiceModal.create(({ category, role, name }: { cate
                             rule.access ===
                                 'QUERY_RESULT_MEM_LIMIT' || rule.access === 'TASK_GROUP_MEM_LIMIT'
                                 ? Number(rule.name)
-                                : rule.name)))
+                                : category === 'stream' ? node.name + ':' + rule.name : rule.name)))
                 model.message.success(t('权限赋予成功'))
                 set_add_rule_selected({ access: ACCESS_OPTIONS[category][0], type: 'grant', obj: [ ] })
                 set_add_access_rows([ ])

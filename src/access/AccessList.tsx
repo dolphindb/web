@@ -18,6 +18,7 @@ export function AccessList ({ role, name, category }: { role: AccessRole, name: 
     
     const [search_key, set_search_key] = useState('')
     
+    const { node } = model.use(['node'])
     
     const { inited, catalogs, databases, shared_tables, stream_tables, function_views } = access.use([
         'inited',
@@ -53,7 +54,7 @@ export function AccessList ({ role, name, category }: { role: AccessRole, name: 
                     items = function_views
                     break
                 case 'stream':
-                    items = stream_tables
+                    items = stream_tables.map(table => `${node.name}:${table}`)
                     break
                 case 'script':
                     items = role === 'group' ? ACCESS_TYPE.script.filter(ac => !NEED_INPUT_ACCESS.includes(ac)) : ACCESS_TYPE.script
