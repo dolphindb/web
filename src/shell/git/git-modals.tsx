@@ -228,9 +228,11 @@ export const GitHubOauthModal = NiceModal.create(() => {
             }[]
             if (!pluginsList.find(e => e.plugin === 'httpClient')) 
                 set_not_load_plugin(true)
+            else
+                set_not_load_plugin(false)
             
         })
-    }, [ ])
+    }, [modal.visible])
     
     if (not_load_plugin)
         return <Modal
