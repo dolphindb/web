@@ -2,7 +2,11 @@ import NiceModal, { useModal } from '@ebay/nice-modal-react'
 import { t } from '@i18n/index.ts'
 import { Modal, Form, Input } from 'antd'
 
+import { useEffect, useState } from 'react'
+
 import { GIT_CONSTANTS } from '../constants.ts'
+
+import { model } from '@/model.ts'
 
 import { get_github_auth_url, get_gitlab_auth_url } from './get-auth-url.ts'
 
@@ -201,6 +205,7 @@ export const GitHubAccessTokenModal = NiceModal.create(() => {
 export const GitHubOauthModal = NiceModal.create(() => {
     const modal = useModal()
     const [form] = Form.useForm()
+    const [not_load_plugin, set_not_load_plugin] = useState(false)
     
     function onFinish (values) {
         localStorage.setItem(GIT_CONSTANTS.CLIENT_ID, values.client_id)
@@ -212,6 +217,29 @@ export const GitHubOauthModal = NiceModal.create(() => {
     }
     
     const defaultRedirectUrl = `${window.location.origin}/oauth-github` // Example redirect URL for GitHub
+    
+    useEffect(() => {
+        model.ddb.invoke('getLoadedPlugins').then(data => {
+            const pluginsList = data.data as {
+                plugin: string
+                time: string
+                user: string
+                version: string
+            }[]
+            if (!pluginsList.find(e => e.plugin === 'httpClient')) 
+                set_not_load_plugin(true)
+            
+        })
+    }, [ ])
+    
+    if (not_load_plugin)
+        return <Modal
+            open={modal.visible}
+            onCancel={modal.hide}
+            onOk={modal.hide}
+            title={t('使用 Oauth 登录到 GitHub')}>
+            <p>{t('必须加载 httpClient 插件才能使用该登录方式')}</p>
+        </Modal> 
     
     return <Modal
         open={modal.visible}
