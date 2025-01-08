@@ -291,8 +291,7 @@ const router = createBrowserRouter([
                 element: <GitHubOauth/>
             }
         ]
-    }
-], 
+    }], 
     model.assets_root === '/' ? undefined : { basename: model.assets_root }
 )
 
