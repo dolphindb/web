@@ -7,8 +7,9 @@ import { model } from '@/model.ts'
 
 export function LanguageSelect () {
     function handleLanguageChange (lang: string) {
-        model.goto(location.pathname, { queries: { language: lang } })
-        location.reload()
+        const searchParams = new URLSearchParams(location.search)
+        searchParams.set('language', lang)
+        location.search = searchParams.toString()
     }
     
     const items: MenuProps['items'] = [
