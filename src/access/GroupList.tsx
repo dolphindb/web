@@ -24,7 +24,7 @@ export function GroupList () {
     
     const { data: groups, mutate: mutateGroups } = useGroups()
     
-    const { data: groups_info } = useSWR(
+    const { data: groups_info, mutate: mutateGroupsInfo } = useSWR(
         ['groups/access', groups], 
         async ([, groups]) => {
             if (groups)
@@ -79,7 +79,11 @@ export function GroupList () {
                 >
                     {t('批量删除')}
                 </Button>
-                <Button type='default' icon={<ReloadOutlined />} onClick={async () => (async () => access.get_group_list())()}>
+                <Button type='default' icon={<ReloadOutlined />} onClick={async () => {
+                    await mutateGroups()
+                    await mutateGroupsInfo()
+                    model.message.success(t('刷新成功'))
+                }}>
                     {t('刷新')}
                 </Button>
                 <Input
@@ -121,8 +125,7 @@ export function GroupList () {
                             <Button
                                 type='link'
                                 onClick={() => {
-                                    model.goto(`/access/group/${group.groupName}`)
-                                    // access.set({ current: { role: 'group', name: group.groupName, view: 'preview' } })
+                                    model.goto(`/access/group/${group.groupName}/view`, { replace: true })
                                 }}
                             >
                                 {t('查看权限')}
@@ -131,7 +134,7 @@ export function GroupList () {
                             <Button
                                 type='link'
                                 onClick={() => {
-                                    model.goto(`/access/group/${group.groupName}/manage`)
+                                    model.goto(`/access/group/${group.groupName}/manage`, { replace: true })
                                 }}
                             >
                                 {t('设置权限')}

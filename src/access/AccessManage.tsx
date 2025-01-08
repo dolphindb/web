@@ -32,11 +32,6 @@ export function AccessManage ({ role, name, category }: { role: AccessRole, name
     
     const { data: accesses, mutate: update_accesses } = useAccess(role, name)
     
-    useEffect(() => {
-        if (!inited)
-            access.init()
-    }, [inited])
-    
     const { v3 } = model.use(['v3'])
     
     const [search_key, set_search_key] = useState('')
@@ -177,6 +172,9 @@ export function AccessManage ({ role, name, category }: { role: AccessRole, name
         row[category === 'script' ? 'access' : 'name'].toLowerCase().includes(search_key.toLowerCase())
     ), [search_key, access_rules])
     
+    
+    if (!inited)
+        return <div>loading...</div>
     return <Table
             rowSelection={{
                 selectedRowKeys: selected_access.map(ac => ac.key),

@@ -660,7 +660,6 @@ export class DdbModel extends Model<DdbModel> {
                 else
                     params.delete(key)
             })
-        
         this.navigate({ pathname, search: params.toString() }, options)
     }
     

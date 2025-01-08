@@ -29,7 +29,7 @@ export function UserList () {
     
     const { data: users, mutate: mutateUsers } = useUsers()
     
-    const { data: users_access, mutate: refresh_user_access } = useSWR(
+    const { data: users_access, mutate: mutateUsersAccess } = useSWR(
         ['users/access', users], 
         async ([, users]) => {
             if (users)
@@ -99,8 +99,8 @@ export function UserList () {
                     type='default'
                     icon={<ReloadOutlined />}
                     onClick={async () => {
-                        await access.get_user_list()
-                        await refresh_user_access()
+                        await mutateUsers()
+                        await mutateUsersAccess()
                         model.message.success(t('刷新成功'))
                     }}
                 >
@@ -144,21 +144,14 @@ export function UserList () {
                         <div className='actions'>
                             <Button
                                 type='link'
-                                // onClick={() => {
-                                //     access.set({ current: { role: 'user', name: current_user.userId, view: 'preview' } })
-                                // }}
-                                onClick={() => { model.goto(`/access/user/${current_user.userId}`) }}
+                                onClick={() => { model.goto(`/access/user/${current_user.userId}/view`, { replace: true }) }}
                             >
                                 {t('查看权限')}
                             </Button>
                             
                             <Button
                                 type='link'
-                                // onClick={() => {
-                                //     access.set({ current: { role: 'user', name: current_user.userId, view: 'manage' } })
-                                // }}
-                                onClick={() => { model.goto(`/access/user/${current_user.userId}/manage`) }}
-                                
+                                onClick={() => { model.goto(`/access/user/${current_user.userId}/manage`, { replace: true }) }}
                             >
                                 {t('设置权限')}
                             </Button>

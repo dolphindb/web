@@ -5,18 +5,35 @@ import { Result } from 'antd'
 
 import { t } from '@i18n/index.ts'
 
+import { useEffect } from 'react'
+
 import { model } from '@/model.ts'
 
 import { AccessManagePage, AccessViewPage } from './AccessView.tsx'
 import { GroupList } from './GroupList.tsx'
 import { UserList } from './UserList.tsx'
+import { access } from './model.ts'
 
 function AccessGuard ({ children }) {
     const { admin } = model.use(['admin'])
     
+    
     if (!admin)
         return <Result status='warning' className='interceptor' title={t('非管理员不能查看权限管理模块。')} />
         
+    return <AccessWrapper>{children}</AccessWrapper>
+}
+
+function AccessWrapper ({ children }) {
+    const { inited } = access.use(['inited'])
+    useEffect(() => {
+        if (!inited)
+            access.init()
+    }, [inited])
+    
+    if (!inited)
+        return <div>loading...</div>
+    
     return children
 }
 

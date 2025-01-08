@@ -4,6 +4,8 @@ import { useState, useMemo } from 'react'
 
 import { t } from '@i18n/index.js'
 
+import { useNavigate, useSearchParams } from 'react-router'
+
 import { model } from '@/model.js'
 
 import { access } from '@/access/model.js'
@@ -29,7 +31,14 @@ export function AccessTabs ({
     const { data: users = [ ] } = useUsers()
     const { data: groups = [ ] } = useGroups()
     
-    const [tab_key, set_tab_key] = useState('database')
+    const navigate = useNavigate()
+    const [searchParams, setSearchParams] = useSearchParams()
+    const [tab_key, set_tab_key] = useState(() => searchParams.get('tab') || 'database')
+    
+    function handleTabChange (key: string) {
+        set_tab_key(key)
+        setSearchParams({ ...Object.fromEntries(searchParams), tab: key })
+    }
     
     const tabs: TabsProps['items'] = useMemo(
         () => [
@@ -81,7 +90,8 @@ export function AccessTabs ({
         right: (
             <Button
                 icon={<ReloadOutlined />}
-                onClick={() => {
+                onClick={async () => {
+                    navigate(0)
                     model.message.success(t('刷新成功'))
                 }}
             >
@@ -94,7 +104,7 @@ export function AccessTabs ({
             type='card'
             items={tabs}
             activeKey={tab_key}
-            onChange={set_tab_key}
+            onChange={handleTabChange}
             tabBarExtraContent={OperationsSlot}
         />
 }
