@@ -450,8 +450,8 @@ export class DdbModel extends Model<DdbModel> {
             await maybe_jump(params)
             
             const code = params.get('code')
-            
-            if (code) {
+            const skip_oauth = location.pathname.includes('/oauth-gitlab') || location.pathname.includes('/oauth-github')
+            if (code && !skip_oauth) {
                 console.log(
                     t('尝试 oauth 单点登录，类型是 authorization code, code 为 {{code}}',
                     { code }))

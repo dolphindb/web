@@ -281,16 +281,16 @@ const router = createBrowserRouter([
             {
                 path: 'finance-guide/',
                 element: <FinanceGuide />
+            },
+            {
+                path: 'oauth-gitlab/',
+                element: <GitLabOauth/>
+            },
+            {
+                path: 'oauth-github/',
+                element: <GitHubOauth/>
             }
         ]
-    },
-    {
-        path: 'oauth-gitlab/',
-        element: <GitLabOauth/>
-    },
-    {
-        path: 'oauth-github/',
-        element: <GitHubOauth/>
     }
 ], 
     model.assets_root === '/' ? undefined : { basename: model.assets_root }
