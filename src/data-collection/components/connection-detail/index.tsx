@@ -31,6 +31,8 @@ import { get_connect_detail, get_parser_templates } from '@/data-collection/api.
 import { type IParserTemplate, Protocol, type ISubscribe } from '@/data-collection/type.ts'
 import { CreateSubscribeModal } from '../create-subscribe-modal/index.tsx'
 
+import { DDBTable } from '@/components/DDBTable/index.tsx'
+
 import { DeleteDescribeModal } from './delete-describe-modal.js'
 import { TemplateViewModal } from './parser-template-view-modal.js'
 
@@ -215,27 +217,21 @@ export function ConnectionDetail (props: IProps) {
             title={t('基本信息')}
             items={desp_items}
         />
-        <h3>{t('订阅列表')}</h3>
-        <Space className='subscribe-btn-group'>
-            <Button 
-                icon={<PlusOutlined />} 
-                type='primary' 
-                onClick={on_create_subscribe}
-            >
-                {t('新增订阅')}
-            </Button>
-            <Button 
-                icon={<DeleteOutlined />} 
-                danger 
-                onClick={async () => { await NiceModal.show(DeleteDescribeModal, { ids: selected_subscribes, refresh: mutate }) }} 
-                disabled={!selected_subscribes.length}
-            >
-                {t('批量删除')}
-            </Button>
-        </Space>
         
-        
-        <Table
+        <DDBTable<ISubscribe> 
+            title={t('订阅列表')} 
+            buttons={[{
+                children: t('新增订阅'),
+                type: 'primary',
+                icon: <PlusOutlined />,
+                onClick: on_create_subscribe
+            },
+            {
+                children: t('批量删除'),
+                danger: true,
+                onClick: async () => { await NiceModal.show(DeleteDescribeModal, { ids: selected_subscribes, refresh: mutate }) },
+                disabled: !selected_subscribes.length
+            }]} 
             columns={columns} 
             scroll={{ x: '100%' }}
             dataSource={data?.subscribes ?? [ ]}
@@ -251,7 +247,6 @@ export function ConnectionDetail (props: IProps) {
                 selectedRowKeys: selected_subscribes
             }}
         />
-        
     </div>
     </Spin>
 }

@@ -7,7 +7,7 @@ export interface DDBTableProps<T> extends Omit<TableProps<T>, 'title'> {
     /** 选传，对于表格的解释说明 */
     help?: string
     /** 表格操作，传入数组，每项为按钮的 props， 例如 [{children: "新建", type: "primary"}] */
-    buttons: ButtonProps[]
+    buttons?: ButtonProps[]
 }
 
 export function DDBTable<T> (props: DDBTableProps<T>) {
@@ -21,10 +21,11 @@ export function DDBTable<T> (props: DDBTableProps<T>) {
                     <QuestionCircleOutlined className='help-icon' /> 
                 </Tooltip>}
             </div>}
-            
-            <Space size='middle'>
-                {buttons.filter(Boolean).map((btn, index) => <Button key={index} {...btn} />)}
-            </Space>
+            {
+                !!buttons?.length && <Space size='middle'>
+                    {buttons.filter(Boolean).map((btn, index) => <Button key={index} {...btn} />)}
+                </Space>
+            }
         </div>
         
         <Table {...others} />
