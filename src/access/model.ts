@@ -2,7 +2,7 @@ import { Model } from 'react-object-model'
 
 import { DdbInt, DdbVectorString, type DdbVectorStringObj } from 'dolphindb/browser.js'
 
-import { model } from '../model.js'
+import { model, NodeType } from '../model.js'
 
 import { DATABASES_WITHOUT_CATALOG } from './constants.js'
 
@@ -250,7 +250,12 @@ class AccessModel extends Model<AccessModel> {
     
     
     async get_share_tables () {
-        const tables = (await model.ddb.execute('pnodeRun(objs{true})')).data
+        const tables = (await model.ddb.execute(`pnodeRun(objs{true},
+            [${model.nodes.
+                filter(node => node.mode !== NodeType.agent).
+                map(node => `"${node.name}"`).
+                join(',')}
+            ],true)`)).data
         this.set({
             shared_tables: tables.filter(table => table.shared && table.type === 'BASIC' && table.form === 'TABLE')
                 .map(table => `${table.node}:${table.name}`),
