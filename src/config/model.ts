@@ -39,11 +39,11 @@ class ConfigModel extends Model<ConfigModel> {
     }
     
     
-    /** load_configs 依赖 controller alias 等信息 */
     async load_configs () {
         const configs = parse_nodes_configs(
-            await this.invoke<string[]>('loadClusterNodesConfigs', undefined, { urgent: true })
-        )
+            // 2025.01.03 登录鉴权功能之后 loadClusterNodesConfigs 没有要求一定要在控制节点执行了
+            // 所以这里不用 this.invoke
+            await model.ddb.invoke<string[]>('loadClusterNodesConfigs', undefined, { urgent: true }))
         
         this.set({ nodes_configs: configs })
         
@@ -52,10 +52,7 @@ class ConfigModel extends Model<ConfigModel> {
             Object.fromEntries(
                 iterator_map(
                     this.nodes_configs.entries(),
-                    ([key, { value }]) => [key, value]
-                )
-            )
-        )
+                    ([key, { value }]) => [key, value])))
         
         return configs        
     }
@@ -166,7 +163,7 @@ class ConfigModel extends Model<ConfigModel> {
             [t('网络')]: new Set(['enableHTTPS', 'localSite', 'maxConnections', 'maxConnectionPerSite', 'tcpNoDelay']),
             [t('流发布')]: new Set(['maxMsgNumPerBlock', 'maxPersistenceQueueDepth', 'maxPubQueueDepthPerSite', 'maxPubConnections', 'persistenceDir', 'persistenceWorkerNum']),
             [t('流订阅')]: new Set(['maxSubConnections', 'maxSubQueueDepth', 'persistOffsetDir', 'subExecutorPooling', 'subExecutors', 'subPort', 'subThrottle']),
-            [t('系统')]: new Set(['console', 'config', 'home', 'maxPartitionNumPerQuery', 'mode', 'moduleDir', 'newValuePartitionPolicy', 'perfMonitoring', 'pluginDir', 'preloadModules', 'init', 'startup', 'run', 'tzdb', 'webRoot', 'webLoginRequired', 'enableShellFunction', 'enablePKEYEngine']),
+            [t('系统')]: new Set(['console', 'config', 'home', 'maxPartitionNumPerQuery', 'mode', 'moduleDir', 'newValuePartitionPolicy', 'perfMonitoring', 'pluginDir', 'preloadModules', 'init', 'startup', 'run', 'tzdb', 'webRoot', 'webLoginRequired', 'enableShellFunction', 'enablePKEYEngine', 'enableClientAuth']),
             
             ... model.v3 ? {
                 [t('计算组')]: new Set([
@@ -213,12 +210,12 @@ class ConfigModel extends Model<ConfigModel> {
             'metricsToken',
             'strictPermissionMode',
             'enableLocalDatabase',
+            'enableClientAuth',
             ...model.v3 ? [
                 'computeNodeCachingDelay',
                 'computeNodeCachingQueryThreshold',
                 'enableComputeNodePrefetchData',
             ] : [ ]
-            // 'enableClientAuth',
         ]
     }
 }
