@@ -12,6 +12,8 @@ import { type DdbObj, format, DdbType } from 'dolphindb/browser.js'
 
 import { language, t } from '@i18n/index.ts'
 
+import { Editor } from '@monaco-editor/react'
+
 import { model, type DdbJob } from '@/model.ts'
 
 import { TableCellDetail } from '@/components/TableCellDetail/index.tsx'
@@ -576,7 +578,7 @@ function JobMessageShow ({ job, disabled }: { job: DdbJob, disabled?: boolean })
             open={show}
         >
             <div className='job-message'>
-                {message.map((line, i) => <p key={i}>{line}</p>)}
+                <Editor height='100%' width='100%' defaultLanguage='plaintext' defaultValue={message.join_lines()} value={message.join_lines()} options={{ readOnly: true }} />
             </div>
             <div>
                 {!show_all && show_see_more && <Link title={t('查看更多')} onClick={show_all_messages}>{t('查看更多')}</Link>}
