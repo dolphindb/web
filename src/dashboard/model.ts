@@ -225,7 +225,7 @@ export class DashBoardModel extends Model<DashBoardModel> {
                 bottom_row = widget.y + widget.h
         
         this.update_page_count(
-            Math.ceil((bottom_row + 3) / 12)
+            Math.ceil((bottom_row + 1) / 12)
         )
     }
     
