@@ -66,7 +66,7 @@ export function Commit ({ current_select_repo, current_select_branch, repo_name 
         return result
     }, { refreshInterval: 1000 * 60 * 3 }) // 3 分钟刷新一次
     
-    const is_have_update = !currentRemoteFileResp.isLoading && (currentRemoteFileResp.data?.content !== current_file_content)
+    const is_have_update = !currentRemoteFileResp.isLoading && (currentRemoteFileResp.data?.content !== current_file_content) && is_tab_git_tab
     
     async function commit_to_git () {
         const content_to_commit = content ?? shell.editor.getValue()
