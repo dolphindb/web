@@ -5889,7 +5889,7 @@
         "en": "Failed to get the file, please check permissions."
     },
     "使用 Oauth 登录到 GitLab": {
-        "en": "Sign in to GitLab using OAuth"
+        "en": "Use OAuth to log in to GitLab"
     },
     "请输入 Client ID!": {
         "en": "Please enter Client ID!"
@@ -5925,13 +5925,13 @@
         "en": "Please enter your GitLab Access Token"
     },
     "使用 Access Token 登录到 GitHub": {
-        "en": "Log in to GitHub using an Access Token"
+        "en": "Use Access Token to log in to GitHub"
     },
     "请输入你的 GitHub Access Token": {
         "en": "Please enter your GitHub Access Token"
     },
     "使用 Oauth 登录到 GitHub": {
-        "en": "Sign in to GitHub using OAuth"
+        "en": "Use OAuth to log in to GitHub"
     },
     "请输入你的 GitHub 应用 Client ID": {
         "en": "Please enter your GitHub App Client ID"
@@ -5954,12 +5954,6 @@
     "无法获取仓库列表，请检查权限或：": {
         "en": "Unable to get the repository list. Please check your permissions or:"
     },
-    "使用 SSO 登录到 GitHub": {
-        "en": "Use SSO to sign in to GitHub"
-    },
-    "使用 SSO 登录到 GitLab": {
-        "en": "Use SSO to log in to GitLab"
-    },
     "提交文件 {{file}} 到 {{repo}} 的分支 {{branch}}": {
         "en": "Commit file {{file}} to branch {{branch}} of {{repo}}"
     },
@@ -5977,5 +5971,14 @@
     },
     "代码存储失败，请检查代码大小或本地存储空间剩余空间": {
         "en": "Code saving failed. Please check the code size or the remaining space of local storage."
+    },
+    "获取文件列表失败或仓库为空": {
+        "en": "Failed to get file list or repository is empty"
+    },
+    "只支持在 HTTPS 下使用该登录方式": {
+        "en": "This login method is only supported under HTTPS."
+    },
+    "必须加载 httpClient 插件才能使用该登录方式": {
+        "en": "The httpClient plugin must be loaded to use this login method."
     }
 }

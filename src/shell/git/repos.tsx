@@ -70,10 +70,10 @@ export function Repos ({ on_select_repo }: { on_select_repo: (repo_id: string, t
                         {t('使用 Access Token 登录到 GitLab')}
                     </a><br />
                     <a onClick={() => { goto_auth('github') }}>
-                        {t('使用 SSO 登录到 GitHub')}
+                        {t('使用 Oauth 登录到 GitHub')}
                     </a><br />
                     <a onClick={() => { goto_auth('gitlab') }}>
-                        {t('使用 SSO 登录到 GitLab')}
+                        {t('使用 Oauth 登录到 GitLab')}
                     </a>
                 </div>
                 
