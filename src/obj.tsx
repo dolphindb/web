@@ -211,6 +211,10 @@ function Dict ({
                 
             const { node, name } = objref
             
+            // 重置分页
+            set_page_index(0)
+            set_page_size(100)
+            
             objref.obj = ddb ?
                 await ddb.eval<DdbDictObj>(name)
             :
@@ -218,7 +222,7 @@ function Dict ({
             
             render()
         })()
-    }, [obj, objref, ddb, remote])
+    }, [obj, objref])
     
     
     
