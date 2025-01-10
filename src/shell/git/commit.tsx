@@ -35,6 +35,7 @@ export function Commit ({ current_select_repo, current_select_branch, repo_name 
     const repo_path = is_tab_git_tab ? current_tab?.git?.repo_path : current_select_repo_path
     const branch = is_tab_git_tab ? current_tab?.git?.branch : current_select_branch
     const path = is_tab_git_tab ? current_tab?.git?.file_path : commit_file_name
+    const current_remote_file_path = is_tab_git_tab ? current_tab?.git?.file_path : undefined
     const file_name = is_tab_git_tab ? current_tab?.git?.file_name : commit_file_name
     const commit_repo_name = is_tab_git_tab ? current_tab?.git?.repo_name : repo_name
     const content = is_tab_git_tab ? current_tab?.code : undefined
@@ -59,14 +60,14 @@ export function Commit ({ current_select_repo, current_select_branch, repo_name 
         
     const current_file_content = is_tab_git_tab ? current_tab?.git?.raw_code : current_tab?.code
     
-    const currentRemoteFileResp = useSWR(['get_file_by_path_in_commit_component', repo_path, path, branch], async () => {
-        if (!is_tab_git_tab || !getToken())
+    const current_remote_file_resp = useSWR(['get_file_by_path_in_commit_component', repo_path, current_remote_file_path, branch], async () => {
+        if (!is_tab_git_tab || !getToken() || !current_remote_file_path)
             return undefined
-        const result = await git_provider.get_file_by_path(repo_path, path, branch)
+        const result = await git_provider.get_file_by_path(repo_path, current_remote_file_path, branch)
         return result
     }, { refreshInterval: 1000 * 60 * 3 }) // 3 分钟刷新一次
     
-    const is_have_update = !currentRemoteFileResp.isLoading && (currentRemoteFileResp.data?.content !== current_file_content) && is_tab_git_tab
+    const is_have_update = !current_remote_file_resp.isLoading && (current_remote_file_resp.data?.content !== current_file_content) && is_tab_git_tab
     
     async function commit_to_git () {
         const content_to_commit = content ?? shell.editor.getValue()
@@ -85,7 +86,7 @@ export function Commit ({ current_select_repo, current_select_branch, repo_name 
                 const updated_file = await git_provider.get_file_by_path(repo_path, path, branch)
                 shell.update_git_tab_code(current_tab?.index, updated_file.content, updated_file.commit_id, updated_file.content_sha256)
                 set_commit_message('')
-                currentRemoteFileResp.mutate() // 更新一下，防止展示更新文件的提示
+                current_remote_file_resp.mutate() // 更新一下，防止展示更新文件的提示
             }
             
             else
