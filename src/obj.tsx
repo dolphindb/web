@@ -295,7 +295,7 @@ function build_tree_data_with_slice (
     const dict_key = obj.value[0]
     const dict_value = obj.value[1]
     // 从后往前构建数据，保持原有顺序
-    return seq(end - start, i => {
+    return seq(Math.max(end - start, 0), i => {
         const realIndex = end - 1 - i
         let key = formati(dict_key, realIndex, options)
         let valueobj = dict_value.value[realIndex]
