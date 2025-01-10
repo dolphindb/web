@@ -1,6 +1,6 @@
 import './obj.sass'
 
-import { useEffect, useRef, useState, type default as React, type FC, type RefObject, useCallback } from 'react'
+import { useEffect, useRef, useState, type default as React, type FC, type RefObject, useCallback, useMemo } from 'react'
 
 import {
     Pagination,
@@ -194,37 +194,65 @@ function Dict ({
     ctx?: Context
     options?: InspectOptions
 }) {
-    const render = useState({ })[1]
+    const [page_size, set_page_size] = useState(100)
+    const [page_index, set_page_index] = useState(0)
+    const render = use_rerender()
+    const [expanded_keys, set_expanded_keys] = useState<React.Key[]>([ ])
     
-    const _obj = obj || objref.obj
-    
+    const _obj = obj || objref?.obj
+        
     useEffect(() => {
         (async () => {
-            if (_obj)
+            if (obj || objref?.obj)
                 return
             
+            if (!objref)
+                return
+                
             const { node, name } = objref
-            
-            console.log('dict.fetch:', name)
             
             objref.obj = ddb ?
                 await ddb.eval<DdbDictObj>(name)
             :
                 DdbObj.parse(... await remote.call<[Uint8Array, boolean]>('eval', [node, name])) as DdbDictObj
             
-            render({ })
+            render()
         })()
-    }, [obj, objref])
+    }, [obj, objref, ddb, remote])
     
+    
+    
+    const current_page_data = useMemo(() => {
+        if (!_obj)
+            return [ ]
+            
+        const total_rows = _obj.value[0].rows
+        const end = total_rows - (page_index * page_size)
+        const start = Math.max(end - page_size, 0)
+        const data = build_tree_data_with_slice(_obj, start, end, { remote, ddb, ctx, options })
+            
+        const keys: React.Key[] = [ ]
+        // 递归收集所有 key
+        function collect_keys (items: any[]) {
+            items.forEach(item => {
+                keys.push(item.key)
+                if (item.children)
+                    collect_keys(item.children)
+            })
+        }
+        collect_keys(data)
+        set_expanded_keys(keys)
+        
+        return data
+    }, [_obj, page_index, page_size, remote, ddb, ctx, options])
     
     if (!_obj)
         return null
-    
+        
     return <div className='dict'>
         <Tree
-            key={genid()}
-            treeData={build_tree_data(_obj, { remote, ddb, ctx, options })}
-            defaultExpandAll
+            treeData={current_page_data}
+            expandedKeys={expanded_keys}
             focusable={false}
             blockNode
             showLine
@@ -235,13 +263,75 @@ function Dict ({
         
         <div className='bottom-bar'>
             <div className='info'>
-                <span className='desc'>{_obj.rows} {t('个键')}{ objref ? ` (${Number(objref.bytes).to_fsize_str()}) ` : '' }</span>
+                <span className='desc'>{_obj.value[0].rows} {t('个键')}{ objref ? ` (${Number(objref.bytes).to_fsize_str()}) ` : '' }</span>
                 <span className='type'>{t('的词典')}</span>
-            </div> 
+            </div>
+            
+            <Pagination
+                className='pagination'
+                total={_obj.value[0].rows}
+                current={page_index + 1}
+                pageSize={page_size}
+                pageSizeOptions={page_sizes}
+                size='small'
+                showSizeChanger
+                showQuickJumper
+                hideOnSinglePage={page_size <= 50}
+                onChange={(page, size) => {
+                    set_page_size(size)
+                    set_page_index(page - 1)
+                }}
+            />
         </div>
     </div>
 }
 
+function build_tree_data_with_slice (
+    obj: DdbDictObj,
+    start: number,
+    end: number,
+    { remote, ctx, ddb, options }: { remote?: Remote, ctx?: Context, ddb?: DDB, options?: InspectOptions }
+) {
+    const dict_key = obj.value[0]
+    const dict_value = obj.value[1]
+    // 从后往前构建数据，保持原有顺序
+    return seq(end - start, i => {
+        const realIndex = end - 1 - i
+        let key = formati(dict_key, realIndex, options)
+        let valueobj = dict_value.value[realIndex]
+        
+        if (valueobj && Object.getPrototypeOf(valueobj)?.constructor.name === 'DdbObj')
+            if (valueobj.form === DdbForm.dict)
+                return {
+                    title: `${key}: `,
+                    key: genid(),
+                    children: build_tree_data_with_slice(valueobj, start, end, { remote, ctx, ddb })
+                }
+            else if (valueobj.form === DdbForm.scalar)
+                return {
+                    title: `${key}: ${format(valueobj.type, valueobj.value, valueobj.le, { ...options, quote: true, nullstr: true })}`,
+                    key: genid()
+                }
+            else {
+                const View = views[valueobj.form] || Default
+                return {
+                    title: `${key}:`,
+                    key: genid(),
+                    children: [
+                        {
+                            title: <View obj={valueobj} ctx={ctx} ddb={ddb} remote={remote} options={options} />,
+                            key: genid()
+                        }
+                    ]
+                }
+            }
+        else
+            return {
+                title: `${key}: ${truncate(formati(dict_value, realIndex, options))}`,
+                key: genid()
+            }
+    })
+}
 
 function Tensor ({
     obj,
@@ -326,9 +416,7 @@ function Tensor ({
     const currentDimSize: number = _obj.value.shape[currentDim]
     // 搞这么多元素来
     const elems = [ ]
-    const offset = currentDir.reduce((prev, curr, index) => {
-        return prev + strides[index] * curr * dataByte
-    }, 0)
+    const offset = currentDir.reduce((prev, curr, index) => prev + strides[index] * curr * dataByte, 0)
     
     let arrstrall = ''
     for (let j = 0;  j < _obj.value.dimensions;  j++) 
@@ -382,9 +470,7 @@ function Tensor ({
         }
     
     
-    const navItems = currentDir.map((e, i) => {
-        return <div className='tensor-nav-elem' key={`tensor-index-${i}`} onClick={() => { popDimIndexTo(i + 1) }}>[{e}] <RightOutlined style={{ transform: 'scale(0.8,0.8) translate(0,2px)' }}/></div>
-    })
+    const navItems = currentDir.map((e, i) => <div className='tensor-nav-elem' key={`tensor-index-${i}`} onClick={() => { popDimIndexTo(i + 1) }}>[{e}] <RightOutlined style={{ transform: 'scale(0.8,0.8) translate(0,2px)' }}/></div>)
     
     
     return <div className='tensor'>
