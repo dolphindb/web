@@ -5827,5 +5827,23 @@
     },
     "取消执行": {
         "en": "Cancel execution"
+    },
+    "原有项:": {
+        "en": "Original items"
+    },
+    "移入项:": {
+        "en": "Moved in items"
+    },
+    "移出项:": {
+        "en": "Moved out items"
+    },
+    "数据库 {{db_name}}": {
+        "en": "Database {{db_name}}"
+    },
+    "数据表 {{tb_name}}": {
+        "en": "Table {{tb_name}}"
+    },
+    "没有正在运行的数据节点": {
+        "en": "No running data nodes"
     }
 }
