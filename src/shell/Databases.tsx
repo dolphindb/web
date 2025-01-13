@@ -66,8 +66,9 @@ enum TableKind {
 
 
 export function Databases () {
+    const { node, logined, node_type, v3, client_auth, username } = 
+        model.use(['node', 'logined', 'node_type', 'v3', 'client_auth', 'username'])
     const { dbs } = shell.use(['dbs'])
-    const { node, logined, node_type, v3 } = model.use(['node', 'logined', 'node_type', 'v3'])
     
     const [db_height, set_db_height] = useState(256)
     
@@ -94,6 +95,12 @@ export function Databases () {
             set_refresh_spin(false)
         }
     }, [ ])
+    
+    
+    useEffect(() => {
+        if (logined || !client_auth)
+            shell.load_dbs()
+    }, [logined, client_auth, username])
     
     
     return <Resizable

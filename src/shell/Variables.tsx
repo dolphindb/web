@@ -1,4 +1,4 @@
-import { default as React, useCallback, useState } from 'react'
+import { default as React, useCallback, useEffect, useState } from 'react'
 
 import { Tooltip, Tree } from 'antd'
 
@@ -48,6 +48,7 @@ import SvgSchema from './icons/schema.icon.svg'
 
 
 export function Variables ({ shared }: { shared?: boolean }) {
+    const { logined, client_auth, username } = model.use(['logined', 'client_auth', 'username'])
     const { vars } = shell.use(['vars'])
     
     const [expanded_keys, set_expanded_keys] = useState(Array(9).fill(0).map((_x, i) => String(i)))
@@ -69,6 +70,11 @@ export function Variables ({ shared }: { shared?: boolean }) {
             set_refresh_spin(false)
         }
     }, [ ])
+    
+    useEffect(() => {
+        if (logined || !client_auth)
+            shell.update_vars()
+    }, [logined, client_auth, username])
     
     const vars_ = vars ? vars.filter(v => {
         return v.shared === shared

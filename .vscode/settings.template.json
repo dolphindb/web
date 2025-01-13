@@ -9,8 +9,8 @@
     "editor.formatOnPaste": false,
     "editor.tabSize": 4,
     "editor.codeActionsOnSave": {
-        "source.fixAll": true,
-        "source.organizeImports": false
+        "source.fixAll": "always",
+        "source.organizeImports": "never"
     },
     "[typescript][typescriptreact]": {
         "editor.defaultFormatter": "vscode.typescript-language-features"
