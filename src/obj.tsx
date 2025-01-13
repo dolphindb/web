@@ -538,55 +538,6 @@ function get_value_from_uint8_array (dataType: DdbType, data: Uint8Array, le: bo
 }
 
 
-function build_tree_data (
-    obj: DdbDictObj,
-    { remote, ctx, ddb, options }: { remote?: Remote, ctx?: Context, ddb?: DDB, options?: InspectOptions }
-) {
-    const dict_key = obj.value[0]
-    const dict_value = obj.value[1]
-    
-    return seq(dict_key.rows, i => {
-        let key = formati(dict_key, i, options)
-        
-        let valueobj = dict_value.value[i]
-        
-        // if (valueobj instanceof DdbObj)
-        // valueobj 可能来自不同 window
-        if (valueobj && Object.getPrototypeOf(valueobj)?.constructor.name === 'DdbObj')
-            if (valueobj.form === DdbForm.dict)
-                return {
-                    title: `${key}: `,
-                    key: genid(),
-                    children: build_tree_data(valueobj, { remote, ctx, ddb })
-                }
-            else if (valueobj.form === DdbForm.scalar)
-                return {
-                    title: `${key}: ${format(valueobj.type, valueobj.value, valueobj.le, { ...options, quote: true, nullstr: true })}`,
-                    key: genid()
-                }
-            else {
-                const View = views[valueobj.form] || Default
-                
-                return {
-                    title: `${key}:`,
-                    key: genid(),
-                    children: [
-                        {
-                            title: <View obj={valueobj} ctx={ctx} ddb={ddb} remote={remote} options={options} />,
-                            key: genid()
-                        }
-                    ]
-                }
-            }
-        else
-            return {
-                title: `${key}: ${truncate(formati(dict_value, i, options))}`,
-                key: genid()
-            }
-    })
-}
-
-
 function Vector ({
     obj,
     objref,
