@@ -197,24 +197,20 @@ function Dict ({
     const [page_size, set_page_size] = useState(100)
     const [page_index, set_page_index] = useState(0)
     const render = use_rerender()
-    const [expanded_keys, set_expanded_keys] = useState<React.Key[]>([ ])
+    // const [expanded_keys, set_expanded_keys] = useState<React.Key[]>([ ])
     
-    const _obj = obj || objref?.obj
+    const _obj = obj || objref.obj
         
     useEffect(() => {
         (async () => {
-            if (obj || objref?.obj)
-                return
-            
-            if (!objref)
-                return
-                
-            const { node, name } = objref
-            
             // 重置分页
             set_page_index(0)
             set_page_size(100)
+            if (obj || objref.obj)
+                return
             
+            const { node, name } = objref
+             
             objref.obj = ddb ?
                 await ddb.eval<DdbDictObj>(name)
             :
@@ -226,37 +222,26 @@ function Dict ({
     
     
     
-    const current_page_data = useMemo(() => {
+    const current_page_data = (() => {
         if (!_obj)
             return [ ]
             
-        const total_rows = _obj.value[0].rows
-        const end = total_rows - (page_index * page_size)
-        const start = Math.max(end - page_size, 0)
+        const total_rows = _obj.rows
+        const start = page_index * page_size
+        const end = Math.min(start + page_size, total_rows)
         const data = build_tree_data_with_slice(_obj, start, end, { remote, ddb, ctx, options })
-            
-        const keys: React.Key[] = [ ]
-        // 递归收集所有 key
-        function collect_keys (items: any[]) {
-            items.forEach(item => {
-                keys.push(item.key)
-                if (item.children)
-                    collect_keys(item.children)
-            })
-        }
-        collect_keys(data)
-        set_expanded_keys(keys)
         
         return data
-    }, [_obj, page_index, page_size, remote, ddb, ctx, options])
+    })()
     
     if (!_obj)
         return null
         
     return <div className='dict'>
         <Tree
+            key={genid()}
             treeData={current_page_data}
-            expandedKeys={expanded_keys}
+            defaultExpandAll
             focusable={false}
             blockNode
             showLine
@@ -267,13 +252,13 @@ function Dict ({
         
         <div className='bottom-bar'>
             <div className='info'>
-                <span className='desc'>{_obj.value[0].rows} {t('个键')}{ objref ? ` (${Number(objref.bytes).to_fsize_str()}) ` : '' }</span>
+                <span className='desc'>{_obj.rows} {t('个键')}{ objref ? ` (${Number(objref.bytes).to_fsize_str()}) ` : '' }</span>
                 <span className='type'>{t('的词典')}</span>
             </div>
             
             <Pagination
                 className='pagination'
-                total={_obj.value[0].rows}
+                total={_obj.rows}
                 current={page_index + 1}
                 pageSize={page_size}
                 pageSizeOptions={page_sizes}
@@ -298,9 +283,8 @@ function build_tree_data_with_slice (
 ) {
     const dict_key = obj.value[0]
     const dict_value = obj.value[1]
-    // 从后往前构建数据，保持原有顺序
     return seq(Math.max(end - start, 0), i => {
-        const realIndex = end - 1 - i
+        const realIndex = start + i
         let key = formati(dict_key, realIndex, options)
         let valueobj = dict_value.value[realIndex]
         
