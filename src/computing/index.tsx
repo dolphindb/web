@@ -675,7 +675,7 @@ function add_details_col (cols: TableColumnType<Record<string, any>>[]) {
         {
             title: <span className='col-title'>{t('更多信息')}</span>,
             dataIndex: 'details',
-            render: async (value: ReactNode) => value
+            render: (value: ReactNode) => value as any
         }
     ]
 }
