@@ -28,8 +28,6 @@ export function AccessObjSelect ({
     
     const { data: databases } = use_access_objs(role, 'database')
     
-    console.log('catalogs', obj_options)
-    
     if (!obj_options || !catalogs || !databases)
         return null
     

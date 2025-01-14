@@ -85,7 +85,7 @@ export function AccessTabs ({
                         label: t
                     }))}
                     onSelect={item => {
-                        model.goto(`/access/${role}/${item}/${mode}`)
+                        model.goto(`/access/${role}/${item}${mode === 'view' ? '' : '/edit'}`, { queries: { tab: tab_key } })
                     }}
                 />
             </div>
