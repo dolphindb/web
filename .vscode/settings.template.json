@@ -8,12 +8,10 @@
     "editor.formatOnSave": false,
     "editor.formatOnPaste": false,
     "editor.tabSize": 4,
+    "editor.comments.ignoreEmptyLines": false,
     "editor.codeActionsOnSave": {
         "source.fixAll": "always",
         "source.organizeImports": "never"
-    },
-    "[typescript][typescriptreact]": {
-        "editor.defaultFormatter": "vscode.typescript-language-features"
     },
     "gitlens.integrations.enabled": true,
     "gitlens.remotes": [{ "domain": "dolphindb.net", "type": "GitLab" }],

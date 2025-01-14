@@ -25,10 +25,7 @@ interface ACCESS {
 
 export function AccessManage ({ role, name, category }: { role: AccessRole, name: string, category: AccessCategory }) {
 
-    const { shared_tables, inited } = access.use([
-        'shared_tables',
-        'inited'
-    ])
+    const { shared_tables, inited } = access.use(['shared_tables', 'inited'])
     
     const { data: accesses, mutate: update_accesses } = useAccess(role, name)
     

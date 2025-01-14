@@ -45,7 +45,7 @@ export const GroupCreateModal = NiceModal.create(() => {
                     set_selected_users([ ])
                     set_target_users([ ])
                     add_group_form.resetFields()
-                    mutate('groups')
+                    await mutate('groups')
                 } catch (error) {
                     if (error instanceof Error)
                         throw error

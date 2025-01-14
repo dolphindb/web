@@ -650,6 +650,7 @@ export class DdbModel extends Model<DdbModel> {
                 else
                     params.delete(key)
             })
+        
         this.navigate({ pathname, search: params.toString() }, options)
     }
     
@@ -742,8 +743,7 @@ export class DdbModel extends Model<DdbModel> {
     has_data_and_computing_nodes_alive () {
         return Boolean(
             this.nodes.find(node =>
-                node.mode === NodeType.data && 
-                node.state === DdbNodeState.online)
+                node.mode === NodeType.data && node.state === DdbNodeState.online)
         )
     }
     

@@ -8,8 +8,6 @@ import { useNavigate, useSearchParams } from 'react-router'
 
 import { model } from '@/model.js'
 
-import { access } from '@/access/model.js'
-
 import type { AccessRole, AccessMode, AccessCategory } from '@/access/types.js'
 import { useUsers } from '@/access/hooks/useUsers.ts'
 import { useGroups } from '@/access/hooks/useGroups.ts'

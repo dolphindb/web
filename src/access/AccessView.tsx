@@ -1,5 +1,3 @@
-import { useParams, useLocation } from 'react-router'
-
 import { AccessTabs } from './components/access/AccessTabs.tsx'
 import { AccessList } from './AccessList.tsx'
 import type { AccessCategory } from './types.ts'

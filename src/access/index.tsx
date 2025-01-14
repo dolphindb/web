@@ -26,10 +26,11 @@ function AccessGuard ({ children }) {
 
 function AccessWrapper ({ children }) {
     const { inited } = access.use(['inited'])
+    
     useEffect(() => {
         if (!inited)
             access.init()
-    }, [inited])
+    }, [ ])
     
     if (!inited)
         return <div>loading...</div>
@@ -55,10 +56,6 @@ export function Access () {
                     children: [
                         {
                             index: true,
-                            element: <Navigate to='view' replace />
-                        },
-                        {
-                            path: 'view',
                             element: <AccessViewPage />
                         },
                         {
@@ -81,10 +78,6 @@ export function Access () {
                     children: [
                         {
                             index: true,
-                            element: <Navigate to='view' replace />
-                        },
-                        {
-                            path: 'view',
                             element: <AccessViewPage />
                         },
                         {

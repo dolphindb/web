@@ -38,7 +38,12 @@ export function LanguageSelect () {
     ]
     
     return <Dropdown
-            menu={{ items }}
+            menu={{
+                items,
+                onChange () {
+                    
+                }
+            }}
             placement='bottomRight'
             trigger={['hover', 'click']}
             arrow

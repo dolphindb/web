@@ -70,10 +70,6 @@ enum Access {
 }
 
 class AccessModel extends Model<AccessModel> {
-    users: string[] = [ ]
-    
-    groups: string[] = [ ]
-    
     catalogs: Catalog[] = [ ]
     
     databases: Database[] = [ ]
@@ -165,7 +161,7 @@ class AccessModel extends Model<AccessModel> {
     
     
     async get_user_list () {
-        return (model.ddb.invoke<string[]>('getUserList', [ ]))
+        return model.ddb.invoke<string[]>('getUserList')
     }
     
     // final 属性代表是否获取用户最终权限，只有在用户查看权限界面需要 final = true
@@ -175,7 +171,7 @@ class AccessModel extends Model<AccessModel> {
     
     
     async get_group_list () {
-        return (model.ddb.invoke<string[]>('getGroupList', [ ]))
+        return model.ddb.invoke<string[]>('getGroupList')
     }
     
     
@@ -250,15 +246,18 @@ class AccessModel extends Model<AccessModel> {
     
     
     async get_share_tables () {
-        const tables = (await model.ddb.execute(`pnodeRun(objs{true},
-            [${model.nodes.
-                filter(node => node.mode !== NodeType.agent).
-                map(node => `"${node.name}"`).
-                join(',')}
-            ],true)`)).data
+        const tables = (
+            await model.ddb.execute(`pnodeRun(objs{true},
+                    [${model.nodes
+                        .filter(node => node.mode !== NodeType.agent)
+                        .map(node => `"${node.name}"`)
+                        .join(',')}
+                    ],true)`)
+        ).data
         this.set({
-            shared_tables: tables.filter(table => table.shared && table.type === 'BASIC' && table.form === 'TABLE')
-                .map(table => `${table.node}:${table.name}`),
+            shared_tables: tables
+                .filter(table => table.shared && table.type === 'BASIC' && table.form === 'TABLE')
+                .map(table => `${table.node}:${table.name}`)
         })
     }
     

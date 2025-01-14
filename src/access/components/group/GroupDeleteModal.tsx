@@ -29,7 +29,7 @@ export const GroupDeleteModal = NiceModal.create((
             model.message.success(t('组删除成功'))
             reset_selected_groups()
             modal.hide()
-            mutate('groups')
+            await mutate('groups')
         }}
         title={<Tooltip>{t('确认删除选中的 {{num}} 个组吗？', { num: selected_groups.length })}</Tooltip>}
     />
