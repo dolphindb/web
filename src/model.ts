@@ -197,12 +197,20 @@ export class DdbModel extends Model<DdbModel> {
         
         const host = params.get('host')
         
+        const language = localStorage.getItem(storage_keys.language)
+            
+        if (language) 
+            params.set('language', language)
+        
         if (host) {
             // 优先用 host 参数中的主机和端口
             [hostname, port] = host.split(':')
             params.delete('host')
             params.set('hostname', hostname)
             params.set('port', port)
+        }
+        
+        if (language || host) {
             // 转换 url
             let url = new URL(location.href)
             url.search = params.toString()
@@ -1062,6 +1070,7 @@ export const storage_keys = {
     minimap: 'ddb.editor.minimap',
     enter_completion: 'ddb.editor.enter_completion',
     sql: 'ddb.sql',
+    language: 'ddb.web.language',
     dashboard_autosave: 'ddb.dashboard.autosave',
     overview_display_mode: 'ddb.overview.display_mode',
     overview_display_columns: 'ddb.overview.display_columns',

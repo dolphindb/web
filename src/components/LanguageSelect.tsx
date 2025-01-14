@@ -1,14 +1,21 @@
 import { Dropdown, type  MenuProps } from 'antd'
 
-import SvgI18n from '@/icons/i18n.icon.svg'
+import { t } from '@i18n/index.ts'
 
-import { model } from '@/model.ts'
+import SvgI18n from '@/icons/i18n.icon.svg'
+import { storage_keys } from '@/model.ts'
 
 
 export function LanguageSelect () {
     function handleLanguageChange (lang: string) {
         const searchParams = new URLSearchParams(location.search)
-        searchParams.set('language', lang)
+        if (lang === 'auto') {
+            localStorage.removeItem(storage_keys.language)
+            searchParams.delete('language')
+        } else {
+            searchParams.set('language', lang)
+            localStorage.setItem(storage_keys.language, lang)
+        }
         location.search = searchParams.toString()
     }
     
@@ -22,6 +29,11 @@ export function LanguageSelect () {
             key: 'en',
             label: 'English',
             onClick: () => { handleLanguageChange('en') }
+        },
+        {
+            key: 'auto',
+            label: t('自动'),
+            onClick: () => { handleLanguageChange('auto') }
         }
     ]
     
