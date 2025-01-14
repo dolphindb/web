@@ -581,7 +581,7 @@ function JobMessageShow ({ job, disabled }: { job: DdbJob, disabled?: boolean })
                 <Editor height='100%' width='100%' defaultLanguage='plaintext' defaultValue={message.join_lines()} value={message.join_lines()} options={{ readOnly: true }} />
             </div>
             <div>
-                {!show_all && show_see_more && <Link title={t('查看更多')} onClick={show_all_messages}>{t('查看更多')}</Link>}
+                {!show_all && show_see_more && <Link title={t('当前显示的是日志的一部分，点击以查看完整日志')} onClick={show_all_messages}>{t('当前显示的是日志的一部分，点击以查看完整日志')}</Link>}
             </div>
         </Modal>
         <Link disabled={disabled} title={t('查看日志')} onClick={get_job_message}>{
