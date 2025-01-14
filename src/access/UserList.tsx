@@ -18,7 +18,7 @@ import { UserCreateModal } from './components/user/UserCreateModal.tsx'
 import { UserDeleteModal } from './components/user/UserDeleteModal.tsx'
 import { ResetPasswordModal } from './components/user/ResetPasswordModal.tsx'
 import { UserGroupEditModal } from './components/user/UserGroupEditModal.tsx'
-import { useUsers } from './hooks/useUsers.ts'
+import { use_users } from './hooks/use-users.ts'
 
 export function UserList () {
     const [search_key, set_search_key] = useState('')
@@ -27,7 +27,7 @@ export function UserList () {
     
     const reset_selected = useCallback(() => { set_selected_users([ ]) }, [ ])
     
-    const { data: users, mutate: mutateUsers } = useUsers()
+    const { data: users, mutate: mutateUsers } = use_users()
     
     const { data: users_access, mutate: mutateUsersAccess } = useSWR(
         ['users/access', users], 
@@ -144,14 +144,14 @@ export function UserList () {
                         <div className='actions'>
                             <Button
                                 type='link'
-                                onClick={() => { model.goto(`/access/user/${current_user.userId}/view`, { replace: true }) }}
+                                onClick={() => { model.goto(`/access/user/${current_user.userId}`) }}
                             >
                                 {t('查看权限')}
                             </Button>
                             
                             <Button
                                 type='link'
-                                onClick={() => { model.goto(`/access/user/${current_user.userId}/manage`, { replace: true }) }}
+                                onClick={() => { model.goto(`/access/user/${current_user.userId}/edit`) }}
                             >
                                 {t('设置权限')}
                             </Button>
@@ -168,7 +168,6 @@ export function UserList () {
                             <Button
                                 type='link'
                                 onClick={async () => {
-                                    access.set({ current: { name: current_user.userId } })
                                     await NiceModal.show(ResetPasswordModal, { name: current_user.userId })
                                 }}
                             >

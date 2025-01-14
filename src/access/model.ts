@@ -69,46 +69,23 @@ enum Access {
     SCHEMA_DELETE = 37
 }
 
-class AccessModel extends Model<AccessModel> {
-    catalogs: Catalog[] = [ ]
-    
-    databases: Database[] = [ ]
-    
-    shared_tables: string[] = [ ]
-    
-    stream_tables: string[] = [ ]
-    
-    function_views: string[] = [ ]
-    
-    schema_set: Set<string> = new Set()
-    
-    inited = false
-    
-    current: {
-        role?: 'user' | 'group'
-        name?: string
-        view?: string
-    } = null
-    
-    accesses = null
-    
-    async init () {
-        if (model.v3)
-            await this.get_catelog_list()
-        await this.get_user_list()
-        await this.get_group_list()
-        await this.get_databases_with_tables()
-        await this.get_share_tables()
-        await this.get_stream_tables()
-        await this.get_function_views()
-        this.set({ inited: true })
+class AccessModel extends Model<AccessModel> {        
+    async get_catelog_with_schemas () {
+        const catelog_names = (await model.ddb.invoke<string[]>('getAllCatalogs', [ ]))
+        const catalogs = await Promise.all(catelog_names.map(async name => ({ name, schemas: await this.get_schemas_by_catelog(name) })))
+        return [...catalogs, await this.get_databases_with_tables(true)]
     }
     
     
-    async get_databases_with_tables () {
+    async get_databases_with_tables (has_schema: boolean = false) {
         let databases = await this.get_databases()
-        if (model.v3)
-            databases = databases.filter(db => !this.schema_set.has(db))
+        if (has_schema) {
+            let schema_set = new Set<string>()
+            const catelog_names = (await model.ddb.invoke<string[]>('getAllCatalogs', [ ]))
+            const schemas = (await Promise.all(catelog_names.map(async name => (await model.ddb.invoke('getSchemaByCatalog', [name])).data)))
+            schemas.forEach(({ dbUrl }) => schema_set.add(dbUrl))
+            databases = databases.filter(db => !schema_set.has(db))
+        }
         const tables = await this.get_tables()
         const databases_sort = [...databases].sort((a, b) => b.length - a.length)
         const dbs_map = new Map<string, string[]>()
@@ -123,8 +100,8 @@ class AccessModel extends Model<AccessModel> {
                 }
             
         })
-        if (model.v3) {
-            const databases_without_catalog: Catalog = {
+        if (has_schema) 
+            return {
                 name: DATABASES_WITHOUT_CATALOG,
                 schemas: databases.map(db => ({
                     schema: db,
@@ -132,29 +109,18 @@ class AccessModel extends Model<AccessModel> {
                     tables: dbs_map.get(db) || [ ]
                 }))
             }   
-            this.set({ catalogs: [...this.catalogs, databases_without_catalog] }) 
-        }
-        this.set({
-            databases: databases.map(db => ({
-                name: db,
-                tables: dbs_map.get(db) ?? [ ]
-            }))
-        })
+            // this.set({ catalogs: [...this.catalogs, databases_without_catalog] })
+            
+        return databases.map(db => ({
+            name: db,
+            tables: dbs_map.get(db) ?? [ ]
+        }))
     }
     
-    
-    async get_catelog_list () {
-        const catelog_names = (await model.ddb.invoke<string[]>('getAllCatalogs', [ ]))
-        const catalogs = await Promise.all(catelog_names.map(async name => ({ name, schemas: await this.get_schemas_by_catelog(name) })))
-        this.set({ catalogs })
-    }
     
     
     async get_schemas_by_catelog (catelog: string) {
         const schemas = (await (model.ddb.invoke('getSchemaByCatalog', [catelog]))).data
-        const new_schema_set = new Set(this.schema_set)
-        schemas.forEach(({ dbUrl }) => new_schema_set.add(dbUrl))
-        this.set({ schema_set: new_schema_set })
         const schemas_with_tables = await Promise.all(schemas.map(async (schema: Schema) => ({ ...schema, tables: await this.get_tables(schema.dbUrl) })))
         return schemas_with_tables
     }
@@ -254,26 +220,23 @@ class AccessModel extends Model<AccessModel> {
                         .join(',')}
                     ],true)`)
         ).data
-        this.set({
-            shared_tables: tables
-                .filter(table => table.shared && table.type === 'BASIC' && table.form === 'TABLE')
-                .map(table => `${table.node}:${table.name}`)
-        })
+        return tables
+            .filter(table => table.shared && table.type === 'BASIC' && table.form === 'TABLE')
+            .map(table => `${table.node}:${table.name}`)
     }
     
     
     async get_stream_tables () {
-        this.set({
-            stream_tables: (await model.ddb.call('getStreamTables', [new DdbInt(0)]))
-                .data().data
-                .filter(table => table.shared)
-                .map(tb => tb.name)
-        })
+        return (await model.ddb.call('getStreamTables', [new DdbInt(0)]))
+            .data().data
+            .filter(table => table.shared)
+            .map(tb => tb.name)
+            .map(table => `${model.node.name}:${table}`)
     }
     
     
     async get_function_views () {
-        this.set({ function_views: (await model.ddb.call('getFunctionViews', [ ])).data().data.map(fv => fv.name) })
+        return (await model.ddb.call('getFunctionViews', [ ])).data().data.map(fv => fv.name)
     }
     
     
@@ -291,21 +254,6 @@ class AccessModel extends Model<AccessModel> {
         await model.ddb.call('revoke', obj ? [user, new DdbInt(Access[access]), obj] : [user, new DdbInt(Access[access])])
     }
     
-    // async handle_validate_error (func: Function) {
-    //     try {
-    //         await func()
-    //     } catch (error) {
-    //         if (error instanceof DdbDatabaseError) {
-    //             model.show_error({ error })
-    //             return
-    //         }
-    //         const { errorFields } = error
-    //         error = errorFields.reduce((error_msg, curent_err) => 
-    //             error_msg += curent_err.errors
-    //         , '')
-    //         model.show_error({ content: error })
-    //     }
-    // }
 }
 
 

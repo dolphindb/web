@@ -59,7 +59,7 @@ export function AccessHeader ({
                 type='primary'
                 icon={<SettingOutlined />}
                 onClick={() => {
-                    model.goto(`/access/${role}/${name}/manage`)
+                    model.goto(`/access/${role}/${name}/edit`)
                 }}
             >
                 {t('设置权限')}
@@ -73,7 +73,7 @@ export function AccessHeader ({
                     type='default'
                     icon={<EyeOutlined />}
                     onClick={() => {
-                        model.goto(`/access/${role}/${name}/view`)
+                        model.goto(`/access/${role}/${name}`)
                     }}
                 >
                     {t('查看权限')}

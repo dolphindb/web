@@ -14,13 +14,13 @@ import { filter_access_options } from '@/access/utils/filterAccessOptions.ts'
 
 import type { AccessCategory, AccessRole, AccessRule } from '@/access/types.ts'
 
-import { useAccess } from '@/access/hooks/useAccess.ts'
+import { use_access } from '@/access/hooks/use-access.ts'
 
 import { AccessObjSelect } from './AccessObjSelect.tsx'
 
 
 export const AccessAddModal = NiceModal.create(({ category, role, name }: { category: AccessCategory, role: AccessRole, name: string }) => {
-    const { data: accesses, mutate: update_accesses } = useAccess(role, name)
+    const { data: accesses, mutate: update_accesses } = use_access(role, name)
     
     const { node } = model.use(['node'])
     
@@ -137,6 +137,7 @@ export const AccessAddModal = NiceModal.create(({ category, role, name }: { cate
                         }}
                     />
                     <AccessObjSelect 
+                        role={role}
                         category={category} 
                         add_rule_selected={add_rule_selected} 
                         set_add_rule_selected={set_add_rule_selected} 

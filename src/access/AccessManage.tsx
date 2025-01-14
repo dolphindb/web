@@ -15,7 +15,8 @@ import { AccessAddModal } from './components/access/AccessAddModal.tsx'
 import { AccessRevokeModal } from './components/access/AccessRevokeModal.tsx'
 import { RevokeConfirm } from './components/RevokeConfirm.tsx'
 import type { AccessCategory, AccessRole } from './types.ts'
-import { useAccess } from './hooks/useAccess.ts'
+import { use_access } from './hooks/use-access.ts'
+import { use_access_objs } from './hooks/use-access-objs.ts'
 
 interface ACCESS {
     key: string
@@ -24,10 +25,12 @@ interface ACCESS {
 }
 
 export function AccessManage ({ role, name, category }: { role: AccessRole, name: string, category: AccessCategory }) {
-
-    const { shared_tables, inited } = access.use(['shared_tables', 'inited'])
     
-    const { data: accesses, mutate: update_accesses } = useAccess(role, name)
+    const { data: accesses, mutate: update_accesses } = use_access(role, name)
+    
+    const { data: shared_tables } = use_access_objs(role, 'shared')
+    
+    const { data: stream_tables } = use_access_objs(role, 'stream')
     
     const { v3 } = model.use(['v3'])
     
@@ -41,7 +44,6 @@ export function AccessManage ({ role, name, category }: { role: AccessRole, name
         () => (category === 'database' ? (v3 ? ACCESS_OPTIONS.catalog :  ACCESS_OPTIONS.database) : ACCESS_TYPE[category]).filter(ac => ac !== 'TABLE_WRITE'),
         [category]
     )
-    
     useEffect(reset_selected, [role, name])
     
     const showed_aces_cols: TableColumnType<Record<string, any>>[] = useMemo(
@@ -97,7 +99,7 @@ export function AccessManage ({ role, name, category }: { role: AccessRole, name
     
     
     const access_rules = useMemo(() => {
-        if (!accesses)
+        if (!accesses || !shared_tables || !stream_tables)
             return [ ]
         let tb_rows = [ ]
         for (let [k, v] of Object.entries(accesses as Record<string, any>))
@@ -122,6 +124,8 @@ export function AccessManage ({ role, name, category }: { role: AccessRole, name
                     showed_aces_types.map(aces => aces + '_denied').includes(k)
                 ) {
                     let objs = v.split(',')
+                    if (category === 'database')
+                        objs = objs.filter((obj: string) => !shared_tables.includes(obj) && !stream_tables.includes(obj))
                     if (category === 'shared')
                         objs = objs.filter((obj: string) => shared_tables.includes(obj))
                     if (category === 'stream')
@@ -163,15 +167,14 @@ export function AccessManage ({ role, name, category }: { role: AccessRole, name
          
             
         return tb_rows
-    }, [accesses, category])
+    }, [accesses, category, shared_tables, stream_tables])
     
     const filtered_rules = useMemo(() => access_rules.filter(row =>
         row[category === 'script' ? 'access' : 'name'].toLowerCase().includes(search_key.toLowerCase())
     ), [search_key, access_rules])
     
+    console.log('access_rules', filtered_rules)
     
-    if (!inited)
-        return <div>loading...</div>
     return <Table
             rowSelection={{
                 selectedRowKeys: selected_access.map(ac => ac.key),

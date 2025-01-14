@@ -6,11 +6,13 @@ import { t } from '@i18n/index.js'
 
 import { useNavigate, useSearchParams } from 'react-router'
 
+import { useSWRConfig } from 'swr'
+
 import { model } from '@/model.js'
 
 import type { AccessRole, AccessMode, AccessCategory } from '@/access/types.js'
-import { useUsers } from '@/access/hooks/useUsers.ts'
-import { useGroups } from '@/access/hooks/useGroups.ts'
+import { use_users } from '@/access/hooks/use-users.ts'
+import { use_groups } from '@/access/hooks/use-groups.ts'
 
 type TabItems = Required<TabsProps>['items']
 
@@ -28,10 +30,11 @@ export function AccessTabs ({
 }) {
 
     
-    const { data: users = [ ] } = useUsers()
-    const { data: groups = [ ] } = useGroups()
+    const { data: users = [ ] } = use_users()
+    const { data: groups = [ ] } = use_groups()
     
-    const navigate = useNavigate()
+    const { mutate } = useSWRConfig()
+    
     const [searchParams, setSearchParams] = useSearchParams()
     const [tab_key, set_tab_key] = useState(() => searchParams.get('tab') || 'database')
     
@@ -91,7 +94,7 @@ export function AccessTabs ({
             <Button
                 icon={<ReloadOutlined />}
                 onClick={async () => {
-                    navigate(0)
+                    await mutate(key => Array.isArray(key) && key[0] === 'access_objs')
                     model.message.success(t('刷新成功'))
                 }}
             >

@@ -1,13 +1,15 @@
-import NiceModal, { useModal } from '@ebay/nice-modal-react'
+import NiceModal, { useModal, type NiceModalHocProps } from '@ebay/nice-modal-react'
 import { Form, Input, Modal } from 'antd'
 
-import { language, t } from '@i18n/index.js'
+import { access } from '../../model.js'
+import { model } from '../../../model.js'
+import { language, t } from '../../../../i18n/index.js'
 
-import { access } from '@/access/model.js'
-import { model } from '@/model.js'
+interface ResetPasswordModalProps extends NiceModalHocProps {
+    name: string
+}
 
-
-export const ResetPasswordModal = NiceModal.create(({ name }: { name: string }) => {
+export const ResetPasswordModal = NiceModal.create<ResetPasswordModalProps>(({ name }) => {
     
     const modal = useModal()
     

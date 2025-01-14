@@ -4,12 +4,12 @@ import { t } from '@i18n/index.ts'
 
 import { access } from '@/access/model.ts'
 import { model } from '@/model.ts'
-import { useUsers } from '@/access/hooks/useUsers.ts'
+import { use_users } from '@/access/hooks/use-users.ts'
 import { TransferModal } from '@/access/components/access/TransferModal.tsx'
 
 export const GroupUserEditModal = NiceModal.create(({ groupname }: { groupname: string }) => {
     const { mutate } = useSWRConfig()
-    const { data: users = [ ], isLoading: usersLoading } = useUsers()
+    const { data: users = [ ], isLoading: usersLoading } = use_users()
     const { data: groupUsers = [ ], isLoading: groupUsersLoading, mutate: mutateGroupUsers } = useSWR(['group/users', groupname], 
         async () => access.get_users_by_group(groupname))
     const modal = useModal()

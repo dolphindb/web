@@ -12,10 +12,10 @@ import { access } from '@/access/model.js'
 import { model } from '@/model.js'
 
 import { NAME_CHECK_PATTERN } from '@/access/constants.js'
-import { useUsers } from '@/access/hooks/useUsers.ts'
+import { use_users } from '@/access/hooks/use-users.ts'
 
 export const GroupCreateModal = NiceModal.create(() => {
-    const { data: users = [ ] } = useUsers()
+    const { data: users = [ ] } = use_users()
     
     const [target_users, set_target_users] = useState<string[]>([ ])
     

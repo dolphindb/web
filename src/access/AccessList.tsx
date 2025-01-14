@@ -3,6 +3,8 @@ import { useEffect, useMemo, useState } from 'react'
 
 import { t } from '@i18n/index.ts'
 
+import useSWR from 'swr'
+
 import { model } from '@/model.ts'
 
 import { access, type Catalog, type Database } from './model.ts'
@@ -10,60 +12,25 @@ import { ACCESS_TYPE, DATABASES_WITHOUT_CATALOG, NEED_INPUT_ACCESS, STAT_ICONS, 
 import { AccessHeader } from './AccessHeader.tsx'
 import { generate_access_cols } from './utils/handleAccess.ts'
 import type { AccessCategory, AccessRole, TABLE_ACCESS } from './types.ts'
-import { useAccess } from './hooks/useAccess.ts'
-
+import { use_access } from './hooks/use-access.ts'
+import { use_access_objs } from './hooks/use-access-objs.ts'
 
 export function AccessList ({ role, name, category }: { role: AccessRole, name: string, category: AccessCategory }) {
     const [showed_accesses, set_showed_accesses] = useState<Record<string, any>>([ ])
     
     const [search_key, set_search_key] = useState('')
     
-    const { node } = model.use(['node'])
-    
-    const { inited, catalogs, databases, shared_tables, stream_tables, function_views } = access.use([
-        'inited',
-        'catalogs',
-        'databases',
-        'shared_tables',
-        'stream_tables',
-        'function_views',
-    ])
-    
-    useEffect(() => {
-        if (!inited)
-            access.init()
-    }, [inited])
+    const { data: access_objs = [ ] } = use_access_objs(role, category)
     
     const { v3 } = model.use(['v3'])
     
-    const { data: accesses } = useAccess(role, name)
+    const { data: accesses } = use_access(role, name)
     
     useEffect(() => {
         (async () => {
-            let items: Array<string | Catalog | Database> = [ ]
             let tmp_tb_access = [ ]
-            
-            switch (category) {
-                case 'database':
-                    items = v3 ?  catalogs : databases
-                    break
-                case 'shared':
-                    items = shared_tables
-                    break
-                case 'function_view':
-                    items = function_views
-                    break
-                case 'stream':
-                    items = stream_tables.map(table => `${node.name}:${table}`)
-                    break
-                case 'script':
-                    items = role === 'group' ? ACCESS_TYPE.script.filter(ac => !NEED_INPUT_ACCESS.includes(ac)) : ACCESS_TYPE.script
-                    break
-                    
-                default:
-                    break
-            }
-            for (let item of items) {
+        
+            for (let item of access_objs) {
                 const name = typeof item === 'string' ? item : item.name
                 const tb_ob: TABLE_ACCESS = {
                     name,
@@ -98,7 +65,7 @@ export function AccessList ({ role, name, category }: { role: AccessRole, name: 
             }
             set_showed_accesses(tmp_tb_access)
         })()
-    }, [accesses, role, name, category, v3])
+    }, [accesses, access_objs, role, name, category, v3])
     
     const cols: TableColumnType<Record<string, any>>[] = useMemo(
         () => [
@@ -131,11 +98,10 @@ export function AccessList ({ role, name, category }: { role: AccessRole, name: 
                     }
                 ])
         ],
-        [ category ]
+        [ category, access_objs ]
     )
-    
-    if (!inited)
-        return <div>loading...</div>
+    if (!access_objs)
+        return null
     
     return <Table
                 columns={cols}

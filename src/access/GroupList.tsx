@@ -18,11 +18,11 @@ import { access } from './model.ts'
 import { GroupCreateModal } from './components/group/GroupCreateModal.tsx'
 import { GroupDeleteModal } from './components/group/GroupDeleteModal.tsx'
 import { GroupUserEditModal } from './components/group/GroupUserEditModal.tsx'
-import { useGroups } from './hooks/useGroups.ts'
+import { use_groups } from './hooks/use-groups.ts'
 
 export function GroupList () {
     
-    const { data: groups, mutate: mutateGroups } = useGroups()
+    const { data: groups, mutate: mutateGroups } = use_groups()
     
     const { data: groups_info, mutate: mutateGroupsInfo } = useSWR(
         ['groups/access', groups], 
@@ -125,7 +125,7 @@ export function GroupList () {
                             <Button
                                 type='link'
                                 onClick={() => {
-                                    model.goto(`/access/group/${group.groupName}/view`, { replace: true })
+                                    model.goto(`/access/group/${group.groupName}`)
                                 }}
                             >
                                 {t('查看权限')}
@@ -134,7 +134,7 @@ export function GroupList () {
                             <Button
                                 type='link'
                                 onClick={() => {
-                                    model.goto(`/access/group/${group.groupName}/manage`, { replace: true })
+                                    model.goto(`/access/group/${group.groupName}/edit`)
                                 }}
                             >
                                 {t('设置权限')}

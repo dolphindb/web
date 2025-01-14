@@ -4,7 +4,7 @@ import { access } from '@/access/model.js'
 import type { AccessRole } from '@/access/types.js'
 
 
-export function useAccess (role: AccessRole, name: string) {
+export function use_access (role: AccessRole, name: string) {
   return useSWR(
     ['accesses', role, name],
     async () => {

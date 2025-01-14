@@ -9,14 +9,15 @@ import { model } from '@/model.js'
 
 import { access } from '@/access/model.js'
 import { NAME_CHECK_PATTERN } from '@/access/constants.js'
-import { useGroups } from '@/access/hooks/useGroups.ts'
+
+import { use_groups } from '@/access/hooks/use-groups.ts'
 
 
 export const UserCreateModal = NiceModal.create(() => {
     const modal = useModal()
     const [add_user_form] = Form.useForm()
     
-    const { data: groups = [ ] } = useGroups()
+    const { data: groups = [ ] } = use_groups()
     
     const { mutate } = useSWRConfig()
     

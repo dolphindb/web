@@ -5,14 +5,11 @@ import { Result } from 'antd'
 
 import { t } from '@i18n/index.ts'
 
-import { useEffect } from 'react'
-
 import { model } from '@/model.ts'
 
 import { AccessManagePage, AccessViewPage } from './AccessView.tsx'
 import { GroupList } from './GroupList.tsx'
 import { UserList } from './UserList.tsx'
-import { access } from './model.ts'
 
 function AccessGuard ({ children }) {
     const { admin } = model.use(['admin'])
@@ -21,20 +18,6 @@ function AccessGuard ({ children }) {
     if (!admin)
         return <Result status='warning' className='interceptor' title={t('非管理员不能查看权限管理模块。')} />
         
-    return <AccessWrapper>{children}</AccessWrapper>
-}
-
-function AccessWrapper ({ children }) {
-    const { inited } = access.use(['inited'])
-    
-    useEffect(() => {
-        if (!inited)
-            access.init()
-    }, [ ])
-    
-    if (!inited)
-        return <div>loading...</div>
-    
     return children
 }
 
@@ -56,11 +39,11 @@ export function Access () {
                     children: [
                         {
                             index: true,
-                            element: <AccessViewPage />
+                            element: <AccessViewPage role='user' />
                         },
                         {
-                            path: 'manage',
-                            element: <AccessManagePage />
+                            path: 'edit',
+                            element: <AccessManagePage role='user' />
                         }
                     ]
                 }
@@ -78,11 +61,11 @@ export function Access () {
                     children: [
                         {
                             index: true,
-                            element: <AccessViewPage />
+                            element: <AccessViewPage role='group' />
                         },
                         {
-                            path: 'manage',
-                            element: <AccessManagePage />
+                            path: 'edit',
+                            element: <AccessManagePage role='group' />
                         }
                     ]
                 }
