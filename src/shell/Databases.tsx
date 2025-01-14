@@ -163,7 +163,7 @@ export function Databases () {
                     </span>
                 </div>
                 {(logined || dbs?.length ) ?
-                    (model.has_data_and_computing_nodes_alive() || node.mode === NodeType.single) ?
+                    (model.has_data_nodes_alive() || node.mode === NodeType.single) ?
                         <Tree
                             className='database-tree'
                             showIcon
