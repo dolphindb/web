@@ -12,17 +12,6 @@ export function LanguageSelect () {
     
     const [selected, set_selected] = useState(localStorage.getItem(storage_keys.language) || 'auto')
     
-    function handleLanguageChange (lang: string) {
-        if (lang === 'auto') {
-            localStorage.removeItem(storage_keys.language)
-            model.set_query('language', null)
-        } else {
-            model.set_query('language', lang)
-            localStorage.setItem(storage_keys.language, lang)
-        }
-        location.reload()
-    }
-    
     const items: MenuProps['items'] = [
         {
             key: 'zh',
@@ -42,7 +31,14 @@ export function LanguageSelect () {
             menu={{
                 items,
                 onClick: ({ key }) => {
-                    handleLanguageChange(key)
+                    if (key === 'auto') {
+                        localStorage.removeItem(storage_keys.language)
+                        model.set_query('language', null)
+                    } else {
+                        model.set_query('language', key)
+                        localStorage.setItem(storage_keys.language, key)
+                    }
+                    location.reload()
                     set_selected(key)
                 },
                 onSelect: ({ key }) => {
