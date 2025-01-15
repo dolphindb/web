@@ -22,7 +22,7 @@ export function AccessList ({ role, name, category }: { role: AccessRole, name: 
     
     const { v3 } = model.use(['v3'])
     
-    const { data: accesses } = use_access(role, name)
+    const { data: accesses } = use_access(role, name, true)
     
     useEffect(() => {
         (async () => {
