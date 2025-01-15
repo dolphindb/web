@@ -64,7 +64,7 @@ export const AccessAddModal = NiceModal.create(({ category, role, name }: { cate
     const modal = useModal()
     
     if (!accesses)
-        return <div>loading...</div>
+        return null
     
     return <Modal
             className='add-rule-modal'

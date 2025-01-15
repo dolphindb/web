@@ -2,15 +2,15 @@ import { Tabs, Button, Select, type TabsProps } from 'antd'
 import { ReloadOutlined } from '@ant-design/icons'
 import { useState, useMemo, type  JSX } from 'react'
 
-import { t } from '@i18n/index.js'
+import { t } from '@i18n/index.ts'
 
 import { useSearchParams } from 'react-router'
 
 import { useSWRConfig } from 'swr'
 
-import { model } from '@/model.js'
+import { model } from '@/model.ts'
 
-import type { AccessRole, AccessMode, AccessCategory } from '@/access/types.js'
+import type { AccessRole, AccessMode, AccessCategory } from '@/access/types.ts'
 import { use_users } from '@/access/hooks/use-users.ts'
 import { use_groups } from '@/access/hooks/use-groups.ts'
 
@@ -26,10 +26,8 @@ export function AccessTabs ({
     role: AccessRole
     name: string
     mode: AccessMode
-    children: (category: AccessCategory, role: AccessRole, name: string) => JSX.Element 
+    children: (category: AccessCategory, role: AccessRole, name: string) => JSX.Element
 }) {
-
-    
     const { data: users = [ ] } = use_users()
     const { data: groups = [ ] } = use_groups()
     
