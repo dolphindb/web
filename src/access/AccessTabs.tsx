@@ -49,68 +49,64 @@ export function AccessTabs ({
                 : 
             <AccessList role={role} name={name} category={category}/>
     
-    const tabs: TabItems = [
-        {
-            key: 'database',
-            label: t('分布式数据库'),
-            children: AccessView('database')
-        },
-        {
-            key: 'share_table',
-            label: t('共享内存表'),
-            children: AccessView('shared')
-        },
-        {
-            key: 'stream',
-            label: t('流数据表'),
-            children: AccessView('stream')
-        },
-        {
-            key: 'function_view',
-            label: t('函数视图'),
-            children: AccessView('function_view')
-        },
-        {
-            key: 'script',
-            label: t('全局权限'),
-            children: AccessView('script')
-        }
-    ]
-    
-    const OperationsSlot = {
-        left: (
-            <div className='switch-user'>
-                {t('当前{{role}}:', { role: role === 'user' ? t('用户') : t('组') })}
-                <Select
-                    value={name}
-                    options={(role === 'user' ? users : groups).map(t => ({
-                        value: t,
-                        label: t
-                    }))}
-                    onSelect={item => {
-                        model.goto(`/access/${role}/${item}${editing ? '/edit' : ''}`, { queries: { tab: tab_key } })
-                    }}
-                />
-            </div>
-        ),
-        right: (
-            <Button
-                icon={<ReloadOutlined />}
-                onClick={async () => {
-                    await mutate(key => Array.isArray(key) && key[0] === 'access_objs')
-                    model.message.success(t('刷新成功'))
-                }}
-            >
-                {t('刷新')}
-            </Button>
-        )
-    }
-    
     return <Tabs
             type='card'
-            items={tabs}
+            items={[
+                {
+                    key: 'database',
+                    label: t('分布式数据库'),
+                    children: AccessView('database')
+                },
+                {
+                    key: 'share_table',
+                    label: t('共享内存表'),
+                    children: AccessView('shared')
+                },
+                {
+                    key: 'stream',
+                    label: t('流数据表'),
+                    children: AccessView('stream')
+                },
+                {
+                    key: 'function_view',
+                    label: t('函数视图'),
+                    children: AccessView('function_view')
+                },
+                {
+                    key: 'script',
+                    label: t('全局权限'),
+                    children: AccessView('script')
+                }
+            ]}
             activeKey={tab_key}
             onChange={handle_tab_change}
-            tabBarExtraContent={OperationsSlot}
+            tabBarExtraContent={{
+                left: (
+                    <div className='switch-user'>
+                        {t('当前{{role}}:', { role: role === 'user' ? t('用户') : t('组') })}
+                        <Select
+                            value={name}
+                            options={(role === 'user' ? users : groups).map(t => ({
+                                value: t,
+                                label: t
+                            }))}
+                            onSelect={item => {
+                                model.goto(`/access/${role}/${item}${editing ? '/edit' : ''}`, { queries: { tab: tab_key } })
+                            }}
+                        />
+                    </div>
+                ),
+                right: (
+                    <Button
+                        icon={<ReloadOutlined />}
+                        onClick={async () => {
+                            await mutate(key => Array.isArray(key) && key[0] === 'access_objs')
+                            model.message.success(t('刷新成功'))
+                        }}
+                    >
+                        {t('刷新')}
+                    </Button>
+                )
+            }}
         />
 }
