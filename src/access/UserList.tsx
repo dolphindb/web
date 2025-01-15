@@ -27,9 +27,9 @@ export function UserList () {
     
     const reset_selected = useCallback(() => { set_selected_users([ ]) }, [ ])
     
-    const { data: users, mutate: mutateUsers } = use_users()
+    const { data: users, mutate: mutate_users } = use_users()
     
-    const { data: users_access, mutate: mutateUsersAccess } = useSWR(
+    const { data: users_access, mutate: mutate_users_access } = useSWR(
         ['users/access', users], 
         async ([, users]) => {
             if (users)
@@ -99,8 +99,8 @@ export function UserList () {
                     type='default'
                     icon={<ReloadOutlined />}
                     onClick={async () => {
-                        await mutateUsers()
-                        await mutateUsersAccess()
+                        await mutate_users()
+                        await mutate_users_access()
                         model.message.success(t('刷新成功'))
                     }}
                 >
@@ -180,7 +180,7 @@ export function UserList () {
                                 onConfirm={async () => {
                                     await access.delete_user(current_user.userId)
                                     model.message.success(t('用户删除成功'))
-                                    mutateUsers()
+                                    mutate_users()
                                 }}
                             >
                                 <Button type='link' danger disabled={current_user.userId === localStorage.getItem('ddb.username')}>

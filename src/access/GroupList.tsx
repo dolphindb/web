@@ -22,9 +22,9 @@ import { use_groups } from './hooks/use-groups.ts'
 
 export function GroupList () {
     
-    const { data: groups, mutate: mutateGroups } = use_groups()
+    const { data: groups, mutate: mutate_groups } = use_groups()
     
-    const { data: groups_info, mutate: mutateGroupsInfo } = useSWR(
+    const { data: groups_info, mutate: mutate_groups_info } = useSWR(
         ['groups/access', groups], 
         async ([, groups]) => {
             if (groups)
@@ -80,8 +80,8 @@ export function GroupList () {
                     {t('批量删除')}
                 </Button>
                 <Button type='default' icon={<ReloadOutlined />} onClick={async () => {
-                    await mutateGroups()
-                    await mutateGroupsInfo()
+                    await mutate_groups()
+                    await mutate_groups_info()
                     model.message.success(t('刷新成功'))
                 }}>
                     {t('刷新')}
@@ -155,7 +155,7 @@ export function GroupList () {
                                 onConfirm={async () => {
                                     await access.delete_group(group.groupName)
                                     model.message.success(t('组删除成功'))
-                                    mutateGroups()
+                                    mutate_groups()
                                 }}
                             >
                                 <Button type='link' danger>
