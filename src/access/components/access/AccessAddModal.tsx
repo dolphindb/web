@@ -10,7 +10,7 @@ import { model } from '@/model.ts'
 import { access } from '@/access/model.ts'
 import { NEED_INPUT_ACCESS, ACCESS_OPTIONS } from '@/access/constants.tsx'
 
-import { filter_access_options } from '@/access/utils/filterAccessOptions.ts'
+import { filter_access_options } from '@/access/utils/filter-access-options.ts'
 
 import type { AccessCategory, AccessRole, AccessRule } from '@/access/types.ts'
 

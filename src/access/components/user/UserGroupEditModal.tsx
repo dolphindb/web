@@ -12,7 +12,7 @@ export const UserGroupEditModal = NiceModal.create(({ name }: { name: string }) 
     const { data: userGroups, isLoading: userGroupsLoading, mutate: mutateUserGroups } = useSWR(['user/groups', name], 
         async () => access.get_user_access([name]))
     
-    const originalGroups = userGroups?.[0].groups.split(',').filter(Boolean) ?? [ ]
+    const original_groups = userGroups?.[0].groups.split(',').filter(Boolean) ?? [ ]
     
     const modal = useModal()
     
@@ -21,21 +21,21 @@ export const UserGroupEditModal = NiceModal.create(({ name }: { name: string }) 
     
     return <TransferModal
             visible={modal.visible}
-            onCancel={modal.hide}
-            onRemove={modal.remove}
+            on_cancel={modal.hide}
+            on_remove={modal.remove}
             title={t('用户 {{user}} 所属组管理', { user: name })}
-            confirmTitle={t('确认对用户 {{user}} 进行以下改动吗？', { user: name })}
-            dataSource={groups.map(group => ({
+            confirm_title={t('确认对用户 {{user}} 进行以下改动吗？', { user: name })}
+            data_source={groups.map(group => ({
                 key: group,
                 title: group
             }))}
-            originalKeys={originalGroups}
+            original_keys={original_groups}
             titles={[t('未所属组'), t('所属组')]}
-            searchPlaceholder={t('请输入想查找的组')}
-            onSave={async (deleteGroups, addGroups) => {
+            search_placeholder={t('请输入想查找的组')}
+            on_save={async (delete_groups, add_groups) => {
                 await Promise.all([
-                    deleteGroups.length && access.delete_group_member(name, deleteGroups),
-                    addGroups.length && access.add_group_member(name, addGroups)
+                    delete_groups.length && access.delete_group_member(name, delete_groups),
+                    add_groups.length && access.add_group_member(name, add_groups)
                 ].filter(Boolean))
                 
                 model.message.success(t('用户所属组修改成功'))

@@ -1,6 +1,6 @@
 import './index.sass'
 
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useMemo, useState } from 'react'
 
 import { DeleteOutlined, PlusOutlined, ReloadOutlined, SearchOutlined } from '@ant-design/icons'
 import { Button, Input, Popconfirm, Table, Tag, type TableColumnType } from 'antd'

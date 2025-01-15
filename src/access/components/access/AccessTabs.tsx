@@ -4,7 +4,7 @@ import { useState, useMemo, type  JSX } from 'react'
 
 import { t } from '@i18n/index.js'
 
-import { useNavigate, useSearchParams } from 'react-router'
+import { useSearchParams } from 'react-router'
 
 import { useSWRConfig } from 'swr'
 

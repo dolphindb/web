@@ -109,8 +109,6 @@ class AccessModel extends Model<AccessModel> {
                     tables: dbs_map.get(db) || [ ]
                 }))
             }   
-            // this.set({ catalogs: [...this.catalogs, databases_without_catalog] })
-            
         return databases.map(db => ({
             name: db,
             tables: dbs_map.get(db) ?? [ ]
@@ -212,15 +210,11 @@ class AccessModel extends Model<AccessModel> {
     
     
     async get_share_tables () {
-        const tables = (
-            await model.ddb.execute(`pnodeRun(objs{true},
-                    [${model.nodes
+        const nodes_str = model.nodes
                         .filter(node => node.mode !== NodeType.agent)
                         .map(node => `"${node.name}"`)
-                        .join(',')}
-                    ],true)`)
-        ).data
-        return tables
+                        .join(',')
+        return (await model.ddb.execute(`pnodeRun(objs{true},[${nodes_str}],true)`)).data
             .filter(table => table.shared && table.type === 'BASIC' && table.form === 'TABLE')
             .map(table => `${table.node}:${table.name}`)
     }

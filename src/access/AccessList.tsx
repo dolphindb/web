@@ -3,14 +3,12 @@ import { useEffect, useMemo, useState } from 'react'
 
 import { t } from '@i18n/index.ts'
 
-import useSWR from 'swr'
-
 import { model } from '@/model.ts'
 
-import { access, type Catalog, type Database } from './model.ts'
+import { type Catalog, type Database } from './model.ts'
 import { ACCESS_TYPE, DATABASES_WITHOUT_CATALOG, NEED_INPUT_ACCESS, STAT_ICONS, TABLE_NAMES } from './constants.tsx'
 import { AccessHeader } from './AccessHeader.tsx'
-import { generate_access_cols } from './utils/handleAccess.ts'
+import { generate_access_cols } from './utils/handle-access.ts'
 import type { AccessCategory, AccessRole, TABLE_ACCESS } from './types.ts'
 import { use_access } from './hooks/use-access.ts'
 import { use_access_objs } from './hooks/use-access-objs.ts'
@@ -29,6 +27,10 @@ export function AccessList ({ role, name, category }: { role: AccessRole, name: 
     useEffect(() => {
         (async () => {
             let tmp_tb_access = [ ]
+            
+            if (!access_objs || !accesses) 
+                return
+            
         
             for (let item of access_objs) {
                 const name = typeof item === 'string' ? item : item.name
