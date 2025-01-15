@@ -3,7 +3,7 @@ import { Form, Input, Modal, Select, Switch } from 'antd'
 
 import { language, t } from '@i18n/index.js'
 
-import useSWR, { useSWRConfig } from 'swr'
+import { useSWRConfig } from 'swr'
 
 import { model } from '@/model.js'
 

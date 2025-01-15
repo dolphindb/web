@@ -6,6 +6,7 @@ import { access } from '@/access/model.ts'
 import { model } from '@/model.ts'
 import { TransferModal } from '@/access/components/access/TransferModal.tsx'
 
+
 export const UserGroupEditModal = NiceModal.create(({ name }: { name: string }) => {
     const { mutate } = useSWRConfig()
     const { data: groups = [ ], isLoading: groups_loading } = useSWR('groups', async () => access.get_group_list())

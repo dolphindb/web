@@ -100,7 +100,7 @@ export function AccessList ({ role, name, category }: { role: AccessRole, name: 
                     }
                 ])
         ],
-        [ category, access_objs ]
+        [category, access_objs]
     )
     if (!access_objs)
         return null

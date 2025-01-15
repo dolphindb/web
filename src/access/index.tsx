@@ -1,4 +1,5 @@
 import './index.sass'
+
 import { useRoutes, Navigate } from 'react-router'
 
 import { Result } from 'antd'
@@ -11,6 +12,7 @@ import { AccessManagePage, AccessViewPage } from './AccessView.tsx'
 import { GroupList } from './GroupList.tsx'
 import { UserList } from './UserList.tsx'
 
+
 function AccessGuard ({ children }) {
     const { admin } = model.use(['admin'])
     
@@ -20,6 +22,7 @@ function AccessGuard ({ children }) {
         
     return children
 }
+
 
 export function Access () {
     return <AccessGuard>{useRoutes([

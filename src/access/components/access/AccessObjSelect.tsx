@@ -165,14 +165,12 @@ export function AccessObjSelect ({
             }}
             // 如果是 catalog 且选中 catalog 权限，则 options 为 catalog 的 name
             options={(category === 'catalog' && add_rule_selected.access.startsWith('CATALOG')  
-                        ? 
-                    obj_options.map(obj => obj.name).filter(name => name !== DATABASES_WITHOUT_CATALOG)
-                        : 
-                    obj_options).map(obj => ({
-                key: obj,
-                label: obj,
-                value: obj
-            }))}
+                ? obj_options.map(obj => obj.name).filter(name => name !== DATABASES_WITHOUT_CATALOG)
+                : obj_options).map(obj => ({
+                    key: obj,
+                    label: obj,
+                    value: obj
+                }))}
         />
     )
 }

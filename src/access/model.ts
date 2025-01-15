@@ -2,9 +2,9 @@ import { Model } from 'react-object-model'
 
 import { DdbInt, DdbVectorString, type DdbVectorStringObj } from 'dolphindb/browser.js'
 
-import { model, NodeType } from '../model.js'
+import { model, NodeType } from '@/model.ts'
 
-import { DATABASES_WITHOUT_CATALOG } from './constants.js'
+import { DATABASES_WITHOUT_CATALOG } from './constants.ts'
 
 
 export interface User {
@@ -69,9 +69,9 @@ enum Access {
     SCHEMA_DELETE = 37
 }
 
-class AccessModel extends Model<AccessModel> {        
+class AccessModel extends Model<AccessModel> {
     async get_catelog_with_schemas () {
-        const catelog_names = (await model.ddb.invoke<string[]>('getAllCatalogs', [ ]))
+        const catelog_names = await model.ddb.invoke<string[]>('getAllCatalogs')
         const catalogs = await Promise.all(catelog_names.map(async name => ({ name, schemas: await this.get_schemas_by_catelog(name) })))
         return [...catalogs, await this.get_databases_with_tables(true)]
     }

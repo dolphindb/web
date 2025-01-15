@@ -9,27 +9,24 @@ import { model, storage_keys } from '@/model.ts'
 
 
 export function LanguageSelect () {
-    
     const [selected, set_selected] = useState(localStorage.getItem(storage_keys.language) || 'auto')
-    
-    const items: MenuProps['items'] = [
-        {
-            key: 'zh',
-            label: '中文',
-        },
-        {
-            key: 'en',
-            label: 'English',
-        },
-        {
-            key: 'auto',
-            label: t('自动'),
-        }
-    ]
     
     return <Dropdown
             menu={{
-                items,
+                items: [
+                    {
+                        key: 'zh',
+                        label: '中文',
+                    },
+                    {
+                        key: 'en',
+                        label: 'English',
+                    },
+                    {
+                        key: 'auto',
+                        label: t('自动'),
+                    }
+                ],
                 onClick: ({ key }) => {
                     if (key === 'auto') {
                         localStorage.removeItem(storage_keys.language)
@@ -45,7 +42,6 @@ export function LanguageSelect () {
                     set_selected(key)
                 },
                 selectedKeys: [selected],
-                
             }}
             placement='bottomRight'
             trigger={['hover', 'click']}

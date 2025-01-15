@@ -7,7 +7,7 @@ import { access } from '../model.ts'
 import type { AccessCategory, AccessRole } from '../types.ts'
 
 export function use_access_objs (role: AccessRole, category: AccessCategory) {
-    const { v3 } = model.use(['v3'])
+    const { v3 } = model
     return useSWR(
         ['access_objs', category, role],
         async () => {

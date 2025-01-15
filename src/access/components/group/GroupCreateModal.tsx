@@ -3,9 +3,9 @@ import { Form, Input, Modal, Transfer } from 'antd'
 
 import { useState } from 'react'
 
-import { language, t } from '@i18n/index.js'
-
 import { useSWRConfig } from 'swr'
+
+import { language, t } from '@i18n/index.js'
 
 import { access } from '@/access/model.js'
 

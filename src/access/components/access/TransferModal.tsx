@@ -1,5 +1,6 @@
 import { Modal, Transfer, Tag } from 'antd'
 import { useState } from 'react'
+
 import { t } from '@i18n/index.ts'
 
 type TransferItem = {
@@ -25,27 +26,25 @@ const ItemTags = ({ items, color }: { items: string[], color: string }) => (
     items.map(item => <Tag color={color} key={item}>{item}</Tag>)
 )
 
-export function TransferModal (props: TransferModalProps) {
-    const {
-        title,
-        confirm_title: confirmTitle,
-        data_source,
-        original_keys,
-        titles,
-        search_placeholder,
-        on_save,
-        filter_items = (items: string[]) => items.filter(Boolean),
-        visible,
-        on_cancel,
-        on_remove
-    } = props
-    
+export function TransferModal ({
+    title,
+    confirm_title: confirmTitle,
+    data_source,
+    original_keys,
+    titles,
+    search_placeholder,
+    on_save,
+    filter_items = (items: string[]) => items.filter(Boolean),
+    visible,
+    on_cancel,
+    on_remove
+}: TransferModalProps) {
     const [step, set_step] = useState<'edit' | 'preview'>('edit')
     
     const [target_keys, set_target_keys] = useState<string[]>(original_keys)
     const [selected_keys, set_selected_keys] = useState<string[]>([ ])
     
-    function handleCancel () {
+    function cancel () {
         if (step === 'preview') 
             set_step('edit')
          else 
@@ -53,7 +52,7 @@ export function TransferModal (props: TransferModalProps) {
         
     }
     
-    async function handleSave () {
+    async function save () {
         const filtered_origin = filter_items(original_keys)
         const filtered_target = filter_items(target_keys)
         
@@ -72,10 +71,10 @@ export function TransferModal (props: TransferModalProps) {
     return <Modal
             className='user-group-modal'
             open={visible}
-            onCancel={handleCancel}
+            onCancel={cancel}
             afterClose={on_remove}
             title={step === 'edit' ? title : confirmTitle}
-            onOk={step === 'edit' ? () => { set_step('preview') } : handleSave}
+            onOk={step === 'edit' ? () => { set_step('preview') } : save}
             okText={step === 'edit' ? t('预览修改') : t('确认')}
         >
             {step === 'edit' ? (
