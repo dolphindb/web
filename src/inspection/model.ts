@@ -146,7 +146,7 @@ class InspectionModel extends Model<InspectionModel> {
     
     async get_metrics (): Promise<Array<Omit<Metric, 'params'> & { params: string }>> {
         return (await model.ddb.invoke('getMetrics')).data
-    } 
+    }
     
     async can_configure_email () {
         const { errCode, errMsg } = await model.ddb.invoke('canConfigureEmail')
