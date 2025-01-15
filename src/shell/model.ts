@@ -458,7 +458,7 @@ class ShellModel extends Model<ShellModel> {
         
         const { v3, ddb } = model
         
-        // 当前无数据节点和计算节点存活，且当前节点不为单机节点，则不进行数据库表获取
+        // 当前无数据节点存活，且当前节点不为单机节点，则不进行数据库表获取
         if (model.node.mode !== NodeType.single && !model.has_data_nodes_alive()) 
             return
         
