@@ -84,7 +84,7 @@ export const AccessAddModal = NiceModal.create(({ category, role, name }: { cate
                             rule.access ===
                                 'QUERY_RESULT_MEM_LIMIT' || rule.access === 'TASK_GROUP_MEM_LIMIT'
                                 ? Number(rule.name)
-                                : category === 'stream' ? node.name + ':' + rule.name : rule.name)))
+                                : rule.name)))
                 model.message.success(t('权限赋予成功'))
                 set_add_rule_selected({ access: ACCESS_OPTIONS[category][0], type: 'grant', obj: [ ] })
                 set_add_access_rows([ ])
