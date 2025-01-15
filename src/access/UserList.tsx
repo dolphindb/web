@@ -158,18 +158,18 @@ export function UserList () {
                             
                             <Button
                                 type='link'
-                                onClick={async () => {
-                                    await NiceModal.show(UserGroupEditModal, { name: current_user.userId })
-                                }}
+                                onClick={async () => 
+                                    NiceModal.show(UserGroupEditModal, { name: current_user.userId })
+                                }
                             >
                                 {t('设置用户组')}
                             </Button>
                             
                             <Button
                                 type='link'
-                                onClick={async () => {
-                                    await NiceModal.show(ResetPasswordModal, { name: current_user.userId })
-                                }}
+                                onClick={async () =>
+                                    NiceModal.show(ResetPasswordModal, { name: current_user.userId })
+                                }
                             >
                                 {t('设置密码')}
                             </Button>

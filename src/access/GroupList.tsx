@@ -155,7 +155,7 @@ export function GroupList () {
                                 onConfirm={async () => {
                                     await access.delete_group(group.groupName)
                                     model.message.success(t('组删除成功'))
-                                    mutate_groups()
+                                    await mutate_groups()
                                 }}
                             >
                                 <Button type='link' danger>

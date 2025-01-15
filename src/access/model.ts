@@ -2,9 +2,9 @@ import { Model } from 'react-object-model'
 
 import { DdbInt, DdbVectorString, type DdbVectorStringObj } from 'dolphindb/browser.js'
 
-import { model, NodeType } from '../model.js'
+import { model, NodeType } from '@/model.ts'
 
-import { DATABASES_WITHOUT_CATALOG } from './constants.js'
+import { DATABASES_WITHOUT_CATALOG } from './constants.ts'
 
 
 export interface User {
@@ -69,9 +69,9 @@ enum Access {
     SCHEMA_DELETE = 37
 }
 
-class AccessModel extends Model<AccessModel> {        
+class AccessModel extends Model<AccessModel> {
     async get_catelog_with_schemas () {
-        const catelog_names = (await model.ddb.invoke<string[]>('getAllCatalogs', [ ]))
+        const catelog_names = await model.ddb.invoke<string[]>('getAllCatalogs')
         const catalogs = await Promise.all(catelog_names.map(async name => ({ name, schemas: await this.get_schemas_by_catelog(name) })))
         return [...catalogs, await this.get_databases_with_tables(true)]
     }
@@ -81,7 +81,7 @@ class AccessModel extends Model<AccessModel> {
         let databases = await this.get_databases()
         if (has_schema) {
             let schema_set = new Set<string>()
-            const catelog_names = (await model.ddb.invoke<string[]>('getAllCatalogs', [ ]))
+            const catelog_names = await model.ddb.invoke<string[]>('getAllCatalogs')
             const schemas = (await Promise.all(catelog_names.map(async name => (await model.ddb.invoke('getSchemaByCatalog', [name])).data)))
             schemas.forEach(({ dbUrl }) => schema_set.add(dbUrl))
             databases = databases.filter(db => !schema_set.has(db))
@@ -211,9 +211,10 @@ class AccessModel extends Model<AccessModel> {
     
     async get_share_tables () {
         const nodes_str = model.nodes
-                        .filter(node => node.mode !== NodeType.agent)
-                        .map(node => `"${node.name}"`)
-                        .join(',')
+            .filter(node => node.mode !== NodeType.agent)
+            .map(node => `"${node.name}"`)
+            .join(',')
+        
         return (await model.ddb.execute(`pnodeRun(objs{true},[${nodes_str}],true)`)).data
             .filter(table => table.shared && table.type === 'BASIC' && table.form === 'TABLE')
             .map(table => `${table.node}:${table.name}`)

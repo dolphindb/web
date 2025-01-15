@@ -137,13 +137,12 @@ export function AccessManage ({ role, name, category }: { role: AccessRole, name
                             name: obj,
                             access: k.slice(0, k.indexOf(allowed ? '_allowed' : '_denied')),
                             type: allowed ? 'grant' : 'deny',
-                            action: (
+                            action: 
                                 <RevokeConfirm on_confirm={async () => {
                                     await access.revoke(name, k.slice(0, k.indexOf(allowed ? '_allowed' : '_denied')), obj)
                                     model.message.success(t('撤销成功'))
                                     await update_accesses()
                                 }} />
-                            )
                         })
                 } else if (k === 'DB_OWNER' && category === 'database') {
                     // 对于 DB_OWNER，如果为 allow 并且 DB_OWNER_allowed 为空，则为全部数据库生效，即 *
@@ -155,13 +154,11 @@ export function AccessManage ({ role, name, category }: { role: AccessRole, name
                             name: obj,
                             access: 'DB_OWNER',
                             type: v === 'allow' ? 'grant' : 'deny',
-                            action: (
-                                <RevokeConfirm on_confirm={async () => {
-                                    await access.revoke(name, k, obj)
-                                    model.message.success(t('撤销成功'))
-                                    await update_accesses()
-                                }} />
-                            )
+                            action: <RevokeConfirm on_confirm={async () => {
+                                await access.revoke(name, k, obj)
+                                model.message.success(t('撤销成功'))
+                                await update_accesses()
+                            }} />
                         })
                 }
          

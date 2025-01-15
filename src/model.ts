@@ -198,7 +198,7 @@ export class DdbModel extends Model<DdbModel> {
         const host = params.get('host')
         
         const language = localStorage.getItem(storage_keys.language)
-            
+        
         if (language) 
             params.set('language', language)
         
@@ -743,8 +743,7 @@ export class DdbModel extends Model<DdbModel> {
     has_data_nodes_alive () {
         return Boolean(
             this.nodes.find(node =>
-                node.mode === NodeType.data && node.state === DdbNodeState.online)
-        )
+                node.mode === NodeType.data && node.state === DdbNodeState.online))
     }
     
     
@@ -1070,7 +1069,7 @@ export const storage_keys = {
     minimap: 'ddb.editor.minimap',
     enter_completion: 'ddb.editor.enter_completion',
     sql: 'ddb.sql',
-    language: 'ddb.web.language',
+    language: 'ddb.language',
     dashboard_autosave: 'ddb.dashboard.autosave',
     overview_display_mode: 'ddb.overview.display_mode',
     overview_display_columns: 'ddb.overview.display_columns',
