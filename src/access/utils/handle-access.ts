@@ -1,4 +1,4 @@
-import { ACCESS_TYPE, DATABASES_WITHOUT_CATALOG } from '../constants.js'
+import { ACCESS_TYPE, DATABASES_WITHOUT_CATALOG } from '../constants.tsx'
 
 export function generate_access_cols (accesses: Record<string, any>, category: keyof typeof ACCESS_TYPE, name: string) {
     if (category === 'catalog' && name === DATABASES_WITHOUT_CATALOG) 

@@ -14,8 +14,8 @@ import { t } from '../../i18n/index.js'
 
 import { model } from '@/model.ts'
 
-import { TABLE_NAMES } from './constants.js'
-import type { AccessRole } from './types.js'
+import { TABLE_NAMES } from './constants.tsx'
+import type { AccessRole } from './types.ts'
 
 export function AccessHeader ({
     category,

@@ -1,10 +1,10 @@
 import { Model } from 'react-object-model'
 
-import { DdbInt, DdbVectorString, type DdbVectorStringObj } from 'dolphindb/browser.js'
+import { DdbInt, DdbVectorString } from 'dolphindb/browser.js'
 
 import { model, NodeType } from '@/model.ts'
 
-import { DATABASES_WITHOUT_CATALOG } from './constants.ts'
+import { DATABASES_WITHOUT_CATALOG } from './constants.tsx'
 
 
 export interface User {
@@ -81,7 +81,7 @@ class AccessModel extends Model<AccessModel> {
         let databases = await this.get_databases()
         if (has_schema) {
             let schema_set = new Set<string>()
-            const catelog_names = (await model.ddb.invoke<string[]>('getAllCatalogs', [ ]))
+            const catelog_names = (await model.ddb.invoke<string[]>('getAllCatalogs'))
             const schemas = await Promise.all(catelog_names.map(async name => (await model.ddb.invoke('getSchemaByCatalog', [name])).data))
             schemas.forEach(({ dbUrl }) => schema_set.add(dbUrl))
             databases = databases.filter(db => !schema_set.has(db))
@@ -114,7 +114,6 @@ class AccessModel extends Model<AccessModel> {
             tables: dbs_map.get(db) ?? [ ]
         }))
     }
-    
     
     
     async get_schemas_by_catelog (catelog: string) {
@@ -229,7 +228,7 @@ class AccessModel extends Model<AccessModel> {
     
     
     async get_function_views () {
-        return (await model.ddb.invoke('getFunctionViews', [ ])).data.map(fv => fv.name)
+        return (await model.ddb.invoke('getFunctionViews')).data.map(fv => fv.name)
     }
     
     

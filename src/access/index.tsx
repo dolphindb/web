@@ -1,6 +1,6 @@
 import './index.sass'
 
-import { useRoutes, Navigate } from 'react-router'
+import { useRoutes, Navigate, useParams } from 'react-router'
 
 import { Result } from 'antd'
 
@@ -8,9 +8,9 @@ import { t } from '@i18n/index.ts'
 
 import { model } from '@/model.ts'
 
-import { AccessManagePage, AccessViewPage } from './AccessView.tsx'
 import { GroupList } from './GroupList.tsx'
 import { UserList } from './UserList.tsx'
+import { AccessTabs } from './AccessTabs.tsx'
 
 
 function AccessGuard ({ children }) {
@@ -42,11 +42,11 @@ export function Access () {
                     children: [
                         {
                             index: true,
-                            element: <AccessViewPage role='user' />
+                            element: <AccessTabs role='user'/>
                         },
                         {
                             path: 'edit',
-                            element: <AccessManagePage role='user' />
+                            element: <AccessTabs role='user' editing/>
                         }
                     ]
                 }
@@ -64,11 +64,11 @@ export function Access () {
                     children: [
                         {
                             index: true,
-                            element: <AccessViewPage role='group' />
+                            element: <AccessTabs role='group' />
                         },
                         {
                             path: 'edit',
-                            element: <AccessManagePage role='group' />
+                            element: <AccessTabs role='group' editing/>
                         }
                     ]
                 }

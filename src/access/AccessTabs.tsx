@@ -4,7 +4,7 @@ import { useState, useMemo, type  JSX } from 'react'
 
 import { t } from '@i18n/index.ts'
 
-import { useSearchParams } from 'react-router'
+import { useParams, useSearchParams } from 'react-router'
 
 import { useSWRConfig } from 'swr'
 
@@ -13,21 +13,22 @@ import { model } from '@/model.ts'
 import type { AccessRole, AccessMode, AccessCategory } from '@/access/types.ts'
 import { use_users } from '@/access/hooks/use-users.ts'
 import { use_groups } from '@/access/hooks/use-groups.ts'
+import { AccessList } from '@/access/AccessList.tsx'
+import { AccessManage } from '@/access/AccessManage.tsx'
 
 type TabItems = Required<TabsProps>['items']
 
-export function AccessTabs ({ 
+export function AccessTabs ({
+    editing = false,
     role, 
-    name, 
-    mode, 
-    children 
 }: 
 { 
+    editing?: boolean
     role: AccessRole
-    name: string
-    mode: AccessMode
-    children: (category: AccessCategory, role: AccessRole, name: string) => JSX.Element
 }) {
+    const query = useParams()
+    const name = query.id
+    
     const { data: users = [ ] } = use_users()
     const { data: groups = [ ] } = use_groups()
     
@@ -36,41 +37,45 @@ export function AccessTabs ({
     const [search_params, set_search_params] = useSearchParams()
     const [tab_key, set_tab_key] = useState(() => search_params.get('tab') || 'database')
     
-    function handleTabChange (key: string) {
+    function handle_tab_change (key: string) {
         set_tab_key(key)
         set_search_params({ ...Object.fromEntries(search_params), tab: key })
     }
     
-    const tabs: TabItems = useMemo(
-        () => [
-            {
-                key: 'database',
-                label: t('分布式数据库'),
-                children: children('database', role, name)
-            },
-            {
-                key: 'share_table',
-                label: t('共享内存表'),
-                children: children('shared', role, name)
-            },
-            {
-                key: 'stream',
-                label: t('流数据表'),
-                children: children('stream', role, name)
-            },
-            {
-                key: 'function_view',
-                label: t('函数视图'),
-                children: children('function_view', role, name)
-            },
-            {
-                key: 'script',
-                label: t('全局权限'),
-                children: children('script', role, name)
-            }
-        ],
-        [children]
-    )
+    const AccessView = (category: AccessCategory) => 
+            editing 
+                ? 
+            <AccessManage role={role} name={name} category={category}/> 
+                : 
+            <AccessList role={role} name={name} category={category}/>
+    
+    const tabs: TabItems = [
+        {
+            key: 'database',
+            label: t('分布式数据库'),
+            children: AccessView('database')
+        },
+        {
+            key: 'share_table',
+            label: t('共享内存表'),
+            children: AccessView('shared')
+        },
+        {
+            key: 'stream',
+            label: t('流数据表'),
+            children: AccessView('stream')
+        },
+        {
+            key: 'function_view',
+            label: t('函数视图'),
+            children: AccessView('function_view')
+        },
+        {
+            key: 'script',
+            label: t('全局权限'),
+            children: AccessView('script')
+        }
+    ]
     
     const OperationsSlot = {
         left: (
@@ -83,7 +88,7 @@ export function AccessTabs ({
                         label: t
                     }))}
                     onSelect={item => {
-                        model.goto(`/access/${role}/${item}${mode === 'view' ? '' : '/edit'}`, { queries: { tab: tab_key } })
+                        model.goto(`/access/${role}/${item}${editing ? '/edit' : ''}`, { queries: { tab: tab_key } })
                     }}
                 />
             </div>
@@ -105,7 +110,7 @@ export function AccessTabs ({
             type='card'
             items={tabs}
             activeKey={tab_key}
-            onChange={handleTabChange}
+            onChange={handle_tab_change}
             tabBarExtraContent={OperationsSlot}
         />
 }
