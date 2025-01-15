@@ -1,6 +1,6 @@
-import { Tabs, Button, Select, type TabsProps } from 'antd'
+import { Tabs, Button, Select } from 'antd'
 import { ReloadOutlined } from '@ant-design/icons'
-import { useState, useMemo, type  JSX } from 'react'
+import { useState } from 'react'
 
 import { t } from '@i18n/index.ts'
 
@@ -10,13 +10,12 @@ import { useSWRConfig } from 'swr'
 
 import { model } from '@/model.ts'
 
-import type { AccessRole, AccessMode, AccessCategory } from '@/access/types.ts'
+import type { AccessRole, AccessCategory } from '@/access/types.ts'
 import { use_users } from '@/access/hooks/use-users.ts'
 import { use_groups } from '@/access/hooks/use-groups.ts'
 import { AccessList } from '@/access/AccessList.tsx'
 import { AccessManage } from '@/access/AccessManage.tsx'
 
-type TabItems = Required<TabsProps>['items']
 
 export function AccessTabs ({
     editing = false,
@@ -42,12 +41,10 @@ export function AccessTabs ({
         set_search_params({ ...Object.fromEntries(search_params), tab: key })
     }
     
-    const AccessView = (category: AccessCategory) => 
-            editing 
-                ? 
-            <AccessManage role={role} name={name} category={category}/> 
-                : 
-            <AccessList role={role} name={name} category={category}/>
+    const get_access_view = (category: AccessCategory) => 
+        editing
+            ? <AccessManage role={role} name={name} category={category}/> 
+            : <AccessList role={role} name={name} category={category}/>
     
     return <Tabs
             type='card'
@@ -55,27 +52,27 @@ export function AccessTabs ({
                 {
                     key: 'database',
                     label: t('分布式数据库'),
-                    children: AccessView('database')
+                    children: get_access_view('database')
                 },
                 {
                     key: 'share_table',
                     label: t('共享内存表'),
-                    children: AccessView('shared')
+                    children: get_access_view('shared')
                 },
                 {
                     key: 'stream',
                     label: t('流数据表'),
-                    children: AccessView('stream')
+                    children: get_access_view('stream')
                 },
                 {
                     key: 'function_view',
                     label: t('函数视图'),
-                    children: AccessView('function_view')
+                    children: get_access_view('function_view')
                 },
                 {
                     key: 'script',
                     label: t('全局权限'),
-                    children: AccessView('script')
+                    children: get_access_view('script')
                 }
             ]}
             activeKey={tab_key}

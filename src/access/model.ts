@@ -81,7 +81,7 @@ class AccessModel extends Model<AccessModel> {
         let databases = await this.get_databases()
         if (has_schema) {
             let schema_set = new Set<string>()
-            const catelog_names = (await model.ddb.invoke<string[]>('getAllCatalogs'))
+            const catelog_names = await model.ddb.invoke<string[]>('getAllCatalogs')
             const schemas = await Promise.all(catelog_names.map(async name => (await model.ddb.invoke('getSchemaByCatalog', [name])).data))
             schemas.forEach(({ dbUrl }) => schema_set.add(dbUrl))
             databases = databases.filter(db => !schema_set.has(db))
@@ -117,7 +117,8 @@ class AccessModel extends Model<AccessModel> {
     
     
     async get_schemas_by_catelog (catelog: string) {
-        const schemas = (await model.ddb.invoke('getSchemaByCatalog', [catelog])).data
+        const schemas = (await model.ddb.invoke('getSchemaByCatalog', [catelog]))
+            .data
         const schemas_with_tables = await Promise.all(schemas.map(async (schema: Schema) => ({ ...schema, tables: await this.get_tables(schema.dbUrl) })))
         return schemas_with_tables
     }
@@ -129,7 +130,8 @@ class AccessModel extends Model<AccessModel> {
     
     // final 属性代表是否获取用户最终权限，只有在用户查看权限界面需要 final = true
     async get_user_access (users: string[], final: boolean = false) {
-        return (await model.ddb.invoke('getUserAccess', [...final ? [users, true] : [users]])).data
+        return (await model.ddb.invoke('getUserAccess', [...final ? [users, true] : [users]]))
+            .data
     }
     
     

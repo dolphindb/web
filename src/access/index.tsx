@@ -1,6 +1,6 @@
 import './index.sass'
 
-import { useRoutes, Navigate, useParams } from 'react-router'
+import { useRoutes, Navigate } from 'react-router'
 
 import { Result } from 'antd'
 
