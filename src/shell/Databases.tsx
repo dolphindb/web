@@ -1185,7 +1185,7 @@ export class Table implements DataNode {
     async get_schema () {
         const { db, path } = this
         const schema = await model.ddb.call<DdbDictObj<DdbVectorStringObj>>(
-            // 这个函数在 define_load_schema 中已定义
+            // 这个函数在 define_load_table_schema 中已定义
             'load_table_schema',
             // 调用该函数时，数据库路径不能以 / 结尾
             [db.path.slice(0, -1), path.slice(db.path.length, -1)],
