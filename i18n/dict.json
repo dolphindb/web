@@ -5845,5 +5845,8 @@
     },
     "没有正在运行的数据节点": {
         "en": "No running data nodes"
+    },
+    "自动": {
+        "en": "auto"
     }
 }
