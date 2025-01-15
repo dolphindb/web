@@ -20,7 +20,7 @@ export function AccessList ({ role, name, category }: { role: AccessRole, name: 
     
     const { data: access_objs = [ ] } = use_access_objs(role, category)
     
-    const { v3 } = model.use(['v3'])
+    const { v3 } = model
     
     const { data: accesses } = use_access(role, name, true)
     
