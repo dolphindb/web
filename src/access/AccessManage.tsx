@@ -111,7 +111,7 @@ export function AccessManage ({ role, name, category }: { role: AccessRole, name
                         name: NEED_INPUT_ACCESS.includes(k) ? v : '',
                         type: v === 'deny' ? 'deny' : 'grant',
                         action: (
-                            <RevokeConfirm onConfirm={async () => {
+                            <RevokeConfirm on_confirm={async () => {
                                 await access.revoke(name, k)
                                 model.message.success(t('撤销成功'))
                                 await update_accesses()
@@ -138,7 +138,7 @@ export function AccessManage ({ role, name, category }: { role: AccessRole, name
                             access: k.slice(0, k.indexOf(allowed ? '_allowed' : '_denied')),
                             type: allowed ? 'grant' : 'deny',
                             action: (
-                                <RevokeConfirm onConfirm={async () => {
+                                <RevokeConfirm on_confirm={async () => {
                                     await access.revoke(name, k.slice(0, k.indexOf(allowed ? '_allowed' : '_denied')), obj)
                                     model.message.success(t('撤销成功'))
                                     await update_accesses()
@@ -156,7 +156,7 @@ export function AccessManage ({ role, name, category }: { role: AccessRole, name
                             access: 'DB_OWNER',
                             type: v === 'allow' ? 'grant' : 'deny',
                             action: (
-                                <RevokeConfirm onConfirm={async () => {
+                                <RevokeConfirm on_confirm={async () => {
                                     await access.revoke(name, k, obj)
                                     model.message.success(t('撤销成功'))
                                     await update_accesses()
@@ -172,8 +172,6 @@ export function AccessManage ({ role, name, category }: { role: AccessRole, name
     const filtered_rules = useMemo(() => access_rules.filter(row =>
         row[category === 'script' ? 'access' : 'name'].toLowerCase().includes(search_key.toLowerCase())
     ), [search_key, access_rules])
-    
-    console.log('access_rules', filtered_rules)
     
     return <Table
             rowSelection={{

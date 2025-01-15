@@ -35,12 +35,12 @@ export function AccessTabs ({
     
     const { mutate } = useSWRConfig()
     
-    const [searchParams, setSearchParams] = useSearchParams()
-    const [tab_key, set_tab_key] = useState(() => searchParams.get('tab') || 'database')
+    const [search_params, set_search_params] = useSearchParams()
+    const [tab_key, set_tab_key] = useState(() => search_params.get('tab') || 'database')
     
     function handleTabChange (key: string) {
         set_tab_key(key)
-        setSearchParams({ ...Object.fromEntries(searchParams), tab: key })
+        set_search_params({ ...Object.fromEntries(search_params), tab: key })
     }
     
     const tabs: TabItems = useMemo(

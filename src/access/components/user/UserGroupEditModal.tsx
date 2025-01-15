@@ -8,15 +8,15 @@ import { TransferModal } from '@/access/components/access/TransferModal.tsx'
 
 export const UserGroupEditModal = NiceModal.create(({ name }: { name: string }) => {
     const { mutate } = useSWRConfig()
-    const { data: groups = [ ], isLoading: groupsLoading } = useSWR('groups', async () => access.get_group_list())
-    const { data: userGroups, isLoading: userGroupsLoading, mutate: mutateUserGroups } = useSWR(['user/groups', name], 
+    const { data: groups = [ ], isLoading: groups_loading } = useSWR('groups', async () => access.get_group_list())
+    const { data: userGroups, isLoading: user_groups_loading, mutate: mutate_user_groups } = useSWR(['user/groups', name], 
         async () => access.get_user_access([name]))
     
     const original_groups = userGroups?.[0].groups.split(',').filter(Boolean) ?? [ ]
     
     const modal = useModal()
     
-    if (groupsLoading || userGroupsLoading)
+    if (groups_loading || user_groups_loading)
         return null
     
     return <TransferModal
@@ -39,7 +39,7 @@ export const UserGroupEditModal = NiceModal.create(({ name }: { name: string }) 
                 ].filter(Boolean))
                 
                 model.message.success(t('用户所属组修改成功'))
-                await mutateUserGroups()
+                await mutate_user_groups()
                 await mutate(key => Array.isArray(key) && key[0] === 'users/access')
             }}
         />
