@@ -117,7 +117,7 @@ class AccessModel extends Model<AccessModel> {
     
     
     async get_schemas_by_catelog (catelog: string) {
-        const schemas = await model.ddb.invoke<Schema[]>('getSchemaByCatalog', [catelog])
+        const schemas = (await model.ddb.invoke('getSchemaByCatalog', [catelog])).data
         const schemas_with_tables = await Promise.all(schemas.map(async (schema: Schema) => ({ ...schema, tables: await this.get_tables(schema.dbUrl) })))
         return schemas_with_tables
     }
