@@ -32,7 +32,7 @@ export function AccessManage ({ role, name, category }: { role: AccessRole, name
     
     const { data: stream_tables } = use_access_objs(role, 'stream')
     
-    const { v3 } = model.use(['v3'])
+    const { v3 } = model
     
     const [search_key, set_search_key] = useState('')
     

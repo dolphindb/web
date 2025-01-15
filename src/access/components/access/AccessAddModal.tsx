@@ -22,8 +22,6 @@ import { AccessObjSelect } from './AccessObjSelect.tsx'
 export const AccessAddModal = NiceModal.create(({ category, role, name }: { category: AccessCategory, role: AccessRole, name: string }) => {
     const { data: accesses, mutate: update_accesses } = use_access(role, name)
     
-    const { node } = model.use(['node'])
-    
     const { v3 } = model.use(['v3'])
     
     category = v3 && category === 'database' ? 'catalog' : category

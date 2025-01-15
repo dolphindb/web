@@ -39,7 +39,7 @@ export function AccessHeader ({
     name: string
 }) {
     
-    const { v3 } = model.use(['v3'])
+    const { v3 } = model
     
     const [input_value, set_input_value] = useState(search_key)
     
