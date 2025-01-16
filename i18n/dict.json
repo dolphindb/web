@@ -5828,6 +5828,12 @@
     "取消执行": {
         "en": "Cancel execution"
     },
+    "自动拓展页面大小：": {
+        "en": "Automatically expands page size: "
+    },
+    "当前显示的是日志的一部分，点击以查看完整日志": {
+        "en": "Currently displaying a portion of the log. Click to view the full log."
+    },
     "原有项:": {
         "en": "Original items"
     },
