@@ -1,66 +1,47 @@
 import NiceModal, { useModal } from '@ebay/nice-modal-react'
-import { Modal, Transfer } from 'antd'
+import useSWR, { useSWRConfig } from 'swr'
+import { t } from '@i18n/index.ts'
 
-import { useEffect, useState } from 'react'
+import { access } from '@/access/model.ts'
+import { model } from '@/model.ts'
+import { TransferModal } from '@/access/components/access/TransferModal.tsx'
 
-import { t } from '../../../../i18n/index.js'
-import { access } from '../../model.js'
 
-import { UserGroupConfirmModal } from './UserGroupConfirmModal.js'
-
-export const UserGroupEditModal = NiceModal.create(({ 
-        set_users_info, 
-    }:
-    {   
-        set_users_info: (users: any[]) => void 
-    }) => {
-    const { groups, current } = access.use(['users', 'groups', 'current'])
-        
-    const [target_groups, set_target_groups] = useState<string[]>([ ])
+export const UserGroupEditModal = NiceModal.create(({ name }: { name: string }) => {
+    const { mutate } = useSWRConfig()
+    const { data: groups = [ ], isLoading: groups_loading } = useSWR('groups', async () => access.get_group_list())
+    const { data: userGroups, isLoading: user_groups_loading, mutate: mutate_user_groups } = useSWR(['user/groups', name], 
+        async () => access.get_user_access([name]))
     
-    const [selected_groups, set_selected_groups] = useState<string[]>([ ])
+    const original_groups = userGroups?.[0].groups.split(',').filter(Boolean) ?? [ ]
     
-    const modal = useModal() 
+    const modal = useModal()
     
-    useEffect(() => {
-        (async () => {
-            set_target_groups((await access.get_user_access([current.name]))[0].groups.split(','))
-        })()
-    }, [current.name])
+    if (groups_loading || user_groups_loading)
+        return null
     
-    return <Modal
-            className='edit-user-group-modal'
-            open={modal.visible}
-            onCancel={modal.hide}
-            afterClose={modal.remove}
-            title={<div>{t('用户 {{user}} 所属组管理', { user: current?.name })}</div>}
-            onOk={async () => {
-                NiceModal.show(UserGroupConfirmModal, {
-                    edit_close: modal.hide,
-                    target_groups,
-                    set_target_groups,
-                    set_selected_groups,
-                    set_users_info
-                    })
+    return <TransferModal
+            visible={modal.visible}
+            on_cancel={modal.hide}
+            on_remove={modal.remove}
+            title={t('用户 {{user}} 所属组管理', { user: name })}
+            confirm_title={t('确认对用户 {{user}} 进行以下改动吗？', { user: name })}
+            data_source={groups.map(group => ({
+                key: group,
+                title: group
+            }))}
+            original_keys={original_groups}
+            titles={[t('未所属组'), t('所属组')]}
+            search_placeholder={t('请输入想查找的组')}
+            on_save={async (delete_groups, add_groups) => {
+                await Promise.all([
+                    delete_groups.length && access.delete_group_member(name, delete_groups),
+                    add_groups.length && access.add_group_member(name, add_groups)
+                ].filter(Boolean))
+                
+                model.message.success(t('用户所属组修改成功'))
+                await mutate_user_groups()
+                await mutate(key => Array.isArray(key) && key[0] === 'users/access')
             }}
-            okText={t('预览修改')}
-        >
-            <Transfer
-                dataSource={groups.map(user => ({
-                    key: user,
-                    title: user
-                }))}
-                titles={[t('未所属组'), t('所属组')]}
-                showSearch
-                locale={{ itemUnit: t('个'), itemsUnit: t('个'), searchPlaceholder: t('请输入想查找的组') }}
-                filterOption={(val, user) => user.title.includes(val)}
-                targetKeys={target_groups}
-                selectedKeys={selected_groups}
-                onChange={keys => { set_target_groups(keys as string[]) }}
-                onSelectChange={(s, t) => {
-                    set_selected_groups([...s, ...t] as string[])
-                }}
-                render={item => item.title}
-            />
-        </Modal>
+        />
 })

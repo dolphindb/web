@@ -1,6 +1,6 @@
 import './index.sass'
 
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useMemo, useState } from 'react'
 
 import { DeleteOutlined, PlusOutlined, ReloadOutlined, SearchOutlined } from '@ant-design/icons'
 import { Button, Input, Popconfirm, Table, Tag, type TableColumnType } from 'antd'
@@ -8,28 +8,34 @@ import { Button, Input, Popconfirm, Table, Tag, type TableColumnType } from 'ant
 
 import NiceModal from '@ebay/nice-modal-react'
 
-import { t, language } from '../../i18n/index.js'
-import { model } from '../model.js'
+import { t, language } from '@i18n/index.ts'
 
-import { access } from './model.js'
-import { GroupCreateModal } from './components/group/GroupCreateModal.js'
-import { GroupDeleteModal } from './components/group/GroupDeleteModal.js'
-import { GroupUserEditModal } from './components/group/GroupUserEditModal.js'
+import useSWR from 'swr'
+
+import { model } from '@/model.ts'
+
+import { access } from './model.ts'
+import { GroupCreateModal } from './components/group/GroupCreateModal.tsx'
+import { GroupDeleteModal } from './components/group/GroupDeleteModal.tsx'
+import { GroupUserEditModal } from './components/group/GroupUserEditModal.tsx'
+import { use_groups } from './hooks/use-groups.ts'
 
 export function GroupList () {
-    const { groups, current } = access.use(['groups', 'current'])
     
-    const [groups_info, set_groups_info] = useState([ ])
+    const { data: groups, mutate: mutate_groups } = use_groups()
+    
+    const { data: groups_info, mutate: mutate_groups_info } = useSWR(
+        ['groups/access', groups], 
+        async ([, groups]) => {
+            if (groups)
+                return access.get_group_access(groups)
+        }
+    )
     
     const [search_key, set_search_key] = useState('')
     
     const [selected_groups, set_selected_groups] = useState([ ])
     
-    useEffect(() => {
-        (async () => {
-            set_groups_info(await access.get_group_access(groups))
-        })()
-    }, [groups])
     
     const reset_selected_groups = useCallback(() => { set_selected_groups([ ]) }, [ ])
     
@@ -73,7 +79,11 @@ export function GroupList () {
                 >
                     {t('批量删除')}
                 </Button>
-                <Button type='default' icon={<ReloadOutlined />} onClick={async () => (async () => access.get_group_list())()}>
+                <Button type='default' icon={<ReloadOutlined />} onClick={async () => {
+                    await mutate_groups()
+                    await mutate_groups_info()
+                    model.message.success(t('刷新成功'))
+                }}>
                     {t('刷新')}
                 </Button>
                 <Input
@@ -88,7 +98,7 @@ export function GroupList () {
             </div>
         </div>
         
-        <Table
+       {groups_info && <Table
             rowSelection={{
                 selectedRowKeys: selected_groups,
                 onChange: (selectedRowKeys: React.Key[]) => {
@@ -115,7 +125,7 @@ export function GroupList () {
                             <Button
                                 type='link'
                                 onClick={() => {
-                                    access.set({ current: { role: 'group', name: group.groupName, view: 'preview' } })
+                                    model.goto(`/access/group/${group.groupName}`)
                                 }}
                             >
                                 {t('查看权限')}
@@ -124,7 +134,7 @@ export function GroupList () {
                             <Button
                                 type='link'
                                 onClick={() => {
-                                    access.set({ current: { role: 'group', name: group.groupName, view: 'manage' } })
+                                    model.goto(`/access/group/${group.groupName}/edit`)
                                 }}
                             >
                                 {t('设置权限')}
@@ -133,7 +143,6 @@ export function GroupList () {
                             <Button
                                 type='link'
                                 onClick={async () => {
-                                    access.set({ current: { role: 'group', name: group.groupName, ...current } })
                                     NiceModal.show(GroupUserEditModal, { groupname: group.groupName })
                                 }}
                             >
@@ -146,7 +155,7 @@ export function GroupList () {
                                 onConfirm={async () => {
                                     await access.delete_group(group.groupName)
                                     model.message.success(t('组删除成功'))
-                                    await access.get_group_list()
+                                    await mutate_groups()
                                 }}
                             >
                                 <Button type='link' danger>
@@ -157,6 +166,6 @@ export function GroupList () {
                     )
                 }))}
             tableLayout='fixed'
-        />
+        />}
     </>
 }

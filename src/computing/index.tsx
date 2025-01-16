@@ -336,6 +336,7 @@ const cols_width = {
         raftGroup: 70,
         compress: 70,
         sizeOnDisk: 100,
+        persistenceDir: 150,
         retentionMinutes: 120,
         memoryOffset: 100,
         hashValue: 90,

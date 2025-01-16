@@ -90,7 +90,6 @@ export function Settings () {
             }
         >
             <SettingFilled className='header-settings-icon'
-                style={{ fontSize: '20px', color: '#707070' }}
                 onMouseOver={() => {
                     set_decimals({ value: model.options?.decimals ?? null, status: null })
                 }} />

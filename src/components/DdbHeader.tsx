@@ -13,6 +13,7 @@ import { Status } from './Status.tsx'
 import { Settings } from './Settings.tsx'
 import { CompileAndRefresh } from './CompileAndRefresh.tsx'
 import { HostSelect } from './HostSelect.tsx'
+import { LanguageSelect } from './LanguageSelect.tsx'
 
 import SvgArrowDown from './icons/arrow.down.icon.svg'
 
@@ -37,6 +38,8 @@ export function DdbHeader () {
         <div className='section'><Status /></div>
         
         <div className='section'><License /></div>
+        
+        <LanguageSelect/>
         
         <Settings />
         
