@@ -130,7 +130,7 @@ class AccessModel extends Model<AccessModel> {
     
     // final 属性代表是否获取用户最终权限，只有在用户查看权限界面需要 final = true
     async get_user_access (users: string[], final: boolean = false) {
-        if (!users || !users.length)
+        if (!users?.length)
             return [ ]
         return (await model.ddb.invoke('getUserAccess', [...final ? [users, true] : [users]]))
             .data
@@ -143,7 +143,7 @@ class AccessModel extends Model<AccessModel> {
     
     
     async get_group_access (groups: string[]) {
-        if (!groups || !groups.length)
+        if (!groups?.length)
             return [ ]
         return (await model.ddb.invoke('getGroupAccess', [ groups ])).data
     }
