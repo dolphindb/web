@@ -76,9 +76,7 @@ export function Variables ({ shared }: { shared?: boolean }) {
             shell.update_vars()
     }, [logined, client_auth, username])
     
-    const vars_ = vars ? vars.filter(v => {
-        return v.shared === shared
-    }) : [ ]
+    const vars_ = vars ? vars.filter(v => v.shared === shared) : [ ]
     
     let scalar  = new TreeDataItem({ title: 'scalar', key: '0', icon: <Icon component={SvgScalar} /> })
     let vector  = new TreeDataItem({ title: 'vector', key: '1', icon: <Icon component={SvgVector} /> })
@@ -463,12 +461,9 @@ function SuffixIcon ({ name }: { name: string }) {
                         type: 'object',
                         data: await model.ddb.call<DdbDictObj<DdbVectorStringObj>>(
                             'load_table_variable_schema',
-                            [name],
-                            model.node_type === NodeType.controller ? { node: model.datanode.name } : undefined
-                        )
+                            [name])
                     }
-                }
-            ) }}
+                }) }}
         />
     </Tooltip>
 }

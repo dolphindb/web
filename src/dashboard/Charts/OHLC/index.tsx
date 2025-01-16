@@ -208,16 +208,15 @@ export function OHLC ({ widget, data_source }: { widget: Widget, data_source: an
             // },
             grid: [
                 {   
-                    // containLabel: true,
                     left: 70,
                     right: 50,
+                    top: 60,
                     height: '50%'
                 },
                 {
-                    // containLabel: true,
                     left: 70,
                     right: 50,
-                    bottom: '22%',
+                    top: '65%',
                     height: '15%'
                 }
             ],
@@ -272,49 +271,26 @@ export function OHLC ({ widget, data_source }: { widget: Widget, data_source: an
                     }
             }
             ],
-            yAxis: [
-                {
-                    scale: true,
-                    splitArea: {
-                        show: true
-                    },
-                    splitLine: {
-                        show: true,
-                        lineStyle: {
-                            type: 'dashed',
-                            color: '#6E6F7A'
-                        },
-                        ...splitLine
-                    },
-                    nameTextStyle: {
-                        padding: [0, 50, 0, 0],
-                        fontSize: yAxis[0]?.fontsize ?? 12,
-                    },
-                    min: yAxis[0].min,
-                    max: yAxis[0].max,
-                    name: yAxis[0].name,
-                    position: yAxis[0].position,
-                    offset: yAxis[0].offset
+            yAxis: yAxis.map((axis, index) => ({
+                scale: true,
+                position: axis.position,
+                offset: axis.offset,
+                name: axis.name,
+                nameTextStyle: {
+                    padding: [0, axis.position === 'left' ? 50 : 0, 0, axis.position === 'right' ? 50 : 0],
+                    fontSize: axis?.fontsize ?? 12,
                 },
-                {
-                    scale: true,
-                    gridIndex: 1,
-                    splitNumber: 2,
-                    min: yAxis[1].min,
-                    max: yAxis[1].max,
-                    nameTextStyle: {
-                        padding: [0, 0, 0, 50],
-                        fontSize: yAxis[1]?.fontsize ?? 12,
+                splitLine: {
+                    show: true,
+                    lineStyle: {
+                        type: 'dashed',
+                        color: '#6E6F7A'
                     },
-                    name: yAxis[1].name,
-                    position: yAxis[1].position,
-                    offset: yAxis[1].offset,
-                    axisLabel: { show: false },
-                    axisLine: { show: false },
-                    axisTick: { show: false },
-                    splitLine: { show: false }
-                }
-            ],
+                    ...splitLine
+                },
+                // 修改gridIndex的逻辑
+                gridIndex: index === 1 ? 1 : 0
+            })),
             dataZoom: [
                 {
                     type: 'inside',
@@ -341,11 +317,13 @@ export function OHLC ({ widget, data_source }: { widget: Widget, data_source: an
                 {
                     type: 'candlestick',
                     data: data.values,
+                    xAxisIndex: 0,
+                    yAxisIndex: 0,
                     itemStyle: {
                         color: kColor,
                         color0: kColor0,
-                        borderColor: undefined,
-                        borderColor0: undefined
+                        borderColor: kColor,
+                        borderColor0: kColor0
                     }
                 },
                 {
@@ -358,7 +336,12 @@ export function OHLC ({ widget, data_source }: { widget: Widget, data_source: an
                         color: ({ value }) => (value[2] === 1 ? kColor : kColor0)
                     }
                 },
-                ...lines
+                // 所有额外的折线都使用主图grid
+                ...lines.map(line => ({
+                    ...line,
+                    xAxisIndex: line.yAxisIndex === 1 ? 1 : 0,  // 根据yAxisIndex选择对应的xAxisIndex
+                    yAxisIndex: line.yAxisIndex ?? 0
+                }))
             ]
         }),
         [title, animation, data, xAxis, yAxis, x_datazoom, y_datazoom, legend, splitLine, tooltip]

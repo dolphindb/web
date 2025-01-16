@@ -3,19 +3,27 @@ import { Form, Input, Modal, Transfer } from 'antd'
 
 import { useState } from 'react'
 
-import { language, t } from '../../../../i18n/index.js'
-import { access } from '../../model.js'
-import { model } from '../../../model.js'
-import { NAME_CHECK_PATTERN } from '../../constants.js'
+import { useSWRConfig } from 'swr'
+
+import { language, t } from '@i18n/index.js'
+
+import { access } from '@/access/model.js'
+
+import { model } from '@/model.js'
+
+import { NAME_CHECK_PATTERN } from '@/access/constants.js'
+import { use_users } from '@/access/hooks/use-users.ts'
 
 export const GroupCreateModal = NiceModal.create(() => {
-    const { users } = access.use(['users'])
+    const { data: users = [ ] } = use_users()
     
     const [target_users, set_target_users] = useState<string[]>([ ])
     
     const [selected_users, set_selected_users] = useState<string[]>([ ])
     
-    const [add_group_form] = Form.useForm()
+    const [add_group_form] = Form.useForm() 
+    
+    const { mutate } = useSWRConfig()
     
     const modal = useModal()
     
@@ -37,7 +45,7 @@ export const GroupCreateModal = NiceModal.create(() => {
                     set_selected_users([ ])
                     set_target_users([ ])
                     add_group_form.resetFields()
-                    await access.get_group_list()
+                    await mutate('groups')
                 } catch (error) {
                     if (error instanceof Error)
                         throw error

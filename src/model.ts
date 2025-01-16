@@ -197,12 +197,20 @@ export class DdbModel extends Model<DdbModel> {
         
         const host = params.get('host')
         
+        const language = localStorage.getItem(storage_keys.language)
+        
+        if (language) 
+            params.set('language', language)
+        
         if (host) {
             // 优先用 host 参数中的主机和端口
             [hostname, port] = host.split(':')
             params.delete('host')
             params.set('hostname', hostname)
             params.set('port', port)
+        }
+        
+        if (language || host) {
             // 转换 url
             let url = new URL(location.href)
             url.search = params.toString()
@@ -731,13 +739,11 @@ export class DdbModel extends Model<DdbModel> {
     }
     
     
-    /** 判断当前集群是否有数据节点或计算节点正在运行 */
-    has_data_and_computing_nodes_alive () {
+    /** 判断当前集群是否有数据节点正在运行 */
+    has_data_nodes_alive () {
         return Boolean(
             this.nodes.find(node =>
-                (node.mode === NodeType.data || node.mode === NodeType.computing) && 
-                node.state === DdbNodeState.online)
-        )
+                node.mode === NodeType.data && node.state === DdbNodeState.online))
     }
     
     
@@ -1063,6 +1069,7 @@ export const storage_keys = {
     minimap: 'ddb.editor.minimap',
     enter_completion: 'ddb.editor.enter_completion',
     sql: 'ddb.sql',
+    language: 'ddb.language',
     dashboard_autosave: 'ddb.dashboard.autosave',
     overview_display_mode: 'ddb.overview.display_mode',
     overview_display_columns: 'ddb.overview.display_columns',

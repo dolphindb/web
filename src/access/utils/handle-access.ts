@@ -1,4 +1,4 @@
-import { ACCESS_TYPE, DATABASES_WITHOUT_CATALOG } from '../constants.js'
+import { ACCESS_TYPE, DATABASES_WITHOUT_CATALOG } from '../constants.tsx'
 
 export function generate_access_cols (accesses: Record<string, any>, category: keyof typeof ACCESS_TYPE, name: string) {
     if (category === 'catalog' && name === DATABASES_WITHOUT_CATALOG) 
@@ -7,6 +7,8 @@ export function generate_access_cols (accesses: Record<string, any>, category: k
 }
 
 export function handle_access (accesses: Record<string, any>, type: string, name: string) {
+    if (!accesses)
+        return [type, 'none']
     // DB_OWNER 单独处理
     if (type === 'DB_OWNER') 
         if (accesses.DB_OWNER === 'allow') 
