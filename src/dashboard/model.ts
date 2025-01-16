@@ -179,11 +179,11 @@ export class DashBoardModel extends Model<DashBoardModel> {
                     if (
                         this.config?.data?.canvas?.auto_expand === false
                         && widget.y + widget.h - 1 >= (this.config?.data?.canvas?.page_count ?? 1) * 12
-                    )
-                        {
-                            const past_widget = this.widgets.find(({ id }) => id === widget.id)
-                            grid.update(widget.el, { y: past_widget.y, h: past_widget.h })
-                        }
+                    ) {
+                        const past_widget = this.widgets.find(({ id }) => id === widget.id)
+                        grid.update(widget.el, { y: past_widget.y, h: past_widget.h })
+                    }
+                    
                     Object.assign(
                         this.widgets.find(({ id }) => id === widget.id),
                         widget
@@ -519,9 +519,12 @@ export class DashBoardModel extends Model<DashBoardModel> {
     on_set_auto_expand ( auto_expand: boolean) {
         this.set({
             config: {
-                ...this.config, data: {
-                    ...this.config.data, canvas: {
-                        ...this.config.data.canvas, auto_expand
+                ...this.config,
+                data: {
+                    ...this.config.data,
+                    canvas: {
+                        ...this.config.data.canvas,
+                        auto_expand
                     }
                 }
             }
@@ -600,7 +603,7 @@ export interface DashboardData {
      canvas: {
          widgets: any[]
          page_count?: number
-         auto_expand?: boolean
+         auto_expand?: boolean | undefined
      }
 }
 
