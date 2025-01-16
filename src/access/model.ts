@@ -1,10 +1,10 @@
 import { Model } from 'react-object-model'
 
-import { DdbInt, DdbVectorString, type DdbVectorStringObj } from 'dolphindb/browser.js'
+import { DdbInt, DdbVectorString } from 'dolphindb/browser.js'
 
-import { model } from '../model.js'
+import { model, NodeType } from '@/model.ts'
 
-import { DATABASES_WITHOUT_CATALOG } from './constants.js'
+import { DATABASES_WITHOUT_CATALOG } from './constants.tsx'
 
 
 export interface User {
@@ -70,49 +70,22 @@ enum Access {
 }
 
 class AccessModel extends Model<AccessModel> {
-    users: string[] = [ ]
-    
-    groups: string[] = [ ]
-    
-    catalogs: Catalog[] = [ ]
-    
-    databases: Database[] = [ ]
-    
-    shared_tables: string[] = [ ]
-    
-    stream_tables: string[] = [ ]
-    
-    function_views: string[] = [ ]
-    
-    schema_set: Set<string> = new Set()
-    
-    inited = false
-    
-    current: {
-        role?: 'user' | 'group'
-        name?: string
-        view?: string
-    } = null
-    
-    accesses = null
-    
-    async init () {
-        if (model.v3)
-            await this.get_catelog_list()
-        await this.get_user_list()
-        await this.get_group_list()
-        await this.get_databases_with_tables()
-        await this.get_share_tables()
-        await this.get_stream_tables()
-        await this.get_function_views()
-        this.set({ inited: true })
+    async get_catelog_with_schemas () {
+        const catelog_names = await model.ddb.invoke<string[]>('getAllCatalogs')
+        const catalogs = await Promise.all(catelog_names.map(async name => ({ name, schemas: await this.get_schemas_by_catelog(name) })))
+        return [...catalogs, await this.get_databases_with_tables(true)]
     }
     
     
-    async get_databases_with_tables () {
+    async get_databases_with_tables (has_schema: boolean = false) {
         let databases = await this.get_databases()
-        if (model.v3)
-            databases = databases.filter(db => !this.schema_set.has(db))
+        if (has_schema) {
+            let schema_set = new Set<string>()
+            const catelog_names = await model.ddb.invoke<string[]>('getAllCatalogs')
+            const schemas = await Promise.all(catelog_names.map(async name => (await model.ddb.invoke('getSchemaByCatalog', [name])).data))
+            schemas.forEach(({ dbUrl }) => schema_set.add(dbUrl))
+            databases = databases.filter(db => !schema_set.has(db))
+        }
         const tables = await this.get_tables()
         const databases_sort = [...databases].sort((a, b) => b.length - a.length)
         const dbs_map = new Map<string, string[]>()
@@ -127,8 +100,8 @@ class AccessModel extends Model<AccessModel> {
                 }
             
         })
-        if (model.v3) {
-            const databases_without_catalog: Catalog = {
+        if (has_schema) 
+            return {
                 name: DATABASES_WITHOUT_CATALOG,
                 schemas: databases.map(db => ({
                     schema: db,
@@ -136,102 +109,80 @@ class AccessModel extends Model<AccessModel> {
                     tables: dbs_map.get(db) || [ ]
                 }))
             }   
-            this.set({ catalogs: [...this.catalogs, databases_without_catalog] }) 
-        }
-        this.set({
-            databases: databases.map(db => ({
-                name: db,
-                tables: dbs_map.get(db) ?? [ ]
-            }))
-        })
-    }
-    
-    
-    async get_catelog_list () {
-        const catelog_names = (await model.ddb.invoke<string[]>('getAllCatalogs', [ ]))
-        const catalogs = await Promise.all(catelog_names.map(async name => ({ name, schemas: await this.get_schemas_by_catelog(name) })))
-        this.set({ catalogs })
+        return databases.map(db => ({
+            name: db,
+            tables: dbs_map.get(db) ?? [ ]
+        }))
     }
     
     
     async get_schemas_by_catelog (catelog: string) {
-        const schemas = (await (model.ddb.invoke('getSchemaByCatalog', [catelog]))).data
-        const new_schema_set = new Set(this.schema_set)
-        schemas.forEach(({ dbUrl }) => new_schema_set.add(dbUrl))
-        this.set({ schema_set: new_schema_set })
+        const schemas = (await model.ddb.invoke('getSchemaByCatalog', [catelog]))
+            .data
         const schemas_with_tables = await Promise.all(schemas.map(async (schema: Schema) => ({ ...schema, tables: await this.get_tables(schema.dbUrl) })))
         return schemas_with_tables
     }
     
     
     async get_user_list () {
-        this.set({ users: (await model.ddb.invoke<string[]>('getUserList', [ ])) })
-    }
-    
-    
-    async update_current_access () {
-        access.set({
-            accesses:
-                this.current.role === 'user'
-                    ? (await access.get_user_access([this.current.name]))[0]
-                    : (await access.get_group_access([this.current.name]))[0]
-        })
+        return model.ddb.invoke<string[]>('getUserList')
     }
     
     // final 属性代表是否获取用户最终权限，只有在用户查看权限界面需要 final = true
     async get_user_access (users: string[], final: boolean = false) {
-        return (await model.ddb.call('getUserAccess', [...final ? [new DdbVectorString(users), true] : [new DdbVectorString(users)]])).data().data
+        return (await model.ddb.invoke('getUserAccess', [...final ? [users, true] : [users]]))
+            .data
     }
     
     
     async get_group_list () {
-        this.set({ groups: (await model.ddb.invoke<string[]>('getGroupList', [ ])) })
+        return model.ddb.invoke('getGroupList')
     }
     
     
     async get_group_access (groups: string[]) {
-        return (await model.ddb.call('getGroupAccess', [new DdbVectorString(groups)])).data().data
+        return (await model.ddb.invoke('getGroupAccess', [ groups ])).data
     }
     
     
     async create_user (user: User) {
         const { userId, password, groupIds = [ ], isAdmin = false } = user
-        await model.ddb.call('createUser', [userId, password, new DdbVectorString(groupIds), isAdmin])
+        await model.ddb.invoke('createUser', [userId, password, new DdbVectorString(groupIds), isAdmin])
     }
     
     
     async delete_user (user: string) {
-        await model.ddb.call('deleteUser', [user])
+        await model.ddb.invoke('deleteUser', [user])
     }
     
     
     async reset_password (user: string, password: string) {
-        await model.ddb.call('resetPwd', [user, password])
+        await model.ddb.invoke('resetPwd', [user, password])
     }
     
     // user_names 和 group_names 不能同时为数组
     async add_group_member (users: string[] | string, groups: string[] | string) {
         if (!users || !groups || !users.length || !groups.length)
             return
-        await model.ddb.call(
+        await model.ddb.invoke(
             'addGroupMember',
-            [Array.isArray(users) ? new DdbVectorString(users) : users, Array.isArray(groups) ? new DdbVectorString(groups) : groups]
+            [ users, groups ]
         )
     }
     
     
     async create_group (group: string, users: string[]) {
-        await model.ddb.call('createGroup', [group, new DdbVectorString(users)])
+        await model.ddb.invoke('createGroup', [group, users])
     }
     
     
     async delete_group (group: string) {
-        await model.ddb.call('deleteGroup', [group])
+        await model.ddb.invoke('deleteGroup', [group])
     }
     
     
     async get_users_by_group (group: string) {
-        return (await model.ddb.call<DdbVectorStringObj>('getUsersByGroupId', [group])).value
+        return (await model.ddb.invoke('getUsersByGroupId', [group])).data
     }
     
     
@@ -239,79 +190,64 @@ class AccessModel extends Model<AccessModel> {
     async delete_group_member (users: string[] | string, groups: string[] | string) {
         if (!users || !groups || !users.length || !groups.length)
             return
-        await model.ddb.call(
+        await model.ddb.invoke(
             'deleteGroupMember',
-            [
-                Array.isArray(users) ? new DdbVectorString(users) : users,
-                Array.isArray(groups) ? new DdbVectorString(groups) : groups
-            ]
+            [ users, groups ]
         )
     }
     
     
     async get_databases (): Promise<string[]> {
-        return (await (model.ddb.call<DdbVectorStringObj>('getClusterDFSDatabases', [ ]))).value
+        return (model.ddb.invoke<string[]>('getClusterDFSDatabases'))
     }
     
     
     async get_tables (db_name?: string): Promise<string[]> {
-        return (await model.ddb.call<DdbVectorStringObj>('getDFSTablesByDatabase', [db_name ?? 'dfs://'])).value
+        return (model.ddb.invoke('getDFSTablesByDatabase', [db_name ?? 'dfs://']))
     }
     
     
     async get_share_tables () {
-        const tables = (await model.ddb.execute('pnodeRun(objs{true})')).data
-        this.set({
-            shared_tables: tables.filter(table => table.shared && table.type === 'BASIC' && table.form === 'TABLE')
-                .map(table => `${table.node}:${table.name}`),
-        })
+                        
+        return (await model.ddb.invoke('objs', 
+                    [true], 
+                    { nodes: model.nodes
+                        .filter(node => node.mode !== NodeType.agent)
+                        .map(node => node.name) 
+                    }
+                )).data
+                .filter(table => table.shared && table.type === 'BASIC' && table.form === 'TABLE')
+                .map(table => `${table.node}:${table.name}`)
     }
     
     
     async get_stream_tables () {
-        this.set({
-            stream_tables: (await model.ddb.call('getStreamTables', [new DdbInt(0)]))
-                .data().data
-                .filter(table => table.shared)
-                .map(tb => tb.name)
-        })
+        return (await model.ddb.invoke('getStreamTables', [new DdbInt(0)])).data    
+            .filter(table => table.shared)
+            .map(tb => tb.name)
+            .map(table => `${model.node.name}:${table}`)
     }
     
     
     async get_function_views () {
-        this.set({ function_views: (await model.ddb.call('getFunctionViews', [ ])).data().data.map(fv => fv.name) })
+        return (await model.ddb.invoke('getFunctionViews')).data.map(fv => fv.name)
     }
     
     
     async grant (user: string, access: string, obj?: string | number) {
-        await model.ddb.call('grant', obj ? [user, new DdbInt(Access[access]), typeof obj === 'number' ? new DdbInt(obj) : obj] : [user, new DdbInt(Access[access])])
+        await model.ddb.invoke('grant', obj ? [user, new DdbInt(Access[access]), obj] : [user, new DdbInt(Access[access])])
     }
     
     
     async deny (user: string, access: string, obj?: string) {
-        await model.ddb.call('deny', obj ? [user, new DdbInt(Access[access]), obj] : [user, new DdbInt(Access[access])])
+        await model.ddb.invoke('deny', obj ? [user, new DdbInt(Access[access]), obj] : [user, new DdbInt(Access[access])])
     }
     
     
     async revoke (user: string, access: string, obj?: string) {
-        await model.ddb.call('revoke', obj ? [user, new DdbInt(Access[access]), obj] : [user, new DdbInt(Access[access])])
+        await model.ddb.invoke('revoke', obj ? [user, new DdbInt(Access[access]), obj] : [user, new DdbInt(Access[access])])
     }
     
-    // async handle_validate_error (func: Function) {
-    //     try {
-    //         await func()
-    //     } catch (error) {
-    //         if (error instanceof DdbDatabaseError) {
-    //             model.show_error({ error })
-    //             return
-    //         }
-    //         const { errorFields } = error
-    //         error = errorFields.reduce((error_msg, curent_err) => 
-    //             error_msg += curent_err.errors
-    //         , '')
-    //         model.show_error({ content: error })
-    //     }
-    // }
 }
 
 

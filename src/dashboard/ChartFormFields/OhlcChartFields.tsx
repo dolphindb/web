@@ -196,7 +196,7 @@ function YAxis ({ col_names, initial_values }: { col_names: string[], initial_va
                     label: <div className='collapse-label'>
                         {`${t('Y 轴')} ${field.name + 1}`}
                         {
-                            index >= 2 &&
+                            index > 1 &&
                             <DeleteOutlined
                                 className='delete-icon'
                                 onClick={() => { remove(field.name) }}
@@ -209,6 +209,15 @@ function YAxis ({ col_names, initial_values }: { col_names: string[], initial_va
             
             return <div className='yasix-collapse-wrapper'>
                 <Collapse items={items} size='small'/>
+                <Button
+                    className='add-yaxis-btn'
+                    type='dashed'
+                    block
+                    onClick={() => { add({ type: AxisType.VALUE }) }}
+                    icon={<PlusCircleOutlined />}
+                >
+                    {t('增加 Y 轴')}
+                </Button>
             </div>
          }}
     </Form.List>
@@ -338,7 +347,7 @@ function Series (props: { col_names: string[] }) {
                     children,
                     label: <div className='collapse-label'>
                         {`${t('数据列')} ${field.name + 1}`}
-                        {index >= 2 && <DeleteOutlined className='delete-icon' onClick={() => { remove(field.name) }} />}
+                        {index > 1 && <DeleteOutlined className='delete-icon' onClick={() => { remove(field.name) }} />}
                     </div>,
                     forceRender: true
                 }

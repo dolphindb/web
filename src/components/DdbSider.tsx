@@ -160,12 +160,12 @@ export function DdbSider () {
                     label: t('权限管理'),
                     children: [
                         {
-                            key: 'user',
+                            key: 'access/user',
                             icon: <MenuIcon view='user' />,
                             label: t('用户管理'),
                         },
                         {
-                            key: 'group',
+                            key: 'access/group',
                             icon: <MenuIcon view='group' />,
                             label: t('组管理'),
                         },

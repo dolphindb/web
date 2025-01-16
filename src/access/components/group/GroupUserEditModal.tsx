@@ -1,63 +1,46 @@
 import NiceModal, { useModal } from '@ebay/nice-modal-react'
-import { Modal, Transfer } from 'antd'
+import useSWR, { useSWRConfig } from 'swr'
+import { t } from '@i18n/index.ts'
 
-import { useEffect, useState } from 'react'
-
-import { access } from '../../model.js'
-import { t } from '../../../../i18n/index.js'
-
-import { GroupUserConfirmModal } from './GroupUserConfirmModal.js'
+import { access } from '@/access/model.ts'
+import { model } from '@/model.ts'
+import { use_users } from '@/access/hooks/use-users.ts'
+import { TransferModal } from '@/access/components/access/TransferModal.tsx'
 
 export const GroupUserEditModal = NiceModal.create(({ groupname }: { groupname: string }) => {
-
-    const { users } = access.use(['users'])
+    const { mutate } = useSWRConfig()
+    const { data: users = [ ], isLoading: users_loading } = use_users()
+    const { data: group_users = [ ], isLoading: group_users_loading, mutate: mutate_group_users } = useSWR(['group/users', groupname], 
+        async () => access.get_users_by_group(groupname))
+    const modal = useModal()
+        
+    if (users_loading || group_users_loading)
+        return null
     
-    const modal = useModal() 
-    
-    const [target_users, set_target_users] = useState<string[]>([ ])
-    
-    const [selected_users, set_selected_users] = useState<string[]>([ ])
-    
-    useEffect(() => {
-        (async () => {
-            set_target_users(
-                (await access.get_users_by_group(groupname))
-                    .filter(name => name !== 'admin'))
-        })()
-    }, [groupname])
-    
-    return <Modal
-            className='edit-group-modal'
-            open={modal.visible}
-            onCancel={modal.hide}
-            afterClose={modal.remove}
-            title={<div>{t('组 {{group}} 成员管理', { group: groupname })}</div>}
-            onOk={async () => {
-                await NiceModal.show(GroupUserConfirmModal, {
-                    edit_close: modal.hide,
-                    target_users,
-                    set_target_users,
-                    set_selected_users,
-                })
+    return <TransferModal
+            visible={modal.visible}
+            on_cancel={modal.hide}
+            on_remove={modal.remove}
+            title={t('组 {{group}} 成员管理', { group: groupname })}
+            confirm_title={t('确认对组 {{group}} 进行以下改动吗？', { group: groupname })}
+            data_source={users.map(user => ({
+                key: user,
+                title: user
+            }))}
+            original_keys={group_users}
+            titles={[t('非组成员'), t('组成员')]}
+            search_placeholder={t('请输入想查找的用户')}
+            filter_items={items => items.filter(item => item !== 'admin')}
+            on_save={async (delete_users, add_users) => {
+                await Promise.all([
+                    delete_users.length && access.delete_group_member(delete_users, groupname),
+                    add_users.length && access.add_group_member(add_users, groupname)
+                ].filter(Boolean))
+                
+                model.message.success(t('组成员修改成功'))
+                await mutate_group_users()
+                await mutate(key => Array.isArray(key) && key[0] === 'groups/access')
             }}
-            okText={t('预览修改')}
-        >
-            <Transfer
-                dataSource={users.map(user => ({
-                    key: user,
-                    title: user
-                }))}
-                titles={[t('非组成员'), t('组成员')]}
-                showSearch
-                locale={{ itemUnit: t('个'), itemsUnit: t('个'), searchPlaceholder: t('请输入想查找的用户') }}
-                filterOption={(val, user) => user.title.includes(val)}
-                targetKeys={target_users}
-                selectedKeys={selected_users}
-                onChange={keys => { set_target_users(keys as string[]) }}
-                onSelectChange={(s, t) => {
-                    set_selected_users([...s, ...t] as string[])
-                }}
-                render={item => item.title}
-            />
-        </Modal>
+            
+        />
 })
