@@ -119,3 +119,21 @@ export const DDB_TYPE_MAP = {
     [DdbType.decimal64]: 'DECIMAL64(S)',
     [DdbType.decimal128]: 'DECIMAL128(S)'
 }
+
+
+/** 如果插入了 key, key 总是返回数组的最后一项 */
+export function switch_keys (keys: string[], key: string) {
+    let found = false
+    let keys_ = [ ]
+    
+    for (const k of keys)
+        if (k === key)
+            found = true
+        else
+            keys_.push(k)
+    
+    if (!found)
+        keys_.push(key)
+    
+    return keys_
+}

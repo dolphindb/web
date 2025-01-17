@@ -10,16 +10,14 @@ import { use_modal, type ModalController } from 'react-object-model/hooks.js'
 
 import { DdbBlob, type DdbTableData } from 'dolphindb/browser.js'
 
-import { t } from '@i18n/index.js'
+import { t } from '@i18n/index.ts'
+import { required, switch_keys } from '@/utils.ts'
+import { model } from '@/model.ts'
 
 
 import script from './index.dos'
 import SvgUpgrade from './upgrade.icon.svg'
 import zip_png from './zip.png'
-
-import { required } from '@/utils.ts'
-import { model } from '@/model.js'
-
 
 
 const { Text, Link } = Typography
@@ -131,42 +129,61 @@ export function Plugins () {
             ]}
             
             expandable={{
-                expandedRowRender ({ id }) {
-                    return <Table 
-                        className='plugin-nodes'
-                        dataSource={plugin_nodes.filter(({ id: _id }) => id === _id)}
-                        rowKey='node'
-                        pagination={false}
-                        size='small'
-                        columns={[
-                            {
-                                title: t('节点名'),
-                                dataIndex: 'node'
-                            },
-                            {
-                                title: t('已安装'),
-                                render: (_, { installed }) => installed ? <CheckOutlined /> : null
-                            },
-                            {
-                                title: t('安装版本'),
-                                dataIndex: 'installed_version'
-                            },
-                            {
-                                title: t('已加载'),
-                                render: (_, { loaded }) => loaded ? <CheckOutlined /> : null
-                            },
-                            {
-                                title: t('加载版本'),
-                                dataIndex: 'loaded_version'
-                            },
-                        ]}
-                    />
-                }
+                expandRowByClick: true,
+                expandedRowRender: ({ id }) => 
+                    <PluginNodesTable id={id} plugin_nodes={plugin_nodes} />
             }}
         />
         
         <SyncModal syncer={syncer} plugin={plugin} update_plugins={update_plugins} />
     </>
+}
+
+
+function PluginNodesTable ({ plugin_nodes, id }: { plugin_nodes: PluginNode[], id: string }) {
+    let [selecteds, set_selecteds] = useState<string[]>([ ])
+    
+    return <Table
+        className='plugin-nodes'
+        dataSource={plugin_nodes.filter(({ id: _id }) => id === _id)}
+        rowKey='node'
+        pagination={false}
+        size='small'
+        onRow={({ node }) => ({
+            onClick (event) {
+                set_selecteds(switch_keys(selecteds, node))
+            }
+        })}
+        rowSelection={{
+            selectedRowKeys: selecteds,
+            
+            onChange (selecteds_, rows, info) {
+                set_selecteds(selecteds_ as string[])
+            }
+        }}
+        columns={[
+            {
+                title: t('节点名'),
+                dataIndex: 'node'
+            },
+            {
+                title: t('已安装'),
+                render: (_, { installed }) => installed ? <CheckOutlined /> : null
+            },
+            {
+                title: t('安装版本'),
+                dataIndex: 'installed_version'
+            },
+            {
+                title: t('已加载'),
+                render: (_, { loaded }) => loaded ? <CheckOutlined /> : null
+            },
+            {
+                title: t('加载版本'),
+                dataIndex: 'loaded_version'
+            },
+        ]}
+    />
 }
 
 
