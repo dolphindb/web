@@ -2,12 +2,11 @@ import './index.sass'
 
 import { useEffect, useState } from 'react'
 import { Button, Empty, Form, Input, Modal, Radio, Result, Table, Typography, Upload, type UploadFile } from 'antd'
-import { ReloadOutlined, default as Icon, InboxOutlined } from '@ant-design/icons'
+import { ReloadOutlined, default as Icon, InboxOutlined, CheckOutlined } from '@ant-design/icons'
 import { noop } from 'xshell/prototype.browser.js'
 import { log, vercmp } from 'xshell/utils.browser.js'
 
 import { use_modal, type ModalController } from 'react-object-model/hooks.js'
-import { join_elements } from 'react-object-model/utils.js'
 
 import { DdbBlob, type DdbTableData } from 'dolphindb/browser.js'
 
@@ -19,7 +18,7 @@ import SvgUpgrade from './upgrade.icon.svg'
 import zip_png from './zip.png'
 
 import { required } from '@/utils.ts'
-import { model, DdbNodeState, NodeType } from '@/model.js'
+import { model } from '@/model.js'
 
 
 
@@ -27,35 +26,39 @@ const { Text, Link } = Typography
 
 
 export function Plugins () {
-    const [refresher, set_refresher] = useState({ })
-    
     const [plugins, set_plugins] = useState<Plugin[]>([ ])
+    const [plugin_nodes, set_plugin_nodes] = useState<PluginNode[]>([ ])
     
     // 待同步的插件
     const [plugin, set_plugin] = useState<Plugin>()
-    
-    // 搜索内容
-    const [query, set_query] = useState('')
     
     let installer = use_modal()
     let syncer = use_modal()
     
     
-    // local
-    // if (plugins.length)
-    //     plugins[0].nodes[0].version = '2.00.10'
-    
-    
-    async function update_plugins () {
+    async function update_plugins (query?: string) {
         set_plugins(
-            await list_plugins(query)
-        )
+            await get_plugins(query))
+    }
+    
+    async function update_plugin_nodes () {
+        set_plugin_nodes(
+            await get_plugin_nodes())
+    }
+    
+    async function update () {
+        await Promise.all([
+            update_plugins(),
+            update_plugin_nodes()
+        ])
     }
     
     
     useEffect(() => {
-        update_plugins()
-    }, [refresher, query])
+        version_without_patch ??= model.version.split('.').slice(0, 2).join('.')
+        
+        update()
+    }, [ ])
     
     return <>
         <div className='actions'>
@@ -64,19 +67,26 @@ export function Plugins () {
                 type='primary'
                 icon={<Icon component={SvgUpgrade} />}
                 onClick={installer.open}
-            >{t('安装或更新插件')}</Button>
+            >{t('安装插件')}</Button>
             
             <InstallModal installer={installer} update_plugins={update_plugins} />
             
             <Button
+                className='load'
+                type='primary'
+                icon={<Icon component={SvgUpgrade} />}
+                onClick={installer.open}
+            >{t('加载插件')}</Button>
+            
+            <Button
                 className='refresh'
                 icon={<ReloadOutlined/>}
-                onClick={() => {
-                    set_refresher({ })
+                onClick={async () => {
+                    await update()
                 }}
             >{t('刷新')}</Button>
             
-            <Input.Search className='search' placeholder={t('输入关键字后按回车可搜索插件')} onSearch={ value => { set_query(value) }} />
+            <Input.Search className='search' placeholder={t('输入关键字后按回车可搜索插件')} onSearch={ value => { throw new Error('todo') }} />
         </div>
         
         <Table
@@ -93,65 +103,64 @@ export function Plugins () {
                 },
                 {
                     title: t('集群已安装的最低版本'), 
-                    minWidth: 360,
+                    width: 500,
                     render: (_, { min_version }) => {
-                        const match = min_version.startsWith(
-                            model.version.split('.').slice(0, 3).join('.')  // 去掉 patch 部分
-                        )
+                        const match = min_version.startsWith(version_without_patch)
                         
                         return <Text type={ match ? undefined : 'danger'}>{min_version}{ !match && t(' (与数据库版本不一致，无法加载)') }</Text>
                     }
                 },
                 {
                     title: t('已安装节点'),
-                    width: 400,
-                    render: (_, { installeds }) => {
-                        return installeds.join(', ')
-                    }
+                    width: 500,
+                    render: (_, { installeds }) =>
+                        installeds.join(', ')
                 },
                 {
                     title: t('待安装节点'),
-                    width: 400,
+                    width: 500,
                     render: (_, { installables }) =>
                         installables.join(', ')
                 },
                 {
                     title: t('已加载节点'),
-                    width: 400,
+                    width: 500,
                     render: (_, { loadeds }) =>
                         loadeds.join(', ')
                 },
-                {
-                    title: t('预加载节点'),
-                    width: 400,
-                    render: (_, { preloadeds }) =>
-                        preloadeds.join(', ')
-                },
-                {
-                    title: t('操作'),
-                    className: 'actions',
-                    fixed: 'right',
-                    width: 160,
-                    render: (_, plugin) => {
-                        const { installables } = plugin
-                        
-                        
-                        return <Button
-                            className='sync'
-                            type='link'
-                            disabled={!installables.length}
-                            onClick={() => {
-                                set_plugin(plugin)
-                                syncer.open()
-                            }}
-                        >{t('同步')}</Button>
-                    }
-                }
             ]}
             
             expandable={{
                 expandedRowRender ({ id }) {
-                    return id
+                    return <Table 
+                        className='plugin-nodes'
+                        dataSource={plugin_nodes.filter(({ id: _id }) => id === _id)}
+                        rowKey='node'
+                        pagination={false}
+                        size='small'
+                        columns={[
+                            {
+                                title: t('节点名'),
+                                dataIndex: 'node'
+                            },
+                            {
+                                title: t('已安装'),
+                                render: (_, { installed }) => installed ? <CheckOutlined /> : null
+                            },
+                            {
+                                title: t('安装版本'),
+                                dataIndex: 'installed_version'
+                            },
+                            {
+                                title: t('已加载'),
+                                render: (_, { loaded }) => loaded ? <CheckOutlined /> : null
+                            },
+                            {
+                                title: t('加载版本'),
+                                dataIndex: 'loaded_version'
+                            },
+                        ]}
+                    />
                 }
             }}
         />
@@ -356,6 +365,8 @@ interface Plugin {
 
 let script_defined = false
 
+let version_without_patch: string
+
 async function define_script () {
     if (!script_defined) {
         await model.ddb.execute(script)
@@ -364,7 +375,7 @@ async function define_script () {
 }
 
 
-async function list_plugins (query = '') {
+async function get_plugins (query = '') {
     await define_script()
     
     // const all_nodes = model.nodes.filter(({ mode, state, isLeader }) => 
@@ -398,9 +409,48 @@ async function list_plugins (query = '') {
     //                 .find(node => node.includes(query))
     //         )
     
-    console.log(t('插件列表:'), plugins)
+    return log(t('插件列表:'), plugins)
+}
+
+
+interface PluginNode {
+    id: string
     
-    return plugins
+    /** 节点名 */
+    node: string
+    
+    installed: boolean
+    
+    installed_version: string
+    
+    loaded: boolean
+    
+    loaded_version: string
+}
+
+
+async function get_plugin_nodes () {
+    await define_script()
+    
+    return log(
+        t('节点插件:'),
+        (await model.ddb.invoke<DdbTableData>('listPluginsByNodes'))
+            .data
+            .map<PluginNode>(({
+                plugin,
+                node,
+                isInstalled,
+                installedVersion,
+                isLoaded,
+                loadedVersion,
+            }) => ({
+                id: plugin,
+                node,
+                installed: isInstalled,
+                installed_version: installedVersion,
+                loaded: isLoaded,
+                loaded_version: loadedVersion
+            })))
 }
 
 
