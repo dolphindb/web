@@ -92,7 +92,6 @@ export function Plugins () {
             dataSource={plugins}
             rowKey='id'
             pagination={false}
-            // size='small'
             columns={[
                 {
                     title: t('插件 ID'),
