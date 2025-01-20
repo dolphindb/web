@@ -76,6 +76,13 @@ class AccessModel extends Model<AccessModel> {
         return [...catalogs, await this.get_databases_with_tables(true)]
     }
     
+    async get_catelog_with_schemas_v2 () {
+        return [{ 
+                name: DATABASES_WITHOUT_CATALOG, 
+                schemas: ((await this.get_databases_with_tables()) as Database[]).
+                            map(db => ({ schema: db, dbUrl: db, tables: [ ] })) 
+                }]
+    }
     
     async get_databases_with_tables (has_schema: boolean = false) {
         let databases = await this.get_databases()
