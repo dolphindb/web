@@ -155,7 +155,7 @@ export function AccessObjSelect ({
                         indeterminate={add_rule_selected.obj.length > 0 && add_rule_selected.obj.length < obj_options.length}
                         onChange={e => {
                             if (e.target.checked)
-                                set_add_rule_selected({ ...add_rule_selected, obj: obj_options })
+                                set_add_rule_selected({ ...add_rule_selected, obj: typeof obj_options[0] === 'string' ? obj_options : obj_options.map(obj => obj.name) })
                             else
                                 set_add_rule_selected({ ...add_rule_selected, obj: [ ] })
                         }}
