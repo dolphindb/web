@@ -197,10 +197,10 @@ export class DdbModel extends Model<DdbModel> {
         
         const host = params.get('host')
         
-        const language = localStorage.getItem(storage_keys.language)
+        const lang = localStorage.getItem(storage_keys.language)
         
-        if (language) 
-            params.set('language', language)
+        if (lang) 
+            params.set('language', lang)
         
         if (host) {
             // 优先用 host 参数中的主机和端口
@@ -210,11 +210,13 @@ export class DdbModel extends Model<DdbModel> {
             params.set('port', port)
         }
         
-        if (language || host) {
+        if (lang || host) {
             // 转换 url
             let url = new URL(location.href)
             url.search = params.toString()
             history.replaceState(null, '', url)
+            if (language !== lang)
+                location.reload()
         }
         
         this.hostname = hostname
