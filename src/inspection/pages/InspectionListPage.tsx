@@ -83,6 +83,7 @@ export function InspectionListPage () {
                 <ReportListTable
                     search_key={search_key} 
                     refresh={refresh}
+                    refresher={refresher}
                 />
             </>
         }
@@ -92,10 +93,12 @@ export function InspectionListPage () {
 
 function ReportListTable  ({
     search_key,
-    refresh
+    refresh,
+    refresher
 }: {
     search_key: string
     refresh: number
+    refresher: () => void
 }) {    
     const { inited } = inspection.use(['inited'])
     
@@ -229,7 +232,7 @@ function ReportListTable  ({
                         onConfirm={async () => { 
                             await inspection.delete_reprorts([record.id])
                             model.message.success(t('删除成功'))
-                            mutate_reports()
+                            refresher()
                         }} >
                         <Button
                             type='link'
@@ -262,7 +265,7 @@ function ReportListTable  ({
                         await inspection.delete_reprorts(ids)
                         model.message.success(t('批量删除成功'))
                         set_current_page(1)
-                        mutate_reports()
+                        refresher()
                     }} >
                         <Button danger disabled={ids.length === 0}>{t('批量删除')}</Button>
                 </Popconfirm>

@@ -1,6 +1,6 @@
 import './obj.sass'
 
-import { useEffect, useRef, useState, type default as React, type FC, type MutableRefObject, useCallback } from 'react'
+import { useEffect, useRef, useState, type default as React, type FC, type RefObject, useCallback } from 'react'
 
 import {
     Pagination,
@@ -49,11 +49,11 @@ import {
     type DdbTensorObj
 } from 'dolphindb/browser.js'
 
-import { t } from '../i18n/index.js'
+import { t } from '@i18n/index.ts'
 
 import SvgLink from './link.icon.svg'
 
-import { type WindowModel } from './window.js'
+import { type WindowModel } from './window.tsx'
 
 
 const max_strlen = 10000
@@ -194,12 +194,19 @@ function Dict ({
     ctx?: Context
     options?: InspectOptions
 }) {
-    const render = useState({ })[1]
+    const [page_size, set_page_size] = useState(100)
+    const [page_index, set_page_index] = useState(0)
+    
+    const render = use_rerender()
     
     const _obj = obj || objref.obj
     
     useEffect(() => {
         (async () => {
+            // 重置分页
+            set_page_index(0)
+            set_page_size(100)
+            
             if (_obj)
                 return
             
@@ -212,7 +219,7 @@ function Dict ({
             :
                 DdbObj.parse(... await remote.call<[Uint8Array, boolean]>('eval', [node, name])) as DdbDictObj
             
-            render({ })
+            render()
         })()
     }, [obj, objref])
     
@@ -223,7 +230,16 @@ function Dict ({
     return <div className='dict'>
         <Tree
             key={genid()}
-            treeData={build_tree_data(_obj, { remote, ddb, ctx, options })}
+            treeData={(() => {
+                if (!_obj)
+                    return [ ]
+                
+                const start = page_index * page_size
+                const end = Math.min(start + page_size, _obj.rows)
+                const data = build_tree_data_with_slice(_obj, start, end, { remote, ddb, ctx, options })
+                
+                return data
+            })()}
             defaultExpandAll
             focusable={false}
             blockNode
@@ -237,11 +253,74 @@ function Dict ({
             <div className='info'>
                 <span className='desc'>{_obj.rows} {t('个键')}{ objref ? ` (${Number(objref.bytes).to_fsize_str()}) ` : '' }</span>
                 <span className='type'>{t('的词典')}</span>
-            </div> 
+            </div>
+            
+            <Pagination
+                className='pagination'
+                total={_obj.rows}
+                current={page_index + 1}
+                pageSize={page_size}
+                pageSizeOptions={page_sizes}
+                size='small'
+                showSizeChanger
+                showQuickJumper
+                hideOnSinglePage={page_size <= 50}
+                onChange={(page, size) => {
+                    set_page_size(size)
+                    set_page_index(page - 1)
+                }}
+            />
         </div>
     </div>
 }
 
+function build_tree_data_with_slice (
+    obj: DdbDictObj,
+    start: number,
+    end: number,
+    { remote, ctx, ddb, options }: { remote?: Remote, ctx?: Context, ddb?: DDB, options?: InspectOptions }
+) {
+    const [dict_key, dict_value] = obj.value
+    return seq(Math.max(end - start, 0), i => {
+        const ireal = start + i
+        const key = formati(dict_key, ireal, options)
+        const valueobj = dict_value.value[ireal]
+        
+        // if (valueobj instanceof DdbObj)
+        // valueobj 可能来自不同 window
+        if (valueobj && Object.getPrototypeOf(valueobj)?.constructor.name === 'DdbObj')
+            if (valueobj.form === DdbForm.dict)
+                return {
+                    title: `${key}: `,
+                    key: genid(),
+                    children: build_tree_data_with_slice(valueobj, start, end, { remote, ctx, ddb })
+                }
+            else if (valueobj.form === DdbForm.scalar)
+                return {
+                    title: `${key}: ${format(valueobj.type, valueobj.value, valueobj.le, { ...options, quote: true, nullstr: true })}`,
+                    key: genid()
+                }
+            else {
+                const View = views[valueobj.form] || Default
+                
+                return {
+                    title: `${key}:`,
+                    key: genid(),
+                    children: [
+                        {
+                            title: <View obj={valueobj} ctx={ctx} ddb={ddb} remote={remote} options={options} />,
+                            key: genid()
+                        }
+                    ]
+                }
+            }
+        else
+            return {
+                title: `${key}: ${truncate(formati(dict_value, ireal, options))}`,
+                key: genid()
+            }
+    })
+}
 
 function Tensor ({
     obj,
@@ -326,9 +405,10 @@ function Tensor ({
     const currentDimSize: number = _obj.value.shape[currentDim]
     // 搞这么多元素来
     const elems = [ ]
-    const offset = currentDir.reduce((prev, curr, index) => {
-        return prev + strides[index] * curr * dataByte
-    }, 0)
+    const offset = currentDir.reduce(
+        (prev, curr, index) =>
+            prev + strides[index] * curr * dataByte,
+        0)
     
     let arrstrall = ''
     for (let j = 0;  j < _obj.value.dimensions;  j++) 
@@ -382,9 +462,14 @@ function Tensor ({
         }
     
     
-    const navItems = currentDir.map((e, i) => {
-        return <div className='tensor-nav-elem' key={`tensor-index-${i}`} onClick={() => { popDimIndexTo(i + 1) }}>[{e}] <RightOutlined style={{ transform: 'scale(0.8,0.8) translate(0,2px)' }}/></div>
-    })
+    const navItems = currentDir.map((e, i) => 
+        <div
+            className='tensor-nav-elem'
+            key={`tensor-index-${i}`}
+            onClick={() => { popDimIndexTo(i + 1) }}
+        >
+            [{e}] <RightOutlined style={{ transform: 'scale(0.8,0.8) translate(0,2px)' }}/>
+        </div>)
     
     
     return <div className='tensor'>
@@ -445,55 +530,6 @@ function get_value_from_uint8_array (dataType: DdbType, data: Uint8Array, le: bo
             return value === nulls.double ? null : value
         }
     }
-}
-
-
-function build_tree_data (
-    obj: DdbDictObj,
-    { remote, ctx, ddb, options }: { remote?: Remote, ctx?: Context, ddb?: DDB, options?: InspectOptions }
-) {
-    const dict_key = obj.value[0]
-    const dict_value = obj.value[1]
-    
-    return seq(dict_key.rows, i => {
-        let key = formati(dict_key, i, options)
-        
-        let valueobj = dict_value.value[i]
-        
-        // if (valueobj instanceof DdbObj)
-        // valueobj 可能来自不同 window
-        if (valueobj && Object.getPrototypeOf(valueobj)?.constructor.name === 'DdbObj')
-            if (valueobj.form === DdbForm.dict)
-                return {
-                    title: `${key}: `,
-                    key: genid(),
-                    children: build_tree_data(valueobj, { remote, ctx, ddb })
-                }
-            else if (valueobj.form === DdbForm.scalar)
-                return {
-                    title: `${key}: ${format(valueobj.type, valueobj.value, valueobj.le, { ...options, quote: true, nullstr: true })}`,
-                    key: genid()
-                }
-            else {
-                const View = views[valueobj.form] || Default
-                
-                return {
-                    title: `${key}:`,
-                    key: genid(),
-                    children: [
-                        {
-                            title: <View obj={valueobj} ctx={ctx} ddb={ddb} remote={remote} options={options} />,
-                            key: genid()
-                        }
-                    ]
-                }
-            }
-        else
-            return {
-                title: `${key}: ${truncate(formati(dict_value, i, options))}`,
-                key: genid()
-            }
-    })
 }
 
 
@@ -1339,7 +1375,7 @@ class StreamingTableColumn implements TableColumnType <number> {
     
     key: number
     
-    rmessage: MutableRefObject<StreamingMessage>
+    rmessage: RefObject<StreamingMessage>
     
     col: DdbVectorObj
     

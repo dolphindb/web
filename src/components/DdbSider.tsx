@@ -1,9 +1,10 @@
-import { useMemo } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 
 import { Layout, Menu, Typography } from 'antd'
 
 import { default as Icon, DoubleLeftOutlined, DoubleRightOutlined, ExperimentOutlined, SettingOutlined } from '@ant-design/icons'
 
+import { noop } from 'xshell/prototype.browser.js'
 import { filter_values } from 'xshell/utils.browser.js'
 
 import { language, t } from '@i18n/index.ts'
@@ -63,8 +64,10 @@ function MenuIcon ({ view }: { view: DdbModel['view'] }) {
 export function DdbSider () {
     const { dev } = model
     
-    const { node_type, collapsed, logined, admin, login_required, client_auth, v1, is_factor_platform_enabled, port, hostname } 
-        = model.use(['node_type', 'collapsed', 'logined', 'admin', 'login_required', 'client_auth', 'v1', 'is_factor_platform_enabled', 'enabled_modules', 'port', 'hostname'])
+    const { node_type, collapsed, logined, admin, login_required, client_auth, v1, port, hostname, username } 
+        = model.use(['node_type', 'collapsed', 'logined', 'admin', 'login_required', 'client_auth', 'v1', 'enabled_modules', 'port', 'hostname', 'username'])
+    
+    const [factor_platform, set_factor_platform] = useState(false)
     
     const factor_href = useMemo(
         () =>
@@ -75,8 +78,14 @@ export function DdbSider () {
                 logined: Number(logined).toString(),
                 token: localStorage.getItem(storage_keys.ticket)
             })).toString(),
-        [logined, hostname, port]
-    )
+        [logined, hostname, port])
+    
+    // 获取是否启用因子平台
+    useEffect(() => {
+        if (logined && !client_auth)
+            model.ddb.execute<boolean>('readLicenseAuthorization(license().modules).starfish', { urgent: true })
+                .then(set_factor_platform, noop)
+    }, [logined, username, client_auth])
     
     return <Layout.Sider
         width={ language === 'zh' ? 150 : 220 }
@@ -151,12 +160,12 @@ export function DdbSider () {
                     label: t('权限管理'),
                     children: [
                         {
-                            key: 'user',
+                            key: 'access/user',
                             icon: <MenuIcon view='user' />,
                             label: t('用户管理'),
                         },
                         {
-                            key: 'group',
+                            key: 'access/group',
                             icon: <MenuIcon view='group' />,
                             label: t('组管理'),
                         },
@@ -195,7 +204,7 @@ export function DdbSider () {
                         icon: <MenuIcon view='plugins' />,
                         label: t('插件管理'),
                 }] : [ ],
-                ... is_factor_platform_enabled && node_type !== NodeType.controller ? [{
+                ... factor_platform && node_type !== NodeType.controller ? [{
                     key: 'factor',
                     icon: <MenuIcon view='factor' />,
                     label: <Link target='_blank' href={factor_href}>{t('因子平台')}</Link>

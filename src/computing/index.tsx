@@ -336,6 +336,7 @@ const cols_width = {
         raftGroup: 70,
         compress: 70,
         sizeOnDisk: 100,
+        persistenceDir: 150,
         retentionMinutes: 120,
         memoryOffset: 100,
         hashValue: 90,
@@ -674,7 +675,7 @@ function add_details_col (cols: TableColumnType<Record<string, any>>[]) {
         {
             title: <span className='col-title'>{t('更多信息')}</span>,
             dataIndex: 'details',
-            render: (value: ReactNode) => value
+            render: (value: ReactNode) => value as any
         }
     ]
 }

@@ -1,12 +1,15 @@
-import NiceModal, { useModal } from '@ebay/nice-modal-react'
+import NiceModal, { useModal, type NiceModalHocProps } from '@ebay/nice-modal-react'
 import { Form, Input, Modal } from 'antd'
 
 import { access } from '../../model.js'
 import { model } from '../../../model.js'
 import { language, t } from '../../../../i18n/index.js'
 
-export const ResetPasswordModal = NiceModal.create(() => {
-    const { current } = access.use([ 'current'])
+interface ResetPasswordModalProps extends NiceModalHocProps {
+    name: string
+}
+
+export const ResetPasswordModal = NiceModal.create<ResetPasswordModalProps>(({ name }) => {
     
     const modal = useModal()
     
@@ -19,7 +22,7 @@ export const ResetPasswordModal = NiceModal.create(() => {
             onOk={async () => {
                 try {
                     const { password } = await reset_password_form.validateFields()
-                    await access.reset_password(current?.name, password)
+                    await access.reset_password(name, password)
                     reset_password_form.resetFields()
                     model.message.success(t('密码修改成功'))
                     modal.hide()
@@ -29,7 +32,7 @@ export const ResetPasswordModal = NiceModal.create(() => {
                     console.error(error)
                 }
             }}
-            title={<div>{t('重置用户 {{user}} 密码', { user: current?.name })}</div>}
+            title={<div>{t('重置用户 {{user}} 密码', { user: name })}</div>}
             onCancel={() => {
                 reset_password_form.resetFields()
                 modal.hide()

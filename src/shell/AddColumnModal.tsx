@@ -72,6 +72,7 @@ export const AddColumnModal = NiceModal.create<Props>(({ node }) => {
     >
         <Form
             className='add-column-modal-form'
+            component='form'
             labelCol={6}
             form={form}
             onAutoSubmit={onSubmit}

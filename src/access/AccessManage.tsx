@@ -3,17 +3,20 @@ import { useCallback, useEffect, useMemo, useState } from 'react'
 
 import NiceModal from '@ebay/nice-modal-react'
 
-import { t } from '../../i18n/index.js'
-import { model } from '../model.js'
+import { t } from '@i18n/index.ts'
 
-import { AccessHeader } from './AccessHeader.js'
-import { ACCESS_OPTIONS, ACCESS_TYPE, NEED_INPUT_ACCESS } from './constants.js'
-import { access } from './model.js'
+import { model } from '@/model.ts'
 
-import { AccessAddModal } from './components/access/AccessAddModal.js'
-import { AccessRevokeModal } from './components/access/AccessRevokeModal.js'
-import { RevokeConfirm } from './components/RevokeConfirm.js'
-import type { AccessCategory } from './types.js'
+import { AccessHeader } from './AccessHeader.tsx'
+import { ACCESS_OPTIONS, ACCESS_TYPE, NEED_INPUT_ACCESS } from './constants.tsx'
+import { access } from './model.ts'
+
+import { AccessAddModal } from './components/access/AccessAddModal.tsx'
+import { AccessRevokeModal } from './components/access/AccessRevokeModal.tsx'
+import { RevokeConfirm } from './components/RevokeConfirm.tsx'
+import type { AccessCategory, AccessRole } from './types.ts'
+import { use_access } from './hooks/use-access.ts'
+import { use_access_objs } from './hooks/use-access-objs.ts'
 
 interface ACCESS {
     key: string
@@ -21,15 +24,15 @@ interface ACCESS {
     name?: string
 }
 
-export function AccessManage ({ category }: { category: AccessCategory }) {
-
-    const { shared_tables, current, accesses } = access.use([
-        'shared_tables',
-        'current',
-        'accesses'
-    ])
+export function AccessManage ({ role, name, category }: { role: AccessRole, name: string, category: AccessCategory }) {
     
-    const { v3 } = model.use(['v3'])
+    const { data: accesses, mutate: update_accesses } = use_access(role, name)
+    
+    const { data: shared_tables } = use_access_objs(role, 'shared')
+    
+    const { data: stream_tables } = use_access_objs(role, 'stream')
+    
+    const { v3 } = model
     
     const [search_key, set_search_key] = useState('')
     
@@ -41,8 +44,7 @@ export function AccessManage ({ category }: { category: AccessCategory }) {
         () => (category === 'database' ? (v3 ? ACCESS_OPTIONS.catalog :  ACCESS_OPTIONS.database) : ACCESS_TYPE[category]).filter(ac => ac !== 'TABLE_WRITE'),
         [category]
     )
-    
-    useEffect(reset_selected, [current])
+    useEffect(reset_selected, [role, name])
     
     const showed_aces_cols: TableColumnType<Record<string, any>>[] = useMemo(
         () => [
@@ -97,7 +99,7 @@ export function AccessManage ({ category }: { category: AccessCategory }) {
     
     
     const access_rules = useMemo(() => {
-        if (!accesses)
+        if (!accesses || !shared_tables || !stream_tables)
             return [ ]
         let tb_rows = [ ]
         for (let [k, v] of Object.entries(accesses as Record<string, any>))
@@ -109,10 +111,10 @@ export function AccessManage ({ category }: { category: AccessCategory }) {
                         name: NEED_INPUT_ACCESS.includes(k) ? v : '',
                         type: v === 'deny' ? 'deny' : 'grant',
                         action: (
-                            <RevokeConfirm onConfirm={async () => {
-                                await access.revoke(current.name, k)
+                            <RevokeConfirm on_confirm={async () => {
+                                await access.revoke(name, k)
                                 model.message.success(t('撤销成功'))
-                                await access.update_current_access()
+                                await update_accesses()
                             }} />
                         )
                     })
@@ -122,6 +124,8 @@ export function AccessManage ({ category }: { category: AccessCategory }) {
                     showed_aces_types.map(aces => aces + '_denied').includes(k)
                 ) {
                     let objs = v.split(',')
+                    if (category === 'database')
+                        objs = objs.filter((obj: string) => !shared_tables.includes(obj) && !stream_tables.includes(obj))
                     if (category === 'shared')
                         objs = objs.filter((obj: string) => shared_tables.includes(obj))
                     if (category === 'stream')
@@ -133,13 +137,12 @@ export function AccessManage ({ category }: { category: AccessCategory }) {
                             name: obj,
                             access: k.slice(0, k.indexOf(allowed ? '_allowed' : '_denied')),
                             type: allowed ? 'grant' : 'deny',
-                            action: (
-                                <RevokeConfirm onConfirm={async () => {
-                                    await access.revoke(current.name, k.slice(0, k.indexOf(allowed ? '_allowed' : '_denied')), obj)
+                            action: 
+                                <RevokeConfirm on_confirm={async () => {
+                                    await access.revoke(name, k.slice(0, k.indexOf(allowed ? '_allowed' : '_denied')), obj)
                                     model.message.success(t('撤销成功'))
-                                    await access.update_current_access()
+                                    await update_accesses()
                                 }} />
-                            )
                         })
                 } else if (k === 'DB_OWNER' && category === 'database') {
                     // 对于 DB_OWNER，如果为 allow 并且 DB_OWNER_allowed 为空，则为全部数据库生效，即 *
@@ -151,19 +154,17 @@ export function AccessManage ({ category }: { category: AccessCategory }) {
                             name: obj,
                             access: 'DB_OWNER',
                             type: v === 'allow' ? 'grant' : 'deny',
-                            action: (
-                                <RevokeConfirm onConfirm={async () => {
-                                    await access.revoke(current.name, k, obj)
-                                    model.message.success(t('撤销成功'))
-                                    await access.update_current_access()
-                                }} />
-                            )
+                            action: <RevokeConfirm on_confirm={async () => {
+                                await access.revoke(name, k, obj)
+                                model.message.success(t('撤销成功'))
+                                await update_accesses()
+                            }} />
                         })
                 }
          
             
         return tb_rows
-    }, [accesses, category])
+    }, [accesses, category, shared_tables, stream_tables])
     
     const filtered_rules = useMemo(() => access_rules.filter(row =>
         row[category === 'script' ? 'access' : 'name'].toLowerCase().includes(search_key.toLowerCase())
@@ -186,12 +187,14 @@ export function AccessManage ({ category }: { category: AccessCategory }) {
                 }
             }}
             title={() => <AccessHeader
+                role={role}
+                name={name}
                 category={category}
                 preview={false}
                 search_key={search_key}
                 set_search_key={set_search_key}
-                add_open={async () => NiceModal.show(AccessAddModal, { category })}
-                delete_open={async () => NiceModal.show(AccessRevokeModal, { category, selected_access, reset_selected })}
+                add_open={async () => NiceModal.show(AccessAddModal, { category, role, name })}
+                delete_open={async () => NiceModal.show(AccessRevokeModal, { category, selected_access, reset_selected, name, update_accesses })}
                 selected_length={selected_access.length}
         />}
             columns={showed_aces_cols}
