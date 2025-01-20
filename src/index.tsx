@@ -70,6 +70,7 @@ function DolphinDB () {
         locale={locales[language] as any}
         button={{ autoInsertSpace: false }}
         theme={{
+            cssVar: true,
             hashed: false,
             token: {
                 motion: false,
