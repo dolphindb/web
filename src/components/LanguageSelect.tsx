@@ -1,4 +1,4 @@
-import { Dropdown, type  MenuProps } from 'antd'
+import { Dropdown } from 'antd'
 
 import { t } from '@i18n/index.ts'
 
