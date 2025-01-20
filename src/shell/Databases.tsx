@@ -30,7 +30,7 @@ import { model, NodeType } from '@/model.ts'
 
 import { Editor } from '@/components/Editor/index.tsx'
 
-import { NAME_CHECK_PATTERN } from '@/access/constants.ts'
+import { NAME_CHECK_PATTERN } from '@/access/constants.tsx'
 
 import { switch_keys } from '@/utils.ts'
 
