@@ -2,7 +2,7 @@ import { Model } from 'react-object-model'
 
 import { DdbInt, DdbVectorString } from 'dolphindb/browser.js'
 
-import { model, NodeType } from '@/model.ts'
+import { DdbNodeState, model, NodeType } from '@/model.ts'
 
 import { DATABASES_WITHOUT_CATALOG } from './constants.tsx'
 
@@ -223,7 +223,7 @@ class AccessModel extends Model<AccessModel> {
         return (await model.ddb.invoke('objs', 
                     [true], 
                     { nodes: model.nodes
-                        .filter(node => node.mode !== NodeType.agent)
+                        .filter(node => node.mode !== NodeType.agent && node.state === DdbNodeState.online)
                         .map(node => node.name) 
                     }
                 )).data
