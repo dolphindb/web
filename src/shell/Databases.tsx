@@ -22,17 +22,20 @@ import {
 } from 'dolphindb/browser.js'
 
 
-import { language, t } from '../../i18n/index.js'
+import { language, t } from '@i18n/index.ts'
 
-import { CopyIconButton } from '../components/copy/CopyIconButton.js'
+import { CopyIconButton } from '@/components/copy/CopyIconButton.tsx'
 
-import { model, NodeType } from '../model.js'
+import { model, NodeType } from '@/model.ts'
 
-import { Editor } from '../components/Editor/index.js'
+import { Editor } from '@/components/Editor/index.tsx'
 
-import { NAME_CHECK_PATTERN } from '../access/constants.js'
+import { NAME_CHECK_PATTERN } from '@/access/constants.tsx'
 
-import { shell } from './model.js'
+import { switch_keys } from '@/utils.ts'
+
+import { shell } from './model.ts'
+
 
 import { CreateTableModal } from './CreateTableModal.js'
 import { AddColumnModal } from './AddColumnModal.js'
@@ -66,8 +69,9 @@ enum TableKind {
 
 
 export function Databases () {
+    const { node, logined, node_type, v3, client_auth, username } = 
+        model.use(['node', 'logined', 'node_type', 'v3', 'client_auth', 'username'])
     const { dbs } = shell.use(['dbs'])
-    const { node, logined, node_type, v3 } = model.use(['node', 'logined', 'node_type', 'v3'])
     
     const [db_height, set_db_height] = useState(256)
     
@@ -94,6 +98,12 @@ export function Databases () {
             set_refresh_spin(false)
         }
     }, [ ])
+    
+    
+    useEffect(() => {
+        if (logined || !client_auth)
+            shell.load_dbs()
+    }, [logined, client_auth, username])
     
     
     return <Resizable
@@ -156,7 +166,7 @@ export function Databases () {
                     </span>
                 </div>
                 {(logined || dbs?.length ) ?
-                    (model.has_data_and_computing_nodes_alive() || node.mode === NodeType.single) ?
+                    (model.has_data_nodes_alive() || node.mode === NodeType.single) ?
                         <Tree
                             className='database-tree'
                             showIcon
@@ -213,26 +223,15 @@ export function Databases () {
                                     case 'column-root': 
                                     case 'partition-directory': {
                                         // 切换展开状态
-                                        let found = false
-                                        let keys_ = [ ]
+                                        const keys_ = switch_keys(expanded_keys, node.key)
                                         
-                                        for (const key of expanded_keys)
-                                            if (key === node.key)
-                                                found = true
-                                            else
-                                                keys_.push(key)
+                                        if (/* 之前没有 */ keys_.last === node.key && type === 'database') {
+                                            await node.load_children()
                                         
-                                        if (!found) {
-                                            keys_.push(node.key)
+                                            shell.set({ dbs: [...dbs] })
                                             
-                                            if (type === 'database') {
-                                                await node.load_children()
-                                            
-                                                shell.set({ dbs: [...dbs] })
-                                                
-                                                // 显示 schema
-                                                await node.inspect() 
-                                            }
+                                            // 显示 schema
+                                            await node.inspect() 
                                         }
                                         
                                         set_expanded_keys(keys_)
@@ -277,7 +276,7 @@ export function Databases () {
                         />
                     :
                         <div className='start-node-to-view'>
-                            <span>{t('没有正在运行的数据节点和计算节点')}</span>
+                            <span>{t('没有正在运行的数据节点')}</span>
                             <a onClick={() => { model.goto('/overview/') } }>{t('去启动节点')}</a>
                         </div>
                 :
@@ -1178,7 +1177,7 @@ export class Table implements DataNode {
     async get_schema () {
         const { db, path } = this
         const schema = await model.ddb.call<DdbDictObj<DdbVectorStringObj>>(
-            // 这个函数在 define_load_schema 中已定义
+            // 这个函数在 define_load_table_schema 中已定义
             'load_table_schema',
             // 调用该函数时，数据库路径不能以 / 结尾
             [db.path.slice(0, -1), path.slice(db.path.length, -1)],

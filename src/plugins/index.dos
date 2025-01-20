@@ -1,10 +1,25 @@
-def loadZipPlugin() {
-    if (defs("zip::zip").size() == 0) {
-        loadPlugin("zip")
+def loadPluginIfNotLoaded(pluginName) {
+    if (in(pluginName, getLoadedPlugins()["plugin"])) {
+        return
     }
+    
+    loadPlugin(pluginName)
 }
+
+def loadPlugins(pluginName, nodeAliases=[]) {
+    nodeAliases_ = nodeAliases
+    if (nodeAliases.form() == 0) {
+        nodeAliases_ = [nodeAliases]
+    }
+    if (nodeAliases.size() == 0) {
+        nodeAliases_ = exec name from rpc(getControllerAlias(), getClusterPerf{true}) where mode != 1
+    }
+    
+    pnodeRun(loadPluginIfNotLoaded{pluginName}, nodeAliases_)
+}
+
 nodes = exec name from rpc(getControllerAlias(), getClusterPerf{true}) where mode != 1
-pnodeRun(loadZipPlugin, nodes)
+pnodeRun(loadPluginIfNotLoaded{"zip"}, nodes)
 go
 
 def getPluginDir() {

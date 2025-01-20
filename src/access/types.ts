@@ -18,6 +18,10 @@ export interface AccessRule {
     obj: any[]
 }
 
+export type AccessMode = 'view' | 'manage'
+
+export type AccessRole = 'user' | 'group'
+
 export type AccessCategory = 'catalog' | 'database' | 'shared' | 'stream' | 'function_view' | 'script'
 
 export interface DbRow { key: string, table_name: string, tables: TABLE_ACCESS[] }

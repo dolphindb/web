@@ -1926,7 +1926,7 @@
         "en": "To start the node"
     },
     "没有正在运行的数据节点和计算节点": {
-        "en": "No running data nodes and compute nodes"
+        "en": "No running data nodes"
     },
     "偏移": {
         "en": "offset"
@@ -5827,5 +5827,32 @@
     },
     "取消执行": {
         "en": "Cancel execution"
+    },
+    "自动拓展页面大小：": {
+        "en": "Automatically expands page size: "
+    },
+    "当前显示的是日志的一部分，点击以查看完整日志": {
+        "en": "Currently displaying a portion of the log. Click to view the full log."
+    },
+    "原有项:": {
+        "en": "Original items"
+    },
+    "移入项:": {
+        "en": "Moved in items"
+    },
+    "移出项:": {
+        "en": "Moved out items"
+    },
+    "数据库 {{db_name}}": {
+        "en": "Database {{db_name}}"
+    },
+    "数据表 {{tb_name}}": {
+        "en": "Table {{tb_name}}"
+    },
+    "没有正在运行的数据节点": {
+        "en": "No running data nodes"
+    },
+    "自动": {
+        "en": "auto"
     }
 }

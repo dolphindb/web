@@ -56,11 +56,11 @@ export function InspectionGuard ({ children }: { children: React.ReactNode }) {
                         </div>
                         <Divider />
                         <p>{t('初始化操作将新增以下数据库表：')}</p>
-                        <p>dfs://autolnspection/metrics</p>
-                        <p>dfs://autolnspection/planDetails</p>
-                        <p>dfs://autolnspection/plans</p>
-                        <p>dfs://autolnspection/reportDetails</p>
-                        <p>dfs://autolnspection/reports</p>
+                        <p>dfs://autoInspection/metrics</p>
+                        <p>dfs://autoInspection/planDetails</p>
+                        <p>dfs://autoInspection/plans</p>
+                        <p>dfs://autoInspection/reportDetails</p>
+                        <p>dfs://autoInspection/reports</p>
                     </>
                 }
                 extra={

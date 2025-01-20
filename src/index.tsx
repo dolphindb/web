@@ -48,8 +48,6 @@ import { Computing } from './computing/index.tsx'
 import { DashBoard } from './dashboard/index.tsx'
 import { DashboardInstancePage } from './dashboard/Instance.tsx'
 import { Overview as DashboardOverview } from './dashboard/Overview.tsx'
-
-import { User, Group } from './access/index.tsx'
 import { Inspection } from './inspection/index.tsx'
 import { Settings } from './settings/index.tsx'
 import { CreateGuide } from './guide/iot-guide/index.tsx'
@@ -57,6 +55,8 @@ import { FinanceGuide } from './guide/finance-guide/index.tsx'
 import { DataCollection } from './data-collection/index.tsx'
 import { DdbHeader } from './components/DDBHeader/index.tsx'
 import { ANT_LIGHT_CONFIG } from './constant/theme-config.ts'
+import { Access } from './access/index.tsx'
+
 
 
 createRoot(
@@ -137,11 +137,14 @@ function MainLayout () {
             <RouteListener />
             { header && <DdbHeader />}
             <Layout className='body' hasSider>
-                { sider && <DdbSider />}
+                { sider && <DdbSider /> }
                 <Layout.Content className='view'>
                     <GlobalErrorBoundary>
                         <div className={`view-card ${model.view}`}>
-                            <Outlet />
+                            {/* 不能指望延迟的 react router 的 location.pathname 状态来决定渲染哪个组件 */}
+                            { model.client_auth && !model.logined 
+                                ? <Login />
+                                : <Outlet /> }
                         </div>
                     </GlobalErrorBoundary>
                 </Layout.Content>
@@ -175,7 +178,7 @@ const router = createBrowserRouter([
         path: '/',
         element: <MainLayout />,
         children: [
-            // 除了改这里还需要改 model 中的 defaut_view
+            // 除了改这里还需要改 model 中的 default_view
             {
                 index: true,
                 element: <Shell />
@@ -235,12 +238,8 @@ const router = createBrowserRouter([
                 ]
             },
             {
-                path: 'user/',
-                element: <User />
-            },
-            {
-                path: 'group/',
-                element: <Group />
+                path: 'access/*',
+                element: <Access />
             },
             {
                 path: 'settings/',

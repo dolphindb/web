@@ -9,8 +9,7 @@ import { t } from '@i18n/index.js'
 
 import { model } from '@/model.ts'
 
-
-import SvgArrowDown from '../icons/arrow.down.icon.svg'
+import { LanguageSelect } from '../LanguageSelect.tsx'
 
 import { Status } from './Status.tsx'
 
@@ -18,6 +17,7 @@ import { CompileAndRefresh } from './CompileAndRefresh.tsx'
 import { HostSelect } from './HostSelect.tsx'
 import { License } from './License.tsx'
 import { Settings } from './Settings.tsx'
+
 
 
 export function DdbHeader () {
@@ -45,6 +45,8 @@ export function DdbHeader () {
             <License />
             
             <Settings />
+            
+            <LanguageSelect/>
             
             
             <Dropdown

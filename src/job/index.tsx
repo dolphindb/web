@@ -12,6 +12,8 @@ import { type DdbObj, format, DdbType } from 'dolphindb/browser.js'
 
 import { language, t } from '@i18n/index.ts'
 
+import { Editor } from '@monaco-editor/react'
+
 import { model, type DdbJob } from '@/model.ts'
 
 import { TableCellDetail } from '@/components/TableCellDetail/index.tsx'
@@ -494,6 +496,8 @@ function JobMessageShow ({ job, disabled }: { job: DdbJob, disabled?: boolean })
     const [show_see_more, set_show_see_more] = useState(false)
     const node = job.node
     
+    const text = message.join_lines()
+    
     async function get_job_message () {
         set_show_all(false)
         await model.ddb.execute(
@@ -542,7 +546,6 @@ function JobMessageShow ({ job, disabled }: { job: DdbJob, disabled?: boolean })
     }
     
     async function copy_to_clipboard () {
-        let text = message.join_lines()
         if (navigator.clipboard?.writeText) {
             await navigator.clipboard.writeText(text)
             model.message.success(t('复制成功'))
@@ -576,10 +579,10 @@ function JobMessageShow ({ job, disabled }: { job: DdbJob, disabled?: boolean })
             open={show}
         >
             <div className='job-message'>
-                {message.map((line, i) => <p key={i}>{line}</p>)}
+                <Editor height='100%' width='100%' defaultLanguage='plaintext' value={message.join_lines()} options={{ readOnly: true }} />
             </div>
             <div>
-                {!show_all && show_see_more && <Link title={t('查看更多')} onClick={show_all_messages}>{t('查看更多')}</Link>}
+                {!show_all && show_see_more && <Link title={t('当前显示的是日志的一部分，点击以查看完整日志')} onClick={show_all_messages}>{t('当前显示的是日志的一部分，点击以查看完整日志')}</Link>}
             </div>
         </Modal>
         <Link disabled={disabled} title={t('查看日志')} onClick={get_job_message}>{

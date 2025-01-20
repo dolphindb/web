@@ -1,5 +1,5 @@
 import { type MutableRefObject, type ReactNode, createElement, useEffect, useRef, useState, useMemo, useCallback } from 'react'
-import { Form, Input, Modal, Radio, Tag, Tree } from 'antd'
+import { Form, Input, Modal, Radio, Tag, Tree, Typography } from 'antd'
 import { CopyOutlined, DatabaseOutlined, DeleteOutlined, EditOutlined, FileOutlined } from '@ant-design/icons'
 
 import NiceModal, { useModal } from '@ebay/nice-modal-react'
@@ -195,7 +195,7 @@ export function DataSourceList ({
     return <>
             <div className='config-data-source-list'>
                 <div className='data-source-list-top'>
-                    <div
+                    <Typography.Link
                         className='data-source-list-top-item'
                         onClick={async () => {
                             if (loading)
@@ -211,11 +211,12 @@ export function DataSourceList ({
                     >
                         <FileOutlined className='data-source-list-top-item-icon' />
                         {t('新建')}
-                    </div>
+                    </Typography.Link>
                     
                     <CreateDataSourceModal id='dashboard-create-datasource-modal' on_after_create={on_after_create} />
                     
-                    <div
+                    <Typography.Link
+                        disabled={!current_data_source}
                         className='data-source-list-top-item'
                         onClick={() => {
                             if (loading)
@@ -226,8 +227,9 @@ export function DataSourceList ({
                     >
                         <EditOutlined className='data-source-list-top-item-icon' />
                         {t('重命名')}
-                    </div>
-                    <div
+                    </Typography.Link>
+                    <Typography.Link
+                        disabled={!current_data_source}
                         className='data-source-list-top-item'
                         onClick={() => {
                             if (loading)
@@ -248,8 +250,9 @@ export function DataSourceList ({
                     >
                         <DeleteOutlined className='data-source-list-top-item-icon' />
                         {t('删除')}
-                    </div>
-                    <div
+                    </Typography.Link>
+                    <Typography.Link
+                        disabled={!current_data_source}
                         className='data-source-list-top-item'
                         onClick={async () => {
                             if (loading)
@@ -264,7 +267,7 @@ export function DataSourceList ({
                     >
                         <CopyOutlined className='variable-list-top-item-icon' />
                         {t('复制')}
-                    </div>
+                    </Typography.Link>
                 </div>
                 { current_data_source && <div className='data-source-list-bottom'>
                     {data_sources.length && 

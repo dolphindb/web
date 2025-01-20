@@ -1,6 +1,6 @@
 import './index.sass'
-import 'react-quill/dist/quill.core.css'
-import 'react-quill/dist/quill.snow.css'
+import 'react-quill-new/dist/quill.core.css'
+import 'react-quill-new/dist/quill.snow.css'
 
 import { Button, Modal } from 'antd'
 import { EditOutlined } from '@ant-design/icons'
@@ -20,7 +20,7 @@ import { parse_text } from '@/dashboard/utils.ts'
 import { InsertVariableBtn } from '@/dashboard/DataSource/InsertVariableBtn.tsx'
 
 
-let ReactQuill: typeof import('react-quill')
+let ReactQuill: (typeof import('react-quill-new'))['default']
 
 export function RichText ({ widget, data_source }: { widget: Widget, data_source: any[] }) {
     const [display_text, set_display_text] = useState((widget.config as ITextConfig)?.value || '')
@@ -79,9 +79,10 @@ export function RichText ({ widget, data_source }: { widget: Widget, data_source
                     // @ts-ignore
                     window.define.amd = false
                 
-                await import(/* webpackIgnore: true */ `${model.assets_root}vendors/react-quill/dist/react-quill.js`)
+                await import(/* webpackIgnore: true */ `${model.assets_root}vendors/react-quill-new/dist/react-quill.js`)
                 
-                ;({ default: ReactQuill } = await import('react-quill'))
+                ;({ default: ReactQuill } = await import('react-quill-new'))
+                
                 set_quill_loaded(true)
             }
         })()
