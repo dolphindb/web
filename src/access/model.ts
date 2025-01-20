@@ -219,7 +219,6 @@ class AccessModel extends Model<AccessModel> {
     
     
     async get_share_tables () {
-                        
         return (await model.ddb.invoke('objs', 
                     [true], 
                     { nodes: model.nodes
