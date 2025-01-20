@@ -6,6 +6,7 @@ import { DATABASES_WITHOUT_CATALOG, NEED_INPUT_ACCESS } from '@/access/constants
 
 import type { AccessCategory, AccessRole, AccessRule } from '@/access/types.js'
 import { use_access_objs } from '@/access/hooks/use-access-objs.ts'
+import { model } from '@/model.ts'
 
 export function AccessObjSelect ({
     role,
@@ -62,13 +63,17 @@ export function AccessObjSelect ({
                 set_add_rule_selected(selected)
             }}
             dropdownRender={originNode => {
-                let options = [ ]
+                let options = obj_options
+         
                 if (add_rule_selected.access.startsWith('TABLE') ) 
                     options = catalogs.map(cl => cl.schemas.map(sh => sh.tables)).flat(2)
                 else if (add_rule_selected.access.startsWith('DB') )
                     options = catalogs.map(cl => cl.schemas.map(sh => sh.dbUrl)).flat()
                 else if (add_rule_selected.access.startsWith('SCHEMA') )
                     options = catalogs.filter(cl => cl.name !== DATABASES_WITHOUT_CATALOG).map(cl => cl.schemas.map(sh => `${cl.name}.${sh.schema}`)).flat()
+                
+                if (model.v2)
+                    options = databases.map(db => db.tables).flat()
                 
                 return  <div>
                 <Checkbox
@@ -80,7 +85,7 @@ export function AccessObjSelect ({
                     }
                     onChange={e => {
                         if (e.target.checked)
-                            set_add_rule_selected({ ...add_rule_selected, obj: options })
+                            set_add_rule_selected({ ...add_rule_selected, obj: typeof options[0] === 'string' ? options : options.map(obj => obj.name) })
                         else
                             set_add_rule_selected({ ...add_rule_selected, obj: [ ] })
                     }}
