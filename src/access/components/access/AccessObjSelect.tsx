@@ -167,15 +167,15 @@ export function AccessObjSelect ({
             options={(category === 'catalog' && add_rule_selected.access.startsWith('CATALOG')  
                 ? obj_options.map(obj => obj.name).filter(name => name !== DATABASES_WITHOUT_CATALOG)
                 : obj_options).map(obj => 
-                    typeof obj === 'string' ? ({
+                    typeof obj === 'string' ? {
                         key: obj,
                         label: obj,
                         value: obj
-                    }) : ({
+                    } : {
                         key: obj.name,
                         label: obj.name,
                         value: obj.name
-                    }))}
+                    })}
         />
     )
 }
