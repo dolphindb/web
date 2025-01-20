@@ -314,6 +314,7 @@ function CreateTableModalFillForm () {
         form={form}
         className='create-table-form'
         onAutoSubmit={onSubmit}
+        component='form'
         onAutoSubmitFailed={feedbacks => {
             if (feedbacks instanceof Error)
                 throw feedbacks
