@@ -148,23 +148,13 @@ export function ParserTemplates () {
    
     return <div className='parser-template-content'>
         <DDBTable<IParserTemplate>
-            title='解析模板'
-            help='解析模板用于对接收到的数据进行处理'
-            buttons={[
-                {
-                    children: t('新建'),
-                    icon: <PlusOutlined />,
-                    type: 'primary',
-                    onClick: on_create
-                },
-                {
-                    children: t('批量删除'),
-                    disabled: !selected_keys.length,
-                    onClick: on_batch_delete,
-                    icon: <DeleteOutlined/>,
-                    danger: true
-                }
-            ]}
+            title={t('解析模板')}
+            help={t('解析模板用于对接收到的数据进行处理')}
+            buttons={
+                <>
+                    <Button type='primary' icon={<PlusOutlined />} onClick={on_create}>{t('新建')}</Button>
+                    <Button color='danger' onClick={on_batch_delete} icon={<DeleteOutlined/>}>{t('批量删除')}</Button>
+                </>}
             scroll={{ x: '100%' }} 
             rowKey='id' 
             dataSource={data.items} 

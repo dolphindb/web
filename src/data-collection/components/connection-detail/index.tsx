@@ -220,18 +220,19 @@ export function ConnectionDetail (props: IProps) {
         
         <DDBTable<ISubscribe> 
             title={t('订阅列表')} 
-            buttons={[{
-                children: t('新增订阅'),
-                type: 'primary',
-                icon: <PlusOutlined />,
-                onClick: on_create_subscribe
-            },
-            {
-                children: t('批量删除'),
-                danger: true,
-                onClick: async () => { await NiceModal.show(DeleteDescribeModal, { ids: selected_subscribes, refresh: mutate }) },
-                disabled: !selected_subscribes.length
-            }]} 
+            buttons={
+                <>
+                    <Button type='primary' icon={<PlusOutlined />} onClick={on_create_subscribe}>{t('新增订阅')}</Button>
+                    <Button 
+                        color='danger'
+                        disabled={!selected_subscribes.length} 
+                        onClick={async () => { 
+                            await NiceModal.show(
+                                DeleteDescribeModal, 
+                                { ids: selected_subscribes, refresh: mutate }
+                            ) }}
+                    >{t('批量删除')}</Button>
+                </>} 
             columns={columns} 
             scroll={{ x: '100%' }}
             dataSource={data?.subscribes ?? [ ]}

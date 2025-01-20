@@ -1,13 +1,14 @@
 import { QuestionCircleOutlined } from '@ant-design/icons'
 import './index.scss'
-import { Button, Space, Table, Tooltip, type ButtonProps, type TableProps } from 'antd'
+import { Space, Table, Tooltip, type TableProps } from 'antd'
+import { type ReactElement } from 'react'
 
 export interface DDBTableProps<T> extends Omit<TableProps<T>, 'title'> {
     title: string
     /** 选传，对于表格的解释说明 */
     help?: string
-    /** 表格操作，传入数组，每项为按钮的 props， 例如 [{children: "新建", type: "primary"}] */
-    buttons?: ButtonProps[]
+    /** 表格操作 */
+    buttons?: ReactElement
 }
 
 export function DDBTable<T> (props: DDBTableProps<T>) {
@@ -22,8 +23,8 @@ export function DDBTable<T> (props: DDBTableProps<T>) {
                 </Tooltip>}
             </div>}
             {
-                !!buttons?.length && <Space size='middle'>
-                    {buttons.filter(Boolean).map((btn, index) => <Button key={index} {...btn} />)}
+                buttons && <Space size='middle'>
+                    {buttons}
                 </Space>
             }
         </div>
