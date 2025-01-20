@@ -110,9 +110,9 @@ importers:
       react-object-model:
         specifier: ^1.2.21
         version: 1.2.21(react@19.0.0)
-      react-quill:
-        specifier: ^2.0.0
-        version: 2.0.0(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
+      react-quill-new:
+        specifier: ^3.3.3
+        version: 3.3.3(quill-delta@5.1.0)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
       react-router:
         specifier: ^7.1.2
         version: 7.1.2(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
@@ -132,8 +132,8 @@ importers:
         specifier: ^9.2.0
         version: 9.2.0
       xshell:
-        specifier: ^1.2.7
-        version: 1.2.7(react-dom@19.0.0(react@19.0.0))
+        specifier: ^1.2.8
+        version: 1.2.8(react-dom@19.0.0(react@19.0.0))
     devDependencies:
       '@types/js-cookie':
         specifier: ^3.0.6
@@ -1554,9 +1554,6 @@ packages:
   '@types/qs@6.9.7':
     resolution: {integrity: sha512-FGa1F62FT09qcrueBA6qYTrJPVDzah9a+493+o2PCXsesWHIn27G98TsSMs3WPNbZIEj4+VJf6saSFpvD+3Zsw==}
 
-  '@types/quill@1.3.10':
-    resolution: {integrity: sha512-IhW3fPW+bkt9MLNlycw8u8fWb7oO7W5URC9MfZYHBlA24rex9rs23D5DETChu1zvgVdc5ka64ICjJOgQMr6Shw==}
-
   '@types/range-parser@1.2.4':
     resolution: {integrity: sha512-EEhsLsD6UsDM1yFhAvy0Cjr6VwmpMWqFBCb9w07wVugF7w9nfajxLuVmngTIpgS6svCnm6Vaw+MZhoDCKnOfsw==}
 
@@ -2586,8 +2583,8 @@ packages:
     resolution: {integrity: sha512-i/2XbnSz/uxRCU6+NdVJgKWDTM427+MqYbkQzD321DuCQJUqOuJKIA0IM2+W2xtYHdKOmZ4dR6fExsd4SXL+WQ==}
     engines: {node: '>=6'}
 
-  eventemitter3@2.0.3:
-    resolution: {integrity: sha1-teEHm1n7XhuidxwKmTvgYKWMmbo=}
+  eventemitter3@5.0.1:
+    resolution: {integrity: sha512-GWkBvjiSZK87ELrYOSESUYeVIc9mvLLf/nXalMOS5dYrgZq9o5OVkbZAVM06CVxYsCwH9BDZFPlQTlPA1j4ahA==}
 
   events@3.3.0:
     resolution: {integrity: sha512-mQw+2fkQbALzQ7V0MY0IqdnXNOeTtP4r0lN9z7AAawCXgqea7bDii20AYrIBrFd/Hx0M2Ocz6S111CaFkUcb0Q==}
@@ -2599,8 +2596,8 @@ packages:
   fast-deep-equal@3.1.3:
     resolution: {integrity: sha512-f3qQ9oQy9j2AhBe/H9VC91wLmKBCCU/gDOnKNAYG5hswO7BLKj09Hc5HYNz9cGI++xlpDCIgDaitVs03ATR84Q==}
 
-  fast-diff@1.1.2:
-    resolution: {integrity: sha512-KaJUt+M9t1qaIteSvjc6P3RbMdXsNhK61GRftR6SNxqmhthcd9MGIi4T+o0jD8LUSpSnSKXE20nLtJ3fOHxQig==}
+  fast-diff@1.3.0:
+    resolution: {integrity: sha512-VxPP4NqbUjj6MaAOafWeUn2cXWLcCtljklUtZf0Ind4XQ+QPtmA0b18zZy0jIQx+ExRVCR/ZQpBmik5lXshNsw==}
 
   fast-fifo@1.3.2:
     resolution: {integrity: sha512-/d9sfos4yxzpwkDkuN7k2SqFKtYNmCTzgfEpz82x34IM9/zc8KGxQoXg1liNC/izpRM/MBdt44Nmx41ZWqk+FQ==}
@@ -3276,8 +3273,14 @@ packages:
   lodash-es@4.17.21:
     resolution: {integrity: sha512-mKnC+QJ9pWVzv+C4/U3rRsHapFfHvQFoFB92e52xeyGMcX6/OlIl78je1u8vePzYZSkkogMPJ2yjxxsb89cxyw==}
 
+  lodash.clonedeep@4.5.0:
+    resolution: {integrity: sha512-H5ZhCF25riFd9uB5UCkVKo61m3S/xZk1x4wA6yp/L3RFP6Z/eHH1ymQcGLo7J3GMPfm0V/7m1tryHuGVxpqEBQ==}
+
   lodash.debounce@4.0.8:
     resolution: {integrity: sha512-FT1yDzDYEoYWhnSGnpE/4Kj1fLZkDFyqRb7fNt6FdYOSxlUWAtp42Eh6Wb0rGIv/m9Bgo7x4GhQbm5Ys4SG5ow==}
+
+  lodash.isequal@4.5.0:
+    resolution: {integrity: sha512-pDo3lu8Jhfjqls6GkMgpahsF9kCyayhgykjyLMNFTKWrpVdAQtYyB4muAMWozBB4ig/dtWAmsMxLEI8wuz+DYQ==}
 
   lodash.merge@4.6.2:
     resolution: {integrity: sha512-0KpjqXRVvrYyCsX1swR/XTK0va6VQkQM6MNo7PqW77ByjAhoARA8EfrP1N4+KlKj8YS0ZUCtRT/YUuhyYDujIQ==}
@@ -3651,8 +3654,8 @@ packages:
   param-case@3.0.4:
     resolution: {integrity: sha512-RXlj7zCYokReqWpOPH9oYivUzLYZ5vAPIfEmCTNViosC78F8F0H9y7T7gG2M39ymgutxF5gcFEsyZQSph9Bp3A==}
 
-  parchment@1.1.4:
-    resolution: {integrity: sha512-J5FBQt/pM2inLzg4hEWmzQx/8h8D0CiDxaG3vyp9rKrQRSDgBlhjdP5jQGgosEajXPSQouXGHOmVdgo7QmJuOg==}
+  parchment@3.0.0:
+    resolution: {integrity: sha512-HUrJFQ/StvgmXRcQ1ftY6VEZUq3jA2t9ncFN4F84J/vN0/FPpQF+8FKXb3l6fLces6q0uOHj6NJn+2xvZnxO6A==}
 
   parent-module@1.0.1:
     resolution: {integrity: sha512-GQ2EWRpQV8/o+Aw8YqtfZZPfNRWZYkbidE9k5rpl/hC3vtHHBfGm2Ifi6qWV+coDGkrUKZAxE3Lot5kcsRlh+g==}
@@ -3782,12 +3785,13 @@ packages:
   queue-tick@1.0.1:
     resolution: {integrity: sha512-kJt5qhMxoszgU/62PLP1CJytzd2NKetjSRnyuj31fDd3Rlcz3fzlFdFLD1SItunPwyqEOkca6GbV612BWfaBag==}
 
-  quill-delta@3.6.3:
-    resolution: {integrity: sha512-wdIGBlcX13tCHOXGMVnnTVFtGRLoP0imqxM696fIPwIf5ODIYUHIvHbZcyvGlZFiFhK5XzDC2lpjbxRhnM05Tg==}
-    engines: {node: '>=0.10'}
+  quill-delta@5.1.0:
+    resolution: {integrity: sha512-X74oCeRI4/p0ucjb5Ma8adTXd9Scumz367kkMK5V/IatcX6A0vlgLgKbzXWy5nZmCGeNJm2oQX0d2Eqj+ZIlCA==}
+    engines: {node: '>= 12.0.0'}
 
-  quill@1.3.7:
-    resolution: {integrity: sha512-hG/DVzh/TiknWtE6QmWAF/pxoZKYxfe3J/d/+ShUWkDvvkZQVTPeVmUJVu1uE6DDooC4fWTiCLh84ul89oNz5g==}
+  quill@2.0.3:
+    resolution: {integrity: sha512-xEYQBqfYx/sfb33VJiKnSJp8ehloavImQ2A6564GAbqG55PGw1dAWUn1MUbQB62t0azawUS2CZZhWCjO8gRvTw==}
+    engines: {npm: '>=8.2.3'}
 
   randombytes@2.1.0:
     resolution: {integrity: sha512-vYl3iOX+4CKUWuxGi9Ukhie6fsqXqS9FE2Zaic4tNFD2N2QQaXOMFbuKK4QmDHC0JO6B1Zp41J0LpT0oR68amQ==}
@@ -4100,11 +4104,12 @@ packages:
     peerDependencies:
       react: ^19.0.0
 
-  react-quill@2.0.0:
-    resolution: {integrity: sha512-4qQtv1FtCfLgoD3PXAur5RyxuUbPXQGOHgTlFie3jtxp43mXDtzCKaOgQ3mLyZfi1PUlyjycfivKelFhy13QUg==}
+  react-quill-new@3.3.3:
+    resolution: {integrity: sha512-jxbm1QUJlkuGUpc9/GUgGw5USLHdp43H0M7AufqS3V+zRLng9uqLeVBGjXYqEbUKi8QVOM4SClSV3F7kVNj68w==}
     peerDependencies:
-      react: ^16 || ^17 || ^18
-      react-dom: ^16 || ^17 || ^18
+      quill-delta: ^5.1.0
+      react: ^16 || ^17 || ^18 || ^19
+      react-dom: ^16 || ^17 || ^18 || ^19
 
   react-router@7.1.2:
     resolution: {integrity: sha512-KeallSO30KLpIe/ZZqfk6pCJ1c+5JhMxl3SCS3Zx1LgaGuQbgLDmjuNi6KZ5LnAV9sWjbmBWGRw8Um/Pw6BExg==}
@@ -4961,8 +4966,8 @@ packages:
       utf-8-validate:
         optional: true
 
-  xshell@1.2.7:
-    resolution: {integrity: sha512-BmjFD1EuOa0m1xb+phQY92IR7Ese68huJlv0ui5LECoLVdfosat2cCQ8XAZL9oCrIsV6TgH+WJjUpvJHoegZvg==}
+  xshell@1.2.8:
+    resolution: {integrity: sha512-/7boBaQjc0J0Uo2IarSKmt0cgnQAV/T5bqcUxNEGRcTCgMuR4zFszVm24jliOAXnEe7Dtc4d3A35QSpgj8gZRQ==}
     hasBin: true
 
   xtend@4.0.2:
@@ -6837,10 +6842,6 @@ snapshots:
 
   '@types/qs@6.9.7': {}
 
-  '@types/quill@1.3.10':
-    dependencies:
-      parchment: 1.1.4
-
   '@types/range-parser@1.2.4': {}
 
   '@types/react-dom@19.0.3(@types/react@19.0.7)':
@@ -7773,7 +7774,7 @@ snapshots:
       dayjs: 1.11.13
       ipaddr.js: 2.2.0
       tslib: 2.8.1
-      xshell: 1.2.7(react-dom@19.0.0(react@19.0.0))
+      xshell: 1.2.8(react-dom@19.0.0(react@19.0.0))
     transitivePeerDependencies:
       - '@rspack/core'
       - '@swc/core'
@@ -8183,7 +8184,7 @@ snapshots:
 
   event-target-shim@5.0.1: {}
 
-  eventemitter3@2.0.3: {}
+  eventemitter3@5.0.1: {}
 
   events@3.3.0: {}
 
@@ -8191,7 +8192,7 @@ snapshots:
 
   fast-deep-equal@3.1.3: {}
 
-  fast-diff@1.1.2: {}
+  fast-diff@1.3.0: {}
 
   fast-fifo@1.3.2: {}
 
@@ -8918,7 +8919,11 @@ snapshots:
 
   lodash-es@4.17.21: {}
 
+  lodash.clonedeep@4.5.0: {}
+
   lodash.debounce@4.0.8: {}
+
+  lodash.isequal@4.5.0: {}
 
   lodash.merge@4.6.2: {}
 
@@ -9510,7 +9515,7 @@ snapshots:
       dot-case: 3.0.4
       tslib: 2.8.1
 
-  parchment@1.1.4: {}
+  parchment@3.0.0: {}
 
   parent-module@1.0.1:
     dependencies:
@@ -9624,20 +9629,18 @@ snapshots:
 
   queue-tick@1.0.1: {}
 
-  quill-delta@3.6.3:
+  quill-delta@5.1.0:
     dependencies:
-      deep-equal: 1.1.2
-      extend: 3.0.2
-      fast-diff: 1.1.2
+      fast-diff: 1.3.0
+      lodash.clonedeep: 4.5.0
+      lodash.isequal: 4.5.0
 
-  quill@1.3.7:
+  quill@2.0.3:
     dependencies:
-      clone: 2.1.2
-      deep-equal: 1.1.2
-      eventemitter3: 2.0.3
-      extend: 3.0.2
-      parchment: 1.1.4
-      quill-delta: 3.6.3
+      eventemitter3: 5.0.1
+      lodash-es: 4.17.21
+      parchment: 3.0.0
+      quill-delta: 5.1.0
 
   randombytes@2.1.0:
     dependencies:
@@ -10053,11 +10056,11 @@ snapshots:
     optionalDependencies:
       final-form: 4.20.10
 
-  react-quill@2.0.0(react-dom@19.0.0(react@19.0.0))(react@19.0.0):
+  react-quill-new@3.3.3(quill-delta@5.1.0)(react-dom@19.0.0(react@19.0.0))(react@19.0.0):
     dependencies:
-      '@types/quill': 1.3.10
       lodash: 4.17.21
-      quill: 1.3.7
+      quill: 2.0.3
+      quill-delta: 5.1.0
       react: 19.0.0
       react-dom: 19.0.0(react@19.0.0)
 
@@ -11115,7 +11118,7 @@ snapshots:
 
   ws@8.18.0: {}
 
-  xshell@1.2.7(react-dom@19.0.0(react@19.0.0)):
+  xshell@1.2.8(react-dom@19.0.0(react@19.0.0)):
     dependencies:
       '@babel/core': 7.26.0
       '@babel/parser': 7.26.5
