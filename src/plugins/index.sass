@@ -9,11 +9,7 @@
         
         display: flex
         
-        .search
-            margin-left: 20px
-            
-        .refresh
-            margin-left: 20px
+        gap: 20px
             
     .plugins-table
         flex: 1
@@ -24,41 +20,42 @@
         thead
             .actions
                 padding-left: 30px
+
+
+.ant-modal-root
+    .plugins-install-modal
+        .ant-result
+            padding: 0px
             
-    
-.plugins-install-modal
-    .ant-result
-        padding: 0px
+        .ant-result .ant-result-title
+            font-size: 16px
+            
+        .ant-upload
+            margin: 20px 0px
         
-    .ant-result .ant-result-title
-        font-size: 16px
-        
-    .ant-upload
-        margin: 20px 0px
-    
-    .files
-        .ant-empty-normal
-            margin-block: 8px
-            
-        .fp
-            display: flex
-            align-items: center
-            
-            .zip-icon
-                width: 24px
+        .files
+            .ant-empty-normal
+                margin-block: 8px
                 
-                margin-right: 14px
-    
-    .nodes
-        margin: 20px 0px
+            .fp
+                display: flex
+                align-items: center
+                
+                .zip-icon
+                    width: 24px
+                    
+                    margin-right: 14px
         
-        .title
-            font-weight: bold
-            margin-right: 20px
+        .nodes
+            margin: 20px 0px
             
-.plugins-sync-modal
-    .ant-modal-header
-        margin-bottom: 20px
+            .title
+                font-weight: bold
+                margin-right: 20px
     
-    .ant-form-item .ant-form-item-label > label
-        margin-right: 20px
+    .plugins-sync-modal
+        .ant-modal-header
+            margin-bottom: 20px
+        
+        .ant-form-item .ant-form-item-label > label
+            margin-right: 20px

@@ -175,12 +175,20 @@ export class DashBoardModel extends Model<DashBoardModel> {
         // 响应 GridStack 中 widget 的位置或尺寸变化的事件
         grid.on('change', (event: Event, widgets: GridStackNode[]) => {
             if (widgets?.length)
-                for (const widget of widgets)
+                for (const widget of widgets) {
+                    if (
+                        this.config?.data?.canvas?.auto_expand === false
+                        && widget.y + widget.h - 1 >= (this.config?.data?.canvas?.page_count ?? 1) * 12
+                    ) {
+                        const past_widget = this.widgets.find(({ id }) => id === widget.id)
+                        grid.update(widget.el, { y: past_widget.y, h: past_widget.h })
+                    }
+                    
                     Object.assign(
-                        this.widgets.find(({ id }) => id === widget.id), 
+                        this.widgets.find(({ id }) => id === widget.id),
                         widget
                     )
-            
+                }
             this.check_and_change_page()
         })
         
@@ -217,7 +225,7 @@ export class DashBoardModel extends Model<DashBoardModel> {
                 bottom_row = widget.y + widget.h
         
         this.update_page_count(
-            Math.ceil((bottom_row + 3) / 12)
+            Math.ceil((bottom_row + 1) / 12)
         )
     }
     
@@ -238,6 +246,8 @@ export class DashBoardModel extends Model<DashBoardModel> {
                 variables: [ ],
                 canvas: {
                     widgets: [ ],
+                    page_count: 1,
+                    auto_expand: true
                 }
             }
         }
@@ -506,9 +516,27 @@ export class DashBoardModel extends Model<DashBoardModel> {
         model.set_query('preview', '1')
     }
     
+    on_set_auto_expand ( auto_expand: boolean) {
+        this.set({
+            config: {
+                ...this.config,
+                data: {
+                    ...this.config.data,
+                    canvas: {
+                        ...this.config.data.canvas,
+                        auto_expand
+                    }
+                }
+            }
+        })
+    }
+    
     update_page_count (page_count: number) {
         // 如果 page_count 减少，要看看减少的页面上面有没有组件，有的话就弹窗不允许减少
         if (!this.check_available_for_reduce_page_count(page_count))
+            return
+        
+        if (this.config.data.canvas.auto_expand === false) 
             return
         
         this.set({
@@ -575,6 +603,7 @@ export interface DashboardData {
      canvas: {
          widgets: any[]
          page_count?: number
+         auto_expand?: boolean | undefined
      }
 }
 

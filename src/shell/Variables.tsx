@@ -1,4 +1,4 @@
-import { default as React, useCallback, useState } from 'react'
+import { default as React, useCallback, useEffect, useState } from 'react'
 
 import { Tooltip, Tree } from 'antd'
 
@@ -48,6 +48,7 @@ import SvgSchema from './icons/schema.icon.svg'
 
 
 export function Variables ({ shared }: { shared?: boolean }) {
+    const { logined, client_auth, username } = model.use(['logined', 'client_auth', 'username'])
     const { vars } = shell.use(['vars'])
     
     const [expanded_keys, set_expanded_keys] = useState(Array(9).fill(0).map((_x, i) => String(i)))
@@ -70,9 +71,12 @@ export function Variables ({ shared }: { shared?: boolean }) {
         }
     }, [ ])
     
-    const vars_ = vars ? vars.filter(v => {
-        return v.shared === shared
-    }) : [ ]
+    useEffect(() => {
+        if (logined || !client_auth)
+            shell.update_vars()
+    }, [logined, client_auth, username])
+    
+    const vars_ = vars ? vars.filter(v => v.shared === shared) : [ ]
     
     let scalar  = new TreeDataItem({ title: 'scalar', key: '0', icon: <Icon component={SvgScalar} /> })
     let vector  = new TreeDataItem({ title: 'vector', key: '1', icon: <Icon component={SvgVector} /> })
@@ -457,12 +461,9 @@ function SuffixIcon ({ name }: { name: string }) {
                         type: 'object',
                         data: await model.ddb.call<DdbDictObj<DdbVectorStringObj>>(
                             'load_table_variable_schema',
-                            [name],
-                            model.node_type === NodeType.controller ? { node: model.datanode.name } : undefined
-                        )
+                            [name])
                     }
-                }
-            ) }}
+                }) }}
         />
     </Tooltip>
 }

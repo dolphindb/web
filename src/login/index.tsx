@@ -1,5 +1,7 @@
 import './index.sass'
 
+import { useEffect } from 'react'
+
 import { Form, Input, Button } from 'antd'
 import { LockOutlined, UserOutlined } from '@ant-design/icons'
 
@@ -9,6 +11,17 @@ import { model } from '@/model.ts'
 
 
 export function Login () {
+    const { logined } = model.use(['logined'])
+    
+    // 已登录就不显示登录页，回到之前的页面或者主页 (直接打开登录页的情况)
+    useEffect(() => {
+        if (logined && location.pathname === `${model.assets_root}login/`)
+            if (model.pathname_before_login)
+                model.navigate(-1)
+            else
+                model.goto(model.assets_root)
+    }, [logined])
+    
     return <>
         <img className='logo' src={`${model.assets_root}ddb.svg`} />
         
@@ -33,8 +46,6 @@ export function Login () {
                     }
                     
                     model.message.success(t('登录成功'))
-                    
-                    model.navigate(-1)
                 }}
             >
                 <Form.Item name='username' rules={[{ required: true, message: t('请输入用户名') }]}>
