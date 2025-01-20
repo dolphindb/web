@@ -4,11 +4,7 @@ import { default as React, useCallback, useContext, useMemo, useState, useEffect
 import NiceModal from '@ebay/nice-modal-react'
 import { Button, Modal, Result, type SelectProps, Spin } from 'antd'
 import { createForm, type Field } from '@formily/core'
-import {
-    Form,
-    FormButtonGroup,
-    Submit,
-} from '@formily/antd-v5'
+import { Form, FormButtonGroup, Submit } from '@formily/antd-v5'
 import { mapKeys, isFunction } from 'lodash'
 
 import { DdbType, type DdbObj } from 'dolphindb/browser.js'
