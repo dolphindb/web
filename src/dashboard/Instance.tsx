@@ -27,6 +27,7 @@ export function DashboardInstancePage () {
     
     return <ConfigProvider
         theme={{
+            cssVar: true,
             hashed: false,
             token: {
                 borderRadius: 0,
