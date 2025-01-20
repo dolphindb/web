@@ -187,7 +187,7 @@ const router = createBrowserRouter([
         path: '/',
         element: <MainLayout />,
         children: [
-            // 除了改这里还需要改 model 中的 defaut_view
+            // 除了改这里还需要改 model 中的 default_view
             {
                 index: true,
                 element: <Shell />
