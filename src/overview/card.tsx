@@ -238,7 +238,7 @@ function Node ({
                         </Tooltip>
                     </div>
                     <div className={`node-title ${title_colors[mode]}`}>
-                        <a className={`node-name ${title_colors[mode]}`} target='_blank' href={model.get_node_url(node, { pathname: `${model.assets_root}shell/`, queries: { view: null } })}>
+                        <a className={`node-name ${title_colors[mode]}`} target='_blank' href={model.get_node_url(node, { pathname: `${model.assets_root}`, queries: { view: null } })}>
                             {name}
                         </a>
                         {isLeader && <Tag className='leader-tag' color='#FFF' >leader</Tag> }
