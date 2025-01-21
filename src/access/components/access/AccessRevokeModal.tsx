@@ -38,11 +38,11 @@ export const AccessRevokeModal = NiceModal.create(({
                         selected_access.map(async ac => {
                             // 对于 shared 和 stream，撤销权限时需要将 TABLE_INSERT 、TABLE_UPDATE 、TABLE_DELETE 转换为 TABLE_WRITE
                             if ((category === 'shared' || category === 'stream') && ac.access !== 'TABLE_READ') 
-                                await access.revoke(name, 'TABLE_WRITE', ac.name)
+                                return access.revoke(name, 'TABLE_WRITE', ac.name)
                             else if (category === 'script')
-                                await access.revoke(name, ac.access)
+                                return access.revoke(name, ac.access)
                             else
-                                await access.revoke(name, ac.access, ac.name)
+                                return access.revoke(name, ac.access, ac.name)
                         })
                     )
                     
