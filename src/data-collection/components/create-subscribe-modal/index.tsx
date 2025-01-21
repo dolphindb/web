@@ -1,7 +1,7 @@
 import './index.scss'
 
 import NiceModal, { useModal } from '@ebay/nice-modal-react'
-import { Button, Form, Input, InputNumber, Modal, Select, Switch, Tag, Tooltip, message } from 'antd'
+import { App, Form, Input, InputNumber, Modal, Select, Switch, Tag, Tooltip } from 'antd'
 
 import { useCallback, useMemo, useState } from 'react'
 
@@ -43,6 +43,10 @@ const title_map = {
 
 export const CreateSubscribeModal = NiceModal.create((props: IProps) => {
     const { edited_subscribe, connection_id, refresh, protocol, mode } = props
+    
+    const { message } = App.useApp()
+    
+    console.log(App.useApp(), 'ttt')
     
     const [handlerId, setHandlerId] = useState(edited_subscribe?.handlerId)
     
@@ -128,11 +132,11 @@ export const CreateSubscribeModal = NiceModal.create((props: IProps) => {
     return <Modal 
         className='create-subscribe-modal'
         width='60%' 
-        footer={null}
         open={modal.visible} 
         onCancel={modal.hide} 
         afterClose={modal.remove} 
         title={title_map[mode]}
+        onOk={form.submit}
         destroyOnClose
     >
         <Form 
@@ -164,8 +168,7 @@ export const CreateSubscribeModal = NiceModal.create((props: IProps) => {
                 {({ parseJson }) => {
                     if (!parseJson)
                         return <Form.List name='templateParams' initialValue={[{ }]}>
-                            {() => {
-                                return <>
+                            {() => <>
                                     <Form.Item name={[0, 'key']} hidden initialValue='outputTableName'>
                                         <Input />
                                     </Form.Item>
@@ -184,8 +187,7 @@ export const CreateSubscribeModal = NiceModal.create((props: IProps) => {
                                         <Input placeholder={t('请输入默认流表名称')}/>
                                     </Form.Item>
                                 
-                                </>
-                            }}
+                                </>}
                         </Form.List>
                     else
                         return <>
@@ -245,11 +247,6 @@ export const CreateSubscribeModal = NiceModal.create((props: IProps) => {
             </FormDependencies>
             
             {protocol_params}
-            
-            <Form.Item className='submit-btn-form-item'>
-                <Button htmlType='submit' type='primary'>{t('确定')}</Button>
-            </Form.Item>
-            
         </Form>
     </Modal>
 })

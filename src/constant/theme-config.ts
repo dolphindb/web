@@ -1,6 +1,5 @@
 import { theme, type ThemeConfig } from 'antd'
 
-const DARK_PRIMARY_COLOR = '#'
 export const ANT_DARK_CONFIG = {
     hashed: false,
     token: {

@@ -142,7 +142,7 @@ export function ConnectionDetail (props: IProps) {
                 const template = templates?.find(item => item.id === handlerId)
                 return <div className='parser-template'>
                     {template?.name}
-                    <Link className='view-btn' onClick={() => { onViewTemplate(template) }}>{t('查看')}</Link>
+                    <Typography.Link className='view-btn' onClick={() => { onViewTemplate(template) }}>{t('查看')}</Typography.Link>
                 </div>
             }
         },
