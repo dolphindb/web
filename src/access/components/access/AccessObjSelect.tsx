@@ -2,11 +2,12 @@ import { Checkbox, Divider, Input, Select, TreeSelect } from 'antd'
 
 import { t } from '@i18n/index.js'
 
+import { model } from '@/model.ts'
+
 import { DATABASES_WITHOUT_CATALOG, NEED_INPUT_ACCESS } from '@/access/constants.js'
 
 import type { AccessCategory, AccessRole, AccessRule } from '@/access/types.js'
 import { use_access_objs } from '@/access/hooks/use-access-objs.ts'
-import { model } from '@/model.ts'
 
 export function AccessObjSelect ({
     role,
