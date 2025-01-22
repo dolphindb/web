@@ -14,6 +14,8 @@ import { t } from '../../../i18n/index.js'
 
 import { TIME_TYPES } from '../constant.js'
 
+import { BottomFixedFooter } from '@/components/BottomFixedFooter/index.tsx'
+
 import { type IFinanceInfo } from './type.js'
 
 
@@ -98,12 +100,13 @@ export function TableInfo (props: IProps) {
         
         { engine === 'TSDB' && <CommonFilterCols schema={schema}/> }
         
-        <Form.Item className='btn-group'>
+        
+        <BottomFixedFooter>
             <Space>
                 <Button onClick={back}>{t('上一步')}</Button>
                 <Button type='primary' onClick={on_submit}>{t('生成脚本') }</Button>
             </Space>
-        </Form.Item>
+        </BottomFixedFooter>
         
     </Form>
  }

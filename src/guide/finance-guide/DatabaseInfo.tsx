@@ -8,6 +8,8 @@ import { request } from '../utils.ts'
 
 import { t } from '../../../i18n/index.js'
 
+import { BottomFixedFooter } from '@/components/BottomFixedFooter/index.tsx'
+
 import { ExistDBSelect } from './components/ExistedDBSelect.js'
 import { CUSTOM, DAILY_INCREASE_DATA_OPTIONS } from './constant.js'
 import { type IDatabaseInfo, type IFinanceInfo } from './type.js'
@@ -114,10 +116,8 @@ export function DatabaseInfo (props: IProps) {
              }
         </FormDependencies>
         
-        <Form.Item className='btn-group'>
-            <Button type='primary' htmlType='submit'>{t('下一步')}</Button>
-        </Form.Item>
-        
-        
+        <BottomFixedFooter>
+            <Button type='primary' onClick={form.submit}>{t('下一步')}</Button>
+        </BottomFixedFooter>
     </Form>
 }

@@ -10,7 +10,7 @@
     
     
     .connection-left-wrapper {
-        width: calc(100% - 360px);
+        width: calc(100% - 320px);
         .empty-content {
             margin-top: calc(50vh - 35px);
         }
@@ -29,7 +29,7 @@
         padding-right: 16px;
         height: 100%;
         overflow-y: auto;
-        width: 360px;
+        width: 320px;
 
         
         .connection-list-title {
@@ -78,7 +78,7 @@
                 
                 .connection-tree-label {
                     display: inline-block;
-                    width: 210px;
+                    width: 170px;
                     overflow: hidden;
                     text-overflow: ellipsis;
                     white-space: nowrap;
