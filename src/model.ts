@@ -786,7 +786,8 @@ export class DdbModel extends Model<DdbModel> {
             
             return prev
         }, [hosts[0], calc_host_score(hosts[0])])
-        
+        if (!closest)
+            return location.hostname
         return closest
     }
     
