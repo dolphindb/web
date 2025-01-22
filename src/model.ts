@@ -751,9 +751,8 @@ export class DdbModel extends Model<DdbModel> {
     
     find_node_closest_hostname (node: DdbNode) {
         const current_connect_host = this.hostname
-        
         // 所有域名应该都转成小写后匹配，因为浏览器默认会将 location.hostname 转为小写
-        const hosts = [...node.publicName.split(';').map(name => name.trim().toLowerCase()), node.host.toLowerCase()]
+        const hosts = [...node.publicName.split(';').map(name => name.trim().toLowerCase()).filter(name => name), node.host.toLowerCase()]
         
         // 匹配当前域名/IP 和 hosts 中域名/IP 的相似度，动态规划最长公共子串
         function calc_host_score (hostname: string) {
@@ -786,8 +785,7 @@ export class DdbModel extends Model<DdbModel> {
             
             return prev
         }, [hosts[0], calc_host_score(hosts[0])])
-        if (!closest)
-            return location.hostname
+        
         return closest
     }
     
