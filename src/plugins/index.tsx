@@ -101,6 +101,8 @@ export function Plugins () {
                             selecteds?.length && load_plugin(id, selecteds.map(({ node }) => node))))
                     
                     await update()
+                    
+                    model.message.success(t('插件加载成功'))
                 }}
             >
                 <Button
