@@ -99,6 +99,8 @@ export function Plugins () {
                     await Promise.all(
                         plugins.map(async ({ selecteds, id }) => 
                             selecteds?.length && load_plugin(id, selecteds.map(({ node }) => node))))
+                    
+                    await update()
                 }}
             >
                 <Button
