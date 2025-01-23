@@ -51,12 +51,33 @@ export function Plugins () {
         ])
     }
     
+    function update_selecteds (plugin: Plugin, selecteds: Plugin['selecteds']) {
+        plugin.selecteds = selecteds
+        set_plugins([...plugins])
+    }
+    
     
     useEffect(() => {
         version_without_patch ??= model.version.split('.').slice(0, 2).join('.')
         
         update()
     }, [ ])
+    
+    
+    // 计算 selected_keys 和 indeterminate 状态
+    let selected_keys: string[] = [ ]
+    
+    plugins.forEach(plugin => {
+        const { selecteds, id } = plugin
+        
+        const nselecteds = selecteds?.length || 0
+        const nall = get_plugin_nodes_by_id(id, plugin_nodes).length
+        
+        if (nselecteds && nselecteds === nall)
+            selected_keys.push(id)
+        
+        plugin.indeterminate = 0 < nselecteds && nselecteds < nall
+    })
     
     return <>
         <div className='actions'>
@@ -67,7 +88,7 @@ export function Plugins () {
                 onClick={installer.open}
             >{t('安装插件')}</Button>
             
-            <InstallModal installer={installer} update_plugins={update_plugins} />
+            <InstallModal installer={installer} update={update} />
             
             <Button
                 className='load'
@@ -92,7 +113,41 @@ export function Plugins () {
             dataSource={plugins}
             rowKey='id'
             pagination={false}
-            rowSelection={{ }}
+            rowSelection={{
+                selectedRowKeys: selected_keys,
+                
+                onChange (keys, plugins_, { type }) {
+                    // 单独处理全选
+                    if (type === 'all') {
+                        // 根据当前是否已经全选来切换
+                        if (selected_keys.length === plugins.length)  // 已全选
+                            plugins.forEach(plugin => {
+                                plugin.selecteds = [ ]
+                            })
+                        else  // 未全选
+                            plugins.forEach(plugin => {
+                                plugin.selecteds = get_plugin_nodes_by_id(plugin.id, plugin_nodes)
+                            })
+                        
+                        set_plugins([...plugins])
+                    }
+                },
+                
+                onSelect (plugin) {
+                    const { selecteds, id, indeterminate } = plugin
+                    
+                    const nselecteds = selecteds?.length || 0
+                    
+                    update_selecteds(
+                        plugin,
+                        !nselecteds || indeterminate
+                            // 未选 | 半选 -> 全选
+                            ? get_plugin_nodes_by_id(id, plugin_nodes)
+                            : [ ])
+                },
+                
+                getCheckboxProps: ({ indeterminate }) => ({ indeterminate }),
+            }}
             columns={[
                 {
                     title: t('插件 ID'),
@@ -130,8 +185,12 @@ export function Plugins () {
             
             expandable={{
                 expandRowByClick: true,
-                expandedRowRender: ({ id }) => 
-                    <PluginNodesTable id={id} plugin_nodes={plugin_nodes} />
+                expandedRowRender: plugin => 
+                    <PluginNodesTable
+                        id={plugin.id}
+                        plugin={plugin}
+                        plugin_nodes={plugin_nodes}
+                        update_selecteds={update_selecteds} />
             }}
         />
         
@@ -140,27 +199,39 @@ export function Plugins () {
 }
 
 
-function PluginNodesTable ({ plugin_nodes, id }: { plugin_nodes: PluginNode[], id: string }) {
-    let [selecteds, set_selecteds] = useState<string[]>([ ])
-    
+function PluginNodesTable ({
+    id,
+    plugin,
+    plugin_nodes,
+    update_selecteds
+}: {
+    id: string
+    plugin: Plugin
+    plugin_nodes: PluginNode[]
+    update_selecteds: (plugin: Plugin, selecteds: Plugin['selecteds']) => void
+}) {
     return <Table
         className='plugin-nodes'
-        dataSource={plugin_nodes.filter(({ id: _id }) => id === _id)}
+        dataSource={get_plugin_nodes_by_id(id, plugin_nodes)}
         rowKey='node'
         pagination={false}
         size='small'
-        onRow={({ node }) => ({
+        onRow={plugin_node => ({
             onClick (event) {
-                set_selecteds(switch_keys(selecteds, node))
+                update_selecteds(
+                    plugin, 
+                    switch_keys(plugin.selecteds || [ ], plugin_node))
             }
         })}
         rowSelection={{
-            selectedRowKeys: selecteds,
+            selectedRowKeys: plugin.selecteds?.map(({ node }) => node) || [ ],
             
             hideSelectAll: true,
             
-            onChange (selecteds_, rows, info) {
-                set_selecteds(selecteds_ as string[])
+            onChange (keys, plugin_nodes, info) {
+                update_selecteds(
+                    plugin,
+                    plugin_nodes)
             }
         }}
         columns={[
@@ -191,10 +262,10 @@ function PluginNodesTable ({ plugin_nodes, id }: { plugin_nodes: PluginNode[], i
 
 function InstallModal ({
     installer,
-    update_plugins
+    update
 }: {
     installer: ModalController
-    update_plugins: () => Promise<void>
+    update: () => Promise<void>
 }) {
     let [file, set_file] = useState<UploadFile>()
     let [status, set_status] = useState<'preparing' | 'uploading'>('preparing')
@@ -221,7 +292,7 @@ function InstallModal ({
                     )
                 ])
                 
-                await update_plugins()
+                await update()
             } finally {
                 set_status('preparing')
             }
@@ -379,6 +450,11 @@ interface Plugin {
     loadeds: string[]
     
     preloadeds: string[]
+    
+    selecteds?: PluginNode[]
+    
+    /** 计算属性 */
+    indeterminate?: boolean
 }
 
 
@@ -470,6 +546,11 @@ async function get_plugin_nodes () {
                 loaded: isLoaded,
                 loaded_version: loadedVersion
             })))
+}
+
+
+function get_plugin_nodes_by_id (id: string, plugin_nodes: PluginNode[]) {
+    return plugin_nodes.filter(({ id: _id }) => id === _id)
 }
 
 
