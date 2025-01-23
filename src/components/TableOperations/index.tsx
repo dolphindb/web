@@ -1,18 +1,21 @@
 import { EllipsisOutlined } from '@ant-design/icons'
 import './index.scss'
-import { Button, Popover, Space } from 'antd'
+import { Popover, Space } from 'antd'
 import { toArray } from 'lodash'
 
-const VISIBLE_ITEM_NUM = 4
+interface IProps extends React.HTMLAttributes<HTMLDivElement> {
+    /** 最多展示的表单操作项，不传则展示全部 */
+    max_show_count?: number
+}
 
-export function TableOperations (props: React.HTMLAttributes<HTMLDivElement>) {
+export function TableOperations (props: IProps) {
     
-    const { children, ...others } = props
+    const { max_show_count, children, ...others } = props
     const child_nodes = toArray(children).filter(Boolean)
     
-    const ellipsis = child_nodes.length > VISIBLE_ITEM_NUM
+    const ellipsis = max_show_count ?  child_nodes.length > max_show_count : false
     
-    const visible_items = ellipsis ? child_nodes.slice(0, VISIBLE_ITEM_NUM - 1) : children
+    const visible_items = ellipsis ? child_nodes.slice(0, max_show_count) : children
     
     return <div className='table-operations' {...others}>
         {visible_items}
@@ -23,7 +26,7 @@ export function TableOperations (props: React.HTMLAttributes<HTMLDivElement>) {
             arrow={false}
             placement='bottom' 
             content={<Space direction='vertical'>
-                {child_nodes.slice(VISIBLE_ITEM_NUM - 1)}            
+                {child_nodes.slice(max_show_count)}            
             </Space>
         }>
             <EllipsisOutlined className='more-operations'/>

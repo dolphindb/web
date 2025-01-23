@@ -267,7 +267,7 @@ export function Overview () {
                         dataIndex: '',
                         key: 'actions',
                         width: 450,
-                        render: ({ key, permission }) => <TableOperations>
+                        render: ({ key }) => <TableOperations>
                             <Typography.Link
                                 onClick={() => {
                                     let config = configs.find(({ id }) => id === key)

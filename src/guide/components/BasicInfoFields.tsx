@@ -40,10 +40,10 @@ export function BasicInfoFields (props: IProps) {
     const is_freq_increase = Form.useWatch('isFreqIncrease', form)
     const total_num = Form.useWatch('totalNum', form) 
     
-    const need_time_col = useMemo(() => { 
+    const need_time_col = useMemo(() =>  
         // 时序数据或者非时序数据但是数据量大于 2000000
-        return is_freq_increase || total_num?.gap === 1 || total_num?.custom > 2000000
-    }, [is_freq_increase, total_num])
+         is_freq_increase || total_num?.gap === 1 || total_num?.custom > 2000000
+    , [is_freq_increase, total_num])
     
     
     return <>

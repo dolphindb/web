@@ -127,7 +127,7 @@ export function ParserTemplates () {
             key: 'operations',
             title: t('操作'),
             fixed: 'right',
-            width: 200,
+            width: 150,
             render: (_, record) => <Space size='large'>
                 {
                     can_edit(record) 
@@ -149,7 +149,6 @@ export function ParserTemplates () {
     return <div className='parser-template-content'>
         <DDBTable<IParserTemplate>
             title={t('解析模板')}
-            help={t('解析模板用于对接收到的数据进行处理')}
             buttons={
                 <>
                     <Button type='primary' icon={<PlusOutlined />} onClick={on_create}>{t('新建')}</Button>

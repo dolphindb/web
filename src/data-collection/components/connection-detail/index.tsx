@@ -126,13 +126,16 @@ export function ConnectionDetail (props: IProps) {
             title: t('名称'),
             dataIndex: 'name',
             key: 'name',
-            width: 250
+            fixed: 'left',
+            width: 200,
+            ellipsis: true
         },
         {
             title: t('主题', { context: 'data_collection' }),
             dataIndex: 'topic',
             key: 'topic',
             width: 100,
+            ellipsis: true,
         },
         {
             title: t('点位解析模板'),
@@ -154,13 +157,13 @@ export function ConnectionDetail (props: IProps) {
         {
             title: t('创建时间'),
             dataIndex: 'createTime',
-            width: 250,
+            width: 200,
             sorter: (a, b ) => dayjs(a.createTime).valueOf() - dayjs(b.createTime).valueOf()
         },
         {
             title: t('更新时间'),
             dataIndex: 'updateTime',
-            width: 250,
+            width: 200,
             sorter: (a, b) => dayjs(a.updateTime).valueOf() - dayjs(b.updateTime).valueOf()
         },
         {
@@ -178,7 +181,8 @@ export function ConnectionDetail (props: IProps) {
         {
             title: t('操作'),
             dataIndex: 'operations',
-            width: 200,
+            width: 150,
+            fixed: 'right',
             render: (_, record) => {
                 const disabled = record.status === 1
                 return  <Space>
@@ -224,8 +228,9 @@ export function ConnectionDetail (props: IProps) {
                 <>
                     <Button type='primary' icon={<PlusOutlined />} onClick={on_create_subscribe}>{t('新增订阅')}</Button>
                     <Button 
-                        color='danger'
+                        danger
                         disabled={!selected_subscribes.length} 
+                        icon={<DeleteOutlined />}
                         onClick={async () => { 
                             await NiceModal.show(
                                 DeleteDescribeModal, 

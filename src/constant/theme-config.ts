@@ -14,7 +14,6 @@ export const ANT_DARK_CONFIG = {
     components: {
         Table: {
             headerBg: '#313131',
-            rowSelectedBg: undefined,
             headerColor: '#fff',
             colorText: '#fff',
             cellPaddingBlock: 10
