@@ -1,7 +1,7 @@
 import './index.sass'
 
 import { useEffect, useState } from 'react'
-import { Button, Empty, Form, Input, Modal, Radio, Result, Table, Typography, Upload, type UploadFile } from 'antd'
+import { Button, Empty, Form, Input, Modal, Popconfirm, Radio, Result, Table, Typography, Upload, type UploadFile } from 'antd'
 import { ReloadOutlined, default as Icon, InboxOutlined, CheckOutlined } from '@ant-design/icons'
 import { noop } from 'xshell/prototype.browser.js'
 import { log, vercmp } from 'xshell/utils.browser.js'
@@ -27,11 +27,7 @@ export function Plugins () {
     const [plugins, set_plugins] = useState<Plugin[]>([ ])
     const [plugin_nodes, set_plugin_nodes] = useState<PluginNode[]>([ ])
     
-    // 待同步的插件
-    const [plugin, set_plugin] = useState<Plugin>()
-    
     let installer = use_modal()
-    let syncer = use_modal()
     
     
     async function update_plugins (query?: string) {
@@ -45,6 +41,11 @@ export function Plugins () {
     }
     
     async function update () {
+        if (!script_defined) {
+            await model.ddb.execute(script)
+            script_defined = true
+        }
+        
         await Promise.all([
             update_plugins(),
             update_plugin_nodes()
@@ -90,12 +91,23 @@ export function Plugins () {
             
             <InstallModal installer={installer} update={update} />
             
-            <Button
-                className='load'
-                type='primary'
-                icon={<Icon component={SvgUpgrade} />}
-                onClick={installer.open}
-            >{t('加载插件')}</Button>
+            <Popconfirm
+                title={t('加载插件')}
+                description={t('确认加载插件至所选择的节点？')}
+                okText={t('加载')}
+                onConfirm={async () => {
+                    await Promise.all(
+                        plugins.map(async ({ selecteds, id }) => 
+                            selecteds?.length && load_plugin(id, selecteds.map(({ node }) => node))))
+                }}
+            >
+                <Button
+                    className='load'
+                    type='primary'
+                    icon={<Icon component={SvgUpgrade} />}
+                >{t('加载插件')}</Button>
+            </Popconfirm>
+            
             
             <Button
                 className='refresh'
@@ -193,8 +205,6 @@ export function Plugins () {
                         update_selecteds={update_selecteds} />
             }}
         />
-        
-        <SyncModal syncer={syncer} plugin={plugin} update_plugins={update_plugins} />
     </>
 }
 
@@ -281,8 +291,6 @@ function InstallModal ({
             set_status('uploading')
             
             try {
-                await define_script()
-                
                 const { originFileObj } = file
                 
                 await model.ddb.call('install_plugin', [
@@ -402,8 +410,6 @@ function SyncModal ({
             set_status('syncing')
             
             try {
-                await define_script()
-                
                 await model.ddb.invoke('sync_plugin', [plugin.id, src])
                 
                 await update_plugins()
@@ -462,17 +468,8 @@ let script_defined = false
 
 let version_without_patch: string
 
-async function define_script () {
-    if (!script_defined) {
-        await model.ddb.execute(script)
-        script_defined = true
-    }
-}
-
 
 async function get_plugins (query = '') {
-    await define_script()
-    
     // const all_nodes = model.nodes.filter(({ mode, state, isLeader }) => 
     //     mode !== NodeType.agent && 
     //     state === DdbNodeState.online && 
@@ -525,8 +522,6 @@ interface PluginNode {
 
 
 async function get_plugin_nodes () {
-    await define_script()
-    
     return log(
         t('节点插件:'),
         (await model.ddb.invoke<DdbTableData>('listPluginsByNodes'))
@@ -546,6 +541,13 @@ async function get_plugin_nodes () {
                 loaded: isLoaded,
                 loaded_version: loadedVersion
             })))
+}
+
+
+async function load_plugin (id: string, nodes: string[]) {
+    console.log(t('加载插件:'), id, nodes)
+    
+    await model.ddb.invoke<void>('loadPlugins', [id, nodes])
 }
 
 
