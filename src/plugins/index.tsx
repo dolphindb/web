@@ -92,6 +92,7 @@ export function Plugins () {
             dataSource={plugins}
             rowKey='id'
             pagination={false}
+            rowSelection={{ }}
             columns={[
                 {
                     title: t('插件 ID'),
@@ -155,6 +156,8 @@ function PluginNodesTable ({ plugin_nodes, id }: { plugin_nodes: PluginNode[], i
         })}
         rowSelection={{
             selectedRowKeys: selecteds,
+            
+            hideSelectAll: true,
             
             onChange (selecteds_, rows, info) {
                 set_selecteds(selecteds_ as string[])
