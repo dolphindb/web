@@ -333,3 +333,7 @@ def syncPlugin(pluginName, srcNodeAlias, destNodeAliases=[]) {
     
     rpc(srcNodeAlias, syncPluginInner, pluginName, destNodeAliases)
 }
+
+def getInstallableNodes() {
+    return exec name from rpc(getControllerAlias(), getClusterPerf{true}) where mode != 1
+}
