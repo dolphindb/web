@@ -424,7 +424,7 @@ function InstallModal ({
             
             <div className='submit-line'>
                 <Button className='install-button' type='primary' htmlType='submit' loading={loading}>{t('安装或更新')}</Button>
-                <Button disabled={loading}>{t('取消')}</Button>
+                <Button disabled={loading} onClick={installer.close}>{t('取消')}</Button>
             </div>
         </Form>
     </Modal>
