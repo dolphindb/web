@@ -68,6 +68,9 @@ export function Plugins () {
     // 计算 selected_keys 和 indeterminate 状态
     let selected_keys: string[] = [ ]
     
+    // 是否有选中的 plugin_node
+    let has_selected = false
+    
     plugins.forEach(plugin => {
         const { selecteds, id } = plugin
         
@@ -77,23 +80,17 @@ export function Plugins () {
         if (nselecteds && nselecteds === nall)
             selected_keys.push(id)
         
+        if (nselecteds)
+            has_selected = true
+        
         plugin.indeterminate = 0 < nselecteds && nselecteds < nall
     })
     
     return <>
         <div className='actions'>
-            <Button
-                className='install'
-                type='primary'
-                icon={<Icon component={SvgUpgrade} />}
-                onClick={installer.open}
-            >{t('安装插件')}</Button>
-            
-            <InstallModal installer={installer} update={update} />
-            
             <Popconfirm
                 title={t('加载插件')}
-                description={t('确认加载插件至所选择的节点？')}
+                description={t('确认加载插件至所选择的节点？（当前已加载的节点会被跳过）')}
                 okText={t('加载')}
                 onConfirm={async () => {
                     await Promise.all(
@@ -108,10 +105,18 @@ export function Plugins () {
                 <Button
                     className='load'
                     type='primary'
+                    disabled={!has_selected}
                     icon={<Icon component={SvgUpgrade} />}
                 >{t('加载插件')}</Button>
             </Popconfirm>
             
+            <Button
+                className='install'
+                icon={<Icon component={SvgUpgrade} />}
+                onClick={installer.open}
+            >{t('安装插件')}</Button>
+            
+            <InstallModal installer={installer} update={update} />
             
             <Button
                 className='refresh'
