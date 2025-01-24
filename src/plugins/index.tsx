@@ -1,12 +1,12 @@
 import './index.sass'
 
-import { useEffect, useState } from 'react'
-import { Button, Empty, Form, Input, Modal, Popconfirm, Radio, Result, Table, Typography, Upload, type UploadFile } from 'antd'
+import { useEffect, useRef, useState } from 'react'
+import { Button, Form, Input, Modal, Popconfirm, Radio, Result, Table, Typography, Upload, type UploadFile, type FormInstance, Checkbox } from 'antd'
 import { ReloadOutlined, default as Icon, InboxOutlined, CheckOutlined } from '@ant-design/icons'
 import { noop } from 'xshell/prototype.browser.js'
-import { log, vercmp } from 'xshell/utils.browser.js'
+import { delay, log, vercmp } from 'xshell/utils.browser.js'
 
-import { use_modal, type ModalController } from 'react-object-model/hooks.js'
+import { use_modal, use_rerender, type ModalController } from 'react-object-model/hooks.js'
 
 import { DdbBlob, type DdbTableData } from 'dolphindb/browser.js'
 
@@ -286,98 +286,147 @@ function InstallModal ({
     installer: ModalController
     update: () => Promise<void>
 }) {
-    let [file, set_file] = useState<UploadFile>()
-    let [status, set_status] = useState<'preparing' | 'uploading'>('preparing')
+    interface Fields {
+        method: 'online' | 'offline' | 'sync'
+        zip: UploadFile
+        nodes: string[]
+    }
+    
+    const rerender = use_rerender()
+    
+    let [loading, set_loading] = useState(false)
+    
+    let [installables, set_installables] = useState<string[]>([ ])
+    
+    useEffect(() => {
+        if (installer.visible)
+            (async () => {
+                const installables = await get_installable_nodes()
+                set_installables(installables)
+                rform.current.setFieldValue('nodes', installables)
+            })()
+    }, [installer.visible])
+    
+    // local
+    useEffect(() => {
+        (async () => {
+            await delay(200)
+            installer.open()
+        })()
+    }, [ ])
+    
+    let rform = useRef<FormInstance<Fields>>(undefined)
     
     return <Modal
-        title={t('安装或更新插件至集群内全部节点')}
+        title={t('安装或更新插件')}
         className='plugins-install-modal'
         open={installer.visible}
         onCancel={installer.close}
-        okText={t('安装或更新')}
+        footer={null}
         width='80%'
-        onOk={async () => {
-            set_status('uploading')
-            
-            try {
-                const { originFileObj } = file
-                
-                await model.ddb.call('install_plugin', [
-                    originFileObj.name,
-                    new DdbBlob(
-                        await originFileObj.arrayBuffer()
-                    )
-                ])
-                
-                await update()
-            } finally {
-                set_status('preparing')
-            }
-            
-            installer.close()
-        }}
-        
-        okButtonProps={{
-            disabled: !file,
-            loading: status === 'uploading'
-        }}
     >
-        <Upload.Dragger
-            showUploadList={false}
-            customRequest={noop}
-            accept='.zip'
-            onChange={({ file }) => {
-                set_file(file)
+        <Form<Fields>
+            ref={rform}
+            initialValues={{
+                method: 'online'
+            }}
+            onFinish={async ({ method, nodes, zip }) => {
+                
             }}
         >
-            <Result
-                className='result'
-                icon={<InboxOutlined />}
-                title={t('拖拽文件到这里，或点击后弹框选择文件')}
-            />
-        </Upload.Dragger>
-        
-        <Table<UploadFile>
-            className='files' 
-            size='middle'
-            sticky
-            pagination={false}
+            <Form.Item<Fields> name='method' label='安装方式' {...required}>
+                <Radio.Group
+                    className='methods'
+                    optionType='button'
+                    buttonStyle='solid'
+                    options={[
+                        { label: '在线安装', value: 'online' },
+                        { label: '离线安装', value: 'offline' },
+                        { label: '从某节点同步', value: 'sync' },
+                    ]}
+                />
+            </Form.Item>
             
-            dataSource={file ? [file] : [ ] as UploadFile[]}
-            rowKey='uid'
+            <Form.Item<Fields>
+                name='nodes'
+                label='安装节点'
+                {...required}
+            >
+                <Checkbox.Group options={installables} />
+            </Form.Item>
             
-            locale={{ emptyText: <Empty image={Empty.PRESENTED_IMAGE_SIMPLE} description={t('暂无文件')} />,  }}
+            <Form.Item<Fields>
+                className='zip-item'
+                name='zip'
+                label='插件 zip 包'
+                getValueProps={file => ({ fileList: file ? [file] : [ ] })}
+                getValueFromEvent={({ fileList }) => fileList[0]}
+            >
+                <Upload.Dragger
+                    className='zip-uploader'
+                    showUploadList={false}
+                    customRequest={noop}
+                    maxCount={1}
+                    accept='.zip'
+                >
+                    <Result
+                        className='result'
+                        icon={<InboxOutlined />}
+                        title={t('拖拽文件到这里，或点击后弹框选择文件')}
+                    />
+                </Upload.Dragger>
+            </Form.Item>
             
-            columns={[
-                {
-                    className: 'fp',
-                    key: 'fp',
-                    title: t('待上传文件'),
-                    render: (_, { originFileObj: { name: fp } }) => <>
-                        <img className='zip-icon' src={zip_png} />
-                        <span className='text'>{fp}</span>
-                    </>
-                },
-                {
-                    className: 'size',
-                    key: 'size',
-                    title: t('大小'),
-                    align: 'right',
-                    width: 130,
-                    render: (_, { size }) => size.to_fsize_str()
-                },
-                {
-                    className: 'actions',
-                    key: 'actions',
-                    title: t('操作'),
-                    width: 80,
-                    render: () =>
-                        status === 'preparing' && <Link onClick={() => {
-                            set_file(null)
-                        }}>{t('删除')}</Link>
-                }
-            ]}
-        />
+            <Form.Item<Fields> dependencies={['zip']}>
+                {form => {
+                    const zip: UploadFile = form.getFieldValue('zip')
+                    
+                    return <Table<UploadFile>
+                        className='files' 
+                        size='small'
+                        sticky
+                        pagination={false}
+                        dataSource={zip ? [zip] : [ ]}
+                        rowKey='uid'
+                        columns={[
+                            {
+                                className: 'fp',
+                                key: 'fp',
+                                title: t('待上传文件'),
+                                render: (_, { originFileObj: { name: fp } }) => <>
+                                    <img className='zip-icon' src={zip_png} />
+                                    <span className='text'>{fp}</span>
+                                </>
+                            },
+                            {
+                                className: 'size',
+                                key: 'size',
+                                title: t('大小'),
+                                align: 'right',
+                                width: 130,
+                                render: (_, { size }) => size.to_fsize_str()
+                            },
+                            {
+                                className: 'actions',
+                                key: 'actions',
+                                title: t('操作'),
+                                width: 80,
+                                render: () =>
+                                    !loading && <Link onClick={() => {
+                                        form.setFieldValue('zip', null)
+                                        rerender()
+                                    }}>{t('删除')}</Link>
+                            }
+                        ]}
+                    />
+                }}
+            </Form.Item>
+            
+            <div className='submit-line'>
+                <Button className='install-button' type='primary' htmlType='submit' loading={loading}>{t('安装或更新')}</Button>
+                <Button disabled={loading}>{t('取消')}</Button>
+            </div>
+        </Form>
     </Modal>
 }
 
@@ -557,6 +606,13 @@ async function load_plugin (id: string, nodes: string[]) {
     console.log(t('加载插件:'), id, nodes)
     
     await model.ddb.invoke<void>('loadPlugins', [id, nodes])
+}
+
+
+async function get_installable_nodes () {
+    return log(
+        t('获取插件可安装节点:'),
+        await model.ddb.invoke<string[]>('getInstallableNodes'))
 }
 
 
