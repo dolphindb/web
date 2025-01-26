@@ -462,8 +462,10 @@ function InstallModal ({
                 />
             </Form.Item>
             
-            <Form.Item<InstallFields> name='id' label={t('插件 ID')} {...required}>
-                <Input placeholder={t('如: zip')} />
+            <Form.Item<InstallFields> noStyle dependencies={['method']}>
+                { form => form.getFieldValue('method') !== 'offline' && <Form.Item<InstallFields> name='id' label={t('插件 ID')} {...required}>
+                    <Input placeholder={t('如: zip')} />
+                </Form.Item> }
             </Form.Item>
             
             <Form.Item<InstallFields>
