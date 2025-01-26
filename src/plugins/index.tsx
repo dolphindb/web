@@ -8,7 +8,7 @@ import { log } from 'xshell/utils.browser.js'
 
 import { use_modal, use_rerender, type ModalController } from 'react-object-model/hooks.js'
 
-import { DdbVectorChar, type DdbTableData } from 'dolphindb/browser.js'
+import { DdbVectorChar, DdbVectorString, type DdbTableData } from 'dolphindb/browser.js'
 
 import { t } from '@i18n/index.ts'
 import { required, switch_keys } from '@/utils.ts'
@@ -430,7 +430,7 @@ function InstallModal ({
                                 zip.fileName, 
                                 new DdbVectorChar(
                                     await zip.originFileObj.arrayBuffer()),
-                                nodes
+                                new DdbVectorString(nodes)
                             ])
                             break
                         
