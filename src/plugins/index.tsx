@@ -4,11 +4,11 @@ import { useEffect, useRef, useState } from 'react'
 import { Button, Form, Input, Modal, Popconfirm, Radio, Result, Table, Typography, Upload, type UploadFile, type FormInstance, Checkbox } from 'antd'
 import { ReloadOutlined, default as Icon, InboxOutlined, CheckOutlined } from '@ant-design/icons'
 import { noop } from 'xshell/prototype.browser.js'
-import { delay, log, vercmp } from 'xshell/utils.browser.js'
+import { log } from 'xshell/utils.browser.js'
 
 import { use_modal, use_rerender, type ModalController } from 'react-object-model/hooks.js'
 
-import { DdbBlob, type DdbTableData } from 'dolphindb/browser.js'
+import { DdbVectorChar, type DdbTableData } from 'dolphindb/browser.js'
 
 import { t } from '@i18n/index.ts'
 import { required, switch_keys } from '@/utils.ts'
@@ -24,30 +24,74 @@ const { Text, Link } = Typography
 
 
 export function Plugins () {
+    let { ddb } = model
+    
     const [plugins, set_plugins] = useState<Plugin[]>([ ])
     const [plugin_nodes, set_plugin_nodes] = useState<PluginNode[]>([ ])
+    
+    let rquery = useRef<string>('')
     
     let installer = use_modal()
     
     
     async function update_plugins (query?: string) {
+        let plugins = (await ddb.invoke<DdbTableData>('listPlugins'))
+            .data
+            .map<Plugin>(({ plugin, minInstalledVersion, installedNodes, toInstallNodes, loadedNodes, preloadedNodes }) => ({
+                id: plugin,
+                
+                min_version: minInstalledVersion,
+                
+                installeds: str2arr(installedNodes),
+                
+                installables: str2arr(toInstallNodes),
+                
+                loadeds: str2arr(loadedNodes),
+                
+                preloadeds: str2arr(preloadedNodes),
+            }))
+        
+        if (query)
+            plugins = plugins
+                .filter(({ id, min_version }) => 
+                    id.includes(query) || 
+                    min_version.includes(query))
+        
         set_plugins(
-            await get_plugins(query))
+            log(t('插件列表:'), plugins))
     }
+    
     
     async function update_plugin_nodes () {
-        set_plugin_nodes(
-            await get_plugin_nodes())
+        set_plugin_nodes(log(
+            t('节点插件:'),
+            (await ddb.invoke<DdbTableData>('listPluginsByNodes'))
+                .data
+                .map<PluginNode>(({
+                    plugin,
+                    node,
+                    isInstalled,
+                    installedVersion,
+                    isLoaded,
+                    loadedVersion,
+                }) => ({
+                    id: plugin,
+                    node,
+                    installed: isInstalled,
+                    installed_version: installedVersion,
+                    loaded: isLoaded,
+                    loaded_version: loadedVersion
+                }))))
     }
     
-    async function update () {
+    async function update (query?: string) {
         if (!script_defined) {
-            await model.ddb.execute(script)
+            await ddb.execute(script)
             script_defined = true
         }
         
         await Promise.all([
-            update_plugins(),
+            update_plugins(query),
             update_plugin_nodes()
         ])
     }
@@ -94,8 +138,15 @@ export function Plugins () {
                 okText={t('加载')}
                 onConfirm={async () => {
                     await Promise.all(
-                        plugins.map(async ({ selecteds, id }) => 
-                            selecteds?.length && load_plugin(id, selecteds.map(({ node }) => node))))
+                        plugins.map(async ({ selecteds, id }) =>
+                            selecteds?.length && ddb.invoke<void>('loadPlugins', log(
+                                    t('加载插件:'), 
+                                    [
+                                        id, 
+                                        selecteds.map(({ node }) => node)
+                                    ]))
+                            
+                        ))
                     
                     await update()
                     
@@ -116,17 +167,24 @@ export function Plugins () {
                 onClick={installer.open}
             >{t('安装插件')}</Button>
             
-            <InstallModal installer={installer} update={update} />
+            <InstallModal installer={installer} update={update} id={selected_keys[0]} />
             
             <Button
                 className='refresh'
                 icon={<ReloadOutlined/>}
                 onClick={async () => {
-                    await update()
+                    await update(rquery.current)
                 }}
             >{t('刷新')}</Button>
             
-            <Input.Search className='search' placeholder={t('输入关键字后按回车可搜索插件')} onSearch={ value => { throw new Error('todo') }} />
+            <Input.Search
+                className='search'
+                placeholder={t('输入关键字后按回车可搜索插件')}
+                allowClear
+                onSearch={async value => {
+                    rquery.current = value
+                    await update(value)
+                }} />
         </div>
         
         <Table
@@ -282,6 +340,8 @@ function PluginNodesTable ({
 interface InstallFields {
     method: 'online' | 'offline' | 'sync'
     
+    id: string
+    
     nodes: string[]
     
     // offline
@@ -299,11 +359,15 @@ interface InstallFields {
 
 function InstallModal ({
     installer,
-    update
+    update,
+    id
 }: {
     installer: ModalController
     update: () => Promise<void>
+    id?: string
 }) {
+    let { ddb } = model
+    
     const rerender = use_rerender()
     
     let [loading, set_loading] = useState(false)
@@ -315,21 +379,24 @@ function InstallModal ({
             (async () => {
                 const installables = log(
                     t('获取插件可安装节点:'),
-                    await model.ddb.invoke<string[]>('getInstallableNodes'))
+                    await ddb.invoke<string[]>('getInstallableNodes'))
                 
                 set_installables(installables)
+                
+                if (id)
+                    rform.current.setFieldValue('id', id)
                 
                 rform.current.setFieldValue('nodes', installables)
             })()
     }, [installer.visible])
     
     // local
-    useEffect(() => {
-        (async () => {
-            await delay(200)
-            installer.open()
-        })()
-    }, [ ])
+    // useEffect(() => {
+    //     (async () => {
+    //         await delay(200)
+    //         installer.open()
+    //     })()
+    // }, [ ])
     
     let rform = useRef<FormInstance<InstallFields>>(undefined)
     
@@ -344,15 +411,38 @@ function InstallModal ({
         <Form<InstallFields>
             ref={rform}
             initialValues={{
-                method: 'online'
+                method: 'online',
+                id
             }}
-            onFinish={async ({ method, nodes, zip, server, source, version }) => {
-                console.log(method, nodes, zip)
+            onFinish={async ({ method, id, nodes, zip, server, source, version }) => {
+                console.log(t('安装插件:'), method, id, nodes)
                 
-                switch (method) {
-                    case 'online':
+                set_loading(true)
+                
+                try {
+                    switch (method) {
+                        case 'online':
+                            await ddb.invoke('installPluginOnline', [id, version, server, nodes])
+                            break
+                            
+                        case 'offline':
+                            await ddb.invoke('installPluginOffline', [
+                                zip.fileName, 
+                                new DdbVectorChar(
+                                    await zip.originFileObj.arrayBuffer()),
+                                nodes
+                            ])
+                            break
                         
+                        case 'sync':
+                            await ddb.invoke('syncPlugin', [id, source, nodes])
+                            break
+                    }
+                } finally {
+                    set_loading(false)
                 }
+                
+                model.message.success(t('插件 {{plugin}} 安装成功', { plugin: id }))
                 
                 installer.close()
                 
@@ -370,6 +460,10 @@ function InstallModal ({
                         { label: '从某节点同步', value: 'sync' },
                     ]}
                 />
+            </Form.Item>
+            
+            <Form.Item<InstallFields> name='id' label={t('插件 ID')} {...required}>
+                <Input placeholder={t('如: zip')} />
             </Form.Item>
             
             <Form.Item<InstallFields>
@@ -482,76 +576,6 @@ function InstallModal ({
 }
 
 
-function SyncModal ({
-    syncer,
-    plugin,
-    update_plugins
-}: {
-    syncer: ModalController
-    plugin: Plugin
-    update_plugins: () => Promise<void>
-}) {
-    interface Fields {
-        src: string
-    }
-    
-    let [form] = Form.useForm<Fields>()
-    
-    let [status, set_status] = useState<'preparing' | 'syncing'>('preparing')
-    
-    if (!plugin)
-        return null
-    
-    // @ts-ignore
-    const sorted_nodes = plugin.nodes.toSorted(
-        (l, r) => -vercmp(l.version, r.version, true))
-    
-    return <Modal
-        title={t('同步插件至集群内其他节点')}
-        className='plugins-sync-modal'
-        open={syncer.visible}
-        onCancel={syncer.close}
-        okText={t('同步')}
-        width='80%'
-        onOk={async () => {
-            const { src } = await form.validateFields()
-            
-            set_status('syncing')
-            
-            try {
-                await model.ddb.invoke('sync_plugin', [plugin.id, src])
-                
-                await update_plugins()
-            } finally {
-                set_status('preparing')
-            }
-            
-            syncer.close()
-        }}
-        okButtonProps={{
-            loading: status === 'syncing'
-        }}
-    >
-        <Form<Fields>
-            className='sync-form'
-            name='sync'
-            form={form}
-            initialValues={{
-                // 版本最大的节点
-                src: sorted_nodes[0].node
-            }}
-        >
-            <Form.Item<Fields> name='src' label={t('插件来源节点')} {...required}>
-                <Radio.Group options={sorted_nodes.map(({ node, version }) => ({
-                    label: `${node} (${version})`,
-                    value: node
-                }))} />
-            </Form.Item>
-        </Form>
-    </Modal>
-}
-
-
 interface Plugin {
     id: string
     
@@ -578,42 +602,6 @@ let script_defined = false
 let version_without_patch: string
 
 
-async function get_plugins (query = '') {
-    // const all_nodes = model.nodes.filter(({ mode, state, isLeader }) => 
-    //     mode !== NodeType.agent && 
-    //     state === DdbNodeState.online && 
-    //     (mode !== NodeType.controller || mode === NodeType.controller && isLeader)  // 仅 leader 节点能安装
-    // ).map(({ name }) => name)
-    
-    let plugins = (await model.ddb.invoke<DdbTableData>('listPlugins'))
-        .data
-        .map<Plugin>(({ plugin, minInstalledVersion, installedNodes, toInstallNodes, loadedNodes, preloadedNodes }) => ({
-            id: plugin,
-            
-            min_version: minInstalledVersion,
-            
-            installeds: str2arr(installedNodes),
-            
-            installables: str2arr(toInstallNodes),
-            
-            loadeds: str2arr(loadedNodes),
-            
-            preloadeds: str2arr(preloadedNodes),
-        }))
-    
-    // if (query)
-    //     plugins = plugins
-    //         .filter(({ id, min_version, nodes }) => 
-    //             id.includes(query) || 
-    //             min_version.includes(query) || 
-    //             nodes.map(({ node }) => node)
-    //                 .find(node => node.includes(query))
-    //         )
-    
-    return log(t('插件列表:'), plugins)
-}
-
-
 interface PluginNode {
     id: string
     
@@ -628,37 +616,6 @@ interface PluginNode {
     
     loaded_version: string
 }
-
-
-async function get_plugin_nodes () {
-    return log(
-        t('节点插件:'),
-        (await model.ddb.invoke<DdbTableData>('listPluginsByNodes'))
-            .data
-            .map<PluginNode>(({
-                plugin,
-                node,
-                isInstalled,
-                installedVersion,
-                isLoaded,
-                loadedVersion,
-            }) => ({
-                id: plugin,
-                node,
-                installed: isInstalled,
-                installed_version: installedVersion,
-                loaded: isLoaded,
-                loaded_version: loadedVersion
-            })))
-}
-
-
-async function load_plugin (id: string, nodes: string[]) {
-    console.log(t('加载插件:'), id, nodes)
-    
-    await model.ddb.invoke<void>('loadPlugins', [id, nodes])
-}
-
 
 function get_plugin_nodes_by_id (id: string, plugin_nodes: PluginNode[]) {
     return plugin_nodes.filter(({ id: _id }) => id === _id)
