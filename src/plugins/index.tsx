@@ -1,10 +1,11 @@
 import './index.sass'
 
 import { useEffect, useRef, useState } from 'react'
-import { Button, Form, Input, Modal, Popconfirm, Radio, Result, Table, Typography, Upload, type UploadFile, type FormInstance, Checkbox } from 'antd'
+import { Button, Form, Input, Modal, Popconfirm, Radio, Result, Table, Typography, Upload, type UploadFile, 
+    type FormInstance, Checkbox, Select } from 'antd'
 import { ReloadOutlined, default as Icon, InboxOutlined, CheckOutlined } from '@ant-design/icons'
 import { noop } from 'xshell/prototype.browser.js'
-import { log } from 'xshell/utils.browser.js'
+import { log, vercmp } from 'xshell/utils.browser.js'
 
 import { use_modal, use_rerender, type ModalController } from 'react-object-model/hooks.js'
 
@@ -167,7 +168,12 @@ export function Plugins () {
                 onClick={installer.open}
             >{t('安装插件')}</Button>
             
-            <InstallModal installer={installer} update={update} id={selected_keys[0]} />
+            <InstallModal
+                installer={installer}
+                update={update}
+                id={selected_keys[0]}
+                plugins={plugins}
+                plugin_nodes={plugin_nodes} />
             
             <Button
                 className='refresh'
@@ -360,11 +366,15 @@ interface InstallFields {
 function InstallModal ({
     installer,
     update,
-    id
+    id,
+    plugins,
+    plugin_nodes
 }: {
     installer: ModalController
     update: () => Promise<void>
     id?: string
+    plugins: Plugin[]
+    plugin_nodes: PluginNode[]
 }) {
     let { ddb } = model
     
@@ -411,9 +421,9 @@ function InstallModal ({
         <Form<InstallFields>
             ref={rform}
             initialValues={{
-                method: 'online',
+                method: 'offline',
                 id
-            }}
+            } satisfies Partial<InstallFields>}
             onFinish={async ({ method, id, nodes, zip, server, source, version }) => {
                 console.log(t('安装插件:'), method, id, nodes)
                 
@@ -421,10 +431,6 @@ function InstallModal ({
                 
                 try {
                     switch (method) {
-                        case 'online':
-                            await ddb.invoke('installPluginOnline', [id, version, server, nodes])
-                            break
-                            
                         case 'offline': {
                             const { originFileObj: file } = zip
                             
@@ -437,6 +443,10 @@ function InstallModal ({
                             
                             break
                         }
+                        
+                        case 'online':
+                            await ddb.invoke('installPluginOnline', [id, version, server, nodes])
+                            break
                         
                         case 'sync':
                             await ddb.invoke('syncPlugin', [id, source, nodes])
@@ -459,17 +469,31 @@ function InstallModal ({
                     optionType='button'
                     buttonStyle='solid'
                     options={[
-                        { label: '在线安装', value: 'online' },
                         { label: '离线安装', value: 'offline' },
+                        { label: '在线安装', value: 'online' },
                         { label: '从某节点同步', value: 'sync' },
                     ]}
                 />
             </Form.Item>
             
             <Form.Item<InstallFields> noStyle dependencies={['method']}>
-                { form => form.getFieldValue('method') !== 'offline' && <Form.Item<InstallFields> name='id' label={t('插件 ID')} {...required}>
-                    <Input placeholder={t('如: zip')} />
-                </Form.Item> }
+                { form => {
+                    const method: InstallFields['method'] = form.getFieldValue('method')
+                    
+                    if (method === 'offline')
+                        return null
+                    
+                    return <Form.Item<InstallFields> name='id' label={t('插件 ID')} {...required}>
+                        { method === 'online'
+                            ? <Input className='form-input' placeholder={t('如: zip')} /> 
+                            : <Select
+                                showSearch
+                                allowClear
+                                className='select-plugin-id'
+                                placeholder={t('如: zip')}
+                                options={plugins.map(({ id }) => ({ label: id, value: id }))} /> }
+                    </Form.Item>
+                }}
             </Form.Item>
             
             <Form.Item<InstallFields>
@@ -480,20 +504,9 @@ function InstallModal ({
                 <Checkbox.Group options={installables} />
             </Form.Item>
             
-            <Form.Item<InstallFields> noStyle dependencies={['method']}>{
+            <Form.Item<InstallFields> noStyle dependencies={['method', 'id']}>{
                 form => {
                     switch (form.getFieldValue('method') as InstallFields['method']) {
-                        case 'online':
-                            return <>
-                                <Form.Item<InstallFields> name='version' label='插件版本'>
-                                    <Input placeholder='选填，默认安装和当前版本匹配的最新版' />
-                                </Form.Item>
-                                
-                                <Form.Item<InstallFields> name='server' label='插件服务器地址'>
-                                    <Input placeholder='选填，参考 installPlugin 函数' />
-                                </Form.Item>
-                            </>
-                        
                         case 'offline':
                             return <>
                                 <Form.Item<InstallFields>
@@ -565,10 +578,32 @@ function InstallModal ({
                                 </Form.Item>
                             </>
                         
-                        case 'sync':
+                        case 'online':
+                            return <>
+                                <Form.Item<InstallFields> name='version' label='插件版本'>
+                                    <Input className='form-input' placeholder='选填，默认安装和当前版本匹配的最新版' />
+                                </Form.Item>
+                                
+                                <Form.Item<InstallFields> name='server' label='插件服务器地址'>
+                                    <Input className='form-input' placeholder='选填，参考 installPlugin 函数' />
+                                </Form.Item>
+                            </>
+                        
+                        case 'sync': {
+                            const id: InstallFields['id'] = form.getFieldValue('id')
+                            
                             return <Form.Item<InstallFields> name='source' label='源节点' {...required}>
-                                <Radio.Group options={installables} />
+                                <Radio.Group options={id 
+                                    ? get_plugin_nodes_by_id(id, plugin_nodes)
+                                        .filter(({ installed }) => installed)
+                                        .sort(({ installed_version: l }, { installed_version: r }) => -vercmp(l, r, true))
+                                        .map(({ node, installed_version }) => ({
+                                            label: `${node}  (v${installed_version})`,
+                                            value: node
+                                        }))
+                                    : [ ]} />
                             </Form.Item>
+                        }
                     }
                 }
             }</Form.Item>
