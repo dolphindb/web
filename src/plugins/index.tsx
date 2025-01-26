@@ -2,7 +2,7 @@ import './index.sass'
 
 import { useEffect, useRef, useState } from 'react'
 import { Button, Form, Input, Modal, Popconfirm, Radio, Result, Table, Typography, Upload, type UploadFile, 
-    type FormInstance, Checkbox, Select } from 'antd'
+    type FormInstance, Checkbox, Select, Tooltip} from 'antd'
 import { ReloadOutlined, default as Icon, InboxOutlined, CheckOutlined } from '@ant-design/icons'
 import { noop } from 'xshell/prototype.browser.js'
 import { log, vercmp } from 'xshell/utils.browser.js'
@@ -154,12 +154,14 @@ export function Plugins () {
                     model.message.success(t('插件加载成功'))
                 }}
             >
-                <Button
-                    className='load'
-                    type='primary'
-                    disabled={!has_selected}
-                    icon={<Icon component={SvgUpgrade} />}
-                >{t('加载插件')}</Button>
+                <Tooltip title={t('在下方表格中选择需要加载的插件，以及节点')}>
+                    <Button
+                        className='load'
+                        type='primary'
+                        disabled={!has_selected}
+                        icon={<Icon component={SvgUpgrade} />}
+                    >{t('加载插件')}</Button>
+                </Tooltip>
             </Popconfirm>
             
             <Button
