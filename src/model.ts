@@ -13,8 +13,8 @@ import { check, filter_values, strcmp } from 'xshell/utils.browser.js'
 import { request } from 'xshell/net.browser.js'
 
 import {
-    DDB, SqlStandard, DdbInt, DdbLong, type InspectOptions,
-    DdbDatabaseError, type DdbObj, type DdbTableData, DdbDict,
+    DDB, DdbObj, SqlStandard, DdbInt, DdbLong, type InspectOptions,
+    DdbDatabaseError, type DdbTableData, DdbDict,
 } from 'dolphindb/browser.js'
 
 import type { Docs } from 'dolphindb/docs.js'
@@ -1016,7 +1016,8 @@ export class DdbModel extends Model<DdbModel> {
                 
                 case 'function':
                     s += t('调用 {{func}} 函数时出错，参数为:\n', { func: error.options.func }) +
-                        options.args.map(arg => arg.toString({ quote: true, grouping: false, nullstr: true }))
+                        DdbObj.to_ddbobjs(options.args || [ ])
+                            .map(arg => arg.toString({ quote: true, grouping: false, nullstr: true }))
                             .join_lines()
                     break
             }
