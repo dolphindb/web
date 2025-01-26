@@ -279,6 +279,24 @@ function PluginNodesTable ({
 }
 
 
+interface InstallFields {
+    method: 'online' | 'offline' | 'sync'
+    
+    nodes: string[]
+    
+    // offline
+    zip?: UploadFile
+    
+    
+    // online
+    version?: string
+    server?: string
+    
+    // sync
+    source?: string
+}
+
+
 function InstallModal ({
     installer,
     update
@@ -286,12 +304,6 @@ function InstallModal ({
     installer: ModalController
     update: () => Promise<void>
 }) {
-    interface Fields {
-        method: 'online' | 'offline' | 'sync'
-        zip: UploadFile
-        nodes: string[]
-    }
-    
     const rerender = use_rerender()
     
     let [loading, set_loading] = useState(false)
@@ -301,8 +313,12 @@ function InstallModal ({
     useEffect(() => {
         if (installer.visible)
             (async () => {
-                const installables = await get_installable_nodes()
+                const installables = log(
+                    t('获取插件可安装节点:'),
+                    await model.ddb.invoke<string[]>('getInstallableNodes'))
+                
                 set_installables(installables)
+                
                 rform.current.setFieldValue('nodes', installables)
             })()
     }, [installer.visible])
@@ -315,7 +331,7 @@ function InstallModal ({
         })()
     }, [ ])
     
-    let rform = useRef<FormInstance<Fields>>(undefined)
+    let rform = useRef<FormInstance<InstallFields>>(undefined)
     
     return <Modal
         title={t('安装或更新插件')}
@@ -325,16 +341,25 @@ function InstallModal ({
         footer={null}
         width='80%'
     >
-        <Form<Fields>
+        <Form<InstallFields>
             ref={rform}
             initialValues={{
                 method: 'online'
             }}
-            onFinish={async ({ method, nodes, zip }) => {
+            onFinish={async ({ method, nodes, zip, server, source, version }) => {
+                console.log(method, nodes, zip)
                 
+                switch (method) {
+                    case 'online':
+                        
+                }
+                
+                installer.close()
+                
+                await update()
             }}
         >
-            <Form.Item<Fields> name='method' label='安装方式' {...required}>
+            <Form.Item<InstallFields> name='method' label='安装方式' {...required}>
                 <Radio.Group
                     className='methods'
                     optionType='button'
@@ -347,80 +372,106 @@ function InstallModal ({
                 />
             </Form.Item>
             
-            <Form.Item<Fields>
+            <Form.Item<InstallFields>
                 name='nodes'
-                label='安装节点'
+                label='目标节点'
                 {...required}
             >
                 <Checkbox.Group options={installables} />
             </Form.Item>
             
-            <Form.Item<Fields>
-                className='zip-item'
-                name='zip'
-                label='插件 zip 包'
-                getValueProps={file => ({ fileList: file ? [file] : [ ] })}
-                getValueFromEvent={({ fileList }) => fileList[0]}
-            >
-                <Upload.Dragger
-                    className='zip-uploader'
-                    showUploadList={false}
-                    customRequest={noop}
-                    maxCount={1}
-                    accept='.zip'
-                >
-                    <Result
-                        className='result'
-                        icon={<InboxOutlined />}
-                        title={t('拖拽文件到这里，或点击后弹框选择文件')}
-                    />
-                </Upload.Dragger>
-            </Form.Item>
-            
-            <Form.Item<Fields> dependencies={['zip']}>
-                {form => {
-                    const zip: UploadFile = form.getFieldValue('zip')
-                    
-                    return <Table<UploadFile>
-                        className='files' 
-                        size='small'
-                        sticky
-                        pagination={false}
-                        dataSource={zip ? [zip] : [ ]}
-                        rowKey='uid'
-                        columns={[
-                            {
-                                className: 'fp',
-                                key: 'fp',
-                                title: t('待上传文件'),
-                                render: (_, { originFileObj: { name: fp } }) => <>
-                                    <img className='zip-icon' src={zip_png} />
-                                    <span className='text'>{fp}</span>
-                                </>
-                            },
-                            {
-                                className: 'size',
-                                key: 'size',
-                                title: t('大小'),
-                                align: 'right',
-                                width: 130,
-                                render: (_, { size }) => size.to_fsize_str()
-                            },
-                            {
-                                className: 'actions',
-                                key: 'actions',
-                                title: t('操作'),
-                                width: 80,
-                                render: () =>
-                                    !loading && <Link onClick={() => {
-                                        form.setFieldValue('zip', null)
-                                        rerender()
-                                    }}>{t('删除')}</Link>
-                            }
-                        ]}
-                    />
-                }}
-            </Form.Item>
+            <Form.Item<InstallFields> noStyle dependencies={['method']}>{
+                form => {
+                    switch (form.getFieldValue('method') as InstallFields['method']) {
+                        case 'online':
+                            return <>
+                                <Form.Item<InstallFields> name='version' label='插件版本'>
+                                    <Input placeholder='选填，默认安装和当前版本匹配的最新版' />
+                                </Form.Item>
+                                
+                                <Form.Item<InstallFields> name='server' label='插件服务器地址'>
+                                    <Input placeholder='选填，参考 installPlugin 函数' />
+                                </Form.Item>
+                            </>
+                        
+                        case 'offline':
+                            return <>
+                                <Form.Item<InstallFields>
+                                    className='zip-item'
+                                    name='zip'
+                                    label='插件 zip 包'
+                                    getValueProps={file => ({ fileList: file ? [file] : [ ] })}
+                                    getValueFromEvent={({ fileList }) => fileList[0]}
+                                    {...required}
+                                >
+                                    <Upload.Dragger
+                                        className='zip-uploader'
+                                        showUploadList={false}
+                                        customRequest={noop}
+                                        maxCount={1}
+                                        accept='.zip'
+                                    >
+                                        <Result
+                                            className='result'
+                                            icon={<InboxOutlined />}
+                                            title={t('拖拽文件到这里，或点击后弹框选择文件')}
+                                        />
+                                    </Upload.Dragger>
+                                </Form.Item>
+                                
+                                <Form.Item<InstallFields> dependencies={['zip']}>
+                                    {form => {
+                                        const zip: UploadFile = form.getFieldValue('zip')
+                                        
+                                        return <Table<UploadFile>
+                                            className='files' 
+                                            size='small'
+                                            sticky
+                                            pagination={false}
+                                            dataSource={zip ? [zip] : [ ]}
+                                            rowKey='uid'
+                                            columns={[
+                                                {
+                                                    className: 'fp',
+                                                    key: 'fp',
+                                                    title: t('待上传文件'),
+                                                    render: (_, { originFileObj: { name: fp } }) => <>
+                                                        <img className='zip-icon' src={zip_png} />
+                                                        <span className='text'>{fp}</span>
+                                                    </>
+                                                },
+                                                {
+                                                    className: 'size',
+                                                    key: 'size',
+                                                    title: t('大小'),
+                                                    align: 'right',
+                                                    width: 130,
+                                                    render: (_, { size }) => size.to_fsize_str()
+                                                },
+                                                {
+                                                    className: 'actions',
+                                                    key: 'actions',
+                                                    title: t('操作'),
+                                                    width: 80,
+                                                    render: () =>
+                                                        !loading && <Link onClick={() => {
+                                                            form.setFieldValue('zip', null)
+                                                            rerender()
+                                                        }}>{t('删除')}</Link>
+                                                }
+                                            ]}
+                                        />
+                                    }}
+                                </Form.Item>
+                            </>
+                        
+                        case 'sync':
+                            return <Form.Item<InstallFields> name='source' label='源节点' {...required}>
+                                <Radio.Group options={installables} />
+                            </Form.Item>
+                    }
+                }
+            }</Form.Item>
             
             <div className='submit-line'>
                 <Button className='install-button' type='primary' htmlType='submit' loading={loading}>{t('安装或更新')}</Button>
@@ -606,13 +657,6 @@ async function load_plugin (id: string, nodes: string[]) {
     console.log(t('加载插件:'), id, nodes)
     
     await model.ddb.invoke<void>('loadPlugins', [id, nodes])
-}
-
-
-async function get_installable_nodes () {
-    return log(
-        t('获取插件可安装节点:'),
-        await model.ddb.invoke<string[]>('getInstallableNodes'))
 }
 
 
