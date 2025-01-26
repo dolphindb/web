@@ -20,8 +20,11 @@ export function DashboardEditor ({ widget }: { widget: Widget }) {
         (widgets.find(({ id }) => id === widget.id).config as IEditorConfig).code = code
         
         // server 的 widgets 更新
-        config.data.canvas.widgets.find(({ id }) => id === widget.id).config.code = code
-        await dashboard.update_dashboard_config(config)
+        const server_widget = config.data.canvas.widgets.find(({ id }) => id === widget.id)
+        if (server_widget) {
+            server_widget.config.code = code
+            await dashboard.update_dashboard_config(config)
+        }
     }
     
     const save_debounced = useMemo(() => debounce(save, 1000, { leading: false, trailing: true }), [ ])

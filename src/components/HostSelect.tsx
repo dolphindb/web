@@ -28,7 +28,7 @@ export function HostSelect ({ size = 'small' }: { size?: SizeType }) {
             },
             {
                 label: '定时巡检',
-                value: '192.168.100.44:7602'
+                value: '192.168.100.44:7600'
             },
             {
                 label: '外汇交易中心',
