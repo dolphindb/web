@@ -425,14 +425,18 @@ function InstallModal ({
                             await ddb.invoke('installPluginOnline', [id, version, server, nodes])
                             break
                             
-                        case 'offline':
+                        case 'offline': {
+                            const { originFileObj: file } = zip
+                            
                             await ddb.invoke('installPluginOffline', [
-                                zip.fileName, 
+                                file.name, 
                                 new DdbVectorChar(
-                                    await zip.originFileObj.arrayBuffer()),
+                                    await file.arrayBuffer()),
                                 new DdbVectorString(nodes)
                             ])
+                            
                             break
+                        }
                         
                         case 'sync':
                             await ddb.invoke('syncPlugin', [id, source, nodes])
