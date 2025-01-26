@@ -5,7 +5,7 @@ import { Button, Form, Input, Modal, Popconfirm, Radio, Result, Table, Typograph
     type FormInstance, Checkbox, Select } from 'antd'
 import { ReloadOutlined, default as Icon, InboxOutlined, CheckOutlined } from '@ant-design/icons'
 import { noop } from 'xshell/prototype.browser.js'
-import { log } from 'xshell/utils.browser.js'
+import { log, vercmp } from 'xshell/utils.browser.js'
 
 import { use_modal, use_rerender, type ModalController } from 'react-object-model/hooks.js'
 
@@ -485,7 +485,7 @@ function InstallModal ({
                     
                     return <Form.Item<InstallFields> name='id' label={t('插件 ID')} {...required}>
                         { method === 'online'
-                            ? <Input placeholder={t('如: zip')} /> 
+                            ? <Input className='form-input' placeholder={t('如: zip')} /> 
                             : <Select
                                 showSearch
                                 allowClear
@@ -581,11 +581,11 @@ function InstallModal ({
                         case 'online':
                             return <>
                                 <Form.Item<InstallFields> name='version' label='插件版本'>
-                                    <Input placeholder='选填，默认安装和当前版本匹配的最新版' />
+                                    <Input className='form-input' placeholder='选填，默认安装和当前版本匹配的最新版' />
                                 </Form.Item>
                                 
                                 <Form.Item<InstallFields> name='server' label='插件服务器地址'>
-                                    <Input placeholder='选填，参考 installPlugin 函数' />
+                                    <Input className='form-input' placeholder='选填，参考 installPlugin 函数' />
                                 </Form.Item>
                             </>
                         
@@ -594,7 +594,13 @@ function InstallModal ({
                             
                             return <Form.Item<InstallFields> name='source' label='源节点' {...required}>
                                 <Radio.Group options={id 
-                                    ? get_plugin_nodes_by_id(id, plugin_nodes).map(({ node }) => node)
+                                    ? get_plugin_nodes_by_id(id, plugin_nodes)
+                                        .filter(({ installed }) => installed)
+                                        .sort(({ installed_version: l }, { installed_version: r }) => -vercmp(l, r, true))
+                                        .map(({ node, installed_version }) => ({
+                                            label: `${node}  (v${installed_version})`,
+                                            value: node
+                                        }))
                                     : [ ]} />
                             </Form.Item>
                         }
