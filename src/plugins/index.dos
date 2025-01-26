@@ -308,7 +308,7 @@ def syncPlugin(pluginName, srcNodeAlias, destNodeAliases=[]) {
             // 需要先删除目标插件文件夹，详见 WEB-1042
             rmDirIfExists = def(dir) {
                 if (exists(dir)) {
-                    rm(dir)
+                    rmdir(dir, true)
                 }
             }
 
