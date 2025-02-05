@@ -5854,5 +5854,42 @@
     },
     "自动": {
         "en": "auto"
+    },
+    
+    "会话管理": {
+        "en": "Session Management"
+    },
+    "会话（ID: {{id}}）关闭成功": {
+        "en": "Session (ID {{id}}) closed successfully."
+    },
+    "文档说明": {
+        "en": "Documentation"
+    },
+    "用户会话": {
+        "en": "Session"
+    },
+    "占用内存": {
+        "en": "Memory Usage"
+    },
+    "客户端端口号": {
+        "en": "Port"
+    },
+    "会话创建时间": {
+        "en": "Creation Time"
+    },
+    "最近一次执行时间": {
+        "en": "Last Execution"
+    },
+    "确定要关闭此会话（ID: {{id}}）吗？": {
+        "en": "Are you sure you want to close this session (ID: {{id}})?"
+    },
+    "缓存占用情况": {
+        "en": "Cache Usage"
+    },
+    "缓存类型": {
+        "en": "Cache Type"
+    },
+    "占用内存/未处理的消息数": {
+        "en": "Memory Usage / Unprocessed Message Count"
     }
 }
