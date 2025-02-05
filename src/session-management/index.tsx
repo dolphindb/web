@@ -56,7 +56,7 @@ export function SessionManagement () {
     const { data: { user_sessions, other_sessions } = { user_sessions: [ ], other_sessions: [ ] }, isLoading, mutate } = useSWR(
         admin ? 'session_list' : null,
         async () => {
-            const { data = [ ] } = (is_controller 
+            const res = is_controller 
                 ? await model.ddb.execute<{ data: SessionItem[] }>(`
                     nodes=exec name from rpc(getControllerAlias(),getClusterPerf) where mode not in (1,2) and state=1
                     nodesSessionMemoryStat=pnodeRun(getSessionMemoryStat,nodes)
@@ -64,7 +64,8 @@ export function SessionManagement () {
                     update crtSessionMemoryStat set node=getControllerAlias()
                     nodesSessionMemoryStat.append!(crtSessionMemoryStat)
                 `)
-                : await model.ddb.invoke<{ data: SessionItem[] }>('getSessionMemoryStat')) ?? { }
+                : await model.ddb.invoke<{ data: SessionItem[] }>('getSessionMemoryStat')
+            const data = res?.data ?? [ ]
             let user_sessions: SessionItem[] = [ ]
             let other_sessions: SessionItem[] = [ ]
             data.forEach(item => item.sessionId ? user_sessions.push(item) : other_sessions.push(item))
