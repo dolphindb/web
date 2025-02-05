@@ -23,7 +23,7 @@ import { shell } from './model.js'
 export function Terminal () {
     const { collapsed } = model.use(['collapsed'])
     
-    const rterminal = useRef<HTMLDivElement>()
+    const rterminal = useRef<HTMLDivElement>(undefined)
     
     const [font_loaded, set_font_loaded] = useState(false)
     
@@ -83,6 +83,9 @@ export function Terminal () {
             
             term.loadAddon(shell.fit_addon = new FitAddon())
             
+            if (document.createElement('canvas').getContext('webgl2'))
+                term.loadAddon(new WebglAddon())
+            
             term.attachCustomKeyEventHandler(event => {
                 const is_win = navigator.platform.includes('Win')
                 const is_linux = navigator.platform.includes('Linux')
@@ -95,7 +98,6 @@ export function Terminal () {
             
             term.open(rterminal.current)
             
-            term.loadAddon(new WebglAddon())
             
             model.ddb.listeners.push(printer)
             

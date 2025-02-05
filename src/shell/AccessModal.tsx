@@ -66,7 +66,7 @@ export const AccessModal = NiceModal.create<Props>(({ database }) => {
     const items = [
         {
             key: database.key,
-            label: `数据库 ${database.key}`,
+            label: t('数据库 {{db_name}}', { db_name: database.key }),
             children: <Table 
                         columns={cols}
                         dataSource={db_rows.map(row => ({ ...row, users: row.users.join(',') }))}
@@ -74,7 +74,7 @@ export const AccessModal = NiceModal.create<Props>(({ database }) => {
         },
         ...database.children.map(tb => ({
             key: tb.key,
-            label: `数据表 ${tb.key}`,
+            label: t('数据表 {{tb_name}}', { tb_name: tb.key }),
             children: <TableAccess tb={tb.key.slice(0, -1)}/>
         }))
     ]
@@ -123,8 +123,8 @@ function TableAccess ({
     }, [ ])
     
     return <Table 
-                columns={cols}
-                dataSource={tb_rows.map(row => ({ ...row, users: row.users.join(',') }))}    
-                pagination={false}
-                />
+        columns={cols}
+        dataSource={tb_rows.map(row => ({ ...row, users: row.users.join(',') }))}    
+        pagination={false}
+    />
 }

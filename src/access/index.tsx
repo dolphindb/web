@@ -1,51 +1,78 @@
 import './index.sass'
 
-import { useEffect } from 'react'
+import { useRoutes, Navigate } from 'react-router'
+
 import { Result } from 'antd'
 
-import { model } from '../model.js'
+import { t } from '@i18n/index.ts'
 
-import { t } from '../../i18n/index.js'
+import { model } from '@/model.ts'
 
-import { access } from './model.js'
-
-import { AccessView } from './AccessView.js'
-import { GroupList } from './GroupList.js'
-import { UserList } from './UserList.js'
+import { GroupList } from './GroupList.tsx'
+import { UserList } from './UserList.tsx'
+import { AccessTabs } from './AccessTabs.tsx'
 
 
-export function User () {
-    return <Access role='user' />
-}
-
-export function Group () {
-    return <Access role='group' />
-}
-
-
-function Access ({ role }: { role: 'group' | 'user' }) {
-    const { current } = access.use(['current'])
+function AccessGuard ({ children }) {
     const { admin } = model.use(['admin'])
     
-    useEffect(() => {
-        if (admin && !access.inited)
-            access.init()
-    }, [ ])
     
-    
-    useEffect(() => {
-        if (current && current.role !== role)
-            access.set({ current: { role } })
-        return () => { access.set({ current: null, inited: false }) }
-    }, [role])
-    
-    return admin ? (
-        current?.view ?
-            <AccessView />
-            : role === 'group' ?
-                <GroupList />
-                :
-                <UserList />
-    ) :
-        <Result status='warning' className='interceptor' title={t('非管理员不能查看权限管理模块。')} />
+    if (!admin)
+        return <Result status='warning' className='interceptor' title={t('非管理员不能查看权限管理模块。')} />
+        
+    return children
+}
+
+
+export function Access () {
+    return <AccessGuard>{useRoutes([
+        {
+            index: true,
+            element: <Navigate to='/access/user' replace />
+        },
+        {
+            path: 'user',
+            children: [
+                {
+                    index: true,
+                    element: <UserList />
+                },
+                {
+                    path: ':id',
+                    children: [
+                        {
+                            index: true,
+                            element: <AccessTabs role='user'/>
+                        },
+                        {
+                            path: 'edit',
+                            element: <AccessTabs role='user' editing/>
+                        }
+                    ]
+                }
+            ]
+        },
+        {
+            path: 'group',
+            children: [
+                {
+                    index: true,
+                    element: <GroupList />
+                },
+                {
+                    path: ':id',
+                    children: [
+                        {
+                            index: true,
+                            element: <AccessTabs role='group' />
+                        },
+                        {
+                            path: 'edit',
+                            element: <AccessTabs role='group' editing/>
+                        }
+                    ]
+                }
+            ]
+        }
+    ])}</AccessGuard>
 }

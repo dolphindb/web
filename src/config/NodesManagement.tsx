@@ -405,7 +405,7 @@ function NodeTable ({ nodes, group, onSave, onDelete }: NodeTableProps) {
         ]
     }
     
-    const actionRef = useRef<ActionType>()
+    const actionRef = useRef<ActionType>(undefined)
     
     return <EditableProTable
         rowKey='id'

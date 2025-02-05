@@ -1,38 +1,41 @@
 import './index.sass'
 
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useMemo, useState } from 'react'
 
 import { CheckCircleFilled, DeleteOutlined, MinusCircleFilled, PlusOutlined, ReloadOutlined, SearchOutlined } from '@ant-design/icons'
 import { Button, Input, Popconfirm, Table, Tag, type TableColumnType } from 'antd'
 
 import NiceModal from '@ebay/nice-modal-react'
 
-import { t } from '../../i18n/index.js'
+import useSWR from 'swr'
 
-import { model } from '../model.js'
+import { t } from '@i18n/index.ts'
 
-import { access } from './model.js'
-import { UserCreateModal } from './components/user/UserCreateModal.js'
-import { UserDeleteModal } from './components/user/UserDeleteModal.js'
-import { ResetPasswordModal } from './components/user/ResetPasswordModal.js'
-import { UserGroupEditModal } from './components/user/UserGroupEditModal.js'
+import { model } from '@/model.ts'
+
+import { access } from './model.ts'
+import { UserCreateModal } from './components/user/UserCreateModal.tsx'
+import { UserDeleteModal } from './components/user/UserDeleteModal.tsx'
+import { ResetPasswordModal } from './components/user/ResetPasswordModal.tsx'
+import { UserGroupEditModal } from './components/user/UserGroupEditModal.tsx'
+import { use_users } from './hooks/use-users.ts'
 
 export function UserList () {
-    const { users } = access.use(['users'])
-    
-    const [users_info, set_users_info] = useState([ ])
-    
     const [search_key, set_search_key] = useState('')
     
     const [selected_users, set_selected_users] = useState([ ])
     
     const reset_selected = useCallback(() => { set_selected_users([ ]) }, [ ])
     
-    useEffect(() => {
-        (async () => {
-            set_users_info(await access.get_user_access(users))
-        })()
-    }, [users])
+    const { data: users, mutate: mutate_users } = use_users()
+    
+    const { data: users_access, mutate: mutate_users_access } = useSWR(
+        ['users/access', users], 
+        async ([, users]) => {
+            if (users)
+                return access.get_user_access(users)
+        }
+    )
     
     const cols: TableColumnType<Record<string, any>>[] = useMemo(
         () => [
@@ -59,7 +62,7 @@ export function UserList () {
                     }
                 ],
                 filterMultiple: false,
-                onFilter: (is_admin: boolean, record) => users_info.find(({ userId }) => userId === record.user_name).isAdmin === is_admin
+                onFilter: (is_admin: boolean, record) => users_access.find(({ userId }) => userId === record.user_name).isAdmin === is_admin
             },
             {
                 title: t('所属组'),
@@ -73,7 +76,7 @@ export function UserList () {
                 width: 360
             }
         ],
-        [users_info]
+        [users_access]
     )
     
     return <>
@@ -96,8 +99,8 @@ export function UserList () {
                     type='default'
                     icon={<ReloadOutlined />}
                     onClick={async () => {
-                        await access.get_user_list()
-                        set_users_info(await access.get_user_access(users))
+                        await mutate_users()
+                        await mutate_users_access()
                         model.message.success(t('刷新成功'))
                     }}
                 >
@@ -123,8 +126,8 @@ export function UserList () {
             }}
             pagination={{ hideOnSinglePage: true, size: 'small' }}
             columns={cols}
-            dataSource={users_info
-                .filter(({ userId }) => userId.toLowerCase().includes(search_key.toLowerCase()))
+            dataSource={users_access
+                ?.filter(({ userId }) => userId.toLowerCase().includes(search_key.toLowerCase()))
                 .map(current_user => ({
                     key: current_user.userId,
                     user_name: current_user.userId,
@@ -141,38 +144,32 @@ export function UserList () {
                         <div className='actions'>
                             <Button
                                 type='link'
-                                onClick={() => {
-                                    access.set({ current: { role: 'user', name: current_user.userId, view: 'preview' } })
-                                }}
+                                onClick={() => { model.goto(`/access/user/${current_user.userId}`) }}
                             >
                                 {t('查看权限')}
                             </Button>
                             
                             <Button
                                 type='link'
-                                onClick={() => {
-                                    access.set({ current: { role: 'user', name: current_user.userId, view: 'manage' } })
-                                }}
+                                onClick={() => { model.goto(`/access/user/${current_user.userId}/edit`) }}
                             >
                                 {t('设置权限')}
                             </Button>
                             
                             <Button
                                 type='link'
-                                onClick={async () => {
-                                    access.set({ current: { name: current_user.userId } })
-                                    await NiceModal.show(UserGroupEditModal, { userId: current_user.userId, set_users_info })
-                                }}
+                                onClick={async () => 
+                                    NiceModal.show(UserGroupEditModal, { name: current_user.userId })
+                                }
                             >
                                 {t('设置用户组')}
                             </Button>
                             
                             <Button
                                 type='link'
-                                onClick={async () => {
-                                    access.set({ current: { name: current_user.userId } })
-                                    await NiceModal.show(ResetPasswordModal)
-                                }}
+                                onClick={async () =>
+                                    NiceModal.show(ResetPasswordModal, { name: current_user.userId })
+                                }
                             >
                                 {t('设置密码')}
                             </Button>
@@ -183,7 +180,7 @@ export function UserList () {
                                 onConfirm={async () => {
                                     await access.delete_user(current_user.userId)
                                     model.message.success(t('用户删除成功'))
-                                    await access.get_user_list()
+                                    mutate_users()
                                 }}
                             >
                                 <Button type='link' danger disabled={current_user.userId === localStorage.getItem('ddb.username')}>

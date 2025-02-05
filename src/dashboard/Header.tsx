@@ -1,7 +1,7 @@
 import './Header.sass'
 
-import { useCallback, useEffect, useRef, useState } from 'react'
-import { Button, Input, Modal, Popconfirm, Select, Tag, Tooltip, Segmented, Switch, InputNumber } from 'antd'
+import { useCallback, useEffect, useRef, useState, type ReactElement } from 'react'
+import { Button, Input, Modal, Popconfirm, Select, Tag, Tooltip, Segmented, Switch } from 'antd'
 import { CopyOutlined, DeleteOutlined, EditOutlined, EyeOutlined, FileAddOutlined, HomeOutlined, SaveOutlined, UploadOutlined } from '@ant-design/icons'
 
 import { use_modal } from 'react-object-model/hooks.js'
@@ -51,7 +51,7 @@ export function get_widget_config (widget: Widget) {
 interface DashboardOption {
     key: number
     value: number
-    label: string | JSX.Element
+    label: string | ReactElement
 }
 
 
@@ -66,8 +66,9 @@ export function Header () {
     const { visible: edit_visible, open: edit_open, close: edit_close } = use_modal()
     const { visible: copy_visible, open: copy_open, close: copy_close } = use_modal()
     
-    const timer = useRef<NodeJS.Timeout>()
+    const timer = useRef<NodeJS.Timeout>(undefined)
     const page_count = config?.data?.canvas?.page_count ?? 1
+    const auto_expand = config?.data?.canvas?.auto_expand ?? true
     
     const get_latest_config = useCallback(async () => {
         const updated_config = {
@@ -77,14 +78,15 @@ export function Header () {
                 variables: await export_variables(),
                 canvas: {
                     widgets: widgets.map(widget => get_widget_config(widget)),
-                    page_count
+                    page_count,
+                    auto_expand
                 }
             }  
             
         }
         // await dashboard.update_config(updated_config)
         return updated_config
-    }, [widgets, page_count])
+    }, [widgets, page_count, auto_expand])
     
     
     /** 生成可以比较的 config */
@@ -242,7 +244,7 @@ export function Header () {
     }, [ ])
     
     return <div className='dashboard-header'>
-        <Select
+        <Select<number>
             className='switcher'
             placeholder={t('选择 dashboard')}
             onChange={on_change_dashboard}
@@ -425,6 +427,7 @@ export function Header () {
         
         {
             editing && <div className='configs'>
+                {t('自动拓展页面大小：')}<Switch value={auto_expand} onChange={(checked => { dashboard.on_set_auto_expand(checked) })}/>
                 <VariableConfig/>
                 <DataSourceConfig/>
             </div>

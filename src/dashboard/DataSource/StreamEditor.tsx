@@ -49,7 +49,7 @@ export function StreamEditor ({
     const ip_list_ref = useRef<{ label: string, value: string }[]>([ ])
     const table_list_ref = useRef(null)
     
-    const stream_editor_ref = useRef<HTMLDivElement>()
+    const stream_editor_ref = useRef<HTMLDivElement>(undefined)
     
     useEffect(() => {
         const node = model.node

@@ -1,46 +1,34 @@
 import { Checkbox, Divider, Input, Select, TreeSelect } from 'antd'
 
-import { useMemo } from 'react'
+import { t } from '@i18n/index.js'
 
-import { t } from '../../../../i18n/index.js'
-import { DATABASES_WITHOUT_CATALOG, NEED_INPUT_ACCESS } from '../../constants.js'
+import { model } from '@/model.ts'
 
-import { access } from '../../model.js'
-import type { AccessCategory, AccessRule } from '../../types.js'
+import { DATABASES_WITHOUT_CATALOG, NEED_INPUT_ACCESS } from '@/access/constants.js'
+
+import type { AccessCategory, AccessRole, AccessRule } from '@/access/types.js'
+import { use_access_objs } from '@/access/hooks/use-access-objs.ts'
 
 export function AccessObjSelect ({
+    role,
     category,
     add_rule_selected,
     set_add_rule_selected
 }: {
+    role: AccessRole
     category: AccessCategory
     add_rule_selected: AccessRule
     set_add_rule_selected: (access_rule: AccessRule) => void
 }) {
-    const { catalogs, databases, shared_tables, stream_tables, function_views } = access.use([
-        'catalogs',
-        'databases',
-        'shared_tables',
-        'stream_tables',
-        'function_views'
-    ])
     
-    const obj_options = useMemo(() => {
-        switch (category) {
-            case 'catalog':
-                return catalogs.map(cl => cl.name).filter(cl => cl !== DATABASES_WITHOUT_CATALOG)
-            case 'database':
-                return databases.map(db => db.name)
-            case 'shared':
-                return shared_tables
-            case 'stream':
-                return stream_tables
-            case 'function_view':
-                return function_views
-            default:
-                return [ ]
-        }
-    }, [category])
+    const { data: obj_options } = use_access_objs(role, category)
+    
+    const { data: catalogs } = use_access_objs(role, 'catalog')
+    
+    const { data: databases } = use_access_objs(role, 'database')
+    
+    if (!obj_options || !catalogs || !databases)
+        return null
     
     return NEED_INPUT_ACCESS.includes(add_rule_selected.access) ? (
         <Input
@@ -76,13 +64,17 @@ export function AccessObjSelect ({
                 set_add_rule_selected(selected)
             }}
             dropdownRender={originNode => {
-                let options = [ ]
+                let options = obj_options
+         
                 if (add_rule_selected.access.startsWith('TABLE') ) 
                     options = catalogs.map(cl => cl.schemas.map(sh => sh.tables)).flat(2)
                 else if (add_rule_selected.access.startsWith('DB') )
                     options = catalogs.map(cl => cl.schemas.map(sh => sh.dbUrl)).flat()
                 else if (add_rule_selected.access.startsWith('SCHEMA') )
                     options = catalogs.filter(cl => cl.name !== DATABASES_WITHOUT_CATALOG).map(cl => cl.schemas.map(sh => `${cl.name}.${sh.schema}`)).flat()
+                
+                if (model.v2)
+                    options = databases.map(db => db.tables).flat()
                 
                 return  <div>
                 <Checkbox
@@ -94,7 +86,7 @@ export function AccessObjSelect ({
                     }
                     onChange={e => {
                         if (e.target.checked)
-                            set_add_rule_selected({ ...add_rule_selected, obj: options })
+                            set_add_rule_selected({ ...add_rule_selected, obj: typeof options[0] === 'string' ? options : options.map(obj => obj.name) })
                         else
                             set_add_rule_selected({ ...add_rule_selected, obj: [ ] })
                     }}
@@ -143,6 +135,7 @@ export function AccessObjSelect ({
                               key: `${db.name}.${tb}`,
                               title: tb,
                               value: tb,
+                              selectable: true,
                               isLeaf: true
                           }))
                       }))
@@ -163,7 +156,7 @@ export function AccessObjSelect ({
                         indeterminate={add_rule_selected.obj.length > 0 && add_rule_selected.obj.length < obj_options.length}
                         onChange={e => {
                             if (e.target.checked)
-                                set_add_rule_selected({ ...add_rule_selected, obj: obj_options })
+                                set_add_rule_selected({ ...add_rule_selected, obj: typeof obj_options[0] === 'string' ? obj_options : obj_options.map(obj => obj.name) })
                             else
                                 set_add_rule_selected({ ...add_rule_selected, obj: [ ] })
                         }}
@@ -176,11 +169,19 @@ export function AccessObjSelect ({
             onChange={vals => {
                 set_add_rule_selected({ ...add_rule_selected, obj: vals })
             }}
-            options={obj_options.map(obj => ({
-                key: obj,
-                label: obj,
-                value: obj
-            }))}
+            // 如果是 catalog 且选中 catalog 权限，则 options 为 catalog 的 name
+            options={(category === 'catalog' && add_rule_selected.access.startsWith('CATALOG')  
+                ? obj_options.map(obj => obj.name).filter(name => name !== DATABASES_WITHOUT_CATALOG)
+                : obj_options).map(obj => 
+                    typeof obj === 'string' ? {
+                        key: obj,
+                        label: obj,
+                        value: obj
+                    } : {
+                        key: obj.name,
+                        label: obj.name,
+                        value: obj.name
+                    })}
         />
     )
 }

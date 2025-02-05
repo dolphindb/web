@@ -1,5 +1,5 @@
 import { type MutableRefObject, type ReactNode, createElement, useEffect, useRef, useState } from 'react'
-import { Input, Modal, Tree } from 'antd'
+import { Input, Modal, Tree, Typography } from 'antd'
 import { CopyOutlined, DeleteOutlined, EditOutlined, FileOutlined, ToolOutlined } from '@ant-design/icons'
 import { use_modal } from 'react-object-model/hooks.js'
 
@@ -153,7 +153,7 @@ export function VariableList ({
             </Modal>
             <div className='variable-list'>
                 <div className='top'>
-                    <div
+                    <Typography.Link
                         className='top-item'
                         onClick={async () => {
                             if (loading)
@@ -166,9 +166,10 @@ export function VariableList ({
                     >
                         <FileOutlined className='top-item-icon' />
                         {t('新建')}
-                    </div>
-                    <div
+                    </Typography.Link>
+                    <Typography.Link
                         className='top-item'
+                        disabled={!current_variable}
                         onClick={() => {
                             if (loading)
                                 return
@@ -178,8 +179,9 @@ export function VariableList ({
                     >
                         <EditOutlined className='top-item-icon' />
                         {t('重命名')}
-                    </div>
-                    <div
+                    </Typography.Link>
+                    <Typography.Link
+                        disabled={!current_variable}
                         className='top-item'
                         onClick={() => {
                             if (loading)
@@ -200,9 +202,10 @@ export function VariableList ({
                     >
                         <DeleteOutlined className='top-item-icon' />
                         {t('删除')}
-                    </div>
-                    <div
+                    </Typography.Link>
+                    <Typography.Link
                         className='top-item'
+                        disabled={!current_variable}
                         onClick={async () => {
                             if (loading)
                                 return
@@ -216,7 +219,7 @@ export function VariableList ({
                     >
                         <CopyOutlined className='top-item-icon' />
                         {t('复制')}
-                    </div>
+                    </Typography.Link>
                 </div>
                 { current_variable && <div className='bottom'>
                     {variable_infos.length && 

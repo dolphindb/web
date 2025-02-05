@@ -19,7 +19,7 @@ const colors = {
 export function Log () {
     const { node_alias, node_type, logined } = model.use(['node_alias', 'node_type', 'logined'])
     
-    const ref = useRef<HTMLDivElement>()
+    const ref = useRef<HTMLDivElement>(undefined)
     
     const [log_length, set_log_length] = useState<bigint>(0n)
     const [logs, set_logs] = useState<string[]>([ ])

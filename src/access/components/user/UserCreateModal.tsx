@@ -3,17 +3,23 @@ import { Form, Input, Modal, Select, Switch } from 'antd'
 
 import { language, t } from '@i18n/index.js'
 
+import { useSWRConfig } from 'swr'
+
 import { model } from '@/model.js'
 
 import { access } from '@/access/model.js'
 import { NAME_CHECK_PATTERN } from '@/access/constants.js'
+
+import { use_groups } from '@/access/hooks/use-groups.ts'
 
 
 export const UserCreateModal = NiceModal.create(() => {
     const modal = useModal()
     const [add_user_form] = Form.useForm()
     
-    const { groups } = access.use(['users', 'groups', 'current'])
+    const { data: groups = [ ] } = use_groups()
+    
+    const { mutate } = useSWRConfig()
     
     return <Modal
             className='add-user-modal'
@@ -37,7 +43,7 @@ export const UserCreateModal = NiceModal.create(() => {
                     model.message.success(t('用户创建成功'))
                     modal.hide()
                     add_user_form.resetFields()
-                    await access.get_user_list()
+                    mutate('users')
                 } catch (error) {
                     if (error instanceof Error)
                         throw error

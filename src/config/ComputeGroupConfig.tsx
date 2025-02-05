@@ -65,7 +65,7 @@ export function ComputeGroupConfig () {
         </div>
     })
     
-    const actionRef = useRef<ActionType>()
+    const actionRef = useRef<ActionType>(undefined)
     
     const delete_config = useCallback(
         async (config_name: string) => {

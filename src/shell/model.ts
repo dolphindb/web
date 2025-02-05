@@ -13,15 +13,8 @@ import { delta2str, assert, delay, strcmp } from 'xshell/utils.browser.js'
 import { red, blue } from 'xshell/chalk.browser.js'
 
 import {
-    DdbForm,
-    type DdbObj,
-    DdbType,
-    type InspectOptions,
-    type DdbVectorStringObj,
-    type DdbTableObj,
-    type DdbVectorInt,
-    type DdbVectorLong,
-    SqlStandard,
+    DdbForm, SqlStandard, type DdbObj, DdbType, type DdbVectorStringObj, type DdbTableObj,
+    type DdbVectorInt, type DdbVectorLong, 
 } from 'dolphindb/browser.js'
 
 
@@ -55,8 +48,6 @@ class ShellModel extends Model<ShellModel> {
     vars: DdbVar[]
     
     dbs: (Catalog | Database | DatabaseGroup)[]
-    
-    options?: InspectOptions
     
     
     executing = false
@@ -206,7 +197,7 @@ class ShellModel extends Model<ShellModel> {
                             if (ddbobj.type === DdbType.void)
                                 return ''
                             
-                            return ddbobj.toString({ ...this.options, colors: true, nullstr: true, quote: true }) + '\n'
+                            return ddbobj.toString({ ...model.options, colors: true, nullstr: true, quote: true }) + '\n'
                         }
                     }
                 })() +
@@ -283,7 +274,7 @@ class ShellModel extends Model<ShellModel> {
                     shared,
                     extra,
                     obj: undefined as DdbObj,
-                    options: this.options,
+                    options: model.options,
                 })
             )
             .filter(
@@ -429,10 +420,18 @@ class ShellModel extends Model<ShellModel> {
          else
             await this.eval(code, istart)
         
-        await this.update_vars()
-        
-        if (code.includes('login') || code.includes('logout'))
+        if (code.includes('login') || code.includes('logout') || code.includes('authenticateByTicket'))
             await model.update_user()
+        
+        // 执行了 logout 之后，跳转到登录页
+        if (!model.logined && (model.login_required || model.client_auth)) {
+            await model.goto_login()
+            
+            // 在启用了 client_auth 的情况下不调用 objs() 避免报错
+            return
+        }
+        
+        await this.update_vars()
     }
     
     
@@ -459,8 +458,8 @@ class ShellModel extends Model<ShellModel> {
         
         const { v3, ddb } = model
         
-        // 当前无数据节点和计算节点存活，且当前节点不为单机节点，则不进行数据库表获取
-        if (model.node.mode !== NodeType.single && !model.has_data_and_computing_nodes_alive()) 
+        // 当前无数据节点存活，且当前节点不为单机节点，则不进行数据库表获取
+        if (model.node.mode !== NodeType.single && !model.has_data_nodes_alive()) 
             return
         
         // ['dfs://数据库路径(可能包含/)/表名', ...]
