@@ -1,8 +1,8 @@
 import './index.scss'
 import useSWR from 'swr'
 
-import { useCallback, useMemo } from 'react'
-import { Popconfirm, Result, Table, Tabs, Typography, type TableColumnProps } from 'antd'
+import { useCallback } from 'react'
+import { Popconfirm, Result, Table, Tabs, Typography } from 'antd'
 
 import { t } from '@i18n/index.ts'
 
