@@ -222,7 +222,7 @@ const DDB_COLUMN_COMPRESS_METHODS_SELECT_OPTIONS: SelectProps['options'] = [
 ]
 
 const COLUMNS_REACTION_FULLFILL_EXPRESSION =
-    '{{ $deps.columns?.filter(col => col.name).map(column => ({ label: column.name, value: column.name })) || []  }}'
+    '{{ typeof $deps !== "undefined" ? $deps.columns?.filter(col => col.name).map(column => ({ label: column.name, value: column.name })) || [] : []  }}'
     
 function getPartitionSchemeDescription ({ schema, typeName, columnType }: IPartition) {
     let schemaType = ''
@@ -498,7 +498,7 @@ function CreateTableModalFillForm () {
                         },
                         fulfill: {
                             state: {
-                                hidden: `{{ $deps.type === "${TableTypes.Table}" }}`,
+                                hidden: `{{ typeof $deps !== "undefined" && $deps.type === "${TableTypes.Table}" }}`,
                             },
                         },
                     },
@@ -529,7 +529,7 @@ function CreateTableModalFillForm () {
                                                 enum: COLUMNS_REACTION_FULLFILL_EXPRESSION,
                                             },
                                             state: {
-                                                value: '{{ $deps.columns.some(depCol => depCol.name === $self.value) ? $self.value : null }}',
+                                                value: '{{ typeof $deps !== "undefined" && $deps.columns.some(depCol => depCol.name === $self.value) ? $self.value : null }}',
                                             },
                                         },
                                     },
@@ -539,7 +539,7 @@ function CreateTableModalFillForm () {
                                         },
                                         fulfill: {
                                             state: {
-                                                display: `{{ $deps.type === "${TableTypes.Table}" ? "none" : "visible" }}`,
+                                                display: `{{ typeof $deps !== "undefined" && $deps.type === "${TableTypes.Table}" ? "none" : "visible" }}`,
                                             },
                                         },
                                     }
@@ -572,7 +572,7 @@ function CreateTableModalFillForm () {
                                 enum: COLUMNS_REACTION_FULLFILL_EXPRESSION,
                             },
                             state: {
-                                value: '{{ $self.value?.filter(col => $deps.columns.some(depCol => depCol.name === col)) || []  }}',
+                                value: '{{ typeof $deps !== "undefined" && typeof $self !== "undefined" ? $self.value?.filter(col => $deps.columns.some(depCol => depCol.name === col)) || [] : []  }}',
                             },
                         },
                     },

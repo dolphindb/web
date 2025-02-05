@@ -1,3 +1,5 @@
+$label-width: 110px
+
 .plugins
     height: 100%
     
@@ -20,20 +22,55 @@
         thead
             .actions
                 padding-left: 30px
+        
+        
+        tr.ant-table-expanded-row >th, 
+        tr.ant-table-expanded-row:hover >th, 
+        tr.ant-table-expanded-row >td, 
+        tr.ant-table-expanded-row:hover >td
+            background: unset
 
-
+        .plugin-nodes
+            margin-left: 5px
+    
 .ant-modal-root
     .plugins-install-modal
-        .ant-result
-            padding: 0px
+        .ant-form-item-label
+            width: $label-width
             
-        .ant-result .ant-result-title
-            font-size: 16px
+        .ant-form-item-control
+            margin-left: 8px
+        
+        .zip-item
+            margin-bottom: 12px
             
-        .ant-upload
-            margin: 20px 0px
+            .zip-uploader
+                .result
+                    padding: unset
+                    
+                    height: 90px
+                    
+                    display: flex
+                    flex-direction: column
+                    align-items: center
+                    justify-content: center
+                    
+                    .ant-result-icon
+                        margin-bottom: unset
+                        
+                        .anticon
+                            font-size: 50px
+                            color: #bbbbbb
+                        
+                    .ant-result-title
+                        color: #999999
+                        font-size: 14px
+                        
+                        margin-top: 16px
         
         .files
+            margin-left: $label-width
+            
             .ant-empty-normal
                 margin-block: 8px
                 
@@ -52,6 +89,18 @@
             .title
                 font-weight: bold
                 margin-right: 20px
+        
+        .select-plugin-id, .form-input
+            width: 290px
+        
+        .submit-line
+            display: flex
+            
+            gap: 12px
+            
+            .install-button
+                margin-left: auto
+        
     
     .plugins-sync-modal
         .ant-modal-header

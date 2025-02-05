@@ -2,6 +2,8 @@ import { Checkbox, Divider, Input, Select, TreeSelect } from 'antd'
 
 import { t } from '@i18n/index.js'
 
+import { model } from '@/model.ts'
+
 import { DATABASES_WITHOUT_CATALOG, NEED_INPUT_ACCESS } from '@/access/constants.js'
 
 import type { AccessCategory, AccessRole, AccessRule } from '@/access/types.js'
@@ -62,13 +64,17 @@ export function AccessObjSelect ({
                 set_add_rule_selected(selected)
             }}
             dropdownRender={originNode => {
-                let options = [ ]
+                let options = obj_options
+         
                 if (add_rule_selected.access.startsWith('TABLE') ) 
                     options = catalogs.map(cl => cl.schemas.map(sh => sh.tables)).flat(2)
                 else if (add_rule_selected.access.startsWith('DB') )
                     options = catalogs.map(cl => cl.schemas.map(sh => sh.dbUrl)).flat()
                 else if (add_rule_selected.access.startsWith('SCHEMA') )
                     options = catalogs.filter(cl => cl.name !== DATABASES_WITHOUT_CATALOG).map(cl => cl.schemas.map(sh => `${cl.name}.${sh.schema}`)).flat()
+                
+                if (model.v2)
+                    options = databases.map(db => db.tables).flat()
                 
                 return  <div>
                 <Checkbox
@@ -80,7 +86,7 @@ export function AccessObjSelect ({
                     }
                     onChange={e => {
                         if (e.target.checked)
-                            set_add_rule_selected({ ...add_rule_selected, obj: options })
+                            set_add_rule_selected({ ...add_rule_selected, obj: typeof options[0] === 'string' ? options : options.map(obj => obj.name) })
                         else
                             set_add_rule_selected({ ...add_rule_selected, obj: [ ] })
                     }}
@@ -150,7 +156,7 @@ export function AccessObjSelect ({
                         indeterminate={add_rule_selected.obj.length > 0 && add_rule_selected.obj.length < obj_options.length}
                         onChange={e => {
                             if (e.target.checked)
-                                set_add_rule_selected({ ...add_rule_selected, obj: obj_options })
+                                set_add_rule_selected({ ...add_rule_selected, obj: typeof obj_options[0] === 'string' ? obj_options : obj_options.map(obj => obj.name) })
                             else
                                 set_add_rule_selected({ ...add_rule_selected, obj: [ ] })
                         }}

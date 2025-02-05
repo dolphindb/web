@@ -159,7 +159,7 @@ def listPluginsByNodes() {
 
 def listPlugins() {
     res = listPluginsByNodes()
-    ret = select min(installedVersion) as minInstalledVersion from res group by plugin
+    ret = select min(installedVersion) as minInstalledVersion, max(installedVersion) as maxInstalledVersion from res group by plugin
     nodeCnt = exec count(*) from rpc(getControllerAlias(), getClusterPerf{true}) where mode != 1
 
     addColumn(ret, `installedNodes`toInstallNodes`loadedNodes`preloadedNodes, [STRING, STRING, STRING, STRING])
@@ -239,14 +239,8 @@ def installPluginOffline(zipName, zipBytes, destNodeAliases=[]) {
     for (node in nodes) {
         // node = nodes[0]
         name = node["name"]
-        agentSite = node["agentSite"]
-        agentState = exec first(state) from rpc(getControllerAlias(), getClusterPerf) where site == agentSite
-        if (agentState == 1) { // 优先去节点所在的 agent 节点安装
-            agentName = agentSite.split(":").last()
-            rpc(name, installPluginOfflineInner, zipName, zipBytes)
-        } else { // agent 不在线时直连节点安装
-            rpc(name, installPluginOfflineInner, zipName, zipBytes)
-        }
+        // 直连节点安装。因为 rpc 不支持连接 agent，而 xdb 需要显式提供密码登录，故无法直连 agent 安装插件。
+        rpc(name, installPluginOfflineInner, zipName, zipBytes)
     }
 }
 
@@ -314,22 +308,19 @@ def syncPlugin(pluginName, srcNodeAlias, destNodeAliases=[]) {
             // 需要先删除目标插件文件夹，详见 WEB-1042
             rmDirIfExists = def(dir) {
                 if (exists(dir)) {
-                    rm(dir)
+                    rmdir(dir, true)
                 }
             }
 
-            agentSite = item["agentSite"]
-            agentState = exec first(state) from rpc(getControllerAlias(), getClusterPerf) where site == agentSite
-            if (agentState == 1) { // 优先去节点所在的 agent 节点安装
-                agentName = agentSite.split(":").last()
-                rpc(agentName, rmDirIfExists, destDir)
-                copyFolderToRemoteNode(srcDir, agentName, destDir)
-            } else { // agent 不在线时直连节点安装
-                rpc(destNodeAlias, rmDirIfExists, destDir)
-                copyFolderToRemoteNode(srcDir, destNodeAlias, destDir)
-            }
+            // 直连节点安装。因为 rpc 不支持连接 agent，而 xdb 需要显式提供密码登录，故无法直连 agent 安装插件。
+            rpc(destNodeAlias, rmDirIfExists, destDir)
+            copyFolderToRemoteNode(srcDir, destNodeAlias, destDir)
         }
     }
     
     rpc(srcNodeAlias, syncPluginInner, pluginName, destNodeAliases)
+}
+
+def getInstallableNodes() {
+    return exec name from rpc(getControllerAlias(), getClusterPerf{true}) where mode != 1
 }

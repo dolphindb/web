@@ -122,7 +122,7 @@ export const DDB_TYPE_MAP = {
 
 
 /** 如果插入了 key, key 总是返回数组的最后一项 */
-export function switch_keys (keys: string[], key: string) {
+export function switch_keys <TKey> (keys: TKey[], key: TKey) {
     let found = false
     let keys_ = [ ]
     
