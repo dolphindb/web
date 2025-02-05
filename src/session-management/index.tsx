@@ -15,6 +15,8 @@ import { uniqBy } from 'lodash'
 
 import dayjs from 'dayjs'
 
+import { useSearchParams } from 'react-router'
+
 import { model, NodeType } from '@/model.ts'
 import { Unlogin } from '@/components/Unlogin.tsx'
 
@@ -45,21 +47,24 @@ export function SessionManagement () {
     
     const { admin, logined, node_type } = model.use(['admin', 'logined', 'node_type'])
     
+    const [query] = useSearchParams()
+    
+    
     /** 控制节点展所有节点的 session 信息，其他节点仅展示当前节点的 session 信息 */
     const is_controller = node_type === NodeType.controller
     
     const { data: { user_sessions, other_sessions } = { user_sessions: [ ], other_sessions: [ ] }, isLoading, mutate } = useSWR(
         admin ? 'session_list' : null,
         async () => {
-            const { data = [ ] } = is_controller 
+            const { data = [ ] } = (is_controller 
                 ? await model.ddb.execute<{ data: SessionItem[] }>(`
                     nodes=exec name from rpc(getControllerAlias(),getClusterPerf) where mode not in (1,2) and state=1
                     nodesSessionMemoryStat=pnodeRun(getSessionMemoryStat,nodes)
                     crtSessionMemoryStat=rpc(getControllerAlias(),getSessionMemoryStat)
                     update crtSessionMemoryStat set node=getControllerAlias()
                     nodesSessionMemoryStat.append!(crtSessionMemoryStat)
-                `) ?? { }
-                : await model.ddb.invoke<{ data: SessionItem[] }>('getSessionMemoryStat')
+                `)
+                : await model.ddb.invoke<{ data: SessionItem[] }>('getSessionMemoryStat')) ?? { }
             let user_sessions: SessionItem[] = [ ]
             let other_sessions: SessionItem[] = [ ]
             data.forEach(item => item.sessionId ? user_sessions.push(item) : other_sessions.push(item))
@@ -88,7 +93,11 @@ export function SessionManagement () {
     return <Tabs 
         type='card'
         tabBarExtraContent={<Typography.Link 
-            href='https://docs.dolphindb.cn/zh/funcs/g/getSessionMemoryStat.html'
+            href={
+                query.get('language') === 'en' 
+                    ? 'https://docs.dolphindb.cn/en/Functions/g/getSessionMemoryStat.html' 
+                    : 'https://docs.dolphindb.cn/zh/funcs/g/getSessionMemoryStat.html'
+            }
             target='_blank'
         >
             {t('文档说明')}
