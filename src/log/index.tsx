@@ -8,6 +8,7 @@ import { t } from '@i18n/index.js'
 
 import { model, NodeType } from '@/model.js'
 import { Unlogin } from '@/components/Unlogin.js'
+import { BottomFixedFooter } from '@/components/BottomFixedFooter/index.tsx'
 
 const default_length = 50000n
 
@@ -60,15 +61,13 @@ export function Log () {
             </div>
             <div className='space' />
             {!show_login_required_info && (
-                <div>
-                    <Button
-                        className='refresh-button'
-                        icon={<ReloadOutlined/>}
-                        onClick={async () => {
-                            await init()
-                            model.message.success(t('日志刷新成功'))
-                    }}>{t('刷新')}</Button>
-                </div>
+                <Button
+                    className='refresh-button'
+                    icon={<ReloadOutlined/>}
+                    onClick={async () => {
+                        await init()
+                        model.message.success(t('日志刷新成功'))
+                }}>{t('刷新')}</Button>
             )}
         </div>
         {
@@ -88,26 +87,28 @@ export function Log () {
                             </div>
                         })}
                     </div>
-                    <Pagination
-                        className='log-pagination'
-                        current={index}
-                        showQuickJumper
-                        showSizeChanger={false}
-                        onChange={(page, page_size) => {
-                            // 重新设置当前显示的 log
-                            const t = log_length - BigInt(page) * default_length
-                            const offset = t > 0 ? t : 0n
-                            const length = t > 0 ? default_length : default_length + t
-                            get_log(length, offset)
-                            set_index(page)
-                            
-                            // log 滑动条滑动到顶端
-                            ref.current?.scrollTo(0, 0)
-                        }}
-                        pageSize={1}
-                        total={Math.ceil(Number(log_length) / Number(default_length))}
-                    />
+                    
                 </>
         }
+        <BottomFixedFooter>
+            <Pagination
+                current={index}
+                showQuickJumper
+                showSizeChanger={false}
+                onChange={(page, page_size) => {
+                    // 重新设置当前显示的 log
+                    const t = log_length - BigInt(page) * default_length
+                    const offset = t > 0 ? t : 0n
+                    const length = t > 0 ? default_length : default_length + t
+                    get_log(length, offset)
+                    set_index(page)
+                    
+                    // log 滑动条滑动到顶端
+                    ref.current?.scrollTo(0, 0)
+                }}
+                pageSize={1}
+                total={Math.ceil(Number(log_length) / Number(default_length))}
+            />
+        </BottomFixedFooter>
     </div>
 }
