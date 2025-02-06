@@ -69,8 +69,8 @@ export function Overview () {
                             model.get_cluster_perf(true)
                         }}
                     >
-                        <Button className='refresh' size='large' type='text' block icon={<Icon className='icon-refresh' component={SvgRefresh} />}>
-                            <span className='text'>{t('刷新')}</span>
+                        <Button className='refresh' size='large' block icon={<Icon className='icon-refresh' component={SvgRefresh} />}>
+                            {t('刷新')}
                         </Button>
                     </div>
                     
@@ -116,7 +116,6 @@ export function Overview () {
                                 >
                                     <Tooltip title={selectedNodes.length && !logined ? t('当前用户未登录，请登陆后再进行启停操作。') : ''}>
                                         <Button
-                                            type='text'
                                             size='large'
                                             block
                                             loading={isStartLoading}
@@ -178,7 +177,6 @@ export function Overview () {
                                 >
                                     <Tooltip title={selectedNodes.length && !logined ? t('当前用户未登录，请登陆后再进行启停操作。') : ''}>
                                         <Button
-                                            type='text'
                                             size='large'
                                             block
                                             loading={isStopLoading}
@@ -209,7 +207,7 @@ export function Overview () {
                                     setExpandedNodes(nodes.filter(node => node.mode === NodeType.agent))
                                 }}
                             >
-                                <Button type='text' size='large' block icon={<Icon className='icon-expand' component={SvgExpand} />}>
+                                <Button size='large' block icon={<Icon className='icon-expand' component={SvgExpand} />}>
                                     {t('全部展开')}
                                 </Button>
                             </div>
@@ -220,7 +218,7 @@ export function Overview () {
                                     setExpandedNodes(nodes)
                                 }}
                             >
-                                <Button type='text' size='large' block icon={<Icon className='icon-collapse' component={SvgCollapse} />}>
+                                <Button size='large' block icon={<Icon className='icon-collapse' component={SvgCollapse} />}>
                                     {t('全部折叠')}
                                 </Button>
                             </div>
