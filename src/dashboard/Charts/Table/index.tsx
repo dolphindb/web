@@ -95,7 +95,7 @@ export function DBTable (props: IProps) {
                 
                 const col_config = {
                     dataIndex: name,
-                    width: width || 200,
+                    width: width,
                     title: display_name || name,
                     key: name,
                     ellipsis: true,
@@ -170,7 +170,7 @@ export function DBTable (props: IProps) {
                         'table-with-pagination': config?.pagination?.show,
                     })}
                     style={{ height: `calc(100% - ${size.height ?? 0}px)` }}
-                    scroll={{ x: '100%' }}
+                    scroll={{ x: 'max-content' }}
                     columns={columns}
                     dataSource={config.is_reverse ? data_source.toReversed() : data_source}
                     pagination={pagination}
