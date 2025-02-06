@@ -1,16 +1,17 @@
 .dashboard-table-wrapper {
     background-color: #282828;
-    // overflow: auto;
     font-size: 12px;
     height: 100%;
     
     display: flex;
     flex-direction: column;
+
     
-    .ant-table-wrapper {
+    .ant-table-wrapper {        
         
-        overflow-y: auto;
-        
+        .ant-pagination {
+            margin-bottom: 0px;
+        }
       
         &::-webkit-scrollbar-track-piece {
             background-color: #474747 !important;
@@ -21,6 +22,38 @@
             box-shadow: 0 0 3px rgba(0, 0, 0, 0.5);
             background-color: #505050 !important;
         }
+        
+        .ant-spin-nested-loading {
+            height: 100%;
+            .ant-spin-container {
+                height: 100%;
+            }
+        }
+        
+        
+        
+        .ant-table {
+            overflow-y: auto;
+           
+            max-height: 100%;
+            
+            .ant-table-content {
+                display: initial;
+            }
+            .ant-table-thead {
+                position: sticky;
+                top: 0;
+                z-index: 3;
+            }
+        }
+        
+        &.table-with-pagination {
+            .ant-table {
+                /** 去除分页 */
+                max-height: calc(100% - 40px);
+            }
+        }
+        
     }
     
     .ant-table-wrapper .ant-table-thead th.ant-table-column-sort {
