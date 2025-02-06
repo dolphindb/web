@@ -3,7 +3,7 @@ import './index.sass'
 import { useCallback, useMemo, useState } from 'react'
 
 import { DeleteOutlined, PlusOutlined, ReloadOutlined, SearchOutlined } from '@ant-design/icons'
-import { Button, Input, Popconfirm, Table, Tag, type TableColumnType } from 'antd'
+import { Button, Input, Popconfirm, Table, Tag, Typography, type TableColumnType } from 'antd'
 
 
 import NiceModal from '@ebay/nice-modal-react'
@@ -13,6 +13,10 @@ import { t, language } from '@i18n/index.ts'
 import useSWR from 'swr'
 
 import { model } from '@/model.ts'
+
+import { TableOperations } from '@/components/TableOperations/index.tsx'
+
+import { DDBTable } from '@/components/DDBTable/index.tsx'
 
 import { access } from './model.ts'
 import { GroupCreateModal } from './components/group/GroupCreateModal.tsx'
@@ -98,7 +102,8 @@ export function GroupList () {
             </div>
         </div>
         
-       {groups_info && <Table
+       {groups_info && <DDBTable
+            title={t('组列表')}
             rowSelection={{
                 selectedRowKeys: selected_groups,
                 onChange: (selectedRowKeys: React.Key[]) => {
@@ -121,33 +126,32 @@ export function GroupList () {
                         </div>
                     ),
                     actions: (
-                        <div className='actions'>
-                            <Button
-                                type='link'
+                        <TableOperations>
+                            <Typography.Link
                                 onClick={() => {
                                     model.goto(`/access/group/${group.groupName}`)
                                 }}
                             >
                                 {t('查看权限')}
-                            </Button>
+                            </Typography.Link>
                             
-                            <Button
-                                type='link'
+                            <Typography.Link
+                            
                                 onClick={() => {
                                     model.goto(`/access/group/${group.groupName}/edit`)
                                 }}
                             >
                                 {t('设置权限')}
-                            </Button>
+                            </Typography.Link>
                             
-                            <Button
-                                type='link'
+                            <Typography.Link
+                             
                                 onClick={async () => {
                                     NiceModal.show(GroupUserEditModal, { groupname: group.groupName })
                                 }}
                             >
                                 {t('管理成员')}
-                            </Button>
+                            </Typography.Link>
                             
                             <Popconfirm
                                 title={t('删除组')}
@@ -158,11 +162,11 @@ export function GroupList () {
                                     await mutate_groups()
                                 }}
                             >
-                                <Button type='link' danger>
+                                <Typography.Link type='danger'>
                                     {t('删除')}
-                                </Button>
+                                </Typography.Link>
                             </Popconfirm>
-                        </div>
+                        </TableOperations>
                     )
                 }))}
             tableLayout='fixed'

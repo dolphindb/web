@@ -3,7 +3,7 @@ import './index.sass'
 import { useCallback, useMemo, useState } from 'react'
 
 import { CheckCircleFilled, DeleteOutlined, MinusCircleFilled, PlusOutlined, ReloadOutlined, SearchOutlined } from '@ant-design/icons'
-import { Button, Input, Popconfirm, Table, Tag, type TableColumnType } from 'antd'
+import { Button, Input, Popconfirm, Table, Tag, Typography, type TableColumnType } from 'antd'
 
 import NiceModal from '@ebay/nice-modal-react'
 
@@ -12,6 +12,12 @@ import useSWR from 'swr'
 import { t } from '@i18n/index.ts'
 
 import { model } from '@/model.ts'
+
+import { DDBTable } from '@/components/DDBTable/index.tsx'
+
+import { TableOperations } from '@/components/TableOperations/index.tsx'
+
+import { DDBTag } from '@/components/tags/index.tsx'
 
 import { access } from './model.ts'
 import { UserCreateModal } from './components/user/UserCreateModal.tsx'
@@ -117,7 +123,8 @@ export function UserList () {
                 />
             </div>
         </div>
-        <Table
+        <DDBTable
+            title={t('用户列表')}
             rowSelection={{
                 selectedRowKeys: selected_users,
                 onChange: (selectedRowKeys: React.Key[]) => {
@@ -135,44 +142,40 @@ export function UserList () {
                     groups: (
                         <div>
                             {current_user.groups &&
-                                current_user.groups.split(',').map((group: string) => <Tag color='cyan' key={group}>
+                                current_user.groups.split(',').map((group: string) => <DDBTag color='cyan' key={group}>
                                     {group}
-                                </Tag>)}
+                                </DDBTag>)}
                         </div>
                     ),
                     actions: (
-                        <div className='actions'>
-                            <Button
-                                type='link'
+                        <TableOperations className='actions'>
+                            <Typography.Link
                                 onClick={() => { model.goto(`/access/user/${current_user.userId}`) }}
                             >
                                 {t('查看权限')}
-                            </Button>
+                            </Typography.Link>
                             
-                            <Button
-                                type='link'
+                            <Typography.Link
                                 onClick={() => { model.goto(`/access/user/${current_user.userId}/edit`) }}
                             >
                                 {t('设置权限')}
-                            </Button>
+                            </Typography.Link>
                             
-                            <Button
-                                type='link'
+                            <Typography.Link
                                 onClick={async () => 
                                     NiceModal.show(UserGroupEditModal, { name: current_user.userId })
                                 }
                             >
                                 {t('设置用户组')}
-                            </Button>
+                            </Typography.Link>
                             
-                            <Button
-                                type='link'
+                            <Typography.Link
                                 onClick={async () =>
                                     NiceModal.show(ResetPasswordModal, { name: current_user.userId })
                                 }
                             >
                                 {t('设置密码')}
-                            </Button>
+                            </Typography.Link>
                             
                             <Popconfirm
                                 title={t('删除用户')}
@@ -183,11 +186,11 @@ export function UserList () {
                                     mutate_users()
                                 }}
                             >
-                                <Button type='link' danger disabled={current_user.userId === localStorage.getItem('ddb.username')}>
+                                <Typography.Link type='danger' disabled={current_user.userId === localStorage.getItem('ddb.username')}>
                                     {t('删除')}
-                                </Button>
+                                </Typography.Link>
                             </Popconfirm>
-                        </div>
+                        </TableOperations>
                     )
                 }))}
         />

@@ -384,7 +384,7 @@ export function OverviewTable ({
     })
     
     return <div className='overview-table'>
-       { node_type !== NodeType.single &&  <Collapse items={collapseItems} ghost bordered={false}/> }
+       { node_type !== NodeType.single &&  <Collapse items={collapseItems} ghost/> }
         <Dropdown menu={{ items }} overlayClassName='table-dropdown' trigger={['contextMenu']}>
             <div className='tables-container'>
                 {tables}
