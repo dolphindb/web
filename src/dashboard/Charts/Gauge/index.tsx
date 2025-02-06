@@ -68,7 +68,7 @@ export function Gauge (props: IProps) {
                         offsetCenter:  [`${item?.title?.level}%`, `${item?.title?.vertical}%`]
                     } : undefined,
                     detail: item.value ? {
-                        offsetCenter: item.value ? [`${item?.value?.level}%`, `${item?.value?.vertical}%`] : [ ]
+                        offsetCenter: [`${item?.value?.level}%`, `${item?.value?.vertical}%`]
                     } : undefined,
                     itemStyle: {
                         color: item.color,
