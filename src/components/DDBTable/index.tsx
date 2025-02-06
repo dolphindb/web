@@ -14,18 +14,27 @@ export interface DDBTableProps<T> extends Omit<TableProps<T>, 'title'> {
 export function DDBTable<T> (props: DDBTableProps<T>) {
     const { title, help, buttons, ...others } = props
     
-    return <Table title={(title || buttons) ?  () => <div className='ddb-table-header'>
-        {title && <div className='ddb-table-title'>
-            <h2>{title}</h2>
-            {help && <Tooltip title={help}>
-                <QuestionCircleOutlined className='help-icon' /> 
-            </Tooltip>}
-        </div>}
-        {
-            buttons && <Space size='middle'>
-                {buttons}
-            </Space>
+    return <Table
+        title={(title || buttons)
+            ? () => <div className='ddb-table-header'>
+                {
+                    title && <div className='ddb-table-title'>
+                        <h2>{title}</h2>
+                        {
+                            help && <Tooltip title={help}>
+                                <QuestionCircleOutlined className='help-icon' />
+                            </Tooltip>
+                        }
+                    </div>
+                }
+                {
+                    buttons && <Space size='middle'>
+                        {buttons}
+                    </Space>
+                }
+            </div>
+            : undefined
         }
-    </div> : undefined} 
-    {...others} />
+        {...others}
+    />
 }
