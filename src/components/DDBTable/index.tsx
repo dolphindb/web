@@ -4,7 +4,7 @@ import { Space, Table, Tooltip, type TableProps } from 'antd'
 import { type ReactElement } from 'react'
 
 export interface DDBTableProps<T> extends Omit<TableProps<T>, 'title'> {
-    title: string
+    title?: string
     /** 选传，对于表格的解释说明 */
     help?: string
     /** 表格操作 */
