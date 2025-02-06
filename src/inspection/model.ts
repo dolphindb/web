@@ -117,7 +117,7 @@ class InspectionModel extends Model<InspectionModel> {
             report_id ? report_id : new DdbVoid(), 
             start_time ? start_time : new DdbVoid(), 
             end_time ? end_time : new DdbVoid(), 
-            success ? success : new DdbVoid(), 
+            typeof success === 'number' ? new DdbInt(success) : new DdbVoid(), 
             new DdbInt(page), 
             new DdbInt(limit), 
             search_key, 
