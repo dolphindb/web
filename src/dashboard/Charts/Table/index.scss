@@ -1,27 +1,17 @@
 .dashboard-table-wrapper {
-    background-color: #282828;
     font-size: 12px;
     height: 100%;
     
-    display: flex;
-    flex-direction: column;
+    h2 {
+        margin-top: 0px;
+    }
+    
+    .table-radio-group {
+        margin-bottom: 12px;
+    }
 
     
     .ant-table-wrapper {        
-        
-        .ant-pagination {
-            margin-bottom: 0px;
-        }
-      
-        &::-webkit-scrollbar-track-piece {
-            background-color: #474747 !important;
-        }
-        &::-webkit-scrollbar-thumb {
-            border-radius: 0px;
-            border: 1px solid #606060 !important;
-            box-shadow: 0 0 3px rgba(0, 0, 0, 0.5);
-            background-color: #505050 !important;
-        }
         
         .ant-spin-nested-loading {
             height: 100%;
@@ -30,13 +20,12 @@
             }
         }
         
-        
-        
         .ant-table {
             overflow-y: auto;
            
             max-height: 100%;
             
+
             .ant-table-content {
                 display: initial;
             }
@@ -45,53 +34,22 @@
                 top: 0;
                 z-index: 3;
             }
+            
+            .ant-table-row {
+                &:nth-child(odd) {
+                    background-color: #303030;
+                }
+            }
+            
         }
         
         &.table-with-pagination {
             .ant-table {
-                /** 去除分页 */
+                /** 去除分页高度 */
                 max-height: calc(100% - 40px);
             }
         }
         
-    }
-    
-    .ant-table-wrapper .ant-table-thead th.ant-table-column-sort {
-        background: #313131;
-    }
-    
-    
-    td.ant-table-column-sort {
-        background: none;
-    }
-    
-    
-    .ant-table-content {
-        &::-webkit-scrollbar-track-piece {
-            background-color: #474747 !important;
-        }
-        &::-webkit-scrollbar-thumb {
-            border-radius: 0px;
-            border: 1px solid #606060 !important;
-            box-shadow: 0 0 3px rgba(0, 0, 0, 0.5);
-            background-color: #505050 !important;
-        }
-    }
-    .table-title {
-        color: #fff;
-        margin-top: 0px;
-    }
-    
-    .table-radio-group {
-        margin-bottom: 12px;
-    }
-    .ant-table-row {
-        &:nth-child(odd) {
-            background-color: #303030;
-        }
-    }
-    .ant-table-cell {
-        padding: 2px 12px !important;
     }
 }
 

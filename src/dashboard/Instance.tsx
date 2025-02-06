@@ -34,7 +34,12 @@ export function DashboardInstancePage () {
                 motion: false,
                 colorBgContainer: 'rgb(40, 40, 40)',
                 colorBgElevated: '#555555',
-                colorInfoActive: 'rgb(64, 147, 211)'
+                colorInfoActive: 'rgb(64, 147, 211)',
+            },
+            components: {
+                Table: {
+                    cellPaddingBlock: 2,
+                }
             },
             algorithm: theme.darkAlgorithm
         }}
