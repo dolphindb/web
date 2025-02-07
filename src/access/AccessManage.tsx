@@ -139,7 +139,12 @@ export function AccessManage ({ role, name, category }: { role: AccessRole, name
                             type: allowed ? 'grant' : 'deny',
                             action: 
                                 <RevokeConfirm on_confirm={async () => {
-                                    await access.revoke(name, k.slice(0, k.indexOf(allowed ? '_allowed' : '_denied')), obj)
+                                    let access_type = k.slice(0, k.indexOf(allowed ? '_allowed' : '_denied'))
+                                    // 对于 shared 和 stream，撤销权限时需要将 TABLE_INSERT 、TABLE_UPDATE 、TABLE_DELETE 转换为 TABLE_WRITE
+                                    console.log('access_type', access_type, category)
+                                    if (category === 'shared' || category === 'stream')
+                                        access_type = access_type === 'TABLE_READ' ? 'TABLE_READ' : 'TABLE_WRITE'
+                                    await access.revoke(name, access_type, obj)
                                     model.message.success(t('撤销成功'))
                                     await update_accesses()
                                 }} />

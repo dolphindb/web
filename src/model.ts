@@ -13,8 +13,8 @@ import { check, filter_values, strcmp } from 'xshell/utils.browser.js'
 import { request } from 'xshell/net.browser.js'
 
 import {
-    DDB, SqlStandard, DdbInt, DdbLong, type InspectOptions,
-    DdbDatabaseError, type DdbObj, type DdbTableData, DdbDict,
+    DDB, DdbObj, SqlStandard, DdbInt, DdbLong, type InspectOptions,
+    DdbDatabaseError, type DdbTableData, DdbDict,
 } from 'dolphindb/browser.js'
 
 import type { Docs } from 'dolphindb/docs.js'
@@ -197,10 +197,10 @@ export class DdbModel extends Model<DdbModel> {
         
         const host = params.get('host')
         
-        const language = localStorage.getItem(storage_keys.language)
+        const lang = localStorage.getItem(storage_keys.language)
         
-        if (language) 
-            params.set('language', language)
+        if (lang) 
+            params.set('language', lang)
         
         if (host) {
             // 优先用 host 参数中的主机和端口
@@ -210,11 +210,13 @@ export class DdbModel extends Model<DdbModel> {
             params.set('port', port)
         }
         
-        if (language || host) {
+        if (lang || host) {
             // 转换 url
             let url = new URL(location.href)
             url.search = params.toString()
             history.replaceState(null, '', url)
+            if (language !== lang)
+                location.reload()
         }
         
         this.hostname = hostname
@@ -749,9 +751,11 @@ export class DdbModel extends Model<DdbModel> {
     
     find_node_closest_hostname (node: DdbNode) {
         const current_connect_host = this.hostname
-        
         // 所有域名应该都转成小写后匹配，因为浏览器默认会将 location.hostname 转为小写
-        const hosts = [...node.publicName.split(';').map(name => name.trim().toLowerCase()), node.host.toLowerCase()]
+        const hosts = [
+            ...node.publicName.split(';').map(name => name.trim().toLowerCase()).filter(Boolean), 
+            node.host.toLowerCase()
+        ]
         
         // 匹配当前域名/IP 和 hosts 中域名/IP 的相似度，动态规划最长公共子串
         function calc_host_score (hostname: string) {
@@ -981,6 +985,7 @@ export class DdbModel extends Model<DdbModel> {
     }
     
     
+    /** 返回 { title, body, ...其他的一些属性 } */
     format_error (error: Error) {
         let s = ''
         
@@ -995,11 +1000,13 @@ export class DdbModel extends Model<DdbModel> {
                 const matches = json_error_pattern.exec(message.slice(i_message_start))
                 
                 if (matches) {
-                    const { code, message, variables } = JSON.parse(matches[0])
+                    const { code, message, variables, ...others } = JSON.parse(matches[0])
                     
                     return {
                         title: t(error_messages[code] || message, { variables }),
-                        body: ''
+                        body: '',
+                        code,
+                        ...others
                     }
                 }
             }
@@ -1012,7 +1019,8 @@ export class DdbModel extends Model<DdbModel> {
                 
                 case 'function':
                     s += t('调用 {{func}} 函数时出错，参数为:\n', { func: error.options.func }) +
-                        options.args.map(arg => arg.toString({ quote: true, grouping: false, nullstr: true }))
+                        DdbObj.to_ddbobjs(options.args || [ ])
+                            .map(arg => arg.toString({ quote: true, grouping: false, nullstr: true }))
                             .join_lines()
                     break
             }

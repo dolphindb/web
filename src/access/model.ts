@@ -2,7 +2,7 @@ import { Model } from 'react-object-model'
 
 import { DdbInt, DdbVectorString } from 'dolphindb/browser.js'
 
-import { model, NodeType } from '@/model.ts'
+import { DdbNodeState, model, NodeType } from '@/model.ts'
 
 import { DATABASES_WITHOUT_CATALOG } from './constants.tsx'
 
@@ -76,6 +76,13 @@ class AccessModel extends Model<AccessModel> {
         return [...catalogs, await this.get_databases_with_tables(true)]
     }
     
+    async get_catelog_with_schemas_v2 () {
+        return [{ 
+            name: DATABASES_WITHOUT_CATALOG, 
+            schemas: ((await this.get_databases_with_tables()) as Database[]).
+                        map(db => ({ schema: db, dbUrl: db, tables: [ ] })) 
+        }]
+    }
     
     async get_databases_with_tables (has_schema: boolean = false) {
         let databases = await this.get_databases()
@@ -130,6 +137,8 @@ class AccessModel extends Model<AccessModel> {
     
     // final 属性代表是否获取用户最终权限，只有在用户查看权限界面需要 final = true
     async get_user_access (users: string[], final: boolean = false) {
+        if (!users?.length)
+            return [ ]
         return (await model.ddb.invoke('getUserAccess', [...final ? [users, true] : [users]]))
             .data
     }
@@ -141,6 +150,8 @@ class AccessModel extends Model<AccessModel> {
     
     
     async get_group_access (groups: string[]) {
+        if (!groups?.length)
+            return [ ]
         return (await model.ddb.invoke('getGroupAccess', [ groups ])).data
     }
     
@@ -208,11 +219,10 @@ class AccessModel extends Model<AccessModel> {
     
     
     async get_share_tables () {
-                        
         return (await model.ddb.invoke('objs', 
                     [true], 
                     { nodes: model.nodes
-                        .filter(node => node.mode !== NodeType.agent)
+                        .filter(node => node.mode !== NodeType.agent && node.state === DdbNodeState.online)
                         .map(node => node.name) 
                     }
                 )).data

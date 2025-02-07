@@ -461,12 +461,9 @@ function SuffixIcon ({ name }: { name: string }) {
                         type: 'object',
                         data: await model.ddb.call<DdbDictObj<DdbVectorStringObj>>(
                             'load_table_variable_schema',
-                            [name],
-                            model.node_type === NodeType.controller ? { node: model.datanode.name } : undefined
-                        )
+                            [name])
                     }
-                }
-            ) }}
+                }) }}
         />
     </Tooltip>
 }

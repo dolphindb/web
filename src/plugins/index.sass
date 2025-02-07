@@ -1,3 +1,5 @@
+$label-width: 110px
+
 .plugins
     height: 100%
     
@@ -9,11 +11,7 @@
         
         display: flex
         
-        .search
-            margin-left: 20px
-            
-        .refresh
-            margin-left: 20px
+        gap: 20px
             
     .plugins-table
         flex: 1
@@ -24,41 +22,89 @@
         thead
             .actions
                 padding-left: 30px
-            
-    
-.plugins-install-modal
-    .ant-result
-        padding: 0px
         
-    .ant-result .ant-result-title
-        font-size: 16px
         
-    .ant-upload
-        margin: 20px 0px
+        tr.ant-table-expanded-row >th, 
+        tr.ant-table-expanded-row:hover >th, 
+        tr.ant-table-expanded-row >td, 
+        tr.ant-table-expanded-row:hover >td
+            background: unset
+
+        .plugin-nodes
+            margin-left: 5px
     
-    .files
-        .ant-empty-normal
-            margin-block: 8px
+.ant-modal-root
+    .plugins-install-modal
+        .ant-form-item-label
+            width: $label-width
             
-        .fp
-            display: flex
-            align-items: center
+        .ant-form-item-control
+            margin-left: 8px
+        
+        .zip-item
+            margin-bottom: 12px
             
-            .zip-icon
-                width: 24px
+            .zip-uploader
+                .result
+                    padding: unset
+                    
+                    height: 90px
+                    
+                    display: flex
+                    flex-direction: column
+                    align-items: center
+                    justify-content: center
+                    
+                    .ant-result-icon
+                        margin-bottom: unset
+                        
+                        .anticon
+                            font-size: 50px
+                            color: #bbbbbb
+                        
+                    .ant-result-title
+                        color: #999999
+                        font-size: 14px
+                        
+                        margin-top: 16px
+        
+        .files
+            margin-left: $label-width
+            
+            .ant-empty-normal
+                margin-block: 8px
                 
-                margin-right: 14px
-    
-    .nodes
-        margin: 20px 0px
+            .fp
+                display: flex
+                align-items: center
+                
+                .zip-icon
+                    width: 24px
+                    
+                    margin-right: 14px
         
-        .title
-            font-weight: bold
-            margin-right: 20px
+        .nodes
+            margin: 20px 0px
             
-.plugins-sync-modal
-    .ant-modal-header
-        margin-bottom: 20px
+            .title
+                font-weight: bold
+                margin-right: 20px
+        
+        .select-plugin-id, .form-input
+            width: 290px
+        
+        .submit-line
+            display: flex
+            
+            gap: 12px
+            
+            .install-button
+                margin-left: auto
+        
     
-    .ant-form-item .ant-form-item-label > label
-        margin-right: 20px
+    .plugins-sync-modal
+        .ant-modal-header
+            margin-bottom: 20px
+        
+        .ant-form-item .ant-form-item-label > label
+            margin-right: 20px

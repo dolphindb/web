@@ -22,17 +22,20 @@ import {
 } from 'dolphindb/browser.js'
 
 
-import { language, t } from '../../i18n/index.js'
+import { language, t } from '@i18n/index.ts'
 
-import { CopyIconButton } from '../components/copy/CopyIconButton.js'
+import { CopyIconButton } from '@/components/copy/CopyIconButton.tsx'
 
-import { model, NodeType } from '../model.js'
+import { model, NodeType } from '@/model.ts'
 
-import { Editor } from '../components/Editor/index.js'
+import { Editor } from '@/components/Editor/index.tsx'
 
-import { NAME_CHECK_PATTERN } from '../access/constants.js'
+import { NAME_CHECK_PATTERN } from '@/access/constants.tsx'
 
-import { shell } from './model.js'
+import { switch_keys } from '@/utils.ts'
+
+import { shell } from './model.ts'
+
 
 import { CreateTableModal } from './CreateTableModal.js'
 import { AddColumnModal } from './AddColumnModal.js'
@@ -220,26 +223,15 @@ export function Databases () {
                                     case 'column-root': 
                                     case 'partition-directory': {
                                         // 切换展开状态
-                                        let found = false
-                                        let keys_ = [ ]
+                                        const keys_ = switch_keys(expanded_keys, node.key)
                                         
-                                        for (const key of expanded_keys)
-                                            if (key === node.key)
-                                                found = true
-                                            else
-                                                keys_.push(key)
+                                        if (/* 之前没有 */ keys_.last === node.key && type === 'database') {
+                                            await node.load_children()
                                         
-                                        if (!found) {
-                                            keys_.push(node.key)
+                                            shell.set({ dbs: [...dbs] })
                                             
-                                            if (type === 'database') {
-                                                await node.load_children()
-                                            
-                                                shell.set({ dbs: [...dbs] })
-                                                
-                                                // 显示 schema
-                                                await node.inspect() 
-                                            }
+                                            // 显示 schema
+                                            await node.inspect() 
                                         }
                                         
                                         set_expanded_keys(keys_)
