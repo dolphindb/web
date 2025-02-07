@@ -21,7 +21,6 @@ import SvgGroup from './icons/group.icon.svg'
 
 export function Config () {
     const [tab_key, set_tab_key] = useState<'controller_config' | 'nodes_config' | 'nodes_management'>('controller_config')
-    const { v3 } = model.use(['v3'])
     
     return <Tabs
         type='card'
@@ -58,7 +57,7 @@ export function Config () {
                 ),
                 children: <NodesConfig />
             },
-            ... v3 ? [{
+            {
                 key: 'compute_group_config',
                 label: (
                     <div className='tab-header'>
@@ -67,7 +66,7 @@ export function Config () {
                     </div>
                 ),
                 children: <ComputeGroupConfig />
-            }] : [ ]
+            }
         ]}
     />
 }
