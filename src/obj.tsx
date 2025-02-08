@@ -281,7 +281,7 @@ function build_tree_data_with_slice (
     { remote, ctx, ddb, options }: { remote?: Remote, ctx?: Context, ddb?: DDB, options?: InspectOptions }
 ) {
     const [dict_key, dict_value] = obj.value
-    return seq(Math.max(end - start, 0), i => {
+    return seq(Math.min(Math.max(end - start, 0), dict_key.rows), i => {
         const ireal = start + i
         const key = formati(dict_key, ireal, options)
         const valueobj = dict_value.value[ireal]
