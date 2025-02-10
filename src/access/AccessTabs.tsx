@@ -1,5 +1,4 @@
-import { Tabs, Button, Select } from 'antd'
-import { ReloadOutlined } from '@ant-design/icons'
+import { Tabs, Select } from 'antd'
 import { useState } from 'react'
 
 import { t } from '@i18n/index.ts'
@@ -15,6 +14,7 @@ import { use_users } from '@/access/hooks/use-users.ts'
 import { use_groups } from '@/access/hooks/use-groups.ts'
 import { AccessList } from '@/access/AccessList.tsx'
 import { AccessManage } from '@/access/AccessManage.tsx'
+import { RefreshButton } from '@/components/RefreshButton/index.tsx'
 
 
 export function AccessTabs ({
@@ -94,15 +94,12 @@ export function AccessTabs ({
                     </div>
                 ),
                 right: (
-                    <Button
-                        icon={<ReloadOutlined />}
+                    <RefreshButton
                         onClick={async () => {
                             await mutate(key => Array.isArray(key) && key[0] === 'access_objs')
                             model.message.success(t('刷新成功'))
                         }}
-                    >
-                        {t('刷新')}
-                    </Button>
+                     />
                 )
             }}
         />

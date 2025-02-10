@@ -1,20 +1,36 @@
-.ddb-table-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    
-    h2 {
-        margin: 0px;
+.ddb-title {
+    .ant-table-title {
+        padding: 0px;
     }
     
-    .ddb-table-title {
+    .ddb-table-filter-form {
+        margin-bottom: 12px;
+    } 
+    
+    .ddb-table-header {
         display: flex;
-        column-gap: 8px;
+        justify-content: space-between;
         align-items: center;
+        margin-bottom: 12px;
         
-        .help-icon {
-            cursor: pointer;
+        h2 {
+            margin: 0px;
         }
+        
+        .ddb-table-title {
+            display: flex;
+            column-gap: 8px;
+            align-items: center;
+            
+            .help-icon {
+                cursor: pointer;
+            }
+            
+            
+        }
+        
+       
+        
     }
 }
 

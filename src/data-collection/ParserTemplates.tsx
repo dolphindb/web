@@ -152,8 +152,9 @@ export function ParserTemplates () {
             buttons={
                 <>
                     <Button type='primary' icon={<PlusOutlined />} onClick={on_create}>{t('新建')}</Button>
-                    <Button color='danger' onClick={on_batch_delete} icon={<DeleteOutlined/>}>{t('批量删除')}</Button>
-                </>}
+                    <Button danger onClick={on_batch_delete} icon={<DeleteOutlined/>}>{t('批量删除')}</Button>
+                </>
+            }
             scroll={{ x: '100%' }} 
             rowKey='id' 
             dataSource={data.items} 
