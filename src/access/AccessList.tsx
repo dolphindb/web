@@ -1,13 +1,14 @@
-import { Table, type TableColumnType } from 'antd'
+import { Input, Table, type TableColumnType } from 'antd'
 import { useEffect, useMemo, useState } from 'react'
 
 import { t } from '@i18n/index.ts'
 
 import { model } from '@/model.ts'
 
+import { DDBTable } from '@/components/DDBTable/index.tsx'
+
 import { type Catalog, type Database } from './model.ts'
 import { ACCESS_TYPE, DATABASES_WITHOUT_CATALOG, NEED_INPUT_ACCESS, STAT_ICONS, TABLE_NAMES } from './constants.tsx'
-import { AccessHeader } from './AccessHeader.tsx'
 import { generate_access_cols } from './utils/handle-access.ts'
 import type { AccessCategory, AccessRole, TABLE_ACCESS } from './types.ts'
 import { use_access } from './hooks/use-access.ts'
@@ -19,6 +20,8 @@ export function AccessList ({ role, name, category }: { role: AccessRole, name: 
     const [search_key, set_search_key] = useState('')
     
     const { data: access_objs = [ ] } = use_access_objs(role, category)
+    
+    const [input_value, set_input_value] = useState(search_key)
     
     const { v3 } = model
     
@@ -105,7 +108,7 @@ export function AccessList ({ role, name, category }: { role: AccessRole, name: 
     if (!access_objs)
         return null
     
-    return <Table
+    return <DDBTable
                 columns={cols}
                 dataSource={showed_accesses
                     .filter(({ name, schemas, tables }) =>
@@ -142,7 +145,14 @@ export function AccessList ({ role, name, category }: { role: AccessRole, name: 
                                 : 
                             { stat: NEED_INPUT_ACCESS.includes(tb_access.name) ? tb_access.stat : STAT_ICONS[tb_access.stat] })
                     }))}
-                title={() => <AccessHeader role={role} name={name} category={category} preview search_key={search_key} set_search_key={set_search_key} />}
+                filter_form={<Input.Search
+                    value={input_value}
+                    onChange={e => {
+                        set_input_value(e.target.value)
+                    }}
+                    onPressEnter={() => { set_search_key(input_value) }}
+                    placeholder={t('请输入想要搜索的{{category}}', { category: category === 'database' && v3 ? `${TABLE_NAMES.catalog} / ${TABLE_NAMES.database} / ${TABLE_NAMES.table}` : TABLE_NAMES[category] })}
+                />}
                 tableLayout='fixed'
                 expandable={
                     category === 'database'

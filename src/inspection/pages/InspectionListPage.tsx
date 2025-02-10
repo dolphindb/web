@@ -18,6 +18,8 @@ import { EmailConfigModal } from '@/inspection/modals/EmailConfigModal.tsx'
 import { inspection } from '@/inspection/model.ts'
 import type { Plan, PlanReport } from '@/inspection/type.ts'
 import { LogModal } from '@/inspection/modals/LogModal.tsx'
+import { RefreshButton } from '@/components/RefreshButton/index.tsx'
+import { DDBTable } from '@/components/DDBTable/index.tsx'
 
 
 export function InspectionListPage () {
@@ -30,6 +32,14 @@ export function InspectionListPage () {
     
     return <div>
             <div className='inspection-header'>
+                <Input.Search 
+                    placeholder={t('请输入巡检名称')} 
+                    value={search_input_value}
+                    onChange={e => { set_search_input_value(e.target.value) }}
+                    onSearch={set_search_key} 
+                    className='inspection-search'
+                />
+                
                 <Button 
                     type='primary'
                     icon={<PlusOutlined />}
@@ -56,23 +66,15 @@ export function InspectionListPage () {
                 )}
                 
             
-                <Button 
-                    icon={<ReloadOutlined />}
+                <RefreshButton 
                     onClick={() => {
                         set_search_input_value('')
                         set_search_key('')
                         refresher()
                         model.message.success(t('刷新成功'))
-                    }}>{t('刷新')}
-                </Button>
+                    }}/>
                 
-                <Input.Search 
-                    placeholder={t('请输入巡检名称')} 
-                    value={search_input_value}
-                    onChange={e => { set_search_input_value(e.target.value) }}
-                    onSearch={set_search_key} 
-                    className='inspection-search'
-                />
+              
             </div>
             
             {
@@ -248,17 +250,9 @@ function ReportListTable  ({
         },
     ], [ ])
     
-    return <Table 
-                title={() => <div className='report-table-header'>
-                    <div className='report-table-header-left'>
-                        <h2>{t('巡检结果')}</h2>
-                        <DatePicker.RangePicker 
-                            value={dates} 
-                            onChange={set_dates} 
-                            showTime 
-                            placeholder={[t('开始时间'), t('结束时间')]}/>
-                    </div>
-                <Popconfirm   
+    return <DDBTable
+                buttons={
+                    <Popconfirm   
                     title={t('批量删除巡检结果')} 
                     description={t('确认删除选中的巡检结果吗？')} 
                     onConfirm={async () => {
@@ -269,7 +263,15 @@ function ReportListTable  ({
                     }} >
                         <Button danger disabled={ids.length === 0}>{t('批量删除')}</Button>
                 </Popconfirm>
-                </div>}
+                }
+                title={t('巡检结果')}
+                filter_form={
+                    <DatePicker.RangePicker 
+                    value={dates} 
+                    onChange={set_dates} 
+                    showTime 
+                    placeholder={[t('开始时间'), t('结束时间')]}/>
+                }
                 onChange={(_, filter, sorter) => {
                     if (filter?.success && filter.success.length > 0) 
                         set_success(Number(filter.success[0]))
@@ -444,22 +446,21 @@ function PlanListTable  ({
         },
     ], [refresher])
     
-    return <Table
-        title={() => 
-            <div className='plan-table-header'>
-                <h2>{enabled ? t('正在执行的巡检计划') : t('待执行的巡检计划')}</h2>
-                <Popconfirm   
-                    title={t('批量删除巡检方案')} 
-                    description={t('确认删除选中的巡检方案吗？')} 
-                    onConfirm={async () => {
-                        await inspection.delete_plans(ids)
-                        model.message.success(t('批量删除成功'))
-                        set_current_page(1)
-                        mutate_plans()
-                    }} >
-                        <Button danger disabled={ids.length === 0}>{t('批量删除')}</Button>
-                </Popconfirm>
-            </div>}
+    return <DDBTable
+        title={enabled ? t('正在执行的巡检计划') : t('待执行的巡检计划')}
+        buttons={
+            <Popconfirm   
+                title={t('批量删除巡检方案')} 
+                description={t('确认删除选中的巡检方案吗？')} 
+                onConfirm={async () => {
+                    await inspection.delete_plans(ids)
+                    model.message.success(t('批量删除成功'))
+                    set_current_page(1)
+                    mutate_plans()
+                }} >
+                    <Button danger disabled={ids.length === 0}>{t('批量删除')}</Button>
+            </Popconfirm>
+        }
         rowSelection={{ type: 'checkbox', selectedRowKeys: ids, onChange: set_ids }}
         pagination={{
             current: current_page,

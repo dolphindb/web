@@ -13,6 +13,7 @@ import { MetricGroups } from '@/inspection/constants.ts'
 import type { MetricsWithStatus } from '@/inspection/type.ts'
 import { EditParamModal } from '@/inspection/modals/EditParamModal.tsx'
 import { AddParamsModal } from '@/inspection/modals/AddParamsModal.tsx'
+import { DDBTable } from '@/components/DDBTable/index.tsx'
 
 
 interface MetricTableProps {
@@ -70,13 +71,14 @@ export function MetricTable ({
     }, [checked_metrics])
     
     return <div className='metric-table'>
-            <Table 
+            <DDBTable 
                 rowKey='group'
-                title={() => editing ? null : <div className='metric-table-title'>
-                                <h3 className='required'>{t('指标列表')}</h3>
-                                <Button type='primary' onClick={async () => NiceModal.show(AddParamsModal, { checked_metrics, set_checked_metrics })}>{t('管理指标')}</Button>
-                            
-                    </div>}
+                {
+                    ...editing ? { } : {
+                        buttons: <Button type='primary' onClick={async () => NiceModal.show(AddParamsModal, { checked_metrics, set_checked_metrics })}>{t('管理指标')}</Button>,
+                        title: t('指标列表')
+                    }
+                }
                 dataSource={Array.from(grouped_metrics.keys()).map(group => ({
                     group,
                     metrics: grouped_metrics.get(group) || [ ]

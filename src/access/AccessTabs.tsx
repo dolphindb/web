@@ -95,7 +95,7 @@ export function AccessTabs ({
                     </div>  
                         {editing ? ( 
                             <Button
-                                type='default'
+                                type='primary'
                                 icon={<EyeOutlined />}
                                 onClick={() => {
                                     model.goto(`/access/${role}/${name}`)

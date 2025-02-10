@@ -1,14 +1,18 @@
-import { Table, type TableColumnType } from 'antd'
+import { Button, Input, Table, type TableColumnType } from 'antd'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 
 import NiceModal from '@ebay/nice-modal-react'
 
 import { t } from '@i18n/index.ts'
 
+import { PlusOutlined, DeleteOutlined, SearchOutlined } from '@ant-design/icons'
+
 import { model } from '@/model.ts'
 
+import { DDBTable } from '@/components/DDBTable/index.tsx'
+
 import { AccessHeader } from './AccessHeader.tsx'
-import { ACCESS_OPTIONS, ACCESS_TYPE, NEED_INPUT_ACCESS } from './constants.tsx'
+import { ACCESS_OPTIONS, ACCESS_TYPE, NEED_INPUT_ACCESS, TABLE_NAMES } from './constants.tsx'
 import { access } from './model.ts'
 
 import { AccessAddModal } from './components/access/AccessAddModal.tsx'
@@ -35,6 +39,8 @@ export function AccessManage ({ role, name, category }: { role: AccessRole, name
     const { v3 } = model
     
     const [search_key, set_search_key] = useState('')
+    
+    const [input_value, set_input_value] = useState(search_key)
     
     const [selected_access, set_selected_access] = useState<ACCESS[]>([ ])
     
@@ -175,7 +181,7 @@ export function AccessManage ({ role, name, category }: { role: AccessRole, name
         row[category === 'script' ? 'access' : 'name'].toLowerCase().includes(search_key.toLowerCase())
     ), [search_key, access_rules])
     
-    return <Table
+    return <DDBTable
             rowSelection={{
                 selectedRowKeys: selected_access.map(ac => ac.key),
                 onChange: (_, selectedRows: any[], info) => {
@@ -191,17 +197,43 @@ export function AccessManage ({ role, name, category }: { role: AccessRole, name
                         set_selected_access([ ])
                 }
             }}
-            title={() => <AccessHeader
-                role={role}
-                name={name}
-                category={category}
-                preview={false}
-                search_key={search_key}
-                set_search_key={set_search_key}
-                add_open={async () => NiceModal.show(AccessAddModal, { category, role, name })}
-                delete_open={async () => NiceModal.show(AccessRevokeModal, { category, selected_access, reset_selected, name, update_accesses })}
-                selected_length={selected_access.length}
-        />}
+            // buttons={<AccessHeader
+            //     role={role}
+            //     name={name}
+            //     category={category}
+            //     preview={false}
+            //     search_key={search_key}
+            //     set_search_key={set_search_key}
+            //     add_open={async () => NiceModal.show(AccessAddModal, { category, role, name })}
+            //     delete_open={async () => NiceModal.show(AccessRevokeModal, { category, selected_access, reset_selected, name, update_accesses })}
+            //     selected_length={selected_access.length}
+            // />}
+            buttons={ <>
+                <Button 
+                    type='primary' 
+                    icon={<PlusOutlined />} 
+                    onClick={async () => NiceModal.show(AccessAddModal, { category, role, name })}>
+                    {t('新增权限')}
+                </Button>
+                <Button
+                    danger
+                    icon={<DeleteOutlined />}
+                    onClick={() => {
+                        if (selected_access.length)
+                            NiceModal.show(AccessRevokeModal, { category, selected_access, reset_selected, name, update_accesses })
+                    }}
+                >
+                    {t('批量撤销')}
+                </Button>
+            </>}
+            filter_form={<Input.Search
+                value={input_value}
+                onChange={e => {
+                    set_input_value(e.target.value)
+                }}
+                onPressEnter={() => { set_search_key(input_value) }}
+                placeholder={t('请输入想要搜索的{{category}}', { category: category === 'database' && v3 ? `${TABLE_NAMES.catalog} / ${TABLE_NAMES.database} / ${TABLE_NAMES.table}` : TABLE_NAMES[category] })}
+            />}
             columns={showed_aces_cols}
             dataSource={filtered_rules}
         />
