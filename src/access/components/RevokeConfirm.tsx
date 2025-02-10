@@ -1,4 +1,4 @@
-import { Button, Popconfirm } from 'antd'
+import { Typography, Popconfirm } from  'antd'
 
 import { t } from '@i18n/index.js'
 
@@ -8,8 +8,8 @@ export function RevokeConfirm ({ on_confirm }: { on_confirm: () => Promise<void>
             description={t('确认撤销该权限吗？')}
             onConfirm={on_confirm}
         >
-            <Button type='link' danger>
+            <Typography.Link type='danger'>
                 {t('撤销')}
-            </Button>
+            </Typography.Link>
         </Popconfirm>
 }
