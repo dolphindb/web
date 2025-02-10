@@ -88,6 +88,15 @@ export function UserList () {
     return <>
         <div className='header'>
             <div className='actions'>
+                <Input
+                    className='search'
+                    value={search_key}
+                    prefix={<SearchOutlined />}
+                    onChange={e => {
+                        set_search_key(e.target.value)
+                    }}
+                    placeholder={t('请输入想要搜索的用户')}
+                />
                 <Button type='primary' icon={<PlusOutlined />} onClick={async () => NiceModal.show(UserCreateModal)}>
                     {t('新建用户')}
                 </Button>
@@ -112,15 +121,7 @@ export function UserList () {
                 >
                     {t('刷新')}
                 </Button>
-                <Input
-                    className='search'
-                    value={search_key}
-                    prefix={<SearchOutlined />}
-                    onChange={e => {
-                        set_search_key(e.target.value)
-                    }}
-                    placeholder={t('请输入想要搜索的用户')}
-                />
+               
             </div>
         </div>
         <DDBTable
@@ -142,7 +143,7 @@ export function UserList () {
                     groups: (
                         <div>
                             {current_user.groups &&
-                                current_user.groups.split(',').map((group: string) => <DDBTag color='cyan' key={group}>
+                                current_user.groups.split(',').map((group: string) => <DDBTag key={group}>
                                     {group}
                                 </DDBTag>)}
                         </div>
