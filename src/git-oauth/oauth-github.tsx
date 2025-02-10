@@ -2,8 +2,7 @@ import { useEffect } from 'react'
 
 import { useNavigate } from 'react-router'
 
-import { GitHubAdapter } from '@/shell/git/git-adapter.ts'
-import { GIT_CONSTANTS } from '@/shell/constants.ts'
+import { GitHubAdapter, GIT_CONSTANTS } from '@/shell/git/git-adapter.ts'
 
 export function GitHubOauth () {
     

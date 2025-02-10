@@ -104,13 +104,13 @@ class ShellModel extends Model<ShellModel> {
     truncate_text (lines: string[]) {
         let i_first_non_empty = null
         let i_non_empty_end = null
-        for (let i = 0;  i < lines.length;  i++)
+        for (let i = 0;  i < lines.length;  i++) 
             if (lines[i].trim()) {
                 if (i_first_non_empty === null)
                     i_first_non_empty = i
                 i_non_empty_end = i + 1
             }
-            
+        
         // 未找到非空行
         if (i_first_non_empty === null) {
             i_first_non_empty = 0
@@ -122,18 +122,18 @@ class ShellModel extends Model<ShellModel> {
         let lines_ = lines.slice(i_first_non_empty, too_much ? i_first_non_empty + 2 : i_non_empty_end)
         if (too_much)
             lines_.push(t('··· 共 {{total_lines}} 行 ···', { total_lines: i_non_empty_end - i_first_non_empty }))
-            
+        
         return lines_
     }
     
     
     async refresh_db () {
-    
+        
     }
     
     
     async refresh_vars () {
-    
+        
     }
     
     
@@ -143,10 +143,10 @@ class ShellModel extends Model<ShellModel> {
         
         this.term.write(
             '\n' +
-            time_start.format('HH:mm:ss.SSS') + '\n' +
+            time_start.format('HH:mm:ss.SSS') + '\n' + 
             (code.trim() ?
                 this.truncate_text(lines).join_lines()
-                : '')
+            : '')
         )
         
         this.set({ executing: true })
@@ -162,7 +162,7 @@ class ShellModel extends Model<ShellModel> {
             
             if (model.dev || model.verbose)
                 console.log('执行代码返回了:', ddbobj.data())
-                
+            
             if (
                 ddbobj.form === DdbForm.chart ||
                 ddbobj.form === DdbForm.dict ||
@@ -178,7 +178,7 @@ class ShellModel extends Model<ShellModel> {
                         data: ddbobj
                     },
                 })
-                
+            
             this.term.writeln(
                 (() => {
                     switch (ddbobj.form) {
@@ -192,7 +192,7 @@ class ShellModel extends Model<ShellModel> {
                             return blue(
                                 ddbobj.inspect_type()
                             ) + '\n'
-                            
+                        
                         default: {
                             if (ddbobj.type === DdbType.void)
                                 return ''
@@ -213,7 +213,7 @@ class ShellModel extends Model<ShellModel> {
                     blue(`\x1b]8;;${model.get_error_code_doc_link(ref_id)}\x07RefId: ${ref_id}\x1b]8;;\x07`)
                 )
                 
-                
+            
             this.term.writeln(red(message))
             
             console.log(error)
@@ -298,12 +298,12 @@ class ShellModel extends Model<ShellModel> {
                 
                 // 此处需要用变量值的类型来替换 objs(true) 中获取的变量的类型，因为当变量类型为 string 且变量值很长时，server 返回的变量值的类型是 blob
                 immutables[i].type = values[i].type
-            }
+            }  
         }
         
         
         this.set({
-            vars: vars_data.map(data =>
+            vars: vars_data.map(data => 
                 new DdbVar(data)
             )
         })
@@ -311,9 +311,9 @@ class ShellModel extends Model<ShellModel> {
     
     
     save (code = this.editor?.getValue()) {
-        if (code === undefined)
+        if (code === undefined) 
             throw new Error('不能保存 undefined 的 code')
-            
+        
         if (this.itab > -1) {
             let tab = this.tabs.find(t => t.index === this.itab)
             if (tab)
@@ -349,7 +349,7 @@ class ShellModel extends Model<ShellModel> {
     add_tab () {
         if (!this.monaco_inited)
             return
-            
+        
         this.save()
         const index_set = new Set(this.tabs.map(t => t.index))
         let new_tab_index = 1
@@ -432,7 +432,7 @@ class ShellModel extends Model<ShellModel> {
     switch_tab (tab_index: number) {
         if (!this.monaco_inited)
             return
-            
+        
         this.save()
         this.set({ itab: tab_index })
         if (tab_index > -1)
@@ -445,10 +445,10 @@ class ShellModel extends Model<ShellModel> {
     init_tabs () {
         const tab_keys = Object.keys(localStorage)
             .filter(key => key.startsWith(`${storage_keys.code}.`))
-            
+        
         let tabs: Tab[] = [ ]
         
-        for (const key of tab_keys)
+        for (const key of tab_keys) 
             try {
                 tabs.push(
                     JSON.parse(localStorage.getItem(key) || '')
@@ -456,7 +456,7 @@ class ShellModel extends Model<ShellModel> {
             } catch (error) {
                 localStorage.removeItem(key)
             }
-            
+        
         this.set({ tabs: tabs.sort((a, b) => a.index - b.index) })
     }
     
@@ -475,7 +475,7 @@ class ShellModel extends Model<ShellModel> {
         if (selection.isEmpty()) {
             code = default_selection === 'line' ?
                 emodel.getLineContent(selection.startLineNumber)
-                :
+            :
                 emodel.getValue(this.monaco.editor.EndOfLinePreference.LF)
             istart = default_selection === 'line' ? selection.startLineNumber : 1
         } else {
@@ -494,9 +494,9 @@ class ShellModel extends Model<ShellModel> {
                         okText: t('立即刷新')
                     })
                 }
-            else
+             else
                 return
-        else
+         else
             await this.eval(code, istart)
         
         if (code.includes('login') || code.includes('logout') || code.includes('authenticateByTicket'))
@@ -517,12 +517,12 @@ class ShellModel extends Model<ShellModel> {
     async execute_ (default_selection: 'all' | 'line') {
         let done = false
         const show_delay = delay(500)
-            ; (async () => {
-                await show_delay
-                if (!done)
-                    this.set({ show_executing: true })
-            })()
-            
+        ;(async () => {
+            await show_delay
+            if (!done)
+                this.set({ show_executing: true })
+        })()
+        
         try {
             await shell.execute(default_selection)
         } finally {
@@ -540,7 +540,7 @@ class ShellModel extends Model<ShellModel> {
         // 当前无数据节点存活，且当前节点不为单机节点，则不进行数据库表获取
         if (model.node.mode !== NodeType.single && !model.has_data_nodes_alive()) 
             return
-            
+        
         // ['dfs://数据库路径(可能包含/)/表名', ...]
         // 不能直接使用 getClusterDFSDatabases, 因为新的数据库权限版本 (2.00.9) 之后，用户如果只有表的权限，调用 getClusterDFSDatabases 无法拿到该表对应的数据库
         // 但对于无数据表的数据库，仍然需要通过 getClusterDFSDatabases 来获取。因此要组合使用
@@ -586,23 +586,23 @@ class ShellModel extends Model<ShellModel> {
         let catalog_map = new Map<string, Database>()
         let root: (Catalog | Database | DatabaseGroup)[] = [ ]
         
-        if (v3)
+        if (v3) 
             await Promise.all(rest[0].value.sort().map(async catalog => {
                 let catalog_node = new Catalog(catalog)
                 root.push(catalog_node)
                 
-                    ; (
-                        await ddb.invoke('getSchemaByCatalog', [catalog])
-                    ).data
-                        .sort((a, b) => strcmp(a.schema, b.schema))
-                        .map(({ schema, dbUrl }) => {
-                            const db_path = `${dbUrl}/`
-                            const database = new Database(db_path, schema)
-                            catalog_map.set(db_path, database)
-                            catalog_node.children.push(database)
-                        })
+                ;(
+                    await ddb.invoke('getSchemaByCatalog', [catalog])
+                ).data
+                    .sort((a, b) => strcmp(a.schema, b.schema))
+                    .map(({ schema, dbUrl }) => {
+                        const db_path = `${dbUrl}/`
+                        const database = new Database(db_path, schema)
+                        catalog_map.set(db_path, database)
+                        catalog_node.children.push(database)
+                    })
             }))
-            
+        
         for (const path of merged_paths) {
             // 找到数据库最后一个斜杠位置，截取前面部分的字符串作为库名
             const index_slash = path.lastIndexOf('/')
@@ -612,7 +612,7 @@ class ShellModel extends Model<ShellModel> {
             
             let parent: Catalog | Database | DatabaseGroup | { children: (Catalog | Database | DatabaseGroup)[] } = { children: root }
             
-            if (catalog_map.has(db_path))
+            if (catalog_map.has(db_path)) 
                 parent = catalog_map.get(db_path)
             else {
                 // for 循环用来处理 database group
@@ -623,7 +623,7 @@ class ShellModel extends Model<ShellModel> {
                         parent = group
                     else {
                         const group = new DatabaseGroup(group_key)
-                            ; (parent as DatabaseGroup).children.push(group)
+                        ;(parent as DatabaseGroup).children.push(group)
                         hash_map.set(group_key, group)
                         parent = group
                     }
@@ -635,16 +635,16 @@ class ShellModel extends Model<ShellModel> {
                     parent = db
                 else {
                     const db = new Database(db_path)
-                        ; (parent as DatabaseGroup).children.push(db)
+                    ;(parent as DatabaseGroup).children.push(db)
                     hash_map.set(db_path, db)
                     parent = db
                 }
             }
             
             // 处理 table，如果 table_name 为空表明当前路径是 db_path 则不处理
-            if (table_name)
+            if (table_name) 
                 parent.table_paths.push(`${path}/`)
-                
+            
         }
         
         // TEST: 测试多级数据库树
@@ -689,7 +689,7 @@ class ShellModel extends Model<ShellModel> {
                         new PartitionDirectory(root, node, `${node.path}${filenames[i]}/`)
                     )
                     break
-                    
+                
                 case DfsFileType.file_partition: {
                     const chunks = chunks_column[i].split(',')
                     assert(chunks.length === 1, 'chunks.length === 1')
@@ -709,7 +709,7 @@ class ShellModel extends Model<ShellModel> {
                     // 可能是空的数据库，里面还没有表，也没有数据
                     if (!tables.length)
                         return [ ]
-                        
+                    
                     if (is_database_granularity)  // directory 下面的每个 partition file 代表一个分区
                         files.push(new PartitionFile(root, node, `${node.path}${filenames[i]}`, chunk, site_node, filenames[i]))
                     else if (tables[0] === node.root.table.name) {
@@ -722,7 +722,7 @@ class ShellModel extends Model<ShellModel> {
                     }
                 }
             }
-            
+        
         // directories 和 files 中应该只有一个有值，另一个为空
         if (directories.length) {
             assert(!files.length, t('directories 和 file 应该只有一个有值，另一个为空'))
@@ -738,7 +738,7 @@ class ShellModel extends Model<ShellModel> {
     async define_load_table_schema () {
         if (this.load_table_schema_defined)
             return
-            
+        
         await model.ddb.eval(
             'def load_table_schema (db_path, tb_name) {\n' +
             '    return schema(loadTable(db_path, tb_name))\n' +
@@ -752,7 +752,7 @@ class ShellModel extends Model<ShellModel> {
     async define_load_table_variable_schema () {
         if (this.load_table_variable_schema_defined)
             return
-            
+        
         await model.ddb.eval(
             'def load_table_variable_schema (tb_name) {\n' +
             '    return schema(objByName(tb_name))\n' +
@@ -766,7 +766,7 @@ class ShellModel extends Model<ShellModel> {
     async define_load_database_schema () {
         if (this.load_database_schema_defined)
             return
-            
+        
         await model.ddb.eval(
             'def load_database_schema (db_path) {\n' +
             '    return schema(database(db_path))\n' +
@@ -780,7 +780,7 @@ class ShellModel extends Model<ShellModel> {
     async define_peek_table () {
         if (this.peek_table_defined)
             return
-            
+        
         await model.ddb.eval(
             'def peek_table (db_path, tb_name) {\n' +
             '    return select top 100 * from loadTable(db_path, tb_name)\n' +
@@ -794,13 +794,13 @@ class ShellModel extends Model<ShellModel> {
     async define_add_column () {
         if (this.add_column_defined)
             return
-            
+        
         await model.ddb.eval(
             'def add_column (db_path, tb_name, col_name, col_type_str) {\n' +
             // addColumn 的最后一个参数不能是 'INT', 只能是 INT 或者对应的 typeInt 4
             // https://www.dolphindb.cn/cn/help/DatabaseandDistributedComputing/DatabaseOperations/AddColumns.html?highlight=addcolumn
             // https://www.dolphindb.cn/cn/help/FunctionsandCommands/CommandsReferences/a/addColumn.html
-            '    addColumn(loadTable(database(db_path), tb_name), col_name, eval(parseExpr(col_type_str)) )\n' +
+            '    addColumn(loadTable(database(db_path), tb_name), col_name, eval(parseExpr(col_type_str)) )\n' + 
             '}\n'
         )
         
@@ -811,7 +811,7 @@ class ShellModel extends Model<ShellModel> {
     async define_set_column_comment () {
         if (this.set_column_comment_defined)
             return
-            
+        
         await model.ddb.eval(
             'def set_column_comment (db_path, tb_name, col_name, col_comment) {\n' +
             // setColumnComment 的最后一个参数是动态的字典，因此用 dict 来构造

@@ -1,8 +1,7 @@
 import { useEffect } from 'react'
 import { useNavigate } from 'react-router'
 
-import { GitLabAdapter } from '@/shell/git/git-adapter.ts'
-import { GIT_CONSTANTS } from '@/shell/constants.ts'
+import { GitLabAdapter, GIT_CONSTANTS } from '@/shell/git/git-adapter.ts'
 
 export function GitLabOauth () {
     

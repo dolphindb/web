@@ -5,7 +5,6 @@ import { t } from '@i18n/index.ts'
 import dayjs from 'dayjs'
 
 import { model } from '@/model.ts'
-import { GIT_CONSTANTS } from '../constants.ts'
 
 interface IProject {
     id: string
@@ -62,6 +61,17 @@ interface IGitAdapter {
     get_access_token(code: string, client_id: string, redirect_uri?: string, secret?: string): Promise<string>
     commit_file(repo: string, file_path: string, message: string, branch: string, content: string, sha?: string, create?: boolean): Promise<boolean>
     get_commit_history(repo: string, file_path: string, ref?: string): Promise<ICommitHistoryItem[]>
+}
+
+export const GIT_CONSTANTS = {
+    ACCESS_CODE: 'git-access-code',
+    CLIENT_ID: 'client_id',
+    REDIRECT_URL: 'redirect_url',
+    CLIENT_SECRET: 'client_secret',
+    ACCESS_TOKEN: 'git-access-token',
+    PROVIDER: 'git-provider',
+    ROOT_URL: 'root_url',
+    API_ROOT: 'api_root',
 }
 
 export class GitLabAdapter implements IGitAdapter {
