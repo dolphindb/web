@@ -64,12 +64,12 @@ export function Gauge (props: IProps) {
                 data: data_setting.filter(Boolean).map(item => ({
                     value: data_source?.[0]?.[item?.col],
                     name: item.name,
-                    title: {
-                        offsetCenter: [`${item?.title?.level}%`, `${item?.title?.vertical}%`]
-                    },
-                    detail: {
+                    title: item.title ?  {
+                        offsetCenter:  [`${item?.title?.level}%`, `${item?.title?.vertical}%`]
+                    } : undefined,
+                    detail: item.value ? {
                         offsetCenter: [`${item?.value?.level}%`, `${item?.value?.vertical}%`]
-                    },
+                    } : undefined,
                     itemStyle: {
                         color: item.color,
                     }
@@ -138,8 +138,7 @@ export function GaugeConfigForm (props: { col_names: string[] } ) {
                 <Form.List name='data_setting' initialValue={[{ }]}>
                     {(fields, { add, remove }) => {
                         
-                        const items = fields.map(field => { 
-                            return {
+                        const items = fields.map(field => ({
                                 key: field.name,
                                 label: <div className='data-setting-label'>{t('数据列') + (field.name + 1)}<DeleteOutlined onClick={() => { remove(field.name) }} /></div>,
                                 forceRender: true,
@@ -176,8 +175,7 @@ export function GaugeConfigForm (props: { col_names: string[] } ) {
                                         <InputNumber addonAfter='%'/>
                                     </Form.Item>
                                 </>
-                            }
-                        })
+                            }))
                         return <>
                             <Collapse size='small' items={items} />
                             <Button className='add-data-setting-btn' type='dashed' block icon={<PlusCircleOutlined />} onClick={() => { add() }}>{t('增加数据列')}</Button>

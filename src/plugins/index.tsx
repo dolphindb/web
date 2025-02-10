@@ -41,10 +41,12 @@ export function Plugins () {
     async function update_plugins (query?: string) {
         let plugins = (await ddb.invoke<DdbTableData>('listPlugins'))
             .data
-            .map<Plugin>(({ plugin, minInstalledVersion, installedNodes, toInstallNodes, loadedNodes, preloadedNodes }) => ({
+            .map<Plugin>(({ plugin, minInstalledVersion: min_version, installedNodes, toInstallNodes, loadedNodes, preloadedNodes }) => ({
                 id: plugin,
                 
-                min_version: minInstalledVersion,
+                min_version,
+                
+                version_match: min_version.startsWith(version_without_fourth),
                 
                 installeds: str2arr(installedNodes),
                 
@@ -54,6 +56,7 @@ export function Plugins () {
                 
                 preloadeds: str2arr(preloadedNodes),
             }))
+            .sort((l, r) => Number(l.version_match) - Number(r.version_match))
         
         if (query)
             plugins = plugins
@@ -107,7 +110,7 @@ export function Plugins () {
     
     
     useEffect(() => {
-        version_without_patch ??= model.version.split('.').slice(0, 2).join('.')
+        version_without_fourth ??= model.version.split('.').slice(0, 3).join('.')
         
         update()
     }, [ ])
@@ -119,6 +122,9 @@ export function Plugins () {
     // 是否有选中的 plugin_node
     let has_selected = false
     
+    // 是否选中了多种不同的插件
+    let npartial_selecteds = 0
+    
     plugins.forEach(plugin => {
         const { selecteds, id } = plugin
         
@@ -128,8 +134,10 @@ export function Plugins () {
         if (nselecteds && nselecteds === nall)
             selected_keys.push(id)
         
-        if (nselecteds)
+        if (nselecteds) {
             has_selected = true
+            ++npartial_selecteds
+        }
         
         plugin.indeterminate = 0 < nselecteds && nselecteds < nall
     })
@@ -170,13 +178,13 @@ export function Plugins () {
             <Button
                 className='install'
                 icon={<Icon component={SvgUpgrade} />}
+                disabled={npartial_selecteds >= 2}
                 onClick={installer.open}
             >{t('安装插件')}</Button>
             
             <InstallModal
                 installer={installer}
                 update={update}
-                id={selected_keys[0]}
                 plugins={plugins}
                 plugin_nodes={plugin_nodes} />
             
@@ -246,11 +254,10 @@ export function Plugins () {
                 {
                     title: t('集群已安装的最低版本'), 
                     width: 500,
-                    render: (_, { min_version }) => {
-                        const match = min_version.startsWith(version_without_patch)
-                        
-                        return <Text type={ match ? undefined : 'danger'}>{min_version}{ !match && t(' (与数据库版本不一致，无法加载)') }</Text>
-                    }
+                    render: (_, { min_version, version_match }) =>
+                        version_match
+                            ? min_version
+                            : <Text type='danger'>{min_version} {t(' (与数据库版本不一致，无法加载)')}</Text>
                 },
                 {
                     title: t('已安装节点'),
@@ -370,13 +377,11 @@ interface InstallFields {
 function InstallModal ({
     installer,
     update,
-    id,
     plugins,
     plugin_nodes
 }: {
     installer: ModalController
     update: () => Promise<void>
-    id?: string
     plugins: Plugin[]
     plugin_nodes: PluginNode[]
 }) {
@@ -397,10 +402,17 @@ function InstallModal ({
                 
                 set_installables(installables)
                 
-                if (id)
-                    rform.current.setFieldValue('id', id)
+                const { current: form } = rform
                 
-                rform.current.setFieldValue('nodes', installables)
+                let nodes = installables
+                for (const { id, selecteds } of plugins)
+                    if (selecteds?.length) {
+                        nodes = selecteds.map(({ node }) => node)
+                        form.setFieldValue('id', id)
+                        break
+                    }
+                
+                form.setFieldValue('nodes', nodes)
             })()
     }, [installer.visible])
     
@@ -426,7 +438,6 @@ function InstallModal ({
             ref={rform}
             initialValues={{
                 method: 'offline',
-                id
             } satisfies Partial<InstallFields>}
             onFinish={async ({ method, id, nodes, zip, server, source, version }) => {
                 console.log(t('安装插件:'), method, id, nodes)
@@ -627,6 +638,9 @@ interface Plugin {
     /** 集群已安装的最低版本 */
     min_version: string
     
+    /** 根据 min_version 计算出的属性 */
+    version_match: boolean
+    
     installeds: string[]
     
     installables: string[]
@@ -644,7 +658,7 @@ interface Plugin {
 
 let script_defined = false
 
-let version_without_patch: string
+let version_without_fourth: string
 
 
 interface PluginNode {

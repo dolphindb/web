@@ -1,14 +1,18 @@
 import './index.scss'
 
 import { Checkbox, type PaginationProps, Table, type TableProps, Empty } from 'antd'
-import { useEffect, useMemo, useState } from 'react'
+import { useEffect, useMemo, useRef, useState } from 'react'
 import { genid } from 'xshell/utils.browser.js'
 
-import { type ColumnProps, type ColumnsType } from 'antd/es/table'
+import { type ColumnsType } from 'antd/es/table'
 
 import { isNumber } from 'lodash'
 
-import classNames from 'classnames'
+import cn from 'classnames'
+
+
+
+import { useSize } from 'ahooks'
 
 import {  BasicFormFields }  from '../../ChartFormFields/BasicFormFields.js'
 import { BasicTableFields } from '../../ChartFormFields/BasicTableFields.js'
@@ -53,6 +57,9 @@ function get_cell_color (val, threshold, total) {
 export function DBTable (props: IProps) {
     const { widget, data_source = [ ], ...otherProps } = props
     const [selected_cols, set_select_cols] = useState([ ])
+    const table_header_ref = useRef<HTMLDivElement>(null)
+    
+    const size = useSize(table_header_ref)
     
     const config = useMemo(() => widget.config as ITableConfig, [widget.config])
     
@@ -60,17 +67,14 @@ export function DBTable (props: IProps) {
     
     
     useEffect(() => { set_select_cols(show_cols?.map(item => item.col)) }, [show_cols])
-    
-    const radio_group_options = useMemo(() => {
-        return show_cols?.map(col => ({
+        
+    const radio_group_options = useMemo(() => show_cols?.map(col => ({
             label: col.display_name || col.col,
             value: col.col,
             key: col.col
-        }))
-    }, [show_cols])
+        })), [show_cols])
     
-    const columns = useMemo<ColumnsType<any>>(() => {
-        return selected_cols
+    const columns = useMemo<ColumnsType<any>>(() => selected_cols
             .map(col_name => show_cols.find(item => item.col === col_name))
             .map(col => {
                 const {
@@ -91,7 +95,7 @@ export function DBTable (props: IProps) {
                 
                 const col_config = {
                     dataIndex: name,
-                    width: width || 200,
+                    width: width,
                     title: display_name || name,
                     key: name,
                     ellipsis: true,
@@ -118,8 +122,7 @@ export function DBTable (props: IProps) {
                     }
                 
                 return col_config
-            })
-    }, [ selected_cols, data_source, show_cols, config])
+            }), [ selected_cols, data_source, show_cols, config])
     
     const pagination = useMemo<PaginationProps | false>(() => { 
         if (!config.pagination.show)
@@ -133,37 +136,49 @@ export function DBTable (props: IProps) {
                 size: 'small',
                 showSizeChanger: true,
                 showQuickJumper: true,
-                hideOnSinglePage: true
+                hideOnSinglePage: true,
+                style: {
+                    marginBottom: 0
+                }
             }
     }, [config, data_source])
     
     
     return <div className='dashboard-table-wrapper'>
-        {
-            config.title && <h2
-                style={{ fontSize: config.title_size }}
-                className='table-title'
-            >
-                {parse_text(config.title)}
-            </h2>
-        }
-        
-        { config.need_select_cols && <Checkbox.Group
-            onChange={ val => { set_select_cols(val) }  }
-            value={selected_cols}
-            options={radio_group_options}
-            className='table-radio-group' /> }
+        <div ref={table_header_ref}>
+            {
+                config.title && <h2
+                    style={{ fontSize: config.title_size }}
+                    className='table-title'
+                >
+                    {parse_text(config.title)}
+                </h2>
+            }
+            
+            { 
+                config.need_select_cols && <Checkbox.Group
+                    onChange={ val => { set_select_cols(val) }  }
+                    value={selected_cols}
+                    options={radio_group_options}
+                    className='table-radio-group' 
+                /> 
+            }
+        </div>
         
         {
             selected_cols?.length ?
                 <Table
                     bordered={config.bordered}
-                    scroll={{ x: '100%' }}
+                    className={cn({
+                        'table-with-pagination': config?.pagination?.show,
+                    })}
+                    style={{ height: `calc(100% - ${size.height ?? 0}px)` }}
+                    scroll={{ x: 'max-content' }}
                     columns={columns}
                     dataSource={config.is_reverse ? data_source.toReversed() : data_source}
                     pagination={pagination}
                     rowKey={() => genid()}
-                    rowClassName={classNames({
+                    rowClassName={cn({
                         'table-row-with-border': config.bordered
                     })}
                     {...otherProps}
