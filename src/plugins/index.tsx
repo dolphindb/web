@@ -182,7 +182,6 @@ export function Plugins () {
             <InstallModal
                 installer={installer}
                 update={update}
-                id={selected_keys[0]}
                 plugins={plugins}
                 plugin_nodes={plugin_nodes} />
             
@@ -376,13 +375,11 @@ interface InstallFields {
 function InstallModal ({
     installer,
     update,
-    id,
     plugins,
     plugin_nodes
 }: {
     installer: ModalController
     update: () => Promise<void>
-    id?: string
     plugins: Plugin[]
     plugin_nodes: PluginNode[]
 }) {
@@ -405,13 +402,11 @@ function InstallModal ({
                 
                 const { current: form } = rform
                 
-                if (id)
-                    form.setFieldValue('id', id)
-                
                 let nodes = installables
-                for (const { selecteds } of plugins)
+                for (const { id, selecteds } of plugins)
                     if (selecteds?.length) {
                         nodes = selecteds.map(({ node }) => node)
+                        form.setFieldValue('id', id)
                         break
                     }
                 
@@ -441,7 +436,6 @@ function InstallModal ({
             ref={rform}
             initialValues={{
                 method: 'offline',
-                id
             } satisfies Partial<InstallFields>}
             onFinish={async ({ method, id, nodes, zip, server, source, version }) => {
                 console.log(t('安装插件:'), method, id, nodes)
