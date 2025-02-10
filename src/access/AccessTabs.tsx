@@ -1,5 +1,5 @@
-import { Tabs, Button, Select } from 'antd'
-import { ReloadOutlined } from '@ant-design/icons'
+import { Tabs, Button, Select, Space } from 'antd'
+import { EyeOutlined, ReloadOutlined, SettingOutlined } from '@ant-design/icons'
 import { useState } from 'react'
 
 import { t } from '@i18n/index.ts'
@@ -94,15 +94,39 @@ export function AccessTabs ({
                     </div>
                 ),
                 right: (
-                    <Button
-                        icon={<ReloadOutlined />}
-                        onClick={async () => {
-                            await mutate(key => Array.isArray(key) && key[0] === 'access_objs')
-                            model.message.success(t('刷新成功'))
-                        }}
-                    >
-                        {t('刷新')}
-                    </Button>
+                    <Space size={10}>  
+                        {editing ? ( 
+                            <Button
+                                type='default'
+                                icon={<EyeOutlined />}
+                                onClick={() => {
+                                    model.goto(`/access/${role}/${name}`)
+                                }}
+                            >
+                                {t('查看权限')}
+                            </Button>
+                           
+                        ) : (
+                            <Button
+                                type='primary'
+                                icon={<SettingOutlined />}
+                                onClick={() => {
+                                    model.goto(`/access/${role}/${name}/edit`)
+                                }}
+                            >
+                                {t('设置权限')}
+                            </Button>
+                        )}
+                        <Button
+                            icon={<ReloadOutlined />}
+                            onClick={async () => {
+                                await mutate(key => Array.isArray(key) && key[0] === 'access_objs')
+                                model.message.success(t('刷新成功'))
+                            }}
+                        >
+                            {t('刷新')}
+                        </Button>
+                    </Space>
                 )
             }}
         />

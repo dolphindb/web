@@ -1,7 +1,5 @@
 import {
-    ArrowLeftOutlined,
     DeleteOutlined,
-    EyeOutlined,
     PlusOutlined,
     SearchOutlined,
     SettingOutlined
@@ -70,15 +68,6 @@ export function AccessHeader ({
             <>
                 <Button type='primary' icon={<PlusOutlined />} onClick={add_open}>
                     {t('新增权限')}
-                </Button>
-                <Button
-                    type='default'
-                    icon={<EyeOutlined />}
-                    onClick={() => {
-                        model.goto(`/access/${role}/${name}`)
-                    }}
-                >
-                    {t('查看权限')}
                 </Button>
                 <Button
                     danger
