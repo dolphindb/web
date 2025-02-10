@@ -403,10 +403,19 @@ function InstallModal ({
                 
                 set_installables(installables)
                 
-                if (id)
-                    rform.current.setFieldValue('id', id)
+                const { current: form } = rform
                 
-                rform.current.setFieldValue('nodes', installables)
+                if (id)
+                    form.setFieldValue('id', id)
+                
+                let nodes = installables
+                for (const { selecteds } of plugins)
+                    if (selecteds?.length) {
+                        nodes = selecteds.map(({ node }) => node)
+                        break
+                    }
+                
+                form.setFieldValue('nodes', nodes)
             })()
     }, [installer.visible])
     
