@@ -61,18 +61,22 @@ export function Overview () {
     
     return <Layout>
             <Header className='header-bar'>
+               
+                    
+                    
+                <Segmented<DisplayMode>
+                    value={display_mode}
+                    onChange={mode => {
+                        localStorage.setItem(storage_keys.overview_display_mode, mode)
+                        set_display_mode(mode)
+                    }}
+                    options={[
+                        { label: t('表格视图'), value: 'table', icon: <BarsOutlined /> },
+                        { label: t('卡片视图'), value: 'card', icon: <AppstoreOutlined /> }
+                    ]}
+                />
+                
                 <div className='operations'>
-                    <div
-                        className={icon_classname}
-                        onClick={() => {
-                            setSelectedNodeNames([ ])
-                            model.get_cluster_perf(true)
-                        }}
-                    >
-                        <Button className='refresh' block icon={<RedoOutlined />}>
-                            {t('刷新')}
-                        </Button>
-                    </div>
                     
                     {node_type !== NodeType.single && (
                         <>
@@ -217,20 +221,19 @@ export function Overview () {
                             </div>
                         </>
                     )}
+                    
+                    <div
+                        className={icon_classname}
+                        onClick={() => {
+                            setSelectedNodeNames([ ])
+                            model.get_cluster_perf(true)
+                        }}
+                    >
+                        <Button className='refresh' block icon={<RedoOutlined />}>
+                            {t('刷新')}
+                        </Button>
+                    </div>
                 </div>
-                    
-                    
-                <Segmented<DisplayMode>
-                    value={display_mode}
-                    onChange={mode => {
-                        localStorage.setItem(storage_keys.overview_display_mode, mode)
-                        set_display_mode(mode)
-                    }}
-                    options={[
-                        { label: t('表格视图'), value: 'table', icon: <BarsOutlined /> },
-                        { label: t('卡片视图'), value: 'card', icon: <AppstoreOutlined /> }
-                    ]}
-                />
               
             </Header>
             {display_mode === 'card' ? (
