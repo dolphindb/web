@@ -985,6 +985,7 @@ export class DdbModel extends Model<DdbModel> {
     }
     
     
+    /** 返回 { title, body, ...其他的一些属性 } */
     format_error (error: Error) {
         let s = ''
         
@@ -999,11 +1000,13 @@ export class DdbModel extends Model<DdbModel> {
                 const matches = json_error_pattern.exec(message.slice(i_message_start))
                 
                 if (matches) {
-                    const { code, message, variables } = JSON.parse(matches[0])
+                    const { code, message, variables, ...others } = JSON.parse(matches[0])
                     
                     return {
                         title: t(error_messages[code] || message, { variables }),
-                        body: ''
+                        body: '',
+                        code,
+                        ...others
                     }
                 }
             }

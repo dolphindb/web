@@ -21,7 +21,6 @@ import { GroupAddModal, type GroupConfigDatatype, type GroupNodesDatatype } from
 export function NodesManagement () {
     const [search_key, set_search_key] = useState('')
     const [search_value, set_search_value] = useState('')
-    const { v3 } = model.use(['v3'])
     
     const { mutate, data } = useSWR('/get/nodes', async () => {
             const data = await config.get_cluster_nodes()
@@ -228,14 +227,14 @@ export function NodesManagement () {
             >
                 {t('刷新')}
             </Button>
-            {v3 && <Button
+            <Button
                 icon={<PlusOutlined />}
                 onClick={async () => {
                     NiceModal.show(GroupAddModal, { on_save: add_group })
                 }}
             >
                 {t('新建计算组')}
-            </Button>}
+            </Button>
             <div className='search-comp'>
                 <AutoComplete<string>
                     showSearch
