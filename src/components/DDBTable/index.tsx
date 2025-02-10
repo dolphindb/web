@@ -14,7 +14,7 @@ export interface DDBTableProps<T> extends Omit<TableProps<T>, 'title'> {
 }
 
 export function DDBTable<T> (props: DDBTableProps<T>) {
-    const { title, help, buttons, filter_form, ...others } = props
+    const { title, help, buttons, filter_form, pagination, ...others } = props
     
     return <Table
         className='ddb-title'
@@ -44,6 +44,10 @@ export function DDBTable<T> (props: DDBTableProps<T>) {
             </>
             : undefined
         }
+        pagination={pagination ? {
+            ...pagination,
+            size: 'small'
+        } : false}
         {...others}
     />
 }
