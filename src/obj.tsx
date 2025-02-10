@@ -293,7 +293,8 @@ function build_tree_data_with_slice (
                 return {
                     title: `${key}: `,
                     key: genid(),
-                    children: build_tree_data_with_slice(valueobj, start, end, { remote, ctx, ddb })
+                    // 对嵌套的字典不继续分页
+                    children: build_tree_data_with_slice(valueobj, 0, valueobj.rows, { remote, ctx, ddb })
                 }
             else if (valueobj.form === DdbForm.scalar)
                 return {
