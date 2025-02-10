@@ -24,7 +24,7 @@ export function Config () {
     const { v3 } = model.use(['v3'])
     
     return <Tabs
-        type='card'
+        // type='card'
         accessKey={tab_key}
         onChange={set_tab_key as any}
         items={[
