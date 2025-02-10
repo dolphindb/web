@@ -72,7 +72,6 @@ export function Databases () {
     const { node, logined, node_type, v3, client_auth, username } = 
         model.use(['node', 'logined', 'node_type', 'v3', 'client_auth', 'username'])
     const { dbs } = shell.use(['dbs'])
-    
     const [db_height, set_db_height] = useState(256)
     
     const [expanded_keys, set_expanded_keys] = useState([ ])
@@ -86,10 +85,11 @@ export function Databases () {
     shell.refresh_db = useCallback(async () => {
         try {
             set_refresh_spin(true)
-            const promise = delay(1000)
-            await shell.load_dbs()
             set_expanded_keys([ ])
             set_loaded_keys([ ])
+            const promise = delay(1000)
+            await shell.load_dbs()
+            
             await promise
         } catch (error) {
             model.show_error({ error })
