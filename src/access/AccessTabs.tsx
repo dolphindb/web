@@ -15,6 +15,7 @@ import { use_users } from '@/access/hooks/use-users.ts'
 import { use_groups } from '@/access/hooks/use-groups.ts'
 import { AccessList } from '@/access/AccessList.tsx'
 import { AccessManage } from '@/access/AccessManage.tsx'
+import { RefreshButton } from '@/components/RefreshButton/index.tsx'
 
 
 export function AccessTabs ({
@@ -94,39 +95,12 @@ export function AccessTabs ({
                     </div>
                 ),
                 right: (
-                    <Space size={10}>  
-                        {editing ? ( 
-                            <Button
-                                type='default'
-                                icon={<EyeOutlined />}
-                                onClick={() => {
-                                    model.goto(`/access/${role}/${name}`)
-                                }}
-                            >
-                                {t('查看权限')}
-                            </Button>
-                           
-                        ) : (
-                            <Button
-                                type='primary'
-                                icon={<SettingOutlined />}
-                                onClick={() => {
-                                    model.goto(`/access/${role}/${name}/edit`)
-                                }}
-                            >
-                                {t('设置权限')}
-                            </Button>
-                        )}
-                        <Button
-                            icon={<ReloadOutlined />}
-                            onClick={async () => {
-                                await mutate(key => Array.isArray(key) && key[0] === 'access_objs')
-                                model.message.success(t('刷新成功'))
-                            }}
-                        >
-                            {t('刷新')}
-                        </Button>
-                    </Space>
+                    <RefreshButton
+                        onClick={async () => {
+                            await mutate(key => Array.isArray(key) && key[0] === 'access_objs')
+                            model.message.success(t('刷新成功'))
+                        }}
+                     />
                 )
             }}
         />

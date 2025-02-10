@@ -8,12 +8,14 @@ import { AutoComplete, Button, Popconfirm } from 'antd'
 
 import { EditableProTable, type ActionType, type ProColumns } from '@ant-design/pro-components'
 
-import { PlusOutlined, ReloadOutlined, SearchOutlined } from '@ant-design/icons'
+import { PlusOutlined, SearchOutlined } from '@ant-design/icons'
 import NiceModal from '@ebay/nice-modal-react'
 
 import useSWR from 'swr'
 
 import { model } from '@/model.js'
+
+import { RefreshButton } from '@/components/RefreshButton/index.js'
 
 import { filter_config, strs_2_nodes } from './utils.js'
 import { NodesConfigAddModal } from './NodesConfigAddModal.js'
@@ -134,17 +136,14 @@ export function ComputeGroupConfig () {
         </div>}
         <div>
             <div className='toolbar'>
-                <Button
-                    icon={<ReloadOutlined />}
+                <RefreshButton
                     onClick={async () => {
                         set_search_kw('')
                         await actionRef.current?.reload()
                         await mutate()
                         model.message.success(t('刷新成功'))
                     }}
-                >
-                    {t('刷新')}
-                </Button>
+                />
                 
                 {current_compute_group !== '' && <Button
                     icon={<PlusOutlined />}

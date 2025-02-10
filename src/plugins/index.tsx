@@ -2,8 +2,8 @@ import './index.sass'
 
 import { useEffect, useRef, useState } from 'react'
 import { Button, Form, Input, Modal, Popconfirm, Radio, Result, Table, Typography, Upload, type UploadFile, 
-    type FormInstance, Checkbox, Select, Tooltip} from 'antd'
-import { ReloadOutlined, default as Icon, InboxOutlined, CheckOutlined } from '@ant-design/icons'
+    type FormInstance, Checkbox, Select, Tooltip } from 'antd'
+import { default as Icon, InboxOutlined, CheckOutlined } from '@ant-design/icons'
 import { noop } from 'xshell/prototype.browser.js'
 import { log, vercmp } from 'xshell/utils.browser.js'
 
@@ -12,9 +12,12 @@ import { use_modal, use_rerender, type ModalController } from 'react-object-mode
 import { DdbVectorChar, DdbVectorString, type DdbTableData } from 'dolphindb/browser.js'
 
 import { t } from '@i18n/index.ts'
+
 import { required, switch_keys } from '@/utils.ts'
 import { model } from '@/model.ts'
 
+
+import { RefreshButton } from '@/components/RefreshButton/index.tsx'
 
 import script from './index.dos'
 import SvgUpgrade from './upgrade.icon.svg'
@@ -177,13 +180,12 @@ export function Plugins () {
                 plugins={plugins}
                 plugin_nodes={plugin_nodes} />
             
-            <Button
+            <RefreshButton
                 className='refresh'
-                icon={<ReloadOutlined/>}
                 onClick={async () => {
                     await update(rquery.current)
                 }}
-            >{t('刷新')}</Button>
+             />
             
             <Input.Search
                 className='search'

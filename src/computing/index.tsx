@@ -26,6 +26,8 @@ import { t } from '../../i18n/index.js'
 
 import { Unlogin } from '../components/Unlogin.js'
 
+import { RefreshButton } from '@/components/RefreshButton/index.js'
+
 import { computing } from './model.js'
 
 import SvgPublish from './icons/publish.icon.svg'
@@ -286,15 +288,12 @@ export function Computing () {
         tabBarExtraContent={
             tab_key === 'cep_computing'
                 ? null
-                : <Button
-                    icon={<ReloadOutlined />}
+                : <RefreshButton
                     onClick={async () => {
                         await tab_content[tab_key].refresher.call(computing)
                         model.message.success(`${tab_content[tab_key].title}${t('刷新成功')}`)
                     }}
-                >
-                    {t('刷新')}
-                </Button>
+                 />
         }
     />
 }

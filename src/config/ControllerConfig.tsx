@@ -1,4 +1,4 @@
-import { ReloadOutlined, SearchOutlined } from '@ant-design/icons'
+import { SearchOutlined } from '@ant-design/icons'
 import { EditableProTable, type ActionType, type ProColumns } from '@ant-design/pro-components'
 import { AutoComplete, Button, Popconfirm } from 'antd'
 
@@ -9,6 +9,8 @@ import { genid, delay, unique } from 'xshell/utils.browser.js'
 import { t } from '../../i18n/index.js'
 
 import { model } from '../model.js'
+
+import { RefreshButton } from '@/components/RefreshButton/index.tsx'
 
 import { config } from './model.js'
 
@@ -135,17 +137,14 @@ export function ControllerConfig () {
             }
         }
         toolBarRender={() => [
-            <Button
-                icon={<ReloadOutlined />}
+            <RefreshButton
                 onClick={async () => {
                     await actionRef.current.reload()
                     set_search_key('')
                     set_search_value('')
                     model.message.success(t('刷新成功'))
                 }}
-            >
-                {t('刷新')}
-            </Button>,
+             />,
             <div className='auto-search'>
                 <AutoComplete<string>
                     showSearch

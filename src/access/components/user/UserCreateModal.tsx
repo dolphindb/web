@@ -22,6 +22,7 @@ export const UserCreateModal = NiceModal.create(() => {
     const { mutate } = useSWRConfig()
     
     return <Modal
+            width={800}
             className='add-user-modal'
             open={modal.visible}
             onCancel={() => {
@@ -51,7 +52,7 @@ export const UserCreateModal = NiceModal.create(() => {
                 }
             }}
         >
-            <Form name='basic' labelCol={{ span: language === 'zh' ? 4 : 8 }} labelAlign='right' form={add_user_form} autoComplete='off'>
+            <Form name='basic' labelCol={{ span: language === 'zh' ? 4 : 8 }} labelAlign='left' form={add_user_form} autoComplete='off'>
                 <Form.Item
                     label={t('用户名')}
                     name='username'

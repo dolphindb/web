@@ -1,11 +1,13 @@
-import { PlusOutlined, ReloadOutlined, SearchOutlined } from '@ant-design/icons'
+import { PlusOutlined, SearchOutlined } from '@ant-design/icons'
 import { EditableProTable } from '@ant-design/pro-components'
 import NiceModal from '@ebay/nice-modal-react'
-import { AutoComplete, Button, Collapse, Input, Popconfirm, type CollapseProps } from 'antd'
+import { AutoComplete, Button, Collapse, Popconfirm, type CollapseProps } from 'antd'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 
 import { t } from '../../i18n/index.js'
 import { model } from '../model.js'
+
+import { RefreshButton } from '@/components/RefreshButton/index.tsx'
 
 import { NodesConfigAddModal } from './NodesConfigAddModal.js'
 import { config } from './model.js'
@@ -203,17 +205,14 @@ export function NodesConfig () {
     
     return <div className='nodes-config-container'>
         <div className='toolbar'>
-            <Button
-                icon={<ReloadOutlined />}
+            <RefreshButton
                 onClick={async () => {
                     await config.load_configs()
                     set_search_key('')
                     set_active_key('')
                     model.message.success(t('刷新成功'))
                 }}
-            >
-                {t('刷新')}
-            </Button>
+             />
             
             <Button
                 icon={<PlusOutlined />}

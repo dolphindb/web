@@ -2,8 +2,8 @@ import './index.sass'
 
 import { useCallback, useMemo, useState } from 'react'
 
-import { DeleteOutlined, PlusOutlined, ReloadOutlined, SearchOutlined } from '@ant-design/icons'
-import { Button, Input, Popconfirm, Table, Tag, Typography, type TableColumnType } from 'antd'
+import { DeleteOutlined, PlusOutlined, SearchOutlined } from '@ant-design/icons'
+import { Button, Input, Popconfirm, Typography, type TableColumnType } from 'antd'
 
 
 import NiceModal from '@ebay/nice-modal-react'
@@ -17,6 +17,10 @@ import { model } from '@/model.ts'
 import { TableOperations } from '@/components/TableOperations/index.tsx'
 
 import { DDBTable } from '@/components/DDBTable/index.tsx'
+
+import { DDBTag } from '@/components/tags/index.tsx'
+
+import { RefreshButton } from '@/components/RefreshButton/index.tsx'
 
 import { access } from './model.ts'
 import { GroupCreateModal } from './components/group/GroupCreateModal.tsx'
@@ -68,40 +72,6 @@ export function GroupList () {
     )
     
     return <>
-        <div className='header'>
-            <div className='actions'>
-                <Button type='primary' icon={<PlusOutlined />} onClick={async () => NiceModal.show(GroupCreateModal)}>
-                    {t('新建组')}
-                </Button>
-                <Button
-                    danger
-                    icon={<DeleteOutlined />}
-                    onClick={() => {
-                        if (selected_groups.length)
-                            NiceModal.show(GroupDeleteModal, { selected_groups, reset_selected_groups })
-                    }}
-                >
-                    {t('批量删除')}
-                </Button>
-                <Button type='default' icon={<ReloadOutlined />} onClick={async () => {
-                    await mutate_groups()
-                    await mutate_groups_info()
-                    model.message.success(t('刷新成功'))
-                }}>
-                    {t('刷新')}
-                </Button>
-                <Input
-                    className='search'
-                    value={search_key}
-                    prefix={<SearchOutlined />}
-                    onChange={e => {
-                        set_search_key(e.target.value)
-                    }}
-                    placeholder={t('请输入想要搜索的组')}
-                />
-            </div>
-        </div>
-        
        {groups_info && <DDBTable
             title={t('组列表')}
             rowSelection={{
@@ -112,6 +82,36 @@ export function GroupList () {
             }}
             pagination={{ hideOnSinglePage: true, size: 'small' }}
             columns={cols}
+            filter_form={<Input
+                className='search'
+                value={search_key}
+                prefix={<SearchOutlined />}
+                onChange={e => {
+                    set_search_key(e.target.value)
+                }}
+                placeholder={t('请输入想要搜索的组')}
+            />}
+            buttons={<>
+                <Button type='primary' icon={<PlusOutlined />} onClick={async () => NiceModal.show(GroupCreateModal)}>
+                    {t('新建组')}
+                </Button>
+                <Button
+                    danger
+                    icon={<DeleteOutlined />}
+                    disabled={!selected_groups.length}
+                    onClick={() => {
+                        NiceModal.show(GroupDeleteModal, { selected_groups, reset_selected_groups })
+                    }}
+                >
+                    {t('批量删除')}
+                </Button>
+                <RefreshButton  
+                    onClick={async () => {
+                    await mutate_groups()
+                    await mutate_groups_info()
+                    model.message.success(t('刷新成功'))
+                }} />
+            </>}
             dataSource={groups_info
                 .filter(({ groupName }) => groupName.toLowerCase().includes(search_key.toLowerCase()))
                 .map(group => ({
@@ -120,9 +120,9 @@ export function GroupList () {
                     users: (
                         <div>
                             {group.users &&
-                                group.users.split(',').filter(name => name !== 'admin').map((user: string) => <Tag color='cyan' key={user}>
+                                group.users.split(',').filter(name => name !== 'admin').map((user: string) => <DDBTag key={user}>
                                     {user}
-                                </Tag>)}
+                                </DDBTag>)}
                         </div>
                     ),
                     actions: (

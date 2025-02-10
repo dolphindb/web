@@ -1,4 +1,4 @@
-import { PlusOutlined, ReloadOutlined, SearchOutlined } from '@ant-design/icons'
+import { PlusOutlined, SearchOutlined } from '@ant-design/icons'
 import { EditableProTable, type ActionType } from '@ant-design/pro-components'
 import { AutoComplete, Button, message, Popconfirm } from 'antd'
 import { useCallback, useMemo, useRef, useState } from 'react'
@@ -11,6 +11,8 @@ import NiceModal from '@ebay/nice-modal-react'
 
 import { t } from '../../i18n/index.js'
 import { DdbNodeState, model, NodeType } from '../model.js'
+
+import { RefreshButton } from '@/components/RefreshButton/index.tsx'
 
 import { config } from './model.js'
 import { type ClusterNode, type NodesConfig } from './type.js'
@@ -217,17 +219,14 @@ export function NodesManagement () {
     
     return <div className='nodes-management'>
         <div className='search-line'>
-            <Button
-                icon={<ReloadOutlined />}
+            <RefreshButton
                 onClick={async () => {
                     await mutate()
                     set_search_key('')
                     set_search_value('')
                     model.message.success(t('刷新成功'))
                 }}
-            >
-                {t('刷新')}
-            </Button>
+             />
             {v3 && <Button
                 icon={<PlusOutlined />}
                 onClick={async () => {

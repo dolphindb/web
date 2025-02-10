@@ -1,14 +1,14 @@
 import './index.sass'
 
 import { useEffect, useRef, useState } from 'react'
-import { Pagination, Button } from 'antd'
-import { ReloadOutlined } from '@ant-design/icons'
+import { Pagination } from 'antd'
 
 import { t } from '@i18n/index.js'
 
 import { model, NodeType } from '@/model.js'
 import { Unlogin } from '@/components/Unlogin.js'
 import { BottomFixedFooter } from '@/components/BottomFixedFooter/index.tsx'
+import { RefreshButton } from '@/components/RefreshButton/index.tsx'
 
 const default_length = 50000n
 
@@ -61,13 +61,12 @@ export function Log () {
             </div>
             <div className='space' />
             {!show_login_required_info && (
-                <Button
+                <RefreshButton
                     className='refresh-button'
-                    icon={<ReloadOutlined/>}
                     onClick={async () => {
                         await init()
                         model.message.success(t('日志刷新成功'))
-                }}>{t('刷新')}</Button>
+                }} />
             )}
         </div>
         {
