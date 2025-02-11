@@ -5911,5 +5911,32 @@
     },
     "如: zip": {
         "en": "eg: zip"
+    },
+    "离线安装": {
+        "en": "Offline"
+    },
+    "在线安装": {
+        "en": "Online"
+    },
+    "从某节点同步": {
+        "en": "Synchronize from a node"
+    },
+    "插件 zip 包": {
+        "en": "Plugin zip package"
+    },
+    "插件版本": {
+        "en": "Plugin Version"
+    },
+    "选填，默认安装和当前版本匹配的最新版": {
+        "en": "Optional. By default, the latest version that matches the current version is installed"
+    },
+    "插件服务器地址": {
+        "en": "Plugin server address"
+    },
+    "选填，参考 installPlugin 函数": {
+        "en": "Optional, refer to installPlugin function"
+    },
+    "源节点": {
+        "en": "Source Node"
     }
 }
