@@ -204,7 +204,7 @@ export const GitHubAccessTokenModal = NiceModal.create(() => {
 export const GitHubOauthModal = NiceModal.create(() => {
     const modal = useModal()
     const [form] = Form.useForm()
-    const [not_load_plugin, set_not_load_plugin] = useState(false)
+    const [not_load_plugin, set_not_load_plugin] = useState(true)
     
     function onFinish (values) {
         localStorage.setItem(storage_keys.git_client_id, values.client_id)

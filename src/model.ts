@@ -323,9 +323,6 @@ export class DdbModel extends Model<DdbModel> {
         // 这里保证 client_auth 已初始化
         await pclient_auth
         
-        this.set({ inited: true })
-        
-        console.log(t('web 初始化成功'))
         
         await this.get_license_info()
         
@@ -333,12 +330,15 @@ export class DdbModel extends Model<DdbModel> {
         
         // GitHub Oauth
         if (current_path.includes('/oauth-github')) 
-            this.login_github()
+            await this.login_github()
         
         // GitLab Oauth
         if (current_path.includes('/oauth-gitlab')) 
-            this.login_gitlab()
+            await this.login_gitlab()
         
+        this.set({ inited: true })
+        
+        console.log(t('web 初始化成功'))
     }
     
     
@@ -551,13 +551,19 @@ export class DdbModel extends Model<DdbModel> {
             api_root: localStorage.getItem(storage_keys.git_api_root) ?? undefined
         }
         const git_provider = new GitLabAdapter()
-        git_provider.get_access_token(code, git_info.client_id, git_info.redirect_url).then(async token => {
+        try {
+            const token = await git_provider.get_access_token(code, git_info.client_id, git_info.redirect_url)
             localStorage.setItem(storage_keys.git_access_token, token)
             localStorage.setItem(storage_keys.git_provider, 'gitlab')
+        } catch (error) {
+            this.modal.error({ title: t('GitLab 登录失败') })
+            error.shown = true
+            throw error
+        } finally {
             const is_jump = await this.maybe_jump(searchParams)
             if (!is_jump)
                 this.goto('/')
-        })
+        }
     }
     
     async login_github () {
@@ -570,13 +576,19 @@ export class DdbModel extends Model<DdbModel> {
             client_secret: localStorage.getItem(storage_keys.git_client_secret)
         }
         const git_provider = new GitHubAdapter()
-        git_provider.get_access_token(code, git_info.client_id, git_info.redirect_url, git_info.client_secret).then(async token => {
+        try {
+            const token = await git_provider.get_access_token(code, git_info.client_id, git_info.redirect_url, git_info.client_secret)
             localStorage.setItem(storage_keys.git_access_token, token)
             localStorage.setItem(storage_keys.git_provider, 'github')
+        } catch (error) {
+            this.modal.error({ title: t('GitHub 登录失败') })
+            error.shown = true
+            throw error
+        } finally {
             const is_jump = await this.maybe_jump(searchParams)
             if (!is_jump)
                 this.goto('/')
-        })
+        }
     }
     
     async update_user (ticket?: string) {

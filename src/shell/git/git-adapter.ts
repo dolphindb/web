@@ -215,7 +215,7 @@ export class GitHubAdapter implements IGitAdapter {
         try {
             let script = `
             param=${JSON.stringify(data)};
-            ret = httpClient::httpPost('${tokenUrl}', param, 1000, 'Accept: application/json');
+            ret = httpClient::httpPost('${tokenUrl}', param, 3000, 'Accept: application/json');
             ret
             `
             
