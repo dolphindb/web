@@ -321,11 +321,12 @@ class ShellModel extends Model<ShellModel> {
             this.set({ tabs: [...this.tabs] })
             try {
                 localStorage.setItem(`${storage_keys.code}.${this.itab}`, JSON.stringify(tab))
-            } catch (e) {
-                model.modal.error({ title: t('代码存储失败，请检查代码大小或本地存储空间剩余空间'), content: e.message })
+            } catch (error) {
+                model.modal.error({ title: t('代码存储失败，请检查代码大小或本地存储空间剩余空间'), content: error.message })
                 this.remove_tab(this.itab)
+                error.shown = true
+                throw error
             }
-            
         } else
             localStorage.setItem(storage_keys.code, code)
     }
@@ -368,7 +369,7 @@ class ShellModel extends Model<ShellModel> {
         file_path: string,
         file_name: string,
         code: string,
-        gitInfo: {
+        git_info: {
             repo_id: string
             repo_path: string
             repo_name: string
@@ -381,7 +382,7 @@ class ShellModel extends Model<ShellModel> {
         if (!this.monaco_inited)
             return
             
-        const { repo_id, repo_path, repo_name, branch = 'main', sha, is_history = false, commit_id } = gitInfo
+        const { repo_id, repo_path, repo_name, branch = 'main', sha, is_history = false, commit_id } = git_info
         
         // 检查是否存在当前仓库和当前分支的文件，否则只是跳转过去
         const index = this.tabs.findIndex(t => t.git?.repo_id === repo_id && t.git?.branch === branch && t.git?.file_path === file_path)
