@@ -7,7 +7,7 @@ import { model } from '@/model.ts'
 import { shell } from '../model.ts'
 
 import { getToken, git_provider } from './git-provider.ts'
-import { FileHistory } from './file-history.tsx'
+import { FileHistory } from './FileHistory.tsx'
 
 export function Commit ({ current_select_repo, current_select_branch, repo_name }: { current_select_repo: string, current_select_branch: string, repo_name: string }) {
     const { itab, tabs } = shell.use(['itab', 'tabs'])

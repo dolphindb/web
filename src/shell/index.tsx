@@ -19,7 +19,7 @@ import { Terminal } from './Terminal.tsx'
 import { DataView } from './DataView.tsx'
 import { Databases } from './Databases.tsx'
 import { Variables } from './Variables.tsx'
-import { Git } from './git/git.tsx'
+import { Git } from './git/Git.tsx'
 
 
 export function Shell () {

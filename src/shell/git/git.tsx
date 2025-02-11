@@ -3,9 +3,9 @@ import './git.sass'
 
 import { Resizable } from 're-resizable'
 
-import { Repos } from './repos.tsx'
-import { Files } from './files.tsx'
-import { Commit } from './commit.tsx'
+import { Repos } from './Repos.tsx'
+import { Files } from './Files.tsx'
+import { Commit } from './Commit.tsx'
 
 export function Git () {
     const [selected_repo, set_selected_repo] = useState<string | undefined>(undefined)

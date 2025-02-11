@@ -11,7 +11,7 @@ import { shell } from '../model.ts'
 import { storage_keys } from '@/model.ts'
  
 import { git_provider } from './git-provider.ts'
-import { GitHubAccessTokenModal, GitHubOauthModal, GitLabAccessTokenModal, GitLabOauthModal } from './git-modals.tsx'
+import { GitHubAccessTokenModal, GitHubOauthModal, GitLabAccessTokenModal, GitLabOauthModal } from './GitModals.tsx'
 import { format_friendly_date } from './get-auth-url.ts'
 
 export function Repos ({ on_select_repo }: { on_select_repo: (repo_id: string, title: string) => void }) {
