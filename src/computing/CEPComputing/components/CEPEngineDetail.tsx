@@ -15,6 +15,8 @@ import { stream_formatter } from '../../../dashboard/utils.ts'
 
 import { DDBTable } from '@/components/DDBTable/index.tsx'
 
+import { RefreshButton } from '@/components/RefreshButton/index.tsx'
+
 import { SendEventModal } from './SendEventModal.js'
 
 
@@ -375,7 +377,7 @@ export function CEPEngineDetail (props: IProps) {
             
             <Space>
                 <Button onClick={on_send_event} icon={<SendOutlined />}>{t('发送事件到引擎')}</Button>
-                {page === EngineDetailPage.INFO && <Button onClick={on_refresh} icon={<RedoOutlined />}>{t('刷新')}</Button>}
+                {page === EngineDetailPage.INFO && <RefreshButton onClick={on_refresh}  />}
             </Space>
         </div>
         { view }
