@@ -1,4 +1,3 @@
-
 import { CheckOutlined, CloseOutlined, DeleteOutlined, MailOutlined, PlusOutlined, ReloadOutlined } from '@ant-design/icons'
 import NiceModal from '@ebay/nice-modal-react'
 import { t } from '@i18n/index.ts'
@@ -20,6 +19,8 @@ import type { Plan, PlanReport } from '@/inspection/type.ts'
 import { LogModal } from '@/inspection/modals/LogModal.tsx'
 import { RefreshButton } from '@/components/RefreshButton/index.tsx'
 import { DDBTable } from '@/components/DDBTable/index.tsx'
+import { DeleteReportsModal } from '@/inspection/components/DeleteReportsModal.tsx'
+import { DeletePlansModal } from '@/inspection/components/DeletePlansModal.tsx'
 
 
 export function InspectionListPage () {
@@ -250,17 +251,22 @@ function ReportListTable  ({
     return <DDBTable
                 scroll={{ x: 'max-content' }}
                 buttons={
-                    <Popconfirm   
-                    title={t('批量删除巡检结果')} 
-                    description={t('确认删除选中的巡检结果吗？')} 
-                    onConfirm={async () => {
-                        await inspection.delete_reprorts(ids)
-                        model.message.success(t('批量删除成功'))
-                        set_current_page(1)
-                        refresher()
-                    }} >
-                        <Button icon={<DeleteOutlined />} danger disabled={ids.length === 0}>{t('批量删除')}</Button>
-                </Popconfirm>
+                    <Button 
+                        icon={<DeleteOutlined />} 
+                        danger 
+                        disabled={ids.length === 0}
+                        onClick={() => {
+                            if (ids.length) 
+                                NiceModal.show(DeleteReportsModal, { 
+                                    ids,
+                                    refresher,
+                                    set_current_page 
+                                })
+                            
+                        }}
+                    >
+                        {t('批量删除')}
+                    </Button>
                 }
                 title={t('巡检结果')}
                 filter_form={
@@ -447,18 +453,21 @@ function PlanListTable  ({
         title={enabled ? t('正在执行的巡检计划') : t('待执行的巡检计划')}
         scroll={{ x: 'max-content' }}
         buttons={
-            <Popconfirm   
-                title={t('批量删除巡检方案')} 
-                description={t('确认删除选中的巡检方案吗？')} 
-                okButtonProps={{ type: 'primary', danger: true }}
-                onConfirm={async () => {
-                    await inspection.delete_plans(ids)
-                    model.message.success(t('批量删除成功'))
-                    set_current_page(1)
-                    mutate_plans()
-                }} >
-                    <Button icon={<DeleteOutlined />} danger disabled={ids.length === 0}>{t('批量删除')}</Button>
-            </Popconfirm>
+            <Button 
+                icon={<DeleteOutlined />} 
+                danger 
+                disabled={ids.length === 0}
+                onClick={() => {
+                    if (ids.length) 
+                        NiceModal.show(DeletePlansModal, { 
+                            ids,
+                            refresher,
+                            set_current_page
+                        })
+                }}
+            >
+                {t('批量删除')}
+            </Button>
         }
         rowSelection={{ type: 'checkbox', selectedRowKeys: ids, onChange: set_ids }}
         pagination={{
