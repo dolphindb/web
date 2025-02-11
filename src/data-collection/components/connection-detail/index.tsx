@@ -218,43 +218,43 @@ export function ConnectionDetail (props: IProps) {
     
     return <Spin spinning={isLoading}>
         <div className='connection-detail'>
-        <Descriptions 
-            className='base-info'
-            title={t('基本信息')}
-            items={desp_items}
-        />
+            <h2>{t('基本信息')}</h2>
+            <Descriptions 
+                className='base-info'
+                items={desp_items}
+            />
         
-        <DDBTable<ISubscribe> 
-            title={t('订阅列表')} 
-            buttons={
-                <>
-                    <Button type='primary' icon={<PlusOutlined />} onClick={on_create_subscribe}>{t('新增订阅')}</Button>
-                    <Button 
-                        danger
-                        disabled={!selected_subscribes.length} 
-                        icon={<DeleteOutlined />}
-                        onClick={async () => { 
-                            await NiceModal.show(
-                                DeleteDescribeModal, 
-                                { ids: selected_subscribes, refresh: mutate }
-                            ) }}
-                    >{t('批量删除')}</Button>
-                </>} 
-            columns={columns} 
-            scroll={{ x: '100%' }}
-            dataSource={data?.subscribes ?? [ ]}
-            rowKey='id'
-            pagination={{
-                defaultPageSize: 10,
-                showSizeChanger: true,
-                hideOnSinglePage: true
-            }}
-            rowSelection={{
-                onChange: selected_keys => { set_selected_subscribes(selected_keys as string[]) },
-                getCheckboxProps: (subscribe: ISubscribe) => ({ disabled: subscribe.status === 1 }),
-                selectedRowKeys: selected_subscribes
-            }}
-        />
-    </div>
+            <DDBTable<ISubscribe> 
+                title={t('订阅列表')} 
+                buttons={
+                    <>
+                        <Button type='primary' icon={<PlusOutlined />} onClick={on_create_subscribe}>{t('新增订阅')}</Button>
+                        <Button 
+                            danger
+                            disabled={!selected_subscribes.length} 
+                            icon={<DeleteOutlined />}
+                            onClick={async () => { 
+                                await NiceModal.show(
+                                    DeleteDescribeModal, 
+                                    { ids: selected_subscribes, refresh: mutate }
+                                ) }}
+                        >{t('批量删除')}</Button>
+                    </>} 
+                columns={columns} 
+                scroll={{ x: '100%' }}
+                dataSource={data?.subscribes ?? [ ]}
+                rowKey='id'
+                pagination={{
+                    defaultPageSize: 10,
+                    showSizeChanger: true,
+                    hideOnSinglePage: true
+                }}
+                rowSelection={{
+                    onChange: selected_keys => { set_selected_subscribes(selected_keys as string[]) },
+                    getCheckboxProps: (subscribe: ISubscribe) => ({ disabled: subscribe.status === 1 }),
+                    selectedRowKeys: selected_subscribes
+                }}
+            />
+        </div>
     </Spin>
 }
