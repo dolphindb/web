@@ -552,7 +552,10 @@ function Vector ({
     const info = obj || objref
     
     const { type } = info
-    const typestr = (64 <= type && type < 128 ? `${DdbType[type - 64]}[]` : DdbType[type]) || String(type)
+    
+    const is_array_vector = 64 <= type && type < 128
+    
+    const typestr = (is_array_vector ? `${DdbType[type - 64]}[]` : DdbType[type]) || String(type)
     
     const ncols = Math.min(
         10,
@@ -646,7 +649,7 @@ function Vector ({
                         ncols,
                         page_index,
                         page_size,
-                        options,
+                        options: { ...options, grouping: !is_array_vector },
                     })
                 )
             ]}
@@ -1479,7 +1482,8 @@ class TableColumn implements TableColumnType <number> {
             irow
         
         return index < obj.rows ?
-            truncate(formati(obj, index, this.options))
+            // array vector 不进行分组
+            truncate(formati(obj, index, { ...this.options, grouping: !(64 <= obj.type && obj.type < 128) }))
         :
             null
     }
