@@ -5922,7 +5922,7 @@
         "en": "Synchronize from a node"
     },
     "插件 zip 包": {
-        "en": "Plugin zip package"
+        "en": "Plugin Zip"
     },
     "插件版本": {
         "en": "Plugin Version"
@@ -5931,7 +5931,7 @@
         "en": "Optional. By default, the latest version that matches the current version is installed"
     },
     "插件服务器地址": {
-        "en": "Plugin server address"
+        "en": "Plugin Server"
     },
     "选填，参考 installPlugin 函数": {
         "en": "Optional, refer to installPlugin function"
