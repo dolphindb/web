@@ -29,17 +29,17 @@ const statuses = {
     failed: t('出错了'),
 }
 
-const cols_width = {
-   rjobs: {
-    userID: 120,
-    jobId: 150,
-    errorMsg: 220,
-    priority: 65,
-    parallelism: 65,
-    clientIp: 120,
-    clientPort: 90
-   }
-}
+// const cols_width = {
+//    rjobs: {
+//     userID: 120,
+//     jobId: 150,
+//     errorMsg: 220,
+//     priority: 65,
+//     parallelism: 65,
+//     clientIp: 120,
+//     clientPort: 90
+//    }
+// }
 
 
 const ellipsis_cols = {
@@ -385,6 +385,7 @@ function append_action_col (
                     
                     <Popconfirm
                         title={type === 'stop' ? t('确认停止作业') : t('确认删除作业')}
+                        okButtonProps={{ danger: true, type: 'primary' }}
                         onConfirm={async () => {
                             await action(job)
                             model.message.success(

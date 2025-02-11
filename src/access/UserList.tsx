@@ -178,6 +178,7 @@ export function UserList () {
                         <Popconfirm
                             title={t('删除用户')}
                             description={t('确认删除用户 {{user}} 吗', { user: current_user.userId })}
+                            okButtonProps={{ type: 'primary', danger: true }}
                             onConfirm={async () => {
                                 await access.delete_user(current_user.userId)
                                 model.message.success(t('用户删除成功'))

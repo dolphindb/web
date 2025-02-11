@@ -228,6 +228,7 @@ function ReportListTable  ({
                     <Popconfirm   
                         title={t('删除巡检结果')} 
                         description={t('确认删除此巡检结果吗？')} 
+                        okButtonProps={{ type: 'primary', danger: true }}
                         onConfirm={async () => { 
                             await inspection.delete_reprorts([record.id])
                             model.message.success(t('删除成功'))
@@ -389,6 +390,7 @@ function PlanListTable  ({
                         description={t('确定立即巡检 {{name}} 吗？', { name: record.name })}
                         okText={t('确定')}
                         cancelText={t('取消')}
+                        okButtonProps={{ type: 'primary', danger: true }}
                         onConfirm={async () => {
                             await inspection.run_plan(record.id)
                             model.message.success(t('执行成功'))
@@ -429,6 +431,7 @@ function PlanListTable  ({
                     <Popconfirm 
                         title={t('删除方案')} 
                         description={t('确认删除巡检方案 {{plan}} 吗？', { plan: record.name })} 
+                        okButtonProps={{ type: 'primary', danger: true }}
                         onConfirm={async () => {
                             await inspection.delete_plans([record.id])
                             model.message.success(t('删除成功'))
@@ -447,6 +450,7 @@ function PlanListTable  ({
             <Popconfirm   
                 title={t('批量删除巡检方案')} 
                 description={t('确认删除选中的巡检方案吗？')} 
+                okButtonProps={{ type: 'primary', danger: true }}
                 onConfirm={async () => {
                     await inspection.delete_plans(ids)
                     model.message.success(t('批量删除成功'))

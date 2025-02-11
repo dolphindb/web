@@ -2,7 +2,7 @@ import useSWR from 'swr'
 import './ParserTemplates.scss'
 import { useCallback, useMemo, useState } from 'react'
 
-import { Button, Space, Table, Tag, Tooltip, Typography, message, type TableProps } from 'antd'
+import { Button, Popconfirm, Tooltip, Typography, message, type TableProps } from 'antd'
 
 import { DeleteOutlined, PlusOutlined } from '@ant-design/icons'
 
@@ -67,15 +67,6 @@ export function ParserTemplates () {
         })
     }, [selected_keys, delete_templates])
     
-    const on_delete = useCallback(({ name, id, citeNumber }: IParserTemplate) => {
-        model.modal.confirm({
-            title: citeNumber 
-            ? t('该解析模板被引用 {{citeNumber}} 次, 确定要删除吗？', { citeNumber }) 
-            : t('确定要删除模板【{{name}}】吗？', { name }),
-            okButtonProps: { type: 'primary', danger: true },
-            onOk: async () => delete_templates([id]),
-        })
-    }, [selected_keys, delete_templates ])
     
     const can_edit = useCallback((template: IParserTemplate ) => template.flag === 0 && template.useNumber === 0, [ ])
     
@@ -137,7 +128,15 @@ export function ParserTemplates () {
                             <Tooltip title={record.citeNumber ? t('当前解析模板已被引用，请谨慎修改') : null}>
                                 <Typography.Link onClick={() => { on_edit(record) }}>{t('编辑')}</Typography.Link>
                             </Tooltip>
-                            <Typography.Link onClick={async () => { on_delete(record) }} type='danger'>{t('删除')}</Typography.Link>
+                            <Popconfirm 
+                                okButtonProps={{ danger: true, type: 'primary' }}
+                                title={record.citeNumber 
+                                    ? t('该解析模板被引用 {{citeNumber}} 次, 确定要删除吗？', { citeNumber: record.citeNumber }) 
+                                    : t('确定要删除模板【{{name}}】吗？', { name: record.name })}
+                                onConfirm={() => { delete_templates([record.id]) }}
+                            >
+                                <Typography.Link type='danger'>{t('删除')}</Typography.Link>
+                            </Popconfirm>
                         </> 
                     :  <Typography.Link onClick={async () => NiceModal.show(ParserTemplateModal, { refresh, editedTemplate: record, mode: 'view' })}>{t('查看')}</Typography.Link>
                 }
@@ -145,7 +144,7 @@ export function ParserTemplates () {
             </TableOperations>   
         }
         
-    ], [on_edit, on_delete, can_edit])
+    ], [on_edit, can_edit])
     
    
     return <div className='parser-template-content'>
