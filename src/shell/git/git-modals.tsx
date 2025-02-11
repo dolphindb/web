@@ -4,9 +4,9 @@ import { Modal, Form, Input } from 'antd'
 
 import { useEffect, useState } from 'react'
 
-import { GIT_CONSTANTS } from '../constants.ts'
-
 import { model } from '@/model.ts'
+ 
+import { GIT_CONSTANTS } from './git-adapter.ts'
 
 import { get_github_auth_url, get_gitlab_auth_url } from './get-auth-url.ts'
 
