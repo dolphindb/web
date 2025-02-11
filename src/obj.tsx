@@ -1458,6 +1458,8 @@ class TableColumn implements TableColumnType <number> {
             return
         
         this.col = obj.value[this.index]
+    
+        this.options = { ...this.options, grouping: !(64 <= this.col.type && this.col.type < 128) }
         
         this.title = <Tooltip
             title={
@@ -1483,7 +1485,7 @@ class TableColumn implements TableColumnType <number> {
         
         return index < obj.rows ?
             // array vector 不进行分组
-            truncate(formati(obj, index, { ...this.options, grouping: !(64 <= obj.type && obj.type < 128) }))
+            truncate(formati(obj, index, this.options))
         :
             null
     }
