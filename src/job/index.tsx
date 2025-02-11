@@ -18,6 +18,7 @@ import { model, type DdbJob } from '@/model.ts'
 
 import { TableCellDetail } from '@/components/TableCellDetail/index.tsx'
 import { DDBTable } from '@/components/DDBTable/index.tsx'
+import { StatusTag, StatusType } from '@/components/tags/index.tsx'
 
 const { Text, Link } = Typography
 
@@ -27,6 +28,13 @@ const statuses = {
     running: t('运行中', { context: 'job.status' }),
     completed: t('已完成'),
     failed: t('出错了'),
+}
+
+const status_map = {
+    queuing: StatusType.PARTIAL_SUCCESS,
+    running: StatusType.RUNNING,
+    completed: StatusType.SUCCESS,
+    failed: StatusType.FAILED
 }
 
 // const cols_width = {
@@ -419,8 +427,7 @@ function add_status_col (cols: DdbJobColumn[]) {
         title: 'status',
         key: 'status',
         width: language === 'zh' ? '80px' : '100px',
-        render: (value, job) => 
-            <Text type={job.theme}>{statuses[job.status] || job.status}</Text>
+        render: (value, job) => <StatusTag status={status_map[job.status]}>{statuses[job.status] || job.status}</StatusTag>
     }
     
     cols.splice(i_priority, 0, col_status)
