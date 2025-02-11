@@ -143,7 +143,7 @@ export function Plugins () {
         <div className='actions'>
             <Popconfirm
                 title={t('加载插件')}
-                description={t('确认加载插件至所选择的节点？（当前已加载的节点会被跳过）')}
+                description={t('确认加载插件至所选择的节点？（当前未安装或已加载的节点会被跳过）')}
                 okText={t('加载')}
                 onConfirm={async () => {
                     await Promise.all(
@@ -152,9 +152,9 @@ export function Plugins () {
                                     t('加载插件:'), 
                                     [
                                         id, 
-                                        selecteds.map(({ node }) => node)
+                                        selecteds.filter(({ installed }) => installed)
+                                            .map(({ node }) => node)
                                     ]))
-                            
                         ))
                     
                     await update()
@@ -162,7 +162,7 @@ export function Plugins () {
                     model.message.success(t('插件加载成功'))
                 }}
             >
-                <Tooltip title={t('在下方表格中选择需要加载的插件，以及节点')}>
+                <Tooltip title={t('在下方表格中选择需要加载的插件，以及节点（当前未安装或已加载的节点会被跳过）')}>
                     <Button
                         className='load'
                         type='primary'
@@ -476,15 +476,15 @@ function InstallModal ({
                 await update()
             }}
         >
-            <Form.Item<InstallFields> name='method' label='安装方式' {...required}>
+            <Form.Item<InstallFields> name='method' label={t('安装方式')} {...required}>
                 <Radio.Group
                     className='methods'
                     optionType='button'
                     buttonStyle='solid'
                     options={[
-                        { label: '离线安装', value: 'offline' },
-                        { label: '在线安装', value: 'online' },
-                        { label: '从某节点同步', value: 'sync' },
+                        { label: t('离线安装'), value: 'offline' },
+                        { label: t('在线安装'), value: 'online' },
+                        { label: t('从某节点同步'), value: 'sync' },
                     ]}
                 />
             </Form.Item>
@@ -511,7 +511,7 @@ function InstallModal ({
             
             <Form.Item<InstallFields>
                 name='nodes'
-                label='目标节点'
+                label={t('目标节点')}
                 {...required}
             >
                 <Checkbox.Group options={installables} />
@@ -525,7 +525,7 @@ function InstallModal ({
                                 <Form.Item<InstallFields>
                                     className='zip-item'
                                     name='zip'
-                                    label='插件 zip 包'
+                                    label={t('插件 zip 包')}
                                     getValueProps={file => ({ fileList: file ? [file] : [ ] })}
                                     getValueFromEvent={({ fileList }) => fileList[0]}
                                     {...required}
@@ -593,19 +593,19 @@ function InstallModal ({
                         
                         case 'online':
                             return <>
-                                <Form.Item<InstallFields> name='version' label='插件版本'>
-                                    <Input className='form-input' placeholder='选填，默认安装和当前版本匹配的最新版' />
+                                <Form.Item<InstallFields> name='version' label={t('插件版本')}>
+                                    <Input className='form-input' placeholder={t('选填，默认安装和当前版本匹配的最新版')} />
                                 </Form.Item>
                                 
-                                <Form.Item<InstallFields> name='server' label='插件服务器地址'>
-                                    <Input className='form-input' placeholder='选填，参考 installPlugin 函数' />
+                                <Form.Item<InstallFields> name='server' label={t('插件服务器地址')}>
+                                    <Input className='form-input' placeholder={t('选填，参考 installPlugin 函数')} />
                                 </Form.Item>
                             </>
                         
                         case 'sync': {
                             const id: InstallFields['id'] = form.getFieldValue('id')
                             
-                            return <Form.Item<InstallFields> name='source' label='源节点' {...required}>
+                            return <Form.Item<InstallFields> name='source' label={t('源节点')} {...required}>
                                 <Radio.Group options={id 
                                     ? get_plugin_nodes_by_id(id, plugin_nodes)
                                         .filter(({ installed }) => installed)
