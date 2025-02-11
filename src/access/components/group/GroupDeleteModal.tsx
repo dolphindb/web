@@ -24,6 +24,7 @@ export const GroupDeleteModal = NiceModal.create((
         className='delete-user-modal'
         open={modal.visible}
         onCancel={modal.hide}
+        okButtonProps={{ type: 'primary', danger: true }}
         onOk={async () => {
             await Promise.all(selected_groups.map(async group => access.delete_group(group)))
             model.message.success(t('组删除成功'))

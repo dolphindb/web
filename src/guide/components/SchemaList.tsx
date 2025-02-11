@@ -314,10 +314,5 @@ export function SchemaList (props: { mode: 'finance' | 'ito', engine: string, ne
             </div>
         
         </div>
-        
-        <Typography.Text type='secondary' className='schema-tips'>
-            { helpTip }
-        </Typography.Text>
-        
     </>
 }

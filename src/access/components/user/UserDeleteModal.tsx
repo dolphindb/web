@@ -19,6 +19,7 @@ export const UserDeleteModal = NiceModal.create(({ selected_users, reset_selecte
             open={modal.visible}
             onCancel={modal.hide}
             afterClose={modal.remove}
+            okButtonProps={{ type: 'primary', danger: true }}
             onOk={async () => {
                 await Promise.all(selected_users.map(async user => access.delete_user(user)))
                 model.message.success(t('用户删除成功'))

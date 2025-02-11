@@ -16,7 +16,6 @@ import { Editor } from '@monaco-editor/react'
 
 import { model, type DdbJob } from '@/model.ts'
 
-import { TableCellDetail } from '@/components/TableCellDetail/index.tsx'
 import { DDBTable } from '@/components/DDBTable/index.tsx'
 import { StatusTag, StatusType } from '@/components/tags/index.tsx'
 
@@ -37,22 +36,12 @@ const status_map = {
     failed: StatusType.FAILED
 }
 
-// const cols_width = {
-//    rjobs: {
-//     userID: 120,
-//     jobId: 150,
-//     errorMsg: 220,
-//     priority: 65,
-//     parallelism: 65,
-//     clientIp: 120,
-//     clientPort: 90
-//    }
-// }
-
 
 const ellipsis_cols = {
     rjobs: ['rootJobId']
 }
+
+const expand_cols = ['errorMsg']
 
 export function Job () {
     const [refresher, set_refresher] = useState({ })
@@ -110,7 +99,7 @@ export function Job () {
             -(l.finishedTasks - r.finishedTasks))
     
     const rjob_rows = filter_job_rows(
-        set_detail_row(rjobs.to_rows().map(compute_status_info), [ 'errorMsg']),
+        rjobs.to_rows().map(compute_status_info),
         query
     ).sort((l, r) => {
         if (l.status !== r.status) {
@@ -299,21 +288,18 @@ const column_names = {
     queue: t('队列')
 }
 
-const detail_title = {
-    errorMsg: t('错误详细信息'),
-    rootJobId: t('根作业 ID')
-}
-
 function translate_columns (cols: DdbJobColumn[]): DdbJobColumn[] {
-    return cols.map(item => 
-        ({ ...item, title: column_names[item.title as string] || item.title }))
-}
-
-function set_detail_row (table: Record<string, any>[], col_names: string[]) {
-    return table.map(row => {
-        for (let col_name of col_names)
-            row[col_name] = <TableCellDetail title={detail_title[col_name]} content={row[col_name]}/>
-        return row
+    return cols.map(item => {
+        const expand = expand_cols.includes(item.dataIndex as string)
+        return { 
+            ...item, 
+            title: column_names[item.title as string] || item.title,
+            width: expand ? 250 : undefined,
+            render: expand 
+                ? value => <Typography.Paragraph style={{ marginBottom: 0 }} ellipsis={{ rows: 1, expandable: 'collapsible' }}>{value}</Typography.Paragraph>
+                : undefined
+        }
+    
     })
 }
 
@@ -364,14 +350,6 @@ function fix_scols (sjobs: DdbObj<DdbObj[]>) {
     
     return [cols[index], ...cols.slice(0, index), ...cols.slice(index + 1, cols.length)]
 }
-
-
-/** 设置列宽 */
-// function set_col_width (cols: TableColumnType<Record<string, any>>[], type: string) {
-//     for (let width_key of Object.keys(cols_width[type])) 
-//         cols.find(col => col.dataIndex === width_key).width = cols_width[type][width_key]
-//     return cols
-// }
 
 
 function append_action_col (
