@@ -6097,5 +6097,8 @@
     },
     "目标节点": {
         "en": "Target Node"
+    },
+    "Git 登录失败": {
+        "en": "Login to Git failed."
     }
 }
