@@ -42,7 +42,7 @@ let docs_initing = false
 
 export function Editor ({
     class_name = 'editor',
-    readonly,
+    readonly = false,
     default_value,
     value,
     height,
@@ -93,13 +93,8 @@ export function Editor ({
             
             acceptSuggestionOnEnter: enter_completion ? 'on' : 'off',
             
-            ... readonly ? {
-                readOnly: true,
-                domReadOnly: true,
-            } : { 
-                readOnly: false,
-                domReadOnly: false,
-            },
+            readOnly: readonly,
+            domReadOnly: readonly,
             
             ...options,
         }),
