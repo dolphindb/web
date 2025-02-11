@@ -61,9 +61,6 @@ export function Overview () {
     
     return <Layout>
             <Header className='header-bar'>
-               
-                    
-                    
                 <Segmented<DisplayMode>
                     value={display_mode}
                     onChange={mode => {
