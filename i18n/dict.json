@@ -5854,5 +5854,62 @@
     },
     "自动": {
         "en": "auto"
+    },
+    "插件列表:": {
+        "en": "plugins:"
+    },
+    "节点插件:": {
+        "en": "plugin nodes:"
+    },
+    "加载插件": {
+        "en": "Load Plugin"
+    },
+    "确认加载插件至所选择的节点？（当前未安装或已加载的节点会被跳过）": {
+        "en": "Are you sure you want to load the plugin to the selected node? (Nodes that are not currently installed or have already been loaded will be skipped)"
+    },
+    "加载": {
+        "en": "Load"
+    },
+    "加载插件:": {
+        "en": "load plugin:"
+    },
+    "插件加载成功": {
+        "en": "Plugin loaded successfully"
+    },
+    "在下方表格中选择需要加载的插件，以及节点（当前未安装或已加载的节点会被跳过）": {
+        "en": "Select the plugin and node to be loaded in the table below (nodes that are not currently installed or already loaded will be skipped)"
+    },
+    "安装插件": {
+        "en": "Install Plugin"
+    },
+    "已加载节点": {
+        "en": "Loaded Nodes"
+    },
+    "节点名": {
+        "en": "Node"
+    },
+    "已安装": {
+        "en": "Installed"
+    },
+    "安装版本": {
+        "en": "Installed Version"
+    },
+    "已加载": {
+        "en": "Loaded"
+    },
+    "加载版本": {
+        "en": "Loaded Version"
+    },
+    "获取插件可安装节点:": {
+        "en": "Get the plugin installable node:"
+    },
+    "安装插件:": {
+        "en": "Install the plugin:"
+    },
+    "插件 {{plugin}} 安装成功": {
+        "en": "Plugin {{plugin}} installed successfully"
+    },
+    "如: zip": {
+        "en": "eg: zip"
     }
 }
