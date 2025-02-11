@@ -6,7 +6,7 @@ import dayjs from 'dayjs'
 
 import { model, storage_keys } from '@/model.ts'
 
-interface IProject {
+export interface IProject {
     id: string
     name: string
     description: string | null
@@ -139,10 +139,12 @@ export class GitLabAdapter implements IGitAdapter {
             const result = await resp.json()
             if (isArray(result))
                 return result
+            else
+                throw new Error('Invalid response')
         } catch (error) {
-            console.log(t('fetch 仓库列表失败'))
+            error.shown = true
+            throw error
         }
-        return [ ]
     }
     
     async get_project (id: string): Promise<IProject> {
@@ -256,21 +258,27 @@ export class GitHubAdapter implements IGitAdapter {
     
     
     async get_projects (): Promise<IProject[]> {
-        const resp = await fetch(`${this.root_url}${this.api_root}/user/repos`, this.get_fetch_options())
-        const result = await resp.json()
-        if (isArray(result))
-            return result.map((repo: any) => ({
-                id: String(repo.id),
-                name: repo.name,
-                path: repo.full_name,
-                description: repo.description,
-                last_activity_at: repo.updated_at,
-                path_with_namespace: repo.full_name,
-                default_branch: repo.default_branch
-            }))
-        else
-            return [ ]
-            
+        try {
+            const resp = await fetch(`${this.root_url}${this.api_root}/user/repos`, this.get_fetch_options())
+            const result = await resp.json()
+            if (isArray(result))
+                return result.map((repo: any) => ({
+                    id: String(repo.id),
+                    name: repo.name,
+                    path: repo.full_name,
+                    description: repo.description,
+                    last_activity_at: repo.updated_at,
+                    path_with_namespace: repo.full_name,
+                    default_branch: repo.default_branch
+                }))
+            else
+                throw new Error('Invalid response')
+        } catch (error) {
+            error.shown = true
+            throw error
+        }
+        
+        
     }
     
     async get_project (id: string): Promise<IProject> {

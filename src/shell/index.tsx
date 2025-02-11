@@ -7,7 +7,7 @@ import { Resizable } from 're-resizable'
 import { delay } from 'xshell/utils.browser.js'
 
 
-import { Tabs } from 'antd'
+import { Segmented, Tabs } from 'antd'
 
 import { t } from '@i18n/index.ts'
 
@@ -57,14 +57,12 @@ export function Shell () {
             }}
         >
             <div className='tabs'>
-                <Tabs
-                    activeKey={tab_key}
-                    size='small'
-                    defaultActiveKey='shell'
+                <Segmented
+                    value={tab_key}
                     onChange={set_tab_key}
-                    items={[
-                        { key: 'shell', label: t('数据库'), closable: false },
-                        { key: 'git', label: t('Git 集成'), closable: false }
+                    options={[
+                        { value: 'shell', label: t('数据库') },
+                        { value: 'git', label: t('Git 集成') }
                     ]}
                 />
             </div>

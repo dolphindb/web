@@ -18,6 +18,7 @@ export const GitLabOauthModal = NiceModal.create(() => {
         localStorage.setItem(storage_keys.git_client_id, values.client_id)
         localStorage.setItem(storage_keys.git_redirect_url, values.redirect_url)
         localStorage.setItem(storage_keys.git_api_root, values.api_root)
+        localStorage.setItem(storage_keys.git_provider, 'gitlab')
         get_gitlab_auth_url(values.root_url, values.client_id, values.redirect_url).then(url => { window.location.href = url })
         modal.hide()
     }
@@ -210,6 +211,7 @@ export const GitHubOauthModal = NiceModal.create(() => {
         localStorage.setItem(storage_keys.git_client_id, values.client_id)
         localStorage.setItem(storage_keys.git_redirect_url, values.redirect_url)
         localStorage.setItem(storage_keys.git_client_secret, values.client_secret) // Store the secret (handle securely in a real app)
+        localStorage.setItem(storage_keys.git_provider, 'github')
         const url = get_github_auth_url(values.client_id, values.redirect_url)
         window.location.href = url
         modal.hide()

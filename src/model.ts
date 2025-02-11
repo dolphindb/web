@@ -324,17 +324,23 @@ export class DdbModel extends Model<DdbModel> {
         
         const current_path = location.pathname
         
-        // GitHub OAuth
-        if (current_path.includes('/oauth-github')) 
-            await this.login_git('github')
-        
-        // GitLab OAuth
-        if (current_path.includes('/oauth-gitlab')) 
-            await this.login_git('gitlab')
-        
-        this.set({ inited: true })
-        
-        console.log(t('web 初始化成功'))
+        try {
+            // GitHub OAuth
+            if (current_path.includes('/oauth-github'))
+                await this.login_git('github')
+                
+            // GitLab OAuth
+            if (current_path.includes('/oauth-gitlab'))
+                await this.login_git('gitlab')
+        } catch (error) {
+            this.modal.error({ title: t('Git 登录失败') })
+            error.shown = true
+            throw error
+        } finally {
+            this.set({ inited: true })
+            
+            console.log(t('web 初始化成功'))
+        }
         
         await this.get_license_info()
     }
@@ -560,8 +566,6 @@ export class DdbModel extends Model<DdbModel> {
             localStorage.setItem(storage_keys.git_access_token, token)
             localStorage.setItem(storage_keys.git_provider, provider_name)
         } catch (error) {
-            this.modal.error({ title: t(`${provider_name.toUpperCase()} 登录失败`) })
-            error.shown = true
             throw error
         } finally {
             this.goto('/')
