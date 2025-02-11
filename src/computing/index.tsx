@@ -296,32 +296,32 @@ const special_engine_type = new Set(['NarrowReactiveStreamEngine', 'ReactiveStre
 const header_text = {
     subWorkers: {
         title: t('订阅线程状态'),
-        tip: t('监控订阅节点的工作线程的状态。工作线程状态信息会按照 topic 来展示。'),
+        tip: 'getStreamingStat().subWorkers：' + t('监控订阅节点的工作线程的状态。工作线程状态信息会按照 topic 来展示。'),
         func: 'getStreamingStat().subWorkers'
     },
     pubConns: {
         title: t('发布状态'),
-        tip: t('监控本地发布节点和它的所有订阅节点之间的连接状态。'),
+        tip: 'getStreamingStat().pubConns：' + t('监控本地发布节点和它的所有订阅节点之间的连接状态。'),
         func: 'getStreamingStat().pubConns'
     },
     persistWorkers: {
         title: t('持久化线程状态'),
-        tip: t('监控负责持久化流数据表的工作线程的状态。'),
+        tip: 'getStreamingStat().persistWorkers：' + t('监控负责持久化流数据表的工作线程的状态。'),
         func: 'getStreamingStat().persistWorkers'
     },
     persistenceMeta: {
         title: t('持久化共享流表状态'),
-        tip: t('监控启用了持久化的共享流数据表的元数据。'),
+        tip: 'getStreamTables(1)：' + t('监控启用了持久化的共享流数据表的元数据。'),
         func: 'getStreamTables(1)'
     },
     sharedStreamingTableStat: {
         title: t('非持久化共享流表状态'),
-        tip: t('监控未启用持久化的共享流数据表的元数据。'),
+        tip: 'getStreamTables(2)：' + t('监控未启用持久化的共享流数据表的元数据。'),
         func: 'getStreamTables(2)'
     },
     engine: {
         title: t('流引擎状态'),
-        tip: t('监控流计算引擎的状态。'),
+        tip: 'getStreamEngineStat()：' + t('监控流计算引擎的状态。'),
         func: 'getStreamEngineStat()'
     }
 }
@@ -776,7 +776,6 @@ function StateTable ({
     type,
     cols,
     rows,
-    min_width,
     separated = true,
     default_page_size = 5,
     refresher
