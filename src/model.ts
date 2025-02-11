@@ -326,11 +326,11 @@ export class DdbModel extends Model<DdbModel> {
         
         // GitHub OAuth
         if (current_path.includes('/oauth-github')) 
-            await this.login_github()
+            await this.login_git('github')
         
         // GitLab OAuth
         if (current_path.includes('/oauth-gitlab')) 
-            await this.login_gitlab()
+            await this.login_git('gitlab')
         
         this.set({ inited: true })
         
@@ -531,51 +531,39 @@ export class DdbModel extends Model<DdbModel> {
     }
     
     
-    async login_gitlab () {
+    async login_git (provider_name: 'github' | 'gitlab') {
         const searchParams = new URLSearchParams(window.location.search)
+        await this.maybe_jump(searchParams)
         const code = searchParams.get('code')
         localStorage.setItem(storage_keys.git_access_code, code)
-        const git_info = {
-            root_url: localStorage.getItem(storage_keys.git_root_url),
-            client_id: localStorage.getItem(storage_keys.git_client_id),
-            redirect_url: localStorage.getItem(storage_keys.git_redirect_url),
-            api_root: localStorage.getItem(storage_keys.git_api_root) ?? undefined
-        }
-        const git_provider = new GitLabAdapter()
+        
         try {
-            const token = await git_provider.get_access_token(code, git_info.client_id, git_info.redirect_url)
+            let token: string
+            
+            if (provider_name === 'github') {
+                const provider = new GitHubAdapter()
+                token = await provider.get_access_token(
+                    code,
+                    localStorage.getItem(storage_keys.git_client_id),
+                    localStorage.getItem(storage_keys.git_redirect_url),
+                    localStorage.getItem(storage_keys.git_client_secret)
+                )
+            } else {
+                const provider = new GitLabAdapter() 
+                token = await provider.get_access_token(
+                    code,
+                    localStorage.getItem(storage_keys.git_client_id),
+                    localStorage.getItem(storage_keys.git_redirect_url)
+                )
+            }
+            
             localStorage.setItem(storage_keys.git_access_token, token)
-            localStorage.setItem(storage_keys.git_provider, 'gitlab')
+            localStorage.setItem(storage_keys.git_provider, provider_name)
         } catch (error) {
-            this.modal.error({ title: t('GitLab 登录失败') })
+            this.modal.error({ title: t(`${provider_name.toUpperCase()} 登录失败`) })
             error.shown = true
             throw error
         } finally {
-            await this.maybe_jump(searchParams)
-            this.goto('/')
-        }
-    }
-    
-    async login_github () {
-        const searchParams = new URLSearchParams(window.location.search)
-        const code = searchParams.get('code')
-        localStorage.setItem(storage_keys.git_access_code, code)
-        const git_info = {
-            client_id: localStorage.getItem(storage_keys.git_client_id),
-            redirect_url: localStorage.getItem(storage_keys.git_redirect_url),
-            client_secret: localStorage.getItem(storage_keys.git_client_secret)
-        }
-        const git_provider = new GitHubAdapter()
-        try {
-            const token = await git_provider.get_access_token(code, git_info.client_id, git_info.redirect_url, git_info.client_secret)
-            localStorage.setItem(storage_keys.git_access_token, token)
-            localStorage.setItem(storage_keys.git_provider, 'github')
-        } catch (error) {
-            this.modal.error({ title: t('GitHub 登录失败') })
-            error.shown = true
-            throw error
-        } finally {
-            await this.maybe_jump(searchParams)
             this.goto('/')
         }
     }
