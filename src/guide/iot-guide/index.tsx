@@ -1,4 +1,4 @@
-import { Radio, Spin } from 'antd'
+import { Radio, Result, Spin } from 'antd'
 import { useId, useState } from 'react'
 
 import useSWR from 'swr'
@@ -6,10 +6,12 @@ import useSWR from 'swr'
 import { t } from '../../../i18n/index.js'
 
 
-import { model } from '../../model.js'
+import { model, NodeType } from '../../model.js'
 
 import finance_guide_code from '../finance.dos'
 import iot_guide_code from '../iot.dos'
+
+import './index.scss'
 
 
 
@@ -25,7 +27,7 @@ const VersionMap = {
 }
 
 export function CreateGuide () { 
-    const { logined } = model.use(['logined'])
+    const { logined, node_type } = model.use(['logined', 'node_type'])
     const [type, set_type] = useState(GuideType.SIMPLE)
     const id = useId()
     const { isLoading } = useSWR(
@@ -38,6 +40,13 @@ export function CreateGuide () {
     
     if (!logined)
         return <Unlogin info={t('物联网库表向导')} />
+        
+    if (node_type === NodeType.controller)
+        return <Result 
+            className='warning-result' 
+            status='warning' 
+            title={t('控制节点不支持库表向导，请跳转到数据节点或计算节点查看。')} 
+        />
     
     return <Spin spinning={isLoading}>
         <Radio.Group value={type} onChange={e => { set_type(e.target.value) }}>

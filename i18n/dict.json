@@ -5944,5 +5944,8 @@
     },
     "目标节点": {
         "en": "Target Node"
+    },
+    "控制节点不支持库表向导，请跳转到数据节点或计算节点查看。": {
+        "en": "The control node does not support the library table wizard. Please jump to the data node or computing node to view it."
     }
 }
