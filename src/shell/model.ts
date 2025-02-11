@@ -369,7 +369,15 @@ class ShellModel extends Model<ShellModel> {
         file_path: string,
         file_name: string,
         code: string,
-        git_info: {
+        {
+            repo_id,
+            repo_path, 
+            repo_name, 
+            branch = 'main', 
+            sha, 
+            is_history = false, 
+            commit_id
+        }: {
             repo_id: string
             repo_path: string
             repo_name: string
@@ -381,8 +389,6 @@ class ShellModel extends Model<ShellModel> {
     ) {
         if (!this.monaco_inited)
             return
-            
-        const { repo_id, repo_path, repo_name, branch = 'main', sha, is_history = false, commit_id } = git_info
         
         // 检查是否存在当前仓库和当前分支的文件，否则只是跳转过去
         const index = this.tabs.findIndex(t => t.git?.repo_id === repo_id && t.git?.branch === branch && t.git?.file_path === file_path)
@@ -415,18 +421,19 @@ class ShellModel extends Model<ShellModel> {
     
     update_git_tab_code (index: number, code: string, commit_id: string, sha: string) {
         const tab = this.tabs.find(t => t.index === index)
-        if (tab && tab.git) {
-            tab.git.raw_code = code
-            tab.code = code
-            if (sha)
-                tab.git.sha = sha
-            if (commit_id)
-                tab.git.commit_id = commit_id
-            if (this.itab === index)
-                this.editor.setValue(code)
-            this.set({ tabs: [...this.tabs] })
-            this.save()
-        }
+        if (!tab || !tab.git)
+            return
+        
+        tab.git.raw_code = code
+        tab.code = code
+        if (sha)
+            tab.git.sha = sha
+        if (commit_id)
+            tab.git.commit_id = commit_id
+        if (this.itab === index)
+            this.editor.setValue(code)
+        this.set({ tabs: [...this.tabs] })
+        this.save()
     }
     
     

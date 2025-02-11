@@ -9,19 +9,17 @@ import { delay } from 'xshell/utils.browser.js'
 
 import { Tabs } from 'antd'
 
-import { t } from '@i18n/index.js'
+import { t } from '@i18n/index.ts'
 
-import { model } from '../model.js'
+import { shell } from './model.ts'
 
-import { shell } from './model.js'
-
-import { ShellEditor } from './ShellEditor.js'
+import { ShellEditor } from './ShellEditor.tsx'
 // import { Editor } from './Editor/index.js'
-import { Terminal } from './Terminal.js'
-import { DataView } from './DataView.js'
-import { Databases } from './Databases.js'
-import { Variables } from './Variables.js'
-import { Git } from './git/git.js'
+import { Terminal } from './Terminal.tsx'
+import { DataView } from './DataView.tsx'
+import { Databases } from './Databases.tsx'
+import { Variables } from './Variables.tsx'
+import { Git } from './git/git.tsx'
 
 
 export function Shell () {
@@ -44,11 +42,6 @@ export function Shell () {
     }, [ ])
     
     
-    const tab_items = [
-        { key: 'shell', label: t('数据库'), closable: false },
-        { key: 'git', label: t('Git 集成'), closable: false }
-    ]
-    
     const [tab_key, set_tab_key] = useState('shell')
     const is_git = tab_key === 'git'
     
@@ -64,38 +57,49 @@ export function Shell () {
             }}
         >
             <div className='tabs'>
-                <Tabs activeKey={tab_key} size='small' items={tab_items} defaultActiveKey='shell' onChange={set_tab_key} />
+                <Tabs
+                    activeKey={tab_key}
+                    size='small'
+                    defaultActiveKey='shell'
+                    onChange={set_tab_key}
+                    items={[
+                        { key: 'shell', label: t('数据库'), closable: false },
+                        { key: 'git', label: t('Git 集成'), closable: false }
+                    ]}
+                />
             </div>
             {
-                is_git ? <Git /> : <>
-                    <Databases />
-                    
-                    <div className='treeview-resizable-split2'>
-                        <div className='treeview-resizable-split21'>
-                            <Variables shared={false} />
-                        </div>
+                is_git
+                    ? <Git />
+                    : <>
+                        <Databases />
                         
-                        <Resizable
-                            className='treeview-resizable-split22'
-                            enable={{
-                                top: true,
-                                right: false,
-                                bottom: false,
-                                left: false,
-                                topRight: false,
-                                bottomRight: false,
-                                bottomLeft: false,
-                                topLeft: false
-                            }}
-                            defaultSize={{ height: '100px', width: '100%' }}
-                            minHeight='22px'
-                            handleStyles={{ bottom: { height: 20, bottom: -10 } }}
-                            handleClasses={{ bottom: 'resizable-handle' }}
-                        >
-                            <Variables shared />
-                        </Resizable>
-                    </div>
-                </>
+                        <div className='treeview-resizable-split2'>
+                            <div className='treeview-resizable-split21'>
+                                <Variables shared={false} />
+                            </div>
+                            
+                            <Resizable
+                                className='treeview-resizable-split22'
+                                enable={{
+                                    top: true,
+                                    right: false,
+                                    bottom: false,
+                                    left: false,
+                                    topRight: false,
+                                    bottomRight: false,
+                                    bottomLeft: false,
+                                    topLeft: false
+                                }}
+                                defaultSize={{ height: '100px', width: '100%' }}
+                                minHeight='22px'
+                                handleStyles={{ bottom: { height: 20, bottom: -10 } }}
+                                handleClasses={{ bottom: 'resizable-handle' }}
+                            >
+                                <Variables shared />
+                            </Resizable>
+                        </div>
+                    </>
             }
         </Resizable>
         

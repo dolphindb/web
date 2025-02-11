@@ -24,8 +24,7 @@ import { language, t } from '@i18n/index.ts'
 import type { FormatErrorOptions } from '@/components/GlobalErrorBoundary.tsx'
 import { config } from '@/config/model.ts'
 import { goto_url, strip_quotes } from '@/utils.ts'
-
-import { GitHubAdapter, GitLabAdapter } from './shell/git/git-adapter.ts'
+import { GitHubAdapter, GitLabAdapter } from '@/shell/git/git-adapter.ts'
 
 
 const dev_hostname = '192.168.0.37' as const
@@ -323,22 +322,21 @@ export class DdbModel extends Model<DdbModel> {
         // 这里保证 client_auth 已初始化
         await pclient_auth
         
-        
-        await this.get_license_info()
-        
         const current_path = location.pathname
         
-        // GitHub Oauth
+        // GitHub OAuth
         if (current_path.includes('/oauth-github')) 
             await this.login_github()
         
-        // GitLab Oauth
+        // GitLab OAuth
         if (current_path.includes('/oauth-gitlab')) 
             await this.login_gitlab()
         
         this.set({ inited: true })
         
         console.log(t('web 初始化成功'))
+        
+        await this.get_license_info()
     }
     
     
@@ -449,7 +447,7 @@ export class DdbModel extends Model<DdbModel> {
     
     /** redirect_uri 只能跳转到其中某个节点，需要带参数跳回到原发起登录的节点 
     发起跳转后会抛出错误中断后续流程 */
-    async maybe_jump (params: URLSearchParams): Promise<boolean> {
+    async maybe_jump (params: URLSearchParams): Promise<void> | never {
         const state = params.get('state')
         if (state && state !== this.node_alias) {
             const node = this.nodes.find(({ name }) => name === state)
@@ -459,9 +457,7 @@ export class DdbModel extends Model<DdbModel> {
             console.log(t('根据 state 参数跳转到节点:'), state)
             
             await goto_url(this.get_node_url(node, { queries: { state: null } }))
-            return true
         }
-        return false
     }
     
     /** 实现了两种 oauth 方法: 
@@ -473,14 +469,8 @@ export class DdbModel extends Model<DdbModel> {
     async login_by_oauth () {
         let url = new URL(location.href)
         
-        // 先判断，如果路径是 /oauth-gitlab 或者 /oauth-github，那么不是 oauthLogin，而是登录到 Git，这时不用这个
-        const skip_oauth = location.pathname.includes('/oauth-gitlab') || location.pathname.includes('/oauth-github')
-        if (skip_oauth)
-            return
-        
         // 有 ticket 说明 oauthLogin 登录成功
         let ticket: string
-        
         
         // https://datatracker.ietf.org/doc/html/rfc6749#section-4.2.2
         if (this.oauth_type === 'authorization code') {
@@ -540,6 +530,7 @@ export class DdbModel extends Model<DdbModel> {
         }
     }
     
+    
     async login_gitlab () {
         const searchParams = new URLSearchParams(window.location.search)
         const code = searchParams.get('code')
@@ -560,9 +551,8 @@ export class DdbModel extends Model<DdbModel> {
             error.shown = true
             throw error
         } finally {
-            const is_jump = await this.maybe_jump(searchParams)
-            if (!is_jump)
-                this.goto('/')
+            await this.maybe_jump(searchParams)
+            this.goto('/')
         }
     }
     
@@ -585,9 +575,8 @@ export class DdbModel extends Model<DdbModel> {
             error.shown = true
             throw error
         } finally {
-            const is_jump = await this.maybe_jump(searchParams)
-            if (!is_jump)
-                this.goto('/')
+            await this.maybe_jump(searchParams)
+            this.goto('/')
         }
     }
     

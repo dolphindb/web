@@ -78,11 +78,6 @@ function DolphinDB () {
                 borderRadius: 0,
                 
                 controlOutlineWidth: 0,
-            },
-            components: {
-                Tree: {
-                    indentSize: 12
-                }
             }
         }}
         renderEmpty={() => <div className='empty-placeholder' />}
@@ -199,16 +194,16 @@ const router = createBrowserRouter([
                 element: <Shell />
             },
             {
+                path: 'shell/',
+                element: <Shell />
+            },
+            {
               path: 'oauth-github/',
               element: <Shell /> 
             },
             {
                 path: 'oauth-gitlab/',
                 element: <Shell /> 
-            },
-            {
-                path: 'shell/',
-                element: <Shell />
             },
             {
                 path: 'login/',
@@ -283,7 +278,7 @@ const router = createBrowserRouter([
             {
                 path: 'finance-guide/',
                 element: <FinanceGuide />
-            }
+            },
         ]
     }], 
     model.assets_root === '/' ? undefined : { basename: model.assets_root }
