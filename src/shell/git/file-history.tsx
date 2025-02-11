@@ -8,7 +8,7 @@ import { useEffect, useState } from 'react'
 
 import { shell } from '../model.ts'
 
-import { getToken, git_provider, type ICommitHistoryItem } from './git-adapter.ts'
+import { getToken, git_provider } from './git-provider.ts'
 import { format_friendly_date } from './get-auth-url.ts'
 
 export function FileHistory ({ file_path, repo, branch }: { file_path: string, repo: string, branch: string }) {

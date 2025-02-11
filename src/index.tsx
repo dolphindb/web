@@ -55,8 +55,6 @@ import { CreateGuide } from './guide/iot-guide/index.tsx'
 import { FinanceGuide } from './guide/finance-guide/index.tsx'
 import { DataCollection } from './data-collection/index.tsx'
 import { Access } from './access/index.tsx'
-import { GitLabOauth } from './git-oauth/oauth-gitlab.tsx'
-import { GitHubOauth } from './git-oauth/oauth-github.tsx'
 
 
 
@@ -201,6 +199,14 @@ const router = createBrowserRouter([
                 element: <Shell />
             },
             {
+              path: 'oauth-github/',
+              element: <Shell /> 
+            },
+            {
+                path: 'oauth-gitlab/',
+                element: <Shell /> 
+            },
+            {
                 path: 'shell/',
                 element: <Shell />
             },
@@ -277,14 +283,6 @@ const router = createBrowserRouter([
             {
                 path: 'finance-guide/',
                 element: <FinanceGuide />
-            },
-            {
-                path: 'oauth-gitlab/',
-                element: <GitLabOauth/>
-            },
-            {
-                path: 'oauth-github/',
-                element: <GitHubOauth/>
             }
         ]
     }], 

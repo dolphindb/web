@@ -8,7 +8,9 @@ import NiceModal from '@ebay/nice-modal-react'
 
 import { shell } from '../model.ts'
  
-import { git_provider, GIT_CONSTANTS } from './git-adapter.ts'
+import { storage_keys } from '@/model.ts'
+ 
+import { git_provider } from './git-provider.ts'
 import { GitHubAccessTokenModal, GitHubOauthModal, GitLabAccessTokenModal, GitLabOauthModal } from './git-modals.tsx'
 import { format_friendly_date } from './get-auth-url.ts'
 
@@ -46,7 +48,7 @@ export function Repos ({ on_select_repo }: { on_select_repo: (repo_id: string, t
     }
     
     async function logout () {
-        localStorage.removeItem(GIT_CONSTANTS.ACCESS_TOKEN)
+        localStorage.removeItem(storage_keys.git_access_token)
         shell.remove_git_tabs()
         on_select_repo('', '')
         reposResp.mutate()

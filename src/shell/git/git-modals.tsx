@@ -4,9 +4,8 @@ import { Modal, Form, Input } from 'antd'
 
 import { useEffect, useState } from 'react'
 
-import { model } from '@/model.ts'
+import { model, storage_keys } from '@/model.ts'
  
-import { GIT_CONSTANTS } from './git-adapter.ts'
 
 import { get_github_auth_url, get_gitlab_auth_url } from './get-auth-url.ts'
 
@@ -15,19 +14,19 @@ export const GitLabOauthModal = NiceModal.create(() => {
     const [form] = Form.useForm()
     
     function onFinish (values) {
-        localStorage.setItem(GIT_CONSTANTS.ROOT_URL, values.root_url)
-        localStorage.setItem(GIT_CONSTANTS.CLIENT_ID, values.client_id)
-        localStorage.setItem(GIT_CONSTANTS.REDIRECT_URL, values.redirect_url)
-        localStorage.setItem(GIT_CONSTANTS.API_ROOT, values.api_root)
+        localStorage.setItem(storage_keys.git_root_url, values.root_url)
+        localStorage.setItem(storage_keys.git_client_id, values.client_id)
+        localStorage.setItem(storage_keys.git_redirect_url, values.redirect_url)
+        localStorage.setItem(storage_keys.git_api_root, values.api_root)
         get_gitlab_auth_url(values.root_url, values.client_id, values.redirect_url).then(url => { window.location.href = url })
         modal.hide()
     }
     
     const defaultRedirectUrl = `${window.location.origin}/oauth-gitlab`
     
-    const is_https = window.location.protocol === 'https:'
+    const is_https_or_local = window.location.protocol === 'https:' || window.location.hostname === 'localhost'
     
-    if (!is_https)
+    if (!is_https_or_local)
         return <Modal
             open={modal.visible}
             onCancel={modal.hide}
@@ -100,10 +99,10 @@ export const GitLabAccessTokenModal = NiceModal.create(() => {
     const [form] = Form.useForm()
     
     function on_finish (values) {
-        localStorage.setItem(GIT_CONSTANTS.ACCESS_TOKEN, values.access_token)
-        localStorage.setItem(GIT_CONSTANTS.ROOT_URL, values.root_url)
-        localStorage.setItem(GIT_CONSTANTS.API_ROOT, values.api_root)
-        localStorage.setItem(GIT_CONSTANTS.PROVIDER, 'gitlab')
+        localStorage.setItem(storage_keys.git_access_token, values.access_token)
+        localStorage.setItem(storage_keys.git_root_url, values.root_url)
+        localStorage.setItem(storage_keys.git_api_root, values.api_root)
+        localStorage.setItem(storage_keys.git_provider, 'gitlab')
         window.location.reload()
         modal.hide()
     }
@@ -164,8 +163,8 @@ export const GitHubAccessTokenModal = NiceModal.create(() => {
     const [form] = Form.useForm()
     
     function onFinish (values) {
-        localStorage.setItem(GIT_CONSTANTS.ACCESS_TOKEN, values.access_token)
-        localStorage.setItem(GIT_CONSTANTS.PROVIDER, 'github')
+        localStorage.setItem(storage_keys.git_access_token, values.access_token)
+        localStorage.setItem(storage_keys.git_provider, 'github')
         window.location.reload()
         modal.hide()
     }
@@ -208,9 +207,9 @@ export const GitHubOauthModal = NiceModal.create(() => {
     const [not_load_plugin, set_not_load_plugin] = useState(false)
     
     function onFinish (values) {
-        localStorage.setItem(GIT_CONSTANTS.CLIENT_ID, values.client_id)
-        localStorage.setItem(GIT_CONSTANTS.REDIRECT_URL, values.redirect_url)
-        localStorage.setItem(GIT_CONSTANTS.CLIENT_SECRET, values.client_secret) // Store the secret (handle securely in a real app)
+        localStorage.setItem(storage_keys.git_client_id, values.client_id)
+        localStorage.setItem(storage_keys.git_redirect_url, values.redirect_url)
+        localStorage.setItem(storage_keys.git_client_secret, values.client_secret) // Store the secret (handle securely in a real app)
         const url = get_github_auth_url(values.client_id, values.redirect_url)
         window.location.href = url
         modal.hide()

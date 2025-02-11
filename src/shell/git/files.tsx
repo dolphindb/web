@@ -4,7 +4,7 @@ import { useState, useDeferredValue, useCallback, useMemo, useEffect } from 'rea
 
 import { shell } from '../model.ts'
 
-import { git_provider as git_provider } from './git-adapter.ts'
+import { git_provider } from './git-provider.ts'
 
 
 interface DataNode {
