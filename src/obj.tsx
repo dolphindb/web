@@ -1484,7 +1484,6 @@ class TableColumn implements TableColumnType <number> {
             irow
         
         return index < obj.rows ?
-            // array vector 不进行分组
             truncate(formati(obj, index, this.options))
         :
             null
