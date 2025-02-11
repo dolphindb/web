@@ -1,8 +1,8 @@
 
-import { CheckOutlined, CloseOutlined, MailOutlined, PlusOutlined, ReloadOutlined } from '@ant-design/icons'
+import { CheckOutlined, CloseOutlined, DeleteOutlined, MailOutlined, PlusOutlined, ReloadOutlined } from '@ant-design/icons'
 import NiceModal from '@ebay/nice-modal-react'
 import { t } from '@i18n/index.ts'
-import { Button, DatePicker, Input, Popconfirm, Table, Tooltip, type TableColumnsType } from 'antd'
+import { Button, DatePicker, Input, Popconfirm, Space, Table, Tooltip, Typography, type TableColumnsType } from 'antd'
 
 import { useEffect, useMemo, useState } from 'react'
 
@@ -197,11 +197,9 @@ function ReportListTable  ({
             title: t('操作'),
             dataIndex: 'action',
             key: 'action',
-            render: (_, record) => <>
+            render: (_, record) => <Space size={10}>
                     {record.success === null && 
-                        <Button
-                            type='link'
-                            danger
+                        <Typography.Link
                             onClick={async () => {
                                 await inspection.cancel_running_plan(record.id)
                                 model.message.success(t('取消执行成功'))
@@ -209,24 +207,22 @@ function ReportListTable  ({
                             }}
                         >
                             {t('取消执行')}
-                        </Button>
+                        </Typography.Link>
                     }
             
-                    <Button
-                        type='link'
+                    <Typography.Link
                         disabled={record.success === null}
                         onClick={() => { model.goto(`/inspection/report/${record.id}`) }}
                     >
                         {t('查看详细报告')}
-                    </Button>
+                    </Typography.Link>
                     
-                    <Button
-                        type='link'
+                    <Typography.Link
                         disabled={!record.startTime}
                         onClick={() => { NiceModal.show(LogModal, { report_id: record.id, node: record.enabledNode }) }}
                     >
                         {t('查看日志')}
-                    </Button>
+                    </Typography.Link>
                     
                     <Popconfirm   
                         title={t('删除巡检结果')} 
@@ -236,15 +232,14 @@ function ReportListTable  ({
                             model.message.success(t('删除成功'))
                             refresher()
                         }} >
-                        <Button
-                            type='link'
+                        <Typography.Link
                             disabled={record.success === null}
-                            danger
+                            type='danger'
                         >
                         {t('删除')}
-                        </Button>
+                        </Typography.Link>
                     </Popconfirm> 
-            </>
+                </Space>
                
                 
         },
@@ -261,7 +256,7 @@ function ReportListTable  ({
                         set_current_page(1)
                         refresher()
                     }} >
-                        <Button danger disabled={ids.length === 0}>{t('批量删除')}</Button>
+                        <Button icon={<DeleteOutlined />} danger disabled={ids.length === 0}>{t('批量删除')}</Button>
                 </Popconfirm>
                 }
                 title={t('巡检结果')}
@@ -384,7 +379,7 @@ function PlanListTable  ({
             dataIndex: 'action',
             key: 'action',
             render: (_, record) => 
-                <>
+                <Space size={10}>
                      <Popconfirm
                         placement='topLeft'
                         title={t('确定巡检')}
@@ -397,29 +392,25 @@ function PlanListTable  ({
                             refresher()
                         }}
                         >
-                        <Button 
-                            type='link'
+                        <Typography.Link 
                             >
                         {t('立即巡检')}
-                        </Button>
+                        </Typography.Link>
                     </Popconfirm>
                    
-                    <Button 
-                        type='link'
+                    <Typography.Link 
                         onClick={() => { model.goto(`/inspection/plan/${record.id}`, { queries: { disabled: '1' } }) }}
                     >
                         {t('查看详情')}
-                    </Button>
+                    </Typography.Link>
                     
-                    <Button 
-                        type='link'
+                    <Typography.Link 
                         disabled={record.lastReportId === ''}
                         onClick={() => { model.goto(`/inspection/report/${record.lastReportId}`) }}
                     >
                         {t('查看最近一次巡检结果')}
-                    </Button>
-                    <Button 
-                        type='link'
+                    </Typography.Link>
+                    <Typography.Link 
                         onClick={async () => {
                             if (enabled) 
                                 await inspection.disable_plan(record.id) 
@@ -431,7 +422,7 @@ function PlanListTable  ({
                         }}
                     >
                         {enabled ?  t('暂停') : t('启用')}
-                    </Button>
+                    </Typography.Link>
                     <Popconfirm 
                         title={t('删除方案')} 
                         description={t('确认删除巡检方案 {{plan}} 吗？', { plan: record.name })} 
@@ -440,9 +431,9 @@ function PlanListTable  ({
                             model.message.success(t('删除成功'))
                             mutate_plans()
                         }} >
-                        <Button type='text' danger >{t('删除')}</Button>
+                        <Typography.Link type='danger' >{t('删除')}</Typography.Link>
                     </Popconfirm> 
-                </>
+                </Space>
         },
     ], [refresher])
     
@@ -458,7 +449,7 @@ function PlanListTable  ({
                     set_current_page(1)
                     mutate_plans()
                 }} >
-                    <Button danger disabled={ids.length === 0}>{t('批量删除')}</Button>
+                    <Button icon={<DeleteOutlined />} danger disabled={ids.length === 0}>{t('批量删除')}</Button>
             </Popconfirm>
         }
         rowSelection={{ type: 'checkbox', selectedRowKeys: ids, onChange: set_ids }}
