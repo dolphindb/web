@@ -143,7 +143,7 @@ export function Plugins () {
         <div className='actions'>
             <Popconfirm
                 title={t('加载插件')}
-                description={t('确认加载插件至所选择的节点？（当前已加载的节点会被跳过）')}
+                description={t('确认加载插件至所选择的节点？（当前未安装或已加载的节点会被跳过）')}
                 okText={t('加载')}
                 onConfirm={async () => {
                     await Promise.all(
@@ -152,9 +152,9 @@ export function Plugins () {
                                     t('加载插件:'), 
                                     [
                                         id, 
-                                        selecteds.map(({ node }) => node)
+                                        selecteds.filter(({ installed }) => installed)
+                                            .map(({ node }) => node)
                                     ]))
-                            
                         ))
                     
                     await update()
@@ -162,7 +162,7 @@ export function Plugins () {
                     model.message.success(t('插件加载成功'))
                 }}
             >
-                <Tooltip title={t('在下方表格中选择需要加载的插件，以及节点')}>
+                <Tooltip title={t('在下方表格中选择需要加载的插件，以及节点（当前未安装或已加载的节点会被跳过）')}>
                     <Button
                         className='load'
                         type='primary'
