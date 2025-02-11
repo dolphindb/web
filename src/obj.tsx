@@ -552,10 +552,7 @@ function Vector ({
     const info = obj || objref
     
     const { type } = info
-    
-    const is_array_vector = 64 <= type && type < 128
-    
-    const typestr = (is_array_vector ? `${DdbType[type - 64]}[]` : DdbType[type]) || String(type)
+    const typestr = (64 <= type && type < 128 ? `${DdbType[type - 64]}[]` : DdbType[type]) || String(type)
     
     const ncols = Math.min(
         10,
@@ -649,7 +646,7 @@ function Vector ({
                         ncols,
                         page_index,
                         page_size,
-                        options: { ...options, grouping: !is_array_vector },
+                        options
                     })
                 )
             ]}
@@ -722,6 +719,9 @@ class VectorColumn implements TableColumnType <number> {
         Object.assign(this, data)
         this.title = String(this.index)
         this.key = this.index
+        
+        const { type } = this.obj || this.objref
+        this.options = { ...this.options, grouping: !(64 <= type && type < 128) }
     }
     
     render = (value: any, row: number, index: number) => {
