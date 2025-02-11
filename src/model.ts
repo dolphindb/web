@@ -442,6 +442,11 @@ export class DdbModel extends Model<DdbModel> {
     async login_by_oauth () {
         let url = new URL(location.href)
         
+        // 先判断，如果路径是 /oauth-gitlab 或者 /oauth-github，那么不是 oauthLogin，而是登录到 Git，这时不用这个
+        const skip_oauth = location.pathname.includes('/oauth-gitlab') || location.pathname.includes('/oauth-github')
+        if (skip_oauth)
+            return
+        
         // 有 ticket 说明 oauthLogin 登录成功
         let ticket: string
         
@@ -467,8 +472,8 @@ export class DdbModel extends Model<DdbModel> {
             await maybe_jump(params)
             
             const code = params.get('code')
-            const skip_oauth = location.pathname.includes('/oauth-gitlab') || location.pathname.includes('/oauth-github')
-            if (code && !skip_oauth) {
+            
+            if (code) {
                 console.log(
                     t('尝试 oauth 单点登录，类型是 authorization code, code 为 {{code}}',
                     { code }))

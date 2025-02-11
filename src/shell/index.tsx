@@ -44,19 +44,13 @@ export function Shell () {
     }, [ ])
     
     
-    const [is_git, set_is_git] = useState(false)
-    
     const tab_items = [
         { key: 'shell', label: t('数据库'), closable: false },
         { key: 'git', label: t('Git 集成'), closable: false }
     ]
     
-    function handle_tab_change (key: string) {
-        if (key === 'git') 
-            set_is_git(true)
-        else 
-            set_is_git(false)
-    }
+    const [tab_key, set_tab_key] = useState('shell')
+    const is_git = tab_key === 'git'
     
     return <>
         {/* 左侧三个面板 */}
@@ -70,39 +64,38 @@ export function Shell () {
             }}
         >
             <div className='tabs'>
-                <Tabs size='small' items={tab_items} defaultActiveKey='shell' onChange={handle_tab_change} />
+                <Tabs activeKey={tab_key} size='small' items={tab_items} defaultActiveKey='shell' onChange={set_tab_key} />
             </div>
-            {!is_git && <>
-                <Databases />
-                
-                <div className='treeview-resizable-split2'>
-                    <div className='treeview-resizable-split21'>
-                        <Variables shared={false} />
-                    </div>
-                    
-                    <Resizable
-                        className='treeview-resizable-split22'
-                        enable={{
-                            top: true,
-                            right: false,
-                            bottom: false,
-                            left: false,
-                            topRight: false,
-                            bottomRight: false,
-                            bottomLeft: false,
-                            topLeft: false
-                        }}
-                        defaultSize={{ height: '100px', width: '100%' }}
-                        minHeight='22px'
-                        handleStyles={{ bottom: { height: 20, bottom: -10 } }}
-                        handleClasses={{ bottom: 'resizable-handle' }}
-                    >
-                        <Variables shared />
-                    </Resizable>
-                </div>
-            </>}
             {
-                is_git && <Git/>
+                is_git ? <Git /> : <>
+                    <Databases />
+                    
+                    <div className='treeview-resizable-split2'>
+                        <div className='treeview-resizable-split21'>
+                            <Variables shared={false} />
+                        </div>
+                        
+                        <Resizable
+                            className='treeview-resizable-split22'
+                            enable={{
+                                top: true,
+                                right: false,
+                                bottom: false,
+                                left: false,
+                                topRight: false,
+                                bottomRight: false,
+                                bottomLeft: false,
+                                topLeft: false
+                            }}
+                            defaultSize={{ height: '100px', width: '100%' }}
+                            minHeight='22px'
+                            handleStyles={{ bottom: { height: 20, bottom: -10 } }}
+                            handleClasses={{ bottom: 'resizable-handle' }}
+                        >
+                            <Variables shared />
+                        </Resizable>
+                    </div>
+                </>
             }
         </Resizable>
         
