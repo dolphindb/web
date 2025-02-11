@@ -33,6 +33,8 @@ import { CreateSubscribeModal } from '../create-subscribe-modal/index.tsx'
 
 import { DDBTable } from '@/components/DDBTable/index.tsx'
 
+import { TableOperations } from '@/components/TableOperations/index.tsx'
+
 import { DeleteDescribeModal } from './delete-describe-modal.js'
 import { TemplateViewModal } from './parser-template-view-modal.js'
 
@@ -185,7 +187,7 @@ export function ConnectionDetail (props: IProps) {
             fixed: 'right',
             render: (_, record) => {
                 const disabled = record.status === 1
-                return  <Space>
+                return  <TableOperations>
                     <Typography.Link 
                         onClick={() => {
                             NiceModal.show(CreateSubscribeModal, { 
@@ -208,7 +210,7 @@ export function ConnectionDetail (props: IProps) {
                         {t('删除')}
                     </Typography.Link>
                 
-                </Space>
+                </TableOperations>
             }
         }
     ], [ templates, mutate, on_change_status, data ])

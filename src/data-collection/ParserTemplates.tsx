@@ -19,6 +19,8 @@ import { DDBTag } from '@/components/tags/index.tsx'
 
 import { DDBTable } from '@/components/DDBTable/index.tsx'
 
+import { TableOperations } from '@/components/TableOperations/index.tsx'
+
 import { request } from './utils.ts'
 import { type IParserTemplate } from './type.js'
 import { ParserTemplateModal } from './components/create-parser-template-modal/index.tsx'
@@ -128,7 +130,7 @@ export function ParserTemplates () {
             title: t('操作'),
             fixed: 'right',
             width: 150,
-            render: (_, record) => <Space size='large'>
+            render: (_, record) => <TableOperations>
                 {
                     can_edit(record) 
                     ?  <>
@@ -140,7 +142,7 @@ export function ParserTemplates () {
                     :  <Typography.Link onClick={async () => NiceModal.show(ParserTemplateModal, { refresh, editedTemplate: record, mode: 'view' })}>{t('查看')}</Typography.Link>
                 }
                
-            </Space>   
+            </TableOperations>   
         }
         
     ], [on_edit, on_delete, can_edit])

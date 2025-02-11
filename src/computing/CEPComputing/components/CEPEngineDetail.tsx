@@ -13,6 +13,8 @@ import { get_dataview_info } from '../api.js'
 import { model } from '../../../model.js'
 import { stream_formatter } from '../../../dashboard/utils.ts'
 
+import { DDBTable } from '@/components/DDBTable/index.tsx'
+
 import { SendEventModal } from './SendEventModal.js'
 
 
@@ -149,7 +151,7 @@ function EngineInfo ({ info }: { info: ICEPEngineDetail }) {
         <Descriptions items={info_items} column={6} layout='vertical' colon={false} />
         
         <h3>{t('子引擎信息')}</h3>
-        <Table
+        <DDBTable
             size='small'
             className='sub-engine-table'
             tableLayout='fixed'
@@ -191,9 +193,7 @@ function DataView ({ info }: { info: ICEPEngineDetail }) {
     })
     
     
-    useEffect(() => {
-        return () => { cep_ddb?.disconnect?.() }
-    }, [cep_ddb])
+    useEffect(() => () => { cep_ddb?.disconnect?.() }, [cep_ddb])
     
     const reset = useCallback(() => { 
         set_key_info({
@@ -320,7 +320,7 @@ function DataView ({ info }: { info: ICEPEngineDetail }) {
             </div>
         <div />
         </div>
-        <Table
+        <DDBTable
             size='small'
             className='data-view-table'
             dataSource={table_data_source}
