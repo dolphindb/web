@@ -197,6 +197,7 @@ function ReportListTable  ({
             title: t('操作'),
             dataIndex: 'action',
             key: 'action',
+            fixed: 'right',
             render: (_, record) => <Space size={10}>
                     {record.success === null && 
                         <Typography.Link
@@ -246,6 +247,7 @@ function ReportListTable  ({
     ], [ ])
     
     return <DDBTable
+                scroll={{ x: 'max-content' }}
                 buttons={
                     <Popconfirm   
                     title={t('批量删除巡检结果')} 
@@ -378,6 +380,7 @@ function PlanListTable  ({
             title: t('操作'),
             dataIndex: 'action',
             key: 'action',
+            fixed: 'right',
             render: (_, record) => 
                 <Space size={10}>
                      <Popconfirm
@@ -439,6 +442,7 @@ function PlanListTable  ({
     
     return <DDBTable
         title={enabled ? t('正在执行的巡检计划') : t('待执行的巡检计划')}
+        scroll={{ x: 'max-content' }}
         buttons={
             <Popconfirm   
                 title={t('批量删除巡检方案')} 

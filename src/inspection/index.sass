@@ -12,13 +12,6 @@
         margin-bottom: 10px
         .inspection-search
             flex: 1
-            
-    .ant-table-title
-        padding: 8px 0px
-                
-    .ant-table-cell
-        padding: 4px 8px !important
-        
     
     .plan-table-header
         display: flex
@@ -34,13 +27,13 @@
             align-items: center
         
     .yellow
-        color: #DDDD00
+        color: var(--ant-color-warning)
         
     .green
-        color: #6ED86C
+        color: var(--ant-color-success)
 
     .red
-        color: #EE0000
+        color: var(--ant-color-error)
         
     .report-item-header
         display: flex
@@ -72,7 +65,7 @@
         .report-summary
             margin: 0px
             .abnormal-count
-                color: #EE0000
+                color: var(--ant-color-error)
 
         .abnormal-table-header
             display: flex
@@ -84,7 +77,7 @@
                 margin-bottom: 0
 
             .abnormal-count
-                color: #EE0000
+                color: var(--ant-color-error)
 
         .group-header
             display: flex
@@ -97,9 +90,9 @@
 
             .abnormal-count
                 &.green
-                    color: #6ED86C
+                    color: var(--ant-color-success)
                 &.red
-                    color: #EE0000
+                    color: var(--ant-color-error)
 
     .add-inspection,
     .edit-inspection
@@ -169,7 +162,7 @@
                 align-items: start
                 column-gap: 5px     
                 .email-config-warning
-                    color: #CCCC00
+                    color: var(--ant-color-warning)
                     cursor: pointer
                     margin-top: 14px 
     .intro-container
