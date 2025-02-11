@@ -476,7 +476,7 @@ function InstallModal ({
                 await update()
             }}
         >
-            <Form.Item<InstallFields> name='method' label='安装方式' {...required}>
+            <Form.Item<InstallFields> name='method' label={t('安装方式')} {...required}>
                 <Radio.Group
                     className='methods'
                     optionType='button'
@@ -511,7 +511,7 @@ function InstallModal ({
             
             <Form.Item<InstallFields>
                 name='nodes'
-                label='目标节点'
+                label={t('目标节点')}
                 {...required}
             >
                 <Checkbox.Group options={installables} />

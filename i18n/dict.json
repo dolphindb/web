@@ -5938,5 +5938,11 @@
     },
     "源节点": {
         "en": "Source Node"
+    },
+    "安装方式": {
+        "en": "Installation"
+    },
+    "目标节点": {
+        "en": "Target Node"
     }
 }
