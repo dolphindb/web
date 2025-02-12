@@ -37,7 +37,6 @@
         justify-content: center
         align-items: center
         column-gap: 10px
-        font-size: 16px
     
     .ant-table-cell
         padding: 8px 8px !important
@@ -51,8 +50,6 @@
     
     .nodes-config-container
         padding-inline: 24px
-        .ant-collapse-header
-            background-color: whitesmoke
         .toolbar
             padding-block: 16px
             display: flex
@@ -94,8 +91,9 @@
                     width: 100%
             
         .group-title
-            padding: 8px 24px
+            padding: 8px 0
             font-size: 18px
+            display: flex
             font-weight: bold
             
         
@@ -122,7 +120,7 @@
                 font-size: 16px
                 color: #000
         .active
-            border: 1px solid #1890ff
+            border: 1px solid var(--ant-color-primary)
     .toolbar
         display: flex
         align-items: center

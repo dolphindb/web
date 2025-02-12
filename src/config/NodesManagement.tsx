@@ -1,4 +1,4 @@
-import { PlusOutlined, SearchOutlined } from '@ant-design/icons'
+import { DeleteOutlined, PlusOutlined, SearchOutlined } from '@ant-design/icons'
 import { EditableProTable, type ActionType } from '@ant-design/pro-components'
 import { AutoComplete, Button, message, Popconfirm } from 'antd'
 import { useCallback, useMemo, useRef, useState } from 'react'
@@ -202,15 +202,22 @@ export function NodesManagement () {
         const nodes = search_filtered_nodes.filter(node => node.computeGroup === group)
         return <div key={group}>
             <div key={group} className='group-title'>
-                {group} <Button onClick={() => {
-                    model.modal.confirm({
-                        title: t('确认删除'),
-                        content: t('确定要删除计算组 {{group}} 吗？', { group }), // 使用占位符替换组名
-                        onOk: async () => {
-                            await delete_group(group)
-                        },
-                    })
-                }} type='link'>{t('删除计算组')}</Button>
+                {group} 
+                <Button
+                    style={{ marginLeft: 'auto' }}
+                    icon={<DeleteOutlined />}
+                    onClick={() => {
+                        model.modal.confirm({
+                            title: t('确认删除'),
+                            content: t('确定要删除计算组 {{group}} 吗？', { group }), // 使用占位符替换组名
+                            onOk: async () => {
+                                await delete_group(group)
+                            },
+                            okButtonProps: { danger: true }
+                        })
+                    }}
+                    danger
+                >{t('删除计算组')}</Button>
             </div>
             <NodeTable key={`${data_key}_group_${group}`} nodes={nodes} group={group} onSave={save_node_impl} onDelete={delete_nodes} />
         </div>
@@ -218,22 +225,6 @@ export function NodesManagement () {
     
     return <div className='nodes-management'>
         <div className='search-line'>
-            <RefreshButton
-                onClick={async () => {
-                    await mutate()
-                    set_search_key('')
-                    set_search_value('')
-                    model.message.success(t('刷新成功'))
-                }}
-           />
-            <Button
-                icon={<PlusOutlined />}
-                onClick={async () => {
-                    NiceModal.show(GroupAddModal, { on_save: add_group })
-                }}
-            >
-                {t('新建计算组')}
-            </Button>
             <div className='search-comp'>
                 <AutoComplete<string>
                     showSearch
@@ -254,6 +245,23 @@ export function NodesManagement () {
                     }))} />
                 <Button icon={<SearchOutlined />} onClick={() => { set_search_value(search_key) }} />
             </div>
+            <Button
+                icon={<PlusOutlined />}
+                type='primary'
+                onClick={async () => {
+                    NiceModal.show(GroupAddModal, { on_save: add_group })
+                }}
+            >
+                {t('新建计算组')}
+            </Button>
+            <RefreshButton
+                onClick={async () => {
+                    await mutate()
+                    set_search_key('')
+                    set_search_value('')
+                    model.message.success(t('刷新成功'))
+                }}
+           />
         </div>
         <div className='table-padding'>
             {/* 被搜索筛选了，且没有非计算组节点，不展示 */}
@@ -391,9 +399,11 @@ function NodeTable ({ nodes, group, onSave, onDelete }: NodeTableProps) {
                     <Popconfirm
                         title={t('确认删除此节点？')}
                         key='delete'
+                        okButtonProps={{ danger: true }}
                         onConfirm={async () => onDelete(record.id as string)}>
                         <Button
-                            type='link'
+                            variant='link'
+                            color='danger'
                         >
                             {t('删除')}
                         </Button>
@@ -419,7 +429,7 @@ function NodeTable ({ nodes, group, onSave, onDelete }: NodeTableProps) {
                     alias: '',
                     mode: ''
                 }),
-                creatorButtonText: t('新增节点'),
+                creatorButtonText: t(' 新增节点'),
                 onClick: () => {
                     const tbody = document.querySelector('.ant-table-body')
                     setTimeout(() => tbody.scrollTop = tbody.scrollHeight, 1)
@@ -461,7 +471,8 @@ function NodeTable ({ nodes, group, onSave, onDelete }: NodeTableProps) {
                     </Button>,
                 deleteText:
                     <Button
-                        type='link'
+                        variant='link'
+                        color='danger'
                         key='delete'
                         className='mr-btn'
                     >
