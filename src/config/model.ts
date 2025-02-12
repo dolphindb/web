@@ -164,16 +164,13 @@ class ConfigModel extends Model<ConfigModel> {
             [t('流发布')]: new Set(['maxMsgNumPerBlock', 'maxPersistenceQueueDepth', 'maxPubQueueDepthPerSite', 'maxPubConnections', 'persistenceDir', 'persistenceWorkerNum']),
             [t('流订阅')]: new Set(['maxSubConnections', 'maxSubQueueDepth', 'persistOffsetDir', 'subExecutorPooling', 'subExecutors', 'subPort', 'subThrottle']),
             [t('系统')]: new Set(['console', 'config', 'home', 'maxPartitionNumPerQuery', 'mode', 'moduleDir', 'newValuePartitionPolicy', 'perfMonitoring', 'pluginDir', 'preloadModules', 'init', 'startup', 'run', 'tzdb', 'webRoot', 'webLoginRequired', 'enableShellFunction', 'enablePKEYEngine']),
-            
-            ... model.v3 ? {
-                [t('计算组')]: new Set([
-                    'computeNodeCacheDir',
-                    'computeNodeCacheMeta',
-                    'computeNodeMemCacheSize',
-                    'computeNodeDiskCacheSize',
-                    'enableComputeNodeCacheEvictionFromQueryThread',
-                ])
-            } : { }
+            [t('计算组')]: new Set([
+                'computeNodeCacheDir',
+                'computeNodeCacheMeta',
+                'computeNodeMemCacheSize',
+                'computeNodeDiskCacheSize',
+                'enableComputeNodeCacheEvictionFromQueryThread',
+            ]),
         }
     }
     
@@ -211,11 +208,9 @@ class ConfigModel extends Model<ConfigModel> {
             'strictPermissionMode',
             'enableLocalDatabase',
             'enableClientAuth',
-            ...model.v3 ? [
-                'computeNodeCachingDelay',
-                'computeNodeCachingQueryThreshold',
-                'enableComputeNodePrefetchData',
-            ] : [ ]
+            'computeNodeCachingDelay',
+            'computeNodeCachingQueryThreshold',
+            'enableComputeNodePrefetchData',
         ]
     }
 }

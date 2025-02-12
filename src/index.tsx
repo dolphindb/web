@@ -198,6 +198,14 @@ const router = createBrowserRouter([
                 element: <Shell />
             },
             {
+              path: 'oauth-github/',
+              element: <Shell /> 
+            },
+            {
+                path: 'oauth-gitlab/',
+                element: <Shell /> 
+            },
+            {
                 path: 'login/',
                 element: <Login />
             },
