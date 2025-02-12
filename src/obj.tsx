@@ -281,7 +281,7 @@ function build_tree_data_with_slice (
     { remote, ctx, ddb, options }: { remote?: Remote, ctx?: Context, ddb?: DDB, options?: InspectOptions }
 ) {
     const [dict_key, dict_value] = obj.value
-    return seq(Math.max(end - start, 0), i => {
+    return seq(Math.min(Math.max(end - start, 0), dict_key.rows), i => {
         const ireal = start + i
         const key = formati(dict_key, ireal, options)
         const valueobj = dict_value.value[ireal]
@@ -293,7 +293,8 @@ function build_tree_data_with_slice (
                 return {
                     title: `${key}: `,
                     key: genid(),
-                    children: build_tree_data_with_slice(valueobj, start, end, { remote, ctx, ddb })
+                    // 对嵌套的字典不继续分页
+                    children: build_tree_data_with_slice(valueobj, 0, valueobj.rows, { remote, ctx, ddb })
                 }
             else if (valueobj.form === DdbForm.scalar)
                 return {
@@ -645,7 +646,7 @@ function Vector ({
                         ncols,
                         page_index,
                         page_size,
-                        options,
+                        options
                     })
                 )
             ]}
@@ -718,6 +719,9 @@ class VectorColumn implements TableColumnType <number> {
         Object.assign(this, data)
         this.title = String(this.index)
         this.key = this.index
+        
+        const { type } = this.obj || this.objref
+        this.options = { ...this.options, grouping: !(64 <= type && type < 128) }
     }
     
     render = (value: any, row: number, index: number) => {
@@ -1454,6 +1458,8 @@ class TableColumn implements TableColumnType <number> {
             return
         
         this.col = obj.value[this.index]
+    
+        this.options = { ...this.options, grouping: !(64 <= this.col.type && this.col.type < 128) }
         
         this.title = <Tooltip
             title={

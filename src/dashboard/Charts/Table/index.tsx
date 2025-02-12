@@ -172,7 +172,7 @@ export function DBTable (props: IProps) {
                     className={cn({
                         'table-with-pagination': config?.pagination?.show,
                     })}
-                    style={{ height: `calc(100% - ${size.height ?? 0}px)` }}
+                    style={{ height: `calc(100% - ${size?.height ?? 0}px)` }}
                     scroll={{ x: 'max-content' }}
                     columns={columns}
                     dataSource={config.is_reverse ? data_source.toReversed() : data_source}

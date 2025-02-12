@@ -59,8 +59,8 @@ export function Variables ({ shared }: { shared?: boolean }) {
         try {
             set_refresh_spin(true)
             const promise = delay(200)
-            await shell.update_vars()
             set_expanded_keys([ ])
+            await shell.update_vars()
             await promise
         } catch (error) {
             model.show_error({ error })
