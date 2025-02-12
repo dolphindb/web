@@ -15,141 +15,6 @@ import { SelectSqlModal } from './SelectSqlModal.tsx'
 import { ExecuteAction } from './ExecuteAction.tsx'
 
 
-interface ITab {
-    key: string | number
-    name: string
-    closeable?: boolean
-    renameable?: boolean
-}
-
-interface TabsProps {
-    tabs: ITab[]
-    active_key: string | number
-    on_tab_click: (tabId: string | number) => void
-    on_tab_close?: (tabId: string | number) => void
-    on_tab_rename?: (tabId: string | number, newName: string) => void
-    default_tab_key?: string | number
-    default_taba_name?: string
-    show_add_button?: boolean
-    on_add_tab?: () => void
-    show_default_tab?: boolean
-}
-
-export function Tabs ({
-    tabs,
-    active_key,
-    on_tab_click,
-    on_tab_close,
-    on_tab_rename,
-    default_tab_key = -1,
-    show_default_tab = true,
-    default_taba_name = t('默认标签页'),
-    show_add_button = false,
-    on_add_tab
-}: TabsProps) {
-    let tabs_container_ref = useRef<HTMLDivElement>(undefined)
-    
-    useEffect(() => {
-        function on_wheel (event: WheelEvent) {
-            event.preventDefault()
-            tabs_container_ref.current.scrollLeft += event.deltaY
-            tabs_container_ref.current.scrollLeft += event.deltaX
-        }
-        
-        tabs_container_ref.current.addEventListener('wheel', on_wheel)
-        
-        return () => { tabs_container_ref.current?.removeEventListener('wheel', on_wheel) }
-    }, [ ])
-    
-    return <div className='tabs' ref={tabs_container_ref}>
-        {show_default_tab && <div
-            className={`tab ${active_key === default_tab_key ? 'active' : ''}`}
-            onClick={() => { on_tab_click(default_tab_key) }}
-        >
-            {default_taba_name}
-        </div>}
-        {tabs.map(tab => 
-            <Tab
-                key={tab.key}
-                name={tab.name}
-                active={tab.key === active_key}
-                closeable={tab.closeable}
-                renameable={tab.renameable}
-                onClick={() => { on_tab_click(tab.key) }}
-                onClose={() => { on_tab_close?.(tab.key) }}
-                onRename={newName => { on_tab_rename?.(tab.key, newName) }}
-            />
-        )}
-        {show_add_button && 
-            <div className='add-tab' onClick={on_add_tab}>
-                <PlusOutlined style={{ fontSize: 12 }} />
-            </div>
-        }
-    </div>
-}
-
-interface TabProps {
-    name: string
-    active: boolean
-    closeable?: boolean
-    renameable?: boolean
-    onClick: () => void
-    onClose?: () => void
-    onRename?: (newName: string) => void
-}
-
-export function Tab ({
-    name: initialName,
-    active,
-    closeable = true,
-    renameable = true,
-    onClick,
-    onClose,
-    onRename
-}: TabProps) {
-    let [name, set_name] = useState(initialName)
-    let [renaming, set_renaming] = useState(false)
-    
-    function commit_rename () {
-        onRename?.(name)
-        set_renaming(false)
-    }
-    
-    return <div
-        className={`tab ${active ? 'active' : ''}`}
-        onClick={onClick}
-    >
-        {renaming ? 
-            <Input
-                placeholder={t('标签页名称')}
-                value={name}
-                autoFocus
-                onChange={event => { set_name(event.currentTarget.value) }}
-                variant='borderless'
-                size='small'
-                onBlur={commit_rename}
-                onKeyDown={event => {
-                    if (event.key === 'Enter')
-                        commit_rename()
-                }}
-            />
-        :
-            <div onDoubleClick={() => { renameable && set_renaming(true) }}>
-                {name}
-            </div>
-        }
-        {closeable && <div
-            className='close-icon'
-            onClick={event => {
-                event.stopPropagation()
-                onClose?.()
-            }}
-        >
-            <CloseOutlined style={{ fontSize: 12 }} />
-        </div>}
-    </div>
-}
-
 export function ShellEditor ({ collapser }) {
     const [minimap, set_minimap] = useState(() => 
         localStorage.getItem(storage_keys.minimap) === '1'
@@ -180,8 +45,6 @@ export function ShellEditor ({ collapser }) {
             window.removeEventListener('beforeunload', beforeunload)
         }
     }, [ ])
-    
-    function handle_tab_click (tabId) { shell.switch_tab(tabId as number) }
     
     function handle_tab_close (tabId) {
         if (!shell.monaco_inited)
@@ -234,7 +97,9 @@ export function ShellEditor ({ collapser }) {
                 renameable: true
             }))}
             active_key={itab}
-            on_tab_click={handle_tab_click}
+            on_tab_click={id => {
+                shell.switch_tab(id as number)
+            }}
             on_tab_close={handle_tab_close}
             on_tab_rename={handle_tab_rename}
             show_add_button
@@ -402,3 +267,140 @@ export function ShellEditor ({ collapser }) {
         />
     </div>
 }
+
+
+interface ITab {
+    key: string | number
+    name: string
+    closeable?: boolean
+    renameable?: boolean
+}
+
+interface TabsProps {
+    tabs: ITab[]
+    active_key: string | number
+    on_tab_click: (tabId: string | number) => void
+    on_tab_close?: (tabId: string | number) => void
+    on_tab_rename?: (tabId: string | number, newName: string) => void
+    default_tab_key?: string | number
+    default_tab_name?: string
+    show_add_button?: boolean
+    on_add_tab?: () => void
+    show_default_tab?: boolean
+}
+
+export function Tabs ({
+    tabs,
+    active_key,
+    on_tab_click,
+    on_tab_close,
+    on_tab_rename,
+    default_tab_key = -1,
+    show_default_tab = true,
+    default_tab_name = t('默认标签页'),
+    show_add_button = false,
+    on_add_tab
+}: TabsProps) {
+    let tabs_container_ref = useRef<HTMLDivElement>(undefined)
+    
+    useEffect(() => {
+        function on_wheel (event: WheelEvent) {
+            event.preventDefault()
+            tabs_container_ref.current.scrollLeft += event.deltaY
+            tabs_container_ref.current.scrollLeft += event.deltaX
+        }
+        
+        tabs_container_ref.current.addEventListener('wheel', on_wheel)
+        
+        return () => { tabs_container_ref.current?.removeEventListener('wheel', on_wheel) }
+    }, [ ])
+    
+    return <div className='tabs' ref={tabs_container_ref}>
+        {show_default_tab && <div
+            className={`tab ${active_key === default_tab_key ? 'active' : ''}`}
+            onClick={() => { on_tab_click(default_tab_key) }}
+        >
+            {default_tab_name}
+        </div>}
+        {tabs.map(tab => 
+            <Tab
+                key={tab.key}
+                name={tab.name}
+                active={tab.key === active_key}
+                closeable={tab.closeable}
+                renameable={tab.renameable}
+                onClick={() => { on_tab_click(tab.key) }}
+                onClose={() => { on_tab_close?.(tab.key) }}
+                onRename={newName => { on_tab_rename?.(tab.key, newName) }}
+            />
+        )}
+        {show_add_button && 
+            <div className='add-tab' onClick={on_add_tab}>
+                <PlusOutlined style={{ fontSize: 12 }} />
+            </div>
+        }
+    </div>
+}
+
+interface TabProps {
+    name: string
+    active: boolean
+    closeable?: boolean
+    renameable?: boolean
+    onClick: () => void
+    onClose?: () => void
+    onRename?: (newName: string) => void
+}
+
+export function Tab ({
+    name: initialName,
+    active,
+    closeable = true,
+    renameable = true,
+    onClick,
+    onClose,
+    onRename
+}: TabProps) {
+    let [name, set_name] = useState(initialName)
+    let [renaming, set_renaming] = useState(false)
+    
+    function commit_rename () {
+        onRename?.(name)
+        set_renaming(false)
+    }
+    
+    return <div
+        className={`tab ${active ? 'active' : ''}`}
+        onClick={onClick}
+    >
+        {renaming ? 
+            <Input
+                placeholder={t('标签页名称')}
+                value={name}
+                autoFocus
+                onChange={event => { set_name(event.currentTarget.value) }}
+                variant='borderless'
+                size='small'
+                onBlur={commit_rename}
+                onKeyDown={event => {
+                    if (event.key === 'Enter')
+                        commit_rename()
+                }}
+            />
+        :
+            <div onDoubleClick={() => { renameable && set_renaming(true) }}>
+                {name}
+            </div>
+        }
+        {closeable && <div
+            className='close-icon'
+            onClick={event => {
+                event.stopPropagation()
+                onClose?.()
+            }}
+        >
+            <CloseOutlined style={{ fontSize: 12 }} />
+        </div>}
+    </div>
+}
+
