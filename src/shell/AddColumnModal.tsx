@@ -5,9 +5,9 @@ import { Button, Modal, Form, Input, Select, InputNumber, Checkbox } from 'antd'
 
 import NiceModal from '@ebay/nice-modal-react'
 
-import { t } from '../../i18n/index.ts'
+import { t } from '@i18n/index.ts'
 
-import { model } from '../model.ts'
+import { model } from '@/model.ts'
 import { type DDBColumnTypeNames } from '@/utils.ts'
 
 import { shell } from './model.ts'
@@ -285,7 +285,7 @@ export const AddColumnModal = NiceModal.create<Props>(({ node }) => {
             </Form.Item>
             
             <Form.Item wrapperCol={{ offset: 6, span: 18 }}>
-                <div className='form-button-group'>
+                <div className='add-column-form-button-group'>
                     <Button type='primary' htmlType='submit'>
                         {t('确定')}
                     </Button>
