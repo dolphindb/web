@@ -6,14 +6,11 @@ import { Resizable } from 're-resizable'
 
 import { delay } from 'xshell/utils.browser.js'
 
-
-import { Segmented, Tabs } from 'antd'
-
 import { t } from '@i18n/index.ts'
 
 import { shell } from './model.ts'
 
-import { ShellEditor } from './ShellEditor.tsx'
+import { ShellEditor, Tabs } from './ShellEditor.tsx'
 // import { Editor } from './Editor/index.js'
 import { Terminal } from './Terminal.tsx'
 import { DataView } from './DataView.tsx'
@@ -56,14 +53,15 @@ export function Shell () {
                 shell.fit_addon?.fit()
             }}
         >
-            <div className='tabs'>
-                <Segmented
-                    value={tab_key}
-                    onChange={set_tab_key}
-                    options={[
-                        { value: 'shell', label: t('数据库') },
-                        { value: 'git', label: t('Git 集成') }
+            <div>
+                <Tabs
+                    tabs={[
+                        { key: 'shell', name: t('数据库'), closeable: false, renameable: false },
+                        { key: 'git', name: t('Git 集成'), closeable: false, renameable: false },
                     ]}
+                    active_key={tab_key}
+                    show_default_tab={false}
+                    on_tab_click={key => { set_tab_key(key as string) }}
                 />
             </div>
             {
