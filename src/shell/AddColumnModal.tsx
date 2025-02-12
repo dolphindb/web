@@ -5,14 +5,13 @@ import { Button, Modal, Form, Input, Select, InputNumber, Checkbox } from 'antd'
 
 import NiceModal from '@ebay/nice-modal-react'
 
-import { t } from '../../i18n/index.js'
+import { t } from '../../i18n/index.ts'
 
-import { model } from '../model.js'
+import { model } from '../model.ts'
 import { type DDBColumnTypeNames } from '@/utils.ts'
 
-import { shell } from './model.js'
-import type { ColumnRoot } from './Databases.js'
-import './AddColumnModal.sass'
+import { shell } from './model.ts'
+import type { ColumnRoot } from './Databases.tsx'
 
 interface Props {
     node: ColumnRoot
