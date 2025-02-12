@@ -156,6 +156,7 @@ export function GroupList () {
                             <Popconfirm
                                 title={t('删除组')}
                                 description={t('确认删除组 {{group}} 吗', { group: group.groupName })}
+                                okButtonProps={{ danger: true, type: 'primary' }}
                                 onConfirm={async () => {
                                     await access.delete_group(group.groupName)
                                     model.message.success(t('组删除成功'))

@@ -80,7 +80,7 @@ export function InspectionListPage () {
             
             {
             defined &&  
-            <>
+            <Space direction='vertical' size='large' style={{ width: '100%' }}>
                 <PlanListTable enabled search_key={search_key}  refresh={refresh} refresher={refresher}/>
                 <PlanListTable search_key={search_key} refresh={refresh} refresher={refresher}/>
                 <ReportListTable
@@ -88,7 +88,7 @@ export function InspectionListPage () {
                     refresh={refresh}
                     refresher={refresher}
                 />
-            </>
+            </Space>
         }
         </div>
 }
