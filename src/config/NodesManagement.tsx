@@ -1,4 +1,4 @@
-import { PlusOutlined, SearchOutlined } from '@ant-design/icons'
+import { DeleteOutlined, PlusOutlined, SearchOutlined } from '@ant-design/icons'
 import { EditableProTable, type ActionType } from '@ant-design/pro-components'
 import { AutoComplete, Button, message, Popconfirm } from 'antd'
 import { useCallback, useMemo, useRef, useState } from 'react'
@@ -202,15 +202,22 @@ export function NodesManagement () {
         const nodes = search_filtered_nodes.filter(node => node.computeGroup === group)
         return <div key={group}>
             <div key={group} className='group-title'>
-                {group} <Button onClick={() => {
-                    model.modal.confirm({
-                        title: t('确认删除'),
-                        content: t('确定要删除计算组 {{group}} 吗？', { group }), // 使用占位符替换组名
-                        onOk: async () => {
-                            await delete_group(group)
-                        },
-                    })
-                }} type='link'>{t('删除计算组')}</Button>
+                {group} 
+                <Button
+                    style={{ marginLeft: 'auto' }}
+                    icon={<DeleteOutlined />}
+                    onClick={() => {
+                        model.modal.confirm({
+                            title: t('确认删除'),
+                            content: t('确定要删除计算组 {{group}} 吗？', { group }), // 使用占位符替换组名
+                            onOk: async () => {
+                                await delete_group(group)
+                            },
+                            okButtonProps: { danger: true }
+                        })
+                    }}
+                    danger
+                >{t('删除计算组')}</Button>
             </div>
             <NodeTable key={`${data_key}_group_${group}`} nodes={nodes} group={group} onSave={save_node_impl} onDelete={delete_nodes} />
         </div>
@@ -240,6 +247,7 @@ export function NodesManagement () {
             </div>
             <Button
                 icon={<PlusOutlined />}
+                type='primary'
                 onClick={async () => {
                     NiceModal.show(GroupAddModal, { on_save: add_group })
                 }}
