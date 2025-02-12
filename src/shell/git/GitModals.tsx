@@ -1,9 +1,9 @@
 import NiceModal, { useModal } from '@ebay/nice-modal-react'
-import { t } from '@i18n/index.ts'
 import { Modal, Form, Input } from 'antd'
 
 import { useEffect, useState } from 'react'
 
+import { t } from '@i18n/index.ts'
 import { model, storage_keys } from '@/model.ts'
  
 
@@ -34,8 +34,8 @@ export const GitLabOauthModal = NiceModal.create(() => {
             onOk={modal.hide}
             title={t('使用 Oauth 登录到 GitLab')}>
             <p>{t('只支持在 HTTPS 下使用该登录方式')}</p>
-        </Modal> 
-        
+        </Modal>
+    
     return <Modal
         open={modal.visible}
         onCancel={modal.hide}

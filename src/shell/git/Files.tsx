@@ -2,7 +2,7 @@ import { t } from '@i18n/index.ts'
 import { Button, Input, Select, Tree } from 'antd'
 import { useState, useDeferredValue, useCallback, useMemo, useEffect } from 'react'
 
-import { shell } from '../model.ts'
+import { shell } from '@/shell/model.ts'
 
 import { git_provider } from './git-provider.ts'
 

@@ -565,8 +565,6 @@ export class DdbModel extends Model<DdbModel> {
             
             localStorage.setItem(storage_keys.git_access_token, token)
             localStorage.setItem(storage_keys.git_provider, provider_name)
-        } catch (error) {
-            throw error
         } finally {
             this.goto('/')
         }

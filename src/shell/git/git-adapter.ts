@@ -1,8 +1,8 @@
 import { isArray } from 'lodash'
 
-import { t } from '@i18n/index.ts'
-
 import dayjs from 'dayjs'
+
+import { t } from '@i18n/index.ts'
 
 import { model, storage_keys } from '@/model.ts'
 
@@ -202,8 +202,6 @@ export class GitLabAdapter implements IGitAdapter {
 export class GitHubAdapter implements IGitAdapter {
     root_url: string = 'https://api.github.com'
     api_root: string = ''
-    
-    constructor () { }
     
     async get_access_token (code: string, client_id: string, redirect_uri?: string, secret?: string): Promise<string> {
         const tokenUrl = 'https://github.com/login/oauth/access_token'

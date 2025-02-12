@@ -7,7 +7,7 @@ import { Resizable } from 're-resizable'
 import { delay } from 'xshell/utils.browser.js'
 
 
-import { Segmented, Tabs } from 'antd'
+import { Segmented } from 'antd'
 
 import { t } from '@i18n/index.ts'
 

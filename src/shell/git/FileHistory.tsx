@@ -6,9 +6,9 @@ import { isArray } from 'lodash'
 
 import { useEffect, useState } from 'react'
 
-import { shell } from '../model.ts'
+import { shell } from '@/shell/model.ts'
 
-import { getToken, git_provider } from './git-provider.ts'
+import { get_token, git_provider } from './git-provider.ts'
 import { format_friendly_date } from './get-auth-url.ts'
 
 export function FileHistory ({ file_path, repo, branch }: { file_path: string, repo: string, branch: string }) {
@@ -35,7 +35,7 @@ export function FileHistory ({ file_path, repo, branch }: { file_path: string, r
     }
     
     const file_history_resp = useSWR(['get_file_commit_history', repo_path, file_path, branch], async () => {
-        if (!repo_path || !getToken())
+        if (!repo_path || !get_token())
             return [ ]
         const result = await git_provider.get_commit_history(repo_path, file_path, branch)
         return result

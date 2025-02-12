@@ -1,5 +1,3 @@
-import useSWR from 'swr'
-
 import { t } from '@i18n/index.ts'
 
 import { Alert, Button } from 'antd'
@@ -8,7 +6,7 @@ import NiceModal from '@ebay/nice-modal-react'
 
 import { useEffect, useState } from 'react'
  
-import { shell } from '../model.ts'
+import { shell } from '@/shell/model.ts'
  
 import { storage_keys } from '@/model.ts'
  
@@ -18,7 +16,6 @@ import { format_friendly_date } from './get-auth-url.ts'
 import type { IProject } from './git-adapter.ts'
 
 export function Repos ({ on_select_repo }: { on_select_repo: (repo_id: string, title: string) => void }) {
-    
     const [repos, set_repos] = useState<IProject[]>([ ])
     const [error, set_error] = useState<boolean>(false)
     

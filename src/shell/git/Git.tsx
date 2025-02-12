@@ -1,5 +1,6 @@
-import { useState } from 'react'
 import './git.sass'
+
+import { useState } from 'react'
 
 import { Resizable } from 're-resizable'
 
