@@ -70,7 +70,11 @@ enum Access {
 }
 
 class AccessModel extends Model<AccessModel> {
+    
+    tables: string[] = [ ]
+    
     async get_catelog_with_schemas () {
+        this.tables = await this.get_tables()
         const catelog_names = await model.ddb.invoke<string[]>('getAllCatalogs')
         const catalogs = await Promise.all(catelog_names.map(async name => ({ name, schemas: await this.get_schemas_by_catelog(name) })))
         return [...catalogs, await this.get_databases_with_tables(true)]
@@ -89,7 +93,7 @@ class AccessModel extends Model<AccessModel> {
         if (has_schema) {
             let schema_set = new Set<string>()
             const catelog_names = await model.ddb.invoke<string[]>('getAllCatalogs')
-            const schemas = await Promise.all(catelog_names.map(async name => (await model.ddb.invoke('getSchemaByCatalog', [name])).data))
+            const schemas = (await Promise.all(catelog_names.map(async name => (await model.ddb.invoke('getSchemaByCatalog', [name])).data))).flat(2)
             schemas.forEach(({ dbUrl }) => schema_set.add(dbUrl))
             databases = databases.filter(db => !schema_set.has(db))
         }
@@ -126,7 +130,7 @@ class AccessModel extends Model<AccessModel> {
     async get_schemas_by_catelog (catelog: string) {
         const schemas = (await model.ddb.invoke('getSchemaByCatalog', [catelog]))
             .data
-        const schemas_with_tables = await Promise.all(schemas.map(async (schema: Schema) => ({ ...schema, tables: await this.get_tables(schema.dbUrl) })))
+        const schemas_with_tables = await Promise.all(schemas.map(async (schema: Schema) => ({ ...schema, tables: this.tables.filter(tb => tb.startsWith(schema.dbUrl)) })))
         return schemas_with_tables
     }
     
@@ -213,8 +217,8 @@ class AccessModel extends Model<AccessModel> {
     }
     
     
-    async get_tables (db_name?: string): Promise<string[]> {
-        return (model.ddb.invoke('getDFSTablesByDatabase', [db_name ?? 'dfs://']))
+    async get_tables (): Promise<string[]> {
+        return (model.ddb.invoke('getClusterDFSTables'))
     }
     
     
