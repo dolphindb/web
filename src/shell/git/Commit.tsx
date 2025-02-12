@@ -118,7 +118,7 @@ export function Commit ({ current_select_repo, current_select_branch, repo_name 
             <div className='block-title'>
                 {show_history ? t('提交历史') : t('提交')}
                 <div className='button-logout'>
-                    <Button type='text' onClick={() => { set_show_history(!show_history) }} >
+                    <Button className='segment-button' type='text' onClick={() => { set_show_history(!show_history) }} >
                         {show_history ? t('关闭提交历史') : t('查看提交历史')}
                     </Button>
                 </div>

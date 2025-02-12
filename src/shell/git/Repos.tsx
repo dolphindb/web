@@ -69,7 +69,7 @@ export function Repos ({ on_select_repo }: { on_select_repo: (repo_id: string, t
     return <div className='repos'>
         <div className='block-title'>
             <div>{t('代码仓库')}</div>
-            {!error && <div className='button-logout'><Button type='text' onClick={logout}>{t('登出')}</Button></div>}
+            {!error && <div className='button-logout'><Button className='segment-button' type='text' onClick={logout}>{t('登出')}</Button></div>}
         </div>
         {error && <div className='info'>
             <Alert message={<>

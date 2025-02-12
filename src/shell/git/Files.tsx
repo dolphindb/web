@@ -148,7 +148,7 @@ export function Files ({ repo_id, on_change_branch }: { repo_id: string, on_chan
     return <div className='file-explore'>
         <div className='block-title'>{t('文件浏览')}
             <div className='button-logout'>
-                <Button type='text' onClick={refresh}>
+                <Button className='segment-button' type='text' onClick={refresh}>
                     {t('刷新')}
                 </Button>
             </div>
