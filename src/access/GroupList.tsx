@@ -24,7 +24,6 @@ import { RefreshButton } from '@/components/RefreshButton/index.tsx'
 
 import { access } from './model.ts'
 import { GroupCreateModal } from './components/group/GroupCreateModal.tsx'
-import { GroupDeleteModal } from './components/group/GroupDeleteModal.tsx'
 import { GroupUserEditModal } from './components/group/GroupUserEditModal.tsx'
 import { use_groups } from './hooks/use-groups.ts'
 
@@ -100,7 +99,16 @@ export function GroupList () {
                     icon={<DeleteOutlined />}
                     disabled={!selected_groups.length}
                     onClick={() => {
-                        NiceModal.show(GroupDeleteModal, { selected_groups, reset_selected_groups })
+                        model.modal.confirm({
+                            title: t('确认删除选中的 {{num}} 个组吗？', { num: selected_groups.length }),
+                            okButtonProps: { danger: true },
+                            onOk: async () => {
+                                await Promise.all(selected_groups.map(async group => access.delete_group(group)))
+                                model.message.success(t('组删除成功'))
+                                reset_selected_groups()
+                                mutate_groups()
+                            }
+                        })
                     }}
                 >
                     {t('批量删除')}

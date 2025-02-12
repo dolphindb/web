@@ -37,7 +37,6 @@ export function Overview () {
     
     let creator = use_modal()
     let editor = use_modal()
-    let deletor = use_modal()
     let copyor = use_modal()
     let configer = use_modal()
     
@@ -89,6 +88,28 @@ export function Overview () {
         document.body.removeChild(a)
     }
     
+    
+    async function  on_batch_delete () {
+        model.modal.confirm({
+            title: t('确认删除选中的 {{length}} 个数据面板吗？', { length: selected_dashboard_ids.length }),
+            okButtonProps: { danger: true },
+            onOk: async () => {
+                try {
+                    selected_dashboard_ids.forEach(dashboard_id => {
+                        const config = dashboard.configs.find(config => config.id = dashboard_id)
+                        if (config?.permission !== DashboardPermission.own)
+                            throw new Error(t('您没有删除 {{name}} 的权限', { name: config.name })) 
+                    })
+                    
+                    await dashboard.delete_dashboard_configs(selected_dashboard_ids, false)
+                    set_selected_dashboard_ids([ ])
+                    model.message.success(t('删除成功'))
+                } catch (error) {
+                    model.show_error({ error })
+                }
+            }
+        })
+    }
     
     return <div className='dashboard-overview'>
             <Modal
@@ -170,31 +191,6 @@ export function Overview () {
                     }}
                 />
             </Modal>
-            
-            <Modal
-                open={deletor.visible}
-                onCancel={deletor.close}
-                okButtonProps={{ type: 'primary', danger: true }}
-                onOk={async () => {
-                        try {
-                            selected_dashboard_ids.forEach(dashboard_id => {
-                                const config = dashboard.configs.find(config => config.id = dashboard_id)
-                                if (config?.permission !== DashboardPermission.own)
-                                    throw new Error(t('您没有删除 {{name}} 的权限', { name: config.name })) 
-                            })
-                            
-                            await dashboard.delete_dashboard_configs(selected_dashboard_ids, false)
-                            set_selected_dashboard_ids([ ])
-                            model.message.success(t('删除成功'))
-                        } catch (error) {
-                            model.show_error({ error })
-                        } finally {
-                            deletor.close()
-                        }
-                    }
-                }
-                title={t('确认删除选中的 {{length}} 个数据面板吗？', { length: selected_dashboard_ids.length })}
-             />
             
             <Modal
                 open={copyor.visible}
@@ -385,13 +381,8 @@ export function Overview () {
                     <Button
                         danger
                         icon={<DeleteOutlined />}
-                        onClick={() => {
-                            if (!selected_dashboard_ids || !selected_dashboard_ids.length) {
-                                model.message.error(t('请至少选中一个数据面板后再删除'))
-                                return
-                            } 
-                            deletor.open()
-                        }}
+                        disabled={!selected_dashboard_ids?.length}
+                        onClick={on_batch_delete}
                     >
                         {t('批量删除')}
                     </Button>   

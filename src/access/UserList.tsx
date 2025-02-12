@@ -23,7 +23,6 @@ import { RefreshButton } from '@/components/RefreshButton/index.tsx'
 
 import { access } from './model.ts'
 import { UserCreateModal } from './components/user/UserCreateModal.tsx'
-import { UserDeleteModal } from './components/user/UserDeleteModal.tsx'
 import { ResetPasswordModal } from './components/user/ResetPasswordModal.tsx'
 import { UserGroupEditModal } from './components/user/UserGroupEditModal.tsx'
 import { use_users } from './hooks/use-users.ts'
@@ -98,8 +97,16 @@ export function UserList () {
                 icon={<DeleteOutlined />}
                 disabled={!selected_users?.length}
                 onClick={() => {
-                    if (selected_users.length)
-                        NiceModal.show(UserDeleteModal, { selected_users, reset_selected })
+                    model.modal.confirm({
+                        title: t('确认删除选中的 {{num}} 个用户吗？', { num: selected_users.length }),
+                        okButtonProps: { danger: true },
+                        onOk: async () => {
+                            await Promise.all(selected_users.map(async user => access.delete_user(user)))
+                            model.message.success(t('用户删除成功'))
+                            reset_selected()
+                            mutate_users()
+                        }
+                    })
                 }}
             >
                 {t('批量删除')}
