@@ -128,6 +128,8 @@ export function ControllerConfig () {
                     name: '',
                     value: ''
                 }),
+                variant: 'outlined',
+                type: 'default',
                 creatorButtonText: t(' 新增控制节点配置'),
                 onClick () {
                     (async () => {

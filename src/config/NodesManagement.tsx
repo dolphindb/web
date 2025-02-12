@@ -429,6 +429,8 @@ function NodeTable ({ nodes, group, onSave, onDelete }: NodeTableProps) {
                     alias: '',
                     mode: ''
                 }),
+                type: 'default',
+                variant: 'outlined',
                 creatorButtonText: t(' 新增节点'),
                 onClick: () => {
                     const tbody = document.querySelector('.ant-table-body')
