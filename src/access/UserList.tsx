@@ -9,7 +9,7 @@ import NiceModal from '@ebay/nice-modal-react'
 
 import useSWR from 'swr'
 
-import { t } from '@i18n/index.ts'
+import { language, t } from '@i18n/index.ts'
 
 import { model } from '@/model.ts'
 
@@ -81,7 +81,7 @@ export function UserList () {
                 title: t('操作'),
                 dataIndex: 'actions',
                 key: 'actions',
-                width: 360
+                width: language === 'en' ? 500 : 360
             }
         ],
         [users_access]
