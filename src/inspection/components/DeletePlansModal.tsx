@@ -21,7 +21,7 @@ export const DeletePlansModal = NiceModal.create(({
         open={modal.visible}
         onCancel={modal.hide}
         afterClose={modal.remove}
-        okButtonProps={{ danger: true }}
+        okButtonProps={{ danger: true, type: 'primary' }}
         okText={t('删除')}
         onOk={async () => {
             await inspection.delete_plans(ids)

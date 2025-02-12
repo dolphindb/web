@@ -174,6 +174,7 @@ export function Overview () {
             <Modal
                 open={deletor.visible}
                 onCancel={deletor.close}
+                okButtonProps={{ type: 'primary', danger: true }}
                 onOk={async () => {
                         try {
                             selected_dashboard_ids.forEach(dashboard_id => {
