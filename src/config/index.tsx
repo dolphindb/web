@@ -31,7 +31,7 @@ export function Config () {
                 key: 'controller_config',
                 label: (
                     <div className='tab-header'>
-                        <SvgControllerConfig />
+                        <SvgControllerConfig style={{ fill: 'currentcolor' }} />
                         {t('控制节点配置')}
                     </div>
                 ),
@@ -41,7 +41,7 @@ export function Config () {
                 key: 'nodes_management',
                 label: (
                     <div className='tab-header'>
-                        <SvgNodesManagement />
+                        <SvgNodesManagement style={{ fill: 'currentcolor' }}/>
                         {t('集群节点管理')}
                     </div>
                 ),
@@ -51,7 +51,7 @@ export function Config () {
                 key: 'nodes_config',
                 label: (
                     <div className='tab-header'>
-                        <SvgNodesConfig />
+                        <SvgNodesConfig style={{ fill: 'currentcolor' }}/>
                         {t('集群节点配置')}
                     </div>
                 ),
@@ -61,7 +61,7 @@ export function Config () {
                 key: 'compute_group_config',
                 label: (
                     <div className='tab-header'>
-                        <SvgGroup />
+                        <SvgGroup style={{ fill: 'currentcolor' }}/>
                         {t('计算组配置')}
                     </div>
                 ),

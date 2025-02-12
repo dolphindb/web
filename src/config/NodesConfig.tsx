@@ -148,8 +148,13 @@ export function NodesConfig () {
                                 >
                                     {t('编辑')}
                                 </Button>,
-                                <Popconfirm title={t('确认删除此配置项？')} key='delete' onConfirm={async () => delete_config(record.key as string)}>
-                                    <Button type='link'>{t('删除')}</Button>
+                                <Popconfirm 
+                                    title={t('确认删除此配置项？')}
+                                    key='delete'
+                                    onConfirm={async () => delete_config(record.key as string)}
+                                    okButtonProps={{ danger: true }}
+                                >
+                                    <Button variant='link' color='danger'>{t('删除')}</Button>
                                 </Popconfirm>
                             ]
                         }
@@ -188,7 +193,7 @@ export function NodesConfig () {
                             </Button>
                         ),
                         deleteText: (
-                            <Button type='link' key='delete' className='mr-btn'>
+                            <Button variant='link' color='danger' key='delete' className='mr-btn'>
                                 {t('删除')}
                             </Button>
                         ),
@@ -205,24 +210,6 @@ export function NodesConfig () {
     
     return <div className='nodes-config-container'>
         <div className='toolbar'>
-            <RefreshButton
-                onClick={async () => {
-                    await config.load_configs()
-                    set_search_key('')
-                    set_active_key('')
-                    model.message.success(t('刷新成功'))
-                }}
-             />
-            
-            <Button
-                icon={<PlusOutlined />}
-                onClick={async () =>
-                    NiceModal.show(NodesConfigAddModal)
-                }
-            >
-                {t('新增配置')}
-            </Button>
-            
             <div className='auto-search'>
                 <AutoComplete<string>
                     showSearch
@@ -245,11 +232,26 @@ export function NodesConfig () {
                     
                 <Button icon={<SearchOutlined />} onClick={on_search}/>
             </div>
-           
+            <Button
+                icon={<PlusOutlined />}
+                type='primary'
+                onClick={async () =>
+                    NiceModal.show(NodesConfigAddModal)
+                }
+            >
+                {t('新增配置')}
+            </Button>
+            <RefreshButton
+                onClick={async () => {
+                    await config.load_configs()
+                    set_search_key('')
+                    set_active_key('')
+                    model.message.success(t('刷新成功'))
+                }}
+            />
         </div>
         <Collapse
             items={items}
-            bordered={false}
             activeKey={active_key}
             onChange={key => {
                 set_active_key(key)
