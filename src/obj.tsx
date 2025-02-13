@@ -70,11 +70,6 @@ const views = {
     [DdbForm.tensor]: Tensor,
 }
 
-const UpSelect: FC<SelectProps> & { Option: typeof Select.Option } = Object.assign(
-    props => <Select {...props} size='small' placement='topLeft' listHeight={128} />,
-    { Option: Select.Option }
-)
-
 
 export type Context = 'page' | 'webview' | 'window' | 'embed' | 'dashboard'
 
@@ -675,8 +670,6 @@ function Vector ({
                 showSizeChanger
                 showQuickJumper
                 hideOnSinglePage={page_size <= 200}
-                selectComponentClass={UpSelect}
-                
                 onChange={(page_index, page_size) => {
                     set_page_size(page_size)
                     set_page_index(page_index - 1)
@@ -898,8 +891,6 @@ export function Table ({
                 showSizeChanger
                 showQuickJumper
                 hideOnSinglePage={page_size <= 50}
-                selectComponentClass={UpSelect}
-                
                 onChange={(page_index, page_size) => {
                     set_page_size(page_size)
                     set_page_index(page_index - 1)
@@ -1321,8 +1312,6 @@ export function StreamingTable ({
                 showSizeChanger
                 showQuickJumper
                 hideOnSinglePage={page_size <= 50}
-                selectComponentClass={UpSelect}
-                
                 onChange={(page_index, page_size) => {
                     set_page_size(page_size)
                     set_page_index(page_index - 1)
@@ -1611,8 +1600,6 @@ function Matrix ({
                 showSizeChanger
                 showQuickJumper
                 hideOnSinglePage={page_size <= 50}
-                selectComponentClass={UpSelect}
-                
                 onChange={(page_index, page_size) => {
                     set_page_size(page_size)
                     set_page_index(page_index - 1)
