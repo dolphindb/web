@@ -147,15 +147,18 @@ export function Plugins () {
                 okText={t('加载')}
                 onConfirm={async () => {
                     await Promise.all(
-                        plugins.map(async ({ selecteds, id }) =>
-                            selecteds?.length && ddb.invoke<void>('loadPlugins', log(
-                                    t('加载插件:'), 
-                                    [
-                                        id, 
-                                        selecteds.filter(({ installed }) => installed)
-                                            .map(({ node }) => node)
-                                    ]))
-                        ))
+                        plugins.map(async ({ selecteds, id }) => {
+                            if (!selecteds?.length)
+                                return
+                            
+                            const nodes = selecteds.filter(({ installed }) => installed)
+                                .map(({ node }) => node)
+                            
+                            if (!nodes.length)
+                                return
+                            
+                            await ddb.invoke<void>('loadPlugins', log(t('加载插件:'), [id, nodes]))
+                        }))
                     
                     await update()
                     
