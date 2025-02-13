@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 
 import { Input, Switch } from 'antd'
-import { CloseOutlined, DoubleLeftOutlined, DoubleRightOutlined, PlusOutlined } from '@ant-design/icons'
+import { CloseOutlined, DoubleLeftOutlined, DoubleRightOutlined, FileTextOutlined, PlusOutlined } from '@ant-design/icons'
 
 import { t } from '@i18n/index.js'
 
@@ -94,12 +94,15 @@ export function ShellEditor ({ collapser }) {
     
     return <div className='shell-editor'>
         <Tabs 
-            tabs={tabs.map(tab => ({
+            tabs={[
+                { key: -1, name: t('默认标签页'), closeable: false, renameable: false, icon: <FileTextOutlined /> }, 
+                ...tabs.map(tab => ({
                 key: tab.index,
                 name: tab.name,
                 closeable: true,
-                renameable: true
-            }))}
+                renameable: true,
+                icon: <FileTextOutlined />
+            }))]}
             active_key={itab}
             on_tab_click={id => {
                 shell.switch_tab(id as number)
@@ -278,6 +281,7 @@ interface ITab {
     name: string
     closeable?: boolean
     renameable?: boolean
+    icon?: React.ReactNode
 }
 
 interface TabsProps {
@@ -286,11 +290,8 @@ interface TabsProps {
     on_tab_click: (tabId: string | number) => void
     on_tab_close?: (tabId: string | number) => void
     on_tab_rename?: (tabId: string | number, newName: string) => void
-    default_tab_key?: string | number
-    default_tab_name?: string
     show_add_button?: boolean
     on_add_tab?: () => void
-    show_default_tab?: boolean
 }
 
 export function Tabs ({
@@ -299,9 +300,6 @@ export function Tabs ({
     on_tab_click,
     on_tab_close,
     on_tab_rename,
-    default_tab_key = -1,
-    show_default_tab = true,
-    default_tab_name = t('默认标签页'),
     show_add_button = false,
     on_add_tab
 }: TabsProps) {
@@ -320,12 +318,6 @@ export function Tabs ({
     }, [ ])
     
     return <div className='tabs' ref={tabs_container_ref}>
-        {show_default_tab && <div
-            className={`tab ${active_key === default_tab_key ? 'active' : ''}`}
-            onClick={() => { on_tab_click(default_tab_key) }}
-        >
-            {default_tab_name}
-        </div>}
         {tabs.map(tab => 
             <Tab
                 key={tab.key}
@@ -336,6 +328,7 @@ export function Tabs ({
                 onClick={() => { on_tab_click(tab.key) }}
                 onClose={() => { on_tab_close?.(tab.key) }}
                 onRename={newName => { on_tab_rename?.(tab.key, newName) }}
+                icon={tab.icon}
             />
         )}
         {show_add_button && 
@@ -354,6 +347,7 @@ interface TabProps {
     onClick: () => void
     onClose?: () => void
     onRename?: (newName: string) => void
+    icon?: React.ReactNode
 }
 
 export function Tab ({
@@ -363,7 +357,8 @@ export function Tab ({
     renameable = true,
     onClick,
     onClose,
-    onRename
+    onRename,
+    icon
 }: TabProps) {
     let [name, set_name] = useState(initialName)
     let [renaming, set_renaming] = useState(false)
@@ -377,6 +372,7 @@ export function Tab ({
         className={`tab ${active ? 'active' : ''}`}
         onClick={onClick}
     >
+        {icon && <div className='tab-icon'>{icon}</div>}
         {renaming ? 
             <Input
                 placeholder={t('标签页名称')}
