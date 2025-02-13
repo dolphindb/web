@@ -70,8 +70,8 @@ enum Access {
 }
 
 class AccessModel extends Model<AccessModel> {
-    
     tables: string[] = [ ]
+    
     
     async get_catelog_with_schemas () {
         this.tables = await this.get_tables()
@@ -220,8 +220,8 @@ class AccessModel extends Model<AccessModel> {
     }
     
     
-    async get_tables (): Promise<string[]> {
-        return (model.ddb.invoke('getClusterDFSTables'))
+    async get_tables () {
+        return model.ddb.invoke<string[]>('getClusterDFSTables')
     }
     
     
