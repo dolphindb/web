@@ -60,7 +60,6 @@ export function Shell () {
                         { key: 'git', name: t('Git 集成'), closeable: false, renameable: false },
                     ]}
                     active_key={tab_key}
-                    show_default_tab={false}
                     on_tab_click={key => { set_tab_key(key as string) }}
                 />
             </div>
