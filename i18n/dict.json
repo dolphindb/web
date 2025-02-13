@@ -5951,7 +5951,7 @@
     "请注意，列宽自适应时设置列宽无效": {
         "en": "Please note that setting the column width is invalid when the column width is adaptive"
     },
-    "超出省略": {
+    "超长省略": {
         "en": "Ellipsis"
     }
 }
