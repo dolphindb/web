@@ -3,7 +3,7 @@ import './index.sass'
 import { useEffect, useRef, useState } from 'react'
 import { Button, Form, Input, Modal, Popconfirm, Radio, Result, Table, Typography, Upload, type UploadFile, 
     type FormInstance, Checkbox, Select, Tooltip} from 'antd'
-import { ReloadOutlined, default as Icon, InboxOutlined, CheckOutlined } from '@ant-design/icons'
+import { ReloadOutlined, default as Icon, InboxOutlined, CheckOutlined, PlayCircleOutlined } from '@ant-design/icons'
 import { noop } from 'xshell/prototype.browser.js'
 import { log, vercmp } from 'xshell/utils.browser.js'
 
@@ -167,7 +167,7 @@ export function Plugins () {
                         className='load'
                         type='primary'
                         disabled={!has_selected}
-                        icon={<Icon component={SvgUpgrade} />}
+                        icon={<PlayCircleOutlined />}
                     >{t('加载插件')}</Button>
                 </Tooltip>
             </Popconfirm>
