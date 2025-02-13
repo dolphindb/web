@@ -30,8 +30,8 @@
     "dependencies": {
         "@ant-design/icons": "^5.6.1",
         "@ant-design/plots": "1.2.5",
-        "@ant-design/pro-components": "^2.8.4",
-        "@ant-design/pro-layout": "^7.22.1",
+        "@ant-design/pro-components": "^2.8.5",
+        "@ant-design/pro-layout": "^7.22.2",
         "@ebay/nice-modal-react": "^1.2.13",
         "@formily/antd-v5": "^1.2.3",
         "@formily/core": "^2.3.2",
