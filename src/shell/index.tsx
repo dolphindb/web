@@ -9,7 +9,7 @@ import { delay } from 'xshell/utils.browser.js'
 import { t } from '@i18n/index.ts'
 
 import { DatabaseOutlined } from '@ant-design/icons'
- 
+
 import { shell } from './model.ts'
 
 import { ShellEditor, Tabs } from './ShellEditor.tsx'
