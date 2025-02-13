@@ -93,7 +93,7 @@ class ShellModel extends Model<ShellModel> {
     confirm_command_modal_visible = false
     
     /** 当前打开的 tab */
-    itab = -1
+    itab = Number(localStorage.getItem(storage_keys.current_tab)) || -1
     
     /** 所有的 tabs */
     tabs: Tab[] = [ ]

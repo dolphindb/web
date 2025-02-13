@@ -1124,6 +1124,7 @@ export const storage_keys = {
     username: 'ddb.username',
     collapsed: 'ddb.collapsed',
     code: 'ddb.code',
+    current_tab: 'ddb.current_tab',
     session: 'ddb.session',
     minimap: 'ddb.editor.minimap',
     enter_completion: 'ddb.editor.enter_completion',

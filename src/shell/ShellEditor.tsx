@@ -46,6 +46,10 @@ export function ShellEditor ({ collapser }) {
         }
     }, [ ])
     
+    useEffect(() => {
+        localStorage.setItem(storage_keys.current_tab, itab.toString())
+    }, [itab])
+    
     function handle_tab_close (tabId) {
         if (!shell.monaco_inited)
             return
