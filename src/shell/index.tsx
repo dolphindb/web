@@ -8,6 +8,8 @@ import { delay } from 'xshell/utils.browser.js'
 
 import { t } from '@i18n/index.ts'
 
+import { DatabaseOutlined } from '@ant-design/icons'
+ 
 import { shell } from './model.ts'
 
 import { ShellEditor, Tabs } from './ShellEditor.tsx'
@@ -18,6 +20,7 @@ import { Databases } from './Databases.tsx'
 import { Variables } from './Variables.tsx'
 import { Git } from './git/Git.tsx'
 
+import SvgGit from './icons/git.icon.svg'
 
 export function Shell () {
     const [editor_state, set_editor_state] = useState({
@@ -56,8 +59,8 @@ export function Shell () {
             <div>
                 <Tabs
                     tabs={[
-                        { key: 'shell', name: t('数据库'), closeable: false, renameable: false },
-                        { key: 'git', name: t('Git 集成'), closeable: false, renameable: false },
+                        { key: 'shell', name: t('数据库'), closeable: false, renameable: false, icon: <DatabaseOutlined /> },
+                        { key: 'git', name: t('Git 集成'), closeable: false, renameable: false, icon: <SvgGit /> },
                     ]}
                     active_key={tab_key}
                     on_tab_click={key => { set_tab_key(key as string) }}

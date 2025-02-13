@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react'
 
 import { Input, Switch } from 'antd'
-import { CloseOutlined, DoubleLeftOutlined, DoubleRightOutlined, PlusOutlined } from '@ant-design/icons'
+import { CloseOutlined, DoubleLeftOutlined, DoubleRightOutlined, FileTextOutlined, PlusOutlined } from '@ant-design/icons'
 
 import { t } from '@i18n/index.js'
 
@@ -91,12 +91,13 @@ export function ShellEditor ({ collapser }) {
     return <div className='shell-editor'>
         <Tabs 
             tabs={[
-                { key: -1, name: t('默认标签页'), closeable: false, renameable: false }, 
+                { key: -1, name: t('默认标签页'), closeable: false, renameable: false, icon: <FileTextOutlined /> }, 
                 ...tabs.map(tab => ({
                 key: tab.index,
                 name: tab.name,
                 closeable: true,
-                renameable: true
+                renameable: true,
+                icon: <FileTextOutlined />
             }))]}
             active_key={itab}
             on_tab_click={id => {
@@ -367,6 +368,7 @@ export function Tab ({
         className={`tab ${active ? 'active' : ''}`}
         onClick={onClick}
     >
+        {icon && <div className='tab-icon'>{icon}</div>}
         {renaming ? 
             <Input
                 placeholder={t('标签页名称')}
