@@ -1,6 +1,7 @@
 import { t } from '@i18n/index.ts'
 import { Button, Input, Select, Tree } from 'antd'
 import { useState, useDeferredValue, useCallback, useMemo, useEffect } from 'react'
+import { FolderOutlined, FolderOpenOutlined, FileTextOutlined } from '@ant-design/icons'
 
 import { shell } from '@/shell/model.ts'
 
@@ -108,10 +109,19 @@ export function Files ({ repo_id, on_change_branch }: { repo_id: string, on_chan
     }
     
     function title_render (node: DataNode) {
-        if (node.isLeaf)
-            return <div className='title-render' onClick={() => { open_git_file(node.key, repo_path) }}>{node.title}</div>
-            
-        return <div className='title-render'>{node.title}</div>
+        const icon = node.isLeaf ? 
+            <FileTextOutlined /> : 
+            (expanded_keys.includes(node.key) ? <FolderOpenOutlined /> : <FolderOutlined />)
+        
+        return <div
+            className='title-render'
+            onClick={() => {
+                if (node.isLeaf)
+                    open_git_file(node.key, repo_path)
+            }}
+        >
+            {icon} <span className='node-title'>{node.title}</span>
+        </div>
     }
     
     const filtered_tree_data = useMemo(() => {
@@ -166,7 +176,7 @@ export function Files ({ repo_id, on_change_branch }: { repo_id: string, on_chan
             </div>
             <div className='file-explore-content'>
                 <Tree
-                    className='file-tree'
+                    className='file-tree custom-icon-tree'
                     expandAction='click'
                     loadedKeys={loaded_keys}
                     loadData={load_repo_data}
@@ -174,6 +184,7 @@ export function Files ({ repo_id, on_change_branch }: { repo_id: string, on_chan
                     expandedKeys={deferred_expanded_keys}
                     onExpand={handle_expand}
                     titleRender={title_render}
+                    showIcon={false}
                 />
             </div>
         </>}
