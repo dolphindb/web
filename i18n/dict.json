@@ -5855,6 +5855,159 @@
     "自动": {
         "en": "auto"
     },
+    "{{file}} 的提交信息": {
+        "en": "Commit message for {{file}}"
+    },
+    "文件未修改": {
+        "en": "File not modified"
+    },
+    "请输入文件提交路径": {
+        "en": "Please enter the file submission path"
+    },
+    "提交成功": {
+        "en": "Commit Success"
+    },
+    "提交失败": {
+        "en": "Commit Failed"
+    },
+    "提交历史": {
+        "en": "Commit History"
+    },
+    "关闭提交历史": {
+        "en": "Close Commit History"
+    },
+    "查看提交历史": {
+        "en": "View Commit History"
+    },
+    "本地文件，无提交历史": {
+        "en": "Local file, no commit history"
+    },
+    "文件提交路径": {
+        "en": "File Submission Path"
+    },
+    "远程文件有更新，是否获取并覆盖当前编辑的内容": {
+        "en": "The remote file has been updated. Do you want to fetch and overwrite the current content?"
+    },
+    "更新文件": {
+        "en": "Update File"
+    },
+    "未选择代码仓库，请选择一个代码仓库": {
+        "en": "Code repository not selected, please select a code repository"
+    },
+    "文件浏览": {
+        "en": "File Browse"
+    },
+    "未选择代码仓库，请选择一个代码仓库以查看文件": {
+        "en": "Code repository not selected, please select a code repository to view files"
+    },
+    "搜索仓库文件": {
+        "en": "Search repository files"
+    },
+    "今天 {{time}}": {
+        "en": "{{time}}, Today"
+    },
+    "昨天 {{time}}": {
+        "en": "{{time}}, Yesterday"
+    },
+    "fetch 仓库列表失败": {
+        "en": "Failed to fetch repository list"
+    },
+    "获取文件失败，请检查权限": {
+        "en": "Failed to get the file, please check permissions."
+    },
+    "使用 Oauth 登录到 GitLab": {
+        "en": "Use OAuth to log in to GitLab"
+    },
+    "请输入 Client ID!": {
+        "en": "Please enter Client ID!"
+    },
+    "请输入你的 GitLab 应用 Client ID": {
+        "en": "Please enter your GitLab application Client ID"
+    },
+    "请输入 Redirect URL!": {
+        "en": "Please enter the Redirect URL!"
+    },
+    "请输入你的 GitLab 应用 Redirect URL": {
+        "en": "Please enter your GitLab application Redirect URL"
+    },
+    "请输入 GitLab 的路径!": {
+        "en": "Please enter the GitLab path!"
+    },
+    "请输入有效的 URL!": {
+        "en": "Please enter a valid URL!"
+    },
+    "请输入你的 GitLab 根路径，例如: https://gitlab.com": {
+        "en": "Please enter your GitLab root path, for example: https://gitlab.com"
+    },
+    "请输入 GitLab API Root，默认为 /api/v4": {
+        "en": "Please enter the GitLab API Root, the default is /api/v4"
+    },
+    "使用 Access Token 登录到 GitLab": {
+        "en": "Use Access Token to log in to GitLab"
+    },
+    "请输入 Access Token!": {
+        "en": "Please enter Access Token!"
+    },
+    "请输入你的 GitLab Access Token": {
+        "en": "Please enter your GitLab Access Token"
+    },
+    "使用 Access Token 登录到 GitHub": {
+        "en": "Use Access Token to log in to GitHub"
+    },
+    "请输入你的 GitHub Access Token": {
+        "en": "Please enter your GitHub Access Token"
+    },
+    "使用 Oauth 登录到 GitHub": {
+        "en": "Use OAuth to log in to GitHub"
+    },
+    "请输入你的 GitHub 应用 Client ID": {
+        "en": "Please enter your GitHub App Client ID"
+    },
+    "请输入你的 GitHub 应用 Redirect URL": {
+        "en": "Please enter your GitHub App Redirect URL"
+    },
+    "请输入 Client Secret!": {
+        "en": "Please enter your Client Secret!"
+    },
+    "请输入你的 GitHub 应用 Client Secret": {
+        "en": "Please enter your GitHub App Client Secret"
+    },
+    "代码仓库": {
+        "en": "Code Repositories"
+    },
+    "Git 集成": {
+        "en": "Git Integration"
+    },
+    "无法获取仓库列表，请检查权限或：": {
+        "en": "Unable to get the repository list. Please check your permissions or:"
+    },
+    "提交文件 {{file}} 到 {{repo}} 的分支 {{branch}}": {
+        "en": "Commit file {{file}} to branch {{branch}} of {{repo}}"
+    },
+    "提交当前正在编辑的文件 {{file}} 到 {{repo}} 的分支 {{branch}}": {
+        "en": "Commit the currently editing file {{file}} to the {{branch}} branch of {{repo}}"
+    },
+    "分支：{{b}}": {
+        "en": "Branch: {{b}}"
+    },
+    "覆盖远程文件": {
+        "en": "Overwrite remote file"
+    },
+    "远程文件有更新，该提交将覆盖远程文件": {
+        "en": "The remote file has been updated. This commit will overwrite the remote file."
+    },
+    "代码存储失败，请检查代码大小或本地存储空间剩余空间": {
+        "en": "Code saving failed. Please check the code size or the remaining space of local storage."
+    },
+    "获取文件列表失败或仓库为空": {
+        "en": "Failed to get file list or repository is empty"
+    },
+    "只支持在 HTTPS 下使用该登录方式": {
+        "en": "This login method is only supported under HTTPS."
+    },
+    "必须加载 httpClient 插件才能使用该登录方式": {
+        "en": "The httpClient plugin must be loaded to use this login method."
+    },
     "插件列表:": {
         "en": "plugins:"
     },
@@ -5947,5 +6100,8 @@
     },
     "控制节点不支持库表向导，请跳转到数据节点或计算节点查看。": {
         "en": "The control node does not support the library table wizard. Please jump to the data node or computing node to view it."
+    },
+    "Git 登录失败": {
+        "en": "Login to Git failed."
     }
 }

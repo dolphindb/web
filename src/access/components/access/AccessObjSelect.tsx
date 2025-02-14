@@ -103,12 +103,10 @@ export function AccessObjSelect ({
                           ? catalogs.filter(({ name: catalog_name }) => catalog_name !== DATABASES_WITHOUT_CATALOG)
                           : catalogs
                       ).map(cl => ({
-                          key: cl.name,
                           title: cl.name,
                           value: cl.name,
                           selectable: false,
                           children: cl.schemas.map(sh => ({
-                              key: sh.dbUrl,
                               title: sh.schema,
                               // schema 权限 objs 为 catalog.schema,db 权限为 dburl
                               value: add_rule_selected.access.startsWith('DB') ? sh.dbUrl : `${cl.name}.${sh.schema}`,
@@ -117,7 +115,6 @@ export function AccessObjSelect ({
                               ...(add_rule_selected.access.startsWith('TABLE')
                                   ? {
                                         children: sh.tables.map(tb => ({
-                                            key: `${cl.name}.${sh.schema}.${tb}`,
                                             title: tb,
                                             value: tb,
                                             isLeaf: true
@@ -127,12 +124,10 @@ export function AccessObjSelect ({
                           }))
                       }))
                     : databases.map(db => ({
-                          key: db.name,
                           title: db.name,
                           value: db.name,
                           selectable: false,
                           children: db.tables.map(tb => ({
-                              key: `${db.name}.${tb}`,
                               title: tb,
                               value: tb,
                               selectable: true,
@@ -174,11 +169,9 @@ export function AccessObjSelect ({
                 ? obj_options.map(obj => obj.name).filter(name => name !== DATABASES_WITHOUT_CATALOG)
                 : obj_options).map(obj => 
                     typeof obj === 'string' ? {
-                        key: obj,
                         label: obj,
                         value: obj
                     } : {
-                        key: obj.name,
                         label: obj.name,
                         value: obj.name
                     })}

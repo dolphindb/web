@@ -24,6 +24,7 @@ import { language, t } from '@i18n/index.ts'
 import type { FormatErrorOptions } from '@/components/GlobalErrorBoundary.tsx'
 import { config } from '@/config/model.ts'
 import { goto_url, strip_quotes } from '@/utils.ts'
+import { GitHubAdapter, GitLabAdapter } from '@/shell/git/git-adapter.ts'
 
 
 const dev_hostname = '192.168.0.37' as const
@@ -284,7 +285,9 @@ export class DdbModel extends Model<DdbModel> {
         // 对于完成初始化是必须的，用户登陆后可能会注销，此时需要判断是否重定向到登录页
         let pclient_auth = this.check_client_auth()
         
-        if (this.oauth) {
+        const is_git_oauth = location.pathname.includes('/oauth-gitlab') || location.pathname.includes('/oauth-github')
+        
+        if (this.oauth && !is_git_oauth) {
             this.oauth_type = config.get_config<OAuthType>('oauthWebType') || 'authorization code'
             
             if (!['authorization code', 'implicit'].includes(this.oauth_type))
@@ -319,9 +322,25 @@ export class DdbModel extends Model<DdbModel> {
         // 这里保证 client_auth 已初始化
         await pclient_auth
         
-        this.set({ inited: true })
+        const current_path = location.pathname
         
-        console.log(t('web 初始化成功'))
+        try {
+            // GitHub OAuth
+            if (current_path.includes('/oauth-github'))
+                await this.login_git('github')
+                
+            // GitLab OAuth
+            if (current_path.includes('/oauth-gitlab'))
+                await this.login_git('gitlab')
+        } catch (error) {
+            this.modal.error({ title: t('Git 登录失败') })
+            error.shown = true
+            throw error
+        } finally {
+            this.set({ inited: true })
+            
+            console.log(t('web 初始化成功'))
+        }
         
         await this.get_license_info()
     }
@@ -432,6 +451,20 @@ export class DdbModel extends Model<DdbModel> {
         }
     }
     
+    /** redirect_uri 只能跳转到其中某个节点，需要带参数跳回到原发起登录的节点 
+    发起跳转后会抛出错误中断后续流程 */
+    async maybe_jump (params: URLSearchParams): Promise<void> | never {
+        const state = params.get('state')
+        if (state && state !== this.node_alias) {
+            const node = this.nodes.find(({ name }) => name === state)
+            if (!node)
+                throw new Error(t('无法从当前节点 {{current}} 跳转回发起登录的节点 {{origin}}，找不到节点信息', { current: this.node_alias, origin: state }))
+                
+            console.log(t('根据 state 参数跳转到节点:'), state)
+            
+            await goto_url(this.get_node_url(node, { queries: { state: null } }))
+        }
+    }
     
     /** 实现了两种 oauth 方法: 
         - authorization code
@@ -445,26 +478,11 @@ export class DdbModel extends Model<DdbModel> {
         // 有 ticket 说明 oauthLogin 登录成功
         let ticket: string
         
-        /** redirect_uri 只能跳转到其中某个节点，需要带参数跳回到原发起登录的节点 
-            发起跳转后会抛出错误中断后续流程 */
-        const maybe_jump = async (params: URLSearchParams) => {
-            const state = params.get('state')
-            if (state && state !== this.node_alias) {
-                const node = this.nodes.find(({ name }) => name === state)
-                if (!node)
-                    throw new Error(t('无法从当前节点 {{current}} 跳转回发起登录的节点 {{origin}}，找不到节点信息', { current: this.node_alias, origin: state }))
-                
-                console.log(t('根据 state 参数跳转到节点:'), state)
-                
-                await goto_url(this.get_node_url(node, { queries: { state: null } }))
-            }
-        }
-        
         // https://datatracker.ietf.org/doc/html/rfc6749#section-4.2.2
         if (this.oauth_type === 'authorization code') {
             let { searchParams: params } = url
             
-            await maybe_jump(params)
+            await this.maybe_jump(params)
             
             const code = params.get('code')
             
@@ -484,7 +502,7 @@ export class DdbModel extends Model<DdbModel> {
         } else {
             const params = new URLSearchParams(url.hash.slice(1))
             
-            await maybe_jump(params)
+            await this.maybe_jump(params)
             
             const access_token = params.get('access_token') || params.get('accessToken')
             const token_type = params.get('token_type') || params.get('tokenType')
@@ -518,6 +536,39 @@ export class DdbModel extends Model<DdbModel> {
         }
     }
     
+    
+    async login_git (provider_name: 'github' | 'gitlab') {
+        const searchParams = new URLSearchParams(window.location.search)
+        await this.maybe_jump(searchParams)
+        const code = searchParams.get('code')
+        localStorage.setItem(storage_keys.git_access_code, code)
+        
+        try {
+            let token: string
+            
+            if (provider_name === 'github') {
+                const provider = new GitHubAdapter()
+                token = await provider.get_access_token(
+                    code,
+                    localStorage.getItem(storage_keys.git_client_id),
+                    localStorage.getItem(storage_keys.git_redirect_url),
+                    localStorage.getItem(storage_keys.git_client_secret)
+                )
+            } else {
+                const provider = new GitLabAdapter() 
+                token = await provider.get_access_token(
+                    code,
+                    localStorage.getItem(storage_keys.git_client_id),
+                    localStorage.getItem(storage_keys.git_redirect_url)
+                )
+            }
+            
+            localStorage.setItem(storage_keys.git_access_token, token)
+            localStorage.setItem(storage_keys.git_provider, provider_name)
+        } finally {
+            this.goto('/')
+        }
+    }
     
     async update_user (ticket?: string) {
         const [session, username] = await this.ddb.invoke<[string, string]>('getCurrentSessionAndUser')
@@ -1073,6 +1124,7 @@ export const storage_keys = {
     username: 'ddb.username',
     collapsed: 'ddb.collapsed',
     code: 'ddb.code',
+    current_tab: 'ddb.current_tab',
     session: 'ddb.session',
     minimap: 'ddb.editor.minimap',
     enter_completion: 'ddb.editor.enter_completion',
@@ -1082,6 +1134,14 @@ export const storage_keys = {
     overview_display_mode: 'ddb.overview.display_mode',
     overview_display_columns: 'ddb.overview.display_columns',
     license_notified_date: 'ddb.license.notified_date',
+    git_access_code: 'ddb.git.access-code',
+    git_client_id: 'ddb.git.client_id',
+    git_redirect_url: 'ddb.git.redirect_url',
+    git_client_secret: 'ddb.git.client_secret',
+    git_access_token: 'ddb.git.access-token',
+    git_provider: 'ddb.git.provider',
+    git_root_url: 'ddb.git.root_url',
+    git_api_root: 'ddb.git.api_root',
 } as const
 
 
