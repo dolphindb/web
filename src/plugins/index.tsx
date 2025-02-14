@@ -19,6 +19,8 @@ import { model } from '@/model.ts'
 
 import { RefreshButton } from '@/components/RefreshButton/index.tsx'
 
+import { DDBTable } from '@/components/DDBTable/index.tsx'
+
 import script from './index.dos'
 import SvgUpgrade from './upgrade.icon.svg'
 import zip_png from './zip.png'
@@ -143,73 +145,70 @@ export function Plugins () {
     })
     
     return <>
-        <div className='actions'>
-            <Popconfirm
-                title={t('加载插件')}
-                description={t('确认加载插件至所选择的节点？（当前未安装或已加载的节点会被跳过）')}
-                okText={t('加载')}
-                onConfirm={async () => {
-                    await Promise.all(
-                        plugins.map(async ({ selecteds, id }) => {
-                            if (!selecteds?.length)
-                                return
+        <InstallModal
+            installer={installer}
+            update={update}
+            plugins={plugins}
+            plugin_nodes={plugin_nodes} 
+        />    
+        <DDBTable
+            title={t('插件管理')}
+            buttons={<>
+                    <Popconfirm
+                        title={t('加载插件')}
+                        description={t('确认加载插件至所选择的节点？（当前未安装或已加载的节点会被跳过）')}
+                        okText={t('加载')}
+                        onConfirm={async () => {
+                            await Promise.all(
+                                plugins.map(async ({ selecteds, id }) => {
+                                    if (!selecteds?.length)
+                                        return
+                                    
+                                    const nodes = selecteds.filter(({ installed }) => installed)
+                                        .map(({ node }) => node)
+                                    
+                                    if (!nodes.length)
+                                        return
+                                    
+                                    await ddb.invoke<void>('loadPlugins', log(t('加载插件:'), [id, nodes]))
+                                }))
                             
-                            const nodes = selecteds.filter(({ installed }) => installed)
-                                .map(({ node }) => node)
+                            await update()
                             
-                            if (!nodes.length)
-                                return
-                            
-                            await ddb.invoke<void>('loadPlugins', log(t('加载插件:'), [id, nodes]))
-                        }))
-                    
-                    await update()
-                    
-                    model.message.success(t('插件加载成功'))
-                }}
-            >
-                <Tooltip title={t('在下方表格中选择需要加载的插件，以及节点（当前未安装或已加载的节点会被跳过）')}>
+                            model.message.success(t('插件加载成功'))
+                        }}
+                    >
+                        <Tooltip title={t('在下方表格中选择需要加载的插件，以及节点（当前未安装或已加载的节点会被跳过）')}>
+                            <Button
+                                className='load'
+                                type='primary'
+                                disabled={!has_selected}
+                                icon={<PlayCircleOutlined />}
+                            >{t('加载插件')}</Button>
+                        </Tooltip>
+                    </Popconfirm>
+                
                     <Button
-                        className='load'
-                        type='primary'
-                        disabled={!has_selected}
-                        icon={<PlayCircleOutlined />}
-                    >{t('加载插件')}</Button>
-                </Tooltip>
-            </Popconfirm>
-            
-            <Button
-                className='install'
-                icon={<Icon component={SvgUpgrade} />}
-                disabled={npartial_selecteds >= 2}
-                onClick={installer.open}
-            >{t('安装插件')}</Button>
-            
-            <InstallModal
-                installer={installer}
-                update={update}
-                plugins={plugins}
-                plugin_nodes={plugin_nodes} />
-            
-            <RefreshButton
-                className='refresh'
-                onClick={async () => {
-                    await update(rquery.current)
-                }}
-             />
-            
-            <Input.Search
-                className='search'
+                        className='install'
+                        icon={<Icon component={SvgUpgrade} />}
+                        disabled={npartial_selecteds >= 2}
+                        onClick={installer.open}
+                    >{t('安装插件')}</Button>
+                    
+                    <RefreshButton
+                        onClick={async () => {
+                            await update(rquery.current)
+                        }}
+                    />
+            </>}
+            filter_form={<Input.Search
                 placeholder={t('输入关键字后按回车可搜索插件')}
                 allowClear
                 onSearch={async value => {
                     rquery.current = value
                     await update(value)
-                }} />
-        </div>
-        
-        <Table
-            className='plugins-table'
+                }} 
+            />}
             dataSource={plugins}
             rowKey='id'
             pagination={false}
