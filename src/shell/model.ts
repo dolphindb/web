@@ -93,7 +93,7 @@ class ShellModel extends Model<ShellModel> {
     confirm_command_modal_visible = false
     
     /** 当前打开的 tab */
-    itab = -1
+    itab = Number(localStorage.getItem(storage_keys.current_tab)) || -1
     
     /** 所有的 tabs */
     tabs: Tab[] = [ ]
@@ -319,7 +319,14 @@ class ShellModel extends Model<ShellModel> {
             if (tab)
                 tab.code = code
             this.set({ tabs: [...this.tabs] })
-            localStorage.setItem(`${storage_keys.code}.${this.itab}`, JSON.stringify(tab))
+            try {
+                localStorage.setItem(`${storage_keys.code}.${this.itab}`, JSON.stringify(tab))
+            } catch (error) {
+                model.modal.error({ title: t('代码存储失败，请检查代码大小或本地存储空间剩余空间'), content: error.message })
+                this.remove_tab(this.itab)
+                error.shown = true
+                throw error
+            }
         } else
             localStorage.setItem(storage_keys.code, code)
     }
@@ -328,6 +335,15 @@ class ShellModel extends Model<ShellModel> {
     remove_tab (tab_index: number) {
         this.set({ tabs: this.tabs.filter(t => t.index !== tab_index) })
         localStorage.removeItem(`${storage_keys.code}.${tab_index}`)
+    }
+    
+    remove_git_tabs () {
+        const tabs_with_git = this.tabs.filter(t => t.git)
+        const tabs_with_git_indexies = tabs_with_git.map(t => t.index)
+        this.set({ tabs: this.tabs.filter(t => !t.git) })
+        this.switch_tab(-1)
+        for (const key of tabs_with_git_indexies)
+            localStorage.removeItem(`${storage_keys.code}.${key}`)
     }
     
     
@@ -347,6 +363,77 @@ class ShellModel extends Model<ShellModel> {
         })
         
         this.editor.setValue('')
+    }
+    
+    add_git_tab (
+        file_path: string,
+        file_name: string,
+        code: string,
+        {
+            repo_id,
+            repo_path, 
+            repo_name, 
+            branch = 'main', 
+            sha, 
+            is_history = false, 
+            commit_id
+        }: {
+            repo_id: string
+            repo_path: string
+            repo_name: string
+            branch: string
+            sha: string
+            commit_id: string
+            is_history?: boolean
+        },
+    ) {
+        if (!this.monaco_inited)
+            return
+        
+        // 检查是否存在当前仓库和当前分支的文件，否则只是跳转过去
+        const index = this.tabs.findIndex(t => t.git?.repo_id === repo_id && t.git?.branch === branch && t.git?.file_path === file_path)
+        if (index > -1 && !is_history) {
+            const tab = this.tabs[index]
+            this.switch_tab(tab.index)
+            return
+        }
+        
+        this.save()
+        const index_set = new Set(this.tabs.map(t => t.index))
+        let new_tab_index = 1
+        while (index_set.has(new_tab_index))
+            new_tab_index++
+            
+        const new_tab_name = file_name
+        this.set({
+            itab: new_tab_index,
+            tabs: [...this.tabs, {
+                name: new_tab_name,
+                code,
+                index: new_tab_index,
+                read_only: is_history,
+                git: { repo_id, repo_path, repo_name, branch, file_path, file_name, raw_code: code, sha, commit_id }
+            }]
+        })
+        
+        this.editor.setValue(code)
+    }
+    
+    update_git_tab_code (index: number, code: string, commit_id: string, sha: string) {
+        const tab = this.tabs.find(t => t.index === index)
+        if (!tab || !tab.git)
+            return
+        
+        tab.git.raw_code = code
+        tab.code = code
+        if (sha)
+            tab.git.sha = sha
+        if (commit_id)
+            tab.git.commit_id = commit_id
+        if (this.itab === index)
+            this.editor.setValue(code)
+        this.set({ tabs: [...this.tabs] })
+        this.save()
     }
     
     
@@ -804,6 +891,18 @@ export interface Tab {
     index: number
     name: string
     code: string
+    read_only?: boolean
+    git?: {
+        repo_id: string
+        repo_path: string
+        repo_name: string
+        branch: string
+        file_path: string
+        file_name: string
+        raw_code: string
+        sha: string
+        commit_id: string
+    }
 }
 
 

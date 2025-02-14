@@ -3,7 +3,7 @@ import './index.sass'
 import { useEffect, useRef, useState } from 'react'
 import { Button, Form, Input, Modal, Popconfirm, Radio, Result, Table, Typography, Upload, type UploadFile, 
     type FormInstance, Checkbox, Select, Tooltip} from 'antd'
-import { ReloadOutlined, default as Icon, InboxOutlined, CheckOutlined } from '@ant-design/icons'
+import { ReloadOutlined, default as Icon, InboxOutlined, CheckOutlined, PlayCircleOutlined } from '@ant-design/icons'
 import { noop } from 'xshell/prototype.browser.js'
 import { log, vercmp } from 'xshell/utils.browser.js'
 
@@ -147,15 +147,18 @@ export function Plugins () {
                 okText={t('加载')}
                 onConfirm={async () => {
                     await Promise.all(
-                        plugins.map(async ({ selecteds, id }) =>
-                            selecteds?.length && ddb.invoke<void>('loadPlugins', log(
-                                    t('加载插件:'), 
-                                    [
-                                        id, 
-                                        selecteds.filter(({ installed }) => installed)
-                                            .map(({ node }) => node)
-                                    ]))
-                        ))
+                        plugins.map(async ({ selecteds, id }) => {
+                            if (!selecteds?.length)
+                                return
+                            
+                            const nodes = selecteds.filter(({ installed }) => installed)
+                                .map(({ node }) => node)
+                            
+                            if (!nodes.length)
+                                return
+                            
+                            await ddb.invoke<void>('loadPlugins', log(t('加载插件:'), [id, nodes]))
+                        }))
                     
                     await update()
                     
@@ -167,7 +170,7 @@ export function Plugins () {
                         className='load'
                         type='primary'
                         disabled={!has_selected}
-                        icon={<Icon component={SvgUpgrade} />}
+                        icon={<PlayCircleOutlined />}
                     >{t('加载插件')}</Button>
                 </Tooltip>
             </Popconfirm>

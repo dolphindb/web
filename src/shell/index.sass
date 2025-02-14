@@ -40,6 +40,12 @@
         
         border-right: 1px solid #e5e5e5
         
+        .tabs
+            .ant-tabs-nav
+                padding-left: 10px
+            .ant-tabs-nav
+                margin: 0
+        
         .panel
             height: 100%
             display: flex
@@ -311,63 +317,7 @@
                     height: 100%
                     display: flex
                     flex-direction: column
-                    
-                    .tabs
-                        background-color: #f0f0f0
-                        height: 30px
-                        flex-shrink: 0
-                        display: flex
-                        overflow-x: auto
-                        overflow-y: hidden
-                        
-                        &::-webkit-scrollbar
-                            height: 2px !important
-                        
-                        &::-webkit-scrollbar-track
-                            background: transparent
-                        
-                        &::-webkit-scrollbar-thumb
-                            background: rgba(0, 0, 0, 0.2)
-                            
-                            &:hover
-                                background: rgba(0, 0, 0, 0.3)
-                        
-                        .tab
-                            flex-shrink: 0
-                            height: 100% !important
-                            display: flex
-                            align-items: center
-                            cursor: pointer
-                            padding: 2px 8px
-                            background: #f0f0f0
-                            border-bottom: 1px solid transparent
-                            
-                            &:hover
-                                background-color: rgb(245, 246, 247)
-                            
-                            .close-icon
-                                display: flex
-                                align-items: center
-                                margin-left: 6px
-                                padding: 4px
-                                border-radius: 50%
-                                &:hover
-                                    background-color: rgb(225, 225, 225)
-                        
-                        .active
-                            border-bottom: 1px solid #3760F0
-                            background-color: #ffffff !important
-                        
-                        .add-tab
-                            cursor: pointer
-                            display: flex
-                            align-items: center
-                            padding: 2px 8px
-                            border-bottom: 1px solid transparent
-                            
-                            &:hover
-                                background-color: rgb(245, 246, 247)
-                            
+                           
                     .toolbar
                         display: flex
                         align-items: center
@@ -456,6 +406,72 @@
             border-top: 1px solid #e5e5e5
             
             font-size: 16px
+    .tabs
+        background-color: #f0f0f0
+        height: 30px
+        flex-shrink: 0
+        display: flex
+        overflow-x: auto
+        overflow-y: hidden
+        
+        &::-webkit-scrollbar
+            height: 2px !important
+        
+        &::-webkit-scrollbar-track
+            background: transparent
+        
+        &::-webkit-scrollbar-thumb
+            background: rgba(0, 0, 0, 0.2)
+            
+            &:hover
+                background: rgba(0, 0, 0, 0.3)
+        
+        .tab
+            flex-shrink: 0
+            height: 100% !important
+            display: flex
+            align-items: center
+            cursor: pointer
+            padding: 2px 8px
+            background: #f0f0f0
+            border-bottom: 1px solid transparent
+            
+            &:hover
+                background-color: rgb(245, 246, 247)
+            
+            .close-icon
+                display: flex
+                align-items: center
+                margin-left: 6px
+                padding: 4px
+                border-radius: 50%
+                &:hover
+                    background-color: rgb(225, 225, 225)
+            
+            .tab-icon
+                display: flex
+                align-items: center
+                margin-right: 4px
+                font-size: 14px
+                
+                svg
+                    width: 14px
+                    height: 14px
+        
+        .active
+            border-bottom: 1px solid #3760F0
+            background-color: #ffffff !important
+        
+        .add-tab
+            cursor: pointer
+            display: flex
+            align-items: center
+            padding: 2px 8px
+            border-bottom: 1px solid transparent
+            
+            &:hover
+                background-color: rgb(245, 246, 247)
+        
         
 
 .columns-schema-popover
@@ -516,5 +532,9 @@
             font-size: large
             margin-right: 8px
 
-
+.ant-modal-root
+    .add-column-form-button-group
+        display: flex
+        justify-content: flex-end
+        column-gap: 8px
     
