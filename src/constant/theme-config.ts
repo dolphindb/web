@@ -2,6 +2,7 @@ import { theme, type ThemeConfig } from 'antd'
 
 export const ANT_DARK_CONFIG = {
     hashed: false,
+    cssVar: true,
     token: {
         borderRadius: 0,
         motion: false,
@@ -9,6 +10,7 @@ export const ANT_DARK_CONFIG = {
         colorBgElevated: '#555555',
         colorInfoActive: 'rgb(64, 147, 211)',
         colorBgLayout: '#313131',
+        colorPrimary: 'rgb(22, 104, 220)'
     },
     algorithm: theme.darkAlgorithm,
     components: {
