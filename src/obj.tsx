@@ -2046,7 +2046,9 @@ function Chart ({
                             value: d.value
                         })),
                         label: {
-                            formatter: '{b}: {d}%'
+                            formatter: function (params) {
+                                return `${params.name}: ${params.percent.toFixed(2)}%`
+                            }
                         }
                     }]
                 }
