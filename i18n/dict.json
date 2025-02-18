@@ -6103,5 +6103,14 @@
     },
     "Git 登录失败": {
         "en": "Login to Git failed."
+    },
+    "列宽自适应": {
+        "en": "Adaptive column width"
+    },
+    "请注意，列宽自适应时设置列宽无效": {
+        "en": "Please note that setting the column width is invalid when the column width is adaptive"
+    },
+    "超长省略": {
+        "en": "Ellipsis"
     }
 }

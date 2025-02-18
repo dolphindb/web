@@ -427,7 +427,7 @@ export function Header () {
         
         {
             editing && <div className='configs'>
-                {t('自动拓展页面大小：')}<Switch value={auto_expand} onChange={(checked => { dashboard.on_set_auto_expand(checked) })}/>
+                {t('自动拓展页面大小：')}<Switch size='small' value={auto_expand} onChange={(checked => { dashboard.on_set_auto_expand(checked) })}/>
                 <VariableConfig/>
                 <DataSourceConfig/>
             </div>
