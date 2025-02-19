@@ -51,9 +51,12 @@ import { t } from '@i18n/index.ts'
 
 import * as echarts from 'echarts'
 
+import { debounce } from 'lodash'
+
 import SvgLink from './link.icon.svg'
 
 import { type WindowModel } from './window.tsx'
+
 
 
 
@@ -1952,7 +1955,7 @@ function Chart ({
                             },
                             yAxis: col_labels.map((label, index) => {
                                 const isRight = index % 2 === 1 // 判断是否为右侧
-                                const sideOffset = Math.floor(index / 2) * 50 // 每个 Y 轴之间的间隔
+                                const sideOffset = Math.floor(index / 2) * 30 // 每个 Y 轴之间的间隔
                                 
                                 return {
                                     type: 'value',
@@ -2254,8 +2257,20 @@ function EChartsComponent ({ option, className, theme }: EChartsComponentProps) 
             chartInstance.current.setOption(option)
         }
         
+        const handleResize = debounce(() => {
+            chartInstance.current?.resize()
+        }, 200)
+        
+        const resizeObserver = new ResizeObserver(() => {
+            handleResize()
+        })
+        if (chartRef.current)
+            resizeObserver.observe(chartRef.current)
+        
+        
         return () => {
             chartInstance.current?.dispose()
+            resizeObserver.disconnect()
         }
     }, [theme, option])
     
