@@ -1951,20 +1951,29 @@ function Chart ({
                                 ...axisStyle
                             },
                             yAxis: col_labels.map((label, index) => {
-                                const isRight = index % 2 === 1
-                                const sideOffset = Math.floor(index / 2) * 10  // 同侧轴的偏移量
+                                const isRight = index % 2 === 1 // 判断是否为右侧
+                                const sideOffset = Math.floor(index / 2) * 50 // 每个 Y 轴之间的间隔
                                 
                                 return {
                                     type: 'value',
-                                    name: index === 0 ? titles.y_axis : '',
                                     position: isRight ? 'right' : 'left',
-                                    offset: sideOffset,  // 添加偏移
+                                    offset: sideOffset, // 设置偏移量以避免重叠
+                                    name: label,
                                     nameLocation: 'end',
                                     alignTicks: true,
-                                    ...axisStyle,
                                     axisLabel: {
-                                        margin: isRight ? 8 + sideOffset : 8  // 轴标签的边距也需要调整
-                                    }
+                                        margin: 8, // 轴标签的边距
+                                    },
+                                    axisLine: {
+                                        lineStyle: {
+                                            color: '#333',
+                                        },
+                                    },
+                                    splitLine: {
+                                        lineStyle: {
+                                            color: '#eee',
+                                        },
+                                    },
                                 } as any
                             }),
                             grid: {
