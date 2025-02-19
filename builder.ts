@@ -136,7 +136,7 @@ export let builder = {
                             out: 'logo.png'
                         },
                         entry: 'window.js',
-                        dependencies: ['antd-icons', 'antd-plots', 'lodash'],
+                        dependencies: ['antd-icons', 'antd-plots', 'lodash', 'echarts'],
                     }
                 },
                 

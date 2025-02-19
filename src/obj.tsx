@@ -1,6 +1,6 @@
 import './obj.sass'
 
-import { useEffect, useRef, useState, type default as React, type FC, type RefObject, useCallback } from 'react'
+import { useEffect, useRef, useState, type default as React, type RefObject, useCallback } from 'react'
 
 import {
     Pagination,
@@ -9,7 +9,7 @@ import {
     Tree,
     Button,
     Switch,
-    Select, type SelectProps,
+    Select,
     type TableColumnType,
     Input,
     Form,
@@ -17,8 +17,6 @@ import {
 } from 'antd'
 
 import { default as Icon, CaretRightOutlined, PauseOutlined, RightOutlined } from '@ant-design/icons'
-
-import { Line, Pie, Bar, Column, Scatter, Area, DualAxes, Histogram, Stock } from '@ant-design/plots'
 
 import { use_rerender } from 'react-object-model/hooks.js'
 
@@ -52,10 +50,6 @@ import {
 import { t } from '@i18n/index.ts'
 
 import * as echarts from 'echarts'
-
-import ReactEChartsCore from 'echarts-for-react/lib/core'
-
-import { useChart } from '@/dashboard/Charts/hooks.ts'
 
 import SvgLink from './link.icon.svg'
 
@@ -1876,10 +1870,10 @@ function Chart ({
         })()
     }, [obj, objref])
     
-    function getChartOption () {
+    function getChartOption (): echarts.EChartsOption {
         const { charttype, data, titles, stacking, multi_y_axes, col_labels, bin_count } = config
         
-        const baseOption = {
+        const baseOption: echarts.EChartsOption = {
             // title: {
             //     text: titles.chart,
             //     textStyle: {
@@ -1971,7 +1965,7 @@ function Chart ({
                                     axisLabel: {
                                         margin: isRight ? 8 + sideOffset : 8  // 轴标签的边距也需要调整
                                     }
-                                }
+                                } as any
                             }),
                             grid: {
                                 left: `${3 + Math.floor((leftAxisCount - 1) * 3)}%`,
@@ -2107,23 +2101,60 @@ function Chart ({
                 }
                 
             case DdbChartType.histogram:
+                const values = data.map(d => d.value)
+                const minValue = config.bin_start ? Number(config.bin_start.value) : Math.min(...values)
+                const maxValue = config.bin_end ? Number(config.bin_end.value) : Math.max(...values)
+                const xMin = Math.floor(minValue)
+                const xMax = Math.ceil(maxValue)
+                const binCount = config.bin_count ? Number(config.bin_count.value) : 30
+                const binWidth = (maxValue - minValue) / binCount
+                
+                // 创建区间并统计每个区间的频次
+                const bins = new Array(binCount).fill(0)
+                values.forEach(value => {
+                    if (value >= minValue && value <= maxValue) {
+                        const binIndex = Math.min(Math.floor((value - minValue) / binWidth), binCount - 1)
+                        bins[binIndex]++
+                    }
+                })
+                
                 return {
                     ...baseOption,
+                    tooltip: {
+                        formatter: params => {
+                            const i = params.dataIndex
+                            const start = minValue + i * binWidth
+                            const end = minValue + (i + 1) * binWidth
+                            const count = bins[i]
+                            const percentage = ((count / values.length) * 100).toFixed(2)
+                            return `[${start.toFixed(2)}, ${end.toFixed(2)}]: ${percentage}% (${count})`
+                        }
+                    },
                     xAxis: {
                         type: 'value',
-                        name: titles.x_axis,
+                        name: !titles.x_axis || titles.x_axis === '' ? t('区间') : titles.x_axis,
+                        min: xMin,
+                        max: xMax,
                         ...axisStyle
                     },
                     yAxis: {
                         type: 'value',
-                        name: titles.y_axis,
+                        name: !titles.y_axis || titles.y_axis === '' ? t('频次') : titles.y_axis,
                         ...axisStyle
                     },
                     series: [{
-                        type: 'bar',
-                        barWidth: '99.3%',
-                        data: data.map(d => d.value),
-                        binNumber: bin_count ? Number(bin_count.value) : 30
+                        type: 'custom',
+                        renderItem: (params, api) => ({
+                            type: 'rect',
+                            shape: {
+                                x: api.coord([minValue + params.dataIndex * binWidth, 0])[0],
+                                y: api.coord([0, api.value(0)])[1],
+                                width: api.size([binWidth, 0])[0],
+                                height: api.size([0, api.value(0)])[1]
+                            },
+                            style: api.style()
+                        }),
+                        data: bins,
                     }]
                 }
                 
@@ -2160,7 +2191,7 @@ function Chart ({
                             type: 'bar',
                             yAxisIndex: 1,
                             data: data.map(d => d.vol)
-                        }] : [ ]
+                        } as echarts.BarSeriesOption] : [ ]
                     ]
                 }
                 
@@ -2169,21 +2200,16 @@ function Chart ({
         }
     }
     
-    const ref = useChart(getChartOption())
-    
     if (!config.inited)
         return null
         
     return <div className='chart'>
         <div className='chart-title'>{config.titles.chart}</div>
         
-        <ReactEChartsCore
-            echarts={echarts}
-            ref={ref}
+        <EChartsComponent
             option={getChartOption()}
             className='chart-body'
-            theme='my-theme'
-            notMerge
+            // theme='my-theme'
         />
         
         {ctx !== 'window' && <div className='bottom-bar-placeholder' />}
@@ -2201,4 +2227,32 @@ function Chart ({
             </div>
         </div>}
     </div>
+}
+
+interface EChartsComponentProps {
+    option: echarts.EChartsOption
+    className?: string
+    theme?: string
+}
+
+function EChartsComponent ({ option, className, theme }: EChartsComponentProps) {
+    const chartRef = useRef<HTMLDivElement>(null)
+    const chartInstance = useRef<echarts.ECharts | null>(null)
+    
+    useEffect(() => {
+        if (chartRef.current) {
+            chartInstance.current = echarts.init(chartRef.current, theme)
+            chartInstance.current.setOption(option)
+        }
+        
+        return () => {
+            chartInstance.current?.dispose()
+        }
+    }, [theme, option])
+    
+    useEffect(() => {
+        chartInstance.current?.setOption(option)
+    }, [option])
+    
+    return <div ref={chartRef} className={className} style={{ width: '100%', height: '100%' }} />
 }
