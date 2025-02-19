@@ -2220,7 +2220,6 @@ function Chart ({
         
         <EChartsComponent
             option={getChartOption()}
-            className='chart-body'
             // theme='my-theme'
         />
         
@@ -2243,17 +2242,16 @@ function Chart ({
 
 interface EChartsComponentProps {
     option: echarts.EChartsOption
-    className?: string
-    theme?: string
+    
 }
 
-function EChartsComponent ({ option, className, theme }: EChartsComponentProps) {
+function EChartsComponent ({ option }: EChartsComponentProps) {
     const chartRef = useRef<HTMLDivElement>(null)
     const chartInstance = useRef<echarts.ECharts | null>(null)
     
     useEffect(() => {
         if (chartRef.current) {
-            chartInstance.current = echarts.init(chartRef.current, theme)
+            chartInstance.current = echarts.init(chartRef.current)
             chartInstance.current.setOption(option)
         }
         
@@ -2272,11 +2270,11 @@ function EChartsComponent ({ option, className, theme }: EChartsComponentProps) 
             chartInstance.current?.dispose()
             resizeObserver.disconnect()
         }
-    }, [theme, option])
+    }, [ option])
     
     useEffect(() => {
         chartInstance.current?.setOption(option)
     }, [option])
     
-    return <div ref={chartRef} className={className} style={{ width: '100%', height: '100%' }} />
+    return <div ref={chartRef} className='chart-body' style={{ width: '100%', height: '100%' }} />
 }
