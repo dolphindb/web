@@ -207,7 +207,8 @@ class ConfigModel extends Model<ConfigModel> {
             'metricsToken',
             'strictPermissionMode',
             'enableLocalDatabase',
-            'enableClientAuth',
+            // 先不发，等 3.00 大版本再发
+            // 'enableClientAuth',
             'computeNodeCachingDelay',
             'computeNodeCachingQueryThreshold',
             'enableComputeNodePrefetchData',
