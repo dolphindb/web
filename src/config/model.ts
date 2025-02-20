@@ -43,7 +43,9 @@ class ConfigModel extends Model<ConfigModel> {
         const configs = parse_nodes_configs(
             // 2025.01.03 登录鉴权功能之后 loadClusterNodesConfigs 没有要求一定要在控制节点执行了
             // 所以这里不用 this.invoke
-            await model.ddb.invoke<string[]>('loadClusterNodesConfigs', undefined, { urgent: true }))
+            // todo: 登录鉴权功能还没上线，等上线了再改为下面的
+            // await model.ddb.invoke<string[]>('loadClusterNodesConfigs', undefined, { urgent: true }))
+            await this.invoke<string[]>('loadClusterNodesConfigs', undefined, { urgent: true }))
         
         this.set({ nodes_configs: configs })
         
