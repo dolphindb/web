@@ -34,7 +34,7 @@ export function AccessTabs ({
     const { mutate } = useSWRConfig()
     
     const location = useLocation()
-    const [tab_key, set_tab_key] = useState(() => location.state?.access_tab || 'database')
+    const [tab_key, set_tab_key] = useState(location.state?.access_tab || 'database')
     
     function handle_tab_change (key: string) {
         set_tab_key(key)
