@@ -4,7 +4,7 @@ import { useState } from 'react'
 
 import { t } from '@i18n/index.ts'
 
-import { useParams, useSearchParams } from 'react-router'
+import { useLocation, useParams } from 'react-router'
 
 import { useSWRConfig } from 'swr'
 
@@ -33,12 +33,11 @@ export function AccessTabs ({
     
     const { mutate } = useSWRConfig()
     
-    const [search_params, set_search_params] = useSearchParams()
-    const [tab_key, set_tab_key] = useState(() => search_params.get('tab') || 'database')
+    const location = useLocation()
+    const [tab_key, set_tab_key] = useState(() => location.state?.access_tab || 'database')
     
     function handle_tab_change (key: string) {
         set_tab_key(key)
-        set_search_params({ ...Object.fromEntries(search_params), tab: key })
     }
     
     const get_access_view = (category: AccessCategory) => 
@@ -88,7 +87,7 @@ export function AccessTabs ({
                                 label: t
                             }))}
                             onSelect={item => {
-                                model.goto(`/access/${role}/${item}${editing ? '/edit' : ''}`, { queries: { tab: tab_key } })
+                                model.goto(`/access/${role}/${item}${editing ? '/edit' : ''}`, { state: { access_tab: tab_key } })
                             }}
                         />
                     </div>
