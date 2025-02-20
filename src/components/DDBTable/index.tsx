@@ -1,8 +1,7 @@
 import { QuestionCircleOutlined } from '@ant-design/icons'
 import './index.scss'
 import { Space, Table, Tooltip, type TableProps } from 'antd'
-import { type ReactElement, type ReactNode } from 'react'
-import { filter } from 'lodash'
+import { type ReactNode } from 'react'
 
 export interface DDBTableProps<T> extends Omit<TableProps<T>, 'title'> {
     title?: ReactNode
