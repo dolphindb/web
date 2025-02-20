@@ -38,7 +38,7 @@ export function AccessTabs ({
     
     function handle_tab_change (key: string) {
         set_tab_key(key)
-        model.goto(`/access/${role}/${name}${editing ? '/edit' : ''}`, { state: { access_tab: key } })
+        model.goto(`/access/${role}/${name}${editing ? '/edit' : ''}`, { replace: true, state: { access_tab: key } })
     }
     
     const get_access_view = (category: AccessCategory) => 
@@ -88,7 +88,7 @@ export function AccessTabs ({
                                 label: t
                             }))}
                             onSelect={item => {
-                                model.goto(`/access/${role}/${item}${editing ? '/edit' : ''}`)
+                                model.goto(`/access/${role}/${item}${editing ? '/edit' : ''}`, { replace: true })
                             }}
                         />
                     </div>
