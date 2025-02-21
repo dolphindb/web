@@ -255,7 +255,7 @@ export function Plugins () {
                 },
                 {
                     title: t('集群已安装的最低版本'), 
-                    width: 500,
+                    width: 350,
                     render: (_, { min_version, version_match }) =>
                         version_match
                             ? min_version
@@ -263,19 +263,19 @@ export function Plugins () {
                 },
                 {
                     title: t('已安装节点'),
-                    width: 500,
+                    width: 350,
                     render: (_, { installeds }) =>
                         installeds.join(', ')
                 },
                 {
                     title: t('待安装节点'),
-                    width: 500,
+                    width: 350,
                     render: (_, { installables }) =>
                         installables.join(', ')
                 },
                 {
                     title: t('已加载节点'),
-                    width: 500,
+                    width: 350,
                     render: (_, { loadeds }) =>
                         loadeds.join(', ')
                 },
@@ -511,7 +511,6 @@ function InstallModal ({
                     
                     return <Form.Item<InstallFields> name='id' label={t('插件 ID')} {...required}>
                         <Select
-                            { ... method === 'online' ? { mode: 'tags', maxCount: 1 } : { } }
                             showSearch
                             allowClear
                             className='select-plugin-id'
