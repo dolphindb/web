@@ -443,13 +443,24 @@ function InstallModal ({
             initialValues={{
                 method: 'offline',
             } satisfies Partial<InstallFields>}
+            
+            // 切到在线安装时初始化 remote plugins
+            // 修改插件服务器时更新 remote plugins
             onValuesChange={async (changeds: Partial<InstallFields>) => {
-                if (changeds.method === 'online' && !remote_plugins)
-                    set_remote_plugins(
-                        (await ddb.invoke<DdbTableData<{ PluginName: string, PluginVersion: string }>>('listRemotePlugins'))
+                if (changeds.method === 'online' && (!remote_plugins || ('server' in changeds))) {
+                    const server: InstallFields['server'] = rform.current.getFieldValue('server')
+                    
+                    set_remote_plugins(log(t('查询在线插件列表:'),
+                        (await ddb.invoke<DdbTableData<{ PluginName: string, PluginVersion: string }>>(
+                            'listRemotePlugins', 
+                            server ? [undefined, server] : undefined
+                        ))
                             .data
                             .map(build_mapper('PluginName')))
+                    )
+                }
             }}
+            
             onFinish={async ({ method, id, nodes, zip, server, source, version }) => {
                 console.log(t('安装插件:'), method, id, nodes)
                 
@@ -613,7 +624,14 @@ function InstallModal ({
                                 </Form.Item>
                                 
                                 <Form.Item<InstallFields> name='server' label={t('插件服务器地址')}>
-                                    <Input className='form-input' placeholder={t('选填，参考 installPlugin 函数')} />
+                                    <Select
+                                        className='select-plugin-server'
+                                        placeholder={t('选填，参考 installPlugin 函数')}
+                                        options={[
+                                            'http://plugins.dolphindb.cn/plugins',
+                                            'http://plugins.dolphindb.com/plugins'
+                                        ].map(x => ({ label: x, value: x }))}
+                                    />
                                 </Form.Item>
                             </>
                         
