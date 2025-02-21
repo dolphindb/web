@@ -4,8 +4,8 @@ import { useEffect, useRef, useState } from 'react'
 import { Button, Form, Input, Modal, Popconfirm, Radio, Result, Table, Typography, Upload, type UploadFile, 
     type FormInstance, Checkbox, Select, Tooltip} from 'antd'
 import { ReloadOutlined, default as Icon, InboxOutlined, CheckOutlined, PlayCircleOutlined } from '@ant-design/icons'
-import { noop } from 'xshell/prototype.browser.js'
-import { log, vercmp } from 'xshell/utils.browser.js'
+import { build_mapper, noop } from 'xshell/prototype.browser.js'
+import { delay, log, vercmp } from 'xshell/utils.browser.js'
 
 import { use_modal, use_rerender, type ModalController } from 'react-object-model/hooks.js'
 
@@ -395,6 +395,8 @@ function InstallModal ({
     
     let [installables, set_installables] = useState<string[]>([ ])
     
+    let [remote_plugins, set_remote_plugins] = useState<string[] | undefined>()
+    
     useEffect(() => {
         if (installer.visible)
             (async () => {
@@ -441,6 +443,13 @@ function InstallModal ({
             initialValues={{
                 method: 'offline',
             } satisfies Partial<InstallFields>}
+            onValuesChange={async (changeds: Partial<InstallFields>) => {
+                if (changeds.method === 'online' && !remote_plugins)
+                    set_remote_plugins(
+                        (await ddb.invoke<DdbTableData<{ PluginName: string, PluginVersion: string }>>('listRemotePlugins'))
+                            .data
+                            .map(build_mapper('PluginName')))
+            }}
             onFinish={async ({ method, id, nodes, zip, server, source, version }) => {
                 console.log(t('安装插件:'), method, id, nodes)
                 
@@ -501,14 +510,17 @@ function InstallModal ({
                         return null
                     
                     return <Form.Item<InstallFields> name='id' label={t('插件 ID')} {...required}>
-                        { method === 'online'
-                            ? <Input className='form-input' placeholder={t('如: zip')} /> 
-                            : <Select
-                                showSearch
-                                allowClear
-                                className='select-plugin-id'
-                                placeholder={t('如: zip')}
-                                options={plugins.map(({ id }) => ({ label: id, value: id }))} /> }
+                        <Select
+                            { ... method === 'online' ? { mode: 'tags', maxCount: 1 } : { } }
+                            showSearch
+                            allowClear
+                            className='select-plugin-id'
+                            placeholder={t('如: zip')}
+                            options={
+                                method === 'sync'
+                                    ? plugins.map(({ id }) => ({ label: id, value: id }))
+                                    : remote_plugins?.map(id => ({ label: id, value: id })) || [ ]
+                                } />
                     </Form.Item>
                 }}
             </Form.Item>
