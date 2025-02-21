@@ -7,7 +7,7 @@ import { ReloadOutlined, default as Icon, InboxOutlined, CheckOutlined, PlayCirc
 import { noop } from 'xshell/prototype.browser.js'
 import { log, vercmp } from 'xshell/utils.browser.js'
 
-import { use_modal, use_rerender, type ModalController } from 'react-object-model/hooks.js'
+import { use_height, use_modal, use_rerender, type ModalController } from 'react-object-model/hooks.js'
 
 import { DdbVectorChar, DdbVectorString, type DdbTableData } from 'dolphindb/browser.js'
 
@@ -33,6 +33,8 @@ export function Plugins () {
     let rquery = useRef<string>('')
     
     let installer = use_modal()
+    
+    let [body_height, rbody] = use_height<HTMLDivElement>(800)
     
     
     async function update_plugins (query?: string) {
@@ -206,90 +208,94 @@ export function Plugins () {
                 }} />
         </div>
         
-        <Table
-            className='plugins-table'
-            dataSource={plugins}
-            rowKey='id'
-            pagination={false}
-            rowSelection={{
-                selectedRowKeys: selected_keys,
-                
-                onChange (keys, plugins_, { type }) {
-                    // 单独处理全选
-                    if (type === 'all') {
-                        // 根据当前是否已经全选来切换
-                        if (selected_keys.length === plugins.length)  // 已全选
-                            plugins.forEach(plugin => {
-                                plugin.selecteds = [ ]
-                            })
-                        else  // 未全选
-                            plugins.forEach(plugin => {
-                                plugin.selecteds = get_plugin_nodes_by_id(plugin.id, plugin_nodes)
-                            })
+        
+        <div className='body' ref={rbody}>
+            <Table
+                className='plugins-table'
+                dataSource={plugins}
+                rowKey='id'
+                pagination={false}
+                scroll={{ y: body_height }}
+                rowSelection={{
+                    selectedRowKeys: selected_keys,
+                    
+                    onChange (keys, plugins_, { type }) {
+                        // 单独处理全选
+                        if (type === 'all') {
+                            // 根据当前是否已经全选来切换
+                            if (selected_keys.length === plugins.length)  // 已全选
+                                plugins.forEach(plugin => {
+                                    plugin.selecteds = [ ]
+                                })
+                            else  // 未全选
+                                plugins.forEach(plugin => {
+                                    plugin.selecteds = get_plugin_nodes_by_id(plugin.id, plugin_nodes)
+                                })
+                            
+                            set_plugins([...plugins])
+                        }
+                    },
+                    
+                    onSelect (plugin) {
+                        const { selecteds, id, indeterminate } = plugin
                         
-                        set_plugins([...plugins])
-                    }
-                },
-                
-                onSelect (plugin) {
-                    const { selecteds, id, indeterminate } = plugin
+                        const nselecteds = selecteds?.length || 0
+                        
+                        update_selecteds(
+                            plugin,
+                            !nselecteds || indeterminate
+                                // 未选 | 半选 -> 全选
+                                ? get_plugin_nodes_by_id(id, plugin_nodes)
+                                : [ ])
+                    },
                     
-                    const nselecteds = selecteds?.length || 0
-                    
-                    update_selecteds(
-                        plugin,
-                        !nselecteds || indeterminate
-                            // 未选 | 半选 -> 全选
-                            ? get_plugin_nodes_by_id(id, plugin_nodes)
-                            : [ ])
-                },
+                    getCheckboxProps: ({ indeterminate }) => ({ indeterminate }),
+                }}
+                columns={[
+                    {
+                        title: t('插件 ID'),
+                        dataIndex: 'id',
+                        width: 160,
+                    },
+                    {
+                        title: t('集群已安装的最低版本'), 
+                        width: 500,
+                        render: (_, { min_version, version_match }) =>
+                            version_match
+                                ? min_version
+                                : <Text type='danger'>{min_version} {t(' (与数据库版本不一致，无法加载)')}</Text>
+                    },
+                    {
+                        title: t('已安装节点'),
+                        width: 500,
+                        render: (_, { installeds }) =>
+                            installeds.join(', ')
+                    },
+                    {
+                        title: t('待安装节点'),
+                        width: 500,
+                        render: (_, { installables }) =>
+                            installables.join(', ')
+                    },
+                    {
+                        title: t('已加载节点'),
+                        width: 500,
+                        render: (_, { loadeds }) =>
+                            loadeds.join(', ')
+                    },
+                ]}
                 
-                getCheckboxProps: ({ indeterminate }) => ({ indeterminate }),
-            }}
-            columns={[
-                {
-                    title: t('插件 ID'),
-                    dataIndex: 'id',
-                    width: 160,
-                },
-                {
-                    title: t('集群已安装的最低版本'), 
-                    width: 500,
-                    render: (_, { min_version, version_match }) =>
-                        version_match
-                            ? min_version
-                            : <Text type='danger'>{min_version} {t(' (与数据库版本不一致，无法加载)')}</Text>
-                },
-                {
-                    title: t('已安装节点'),
-                    width: 500,
-                    render: (_, { installeds }) =>
-                        installeds.join(', ')
-                },
-                {
-                    title: t('待安装节点'),
-                    width: 500,
-                    render: (_, { installables }) =>
-                        installables.join(', ')
-                },
-                {
-                    title: t('已加载节点'),
-                    width: 500,
-                    render: (_, { loadeds }) =>
-                        loadeds.join(', ')
-                },
-            ]}
-            
-            expandable={{
-                expandRowByClick: true,
-                expandedRowRender: plugin => 
-                    <PluginNodesTable
-                        id={plugin.id}
-                        plugin={plugin}
-                        plugin_nodes={plugin_nodes}
-                        update_selecteds={update_selecteds} />
-            }}
-        />
+                expandable={{
+                    expandRowByClick: true,
+                    expandedRowRender: plugin => 
+                        <PluginNodesTable
+                            id={plugin.id}
+                            plugin={plugin}
+                            plugin_nodes={plugin_nodes}
+                            update_selecteds={update_selecteds} />
+                }}
+            />
+        </div>
     </>
 }
 
