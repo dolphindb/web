@@ -12,26 +12,26 @@ $label-width: 110px
         display: flex
         
         gap: 20px
-    
-    > .body
+            
+    .plugins-table
         flex: 1
         min-height: 0px
         
-        overflow-y: hidden
+        overflow-y: scroll
         
-        .plugins-table
-            thead
-                .actions
-                    padding-left: 30px
-            
-            tr.ant-table-expanded-row >th, 
-            tr.ant-table-expanded-row:hover >th, 
-            tr.ant-table-expanded-row >td, 
-            tr.ant-table-expanded-row:hover >td
-                background: unset
+        thead
+            .actions
+                padding-left: 30px
+        
+        
+        tr.ant-table-expanded-row >th, 
+        tr.ant-table-expanded-row:hover >th, 
+        tr.ant-table-expanded-row >td, 
+        tr.ant-table-expanded-row:hover >td
+            background: unset
 
-            .plugin-nodes
-                margin-left: 5px
+        .plugin-nodes
+            margin-left: 5px
     
 .ant-modal-root
     .plugins-install-modal
