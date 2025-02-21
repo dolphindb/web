@@ -2,7 +2,8 @@ import './index.sass'
 
 import { useEffect, useRef, useState } from 'react'
 import { Button, Form, Input, Modal, Popconfirm, Radio, Result, Table, Typography, Upload, type UploadFile, 
-    type FormInstance, Checkbox, Select, Tooltip} from 'antd'
+    type FormInstance, Checkbox, Select, Tooltip } from 'antd'
+import type { CheckboxGroupProps } from 'antd/es/checkbox/Group.js'
 import { ReloadOutlined, default as Icon, InboxOutlined, CheckOutlined, PlayCircleOutlined } from '@ant-design/icons'
 import { build_mapper, noop } from 'xshell/prototype.browser.js'
 import { delay, log, vercmp } from 'xshell/utils.browser.js'
@@ -535,12 +536,8 @@ function InstallModal ({
                 }}
             </Form.Item>
             
-            <Form.Item<InstallFields>
-                name='nodes'
-                label={t('目标节点')}
-                {...required}
-            >
-                <Checkbox.Group options={installables} />
+            <Form.Item<InstallFields> name='nodes' label={t('目标节点')} {...required}>
+                <CheckboxGroupWithSelectAll options={installables} />
             </Form.Item>
             
             <Form.Item<InstallFields> noStyle dependencies={['method', 'id']}>{
@@ -660,6 +657,32 @@ function InstallModal ({
             </div>
         </Form>
     </Modal>
+}
+
+
+function CheckboxGroupWithSelectAll ({
+    value,
+    onChange,
+    options
+}: Pick<CheckboxGroupProps, 'value' | 'onChange' | 'options'>) {
+    return <>
+        <Checkbox
+            className='select-all'
+            indeterminate={value?.length > 0 && value.length < options.length}
+            checked={value?.length === options.length}
+            onChange={() => {
+                onChange(
+                    !value?.length || value.length < options.length
+                        ? options
+                        : [ ]
+                )
+            }}
+        >
+          {t('全选')}
+        </Checkbox>
+        
+        <Checkbox.Group options={options} value={value} onChange={onChange} />
+    </>
 }
 
 
