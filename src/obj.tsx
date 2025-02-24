@@ -1796,7 +1796,7 @@ function Chart ({
                             }
                             data_[j] = dataobj
                         }
-                     else
+                    else
                         for (let i = 0;  i < cols;  i++) 
                             for (let j = 0;  j < rows;  j++) {
                                 const idata = i * rows + j
@@ -1896,12 +1896,6 @@ function getChartOption (config: any): echarts.EChartsOption {
     const { charttype, data, titles, stacking, multi_y_axes, col_labels, bin_count } = config
     
     const baseOption: echarts.EChartsOption = {
-        // title: {
-        //     text: titles.chart,
-        //     textStyle: {
-        //         color: '#333'
-        //     }
-        // },
         tooltip: {
             trigger: 'axis',
             axisPointer: {
@@ -1945,7 +1939,7 @@ function getChartOption (config: any): echarts.EChartsOption {
                         name: titles.x_axis,
                         data: [...new Set(data.map(item => item.row))],
                         ...axisStyle
-                    },
+                    } as echarts.EChartsOption['xAxis'],
                     yAxis: {
                         type: 'value',
                         name: titles.y_axis,
@@ -1960,60 +1954,60 @@ function getChartOption (config: any): echarts.EChartsOption {
                         smooth: false
                     }))
                 }
-                else {
-                    const leftAxisCount = col_labels.filter((_, i) => i % 2 === 0).length
-                    const rightAxisCount = col_labels.filter((_, i) => i % 2 === 1).length
-                    
-                    return {
-                        ...baseOption,
-                        xAxis: {
-                            type: 'category',
-                            name: titles.x_axis,
-                            data: data.map(d => d.row),
-                            ...axisStyle
-                        },
-                        yAxis: col_labels.map((label, index) => {
-                            const isRight = index % 2 === 1 // 判断是否为右侧
-                            const sideOffset = Math.floor(index / 2) * 30 // 每个 Y 轴之间的间隔
-                            
-                            return {
-                                type: 'value',
-                                position: isRight ? 'right' : 'left',
-                                offset: sideOffset, // 设置偏移量以避免重叠
-                                name: label,
-                                nameLocation: 'end',
-                                alignTicks: true,
-                                axisLabel: {
-                                    margin: 8, // 轴标签的边距
-                                },
-                                axisLine: {
-                                    lineStyle: {
-                                        color: '#333',
-                                    },
-                                },
-                                splitLine: {
-                                    lineStyle: {
-                                        color: '#eee',
-                                    },
-                                },
-                            } as any
-                        }),
-                        grid: {
-                            left: `${3 + Math.floor((leftAxisCount - 1) * 3)}%`,
-                            right: `${3 + Math.floor((rightAxisCount - 1) * 3)}%`,
-                            bottom: '3%',
-                            containLabel: true
-                        },
-                        series: col_labels.map((label, index) => ({
+            else {
+                const leftAxisCount = col_labels.filter((_, i) => i % 2 === 0).length
+                const rightAxisCount = col_labels.filter((_, i) => i % 2 === 1).length
+                
+                return {
+                    ...baseOption,
+                    xAxis: {
+                        type: 'category',
+                        name: titles.x_axis,
+                        data: data.map(d => d.row),
+                        ...axisStyle
+                    },
+                    yAxis: col_labels.map((label, index) => {
+                        const isRight = index % 2 === 1 // 判断是否为右侧
+                        const sideOffset = Math.floor(index / 2) * 30 // 每个 Y 轴之间的间隔
+                        
+                        return {
+                            type: 'value',
+                            position: isRight ? 'right' : 'left',
+                            offset: sideOffset, // 设置偏移量以避免重叠
                             name: label,
-                            type: 'line',
-                            yAxisIndex: index,
-                            data: data.map(d => d[label]),
-                            symbol: 'none',
-                            smooth: false
-                        }))
-                    }
+                            nameLocation: 'end',
+                            alignTicks: true,
+                            axisLabel: {
+                                margin: 8, // 轴标签的边距
+                            },
+                            axisLine: {
+                                lineStyle: {
+                                    color: '#333',
+                                },
+                            },
+                            splitLine: {
+                                lineStyle: {
+                                    color: '#eee',
+                                },
+                            },
+                        } as any
+                    }),
+                    grid: {
+                        left: `${3 + Math.floor((leftAxisCount - 1) * 3)}%`,
+                        right: `${3 + Math.floor((rightAxisCount - 1) * 3)}%`,
+                        bottom: '3%',
+                        containLabel: true
+                    },
+                    series: col_labels.map((label, index) => ({
+                        name: label,
+                        type: 'line',
+                        yAxisIndex: index,
+                        data: data.map(d => d[label]),
+                        symbol: 'none',
+                        smooth: false
+                    }))
                 }
+            }
             
             
         case DdbChartType.column:
@@ -2024,7 +2018,7 @@ function getChartOption (config: any): echarts.EChartsOption {
                     name: titles.x_axis,
                     data: [...new Set(data.map(item => item.row))],
                     ...axisStyle
-                },
+                } as echarts.EChartsOption['xAxis'],
                 yAxis: {
                     type: 'value',
                     name: titles.y_axis,
@@ -2051,7 +2045,7 @@ function getChartOption (config: any): echarts.EChartsOption {
                     name: titles.x_axis,
                     data: [...new Set(data.map(item => item.row))],
                     ...axisStyle
-                },
+                } as echarts.EChartsOption['yAxis'],
                 series: col_labels.map(label => ({
                     name: label,
                     type: 'bar',
@@ -2086,7 +2080,7 @@ function getChartOption (config: any): echarts.EChartsOption {
                     name: titles.x_axis,
                     data: [...new Set(data.map(item => item.row))],
                     ...axisStyle
-                },
+                } as echarts.EChartsOption['xAxis'],
                 yAxis: {
                     type: 'value',
                     name: titles.y_axis,
