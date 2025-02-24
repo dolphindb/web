@@ -14,7 +14,7 @@ import { type BasicInfoFormValues } from '../iot-guide/type.js'
 import { convert_list_to_options } from '../../dashboard/utils.ts'
 
 
-import { FormDependencies } from '../../components/formily/FormDependcies/index.js'
+import { FormDependencies } from '../../components/FormDependcies/index.js'
 import { model } from '../../model.js'
 import { ARRAY_VECTOR_DATA_TYPES, BASIC_DATA_TYPES, ENUM_TYPES, LOW_VERSION_DATA_TYPES, TIME_TYPES } from '../constant.js'
 import { t } from '../../../i18n/index.js'

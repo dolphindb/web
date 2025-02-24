@@ -6,7 +6,7 @@ import { useMemo, useState, useCallback } from 'react'
 
 import { t } from '../../../../i18n/index.js'
 import { BoolRadioGroup } from '../../../components/BoolRadioGroup/index.js'
-import { FormDependencies } from '../../../components/formily/FormDependcies/index.js'
+import { FormDependencies } from '../../../components/FormDependcies/index.js'
 import { DDB_TYPE_MAP } from '@/utils.ts'
 import { AxisItem, YAxis, Series, ThresholdFormFields } from '../../ChartFormFields/BasicChartFields.js'
 import { BasicFormFields } from '../../ChartFormFields/BasicFormFields.js'

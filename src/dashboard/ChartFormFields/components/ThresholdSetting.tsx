@@ -7,7 +7,7 @@ import { t } from '../../../../i18n/index.js'
 import { AxisType, ILineType, ThresholdShowType, ThresholdType } from '../type.js'
 import { concat_name_path } from '../../utils.ts'
 import { StringColorPicker } from '../../../components/StringColorPicker/index.js'
-import { FormDependencies } from '../../../components/formily/FormDependcies/index.js'
+import { FormDependencies } from '../../../components/FormDependcies/index.js'
 import { line_type_options } from '../constant.js'
 import { dashboard } from '../../model.js'
 
