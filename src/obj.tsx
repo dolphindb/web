@@ -1709,6 +1709,7 @@ function to_chart_data (data: DdbValue, datatype: DdbType) {
     }
 }
 
+
 interface ChartConfig {
     inited: boolean
     charttype: DdbChartType
@@ -1721,6 +1722,7 @@ interface ChartConfig {
     bin_start: DdbChartValue['bin_start']
     bin_end: DdbChartValue['bin_end']
 }
+
 
 function Chart ({
     obj,
@@ -1881,11 +1883,11 @@ function Chart ({
     
     if (!config.inited)
         return null
-        
+    
     return <div className='chart'>
         <div className='chart-title'>{config.titles.chart}</div>
         
-        <EChartsComponent option={getChartOption(config)} />
+        <EChartsComponent option={get_chart_option(config)} />
         
         {ctx !== 'window' && <div className='bottom-bar-placeholder' />}
         
@@ -1905,10 +1907,10 @@ function Chart ({
 }
 
 
-function getChartOption (config: ChartConfig): echarts.EChartsOption {
+function get_chart_option (config: ChartConfig): echarts.EChartsOption {
     const { charttype, data, titles, stacking, multi_y_axes, col_labels, bin_count } = config
     
-    const baseOption: echarts.EChartsOption = {
+    const base: echarts.EChartsOption = {
         tooltip: {
             trigger: 'axis',
             axisPointer: {
@@ -1946,7 +1948,7 @@ function getChartOption (config: ChartConfig): echarts.EChartsOption {
         case DdbChartType.line:
             if (!multi_y_axes) 
                 return {
-                    ...baseOption,
+                    ...base,
                     xAxis: {
                         type: 'category',
                         name: titles.x_axis,
@@ -1972,7 +1974,7 @@ function getChartOption (config: ChartConfig): echarts.EChartsOption {
                 const rightAxisCount = col_labels.filter((_, i) => i % 2 === 1).length
                 
                 return {
-                    ...baseOption,
+                    ...base,
                     xAxis: {
                         type: 'category',
                         name: titles.x_axis,
@@ -2025,7 +2027,7 @@ function getChartOption (config: ChartConfig): echarts.EChartsOption {
             
         case DdbChartType.column:
             return {
-                ...baseOption,
+                ...base,
                 xAxis: {
                     type: 'category',
                     name: titles.x_axis,
@@ -2047,7 +2049,7 @@ function getChartOption (config: ChartConfig): echarts.EChartsOption {
             
         case DdbChartType.bar:
             return {
-                ...baseOption,
+                ...base,
                 xAxis: {
                     type: 'value',
                     name: titles.y_axis,
@@ -2069,7 +2071,7 @@ function getChartOption (config: ChartConfig): echarts.EChartsOption {
             
         case DdbChartType.pie:
             return {
-                ...baseOption,
+                ...base,
                 series: [{
                     type: 'pie',
                     radius: '90%',
@@ -2087,7 +2089,7 @@ function getChartOption (config: ChartConfig): echarts.EChartsOption {
             
         case DdbChartType.area:
             return {
-                ...baseOption,
+                ...base,
                 xAxis: {
                     type: 'category',
                     name: titles.x_axis,
@@ -2112,7 +2114,7 @@ function getChartOption (config: ChartConfig): echarts.EChartsOption {
             
         case DdbChartType.scatter:
             return {
-                ...baseOption,
+                ...base,
                 legend: null,
                 tooltip: {
                     trigger: 'item',
@@ -2157,7 +2159,7 @@ function getChartOption (config: ChartConfig): echarts.EChartsOption {
             })
             
             return {
-                ...baseOption,
+                ...base,
                 tooltip: {
                     formatter: params => {
                         const i = params.dataIndex
@@ -2198,7 +2200,7 @@ function getChartOption (config: ChartConfig): echarts.EChartsOption {
             
         case DdbChartType.kline:
             return {
-                ...baseOption,
+                ...base,
                 xAxis: {
                     type: 'category',
                     name: titles.x_axis,
@@ -2234,7 +2236,7 @@ function getChartOption (config: ChartConfig): echarts.EChartsOption {
             }
             
         default:
-            return baseOption
+            return base
     }
 }
 
