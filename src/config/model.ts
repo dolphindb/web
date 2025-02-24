@@ -43,7 +43,9 @@ class ConfigModel extends Model<ConfigModel> {
         const configs = parse_nodes_configs(
             // 2025.01.03 登录鉴权功能之后 loadClusterNodesConfigs 没有要求一定要在控制节点执行了
             // 所以这里不用 this.invoke
-            await model.ddb.invoke<string[]>('loadClusterNodesConfigs', undefined, { urgent: true }))
+            // todo: 登录鉴权功能还没上线，等上线了再改为下面的
+            // await model.ddb.invoke<string[]>('loadClusterNodesConfigs', undefined, { urgent: true }))
+            await this.invoke<string[]>('loadClusterNodesConfigs', undefined, { urgent: true }))
         
         this.set({ nodes_configs: configs })
         
@@ -159,10 +161,10 @@ class ConfigModel extends Model<ConfigModel> {
         return {
             [t('线程')]: new Set(['localExecutors', 'maxBatchJobWorker', 'maxDynamicWorker', 'webWorkerNum', 'workerNum', 'PKEYBackgroundWorkerPerVolume', 'PKEYCacheFlushWorkerNumPerVolume']),
             [t('内存')]: new Set(['chunkCacheEngineMemSize', 'maxMemSize', 'memoryReleaseRate', 'regularArrayMemoryLimit', 'warningMemSize', 'PKEYCacheEngineSize', 'PKEYBlockCacheSize', 'PKEYDeleteBitmapUpdateThreshold', 'PKEYStashedPrimaryKeyBufferSize']),
-            [t('磁盘')]: new Set(['batchJobDir', 'chunkMetaDir', 'dataSync', 'jobLogFile', 'logFile', 'logLevel', 'maxLogSize', 'redoLogDir', 'redoLogPurgeInterval', 'redoLogPurgeLimit', 'volumes', 'diskIOConcurrencyLevel', 'PKEYMetaLogDir', 'PKEYRedoLogDir']),
+            [t('磁盘')]: new Set(['batchJobDir', 'chunkMetaDir', 'dataSync', 'jobLogFile', 'logFile', 'logLevel', 'maxLogSize', 'redoLogDir', 'redoLogPurgeInterval', 'redoLogPurgeLimit', 'volumes', 'diskIOConcurrencyLevel', 'PKEYMetaLogDir', 'PKEYRedoLogDir', 'coldVolumes']),
             [t('网络')]: new Set(['enableHTTPS', 'localSite', 'maxConnections', 'maxConnectionPerSite', 'tcpNoDelay']),
             [t('流发布')]: new Set(['maxMsgNumPerBlock', 'maxPersistenceQueueDepth', 'maxPubQueueDepthPerSite', 'maxPubConnections', 'persistenceDir', 'persistenceWorkerNum']),
-            [t('流订阅')]: new Set(['maxSubConnections', 'maxSubQueueDepth', 'persistOffsetDir', 'subExecutorPooling', 'subExecutors', 'subPort', 'subThrottle']),
+            [t('流订阅')]: new Set(['maxSubConnections', 'maxSubQueueDepth', 'persistOffsetDir', 'subExecutorPooling', 'subExecutors', 'subPort', 'subThrottle', 'streamingHAMode']),
             [t('系统')]: new Set(['console', 'config', 'home', 'maxPartitionNumPerQuery', 'mode', 'moduleDir', 'newValuePartitionPolicy', 'perfMonitoring', 'pluginDir', 'preloadModules', 'init', 'startup', 'run', 'tzdb', 'webRoot', 'webLoginRequired', 'enableShellFunction', 'enablePKEYEngine']),
             [t('计算组')]: new Set([
                 'computeNodeCacheDir',
@@ -207,7 +209,8 @@ class ConfigModel extends Model<ConfigModel> {
             'metricsToken',
             'strictPermissionMode',
             'enableLocalDatabase',
-            'enableClientAuth',
+            // 先不发，等 3.00 大版本再发
+            // 'enableClientAuth',
             'computeNodeCachingDelay',
             'computeNodeCachingQueryThreshold',
             'enableComputeNodePrefetchData',

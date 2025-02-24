@@ -150,13 +150,13 @@ export function OverviewTable ({
             {
                 title: t('CPU 占用率'),
                 dataIndex: 'cpuUsage',
-                render: (cpuUsage: number) => cpuUsage.toFixed(2) + ' %',
+                render: (cpuUsage: number | null) => (cpuUsage || 0).toFixed(2) + ' %',
                 sorter: (a, b) => a.cpuUsage - b.cpuUsage
             },
             {
                 title: t('CPU 平均负载'),
                 dataIndex: 'avgLoad',
-                render: (avgLoad: number) => avgLoad.toFixed(6),
+                render: (avgLoad: number | null) => (avgLoad || 0).toFixed(4),
                 sorter: (a, b) => a.avgLoad - b.avgLoad
             },
             {

@@ -757,7 +757,14 @@ export class DdbModel extends Model<DdbModel> {
             }, 5000)
         
         // 2025.01.03 登录鉴权功能之后 getClusterPerf 没有要求一定要在控制节点执行了
-        nodes = (await this.ddb.invoke<DdbTableData<DdbNode>>('getClusterPerf', [true], { urgent: true }))
+        // todo: 登录鉴权功能还没上线，等上线了再改为下面的
+        // nodes = (await this.ddb.invoke<DdbTableData<DdbNode>>('getClusterPerf', [true], { urgent: true }))
+        nodes = (await this.ddb.invoke<DdbTableData<DdbNode>>('getClusterPerf', [true], {
+            urgent: true,
+            ... model.node_type === NodeType.controller || model.node_type === NodeType.single
+                ? { }
+                : { node: model.controller_alias },
+        }))
             .data
             .sort((a, b) => strcmp(a.name, b.name))
         
@@ -939,6 +946,10 @@ export class DdbModel extends Model<DdbModel> {
                 )
                 this.first_get_server_log_length = false
             }
+            
+            if (!this.node.agentSite)
+                throw new Error(t('getClusterPref 中节点的 agentSite 为空，无法通过 agent 查看日志'))
+            
             const [host, port] = this.node.agentSite.split(':')
             length = await this.ddb.invoke<bigint>(
                 'get_server_log_length_by_agent',
