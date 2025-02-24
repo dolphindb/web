@@ -29,7 +29,6 @@
     },
     "dependencies": {
         "@ant-design/icons": "^5.6.1",
-        "@ant-design/plots": "1.2.5",
         "@ant-design/pro-components": "^2.8.6",
         "@ant-design/pro-layout": "^7.22.3",
         "@ebay/nice-modal-react": "^1.2.13",
