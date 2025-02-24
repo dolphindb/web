@@ -1709,6 +1709,19 @@ function to_chart_data (data: DdbValue, datatype: DdbType) {
     }
 }
 
+interface ChartConfig {
+    inited: boolean
+    charttype: DdbChartType
+    data: any[]
+    titles: DdbChartValue['titles']
+    stacking: boolean
+    multi_y_axes: boolean
+    col_labels: string[]
+    bin_count: DdbChartValue['bin_count']
+    bin_start: DdbChartValue['bin_start']
+    bin_end: DdbChartValue['bin_end']
+}
+
 function Chart ({
     obj,
     objref,
@@ -1724,7 +1737,7 @@ function Chart ({
     ddb?: DDB
     options?: InspectOptions
 }) {
-    const [config, set_config] = useState({
+    const [config, set_config] = useState<ChartConfig>({
         inited: false,
         charttype: DdbChartType.line,
         data: [ ],
@@ -1892,7 +1905,7 @@ function Chart ({
 }
 
 
-function getChartOption (config: any): echarts.EChartsOption {
+function getChartOption (config: ChartConfig): echarts.EChartsOption {
     const { charttype, data, titles, stacking, multi_y_axes, col_labels, bin_count } = config
     
     const baseOption: echarts.EChartsOption = {
