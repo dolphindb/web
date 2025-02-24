@@ -946,6 +946,10 @@ export class DdbModel extends Model<DdbModel> {
                 )
                 this.first_get_server_log_length = false
             }
+            
+            if (!this.node.agentSite)
+                throw new Error(t('getClusterPref 中节点的 agentSite 为空，无法通过 agent 查看日志'))
+            
             const [host, port] = this.node.agentSite.split(':')
             length = await this.ddb.invoke<bigint>(
                 'get_server_log_length_by_agent',
