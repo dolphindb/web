@@ -2242,20 +2242,19 @@ function EChartsComponent ({ option }: { option: echarts.EChartsOption }) {
             chart.current.setOption(option)
         }
         
-        const on_resize = debounce(200, () => {
-            chart.current?.resize()
-        })
+        let observer: ResizeObserver
         
-        const observer = new ResizeObserver(() => {
-            on_resize()
-        })
-        
-        if (rchart.current)
+        if (rchart.current) {
+            observer = new ResizeObserver(debounce(200, () => {
+                chart.current?.resize()
+            }))
+            
             observer.observe(rchart.current)
+        }
         
         return () => {
             chart.current?.dispose()
-            observer.disconnect()
+            observer?.disconnect()
         }
     }, [option])
     
