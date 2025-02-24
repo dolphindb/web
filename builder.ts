@@ -182,6 +182,12 @@ export let builder = {
     },
     
     
+    async build_and_close (production: boolean, version_name?: string) {
+        await this.build(production, version_name)
+        await this.close()
+    },
+    
+    
     async run () {
         await this.bundler.build()
     },
