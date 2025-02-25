@@ -3,9 +3,10 @@ import './index.sass'
 import { useEffect, useRef, useState } from 'react'
 import { Button, Form, Input, Modal, Popconfirm, Radio, Result, Table, Typography, Upload, type UploadFile, 
     type FormInstance, Checkbox, Select, Tooltip } from 'antd'
-import { default as Icon, InboxOutlined, CheckOutlined, PlayCircleOutlined } from '@ant-design/icons'
-import { noop } from 'xshell/prototype.browser.js'
-import { log, vercmp } from 'xshell/utils.browser.js'
+import type { CheckboxGroupProps } from 'antd/es/checkbox/Group.js'
+import { ReloadOutlined, default as Icon, InboxOutlined, CheckOutlined, PlayCircleOutlined } from '@ant-design/icons'
+import { build_mapper, noop } from 'xshell/prototype.browser.js'
+import { delay, log, vercmp } from 'xshell/utils.browser.js'
 
 import { use_modal, use_rerender, type ModalController } from 'react-object-model/hooks.js'
 
@@ -212,6 +213,7 @@ export function Plugins () {
             dataSource={plugins}
             rowKey='id'
             pagination={false}
+            scroll={{ y: 'calc(100vh - 200px)' }}
             rowSelection={{
                 selectedRowKeys: selected_keys,
                 
@@ -255,7 +257,7 @@ export function Plugins () {
                 },
                 {
                     title: t('集群已安装的最低版本'), 
-                    width: 500,
+                    width: 350,
                     render: (_, { min_version, version_match }) =>
                         version_match
                             ? min_version
@@ -263,19 +265,19 @@ export function Plugins () {
                 },
                 {
                     title: t('已安装节点'),
-                    width: 500,
+                    width: 350,
                     render: (_, { installeds }) =>
                         installeds.join(', ')
                 },
                 {
                     title: t('待安装节点'),
-                    width: 500,
+                    width: 350,
                     render: (_, { installables }) =>
                         installables.join(', ')
                 },
                 {
                     title: t('已加载节点'),
-                    width: 500,
+                    width: 350,
                     render: (_, { loadeds }) =>
                         loadeds.join(', ')
                 },
@@ -395,6 +397,8 @@ function InstallModal ({
     
     let [installables, set_installables] = useState<string[]>([ ])
     
+    let [remote_plugins, set_remote_plugins] = useState<string[] | undefined>()
+    
     useEffect(() => {
         if (installer.visible)
             (async () => {
@@ -441,6 +445,24 @@ function InstallModal ({
             initialValues={{
                 method: 'offline',
             } satisfies Partial<InstallFields>}
+            
+            // 切到在线安装时初始化 remote plugins
+            // 修改插件服务器时更新 remote plugins
+            onValuesChange={async (changeds: Partial<InstallFields>) => {
+                if (changeds.method === 'online' && (!remote_plugins || ('server' in changeds))) {
+                    const server: InstallFields['server'] = rform.current.getFieldValue('server')
+                    
+                    set_remote_plugins(log(t('查询在线插件列表:'),
+                        (await ddb.invoke<DdbTableData<{ PluginName: string, PluginVersion: string }>>(
+                            'listRemotePlugins', 
+                            server ? [undefined, server] : undefined
+                        ))
+                            .data
+                            .map(build_mapper('PluginName')))
+                    )
+                }
+            }}
+            
             onFinish={async ({ method, id, nodes, zip, server, source, version }) => {
                 console.log(t('安装插件:'), method, id, nodes)
                 
@@ -501,24 +523,22 @@ function InstallModal ({
                         return null
                     
                     return <Form.Item<InstallFields> name='id' label={t('插件 ID')} {...required}>
-                        { method === 'online'
-                            ? <Input className='form-input' placeholder={t('如: zip')} /> 
-                            : <Select
-                                showSearch
-                                allowClear
-                                className='select-plugin-id'
-                                placeholder={t('如: zip')}
-                                options={plugins.map(({ id }) => ({ label: id, value: id }))} /> }
+                        <Select
+                            showSearch
+                            allowClear
+                            className='select-plugin-id'
+                            placeholder={t('如: zip')}
+                            options={
+                                method === 'sync'
+                                    ? plugins.map(({ id }) => ({ label: id, value: id }))
+                                    : remote_plugins?.map(id => ({ label: id, value: id })) || [ ]
+                                } />
                     </Form.Item>
                 }}
             </Form.Item>
             
-            <Form.Item<InstallFields>
-                name='nodes'
-                label={t('目标节点')}
-                {...required}
-            >
-                <Checkbox.Group options={installables} />
+            <Form.Item<InstallFields> name='nodes' label={t('目标节点')} {...required}>
+                <CheckboxGroupWithSelectAll options={installables} />
             </Form.Item>
             
             <Form.Item<InstallFields> noStyle dependencies={['method', 'id']}>{
@@ -602,7 +622,14 @@ function InstallModal ({
                                 </Form.Item>
                                 
                                 <Form.Item<InstallFields> name='server' label={t('插件服务器地址')}>
-                                    <Input className='form-input' placeholder={t('选填，参考 installPlugin 函数')} />
+                                    <Select
+                                        className='select-plugin-server'
+                                        placeholder={t('选填，参考 installPlugin 函数')}
+                                        options={[
+                                            'http://plugins.dolphindb.cn/plugins',
+                                            'http://plugins.dolphindb.com/plugins'
+                                        ].map(x => ({ label: x, value: x }))}
+                                    />
                                 </Form.Item>
                             </>
                         
@@ -631,6 +658,32 @@ function InstallModal ({
             </div>
         </Form>
     </Modal>
+}
+
+
+function CheckboxGroupWithSelectAll ({
+    value,
+    onChange,
+    options
+}: Pick<CheckboxGroupProps, 'value' | 'onChange' | 'options'>) {
+    return <>
+        <Checkbox
+            className='select-all'
+            indeterminate={value?.length > 0 && value.length < options.length}
+            checked={value?.length === options.length}
+            onChange={() => {
+                onChange(
+                    !value?.length || value.length < options.length
+                        ? options
+                        : [ ]
+                )
+            }}
+        >
+          {t('全选')}
+        </Checkbox>
+        
+        <Checkbox.Group options={options} value={value} onChange={onChange} />
+    </>
 }
 
 

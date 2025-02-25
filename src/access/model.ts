@@ -252,17 +252,17 @@ class AccessModel extends Model<AccessModel> {
     
     
     async grant (user: string, access: string, obj?: string | number) {
-        await model.ddb.invoke('grant', obj ? [user, new DdbInt(Access[access]), obj] : [user, new DdbInt(Access[access])])
+        await model.ddb.invoke('grant', obj ? [user, new DdbInt(Access[access]), typeof obj === 'number' ? new DdbInt(obj) : obj] : [user, new DdbInt(Access[access])])
     }
     
     
     async deny (user: string, access: string, obj?: string) {
-        await model.ddb.invoke('deny', obj ? [user, new DdbInt(Access[access]), obj] : [user, new DdbInt(Access[access])])
+        await model.ddb.invoke('deny', obj ? [user, new DdbInt(Access[access]), typeof obj === 'number' ? new DdbInt(obj) : obj] : [user, new DdbInt(Access[access])])
     }
     
     
     async revoke (user: string, access: string, obj?: string) {
-        await model.ddb.invoke('revoke', obj ? [user, new DdbInt(Access[access]), obj] : [user, new DdbInt(Access[access])])
+        await model.ddb.invoke('revoke', obj ? [user, new DdbInt(Access[access]), typeof obj === 'number' ? new DdbInt(obj) : obj] : [user, new DdbInt(Access[access])])
     }
     
 }

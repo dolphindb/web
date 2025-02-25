@@ -40,7 +40,7 @@ export let builder = {
         
         const fpd_cache = external ? `${fpd_ramdisk_root}webpack/` : `${fpd_root}node_modules/.cache/webpack/`
         
-        const dependencies: BundlerOptions['dependencies'] = ['antd-icons', 'antd-plots', 'lodash', 'xterm', 'gridstack', 'echarts', 'quill', 'vscode-oniguruma', 'monaco']
+        const dependencies: BundlerOptions['dependencies'] = ['antd-icons', 'lodash', 'xterm', 'gridstack', 'echarts', 'quill', 'vscode-oniguruma', 'monaco']
         
         
         // --- 根据 package.json, deps.ts 缓存 deps.js
@@ -126,7 +126,7 @@ export let builder = {
                                 out: 'deps.js'
                             }]
                         },
-                        dependencies: ['antd-icons', 'antd-plots', 'xterm', 'lodash', 'echarts', 'gridstack'],
+                        dependencies: ['antd-icons', 'xterm', 'lodash', 'echarts', 'gridstack'],
                     },
                     
                     'window.html': {
@@ -136,7 +136,7 @@ export let builder = {
                             out: 'logo.png'
                         },
                         entry: 'window.js',
-                        dependencies: ['antd-icons', 'antd-plots', 'lodash'],
+                        dependencies: ['antd-icons', 'lodash', 'echarts'],
                     }
                 },
                 
@@ -179,6 +179,12 @@ export let builder = {
             this.bundler.build_all(),
             fwrite(`${fpd_out}version.json`, info, noprint)
         ])
+    },
+    
+    
+    async build_and_close (production: boolean, version_name?: string) {
+        await this.build(production, version_name)
+        await this.close()
     },
     
     
