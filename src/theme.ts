@@ -1,11 +1,12 @@
 import { theme, type ThemeConfig } from 'antd'
 
-export const ANT_DARK_CONFIG = {
+export const dark: ThemeConfig = {
     hashed: false,
     cssVar: true,
     token: {
-        borderRadius: 0,
         motion: false,
+        borderRadius: 0,
+        controlOutlineWidth: 0,
         colorBgContainer: 'rgb(40, 40, 40)',
         colorBgElevated: '#555555',
         colorInfoActive: 'rgb(64, 147, 211)',
@@ -21,32 +22,31 @@ export const ANT_DARK_CONFIG = {
             cellPaddingBlock: 10
         }
     }
-} as ThemeConfig
+}
 
 
-const LIGHT_PRIMARY_COLOR = '#6774BD'
+const light_primary_color = '#6774BD' as const
 
-
-export const ANT_LIGHT_CONFIG = {
+export const light: ThemeConfig = {
     hashed: false,
     cssVar: true,
     token: {
         motion: false,
-        borderRadius: 2,
+        borderRadius: 0,
         controlOutlineWidth: 0,
-        colorPrimary: LIGHT_PRIMARY_COLOR,
-        colorError: '#FF4D4F',
-        colorLink: LIGHT_PRIMARY_COLOR,
-        colorInfo: LIGHT_PRIMARY_COLOR,
-        colorBgLayout: '#F9F9FB',
+        colorPrimary: light_primary_color,
+        colorError: '#ff4d4f',
+        colorLink: light_primary_color,
+        colorInfo: light_primary_color,
+        colorBgLayout: '#f9f9fb',
     },
     components: {
         Table: {
-            headerBg: '#F9F9FB',
-            rowSelectedBg: '#EBF0FA',
-            headerColor: '#666E7D',
-            colorText: 'rgba(0,0,0,0.85)',
+            headerBg: '#f9f9fb',
+            rowSelectedBg: '#ebf0fa',
+            headerColor: '#666e7d',
+            colorText: '#000000',
             cellPaddingBlock: 10
         },
     }
-} as ThemeConfig
+}

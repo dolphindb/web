@@ -31,9 +31,12 @@ dayjs.locale(language === 'zh' ? 'zh-cn' : language)
 
 import { model } from './model.ts'
 
+import { light } from './theme.ts'
+
+import { DdbHeader } from './components/DDBHeader/index.tsx'
+import { HostSelect } from './components/DDBHeader/HostSelect.tsx'
 import { DdbSider } from './components/DdbSider.tsx'
 import { GlobalErrorBoundary } from './components/GlobalErrorBoundary.tsx'
-import { HostSelect } from './components/DDBHeader/HostSelect.tsx'
 
 import { Login } from './login/index.tsx'
 import { Overview } from './overview/index.tsx'
@@ -53,8 +56,6 @@ import { Settings } from './settings/index.tsx'
 import { CreateGuide } from './guide/iot-guide/index.tsx'
 import { FinanceGuide } from './guide/finance-guide/index.tsx'
 import { DataCollection } from './data-collection/index.tsx'
-import { DdbHeader } from './components/DDBHeader/index.tsx'
-import { ANT_LIGHT_CONFIG } from './constant/theme-config.ts'
 import { Access } from './access/index.tsx'
 
 
@@ -67,11 +68,10 @@ createRoot(
 const locales = { zh, en, ja, ko }
 
 function DolphinDB () {
-    
     return <ConfigProvider
         locale={locales[language] as any}
         button={{ autoInsertSpace: false }}
-        theme={ANT_LIGHT_CONFIG}
+        theme={light}
         renderEmpty={() => <div className='empty-placeholder' />}
     >
         <SWRConfig value={{

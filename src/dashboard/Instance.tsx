@@ -1,16 +1,16 @@
 import { useEffect, useRef } from 'react'
 
-import { App, ConfigProvider, Spin, theme } from 'antd'
+import { App, ConfigProvider, Spin } from 'antd'
 
 import { useParams } from 'react-router'
 
 import { delay } from 'xshell/utils.browser.js'
 
-import { t } from '@i18n/index.js'
+import { t } from '@i18n/index.ts'
 
-import { model } from '@/model.js'
+import { model } from '@/model.ts'
 
-import { ANT_DARK_CONFIG } from '@/constant/theme-config.ts'
+import { dark } from '@/theme.ts'
 
 import { get_shared_dashboards, paste_widget } from './utils.ts'
 
@@ -27,9 +27,7 @@ export function DashboardInstancePage () {
     const { loading } = dashboard.use(['loading'])
     const { id } = useParams()
     
-    return <ConfigProvider
-        theme={ANT_DARK_CONFIG}
-    >
+    return <ConfigProvider theme={dark}>
         <App className='app'>
             <Spin spinning={loading} delay={500} size='large'>
                 <DashboardInstance id={id}/>
