@@ -1918,7 +1918,7 @@ function get_chart_option (config: ChartConfig): echarts.EChartsOption {
             }
         },
         legend: {
-            data: col_labels
+            data: col_labels.map(String)
         },
         grid: {
             left: '3%',
@@ -1961,7 +1961,7 @@ function get_chart_option (config: ChartConfig): echarts.EChartsOption {
                         ...axisStyle
                     },
                     series: col_labels.map(label => ({
-                        name: label,
+                        name: String(label),
                         type: 'line',
                         stack: stacking ? 'total' : undefined,
                         data: data.filter(d => d.col === label).map(d => d.value),
@@ -2244,6 +2244,8 @@ function get_chart_option (config: ChartConfig): echarts.EChartsOption {
 function EChartsComponent ({ option }: { option: echarts.EChartsOption }) {
     let rchart = useRef<HTMLDivElement>(null)
     let chart = useRef<echarts.ECharts | null>(null)
+    
+    console.log('option:', option)
     
     useEffect(() => {
         if (rchart.current) {
