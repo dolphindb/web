@@ -1921,9 +1921,10 @@ function get_chart_option (config: ChartConfig): echarts.EChartsOption {
             data: col_labels.map(String)
         },
         grid: {
+            top: '10%',
             left: '3%',
-            right: '4%',
-            bottom: '3%',
+            right: '3%',
+            bottom: '10%',
             containLabel: true
         },
         backgroundColor: '#fff',
@@ -1941,7 +1942,26 @@ function get_chart_option (config: ChartConfig): echarts.EChartsOption {
             lineStyle: {
                 color: '#eee'
             }
+        },
+        nameTextStyle: {
+            fontSize: 12,
+            padding: [0, 10, 0, 10]  
+        },
+        nameLocation: 'middle' as const,  
+        nameGap: 30,  
+        axisTick: {
+            show: true,
+            alignWithLabel: true
+        },
+        axisLabel: {
+        interval: 'auto',  
+        hideOverlap: true, 
+        formatter: function (value, index) {
+            if (typeof value === 'string' && value.length > 10)
+                return value.substring(0, 10) + '...'
+            return value
         }
+    }
     }
     
     switch (charttype) {
@@ -1969,9 +1989,7 @@ function get_chart_option (config: ChartConfig): echarts.EChartsOption {
                         smooth: false
                     }))
                 }
-            else {
-                const leftAxisCount = col_labels.filter((_, i) => i % 2 === 0).length
-                const rightAxisCount = col_labels.filter((_, i) => i % 2 === 1).length
+            else 
                 
                 return {
                     ...base,
@@ -2007,14 +2025,8 @@ function get_chart_option (config: ChartConfig): echarts.EChartsOption {
                             },
                         } as any
                     }),
-                    grid: {
-                        left: `${3 + Math.floor((leftAxisCount - 1) * 3)}%`,
-                        right: `${3 + Math.floor((rightAxisCount - 1) * 3)}%`,
-                        bottom: '3%',
-                        containLabel: true
-                    },
                     series: col_labels.map((label, index) => ({
-                        name: label,
+                        name: String(label),
                         type: 'line',
                         yAxisIndex: index,
                         data: data.map(d => d[label]),
@@ -2022,7 +2034,7 @@ function get_chart_option (config: ChartConfig): echarts.EChartsOption {
                         smooth: false
                     }))
                 }
-            }
+            
             
             
         case DdbChartType.column:
