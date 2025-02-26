@@ -60,15 +60,10 @@ export function format_friendly_date (isoString: string): string {
         return t('昨天 {{time}}', { time: date.format('HH:mm') })
         
         
-    if (date.isAfter(dayjs().subtract(7, 'day'))) {
+    if (date.isAfter(dayjs().subtract(7, 'day')))
         // 最近7天内
-        const relative = date.fromNow()
-        return t('{{relativeTime}}', { relativeTime: relative })
-    }
+        return date.fromNow()
     
     // 更久以前
-    return t('{{date}} {{time}}', {
-        date: date.format('YYYY/MM/DD'),
-        time: date.format('HH:mm'),
-    })
+    return `${date.format('YYYY.MM.DD')} ${date.format('HH:mm')}`
 }

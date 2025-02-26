@@ -6109,5 +6109,11 @@
     },
     "getClusterPref 中节点的 agentSite 为空，无法通过 agent 查看日志": {
         "en": "The agentSite of the node in getClusterPref is empty, and logs cannot be viewed through the agent"
+    },
+    "区间": {
+        "en": "interval"
+    },
+    "频次": {
+        "en": "frequency"
     }
 }
