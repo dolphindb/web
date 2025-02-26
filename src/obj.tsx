@@ -1954,14 +1954,14 @@ function get_chart_option (config: ChartConfig): echarts.EChartsOption {
             alignWithLabel: true
         },
         axisLabel: {
-        interval: 'auto',  
-        hideOverlap: true, 
-        formatter: function (value, index) {
-            if (typeof value === 'string' && value.length > 10)
-                return value.substring(0, 10) + '...'
-            return value
+            interval: 'auto',  
+            hideOverlap: true, 
+            formatter (value, index) {
+                if (typeof value === 'string' && value.length > 10)
+                    return value.truncate(10)
+                return value
+            }
         }
-    }
     }
     
     switch (charttype) {
@@ -1989,7 +1989,7 @@ function get_chart_option (config: ChartConfig): echarts.EChartsOption {
                         smooth: false
                     }))
                 }
-            else 
+            else
                 
                 return {
                     ...base,
@@ -2034,7 +2034,6 @@ function get_chart_option (config: ChartConfig): echarts.EChartsOption {
                         smooth: false
                     }))
                 }
-            
             
             
         case DdbChartType.column:
@@ -2256,8 +2255,6 @@ function get_chart_option (config: ChartConfig): echarts.EChartsOption {
 function EChartsComponent ({ option }: { option: echarts.EChartsOption }) {
     let rchart = useRef<HTMLDivElement>(null)
     let chart = useRef<echarts.ECharts | null>(null)
-    
-    console.log('option:', option)
     
     useEffect(() => {
         if (rchart.current) {
