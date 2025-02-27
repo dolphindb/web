@@ -3,7 +3,7 @@ import { useEffect } from 'react'
 
 import { Dropdown, Avatar, Space, Layout } from 'antd'
 
-import { DownOutlined, default as Icon, LoginOutlined, LogoutOutlined, UserOutlined } from '@ant-design/icons'
+import { DownOutlined, LoginOutlined, LogoutOutlined, UserOutlined } from '@ant-design/icons'
 
 import { t } from '@i18n/index.js'
 
@@ -33,11 +33,12 @@ export function DdbHeader () {
     return <Layout.Header className='ddb-header'>
         <img className='logo' src={`${model.assets_root}ddb.svg`} />
         
-        { model.local && <CompileAndRefresh /> }
+        
         
         <div className='padding' />
         
         <Space size='middle'>
+            { model.local && <CompileAndRefresh /> }
             { model.dev && <HostSelect />}
             
             <Status />
