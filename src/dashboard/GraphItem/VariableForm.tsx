@@ -95,7 +95,7 @@ export function VariableForm (props: IProps) {
     }, [ ])
     
     return !!ids.length && <div className={classNames('variable-wrapper', { [className]: true })}>
-        <Form form={form} className='variable-form' onValuesChange={!with_search_btn && on_variables_change} labelCol={{ span: label_col }} labelAlign='left'>
+        <Form form={form} className='variable-form' onValuesChange={!with_search_btn && on_variables_change} labelCol={{ span: label_col }}>
             <Row gutter={[24, 16]}>
                 {ids.map(id => variables_obj[id]).filter(Boolean).map(item => <Col span={24 / cols} key={item?.id}><ControlField variable={item} key={item?.id} /></Col>) }
             </Row>

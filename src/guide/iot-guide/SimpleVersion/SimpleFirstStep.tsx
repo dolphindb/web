@@ -37,7 +37,6 @@ export function SimpleFirstStep (props: IProps) {
         <Form
             onFinish={on_submit}
             form={form}
-            labelAlign='left'
             className='simple-version-form'
             labelCol={{ span: 6 }}
             wrapperCol={{ span: 18 }}

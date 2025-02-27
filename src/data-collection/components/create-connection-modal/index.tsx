@@ -44,7 +44,7 @@ export const CreateConnectionModal = NiceModal.create((props: IProps) => {
         onOk={form.submit}
         className='create-connection-modal'
     >
-        <Form labelAlign='left' labelCol={{ span: 6 }} form={form} onFinish={on_submit} initialValues={editedConnection}>
+        <Form labelCol={{ span: 6 }} form={form} onFinish={on_submit} initialValues={editedConnection}>
             <Form.Item 
                 label={t('名称')} 
                 name='name' 
