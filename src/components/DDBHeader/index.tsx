@@ -69,14 +69,12 @@ export function DdbHeader () {
                     }}
                 >
                     <div className='user'>
-                        <Avatar className='avatar' icon={<UserOutlined /> } size='small' />
+                        <Avatar className='avatar' icon={<UserOutlined /> } size={18} />
                         {username}
                         {/* <Icon className='arrow-down' component={SvgArrowDown} /> */}
                         <DownOutlined className='arrow-down'/>
                     </div>
                 </Dropdown>
-            
-            
         </Space>
     </Layout.Header>
 }
