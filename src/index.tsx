@@ -34,8 +34,8 @@ import { model } from './model.ts'
 import { light } from './theme.ts'
 
 import { DdbHeader } from './components/DDBHeader/index.tsx'
-import { HostSelect } from './components/DDBHeader/HostSelect.tsx'
 import { DdbSider } from './components/DdbSider.tsx'
+import { HostSelect } from './components/DDBHeader/HostSelect.tsx'
 import { GlobalErrorBoundary } from './components/GlobalErrorBoundary.tsx'
 
 import { Login } from './login/index.tsx'
