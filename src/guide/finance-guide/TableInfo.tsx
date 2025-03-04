@@ -80,7 +80,6 @@ export function TableInfo (props: IProps) {
     
     return <Form
         form={form}
-        labelAlign='left'
         labelCol={{ span: 6 }}
         wrapperCol={{ span: 18 }}
         onFinish={on_submit}

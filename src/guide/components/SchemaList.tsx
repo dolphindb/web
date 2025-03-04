@@ -83,7 +83,7 @@ export const SchemaUploadModal = NiceModal.create((props: ISchemaUploadModal) =>
         destroyOnClose
         afterClose={modal.remove}
     >
-        <Form form={form} labelCol={{ span: 8 }} wrapperCol={{ span: 16 }} labelAlign='left'>
+        <Form form={form} labelCol={{ span: 8 }} wrapperCol={{ span: 16 }}>
             <Form.Item label={t('导入方式')} name='upload_type' initialValue={0}>
                 <Radio.Group>
                     <Radio value={0}>{t('本地导入')}</Radio>
@@ -105,7 +105,6 @@ export const SchemaUploadModal = NiceModal.create((props: ISchemaUploadModal) =>
             </FormDependencies>
         </Form>
     </Modal>
-    
 })
 
 

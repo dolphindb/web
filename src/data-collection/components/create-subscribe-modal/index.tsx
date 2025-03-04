@@ -144,7 +144,6 @@ export const CreateSubscribeModal = NiceModal.create((props: IProps) => {
             form={form}
             onFinish={on_submit} 
             initialValues={edited_subscribe ?? undefined} 
-            labelAlign='left' 
             labelCol={{ span: 6 }}
             disabled={mode === 'view'}
         >

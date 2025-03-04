@@ -40,7 +40,6 @@ export function DatabaseInfo (props: IProps) {
     return <Form
         onFinish={on_submit}
         form={form}
-        labelAlign='left'
         labelCol={{ span: 6 }}
         wrapperCol={{ span: 18 }}
     >

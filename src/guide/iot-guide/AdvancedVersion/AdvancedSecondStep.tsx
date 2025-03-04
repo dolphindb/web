@@ -70,7 +70,6 @@ export function AdvancedSecondStep (props: IProps) {
     return <Form
         form={form}
         onFinish={on_submit}
-        labelAlign='left'
         labelCol={{ span: 6 }}
         wrapperCol={{ span: 18 }}
         initialValues={info?.second}

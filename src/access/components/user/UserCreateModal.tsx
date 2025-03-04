@@ -52,7 +52,7 @@ export const UserCreateModal = NiceModal.create(() => {
                 }
             }}
         >
-            <Form name='basic' labelCol={{ span: language === 'zh' ? 4 : 8 }} labelAlign='left' form={add_user_form} autoComplete='off'>
+            <Form name='basic' labelCol={{ span: language === 'zh' ? 4 : 8 }} form={add_user_form} autoComplete='off'>
                 <Form.Item
                     label={t('用户名')}
                     name='username'
