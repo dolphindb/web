@@ -214,7 +214,7 @@ export function Plugins () {
             dataSource={plugins}
             rowKey='id'
             pagination={false}
-            scroll={{ y: 'calc(100vh - 200px)' }}
+            scroll={{ y: 'calc(100vh - 220px)' }}
             rowSelection={{
                 selectedRowKeys: selected_keys,
                 
