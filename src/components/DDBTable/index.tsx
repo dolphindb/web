@@ -1,5 +1,6 @@
-import { QuestionCircleOutlined } from '@ant-design/icons'
 import './index.scss'
+
+import { QuestionCircleOutlined } from '@ant-design/icons'
 import { Space, Table, Tooltip, type TableProps } from 'antd'
 import { type ReactNode } from 'react'
 

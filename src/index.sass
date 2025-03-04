@@ -16,7 +16,6 @@ html, body
     
     .app
         height: 100%
-        
     
     .root-layout
         height: 100%
@@ -249,5 +248,46 @@ html, body
             margin-top: 4px
             color: #000000
 
+// ------------ antd 样式覆写
 a
     color: var(--ant-color-primary)
+
+.ant-btn
+    transition: unset
+
+.ant-btn-primary
+    box-shadow: unset
+    
+.ant-btn-default
+    box-shadow: unset
+    
+
+.ant-dropdown
+    .login
+        align-items: flex-start
+    
+    .ant-dropdown-menu
+        background-color: #fafafa
+
+.ant-message
+    z-index: 1031
+    
+    // 防止遮挡 dashboard 顶栏中的编辑预览按钮，目前无法在 .ant-message 这一层级区分 dashboard 和非 dashboard，
+    // 所以只能统一下移，交互编程中的 header 有两层，按这个高度来
+    top: 80px !important
+
+.ant-message .ant-message-notice-wrapper .ant-message-notice-content
+    border-radius: unset
+    
+.ant-modal-root
+    // 增加 modal 标题下方空白
+    .ant-modal-header
+        margin-bottom: 18px
+    
+    .ant-modal-mask
+        background-color: unset
+    
+    .ant-modal
+        .ant-modal-content
+            padding: 20px
+
