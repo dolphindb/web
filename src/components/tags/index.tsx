@@ -24,11 +24,11 @@ export function StatusTag (props: IProps) {
         {...others} 
         bordered={false}
         className={cn({
-            tag: true,
-            'success-tag': status === StatusType.SUCCESS,
-            'error-tag': status === StatusType.FAILED,
-            'processing-tag': status === StatusType.RUNNING,
-            'partial-success-tag': status === StatusType.PARTIAL_SUCCESS
+            'ddb-tag': true,
+            'ddb-success-tag': status === StatusType.SUCCESS,
+            'ddb-error-tag': status === StatusType.FAILED,
+            'ddb-processing-tag': status === StatusType.RUNNING,
+            'ddb-partial-success-tag': status === StatusType.PARTIAL_SUCCESS
         })}
     />
 }

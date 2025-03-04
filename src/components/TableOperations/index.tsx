@@ -17,7 +17,7 @@ export function TableOperations (props: IProps) {
     
     const visible_items = ellipsis ? child_nodes.slice(0, max_show_count) : children
     
-    return <div className='table-operations' {...others}>
+    return <div className='ddb-table-operations' {...others}>
         {visible_items}
         {ellipsis && <Popover 
             trigger='hover'
