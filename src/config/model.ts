@@ -220,7 +220,13 @@ class ConfigModel extends Model<ConfigModel> {
     }
 }
 
-export let config_rules: Map<string, Rule[]> = new Map([
+type ConfigRule = Rule & {
+    message: string
+    required?: boolean
+    pattern?: RegExp
+}
+
+export let config_rules: Map<string, ConfigRule[]> = new Map([
     ['computeNodeCacheDir', [
         { pattern: /<ALIAS>/, message: t('该配置项的值必须包含 <ALIAS>') },
         {
@@ -235,7 +241,7 @@ export let config_rules: Map<string, Rule[]> = new Map([
         }]]
 ])
 
-export function get_config_rules (config_key: string): Rule[] {
+export function get_config_rules (config_key: string): ConfigRule[] {
     return config_rules.get(config_key) ?? [
         {
             required: true,

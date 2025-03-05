@@ -10,7 +10,9 @@ import { t } from '../../i18n/index.js'
 
 import { model } from '../model.js'
 
-import { config } from './model.js'
+import { FormDependencies } from '@/components/formily/FormDependcies/index.js'
+
+import { config, get_config_rules } from './model.js'
 
 
 export const NodesConfigAddModal = NiceModal.create((props: { compute_group?: string, on_save?: () => void }) => {
@@ -84,14 +86,36 @@ export const NodesConfigAddModal = NiceModal.create((props: { compute_group?: st
                         }))
                     }))} />
             </Form.Item>
+            <FormDependencies dependencies={['name']}>
+                {({ name }) => <Form.Item
+                    label={t('值')}
+                    name='value'
+                    dependencies={['name']}
+                    rules={[
+                        ({ getFieldValue }) => ({
+                            async validator (_, value) {
+                                const name = getFieldValue('name')
+                                if (!name) 
+                                    return Promise.reject(new Error(t('请先选择配置项')))
+                                
+                                const rules = get_config_rules(name)
+                                for (const rule of rules) {
+                                    if (rule.required && !value) 
+                                        return Promise.reject(new Error(rule.message))
+                                    
+                                    if (rule.pattern && !rule.pattern.test(value)) 
+                                        return Promise.reject(new Error(rule.message))
+                                    
+                                }
+                                return Promise.resolve()
+                            },
+                        }), 
+                    ]}
+                >
+                    <Input />
+                </Form.Item>}
+            </FormDependencies>
             
-            <Form.Item
-                label={t('值')}
-                name='value'
-                rules={[{ required: true, message: t('请输入配置值') }]}
-            >
-                <Input />
-            </Form.Item>
             
         </Form>
     </Modal>
