@@ -9,6 +9,8 @@ import { t } from '@i18n/index.ts'
 
 import { model } from '@/model.ts'
 
+import ddbsvg from '@/ddb.svg'
+
 
 export function Login () {
     const { logined } = model.use(['logined'])
@@ -23,7 +25,7 @@ export function Login () {
     }, [logined])
     
     return <>
-        <img className='logo' src={`${model.assets_root}ddb.svg`} />
+        <img className='logo' src={ddbsvg} />
         
         <div className='form-container'>
             <Form

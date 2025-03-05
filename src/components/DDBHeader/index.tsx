@@ -18,6 +18,8 @@ import { HostSelect } from './HostSelect.tsx'
 import { License } from './License.tsx'
 import { Settings } from './Settings.tsx'
 
+import ddbsvg from '@/ddb.svg'
+import ddblightsvg from '@/ddb.light.svg'
 
 
 export function DdbHeader () {
@@ -31,9 +33,7 @@ export function DdbHeader () {
     
     
     return <Layout.Header className='ddb-header'>
-        <img className='logo' src={`${model.assets_root}ddb.svg`} />
-        
-        
+        <img className='logo' src={model.shf ? ddbsvg : ddblightsvg} style={model.shf ? { marginLeft: 6 } : undefined} />
         
         <div className='padding' />
         
