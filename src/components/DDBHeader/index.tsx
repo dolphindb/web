@@ -9,7 +9,7 @@ import { t } from '@i18n/index.js'
 
 import { model } from '@/model.ts'
 
-import { LanguageSelect } from '../LanguageSelect.tsx'
+import { LanguageSelect } from './LanguageSelect.tsx'
 
 import { Status } from './Status.tsx'
 
