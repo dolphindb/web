@@ -145,7 +145,6 @@ export let builder = {
                 assets: {
                     productions: [
                         ... [
-                            'ddb.svg',
                             'overview/online.png', 'overview/offline.png',
                             'overview/icons/controller-background.svg',
                             'overview/icons/data-background.svg',

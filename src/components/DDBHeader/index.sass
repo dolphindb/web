@@ -1,11 +1,10 @@
 $radius: 0px
-$background: #13264e
-$background-light: #253B6f
-$color: #ffffff
 
-// $background: #f0f0f0
-// $background-light: #e0e0e0
-// $color: #000000
+:root
+    --header-background: #13264e
+    --header-background-light: #253b6f
+    --header-color: #ffffff
+    --header-section-padding: 16px
 
 .ddb-header
     padding: 0px 10px 0px 4px
@@ -14,36 +13,36 @@ $color: #ffffff
     
     display: flex
     
-    background: $background
-    color: $color
+    background: var(--header-background)
+    color: var(--header-color)
     
     z-index: 10
     
     align-items: center
     
     .compile-and-refresh
-        background-color: $background-light !important
-        color: $color
+        background-color: var(--header-background-light) !important
+        color: var(--header-color)
         border-radius: $radius
-        border-color: $background-light !important
-        padding: 0px 16px
+        border-color: var(--header-background-light) !important
+        padding: 0px var(--header-section-padding)
         font-size: 12px
         
         &:hover 
-            color: $color !important
+            color: var(--header-color) !important
     
     .host-select.ant-select
         .ant-select-selector
-            padding: 2px 16px
-            background-color: $background-light !important
+            padding: 2px var(--header-section-padding)
+            background-color: var(--header-background-light) !important
             border: none
             border-radius: $radius
             .ant-select-selection-item
                 font-size: 12px
-                color: $color !important
+                color: var(--header-color) !important
             
         .ant-select-arrow
-            color: $color
+            color: var(--header-color)
             .ant-select-suffix
                 width: 12px
                 height: 12px
@@ -70,11 +69,11 @@ $color: #ffffff
         flex: 1
     
     .node-info, .license
-        color: $color
-        padding: 2px 16px
+        color: var(--header-color)
+        padding: 2px var(--header-section-padding)
         border-radius: $radius
         cursor: pointer
-        background-color: $background-light !important
+        background-color: var(--header-background-light) !important
         border: none
         // ant tag 自带的，需要去掉
         margin-inline-end: unset
