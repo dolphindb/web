@@ -22,9 +22,8 @@ const radius = {
 export function Pie ({ widget, data_source }: { widget: Widget, data_source: any[] }) {
     const { title, title_size = 18, legend, series, animation, tooltip } = widget.config as IChartConfig
     
-    const option = useMemo(
-        () => {
-            return {
+    const option = useMemo<echarts.EChartsOption>(
+        () => ({
                 animation,
                 legend: pickBy({
                     show: true,
@@ -50,20 +49,17 @@ export function Pie ({ widget, data_source }: { widget: Widget, data_source: any
                         fontSize: title_size,
                     }
                 },
-                series: series.map((serie, index) => {
-                    return {
+                series: series.map((serie, index) => ({
                         id: index,
                         type: 'pie',
                         radius: radius[series.length][index],
                         label: {
                             color: '#F5F5F5'
                         },
-                        data: data_source.map(data => {
-                            return {
+                        data: data_source.map(data => ({
                                 value: data[serie?.col_name],
                                 name: data[serie?.name]
-                            }
-                        }),
+                            })),
                         emphasis: {
                             itemStyle: {
                                 shadowBlur: 10,
@@ -71,10 +67,8 @@ export function Pie ({ widget, data_source }: { widget: Widget, data_source: any
                                 shadowColor: 'rgba(0, 0, 0, 0.5)'
                             }
                         }
-                    }
-                })
-            }
-        },
+                    }))
+            }),
         [title, animation, series, title_size, data_source, legend, tooltip]
     )
     

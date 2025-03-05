@@ -5,10 +5,6 @@ import { useMemo } from 'react'
 
 import { DdbType } from 'dolphindb/browser.js'
 
-import {
-  type EChartsOption,
-} from 'echarts/types/dist/shared.js'
-
 import { dashboard, type Widget } from '../../model.js'
 import { type IOrderBookConfig, type IChartConfig } from '../../type.js'
 import { to_chart_data } from '../../utils.ts'
@@ -40,7 +36,7 @@ export function OrderBook (props: IProps) {
         return
     
     // 样式调整先写死，后面再改
-    const convert_order_config = useMemo((): EChartsOption => {
+    const convert_order_config = useMemo((): echarts.EChartsOption => {
         let orderbook_data = [ ]
         let bar_data = [ ]
         let line_data = [ ]
@@ -63,9 +59,7 @@ export function OrderBook (props: IProps) {
                         // 数据解释: 第一项时间，作为 x 轴；第二项价格，作为 y 轴； 第三栏交易量，tooltip 展示； 第四栏价格档位，tooltip 展示；第五栏交易量，用于排序展示块的颜色深浅
                         entry.push([sendingTime, price[i] * time_rate, to_chart_data(size[i], DdbType.long), is_buy ? `bmd[${i}]` : `omd[${i}]`, size[i]])
             // 对 size 排序，确认颜色深浅
-            entry.sort((a, b) => {
-                return a[4] > b[4] ? 1 : 0 
-            })
+            entry.sort((a, b) => a[4] > b[4] ? 1 : 0)
             entry.forEach((item, index) => {
                 item[4] = is_buy ? index + 1 : -index - 1
             })
@@ -99,7 +93,7 @@ export function OrderBook (props: IProps) {
         // console.log(line_data)
         
         
-        return convert_order_book_config(widget.config as unknown as IChartConfig & IOrderBookConfig, orderbook_data, line_data, bar_data)
+        return convert_order_book_config(widget.config as unknown as IChartConfig & IOrderBookConfig, orderbook_data, line_data, bar_data) as echarts.EChartsOption
     }, [data_source, widget.config])   
     
     

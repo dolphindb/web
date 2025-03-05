@@ -33,7 +33,7 @@ export function Gauge (props: IProps) {
     
     const config = useMemo(() => widget.config as IGaugeConfig, [widget.config])
     
-    const option = useMemo<echarts.EChartsCoreOption>(() => { 
+    const option = useMemo<echarts.EChartsOption>(() => { 
         const { title, title_size, max, min, data_setting, label_size, value_size, animation, split_number, value_precision } = config
         
         return {
