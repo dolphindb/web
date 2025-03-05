@@ -30,6 +30,7 @@ import SvgPlugins from '@/plugins/plugins.icon.svg'
 import SvgDataCollection from '@/data-collection/icons/data-collection.icon.svg'
 import SvgConnection from '@/data-collection/icons/connection.icon.svg'
 import SvgParserTemplate from '@/data-collection/icons/parser-template.icon.svg'
+import { sider_collapsed_width, sider_uncollapsed_width } from '@/utils.ts'
 
 
 const { Text, Link } = Typography
@@ -88,11 +89,11 @@ export function DdbSider () {
     }, [logined, username, client_auth])
     
     return <Layout.Sider
-        width={ language === 'zh' ? 150 : 220 }
+        width={ sider_uncollapsed_width }
         className='sider'
         theme='light'
         collapsible
-        collapsedWidth={50}
+        collapsedWidth={sider_collapsed_width}
         collapsed={collapsed}
         trigger={<div className={`collapse-trigger ${collapsed ? 'collapsed' : 'expand'}`}>
             {collapsed ? <DoubleRightOutlined className='collapse-icon' /> : <DoubleLeftOutlined className='collapse-icon' />}

@@ -2,11 +2,16 @@ import { DdbType } from 'dolphindb/browser.js'
 
 import { delay } from 'xshell/utils.browser.js'
 
-import { t } from '@i18n/index.ts'
+import { language, t } from '@i18n/index.ts'
 
 
 /** 表单 Form.Item 必填 `<Form.Item {...required}>` */
 export const required = { required: true, rules: [{ required: true }] }
+
+/** 侧边栏收起状态宽度 */
+export const sider_collapsed_width = 50
+/** 侧边栏未收起状态宽度 */
+export const sider_uncollapsed_width = language === 'en' ? 220 : 150
 
 
 export function download_file (name: string, url: string) {
