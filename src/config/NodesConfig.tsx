@@ -10,7 +10,7 @@ import { model } from '../model.js'
 import { RefreshButton } from '@/components/RefreshButton/index.tsx'
 
 import { NodesConfigAddModal } from './NodesConfigAddModal.js'
-import { config } from './model.js'
+import { config, get_config_rules } from './model.js'
 import { type NodesConfig } from './type.js'
 import { _2_strs, filter_config } from './utils.ts'
 
@@ -123,14 +123,9 @@ export function NodesConfig () {
                             fieldProps: {
                                 placeholder: t('请输入配置值')
                             },
-                            formItemProps: {
-                                rules: [
-                                    {
-                                        required: true,
-                                        message: t('请输入配置值')
-                                    }
-                                ]
-                            }
+                            formItemProps: (form, { entity }) => ({
+                                rules: get_config_rules(entity.name)
+                            })
                         },
                         {
                             title: t('操作'),

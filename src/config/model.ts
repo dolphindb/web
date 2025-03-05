@@ -4,6 +4,8 @@ import { DdbInt, type DdbCallOptions } from 'dolphindb/browser.js'
 
 import { t } from '@i18n/index.ts'
 
+import type { Rule } from 'antd/es/form/index'
+
 import { NodeType, model } from '@/model.ts'
 
 import { iterator_map } from '@/utils.ts'
@@ -216,6 +218,30 @@ class ConfigModel extends Model<ConfigModel> {
             'enableComputeNodePrefetchData',
         ]
     }
+}
+
+export let config_rules: Map<string, Rule[]> = new Map([
+    ['computeNodeCacheDir', [
+        { pattern: /<ALIAS>/, message: t('该配置项的值必须包含 <ALIAS>') },
+        {
+            required: true,
+            message: t('请输入配置值')
+        }]],
+    ['computeNodeCacheMeta', [
+        { pattern: /<ALIAS>/, message: t('该配置项的值必须包含 <ALIAS>') },
+        {
+            required: true,
+            message: t('请输入配置值')
+        }]]
+])
+
+export function get_config_rules (config_key: string): Rule[] {
+    return config_rules.get(config_key) ?? [
+        {
+            required: true,
+            message: t('请输入配置值')
+        }
+    ]
 }
 
 export let config = new ConfigModel()

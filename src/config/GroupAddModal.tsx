@@ -1,11 +1,14 @@
 import NiceModal from '@ebay/nice-modal-react'
 import { AutoComplete, Button, Input, message, Modal, Popover, Table, Tooltip, type TableProps } from 'antd'
 
-import { useCallback, useState } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 
 import { t } from '../../i18n/index.js'
 
+import { model } from '@/model.ts'
+
 import { config } from './model.ts'
+import { strs_2_nodes } from './utils.ts'
 
 
 export const GroupAddModal = NiceModal.create((props: { on_save: (form: { group_name: string, group_nodes: GroupNodesDatatype[], group_configs: GroupConfigDatatype[] }) => Promise<{ success: boolean, message?: string }> }) => {
@@ -23,11 +26,35 @@ export const GroupAddModal = NiceModal.create((props: { on_save: (form: { group_
         { key: 'default5', name: 'enableComputeNodeCacheEvictionFromQueryThread', value: 'true' },
     ])
     const [batch_add_node_count, set_batch_add_node_count] = useState(1)
+    const [compute_groups, set_compute_groups] = useState<string[]>([ ])
+    
+    async function update_compute_groups () {
+        const groups: string[] = [ ]
+        const result = await config.get_cluster_nodes() 
+        const nodes = strs_2_nodes(result as any[])
+        for (const node of nodes) 
+            if (node.computeGroup)
+                groups.push(node.computeGroup)
+        set_compute_groups(groups)
+    }
+    
+    useEffect(() => {
+        // 展示时触发更新
+        if (modal.visible) 
+            update_compute_groups()
+        
+    }, [modal.visible])
     
     function validate (): boolean {
         if (group_name === '')
             return false
-            
+        
+        for (const group of compute_groups) 
+            if (group_name.startsWith(group)) {
+                model.modal.error({ title: t('计算组名称不能以已存在的计算组 {{group}} 为前缀', { group }) })
+                return false
+            }
+        
         for (const node of group_nodes) // 非空校验，并且别名必须包含 group_name
             if (node.host === '' 
                 || node.port === '' 

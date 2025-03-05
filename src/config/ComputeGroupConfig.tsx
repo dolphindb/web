@@ -20,7 +20,7 @@ import { RefreshButton } from '@/components/RefreshButton/index.js'
 import { filter_config, strs_2_nodes } from './utils.js'
 import { NodesConfigAddModal } from './NodesConfigAddModal.js'
 
-import { config } from './model.js'
+import { config, get_config_rules } from './model.js'
 
 
 
@@ -98,6 +98,9 @@ export function ComputeGroupConfig () {
             title: t('值'),
             dataIndex: 'value',
             key: 'value',
+            formItemProps: (form, { entity }) => ({
+                rules: get_config_rules(entity.name)
+            })
         },
         {
             title: t('操作'),
