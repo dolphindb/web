@@ -119,7 +119,7 @@ export const EditParamModal = NiceModal.create(({
                                 <DatePicker
                                     showTime 
                                 /> : 
-                                type === DDB_TYPE_MAP[DdbType.symbol]
+                                type === DDB_TYPE_MAP[DdbType.symbol] || type === DDB_TYPE_MAP[DdbType.symbol_extended]
                                     ? <Select
                                         mode='multiple'
                                         options={param.options.map(op => ({
