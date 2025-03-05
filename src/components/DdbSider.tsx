@@ -11,6 +11,8 @@ import { language, t } from '@i18n/index.ts'
 
 import { model, type DdbModel, NodeType, storage_keys, default_view } from '@/model.ts'
 
+import { sider_collapsed_width, sider_uncollapsed_width } from '@/utils.ts'
+
 
 import SvgOverview from '@/overview/icons/overview.icon.svg'
 import SvgConfig from '@/config/icons/config.icon.svg'
@@ -30,7 +32,6 @@ import SvgPlugins from '@/plugins/plugins.icon.svg'
 import SvgDataCollection from '@/data-collection/icons/data-collection.icon.svg'
 import SvgConnection from '@/data-collection/icons/connection.icon.svg'
 import SvgParserTemplate from '@/data-collection/icons/parser-template.icon.svg'
-import { sider_collapsed_width, sider_uncollapsed_width } from '@/utils.ts'
 
 
 const { Text, Link } = Typography
@@ -89,7 +90,7 @@ export function DdbSider () {
     }, [logined, username, client_auth])
     
     return <Layout.Sider
-        width={ sider_uncollapsed_width }
+        width={sider_uncollapsed_width}
         className='sider'
         theme='light'
         collapsible

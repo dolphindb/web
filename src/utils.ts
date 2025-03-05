@@ -10,6 +10,7 @@ export const required = { required: true, rules: [{ required: true }] }
 
 /** 侧边栏收起状态宽度 */
 export const sider_collapsed_width = 50
+
 /** 侧边栏未收起状态宽度 */
 export const sider_uncollapsed_width = language === 'en' ? 220 : 150
 
