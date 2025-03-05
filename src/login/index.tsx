@@ -9,7 +9,7 @@ import { t } from '@i18n/index.ts'
 
 import { model } from '@/model.ts'
 
-import ddbsvg from '@/ddb.svg'
+import ddbsvg from '@/icons/ddb.svg'
 
 
 export function Login () {

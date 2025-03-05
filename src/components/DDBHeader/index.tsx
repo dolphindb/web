@@ -18,8 +18,8 @@ import { HostSelect } from './HostSelect.tsx'
 import { License } from './License.tsx'
 import { Settings } from './Settings.tsx'
 
-import ddbsvg from '@/ddb.svg'
-import ddblightsvg from '@/ddb.light.svg'
+import ddbsvg from '@/icons/ddb.svg'
+import ddblightsvg from '@/icons/ddb.light.svg'
 
 
 export function DdbHeader () {
