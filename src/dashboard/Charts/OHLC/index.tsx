@@ -107,7 +107,7 @@ export function OHLC ({ widget, data_source }: { widget: Widget, data_source: an
     const [kColor = '#ec0000', kColor0 = '#00da3c'] = useMemo(() => 
             [ series[0].kcolor, series[0].kcolor0], 
     [series[0]])
-    const option = useMemo(
+    const option = useMemo<echarts.EChartsOption>(
         () => ({
             animation,
             title: {
@@ -338,7 +338,7 @@ export function OHLC ({ widget, data_source }: { widget: Widget, data_source: an
                 },
                 // 所有额外的折线都使用主图grid
                 ...lines.map(line => ({
-                    ...line,
+                    ...line as echarts.LineSeriesOption,
                     xAxisIndex: line.yAxisIndex === 1 ? 1 : 0,  // 根据yAxisIndex选择对应的xAxisIndex
                     yAxisIndex: line.yAxisIndex ?? 0
                 }))

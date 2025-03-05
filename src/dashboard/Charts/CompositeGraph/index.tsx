@@ -56,9 +56,7 @@ export function CompositeChart (props: ICompositeChartProps) {
         set_source_col_map({ }) 
     }, [widget.source_id])
     
-    const type_map = useMemo<Record<string, DdbType>>(() => { 
-        return widget.source_id.reduce((prev, id) => ({ ...prev, ...get_data_source(id).type_map }), { })
-    }, [update, widget.source_id])
+    const type_map = useMemo<Record<string, DdbType>>(() => widget.source_id.reduce((prev, id) => ({ ...prev, ...get_data_source(id).type_map }), { }), [update, widget.source_id])
     
     // 自动画图模式需要存储每个数据源的 X 轴列和数据列
     useEffect(() => {
@@ -78,7 +76,7 @@ export function CompositeChart (props: ICompositeChartProps) {
     }, [type_map, config.automatic_mode, config.x_col_types, widget.source_id])
     
     
-    const option = useMemo(() => { 
+    const option = useMemo<echarts.EChartsOption>(() => { 
         const { automatic_mode, series: series_config = [ ], yAxis = [ ], ...others } = config
         let series = [ ]
         
