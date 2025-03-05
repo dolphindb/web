@@ -18,12 +18,13 @@ import { HostSelect } from './HostSelect.tsx'
 import { License } from './License.tsx'
 import { Settings } from './Settings.tsx'
 
-import ddbsvg from '@/icons/ddb.svg'
-import ddblightsvg from '@/icons/ddb.light.svg'
+import ddb_svg from '@/icons/ddb.svg'
+import ddb_white_svg from '@/icons/ddb.white.svg'
 
 
 export function DdbHeader () {
     const { logined, username, node_alias } = model.use(['logined', 'username', 'node_alias'])
+    const { shf } = model
     
     useEffect(() => {
         if (!node_alias)
@@ -33,7 +34,7 @@ export function DdbHeader () {
     
     
     return <Layout.Header className='ddb-header'>
-        <img className='logo' src={model.shf ? ddbsvg : ddblightsvg} style={model.shf ? { marginLeft: 6 } : undefined} />
+        <img className='logo' src={shf ? ddb_svg : ddb_white_svg} style={shf ? { marginLeft: 6 } : undefined} />
         
         <div className='padding' />
         
