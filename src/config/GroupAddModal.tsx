@@ -7,7 +7,7 @@ import { t } from '../../i18n/index.js'
 
 import { model } from '@/model.ts'
 
-import { config } from './model.ts'
+import { config, validate_config } from './model.ts'
 import { strs_2_nodes } from './utils.ts'
 
 
@@ -45,15 +45,14 @@ export const GroupAddModal = NiceModal.create((props: { on_save: (form: { group_
         
     }, [modal.visible])
     
-    function validate (): boolean {
+    async function validate () {
         if (group_name === '')
-            return false
+            throw new Error(t('组名不能为空'))
         
         for (const group of compute_groups) 
-            if (group_name.startsWith(group)) {
-                model.modal.error({ title: t('计算组名称不能以已存在的计算组 {{group}} 为前缀', { group }) })
-                return false
-            }
+            if (group_name.startsWith(group)) 
+                throw new Error(t('计算组名称不能以已存在的计算组 {{group}} 为前缀', { group }))
+            
         
         for (const node of group_nodes) // 非空校验，并且别名必须包含 group_name
             if (node.host === '' 
@@ -63,13 +62,14 @@ export const GroupAddModal = NiceModal.create((props: { on_save: (form: { group_
                 || !/^\S+$/.test(node.host)
                 || !/^\S+$/.test(node.alias)
             )
-                return false
+                throw new Error(t('计算组节点配置不正确'))
                 
-        for (const config of group_configs)
+        for (const config of group_configs) {
             if (config.name === '' || config.value === '')
-                return false
+                throw new Error(t('配置项不能为空'))
+            await validate_config(config.name, config.value)
+        }
                 
-        return true
     }
     
     const filter_config = useCallback(
@@ -239,18 +239,21 @@ export const GroupAddModal = NiceModal.create((props: { on_save: (form: { group_
             <Button onClick={batch_add_empty_config}>{t('新增一条配置')}</Button>
         </div>
         <div className='add-nodes' style={{ flexFlow: 'row-reverse' }}>
-            <Button onClick={() => {
+            <Button onClick={async () => {
                 if (group_nodes.length <= 0) {
                     message.warning(t('请添加至少 1 个节点'))
                     return
                 }
-                if (validate())
-                    props.on_save({ group_name, group_nodes, group_configs }).then(r => {
-                    if (r.success)
-                        modal.hide()
-                    })
-                else
+                try {
+                    await validate()
+                }
+                catch (error) {
                     set_validating(true)
+                    throw new Error(error)
+                }
+                const result = await props.on_save({ group_name, group_nodes, group_configs })
+                if (result.success)
+                    modal.hide()
             }} type='primary'>{t('完成')}</Button>
             <Button onClick={modal.hide}>{t('取消')}</Button>
         </div>

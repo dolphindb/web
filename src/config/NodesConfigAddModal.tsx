@@ -12,7 +12,7 @@ import { model } from '../model.js'
 
 import { FormDependencies } from '@/components/formily/FormDependcies/index.js'
 
-import { config, get_config_rules } from './model.js'
+import { config, validate_config, validate_qualifier } from './model.js'
 
 
 export const NodesConfigAddModal = NiceModal.create((props: { compute_group?: string, on_save?: () => void }) => {
@@ -57,17 +57,25 @@ export const NodesConfigAddModal = NiceModal.create((props: { compute_group?: st
             }}
             
         >
-            {!props.compute_group && <Form.Item
-                label={<span>
-                    {t('限定词')}
-                    <Tooltip title={t('指定此配置适用的节点名或节点名前缀（例如：node1 或 node%）')}>
-                        <span style={{ margin: '0 4px' }}><QuestionCircleOutlined /></span>
-                    </Tooltip>
-                </span>}
-                name='qualifier'
-            >
-                <Input placeholder='e.g. dn1 or dn% or empty' />
-            </Form.Item>}
+            {!props.compute_group && <FormDependencies dependencies={['name']}>
+                {({ name }) => <Form.Item
+                        label={<span> 
+                            {t('限定词')}
+                            <Tooltip title={t('指定此配置适用的节点名或节点名前缀（例如：node1 或 node%）')}>
+                                <span style={{ margin: '0 4px' }}><QuestionCircleOutlined /></span>
+                            </Tooltip>
+                        </span>}
+                        name='qualifier'
+                        rules={[
+                            { async validator (_, value) {
+                                await validate_qualifier(name, value)
+                            } }
+                        ]}
+                    >
+                        <Input placeholder='e.g. dn1 or dn% or empty' />
+                    </Form.Item>}
+            </FormDependencies>
+            }
             
             <Form.Item
                 label={t('配置项')}
@@ -92,24 +100,11 @@ export const NodesConfigAddModal = NiceModal.create((props: { compute_group?: st
                     name='value'
                     dependencies={['name']}
                     rules={[
-                        ({ getFieldValue }) => ({
+                        {
                             async validator (_, value) {
-                                const name = getFieldValue('name')
-                                if (!name) 
-                                    return Promise.reject(new Error(t('请先选择配置项')))
-                                
-                                const rules = get_config_rules(name)
-                                for (const rule of rules) {
-                                    if (rule.required && !value) 
-                                        return Promise.reject(new Error(rule.message))
-                                    
-                                    if (rule.pattern && !rule.pattern.test(value)) 
-                                        return Promise.reject(new Error(rule.message))
-                                    
-                                }
-                                return Promise.resolve()
-                            },
-                        }), 
+                                await validate_config(name, value)
+                            }
+                        }
                     ]}
                 >
                     <Input />

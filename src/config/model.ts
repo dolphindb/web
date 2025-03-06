@@ -4,8 +4,6 @@ import { DdbInt, type DdbCallOptions } from 'dolphindb/browser.js'
 
 import { t } from '@i18n/index.ts'
 
-import type { Rule } from 'antd/es/form/index'
-
 import { NodeType, model } from '@/model.ts'
 
 import { iterator_map } from '@/utils.ts'
@@ -220,34 +218,17 @@ class ConfigModel extends Model<ConfigModel> {
     }
 }
 
-type ConfigRule = Rule & {
-    message: string
-    required?: boolean
-    pattern?: RegExp
+export async function validate_qualifier (config_name: string, value: string) {
+    if ((config_name === 'computeNodeCacheDir' || config_name === 'computeNodeCacheMeta') && !value.includes('%'))
+        throw new Error(t('配置项 {{name}} 的限定词必须包含 %', { name: config_name }))
 }
 
-export let config_rules: Map<string, ConfigRule[]> = new Map([
-    ['computeNodeCacheDir', [
-        { pattern: /<ALIAS>/, message: t('该配置项的值必须包含 <ALIAS>') },
-        {
-            required: true,
-            message: t('请输入配置值')
-        }]],
-    ['computeNodeCacheMeta', [
-        { pattern: /<ALIAS>/, message: t('该配置项的值必须包含 <ALIAS>') },
-        {
-            required: true,
-            message: t('请输入配置值')
-        }]]
-])
-
-export function get_config_rules (config_key: string): ConfigRule[] {
-    return config_rules.get(config_key) ?? [
-        {
-            required: true,
-            message: t('请输入配置值')
-        }
-    ]
-}
+export async function validate_config (config_name: string, value: string) {
+    if (!value || value.trim() === '') 
+        throw new Error(t('请输入配置值'))
+    
+    if ((config_name === 'computeNodeCacheDir' || config_name === 'computeNodeCacheMeta') && !value.includes('<ALIAS>'))
+        throw new Error(t('配置项 {{name}}的值必须包含 <ALIAS>', { name: config_name }))
+} 
 
 export let config = new ConfigModel()
