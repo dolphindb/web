@@ -1,5 +1,14 @@
 .finance-guide {
     height: 100%;
+    
+    .warning-result {
+        height: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        flex-direction: column;
+    }
+    
     .finance-guide-wrapper {
         display: flex;
         flex-direction: column;

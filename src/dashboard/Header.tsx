@@ -17,9 +17,9 @@ import useSWR from 'swr'
 
 import { model, storage_keys } from '../model.js'
 import { t } from '../../i18n/index.js'
-import { CompileAndRefresh } from '../components/CompileAndRefresh.js'
+import { CompileAndRefresh } from '../components/DDBHeader/CompileAndRefresh.js'
 
-import { HostSelect } from '../components/HostSelect.js'
+import { HostSelect } from '../components/DDBHeader/HostSelect.js'
 
 import { type DashBoardConfig, type Widget, dashboard, DashboardPermission } from './model.js'
 import { DataSourceConfig } from './DataSource/DataSourceConfig.js'
@@ -427,7 +427,7 @@ export function Header () {
         
         {
             editing && <div className='configs'>
-                {t('自动拓展页面大小：')}<Switch value={auto_expand} onChange={(checked => { dashboard.on_set_auto_expand(checked) })}/>
+                {t('自动拓展页面大小：')}<Switch size='small' value={auto_expand} onChange={(checked => { dashboard.on_set_auto_expand(checked) })}/>
                 <VariableConfig/>
                 <DataSourceConfig/>
             </div>

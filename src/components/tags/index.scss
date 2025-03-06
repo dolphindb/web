@@ -1,0 +1,30 @@
+.ddb-tag {
+    font-weight: bold;
+    background-color: #E6F7FF;
+    color: #003A8C;
+    border-radius: 24px !important;
+}
+
+.ddb-success-tag {
+    color: #216E4E;
+    background-color: #DCFFF1;
+    font-weight: bold;
+}
+
+.ddb-error-tag {
+    color: #AE2E24;
+    background-color: #FFECEB;
+    font-weight: bold;
+}
+
+.ddb-partial-success-tag {
+    color: #873800;
+    background-color: #FFE7BA;
+    font-weight: bold;
+}
+
+.ddb-processing-tag {
+    background-color: #E6F7FF;
+    color: #003A8C;
+    font-weight: bold;
+}

@@ -145,7 +145,6 @@ export let builder = {
                 assets: {
                     productions: [
                         ... [
-                            'ddb.svg',
                             'overview/online.png', 'overview/offline.png',
                             'overview/icons/controller-background.svg',
                             'overview/icons/data-background.svg',
@@ -179,6 +178,12 @@ export let builder = {
             this.bundler.build_all(),
             fwrite(`${fpd_out}version.json`, info, noprint)
         ])
+    },
+    
+    
+    async build_and_close (production: boolean, version_name?: string) {
+        await this.build(production, version_name)
+        await this.close()
     },
     
     

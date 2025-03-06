@@ -90,15 +90,16 @@ export function DBTable (props: IProps) {
                     background_color,
                     sorter,
                     font_size,
-                    header_style
+                    header_style,
+                    ellipsis
                 } = col ?? { }
                 
                 const col_config = {
                     dataIndex: name,
-                    width: width,
+                    width,
                     title: display_name || name,
                     key: name,
-                    ellipsis: true,
+                    ellipsis,
                     align,
                     sorter: sorter ? {
                         compare: (a, b) => a[name] - b[name],
@@ -173,7 +174,7 @@ export function DBTable (props: IProps) {
                         'table-with-pagination': config?.pagination?.show,
                     })}
                     style={{ height: `calc(100% - ${size?.height ?? 0}px)` }}
-                    scroll={{ x: 'max-content' }}
+                    scroll={{ x: config?.max_content ? 'max-content' : '100%' }}
                     columns={columns}
                     dataSource={config.is_reverse ? data_source.toReversed() : data_source}
                     pagination={pagination}

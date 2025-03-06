@@ -2,7 +2,7 @@ import useSWR from 'swr'
 import './ParserTemplates.scss'
 import { useCallback, useMemo, useState } from 'react'
 
-import { Button, Space, Table, Tag, Tooltip, Typography, message, type TableProps } from 'antd'
+import { Button, Popconfirm, Tooltip, Typography, message, type TableProps } from 'antd'
 
 import { DeleteOutlined, PlusOutlined } from '@ant-design/icons'
 
@@ -14,6 +14,12 @@ import { format_time } from '@/dashboard/utils.ts'
 
 
 import { model } from '@/model.ts'
+
+import { DDBTag } from '@/components/tags/index.tsx'
+
+import { DDBTable } from '@/components/DDBTable/index.tsx'
+
+import { TableOperations } from '@/components/TableOperations/index.tsx'
 
 import { request } from './utils.ts'
 import { type IParserTemplate } from './type.js'
@@ -61,15 +67,6 @@ export function ParserTemplates () {
         })
     }, [selected_keys, delete_templates])
     
-    const on_delete = useCallback(({ name, id, citeNumber }: IParserTemplate) => {
-        model.modal.confirm({
-            title: citeNumber 
-            ? t('该解析模板被引用 {{citeNumber}} 次, 确定要删除吗？', { citeNumber }) 
-            : t('确定要删除模板【{{name}}】吗？', { name }),
-            okButtonProps: { type: 'primary', danger: true },
-            onOk: async () => delete_templates([id]),
-        })
-    }, [selected_keys, delete_templates ])
     
     const can_edit = useCallback((template: IParserTemplate ) => template.flag === 0 && template.useNumber === 0, [ ])
     
@@ -85,7 +82,7 @@ export function ParserTemplates () {
             title: t('协议'),
             dataIndex: 'protocol',
             width: 200,
-            render: protocol => <Tag color='processing' bordered={false}>{PROTOCOL_MAP[protocol]}</Tag> 
+            render: protocol => <DDBTag>{PROTOCOL_MAP[protocol]}</DDBTag> 
         },
         {
             title: t('备注'),
@@ -123,39 +120,42 @@ export function ParserTemplates () {
             key: 'operations',
             title: t('操作'),
             fixed: 'right',
-            width: 200,
-            render: (_, record) => <Space size='large'>
+            width: 150,
+            render: (_, record) => <TableOperations>
                 {
                     can_edit(record) 
                     ?  <>
                             <Tooltip title={record.citeNumber ? t('当前解析模板已被引用，请谨慎修改') : null}>
                                 <Typography.Link onClick={() => { on_edit(record) }}>{t('编辑')}</Typography.Link>
                             </Tooltip>
-                            <Typography.Link onClick={async () => { on_delete(record) }} type='danger'>{t('删除')}</Typography.Link>
+                            <Popconfirm 
+                                okButtonProps={{ danger: true, type: 'primary' }}
+                                title={record.citeNumber 
+                                    ? t('该解析模板被引用 {{citeNumber}} 次, 确定要删除吗？', { citeNumber: record.citeNumber }) 
+                                    : t('确定要删除模板【{{name}}】吗？', { name: record.name })}
+                                onConfirm={() => { delete_templates([record.id]) }}
+                            >
+                                <Typography.Link type='danger'>{t('删除')}</Typography.Link>
+                            </Popconfirm>
                         </> 
                     :  <Typography.Link onClick={async () => NiceModal.show(ParserTemplateModal, { refresh, editedTemplate: record, mode: 'view' })}>{t('查看')}</Typography.Link>
                 }
                
-            </Space>   
+            </TableOperations>   
         }
         
-    ], [on_edit, on_delete, can_edit])
+    ], [on_edit, can_edit])
     
    
     return <div className='parser-template-content'>
-        <h2>{t('解析模板')}</h2>
-        <Space className='parser-template-btn-group'>
-            <Button onClick={on_create} icon={<PlusOutlined />} type='primary'>{t('新建')}</Button>
-            <Button 
-                disabled={!selected_keys.length} 
-                onClick={on_batch_delete} 
-                icon={<DeleteOutlined />} 
-                danger
-                >
-                {t('批量删除')}
-            </Button>
-        </Space>
-        <Table 
+        <DDBTable<IParserTemplate>
+            title={t('解析模板')}
+            buttons={
+                <>
+                    <Button type='primary' icon={<PlusOutlined />} onClick={on_create}>{t('新建')}</Button>
+                    <Button danger onClick={on_batch_delete} icon={<DeleteOutlined/>}>{t('批量删除')}</Button>
+                </>
+            }
             scroll={{ x: '100%' }} 
             rowKey='id' 
             dataSource={data.items} 

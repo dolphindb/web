@@ -9,9 +9,13 @@ import { t } from '@i18n/index.ts'
 
 import { model } from '@/model.ts'
 
+import ddb_svg from '@/icons/ddb.svg'
+import ddb_italic_svg from '@/icons/ddb.italic.svg'
+
 
 export function Login () {
     const { logined } = model.use(['logined'])
+    const { shf } = model
     
     // 已登录就不显示登录页，回到之前的页面或者主页 (直接打开登录页的情况)
     useEffect(() => {
@@ -23,7 +27,7 @@ export function Login () {
     }, [logined])
     
     return <>
-        <img className='logo' src={`${model.assets_root}ddb.svg`} />
+        <img className='logo' src={shf ? ddb_svg : ddb_italic_svg} />
         
         <div className='form-container'>
             <Form

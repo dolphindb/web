@@ -233,7 +233,7 @@ export function concat_name_path (...paths: (NamePath | NamePath[])[]): NamePath
 
 /** type 表示轴类型，传入 0 的时候代表 X 轴，其余时候为 Y 轴 */
 export function get_axis_range (type: number, echart_instance: EChartsInstance, idx: number) { 
-    return echart_instance.getModel().getComponent(type === 0 ? 'xAxis' : 'yAxis', idx).axis.scale._extent
+    return (echart_instance as any).getModel().getComponent(type === 0 ? 'xAxis' : 'yAxis', idx).axis.scale._extent
 }
 
 function get_data_source_cols (data_source_id, col) {
@@ -522,7 +522,7 @@ export function convert_chart_config (
         yAxis: Array.isArray(yAxis) ? yAxis.filter(item => !!item).map(convert_axis) : convert_axis(yAxis),
         series: echarts_series,
         dataZoom: convert_data_zoom(x_datazoom, y_datazoom)
-    }
+    } as unknown as echarts.EChartsOption
 }
 
 

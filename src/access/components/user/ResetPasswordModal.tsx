@@ -38,7 +38,7 @@ export const ResetPasswordModal = NiceModal.create<ResetPasswordModalProps>(({ n
                 modal.hide()
             }}
         >
-            <Form name='basic' form={reset_password_form} labelCol={{ span: language === 'zh' ? 4 : 8 }} labelAlign='right' autoComplete='off'>
+            <Form name='basic' form={reset_password_form} labelCol={{ span: language === 'zh' ? 4 : 8 }} autoComplete='off'>
                 <Form.Item
                     label={t('新密码')}
                     name='password'

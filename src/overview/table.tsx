@@ -12,6 +12,8 @@ import { NodeType, model, storage_keys, type DdbNode } from '../model.js'
 
 import { t } from '../../i18n/index.js'
 
+import { DDBTable } from '@/components/DDBTable/index.tsx'
+
 import { ns2ms } from './utils.ts'
 
 const node_state_icons = [
@@ -353,10 +355,9 @@ export function OverviewTable ({
         ...groups
     ].map(group => {
         const group_nodes = group.nodes
-        return <div key={group.name}>
-            {group.name && <div className='group-title'>{group.name}</div>}
-            <div>
-                <Table
+        return <DDBTable
+                    key={group.name}
+                    title={group.name}
                     rowSelection={{
                         selectedRowKeys: selectedNodeNames,
                         onChange (_, nodes) {
@@ -380,14 +381,12 @@ export function OverviewTable ({
                     pagination={false}
                     scroll={{  x: 'max-content' }}
                 />
-            </div>
-        </div>
     })
     
     return <div className='overview-table'>
-       { node_type !== NodeType.single &&  <Collapse items={collapseItems} bordered={false}/> }
+       { node_type !== NodeType.single &&  <Collapse items={collapseItems} ghost/> }
         <Dropdown menu={{ items }} overlayClassName='table-dropdown' trigger={['contextMenu']}>
-            <div>
+            <div className='tables-container'>
                 {tables}
             </div>
         </Dropdown>

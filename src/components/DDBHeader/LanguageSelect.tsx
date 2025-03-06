@@ -4,7 +4,8 @@ import { t } from '@i18n/index.ts'
 
 import { useState } from 'react'
 
-import SvgI18n from '@/icons/i18n.icon.svg'
+import { TranslationOutlined } from '@ant-design/icons'
+
 import { model, storage_keys } from '@/model.ts'
 
 
@@ -48,8 +49,6 @@ export function LanguageSelect () {
             arrow
             className='header-settings'
         >
-            <div>
-                <SvgI18n className='header-settings-icon'/>
-            </div>
+            <TranslationOutlined className='header-settings-icon' />
         </Dropdown>
 }

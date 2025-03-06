@@ -16,9 +16,10 @@ import { Editor } from '@monaco-editor/react'
 
 import { model, type DdbJob } from '@/model.ts'
 
-import { TableCellDetail } from '@/components/TableCellDetail/index.tsx'
+import { DDBTable } from '@/components/DDBTable/index.tsx'
+import { StatusTag, StatusType } from '@/components/tags/index.tsx'
 
-const { Title, Text, Link } = Typography
+const { Text, Link } = Typography
 
 
 const statuses = {
@@ -28,22 +29,19 @@ const statuses = {
     failed: t('出错了'),
 }
 
-const cols_width = {
-   rjobs: {
-    userID: 120,
-    jobId: 150,
-    errorMsg: 220,
-    priority: 65,
-    parallelism: 65,
-    clientIp: 120,
-    clientPort: 90
-   }
+const status_map = {
+    queuing: StatusType.PARTIAL_SUCCESS,
+    running: StatusType.RUNNING,
+    completed: StatusType.SUCCESS,
+    failed: StatusType.FAILED
 }
 
 
 const ellipsis_cols = {
     rjobs: ['rootJobId']
 }
+
+const expand_cols = ['errorMsg']
 
 export function Job () {
     const [refresher, set_refresher] = useState({ })
@@ -77,7 +75,7 @@ export function Job () {
     const pagination: TablePaginationConfig = {
         defaultPageSize: 5,
         pageSizeOptions: ['5', '10', '20', '50', '100'],
-        size: 'small',
+        // size: 'small',
         showSizeChanger: true,
         showQuickJumper: true,
     }
@@ -101,7 +99,7 @@ export function Job () {
             -(l.finishedTasks - r.finishedTasks))
     
     const rjob_rows = filter_job_rows(
-        set_detail_row(rjobs.to_rows().map(compute_status_info), [ 'errorMsg']),
+        rjobs.to_rows().map(compute_status_info),
         query
     ).sort((l, r) => {
         if (l.status !== r.status) {
@@ -117,11 +115,11 @@ export function Job () {
     
     const n_rjob_rows_uncompleted = rjob_rows.filter(job => 
             job.status === 'queuing' || job.status === 'running'
-        ).length
-    
+        ).length    
     
     return <>
         <div className='actions'>
+            <Input.Search className='search' placeholder={t('输入关键字后按回车可搜索作业')} onSearch={ value => { set_query(value) }} />
             <Button
                 className='refresh'
                 icon={<ReloadOutlined/>}
@@ -129,17 +127,15 @@ export function Job () {
                     set_refresher({ })
                 }}
             >{t('刷新')}</Button>
-            <Input.Search className='search' placeholder={t('输入关键字后按回车可搜索作业')} onSearch={ value => { set_query(value) }} />
         </div>
         
         <div className={`cjobs themed ${ !gjob_rows.length ? 'nojobs' : '' }`} style={{ display: (!query || gjob_rows.length) ? 'block' : 'none' }}>
-            <Title level={4} className='title'>
-                <Tooltip title='getConsoleJobs'>{t('运行中作业')} </Tooltip>
-                ({gjob_rows.length} {t('个进行中')})
-            </Title>
-            
-            <Table
-                size='small'
+            <DDBTable
+                title={<>
+                    <Tooltip title='getConsoleJobs'>{t('运行中作业')} </Tooltip>
+                    ({gjob_rows.length} {t('个进行中')})
+                </>}
+         
                 columns={
                     translate_columns(
                         add_progress_col(
@@ -156,6 +152,7 @@ export function Job () {
                 }
                 dataSource={gjob_rows}
                 rowKey='rootJobId'
+                scroll={{ x: 'max-content' }}
                 pagination={gjob_rows.length > pagination.defaultPageSize && pagination }
                 expandable={{
                     expandedRowRender: gjob => 
@@ -179,31 +176,29 @@ export function Job () {
         </div>
         
         <div className={`rjobs themed ${ !rjob_rows.length ? 'nojobs' : '' }`} style={{ display: (!query || rjob_rows.length) ? 'block' : 'none' }}>
-            <Title level={4} className='title'>
-                <Tooltip title='getRecentJobs'>{t('已提交作业')} </Tooltip>
-                ({n_rjob_rows_uncompleted} {t('个进行中')}, {rjob_rows.length - n_rjob_rows_uncompleted} {t('个已完成')})
-            </Title>
             
-            <Table
-                size='small'
+            <DDBTable
+                title={<>
+                    <Tooltip title='getRecentJobs'>{t('已提交作业')} </Tooltip>
+                    ({n_rjob_rows_uncompleted} {t('个进行中')}, {rjob_rows.length - n_rjob_rows_uncompleted} {t('个已完成')})
+                </>}
                 columns={
                     handle_ellipsis_col(
-                        set_col_width(
-                            translate_columns(
-                                add_status_col(
-                                    append_action_col(
-                                        rjobs.to_cols() as TableColumnType<Record<string, any>>[],
-                                        'stop',
-                                        async job => {
-                                            await model.cancel_job(job)
-                                            await get_rjobs()
-                                        }
-                                    )
+                        translate_columns(
+                            add_status_col(
+                                append_action_col(
+                                    rjobs.to_cols() as TableColumnType<Record<string, any>>[],
+                                    'stop',
+                                    async job => {
+                                        await model.cancel_job(job)
+                                        await get_rjobs()
+                                    }
                                 )
-                            ), 'rjobs'
+                            )
                         ), 'rjobs'
                     )  
                 }
+                scroll={{ x: 'max-content' }}
                 dataSource={rjob_rows}
                 rowKey={(job: DdbJob) => `${job.jobId}.${job.node || ''}`}
                 pagination={rjob_rows.length > pagination.defaultPageSize && pagination }
@@ -211,13 +206,13 @@ export function Job () {
         </div>
         
         <div className={`sjobs themed ${ !sjob_rows.length ? 'nojobs' : '' }`} style={{ display: (!query || sjob_rows.length) ? 'block' : 'none' }}>
-            <Title level={4} className='title'>
-                <Tooltip title='getScheduledJobs'>{t('已定时作业')} </Tooltip>
-                ({sjob_rows.length} {t('个已配置')})
-            </Title>
-            
-            <Table
-                size='small'
+        
+            <DDBTable
+                title={<>
+                     <Tooltip title='getScheduledJobs'>{t('已定时作业')} </Tooltip>
+                     ({sjob_rows.length} {t('个已配置')})
+                </>}
+                
                 columns={
                     translate_columns(
                         append_action_col(
@@ -230,6 +225,7 @@ export function Job () {
                         )
                     )
                 }
+                scroll={{ x: 'max-content' }}
                 dataSource={sjob_rows}
                 rowKey={(job: DdbJob) => `${job.jobId}.${job.node || ''}`}
                 pagination={ sjob_rows.length > pagination.defaultCurrent && pagination }
@@ -292,21 +288,18 @@ const column_names = {
     queue: t('队列')
 }
 
-const detail_title = {
-    errorMsg: t('错误详细信息'),
-    rootJobId: t('根作业 ID')
-}
-
 function translate_columns (cols: DdbJobColumn[]): DdbJobColumn[] {
-    return cols.map(item => 
-        ({ ...item, title: column_names[item.title as string] || item.title }))
-}
-
-function set_detail_row (table: Record<string, any>[], col_names: string[]) {
-    return table.map(row => {
-        for (let col_name of col_names)
-            row[col_name] = <TableCellDetail title={detail_title[col_name]} content={row[col_name]}/>
-        return row
+    return cols.map(item => {
+        const expand = expand_cols.includes(item.dataIndex as string)
+        return { 
+            ...item, 
+            title: column_names[item.title as string] || item.title,
+            width: expand ? 250 : undefined,
+            render: expand 
+                ? value => <Typography.Paragraph style={{ marginBottom: 0 }} ellipsis={{ rows: 1, expandable: 'collapsible' }}>{value}</Typography.Paragraph>
+                : undefined
+        }
+    
     })
 }
 
@@ -359,14 +352,6 @@ function fix_scols (sjobs: DdbObj<DdbObj[]>) {
 }
 
 
-/** 设置列宽 */
-function set_col_width (cols: TableColumnType<Record<string, any>>[], type: string) {
-    for (let width_key of Object.keys(cols_width[type])) 
-        cols.find(col => col.dataIndex === width_key).width = cols_width[type][width_key]
-    return cols
-}
-
-
 function append_action_col (
     cols: DdbJobColumn[],
     type: 'stop' | 'delete',
@@ -375,6 +360,7 @@ function append_action_col (
     cols.push(
         {
             title: 'actions',
+            fixed: 'right',
             render: (value, job) => {
                 const disabled = job.status && job.status !== 'queuing' && job.status !== 'running'
                 
@@ -385,6 +371,7 @@ function append_action_col (
                     
                     <Popconfirm
                         title={type === 'stop' ? t('确认停止作业') : t('确认删除作业')}
+                        okButtonProps={{ danger: true, type: 'primary' }}
                         onConfirm={async () => {
                             await action(job)
                             model.message.success(
@@ -392,7 +379,7 @@ function append_action_col (
                             )
                         }
                         }>
-                        <Link title={disabled ? t('作业已完成') : ''} disabled={disabled}>{
+                        <Link type='danger' title={disabled ? t('作业已完成') : ''} disabled={disabled}>{
                             type === 'stop' ? t('停止') : t('删除')
                         }</Link>
                     </Popconfirm>
@@ -418,8 +405,7 @@ function add_status_col (cols: DdbJobColumn[]) {
         title: 'status',
         key: 'status',
         width: language === 'zh' ? '80px' : '100px',
-        render: (value, job) => 
-            <Text type={job.theme}>{statuses[job.status] || job.status}</Text>
+        render: (value, job) => <StatusTag status={status_map[job.status]}>{statuses[job.status] || job.status}</StatusTag>
     }
     
     cols.splice(i_priority, 0, col_status)

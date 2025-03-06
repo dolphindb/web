@@ -1,9 +1,9 @@
 import { Tag, Popover, Descriptions, Card, Tooltip } from 'antd'
 import { SyncOutlined } from '@ant-design/icons'
 
-import { t } from '../../i18n/index.js'
+import { t } from '../../../i18n/index.js'
 
-import { model, NodeType } from '../model.js'
+import { model, NodeType } from '../../model.js'
 
 
 const uppercase_node_types = {
@@ -54,7 +54,7 @@ export function Status () {
     >
         <Tag
             className='node-info'
-            color='#f2f2f2'
+            // color='#f2f2f2'
             onMouseOver={() => { model.get_cluster_perf(true) }}
         >{lowercase_node_types[node_type]} {node_alias}</Tag>
     </Popover>

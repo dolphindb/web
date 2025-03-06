@@ -110,24 +110,23 @@ export const EditParamModal = NiceModal.create(({
                         const { type, name } = param
                         
                         return  <Form.Item 
-                                    name={['selected_params', name]}   
-                                    label={name}
-                                    labelAlign='left'
-                                    labelCol={{ span: 3 }}
-                                    wrapperCol={{ span: 21 }}
-                                    >
-                                {type === DDB_TYPE_MAP[DdbType.timestamp] ? 
-                                    <DatePicker
-                                        showTime 
-                                    /> : 
-                                    type === DDB_TYPE_MAP[DdbType.symbol_extended] ? 
-                                            <Select
-                                                mode='multiple'
-                                                options={param.options.map(op => ({
-                                                    value: op,
-                                                    label: op
-                                            }))}
-                                            /> :  <InputNumber/>}
+                            name={['selected_params', name]}   
+                            label={name}
+                            labelCol={{ span: 3 }}
+                            wrapperCol={{ span: 21 }}
+                        >
+                            {type === DDB_TYPE_MAP[DdbType.timestamp] ? 
+                                <DatePicker
+                                    showTime 
+                                /> : 
+                                type === DDB_TYPE_MAP[DdbType.symbol] || type === DDB_TYPE_MAP[DdbType.symbol_extended]
+                                    ? <Select
+                                        mode='multiple'
+                                        options={param.options.map(op => ({
+                                                value: op,
+                                                label: op
+                                        }))} />
+                                    :  <InputNumber/>}
                             </Form.Item>
                       
                     })

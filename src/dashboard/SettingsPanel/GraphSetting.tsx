@@ -52,7 +52,6 @@ export function GraphSetting () {
             onValuesChange={on_form_change}
             form={form}
             labelCol={{ span: language === 'zh' ? 10 : 12 }}
-            labelAlign='left'
             colon={false}
             className='graph-setting-form'
         >

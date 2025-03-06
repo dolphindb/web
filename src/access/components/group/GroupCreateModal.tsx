@@ -53,7 +53,7 @@ export const GroupCreateModal = NiceModal.create(() => {
                 }
             }}
         >
-            <Form name='basic' labelCol={{ span: language === 'zh' ? 3 : 5 }} labelAlign='right' form={add_group_form} autoComplete='off'>
+            <Form name='basic' labelCol={{ span: language === 'zh' ? 3 : 5 }} form={add_group_form} autoComplete='off'>
                 <Form.Item
                     label={t('组名')}
                     name='group_name'

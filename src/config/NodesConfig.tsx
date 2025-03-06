@@ -1,11 +1,13 @@
-import { PlusOutlined, ReloadOutlined, SearchOutlined } from '@ant-design/icons'
+import { PlusOutlined, SearchOutlined } from '@ant-design/icons'
 import { EditableProTable } from '@ant-design/pro-components'
 import NiceModal from '@ebay/nice-modal-react'
-import { AutoComplete, Button, Collapse, Input, Popconfirm, type CollapseProps } from 'antd'
+import { AutoComplete, Button, Collapse, Popconfirm, type CollapseProps } from 'antd'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 
 import { t } from '../../i18n/index.js'
 import { model } from '../model.js'
+
+import { RefreshButton } from '@/components/RefreshButton/index.tsx'
 
 import { NodesConfigAddModal } from './NodesConfigAddModal.js'
 import { config } from './model.js'
@@ -146,8 +148,13 @@ export function NodesConfig () {
                                 >
                                     {t('编辑')}
                                 </Button>,
-                                <Popconfirm title={t('确认删除此配置项？')} key='delete' onConfirm={async () => delete_config(record.key as string)}>
-                                    <Button type='link'>{t('删除')}</Button>
+                                <Popconfirm 
+                                    title={t('确认删除此配置项？')}
+                                    key='delete'
+                                    onConfirm={async () => delete_config(record.key as string)}
+                                    okButtonProps={{ danger: true }}
+                                >
+                                    <Button variant='link' color='danger'>{t('删除')}</Button>
                                 </Popconfirm>
                             ]
                         }
@@ -186,7 +193,7 @@ export function NodesConfig () {
                             </Button>
                         ),
                         deleteText: (
-                            <Button type='link' key='delete' className='mr-btn'>
+                            <Button variant='link' color='danger' key='delete' className='mr-btn'>
                                 {t('删除')}
                             </Button>
                         ),
@@ -203,27 +210,6 @@ export function NodesConfig () {
     
     return <div className='nodes-config-container'>
         <div className='toolbar'>
-            <Button
-                icon={<ReloadOutlined />}
-                onClick={async () => {
-                    await config.load_configs()
-                    set_search_key('')
-                    set_active_key('')
-                    model.message.success(t('刷新成功'))
-                }}
-            >
-                {t('刷新')}
-            </Button>
-            
-            <Button
-                icon={<PlusOutlined />}
-                onClick={async () =>
-                    NiceModal.show(NodesConfigAddModal)
-                }
-            >
-                {t('新增配置')}
-            </Button>
-            
             <div className='auto-search'>
                 <AutoComplete<string>
                     showSearch
@@ -246,11 +232,26 @@ export function NodesConfig () {
                     
                 <Button icon={<SearchOutlined />} onClick={on_search}/>
             </div>
-           
+            <Button
+                icon={<PlusOutlined />}
+                type='primary'
+                onClick={async () =>
+                    NiceModal.show(NodesConfigAddModal)
+                }
+            >
+                {t('新增配置')}
+            </Button>
+            <RefreshButton
+                onClick={async () => {
+                    await config.load_configs()
+                    set_search_key('')
+                    set_active_key('')
+                    model.message.success(t('刷新成功'))
+                }}
+            />
         </div>
         <Collapse
             items={items}
-            bordered={false}
             activeKey={active_key}
             onChange={key => {
                 set_active_key(key)

@@ -1,7 +1,5 @@
 import {
-    ArrowLeftOutlined,
     DeleteOutlined,
-    EyeOutlined,
     PlusOutlined,
     SearchOutlined,
     SettingOutlined
@@ -44,15 +42,17 @@ export function AccessHeader ({
     const [input_value, set_input_value] = useState(search_key)
     
     return <div className='actions'>
-        <Button
-            type='default'
-            icon={<ArrowLeftOutlined />}
-            onClick={() => {
-                model.goto(`/access/${role}`)
+        
+        <Input
+            className='search'
+            value={input_value}
+            prefix={<SearchOutlined />}
+            onChange={e => {
+                set_input_value(e.target.value)
             }}
-        >
-            {t('返回')}
-        </Button>
+            onPressEnter={() => { set_search_key(input_value) }}
+            placeholder={t('请输入想要搜索的{{category}}', { category: category === 'database' && v3 ? `${TABLE_NAMES.catalog} / ${TABLE_NAMES.database} / ${TABLE_NAMES.table}` : TABLE_NAMES[category] })}
+        />
         
         {preview ? (
             <Button
@@ -70,15 +70,6 @@ export function AccessHeader ({
                     {t('新增权限')}
                 </Button>
                 <Button
-                    type='default'
-                    icon={<EyeOutlined />}
-                    onClick={() => {
-                        model.goto(`/access/${role}/${name}`)
-                    }}
-                >
-                    {t('查看权限')}
-                </Button>
-                <Button
                     danger
                     icon={<DeleteOutlined />}
                     onClick={() => {
@@ -90,15 +81,6 @@ export function AccessHeader ({
                 </Button>
             </>
         )}
-        <Input
-            className='search'
-            value={input_value}
-            prefix={<SearchOutlined />}
-            onChange={e => {
-                set_input_value(e.target.value)
-            }}
-            onPressEnter={() => { set_search_key(input_value) }}
-            placeholder={t('请输入想要搜索的{{category}}', { category: category === 'database' && v3 ? `${TABLE_NAMES.catalog} / ${TABLE_NAMES.database} / ${TABLE_NAMES.table}` : TABLE_NAMES[category] })}
-        />
+       
     </div>
 }

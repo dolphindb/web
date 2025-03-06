@@ -31,10 +31,12 @@ dayjs.locale(language === 'zh' ? 'zh-cn' : language)
 
 import { model } from './model.ts'
 
-import { DdbHeader } from './components/DdbHeader.tsx'
+import { light } from './theme.ts'
+
+import { DdbHeader } from './components/DDBHeader/index.tsx'
 import { DdbSider } from './components/DdbSider.tsx'
+import { HostSelect } from './components/DDBHeader/HostSelect.tsx'
 import { GlobalErrorBoundary } from './components/GlobalErrorBoundary.tsx'
-import { HostSelect } from './components/HostSelect.tsx'
 
 import { Login } from './login/index.tsx'
 import { Overview } from './overview/index.tsx'
@@ -69,17 +71,7 @@ function DolphinDB () {
     return <ConfigProvider
         locale={locales[language] as any}
         button={{ autoInsertSpace: false }}
-        theme={{
-            cssVar: true,
-            hashed: false,
-            token: {
-                motion: false,
-                
-                borderRadius: 0,
-                
-                controlOutlineWidth: 0,
-            }
-        }}
+        theme={light}
         renderEmpty={() => <div className='empty-placeholder' />}
     >
         <SWRConfig value={{
@@ -143,9 +135,7 @@ function MainLayout () {
     return inited ?
         <Layout className='root-layout'>
             <RouteListener />
-            { header && <Layout.Header className='ddb-header'>
-                <DdbHeader />
-            </Layout.Header> }
+            { header && <DdbHeader />}
             <Layout className='body' hasSider>
                 { sider && <DdbSider /> }
                 <Layout.Content className='view'>

@@ -1,25 +1,30 @@
+import './index.sass'
 import { useEffect } from 'react'
 
-import { Dropdown, Avatar } from 'antd'
+import { Dropdown, Avatar, Space, Layout } from 'antd'
 
-import { default as Icon, LoginOutlined, LogoutOutlined, UserOutlined } from '@ant-design/icons'
+import { DownOutlined, LoginOutlined, LogoutOutlined, UserOutlined } from '@ant-design/icons'
 
 import { t } from '@i18n/index.js'
 
 import { model } from '@/model.ts'
 
-import { License } from './License.tsx'
-import { Status } from './Status.tsx'
-import { Settings } from './Settings.tsx'
-import { CompileAndRefresh } from './CompileAndRefresh.tsx'
-import { HostSelect } from './HostSelect.tsx'
 import { LanguageSelect } from './LanguageSelect.tsx'
 
-import SvgArrowDown from './icons/arrow.down.icon.svg'
+import { Status } from './Status.tsx'
+
+import { CompileAndRefresh } from './CompileAndRefresh.tsx'
+import { HostSelect } from './HostSelect.tsx'
+import { License } from './License.tsx'
+import { Settings } from './Settings.tsx'
+
+import ddb_svg from '@/icons/ddb.svg'
+import ddb_white_svg from '@/icons/ddb.white.svg'
 
 
 export function DdbHeader () {
     const { logined, username, node_alias } = model.use(['logined', 'username', 'node_alias'])
+    const { shf } = model
     
     useEffect(() => {
         if (!node_alias)
@@ -28,24 +33,25 @@ export function DdbHeader () {
     }, [node_alias])
     
     
-    return <>
-        <img className='logo' src={`${model.assets_root}ddb.svg`} />
-        { model.dev && <HostSelect />}
-        { model.local && <CompileAndRefresh /> }
+    return <Layout.Header className='ddb-header'>
+        <img className='logo' src={shf ? ddb_svg : ddb_white_svg} style={shf ? { marginLeft: 6 } : undefined} />
         
         <div className='padding' />
         
-        <div className='section'><Status /></div>
-        
-        <div className='section'><License /></div>
-        
-        <LanguageSelect/>
-        
-        <Settings />
-        
-        <div className='section'>
-            <div className='user'>
-                <Dropdown
+        <Space size='middle'>
+            { model.local && <CompileAndRefresh /> }
+            { model.dev && <HostSelect />}
+            
+            <Status />
+            
+            <License />
+            
+            <Settings />
+            
+            <LanguageSelect/>
+            
+            
+            <Dropdown
                     menu={{
                         className: 'menu',
                         items: [
@@ -64,13 +70,15 @@ export function DdbHeader () {
                         ]
                     }}
                 >
-                    <a className='username'>
-                        <Avatar className='avatar' icon={<UserOutlined /> } size='small' />{username}<Icon className='arrow-down' component={SvgArrowDown} />
-                    </a>
+                    <div className='user'>
+                        <Avatar className='avatar' icon={<UserOutlined /> } size={18} />
+                        {username}
+                        {/* <Icon className='arrow-down' component={SvgArrowDown} /> */}
+                        <DownOutlined className='arrow-down'/>
+                    </div>
                 </Dropdown>
-            </div>
-        </div>
-    </>
+        </Space>
+    </Layout.Header>
 }
 
 

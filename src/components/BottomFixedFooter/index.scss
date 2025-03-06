@@ -1,0 +1,17 @@
+.bottom-fixed-footer {
+    position: fixed;
+
+    display: flex;
+    justify-content: center;
+    height: 48px;
+    bottom: 0;
+ 
+    background-color: var(--ant-color-bg-container);
+    align-items: center;
+    box-shadow: 0 -1px 3px #f0eafa
+}
+
+.bottom-fixed-placeholder {
+    height: 48px;
+    margin-top: 12px;
+}

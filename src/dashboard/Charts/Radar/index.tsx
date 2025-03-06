@@ -16,7 +16,7 @@ import { useChart } from '../hooks.js'
 
 export function Radar ({ widget, data_source }: { widget: Widget, data_source: any[] }) {
     const { title, title_size = 18, tooltip, legend, series, labels } = widget.config as IChartConfig
-    const option = useMemo(
+    const option = useMemo<echarts.EChartsOption>(
         () => {
             const legends = [ ]
             const indicators = [ ]

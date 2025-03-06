@@ -20,100 +20,11 @@ html, body
     .root-layout
         height: 100%
     
-    .ddb-header
-        padding: 0px 10px
-        height: 40px
-        line-height: 40px
-        
-        display: flex
-        
-        background: #f2f2f2
-        
-        box-shadow: 0px 1px 0px 0px #e5e5e5
-        
-        border-bottom: #e5e5e5 1px solid
-        
-        z-index: 10
-        
-        align-items: center
-        
-        .refresh-button
-            margin-left: 16px
-            background-color: #f2f2f2
-            
-            &:hover
-                background-color: unset
-        
-        .ant-avatar-sm
-            width: 20px
-            height: 20px
-            line-height: 20px
-        
-        .section
-            display: flex
-            align-items: center
-        
-        .header-settings
-            overflow: hidden
-            display: flex
-            align-items: center
-            cursor: pointer
-            
-            .header-settings-icon
-                margin-right: 6px
-                font-size: 20px
-                color: #707070
-            
-        .logo
-            margin-left: 5px
-            width: 90px
-            height: 40px
-        
-        .padding
-            flex: 1
-        
-        .node-info, .license
-            color: #000000
-            padding: 1px 8px 2px 8px
-            border-style: solid
-            border-color: #bbbbbb
-            margin-right: 10px
-            cursor: pointer
-            background-color: #f2f2f2
-        
-        
-        .user
-            margin-top: -2px
-            
-            .avatar
-                background-color: #707070
-                
-            .username
-                padding: 8px 4px
-                
-                color: #2e2e2e
-                font-size: 14px
-                
-                &:hover
-                    background-color: #d8d8d8
-                    
-                .avatar
-                    margin-right: 3px
-                
-                .arrow-down
-                    margin-left: 3px
-                    font-size: 12px
-    
-    
     .body
         height: 100%
         
         .sider
-            margin-top: 1px
-            
             user-select: none
-            
-            background: #fafafa
             
             .collapse-trigger
                 display: flex
@@ -134,7 +45,7 @@ html, body
                 &.expand
                     .collapse-icon
                         font-size: 16px
-                        margin-left: 14px
+                        margin-left: 9px
                         margin-right: 10px
                 
                 &.collapsed
@@ -144,7 +55,6 @@ html, body
                         justify-content: center
             
             .ant-layout-sider-trigger
-                background: #fafafa
                 box-shadow: inset -1px 0 0 #e5e5e5
             
             
@@ -155,8 +65,6 @@ html, body
                 
                 height: 100%
                 
-                background: #fafafa
-                
                 box-shadow: inset -1px 0 0 #e5e5e5
                 
                 border-right: unset
@@ -166,11 +74,6 @@ html, body
                 &.module-settings > li:last-child
                     margin-top: auto
                 
-                &.ant-menu-light .ant-menu-submenu-selected >.ant-menu-submenu-title, .ant-menu-light>.ant-menu .ant-menu-submenu-selected >.ant-menu-submenu-title
-                    color: #282828
-                    
-                .ant-menu-sub
-                    color: #707070
                 
                 &.ant-menu-inline-collapsed
                     width: 50px
@@ -183,31 +86,25 @@ html, body
                     justify-content: center
                     height: 100%
                 
+                .ant-menu-submenu-title
+                    width: 100% !important
+                    margin: 0px
+                    border-radius: 0px
+                
                 .ant-menu-item
-                    padding-inline: unset
                     margin-block-end: 0
+                    margin: 0px
+                    width: 100% !important
+                    border-radius: 0px
                     
                 .ant-menu-item-selected::after
                     transform: none
                 
                 .ant-menu-item-selected
-                    background-color: #e6e6e6
-                    color: #2e2e2e
-                    font-weight: bold
+                    border-right: 2px solid var(--ant-color-primary)
                     
                     .icon-menu
-                        color: #2e2e2e
-                    
-                .ant-menu-item:hover
-                    color: #2e2e2e
-                    background-color: #e6e6e6
-                    
-                .ant-menu-item-active
-                    color: unset
-                    background-color: #e6e6e6
-                    
-                    .icon-menu
-                        color: #2e2e2e
+                        color: var(--ant-color-primary)
                     
             
         .view
@@ -220,9 +117,17 @@ html, body
             flex-direction: column
             
             .view-card
-                padding: 20px
+                padding: 16px 24px
                 
                 background-color: #ffffff
+                
+                .ant-tag
+                    border-radius: 0px
+                    padding: 0px 16px !important
+                
+                .ant-collapse-ghost
+                    .ant-collapse-header
+                        padding: 0px 0px
 
 
 .empty-placeholder
@@ -344,23 +249,10 @@ html, body
             margin-top: 4px
             color: #000000
 
-
-.host-select.ant-select
-    margin-left: 24px
-    
-    .ant-select-selector
-        background-color: transparent !important
-
-.host-select-container
-    margin: 20px
-    
-    .host-select.ant-select
-        margin-left: unset
-        
-        width: 160px
-    
-
 // ------------ antd 样式覆写
+a
+    color: var(--ant-color-primary)
+
 .ant-btn
     transition: unset
 

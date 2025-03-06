@@ -38,6 +38,9 @@ export function BasicTableFields ({ col_names }: { col_names: string[] }) {
                             <Form.Item label={t('列宽')} name={[field.name, 'width']}>
                                 <InputNumber addonAfter='px'/>
                             </Form.Item>
+                            <Form.Item initialValue={false} label={t('超出省略')} name={[field.name, 'ellipsis']}>
+                                <BoolRadioGroup />
+                            </Form.Item>
                             
                              
                             <Form.Item label={t('列样式')} tooltip={t('从左到右依次为字号、文字色与背景色')}>

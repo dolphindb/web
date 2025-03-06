@@ -82,7 +82,7 @@ export const CreateDataSourceModal = NiceModal.create((props: ICreateDataSourceM
         onOk={on_create}
         title={t('创建数据源')}
     >
-        <Form validateTrigger={['onCompositionEnd']} autoComplete='off' form={form}  labelCol={{ span: 6 }} labelAlign='left'>
+        <Form validateTrigger={['onCompositionEnd']} autoComplete='off' form={form}  labelCol={{ span: 6 }}>
             <Form.Item label={t('名称')} name='name'
                 rules={
                     [

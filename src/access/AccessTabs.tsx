@@ -1,5 +1,5 @@
-import { Tabs, Button, Select } from 'antd'
-import { ReloadOutlined } from '@ant-design/icons'
+import { Tabs, Button, Select, Space } from 'antd'
+import { EyeOutlined, SettingOutlined } from '@ant-design/icons'
 import { useState } from 'react'
 
 import { t } from '@i18n/index.ts'
@@ -15,6 +15,7 @@ import { use_users } from '@/access/hooks/use-users.ts'
 import { use_groups } from '@/access/hooks/use-groups.ts'
 import { AccessList } from '@/access/AccessList.tsx'
 import { AccessManage } from '@/access/AccessManage.tsx'
+import { RefreshButton } from '@/components/RefreshButton/index.tsx'
 
 
 export function AccessTabs ({
@@ -47,7 +48,6 @@ export function AccessTabs ({
             : <AccessList role={role} name={name} category={category}/>
     
     return <Tabs
-            type='card'
             items={[
                 {
                     key: 'database',
@@ -78,8 +78,9 @@ export function AccessTabs ({
             activeKey={tab_key}
             onChange={handle_tab_change}
             tabBarExtraContent={{
-                left: (
-                    <div className='switch-user'>
+                right: (
+                    <Space size={10}>
+                         <div className='switch-user'>
                         {t('当前{{role}}:', { role: role === 'user' ? t('用户') : t('组') })}
                         <Select
                             value={name}
@@ -91,18 +92,36 @@ export function AccessTabs ({
                                 model.goto(`/access/${role}/${item}${editing ? '/edit' : ''}`, { replace: true })
                             }}
                         />
-                    </div>
-                ),
-                right: (
-                    <Button
-                        icon={<ReloadOutlined />}
+                    </div>  
+                        {editing ? ( 
+                            <Button
+                                type='primary'
+                                icon={<EyeOutlined />}
+                                onClick={() => {
+                                    model.goto(`/access/${role}/${name}`)
+                                }}
+                            >
+                                {t('查看权限')}
+                            </Button>
+                           
+                        ) : (
+                            <Button
+                                type='primary'
+                                icon={<SettingOutlined />}
+                                onClick={() => {
+                                    model.goto(`/access/${role}/${name}/edit`)
+                                }}
+                            >
+                                {t('设置权限')}
+                            </Button>
+                        )}
+                        <RefreshButton
                         onClick={async () => {
                             await mutate(key => Array.isArray(key) && key[0] === 'access_objs')
                             model.message.success(t('刷新成功'))
                         }}
-                    >
-                        {t('刷新')}
-                    </Button>
+                     />
+                    </Space>
                 )
             }}
         />

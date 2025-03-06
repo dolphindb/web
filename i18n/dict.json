@@ -6098,8 +6098,20 @@
     "目标节点": {
         "en": "Target Node"
     },
+    "控制节点不支持库表向导，请跳转到数据节点或计算节点查看。": {
+        "en": "The control node does not support the library table wizard. Please jump to the data node or computing node to view it."
+    },
     "Git 登录失败": {
         "en": "Login to Git failed."
+    },
+    "列宽自适应": {
+        "en": "Adaptive column width"
+    },
+    "请注意，列宽自适应时设置列宽无效": {
+        "en": "Please note that setting the column width is invalid when the column width is adaptive"
+    },
+    "超长省略": {
+        "en": "Ellipsis"
     },
     "查询在线插件列表:": {
         "en": "Query the online plug-in list:"
@@ -6109,5 +6121,35 @@
     },
     "getClusterPref 中节点的 agentSite 为空，无法通过 agent 查看日志": {
         "en": "The agentSite of the node in getClusterPref is empty, and logs cannot be viewed through the agent"
+    },
+    "区间": {
+        "en": "interval"
+    },
+    "频次": {
+        "en": "frequency"
+    },
+    "组列表": {
+        "en": "Group List"
+    },
+    "用户列表": {
+        "en": "User List"
+    },
+    "编译并刷新": {
+        "en": "Compile and Refresh"
+    },
+    " 新增控制节点配置": {
+        "en": "Add Control Node Configuration"
+    },
+    " 新增节点": {
+        "en": "Add Node"
+    },
+    "超出省略": {
+        "en": "Ellipsis"
+    },
+    "确认删除选中的 {{num}} 个巡检方案吗？": {
+        "en": "Confirm to delete the selected {{num}} inspection plans?"
+    },
+    "确认删除选中的 {{num}} 条巡检结果吗？": {
+        "en": "Confirm to delete the selected {{num}} inspection results?"
     }
 }

@@ -11,6 +11,7 @@ import 'xshell/polyfill.browser.js'
 import { not_empty } from 'xshell/prototype.browser.js'
 import { check, filter_values, strcmp } from 'xshell/utils.browser.js'
 import { request } from 'xshell/net.browser.js'
+import { storage } from 'xshell/storage.js'
 
 import {
     DDB, DdbObj, SqlStandard, DdbInt, DdbLong, type InspectOptions,
@@ -47,6 +48,8 @@ export class DdbModel extends Model<DdbModel> {
     
     /** 生产模式，等价于 !local && !test */
     production = true
+    
+    shf = false
     
     hostname: string
     
@@ -175,9 +178,11 @@ export class DdbModel extends Model<DdbModel> {
         
         this.production = !this.dev
         
+        this.shf = storage.getstr('shf') === '1'
+        
         // 确定 assets_root
         if (this.test)
-            for (const web_path of ['/web/', '/web-main/'])
+            for (const web_path of ['/web/', '/main/'])
                 if (location.pathname.startsWith(web_path)) {
                     this.assets_root = web_path
                     break
@@ -198,7 +203,7 @@ export class DdbModel extends Model<DdbModel> {
         
         const host = params.get('host')
         
-        const lang = localStorage.getItem(storage_keys.language)
+        const lang = storage.getstr(storage_keys.language)
         
         if (lang) 
             params.set('language', lang)
@@ -390,11 +395,11 @@ export class DdbModel extends Model<DdbModel> {
     
     /** 通过 oauthLogin 和 getAuthenticatedUserTicket 拿到的两种 ticket 登录 */
     async login_by_ticket () {
-        const ticket = localStorage.getItem(storage_keys.ticket)
+        const ticket = storage.getstr(storage_keys.ticket)
         if (!ticket)
             throw new Error(t('没有自动登录的 ticket'))
         
-        const last_username = localStorage.getItem(storage_keys.username)
+        const last_username = storage.getstr(storage_keys.username)
         if (!last_username)
             throw new Error(t('没有自动登录的 username'))
         

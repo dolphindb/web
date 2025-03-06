@@ -2,9 +2,9 @@ import './index.sass'
 
 import { type Dispatch, type ReactNode, type SetStateAction, useEffect, useState, useMemo } from 'react'
 
-import { Button, Tabs, Table, Tooltip, Spin, Result, type TableColumnType, Input, Modal, List, Typography } from 'antd'
+import { Button, Tabs, Tooltip, Spin, Result, type TableColumnType, Input, Modal, List, Typography, Space } from 'antd'
 
-import { ReloadOutlined, QuestionCircleOutlined, WarningOutlined, FormatPainterOutlined } from '@ant-design/icons'
+import { WarningOutlined, FormatPainterOutlined, TableOutlined, DeploymentUnitOutlined, ControlOutlined, StopOutlined, MinusCircleOutlined, DeleteOutlined } from '@ant-design/icons'
 
 import type { SortOrder } from 'antd/es/table/interface.js'
 
@@ -16,8 +16,6 @@ import { vercmp } from 'xshell/utils.browser'
 
 import { repeat } from 'lodash'
 
-import { language } from '@i18n/index.ts'
-
 import { model, NodeType } from '../model.js'
 
 import { TableCellDetail } from '../components/TableCellDetail/index.js'
@@ -26,11 +24,11 @@ import { t } from '../../i18n/index.js'
 
 import { Unlogin } from '../components/Unlogin.js'
 
-import { computing } from './model.js'
+import { RefreshButton } from '@/components/RefreshButton/index.js'
 
-import SvgPublish from './icons/publish.icon.svg'
-import SvgEngine from './icons/engine.icon.svg'
-import SvgTable from './icons/table.icon.svg'
+import { DDBTable } from '@/components/DDBTable/index.js'
+
+import { computing } from './model.js'
 
 import { CEPComputing } from './CEPComputing/index.js'
 
@@ -138,41 +136,35 @@ export function Computing () {
     return <Tabs
         className='themed'
         activeKey={tab_key}
-        type='card'
         onChange={set_tab_key}
         destroyInactiveTabPane
         items={[
             {
                 key: 'streaming_pub_sub_stat',
                 label: (
-                    <label className='tab-header'>
-                        <div className='tab-icon sm-font'>
-                            <SvgPublish />
-                        </div>
+                    <Space>
+                        <ControlOutlined />
                         {tab_content.streaming_pub_sub_stat.title}
-                    </label>
+                    </Space>
                 ),
                 children: (
                     <div className='streaming_pub_sub_stat'>
                         <StateTable
                             type='subWorkers'
-                            cols={set_col_width(
-                                add_details_col(
-                                    render_col_title(
-                                        translate_order_col(
-                                            set_col_color(
-                                                sort_col(
-                                                    streaming_stat.subWorkers.to_cols().filter(col => col.title in leading_cols.subWorkers),
-                                                    'subWorkers'
-                                                ),
-                                                'queueDepth'
+                            cols={add_details_col(
+                                render_col_title(
+                                    translate_order_col(
+                                        set_col_color(
+                                            sort_col(
+                                                streaming_stat.subWorkers.to_cols().filter(col => col.title in leading_cols.subWorkers),
+                                                'subWorkers'
                                             ),
-                                            true
+                                            'queueDepth'
                                         ),
-                                        'subWorkers'
-                                    )
-                                ),
-                                'subWorkers'
+                                        true
+                                    ),
+                                    'subWorkers'
+                                )
                             )}
                             rows={handle_null(
                                 add_details_row(
@@ -196,25 +188,20 @@ export function Computing () {
             {
                 key: 'streaming_engine_stat',
                 label: (
-                    <label className='tab-header'>
-                        <div className='tab-icon'>
-                            <SvgEngine />
-                        </div>
+                    <Space>
+                        <DeploymentUnitOutlined />
                         {tab_content.streaming_engine_stat.title}
-                    </label>
+                    </Space>
                 ),
                 children: (
                     <div className='streaming-engine-stat'>
                         <StateTable
                             type='engine'
-                            cols={set_col_width(
-                                add_details_col(
-                                    translate_order_col(
-                                        set_col_ellipsis(translate_format_col(streaming_engine_cols, 'memoryUsed'), 'metrics'),
-                                        false
-                                    )
-                                ),
-                                'engine'
+                            cols={add_details_col(
+                                translate_order_col(
+                                    set_col_ellipsis(translate_format_col(streaming_engine_cols, 'memoryUsed'), 'metrics'),
+                                    false
+                                )
                             )}
                             rows={handle_null(
                                 add_details_row(
@@ -234,12 +221,10 @@ export function Computing () {
             },
             {
                 key: 'streaming_table_stat',
-                label: <label className='tab-header'>
-                    <div className='tab-icon sm-font'>
-                        <SvgTable />
-                    </div>
+                label: <Space className='tab-header'>
+                    <TableOutlined />
                     {tab_content.streaming_table_stat.title}
-                </label>,
+                </Space>,
                 children: (
                     <div className='persistent-table-stat'>
                         <StateTable
@@ -252,10 +237,14 @@ export function Computing () {
                             type='persistenceMeta'
                             cols={render_col_title(
                                     sort_col(
-                                        set_col_width(
-                                            translate_format_col(persistent_table_stat.to_cols(), 'memoryUsed'), 'persistenceMeta'), 'persistenceMeta'),
-                                'persistenceMeta'
-                            )}
+                                        translate_format_col(persistent_table_stat.to_cols(),
+                                         'memoryUsed'
+                                        ), 
+                                        'persistenceMeta'
+                                    ),
+                                    'persistenceMeta'
+                                )
+                            }
                             rows={handle_null(
                                     translate_byte_row(
                                         handle_ellipsis_col(add_key(persistent_table_stat.to_rows()), 'persistenceDir'), 'memoryUsed'))}
@@ -277,24 +266,21 @@ export function Computing () {
             ...(show_cep_engine ? [{
                 key: 'cep_computing',
                 children: <CEPComputing />,
-                label: <label className='tab-header'>
-                    <FormatPainterOutlined className='tab-icon sm-font'/>
+                label: <Space className='tab-header'>
+                    <FormatPainterOutlined />
                     {t('CEP 流计算引擎') }
-                </label>,
+                </Space>,
             }] : [ ])
         ]}
         tabBarExtraContent={
             tab_key === 'cep_computing'
                 ? null
-                : <Button
-                    icon={<ReloadOutlined />}
+                : <RefreshButton
                     onClick={async () => {
                         await tab_content[tab_key].refresher.call(computing)
                         model.message.success(`${tab_content[tab_key].title}${t('刷新成功')}`)
                     }}
-                >
-                    {t('刷新')}
-                </Button>
+                 />
         }
     />
 }
@@ -306,73 +292,36 @@ interface ButtonProps {
 
 const special_engine_type = new Set(['NarrowReactiveStreamEngine', 'ReactiveStreamEngine', 'DualOwnershipReactiveStreamEngine'])
 
-const cols_width = {
-    subWorkers: {
-        workerId: 70,
-        topic: 240,
-        queueDepth: 90,
-        queueDepthLimit: 100,
-        lastErrMsg: 240,
-        details: 80
-    },
-    engine: {
-        name: 120,
-        engineType: 200,
-        lastErrMsg: 150,
-        numGroups: 80,
-        metrics: 120,
-        status: 100,
-        details: 80
-    },
-    persistenceMeta: {
-        tablename: 150,
-        loaded: 100,
-        columns: 120,
-        memoryUsed: 100,
-        lastLogSeqNum: 120,
-        sizeInMemory: 100,
-        asynWrite: 110,
-        totalSize: 90,
-        raftGroup: 70,
-        compress: 70,
-        sizeOnDisk: 100,
-        persistenceDir: 150,
-        retentionMinutes: 120,
-        memoryOffset: 100,
-        hashValue: 90,
-        diskOffset: 100
-    }
-}
 
 const header_text = {
     subWorkers: {
         title: t('订阅线程状态'),
-        tip: t('监控订阅节点的工作线程的状态。工作线程状态信息会按照 topic 来展示。'),
+        tip: 'getStreamingStat().subWorkers：' + t('监控订阅节点的工作线程的状态。工作线程状态信息会按照 topic 来展示。'),
         func: 'getStreamingStat().subWorkers'
     },
     pubConns: {
         title: t('发布状态'),
-        tip: t('监控本地发布节点和它的所有订阅节点之间的连接状态。'),
+        tip: 'getStreamingStat().pubConns：' + t('监控本地发布节点和它的所有订阅节点之间的连接状态。'),
         func: 'getStreamingStat().pubConns'
     },
     persistWorkers: {
         title: t('持久化线程状态'),
-        tip: t('监控负责持久化流数据表的工作线程的状态。'),
+        tip: 'getStreamingStat().persistWorkers：' + t('监控负责持久化流数据表的工作线程的状态。'),
         func: 'getStreamingStat().persistWorkers'
     },
     persistenceMeta: {
         title: t('持久化共享流表状态'),
-        tip: t('监控启用了持久化的共享流数据表的元数据。'),
+        tip: 'getStreamTables(1)：' + t('监控启用了持久化的共享流数据表的元数据。'),
         func: 'getStreamTables(1)'
     },
     sharedStreamingTableStat: {
         title: t('非持久化共享流表状态'),
-        tip: t('监控未启用持久化的共享流数据表的元数据。'),
+        tip: 'getStreamTables(2)：' + t('监控未启用持久化的共享流数据表的元数据。'),
         func: 'getStreamTables(2)'
     },
     engine: {
         title: t('流引擎状态'),
-        tip: t('监控流计算引擎的状态。'),
+        tip: 'getStreamEngineStat()：' + t('监控流计算引擎的状态。'),
         func: 'getStreamEngineStat()'
     }
 }
@@ -380,19 +329,23 @@ const header_text = {
 const button_text = {
     subWorkers: {
         title: t('流数据表', { context: 'computing' }),
-        action: t('取消订阅')
+        action: t('取消订阅'),
+        icon: <MinusCircleOutlined />
     },
     engine: {
         title: t('引擎'),
-        action: t('删除')
+        action: t('删除'),
+        icon: <DeleteOutlined />
     },
     persistenceMeta: {
         title: t('持久化共享数据流表'),
-        action: t('删除')
+        action: t('删除'),
+        icon: <DeleteOutlined />
     },
     sharedStreamingTableStat: {
         title: t('共享数据流表'),
-        action: t('删除')
+        action: t('删除'),
+        icon: <DeleteOutlined />
     }
 }
 
@@ -649,15 +602,6 @@ function set_col_color (cols: TableColumnType<Record<string, any>>[], col_name: 
     return cols
 }
 
-/** 设置列宽 */
-function set_col_width (cols: TableColumnType<Record<string, any>>[], type: string) {
-    for (let width_key of Object.keys(cols_width[type])) {
-        let col = cols.find(col => col.dataIndex === width_key)
-        col.width = cols_width[type][width_key]
-    }
-    return cols
-}
-
 /** 设置单元格自动省略 */
 function set_col_ellipsis (cols: TableColumnType<Record<string, any>>[], col_name: string) {
     let col = cols.find(({ dataIndex }) => dataIndex === col_name)
@@ -690,8 +634,10 @@ function add_details_row (table: Record<string, any>[]) {
             model.modal.info({
                 title: !engineType ? row.topic : row.name,
                 className: 'computing-show-more-modal',
+                width: 800,
                 content: (
                     <List
+                        size='small'
                         dataSource={detailed_keys.map(key => `${dict[key]}: ${row[key] === -1 || row[key] === -1n || row[key] === null ? '' : row[key]}`)}
                         renderItem={item => <List.Item><Typography.Paragraph ellipsis={{ tooltip: item }}>{item}</Typography.Paragraph ></List.Item>}
                         split={false}
@@ -777,7 +723,7 @@ function DeleteModal ({
                             <Tooltip
                                 title={selected.map(name => <p key={name}>{name}</p>)}
                             >
-                                <span className='selected-number'>{selected.length}</span>
+                                <Typography.Link>{selected.length}</Typography.Link>
                             </Tooltip>
                             {t(' 个{{item}}吗?', { item: button_text[table_name].title.toLowerCase() })}
                         </span>
@@ -790,7 +736,10 @@ function DeleteModal ({
                 }}
                 cancelButtonProps={{ className: 'hidden' }}
                 okText={action_text}
-                okButtonProps={{ disabled: input_value !== 'YES', className: input_value !== 'YES' ? 'disable-button' : 'normal-button' }}
+                okButtonProps={{ 
+                    disabled: input_value !== 'YES', 
+                    danger: true 
+                }}
                 onOk={async () => {
                     await handle_delete(
                         table_name,
@@ -807,7 +756,9 @@ function DeleteModal ({
                     close()
                 }}
             >
-                <Input
+                <Input 
+                    status='error'
+                    variant='filled'
                     placeholder={t("请输入 'YES' 以确认该操作")}
                     value={input_value}
                     onChange={({ target: { value } }) => {
@@ -815,7 +766,7 @@ function DeleteModal ({
                     }}
                 />
             </Modal>
-            <Button className='title-button' disabled={!selected.length} onClick={open}>
+            <Button disabled={!selected.length} onClick={open} danger icon={button_text[table_name].icon}>
                 {t('批量') + action_text}
             </Button>
         </>
@@ -825,7 +776,6 @@ function StateTable ({
     type,
     cols,
     rows,
-    min_width,
     separated = true,
     default_page_size = 5,
     refresher
@@ -840,21 +790,8 @@ function StateTable ({
 }) {
     const [selected, set_selected] = useState<string[]>([ ])
     
-    /** 渲染表头 */
-    function render_table_header (table_name: string, button_props?: ButtonProps) {
-        return <>
-                {button_props && <DeleteModal table_name={table_name} selected={selected} set_selected={set_selected} refresher={refresher} />}
-                <Tooltip title={header_text[table_name].func}>
-                    <span className='table-name'>{header_text[table_name].title}</span>
-                </Tooltip>
-                <Tooltip title={header_text[table_name].tip}>
-                    <QuestionCircleOutlined />
-                </Tooltip>
-            </>
-    }
-    
     return <>
-        <Table
+        <DDBTable
             tableLayout='fixed'
             rowSelection={
                 refresher
@@ -871,17 +808,15 @@ function StateTable ({
             dataSource={rows}
             rowKey={row => row.key}
             size='small'
-            title={() =>
-                render_table_header(
-                    type,
-                    refresher
-                        ? {
-                                selected,
-                                refresher
-                            }
-                        : null
-                )
-            }
+            title={header_text[type].title}
+            help={header_text[type].tip}
+            buttons={refresher 
+                ? <DeleteModal 
+                    table_name={type} 
+                    selected={selected} 
+                    set_selected={set_selected} 
+                    refresher={refresher} 
+                /> : null}
             pagination={
                 rows.length > default_page_size
                     ? {
@@ -893,7 +828,7 @@ function StateTable ({
                         }
                     : false
             }
-            scroll={{ x: min_width }}
+            scroll={{ x: 'max-content' }}
         />
         {rows.length <= default_page_size && separated && <div className='separater' />}
     </>

@@ -1,4 +1,4 @@
-import { ReloadOutlined, SearchOutlined } from '@ant-design/icons'
+import { SearchOutlined } from '@ant-design/icons'
 import { EditableProTable, type ActionType, type ProColumns } from '@ant-design/pro-components'
 import { AutoComplete, Button, Popconfirm } from 'antd'
 
@@ -9,6 +9,8 @@ import { genid, delay, unique } from 'xshell/utils.browser.js'
 import { t } from '../../i18n/index.js'
 
 import { model } from '../model.js'
+
+import { RefreshButton } from '@/components/RefreshButton/index.tsx'
 
 import { config } from './model.js'
 
@@ -83,10 +85,11 @@ export function ControllerConfig () {
                     {t('编辑')}
                 </Button>,
                 <Popconfirm
+                okButtonProps={{ danger: true }}
                     title={t('确认删除此配置项？')}
                     key='delete'
                     onConfirm={async () => delete_config(record.id as string)}>
-                    <Button type='link'>
+                    <Button variant='link' color='danger'>
                         {t('删除')}
                     </Button>
                 </Popconfirm>
@@ -104,6 +107,7 @@ export function ControllerConfig () {
         rowKey='id'
         actionRef={actionRef}
         columns={cols}
+        className='editable-table'
         params={{ search_value }}
         request={async () => {
             const value = unique(await config.load_controller_configs())
@@ -124,7 +128,9 @@ export function ControllerConfig () {
                     name: '',
                     value: ''
                 }),
-                creatorButtonText: t('新增控制节点配置'),
+                variant: 'outlined',
+                type: 'default',
+                creatorButtonText: t(' 新增控制节点配置'),
                 onClick () {
                     (async () => {
                         let $tbody = document.querySelector('.ant-table-body')
@@ -135,17 +141,6 @@ export function ControllerConfig () {
             }
         }
         toolBarRender={() => [
-            <Button
-                icon={<ReloadOutlined />}
-                onClick={async () => {
-                    await actionRef.current.reload()
-                    set_search_key('')
-                    set_search_value('')
-                    model.message.success(t('刷新成功'))
-                }}
-            >
-                {t('刷新')}
-            </Button>,
             <div className='auto-search'>
                 <AutoComplete<string>
                     showSearch
@@ -167,7 +162,15 @@ export function ControllerConfig () {
                         
                 } />
                 <Button icon={<SearchOutlined />} onClick={() => { set_search_value(search_key) }}/>
-            </div>
+            </div>,
+            <RefreshButton
+                onClick={async () => {
+                    await actionRef.current.reload()
+                    set_search_key('')
+                    set_search_value('')
+                    model.message.success(t('刷新成功'))
+                }}
+            />
         ]}
         editable={{
             type: 'single',
@@ -205,7 +208,8 @@ export function ControllerConfig () {
                 </Button>,
             deleteText:
                 <Button
-                    type='link'
+                    variant='link'
+                    color='danger'
                     key='delete'
                     className='mr-btn'
                 >

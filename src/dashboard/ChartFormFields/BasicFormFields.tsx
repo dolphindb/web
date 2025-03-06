@@ -79,8 +79,7 @@ export function BasicFormFields (props: { type?: 'chart' | 'table' | 'descriptio
     
     const form = Form.useFormInstance()
     
-    const FormFields = useMemo(() => {
-        return  <div className='axis-wrapper'>
+    const FormFields = useMemo(() => <div className='axis-wrapper'>
             <TitleFields />
             <WrapperFields />
             {type === 'chart' && <Form.Item name='animation' label={t('是否开启动画')} initialValue>
@@ -127,6 +126,9 @@ export function BasicFormFields (props: { type?: 'chart' | 'table' | 'descriptio
                 <Form.Item initialValue={false} name='bordered' label={t('展示边框')}>
                     <BoolRadioGroup />
                 </Form.Item>
+                <Form.Item initialValue={false} name='max_content' label={t('列宽自适应')} help={t('请注意，列宽自适应时设置列宽无效')}>
+                    <BoolRadioGroup />
+                </Form.Item>
                 <Form.Item initialValue name='need_select_cols' label={t('展示列选择')}>
                     <BoolRadioGroup />
                 </Form.Item>
@@ -134,8 +136,7 @@ export function BasicFormFields (props: { type?: 'chart' | 'table' | 'descriptio
                     <BoolRadioGroup />
                 </Form.Item>
             </>}
-        </div>
-    }, [type])
+        </div>, [type])
     
     const chart_items = useMemo < CollapseProps['items']>(() => [
         {

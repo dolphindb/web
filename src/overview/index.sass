@@ -22,6 +22,10 @@
         box-shadow: 0 1px 3px #f0eafa
         
         display: flex
+        justify-content: flex-end
+        align-items: center
+        column-gap: 12px
+        
         
         .operations, .configs
             display: flex
@@ -29,50 +33,22 @@
             align-items: center
             gap: 12px
             
-            .refresh
-                .text
-                    margin-top: 3px
-            
             .icon-area, .icon-expand-area, .icon-collapse-area
-                width: 80px
-                height: 40px
                 display: flex
                 align-items: center
                 justify-content: center
-                // border: 1px solid #d8e7ff
-                
-                button
-                    width: 80px
-                    height: 40px
-                
-            .icon-expand-area, .icon-collapse-area
-                width: 100px
-                button
-                    width: 100px
-                    height: 40px
-            
+
+                         
             .icon-expand-area.en, .icon-collapse-area.en
-                width: 130px
-                height: 40px
                 display: flex
                 align-items: center
                 justify-content: center
-                button
-                    width: 120px
-                    height: 40px
             
-            .icon-expand-area
-                margin-left: 40px
             
             .icon-area.en
-                width: 100px
-                height: 40px
                 display: flex
                 align-items: center
                 justify-content: center
-                button
-                    width: 100px
-                    height: 40px
             
             .icon-refresh
                 width: 14px
@@ -195,7 +171,6 @@
                         color: unset
                 
             .leader-tag
-                width: 49px
                 color:#412A9F
                 margin-left: 20px
                 min-width: 20px
@@ -380,10 +355,16 @@
         padding: 20px
         display: flex
         flex-direction: column
-        row-gap: 16px
+        
+        .tables-container
+            display: flex
+            flex-direction: column
+            row-gap: 16px
         
         .ant-collapse
             border-radius: 0
+            margin-bottom: 16px
+            
         .agent-node-title
             font-weight: 600
         .agent-node-card
@@ -400,7 +381,9 @@
         .ant-table-thead
             .ant-table-cell
                 white-space: nowrap
-
+    
+    .ant-layout,.ant-layout-header
+        background-color: #fff
                 
 .table-dropdown .ant-dropdown-menu .ant-dropdown-menu-item:hover
     background-color: unset    
@@ -418,6 +401,4 @@
     .col-selection-divider
         margin: 5px 0px
 
-.ant-layout,.ant-layout-header
-    background-color: #fff
-    padding: 0
+
