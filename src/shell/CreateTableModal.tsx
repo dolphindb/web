@@ -9,6 +9,8 @@ import { DdbType, type DdbObj } from 'dolphindb/browser.js'
 
 import { use_rerender } from 'react-object-model/hooks'
 
+import { DownOutlined, UpOutlined } from '@ant-design/icons'
+ 
 import { t } from '../../i18n/index.js'
 
 import { type DDBColumnTypeNames } from '@/utils.ts'
@@ -18,7 +20,6 @@ import { model } from '../model.js'
 import { Editor } from '../components/Editor/index.js'
 
 import { type Database } from './Databases.tsx'
-import { DownOutlined, UpOutlined } from '@ant-design/icons'
 
 // Table（维度表）不支持 partitionColumns
 enum TableTypes {
