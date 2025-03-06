@@ -157,9 +157,12 @@ def initDfs() {
 def newMetric(name, displayName, group, desc, nodes, script, params=NULL, version=0, language="cn") {
     print("new metric: " + name)
     name_ = name
-    cnt = exec count(*) from loadTable("dfs://autoInspection", "metrics") where name == name_
+    version_ = version
+    language_ = language_
+    cnt = exec count(*) from loadTable("dfs://autoInspection", "metrics") where name == name_ and version == version_ and language == language_
     if (cnt > 0) {
-        throw "duplicated metric name: " + name
+        print("duplicated metric, ignore! Name: " + name + ", version: " + string(version) + ", language: " + language)
+        return
     }
     params_ = params
     if (params.type() == STRING) { 
