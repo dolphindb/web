@@ -7,7 +7,7 @@ import { mapKeys, isFunction } from 'lodash'
 
 import { DdbType, type DdbObj } from 'dolphindb/browser.js'
 
-import { use_rerender } from 'react-object-model/hooks'
+import { use_rerender } from 'react-object-model/hooks.js'
 
 import { DownOutlined, UpOutlined } from '@ant-design/icons'
  
@@ -424,7 +424,7 @@ function CreateTableModalFillForm () {
     
     async function validateSortColumns (rule, value) {
         if (!value || !value.length)
-            return Promise.resolve()
+            return
         
         const columns = form.getFieldValue('columns') || [ ]
         const columnsMap = mapKeys(columns, column => column.name)
@@ -433,11 +433,11 @@ function CreateTableModalFillForm () {
             const sortColumn = columnsMap[column]
             return !SUPPORT_SORT_COLUMN_TYPES.includes(sortColumn?.type)
         })
-if (unsupportSortColumns.length)
-    return Promise.reject(t('列 {{columns}} 不支持排序', {
+        
+        if (unsupportSortColumns.length)
+            return Promise.reject(t('列 {{columns}} 不支持排序', {
                 columns: unsupportSortColumns.join(', '),
             }))
-        
         
         if (value.length > 1) {
             const lastColumnName = value[value.length - 1]
@@ -451,14 +451,11 @@ if (unsupportSortColumns.length)
                 return Promise.reject(t('索引列 {{columns}} 不能为 TIME, TIMESTAMP, NANOTIME, NANOTIMESTAMP 类型', {
                     columns: unsupportIndexesColumns.join(', '),
                 }))
-            
         }
-        
-        return Promise.resolve()
     }
     
     function onFinish (values) {
-        console.log(values)
+        console.log('创建表:', values)
         steps.next(values)
     }
     
@@ -470,7 +467,7 @@ if (unsupportSortColumns.length)
             labelCol={{ span: 4 }}
             className='create-table-form'
             onFinish={onFinish}
-            onValuesChange={() => { rerender() }}
+            onValuesChange={rerender}
         >
             <Form.Item
                 name='dbPath'

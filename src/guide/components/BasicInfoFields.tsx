@@ -4,7 +4,7 @@ import { Form, Input, InputNumber, Radio, Select, type SelectProps } from 'antd'
 
 import { useMemo } from 'react'
 
-import { FormDependencies } from '../../components/FormDependcies/index.js'
+import { FormDependencies } from '../../components/FormDependencies/index.js'
 
 import { GuideType } from '../iot-guide/type.js'
 import { check_tb_valid, request } from '../utils.ts'

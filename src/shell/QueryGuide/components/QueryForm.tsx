@@ -6,7 +6,7 @@ import { useEffect, useId, useState } from 'react'
 
 import { DeleteOutlined, MinusCircleOutlined, PlusCircleOutlined, QuestionCircleOutlined } from '@ant-design/icons'
 
-import { FormDependencies } from '../../../components/FormDependcies/index.js'
+import { FormDependencies } from '../../../components/FormDependencies/index.js'
 import { StringDatePicker } from '../../../components/StringDatePicker/index.js'
 import { StringTimePicker } from '../../../components/StringTimePicker.js'
 import { IN, IS_NULL, LIKE, NOT_IN, NOT_LIKE, NOT_NULL, OTHER_OPERATIONS, STRING_OPERATIONS, STRING_TYPES, TIME_TYPES, VALID_DATA_TYPES, VALUE_OPERATIONS, VALUE_TYPES } from '../constant.js'

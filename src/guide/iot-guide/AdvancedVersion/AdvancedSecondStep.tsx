@@ -4,7 +4,7 @@ import { Button, Form, Radio, Select, Space, Typography } from 'antd'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 
 import { type RecommendInfo, type SecondStepInfo, type AdvancedInfos, type ExecuteResult } from '../type.js'
-import { FormDependencies } from '../../../components/FormDependcies/index.js'
+import { FormDependencies } from '../../../components/FormDependencies/index.js'
 
 import { request } from '../../utils.ts'
 import { ENUM_TYPES, TIME_TYPES } from '../../constant.js'

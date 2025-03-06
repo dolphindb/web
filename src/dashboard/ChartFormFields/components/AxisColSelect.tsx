@@ -7,7 +7,7 @@ import { type NamePath } from 'antd/es/form/interface.js'
 import { WidgetChartType, dashboard } from '../../model.js'
 import { get_data_source } from '../../DataSource/date-source.js'
 import { concat_name_path, convert_list_to_options } from '../../utils.ts'
-import { FormDependencies } from '../../../components/FormDependcies/index.js'
+import { FormDependencies } from '../../../components/FormDependencies/index.js'
 
 
 interface IProps { 

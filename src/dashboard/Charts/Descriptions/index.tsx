@@ -11,7 +11,7 @@ import { convert_list_to_options, format_number, format_time, parse_text } from 
 
 
 import { type IDescriptionsConfig } from '../../type.js'
-import { FormDependencies } from '../../../components/FormDependcies/index.js'
+import { FormDependencies } from '../../../components/FormDependencies/index.js'
 import { StringColorPicker } from '../../../components/StringColorPicker/index.js'
 import { BasicFormFields } from '../../ChartFormFields/BasicFormFields.js'
 import { BoolRadioGroup } from '../../../components/BoolRadioGroup/index.js'

@@ -12,7 +12,7 @@ import { convert_list_to_options } from '../utils.ts'
 
 import { WidgetChartType, dashboard } from '../model.js'
 
-import { FormDependencies } from '../../components/FormDependcies/index.js'
+import { FormDependencies } from '../../components/FormDependencies/index.js'
 
 import { DDB_TYPE_MAP } from '@/utils.ts'
 

@@ -2,7 +2,7 @@ import { Button, Form, Input, InputNumber, Radio, Select } from 'antd'
 
 import { useCallback, useEffect } from 'react'
 
-import { FormDependencies } from '../../components/FormDependcies/index.js'
+import { FormDependencies } from '../../components/FormDependencies/index.js'
 
 import { request } from '../utils.ts'
 
