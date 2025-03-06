@@ -33,6 +33,7 @@
         "@ant-design/pro-layout": "^7.22.3",
         "@ebay/nice-modal-react": "^1.2.13",
         "@monaco-editor/react": "^4.7.0",
+        "@svgdotjs/svg.js": "^3.2.4",
         "@xterm/addon-fit": "^0.10.0",
         "@xterm/addon-webgl": "^0.18.0",
         "@xterm/xterm": "^5.5.0",
