@@ -393,7 +393,7 @@ function CreateTableModalFillForm () {
         }
         form.setFieldsValue(initialValues)
     }, [ ])
-const partitionList = useMemo(() => {
+    const partitionList = useMemo(() => {
         const partitions: IPartition[] = [ ]
         if (Array.isArray(schema.partitionTypeName.value))
             partitions.push(...schema.partitionTypeName.value.map((typeName, index) => ({
