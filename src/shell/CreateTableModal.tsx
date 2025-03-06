@@ -18,6 +18,7 @@ import { model } from '../model.js'
 import { Editor } from '../components/Editor/index.js'
 
 import { type Database } from './Databases.tsx'
+import { DownOutlined, UpOutlined } from '@ant-design/icons'
 
 // Table（维度表）不支持 partitionColumns
 enum TableTypes {
@@ -282,8 +283,8 @@ function ColumnsTable ({ value = [ ], onChange }) {
             key: 'sort',
             width: 30,
             render: (text, record, index) => <Space size='small'>
-                    <Button type='text' size='small' onClick={() => { moveColumn(index, -1) }}>↑</Button>
-                    <Button type='text' size='small' onClick={() => { moveColumn(index, 1) }}>↓</Button>
+                    <Button type='text' size='small' onClick={() => { moveColumn(index, -1) }}><UpOutlined/></Button>
+                    <Button type='text' size='small' onClick={() => { moveColumn(index, 1) }}><DownOutlined/></Button>
                 </Space>,
         },
         {
