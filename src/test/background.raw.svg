@@ -1,0 +1,4263 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<svg id="r" xmlns="http://www.w3.org/2000/svg" version="1.1" viewBox="0 0 640 360">
+  <!-- Generator: Adobe Illustrator 29.1.0, SVG Export Plug-In . SVG Version: 2.1.0 Build 142)  -->
+  <defs>
+    <style>
+      .st0 {
+        stroke: #fff;
+      }
+
+      .st0, .st1, .st2, .st3, .st4, .st5, .st6, .st7, .st8, .st9, .st10, .st11, .st12, .st13, .st14, .st15, .st16, .st17, .st18, .st19, .st20, .st21, .st22, .st23, .st24, .st25, .st26 {
+        stroke-miterlimit: 10;
+      }
+
+      .st0, .st1, .st2, .st3, .st4, .st5, .st6, .st7, .st8, .st9, .st10, .st11, .st12, .st13, .st15, .st18, .st19, .st21, .st22, .st23, .st25, .st26 {
+        stroke-width: .2px;
+      }
+
+      .st0, .st1, .st4, .st5, .st7, .st8, .st27, .st14, .st16, .st17, .st19, .st20, .st21, .st23, .st24 {
+        fill: none;
+      }
+
+      .st28 {
+        fill: #684864;
+      }
+
+      .st28, .st29, .st30, .st31, .st32, .st33, .st34, .st35, .st36, .st37, .st38, .st39, .st40, .st41, .st42, .st43, .st44, .st45, .st46, .st47, .st48, .st49, .st50, .st51, .st52, .st53, .st54, .st55, .st56, .st57, .st58, .st59, .st60, .st61, .st62, .st63, .st64, .st65, .st66, .st67, .st68, .st69, .st70 {
+        isolation: isolate;
+      }
+
+      .st28, .st29, .st30, .st31, .st32, .st33, .st34, .st35, .st36, .st37, .st38, .st39, .st40, .st41, .st42, .st43, .st44, .st45, .st46, .st47, .st48, .st50, .st51, .st52, .st53, .st54, .st55, .st56, .st57, .st58, .st59, .st60, .st61, .st62, .st63, .st64, .st65, .st66, .st67, .st68, .st69, .st70 {
+        font-family: SimHei, SimHei;
+      }
+
+      .st28, .st33, .st34, .st42, .st52, .st53 {
+        font-size: 4.7px;
+      }
+
+      .st71 {
+        fill: #0f0205;
+      }
+
+      .st1 {
+        stroke: #b5dad0;
+      }
+
+      .st72, .st29, .st31, .st32, .st35, .st37, .st38, .st39, .st42, .st43, .st46, .st48, .st50, .st51, .st55, .st60, .st61, .st62, .st63, .st65, .st66, .st67 {
+        fill: #231815;
+      }
+
+      .st2 {
+        fill: #e43a27;
+      }
+
+      .st2, .st3, .st6, .st9, .st73, .st10, .st11, .st12, .st13, .st15, .st18, .st21, .st22, .st74, .st24, .st25, .st26 {
+        stroke: #231815;
+      }
+
+      .st3 {
+        fill: #9a9699;
+      }
+
+      .st29, .st54 {
+        font-size: 4.1px;
+      }
+
+      .st75 {
+        fill: #ba3f3d;
+      }
+
+      .st30, .st76 {
+        fill: #7ebf47;
+      }
+
+      .st30, .st60 {
+        font-size: 6.8px;
+      }
+
+      .st4 {
+        stroke: #bfbebd;
+      }
+
+      .st5 {
+        stroke: #040000;
+      }
+
+      .st31 {
+        font-size: 5px;
+      }
+
+      .st32 {
+        font-size: 4.3px;
+      }
+
+      .st33, .st59, .st64, .st68, .st69 {
+        fill: #108923;
+      }
+
+      .st6, .st74 {
+        fill: #81c04a;
+      }
+
+      .st34, .st40, .st41, .st45 {
+        fill: #e02820;
+      }
+
+      .st35 {
+        font-size: 5.5px;
+      }
+
+      .st36 {
+        fill: #90aa8e;
+      }
+
+      .st36, .st40, .st44, .st56, .st65, .st69 {
+        font-size: 5.4px;
+      }
+
+      .st77, .st22 {
+        fill: #fff;
+      }
+
+      .st7 {
+        stroke: #e2ecbb;
+      }
+
+      .st8 {
+        stroke: #971e23;
+      }
+
+      .st9 {
+        fill: #2b6539;
+      }
+
+      .st37 {
+        font-size: 4.2px;
+      }
+
+      .st73 {
+        fill: #e23b23;
+      }
+
+      .st73, .st74 {
+        stroke-miterlimit: 10;
+        stroke-width: .2px;
+      }
+
+      .st38 {
+        font-size: 5.1px;
+      }
+
+      .st39 {
+        font-size: 4.4px;
+      }
+
+      .st78 {
+        fill: #7ebf4c;
+      }
+
+      .st10 {
+        fill: #ddedd9;
+      }
+
+      .st41, .st64, .st66 {
+        font-size: 3.6px;
+      }
+
+      .st11 {
+        fill: #7f7f83;
+      }
+
+      .st12, .st57 {
+        fill: #c34237;
+      }
+
+      .st43 {
+        font-size: 5.2px;
+      }
+
+      .st44, .st52 {
+        fill: #415ce5;
+      }
+
+      .st13 {
+        fill: #dc351b;
+      }
+
+      .st45, .st50, .st59 {
+        font-size: 3px;
+      }
+
+      .st46, .st70 {
+        font-size: 5.3px;
+      }
+
+      .st47 {
+        fill: #828ac3;
+        font-size: 6.6px;
+      }
+
+      .st48 {
+        font-size: 5.7px;
+      }
+
+      .st14 {
+        stroke: #d34c55;
+      }
+
+      .st14, .st16 {
+        stroke-width: .8px;
+      }
+
+      .st15 {
+        fill: #e5e3e6;
+      }
+
+      .st16 {
+        stroke: #e0e892;
+      }
+
+      .st17 {
+        stroke: #81c047;
+      }
+
+      .st18 {
+        fill: #727670;
+      }
+
+      .st19 {
+        stroke: #1e2045;
+      }
+
+      .st51 {
+        font-size: 4.9px;
+      }
+
+      .st79 {
+        fill: #bd5426;
+      }
+
+      .st53, .st56 {
+        fill: #ad1ea3;
+      }
+
+      .st80 {
+        fill: #f2e45b;
+      }
+
+      .st54, .st81 {
+        fill: #81c047;
+      }
+
+      .st82 {
+        fill: #bd4338;
+      }
+
+      .st55 {
+        font-size: 5.6px;
+      }
+
+      .st83 {
+        fill: #d8db8d;
+      }
+
+      .st84 {
+        fill: #bfbebd;
+      }
+
+      .st57 {
+        font-size: 4.8px;
+      }
+
+      .st58 {
+        font-size: 7.1px;
+      }
+
+      .st58, .st70 {
+        fill: #60755d;
+      }
+
+      .st85 {
+        fill: #971e23;
+      }
+
+      .st20 {
+        stroke: #a5d088;
+      }
+
+      .st86 {
+        fill: #90cfcf;
+      }
+
+      .st61 {
+        font-size: 4.5px;
+      }
+
+      .st87 {
+        fill: #bdbfbe;
+      }
+
+      .st62 {
+        font-size: 6.4px;
+      }
+
+      .st63 {
+        font-size: 6.7px;
+      }
+
+      .st67 {
+        font-size: 6.1px;
+      }
+
+      .st68 {
+        font-size: 6.2px;
+      }
+
+      .st23 {
+        stroke: #81c04a;
+      }
+
+      .st88 {
+        fill: #f8fbf7;
+      }
+
+      .st24 {
+        stroke-width: .5px;
+      }
+
+      .st25 {
+        fill: #fcfdfa;
+      }
+
+      .st26 {
+        fill: #83c152;
+      }
+
+      .st89 {
+        fill: #1d1e43;
+      }
+    </style>
+  </defs>
+  <g>
+    <rect class="st84" y="0" width="640" height="360"/>
+    <polygon class="st15" points="523 141.9 561.7 141.9 561.7 122.7 555 116.1 529.2 116.1 523 122.6 523 141.9"/>
+    <polygon class="st15" points="107.5 142.3 107.5 158 112.3 166.1 576.2 166.1 580.9 157.9 585.7 166.3 600 166.3 604.9 158 604.9 141.7 107.5 142.3"/>
+    <polyline class="st15" points="381.1 141.9 484.1 141.8 523 141.8 523 122.6 428.1 79 372.3 79 226.7 98.6 226.7 106.4 372.7 90.4 417 90.4 484.1 119.2 484.1 121.1 416.7 93.8 372.7 93.8 278.1 103.2 278.1 112.5 413.6 112.5 416.6 114.3 416.6 119.3 413.6 120.9 381.1 120.8"/>
+    <polyline class="st1" points="551.9 205.9 551.9 239.3 510 239.3"/>
+    <polygon class="st86" points="533.4 238 533.4 239.4 533.4 240.7 532.1 240 530.9 239.3 532.2 238.6 533.4 238"/>
+    <polyline class="st1" points="478 205.2 478 238.5 436.1 238.5"/>
+    <line class="st7" x1="166.7" y1="243.4" x2="105.9" y2="243.4"/>
+    <polyline class="st7" points="542.1 116.2 542.1 113 618 113 618 264.6 166.6 264.6 166.6 229"/>
+    <polyline class="st19" points="217.1 228.5 217.1 247.8 394.7 247.8"/>
+    <line class="st19" x1="217" y1="223.6" x2="217" y2="205.5"/>
+    <line class="st19" x1="197.9" y1="223.8" x2="197.9" y2="205.8"/>
+    <line class="st19" x1="236.3" y1="223.7" x2="236.3" y2="205.6"/>
+    <line class="st19" x1="255.7" y1="223.6" x2="255.7" y2="205.5"/>
+    <line class="st19" x1="275" y1="223.7" x2="275" y2="205.6"/>
+    <line class="st8" x1="397.6" y1="298.6" x2="397.6" y2="283.8"/>
+    <line class="st8" x1="373.1" y1="298.5" x2="373.1" y2="283.6"/>
+    <polyline class="st8" points="405.1 228.9 405.1 283.8 100.5 283.8 100.5 49.9 196.3 49.9 196.3 114.5"/>
+    <line class="st21" x1="139.7" y1="293.2" x2="243.1" y2="293.2"/>
+    <g>
+      <circle class="st14" cx="22" cy="73.7" r="4.4"/>
+      <circle class="st14" cx="49" cy="73.7" r="4.4"/>
+      <path class="st14" d="M45.7,70.5c.2.6.5,1.5,1.4,2.3.6.5,1.3.8,1.9,1,1,.3,2.3,1.1,3.7,2.7"/>
+      <path class="st14" d="M51.7,70.2c-.4.2-1.1.5-1.6,1.3-1.1,1.3-.8,2.6-1.6,4-.3.5-1,1.2-2.2,1.7"/>
+      <line class="st14" x1="48.4" y1="69.3" x2="22.7" y2="69.3"/>
+      <line class="st14" x1="22" y1="78.1" x2="48.6" y2="78.1"/>
+    </g>
+    <g>
+      <circle class="st14" cx="32.1" cy="92.3" r="4.4"/>
+      <circle class="st14" cx="59.1" cy="92.3" r="4.4"/>
+      <path class="st14" d="M55.7,89.1c.2.6.5,1.5,1.4,2.3.6.5,1.3.8,1.9,1,1,.3,2.3,1.1,3.7,2.7"/>
+      <path class="st14" d="M61.8,88.9c-.4.2-1.1.5-1.6,1.3-1.1,1.3-.8,2.6-1.6,4-.3.5-1,1.2-2.2,1.7"/>
+      <line class="st14" x1="58.4" y1="87.9" x2="32.9" y2="87.9"/>
+      <line class="st14" x1="32.1" y1="96.7" x2="58.7" y2="96.7"/>
+    </g>
+    <g>
+      <circle class="st16" cx="50.7" cy="111.6" r="4.4"/>
+      <circle class="st16" cx="77.8" cy="111.6" r="4.4"/>
+      <path class="st16" d="M74.4,108.5c.2.6.5,1.5,1.4,2.3.6.5,1.3.8,1.9,1,1,.3,2.3,1.1,3.7,2.7"/>
+      <path class="st16" d="M80.5,108.2c-.4.2-1.1.5-1.6,1.3-1.1,1.3-.8,2.6-1.6,4-.3.5-1,1.2-2.2,1.7"/>
+      <line class="st16" x1="77.1" y1="107.3" x2="51.6" y2="107.3"/>
+      <line class="st16" x1="50.8" y1="116.1" x2="77.5" y2="116.1"/>
+    </g>
+    <g>
+      <circle class="st14" cx="85.6" cy="160.9" r="4.4"/>
+      <circle class="st14" cx="58.5" cy="160.9" r="4.4"/>
+      <path class="st14" d="M61.9,157.7c-.2.6-.5,1.5-1.4,2.3-.6.5-1.3.8-1.9,1-1,.3-2.3,1.1-3.7,2.7"/>
+      <path class="st14" d="M55.8,157.4c.4.2,1.1.5,1.6,1.3,1.1,1.3.8,2.6,1.6,4,.3.5,1,1.2,2.2,1.7"/>
+      <line class="st14" x1="59.2" y1="156.4" x2="84.7" y2="156.4"/>
+      <line class="st14" x1="85.5" y1="165.3" x2="58.8" y2="165.3"/>
+    </g>
+    <g>
+      <circle class="st14" cx="53.1" cy="179.4" r="4.4"/>
+      <circle class="st14" cx="26.1" cy="179.4" r="4.4"/>
+      <path class="st14" d="M29.4,176.2c-.2.6-.5,1.5-1.4,2.3-.6.5-1.3.8-1.9,1-1,.3-2.3,1.1-3.7,2.7"/>
+      <path class="st14" d="M23.4,175.9c.4.2,1.1.5,1.6,1.3,1.1,1.3.8,2.6,1.6,4,.3.5,1,1.2,2.2,1.7"/>
+      <line class="st14" x1="26.7" y1="175" x2="52.3" y2="175"/>
+      <line class="st14" x1="53" y1="183.8" x2="26.4" y2="183.8"/>
+    </g>
+    <circle class="st14" cx="125.8" cy="200.9" r="4.4"/>
+    <g>
+      <circle class="st14" cx="575.8" cy="200.9" r="4.4"/>
+      <path class="st14" d="M572.5,197.7c.2.6.5,1.5,1.4,2.3.6.5,1.3.8,1.9,1,1,.3,2.3,1.1,3.7,2.7"/>
+      <path class="st14" d="M578.5,197.4c-.4.2-1.1.5-1.6,1.3-1.1,1.3-.8,2.6-1.6,4-.3.5-1,1.2-2.2,1.7"/>
+    </g>
+    <g class="st49">
+      <g class="st49">
+        <g class="st49">
+          <g class="st49">
+            <g class="st49">
+              <text class="st62" transform="translate(32.5 76.2)"><tspan x="0" y="0">L1</tspan></text>
+            </g>
+          </g>
+        </g>
+      </g>
+    </g>
+    <g class="st49">
+      <g class="st49">
+        <g class="st49">
+          <g class="st49">
+            <g class="st49">
+              <text class="st62" transform="translate(115.1 26.4)"><tspan x="0" y="0">L6</tspan></text>
+            </g>
+          </g>
+        </g>
+      </g>
+    </g>
+    <g class="st49">
+      <g class="st49">
+        <g class="st49">
+          <g class="st49">
+            <g class="st49">
+              <text class="st62" transform="translate(114.9 34.9)"><tspan x="0" y="0">L7</tspan></text>
+            </g>
+          </g>
+        </g>
+      </g>
+    </g>
+    <g class="st49">
+      <g class="st49">
+        <g class="st49">
+          <g class="st49">
+            <g class="st49">
+              <text class="st46" transform="translate(131.2 60.4)"><tspan x="0" y="0">L8</tspan></text>
+            </g>
+          </g>
+        </g>
+      </g>
+    </g>
+    <g class="st49">
+      <g class="st49">
+        <g class="st49">
+          <g class="st49">
+            <g class="st49">
+              <text class="st65" transform="translate(18.4 28)"><tspan x="0" y="0">L1(Hz)</tspan></text>
+            </g>
+          </g>
+        </g>
+      </g>
+    </g>
+    <g class="st49">
+      <g class="st49">
+        <g class="st49">
+          <g class="st49">
+            <g class="st49">
+              <text class="st65" transform="translate(79.1 28)"><tspan x="0" y="0">宽(Hz)</tspan></text>
+            </g>
+          </g>
+        </g>
+      </g>
+    </g>
+    <g class="st49">
+      <g class="st49">
+        <g class="st49">
+          <g class="st49">
+            <g class="st49">
+              <text class="st65" transform="translate(44.4 27.9)"><tspan x="0" y="0">往复(mm/s)</tspan></text>
+            </g>
+          </g>
+        </g>
+      </g>
+    </g>
+    <g class="st49">
+      <g class="st49">
+        <g class="st49">
+          <g class="st49">
+            <g class="st49">
+              <text class="st35" transform="translate(38.4 94)"><tspan x="0" y="0">往复</tspan></text>
+            </g>
+          </g>
+        </g>
+      </g>
+    </g>
+    <g class="st49">
+      <g class="st49">
+        <g class="st49">
+          <g class="st49">
+            <g class="st49">
+              <text class="st35" transform="translate(61.3 113.7)"><tspan x="0" y="0">宽</tspan></text>
+            </g>
+          </g>
+        </g>
+      </g>
+    </g>
+    <g>
+      <polyline class="st25" points="46.6 61.7 49.2 59.5 49.2 68.5 46.6 66.2"/>
+      <line class="st21" x1="53.2" y1="60.8" x2="50.2" y2="62.6"/>
+      <line class="st21" x1="50.1" y1="63.9" x2="53.1" y2="63.9"/>
+      <line class="st21" x1="50.4" y1="65.8" x2="53.1" y2="67.2"/>
+      <rect class="st25" x="44" y="61.7" width="2.6" height="4.5"/>
+    </g>
+    <g>
+      <polyline class="st25" points="77.6 99.7 80.3 97.6 80.3 106.7 77.6 104.3"/>
+      <line class="st21" x1="84.2" y1="98.9" x2="81.1" y2="100.8"/>
+      <line class="st21" x1="81" y1="102" x2="84.1" y2="102"/>
+      <line class="st21" x1="81.5" y1="103.9" x2="84.1" y2="105.4"/>
+      <rect class="st25" x="75" y="99.7" width="2.6" height="4.5"/>
+    </g>
+    <g>
+      <polyline class="st25" points="59 147.7 61.6 145.5 61.6 154.6 59 152.2"/>
+      <line class="st21" x1="65.4" y1="146.8" x2="62.5" y2="148.7"/>
+      <line class="st21" x1="62.4" y1="149.9" x2="65.4" y2="149.9"/>
+      <line class="st21" x1="62.7" y1="151.9" x2="65.4" y2="153.3"/>
+      <rect class="st25" x="56.3" y="147.7" width="2.6" height="4.5"/>
+    </g>
+    <g>
+      <polyline class="st25" points="123.2 187.5 125.8 185.4 125.8 194.4 123.2 192"/>
+      <line class="st21" x1="129.7" y1="186.6" x2="126.8" y2="188.6"/>
+      <line class="st21" x1="126.7" y1="189.9" x2="129.7" y2="189.9"/>
+      <line class="st21" x1="127" y1="191.7" x2="129.7" y2="193.1"/>
+      <rect class="st25" x="120.6" y="187.5" width="2.6" height="4.5"/>
+    </g>
+    <g>
+      <polyline class="st25" points="26.6 166.8 29.2 164.6 29.2 173.6 26.6 171.4"/>
+      <line class="st21" x1="33.2" y1="165.9" x2="30.2" y2="167.9"/>
+      <line class="st21" x1="30.1" y1="169.1" x2="33.1" y2="169.1"/>
+      <line class="st21" x1="30.5" y1="170.9" x2="33.1" y2="172.3"/>
+      <rect class="st25" x="24" y="166.8" width="2.6" height="4.5"/>
+    </g>
+    <circle class="st2" cx="79.3" cy="125.1" r="2.4"/>
+    <circle class="st2" cx="83.5" cy="127.2" r="2.4"/>
+    <circle class="st2" cx="88.1" cy="129.3" r="2.4"/>
+    <circle class="st2" cx="92.5" cy="131.2" r="2.4"/>
+    <circle class="st2" cx="96.9" cy="133.3" r="2.4"/>
+    <polygon class="st3" points="77.7 127.2 97 136 89.7 151.2 77.7 127.2"/>
+    <rect class="st77" x="47.4" y="133.2" width="29" height="11.3"/>
+    <rect class="st77" x="575.3" y="61.4" width="22.4" height="9.8"/>
+    <rect class="st22" x="36.9" y="157.6" width="14.8" height="6.5"/>
+    <g class="st49">
+      <g class="st49">
+        <g class="st49">
+          <g class="st49">
+            <g class="st49">
+              <text class="st42" transform="translate(37.1 162.3)"><tspan x="0" y="0">不切除</tspan></text>
+            </g>
+          </g>
+        </g>
+      </g>
+    </g>
+    <g class="st49">
+      <g class="st49">
+        <g class="st49">
+          <g class="st49">
+            <g class="st49">
+              <text class="st46" transform="translate(48.9 140.6)"><tspan x="0" y="0">布料器频率</tspan></text>
+            </g>
+          </g>
+        </g>
+      </g>
+    </g>
+    <rect class="st24" x="15.6" y="22.7" width="81.5" height="21"/>
+    <line class="st24" x1="97.1" y1="29.1" x2="15.5" y2="29.1"/>
+    <line class="st24" x1="38.4" y1="22.6" x2="38.4" y2="43.6"/>
+    <line class="st24" x1="75.3" y1="22.5" x2="75.3" y2="43.7"/>
+    <rect class="st24" x="116" y="290.8" width="19.6" height="4.9"/>
+    <polyline class="st24" points="116 290.8 112 293.3 116 295.7"/>
+    <polyline class="st24" points="135.7 290.8 139.7 293.2 135.7 295.7"/>
+    <polyline class="st24" points="116.5 295.7 118.9 299.9 121.1 295.8"/>
+    <rect class="st22" x="117.4" y="299.9" width="2.8" height="2.8"/>
+    <polyline class="st24" points="121.4 295.7 123.6 299.9 125.8 295.8"/>
+    <rect class="st22" x="122.1" y="299.9" width="2.8" height="2.8"/>
+    <polyline class="st24" points="126 295.7 128.3 299.9 130.6 295.8"/>
+    <rect class="st22" x="126.9" y="300" width="2.8" height="2.8"/>
+    <polyline class="st24" points="131 295.7 133.3 299.9 135.5 295.7"/>
+    <rect class="st22" x="131.9" y="299.9" width="2.8" height="2.8"/>
+    <g class="st49">
+      <g class="st49">
+        <g class="st49">
+          <g class="st49">
+            <g class="st49">
+              <text class="st37" transform="translate(117.8 295)"><tspan x="0" y="0">炉罩除尘</tspan></text>
+            </g>
+          </g>
+        </g>
+      </g>
+    </g>
+    <rect class="st24" x="255.2" y="245.7" width="19.6" height="4.9"/>
+    <polyline class="st24" points="255.2 245.7 251.1 248.2 255.2 250.5"/>
+    <polyline class="st24" points="274.8 245.7 278.8 247.9 274.8 250.5"/>
+    <polyline class="st24" points="255.6 250.5 258 254.8 260.2 250.6"/>
+    <rect class="st22" x="256.5" y="254.8" width="2.8" height="2.8"/>
+    <polyline class="st24" points="260.5 250.5 262.8 254.8 265 250.5"/>
+    <rect class="st22" x="261.4" y="254.8" width="2.8" height="2.8"/>
+    <polyline class="st24" points="265.1 250.5 267.5 254.8 269.7 250.6"/>
+    <rect class="st22" x="266" y="254.8" width="2.8" height="2.8"/>
+    <polyline class="st24" points="270.1 250.5 272.4 254.7 274.7 250.5"/>
+    <rect class="st22" x="271" y="254.8" width="2.8" height="2.8"/>
+    <g class="st49">
+      <g class="st49">
+        <g class="st49">
+          <g class="st49">
+            <g class="st49">
+              <text class="st37" transform="translate(257 249.9)"><tspan x="0" y="0">主电除尘</tspan></text>
+            </g>
+          </g>
+        </g>
+      </g>
+    </g>
+    <g>
+      <circle class="st18" cx="188.4" cy="262.3" r="6.7"/>
+      <path class="st11" d="M178.3,266.6v-3.2s3.4.8,6.3.8l1.7,2.4h-8Z"/>
+      <rect class="st11" x="192" y="262.3" width="6.3" height="3.2"/>
+      <circle class="st6" cx="188.4" cy="262.3" r="4.9"/>
+      <g>
+        <polygon class="st10" points="188.3 258.4 188.3 261.8 190.4 258.4 188.3 258.4"/>
+        <polygon class="st10" points="184.6 262.3 187.9 262.3 184.7 260.3 184.6 262.3"/>
+        <polygon class="st10" points="188.3 266.1 188.2 262.8 186.3 266.1 188.3 266.1"/>
+        <polygon class="st10" points="192.1 262.3 188.8 262.4 192.1 264.4 192.1 262.3"/>
+        <circle class="st10" cx="188.3" cy="262.3" r=".9"/>
+      </g>
+    </g>
+    <g>
+      <circle class="st18" cx="294.7" cy="281.4" r="6.7"/>
+      <path class="st11" d="M284.6,285.6v-3.2s3.4.8,6.3.8l1.6,2.4h-8c0,.1,0,0,0,0h.1Z"/>
+      <rect class="st11" x="298.4" y="281.3" width="6.3" height="3.2"/>
+      <circle class="st6" cx="294.8" cy="281.3" r="4.9"/>
+      <g>
+        <polygon class="st10" points="294.7 277.4 294.7 280.7 296.7 277.5 294.7 277.4"/>
+        <polygon class="st10" points="290.9 281.3 294.2 281.3 290.9 279.2 290.9 281.3"/>
+        <polygon class="st10" points="294.7 285 294.6 281.8 292.6 285 294.7 285"/>
+        <polygon class="st10" points="298.5 281.3 295.1 281.4 298.5 283.3 298.5 281.3"/>
+        <circle class="st10" cx="294.7" cy="281.3" r=".9"/>
+      </g>
+    </g>
+    <g>
+      <circle class="st18" cx="513.3" cy="67.7" r="6.7"/>
+      <path class="st11" d="M503.2,71.8v-3.2s3.4.8,6.3.8l1.6,2.4h-8s.1,0,.1,0Z"/>
+      <rect class="st11" x="517" y="67.6" width="6.3" height="3.1"/>
+      <circle class="st74" cx="513.7" cy="68" r="4.9" transform="translate(15.6 210.6) rotate(-23.5)"/>
+      <g>
+        <polygon class="st10" points="513.3 63.7 513.3 67.1 515.4 63.8 513.3 63.7"/>
+        <polygon class="st10" points="509.5 67.6 512.8 67.6 509.5 65.6 509.5 67.6"/>
+        <polygon class="st10" points="513.3 71.4 513.2 68 511.2 71.4 513.3 71.4"/>
+        <polygon class="st10" points="517 67.6 513.7 67.7 517.1 69.7 517 67.6"/>
+        <circle class="st10" cx="513.3" cy="67.6" r=".9"/>
+      </g>
+    </g>
+    <g>
+      <circle class="st18" cx="185.2" cy="292" r="6.7"/>
+      <path class="st11" d="M195.2,295.8v-3.2s-3.4.8-6.3.8l-1.7,2.4h8Z"/>
+      <rect class="st11" x="175.1" y="291" width="6.3" height="3.2"/>
+      <circle class="st6" cx="185.2" cy="291.9" r="4.9"/>
+      <g>
+        <polygon class="st10" points="185.2 288 185.2 291.3 187.3 288 185.2 288"/>
+        <polygon class="st10" points="181.4 291.9 184.7 291.9 181.4 289.8 181.4 291.9"/>
+        <polygon class="st10" points="185.2 295.7 185.1 292.3 183 295.7 185.2 295.7"/>
+        <polygon class="st10" points="188.9 291.9 185.6 292 189 293.9 188.9 291.9"/>
+        <circle class="st10" cx="185.2" cy="291.9" r=".9"/>
+      </g>
+    </g>
+    <g>
+      <circle class="st18" cx="323.7" cy="247" r="6.7"/>
+      <path class="st11" d="M333.6,250.8v-3.2s-3.4.8-6.3.8l-1.6,2.4h8c0,.1,0,0,0,0h-.1Z"/>
+      <rect class="st11" x="313.6" y="246" width="6.3" height="3.2"/>
+      <circle class="st6" cx="323.7" cy="246.9" r="4.9"/>
+      <g>
+        <polygon class="st10" points="323.7 243 323.7 246.3 325.7 243.1 323.7 243"/>
+        <polygon class="st10" points="319.9 246.9 323.1 246.9 319.9 244.8 319.9 246.9"/>
+        <polygon class="st10" points="323.7 250.6 323.6 247.3 321.5 250.6 323.7 250.6"/>
+        <polygon class="st10" points="327.3 246.9 324.1 247 327.5 248.9 327.3 246.9"/>
+        <circle class="st10" cx="323.7" cy="246.9" r=".9"/>
+      </g>
+    </g>
+    <g>
+      <circle class="st18" cx="426.2" cy="236.9" r="6.7"/>
+      <path class="st11" d="M436.1,240.7v-3.2s-3.4.8-6.3.8l-1.6,2.4h8c0,.1,0,0,0,0h-.1Z"/>
+      <rect class="st11" x="416.2" y="235.9" width="6.3" height="3.2"/>
+      <circle class="st6" cx="426.2" cy="236.8" r="4.9"/>
+      <g>
+        <polygon class="st10" points="426.1 232.9 426.1 236.3 428.2 233 426.1 232.9"/>
+        <polygon class="st10" points="422.3 236.8 425.7 236.8 422.3 234.7 422.3 236.8"/>
+        <polygon class="st10" points="426.1 240.6 426 237.3 424.1 240.6 426.1 240.6"/>
+        <polygon class="st10" points="429.9 236.8 426.5 236.9 429.9 238.9 429.9 236.8"/>
+        <circle class="st10" cx="426.1" cy="236.8" r=".9"/>
+      </g>
+    </g>
+    <g>
+      <circle class="st18" cx="501.9" cy="237.1" r="6.7"/>
+      <path class="st11" d="M511.9,241v-3.2s-3.4.8-6.3.8l-1.6,2.4h8c0,.1,0,0,0,0h-.1Z"/>
+      <rect class="st11" x="492" y="236.3" width="6.3" height="3.2"/>
+      <circle class="st6" cx="502.1" cy="237.1" r="4.9"/>
+      <g>
+        <polygon class="st10" points="501.9 233.2 501.9 236.6 504 233.2 501.9 233.2"/>
+        <polygon class="st10" points="498.2 237.1 501.5 237.1 498.2 235.1 498.2 237.1"/>
+        <polygon class="st10" points="501.9 240.9 501.8 237.6 499.9 240.9 501.9 240.9"/>
+        <polygon class="st10" points="505.7 237.1 502.4 237.2 505.7 239.2 505.7 237.1"/>
+        <circle class="st10" cx="501.9" cy="237.1" r=".9"/>
+      </g>
+    </g>
+    <g class="st49">
+      <g class="st49">
+        <g class="st49">
+          <g class="st49">
+            <g class="st49">
+              <text class="st48" transform="translate(23.8 54)"><tspan x="0" y="0">造球水压力</tspan></text>
+            </g>
+          </g>
+        </g>
+      </g>
+    </g>
+    <g class="st49">
+      <g class="st49">
+        <g class="st49">
+          <g class="st49">
+            <g class="st49">
+              <text class="st63" transform="translate(69.1 54.6)"><tspan x="0" y="0">MPa</tspan></text>
+            </g>
+          </g>
+        </g>
+      </g>
+    </g>
+    <g class="st49">
+      <g class="st49">
+        <g class="st49">
+          <g class="st49">
+            <g class="st49">
+              <text class="st63" transform="translate(18.1 202.5)"><tspan x="0" y="0">M2</tspan></text>
+            </g>
+          </g>
+        </g>
+      </g>
+    </g>
+    <g class="st49">
+      <g class="st49">
+        <g class="st49">
+          <g class="st49">
+            <g class="st49">
+              <text class="st70" transform="translate(74.4 74.6)"><tspan x="0" y="0">t/h</tspan></text>
+            </g>
+          </g>
+        </g>
+      </g>
+    </g>
+    <g class="st49">
+      <g class="st49">
+        <g class="st49">
+          <g class="st49">
+            <g class="st49">
+              <text class="st58" transform="translate(153.5 66.9)"><tspan x="0" y="0">t</tspan></text>
+            </g>
+          </g>
+        </g>
+      </g>
+    </g>
+    <g class="st49">
+      <g class="st49">
+        <g class="st49">
+          <g class="st49">
+            <g class="st49">
+              <text class="st70" transform="translate(45.9 202)"><tspan x="0" y="0">t/h</tspan></text>
+            </g>
+          </g>
+        </g>
+      </g>
+    </g>
+    <g class="st49">
+      <g class="st49">
+        <g class="st49">
+          <g class="st49">
+            <g class="st49">
+              <text class="st70" transform="translate(143.8 29.1)"><tspan x="0" y="0">t/h</tspan></text>
+            </g>
+          </g>
+        </g>
+      </g>
+    </g>
+    <g class="st49">
+      <g class="st49">
+        <g class="st49">
+          <g class="st49">
+            <g class="st49">
+              <text class="st36" transform="translate(31.4 84.5)"><tspan x="0" y="0">A</tspan></text>
+            </g>
+          </g>
+        </g>
+      </g>
+    </g>
+    <g class="st49">
+      <g class="st49">
+        <g class="st49">
+          <g class="st49">
+            <g class="st49">
+              <text class="st36" transform="translate(57.2 124.3)"><tspan x="0" y="0">A</tspan></text>
+            </g>
+          </g>
+        </g>
+      </g>
+    </g>
+    <g class="st49">
+      <g class="st49">
+        <g class="st49">
+          <g class="st49">
+            <g class="st49">
+              <text class="st36" transform="translate(164.3 156.4)"><tspan x="0" y="0">A</tspan></text>
+            </g>
+          </g>
+        </g>
+      </g>
+    </g>
+    <g class="st49">
+      <g class="st49">
+        <g class="st49">
+          <g class="st49">
+            <g class="st49">
+              <text class="st36" transform="translate(65.6 171.2)"><tspan x="0" y="0">A</tspan></text>
+            </g>
+          </g>
+        </g>
+      </g>
+    </g>
+    <g class="st49">
+      <g class="st49">
+        <g class="st49">
+          <g class="st49">
+            <g class="st49">
+              <text class="st36" transform="translate(31.8 190.4)"><tspan x="0" y="0">A</tspan></text>
+            </g>
+          </g>
+        </g>
+      </g>
+    </g>
+    <g>
+      <circle class="st82" cx="53" cy="189.4" r="2.8"/>
+      <g class="st49">
+        <g class="st49">
+          <g class="st49">
+            <g class="st49">
+              <g class="st49">
+                <text class="st38" transform="translate(51.7 191.2)"><tspan x="0" y="0">M</tspan></text>
+              </g>
+            </g>
+          </g>
+        </g>
+      </g>
+    </g>
+    <g>
+      <circle class="st82" cx="497.4" cy="153.6" r="3.4"/>
+      <g class="st49">
+        <g class="st49">
+          <g class="st49">
+            <g class="st49">
+              <g class="st49">
+                <text class="st67" transform="translate(496 155.7)"><tspan x="0" y="0">M</tspan></text>
+              </g>
+            </g>
+          </g>
+        </g>
+      </g>
+    </g>
+    <path class="st22" d="M112.3,85.4h4.8c1.6,0,3,1.4,3,3h0c0,1.7-1.4,3.1-3,3.1h-4.8c-1.6,0-3-1.4-3-3h0c0-1.7,1.4-3.1,3-3.1Z"/>
+    <g class="st49">
+      <g class="st49">
+        <g class="st49">
+          <g class="st49">
+            <g class="st49">
+              <text class="st66" transform="translate(111 89.8)"><tspan x="0" y="0">自动</tspan></text>
+            </g>
+          </g>
+        </g>
+      </g>
+    </g>
+    <g class="st49">
+      <g class="st49">
+        <g class="st49">
+          <g class="st49">
+            <g class="st49">
+              <text class="st37" transform="translate(110.2 111.3)"><tspan x="0" y="0">目标</tspan></text>
+            </g>
+          </g>
+        </g>
+      </g>
+    </g>
+    <g class="st49">
+      <g class="st49">
+        <g class="st49">
+          <g class="st49">
+            <g class="st49">
+              <text class="st39" transform="translate(110.6 96.5)"><tspan x="0" y="0">阀门%</tspan></text>
+            </g>
+          </g>
+        </g>
+      </g>
+    </g>
+    <g class="st49">
+      <g class="st49">
+        <g class="st49">
+          <g class="st49">
+            <g class="st49">
+              <text class="st55" transform="translate(120.4 104.6)"><tspan x="0" y="0">远</tspan></text>
+            </g>
+          </g>
+        </g>
+      </g>
+    </g>
+    <g class="st49">
+      <g class="st49">
+        <g class="st49">
+          <g class="st49">
+            <g class="st49">
+              <text class="st55" transform="translate(132.2 239.8)"><tspan x="0" y="0">远</tspan></text>
+            </g>
+          </g>
+        </g>
+      </g>
+    </g>
+    <g class="st49">
+      <g class="st49">
+        <g class="st49">
+          <g class="st49">
+            <g class="st49">
+              <text class="st55" transform="translate(232.9 235)"><tspan x="0" y="0">远</tspan></text>
+            </g>
+          </g>
+        </g>
+      </g>
+    </g>
+    <g class="st49">
+      <g class="st49">
+        <g class="st49">
+          <g class="st49">
+            <g class="st49">
+              <text class="st55" transform="translate(306.5 244.6)"><tspan x="0" y="0">远</tspan></text>
+            </g>
+          </g>
+        </g>
+      </g>
+    </g>
+    <g class="st49">
+      <g class="st49">
+        <g class="st49">
+          <g class="st49">
+            <g class="st49">
+              <text class="st55" transform="translate(358.2 290.5)"><tspan x="0" y="0">远</tspan></text>
+            </g>
+          </g>
+        </g>
+      </g>
+    </g>
+    <g class="st49">
+      <g class="st49">
+        <g class="st49">
+          <g class="st49">
+            <g class="st49">
+              <text class="st55" transform="translate(361.9 277)"><tspan x="0" y="0">远</tspan></text>
+            </g>
+          </g>
+        </g>
+      </g>
+    </g>
+    <g class="st49">
+      <g class="st49">
+        <g class="st49">
+          <g class="st49">
+            <g class="st49">
+              <text class="st55" transform="translate(383 291.1)"><tspan x="0" y="0">远</tspan></text>
+            </g>
+          </g>
+        </g>
+      </g>
+    </g>
+    <g class="st49">
+      <g class="st49">
+        <g class="st49">
+          <g class="st49">
+            <g class="st49">
+              <text class="st55" transform="translate(308.4 278.8)"><tspan x="0" y="0">远</tspan></text>
+            </g>
+          </g>
+        </g>
+      </g>
+    </g>
+    <g class="st49">
+      <g class="st49">
+        <g class="st49">
+          <g class="st49">
+            <g class="st49">
+              <text class="st55" transform="translate(184.6 211.8)"><tspan x="0" y="0">远</tspan></text>
+            </g>
+          </g>
+        </g>
+      </g>
+    </g>
+    <g class="st49">
+      <g class="st49">
+        <g class="st49">
+          <g class="st49">
+            <g class="st49">
+              <text class="st55" transform="translate(202.9 211.7)"><tspan x="0" y="0">远</tspan></text>
+            </g>
+          </g>
+        </g>
+      </g>
+    </g>
+    <g class="st49">
+      <g class="st49">
+        <g class="st49">
+          <g class="st49">
+            <g class="st49">
+              <text class="st55" transform="translate(334.6 216.1)"><tspan x="0" y="0">远</tspan></text>
+            </g>
+          </g>
+        </g>
+      </g>
+    </g>
+    <g class="st49">
+      <g class="st49">
+        <g class="st49">
+          <g class="st49">
+            <g class="st49">
+              <text class="st55" transform="translate(200.7 259.4)"><tspan x="0" y="0">远</tspan></text>
+            </g>
+          </g>
+        </g>
+      </g>
+    </g>
+    <g class="st49">
+      <g class="st49">
+        <g class="st49">
+          <g class="st49">
+            <g class="st49">
+              <text class="st55" transform="translate(165.1 289.1)"><tspan x="0" y="0">远</tspan></text>
+            </g>
+          </g>
+        </g>
+      </g>
+    </g>
+    <g class="st49">
+      <g class="st49">
+        <g class="st49">
+          <g class="st49">
+            <g class="st49">
+              <text class="st55" transform="translate(221.4 212.1)"><tspan x="0" y="0">远</tspan></text>
+            </g>
+          </g>
+        </g>
+      </g>
+    </g>
+    <g class="st49">
+      <g class="st49">
+        <g class="st49">
+          <g class="st49">
+            <g class="st49">
+              <text class="st55" transform="translate(241.8 211.8)"><tspan x="0" y="0">远</tspan></text>
+            </g>
+          </g>
+        </g>
+      </g>
+    </g>
+    <g class="st49">
+      <g class="st49">
+        <g class="st49">
+          <g class="st49">
+            <g class="st49">
+              <text class="st55" transform="translate(406.4 211.8)"><tspan x="0" y="0">远</tspan></text>
+            </g>
+          </g>
+        </g>
+      </g>
+    </g>
+    <g class="st49">
+      <g class="st49">
+        <g class="st49">
+          <g class="st49">
+            <g class="st49">
+              <text class="st55" transform="translate(161 104.6)"><tspan x="0" y="0">远</tspan></text>
+            </g>
+          </g>
+        </g>
+      </g>
+    </g>
+    <g class="st49">
+      <g class="st49">
+        <g class="st49">
+          <g class="st49">
+            <g class="st49">
+              <text class="st55" transform="translate(186 99.5)"><tspan x="0" y="0">远</tspan></text>
+            </g>
+          </g>
+        </g>
+      </g>
+    </g>
+    <g>
+      <polygon class="st22" points="154.3 100.2 151.1 100.2 154.3 107.1 150.9 107.1 154.3 100.2"/>
+      <line class="st0" x1="152.6" y1="103.6" x2="155.1" y2="103.6"/>
+      <g>
+        <circle class="st22" cx="157.9" cy="103.7" r="2.8"/>
+        <g class="st49">
+          <g class="st49">
+            <g class="st49">
+              <g class="st49">
+                <g class="st49">
+                  <text class="st38" transform="translate(155.7 105.8) rotate(-89.9) scale(1.6 -1)"><tspan x="0" y="0">M</tspan></text>
+                </g>
+              </g>
+            </g>
+          </g>
+        </g>
+      </g>
+    </g>
+    <g>
+      <polygon class="st22" points="125.5 241.8 125.5 244.8 132.5 241.8 132.5 245 125.5 241.8"/>
+      <line class="st0" x1="128.9" y1="243.4" x2="128.9" y2="240.8"/>
+      <g>
+        <circle class="st22" cx="129.1" cy="238" r="2.8"/>
+        <g class="st49">
+          <g class="st49">
+            <g class="st49">
+              <g class="st49">
+                <g class="st49">
+                  <text class="st38" transform="translate(131.3 240.5) rotate(-179.9) scale(1.6 -1)"><tspan x="0" y="0">M</tspan></text>
+                </g>
+              </g>
+            </g>
+          </g>
+        </g>
+      </g>
+    </g>
+    <g>
+      <polygon class="st22" points="203.7 244.5 203.7 247.6 210.6 244.5 210.6 247.7 203.7 244.5"/>
+      <line class="st0" x1="207.1" y1="246.1" x2="207.1" y2="243.6"/>
+      <g>
+        <circle class="st22" cx="207.3" cy="240.8" r="2.8"/>
+        <g class="st49">
+          <g class="st49">
+            <g class="st49">
+              <g class="st49">
+                <g class="st49">
+                  <text class="st38" transform="translate(209.5 243.2) rotate(-179.9) scale(1.6 -1)"><tspan x="0" y="0">M</tspan></text>
+                </g>
+              </g>
+            </g>
+          </g>
+        </g>
+      </g>
+    </g>
+    <g>
+      <polygon class="st22" points="186.5 108 186.5 111 193.4 108 193.4 111.2 186.5 108"/>
+      <line class="st0" x1="190" y1="109.6" x2="190" y2="107"/>
+      <g>
+        <circle class="st22" cx="190.1" cy="104.2" r="2.8"/>
+        <g class="st49">
+          <g class="st49">
+            <g class="st49">
+              <g class="st49">
+                <g class="st49">
+                  <text class="st38" transform="translate(192.3 106.7) rotate(-179.9) scale(1.6 -1)"><tspan x="0" y="0">M</tspan></text>
+                </g>
+              </g>
+            </g>
+          </g>
+        </g>
+      </g>
+    </g>
+    <g>
+      <polygon class="st22" points="254.2 213.4 257.2 213.3 254 206.4 257.4 206.3 254.2 213.4"/>
+      <line class="st0" x1="255.7" y1="209.9" x2="253.2" y2="210"/>
+      <g>
+        <circle class="st22" cx="250.4" cy="209.9" r="2.8"/>
+        <g class="st49">
+          <g class="st49">
+            <g class="st49">
+              <g class="st49">
+                <g class="st49">
+                  <text class="st38" transform="translate(252.8 207.8) rotate(88.7) scale(1.6 -1)"><tspan x="0" y="0">M</tspan></text>
+                </g>
+              </g>
+            </g>
+          </g>
+        </g>
+      </g>
+    </g>
+    <g>
+      <polygon class="st22" points="418.4 213.2 421.5 213.1 418.2 206.3 421.6 206.2 418.4 213.2"/>
+      <line class="st0" x1="419.9" y1="209.8" x2="417.5" y2="209.9"/>
+      <g>
+        <circle class="st22" cx="414.6" cy="209.8" r="2.8"/>
+        <g class="st49">
+          <g class="st49">
+            <g class="st49">
+              <g class="st49">
+                <g class="st49">
+                  <text class="st38" transform="translate(417 207.6) rotate(88.7) scale(1.6 -1)"><tspan x="0" y="0">M</tspan></text>
+                </g>
+              </g>
+            </g>
+          </g>
+        </g>
+      </g>
+    </g>
+    <g class="st49">
+      <g class="st49">
+        <g class="st49">
+          <g class="st49">
+            <g class="st49">
+              <text class="st55" transform="translate(420.8 211.8)"><tspan x="0" y="0">远</tspan></text>
+            </g>
+          </g>
+        </g>
+      </g>
+    </g>
+    <g>
+      <polygon class="st22" points="432.8 213.2 436 213.1 432.7 206.3 436 206.2 432.8 213.2"/>
+      <line class="st0" x1="434.3" y1="209.8" x2="431.8" y2="209.9"/>
+      <g>
+        <circle class="st22" cx="429" cy="209.8" r="2.8"/>
+        <g class="st49">
+          <g class="st49">
+            <g class="st49">
+              <g class="st49">
+                <g class="st49">
+                  <text class="st38" transform="translate(431.4 207.6) rotate(88.7) scale(1.6 -1)"><tspan x="0" y="0">M</tspan></text>
+                </g>
+              </g>
+            </g>
+          </g>
+        </g>
+      </g>
+    </g>
+    <g class="st49">
+      <g class="st49">
+        <g class="st49">
+          <g class="st49">
+            <g class="st49">
+              <text class="st55" transform="translate(442.1 212)"><tspan x="0" y="0">远</tspan></text>
+            </g>
+          </g>
+        </g>
+      </g>
+    </g>
+    <g class="st49">
+      <g class="st49">
+        <g class="st49">
+          <g class="st49">
+            <g class="st49">
+              <text class="st55" transform="translate(437.4 234.7)"><tspan x="0" y="0">远</tspan></text>
+            </g>
+          </g>
+        </g>
+      </g>
+    </g>
+    <g class="st49">
+      <g class="st49">
+        <g class="st49">
+          <g class="st49">
+            <g class="st49">
+              <text class="st55" transform="translate(513.4 234.5)"><tspan x="0" y="0">远</tspan></text>
+            </g>
+          </g>
+        </g>
+      </g>
+    </g>
+    <g class="st49">
+      <g class="st49">
+        <g class="st49">
+          <g class="st49">
+            <g class="st49">
+              <text class="st55" transform="translate(488.2 85)"><tspan x="0" y="0">远</tspan></text>
+            </g>
+          </g>
+        </g>
+      </g>
+    </g>
+    <g class="st49">
+      <g class="st49">
+        <g class="st49">
+          <g class="st49">
+            <g class="st49">
+              <text class="st55" transform="translate(528.8 84.2)"><tspan x="0" y="0">远</tspan></text>
+            </g>
+          </g>
+        </g>
+      </g>
+    </g>
+    <g class="st49">
+      <g class="st49">
+        <g class="st49">
+          <g class="st49">
+            <g class="st49">
+              <text class="st55" transform="translate(528.3 104.1)"><tspan x="0" y="0">远</tspan></text>
+            </g>
+          </g>
+        </g>
+      </g>
+    </g>
+    <g class="st49">
+      <g class="st49">
+        <g class="st49">
+          <g class="st49">
+            <g class="st49">
+              <text class="st55" transform="translate(528.2 65.7)"><tspan x="0" y="0">远</tspan></text>
+            </g>
+          </g>
+        </g>
+      </g>
+    </g>
+    <g class="st49">
+      <g class="st49">
+        <g class="st49">
+          <g class="st49">
+            <g class="st49">
+              <text class="st55" transform="translate(488.1 66.3)"><tspan x="0" y="0">远</tspan></text>
+            </g>
+          </g>
+        </g>
+      </g>
+    </g>
+    <g>
+      <polygon class="st22" points="454.1 213.4 457.2 213.3 453.9 206.4 457.3 206.3 454.1 213.4"/>
+      <line class="st0" x1="455.6" y1="209.9" x2="453.2" y2="210"/>
+      <g>
+        <circle class="st22" cx="450.3" cy="209.9" r="2.8"/>
+        <g class="st49">
+          <g class="st49">
+            <g class="st49">
+              <g class="st49">
+                <g class="st49">
+                  <text class="st38" transform="translate(452.7 207.8) rotate(88.7) scale(1.6 -1)"><tspan x="0" y="0">M</tspan></text>
+                </g>
+              </g>
+            </g>
+          </g>
+        </g>
+      </g>
+    </g>
+    <g class="st49">
+      <g class="st49">
+        <g class="st49">
+          <g class="st49">
+            <g class="st49">
+              <text class="st55" transform="translate(480.2 212.1)"><tspan x="0" y="0">远</tspan></text>
+            </g>
+          </g>
+        </g>
+      </g>
+    </g>
+    <g>
+      <polygon class="st22" points="492.2 213.5 495.3 213.4 492.1 206.5 495.3 206.5 492.2 213.5"/>
+      <line class="st0" x1="493.7" y1="210.1" x2="491.2" y2="210.1"/>
+      <g>
+        <circle class="st22" cx="488.4" cy="210" r="2.8"/>
+        <g class="st49">
+          <g class="st49">
+            <g class="st49">
+              <g class="st49">
+                <g class="st49">
+                  <text class="st38" transform="translate(490.8 207.9) rotate(88.7) scale(1.6 -1)"><tspan x="0" y="0">M</tspan></text>
+                </g>
+              </g>
+            </g>
+          </g>
+        </g>
+      </g>
+    </g>
+    <g class="st49">
+      <g class="st49">
+        <g class="st49">
+          <g class="st49">
+            <g class="st49">
+              <text class="st55" transform="translate(538.5 212)"><tspan x="0" y="0">远</tspan></text>
+            </g>
+          </g>
+        </g>
+      </g>
+    </g>
+    <g>
+      <polygon class="st22" points="550.5 213.4 553.7 213.4 550.4 206.5 553.7 206.4 550.5 213.4"/>
+      <line class="st0" x1="552" y1="210" x2="549.5" y2="210.1"/>
+      <g>
+        <circle class="st22" cx="546.7" cy="210" r="2.8"/>
+        <g class="st49">
+          <g class="st49">
+            <g class="st49">
+              <g class="st49">
+                <g class="st49">
+                  <text class="st38" transform="translate(549.1 207.8) rotate(88.7) scale(1.6 -1)"><tspan x="0" y="0">M</tspan></text>
+                </g>
+              </g>
+            </g>
+          </g>
+        </g>
+      </g>
+    </g>
+    <g class="st49">
+      <g class="st49">
+        <g class="st49">
+          <g class="st49">
+            <g class="st49">
+              <text class="st55" transform="translate(577.2 192.6)"><tspan x="0" y="0">远</tspan></text>
+            </g>
+          </g>
+        </g>
+      </g>
+    </g>
+    <g class="st49">
+      <g class="st49">
+        <g class="st49">
+          <g class="st49">
+            <g class="st49">
+              <text class="st55" transform="translate(608.4 192.1)"><tspan x="0" y="0">远</tspan></text>
+            </g>
+          </g>
+        </g>
+      </g>
+    </g>
+    <g>
+      <polygon class="st22" points="589.4 194 592.4 194 589.1 187 592.4 186.9 589.4 194"/>
+      <line class="st0" x1="590.9" y1="190.5" x2="588.3" y2="190.6"/>
+      <g>
+        <circle class="st22" cx="585.5" cy="190.5" r="2.8"/>
+        <g class="st49">
+          <g class="st49">
+            <g class="st49">
+              <g class="st49">
+                <g class="st49">
+                  <text class="st38" transform="translate(587.9 188.3) rotate(88.7) scale(1.6 -1)"><tspan x="0" y="0">M</tspan></text>
+                </g>
+              </g>
+            </g>
+          </g>
+        </g>
+      </g>
+    </g>
+    <g>
+      <polygon class="st22" points="602.1 193.7 599.1 193.7 602.3 186.8 599 186.7 602.1 193.7"/>
+      <line class="st0" x1="600.6" y1="190.3" x2="603.1" y2="190.4"/>
+      <g>
+        <circle class="st22" cx="605.9" cy="190.3" r="2.8"/>
+        <g class="st49">
+          <g class="st49">
+            <g class="st49">
+              <g class="st49">
+                <g class="st49">
+                  <text class="st38" transform="translate(603.5 188.2) rotate(91.3) scale(1.6 1)"><tspan x="0" y="0">M</tspan></text>
+                </g>
+              </g>
+            </g>
+          </g>
+        </g>
+      </g>
+    </g>
+    <g>
+      <polygon class="st22" points="235.5 213.2 238.6 213.1 235.4 206.2 238.6 206.2 235.5 213.2"/>
+      <line class="st0" x1="237" y1="209.8" x2="234.5" y2="209.8"/>
+      <g>
+        <circle class="st22" cx="231.7" cy="209.6" r="2.8"/>
+        <g class="st49">
+          <g class="st49">
+            <g class="st49">
+              <g class="st49">
+                <g class="st49">
+                  <text class="st38" transform="translate(234.1 207.6) rotate(88.7) scale(1.6 -1)"><tspan x="0" y="0">M</tspan></text>
+                </g>
+              </g>
+            </g>
+          </g>
+        </g>
+      </g>
+    </g>
+    <g>
+      <polygon class="st22" points="371.8 292.6 374.9 292.5 371.7 285.6 374.9 285.6 371.8 292.6"/>
+      <line class="st0" x1="373.3" y1="289.2" x2="370.8" y2="289.2"/>
+      <g>
+        <circle class="st22" cx="368" cy="289.1" r="2.8"/>
+        <g class="st49">
+          <g class="st49">
+            <g class="st49">
+              <g class="st49">
+                <g class="st49">
+                  <text class="st38" transform="translate(370.4 287) rotate(88.7) scale(1.6 -1)"><tspan x="0" y="0">M</tspan></text>
+                </g>
+              </g>
+            </g>
+          </g>
+        </g>
+      </g>
+    </g>
+    <g>
+      <polygon class="st22" points="368.6 272.7 371.6 272.6 368.3 265.7 371.6 265.7 368.6 272.7"/>
+      <line class="st0" x1="370.1" y1="269.3" x2="367.5" y2="269.3"/>
+      <g>
+        <circle class="st22" cx="364.7" cy="269.1" r="2.8"/>
+        <g class="st49">
+          <g class="st49">
+            <g class="st49">
+              <g class="st49">
+                <g class="st49">
+                  <text class="st38" transform="translate(367.2 267.1) rotate(88.7) scale(1.6 -1)"><tspan x="0" y="0">M</tspan></text>
+                </g>
+              </g>
+            </g>
+          </g>
+        </g>
+      </g>
+    </g>
+    <g>
+      <polygon class="st22" points="395.8 292.6 399 292.5 395.6 285.7 399 285.6 395.8 292.6"/>
+      <line class="st0" x1="397.3" y1="289.2" x2="394.9" y2="289.3"/>
+      <g>
+        <circle class="st22" cx="392" cy="289.2" r="2.8"/>
+        <g class="st49">
+          <g class="st49">
+            <g class="st49">
+              <g class="st49">
+                <g class="st49">
+                  <text class="st38" transform="translate(394.4 287) rotate(88.7) scale(1.6 -1)"><tspan x="0" y="0">M</tspan></text>
+                </g>
+              </g>
+            </g>
+          </g>
+        </g>
+      </g>
+    </g>
+    <g>
+      <polygon class="st22" points="215.4 213.5 218.5 213.4 215.3 206.5 218.5 206.5 215.4 213.5"/>
+      <line class="st0" x1="216.9" y1="210.1" x2="214.4" y2="210.1"/>
+      <g>
+        <circle class="st22" cx="211.6" cy="210" r="2.8"/>
+        <g class="st49">
+          <g class="st49">
+            <g class="st49">
+              <g class="st49">
+                <g class="st49">
+                  <text class="st38" transform="translate(214 207.9) rotate(88.7) scale(1.6 -1)"><tspan x="0" y="0">M</tspan></text>
+                </g>
+              </g>
+            </g>
+          </g>
+        </g>
+      </g>
+    </g>
+    <g>
+      <polygon class="st22" points="196.1 213.5 199.2 213.4 195.9 206.5 199.2 206.5 196.1 213.5"/>
+      <line class="st0" x1="197.6" y1="210.1" x2="195" y2="210.1"/>
+      <g>
+        <circle class="st22" cx="192.2" cy="210" r="2.8"/>
+        <g class="st49">
+          <g class="st49">
+            <g class="st49">
+              <g class="st49">
+                <g class="st49">
+                  <text class="st38" transform="translate(194.7 207.9) rotate(88.7) scale(1.6 -1)"><tspan x="0" y="0">M</tspan></text>
+                </g>
+              </g>
+            </g>
+          </g>
+        </g>
+      </g>
+    </g>
+    <path class="st22" d="M151.8,94l.2-9.7h-8.8l7.2,9.8h1.4Z"/>
+    <polygon class="st22" points="151.3 99.7 151.8 94 150.5 94 151.3 99.7"/>
+    <polygon class="st22" points="155.1 99.7 151.8 94 151.8 92.6 155.1 99.7"/>
+    <line class="st17" x1="135" y1="69" x2="135" y2="60.9"/>
+    <line class="st17" x1="131.9" y1="105.7" x2="131.9" y2="96.2"/>
+    <line class="st17" x1="131.5" y1="130.5" x2="131.5" y2="113.9"/>
+    <polygon class="st22" points="152 68.9 152 84.3 142.8 84.3 131.2 97 129.4 97 129.4 69.1 152 68.9"/>
+    <polygon class="st81" points="152 82.8 152 84.3 142.8 84.3 131.2 97 129.4 97 129.4 82.8 152 82.8"/>
+    <g>
+      <polygon class="st22" points="130 106.7 133.2 106.7 130 113.7 133.3 113.7 130 106.7"/>
+      <line class="st0" x1="131.7" y1="110.1" x2="129.2" y2="110.1"/>
+      <g>
+        <circle class="st22" cx="126.4" cy="110.3" r="2.8"/>
+        <g class="st49">
+          <g class="st49">
+            <g class="st49">
+              <g class="st49">
+                <g class="st49">
+                  <text class="st38" transform="translate(128.6 112.4) rotate(-90.1) scale(1.6 1)"><tspan x="0" y="0">M</tspan></text>
+                </g>
+              </g>
+            </g>
+          </g>
+        </g>
+      </g>
+    </g>
+    <g class="st49">
+      <g class="st49">
+        <g class="st49">
+          <g class="st49">
+            <g class="st49">
+              <text class="st62" transform="translate(120.4 118.3)"><tspan x="0" y="0">mm</tspan></text>
+            </g>
+          </g>
+        </g>
+      </g>
+    </g>
+    <g class="st49">
+      <g class="st49">
+        <g class="st49">
+          <g class="st49">
+            <g class="st49">
+              <text class="st29" transform="translate(136 125.5)"><tspan x="0" y="0">温度℃</tspan></text>
+            </g>
+          </g>
+        </g>
+      </g>
+    </g>
+    <g class="st49">
+      <g class="st49">
+        <g class="st49">
+          <g class="st49">
+            <g class="st49">
+              <text class="st29" transform="translate(135.4 130.1)"><tspan x="0" y="0">压力Pa</tspan></text>
+            </g>
+          </g>
+        </g>
+      </g>
+    </g>
+    <g class="st49">
+      <g class="st49">
+        <g class="st49">
+          <g class="st49">
+            <g class="st49">
+              <text class="st29" transform="translate(115.2 170.6)"><tspan x="0" y="0">温度℃</tspan></text>
+            </g>
+          </g>
+        </g>
+      </g>
+    </g>
+    <g class="st49">
+      <g class="st49">
+        <g class="st49">
+          <g class="st49">
+            <g class="st49">
+              <text class="st29" transform="translate(116 180.2)"><tspan x="0" y="0">湿度%</tspan></text>
+            </g>
+          </g>
+        </g>
+      </g>
+    </g>
+    <g class="st49">
+      <g class="st49">
+        <g class="st49">
+          <g class="st49">
+            <g class="st49">
+              <text class="st29" transform="translate(112 175.2)"><tspan x="0" y="0">压力KPa</tspan></text>
+            </g>
+          </g>
+        </g>
+      </g>
+    </g>
+    <g class="st49">
+      <g class="st49">
+        <g class="st49">
+          <g class="st49">
+            <g class="st49">
+              <text class="st54" transform="translate(178.5 247.4)"><tspan x="0" y="0">KPa</tspan></text>
+            </g>
+          </g>
+        </g>
+      </g>
+    </g>
+    <g class="st49">
+      <g class="st49">
+        <g class="st49">
+          <g class="st49">
+            <g class="st49">
+              <text class="st54" transform="translate(231.9 273.9)"><tspan x="0" y="0">KPa</tspan></text>
+            </g>
+          </g>
+        </g>
+      </g>
+    </g>
+    <g class="st49">
+      <g class="st49">
+        <g class="st49">
+          <g class="st49">
+            <g class="st49">
+              <text class="st54" transform="translate(466.7 249.5)"><tspan x="0" y="0">KPa</tspan></text>
+            </g>
+          </g>
+        </g>
+      </g>
+    </g>
+    <g class="st49">
+      <g class="st49">
+        <g class="st49">
+          <g class="st49">
+            <g class="st49">
+              <text class="st54" transform="translate(532 255)"><tspan x="0" y="0">KPa</tspan></text>
+            </g>
+          </g>
+        </g>
+      </g>
+    </g>
+    <g class="st49">
+      <g class="st49">
+        <g class="st49">
+          <g class="st49">
+            <g class="st49">
+              <text class="st54" transform="translate(347.8 252.9)"><tspan x="0" y="0">KPa</tspan></text>
+            </g>
+          </g>
+        </g>
+      </g>
+    </g>
+    <g class="st49">
+      <g class="st49">
+        <g class="st49">
+          <g class="st49">
+            <g class="st49">
+              <text class="st54" transform="translate(277.3 288.2)"><tspan x="0" y="0">Pa</tspan></text>
+            </g>
+          </g>
+        </g>
+      </g>
+    </g>
+    <g class="st49">
+      <g class="st49">
+        <g class="st49">
+          <g class="st49">
+            <g class="st49">
+              <text class="st54" transform="translate(257.1 243.1)"><tspan x="0" y="0">KPa</tspan></text>
+            </g>
+          </g>
+        </g>
+      </g>
+    </g>
+    <g class="st49">
+      <g class="st49">
+        <g class="st49">
+          <g class="st49">
+            <g class="st49">
+              <text class="st54" transform="translate(288.9 257.6)"><tspan x="0" y="0">KPa</tspan></text>
+            </g>
+          </g>
+        </g>
+      </g>
+    </g>
+    <g class="st49">
+      <g class="st49">
+        <g class="st49">
+          <g class="st49">
+            <g class="st49">
+              <text class="st54" transform="translate(233.3 298)"><tspan x="0" y="0">KPa</tspan></text>
+            </g>
+          </g>
+        </g>
+      </g>
+    </g>
+    <g class="st49">
+      <g class="st49">
+        <g class="st49">
+          <g class="st49">
+            <g class="st49">
+              <text class="st54" transform="translate(337.2 288.5)"><tspan x="0" y="0">KPa</tspan></text>
+            </g>
+          </g>
+        </g>
+      </g>
+    </g>
+    <g class="st49">
+      <g class="st49">
+        <g class="st49">
+          <g class="st49">
+            <g class="st49">
+              <text class="st54" transform="translate(151.2 299.5)"><tspan x="0" y="0">KPa</tspan></text>
+            </g>
+          </g>
+        </g>
+      </g>
+    </g>
+    <g class="st49">
+      <g class="st49">
+        <g class="st49">
+          <g class="st49">
+            <g class="st49">
+              <text class="st54" transform="translate(187.8 306.9)"><tspan x="0" y="0">rpm</tspan></text>
+            </g>
+          </g>
+        </g>
+      </g>
+    </g>
+    <g class="st49">
+      <g class="st49">
+        <g class="st49">
+          <g class="st49">
+            <g class="st49">
+              <text class="st54" transform="translate(426 256)"><tspan x="0" y="0">rpm</tspan></text>
+            </g>
+          </g>
+        </g>
+      </g>
+    </g>
+    <g class="st49">
+      <g class="st49">
+        <g class="st49">
+          <g class="st49">
+            <g class="st49">
+              <text class="st54" transform="translate(498.7 256.1)"><tspan x="0" y="0">rpm</tspan></text>
+            </g>
+          </g>
+        </g>
+      </g>
+    </g>
+    <g class="st49">
+      <g class="st49">
+        <g class="st49">
+          <g class="st49">
+            <g class="st49">
+              <text class="st54" transform="translate(295.4 298.8)"><tspan x="0" y="0">rpm</tspan></text>
+            </g>
+          </g>
+        </g>
+      </g>
+    </g>
+    <g class="st49">
+      <g class="st49">
+        <g class="st49">
+          <g class="st49">
+            <g class="st49">
+              <text class="st54" transform="translate(327.9 257.8)"><tspan x="0" y="0">rpm</tspan></text>
+            </g>
+          </g>
+        </g>
+      </g>
+    </g>
+    <g class="st49">
+      <g class="st49">
+        <g class="st49">
+          <g class="st49">
+            <g class="st49">
+              <text class="st54" transform="translate(190 272.4)"><tspan x="0" y="0">rpm</tspan></text>
+            </g>
+          </g>
+        </g>
+      </g>
+    </g>
+    <g class="st49">
+      <g class="st49">
+        <g class="st49">
+          <g class="st49">
+            <g class="st49">
+              <text class="st54" transform="translate(102.6 299.9)"><tspan x="0" y="0">KPa</tspan></text>
+            </g>
+          </g>
+        </g>
+      </g>
+    </g>
+    <polyline class="st21" points="149.4 132.2 125.3 132.2 125.3 141.9"/>
+    <g>
+      <path class="st13" d="M124.7,162.1h0c-.8-.8-1.9-.4-2.3.6h0c-.3,1.3-2.3,1.3-2.6,0h0c-.2-1-1.5-1.3-2.3-.6h0c-1,1-2.6,0-2.3-1.3h0c.3-1-.6-1.9-1.6-1.6h0c-1.3.4-2.3-1.3-1.3-2.3h0c.8-.8.4-1.9-.6-2.3h0c-1.3-.3-1.3-2.3,0-2.6h0c1-.2,1.3-1.5.6-2.3h0c-1-1,0-2.6,1.3-2.3h0c1,.3,1.9-.6,1.6-1.6h0c-.4-1.3,1.3-2.3,2.3-1.3h0c.8.8,1.9.4,2.3-.6h0c.3-1.3,2.3-1.3,2.6,0h0c.2,1,1.5,1.3,2.3.6h0c1-1,2.6,0,2.3,1.3h0c-.3,1,.6,1.9,1.6,1.6h0c1.3-.4,2.3,1.3,1.3,2.3h0c-.8.8-.4,1.9.6,2.3h0c1.3.3,1.3,2.3,0,2.6h0c-1,.2-1.3,1.5-.6,2.3h0c1,1,0,2.6-1.3,2.3h0c-1-.3-1.9.6-1.6,1.6h0c.4,1.3-1.3,2.3-2.3,1.3Z"/>
+      <circle class="st13" cx="121.2" cy="153.4" r="8.4"/>
+      <circle class="st13" cx="121.2" cy="153.4" r="6.4"/>
+      <polygon class="st71" points="122.2 155.2 120.8 154.5 119.4 155.2 119.6 153.7 118.5 152.6 120.1 152.3 120.7 150.9 121.5 152.3 123 152.5 121.9 153.6 122.2 155.2"/>
+    </g>
+    <circle class="st13" cx="593.1" cy="154" r="8.1"/>
+    <polygon class="st71" points="595 156.8 593.1 155.9 591.4 156.9 591.7 154.9 590.2 153.5 592.2 153.2 593 151.3 594 153.2 596 153.4 594.5 154.8 595 156.8"/>
+    <path class="st22" d="M128.2,227.3h4.8c1.6,0,3,1.4,3,3h0c0,1.7-1.4,3.1-3,3.1h-4.8c-1.6,0-3-1.4-3-3h0c0-1.7,1.4-3.1,3-3.1Z"/>
+    <g class="st49">
+      <g class="st49">
+        <g class="st49">
+          <g class="st49">
+            <g class="st49">
+              <text class="st66" transform="translate(126.9 231.6)"><tspan x="0" y="0">自动</tspan></text>
+            </g>
+          </g>
+        </g>
+      </g>
+    </g>
+    <g>
+      <path class="st22" d="M224.5,230.5h4.8c1.7,0,3,1.4,3,3h0c0,1.7-1.4,3-3,3h-4.8c-1.7,0-3-1.4-3-3h0c0-1.7,1.4-3,3-3Z"/>
+      <g class="st49">
+        <g class="st49">
+          <g class="st49">
+            <g class="st49">
+              <g class="st49">
+                <text class="st66" transform="translate(223.1 235)"><tspan x="0" y="0">自动</tspan></text>
+              </g>
+            </g>
+          </g>
+        </g>
+      </g>
+    </g>
+    <g>
+      <path class="st22" d="M364.2,256.8h4.8c1.7,0,3,1.4,3,3h0c0,1.7-1.4,3-3,3h-4.8c-1.7,0-3-1.4-3-3h0c0-1.7,1.4-3,3-3Z"/>
+      <g class="st49">
+        <g class="st49">
+          <g class="st49">
+            <g class="st49">
+              <g class="st49">
+                <text class="st66" transform="translate(362.9 261.3)"><tspan x="0" y="0">自动</tspan></text>
+              </g>
+            </g>
+          </g>
+        </g>
+      </g>
+    </g>
+    <g>
+      <path class="st22" d="M605.7,220.4h4.8c1.7,0,3,1.4,3,3h0c0,1.7-1.4,3-3,3h-4.8c-1.7,0-3-1.4-3-3h0c0-1.7,1.4-3,3-3Z"/>
+      <g class="st49">
+        <g class="st49">
+          <g class="st49">
+            <g class="st49">
+              <g class="st49">
+                <text class="st66" transform="translate(604.4 224.8)"><tspan x="0" y="0">自动</tspan></text>
+              </g>
+            </g>
+          </g>
+        </g>
+      </g>
+    </g>
+    <g>
+      <path class="st22" d="M583.1,220.6h4.8c1.7,0,3,1.4,3,3h0c0,1.7-1.4,3-3,3h-4.8c-1.7,0-3-1.4-3-3h0c0-1.7,1.4-3,3-3Z"/>
+      <g class="st49">
+        <g class="st49">
+          <g class="st49">
+            <g class="st49">
+              <g class="st49">
+                <text class="st66" transform="translate(581.7 225)"><tspan x="0" y="0">自动</tspan></text>
+              </g>
+            </g>
+          </g>
+        </g>
+      </g>
+    </g>
+    <g>
+      <path class="st22" d="M362.6,301.1h4.8c1.7,0,3,1.4,3,3h0c0,1.7-1.4,3-3,3h-4.8c-1.7,0-3-1.4-3-3h0c0-1.7,1.4-3,3-3Z"/>
+      <g class="st49">
+        <g class="st49">
+          <g class="st49">
+            <g class="st49">
+              <g class="st49">
+                <text class="st66" transform="translate(361.3 305.4)"><tspan x="0" y="0">自动</tspan></text>
+              </g>
+            </g>
+          </g>
+        </g>
+      </g>
+    </g>
+    <g>
+      <path class="st22" d="M387.2,301.6h4.8c1.7,0,3,1.4,3,3h0c0,1.7-1.4,3-3,3h-4.8c-1.7,0-3-1.4-3-3h0c0-1.7,1.4-3,3-3Z"/>
+      <g class="st49">
+        <g class="st49">
+          <g class="st49">
+            <g class="st49">
+              <g class="st49">
+                <text class="st66" transform="translate(385.9 305.9)"><tspan x="0" y="0">自动</tspan></text>
+              </g>
+            </g>
+          </g>
+        </g>
+      </g>
+    </g>
+    <g class="st49">
+      <g class="st49">
+        <g class="st49">
+          <g class="st49">
+            <g class="st49">
+              <text class="st42" transform="translate(134.5 148.6)"><tspan x="0" y="0">机速</tspan></text>
+            </g>
+          </g>
+        </g>
+      </g>
+    </g>
+    <g class="st49">
+      <g class="st49">
+        <g class="st49">
+          <g class="st49">
+            <g class="st49">
+              <text class="st42" transform="translate(181.5 149)"><tspan x="0" y="0">给定</tspan></text>
+            </g>
+          </g>
+        </g>
+      </g>
+    </g>
+    <g class="st49">
+      <g class="st49">
+        <g class="st49">
+          <g class="st49">
+            <g class="st49">
+              <text class="st42" transform="translate(181.7 156.8)"><tspan x="0" y="0">反馈</tspan></text>
+            </g>
+          </g>
+        </g>
+      </g>
+    </g>
+    <g class="st49">
+      <g class="st49">
+        <g class="st49">
+          <g class="st49">
+            <g class="st49">
+              <text class="st42" transform="translate(134 156.8)"><tspan x="0" y="0">电流</tspan></text>
+            </g>
+          </g>
+        </g>
+      </g>
+    </g>
+    <g class="st49">
+      <g class="st49">
+        <g class="st49">
+          <g class="st49">
+            <g class="st49">
+              <text class="st46" transform="translate(163.2 148)"><tspan x="0" y="0">m/min</tspan></text>
+            </g>
+          </g>
+        </g>
+      </g>
+    </g>
+    <g class="st49">
+      <g class="st49">
+        <g class="st49">
+          <g class="st49">
+            <g class="st49">
+              <text class="st55" transform="translate(206.5 148.5)"><tspan x="0" y="0">Hz</tspan></text>
+            </g>
+          </g>
+        </g>
+      </g>
+    </g>
+    <g class="st49">
+      <g class="st49">
+        <g class="st49">
+          <g class="st49">
+            <g class="st49">
+              <text class="st55" transform="translate(206.6 156.4)"><tspan x="0" y="0">Hz</tspan></text>
+            </g>
+          </g>
+        </g>
+      </g>
+    </g>
+    <polygon class="st22" points="218.3 142.1 214.9 148.6 221.4 148.6 218.3 142.1"/>
+    <polygon class="st22" points="226.1 142.3 222.7 148.7 229.2 148.7 226.1 142.3"/>
+    <polygon class="st22" points="226.2 159.6 223 153.1 229.4 153.1 226.2 159.6"/>
+    <polygon class="st22" points="218.7 159.8 215.4 153.3 221.9 153.3 218.7 159.8"/>
+    <g>
+      <line class="st21" x1="134.7" y1="196.3" x2="134.7" y2="180.8"/>
+      <polygon class="st22" points="134.7 188.2 132.5 183.9 136.8 183.9 134.7 188.2"/>
+      <polygon class="st22" points="134.7 193.1 132.5 188.7 136.8 188.7 134.7 193.1"/>
+    </g>
+    <g>
+      <line class="st21" x1="143.8" y1="196.3" x2="143.8" y2="180.8"/>
+      <polygon class="st22" points="143.8 188.2 141.5 183.9 145.9 183.9 143.8 188.2"/>
+      <polygon class="st22" points="143.8 193.1 141.5 188.7 145.9 188.7 143.8 193.1"/>
+    </g>
+    <g>
+      <line class="st21" x1="158.3" y1="196.3" x2="158.3" y2="180.8"/>
+      <polygon class="st22" points="158.4 188.2 156.1 183.9 160.5 183.9 158.4 188.2"/>
+      <polygon class="st22" points="158.4 193.1 156.1 188.7 160.5 188.7 158.4 193.1"/>
+    </g>
+    <g>
+      <line class="st21" x1="177.7" y1="196.3" x2="177.7" y2="180.8"/>
+      <polygon class="st22" points="177.7 188.2 175.5 183.9 179.9 183.9 177.7 188.2"/>
+      <polygon class="st22" points="177.7 193.1 175.5 188.7 179.9 188.7 177.7 193.1"/>
+    </g>
+    <g>
+      <line class="st21" x1="196.9" y1="196.3" x2="196.9" y2="180.8"/>
+      <polygon class="st22" points="197 188.2 194.7 183.9 199.2 183.9 197 188.2"/>
+      <polygon class="st22" points="197 193.1 194.7 188.7 199.2 188.7 197 193.1"/>
+    </g>
+    <g>
+      <line class="st21" x1="216.4" y1="196.3" x2="216.4" y2="180.8"/>
+      <polygon class="st22" points="216.4 188.2 214.2 183.9 218.5 183.9 216.4 188.2"/>
+      <polygon class="st22" points="216.4 193.1 214.2 188.7 218.5 188.7 216.4 193.1"/>
+    </g>
+    <g>
+      <line class="st21" x1="237.2" y1="196.3" x2="237.2" y2="180.8"/>
+      <polygon class="st22" points="237.2 188.2 235 183.9 239.4 183.9 237.2 188.2"/>
+      <polygon class="st22" points="237.2 193.1 235 188.7 239.4 188.7 237.2 193.1"/>
+    </g>
+    <g>
+      <line class="st21" x1="256.6" y1="196.3" x2="256.6" y2="180.8"/>
+      <polygon class="st22" points="256.7 188.2 254.4 183.9 258.9 183.9 256.7 188.2"/>
+      <polygon class="st22" points="256.7 193.1 254.4 188.7 258.9 188.7 256.7 193.1"/>
+    </g>
+    <g>
+      <line class="st21" x1="275.9" y1="196.3" x2="275.9" y2="180.8"/>
+      <polygon class="st22" points="275.9 188.2 273.6 183.9 278 183.9 275.9 188.2"/>
+      <polygon class="st22" points="275.9 193.1 273.6 188.7 278 188.7 275.9 193.1"/>
+    </g>
+    <g>
+      <line class="st21" x1="295.3" y1="196.3" x2="295.3" y2="180.8"/>
+      <polygon class="st22" points="295.3 188.2 293.1 183.9 297.5 183.9 295.3 188.2"/>
+      <polygon class="st22" points="295.3 193.1 293.1 188.7 297.5 188.7 295.3 193.1"/>
+    </g>
+    <g>
+      <line class="st21" x1="313.1" y1="196.3" x2="313.1" y2="180.8"/>
+      <polygon class="st22" points="313.1 188.2 310.8 183.9 315.2 183.9 313.1 188.2"/>
+      <polygon class="st22" points="313.1 193.1 310.8 188.7 315.2 188.7 313.1 193.1"/>
+    </g>
+    <g>
+      <line class="st21" x1="332.4" y1="196.3" x2="332.4" y2="180.8"/>
+      <polygon class="st22" points="332.5 188.2 330.3 183.9 334.7 183.9 332.5 188.2"/>
+      <polygon class="st22" points="332.5 193.1 330.3 188.7 334.7 188.7 332.5 193.1"/>
+    </g>
+    <g>
+      <line class="st21" x1="351.7" y1="196.3" x2="351.7" y2="180.8"/>
+      <polygon class="st22" points="351.7 188.2 349.4 183.9 353.9 183.9 351.7 188.2"/>
+      <polygon class="st22" points="351.7 193.1 349.4 188.7 353.9 188.7 351.7 193.1"/>
+    </g>
+    <g>
+      <line class="st21" x1="371.1" y1="196.3" x2="371.1" y2="180.8"/>
+      <polygon class="st22" points="371.2 188.2 368.9 183.9 373.3 183.9 371.2 188.2"/>
+      <polygon class="st22" points="371.2 193.1 368.9 188.7 373.3 188.7 371.2 193.1"/>
+    </g>
+    <g>
+      <line class="st21" x1="390.4" y1="196.3" x2="390.4" y2="180.8"/>
+      <polygon class="st22" points="390.4 188.2 388.1 183.9 392.6 183.9 390.4 188.2"/>
+      <polygon class="st22" points="390.4 193.1 388.1 188.7 392.6 188.7 390.4 193.1"/>
+    </g>
+    <polygon class="st22" points="458.4 297.7 456.8 294.8 459.9 294.8 458.4 297.7"/>
+    <polygon class="st22" points="458.4 288.5 456.8 291.4 459.9 291.4 458.4 288.5"/>
+    <polygon class="st22" points="458.6 310.7 456.9 307.8 460 307.8 458.6 310.7"/>
+    <polygon class="st22" points="458.6 301.5 456.9 304.4 460 304.4 458.6 301.5"/>
+    <polygon class="st22" points="481.1 298.1 479.6 295.1 482.6 295.1 481.1 298.1"/>
+    <polygon class="st22" points="481.1 288.8 479.6 291.8 482.6 291.8 481.1 288.8"/>
+    <polygon class="st22" points="481.2 311.1 479.7 308.1 482.6 308.1 481.2 311.1"/>
+    <polygon class="st22" points="481.2 301.8 479.7 304.7 482.6 304.7 481.2 301.8"/>
+    <polygon class="st22" points="503.6 297.8 502.1 294.9 505 294.9 503.6 297.8"/>
+    <polygon class="st22" points="503.6 288.6 502.1 291.5 505 291.5 503.6 288.6"/>
+    <polygon class="st22" points="503.7 310.8 502.1 307.9 505.1 307.9 503.7 310.8"/>
+    <polygon class="st22" points="503.7 301.6 502.1 304.5 505.1 304.5 503.7 301.6"/>
+    <polygon class="st22" points="524.6 297.9 523 295 526 295 524.6 297.9"/>
+    <polygon class="st22" points="524.6 288.6 523 291.6 526 291.6 524.6 288.6"/>
+    <polygon class="st22" points="524.7 310.9 523.1 308 526.1 308 524.7 310.9"/>
+    <polygon class="st22" points="524.7 301.6 523.1 304.6 526.1 304.6 524.7 301.6"/>
+    <polygon class="st22" points="545.3 298 543.8 295 546.8 295 545.3 298"/>
+    <polygon class="st22" points="545.3 288.7 543.8 291.6 546.8 291.6 545.3 288.7"/>
+    <polygon class="st22" points="545.4 311 543.9 308 546.9 308 545.4 311"/>
+    <polygon class="st22" points="545.4 301.7 543.9 304.6 546.9 304.6 545.4 301.7"/>
+    <polygon class="st22" points="566.3 298 564.8 295 567.8 295 566.3 298"/>
+    <polygon class="st22" points="566.3 288.7 564.8 291.6 567.8 291.6 566.3 288.7"/>
+    <polygon class="st22" points="566.4 311 564.9 308 567.8 308 566.4 311"/>
+    <polygon class="st22" points="566.4 301.7 564.9 304.6 567.8 304.6 566.4 301.7"/>
+    <g>
+      <line class="st21" x1="407.8" y1="196.3" x2="407.8" y2="180.8"/>
+      <polygon class="st22" points="407.8 188.2 405.6 183.9 410 183.9 407.8 188.2"/>
+      <polygon class="st22" points="407.8 193.1 405.6 188.7 410 188.7 407.8 193.1"/>
+    </g>
+    <g>
+      <line class="st21" x1="420.6" y1="196.3" x2="420.6" y2="180.8"/>
+      <polygon class="st22" points="420.6 188.2 418.3 183.9 422.8 183.9 420.6 188.2"/>
+      <polygon class="st22" points="420.6 193.1 418.3 188.7 422.8 188.7 420.6 193.1"/>
+    </g>
+    <g>
+      <line class="st21" x1="435.2" y1="196.3" x2="435.2" y2="180.8"/>
+      <polygon class="st22" points="435.3 188.2 433 183.9 437.5 183.9 435.3 188.2"/>
+      <polygon class="st22" points="435.3 193.1 433 188.7 437.5 188.7 435.3 193.1"/>
+    </g>
+    <g>
+      <line class="st21" x1="456.1" y1="196.3" x2="456.1" y2="180.8"/>
+      <polygon class="st22" points="456.2 188.2 453.9 183.9 458.4 183.9 456.2 188.2"/>
+      <polygon class="st22" points="456.2 193.1 453.9 188.7 458.4 188.7 456.2 193.1"/>
+    </g>
+    <g>
+      <line class="st21" x1="475.6" y1="196.3" x2="475.6" y2="180.8"/>
+      <polygon class="st22" points="475.6 188.2 473.3 183.9 477.7 183.9 475.6 188.2"/>
+      <polygon class="st22" points="475.6 193.1 473.3 188.7 477.7 188.7 475.6 193.1"/>
+    </g>
+    <g>
+      <line class="st21" x1="494.6" y1="196.3" x2="494.6" y2="180.8"/>
+      <polygon class="st22" points="494.7 188.2 492.4 183.9 496.9 183.9 494.7 188.2"/>
+      <polygon class="st22" points="494.7 193.1 492.4 188.7 496.9 188.7 494.7 193.1"/>
+    </g>
+    <g>
+      <line class="st21" x1="514.1" y1="196.3" x2="514.1" y2="180.8"/>
+      <polygon class="st22" points="514.2 188.2 511.8 183.9 516.3 183.9 514.2 188.2"/>
+      <polygon class="st22" points="514.2 193.1 511.8 188.7 516.3 188.7 514.2 193.1"/>
+    </g>
+    <g>
+      <line class="st21" x1="533.3" y1="196.3" x2="533.3" y2="180.8"/>
+      <polygon class="st22" points="533.3 188.2 531 183.9 535.5 183.9 533.3 188.2"/>
+      <polygon class="st22" points="533.3 193.1 531 188.7 535.5 188.7 533.3 193.1"/>
+    </g>
+    <g>
+      <line class="st21" x1="552.7" y1="196.3" x2="552.7" y2="180.8"/>
+      <polygon class="st22" points="552.8 188.2 550.5 183.9 555 183.9 552.8 188.2"/>
+      <polygon class="st22" points="552.8 193.1 550.5 188.7 555 188.7 552.8 193.1"/>
+    </g>
+    <rect class="st5" x="149.3" y="224" width="33.9" height="5"/>
+    <rect class="st5" x="192.9" y="223.7" width="91.7" height="5"/>
+    <rect class="st5" x="289.6" y="223.7" width="120.6" height="5"/>
+    <g>
+      <path class="st79" d="M272.5,155c-.1,0-5.4,2.4-1.5,4.4.1,0,.3,0,.5.1h1.3c.2,0,1-.3,1.1-.9,0-.4-.2-.8-.5-1.1-1.3-1.4-1.1-2.6-1.1-2.6h.2Z"/>
+      <path class="st80" d="M272.3,156.8s-3.4,1.5-1,2.8h1.2c.1,0,.6-.2.8-.5,0-.2-.1-.4-.3-.6-.9-.9-.6-1.6-.6-1.6h-.1Z"/>
+    </g>
+    <g>
+      <path class="st79" d="M292,155.1c-.1,0-5.4,2.4-1.5,4.4.1,0,.3,0,.5.1h1.3c.2,0,1-.3,1.1-.9,0-.4-.2-.8-.5-1.1-1.3-1.4-1.1-2.6-1.1-2.6h.2Z"/>
+      <path class="st80" d="M291.8,156.9s-3.4,1.5-1,2.8h1.2c.1,0,.6-.2.8-.5,0-.2-.1-.4-.3-.6-.9-.9-.6-1.6-.6-1.6h-.1Z"/>
+    </g>
+    <g>
+      <path class="st79" d="M309.4,154.9c-.1,0-5.4,2.4-1.5,4.4.1,0,.3,0,.5.1h1.3c.2,0,1-.3,1.1-.9,0-.4-.2-.8-.5-1.1-1.3-1.4-1.1-2.6-1.1-2.6h.2Z"/>
+      <path class="st80" d="M309.2,156.5s-3.4,1.5-1,2.8h1.2c.1,0,.6-.2.8-.5,0-.2-.1-.4-.3-.6-.9-.9-.6-1.6-.6-1.6h-.1Z"/>
+    </g>
+    <g>
+      <path class="st79" d="M334.5,155.1c-.1,0-5.4,2.4-1.5,4.4.1,0,.3,0,.5.1h1.3c.2,0,1-.3,1.1-.9,0-.4-.2-.8-.5-1.1-1.3-1.4-1.1-2.6-1.1-2.6h.2Z"/>
+      <path class="st80" d="M334.3,156.9s-3.4,1.5-1,2.8h1.2c.1,0,.6-.2.8-.5,0-.2-.1-.4-.3-.6-.9-.9-.6-1.6-.6-1.6h-.1Z"/>
+    </g>
+    <g>
+      <path class="st79" d="M346.8,155c-.1,0-5.4,2.4-1.5,4.4.1,0,.3,0,.5.1h1.3c.2,0,1-.3,1.1-.9,0-.4-.2-.8-.5-1.1-1.3-1.4-1.1-2.6-1.1-2.6h.2Z"/>
+      <path class="st80" d="M346.6,156.8s-3.4,1.5-1,2.8h1.2c.1,0,.6-.2.8-.5,0-.2-.1-.4-.3-.6-.9-.9-.6-1.6-.6-1.6h-.1Z"/>
+    </g>
+    <g>
+      <path class="st79" d="M358.7,155.2c-.1,0-5.4,2.4-1.5,4.4.1,0,.3,0,.5.1h1.3c.2,0,1-.3,1.1-.9,0-.4-.2-.8-.5-1.1-1.3-1.4-1.1-2.6-1.1-2.6h.2Z"/>
+      <path class="st80" d="M358.5,157s-3.4,1.5-1,2.8h1.2c.1,0,.6-.2.8-.5,0-.2-.1-.4-.3-.6-.9-.9-.6-1.6-.6-1.6h-.1Z"/>
+    </g>
+    <g>
+      <path class="st79" d="M318.8,155.5c-.1,0-5.4,2.4-1.5,4.4.1,0,.3,0,.5.1h1.3c.2,0,1-.3,1.1-.9,0-.4-.2-.8-.5-1.1-1.3-1.4-1.1-2.6-1.1-2.6h.2Z"/>
+      <path class="st80" d="M318.6,157.1s-3.4,1.5-1,2.8h1.2c.1,0,.6-.2.8-.5,0-.2-.1-.4-.3-.6-.9-.9-.6-1.6-.6-1.6h-.1Z"/>
+    </g>
+    <g>
+      <path class="st79" d="M317.8,153c.1,0,5.4-2.4,1.5-4.4-.1,0-.3,0-.5-.1h-1.3c-.2,0-1,.3-1.1.9,0,.4.2.8.5,1.1,1.3,1.4,1.1,2.6,1.1,2.6h-.2Z"/>
+      <path class="st80" d="M318,151.2s3.4-1.5,1-2.8h-1.2c-.1,0-.6.2-.8.5,0,.2.1.4.3.6.9.9.6,1.6.6,1.6h.1Z"/>
+    </g>
+    <g>
+      <path class="st79" d="M326.2,153.1c.1,0,5.4-2.4,1.5-4.4-.1,0-.3,0-.5-.1h-1.3c-.2,0-1,.3-1.1.9,0,.4.2.8.5,1.1,1.3,1.4,1.1,2.6,1.1,2.6h-.2Z"/>
+      <path class="st80" d="M326.4,151.4s3.4-1.5,1-2.8h-1.2c-.1,0-.6.2-.8.5,0,.2.1.4.3.6.9.9.6,1.6.6,1.6h.1Z"/>
+    </g>
+    <g>
+      <path class="st79" d="M342.5,153.2c.1,0,5.4-2.4,1.5-4.4-.1,0-.3,0-.5-.1h-1.3c-.2,0-1,.3-1.1.9,0,.4.2.8.5,1.1,1.3,1.4,1.1,2.6,1.1,2.6h-.2Z"/>
+      <path class="st80" d="M342.7,151.6s3.4-1.5,1-2.8h-1.2c-.1,0-.6.2-.8.5,0,.2.1.4.3.6.9.9.6,1.6.6,1.6h.1Z"/>
+    </g>
+    <g>
+      <path class="st79" d="M354.6,153c.1,0,5.4-2.4,1.5-4.4-.1,0-.3,0-.5-.1h-1.3c-.2,0-1,.3-1.1.9,0,.4.2.8.5,1.1,1.3,1.4,1.1,2.6,1.1,2.6h-.2Z"/>
+      <path class="st80" d="M354.8,151.3s3.4-1.5,1-2.8h-1.2c-.1,0-.6.2-.8.5,0,.2.1.4.3.6.9.9.6,1.6.6,1.6h.1Z"/>
+    </g>
+    <g>
+      <path class="st79" d="M300.3,152.9c.1,0,5.4-2.4,1.5-4.4-.1,0-.3,0-.5-.1h-1.3c-.2,0-1,.3-1.1.9,0,.4.2.8.5,1.1,1.3,1.4,1.1,2.6,1.1,2.6h-.2Z"/>
+      <path class="st80" d="M300.4,151.2s3.4-1.5,1-2.8h-1.2c-.1,0-.6.2-.8.5,0,.2.1.4.3.6.9.9.6,1.6.6,1.6h.1Z"/>
+    </g>
+    <g>
+      <path class="st79" d="M280.8,152.9c.1,0,5.4-2.4,1.5-4.4-.1,0-.3,0-.5-.1h-1.3c-.2,0-1,.3-1.1.9,0,.4.2.8.5,1.1,1.3,1.4,1.1,2.6,1.1,2.6h-.2Z"/>
+      <path class="st80" d="M281,151.1s3.4-1.5,1-2.8h-1.2c-.1,0-.6.2-.8.5,0,.2.1.4.3.6.9.9.6,1.6.6,1.6h.1Z"/>
+    </g>
+    <g>
+      <path class="st79" d="M261.8,152.9c.1,0,5.4-2.4,1.5-4.4-.1,0-.3,0-.5-.1h-1.3c-.2,0-1,.3-1.1.9,0,.4.2.8.5,1.1,1.3,1.4,1.1,2.6,1.1,2.6h-.2Z"/>
+      <path class="st80" d="M262,151.2s3.4-1.5,1-2.8h-1.2c-.1,0-.6.2-.8.5,0,.2.1.4.3.6.9.9.6,1.6.6,1.6h.1Z"/>
+    </g>
+    <g class="st49">
+      <g class="st49">
+        <g class="st49">
+          <g class="st49">
+            <g class="st49">
+              <text class="st42" transform="translate(164.9 217.2)"><tspan x="0" y="0">阀门%</tspan></text>
+            </g>
+          </g>
+        </g>
+      </g>
+    </g>
+    <g class="st49">
+      <g class="st49">
+        <g class="st49">
+          <g class="st49">
+            <g class="st49">
+              <text class="st42" transform="translate(146.9 238)"><tspan x="0" y="0">%</tspan></text>
+            </g>
+          </g>
+        </g>
+      </g>
+    </g>
+    <g class="st49">
+      <g class="st49">
+        <g class="st49">
+          <g class="st49">
+            <g class="st49">
+              <text class="st42" transform="translate(147.4 242.8)"><tspan x="0" y="0">%</tspan></text>
+            </g>
+          </g>
+        </g>
+      </g>
+    </g>
+    <polygon class="st72" points="170.1 290.6 165.2 295.3 166.3 296.2 170.9 291.4 170.1 290.6"/>
+    <polygon class="st72" points="202.4 261.1 207.2 265.9 206.1 266.7 201.5 262 202.4 261.1"/>
+    <polygon class="st72" points="308.8 281 313.7 285.7 312.6 286.6 308 281.8 308.8 281"/>
+    <polygon class="st72" points="311.8 245.5 306.9 250.1 308 251 312.6 246.3 311.8 245.5"/>
+    <g>
+      <polygon class="st22" points="245 296.3 242.5 296.3 243 292.8 243.1 291.5 243.4 288.1 243.5 286.8 243.5 286.7 244 286.7 244 286.8 244.2 288.1 244.6 291.5 244.7 292.8 245 296.3"/>
+      <polygon class="st75" points="244.7 292.8 243 292.8 243.1 291.5 244.6 291.5 244.7 292.8"/>
+      <polygon class="st75" points="244.2 288.1 243.4 288.1 243.5 286.8 244 286.8 244.2 288.1"/>
+    </g>
+    <g>
+      <polygon class="st22" points="396.3 251.1 393.9 251.1 394.2 247.6 394.3 246.3 394.6 242.9 394.7 241.6 394.7 241.6 395.3 241.5 395.3 241.6 395.5 242.9 395.8 246.3 395.9 247.6 396.3 251.1"/>
+      <polygon class="st75" points="395.9 247.6 394.2 247.6 394.3 246.3 395.8 246.3 395.9 247.6"/>
+      <polygon class="st75" points="395.5 242.9 394.6 242.9 394.7 241.6 395.3 241.6 395.5 242.9"/>
+    </g>
+    <line class="st14" x1="126.9" y1="196.6" x2="575.9" y2="196.6"/>
+    <line class="st14" x1="575.4" y1="205.2" x2="125.9" y2="205.2"/>
+    <g>
+      <g>
+        <g>
+          <rect class="st12" x="200.9" y="233.7" width="8.4" height="3.8"/>
+          <line class="st21" x1="209.4" y1="235.5" x2="196.6" y2="235.5"/>
+        </g>
+        <line class="st21" x1="196.6" y1="236.7" x2="196.6" y2="234.5"/>
+      </g>
+      <line class="st21" x1="202.5" y1="233.8" x2="197.6" y2="228.8"/>
+      <line class="st21" x1="207.4" y1="233.7" x2="212.1" y2="228.8"/>
+    </g>
+    <g>
+      <g>
+        <rect class="st12" x="571.8" y="243.1" width="4.1" height="2.8"/>
+        <line class="st21" x1="575.8" y1="244.4" x2="569.7" y2="244.4"/>
+      </g>
+      <line class="st21" x1="569.7" y1="245.3" x2="569.7" y2="243.6"/>
+    </g>
+    <g>
+      <rect class="st9" x="582.4" y="243.3" width="4.1" height="2.8"/>
+      <line class="st21" x1="582.4" y1="244.7" x2="588.6" y2="244.7"/>
+      <line class="st21" x1="588.6" y1="245.6" x2="588.6" y2="243.9"/>
+    </g>
+    <g>
+      <g>
+        <g>
+          <rect class="st12" x="389.2" y="233.8" width="8.4" height="3.8"/>
+          <line class="st21" x1="397.8" y1="235.6" x2="384.9" y2="235.6"/>
+        </g>
+        <line class="st21" x1="384.9" y1="236.8" x2="384.9" y2="234.6"/>
+      </g>
+      <line class="st21" x1="390.8" y1="233.8" x2="386" y2="228.8"/>
+      <line class="st21" x1="395.7" y1="233.8" x2="400.5" y2="228.8"/>
+    </g>
+    <g class="st49">
+      <g class="st49">
+        <g class="st49">
+          <g class="st49">
+            <g class="st49">
+              <text class="st57" transform="translate(105.8 304.7)"><tspan x="0" y="0">℃</tspan></text>
+            </g>
+          </g>
+        </g>
+      </g>
+    </g>
+    <g class="st49">
+      <g class="st49">
+        <g class="st49">
+          <g class="st49">
+            <g class="st49">
+              <text class="st57" transform="translate(150.7 305)"><tspan x="0" y="0">℃</tspan></text>
+            </g>
+          </g>
+        </g>
+      </g>
+    </g>
+    <g class="st49">
+      <g class="st49">
+        <g class="st49">
+          <g class="st49">
+            <g class="st49">
+              <text class="st57" transform="translate(234.2 270)"><tspan x="0" y="0">℃</tspan></text>
+            </g>
+          </g>
+        </g>
+      </g>
+    </g>
+    <g class="st49">
+      <g class="st49">
+        <g class="st49">
+          <g class="st49">
+            <g class="st49">
+              <text class="st57" transform="translate(290.9 253.6)"><tspan x="0" y="0">℃</tspan></text>
+            </g>
+          </g>
+        </g>
+      </g>
+    </g>
+    <g class="st49">
+      <g class="st49">
+        <g class="st49">
+          <g class="st49">
+            <g class="st49">
+              <text class="st57" transform="translate(259.3 238.9)"><tspan x="0" y="0">℃</tspan></text>
+            </g>
+          </g>
+        </g>
+      </g>
+    </g>
+    <g class="st49">
+      <g class="st49">
+        <g class="st49">
+          <g class="st49">
+            <g class="st49">
+              <text class="st57" transform="translate(339.1 293.1)"><tspan x="0" y="0">℃</tspan></text>
+            </g>
+          </g>
+        </g>
+      </g>
+    </g>
+    <g class="st49">
+      <g class="st49">
+        <g class="st49">
+          <g class="st49">
+            <g class="st49">
+              <text class="st57" transform="translate(524 46.4)"><tspan x="0" y="0">℃</tspan></text>
+            </g>
+          </g>
+        </g>
+      </g>
+    </g>
+    <g class="st49">
+      <g class="st49">
+        <g class="st49">
+          <g class="st49">
+            <g class="st49">
+              <text class="st57" transform="translate(523.9 26.2)"><tspan x="0" y="0">℃</tspan></text>
+            </g>
+          </g>
+        </g>
+      </g>
+    </g>
+    <g class="st49">
+      <g class="st49">
+        <g class="st49">
+          <g class="st49">
+            <g class="st49">
+              <text class="st57" transform="translate(105.7 304.8)"><tspan x="0" y="0">℃</tspan></text>
+            </g>
+          </g>
+        </g>
+      </g>
+    </g>
+    <g class="st49">
+      <g class="st49">
+        <g class="st49">
+          <g class="st49">
+            <g class="st49">
+              <text class="st36" transform="translate(141.3 211.9)"><tspan x="0" y="0">A</tspan></text>
+            </g>
+          </g>
+        </g>
+      </g>
+    </g>
+    <g class="st49">
+      <g class="st49">
+        <g class="st49">
+          <g class="st49">
+            <g class="st49">
+              <text class="st36" transform="translate(192.4 279.5)"><tspan x="0" y="0">A</tspan></text>
+            </g>
+          </g>
+        </g>
+      </g>
+    </g>
+    <g class="st49">
+      <g class="st49">
+        <g class="st49">
+          <g class="st49">
+            <g class="st49">
+              <text class="st36" transform="translate(192.7 319.3)"><tspan x="0" y="0">A</tspan></text>
+            </g>
+          </g>
+        </g>
+      </g>
+    </g>
+    <g class="st49">
+      <g class="st49">
+        <g class="st49">
+          <g class="st49">
+            <g class="st49">
+              <text class="st36" transform="translate(300.2 311.2)"><tspan x="0" y="0">A</tspan></text>
+            </g>
+          </g>
+        </g>
+      </g>
+    </g>
+    <g class="st49">
+      <g class="st49">
+        <g class="st49">
+          <g class="st49">
+            <g class="st49">
+              <text class="st36" transform="translate(327.9 263.1)"><tspan x="0" y="0">A</tspan></text>
+            </g>
+          </g>
+        </g>
+      </g>
+    </g>
+    <g class="st49">
+      <g class="st49">
+        <g class="st49">
+          <g class="st49">
+            <g class="st49">
+              <text class="st31" transform="translate(227.1 302.9)"><tspan x="0" y="0">mg/Nm</tspan></text>
+            </g>
+          </g>
+        </g>
+      </g>
+    </g>
+    <g>
+      <g>
+        <rect class="st72" x="182.1" y="251" width="12.9" height="4.2"/>
+        <rect class="st88" x="181.2" y="250.6" width="13.2" height="4.2"/>
+        <rect class="st87" x="181.6" y="250.8" width="12.9" height="4.2"/>
+      </g>
+      <g class="st49">
+        <g class="st49">
+          <g class="st49">
+            <g class="st49">
+              <g class="st49">
+                <text class="st66" transform="translate(184.1 254.1)"><tspan x="0" y="0">状态</tspan></text>
+              </g>
+            </g>
+          </g>
+        </g>
+      </g>
+    </g>
+    <g>
+      <rect class="st72" x="202.9" y="107.7" width="18.1" height="5.3"/>
+      <rect class="st88" x="201.8" y="107.3" width="18.6" height="5.3"/>
+      <rect class="st87" x="202.4" y="107.4" width="18.1" height="5.3"/>
+    </g>
+    <g class="st49">
+      <g class="st49">
+        <g class="st49">
+          <g class="st49">
+            <g class="st49">
+              <text class="st66" transform="translate(203.7 111.2)"><tspan x="0" y="0">回热风阀</tspan></text>
+            </g>
+          </g>
+        </g>
+      </g>
+    </g>
+    <g>
+      <g>
+        <rect class="st72" x="194.7" y="287" width="12.9" height="4.2"/>
+        <rect class="st88" x="193.9" y="286.7" width="13.2" height="4.2"/>
+        <rect class="st87" x="194.3" y="286.8" width="12.9" height="4.2"/>
+      </g>
+      <g class="st49">
+        <g class="st49">
+          <g class="st49">
+            <g class="st49">
+              <g class="st49">
+                <text class="st66" transform="translate(196.8 290.1)"><tspan x="0" y="0">状态</tspan></text>
+              </g>
+            </g>
+          </g>
+        </g>
+      </g>
+    </g>
+    <g>
+      <g>
+        <rect class="st72" x="287.5" y="269.7" width="12.9" height="4.2"/>
+        <rect class="st88" x="286.7" y="269.4" width="13.2" height="4.2"/>
+        <rect class="st87" x="287.1" y="269.5" width="12.9" height="4.2"/>
+      </g>
+      <g class="st49">
+        <g class="st49">
+          <g class="st49">
+            <g class="st49">
+              <g class="st49">
+                <text class="st66" transform="translate(289.5 272.8)"><tspan x="0" y="0">状态</tspan></text>
+              </g>
+            </g>
+          </g>
+        </g>
+      </g>
+    </g>
+    <g>
+      <g>
+        <rect class="st72" x="333.7" y="240.5" width="12.9" height="4.2"/>
+        <rect class="st88" x="332.9" y="240.2" width="13.2" height="4.2"/>
+        <rect class="st87" x="333.2" y="240.3" width="12.9" height="4.2"/>
+      </g>
+      <g class="st49">
+        <g class="st49">
+          <g class="st49">
+            <g class="st49">
+              <g class="st49">
+                <text class="st66" transform="translate(335.7 243.6)"><tspan x="0" y="0">状态</tspan></text>
+              </g>
+            </g>
+          </g>
+        </g>
+      </g>
+    </g>
+    <g>
+      <g>
+        <rect class="st72" x="406.9" y="231" width="12.9" height="4.2"/>
+        <rect class="st88" x="406" y="230.6" width="13.2" height="4.2"/>
+        <rect class="st87" x="406.4" y="230.7" width="12.9" height="4.2"/>
+      </g>
+      <g class="st49">
+        <g class="st49">
+          <g class="st49">
+            <g class="st49">
+              <g class="st49">
+                <text class="st66" transform="translate(408.9 234.1)"><tspan x="0" y="0">状态</tspan></text>
+              </g>
+            </g>
+          </g>
+        </g>
+      </g>
+    </g>
+    <g>
+      <g>
+        <rect class="st72" x="481.7" y="230.9" width="12.9" height="4.2"/>
+        <rect class="st88" x="481" y="230.5" width="13.2" height="4.2"/>
+        <rect class="st87" x="481.3" y="230.6" width="12.9" height="4.2"/>
+      </g>
+      <g class="st49">
+        <g class="st49">
+          <g class="st49">
+            <g class="st49">
+              <g class="st49">
+                <text class="st66" transform="translate(483.8 234)"><tspan x="0" y="0">状态</tspan></text>
+              </g>
+            </g>
+          </g>
+        </g>
+      </g>
+    </g>
+    <g>
+      <g>
+        <rect class="st72" x="260.2" y="209.8" width="12.9" height="6.6"/>
+        <rect class="st88" x="259.4" y="209.2" width="13.2" height="6.6"/>
+        <rect class="st87" x="259.7" y="209.3" width="12.9" height="6.6"/>
+      </g>
+      <g class="st49">
+        <g class="st49">
+          <g class="st49">
+            <g class="st49">
+              <g class="st49">
+                <text class="st66" transform="translate(261.9 213.8)"><tspan x="0" y="0">设定</tspan></text>
+              </g>
+            </g>
+          </g>
+        </g>
+      </g>
+    </g>
+    <g>
+      <g>
+        <rect class="st72" x="462.5" y="207.5" width="12.9" height="6.6"/>
+        <rect class="st88" x="461.6" y="207.1" width="13.2" height="6.6"/>
+        <rect class="st87" x="462" y="207.2" width="12.9" height="6.6"/>
+      </g>
+      <g class="st49">
+        <g class="st49">
+          <g class="st49">
+            <g class="st49">
+              <g class="st49">
+                <text class="st66" transform="translate(464.2 211.5)"><tspan x="0" y="0">设定</tspan></text>
+              </g>
+            </g>
+          </g>
+        </g>
+      </g>
+    </g>
+    <rect class="st22" x="360.4" y="245" width="26" height="8"/>
+    <g class="st49">
+      <g class="st49">
+        <g class="st49">
+          <g class="st49">
+            <g class="st49">
+              <text class="st43" transform="translate(363 250.9)"><tspan x="0" y="0">脱硫脱硝</tspan></text>
+            </g>
+          </g>
+        </g>
+      </g>
+    </g>
+    <line class="st21" x1="130.2" y1="180.8" x2="130.2" y2="166.1"/>
+    <line class="st21" x1="139.8" y1="166.1" x2="139.8" y2="181"/>
+    <line class="st21" x1="149.6" y1="181" x2="149.6" y2="166.1"/>
+    <line class="st21" x1="168.8" y1="181" x2="168.8" y2="166.1"/>
+    <line class="st21" x1="187.9" y1="180.8" x2="187.9" y2="166.1"/>
+    <line class="st21" x1="207.3" y1="181" x2="207.3" y2="166.1"/>
+    <line class="st21" x1="130.1" y1="181" x2="561.8" y2="181"/>
+    <line class="st21" x1="561.4" y1="166.1" x2="561.4" y2="181"/>
+    <line class="st21" x1="542.2" y1="166.1" x2="542.2" y2="181"/>
+    <line class="st21" x1="522.8" y1="166.1" x2="522.8" y2="181"/>
+    <line class="st21" x1="503.6" y1="166.1" x2="503.6" y2="181"/>
+    <line class="st21" x1="484.4" y1="166.1" x2="484.4" y2="181"/>
+    <line class="st21" x1="465.2" y1="166.1" x2="465.2" y2="181"/>
+    <line class="st21" x1="445.8" y1="166.1" x2="445.8" y2="181"/>
+    <line class="st21" x1="426.4" y1="166.1" x2="426.4" y2="181"/>
+    <line class="st21" x1="413.3" y1="166.1" x2="413.3" y2="181"/>
+    <line class="st21" x1="400.6" y1="166.1" x2="400.6" y2="181"/>
+    <line class="st21" x1="381.1" y1="166.1" x2="381.1" y2="181"/>
+    <line class="st21" x1="361.9" y1="166.1" x2="361.9" y2="181"/>
+    <line class="st21" x1="342.5" y1="166.1" x2="342.5" y2="181"/>
+    <line class="st21" x1="323.1" y1="166.1" x2="323.1" y2="181"/>
+    <line class="st21" x1="304" y1="166.1" x2="304" y2="181"/>
+    <line class="st21" x1="284.6" y1="166.1" x2="284.6" y2="181"/>
+    <line class="st21" x1="265.3" y1="166.1" x2="265.3" y2="181"/>
+    <line class="st21" x1="246" y1="166.1" x2="246" y2="181"/>
+    <line class="st21" x1="226.6" y1="166.1" x2="226.6" y2="181"/>
+    <rect class="st21" x="202.3" y="41.5" width="60.7" height="48.7"/>
+    <g>
+      <rect class="st22" x="207.2" y="51.1" width="4.9" height="19.7"/>
+      <rect class="st76" x="207.2" y="56.5" width="4.9" height="14.2"/>
+    </g>
+    <g>
+      <rect class="st22" x="221.7" y="51.1" width="4.9" height="19.7"/>
+      <rect class="st76" x="221.7" y="56.5" width="4.9" height="14.2"/>
+    </g>
+    <g>
+      <rect class="st22" x="236.2" y="51.1" width="4.9" height="19.7"/>
+      <rect class="st76" x="236.2" y="56.5" width="4.9" height="14.2"/>
+    </g>
+    <g>
+      <rect class="st22" x="250.5" y="51.1" width="4.9" height="19.7"/>
+      <rect class="st76" x="250.5" y="56.5" width="4.9" height="14.2"/>
+    </g>
+    <rect class="st22" x="206.9" y="76.7" width="3.4" height="3.4"/>
+    <rect class="st22" x="221.5" y="76.8" width="3.4" height="3.4"/>
+    <rect class="st22" x="245.6" y="85.1" width="3.4" height="3.4"/>
+    <rect class="st22" x="235.9" y="76.8" width="3.4" height="3.4"/>
+    <rect class="st22" x="250.5" y="76.9" width="3.4" height="3.4"/>
+    <g class="st49">
+      <g class="st49">
+        <g class="st49">
+          <g class="st49">
+            <g class="st49">
+              <text class="st43" transform="translate(207.4 88.4)"><tspan x="0" y="0">平均</tspan></text>
+            </g>
+          </g>
+        </g>
+      </g>
+    </g>
+    <g class="st49">
+      <g class="st49">
+        <g class="st49">
+          <g class="st49">
+            <g class="st49">
+              <text class="st46" transform="translate(207.5 46.8)"><tspan x="0" y="0">焙烧机料厚</tspan></text>
+            </g>
+          </g>
+        </g>
+      </g>
+    </g>
+    <rect class="st21" x="415" y="223.8" width="68" height="5.5"/>
+    <rect class="st21" x="489.2" y="224.5" width="67.4" height="5"/>
+    <polygon class="st15" points="149.3 141.9 381.1 141.9 381.1 120.8 226.7 120.8 220.3 114.5 194.4 114.5 187.9 120.9 181.2 114.3 155.5 114.3 149.4 120.9 149.3 141.9"/>
+    <line class="st21" x1="149.3" y1="120.9" x2="226.8" y2="120.9"/>
+    <line class="st21" x1="226.6" y1="142" x2="226.6" y2="120.9"/>
+    <line class="st21" x1="188" y1="141.9" x2="188" y2="120.9"/>
+    <g class="st49">
+      <g class="st49">
+        <g class="st49">
+          <g class="st49">
+            <g class="st49">
+              <text class="st47" transform="translate(166.7 113.8)"><tspan x="0" y="0">%</tspan></text>
+            </g>
+          </g>
+        </g>
+      </g>
+    </g>
+    <g class="st49">
+      <g class="st49">
+        <g class="st49">
+          <g class="st49">
+            <g class="st49">
+              <text class="st65" transform="translate(162.9 120.1)"><tspan x="0" y="0">鼓干</tspan></text>
+            </g>
+          </g>
+        </g>
+      </g>
+    </g>
+    <g class="st49">
+      <g class="st49">
+        <g class="st49">
+          <g class="st49">
+            <g class="st49">
+              <text class="st65" transform="translate(201.5 120)"><tspan x="0" y="0">抽干</tspan></text>
+            </g>
+          </g>
+        </g>
+      </g>
+    </g>
+    <g class="st49">
+      <g class="st49">
+        <g class="st49">
+          <g class="st49">
+            <g class="st49">
+              <text class="st65" transform="translate(255.8 119.9)"><tspan x="0" y="0">预热</tspan></text>
+            </g>
+          </g>
+        </g>
+      </g>
+    </g>
+    <g class="st49">
+      <g class="st49">
+        <g class="st49">
+          <g class="st49">
+            <g class="st49">
+              <text class="st65" transform="translate(323.7 119.5)"><tspan x="0" y="0">焙烧</tspan></text>
+            </g>
+          </g>
+        </g>
+      </g>
+    </g>
+    <g class="st49">
+      <g class="st49">
+        <g class="st49">
+          <g class="st49">
+            <g class="st49">
+              <text class="st65" transform="translate(398.1 119.9)"><tspan x="0" y="0">均热</tspan></text>
+            </g>
+          </g>
+        </g>
+      </g>
+    </g>
+    <g class="st49">
+      <g class="st49">
+        <g class="st49">
+          <g class="st49">
+            <g class="st49">
+              <text class="st51" transform="translate(508.5 155.1)"><tspan x="0" y="0">篦条振打</tspan></text>
+            </g>
+          </g>
+        </g>
+      </g>
+    </g>
+    <polyline class="st21" points="112 293.3 105.6 293.3 105.6 55.1 173.8 55.1 173.8 114.3"/>
+    <polygon class="st72" points="175.2 84.5 173.8 84.5 172.4 84.5 173.1 83.3 173.8 82.1 174.5 83.3 175.2 84.5"/>
+    <polygon class="st72" points="107.1 145.7 105.7 145.7 104.3 145.7 104.9 146.9 105.7 148.1 106.3 146.9 107.1 145.7"/>
+    <polygon class="st72" points="107.1 237.1 105.7 237.1 104.2 237.1 104.9 238.3 105.7 239.5 106.3 238.3 107.1 237.1"/>
+    <polygon class="st83" points="136.3 245 136.4 243.6 136.5 242.2 135.3 242.8 134 243.4 135.2 244.2 136.3 245"/>
+    <polygon class="st83" points="170.2 266.3 170.3 264.9 170.4 263.5 169.1 264.2 167.8 264.7 169 265.6 170.2 266.3"/>
+    <polygon class="st83" points="213.5 266.3 213.7 264.9 213.8 263.5 212.5 264.2 211.2 264.7 212.4 265.6 213.5 266.3"/>
+    <polygon class="st83" points="349 266.3 349.1 264.9 349.2 263.5 347.9 264.1 346.7 264.7 347.8 265.5 349 266.3"/>
+    <polygon class="st83" points="165.3 244.6 166.7 244.6 168.1 244.6 167.4 243.4 166.7 242.2 166.1 243.4 165.3 244.6"/>
+    <polygon class="st72" points="148 291.9 148 293.2 148 294.6 149.2 293.9 150.4 293.3 149.2 292.5 148 291.9"/>
+    <polygon class="st72" points="215.6 291.8 215.6 293.2 215.5 294.6 216.8 293.8 218 293.2 216.8 292.5 215.6 291.8"/>
+    <polygon class="st72" points="141.1 53.5 141.1 55 141.2 56.4 139.9 55.7 138.7 55.1 139.9 54.3 141.1 53.5"/>
+    <polygon class="st85" points="162.5 48.7 162.5 50.1 162.4 51.5 163.7 50.8 164.9 50.2 163.7 49.4 162.5 48.7"/>
+    <polygon class="st85" points="204.2 282.2 204.2 283.6 204.2 285 203.1 284.4 201.9 283.8 203.1 283 204.2 282.2"/>
+    <polygon class="st85" points="196.3 74.6 197 73.5 197.6 72.2 196.2 72.3 194.8 72.3 195.6 73.5 196.3 74.6"/>
+    <polygon class="st85" points="178.3 114.3 178.9 113.2 179.6 112 178.2 112 176.8 112 177.5 113.2 178.3 114.3"/>
+    <polygon class="st85" points="100.4 160.3 101 161.6 101.7 162.8 100.3 162.8 98.9 162.7 99.6 161.5 100.4 160.3"/>
+    <polygon class="st89" points="295.7 247.8 294.5 248.6 293.3 249.4 293.3 247.9 293.2 246.5 294.4 247.2 295.7 247.8"/>
+    <polygon class="st89" points="355.3 247.7 354.1 248.6 353 249.4 352.9 247.9 352.8 246.5 354 247.2 355.3 247.7"/>
+    <path class="st26" d="M608.4,265.6h16.3c1,0,1.7.8,1.7,1.7v4.8c0,1-.8,1.7-1.7,1.7h-16.3c-1,0-1.7-.8-1.7-1.7v-4.8c0-1,.8-1.7,1.7-1.7Z"/>
+    <path class="st22" d="M572.6,265.6h16.3c1,0,1.7.8,1.7,1.7v4.8c0,1-.8,1.7-1.7,1.7h-16.3c-1,0-1.7-.8-1.7-1.7v-4.8c0-1,.8-1.7,1.7-1.7Z"/>
+    <g class="st49">
+      <g class="st49">
+        <g class="st49">
+          <g class="st49">
+            <g class="st49">
+              <text class="st61" transform="translate(574.5 271.3)"><tspan x="0" y="0">S1未选</tspan></text>
+            </g>
+          </g>
+        </g>
+      </g>
+    </g>
+    <g class="st49">
+      <g class="st49">
+        <g class="st49">
+          <g class="st49">
+            <g class="st49">
+              <text class="st61" transform="translate(609.4 271.3)"><tspan x="0" y="0">S2选择</tspan></text>
+            </g>
+          </g>
+        </g>
+      </g>
+    </g>
+    <polygon class="st85" points="348.8 282.3 348.8 283.8 348.9 285.2 347.6 284.5 346.4 283.9 347.6 283.1 348.8 282.3"/>
+    <polygon class="st85" points="403.7 246.6 405.1 246.6 406.5 246.5 405.9 247.8 405.2 249 404.5 247.8 403.7 246.6"/>
+    <polygon class="st86" points="459.5 237.2 459.5 238.6 459.4 240 458.2 239.3 457.1 238.6 458.4 237.9 459.5 237.2"/>
+    <polyline class="st8" points="194.4 114.5 194.4 109.6 178.2 109.6 178.2 114.1"/>
+    <polyline class="st8" points="230.2 120.9 230.2 109.9 196.2 109.9"/>
+    <line class="st8" x1="252.1" y1="120.9" x2="252.1" y2="104.3"/>
+    <line class="st8" x1="272.1" y1="120.9" x2="272.1" y2="101.5"/>
+    <line class="st8" x1="294.2" y1="205.1" x2="294.2" y2="223.9"/>
+    <line class="st8" x1="313.6" y1="205" x2="313.6" y2="223.8"/>
+    <line class="st8" x1="332.9" y1="205.2" x2="332.9" y2="224"/>
+    <line class="st8" x1="371.6" y1="205" x2="371.6" y2="223.8"/>
+    <line class="st8" x1="390.7" y1="205.2" x2="390.7" y2="224"/>
+    <line class="st8" x1="405.5" y1="205" x2="405.5" y2="223.8"/>
+    <polyline class="st19" points="279.6 223.8 279.6 219.1 352.3 219.1 352.3 205.3"/>
+    <g>
+      <polygon class="st22" points="340.7 217.8 340.7 220.8 347.6 217.8 347.6 221 340.7 217.8"/>
+      <line class="st0" x1="344" y1="219.3" x2="344" y2="216.8"/>
+      <g>
+        <circle class="st22" cx="344.2" cy="214" r="2.8"/>
+        <g class="st49">
+          <g class="st49">
+            <g class="st49">
+              <g class="st49">
+                <g class="st49">
+                  <text class="st38" transform="translate(346.4 216.5) rotate(-179.9) scale(1.6 -1)"><tspan x="0" y="0">M</tspan></text>
+                </g>
+              </g>
+            </g>
+          </g>
+        </g>
+      </g>
+    </g>
+    <line class="st19" x1="241.1" y1="233.6" x2="241.1" y2="247.9"/>
+    <g>
+      <polygon class="st22" points="239.7 241.7 242.9 241.6 239.6 234.7 242.9 234.6 239.7 241.7"/>
+      <line class="st0" x1="241.3" y1="238.2" x2="238.7" y2="238.3"/>
+      <g>
+        <circle class="st22" cx="235.9" cy="238.2" r="2.8"/>
+        <g class="st49">
+          <g class="st49">
+            <g class="st49">
+              <g class="st49">
+                <g class="st49">
+                  <text class="st38" transform="translate(238.4 236) rotate(88.7) scale(1.6 -1)"><tspan x="0" y="0">M</tspan></text>
+                </g>
+              </g>
+            </g>
+          </g>
+        </g>
+      </g>
+    </g>
+    <polyline class="st19" points="558.5 33.2 379.5 33.2 379.5 120.3"/>
+    <line class="st19" x1="560" y1="52.1" x2="379.2" y2="52.1"/>
+    <line class="st19" x1="559.8" y1="69.3" x2="379.6" y2="69.3"/>
+    <polyline class="st19" points="559.9 88.8 463.7 88.8 463.7 69.5"/>
+    <line class="st19" x1="561.6" y1="108.1" x2="489.9" y2="108.1"/>
+    <polygon class="st89" points="448.6 34.5 448.6 33.1 448.6 31.7 447.4 32.3 446.2 33.1 447.4 33.8 448.6 34.5"/>
+    <polygon class="st89" points="450.3 53.8 450.3 52.4 450.3 51 449.2 51.6 447.9 52.4 449 53 450.3 53.8"/>
+    <polygon class="st89" points="535.7 90.2 535.7 87.4 533.3 88.8 535.7 90.2"/>
+    <polygon class="st89" points="535.7 70.7 535.7 67.9 533.3 69.3 535.7 70.7"/>
+    <polygon class="st89" points="535.7 109.5 535.7 106.7 533.3 108.1 535.7 109.5"/>
+    <polygon class="st89" points="450.2 70.9 450.2 69.5 450.2 68 449 68.7 447.7 69.5 449 70.1 450.2 70.9"/>
+    <polygon class="st89" points="492.2 109.6 492.2 108.2 492.3 106.8 491 107.4 489.8 108.2 491 108.8 492.2 109.6"/>
+    <g>
+      <polygon class="st22" points="494 87.2 494 90.3 501 87.2 501.1 90.4 494 87.2"/>
+      <line class="st0" x1="497.5" y1="88.8" x2="497.5" y2="86.2"/>
+      <g>
+        <circle class="st22" cx="497.6" cy="83.4" r="2.8"/>
+        <g class="st49">
+          <g class="st49">
+            <g class="st49">
+              <g class="st49">
+                <g class="st49">
+                  <text class="st38" transform="translate(499.8 85.9) rotate(179.9) scale(1.6 -1)"><tspan x="0" y="0">M</tspan></text>
+                </g>
+              </g>
+            </g>
+          </g>
+        </g>
+      </g>
+    </g>
+    <g>
+      <polygon class="st22" points="494.4 68.3 494.4 71.3 501.3 68.2 501.3 71.5 494.4 68.3"/>
+      <line class="st0" x1="497.7" y1="69.9" x2="497.7" y2="67.3"/>
+      <g>
+        <circle class="st22" cx="497.9" cy="64.5" r="2.8"/>
+        <g class="st49">
+          <g class="st49">
+            <g class="st49">
+              <g class="st49">
+                <g class="st49">
+                  <text class="st38" transform="translate(500.1 67) rotate(179.9) scale(1.6 -1)"><tspan x="0" y="0">M</tspan></text>
+                </g>
+              </g>
+            </g>
+          </g>
+        </g>
+      </g>
+    </g>
+    <g>
+      <polygon class="st6" points="479.3 50.2 479.3 53.3 486.3 50.2 486.3 53.4 479.3 50.2"/>
+      <line class="st23" x1="482.7" y1="51.8" x2="482.7" y2="49.3"/>
+      <circle class="st6" cx="482.9" cy="46.4" r="2.8"/>
+      <g class="st49">
+        <g class="st49">
+          <g class="st49">
+            <g class="st49">
+              <g class="st49">
+                <text class="st38" transform="translate(485.1 48.9) rotate(179.9) scale(1.6 -1)"><tspan x="0" y="0">M</tspan></text>
+              </g>
+            </g>
+          </g>
+        </g>
+      </g>
+    </g>
+    <g>
+      <polygon class="st6" points="463.5 50.3 463.5 53.3 470.5 50.2 470.5 53.5 463.5 50.3"/>
+      <line class="st23" x1="466.9" y1="51.8" x2="466.9" y2="49.3"/>
+      <circle class="st6" cx="467.1" cy="46.5" r="2.8"/>
+      <g class="st49">
+        <g class="st49">
+          <g class="st49">
+            <g class="st49">
+              <g class="st49">
+                <text class="st38" transform="translate(469.3 49) rotate(179.9) scale(1.6 -1)"><tspan x="0" y="0">M</tspan></text>
+              </g>
+            </g>
+          </g>
+        </g>
+      </g>
+    </g>
+    <g class="st49">
+      <g class="st49">
+        <g class="st49">
+          <g class="st49">
+            <g class="st49">
+              <text class="st35" transform="translate(491.3 47.2)"><tspan x="0" y="0">天然气</tspan></text>
+            </g>
+          </g>
+        </g>
+      </g>
+    </g>
+    <g class="st49">
+      <g class="st49">
+        <g class="st49">
+          <g class="st49">
+            <g class="st49">
+              <text class="st35" transform="translate(491 28.2)"><tspan x="0" y="0">氮气</tspan></text>
+            </g>
+          </g>
+        </g>
+      </g>
+    </g>
+    <g class="st49">
+      <g class="st49">
+        <g class="st49">
+          <g class="st49">
+            <g class="st49">
+              <text class="st42" transform="translate(563.6 25.6)"><tspan x="0" y="0">Nm3</tspan></text>
+            </g>
+          </g>
+        </g>
+      </g>
+    </g>
+    <g class="st49">
+      <g class="st49">
+        <g class="st49">
+          <g class="st49">
+            <g class="st49">
+              <text class="st28" transform="translate(530 20.9)"><tspan x="0" y="0">Nm3/h</tspan></text>
+            </g>
+          </g>
+        </g>
+      </g>
+    </g>
+    <g class="st49">
+      <g class="st49">
+        <g class="st49">
+          <g class="st49">
+            <g class="st49">
+              <text class="st28" transform="translate(396 61.4)"><tspan x="0" y="0">Nm3/h</tspan></text>
+            </g>
+          </g>
+        </g>
+      </g>
+    </g>
+    <g class="st49">
+      <g class="st49">
+        <g class="st49">
+          <g class="st49">
+            <g class="st49">
+              <text class="st28" transform="translate(455 76.6)"><tspan x="0" y="0">N</tspan></text>
+            </g>
+          </g>
+        </g>
+      </g>
+    </g>
+    <g class="st49">
+      <g class="st49">
+        <g class="st49">
+          <g class="st49">
+            <g class="st49">
+              <text class="st28" transform="translate(530.2 40.5)"><tspan x="0" y="0">Nm3/h</tspan></text>
+            </g>
+          </g>
+        </g>
+      </g>
+    </g>
+    <g class="st49">
+      <g class="st49">
+        <g class="st49">
+          <g class="st49">
+            <g class="st49">
+              <text class="st42" transform="translate(564 45.1)"><tspan x="0" y="0">Nm3</tspan></text>
+            </g>
+          </g>
+        </g>
+      </g>
+    </g>
+    <g>
+      <circle class="st18" cx="515" cy="106.4" r="6.7"/>
+      <path class="st11" d="M505,110.7v-3.2s3.4.8,6.3.8l1.6,2.4h-8,.1Z"/>
+      <rect class="st11" x="518.7" y="106.3" width="6.3" height="3.1"/>
+      <circle class="st74" cx="515.6" cy="106.9" r="4.9" transform="translate(.2 214.6) rotate(-23.5)"/>
+      <g>
+        <polygon class="st10" points="515 102.4 515 105.8 517.1 102.6 515 102.4"/>
+        <polygon class="st10" points="511.2 106.3 514.6 106.3 511.2 104.3 511.2 106.3"/>
+        <polygon class="st10" points="515 110.1 514.9 106.8 513 110.1 515 110.1"/>
+        <polygon class="st10" points="518.8 106.3 515.5 106.4 518.8 108.4 518.8 106.3"/>
+        <circle class="st10" cx="515" cy="106.3" r=".9"/>
+      </g>
+    </g>
+    <g>
+      <circle class="st18" cx="513.3" cy="67.5" r="6.7"/>
+      <path class="st11" d="M503.2,71.7v-3.2s3.4.8,6.3.8l1.6,2.4h-8s.1,0,.1,0Z"/>
+      <rect class="st11" x="517" y="67.4" width="6.3" height="3.1"/>
+      <circle class="st74" cx="513.9" cy="67.8" r="4.9" transform="translate(15.6 210.7) rotate(-23.5)"/>
+      <g>
+        <polygon class="st10" points="513.3 63.5 513.3 66.9 515.4 63.6 513.3 63.5"/>
+        <polygon class="st10" points="509.5 67.4 512.8 67.4 509.5 65.3 509.5 67.4"/>
+        <polygon class="st10" points="513.3 71.2 513.2 67.8 511.2 71.2 513.3 71.2"/>
+        <polygon class="st10" points="517 67.4 513.7 67.5 517.1 69.5 517 67.4"/>
+        <circle class="st10" cx="513.3" cy="67.4" r=".9"/>
+      </g>
+    </g>
+    <g>
+      <circle class="st18" cx="515.1" cy="86.8" r="6.7"/>
+      <path class="st11" d="M505,91v-3.2s3.4.8,6.3.8l1.6,2.4h-8,.1Z"/>
+      <rect class="st11" x="518.7" y="86.7" width="6.3" height="3.1"/>
+      <circle class="st73" cx="515.6" cy="87.2" r="4.9" transform="translate(8 213) rotate(-23.5)"/>
+      <g>
+        <polygon class="st10" points="515 82.8 515 86.1 517.1 82.9 515 82.8"/>
+        <polygon class="st10" points="511.2 86.7 514.6 86.7 511.2 84.6 511.2 86.7"/>
+        <polygon class="st10" points="515 90.4 514.9 87.2 513 90.5 515 90.4"/>
+        <polygon class="st10" points="518.8 86.7 515.5 86.8 518.8 88.7 518.8 86.7"/>
+        <circle class="st10" cx="515" cy="86.8" r=".9"/>
+      </g>
+    </g>
+    <g class="st49">
+      <g class="st49">
+        <g class="st49">
+          <g class="st49">
+            <g class="st49">
+              <text class="st61" transform="translate(577.3 67.9)"><tspan x="0" y="0">助燃风机</tspan></text>
+            </g>
+          </g>
+        </g>
+      </g>
+    </g>
+    <rect class="st21" x="462.1" y="50" width="9.1" height="3.9"/>
+    <g class="st49">
+      <g class="st49">
+        <g class="st49">
+          <g class="st49">
+            <g class="st49">
+              <text class="st30" transform="translate(521 32.1)"><tspan x="0" y="0">k</tspan></text>
+            </g>
+          </g>
+        </g>
+      </g>
+    </g>
+    <g class="st49">
+      <g class="st49">
+        <g class="st49">
+          <g class="st49">
+            <g class="st49">
+              <text class="st30" transform="translate(521.1 51.7)"><tspan x="0" y="0">k</tspan></text>
+            </g>
+          </g>
+        </g>
+      </g>
+    </g>
+    <g class="st49">
+      <g class="st49">
+        <g class="st49">
+          <g class="st49">
+            <g class="st49">
+              <text class="st36" transform="translate(517.5 60.5)"><tspan x="0" y="0">A</tspan></text>
+            </g>
+          </g>
+        </g>
+      </g>
+    </g>
+    <g class="st49">
+      <g class="st49">
+        <g class="st49">
+          <g class="st49">
+            <g class="st49">
+              <text class="st36" transform="translate(517.5 79.5)"><tspan x="0" y="0">A</tspan></text>
+            </g>
+          </g>
+        </g>
+      </g>
+    </g>
+    <g class="st49">
+      <g class="st49">
+        <g class="st49">
+          <g class="st49">
+            <g class="st49">
+              <text class="st36" transform="translate(517.5 99.1)"><tspan x="0" y="0">A</tspan></text>
+            </g>
+          </g>
+        </g>
+      </g>
+    </g>
+    <g class="st49">
+      <g class="st49">
+        <g class="st49">
+          <g class="st49">
+            <g class="st49">
+              <text class="st30" transform="translate(452.1 65.3)"><tspan x="0" y="0">kp</tspan></text>
+            </g>
+          </g>
+        </g>
+      </g>
+    </g>
+    <g class="st49">
+      <g class="st49">
+        <g class="st49">
+          <g class="st49">
+            <g class="st49">
+              <text class="st35" transform="translate(434.6 120.1)"><tspan x="0" y="0">一冷</tspan></text>
+            </g>
+          </g>
+        </g>
+      </g>
+    </g>
+    <g class="st49">
+      <g class="st49">
+        <g class="st49">
+          <g class="st49">
+            <g class="st49">
+              <text class="st35" transform="translate(488.4 120.4)"><tspan x="0" y="0">二冷</tspan></text>
+            </g>
+          </g>
+        </g>
+      </g>
+    </g>
+    <g class="st49">
+      <g class="st49">
+        <g class="st49">
+          <g class="st49">
+            <g class="st49">
+              <text class="st35" transform="translate(536.7 121.9)"><tspan x="0" y="0">三冷</tspan></text>
+            </g>
+          </g>
+        </g>
+      </g>
+    </g>
+    <line class="st7" x1="159" y1="205.4" x2="159" y2="224"/>
+    <line class="st7" x1="178.4" y1="205.1" x2="178.4" y2="223.8"/>
+    <polygon class="st83" points="484 266.2 484.2 264.8 484.3 263.4 483 264.1 481.7 264.6 482.9 265.5 484 266.2"/>
+    <polygon class="st83" points="586.7 114.7 586.5 113.3 586.4 111.9 587.7 112.4 589 113 587.8 113.8 586.7 114.7"/>
+    <polygon class="st83" points="617.9 196.1 618.7 194.9 619.3 193.6 617.9 193.6 616.5 193.6 617.3 194.9 617.9 196.1"/>
+    <g class="st49">
+      <g class="st49">
+        <g class="st49">
+          <g class="st49">
+            <g class="st49">
+              <text class="st51" transform="translate(553.3 66.5)"><tspan x="0" y="0">#助燃</tspan></text>
+            </g>
+          </g>
+        </g>
+      </g>
+    </g>
+    <g class="st49">
+      <g class="st49">
+        <g class="st49">
+          <g class="st49">
+            <g class="st49">
+              <text class="st51" transform="translate(553.3 86.1)"><tspan x="0" y="0">#助燃</tspan></text>
+            </g>
+          </g>
+        </g>
+      </g>
+    </g>
+    <g class="st49">
+      <g class="st49">
+        <g class="st49">
+          <g class="st49">
+            <g class="st49">
+              <text class="st51" transform="translate(418.8 248.7)"><tspan x="0" y="0">#冷却</tspan></text>
+            </g>
+          </g>
+        </g>
+      </g>
+    </g>
+    <g class="st49">
+      <g class="st49">
+        <g class="st49">
+          <g class="st49">
+            <g class="st49">
+              <text class="st51" transform="translate(498.9 249.1)"><tspan x="0" y="0">#冷却</tspan></text>
+            </g>
+          </g>
+        </g>
+      </g>
+    </g>
+    <g class="st49">
+      <g class="st49">
+        <g class="st49">
+          <g class="st49">
+            <g class="st49">
+              <text class="st51" transform="translate(533.4 282.5)"><tspan x="0" y="0">#冷却</tspan></text>
+            </g>
+          </g>
+        </g>
+      </g>
+    </g>
+    <g class="st49">
+      <g class="st49">
+        <g class="st49">
+          <g class="st49">
+            <g class="st49">
+              <text class="st51" transform="translate(553.2 282.5)"><tspan x="0" y="0">#冷却</tspan></text>
+            </g>
+          </g>
+        </g>
+      </g>
+    </g>
+    <g class="st49">
+      <g class="st49">
+        <g class="st49">
+          <g class="st49">
+            <g class="st49">
+              <text class="st43" transform="translate(553.3 105.7)"><tspan x="0" y="0">密封风机</tspan></text>
+            </g>
+          </g>
+        </g>
+      </g>
+    </g>
+    <rect class="st22" x="373.1" y="64.6" width="26" height="8.4"/>
+    <g class="st49">
+      <g class="st49">
+        <g class="st49">
+          <g class="st49">
+            <g class="st49">
+              <text class="st60" transform="translate(375.8 71.1)"><tspan x="0" y="0">燃烧机</tspan></text>
+            </g>
+          </g>
+        </g>
+      </g>
+    </g>
+    <polygon class="st3" points="576.6 233.6 576.6 236.2 571.8 241 574.1 243.1 576.6 240.9 581.6 240.9 584.1 243.4 586.4 240.9 581.6 236.2 581.6 233.6 576.6 233.6"/>
+    <polygon class="st15" points="583.7 166.3 603.3 166.3 600 170.7 587.4 170.7 583.7 166.3"/>
+    <polygon class="st15" points="587.3 177.8 587.3 170.7 600 170.7 600 182.7 592.7 182.7 587.3 177.8"/>
+    <polygon class="st15" points="598 185.4 602.1 185.4 602.1 182.7 597.9 182.7 598 185.4"/>
+    <polygon class="st15" points="595.5 182.8 597.9 184.6 597.9 182.7 595.5 182.8"/>
+    <polygon class="st15" points="600.4 182.6 600.4 180.9 602.1 180.9 602.1 182.7 600.4 182.6"/>
+    <line class="st1" x1="419.9" y1="213.3" x2="419.9" y2="223.7"/>
+    <line class="st1" x1="434.2" y1="213.3" x2="434.2" y2="223.6"/>
+    <line class="st1" x1="455.4" y1="213.4" x2="455.4" y2="223.8"/>
+    <line class="st1" x1="493.8" y1="224.7" x2="493.8" y2="213.7"/>
+    <line class="st1" x1="513.3" y1="224.7" x2="513.3" y2="205.2"/>
+    <line class="st1" x1="532.9" y1="224.3" x2="532.9" y2="205.6"/>
+    <rect class="st21" x="489.1" y="224.6" width="67.6" height="4.7"/>
+    <rect class="st21" x="416.5" y="277.2" width="153.3" height="35.3"/>
+    <line class="st21" x1="439.1" y1="312.5" x2="439.1" y2="277.2"/>
+    <line class="st21" x1="461.6" y1="312.5" x2="461.6" y2="277.2"/>
+    <line class="st21" x1="484.2" y1="312.5" x2="484.2" y2="277.2"/>
+    <line class="st21" x1="506.9" y1="312.6" x2="506.9" y2="277.3"/>
+    <line class="st21" x1="527.7" y1="312.5" x2="527.7" y2="277.2"/>
+    <line class="st21" x1="548.8" y1="312.6" x2="548.8" y2="277.3"/>
+    <line class="st21" x1="570" y1="299.5" x2="416.6" y2="299.5"/>
+    <line class="st21" x1="416.5" y1="286.8" x2="569.8" y2="286.8"/>
+    <g class="st49">
+      <g class="st49">
+        <g class="st49">
+          <g class="st49">
+            <g class="st49">
+              <text class="st39" transform="translate(423.4 282.3)"><tspan x="0" y="0" xml:space="preserve">风机      主抽      回热       鼓干  </tspan></text>
+            </g>
+          </g>
+        </g>
+      </g>
+    </g>
+    <g class="st49">
+      <g class="st49">
+        <g class="st49">
+          <g class="st49">
+            <g class="st49">
+              <text class="st43" transform="translate(512.9 282.6)"><tspan x="0" y="0">炉罩</tspan></text>
+            </g>
+          </g>
+        </g>
+      </g>
+    </g>
+    <g>
+      <g class="st49">
+        <g class="st49">
+          <g class="st49">
+            <g class="st49">
+              <g class="st49">
+                <text class="st65" transform="translate(417.2 305)"><tspan x="0" y="0">风门反馈</tspan></text>
+              </g>
+            </g>
+          </g>
+        </g>
+      </g>
+      <g class="st49">
+        <g class="st49">
+          <g class="st49">
+            <g class="st49">
+              <g class="st49">
+                <text class="st65" transform="translate(417.2 311.4)"><tspan x="0" y="0">(%)设定</tspan></text>
+              </g>
+            </g>
+          </g>
+        </g>
+      </g>
+    </g>
+    <g>
+      <g class="st49">
+        <g class="st49">
+          <g class="st49">
+            <g class="st49">
+              <g class="st49">
+                <text class="st65" transform="translate(417.8 292.4)"><tspan x="0" y="0">频率反馈</tspan></text>
+              </g>
+            </g>
+          </g>
+        </g>
+      </g>
+      <g class="st49">
+        <g class="st49">
+          <g class="st49">
+            <g class="st49">
+              <g class="st49">
+                <text class="st65" transform="translate(417.8 298.9)"><tspan x="0" y="0">(Hz)设定</tspan></text>
+              </g>
+            </g>
+          </g>
+        </g>
+      </g>
+    </g>
+    <line class="st27" x1="439.1" y1="277" x2="439.1" y2="312.4"/>
+    <line class="st21" x1="484.1" y1="121.1" x2="484.1" y2="141.9"/>
+    <g>
+      <line class="st20" x1="597.3" y1="166.3" x2="597.3" y2="171.4"/>
+      <line class="st20" x1="601.4" y1="195.2" x2="601.4" y2="270.3"/>
+      <line class="st20" x1="591.8" y1="196.2" x2="591.8" y2="270.7"/>
+      <line class="st20" x1="579.1" y1="205.3" x2="579.1" y2="233.3"/>
+      <polyline class="st20" points="584.1 246.5 584.1 248.6 601.5 248.6"/>
+      <polyline class="st20" points="574.1 246.8 574.1 253.7 591.1 253.7"/>
+    </g>
+    <polygon class="st4" points="596.3 171 596.3 180.4 595 182.2 593.7 180.2 593.7 171.1 596.3 171"/>
+    <polygon class="st78" points="596.3 177.1 596.3 180.4 595 182.2 593.7 180.2 593.7 177.1 596.3 177.1"/>
+    <g>
+      <g class="st49">
+        <g class="st49">
+          <g class="st49">
+            <g class="st49">
+              <g class="st49">
+                <text class="st32" transform="translate(251.6 147.7)"><tspan x="0" y="0">2</tspan></text>
+              </g>
+            </g>
+          </g>
+        </g>
+      </g>
+      <g class="st49">
+        <g class="st49">
+          <g class="st49">
+            <g class="st49">
+              <g class="st49">
+                <text class="st32" transform="translate(254.7 147.7)"><tspan x="0" y="0">8</tspan></text>
+              </g>
+            </g>
+          </g>
+        </g>
+      </g>
+      <g class="st49">
+        <g class="st49">
+          <g class="st49">
+            <g class="st49">
+              <g class="st49">
+                <text class="st32" transform="translate(260.7 147.7)"><tspan x="0" y="0">2</tspan></text>
+              </g>
+            </g>
+          </g>
+        </g>
+      </g>
+      <g class="st49">
+        <g class="st49">
+          <g class="st49">
+            <g class="st49">
+              <g class="st49">
+                <text class="st32" transform="translate(263.7 147.7)"><tspan x="0" y="0">6</tspan></text>
+              </g>
+            </g>
+          </g>
+        </g>
+      </g>
+      <g class="st49">
+        <g class="st49">
+          <g class="st49">
+            <g class="st49">
+              <g class="st49">
+                <text class="st32" transform="translate(269.8 147.7)"><tspan x="0" y="0">2</tspan></text>
+              </g>
+            </g>
+          </g>
+        </g>
+      </g>
+      <g class="st49">
+        <g class="st49">
+          <g class="st49">
+            <g class="st49">
+              <g class="st49">
+                <text class="st32" transform="translate(272.8 147.7)"><tspan x="0" y="0">4</tspan></text>
+              </g>
+            </g>
+          </g>
+        </g>
+      </g>
+      <g class="st49">
+        <g class="st49">
+          <g class="st49">
+            <g class="st49">
+              <g class="st49">
+                <text class="st32" transform="translate(278.9 147.7)"><tspan x="0" y="0">2</tspan></text>
+              </g>
+            </g>
+          </g>
+        </g>
+      </g>
+      <g class="st49">
+        <g class="st49">
+          <g class="st49">
+            <g class="st49">
+              <g class="st49">
+                <text class="st32" transform="translate(281.9 147.7)"><tspan x="0" y="0">2</tspan></text>
+              </g>
+            </g>
+          </g>
+        </g>
+      </g>
+      <g class="st49">
+        <g class="st49">
+          <g class="st49">
+            <g class="st49">
+              <g class="st49">
+                <text class="st32" transform="translate(288 147.7)"><tspan x="0" y="0">2</tspan></text>
+              </g>
+            </g>
+          </g>
+        </g>
+      </g>
+      <g class="st49">
+        <g class="st49">
+          <g class="st49">
+            <g class="st49">
+              <g class="st49">
+                <text class="st32" transform="translate(291 147.7)"><tspan x="0" y="0">0</tspan></text>
+              </g>
+            </g>
+          </g>
+        </g>
+      </g>
+      <g class="st49">
+        <g class="st49">
+          <g class="st49">
+            <g class="st49">
+              <g class="st49">
+                <text class="st32" transform="translate(297.1 147.7)"><tspan x="0" y="0">1</tspan></text>
+              </g>
+            </g>
+          </g>
+        </g>
+      </g>
+      <g class="st49">
+        <g class="st49">
+          <g class="st49">
+            <g class="st49">
+              <g class="st49">
+                <text class="st32" transform="translate(300.1 147.7)"><tspan x="0" y="0">8</tspan></text>
+              </g>
+            </g>
+          </g>
+        </g>
+      </g>
+      <g class="st49">
+        <g class="st49">
+          <g class="st49">
+            <g class="st49">
+              <g class="st49">
+                <text class="st32" transform="translate(306.1 147.7)"><tspan x="0" y="0">1</tspan></text>
+              </g>
+            </g>
+          </g>
+        </g>
+      </g>
+      <g class="st49">
+        <g class="st49">
+          <g class="st49">
+            <g class="st49">
+              <g class="st49">
+                <text class="st32" transform="translate(309.2 147.7)"><tspan x="0" y="0">6</tspan></text>
+              </g>
+            </g>
+          </g>
+        </g>
+      </g>
+      <g class="st49">
+        <g class="st49">
+          <g class="st49">
+            <g class="st49">
+              <g class="st49">
+                <text class="st32" transform="translate(315.2 147.7)"><tspan x="0" y="0">1</tspan></text>
+              </g>
+            </g>
+          </g>
+        </g>
+      </g>
+      <g class="st49">
+        <g class="st49">
+          <g class="st49">
+            <g class="st49">
+              <g class="st49">
+                <text class="st32" transform="translate(318.3 147.7)"><tspan x="0" y="0">4</tspan></text>
+              </g>
+            </g>
+          </g>
+        </g>
+      </g>
+      <g class="st49">
+        <g class="st49">
+          <g class="st49">
+            <g class="st49">
+              <g class="st49">
+                <text class="st32" transform="translate(324.3 147.7)"><tspan x="0" y="0">1</tspan></text>
+              </g>
+            </g>
+          </g>
+        </g>
+      </g>
+      <g class="st49">
+        <g class="st49">
+          <g class="st49">
+            <g class="st49">
+              <g class="st49">
+                <text class="st32" transform="translate(327.3 147.7)"><tspan x="0" y="0">2</tspan></text>
+              </g>
+            </g>
+          </g>
+        </g>
+      </g>
+      <g class="st49">
+        <g class="st49">
+          <g class="st49">
+            <g class="st49">
+              <g class="st49">
+                <text class="st32" transform="translate(333.4 147.7)"><tspan x="0" y="0">1</tspan></text>
+              </g>
+            </g>
+          </g>
+        </g>
+      </g>
+      <g class="st49">
+        <g class="st49">
+          <g class="st49">
+            <g class="st49">
+              <g class="st49">
+                <text class="st32" transform="translate(336.4 147.7)"><tspan x="0" y="0">0</tspan></text>
+              </g>
+            </g>
+          </g>
+        </g>
+      </g>
+      <g class="st49">
+        <g class="st49">
+          <g class="st49">
+            <g class="st49">
+              <g class="st49">
+                <text class="st32" transform="translate(342.5 147.7)"><tspan x="0" y="0">8</tspan></text>
+              </g>
+            </g>
+          </g>
+        </g>
+      </g>
+      <g class="st49">
+        <g class="st49">
+          <g class="st49">
+            <g class="st49">
+              <g class="st49">
+                <text class="st32" transform="translate(348.6 147.7)"><tspan x="0" y="0">6</tspan></text>
+              </g>
+            </g>
+          </g>
+        </g>
+      </g>
+      <g class="st49">
+        <g class="st49">
+          <g class="st49">
+            <g class="st49">
+              <g class="st49">
+                <text class="st32" transform="translate(354.6 147.7)"><tspan x="0" y="0">4</tspan></text>
+              </g>
+            </g>
+          </g>
+        </g>
+      </g>
+      <g class="st49">
+        <g class="st49">
+          <g class="st49">
+            <g class="st49">
+              <g class="st49">
+                <text class="st32" transform="translate(360.7 147.7)"><tspan x="0" y="0">2</tspan></text>
+              </g>
+            </g>
+          </g>
+        </g>
+      </g>
+    </g>
+    <g>
+      <g class="st49">
+        <g class="st49">
+          <g class="st49">
+            <g class="st49">
+              <g class="st49">
+                <text class="st32" transform="translate(251 163.5)"><tspan x="0" y="0">2</tspan></text>
+              </g>
+            </g>
+          </g>
+        </g>
+      </g>
+      <g class="st49">
+        <g class="st49">
+          <g class="st49">
+            <g class="st49">
+              <g class="st49">
+                <text class="st32" transform="translate(254 163.5)"><tspan x="0" y="0">7</tspan></text>
+              </g>
+            </g>
+          </g>
+        </g>
+      </g>
+      <g class="st49">
+        <g class="st49">
+          <g class="st49">
+            <g class="st49">
+              <g class="st49">
+                <text class="st32" transform="translate(260.1 163.5)"><tspan x="0" y="0">2</tspan></text>
+              </g>
+            </g>
+          </g>
+        </g>
+      </g>
+      <g class="st49">
+        <g class="st49">
+          <g class="st49">
+            <g class="st49">
+              <g class="st49">
+                <text class="st32" transform="translate(263.1 163.5)"><tspan x="0" y="0">5</tspan></text>
+              </g>
+            </g>
+          </g>
+        </g>
+      </g>
+      <g class="st49">
+        <g class="st49">
+          <g class="st49">
+            <g class="st49">
+              <g class="st49">
+                <text class="st32" transform="translate(269.1 163.5)"><tspan x="0" y="0">2</tspan></text>
+              </g>
+            </g>
+          </g>
+        </g>
+      </g>
+      <g class="st49">
+        <g class="st49">
+          <g class="st49">
+            <g class="st49">
+              <g class="st49">
+                <text class="st32" transform="translate(272.2 163.5)"><tspan x="0" y="0">3</tspan></text>
+              </g>
+            </g>
+          </g>
+        </g>
+      </g>
+      <g class="st49">
+        <g class="st49">
+          <g class="st49">
+            <g class="st49">
+              <g class="st49">
+                <text class="st32" transform="translate(278.2 163.5)"><tspan x="0" y="0">2</tspan></text>
+              </g>
+            </g>
+          </g>
+        </g>
+      </g>
+      <g class="st49">
+        <g class="st49">
+          <g class="st49">
+            <g class="st49">
+              <g class="st49">
+                <text class="st32" transform="translate(281.3 163.5)"><tspan x="0" y="0">1</tspan></text>
+              </g>
+            </g>
+          </g>
+        </g>
+      </g>
+      <g class="st49">
+        <g class="st49">
+          <g class="st49">
+            <g class="st49">
+              <g class="st49">
+                <text class="st32" transform="translate(287.3 163.5)"><tspan x="0" y="0">1</tspan></text>
+              </g>
+            </g>
+          </g>
+        </g>
+      </g>
+      <g class="st49">
+        <g class="st49">
+          <g class="st49">
+            <g class="st49">
+              <g class="st49">
+                <text class="st32" transform="translate(290.4 163.5)"><tspan x="0" y="0">9</tspan></text>
+              </g>
+            </g>
+          </g>
+        </g>
+      </g>
+      <g class="st49">
+        <g class="st49">
+          <g class="st49">
+            <g class="st49">
+              <g class="st49">
+                <text class="st32" transform="translate(296.4 163.5)"><tspan x="0" y="0">1</tspan></text>
+              </g>
+            </g>
+          </g>
+        </g>
+      </g>
+      <g class="st49">
+        <g class="st49">
+          <g class="st49">
+            <g class="st49">
+              <g class="st49">
+                <text class="st32" transform="translate(299.4 163.5)"><tspan x="0" y="0">7</tspan></text>
+              </g>
+            </g>
+          </g>
+        </g>
+      </g>
+      <g class="st49">
+        <g class="st49">
+          <g class="st49">
+            <g class="st49">
+              <g class="st49">
+                <text class="st32" transform="translate(305.5 163.5)"><tspan x="0" y="0">1</tspan></text>
+              </g>
+            </g>
+          </g>
+        </g>
+      </g>
+      <g class="st49">
+        <g class="st49">
+          <g class="st49">
+            <g class="st49">
+              <g class="st49">
+                <text class="st32" transform="translate(308.5 163.5)"><tspan x="0" y="0">5</tspan></text>
+              </g>
+            </g>
+          </g>
+        </g>
+      </g>
+      <g class="st49">
+        <g class="st49">
+          <g class="st49">
+            <g class="st49">
+              <g class="st49">
+                <text class="st32" transform="translate(314.6 163.5)"><tspan x="0" y="0">1</tspan></text>
+              </g>
+            </g>
+          </g>
+        </g>
+      </g>
+      <g class="st49">
+        <g class="st49">
+          <g class="st49">
+            <g class="st49">
+              <g class="st49">
+                <text class="st32" transform="translate(317.6 163.5)"><tspan x="0" y="0">3</tspan></text>
+              </g>
+            </g>
+          </g>
+        </g>
+      </g>
+      <g class="st49">
+        <g class="st49">
+          <g class="st49">
+            <g class="st49">
+              <g class="st49">
+                <text class="st32" transform="translate(323.7 163.5)"><tspan x="0" y="0">1</tspan></text>
+              </g>
+            </g>
+          </g>
+        </g>
+      </g>
+      <g class="st49">
+        <g class="st49">
+          <g class="st49">
+            <g class="st49">
+              <g class="st49">
+                <text class="st32" transform="translate(326.7 163.5)"><tspan x="0" y="0">1</tspan></text>
+              </g>
+            </g>
+          </g>
+        </g>
+      </g>
+      <g class="st49">
+        <g class="st49">
+          <g class="st49">
+            <g class="st49">
+              <g class="st49">
+                <text class="st32" transform="translate(332.8 163.5)"><tspan x="0" y="0">9</tspan></text>
+              </g>
+            </g>
+          </g>
+        </g>
+      </g>
+      <g class="st49">
+        <g class="st49">
+          <g class="st49">
+            <g class="st49">
+              <g class="st49">
+                <text class="st32" transform="translate(338.8 163.5)"><tspan x="0" y="0">7</tspan></text>
+              </g>
+            </g>
+          </g>
+        </g>
+      </g>
+      <g class="st49">
+        <g class="st49">
+          <g class="st49">
+            <g class="st49">
+              <g class="st49">
+                <text class="st32" transform="translate(344.9 163.5)"><tspan x="0" y="0">5</tspan></text>
+              </g>
+            </g>
+          </g>
+        </g>
+      </g>
+      <g class="st49">
+        <g class="st49">
+          <g class="st49">
+            <g class="st49">
+              <g class="st49">
+                <text class="st32" transform="translate(350.9 163.5)"><tspan x="0" y="0">3</tspan></text>
+              </g>
+            </g>
+          </g>
+        </g>
+      </g>
+      <g class="st49">
+        <g class="st49">
+          <g class="st49">
+            <g class="st49">
+              <g class="st49">
+                <text class="st32" transform="translate(357 163.5)"><tspan x="0" y="0">1</tspan></text>
+              </g>
+            </g>
+          </g>
+        </g>
+      </g>
+    </g>
+    <rect class="st89" x="527.6" y="68.5" width="5.4" height="1.3" transform="translate(106.4 395.2) rotate(-45)"/>
+    <rect class="st89" x="527.6" y="88.2" width="5.4" height="1.3" transform="translate(92.5 401) rotate(-45)"/>
+    <rect class="st89" x="527.6" y="107.6" width="5.4" height="1.3" transform="translate(78.8 406.7) rotate(-45)"/>
+    <line class="st21" x1="523" y1="122.7" x2="561.6" y2="122.7"/>
+  </g>
+  <text text-anchor="end" id="r1_1" class="st69" transform="translate(32 35.1)"><tspan x="0" y="0">r1_1</tspan></text>
+  <text text-anchor="end" id="r2_2" class="st69" transform="translate(70.4 72.2)"><tspan x="0" y="0">r2_2</tspan></text>
+  <text text-anchor="end" id="r2_3" class="st69" transform="translate(70.4 78.4)"><tspan x="0" y="0">r2_3</tspan></text>
+  <text text-anchor="end" id="r2_4" class="st69" transform="translate(27.8 84.5)"><tspan x="0" y="0">r2_4</tspan></text>
+  <text text-anchor="end" id="r2_7" class="st69" transform="translate(54.1 124.1)"><tspan x="0" y="0">r2_7</tspan></text>
+  <text text-anchor="end" id="r2_10" class="st69" transform="translate(63.7 171.1)"><tspan x="0" y="0">r2_10</tspan></text>
+  <text text-anchor="end" id="r2_12" class="st69" transform="translate(29.4 190.2)"><tspan x="0" y="0">r2_12</tspan></text>
+  <text text-anchor="end" id="r2_13" class="st69" transform="translate(43.4 202.9)"><tspan x="0" y="0">r2_13</tspan></text>
+  <text text-anchor="end" id="r1_3" class="st69" transform="translate(62.7 35.2)"><tspan x="0" y="0">r1_3</tspan></text>
+  <text text-anchor="end" id="r1_5" class="st69" transform="translate(91.7 34.6)"><tspan x="0" y="0">r1_5</tspan></text>
+  <text text-anchor="end" id="r6_4" class="st69" transform="translate(117.2 101.9)"><tspan x="0" y="0">r6_4</tspan></text>
+  <text text-anchor="end" id="r7_1" class="st69" transform="translate(167.5 126.6)"><tspan x="0" y="0">r7_1</tspan></text>
+  <text text-anchor="end" id="r8_1" class="st69" transform="translate(160.3 148.7)"><tspan x="0" y="0">r8_1</tspan></text>
+  <text text-anchor="end" id="r8_2" class="st69" transform="translate(160 156.9)"><tspan x="0" y="0">r8_2</tspan></text>
+  <text text-anchor="end" id="r8_4" class="st69" transform="translate(203.8 156.9)"><tspan x="0" y="0">r8_4</tspan></text>
+  <text text-anchor="end" id="r1_7" class="st69" transform="translate(140.7 25.3)"><tspan x="0" y="0">r1_7</tspan></text>
+  <text text-anchor="end" id="r6_1" class="st69" transform="translate(151.2 66.4)"><tspan x="0" y="0">r6_1</tspan></text>
+  <text text-anchor="end" id="r3_5" class="st69" transform="translate(212.6 75.6)"><tspan x="0" y="0">r3_5</tspan></text>
+  <text text-anchor="end" id="r3_6" class="st69" transform="translate(227.9 75.6)"><tspan x="0" y="0">r3_6</tspan></text>
+  <text text-anchor="end" id="r3_7" class="st69" transform="translate(242.8 75.6)"><tspan x="0" y="0">r3_7</tspan></text>
+  <text text-anchor="end" id="r3_8" class="st69" transform="translate(257.4 75.6)"><tspan x="0" y="0">r3_8</tspan></text>
+  <text text-anchor="end" id="r4_1" class="st56" transform="translate(526.4 20.4)"><tspan x="0" y="0">r4_1</tspan></text>
+  <text text-anchor="end" id="r4_9" class="st56" transform="translate(392.8 61.8)"><tspan x="0" y="0">r4_9</tspan></text>
+  <text text-anchor="end" id="r9_29" class="st53" transform="translate(175 252.9)"><tspan x="0" y="0">r9_29</tspan></text>
+  <text text-anchor="end" id="r9_86" class="st53" transform="translate(293.7 305.1)"><tspan x="0" y="0">r9_86</tspan></text>
+  <text text-anchor="end" id="r9_47" class="st53" transform="translate(342.8 238.1)"><tspan x="0" y="0">r9_47</tspan></text>
+  <text text-anchor="end" id="r9_66" class="st53" transform="translate(497.4 270.2)"><tspan x="0" y="0">r9_66</tspan></text>
+  <text text-anchor="end" id="r9_58" class="st53" transform="translate(424 270.2)"><tspan x="0" y="0">r9_58</tspan></text>
+  <text text-anchor="end" id="r7_88" class="st44" transform="translate(162.4 113.1)"><tspan x="0" y="0">r7_88</tspan></text>
+  <text text-anchor="end" id="r4_2" class="st40" transform="translate(520.8 26)"><tspan x="0" y="0">r4_2</tspan></text>
+  <text text-anchor="end" id="r4_4" class="st40" transform="translate(559.7 26.2)"><tspan x="0" y="0">r4_4</tspan></text>
+  <text text-anchor="end" id="r4_8" class="st40" transform="translate(560.3 45)"><tspan x="0" y="0">r4_8</tspan></text>
+  <text text-anchor="end" id="r6_6" class="st40" transform="translate(117 118.7)"><tspan x="0" y="0">r6_6</tspan></text>
+  <text text-anchor="end" id="r7_2" class="st40" transform="translate(167.5 131.3)"><tspan x="0" y="0">r7_2</tspan></text>
+  <text text-anchor="end" id="r8_6" class="st33" transform="translate(166 175.2)"><tspan x="0" y="0">r8_6</tspan></text>
+  <text text-anchor="end" id="r9_1" class="st69" transform="translate(140.4 211.7)"><tspan x="0" y="0">r9_1</tspan></text>
+  <text text-anchor="end" id="r9_3" class="st69" transform="translate(194.9 217.7)"><tspan x="0" y="0">r9_3</tspan></text>
+  <text text-anchor="end" id="r9_26" class="st33" transform="translate(144.6 238.1)"><tspan x="0" y="0">r9_26</tspan></text>
+  <text text-anchor="end" id="r9_28" class="st33" transform="translate(175 247.7)"><tspan x="0" y="0">r9_28</tspan></text>
+  <text text-anchor="end" id="r9_31" class="st33" transform="translate(189.4 272.6)"><tspan x="0" y="0">r9_31</tspan></text>
+  <text text-anchor="end" id="r9_32" class="st33" transform="translate(190.2 279.2)"><tspan x="0" y="0">r9_32</tspan></text>
+  <text text-anchor="end" id="r9_27" class="st42" transform="translate(144.6 242.7)"><tspan x="0" y="0">r9_27</tspan></text>
+  <text text-anchor="end" id="r9_38" class="st33" transform="translate(229.6 241.5)"><tspan x="0" y="0">r9_38</tspan></text>
+  <text text-anchor="end" id="r9_39" class="st42" transform="translate(229.6 246.4)"><tspan x="0" y="0">r9_39</tspan></text>
+  <text text-anchor="end" id="r9_45" class="st33" transform="translate(302.1 240.9)"><tspan x="0" y="0">r9_45</tspan></text>
+  <text text-anchor="end" id="r9_49" class="st33" transform="translate(343.6 252.9)"><tspan x="0" y="0">r9_49</tspan></text>
+  <text text-anchor="end" id="r9_50" class="st33" transform="translate(323.9 258.3)"><tspan x="0" y="0">r9_50</tspan></text>
+  <text text-anchor="end" id="r9_51" class="st33" transform="translate(324.5 263.6)"><tspan x="0" y="0">r9_51</tspan></text>
+  <text text-anchor="end" id="r9_56" class="st33" transform="translate(423.9 256.2)"><tspan x="0" y="0">r9_56</tspan></text>
+  <text text-anchor="end" id="r9_57" class="st33" transform="translate(423.9 260.9)"><tspan x="0" y="0">r9_57</tspan></text>
+  <text text-anchor="end" id="r9_46" class="st42" transform="translate(302.1 246)"><tspan x="0" y="0">r9_46</tspan></text>
+  <text text-anchor="end" id="r9_53" class="st33" transform="translate(382.3 267.6)"><tspan x="0" y="0">r9_53</tspan></text>
+  <text text-anchor="end" id="r9_54" class="st42" transform="translate(382.3 272.6)"><tspan x="0" y="0">r9_54</tspan></text>
+  <text text-anchor="end" id="r10_1" class="st33" transform="translate(454.8 292.3)"><tspan x="0" y="0">r10_1</tspan></text>
+  <text text-anchor="end" id="r10_2" class="st42" transform="translate(454.8 297.3)"><tspan x="0" y="0">r10_2</tspan></text>
+  <text text-anchor="end" id="r10_3" class="st33" transform="translate(454.8 304.8)"><tspan x="0" y="0">r10_3</tspan></text>
+  <text text-anchor="end" id="r10_4" class="st42" transform="translate(454.8 309.8)"><tspan x="0" y="0">r10_4</tspan></text>
+  <text text-anchor="end" id="r10_5" class="st33" transform="translate(477.6 291.8)"><tspan x="0" y="0">r10_5</tspan></text>
+  <text text-anchor="end" id="r10_6" class="st42" transform="translate(477.6 296.8)"><tspan x="0" y="0">r10_6</tspan></text>
+  <text text-anchor="end" id="r10_7" class="st33" transform="translate(477.6 304.3)"><tspan x="0" y="0">r10_7</tspan></text>
+  <text text-anchor="end" id="r10_8" class="st42" transform="translate(477.6 309.3)"><tspan x="0" y="0">r10_8</tspan></text>
+  <text text-anchor="end" id="r10_9" class="st33" transform="translate(499.8 292.3)"><tspan x="0" y="0">r10_9</tspan></text>
+  <text text-anchor="end" id="r10_10" class="st42" transform="translate(499.9 297.3)"><tspan x="0" y="0">r10_10</tspan></text>
+  <text text-anchor="end" id="r10_11" class="st33" transform="translate(499.9 304.8)"><tspan x="0" y="0">r10_11</tspan></text>
+  <text text-anchor="end" id="r10_12" class="st42" transform="translate(499.9 309.8)"><tspan x="0" y="0">r10_12</tspan></text>
+  <text text-anchor="end" id="r10_13" class="st33" transform="translate(520.3 292.3)"><tspan x="0" y="0">r10_13</tspan></text>
+  <text text-anchor="end" id="r10_14" class="st42" transform="translate(520.3 297.3)"><tspan x="0" y="0">r10_14</tspan></text>
+  <text text-anchor="end" id="r10_15" class="st33" transform="translate(520.3 304.8)"><tspan x="0" y="0">r10_15</tspan></text>
+  <text text-anchor="end" id="r10_16" class="st42" transform="translate(520.3 309.8)"><tspan x="0" y="0">r10_16</tspan></text>
+  <text text-anchor="end" id="r10_17" class="st33" transform="translate(539.8 292.3)"><tspan x="0" y="0">r10_17</tspan></text>
+  <text text-anchor="end" id="r10_18" class="st42" transform="translate(539.8 297.3)"><tspan x="0" y="0">r10_18</tspan></text>
+  <text text-anchor="end" id="r10_19" class="st33" transform="translate(539.8 304.8)"><tspan x="0" y="0">r10_19</tspan></text>
+  <text text-anchor="end" id="r10_20" class="st42" transform="translate(539.8 309.8)"><tspan x="0" y="0">r10_20</tspan></text>
+  <text text-anchor="end" id="r10_21" class="st33" transform="translate(560.6 292.3)"><tspan x="0" y="0">r10_21</tspan></text>
+  <text text-anchor="end" id="r10_22" class="st42" transform="translate(560.6 297.3)"><tspan x="0" y="0">r10_22</tspan></text>
+  <text text-anchor="end" id="r10_23" class="st33" transform="translate(560.6 304.8)"><tspan x="0" y="0">r10_23</tspan></text>
+  <text text-anchor="end" id="r10_24" class="st42" transform="translate(560.6 309.8)"><tspan x="0" y="0">r10_24</tspan></text>
+  <text text-anchor="end" id="r9_59" class="st33" transform="translate(456.7 232.7)"><tspan x="0" y="0">r9_59</tspan></text>
+  <text text-anchor="end" id="r9_60" class="st42" transform="translate(456.7 237.7)"><tspan x="0" y="0">r9_60</tspan></text>
+  <text text-anchor="end" id="r9_67" class="st33" transform="translate(533.2 233.2)"><tspan x="0" y="0">r9_67</tspan></text>
+  <text text-anchor="end" id="r9_69" class="st33" transform="translate(528.3 254.9)"><tspan x="0" y="0">r9_69</tspan></text>
+  <text text-anchor="end" id="r9_64" class="st33" transform="translate(497.4 256.5)"><tspan x="0" y="0">r9_64</tspan></text>
+  <text text-anchor="end" id="r9_65" class="st33" transform="translate(497.4 261.3)"><tspan x="0" y="0">r9_65</tspan></text>
+  <text text-anchor="end" id="r9_68" class="st42" transform="translate(533.2 238.2)"><tspan x="0" y="0">r9_68</tspan></text>
+  <text text-anchor="end" id="r9_52" class="st33" transform="translate(465.2 249.5)"><tspan x="0" y="0">r9_52</tspan></text>
+  <text text-anchor="end" id="r9_61" class="st52" transform="translate(465.2 244.7)"><tspan x="0" y="0">r9_61</tspan></text>
+  <text text-anchor="end" id="r9_88" class="st33" transform="translate(324.7 276.7)"><tspan x="0" y="0">r9_88</tspan></text>
+  <text text-anchor="end" id="r9_85" class="st33" transform="translate(292 299.7)"><tspan x="0" y="0">r9_85</tspan></text>
+  <text text-anchor="end" id="r9_83" class="st33" transform="translate(274.4 288.7)"><tspan x="0" y="0">r9_83</tspan></text>
+  <text text-anchor="end" id="r9_87" class="st33" transform="translate(295.5 311.2)"><tspan x="0" y="0">r9_87</tspan></text>
+  <text text-anchor="end" id="r9_79" class="st53" transform="translate(185.2 313.7)"><tspan x="0" y="0">r9_79</tspan></text>
+  <text text-anchor="end" id="r9_78" class="st33" transform="translate(183.5 308.2)"><tspan x="0" y="0">r9_78</tspan></text>
+  <text text-anchor="end" id="r9_80" class="st33" transform="translate(188.1 319.2)"><tspan x="0" y="0">r9_80</tspan></text>
+  <text text-anchor="end" id="r9_89" class="st42" transform="translate(324.7 281.7)"><tspan x="0" y="0">r9_89</tspan></text>
+  <text text-anchor="end" id="r9_81" class="st33" transform="translate(229.9 298.1)"><tspan x="0" y="0">r9_81</tspan></text>
+  <text text-anchor="end" id="r9_82" class="st42" transform="translate(224.6 303.4)"><tspan x="0" y="0">r9_82</tspan></text>
+  <text text-anchor="end" id="r9_75" class="st33" transform="translate(169.3 300)"><tspan x="0" y="0">r9_75</tspan></text>
+  <text text-anchor="end" id="r9_76" class="st42" transform="translate(169.3 305)"><tspan x="0" y="0">r9_76</tspan></text>
+  <text text-anchor="end" id="r9_33" class="st33" transform="translate(211.2 269.9)"><tspan x="0" y="0">r9_33</tspan></text>
+  <text text-anchor="end" id="r9_34" class="st42" transform="translate(211.2 275)"><tspan x="0" y="0">r9_34</tspan></text>
+  <text text-anchor="end" id="r9_74_1" class="st33" transform="translate(146.4 300)"><tspan x="0" y="0">r9_74_1</tspan></text>
+  <text text-anchor="end" id="r9_74" class="st34" transform="translate(149.6 305)"><tspan x="0" y="0">r9_74</tspan></text>
+  <text text-anchor="end" id="r9_72" class="st33" transform="translate(99.7 300)"><tspan x="0" y="0">r9_72</tspan></text>
+  <text text-anchor="end" id="r9_73" class="st34" transform="translate(103.7 305)"><tspan x="0" y="0">r9_73</tspan></text>
+  <text text-anchor="end" id="r9_93" class="st59" transform="translate(368 295.3)"><tspan x="0" y="0">r9_93</tspan></text>
+  <text text-anchor="end" id="r9_94" class="st50" transform="translate(368 300.3)"><tspan x="0" y="0">r9_94</tspan></text>
+  <text text-anchor="end" id="r9_90" class="st33" transform="translate(335 288.9)"><tspan x="0" y="0">r9_90</tspan></text>
+  <text text-anchor="end" id="r9_91" class="st34" transform="translate(338.1 294)"><tspan x="0" y="0">r9_91</tspan></text>
+  <text text-anchor="end" id="r9_96" class="st59" transform="translate(392.6 295.3)"><tspan x="0" y="0">r9_96</tspan></text>
+  <text text-anchor="end" id="r9_97" class="st50" transform="translate(392.6 300.3)"><tspan x="0" y="0">r9_97</tspan></text>
+  <text text-anchor="end" id="r9_41" class="st34" transform="translate(254.3 238)"><tspan x="0" y="0">r9_41</tspan></text>
+  <text text-anchor="end" id="r9_42" class="st33" transform="translate(254.3 243)"><tspan x="0" y="0">r9_42</tspan></text>
+  <text text-anchor="end" id="r9_35" class="st34" transform="translate(231 269.4)"><tspan x="0" y="0">r9_35</tspan></text>
+  <text text-anchor="end" id="r9_36" class="st33" transform="translate(229.5 274.3)"><tspan x="0" y="0">r9_36</tspan></text>
+  <text text-anchor="end" id="r9_43" class="st34" transform="translate(286.8 253)"><tspan x="0" y="0">r9_43</tspan></text>
+  <text text-anchor="end" id="r9_44" class="st33" transform="translate(285.4 257.8)"><tspan x="0" y="0">r9_44</tspan></text>
+  <text text-anchor="end" id="r9_5" class="st69" transform="translate(212.9 217.7)"><tspan x="0" y="0">r9_5</tspan></text>
+  <text text-anchor="end" id="r9_7" class="st69" transform="translate(231.5 217.7)"><tspan x="0" y="0">r9_7</tspan></text>
+  <text text-anchor="end" id="r9_9" class="st69" transform="translate(252.1 217.7)"><tspan x="0" y="0">r9_9</tspan></text>
+  <text text-anchor="end" id="r9_10" class="st69" transform="translate(339.5 210.4)"><tspan x="0" y="0">r9_10</tspan></text>
+  <text text-anchor="end" id="r9_13" class="st69" transform="translate(416.1 219.5)"><tspan x="0" y="0">r9_13</tspan></text>
+  <text text-anchor="end" id="r9_15" class="st69" transform="translate(432.2 219.5)"><tspan x="0" y="0">r9_15</tspan></text>
+  <text text-anchor="end" id="r9_17" class="st69" transform="translate(452.7 219.5)"><tspan x="0" y="0">r9_17</tspan></text>
+  <text text-anchor="end" id="r9_18" class="st69" transform="translate(488.2 219.5)"><tspan x="0" y="0">r9_18</tspan></text>
+  <text text-anchor="end" id="r9_20" class="st69" transform="translate(544.1 219.5)"><tspan x="0" y="0">r9_20</tspan></text>
+  <text text-anchor="end" id="r9_21" class="st69" transform="translate(590.1 213.2)"><tspan x="0" y="0">r9_21</tspan></text>
+  <text text-anchor="end" id="r9_22" class="st65" transform="translate(590.1 218.7)"><tspan x="0" y="0">r9_22</tspan></text>
+  <text text-anchor="end" id="r9_23" class="st69" transform="translate(613.4 213.2)"><tspan x="0" y="0">r9_23</tspan></text>
+  <text text-anchor="end" id="r9_24" class="st65" transform="translate(613.4 218.7)"><tspan x="0" y="0">r9_24</tspan></text>
+  <text text-anchor="end" id="r8_5" class="st34" transform="translate(166 171)"><tspan x="0" y="0">r8_5</tspan></text>
+  <text text-anchor="end" id="r8_8" class="st33" transform="translate(184.3 175.2)"><tspan x="0" y="0">r8_8</tspan></text>
+  <text text-anchor="end" id="r8_7" class="st34" transform="translate(184.3 171)"><tspan x="0" y="0">r8_7</tspan></text>
+  <text text-anchor="end" id="r8_10" class="st33" transform="translate(201.6 175.2)"><tspan x="0" y="0">r8_10</tspan></text>
+  <text text-anchor="end" id="r8_11" class="st52" transform="translate(201.6 179.4)"><tspan x="0" y="0">r8_11</tspan></text>
+  <text text-anchor="end" id="r8_9" class="st34" transform="translate(200.6 171)"><tspan x="0" y="0">r8_9</tspan></text>
+  <text text-anchor="end" id="r8_13" class="st33" transform="translate(220.8 175.2)"><tspan x="0" y="0">r8_13</tspan></text>
+  <text text-anchor="end" id="r8_14" class="st52" transform="translate(220.8 179.4)"><tspan x="0" y="0">r8_14</tspan></text>
+  <text text-anchor="end" id="r8_12" class="st34" transform="translate(220.8 171)"><tspan x="0" y="0">r8_12</tspan></text>
+  <text text-anchor="end" id="r8_16" class="st33" transform="translate(240.3 175.2)"><tspan x="0" y="0">r8_16</tspan></text>
+  <text text-anchor="end" id="r8_17" class="st52" transform="translate(240.3 179.4)"><tspan x="0" y="0">r8_17</tspan></text>
+  <text text-anchor="end" id="r8_15" class="st34" transform="translate(240.3 171)"><tspan x="0" y="0">r8_15</tspan></text>
+  <text text-anchor="end" id="r8_19" class="st33" transform="translate(259.7 175.2)"><tspan x="0" y="0">r8_19</tspan></text>
+  <text text-anchor="end" id="r8_20" class="st52" transform="translate(259.7 179.4)"><tspan x="0" y="0">r8_20</tspan></text>
+  <text text-anchor="end" id="r8_18" class="st34" transform="translate(259.7 171)"><tspan x="0" y="0">r8_18</tspan></text>
+  <text text-anchor="end" id="r8_22" class="st33" transform="translate(278.9 175.2)"><tspan x="0" y="0">r8_22</tspan></text>
+  <text text-anchor="end" id="r8_23" class="st52" transform="translate(278.9 179.4)"><tspan x="0" y="0">r8_23</tspan></text>
+  <text text-anchor="end" id="r8_21" class="st34" transform="translate(278.9 171)"><tspan x="0" y="0">r8_21</tspan></text>
+  <text text-anchor="end" id="r8_25" class="st33" transform="translate(296.5 175.2)"><tspan x="0" y="0">r8_25</tspan></text>
+  <text text-anchor="end" id="r8_24" class="st34" transform="translate(296.5 171)"><tspan x="0" y="0">r8_24</tspan></text>
+  <text text-anchor="end" id="r8_27" class="st33" transform="translate(317.8 175.2)"><tspan x="0" y="0">r8_27</tspan></text>
+  <text text-anchor="end" id="r8_26" class="st34" transform="translate(317.8 171)"><tspan x="0" y="0">r8_26</tspan></text>
+  <text text-anchor="end" id="r8_29" class="st33" transform="translate(337 175.2)"><tspan x="0" y="0">r8_29</tspan></text>
+  <text text-anchor="end" id="r8_28" class="st34" transform="translate(337 171)"><tspan x="0" y="0">r8_28</tspan></text>
+  <text text-anchor="end" id="r8_31" class="st33" transform="translate(356.4 175.2)"><tspan x="0" y="0">r8_31</tspan></text>
+  <text text-anchor="end" id="r8_30" class="st34" transform="translate(356.4 171)"><tspan x="0" y="0">r8_30</tspan></text>
+  <text text-anchor="end" id="r8_33" class="st33" transform="translate(374.7 175.2)"><tspan x="0" y="0">r8_33</tspan></text>
+  <text text-anchor="end" id="r8_32" class="st34" transform="translate(374.7 171)"><tspan x="0" y="0">r8_32</tspan></text>
+  <text text-anchor="end" id="r8_35" class="st33" transform="translate(395.2 175.2)"><tspan x="0" y="0">r8_35</tspan></text>
+  <text text-anchor="end" id="r8_37" class="st33" transform="translate(414.6 175.3) rotate(-1.3)"><tspan x="0" y="0">r8_37</tspan></text>
+  <text text-anchor="end" id="r8_38" class="st33" transform="translate(426.6 175.2)"><tspan x="0" y="0">r8_38</tspan></text>
+  <text text-anchor="end" id="r8_39" class="st33" transform="translate(442.2 175.2)"><tspan x="0" y="0">r8_39</tspan></text>
+  <text text-anchor="end" id="r8_40" class="st33" transform="translate(461.4 175.2)"><tspan x="0" y="0">r8_40</tspan></text>
+  <text text-anchor="end" id="r8_41" class="st33" transform="translate(481 175.2)"><tspan x="0" y="0">r8_41</tspan></text>
+  <text text-anchor="end" id="r8_42" class="st33" transform="translate(499.4 175.4)"><tspan x="0" y="0">r8_42</tspan></text>
+  <text text-anchor="end" id="r8_43" class="st33" transform="translate(518.8 175.2)"><tspan x="0" y="0">r8_43</tspan></text>
+  <text text-anchor="end" id="r8_44" class="st33" transform="translate(538.7 175.2)"><tspan x="0" y="0">r8_44</tspan></text>
+  <text text-anchor="end" id="r8_45" class="st33" transform="translate(558.6 177.3)"><tspan x="0" y="0">r8_45</tspan></text>
+  <text text-anchor="end" id="r8_46" class="st68" transform="translate(561.1 171.9)"><tspan x="0" y="0">r8_46</tspan></text>
+  <text text-anchor="end" id="r8_34" class="st34" transform="translate(395.2 171)"><tspan x="0" y="0">r8_34</tspan></text>
+  <text text-anchor="end" id="r8_36" class="st34" transform="translate(414.6 171)"><tspan x="0" y="0">r8_36</tspan></text>
+  <text text-anchor="end" id="r9_70" class="st34" transform="translate(585.6 262.7)"><tspan x="0" y="0">r9_70</tspan></text>
+  <text text-anchor="end" id="r9_71" class="st34" transform="translate(622.9 262.7)"><tspan x="0" y="0">r9_71</tspan></text>
+  <text text-anchor="end" id="r7_3" class="st69" transform="translate(167.5 136.1)"><tspan x="0" y="0">r7_3</tspan></text>
+  <text text-anchor="end" id="r7_4" class="st40" transform="translate(167.5 140.8)"><tspan x="0" y="0">r7_4</tspan></text>
+  <text text-anchor="end" id="r7_5" class="st69" transform="translate(183.1 126.6)"><tspan x="0" y="0">r7_5</tspan></text>
+  <text text-anchor="end" id="r7_6" class="st40" transform="translate(183.1 131.3)"><tspan x="0" y="0">r7_6</tspan></text>
+  <text text-anchor="end" id="r7_7" class="st69" transform="translate(183.1 136.1)"><tspan x="0" y="0">r7_7</tspan></text>
+  <text text-anchor="end" id="r7_8" class="st40" transform="translate(183.1 140.8)"><tspan x="0" y="0">r7_8</tspan></text>
+  <text text-anchor="end" id="r7_9" class="st69" transform="translate(202 126.6)"><tspan x="0" y="0">r7_9</tspan></text>
+  <text text-anchor="end" id="r7_10" class="st40" transform="translate(203.2 131.3)"><tspan x="0" y="0">r7_10</tspan></text>
+  <text text-anchor="end" id="r7_11" class="st69" transform="translate(203.2 136.1)"><tspan x="0" y="0">r7_11</tspan></text>
+  <text text-anchor="end" id="r7_12" class="st40" transform="translate(203.2 140.8)"><tspan x="0" y="0">r7_12</tspan></text>
+  <text text-anchor="end" id="r7_13" class="st69" transform="translate(220.6 126.6)"><tspan x="0" y="0">r7_13</tspan></text>
+  <text text-anchor="end" id="r7_14" class="st40" transform="translate(220.6 131.3)"><tspan x="0" y="0">r7_14</tspan></text>
+  <text text-anchor="end" id="r7_15" class="st69" transform="translate(220.6 136.1)"><tspan x="0" y="0">r7_15</tspan></text>
+  <text text-anchor="end" id="r7_16" class="st40" transform="translate(220.6 140.8)"><tspan x="0" y="0">r7_16</tspan></text>
+  <text text-anchor="end" id="r7_17" class="st41" transform="translate(238.9 125.6)"><tspan x="0" y="0">r7_17</tspan></text>
+  <text text-anchor="end" id="r7_18" class="st64" transform="translate(238.9 130.3)"><tspan x="0" y="0">r7_18</tspan></text>
+  <text text-anchor="end" id="r7_93" class="st59" transform="translate(203.8 105.1)"><tspan x="0" y="0">r7_93</tspan></text>
+  <text text-anchor="end" id="r7_95" class="st59" transform="translate(213.4 105.1)"><tspan x="0" y="0">r7_95</tspan></text>
+  <text text-anchor="end" id="r7_97" class="st59" transform="translate(223.2 105.1)"><tspan x="0" y="0">r7_97</tspan></text>
+  <text text-anchor="end" id="r7_92" class="st59" transform="translate(203.8 101.1)"><tspan x="0" y="0">r7_92</tspan></text>
+  <text text-anchor="end" id="r7_94" class="st59" transform="translate(213.4 101.1)"><tspan x="0" y="0">r7_94</tspan></text>
+  <text text-anchor="end" id="r7_96" class="st59" transform="translate(223.2 101.1)"><tspan x="0" y="0">r7_96</tspan></text>
+  <text text-anchor="end" id="r7_101" class="st59" transform="translate(244.4 103)"><tspan x="0" y="0">r7_101</tspan></text>
+  <text text-anchor="end" id="r7_100" class="st59" transform="translate(244.4 99.1)"><tspan x="0" y="0">r7_100</tspan></text>
+  <text text-anchor="end" id="r7_19" class="st41" transform="translate(238.9 135.1)"><tspan x="0" y="0">r7_19</tspan></text>
+  <text text-anchor="end" id="r7_20" class="st64" transform="translate(238.9 139.8)"><tspan x="0" y="0">r7_20</tspan></text>
+  <text text-anchor="end" id="r7_30" class="st64" transform="translate(285.8 130.3)"><tspan x="0" y="0">r7_30</tspan></text>
+  <text text-anchor="end" id="r7_32" class="st64" transform="translate(285.8 139.8)"><tspan x="0" y="0">r7_32</tspan></text>
+  <text text-anchor="end" id="r7_40" class="st64" transform="translate(323.3 130.3)"><tspan x="0" y="0">r7_40</tspan></text>
+  <text text-anchor="end" id="r7_42" class="st64" transform="translate(323.3 139.8)"><tspan x="0" y="0">r7_42</tspan></text>
+  <text text-anchor="end" id="r7_50" class="st64" transform="translate(360.8 130.3)"><tspan x="0" y="0">r7_50</tspan></text>
+  <text text-anchor="end" id="r7_52" class="st64" transform="translate(360.8 139.8)"><tspan x="0" y="0">r7_52</tspan></text>
+  <text text-anchor="end" id="r7_53" class="st41" transform="translate(370.2 125.6)"><tspan x="0" y="0">r7_53</tspan></text>
+  <text text-anchor="end" id="r7_49" class="st41" transform="translate(360.8 125.6)"><tspan x="0" y="0">r7_49</tspan></text>
+  <text text-anchor="end" id="r7_47" class="st41" transform="translate(351.4 125.6)"><tspan x="0" y="0">r7_47</tspan></text>
+  <text text-anchor="end" id="r7_45" class="st41" transform="translate(342.1 125.6)"><tspan x="0" y="0">r7_45</tspan></text>
+  <text text-anchor="end" id="r7_43" class="st41" transform="translate(332.7 125.6)"><tspan x="0" y="0">r7_43</tspan></text>
+  <text text-anchor="end" id="r7_39" class="st41" transform="translate(323.3 125.6)"><tspan x="0" y="0">r7_39</tspan></text>
+  <text text-anchor="end" id="r7_37" class="st41" transform="translate(313.9 125.6)"><tspan x="0" y="0">r7_37</tspan></text>
+  <text text-anchor="end" id="r7_35" class="st41" transform="translate(304.6 125.6)"><tspan x="0" y="0">r7_35</tspan></text>
+  <text text-anchor="end" id="r7_33" class="st41" transform="translate(295.2 125.6)"><tspan x="0" y="0">r7_33</tspan></text>
+  <text text-anchor="end" id="r7_29" class="st41" transform="translate(285.8 125.6)"><tspan x="0" y="0">r7_29</tspan></text>
+  <text text-anchor="end" id="r7_27" class="st41" transform="translate(276.5 125.6)"><tspan x="0" y="0">r7_27</tspan></text>
+  <text text-anchor="end" id="r7_25" class="st41" transform="translate(267 125.6)"><tspan x="0" y="0">r7_25</tspan></text>
+  <text text-anchor="end" id="r7_23" class="st41" transform="translate(257.6 125.6)"><tspan x="0" y="0">r7_23</tspan></text>
+  <text text-anchor="end" id="r7_21" class="st41" transform="translate(248.2 125.6)"><tspan x="0" y="0">r7_21</tspan></text>
+  <text text-anchor="end" id="r7_98" class="st45" transform="translate(233 100.4)"><tspan x="0" y="0">r7_98</tspan></text>
+  <text text-anchor="end" id="r7_99" class="st45" transform="translate(233 103.7)"><tspan x="0" y="0">r7_99</tspan></text>
+  <text text-anchor="end" id="r7_55" class="st41" transform="translate(379.5 125.6)"><tspan x="0" y="0">r7_55</tspan></text>
+  <text text-anchor="end" id="r7_54" class="st41" transform="translate(370.2 135.1)"><tspan x="0" y="0">r7_54</tspan></text>
+  <text text-anchor="end" id="r7_51" class="st41" transform="translate(360.8 135.1)"><tspan x="0" y="0">r7_51</tspan></text>
+  <text text-anchor="end" id="r7_61" class="st33" transform="translate(429.7 131.3)"><tspan x="0" y="0">r7_61</tspan></text>
+  <text text-anchor="end" id="r7_63" class="st33" transform="translate(429.7 140.8)"><tspan x="0" y="0">r7_63</tspan></text>
+  <text text-anchor="end" id="r7_60" class="st34" transform="translate(429.7 126.6)"><tspan x="0" y="0">r7_60</tspan></text>
+  <text text-anchor="end" id="r7_62" class="st34" transform="translate(429.7 136.1)"><tspan x="0" y="0">r7_62</tspan></text>
+  <text text-anchor="end" id="r7_57" class="st34" transform="translate(393.4 125.6)"><tspan x="0" y="0">r7_57</tspan></text>
+  <text text-anchor="end" id="r7_58" class="st34" transform="translate(393.4 135.1)"><tspan x="0" y="0">r7_58</tspan></text>
+  <text text-anchor="end" id="r7_65" class="st33" transform="translate(453.7 131.3)"><tspan x="0" y="0">r7_65</tspan></text>
+  <text text-anchor="end" id="r7_67" class="st33" transform="translate(453.7 140.8)"><tspan x="0" y="0">r7_67</tspan></text>
+  <text text-anchor="end" id="r7_64" class="st34" transform="translate(453.7 126.6)"><tspan x="0" y="0">r7_64</tspan></text>
+  <text text-anchor="end" id="r7_115" class="st33" transform="translate(397.5 109)"><tspan x="0" y="0">r7_115</tspan></text>
+  <text text-anchor="end" id="r7_114" class="st34" transform="translate(397.5 104.3)"><tspan x="0" y="0">r7_114</tspan></text>
+  <text text-anchor="end" id="r7_117" class="st33" transform="translate(415.3 109)"><tspan x="0" y="0">r7_117</tspan></text>
+  <text text-anchor="end" id="r7_116" class="st34" transform="translate(415.3 104.3)"><tspan x="0" y="0">r7_116</tspan></text>
+  <text text-anchor="end" id="r7_111" class="st33" transform="translate(397.5 88.8)"><tspan x="0" y="0">r7_111</tspan></text>
+  <text text-anchor="end" id="r7_110" class="st34" transform="translate(397.5 84.1)"><tspan x="0" y="0">r7_110</tspan></text>
+  <text text-anchor="end" id="r7_113" class="st33" transform="translate(415.3 88.8)"><tspan x="0" y="0">r7_113</tspan></text>
+  <text text-anchor="end" id="r7_112" class="st34" transform="translate(415.3 84.1)"><tspan x="0" y="0">r7_112</tspan></text>
+  <text text-anchor="end" id="r7_66" class="st34" transform="translate(453.7 136.1)"><tspan x="0" y="0">r7_66</tspan></text>
+  <text text-anchor="end" id="r7_69" class="st33" transform="translate(475.8 131.3)"><tspan x="0" y="0">r7_69</tspan></text>
+  <text text-anchor="end" id="r7_71" class="st33" transform="translate(475.8 140.8)"><tspan x="0" y="0">r7_71</tspan></text>
+  <text text-anchor="end" id="r7_68" class="st34" transform="translate(475.8 126.6)"><tspan x="0" y="0">r7_68</tspan></text>
+  <text text-anchor="end" id="r7_70" class="st34" transform="translate(475.8 136.1)"><tspan x="0" y="0">r7_70</tspan></text>
+  <text text-anchor="end" id="r7_73" class="st33" transform="translate(501.7 131.3)"><tspan x="0" y="0">r7_73</tspan></text>
+  <text text-anchor="end" id="r7_75" class="st33" transform="translate(501.7 140.8)"><tspan x="0" y="0">r7_75</tspan></text>
+  <text text-anchor="end" id="r7_72" class="st34" transform="translate(501.7 126.6)"><tspan x="0" y="0">r7_72</tspan></text>
+  <text text-anchor="end" id="r7_74" class="st34" transform="translate(501.7 136.1)"><tspan x="0" y="0">r7_74</tspan></text>
+  <text text-anchor="end" id="r7_77" class="st33" transform="translate(520.4 131.3)"><tspan x="0" y="0">r7_77</tspan></text>
+  <text text-anchor="end" id="r7_79" class="st33" transform="translate(520.4 140.8)"><tspan x="0" y="0">r7_79</tspan></text>
+  <text text-anchor="end" id="r7_76" class="st34" transform="translate(520.4 126.6)"><tspan x="0" y="0">r7_76</tspan></text>
+  <text text-anchor="end" id="r7_78" class="st34" transform="translate(520.4 136.1)"><tspan x="0" y="0">r7_78</tspan></text>
+  <text text-anchor="end" id="r7_81" class="st33" transform="translate(539.5 131.3)"><tspan x="0" y="0">r7_81</tspan></text>
+  <text text-anchor="end" id="r7_83" class="st33" transform="translate(539.5 140.8)"><tspan x="0" y="0">r7_83</tspan></text>
+  <text text-anchor="end" id="r7_80" class="st34" transform="translate(539.5 126.6)"><tspan x="0" y="0">r7_80</tspan></text>
+  <text text-anchor="end" id="r7_82" class="st34" transform="translate(539.5 136.1)"><tspan x="0" y="0">r7_82</tspan></text>
+  <text text-anchor="end" id="r7_85" class="st33" transform="translate(558.2 131.3)"><tspan x="0" y="0">r7_85</tspan></text>
+  <text text-anchor="end" id="r7_87" class="st33" transform="translate(558.2 140.8)"><tspan x="0" y="0">r7_87</tspan></text>
+  <text text-anchor="end" id="r7_84" class="st34" transform="translate(558.2 126.6)"><tspan x="0" y="0">r7_84</tspan></text>
+  <text text-anchor="end" id="r7_86" class="st34" transform="translate(558.2 136.1)"><tspan x="0" y="0">r7_86</tspan></text>
+  <text text-anchor="end" id="r7_48" class="st41" transform="translate(351.4 135.1)"><tspan x="0" y="0">r7_48</tspan></text>
+  <text text-anchor="end" id="r7_46" class="st41" transform="translate(342.1 135.1)"><tspan x="0" y="0">r7_46</tspan></text>
+  <text text-anchor="end" id="r7_44" class="st41" transform="translate(332.7 135.1)"><tspan x="0" y="0">r7_44</tspan></text>
+  <text text-anchor="end" id="r7_41" class="st41" transform="translate(323.3 135.1)"><tspan x="0" y="0">r7_41</tspan></text>
+  <text text-anchor="end" id="r7_38" class="st41" transform="translate(313.9 135.1)"><tspan x="0" y="0">r7_38</tspan></text>
+  <text text-anchor="end" id="r7_36" class="st41" transform="translate(304.6 135.1)"><tspan x="0" y="0">r7_36</tspan></text>
+  <text text-anchor="end" id="r7_34" class="st41" transform="translate(295.2 135.1)"><tspan x="0" y="0">r7_34</tspan></text>
+  <text text-anchor="end" id="r7_31" class="st41" transform="translate(285.8 135.1)"><tspan x="0" y="0">r7_31</tspan></text>
+  <text text-anchor="end" id="r7_28" class="st41" transform="translate(276.5 135.1)"><tspan x="0" y="0">r7_28</tspan></text>
+  <text text-anchor="end" id="r7_26" class="st41" transform="translate(267 135.1)"><tspan x="0" y="0">r7_26</tspan></text>
+  <text text-anchor="end" id="r7_24" class="st41" transform="translate(257.6 135.1)"><tspan x="0" y="0">r7_24</tspan></text>
+  <text text-anchor="end" id="r7_22" class="st41" transform="translate(248.2 135.1)"><tspan x="0" y="0">r7_22</tspan></text>
+  <text text-anchor="end" id="r7_56" class="st41" transform="translate(379.5 135.1)"><tspan x="0" y="0">r7_56</tspan></text>
+  <text text-anchor="end" id="r4_3" class="st69" transform="translate(517.7 31.8)"><tspan x="0" y="0">r4_3</tspan></text>
+  <text text-anchor="end" id="r4_12" class="st69" transform="translate(486.3 61.9)"><tspan x="0" y="0">r4_12</tspan></text>
+  <text text-anchor="end" id="r4_14" class="st69" transform="translate(514.4 59.9)"><tspan x="0" y="0">r4_14</tspan></text>
+  <text text-anchor="end" id="r4_19" class="st69" transform="translate(514.4 79.5)"><tspan x="0" y="0">r4_19</tspan></text>
+  <text text-anchor="end" id="r4_24" class="st69" transform="translate(514.4 99.2)"><tspan x="0" y="0">r4_24</tspan></text>
+  <text text-anchor="end" id="r4_13" class="st65" transform="translate(486.3 68.4)"><tspan x="0" y="0">r4_13</tspan></text>
+  <text text-anchor="end" id="r4_17" class="st69" transform="translate(486.3 82)"><tspan x="0" y="0">r4_17</tspan></text>
+  <text text-anchor="end" id="r4_18" class="st65" transform="translate(486.3 88.5)"><tspan x="0" y="0">r4_18</tspan></text>
+  <text text-anchor="end" id="r4_15" class="st69" transform="translate(550.8 61.9)"><tspan x="0" y="0">r4_15</tspan></text>
+  <text text-anchor="end" id="r4_16" class="st65" transform="translate(550.8 68.4)"><tspan x="0" y="0">r4_16</tspan></text>
+  <text text-anchor="end" id="r4_20" class="st69" transform="translate(550.8 81.8)"><tspan x="0" y="0">r4_20</tspan></text>
+  <text text-anchor="end" id="r4_21" class="st65" transform="translate(550.8 88.3)"><tspan x="0" y="0">r4_21</tspan></text>
+  <text text-anchor="end" id="r4_22" class="st69" transform="translate(550.8 101)"><tspan x="0" y="0">r4_22</tspan></text>
+  <text text-anchor="end" id="r4_23" class="st65" transform="translate(550.8 107.5)"><tspan x="0" y="0">r4_23</tspan></text>
+  <text text-anchor="end" id="r4_5" class="st56" transform="translate(527.7 40.2)"><tspan x="0" y="0">r4_5</tspan></text>
+  <text text-anchor="end" id="r4_11" class="st56" transform="translate(451.7 77.1)"><tspan x="0" y="0">r4_11</tspan></text>
+  <text text-anchor="end" id="r4_6" class="st40" transform="translate(522.1 45.8)"><tspan x="0" y="0">r4_6</tspan></text>
+  <text text-anchor="end" id="r4_7" class="st69" transform="translate(519.2 51.7)"><tspan x="0" y="0">r4_7</tspan></text>
+  <text text-anchor="end" id="r4_10" class="st69" transform="translate(448.7 65.1)"><tspan x="0" y="0">r4_10</tspan></text>
+  <text text-anchor="end" id="r3_9" class="st69" transform="translate(235.2 88.4)"><tspan x="0" y="0">r3_9</tspan></text>
+  <text text-anchor="end" id="r1_8" class="st69" transform="translate(140.7 34.2)"><tspan x="0" y="0">r1_8</tspan></text>
+  <text text-anchor="end" id="r1_2" class="st65" transform="translate(32 41.6)"><tspan x="0" y="0">r1_2</tspan></text>
+  <text text-anchor="end" id="r1_4" class="st65" transform="translate(62.7 41.6)"><tspan x="0" y="0">r1_4</tspan></text>
+  <text text-anchor="end" id="r1_6" class="st65" transform="translate(91.7 41)"><tspan x="0" y="0">r1_6</tspan></text>
+  <text text-anchor="end" id="r6_5" class="st65" transform="translate(117.2 107)"><tspan x="0" y="0">r6_5</tspan></text>
+  <text text-anchor="end" id="r6_7" class="st69" transform="translate(149.4 102.1)"><tspan x="0" y="0">r6_7</tspan></text>
+  <text text-anchor="end" id="r6_8" class="st65" transform="translate(149.4 107.2)"><tspan x="0" y="0">r6_8</tspan></text>
+  <text text-anchor="end" id="r8_3" class="st65" transform="translate(203.8 149)"><tspan x="0" y="0">r8_3</tspan></text>
+  <text text-anchor="end" id="r7_89" class="st69" transform="translate(183.2 100.5)"><tspan x="0" y="0">r7_89</tspan></text>
+  <text text-anchor="end" id="r7_90" class="st65" transform="translate(183.2 105.5)"><tspan x="0" y="0">r7_90</tspan></text>
+  <text text-anchor="end" id="r1_9" class="st69" transform="translate(66.3 53.9)"><tspan x="0" y="0">r1_9</tspan></text>
+</svg>
