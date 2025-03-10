@@ -6140,9 +6140,6 @@
     " 新增节点": {
         "en": "Add Node"
     },
-    "超出省略": {
-        "en": "Ellipsis"
-    },
     "确认删除选中的 {{num}} 个巡检方案吗？": {
         "en": "Confirm to delete the selected {{num}} inspection plans?"
     },

@@ -87,8 +87,7 @@ export function DBTable (props: IProps) {
                     background_color,
                     sorter,
                     font_size,
-                    header_style,
-                    ellipsis
+                    header_style
                 } = col ?? { }
                 
                 const col_config = {
@@ -96,7 +95,6 @@ export function DBTable (props: IProps) {
                     width,
                     title: display_name || name,
                     key: name,
-                    ellipsis,
                     align,
                     sorter: sorter ? {
                         compare: (a, b) => a[name] - b[name],
