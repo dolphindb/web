@@ -158,7 +158,7 @@ def newMetric(name, displayName, group, desc, nodes, script, params=NULL, versio
     print("new metric: " + name)
     name_ = name
     version_ = version
-    language_ = language_
+    language_ = language
     cnt = exec count(*) from loadTable("dfs://autoInspection", "metrics") where name == name_ and version == version_ and language == language_
     if (cnt > 0) {
         print("duplicated metric, ignore! Name: " + name + ", version: " + string(version) + ", language: " + language)
