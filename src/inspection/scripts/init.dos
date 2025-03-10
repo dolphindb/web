@@ -517,12 +517,13 @@ def errorLogs(params) {
     endTime = params["endTime"]
 
     logs = getServerLogEx(startTime, endTime)
-    ret = select * from logs where level in params["logLevel"]
+    ret = select * from logs where level in params["logLevel"] and count > 0
+    cnt = exec count(*) from ret where count > 0
 
-    if (ret.size() > 0) {
+    if (cnt > 0) {
         return (false, ret, "请检查该节点的运行日志内容。")
     } else {
-        return (true, NULL, NULL)
+        return (true, ret, NULL)
     }
 }
 '
