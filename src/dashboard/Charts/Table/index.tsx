@@ -57,9 +57,6 @@ function get_cell_color (val, threshold, total) {
 export function DBTable (props: IProps) {
     const { widget, data_source = [ ], ...otherProps } = props
     const [selected_cols, set_select_cols] = useState([ ])
-    const table_header_ref = useRef<HTMLDivElement>(null)
-    
-    const size = useSize(table_header_ref)
     
     const config = useMemo(() => widget.config as ITableConfig, [widget.config])
     
@@ -109,7 +106,8 @@ export function DBTable (props: IProps) {
                             backgroundColor: isNumber(threshold) ? get_cell_color(record[name], threshold, data_source.map(item => item[col?.col])) : background_color,
                             color,
                             border: config.bordered ? '1px solid black' : null,
-                            fontSize: font_size || 14
+                            fontSize: font_size || 14,
+                            wordBreak: width ? 'break-all' as const : undefined
                         }
                     }),
                     onHeaderCell: () => ({ style: header_style }),
@@ -124,6 +122,7 @@ export function DBTable (props: IProps) {
                 
                 return col_config
             }), [ selected_cols, data_source, show_cols, config])
+            
     
     const pagination = useMemo<PaginationProps | false>(() => { 
         if (!config.pagination.show)
@@ -146,47 +145,48 @@ export function DBTable (props: IProps) {
     
     
     return <div className='dashboard-table-wrapper'>
-        <div ref={table_header_ref}>
-            {
-                config.title && <h2
-                    style={{ fontSize: config.title_size }}
-                    className='table-title'
-                >
-                    {parse_text(config.title)}
-                </h2>
-            }
-            
-            { 
-                config.need_select_cols && <Checkbox.Group
-                    onChange={ val => { set_select_cols(val) }  }
-                    value={selected_cols}
-                    options={radio_group_options}
-                    className='table-radio-group' 
-                /> 
-            }
-        </div>
+        
+        {
+            config.title && <h2
+                style={{ fontSize: config.title_size }}
+                className='table-title'
+            >
+                {parse_text(config.title)}
+            </h2>
+        }
+        
+        { 
+            config.need_select_cols && <Checkbox.Group
+                onChange={ val => { set_select_cols(val) }  }
+                value={selected_cols}
+                options={radio_group_options}
+                className='table-radio-group' 
+            /> 
+        }
+        
         
         {
             selected_cols?.length ?
-                <Table
-                    bordered={config.bordered}
-                    className={cn({
-                        'table-with-pagination': config?.pagination?.show,
-                    })}
-                    style={{ height: `calc(100% - ${size?.height ?? 0}px)` }}
-                    scroll={{ x: config?.max_content ? 'max-content' : '100%' }}
-                    columns={columns}
-                    dataSource={config.is_reverse ? data_source.toReversed() : data_source}
-                    pagination={pagination}
-                    rowKey={() => genid()}
-                    rowClassName={cn({
-                        'table-row-with-border': config.bordered
-                    })}
-                    {...otherProps}
-                />
+                    <Table
+                        className={cn('dashboard-table', {
+                            'dashboard-table-with-pagination': pagination
+                        })}
+                        bordered={config.bordered}
+                        scroll={{ x: config.max_content ? 'max-content' : undefined }}
+                        columns={columns}
+                        dataSource={config.is_reverse ? data_source.toReversed() : data_source}
+                        pagination={pagination}
+                        rowKey={() => genid()}
+                        rowClassName={cn({
+                            'table-row-with-border': config.bordered
+                        })}
+                        {...otherProps}
+                    />
+           
             :
                 <Empty className='empty-table' />
         }
+        
     </div>
 }
 
