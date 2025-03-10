@@ -126,7 +126,7 @@ export function BasicFormFields (props: { type?: 'chart' | 'table' | 'descriptio
                 <Form.Item initialValue={false} name='bordered' label={t('展示边框')}>
                     <BoolRadioGroup />
                 </Form.Item>
-                <Form.Item initialValue={false} name='max_content' label={t('列宽自适应')} help={t('请注意，列宽自适应时设置列宽无效')}>
+                <Form.Item initialValue={false} name='max_content' label={t('列宽自适应')}>
                     <BoolRadioGroup />
                 </Form.Item>
                 <Form.Item initialValue name='need_select_cols' label={t('展示列选择')}>
