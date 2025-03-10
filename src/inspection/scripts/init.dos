@@ -772,7 +772,7 @@ def biggestChunks(params) {
     meta = select * from rpc(getControllerAlias(), getClusterChunksStatus) where lastUpdated between startTime and endTime
     
     for (item in meta) {
-        node = replicas.split(",").first().split(":").first()
+        node = item["replicas"].split(",").first().split(":").first()
         chunkId = item["chunkId"]
         dfsPath = item["file"]
         dbName, tbName = dfsPath2tableName(node, chunkId, dfsPath)
@@ -825,7 +825,7 @@ def sortKeyCount(params) {
     
     res = table(1:0, `dbName`tbName`dfsPath`chunkId, [STRING, STRING, STRING, STRING])
     for (item in meta) {
-        node = replicas.split(",").first().split(":").first()
+        node = item["replicas"].split(",").first().split(":").first()
         chunkId = item["chunkId"]
         dfsPath = item["file"]
         dbName, tbName = dfsPath2tableName(node, chunkId, dfsPath)
