@@ -1,13 +1,15 @@
 
 import useSWR from 'swr'
 
-import { ACCESS_TYPE, NEED_INPUT_ACCESS } from '../constants.tsx'
-import { model } from '@model'
+import { model } from '@/model.ts'
 import { access } from '../model.ts'
 import type { AccessCategory, AccessRole } from '../types.ts'
+import { config } from '@/config/model.ts'
+import { strs_2_nodes } from '@/config/utils.ts'
 
 export function use_access_objs (role: AccessRole, category: AccessCategory) {
-    const { v3 } = model
+    const { v3 } = model 
+    
     return useSWR(
         ['access_objs', category, role],
         async () => {
@@ -22,8 +24,12 @@ export function use_access_objs (role: AccessRole, category: AccessCategory) {
                     return access.get_function_views()
                 case 'stream':
                     return access.get_stream_tables()
+                case 'compute_group':
+                    const result = await config.get_cluster_nodes() 
+                    const nodes = strs_2_nodes(result)
+                    return [...new Set([...nodes.map(node => node.computeGroup).filter(Boolean)])]
                 case 'script':
-                    return role === 'group' ? ACCESS_TYPE.script.filter(ac => !NEED_INPUT_ACCESS.includes(ac)) : ACCESS_TYPE.script
+                    return [ ]
             }
         }
     )

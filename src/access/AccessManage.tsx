@@ -137,6 +137,7 @@ export function AccessManage ({ role, name, category }: { role: AccessRole, name
                     showed_aces_types.map(aces => aces + '_denied').includes(k)
                 ) {
                     let objs = v.split(',')
+                    console.log('objs', objs, category)
                     if (category === 'database')
                         objs = objs.filter((obj: string) => !shared_tables.includes(obj) && !stream_tables.includes(obj))
                     if (category === 'shared')
