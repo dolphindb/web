@@ -1,4 +1,3 @@
-import ReactEChartsCore from 'echarts-for-react/lib/core'
 import type * as echarts from 'echarts'
 import { useMemo } from 'react'
 
