@@ -2,6 +2,7 @@ import './index.scss'
 
 
 import { useEffect, useMemo, useState } from 'react'
+import type * as echarts from 'echarts'
 
 import { convert_chart_config, get_axis_range } from '../../utils.ts'
 import { type Widget } from '../../model.js'
