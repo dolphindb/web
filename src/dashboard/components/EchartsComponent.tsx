@@ -18,23 +18,24 @@ export function DashboardEchartsComponent (props: IProps) {
     
     const wrapper_size = useSize(div_ref)
     
-    const chartRef = useRef<echarts.ECharts>(null)
+    const chart_ref = useRef<echarts.ECharts>(null)
     
+    /** echarts 父级元素高度不定会使得图表无法填满整个空间，需要监听父元素高度，resize 图表 */
     useEffect(() => {
-        chartRef?.current?.resize()
-    }, [wrapper_size])
+        chart_ref?.current?.resize()
+    }, [wrapper_size?.height])
     
     
     useEffect(() => {
         
-        if (!chartRef.current) {
-            chartRef.current = echarts.init(div_ref.current)
-            on_chart_ready?.(chartRef.current)
-            chartRef.current.setOption(options)
+        if (!chart_ref.current) {
+            chart_ref.current = echarts.init(div_ref.current)
+            on_chart_ready?.(chart_ref.current)
+            chart_ref.current.setOption(options)
         }
             
         else
-            chartRef.current.setOption(
+            chart_ref.current.setOption(
                 options,  
                 { 
                     replaceMerge: replace_merge, 
