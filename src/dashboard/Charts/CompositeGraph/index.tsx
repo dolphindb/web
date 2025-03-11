@@ -1,8 +1,8 @@
 import './index.scss'
 
 import { useEffect, useMemo, useState } from 'react'
-import ReactEChartsCore from 'echarts-for-react/lib/core'
-import * as echarts from 'echarts'
+
+import type * as echarts from 'echarts'
 import { pickBy } from 'lodash'
 import { type DdbType } from 'dolphindb/browser.js'
 import type { EChartsInstance } from 'echarts-for-react'
@@ -13,7 +13,8 @@ import { type Widget } from '../../model.js'
 import type { ISeriesConfig, IChartConfig } from '../../type.js'
 import { get_data_source } from '../../DataSource/date-source.js'
 
-import { useChart } from '../hooks.js'
+
+import { DashboardEchartsComponent } from '@/dashboard/components/EchartsComponent.tsx'
 
 import { VALUE_TYPES, TIME_TYPES } from './constant.js'
 
@@ -151,17 +152,13 @@ export function CompositeChart (props: ICompositeChartProps) {
             }
     }, [option, echart_instance, config.thresholds])
     
-    const ref = useChart(option)
     
     return <>
         {widget.source_id.map(id => <SingleDataSourceUpdate key={id} source_id={id} force_update={() => { set_update({ }) }}/>) }
-        <ReactEChartsCore
-            echarts={echarts}
-            ref={ref}
-            option={option}
-            className='dashboard-line-chart'
-            theme='my-theme'
-            onChartReady={(ins: EChartsInstance) => { set_echart_instance(ins) }}
+        <DashboardEchartsComponent 
+            options={option} 
+            on_chart_ready={set_echart_instance} 
+            replace_merge={['series', 'dataZoom', 'yAxis']}
         />
     </>
    

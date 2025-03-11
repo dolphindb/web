@@ -1,11 +1,8 @@
 import './index.scss'
 
-import ReactEChartsCore from 'echarts-for-react/lib/core'
-import * as echarts from 'echarts'
 
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { type EChartsInstance } from 'echarts-for-react'
-import { useSize } from 'ahooks'
 
 import { convert_chart_config, get_axis_range } from '../../utils.ts'
 import { type Widget } from '../../model.js'
@@ -13,7 +10,7 @@ import { AxisFormFields, SeriesFormFields, ThresholdFormFields } from '../../Cha
 import { BasicFormFields } from '../../ChartFormFields/BasicFormFields.js'
 import type { IChartConfig } from '../../type'
 import { ThresholdType } from '../../ChartFormFields/type.js'
-import { useChart } from '../hooks.js'
+import { DashboardEchartsComponent } from '@/dashboard/components/EchartsComponent.tsx'
 
 
 interface IProps { 
@@ -51,18 +48,12 @@ export function Chart (props: IProps) {
     }, [option, echart_instance])
     
     
-    const ref = useChart(option)
     
-    return <ReactEChartsCore
-        ref={ref}
-        echarts={echarts}
-        option={option}
-        className='dashboard-line-chart'
-        theme='my-theme'
-        onChartReady={(ins: EChartsInstance) => { 
-            set_echart_instance(ins)
-        }}
-    />
+    return <DashboardEchartsComponent 
+            on_chart_ready={set_echart_instance} 
+            options={option} 
+            replace_merge={['series', 'dataZoom', 'yAxis']}
+        />
 } 
 
 

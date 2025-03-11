@@ -1,5 +1,5 @@
 import ReactEChartsCore from 'echarts-for-react/lib/core'
-import * as echarts from 'echarts'
+import type * as echarts from 'echarts'
 import { useMemo } from 'react'
 
 import { isNil, pickBy } from 'lodash'
@@ -11,7 +11,7 @@ import { BasicFormFields } from '../../ChartFormFields/BasicFormFields.js'
 import { type IChartConfig } from '../../type.js'
 import { parse_text } from '../../utils.ts'
 import { ChartField } from '../../ChartFormFields/type.js'
-import { useChart } from '../hooks.js'
+import { DashboardEchartsComponent } from '@/dashboard/components/EchartsComponent.tsx'
 
 const radius = {
     1: [[0, '70%']],
@@ -72,9 +72,7 @@ export function Pie ({ widget, data_source }: { widget: Widget, data_source: any
         [title, animation, series, title_size, data_source, legend, tooltip]
     )
     
-    const ref = useChart(option)
-    
-    return <ReactEChartsCore ref={ref} echarts={echarts} option={option} lazyUpdate theme='ohlc_theme' />
+    return <DashboardEchartsComponent options={option} lazy_update />
 }
 
 export function PieConfigForm (props: { col_names: string[] } ) {

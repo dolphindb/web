@@ -1,17 +1,17 @@
-import * as echarts from 'echarts'
-import ReactEChartsCore from 'echarts-for-react/lib/core'
+import type * as echarts from 'echarts'
 import { useMemo } from 'react'
 
 import { isNil, pickBy } from 'lodash'
 
 import { OhlcFormFields } from '../../ChartFormFields/OhlcChartFields.js'
-import { dashboard, type Widget } from '../../model.js'
+import { type Widget } from '../../model.js'
 import { type IChartConfig, type ISeriesConfig } from '../../type.js'
 
 import { MarkPresetType } from '../../ChartFormFields/type.js'
 import { format_time, parse_text } from '../../utils.ts'
 import './index.sass'
 import { BasicFormFields } from '../../ChartFormFields/BasicFormFields.js'
+import { DashboardEchartsComponent } from '@/dashboard/components/EchartsComponent.tsx'
 
 type COL_MAP = {
     time: string
@@ -346,8 +346,8 @@ export function OHLC ({ widget, data_source }: { widget: Widget, data_source: an
         }),
         [title, animation, data, xAxis, yAxis, x_datazoom, y_datazoom, legend, splitLine, tooltip]
     )
-    // 编辑模式下 notMerge 为 true ，因为要修改配置，预览模式下 notMerge 为 false ，避免数据更新，导致选中的 label失效
-    return <ReactEChartsCore echarts={echarts} option={option} theme='ohlc_theme' />
+    
+    return <DashboardEchartsComponent options={option} />
 }
 
 

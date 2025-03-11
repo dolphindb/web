@@ -1,5 +1,4 @@
-import ReactEChartsCore from 'echarts-for-react/lib/core'
-import * as echarts from 'echarts'
+import type * as echarts from 'echarts'
 
 import { useMemo } from 'react'
 
@@ -12,6 +11,8 @@ import { to_chart_data } from '../../utils.ts'
 
 import { OrderFormFields, BasicFormFields } from '../../ChartFormFields/OrderBookField.js'
 
+
+import { DashboardEchartsComponent } from '@/dashboard/components/EchartsComponent.tsx'
 
 import { convert_order_book_config, convertDateFormat, type OrderBookTradeData, parsePrice } from './config.js'
 
@@ -98,12 +99,11 @@ export function OrderBook (props: IProps) {
     
     
     // 编辑模式下 notMerge 为 true ，因为要修改配置，预览模式下 notMerge 为 false ，避免数据更新，导致选中的 label失效
-    return  <ReactEChartsCore
-                echarts={echarts}
-                notMerge={dashboard.editing}
-                option={convert_order_config}
-                theme='my-theme'
-        />
+    return  <DashboardEchartsComponent
+                not_merge={dashboard.editing}
+                options={convert_order_config}
+            />
+   
 }
 
 
