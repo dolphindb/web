@@ -697,8 +697,8 @@ def dfsPath2tableName(node, chunkId, dfsPath){
 }
 
 def DFSTableDiskUsage(params) {
-    startTime = params["startTime"]
-    endTime = params["endTime"]
+    startTime = timestamp(params["startTime"])
+    endTime = timestamp(params["endTime"])
     meta = select * from rpc(getControllerAlias(), getClusterChunksStatus) where lastUpdated between startTime and endTime and !file.endsWith("domain") and !file.endsWith(".tbl")
     if (meta.size() == 0) {
         return (true, NULL, NULL)
@@ -767,8 +767,8 @@ def dfsPath2tableName(node, chunkId, dfsPath){
 }
 
 def biggestChunks(params) {
-    startTime = params["startTime"]
-    endTime = params["endTime"]
+    startTime = timestamp(params["startTime"])
+    endTime = timestamp(params["endTime"])
     res = table(1:0, `dbName`tbName`dfsPath`chunkId, [STRING, STRING, STRING, STRING])
     meta = select * from rpc(getControllerAlias(), getClusterChunksStatus) where lastUpdated between startTime and endTime
     
@@ -820,10 +820,10 @@ def dfsPath2tableName(node, chunkId, dfsPath){
 }
 
 def sortKeyCount(params) {
-    startTime = params["startTime"]
-    endTime = params["endTime"]
+    startTime = timestamp(params["startTime"])
+    endTime = timestamp(params["endTime"])
     meta = select * from rpc(getControllerAlias(), getClusterChunksStatus) where lastUpdated between startTime and endTime
-    
+
     res = table(1:0, `dbName`tbName`dfsPath`chunkId, [STRING, STRING, STRING, STRING])
     for (item in meta) {
         node = item["replicas"].split(",").first().split(":").first()
