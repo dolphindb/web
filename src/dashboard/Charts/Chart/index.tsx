@@ -2,7 +2,7 @@ import './index.scss'
 
 
 import { useEffect, useMemo, useState } from 'react'
-import type * as echarts from 'echarts'
+import type { ECharts } from 'echarts'
 
 import { convert_chart_config, get_axis_range } from '../../utils.ts'
 import { type Widget } from '../../model.js'
@@ -21,7 +21,7 @@ interface IProps {
 
 export function Chart (props: IProps) {
     const { widget, data_source } = props
-    const [echart_instance, set_echart_instance] = useState<echarts.ECharts>()
+    const [echart_instance, set_echart_instance] = useState<ECharts>()
     
     // 用来存储阈值对应的轴范围
     const [axis_range_map, set_axis_range_map] = useState<{ [key: string]: { min: number, max: number } }>()
