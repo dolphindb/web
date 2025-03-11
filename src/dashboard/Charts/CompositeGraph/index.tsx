@@ -5,7 +5,6 @@ import { useEffect, useMemo, useState } from 'react'
 import type * as echarts from 'echarts'
 import { pickBy } from 'lodash'
 import { type DdbType } from 'dolphindb/browser.js'
-import type { EChartsInstance } from 'echarts-for-react'
 
 import { AxisType, MatchRuleType, ThresholdType } from '../../ChartFormFields/type.js'
 import { convert_chart_config, get_axis_range } from '../../utils.ts'
@@ -45,7 +44,7 @@ export function CompositeChart (props: ICompositeChartProps) {
     const config = useMemo(() => widget.config as ICompositeChartConfig, [widget.config])
     
     
-    const [echart_instance, set_echart_instance] = useState<EChartsInstance>()
+    const [echart_instance, set_echart_instance] = useState<echarts.ECharts>()
     
     // 用来存储阈值对应的轴范围，设置了百分比阈值时使用
     const [axis_range_map, set_axis_range_map] = useState<{ [key: string]: { min: number, max: number } }>()

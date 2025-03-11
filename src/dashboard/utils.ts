@@ -7,8 +7,6 @@ import copy from 'copy-to-clipboard'
 import dayjs from 'dayjs'
 
 
-import type { EChartsInstance } from 'echarts-for-react'
-
 import { t } from '../../i18n/index.js'
 
 import { WidgetChartType, type Widget, dashboard, DashboardPermission } from './model.js'
@@ -232,7 +230,7 @@ export function concat_name_path (...paths: (NamePath | NamePath[])[]): NamePath
 }
 
 /** type 表示轴类型，传入 0 的时候代表 X 轴，其余时候为 Y 轴 */
-export function get_axis_range (type: number, echart_instance: EChartsInstance, idx: number) { 
+export function get_axis_range (type: number, echart_instance: echarts.ECharts, idx: number) { 
     return (echart_instance as any).getModel().getComponent(type === 0 ? 'xAxis' : 'yAxis', idx).axis.scale._extent
 }
 

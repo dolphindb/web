@@ -9,7 +9,6 @@ import { type IChartConfig, type ISeriesConfig } from '../../type.js'
 
 import { MarkPresetType } from '../../ChartFormFields/type.js'
 import { format_time, parse_text } from '../../utils.ts'
-import './index.sass'
 import { BasicFormFields } from '../../ChartFormFields/BasicFormFields.js'
 import { DashboardEchartsComponent } from '@/dashboard/components/EchartsComponent.tsx'
 
