@@ -26,7 +26,7 @@ export function Chart (props: IProps) {
     // 用来存储阈值对应的轴范围
     const [axis_range_map, set_axis_range_map] = useState<{ [key: string]: { min: number, max: number } }>()
     
-    const option = useMemo(
+    const options = useMemo(
         () => convert_chart_config(widget, data_source, axis_range_map)
         , [widget.config, data_source, axis_range_map])
     
@@ -45,15 +45,15 @@ export function Chart (props: IProps) {
                 if (axis_range_map?.[key]?.min !== min || axis_range_map?.[key]?.max !== max)  
                     set_axis_range_map(val => ({ ...val, [key]: { min, max } }))
             }
-    }, [option, echart_instance])
+    }, [options, echart_instance])
     
     
     
     return <DashboardEchartsComponent 
-            on_chart_ready={set_echart_instance} 
-            options={option} 
-            replace_merge={['series', 'dataZoom', 'yAxis']}
-        />
+        on_chart_ready={set_echart_instance} 
+        options={options} 
+        replace_merge={['series', 'dataZoom', 'yAxis']}
+    />
 } 
 
 

@@ -165,26 +165,24 @@ export function DBTable (props: IProps) {
         
         {
             selected_cols?.length ?
-                    <Table
-                        className={cn('dashboard-table', {
-                            'dashboard-table-with-pagination': pagination
-                        })}
-                        bordered={config.bordered}
-                        scroll={{ x: config.max_content ? 'max-content' : undefined }}
-                        columns={columns}
-                        dataSource={config.is_reverse ? data_source.toReversed() : data_source}
-                        pagination={pagination}
-                        rowKey={() => genid()}
-                        rowClassName={cn({
-                            'table-row-with-border': config.bordered
-                        })}
-                        {...otherProps}
-                    />
-           
+                <Table
+                    className={cn('dashboard-table', {
+                        'dashboard-table-with-pagination': pagination
+                    })}
+                    bordered={config.bordered}
+                    scroll={{ x: config.max_content ? 'max-content' : undefined }}
+                    columns={columns}
+                    dataSource={config.is_reverse ? data_source.toReversed() : data_source}
+                    pagination={pagination}
+                    rowKey={() => genid()}
+                    rowClassName={cn({
+                        'table-row-with-border': config.bordered
+                    })}
+                    {...otherProps}
+                />
             :
                 <Empty className='empty-table' />
         }
-        
     </div>
 }
 

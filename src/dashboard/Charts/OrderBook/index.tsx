@@ -100,10 +100,9 @@ export function OrderBook (props: IProps) {
     
     // 编辑模式下 notMerge 为 true ，因为要修改配置，预览模式下 notMerge 为 false ，避免数据更新，导致选中的 label失效
     return  <DashboardEchartsComponent
-                not_merge={dashboard.editing}
-                options={convert_order_config}
-            />
-   
+        not_merge={dashboard.editing}
+        options={convert_order_config}
+    />
 }
 
 

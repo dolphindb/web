@@ -11,8 +11,9 @@ interface IProps {
     lazy_update?: boolean
     replace_merge?: string | string[]
 }
+
+
 export function DashboardEchartsComponent (props: IProps) {
-    
     const { options, on_chart_ready, not_merge, lazy_update, replace_merge } = props
     const div_ref = useRef<HTMLDivElement>(null)
     
@@ -27,14 +28,11 @@ export function DashboardEchartsComponent (props: IProps) {
     
     
     useEffect(() => {
-        
         if (!chart_ref.current) {
             chart_ref.current = echarts.init(div_ref.current)
             on_chart_ready?.(chart_ref.current)
             chart_ref.current.setOption(options)
-        }
-            
-        else
+        } else
             chart_ref.current.setOption(
                 options,  
                 { 
@@ -43,8 +41,7 @@ export function DashboardEchartsComponent (props: IProps) {
                     lazyUpdate: lazy_update
                 }
             )
-        
-    }, [ options ])
+    }, [options])
     
     return <div ref={div_ref} className='dashboard-echarts-component'/>
 }

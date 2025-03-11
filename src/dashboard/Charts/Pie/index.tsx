@@ -22,7 +22,7 @@ const radius = {
 export function Pie ({ widget, data_source }: { widget: Widget, data_source: any[] }) {
     const { title, title_size = 18, legend, series, animation, tooltip } = widget.config as IChartConfig
     
-    const option = useMemo<echarts.EChartsOption>(
+    const options = useMemo<echarts.EChartsOption>(
         () => ({
                 animation,
                 legend: pickBy({
@@ -72,7 +72,7 @@ export function Pie ({ widget, data_source }: { widget: Widget, data_source: any
         [title, animation, series, title_size, data_source, legend, tooltip]
     )
     
-    return <DashboardEchartsComponent options={option} lazy_update />
+    return <DashboardEchartsComponent options={options} lazy_update />
 }
 
 export function PieConfigForm (props: { col_names: string[] } ) {

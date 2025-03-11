@@ -74,9 +74,9 @@ export function Radar ({ widget, data_source }: { widget: Widget, data_source: a
     )
     
     return <DashboardEchartsComponent
-            options={option}
-            lazy_update
-        />
+        options={option}
+        lazy_update
+    />
 }
 
 export function RadarConfigForm (props: { col_names: string[] } ) {
