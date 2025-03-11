@@ -41,7 +41,7 @@ function GraphComponent ({ widget }: { widget: Widget }) {
     
     const { data = [ ], cols = [ ], type_map = { } } = data_source_node.use(['data', 'cols', 'type_map'])
     
-    const Component = useMemo(() => graph_config[widget.type].component, [widget.type])
+    const Component = graph_config[widget.type].component
     
     const { variable_cols, with_search_btn, search_btn_label, variable_form_label_col } = widget.config ?? { }
     
