@@ -32,6 +32,7 @@ import SvgPlugins from '@/plugins/plugins.icon.svg'
 import SvgDataCollection from '@/data-collection/icons/data-collection.icon.svg'
 import SvgConnection from '@/data-collection/icons/connection.icon.svg'
 import SvgParserTemplate from '@/data-collection/icons/parser-template.icon.svg'
+import SvgStreamingGraph from '@/streaming-graph/flow.icon.svg'
 
 
 const { Text, Link } = Typography
@@ -55,6 +56,7 @@ const svgs = {
     inspection: SvgInspection,
     'iot-guide': SvgIot,
     'finance-guide': SvgFinance,
+    'streaming-graph': SvgStreamingGraph,
     plugins: SvgPlugins
 }
 
@@ -155,6 +157,11 @@ export function DdbSider () {
                     key: 'computing',
                     icon: <MenuIcon view='computing' />,
                     label: t('流计算监控', { context: 'menu' }),
+                },
+                {
+                    key: 'streaming-graph',
+                    icon: <MenuIcon view='streaming-graph' />,
+                    label: t('流图监控', { context: 'menu' }),
                 },
                 ... node_type !== NodeType.computing && admin ? [{
                     key: 'access',

@@ -56,7 +56,7 @@ import { CreateGuide } from './guide/iot-guide/index.tsx'
 import { FinanceGuide } from './guide/finance-guide/index.tsx'
 import { DataCollection } from './data-collection/index.tsx'
 import { Access } from './access/index.tsx'
-
+import { StreamingGraph } from './streaming-graph/index.tsx'
 
 
 createRoot(
@@ -267,6 +267,10 @@ const router = createBrowserRouter([
             {
                 path: 'finance-guide/',
                 element: <FinanceGuide />
+            },
+            {
+                path: 'streaming-graph/*',
+                element: <StreamingGraph />
             },
         ]
     }], 
