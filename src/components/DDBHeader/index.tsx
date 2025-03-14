@@ -7,7 +7,7 @@ import { DownOutlined, LoginOutlined, LogoutOutlined, UserOutlined } from '@ant-
 
 import { t } from '@i18n/index.js'
 
-import { model } from '@/model.ts'
+import { model, shf } from '@/model.ts'
 
 import { LanguageSelect } from './LanguageSelect.tsx'
 
@@ -24,7 +24,6 @@ import ddb_white_svg from '@/icons/ddb.white.svg'
 
 export function DdbHeader () {
     const { logined, username, node_alias } = model.use(['logined', 'username', 'node_alias'])
-    const { shf } = model
     
     useEffect(() => {
         if (!node_alias)

@@ -99,7 +99,7 @@ importers:
         specifier: ^1.2.23
         version: 1.2.23(react@19.0.0)
       react-quill-new:
-        specifier: ^3.3.3
+        specifier: 3.3.3
         version: 3.3.3(quill-delta@5.1.0)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
       react-router:
         specifier: ^7.3.0
@@ -2893,6 +2893,7 @@ packages:
 
   lodash.isequal@4.5.0:
     resolution: {integrity: sha512-pDo3lu8Jhfjqls6GkMgpahsF9kCyayhgykjyLMNFTKWrpVdAQtYyB4muAMWozBB4ig/dtWAmsMxLEI8wuz+DYQ==}
+    deprecated: This package is deprecated. Use require('node:util').isDeepStrictEqual instead.
 
   lodash.merge@4.6.2:
     resolution: {integrity: sha512-0KpjqXRVvrYyCsX1swR/XTK0va6VQkQM6MNo7PqW77ByjAhoARA8EfrP1N4+KlKj8YS0ZUCtRT/YUuhyYDujIQ==}
