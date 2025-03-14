@@ -66,15 +66,13 @@ function CustomNode ({ data, id, selected }: NodeProps) {
         style={{ background: '#555' }}
         isConnectable={false}
       />
-      <div className='node-content'>
-        <div className='node-header'>{data.subType}</div>
-        <div className='node-label' title={data.label}>{data.label}</div>
-        <div className='node-task'>任务ID: {data.taskId}</div>
-        <div className='node-schema' title={data.schema}>
-          {data.schema && data.schema.length > 15 
-            ? `${data.schema.substring(0, 15)}...` 
-            : data.schema}
-        </div>
+      <div className='node-header'>{data.subType}</div>
+      <div className='node-label' title={data.label}>{data.label}</div>
+      <div className='node-task'>任务ID: {data.taskId}</div>
+      <div className='node-schema' title={data.schema}>
+        {data.schema && data.schema.length > 20 
+          ? `${data.schema.substring(0, 20)}...` 
+          : data.schema}
       </div>
       <Handle
         type='source'
@@ -121,7 +119,7 @@ function StreamingGraphVisualization ({ id }: { id: string }) {
       
       return {
         id: node.id.toString(),
-        x: (node.id % 3) * 300 + 50,  // 使用节点自带的x坐标，如果没有则计算一个
+        x:  (node.id % 3) * 300 + 50,  // 使用节点自带的x坐标，如果没有则计算一个
         y: (node.id / 3) * 200 + 50,  // 使用节点自带的y坐标
         label: node.properties?.name || node.properties?.initialName || `Node ${node.id}`,
         subType: nodeType,
@@ -186,11 +184,8 @@ function StreamingGraphVisualization ({ id }: { id: string }) {
     if (data?.graph)
         try {
         const graphData = typeof data.graph === 'string' ? JSON.parse(data.graph) : data.graph
-        console.log('Raw graph data:', graphData)
         
         const { nodes: processedNodes, edges: processedEdges } = processGraphData(graphData)
-        console.log('Processed nodes:', processedNodes)
-        console.log('Processed edges:', processedEdges)
         
         const { nodes: reactFlowNodes, edges: reactFlowEdges } = convertToReactFlowFormat(processedNodes, processedEdges)
         
@@ -209,21 +204,21 @@ function StreamingGraphVisualization ({ id }: { id: string }) {
     
     const nodeData = selectedNode.data
     return <div>
-        <Title level={5}>节点详情</Title>
+        <Title level={5}>Detail</Title>
         <div className='node-detail-item'>
           <strong>ID:</strong> {selectedNode.id}
         </div>
         <div className='node-detail-item'>
-          <strong>类型:</strong> {nodeData.subType}
+          <strong>Type:</strong> {nodeData.subType}
         </div>
         <div className='node-detail-item'>
-          <strong>名称:</strong> {nodeData.label}
+          <strong>Name:</strong> {nodeData.label}
         </div>
         <div className='node-detail-item'>
-          <strong>任务ID:</strong> {nodeData.taskId}
+          <strong>Task ID:</strong> {nodeData.taskId}
         </div>
         <div className='node-detail-item'>
-          <strong>模式:</strong> {nodeData.schema}
+          <strong>Schema:</strong> {nodeData.schema}
         </div>
       </div>
   }
@@ -232,7 +227,7 @@ function StreamingGraphVisualization ({ id }: { id: string }) {
       return <Card loading />
   
   if (error)
-      return <Text type='danger'>加载数据失败: {error.message}</Text>
+      return <Text type='danger'>Failed to load data: {error.message}</Text>
   
   if (!data)
       return <Empty description='没有可用数据' />
@@ -257,7 +252,7 @@ function StreamingGraphVisualization ({ id }: { id: string }) {
       <Drawer
         title='节点详情'
         placement='right'
-        width={400}
+        getContainer={false}
         onClose={() => { setDrawerVisible(false) }}
         open={drawerVisible}
       >

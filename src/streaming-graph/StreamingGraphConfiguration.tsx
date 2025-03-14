@@ -1,7 +1,7 @@
 import { Descriptions, Typography, Empty, Card } from 'antd'
 import useSWR from 'swr'
 
-import { getStreamGraphMeta } from './apis.ts'
+import { getCheckpointConfig } from './apis.ts'
 
 const { Text } = Typography
 
@@ -10,10 +10,10 @@ interface StreamingGraphConfigurationProps {
 }
 
 export function StreamingGraphConfiguration ({ id }: StreamingGraphConfigurationProps) {
-  // Use SWR to fetch the data
+  // 只使用 SWR 获取检查点配置
   const { data, error, isLoading } = useSWR(
-    ['streamGraphs', id], 
-    async () => getStreamGraphMeta(id)
+    ['checkpointConfig', id],
+    async () => getCheckpointConfig(id)
   )
   
   if (isLoading)
@@ -22,25 +22,18 @@ export function StreamingGraphConfiguration ({ id }: StreamingGraphConfiguration
   if (error)
       return <Text type='danger'>Failed to load configuration data: {error.message}</Text>
   
+  if (!data || Object.keys(data).length === 0)
+      return <Empty description='No available configuration data' />
   
-  if (!data)
-      return <Empty description='No data available' />
-  
-  return <div>
-      <Descriptions bordered size='small' column={2}>
-        <Descriptions.Item label='ID'>{data.id}</Descriptions.Item>
-        <Descriptions.Item label='FQN'>{data.fqn}</Descriptions.Item>
-        <Descriptions.Item label='Owner'>{data.owner}</Descriptions.Item>
-        <Descriptions.Item label='Status'>{data.status}</Descriptions.Item>
-        <Descriptions.Item label='Create Time'>
-          {data.createTime ? new Date(data.createTime).toLocaleString() : '-'}
-        </Descriptions.Item>
-        <Descriptions.Item label='Semantics'>{data.semantics}</Descriptions.Item>
-        {data.reason && (
-          <Descriptions.Item label='Reason' span={2}>
-            {data.reason}
-          </Descriptions.Item>
-        )}
+  return <div className='streaming-config-container'>
+      <Descriptions bordered size='small' column={1} title='Streaming Graph Configuration'>
+        {Object.entries(data).map(([key, value]) => <Descriptions.Item 
+            key={key} 
+            label={key}
+            labelStyle={{ fontWeight: 'bold' }}
+          >
+            {typeof value === 'object' ? JSON.stringify(value) : String(value)}
+          </Descriptions.Item>)}
       </Descriptions>
     </div>
 }

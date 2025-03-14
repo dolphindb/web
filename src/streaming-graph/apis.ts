@@ -19,3 +19,10 @@ export async function getStreamGraphInfo (name: string): Promise<StreamGraphInfo
     let res = await model.ddb.invoke('getStreamGraphInfo', [ name ])
     return parseStreamGraphInfo(res.data[0])
 }
+
+
+export async function getCheckpointConfig (name: string): Promise<object> {
+    return model.ddb.invoke('getCheckpointConfig', [ name ])
+}
+
+

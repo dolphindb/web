@@ -1,4 +1,4 @@
-import { useParams, Link } from 'react-router'
+import { useParams, useNavigate } from 'react-router'
 import { Button, Typography, Divider } from 'antd'
 import { ArrowLeftOutlined } from '@ant-design/icons'
 
@@ -7,6 +7,7 @@ import { StreamingGraphTabs } from './StreamingGraphTabs.tsx'
 
 export function StreamingGraphDetail () {
   const { id } = useParams()
+  const navigate = useNavigate()
   
   if (!id)
       return <Typography.Text type='danger'>Invalid streaming graph ID</Typography.Text>
@@ -14,9 +15,7 @@ export function StreamingGraphDetail () {
   
   return <div>
       <div style={{ marginBottom: 16 }}>
-        <Link to='/streaming-graph'>
-          <Button icon={<ArrowLeftOutlined />}>Back to List</Button>
-        </Link>
+          <Button icon={<ArrowLeftOutlined />} onClick={async () => navigate(-1)}>Back to List</Button>
       </div>
       
       <StreamingGraphDescription id={id} />
