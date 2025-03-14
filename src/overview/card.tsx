@@ -298,7 +298,7 @@ function Node ({
                             />
                         }
                     >
-                        {upper(Number(memoryUsed).to_fsize_str()) + ' / ' + maxMemSize + ' GB'}
+                        {upper(Number(memoryUsed).to_fsize_str()) + ' / ' + maxMemSize + upper(' gb')}
                     </InfoItem>
                     <InfoItem title={t('已分配')}>{upper(Number(memoryAlloc).to_fsize_str())}</InfoItem>
                 </NodeInfo>

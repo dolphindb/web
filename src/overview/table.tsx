@@ -8,13 +8,13 @@ import { use_modal } from 'react-object-model/hooks.js'
 
 import type { ColumnType } from 'antd/es/table/interface.js'
 
-import { NodeType, model, storage_keys, type DdbNode } from '../model.js'
+import { NodeType, model, storage_keys, type DdbNode } from '@/model.ts'
 
-import { t } from '../../i18n/index.js'
+import { t } from '@i18n/index.ts'
 
 import { DDBTable } from '@/components/DDBTable/index.tsx'
 
-import { upper } from '@/utils.ts'
+import { ns2ms, upper } from '@/utils.ts'
 
 const node_state_icons = [
     <MinusCircleOutlined style={{ color: 'red' }} />,
