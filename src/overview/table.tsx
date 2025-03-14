@@ -14,7 +14,6 @@ import { t } from '../../i18n/index.js'
 
 import { DDBTable } from '@/components/DDBTable/index.tsx'
 
-import { ns2ms } from './utils.ts'
 import { upper } from '@/utils.ts'
 
 const node_state_icons = [
