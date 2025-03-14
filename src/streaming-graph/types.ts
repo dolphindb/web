@@ -1,6 +1,8 @@
 // 流图状态
 export type StreamGraphStatus = 'building' | 'running' | 'error' | 'failed' | 'destroying' | 'destroyed'
 
+export type CheckpointJobStatus = 'running' | 'error' | 'failed' | 'success' | 'cancelled' | 'purged'
+
 // 数据执行次数语义
 export type Semantics = 'exactly-once' | 'at-least-once'
 
@@ -84,20 +86,32 @@ export interface NodeParallelism {
     handlers: any[]
   }
   
-  // Graph configuration
-  export interface GraphConfig {
-    'subscription.batchSize': number
-    'subscription.throttle': number
-    'subscription.timeTrigger': number
-    'subscription.udpMulticast': number
-    'privateTable.cacheSize': number
-    [key: string]: any
-  }
-  
   // Complete graph structure
   export interface StreamGraph {
     version: number
     nodes: GraphNode[]
     edges: GraphEdge[]
-    config: GraphConfig
+    config: object
+  }
+
+  export interface CheckpointJobInfo {
+    checkpointId: string
+    jobId: string
+    createdTimeStamp: string
+    finishedTimeStamp: string
+    status: CheckpointJobStatus
+    extra: any
+  }
+
+  export interface CheckpointSubjobInfo {
+    checkpointId: string
+    jobId: string
+    subjobId: string
+    firstBarrierArrTs: string
+    barrierAlignTs: string
+    barrierForwardTs: string
+    status:  'success' | 'failed'
+    snapshotChannelsId: string
+    snapshotSize: number
+    extra: any
   }

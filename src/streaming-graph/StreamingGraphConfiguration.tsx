@@ -1,7 +1,7 @@
 import { Descriptions, Typography, Empty, Card } from 'antd'
 import useSWR from 'swr'
 
-import { getCheckpointConfig } from './apis.ts'
+import { getCheckpointConfig, getStreamGraphInfo } from './apis.ts'
 
 const { Text } = Typography
 
@@ -12,8 +12,8 @@ interface StreamingGraphConfigurationProps {
 export function StreamingGraphConfiguration ({ id }: StreamingGraphConfigurationProps) {
   // 只使用 SWR 获取检查点配置
   const { data, error, isLoading } = useSWR(
-    ['checkpointConfig', id],
-    async () => getCheckpointConfig(id)
+    ['getStreamGraphInfo', id],
+    async () => getStreamGraphInfo(id)
   )
   
   if (isLoading)
@@ -26,11 +26,10 @@ export function StreamingGraphConfiguration ({ id }: StreamingGraphConfiguration
       return <Empty description='No available configuration data' />
   
   return <div className='streaming-config-container'>
-      <Descriptions bordered size='small' column={1} title='Streaming Graph Configuration'>
-        {Object.entries(data).map(([key, value]) => <Descriptions.Item 
+      <Descriptions bordered size='small' column={1}>
+        {Object.entries(data.graph.config).map(([key, value]) => <Descriptions.Item 
             key={key} 
             label={key}
-            labelStyle={{ fontWeight: 'bold' }}
           >
             {typeof value === 'object' ? JSON.stringify(value) : String(value)}
           </Descriptions.Item>)}

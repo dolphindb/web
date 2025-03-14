@@ -1,4 +1,4 @@
-import { Table, Card, Typography, Empty, Drawer } from 'antd'
+import { Table, Card, Typography, Empty, Drawer, Descriptions } from 'antd'
 import useSWR from 'swr'
 import { useCallback, useEffect, useState, useRef } from 'react'
 import ReactFlow, {
@@ -204,22 +204,13 @@ function StreamingGraphVisualization ({ id }: { id: string }) {
     
     const nodeData = selectedNode.data
     return <div>
-        <Title level={5}>Detail</Title>
-        <div className='node-detail-item'>
-          <strong>ID:</strong> {selectedNode.id}
-        </div>
-        <div className='node-detail-item'>
-          <strong>Type:</strong> {nodeData.subType}
-        </div>
-        <div className='node-detail-item'>
-          <strong>Name:</strong> {nodeData.label}
-        </div>
-        <div className='node-detail-item'>
-          <strong>Task ID:</strong> {nodeData.taskId}
-        </div>
-        <div className='node-detail-item'>
-          <strong>Schema:</strong> {nodeData.schema}
-        </div>
+        <Descriptions bordered>
+          <Descriptions.Item label='ID'>{selectedNode.id}</Descriptions.Item>
+          <Descriptions.Item label='Type'>{nodeData.subType}</Descriptions.Item>
+          <Descriptions.Item label='Name'>{nodeData.label}</Descriptions.Item>
+          <Descriptions.Item label='Task ID'>{nodeData.taskId}</Descriptions.Item>
+          <Descriptions.Item label='Schema' span={3}>{nodeData.schema}</Descriptions.Item>
+        </Descriptions>
       </div>
   }
   
@@ -250,9 +241,10 @@ function StreamingGraphVisualization ({ id }: { id: string }) {
       
       {/* 节点详情抽屉 */}
       <Drawer
-        title='节点详情'
+        title='Node Details'
         placement='right'
         getContainer={false}
+        width='auto'
         onClose={() => { setDrawerVisible(false) }}
         open={drawerVisible}
       >
