@@ -1,6 +1,6 @@
 import { useRoutes } from 'react-router'
 
-import { StreamingGraphDetail } from './streamingGraphDetail.tsx'
+import { StreamingGraphDetail } from './StreamingGraphDetail.tsx'
 
 import { JobTable } from './JobTable.tsx'
 

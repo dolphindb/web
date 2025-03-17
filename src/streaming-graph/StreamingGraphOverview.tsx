@@ -16,6 +16,7 @@ import ReactFlow, {
   Handle,
   ConnectionLineType
 } from 'reactflow'
+import dagre from 'dagre'
 import 'reactflow/dist/style.css'
 
 import './streaming-graph.sass'
@@ -24,6 +25,47 @@ import { getStreamGraphInfo } from './apis.ts'
 import { type StreamGraph, type GraphNode, type GraphEdge } from './types.ts'
 
 const { Text } = Typography
+
+// 定义布局方向和节点间距
+const dagreGraph = new dagre.graphlib.Graph()
+dagreGraph.setDefaultEdgeLabel(() => ({ }))
+
+// 设置布局方向为水平方向
+function getLayoutedElements (nodes: Node[], edges: Edge[], direction = 'LR') {
+  const isHorizontal = direction === 'LR'
+  dagreGraph.setGraph({ rankdir: direction })
+  
+  // 清除之前的布局
+  dagreGraph.nodes().forEach(node => dagreGraph.removeNode(node))
+  
+  // 添加节点到布局引擎
+  nodes.forEach(node => {
+    dagreGraph.setNode(node.id, { width: node.data.width || 180, height: node.data.height || 100 })
+  })
+  
+  // 添加边到布局引擎
+  edges.forEach(edge => {
+    dagreGraph.setEdge(edge.source, edge.target)
+  })
+  
+  // 计算布局
+  dagre.layout(dagreGraph)
+  
+  // 应用布局结果到节点
+  const layoutedNodes = nodes.map(node => {
+    const nodeWithPosition = dagreGraph.node(node.id)
+    
+    return {
+      ...node,
+      position: {
+        x: nodeWithPosition.x - (node.data.width || 180) / 2,
+        y: nodeWithPosition.y - (node.data.height || 100) / 2
+      }
+    }
+  })
+  
+  return { nodes: layoutedNodes, edges }
+}
 
 interface ProcessedNode {
   id: string
@@ -67,7 +109,7 @@ function CustomNode ({ data, id, selected }: NodeProps) {
       />
       <div className='node-header'>{data.subType}</div>
       <div className='node-label' title={data.label}>{data.label}</div>
-      <div className='node-task'>任务ID: {data.taskId}</div>
+      <div className='node-task'>Task ID: {data.taskId}</div>
       <div className='node-schema' title={data.schema}>
         {data.schema && data.schema.length > 20 
           ? `${data.schema.substring(0, 20)}...` 
@@ -89,8 +131,6 @@ function StreamingGraphVisualization ({ id }: { id: string }) {
     ['getStreamGraphInfo', id], 
     async () => getStreamGraphInfo(id)
   )
-  
-  console.log('data', data)
   
   const [nodes, setNodes] = useNodesState([ ])
   const [edges, setEdges] = useEdgesState([ ])
@@ -119,8 +159,9 @@ function StreamingGraphVisualization ({ id }: { id: string }) {
       
       return {
         id: node.id.toString(),
-        x:  (node.id % 3) * 300 + 50,  // 使用节点自带的x坐标，如果没有则计算一个
-        y: (node.id / 3) * 200 + 50,  // 使用节点自带的y坐标
+        // 不再手动设置x和y坐标，将由dagre布局算法决定
+        x: 0,
+        y: 0,
         label: node.properties?.name || node.properties?.initialName || `Node ${node.id}`,
         subType: nodeType,
         taskId: node.taskId,
@@ -136,7 +177,7 @@ function StreamingGraphVisualization ({ id }: { id: string }) {
       sourceId: edge.inNodeId.toString(),
       targetId: edge.outNodeId.toString()
     }))
-    
+    console.log('Processed Nodes:', processedNodes, processedEdges)
     return { nodes: processedNodes, edges: processedEdges }
   }, [ ])
   
@@ -162,7 +203,7 @@ function StreamingGraphVisualization ({ id }: { id: string }) {
         id: edge.id,
         source: edge.sourceId,
         target: edge.targetId,
-        type: 'step', // 使用step类型获得直角连接线
+        type: 'smoothstep', // 使用smoothstep类型获得更平滑的连接线，避免穿过节点
         style: { 
           stroke: '#555', 
           strokeWidth: 2,
@@ -176,7 +217,13 @@ function StreamingGraphVisualization ({ id }: { id: string }) {
         },
       }))
     
-    return { nodes: reactFlowNodes, edges: reactFlowEdges }
+    // 应用dagre布局
+    const { nodes: layoutedNodes, edges: layoutedEdges } = getLayoutedElements(
+      reactFlowNodes,
+      reactFlowEdges
+    )
+    
+    return { nodes: layoutedNodes, edges: layoutedEdges }
   }, [ ])
   
   // 数据加载后更新图
@@ -221,7 +268,7 @@ function StreamingGraphVisualization ({ id }: { id: string }) {
       return <Text type='danger'>Failed to load data: {error.message}</Text>
   
   if (!data)
-      return <Empty description='没有可用数据' />
+      return <Empty description='' />
   
   return <div className='streaming-graph-page'>
       <div style={{ height: 600, width: '100%', border: '1px solid #ddd', borderRadius: '4px' }}>
@@ -232,7 +279,11 @@ function StreamingGraphVisualization ({ id }: { id: string }) {
           nodeTypes={nodeTypes}
           fitView
           attributionPosition='bottom-right'
-          connectionLineType={ConnectionLineType.Step}
+          connectionLineType={ConnectionLineType.SmoothStep}
+          defaultEdgeOptions={{
+            type: 'smoothstep',
+            style: { stroke: '#555' }
+          }}
         >
           <Background color='#f8f8f8' gap={16} />
           <Controls showInteractive={false} />
