@@ -6145,5 +6145,23 @@
     },
     "确认删除选中的 {{num}} 条巡检结果吗？": {
         "en": "Confirm to delete the selected {{num}} inspection results?"
+    },
+    "组名不能为空": {
+        "en": "Group name cannot be empty"
+    },
+    "计算组名称不能以已存在的计算组 {{group}} 为前缀": {
+        "en": "The calculation group name cannot start with the existing calculation group prefix \"{{group}}\""
+    },
+    "计算组节点配置不正确": {
+        "en": "The calculation group node configuration is incorrect"
+    },
+    "配置项不能为空": {
+        "en": "The configuration item cannot be empty"
+    },
+    "配置项 {{name}} 的限定词必须包含 %": {
+        "en": "The qualifier for configuration item {{name}} must contain %"
+    },
+    "配置项 {{name}}的值必须包含 <ALIAS>": {
+        "en": "The value of configuration item {{name}} must contain <ALIAS>"
     }
 }
