@@ -86,7 +86,7 @@ export function AccessTabs ({
                         style={{ marginRight: 10 }}
                         icon={<ArrowLeftOutlined />}
                         onClick={() => {
-                            navigate(-1)
+                            model.goto(`/access/${role}`)
                         }}  
                      />
                 ),
