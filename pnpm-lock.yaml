@@ -99,8 +99,8 @@ importers:
         specifier: ^1.2.23
         version: 1.2.23(react@19.0.0)
       react-quill-new:
-        specifier: 3.3.3
-        version: 3.3.3(quill-delta@5.1.0)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
+        specifier: ^3.4.1
+        version: 3.4.1(quill-delta@5.1.0)(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
       react-router:
         specifier: ^7.3.0
         version: 7.3.0(react-dom@19.0.0(react@19.0.0))(react@19.0.0)
@@ -3680,8 +3680,8 @@ packages:
     peerDependencies:
       react: ^19.0.0
 
-  react-quill-new@3.3.3:
-    resolution: {integrity: sha512-jxbm1QUJlkuGUpc9/GUgGw5USLHdp43H0M7AufqS3V+zRLng9uqLeVBGjXYqEbUKi8QVOM4SClSV3F7kVNj68w==}
+  react-quill-new@3.4.1:
+    resolution: {integrity: sha512-EM4EXlX3imgYH5H1Ml8OM0dXvb/hGtKXtzosrhF7MRiKqw5rDJSIDkty0x/L6yBiJzBycpLT24rCMtPELSQW9Q==}
     peerDependencies:
       quill-delta: ^5.1.0
       react: ^16 || ^17 || ^18 || ^19
@@ -8900,9 +8900,9 @@ snapshots:
     optionalDependencies:
       final-form: 4.20.10
 
-  react-quill-new@3.3.3(quill-delta@5.1.0)(react-dom@19.0.0(react@19.0.0))(react@19.0.0):
+  react-quill-new@3.4.1(quill-delta@5.1.0)(react-dom@19.0.0(react@19.0.0))(react@19.0.0):
     dependencies:
-      lodash: 4.17.21
+      lodash-es: 4.17.21
       quill: 2.0.3
       quill-delta: 5.1.0
       react: 19.0.0
