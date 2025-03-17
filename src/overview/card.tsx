@@ -7,18 +7,17 @@ import { Tooltip, Progress, Tag, Checkbox } from 'antd'
 import { default as Icon } from '@ant-design/icons'
 
 
-import { t, language } from '../../i18n/index.js'
+import { t, language } from '@i18n/index.ts'
 
-import { NodeType, type DdbNode, model } from '../model.js'
+import { NodeType, type DdbNode, model } from '@/model.ts'
 
-
+import { ns2ms, upper } from '@/utils.ts'
 
 import SvgCPU from './icons/cpu.icon.svg'
 import SvgMemory from './icons/memory.icon.svg'
 import SvgDisk from './icons/disk.icon.svg'
 import SvgNetwork from './icons/network.icon.svg'
 import SvgTask from './icons/task.icon.svg'
-import { ns2ms } from './utils.ts'
 
 
 export function OverviewCard ({
@@ -299,15 +298,15 @@ function Node ({
                             />
                         }
                     >
-                        {Number(memoryUsed).to_fsize_str() + ' / ' + maxMemSize + ' GB'}
+                        {upper(Number(memoryUsed).to_fsize_str()) + ' / ' + maxMemSize + upper(' gb')}
                     </InfoItem>
-                    <InfoItem title={t('已分配')}>{Number(memoryAlloc).to_fsize_str()}</InfoItem>
+                    <InfoItem title={t('已分配')}>{upper(Number(memoryAlloc).to_fsize_str())}</InfoItem>
                 </NodeInfo>
                 <NodeInfo title={t('磁盘')} icon={SvgDisk} className='disk-info'>
-                    <InfoItem title={t('读')}>{Number(diskReadRate).to_fsize_str() + '/s'}</InfoItem>
-                    <InfoItem title={t('前一分钟读')}>{Number(lastMinuteReadVolume).to_fsize_str()}</InfoItem>
-                    <InfoItem title={t('写')}>{Number(diskWriteRate).to_fsize_str() + '/s'}</InfoItem>
-                    <InfoItem title={t('前一分钟写')}>{Number(lastMinuteWriteVolume).to_fsize_str()}</InfoItem>
+                    <InfoItem title={t('读')}>{upper(Number(diskReadRate).to_fsize_str()) + '/s'}</InfoItem>
+                    <InfoItem title={t('前一分钟读')}>{upper(Number(lastMinuteReadVolume).to_fsize_str())}</InfoItem>
+                    <InfoItem title={t('写')}>{upper(Number(diskWriteRate).to_fsize_str()) + '/s'}</InfoItem>
+                    <InfoItem title={t('前一分钟写')}>{upper(Number(lastMinuteWriteVolume).to_fsize_str())}</InfoItem>
                     <InfoItem
                         title={t('用量')}
                         Progress={
@@ -325,14 +324,14 @@ function Node ({
                             />
                         }
                     >
-                        {`${Number(diskCapacity - diskFreeSpace).to_fsize_str()} / ${Number(diskCapacity).to_fsize_str()}`}
+                        {`${upper(Number(diskCapacity - diskFreeSpace).to_fsize_str())} / ${upper(Number(diskCapacity).to_fsize_str())}`}
                     </InfoItem>
                 </NodeInfo>
                 <NodeInfo title={t('网络')} icon={SvgNetwork} className='network-info'>
-                    <InfoItem title={t('收')}>{Number(networkRecvRate).to_fsize_str() + '/s'}</InfoItem>
-                    <InfoItem title={t('前一分钟收')}>{Number(lastMinuteNetworkRecv).to_fsize_str()}</InfoItem>
-                    <InfoItem title={t('发')}>{Number(networkSendRate).to_fsize_str() + '/s'}</InfoItem>
-                    <InfoItem title={t('前一分钟发')}>{Number(lastMinuteNetworkSend).to_fsize_str()}</InfoItem>
+                    <InfoItem title={t('收')}>{upper(Number(networkRecvRate).to_fsize_str()) + '/s'}</InfoItem>
+                    <InfoItem title={t('前一分钟收')}>{upper(Number(lastMinuteNetworkRecv).to_fsize_str())}</InfoItem>
+                    <InfoItem title={t('发')}>{upper(Number(networkSendRate).to_fsize_str()) + '/s'}</InfoItem>
+                    <InfoItem title={t('前一分钟发')}>{upper(Number(lastMinuteNetworkSend).to_fsize_str())}</InfoItem>
                     <InfoItem title={t('当前连接数')}>{connectionNum}</InfoItem>
                     <InfoItem title={t('最大连接数')}>{maxConnections}</InfoItem>
                 </NodeInfo>

@@ -14,7 +14,7 @@ import useSWR from 'swr'
 import { t } from '../../../../i18n/index.js'
 import { Protocol, type ISubscribe } from '../../type.js'
 import { safe_json_parse } from '../../../dashboard/utils.ts'
-import { FormDependencies } from '../../../components/formily/FormDependcies/index.js'
+import { FormDependencies } from '../../../components/FormDependencies/index.js'
 
 import { create_subscribe, edit_subscribe, get_parser_templates } from '../../api.js'
 

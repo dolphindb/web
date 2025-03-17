@@ -5,16 +5,16 @@ import { useEffect, useState } from 'react'
 import { Layout, Button, Tooltip, Popconfirm, Segmented } from 'antd'
 const { Header } = Layout
 
-import { default as Icon, AppstoreOutlined, BarsOutlined, RedoOutlined, CaretRightOutlined, StopOutlined, DownOutlined, UpOutlined, PlayCircleOutlined } from '@ant-design/icons'
+import { AppstoreOutlined, BarsOutlined, RedoOutlined, StopOutlined, DownOutlined, UpOutlined, PlayCircleOutlined } from '@ant-design/icons'
 
 import { delay } from 'xshell/utils.browser.js'
 
-import { t, language } from '../../i18n/index.js'
+import { t, language } from '@i18n/index.ts'
 
-import { NodeType, DdbNodeState, model, storage_keys, type DdbNode } from '../model.js'
+import { NodeType, DdbNodeState, model, storage_keys, type DdbNode } from '@/model.ts'
 
-import { OverviewTable } from './table.js'
-import { OverviewCard } from './card.js'
+import { OverviewTable } from './table.tsx'
+import { OverviewCard } from './card.tsx'
 
 // import SvgRefresh from './icons/refresh.icon.svg'
 // import SvgStart from './icons/start.icon.svg'

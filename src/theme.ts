@@ -25,7 +25,7 @@ export const dark: ThemeConfig = {
 }
 
 
-const light_primary_color = '#6774BD' as const
+const light_primary_color = '#6774bd' as const
 
 export const light: ThemeConfig = {
     hashed: false,

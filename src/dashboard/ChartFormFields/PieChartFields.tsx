@@ -8,7 +8,7 @@ import { t } from '../../../i18n/index.js'
 
 import { BoolRadioGroup } from '../../components/BoolRadioGroup/index.js'
 import { variables } from '../Variable/variable.js'
-import { FormDependencies } from '../../components/formily/FormDependcies/index.js'
+import { FormDependencies } from '../../components/FormDependencies/index.js'
 import { convert_list_to_options } from '../utils.ts'
 
 import { PaddingSetting, VariableSetting } from './BasicFormFields.js'

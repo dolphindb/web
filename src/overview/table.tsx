@@ -8,13 +8,13 @@ import { use_modal } from 'react-object-model/hooks.js'
 
 import type { ColumnType } from 'antd/es/table/interface.js'
 
-import { NodeType, model, storage_keys, type DdbNode } from '../model.js'
+import { NodeType, model, storage_keys, type DdbNode } from '@/model.ts'
 
-import { t } from '../../i18n/index.js'
+import { t } from '@i18n/index.ts'
 
 import { DDBTable } from '@/components/DDBTable/index.tsx'
 
-import { ns2ms } from './utils.ts'
+import { ns2ms, upper } from '@/utils.ts'
 
 const node_state_icons = [
     <MinusCircleOutlined style={{ color: 'red' }} />,
@@ -140,13 +140,13 @@ export function OverviewTable ({
             {
                 title: t('内存已用'),
                 dataIndex: 'memoryUsed',
-                render: (memoryUsed: bigint) => Number(memoryUsed).to_fsize_str(),
+                render: (memoryUsed: bigint) => upper(Number(memoryUsed).to_fsize_str()),
                 sorter: (a, b) => Number(a.memoryUsed - b.memoryUsed)
             },
             {
                 title: t('内存已分配'),
                 dataIndex: 'memoryAlloc',
-                render: (memoryAlloc: bigint) => Number(memoryAlloc).to_fsize_str(),
+                render: (memoryAlloc: bigint) => upper(Number(memoryAlloc).to_fsize_str()),
                 sorter: (a, b) => Number(a.memoryAlloc - b.memoryAlloc)
             },
             {
@@ -219,13 +219,13 @@ export function OverviewTable ({
             {
                 title: t('磁盘总容量'),
                 dataIndex: 'diskCapacity',
-                render: (diskCapacity: bigint) => Number(diskCapacity).to_fsize_str(),
+                render: (diskCapacity: bigint) => upper(Number(diskCapacity).to_fsize_str()),
                 sorter: (a, b) => Number(a.diskCapacity - b.diskCapacity)
             },
             {
                 title: t('磁盘剩余容量'),
                 dataIndex: 'diskFreeSpace',
-                render: (diskFreeSpace: bigint) => Number(diskFreeSpace).to_fsize_str(),
+                render: (diskFreeSpace: bigint) => upper(Number(diskFreeSpace).to_fsize_str()),
                 sorter: (a, b) => Number(a.diskFreeSpace - b.diskFreeSpace)
             },
             {
@@ -237,25 +237,25 @@ export function OverviewTable ({
             {
                 title: t('磁盘写速率'),
                 dataIndex: 'diskWriteRate',
-                render: (diskWriteRate: bigint) => Number(diskWriteRate).to_fsize_str() + '/s',
+                render: (diskWriteRate: bigint) => upper(Number(diskWriteRate).to_fsize_str()) + '/s',
                 sorter: (a, b) => Number(a.diskWriteRate - b.diskWriteRate)
             },
             {
                 title: t('磁盘读速率'),
                 dataIndex: 'diskReadRate',
-                render: (diskReadRate: bigint) => Number(diskReadRate).to_fsize_str() + '/s',
+                render: (diskReadRate: bigint) => upper(Number(diskReadRate).to_fsize_str()) + '/s',
                 sorter: (a, b) => Number(a.diskReadRate - b.diskReadRate)
             },
             {
                 title: t('前一分钟写磁盘量'),
                 dataIndex: 'lastMinuteWriteVolume',
-                render: (lastMinuteWriteVolume: bigint) => Number(lastMinuteWriteVolume).to_fsize_str(),
+                render: (lastMinuteWriteVolume: bigint) => upper(Number(lastMinuteWriteVolume).to_fsize_str()),
                 sorter: (a, b) => Number(a.lastMinuteWriteVolume - b.lastMinuteWriteVolume)
             },
             {
                 title: t('前一分钟读磁盘量'),
                 dataIndex: 'lastMinuteReadVolume',
-                render: (lastMinuteReadVolume: bigint) => Number(lastMinuteReadVolume).to_fsize_str(),
+                render: (lastMinuteReadVolume: bigint) => upper(Number(lastMinuteReadVolume).to_fsize_str()),
                 sorter: (a, b) => Number(a.lastMinuteReadVolume - b.lastMinuteReadVolume)
             },
             {
@@ -277,25 +277,25 @@ export function OverviewTable ({
             {
                 title: t('网络发送速率'),
                 dataIndex: 'networkSendRate',
-                render: (networkSendRate: bigint) => Number(networkSendRate).to_fsize_str() + '/s',
+                render: (networkSendRate: bigint) => upper(Number(networkSendRate).to_fsize_str()) + '/s',
                 sorter: (a, b) => Number(a.networkSendRate - b.networkSendRate)
             },
             {
                 title: t('网络接收速率'),
                 dataIndex: 'networkRecvRate',
-                render: (networkRecvRate: bigint) => Number(networkRecvRate).to_fsize_str() + '/s',
+                render: (networkRecvRate: bigint) => upper(Number(networkRecvRate).to_fsize_str()) + '/s',
                 sorter: (a, b) => Number(a.networkRecvRate - b.networkRecvRate)
             },
             {
                 title: t('前一分钟发送字节数'),
                 dataIndex: 'lastMinuteNetworkSend',
-                render: (lastMinuteNetworkSend: bigint) => Number(lastMinuteNetworkSend).to_fsize_str(),
+                render: (lastMinuteNetworkSend: bigint) => upper(Number(lastMinuteNetworkSend).to_fsize_str()),
                 sorter: (a, b) => Number(a.lastMinuteNetworkSend - b.lastMinuteNetworkSend)
             },
             {
                 title: t('前一分钟接收字节数'),
                 dataIndex: 'lastMinuteNetworkRecv',
-                render: (lastMinuteNetworkRecv: bigint) => Number(lastMinuteNetworkRecv).to_fsize_str(),
+                render: (lastMinuteNetworkRecv: bigint) => upper(Number(lastMinuteNetworkRecv).to_fsize_str()),
                 sorter: (a, b) => Number(a.lastMinuteNetworkRecv - b.lastMinuteNetworkRecv)
             },
             {

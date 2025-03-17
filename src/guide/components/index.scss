@@ -18,6 +18,7 @@
         margin-bottom: 16px;
         .delete-icon {
             cursor: pointer;
+            color: var(--ant-color-error);
         }
         .ant-form-item {
             width: 32%;

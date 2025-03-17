@@ -4,9 +4,8 @@ import { t } from '@i18n/index.ts'
 
 import { useState } from 'react'
 
-import { GlobalOutlined, TranslationOutlined } from '@ant-design/icons'
+import { TranslationOutlined } from '@ant-design/icons'
 
-import SvgI18n from '@/icons/i18n.icon.svg'
 import { model, storage_keys } from '@/model.ts'
 
 

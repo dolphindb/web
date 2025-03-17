@@ -7,7 +7,7 @@ import { useMemo } from 'react'
 import { DeleteOutlined, PlusCircleOutlined } from '@ant-design/icons'
 
 import { t } from '../../../i18n/index.js'
-import { FormDependencies } from '../../components/formily/FormDependcies/index.js'
+import { FormDependencies } from '../../components/FormDependencies/index.js'
 
 import { concat_name_path, convert_list_to_options } from '../utils.ts'
 import { BoolRadioGroup } from '../../components/BoolRadioGroup/index.js'

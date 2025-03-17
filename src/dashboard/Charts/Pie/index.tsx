@@ -1,5 +1,4 @@
-import ReactEChartsCore from 'echarts-for-react/lib/core'
-import * as echarts from 'echarts'
+import type * as echarts from 'echarts'
 import { useMemo } from 'react'
 
 import { isNil, pickBy } from 'lodash'
@@ -11,7 +10,7 @@ import { BasicFormFields } from '../../ChartFormFields/BasicFormFields.js'
 import { type IChartConfig } from '../../type.js'
 import { parse_text } from '../../utils.ts'
 import { ChartField } from '../../ChartFormFields/type.js'
-import { useChart } from '../hooks.js'
+import { DashboardEchartsComponent } from '@/dashboard/components/EchartsComponent.tsx'
 
 const radius = {
     1: [[0, '70%']],
@@ -22,9 +21,8 @@ const radius = {
 export function Pie ({ widget, data_source }: { widget: Widget, data_source: any[] }) {
     const { title, title_size = 18, legend, series, animation, tooltip } = widget.config as IChartConfig
     
-    const option = useMemo(
-        () => {
-            return {
+    const options = useMemo<echarts.EChartsOption>(
+        () => ({
                 animation,
                 legend: pickBy({
                     show: true,
@@ -50,20 +48,17 @@ export function Pie ({ widget, data_source }: { widget: Widget, data_source: any
                         fontSize: title_size,
                     }
                 },
-                series: series.map((serie, index) => {
-                    return {
+                series: series.map((serie, index) => ({
                         id: index,
                         type: 'pie',
                         radius: radius[series.length][index],
                         label: {
                             color: '#F5F5F5'
                         },
-                        data: data_source.map(data => {
-                            return {
+                        data: data_source.map(data => ({
                                 value: data[serie?.col_name],
                                 name: data[serie?.name]
-                            }
-                        }),
+                            })),
                         emphasis: {
                             itemStyle: {
                                 shadowBlur: 10,
@@ -71,16 +66,12 @@ export function Pie ({ widget, data_source }: { widget: Widget, data_source: any
                                 shadowColor: 'rgba(0, 0, 0, 0.5)'
                             }
                         }
-                    }
-                })
-            }
-        },
+                    }))
+            }),
         [title, animation, series, title_size, data_source, legend, tooltip]
     )
     
-    const ref = useChart(option)
-    
-    return <ReactEChartsCore ref={ref} echarts={echarts} option={option} lazyUpdate theme='ohlc_theme' />
+    return <DashboardEchartsComponent options={options} lazy_update />
 }
 
 export function PieConfigForm (props: { col_names: string[] } ) {

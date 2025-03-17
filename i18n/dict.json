@@ -6107,9 +6107,6 @@
     "列宽自适应": {
         "en": "Adaptive column width"
     },
-    "请注意，列宽自适应时设置列宽无效": {
-        "en": "Please note that setting the column width is invalid when the column width is adaptive"
-    },
     "超长省略": {
         "en": "Ellipsis"
     },
@@ -6127,5 +6124,26 @@
     },
     "频次": {
         "en": "frequency"
+    },
+    "组列表": {
+        "en": "Group List"
+    },
+    "用户列表": {
+        "en": "User List"
+    },
+    "编译并刷新": {
+        "en": "Compile and Refresh"
+    },
+    " 新增控制节点配置": {
+        "en": "Add Control Node Configuration"
+    },
+    " 新增节点": {
+        "en": "Add Node"
+    },
+    "确认删除选中的 {{num}} 个巡检方案吗？": {
+        "en": "Confirm to delete the selected {{num}} inspection plans?"
+    },
+    "确认删除选中的 {{num}} 条巡检结果吗？": {
+        "en": "Confirm to delete the selected {{num}} inspection results?"
     }
 }

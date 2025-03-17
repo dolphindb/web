@@ -11,6 +11,8 @@ import { language, t } from '@i18n/index.ts'
 
 import { model, type DdbModel, NodeType, storage_keys, default_view } from '@/model.ts'
 
+import { sider_collapsed_width, sider_uncollapsed_width } from '@/utils.ts'
+
 
 import SvgOverview from '@/overview/icons/overview.icon.svg'
 import SvgConfig from '@/config/icons/config.icon.svg'
@@ -88,11 +90,11 @@ export function DdbSider () {
     }, [logined, username, client_auth])
     
     return <Layout.Sider
-        width={ language === 'zh' ? 150 : 220 }
+        width={sider_uncollapsed_width}
         className='sider'
         theme='light'
         collapsible
-        collapsedWidth={50}
+        collapsedWidth={sider_collapsed_width}
         collapsed={collapsed}
         trigger={<div className={`collapse-trigger ${collapsed ? 'collapsed' : 'expand'}`}>
             {collapsed ? <DoubleRightOutlined className='collapse-icon' /> : <DoubleLeftOutlined className='collapse-icon' />}
@@ -207,7 +209,7 @@ export function DdbSider () {
                 ... factor_platform && node_type !== NodeType.controller ? [{
                     key: 'factor',
                     icon: <MenuIcon view='factor' />,
-                    label: <Link target='_blank' href={factor_href}>{t('因子平台')}</Link>
+                    label: <Link className='starfish-link' target='_blank' href={factor_href}>{t('因子平台')}</Link>
                 }] : [ ],
                 {
                     key: 'finance-guide',

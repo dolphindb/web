@@ -1,4 +1,4 @@
-import { type JSXComponent } from '@formily/core'
+import type { JSX, ReactNode } from 'react'
 
 import { OHLC, OhlcConfigForm } from './Charts/OHLC/index.js'
 import { RichText } from './Charts/RichText/index.js'
@@ -20,10 +20,11 @@ import { CompositeChartConfig } from './Charts/CompositeGraph/CompositeChartConf
 
 type GraphConfig =  { 
     [key in WidgetChartType]?: {
-        component: JSXComponent
-        config?: JSXComponent
+        component: keyof JSX.IntrinsicElements | React.JSXElementConstructor<any>
+        config?: keyof JSX.IntrinsicElements | React.JSXElementConstructor<any>
     }
 }
+
 
 export const graph_config: GraphConfig =  { 
     [WidgetChartType.TABLE]: {

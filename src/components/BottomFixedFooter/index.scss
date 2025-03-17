@@ -1,13 +1,11 @@
 .bottom-fixed-footer {
     position: fixed;
-    // 修改左侧菜单宽度之后需要同步修改
-    width: calc(100% - 150px);
+
     display: flex;
     justify-content: center;
     height: 48px;
     bottom: 0;
-   // 修改左侧菜单宽度之后需要同步修改
-    left: 150px;
+ 
     background-color: var(--ant-color-bg-container);
     align-items: center;
     box-shadow: 0 -1px 3px #f0eafa
