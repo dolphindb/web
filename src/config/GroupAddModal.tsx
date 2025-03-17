@@ -5,8 +5,6 @@ import { useCallback, useEffect, useState } from 'react'
 
 import { t } from '../../i18n/index.js'
 
-import { model } from '@/model.ts'
-
 import { config, validate_config } from './model.ts'
 import { strs_2_nodes } from './utils.ts'
 
@@ -246,8 +244,7 @@ export const GroupAddModal = NiceModal.create((props: { on_save: (form: { group_
                 }
                 try {
                     await validate()
-                }
-                catch (error) {
+                } catch (error) {
                     set_validating(true)
                     throw new Error(error)
                 }

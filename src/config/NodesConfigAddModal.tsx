@@ -10,7 +10,7 @@ import { t } from '../../i18n/index.js'
 
 import { model } from '../model.js'
 
-import { FormDependencies } from '@/components/formily/FormDependcies/index.js'
+import { FormDependencies } from '@/components/FormDependencies/index.tsx'
 
 import { config, validate_config, validate_qualifier } from './model.js'
 
@@ -55,8 +55,7 @@ export const NodesConfigAddModal = NiceModal.create((props: { compute_group?: st
                         throw error
                 }
             }}
-            
-        >
+    >
             {!props.compute_group && <FormDependencies dependencies={['name']}>
                 {({ name }) => <Form.Item
                         label={<span> 
