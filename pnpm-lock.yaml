@@ -45,8 +45,8 @@ importers:
         specifier: ^2.5.1
         version: 2.5.1
       client-zip:
-        specifier: ^2.4.6
-        version: 2.4.6
+        specifier: ^2.5.0
+        version: 2.5.0
       copy-to-clipboard:
         specifier: ^3.3.3
         version: 3.3.3
@@ -69,8 +69,8 @@ importers:
         specifier: ^4.20.10
         version: 4.20.10
       gridstack:
-        specifier: ^11.4.0
-        version: 11.4.0
+        specifier: ^11.5.0
+        version: 11.5.0
       js-cookie:
         specifier: ^3.0.5
         version: 3.0.5
@@ -1846,8 +1846,8 @@ packages:
     resolution: {integrity: sha512-nPdaFdQ0h/GEigbPClz11D0v/ZJEwxmeVZGeMo3Z5StPtUTkA9o1lD6QwoirYiSDzbcwn2XcjwmCp68W1IS4TA==}
     engines: {node: '>=18'}
 
-  client-zip@2.4.6:
-    resolution: {integrity: sha512-e7t1u14h/yT0A12qBwFsaus8UZZ8+MCaNAEn/z53mrukLq/LFcKX7TkbntAppGu8he2p8pz9vc5NEGE/h4ohlw==}
+  client-zip@2.5.0:
+    resolution: {integrity: sha512-ydG4nDZesbFurnNq0VVCp/yyomIBh+X/1fZPI/P24zbnG4dtC4tQAfI5uQsomigsUMeiRO2wiTPizLWQh+IAyQ==}
 
   clone-deep@4.0.1:
     resolution: {integrity: sha512-neHB9xuzh/wk0dIHweyAXv2aPGZIVk3pLMe+/RNzINf17fe0OG96QroktYAUm7SM1PBnzTabaLboqqxDyMU+SQ==}
@@ -2464,8 +2464,8 @@ packages:
   graphemer@1.4.0:
     resolution: {integrity: sha512-EtKwoO6kxCL9WO5xipiHTZlSzBm7WLT627TqC/uVRd0HKmq8NXyebnNYxDoBi7wt8eTWrUrKXCOVaFq9x1kgag==}
 
-  gridstack@11.4.0:
-    resolution: {integrity: sha512-V1faqcHZjbXODt/cMg8a0aIN1uqqR4R5lENTls3sP8vbArvHrYAa9UPzzJWR6+RqPMLxmFG/OG2Evnmu/XOE9A==}
+  gridstack@11.5.0:
+    resolution: {integrity: sha512-SE1a/aC2K8VKQr5cqV7gSJ+r/xIYghijIjHzkZ3Xo3aS1/4dvwIgPYT7QqgV1z+d7XjKYUPEizcgVQ5HhdFTng==}
 
   gulp-sort@2.0.0:
     resolution: {integrity: sha512-MyTel3FXOdh1qhw1yKhpimQrAmur9q1X0ZigLmCOxouQD+BD3za9/89O+HfbgBQvvh4igEbp0/PUWO+VqGYG1g==}
@@ -6647,7 +6647,7 @@ snapshots:
       slice-ansi: 5.0.0
       string-width: 7.2.0
 
-  client-zip@2.4.6: {}
+  client-zip@2.5.0: {}
 
   clone-deep@4.0.1:
     dependencies:
@@ -7369,7 +7369,7 @@ snapshots:
 
   graphemer@1.4.0: {}
 
-  gridstack@11.4.0: {}
+  gridstack@11.5.0: {}
 
   gulp-sort@2.0.0:
     dependencies:
