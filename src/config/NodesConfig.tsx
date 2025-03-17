@@ -10,7 +10,7 @@ import { model } from '../model.js'
 import { RefreshButton } from '@/components/RefreshButton/index.tsx'
 
 import { NodesConfigAddModal } from './NodesConfigAddModal.js'
-import { config } from './model.js'
+import { config, validate_config, validate_qualifier } from './model.js'
 import { type NodesConfig } from './type.js'
 import { _2_strs, filter_config } from './utils.ts'
 
@@ -168,6 +168,8 @@ export function NodesConfig () {
                         onSave: async (rowKey, data, row) => {
                             try {
                                 const { name, qualifier, value } = data
+                                await validate_config(name, value)
+                                await validate_qualifier(name, qualifier)
                                 const key = (qualifier ? qualifier + '.' : '') + name
                                 if (rowKey !== key)
                                     config.nodes_configs.delete(rowKey as string)

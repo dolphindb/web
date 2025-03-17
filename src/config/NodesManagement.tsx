@@ -50,12 +50,17 @@ export function NodesManagement () {
             message.error(t('无法移除在线节点，请到集群总览中停止后移除'))
             return
         }
-        if (this_node && this_node.mode === NodeType.computing) // 必须是计算节点才能在线删除
+        let skip_message = false
+        if (this_node && this_node.mode === NodeType.computing) { // 必须是计算节点才能在线删除
             await model.ddb.call('removeNode', [this_node.name])
-            
+            skip_message = true
+        }    
         const new_nodes = _2_strs(all_nodes).filter(nod => nod !== node_id)
         await config.save_cluster_nodes(new_nodes)
         await mutate()
+        if (!skip_message) 
+            message.info(t('保存成功，重启集群生效'))
+        
     }, [all_nodes])
     
     async function save_node_impl ({ rowKey, host, port, alias, mode, group }, changed_alias, is_add, old_alias) {

@@ -10,7 +10,9 @@ import { t } from '../../i18n/index.js'
 
 import { model } from '../model.js'
 
-import { config } from './model.js'
+import { FormDependencies } from '@/components/FormDependencies/index.tsx'
+
+import { config, validate_config, validate_qualifier } from './model.js'
 
 
 export const NodesConfigAddModal = NiceModal.create((props: { compute_group?: string, on_save?: () => void }) => {
@@ -53,19 +55,26 @@ export const NodesConfigAddModal = NiceModal.create((props: { compute_group?: st
                         throw error
                 }
             }}
-            
-        >
-            {!props.compute_group && <Form.Item
-                label={<span>
-                    {t('限定词')}
-                    <Tooltip title={t('指定此配置适用的节点名或节点名前缀（例如：node1 或 node%）')}>
-                        <span style={{ margin: '0 4px' }}><QuestionCircleOutlined /></span>
-                    </Tooltip>
-                </span>}
-                name='qualifier'
-            >
-                <Input placeholder='e.g. dn1 or dn% or empty' />
-            </Form.Item>}
+    >
+            {!props.compute_group && <FormDependencies dependencies={['name']}>
+                {({ name }) => <Form.Item
+                        label={<span> 
+                            {t('限定词')}
+                            <Tooltip title={t('指定此配置适用的节点名或节点名前缀（例如：node1 或 node%）')}>
+                                <span style={{ margin: '0 4px' }}><QuestionCircleOutlined /></span>
+                            </Tooltip>
+                        </span>}
+                        name='qualifier'
+                        rules={[
+                            { async validator (_, value) {
+                                await validate_qualifier(name, value)
+                            } }
+                        ]}
+                    >
+                        <Input placeholder='e.g. dn1 or dn% or empty' />
+                    </Form.Item>}
+            </FormDependencies>
+            }
             
             <Form.Item
                 label={t('配置项')}
@@ -84,14 +93,23 @@ export const NodesConfigAddModal = NiceModal.create((props: { compute_group?: st
                         }))
                     }))} />
             </Form.Item>
+            <FormDependencies dependencies={['name']}>
+                {({ name }) => <Form.Item
+                    label={t('值')}
+                    name='value'
+                    dependencies={['name']}
+                    rules={[
+                        {
+                            async validator (_, value) {
+                                await validate_config(name, value)
+                            }
+                        }
+                    ]}
+                >
+                    <Input />
+                </Form.Item>}
+            </FormDependencies>
             
-            <Form.Item
-                label={t('值')}
-                name='value'
-                rules={[{ required: true, message: t('请输入配置值') }]}
-            >
-                <Input />
-            </Form.Item>
             
         </Form>
     </Modal>
