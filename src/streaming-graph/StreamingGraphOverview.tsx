@@ -1,13 +1,12 @@
-import { Table, Card, Typography, Empty, Drawer, Descriptions } from 'antd'
+import { Card, Typography, Empty, Drawer, Descriptions } from 'antd'
 import useSWR from 'swr'
-import { useCallback, useEffect, useState, useRef } from 'react'
+import { useCallback, useEffect, useState } from 'react'
 import ReactFlow, {
   Background, 
   Controls,
   type Node,
   type Edge,
   type NodeTypes,
-  EdgeTypes,
   MarkerType,
   Position,
   type NodeProps,
@@ -21,10 +20,10 @@ import 'reactflow/dist/style.css'
 
 import './streaming-graph.sass'
 
-import { getStreamGraphInfo, getStreamGraphMeta } from './apis.ts'
+import { getStreamGraphInfo } from './apis.ts'
 import { type StreamGraph, type GraphNode, type GraphEdge } from './types.ts'
 
-const { Title, Text } = Typography
+const { Text } = Typography
 
 interface ProcessedNode {
   id: string
@@ -72,7 +71,8 @@ function CustomNode ({ data, id, selected }: NodeProps) {
       <div className='node-schema' title={data.schema}>
         {data.schema && data.schema.length > 20 
           ? `${data.schema.substring(0, 20)}...` 
-          : data.schema}
+          : data.schema
+        }
       </div>
       <Handle
         type='source'

@@ -4,7 +4,6 @@ import useSWR from 'swr'
 import { StatusTag, StatusType } from '@/components/tags/index.tsx'
 
 import { getCheckpointConfig, getCheckpointJobInfo, getCheckpointSubjobInfo } from './apis.ts'
-import { type CheckpointJobInfo, type CheckpointSubjobInfo } from './types.ts'
 
 const { Text } = Typography
 
