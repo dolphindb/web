@@ -48,8 +48,8 @@ export const GroupAddModal = NiceModal.create((props: { on_save: (form: { group_
             throw new Error(t('组名不能为空'))
         
         for (const group of compute_groups) 
-            if (group_name.startsWith(group)) 
-                throw new Error(t('计算组名称不能以已存在的计算组 {{group}} 为前缀', { group }))
+            if (group_name.startsWith(group) || group.startsWith(group_name)) 
+                throw new Error(t('计算组名称不能与已存在的计算组 {{group}} 存在包含关系', { group }))
             
         
         for (const node of group_nodes) // 非空校验，并且别名必须包含 group_name
