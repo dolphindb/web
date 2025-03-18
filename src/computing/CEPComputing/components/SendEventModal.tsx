@@ -1,5 +1,5 @@
 import NiceModal, { useModal } from '@ebay/nice-modal-react'
-import { Form, Modal, Select, Typography, message } from 'antd'
+import { Form, Modal, Select, Typography } from 'antd'
 import { useCallback, useMemo } from 'react'
 
 import { DdbDict, DdbType, type  DdbObj } from 'dolphindb/browser.js'
@@ -31,7 +31,7 @@ export const SendEventModal = NiceModal.create(({ on_refresh, engine_info }: IPr
             const values = await form.validateFields() 
             const params = new DdbDict(values)
             await model.ddb.call('appendEvent', [name, params])
-            message.success(t('发送成功'))
+            model.message.success(t('发送成功'))
             on_refresh?.()
             modal.hide()
         }

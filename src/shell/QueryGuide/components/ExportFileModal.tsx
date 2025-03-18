@@ -1,5 +1,5 @@
 import NiceModal, { useModal } from '@ebay/nice-modal-react'
-import { Modal, Form, Input, message } from 'antd'
+import { Modal, Form, Input } from 'antd'
 import { useCallback } from 'react'
 
 import { useBoolean } from 'ahooks'
@@ -7,10 +7,11 @@ import { useBoolean } from 'ahooks'
 import { request } from '../../../guide/utils.ts'
 import { safe_json_parse } from '../../../dashboard/utils.ts'
 
-import { t } from '../../../../i18n/index.js'
-import { download_file } from '../../../utils.ts'
+import { t } from '@i18n/index.ts'
+import { download_file } from '@/utils.ts'
+import { model } from '@/model.ts'
 
-interface IProps { 
+interface IProps {
     table: string
     code: string
 }
@@ -44,7 +45,7 @@ export const ExportFileModal = NiceModal.create((props: IProps) => {
                 
             action.setFalse()
             modal.hide()
-            message.success(t('导出成功'))
+            model.message.success(t('导出成功'))
         } catch { 
             action.setFalse()
         }
