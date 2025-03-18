@@ -1,4 +1,4 @@
-import { t } from '@i18n/index.ts'
+import { t } from '@i18n'
 import { Button, Input, Select, Tree } from 'antd'
 import { useState, useDeferredValue, useCallback, useMemo, useEffect } from 'react'
 import { FolderOutlined, FolderOpenOutlined, FileTextOutlined } from '@ant-design/icons'

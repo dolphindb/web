@@ -1,4 +1,4 @@
-import { t } from '@i18n/index.ts'
+import { t } from '@i18n'
 import { Button, Form, Input, Select, Space, Switch, TimePicker, Tooltip } from 'antd'
 import dayjs from 'dayjs'
 

@@ -20,6 +20,8 @@ import { create_subscribe, edit_subscribe, get_parser_templates } from '../../ap
 
 import { NodeSelect } from '../../../components/node-select/index.js'
 
+import { model } from '@model'
+
 import { NAME_RULES } from '@/data-collection/constant.js'
 
 import { KafkaConfig } from './kafka-config.js'
@@ -43,10 +45,6 @@ const title_map = {
 
 export const CreateSubscribeModal = NiceModal.create((props: IProps) => {
     const { edited_subscribe, connection_id, refresh, protocol, mode } = props
-    
-    const { message } = App.useApp()
-    
-    console.log(App.useApp(), 'ttt')
     
     const [handlerId, setHandlerId] = useState(edited_subscribe?.handlerId)
     
@@ -73,7 +71,7 @@ export const CreateSubscribeModal = NiceModal.create((props: IProps) => {
             await edit_subscribe(protocol, { ...values, id: edited_subscribe.id, })
         else 
             await create_subscribe(protocol, { ...values, connectId: connection_id } )
-        message.success(is_edit ? t('修改成功') : t('创建成功'))
+        model.message.success(is_edit ? t('修改成功') : t('创建成功'))
         modal.hide()
         refresh()
     }, [mode, connection_id, refresh])

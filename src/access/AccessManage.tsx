@@ -3,11 +3,11 @@ import { useCallback, useEffect, useMemo, useState } from 'react'
 
 import NiceModal from '@ebay/nice-modal-react'
 
-import { t } from '@i18n/index.ts'
+import { t } from '@i18n'
 
 import { PlusOutlined, DeleteOutlined, SearchOutlined } from '@ant-design/icons'
 
-import { model } from '@/model.ts'
+import { model } from '@model'
 
 import { DDBTable } from '@/components/DDBTable/index.tsx'
 

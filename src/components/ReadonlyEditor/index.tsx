@@ -2,13 +2,14 @@ import './index.scss'
 import { CopyOutlined } from '@ant-design/icons'
 
 
-import { Button, Tooltip, message } from 'antd'
+import { Button, Tooltip } from 'antd'
 import copy from 'copy-to-clipboard'
 import { useCallback } from 'react'
 import classNames from 'classnames'
 
 import { Editor } from '../Editor/index.js'
 import { t } from '../../../i18n/index.js'
+import { model } from '@model'
 
 interface IProps { 
     code: string
@@ -20,7 +21,7 @@ export function ReadonlyEditor (props: IProps) {
         
     const copy_code = useCallback(() => {
         copy(code)
-        message.success(t('复制成功'))
+        model.message.success(t('复制成功'))
     }, [code])
     
     return <div className={classNames('readonly-editor', { [className]: true })}>

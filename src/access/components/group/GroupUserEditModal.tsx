@@ -1,9 +1,9 @@
 import NiceModal, { useModal } from '@ebay/nice-modal-react'
 import useSWR, { useSWRConfig } from 'swr'
-import { t } from '@i18n/index.ts'
+import { t } from '@i18n'
 
 import { access } from '@/access/model.ts'
-import { model } from '@/model.ts'
+import { model } from '@model'
 import { use_users } from '@/access/hooks/use-users.ts'
 import { TransferModal } from '@/access/components/access/TransferModal.tsx'
 

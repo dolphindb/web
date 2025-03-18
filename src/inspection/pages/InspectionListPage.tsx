@@ -1,6 +1,6 @@
 import { CheckOutlined, CloseOutlined, DeleteOutlined, MailOutlined, PlusOutlined, ReloadOutlined } from '@ant-design/icons'
 import NiceModal from '@ebay/nice-modal-react'
-import { t } from '@i18n/index.ts'
+import { t } from '@i18n'
 import { Button, DatePicker, Input, Popconfirm, Space, Table, Tooltip, Typography, type TableColumnsType } from 'antd'
 
 import { useEffect, useMemo, useState } from 'react'
@@ -11,7 +11,7 @@ import type { Dayjs } from 'dayjs'
 
 import { datetime_format } from 'xshell/utils.browser.js'
 
-import { model } from '@/model.ts'
+import { model } from '@model'
 
 import { EmailConfigModal } from '@/inspection/modals/EmailConfigModal.tsx'
 import { inspection } from '@/inspection/model.ts'

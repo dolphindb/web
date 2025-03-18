@@ -2,9 +2,9 @@ import { isArray } from 'lodash'
 
 import dayjs from 'dayjs'
 
-import { t } from '@i18n/index.ts'
+import { t } from '@i18n'
 
-import { model, storage_keys } from '@/model.ts'
+import { model, storage_keys } from '@model'
 
 export interface IProject {
     id: string

@@ -1,6 +1,8 @@
 .dashboard-table-wrapper {
     font-size: 12px;
     height: 100%;
+    display: flex;
+    flex-direction: column;
     
     h2 {
         margin-top: 0px;
@@ -9,47 +11,32 @@
     .table-radio-group {
         margin-bottom: 12px;
     }
-
     
-    .ant-table-wrapper {        
+    .dashboard-table {
+        flex: 1;
+        overflow: auto;
+        max-width: 100%;
         
-        .ant-spin-nested-loading {
-            height: 100%;
-            .ant-spin-container {
-                height: 100%;
-            }
-        }
         
         .ant-table {
-            overflow-y: auto;
-           
             max-height: 100%;
-            
-
-            .ant-table-content {
-                display: initial;
-            }
-            .ant-table-thead {
-                position: sticky;
-                top: 0;
-                z-index: 3;
-            }
-            
-            .ant-table-row {
-                &:nth-child(odd) {
-                    background-color: #303030;
-                }
-            }
-            
+            overflow-y: auto;
         }
         
-        &.table-with-pagination {
-            .ant-table {
-                /** 去除分页高度 */
-                max-height: calc(100% - 40px);
-            }
+        .ant-table-content {
+            display: initial;
         }
-        
+        .ant-table-thead {
+            position: sticky;
+            top: 0;
+            z-index: 3;
+        }
+    }
+    
+    .dashboard-table-with-pagination {
+        .ant-table {
+            max-height: calc(100% - 40px);
+        }
     }
 }
 

@@ -1,8 +1,9 @@
 import NiceModal, { useModal } from '@ebay/nice-modal-react'
-import { t } from '@i18n/index.js'
-import { Button, Form, message, Modal, Switch } from 'antd'
+import { t } from '@i18n'
+import { Button, Form, Modal, Switch } from 'antd'
 
 import { request } from '@/data-collection/utils.ts'
+import { model } from '@model'
 
 interface IProps {
     ids: string[]
@@ -16,7 +17,7 @@ export const DeleteConnectionModal = NiceModal.create((props: IProps) => {
     
     async function on_delete (values) {
         await request('dcp_deleteConnect', { ids, ...values })
-        message.success(t('删除成功'))
+        model.message.success(t('删除成功'))
         await after_delete()
         modal.hide()
     }

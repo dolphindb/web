@@ -1,9 +1,9 @@
 import NiceModal, { useModal } from '@ebay/nice-modal-react'
-import { t } from '@i18n/index.ts'
+import { t } from '@i18n'
 import { Button, Form, Input, Modal, Space, Switch } from 'antd'
 
 import { config } from '@/config/model.ts'
-import { model } from '@/model.ts'
+import { model } from '@model'
 
 const EMAIL_CONFIG_ITEMS = {
     inspectionAlertEnabled: { 

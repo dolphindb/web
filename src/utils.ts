@@ -2,7 +2,9 @@ import { DdbType } from 'dolphindb/browser.js'
 
 import { delay } from 'xshell/utils.browser.js'
 
-import { language, t } from '@i18n/index.ts'
+import { language, t } from '@i18n'
+
+import { shf } from '@model'
 
 
 /** 表单 Form.Item 必填 `<Form.Item {...required}>` */
@@ -142,4 +144,14 @@ export function switch_keys <TKey> (keys: TKey[], key: TKey) {
         keys_.push(key)
     
     return keys_
+}
+
+
+export function ns2ms (num: number) {
+    return num / 1_000_000
+}
+
+
+export function upper (str: string) {
+    return shf ? str : str.toUpperCase()
 }

@@ -1,5 +1,5 @@
 import NiceModal, { useModal } from '@ebay/nice-modal-react'
-import { t } from '@i18n/index.ts'
+import { t } from '@i18n'
 import { Modal } from 'antd'
 
 import { useState } from 'react'

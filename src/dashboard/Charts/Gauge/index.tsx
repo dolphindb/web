@@ -1,7 +1,6 @@
 import './index.scss'
 
-import ReactEChartsCore from 'echarts-for-react/lib/core'
-import * as echarts from 'echarts'
+import type * as echarts from 'echarts'
 
 import { Button, Collapse, Form, Input, InputNumber, Select } from 'antd'
 
@@ -18,7 +17,7 @@ import { type IGaugeConfig } from '../../type.js'
 import { BasicFormFields } from '../../ChartFormFields/BasicFormFields.js'
 import { StringColorPicker } from '../../../components/StringColorPicker/index.js'
 import { t } from '../../../../i18n/index.js'
-import { useChart } from '../hooks.js'
+import { DashboardEchartsComponent } from '@/dashboard/components/EchartsComponent.tsx'
 
 
 interface IProps { 
@@ -31,7 +30,7 @@ interface IProps {
 export function Gauge (props: IProps) { 
     const { widget, data_source } = props 
     
-    const config = useMemo(() => widget.config as IGaugeConfig, [widget.config])
+    const config = widget.config as IGaugeConfig
     
     const option = useMemo<echarts.EChartsOption>(() => { 
         const { title, title_size, max, min, data_setting, label_size, value_size, animation, split_number, value_precision } = config
@@ -86,15 +85,7 @@ export function Gauge (props: IProps) {
         }
     }, [config, data_source])
     
-    const ref = useChart(option)
-    
-    return  <ReactEChartsCore
-                echarts={echarts}
-                ref={ref}
-                option={option}
-                style={{ backgroundColor: '#282828' }}
-                theme='dark'
-            />
+    return <DashboardEchartsComponent options={option} />
 }
 
 export function GaugeConfigForm (props: { col_names: string[] } ) {

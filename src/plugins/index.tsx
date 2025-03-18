@@ -12,10 +12,10 @@ import { use_modal, use_rerender, type ModalController } from 'react-object-mode
 
 import { DdbVectorChar, DdbVectorString, type DdbTableData } from 'dolphindb/browser.js'
 
-import { t } from '@i18n/index.ts'
+import { t } from '@i18n'
 
-import { required, switch_keys } from '@/utils.ts'
-import { model } from '@/model.ts'
+import { required, switch_keys } from '@utils'
+import { model } from '@model'
 
 
 import { RefreshButton } from '@/components/RefreshButton/index.tsx'

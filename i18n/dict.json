@@ -6107,9 +6107,6 @@
     "列宽自适应": {
         "en": "Adaptive column width"
     },
-    "请注意，列宽自适应时设置列宽无效": {
-        "en": "Please note that setting the column width is invalid when the column width is adaptive"
-    },
     "超长省略": {
         "en": "Ellipsis"
     },
@@ -6143,13 +6140,34 @@
     " 新增节点": {
         "en": "Add Node"
     },
-    "超出省略": {
-        "en": "Ellipsis"
-    },
     "确认删除选中的 {{num}} 个巡检方案吗？": {
         "en": "Confirm to delete the selected {{num}} inspection plans?"
     },
     "确认删除选中的 {{num}} 条巡检结果吗？": {
         "en": "Confirm to delete the selected {{num}} inspection results?"
+    },
+    "组名不能为空": {
+        "en": "Group name cannot be empty"
+    },
+    "计算组节点配置不正确": {
+        "en": "The calculation group node configuration is incorrect"
+    },
+    "配置项不能为空": {
+        "en": "The configuration item cannot be empty"
+    },
+    "配置项 {{name}} 的限定词必须包含 %": {
+        "en": "The qualifier for configuration item {{name}} must contain %"
+    },
+    "配置项 {{name}}的值必须包含 <ALIAS>": {
+        "en": "The value of configuration item {{name}} must contain <ALIAS>"
+    },
+    "计算组名称不能与已存在的计算组 {{group}} 存在包含关系": {
+        "en": "The compute group name cannot contain or be contained by the existing group \"{{group}}\""
+    },
+    "移除节点成功": {
+        "en": "Node removed successfully"
+    },
+    "移除节点配置成功，重启集群生效": {
+        "en": "Node configuration removed successfully. Changes take effect after cluster restart"
     }
 }

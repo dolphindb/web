@@ -43,6 +43,7 @@ export function Card ({
         </div>
         <div className='right'>
             <Popconfirm
+                okButtonProps={{ danger: active }}
                 title={active ? deactivate_prompt : activate_prompt}
                 onConfirm={async () => {
                     let enabled_modules_ = new Set(enabled_modules)

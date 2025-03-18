@@ -22,17 +22,17 @@ import {
 } from 'dolphindb/browser.js'
 
 
-import { language, t } from '@i18n/index.ts'
+import { language, t } from '@i18n'
 
 import { CopyIconButton } from '@/components/copy/CopyIconButton.tsx'
 
-import { model, NodeType } from '@/model.ts'
+import { model, NodeType } from '@model'
 
 import { Editor } from '@/components/Editor/index.tsx'
 
 import { NAME_CHECK_PATTERN } from '@/access/constants.tsx'
 
-import { switch_keys } from '@/utils.ts'
+import { switch_keys } from '@utils'
 
 import { shell } from './model.ts'
 
