@@ -71,7 +71,7 @@ export function Log () {
         </div>
         {
             show_login_required_info ?
-                <Unlogin info='当前节点日志'/>
+                <Unlogin info={t('当前节点日志')}/>
             :
                 <>
                     <div className='log-block' ref={ref}>
