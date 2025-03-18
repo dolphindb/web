@@ -1,4 +1,4 @@
-import './git.sass'
+import './index.sass'
 
 import { useState } from 'react'
 
