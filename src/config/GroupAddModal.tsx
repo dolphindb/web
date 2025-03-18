@@ -1,5 +1,5 @@
 import NiceModal from '@ebay/nice-modal-react'
-import { AutoComplete, Button, Input, Modal, Popover, Table, Tooltip, type TableProps } from 'antd'
+import { AutoComplete, Button, Input, Modal, Table, Tooltip, type TableProps } from 'antd'
 
 import { useCallback, useEffect, useState } from 'react'
 
