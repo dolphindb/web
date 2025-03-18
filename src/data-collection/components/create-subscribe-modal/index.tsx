@@ -20,10 +20,11 @@ import { create_subscribe, edit_subscribe, get_parser_templates } from '../../ap
 
 import { NodeSelect } from '../../../components/node-select/index.js'
 
+import { model } from '@/model.ts'
+
 import { NAME_RULES } from '@/data-collection/constant.js'
 
 import { KafkaConfig } from './kafka-config.js'
-import { model } from '@/model.ts'
 
 
 interface IProps {

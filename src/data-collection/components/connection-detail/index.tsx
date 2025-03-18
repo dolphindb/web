@@ -34,9 +34,10 @@ import { DDBTable } from '@/components/DDBTable/index.tsx'
 
 import { TableOperations } from '@/components/TableOperations/index.tsx'
 
-import { DeleteDescribeModal } from './delete-describe-modal.js'
-import { TemplateViewModal } from './parser-template-view-modal.js'
 import { model } from '@/model.ts'
+
+import { DeleteDescribeModal } from './delete-describe-modal.tsx'
+import { TemplateViewModal } from './parser-template-view-modal.tsx'
 
 
 interface IProps {

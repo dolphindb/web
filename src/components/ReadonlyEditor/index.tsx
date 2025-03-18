@@ -9,7 +9,7 @@ import classNames from 'classnames'
 
 import { Editor } from '../Editor/index.js'
 import { t } from '../../../i18n/index.js'
-import { model } from '@/model.js'
+import { model } from '@/model.ts'
 
 interface IProps { 
     code: string
