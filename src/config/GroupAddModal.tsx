@@ -1,10 +1,12 @@
 import NiceModal from '@ebay/nice-modal-react'
-import { AutoComplete, Button, Input, message, Modal, Popover, Table, Tooltip, type TableProps } from 'antd'
+import { AutoComplete, Button, Input, Modal, Popover, Table, Tooltip, type TableProps } from 'antd'
 
 import { useCallback, useEffect, useState } from 'react'
 
 import { t } from '../../i18n/index.js'
 
+import { model } from '@/model.ts'
+ 
 import { config, validate_config } from './model.ts'
 import { strs_2_nodes } from './utils.ts'
 
@@ -239,7 +241,7 @@ export const GroupAddModal = NiceModal.create((props: { on_save: (form: { group_
         <div className='add-nodes' style={{ flexFlow: 'row-reverse' }}>
             <Button onClick={async () => {
                 if (group_nodes.length <= 0) {
-                    message.warning(t('请添加至少 1 个节点'))
+                    model.message.warning(t('请添加至少 1 个节点'))
                     return
                 }
                 try {
