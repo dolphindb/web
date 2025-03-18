@@ -467,6 +467,25 @@ function NodeTable ({ nodes, group, onSave, onDelete }: NodeTableProps) {
                         throw error
                     }
                 },
+                actionRender: (row, config, defaultDom) => [
+                    defaultDom.save,
+                    <Popconfirm
+                    title={t('确认删除此配置项？')}
+                    key='delete'
+                    onConfirm={async () => {
+                        try {
+                            await onDelete(row.id)
+                        } catch (error) {
+                            model.show_error({ error })
+                            throw error
+                        }
+                    }}
+                    okButtonProps={{ danger: true }}
+                >
+                    <Button variant='link' color='danger'>{t('删除')}</Button>
+                </Popconfirm>,
+                    defaultDom.cancel
+                ],
                 deletePopconfirmMessage: t('确认删除此节点？'),
                 saveText:
                     <Button
