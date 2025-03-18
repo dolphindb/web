@@ -1,6 +1,6 @@
 import { DeleteOutlined, PlusOutlined, SearchOutlined } from '@ant-design/icons'
 import { EditableProTable, type ActionType } from '@ant-design/pro-components'
-import { AutoComplete, Button, message, Popconfirm } from 'antd'
+import { AutoComplete, Button, Popconfirm } from 'antd'
 import { useCallback, useMemo, useRef, useState } from 'react'
 
 import useSWR from 'swr'
@@ -47,19 +47,20 @@ export function NodesManagement () {
         const [, , alias] = rest.split(':')
         const this_node = nodes.find(n => n.name === alias)
         if (this_node?.state === DdbNodeState.online) {
-            message.error(t('无法移除在线节点，请到集群总览中停止后移除'))
+            model.message.error(t('无法移除在线节点，请到集群总览中停止后移除'))
             return
         }
-        let skip_message = false
+        let is_compute_node = false
         if (this_node && this_node.mode === NodeType.computing) { // 必须是计算节点才能在线删除
             await model.ddb.call('removeNode', [this_node.name])
-            skip_message = true
+            model.message.info(t('移除节点成功'))
+            is_compute_node = true
         }    
         const new_nodes = _2_strs(all_nodes).filter(nod => nod !== node_id)
         await config.save_cluster_nodes(new_nodes)
         await mutate()
-        if (!skip_message) 
-            message.info(t('保存成功，重启集群生效'))
+        if (!is_compute_node) 
+            model.message.info(t('移除节点配置成功，重启集群生效'))
         
     }, [all_nodes])
     
@@ -77,7 +78,7 @@ export function NodesManagement () {
             const duplicate = all_nodes.find(node => node.host === host && node.port === port)
             // 如果找到重复的节点，除非找到的这个恰好就是我们正在修改的节点，否则报错
             if (duplicate && !(old_alias === duplicate.alias)) {
-                message.error(t('集群中已存在主机名和端口号相同的节点'))
+                model.message.error(t('集群中已存在主机名和端口号相同的节点'))
                 throw new Error(t('集群中已存在主机名和端口号相同的节点'))
             }
             
@@ -148,7 +149,7 @@ export function NodesManagement () {
                 try {
                     await model.ddb.call('addNode', [node_to_add.host, new DdbInt(Number(node_to_add.port)), node_to_add.alias, true, 'computenode', group_name])
                 } catch (e) {
-                    message.error(t('新增节点失败，服务端报错：') + e.message)
+                    model.message.error(t('新增节点失败，服务端报错：') + e.message)
                     return { success: false, message: t('新增节点失败，服务端报错：') + e.message }
                 }
         await config.load_configs()
@@ -182,7 +183,7 @@ export function NodesManagement () {
         //         can_delete = false
         
         if (!can_delete) {
-            message.error(t('组内有在线节点，请到集群总览中停止节点后移除'))
+            model.message.error(t('组内有在线节点，请到集群总览中停止节点后移除'))
             return
         }
         await config.load_configs()
