@@ -53,14 +53,14 @@ export function NodesManagement () {
         let is_compute_node = false
         if (this_node && this_node.mode === NodeType.computing) { // 必须是计算节点才能在线删除
             await model.ddb.call('removeNode', [this_node.name])
-            model.message.info(t('移除节点成功'))
+            model.message.success(t('移除节点成功'))
             is_compute_node = true
         }    
         const new_nodes = _2_strs(all_nodes).filter(nod => nod !== node_id)
         await config.save_cluster_nodes(new_nodes)
         await mutate()
         if (!is_compute_node) 
-            model.message.info(t('移除节点配置成功，重启集群生效'))
+            model.message.success(t('移除节点配置成功，重启集群生效'))
         
     }, [all_nodes])
     
