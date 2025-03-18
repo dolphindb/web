@@ -5,9 +5,9 @@ import { language } from 'xshell/i18n/instance.js'
 
 import cn from 'classnames'
 
-import { t } from '../../i18n/index.js'
+import { t } from '@i18n'
 
-import { WidgetType } from './model.js'
+import { WidgetType } from './model.ts'
 
 
 
