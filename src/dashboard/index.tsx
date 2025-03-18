@@ -8,7 +8,7 @@ import { useEffect } from 'react'
 import { Button, Popconfirm, Result } from 'antd'
 import * as echarts from 'echarts'
 
-import { Outlet } from 'react-router'
+import { useRoutes } from 'react-router'
 
 import { t } from '@i18n'
 
@@ -19,10 +19,12 @@ import { Unlogin } from '@/components/Unlogin.tsx'
 
 import { InitedState, dashboard } from './model.ts'
 
-import { Doc } from './components/Doc.js'
+import { Doc } from './components/Doc.tsx'
+
+import { DashboardInstancePage } from './Instance.tsx'
+import { Overview } from './Overview.tsx'
 
 import config from './chart.config.json' with { type: 'json' }
-
 
 import backend from './backend.dos'
 
@@ -70,7 +72,19 @@ export function DashBoard () {
             dashboard.get_dashboard_configs()
     }, [inited_state])
     
-    return components[inited_state]
+    const element = useRoutes([
+        {
+            index: true,
+            element: <Overview />
+        },
+        {
+            path: ':id',
+            element: <DashboardInstancePage />
+        }
+    ])
+    
+    // 先状态路由，再路径路由
+    return components[inited_state] || /* 当 InitedState.inited */ element
 }
 
 
@@ -130,6 +144,5 @@ const components = {
             title={t('控制节点不支持数据面板，请跳转到数据节点或计算节点查看。')}
         />,
     [InitedState.unlogined]: <Unlogin info={t('数据面板')} />,
-    [InitedState.inited]: <Outlet />,
 }
 

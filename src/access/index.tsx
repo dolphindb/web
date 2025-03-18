@@ -16,7 +16,6 @@ import { AccessTabs } from './AccessTabs.tsx'
 function AccessGuard ({ children }) {
     const { admin } = model.use(['admin'])
     
-    
     if (!admin)
         return <Result status='warning' className='interceptor' title={t('非管理员不能查看权限管理模块。')} />
         
