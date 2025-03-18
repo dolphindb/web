@@ -1,5 +1,5 @@
 import './index.scss'
-import { Button, Descriptions, Popconfirm, Space, Spin, Switch, Table, Typography, message } from 'antd'
+import { Button, Descriptions, Popconfirm, Spin, Switch, Typography } from 'antd'
 
 import { useCallback, useMemo, useState } from 'react'
 
@@ -9,7 +9,6 @@ import useSWR from 'swr'
 
 import type { ColumnProps } from 'antd/es/table/Column.js'
 
-import Link from 'antd/es/typography/Link.js'
 
 import { useMemoizedFn } from 'ahooks'
 
@@ -37,6 +36,7 @@ import { TableOperations } from '@/components/TableOperations/index.tsx'
 
 import { DeleteDescribeModal } from './delete-describe-modal.js'
 import { TemplateViewModal } from './parser-template-view-modal.js'
+import { model } from '@/model.ts'
 
 
 interface IProps {
@@ -110,7 +110,7 @@ export function ConnectionDetail (props: IProps) {
         }
         else
             await request('dcp_stopSubscribe', { subId: [id] })
-        message.success(is_enable  ? t('订阅成功') : t('已停用订阅'))
+        model.message.success(is_enable  ? t('订阅成功') : t('已停用订阅'))
         mutate()
     }, [mutate, selected_subscribes])
     

@@ -2,7 +2,7 @@ import './index.scss'
 
 import NiceModal, { useModal } from '@ebay/nice-modal-react'
 
-import { Modal, Form, Input, message, Select, Segmented, Button } from 'antd'
+import { Modal, Form, Input, Select, Segmented, Button } from 'antd'
 
 import { useCallback, useState } from 'react'
 
@@ -11,6 +11,7 @@ import { t } from '../../../../i18n/index.js'
 import { request } from '../../utils.ts'
 import { NAME_RULES, PROTOCOL_MAP, protocols, template_code } from '../../constant.js'
 import { Editor } from '../../../components/Editor/index.js'
+import { model } from '@/model.ts'
 
 interface IProps {
     editedTemplate?: IParserTemplate
@@ -53,11 +54,11 @@ export const ParserTemplateModal = NiceModal.create(({ refresh, editedTemplate, 
     const on_submit = useCallback(async (values: FormValues) => {        
         if (editedTemplate) {
             await request('dcp_updateHandler', { ...values, id: editedTemplate.id })
-            message.success(t('修改成功'))
+            model.message.success(t('修改成功'))
         }
         else {
             await request('dcp_addHandler', values)
-            message.success(t('创建成功'))
+            model.message.success(t('创建成功'))
         }
         modal.hide()
         refresh()

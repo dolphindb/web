@@ -2,7 +2,7 @@ import './index.scss'
 
 import useSWR from 'swr'
 
-import { Button, message, Result, Spin } from 'antd'
+import { Button, Result, Spin } from 'antd'
 
 import { t } from '@i18n/index.ts'
 
@@ -56,7 +56,7 @@ export function DataCollection () {
         async () => {
             await model.ddb.execute(code)
             await model.ddb.call('dcp_init')
-            message.success(t('采集平台初始化成功！'))
+            model.message.success(t('采集平台初始化成功！'))
             mutate()
         }
     )
