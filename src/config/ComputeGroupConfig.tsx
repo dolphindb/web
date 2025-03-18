@@ -2,7 +2,7 @@ import './index.sass'
 
 import { useEffect, useState, useRef, useCallback, useMemo } from 'react'
 
-import { t } from '@i18n/index.js'
+import { t } from '@i18n'
 
 import { AutoComplete, Button, Popconfirm } from 'antd'
 
@@ -13,7 +13,7 @@ import NiceModal from '@ebay/nice-modal-react'
 
 import useSWR from 'swr'
 
-import { model } from '@/model.js'
+import { model } from '@model'
 
 import { RefreshButton } from '@/components/RefreshButton/index.js'
 

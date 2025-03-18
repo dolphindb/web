@@ -13,7 +13,7 @@ import { DownOutlined, UpOutlined } from '@ant-design/icons'
  
 import { t } from '../../i18n/index.js'
 
-import { type DDBColumnTypeNames } from '@/utils.ts'
+import { type DDBColumnTypeNames } from '@utils'
 import { CopyIconButton } from '../components/copy/CopyIconButton.js'
 import { model } from '../model.js'
 

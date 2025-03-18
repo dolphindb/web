@@ -1,9 +1,9 @@
-import { t } from '@i18n/index.ts'
+import { t } from '@i18n'
 import { Input, Button } from 'antd'
 import { useEffect, useState } from 'react'
 import useSWR from 'swr'
 
-import { model } from '@/model.ts'
+import { model } from '@model'
 import { shell } from '../model.ts'
 
 import { get_token, git_provider } from './git-provider.ts'

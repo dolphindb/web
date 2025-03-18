@@ -18,11 +18,11 @@ import {
 } from 'dolphindb/browser.js'
 
 
-import { t } from '@i18n/index.js'
+import { t } from '@i18n'
 
 import { type DdbObjRef } from '@/obj.js'
 
-import { model, NodeType, storage_keys } from '@/model.js'
+import { model, NodeType, storage_keys } from '@model'
 
 import type { Monaco } from '@/components/Editor/index.js'
 

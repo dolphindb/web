@@ -9,9 +9,9 @@ import { AppstoreOutlined, BarsOutlined, RedoOutlined, StopOutlined, DownOutline
 
 import { delay } from 'xshell/utils.browser.js'
 
-import { t, language } from '@i18n/index.ts'
+import { t, language } from '@i18n'
 
-import { NodeType, DdbNodeState, model, storage_keys, type DdbNode } from '@/model.ts'
+import { NodeType, DdbNodeState, model, storage_keys, type DdbNode } from '@model'
 
 import { OverviewTable } from './table.tsx'
 import { OverviewCard } from './card.tsx'

@@ -14,7 +14,7 @@ import type { MessageInstance } from 'antd/es/message/interface.d.ts'
 import type { HookAPI as ModalHookAPI } from 'antd/es/modal/useModal/index.d.ts'
 import type { NotificationInstance } from 'antd/es/notification/interface.d.ts'
 
-import { t } from '@i18n/index.ts'
+import { t } from '@i18n'
 
 import { model, show_error, storage_keys } from '../model.js'
 import type { Monaco } from '../components/Editor/index.js'

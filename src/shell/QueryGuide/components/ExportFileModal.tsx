@@ -7,9 +7,9 @@ import { useBoolean } from 'ahooks'
 import { request } from '../../../guide/utils.ts'
 import { safe_json_parse } from '../../../dashboard/utils.ts'
 
-import { t } from '@i18n/index.ts'
-import { download_file } from '@/utils.ts'
-import { model } from '@/model.ts'
+import { t } from '@i18n'
+import { download_file } from '@utils'
+import { model } from '@model'
 
 interface IProps {
     table: string

@@ -1,8 +1,8 @@
 import { Button, Result } from 'antd'
 
-import { t } from '@i18n/index.js'
+import { t } from '@i18n'
 
-import { model } from '@/model.ts'
+import { model } from '@model'
 
 export function Unlogin ({ info }: { info: string }) {
     return <Result

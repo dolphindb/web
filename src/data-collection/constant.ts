@@ -1,6 +1,6 @@
 import type { FormItemProps } from 'antd'
 
-import { language, t } from '@i18n/index.js'
+import { language, t } from '@i18n'
 
 import { Protocol } from './type.ts'
 

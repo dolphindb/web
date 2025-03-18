@@ -20,7 +20,7 @@ import { create_subscribe, edit_subscribe, get_parser_templates } from '../../ap
 
 import { NodeSelect } from '../../../components/node-select/index.js'
 
-import { model } from '@/model.ts'
+import { model } from '@model'
 
 import { NAME_RULES } from '@/data-collection/constant.js'
 

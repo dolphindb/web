@@ -20,7 +20,7 @@ import { DeleteOutlined, PlusOutlined } from '@ant-design/icons'
 import dayjs from 'dayjs'
 
 
-import { t } from '@i18n/index.ts'
+import { t } from '@i18n'
 
 import { request } from '@/data-collection/utils.ts'
 
@@ -34,7 +34,7 @@ import { DDBTable } from '@/components/DDBTable/index.tsx'
 
 import { TableOperations } from '@/components/TableOperations/index.tsx'
 
-import { model } from '@/model.ts'
+import { model } from '@model'
 
 import { DeleteDescribeModal } from './delete-describe-modal.tsx'
 import { TemplateViewModal } from './parser-template-view-modal.tsx'

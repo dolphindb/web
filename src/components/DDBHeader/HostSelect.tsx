@@ -1,7 +1,7 @@
 import { Select } from 'antd'
 import type { SizeType } from 'antd/es/config-provider/SizeContext.js'
 
-import { model } from '@/model.ts'
+import { model } from '@model'
 
 
 export function HostSelect ({ size = 'small' }: { size?: SizeType }) {

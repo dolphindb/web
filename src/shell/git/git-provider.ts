@@ -1,4 +1,4 @@
-import { storage_keys } from '@/model.ts'
+import { storage_keys } from '@model'
 
 import { GitHubAdapter, GitLabAdapter } from './git-adapter.ts'
 

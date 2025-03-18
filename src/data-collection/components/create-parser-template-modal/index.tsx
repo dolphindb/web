@@ -11,7 +11,7 @@ import { t } from '../../../../i18n/index.js'
 import { request } from '../../utils.ts'
 import { NAME_RULES, PROTOCOL_MAP, protocols, template_code } from '../../constant.js'
 import { Editor } from '../../../components/Editor/index.js'
-import { model } from '@/model.ts'
+import { model } from '@model'
 
 interface IProps {
     editedTemplate?: IParserTemplate

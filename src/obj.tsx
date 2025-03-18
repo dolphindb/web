@@ -49,7 +49,7 @@ import {
     type DdbTensorObj
 } from 'dolphindb/browser.js'
 
-import { t } from '@i18n/index.ts'
+import { t } from '@i18n'
 
 import SvgLink from './link.icon.svg'
 

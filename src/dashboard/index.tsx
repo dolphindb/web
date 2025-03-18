@@ -10,9 +10,9 @@ import * as echarts from 'echarts'
 
 import { Outlet } from 'react-router'
 
-import { t } from '@i18n/index.ts'
+import { t } from '@i18n'
 
-import { NodeType, model } from '@/model.ts'
+import { NodeType, model } from '@model'
 
 
 import { Unlogin } from '@/components/Unlogin.tsx'

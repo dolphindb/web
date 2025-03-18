@@ -1,4 +1,4 @@
-import { t } from '@i18n/index.ts'
+import { t } from '@i18n'
 import { Button, Table, Tooltip } from 'antd'
 
 import { useState, useEffect } from 'react'
