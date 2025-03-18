@@ -470,7 +470,7 @@ function NodeTable ({ nodes, group, onSave, onDelete }: NodeTableProps) {
                 actionRender: (row, config, defaultDom) => [
                     defaultDom.save,
                     <Popconfirm
-                    title={t('确认删除此配置项？')}
+                    title={t('确认删除此节点？')}
                     key='delete'
                     onConfirm={async () => {
                         try {
