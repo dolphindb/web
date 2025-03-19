@@ -188,6 +188,25 @@ export function NodesConfig () {
                                 throw error
                             }
                         },
+                        actionRender: (row, config, defaultDom) => [
+                            defaultDom.save,
+                            <Popconfirm
+                                title={t('确认删除此配置项？')}
+                                key='delete'
+                                onConfirm={async () => {
+                                    try {
+                                        await delete_config(row.key as string)
+                                    } catch (error) {
+                                        model.show_error({ error })
+                                        throw error
+                                    }
+                                }}
+                                okButtonProps={{ danger: true }}
+                            >
+                                <Button variant='link' color='danger'>{t('删除')}</Button>
+                            </Popconfirm>,
+                            defaultDom.cancel
+                        ],
                         deletePopconfirmMessage: t('确认删除此配置项？'),
                         saveText: (
                             <Button type='link' key='editable' className='mr-btn'>

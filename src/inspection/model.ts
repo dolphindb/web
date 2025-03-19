@@ -2,7 +2,7 @@ import { Model } from 'react-object-model'
 
 import { DdbFunction, DdbFunctionType, DdbInt, DdbVoid } from 'dolphindb/browser'
 
-import { model } from '@/model.ts'
+import { model } from '@model'
 
 import { config } from '@/config/model.ts'
 

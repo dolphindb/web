@@ -3,9 +3,9 @@ import './index.sass'
 import { useEffect, useRef, useState } from 'react'
 import { Pagination } from 'antd'
 
-import { t } from '@i18n/index.js'
+import { t } from '@i18n'
 
-import { model, NodeType } from '@/model.js'
+import { model, NodeType } from '@model'
 import { Unlogin } from '@/components/Unlogin.js'
 import { BottomFixedFooter } from '@/components/BottomFixedFooter/index.tsx'
 import { RefreshButton } from '@/components/RefreshButton/index.tsx'

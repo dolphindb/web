@@ -8,11 +8,11 @@ import { Button, Input, Popconfirm, Typography, type TableColumnType } from 'ant
 
 import NiceModal from '@ebay/nice-modal-react'
 
-import { t, language } from '@i18n/index.ts'
+import { t, language } from '@i18n'
 
 import useSWR from 'swr'
 
-import { model } from '@/model.ts'
+import { model } from '@model'
 
 import { TableOperations } from '@/components/TableOperations/index.tsx'
 

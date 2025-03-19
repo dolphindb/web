@@ -1,4 +1,4 @@
-import { t } from '@i18n/index.ts'
+import { t } from '@i18n'
 
 import { Alert, Button } from 'antd'
 
@@ -8,7 +8,7 @@ import { useEffect, useState } from 'react'
  
 import { shell } from '@/shell/model.ts'
  
-import { storage_keys } from '@/model.ts'
+import { storage_keys } from '@model'
  
 import { git_provider } from './git-provider.ts'
 import { GitHubAccessTokenModal, GitHubOauthModal, GitLabAccessTokenModal, GitLabOauthModal } from './GitModals.tsx'

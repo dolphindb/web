@@ -1,11 +1,11 @@
-import { t } from '@i18n/index.ts'
+import { t } from '@i18n'
 import { Button, Popconfirm, Spin, Result, Divider } from 'antd'
 
 import useSWR from 'swr'
 
 import type { ReactNode } from 'react'
 
-import { model, NodeType } from '@/model.ts'
+import { model, NodeType } from '@model'
 
 import { inspection } from '@/inspection/model.ts'
 

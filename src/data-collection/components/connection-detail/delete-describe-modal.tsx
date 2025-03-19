@@ -5,7 +5,7 @@ import { Modal, Form, Switch, Button } from 'antd'
 import { useCallback } from 'react'
 
 
-import { t } from '@i18n/index.ts'
+import { t } from '@i18n'
 
 import { request } from '@/data-collection/utils.ts'
 

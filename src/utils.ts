@@ -2,9 +2,9 @@ import { DdbType } from 'dolphindb/browser.js'
 
 import { delay } from 'xshell/utils.browser.js'
 
-import { language, t } from '@i18n/index.ts'
+import { language, t } from '@i18n'
 
-import { shf } from '@/model.ts'
+import { shf } from '@model'
 
 
 /** 表单 Form.Item 必填 `<Form.Item {...required}>` */

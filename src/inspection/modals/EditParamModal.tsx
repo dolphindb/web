@@ -1,5 +1,5 @@
 import NiceModal, { useModal } from '@ebay/nice-modal-react'
-import { t } from '@i18n/index.ts'
+
 import { Button, DatePicker, Form, Input, InputNumber, Modal, Select } from 'antd'
 
 import { isEmpty } from 'lodash'
@@ -10,7 +10,8 @@ import { useMemo } from 'react'
 
 import { DdbType } from 'dolphindb/browser'
  
-import { DDB_TYPE_MAP } from '@/utils.ts'
+import { DDB_TYPE_MAP } from '@utils'
+import { t } from '@i18n'
 
 import type { MetricParam, MetricsWithStatus } from '@/inspection/type.ts'
 

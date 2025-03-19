@@ -7,11 +7,11 @@ import { Tooltip, Progress, Tag, Checkbox } from 'antd'
 import { default as Icon } from '@ant-design/icons'
 
 
-import { t, language } from '@i18n/index.ts'
+import { t, language } from '@i18n'
 
-import { NodeType, type DdbNode, model } from '@/model.ts'
+import { NodeType, type DdbNode, model } from '@model'
 
-import { ns2ms, upper } from '@/utils.ts'
+import { ns2ms, upper } from '@utils'
 
 import SvgCPU from './icons/cpu.icon.svg'
 import SvgMemory from './icons/memory.icon.svg'

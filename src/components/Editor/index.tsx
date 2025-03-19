@@ -16,7 +16,7 @@ import { request_json } from 'xshell/net.browser.js'
 
 import { t, language } from '../../../i18n/index.js'
 
-import { model } from '@/model.ts'
+import { model } from '@model'
 
 
 // 在 React DevTool 中显示的组件名字

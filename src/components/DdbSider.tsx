@@ -7,11 +7,11 @@ import { default as Icon, DoubleLeftOutlined, DoubleRightOutlined, ExperimentOut
 import { noop } from 'xshell/prototype.browser.js'
 import { filter_values } from 'xshell/utils.browser.js'
 
-import { language, t } from '@i18n/index.ts'
+import { language, t } from '@i18n'
 
-import { model, type DdbModel, NodeType, storage_keys, default_view } from '@/model.ts'
+import { model, type DdbModel, NodeType, storage_keys, default_view } from '@model'
 
-import { sider_collapsed_width, sider_uncollapsed_width } from '@/utils.ts'
+import { sider_collapsed_width, sider_uncollapsed_width } from '@utils'
 
 
 import SvgOverview from '@/overview/icons/overview.icon.svg'

@@ -2,13 +2,13 @@ import { Tabs, Button, Select, Space } from 'antd'
 import { ArrowLeftOutlined, EyeOutlined, SettingOutlined } from '@ant-design/icons'
 import { useState } from 'react'
 
-import { t } from '@i18n/index.ts'
+import { t } from '@i18n'
 
 import { useLocation, useNavigate, useParams } from 'react-router'
 
 import { useSWRConfig } from 'swr'
 
-import { model } from '@/model.ts'
+import { model } from '@model'
 
 import type { AccessRole, AccessCategory } from '@/access/types.ts'
 import { use_users } from '@/access/hooks/use-users.ts'

@@ -1,12 +1,12 @@
 import { Dropdown } from 'antd'
 
-import { t } from '@i18n/index.ts'
+import { t } from '@i18n'
 
 import { useState } from 'react'
 
 import { TranslationOutlined } from '@ant-design/icons'
 
-import { model, storage_keys } from '@/model.ts'
+import { model, storage_keys } from '@model'
 
 
 export function LanguageSelect () {
