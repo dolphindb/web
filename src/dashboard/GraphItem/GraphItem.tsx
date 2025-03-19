@@ -46,12 +46,14 @@ function GraphComponent ({ widget }: { widget: Widget }) {
     const { variable_cols, with_search_btn, search_btn_label, variable_form_label_col } = widget.config ?? { }
     
     return <div
-            style={{ padding: get_padding_style(widget.config?.padding) }}
-            className={cn('graph-item-wrapper', {
-                'overflow-visible-wrapper': widget.type === WidgetChartType.EDITOR || widget.type === WidgetChartType.OHLC
-            })}
-        >
-        
+        style={widget.type === WidgetChartType.CONFIGURATION 
+            ? undefined
+            : { padding: get_padding_style(widget.config?.padding) }}
+        className={cn('graph-item-wrapper', {
+            'overflow-visible-wrapper': widget.type === WidgetChartType.EDITOR || widget.type === WidgetChartType.OHLC,
+            'configuration-wrapper': widget.type === WidgetChartType.CONFIGURATION
+        })}
+    >
         {
             (widget.type !== WidgetChartType.VARIABLE && widget.config) &&
             <VariableForm

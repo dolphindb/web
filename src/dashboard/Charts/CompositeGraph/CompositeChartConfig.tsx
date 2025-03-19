@@ -64,7 +64,7 @@ const series_match_type_options = [
 // 时序图不需要配置 y 轴，默认为数据轴
 export function CompositeChartConfig () {
     const { widget } = dashboard.use(['widget']) 
-    const type = useMemo(() => widget.type, [widget])
+    const { type } = widget
     const [update, set_update] = useState({ })
     
     const force_update = useCallback(() => { set_update({ }) }, [ ])

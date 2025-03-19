@@ -16,6 +16,7 @@ import { HeatMap, HeatMapConfigForm } from './Charts/HeatMap/index.js'
 import { BasicFormFields } from './ChartFormFields/BasicFormFields.js'
 import { CompositeChart } from './Charts/CompositeGraph/index.js'
 import { CompositeChartConfig } from './Charts/CompositeGraph/CompositeChartConfig.js'
+import { Configuration, ConfigurationConfig } from './Charts/Configuration.tsx'
 
 
 type GraphConfig =  { 
@@ -90,4 +91,8 @@ export const graph_config: GraphConfig =  {
         component: CompositeChart,
         config: CompositeChartConfig
     },
+    [WidgetChartType.CONFIGURATION]: {
+        component: Configuration,
+        config: ConfigurationConfig,
+    }
 }
