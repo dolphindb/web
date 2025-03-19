@@ -2,11 +2,19 @@ import { DdbType } from 'dolphindb/browser.js'
 
 import { delay } from 'xshell/utils.browser.js'
 
-import { t } from '@i18n/index.ts'
+import { language, t } from '@i18n/index.ts'
+
+import { shf } from '@/model.ts'
 
 
 /** 表单 Form.Item 必填 `<Form.Item {...required}>` */
 export const required = { required: true, rules: [{ required: true }] }
+
+/** 侧边栏收起状态宽度 */
+export const sider_collapsed_width = 50
+
+/** 侧边栏未收起状态宽度 */
+export const sider_uncollapsed_width = language === 'en' ? 220 : 150
 
 
 export function download_file (name: string, url: string) {
@@ -136,4 +144,14 @@ export function switch_keys <TKey> (keys: TKey[], key: TKey) {
         keys_.push(key)
     
     return keys_
+}
+
+
+export function ns2ms (num: number) {
+    return num / 1_000_000
+}
+
+
+export function upper (str: string) {
+    return shf ? str : str.toUpperCase()
 }

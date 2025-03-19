@@ -31,6 +31,8 @@ import { GitHubAdapter, GitLabAdapter } from '@/shell/git/git-adapter.ts'
 const dev_hostname = '192.168.0.37' as const
 const dev_port = '20023' as const
 
+export const shf = storage.getstr('shf') === '1'
+
 
 export class DdbModel extends Model<DdbModel> {
     params: URLSearchParams
@@ -48,8 +50,6 @@ export class DdbModel extends Model<DdbModel> {
     
     /** 生产模式，等价于 !local && !test */
     production = true
-    
-    shf = false
     
     hostname: string
     
@@ -178,11 +178,9 @@ export class DdbModel extends Model<DdbModel> {
         
         this.production = !this.dev
         
-        this.shf = storage.getstr('shf') === '1'
-        
         // 确定 assets_root
         if (this.test)
-            for (const web_path of ['/web/', '/web-main/', '/style/'])
+            for (const web_path of ['/web/', '/main/'])
                 if (location.pathname.startsWith(web_path)) {
                     this.assets_root = web_path
                     break

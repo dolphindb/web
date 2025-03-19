@@ -95,10 +95,6 @@ export let builder = {
                     // 在 .js 中手动加载脚本
                     // 取 window.ReactQuill 作为 import 的返回值
                     'react-quill': 'ReactQuill',
-                    
-                    '@formily/core': 'FormilyCore',
-                    '@formily/react': 'FormilyReact',
-                    '@formily/antd-v5': 'FormilyAntdV5',
                 },
                 resolve_alias: {
                     '@': `${fpd_root}src`,

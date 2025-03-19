@@ -200,7 +200,7 @@ class AccessModel extends Model<AccessModel> {
     
     
     async get_users_by_group (group: string) {
-        return (await model.ddb.invoke('getUsersByGroupId', [group])).data
+        return (model.ddb.invoke('getUsersByGroupId', [group]))
     }
     
     

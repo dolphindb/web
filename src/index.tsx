@@ -1,6 +1,5 @@
 import 'xshell/scroll-bar.sass'
 
-import './formily-patch.sass'
 import './index.sass'
 import './pagination.sass'
 

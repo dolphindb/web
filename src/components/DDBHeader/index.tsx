@@ -7,9 +7,9 @@ import { DownOutlined, LoginOutlined, LogoutOutlined, UserOutlined } from '@ant-
 
 import { t } from '@i18n/index.js'
 
-import { model } from '@/model.ts'
+import { model, shf } from '@/model.ts'
 
-import { LanguageSelect } from '../LanguageSelect.tsx'
+import { LanguageSelect } from './LanguageSelect.tsx'
 
 import { Status } from './Status.tsx'
 
@@ -18,8 +18,8 @@ import { HostSelect } from './HostSelect.tsx'
 import { License } from './License.tsx'
 import { Settings } from './Settings.tsx'
 
-import ddbsvg from '@/ddb.svg'
-import ddblightsvg from '@/ddb.light.svg'
+import ddb_svg from '@/icons/ddb.svg'
+import ddb_white_svg from '@/icons/ddb.white.svg'
 
 
 export function DdbHeader () {
@@ -33,7 +33,7 @@ export function DdbHeader () {
     
     
     return <Layout.Header className='ddb-header'>
-        <img className='logo' src={model.shf ? ddbsvg : ddblightsvg} style={model.shf ? { marginLeft: 6 } : undefined} />
+        <img className='logo' src={shf ? ddb_svg : ddb_white_svg} style={shf ? { marginLeft: 6 } : undefined} />
         
         <div className='padding' />
         

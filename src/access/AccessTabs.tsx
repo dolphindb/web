@@ -1,10 +1,10 @@
 import { Tabs, Button, Select, Space } from 'antd'
-import { EyeOutlined, SettingOutlined } from '@ant-design/icons'
+import { ArrowLeftOutlined, EyeOutlined, SettingOutlined } from '@ant-design/icons'
 import { useState } from 'react'
 
 import { t } from '@i18n/index.ts'
 
-import { useLocation, useParams } from 'react-router'
+import { useLocation, useNavigate, useParams } from 'react-router'
 
 import { useSWRConfig } from 'swr'
 
@@ -31,6 +31,8 @@ export function AccessTabs ({
     
     const { data: users = [ ] } = use_users()
     const { data: groups = [ ] } = use_groups()
+    
+    const navigate = useNavigate()
     
     const { mutate } = useSWRConfig()
     
@@ -78,6 +80,16 @@ export function AccessTabs ({
             activeKey={tab_key}
             onChange={handle_tab_change}
             tabBarExtraContent={{
+                left: (
+                    <Button
+                        type='text'
+                        style={{ marginRight: 10 }}
+                        icon={<ArrowLeftOutlined />}
+                        onClick={() => {
+                            model.goto(`/access/${role}`)
+                        }}  
+                     />
+                ),
                 right: (
                     <Space size={10}>
                          <div className='switch-user'>

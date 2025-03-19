@@ -20,7 +20,7 @@ import { RefreshButton } from '@/components/RefreshButton/index.js'
 import { filter_config, strs_2_nodes } from './utils.js'
 import { NodesConfigAddModal } from './NodesConfigAddModal.js'
 
-import { config } from './model.js'
+import { config, validate_config, validate_qualifier } from './model.js'
 
 
 
@@ -207,6 +207,8 @@ export function ComputeGroupConfig () {
                         onSave: async (rowKey, data) => {
                             try {
                                 const { name, qualifier, value } = data
+                                await validate_config(name, value)
+                                await validate_qualifier(name, qualifier) 
                                 const key = (qualifier ? qualifier + '.' : '') + name
                                 if (rowKey !== key)
                                     config.nodes_configs.delete(rowKey as string)

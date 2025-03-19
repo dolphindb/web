@@ -171,7 +171,6 @@ export interface IColProperty {
     align?: 'left' | 'center' | 'right'
     sorter?: boolean
     header_style?: any
-    ellipsis?: boolean
 }
 export interface ITableConfig {
     title?: string
