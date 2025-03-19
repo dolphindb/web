@@ -396,7 +396,7 @@ function PlanListTable  ({
                         description={t('确定立即巡检 {{name}} 吗？', { name: record.name })}
                         okText={t('确定')}
                         cancelText={t('取消')}
-                        okButtonProps={{ type: 'primary', danger: true }}
+                        okButtonProps={{ type: 'primary' }}
                         onConfirm={async () => {
                             await inspection.run_plan(record.id)
                             model.message.success(t('执行成功'))
