@@ -326,7 +326,7 @@ function Detail ({
     
     if (extra && !ds) 
         return null
-    return Array.isArray(ds) 
+    return Array.isArray(ds) && ds.length > 0
         ? 
         <Table 
             columns={Object.keys(ds[0]).map(k => ({ 
