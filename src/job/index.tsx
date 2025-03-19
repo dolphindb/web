@@ -294,10 +294,10 @@ function translate_columns (cols: DdbJobColumn[]): DdbJobColumn[] {
         return { 
             ...item, 
             title: column_names[item.title as string] || item.title,
-            width: expand ? 250 : undefined,
+            width: expand ? 400 : item.width,
             render: expand 
                 ? value => <Typography.Paragraph style={{ marginBottom: 0 }} ellipsis={{ rows: 1, expandable: 'collapsible' }}>{value}</Typography.Paragraph>
-                : undefined
+                : item.render
         }
     
     })
