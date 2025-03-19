@@ -52,8 +52,6 @@ export function Configuration ({ widget, data_source }: { widget: Widget, data_s
             ((acc[name] = value), acc)
         , { })
         
-        console.log($texts.map(({ id }) => id))
-        
         $texts.forEach($text => {
             const value = data[$text.id]
             
@@ -77,7 +75,7 @@ export function Configuration ({ widget, data_source }: { widget: Widget, data_s
 export function ConfigurationConfig () {
     const { widget } = dashboard.use(['widget'])
     
-    const $texts: SVGTextElement[] = widget.data?.$texts
+    // const $texts: SVGTextElement[] = widget.data?.$texts
     
     return <Collapse 
         items={[
