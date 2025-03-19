@@ -1,6 +1,6 @@
 import { Tag, Popover, Descriptions, Card } from 'antd'
 
-import { t } from '@i18n/index.js'
+import { t } from '@i18n'
 
 import dayjs from 'dayjs'
 
@@ -10,7 +10,7 @@ import { useEffect } from 'react'
 
 import { config } from '@/config/model.ts'
 
-import { model, storage_keys, type DdbLicense, LicenseTypes } from '@/model.ts'
+import { model, storage_keys, type DdbLicense, LicenseTypes } from '@model'
 
 
 

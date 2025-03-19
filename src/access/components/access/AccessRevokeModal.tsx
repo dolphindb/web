@@ -1,10 +1,10 @@
 import NiceModal, { useModal } from '@ebay/nice-modal-react'
 import { Modal, Tooltip } from 'antd'
 
-import { t } from '@i18n/index.js'
+import { t } from '@i18n'
 
-import { access } from '@/access/model.js'
-import { model } from '@/model.js'
+import { model } from '@model'
+import { access } from '@/access/model.ts'
 
 
 import type { Access, AccessCategory } from '@/access/types.js'

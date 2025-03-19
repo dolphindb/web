@@ -9,9 +9,9 @@ import cn from 'classnames'
 
 import { use_modal } from 'react-object-model/hooks.js'
 
-import { t } from '@i18n/index.ts'
+import { t } from '@i18n'
 
-import { model } from '@/model.ts'
+import { model } from '@model'
 
 import { type Widget, dashboard } from '@/dashboard/model.ts'
 import type { ITextConfig } from '@/dashboard/type.ts'

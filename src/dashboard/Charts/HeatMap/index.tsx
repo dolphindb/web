@@ -4,7 +4,7 @@ import { useMemo } from 'react'
 
 import { Collapse, Form, InputNumber } from 'antd'
 
-import { t } from '@i18n/index.js'
+import { t } from '@i18n'
 
 import { max, min } from 'lodash'
 

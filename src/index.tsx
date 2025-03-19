@@ -23,12 +23,12 @@ import dayjs from 'dayjs'
 
 import { SWRConfig } from 'swr'
 
-import { language } from '../i18n/index.ts'
+import { language } from '@i18n'
 
 import 'dayjs/locale/zh-cn'
 dayjs.locale(language === 'zh' ? 'zh-cn' : language)
 
-import { model } from './model.ts'
+import { model } from '@model'
 
 import { light } from './theme.ts'
 

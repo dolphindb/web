@@ -1,10 +1,12 @@
 import NiceModal from '@ebay/nice-modal-react'
-import { AutoComplete, Button, Input, message, Modal, Popover, Table, Tooltip, type TableProps } from 'antd'
+import { AutoComplete, Button, Input, Modal, Table, Tooltip, type TableProps } from 'antd'
 
 import { useCallback, useEffect, useState } from 'react'
 
 import { t } from '../../i18n/index.js'
 
+import { model } from '@model'
+ 
 import { config, validate_config } from './model.ts'
 import { strs_2_nodes } from './utils.ts'
 
@@ -48,8 +50,8 @@ export const GroupAddModal = NiceModal.create((props: { on_save: (form: { group_
             throw new Error(t('组名不能为空'))
         
         for (const group of compute_groups) 
-            if (group_name.startsWith(group)) 
-                throw new Error(t('计算组名称不能以已存在的计算组 {{group}} 为前缀', { group }))
+            if (group_name.startsWith(group) || group.startsWith(group_name)) 
+                throw new Error(t('计算组名称不能与已存在的计算组 {{group}} 存在包含关系', { group }))
             
         
         for (const node of group_nodes) // 非空校验，并且别名必须包含 group_name
@@ -239,7 +241,7 @@ export const GroupAddModal = NiceModal.create((props: { on_save: (form: { group_
         <div className='add-nodes' style={{ flexFlow: 'row-reverse' }}>
             <Button onClick={async () => {
                 if (group_nodes.length <= 0) {
-                    message.warning(t('请添加至少 1 个节点'))
+                    model.message.warning(t('请添加至少 1 个节点'))
                     return
                 }
                 try {

@@ -1,6 +1,6 @@
 import { Typography, Popconfirm } from  'antd'
 
-import { t } from '@i18n/index.js'
+import { t } from '@i18n'
 
 export function RevokeConfirm ({ on_confirm }: { on_confirm: () => Promise<void> }) {
     return <Popconfirm

@@ -4,9 +4,9 @@ import { useRoutes, Navigate } from 'react-router'
 
 import { Result } from 'antd'
 
-import { t } from '@i18n/index.ts'
+import { t } from '@i18n'
 
-import { model } from '@/model.ts'
+import { model } from '@model'
 
 import { GroupList } from './GroupList.tsx'
 import { UserList } from './UserList.tsx'

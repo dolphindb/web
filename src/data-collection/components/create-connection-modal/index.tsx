@@ -1,15 +1,16 @@
 import './index.scss'
-import { Button, Form, Input, InputNumber, Modal, message } from 'antd'
+import { Form, Input, InputNumber, Modal } from 'antd'
 
 import { useCallback } from 'react'
 
 import NiceModal, { useModal } from '@ebay/nice-modal-react'
 
-import { t } from '@i18n/index.ts'
+import { t } from '@i18n'
 
 import { request } from '../../utils.ts'
 import { PROTOCOL_MAP, NAME_RULES } from '@/data-collection/constant.ts'
 import { type Connection, Protocol } from '@/data-collection/type.ts'
+import { model } from '@model'
 
 interface IProps {
     editedConnection?: Connection
@@ -28,7 +29,7 @@ export const CreateConnectionModal = NiceModal.create((props: IProps) => {
             await request('dcp_updateConnect', { ...values, id: editedConnection.id })
         else
             await request('dcp_addConnect', { ...values, protocol })   
-        message.success(editedConnection ? t('修改成功') : t('创建成功'))
+        model.message.success(editedConnection ? t('修改成功') : t('创建成功'))
         modal.hide()
         refresh()
     }, [ refresh, protocol ])

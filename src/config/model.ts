@@ -2,11 +2,11 @@ import { Model } from 'react-object-model'
 
 import { DdbInt, type DdbCallOptions } from 'dolphindb/browser.js'
 
-import { t } from '@i18n/index.ts'
+import { t } from '@i18n'
 
-import { NodeType, model } from '@/model.ts'
+import { NodeType, model } from '@model'
 
-import { iterator_map } from '@/utils.ts'
+import { iterator_map } from '@utils'
 
 import { _2_strs, get_category, parse_nodes_configs } from './utils.ts'
 

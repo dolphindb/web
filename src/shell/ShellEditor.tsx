@@ -3,9 +3,9 @@ import { useEffect, useRef, useState } from 'react'
 import { Input, Switch } from 'antd'
 import { CloseOutlined, DoubleLeftOutlined, DoubleRightOutlined, FileTextOutlined, PlusOutlined } from '@ant-design/icons'
 
-import { t } from '@i18n/index.js'
+import { t } from '@i18n'
 
-import { model, storage_keys } from '@/model.ts'
+import { model, storage_keys } from '@model'
 
 import { Editor, type monacoapi } from '@/components/Editor/index.tsx'
 

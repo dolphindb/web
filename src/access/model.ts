@@ -2,7 +2,7 @@ import { Model } from 'react-object-model'
 
 import { DdbInt, DdbVectorString } from 'dolphindb/browser.js'
 
-import { DdbNodeState, model, NodeType } from '@/model.ts'
+import { DdbNodeState, model, NodeType } from '@model'
 
 import { DATABASES_WITHOUT_CATALOG } from './constants.tsx'
 
@@ -200,7 +200,7 @@ class AccessModel extends Model<AccessModel> {
     
     
     async get_users_by_group (group: string) {
-        return (model.ddb.invoke('getUsersByGroupId', [group]))
+        return model.ddb.invoke('getUsersByGroupId', [group])
     }
     
     

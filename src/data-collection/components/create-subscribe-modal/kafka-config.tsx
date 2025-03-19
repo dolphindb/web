@@ -8,7 +8,7 @@ import { DeleteOutlined, FileTextOutlined, PlusOutlined, QuestionCircleOutlined 
 
 import { get } from 'lodash'
 
-import { t } from '@i18n/index.js'
+import { t } from '@i18n'
 
 import { request } from '../../utils.ts'
 import { kafka_params_doc_link } from '../../constant.js'

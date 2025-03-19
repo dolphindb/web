@@ -1,6 +1,6 @@
 import { CheckCircleFilled, CloseCircleFilled, MinusCircleFilled } from '@ant-design/icons'
 
-import { t } from '@i18n/index.ts'
+import { t } from '@i18n'
 
 export const NEED_INPUT_ACCESS = ['DB_OWNER', 'QUERY_RESULT_MEM_LIMIT', 'TASK_GROUP_MEM_LIMIT']
 
