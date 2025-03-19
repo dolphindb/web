@@ -14,7 +14,7 @@ import { WidgetChartType, dashboard } from '../model.js'
 
 import { FormDependencies } from '../../components/FormDependencies/index.js'
 
-import { DDB_TYPE_MAP } from '@/utils.ts'
+import { DDB_TYPE_MAP } from '@utils'
 
 import { TitleFields } from './components/Title.js'
 import { LegendFields } from './components/Legend.js'

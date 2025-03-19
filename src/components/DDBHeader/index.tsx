@@ -5,9 +5,9 @@ import { Dropdown, Avatar, Space, Layout } from 'antd'
 
 import { DownOutlined, LoginOutlined, LogoutOutlined, UserOutlined } from '@ant-design/icons'
 
-import { t } from '@i18n/index.js'
+import { t } from '@i18n'
 
-import { model, shf } from '@/model.ts'
+import { model, shf } from '@model'
 
 import { LanguageSelect } from './LanguageSelect.tsx'
 

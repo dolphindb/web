@@ -9,9 +9,9 @@ import NiceModal from '@ebay/nice-modal-react'
 
 import useSWR from 'swr'
 
-import { language, t } from '@i18n/index.ts'
+import { language, t } from '@i18n'
 
-import { model } from '@/model.ts'
+import { model } from '@model'
 
 import { DDBTable } from '@/components/DDBTable/index.tsx'
 

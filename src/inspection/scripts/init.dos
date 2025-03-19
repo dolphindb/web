@@ -1,5 +1,7 @@
-clearEnv()
-initDfs()
+if (!existsDatabase("dfs://autoInspection")) {
+    clearEnv()
+    initDfs()
+}
 go
 
 // ------------- group 0 ------------------
@@ -450,7 +452,8 @@ def getServerLogEx(startTime, endTime) {
     update logFiles set startTime = move(endTime, 1)
     delete from logFiles where endTime != NULL and endTime < startTime_
     delete from logFiles where startTime != NULL and startTime > endTime_
-    ret = table(1:0, `ts`threadId`level`line, [NANOTIMESTAMP, STRING, SYMBOL, BLOB])
+    errorCnt = 0
+    warningCnt = 0
     print(logFiles["filename"])
     for (filename in logFiles["filename"]) {
         print(filename)
@@ -490,12 +493,22 @@ def getServerLogEx(startTime, endTime) {
             levels = tb["line"].split(" ").at(2)
             levels = levels.substr(1, levels.strlen()-2)
             update tb set level = levels
-            reorderColumns!(tb, ret.schema().colDefs.name)
-            ret.append!(tb)
+            if ((ts.last() > startTime_ and ts.first() < startTime_) or (ts.first() < endTime_ and ts.last() > endTime_)) {
+                delete from tb where ts < startTime_ or ts > endTime_
+            }
+            
+            cnt = exec count(*) from tb where level == "ERROR"
+            errorCnt += cnt
+            cnt = exec count(*) from tb where level == "WARNING"
+            warningCnt += cnt
+            print(errorCnt + ", " + warningCnt)
         } while(numByte==maxByteSize);
         fin.close()
     }
-    delete from ret where ts < startTime_ or ts > endTime_
+    ret = table(1:0, `level`count, [STRING, LONG])
+    insert into ret values ("ERROR", errorCnt)
+    insert into ret values ("WARNING", warningCnt)
+    
     return ret
 }
 
@@ -504,12 +517,13 @@ def errorLogs(params) {
     endTime = params["endTime"]
 
     logs = getServerLogEx(startTime, endTime)
-    ret = select count(*) as count from logs where level in params["logLevel"] group by level
+    ret = select * from logs where level in params["logLevel"] and count > 0
+    cnt = exec count(*) from ret where count > 0
 
-    if (ret.size() > 0) {
+    if (cnt > 0) {
         return (false, ret, "请检查该节点的运行日志内容。")
     } else {
-        return (true, NULL, NULL)
+        return (true, ret, NULL)
     }
 }
 '
@@ -518,7 +532,8 @@ params = [
     dict(`name`type, ["endTime", "TIMESTAMP"]),
     dict(`name`type`options, ["logLevel", "SYMBOL", ["ERROR", "WARNING"]])
 ]
-newMetric(name, displayName, group, desc, nodes, script, params)
+version = 1
+newMetric(name, displayName, group, desc, nodes, script, params, version)
 go
 
 name = "queryElapsed"
@@ -534,11 +549,11 @@ def queryElapsed(params) {
     startTime_ = params["startTime"]
     endTime_ = params["endTime"]
     
-    getQueryLogInner = def() {
+    getQueryLogInner = def(startTime_, endTime_) {
 		logDir = getConfig("logFile").split("/")
 		logDir = logDir[:(logDir.size()-1)].concat("/")
         logDir = iif(isNull(logDir), "./", logDir)
-        logFiles = files(logDir, "%_job.log")
+        logFiles = select * from files(logDir, "%_job.log") where isDir == false order by filename asc
         schema = table(
             ["node","userId","sessionId","jobId","rootId","type","level","startTime","endTime","jobDesc","errorMsg"] as name,
             [
@@ -549,28 +564,41 @@ def queryElapsed(params) {
         )
         
 		if (logFiles.size() == 0) {
-			throw "Error: no query log found in " + logDir + ", maybe you haven\'t run any sql yet."
+			throw "Error: no job log found in " + logDir + ", maybe you haven\'t run any sql yet."
 		}
-	
-        logs = table(1:0, schema["name"], schema["type"])
+        addColumn(logFiles, `startTime`endTime, [TIMESTAMP, TIMESTAMP])
+        update logFiles set endTime = temporalParse(substr(filename, 0, 14), "yyyyMMddHHmmss")
+        update logFiles set startTime = move(endTime, 1)
+        if (!isNull(startTime_)) {
+            delete from logFiles where endTime != NULL and endTime < startTime_
+        }
+        if (!isNull(endTime_)) {
+            delete from logFiles where startTime != NULL and startTime > endTime_
+        }
+        
+        ret = table(1:0, schema["name"], schema["type"])
+        addColumn(ret, "elapseMs", DOUBLE)
+        reorderColumns!(ret, ["elapseMs"])
         for (filename in logFiles["filename"]) {
             filePath = logDir + "/" + filename
-            logs.append!(loadText(filePath, schema=schema))
+            logs = loadText(filePath, schema=schema)
+            if (!isNull(startTime_)) {
+                logs = select * from logs where startTime >= nanotimestamp(startTime_)
+            }
+            if (!isNull(endTime_)) {
+                logs = select * from logs where endTime <= nanotimestamp(endTime_)
+            }
+            res = select (endTime - startTime) \\ 1000 \\ 1000 as elapseMs, * from logs where type == "Q" order by (endTime - startTime) desc limit 10
+            ret.append!(res)
         }
 	
-		return logs
+		return ret
 	}
 
     nodes = exec name from rpc(getControllerAlias(), getClusterPerf) where mode != 1 and mode != 2
-    ret = pnodeRun(getQueryLogInner, nodes)
-    if (!isNull(startTime_)) {
-        ret = select * from ret where startTime >= nanotimestamp(startTime_)
-    }
-    if (!isNull(endTime_)) {
-        ret = select * from ret where endTime <= nanotimestamp(endTime_)
-    }
+    ret = pnodeRun(getQueryLogInner{startTime_, endTime_}, nodes)
     
-    res = select (endTime - startTime) \\ 1000 \\ 1000 as elapseMs, * from ret where type == "Q" order by (endTime - startTime) desc limit 10
+    res = select * from ret where type == "Q" order by elapseMs desc limit 10
 	return (true, res, NULL)
 }
 '
@@ -578,7 +606,8 @@ params = [
     dict(`name`type, ["startTime", "TIMESTAMP"]),
     dict(`name`type, ["endTime", "TIMESTAMP"])
 ]
-newMetric(name, displayName, group, desc, nodes, script, params)
+version = 1
+newMetric(name, displayName, group, desc, nodes, script, params, version)
 go
 
 name = "mostQueriedDFSTables"
@@ -598,7 +627,7 @@ def mostQueriedDFSTables(params) {
     startTime_ = params["startTime"]
     endTime_ = params["endTime"]
     
-    getQueryLogInner = def() {
+    getQueryLogInner = def(startTime_, endTime_) {
 		logDir = getConfig("logFile").split("/")
 		logDir = logDir[:(logDir.size()-1)].concat("/")
         logDir = iif(isNull(logDir), "./", logDir)
@@ -610,24 +639,35 @@ def mostQueriedDFSTables(params) {
 		if (logFiles.size() == 0) {
 			throw "Error: no query log found in " + logDir + ", maybe you haven\'t run any sql yet."
 		}
-        logs = table(1:0, schema["name"], schema["type"])
+        addColumn(logFiles, `startTime`endTime, [TIMESTAMP, TIMESTAMP])
+        update logFiles set endTime = temporalParse(substr(filename, 0, 14), "yyyyMMddHHmmss")
+        update logFiles set startTime = move(endTime, 1)
+        if (!isNull(startTime_)) {
+            delete from logFiles where endTime != NULL and endTime < startTime_
+        }
+        if (!isNull(endTime_)) {
+            delete from logFiles where startTime != NULL and startTime > endTime_
+        }
+        
+        ret = table(1:0, `database`table`count, [STRING, STRING, LONG])
         for (filename in logFiles["filename"]) {
             filePath = logDir + "/" + filename
-            logs.append!(loadText(filePath, schema=schema))
+            logs = loadText(filePath, schema=schema)
+            if (!isNull(startTime_)) {
+                logs = select * from logs where time >= nanotimestamp(startTime_)
+            }
+            if (!isNull(endTime_)) {
+                logs = select * from logs where time <= nanotimestamp(endTime_)
+            }
+            delete from logs where database == NULL
+            res = select count(*) as count from logs group by database, table order by count desc limit 10
+            ret.append!(res)
         }
-		return logs
+		return ret
 	}
     nodes = exec name from rpc(getControllerAlias(), getClusterPerf) where mode != 1 and mode != 2
-    ret = pnodeRun(getQueryLogInner, nodes)
-    if (!isNull(startTime_)) {
-        ret = select * from ret where time >= nanotimestamp(startTime_)
-    }
-    if (!isNull(endTime_)) {
-        ret = select * from ret where time <= nanotimestamp(endTime_)
-    }
-    
-    delete from ret where database == NULL
-    ret = select count(*) as count from ret group by database, table order by count desc limit 10
+    ret = pnodeRun(getQueryLogInner{startTime_, endTime_}, nodes) 
+    ret = select sum(count) as count from ret group by database, table order by count desc limit 10
     
 	return (true, ret, NULL)
 }
@@ -636,66 +676,78 @@ params = [
     dict(`name`type, ["startTime", "TIMESTAMP"]),
     dict(`name`type, ["endTime", "TIMESTAMP"])
 ]
-newMetric(name, displayName, group, desc, nodes, script, params)
+version = 1
+newMetric(name, displayName, group, desc, nodes, script, params, version)
 go
 
 name = "DFSTableDiskUsage"
-displayName = "统计数据库大小前10名"
+displayName = "数据库写入量前10名"
 group = "1"
-desc = "统计在指定时间范围内（startTime 到 endTime）有访问记录的数据库大小前10名。
+desc = "统计在指定时间范围内（startTime 到 endTime）数据库写入量前10名。
 参数说明：
 - startTime：TIMESTAMP，统计范围的开始时间，默认值为上次相同方案 ID 的报告的开始时间。
 - endTime：TIMESTAMP，统计范围的结束时间，默认值为当前报告的开始时间。"
 nodes = NULL // NULL 指该指标不能指定节点运行，选择任一数据节点执行
 script = '
-def dfsPath2tableName(dfsPath){
+def dfsPath2tableName(node, chunkId, dfsPath){
     fields=dfsPath.split("/");
-    dbUrl="dfs://"+fields[1];
+    dbUrl="dfs:/" + rpc(node, getDBIdByTabletChunk{chunkId})
     res=exec tableName from listTables(dbUrl) where physicalIndex=last(fields);
     return dbUrl,res[0];
 }
- 
+
 def DFSTableDiskUsage(params) {
-    startTime = params["startTime"]
-    endTime = params["endTime"]
-    res = keyedTable(`dbName`tbName, 1:0, `dbName`tbName, [STRING, STRING])
-    meta = select * from rpc(getControllerAlias(), getClusterChunksStatus) where lastUpdated between startTime and endTime
-    for (item in meta) {
-        dfsPath = item["file"]
-        dbName, tbName = dfsPath2tableName(dfsPath)
-        insert into res values (dbName, tbName)
-    }
-    delete from res where tbName == NULL
-    if (res.size() == 0) {
+    startTime = timestamp(params["startTime"])
+    endTime = timestamp(params["endTime"])
+    meta = select * from rpc(getControllerAlias(), getClusterChunksStatus) where lastUpdated between startTime and endTime and !file.endsWith("domain") and !file.endsWith(".tbl")
+    if (meta.size() == 0) {
         return (true, NULL, NULL)
     }
+    addColumn(meta, `dbName`tbName, [STRING, STRING])
+    dbNames = []$STRING
+    tbNames = []$STRING
+    for (item in meta) {
+        chunkId = item["chunkId"]
+        dfsPath = item["file"]
+        node = item["replicas"].split(",").first().split(":").first()
+        dbName, tbName = dfsPath2tableName(node, chunkId, dfsPath)
+        dbNames.append!(dbName)
+        tbNames.append!(tbName)
+    }
+    update meta set dbName = dbNames
+    update meta set tbName = tbNames
+    
     f = def(item) {
+        // item = meta[0]
+        chunkPath = item["file"]
         dbName = item["dbName"]
         tbName = item["tbName"]
         nodes = exec name from rpc(getControllerAlias(), getClusterPerf) where mode == 0 or mode == 3
-        diskGB = select sum(diskUsage\\1024\\1024\\1024) diskGB
-                    from pnodeRun(getTabletsMeta{"/"+substr(dbName, 6)+"/%", tbName, true, -1}, nodes)
-        diskGB = double(diskGB["diskGB"].first())
+        diskGB = select sum(double(diskUsage)\\1024\\1024\\1024) diskGB
+                    from pnodeRun(getTabletsMeta{chunkPath, tbName, true, -1}, nodes)
+        diskGB = diskGB["diskGB"].first()
         return table(
             dbName as dbName,
             tbName as tbName,
+            chunkPath as chunkPath,
             diskGB as diskGB
         )
     }
-    res_ = unionAll(peach(f, res))
-    delete from res_ where diskGB == 0
-    res_ = select top 10 * from res_ order by diskGB desc
-    if (res_.size() == 0) {
+    ret = unionAll(peach(f, meta), false, true)
+    delete from ret where diskGB == 0 or isNull(diskGB)
+    ret = select sum(diskGB) as diskGB from ret group by dbName, tbName order by diskGB desc limit 10
+    if (ret.size() == 0) {
         return (true, NULL, NULL)
     }
-    return (true, res_, NULL)
+    return (true, ret, NULL)
 }
 '
 params = [
     dict(`name`type, ["startTime", "TIMESTAMP"]),
     dict(`name`type, ["endTime", "TIMESTAMP"])
 ]
-newMetric(name, displayName, group, desc, nodes, script, params)
+version = 1
+newMetric(name, displayName, group, desc, nodes, script, params, version)
 go
 
 name = "biggestChunks"
@@ -707,23 +759,24 @@ desc = "统计在指定时间范围内（startTime 到 endTime）有写入记录
 - endTime：TIMESTAMP，统计范围的结束时间，默认值为当前报告的开始时间。"
 nodes = NULL // NULL 指该指标不能指定节点运行，选择任一数据节点执行
 script = '
-def dfsPath2tableName(dfsPath){
+def dfsPath2tableName(node, chunkId, dfsPath){
     fields=dfsPath.split("/");
-    dbUrl="dfs://"+fields[1];
+    dbUrl="dfs:/" + rpc(node, getDBIdByTabletChunk{chunkId})
     res=exec tableName from listTables(dbUrl) where physicalIndex=last(fields);
     return dbUrl,res[0];
 }
 
 def biggestChunks(params) {
-    startTime = params["startTime"]
-    endTime = params["endTime"]
+    startTime = timestamp(params["startTime"])
+    endTime = timestamp(params["endTime"])
     res = table(1:0, `dbName`tbName`dfsPath`chunkId, [STRING, STRING, STRING, STRING])
     meta = select * from rpc(getControllerAlias(), getClusterChunksStatus) where lastUpdated between startTime and endTime
     
     for (item in meta) {
+        node = item["replicas"].split(",").first().split(":").first()
         chunkId = item["chunkId"]
         dfsPath = item["file"]
-        dbName, tbName = dfsPath2tableName(dfsPath)
+        dbName, tbName = dfsPath2tableName(node, chunkId, dfsPath)
         insert into res values (dbName, tbName, dfsPath, chunkId)
     }
     delete from res where tbName == NULL
@@ -759,23 +812,24 @@ desc = "检查在指定时间范围内（startTime 到 endTime）有写入记录
 - endTime：TIMESTAMP，统计范围的结束时间，默认值为当前报告的开始时间。"
 nodes = NULL // NULL 指该指标不能指定节点运行，选择任一数据节点执行
 script = '
-def dfsPath2tableName(dfsPath){
+def dfsPath2tableName(node, chunkId, dfsPath){
     fields=dfsPath.split("/");
-    dbUrl="dfs://"+fields[1];
+    dbUrl="dfs:/" + rpc(node, getDBIdByTabletChunk{chunkId})
     res=exec tableName from listTables(dbUrl) where physicalIndex=last(fields);
     return dbUrl,res[0];
 }
 
 def sortKeyCount(params) {
-    startTime = params["startTime"]
-    endTime = params["endTime"]
+    startTime = timestamp(params["startTime"])
+    endTime = timestamp(params["endTime"])
     meta = select * from rpc(getControllerAlias(), getClusterChunksStatus) where lastUpdated between startTime and endTime
-    
+
     res = table(1:0, `dbName`tbName`dfsPath`chunkId, [STRING, STRING, STRING, STRING])
     for (item in meta) {
+        node = item["replicas"].split(",").first().split(":").first()
         chunkId = item["chunkId"]
         dfsPath = item["file"]
-        dbName, tbName = dfsPath2tableName(dfsPath)
+        dbName, tbName = dfsPath2tableName(node, chunkId, dfsPath)
         insert into res values (dbName, tbName, dfsPath, chunkId)
     }
     ret = table(1:0, `dbName`tbName`maxSortKeyEntryCount, [STRING, STRING, INT])
@@ -802,7 +856,8 @@ params = [
     dict(`name`type, ["startTime", "TIMESTAMP"]),
     dict(`name`type, ["endTime", "TIMESTAMP"])
 ]
-newMetric(name, displayName, group, desc, nodes, script, params)
+version = 1
+newMetric(name, displayName, group, desc, nodes, script, params, version)
 go
 
 name = "checkConfigs::commonDolphinDBConfig"

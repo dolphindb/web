@@ -5,11 +5,11 @@ import { useState } from 'react'
 
 import { useSWRConfig } from 'swr'
 
-import { language, t } from '@i18n/index.js'
+import { language, t } from '@i18n'
 
 import { access } from '@/access/model.js'
 
-import { model } from '@/model.js'
+import { model } from '@model'
 
 import { NAME_CHECK_PATTERN } from '@/access/constants.js'
 import { use_users } from '@/access/hooks/use-users.ts'

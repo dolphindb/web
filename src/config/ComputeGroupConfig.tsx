@@ -2,7 +2,7 @@ import './index.sass'
 
 import { useEffect, useState, useRef, useCallback, useMemo } from 'react'
 
-import { t } from '@i18n/index.js'
+import { t } from '@i18n'
 
 import { AutoComplete, Button, Popconfirm } from 'antd'
 
@@ -13,7 +13,7 @@ import NiceModal from '@ebay/nice-modal-react'
 
 import useSWR from 'swr'
 
-import { model } from '@/model.js'
+import { model } from '@model'
 
 import { RefreshButton } from '@/components/RefreshButton/index.js'
 
@@ -229,6 +229,25 @@ export function ComputeGroupConfig () {
                                 throw error
                             }
                         },
+                        actionRender: (row, config, defaultDom) => [
+                            defaultDom.save,
+                            <Popconfirm
+                                title={t('确认删除此配置项？')}
+                                key='delete'
+                                onConfirm={async () => {
+                                    try {
+                                        await delete_config(row.key as string)
+                                    } catch (error) {
+                                        model.show_error({ error })
+                                        throw error
+                                    }
+                                }}
+                                okButtonProps={{ danger: true }}
+                            >
+                                <Button variant='link' color='danger'>{t('删除')}</Button>
+                            </Popconfirm>,
+                            defaultDom.cancel
+                        ],
                         deletePopconfirmMessage: t('确认删除此配置项？'),
                         deleteText: <Button variant='link' color='danger'>{t('删除')}</Button>
                     }}

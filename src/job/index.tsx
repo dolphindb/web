@@ -10,11 +10,11 @@ import { ReloadOutlined } from '@ant-design/icons'
 
 import { type DdbObj, format, DdbType } from 'dolphindb/browser.js'
 
-import { language, t } from '@i18n/index.ts'
-
 import { Editor } from '@monaco-editor/react'
 
-import { model, type DdbJob } from '@/model.ts'
+import { language, t } from '@i18n'
+
+import { model, type DdbJob } from '@model'
 
 import { DDBTable } from '@/components/DDBTable/index.tsx'
 import { StatusTag, StatusType } from '@/components/tags/index.tsx'

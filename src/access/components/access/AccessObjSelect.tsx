@@ -1,8 +1,8 @@
 import { Checkbox, Divider, Input, Select, TreeSelect } from 'antd'
 
-import { t } from '@i18n/index.js'
+import { t } from '@i18n'
 
-import { model } from '@/model.ts'
+import { model } from '@model'
 
 import { DATABASES_WITHOUT_CATALOG, NEED_INPUT_ACCESS } from '@/access/constants.js'
 

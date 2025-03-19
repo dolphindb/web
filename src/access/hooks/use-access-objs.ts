@@ -2,7 +2,7 @@
 import useSWR from 'swr'
 
 import { ACCESS_TYPE, NEED_INPUT_ACCESS } from '../constants.tsx'
-import { model } from '@/model.ts'
+import { model } from '@model'
 import { access } from '../model.ts'
 import type { AccessCategory, AccessRole } from '../types.ts'
 

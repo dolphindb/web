@@ -5,9 +5,9 @@ import { useEffect } from 'react'
 import { Form, Input, Button } from 'antd'
 import { LockOutlined, UserOutlined } from '@ant-design/icons'
 
-import { t } from '@i18n/index.ts'
+import { t } from '@i18n'
 
-import { model, shf } from '@/model.ts'
+import { model, shf } from '@model'
 
 import ddb_svg from '@/icons/ddb.svg'
 import ddb_italic_svg from '@/icons/ddb.italic.svg'

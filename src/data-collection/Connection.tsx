@@ -10,7 +10,7 @@ import { DeleteOutlined, EditOutlined, FileTextOutlined, LinkOutlined, PlusCircl
 
 import NiceModal from '@ebay/nice-modal-react'
 
-import { t } from '@i18n/index.js'
+import { t } from '@i18n'
 
 import { ConnectionDetail } from './components/connection-detail/index.tsx'
 import { CreateConnectionModal } from './components/create-connection-modal/index.tsx'

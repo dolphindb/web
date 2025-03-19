@@ -2,18 +2,18 @@ import useSWR from 'swr'
 import './ParserTemplates.scss'
 import { useCallback, useMemo, useState } from 'react'
 
-import { Button, Popconfirm, Tooltip, Typography, message, type TableProps } from 'antd'
+import { Button, Popconfirm, Tooltip, Typography, type TableProps } from 'antd'
 
 import { DeleteOutlined, PlusOutlined } from '@ant-design/icons'
 
 import NiceModal from '@ebay/nice-modal-react'
 
-import { t } from '@i18n/index.js'
+import { t } from '@i18n'
 
 import { format_time } from '@/dashboard/utils.ts'
 
 
-import { model } from '@/model.ts'
+import { model } from '@model'
 
 import { DDBTag } from '@/components/tags/index.tsx'
 
@@ -55,7 +55,7 @@ export function ParserTemplates () {
     const delete_templates = useCallback(async (ids: string[]) => {
         await request('dcp_deleteHandler', { ids })
         set_selected_keys(selected_keys.filter(key => !ids.includes(key)))
-        message.success(t('删除成功'))
+        model.message.success(t('删除成功'))
         refresh()
     }, [ selected_keys ])
     
@@ -153,7 +153,7 @@ export function ParserTemplates () {
             buttons={
                 <>
                     <Button type='primary' icon={<PlusOutlined />} onClick={on_create}>{t('新建')}</Button>
-                    <Button danger onClick={on_batch_delete} icon={<DeleteOutlined/>}>{t('批量删除')}</Button>
+                    <Button disabled={!selected_keys?.length} danger onClick={on_batch_delete} icon={<DeleteOutlined/>}>{t('批量删除')}</Button>
                 </>
             }
             scroll={{ x: '100%' }} 

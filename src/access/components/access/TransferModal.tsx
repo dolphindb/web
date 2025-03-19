@@ -1,7 +1,7 @@
 import { Modal, Transfer, Tag } from 'antd'
 import { useState } from 'react'
 
-import { t } from '@i18n/index.ts'
+import { t } from '@i18n'
 
 type TransferItem = {
     key: string
