@@ -24,7 +24,7 @@ export function DashboardEchartsComponent (props: IProps) {
     /** echarts 父级元素高度不定会使得图表无法填满整个空间，需要监听父元素高度，resize 图表 */
     useEffect(() => {
         chart_ref?.current?.resize()
-    }, [wrapper_size?.height])
+    }, [wrapper_size])
     
     
     useEffect(() => {
