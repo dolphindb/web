@@ -82,3 +82,21 @@
 // 节点详情样式
 .node-detail-item
   margin-bottom: 8px
+
+// 添加流图边的流动效果样式
+.react-flow__edge
+  &.animated
+    path
+      stroke-dasharray: 5, 5
+      animation: flowAnimation 1s linear infinite
+
+  &:hover
+    path
+      stroke-width: 3
+      animation-duration: 0.5s // 悬停时加快动画速度
+
+@keyframes flowAnimation
+  0%
+    stroke-dashoffset: 10
+  100%
+    stroke-dashoffset: 0

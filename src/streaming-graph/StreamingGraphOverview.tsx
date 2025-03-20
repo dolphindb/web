@@ -33,7 +33,12 @@ dagreGraph.setDefaultEdgeLabel(() => ({ }))
 // 设置布局方向为水平方向
 function getLayoutedElements (nodes: Node[], edges: Edge[], direction = 'LR') {
   const isHorizontal = direction === 'LR'
-  dagreGraph.setGraph({ rankdir: direction })
+  dagreGraph.setGraph({ 
+    rankdir: direction,
+    ranksep: 100,  // 减小排之间的距离(之前是150)
+    nodesep: 50,   // 减小同一排中节点之间的距离(之前是80)
+    edgesep: 20    // 减小边之间的最小距离(之前是30)
+  })
   
   // 清除之前的布局
   dagreGraph.nodes().forEach(node => dagreGraph.removeNode(node))
@@ -203,17 +208,19 @@ function StreamingGraphVisualization ({ id }: { id: string }) {
         id: edge.id,
         source: edge.sourceId,
         target: edge.targetId,
-        type: 'smoothstep', // 使用smoothstep类型获得更平滑的连接线，避免穿过节点
+        type: 'smoothstep',
+        animated: true,
         style: { 
-          stroke: '#555', 
+          stroke: '#1890ff',
           strokeWidth: 2,
+          strokeDasharray: '5, 5',
         },
-        labelStyle: { fill: '#888', fontSize: 12 },
+        labelStyle: { fill: '#1890ff', fontSize: 12 },
         markerEnd: {
           type: MarkerType.ArrowClosed,
           width: 15,
           height: 15,
-          color: '#555',
+          color: '#1890ff',
         },
       }))
     
@@ -282,7 +289,12 @@ function StreamingGraphVisualization ({ id }: { id: string }) {
           connectionLineType={ConnectionLineType.SmoothStep}
           defaultEdgeOptions={{
             type: 'smoothstep',
-            style: { stroke: '#555' }
+            animated: true,
+            style: { 
+              stroke: '#1890ff', 
+              strokeWidth: 2,
+              strokeDasharray: '5, 5'
+            }
           }}
         >
           <Background color='#f8f8f8' gap={16} />
