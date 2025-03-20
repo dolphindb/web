@@ -1892,7 +1892,7 @@
     "代理节点不可跳转": {
         "en": "agent nodes cannot navigate"
     },
-    "当前用户未登录，请登陆后再进行启停操作。": {
+    "当前用户未登录，请登录后再进行启停操作。": {
         "en": "Please log in before this operation."
     },
     "CDN 部署时无法使用配置管理": {

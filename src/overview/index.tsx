@@ -115,7 +115,7 @@ export function Overview () {
                                         loading: isStartLoading
                                     }}
                                 >
-                                    <Tooltip title={selectedNodes.length && !logined ? t('当前用户未登录，请登陆后再进行启停操作。') : ''}>
+                                    <Tooltip title={selectedNodes.length && !logined ? t('当前用户未登录，请登录后再进行启停操作。') : ''}>
                                         <Button
                                             block
                                             loading={isStartLoading}
@@ -172,7 +172,7 @@ export function Overview () {
                                         loading: isStopLoading
                                     }}
                                 >
-                                    <Tooltip title={selectedNodes.length && !logined ? t('当前用户未登录，请登陆后再进行启停操作。') : ''}>
+                                    <Tooltip title={selectedNodes.length && !logined ? t('当前用户未登录，请登录后再进行启停操作。') : ''}>
                                         <Button
                                            
                                             block
