@@ -3,7 +3,7 @@ import * as echarts from 'echarts'
 import { useEffect, useRef } from 'react'
 import { useSize } from 'ahooks'
 
-import chart_config from '../chart.config.json' with { type: 'json' }
+import chart_config from '@/dashboard/chart.config.json' with { type: 'json' }
 
 
 interface IProps {

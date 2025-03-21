@@ -1,6 +1,6 @@
 {
     "version": 1,
-    "themeName": "my-theme",
+    "themeName": "dashboard",
     "theme": {
         "seriesCnt": "4",
         "backgroundColor": "#282828",
