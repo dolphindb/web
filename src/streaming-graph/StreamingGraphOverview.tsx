@@ -1,4 +1,4 @@
-import { Card, Typography, Empty, Drawer, Descriptions } from 'antd'
+import { Card, Typography, Empty, Drawer, Descriptions, Table } from 'antd'
 import useSWR from 'swr'
 import { useCallback, useEffect, useState } from 'react'
 import ReactFlow, {
@@ -21,7 +21,7 @@ import 'reactflow/dist/style.css'
 
 import './streaming-graph.sass'
 
-import { getStreamGraphInfo } from './apis.ts'
+import { defGetTaskSubWorkerStat, getStreamGraphInfo, getTaskSubWorkerStat } from './apis.ts'
 import { type StreamGraph, type GraphNode, type GraphEdge } from './types.ts'
 
 const { Text } = Typography
@@ -82,6 +82,7 @@ interface ProcessedNode {
   schema: string
   width: number
   height: number
+  subgraphId: string
 }
 
 interface ProcessedEdge {
@@ -172,7 +173,8 @@ function StreamingGraphVisualization ({ id }: { id: string }) {
         taskId: node.taskId,
         schema: node.properties?.schema || '',
         width: 180,
-        height: 100
+        height: 100,
+        subgraphId: node.subgraphId.toString()
       }
     })
     
@@ -198,7 +200,8 @@ function StreamingGraphVisualization ({ id }: { id: string }) {
         taskId: node.taskId,
         schema: node.schema,
         width: node.width,
-        height: node.height
+        height: node.height,
+        subgraphId: node.subgraphId
       },
       type: 'customNode',
       style: { width: node.width, height: node.height }
@@ -230,7 +233,54 @@ function StreamingGraphVisualization ({ id }: { id: string }) {
       reactFlowEdges
     )
     
-    return { nodes: layoutedNodes, edges: layoutedEdges }
+    // Group nodes by subgraphId for subgraph containers
+    const subgraphGroups = layoutedNodes.reduce((groups, node) => {
+      const subgraphId = node.data.subgraphId;
+      if (!groups[subgraphId]) {
+        groups[subgraphId] = [];
+      }
+      groups[subgraphId].push(node);
+      return groups;
+    }, {});
+    
+    // Create subgraph container nodes
+    const subgraphContainers: Node[] = Object.entries(subgraphGroups).map(([subgraphId, groupNodes]: [string, Node[]]) => {
+      // Find boundaries of the group
+      const nodePositions = groupNodes.map(node => ({
+        left: node.position.x,
+        right: node.position.x + Number(node.style?.width || 180),
+        top: node.position.y,
+        bottom: node.position.y + Number(node.style?.height || 100)
+      }));
+      
+      const left = Math.min(...nodePositions.map(pos => pos.left)) - 20;
+      const right = Math.max(...nodePositions.map(pos => pos.right)) + 20;
+      const top = Math.min(...nodePositions.map(pos => pos.top)) - 40; // Extra space for the label
+      const bottom = Math.max(...nodePositions.map(pos => pos.bottom)) + 20;
+      
+      return {
+        id: `subgraph-${subgraphId}`,
+        type: 'subgraphContainer',
+        position: { x: left, y: top },
+        style: {
+          width: right - left,
+          height: bottom - top,
+          backgroundColor: `rgba(${parseInt(subgraphId) * 50 % 255}, ${parseInt(subgraphId) * 30 % 255}, ${parseInt(subgraphId) * 70 % 255}, 0.1)`,
+          border: '1px dashed rgba(0,0,0,0.2)',
+          borderRadius: '8px',
+          zIndex: -1 // Place behind nodes
+        },
+        data: {
+          label: `Subgraph ${subgraphId}`,
+          subgraphId
+        }
+      };
+    });
+    
+    return { 
+      nodes: [...subgraphContainers, ...layoutedNodes], 
+      edges: layoutedEdges 
+    };
   }, [ ])
   
   // 数据加载后更新图
@@ -258,7 +308,7 @@ function StreamingGraphVisualization ({ id }: { id: string }) {
     
     const nodeData = selectedNode.data
     return <div>
-        <Descriptions bordered>
+        <Descriptions bordered column={2}>
           <Descriptions.Item label='ID'>{selectedNode.id}</Descriptions.Item>
           <Descriptions.Item label='Type'>{nodeData.subType}</Descriptions.Item>
           <Descriptions.Item label='Name'>{nodeData.label}</Descriptions.Item>
@@ -278,31 +328,29 @@ function StreamingGraphVisualization ({ id }: { id: string }) {
       return <Empty description='' />
   
   return <div className='streaming-graph-page'>
-      <div style={{ height: 600, width: '100%', border: '1px solid #ddd', borderRadius: '4px' }}>
-        <ReactFlow
-          nodes={nodes}
-          edges={edges}
-          onNodeClick={onNodeClick}
-          nodeTypes={nodeTypes}
-          fitView
-          attributionPosition='bottom-right'
-          connectionLineType={ConnectionLineType.SmoothStep}
-          defaultEdgeOptions={{
-            type: 'smoothstep',
-            animated: true,
-            style: { 
-              stroke: '#1890ff', 
-              strokeWidth: 2,
-              strokeDasharray: '5, 5'
-            }
-          }}
-        >
-          <Background color='#f8f8f8' gap={16} />
-          <Controls showInteractive={false} />
-        </ReactFlow>
-      </div>
-      
-      {/* 节点详情抽屉 */}
+    <div style={{ height: 300, width: '100%', border: '1px solid #ddd', borderRadius: '4px', position: 'relative', overflow: 'hidden' }}>
+      <ReactFlow
+        nodes={nodes}
+        edges={edges}
+        onNodeClick={onNodeClick}
+        nodeTypes={nodeTypes}
+        fitView
+        attributionPosition='bottom-right'
+        connectionLineType={ConnectionLineType.SmoothStep}
+        defaultEdgeOptions={{
+          type: 'smoothstep',
+          animated: true,
+          style: { 
+            stroke: '#1890ff', 
+            strokeWidth: 2,
+            strokeDasharray: '5, 5'
+          }
+        }}
+      >
+        <Background color='#f8f8f8' gap={16} />
+        <Controls showInteractive={false} />
+      </ReactFlow>
+      {/* Node details drawer - contained within the flow container */}
       <Drawer
         title='Node Details'
         placement='right'
@@ -314,11 +362,71 @@ function StreamingGraphVisualization ({ id }: { id: string }) {
         {renderNodeDetails()}
       </Drawer>
     </div>
+  </div>
 }
 
-// 导出主组件，包装在 ReactFlowProvider 中
+// Task Subscription Worker Status Table component
+function TaskSubWorkerStatTable({ id }: { id: string }) {
+  const { data, error, isLoading } = useSWR(
+    ['getTaskSubWorkerStat', id],
+    async () => {
+      await defGetTaskSubWorkerStat()
+      return getTaskSubWorkerStat(id)
+    }
+  )
+
+  if (isLoading)
+    return <Card loading />
+
+  if (error)
+    return <Text type='danger'>Failed to load subscription worker data: {error.message}</Text>
+
+  if (!data || data.length === 0)
+    return <Empty description='No subscription worker data available' />
+
+  // Extract columns from data
+  const columns = Object.keys(data[0]).map(key => ({
+    title: key,
+    dataIndex: key,
+    key: key,
+    render: (text: any) => {
+      if (typeof text === 'object') return JSON.stringify(text)
+      return <span>{text}</span>
+    }
+  }))
+
+  return (
+    <Card title="Task Subscription Worker Statistics" style={{ marginTop: 16 }}>
+      <Table 
+        dataSource={data} 
+        columns={columns} 
+        rowKey={(record, index) => index.toString()}
+        pagination={{ 
+          defaultPageSize: 5, 
+          showSizeChanger: true,
+          showQuickJumper: true
+        }}
+        scroll={{ x: 'max-content' }}
+        size="small"
+      />
+    </Card>
+  )
+}
+
+// Export main component with ReactFlowProvider
 export function StreamingGraphOverview ({ id }: StreamingGraphOverviewProps) {
   return <ReactFlowProvider>
       <StreamingGraphVisualization id={id} />
+      <TaskSubWorkerStatTable id={id} />
     </ReactFlowProvider>
 }
+
+// Add a SubgraphContainer component
+function SubgraphContainer({ data }: NodeProps) {
+  return (
+    <div className="subgraph-container">
+      <div className="subgraph-label">{data.label}</div>
+    </div>
+  );
+}
+
