@@ -3,6 +3,8 @@ import * as echarts from 'echarts'
 import { useEffect, useRef } from 'react'
 import { useSize } from 'ahooks'
 
+import chart_config from '../chart.config.json' with { type: 'json' }
+
 
 interface IProps {
     options: echarts.EChartsOption
@@ -29,7 +31,7 @@ export function DashboardEchartsComponent (props: IProps) {
     
     useEffect(() => {
         if (!chart_ref.current) {
-            chart_ref.current = echarts.init(div_ref.current, 'my-theme')
+            chart_ref.current = echarts.init(div_ref.current, chart_config.themeName)
             on_chart_ready?.(chart_ref.current)
             chart_ref.current.setOption(options)
         } else

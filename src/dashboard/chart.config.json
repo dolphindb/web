@@ -1,6 +1,6 @@
 {
     "version": 1,
-    "themeName": "dark",
+    "themeName": "my-theme",
     "theme": {
         "seriesCnt": "4",
         "backgroundColor": "#282828",
