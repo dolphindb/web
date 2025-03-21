@@ -303,7 +303,7 @@ export function convert_chart_config (
             },
             min: [AxisType.TIME, AxisType.VALUE].includes(axis.type) ? axis.min : undefined,
             max: [AxisType.TIME, AxisType.VALUE].includes(axis.type) ? axis.max : undefined
-        } 
+        }
         
         return axis_config
     }
