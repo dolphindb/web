@@ -23,6 +23,7 @@ import './streaming-graph.sass'
 
 import { defGetTaskSubWorkerStat, getStreamGraphInfo, getTaskSubWorkerStat } from './apis.ts'
 import { type StreamGraph, type GraphNode, type GraphEdge } from './types.ts'
+import { NodeDetailsComponent } from './NodeDetailsComponent.tsx'
 
 const { Text } = Typography
 
@@ -301,23 +302,6 @@ function StreamingGraphVisualization ({ id }: { id: string }) {
     
   }, [data, processGraphData, convertToReactFlowFormat, setNodes, setEdges])
   
-  // 显示节点详情的渲染函数
-  function renderNodeDetails () {
-    if (!selectedNode)
-        return null
-    
-    const nodeData = selectedNode.data
-    return <div>
-        <Descriptions bordered column={2}>
-          <Descriptions.Item label='ID'>{selectedNode.id}</Descriptions.Item>
-          <Descriptions.Item label='Type'>{nodeData.subType}</Descriptions.Item>
-          <Descriptions.Item label='Name'>{nodeData.label}</Descriptions.Item>
-          <Descriptions.Item label='Task ID'>{nodeData.taskId}</Descriptions.Item>
-          <Descriptions.Item label='Schema' span={3}>{nodeData.schema}</Descriptions.Item>
-        </Descriptions>
-      </div>
-  }
-  
   if (isLoading)
       return <Card loading />
   
@@ -328,7 +312,7 @@ function StreamingGraphVisualization ({ id }: { id: string }) {
       return <Empty description='' />
   
   return <div className='streaming-graph-page'>
-    <div style={{ height: 300, width: '100%', border: '1px solid #ddd', borderRadius: '4px', position: 'relative', overflow: 'hidden' }}>
+    <div style={{ height: 400, width: '100%', border: '1px solid #ddd', borderRadius: '4px', position: 'relative', overflow: 'hidden' }}>
       <ReactFlow
         nodes={nodes}
         edges={edges}
@@ -352,14 +336,14 @@ function StreamingGraphVisualization ({ id }: { id: string }) {
       </ReactFlow>
       {/* Node details drawer - contained within the flow container */}
       <Drawer
-        title='Node Details'
+        title='Details'
         placement='right'
         getContainer={false}
-        width='auto'
+        width='50%'
         onClose={() => { setDrawerVisible(false) }}
         open={drawerVisible}
       >
-        {renderNodeDetails()}
+        <NodeDetailsComponent selectedNode={selectedNode} id={id} />
       </Drawer>
     </div>
   </div>
@@ -421,12 +405,4 @@ export function StreamingGraphOverview ({ id }: StreamingGraphOverviewProps) {
     </ReactFlowProvider>
 }
 
-// Add a SubgraphContainer component
-function SubgraphContainer({ data }: NodeProps) {
-  return (
-    <div className="subgraph-container">
-      <div className="subgraph-label">{data.label}</div>
-    </div>
-  );
-}
 
