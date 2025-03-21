@@ -29,7 +29,7 @@ export function DashboardEchartsComponent (props: IProps) {
     
     useEffect(() => {
         if (!chart_ref.current) {
-            chart_ref.current = echarts.init(div_ref.current)
+            chart_ref.current = echarts.init(div_ref.current, 'my-theme')
             on_chart_ready?.(chart_ref.current)
             chart_ref.current.setOption(options)
         } else
