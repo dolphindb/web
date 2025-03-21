@@ -29,7 +29,7 @@ import config from './chart.config.json' with { type: 'json' }
 import backend from './backend.dos'
 
 
-echarts.registerTheme('my-theme', config.theme)
+echarts.registerTheme(config.themeName, config.theme)
 
 
 /** 基于 GridStack.js 开发的拖拽图表可视化面板  
