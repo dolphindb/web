@@ -78,7 +78,7 @@ export function JobTable () {
         const running = record.tasks.filter(task => task.status === 'running').length
         
         return <div style={{ display: 'flex', alignItems: 'center' }}>
-            <Tooltip title={t('总任务数')}>
+            <Tooltip title={t('Total Tasks')}>
               <div style={{ 
                 backgroundColor: '#333', 
                 color: 'white', 
@@ -91,7 +91,7 @@ export function JobTable () {
             </Tooltip>
             
             {running > 0 && (
-              <Tooltip title={t('运行中任务数')}>
+              <Tooltip title={t('Running Tasks')}>
                 <div style={{ 
                   backgroundColor: '#52c41a', 
                   color: 'white', 
