@@ -1,11 +1,12 @@
 
 import useSWR from 'swr'
 
-import { model } from '@/model.ts'
+import { model } from '@model'
 import { access } from '../model.ts'
 import type { AccessCategory, AccessRole } from '../types.ts'
 import { config } from '@/config/model.ts'
 import { strs_2_nodes } from '@/config/utils.ts'
+import { unique } from 'xshell/utils.browser'
 
 export function use_access_objs (role: AccessRole, category: AccessCategory) {
     const { v3 } = model 
@@ -25,9 +26,11 @@ export function use_access_objs (role: AccessRole, category: AccessCategory) {
                 case 'stream':
                     return access.get_stream_tables()
                 case 'compute_group':
-                    const result = await config.get_cluster_nodes() 
-                    const nodes = strs_2_nodes(result)
-                    return [...new Set([...nodes.map(node => node.computeGroup).filter(Boolean)])]
+                    return unique(
+                        strs_2_nodes(
+                            await config.get_cluster_nodes() 
+                        ).map(node => node.computeGroup)
+                        .filter(Boolean))
                 case 'script':
                     return [ ]
             }

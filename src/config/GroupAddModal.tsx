@@ -5,7 +5,7 @@ import { useCallback, useEffect, useState } from 'react'
 
 import { model } from '@model'
 
-import { t } from '../../i18n/index.js'
+import { t } from '@i18n'
 
  
 import { config, validate_config } from './model.ts'
