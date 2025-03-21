@@ -47,7 +47,14 @@ export function AccessManage ({ role, name, category }: { role: AccessRole, name
     const reset_selected = useCallback(() => { set_selected_access([ ]) }, [ ])
     
     const showed_aces_types = useMemo(
-        () => (category === 'database' ? (v3 ? ACCESS_OPTIONS.catalog :  ACCESS_OPTIONS.database) : ACCESS_TYPE[category]).filter(ac => ac !== 'TABLE_WRITE'),
+        () => {
+            switch (category) {
+                case 'database':
+                    return v3 ? ACCESS_OPTIONS.catalog :  ACCESS_OPTIONS.database
+                default:
+                    return ACCESS_TYPE[category].filter(ac => ac !== 'TABLE_WRITE')
+            }
+        },
         [category]
     )
     useEffect(reset_selected, [role, name])
@@ -109,7 +116,7 @@ export function AccessManage ({ role, name, category }: { role: AccessRole, name
             return [ ]
         let tb_rows = [ ]
         for (let [k, v] of Object.entries(accesses as Record<string, any>))
-            if (v && v !== 'none') 
+            if (v && v !== 'none')
                 if (category === 'script' && showed_aces_types.includes(k))
                     tb_rows.push({
                         key: k,
@@ -130,6 +137,7 @@ export function AccessManage ({ role, name, category }: { role: AccessRole, name
                     showed_aces_types.map(aces => aces + '_denied').includes(k)
                 ) {
                     let objs = v.split(',')
+                    
                     if (category === 'database')
                         objs = objs.filter((obj: string) => !shared_tables.includes(obj) && !stream_tables.includes(obj))
                     if (category === 'shared')

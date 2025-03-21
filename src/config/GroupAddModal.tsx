@@ -3,9 +3,10 @@ import { AutoComplete, Button, Input, Modal, Table, Tooltip, type TableProps } f
 
 import { useCallback, useEffect, useState } from 'react'
 
-import { t } from '../../i18n/index.js'
-
 import { model } from '@model'
+
+import { t } from '@i18n'
+
  
 import { config, validate_config } from './model.ts'
 import { strs_2_nodes } from './utils.ts'
