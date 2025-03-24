@@ -35,7 +35,7 @@ export function use_access_objs (role: AccessRole, category: AccessCategory) {
                         ).map(node => node.computeGroup)
                         .filter(Boolean))
                 case 'script':
-                    return ACCESS_TYPE.script
+                    return role === 'user' ? ACCESS_TYPE.script : ACCESS_TYPE.script.filter(ac => !ac.endsWith('_LIMIT'))
             }
         }
     )

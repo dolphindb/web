@@ -78,7 +78,7 @@ export function AccessList ({ role, name, category }: { role: AccessRole, name: 
                 title: v3 && category === 'database' ?  TABLE_NAMES.catalog : TABLE_NAMES[category],
                 dataIndex: 'name',
                 key: 'name',
-                width: 200
+                width: 240
             },
             ...(category !== 'script'
                 ? (category === 'database' 
