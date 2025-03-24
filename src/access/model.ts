@@ -66,7 +66,8 @@ enum Access {
     SCHEMA_WRITE = 34,
     SCHEMA_INSERT = 35,
     SCHEMA_UPDATE = 36,
-    SCHEMA_DELETE = 37
+    SCHEMA_DELETE = 37,
+    COMPUTE_GROUP_EXEC = 38
 }
 
 class AccessModel extends Model<AccessModel> {

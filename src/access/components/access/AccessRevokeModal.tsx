@@ -4,6 +4,7 @@ import { Modal, Tooltip } from 'antd'
 import { t } from '@i18n'
 
 import { model } from '@model'
+
 import { access } from '@/access/model.ts'
 
 
@@ -33,6 +34,7 @@ export const AccessRevokeModal = NiceModal.create(({
             open={modal.visible}
             onCancel={modal.hide}
             afterClose={modal.remove}
+            okButtonProps={{ danger: true }}
             onOk={async () => {
                     await Promise.all(
                         selected_access.map(async ac => {

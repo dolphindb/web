@@ -11,6 +11,8 @@ import { QuestionCircleOutlined } from '@ant-design/icons'
 
 import useSWR from 'swr'
 
+import { model } from '@model'
+
 import { t } from '../../../../i18n/index.js'
 import { Protocol, type ISubscribe } from '../../type.js'
 import { safe_json_parse } from '../../../dashboard/utils.ts'
@@ -20,7 +22,6 @@ import { create_subscribe, edit_subscribe, get_parser_templates } from '../../ap
 
 import { NodeSelect } from '../../../components/node-select/index.js'
 
-import { model } from '@model'
 
 import { NAME_RULES } from '@/data-collection/constant.js'
 
@@ -42,6 +43,7 @@ const title_map = {
     edit: t('修改订阅'),
     view: t('查看订阅')
 }
+
 
 export const CreateSubscribeModal = NiceModal.create((props: IProps) => {
     const { edited_subscribe, connection_id, refresh, protocol, mode } = props
@@ -135,6 +137,7 @@ export const CreateSubscribeModal = NiceModal.create((props: IProps) => {
         afterClose={modal.remove} 
         title={title_map[mode]}
         onOk={form.submit}
+        footer={mode === 'view' ? null : undefined}
         destroyOnClose
     >
         <Form 

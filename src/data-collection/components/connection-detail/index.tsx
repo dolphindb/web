@@ -22,6 +22,8 @@ import dayjs from 'dayjs'
 
 import { t } from '@i18n'
 
+import { model } from '@model'
+
 import { request } from '@/data-collection/utils.ts'
 
 import { PROTOCOL_MAP } from '@/data-collection/constant.ts'
@@ -34,7 +36,6 @@ import { DDBTable } from '@/components/DDBTable/index.tsx'
 
 import { TableOperations } from '@/components/TableOperations/index.tsx'
 
-import { model } from '@model'
 
 import { DeleteDescribeModal } from './delete-describe-modal.tsx'
 import { TemplateViewModal } from './parser-template-view-modal.tsx'
@@ -137,7 +138,7 @@ export function ConnectionDetail (props: IProps) {
             title: t('主题', { context: 'data_collection' }),
             dataIndex: 'topic',
             key: 'topic',
-            width: 100,
+            width: 150,
             ellipsis: true,
         },
         {
@@ -153,23 +154,6 @@ export function ConnectionDetail (props: IProps) {
             }
         },
         {
-            title: t('节点'),
-            dataIndex: 'subNode',
-            width: 200,
-        },
-        {
-            title: t('创建时间'),
-            dataIndex: 'createTime',
-            width: 200,
-            sorter: (a, b ) => dayjs(a.createTime).valueOf() - dayjs(b.createTime).valueOf()
-        },
-        {
-            title: t('更新时间'),
-            dataIndex: 'updateTime',
-            width: 200,
-            sorter: (a, b) => dayjs(a.updateTime).valueOf() - dayjs(b.updateTime).valueOf()
-        },
-        {
             title: t('是否启用'),
             dataIndex: 'status',
             width: 120,
@@ -180,6 +164,23 @@ export function ConnectionDetail (props: IProps) {
             >
                 <Switch checked={status === 1}/>
             </Popconfirm>
+        },
+        {
+            title: t('节点'),
+            dataIndex: 'subNode',
+            width: 120,
+        },
+        {
+            title: t('创建时间'),
+            dataIndex: 'createTime',
+            width: 180,
+            sorter: (a, b ) => dayjs(a.createTime).valueOf() - dayjs(b.createTime).valueOf()
+        },
+        {
+            title: t('更新时间'),
+            dataIndex: 'updateTime',
+            width: 180,
+            sorter: (a, b) => dayjs(a.updateTime).valueOf() - dayjs(b.updateTime).valueOf()
         },
         {
             title: t('操作'),

@@ -72,6 +72,11 @@ export function AccessTabs ({
                     children: get_access_view('function_view')
                 },
                 {
+                    key: 'compute_group',
+                    label: t('计算组'),
+                    children: get_access_view('compute_group')
+                },
+                {
                     key: 'script',
                     label: t('全局权限'),
                     children: get_access_view('script')
