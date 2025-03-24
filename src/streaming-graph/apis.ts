@@ -47,6 +47,5 @@ export async function defGetTaskSubWorkerStat (): Promise<void> {
 }
 
 export async function getTaskSubWorkerStat (name: string): Promise<TaskSubWorkerStat[]> {
-    await model.ddb.execute('use catalog demo')
     return (await model.ddb.invoke('getTaskSubWorkerStat', [ name ])).data
 }

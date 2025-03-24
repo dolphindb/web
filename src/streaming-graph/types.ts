@@ -134,9 +134,9 @@ export interface NodeParallelism {
     lastErrMsg: string
     msgAsTable: boolean
     batchSize: number
-    throttle:number
+    throttle: number
     hash: string
-    filter:string
+    filter: string
     persistOffset: number
     timeTrigger: string
     handlerNeedMsgId: string

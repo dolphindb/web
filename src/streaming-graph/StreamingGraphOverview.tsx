@@ -1,4 +1,4 @@
-import { Card, Typography, Empty, Drawer, Descriptions, Table } from 'antd'
+import { Card, Typography, Empty, Drawer, Descriptions, Table, Tooltip } from 'antd'
 import useSWR from 'swr'
 import { useCallback, useEffect, useState } from 'react'
 import ReactFlow, {
@@ -32,10 +32,9 @@ const dagreGraph = new dagre.graphlib.Graph()
 dagreGraph.setDefaultEdgeLabel(() => ({ }))
 
 // 设置布局方向为水平方向
-function getLayoutedElements (nodes: Node[], edges: Edge[], direction = 'LR') {
-  const isHorizontal = direction === 'LR'
+function getLayoutedElements (nodes: Node[], edges: Edge[]) {
   dagreGraph.setGraph({ 
-    rankdir: direction,
+    rankdir: 'LR',
     ranksep: 100,  // 减小排之间的距离(之前是150)
     nodesep: 50,   // 减小同一排中节点之间的距离(之前是80)
     edgesep: 20    // 减小边之间的最小距离(之前是30)
@@ -236,13 +235,13 @@ function StreamingGraphVisualization ({ id }: { id: string }) {
     
     // Group nodes by subgraphId for subgraph containers
     const subgraphGroups = layoutedNodes.reduce((groups, node) => {
-      const subgraphId = node.data.subgraphId;
-      if (!groups[subgraphId]) {
-        groups[subgraphId] = [];
-      }
-      groups[subgraphId].push(node);
-      return groups;
-    }, {});
+      const subgraphId = node.data.subgraphId
+      if (!groups[subgraphId])
+          groups[subgraphId] = [ ]
+      
+      groups[subgraphId].push(node)
+      return groups
+    }, { })
     
     // Create subgraph container nodes
     const subgraphContainers: Node[] = Object.entries(subgraphGroups).map(([subgraphId, groupNodes]: [string, Node[]]) => {
@@ -252,12 +251,12 @@ function StreamingGraphVisualization ({ id }: { id: string }) {
         right: node.position.x + Number(node.style?.width || 180),
         top: node.position.y,
         bottom: node.position.y + Number(node.style?.height || 100)
-      }));
+      }))
       
-      const left = Math.min(...nodePositions.map(pos => pos.left)) - 20;
-      const right = Math.max(...nodePositions.map(pos => pos.right)) + 20;
-      const top = Math.min(...nodePositions.map(pos => pos.top)) - 40; // Extra space for the label
-      const bottom = Math.max(...nodePositions.map(pos => pos.bottom)) + 20;
+      const left = Math.min(...nodePositions.map(pos => pos.left)) - 20
+      const right = Math.max(...nodePositions.map(pos => pos.right)) + 20
+      const top = Math.min(...nodePositions.map(pos => pos.top)) - 40 // Extra space for the label
+      const bottom = Math.max(...nodePositions.map(pos => pos.bottom)) + 20
       
       return {
         id: `subgraph-${subgraphId}`,
@@ -275,13 +274,12 @@ function StreamingGraphVisualization ({ id }: { id: string }) {
           label: `Subgraph ${subgraphId}`,
           subgraphId
         }
-      };
-    });
-    
-    return { 
+      }
+    })
+return { 
       nodes: [...subgraphContainers, ...layoutedNodes], 
       edges: layoutedEdges 
-    };
+    }
   }, [ ])
   
   // 数据加载后更新图
@@ -350,7 +348,7 @@ function StreamingGraphVisualization ({ id }: { id: string }) {
 }
 
 // Task Subscription Worker Status Table component
-function TaskSubWorkerStatTable({ id }: { id: string }) {
+function TaskSubWorkerStatTable ({ id }: { id: string }) {
   const { data, error, isLoading } = useSWR(
     ['getTaskSubWorkerStat', id],
     async () => {
@@ -358,29 +356,34 @@ function TaskSubWorkerStatTable({ id }: { id: string }) {
       return getTaskSubWorkerStat(id)
     }
   )
-
+  
   if (isLoading)
-    return <Card loading />
-
+      return <Card loading />
+    
   if (error)
-    return <Text type='danger'>Failed to load subscription worker data: {error.message}</Text>
-
+      return <Text type='danger'>Failed to load subscription worker data: {error.message}</Text>
+    
   if (!data || data.length === 0)
-    return <Empty description='No subscription worker data available' />
-
+      return <Empty description='No subscription worker data available' />
+    
   // Extract columns from data
   const columns = Object.keys(data[0]).map(key => ({
     title: key,
     dataIndex: key,
     key: key,
     render: (text: any) => {
-      if (typeof text === 'object') return JSON.stringify(text)
-      return <span>{text}</span>
+      if (typeof text === 'object')
+          text = JSON.stringify(text)
+      
+      return <Tooltip placement='topLeft' title={text}>
+        <span style={{ overflow: 'hidden', maxWidth: 100, textOverflow: 'ellipsis', whiteSpace: 'nowrap', display: 'block' }}>
+          {text}
+        </span>
+      </Tooltip>
     }
   }))
-
-  return (
-    <Card title="Task Subscription Worker Statistics" style={{ marginTop: 16 }}>
+  
+  return <Card title='Task Subscription Worker Statistics' style={{ marginTop: 16 }}>
       <Table 
         dataSource={data} 
         columns={columns} 
@@ -391,10 +394,9 @@ function TaskSubWorkerStatTable({ id }: { id: string }) {
           showQuickJumper: true
         }}
         scroll={{ x: 'max-content' }}
-        size="small"
+        size='small'
       />
     </Card>
-  )
 }
 
 // Export main component with ReactFlowProvider
