@@ -6,7 +6,7 @@ import type { AccessRole } from '@/access/types.js'
 
 export function use_access (role: AccessRole, name: string, final: boolean = false) {
   return useSWR(
-    ['accesses', role, name],
+    ['accesses', role, name, final],
     async () => {
       if (role === 'user')
           return (await access.get_user_access([name], final))[0]
