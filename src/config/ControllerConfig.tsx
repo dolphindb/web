@@ -101,7 +101,6 @@ export function ControllerConfig () {
         const new_configs = _2_strs(configs).filter(cfg => cfg !== config_id)
         await config.save_controller_configs(new_configs)
         actionRef.current.reload()
-        actionRef.current.clearSelected()
     }, [configs])
     
     return <EditableProTable
