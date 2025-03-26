@@ -4,7 +4,7 @@
 
 // 自定义节点样式
 .react-flow-node
-  border: 1px solid #1a192b
+  border: 1px solid #033495
   border-radius: 6px
   padding: 8px
   display: flex
@@ -41,14 +41,14 @@
     white-space: nowrap
     overflow: hidden
     text-overflow: ellipsis
-    margin-bottom: 5px
     font-weight: 500
     font-size: 11px
     line-height: 1.2
+    padding-bottom: 2px
+    border-bottom: 1px dashed rgba(0,0,0,0.1)
 
   .node-task
     font-size: 10px
-    margin-bottom: 3px
     white-space: nowrap
     overflow: hidden
     text-overflow: ellipsis
@@ -56,28 +56,33 @@
   .node-schema
     font-size: 9px
     opacity: 0.7
+    // white-space: nowrap
+    // overflow: hidden
+    // text-overflow: ellipsis
+    // font-family: monospace
+    background: rgba(0,0,0,0.03)
+    border-radius: 3px
+    margin-top: auto
+
+  .node-logical
+    font-size: 10px
     white-space: nowrap
     overflow: hidden
     text-overflow: ellipsis
-    font-family: monospace
-    background: rgba(0,0,0,0.03)
-    padding: 1px 3px
-    border-radius: 3px
-    margin-top: auto
 
 // 节点类型样式
 .node-type
   &-TABLE
-    background-color: #b6e6ff
+    background-color: #aee4ff
 
   &-CHANNEL
-    background-color: #f8c6ff
+    background-color: #ffb8d0
 
   &-REACTIVE_STATE_ENGINE
-    background-color: #c6ffdd
+    background-color: #fee5e1
 
   &-DEFAULT
-    background-color: #f0f0f0
+    background-color: #6a9cfd
 
 // 节点详情样式
 .node-detail-item
@@ -107,8 +112,8 @@
   position: absolute
   
   .subgraph-label
-    font-size: 12px
-    font-weight: bold
+    font-size: 16px
+    font-weight: 800
     padding: 5px 8px
     background-color: rgba(255, 255, 255, 0.8)
     border-radius: 4px
@@ -116,3 +121,13 @@
     position: absolute
     top: 5px
     left: 5px
+
+.node-state-icon
+  margin-left: 5px
+  display: inline-flex
+  align-items: center
+  justify-content: center
+
+// 边样式
+.react-flow__edge-path
+  stroke-width: 2px

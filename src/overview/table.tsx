@@ -16,7 +16,7 @@ import { DDBTable } from '@/components/DDBTable/index.tsx'
 
 import { ns2ms } from './utils.ts'
 
-const node_state_icons = [
+export const node_state_icons = [
     <MinusCircleOutlined style={{ color: 'red' }} />,
     <CheckCircleOutlined style={{ color: 'green' }} />,
     <PauseCircleOutlined style={{ color: 'orange' }} />

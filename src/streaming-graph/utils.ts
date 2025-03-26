@@ -11,6 +11,7 @@ export function parseStreamGraphMeta (rawData: any): StreamGraphMeta {
 export function parseStreamGraphInfo (rawData: any): StreamGraphInfo {
     return {
       ...rawData,
-      graph: JSON.parse(rawData.graph)
+      graph: JSON.parse(rawData.graph),
+      meta: JSON.parse(rawData.meta)
     }
   }

@@ -2,10 +2,11 @@ import { Tabs, Descriptions, Table, Typography, Empty, Card, Tooltip } from 'ant
 import useSWR from 'swr'
 import { type Node } from 'reactflow'
 
+import { node_state_icons } from '@/overview/table.tsx'
+
 import { defGetTaskSubWorkerStat, getTaskSubWorkerStat } from './apis.ts'
 
 const { Text } = Typography
-const { TabPane } = Tabs
 
 interface NodeDetailsComponentProps {
   selectedNode: Node | null
@@ -33,6 +34,8 @@ export function NodeDetailsComponent ({ selectedNode, id }: NodeDetailsComponent
       <Descriptions.Item label='Name'>{nodeData.label}</Descriptions.Item>
       <Descriptions.Item label='Task ID'>{nodeData.taskId}</Descriptions.Item>
       <Descriptions.Item label='Schema' span={3}>{nodeData.schema}</Descriptions.Item>
+      <Descriptions.Item label='Node' span={3}>{nodeData.logicalNode}</Descriptions.Item>
+      <Descriptions.Item label='Node State' span={3}>{node_state_icons[nodeData.nodeState]}</Descriptions.Item>
     </Descriptions>
   
   // Metrics tab content

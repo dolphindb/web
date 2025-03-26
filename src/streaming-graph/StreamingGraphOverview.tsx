@@ -21,6 +21,10 @@ import 'reactflow/dist/style.css'
 
 import './streaming-graph.sass'
 
+import { model, type DdbNode, type DdbNodeState } from '@/model.ts'
+
+import { node_state_icons } from '@/overview/table.tsx'
+
 import { defGetTaskSubWorkerStat, getStreamGraphInfo, getTaskSubWorkerStat } from './apis.ts'
 import { type StreamGraph, type GraphNode, type GraphEdge } from './types.ts'
 import { NodeDetailsComponent } from './NodeDetailsComponent.tsx'
@@ -83,6 +87,8 @@ interface ProcessedNode {
   width: number
   height: number
   subgraphId: string
+  logicalNode: string
+  nodeState?: DdbNodeState
 }
 
 interface ProcessedEdge {
@@ -115,6 +121,14 @@ function CustomNode ({ data, id, selected }: NodeProps) {
       />
       <div className='node-header'>{data.subType}</div>
       <div className='node-label' title={data.label}>{data.label}</div>
+      {data.logicalNode && (
+        <div className='node-logical' title={data.logicalNode}>
+          Node: {data.logicalNode}
+          {data.nodeState !== undefined && (
+            <span className='node-state-icon'>{node_state_icons[Number(data.nodeState)]}</span>
+          )}
+        </div>
+      )}
       <div className='node-task'>Task ID: {data.taskId}</div>
       <div className='node-schema' title={data.schema}>
         {data.schema && data.schema.length > 20 
@@ -131,11 +145,47 @@ function CustomNode ({ data, id, selected }: NodeProps) {
     </div>
 }
 
+// 添加自定义子图容器组件
+function SubgraphContainer ({ data, id }: NodeProps) {
+  return <div style={{
+      width: '100%',
+      height: '100%',
+      position: 'relative',
+      pointerEvents: 'none'
+    }}>
+      <div style={{
+        position: 'absolute',
+        top: '10px',
+        left: '46%',
+        
+        fontSize: '16px',
+        fontWeight: 800,
+        zIndex: 10
+      }}>
+        {data.label}
+      </div>
+    </div>
+}
+
 // 流图组件
 function StreamingGraphVisualization ({ id }: { id: string }) {
+  const [nodeMap, setNodeMap] = useState<Map<number, DdbNode>>()
+  
+  const { nodes: clusterNodes } = model.use(['nodes'])
+  
   const { data, error, isLoading } = useSWR(
     ['getStreamGraphInfo', id], 
-    async () => getStreamGraphInfo(id)
+    async () => {
+      const graphInfo = await getStreamGraphInfo(id)
+      const taskToNodeMap = new Map(
+        graphInfo.meta.tasks.map(task => [task.id, clusterNodes.find(({ name }) => name === task.node)])
+      )
+      setNodeMap(taskToNodeMap)
+      return graphInfo
+    },
+    {
+      refreshInterval: 5000
+    }
   )
   
   const [nodes, setNodes] = useNodesState([ ])
@@ -145,7 +195,8 @@ function StreamingGraphVisualization ({ id }: { id: string }) {
   
   // 节点类型注册
   const nodeTypes: NodeTypes = {
-    customNode: CustomNode
+    customNode: CustomNode,
+    subgraphContainer: SubgraphContainer
   }
   
   // 处理节点点击
@@ -162,15 +213,22 @@ function StreamingGraphVisualization ({ id }: { id: string }) {
     // 处理节点 - 创建 ProcessedNode 格式
     const processedNodes: ProcessedNode[] = graphData.nodes.map((node: GraphNode) => {
       const nodeType = node.properties?.type || 'DEFAULT'
-      
+      // 获取逻辑节点对象和名称
+      const logicalNode = nodeMap?.get(node.taskId)
+    
+      const logicalNodeName = logicalNode?.name || ''
+      // 获取节点状态
+      const nodeState = logicalNode?.state
       return {
         id: node.id.toString(),
-        // 不再手动设置x和y坐标，将由dagre布局算法决定
         x: 0,
         y: 0,
         label: node.properties?.name || node.properties?.initialName || `Node ${node.id}`,
         subType: nodeType,
         taskId: node.taskId,
+        logicalNode: logicalNodeName,
+        // 添加节点状态
+        nodeState: nodeState,
         schema: node.properties?.schema || '',
         width: 180,
         height: 100,
@@ -184,9 +242,8 @@ function StreamingGraphVisualization ({ id }: { id: string }) {
       sourceId: edge.inNodeId.toString(),
       targetId: edge.outNodeId.toString()
     }))
-    console.log('Processed Nodes:', processedNodes, processedEdges)
     return { nodes: processedNodes, edges: processedEdges }
-  }, [ ])
+  }, [nodeMap, clusterNodes])
   
   // 将 ProcessedNode 和 ProcessedEdge 转换为 ReactFlow 格式
   const convertToReactFlowFormat = useCallback((processedNodes: ProcessedNode[], processedEdges: ProcessedEdge[]) => {
@@ -196,6 +253,8 @@ function StreamingGraphVisualization ({ id }: { id: string }) {
       position: { x: node.x, y: node.y },
       data: {
         label: node.label,
+        logicalNode: node.logicalNode,
+        nodeState: node.nodeState,
         subType: node.subType,
         taskId: node.taskId,
         schema: node.schema,
@@ -207,25 +266,49 @@ function StreamingGraphVisualization ({ id }: { id: string }) {
       style: { width: node.width, height: node.height }
     }))
     
-    const reactFlowEdges: Edge[] = processedEdges.map(edge => ({
+    // 创建节点ID到节点数据的映射，用于快速查找
+    const nodeMap = new Map(
+      processedNodes.map(node => [node.id, node])
+    )
+    
+    // 处理边 - 根据源节点状态设置边的样式
+    const reactFlowEdges: Edge[] = processedEdges.map(edge => {
+      // 获取源节点的状态
+      const sourceNode = nodeMap.get(edge.sourceId)
+      const nodeState = sourceNode?.nodeState !== undefined ? Number(sourceNode.nodeState) : 1
+      
+      // 根据状态设置边的样式
+      // 状态0: 停止 - 红色且不流动
+      // 状态1: 运行 - 绿色且流动
+      // 状态2: 启动中 - 橙色且不流动
+      const edgeStyles = {
+        0: { color: '#ff4d4f', animated: false }, // 红色，不流动
+        1: { color: '#52c41a', animated: true },  // 绿色，流动
+        2: { color: '#faad14', animated: false }  // 橙色，不流动
+      }
+      
+      const { color, animated } = edgeStyles[nodeState] || edgeStyles[1]
+      
+      return {
         id: edge.id,
         source: edge.sourceId,
         target: edge.targetId,
         type: 'smoothstep',
-        animated: true,
+        animated: animated,
         style: { 
-          stroke: '#1890ff',
+          stroke: color,
           strokeWidth: 2,
           strokeDasharray: '5, 5',
         },
-        labelStyle: { fill: '#1890ff', fontSize: 12 },
+        labelStyle: { fill: color, fontSize: 12 },
         markerEnd: {
           type: MarkerType.ArrowClosed,
           width: 15,
           height: 15,
-          color: '#1890ff',
+          color: color,
         },
-      }))
+      }
+    })
     
     // 应用dagre布局
     const { nodes: layoutedNodes, edges: layoutedEdges } = getLayoutedElements(
@@ -256,7 +339,7 @@ function StreamingGraphVisualization ({ id }: { id: string }) {
       const left = Math.min(...nodePositions.map(pos => pos.left)) - 20
       const right = Math.max(...nodePositions.map(pos => pos.right)) + 20
       const top = Math.min(...nodePositions.map(pos => pos.top)) - 40 // Extra space for the label
-      const bottom = Math.max(...nodePositions.map(pos => pos.bottom)) + 20
+      const bottom = Math.max(...nodePositions.map(pos => pos.bottom)) // 增加垂直间距
       
       return {
         id: `subgraph-${subgraphId}`,
@@ -272,11 +355,19 @@ function StreamingGraphVisualization ({ id }: { id: string }) {
         },
         data: {
           label: `Subgraph ${subgraphId}`,
-          subgraphId
+          subgraphId,
+          labelStyle: {
+            fontSize: '16px',
+            fontWeight: 800,
+            backgroundColor: 'rgba(255, 255, 255, 0.9)',
+            padding: '6px 10px',
+            borderRadius: '4px',
+            boxShadow: '0 2px 4px rgba(0,0,0,0.2)'
+          }
         }
       }
     })
-return { 
+    return { 
       nodes: [...subgraphContainers, ...layoutedNodes], 
       edges: layoutedEdges 
     }
@@ -291,14 +382,13 @@ return {
         const { nodes: processedNodes, edges: processedEdges } = processGraphData(graphData)
         
         const { nodes: reactFlowNodes, edges: reactFlowEdges } = convertToReactFlowFormat(processedNodes, processedEdges)
-        
         setNodes(reactFlowNodes)
         setEdges(reactFlowEdges)
       } catch (e) {
         console.error('Failed to parse graph data:', e)
       }
     
-  }, [data, processGraphData, convertToReactFlowFormat, setNodes, setEdges])
+  }, [data, processGraphData, convertToReactFlowFormat, setNodes, setEdges, nodeMap, clusterNodes])
   
   if (isLoading)
       return <Card loading />
@@ -310,7 +400,7 @@ return {
       return <Empty description='' />
   
   return <div className='streaming-graph-page'>
-    <div style={{ height: 400, width: '100%', border: '1px solid #ddd', borderRadius: '4px', position: 'relative', overflow: 'hidden' }}>
+    <div style={{ height: 600, width: '100%', border: '1px solid #ddd', borderRadius: '4px', position: 'relative', overflow: 'hidden' }}>
       <ReactFlow
         nodes={nodes}
         edges={edges}
@@ -328,6 +418,8 @@ return {
             strokeDasharray: '5, 5'
           }
         }}
+        minZoom={0.1}
+        maxZoom={2}
       >
         <Background color='#f8f8f8' gap={16} />
         <Controls showInteractive={false} />
@@ -387,7 +479,7 @@ function TaskSubWorkerStatTable ({ id }: { id: string }) {
       <Table 
         dataSource={data} 
         columns={columns} 
-        rowKey={(record, index) => index.toString()}
+        rowKey={(record, index) => record.taskId}
         pagination={{ 
           defaultPageSize: 5, 
           showSizeChanger: true,
