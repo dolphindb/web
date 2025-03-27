@@ -2,11 +2,14 @@
 import useSWR from 'swr'
 
 import { model } from '@model'
+
+import { unique } from 'xshell/utils.browser'
+
 import { access } from '../model.ts'
 import type { AccessCategory, AccessRole } from '../types.ts'
 import { config } from '@/config/model.ts'
 import { strs_2_nodes } from '@/config/utils.ts'
-import { unique } from 'xshell/utils.browser'
+import { ACCESS_TYPE } from '@/access/constants.tsx'
 
 export function use_access_objs (role: AccessRole, category: AccessCategory) {
     const { v3 } = model 
@@ -32,7 +35,7 @@ export function use_access_objs (role: AccessRole, category: AccessCategory) {
                         ).map(node => node.computeGroup)
                         .filter(Boolean))
                 case 'script':
-                    return [ ]
+                    return role === 'user' ? ACCESS_TYPE.script : ACCESS_TYPE.script.filter(ac => !ac.endsWith('_LIMIT'))
             }
         }
     )
