@@ -5,13 +5,12 @@ import NiceModal from '@ebay/nice-modal-react'
 
 import { t } from '@i18n'
 
-import { PlusOutlined, DeleteOutlined, SearchOutlined } from '@ant-design/icons'
+import { PlusOutlined, DeleteOutlined } from '@ant-design/icons'
 
 import { model } from '@model'
 
 import { DDBTable } from '@/components/DDBTable/index.tsx'
 
-import { AccessHeader } from './AccessHeader.tsx'
 import { ACCESS_OPTIONS, ACCESS_TYPE, NEED_INPUT_ACCESS, TABLE_NAMES } from './constants.tsx'
 import { access } from './model.ts'
 
@@ -225,6 +224,7 @@ export function AccessManage ({ role, name, category }: { role: AccessRole, name
                 <Button
                     danger
                     icon={<DeleteOutlined />}
+                    disabled={selected_access.length === 0}
                     onClick={() => {
                         if (selected_access.length)
                             NiceModal.show(AccessRevokeModal, { category, selected_access, reset_selected, name, update_accesses })
