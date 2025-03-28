@@ -246,7 +246,7 @@ function StreamingGraphVisualization ({ id }: { id: string }) {
   }, [ ])
   
   // 从原始数据转换为 ProcessedNode 和 ProcessedEdge
-  const processGraphData = useCallback((graphData: StreamGraph) => {
+  const processGraphData = useCallback((graphData: StreamGraph) => { 
     if (!graphData)
         return { nodes: [ ], edges: [ ] }
     
@@ -526,7 +526,7 @@ function TaskSubWorkerStatTable ({ id }: { id: string }) {
       <Table 
         dataSource={data} 
         columns={columns} 
-        rowKey={(record, index) => record.taskId}
+        rowKey={(record, index) => record.topic}
         pagination={{ 
           defaultPageSize: 5, 
           showSizeChanger: true,
