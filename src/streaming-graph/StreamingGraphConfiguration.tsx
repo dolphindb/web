@@ -1,7 +1,7 @@
 import { Descriptions, Typography, Empty, Card } from 'antd'
 import useSWR from 'swr'
 
-import { getCheckpointConfig, getStreamGraphInfo } from './apis.ts'
+import { getStreamGraphInfo } from './apis.ts'
 
 const { Text } = Typography
 

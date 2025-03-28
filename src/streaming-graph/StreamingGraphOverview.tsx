@@ -39,9 +39,9 @@ dagreGraph.setDefaultEdgeLabel(() => ({ }))
 function getLayoutedElements (nodes: Node[], edges: Edge[]) {
   dagreGraph.setGraph({ 
     rankdir: 'LR',
-    ranksep: 100,  // 减小排之间的距离(之前是150)
-    nodesep: 50,   // 减小同一排中节点之间的距离(之前是80)
-    edgesep: 20    // 减小边之间的最小距离(之前是30)
+    ranksep: 100,  // 大幅增加排之间的距离(从100增加到250)
+    nodesep: 100,  // 增加同一排中节点之间的距离(从50增加到100)
+    edgesep: 30    // 稍微增加边之间的最小距离(从20增加到30)
   })
   
   // 清除之前的布局
@@ -103,6 +103,15 @@ interface StreamingGraphOverviewProps {
 
 // 自定义矩形节点组件
 function CustomNode ({ data, id, selected }: NodeProps) {
+  // 根据节点状态确定状态颜色
+  const stateColors = {
+    0: '#ff4d4f', // 停止 - 红色
+    1: '#52c41a', // 运行 - 绿色
+    2: '#faad14'  // 启动中 - 橙色
+  }
+  
+  const stateColor = data.nodeState !== undefined ? stateColors[Number(data.nodeState)] : '#999'
+  
   return <div 
       className={`react-flow-node node-type-${data.subType}`}
       style={{
@@ -110,7 +119,8 @@ function CustomNode ({ data, id, selected }: NodeProps) {
         height: data.height,
         transform: selected ? 'scale(1.05)' : undefined,
         boxShadow: selected ? '0 4px 8px rgba(0,0,0,0.3)' : undefined,
-        zIndex: selected ? 1000 : undefined
+        zIndex: selected ? 1000 : undefined,
+        borderLeft: `4px solid ${stateColor}` // 添加状态颜色边框
       }}
     >
       <Handle
@@ -119,16 +129,45 @@ function CustomNode ({ data, id, selected }: NodeProps) {
         style={{ background: '#555' }}
         isConnectable={false}
       />
-      <div className='node-header'>{data.subType}</div>
-      <div className='node-label' title={data.label}>{data.label}</div>
-      {data.logicalNode && (
-        <div className='node-logical' title={data.logicalNode}>
-          Node: {data.logicalNode}
-          {data.nodeState !== undefined && (
-            <span className='node-state-icon'>{node_state_icons[Number(data.nodeState)]}</span>
-          )}
+      
+      {/* 添加状态指示器 */}
+      {data.nodeState !== undefined && (
+        <div style={{
+          position: 'absolute',
+          top: '5px',
+          right: '5px',
+          backgroundColor: stateColor,
+          color: 'white',
+          borderRadius: '50%',
+          width: '16px',
+          height: '16px',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+          fontSize: '10px',
+        }}>
+          {node_state_icons[Number(data.nodeState)]}
         </div>
       )}
+      
+      <div className='node-header'>{data.subType}</div>
+      <div className='node-label' title={data.label}>{data.label}</div>
+      
+      {/* 增强逻辑节点显示 */}
+      {data.logicalNode && (
+        <div className='node-logical-enhanced' title={data.logicalNode} style={{
+          backgroundColor: 'rgba(0,0,0,0.05)',
+          borderRadius: '3px',
+          fontSize: '11px',
+          fontWeight: 'bold',
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between'
+        }}>
+          <span>Node: {data.logicalNode}</span>
+        </div>
+      )}
+      
       <div className='node-task'>Task ID: {data.taskId}</div>
       <div className='node-schema' title={data.schema}>
         {data.schema && data.schema.length > 20 
@@ -156,7 +195,8 @@ function SubgraphContainer ({ data, id }: NodeProps) {
       <div style={{
         position: 'absolute',
         top: '10px',
-        left: '46%',
+        left: '50%',
+        transform: 'translateX(-50%)',
         
         fontSize: '16px',
         fontWeight: 800,
@@ -171,20 +211,20 @@ function SubgraphContainer ({ data, id }: NodeProps) {
 function StreamingGraphVisualization ({ id }: { id: string }) {
   const [nodeMap, setNodeMap] = useState<Map<number, DdbNode>>()
   
-  const { nodes: clusterNodes } = model.use(['nodes'])
-  
   const { data, error, isLoading } = useSWR(
     ['getStreamGraphInfo', id], 
     async () => {
       const graphInfo = await getStreamGraphInfo(id)
+      const nodes = await model.get_cluster_perf(true)
+      
       const taskToNodeMap = new Map(
-        graphInfo.meta.tasks.map(task => [task.id, clusterNodes.find(({ name }) => name === task.node)])
+        graphInfo.meta.tasks.map(task => [task.id, nodes.find(({ name }) => name === task.node)])
       )
       setNodeMap(taskToNodeMap)
       return graphInfo
     },
     {
-      refreshInterval: 5000
+      refreshInterval: 500
     }
   )
   
@@ -243,7 +283,7 @@ function StreamingGraphVisualization ({ id }: { id: string }) {
       targetId: edge.outNodeId.toString()
     }))
     return { nodes: processedNodes, edges: processedEdges }
-  }, [nodeMap, clusterNodes])
+  }, [nodeMap])
   
   // 将 ProcessedNode 和 ProcessedEdge 转换为 ReactFlow 格式
   const convertToReactFlowFormat = useCallback((processedNodes: ProcessedNode[], processedEdges: ProcessedEdge[]) => {
@@ -336,10 +376,17 @@ function StreamingGraphVisualization ({ id }: { id: string }) {
         bottom: node.position.y + Number(node.style?.height || 100)
       }))
       
-      const left = Math.min(...nodePositions.map(pos => pos.left)) - 20
-      const right = Math.max(...nodePositions.map(pos => pos.right)) + 20
-      const top = Math.min(...nodePositions.map(pos => pos.top)) - 40 // Extra space for the label
-      const bottom = Math.max(...nodePositions.map(pos => pos.bottom)) // 增加垂直间距
+      const padding = {
+        top: 40,
+        right: 20,
+        bottom: 20,
+        left: 20
+      }
+      
+      const left = Math.min(...nodePositions.map(pos => pos.left)) - padding.left
+      const right = Math.max(...nodePositions.map(pos => pos.right)) + padding.right
+      const top = Math.min(...nodePositions.map(pos => pos.top)) - padding.top
+      const bottom = Math.max(...nodePositions.map(pos => pos.bottom)) + padding.bottom
       
       return {
         id: `subgraph-${subgraphId}`,
@@ -351,7 +398,7 @@ function StreamingGraphVisualization ({ id }: { id: string }) {
           backgroundColor: `rgba(${parseInt(subgraphId) * 50 % 255}, ${parseInt(subgraphId) * 30 % 255}, ${parseInt(subgraphId) * 70 % 255}, 0.1)`,
           border: '1px dashed rgba(0,0,0,0.2)',
           borderRadius: '8px',
-          zIndex: -1 // Place behind nodes
+          zIndex: -1 
         },
         data: {
           label: `Subgraph ${subgraphId}`,
@@ -388,7 +435,7 @@ function StreamingGraphVisualization ({ id }: { id: string }) {
         console.error('Failed to parse graph data:', e)
       }
     
-  }, [data, processGraphData, convertToReactFlowFormat, setNodes, setEdges, nodeMap, clusterNodes])
+  }, [data, processGraphData, convertToReactFlowFormat, setNodes, setEdges, nodeMap])
   
   if (isLoading)
       return <Card loading />

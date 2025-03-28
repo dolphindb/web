@@ -73,16 +73,20 @@
 // 节点类型样式
 .node-type
   &-TABLE
-    background-color: #aee4ff
-
+    background: linear-gradient(135deg, #e0f7fa, #80deea)  // 浅青色渐变
+    color: #006064  // 深青色文字，确保对比度
+    
   &-CHANNEL
-    background-color: #ffb8d0
-
+    background: linear-gradient(135deg, #e8eaf6, #c5cae9)  // 浅靛蓝渐变
+    color: #303f9f  // 深靛蓝文字
+    
   &-REACTIVE_STATE_ENGINE
-    background-color: #fee5e1
-
+    background: linear-gradient(135deg, #f3e5f5, #ce93d8)  // 浅紫色渐变
+    color: #6a1b9a  // 深紫色文字
+    
   &-DEFAULT
-    background-color: #6a9cfd
+    background: linear-gradient(135deg, #e1f5fe, #81d4fa)  // 浅蓝色渐变
+    color: #01579b  // 深蓝色文字
 
 // 节点详情样式
 .node-detail-item
@@ -131,3 +135,17 @@
 // 边样式
 .react-flow__edge-path
   stroke-width: 2px
+
+  
+// react flow 去水印，生产环境可能需要去掉，版权问题
+.react-flow__attribution 
+  display: none !important
+
+// 增强的逻辑节点信息样式
+.node-logical-enhanced
+  background-color: rgba(0,0,0,0.05)
+  border-radius: 3px
+  font-weight: bold
+  display: flex
+  align-items: center
+  justify-content: space-between

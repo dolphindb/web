@@ -1,9 +1,10 @@
-import { useEffect } from 'react'
-import { Descriptions, Button, Typography, Space } from 'antd'
+import { Descriptions, Button, Typography } from 'antd'
 import useSWR from 'swr'
 import { ReloadOutlined, StopOutlined } from '@ant-design/icons'
 
 import { StatusTag, StatusType } from '@/components/tags/index.tsx'
+
+import { model } from '@/model.ts'
 
 import { getStreamGraphMeta } from './apis.ts'
 import { type StreamGraphMeta } from './types.ts'
@@ -80,7 +81,8 @@ export function StreamingGraphDescription ({ id }: StreamingGraphDescriptionProp
         size='small'
         onClick={() => {
           // Implement cancel job logic here
-          console.log('Cancel job:', graph.id)
+          model.cancel_job({ jobId: data.id })
+          model.message.success('Cancel job successfully')
         }}
       >
         Cancel Job
