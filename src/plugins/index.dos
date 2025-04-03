@@ -47,14 +47,14 @@ def getInstalledPluginsOfCluster() {
         return ret
     }
     
-    nodes = exec name from rpc(getControllerAlias(), getClusterPerf{true}) where mode != 1
+    nodes = exec name from rpc(getControllerAlias(), getClusterPerf{true}) where mode != 1 and state == 1
     info = pnodeRun(getInstalledPluginsInner, nodes)
     
     return info
 }
 
 def getLoadedPluginsOfCluster() {
-    nodes = exec name from rpc(getControllerAlias(), getClusterPerf{true}) where mode != 1
+    nodes = exec name from rpc(getControllerAlias(), getClusterPerf{true}) where mode != 1 and state == 1
     ret = pnodeRun(getLoadedPlugins, nodes)
     return ret
 }
