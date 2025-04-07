@@ -182,7 +182,7 @@ export class DdbModel extends Model<DdbModel> {
         
         // 确定 assets_root
         if (this.test)
-            for (const web_path of ['/web/', '/main/'])
+            for (const web_path of ['/web/', '/main/', '/flow/'])
                 if (location.pathname.startsWith(web_path)) {
                     this.assets_root = web_path
                     break
