@@ -39,12 +39,12 @@ def getInstalledPluginsOfCluster() {
                 continue
             }
             
-            pluginName = s.first()
+            pluginName_ = s.first()
             pluginVersion = s.last()
-            if (pluginName == "aws") { // 特殊处理，awss3插件的命名空间名是aws，但是插件名是awss3
-                pluginName = "awss3"
+            if (pluginName == "awss3" and pluginName_ == "aws") { // 特殊处理，awss3插件的命名空间名是aws，故不能用命名空间名作为插件名。未来会统一为aws。
+                pluginName_ = "awss3"
             }
-            tableInsert(ret, (pluginName, pluginVersion))
+            tableInsert(ret, (pluginName_, pluginVersion))
         }
         
         return ret
