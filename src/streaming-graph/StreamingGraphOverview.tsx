@@ -493,6 +493,9 @@ function TaskSubWorkerStatTable ({ id }: { id: string }) {
     async () => {
       await defGetTaskSubWorkerStat()
       return getTaskSubWorkerStat(id)
+    },
+    {
+      refreshInterval: 500
     }
   )
   
