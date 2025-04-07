@@ -41,6 +41,9 @@ def getInstalledPluginsOfCluster() {
             
             pluginName = s.first()
             pluginVersion = s.last()
+            if (pluginName == "aws") { // 特殊处理，awss3插件的命名空间名是aws，但是插件名是awss3
+                pluginName = "awss3"
+            }
             tableInsert(ret, (pluginName, pluginVersion))
         }
         
