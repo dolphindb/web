@@ -23,9 +23,9 @@
         "@types/node": "^22.14.0",
         "@types/react": "^19.1.0",
         "@types/react-dom": "^19.1.1",
-        "eslint": "^9.23.0",
+        "eslint": "^9.24.0",
         "react": "^19.1.0",
-        "typescript": "^5.8.2"
+        "typescript": "^5.8.3"
     },
     "dependencies": {
         "@ant-design/icons": "^6.0.0",
@@ -59,12 +59,12 @@
         "react-markdown": "^10.1.0",
         "react-object-model": "^1.2.23",
         "react-quill-new": "^3.4.6",
-        "react-router": "^7.4.1",
+        "react-router": "^7.5.0",
         "remark-gfm": "^4.0.1",
         "swr": "^2.3.3",
         "tslib": "^2.8.1",
         "vscode-oniguruma": "^2.0.1",
         "vscode-textmate": "^9.2.0",
-        "xshell": "^1.2.29"
+        "xshell": "^1.2.32"
     }
 }
