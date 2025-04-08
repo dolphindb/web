@@ -44,12 +44,22 @@ export function Plugins () {
     async function update_plugins (query?: string) {
         let plugins = (await ddb.invoke<DdbTableData>('listPlugins'))
             .data
-            .map<Plugin>(({ plugin, minInstalledVersion: min_version, installedNodes, toInstallNodes, loadedNodes, preloadedNodes }) => ({
+            .map<Plugin>(({
+                plugin, 
+                minInstalledVersion: min_version, 
+                maxInstalledVersion: max_version, 
+                installedNodes, 
+                toInstallNodes, 
+                loadedNodes, 
+                preloadedNodes
+            }) => ({
                 id: plugin,
                 
                 min_version,
                 
-                version_match: min_version.startsWith(version_without_fourth),
+                version_match: 
+                    (min_version as string).startsWith(version_without_fourth) && 
+                    (max_version as string).startsWith(version_without_fourth),
                 
                 installeds: str2arr(installedNodes),
                 
@@ -262,7 +272,7 @@ export function Plugins () {
                     render: (_, { min_version, version_match }) =>
                         version_match
                             ? min_version
-                            : <Text type='danger'>{min_version} {t(' (与数据库版本不一致，无法加载)')}</Text>
+                            : <Text type='danger'>{min_version} {t(' (部分节点与数据库版本不一致，无法加载)')}</Text>
                 },
                 {
                     title: t('已安装节点'),

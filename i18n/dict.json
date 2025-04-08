@@ -4871,8 +4871,8 @@
     "集群已安装的最低版本": {
         "en": "Minimum Installed Version"
     },
-    " (与数据库版本不一致，无法加载)": {
-        "en": " (Unable to load due to inconsistent database version)"
+    " (部分节点与数据库版本不一致，无法加载)": {
+        "en": " (Some nodes are inconsistent with the database version and cannot be loaded)"
     },
     "已安装节点": {
         "en": "Nodes Installed"
