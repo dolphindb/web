@@ -1,6 +1,8 @@
+import './index.sass'
+
 import { useEffect, useRef } from 'react'
 
-import { Collapse, Form, Input } from 'antd'
+import { Collapse, Form, Input, Slider } from 'antd'
 
 import { delay } from 'xshell/utils.browser.js'
 
@@ -9,7 +11,7 @@ import { dashboard, type Widget } from '@/dashboard/model.ts'
 
 
 interface Data {
-    name: string
+    id: string
     value: number
 }
 
@@ -48,15 +50,18 @@ export function Configuration ({ widget, data_source }: { widget: Widget, data_s
         if (!$texts || !data_source)
             return
         
-        const data = data_source.reduce((acc, { name, value }) =>
-            ((acc[name] = value), acc)
+        const data = data_source.reduce((acc, { id, value }) =>
+            ((acc[id] = value), acc)
         , { })
+        
+        // dump ids
+        // console.log($texts.map(({ id }) => id))
         
         $texts.forEach($text => {
             const value = data[$text.id]
             
             if (value !== undefined)
-                $text.textContent = value
+                $text.textContent = Number(value).toFixed()
             
             // const name = mappings[$text.id]
             // if (name !== undefined) {
@@ -68,7 +73,10 @@ export function Configuration ({ widget, data_source }: { widget: Widget, data_s
         })
     }, [background, mappings, data_source])
     
-    return <div ref={rdiv} />
+    return <div className='configuration-diagram'>
+        <div className='diagram' ref={rdiv} />
+        <Slider />
+    </div>
 }
 
 

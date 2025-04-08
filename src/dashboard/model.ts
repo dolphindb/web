@@ -22,7 +22,7 @@ import type { FormatErrorOptions } from '../components/GlobalErrorBoundary.js'
 
 import { type DataSource, type ExportDataSource, import_data_sources, unsubscribe_data_source, type DataType, clear_data_sources } from './DataSource/date-source.js'
 import { type IEditorConfig, type IChartConfig, type ITableConfig, type ITextConfig, type IGaugeConfig, type IHeatMapChartConfig, type IOrderBookConfig } from './type.ts'
-import type { IConfigurationConfig } from './Charts/Configuration.tsx'
+import type { IConfigurationConfig } from './Charts/Configuration/index.tsx'
 import { type Variable, import_variables, type ExportVariable } from './Variable/variable.js'
 import { DASHBOARD_SHARED_SEARCH_KEY } from './constant.ts'
 
