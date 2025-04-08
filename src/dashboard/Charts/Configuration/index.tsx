@@ -4,7 +4,9 @@ import { useEffect, useRef } from 'react'
 
 import { Collapse, Form, Input, Slider } from 'antd'
 
-import { delay } from 'xshell/utils.browser.js'
+import dayjs from 'dayjs'
+
+import { delay, time_format } from 'xshell/utils.browser.js'
 
 import { t } from '@i18n'
 import { dashboard, type Widget } from '@/dashboard/model.ts'
@@ -20,6 +22,8 @@ export function Configuration ({ widget, data_source }: { widget: Widget, data_s
     const { background, mappings } = widget.config as IConfigurationConfig
     
     let rdiv = useRef<HTMLDivElement>(undefined)
+    
+    let rstreaming = useRef(true)
     
     useEffect(() => {
         if (!background)
@@ -47,7 +51,7 @@ export function Configuration ({ widget, data_source }: { widget: Widget, data_s
     useEffect(() => {
         const $texts: SVGTextElement[] = widget.data?.$texts
         
-        if (!$texts || !data_source)
+        if (!$texts || !data_source || !rstreaming.current)
             return
         
         const data = data_source.reduce((acc, { id, value }) =>
@@ -73,9 +77,28 @@ export function Configuration ({ widget, data_source }: { widget: Widget, data_s
         })
     }, [background, mappings, data_source])
     
+    const now = dayjs()
+    const max = now.endOf('day').valueOf()
+    
     return <div className='configuration-diagram'>
         <div className='diagram' ref={rdiv} />
-        <Slider />
+        <Slider
+            className='slider'
+            min={now.startOf('day').valueOf()}
+            max={max}
+            tooltip={{ formatter: value => dayjs(value).format(time_format) }}
+            onChangeComplete={value => {
+                if (value === max)
+                    rstreaming.current = true
+                else {
+                    rstreaming.current = false
+                    
+                    widget.data?.$texts.forEach($text => {
+                        $text.textContent = (Math.random() * 100).toFixed()
+                    })
+                }
+            }}
+        />
     </div>
 }
 
