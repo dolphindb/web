@@ -170,9 +170,13 @@ export class DdbModel extends Model<DdbModel> {
         
         const params = this.params = new URLSearchParams(location.search)
         
-        this.local = location.host === 'localhost:8432' && params.get('local') !== '0'
+        const plocal = params.get('local')
         
-        this.test = location.hostname === 'test.dolphindb.cn' && params.get('test') !== '0'
+        this.local = location.host === 'localhost:8432' && plocal !== '0' || plocal === '1'
+        
+        const ptest = params.get('test')
+        
+        this.test = location.hostname === 'test.dolphindb.cn' && ptest !== '0' || ptest === '1'
         
         this.dev = this.local || this.test
         
