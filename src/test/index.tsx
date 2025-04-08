@@ -1,38 +1,24 @@
 import './index.sass'
 
-import { useEffect, useRef } from 'react'
+import { model } from '@/model.js'
 
-import { delay } from 'xshell/utils.browser.js'
-
-import background_svg from './background.raw.svg'
+import { StreamingTable } from '@/obj.js'
+// import { StreamingTest } from '../streaming/StreamingTest.js'
 
 
 export function Test () {
-    let rdiv = useRef<HTMLDivElement>(undefined)
+    const { ddb: { url, username, password } } = model
     
-    useEffect(() => {
-        let { current: $div } = rdiv
-        
-        let $svg = $div.firstElementChild as SVGSVGElement
-        
-        let $texts: SVGTextElement[] = Array.prototype.filter.call(
-            $svg.children, 
-            ($e: SVGElement) => $e.tagName === 'text' && $e.id)
-        
-        ;(async () => {
-            for (;;) {
-                await delay(3000)
-                
-                $texts.forEach($text => 
-                    $text.textContent = (Math.random() * 100).toFixed()
-                )
-            }
-        })()
-        
-        
-        // let $text = $svg.getElementById('r1_1')
-        // $text.textContent = '啊啊啊啊啊啊啊啊啊啊啊啊'
-    }, [ ])
-    
-    return <div ref={rdiv} dangerouslySetInnerHTML={{ __html: background_svg }} />
+    return <div className='obj-result themed page'>
+        <StreamingTable
+            ctx='page'
+            url={url}
+            username={username}
+            password={password}
+            on_error={error => {
+                model.show_error({ error })
+            }}
+        />
+        {/* <StreamingTest /> */}
+    </div>
 }
