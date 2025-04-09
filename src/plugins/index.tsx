@@ -262,7 +262,7 @@ export function Plugins () {
             }}
             columns={[
                 {
-                    title: t('插件 ID'),
+                    title: t('插件名'),
                     dataIndex: 'id',
                     width: 160,
                 },
@@ -449,7 +449,7 @@ function InstallModal ({
         open={installer.visible}
         onCancel={installer.close}
         footer={null}
-        width='80%'
+        width={1200}
     >
         <Form<InstallFields>
             ref={rform}
@@ -533,7 +533,7 @@ function InstallModal ({
                     if (method === 'offline')
                         return null
                     
-                    return <Form.Item<InstallFields> name='id' label={t('插件 ID')} {...required}>
+                    return <Form.Item<InstallFields> name='id' label={t('插件名')} {...required}>
                         <Select
                             showSearch
                             allowClear
@@ -690,7 +690,7 @@ function CheckboxGroupWithSelectAll ({
                 )
             }}
         >
-          {t('全选')}
+          {t('全选', { context: 'button' })}
         </Checkbox>
         
         <Checkbox.Group options={options} value={value} onChange={onChange} />
