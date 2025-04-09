@@ -6081,13 +6081,13 @@
         "en": "Plugin Version"
     },
     "选填，默认安装和当前版本匹配的最新版": {
-        "en": "Optional. By default, the latest matching version is installed"
+        "en": "By default, the latest matching version is installed"
     },
     "插件服务器地址": {
         "en": "Plugin Server"
     },
     "选填，参考 installPlugin 函数": {
-        "en": "Optional, refer to installPlugin function"
+        "en": "Plugins repository to download from. Refer to installPlugin function"
     },
     "源节点": {
         "en": "Source Node"
