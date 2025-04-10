@@ -48,8 +48,6 @@ import { Plugins } from './plugins/index.tsx'
 import { Computing } from './computing/index.tsx'
 
 import { DashBoard } from './dashboard/index.tsx'
-import { DashboardInstancePage } from './dashboard/Instance.tsx'
-import { Overview as DashboardOverview } from './dashboard/Overview.tsx'
 import { Inspection } from './inspection/index.tsx'
 import { Settings } from './settings/index.tsx'
 import { CreateGuide } from './guide/iot-guide/index.tsx'
@@ -231,18 +229,8 @@ const router = createBrowserRouter([
                 element: <Computing />
             },
             {
-                path: 'dashboard/',
-                element: <DashBoard />,
-                children: [
-                    {
-                        index: true,
-                        element: <DashboardOverview />
-                    },
-                    {
-                        path: ':id',
-                        element: <DashboardInstancePage />
-                    },
-                ]
+                path: 'dashboard/*',
+                element: <DashBoard />
             },
             {
                 path: 'access/*',
