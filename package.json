@@ -22,7 +22,7 @@
         "@types/lodash": "^4.17.16",
         "@types/node": "^22.14.0",
         "@types/react": "^19.1.0",
-        "@types/react-dom": "^19.1.1",
+        "@types/react-dom": "^19.1.2",
         "eslint": "^9.24.0",
         "react": "^19.1.0",
         "typescript": "^5.8.3"
@@ -65,6 +65,6 @@
         "tslib": "^2.8.1",
         "vscode-oniguruma": "^2.0.1",
         "vscode-textmate": "^9.2.0",
-        "xshell": "^1.2.32"
+        "xshell": "^1.2.35"
     }
 }
