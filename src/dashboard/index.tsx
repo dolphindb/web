@@ -55,14 +55,13 @@ export function DashBoard () {
                 dashboard.set({ inited_state: InitedState.unlogined })
             else if (node_type === NodeType.controller)
                 dashboard.set({ inited_state: InitedState.control_node })
-            else {
+            else
                 try {
                     if (await model.ddb.invoke<string>('dashboard_get_version') === '1.0.0')
                         dashboard.set({ inited_state: InitedState.inited })
                 } catch {
                     dashboard.set({ inited_state: InitedState.uninited })
                 }
-            }
         })()
     }, [logined])
     
