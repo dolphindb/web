@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from 'react'
 import { Button, Form, Input, Modal, Popconfirm, Radio, Result, Table, Typography, Upload, type UploadFile, 
     type FormInstance, Checkbox, Select, Tooltip } from 'antd'
 import type { CheckboxGroupProps } from 'antd/es/checkbox/Group.js'
-import { ReloadOutlined, default as Icon, InboxOutlined, CheckOutlined, PlayCircleOutlined } from '@ant-design/icons'
+import { default as Icon, InboxOutlined, CheckOutlined, PlayCircleOutlined } from '@ant-design/icons'
 import { build_mapper, noop } from 'xshell/prototype.browser.js'
 import { delay, log, vercmp } from 'xshell/utils.browser.js'
 
@@ -12,7 +12,7 @@ import { use_modal, use_rerender, type ModalController } from 'react-object-mode
 
 import { DdbVectorChar, DdbVectorString, type DdbTableData } from 'dolphindb/browser.js'
 
-import { t } from '@i18n'
+import { language, t } from '@i18n'
 
 import { required, switch_keys } from '@utils'
 import { model } from '@model'
@@ -262,7 +262,7 @@ export function Plugins () {
             }}
             columns={[
                 {
-                    title: t('插件 ID'),
+                    title: t('插件名'),
                     dataIndex: 'id',
                     width: 160,
                 },
@@ -445,11 +445,11 @@ function InstallModal ({
     
     return <Modal
         title={t('安装或更新插件')}
-        className='plugins-install-modal'
+        className={`plugins-install-modal ${language}`}
         open={installer.visible}
         onCancel={installer.close}
         footer={null}
-        width='80%'
+        width={1200}
     >
         <Form<InstallFields>
             ref={rform}
@@ -533,7 +533,7 @@ function InstallModal ({
                     if (method === 'offline')
                         return null
                     
-                    return <Form.Item<InstallFields> name='id' label={t('插件 ID')} {...required}>
+                    return <Form.Item<InstallFields> name='id' label={t('插件名')} {...required}>
                         <Select
                             showSearch
                             allowClear
@@ -636,6 +636,7 @@ function InstallModal ({
                                     <Select
                                         className='select-plugin-server'
                                         placeholder={t('选填，参考 installPlugin 函数')}
+                                        allowClear
                                         options={[
                                             'http://plugins.dolphindb.cn/plugins',
                                             'http://plugins.dolphindb.com/plugins'
@@ -690,7 +691,7 @@ function CheckboxGroupWithSelectAll ({
                 )
             }}
         >
-          {t('全选')}
+          {t('全选', { context: 'button' })}
         </Checkbox>
         
         <Checkbox.Group options={options} value={value} onChange={onChange} />

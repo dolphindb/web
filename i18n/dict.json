@@ -6081,13 +6081,13 @@
         "en": "Plugin Version"
     },
     "选填，默认安装和当前版本匹配的最新版": {
-        "en": "Optional. By default, the latest version that matches the current version is installed"
+        "en": "By default, the latest matching version is installed"
     },
     "插件服务器地址": {
         "en": "Plugin Server"
     },
     "选填，参考 installPlugin 函数": {
-        "en": "Optional, refer to installPlugin function"
+        "en": "Plugins repository to download from. Refer to installPlugin function"
     },
     "源节点": {
         "en": "Source Node"
@@ -6169,5 +6169,11 @@
     },
     "移除节点配置成功，重启集群生效": {
         "en": "Node configuration removed successfully. Changes take effect after cluster restart"
+    },
+    "全选_button": {
+        "en": "Select All"
+    },
+    "插件名": {
+        "en": "Plugin Name"
     }
 }
