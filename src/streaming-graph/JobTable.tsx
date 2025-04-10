@@ -26,7 +26,6 @@ const status_map = {
 }
 
 export function JobTable () {
-  const navigate = useNavigate()
   
   // 使用 useSWR 获取流计算图数据
   const { data: streamGraphs, isLoading } = useSWR(

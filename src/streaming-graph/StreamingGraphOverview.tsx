@@ -228,6 +228,7 @@ function StreamingGraphVisualization ({ id }: { id: string }) {
     }
   )
   
+  
   const [nodes, setNodes] = useNodesState([ ])
   const [edges, setEdges] = useEdgesState([ ])
   const [selectedNode, setSelectedNode] = useState<Node | null>(null)

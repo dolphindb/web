@@ -1,5 +1,7 @@
 import exp from 'constants'
 
+import { DdbFunction, DdbFunctionType } from 'dolphindb/browser'
+
 import { model } from '@/model.ts'
 
 import { parseStreamGraphInfo, parseStreamGraphMeta } from './utils.ts'
@@ -49,4 +51,8 @@ export async function defGetTaskSubWorkerStat (): Promise<void> {
 
 export async function getTaskSubWorkerStat (name: string): Promise<TaskSubWorkerStat[]> {
     return (await model.ddb.invoke('getTaskSubWorkerStat', [ name ])).data
+}
+
+export async function getSteamEngineStat (name: string): Promise<{ columns: string[], data: any[] }> {
+    return model.ddb.invoke('useStreamEngine', [name, new DdbFunction('getStreamEngineStateTable', DdbFunctionType.SystemFunc)])
 }
