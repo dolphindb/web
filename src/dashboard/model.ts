@@ -186,7 +186,7 @@ export class DashBoardModel extends Model<DashBoardModel> {
                         grid.update(widget.el, { y: past_widget.y, h: past_widget.h })
                     
                     Object.assign(
-                        this.widgets.find(({ id }) => id === widget.id),
+                        past_widget,
                         widget
                     )
                 }
