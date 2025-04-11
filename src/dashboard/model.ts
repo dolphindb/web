@@ -179,16 +179,14 @@ export class DashBoardModel extends Model<DashBoardModel> {
                     const past_widget = this.widgets.find(({ id }) => id === widget.id)
                     if (!past_widget)
                         continue
+                    
                     if (
                         this.config?.data?.canvas?.auto_expand === false
                         && widget.y + widget.h - 1 >= (this.config?.data?.canvas?.page_count ?? 1) * 12
                     )
                         grid.update(widget.el, { y: past_widget.y, h: past_widget.h })
                     
-                    Object.assign(
-                        past_widget,
-                        widget
-                    )
+                    Object.assign(past_widget, widget)
                 }
             this.check_and_change_page()
         })
