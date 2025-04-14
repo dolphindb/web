@@ -200,7 +200,7 @@ export function DdbSider () {
                         }
                     ]
                 }] : [ ],
-                ... admin && dev ? [
+                ... admin ? [
                     {
                         key: 'plugins',
                         icon: <MenuIcon view='plugins' />,
