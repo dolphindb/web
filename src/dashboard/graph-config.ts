@@ -1,4 +1,4 @@
-import type { JSX, ReactNode } from 'react'
+import type { JSX } from 'react'
 
 import { OHLC, OhlcConfigForm } from './Charts/OHLC/index.js'
 import { RichText } from './Charts/RichText/index.js'

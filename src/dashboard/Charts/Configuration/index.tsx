@@ -58,22 +58,30 @@ export function Configuration ({ widget, data_source }: { widget: Widget, data_s
             ((acc[id] = value), acc)
         , { })
         
+        const _mappings: Record<string, string> = mappings?.split_lines()
+            .reduce((acc, line) => {
+                line = line.trim()
+                if (!line)
+                    return acc
+                
+                const [svgid, dataid] = line.split2(',', { optional: true })
+                    .map(x => x.trim())
+                if (!dataid)
+                    return acc
+                
+                acc[svgid] = dataid
+                return acc
+            }, { }) || { }
+        
         // dump ids
         // console.log($texts.map(({ id }) => id))
         
         $texts.forEach($text => {
-            const value = data[$text.id]
+            const { id } = $text
+            const value = data[_mappings[id] || id]
             
             if (value !== undefined)
                 $text.textContent = Number(value).toFixed()
-            
-            // const name = mappings[$text.id]
-            // if (name !== undefined) {
-            //     const value = data_source[name]
-            //     
-            //     if (value !== undefined)
-            //         $text.textContent = value
-            // }
         })
     }, [background, mappings, data_source])
     
@@ -120,22 +128,16 @@ export function ConfigurationConfig () {
                     </Form.Item>
                 </div>
             },
-            // {
-            //     key: 'mappings',
-            //     label: t('文本映射'),
-            //     forceRender: true,
-            //     children: <div className='axis-wrapper'>
-            //         { $texts?.slice(0, 20).map(({ id }) => 
-            //             <Form.Item
-            //                 key={id}
-            //                 name={['mappings', id]}
-            //                 label={id}
-            //             >
-            //                 <Input />
-            //             </Form.Item>
-            //         ) }
-            //     </div>
-            // }
+            {
+                key: 'mappings',
+                label: t('数据映射'),
+                forceRender: true,
+                children: <div className='axis-wrapper svg-mappings'>
+                    <Form.Item name='mappings' label={t('文本映射')} tooltip={t('一行一个映射，用英文逗号分隔，如:\nsvgid0,dataid0')}>
+                        <Input.TextArea autoSize={{ minRows: 4 }} placeholder={'svgid0,dataid0\nsvgid1,dataid1'} />
+                    </Form.Item>
+                </div>
+            }
         ]}
     />
 }
@@ -143,5 +145,5 @@ export function ConfigurationConfig () {
 
 export interface IConfigurationConfig {
     background: string
-    mappings: Record<string, string>
+    mappings: string
 }

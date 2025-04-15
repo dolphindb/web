@@ -32,10 +32,7 @@ export function GraphSetting () {
         // 未设置config的时候需要重置表单，将表单的初始值作为图的config
         else
             on_reset_config()
-           
     }, [widget.id, on_reset_config])
-    
-    
     
     
     const on_form_change = useCallback((_, values) => {  
@@ -44,9 +41,9 @@ export function GraphSetting () {
     }, [widget])
     
     
-    const ConfigFormFields = useMemo(() => graph_config[widget.type]?.config, [widget.type])
+    const ConfigFormFields = graph_config[widget.type]?.config
     
-   
+    
     return ConfigFormFields && <>
         <Form
             onValuesChange={on_form_change}
@@ -55,7 +52,7 @@ export function GraphSetting () {
             colon={false}
             className='graph-setting-form'
         >
-            <ConfigFormFields col_names={cols} data_source={data_source} type_map={type_map} />
+            <ConfigFormFields col_names={cols} data_source={data_source} type_map={type_map} form={form} />
         </Form>
         
         <Popconfirm title={t('确定要重置配置吗？')} onConfirm={on_reset_config}>
