@@ -54,5 +54,5 @@ export async function getTaskSubWorkerStat (name: string): Promise<TaskSubWorker
 }
 
 export async function getSteamEngineStat (name: string): Promise<{ columns: string[], data: any[] }> {
-    return model.ddb.invoke('useStreamEngine', [name, new DdbFunction('getStreamEngineStateTable', DdbFunctionType.SystemFunc)])
+    return model.ddb.invoke('useOrcaStreamEngine', [name, new DdbFunction('getStreamEngineStateTable', DdbFunctionType.SystemFunc)])
 }
