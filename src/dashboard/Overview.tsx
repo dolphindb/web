@@ -96,7 +96,7 @@ export function Overview () {
             onOk: async () => {
                 try {
                     selected_dashboard_ids.forEach(dashboard_id => {
-                        const config = dashboard.configs.find(config => config.id = dashboard_id)
+                        const config = dashboard.configs.find(config => config.id === dashboard_id)
                         if (config?.permission !== DashboardPermission.own)
                             throw new Error(t('您没有删除 {{name}} 的权限', { name: config.name })) 
                     })

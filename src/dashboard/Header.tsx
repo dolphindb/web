@@ -2,7 +2,7 @@ import './Header.sass'
 
 import { useCallback, useEffect, useRef, useState, type ReactElement } from 'react'
 import { Button, Input, Modal, Popconfirm, Select, Tag, Tooltip, Segmented, Switch } from 'antd'
-import { CopyOutlined, DeleteOutlined, EditOutlined, EyeOutlined, FileAddOutlined, HomeOutlined, SaveOutlined, UploadOutlined } from '@ant-design/icons'
+import { CopyOutlined, DeleteOutlined, DownloadOutlined, EditOutlined, EyeOutlined, FileAddOutlined, HomeOutlined, SaveOutlined } from '@ant-design/icons'
 
 import { use_modal } from 'react-object-model/hooks.js'
 import { genid, unique } from 'xshell/utils.browser.js'
@@ -344,11 +344,34 @@ export function Header () {
                         <FileAddOutlined />
                     </Button>
                 </Tooltip>
-            
+                
+                <Tooltip title={t('修改名称')}>
+                    <Button
+                        className='action' 
+                        onClick={() => { 
+                            edit_open()
+                            set_edit_dashboard_name(config?.name) 
+                        }}
+                    >
+                        <EditOutlined />
+                    </Button>
+                </Tooltip>
+                
                 <Tooltip title={t('保存')}>
                     <Button className='action' onClick={handle_save}><SaveOutlined /></Button>
                 </Tooltip>
-            
+                
+                <Tooltip title={t('创建副本')}>
+                    <Button className='action' onClick={() => {
+                        set_copy_dashboard_name(config.name)
+                        copy_open()    
+                    }}>
+                        <CopyOutlined />
+                    </Button>
+                </Tooltip>
+                
+                <Import type='icon'/>
+                
                 <Tooltip title={t('导出')}>
                     <Button className='action' onClick={async () => {
                         await get_latest_config()
@@ -362,30 +385,11 @@ export function Header () {
                         document.body.appendChild(a)
                         a.click()
                         document.body.removeChild(a)
-                    }}><UploadOutlined /></Button>
+                    }}><DownloadOutlined /></Button>
                 </Tooltip>
-                <Tooltip title={t('创建副本')}>
-                    <Button className='action' onClick={() => {
-                        set_copy_dashboard_name(config.name)
-                        copy_open()    
-                    }}>
-                        <CopyOutlined />
-                    </Button>
-                </Tooltip>
-            
-                <Import type='icon'/>
-                <Tooltip title={t('修改名称')}>
-                    <Button
-                        className='action' 
-                        onClick={() => { 
-                            edit_open()
-                            set_edit_dashboard_name(config?.name) 
-                        }}
-                    >
-                        <EditOutlined />
-                    </Button>
-                </Tooltip>
+                
                 <Share dashboard_ids={[dashboard.config?.id]} trigger_type='icon' />
+                
                 <Popconfirm
                     title={t('删除')}
                     description={t('确定当前 dashboard 删除吗？')}
