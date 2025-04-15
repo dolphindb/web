@@ -507,7 +507,7 @@ function TaskSubWorkerStatTable ({ id }: { id: string }) {
       return <Text type='danger'>Failed to load subscription worker data: {error.message}</Text>
     
   if (!data || data.length === 0)
-      return <Empty description='No subscription worker data available' />
+      return null
     
   // Extract columns from data
   const columns = Object.keys(data[0]).map(key => ({
