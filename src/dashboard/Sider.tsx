@@ -1,9 +1,9 @@
 import { useState } from 'react'
 import {
-    BarChartOutlined, BarsOutlined, BoxPlotOutlined, DoubleLeftOutlined, DoubleRightOutlined, FileTextOutlined, FundOutlined, HeatMapOutlined, 
-    LineChartOutlined, PieChartOutlined, TableOutlined, CodeOutlined, CompassOutlined, FunctionOutlined, DotChartOutlined,  RadarChartOutlined, 
-    WindowsOutlined, GoldOutlined,
-    GatewayOutlined, 
+    BarChartOutlined, BarsOutlined, BoxPlotOutlined, DoubleLeftOutlined, DoubleRightOutlined,
+    FileTextOutlined, FundOutlined, HeatMapOutlined, LineChartOutlined, PieChartOutlined, TableOutlined,
+    CodeOutlined, CompassOutlined, FunctionOutlined, DotChartOutlined,  RadarChartOutlined, WindowsOutlined,
+    GoldOutlined, GatewayOutlined,
 } from '@ant-design/icons'
 
 import { language } from 'xshell/i18n/instance.js'
