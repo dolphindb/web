@@ -2,6 +2,8 @@ import { Tabs, Descriptions, Table, Typography, Empty, Card, Tooltip } from 'ant
 import useSWR from 'swr'
 import { type Node } from 'reactflow'
 
+import { t } from '@i18n/index.ts'
+
 import { node_state_icons } from '@/overview/table.tsx'
 
 import { defGetTaskSubWorkerStat, getSteamEngineStat, getTaskSubWorkerStat } from './apis.ts'
@@ -39,14 +41,14 @@ export function NodeDetailsComponent ({ selectedNode, id }: NodeDetailsComponent
   // Basic information tab content
   const renderBasicInfo = () => <Descriptions bordered column={2}>
       <Descriptions.Item label='ID'>{selectedNode.id}</Descriptions.Item>
-      <Descriptions.Item label='Type'>{nodeData.subType}</Descriptions.Item>
-      <Descriptions.Item label='Name'>{nodeData.label}</Descriptions.Item>
-      <Descriptions.Item label='Task ID'>{nodeData.taskId}</Descriptions.Item>
-      <Descriptions.Item label='Schema' span={3}>
+      <Descriptions.Item label={t('类型')}>{nodeData.subType}</Descriptions.Item>
+      <Descriptions.Item label={t('名称')}>{nodeData.label}</Descriptions.Item>
+      <Descriptions.Item label={t('任务ID')}>{nodeData.taskId}</Descriptions.Item>
+      <Descriptions.Item label={t('Schema')} span={3}>
         {renderSchema(nodeData.schema)}
       </Descriptions.Item>
-      <Descriptions.Item label='Node' span={3}>{nodeData.logicalNode}</Descriptions.Item>
-      <Descriptions.Item label='Node State' span={3}>{node_state_icons[nodeData.nodeState]}</Descriptions.Item>
+      <Descriptions.Item label={t('节点')} span={3}>{nodeData.logicalNode}</Descriptions.Item>
+      <Descriptions.Item label={t('节点状态')} span={3}>{node_state_icons[nodeData.nodeState]}</Descriptions.Item>
     </Descriptions>
   
   // Metrics tab content
@@ -142,13 +144,13 @@ export function NodeDetailsComponent ({ selectedNode, id }: NodeDetailsComponent
   }
   
   return <Tabs defaultActiveKey='1'>
-      <Tabs.TabPane tab='Node Details' key='1'>
+      <Tabs.TabPane tab={t('节点详情')} key='1'>
         {renderBasicInfo()}
       </Tabs.TabPane>
-      {isTable && <Tabs.TabPane tab='Subgraph Metrics' key='2'>
+      {isTable && <Tabs.TabPane tab={t('子图指标')} key='2'>
         {renderMetrics()}
       </Tabs.TabPane>}
-      {isEngine && <Tabs.TabPane tab='Engine Metrics' key='3'>
+      {isEngine && <Tabs.TabPane tab={t('引擎指标')} key='3'>
         {renderEngineMetrics()}
       </Tabs.TabPane>}
     </Tabs>
