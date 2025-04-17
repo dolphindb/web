@@ -1,6 +1,8 @@
 import { Descriptions, Typography, Empty, Card } from 'antd'
 import useSWR from 'swr'
 
+import { t } from '@i18n/index.ts'
+
 import { getStreamGraphInfo } from './apis.ts'
 
 const { Text } = Typography
@@ -20,10 +22,10 @@ export function StreamingGraphConfiguration ({ id }: StreamingGraphConfiguration
       return <Card loading />
   
   if (error)
-      return <Text type='danger'>Failed to load configuration data: {error.message}</Text>
+      return <Text type='danger'>{t('加载配置数据失败：')} {error.message}</Text>
   
   if (!data || Object.keys(data).length === 0)
-      return <Empty description='No available configuration data' />
+      return <Empty description={t('没有配置数据')} />
   
   return <div className='streaming-config-container'>
       <Descriptions bordered size='small' column={1}>

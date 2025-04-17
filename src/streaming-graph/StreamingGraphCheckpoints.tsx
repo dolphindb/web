@@ -1,6 +1,8 @@
 import { Descriptions, Typography, Empty, Card, Tabs, Table } from 'antd'
 import useSWR from 'swr'
 
+import { t } from '@i18n/index.ts'
+
 import { StatusTag, StatusType } from '@/components/tags/index.tsx'
 
 import { getCheckpointConfig, getCheckpointJobInfo, getCheckpointSubjobInfo } from './apis.ts'
@@ -56,24 +58,24 @@ export function StreamingGraphCheckpoints ({ id }: StreamingGraphCheckpointsProp
   
   // Job table columns
   const jobColumns = [
-    { title: 'Checkpoint ID', dataIndex: 'checkpointId', key: 'checkpointId' },
-    { title: 'Job ID', dataIndex: 'jobId', key: 'jobId' },
+    { title: t('检查点 ID'), dataIndex: 'checkpointId', key: 'checkpointId' },
+    { title: t('作业 ID'), dataIndex: 'jobId', key: 'jobId' },
     { 
-      title: 'Created Time', 
+      title: t('创建时间'), 
       dataIndex: 'createdTimeStamp', 
       key: 'createdTimeStamp',
       sorter: (a, b) => compareTimestamps(a.createdTimeStamp, b.createdTimeStamp),
       render: text => text ? new Date(text).toLocaleString() : '-'
     },
     { 
-      title: 'Finished Time', 
+      title: t('结束时间'),
       dataIndex: 'finishedTimeStamp', 
       key: 'finishedTimeStamp',
       sorter: (a, b) => compareTimestamps(a.finishedTimeStamp, b.finishedTimeStamp),
       render: text => text ? new Date(text).toLocaleString() : '-'
     },
     { 
-      title: 'Status', 
+      title: t('状态'), 
       dataIndex: 'status', 
       key: 'status',
       render: status => <StatusTag status={status_map[status]}>{status}</StatusTag>
@@ -82,39 +84,39 @@ export function StreamingGraphCheckpoints ({ id }: StreamingGraphCheckpointsProp
   
   // SubJob table columns
   const subjobColumns = [
-    { title: 'Checkpoint ID', dataIndex: 'checkpointId', key: 'checkpointId' },
-    { title: 'Job ID', dataIndex: 'jobId', key: 'jobId' },
-    { title: 'Subjob ID', dataIndex: 'subjobId', key: 'subjobId' },
+    { title: t('检查点 ID'), dataIndex: 'checkpointId', key: 'checkpointId' },
+    { title: t('作业 ID'), dataIndex: 'jobId', key: 'jobId' },
+    { title: t('子作业 ID'), dataIndex: 'subjobId', key: 'subjobId' },
     { 
-      title: 'First Barrier Arrival', 
+      title: t('收到第一个 Barrier 的时刻'), 
       dataIndex: 'firstBarrierArrTs', 
       key: 'firstBarrierArrTs',
       sorter: (a, b) => compareTimestamps(a.firstBarrierArrTs, b.firstBarrierArrTs),
       render: text => text ? new Date(text).toLocaleString() : '-'
     },
     { 
-      title: 'Barrier Alignment', 
+      title: t('Barrier 对齐的时刻'), 
       dataIndex: 'barrierAlignTs', 
       key: 'barrierAlignTs',
       sorter: (a, b) => compareTimestamps(a.barrierAlignTs, b.barrierAlignTs),
       render: text => text ? new Date(text).toLocaleString() : '-'
     },
     { 
-      title: 'Barrier Forward', 
+      title: t('转发 Barrier 时刻'), 
       dataIndex: 'barrierForwardTs', 
       key: 'barrierForwardTs',
       sorter: (a, b) => compareTimestamps(a.barrierForwardTs, b.barrierForwardTs),
       render: text => text ? new Date(text).toLocaleString() : '-'
     },
     { 
-      title: 'Status', 
+      title: t('状态'), 
       dataIndex: 'status', 
       key: 'status',
       render: status => <StatusTag status={status_map[status]}>{status}</StatusTag>
     },
-    { title: 'Snapshot Channels ID', dataIndex: 'snapshotChannelsId', key: 'snapshotChannelsId' },
+    { title: t('输入端 Channel 的 ID'), dataIndex: 'snapshotChannelsId', key: 'snapshotChannelsId' },
     { 
-      title: 'Snapshot Size', 
+      title: t('快照大小'), 
       dataIndex: 'snapshotSize', 
       key: 'snapshotSize',
       sorter: (a, b) => (a.snapshotSize || 0) - (b.snapshotSize || 0),
@@ -127,9 +129,9 @@ export function StreamingGraphCheckpoints ({ id }: StreamingGraphCheckpointsProp
     if (jobLoading)
         return <Card loading />
     if (jobError)
-        return <Text type='danger'>Failed to load Job info: {jobError.message}</Text>
+        return <Text type='danger'>{t('加载作业信息失败：')} {jobError.message}</Text>
     if (!jobData || !Array.isArray(jobData) || jobData.length === 0)
-        return <Empty description='No Job data available' />
+        return <Empty description={t('没有作业数据')} />
     
     return <Table 
       dataSource={jobData.map(item => ({ ...item, key: item.checkpointId }))} 
@@ -146,9 +148,9 @@ export function StreamingGraphCheckpoints ({ id }: StreamingGraphCheckpointsProp
     if (subjobLoading)
         return <Card loading />
     if (subjobError)
-        return <Text type='danger'>Failed to load SubJob info: {subjobError.message}</Text>
+        return <Text type='danger'>{t('加载子作业信息失败：')} {subjobError.message}</Text>
     if (!subjobData || !Array.isArray(subjobData) || subjobData.length === 0)
-        return <Empty description='No SubJob data available' />
+        return <Empty description={t('没有子作业数据')} />
     
     // Ensure each row has a unique key by combining checkpoint and subjob IDs
     const dataWithKeys = subjobData.map(item => ({
@@ -173,7 +175,7 @@ export function StreamingGraphCheckpoints ({ id }: StreamingGraphCheckpointsProp
     if (configError)
         return <Text type='danger'>Failed to load configuration: {configError.message}</Text>
     if (!configData || Object.keys(configData).length === 0)
-        return <Empty description='No configuration data available' />
+        return <Empty description={t('没有配置数据')} />
     
     return <Descriptions bordered size='small' column={1}>
       {Object.entries(configData).map(([key, value]) => <Descriptions.Item key={key} label={key}>
@@ -184,13 +186,13 @@ export function StreamingGraphCheckpoints ({ id }: StreamingGraphCheckpointsProp
   
   return <div className='streaming-config-container'>
     <Tabs defaultActiveKey='job'>
-      <Tabs.TabPane tab='Job' key='job'>
+      <Tabs.TabPane tab={t('作业')} key='job'>
         {renderJobTab()}
       </Tabs.TabPane>
-      <Tabs.TabPane tab='SubJob' key='subjob'>
+      <Tabs.TabPane tab={t('子作业')} key='subjob'>
         {renderSubjobTab()}
       </Tabs.TabPane>
-      <Tabs.TabPane tab='Configuration' key='config'>
+      <Tabs.TabPane tab={t('检查点配置')} key='config'>
         {renderConfigTab()}
       </Tabs.TabPane>
     </Tabs>

@@ -1,6 +1,4 @@
-import { useEffect } from 'react'
 import { Typography, Tooltip } from 'antd'
-import { Link, useNavigate } from 'react-router'
 import useSWR from 'swr'
 
 import { t } from '@i18n/index.ts'
@@ -45,39 +43,39 @@ export function JobTable () {
   // 定义表格列
   const columns = [
     {
-      title: t('Job Name'),
+      title: t('流图名称'),
       dataIndex: 'fqn',
       key: 'fqn',
       render: (text: string) => <Typography.Text ellipsis>{text || '-'}</Typography.Text>
     },
     {
-      title: t('Owner'),
+      title: t('创建者'),
       dataIndex: 'owner',
       key: 'owner',
       render: (text: string) => <Text>{text || '-'}</Text>
     },
     {
-      title: t('Create Time'),
+      title: t('创建时间'),
       dataIndex: 'createTime',
       key: 'createTime',
       sorter: (a: StreamGraphMeta, b: StreamGraphMeta) => new Date(a.createTime).getTime() - new Date(b.createTime).getTime(),
       render: (time: string) => time ? new Date(time).toLocaleString() : '-'
     },
     {
-      title: t('Semantics'),
+      title: t('数据执行次数'),
       dataIndex: 'semantics',
       key: 'semantics',
       render: (semantics: string) => <Text>{semantics}</Text>
     },
     {
-      title: t('Task Count'),
+      title: t('任务数量'),
       key: 'tasks',
       render: (_: any, record: StreamGraphMeta) => {
         const total = record.tasks.length || 0
         const running = record.tasks.filter(task => task.status === 'running').length
         
         return <div style={{ display: 'flex', alignItems: 'center' }}>
-            <Tooltip title={t('Total Tasks')}>
+            <Tooltip title={t('总任务数')}>
               <div style={{ 
                 backgroundColor: '#333', 
                 color: 'white', 
@@ -90,7 +88,7 @@ export function JobTable () {
             </Tooltip>
             
             {running > 0 && (
-              <Tooltip title={t('Running Tasks')}>
+              <Tooltip title={t('运行中任务数')}>
                 <div style={{ 
                   backgroundColor: '#52c41a', 
                   color: 'white', 
@@ -105,7 +103,7 @@ export function JobTable () {
       }
     },
     {
-      title: t('Status'),
+      title: t('状态'),
       dataIndex: 'status',
       key: 'status',
       sorter: (a: StreamGraphMeta, b: StreamGraphMeta) => {
@@ -121,12 +119,12 @@ export function JobTable () {
       },
       render: (status: string) => {
         const statuses = {
-          building: t('Building'),
-          running: t('Running'),
-          error: t('Error'),
-          failed: t('Failed'),
-          destroying: t('Destroying'),
-          destroyed: t('Destroyed')
+          building: t('构建中'),
+          running: t('运行中'),
+          error: t('错误'),
+          failed: t('失败'),
+          destroying: t('销毁中'),
+          destroyed: t('已销毁')
         }
         return <StatusTag status={status_map[status]}>{statuses[status] || status}</StatusTag>
       }
@@ -136,8 +134,8 @@ export function JobTable () {
   return <div className='job-table-container'>
       <DDBTable
         title={<>
-          <Tooltip title={t('Streaming Graph List')}>{t('Streaming Graph List')}</Tooltip>
-          ({streamGraphs?.filter(graph => graph.status === 'running').length || 0} {t('Running')})
+          <Tooltip title={t('Streaming Graph List')}>{t('流图列表')}</Tooltip>
+          ({streamGraphs?.filter(graph => graph.status === 'running').length || 0} {t('个')}{t('运行中')})
         </>}
         columns={columns}
         dataSource={streamGraphs || [ ]}

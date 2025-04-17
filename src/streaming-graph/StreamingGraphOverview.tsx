@@ -21,6 +21,8 @@ import 'reactflow/dist/style.css'
 
 import './streaming-graph.sass'
 
+import { t } from '@i18n/index.ts'
+
 import { model, type DdbNode, type DdbNodeState } from '@/model.ts'
 
 import { node_state_icons } from '@/overview/table.tsx'
@@ -474,7 +476,7 @@ function StreamingGraphVisualization ({ id }: { id: string }) {
       </ReactFlow>
       {/* Node details drawer - contained within the flow container */}
       <Drawer
-        title='Details'
+        title={t('详情')}
         placement='right'
         getContainer={false}
         width='50%'
@@ -504,15 +506,138 @@ function TaskSubWorkerStatTable ({ id }: { id: string }) {
       return <Card loading />
     
   if (error)
-      return <Text type='danger'>Failed to load subscription worker data: {error.message}</Text>
+      return <Text type='danger'>{t('加载流任务状态失败：')} {error.message}</Text>
     
   if (!data || data.length === 0)
       return null
     
+  const columnsMap = [
+    {
+      title: t('任务 ID'),
+      dataIndex: 'taskId',
+      key: 'taskId'
+    },
+    {
+      title: t('订阅主题'),
+      dataIndex: 'tableName',
+      key: 'tableName'
+    },
+    {
+      title: t('订阅动作'),
+      dataIndex: 'actionName',
+      key: 'actionName'
+    },
+    {
+      title: t('线程 ID'),
+      dataIndex: 'workerId',
+      key: 'workerId'
+    },
+    {
+      title: t('订阅主题'),
+      dataIndex: 'topic',
+      key: 'topic'
+    },
+    {
+      title: t('订阅方式'),
+      dataIndex: 'type',
+      key: 'type'
+    },
+    {
+      title: t('队列深度上限'),
+      dataIndex: 'queueDepthLimit',
+      key: 'queueDepthLimit'
+    },
+    {
+      title: t('队列深度'),
+      dataIndex: 'queueDepth',
+      key: 'queueDepth'
+    },
+    {
+      title: t('已处理消息数'),
+      dataIndex: 'processedMsgCount',
+      key: 'processedMsgCount'
+    },
+    {
+      title: t('最近处理消息 ID'),
+      dataIndex: 'lastMsgId',
+      key: 'lastMsgId'
+    },
+    {
+      title: t('失败消息总数'),
+      dataIndex: 'failedMsgCount',
+      key: 'failedMsgCount'
+    },
+    {
+      title: t('最近处理失败的消息 ID'),
+      dataIndex: 'lastFailedMsgId',
+      key: 'lastFailedMsgId'
+    },
+    {
+      title: t('最近处理失败的时刻'),
+      dataIndex: 'lastFailedTimestamp',
+      key: 'lastFailedTimestamp'
+    },
+    {
+      title: t('最近错误信息'),
+      dataIndex: 'lastErrMsg',
+      key: 'lastErrMsg'
+    },
+    {
+      title: t('消息是否为表'),
+      dataIndex: 'msgAsTable',
+      key: 'msgAsTable'
+    },
+    {
+      title:  t('批次大小'),
+      dataIndex: 'batchSize',
+      key: 'batchSize'
+    },
+    {
+      title: t('等待间隔'),
+      dataIndex: 'throttle',
+      key: 'throttle'
+    },
+    {
+      title: t('订阅 hash 值'),
+      dataIndex: 'hash',
+      key: 'hash'
+    },
+    {
+      title: t('过滤列'),
+      dataIndex: 'filter',
+      key: 'filter'
+    },
+    {
+      title: t('开启订阅偏移持久化'),
+      dataIndex: 'persistOffset',
+      key: 'persistOffset'
+    },
+    {
+      title: t('强制按时间间隔触发'),
+      dataIndex: 'timeTrigger',
+      key: 'timeTrigger'
+    },
+    {
+      title:  t('包含消息 ID'),
+      dataIndex: 'handlerNeedMsgId',
+      key: 'handlerNeedMsgId'
+    },
+    {
+      title: t('高可用组'),
+      dataIndex: 'raftGroup',
+      key: 'raftGroup'
+    },
+    {
+      title: t('节点'),
+      dataIndex: 'node',
+      key: 'node'
+    }
+  ]
+  
   // Extract columns from data
-  const columns = Object.keys(data[0]).map(key => ({
-    title: key,
-    dataIndex: key,
+  const columns = columnsMap.map(({ title, dataIndex, key }) => ({
+    title: title,
+    dataIndex: dataIndex,
     key: key,
     render: (text: any) => {
       if (typeof text === 'object')
@@ -526,7 +651,7 @@ function TaskSubWorkerStatTable ({ id }: { id: string }) {
     }
   }))
   
-  return <Card title='Task Subscription Worker Statistics' style={{ marginTop: 16 }}>
+  return <Card title={t('流任务状态')} style={{ marginTop: 16 }}>
       <Table 
         dataSource={data} 
         columns={columns} 

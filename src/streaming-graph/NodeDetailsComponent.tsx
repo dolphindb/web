@@ -16,6 +16,7 @@ interface NodeDetailsComponentProps {
 export function NodeDetailsComponent ({ selectedNode, id }: NodeDetailsComponentProps) {
   
   const isEngine = selectedNode && selectedNode.data?.subType?.endsWith('_ENGINE')
+  const isTable = selectedNode && selectedNode.data?.subType === ('TABLE')
   
   
   const { data, error, isLoading } = useSWR(
@@ -142,9 +143,9 @@ export function NodeDetailsComponent ({ selectedNode, id }: NodeDetailsComponent
       <Tabs.TabPane tab='Node Details' key='1'>
         {renderBasicInfo()}
       </Tabs.TabPane>
-      <Tabs.TabPane tab='Subgraph Metrics' key='2'>
+      {isTable && <Tabs.TabPane tab='Subgraph Metrics' key='2'>
         {renderMetrics()}
-      </Tabs.TabPane>
+      </Tabs.TabPane>}
       {isEngine && <Tabs.TabPane tab='Engine Metrics' key='3'>
         {renderEngineMetrics()}
       </Tabs.TabPane>}
