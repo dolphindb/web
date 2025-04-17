@@ -42,7 +42,9 @@ export function NodeDetailsComponent ({ selectedNode, id }: NodeDetailsComponent
       <Descriptions.Item label='Type'>{nodeData.subType}</Descriptions.Item>
       <Descriptions.Item label='Name'>{nodeData.label}</Descriptions.Item>
       <Descriptions.Item label='Task ID'>{nodeData.taskId}</Descriptions.Item>
-      <Descriptions.Item label='Schema' span={3}>{nodeData.schema}</Descriptions.Item>
+      <Descriptions.Item label='Schema' span={3}>
+        {renderSchema(nodeData.schema)}
+      </Descriptions.Item>
       <Descriptions.Item label='Node' span={3}>{nodeData.logicalNode}</Descriptions.Item>
       <Descriptions.Item label='Node State' span={3}>{node_state_icons[nodeData.nodeState]}</Descriptions.Item>
     </Descriptions>
@@ -150,4 +152,42 @@ export function NodeDetailsComponent ({ selectedNode, id }: NodeDetailsComponent
         {renderEngineMetrics()}
       </Tabs.TabPane>}
     </Tabs>
+}
+
+function renderSchema (schema: any) {
+  if (!schema || typeof schema !== 'object' || !schema.names || !schema.types)
+      return null
+  
+  
+  function getTypeColor (type: string) {
+    switch (type) {
+      case 'DOUBLE':
+        return '#52c41a'
+      case 'SYMBOL':
+        return '#1890ff'
+      case 'TIMESTAMP':
+        return '#faad14'
+      default:
+        return '#666'
+    }
+  }
+  
+  return <Descriptions 
+      size='small' 
+      column={1}
+      bordered
+      style={{ 
+        maxHeight: '160px', 
+        overflow: 'auto' 
+      }}
+    >
+      {schema.names.map((name: string, index: number) => <Descriptions.Item 
+          key={name} 
+          label={name}
+        >
+          <span style={{ color: getTypeColor(schema.types[index]) }}>
+            {schema.types[index]}
+          </span>
+        </Descriptions.Item>)}
+    </Descriptions>
 } 

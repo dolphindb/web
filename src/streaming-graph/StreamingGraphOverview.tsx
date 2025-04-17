@@ -171,12 +171,11 @@ function CustomNode ({ data, id, selected }: NodeProps) {
       )}
       
       <div className='node-task'>Task ID: {data.taskId}</div>
-      <div className='node-schema' title={data.schema}>
-        {data.schema && data.schema.length > 20 
-          ? `${data.schema.substring(0, 20)}...` 
-          : data.schema
-        }
-      </div>
+      {/* <div className='node-schema' 
+        title={typeof data.schema === 'object' ? JSON.stringify(data.schema) : String(data.schema)}
+      >
+        {JSON.stringify(data.schema)}
+      </div> */}
       <Handle
         type='source'
         position={Position.Right}
