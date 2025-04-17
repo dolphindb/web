@@ -42,8 +42,7 @@ export async function getCheckpointSubjobInfo (name: string): Promise<Checkpoint
 export async function defGetTaskSubWorkerStat (): Promise<void> {
     return model.ddb.execute(`def getTaskSubWorkerStat(name) {
         getStat = def (): getStreamingStat().subWorkers
-        nodes = exec name from getClusterPerf() where (mode=3 or mode=0) and state == 1
-        stat = pnodeRun(getStat, nodes)
+        stat = pnodeRun(getStat, getDataNodes())
         sub = getOrcaStreamTaskSubscriptionMeta(name)
         return select * from sub, stat where strFind(stat.topic, sub.tableName + "/" + sub.actionName) != -1 order by taskId
     }`)
