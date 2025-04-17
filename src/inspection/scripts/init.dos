@@ -1,8 +1,16 @@
 if (!existsDatabase("dfs://autoInspection")) {
     clearEnv()
     initDfs()
+} else {
+    // 添加旧版本没有的表
+    if (!existsTable("dfs://autoInspection", "updateHistory")) {
+        tb = table(1:0, `webVersion`updateTime, [STRING, TIMESTAMP])
+        createTable(database("dfs://autoInspection"), tb, "updateHistory", sortColumns="updateTime")
+    }
 }
 go
+metrics = select * from loadTable("dfs://autoInspection", "metrics")
+language = "cn"
 
 // ------------- group 0 ------------------
 name = "nodeStatus"
@@ -22,7 +30,11 @@ def nodeStatus(params) {
     return (true, NULL, NULL)
 }
 '
-newMetric(name, displayName, group, desc, nodes, script, params)
+if (name in metrics.name) {
+    updateMetric(name, displayName, group, desc, nodes, script, params, language)
+} else {
+    newMetric(name, displayName, group, desc, nodes, script, params)
+}
 
 name = "licenseExpiration"
 displayName = "license 有效期"
@@ -41,7 +53,11 @@ def licenseExpiration(params=NULL) {
     return (true, res, NULL)
 }
 '
-newMetric(name, displayName, group, desc, nodes, script)
+if (name in metrics.name) {
+    updateMetric(name, displayName, group, desc, nodes, script, params, language)
+} else {
+    newMetric(name, displayName, group, desc, nodes, script, params)
+}
 go
 
 name = "connectionNum"
@@ -61,7 +77,11 @@ def connectionNum(params) {
     return (true, "外部连接数: " + string(connectionNum) + " 小于 maxConnections 配置值: " + string(maxConnectionNum) + " * 90%", NULL)
 }
 '
-newMetric(name, displayName, group, desc, nodes, script)
+if (name in metrics.name) {
+    updateMetric(name, displayName, group, desc, nodes, script, params, language)
+} else {
+    newMetric(name, displayName, group, desc, nodes, script, params)
+}
 go
 
 name = "nodeVersion"
@@ -81,7 +101,11 @@ def nodeVersion(params) {
     return (true, version(), NULL)
 }
 '
-newMetric(name, displayName, group, desc, nodes, script)
+if (name in metrics.name) {
+    updateMetric(name, displayName, group, desc, nodes, script, params, language)
+} else {
+    newMetric(name, displayName, group, desc, nodes, script, params)
+}
 go
 
 name = "pluginVersion"
@@ -145,8 +169,11 @@ def pluginVersion(params) {
     return (true, NULL, NULL)
 }
 '
-version = 1
-newMetric(name, displayName, group, desc, nodes, script, NULL, version)
+if (name in metrics.name) {
+    updateMetric(name, displayName, group, desc, nodes, script, params, language)
+} else {
+    newMetric(name, displayName, group, desc, nodes, script, params)
+}
 go
 
 // -------------------------- group 1 ------------------------------
@@ -185,7 +212,11 @@ def recoveryStatus(mutable params){
 params = [
     dict(`name`type, ["checkInterval", "INT"])
 ]
-newMetric(name, displayName, group, desc, nodes, script, params)
+if (name in metrics.name) {
+    updateMetric(name, displayName, group, desc, nodes, script, params, language)
+} else {
+    newMetric(name, displayName, group, desc, nodes, script, params)
+}
 go
 
 name = "diskUsage"
@@ -208,7 +239,11 @@ def diskUsage(params) {
     return (true, "磁盘使用率 " + roundDiskUsage.format("0.00") + "% 小于 volumeUsageThreshold 配置项 " + round(threshold*100, 2) + "%。", NULL)
 }
 '
-newMetric(name, displayName, group, desc, nodes, script)
+if (name in metrics.name) {
+    updateMetric(name, displayName, group, desc, nodes, script, params, language)
+} else {
+    newMetric(name, displayName, group, desc, nodes, script, params)
+}
 go
 
 name = "memUsage"
@@ -226,7 +261,11 @@ def memUsage(params) {
     return (true, NULL, NULL)
 }
 '
-newMetric(name, displayName, group, desc, nodes, script)
+if (name in metrics.name) {
+    updateMetric(name, displayName, group, desc, nodes, script, params, language)
+} else {
+    newMetric(name, displayName, group, desc, nodes, script, params)
+}
 go
 
 name = "levelFileIndexCacheStatus"
@@ -243,7 +282,11 @@ def levelFileIndexCacheStatus(params) {
     return (true, NULL, NULL)
 }
 '
-newMetric(name, displayName, group, desc, nodes, script)
+if (name in metrics.name) {
+    updateMetric(name, displayName, group, desc, nodes, script, params, language)
+} else {
+    newMetric(name, displayName, group, desc, nodes, script, params)
+}
 go
 
 name = "chunksStatus"
@@ -261,7 +304,11 @@ def chunksStatus(params) {
     return (true, NULL, NULL)
 }
 '
-newMetric(name, displayName, group, desc, nodes, script)
+if (name in metrics.name) {
+    updateMetric(name, displayName, group, desc, nodes, script, params, language)
+} else {
+    newMetric(name, displayName, group, desc, nodes, script, params)
+}
 go
 
 name = "chunksVersion"
@@ -288,7 +335,11 @@ def chunksVersion(params) {
     return (true, NULL, NULL)
 }
 '
-newMetric(name, displayName, group, desc, nodes, script)
+if (name in metrics.name) {
+    updateMetric(name, displayName, group, desc, nodes, script, params, language)
+} else {
+    newMetric(name, displayName, group, desc, nodes, script, params)
+}
 go
 
 name = "chunksCid"
@@ -313,7 +364,11 @@ def chunksCid(params) {
     return (true, NULL, NULL)
 }
 '
-newMetric(name, displayName, group, desc, nodes, script)
+if (name in metrics.name) {
+    updateMetric(name, displayName, group, desc, nodes, script, params, language)
+} else {
+    newMetric(name, displayName, group, desc, nodes, script, params)
+}
 go
 
 name = "replicaNum"
@@ -338,7 +393,11 @@ def replicaNum(params) {
     return (true, NULL, NULL)
 }
 '
-newMetric(name, displayName, group, desc, nodes, script)
+if (name in metrics.name) {
+    updateMetric(name, displayName, group, desc, nodes, script, params, language)
+} else {
+    newMetric(name, displayName, group, desc, nodes, script, params)
+}
 go
 
 name = "replicaRowNum"
@@ -408,7 +467,11 @@ params = [
     dict(`name`type, ["startTime", "TIMESTAMP"]),
     dict(`name`type, ["endTime", "TIMESTAMP"])
 ]
-newMetric(name, displayName, group, desc, nodes, script, toStdJson(params))
+if (name in metrics.name) {
+    updateMetric(name, displayName, group, desc, nodes, script, params, language)
+} else {
+    newMetric(name, displayName, group, desc, nodes, script, params)
+}
 go
 
 name = "errorLogs"
@@ -522,7 +585,11 @@ params = [
     dict(`name`type`options, ["logLevel", "SYMBOL", ["ERROR", "WARNING"]])
 ]
 version = 1
-newMetric(name, displayName, group, desc, nodes, script, params, version)
+if (name in metrics.name) {
+    updateMetric(name, displayName, group, desc, nodes, script, params, language)
+} else {
+    newMetric(name, displayName, group, desc, nodes, script, params)
+}
 go
 
 name = "queryElapsed"
@@ -596,7 +663,11 @@ params = [
     dict(`name`type, ["endTime", "TIMESTAMP"])
 ]
 version = 1
-newMetric(name, displayName, group, desc, nodes, script, params, version)
+if (name in metrics.name) {
+    updateMetric(name, displayName, group, desc, nodes, script, params, language)
+} else {
+    newMetric(name, displayName, group, desc, nodes, script, params)
+}
 go
 
 name = "mostQueriedDFSTables"
@@ -666,7 +737,11 @@ params = [
     dict(`name`type, ["endTime", "TIMESTAMP"])
 ]
 version = 1
-newMetric(name, displayName, group, desc, nodes, script, params, version)
+if (name in metrics.name) {
+    updateMetric(name, displayName, group, desc, nodes, script, params, language)
+} else {
+    newMetric(name, displayName, group, desc, nodes, script, params)
+}
 go
 
 name = "DFSTableDiskUsage"
@@ -736,7 +811,11 @@ params = [
     dict(`name`type, ["endTime", "TIMESTAMP"])
 ]
 version = 1
-newMetric(name, displayName, group, desc, nodes, script, params, version)
+if (name in metrics.name) {
+    updateMetric(name, displayName, group, desc, nodes, script, params, language)
+} else {
+    newMetric(name, displayName, group, desc, nodes, script, params)
+}
 go
 
 name = "biggestChunks"
@@ -789,7 +868,11 @@ params = [
     dict(`name`type, ["startTime", "TIMESTAMP"]),
     dict(`name`type, ["endTime", "TIMESTAMP"])
 ]
-newMetric(name, displayName, group, desc, nodes, script, params)
+if (name in metrics.name) {
+    updateMetric(name, displayName, group, desc, nodes, script, params, language)
+} else {
+    newMetric(name, displayName, group, desc, nodes, script, params)
+}
 go
 
 name = "sortKeyCount"
@@ -846,7 +929,11 @@ params = [
     dict(`name`type, ["endTime", "TIMESTAMP"])
 ]
 version = 1
-newMetric(name, displayName, group, desc, nodes, script, params, version)
+if (name in metrics.name) {
+    updateMetric(name, displayName, group, desc, nodes, script, params, language)
+} else {
+    newMetric(name, displayName, group, desc, nodes, script, params)
+}
 go
 
 name = "checkConfigs::commonDolphinDBConfig"
@@ -1553,7 +1640,11 @@ def commonDolphinDBConfig(params) {
     return (true, NULL, NULL)
 }
 '
-newMetric(name, displayName, group, desc, nodes, script)
+if (name in metrics.name) {
+    updateMetric(name, displayName, group, desc, nodes, script, params, language)
+} else {
+    newMetric(name, displayName, group, desc, nodes, script, params)
+}
 go
 
 name = "replicaDomain"
@@ -1700,7 +1791,11 @@ params = [
     dict(`name`type, ["startTime", "TIMESTAMP"]),
     dict(`name`type, ["endTime", "TIMESTAMP"])
 ]
-newMetric(name, displayName, group, desc, nodes, script, params)
+if (name in metrics.name) {
+    updateMetric(name, displayName, group, desc, nodes, script, params, language)
+} else {
+    newMetric(name, displayName, group, desc, nodes, script, params)
+}
 go
 
 name = "commonSystemConfig"
@@ -1846,7 +1941,11 @@ def commonSystemConfig(params) {
 params = [
     dict(`name`type`options, ["logLevel", "SYMBOL", ["ERROR", "WARNING"]])
 ]
-newMetric(name, displayName, group, desc, nodes, script, params)
+if (name in metrics.name) {
+    updateMetric(name, displayName, group, desc, nodes, script, params, language)
+} else {
+    newMetric(name, displayName, group, desc, nodes, script, params)
+}
 go
 
 
@@ -1912,5 +2011,9 @@ def replicaTbl(params=NULL) {
     }
 }
 '
-newMetric(name, displayName, group, desc, nodes, script)
+if (name in metrics.name) {
+    updateMetric(name, displayName, group, desc, nodes, script, params, language)
+} else {
+    newMetric(name, displayName, group, desc, nodes, script, params)
+}
 go

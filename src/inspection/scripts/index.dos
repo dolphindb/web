@@ -137,18 +137,12 @@ def initDfs() {
 
     tb = table(1:0, `reportId`planId`metricName`metricVersion`metricParams`node`jobId`startTime`endTime`success`detail`extraDetail`suggestion, [STRING, STRING, STRING, INT, STRING, STRING, STRING, TIMESTAMP, TIMESTAMP, BOOL, BLOB, BLOB, STRING])
     pt5 = createPartitionedTable(db, tb, "reportDetails", ["planId", "startTime"], sortColumns="startTime")
+
+    tb = table(1:0, `webVersion`updateTime, [STRING, TIMESTAMP])
+    pt6 = createTable(db, tb, "updateHistory", sortColumns="updateTime")
 }
 
-def newMetric(name, displayName, group, desc, nodes, script, params=NULL, version=0, language="cn") {
-    print("new metric: " + name)
-    name_ = name
-    version_ = version
-    language_ = language
-    cnt = exec count(*) from loadTable("dfs://autoInspection", "metrics") where name == name_ and version == version_ and language == language_
-    if (cnt > 0) {
-        print("duplicated metric, ignore! Name: " + name + ", version: " + string(version) + ", language: " + language)
-        return
-    }
+def parseMetricParams(params) {
     params_ = params
     if (params.type() == STRING) { 
         if (params != "null") { // 若为非 "null" 字符串，检查是否为合法 json
@@ -179,6 +173,21 @@ def newMetric(name, displayName, group, desc, nodes, script, params=NULL, versio
         params_ = toStdJson(params)
     }
 
+    return params_
+}
+
+def newMetric(name, displayName, group, desc, nodes, script, params=NULL, version=0, language="cn") {
+    print("new metric: " + name)
+    name_ = name
+    version_ = version
+    language_ = language
+    cnt = exec count(*) from loadTable("dfs://autoInspection", "metrics") where name == name_ and version == version_ and language == language_
+    if (cnt > 0) {
+        print("duplicated metric, ignore! Name: " + name + ", version: " + string(version) + ", language: " + language)
+        return
+    }
+    params_ = parseMetricParams(params)
+
     nodes_ = iif(nodes.form() == 1, nodes.concat(","), string(nodes))
     ts = now()
     metric = table(
@@ -204,42 +213,62 @@ def updateMetric(name_, displayName_, group_, desc_, nodes, script_, params_, la
     if (isVoid(desc_) and isVoid(nodes) and isVoid(script_)) {
         throw "at least one of desc, nodes and script should not be empty"
     }
-    if (!isVoid(params_)) {
-        if (params_.form() != 5) {
-            throw "param must be a dict"
-        }
-    }
-    cnt = exec count(*) from loadTable("dfs://autoInspection", "metrics") where name == name_
-    if (cnt > 0) {
+    params__ = parseMetricParams(params_)
+    pt = loadTable("dfs://autoInspection", "metrics")
+    cnt = exec count(*) from pt where name == name_
+    if (cnt == 0) {
         throw "metric name: " + name_ + " not found"
     }
 
-    pt = loadTable("dfs://autoInspection", "metrics")
+    // 基于最新version的记录来更新指标
+    tb = select * from pt where name == name_ order by version desc limit 1
+    // 如果script内容没变化，不更新
+    if (script_ == tb.script.first()) {
+        return
+    }
+    print("start to update metric: " + name_)
     if (!isVoid(displayName_)) {
-        update pt set displayName = displayName_ where name == name_
+        update tb set displayName = displayName_ where name == name_
     }
     if (!isVoid(group_)) {
-        update pt set group = group_ where name == name_
+        update tb set group = group_ where name == name_
     }
     if (!isVoid(desc_)) {
-        update pt set desc = desc_ where name == name_
+        update tb set desc = desc_ where name == name_
     }
     if (!isVoid(nodes)) {
         nodes_ = iif(nodes.form() == 1, nodes.concat(","), string(nodes))
-        update pt set nodes = nodes_ where name == name_
+        update tb set nodes = nodes_ where name == name_
     }
     if (!isVoid(script_)) {
-        update pt set script = script_ where name == name_
+        update tb set script = script_ where name == name_
     }
     if (!isVoid(params_)) {
-        update pt set params = toStdJson(params_) where name == name_
+        update tb set params = params__ where name == name_
     }
     if (!isVoid(language_)) {
-        update pt set language = language_ where name == name_
+        update tb set language = language_ where name == name_
     }
-    update pt set version = version + 1 where name == name_
-    ts = now()
-    update pt set updateTime = ts where name == name_
+    update tb set version = version + 1 where name == name_ // version 自增
+    update tb set updateTime = now() where name == name_
+    // 以append的方式更新
+    pt.append!(tb)
+}
+
+def updateMetricsFromFile(filepath) {
+    fin = file(filepath)
+    metrics = fin.readObject()
+    fin.close()
+    pt = loadTable("dfs://autoInspection", "metrics")
+
+    for (item in metrics) {
+        cnt = exec count(*) from pt where name == item.name
+        if (cnt == 0) {
+            newMetric(item.name, item.displayName, item.group, item.desc, item.nodes, item.script, item.params, item.language)
+        } else {
+            updateMetric(item.name, item.displayName, item.group, item.desc, item.nodes, item.script, item.params, item.language)
+        }
+    }
 }
 
 def generateDefaultMetricParams(planId) {
@@ -370,7 +399,16 @@ def runPlanInner(planId, reportId) {
     writeLog("autoInspection: start to run plan: " + string(planId))
     ts = reportId.split("_").last()
     planId_ = planId
-    planDetails = select a.metricName as metricName, a.nodes as nodes, a.params as params, b.script as script, b.version as metricVersion from loadTable("dfs://autoInspection", "planDetails") a left join loadTable("dfs://autoInspection", "metrics") b on a.metricName == b.name where a.planId == planId_
+    t = select * from loadTable("dfs://autoInspection", "planDetails")
+    delete from loadTable("dfs://autoInspection", "planDetails")
+    update t set metricVersion = 0 where metricName == "nodeStatus"
+    loadTable("dfs://autoInspection", "planDetails").append!(t)
+    planDetails = select a.metricName as metricName, a.nodes as nodes, a.params as params, b.script as script, b.version as metricVersion from loadTable("dfs://autoInspection", "planDetails") a left join loadTable("dfs://autoInspection", "metrics") b on a.metricName == b.name and a.metricVersion == b.version where a.planId == planId_
+    // metricVersion 设为空的 planDetail，自动选最大版本的指标
+    maxVersionMetrics = select * from loadTable("dfs://autoInspection", "metrics") context by name csort version desc limit 1
+    planDetails1 = select a.metricName, a.nodes, a.params, b.script, b.version as metricVersion from planDetails a left join maxVersionMetrics b on a.metricName == b.name where a.metricVersion == NULL 
+    planDetails2 = select * from planDetails where metricVersion != NULL 
+    planDetails = unionAll(planDetails1, planDetails2, true)
 
     defaultParams = generateDefaultMetricParams(planId)
     params = defaultParams
@@ -711,7 +749,7 @@ def enablePlan(id) {
     return jobId
 }
 
-def createPlan(name, desc, metrics, nodes, params, frequency, days, scheduleTime, enabled=false, enabledNode=NULL, alertEnabled=false, alertRecipient=NULL, runNow=false, id=NULL) {
+def createPlan(name, desc, metrics, versions, nodes, params, frequency, days, scheduleTime, enabled=false, enabledNode=NULL, alertEnabled=false, alertRecipient=NULL, runNow=false, id=NULL) {
     print("start to create plan: " + name)
     id_ = iif(isNull(id), string(long(now())), id)
     cnt = exec count(*) from loadTable("dfs://autoInspection", "plans") where id == id_
@@ -726,6 +764,18 @@ def createPlan(name, desc, metrics, nodes, params, frequency, days, scheduleTime
     }
     if (metrics.size() != params.size()) {
         throw "metrics' size must be same as params' size"
+    }
+    versions_ = []$INT
+    if (metrics.size() != versions.size()) {
+        throw "metrics' size must be same as versions' size"
+    } else {
+        for (i in til(versions.size())) {
+            cnt = exec count(*) from loadTable("dfs://autoInspection", "metrics") where name == metrics[i] and version == versions[i]
+            if (cnt == 0) {
+                throw "metric not found, name: " + metrics[i] + ", version: " + versions[i]
+            }
+            versions_.append!(int(version))
+        }
     }
     if (scheduleTime.form() == 0) {
         if (isNull(scheduleTime)) {
@@ -842,11 +892,10 @@ def createPlan(name, desc, metrics, nodes, params, frequency, days, scheduleTime
     planDetails = table(
         take(id_, n) as planId,
         metrics as metricName,
+        versions_ as metricVersion,
         nodes_ as nodes,
         params_ as params
     )
-    metricsInfo = select max(version) as version from loadTable("dfs://autoInspection", "metrics") group by name
-    planDetails = select planId, metricName, version, nodes, params from planDetails left join metricsInfo on planDetails.metricName == metricsInfo.name
     loadTable("dfs://autoInspection", "plans").append!(plan)
     loadTable("dfs://autoInspection", "planDetails").append!(planDetails)
 
@@ -906,9 +955,9 @@ def deletePlan(id) {
     }
 }
 
-def updatePlan(id, name, desc, metrics, nodes, params, frequency, days, scheduleTime, enabled, enabledNode, alertEnabled, alertRecipient, runNow=false) {
+def updatePlan(id, name, desc, metrics, versions, nodes, params, frequency, days, scheduleTime, enabled, enabledNode, alertEnabled, alertRecipient, runNow=false) {
     deletePlan(id)
-    return createPlan(name, desc, metrics, nodes, params, frequency, days, scheduleTime, enabled, enabledNode, alertEnabled, alertRecipient, runNow, id)
+    return createPlan(name, desc, metrics, versions, nodes, params, frequency, days, scheduleTime, enabled, enabledNode, alertEnabled, alertRecipient, runNow, id)
 }
 
 def getPlans(planId=NULL, enabled=NULL, page=NULL, pageLimit=NULL, searchPattern=NULL) {
@@ -1093,3 +1142,17 @@ def cancelRunningPlan(reportId) {
     throw "delete report failed after trying 30 times, report id: " + reportId + ", last error: " + string(iif(lastErr.form()==0, lastErr, lastErr.last()))
 }
 
+def areMetricsUpdated(webVersion_) {
+    cnt = exec count(*) from loadTable("dfs://autoInspection", "updateHistory") where webVersion == webVersion_
+    return cnt > 0
+}
+
+def setMetricsUpdated(webVersion_) {
+    cnt = exec count(*) from loadTable("dfs://autoInspection", "updateHistory") where webVersion == webVersion_
+    if (cnt > 0) {
+        return
+    }
+
+    tb = table(webVersion_ as webVersion, now() as updateTime)
+    loadTable("dfs://autoInspection", "updateHistory").append!(tb)
+}
