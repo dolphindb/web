@@ -6030,7 +6030,7 @@
         "en": "Plugin loaded successfully"
     },
     "在下方表格中选择需要加载的插件，以及节点（当前未安装或已加载的节点会被跳过）": {
-        "en": "Select the plugin and node to be loaded in the table below (nodes that are not currently installed or already loaded will be skipped)"
+        "en": "Select the plugin and nodes to install it. Nodes that haven't installed the plugin or have already loaded it will be skipped."
     },
     "安装插件": {
         "en": "Install Plugin"
@@ -6072,7 +6072,7 @@
         "en": "Online"
     },
     "从某节点同步": {
-        "en": "Synchronize from a node"
+        "en": "Synchronize from a Node"
     },
     "插件 zip 包": {
         "en": "Plugin Zip"
