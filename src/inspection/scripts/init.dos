@@ -90,21 +90,6 @@ group = "0"
 desc = "检查集群版本与插件版本是否一致。"
 nodes = NULL
 script = '
-def getPluginDir() {
-        ver = version()
-        pluginDir = getConfig("pluginDir")
-        if ((like(ver, "%LINUX%") and !pluginDir.startsWith("/")) or (like(ver, "%WIN%") and regexFind  (pluginDir, "^[a-zA-Z]:") != 0)) {
-            nodeCnt = exec count(*) from rpc(getControllerAlias(), getClusterPerf)
-            if (nodeCnt > 1) {
-                pluginDir = "../" + pluginDir
-            } else {
-                pluginDir = "./" + pluginDir
-            }
-        }
-        
-        return pluginDir
-}
-
 def pluginVersion(params) {
     listPluginsInner = def() {
         pluginDir = getPluginDir()
