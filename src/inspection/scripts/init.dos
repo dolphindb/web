@@ -145,7 +145,8 @@ def pluginVersion(params) {
     return (true, NULL, NULL)
 }
 '
-newMetric(name, displayName, group, desc, nodes, script)
+version = 1
+newMetric(name, displayName, group, desc, nodes, script, NULL, version)
 go
 
 // -------------------------- group 1 ------------------------------
