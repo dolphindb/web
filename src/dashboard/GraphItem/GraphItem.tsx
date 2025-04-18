@@ -35,7 +35,6 @@ function get_padding_style (padding: { left: number, right: number, top: number,
 }
 
 function GraphComponent ({ widget }: { widget: Widget }) {
-    
     // 普通图表 source_id 内只有一项，只需要取第一项，复合图表才会有多项
     const data_source_node = get_data_source(widget.source_id?.[0])
     
@@ -55,8 +54,7 @@ function GraphComponent ({ widget }: { widget: Widget }) {
         })}
     >
         {
-            (widget.type !== WidgetChartType.VARIABLE && widget.config) &&
-            <VariableForm
+            widget.type !== WidgetChartType.VARIABLE && widget.config && <VariableForm
                 ids={widget.config.variable_ids}
                 cols={variable_cols}
                 with_search_btn={with_search_btn}

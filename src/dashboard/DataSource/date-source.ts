@@ -4,12 +4,12 @@ import { DDB, type DdbType, type DdbObj, type DdbValue, DdbForm, type DdbTable }
 import { cloneDeep } from 'lodash'
 import copy from 'copy-to-clipboard'
 
+import { t } from '@i18n'
+import { model, storage_keys } from '@model'
 
-import { type Widget, dashboard } from '../model.js'
-import { sql_formatter, get_cols, stream_formatter, parse_code, safe_json_parse, get_sql_col_type_map, get_streaming_col_type_map } from '../utils.ts'
-import { model, storage_keys } from '../../model.js'
-import { get_variable_copy_infos, paste_variables, unsubscribe_variable } from '../Variable/variable.js'
-import { t } from '../../../i18n/index.js'
+import { type Widget, dashboard } from '@/dashboard/model.ts'
+import { sql_formatter, get_cols, stream_formatter, parse_code, safe_json_parse, get_sql_col_type_map, get_streaming_col_type_map } from '@/dashboard/utils.ts'
+import { get_variable_copy_infos, paste_variables, unsubscribe_variable } from '@/dashboard/Variable/variable.ts'
 
 
 export type DataType = { }[]
@@ -96,9 +96,11 @@ export function find_data_source_index (source_id: string): number {
     return data_sources.findIndex(data_source => data_source.id === source_id)
 } 
 
+
 export function get_data_source (source_id: string): DataSource {
     return data_sources[find_data_source_index(source_id)] || new DataSource('', '', DdbForm.table)
 }
+
 
 export async function save_data_source ( new_data_source: DataSource, code?: string, filter_column?: string, filter_expression?: string ) {
     const id = new_data_source.id
@@ -282,10 +284,13 @@ export async function execute (source_id: string) {
     switch (data_source.mode) {
         case 'sql':
             try {
-                const { type, result } = await dashboard.execute_code(parse_code(data_source.code, data_source), data_source.ddb || model.ddb)
+                const { type, result } = await dashboard.execute_code(
+                    parse_code(data_source.code, data_source),
+                    data_source.ddb || model.ddb)
+                
                 switch (type) {
                     case 'success':
-                        // 暂时只支持table
+                        // 暂时只支持 table
                         if (typeof result === 'object' && result)
                             data_source.set({
                                 data: sql_formatter(result, data_source.max_line),
@@ -299,15 +304,16 @@ export async function execute (source_id: string) {
                                 cols: [ ],
                                 error_message: ''
                             })
+                        
                         if (data_source.deps.size && !data_source.timer && data_source.auto_refresh) 
                             create_interval(data_source)
                         
                         break
+                    
                     case 'error':
-                        throw new Error(result as string) 
+                        throw new Error(result as string)
                 }
-            }
-            catch (error) {
+            } catch (error) {
                 // 切换 dashboard 会关闭轮询的连接，若该连接中仍有排队的任务，此处会抛出“连接被关闭”的错误，此处手动过滤
                 if (!data_source.auto_refresh || data_source.ddb)
                     dashboard.message.error(`${error.message} ${data_source.name}`)
@@ -318,9 +324,8 @@ export async function execute (source_id: string) {
                 })
                 clear_data_source(data_source)
             }
-            finally {
-                break
-            }
+            
+            break
         case 'stream':
             if (data_source.deps.size) 
                 await subscribe_stream(data_source)
@@ -359,18 +364,14 @@ async function create_sql_connection (): Promise<DDB> {
 
 
 function create_interval (data_source: DataSource) {
-    try {
-        if (data_source.auto_refresh) {  
-            const interval_id = setInterval(async () => {
-                await execute(data_source.id)  
-            }, data_source.interval * 1000)
-            
-            data_source.set({ timer: interval_id })
-        }
-    } catch (error) {
-        dashboard.message.error(`${data_source.name} ${t('轮询启动失败')}`)
-        return error
-    }
+    data_source.set({
+        timer: setInterval(
+            async () => {
+                await execute(data_source.id)
+            },
+            data_source.interval * 1000
+        )
+    })
 }
 
 
