@@ -19,11 +19,18 @@ interface Data {
 
 
 export function Configuration ({ widget, data_source }: { widget: Widget, data_source: Data[] }) {
-    const { background, mappings } = widget.config as IConfigurationConfig
+    const {
+        background,
+        text_mappings: text_mappings_config,
+        color_mappings: color_mappings_config
+    } = widget.config as IConfigurationConfig
     
     let rdiv = useRef<HTMLDivElement>(undefined)
     
     let rstreaming = useRef(true)
+    
+    let rsvg = useRef<SVGSVGElement>(undefined)
+    
     
     useEffect(() => {
         if (!background)
@@ -33,57 +40,52 @@ export function Configuration ({ widget, data_source }: { widget: Widget, data_s
         
         $div.innerHTML = background
         
-        let $svg = $div.firstElementChild as SVGSVGElement
+        let $svg = rsvg.current = $div.firstElementChild as SVGSVGElement
         
         if (!$svg)
             return
         
         if ($svg.tagName !== 'svg')
             throw new Error('非 svg 背景图')
-        
-        widget.data = {
-            $texts: Array.prototype.filter.call(
-                $svg.children, 
-                ($e: SVGElement) => $e.tagName === 'text' && $e.id)
-        }
     }, [background])
     
     useEffect(() => {
-        const $texts: SVGTextElement[] = widget.data?.$texts
+        let { current: $svg } = rsvg
         
-        if (!$texts || !data_source || !rstreaming.current)
+        if (!$svg)
+            return
+        
+        const $texts: SVGElement[] = Array.prototype.filter.call(
+            $svg.children, 
+            ($e: SVGElement) => $e.tagName === 'text' && $e.id)
+        
+        if (!data_source || !rstreaming.current)
             return
         
         const data = data_source.reduce((acc, { id, value }) =>
             ((acc[id] = value), acc)
         , { })
         
-        const _mappings: Record<string, string> = mappings?.split_lines()
-            .reduce((acc, line) => {
-                line = line.trim()
-                if (!line)
-                    return acc
-                
-                const [svgid, dataid] = line.split2(',', { optional: true })
-                    .map(x => x.trim())
-                if (!dataid)
-                    return acc
-                
-                acc[svgid] = dataid
-                return acc
-            }, { }) || { }
+        const text_mappings = parse_mappings_config(text_mappings_config)
+        
+        const color_mappings = parse_mappings_config(color_mappings_config)
         
         // dump ids
         // console.log($texts.map(({ id }) => id))
         
         $texts.forEach($text => {
             const { id } = $text
-            const value = data[_mappings[id] || id]
+            const value = data[text_mappings[id] || id]
             
             if (value !== undefined)
-                $text.textContent = Number(value).toFixed()
+                $text.textContent = value
         })
-    }, [background, mappings, data_source])
+        
+        for (const selector in color_mappings)
+            $svg.querySelectorAll(selector)
+                .forEach(($element: SVGElement) =>
+                    $element.style.fill = data[color_mappings[selector]])
+    }, [background, data_source, text_mappings_config, color_mappings_config])
     
     const now = dayjs()
     const max = now.endOf('day').valueOf()
@@ -111,6 +113,24 @@ export function Configuration ({ widget, data_source }: { widget: Widget, data_s
 }
 
 
+function parse_mappings_config (config?: string): Record<string, string> {
+    return config?.split_lines()
+        .reduce((acc, line) => {
+            line = line.trim()
+            if (!line)
+                return acc
+            
+            const [key, data_id] = line.split2(':', { optional: true })
+                .map(x => x.trim())
+            if (!data_id)
+                return acc
+            
+            acc[key] = data_id
+            return acc
+        }, { }) || { }
+}
+
+
 export function ConfigurationConfig () {
     const { widget } = dashboard.use(['widget'])
     
@@ -133,8 +153,11 @@ export function ConfigurationConfig () {
                 label: t('数据映射'),
                 forceRender: true,
                 children: <div className='axis-wrapper svg-mappings'>
-                    <Form.Item name='mappings' label={t('文本映射')} tooltip={t('一行一个映射，用英文逗号分隔，如:\nsvgid0,dataid0')}>
-                        <Input.TextArea autoSize={{ minRows: 4 }} placeholder={'svgid0,dataid0\nsvgid1,dataid1'} />
+                    <Form.Item name='text_mappings' label={t('文本映射')} tooltip={t('一行一个映射，用英文冒号分隔，左边是背景中的文本 id，右边是数据 id，如:\ntext_id_0: data_id_0')}>
+                        <Input.TextArea autoSize={{ minRows: 4 }} placeholder={'text_id_0: data_id_0\ntext_id_1: data_id_1'} />
+                    </Form.Item>
+                    <Form.Item name='color_mappings' label={t('颜色映射')} tooltip={t('一行一个映射，用英文冒号分隔，左边是背景中的元素选择器，右边是数据 id，如:\nselector_0: data_id_0')}>
+                        <Input.TextArea autoSize={{ minRows: 4 }} placeholder={'selector_0: data_id_0\selector_1: data_id_1'} />
                     </Form.Item>
                 </div>
             }
@@ -145,5 +168,6 @@ export function ConfigurationConfig () {
 
 export interface IConfigurationConfig {
     background: string
-    mappings: string
+    text_mappings: string
+    color_mappings: string
 }
