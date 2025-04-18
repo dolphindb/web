@@ -49,6 +49,10 @@ interface Window {
     dashboard?: import('react-object-model').Model<any>
 }
 
+interface HTMLCollection {
+    [Symbol.iterator](): ArrayIterator<Element>;
+}
+
 declare const WEB_VERSION: string
 
 declare var PRODUCTION: boolean

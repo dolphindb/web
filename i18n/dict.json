@@ -1892,7 +1892,7 @@
     "代理节点不可跳转": {
         "en": "agent nodes cannot navigate"
     },
-    "当前用户未登录，请登陆后再进行启停操作。": {
+    "当前用户未登录，请登录后再进行启停操作。": {
         "en": "Please log in before this operation."
     },
     "CDN 部署时无法使用配置管理": {
@@ -4871,8 +4871,8 @@
     "集群已安装的最低版本": {
         "en": "Minimum Installed Version"
     },
-    " (与数据库版本不一致，无法加载)": {
-        "en": " (Unable to load due to inconsistent database version)"
+    " (部分节点与数据库版本不一致，无法加载)": {
+        "en": " (Some nodes are inconsistent with the database version and cannot be loaded)"
     },
     "已安装节点": {
         "en": "Nodes Installed"
@@ -6081,13 +6081,13 @@
         "en": "Plugin Version"
     },
     "选填，默认安装和当前版本匹配的最新版": {
-        "en": "Optional. By default, the latest version that matches the current version is installed"
+        "en": "By default, the latest matching version is installed"
     },
     "插件服务器地址": {
         "en": "Plugin Server"
     },
     "选填，参考 installPlugin 函数": {
-        "en": "Optional, refer to installPlugin function"
+        "en": "Plugins repository to download from. Refer to installPlugin function"
     },
     "源节点": {
         "en": "Source Node"
@@ -6169,5 +6169,11 @@
     },
     "移除节点配置成功，重启集群生效": {
         "en": "Node configuration removed successfully. Changes take effect after cluster restart"
+    },
+    "全选_button": {
+        "en": "Select All"
+    },
+    "插件名": {
+        "en": "Plugin Name"
     }
 }

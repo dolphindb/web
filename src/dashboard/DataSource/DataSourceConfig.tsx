@@ -11,7 +11,7 @@ import { DdbForm } from 'dolphindb/browser.js'
 
 import { WidgetChartType, dashboard, type Widget } from '../model.js'
 
-import { parse_code } from '../utils.ts'
+import { get_chart_data_type, parse_code } from '../utils.ts'
 
 import { model } from '../../model.js'
 
@@ -172,8 +172,7 @@ export function DataSourceConfig (props: IProps) {
                         key='save'
                         type='primary'
                         disabled={
-                            (widget?.type === WidgetChartType.HEATMAP && current_data_source?.type !== DdbForm.matrix) ||
-                            (widget?.type !== WidgetChartType.HEATMAP && current_data_source?.type === DdbForm.matrix)
+                            widget && get_chart_data_type(widget.type) !== current_data_source?.type
                         }
                         loading={loading === 'save'}
                         onClick={async () => {

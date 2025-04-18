@@ -51,38 +51,40 @@ const axis_position_options = [
 ]
 
 export function BasicFormFields () { 
-    
     return <Collapse
-        items={[{
-            key: 'basic',
-            label: t('基本属性'),
-            children: <div className='axis-wrapper'>
-                <Form.Item name='title' label={ t('标题') } initialValue={ t('标题') }>
-                    <Input />
-                </Form.Item>
-                <Form.Item name='title_size' label='标题字号'>
-                    <InputNumber addonAfter='px'/>
-                </Form.Item>
-                
-                <PaddingSetting />
-                <Form.Item name='with_tooltip' label={t('气泡提示')} initialValue>
-                    <BoolRadioGroup />
-                </Form.Item>
-                <Form.Item name='x_datazoom' label={t('X 轴缩略轴')} initialValue>
-                    <BoolRadioGroup />
-                </Form.Item>
-                <Form.Item name='y_datazoom' label={t('Y 轴缩略轴')} initialValue={false}>
-                    <BoolRadioGroup />
-                </Form.Item>
-            </div>,
-            forceRender: true
-        },
-        {
-            key: 'variable',
-            label: t('变量设置'),
-            children: <VariableSetting />, 
-            forceRender: true
-        }]} />
+        items={[
+            {
+                key: 'basic',
+                label: t('基本属性'),
+                children: <div className='axis-wrapper'>
+                    <Form.Item name='title' label={ t('标题') } initialValue={ t('标题') }>
+                        <Input />
+                    </Form.Item>
+                    <Form.Item name='title_size' label='标题字号'>
+                        <InputNumber addonAfter='px'/>
+                    </Form.Item>
+                    
+                    <PaddingSetting />
+                    <Form.Item name='with_tooltip' label={t('气泡提示')} initialValue>
+                        <BoolRadioGroup />
+                    </Form.Item>
+                    <Form.Item name='x_datazoom' label={t('X 轴缩略轴')} initialValue>
+                        <BoolRadioGroup />
+                    </Form.Item>
+                    <Form.Item name='y_datazoom' label={t('Y 轴缩略轴')} initialValue={false}>
+                        <BoolRadioGroup />
+                    </Form.Item>
+                </div>,
+                forceRender: true
+            },
+            {
+                key: 'variable',
+                label: t('变量设置'),
+                children: <VariableSetting />, 
+                forceRender: true
+            }
+        ]}
+    />
 }
 
 function AxisItem (props: IAxisItem) { 

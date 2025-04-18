@@ -21,7 +21,7 @@ import type { Monaco } from '../components/Editor/index.js'
 import type { FormatErrorOptions } from '../components/GlobalErrorBoundary.js'
 
 import { type DataSource, type ExportDataSource, import_data_sources, unsubscribe_data_source, type DataType, clear_data_sources } from './DataSource/date-source.js'
-import { type IEditorConfig, type IChartConfig, type ITableConfig, type ITextConfig, type IGaugeConfig, type IHeatMapChartConfig, type IOrderBookConfig } from './type.js'
+import { type IEditorConfig, type IChartConfig, type ITableConfig, type ITextConfig, type IGaugeConfig, type IHeatMapChartConfig, type IOrderBookConfig } from './type.ts'
 import { type Variable, import_variables, type ExportVariable } from './Variable/variable.js'
 import { DASHBOARD_SHARED_SEARCH_KEY } from './constant.ts'
 
@@ -176,18 +176,17 @@ export class DashBoardModel extends Model<DashBoardModel> {
         grid.on('change', (event: Event, widgets: GridStackNode[]) => {
             if (widgets?.length)
                 for (const widget of widgets) {
+                    const past_widget = this.widgets.find(({ id }) => id === widget.id)
+                    if (!past_widget)
+                        continue
+                    
                     if (
                         this.config?.data?.canvas?.auto_expand === false
                         && widget.y + widget.h - 1 >= (this.config?.data?.canvas?.page_count ?? 1) * 12
-                    ) {
-                        const past_widget = this.widgets.find(({ id }) => id === widget.id)
-                        grid.update(widget.el, { y: past_widget.y, h: past_widget.h })
-                    }
-                    
-                    Object.assign(
-                        this.widgets.find(({ id }) => id === widget.id),
-                        widget
                     )
+                        grid.update(widget.el, { y: past_widget.y, h: past_widget.h })
+                    
+                    Object.assign(past_widget, widget)
                 }
             this.check_and_change_page()
         })
@@ -258,6 +257,7 @@ export class DashBoardModel extends Model<DashBoardModel> {
         console.log('dashboard.dispose')
         
         window.removeEventListener('resize', this.on_resize)
+        this.editing = true
         
         clear_data_sources()
         // 当前选中图表时删除，再次进入会报错，因为没有清空 widget
@@ -434,7 +434,7 @@ export class DashBoardModel extends Model<DashBoardModel> {
     
     /** 根据 id 获取单个 DashboardConfig */
     async get_dashboard_config (id: number): Promise<DashBoardConfig> {
-        const { data } = (await model.ddb.invoke('dashboard_get_config', [{ id }]))
+        const { data } = (await model.ddb.invoke('dashboard_get_config', [{ id: String(id) }]))
         
         const res: any = data.length
             ? ({
@@ -611,7 +611,7 @@ export interface DashboardData {
 /** dashboard 中我们自己定义的 Widget，继承了官方的 GridStackWidget，加上额外的业务属性 */
 export interface Widget extends GridStackNode {
     /** 保存 dom 节点，在 widgets 配置更新时将 ref 给传给 react `<div>` 获取 dom */
-    ref: React.MutableRefObject<GridItemHTMLElement>
+    ref: React.RefObject<GridItemHTMLElement>
     
     /** 图表类型 */
     type: WidgetChartType

@@ -78,7 +78,7 @@ export function AccessList ({ role, name, category }: { role: AccessRole, name: 
                 title: v3 && category === 'database' ?  TABLE_NAMES.catalog : TABLE_NAMES[category],
                 dataIndex: 'name',
                 key: 'name',
-                width: 200
+                width: 240
             },
             ...(category !== 'script'
                 ? (category === 'database' 
@@ -150,7 +150,7 @@ export function AccessList ({ role, name, category }: { role: AccessRole, name: 
                     onChange={e => {
                         set_input_value(e.target.value)
                     }}
-                    onPressEnter={() => { set_search_key(input_value) }}
+                    onSearch={() => { set_search_key(input_value) }}
                     placeholder={t('请输入想要搜索的{{category}}', { category: category === 'database' && v3 ? `${TABLE_NAMES.catalog} / ${TABLE_NAMES.database} / ${TABLE_NAMES.table}` : TABLE_NAMES[category] })}
                 />}
                 tableLayout='fixed'
