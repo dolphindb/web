@@ -21,7 +21,7 @@ import 'reactflow/dist/style.css'
 
 import './streaming-graph.sass'
 
-import { t } from '@i18n/index.ts'
+import { t } from '@i18n'
 
 import { model, type DdbNode, type DdbNodeState } from '@/model.ts'
 

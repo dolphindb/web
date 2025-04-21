@@ -1,8 +1,8 @@
-import { Descriptions, Button, Typography, Modal, Popconfirm } from 'antd'
+import { Descriptions, Button, Typography, Popconfirm } from 'antd'
 import useSWR from 'swr'
-import { ReloadOutlined, StopOutlined, ExclamationCircleOutlined } from '@ant-design/icons'
+import { ReloadOutlined, StopOutlined } from '@ant-design/icons'
 
-import { t } from '@i18n/index.ts'
+import { t } from '@i18n'
 
 import { StatusTag, StatusType } from '@/components/tags/index.tsx'
 

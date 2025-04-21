@@ -1,7 +1,7 @@
 import { Typography, Tooltip } from 'antd'
 import useSWR from 'swr'
 
-import { t } from '@i18n/index.ts'
+import { t } from '@i18n'
 
 import { StatusTag, StatusType } from '@/components/tags/index.tsx'
 import { DDBTable } from '@/components/DDBTable/index.tsx'

@@ -2,7 +2,7 @@ import { useParams, useNavigate } from 'react-router'
 import { Button, Typography, Divider } from 'antd'
 import { ArrowLeftOutlined } from '@ant-design/icons'
 
-import { t } from '@i18n/index.ts'
+import { t } from '@i18n'
 
 import { StreamingGraphDescription } from './StreamingGraphDescription.tsx'
 import { StreamingGraphTabs } from './StreamingGraphTabs.tsx'

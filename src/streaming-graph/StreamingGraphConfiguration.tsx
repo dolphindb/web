@@ -1,7 +1,7 @@
 import { Descriptions, Typography, Empty, Card } from 'antd'
 import useSWR from 'swr'
 
-import { t } from '@i18n/index.ts'
+import { t } from '@i18n'
 
 import { getStreamGraphInfo } from './apis.ts'
 

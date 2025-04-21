@@ -1,7 +1,7 @@
 import { Tabs } from 'antd'
 import { LineChartOutlined, CheckCircleOutlined, SettingOutlined } from '@ant-design/icons'
 
-import { t } from '@i18n/index.ts'
+import { t } from '@i18n'
 
 import { StreamingGraphOverview } from './StreamingGraphOverview.tsx'
 import { StreamingGraphCheckpoints } from './StreamingGraphCheckpoints.tsx'

@@ -2,7 +2,7 @@ import { Tabs, Descriptions, Table, Typography, Empty, Card, Tooltip } from 'ant
 import useSWR from 'swr'
 import { type Node } from 'reactflow'
 
-import { t } from '@i18n/index.ts'
+import { t } from '@i18n'
 
 import { node_state_icons } from '@/overview/table.tsx'
 
