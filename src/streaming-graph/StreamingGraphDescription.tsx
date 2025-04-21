@@ -1,6 +1,7 @@
-import { Descriptions, Button, Typography, Popconfirm } from 'antd'
+import { Descriptions, Button, Typography, Popconfirm, Modal, Input } from 'antd'
 import useSWR from 'swr'
-import { ReloadOutlined, StopOutlined } from '@ant-design/icons'
+import { DeleteOutlined, ReloadOutlined, StopOutlined, WarningOutlined } from '@ant-design/icons'
+import { useState } from 'react'
 
 import { t } from '@i18n'
 
@@ -36,6 +37,9 @@ export function StreamingGraphDescription ({ id }: StreamingGraphDescriptionProp
       revalidateOnFocus: true
     }
   )
+  
+  const [deleteModalVisible, setDeleteModalVisible] = useState(false)
+  const [inputValue, setInputValue] = useState('')
   
   // Handle refresh
   function handleRefresh () {
@@ -76,31 +80,58 @@ export function StreamingGraphDescription ({ id }: StreamingGraphDescriptionProp
   function renderActions (graph: StreamGraphMeta) {
     const isActive = graph.status === 'running' || graph.status === 'building'
     
-    return <Popconfirm
-        title={t('确认删除')}
-        description={t('您确定要删除这个流图吗？此操作不可恢复。')}
-        okText={t('确认')}
-        cancelText={t('取消')}
-        onConfirm={async () => {
-          try {
-            await model.cancel_job({ jobId: data.id })
-            await model.ddb.invoke('dropStreamGraph', [data.id])
-            model.message.success(t('删除流图成功'))
-          } catch (error) {
-            model.message.error(t('删除流图失败：') + error.message)
+    return <>
+        <Modal
+          className='computing-delete-modal'
+          title={
+            <div className='delete-warning-title'>
+              <WarningOutlined />
+              <span>
+                {t('确认删除流图')} <Typography.Text>{data.id}</Typography.Text> {t('吗？此操作不可恢复。')}
+              </span>
+            </div>
           }
-        }}
-      >
+          open={deleteModalVisible}
+          onCancel={() => {
+            setInputValue('')
+            setDeleteModalVisible(false)
+          }}
+          cancelButtonProps={{ className: 'hidden' }}
+          okText={t('删除流图')}
+          okButtonProps={{ 
+            disabled: inputValue !== 'YES', 
+            danger: true 
+          }}
+          onOk={async () => {
+            try {
+              await model.cancel_job({ jobId: data.id })
+              await model.ddb.invoke('dropStreamGraph', [data.id])
+              model.message.success(t('删除流图成功'))
+              setInputValue('')
+              setDeleteModalVisible(false)
+            } catch (error) {
+              model.message.error(t('删除流图失败：') + error.message)
+            }
+          }}
+        >
+          <Input 
+            placeholder={t("请输入 'YES' 以确认该操作")}
+            value={inputValue}
+            onChange={({ target: { value } }) => {
+              setInputValue(value)
+            }}
+          />
+        </Modal>
         <Button 
-          icon={<StopOutlined />} 
-          type='primary' 
+          icon={<DeleteOutlined />} 
           danger
           disabled={!isActive}
           size='small'
+          onClick={() => { setDeleteModalVisible(true) }}
         >
           {t('删除流图')}
         </Button>
-      </Popconfirm>
+      </>
   }
   
   if (isLoading)

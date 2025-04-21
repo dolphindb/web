@@ -1,5 +1,3 @@
-import exp from 'constants'
-
 import { DdbFunction, DdbFunctionType } from 'dolphindb/browser'
 
 import { model } from '@/model.ts'
