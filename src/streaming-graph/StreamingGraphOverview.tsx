@@ -505,7 +505,7 @@ function TaskSubWorkerStatTable ({ id }: { id: string }) {
       return <Card loading />
     
   if (error)
-      return <Text type='danger'>{t('加载流任务状态失败：')} {error.message}</Text>
+      return <Text type='danger'>{t('加载流任务订阅线程状态失败：')} {error.message}</Text>
     
   if (!data || data.length === 0)
       return null
@@ -650,7 +650,7 @@ function TaskSubWorkerStatTable ({ id }: { id: string }) {
     }
   }))
   
-  return <Card title={t('流任务状态')} style={{ marginTop: 16 }}>
+  return <Card title={t('流任务订阅线程状态')} style={{ marginTop: 16 }}>
       <Table 
         dataSource={data} 
         columns={columns} 
