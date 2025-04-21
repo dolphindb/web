@@ -35,18 +35,21 @@ export function JobTable () {
     }
   )
   
-  // 行点击处理
-  function handleRowClick (record: StreamGraphMeta) {
-    model.goto(`/streaming-graph/${record.fqn}`)
-  }
-  
   // 定义表格列
   const columns = [
     {
       title: t('流图名称'),
       dataIndex: 'fqn',
       key: 'fqn',
-      render: (text: string) => <Typography.Text ellipsis>{text || '-'}</Typography.Text>
+      render: (text: string, record: StreamGraphMeta) => <Typography.Link
+          ellipsis
+          style={{ color: '#1890ff', cursor: 'pointer' }}
+          onClick={() => {
+            model.goto(`/streaming-graph/${record.fqn}`)
+          }}
+        >
+          {text || '-'}
+        </Typography.Link>
     },
     {
       title: t('创建者'),
@@ -147,10 +150,6 @@ export function JobTable () {
           showSizeChanger: true,
           showQuickJumper: true,
         }}
-        onRow={record => ({
-          onClick: () => { handleRowClick(record) },
-          style: { cursor: 'pointer' }
-        })}
       />
     </div>
 }
