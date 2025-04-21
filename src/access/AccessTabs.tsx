@@ -8,7 +8,7 @@ import { useLocation, useNavigate, useParams } from 'react-router'
 
 import { useSWRConfig } from 'swr'
 
-import { model } from '@model'
+import { model, NodeType } from '@model'
 
 import type { AccessRole, AccessCategory } from '@/access/types.ts'
 import { use_users } from '@/access/hooks/use-users.ts'
@@ -29,10 +29,10 @@ export function AccessTabs ({
     const query = useParams()
     const name = query.id
     
+    const { node_type } = model.use(['node_type'])
+    
     const { data: users = [ ] } = use_users()
     const { data: groups = [ ] } = use_groups()
-    
-    const navigate = useNavigate()
     
     const { mutate } = useSWRConfig()
     
@@ -71,11 +71,12 @@ export function AccessTabs ({
                     label: t('函数视图'),
                     children: get_access_view('function_view')
                 },
-                {
-                    key: 'compute_group',
-                    label: t('计算组'),
-                    children: get_access_view('compute_group')
-                },
+                ...node_type !== NodeType.single ? [
+                    {
+                        key: 'compute_group',
+                        label: t('计算组'),
+                        children: get_access_view('compute_group')
+                    }] : [ ],
                 {
                     key: 'script',
                     label: t('全局权限'),
