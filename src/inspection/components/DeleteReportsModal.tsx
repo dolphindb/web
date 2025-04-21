@@ -1,8 +1,8 @@
 import NiceModal, { useModal } from '@ebay/nice-modal-react'
 import { Modal } from 'antd'
-import { t } from '@i18n/index.ts'
+import { t } from '@i18n'
 
-import { model } from '@/model.ts'
+import { model } from '@model'
 import { inspection } from '@/inspection/model.ts'
 
 export const DeleteReportsModal = NiceModal.create(({ 

@@ -1,6 +1,6 @@
 import { CheckCircleFilled, CloseCircleFilled, MinusCircleFilled } from '@ant-design/icons'
 
-import { t } from '@i18n/index.ts'
+import { t } from '@i18n'
 
 export const NEED_INPUT_ACCESS = ['DB_OWNER', 'QUERY_RESULT_MEM_LIMIT', 'TASK_GROUP_MEM_LIMIT']
 
@@ -12,7 +12,8 @@ export const ACCESS_TYPE = {
     shared: ['TABLE_WRITE', 'TABLE_READ', 'TABLE_INSERT', 'TABLE_UPDATE', 'TABLE_DELETE'],
     stream: ['TABLE_WRITE', 'TABLE_READ', 'TABLE_INSERT', 'TABLE_UPDATE', 'TABLE_DELETE'],
     function_view: ['VIEW_EXEC'],
-    script: ['SCRIPT_EXEC', 'TEST_EXEC', 'VIEW_OWNER', 'QUERY_RESULT_MEM_LIMIT', 'TASK_GROUP_MEM_LIMIT']
+    compute_group: ['COMPUTE_GROUP_EXEC'],
+    script: ['SCRIPT_EXEC', 'TEST_EXEC', 'VIEW_OWNER', 'QUERY_RESULT_MEM_LIMIT', 'TASK_GROUP_MEM_LIMIT'],
 }
 
 export const TABLE_NAMES = {
@@ -22,6 +23,7 @@ export const TABLE_NAMES = {
     shared: t('共享内存表'),
     stream: t('流数据表'),
     function_view: t('函数视图'),
+    compute_group: t('计算组'),
     script: t('全局权限')
 }
 
@@ -31,6 +33,7 @@ export const ACCESS_OPTIONS = {
     shared: ['TABLE_WRITE', 'TABLE_READ'],
     stream: ['TABLE_WRITE', 'TABLE_READ'],
     function_view: ACCESS_TYPE.function_view,
+    compute_group: ACCESS_TYPE.compute_group,
     script: ACCESS_TYPE.script
 }
 

@@ -7,7 +7,7 @@ import { useMemo, useState, useCallback } from 'react'
 import { t } from '../../../../i18n/index.js'
 import { BoolRadioGroup } from '../../../components/BoolRadioGroup/index.js'
 import { FormDependencies } from '../../../components/FormDependencies/index.js'
-import { DDB_TYPE_MAP } from '@/utils.ts'
+import { DDB_TYPE_MAP } from '@utils'
 import { AxisItem, YAxis, Series, ThresholdFormFields } from '../../ChartFormFields/BasicChartFields.js'
 import { BasicFormFields } from '../../ChartFormFields/BasicFormFields.js'
 import { SeriesItem } from '../../ChartFormFields/components/SeriesItem.js'
@@ -64,7 +64,7 @@ const series_match_type_options = [
 // 时序图不需要配置 y 轴，默认为数据轴
 export function CompositeChartConfig () {
     const { widget } = dashboard.use(['widget']) 
-    const type = useMemo(() => widget.type, [widget])
+    const { type } = widget
     const [update, set_update] = useState({ })
     
     const force_update = useCallback(() => { set_update({ }) }, [ ])

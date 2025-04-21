@@ -1,18 +1,3 @@
-def getPluginDir() {
-    ver = version()
-    pluginDir = getConfig("pluginDir")
-    if ((like(ver, "%LINUX%") and !pluginDir.startsWith("/")) or (like(ver, "%WIN%") and regexFind  (pluginDir, "^[a-zA-Z]:") != 0)) {
-        nodeCnt = exec count(*) from rpc(getControllerAlias(), getClusterPerf)
-        if (nodeCnt > 1) {
-            pluginDir = "../" + pluginDir
-        } else {
-            pluginDir = "./" + pluginDir
-        }
-    }
-    
-    return pluginDir
-}
-
 def canConfigureEmail() {
     ret = dict(STRING, ANY)
     ret["errCode"] = 0
@@ -157,9 +142,12 @@ def initDfs() {
 def newMetric(name, displayName, group, desc, nodes, script, params=NULL, version=0, language="cn") {
     print("new metric: " + name)
     name_ = name
-    cnt = exec count(*) from loadTable("dfs://autoInspection", "metrics") where name == name_
+    version_ = version
+    language_ = language
+    cnt = exec count(*) from loadTable("dfs://autoInspection", "metrics") where name == name_ and version == version_ and language == language_
     if (cnt > 0) {
-        throw "duplicated metric name: " + name
+        print("duplicated metric, ignore! Name: " + name + ", version: " + string(version) + ", language: " + language)
+        return
     }
     params_ = params
     if (params.type() == STRING) { 
@@ -258,7 +246,7 @@ def generateDefaultMetricParams(planId) {
     planId_ = planId
     params = dict(STRING, ANY)
 
-    startTime = exec last(startTime) from loadTable("dfs://autoInspection",  "reports") where planId == planId_ order by startTime desc
+    startTime = exec last(startTime) from loadTable("dfs://autoInspection",  "reports") where planId == planId_ and endTime != NULL order by startTime desc
     endTime = now()
     if (isNull(startTime)) {
         frequency = exec last(frequency) from loadTable("dfs://autoInspection",  "plans") where id == planId_ order by startTime desc
@@ -290,6 +278,9 @@ def updateMetricParams(mutable params, planId, metricName) {
     params_ = fromStdJson(params_)
     if (!isVoid(params_)) {
         for (key in params_.keys()) {
+            if (isVoid(params_[key])) { // 前端可能会传 NULL 参数值，无视
+                continue
+            }
             params[key] = params_[key]
         }
     }
@@ -450,8 +441,13 @@ def runPlanInner(planId, reportId) {
     }
 }
 
-def generateEmail(reportInfo) {
-    subject = "DolphinDB Health Check Alert - " + reportInfo["name"]
+def generateEmailInEnglish(reportInfo) {
+    language_ = "en"
+    status = iif(reportInfo["success"], "All Clear", "Alerts Detected")
+    subject = "DolphinDB Health Check Alert - " + reportInfo["name"] + ". Status: " + status
+    if (!bool(reportInfo["success"])) {
+        subject += ", Alerts Triggered: " + string(reportInfo["failedNum"]) + "/" + string(reportInfo["totalNum"])
+    }
     body = ""
     body += "Health Check ID: " + reportInfo["planId"] + "<br>"
     body += "Check Name: " + reportInfo["name"] + "<br>"
@@ -459,10 +455,58 @@ def generateEmail(reportInfo) {
     body += "Initiated By: " + reportInfo["user"] + "<br>"
     body += "Start Time: " + string(reportInfo["startTime"]) + "<br>"
     body += "End Time: " + string(reportInfo["endTime"]) + "<br>"
-    body += "Status: " + iif(reportInfo["success"], "All Clear", "Alerts Detected") + "<br>"
+    body += "Status: " + status + "<br>"
     body += "Total Metrics: " + string(reportInfo["totalNum"]) + "<br>"
     body += "Alerts Triggered: " + string(reportInfo["failedNum"]) + "<br>"
+    if (reportInfo["failedNum"] > 0) {
+        failedMetricNames = exec distinct(metricName) from loadTable("dfs://autoInspection", "reportDetails") where reportId == reportInfo["reportId"] and success == false
+        failedMetricDisplayNames = exec distinct(displayName) from loadTable("dfs://autoInspection", "metrics") where name in failedMetricNames and language == language_
+        if (failedMetricDisplayNames.size() > 0) {
+            body += "Failed Metrics: " + failedMetricDisplayNames.concat(", ") + "<br>"
+        }
+    }
+    // 注意：中信特殊版本 web 不支持这个 URL
+    body += "http://" + getNodeHost() + ":" + string(getNodePort()) + "/inspection/report/" + string(reportInfo["reportId"]) + "<br>"
     return (subject, body)
+}
+
+def generateEmailInChinese(reportInfo) {
+    language_ = "cn"
+    status = iif(reportInfo["success"], "All Clear", "Alerts Detected")
+    subject = "DolphinDB 定时巡检告警，巡检名称：" + reportInfo["name"] + "。状态: " + status
+    if (!bool(reportInfo["success"])) {
+        subject += ", 异常指标数: " + string(reportInfo["failedNum"]) + "/" + string(reportInfo["totalNum"])
+    }
+    body = ""
+    body += "巡检 ID：" + reportInfo["planId"] + "<br>"
+    body += "巡检名称：" + reportInfo["name"] + "<br>"
+    body += "巡检描述：" + reportInfo["desc"] + "<br>"
+    body += "提交人：" + reportInfo["user"] + "<br>"
+    body += "开始时间：" + string(reportInfo["startTime"]) + "<br>"
+    body += "结束时间：" + string(reportInfo["endTime"]) + "<br>"
+    body += "状态：" + status + "<br>"
+    body += "总指标数：" + string(reportInfo["totalNum"]) + "<br>"
+    body += "异常指标数：" + string(reportInfo["failedNum"]) + "<br>"
+    if (reportInfo["failedNum"] > 0) {
+        failedMetricNames = exec distinct(metricName) from loadTable("dfs://autoInspection", "reportDetails") where reportId == reportInfo["reportId"] and success == false
+        failedMetricDisplayNames = exec distinct(displayName) from loadTable("dfs://autoInspection", "metrics") where name in failedMetricNames and language == language_
+        if (failedMetricDisplayNames.size() > 0) {
+            body += "异常指标名称：" + failedMetricDisplayNames.concat(", ") + "<br>"
+        }
+    }
+    // 注意：中信特殊版本 web 不支持这个 URL
+    body += "http://" + getNodeHost() + ":" + string(getNodePort()) + "/inspection/report/" + string(reportInfo["reportId"]) + "<br>"
+    return (subject, body)
+}
+
+def generateEmail(reportInfo, language="cn") {
+    if (language == "cn") {
+        return generateEmailInChinese(reportInfo)
+    } else if (language == "en") {
+        return generateEmailInEnglish(reportInfo)
+    } else { // 默认英文
+        return generateEmailInEnglish(reportInfo)
+    }
 }
 
 def createSMTPMsg(userId, recipient, subject, content){
@@ -489,7 +533,7 @@ def loadAlertConfig() {
         value = s[1]
         if (key in ["inspectionAlertEnabled", "inspectionAlertStdSMTPMsgEnabled"]) {
             ret[key] = bool(value) 
-        } else if (key in ["inspectionAlertUserId", "inspectionAlertPwd", "inspectionAlertSMTPEmailName", "inspectionAlertSMTPHost"]) {
+        } else if (key in ["inspectionAlertUserId", "inspectionAlertPwd", "inspectionAlertSMTPEmailName", "inspectionAlertSMTPHost", "inspectionAlertLanguage"]) {
             ret[key] = string(value)
         } else if (key in ["inspectionAlertSMTPPort"]) {
             ret[key] = int(value)
@@ -512,7 +556,7 @@ def sendReportEmailInner(planInfo, reportInfo, alertConfig) {
         funcByName("httpClient::emailSmtpConfig")(alertConfig["inspectionAlertSMTPEmailName"], alertConfig["inspectionAlertSMTPHost"], alertConfig["inspectionAlertSMTPPort"])
     }
     
-    subject, content = generateEmail(reportInfo)
+    subject, content = generateEmail(reportInfo, alertConfig["inspectionAlertLanguage"])
     userId = alertConfig["inspectionAlertUserId"]
     pwd = alertConfig["inspectionAlertPwd"]
     recipient = planInfo["alertRecipient"].split(",")
@@ -1004,10 +1048,10 @@ def getReportDetailsOfNodes(reportId=NULL, language="cn") {
 def getMetrics(name=NULL, language="cn") {
     name_ = name
     language_ = language
-    whereCond = <language == language_>
+    whereCond = [<language == language_>]
 
     if (!isNull(name_)) {
-        whereCond = <name == name_>
+        whereCond.append!(<name == name_>)
     }
     res = sql(sqlCol("*"), loadTable("dfs://autoInspection", "metrics"), whereCond).eval()
     nodes_ = []$STRING

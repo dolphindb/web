@@ -20,16 +20,18 @@ import {
 
 import type { Docs } from 'dolphindb/docs.js'
 
-import { language, t } from '@i18n/index.ts'
+import { language, t } from '@i18n'
 
 import type { FormatErrorOptions } from '@/components/GlobalErrorBoundary.tsx'
 import { config } from '@/config/model.ts'
-import { goto_url, strip_quotes } from '@/utils.ts'
+import { goto_url, strip_quotes } from '@utils'
 import { GitHubAdapter, GitLabAdapter } from '@/shell/git/git-adapter.ts'
 
 
 const dev_hostname = '192.168.0.37' as const
 const dev_port = '20023' as const
+
+export const shf = storage.getstr('shf') === '1'
 
 
 export class DdbModel extends Model<DdbModel> {
@@ -48,8 +50,6 @@ export class DdbModel extends Model<DdbModel> {
     
     /** 生产模式，等价于 !local && !test */
     production = true
-    
-    shf = false
     
     hostname: string
     
@@ -170,15 +170,17 @@ export class DdbModel extends Model<DdbModel> {
         
         const params = this.params = new URLSearchParams(location.search)
         
-        this.local = location.host === 'localhost:8432' && params.get('local') !== '0'
+        const plocal = params.get('local')
         
-        this.test = location.hostname === 'test.dolphindb.cn' && params.get('test') !== '0'
+        this.local = location.host === 'localhost:8432' && plocal !== '0' || plocal === '1'
+        
+        const ptest = params.get('test')
+        
+        this.test = location.hostname === 'test.dolphindb.cn' && ptest !== '0' || ptest === '1'
         
         this.dev = this.local || this.test
         
         this.production = !this.dev
-        
-        this.shf = storage.getstr('shf') === '1'
         
         // 确定 assets_root
         if (this.test)

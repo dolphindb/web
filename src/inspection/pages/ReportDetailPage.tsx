@@ -1,4 +1,4 @@
-import { t } from '@i18n/index.ts'
+import { t } from '@i18n'
 import { Affix, Button, Collapse, Descriptions, Spin, Table, Typography } from 'antd'
 import useSWR from 'swr'
 
@@ -12,7 +12,7 @@ import NiceModal from '@ebay/nice-modal-react'
 
 import { useParams } from 'react-router'
 
-import { model } from '@/model.ts'
+import { model } from '@model'
 
 import { safe_json_parse } from '@/dashboard/utils.ts'
 
@@ -326,7 +326,7 @@ function Detail ({
     
     if (extra && !ds) 
         return null
-    return Array.isArray(ds) 
+    return Array.isArray(ds) && ds.length > 0
         ? 
         <Table 
             columns={Object.keys(ds[0]).map(k => ({ 

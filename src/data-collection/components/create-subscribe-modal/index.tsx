@@ -11,6 +11,8 @@ import { QuestionCircleOutlined } from '@ant-design/icons'
 
 import useSWR from 'swr'
 
+import { model } from '@model'
+
 import { t } from '../../../../i18n/index.js'
 import { Protocol, type ISubscribe } from '../../type.js'
 import { safe_json_parse } from '../../../dashboard/utils.ts'
@@ -19,6 +21,7 @@ import { FormDependencies } from '../../../components/FormDependencies/index.js'
 import { create_subscribe, edit_subscribe, get_parser_templates } from '../../api.js'
 
 import { NodeSelect } from '../../../components/node-select/index.js'
+
 
 import { NAME_RULES } from '@/data-collection/constant.js'
 
@@ -41,12 +44,9 @@ const title_map = {
     view: t('查看订阅')
 }
 
+
 export const CreateSubscribeModal = NiceModal.create((props: IProps) => {
     const { edited_subscribe, connection_id, refresh, protocol, mode } = props
-    
-    const { message } = App.useApp()
-    
-    console.log(App.useApp(), 'ttt')
     
     const [handlerId, setHandlerId] = useState(edited_subscribe?.handlerId)
     
@@ -73,7 +73,7 @@ export const CreateSubscribeModal = NiceModal.create((props: IProps) => {
             await edit_subscribe(protocol, { ...values, id: edited_subscribe.id, })
         else 
             await create_subscribe(protocol, { ...values, connectId: connection_id } )
-        message.success(is_edit ? t('修改成功') : t('创建成功'))
+        model.message.success(is_edit ? t('修改成功') : t('创建成功'))
         modal.hide()
         refresh()
     }, [mode, connection_id, refresh])
@@ -137,6 +137,7 @@ export const CreateSubscribeModal = NiceModal.create((props: IProps) => {
         afterClose={modal.remove} 
         title={title_map[mode]}
         onOk={form.submit}
+        footer={mode === 'view' ? null : undefined}
         destroyOnClose
     >
         <Form 

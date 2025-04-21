@@ -2,7 +2,7 @@ import './index.sass'
 
 import { useEffect, useState, useRef, useCallback, useMemo } from 'react'
 
-import { t } from '@i18n/index.js'
+import { t } from '@i18n'
 
 import { AutoComplete, Button, Popconfirm } from 'antd'
 
@@ -13,14 +13,14 @@ import NiceModal from '@ebay/nice-modal-react'
 
 import useSWR from 'swr'
 
-import { model } from '@/model.js'
+import { model } from '@model'
 
 import { RefreshButton } from '@/components/RefreshButton/index.js'
 
 import { filter_config, strs_2_nodes } from './utils.js'
 import { NodesConfigAddModal } from './NodesConfigAddModal.js'
 
-import { config } from './model.js'
+import { config, validate_config, validate_qualifier } from './model.js'
 
 
 
@@ -207,6 +207,8 @@ export function ComputeGroupConfig () {
                         onSave: async (rowKey, data) => {
                             try {
                                 const { name, qualifier, value } = data
+                                await validate_config(name, value)
+                                await validate_qualifier(name, qualifier) 
                                 const key = (qualifier ? qualifier + '.' : '') + name
                                 if (rowKey !== key)
                                     config.nodes_configs.delete(rowKey as string)
@@ -227,6 +229,25 @@ export function ComputeGroupConfig () {
                                 throw error
                             }
                         },
+                        actionRender: (row, config, defaultDom) => [
+                            defaultDom.save,
+                            <Popconfirm
+                                title={t('确认删除此配置项？')}
+                                key='delete'
+                                onConfirm={async () => {
+                                    try {
+                                        await delete_config(row.key as string)
+                                    } catch (error) {
+                                        model.show_error({ error })
+                                        throw error
+                                    }
+                                }}
+                                okButtonProps={{ danger: true }}
+                            >
+                                <Button variant='link' color='danger'>{t('删除')}</Button>
+                            </Popconfirm>,
+                            defaultDom.cancel
+                        ],
                         deletePopconfirmMessage: t('确认删除此配置项？'),
                         deleteText: <Button variant='link' color='danger'>{t('删除')}</Button>
                     }}

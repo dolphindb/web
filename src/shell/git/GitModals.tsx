@@ -3,8 +3,8 @@ import { Modal, Form, Input } from 'antd'
 
 import { useEffect, useState } from 'react'
 
-import { t } from '@i18n/index.ts'
-import { model, storage_keys } from '@/model.ts'
+import { t } from '@i18n'
+import { model, storage_keys } from '@model'
  
 
 import { get_github_auth_url, get_gitlab_auth_url } from './get-auth-url.ts'

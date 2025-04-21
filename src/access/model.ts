@@ -2,7 +2,7 @@ import { Model } from 'react-object-model'
 
 import { DdbInt, DdbVectorString } from 'dolphindb/browser.js'
 
-import { DdbNodeState, model, NodeType } from '@/model.ts'
+import { DdbNodeState, model, NodeType } from '@model'
 
 import { DATABASES_WITHOUT_CATALOG } from './constants.tsx'
 
@@ -66,7 +66,8 @@ enum Access {
     SCHEMA_WRITE = 34,
     SCHEMA_INSERT = 35,
     SCHEMA_UPDATE = 36,
-    SCHEMA_DELETE = 37
+    SCHEMA_DELETE = 37,
+    COMPUTE_GROUP_EXEC = 38
 }
 
 class AccessModel extends Model<AccessModel> {
@@ -200,7 +201,7 @@ class AccessModel extends Model<AccessModel> {
     
     
     async get_users_by_group (group: string) {
-        return (await model.ddb.invoke('getUsersByGroupId', [group])).data
+        return model.ddb.invoke('getUsersByGroupId', [group])
     }
     
     

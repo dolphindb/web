@@ -1,13 +1,19 @@
-import { Button, Input, Modal, Tooltip, Upload } from 'antd'
-import { DownloadOutlined } from '@ant-design/icons'
-import { genid } from 'xshell/utils.browser.js'
 import { useRef, useState } from 'react'
+
+import { Button, Input, Modal, Tooltip, Upload } from 'antd'
+
+import { UploadOutlined } from '@ant-design/icons'
+
 import { use_modal } from 'react-object-model/hooks.js'
 
-import { t } from '../../../i18n/index.js'
-import { model } from '../../model.js'
-import { dashboard, DashboardPermission, type DashBoardConfig } from '../model.js'
-import { check_name } from '../utils.ts'
+import { noop } from 'xshell/prototype.browser.js'
+import { genid } from 'xshell/utils.browser.js'
+
+import { t } from '@i18n'
+import { model } from '@model'
+import { dashboard, DashboardPermission, type DashBoardConfig } from '@/dashboard/model.ts'
+import { check_name } from '@/dashboard/utils.ts'
+
 
 export function Import ({ type }: { type: 'icon' | 'button' }) {
     const [import_config, set_import_config] = useState<DashBoardConfig>(null)
@@ -33,7 +39,7 @@ export function Import ({ type }: { type: 'icon' | 'button' }) {
                         confirm_open()
                     }}
                 >
-                    <Button icon={<DownloadOutlined />}>{t('批量导入')}</Button>
+                    <Button icon={<UploadOutlined />}>{t('批量导入')}</Button>
                 </Upload>,
         icon: <Tooltip title={t('导入')}>
                     <Upload
@@ -43,9 +49,10 @@ export function Import ({ type }: { type: 'icon' | 'button' }) {
                             set_file_list(fileList) 
                             confirm_open()
                         }}
+                        customRequest={noop}
                     >
                         <Button className='action'>
-                            <DownloadOutlined />
+                            <UploadOutlined />
                         </Button>
                     </Upload>
                 </Tooltip>

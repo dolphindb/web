@@ -4,7 +4,7 @@ import { useEffect, useRef, useState } from 'react'
 import { Button, Form, Input, Modal, Popconfirm, Radio, Result, Table, Typography, Upload, type UploadFile, 
     type FormInstance, Checkbox, Select, Tooltip } from 'antd'
 import type { CheckboxGroupProps } from 'antd/es/checkbox/Group.js'
-import { ReloadOutlined, default as Icon, InboxOutlined, CheckOutlined, PlayCircleOutlined } from '@ant-design/icons'
+import { default as Icon, InboxOutlined, CheckOutlined, PlayCircleOutlined } from '@ant-design/icons'
 import { build_mapper, noop } from 'xshell/prototype.browser.js'
 import { delay, log, vercmp } from 'xshell/utils.browser.js'
 
@@ -12,10 +12,10 @@ import { use_modal, use_rerender, type ModalController } from 'react-object-mode
 
 import { DdbVectorChar, DdbVectorString, type DdbTableData } from 'dolphindb/browser.js'
 
-import { t } from '@i18n/index.ts'
+import { language, t } from '@i18n'
 
-import { required, switch_keys } from '@/utils.ts'
-import { model } from '@/model.ts'
+import { required, switch_keys } from '@utils'
+import { model } from '@model'
 
 
 import { RefreshButton } from '@/components/RefreshButton/index.tsx'
@@ -44,12 +44,22 @@ export function Plugins () {
     async function update_plugins (query?: string) {
         let plugins = (await ddb.invoke<DdbTableData>('listPlugins'))
             .data
-            .map<Plugin>(({ plugin, minInstalledVersion: min_version, installedNodes, toInstallNodes, loadedNodes, preloadedNodes }) => ({
+            .map<Plugin>(({
+                plugin, 
+                minInstalledVersion: min_version, 
+                maxInstalledVersion: max_version, 
+                installedNodes, 
+                toInstallNodes, 
+                loadedNodes, 
+                preloadedNodes
+            }) => ({
                 id: plugin,
                 
                 min_version,
                 
-                version_match: min_version.startsWith(version_without_fourth),
+                version_match: 
+                    (min_version as string).startsWith(version_without_fourth) && 
+                    (max_version as string).startsWith(version_without_fourth),
                 
                 installeds: str2arr(installedNodes),
                 
@@ -252,7 +262,7 @@ export function Plugins () {
             }}
             columns={[
                 {
-                    title: t('插件 ID'),
+                    title: t('插件名'),
                     dataIndex: 'id',
                     width: 160,
                 },
@@ -262,7 +272,7 @@ export function Plugins () {
                     render: (_, { min_version, version_match }) =>
                         version_match
                             ? min_version
-                            : <Text type='danger'>{min_version} {t(' (与数据库版本不一致，无法加载)')}</Text>
+                            : <Text type='danger'>{min_version} {t(' (部分节点与数据库版本不一致，无法加载)')}</Text>
                 },
                 {
                     title: t('已安装节点'),
@@ -435,11 +445,11 @@ function InstallModal ({
     
     return <Modal
         title={t('安装或更新插件')}
-        className='plugins-install-modal'
+        className={`plugins-install-modal ${language}`}
         open={installer.visible}
         onCancel={installer.close}
         footer={null}
-        width='80%'
+        width={1200}
     >
         <Form<InstallFields>
             ref={rform}
@@ -523,7 +533,7 @@ function InstallModal ({
                     if (method === 'offline')
                         return null
                     
-                    return <Form.Item<InstallFields> name='id' label={t('插件 ID')} {...required}>
+                    return <Form.Item<InstallFields> name='id' label={t('插件名')} {...required}>
                         <Select
                             showSearch
                             allowClear
@@ -626,6 +636,7 @@ function InstallModal ({
                                     <Select
                                         className='select-plugin-server'
                                         placeholder={t('选填，参考 installPlugin 函数')}
+                                        allowClear
                                         options={[
                                             'http://plugins.dolphindb.cn/plugins',
                                             'http://plugins.dolphindb.com/plugins'
@@ -680,7 +691,7 @@ function CheckboxGroupWithSelectAll ({
                 )
             }}
         >
-          {t('全选')}
+          {t('全选', { context: 'button' })}
         </Checkbox>
         
         <Checkbox.Group options={options} value={value} onChange={onChange} />

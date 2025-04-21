@@ -25,6 +25,7 @@ type GraphConfig =  {
     }
 }
 
+
 export const graph_config: GraphConfig =  { 
     [WidgetChartType.TABLE]: {
         component: DBTable,

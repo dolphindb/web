@@ -3,9 +3,9 @@ import { Button, Modal, Radio, Select, Table, type TableColumnType } from 'antd'
 
 import { useMemo, useState } from 'react'
 
-import { t } from '@i18n/index.ts'
+import { t } from '@i18n'
 
-import { model } from '@/model.ts'
+import { model } from '@model'
 
 import { access } from '@/access/model.ts'
 import { NEED_INPUT_ACCESS, ACCESS_OPTIONS } from '@/access/constants.tsx'

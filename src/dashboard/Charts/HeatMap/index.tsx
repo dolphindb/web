@@ -1,16 +1,13 @@
-import ReactEChartsCore from 'echarts-for-react/lib/core'
-
-import * as echarts from 'echarts'
+import type * as echarts from 'echarts'
 
 import { useMemo } from 'react'
 
 import { Collapse, Form, InputNumber } from 'antd'
 
-import { t } from '@i18n/index.js'
+import { t } from '@i18n'
 
 import { max, min } from 'lodash'
 
-import { useChart } from '../hooks.js'
 import { BoolRadioGroup } from '@/components/BoolRadioGroup/index.js'
 import { StringColorPicker } from '@/components/StringColorPicker/index.js'
 import { AxisFormFields } from '@/dashboard/ChartFormFields/BasicChartFields.js'
@@ -20,6 +17,7 @@ import { get_data_source } from '@/dashboard/DataSource/date-source.js'
 import type { Widget } from '@/dashboard/model.js'
 import type { IChartConfig, MatrixData } from '@/dashboard/type.js'
 import { format_time, parse_text } from '@/dashboard/utils.js'
+import { DashboardEchartsComponent } from '@/dashboard/components/EchartsComponent.js'
 
 interface IProps { 
     widget: Widget
@@ -119,15 +117,7 @@ export function HeatMap (props: IProps) {
         } as echarts.EChartsOption
     }, [widget.config, data])
     
-    const ref = useChart(option)
-    
-    return <ReactEChartsCore
-        echarts={echarts}
-        ref={ref}
-        option={option}
-        className='dashboard-line-chart'
-        theme='my-theme'
-    />
+    return <DashboardEchartsComponent options={option} replace_merge={['series', 'dataZoom', 'yAxis']}/>
 }
 
 

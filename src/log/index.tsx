@@ -3,9 +3,9 @@ import './index.sass'
 import { useEffect, useRef, useState } from 'react'
 import { Pagination } from 'antd'
 
-import { t } from '@i18n/index.js'
+import { t } from '@i18n'
 
-import { model, NodeType } from '@/model.js'
+import { model, NodeType } from '@model'
 import { Unlogin } from '@/components/Unlogin.js'
 import { BottomFixedFooter } from '@/components/BottomFixedFooter/index.tsx'
 import { RefreshButton } from '@/components/RefreshButton/index.tsx'
@@ -71,7 +71,7 @@ export function Log () {
         </div>
         {
             show_login_required_info ?
-                <Unlogin info='当前节点日志'/>
+                <Unlogin info={t('当前节点日志')}/>
             :
                 <>
                     <div className='log-block' ref={ref}>

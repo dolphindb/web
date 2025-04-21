@@ -79,7 +79,7 @@ export function Computing () {
         />
     
     if (!logined)
-        return <Unlogin info='当前节点流计算状态'/>
+        return <Unlogin info={t('当前节点流计算状态')}/>
     
     const tab_content = {
         streaming_pub_sub_stat: {

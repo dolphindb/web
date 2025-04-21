@@ -1,8 +1,8 @@
 import './index.scss'
 import type { HTMLAttributes } from 'react'
 
-import { model } from '@/model.ts'
-import { sider_collapsed_width, sider_uncollapsed_width } from '@/utils.ts'
+import { model } from '@model'
+import { sider_collapsed_width, sider_uncollapsed_width } from '@utils'
 
 /** 页面里底部固定按钮，比如页面表单很长，然后表单滚动，按钮固定 */
 export function BottomFixedFooter (props: HTMLAttributes<HTMLDivElement>) {

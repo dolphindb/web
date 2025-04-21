@@ -7,8 +7,6 @@ import copy from 'copy-to-clipboard'
 import dayjs from 'dayjs'
 
 
-import type { EChartsInstance } from 'echarts-for-react'
-
 import { t } from '../../i18n/index.js'
 
 import { WidgetChartType, type Widget, dashboard, DashboardPermission } from './model.js'
@@ -232,7 +230,7 @@ export function concat_name_path (...paths: (NamePath | NamePath[])[]): NamePath
 }
 
 /** type 表示轴类型，传入 0 的时候代表 X 轴，其余时候为 Y 轴 */
-export function get_axis_range (type: number, echart_instance: EChartsInstance, idx: number) { 
+export function get_axis_range (type: number, echart_instance: echarts.ECharts, idx: number) { 
     return (echart_instance as any).getModel().getComponent(type === 0 ? 'xAxis' : 'yAxis', idx).axis.scale._extent
 }
 
@@ -276,11 +274,13 @@ export function convert_chart_config (
     }
     
     function convert_axis (axis: AxisConfig, index?: number) {
-        const axis_config = {
+        const axis_config: echarts.EChartsOption['xAxis'] = {
             show: true,
             name: axis.name,
             type: axis.type,
             interval: axis.interval,
+            nameLocation: 'middle',
+            nameGap: 25,
             splitLine,
             axisLine: {
                 show: true,
@@ -292,7 +292,7 @@ export function convert_chart_config (
                 color: () => axis.font_color || '#6E6F7A',
                 fontSize: axis.fontsize
             },
-            logBase: axis.log_base || 10,
+            logBase: axis.log_base,
             position: axis.position,
             offset: axis.offset,
             alignTicks: true,
@@ -303,7 +303,7 @@ export function convert_chart_config (
             },
             min: [AxisType.TIME, AxisType.VALUE].includes(axis.type) ? axis.min : undefined,
             max: [AxisType.TIME, AxisType.VALUE].includes(axis.type) ? axis.max : undefined
-        } as echarts.EChartsOption['xAxis']
+        }
         
         return axis_config
     }
@@ -487,10 +487,10 @@ export function convert_chart_config (
         animation,
         grid: {
             containLabel: true,
-            left: 10,
+            left: 15,
             // 如果 series 中设置了 endLabel，需要增加 right 为 endLabel 预留空间
-            right: series?.find(item => item?.end_label) ? 80 : 10,
-            bottom: x_datazoom ? 50 : 10
+            right: series?.find(item => item?.end_label) ? 80 : 15,
+            bottom: x_datazoom ? 50 : 15
         },
         legend: pickBy({
             show: true,

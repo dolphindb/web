@@ -6,9 +6,9 @@ import { useParams } from 'react-router'
 
 import { delay } from 'xshell/utils.browser.js'
 
-import { t } from '@i18n/index.ts'
+import { t } from '@i18n'
 
-import { model } from '@/model.ts'
+import { model } from '@model'
 
 import { dark } from '@/theme.ts'
 

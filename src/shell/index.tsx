@@ -6,7 +6,7 @@ import { Resizable } from 're-resizable'
 
 import { delay } from 'xshell/utils.browser.js'
 
-import { t } from '@i18n/index.ts'
+import { t } from '@i18n'
 
 import { DatabaseOutlined } from '@ant-design/icons'
 

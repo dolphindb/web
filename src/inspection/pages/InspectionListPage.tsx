@@ -1,6 +1,6 @@
 import { CheckOutlined, CloseOutlined, DeleteOutlined, MailOutlined, PlusOutlined, ReloadOutlined } from '@ant-design/icons'
 import NiceModal from '@ebay/nice-modal-react'
-import { t } from '@i18n/index.ts'
+import { t } from '@i18n'
 import { Button, DatePicker, Input, Popconfirm, Space, Table, Tooltip, Typography, type TableColumnsType } from 'antd'
 
 import { useEffect, useMemo, useState } from 'react'
@@ -11,7 +11,7 @@ import type { Dayjs } from 'dayjs'
 
 import { datetime_format } from 'xshell/utils.browser.js'
 
-import { model } from '@/model.ts'
+import { model } from '@model'
 
 import { EmailConfigModal } from '@/inspection/modals/EmailConfigModal.tsx'
 import { inspection } from '@/inspection/model.ts'
@@ -396,7 +396,7 @@ function PlanListTable  ({
                         description={t('确定立即巡检 {{name}} 吗？', { name: record.name })}
                         okText={t('确定')}
                         cancelText={t('取消')}
-                        okButtonProps={{ type: 'primary', danger: true }}
+                        okButtonProps={{ type: 'primary' }}
                         onConfirm={async () => {
                             await inspection.run_plan(record.id)
                             model.message.success(t('执行成功'))

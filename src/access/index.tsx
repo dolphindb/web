@@ -4,9 +4,9 @@ import { useRoutes, Navigate } from 'react-router'
 
 import { Result } from 'antd'
 
-import { t } from '@i18n/index.ts'
+import { t } from '@i18n'
 
-import { model } from '@/model.ts'
+import { model } from '@model'
 
 import { GroupList } from './GroupList.tsx'
 import { UserList } from './UserList.tsx'
@@ -15,7 +15,6 @@ import { AccessTabs } from './AccessTabs.tsx'
 
 function AccessGuard ({ children }) {
     const { admin } = model.use(['admin'])
-    
     
     if (!admin)
         return <Result status='warning' className='interceptor' title={t('非管理员不能查看权限管理模块。')} />

@@ -2,9 +2,9 @@ import './index.scss'
 
 import useSWR from 'swr'
 
-import { Button, message, Result, Spin } from 'antd'
+import { Button, Result, Spin } from 'antd'
 
-import { t } from '@i18n/index.ts'
+import { t } from '@i18n'
 
 
 import type { DdbObj } from 'dolphindb/browser.js'
@@ -13,7 +13,7 @@ import { useState } from 'react'
 
 import useSWRMutation from 'swr/mutation'
 
-import { model, NodeType } from '@/model.ts'
+import { model, NodeType } from '@model'
 
 import { InitStatus, Protocol } from '@/data-collection/type.ts'
 import { has_data_collection_auth, test_init } from '@/data-collection/api.ts'
@@ -56,7 +56,7 @@ export function DataCollection () {
         async () => {
             await model.ddb.execute(code)
             await model.ddb.call('dcp_init')
-            message.success(t('采集平台初始化成功！'))
+            model.message.success(t('采集平台初始化成功！'))
             mutate()
         }
     )

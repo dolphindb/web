@@ -10,11 +10,11 @@ import { ReloadOutlined } from '@ant-design/icons'
 
 import { type DdbObj, format, DdbType } from 'dolphindb/browser.js'
 
-import { language, t } from '@i18n/index.ts'
-
 import { Editor } from '@monaco-editor/react'
 
-import { model, type DdbJob } from '@/model.ts'
+import { language, t } from '@i18n'
+
+import { model, type DdbJob } from '@model'
 
 import { DDBTable } from '@/components/DDBTable/index.tsx'
 import { StatusTag, StatusType } from '@/components/tags/index.tsx'
@@ -294,10 +294,10 @@ function translate_columns (cols: DdbJobColumn[]): DdbJobColumn[] {
         return { 
             ...item, 
             title: column_names[item.title as string] || item.title,
-            width: expand ? 250 : undefined,
+            width: expand ? 400 : item.width,
             render: expand 
                 ? value => <Typography.Paragraph style={{ marginBottom: 0 }} ellipsis={{ rows: 1, expandable: 'collapsible' }}>{value}</Typography.Paragraph>
-                : undefined
+                : item.render
         }
     
     })

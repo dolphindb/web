@@ -21,7 +21,10 @@
         
         "paths": {
             "@/*": ["./src/*"],
-            "@i18n/*": ["./i18n/*"],
+            "@i18n": ["./i18n/index.ts"],
+            "@model": ["./src/model.ts"],
+            "@utils": ["./src/utils.ts"],
+            "@components/*": ["./src/components/*"],
         },
         
         

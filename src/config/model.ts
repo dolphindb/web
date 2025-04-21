@@ -2,11 +2,11 @@ import { Model } from 'react-object-model'
 
 import { DdbInt, type DdbCallOptions } from 'dolphindb/browser.js'
 
-import { t } from '@i18n/index.ts'
+import { t } from '@i18n'
 
-import { NodeType, model } from '@/model.ts'
+import { NodeType, model } from '@model'
 
-import { iterator_map } from '@/utils.ts'
+import { iterator_map } from '@utils'
 
 import { _2_strs, get_category, parse_nodes_configs } from './utils.ts'
 
@@ -217,5 +217,18 @@ class ConfigModel extends Model<ConfigModel> {
         ]
     }
 }
+
+export async function validate_qualifier (config_name: string, value: string) {
+    if ((config_name === 'computeNodeCacheDir' || config_name === 'computeNodeCacheMeta') && !value.includes('%'))
+        throw new Error(t('配置项 {{name}} 的限定词必须包含 %', { name: config_name }))
+}
+
+export async function validate_config (config_name: string, value: string) {
+    if (!value || value.trim() === '') 
+        throw new Error(t('请输入配置值'))
+    
+    if ((config_name === 'computeNodeCacheDir' || config_name === 'computeNodeCacheMeta') && !value.includes('<ALIAS>'))
+        throw new Error(t('配置项 {{name}}的值必须包含 <ALIAS>', { name: config_name }))
+} 
 
 export let config = new ConfigModel()

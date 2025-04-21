@@ -18,11 +18,11 @@ import {
 } from 'dolphindb/browser.js'
 
 
-import { t } from '@i18n/index.js'
+import { t } from '@i18n'
 
 import { type DdbObjRef } from '@/obj.js'
 
-import { model, NodeType, storage_keys } from '@/model.js'
+import { model, NodeType, storage_keys } from '@model'
 
 import type { Monaco } from '@/components/Editor/index.js'
 
@@ -602,6 +602,8 @@ class ShellModel extends Model<ShellModel> {
                 ;(
                     await ddb.invoke('getSchemaByCatalog', [catalog])
                 ).data
+                    // 图的情况下 dbUrl 为空字符串，比如现在用 demo.orca_graph.tmp 作为一个图的标识了，demo.orca_graph 不是表的概念了
+                    .filter(({ dbUrl }) => dbUrl)
                     .sort((a, b) => strcmp(a.schema, b.schema))
                     .map(({ schema, dbUrl }) => {
                         const db_path = `${dbUrl}/`

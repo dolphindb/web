@@ -5,16 +5,16 @@ import { useEffect, useState } from 'react'
 import { Layout, Button, Tooltip, Popconfirm, Segmented } from 'antd'
 const { Header } = Layout
 
-import { default as Icon, AppstoreOutlined, BarsOutlined, RedoOutlined, CaretRightOutlined, StopOutlined, DownOutlined, UpOutlined, PlayCircleOutlined } from '@ant-design/icons'
+import { AppstoreOutlined, BarsOutlined, RedoOutlined, StopOutlined, DownOutlined, UpOutlined, PlayCircleOutlined } from '@ant-design/icons'
 
 import { delay } from 'xshell/utils.browser.js'
 
-import { t, language } from '../../i18n/index.js'
+import { t, language } from '@i18n'
 
-import { NodeType, DdbNodeState, model, storage_keys, type DdbNode } from '../model.js'
+import { NodeType, DdbNodeState, model, storage_keys, type DdbNode } from '@model'
 
-import { OverviewTable } from './table.js'
-import { OverviewCard } from './card.js'
+import { OverviewTable } from './table.tsx'
+import { OverviewCard } from './card.tsx'
 
 // import SvgRefresh from './icons/refresh.icon.svg'
 // import SvgStart from './icons/start.icon.svg'
@@ -115,7 +115,7 @@ export function Overview () {
                                         loading: isStartLoading
                                     }}
                                 >
-                                    <Tooltip title={selectedNodes.length && !logined ? t('当前用户未登录，请登陆后再进行启停操作。') : ''}>
+                                    <Tooltip title={selectedNodes.length && !logined ? t('当前用户未登录，请登录后再进行启停操作。') : ''}>
                                         <Button
                                             block
                                             loading={isStartLoading}
@@ -172,7 +172,7 @@ export function Overview () {
                                         loading: isStopLoading
                                     }}
                                 >
-                                    <Tooltip title={selectedNodes.length && !logined ? t('当前用户未登录，请登陆后再进行启停操作。') : ''}>
+                                    <Tooltip title={selectedNodes.length && !logined ? t('当前用户未登录，请登录后再进行启停操作。') : ''}>
                                         <Button
                                            
                                             block

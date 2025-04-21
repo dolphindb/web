@@ -197,6 +197,10 @@ export function ControllerConfig () {
                     throw error
                 }
             },
+            actionRender: (row, config, defaultDom) => [
+                defaultDom.save,
+                defaultDom.cancel
+            ],
             deletePopconfirmMessage: t('确认删除此配置项？'),
             saveText:
                 <Button

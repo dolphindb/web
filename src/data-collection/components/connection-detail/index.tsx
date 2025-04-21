@@ -1,5 +1,5 @@
 import './index.scss'
-import { Button, Descriptions, Popconfirm, Space, Spin, Switch, Table, Typography, message } from 'antd'
+import { Button, Descriptions, Popconfirm, Spin, Switch, Typography } from 'antd'
 
 import { useCallback, useMemo, useState } from 'react'
 
@@ -9,7 +9,6 @@ import useSWR from 'swr'
 
 import type { ColumnProps } from 'antd/es/table/Column.js'
 
-import Link from 'antd/es/typography/Link.js'
 
 import { useMemoizedFn } from 'ahooks'
 
@@ -21,7 +20,9 @@ import { DeleteOutlined, PlusOutlined } from '@ant-design/icons'
 import dayjs from 'dayjs'
 
 
-import { t } from '@i18n/index.ts'
+import { t } from '@i18n'
+
+import { model } from '@model'
 
 import { request } from '@/data-collection/utils.ts'
 
@@ -35,8 +36,9 @@ import { DDBTable } from '@/components/DDBTable/index.tsx'
 
 import { TableOperations } from '@/components/TableOperations/index.tsx'
 
-import { DeleteDescribeModal } from './delete-describe-modal.js'
-import { TemplateViewModal } from './parser-template-view-modal.js'
+
+import { DeleteDescribeModal } from './delete-describe-modal.tsx'
+import { TemplateViewModal } from './parser-template-view-modal.tsx'
 
 
 interface IProps {
@@ -110,7 +112,7 @@ export function ConnectionDetail (props: IProps) {
         }
         else
             await request('dcp_stopSubscribe', { subId: [id] })
-        message.success(is_enable  ? t('订阅成功') : t('已停用订阅'))
+        model.message.success(is_enable  ? t('订阅成功') : t('已停用订阅'))
         mutate()
     }, [mutate, selected_subscribes])
     
@@ -136,7 +138,7 @@ export function ConnectionDetail (props: IProps) {
             title: t('主题', { context: 'data_collection' }),
             dataIndex: 'topic',
             key: 'topic',
-            width: 100,
+            width: 150,
             ellipsis: true,
         },
         {
@@ -152,23 +154,6 @@ export function ConnectionDetail (props: IProps) {
             }
         },
         {
-            title: t('节点'),
-            dataIndex: 'subNode',
-            width: 200,
-        },
-        {
-            title: t('创建时间'),
-            dataIndex: 'createTime',
-            width: 200,
-            sorter: (a, b ) => dayjs(a.createTime).valueOf() - dayjs(b.createTime).valueOf()
-        },
-        {
-            title: t('更新时间'),
-            dataIndex: 'updateTime',
-            width: 200,
-            sorter: (a, b) => dayjs(a.updateTime).valueOf() - dayjs(b.updateTime).valueOf()
-        },
-        {
             title: t('是否启用'),
             dataIndex: 'status',
             width: 120,
@@ -179,6 +164,23 @@ export function ConnectionDetail (props: IProps) {
             >
                 <Switch checked={status === 1}/>
             </Popconfirm>
+        },
+        {
+            title: t('节点'),
+            dataIndex: 'subNode',
+            width: 120,
+        },
+        {
+            title: t('创建时间'),
+            dataIndex: 'createTime',
+            width: 180,
+            sorter: (a, b ) => dayjs(a.createTime).valueOf() - dayjs(b.createTime).valueOf()
+        },
+        {
+            title: t('更新时间'),
+            dataIndex: 'updateTime',
+            width: 180,
+            sorter: (a, b) => dayjs(a.updateTime).valueOf() - dayjs(b.updateTime).valueOf()
         },
         {
             title: t('操作'),
