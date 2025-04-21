@@ -3,24 +3,23 @@ import { useMemo } from 'react'
 
 import { isNil, pickBy } from 'lodash'
 
-import { type Widget } from '../../model.js'
-
 import { LabelsFormFields, SeriesFormFields } from '../../ChartFormFields/RadarChartFields.js'
 import { type IChartConfig } from '../../type.js'
 import { parse_text } from '../../utils.ts'
 import { BasicFormFields } from '../../ChartFormFields/BasicFormFields.js'
 import { ChartField } from '../../ChartFormFields/type.js'
 import { DashboardEchartsComponent } from '@/dashboard/components/EchartsComponent.tsx'
+import type { GraphComponentProps, GraphConfigProps } from '@/dashboard/graphs.ts'
 
 
-export function Radar ({ widget, data_source }: { widget: Widget, data_source: any[] }) {
+export function Radar ({ widget, data_source: { data } }: GraphComponentProps) {
     const { title, title_size = 18, tooltip, legend, series, labels } = widget.config as IChartConfig
     const option = useMemo<echarts.EChartsOption>(
         () => {
             const legends = [ ]
             const indicators = [ ]
             const datas = [ ]
-            data_source.forEach((data, index) => {
+            data.forEach((data, index) => {
                 const label = data[labels[0].col_name]
                 const values = [ ]
                 legends.push(label || '') 
@@ -70,21 +69,17 @@ export function Radar ({ widget, data_source }: { widget: Widget, data_source: a
                 ]
             }
         },
-        [title, tooltip, series, title_size, labels, data_source, legend]
+        [title, tooltip, series, title_size, labels, data, legend]
     )
     
-    return <DashboardEchartsComponent
-        options={option}
-        lazy_update
-    />
+    return <DashboardEchartsComponent options={option} lazy_update />
 }
 
-export function RadarConfigForm (props: { col_names: string[] } ) {
-    const { col_names = [ ] } = props
-    
+
+export function RadarConfigForm ({ data_source: { cols } }: GraphConfigProps) {
     return <>
         <BasicFormFields type='chart' chart_fields={[ChartField.LEGEND, ChartField.TOOLTIP]}/>
-        <LabelsFormFields col_names={col_names} />
-        <SeriesFormFields col_names={col_names} />
+        <LabelsFormFields col_names={cols} />
+        <SeriesFormFields col_names={cols} />
     </>
 }

@@ -1,17 +1,20 @@
 import { Button, Form, Popconfirm, Typography } from 'antd'
-import { useCallback, useEffect, useMemo } from 'react'
+import { useCallback, useEffect } from 'react'
 
 import { UndoOutlined } from '@ant-design/icons'
 
-import { graph_config } from '../graph-config.js'
-import { dashboard } from '../model.js'
-import { get_data_source } from '../DataSource/date-source.js'
-import { language, t } from '../../../i18n/index.js'
+import { language, t } from '@i18n'
+
+import { graphs } from '@/dashboard/graphs.ts'
+import { dashboard } from '@/dashboard/model.ts'
+import { get_data_source } from '@/dashboard/DataSource/date-source.ts'
 
 export function GraphSetting () { 
     const { widget } = dashboard.use(['widget'])
-    const data_source_node = get_data_source(widget.source_id?.[0])
-    const { cols = [ ], data: data_source = [ ], type_map } = data_source_node?.use(['cols', 'data', 'type_map'])
+    
+    const data_source = get_data_source(widget.source_id?.[0])
+    
+    data_source.use(['cols', 'data', 'type_map'])
     
     const [form] = Form.useForm()
     
@@ -35,24 +38,21 @@ export function GraphSetting () {
     }, [widget.id, on_reset_config])
     
     
-    const on_form_change = useCallback((_, values) => {  
-        if (widget)
-            dashboard.update_widget({ ...widget, config: values })
-    }, [widget])
+    const Config = graphs[widget.type]?.config
     
     
-    const ConfigFormFields = graph_config[widget.type]?.config
-    
-    
-    return ConfigFormFields && <>
+    return Config && <>
         <Form
-            onValuesChange={on_form_change}
+            onValuesChange={(_, values) => {
+                if (widget)
+                    dashboard.update_widget({ ...widget, config: values })
+            }}
             form={form}
             labelCol={{ span: language === 'zh' ? 10 : 12 }}
             colon={false}
             className='graph-setting-form'
         >
-            <ConfigFormFields col_names={cols} data_source={data_source} type_map={type_map} form={form} />
+            <Config widget={widget} data_source={data_source} form={form} />
         </Form>
         
         <Popconfirm title={t('确定要重置配置吗？')} onConfirm={on_reset_config}>
@@ -60,6 +60,7 @@ export function GraphSetting () {
                 {t('重置配置')}
             </Button>
         </Popconfirm>
+        
         <div className='reset-tip'>
             <Typography.Text type='secondary'>
                 {t('配置表单与数据源结构相关，如修改数据源结构，建议重置表单以适应最新结构')}

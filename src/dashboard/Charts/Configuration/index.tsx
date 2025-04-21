@@ -1,36 +1,40 @@
 import './index.sass'
 
-import { useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 
-import { Collapse, Form, Input, Slider } from 'antd'
+import { Collapse, DatePicker, Form, Input, Slider } from 'antd'
 
 import dayjs from 'dayjs'
 
-import { delay, time_format } from 'xshell/utils.browser.js'
+import { check, datetime_format } from 'xshell/utils.browser.js'
 
 import { t } from '@i18n'
-import { dashboard, type Widget } from '@/dashboard/model.ts'
+import type { GraphComponentProps, GraphConfigProps } from '@/dashboard/graphs.ts'
+import { model } from '@/model.ts'
+import { DdbForm, type DdbTableData } from 'dolphindb/browser'
+import { parse_code } from '@/dashboard/utils.ts'
 
 
-interface Data {
-    id: string
-    value: number
-}
-
-
-export function Configuration ({ widget, data_source }: { widget: Widget, data_source: Data[] }) {
+export function Configuration ({ widget, data_source }: GraphComponentProps<Data>) {
     const {
         background,
         text_mappings: text_mappings_config,
-        color_mappings: color_mappings_config
+        color_mappings: color_mappings_config,
+        replay
     } = widget.config as IConfigurationConfig
+    
+    const { data } = data_source
     
     let rdiv = useRef<HTMLDivElement>(undefined)
     
-    let rstreaming = useRef(true)
+    let rreplaying = useRef(false)
     
     let rsvg = useRef<SVGSVGElement>(undefined)
     
+    const now = dayjs()
+    
+    let [min_time, set_min_time] = useState(now.startOf('day'))
+    let [max_time, set_max_time] = useState(now.endOf('day'))
     
     useEffect(() => {
         if (!background)
@@ -50,66 +54,105 @@ export function Configuration ({ widget, data_source }: { widget: Widget, data_s
     }, [background])
     
     useEffect(() => {
-        let { current: $svg } = rsvg
-        
-        if (!$svg)
-            return
-        
-        const $texts: SVGElement[] = Array.prototype.filter.call(
-            $svg.children, 
-            ($e: SVGElement) => $e.tagName === 'text' && $e.id)
-        
-        if (!data_source || !rstreaming.current)
-            return
-        
-        const data = data_source.reduce((acc, { id, value }) =>
-            ((acc[id] = value), acc)
-        , { })
-        
-        const text_mappings = parse_mappings_config(text_mappings_config)
-        
-        const color_mappings = parse_mappings_config(color_mappings_config)
-        
-        // dump ids
-        // console.log($texts.map(({ id }) => id))
-        
-        $texts.forEach($text => {
-            const { id } = $text
-            const value = data[text_mappings[id] || id]
-            
-            if (value !== undefined)
-                $text.textContent = value
-        })
-        
-        for (const selector in color_mappings)
-            $svg.querySelectorAll(selector)
-                .forEach(($element: SVGElement) =>
-                    $element.style.fill = data[color_mappings[selector]])
-    }, [background, data_source, text_mappings_config, color_mappings_config])
+        if (!rreplaying.current)
+            update_svg(rsvg.current, data, text_mappings_config, color_mappings_config)
+    }, [background, data, text_mappings_config, color_mappings_config])
     
-    const now = dayjs()
-    const max = now.endOf('day').valueOf()
     
     return <div className='configuration-diagram'>
         <div className='diagram' ref={rdiv} />
-        <Slider
-            className='slider'
-            min={now.startOf('day').valueOf()}
-            max={max}
-            tooltip={{ formatter: value => dayjs(value).format(time_format) }}
-            onChangeComplete={value => {
-                if (value === max)
-                    rstreaming.current = true
-                else {
-                    rstreaming.current = false
-                    
-                    widget.data?.$texts.forEach($text => {
-                        $text.textContent = (Math.random() * 100).toFixed()
-                    })
-                }
-            }}
-        />
+        { replay && <div className='actions'>
+            <DatePicker 
+                showTime
+                size='small'
+                format={datetime_format}
+                value={min_time}
+                onChange={value => {
+                    set_min_time(value)
+                }}
+            />
+            
+            <Slider
+                className='slider'
+                min={min_time.valueOf()}
+                max={max_time.valueOf()}
+                tooltip={{ formatter: value => dayjs(value).format(datetime_format) }}
+                onChangeComplete={async (value: number) => {
+                    if (value === max_time.valueOf())
+                        rreplaying.current = false
+                    else {
+                        rreplaying.current = true
+                        
+                        const obj = await (data_source.ddb?.streaming ? model.ddb : data_source.ddb || model.ddb)
+                            .eval(
+                                parse_code(
+                                    replay.replaceAll(
+                                        '{{time}}', 
+                                        dayjs(value).format(datetime_format)))
+                            )
+                        
+                        check(obj.form === DdbForm.table, t('返回的结果需要是表格'))
+                        
+                        update_svg(
+                            rsvg.current,
+                            (obj.data<DdbTableData<Data>>())
+                                .data,
+                            text_mappings_config,
+                            color_mappings_config)
+                    }
+                }}
+            />
+            
+            <DatePicker
+                showTime
+                size='small'
+                format={datetime_format}
+                value={max_time}
+                onChange={value => {
+                    set_max_time(value)
+                }}
+            />
+        </div> }
     </div>
+}
+
+
+function update_svg ($svg: SVGSVGElement, data: Data[], text_mappings_config: string, color_mappings_config: string) {
+    if (!data)
+        return
+    
+    const $texts: SVGElement[] = Array.prototype.filter.call(
+        $svg.children, 
+        ($e: SVGElement) => $e.tagName === 'text' && $e.id)
+    
+    const data_ = data.reduce((acc, { id, value }) =>
+        ((acc[id] = value), acc)
+    , { })
+    
+    const text_mappings = parse_mappings_config(text_mappings_config)
+    
+    const color_mappings = parse_mappings_config(color_mappings_config)
+    
+    // dump ids
+    // console.log($texts.map(({ id }) => id))
+    
+    $texts.forEach($text => {
+        const { id } = $text
+        const value = data_[text_mappings[id] || id]
+        
+        if (value !== undefined)
+            $text.textContent = value
+    })
+    
+    for (const selector in color_mappings)
+        $svg.querySelectorAll(selector)
+            .forEach(($element: SVGElement) => {
+                const color = data_[color_mappings[selector]]
+                if (color)
+                    // local
+                    // console.log($element, color)
+                    $element.style.fill = color
+            })
 }
 
 
@@ -131,9 +174,7 @@ function parse_mappings_config (config?: string): Record<string, string> {
 }
 
 
-export function ConfigurationConfig () {
-    const { widget } = dashboard.use(['widget'])
-    
+export function ConfigurationConfig ({ widget }: GraphConfigProps) {
     // const $texts: SVGTextElement[] = widget.data?.$texts
     
     return <Collapse 
@@ -144,7 +185,11 @@ export function ConfigurationConfig () {
                 forceRender: true,
                 children: <div className='axis-wrapper'>
                     <Form.Item name='background' label={t('svg 背景图')}>
-                        <Input.TextArea placeholder={t('粘贴 svg 文件内容')} />
+                        <Input.TextArea autoSize={rows} placeholder={t('粘贴 svg 文件内容')} />
+                    </Form.Item>
+                    
+                    <Form.Item name='replay' label={t('历史回放')} tooltip={replay_tooltip}>
+                        <Input.TextArea autoSize={rows} placeholder={replay_tooltip} />
                     </Form.Item>
                 </div>
             },
@@ -154,10 +199,10 @@ export function ConfigurationConfig () {
                 forceRender: true,
                 children: <div className='axis-wrapper svg-mappings'>
                     <Form.Item name='text_mappings' label={t('文本映射')} tooltip={t('一行一个映射，用英文冒号分隔，左边是背景中的文本 id，右边是数据 id，如:\ntext_id_0: data_id_0')}>
-                        <Input.TextArea autoSize={{ minRows: 4 }} placeholder={'text_id_0: data_id_0\ntext_id_1: data_id_1'} />
+                        <Input.TextArea autoSize={rows} placeholder={'text_id_0: data_id_0\ntext_id_1: data_id_1'} />
                     </Form.Item>
                     <Form.Item name='color_mappings' label={t('颜色映射')} tooltip={t('一行一个映射，用英文冒号分隔，左边是背景中的元素选择器，右边是数据 id，如:\nselector_0: data_id_0')}>
-                        <Input.TextArea autoSize={{ minRows: 4 }} placeholder={'selector_0: data_id_0\selector_1: data_id_1'} />
+                        <Input.TextArea autoSize={rows} placeholder={'selector_0: data_id_0\nselector_1: data_id_1'} />
                     </Form.Item>
                 </div>
             }
@@ -166,8 +211,19 @@ export function ConfigurationConfig () {
 }
 
 
+const replay_tooltip = t('填写用于查询历史回放的脚本，支持 {{time}} 变量')
+
+const rows = { minRows: 4, maxRows: 4 } as const
+
+
+interface Data {
+    id: string
+    value: string
+}
+
 export interface IConfigurationConfig {
     background: string
     text_mappings: string
     color_mappings: string
+    replay: string
 }

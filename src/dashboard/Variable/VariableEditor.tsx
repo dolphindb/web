@@ -198,7 +198,6 @@ export function VariableEditor ({
                                                 
                                                 change_current_variable_property(['options'], [new_options])
                                             }
-                                            
                                         } finally {
                                             set_loading(false)
                                         }

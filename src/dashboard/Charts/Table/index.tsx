@@ -1,7 +1,7 @@
 import './index.scss'
 
 import { Checkbox, type PaginationProps, Table, type TableProps, Empty } from 'antd'
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { useEffect, useMemo, useState } from 'react'
 import { genid } from 'xshell/utils.browser.js'
 
 import { type ColumnsType } from 'antd/es/table'
@@ -10,24 +10,14 @@ import { isNumber } from 'lodash'
 
 import cn from 'classnames'
 
-
-
-import { useSize } from 'ahooks'
-
 import {  BasicFormFields }  from '../../ChartFormFields/BasicFormFields.js'
 import { BasicTableFields } from '../../ChartFormFields/BasicTableFields.js'
-import { type Widget } from '../../model.js'
 import { type ITableConfig } from '../../type.js'
 
 
 import { format_number, format_time, parse_text } from '../../utils.ts'
+import type { GraphComponentProps, GraphConfigProps } from '@/dashboard/graphs.ts'
 
-
-
-interface IProps extends TableProps<any> { 
-    widget: Widget
-    data_source: any[]
-}
 
 function get_cell_color (val, threshold, total) { 
     
@@ -54,8 +44,8 @@ function get_cell_color (val, threshold, total) {
 }
 
 
-export function DBTable (props: IProps) {
-    const { widget, data_source = [ ], ...otherProps } = props
+export function DBTable (props: GraphComponentProps) {
+    const { widget, data_source: { data } } = props
     const [selected_cols, set_select_cols] = useState([ ])
     
     const config = useMemo(() => widget.config as ITableConfig, [widget.config])
@@ -101,7 +91,7 @@ export function DBTable (props: IProps) {
                     } : false,
                     onCell: record => ({
                         style: {
-                            backgroundColor: isNumber(threshold) ? get_cell_color(record[name], threshold, data_source.map(item => item[col?.col])) : background_color,
+                            backgroundColor: isNumber(threshold) ? get_cell_color(record[name], threshold, data.map(item => item[col?.col])) : background_color,
                             color,
                             border: config.bordered ? '1px solid black' : null,
                             fontSize: font_size || 14,
@@ -119,7 +109,7 @@ export function DBTable (props: IProps) {
                     }
                 
                 return col_config
-            }), [ selected_cols, data_source, show_cols, config])
+            }), [selected_cols, data, show_cols, config])
             
     
     const pagination = useMemo<PaginationProps | false>(() => { 
@@ -139,7 +129,7 @@ export function DBTable (props: IProps) {
                     marginBottom: 0
                 }
             }
-    }, [config, data_source])
+    }, [config, data])
     
     
     return <div className='dashboard-table-wrapper'>
@@ -172,13 +162,12 @@ export function DBTable (props: IProps) {
                     bordered={config.bordered}
                     scroll={{ x: config.max_content ? 'max-content' : undefined }}
                     columns={columns}
-                    dataSource={config.is_reverse ? data_source.toReversed() : data_source}
+                    dataSource={config.is_reverse ? data.toReversed() : data}
                     pagination={pagination}
                     rowKey={() => genid()}
                     rowClassName={cn({
                         'table-row-with-border': config.bordered
                     })}
-                    {...otherProps}
                 />
             :
                 <Empty className='empty-table' />
@@ -187,10 +176,9 @@ export function DBTable (props: IProps) {
 }
 
 
-export function DBTableConfigForm (props: { col_names: string[] }) { 
-    const { col_names = [ ] } = props
+export function DBTableConfigForm ({ data_source: { cols } }: GraphConfigProps) { 
     return <>
         <BasicFormFields type='table' />
-        <BasicTableFields  col_names={col_names}/>
+        <BasicTableFields col_names={cols}/>
     </>
 }

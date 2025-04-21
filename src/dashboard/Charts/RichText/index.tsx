@@ -18,11 +18,12 @@ import type { ITextConfig } from '@/dashboard/type.ts'
 import { variables } from '@/dashboard/Variable/variable.ts'
 import { parse_text } from '@/dashboard/utils.ts'
 import { InsertVariableBtn } from '@/dashboard/DataSource/InsertVariableBtn.tsx'
+import type { GraphComponentProps } from '@/dashboard/graphs.ts'
 
 
 let ReactQuill: (typeof import('react-quill-new'))['default']
 
-export function RichText ({ widget, data_source }: { widget: Widget, data_source: any[] }) {
+export function RichText ({ widget }: GraphComponentProps) {
     const [display_text, set_display_text] = useState((widget.config as ITextConfig)?.value || '')
     const [edit_text, set_edit_text] = useState(display_text)
     

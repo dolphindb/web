@@ -11,7 +11,7 @@ import { Button } from 'antd'
 
 import { WidgetChartType, WidgetType, WidgetTypeWithoutDatasource, dashboard, type Widget } from '../model.js'
 import { DataSourceConfig } from '../DataSource/DataSourceConfig.js'
-import { graph_config } from '../graph-config.js'
+import { graphs } from '../graphs.js'
 
 import ChartSvg from '../icons/chart.svg'
 import { get_data_source } from '../DataSource/date-source.js'
@@ -36,11 +36,11 @@ function get_padding_style (padding: { left: number, right: number, top: number,
 
 function GraphComponent ({ widget }: { widget: Widget }) {
     // 普通图表 source_id 内只有一项，只需要取第一项，复合图表才会有多项
-    const data_source_node = get_data_source(widget.source_id?.[0])
+    const data_source = get_data_source(widget.source_id?.[0])
     
-    const { data = [ ], cols = [ ], type_map = { } } = data_source_node.use(['data', 'cols', 'type_map'])
+    data_source.use(['data', 'cols', 'type_map'])
     
-    const Component = graph_config[widget.type].component
+    const Component = graphs[widget.type].component
     
     const { variable_cols, with_search_btn, search_btn_label, variable_form_label_col } = widget.config ?? { }
     
@@ -64,7 +64,7 @@ function GraphComponent ({ widget }: { widget: Widget }) {
         }
         
         <div className='graph-component'>
-            <Component data_source={data} widget={widget} col_names={cols} type_map={type_map} />
+            <Component data_source={data_source} widget={widget} />
         </div>
     </div>
 }

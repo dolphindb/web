@@ -49,42 +49,56 @@ export type ExportDataSource = {
 }
 
 
-export class DataSource extends Model<DataSource>  {
+export class DataSource <TDataRow = any> extends Model<DataSource<any>>  {
     id: string
+    
     name: string
+    
     type: DdbForm
+    
     mode: 'sql' | 'stream' = 'sql'
+    
     max_line: number = null
-    data: DataType = [ ]
+    
+    data: TDataRow[] = [ ]
+    
     cols: string[] = [ ]
+    
     /** map 类型，存储了每一列对应的 DDB 类型 ID */
     type_map: Record<string, DdbType>
+    
     deps: Set<string> = new Set()
+    
     variables: Set<string> = new Set()
+    
     error_message = ''
+    
     ddb: DDB
-    /** sql 模式专用 */
+    
+    // --- sql 模式专用
     auto_refresh = false
-    /** sql 模式专用 */
+    
     code = ''
-    /** sql 模式专用 */
+    
     interval = 1
-    /** sql 模式专用 */
+    
     timer: NodeJS.Timeout
-    /** stream 模式专用 */
+    
+    // --- stream 模式专用
     filter = false
-    /** stream 模式专用 */
+    
     stream_table = ''
-    /** stream 模式专用 */
-    filter_column = ''    
-    /** stream 模式专用 */
+    
+    filter_column = ''
+    
     filter_expression = ''
-    /** stream 模式专用 */
+    
     ip = ''
     
     
     constructor (id: string, name: string, type: DdbForm) {
         super()
+        
         this.id = id
         this.name = name
         this.type = type
@@ -532,7 +546,7 @@ export function copy_data_source (source_id: string) {
     try {
         copy(JSON.stringify(get_data_source_copy_infos(source_id)))
         dashboard.message.success(t('复制成功'))
-     } catch (e) {
+     } catch {
         dashboard.message.error(t('复制失败'))
     }
 }

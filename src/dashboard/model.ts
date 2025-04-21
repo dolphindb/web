@@ -480,8 +480,9 @@ export class DashBoardModel extends Model<DashBoardModel> {
     async render_with_config (config: DashBoardConfig) {
         this.set({ loading: true })
         
-        this.set({ config,
-                            
+        this.set({
+            config,
+            
             variables: await import_variables(config.data.variables),
          
             data_sources: await import_data_sources(config.data.datasources),

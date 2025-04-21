@@ -16,6 +16,7 @@ import { get_data_source } from '../../DataSource/date-source.js'
 import { DashboardEchartsComponent } from '@/dashboard/components/EchartsComponent.tsx'
 
 import { VALUE_TYPES, TIME_TYPES } from './constant.js'
+import type { GraphComponentProps } from '@/dashboard/graphs.ts'
 
 
 interface ICompositeSeriesConfig extends ISeriesConfig { 
@@ -28,17 +29,8 @@ interface ICompositeChartConfig extends Omit<IChartConfig, 'series'> {
     series: ICompositeSeriesConfig[]
 }
 
-interface ICompositeChartProps { 
-    data_source: {}[]
-    col_names: string[]
-    type_map: Record<string, DdbType>
-    widget: Widget
-}
 
-
-
-export function CompositeChart (props: ICompositeChartProps) {
-    const { widget, data_source } = props
+export function CompositeChart ({ widget, data_source: { data } }: GraphComponentProps) {
     const [update, set_update] = useState(null)
     
     const config = useMemo(() => widget.config as ICompositeChartConfig, [widget.config])
@@ -82,7 +74,7 @@ export function CompositeChart (props: ICompositeChartProps) {
         
         // 非自动画图模式
         if (!automatic_mode)
-            return convert_chart_config(widget, data_source, axis_range_map)
+            return convert_chart_config(widget, data, axis_range_map)
         else {
             // 自动模式，查找匹配的数据列规则，设置数据列
             for (let [data_source_id, item] of Object.entries(source_col_map)) {
@@ -128,7 +120,7 @@ export function CompositeChart (props: ICompositeChartProps) {
                 yAxis: yAxis.map(item => ({ ...item, type: AxisType.VALUE })),
                 series,
             }
-            return convert_chart_config({ ...widget, config: time_series_config } as unknown as Widget, data_source, axis_range_map)
+            return convert_chart_config({ ...widget, config: time_series_config } as unknown as Widget, data, axis_range_map)
         }
     }, [config, update, source_col_map, type_map, axis_range_map])
     

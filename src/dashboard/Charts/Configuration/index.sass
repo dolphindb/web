@@ -1,14 +1,24 @@
 .configuration-diagram
     height: 100%
     
-    .slider
+    .actions
         position: absolute
+        
+        z-index: 5
+        
         bottom: 0px
         left: 0px
         right: 0px
-        z-index: 5
+        
         margin: 8px 16px
+        
+        display: flex
+        gap: 8px
+        
+        .slider
+            flex: 1
     
+
 .dashboard-settings-panel
     .svg-mappings
         max-height: 400px

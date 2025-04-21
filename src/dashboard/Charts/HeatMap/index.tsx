@@ -14,20 +14,13 @@ import { AxisFormFields } from '@/dashboard/ChartFormFields/BasicChartFields.js'
 import { BasicFormFields } from '@/dashboard/ChartFormFields/BasicFormFields.js'
 import { ChartField } from '@/dashboard/ChartFormFields/type.js'
 import { get_data_source } from '@/dashboard/DataSource/date-source.js'
-import type { Widget } from '@/dashboard/model.js'
 import type { IChartConfig, MatrixData } from '@/dashboard/type.js'
 import { format_time, parse_text } from '@/dashboard/utils.js'
 import { DashboardEchartsComponent } from '@/dashboard/components/EchartsComponent.js'
+import type { GraphComponentProps, GraphConfigProps } from '@/dashboard/graphs.ts'
 
-interface IProps { 
-    widget: Widget
-    data_source: any[]
-    cols: string[]
-}
 
-export function HeatMap (props: IProps) { 
-    const { widget } = props
-    
+export function HeatMap ({ widget }: GraphComponentProps) { 
     const config = widget.config as IChartConfig
     
     const node = get_data_source(widget.source_id[0])
@@ -121,10 +114,10 @@ export function HeatMap (props: IProps) {
 }
 
 
-export function HeatMapConfigForm ({ col_names }: { col_names: string[] }) {
+export function HeatMapConfigForm ({ data_source: { cols } }: GraphConfigProps) {
     return <>
         <BasicFormFields type='chart' chart_fields={[ChartField.TOOLTIP]}/>
-        <AxisFormFields col_names={col_names} single />
+        <AxisFormFields col_names={cols} single />
         <Collapse items={[{
             forceRender: true,
             label: t('图配置'),

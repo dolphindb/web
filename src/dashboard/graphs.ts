@@ -1,33 +1,32 @@
-import type { JSX } from 'react'
+import type { FormInstance } from 'antd'
 
-import { OHLC, OhlcConfigForm } from './Charts/OHLC/index.js'
-import { RichText } from './Charts/RichText/index.js'
-import { WidgetChartType } from './model.js'
-import { Chart, ChartConfigForm } from './Charts/Chart/index.js'
-import { DBTable, DBTableConfigForm } from './Charts/Table/index.js'
-import { DBDescriptions, DBDescriptionsForm } from './Charts/Descriptions/index.js'
-import { Pie, PieConfigForm } from './Charts/Pie/index.js'
-import { Radar, RadarConfigForm } from './Charts/Radar/index.js'
-import { OrderBook, OrderConfigForm } from './Charts/OrderBook/index.js'
-import { DashboardEditor as Editor, EditorConfigForm } from './Charts/DashboardEditor/index.js'
-import { Gauge, GaugeConfigForm } from './Charts/Gauge/index.js'
-import { Variables } from './Charts/Variables/index.js'
-import { HeatMap, HeatMapConfigForm } from './Charts/HeatMap/index.js'
-import { BasicFormFields } from './ChartFormFields/BasicFormFields.js'
-import { CompositeChart } from './Charts/CompositeGraph/index.js'
-import { CompositeChartConfig } from './Charts/CompositeGraph/CompositeChartConfig.js'
+import { WidgetChartType, type Widget } from './model.ts'
+import type { DataSource } from './DataSource/date-source.ts'
+
+import { OHLC, OhlcConfigForm } from './Charts/OHLC/index.tsx'
+import { RichText } from './Charts/RichText/index.tsx'
+import { Chart, ChartConfigForm } from './Charts/Chart/index.tsx'
+import { DBTable, DBTableConfigForm } from './Charts/Table/index.tsx'
+import { DBDescriptions, DBDescriptionsForm } from './Charts/Descriptions/index.tsx'
+import { Pie, PieConfigForm } from './Charts/Pie/index.tsx'
+import { Radar, RadarConfigForm } from './Charts/Radar/index.tsx'
+import { OrderBook, OrderConfigForm } from './Charts/OrderBook/index.tsx'
+import { DashboardEditor as Editor, EditorConfigForm } from './Charts/DashboardEditor/index.tsx'
+import { Gauge, GaugeConfigForm } from './Charts/Gauge/index.tsx'
+import { Variables } from './Charts/Variables/index.tsx'
+import { HeatMap, HeatMapConfigForm } from './Charts/HeatMap/index.tsx'
+import { BasicFormFields } from './ChartFormFields/BasicFormFields.tsx'
+import { CompositeChart } from './Charts/CompositeGraph/index.tsx'
+import { CompositeChartConfig } from './Charts/CompositeGraph/CompositeChartConfig.tsx'
 import { Configuration, ConfigurationConfig } from './Charts/Configuration/index.tsx'
 
 
-type GraphConfig =  { 
+export const graphs: {
     [key in WidgetChartType]?: {
-        component: keyof JSX.IntrinsicElements | React.JSXElementConstructor<any>
-        config?: keyof JSX.IntrinsicElements | React.JSXElementConstructor<any>
+        component: React.FC<GraphComponentProps>
+        config?: React.FC<GraphConfigProps>
     }
-}
-
-
-export const graph_config: GraphConfig =  { 
+} =  {
     [WidgetChartType.TABLE]: {
         component: DBTable,
         config:  DBTableConfigForm
@@ -96,3 +95,17 @@ export const graph_config: GraphConfig =  {
         config: ConfigurationConfig,
     }
 }
+
+
+export interface GraphComponentProps <TData = any> {
+    widget: Widget
+    data_source: DataSource<TData>
+}
+
+
+export interface GraphConfigProps <TFields = any, TData = any> {
+    widget: Widget
+    data_source: DataSource<TData>
+    form: FormInstance<TFields>
+}
+

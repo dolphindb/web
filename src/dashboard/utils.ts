@@ -208,12 +208,11 @@ export function parse_text (code: string): string {
 
 
 export function parse_code (code: string, data_source?: DataSource): string {
-    code = code.replace(/\{\{(.*?)\}\}/g, function (match, variable) {
+    return code.replace(/\{\{(.*?)\}\}/g, function (match, variable) {
         if (data_source)
             subscribe_variable(data_source, variable)
         return get_variable_value(variable.trim())
     })
-    return code
 }
 
 
@@ -243,7 +242,7 @@ function get_data_source_cols (data_source_id, col) {
 
 export function convert_chart_config (
     widget: Widget,
-    data_source: any[],
+    _data: any[],
     axis_range_map?: { [key: string]: { min: number, max: number } }
 ) {
     const { config } = widget
@@ -333,7 +332,7 @@ export function convert_chart_config (
             const y_data = get_data_source_cols(data_source_id, col_name).map(y => format_time(y, yAxis[yAxisIndex]?.time_format))
             data = x_data.map((x, idx) => ([x, y_data[idx]]))
         } else  
-            data = data_source.map(item => [format_time(item?.[xAxis.col_name], xAxis.time_format), item?.[series.col_name]])
+            data = _data.map(item => [format_time(item?.[xAxis.col_name], xAxis.time_format), item?.[series.col_name]])
         
         // {b} 代表 xAxis 中的 data，x 轴的数据现在都在 series 中，需要替换
         let end_label_formatter = series?.end_label_formatter
