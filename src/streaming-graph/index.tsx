@@ -8,7 +8,7 @@ export function StreamingGraph () {
   const routes = useRoutes([
     {
       index: true,
-      element: <JobTable />
+      element: <JobTable />,
     },
     {
       path: ':id',

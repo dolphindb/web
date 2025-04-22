@@ -54,7 +54,7 @@ export function JobTable () {
           ellipsis
           style={{ color: '#1890ff', cursor: 'pointer' }}
           onClick={() => {
-            model.goto(`/streaming-graph/${record.fqn}`)
+            model.goto(`/streaming-graph/${(record.id)}`)
           }}
         >
           {text || '-'}
