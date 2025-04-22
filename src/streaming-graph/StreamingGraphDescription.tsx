@@ -87,7 +87,7 @@ export function StreamingGraphDescription ({ id }: StreamingGraphDescriptionProp
             <div className='delete-warning-title'>
               <WarningOutlined />
               <span>
-                {t('确认删除流图')} <Typography.Text>{data.id}</Typography.Text> {t('吗？此操作不可恢复。')}
+                {t('确认删除流图')} <Typography.Text>{data.fqn}</Typography.Text> {t('吗？此操作不可恢复。')}
               </span>
             </div>
           }
@@ -104,11 +104,11 @@ export function StreamingGraphDescription ({ id }: StreamingGraphDescriptionProp
           }}
           onOk={async () => {
             try {
-              await model.cancel_job({ jobId: data.id })
-              await model.ddb.invoke('dropStreamGraph', [data.id])
+              await model.ddb.invoke('dropStreamGraph', [data.fqn])
               model.message.success(t('删除流图成功'))
               setInputValue('')
               setDeleteModalVisible(false)
+              model.goto('/streaming-graph')
             } catch (error) {
               model.message.error(t('删除流图失败：') + error.message)
             }
