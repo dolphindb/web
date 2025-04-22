@@ -7,6 +7,7 @@ import { t } from '@i18n'
 import { node_state_icons } from '@/overview/table.tsx'
 
 import { defGetTaskSubWorkerStat, getSteamEngineStat, getTaskSubWorkerStat } from './apis.ts'
+import { task_status_columns, TaskSubWorkerStatTable } from './StreamingGraphOverview.tsx'
 
 const { Text } = Typography
 
@@ -69,27 +70,14 @@ export function NodeDetailsComponent ({ selectedNode, id }: NodeDetailsComponent
     
     if (filteredData.length === 0)
         return <Empty description={`No metrics data found for worker ${nodeData.taskId}`} />
+        
+    
     
     // Extract columns from the data
-    const columns = Object.keys(filteredData[0]).map(key => ({
-      title: key,
-      dataIndex: key,
-      key: key,
-      render: (text: any) => {
-        if (typeof text === 'object')
-            text = JSON.stringify(text)
-        
-        return <Tooltip placement='topLeft' title={text}>
-          <span style={{ overflow: 'hidden', maxWidth: 100, textOverflow: 'ellipsis', whiteSpace: 'nowrap', display: 'block' }}>
-            {text}
-          </span>
-        </Tooltip>
-      }
-    }))
     
     return <Table 
         dataSource={filteredData} 
-        columns={columns} 
+        columns={task_status_columns} 
         rowKey={(record, index) => index.toString()}
         pagination={false}
         size='small'
