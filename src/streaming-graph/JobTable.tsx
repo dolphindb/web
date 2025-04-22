@@ -23,6 +23,15 @@ const status_map = {
   destroying: StatusType.PARTIAL_SUCCESS
 }
 
+export const steaming_graph_status = {
+  building: t('构建中'),
+  running: t('运行中'),
+  error: t('错误'),
+  failed: t('失败'),
+  destroying: t('销毁中'),
+  destroyed: t('已销毁')
+}
+
 export function JobTable () {
   
   // 使用 useSWR 获取流计算图数据
@@ -120,17 +129,7 @@ export function JobTable () {
         }
         return statusOrder[a.status] - statusOrder[b.status]
       },
-      render: (status: string) => {
-        const statuses = {
-          building: t('构建中'),
-          running: t('运行中'),
-          error: t('错误'),
-          failed: t('失败'),
-          destroying: t('销毁中'),
-          destroyed: t('已销毁')
-        }
-        return <StatusTag status={status_map[status]}>{statuses[status] || status}</StatusTag>
-      }
+      render: (status: string) => <StatusTag status={status_map[status]}>{steaming_graph_status[status] || status}</StatusTag>
     }
   ]
   

@@ -11,6 +11,7 @@ import { model } from '@/model.ts'
 
 import { getStreamGraphMeta } from './apis.ts'
 import { type StreamGraphMeta } from './types.ts'
+import { steaming_graph_status } from './JobTable.tsx'
 
 
 // Status mapping
@@ -65,15 +66,7 @@ export function StreamingGraphDescription ({ id }: StreamingGraphDescriptionProp
   
   // Get status display text
   function getStatusText (status: string) {
-    const statuses = {
-      building: 'Building',
-      running: 'Running',
-      error: 'Error',
-      failed: 'Failed',
-      destroying: 'Destroying',
-      destroyed: 'Destroyed'
-    }
-    return statuses[status] || status
+    return steaming_graph_status[status] || status
   }
   
   // Render action button
