@@ -517,7 +517,7 @@ function TaskSubWorkerStatTable ({ id }: { id: string }) {
       key: 'taskId'
     },
     {
-      title: t('订阅主题'),
+      title: t('表名'),
       dataIndex: 'tableName',
       key: 'tableName'
     },
