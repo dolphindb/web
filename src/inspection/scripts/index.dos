@@ -1,18 +1,3 @@
-def getPluginDir() {
-    ver = version()
-    pluginDir = getConfig("pluginDir")
-    if ((like(ver, "%LINUX%") and !pluginDir.startsWith("/")) or (like(ver, "%WIN%") and regexFind  (pluginDir, "^[a-zA-Z]:") != 0)) {
-        nodeCnt = exec count(*) from rpc(getControllerAlias(), getClusterPerf)
-        if (nodeCnt > 1) {
-            pluginDir = "../" + pluginDir
-        } else {
-            pluginDir = "./" + pluginDir
-        }
-    }
-    
-    return pluginDir
-}
-
 def canConfigureEmail() {
     ret = dict(STRING, ANY)
     ret["errCode"] = 0
@@ -261,7 +246,7 @@ def generateDefaultMetricParams(planId) {
     planId_ = planId
     params = dict(STRING, ANY)
 
-    startTime = exec last(startTime) from loadTable("dfs://autoInspection",  "reports") where planId == planId_ order by startTime desc
+    startTime = exec last(startTime) from loadTable("dfs://autoInspection",  "reports") where planId == planId_ and endTime != NULL order by startTime desc
     endTime = now()
     if (isNull(startTime)) {
         frequency = exec last(frequency) from loadTable("dfs://autoInspection",  "plans") where id == planId_ order by startTime desc
