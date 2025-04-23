@@ -500,7 +500,7 @@ export const task_status_columns_map = [
     key: 'tableName'
   },
   {
-    title: t('订阅动作'),
+    title: t('订阅任务名称'),
     dataIndex: 'actionName',
     key: 'actionName'
   },
