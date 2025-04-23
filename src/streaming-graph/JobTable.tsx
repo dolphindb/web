@@ -136,7 +136,7 @@ export function JobTable () {
   return <div className='job-table-container'>
       <DDBTable
         title={<>
-          <Tooltip title={t('Streaming Graph List')}>{t('流图列表')}</Tooltip>
+          <Tooltip title={t('流图列表')}>{t('流图列表')}</Tooltip>
           ({streamGraphs?.filter(graph => graph.status === 'running').length || 0} {t('个')}{t('运行中')})
         </>}
         columns={columns}

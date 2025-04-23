@@ -6175,5 +6175,167 @@
     },
     "插件名": {
         "en": "Plugin Name"
+    },
+    "流图监控_menu": {
+        "en": "Streaming Graph Monitoring"
+    },
+    "构建中": {
+        "en": "Building"
+    },
+    "错误": {
+        "en": "Error"
+    },
+    "失败": {
+        "en": "Failed"
+    },
+    "销毁中": {
+        "en": "Destroying"
+    },
+    "已销毁": {
+        "en": "Destroyed"
+    },
+    "流图名称": {
+        "en": "Streaming Graph Name"
+    },
+    "创建者": {
+        "en": "Creator"
+    },
+    "数据执行次数": {
+        "en": "Data Execution Count"
+    },
+    "任务数量": {
+        "en": "Task Count"
+    },
+    "总任务数": {
+        "en": "Total Task Count"
+    },
+    "运行中任务数": {
+        "en": "Running Task Count"
+    },
+    "流图列表": {
+        "en": "Streaming Graph List"
+    },
+    "任务ID": {
+        "en": "Task ID"
+    },
+    "Schema": {
+        "en": "Schema"
+    },
+    "节点状态": {
+        "en": "Node Status"
+    },
+    "节点详情": {
+        "en": "Node Details"
+    },
+    "子图指标": {
+        "en": "Subgraph Metrics"
+    },
+    "引擎指标": {
+        "en": "Engine Metrics"
+    },
+    "检查点 ID": {
+        "en": "Checkpoint ID"
+    },
+    "子作业 ID": {
+        "en": "Subjob ID"
+    },
+    "收到第一个 Barrier 的时刻": {
+        "en": "Received First Barrier Time"
+    },
+    "Barrier 对齐的时刻": {
+        "en": "Barrier Alignment Time"
+    },
+    "转发 Barrier 时刻": {
+        "en": "Forward Barrier Time"
+    },
+    "输入端 Channel 的 ID": {
+        "en": "Input Channel ID"
+    },
+    "快照大小": {
+        "en": "Snapshot Size"
+    },
+    "加载作业信息失败：": {
+        "en": "Failed to load job information"
+    },
+    "没有作业数据": {
+        "en": "No job data"
+    },
+    "加载子作业信息失败：": {
+        "en": "Failed to load subjob information"
+    },
+    "没有子作业数据": {
+        "en": "No subjob data"
+    },
+    "没有配置数据": {
+        "en": "No configuration data"
+    },
+    "作业": {
+        "en": "Job"
+    },
+    "子作业": {
+        "en": "Subjob"
+    },
+    "检查点配置": {
+        "en": "Checkpoint Configuration"
+    },
+    "加载配置数据失败：": {
+        "en": "Failed to load configuration data"
+    },
+    "确认删除流图": {
+        "en": "Are you sure you want to delete this streaming graph?"
+    },
+    "吗？此操作不可恢复。": {
+        "en": "This action cannot be undone."
+    },
+    "删除流图": {
+        "en": "Delete Streaming Graph"
+    },
+    "删除流图成功": {
+        "en": "Delete Streaming Graph Success"
+    },
+    "删除流图失败：": {
+        "en": "Failed to delete streaming graph"
+    },
+    "加载失败：": {
+        "en": "Failed to load streaming graph details"
+    },
+    "流图详情": {
+        "en": "Streaming Graph Details"
+    },
+    "流图 ID": {
+        "en": "Streaming Graph ID"
+    },
+    "流图状态": {
+        "en": "Streaming Graph Status"
+    },
+    "持续时间": {
+        "en": "Duration"
+    },
+    "执行次数": {
+        "en": "Execution Count"
+    },
+    "无效的流图 ID": {
+        "en": "Invalid Streaming Graph ID"
+    },
+    "任务 ID": {
+        "en": "Task ID"
+    },
+    "订阅任务名称": {
+        "en": "Subscription Task Name"
+    },
+    "订阅方式": {
+        "en": "Subscription Type"
+    },
+    "加载流任务订阅线程状态失败：": {
+        "en": "Failed to load subscription task thread status"
+    },
+    "流任务订阅线程状态": {
+        "en": "Subscription Task Thread Status"
+    },
+    "概览": {
+        "en": "Overview"
+    },
+    "检查点": {
+        "en": "Checkpoint"
     }
 }
