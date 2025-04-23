@@ -18,7 +18,7 @@ interface NodeDetailsComponentProps {
 
 export function NodeDetailsComponent ({ selectedNode, id }: NodeDetailsComponentProps) {
   
-  const isEngine = selectedNode && selectedNode.data?.subType?.endsWith('_ENGINE')
+  const isEngine = selectedNode && (selectedNode.data?.subType === 'REACTIVE_STATE_ENGINE' || selectedNode.data?.subType === 'TIME_SERIES_ENGINE')
   const isTable = selectedNode && selectedNode.data?.subType === ('TABLE')
   
   
