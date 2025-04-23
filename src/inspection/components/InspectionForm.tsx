@@ -9,13 +9,14 @@ import { DdbType } from 'dolphindb/browser'
 
 import { model, NodeType } from '@model'
 
+import { DDB_TYPE_MAP } from '@utils'
+
 import { inspection } from '@/inspection/model.ts'
 
 import type { MetricsWithStatus, Plan } from '@/inspection/type.ts'
 
 import { InspectionFormContent } from '@/inspection/components/InspectionFormContent.tsx'
 
-import { DDB_TYPE_MAP } from '@utils'
 import { BackButton } from '@/components/BackButton.tsx'
 
 
