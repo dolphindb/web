@@ -402,6 +402,9 @@ def replicaRowNum(params){
     endTime= params["endTime"]
     nodes = exec name from rpc(getControllerAlias(), getClusterPerf) where mode==0;
     controllerChunks=select * from rpc(getControllerAlias(),getClusterChunksStatus) where lastUpdated>=startTime and lastUpdated<=endTime;
+    if (controllerChunks.chunkId.size() == 0) {
+        return (true, NULL, NULL)
+    }
     chunkidNode=getChunkidNode(nodes,controllerChunks.replicas,controllerChunks.chunkId);
     chunkidNodeRowArray=array(ANY);
     select addNodeResult(chunkidNodeRowArray,first(node),chunkId) from chunkidNode group by node;
