@@ -333,6 +333,7 @@ function Detail ({
                 title: k, 
                 dataIndex: k, 
                 key: k, 
+                minWidth: 150,
                 render: (str: string) => <div style={{ whiteSpace: 'pre-wrap' }}>{str}</div> }
             ))} 
             dataSource={ds}
