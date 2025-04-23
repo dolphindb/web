@@ -158,11 +158,11 @@ export function DdbSider () {
                     icon: <MenuIcon view='computing' />,
                     label: t('流计算监控', { context: 'menu' }),
                 },
-                {
+                ... logined ? [{
                     key: 'streaming-graph',
                     icon: <MenuIcon view='streaming-graph' />,
                     label: t('流图监控', { context: 'menu' }),
-                },
+                }] : [ ],
                 ... node_type !== NodeType.computing && admin ? [{
                     key: 'access',
                     icon: <MenuIcon view='access' />,
