@@ -97,6 +97,7 @@ interface ProcessedEdge {
   id: string
   sourceId: string
   targetId: string
+  actionName?: string
 }
 
 interface StreamingGraphOverviewProps {
@@ -209,7 +210,13 @@ function SubgraphContainer ({ data, id }: NodeProps) {
 }
 
 // 流图组件
-function StreamingGraphVisualization ({ id }: { id: string }) {
+function StreamingGraphVisualization ({ 
+  id, 
+  selectedActionName 
+}: { 
+  id: string
+  selectedActionName: string | null 
+}) {
   const [nodeMap, setNodeMap] = useState<Map<number, DdbNode>>()
   
   const { data, error, isLoading } = useSWR(
@@ -229,6 +236,7 @@ function StreamingGraphVisualization ({ id }: { id: string }) {
     }
   )
   
+  console.log('graph', data)
   
   const [nodes, setNodes] = useNodesState([ ])
   const [edges, setEdges] = useEdgesState([ ])
@@ -279,11 +287,17 @@ function StreamingGraphVisualization ({ id }: { id: string }) {
     })
     
     // 处理边 - 创建 ProcessedEdge 格式
-    const processedEdges: ProcessedEdge[] = graphData.edges.map((edge: GraphEdge) => ({
-      id: edge.id.toString(),
-      sourceId: edge.inNodeId.toString(),
-      targetId: edge.outNodeId.toString()
-    }))
+    const processedEdges: ProcessedEdge[] = graphData.edges.map((edge: GraphEdge) => {
+      // 从 subscription 中提取 actionName
+      const actionName = edge.subscription?.actionName || null
+      
+      return {
+        id: edge.id.toString(),
+        sourceId: edge.inNodeId.toString(),
+        targetId: edge.outNodeId.toString(),
+        actionName: actionName
+      }
+    })
     return { nodes: processedNodes, edges: processedEdges }
   }, [nodeMap])
   
@@ -313,23 +327,21 @@ function StreamingGraphVisualization ({ id }: { id: string }) {
       processedNodes.map(node => [node.id, node])
     )
     
-    // 处理边 - 根据源节点状态设置边的样式
+    // 处理边 - 根据源节点状态和选中状态设置边的样式
     const reactFlowEdges: Edge[] = processedEdges.map(edge => {
-      // 获取源节点的状态
       const sourceNode = nodeMap.get(edge.sourceId)
       const nodeState = sourceNode?.nodeState !== undefined ? Number(sourceNode.nodeState) : 1
       
-      // 根据状态设置边的样式
-      // 状态0: 停止 - 红色且不流动
-      // 状态1: 运行 - 绿色且流动
-      // 状态2: 启动中 - 橙色且不流动
       const edgeStyles = {
-        0: { color: '#ff4d4f', animated: false }, // 红色，不流动
-        1: { color: '#52c41a', animated: true },  // 绿色，流动
-        2: { color: '#faad14', animated: false }  // 橙色，不流动
+        0: { color: '#ff4d4f', animated: false },
+        1: { color: '#52c41a', animated: true },
+        2: { color: '#faad14', animated: false }
       }
       
       const { color, animated } = edgeStyles[nodeState] || edgeStyles[1]
+      
+      // 检查边是否与选中的 actionName 相关
+      const isSelected = selectedActionName && edge.actionName === selectedActionName
       
       return {
         id: edge.id,
@@ -338,16 +350,21 @@ function StreamingGraphVisualization ({ id }: { id: string }) {
         type: 'smoothstep',
         animated: animated,
         style: { 
-          stroke: color,
-          strokeWidth: 2,
+          stroke: isSelected ? '#1890ff' : color, // 选中时使用蓝色
+          strokeWidth: isSelected ? 4 : 2, // 选中时加粗
           strokeDasharray: '5, 5',
+          filter: isSelected ? 'drop-shadow(0 0 5px #1890ff)' : undefined, // 选中时添加发光效果
         },
-        labelStyle: { fill: color, fontSize: 12 },
+        labelStyle: { 
+          fill: isSelected ? '#1890ff' : color, 
+          fontSize: 12,
+          fontWeight: isSelected ? 'bold' : 'normal'
+        },
         markerEnd: {
           type: MarkerType.ArrowClosed,
           width: 15,
           height: 15,
-          color: color,
+          color: isSelected ? '#1890ff' : color,
         },
       }
     })
@@ -420,14 +437,14 @@ function StreamingGraphVisualization ({ id }: { id: string }) {
       nodes: [...subgraphContainers, ...layoutedNodes], 
       edges: layoutedEdges 
     }
-  }, [ ])
+  }, [selectedActionName, nodeMap])
   
   // 数据加载后更新图
   useEffect(() => {
     if (data?.graph)
         try {
         const graphData = typeof data.graph === 'string' ? JSON.parse(data.graph) : data.graph
-        
+        console.log('graphData', graphData)
         const { nodes: processedNodes, edges: processedEdges } = processGraphData(graphData)
         
         const { nodes: reactFlowNodes, edges: reactFlowEdges } = convertToReactFlowFormat(processedNodes, processedEdges)
@@ -628,7 +645,15 @@ export const task_status_columns = task_status_columns_map.map(({ title, dataInd
 }))
 
 // Task Subscription Worker Status Table component
-export function TaskSubWorkerStatTable ({ id }: { id: string }) {
+export function TaskSubWorkerStatTable ({ 
+  id, 
+  selectedActionName,
+  onActionNameSelect 
+}: { 
+  id: string
+  selectedActionName: string | null
+  onActionNameSelect: (actionName: string | null) => void 
+}) {
   const { data, error, isLoading } = useSWR(
     ['getTaskSubWorkerStat', id],
     async () => {
@@ -650,7 +675,7 @@ export function TaskSubWorkerStatTable ({ id }: { id: string }) {
       return null
   
   // Extract columns from data
-  
+  console.log('table', data)
   
   return <Card title={t('流任务订阅线程状态')} style={{ marginTop: 16 }}>
       <Table 
@@ -664,15 +689,29 @@ export function TaskSubWorkerStatTable ({ id }: { id: string }) {
         }}
         scroll={{ x: 'max-content' }}
         size='small'
+        onRow={record => ({
+          onClick: () => {
+            console.log('actionName', record.actionName)
+            onActionNameSelect(record.actionName === selectedActionName ? null : record.actionName)
+          },
+        })}
+        rowClassName={record => record.actionName === selectedActionName ? 'ant-table-row-selected' : ''}
       />
     </Card>
 }
 
 // Export main component with ReactFlowProvider
 export function StreamingGraphOverview ({ id }: StreamingGraphOverviewProps) {
+  // 添加选中的 actionName 状态
+  const [selectedActionName, setSelectedActionName] = useState<string | null>(null)
+  
   return <ReactFlowProvider>
-      <StreamingGraphVisualization id={id} />
-      <TaskSubWorkerStatTable id={id} />
+      <StreamingGraphVisualization id={id} selectedActionName={selectedActionName} />
+      <TaskSubWorkerStatTable 
+        id={id} 
+        selectedActionName={selectedActionName}
+        onActionNameSelect={setSelectedActionName}
+      />
     </ReactFlowProvider>
 }
 

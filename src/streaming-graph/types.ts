@@ -84,6 +84,10 @@ export interface NodeParallelism {
     partitionType: string
     filter: string
     handlers: any[]
+    subscription: {
+      actionName: string
+      tableName: string
+    }
   }
   
   // Complete graph structure

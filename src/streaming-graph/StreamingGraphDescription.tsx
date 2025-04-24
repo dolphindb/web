@@ -35,17 +35,14 @@ export function StreamingGraphDescription ({ id }: StreamingGraphDescriptionProp
     async () => getStreamGraphMeta(id),
     {
       refreshInterval: 10000, // Refresh every 10 seconds
-      revalidateOnFocus: true
+      revalidateOnFocus: true,
+      keepPreviousData: true
     }
   )
+  console.log('streamGraphs data', data)
   
   const [deleteModalVisible, setDeleteModalVisible] = useState(false)
   const [inputValue, setInputValue] = useState('')
-  
-  // Handle refresh
-  function handleRefresh () {
-    mutate()
-  }
   
   // Calculate duration
   function getDuration (createTime: string) {
@@ -127,8 +124,8 @@ export function StreamingGraphDescription ({ id }: StreamingGraphDescriptionProp
       </>
   }
   
-  if (isLoading)
-      return <Descriptions title='Streaming Graph Details' bordered size='small' />
+  // if (isLoading || !data)
+  //     return <Descriptions title='Streaming Graph Details' bordered size='small' />
   
   if (error || !data)
       return <Typography.Text type='danger'>{t('加载失败：')} {error?.message || 'Unknown error'}</Typography.Text>
@@ -137,7 +134,15 @@ export function StreamingGraphDescription ({ id }: StreamingGraphDescriptionProp
       title={
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
           <span>{t('流图详情')}</span>
-          <Button icon={<ReloadOutlined />} onClick={handleRefresh} size='small'>{t('刷新')}</Button>
+          <Button 
+            icon={<ReloadOutlined />} 
+            onClick={() => {
+              mutate(undefined, { revalidate: true })
+            }}
+            size='small'
+          >
+            {t('刷新')}
+          </Button>
         </div>
       }
       bordered

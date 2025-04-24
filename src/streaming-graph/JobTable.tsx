@@ -115,7 +115,7 @@ export function JobTable () {
       }
     },
     {
-      title: t('状态'),
+      title: t('状态', { context: 'streaming_flow' }),
       dataIndex: 'status',
       key: 'status',
       sorter: (a: StreamGraphMeta, b: StreamGraphMeta) => {

@@ -6177,7 +6177,7 @@
         "en": "Plugin Name"
     },
     "流图监控_menu": {
-        "en": "Streaming Graph Monitoring"
+        "en": "Streaming Graph"
     },
     "构建中": {
         "en": "Building"
@@ -6321,7 +6321,7 @@
         "en": "Task ID"
     },
     "订阅任务名称": {
-        "en": "Subscription Task Name"
+        "en": "Action Name"
     },
     "订阅方式": {
         "en": "Subscription Type"
@@ -6337,5 +6337,8 @@
     },
     "检查点": {
         "en": "Checkpoint"
+    },
+    "状态_streaming_flow": {
+        "en": "Status"
     }
 }
