@@ -13,7 +13,7 @@ import { check, datetime_format } from 'xshell/utils.browser.js'
 import { t } from '@i18n'
 import { model } from '@model'
 
-import type { GraphComponentProps, GraphConfigProps } from '@/dashboard/graphs.ts'
+import type { GraphComponentProps } from '@/dashboard/graphs.ts'
 import { DdbForm, type DdbTableData } from 'dolphindb/browser.js'
 import { parse_code } from '@/dashboard/utils.ts'
 import type { DataSource } from '@/dashboard/DataSource/date-source.ts'
@@ -48,7 +48,9 @@ export function Configuration ({ widget, data_source }: GraphComponentProps<Data
     /** 存储 slider 时间值 */
     let rslider = useRef<number>(min_time.valueOf())
     
+    /** 播放速率 */
     let rrate = useRef<number>(1)
+    
     
     async function update_svg_data (time: number) {
         update_svg(
@@ -58,14 +60,17 @@ export function Configuration ({ widget, data_source }: GraphComponentProps<Data
             color_mappings_config)
     }
     
+    
     function switch_playing () {
         set_playing(!playing)
         rplayer_counter.current = 0
         
-        if (playing) {
+        if (rplayer.current) {
             clearInterval(rplayer.current)
             rplayer.current = null
-        } else
+        }
+        
+        if (!playing)
             rplayer.current = setInterval(
                 async () => {
                     await update_svg_data(rslider.current + rplayer_counter.current * rrate.current * 1000)
@@ -74,6 +79,7 @@ export function Configuration ({ widget, data_source }: GraphComponentProps<Data
                 1000
             ) as any as number
     }
+    
     
     useEffect(() => {
         if (!background)
@@ -89,9 +95,10 @@ export function Configuration ({ widget, data_source }: GraphComponentProps<Data
             return
         
         if ($svg.tagName !== 'svg')
-            throw new Error('非 svg 背景图')
+            model.message.error({ content: t('非 svg 背景图') })
     }, [background])
     
+    // 当 background, data, 图表配置 变化时，更新 svg 数据
     useEffect(() => {
         if (!rreplaying.current)
             update_svg(rsvg.current, data, text_mappings_config, color_mappings_config)
@@ -109,6 +116,7 @@ export function Configuration ({ widget, data_source }: GraphComponentProps<Data
     
     return <div className='configuration-diagram'>
         <div className='diagram' ref={rdiv} />
+        
         { replay && <div className='actions'>
             <DatePicker
                 className='time'
@@ -247,9 +255,7 @@ function parse_mappings_config (config?: string): Record<string, string> {
 }
 
 
-export function ConfigurationConfig ({ widget }: GraphConfigProps) {
-    // const $texts: SVGTextElement[] = widget.data?.$texts
-    
+export function ConfigurationConfig () {
     return <Collapse 
         items={[
             {
@@ -257,7 +263,7 @@ export function ConfigurationConfig ({ widget }: GraphConfigProps) {
                 label: t('基本属性'),
                 forceRender: true,
                 children: <div className='axis-wrapper'>
-                    <Form.Item name='background' label={t('svg 背景图')}>
+                    <Form.Item name='background' label={t('svg 背景图')} tooltip={t('svg 中顶层的 text 元素且含有 id 属性可以被下面的文本映射替换为动态文本;\n有 id 或 class 属性的元素可以设置动态颜色')}>
                         <Input.TextArea autoSize={rows} placeholder={t('粘贴 svg 文件内容')} />
                     </Form.Item>
                     
