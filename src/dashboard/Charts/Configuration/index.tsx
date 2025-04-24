@@ -144,10 +144,10 @@ export function Configuration ({ widget, data_source }: GraphComponentProps<Data
             />
             
             <Tooltip title='从选定的时间开始回放'>
-                <Button type='text' disabled={!rreplaying.current}>
+                <Button type='text' disabled={!rreplaying.current} onClick={switch_playing}>
                     { playing
-                        ? <PauseOutlined className='player-icon' onClick={switch_playing} />
-                        : <CaretRightOutlined className='player-icon' disabled={!rreplaying.current} onClick={switch_playing} />}
+                        ? <PauseOutlined className='player-icon' />
+                        : <CaretRightOutlined className='player-icon' disabled={!rreplaying.current} />}
                 </Button>
             </Tooltip>
             
