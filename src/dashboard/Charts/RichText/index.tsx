@@ -13,7 +13,7 @@ import { t } from '@i18n'
 
 import { model } from '@model'
 
-import { type Widget, dashboard } from '@/dashboard/model.ts'
+import { dashboard } from '@/dashboard/model.ts'
 import type { ITextConfig } from '@/dashboard/type.ts'
 import { variables } from '@/dashboard/Variable/variable.ts'
 import { parse_text } from '@/dashboard/utils.ts'

@@ -1,6 +1,6 @@
 import './index.scss'
 
-import { Checkbox, type PaginationProps, Table, type TableProps, Empty } from 'antd'
+import { Checkbox, type PaginationProps, Table, Empty } from 'antd'
 import { useEffect, useMemo, useState } from 'react'
 import { genid } from 'xshell/utils.browser.js'
 
