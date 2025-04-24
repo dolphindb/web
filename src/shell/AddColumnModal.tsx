@@ -193,7 +193,7 @@ export const AddColumnModal = NiceModal.create<Props>(({ node }) => {
             modal.hide()
         } catch (error) {
             console.error('Failed to add column:', error)
-            model.message.error(t('添加失败'))
+            model.modal.error({ title: t('添加失败'), content: error.message })
         }
     }
     
