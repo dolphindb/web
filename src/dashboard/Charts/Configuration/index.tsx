@@ -2,17 +2,21 @@ import './index.sass'
 
 import { useEffect, useRef, useState } from 'react'
 
-import { Collapse, DatePicker, Form, Input, Slider } from 'antd'
+import { Button, Collapse, DatePicker, Form, Input, Slider, Tooltip, Select } from 'antd'
+
+import { CaretRightOutlined, PauseOutlined } from '@ant-design/icons'
 
 import dayjs from 'dayjs'
 
 import { check, datetime_format } from 'xshell/utils.browser.js'
 
 import { t } from '@i18n'
+import { model } from '@model'
+
 import type { GraphComponentProps, GraphConfigProps } from '@/dashboard/graphs.ts'
-import { model } from '@/model.ts'
-import { DdbForm, type DdbTableData } from 'dolphindb/browser'
+import { DdbForm, type DdbTableData } from 'dolphindb/browser.js'
 import { parse_code } from '@/dashboard/utils.ts'
+import type { DataSource } from '@/dashboard/DataSource/date-source.ts'
 
 
 export function Configuration ({ widget, data_source }: GraphComponentProps<Data>) {
@@ -35,6 +39,41 @@ export function Configuration ({ widget, data_source }: GraphComponentProps<Data
     
     let [min_time, set_min_time] = useState(now.startOf('day'))
     let [max_time, set_max_time] = useState(now.endOf('day'))
+    
+    let [playing, set_playing] = useState(false)
+    
+    let rplayer = useRef<number>(undefined)
+    let rplayer_counter = useRef<number>(0)
+    
+    /** 存储 slider 时间值 */
+    let rslider = useRef<number>(min_time.valueOf())
+    
+    let rrate = useRef<number>(1)
+    
+    async function update_svg_data (time: number) {
+        update_svg(
+            rsvg.current,
+            await update_data(data_source, replay, time),
+            text_mappings_config,
+            color_mappings_config)
+    }
+    
+    function switch_playing () {
+        set_playing(!playing)
+        rplayer_counter.current = 0
+        
+        if (playing) {
+            clearInterval(rplayer.current)
+            rplayer.current = null
+        } else
+            rplayer.current = setInterval(
+                async () => {
+                    await update_svg_data(rslider.current + rplayer_counter.current * rrate.current * 1000)
+                    ++rplayer_counter.current
+                },
+                1000
+            ) as any as number
+    }
     
     useEffect(() => {
         if (!background)
@@ -59,10 +98,20 @@ export function Configuration ({ widget, data_source }: GraphComponentProps<Data
     }, [background, data, text_mappings_config, color_mappings_config])
     
     
+    // 组件卸载时清理 interval
+    useEffect(() => {
+        return () => {
+            if (rplayer.current)
+                clearInterval(rplayer.current)
+        }
+    }, [ ])
+    
+    
     return <div className='configuration-diagram'>
         <div className='diagram' ref={rdiv} />
         { replay && <div className='actions'>
-            <DatePicker 
+            <DatePicker
+                className='time'
                 showTime
                 size='small'
                 format={datetime_format}
@@ -77,33 +126,42 @@ export function Configuration ({ widget, data_source }: GraphComponentProps<Data
                 min={min_time.valueOf()}
                 max={max_time.valueOf()}
                 tooltip={{ formatter: value => dayjs(value).format(datetime_format) }}
-                onChangeComplete={async (value: number) => {
-                    if (value === max_time.valueOf())
+                onChangeComplete={async (time: number) => {
+                    rslider.current = time
+                    rplayer_counter.current = 0
+                    
+                    if (playing)
+                        switch_playing()
+                    
+                    if (time === max_time.valueOf()) {
                         rreplaying.current = false
-                    else {
+                    } else {
                         rreplaying.current = true
                         
-                        const obj = await (data_source.ddb?.streaming ? model.ddb : data_source.ddb || model.ddb)
-                            .eval(
-                                parse_code(
-                                    replay.replaceAll(
-                                        '{{time}}', 
-                                        dayjs(value).format(datetime_format)))
-                            )
-                        
-                        check(obj.form === DdbForm.table, t('返回的结果需要是表格'))
-                        
-                        update_svg(
-                            rsvg.current,
-                            (obj.data<DdbTableData<Data>>())
-                                .data,
-                            text_mappings_config,
-                            color_mappings_config)
+                        update_svg_data(time)
                     }
                 }}
             />
             
+            <Tooltip title='从选定的时间开始回放'>
+                <Button type='text' disabled={!rreplaying.current}>
+                    { playing
+                        ? <PauseOutlined className='player-icon' onClick={switch_playing} />
+                        : <CaretRightOutlined className='player-icon' disabled={!rreplaying.current} onClick={switch_playing} />}
+                </Button>
+            </Tooltip>
+            
+            <Tooltip title='回放速率'>
+                <Select
+                    className='rate'
+                    options={[1, 2, 3, 4, 6, 8, 10, 16, 30, 60, 300, 1800, 3600].map(rate => ({ value: rate, label: `x${rate}` }))}
+                    defaultValue={1}
+                    onSelect={rate => { rrate.current = rate }}
+                />
+            </Tooltip>
+            
             <DatePicker
+                className='time'
                 showTime
                 size='small'
                 format={datetime_format}
@@ -114,6 +172,21 @@ export function Configuration ({ widget, data_source }: GraphComponentProps<Data
             />
         </div> }
     </div>
+}
+
+
+async function update_data (data_source: DataSource, code: string, time: number) {
+    const obj = await (data_source.ddb?.streaming ? model.ddb : data_source.ddb || model.ddb)
+        .eval(
+            parse_code(
+                code.replaceAll(
+                    '{{time}}', 
+                    dayjs(time).format(datetime_format)))
+        )
+    
+    check(obj.form === DdbForm.table, t('返回的结果需要是表格'))
+    
+    return obj.data<DdbTableData<Data>>().data
 }
 
 
