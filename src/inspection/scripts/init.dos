@@ -1628,7 +1628,8 @@ def replicaDomain(params=NULL) {
     }
     
     print(ret)
-    if (res) {
+    
+   if (ret.size() == 0) {
         return (true, NULL, NULL)
     } else {
         return (false, ret, "请联系 DolphinDB 技术支持排查 domain 文件一致性。")
