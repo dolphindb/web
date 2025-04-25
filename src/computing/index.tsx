@@ -28,6 +28,8 @@ import { RefreshButton } from '@/components/RefreshButton/index.js'
 
 import { DDBTable } from '@/components/DDBTable/index.js'
 
+import { upper } from '@/utils.js'
+
 import { computing } from './model.js'
 
 import { CEPComputing } from './CEPComputing/index.js'
@@ -283,11 +285,6 @@ export function Computing () {
                  />
         }
     />
-}
-
-interface ButtonProps {
-    selected: string[]
-    refresher: () => Promise<void>
 }
 
 const special_engine_type = new Set(['NarrowReactiveStreamEngine', 'ReactiveStreamEngine', 'DualOwnershipReactiveStreamEngine'])
@@ -569,7 +566,7 @@ function translate_byte_row (table: Record<string, any>[], col_name: string) {
     return table.map(row => ({
         ...row,
         origin_bytes: row[col_name],
-        [col_name]: row[col_name] === '--' ? row[col_name] : Number(row[col_name]).to_fsize_str()
+        [col_name]: row[col_name] === '--' ? row[col_name] : upper(Number(row[col_name]).to_fsize_str())
     }))
 }
 

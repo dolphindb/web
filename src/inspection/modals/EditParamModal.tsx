@@ -109,7 +109,6 @@ export const EditParamModal = NiceModal.create(({
                 {
                     [...metric.params.values()].map((param: MetricParam) => {
                         const { type, name } = param
-                        
                         return  <Form.Item 
                             name={['selected_params', name]}   
                             label={name}
