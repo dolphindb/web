@@ -46,11 +46,10 @@ export function NodeDetailsComponent ({ selectedNode, id }: NodeDetailsComponent
       <Descriptions.Item label={t('名称')}>{nodeData.variableName}</Descriptions.Item>
       <Descriptions.Item label={t('初始名称')}>{nodeData.initialName}</Descriptions.Item>
       <Descriptions.Item label={t('任务ID')}>{nodeData.taskId}</Descriptions.Item>
+      <Descriptions.Item label={t('节点')} span={3}>{nodeData.logicalNode}</Descriptions.Item>
       <Descriptions.Item label={t('Schema')} span={3}>
         {renderSchema(nodeData.schema)}
       </Descriptions.Item>
-      <Descriptions.Item label={t('节点')} span={3}>{nodeData.logicalNode}</Descriptions.Item>
-      <Descriptions.Item label={t('节点状态')} span={3}>{node_state_icons[nodeData.nodeState]}</Descriptions.Item>
     </Descriptions>
   
   // Metrics tab content
