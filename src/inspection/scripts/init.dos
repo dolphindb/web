@@ -1798,7 +1798,7 @@ go
 name = "replicaTbl"
 displayName = "检查多副本tbl文件是否一致"
 group = "1"
-desc = "检查多副本tbl文件一致性"
+desc = "检查多副本tbl文件的一致性"
 nodes = NULL
 script = '
 def replicaTbl(params=NULL) {
