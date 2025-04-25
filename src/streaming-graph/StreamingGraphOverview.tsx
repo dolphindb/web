@@ -236,8 +236,6 @@ function StreamingGraphVisualization ({
     }
   )
   
-  console.log('graph', data)
-  
   const [nodes, setNodes] = useNodesState([ ])
   const [edges, setEdges] = useEdgesState([ ])
   const [selectedNode, setSelectedNode] = useState<Node | null>(null)
@@ -270,7 +268,7 @@ function StreamingGraphVisualization ({
       // 获取节点状态
       const nodeState = logicalNode?.state
       return {
-        id: node.id.toString(),
+        id: node.properties?.id.toString() || node.id.toString(),
         x: 0,
         y: 0,
         label: node.properties?.name || node.properties?.initialName || `Node ${node.id}`,
@@ -444,7 +442,6 @@ function StreamingGraphVisualization ({
     if (data?.graph)
         try {
         const graphData = typeof data.graph === 'string' ? JSON.parse(data.graph) : data.graph
-        console.log('graphData', graphData)
         const { nodes: processedNodes, edges: processedEdges } = processGraphData(graphData)
         
         const { nodes: reactFlowNodes, edges: reactFlowEdges } = convertToReactFlowFormat(processedNodes, processedEdges)
@@ -470,7 +467,12 @@ function StreamingGraphVisualization ({
       <ReactFlow
         nodes={nodes}
         edges={edges}
-        onNodeClick={onNodeClick}
+        onNodeClick={(event, node) => {
+          // 只有当点击的是Node类型节点时才显示抽屉
+          if (node.type !== 'subGraph')
+              onNodeClick(event, node)
+          
+        }}
         nodeTypes={nodeTypes}
         fitView
         attributionPosition='bottom-right'
