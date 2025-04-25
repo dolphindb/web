@@ -8,7 +8,7 @@ import { DeleteOutlined, PlusCircleOutlined } from '@ant-design/icons'
 
 import { useMemo } from 'react'
 
-import { dashboard, type Widget } from '../../model.js'
+import { dashboard } from '../../model.js'
 import { convert_list_to_options, format_number, parse_text } from '../../utils.ts'
 
 import { type IGaugeConfig } from '../../type.js'
@@ -18,17 +18,10 @@ import { BasicFormFields } from '../../ChartFormFields/BasicFormFields.js'
 import { StringColorPicker } from '../../../components/StringColorPicker/index.js'
 import { t } from '../../../../i18n/index.js'
 import { DashboardEchartsComponent } from '@/dashboard/components/EchartsComponent.tsx'
+import type { GraphComponentProps, GraphConfigProps } from '@/dashboard/graphs.ts'
 
 
-interface IProps { 
-    widget: Widget
-    data_source: any[]
-}
-
-
-
-export function Gauge (props: IProps) { 
-    const { widget, data_source } = props 
+export function Gauge ({ widget, data_source: { data } }: GraphComponentProps) { 
     
     const config = widget.config as IGaugeConfig
     
@@ -61,7 +54,7 @@ export function Gauge (props: IProps) {
                 },
                 splitNumber: split_number || 8,
                 data: data_setting.filter(Boolean).map(item => ({
-                    value: data_source?.[0]?.[item?.col],
+                    value: data?.[0]?.[item?.col],
                     name: item.name,
                     title: item.title ?  {
                         offsetCenter:  [`${item?.title?.level}%`, `${item?.title?.vertical}%`]
@@ -83,14 +76,13 @@ export function Gauge (props: IProps) {
                 },
             }]
         }
-    }, [config, data_source])
+    }, [config, data])
     
     return <DashboardEchartsComponent options={option} />
 }
 
-export function GaugeConfigForm (props: { col_names: string[] } ) {
-    const { col_names = [ ] } = props
-    
+
+export function GaugeConfigForm ({ data_source: { cols } }: GraphConfigProps) {
     const form = Form.useFormInstance()
     const { widget } = dashboard.use(['widget'])
     
@@ -140,7 +132,7 @@ export function GaugeConfigForm (props: { col_names: string[] } ) {
                                                 form.setFieldValue(['data_setting', field.name, 'name'], val)
                                                 dashboard.update_widget({ ...widget, config: form.getFieldsValue() })
                                             } }
-                                            options={convert_list_to_options(col_names)}
+                                            options={convert_list_to_options(cols)}
                                         />
                                     </Form.Item>
                                     

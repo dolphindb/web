@@ -53,8 +53,8 @@ export function SqlEditor ({
     
     return <>
         <div className='sqleditor'>
-            <div className='sqleditor-main' style={{  height: (show_preview ? '40%' : '100%') }}>
-                <Editor 
+            <div className='sqleditor-main' style={{ height: show_preview ? '40%' : '100%' }}>
+                <Editor
                     readonly={loading}
                     enter_completion
                     on_mount={(editor, monaco) => {
