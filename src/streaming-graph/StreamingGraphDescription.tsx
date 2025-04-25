@@ -1,4 +1,4 @@
-import { Descriptions, Button, Typography, Popconfirm, Modal, Input } from 'antd'
+import { Descriptions, Button, Typography, Popconfirm, Modal, Input, Space } from 'antd'
 import useSWR from 'swr'
 import { DeleteOutlined, ReloadOutlined, StopOutlined, WarningOutlined } from '@ant-design/icons'
 import { useState } from 'react'
@@ -39,7 +39,6 @@ export function StreamingGraphDescription ({ id }: StreamingGraphDescriptionProp
       keepPreviousData: true
     }
   )
-  console.log('streamGraphs data', data)
   
   const [deleteModalVisible, setDeleteModalVisible] = useState(false)
   const [inputValue, setInputValue] = useState('')
@@ -130,19 +129,23 @@ export function StreamingGraphDescription ({ id }: StreamingGraphDescriptionProp
   if (error || !data)
       return <Typography.Text type='danger'>{t('加载失败：')} {error?.message || 'Unknown error'}</Typography.Text>
   
-  return <Descriptions 
+  return <div>
+    <Descriptions 
       title={
         <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
           <span>{t('流图详情')}</span>
-          <Button 
-            icon={<ReloadOutlined />} 
+          <Space>
+            {renderActions(data)}
+            <Button 
+              icon={<ReloadOutlined />} 
             onClick={() => {
               mutate(undefined, { revalidate: true })
             }}
             size='small'
           >
-            {t('刷新')}
-          </Button>
+              {t('刷新')}
+            </Button>
+          </Space>
         </div>
       }
       bordered
@@ -154,13 +157,11 @@ export function StreamingGraphDescription ({ id }: StreamingGraphDescriptionProp
       }}
     >
       <Descriptions.Item label={t('流图 ID')}>{data.id}</Descriptions.Item>
+      <Descriptions.Item label={t('流图名称')}>{data.fqn}</Descriptions.Item>
       <Descriptions.Item label={t('流图状态')}>
         <StatusTag status={status_map[data.status]}>
           {getStatusText(data.status)}
         </StatusTag>
-      </Descriptions.Item>
-      <Descriptions.Item label={t('操作')}>
-        {renderActions(data)}
       </Descriptions.Item>
       <Descriptions.Item label={t('创建时间')}>
         {data.createTime ? new Date(data.createTime).toLocaleString() : '-'}
@@ -172,4 +173,6 @@ export function StreamingGraphDescription ({ id }: StreamingGraphDescriptionProp
         {data.semantics}
       </Descriptions.Item>
     </Descriptions>
+    
+  </div>
 }

@@ -1,9 +1,11 @@
-import { Descriptions, Typography, Empty, Card, Tabs, Table } from 'antd'
+import { Descriptions, Typography, Empty, Card, Tabs, Table, Tooltip } from 'antd'
 import useSWR from 'swr'
 
 import { t } from '@i18n'
 
 import { StatusTag, StatusType } from '@/components/tags/index.tsx'
+
+import { upper } from '@/utils.ts'
 
 import { getCheckpointConfig, getCheckpointJobInfo, getCheckpointSubjobInfo } from './apis.ts'
 
@@ -65,20 +67,24 @@ export function StreamingGraphCheckpoints ({ id }: StreamingGraphCheckpointsProp
       dataIndex: 'createdTimeStamp', 
       key: 'createdTimeStamp',
       sorter: (a, b) => compareTimestamps(a.createdTimeStamp, b.createdTimeStamp),
-      render: text => text ? new Date(text).toLocaleString() : '-'
     },
     { 
       title: t('结束时间'),
       dataIndex: 'finishedTimeStamp', 
       key: 'finishedTimeStamp',
       sorter: (a, b) => compareTimestamps(a.finishedTimeStamp, b.finishedTimeStamp),
-      render: text => text ? new Date(text).toLocaleString() : '-'
     },
     { 
       title: t('状态'), 
       dataIndex: 'status', 
       key: 'status',
       render: status => <StatusTag status={status_map[status]}>{status}</StatusTag>
+    },
+    {
+      title: t('额外信息'),
+      dataIndex: 'extra',
+      key: 'extra',
+      render: extra => extra ? <Tooltip title={extra}>{extra}</Tooltip> : '-'
     }
   ]
   
@@ -92,21 +98,18 @@ export function StreamingGraphCheckpoints ({ id }: StreamingGraphCheckpointsProp
       dataIndex: 'firstBarrierArrTs', 
       key: 'firstBarrierArrTs',
       sorter: (a, b) => compareTimestamps(a.firstBarrierArrTs, b.firstBarrierArrTs),
-      render: text => text ? new Date(text).toLocaleString() : '-'
     },
     { 
       title: t('Barrier 对齐的时刻'), 
       dataIndex: 'barrierAlignTs', 
       key: 'barrierAlignTs',
       sorter: (a, b) => compareTimestamps(a.barrierAlignTs, b.barrierAlignTs),
-      render: text => text ? new Date(text).toLocaleString() : '-'
     },
     { 
       title: t('转发 Barrier 时刻'), 
       dataIndex: 'barrierForwardTs', 
       key: 'barrierForwardTs',
       sorter: (a, b) => compareTimestamps(a.barrierForwardTs, b.barrierForwardTs),
-      render: text => text ? new Date(text).toLocaleString() : '-'
     },
     { 
       title: t('状态'), 
@@ -119,8 +122,8 @@ export function StreamingGraphCheckpoints ({ id }: StreamingGraphCheckpointsProp
       title: t('快照大小'), 
       dataIndex: 'snapshotSize', 
       key: 'snapshotSize',
-      sorter: (a, b) => (a.snapshotSize || 0) - (b.snapshotSize || 0),
-      render: size => size ? `${size} bytes` : '-'
+      sorter: (a, b) => (Number(a.snapshotSize) || 0) - (Number(b.snapshotSize) || 0),
+      render: size => upper(Number(size).to_fsize_str())
     }
   ]
   
