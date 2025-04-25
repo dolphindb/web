@@ -268,7 +268,7 @@ function StreamingGraphVisualization ({
       // 获取节点状态
       const nodeState = logicalNode?.state
       return {
-        id: node.properties?.id.toString() || node.id.toString(),
+        id: String(node.properties?.id || node.id),
         x: 0,
         y: 0,
         label: node.properties?.name || node.properties?.initialName || `Node ${node.id}`,
