@@ -1469,7 +1469,7 @@ export class ColumnRoot implements DataNode {
             <div className='add-column-button' onClick={async event => {
                 event.stopPropagation()
                 await this.table.db.get_schema()
-                const engineType = this.table.db.schema.to_dict().engineType?.value as string
+                const engineType = this.table.db.schema.data<{ [key: string]: string }>().engineType
                 if (engineType === 'PKEY') {
                     model.modal.error({ title: t('PKEY 数据库引擎不支持 addColumn') })
                     return
