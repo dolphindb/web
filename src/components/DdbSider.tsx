@@ -68,8 +68,8 @@ function MenuIcon ({ view }: { view: DdbModel['view'] }) {
 export function DdbSider () {
     const { dev } = model
     
-    const { node_type, collapsed, logined, admin, login_required, client_auth, v1, port, hostname, username } 
-        = model.use(['node_type', 'collapsed', 'logined', 'admin', 'login_required', 'client_auth', 'v1', 'enabled_modules', 'port', 'hostname', 'username'])
+    const { node_type, collapsed, logined, admin, login_required, client_auth, v1, v3, port, hostname, username } 
+        = model.use(['node_type', 'collapsed', 'logined', 'admin', 'login_required', 'client_auth', 'v1', 'v3', 'enabled_modules', 'port', 'hostname', 'username'])
     
     const [factor_platform, set_factor_platform] = useState(false)
     
@@ -158,7 +158,7 @@ export function DdbSider () {
                     icon: <MenuIcon view='computing' />,
                     label: t('流计算监控', { context: 'menu' }),
                 },
-                ... logined ? [{
+                ... logined && v3 ? [{
                     key: 'streaming-graph',
                     icon: <MenuIcon view='streaming-graph' />,
                     label: t('流图监控', { context: 'menu' }),
