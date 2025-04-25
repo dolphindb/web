@@ -215,10 +215,12 @@ function SubgraphContainer ({ data, id }: NodeProps) {
 // 流图组件
 function StreamingGraphVisualization ({ 
   id, 
-  selectedActionName 
+  selectedActionName,
+  setSelectedActionName
 }: { 
   id: string
   selectedActionName: string | null 
+  setSelectedActionName: (actionName: string | null) => void
 }) {
   const [nodeMap, setNodeMap] = useState<Map<number, DdbNode>>()
   
@@ -356,6 +358,9 @@ function StreamingGraphVisualization ({
         target: edge.targetId,
         type: 'smoothstep',
         animated: animated,
+        data: {
+          actionName: edge.actionName,
+        },
         style: { 
           stroke: isSelected ? '#1890ff' : color, // 选中时使用蓝色
           strokeWidth: isSelected ? 4 : 2, // 选中时加粗
@@ -481,6 +486,13 @@ function StreamingGraphVisualization ({
           if (node.type !== 'subGraph')
               onNodeClick(event, node)
           
+        }}
+        onEdgeClick={(event, edge) => {
+          const currentActionName = edge?.data?.actionName
+          if (currentActionName)
+              setSelectedActionName(currentActionName)
+          if (selectedActionName === currentActionName)
+              setSelectedActionName('')
         }}
         nodeTypes={nodeTypes}
         fitView
@@ -705,6 +717,9 @@ export function TaskSubWorkerStatTable ({
             console.log('actionName', record.actionName)
             onActionNameSelect(record.actionName === selectedActionName ? null : record.actionName)
           },
+          style: {
+            cursor: 'pointer'
+          }
         })}
         rowClassName={record => record.actionName === selectedActionName ? 'ant-table-row-selected' : ''}
       />
@@ -717,7 +732,11 @@ export function StreamingGraphOverview ({ id }: StreamingGraphOverviewProps) {
   const [selectedActionName, setSelectedActionName] = useState<string | null>(null)
   
   return <ReactFlowProvider>
-      <StreamingGraphVisualization id={id} selectedActionName={selectedActionName} />
+      <StreamingGraphVisualization 
+        id={id} 
+        selectedActionName={selectedActionName}
+        setSelectedActionName={setSelectedActionName}
+      />
       <TaskSubWorkerStatTable 
         id={id} 
         selectedActionName={selectedActionName}
