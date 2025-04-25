@@ -698,7 +698,6 @@ export function TaskSubWorkerStatTable ({
       return null
   
   // Extract columns from data
-  console.log('table', data)
   
   return <Card title={t('流任务订阅线程状态')} style={{ marginTop: 16 }}>
       <Table 
