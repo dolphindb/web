@@ -139,7 +139,6 @@ export function StreamingGraphCheckpoints ({ id }: StreamingGraphCheckpointsProp
       rowKey='checkpointId'
       size='small'
       scroll={{ x: 'max-content' }}
-      pagination={{ pageSize: 10 }}
     />
   }
   
@@ -164,7 +163,6 @@ export function StreamingGraphCheckpoints ({ id }: StreamingGraphCheckpointsProp
       rowKey='key'
       size='small'
       scroll={{ x: 'max-content' }}
-      pagination={{ pageSize: 10 }}
     />
   }
   
