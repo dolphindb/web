@@ -34,7 +34,7 @@ export function StreamingGraphDetail () {
       return <Typography.Text type='danger'>{t('无效的流图 ID')}</Typography.Text>
   
   
-  return <div>
+  return <div className='themed'>
       <div style={{ marginBottom: 16 }}>
           <Button icon={<ArrowLeftOutlined />} onClick={async () => navigate(-1)}>{t('返回')}</Button>
       </div>

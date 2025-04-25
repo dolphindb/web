@@ -133,7 +133,7 @@ export function JobTable () {
     }
   ]
   
-  return <div className='job-table-container'>
+  return <div className='job-table-container themed'>
       <DDBTable
         title={<>
           <Tooltip title={t('流图列表')}>{t('流图列表')}</Tooltip>
