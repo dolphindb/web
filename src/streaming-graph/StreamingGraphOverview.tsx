@@ -85,6 +85,7 @@ interface ProcessedNode {
   showId: string
   variableName: string
   initialName: string
+  label: string
   subType: string
   taskId: number
   schema: string
@@ -273,10 +274,10 @@ function StreamingGraphVisualization ({
         id: node.id.toString(),
         x: 0,
         y: 0,
-        showId: node.properties?.id.toString(),
+        showId: node.properties?.id,
         variableName: node.properties?.variableName,
         initialName: node.properties?.initialName,
-        // label: node.properties?.name || node.properties?.initialName || `Node ${node.id}`,
+        label: node.properties?.name || node.properties?.initialName || `Node ${node.id}`,
         subType: nodeType,
         taskId: node.taskId,
         logicalNode: logicalNodeName,
@@ -312,6 +313,7 @@ function StreamingGraphVisualization ({
       position: { x: node.x, y: node.y },
       data: {
         showId: node.showId,
+        label: node.label,
         variableName: node.variableName,
         initialName: node.initialName,
         logicalNode: node.logicalNode,

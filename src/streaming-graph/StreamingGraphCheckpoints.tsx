@@ -7,6 +7,8 @@ import { StatusTag, StatusType } from '@/components/tags/index.tsx'
 
 import { upper } from '@/utils.ts'
 
+import { DDBTable } from '@/components/DDBTable/index.tsx'
+
 import { getCheckpointConfig, getCheckpointJobInfo, getCheckpointSubjobInfo } from './apis.ts'
 
 const { Text } = Typography
@@ -142,12 +144,19 @@ export function StreamingGraphCheckpoints ({ id }: StreamingGraphCheckpointsProp
     if (!jobData || !Array.isArray(jobData) || jobData.length === 0)
         return <Empty description={t('没有作业数据')} />
     
-    return <Table 
+    return <DDBTable 
       dataSource={jobData.map(item => ({ ...item, key: item.checkpointId }))} 
       columns={jobColumns} 
       rowKey='checkpointId'
       size='small'
       scroll={{ x: 'max-content' }}
+      pagination={{
+        defaultPageSize: 10,
+        pageSizeOptions: ['5', '10', '20', '50', '100'],
+        size: 'small',
+        showSizeChanger: true,
+        showQuickJumper: true
+      }}
     />
   }
   
@@ -166,12 +175,19 @@ export function StreamingGraphCheckpoints ({ id }: StreamingGraphCheckpointsProp
       key: `${item.checkpointId}-${item.subjobId}`
     }))
     
-    return <Table 
+    return <DDBTable 
       dataSource={dataWithKeys} 
       columns={subjobColumns} 
       rowKey='key'
       size='small'
       scroll={{ x: 'max-content' }}
+      pagination={{
+        defaultPageSize: 10,
+        pageSizeOptions: ['5', '10', '20', '50', '100'],
+        size: 'small',
+        showSizeChanger: true,
+        showQuickJumper: true
+      }}
     />
   }
   
