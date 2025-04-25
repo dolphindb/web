@@ -483,7 +483,7 @@ function StreamingGraphVisualization ({
         edges={edges}
         onNodeClick={(event, node) => {
           // 只有当点击的是Node类型节点时才显示抽屉
-          if (node.type !== 'subGraph')
+          if (node.type !== 'subgraphContainer')
               onNodeClick(event, node)
           
         }}
