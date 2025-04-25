@@ -41,9 +41,10 @@ export function NodeDetailsComponent ({ selectedNode, id }: NodeDetailsComponent
   const nodeData = selectedNode.data
   // Basic information tab content
   const renderBasicInfo = () => <Descriptions bordered column={2}>
-      <Descriptions.Item label='ID'>{selectedNode.id}</Descriptions.Item>
+      <Descriptions.Item label='ID'>{nodeData.showId}</Descriptions.Item>
       <Descriptions.Item label={t('类型')}>{nodeData.subType}</Descriptions.Item>
-      <Descriptions.Item label={t('名称')}>{nodeData.label}</Descriptions.Item>
+      <Descriptions.Item label={t('名称')}>{nodeData.variableName}</Descriptions.Item>
+      <Descriptions.Item label={t('初始名称')}>{nodeData.initialName}</Descriptions.Item>
       <Descriptions.Item label={t('任务ID')}>{nodeData.taskId}</Descriptions.Item>
       <Descriptions.Item label={t('Schema')} span={3}>
         {renderSchema(nodeData.schema)}

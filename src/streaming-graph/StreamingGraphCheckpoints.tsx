@@ -124,6 +124,12 @@ export function StreamingGraphCheckpoints ({ id }: StreamingGraphCheckpointsProp
       key: 'snapshotSize',
       sorter: (a, b) => (Number(a.snapshotSize) || 0) - (Number(b.snapshotSize) || 0),
       render: size => upper(Number(size).to_fsize_str())
+    },
+    {
+      title: t('额外信息'),
+      dataIndex: 'extra',
+      key: 'extra',
+      render: extra => extra ? <Tooltip title={extra}>{extra}</Tooltip> : '-'
     }
   ]
   

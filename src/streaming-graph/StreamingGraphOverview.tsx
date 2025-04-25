@@ -82,7 +82,9 @@ interface ProcessedNode {
   id: string
   x: number
   y: number
-  label: string
+  showId: string
+  variableName: string
+  initialName: string
   subType: string
   taskId: number
   schema: string
@@ -268,10 +270,13 @@ function StreamingGraphVisualization ({
       // 获取节点状态
       const nodeState = logicalNode?.state
       return {
-        id: String(node.properties?.id || node.id),
+        id: node.id.toString(),
         x: 0,
         y: 0,
-        label: node.properties?.name || node.properties?.initialName || `Node ${node.id}`,
+        showId: node.properties?.id.toString(),
+        variableName: node.properties?.variableName,
+        initialName: node.properties?.initialName,
+        // label: node.properties?.name || node.properties?.initialName || `Node ${node.id}`,
         subType: nodeType,
         taskId: node.taskId,
         logicalNode: logicalNodeName,
@@ -306,7 +311,9 @@ function StreamingGraphVisualization ({
       id: node.id,
       position: { x: node.x, y: node.y },
       data: {
-        label: node.label,
+        showId: node.showId,
+        variableName: node.variableName,
+        initialName: node.initialName,
         logicalNode: node.logicalNode,
         nodeState: node.nodeState,
         subType: node.subType,

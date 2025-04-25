@@ -63,6 +63,7 @@ export interface NodeParallelism {
     keyColumn?: string
     timeColumn?: string
     filterColumn?: string
+    variableName?: string
   }
   
   // Graph node
