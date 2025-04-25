@@ -40,7 +40,7 @@ export function NodeDetailsComponent ({ selectedNode, id }: NodeDetailsComponent
   
   const nodeData = selectedNode.data
   // Basic information tab content
-  const renderBasicInfo = () => <Descriptions bordered column={2}>
+  const renderBasicInfo = () => <Descriptions bordered column={2}  labelStyle={{ whiteSpace: 'nowrap' }}>
       <Descriptions.Item label='ID'>{nodeData.showId}</Descriptions.Item>
       <Descriptions.Item label={t('类型')}>{nodeData.subType}</Descriptions.Item>
       <Descriptions.Item label={t('名称')}>{nodeData.variableName}</Descriptions.Item>
