@@ -76,6 +76,8 @@ export function AccessObjSelect ({
                 if (model.v2)
                     options = databases.map(db => db.tables).flat()
                 
+                options = [...new Set(options.filter(Boolean))]
+                
                 return  <div>
                 <Checkbox
                     className='check-all'
