@@ -381,12 +381,12 @@ def addBadChunkId(mutable badChunkId,chunkId,rowNum){
     return 1;
 }
 def replicaRowNum(params){
-    if(getConfig().dfsReplicationFactor<2){
+    if(int(getConfig().dfsReplicationFactor)<2){
         return (true, "节点副本数小于 2，无法进行校验。", NULL)
     }
     startTime= params["startTime"]
     endTime= params["endTime"]
-    nodes = exec name from rpc(getControllerAlias(), getClusterPerf) where mode==0;
+    nodes = exec name from rpc(getControllerAlias(), getClusterPerf) where mode==0 or mode==3;
     controllerChunks=select * from rpc(getControllerAlias(),getClusterChunksStatus) where lastUpdated>=startTime and lastUpdated<=endTime;
     if (controllerChunks.chunkId.size() == 0) {
         return (true, NULL, NULL)
