@@ -106,7 +106,7 @@ export function AccessObjSelect ({
                           title: cl.name,
                           value: cl.name,
                           selectable: false,
-                          children: cl.schemas.map(sh => ({
+                          children: cl.schemas.filter(sh => sh.dbUrl).map(sh => ({
                               title: sh.schema,
                               // schema 权限 objs 为 catalog.schema,db 权限为 dburl
                               value: add_rule_selected.access.startsWith('DB') ? sh.dbUrl : `${cl.name}.${sh.schema}`,
