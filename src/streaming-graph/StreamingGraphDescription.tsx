@@ -43,23 +43,6 @@ export function StreamingGraphDescription ({ id }: StreamingGraphDescriptionProp
   const [deleteModalVisible, setDeleteModalVisible] = useState(false)
   const [inputValue, setInputValue] = useState('')
   
-  // Calculate duration
-  function getDuration (createTime: string) {
-    if (!createTime)
-        return '-'
-    
-    const start = new Date(createTime).getTime()
-    const end = Date.now()
-    const durationMs = end - start
-    
-    // Format duration
-    const seconds = Math.floor(durationMs / 1000) % 60
-    const minutes = Math.floor(durationMs / (1000 * 60)) % 60
-    const hours = Math.floor(durationMs / (1000 * 60 * 60))
-    
-    return `${hours.toString().padStart(2, '0')}:${minutes.toString().padStart(2, '0')}:${seconds.toString().padStart(2, '0')}`
-  }
-  
   // Get status display text
   function getStatusText (status: string) {
     return steaming_graph_status[status] || status
@@ -149,7 +132,7 @@ export function StreamingGraphDescription ({ id }: StreamingGraphDescriptionProp
         </div>
       }
       bordered
-      column={4}
+      column={3}
       size='small'
       className='compact-descriptions'
       style={{ 
@@ -165,9 +148,6 @@ export function StreamingGraphDescription ({ id }: StreamingGraphDescriptionProp
       </Descriptions.Item>
       <Descriptions.Item label={t('创建时间')}>
         {data.createTime ? new Date(data.createTime).toLocaleString() : '-'}
-      </Descriptions.Item>
-      <Descriptions.Item label={t('持续时间')}>
-        {getDuration(data.createTime)}
       </Descriptions.Item>
       <Descriptions.Item label={t('执行次数')}>
         {data.semantics}
