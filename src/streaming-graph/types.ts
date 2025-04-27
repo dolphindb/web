@@ -118,6 +118,13 @@ export interface NodeParallelism {
     status:  'success' | 'failed'
     snapshotChannelsId: string
     snapshotSize: number
+    downstreamSubscribeOffsets: string
+    snapshotMeta: {
+      version: number
+      totalSize: number
+      maxChunkSize: number
+      chunksNum: number
+    }
     extra: any
   }
 

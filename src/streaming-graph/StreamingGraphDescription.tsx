@@ -149,7 +149,7 @@ export function StreamingGraphDescription ({ id }: StreamingGraphDescriptionProp
         </div>
       }
       bordered
-      column={3}
+      column={4}
       size='small'
       className='compact-descriptions'
       style={{ 
@@ -171,6 +171,9 @@ export function StreamingGraphDescription ({ id }: StreamingGraphDescriptionProp
       </Descriptions.Item>
       <Descriptions.Item label={t('执行次数')}>
         {data.semantics}
+      </Descriptions.Item>
+      <Descriptions.Item label={t('失败原因')}>
+        {data.reason}
       </Descriptions.Item>
     </Descriptions>
     

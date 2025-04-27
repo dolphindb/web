@@ -6,8 +6,6 @@ import { Tabs } from 'antd'
 
 import { t } from '../../i18n/index.js'
 
-import { model } from '@model'
-
 import { ControllerConfig } from './ControllerConfig.js'
 import { NodesManagement } from './NodesManagement.js'
 import { NodesConfig } from './NodesConfig.js'

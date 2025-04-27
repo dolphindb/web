@@ -119,13 +119,16 @@ export function StreamingGraphCheckpoints ({ id }: StreamingGraphCheckpointsProp
       key: 'status',
       render: status => <StatusTag status={status_map[status]}>{status}</StatusTag>
     },
-    { title: t('输入端 Channel 的 ID'), dataIndex: 'snapshotChannelsId', key: 'snapshotChannelsId' },
-    { 
-      title: t('快照大小'), 
-      dataIndex: 'snapshotSize', 
-      key: 'snapshotSize',
-      sorter: (a, b) => (Number(a.snapshotSize) || 0) - (Number(b.snapshotSize) || 0),
-      render: size => upper(Number(size).to_fsize_str())
+    {
+      title: t('下游订阅偏移量'),
+      dataIndex: 'downstreamSubscribeOffsets',
+      key: 'downstreamSubscribeOffsets',
+    },
+    {
+      title: t('快照元数据'),
+      dataIndex: 'snapshotMeta',
+      key: 'snapshotMeta',
+      render: meta => meta ? <Tooltip title={JSON.stringify(meta)}>{JSON.stringify(meta)}</Tooltip> : '-'
     },
     {
       title: t('额外信息'),
