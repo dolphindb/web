@@ -4,13 +4,13 @@ import { useMemo } from 'react'
 import { isNil, pickBy } from 'lodash'
 
 import { OhlcFormFields } from '../../ChartFormFields/OhlcChartFields.js'
-import { type Widget } from '../../model.js'
 import { type IChartConfig, type ISeriesConfig } from '../../type.js'
 
 import { MarkPresetType } from '../../ChartFormFields/type.js'
 import { format_time, parse_text } from '../../utils.ts'
 import { BasicFormFields } from '../../ChartFormFields/BasicFormFields.js'
 import { DashboardEchartsComponent } from '@/dashboard/components/EchartsComponent.tsx'
+import type { GraphComponentProps, GraphConfigProps } from '@/dashboard/graphs.ts'
 
 type COL_MAP = {
     time: string
@@ -46,7 +46,7 @@ function splitData (rowData: any[], col_name: COL_MAP) {
 
 
 
-export function OHLC ({ widget, data_source }: { widget: Widget, data_source: any[] }) {
+export function OHLC ({ widget, data_source: { data: _data } }: GraphComponentProps) {
     const { title, title_size, xAxis, series, yAxis, x_datazoom, y_datazoom, legend, splitLine, animation, tooltip } = widget.config as IChartConfig
     function convert_series (series: ISeriesConfig) { 
         let mark_line_data = series?.mark_line?.map(item => { 
@@ -59,7 +59,7 @@ export function OHLC ({ widget, data_source }: { widget: Widget, data_source: an
                 return { yAxis: item }
         }) || [ ]
         
-        let data = data_source.map(item => item?.[series?.col_name])
+        let data_ = _data.map(item => item?.[series?.col_name])
         
         return {
             type: series?.type?.toLowerCase(),
@@ -68,7 +68,7 @@ export function OHLC ({ widget, data_source }: { widget: Widget, data_source: an
             stack: series?.stack,
             // 防止删除yAxis导致渲染失败
             yAxisIndex: yAxis[series?.yAxisIndex] ?  series?.yAxisIndex : 0,
-            data,
+            data: data_,
             markPoint: {
                 data: series?.mark_point?.map(item => ({
                     type: item,
@@ -92,7 +92,7 @@ export function OHLC ({ widget, data_source }: { widget: Widget, data_source: an
     const lines = series.slice(2).map(serie => convert_series(serie))
     
     const data = useMemo(
-        () => splitData(data_source, {
+        () => splitData(_data, {
                 time: xAxis.col_name,
                 open: series[0].open as string,
                 close: series[0].close as string,
@@ -101,11 +101,9 @@ export function OHLC ({ widget, data_source }: { widget: Widget, data_source: an
                 trades: series[1].col_name as string,
                 time_format: xAxis.time_format || ''
             }),
-        [data_source, xAxis.col_name, series, xAxis.time_format]
+        [_data, xAxis.col_name, series, xAxis.time_format]
     )
-    const [kColor = '#ec0000', kColor0 = '#00da3c'] = useMemo(() => 
-            [ series[0].kcolor, series[0].kcolor0], 
-    [series[0]])
+    const [kColor = '#ec0000', kColor0 = '#00da3c'] = [ series[0].kcolor, series[0].kcolor0]
     const option = useMemo<echarts.EChartsOption>(
         () => ({
             animation,
@@ -350,10 +348,9 @@ export function OHLC ({ widget, data_source }: { widget: Widget, data_source: an
 }
 
 
-export function OhlcConfigForm (props: { col_names: string[] }) {
-    const { col_names = [ ] } = props
+export function OhlcConfigForm ({ data_source: { cols } }: GraphConfigProps) {
     return <>
         <BasicFormFields type='chart'/>
-        <OhlcFormFields col_names={col_names} />
+        <OhlcFormFields col_names={cols} />
     </>
 }

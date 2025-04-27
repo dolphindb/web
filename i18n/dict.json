@@ -6176,6 +6176,9 @@
     "插件名": {
         "en": "Plugin Name"
     },
+    "PKEY 数据库引擎不支持 addColumn": {
+        "en": "addColumn is not supported by PKEY database engine"
+    },
     "流图监控_menu": {
         "en": "Streaming Graph"
     },

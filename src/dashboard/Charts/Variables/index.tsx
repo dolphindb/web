@@ -1,13 +1,7 @@
 import './index.scss'
-import { useMemo } from 'react'
 
 import { VariableForm } from '../../GraphItem/VariableForm.js'
-import { type Widget } from '../../model.js'
-
-interface IProps { 
-    widget: Widget
-    data_source: any
-}
+import type { GraphComponentProps } from '@/dashboard/graphs.js'
 
 interface IVariableConfig { 
     title?: string
@@ -20,11 +14,8 @@ interface IVariableConfig {
 }
 
 
-export function Variables (props: IProps) { 
-    
-    const { widget } = props
-    
-    const config = useMemo(() => widget.config as IVariableConfig, [widget.config])
+export function Variables ({ widget }: GraphComponentProps) { 
+    const config = widget.config as IVariableConfig
     
     return <>
         {

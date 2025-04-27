@@ -764,14 +764,7 @@ export class DdbModel extends Model<DdbModel> {
             }, 5000)
         
         // 2025.01.03 登录鉴权功能之后 getClusterPerf 没有要求一定要在控制节点执行了
-        // todo: 登录鉴权功能还没上线，等上线了再改为下面的
-        // nodes = (await this.ddb.invoke<DdbTableData<DdbNode>>('getClusterPerf', [true], { urgent: true }))
-        nodes = (await this.ddb.invoke<DdbTableData<DdbNode>>('getClusterPerf', [true], {
-            urgent: true,
-            ... model.node_type === NodeType.controller || model.node_type === NodeType.single
-                ? { }
-                : { node: model.controller_alias },
-        }))
+        nodes = (await this.ddb.invoke<DdbTableData<DdbNode>>('getClusterPerf', [true], { urgent: true }))
             .data
             .sort((a, b) => strcmp(a.name, b.name))
         

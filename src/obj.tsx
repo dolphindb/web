@@ -22,7 +22,7 @@ import * as echarts from 'echarts'
 
 import { use_rerender } from 'react-object-model/hooks.js'
 
-import { genid, seq, assert, delay, debounce } from 'xshell/utils.browser.js'
+import { genid, seq, assert, delay, debounce, unique } from 'xshell/utils.browser.js'
 
 
 import {
@@ -155,6 +155,9 @@ export async function open_obj ({
     options?: InspectOptions
 }) {
     let win = window.open('./window.html', new Date().toString(), 'left=100,top=100,width=1000,height=640,popup')
+    
+    if (!win)
+        throw new Error(t('弹窗被浏览器拦截，请设置网页允许弹出式窗口和重定向'))
     
     await new Promise<void>(resolve => {
         (win as any).resolve = resolve
@@ -1914,33 +1917,36 @@ function get_chart_option (config: ChartConfig): echarts.EChartsOption {
         tooltip: {
             trigger: 'axis',
             axisPointer: {
-                type: 'cross'
-            }
+                type: 'cross',
+                label: {
+                    borderRadius: 0,
+                }
+            },
+            borderRadius: 0,
         },
         legend: {
-            data: col_labels.map(String)
+            data: col_labels.map(String),
+            textStyle: {
+                color: 'var(--vscode-editor-foreground, #000000)'
+            }
         },
         grid: {
-            top: '10%',
-            left: '3%',
-            right: '3%',
-            bottom: '10%',
+            top: 20,
+            bottom: 20,
+            left: 20,
+            right: 20,
             containLabel: true
         },
-        backgroundColor: '#fff',
         animation: false
     }
     
     // 通用的坐标轴样式
-    const axisStyle = {
-        axisLine: {
-            lineStyle: {
-                color: '#333'
-            }
-        },
+    const axis_style: echarts.EChartsOption['xAxis'] & echarts.EChartsOption['yAxis'] = {
+        axisLine: { },
         splitLine: {
             lineStyle: {
-                color: '#eee'
+                color: '#80808050',
+                width: 0.5
             }
         },
         nameTextStyle: {
@@ -1966,19 +1972,19 @@ function get_chart_option (config: ChartConfig): echarts.EChartsOption {
     
     switch (charttype) {
         case DdbChartType.line:
-            if (!multi_y_axes) 
+            if (!multi_y_axes)
                 return {
                     ...base,
                     xAxis: {
                         type: 'category',
                         name: titles.x_axis,
                         data: [...new Set(data.map(item => item.row))],
-                        ...axisStyle
+                        ...axis_style
                     } as echarts.EChartsOption['xAxis'],
                     yAxis: {
                         type: 'value',
                         name: titles.y_axis,
-                        ...axisStyle
+                        ...axis_style
                     },
                     series: col_labels.map(label => ({
                         name: String(label),
@@ -1990,20 +1996,20 @@ function get_chart_option (config: ChartConfig): echarts.EChartsOption {
                     }))
                 }
             else
-                
                 return {
                     ...base,
                     xAxis: {
+                        ...axis_style,
                         type: 'category',
                         name: titles.x_axis,
                         data: data.map(d => d.row),
-                        ...axisStyle
                     },
                     yAxis: col_labels.map((label, index) => {
                         const isRight = index % 2 === 1 // 判断是否为右侧
                         const sideOffset = Math.floor(index / 2) * 30 // 每个 Y 轴之间的间隔
                         
                         return {
+                            ...axis_style,
                             type: 'value',
                             position: isRight ? 'right' : 'left',
                             offset: sideOffset, // 设置偏移量以避免重叠
@@ -2012,16 +2018,6 @@ function get_chart_option (config: ChartConfig): echarts.EChartsOption {
                             alignTicks: true,
                             axisLabel: {
                                 margin: 8, // 轴标签的边距
-                            },
-                            axisLine: {
-                                lineStyle: {
-                                    color: '#333',
-                                },
-                            },
-                            splitLine: {
-                                lineStyle: {
-                                    color: '#eee',
-                                },
                             },
                         } as any
                     }),
@@ -2040,15 +2036,15 @@ function get_chart_option (config: ChartConfig): echarts.EChartsOption {
             return {
                 ...base,
                 xAxis: {
+                    ...axis_style,
                     type: 'category',
                     name: titles.x_axis,
-                    data: [...new Set(data.map(item => item.row))],
-                    ...axisStyle
+                    data: unique(data.map(item => item.row)),
                 } as echarts.EChartsOption['xAxis'],
                 yAxis: {
+                    ...axis_style,
                     type: 'value',
                     name: titles.y_axis,
-                    ...axisStyle
                 },
                 series: col_labels.map(label => ({
                     name: label,
@@ -2062,15 +2058,15 @@ function get_chart_option (config: ChartConfig): echarts.EChartsOption {
             return {
                 ...base,
                 xAxis: {
+                    ...axis_style,
                     type: 'value',
                     name: titles.y_axis,
-                    ...axisStyle
                 },
                 yAxis: {
+                    ...axis_style,
                     type: 'category',
                     name: titles.x_axis,
-                    data: [...new Set(data.map(item => item.row))],
-                    ...axisStyle
+                    data: unique(data.map(item => item.row)),
                 } as echarts.EChartsOption['yAxis'],
                 series: col_labels.map(label => ({
                     name: label,
@@ -2091,9 +2087,11 @@ function get_chart_option (config: ChartConfig): echarts.EChartsOption {
                         value: d.value
                     })),
                     label: {
-                        formatter: function (params) {
-                            return `${params.name}: ${params.percent.toFixed(2)}%`
-                        }
+                        formatter (params) {
+                            return `${params.name}: ${params.percent.toFixed()}%`
+                        },
+                        backgroundColor: 'transparent',
+                        color: '#888888'
                     }
                 }]
             }
@@ -2102,15 +2100,15 @@ function get_chart_option (config: ChartConfig): echarts.EChartsOption {
             return {
                 ...base,
                 xAxis: {
+                    ...axis_style,
                     type: 'category',
                     name: titles.x_axis,
                     data: [...new Set(data.map(item => item.row))],
-                    ...axisStyle
-                } as echarts.EChartsOption['xAxis'],
+                },
                 yAxis: {
+                    ...axis_style,
                     type: 'value',
                     name: titles.y_axis,
-                    ...axisStyle
                 },
                 series: col_labels.map(label => ({
                     name: label,
@@ -2135,14 +2133,14 @@ function get_chart_option (config: ChartConfig): echarts.EChartsOption {
                     }
                 },
                 xAxis: {
+                    ...axis_style,
                     type: 'value',
                     name: titles.x_axis,
-                    ...axisStyle
                 },
                 yAxis: {
+                    ...axis_style,
                     type: 'value',
                     name: titles.y_axis,
-                    ...axisStyle
                 },
                 series: col_labels.map(label => ({
                     name: label,
@@ -2182,16 +2180,16 @@ function get_chart_option (config: ChartConfig): echarts.EChartsOption {
                     }
                 },
                 xAxis: {
+                    ...axis_style,
                     type: 'value',
                     name: !titles.x_axis || titles.x_axis === '' ? t('区间') : titles.x_axis,
                     min: xMin,
                     max: xMax,
-                    ...axisStyle
                 },
                 yAxis: {
+                    ...axis_style,
                     type: 'value',
                     name: !titles.y_axis || titles.y_axis === '' ? t('频次') : titles.y_axis,
-                    ...axisStyle
                 },
                 series: [{
                     type: 'custom',
@@ -2213,23 +2211,23 @@ function get_chart_option (config: ChartConfig): echarts.EChartsOption {
             return {
                 ...base,
                 xAxis: {
+                    ...axis_style,
                     type: 'category',
                     name: titles.x_axis,
                     data: data.map(d => d.row_),
-                    ...axisStyle
                 },
                 yAxis: [
                     {
+                        ...axis_style,
                         type: 'value',
                         name: titles.y_axis,
                         scale: true,
-                        ...axisStyle
                     },
                     {
+                        ...axis_style,
                         type: 'value',
                         name: t('成交量'),
                         scale: true,
-                        ...axisStyle
                     }
                 ],
                 series: [
