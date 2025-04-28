@@ -16,6 +16,8 @@ import { FormDependencies } from '../../components/FormDependencies/index.js'
 
 import { DDB_TYPE_MAP } from '@utils'
 
+import type { GraphConfigProps } from '@/dashboard/graphs.ts'
+
 import { TitleFields } from './components/Title.js'
 import { LegendFields } from './components/Legend.js'
 import { TooltipFields } from './components/Tooltip.js'
@@ -72,71 +74,74 @@ export function PaddingSetting () {
     </>
 }
 
-export function BasicFormFields (props: { type?: 'chart' | 'table' | 'description', chart_fields?: ChartField[] }) { 
+
+export interface BasicFormFieldsProps extends Partial<GraphConfigProps> {
+    type?: 'chart' | 'table' | 'description'
+    chart_fields?: ChartField[]
+}
+
+export function BasicFormFields ({
+    type,
+    chart_fields = [ChartField.LEGEND, ChartField.DATA_ZOOM, ChartField.SPLIT_LINE, ChartField.TOOLTIP]
+}: BasicFormFieldsProps) { 
     const { widget } = dashboard.use(['widget'])
     
-    const { type, chart_fields = [ChartField.LEGEND, ChartField.DATA_ZOOM, ChartField.SPLIT_LINE, ChartField.TOOLTIP] } = props
-    
-    const form = Form.useFormInstance()
-    
-    const FormFields = useMemo(() => <div className='axis-wrapper'>
-            <TitleFields />
-            <WrapperFields />
-            {type === 'chart' && <Form.Item name='animation' label={t('是否开启动画')} initialValue>
+    const FormFields = <div className='axis-wrapper'>
+        <TitleFields />
+        <WrapperFields />
+        {type === 'chart' && <Form.Item name='animation' label={t('是否开启动画')} initialValue>
+            <BoolRadioGroup />
+        </Form.Item>}
+        
+        {widget.type === WidgetChartType.COMPOSITE_GRAPH && <>
+            <Form.Item
+                name='automatic_mode'
+                label={t('自动画图模式')}
+                initialValue={false}
+                tooltip={t('自动画图模式会自动查找各数据源选定类型的列（默认为时间类型）作为 X 轴，各数据源数值列作为数据列，在数据列配置区域可对特定数据列进行个性化配置')}
+            >
                 <BoolRadioGroup />
-            </Form.Item>}
+            </Form.Item>
             
-            {widget.type === WidgetChartType.COMPOSITE_GRAPH && <>
-                <Form.Item
-                    name='automatic_mode'
-                    label={t('自动画图模式')}
-                    initialValue={false}
-                    tooltip={t('自动画图模式会自动查找各数据源选定类型的列（默认为时间类型）作为 X 轴，各数据源数值列作为数据列，在数据列配置区域可对特定数据列进行个性化配置')}
-                >
-                    <BoolRadioGroup />
-                </Form.Item>
-                
-                <FormDependencies dependencies={['automatic_mode']}>
-                    {value => { 
-                        const automatic_mode = get(value, ['automatic_mode'])
-                        const options = Object.entries(DDB_TYPE_MAP).map(([k, v]) => ({
-                            label: v,
-                            value: Number(k)
-                        }))
-                        return automatic_mode
-                            ? <Form.Item label={t('X 轴类型')} name='x_col_types'>
-                                <Select
-                                    mode='multiple'
-                                    showSearch
-                                    options={options}
-                                    placeholder={t('请选择类型')}
-                                    filterOption={(val, option) => val ? option.label.toLowerCase().includes(val.toLowerCase()) : true}
-                                />
-                            </Form.Item>
-                            : null
-                    } }
-                </FormDependencies>
-            
-            </>}
-            
-            
-            
-            
-            {type === 'table' && <>
-                <Form.Item initialValue={false} name='bordered' label={t('展示边框')}>
-                    <BoolRadioGroup />
-                </Form.Item>
-                <Form.Item initialValue={false} name='max_content' label={t('列宽自适应')}>
-                    <BoolRadioGroup />
-                </Form.Item>
-                <Form.Item initialValue name='need_select_cols' label={t('展示列选择')}>
-                    <BoolRadioGroup />
-                </Form.Item>
-                <Form.Item name='is_reverse' label={t('倒序展示')} tooltip={t('流数据开启此功能可将最新的数据插入到表格头部')} initialValue={false}>
-                    <BoolRadioGroup />
-                </Form.Item>
-            </>}
-        </div>, [type])
+            <FormDependencies dependencies={['automatic_mode']}>
+                {value => { 
+                    const automatic_mode = get(value, ['automatic_mode'])
+                    const options = Object.entries(DDB_TYPE_MAP).map(([k, v]) => ({
+                        label: v,
+                        value: Number(k)
+                    }))
+                    return automatic_mode
+                        ? <Form.Item label={t('X 轴类型')} name='x_col_types'>
+                            <Select
+                                mode='multiple'
+                                showSearch
+                                options={options}
+                                placeholder={t('请选择类型')}
+                                filterOption={(val, option) => val ? option.label.toLowerCase().includes(val.toLowerCase()) : true}
+                            />
+                        </Form.Item>
+                        : null
+                } }
+            </FormDependencies>
+        
+        </>}
+        
+        
+        {type === 'table' && <>
+            <Form.Item initialValue={false} name='bordered' label={t('展示边框')}>
+                <BoolRadioGroup />
+            </Form.Item>
+            <Form.Item initialValue={false} name='max_content' label={t('列宽自适应')}>
+                <BoolRadioGroup />
+            </Form.Item>
+            <Form.Item initialValue name='need_select_cols' label={t('展示列选择')}>
+                <BoolRadioGroup />
+            </Form.Item>
+            <Form.Item name='is_reverse' label={t('倒序展示')} tooltip={t('流数据开启此功能可将最新的数据插入到表格头部')} initialValue={false}>
+                <BoolRadioGroup />
+            </Form.Item>
+        </>}
+    </div>
     
     const chart_items = useMemo < CollapseProps['items']>(() => [
         {

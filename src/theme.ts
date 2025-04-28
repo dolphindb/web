@@ -7,18 +7,18 @@ export const dark: ThemeConfig = {
         motion: false,
         borderRadius: 0,
         controlOutlineWidth: 0,
-        colorBgContainer: 'rgb(40, 40, 40)',
+        colorBgContainer: '#282828',
         colorBgElevated: '#555555',
-        colorInfoActive: 'rgb(64, 147, 211)',
+        colorInfoActive: '#4093d3',
         colorBgLayout: '#313131',
-        colorPrimary: 'rgb(22, 104, 220)'
+        colorPrimary: '#1668dc'
     },
     algorithm: theme.darkAlgorithm,
     components: {
         Table: {
             headerBg: '#313131',
-            headerColor: '#fff',
-            colorText: '#fff',
+            headerColor: '#ffffff',
+            colorText: '#ffffff',
             cellPaddingBlock: 10
         }
     }

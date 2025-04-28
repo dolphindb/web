@@ -22,6 +22,7 @@ import type { FormatErrorOptions } from '../components/GlobalErrorBoundary.js'
 
 import { type DataSource, type ExportDataSource, import_data_sources, unsubscribe_data_source, type DataType, clear_data_sources } from './DataSource/date-source.js'
 import { type IEditorConfig, type IChartConfig, type ITableConfig, type ITextConfig, type IGaugeConfig, type IHeatMapChartConfig, type IOrderBookConfig } from './type.ts'
+import type { IConfigurationConfig } from './Charts/Configuration/index.tsx'
 import { type Variable, import_variables, type ExportVariable } from './Variable/variable.js'
 import { DASHBOARD_SHARED_SEARCH_KEY } from './constant.ts'
 
@@ -479,8 +480,9 @@ export class DashBoardModel extends Model<DashBoardModel> {
     async render_with_config (config: DashBoardConfig) {
         this.set({ loading: true })
         
-        this.set({ config,
-                            
+        this.set({
+            config,
+            
             variables: await import_variables(config.data.variables),
          
             data_sources: await import_data_sources(config.data.datasources),
@@ -623,7 +625,7 @@ export interface Widget extends GridStackNode {
     update_graph?: (data: DataType) => void
     
     /** 图表配置 */
-    config?: (IHeatMapChartConfig | IChartConfig | ITableConfig | ITextConfig | IEditorConfig | IGaugeConfig | IOrderBookConfig) & {
+    config?: (IHeatMapChartConfig | IChartConfig | ITableConfig | ITextConfig | IEditorConfig | IGaugeConfig | IOrderBookConfig | IConfigurationConfig) & {
         variable_ids?: string[]
         variable_cols?: number
         with_search_btn?: boolean
@@ -636,6 +638,9 @@ export interface Widget extends GridStackNode {
             bottom: number
         }
     }
+    
+    /** 在 graph-item 渲染组件和配置组件之间通过 widget 传递数据 */
+    data?: any
 }
 
 
@@ -655,7 +660,8 @@ export enum WidgetType {
     VARIABLE = '变量',
     SCATTER = '散点图',
     COMPOSITE_GRAPH = '多源图',
-    HEATMAP = '热力图'
+    HEATMAP = '热力图',
+    CONFIGURATION = '组态图',
 }
 
 export enum WidgetChartType { 
@@ -675,6 +681,7 @@ export enum WidgetChartType {
     SCATTER = 'SCATTER',
     HEATMAP = 'HEATMAP',
     COMPOSITE_GRAPH = 'COMPOSITE_GRAPH',
+    CONFIGURATION = 'CONFIGURATION',
 }
 
 export enum DashboardPermission {

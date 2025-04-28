@@ -15,17 +15,10 @@ import { OrderFormFields, BasicFormFields } from '../../ChartFormFields/OrderBoo
 import { DashboardEchartsComponent } from '@/dashboard/components/EchartsComponent.tsx'
 
 import { convert_order_book_config, convertDateFormat, type OrderBookTradeData, parsePrice } from './config.js'
+import type { GraphComponentProps } from '@/dashboard/graphs.ts'
 
 
-
-interface IProps { 
-    widget: Widget
-    data_source: OrderBookTradeData[]
-}
-
-
-export function OrderBook (props: IProps) {
-    const { widget, data_source } = props
+export function OrderBook ({ widget, data_source: { data } }: GraphComponentProps<OrderBookTradeData>) {
     
     let { time_rate, market_data_files_num } = widget.config as IOrderBookConfig
     
@@ -33,7 +26,7 @@ export function OrderBook (props: IProps) {
     // let data_length = useRef(0)
     
     // 如果数据格式不匹配，则直接返回
-    if (!data_source[0]?.sendingTime && !data_source[0]?.bidmdEntryPrice && !data_source[0]?.bidmdEntrySize)
+    if (!data[0]?.sendingTime && !data[0]?.bidmdEntryPrice && !data[0]?.bidmdEntrySize)
         return
     
     // 样式调整先写死，后面再改
@@ -68,7 +61,7 @@ export function OrderBook (props: IProps) {
             return entry
         }
         
-        for (let item of data_source) {
+        for (let item of data) {
             // 由于 arrayvector 改动后被转成了字符串，所以需要先进行 parse 处理
             let bid = formatData(parsePrice(item.bidmdEntryPrice), JSON.parse(item.bidmdEntrySize), convertDateFormat(item.sendingTime), true)
             orderbook_data.push(...bid)
@@ -95,7 +88,7 @@ export function OrderBook (props: IProps) {
         
         
         return convert_order_book_config(widget.config as unknown as IChartConfig & IOrderBookConfig, orderbook_data, line_data, bar_data) as echarts.EChartsOption
-    }, [data_source, widget.config])   
+    }, [data, widget.config])   
     
     
     // 编辑模式下 notMerge 为 true ，因为要修改配置，预览模式下 notMerge 为 false ，避免数据更新，导致选中的 label失效
@@ -106,17 +99,11 @@ export function OrderBook (props: IProps) {
 }
 
 
-export function OrderConfigForm (props: { col_names: string[] } ) {
-    const { col_names = [ ] } = props
-    
+export function OrderConfigForm () {
     return <>
         <BasicFormFields type='chart' />
         {/* <AxisFormFields col_names={col_names} /> */}
         <OrderFormFields />
     </>
 }
-
-
-
-
 

@@ -59,7 +59,5 @@ export function DashboardEditor ({ widget }: { widget: Widget }) {
 
 
 export function EditorConfigForm () {
-    return <>
-            <EditorFields />
-        </>
+    return <EditorFields />
 }
