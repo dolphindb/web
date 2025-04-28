@@ -522,7 +522,7 @@ function StreamingGraphVisualization ({
         onClose={() => { setDrawerVisible(false) }}
         open={drawerVisible}
       >
-        <NodeDetailsComponent selectedNode={selectedNode} id={id} />
+        <NodeDetailsComponent selectedNode={selectedNode} id={id} status={data.meta.status}/>
       </Drawer>
     </div>
   </div>

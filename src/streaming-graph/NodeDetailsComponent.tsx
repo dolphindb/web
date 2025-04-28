@@ -4,19 +4,19 @@ import { type Node } from 'reactflow'
 
 import { t } from '@i18n'
 
-import { node_state_icons } from '@/overview/table.tsx'
-
 import { defGetTaskSubWorkerStat, getSteamEngineStat, getTaskSubWorkerStat } from './apis.ts'
 import { task_status_columns, TaskSubWorkerStatTable } from './StreamingGraphOverview.tsx'
+import type { StreamGraphStatus } from './types.ts'
 
 const { Text } = Typography
 
 interface NodeDetailsComponentProps {
   selectedNode: Node | null
-  id: string // Stream Graph ID
+  id: string
+  status: StreamGraphStatus
 }
 
-export function NodeDetailsComponent ({ selectedNode, id }: NodeDetailsComponentProps) {
+export function NodeDetailsComponent ({ selectedNode, id, status }: NodeDetailsComponentProps) {
   
   const isEngine = selectedNode && (selectedNode.data?.subType === 'REACTIVE_STATE_ENGINE' || selectedNode.data?.subType === 'TIME_SERIES_ENGINE')
   const isTable = selectedNode && selectedNode.data?.subType === ('TABLE')
@@ -138,7 +138,7 @@ export function NodeDetailsComponent ({ selectedNode, id }: NodeDetailsComponent
       {isTable && <Tabs.TabPane tab={t('子图指标')} key='2'>
         {renderMetrics()}
       </Tabs.TabPane>}
-      {isEngine && <Tabs.TabPane tab={t('引擎指标')} key='3'>
+      {isEngine && status === 'running' && <Tabs.TabPane tab={t('引擎指标')} key='3'>
         {renderEngineMetrics()}
       </Tabs.TabPane>}
     </Tabs>

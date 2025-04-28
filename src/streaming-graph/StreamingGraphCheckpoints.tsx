@@ -1,11 +1,9 @@
-import { Descriptions, Typography, Empty, Card, Tabs, Table, Tooltip } from 'antd'
+import { Descriptions, Typography, Empty, Card, Tabs, Tooltip } from 'antd'
 import useSWR from 'swr'
 
 import { t } from '@i18n'
 
 import { StatusTag, StatusType } from '@/components/tags/index.tsx'
-
-import { upper } from '@/utils.ts'
 
 import { DDBTable } from '@/components/DDBTable/index.tsx'
 
