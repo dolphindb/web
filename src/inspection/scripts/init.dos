@@ -1580,7 +1580,7 @@ def replicaDomain(params=NULL) {
     for (row in meta) {
         dfsPath = row["file"]
         print("checking " + dfsPath + ", " + string(idx) + "/" + string(meta.size()))
-        dbName = "dfs://" + dfsPath.split("/")[1]
+        dbName = "dfs:/" + dfsPath.substr(0, (dfsPath.strlen() - 7))
         nodes = each(first, row["replicas"].split(",").split(":"))
         if (nodes.size() <= 1) { // 单副本这里不检查，在 replicaNum 指标检查
             idx += 1
