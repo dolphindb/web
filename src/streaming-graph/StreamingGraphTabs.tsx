@@ -14,26 +14,26 @@ interface StreamingGraphTabsProps {
 }
 
 export function StreamingGraphTabs ({ id }: StreamingGraphTabsProps) {
-  return <Tabs defaultActiveKey='overview'>
-      <TabPane 
-        tab={<span><LineChartOutlined /> {t('概览')}</span>}
-        key='overview'
-      >
-        <StreamingGraphOverview id={id} />
-      </TabPane>
-      
-      <TabPane 
-        tab={<span><CheckCircleOutlined /> {t('检查点')}</span>}
-        key='checkpoints'
-      >
-        <StreamingGraphCheckpoints id={id} />
-      </TabPane>
-      
-      <TabPane 
-        tab={<span><SettingOutlined /> {t('配置')}</span>}
-        key='configuration'
-      >
-        <StreamingGraphConfiguration id={id} />
-      </TabPane>
-    </Tabs>
+    return <Tabs defaultActiveKey='overview'>
+        <TabPane 
+            tab={<span><LineChartOutlined /> {t('概览')}</span>}
+            key='overview'
+        >
+            <StreamingGraphOverview id={id} />
+        </TabPane>
+        
+        <TabPane 
+            tab={<span><CheckCircleOutlined /> {t('检查点')}</span>}
+            key='checkpoints'
+        >
+            <StreamingGraphCheckpoints id={id} />
+        </TabPane>
+        
+        <TabPane 
+            tab={<span><SettingOutlined /> {t('配置')}</span>}
+            key='configuration'
+        >
+            <StreamingGraphConfiguration id={id} />
+        </TabPane>
+        </Tabs>
 }

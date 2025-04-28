@@ -1954,7 +1954,7 @@ function get_chart_option (config: ChartConfig): echarts.EChartsOption {
             padding: [0, 10, 0, 10]  
         },
         nameLocation: 'middle' as const,  
-        nameGap: 50,  
+        nameGap: 50,
         axisTick: {
             show: true,
             alignWithLabel: true

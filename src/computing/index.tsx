@@ -28,7 +28,7 @@ import { RefreshButton } from '@/components/RefreshButton/index.js'
 
 import { DDBTable } from '@/components/DDBTable/index.js'
 
-import { upper } from '@/utils.js'
+import { upper } from '@utils'
 
 import { computing } from './model.js'
 

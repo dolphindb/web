@@ -4,7 +4,7 @@ import { useState } from 'react'
 
 import { t } from '@i18n'
 
-import { useLocation, useNavigate, useParams } from 'react-router'
+import { useLocation, useParams } from 'react-router'
 
 import { useSWRConfig } from 'swr'
 

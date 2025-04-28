@@ -4,17 +4,16 @@ import { StreamingGraphDetail } from './StreamingGraphDetail.tsx'
 
 import { JobTable } from './JobTable.tsx'
 
+
 export function StreamingGraph () {
-  const routes = useRoutes([
-    {
-      index: true,
-      element: <JobTable />,
-    },
-    {
-      path: ':id',
-      element: <StreamingGraphDetail />
-    }
-  ])
-  
-  return routes
+    return useRoutes([
+        {
+            index: true,
+            element: <JobTable />,
+        },
+        {
+            path: ':id',
+            element: <StreamingGraphDetail />
+        }
+    ])
 }

@@ -1,5 +1,7 @@
 import { Checkbox, Divider, Input, Select, TreeSelect } from 'antd'
 
+import { unique } from 'xshell/utils.browser.js'
+
 import { t } from '@i18n'
 
 import { model } from '@model'
@@ -76,28 +78,28 @@ export function AccessObjSelect ({
                 if (model.v2)
                     options = databases.map(db => db.tables).flat()
                 
-                options = [...new Set(options.filter(Boolean))]
+                options = unique(options.filter(Boolean))
                 
-                return  <div>
-                <Checkbox
-                    className='check-all'
-                    checked={options.length && add_rule_selected.obj.length === options.length}
-                    indeterminate={
-                        add_rule_selected.obj.length > 0 &&
-                        add_rule_selected.obj.length < options.length
-                    }
-                    onChange={e => {
-                        if (e.target.checked)
-                            set_add_rule_selected({ ...add_rule_selected, obj: typeof options[0] === 'string' ? options : options.map(obj => obj.name) })
-                        else
-                            set_add_rule_selected({ ...add_rule_selected, obj: [ ] })
-                    }}
-                >
-                    {t('全选')}
-                </Checkbox>
-                <Divider className='divider' />
-                {originNode}
-            </div>
+                return <div>
+                    <Checkbox
+                        className='check-all'
+                        checked={options.length && add_rule_selected.obj.length === options.length}
+                        indeterminate={
+                            add_rule_selected.obj.length > 0 &&
+                            add_rule_selected.obj.length < options.length
+                        }
+                        onChange={e => {
+                            if (e.target.checked)
+                                set_add_rule_selected({ ...add_rule_selected, obj: typeof options[0] === 'string' ? options : options.map(obj => obj.name) })
+                            else
+                                set_add_rule_selected({ ...add_rule_selected, obj: [ ] })
+                        }}
+                    >
+                        {t('全选')}
+                    </Checkbox>
+                    <Divider className='divider' />
+                    {originNode}
+                </div>
             }}
             treeData={
                 category === 'catalog'

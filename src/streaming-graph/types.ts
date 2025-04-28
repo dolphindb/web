@@ -8,23 +8,23 @@ export type Semantics = 'exactly-once' | 'at-least-once'
 
 //  流图任务类型定义
 export interface StreamGraphTask {
-  id: number
-  node: string
-  status: StreamGraphStatus
-  reason: string
+    id: number
+    node: string
+    status: StreamGraphStatus
+    reason: string
 }
 
 // 流计算图元数据类型定义
 export interface StreamGraphMeta {
-  checkpointConfig: CheckpointConfig
-  createTime: string
-  fqn: string
-  id: string
-  owner: string
-  reason: string
-  semantics: Semantics
-  status: StreamGraphStatus
-  tasks: StreamGraphTask[]
+    checkpointConfig: CheckpointConfig
+    createTime: string
+    fqn: string
+    id: string
+    owner: string
+    reason: string
+    semantics: Semantics
+    status: StreamGraphStatus
+    tasks: StreamGraphTask[]
 }
 
 export interface StreamGraphInfo {
@@ -49,10 +49,10 @@ export interface CheckpointConfig {
 export interface NodeParallelism {
     keyName: string
     count: number
-  }
-  
-  // Node properties
-  export interface NodeProperties {
+}
+
+// Node properties
+export interface NodeProperties {
     type: string
     name?: string
     schema: string
@@ -64,10 +64,10 @@ export interface NodeParallelism {
     timeColumn?: string
     filterColumn?: string
     variableName?: string
-  }
-  
-  // Graph node
-  export interface GraphNode {
+}
+
+// Graph node
+export interface GraphNode {
     id: number
     subgraphId: number
     taskId: number
@@ -75,10 +75,10 @@ export interface NodeParallelism {
     properties: NodeProperties
     inEdges: number[]
     outEdges: number[]
-  }
-  
-  // Graph edge
-  export interface GraphEdge {
+}
+
+// Graph edge
+export interface GraphEdge {
     id: number
     inNodeId: number
     outNodeId: number
@@ -86,50 +86,49 @@ export interface NodeParallelism {
     filter: string
     handlers: any[]
     subscription: {
-      actionName: string
-      tableName: string
+        actionName: string
+        tableName: string
     }
-  }
-  
-  // Complete graph structure
-  export interface StreamGraph {
+}
+
+// Complete graph structure
+export interface StreamGraph {
     version: number
     nodes: GraphNode[]
     edges: GraphEdge[]
     config: object
-  }
+}
 
-  export interface CheckpointJobInfo {
+export interface CheckpointJobInfo {
     checkpointId: string
     jobId: string
     createdTimeStamp: string
     finishedTimeStamp: string
     status: CheckpointJobStatus
     extra: any
-  }
+}
 
-  export interface CheckpointSubjobInfo {
+export interface CheckpointSubjobInfo {
     checkpointId: string
     jobId: string
     subjobId: string
     firstBarrierArrTs: string
     barrierAlignTs: string
     barrierForwardTs: string
-    status:  'success' | 'failed'
+    status: 'success' | 'failed'
     snapshotChannelsId: string
     snapshotSize: number
     downstreamSubscribeOffsets: string
     snapshotMeta: {
-      version: number
-      totalSize: number
-      maxChunkSize: number
-      chunksNum: number
+        version: number
+        totalSize: number
+        maxChunkSize: number
+        chunksNum: number
     }
     extra: any
-  }
+}
 
-  
-  export interface TaskSubWorkerStat {
+export interface TaskSubWorkerStat {
     taskId: string
     tableName: string
     actionName: string
@@ -153,5 +152,4 @@ export interface NodeParallelism {
     timeTrigger: string
     handlerNeedMsgId: string
     raftGroup: string
-  }
-  
+}

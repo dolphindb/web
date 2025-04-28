@@ -13,212 +13,212 @@ const { Text } = Typography
 
 // Status mapping for tag colors
 const status_map = {
-  success: StatusType.SUCCESS,
-  failed: StatusType.FAILED
+    success: StatusType.SUCCESS,
+    failed: StatusType.FAILED
 }
 
-interface StreamingGraphCheckpointsProps {
-  id: string
-}
 
-export function StreamingGraphCheckpoints ({ id }: StreamingGraphCheckpointsProps) {
-  // Get Job data
-  const { data: jobData, error: jobError, isLoading: jobLoading } = useSWR(
-    ['getCheckpointJobInfo', id],
-    async () => getCheckpointJobInfo(id)
-  )
-  
-  // Get SubJob data
-  const { data: subjobData, error: subjobError, isLoading: subjobLoading } = useSWR(
-    ['getCheckpointSubjobInfo', id],
-    async () => getCheckpointSubjobInfo(id)
-  )
-  
-  // Get configuration data
-  const { data: configData, error: configError, isLoading: configLoading } = useSWR(
-    ['getCheckpointConfig', id],
-    async () => getCheckpointConfig(id)
-  )
-  
-  // Safe timestamp comparison helper for sorting
-  function compareTimestamps (a, b) {
-    // Handle cases where timestamps might be null/undefined/invalid
-    const timeA = a ? new Date(a).getTime() : 0
-    const timeB = b ? new Date(b).getTime() : 0
+export function StreamingGraphCheckpoints ({ id }: { id: string }) {
+    // Get Job data
+    const { data: jobData, error: jobError, isLoading: jobLoading } = useSWR(['getCheckpointJobInfo', id], async () => getCheckpointJobInfo(id))
     
-    // If both are invalid (0), maintain original order
-    if (timeA === 0 && timeB === 0)
-        return 0
-    // Sort nulls/invalid dates to the end
-    if (timeA === 0)
-        return 1
-    if (timeB === 0)
-        return -1
-    // Normal comparison
-    return timeA - timeB
-  }
-  
-  // Job table columns
-  const jobColumns = [
-    { title: t('检查点 ID'), dataIndex: 'checkpointId', key: 'checkpointId' },
-    { title: t('作业 ID'), dataIndex: 'jobId', key: 'jobId' },
-    { 
-      title: t('创建时间'), 
-      dataIndex: 'createdTimeStamp', 
-      key: 'createdTimeStamp',
-      sorter: (a, b) => compareTimestamps(a.createdTimeStamp, b.createdTimeStamp),
-    },
-    { 
-      title: t('结束时间'),
-      dataIndex: 'finishedTimeStamp', 
-      key: 'finishedTimeStamp',
-      sorter: (a, b) => compareTimestamps(a.finishedTimeStamp, b.finishedTimeStamp),
-    },
-    { 
-      title: t('状态'), 
-      dataIndex: 'status', 
-      key: 'status',
-      render: status => <StatusTag status={status_map[status]}>{status}</StatusTag>
-    },
-    {
-      title: t('额外信息'),
-      dataIndex: 'extra',
-      key: 'extra',
-      render: extra => extra ? <Tooltip title={extra}>{extra}</Tooltip> : '-'
+    // Get SubJob data
+    const {
+        data: subjobData,
+        error: subjobError,
+        isLoading: subjobLoading
+    } = useSWR(['getCheckpointSubjobInfo', id], async () => getCheckpointSubjobInfo(id))
+    
+    // Get configuration data
+    const {
+        data: configData,
+        error: configError,
+        isLoading: configLoading
+    } = useSWR(['getCheckpointConfig', id], async () => getCheckpointConfig(id))
+    
+    // Safe timestamp comparison helper for sorting
+    function compareTimestamps (a, b) {
+        // Handle cases where timestamps might be null/undefined/invalid
+        const timeA = a ? new Date(a).getTime() : 0
+        const timeB = b ? new Date(b).getTime() : 0
+        
+        // If both are invalid (0), maintain original order
+        if (timeA === 0 && timeB === 0)
+            return 0
+        // Sort nulls/invalid dates to the end
+        if (timeA === 0)
+            return 1
+        if (timeB === 0)
+            return -1
+        // Normal comparison
+        return timeA - timeB
     }
-  ]
-  
-  // SubJob table columns
-  const subjobColumns = [
-    { title: t('检查点 ID'), dataIndex: 'checkpointId', key: 'checkpointId' },
-    { title: t('作业 ID'), dataIndex: 'jobId', key: 'jobId' },
-    { title: t('子作业 ID'), dataIndex: 'subjobId', key: 'subjobId' },
-    { 
-      title: t('收到第一个 Barrier 的时刻'), 
-      dataIndex: 'firstBarrierArrTs', 
-      key: 'firstBarrierArrTs',
-      sorter: (a, b) => compareTimestamps(a.firstBarrierArrTs, b.firstBarrierArrTs),
-    },
-    { 
-      title: t('Barrier 对齐的时刻'), 
-      dataIndex: 'barrierAlignTs', 
-      key: 'barrierAlignTs',
-      sorter: (a, b) => compareTimestamps(a.barrierAlignTs, b.barrierAlignTs),
-    },
-    { 
-      title: t('转发 Barrier 时刻'), 
-      dataIndex: 'barrierForwardTs', 
-      key: 'barrierForwardTs',
-      sorter: (a, b) => compareTimestamps(a.barrierForwardTs, b.barrierForwardTs),
-    },
-    { 
-      title: t('状态'), 
-      dataIndex: 'status', 
-      key: 'status',
-      render: status => <StatusTag status={status_map[status]}>{status}</StatusTag>
-    },
-    {
-      title: t('下游订阅偏移量'),
-      dataIndex: 'downstreamSubscribeOffsets',
-      key: 'downstreamSubscribeOffsets',
-    },
-    {
-      title: t('快照元数据'),
-      dataIndex: 'snapshotMeta',
-      key: 'snapshotMeta',
-      render: meta => meta ? <Tooltip title={JSON.stringify(meta)}>{JSON.stringify(meta)}</Tooltip> : '-'
-    },
-    {
-      title: t('额外信息'),
-      dataIndex: 'extra',
-      key: 'extra',
-      render: extra => extra ? <Tooltip title={extra}>{extra}</Tooltip> : '-'
+    
+    // Job table columns
+    const jobColumns = [
+        { title: t('检查点 ID'), dataIndex: 'checkpointId', key: 'checkpointId' },
+        { title: t('作业 ID'), dataIndex: 'jobId', key: 'jobId' },
+        {
+            title: t('创建时间'),
+            dataIndex: 'createdTimeStamp',
+            key: 'createdTimeStamp',
+            sorter: (a, b) => compareTimestamps(a.createdTimeStamp, b.createdTimeStamp)
+        },
+        {
+            title: t('结束时间'),
+            dataIndex: 'finishedTimeStamp',
+            key: 'finishedTimeStamp',
+            sorter: (a, b) => compareTimestamps(a.finishedTimeStamp, b.finishedTimeStamp)
+        },
+        {
+            title: t('状态'),
+            dataIndex: 'status',
+            key: 'status',
+            render: status => <StatusTag status={status_map[status]}>{status}</StatusTag>
+        },
+        {
+            title: t('额外信息'),
+            dataIndex: 'extra',
+            key: 'extra',
+            render: extra => (extra ? <Tooltip title={extra}>{extra}</Tooltip> : '-')
+        }
+    ]
+    
+    // SubJob table columns
+    const subjobColumns = [
+        { title: t('检查点 ID'), dataIndex: 'checkpointId', key: 'checkpointId' },
+        { title: t('作业 ID'), dataIndex: 'jobId', key: 'jobId' },
+        { title: t('子作业 ID'), dataIndex: 'subjobId', key: 'subjobId' },
+        {
+            title: t('收到第一个 Barrier 的时刻'),
+            dataIndex: 'firstBarrierArrTs',
+            key: 'firstBarrierArrTs',
+            sorter: (a, b) => compareTimestamps(a.firstBarrierArrTs, b.firstBarrierArrTs)
+        },
+        {
+            title: t('Barrier 对齐的时刻'),
+            dataIndex: 'barrierAlignTs',
+            key: 'barrierAlignTs',
+            sorter: (a, b) => compareTimestamps(a.barrierAlignTs, b.barrierAlignTs)
+        },
+        {
+            title: t('转发 Barrier 时刻'),
+            dataIndex: 'barrierForwardTs',
+            key: 'barrierForwardTs',
+            sorter: (a, b) => compareTimestamps(a.barrierForwardTs, b.barrierForwardTs)
+        },
+        {
+            title: t('状态'),
+            dataIndex: 'status',
+            key: 'status',
+            render: status => <StatusTag status={status_map[status]}>{status}</StatusTag>
+        },
+        {
+            title: t('下游订阅偏移量'),
+            dataIndex: 'downstreamSubscribeOffsets',
+            key: 'downstreamSubscribeOffsets'
+        },
+        {
+            title: t('快照元数据'),
+            dataIndex: 'snapshotMeta',
+            key: 'snapshotMeta',
+            render: meta => (meta ? <Tooltip title={JSON.stringify(meta)}>{JSON.stringify(meta)}</Tooltip> : '-')
+        },
+        {
+            title: t('额外信息'),
+            dataIndex: 'extra',
+            key: 'extra',
+            render: extra => (extra ? <Tooltip title={extra}>{extra}</Tooltip> : '-')
+        }
+    ]
+    
+    // Render Job tab content
+    function renderJobTab () {
+        if (jobLoading)
+            return <Card loading />
+        if (jobError)
+            return <Text type='danger'>
+                    {t('加载作业信息失败：')} {jobError.message}
+                </Text>
+        if (!jobData || !Array.isArray(jobData) || jobData.length === 0)
+            return <Empty description={t('没有作业数据')} />
+        
+        return <DDBTable
+                dataSource={jobData.map(item => ({ ...item, key: item.checkpointId }))}
+                columns={jobColumns}
+                rowKey='checkpointId'
+                size='small'
+                scroll={{ x: 'max-content' }}
+                pagination={{
+                    defaultPageSize: 10,
+                    pageSizeOptions: ['5', '10', '20', '50', '100'],
+                    size: 'small',
+                    showSizeChanger: true,
+                    showQuickJumper: true
+                }}
+            />
     }
-  ]
-  
-  // Render Job tab content
-  function renderJobTab () {
-    if (jobLoading)
-        return <Card loading />
-    if (jobError)
-        return <Text type='danger'>{t('加载作业信息失败：')} {jobError.message}</Text>
-    if (!jobData || !Array.isArray(jobData) || jobData.length === 0)
-        return <Empty description={t('没有作业数据')} />
     
-    return <DDBTable 
-      dataSource={jobData.map(item => ({ ...item, key: item.checkpointId }))} 
-      columns={jobColumns} 
-      rowKey='checkpointId'
-      size='small'
-      scroll={{ x: 'max-content' }}
-      pagination={{
-        defaultPageSize: 10,
-        pageSizeOptions: ['5', '10', '20', '50', '100'],
-        size: 'small',
-        showSizeChanger: true,
-        showQuickJumper: true
-      }}
-    />
-  }
-  
-  // Render SubJob tab content
-  function renderSubjobTab () {
-    if (subjobLoading)
-        return <Card loading />
-    if (subjobError)
-        return <Text type='danger'>{t('加载子作业信息失败：')} {subjobError.message}</Text>
-    if (!subjobData || !Array.isArray(subjobData) || subjobData.length === 0)
-        return <Empty description={t('没有子作业数据')} />
+    // Render SubJob tab content
+    function renderSubjobTab () {
+        if (subjobLoading)
+            return <Card loading />
+        if (subjobError)
+            return <Text type='danger'>
+                    {t('加载子作业信息失败：')} {subjobError.message}
+                </Text>
+        if (!subjobData || !Array.isArray(subjobData) || subjobData.length === 0)
+            return <Empty description={t('没有子作业数据')} />
+        
+        // Ensure each row has a unique key by combining checkpoint and subjob IDs
+        const dataWithKeys = subjobData.map(item => ({
+            ...item,
+            key: `${item.checkpointId}-${item.subjobId}`
+        }))
+        
+        return <DDBTable
+                dataSource={dataWithKeys}
+                columns={subjobColumns}
+                rowKey='key'
+                size='small'
+                scroll={{ x: 'max-content' }}
+                pagination={{
+                    defaultPageSize: 10,
+                    pageSizeOptions: ['5', '10', '20', '50', '100'],
+                    size: 'small',
+                    showSizeChanger: true,
+                    showQuickJumper: true
+                }}
+            />
+    }
     
-    // Ensure each row has a unique key by combining checkpoint and subjob IDs
-    const dataWithKeys = subjobData.map(item => ({
-      ...item, 
-      key: `${item.checkpointId}-${item.subjobId}`
-    }))
+    // Render Configuration tab content
+    function renderConfigTab () {
+        if (configLoading)
+            return <Card loading />
+        if (configError)
+            return <Text type='danger'>Failed to load configuration: {configError.message}</Text>
+        if (!configData || Object.keys(configData).length === 0)
+            return <Empty description={t('没有配置数据')} />
+        
+        return <Descriptions bordered size='small' column={1}>
+                {Object.entries(configData).map(([key, value]) => <Descriptions.Item key={key} label={key}>
+                        {typeof value === 'object' ? JSON.stringify(value) : String(value)}
+                    </Descriptions.Item>)}
+            </Descriptions>
+    }
     
-    return <DDBTable 
-      dataSource={dataWithKeys} 
-      columns={subjobColumns} 
-      rowKey='key'
-      size='small'
-      scroll={{ x: 'max-content' }}
-      pagination={{
-        defaultPageSize: 10,
-        pageSizeOptions: ['5', '10', '20', '50', '100'],
-        size: 'small',
-        showSizeChanger: true,
-        showQuickJumper: true
-      }}
-    />
-  }
-  
-  // Render Configuration tab content
-  function renderConfigTab () {
-    if (configLoading)
-        return <Card loading />
-    if (configError)
-        return <Text type='danger'>Failed to load configuration: {configError.message}</Text>
-    if (!configData || Object.keys(configData).length === 0)
-        return <Empty description={t('没有配置数据')} />
-    
-    return <Descriptions bordered size='small' column={1}>
-      {Object.entries(configData).map(([key, value]) => <Descriptions.Item key={key} label={key}>
-        {typeof value === 'object' ? JSON.stringify(value) : String(value)}
-      </Descriptions.Item>)}
-    </Descriptions>
-  }
-  
-  return <div className='streaming-config-container'>
-    <Tabs defaultActiveKey='job'>
-      <Tabs.TabPane tab={t('作业')} key='job'>
-        {renderJobTab()}
-      </Tabs.TabPane>
-      <Tabs.TabPane tab={t('子作业')} key='subjob'>
-        {renderSubjobTab()}
-      </Tabs.TabPane>
-      <Tabs.TabPane tab={t('检查点配置')} key='config'>
-        {renderConfigTab()}
-      </Tabs.TabPane>
-    </Tabs>
-  </div>
+    return <div className='streaming-config-container'>
+            <Tabs defaultActiveKey='job'>
+                <Tabs.TabPane tab={t('作业')} key='job'>
+                    {renderJobTab()}
+                </Tabs.TabPane>
+                <Tabs.TabPane tab={t('子作业')} key='subjob'>
+                    {renderSubjobTab()}
+                </Tabs.TabPane>
+                <Tabs.TabPane tab={t('检查点配置')} key='config'>
+                    {renderConfigTab()}
+                </Tabs.TabPane>
+            </Tabs>
+        </div>
 }
