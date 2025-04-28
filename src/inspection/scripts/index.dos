@@ -1092,3 +1092,4 @@ def cancelRunningPlan(reportId) {
     
     throw "delete report failed after trying 30 times, report id: " + reportId + ", last error: " + string(iif(lastErr.form()==0, lastErr, lastErr.last()))
 }
+
