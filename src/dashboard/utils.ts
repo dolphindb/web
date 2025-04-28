@@ -442,7 +442,7 @@ export function convert_chart_config (
         else { 
             // 需要根据关联的 Y 轴找到第一个数据列，然后为此数据列设置 markArea 或者 markLine
             const idx = series.findIndex(item => item.yAxisIndex === threshold.axis)
-            let valid_values = threshold.values.filter(item => isFinite(item?.value))
+            let valid_values = threshold?.values?.filter(item => !isNil(item?.value))
             
             if (threshold.type === ThresholdType.PERCENTAGE && axis_range_map) { 
                 // 获取 Y 轴最大值，将阈值转化为绝对值
