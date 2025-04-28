@@ -713,7 +713,6 @@ export function TaskSubWorkerStatTable ({
         size='small'
         onRow={record => ({
           onClick: () => {
-            console.log('actionName', record.actionName)
             onActionNameSelect(record.actionName === selectedActionName ? null : record.actionName)
           },
           style: {
