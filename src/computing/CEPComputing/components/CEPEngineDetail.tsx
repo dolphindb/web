@@ -84,6 +84,7 @@ function EngineInfo ({ info }: { info: ICEPEngineDetail }) {
             dataIndex: 'subEngineName',
             title: t('名称'),
             width: 150,
+            ellipsis: true,
             fixed: 'left',
         },
         {

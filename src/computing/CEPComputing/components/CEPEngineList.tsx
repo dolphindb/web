@@ -26,24 +26,26 @@ export function CEPEngineList (props: IProps) {
             </Typography.Link>
         </div>
         
-        {data.map(item => <div
-            className={classNames('cep-engine-item', { 'cep-engine-item-active': item.name === current?.engineStat?.name })}
-            key={item.name}
-            onClick={ () => { on_select(item.name) } }
-        >
-            <div className='cep-engine-item-title'>{item.name}</div>
-            <Row>
-                <Col span={12}>
-                    <Typography.Paragraph type='secondary'>
-                        {t('创建人：{{name}}', { name: item.user }) }
-                    </Typography.Paragraph>
-                </Col>
-                <Col span={12}>
-                    <Typography.Paragraph type='secondary'>
-                        {t('子引擎数：{{num}}', { num: item.numOfSubEngine }) }
-                    </Typography.Paragraph>
-                </Col>
-            </Row>
-        </div>)}
+        <div className='cep-engine-items'>
+            {data.map(item => <div
+                className={classNames('cep-engine-item', { 'cep-engine-item-active': item.name === current?.engineStat?.name })}
+                key={item.name}
+                onClick={ () => { on_select(item.name) } }
+            >
+                <div className='cep-engine-item-title'>{item.name}</div>
+                <Row>
+                    <Col span={12}>
+                        <Typography.Paragraph type='secondary'>
+                            {t('创建人：{{name}}', { name: item.user }) }
+                        </Typography.Paragraph>
+                    </Col>
+                    <Col span={12}>
+                        <Typography.Paragraph type='secondary'>
+                            {t('子引擎数：{{num}}', { num: item.numOfSubEngine }) }
+                        </Typography.Paragraph>
+                    </Col>
+                </Row>
+            </div>)}
+        </div>
     </div>
 }
