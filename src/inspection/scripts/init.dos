@@ -1556,6 +1556,75 @@ def commonDolphinDBConfig(params) {
 newMetric(name, displayName, group, desc, nodes, script)
 go
 
+name = "replicaDomain"
+displayName = "多副本domain一致性检查"
+group = "1"
+desc = "检查多副本domain是否一致"
+nodes = NULL
+params = NULL
+script = '
+def replicaDomain(params=NULL) {
+    dfsReplicationFactor = int(getConfig("dfsReplicationFactor"))
+    if (isNull(dfsReplicationFactor) or dfsReplicationFactor == 1) { // 单副本不用检查
+        return (true, NULL, NULL)
+    }
+    
+    getDatabaseSchema = def (dbName) {
+        return database(dbName).schema()
+    }
+
+    meta = select * from rpc(getControllerAlias(), getClusterChunksStatus) where file.endsWith("domain")
+    ret = table(1:0, ["库名", "domain路径", "副本节点1", "副本节点2", "是否一致"], [STRING, STRING, STRING, STRING, BOOL])
+
+    idx = 1
+    for (row in meta) {
+        dfsPath = row["file"]
+        print("checking " + dfsPath + ", " + string(idx) + "/" + string(meta.size()))
+        dbName = "dfs://" + dfsPath.split("/")[1]
+        nodes = each(first, row["replicas"].split(",").split(":"))
+        if (nodes.size() <= 1) { // 单副本这里不检查，在 replicaNum 指标检查
+            idx += 1
+            continue
+        }
+    
+        sc = rpc(nodes[0], getDatabaseSchema, dbName)
+      
+        for (i in 1:nodes.size()) {
+            sc_ = rpc(nodes[i], getDatabaseSchema, dbName)
+            for (key in sc.keys()) {
+                res = true
+                if (sc[key].form() >= 0 and sc[key].form() <= 3) {
+                    res = eqObj(sc[key], sc_[key])
+                } else if (sc[key].form() == 6) {
+                    res = all(each(eqObj, sc[key].values(), sc_[key].values()))
+                } else { // 不支持比较的类型，跳过
+                   continue
+                } 
+               if(!res) {
+                    break
+               }
+            }
+            if (!res) {
+                print("error: " + dbName + ", "  + dfsPath + ", " + nodes[0] + ", " + nodes[i] + ", " + res)
+                insert into ret values (dbName, dfsPath, nodes[0], nodes[i], res)
+             }
+        }
+        
+        idx += 1
+    }
+    
+    print(ret)
+    
+   if (ret.size() == 0) {
+        return (true, NULL, NULL)
+    } else {
+        return (false, ret, "请联系 DolphinDB 技术支持排查 domain 文件一致性。")
+    }
+}
+'
+newMetric(name, displayName, group, desc, nodes, script)
+go
+
 // -------------- group 2 -------------------
 name = "coredump"
 displayName = "core 文件"
