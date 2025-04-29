@@ -213,7 +213,7 @@ export function DdbSider () {
                         icon: <MenuIcon view='plugins' />,
                         label: t('插件管理'),
                 }] : [ ],
-                ... factor_platform && node_type !== NodeType.controller && !model.test ? [{
+                ... factor_platform && node_type !== NodeType.controller && !model.dev ? [{
                     key: 'factor',
                     icon: <MenuIcon view='factor' />,
                     label: <Link className='starfish-link' target='_blank' href={factor_href}>{t('因子平台')}</Link>

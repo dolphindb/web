@@ -144,7 +144,7 @@ def listPluginsByNodes() {
 
 def listPlugins() {
     res = listPluginsByNodes()
-    ret = select min(installedVersion) as minInstalledVersion, max(installedVersion) as maxInstalledVersion from res group by plugin
+    ret = select plugin, min(installedVersion) as minInstalledVersion, max(installedVersion) as maxInstalledVersion from res group by plugin
     nodeCnt = exec count(*) from rpc(getControllerAlias(), getClusterPerf{true}) where mode != 1
 
     addColumn(ret, `installedNodes`toInstallNodes`loadedNodes`preloadedNodes, [STRING, STRING, STRING, STRING])
