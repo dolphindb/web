@@ -27,6 +27,7 @@ export function NodesManagement () {
     const { mutate, data } = useSWR('/get/nodes', async () => {
             const data = await config.get_cluster_nodes()
             const nodes = strs_2_nodes(data)
+            console.log(_2_strs(nodes))
             return { nodes, data_key: (new Date()).toISOString() }
         },
         { 
@@ -64,7 +65,7 @@ export function NodesManagement () {
         
     }, [all_nodes])
     
-    async function save_node_impl ({ rowKey, host, port, alias, mode, group }, changed_alias, is_add, old_alias) {
+    async function save_node_impl ({ rowKey, host, port, alias, mode, group, zone }, changed_alias, is_add, old_alias) {
         try {
             
             // 1、检查别名是否重复
@@ -103,14 +104,14 @@ export function NodesManagement () {
                             model.message.error(t('新增节点失败，服务端报错：') + err.message)
                             throw new Error(t('新增节点失败，服务端报错：') + err.message)
                         }        
-                await config.save_cluster_nodes([...node_strs, `${host}:${port}:${alias},${mode},${group}`,])    
+                await config.save_cluster_nodes([...node_strs, `${host}:${port}:${alias},${mode},${group},${zone}`,])    
                 if (mode === 'controller')
                     model.message.success(t('保存成功，重启集群生效'))
             }
             else  // 修改
                  {
                     const idx = all_nodes.findIndex(node => node.alias === old_alias)
-                    await config.save_cluster_nodes(node_strs.toSpliced(idx, 1, `${host}:${port}:${alias},${mode},${group}`))
+                    await config.save_cluster_nodes(node_strs.toSpliced(idx, 1, `${host}:${port}:${alias},${mode},${group},${zone}`))
                     model.message.success(t('保存成功，重启集群生效'))
                 }
             mutate()
@@ -163,7 +164,7 @@ export function NodesManagement () {
         await config.change_configs(configs)
         await config.load_configs()
         const node_strs = _2_strs(all_nodes)
-        const new_nodes = group_nodes_to_add.map(node => `${node.host}:${node.port}:${node.alias},computenode,${group_name}`)
+        const new_nodes = group_nodes_to_add.map(node => `${node.host}:${node.port}:${node.alias},computenode,${group_name},${node.zone}`)
         const new_node_strs = [...node_strs, ...new_nodes]
         const unique_node_strs = Array.from(new Set(new_node_strs))
         await config.save_cluster_nodes(unique_node_strs)
@@ -386,6 +387,21 @@ function NodeTable ({ nodes, group, onSave, onDelete }: NodeTableProps) {
                 }
             },
             {
+                title: t('可用区'),
+                dataIndex: 'zone',
+                key: 'zone',
+                fieldProps: {
+                    placeholder: t('请输入可用区'),
+                    type: 'string',
+                },
+                formItemProps: {
+                    rules: [{
+                        required: false,
+                        message: t('请输入可用区')
+                    }]
+                }
+            },
+            {
                 title: t('操作'),
                 valueType: 'option',
                 key: 'actions',
@@ -426,13 +442,14 @@ function NodeTable ({ nodes, group, onSave, onDelete }: NodeTableProps) {
         actionRef={actionRef}
         recordCreatorProps={
             {
-                position: 'bottom',
-                record: () => ({
+                position: 'bottom', // @ts-ignore
+                record: () => ({ 
                     id: String(Date.now()),
                     host: '',
                     port: '',
+                    zone: '',
                     alias: '',
-                    mode: ''
+                    mode: '',
                 }),
                 type: 'default',
                 variant: 'outlined',
@@ -448,11 +465,11 @@ function NodeTable ({ nodes, group, onSave, onDelete }: NodeTableProps) {
         editable={
             {
                 type: 'single',
-                onSave: async (rowKey, { host, port, alias, mode }, originRow) => {
+                onSave: async (rowKey, { host, port, alias, mode, zone }, originRow) => {
                     try {
                         const changed_alias = originRow.alias !== alias
                         const is_add = originRow.alias === ''
-                        await onSave({ rowKey, host, port, alias, mode, group: group || '' }, changed_alias, is_add, originRow.alias)
+                        await onSave({ rowKey, host, port, alias, mode, zone, group: group || '' }, changed_alias, is_add, originRow.alias)
                     } catch (error) {
                         model.show_error({ error })
                         throw error

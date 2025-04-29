@@ -18,7 +18,7 @@ export const GroupAddModal = NiceModal.create((props: { on_save: (form: { group_
     const [group_name, set_group_name] = useState('')
     const [validating, set_validating] = useState(false)
     
-    const [group_nodes, set_group_nodes] = useState<GroupNodesDatatype[]>([{ key: String((new Date()).getTime()), host: '', port: '', alias: '' }])
+    const [group_nodes, set_group_nodes] = useState<GroupNodesDatatype[]>([{ key: String((new Date()).getTime()), host: '', port: '', alias: '', zone: '' }])
     const [group_configs, set_group_configs] = useState<GroupConfigDatatype[]>([
         { key: 'default1', name: 'computeNodeCacheDir', value: '' },
         { key: 'default2', name: 'computeNodeCacheMeta', value: '' },
@@ -108,7 +108,7 @@ export const GroupAddModal = NiceModal.create((props: { on_save: (form: { group_
     function batch_add_empty_node (count: number) {
         const new_nodes = [ ]
         for (let i = 0;  i < count;  i++)
-            new_nodes.push({ key: String((new Date()).getTime() + i), host: '', port: '', alias: '' })
+            new_nodes.push({ key: String((new Date()).getTime() + i), host: '', port: '', alias: '', zone: '' })
         set_group_nodes([...group_nodes, ...new_nodes])
     }
     
@@ -161,10 +161,8 @@ export const GroupAddModal = NiceModal.create((props: { on_save: (form: { group_
             }
         },
         { title: t('端口号'), key: 'port', render: (_, { key, port }) => <Input status={(validating && port === '') ? 'error' : undefined} type='number' placeholder={t('请输入端口号')} value={port} onChange={e => { update_group_node_by_field(key, 'port', e.target.value) }} /> },
-        
-        {
-            title: t('操作'), key: 'operation', render: (_, { key }) => <Button variant='link' color='danger' onClick={() => { delete_group_node(key) }}>{t('删除')}</Button>
-        }
+        { title: t('可用区'), key: 'zone', render: (_, { key, zone }) => <Input placeholder={t('请输入可用区')} value={zone} onChange={e => { update_group_node_by_field(key, 'zone', e.target.value) }} /> },
+        { title: t('操作'), key: 'operation', render: (_, { key }) => <Button variant='link' color='danger' onClick={() => { delete_group_node(key) }}>{t('删除')}</Button> }
     ]
     
     const group_configs_columns: TableProps<GroupConfigDatatype>['columns'] = [
@@ -260,5 +258,5 @@ export const GroupAddModal = NiceModal.create((props: { on_save: (form: { group_
     </Modal>
 })
 
-export interface GroupNodesDatatype { key: string, host: string, port: string, alias: string }
+export interface GroupNodesDatatype { key: string, host: string, port: string, alias: string, zone: string }
 export interface GroupConfigDatatype { key: string, name: string, value: string }

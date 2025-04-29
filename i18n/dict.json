@@ -6362,6 +6362,12 @@
     "失败原因": {
         "en": "Failure Reason"
     },
+    "可用区": {
+        "en": "Available Zone"
+    },
+    "请输入可用区": {
+        "en": "Please input the available zone"
+    },
     "状态_streaming-graph": {
         "en": "Status"
     }
