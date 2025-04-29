@@ -1,4 +1,4 @@
-import { type MutableRefObject, type ReactNode, createElement, useEffect, useRef, useState, useMemo, useCallback } from 'react'
+import { type RefObject, type ReactNode, createElement, useEffect, useRef, useState, useMemo, useCallback } from 'react'
 import { Form, Input, Modal, Popconfirm, Radio, Tag, Tree, Typography } from 'antd'
 import { CopyOutlined, DatabaseOutlined, DeleteOutlined, EditOutlined, FileOutlined } from '@ant-design/icons'
 
@@ -17,7 +17,7 @@ interface PropsType {
     widget: Widget
     loading: boolean
     current_data_source: DataSource
-    no_save_flag: MutableRefObject<boolean>
+    no_save_flag: RefObject<boolean>
     save_confirm: () => {
         destroy: () => void
         update: (configUpdate: any) => void

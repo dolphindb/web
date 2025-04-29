@@ -63,17 +63,16 @@ export function OptionList ({
             title: t('操作'),
             width: 50,
             dataIndex: 'operation',
-            render: (_, record) => current_variable.options.length >= 1 ? (
-                        <Popconfirm okButtonProps={{ color: 'danger', variant: 'solid' }} title={t('确定要删除该选项吗？')} onConfirm={() => { handleDelete(record as OptionType) }}>
-                            <Typography.Link
-                                disabled={is_disabled(record)}
-                                type='danger'
-                            >
-                                {t('删除')}
-                            </Typography.Link>
-                        </Popconfirm>
-                ) : null
-                   
+            render: (_, record) => current_variable.options.length >= 1 ?
+                    <Popconfirm okButtonProps={{ color: 'danger', variant: 'solid' }} title={t('确定要删除该选项吗？')} onConfirm={() => { handleDelete(record as OptionType) }}>
+                        <Typography.Link
+                            disabled={is_disabled(record)}
+                            type='danger'
+                        >
+                            {t('删除')}
+                        </Typography.Link>
+                    </Popconfirm>
+                : null
         },
     ]
     
