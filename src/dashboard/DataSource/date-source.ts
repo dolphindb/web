@@ -309,7 +309,8 @@ export async function execute (source_id: string) {
                             data_source.set({
                                 data: sql_formatter(result, data_source.max_line),
                                 cols: get_cols(result),
-                                type_map: get_sql_col_type_map(result as unknown as DdbTable),
+                                // 仅 table 有此字段
+                                type_map: result.form === DdbForm.table ? get_sql_col_type_map(result as unknown as DdbTable) : undefined,
                                 error_message: ''
                             })        
                         else
@@ -473,8 +474,7 @@ export async function get_stream_filter_col (table: string): Promise<string> {
 
 export async function export_data_sources (): Promise<ExportDataSource[]> {
     return cloneDeep(data_sources).map(
-        data_source => {
-            return { 
+        data_source => ({ 
                 ...data_source, 
                 timer: null,
                 ddb: null,
@@ -482,8 +482,7 @@ export async function export_data_sources (): Promise<ExportDataSource[]> {
                 data: [ ],
                 deps: Array.from(data_source.deps),
                 variables: [ ]
-            }
-        }
+            })
     )
 }
 
