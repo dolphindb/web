@@ -6180,7 +6180,7 @@
         "en": "addColumn is not supported by PKEY database engine"
     },
     "流图监控_menu": {
-        "en": "Streaming Graph"
+        "en": "Stream Graph"
     },
     "构建中": {
         "en": "Building"
@@ -6198,13 +6198,13 @@
         "en": "Destroyed"
     },
     "流图名称": {
-        "en": "Streaming Graph Name"
+        "en": "Name"
     },
     "创建者": {
-        "en": "Creator"
+        "en": "Created By"
     },
     "数据执行次数": {
-        "en": "Data Execution Count"
+        "en": "Execution Count"
     },
     "任务数量": {
         "en": "Task Count"
@@ -6216,7 +6216,7 @@
         "en": "Running Task Count"
     },
     "流图列表": {
-        "en": "Streaming Graph List"
+        "en": "Stream Graphs"
     },
     "任务ID": {
         "en": "Task ID"
@@ -6243,13 +6243,13 @@
         "en": "Subjob ID"
     },
     "收到第一个 Barrier 的时刻": {
-        "en": "Received First Barrier Time"
+        "en": "First Barrier Received Time"
     },
     "Barrier 对齐的时刻": {
         "en": "Barrier Alignment Time"
     },
     "转发 Barrier 时刻": {
-        "en": "Forward Barrier Time"
+        "en": "Barrier Forwarding Time"
     },
     "输入端 Channel 的 ID": {
         "en": "Input Channel ID"
@@ -6285,31 +6285,31 @@
         "en": "Failed to load configuration data"
     },
     "确认删除流图": {
-        "en": "Are you sure you want to delete this streaming graph?"
+        "en": "Are you sure you want to delete this stream graph?"
     },
     "吗？此操作不可恢复。": {
         "en": "This action cannot be undone."
     },
     "删除流图": {
-        "en": "Delete Streaming Graph"
+        "en": "Delete Stream Graph"
     },
     "删除流图成功": {
-        "en": "Delete Streaming Graph Success"
+        "en": "Stream graph deleted"
     },
     "删除流图失败：": {
-        "en": "Failed to delete streaming graph"
+        "en": "Failed to delete stream graph"
     },
     "加载失败：": {
-        "en": "Failed to load streaming graph details"
+        "en": "Failed to load stream graph details"
     },
     "流图详情": {
-        "en": "Streaming Graph Details"
+        "en": "Stream Graph Details"
     },
     "流图 ID": {
-        "en": "Streaming Graph ID"
+        "en": "Stream Graph ID"
     },
     "流图状态": {
-        "en": "Streaming Graph Status"
+        "en": "Stream Graph Status"
     },
     "持续时间": {
         "en": "Duration"
@@ -6318,7 +6318,7 @@
         "en": "Execution Count"
     },
     "无效的流图 ID": {
-        "en": "Invalid Streaming Graph ID"
+        "en": "Invalid Stream Graph ID"
     },
     "任务 ID": {
         "en": "Task ID"
@@ -6343,5 +6343,20 @@
     },
     "状态_streaming_flow": {
         "en": "Status"
+    },
+    "初始名称": {
+        "en": "Initial Name"
+    },
+    "额外信息": {
+        "en": "Extra"
+    },
+    "下游订阅偏移量": {
+        "en": "Downstream Subscription Offset"
+    },
+    "快照元数据": {
+        "en": "Snapshot Metadata"
+    },
+    "失败原因": {
+        "en": "Failure Reason"
     }
 }
