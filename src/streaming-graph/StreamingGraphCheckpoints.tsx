@@ -71,7 +71,7 @@ export function StreamingGraphCheckpoints ({ id }: { id: string }) {
             sorter: (a, b) => compareTimestamps(a.finishedTimeStamp, b.finishedTimeStamp)
         },
         {
-            title: t('状态'),
+            title: t('状态', { context: 'streaming-graph' }),
             dataIndex: 'status',
             key: 'status',
             render: status => <StatusTag status={status_map[status]}>{status}</StatusTag>
@@ -108,7 +108,7 @@ export function StreamingGraphCheckpoints ({ id }: { id: string }) {
             sorter: (a, b) => compareTimestamps(a.barrierForwardTs, b.barrierForwardTs)
         },
         {
-            title: t('状态'),
+            title: t('状态', { context: 'streaming-graph' }),
             dataIndex: 'status',
             key: 'status',
             render: status => <StatusTag status={status_map[status]}>{status}</StatusTag>

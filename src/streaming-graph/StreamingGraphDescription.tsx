@@ -5,9 +5,10 @@ import { useState } from 'react'
 
 import { t } from '@i18n'
 
+import { model } from '@model'
+
 import { StatusTag, StatusType } from '@/components/tags/index.tsx'
 
-import { model } from '@model'
 
 import { getStreamGraphMeta } from './apis.ts'
 import { type StreamGraphMeta } from './types.ts'

@@ -6358,5 +6358,8 @@
     },
     "失败原因": {
         "en": "Failure Reason"
+    },
+    "状态_streaming-graph": {
+        "en": "Status"
     }
 }
