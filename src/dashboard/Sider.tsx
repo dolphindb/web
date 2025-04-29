@@ -12,6 +12,8 @@ import cn from 'classnames'
 
 import { t } from '@i18n'
 
+import { model } from '@model'
+
 import { WidgetType } from './model.ts'
 
 
@@ -46,18 +48,20 @@ export function Sider ({ visible }: { visible: boolean }) {
         })}
     >
         <div className='graph-items'>
-            {Object.entries(WidgetType).map(([key, value]) =>
-                <div
-                    key={key}
-                    className='dashboard-graph-item grid-stack-item'
-                    data-type={key}
-                    gs-w={2}
-                    gs-h={3}
-                    title={t(value)}
-                >
-                    {icons[value]}
-                    <div className='name'>{collapsed ? '' : t(value)}</div>
-                </div>)}
+            {Object.entries(WidgetType)
+                .filter(([key, value]) => !(value === WidgetType.CONFIGURATION && model.production))
+                .map(([key, value]) =>
+                    <div
+                        key={key}
+                        className='dashboard-graph-item grid-stack-item'
+                        data-type={key}
+                        gs-w={2}
+                        gs-h={3}
+                        title={t(value)}
+                    >
+                        {icons[value]}
+                        <div className='name'>{collapsed ? '' : t(value)}</div>
+                    </div>)}
         </div>
         <div className='collapser' onClick={() => { set_collapsed(!collapsed) }}>{
             collapsed ? <DoubleRightOutlined /> : <DoubleLeftOutlined />
