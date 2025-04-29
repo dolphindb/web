@@ -1,5 +1,5 @@
-import { type MutableRefObject, type ReactNode, createElement, useEffect, useRef, useState, useMemo, useCallback } from 'react'
-import { Form, Input, Modal, Radio, Tag, Tree, Typography } from 'antd'
+import { type RefObject, type ReactNode, createElement, useEffect, useRef, useState, useMemo, useCallback } from 'react'
+import { Form, Input, Modal, Popconfirm, Radio, Tag, Tree, Typography } from 'antd'
 import { CopyOutlined, DatabaseOutlined, DeleteOutlined, EditOutlined, FileOutlined } from '@ant-design/icons'
 
 import NiceModal, { useModal } from '@ebay/nice-modal-react'
@@ -17,7 +17,7 @@ interface PropsType {
     widget: Widget
     loading: boolean
     current_data_source: DataSource
-    no_save_flag: MutableRefObject<boolean>
+    no_save_flag: RefObject<boolean>
     save_confirm: () => {
         destroy: () => void
         update: (configUpdate: any) => void
@@ -228,10 +228,10 @@ export function DataSourceList ({
                         <EditOutlined className='data-source-list-top-item-icon' />
                         {t('重命名')}
                     </Typography.Link>
-                    <Typography.Link
-                        disabled={!current_data_source}
-                        className='data-source-list-top-item'
-                        onClick={() => {
+                    <Popconfirm
+                        title={t('确定要删除当前选中的数据源吗？')}
+                        okButtonProps={{ variant: 'solid', color: 'danger' }}
+                        onConfirm={() => {
                             if (loading)
                                 return
                             const delete_index = delete_data_source(current_data_source.id)
@@ -248,9 +248,14 @@ export function DataSourceList ({
                             }
                         }}
                     >
-                        <DeleteOutlined className='data-source-list-top-item-icon' />
-                        {t('删除')}
-                    </Typography.Link>
+                        <Typography.Link
+                            disabled={!current_data_source}
+                            className='data-source-list-top-item'
+                        >
+                            <DeleteOutlined className='data-source-list-top-item-icon' />
+                            {t('删除')}
+                        </Typography.Link>
+                    </Popconfirm>
                     <Typography.Link
                         disabled={!current_data_source}
                         className='data-source-list-top-item'

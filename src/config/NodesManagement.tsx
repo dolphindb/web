@@ -439,7 +439,7 @@ function NodeTable ({ nodes, group, onSave, onDelete }: NodeTableProps) {
                 creatorButtonText: t(' 新增节点'),
                 onClick: () => {
                     const tbody = document.querySelector('.ant-table-body')
-                    setTimeout(() => tbody.scrollTop = tbody.scrollHeight, 1)
+                    setTimeout(() => { tbody.scrollTop = tbody.scrollHeight }, 1)
                 }
             }
         }

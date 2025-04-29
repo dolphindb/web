@@ -395,6 +395,7 @@ export function Header () {
                     description={t('确定当前 dashboard 删除吗？')}
                     onConfirm={async () => { handle_destroy() }}
                     okText={t('确定')}
+                    okButtonProps={{ variant: 'solid', color: 'danger' }}
                     cancelText={t('取消')}
                 >
                     <Tooltip title={t('删除')}>
