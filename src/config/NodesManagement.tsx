@@ -87,6 +87,9 @@ export function NodesManagement () {
                 const add_node_arg = [host, new DdbInt(Number(port)), alias, true, mode]
                 if (group)
                     add_node_arg.push(group)
+                else
+                    add_node_arg.push('')
+                add_node_arg.push(zone)
                 const perf = await model.get_cluster_perf(false)
                 if (perf.findIndex(node => node.name === alias) < 0) // perf 里面没有相同别名的节点，才可以添加
                     if (mode === 'agent')
@@ -148,7 +151,7 @@ export function NodesManagement () {
         for (const node_to_add of group_nodes_to_add)
             if (perf.findIndex(node => node.name === node_to_add.alias) < 0)
                 try {
-                    await model.ddb.call('addNode', [node_to_add.host, new DdbInt(Number(node_to_add.port)), node_to_add.alias, true, 'computenode', group_name])
+                    await model.ddb.call('addNode', [node_to_add.host, new DdbInt(Number(node_to_add.port)), node_to_add.alias, true, 'computenode', group_name, node_to_add.zone])
                 } catch (e) {
                     model.message.error(t('新增节点失败，服务端报错：') + e.message)
                     return { success: false, message: t('新增节点失败，服务端报错：') + e.message }
