@@ -6,9 +6,11 @@ import { Pagination } from 'antd'
 import { t } from '@i18n'
 
 import { model, NodeType } from '@model'
+
 import { Unlogin } from '@/components/Unlogin.js'
 import { BottomFixedFooter } from '@/components/BottomFixedFooter/index.tsx'
 import { RefreshButton } from '@/components/RefreshButton/index.tsx'
+import { upper } from '@/utils.ts'
 
 const default_length = 50000n
 
@@ -57,7 +59,7 @@ export function Log () {
     return <div className='list themed'>
         <div className='log-title'>
             <div className='log-name'>
-                {node_alias} {t('日志')} ({Number(log_length).to_fsize_str()})
+                {node_alias} {t('日志')} ({upper(Number(log_length).to_fsize_str())})
             </div>
             <div className='space' />
             {!show_login_required_info && (
