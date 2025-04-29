@@ -263,7 +263,11 @@ export function ConfigurationConfig () {
                 label: t('基本属性'),
                 forceRender: true,
                 children: <div className='axis-wrapper'>
-                    <Form.Item name='background' label={t('svg 背景图')} tooltip={t('svg 中顶层的 text 元素且含有 id 属性可以被下面的文本映射替换为动态文本;\n有 id 或 class 属性的元素可以设置动态颜色')}>
+                    <Form.Item
+                        name='background'
+                        label={t('svg 背景图')}
+                        tooltip={t('svg 中顶层的 text 元素且含有 id 属性可以被下面的文本映射替换为动态文本;\n有 id 或 class 属性的元素可以设置动态颜色\n数据源的格式为 id, value 两列的表')}
+                    >
                         <Input.TextArea autoSize={rows} placeholder={t('粘贴 svg 文件内容')} />
                     </Form.Item>
                     
@@ -277,7 +281,11 @@ export function ConfigurationConfig () {
                 label: t('数据映射'),
                 forceRender: true,
                 children: <div className='axis-wrapper svg-mappings'>
-                    <Form.Item name='text_mappings' label={t('文本映射')} tooltip={t('一行一个映射，用英文冒号分隔，左边是背景中的文本 id，右边是数据 id，如:\ntext_id_0: data_id_0')}>
+                    <Form.Item
+                        name='text_mappings'
+                        label={t('文本映射')}
+                        tooltip={t('一行一个映射，用英文冒号分隔，左边是背景中的文本 id，右边是数据 id，如:\ntext_id_0: data_id_0')}
+                    >
                         <Input.TextArea autoSize={rows} placeholder={'text_id_0: data_id_0\ntext_id_1: data_id_1'} />
                     </Form.Item>
                     <Form.Item name='color_mappings' label={t('颜色映射')} tooltip={t('一行一个映射，用英文冒号分隔，左边是背景中的元素选择器，右边是数据 id，如:\nselector_0: data_id_0')}>

@@ -92,7 +92,7 @@ export const graphs: {
     },
     [WidgetChartType.CONFIGURATION]: {
         component: Configuration,
-        config: ConfigurationConfig,
+        config: ConfigurationConfig
     }
 }
 

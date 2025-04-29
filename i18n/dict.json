@@ -6343,5 +6343,20 @@
     },
     "状态_streaming_flow": {
         "en": "Status"
+    },
+    "初始名称": {
+        "en": "Initial Name"
+    },
+    "额外信息": {
+        "en": "Extra"
+    },
+    "下游订阅偏移量": {
+        "en": "Downstream Subscription Offset"
+    },
+    "快照元数据": {
+        "en": "Snapshot Metadata"
+    },
+    "失败原因": {
+        "en": "Failure Reason"
     }
 }
