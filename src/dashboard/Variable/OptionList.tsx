@@ -63,9 +63,8 @@ export function OptionList ({
             title: t('操作'),
             width: 50,
             dataIndex: 'operation',
-            render: (_, record) => { 
-                return current_variable.options.length >= 1 ? (
-                        <Popconfirm title={t('确定要删除该选项吗？')} onConfirm={() => { handleDelete(record as OptionType) }}>
+            render: (_, record) => current_variable.options.length >= 1 ? (
+                        <Popconfirm okButtonProps={{ color: 'danger', variant: 'solid' }} title={t('确定要删除该选项吗？')} onConfirm={() => { handleDelete(record as OptionType) }}>
                             <Typography.Link
                                 disabled={is_disabled(record)}
                                 type='danger'
@@ -73,8 +72,7 @@ export function OptionList ({
                                 {t('删除')}
                             </Typography.Link>
                         </Popconfirm>
-                ) : null 
-            }
+                ) : null
                    
         },
     ]
@@ -92,15 +90,13 @@ export function OptionList ({
         
         return {
         ...col,
-            onCell: (record: OptionType) => {     
-                return {
+            onCell: (record: OptionType) => ({
                     record,
                     editable: col.editable && !is_disabled(record),
                     dataIndex: col.dataIndex,
                     title: col.title,
                     handleSave,
-                }
-            },
+                }),
         }
     })
     
@@ -219,6 +215,7 @@ export function OptionList ({
                     <div>
                         <Popconfirm 
                             title={t('确定要清空所有选项吗？')} 
+                            okButtonProps={{ variant: 'solid', color: 'danger' }}
                             onConfirm={() => { 
                                 change_current_variable_property(['options'], [current_variable.options.filter(item => item.value === current_variable.value)])
                                 variable_map.clear()

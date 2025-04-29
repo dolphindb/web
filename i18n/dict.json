@@ -6343,5 +6343,8 @@
     },
     "状态_streaming_flow": {
         "en": "Status"
+    },
+    "确定要删除当前选中的数据源吗？": {
+        "en": "Are you sure you want to delete the currently selected data source?"
     }
 }

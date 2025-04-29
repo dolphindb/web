@@ -95,12 +95,14 @@ export function GraphItem  ({ widget }: { widget: Widget }) {
                 <DataSourceConfig
                     className='edit-data-source-btn'
                     type='link'
+                    icon={null}
+                    size='small'
                     widget={current}
                     text={t('编辑数据源')}
                 />
             }
             {
-                is_active && <Button icon={<CopyOutlined />} className='edit-data-source-btn' type='link' onClick={ () => { copy_widget(widget) }}  >
+                is_active && <Button size='small' className='edit-data-source-btn' type='link' onClick={ () => { copy_widget(widget) }}  >
                     {t('复制') }
                 </Button>
             }
