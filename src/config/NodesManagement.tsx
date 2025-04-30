@@ -29,10 +29,6 @@ export function NodesManagement () {
             const nodes = strs_2_nodes(data)
             console.log(_2_strs(nodes))
             return { nodes, data_key: (new Date()).toISOString() }
-        },
-        { 
-            revalidateOnFocus: true,
-            revalidateOnReconnect: true,
         }
     )
     
