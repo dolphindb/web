@@ -1021,13 +1021,13 @@ def parseConfigs(rawConfigs) {
             item = rawConfigs["cluster.nodes"][i]
             s1 = item.split(":")
             if (s1.size() != 3 and s1.size() != 4) {
-                throw "cluster.nodes 行非法，以':'划分的元素数应该为 3 或 4：" + item
+                throw "cluster.nodes 行非法，以\':\'划分的元素数应该为 3 或 4：" + item
             }
             host = s1[0]
             port = int(s1[1])
             s2 = s1[2].split(",")
             if (s2.size() != 2 and s2.size() != 3) {
-                throw "cluster.nodes 行非法，以','划分的元素数应该为 2, 3 或 4：" + item
+                throw "cluster.nodes 行非法，以\',\'划分的元素数应该为 2, 3 或 4：" + item
             }
             nodeAlias = s2[0]
             nodeType = s2[1]
