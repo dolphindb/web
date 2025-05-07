@@ -1933,7 +1933,7 @@ function get_chart_option (config: ChartConfig): echarts.EChartsOption {
         grid: {
             top: 20,
             bottom: 20,
-            left: 20,
+            left: 30,
             right: 20,
             containLabel: true
         },
