@@ -12,7 +12,7 @@ export function HostSelect ({ size = 'small' }: { size?: SizeType }) {
         options={[
             {
                 label: '测试数据节点',
-                value: '192.168.0.54:20023'
+                value: '192.168.0.54:20002'
             },
             {
                 label: '测试控制节点',
