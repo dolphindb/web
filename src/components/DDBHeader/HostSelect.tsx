@@ -12,19 +12,19 @@ export function HostSelect ({ size = 'small' }: { size?: SizeType }) {
         options={[
             {
                 label: '测试数据节点',
-                value: '192.168.0.37:20023'
+                value: '192.168.0.54:20023'
             },
             {
                 label: '测试控制节点',
-                value: '192.168.0.37:20000'
+                value: '192.168.0.54:20000'
+            },
+            {
+                label: '测试单机',
+                value: '192.168.0.54:8848'
             },
             {
                 label: '我的单机',
                 value: '192.168.0.90:8848'
-            },
-            {
-                label: '剑波客户端鉴权',
-                value: '192.168.0.54:8848'
             },
             {
                 label: '定时巡检',
