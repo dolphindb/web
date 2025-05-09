@@ -29,8 +29,8 @@ import { config } from '@/config/model.ts'
 import { GitHubAdapter, GitLabAdapter } from '@/shell/git/git-adapter.ts'
 
 
-const dev_hostname = '192.168.0.37' as const
-const dev_port = '20023' as const
+const dev_hostname = '192.168.0.54' as const
+const dev_port = '20002' as const
 
 export const shf = storage.getstr('shf') === '1'
 
