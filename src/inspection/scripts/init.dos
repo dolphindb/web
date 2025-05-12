@@ -1914,3 +1914,51 @@ def replicaTbl(params=NULL) {
 '
 newMetric(name, displayName, group, desc, nodes, script)
 go
+
+name = "checkRangeExp"
+displayName = "检查Range分区是否即将到期"
+group = "1"
+desc = "检查Range分区是否即将到期"
+nodes = NULL
+script = '
+def checkRangeExp(params = NULL){
+    ret = table(1:0,["数据库","分区类型","Range分区到期时间"],[STRING,STRING,DATE])
+
+    AllDFS = getDFSDatabases()
+    for(i in 0 .. AllDFS.size()){
+        db = database(AllDFS[i])  
+        db_schema = schema(db)
+        partitionType = db_schema["partitionTypeName"]
+        //单层Range分区或者组合Range分区
+        if(partitionType.form()==0){
+            if(partitionType=="RANGE" and partitionType[0].typestr()!=INT){  //只需检查时间Range分区
+                dateExp = max(date(db_schema["partitionSchema"]+1)-1)    //将按月单位的情况统一处理
+                //若Range分区到期不足10天,需新增
+                if(dateExp - today()<=10){
+                insert into ret values(AllDFS[i],"Range分区",dateExp)
+                }
+            }
+        }else if(partitionType.form()==1){
+            if(at(partitionType=="RANGE").size()>0){
+                rangeLoc = at(partitionType=="RANGE").size()-1
+                for(one in 0..rangeLoc){   //若有多个Range分区，依次检查
+                    rangeNum = at(partitionType=="RANGE")[one]
+                    if(db_schema["partitionSchema"][rangeNum][0].typestr()!=INT){
+                        dateExp = max(date(db_schema["partitionSchema"][rangeNum]+1)-1)
+                        if(dateExp - today()<=10){
+                            insert into ret values(AllDFS[i],"组合分区",dateExp)
+                        }
+                    }
+                }
+            }
+        }
+    }
+    if(ret.size()==0){
+        return (true, NULL, NULL)
+    }else{
+        return (false, ret, "请检查数据库范围分区到期时间，及时新增分区。")
+    }
+}
+'
+newMetric(name, displayName, group, desc, nodes, script)
+go
