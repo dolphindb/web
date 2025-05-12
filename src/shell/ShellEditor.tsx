@@ -77,7 +77,10 @@ export function ShellEditor ({ collapser }) {
                 title: t('提醒'),
                 content: t('关闭标签页将会删除标签页内的所有内容，确认关闭？'),
                 onOk: remove_tab,
-                okType: 'danger'
+                okButtonProps: {
+                    type: 'primary',
+                    danger: true
+                }
             })
         else
             remove_tab()
