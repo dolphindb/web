@@ -1925,13 +1925,14 @@ def checkRangeExp(params = NULL){
     ret = table(1:0,["数据库","分区类型","Range分区到期时间"],[STRING,STRING,DATE])
     
     allDatabases = getDFSDatabases()
-    for(i in 0 .. allDatabases.size()-1){
+    num = allDatabases.size()-1
+    for(i in 0 .. num){
         db = database(allDatabases[i])  
         dbSchema = schema(db)
         partitionType = dbSchema["partitionTypeName"]
         //单层Range分区/组合Range分区
         if(partitionType.form()==0){
-            if(partitionType=="RANGE" and partitionType.typestr()!=INT){   //只检查时间类range
+            if(partitionType=="RANGE" and dbSchema["partitionSchema"][0].typestr()!=INT){   //只检查时间类range
                 dateExp = max(date(dbSchema["partitionSchema"]+1)-1)    //按月单位Range统一
                 //若Range分区到期不足10天，则提示新增分区。
                 if(dateExp - today()<=10){
