@@ -1930,9 +1930,10 @@ def checkRangeExp(params = NULL){
         db = database(allDatabases[i])  
         dbSchema = schema(db)
         partitionType = dbSchema["partitionTypeName"]
+        temporalType = `DATE`MONTH`TIME`MINUTE`SECOND`DATETIME`TIMESTAMP`NANOTIME`NANOTIMESTAMP`DATEHOUR
         //单层Range分区/组合Range分区
         if(partitionType.form()==0){
-            if(partitionType=="RANGE" and dbSchema["partitionSchema"][0].typestr()!=INT){   //只检查时间类range
+            if(partitionType=="RANGE" and dbSchema["partitionSchema"][0].typestr() in temporalType){   //只检查时间类range
                 dateExp = max(date(dbSchema["partitionSchema"]+1)-1)    //按月单位Range统一
                 //若Range分区到期不足10天，则提示新增分区。
                 if(dateExp - today()<=10){
@@ -1944,7 +1945,7 @@ def checkRangeExp(params = NULL){
                 rangeLoc = at(partitionType=="RANGE").size()-1
                 for(one in 0..rangeLoc){   //若有多个Range分区，依次检查
                     rangeNum = at(partitionType=="RANGE")[one]
-                    if(dbSchema["partitionSchema"][rangeNum][0].typestr()!=INT){
+                    if(dbSchema["partitionSchema"][rangeNum][0].typestr() in temporalType){
                         dateExp = max(date(dbSchema["partitionSchema"][rangeNum]+1)-1)
                         if(dateExp - today()<=10){
                             insert into ret values(allDatabases[i],"组合分区",dateExp)
