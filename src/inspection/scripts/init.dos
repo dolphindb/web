@@ -1713,7 +1713,11 @@ def replicaDomain(params=NULL) {
     }
 }
 '
-newMetric(name, displayName, group, desc, nodes, script)
+if (name in metrics.name) {
+    updateMetric(name, displayName, group, desc, nodes, script, params, language)
+} else {
+    newMetric(name, displayName, group, desc, nodes, script, params)
+}
 go
 
 // -------------- group 2 -------------------
