@@ -21,6 +21,7 @@ import { RefreshButton } from '@/components/RefreshButton/index.tsx'
 import { DDBTable } from '@/components/DDBTable/index.tsx'
 import { DeleteReportsModal } from '@/inspection/components/DeleteReportsModal.tsx'
 import { DeletePlansModal } from '@/inspection/components/DeletePlansModal.tsx'
+import create_metrics_script from '@/inspection/scripts/init.dos'
 
 
 export function InspectionListPage () {
@@ -30,6 +31,19 @@ export function InspectionListPage () {
     
     const [refresh, set_refresh] = useState(0)
     const refresher = useMemo(() => () => { set_refresh(cnt => cnt + 1) }, [ ])
+    
+    
+    useEffect(() => {
+        async function checkMetrics () {
+            const metricsUpdated = await model.ddb.invoke('areMetricsUpdated', [WEB_VERSION])
+            if (!metricsUpdated) {
+                await model.ddb.execute(create_metrics_script)
+                await model.ddb.invoke('setMetricsUpdated', [WEB_VERSION])
+                console.log(t('指标已更新'))
+            }
+        }
+        checkMetrics()
+    }, [ ])
     
     return <div>
             <div className='inspection-header'>
