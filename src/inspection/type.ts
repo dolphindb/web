@@ -37,6 +37,7 @@ export interface Plan {
     id: string
     name: string
     metrics: string[]
+    versions: string[]
     nodes: Array<string[] | ''>
     params?: object
     frequency: string
