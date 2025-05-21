@@ -11,7 +11,7 @@ import { access } from '@/access/model.js'
 
 import { model } from '@model'
 
-import { NAME_CHECK_PATTERN } from '@/access/constants.js'
+import { USERNAME_CHECK_PATTERN } from '@/access/constants.js'
 import { use_users } from '@/access/hooks/use-users.ts'
 
 export const GroupCreateModal = NiceModal.create(() => {
@@ -60,7 +60,7 @@ export const GroupCreateModal = NiceModal.create(() => {
                     rules={[
                         { required: true, message: t('请输入组名') },
                         { max: 30, message: t('组名长度不能超过 30 个字符') },
-                        { pattern: NAME_CHECK_PATTERN, message: t('组名只能包含字母、下划线或数字，并且不能以数字或下划线开头') }
+                        { pattern: USERNAME_CHECK_PATTERN, message: t('组名只能包含字母、数字、下划线、以及短横线，并且开头首字母必须为大小写英文字母') }
                     ]}
                     validateFirst
                 >
