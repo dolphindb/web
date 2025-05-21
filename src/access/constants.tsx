@@ -50,4 +50,4 @@ export const DATABASES_WITHOUT_CATALOG = '[DATABASES WITHOUT CATALOG]'
 export const NAME_CHECK_PATTERN = /^(?![\d_])[\w\d]+$/
 
 /** https://dolphindb1.atlassian.net/wiki/spaces/DolphinDB/pages/1450607195/D20-22935 */
-export const USERNAME_CHECK_PATTERN = /^(?![\d_-])[\w\d-]+/
+export const USERNAME_CHECK_PATTERN = /^[a-zA-Z][0-9a-zA-Z\-_]*$/
