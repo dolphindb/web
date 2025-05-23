@@ -21,7 +21,7 @@
         "@types/koa": "^2.15.0",
         "@types/lodash": "^4.17.17",
         "@types/node": "^22.15.21",
-        "@types/react": "^19.1.4",
+        "@types/react": "^19.1.5",
         "@types/react-dom": "^19.1.5",
         "eslint": "^9.27.0",
         "react": "^19.1.0",
@@ -68,6 +68,6 @@
         "tslib": "^2.8.1",
         "vscode-oniguruma": "^2.0.1",
         "vscode-textmate": "^9.2.0",
-        "xshell": "^1.2.43"
+        "xshell": "^1.2.44"
     }
 }
