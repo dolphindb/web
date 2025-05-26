@@ -13,7 +13,7 @@ import { DDB_TYPE_MAP } from '@utils'
 
 import { inspection } from '@/inspection/model.ts'
 
-import type { MetricsWithStatus, Plan } from '@/inspection/type.ts'
+import type { Metric, MetricsWithStatus, Plan } from '@/inspection/type.ts'
 
 import { InspectionFormContent } from '@/inspection/components/InspectionFormContent.tsx'
 
@@ -24,6 +24,10 @@ import { BackButton } from '@/components/BackButton.tsx'
 interface InspectionFormProps {
     plan?: Plan
     disabled?: boolean
+}
+
+export function findMetric (metrics: Metric[], name: string, version: number | null) {
+    return metrics.find(m => m.name === name && m.version === version)
 }
 
 export function InspectionForm ({ 
@@ -43,9 +47,9 @@ export function InspectionForm ({
         async () => inspection.get_plan_detail(plan.id),
         {
             onSuccess: plan_detail => {
-                let new_checked_metrics = new Map<string, MetricsWithStatus>(metrics_with_nodes) 
+                let new_checked_metrics = metrics_with_nodes
                 plan_detail.forEach(pd => 
-                    (new_checked_metrics.set(pd.metricName, {  ...metrics.get(pd.metricName), checked: true, selected_nodes: pd.nodes.split(','), selected_params: JSON.parse(pd.params) }) ))
+                    (new_checked_metrics.push({  ...findMetric(metrics, pd.metricName, pd.metricVersion), checked: true, selected_nodes: pd.nodes.split(','), selected_params: JSON.parse(pd.params) })))
                 set_metrics_with_nodes(new_checked_metrics)
             },
         }
@@ -54,8 +58,8 @@ export function InspectionForm ({
     const [enabled, set_enabled] = useState(plan?.enabled)
     
     // 保存指标是否选中以及每个指标巡检的节点
-    const [metrics_with_nodes, set_metrics_with_nodes] = useState<Map<string, MetricsWithStatus>>(new Map(
-        Array.from(metrics.values()).map(mc => ([mc.name, { ...mc, checked: false, selected_nodes: [ ], selected_params: { } }]))
+    const [metrics_with_nodes, set_metrics_with_nodes] = useState<MetricsWithStatus[]>(
+        metrics.map(mc => ({ ...mc, checked: false, selected_nodes: [ ], selected_params: { } })
     ))
     
     const execute_node_names = useMemo(
@@ -66,14 +70,14 @@ export function InspectionForm ({
                     .map(({ name }) => name), [ nodes ])
     
     function verify_metrics () {
-        let selected_metrics = Array.from(metrics_with_nodes.values()).filter(({ checked }) => checked)
+        let selected_metrics = metrics_with_nodes.filter(({ checked }) => checked)
         if (selected_metrics.length === 0) {
             model.message.error(t('请至少选中一个指标'))
             return false
         }
          
         // 找出需要选择节点但没有选择的指标
-        if (selected_metrics.some(({ name, nodes }) => metrics.get(name).nodes !== '' && nodes.length === 0)) {
+        if (selected_metrics.some(({ name, nodes, version }) => findMetric(metrics, name, version)?.nodes !== '' && nodes.length === 0)) {
             model.message.error(t('请至少选中一个巡检节点'))
             return false
         }
@@ -87,7 +91,7 @@ export function InspectionForm ({
             const values = await inspection_form.validateFields()
             if (!verify_metrics())
                 return
-            const metrics = Array.from(metrics_with_nodes.values()).filter(({ checked }) => checked)
+            const metrics = metrics_with_nodes.filter(({ checked }) => checked)
             const new_plan =  
                 {   
                     name: values.name,

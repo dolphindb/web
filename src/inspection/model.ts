@@ -22,7 +22,7 @@ class InspectionModel extends Model<InspectionModel> {
     // null 代表未从 server 获取到 table_created，此时需要处于 loading
     table_created: boolean | null = null
     
-    metrics: Map<string, Metric> = new Map()
+    metrics: Metric[] =  [ ]
     
     email_config: { can_config: boolean, error_msg: string } = { can_config: true, error_msg: '' }
     
@@ -35,17 +35,24 @@ class InspectionModel extends Model<InspectionModel> {
     // 拉邮件配置，拉指标
     async init () {
         await config.load_configs()
-        const metrics_obj = await this.get_metrics()
+        const metrics_obj = (await this.get_metrics()) // 按版本降序
+            .sort((a, b) => a.version > b.version ? -1 : 1)
+        const metrics_to_set: Metric[] = [ ]
+        metrics_obj.forEach(m => {
+            let params = new Map<string, MetricParam>()
+            let params_arr = JSON.parse(m.params)
+            if (Array.isArray(params_arr)) 
+                params_arr.map(param => {
+                    params.set(param.name, param)
+                })
+            if (!metrics_to_set.find(exist_m => exist_m.name === m.name)) // 为每一个指标都创建一个 null 版本的（代表最新）
+                metrics_to_set.push({ ...m, version: null, params })
+            // 无论如何都写一个当版本的指标
+            metrics_to_set.push({ ...m, params })
+        })
+        console.log(metrics_to_set)
         this.set({
-            metrics: new Map(metrics_obj.map(m => {
-                let params = new Map<string, MetricParam>()
-                let params_arr = JSON.parse(m.params)
-                if (Array.isArray(params_arr)) 
-                    params_arr.map(param => {
-                        params.set(param.name, param)
-                    })
-                return [ m.name, { ...m, params } ]
-            }))
+            metrics: metrics_to_set
         })
         await this.can_configure_email()
         this.set({ inited: true })

@@ -2,7 +2,7 @@ import NiceModal, { useModal } from '@ebay/nice-modal-react'
 
 import { Button, DatePicker, Form, Input, InputNumber, Modal, Select } from 'antd'
 
-import { isEmpty } from 'lodash'
+import { cloneDeep, isEmpty } from 'lodash'
 
 import dayjs, { type Dayjs } from 'dayjs'
 
@@ -17,8 +17,8 @@ import type { MetricParam, MetricsWithStatus } from '@/inspection/type.ts'
 
 interface EditParamModalProps {
     metric: MetricsWithStatus
-    checked_metrics: Map<string, MetricsWithStatus>
-    set_checked_metrics: (metrics: Map<string, MetricsWithStatus>) => void 
+    checked_metrics: MetricsWithStatus[]
+    set_checked_metrics: (metrics: MetricsWithStatus[]) => void 
 }
 
 export const EditParamModal = NiceModal.create(({ 
@@ -59,11 +59,19 @@ export const EditParamModal = NiceModal.create(({
             labelCol={{ span: 3 }} 
             wrapperCol={{ span: 21 }}
             onFinish={values => {
-                let new_checked_metrics = new Map(checked_metrics)
-                new_checked_metrics.set(metric.name, 
-                    { ...new_checked_metrics.get(metric.name), 
-                        selected_nodes: values.selected_nodes, 
-                        selected_params: values.selected_params })
+                let new_checked_metrics = cloneDeep(checked_metrics)
+                // 先把同名指标的 checked 都设为 false，后面根据这个指标的版本来决定设置哪个为 true
+                new_checked_metrics.forEach(m => {
+                    if (m.name === metric.name)
+                        m.checked = false
+                })
+                // 然后把这个版本的设一下
+                const this_metric = new_checked_metrics.find(m => m.name === metric.name && m.version === metric.version)
+                Object.assign(this_metric, { ...metric,
+                    checked: true,
+                    selected_nodes: values.selected_nodes, 
+                    selected_params: values.selected_params 
+                })
                 set_checked_metrics(new_checked_metrics)
                 modal.hide()
             }}

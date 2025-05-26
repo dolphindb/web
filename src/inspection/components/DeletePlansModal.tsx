@@ -3,6 +3,7 @@ import { Modal } from 'antd'
 import { t } from '@i18n'
 
 import { model } from '@model'
+ 
 import { inspection } from '@/inspection/model.ts'
 
 export const DeletePlansModal = NiceModal.create(({ 

@@ -5,7 +5,7 @@ export interface Metric {
     displayName: string
     group: number
     desc: string
-    version: string
+    version: number | null
     createTime: string
     updateTime: string
     nodes: string
@@ -29,6 +29,7 @@ export interface MetricsWithStatus extends Metric {
 export interface PlanDetail {
     planId: string
     metricName: string
+    metricVersion: number | null
     nodes: string
     params: string
 }
@@ -37,7 +38,7 @@ export interface Plan {
     id: string
     name: string
     metrics: string[]
-    versions: string[]
+    versions: (number | null)[]
     nodes: Array<string[] | ''>
     params?: object
     frequency: string

@@ -9,6 +9,8 @@ import NiceModal from '@ebay/nice-modal-react'
 import { noop } from 'xshell/prototype.browser.js'
 
 
+import { cloneDeep } from 'lodash'
+
 import { MetricGroups } from '@/inspection/constants.ts'
 import type { MetricsWithStatus } from '@/inspection/type.ts'
 import { EditParamModal } from '@/inspection/modals/EditParamModal.tsx'
@@ -17,8 +19,8 @@ import { DDBTable } from '@/components/DDBTable/index.tsx'
 
 
 interface MetricTableProps {
-    checked_metrics: Map<string, MetricsWithStatus>
-    set_checked_metrics: (metrics: Map<string, MetricsWithStatus>) => void
+    checked_metrics: MetricsWithStatus[]
+    set_checked_metrics: (metrics: MetricsWithStatus[]) => void
     editing?: boolean
     close?: () => void
     setFooter?: (footer: React.ReactNode) => void
@@ -41,7 +43,9 @@ export function MetricTable ({
                 const group = metric.group 
                 if (!groups.has(group))
                     groups.set(group, [ ])
-                groups.get(group).push(metric)
+                const group_metrics = groups.get(group)
+                if (!group_metrics.find(m => m.name === metric.name))
+                    group_metrics.push(metric)
             }
         })
         return groups
@@ -55,10 +59,19 @@ export function MetricTable ({
                         {t('取消')}
                     </Button>
                     <Button type='primary' onClick={() => {
-                        let new_checked_metrics = new Map(checked_metrics)
+                        let new_checked_metrics = cloneDeep(checked_metrics)
                         Array.from(grouped_metrics.values()).flat().forEach(metric => {
-                            new_checked_metrics.set(metric.name, metric)
+                            if (metric.checked) {
+                                if (!new_checked_metrics.find(m => m.name === metric.name && m.checked))
+                                    new_checked_metrics.find(m => m.name === metric.name).checked = true
+                            }
+                            else
+                                new_checked_metrics.forEach(m => {
+                                    if (m.name === metric.name)
+                                        m.checked = false
+                                })
                         })
+                        console.log(new_checked_metrics)
                         set_checked_metrics(new_checked_metrics)
                         close()
                         }}>{t('保存')}</Button>
@@ -105,6 +118,12 @@ export function MetricTable ({
                                     dataIndex: 'displayName',
                                     key: 'displayName',
                                 },
+                                ...!editing ? [{
+                                    title: t('版本'),
+                                    dataIndex: 'version',
+                                    key: 'version',
+                                    render: (version: number) => version === null ? t('最新') : version
+                                }] : [ ],
                                 {
                                     title: t('描述'),
                                     dataIndex: 'desc',
@@ -128,8 +147,11 @@ export function MetricTable ({
                                                 type='link'
                                                 danger
                                                 onClick={() => {
-                                                    let new_checked_metrics = new Map(checked_metrics)
-                                                    new_checked_metrics.set(record.name, { ...record, checked: false })
+                                                    let new_checked_metrics = cloneDeep(checked_metrics)
+                                                    new_checked_metrics.forEach(m => {
+                                                        if (m.name === record.name)
+                                                            m.checked = false
+                                                    })
                                                     set_checked_metrics(new_checked_metrics)
                                                 }}
                                                 >
