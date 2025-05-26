@@ -27,11 +27,12 @@ export const EditParamModal = NiceModal.create(({
     set_checked_metrics 
 }: EditParamModalProps) => {
     const modal = useModal()   
+    const [form] = Form.useForm()
     
-    const init_metric = useMemo(() => {
-        const { selected_params, params } = metric
+    function formatMetricData (metricData: MetricsWithStatus) {
+        const { selected_params, params } = metricData
         let formatted_params: Record<string, string | Dayjs | null> = { }
-        if (selected_params !== null && typeof selected_params === 'object' && !isEmpty(metric.selected_params)) 
+        if (selected_params !== null && typeof selected_params === 'object' && !isEmpty(metricData.selected_params)) 
             for (const [key, value] of Object.entries(selected_params)) {
                 let param = params.get(key)
                 if (param.type === 'TIMESTAMP')
@@ -40,8 +41,12 @@ export const EditParamModal = NiceModal.create(({
                     formatted_params[key] = value
             }
          
-        return { ...metric, selected_params: formatted_params }
-    }, [metric])
+        return { ...metricData, selected_params: formatted_params }
+    }
+    
+    const init_metric = useMemo(() => formatMetricData(metric), [metric])
+    
+    const version_options = checked_metrics.filter(m => m.name === metric.name).map(m => m.version).map(v => ({ label: v !== null ? v : t('最新'), value: v }))
     
     return <Modal
         className='edit-param-modal'       
@@ -55,6 +60,7 @@ export const EditParamModal = NiceModal.create(({
         cancelText={t('取消')}
     >
         <Form 
+            form={form}
             initialValues={init_metric} 
             labelCol={{ span: 3 }} 
             wrapperCol={{ span: 21 }}
@@ -66,7 +72,7 @@ export const EditParamModal = NiceModal.create(({
                         m.checked = false
                 })
                 // 然后把这个版本的设一下
-                const this_metric = new_checked_metrics.find(m => m.name === metric.name && m.version === metric.version)
+                const this_metric = new_checked_metrics.find(m => m.name === metric.name && m.version === values.version)
                 Object.assign(this_metric, { ...metric,
                     checked: true,
                     selected_nodes: values.selected_nodes, 
@@ -81,6 +87,22 @@ export const EditParamModal = NiceModal.create(({
                 label={<h3 className='form-item-label'>{t('名称')}</h3>} 
                 >
                 <Input readOnly style={{ cursor: 'not-allowed' }}/>
+            </Form.Item>
+            
+            <Form.Item
+                name='version'
+                initialValue={metric.version}
+                label={<h3 className='form-item-label'>{t('版本')}</h3>}
+                >
+                <Select
+                    options={version_options}
+                    onChange={version => {
+                        const newMetric = checked_metrics.find(m => m.name === metric.name && m.version === version)
+                        if (newMetric) 
+                            form.setFieldsValue(formatMetricData(newMetric))
+                        
+                    }}
+                />
             </Form.Item>
             
             <Form.Item 

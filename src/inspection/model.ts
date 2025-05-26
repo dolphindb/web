@@ -50,7 +50,6 @@ class InspectionModel extends Model<InspectionModel> {
             // 无论如何都写一个当版本的指标
             metrics_to_set.push({ ...m, params })
         })
-        console.log(metrics_to_set)
         this.set({
             metrics: metrics_to_set
         })
