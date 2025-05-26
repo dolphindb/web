@@ -770,9 +770,11 @@ def createPlan(name, desc, metrics, versions, nodes, params, frequency, days, sc
         throw "metrics' size must be same as versions' size"
     } else {
         for (i in til(versions.size())) {
-            cnt = exec count(*) from loadTable("dfs://autoInspection", "metrics") where name == metrics[i] and version == versions[i]
-            if (cnt == 0) {
-                throw "metric not found, name: " + metrics[i] + ", version: " + versions[i]
+            if (!isNull(versions[i])) {
+                cnt = exec count(*) from loadTable("dfs://autoInspection", "metrics") where name == metrics[i] and version == versions[i]
+                if (cnt == 0) {
+                    throw "metric not found, name: " + metrics[i] + ", version: " + versions[i]
+                }
             }
             versions_.append!(int(versions[i]))
         }
