@@ -774,7 +774,7 @@ def createPlan(name, desc, metrics, versions, nodes, params, frequency, days, sc
             if (cnt == 0) {
                 throw "metric not found, name: " + metrics[i] + ", version: " + versions[i]
             }
-            versions_.append!(int(version))
+            versions_.append!(int(versions[i]))
         }
     }
     if (scheduleTime.form() == 0) {
