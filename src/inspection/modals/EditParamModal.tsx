@@ -73,7 +73,7 @@ export const EditParamModal = NiceModal.create(({
                 })
                 // 然后把这个版本的设一下
                 const this_metric = new_checked_metrics.find(m => m.name === metric.name && m.version === values.version)
-                Object.assign(this_metric, { ...metric,
+                Object.assign(this_metric, {
                     checked: true,
                     selected_nodes: values.selected_nodes, 
                     selected_params: values.selected_params 

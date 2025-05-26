@@ -38,7 +38,8 @@ export function MetricTable ({
     
     function update_checked_metrics () {
         const groups = new Map<number, MetricsWithStatus[]>()
-        checked_metrics.forEach(metric => {
+        // 优先排 checked 放上面
+        checked_metrics.sort((a, b) => a.checked ? -1 : 1).forEach(metric => {
             if (editing || metric.checked) {
                 const group = metric.group 
                 if (!groups.has(group))
@@ -71,7 +72,6 @@ export function MetricTable ({
                                         m.checked = false
                                 })
                         })
-                        console.log(new_checked_metrics)
                         set_checked_metrics(new_checked_metrics)
                         close()
                         }}>{t('保存')}</Button>
