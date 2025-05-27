@@ -24,7 +24,7 @@ export function HostSelect ({ size = 'small' }: { size?: SizeType }) {
             },
             {
                 label: '我的单机',
-                value: '192.168.0.90:8848'
+                value: 'test.dolphindb.cn:8848'
             },
             {
                 label: '定时巡检',
