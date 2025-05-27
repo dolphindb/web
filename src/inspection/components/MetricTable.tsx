@@ -39,7 +39,9 @@ export function MetricTable ({
     function update_checked_metrics () {
         const groups = new Map<number, MetricsWithStatus[]>()
         // 优先排 checked 放上面
-        checked_metrics.sort((a, b) => a.checked ? -1 : 1).forEach(metric => {
+        const metrics_to_process: MetricsWithStatus[] = [...checked_metrics]
+        metrics_to_process.sort((a, b) => (a.checked ? -1 : 1))
+        metrics_to_process.forEach(metric => {
             if (editing || metric.checked) {
                 const group = metric.group 
                 if (!groups.has(group))

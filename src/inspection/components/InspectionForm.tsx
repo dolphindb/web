@@ -47,9 +47,15 @@ export function InspectionForm ({
         async () => inspection.get_plan_detail(plan.id),
         {
             onSuccess: plan_detail => {
-                let new_checked_metrics = metrics_with_nodes
-                plan_detail.forEach(pd => 
-                    (new_checked_metrics.push({  ...findMetric(metrics, pd.metricName, pd.metricVersion), checked: true, selected_nodes: pd.nodes.split(','), selected_params: JSON.parse(pd.params) })))
+                let new_checked_metrics = metrics.map(m => ({ ...m, checked: false, selected_nodes: [ ], selected_params: { } }))
+                plan_detail.forEach(pd => {
+                    const found_metric = new_checked_metrics.find(m => m.name === pd.metricName && m.version === pd.metricVersion)
+                    if (found_metric) {
+                        found_metric.checked = true
+                        found_metric.selected_nodes = pd.nodes.split(',')
+                        found_metric.selected_params = JSON.parse(pd.params)
+                    }
+                })
                 set_metrics_with_nodes(new_checked_metrics)
             },
         }
