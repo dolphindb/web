@@ -342,7 +342,7 @@ def runMetric(name, script, mutable params) {
     print("params: ")
     print(string(params))
     print("script: ")
-    l = iif(script.strlen() > 20, 20, script.strlen())
+    l = iif(script.strlen() > 50, 50, script.strlen())
     print(string(script)[0:l])
     success = false
     detail = NULL
@@ -399,10 +399,6 @@ def runPlanInner(planId, reportId) {
     writeLog("autoInspection: start to run plan: " + string(planId))
     ts = reportId.split("_").last()
     planId_ = planId
-    t = select * from loadTable("dfs://autoInspection", "planDetails")
-    delete from loadTable("dfs://autoInspection", "planDetails")
-    update t set metricVersion = 0 where metricName == "nodeStatus"
-    loadTable("dfs://autoInspection", "planDetails").append!(t)
     planDetails = select a.metricName as metricName, a.nodes as nodes, a.params as params, b.script as script, b.version as metricVersion from loadTable("dfs://autoInspection", "planDetails") a left join loadTable("dfs://autoInspection", "metrics") b on a.metricName == b.name and a.metricVersion == b.version where a.planId == planId_
     // metricVersion 设为空的 planDetail，自动选最大版本的指标
     maxVersionMetrics = select * from loadTable("dfs://autoInspection", "metrics") context by name csort version desc limit 1
