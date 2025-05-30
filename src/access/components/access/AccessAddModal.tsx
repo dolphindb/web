@@ -54,7 +54,7 @@ export const AccessAddModal = NiceModal.create(({ category, role, name }: { cate
                 wdith: 100
             }
         ],
-        [ category]
+        [category]
     )
     
     const [add_access_rows, set_add_access_rows] = useState([ ])
@@ -74,8 +74,8 @@ export const AccessAddModal = NiceModal.create(({ category, role, name }: { cate
                 modal.hide()
             }}
             onOk={async () => {
-                await Promise.all(add_access_rows.
-                    map(async rule =>
+                await Promise.all(
+                    add_access_rows.map(async rule =>
                         access[rule.type](
                             name,
                             rule.access,
@@ -89,7 +89,7 @@ export const AccessAddModal = NiceModal.create(({ category, role, name }: { cate
                 modal.hide()
                 await update_accesses()
             }}
-            destroyOnClose
+            destroyOnHidden
             okText={t('确认添加')}
             okButtonProps={{
                 disabled: !add_access_rows.length
@@ -99,9 +99,9 @@ export const AccessAddModal = NiceModal.create(({ category, role, name }: { cate
             <div className='add-rule-container'>
                 <div className='add-rule-header'>
                     <Radio.Group
-                        options={['grant', 'deny'].map(tp => ({
-                            label: tp,
-                            value: tp
+                        options={['grant', 'deny'].map(x => ({
+                            label: x,
+                            value: x
                         }))}
                         value={add_rule_selected.type}
                         onChange={e => {
@@ -115,17 +115,17 @@ export const AccessAddModal = NiceModal.create(({ category, role, name }: { cate
                         optionType='button'
                         buttonStyle='solid'
                     />
+                    
                     <Select
                         className='access-select'
-                        options={filter_access_options(
-                            category, 
-                            role, 
-                            accesses.is_admin, 
-                            add_rule_selected.type).
-                                map(ac => ({
-                                    label: ac,
-                                    value: ac
-                                }))}
+                        options={
+                            filter_access_options(
+                                category, 
+                                role, 
+                                accesses.is_admin, 
+                                add_rule_selected.type
+                            ).map(x => ({ label: x, value: x }))
+                        }
                         value={add_rule_selected.access}
                         onChange={value => {
                             const selected = { ...add_rule_selected }
@@ -134,7 +134,8 @@ export const AccessAddModal = NiceModal.create(({ category, role, name }: { cate
                             set_add_rule_selected(selected)
                         }}
                     />
-                    <AccessObjSelect 
+                    
+                    <AccessObjSelect
                         role={role}
                         category={category} 
                         add_rule_selected={add_rule_selected} 
