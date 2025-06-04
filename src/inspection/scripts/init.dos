@@ -4,8 +4,7 @@ if (!existsDatabase("dfs://autoInspection")) {
 } else {
     // 添加旧版本没有的表
     if (!existsTable("dfs://autoInspection", "updateHistory")) {
-        tb = table(1:0, `webVersion`updateTime, [STRING, TIMESTAMP])
-        createTable(database("dfs://autoInspection"), tb, "updateHistory", sortColumns="updateTime")
+        createUpdateHistoryTable()
     }
 }
 go
