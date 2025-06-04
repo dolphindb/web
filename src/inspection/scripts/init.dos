@@ -2014,6 +2014,7 @@ def replicaTbl(params=NULL) {
     }
 }
 '
+params = NULL
 if (name in metrics.name) {
     updateMetric(name, displayName, group, desc, nodes, script, params, language)
 } else {
@@ -2059,6 +2060,7 @@ def checkRangeExp(params = NULL){
     }
 }
 '
+params = NULL
 if (name in metrics.name) {
     updateMetric(name, displayName, group, desc, nodes, script, params, language)
 } else {
