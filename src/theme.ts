@@ -48,15 +48,20 @@ export const light: ThemeConfig = {
 }
 
 
+export const dark_primary_color = '#1668dc'
+
+
 export const dark: ThemeConfig = {
     ...common_config,
     token: {
         ...common_tokens,
+        colorPrimary: dark_primary_color,
         colorBgContainer: '#282828',
         colorBgElevated: '#555555',
         colorInfoActive: '#4093d3',
         colorBgLayout: '#313131',
-        colorPrimary: '#1668dc'
+        colorTextDisabled: '#ffffff60',
+        colorTextPlaceholder: '#00000070'
     },
     algorithm: theme.darkAlgorithm,
     components: {
@@ -65,6 +70,11 @@ export const dark: ThemeConfig = {
             headerColor: '#ffffff',
             colorText: '#ffffff',
             cellPaddingBlock: 10
+        },
+        Segmented: {
+            itemSelectedColor: dark_primary_color,
+            itemSelectedBg: '#282828',
+            trackPadding: 4
         }
     }
 }

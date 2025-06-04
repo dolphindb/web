@@ -10,7 +10,7 @@ import { t } from '@i18n'
 
 import { model } from '@model'
 
-import { dark } from '@/theme.ts'
+import { dark } from '@theme'
 
 import { get_shared_dashboards, paste_widget } from './utils.ts'
 
