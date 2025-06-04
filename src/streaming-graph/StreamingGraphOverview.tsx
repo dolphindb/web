@@ -280,7 +280,7 @@ function StreamingGraphVisualization ({
                     showId: node.properties?.id,
                     variableName: node.properties?.variableName,
                     initialName: node.properties?.initialName,
-                    label: node.properties?.name || node.properties?.initialName || `Node ${node.id}`,
+                    label: node.properties?.name || node.properties?.initialName || node.properties?.variableName || `Node ${node.id}`,
                     subType: nodeType,
                     taskId: node.taskId,
                     logicalNode: logicalNodeName,
