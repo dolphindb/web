@@ -20,10 +20,10 @@
         "@types/js-cookie": "^3.0.6",
         "@types/koa": "^2.15.0",
         "@types/lodash": "^4.17.17",
-        "@types/node": "^22.15.21",
-        "@types/react": "^19.1.5",
+        "@types/node": "^22.15.29",
+        "@types/react": "^19.1.6",
         "@types/react-dom": "^19.1.5",
-        "eslint": "^9.27.0",
+        "eslint": "^9.28.0",
         "react": "^19.1.0",
         "typescript": "^5.8.3"
     },
@@ -39,7 +39,7 @@
         "@xterm/addon-webgl": "^0.18.0",
         "@xterm/xterm": "^5.5.0",
         "ahooks": "^3.8.5",
-        "antd": "^5.25.3",
+        "antd": "^5.25.4",
         "classnames": "^2.5.1",
         "client-zip": "^2.5.0",
         "copy-to-clipboard": "^3.3.3",
@@ -50,7 +50,7 @@
         "echarts": "^5.6.0",
         "filenamify": "^6.0.0",
         "final-form": "^4.20.10",
-        "gridstack": "^12.1.2",
+        "gridstack": "^12.2.1",
         "js-cookie": "^3.0.5",
         "lodash": "^4.17.21",
         "monaco-dolphindb": "^1.0.6",
@@ -61,13 +61,13 @@
         "react-markdown": "^10.1.0",
         "react-object-model": "^1.2.24",
         "react-quill-new": "^3.4.6",
-        "react-router": "^7.6.1",
+        "react-router": "^7.6.2",
         "reactflow": "^11.11.4",
         "remark-gfm": "^4.0.1",
         "swr": "^2.3.3",
         "tslib": "^2.8.1",
         "vscode-oniguruma": "^2.0.1",
         "vscode-textmate": "^9.2.0",
-        "xshell": "^1.2.44"
+        "xshell": "^1.2.45"
     }
 }

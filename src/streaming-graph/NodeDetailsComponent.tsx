@@ -29,8 +29,10 @@ export function NodeDetailsComponent ({ selectedNode, id, status }: NodeDetailsC
         data: engineData,
         error: engineError,
         isLoading: engineLoading
-    } = useSWR(isEngine && status === 'running' ? ['getSteamEngineStat', selectedNode] : null, async () =>
-        getSteamEngineStat(selectedNode.data.label)
+    } = useSWR(
+        isEngine && status === 'running' ? ['getSteamEngineStat', selectedNode] : null,
+        async () =>
+            getSteamEngineStat(selectedNode.data.label)
     )
     
     if (!selectedNode)
