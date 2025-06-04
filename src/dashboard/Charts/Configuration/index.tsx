@@ -199,7 +199,7 @@ async function update_data (data_source: DataSource, code: string, time: number)
 
 
 function update_svg ($svg: SVGSVGElement, data: Data[], text_mappings_config: string, color_mappings_config: string) {
-    if (!data)
+    if (!data || !$svg?.children)
         return
     
     const $texts: SVGElement[] = Array.prototype.filter.call(
