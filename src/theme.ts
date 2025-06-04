@@ -1,7 +1,7 @@
 import { theme, type ThemeConfig } from 'antd'
 
 
-const light_primary_color = '#6774bd' as const
+export const light_primary_color = '#6774bd' as const
 
 const common_config: ThemeConfig = {
     hashed: false,
@@ -24,6 +24,8 @@ export const light: ThemeConfig = {
         colorLink: light_primary_color,
         colorInfo: light_primary_color,
         colorBgLayout: '#f9f9fb',
+        colorTextDisabled: '#000000a0',
+        colorTextPlaceholder: '#00000070'
     },
     components: {
         Table: {
@@ -31,8 +33,17 @@ export const light: ThemeConfig = {
             rowSelectedBg: '#ebf0fa',
             headerColor: '#666e7d',
             colorText: '#000000',
-            cellPaddingBlock: 10
+            cellPaddingBlock: 10,
+            
+            bodySortBg: 'unset',
+            headerSortActiveBg: '#f9f9fb',
         },
+        Segmented: {
+            // itemSelectedBg: light_primary_color,
+            itemSelectedColor: light_primary_color,
+            // trackBg: '#f9f9fb',
+            trackPadding: 4
+        }
     }
 }
 

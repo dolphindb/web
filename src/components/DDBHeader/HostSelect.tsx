@@ -31,6 +31,10 @@ export function HostSelect ({ size = 'small' }: { size?: SizeType }) {
                 value: 'test.dolphindb.cn:8848'
             },
             {
+                label: 'orca',
+                value: '192.168.100.43:8193'
+            },
+            {
                 label: '定时巡检',
                 value: '192.168.100.44:7600'
             },
