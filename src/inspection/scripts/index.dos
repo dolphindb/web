@@ -1140,12 +1140,23 @@ def cancelRunningPlan(reportId) {
     throw "delete report failed after trying 30 times, report id: " + reportId + ", last error: " + string(iif(lastErr.form()==0, lastErr, lastErr.last()))
 }
 
+def createUpdateHistoryTable() {
+    tb = table(1:0, `webVersion`updateTime, [STRING, TIMESTAMP])
+    return createTable(database("dfs://autoInspection"), tb, "updateHistory", sortColumns="updateTime")
+}
+
 def areMetricsUpdated(webVersion_) {
+    if (!existsTable("dfs://autoInspection", "updateHistory")) {
+        createUpdateHistoryTable()
+    }
     cnt = exec count(*) from loadTable("dfs://autoInspection", "updateHistory") where webVersion == webVersion_
     return cnt > 0
 }
 
 def setMetricsUpdated(webVersion_) {
+    if (!existsTable("dfs://autoInspection", "updateHistory")) {
+        createUpdateHistoryTable()
+    }
     cnt = exec count(*) from loadTable("dfs://autoInspection", "updateHistory") where webVersion == webVersion_
     if (cnt > 0) {
         return
