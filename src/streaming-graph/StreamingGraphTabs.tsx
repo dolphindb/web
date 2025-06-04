@@ -35,5 +35,5 @@ export function StreamingGraphTabs ({ id }: StreamingGraphTabsProps) {
         >
             <StreamingGraphConfiguration id={id} />
         </TabPane>
-        </Tabs>
+    </Tabs>
 }
