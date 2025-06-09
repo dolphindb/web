@@ -123,6 +123,11 @@ export function OverviewTable ({
                 render: (mode: number) => node_mode_lables[Number(mode)]
             },
             {
+                title: t('所属区域'),
+                dataIndex: 'zone',
+                render: (zone: string) => zone || '-'
+            },
+            {
                 title: t('是否 Leader'),
                 dataIndex: 'isLeader',
                 render: (isLeader: boolean) => isLeader !== null && isLeader.toString()
