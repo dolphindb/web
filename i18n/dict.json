@@ -6370,5 +6370,50 @@
     },
     "状态_streaming-graph": {
         "en": "Status"
+    },
+    "组名只能包含字母、数字、下划线、以及短横线，并且开头首字母必须为大小写英文字母": {
+        "en": "Group names can only contain letters, numbers, underscores, and hyphens, and the first letter must be an uppercase or lowercase English letter."
+    },
+    "用户名只能包含字母、数字、下划线、以及短横线，并且开头首字母必须为大小写英文字母": {
+        "en": "Usernames can only contain letters, numbers, underscores, and hyphens, and the first letter must be an uppercase or lowercase English letter."
+    },
+    "非 svg 背景图": {
+        "en": "Non-svg background image"
+    },
+    "返回的结果需要是表格": {
+        "en": "The returned result needs to be a table"
+    },
+    "svg 背景图": {
+        "en": "svg background image"
+    },
+    "svg 中顶层的 text 元素且含有 id 属性可以被下面的文本映射替换为动态文本;\n有 id 或 class 属性的元素可以设置动态颜色\n数据源的格式为 id, value 两列的表": {
+        "en": "The top-level text element in svg with an id attribute can be replaced with dynamic text by the following text mapping;\nElements with id or class attributes can set dynamic colors\nThe data source format is a table with two columns: id and value"
+    },
+    "粘贴 svg 文件内容": {
+        "en": "Paste the svg file content"
+    },
+    "历史回放": {
+        "en": "History Replay"
+    },
+    "数据映射": {
+        "en": "Data Mapping"
+    },
+    "文本映射": {
+        "en": "Text Mapping"
+    },
+    "一行一个映射，用英文冒号分隔，左边是背景中的文本 id，右边是数据 id，如:\ntext_id_0: data_id_0": {
+        "en": "One mapping per line, separated by colons. The left side is the background text id, and the right side is the data id, such as:\ntext_id_0: data_id_0"
+    },
+    "颜色映射": {
+        "en": "Color Mapping"
+    },
+    "一行一个映射，用英文冒号分隔，左边是背景中的元素选择器，右边是数据 id，如:\nselector_0: data_id_0": {
+        "en": "One mapping per line, separated by colons, with the element selector in the background on the left and the data id on the right, such as:\nselector_0: data_id_0"
+    },
+    "填写用于查询历史回放的脚本，支持 {{time}} 变量": {
+        "en": "Fill in the script for querying historical playback, supporting the {{time}} variable"
+    },
+    "弹窗被浏览器拦截，请设置网页允许弹出式窗口和重定向": {
+        "en": "The pop-up window is blocked by the browser. Please set the web page to allow pop-up windows and redirects."
     }
 }
