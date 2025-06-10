@@ -6415,5 +6415,11 @@
     },
     "弹窗被浏览器拦截，请设置网页允许弹出式窗口和重定向": {
         "en": "The pop-up window is blocked by the browser. Please set the web page to allow pop-up windows and redirects."
+    },
+    "从选定的时间开始回放": {
+        "en": "Playback from selected time"
+    },
+    "回放速率": {
+        "en": "Playback Rate"
     }
 }
