@@ -151,7 +151,7 @@ export function Configuration ({ widget, data_source }: GraphComponentProps<Data
                 }}
             />
             
-            <Tooltip title='从选定的时间开始回放'>
+            <Tooltip title={t('从选定的时间开始回放')}>
                 <Button className='player' type='text' disabled={!rreplaying.current} onClick={switch_playing}>
                     { playing
                         ? <PauseOutlined className='player-icon' />
@@ -159,7 +159,7 @@ export function Configuration ({ widget, data_source }: GraphComponentProps<Data
                 </Button>
             </Tooltip>
             
-            <Tooltip title='回放速率'>
+            <Tooltip title={t('回放速率')}>
                 <Select
                     className='rate'
                     options={[1, 2, 3, 4, 6, 8, 10, 16, 30, 60, 300, 1800, 3600].map(rate => ({ value: rate, label: `x${rate}` }))}

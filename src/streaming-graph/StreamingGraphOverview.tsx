@@ -266,7 +266,9 @@ function StreamingGraphVisualization ({
             
             // 处理节点 - 创建 ProcessedNode 格式
             const processedNodes: ProcessedNode[] = graphData.nodes.map((node: GraphNode) => {
-                const nodeType = node.properties?.type || 'DEFAULT'
+                const { type, id, variableName, initialName, name, schema } = node.properties || { }
+                
+                const nodeType = type || 'DEFAULT'
                 // 获取逻辑节点对象和名称
                 const logicalNode = nodeMap?.get(node.taskId)
                 
@@ -277,16 +279,16 @@ function StreamingGraphVisualization ({
                     id: node.id.toString(),
                     x: 0,
                     y: 0,
-                    showId: node.properties?.id,
-                    variableName: node.properties?.variableName,
-                    initialName: node.properties?.initialName,
-                    label: node.properties?.name || node.properties?.initialName || `Node ${node.id}`,
+                    showId: id,
+                    variableName,
+                    initialName,
+                    label: name || initialName || variableName || `Node ${node.id}`,
                     subType: nodeType,
                     taskId: node.taskId,
                     logicalNode: logicalNodeName,
                     // 添加节点状态
                     nodeState: nodeState,
-                    schema: node.properties?.schema || '',
+                    schema: schema || '',
                     width: 180,
                     height: 100,
                     subgraphId: node.subgraphId.toString()
