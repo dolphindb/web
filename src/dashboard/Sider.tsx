@@ -12,8 +12,6 @@ import cn from 'classnames'
 
 import { t } from '@i18n'
 
-import { model } from '@model'
-
 import { WidgetType } from './model.ts'
 
 
@@ -49,7 +47,6 @@ export function Sider ({ visible }: { visible: boolean }) {
     >
         <div className='graph-items'>
             {Object.entries(WidgetType)
-                .filter(([key, value]) => !(value === WidgetType.CONFIGURATION && model.production))
                 .map(([key, value]) =>
                     <div
                         key={key}

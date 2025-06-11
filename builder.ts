@@ -101,6 +101,7 @@ export let builder = {
                     '@i18n': `${fpd_root}i18n/index.ts`,
                     '@model': `${fpd_root}src/model.ts`,
                     '@utils': `${fpd_root}src/utils.ts`,
+                    '@theme': `${fpd_root}src/theme.ts`,
                     '@components': `${fpd_root}src/components`,
                     ... fp_api ? { 'dolphindb/browser.js': fp_api } : { },
                 },

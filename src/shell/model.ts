@@ -137,17 +137,18 @@ class ShellModel extends Model<ShellModel> {
     }
     
     
-    async eval (code = this.editor.getValue(), istart: number) {
+    async eval (code = this.editor.getValue(), istart: number, print = true) {
         const time_start = dayjs()
         const lines = code.split_lines()
         
-        this.term.write(
-            '\n' +
-            time_start.format('HH:mm:ss.SSS') + '\n' + 
-            (code.trim() ?
-                this.truncate_text(lines).join_lines()
-            : '')
-        )
+        if (print)
+            this.term.write(
+                '\n' +
+                time_start.format('HH:mm:ss.SSS') + '\n' + 
+                (code.trim() ?
+                    this.truncate_text(lines).join_lines()
+                : '')
+            )
         
         this.set({ executing: true })
         
@@ -179,32 +180,33 @@ class ShellModel extends Model<ShellModel> {
                     },
                 })
             
-            this.term.writeln(
-                (() => {
-                    switch (ddbobj.form) {
-                        case DdbForm.chart:
-                        case DdbForm.dict:
-                        case DdbForm.matrix:
-                        case DdbForm.set:
-                        case DdbForm.table:
-                        case DdbForm.vector:
-                        case DdbForm.tensor:
-                            return blue(
-                                ddbobj.inspect_type()
-                            ) + '\n'
-                        
-                        default: {
-                            if (ddbobj.type === DdbType.void)
-                                return ''
+            if (print)
+                this.term.writeln(
+                    (() => {
+                        switch (ddbobj.form) {
+                            case DdbForm.chart:
+                            case DdbForm.dict:
+                            case DdbForm.matrix:
+                            case DdbForm.set:
+                            case DdbForm.table:
+                            case DdbForm.vector:
+                            case DdbForm.tensor:
+                                return blue(
+                                    ddbobj.inspect_type()
+                                ) + '\n'
                             
-                            return ddbobj.toString({ ...model.options, colors: true, nullstr: true, quote: true }) + '\n'
+                            default: {
+                                if (ddbobj.type === DdbType.void)
+                                    return ''
+                                
+                                return ddbobj.toString({ ...model.options, colors: true, nullstr: true, quote: true }) + '\n'
+                            }
                         }
-                    }
-                })() +
-                `(${delta2str(
-                    dayjs().diff(time_start)
-                )})`
-            )
+                    })() +
+                    `(${delta2str(
+                        dayjs().diff(time_start)
+                    )})`
+                )
         } catch (error) {
             let message = error.message as string
             if (message.includes('RefId:'))
@@ -459,9 +461,9 @@ class ShellModel extends Model<ShellModel> {
         for (const key of tab_keys) 
             try {
                 tabs.push(
-                    JSON.parse(localStorage.getItem(key) || '')
-                )
-            } catch (error) {
+                    JSON.parse(
+                        localStorage.getItem(key) || ''))
+            } catch {
                 localStorage.removeItem(key)
             }
         

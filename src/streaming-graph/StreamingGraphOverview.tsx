@@ -230,7 +230,7 @@ function StreamingGraphVisualization ({
         ['getStreamGraphInfo', id],
         async () => {
             const graphInfo = await getStreamGraphInfo(id)
-            const nodes = await model.get_cluster_perf(true)
+            const nodes = await model.get_cluster_perf(false)
             
             const taskToNodeMap = new Map(graphInfo.meta.tasks.map(task => [task.id, nodes.find(({ name }) => name === task.node)]))
             setNodeMap(taskToNodeMap)
@@ -336,11 +336,11 @@ function StreamingGraphVisualization ({
             }))
             
             // 创建节点ID到节点数据的映射，用于快速查找
-            const nodeMap = new Map(processedNodes.map(node => [node.id, node]))
+            const nodes = new Map(processedNodes.map(node => [node.id, node]))
             
             // 处理边 - 根据源节点状态和选中状态设置边的样式
             const reactFlowEdges: Edge[] = processedEdges.map(edge => {
-                const sourceNode = nodeMap.get(edge.sourceId)
+                const sourceNode = nodes.get(edge.sourceId)
                 const nodeState = sourceNode?.nodeState !== undefined ? Number(sourceNode.nodeState) : 1
                 
                 const edgeStyles = {
@@ -383,7 +383,7 @@ function StreamingGraphVisualization ({
                 }
             })
             
-            // 应用dagre布局
+            // 应用 dagre 布局
             const { nodes: layoutedNodes, edges: layoutedEdges } = getLayoutedElements(reactFlowNodes, reactFlowEdges)
             
             // Group nodes by subgraphId for subgraph containers

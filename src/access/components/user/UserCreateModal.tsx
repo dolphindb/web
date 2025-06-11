@@ -8,7 +8,7 @@ import { useSWRConfig } from 'swr'
 import { model } from '@model'
 
 import { access } from '@/access/model.js'
-import { NAME_CHECK_PATTERN } from '@/access/constants.js'
+import { USERNAME_CHECK_PATTERN } from '@/access/constants.js'
 
 import { use_groups } from '@/access/hooks/use-groups.ts'
 
@@ -59,7 +59,7 @@ export const UserCreateModal = NiceModal.create(() => {
                     rules={[
                         { required: true, message: t('请输入用户名!') },
                         { max: 30, message: t('用户名长度不能超过 30 个字符') },
-                        { pattern: NAME_CHECK_PATTERN, message: t('用户名只能包含字母、下划线或数字，并且不能以数字或下划线开头') }
+                        { pattern: USERNAME_CHECK_PATTERN, message: t('用户名只能包含字母、数字、下划线、以及短横线，并且开头首字母必须为大小写英文字母') }
                     ]}
                     validateFirst
                 >

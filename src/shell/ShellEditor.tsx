@@ -3,6 +3,8 @@ import { useEffect, useRef, useState } from 'react'
 import { Input, Switch } from 'antd'
 import { CloseOutlined, DoubleLeftOutlined, DoubleRightOutlined, FileTextOutlined, PlusOutlined } from '@ant-design/icons'
 
+import { storage } from 'xshell/storage.js'
+
 import { t } from '@i18n'
 
 import { model, storage_keys } from '@model'
@@ -17,12 +19,10 @@ import { ExecuteAction } from './ExecuteAction.tsx'
 
 export function ShellEditor ({ collapser }) {
     const [minimap, set_minimap] = useState(() => 
-        localStorage.getItem(storage_keys.minimap) === '1'
-    )
+        storage.getstr(storage_keys.minimap) === '1')
     
     const [enter_completion, set_enter_completion] = useState(() => 
-        localStorage.getItem(storage_keys.enter_completion) === '1'
-    )
+        storage.getstr(storage_keys.enter_completion) === '1')
     
     const [collapsed, set_collapsed] = useState(false)
     
@@ -100,12 +100,13 @@ export function ShellEditor ({ collapser }) {
             tabs={[
                 { key: -1, name: t('默认标签页'), closeable: false, renameable: false, icon: <FileTextOutlined /> }, 
                 ...tabs.map(tab => ({
-                key: tab.index,
-                name: tab.name,
-                closeable: true,
-                renameable: true,
-                icon: <FileTextOutlined />
-            }))]}
+                    key: tab.index,
+                    name: tab.name,
+                    closeable: true,
+                    renameable: true,
+                    icon: <FileTextOutlined />
+                }))
+            ]}
             active_key={itab}
             on_tab_click={id => {
                 shell.switch_tab(id as number)

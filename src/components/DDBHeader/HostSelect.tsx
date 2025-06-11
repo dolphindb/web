@@ -23,8 +23,16 @@ export function HostSelect ({ size = 'small' }: { size?: SizeType }) {
                 value: '192.168.0.54:8848'
             },
             {
+                label: '孙薇单机',
+                value: '192.168.100.45:7802'
+            },
+            {
                 label: '我的单机',
-                value: '192.168.0.90:8848'
+                value: 'test.dolphindb.cn:8848'
+            },
+            {
+                label: 'orca',
+                value: '192.168.100.43:8193'
             },
             {
                 label: '定时巡检',
