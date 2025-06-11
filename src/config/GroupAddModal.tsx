@@ -161,7 +161,7 @@ export const GroupAddModal = NiceModal.create((props: { on_save: (form: { group_
             }
         },
         { title: t('端口号'), key: 'port', render: (_, { key, port }) => <Input status={(validating && port === '') ? 'error' : undefined} type='number' placeholder={t('请输入端口号')} value={port} onChange={e => { update_group_node_by_field(key, 'port', e.target.value) }} /> },
-        { title: t('可用区'), key: 'zone', render: (_, { key, zone }) => <Input placeholder={t('请输入可用区')} value={zone} onChange={e => { update_group_node_by_field(key, 'zone', e.target.value) }} /> },
+        { title: t('所属区域'), key: 'zone', render: (_, { key, zone }) => <Input placeholder={t('请输入所属区域')} value={zone} onChange={e => { update_group_node_by_field(key, 'zone', e.target.value) }} /> },
         { title: t('操作'), key: 'operation', render: (_, { key }) => <Button variant='link' color='danger' onClick={() => { delete_group_node(key) }}>{t('删除')}</Button> }
     ]
     

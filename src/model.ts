@@ -1216,6 +1216,7 @@ export interface DdbNode {
     site: string
     agentSite: string
     computeGroup: string
+    zone?: string
     
     maxConnections: number
     maxMemSize: number
