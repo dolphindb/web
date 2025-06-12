@@ -83,10 +83,12 @@ export function InspectionForm ({
         }
          
         // 找出需要选择节点但没有选择的指标
-        if (selected_metrics.some(({ name, selected_nodes, version }) => findMetric(metrics, name, version)?.nodes !== '' && selected_nodes.length === 0)) {
-            model.message.error(t('请至少选中一个巡检节点'))
-            return false
-        }
+        // TEMP: 暂时注释掉节点检查，防止保存时报错
+        // 目前不选，接口会自动补充，也和原逻辑对齐
+        // if (selected_metrics.some(({ name, selected_nodes, version }) => findMetric(metrics, name, version)?.nodes !== '' && selected_nodes.length === 0)) {
+        //     model.message.error(t('请至少选中一个巡检节点'))
+        //     return false
+        // }
         return true
     }
     
