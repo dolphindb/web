@@ -73,6 +73,7 @@ export function ReportDetailPage () {
     
     const abnormal_columns = [
         { title: t('指标名'), dataIndex: 'displayName', key: 'displayName' },
+        { title: t('指标版本'), dataIndex: 'metricVersion', key: 'metricVersion' },
         { title: t('指标分类'), dataIndex: 'group', key: 'group', render: (group: number) => MetricGroups[group] },
         { title: t('开始时间'), dataIndex: 'startTime', key: 'startTime' },
         { title: t('运行时间'), dataIndex: 'runningTime', key: 'runningTime', render: (runningTime: bigint) => delta2str(Number(runningTime)) },
@@ -256,6 +257,11 @@ function DetailDescription ({
                         children: <div style={{ whiteSpace: 'pre-wrap' }}>{metric.desc}</div>,
                         span: 4,
                     }], {
+                        key: 'metricVersion',
+                        label: t('指标版本'),
+                        children: metric.metricVersion,
+                    },
+                    {
                         key: 'startTime',
                         label:  t('开始时间'),
                         children: n.startTime,
