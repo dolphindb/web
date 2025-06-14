@@ -9,7 +9,7 @@ import { Tooltip, Tree, Modal, Form, Input, Select, Button, InputNumber, Checkbo
 
 import type { DataNode, EventDataNode } from 'antd/es/tree'
 
-import { default as Icon, SyncOutlined, MinusSquareOutlined, EditOutlined } from '@ant-design/icons'
+import { default as Icon, SyncOutlined, MinusSquareOutlined, EditOutlined, LoadingOutlined } from '@ant-design/icons'
 
 import { assert, delay } from 'xshell/utils.browser.js'
 
@@ -1050,18 +1050,39 @@ export class Database implements DataNode {
     
     async load_children () {
         if (!this.loaded) {
-            await shell.define_load_table_schema()
-            
-            for (const table_path of this.table_paths) {
-                const table = new Table(this, table_path)
-        
-                await table.init()
-                
-                this.children.push(table)
-            }
-                
-            
+            // 防止连续点击重复加载
             this.loaded = true
+            
+            const dbicon = this.icon
+            let done = false
+            
+            try {
+                // 超过 300ms 显示加载图标
+                delay(300).then(() => {
+                    if (done)
+                        return
+                    
+                    this.icon = <LoadingOutlined />
+                    shell.set({ dbs: [...shell.dbs] })
+                })
+                
+                await shell.define_load_table_schema()
+                
+                this.children = await Promise.all(
+                    this.table_paths.map(async table_path => {
+                        let table = new Table(this, table_path)
+                        
+                        await table.init()
+                        
+                        return table
+                    }))
+            } catch (error) {
+                this.loaded = false
+                throw error
+            } finally {
+                done = true
+                this.icon = dbicon
+            }
         }
     }
     
@@ -1133,19 +1154,12 @@ export class Table implements DataNode {
     async init () {
         await this.get_schema()
         
-        this.set_title()
-    }
-    
-    
-    set_title () {
         const enable_create_query = [NodeType.computing, NodeType.single, NodeType.data].includes(model.node_type)
         
-        const create_query: React.MouseEventHandler<HTMLSpanElement> = e => { 
-            e.stopPropagation()
+        const create_query: React.MouseEventHandler<HTMLSpanElement> = event => { 
+            event.stopPropagation()
             if (enable_create_query)
                 NiceModal.show(QueryGuideModal, { database: this.db.path.slice(0, -1), table: this.name })
-            else
-                return
         }
         
         this.title = <div className='table-title'>
