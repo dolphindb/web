@@ -12,11 +12,12 @@ import { check, datetime_format } from 'xshell/utils.browser.js'
 
 import { use_ref_state } from 'react-object-model/hooks.js'
 
+import { DdbForm, type DdbTableData } from 'dolphindb/browser.js'
+
 import { t } from '@i18n'
 import { model } from '@model'
 
 import type { GraphComponentProps } from '@/dashboard/graphs.ts'
-import { DdbForm, type DdbTableData } from 'dolphindb/browser.js'
 import { parse_code } from '@/dashboard/utils.ts'
 import type { DataSource } from '@/dashboard/DataSource/date-source.ts'
 
@@ -137,6 +138,8 @@ export function Configuration ({ widget, data_source }: GraphComponentProps<Data
                 value={min_time}
                 onChange={value => {
                     set_min_time(value)
+                    if (value > max_time)
+                        set_max_time(value)
                 }}
             />
             
@@ -184,7 +187,10 @@ export function Configuration ({ widget, data_source }: GraphComponentProps<Data
                 allowClear={false}
                 value={max_time}
                 onChange={value => {
-                    set_max_time(value)
+                    if (value < min_time)
+                        model.message.warning('结束时间不能小于起始时间')
+                    else
+                        set_max_time(value)
                 }}
             />
         </div> }
