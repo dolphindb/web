@@ -6430,5 +6430,8 @@
     },
     "回放已到达结束时间，切换回实时模式": {
         "en": "Playback has reached end time, switch back to real-time mode"
+    },
+    "组态图": {
+        "en": "Configuration"
     }
 }
