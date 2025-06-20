@@ -26,7 +26,7 @@ interface InspectionFormProps {
     disabled?: boolean
 }
 
-export function findMetric (metrics: Metric[], name: string, version: number | null) {
+function findMetric (metrics: Metric[], name: string, version: number | null) {
     return metrics.find(m => m.name === name && m.version === version)
 }
 
