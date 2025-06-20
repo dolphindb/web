@@ -4,17 +4,20 @@ import { useEffect, useRef, useState } from 'react'
 
 import { Button, Collapse, DatePicker, Form, Input, Slider, Tooltip, Select } from 'antd'
 
-import { CaretRightOutlined, PauseOutlined } from '@ant-design/icons'
+import { CaretRightOutlined, FundViewOutlined, PauseOutlined } from '@ant-design/icons'
 
 import dayjs from 'dayjs'
 
 import { check, datetime_format } from 'xshell/utils.browser.js'
 
+import { use_ref_state } from 'react-object-model/hooks.js'
+
+import { DdbForm, type DdbTableData } from 'dolphindb/browser.js'
+
 import { t } from '@i18n'
 import { model } from '@model'
 
 import type { GraphComponentProps } from '@/dashboard/graphs.ts'
-import { DdbForm, type DdbTableData } from 'dolphindb/browser.js'
 import { parse_code } from '@/dashboard/utils.ts'
 import type { DataSource } from '@/dashboard/DataSource/date-source.ts'
 
@@ -31,8 +34,6 @@ export function Configuration ({ widget, data_source }: GraphComponentProps<Data
     
     let rdiv = useRef<HTMLDivElement>(undefined)
     
-    let rreplaying = useRef(false)
-    
     let rsvg = useRef<SVGSVGElement>(undefined)
     
     const now = dayjs()
@@ -40,16 +41,15 @@ export function Configuration ({ widget, data_source }: GraphComponentProps<Data
     let [min_time, set_min_time] = useState(now.startOf('day'))
     let [max_time, set_max_time] = useState(now.endOf('day'))
     
-    let [playing, set_playing] = useState(false)
-    
-    let rplayer = useRef<number>(undefined)
-    let rplayer_counter = useRef<number>(0)
+    let [playing, rplaying, set_playing] = use_ref_state<number>(0)
     
     /** 存储 slider 时间值 */
-    let rslider = useRef<number>(min_time.valueOf())
+    let [slider_time, rslider_time, set_slider_time] = use_ref_state(max_time.valueOf())
     
     /** 播放速率 */
     let rrate = useRef<number>(1)
+    
+    const realtime = slider_time === max_time.valueOf()
     
     
     async function update_svg_data (time: number) {
@@ -62,22 +62,31 @@ export function Configuration ({ widget, data_source }: GraphComponentProps<Data
     
     
     function switch_playing () {
-        set_playing(!playing)
-        rplayer_counter.current = 0
-        
-        if (rplayer.current) {
-            clearInterval(rplayer.current)
-            rplayer.current = null
-        }
-        
-        if (!playing)
-            rplayer.current = setInterval(
-                async () => {
-                    await update_svg_data(rslider.current + rplayer_counter.current * rrate.current * 1000)
-                    ++rplayer_counter.current
-                },
-                1000
-            ) as any as number
+        if (rplaying.current) {
+            clearInterval(rplaying.current)
+            set_playing(0)
+        } else
+            set_playing(
+                setInterval(
+                    async () => {
+                        const time_ = rslider_time.current + rrate.current * 1000
+                        
+                        // 到达最大时间后回放结束，切换为实时模式
+                        if (time_ >= max_time.valueOf()) {
+                            set_slider_time(max_time.valueOf())
+                            if (rplaying.current) { // 应该总是为 true 的
+                                switch_playing()
+                                model.message.info(t('回放已到达结束时间，切换回实时模式'))
+                            } else
+                                console.warn('rplaying.current 不为 true, 很奇怪')
+                        } else {
+                            set_slider_time(time_)
+                            await update_svg_data(time_)
+                        }
+                    },
+                    1000
+                ) as any as number
+            )
     }
     
     
@@ -100,7 +109,7 @@ export function Configuration ({ widget, data_source }: GraphComponentProps<Data
     
     // 当 background, data, 图表配置 变化时，更新 svg 数据
     useEffect(() => {
-        if (!rreplaying.current)
+        if (rslider_time.current === max_time.valueOf())
             update_svg(rsvg.current, data, text_mappings_config, color_mappings_config)
     }, [background, data, text_mappings_config, color_mappings_config])
     
@@ -108,8 +117,10 @@ export function Configuration ({ widget, data_source }: GraphComponentProps<Data
     // 组件卸载时清理 interval
     useEffect(() => {
         return () => {
-            if (rplayer.current)
-                clearInterval(rplayer.current)
+            if (rplaying.current) {
+                clearInterval(rplaying.current)
+                set_playing(0)
+            }
         }
     }, [ ])
     
@@ -123,43 +134,43 @@ export function Configuration ({ widget, data_source }: GraphComponentProps<Data
                 showTime
                 size='small'
                 format={datetime_format}
+                allowClear={false}
                 value={min_time}
                 onChange={value => {
                     set_min_time(value)
+                    if (value > max_time)
+                        set_max_time(value)
                 }}
             />
             
             <Slider
                 className='slider'
+                value={slider_time}
                 min={min_time.valueOf()}
                 max={max_time.valueOf()}
                 tooltip={{ formatter: value => dayjs(value).format(datetime_format) }}
-                onChangeComplete={async (time: number) => {
-                    rslider.current = time
-                    rplayer_counter.current = 0
-                    
-                    if (playing)
-                        switch_playing()
-                    
-                    if (time === max_time.valueOf()) {
-                        rreplaying.current = false
-                    } else {
-                        rreplaying.current = true
-                        
-                        update_svg_data(time)
-                    }
+                onChange={(time: number) => {
+                    set_slider_time(time)
+                }}
+                onChangeComplete={(time: number) => {
+                    set_slider_time(time)
+                    update_svg_data(time)
                 }}
             />
             
-            <Tooltip title='从选定的时间开始回放'>
-                <Button className='player' type='text' disabled={!rreplaying.current} onClick={switch_playing}>
-                    { playing
-                        ? <PauseOutlined className='player-icon' />
-                        : <CaretRightOutlined className='player-icon' disabled={!rreplaying.current} />}
-                </Button>
+            <Tooltip title={realtime ? t('实时') : t('从选定的时间开始回放')}>
+                { realtime ?
+                    <FundViewOutlined className='player-icon realtime' />
+                :
+                    <Button className='player' type='text' onClick={switch_playing}>
+                        { playing
+                            ? <PauseOutlined className='player-icon' />
+                            : <CaretRightOutlined className='player-icon' />}
+                    </Button>
+                 }
             </Tooltip>
             
-            <Tooltip title='回放速率'>
+            <Tooltip title={t('回放速率')}>
                 <Select
                     className='rate'
                     options={[1, 2, 3, 4, 6, 8, 10, 16, 30, 60, 300, 1800, 3600].map(rate => ({ value: rate, label: `x${rate}` }))}
@@ -173,9 +184,13 @@ export function Configuration ({ widget, data_source }: GraphComponentProps<Data
                 showTime
                 size='small'
                 format={datetime_format}
+                allowClear={false}
                 value={max_time}
                 onChange={value => {
-                    set_max_time(value)
+                    if (value < min_time)
+                        model.message.warning('结束时间不能小于起始时间')
+                    else
+                        set_max_time(value)
                 }}
             />
         </div> }
@@ -199,7 +214,7 @@ async function update_data (data_source: DataSource, code: string, time: number)
 
 
 function update_svg ($svg: SVGSVGElement, data: Data[], text_mappings_config: string, color_mappings_config: string) {
-    if (!data)
+    if (!data || !$svg?.children)
         return
     
     const $texts: SVGElement[] = Array.prototype.filter.call(

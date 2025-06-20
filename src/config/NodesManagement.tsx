@@ -386,17 +386,17 @@ function NodeTable ({ nodes, group, onSave, onDelete }: NodeTableProps) {
                 }
             },
             {
-                title: t('可用区'),
+                title: t('所属区域'),
                 dataIndex: 'zone',
                 key: 'zone',
                 fieldProps: {
-                    placeholder: t('请输入可用区'),
+                    placeholder: t('请输入所属区域'),
                     type: 'string',
                 },
                 formItemProps: {
                     rules: [{
                         required: false,
-                        message: t('请输入可用区')
+                        message: t('请输入所属区域')
                     }]
                 }
             },

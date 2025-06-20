@@ -1,6 +1,6 @@
 import { DdbForm } from 'dolphindb/browser.js'
 
-import { t } from '../../i18n/index.js'
+import { t } from '@i18n'
 
 export const DATA_SOURCE_TYPE_MAP = {
     [DdbForm.table]: t('表格'),

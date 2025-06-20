@@ -67,7 +67,11 @@ export function Import ({ type }: { type: 'icon' | 'button' }) {
             onOk={async () => {
                 confirm_close()
                 for (let i in file_list) {
-                    const config = { ...JSON.parse(await file_list[i].text()), id: genid(), owner: model.username } as DashBoardConfig
+                    const config = {
+                        ...JSON.parse(await file_list[i].text()),
+                        id: Math.trunc(genid() / 4),
+                        owner: model.username
+                    } as DashBoardConfig
                     const repeat_config = dashboard.configs.find(({ name, permission }) => name === config.name && permission === DashboardPermission.own)
                     if (repeat_config) {
                         set_import_config(config)

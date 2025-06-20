@@ -1,7 +1,7 @@
 import { theme, type ThemeConfig } from 'antd'
 
 
-export const light_primary_color = '#6774bd' as const
+export const primary_color = '#6774bd' as const
 
 const common_config: ThemeConfig = {
     hashed: false,
@@ -19,10 +19,10 @@ export const light: ThemeConfig = {
     ...common_config,
     token: {
         ...common_tokens,
-        colorPrimary: light_primary_color,
+        colorPrimary: primary_color,
         colorError: '#ff4d4f',
-        colorLink: light_primary_color,
-        colorInfo: light_primary_color,
+        colorLink: primary_color,
+        colorInfo: primary_color,
         colorBgLayout: '#f9f9fb',
         colorTextDisabled: '#000000a0',
         colorTextPlaceholder: '#00000070'
@@ -40,7 +40,7 @@ export const light: ThemeConfig = {
         },
         Segmented: {
             // itemSelectedBg: light_primary_color,
-            itemSelectedColor: light_primary_color,
+            itemSelectedColor: primary_color,
             // trackBg: '#f9f9fb',
             trackPadding: 4
         }
@@ -52,11 +52,13 @@ export const dark: ThemeConfig = {
     ...common_config,
     token: {
         ...common_tokens,
+        colorPrimary: primary_color,
         colorBgContainer: '#282828',
         colorBgElevated: '#555555',
         colorInfoActive: '#4093d3',
         colorBgLayout: '#313131',
-        colorPrimary: '#1668dc'
+        colorTextDisabled: '#ffffff60',
+        colorTextPlaceholder: '#ffffff70'
     },
     algorithm: theme.darkAlgorithm,
     components: {
@@ -65,6 +67,11 @@ export const dark: ThemeConfig = {
             headerColor: '#ffffff',
             colorText: '#ffffff',
             cellPaddingBlock: 10
+        },
+        Segmented: {
+            itemSelectedColor: primary_color,
+            itemSelectedBg: '#313131',
+            trackPadding: 4
         }
     }
 }

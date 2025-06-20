@@ -57,7 +57,6 @@ interface DashboardOption {
 
 export function Header () {
     const { editing, widgets, configs = [ ], config, auto_save } = dashboard.use(['editing', 'widgets', 'configs', 'config', 'auto_save'])
-    const [new_dashboard_id, set_new_dashboard_id] = useState<number>()
     const [new_dashboard_name, set_new_dashboard_name] = useState('')
     const [edit_dashboard_name, set_edit_dashboard_name] = useState('')
     const [copy_dashboard_name, set_copy_dashboard_name] = useState('')
@@ -135,7 +134,8 @@ export function Header () {
             return
         }
         
-        const new_dashboard_config = dashboard.generate_new_config(new_dashboard_id, new_dashboard_name)
+        // 接近 Number.MAX_SAFE_INTEGER 的 id 数值 server 无法精确存储
+        const new_dashboard_config = dashboard.generate_new_config(Math.trunc(genid() / 4), new_dashboard_name)
         
         // await dashboard.update_config(new_dashboard_config)
         await dashboard.add_dashboard_config(new_dashboard_config)
@@ -316,7 +316,7 @@ export function Header () {
                             return
                         }
                         
-                        const copy_dashboard = dashboard.generate_new_config(genid(), copy_dashboard_name, config.data)
+                        const copy_dashboard = dashboard.generate_new_config(Math.trunc(genid() / 4), copy_dashboard_name, config.data)
                         await dashboard.add_dashboard_config(copy_dashboard)
                         dashboard.message.success(t('创建副本成功'))
                         
@@ -335,8 +335,6 @@ export function Header () {
                     <Button
                         className='action'
                         onClick={() => {
-                            const new_id = genid()
-                            set_new_dashboard_id(new_id)                
                             set_new_dashboard_name('')
                             add_open()
                         }}

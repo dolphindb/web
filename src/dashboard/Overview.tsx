@@ -64,8 +64,7 @@ export function Overview () {
     
     useEffect(() => {
         if (params.get('create') === '1') {
-            const new_id = genid()
-            set_new_dashboard_id(new_id)                
+            set_new_dashboard_id(Math.trunc(genid() / 4))                
             set_new_dashboard_name('')
             creator.open()
         }
@@ -202,7 +201,7 @@ export function Overview () {
                         return
                     }
                     
-                    const copy_dashboard = dashboard.generate_new_config(genid(), copy_dashboard_name, current_dashboard.data)
+                    const copy_dashboard = dashboard.generate_new_config(Math.trunc(genid() / 4), copy_dashboard_name, current_dashboard.data)
                     await dashboard.add_dashboard_config(copy_dashboard, false)
                     model.message.success(t('创建副本成功'))
                     
@@ -329,8 +328,7 @@ export function Overview () {
                         type='primary'
                         icon={<PlusOutlined />}
                         onClick={() => {
-                            const new_id = genid()
-                            set_new_dashboard_id(new_id)                
+                            set_new_dashboard_id(Math.trunc(genid() / 4))                
                             set_new_dashboard_name('')
                             creator.open()
                         }}

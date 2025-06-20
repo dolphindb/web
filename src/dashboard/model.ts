@@ -397,7 +397,7 @@ export class DashBoardModel extends Model<DashBoardModel> {
         this.set({ configs: [config, ...this.configs], config })
         const { id, name, permission, data } = config
         const params = new DdbDict(
-            ({ id: new DdbLong(BigInt(id)), name, permission: new DdbInt(permission), data: JSON.stringify(data) }))
+            ({ id: new DdbLong(id), name, permission: new DdbInt(permission), data: JSON.stringify(data) }))
         await model.ddb.call<DdbVoid>('dashboard_add_config', [params])
         if (render)
             await this.render_with_config(config)
@@ -418,13 +418,13 @@ export class DashBoardModel extends Model<DashBoardModel> {
         const index = this.configs.findIndex(({ id }) => id === config.id)
         this.set({ configs: this.configs.toSpliced(index, 1, config), config })
         const params = new DdbDict(
-            ({ id: new DdbLong(BigInt(config.id)), data: JSON.stringify(config.data) })) 
+            ({ id: new DdbLong(config.id), data: JSON.stringify(config.data) })) 
         await model.ddb.call<DdbVoid>('dashboard_edit_config', [params])
     }
     
     
     async rename_dashboard (dashboard_id: number, new_name: string) {
-        await model.ddb.call<DdbVoid>('dashboard_rename_config', [new DdbDict({ id: new DdbLong(BigInt(dashboard_id)), name: new_name })])
+        await model.ddb.call<DdbVoid>('dashboard_rename_config', [new DdbDict({ id: new DdbLong(dashboard_id), name: new_name })])
     
         const index = this.configs.findIndex(({ id }) => id === dashboard_id)
         const config = this.configs[index]
