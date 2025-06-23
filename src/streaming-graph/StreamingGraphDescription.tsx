@@ -12,7 +12,7 @@ import { StatusTag, StatusType } from '@/components/tags/index.tsx'
 
 import { getStreamGraphMeta } from './apis.ts'
 import { type StreamGraphMeta } from './types.ts'
-import { steaming_graph_status } from './JobTable.tsx'
+import { streaming_graph_status } from './JobTable.tsx'
 
 // Status mapping
 const status_map = {
@@ -41,7 +41,7 @@ export function StreamingGraphDescription ({ id }: StreamingGraphDescriptionProp
     
     // Get status display text
     function getStatusText (status: string) {
-        return steaming_graph_status[status] || status
+        return streaming_graph_status[status] || status
     }
     
     // Render action button

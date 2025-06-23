@@ -1,4 +1,7 @@
-import { Typography, Tooltip } from 'antd'
+import { useState } from 'react'
+
+import { Typography, Tooltip, type TableColumnsType } from 'antd'
+
 import useSWR from 'swr'
 
 import { t } from '@i18n'
@@ -9,7 +12,8 @@ import { DDBTable } from '@/components/DDBTable/index.tsx'
 import { model } from '@model'
 
 import { getStreamGraphMetaList } from './apis.ts'
-import { type StreamGraphMeta } from './types.ts'
+import { type StreamGraphMeta, type StreamGraphStatus } from './types.ts'
+
 
 const { Text } = Typography
 
@@ -21,9 +25,9 @@ const status_map = {
     error: StatusType.FAILED,
     failed: StatusType.FAILED,
     destroying: StatusType.PARTIAL_SUCCESS
-}
+} as const
 
-export const steaming_graph_status = {
+export const streaming_graph_status: Record<StreamGraphStatus, string> = {
     building: t('构建中'),
     running: t('运行中'),
     error: t('错误'),
@@ -32,9 +36,11 @@ export const steaming_graph_status = {
     destroyed: t('已销毁')
 }
 
+const default_status_filters = Object.keys(status_map).filter(key => key !== 'destroyed') as StreamGraphStatus[]
+
 
 // 定义表格列
-const columns = [
+const columns: TableColumnsType<StreamGraphMeta> = [
     {
         title: t('流图名称'),
         dataIndex: 'fqn',
@@ -59,8 +65,8 @@ const columns = [
         title: t('创建时间'),
         dataIndex: 'createTime',
         key: 'createTime',
-        sorter: (a: StreamGraphMeta, b: StreamGraphMeta) => new Date(a.createTime).getTime() - new Date(b.createTime).getTime(),
-        render: (time: string) => (time ? new Date(time).toLocaleString() : '-')
+        sorter: (a, b) => new Date(a.createTime).getTime() - new Date(b.createTime).getTime(),
+        render: (time: string) => (time ? new Date(time).to_str() : '-')
     },
     {
         title: t('数据执行次数'),
@@ -71,7 +77,7 @@ const columns = [
     {
         title: t('任务数量'),
         key: 'tasks',
-        render: (_: any, record: StreamGraphMeta) => {
+        render: (_, record) => {
             const total = record.tasks.length || 0
             const running = record.tasks.filter(task => task.status === 'running').length
             
@@ -82,7 +88,6 @@ const columns = [
                                 backgroundColor: '#333',
                                 color: 'white',
                                 padding: '2px 8px',
-                                borderRadius: '4px',
                                 marginRight: '4px'
                             }}
                         >
@@ -97,7 +102,6 @@ const columns = [
                                     backgroundColor: '#52c41a',
                                     color: 'white',
                                     padding: '2px 8px',
-                                    borderRadius: '4px'
                                 }}
                             >
                                 {running}
@@ -111,23 +115,36 @@ const columns = [
         title: t('状态', { context: 'streaming_flow' }),
         dataIndex: 'status',
         key: 'status',
-        sorter: (a: StreamGraphMeta, b: StreamGraphMeta) => {
-            const statusOrder = {
-                running: 0,
-                building: 1,
-                error: 2,
-                failed: 3,
-                destroying: 4,
-                destroyed: 5
-            }
-            return statusOrder[a.status] - statusOrder[b.status]
-        },
-        render: (status: string) => <StatusTag status={status_map[status]}>{steaming_graph_status[status] || status}</StatusTag>
+        
+        sorter: (a: StreamGraphMeta, b: StreamGraphMeta) =>
+            status_orders[a.status] - status_orders[b.status],
+
+        defaultFilteredValue: default_status_filters,
+
+        filters: Object.entries(streaming_graph_status)
+            .map(([key, text]) => ({ text, value: key })),
+        
+        filterResetToDefaultFilteredValue: true,
+        
+        render: (_, { status }) => 
+            <StatusTag status={status_map[status]}>{streaming_graph_status[status] || status}</StatusTag>,
     }
 ]
 
 
+const status_orders = {
+    running: 0,
+    building: 1,
+    error: 2,
+    failed: 3,
+    destroying: 4,
+    destroyed: 5
+} as const
+
+
 export function JobTable () {
+    const [status_filters, set_status_filters] = useState<StreamGraphStatus[]>(default_status_filters)
+    
     // 使用 useSWR 获取流计算图数据
     const { data: streamGraphs, isLoading } = useSWR('streamGraphs', getStreamGraphMetaList, {
         refreshInterval: 30000, // 每30秒刷新一次
@@ -144,14 +161,26 @@ export function JobTable () {
                 </>
             }
             columns={columns}
-            dataSource={streamGraphs || [ ]}
+            dataSource={
+                (streamGraphs && status_filters?.length ?
+                    streamGraphs.filter(
+                        graph => status_filters.includes(graph.status))
+                :
+                    streamGraphs) || 
+                [ ]
+            }
             rowKey='id'
             loading={isLoading}
             scroll={{ x: 'max-content' }}
             pagination={{
                 defaultPageSize: 10,
                 showSizeChanger: true,
-                showQuickJumper: true
+                showQuickJumper: true,
+                hideOnSinglePage: true,
+            }}
+            onChange={(pagination, filters, sorter, { action }) => {
+                if (action === 'filter')
+                    set_status_filters(filters.status as StreamGraphStatus[])
             }}
         />
     </div>

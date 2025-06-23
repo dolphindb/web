@@ -19,7 +19,7 @@
     "devDependencies": {
         "@types/js-cookie": "^3.0.6",
         "@types/koa": "^2.15.0",
-        "@types/lodash": "^4.17.17",
+        "@types/lodash": "^4.17.18",
         "@types/node": "^24.0.3",
         "@types/react": "^19.1.8",
         "@types/react-dom": "^19.1.6",

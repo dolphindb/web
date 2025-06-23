@@ -1,6 +1,9 @@
 import  './index.scss'
+
 import { Tag, type TagProps } from 'antd'
+
 import cn from 'classnames'
+
 
 export enum StatusType {
     RUNNING,
@@ -17,7 +20,6 @@ interface IProps extends TagProps {
 
 
 export function StatusTag (props: IProps) {
-    
     const { status, ...others } = props
     
     return <Tag 
