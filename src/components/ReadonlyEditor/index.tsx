@@ -8,7 +8,7 @@ import { useCallback } from 'react'
 import classNames from 'classnames'
 
 import { Editor } from '../Editor/index.js'
-import { t } from '../../../i18n/index.js'
+import { t } from '@i18n'
 import { model } from '@model'
 
 interface IProps { 

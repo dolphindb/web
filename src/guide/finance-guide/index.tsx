@@ -16,7 +16,7 @@ import { GuideSuccessResultPage } from '../components/GuideSuccessResultPage.js'
 import { UploadConfigModal } from '../components/UploadConfigModal.js'
 
 
-import { t } from '../../../i18n/index.js'
+import { t } from '@i18n'
 
 
 import { model, NodeType } from '../../model.js'

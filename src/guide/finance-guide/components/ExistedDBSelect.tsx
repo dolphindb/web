@@ -5,7 +5,7 @@ import { useId, useState } from 'react'
 import useSWR from 'swr'
 
 import { model } from '../../../model.js'
-import { t } from '../../../../i18n/index.js'
+import { t } from '@i18n'
 
 export function ExistDBSelect (props: SelectProps) {
     

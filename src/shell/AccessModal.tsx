@@ -6,7 +6,7 @@ import { Collapse, Modal, Table, type TableColumnType } from 'antd'
 
 import { useEffect, useState } from 'react'
 
-import { t } from '../../i18n/index.js'
+import { t } from '@i18n'
 
 import { model } from '../model.js'
 

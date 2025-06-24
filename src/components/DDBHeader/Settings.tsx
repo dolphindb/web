@@ -4,7 +4,7 @@ import { Popover, Card, Tooltip, Button, InputNumber } from 'antd'
 
 import { SettingFilled, CaretUpOutlined, CaretDownOutlined, SettingOutlined } from '@ant-design/icons'
 
-import { t } from '../../../i18n/index.js'
+import { t } from '@i18n'
 
 import { model } from '../../model.js'
 

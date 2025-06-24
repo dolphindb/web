@@ -9,7 +9,7 @@ import { FormDependencies } from '../../components/FormDependencies/index.js'
 import { GuideType } from '../iot-guide/type.js'
 import { check_tb_valid, request } from '../utils.ts'
 import { ENUM_TYPES, TIME_TYPES } from '../constant.js'
-import { t } from '../../../i18n/index.js'
+import { t } from '@i18n'
 
 import { SchemaList } from './SchemaList.js'
 

@@ -5,7 +5,7 @@ import { CopyOutlined, DatabaseOutlined, DeleteOutlined, EditOutlined, FileOutli
 import NiceModal, { useModal } from '@ebay/nice-modal-react'
 import { DdbForm } from 'dolphindb/browser.js'
 
-import { t } from '../../../i18n/index.js'
+import { t } from '@i18n'
 import { type Widget, WidgetChartType, dashboard } from '../model.js'
 import { DATA_SOURCE_TYPE_MAP } from '../constant.js'
 import { get_chart_data_type } from '../utils.ts'

@@ -5,7 +5,7 @@ import { useCallback, useState, useEffect, useMemo, type  FocusEventHandler } fr
 import { DdbType } from 'dolphindb/browser.js'
 
 import { model } from '../../../model.js'
-import { t } from '../../../../i18n/index.js'
+import { t } from '@i18n'
 
 interface IProps extends Omit<DatePickerProps, 'onChange'> { 
     onChange?: (val: any) => void

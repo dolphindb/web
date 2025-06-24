@@ -12,7 +12,7 @@ import { StringTimePicker } from '../../../components/StringTimePicker.js'
 import { IN, IS_NULL, LIKE, NOT_IN, NOT_LIKE, NOT_NULL, OTHER_OPERATIONS, STRING_OPERATIONS, STRING_TYPES, TIME_TYPES, VALID_DATA_TYPES, VALUE_OPERATIONS, VALUE_TYPES } from '../constant.js'
 import { NodeType, model } from '../../../model.js'
 import { shell } from '../../model.js'
-import { t } from '../../../../i18n/index.js'
+import { t } from '@i18n'
 import { ENUM_TYPES, type IColumn } from '../type.js'
 import { concat_name_path, safe_json_parse } from '../../../dashboard/utils.ts'
 

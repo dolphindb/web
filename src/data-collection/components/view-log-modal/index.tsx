@@ -5,7 +5,7 @@ import { List, Modal, Typography } from 'antd'
 
 import useSWR from 'swr'
 
-import { t } from '../../../../i18n/index.js'
+import { t } from '@i18n'
 import { request } from '../../utils.ts'
 import type { Protocol } from '../../type.js'
 

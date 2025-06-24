@@ -2,7 +2,7 @@ import { Col, Row, Typography } from 'antd'
 import classNames from 'classnames'
 import { RedoOutlined } from '@ant-design/icons'
 
-import { t } from '../../../../i18n/index.js'
+import { t } from '@i18n'
 import { type ICEPEngineDetail, type CEPEngineItem } from '../type.js'
 
 

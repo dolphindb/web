@@ -4,7 +4,7 @@ import NiceModal from '@ebay/nice-modal-react'
 import { AutoComplete, Button, Collapse, Popconfirm, type CollapseProps } from 'antd'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 
-import { t } from '../../i18n/index.js'
+import { t } from '@i18n'
 import { model } from '../model.js'
 
 import { RefreshButton } from '@/components/RefreshButton/index.tsx'

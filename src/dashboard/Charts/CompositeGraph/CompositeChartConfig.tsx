@@ -4,7 +4,7 @@ import type { DdbType } from 'dolphindb/browser.js'
 import { get, uniq } from 'lodash'
 import { useMemo, useState, useCallback } from 'react'
 
-import { t } from '../../../../i18n/index.js'
+import { t } from '@i18n'
 import { BoolRadioGroup } from '../../../components/BoolRadioGroup/index.js'
 import { FormDependencies } from '../../../components/FormDependencies/index.js'
 import { DDB_TYPE_MAP } from '@utils'

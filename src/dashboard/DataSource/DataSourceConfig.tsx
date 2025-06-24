@@ -15,7 +15,7 @@ import { get_chart_data_type, parse_code } from '../utils.ts'
 
 import { model } from '../../model.js'
 
-import { t } from '../../../i18n/index.js'
+import { t } from '@i18n'
 
 import { DataSourceList } from './DataSourceList.js'
 import { SqlEditor } from './SqlEditor.js'

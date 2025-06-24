@@ -11,7 +11,7 @@ import { use_rerender } from 'react-object-model/hooks.js'
 
 import { DownOutlined, UpOutlined } from '@ant-design/icons'
  
-import { t } from '../../i18n/index.js'
+import { t } from '@i18n'
 
 import { type DDBColumnTypeNames } from '@utils'
 import { CopyIconButton } from '../components/copy/CopyIconButton.js'

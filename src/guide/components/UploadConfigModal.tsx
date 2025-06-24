@@ -4,7 +4,7 @@ import { useCallback } from 'react'
 
 import { safe_json_parse } from '../../dashboard/utils.ts'
 
-import { t } from '../../../i18n/index.js'
+import { t } from '@i18n'
 
 import { UploadFileField } from './UploadFileField.js'
 

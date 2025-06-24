@@ -2,7 +2,7 @@ import NiceModal, { useModal } from '@ebay/nice-modal-react'
 import { Form, Input, Modal } from 'antd'
 import { useCallback } from 'react'
 
-import { t } from '../../../i18n/index.js'
+import { t } from '@i18n'
 
 interface IProps { 
     config: any

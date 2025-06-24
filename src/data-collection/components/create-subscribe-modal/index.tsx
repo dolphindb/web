@@ -13,7 +13,7 @@ import useSWR from 'swr'
 
 import { model } from '@model'
 
-import { t } from '../../../../i18n/index.js'
+import { t } from '@i18n'
 import { Protocol, type ISubscribe } from '../../type.js'
 import { safe_json_parse } from '../../../dashboard/utils.ts'
 import { FormDependencies } from '../../../components/FormDependencies/index.js'

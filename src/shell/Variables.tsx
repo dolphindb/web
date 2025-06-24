@@ -26,7 +26,7 @@ import {
 
 import { delay } from 'xshell/utils.browser.js'
 
-import { t } from '../../i18n/index.js'
+import { t } from '@i18n'
 
 import { DdbObjRef } from '../obj.js'
 

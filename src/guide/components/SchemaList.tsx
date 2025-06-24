@@ -17,7 +17,7 @@ import { convert_list_to_options } from '../../dashboard/utils.ts'
 import { FormDependencies } from '../../components/FormDependencies/index.js'
 import { model } from '../../model.js'
 import { ARRAY_VECTOR_DATA_TYPES, BASIC_DATA_TYPES, ENUM_TYPES, LOW_VERSION_DATA_TYPES, TIME_TYPES } from '../constant.js'
-import { t } from '../../../i18n/index.js'
+import { t } from '@i18n'
 
 import { UploadFileField } from './UploadFileField.js'
 

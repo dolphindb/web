@@ -4,7 +4,7 @@ import { useMemo } from 'react'
 
 import { get } from 'lodash'
 
-import { t } from '../../../../i18n/index.js'
+import { t } from '@i18n'
 import { BoolRadioGroup } from '../../../components/BoolRadioGroup/index.js'
 import { StringColorPicker } from '../../../components/StringColorPicker/index.js'
 import { FormDependencies } from '../../../components/FormDependencies/index.js'

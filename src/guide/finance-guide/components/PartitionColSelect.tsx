@@ -9,7 +9,7 @@ import { request } from '../../utils.ts'
 
 import { ENUM_TYPES, TIME_TYPES } from '../../constant.js'
 import { CUSTOM } from '../constant.js'
-import { t } from '../../../../i18n/index.js'
+import { t } from '@i18n'
 
 interface IProps { 
     info: IFinanceInfo

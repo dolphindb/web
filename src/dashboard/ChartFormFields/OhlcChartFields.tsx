@@ -6,7 +6,7 @@ import { useMemo } from 'react'
 
 import { DeleteOutlined, PlusCircleOutlined } from '@ant-design/icons'
 
-import { t } from '../../../i18n/index.js'
+import { t } from '@i18n'
 import { FormDependencies } from '../../components/FormDependencies/index.js'
 
 import { concat_name_path, convert_list_to_options } from '../utils.ts'

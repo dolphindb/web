@@ -11,7 +11,7 @@ import { use_modal } from 'react-object-model/hooks.js'
 import { genid, vercmp } from 'xshell/utils.browser.js'
 
 import { model } from '../model.js'
-import { t } from '../../i18n/index.js'
+import { t } from '@i18n'
 
 import { DDBTable } from '@/components/DDBTable/index.tsx'
 

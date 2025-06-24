@@ -4,7 +4,7 @@ import useSWR from 'swr'
 import { useCallback, useEffect, useState } from 'react'
 
 import { query_enums } from '../utils.ts'
-import { t } from '../../../../i18n/index.js'
+import { t } from '@i18n'
 
 interface IProps { 
     table: string

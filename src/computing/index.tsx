@@ -20,7 +20,7 @@ import { model, NodeType } from '../model.js'
 
 import { TableCellDetail } from '../components/TableCellDetail/index.js'
 
-import { t } from '../../i18n/index.js'
+import { t } from '@i18n'
 
 import { Unlogin } from '../components/Unlogin.js'
 

@@ -9,7 +9,7 @@ import { DdbDatabaseError, DdbInt } from 'dolphindb/browser.js'
 
 import NiceModal from '@ebay/nice-modal-react'
 
-import { t } from '../../i18n/index.js'
+import { t } from '@i18n'
 import { DdbNodeState, model, NodeType } from '../model.js'
 
 import { RefreshButton } from '@/components/RefreshButton/index.tsx'

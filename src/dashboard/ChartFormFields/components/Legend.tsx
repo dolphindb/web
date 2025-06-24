@@ -1,7 +1,7 @@
 import { Form, Input, InputNumber, Select, Space } from 'antd'
 
 import { BoolRadioGroup } from '../../../components/BoolRadioGroup/index.js'
-import { t } from '../../../../i18n/index.js'
+import { t } from '@i18n'
 import { StringColorPicker } from '../../../components/StringColorPicker/index.js'
 
 export function LegendFields () { 

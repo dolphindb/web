@@ -3,7 +3,7 @@ import { get } from 'lodash'
 import { type CollapseProps } from 'antd/lib/index.js'
 import { DeleteOutlined, PlusCircleOutlined, PlusOutlined } from '@ant-design/icons'
 
-import { t } from '../../../../i18n/index.js'
+import { t } from '@i18n'
 import { AxisType, ILineType, ThresholdShowType, ThresholdType } from '../type.js'
 import { concat_name_path } from '../../utils.ts'
 import { StringColorPicker } from '../../../components/StringColorPicker/index.js'

@@ -6,7 +6,7 @@ import { useEffect, useState } from 'react'
 
 import { DdbInt, type DdbObj, type DdbTableObj, type DdbVectorValue } from 'dolphindb/browser.js'
 
-import { t } from '../../i18n/index.js'
+import { t } from '@i18n'
 import { DdbObjRef } from '../obj.js'
 
 import { shell } from '../shell/model.js'

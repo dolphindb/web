@@ -3,7 +3,7 @@ import { useId, useState } from 'react'
 
 import useSWR from 'swr'
 
-import { t } from '../../../i18n/index.js'
+import { t } from '@i18n'
 
 
 import { model, NodeType } from '../../model.js'

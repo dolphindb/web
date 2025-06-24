@@ -15,7 +15,7 @@ import { graphs } from '../graphs.js'
 
 import ChartSvg from '../icons/chart.svg'
 import { get_data_source } from '../DataSource/date-source.js'
-import { t } from '../../../i18n/index.js'
+import { t } from '@i18n'
  
 
 import { copy_widget } from '../utils.ts'

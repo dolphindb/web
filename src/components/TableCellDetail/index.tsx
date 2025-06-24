@@ -2,7 +2,7 @@ import { Typography } from 'antd'
 import { type ParagraphProps } from 'antd/lib/typography/Paragraph.js'
 
 import { model } from '../../model.js'
-import { t } from '../../../i18n/index.js'
+import { t } from '@i18n'
 
 
 interface IProps extends Omit<ParagraphProps, 'ellipsis'> { 

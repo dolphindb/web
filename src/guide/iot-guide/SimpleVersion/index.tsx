@@ -9,7 +9,7 @@ import { ExecuteResult, type SimpleInfos } from '../type.js'
 import { UploadConfigModal } from '../../components/UploadConfigModal.js'
 import { GuideFailResultPage } from '../../components/GuideFailResultPage.js'
 import { GuideSuccessResultPage } from '../../components/GuideSuccessResultPage.js'
-import { t } from '../../../../i18n/index.js'
+import { t } from '@i18n'
 
 import { SimpleFirstStep } from './SimpleFirstStep.js'
 

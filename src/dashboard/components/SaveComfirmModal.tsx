@@ -2,7 +2,7 @@ import { default as NiceModal, useModal } from '@ebay/nice-modal-react'
 import { Modal, type ModalProps } from 'antd'
 import { useCallback } from 'react'
 
-import { t } from '../../../i18n/index.js'
+import { t } from '@i18n'
 
 export const SaveConfirmModal = NiceModal.create((props: ModalProps) => { 
     const modal = useModal()

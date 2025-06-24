@@ -5,7 +5,7 @@ import { type ReactElement, useCallback, useEffect, useMemo, useRef, useState } 
 
 import NiceModal, { useModal } from '@ebay/nice-modal-react'
 
-import { t } from '../../../i18n/index.js'
+import { t } from '@i18n'
 
 import { QueryGuideType } from './type.js'
 import { QueryGuide } from './QueryGuide.js'

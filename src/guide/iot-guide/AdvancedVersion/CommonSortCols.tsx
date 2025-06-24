@@ -6,7 +6,7 @@ import { type SelectProps } from 'antd/lib'
 import { countBy } from 'lodash'
 import { useCallback } from 'react'
 
-import { t } from '../../../../i18n/index.js'
+import { t } from '@i18n'
 
 interface IProps {
     initial_value?: any

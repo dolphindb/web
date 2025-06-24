@@ -4,7 +4,7 @@ import { useState } from 'react'
 
 import { Tabs } from 'antd'
 
-import { t } from '../../i18n/index.js'
+import { t } from '@i18n'
 
 import { ControllerConfig } from './ControllerConfig.js'
 import { NodesManagement } from './NodesManagement.js'

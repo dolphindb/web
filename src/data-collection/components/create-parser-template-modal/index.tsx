@@ -7,7 +7,7 @@ import { Modal, Form, Input, Select, Segmented, Button } from 'antd'
 import { useCallback, useState } from 'react'
 
 import type { IParserTemplate } from '../../type.js'
-import { t } from '../../../../i18n/index.js'
+import { t } from '@i18n'
 import { request } from '../../utils.ts'
 import { NAME_RULES, PROTOCOL_MAP, protocols, template_code } from '../../constant.js'
 import { Editor } from '../../../components/Editor/index.js'

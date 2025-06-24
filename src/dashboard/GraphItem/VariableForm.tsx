@@ -11,7 +11,7 @@ import { StringDatePicker } from '../../components/StringDatePicker/index.js'
 
 
 import { VariableMode } from '../type.js'
-import { t } from '../../../i18n/index.js'
+import { t } from '@i18n'
 
 interface IProps { 
     ids: string[]

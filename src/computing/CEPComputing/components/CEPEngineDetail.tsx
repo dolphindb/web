@@ -8,7 +8,7 @@ import NiceModal from '@ebay/nice-modal-react'
 import cn from 'classnames'
 
 import { type ICEPEngineDetail, EngineDetailPage, type SubEngineItem } from '../type.js'
-import { t } from '../../../../i18n/index.js'
+import { t } from '@i18n'
 import { get_dataview_info } from '../api.js'
 import { model } from '../../../model.js'
 import { stream_formatter } from '../../../dashboard/utils.ts'

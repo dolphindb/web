@@ -1,4 +1,4 @@
-import { t } from '../../../i18n/index.js'
+import { t } from '@i18n'
 import { WidgetChartType, WidgetType } from '../model.js'
 
 import { AxisType, ILineType, ITimeFormat, MarkPresetType, Position } from './type.js'

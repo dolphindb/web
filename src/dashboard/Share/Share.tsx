@@ -5,7 +5,7 @@ import { useCallback } from 'react'
 import copy from 'copy-to-clipboard'
 
 import { dashboard } from '../model.js'
-import { t } from '../../../i18n/index.js'
+import { t } from '@i18n'
 import { model } from '../../model.js'
 import { DASHBOARD_SHARED_SEARCH_KEY } from '../constant.js'
 
@@ -77,7 +77,7 @@ export function Share ({ dashboard_ids, trigger_type }: IProps) {
 // import { use_modal } from 'react-object-model/hooks.js'
 
 // import { DashboardPermission, dashboard } from '../model.js'
-// import { t } from '../../../i18n/index.js'
+// import { t } from '@i18n'
 // import { model } from '../../model.js'
 // import { DdbLong, DdbDict } from 'dolphindb/browser'
 // import { parse_error } from '../utils.ts'

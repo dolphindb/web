@@ -8,7 +8,7 @@ import { FormDependencies } from '../../../components/FormDependencies/index.js'
 
 import { request } from '../../utils.ts'
 import { ENUM_TYPES, TIME_TYPES } from '../../constant.js'
-import { t } from '../../../../i18n/index.js'
+import { t } from '@i18n'
 
 import { BottomFixedFooter } from '@/components/BottomFixedFooter/index.tsx'
 

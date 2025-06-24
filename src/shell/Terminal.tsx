@@ -13,7 +13,7 @@ import { delay } from 'xshell/utils.browser.js'
 import type { DdbMessage } from 'dolphindb/browser.js'
 
 
-import { t } from '../../i18n/index.js'
+import { t } from '@i18n'
 
 import { model } from '../model.js'
 

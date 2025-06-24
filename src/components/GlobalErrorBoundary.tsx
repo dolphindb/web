@@ -9,7 +9,7 @@ import { Button, Result } from 'antd'
 
 import { model } from '../model.js'
 import { dashboard } from '../dashboard/model.js'
-import { t } from '../../i18n/index.js'
+import { t } from '@i18n'
 
 
 export interface FormatErrorOptions {

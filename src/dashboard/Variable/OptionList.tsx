@@ -5,7 +5,7 @@ import { genid } from 'xshell/utils.browser.js'
 
 import { DeleteOutlined, ExclamationCircleOutlined, PlusOutlined } from '@ant-design/icons'
 
-import { t } from '../../../i18n/index.js'
+import { t } from '@i18n'
 import { VariableMode } from '../type.js'
 
 import { dashboard } from '../model.js'

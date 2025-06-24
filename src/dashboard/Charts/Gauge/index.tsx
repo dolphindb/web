@@ -16,7 +16,7 @@ import { type IGaugeConfig } from '../../type.js'
 
 import { BasicFormFields } from '../../ChartFormFields/BasicFormFields.js'
 import { StringColorPicker } from '../../../components/StringColorPicker/index.js'
-import { t } from '../../../../i18n/index.js'
+import { t } from '@i18n'
 import { DashboardEchartsComponent } from '@/dashboard/components/EchartsComponent.tsx'
 import type { GraphComponentProps, GraphConfigProps } from '@/dashboard/graphs.ts'
 

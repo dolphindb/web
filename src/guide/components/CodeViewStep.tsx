@@ -10,7 +10,7 @@ import { model } from '../../model.js'
 
 import { ExecuteResult } from '../iot-guide/type.js'
 import { ReadonlyEditor } from '../../components/ReadonlyEditor/index.js'
-import { t } from '../../../i18n/index.js'
+import { t } from '@i18n'
 
 import { BottomFixedFooter } from '@/components/BottomFixedFooter/index.js'
 

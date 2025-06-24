@@ -7,7 +7,7 @@ import copy from 'copy-to-clipboard'
 import dayjs from 'dayjs'
 
 
-import { t } from '../../i18n/index.js'
+import { t } from '@i18n'
 
 import { WidgetChartType, type Widget, dashboard, DashboardPermission } from './model.js'
 import { type AxisConfig, type IChartConfig, type ISeriesConfig } from './type.js'

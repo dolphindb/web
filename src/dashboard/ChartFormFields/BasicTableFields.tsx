@@ -4,7 +4,7 @@ import { Col, Collapse, Form, Input, InputNumber, Row, Select, Space } from 'ant
 
 import { type CollapseProps } from 'antd/lib'
 
-import { t } from '../../../i18n/index.js'
+import { t } from '@i18n'
 import { BoolRadioGroup } from '../../components/BoolRadioGroup/index.js'
 
 

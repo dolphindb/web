@@ -5,7 +5,7 @@ import { get } from 'lodash'
 
 import { useMemo } from 'react'
 
-import { t } from '../../../i18n/index.js'
+import { t } from '@i18n'
 import { BoolRadioGroup } from '../../components/BoolRadioGroup/index.js'
 import { variables } from '../Variable/variable.js'
 import { convert_list_to_options } from '../utils.ts'

@@ -3,7 +3,7 @@ import './index.scss'
 import { useMemo } from 'react'
 import { Form, Input, Collapse, InputNumber } from 'antd'
 
-import { t } from '../../../i18n/index.js'
+import { t } from '@i18n'
 
 import { BoolRadioGroup } from '../../components/BoolRadioGroup/index.js'
 import { variables } from '../Variable/variable.js'

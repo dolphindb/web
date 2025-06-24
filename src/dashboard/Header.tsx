@@ -16,7 +16,7 @@ import type { SwitchProps } from 'antd/lib/index.js'
 import useSWR from 'swr'
 
 import { model, storage_keys } from '../model.js'
-import { t } from '../../i18n/index.js'
+import { t } from '@i18n'
 import { CompileAndRefresh } from '../components/DDBHeader/CompileAndRefresh.js'
 
 import { HostSelect } from '../components/DDBHeader/HostSelect.js'

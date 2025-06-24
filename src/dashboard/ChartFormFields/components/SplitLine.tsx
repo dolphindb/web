@@ -1,6 +1,6 @@
 import { Form, InputNumber, Select } from 'antd'
 
-import { t } from '../../../../i18n/index.js'
+import { t } from '@i18n'
 import { BoolRadioGroup } from '../../../components/BoolRadioGroup/index.js'
 import { StringColorPicker } from '../../../components/StringColorPicker/index.js'
 import { line_type_options } from '../constant.js'

@@ -6,7 +6,7 @@ import { DeleteOutlined, PlusCircleOutlined } from '@ant-design/icons'
 
 import { get } from 'lodash'
 
-import { t } from '../../../i18n/index.js'
+import { t } from '@i18n'
 import { concat_name_path } from '../utils.ts'
 import { FormDependencies } from '../../components/FormDependencies/index.js'
 
