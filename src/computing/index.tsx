@@ -139,7 +139,7 @@ export function Computing () {
         className='themed'
         activeKey={tab_key}
         onChange={set_tab_key}
-        destroyInactiveTabPane
+        destroyOnHidden
         items={[
             {
                 key: 'streaming_pub_sub_stat',

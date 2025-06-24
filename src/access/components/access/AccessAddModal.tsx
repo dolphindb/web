@@ -188,6 +188,7 @@ export const AccessAddModal = NiceModal.create(({ category, role, name }: { cate
                             </Button>
                         )
                     }))}
+                    pagination={{ hideOnSinglePage: true }}
                 />
             </div>
         </Modal>

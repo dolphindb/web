@@ -21,7 +21,6 @@ export function Config () {
     const [tab_key, set_tab_key] = useState<'controller_config' | 'nodes_config' | 'nodes_management'>('controller_config')
     
     return <Tabs
-        // type='card'
         accessKey={tab_key}
         onChange={set_tab_key as any}
         items={[

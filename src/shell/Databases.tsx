@@ -1010,8 +1010,8 @@ export class Database implements DataNode {
                 {
                     model.admin && 
                         model.node_type !== NodeType.computing && 
-                    <Tooltip title={ t('查看用户权限')} color='grey' destroyTooltipOnHide>
-                        <Icon 
+                    <Tooltip title={t('查看用户权限')} color='grey' destroyOnHidden>
+                        <Icon
                             component={SvgAccess}
                             onClick={async event => { 
                                 event.stopPropagation()
@@ -1020,8 +1020,8 @@ export class Database implements DataNode {
                         />
                     </Tooltip> 
                 }
-                <Tooltip title={enable_create_table ? t('创建数据表') : t('仅支持单机节点和数据节点创建数据表')} color='grey' destroyTooltipOnHide>
-                    <Icon 
+                <Tooltip title={enable_create_table ? t('创建数据表') : t('仅支持单机节点和数据节点创建数据表')} color='grey' destroyOnHidden>
+                    <Icon
                         disabled={!enable_create_table}
                         className={enable_create_table ? '' : 'disabled'}
                         component={SvgCreateTable}

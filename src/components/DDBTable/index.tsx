@@ -17,37 +17,38 @@ export function DDBTable<T> (props: DDBTableProps<T>) {
     const { title, help, buttons, filter_form, pagination, ...others } = props
     
     return <Table
-        className='ddb-title'
-        title={(title || buttons || filter_form)
-            ? () => <>
-                <div className='ddb-table-header'>
-                {
-                    title ? <div className='ddb-table-title'>
-                        <h2>{title}</h2>
-                        {
-                            help && <Tooltip title={help}>
-                                <QuestionCircleOutlined className='help-icon' />
-                            </Tooltip>
+            className='ddb-title'
+            title={title || buttons || filter_form ?
+                () => <>
+                    <div className='ddb-table-header'>
+                        {title ? 
+                            <div className='ddb-table-title'>
+                                <h2>{title}</h2>
+                                {help && (
+                                    <Tooltip title={help}>
+                                        <QuestionCircleOutlined className='help-icon' />
+                                    </Tooltip>
+                                )}
+                            </div>
+                        : 
+                            null
                         }
-                    </div> : <div />
-                }
-                {
-                    buttons && <Space size='middle'>
-                        {buttons}
-                    </Space>
-                }
-            </div>
-            
-            {filter_form && <div className='ddb-table-filter-form'>
-                {filter_form}
-            </div>}
-            </>
-            : undefined
-        }
-        pagination={pagination ? {
-            ...pagination,
-            size: 'small'
-        } : false}
-        {...others}
-    />
+                        {buttons && <Space size='middle'>{buttons}</Space>}
+                    </div>
+                    
+                    {filter_form && <div className='ddb-table-filter-form'>{filter_form}</div>}
+                </>
+            :
+                undefined
+            }
+            pagination={
+                pagination
+                    ? {
+                          ...pagination,
+                          size: 'small'
+                      }
+                    : false
+            }
+            {...others}
+        />
 }

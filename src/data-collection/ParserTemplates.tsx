@@ -1,5 +1,6 @@
+import './ParserTemplates.sass'
+
 import useSWR from 'swr'
-import './ParserTemplates.scss'
 import { useCallback, useMemo, useState } from 'react'
 
 import { Button, Popconfirm, Tooltip, Typography, type TableProps } from 'antd'
@@ -57,7 +58,7 @@ export function ParserTemplates () {
         set_selected_keys(selected_keys.filter(key => !ids.includes(key)))
         model.message.success(t('删除成功'))
         refresh()
-    }, [ selected_keys ])
+    }, [selected_keys])
     
     const on_batch_delete = useCallback(() => {
         model.modal.confirm({
@@ -146,7 +147,7 @@ export function ParserTemplates () {
         
     ], [on_edit, can_edit])
     
-   
+    
     return <div className='parser-template-content'>
         <DDBTable<IParserTemplate>
             title={t('解析模板')}

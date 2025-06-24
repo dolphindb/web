@@ -50,97 +50,98 @@ export function AccessTabs ({
             : <AccessList role={role} name={name} category={category}/>
     
     return <Tabs
-            items={[
+        className='access-tabs'
+        items={[
+            {
+                key: 'database',
+                label: t('分布式数据库'),
+                children: get_access_view('database')
+            },
+            {
+                key: 'share_table',
+                label: t('共享内存表'),
+                children: get_access_view('shared')
+            },
+            {
+                key: 'stream',
+                label: t('流数据表'),
+                children: get_access_view('stream')
+            },
+            {
+                key: 'function_view',
+                label: t('函数视图'),
+                children: get_access_view('function_view')
+            },
+            ...node_type !== NodeType.single ? [
                 {
-                    key: 'database',
-                    label: t('分布式数据库'),
-                    children: get_access_view('database')
-                },
-                {
-                    key: 'share_table',
-                    label: t('共享内存表'),
-                    children: get_access_view('shared')
-                },
-                {
-                    key: 'stream',
-                    label: t('流数据表'),
-                    children: get_access_view('stream')
-                },
-                {
-                    key: 'function_view',
-                    label: t('函数视图'),
-                    children: get_access_view('function_view')
-                },
-                ...node_type !== NodeType.single ? [
-                    {
-                        key: 'compute_group',
-                        label: t('计算组'),
-                        children: get_access_view('compute_group')
-                    }] : [ ],
-                {
-                    key: 'script',
-                    label: t('全局权限'),
-                    children: get_access_view('script')
-                }
-            ]}
-            activeKey={tab_key}
-            onChange={handle_tab_change}
-            tabBarExtraContent={{
-                left: (
-                    <Button
-                        type='text'
-                        style={{ marginRight: 10 }}
-                        icon={<ArrowLeftOutlined />}
-                        onClick={() => {
-                            model.goto(`/access/${role}`)
-                        }}  
-                     />
-                ),
-                right: (
-                    <Space size={10}>
-                         <div className='switch-user'>
-                        {t('当前{{role}}:', { role: role === 'user' ? t('用户') : t('组') })}
-                        <Select
-                            value={name}
-                            options={(role === 'user' ? users : groups).map(t => ({
-                                value: t,
-                                label: t
-                            }))}
-                            onSelect={item => {
-                                model.goto(`/access/${role}/${item}${editing ? '/edit' : ''}`, { replace: true })
-                            }}
-                        />
-                    </div>  
-                        {editing ? ( 
-                            <Button
-                                type='primary'
-                                icon={<EyeOutlined />}
-                                onClick={() => {
-                                    model.goto(`/access/${role}/${name}`)
-                                }}
-                            >
-                                {t('查看权限')}
-                            </Button>
-                           
-                        ) : (
-                            <Button
-                                type='primary'
-                                icon={<SettingOutlined />}
-                                onClick={() => {
-                                    model.goto(`/access/${role}/${name}/edit`)
-                                }}
-                            >
-                                {t('设置权限')}
-                            </Button>
-                        )}
-                        <RefreshButton
-                        onClick={async () => {
-                            await mutate(key => Array.isArray(key) && key[0] === 'access_objs')
-                            model.message.success(t('刷新成功'))
+                    key: 'compute_group',
+                    label: t('计算组'),
+                    children: get_access_view('compute_group')
+                }] : [ ],
+            {
+                key: 'script',
+                label: t('全局权限'),
+                children: get_access_view('script')
+            }
+        ]}
+        activeKey={tab_key}
+        onChange={handle_tab_change}
+        tabBarExtraContent={{
+            left: (
+                <Button
+                    type='text'
+                    style={{ marginRight: 10 }}
+                    icon={<ArrowLeftOutlined />}
+                    onClick={() => {
+                        model.goto(`/access/${role}`)
+                    }}  
+                    />
+            ),
+            right: (
+                <Space size={10}>
+                        <div className='switch-user'>
+                    {t('当前{{role}}:', { role: role === 'user' ? t('用户') : t('组') })}
+                    <Select
+                        value={name}
+                        options={(role === 'user' ? users : groups).map(t => ({
+                            value: t,
+                            label: t
+                        }))}
+                        onSelect={item => {
+                            model.goto(`/access/${role}/${item}${editing ? '/edit' : ''}`, { replace: true })
                         }}
-                     />
-                    </Space>
-                )
-            }}
-        />
+                    />
+                </div>  
+                    {editing ? ( 
+                        <Button
+                            type='primary'
+                            icon={<EyeOutlined />}
+                            onClick={() => {
+                                model.goto(`/access/${role}/${name}`)
+                            }}
+                        >
+                            {t('查看权限')}
+                        </Button>
+                        
+                    ) : (
+                        <Button
+                            type='primary'
+                            icon={<SettingOutlined />}
+                            onClick={() => {
+                                model.goto(`/access/${role}/${name}/edit`)
+                            }}
+                        >
+                            {t('设置权限')}
+                        </Button>
+                    )}
+                    <RefreshButton
+                    onClick={async () => {
+                        await mutate(key => Array.isArray(key) && key[0] === 'access_objs')
+                        model.message.success(t('刷新成功'))
+                    }}
+                    />
+                </Space>
+            )
+        }}
+    />
 }
