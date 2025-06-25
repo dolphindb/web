@@ -244,8 +244,7 @@ class AccessModel extends Model<AccessModel> {
         return (await model.ddb.invoke<DdbTableData<{ shared: boolean, name: string }>>('getStreamTables', [new DdbInt(0)]))
             .data
             .filter(select('shared'))
-            .map(tb => tb.name)
-            .map(table => `${model.node.name}:${table}`)
+            .map(({ name }) => `${model.node_type === NodeType.single ? '' : `${model.node.name}:`}${name}`)
     }
     
     
