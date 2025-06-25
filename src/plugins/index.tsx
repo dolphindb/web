@@ -5,7 +5,7 @@ import { Button, Form, Input, Modal, Popconfirm, Radio, Result, Table, Typograph
     type FormInstance, Checkbox, Select, Tooltip } from 'antd'
 import type { CheckboxGroupProps } from 'antd/es/checkbox/Group.js'
 import { default as Icon, InboxOutlined, CheckOutlined, PlayCircleOutlined } from '@ant-design/icons'
-import { build_mapper, noop } from 'xshell/prototype.browser.js'
+import { select, noop } from 'xshell/prototype.browser.js'
 import { delay, log, vercmp } from 'xshell/utils.browser.js'
 
 import { use_modal, use_rerender, type ModalController } from 'react-object-model/hooks.js'
@@ -469,7 +469,7 @@ function InstallModal ({
                             server ? [undefined, server] : undefined
                         ))
                             .data
-                            .map(build_mapper('PluginName')))
+                            .map(select('PluginName')))
                     )
                 }
             }}
