@@ -65,7 +65,8 @@ class ComputingModel extends Model<ComputingModel> {
             '           result.tableInsert(tbStat)\n' +
             '       }catch(ex){}\n' +
             '    }\n' +
-            '    return select getReadableStreamTableName(name) as tablename, loaded, columns, memoryUsed, totalSize, sizeInMemory, memoryOffset, sizeOnDisk, diskOffset, asynWrite, retentionMinutes, compress, persistenceDir, hashValue, raftGroup, lastLogSeqNum from lj(persistTable, result, `name)\n' +
+            '    result = select name as tablename, loaded, columns, memoryUsed, totalSize, sizeInMemory, memoryOffset, sizeOnDisk, diskOffset, asynWrite, retentionMinutes, compress, persistenceDir, hashValue, raftGroup, lastLogSeqNum from lj(persistTable, result, `name)\n' +
+            '    return result\n' +
             '}\n', { urgent: true }
         )
     }
