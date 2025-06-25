@@ -155,3 +155,8 @@ export function ns2ms (num: number) {
 export function upper (str: string) {
     return shf ? str : str.toUpperCase()
 }
+
+
+export function to_option (value: string) {
+    return { label: value, value }
+}

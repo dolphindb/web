@@ -120,7 +120,7 @@ export function AccessManage ({ role, name, category }: { role: AccessRole, name
                     tb_rows.push({
                         key: k,
                         access: k,
-                        name: NEED_INPUT_ACCESS.includes(k) ? v : '',
+                        name: NEED_INPUT_ACCESS.has(k) ? v : '',
                         type: v === 'deny' ? 'deny' : 'grant',
                         action: (
                             <RevokeConfirm on_confirm={async () => {

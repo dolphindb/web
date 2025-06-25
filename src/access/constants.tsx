@@ -2,7 +2,7 @@ import { CheckCircleFilled, CloseCircleFilled, MinusCircleFilled } from '@ant-de
 
 import { t } from '@i18n'
 
-export const NEED_INPUT_ACCESS = ['DB_OWNER', 'QUERY_RESULT_MEM_LIMIT', 'TASK_GROUP_MEM_LIMIT']
+export const NEED_INPUT_ACCESS = new Set(['DB_OWNER', 'QUERY_RESULT_MEM_LIMIT', 'TASK_GROUP_MEM_LIMIT'])
 
 export const ACCESS_TYPE = {
     catalog: ['CATALOG_MANAGE', 'CATALOG_READ', 'CATALOG_WRITE', 'CATALOG_INSERT', 'CATALOG_UPDATE', 'CATALOG_DELETE'],

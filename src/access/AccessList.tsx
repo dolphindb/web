@@ -109,123 +109,123 @@ export function AccessList ({ role, name, category }: { role: AccessRole, name: 
         return null
     
     return <DDBTable
-                columns={cols}
-                dataSource={showed_accesses
-                    .filter(({ name, schemas, tables }) =>
-                        includes_searck_key(name, search_key) ||
-                            (v3 ? schemas?.some((schema: TABLE_ACCESS) => 
-                                includes_searck_key(schema.name, search_key) ||
-                                schema.tables.some(table => includes_searck_key(table.name, search_key))
-                            ) : tables?.some((table: TABLE_ACCESS) => includes_searck_key(table.name, search_key)))
-                    )
-                    .map((tb_access: TABLE_ACCESS) => ({
-                        key: tb_access.name,
-                        name: tb_access.name,  
-                        ...(category === 'database' ? 
-                            v3 ? {
-                                // 如果父级名称匹配，显示所有schemas；否则进行过滤
-                                schemas: includes_searck_key(tb_access.name, search_key) 
-                                    ? tb_access.schemas 
-                                    : tb_access.schemas.filter(schema =>
-                                        includes_searck_key(schema.name, search_key) ||
-                                            schema.tables.some(table => includes_searck_key(table.name, search_key))
-                                    )
-                            } : {
-                                // 如果父级名称匹配，显示所有tables；否则进行过滤
-                                tables: includes_searck_key(tb_access.name, search_key)
-                                    ? tb_access.tables
-                                    : tb_access.tables.filter(table => 
-                                        includes_searck_key(table.name, search_key)
-                                    ) 
-                            } 
-                        : { }),
-                        ...(category !== 'script'
-                                ? 
-                            Object.fromEntries(Object.entries(tb_access.access).map(([key, value]) => [key, STAT_ICONS[value as string]]))
-                                : 
-                            { stat: NEED_INPUT_ACCESS.includes(tb_access.name) ? tb_access.stat : STAT_ICONS[tb_access.stat] })
-                    }))}
-                filter_form={<Input.Search
-                    value={input_value}
-                    onChange={e => {
-                        set_input_value(e.target.value)
-                    }}
-                    onSearch={() => { set_search_key(input_value) }}
-                    placeholder={t('请输入想要搜索的{{category}}', { category: category === 'database' && v3 ? `${TABLE_NAMES.catalog} / ${TABLE_NAMES.database} / ${TABLE_NAMES.table}` : TABLE_NAMES[category] })}
-                />}
-                tableLayout='fixed'
-                expandable={
-                    category === 'database'
-                        ? {
-                            defaultExpandedRowKeys: v3 ? [DATABASES_WITHOUT_CATALOG] : [ ],
-                            rowExpandable: cl =>  Boolean( v3 ? cl.schemas.length : cl.tables.length),
-                            expandedRowRender: (cl: TABLE_ACCESS) => 
-                                <Table
-                                    columns={[
+            columns={cols}
+            dataSource={showed_accesses
+                .filter(({ name, schemas, tables }) =>
+                    includes_searck_key(name, search_key) ||
+                        (v3 ? schemas?.some((schema: TABLE_ACCESS) => 
+                            includes_searck_key(schema.name, search_key) ||
+                            schema.tables.some(table => includes_searck_key(table.name, search_key))
+                        ) : tables?.some((table: TABLE_ACCESS) => includes_searck_key(table.name, search_key)))
+                )
+                .map((tb_access: TABLE_ACCESS) => ({
+                    key: tb_access.name,
+                    name: tb_access.name,  
+                    ...(category === 'database' ? 
+                        v3 ? {
+                            // 如果父级名称匹配，显示所有schemas；否则进行过滤
+                            schemas: includes_searck_key(tb_access.name, search_key) 
+                                ? tb_access.schemas 
+                                : tb_access.schemas.filter(schema =>
+                                    includes_searck_key(schema.name, search_key) ||
+                                        schema.tables.some(table => includes_searck_key(table.name, search_key))
+                                )
+                        } : {
+                            // 如果父级名称匹配，显示所有tables；否则进行过滤
+                            tables: includes_searck_key(tb_access.name, search_key)
+                                ? tb_access.tables
+                                : tb_access.tables.filter(table => 
+                                    includes_searck_key(table.name, search_key)
+                                ) 
+                        } 
+                    : { }),
+                    ...(category !== 'script'
+                            ? 
+                        Object.fromEntries(Object.entries(tb_access.access).map(([key, value]) => [key, STAT_ICONS[value as string]]))
+                            : 
+                        { stat: NEED_INPUT_ACCESS.has(tb_access.name) ? tb_access.stat : STAT_ICONS[tb_access.stat] })
+                }))}
+            filter_form={<Input.Search
+                value={input_value}
+                onChange={e => {
+                    set_input_value(e.target.value)
+                }}
+                onSearch={() => { set_search_key(input_value) }}
+                placeholder={t('请输入想要搜索的{{category}}', { category: category === 'database' && v3 ? `${TABLE_NAMES.catalog} / ${TABLE_NAMES.database} / ${TABLE_NAMES.table}` : TABLE_NAMES[category] })}
+            />}
+            tableLayout='fixed'
+            expandable={
+                category === 'database'
+                    ? {
+                        defaultExpandedRowKeys: v3 ? [DATABASES_WITHOUT_CATALOG] : [ ],
+                        rowExpandable: cl =>  Boolean( v3 ? cl.schemas.length : cl.tables.length),
+                        expandedRowRender: (cl: TABLE_ACCESS) => 
+                            <Table
+                                columns={[
+                                    {
+                                        title: v3 ? TABLE_NAMES.database : TABLE_NAMES.table,
+                                        dataIndex: 'table_name',
+                                        key: 'table_name'
+                                    },
+                                    ...(v3 ? ACCESS_TYPE.database : ACCESS_TYPE.table.filter(t => t !== 'TABLE_WRITE'))
+                                        .map(type => ({
+                                            title: type,
+                                            dataIndex: type,
+                                            key: type
+                                        }))
+                                ]}
+                                dataSource={v3 ? 
+                                    cl.schemas.map(schema => ({
+                                        key: schema.name,
+                                        table_name: schema.name,
+                                        // 过滤 schema 下的 tables
+                                        tables: schema.tables.filter(table =>
+                                            includes_searck_key(table.name, search_key.toLowerCase())
+                                        ),
+                                        ...Object.fromEntries(Object.entries(schema.access).map(([key, value]) => [key, STAT_ICONS[value as string]]))
+                                    })) : 
+                                    cl.tables.map(table => ({
+                                        key: table.name,
+                                        table_name: table.name,
+                                        ...Object.fromEntries(Object.entries(table.access).map(([key, value]) => [key, STAT_ICONS[value as string]]))
+                                    }))}
+                                pagination={false}
+                                tableLayout='fixed'
+                                expandable={
+                                    v3 ? 
                                         {
-                                            title: v3 ? TABLE_NAMES.database : TABLE_NAMES.table,
-                                            dataIndex: 'table_name',
-                                            key: 'table_name'
-                                        },
-                                        ...(v3 ? ACCESS_TYPE.database : ACCESS_TYPE.table.filter(t => t !== 'TABLE_WRITE'))
-                                            .map(type => ({
-                                                title: type,
-                                                dataIndex: type,
-                                                key: type
-                                            }))
-                                    ]}
-                                    dataSource={v3 ? 
-                                        cl.schemas.map(schema => ({
-                                            key: schema.name,
-                                            table_name: schema.name,
-                                            // 过滤 schema 下的 tables
-                                            tables: schema.tables.filter(table =>
-                                                includes_searck_key(table.name, search_key.toLowerCase())
-                                            ),
-                                            ...Object.fromEntries(Object.entries(schema.access).map(([key, value]) => [key, STAT_ICONS[value as string]]))
-                                        })) : 
-                                        cl.tables.map(table => ({
-                                            key: table.name,
-                                            table_name: table.name,
-                                            ...Object.fromEntries(Object.entries(table.access).map(([key, value]) => [key, STAT_ICONS[value as string]]))
-                                        }))}
-                                    pagination={false}
-                                    tableLayout='fixed'
-                                    expandable={
-                                        v3 ? 
-                                            {
-                                                rowExpandable: (db: { key: string, table_name: string, tables: TABLE_ACCESS[] }) => Boolean(db.tables.length),
-                                                expandedRowRender: (db: { key: string, table_name: string, tables: TABLE_ACCESS[] }) => 
-                                                    <Table
-                                                        columns={[
-                                                            {
-                                                                title: t('DFS 表'),
-                                                                dataIndex: 'table_name',
-                                                                key: 'table_name'
-                                                            },
-                                                            ...ACCESS_TYPE.table
-                                                                .filter(t => t !== 'TABLE_WRITE')
-                                                                .map(type => ({
-                                                                    title: type,
-                                                                    dataIndex: type,
-                                                                    key: type
-                                                                }))
-                                                        ]}
-                                                        dataSource={db.tables.map(table => ({
-                                                            key: table.name,
-                                                            table_name: table.name,
-                                                            ...Object.fromEntries(Object.entries(table.access).map(([key, value]) => [key, STAT_ICONS[value as string]]))
-                                                        }))}
-                                                        pagination={false}
-                                                        tableLayout='fixed'
-                                                    />
-                                            } : { }
-                                }
-                            />
-                        }
-                        : { }
-            }
-        />
+                                            rowExpandable: (db: { key: string, table_name: string, tables: TABLE_ACCESS[] }) => Boolean(db.tables.length),
+                                            expandedRowRender: (db: { key: string, table_name: string, tables: TABLE_ACCESS[] }) => 
+                                                <Table
+                                                    columns={[
+                                                        {
+                                                            title: t('DFS 表'),
+                                                            dataIndex: 'table_name',
+                                                            key: 'table_name'
+                                                        },
+                                                        ...ACCESS_TYPE.table
+                                                            .filter(t => t !== 'TABLE_WRITE')
+                                                            .map(type => ({
+                                                                title: type,
+                                                                dataIndex: type,
+                                                                key: type
+                                                            }))
+                                                    ]}
+                                                    dataSource={db.tables.map(table => ({
+                                                        key: table.name,
+                                                        table_name: table.name,
+                                                        ...Object.fromEntries(Object.entries(table.access).map(([key, value]) => [key, STAT_ICONS[value as string]]))
+                                                    }))}
+                                                    pagination={false}
+                                                    tableLayout='fixed'
+                                                />
+                                        } : { }
+                            }
+                        />
+                    }
+                    : { }
+        }
+    />
 }
 
 

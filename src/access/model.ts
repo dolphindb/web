@@ -1,6 +1,8 @@
 import { Model } from 'react-object-model'
 
-import { DdbInt, DdbVectorString } from 'dolphindb/browser.js'
+import { DdbInt, DdbVectorString, type DdbTableData } from 'dolphindb/browser.js'
+
+import { select } from 'xshell/prototype.browser.js'
 
 import { DdbNodeState, model, NodeType } from '@model'
 
@@ -227,21 +229,21 @@ class AccessModel extends Model<AccessModel> {
     
     
     async get_share_tables () {
-        return (await model.ddb.invoke('objs', 
-                    [true], 
-                    { nodes: model.nodes
-                        .filter(node => node.mode !== NodeType.agent && node.state === DdbNodeState.online)
-                        .map(node => node.name) 
-                    }
-                )).data
-                .filter(table => table.shared && table.type === 'BASIC' && table.form === 'TABLE')
-                .map(table => `${table.node}:${table.name}`)
+        return (
+                await model.ddb.invoke<DdbTableData<{ type: string, form: string, name: string, shared: boolean, node: string }>>('objs', [true], {
+                    nodes: model.nodes.filter(node => node.mode !== NodeType.agent && node.state === DdbNodeState.online)
+                        .map(node => node.name)
+                })
+            ).data
+            .filter(({ shared, type, form }) => shared && type === 'BASIC' && form === 'TABLE')
+            .map(({ name, node }) => `${ model.node_type === NodeType.single ? '' : `${node}:` }${name}`)
     }
     
     
     async get_stream_tables () {
-        return (await model.ddb.invoke('getStreamTables', [new DdbInt(0)])).data    
-            .filter(table => table.shared)
+        return (await model.ddb.invoke<DdbTableData<{ shared: boolean, name: string }>>('getStreamTables', [new DdbInt(0)]))
+            .data
+            .filter(select('shared'))
             .map(tb => tb.name)
             .map(table => `${model.node.name}:${table}`)
     }
