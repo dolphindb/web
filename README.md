@@ -1,7 +1,7 @@
 # DolphinDB Web
 
 <p align='center'>
-     <img src='./src/ddb.svg' alt='DolphinDB Web' width='256'>
+     <img src='./src/icons/ddb.svg' alt='DolphinDB Web' width='256'>
 </p>
 
 <p align='center'>
