@@ -6,9 +6,6 @@ if (!existsDatabase("dfs://autoInspection")) {
     if (!existsTable("dfs://autoInspection", "updateHistory")) {
         createUpdateHistoryTable()
     }
-    if (!existsTable("dfs://autoInspection", "emailHistory")) {
-        createEmailHistoryTable()
-    }
 }
 go
 metrics = select * from loadTable("dfs://autoInspection", "metrics")
@@ -1652,7 +1649,7 @@ go
 name = "replicaDomain"
 displayName = "多副本domain一致性检查"
 group = "1"
-desc = "检查多副本domain是否一致。"
+desc = "检查多副本domain是否一致"
 nodes = NULL
 params = NULL
 script = '
@@ -1715,91 +1712,6 @@ def replicaDomain(params=NULL) {
     }
 }
 '
-if (name in metrics.name) {
-    updateMetric(name, displayName, group, desc, nodes, script, params, language)
-} else {
-    newMetric(name, displayName, group, desc, nodes, script, params)
-}
-go
-
-name = "replicaColNum"
-displayName = "多副本列数一致性检查"
-group = "1"
-desc = "检查多副本列数是否一致。
-参数说明：
-- startTime：TIMESTAMP，统计范围的开始时间，默认值为上次相同方案 ID 的报告的开始时间。
-- endTime：TIMESTAMP，统计范围的结束时间，默认值为当前报告的开始时间。"
-nodes = NULL
-script = '
-def replicaColNum(params){
-    dfsReplicationFactor = int(getConfig("dfsReplicationFactor"))
-    if (isNull(dfsReplicationFactor) or dfsReplicationFactor == 1) {
-        return (true, NULL, NULL)
-    }
-    
-    ret = table(1:0, ["库名", "表名", "dfsPath", "副本节点1", "副本节点2", "是否一致"], [STRING, STRING, STRING,STRING, STRING, BOOL])
-
-    startTime = params["startTime"]
-    endTime = params["endTime"]
-
-    controllerChunks = select chunkId from rpc(getControllerAlias(),getClusterChunksStatus) where lastUpdated >= startTime and lastUpdated <= endTime and replicaCount >= 2
-    
-    print("controllerChunks.size(): " + controllerChunks.size() )
-    iCnt = 1
-    if(controllerChunks.size() == 0) {
-         return (true, NULL, NULL)
-    }
-    
-    allNodeChunks = select string(chunkId) as chunkId, tablename, dfsPath, latestPhysicalDir, node from pnodeRun(getTabletsMeta{top=-1}) where chunkId in uuid(controllerChunks.chunkId)
-  
-    for(controllerChunkId in controllerChunks) {
-        print("controllerChunkId[" + iCnt + "] = " +  string(controllerChunkId.chunkId))
-        iCnt += 1
-       
-        nodeChunks = select chunkId, tablename, dfsPath, latestPhysicalDir, node from allNodeChunks where chunkId = controllerChunkId.chunkId
-        if(nodeChunks.size() == 0) {
-            continue
-        }
-       
-        colNameArray = array(ANY, 2)
-        colNameArray[0] =  rpc(
-            nodeChunks[0].node, 
-            readTabletChunk,
-            nodeChunks[0].chunkId, 
-            "dfs:/" + rpc(nodeChunks[0].node,getDBIdByTabletChunk, nodeChunks[0].chunkId), 
-            nodeChunks[0].dfsPath,
-            nodeChunks[0].tablename, 
-            0,
-            -1).schema().colDefs.name.sort!()
-        
-        for(i in 1:nodeChunks.size()) {  
-            colNameArray[i] = rpc(
-            nodeChunks[i].node, 
-            readTabletChunk,
-            nodeChunks[i].chunkId, 
-            "dfs:/" + rpc(nodeChunks[i].node, getDBIdByTabletChunk,nodeChunks[i].chunkId), 
-            nodeChunks[i].dfsPath,
-            nodeChunks[i].tablename, 
-            0,
-            -1).schema().colDefs.name.sort!()
-            
-            if(!eqObj(colNameArray[0], colNameArray[i])) {
-                ret.append!("dfs:/" + getDBIdByTabletChunk(nodeChunks[0].chunkId),  nodeChunks[0].tablename, nodeChunks[0].dfsPath, nodeChunks[0].node, nodeChunks[i].node, false)
-            }
-        }
-    }
-    
-     if (ret.size() == 0) {
-        return (true, NULL, NULL)
-    } else {
-        return (false, ret, "请联系 DolphinDB 技术支持排查副本列数一致性。")
-    }
-}
-'
-params = [
-    dict(`name`type, ["startTime", "TIMESTAMP"]),
-    dict(`name`type, ["endTime", "TIMESTAMP"])
-]
 if (name in metrics.name) {
     updateMetric(name, displayName, group, desc, nodes, script, params, language)
 } else {
@@ -2043,7 +1955,7 @@ go
 name = "replicaTbl"
 displayName = "检查多副本tbl文件是否一致"
 group = "1"
-desc = "检查多副本tbl文件的一致性。"
+desc = "检查多副本tbl文件的一致性"
 nodes = NULL
 script = '
 def replicaTbl(params=NULL) {
@@ -2113,37 +2025,26 @@ go
 name = "checkRangeExp"
 displayName = "检查RANGE分区是否即将到期"
 group = "1"
-desc = "检查RANGE分区是否即将到期。"
+desc = "检查RANGE分区是否即将到期"
 nodes = NULL
 script = '
 def checkRangeExp(params = NULL){
     ret = table(1:0,["数据库","分区类型","RANGE分区到期时间"],[STRING,STRING,DATE])
+
     allDatabases = getDFSDatabases()
-    if (allDatabases.size()==0) {
-        return (true, NULL, NULL)
-    }
     num = allDatabases.size()-1
-    
     for(i in 0 .. num){
         db = database(allDatabases[i])  
         dbSchema = schema(db)
         partitionType = dbSchema["partitionTypeName"]
-        partitionSchema = dbSchema["partitionSchema"]
-        temporalType = `DATE`MONTH`DATETIME`TIMESTAMP`NANOTIME`NANOTIMESTAMP`DATEHOUR
+        temporalType = `DATE`MONTH`TIME`MINUTE`SECOND`DATETIME`TIMESTAMP`NANOTIME`NANOTIMESTAMP`DATEHOUR
         partitionType_ = iif(partitionType.form()==0, [partitionType], partitionType)
-        partitionSchema_ = iif(partitionType.form()==0, [partitionSchema], partitionSchema)
         if(at(partitionType_=="RANGE").size()>0){
             rangeLoc = at(partitionType_=="RANGE").size()-1
             for(one in 0..rangeLoc){   //若有多个RANGE分区，依次检查
-                    // one = 0
                     rangeNum = at(partitionType_=="RANGE")[one]
-                    typestr_ = partitionSchema_[rangeNum][0].typestr()
-                    if(typestr_ in temporalType) {
-                        if (typestr_ == "MONTH") {
-                            dateExp = max(date(partitionSchema_[rangeNum]+1)-1)
-                        } else {
-                            dateExp = max(date(partitionSchema_[rangeNum]))
-                        }
+                    if(dbSchema["partitionSchema"][rangeNum][0].typestr() in temporalType){
+                        dateExp = max(date(dbSchema["partitionSchema"][rangeNum]+1)-1)
                         if(dateExp - today()<=10){
                             type = iif(partitionType.form()==0,"RANGE分区","COMPO分区")
                             insert into ret values(allDatabases[i],type,dateExp)

@@ -594,25 +594,12 @@ def sendReportEmailInner(planInfo, reportInfo, alertConfig) {
     userId = alertConfig["inspectionAlertUserId"]
     pwd = alertConfig["inspectionAlertPwd"]
     recipient = planInfo["alertRecipient"].split(",")
-    history = table(
-        planInfo["planId"] as planId,
-        reportInfo["reportId"] as reportId,
-        userId,
-        subject,
-        planInfo["alertRecipient"] as recipient,
-        now() as sendTime,
-        "sending" as status,
-        string(NULL) as errMsg
-    )
-    pt = loadTable("dfs://autoInspection", "emailHistory")
-    pt.append!(history)
     if (alertConfig["inspectionAlertStdSMTPMsgEnabled"]) {
         smtpMsg = createSMTPMsg(userId, recipient, subject, content)
         funcByName("httpClient::sendEmail")(userId, pwd, recipient, , , smtpMsg)
     } else {
         funcByName("httpClient::sendEmail")(userId, pwd, recipient, subject, content)
     }
-    update pt set status = "sent" where planId == planInfo["planId"] and reportId == reportInfo["reportId"]
 
     return (userId, subject, recipient)
 }
@@ -625,11 +612,6 @@ def sendReportEmail(planInfo, reportInfo, alertConfig) {
         writeLog("autoInspection: send alert email successfully, plan id: " + planId + ", subject: \"" + subject + "\", userId: " + userId + ", recipient: " + recipient.concat(","))
     } catch(err) {
         writeLog("autoInspection: alert failed, plan id: " + planId + ", err msg: " + string(err).last())
-        try {
-            update loadTable("dfs://autoInspection", "emailHistory") set status = "failed", errMsg = string(err).last() where planId == planId and reportId = reportInfo["reportId"]
-        } catch(err) {
-            writeLog("autoInspection: update email history failed, plan id: " + planId + ", err msg: " + string(err).last())
-        }
     }
 }
 
@@ -1182,40 +1164,4 @@ def setMetricsUpdated(webVersion_) {
 
     tb = table(webVersion_ as webVersion, now() as updateTime)
     loadTable("dfs://autoInspection", "updateHistory").append!(tb)
-}
-
-def createEmailHistoryTable() {
-    tb = table(1:0, `planId`reportId`subject`userId`recipient`sendTime`status`errMsg, [STRING, STRING, TIMESTAMP, STRING, STRING, TIMESTAMP, SYMBOL, STRING])
-    return createPartitionedTable(database("dfs://autoInspection"), tb, "emailHistory", partitionColumns=["planId", "sendTime"], sortColumns="sendTime")
-}
-
-def getEmailHistory(planId_=NULL, reportId_=NULL, userId_=NULL, recipient_=NULL, startTime_=NULL, endTime_=NULL, status_=NULL) {
-    if (!existsTable("dfs://autoInspection", "emailHistory")) {
-        createEmailHistoryTable()
-    }
-    whereCond = []
-    if (!isVoid(planId)) {
-        whereCond.append!(<planId == planId_>)
-    }
-    if (!isVoid(reportId)) {
-        whereCond.append!(<reportId == reportId_>)
-    }
-    if (!isVoid(userId)) {
-        whereCond.append!(<userId == userId_>)
-    }
-    if (!isVoid(recipient)) {
-        whereCond.append!(expr(sqlCol("recipient"),like,"%"+recipient_+"%"))
-    }
-    if (!isVoid(startTime)) {
-        startTime_ = timestamp(startTime)
-        whereCond.append!(<sendTime >= startTime_>)
-    }
-    if (!isVoid(endTime)) {
-        endTime_ = timestamp(endTime)
-        whereCond.append!(<sendTime <= endTime_>)
-    }
-    if (!isVoid(status)) {
-        whereCond.append!(<status == status_>)
-    }
-    return loadTable("dfs://autoInspection", "emailHistory")
 }
