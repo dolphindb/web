@@ -362,7 +362,15 @@ function append_action_col (
             title: 'actions',
             fixed: 'right',
             render: (value, job) => {
-                const disabled = job.status && job.status !== 'queuing' && job.status !== 'running'
+                // 如果是 admin，可以取消所有 job
+                // 如果是普通用户，可以 cancel 自己的
+                // 如果未登录，不能 cancel job
+                
+                const disabled = job.status && 
+                    job.status !== 'queuing' && 
+                    job.status !== 'running' && 
+                    model.logined && 
+                    (model.admin || (job.userId || job.userID) === model.username)
                 
                 return <div className='action-col'>
                     <JobMessageShow
