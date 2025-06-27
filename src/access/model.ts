@@ -242,7 +242,7 @@ class AccessModel extends Model<AccessModel> {
     
     async get_stream_tables () {
         return (
-            await model.ddb.invoke<DdbTableData<{ shared: boolean, name: string }>>(
+            await model.ddb.invoke<DdbTableData<{ shared: boolean, name: string, node: string }>>(
                 'getStreamTables',
                 undefined,
                 {
@@ -253,7 +253,7 @@ class AccessModel extends Model<AccessModel> {
         )
             .data
             .filter(select('shared'))
-            .map(({ name }) => `${model.node_type === NodeType.single ? '' : `${model.node.name}:`}${name}`)
+            .map(({ name, node }) => `${ model.node_type === NodeType.single ? '' : `${node}:` }${name}`)
     }
     
     
