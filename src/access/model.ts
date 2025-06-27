@@ -230,10 +230,9 @@ class AccessModel extends Model<AccessModel> {
     
     async get_share_tables () {
         return (
-                await model.ddb.invoke<DdbTableData<{ type: string, form: string, name: string, shared: boolean, node: string }>>('objs', [true], {
-                    nodes: model.nodes.filter(node => node.mode !== NodeType.agent && node.state === DdbNodeState.online)
-                        .map(node => node.name)
-                })
+                await model.ddb.invoke<
+                    DdbTableData<{ type: string, form: string, name: string, shared: boolean, node: string }>
+                >('objs', [true], { nodes: model.get_online_node_names() })
             ).data
             .filter(({ shared, type, form }) => shared && type === 'BASIC' && form === 'TABLE')
             .map(({ name, node }) => `${ model.node_type === NodeType.single ? '' : `${node}:` }${name}`)
@@ -245,11 +244,7 @@ class AccessModel extends Model<AccessModel> {
             await model.ddb.invoke<DdbTableData<{ shared: boolean, name: string, node: string }>>(
                 'getStreamTables',
                 undefined,
-                {
-                    nodes: model.nodes.filter(node => node.mode !== NodeType.agent && node.state === DdbNodeState.online)
-                        .map(node => node.name)
-                }
-            )
+                { nodes: model.get_online_node_names() })
         )
             .data
             .filter(select('shared'))
@@ -260,7 +255,7 @@ class AccessModel extends Model<AccessModel> {
     async get_function_views () {
         return (await model.ddb.invoke<DdbTableData<{ name: string }>>('getFunctionViews'))
             .data
-            .map(fv => fv.name)
+            .map(select('name'))
     }
     
     

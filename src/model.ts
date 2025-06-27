@@ -8,7 +8,7 @@ import type { NotificationInstance } from 'antd/es/notification/interface.d.ts'
 import type { NavigateFunction, NavigateOptions } from 'react-router'
 
 import 'xshell/polyfill.browser.js'
-import { not_empty } from 'xshell/prototype.browser.js'
+import { not_empty, select } from 'xshell/prototype.browser.js'
 import { check, filter_values, strcmp } from 'xshell/utils.browser.js'
 import { request } from 'xshell/net.browser.js'
 import { storage } from 'xshell/storage.js'
@@ -658,6 +658,20 @@ export class DdbModel extends Model<DdbModel> {
         this.set({ node_alias })
         console.log(t('节点名称:'), node_alias)
         return node_alias
+    }
+    
+    
+    /** 获取除 agent 节点外的所有节点 */
+    get_online_nodes () {
+        return this.nodes.filter(node => 
+            node.mode !== NodeType.agent && node.state === DdbNodeState.online)
+    }
+    
+    
+    /** 获取除 agent 节点外的所有节点名 */
+    get_online_node_names () {
+        return this.get_online_nodes()
+            .map(select('name'))
     }
     
     
