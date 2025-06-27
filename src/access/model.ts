@@ -241,7 +241,16 @@ class AccessModel extends Model<AccessModel> {
     
     
     async get_stream_tables () {
-        return (await model.ddb.invoke<DdbTableData<{ shared: boolean, name: string }>>('getStreamTables', [new DdbInt(0)]))
+        return (
+            await model.ddb.invoke<DdbTableData<{ shared: boolean, name: string }>>(
+                'getStreamTables',
+                undefined,
+                {
+                    nodes: model.nodes.filter(node => node.mode !== NodeType.agent && node.state === DdbNodeState.online)
+                        .map(node => node.name)
+                }
+            )
+        )
             .data
             .filter(select('shared'))
             .map(({ name }) => `${model.node_type === NodeType.single ? '' : `${model.node.name}:`}${name}`)
@@ -249,12 +258,19 @@ class AccessModel extends Model<AccessModel> {
     
     
     async get_function_views () {
-        return (await model.ddb.invoke('getFunctionViews')).data.map(fv => fv.name)
+        return (await model.ddb.invoke<DdbTableData<{ name: string }>>('getFunctionViews'))
+            .data
+            .map(fv => fv.name)
     }
     
     
     async grant (user: string, access: string, obj?: string | number) {
-        await model.ddb.invoke('grant', obj ? [user, new DdbInt(Access[access]), typeof obj === 'number' ? new DdbInt(obj) : obj] : [user, new DdbInt(Access[access])])
+        await model.ddb.invoke(
+            'grant', 
+            obj ? 
+                [user, new DdbInt(Access[access]), typeof obj === 'number' ? new DdbInt(obj) : obj]
+            :
+                [user, new DdbInt(Access[access])])
     }
     
     
