@@ -366,11 +366,10 @@ function append_action_col (
                 // 如果是普通用户，可以 cancel 自己的
                 // 如果未登录，不能 cancel job
                 
-                const disabled = job.status && 
+                const completed = job.status && 
                     job.status !== 'queuing' && 
-                    job.status !== 'running' && 
-                    model.logined && 
-                    (model.admin || (job.userId || job.userID) === model.username)
+                    job.status !== 'running'
+                    
                 
                 return <div className='action-col'>
                     <JobMessageShow
@@ -383,13 +382,20 @@ function append_action_col (
                         onConfirm={async () => {
                             await action(job)
                             model.message.success(
-                                type === 'stop' ? t('停止作业指令发送成功') : t('删除作业成功')
-                            )
+                                type === 'stop' ? t('停止作业指令发送成功') : t('删除作业成功'))
                         }
-                        }>
-                        <Link type='danger' title={disabled ? t('作业已完成') : ''} disabled={disabled}>{
-                            type === 'stop' ? t('停止') : t('删除')
-                        }</Link>
+                    }>
+                        <Link
+                            type='danger'
+                            title={completed ? t('作业已完成') : ''}
+                            disabled={!(
+                                !completed && 
+                                model.logined &&
+                                (model.admin || (job.userId || job.userID) === model.username)
+                            )}>{
+                                type === 'stop' ? t('停止') : t('删除')
+                            }
+                        </Link>
                     </Popconfirm>
                 </div>
             }
