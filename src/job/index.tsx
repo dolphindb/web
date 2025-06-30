@@ -44,6 +44,8 @@ const ellipsis_cols = {
 const expand_cols = ['errorMsg']
 
 export function Job () {
+    const { username } = model.use(['username'])
+    
     const [refresher, set_refresher] = useState({ })
     
     const [cjobs, set_cjobs] = useState<DdbObj<DdbObj[]>>()
@@ -56,7 +58,7 @@ export function Job () {
         get_cjobs()
         get_rjobs()
         get_sjobs()
-    }, [refresher])
+    }, [refresher, username])
     
     
     async function get_cjobs () {

@@ -916,11 +916,9 @@ export class DdbModel extends Model<DdbModel> {
     async get_scheduled_jobs () {
         return this.ddb.call<DdbObj<DdbObj[]>>('getScheduledJobs', undefined, {
             urgent: true,
-            nodes: this.node_type === NodeType.controller ? 
-                this.nodes.filter(node => node.state === DdbNodeState.online && node.mode !== NodeType.agent)
-                    .map(node => node.name)
-                :
-                    null
+            ... this.node_type === NodeType.controller ? {
+                nodes: model.get_online_node_names()
+            } : { }
         })
     }
     
