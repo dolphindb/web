@@ -117,6 +117,16 @@ def getJobReturnEx(jobId, blocking=false) {
     throw "getJobReturn failed after trying 10 times, last error: " + lastErr
 }
 
+def createUpdateHistoryTable() {
+    tb = table(1:0, `webVersion`updateTime, [STRING, TIMESTAMP])
+    return createTable(database("dfs://autoInspection"), tb, "updateHistory", sortColumns="updateTime")
+}
+
+def createEmailHistoryTable() {
+    tb = table(1:0, `planId`reportId`subject`userId`recipient`sendTime`status`errMsg, [STRING, STRING, STRING, STRING, STRING, TIMESTAMP, SYMBOL, STRING])
+    return createPartitionedTable(database("dfs://autoInspection"), tb, "emailHistory", partitionColumns=["planId", "sendTime"], sortColumns="sendTime")
+}
+
 def initDfs() {
     years = sort(distinct(yearBegin(1985.01.01..2055.01.01)))
     dbValue = database(, VALUE, ["planId"])
@@ -138,8 +148,9 @@ def initDfs() {
     tb = table(1:0, `reportId`planId`metricName`metricVersion`metricParams`node`jobId`startTime`endTime`success`detail`extraDetail`suggestion, [STRING, STRING, STRING, INT, STRING, STRING, STRING, TIMESTAMP, TIMESTAMP, BOOL, BLOB, BLOB, STRING])
     pt5 = createPartitionedTable(db, tb, "reportDetails", ["planId", "startTime"], sortColumns="startTime")
 
-    tb = table(1:0, `webVersion`updateTime, [STRING, TIMESTAMP])
-    pt6 = createTable(db, tb, "updateHistory", sortColumns="updateTime")
+    createUpdateHistoryTable()
+
+    createEmailHistoryTable()
 }
 
 def parseMetricParams(params) {
@@ -594,12 +605,28 @@ def sendReportEmailInner(planInfo, reportInfo, alertConfig) {
     userId = alertConfig["inspectionAlertUserId"]
     pwd = alertConfig["inspectionAlertPwd"]
     recipient = planInfo["alertRecipient"].split(",")
+    planId_ =  planInfo["id"]
+    reportId_ = reportInfo["id"]
+    history = table(
+        planId_ as planId,
+        reportId_ as reportId,
+        subject as subject,
+        userId as userId,
+        planInfo["alertRecipient"] as recipient,
+        now() as sendTime,
+        "sending" as status,
+        string(NULL) as errMsg
+    )
+    writeLog("autoInspection: 2")
+    pt = loadTable("dfs://autoInspection", "emailHistory")
+    pt.append!(history)
     if (alertConfig["inspectionAlertStdSMTPMsgEnabled"]) {
         smtpMsg = createSMTPMsg(userId, recipient, subject, content)
         funcByName("httpClient::sendEmail")(userId, pwd, recipient, , , smtpMsg)
     } else {
         funcByName("httpClient::sendEmail")(userId, pwd, recipient, subject, content)
     }
+    update pt set status = "sent" where planId == planId_ and reportId == reportId_
 
     return (userId, subject, recipient)
 }
@@ -612,6 +639,11 @@ def sendReportEmail(planInfo, reportInfo, alertConfig) {
         writeLog("autoInspection: send alert email successfully, plan id: " + planId + ", subject: \"" + subject + "\", userId: " + userId + ", recipient: " + recipient.concat(","))
     } catch(err) {
         writeLog("autoInspection: alert failed, plan id: " + planId + ", err msg: " + string(err).last())
+        try {
+            update loadTable("dfs://autoInspection", "emailHistory") set status = "failed", errMsg = string(err).last() where planId == planId and reportId = reportInfo["reportId"]
+        } catch(err) {
+            writeLog("autoInspection: update email history failed, plan id: " + planId + ", err msg: " + string(err).last())
+        }
     }
 }
 
@@ -1140,11 +1172,6 @@ def cancelRunningPlan(reportId) {
     throw "delete report failed after trying 30 times, report id: " + reportId + ", last error: " + string(iif(lastErr.form()==0, lastErr, lastErr.last()))
 }
 
-def createUpdateHistoryTable() {
-    tb = table(1:0, `webVersion`updateTime, [STRING, TIMESTAMP])
-    return createTable(database("dfs://autoInspection"), tb, "updateHistory", sortColumns="updateTime")
-}
-
 def areMetricsUpdated(webVersion_) {
     if (!existsTable("dfs://autoInspection", "updateHistory")) {
         createUpdateHistoryTable()
@@ -1164,4 +1191,33 @@ def setMetricsUpdated(webVersion_) {
 
     tb = table(webVersion_ as webVersion, now() as updateTime)
     loadTable("dfs://autoInspection", "updateHistory").append!(tb)
+}
+
+def getEmailHistory(planId_=NULL, reportId_=NULL, userId_=NULL, recipient_=NULL, startTime_=NULL, endTime_=NULL, status_=NULL) {
+    if (!existsTable("dfs://autoInspection", "emailHistory")) {
+        createEmailHistoryTable()
+    }
+    whereCond = []
+    if (!isVoid(planId_)) {
+        whereCond.append!(<planId == planId_>)
+    }
+    if (!isVoid(reportId_)) {
+        whereCond.append!(<reportId == reportId_>)
+    }
+    if (!isVoid(userId_)) {
+        whereCond.append!(<userId == userId_>)
+    }
+    if (!isVoid(recipient_)) {
+        whereCond.append!(expr(sqlCol("recipient"),like,"%"+recipient_+"%"))
+    }
+    if (!isVoid(startTime_)) {
+        whereCond.append!(<sendTime >= timestamp(startTime_)>)
+    }
+    if (!isVoid(endTime_)) {
+        whereCond.append!(<sendTime <= timestamp(endTime_)>)
+    }
+    if (!isVoid(status_)) {
+        whereCond.append!(<status == status_>)
+    }
+    return loadTable("dfs://autoInspection", "emailHistory")
 }
