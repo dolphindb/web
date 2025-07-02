@@ -1219,5 +1219,7 @@ def getEmailHistory(planId_=NULL, reportId_=NULL, userId_=NULL, recipient_=NULL,
     if (!isVoid(status_)) {
         whereCond.append!(<status == status_>)
     }
-    return loadTable("dfs://autoInspection", "emailHistory")
+    ret = sql(sqlCol("*"), loadTable("dfs://autoInspection", "emailHistory"), whereCond).eval()
+
+    return ret
 }
