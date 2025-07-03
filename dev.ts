@@ -22,6 +22,7 @@ async function stop () {
 
 async function recompile () {
     await builder.run()
+    console.log(info)
 }
 
 
