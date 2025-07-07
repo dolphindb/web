@@ -14,7 +14,7 @@ import { ACCESS_TYPE } from '@/access/constants.tsx'
 export function use_access_objs (role: AccessRole, category: AccessCategory) {
     const { v3 } = model 
     
-    return useSWR(
+    return useSWR<any>(
         ['access_objs', category, role],
         async () => {
             switch (category) {

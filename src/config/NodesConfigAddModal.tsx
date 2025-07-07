@@ -32,9 +32,8 @@ export const NodesConfigAddModal = NiceModal.create((props: { compute_group?: st
         title={t('新增配置')}
         // footer={false}
         onOk={add_config_form.submit}
-        onClose={modal.hide}
-        afterClose={modal.remove}>
-        
+        afterClose={modal.remove}
+    >
         <Form
             labelCol={{ span: 4 }}
             wrapperCol={{ span: 20 }}
