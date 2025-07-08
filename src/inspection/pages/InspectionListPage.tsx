@@ -14,6 +14,7 @@ import { datetime_format } from 'xshell/utils.browser.js'
 import { model } from '@model'
 
 import { EmailConfigModal } from '@/inspection/modals/EmailConfigModal.tsx'
+import { EmailHistoryModal } from '@/inspection/modals/EmailHistoryModal.tsx'
 import { inspection } from '@/inspection/model.ts'
 import type { Plan, PlanReport } from '@/inspection/type.ts'
 import { LogModal } from '@/inspection/modals/LogModal.tsx'
@@ -79,6 +80,12 @@ export function InspectionListPage () {
                             {t('邮件告警设置')}
                     </Button>
                 )}
+                
+                <Button
+                    icon={<MailOutlined />}
+                    onClick={() => { NiceModal.show(EmailHistoryModal) }}>
+                    {t('邮件告警历史')}
+                </Button>
                 
             
                 <RefreshButton 

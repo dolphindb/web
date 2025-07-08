@@ -12,7 +12,7 @@ import define_script from '@/inspection/scripts/index.dos'
 import create_metrics_script from '@/inspection/scripts/init.dos'
 import { EmailConfigMessages } from '@/inspection/constants.ts'
 
-import type { Metric, MetricParam, Plan, PlanDetail, PlanReport, PlanReportDetailMetric, PlanReportDetailNode } from './type.ts'
+import type { Metric, MetricParam, Plan, PlanDetail, PlanReport, PlanReportDetailMetric, PlanReportDetailNode, EmailHistory } from './type.ts'
 
 class InspectionModel extends Model<InspectionModel> {
     inited = false
@@ -166,6 +166,27 @@ class InspectionModel extends Model<InspectionModel> {
     
     async get_logs (report_id: string, node: string) {
         return model.ddb.invoke('rpc', [node, new DdbFunction('getJobMessage', DdbFunctionType.SystemFunc), report_id], { node })
+    }
+
+    async get_email_history (
+        plan_id?: string, 
+        report_id?: string, 
+        user_id?: string, 
+        recipient?: string, 
+        start_time?: string, 
+        end_time?: string, 
+        status?: 'sending' | 'sent' | 'failed'
+    ): Promise<EmailHistory[]> {
+        const result = await model.ddb.invoke('getEmailHistory', [
+            plan_id || new DdbVoid(),
+            report_id || new DdbVoid(),
+            user_id || new DdbVoid(),
+            recipient || new DdbVoid(),
+            start_time || new DdbVoid(),
+            end_time || new DdbVoid(),
+            status || new DdbVoid()
+        ])
+        return result.data
     }
 }
 
