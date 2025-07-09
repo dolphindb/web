@@ -29,9 +29,6 @@ import { config } from '@/config/model.ts'
 import { GitHubAdapter, GitLabAdapter } from '@/shell/git/git-adapter.ts'
 
 
-const dev_hostname = '192.168.0.54' as const
-const dev_port = '20002' as const
-
 export const shf = storage.getstr('shf') === '1'
 
 
@@ -201,8 +198,11 @@ export class DdbModel extends Model<DdbModel> {
             return
         }
         
-        let hostname = params.get('hostname') || (this.dev ? dev_hostname : '') || location.hostname
-        let port = params.get('port') || (this.dev ? dev_port : '') || location.port
+        // 首个 env 作为 dev 下默认连接
+        const [default_hostname, default_port] = envs[0].value.split(':')
+        
+        let hostname = params.get('hostname') || (this.dev ? default_hostname : '') || location.hostname
+        let port = params.get('port') || (this.dev ? default_port : '') || location.port
         
         const host = params.get('host')
         
@@ -1141,6 +1141,62 @@ export class DdbModel extends Model<DdbModel> {
         }
     }
 }
+
+
+export const envs = [
+    {
+        label: '测试数据节点',
+        value: '192.168.0.54:20002'
+    },
+    {
+        label: '测试控制节点',
+        value: '192.168.0.54:20000'
+    },
+    {
+        label: '测试单机',
+        value: '192.168.0.54:8848'
+    },
+    {
+        label: '孙薇单机',
+        value: '192.168.100.45:7802'
+    },
+    {
+        label: '我的单机',
+        value: 'test.dolphindb.cn:8848'
+    },
+    {
+        label: 'orca',
+        value: '192.168.100.43:8193'
+    },
+    {
+        label: '定时巡检',
+        value: '192.168.100.44:7600'
+    },
+    {
+        label: '外汇交易中心',
+        value: '183.134.101.138:8018'
+    },
+    {
+        label: '新海单机',
+        value: '183.134.101.134:8892'
+    },
+    {
+        label: '指标平台单机',
+        value: '192.168.100.45:8633',
+    },
+    {
+        label: '运维工具',
+        value: '192.168.0.69:18921'
+    },
+    {
+        label: '本地',
+        value: '127.0.0.1:8848'
+    },
+    {
+        label: '采集平台',
+        value: '183.134.101.140:7748'
+    }
+]
 
 
 export const storage_keys = {
