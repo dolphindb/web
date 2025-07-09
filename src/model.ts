@@ -1145,6 +1145,10 @@ export class DdbModel extends Model<DdbModel> {
 
 export const envs = [
     {
+        label: '雅婷.orca',
+        value: '183.134.101.138:8081'
+    },
+    {
         label: '测试数据节点',
         value: '192.168.0.54:20002'
     },
@@ -1196,7 +1200,7 @@ export const envs = [
         label: '采集平台',
         value: '183.134.101.140:7748'
     }
-]
+].map(({ label, value }) => ({ label, value, title: value }))
 
 
 export const storage_keys = {
