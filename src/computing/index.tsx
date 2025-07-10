@@ -4,7 +4,7 @@ import { type Dispatch, type ReactNode, type SetStateAction, useEffect, useState
 
 import { Button, Tabs, Tooltip, Spin, Result, type TableColumnType, Input, Modal, List, Typography, Space } from 'antd'
 
-import { WarningOutlined, FormatPainterOutlined, TableOutlined, DeploymentUnitOutlined, ControlOutlined, StopOutlined, MinusCircleOutlined, DeleteOutlined } from '@ant-design/icons'
+import { WarningOutlined, FormatPainterOutlined, TableOutlined, DeploymentUnitOutlined, ControlOutlined, MinusCircleOutlined, DeleteOutlined } from '@ant-design/icons'
 
 import type { SortOrder } from 'antd/es/table/interface.js'
 
