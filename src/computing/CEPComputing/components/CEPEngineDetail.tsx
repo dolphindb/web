@@ -9,6 +9,12 @@ import cn from 'classnames'
 
 import { t } from '@i18n'
 
+import { data } from 'react-router'
+
+import useSWRMutation from 'swr/mutation'
+
+import { pick } from 'lodash'
+
 import { type ICEPEngineDetail, EngineDetailPage, type SubEngineItem } from '../type.js'
 import { get_dataview_info } from '../api.js'
 import { model } from '../../../model.js'
@@ -182,17 +188,19 @@ function DataView ({ info }: { info: ICEPEngineDetail }) {
     const { ddb: { username, password } } = model
     // 缓存连接，每次选择 dataview 的时候新建连接，订阅 dataview 的流表，切换的时候关闭
     const [cep_ddb, set_cep_ddb] = useState<DDB>()
-    const [loading, set_loading] = useState(false)
     
     // 流表数据
     const [dataview_streaming_data, set_dataview_streaming_data] = useState<any[]>([ ])
     // 数据视图 key 选项
     const [dataview_options, set_dataview_options] = useState<{ label: string, value: string }[]>([ ])
+    // 数据视图的 keyColumns 列表，keyColumns 对应的 value 组合是唯一的，也是数据视图下面需要筛选的 key
+    const [col_keys, set_col_keys] = useState<string[]>([ ])
     // 右边展示的表格
     const [value_table, set_value_table] = useState<any[]>([ ])
-    
     // 当前选中的 key
     const [selected_key, set_selected_key] = useState<string>()
+    
+    
     
     // 搜索框的值
     const [search_key, set_search_key] = useState<string>()
@@ -204,6 +212,7 @@ function DataView ({ info }: { info: ICEPEngineDetail }) {
         set_value_table([ ])
         set_selected_key(undefined)
         set_search_key(undefined)
+        set_col_keys([ ])
     }, [info])
     
     
@@ -229,7 +238,17 @@ function DataView ({ info }: { info: ICEPEngineDetail }) {
                         return
                     }
                     const streaming_data: any[] = stream_formatter(message.obj, 0, message.data.columns)
-                    set_dataview_streaming_data(data => [...streaming_data, ...data])                 
+                    set_dataview_streaming_data(data => [...streaming_data, ...data])  
+                    // 如果新推送的数据存在新的组合，不在 dataview_options 中，更新 dataview_options
+                    streaming_data.forEach(item => {
+                        const value = pick(item, col_keys)
+                        if (!dataview_options.some(option => option.value === JSON.stringify(value))) 
+                            set_dataview_options(options => [...options, {
+                                label: Object.entries(value).map(([k, v]) => `${k}: ${v}`).join(';\t'),
+                                value: JSON.stringify(value)
+                            }])
+                        
+                    })
                 }
             }
         })
@@ -237,26 +256,27 @@ function DataView ({ info }: { info: ICEPEngineDetail }) {
         set_cep_ddb(cep_streaming_ddb)
     }, [cep_ddb, info])
     
-    // 选择 dataview
-    const on_select = useCallback(async name => {         
-        set_loading(true)
-        const { table, key_cols } = await get_dataview_info(info.engineStat.name, name) 
-        set_dataview_streaming_data(table)
-        set_dataview_options(table.map(item => {
-            const key_values = { }
-            key_cols.forEach(key => key_values[key] = item[key])
-            return {
-                label: Object.values(key_values).join('__'),
-                value: JSON.stringify(key_values)
-            }
-        }))
-        // 订阅 dataview 的流表
-        const output_table_name = info.dataViewEngines.find(item => item.name === name).outputTableName
-        on_subscribe(output_table_name)
-        
-        set_loading(false)
-        
-    }, [info])
+    const { trigger: on_select_dataview, isMutating: loading } = useSWRMutation(
+        'get_dataview_info',
+        async (_url, { arg }: { arg: { name: string } }) => { 
+            const { name } = arg
+            const { table, key_cols } = await get_dataview_info(info.engineStat.name, name) 
+            set_dataview_streaming_data(table)
+            set_col_keys(key_cols)
+            // 初始化 dataview_options
+            set_dataview_options(table.map(item => {
+                const key_values = { }
+                key_cols.forEach(key => key_values[key] = item[key])
+                return {
+                    label: Object.entries(key_values).map(([k, v]) => `${k}: ${v}`).join(';\t'),
+                    value: JSON.stringify(key_values)
+                }
+            }))
+            // 订阅 dataview 的流表
+            const output_table_name = info.dataViewEngines.find(item => item.name === name).outputTableName
+            on_subscribe(output_table_name)
+        }
+    )
     
     
     return <div className='data-view-info'>
@@ -269,7 +289,7 @@ function DataView ({ info }: { info: ICEPEngineDetail }) {
                     label: item.name,
                     value: item.name
                 }))}
-                onSelect={on_select}
+                onSelect={async name => on_select_dataview({ name })}
                 onClear={() => {
                     cep_ddb?.disconnect?.()
                 }}
@@ -288,6 +308,7 @@ function DataView ({ info }: { info: ICEPEngineDetail }) {
                             {
                                 dataview_options.filter(item => item.label.includes(search_key ?? '')).map(item => <div
                                     key={item.value}
+                                    title={item.label}
                                     className={cn('data-view-key-item', { 'data-view-key-item-active': item.value === selected_key })}
                                     onClick={() => { 
                                         set_selected_key(item.value) 
