@@ -6,10 +6,9 @@ import { SearchOutlined, SendOutlined } from '@ant-design/icons'
 import { DDB, type StreamingMessage } from 'dolphindb/browser.js'
 import NiceModal from '@ebay/nice-modal-react'
 import cn from 'classnames'
+import useSWRMutation from 'swr/mutation'
 
 import { t } from '@i18n'
-
-import useSWRMutation from 'swr/mutation'
 
 import { pick } from 'lodash'
 
@@ -211,15 +210,16 @@ function DataView ({ info }: { info: ICEPEngineDetail }) {
         set_selected_key(undefined)
         set_search_key(undefined)
         set_col_keys([ ])
-        cep_ddb?.disconnect?.()
+        cep_ddb?.disconnect()
         set_cep_ddb(undefined)
     }, [info.engineStat.name])
     
     // 组件卸载，断开连接
-    useEffect(() => () => { 
-        cep_ddb?.disconnect?.() 
-    }, [cep_ddb])
-    
+    useEffect(() => 
+        () => { 
+            cep_ddb?.disconnect()
+        },
+        [cep_ddb])
     
     
     // 选择 dataview 之后订阅流表
@@ -304,7 +304,7 @@ function DataView ({ info }: { info: ICEPEngineDetail }) {
                 />
                 <Spin spinning={loading}> 
                     {
-                        !!dataview_options.length ? <>
+                        dataview_options.length ? <>
                             {
                                 dataview_options.filter(item => item.label.includes(search_key ?? '')).map(item => <div
                                     key={item.value}
