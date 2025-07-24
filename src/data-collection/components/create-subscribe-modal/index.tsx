@@ -138,7 +138,7 @@ export const CreateSubscribeModal = NiceModal.create((props: IProps) => {
         title={title_map[mode]}
         onOk={form.submit}
         footer={mode === 'view' ? null : undefined}
-        destroyOnClose
+        destroyOnHidden
     >
         <Form 
             className='subscribe-form'

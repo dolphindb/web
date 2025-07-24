@@ -129,7 +129,7 @@ export function DataSourceConfig (props: IProps) {
         <Modal 
             title={t('配置数据源')}
             width='80%' 
-            destroyOnClose
+            destroyOnHidden
             className='data-source'
             open={visible}
             onCancel={handle_close} 

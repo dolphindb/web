@@ -34,7 +34,7 @@ export const GroupCreateModal = NiceModal.create(() => {
                 add_group_form.resetFields()
                 modal.hide()
             }}
-            destroyOnClose
+            destroyOnHidden
             title={t('新建组')}
             onOk={async () => {
                 try {
