@@ -42,8 +42,7 @@ export function Plugins () {
     
     
     async function update_plugins (query?: string) {
-        let plugins = (await ddb.invoke<DdbTableData>('listPlugins'))
-            .data
+        let plugins = (await ddb.invoke<any[]>('listPlugins'))
             .map<Plugin>(({
                 plugin, 
                 minInstalledVersion: min_version, 
@@ -85,8 +84,7 @@ export function Plugins () {
     async function update_plugin_nodes () {
         set_plugin_nodes(log(
             t('节点插件:'),
-            (await ddb.invoke<DdbTableData>('listPluginsByNodes'))
-                .data
+            (await ddb.invoke<any[]>('listPluginsByNodes'))
                 .map<PluginNode>(({
                     plugin,
                     node,
@@ -464,13 +462,12 @@ function InstallModal ({
                     const server: InstallFields['server'] = rform.current.getFieldValue('server')
                     
                     set_remote_plugins(log(t('查询在线插件列表:'),
-                        (await ddb.invoke<DdbTableData<{ PluginName: string, PluginVersion: string }>>(
+                        (await ddb.invoke<{ PluginName: string, PluginVersion: string }[]>(
                             'listRemotePlugins', 
                             server ? [undefined, server] : undefined
                         ))
-                            .data
-                            .map(select('PluginName')))
-                    )
+                            .select('PluginName')
+                    ))
                 }
             }}
             

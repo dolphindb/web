@@ -209,7 +209,7 @@ async function update_data (data_source: DataSource, code: string, time: number)
     
     check(obj.form === DdbForm.table, t('返回的结果需要是表格'))
     
-    return obj.data<DdbTableData<Data>>().data
+    return obj.data<Data[]>()
 }
 
 

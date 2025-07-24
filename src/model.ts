@@ -623,12 +623,12 @@ export class DdbModel extends Model<DdbModel> {
     
     async is_admin () {
         const admin = this.logined && (
-            await this.ddb.invoke<DdbTableData<{ isAdmin: boolean }>>(
+            await this.ddb.invoke<{ isAdmin: boolean }[]>(
                 'getUserAccess',
                 undefined,
                 { urgent: true }
             )
-        ).data[0].isAdmin
+        )[0].isAdmin
         
         this.set({ admin })
         
@@ -779,8 +779,7 @@ export class DdbModel extends Model<DdbModel> {
             }, 5000)
         
         // 2025.01.03 登录鉴权功能之后 getClusterPerf 没有要求一定要在控制节点执行了
-        nodes = (await this.ddb.invoke<DdbTableData<DdbNode>>('getClusterPerf', [true], { urgent: true }))
-            .data
+        nodes = (await this.ddb.invoke<DdbNode[]>('getClusterPerf', [true], { urgent: true }))
             .sort((a, b) => strcmp(a.name, b.name))
         
         if (print)

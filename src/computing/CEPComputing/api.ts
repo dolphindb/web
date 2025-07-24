@@ -28,8 +28,7 @@ export async function get_cep_engine_detail (name: string) {
 
 
 export async function get_dataview_info (engine_name: string, dataview_name: string) { 
-    
-    const { data: table } = await model.ddb.invoke('getDataViewEngine', [engine_name, dataview_name])
+    const table = await model.ddb.invoke('getDataViewEngine', [engine_name, dataview_name])
     const engine_detail = await get_cep_engine_detail(engine_name)
     const key_cols = engine_detail?.dataViewEngines?.find(item => item.name === dataview_name)?.keyColumns?.split(',')
     
