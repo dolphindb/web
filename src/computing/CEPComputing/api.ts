@@ -29,10 +29,9 @@ export async function get_cep_engine_detail (name: string) {
 
 export async function get_dataview_info (engine_name: string, dataview_name: string) { 
     
-    const dataview_info = await model.ddb.call('getDataViewEngine', [engine_name, dataview_name])
+    const { data: table } = await model.ddb.invoke('getDataViewEngine', [engine_name, dataview_name])
     const engine_detail = await get_cep_engine_detail(engine_name)
+    const key_cols = engine_detail?.dataViewEngines?.find(item => item.name === dataview_name)?.keyColumns?.split(',')
     
-    const [key_col] = engine_detail?.dataViewEngines?.find(item => item.name === dataview_name)?.keyColumns?.split(' ')
-    const data_view_table = dataview_info ? sql_formatter(dataview_info) : [ ]
-    return { table: data_view_table, key_col, keys: data_view_table.map(item => item[key_col]) }
+    return { table, key_cols }
 }
