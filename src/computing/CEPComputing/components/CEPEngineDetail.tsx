@@ -1,6 +1,6 @@
 import '../index.scss'
 
-import { Badge, Descriptions, type DescriptionsProps, Radio, Table, type TableColumnsType, Space, Empty, Typography, Select, Input, Pagination, Spin, Button } from 'antd'
+import { Badge, Descriptions, type DescriptionsProps, Radio, type TableColumnsType, Space, Empty, Typography, Select, Input, Spin, Button } from 'antd'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { SearchOutlined, SendOutlined } from '@ant-design/icons'
 import { DDB, type StreamingMessage } from 'dolphindb/browser.js'
@@ -8,8 +8,6 @@ import NiceModal from '@ebay/nice-modal-react'
 import cn from 'classnames'
 
 import { t } from '@i18n'
-
-import { data } from 'react-router'
 
 import useSWRMutation from 'swr/mutation'
 
@@ -193,7 +191,7 @@ function DataView ({ info }: { info: ICEPEngineDetail }) {
     const [dataview_streaming_data, set_dataview_streaming_data] = useState<any[]>([ ])
     // 数据视图 key 选项
     const [dataview_options, set_dataview_options] = useState<{ label: string, value: string }[]>([ ])
-    // 数据视图的 keyColumns 列表，keyColumns 对应的 value 组合是唯一的，也是数据视图下面需要筛选的 key
+    // 数据视图的 keyColumns 列表
     const [col_keys, set_col_keys] = useState<string[]>([ ])
     // 右边展示的表格
     const [value_table, set_value_table] = useState<any[]>([ ])
@@ -205,7 +203,7 @@ function DataView ({ info }: { info: ICEPEngineDetail }) {
     // 搜索框的值
     const [search_key, set_search_key] = useState<string>()
     
-    
+    // 引擎变更，重置所有状态
     useEffect(() => {
         set_dataview_streaming_data([ ])
         set_dataview_options([ ])
@@ -213,9 +211,11 @@ function DataView ({ info }: { info: ICEPEngineDetail }) {
         set_selected_key(undefined)
         set_search_key(undefined)
         set_col_keys([ ])
-    }, [info])
+        cep_ddb?.disconnect?.()
+        set_cep_ddb(undefined)
+    }, [info.engineStat.name])
     
-    
+    // 组件卸载，断开连接
     useEffect(() => () => { 
         cep_ddb?.disconnect?.() 
     }, [cep_ddb])
@@ -229,7 +229,7 @@ function DataView ({ info }: { info: ICEPEngineDetail }) {
         const cep_streaming_ddb = new DDB(model.ddb.url, {
             autologin: !!username,
             username,
-            password: 'Ddb@1234',
+            password,
             streaming: {
                 table: streaming_table,
                 handler (message: StreamingMessage) {
@@ -263,7 +263,7 @@ function DataView ({ info }: { info: ICEPEngineDetail }) {
             const { table, key_cols } = await get_dataview_info(info.engineStat.name, name) 
             set_dataview_streaming_data(table)
             set_col_keys(key_cols)
-            // 初始化 dataview_options
+            // 初始化 dataview_options，keyColumns 对应的 value 组合是唯一的，也是数据视图下面需要筛选的 key
             set_dataview_options(table.map(item => {
                 const key_values = { }
                 key_cols.forEach(key => key_values[key] = item[key])
