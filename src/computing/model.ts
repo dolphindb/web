@@ -2,7 +2,8 @@ import { Model } from 'react-object-model'
 
 import { type DdbObj } from 'dolphindb/browser.js'
 
-import { model } from '../model.js'
+import { model } from '../model.ts'
+
 
 class ComputingModel extends Model<ComputingModel> {
     inited = false

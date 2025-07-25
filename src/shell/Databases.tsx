@@ -1034,17 +1034,14 @@ export class Database implements DataNode {
     
     
     async get_schema () {
-        if (!this.schema) {
-            await shell.define_load_database_schema()
-            this.schema = await model.ddb.call<DdbDictObj<DdbVectorStringObj>>(
-                'load_database_schema',
-                // 调用该函数时，数据库路径不能以 / 结尾
-                [this.path.slice(0, -1)],
-                model.node_type === NodeType.controller ? { node: model.datanode.name } : undefined
-            )
-        }
-        
-        return this.schema
+        return this.schema ??= await model.ddb.call<DdbDictObj<DdbVectorStringObj>>(
+            await model.ddb.define(
+                'def load_database_schema (db_path) {\n' +
+                '    return schema(database(db_path))\n' +
+                '}\n'),
+            // 调用该函数时，数据库路径不能以 / 结尾
+            [this.path.slice(0, -1)],
+            model.node_type === NodeType.controller ? { node: model.datanode.name } : undefined)
     }
     
     
@@ -1206,12 +1203,14 @@ export class Table implements DataNode {
     
     
     async inspect () {
-        await shell.define_peek_table()
         let obj = await model.ddb.call(
-            'peek_table',
+            await model.ddb.define(
+                'def peek_table (db_path, tb_name) {\n' +
+                '    return select top 100 * from loadTable(db_path, tb_name)\n' +
+                '}\n'),
             [this.db.path.slice(0, -1), this.name],
-            model.node_type === NodeType.controller ? { node: model.datanode.name } : undefined
-        )
+            model.node_type === NodeType.controller ? { node: model.datanode.name } : undefined)
+        
         obj.name = `${this.name} (${t('前 100 行')})`
         shell.set({ result: { type: 'object', data: obj } })
     }

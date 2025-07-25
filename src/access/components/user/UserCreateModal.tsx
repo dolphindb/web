@@ -30,7 +30,7 @@ export const UserCreateModal = NiceModal.create(() => {
                 modal.hide()
             }}
             afterClose={modal.remove}
-            destroyOnClose
+            destroyOnHidden
             title={t('新建用户')}
             onOk={async () => {
                 try {

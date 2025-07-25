@@ -80,7 +80,7 @@ export const SchemaUploadModal = NiceModal.create((props: ISchemaUploadModal) =>
         title={t('导入表文件')}
         onOk={on_submit}
         okButtonProps={{ loading }}
-        destroyOnClose
+        destroyOnHidden
         afterClose={modal.remove}
     >
         <Form form={form} labelCol={{ span: 8 }} wrapperCol={{ span: 16 }}>

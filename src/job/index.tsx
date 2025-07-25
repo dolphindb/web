@@ -375,7 +375,7 @@ function append_action_col (
                 
                 return <div className='action-col'>
                     <JobMessageShow
-                        disabled={!(job.jobId && (job.status === 'running' || job.status === 'completed'))}
+                        disabled={!job.jobId}
                         job={job} />
                     
                     <Popconfirm

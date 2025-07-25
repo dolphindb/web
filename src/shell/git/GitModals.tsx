@@ -221,7 +221,7 @@ export const GitHubOauthModal = NiceModal.create(() => {
     
     useEffect(() => {
         model.ddb.invoke('getLoadedPlugins').then(data => {
-            const pluginsList = data.data as {
+            const pluginsList = data as {
                 plugin: string
                 time: string
                 user: string

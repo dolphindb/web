@@ -56,15 +56,9 @@ class ShellModel extends Model<ShellModel> {
     
     unload_registered = false
     
-    load_table_schema_defined = false
-    
     load_table_variable_schema_defined = false
     
-    load_database_schema_defined = false
-    
     get_access_defined = false
-    
-    peek_table_defined = false
     
     add_column_defined = false
     
@@ -603,7 +597,7 @@ class ShellModel extends Model<ShellModel> {
                 
                 ;(
                     await ddb.invoke('getSchemaByCatalog', [catalog])
-                ).data
+                )
                     // 图的情况下 dbUrl 为空字符串，比如现在用 demo.orca_graph.tmp 作为一个图的标识了，demo.orca_graph 不是表的概念了
                     .filter(({ dbUrl }) => dbUrl)
                     .sort((a, b) => strcmp(a.schema, b.schema))
@@ -748,16 +742,10 @@ class ShellModel extends Model<ShellModel> {
     
     
     async define_load_table_schema () {
-        if (this.load_table_schema_defined)
-            return
-        
-        await model.ddb.eval(
+        await model.ddb.define(
             'def load_table_schema (db_path, tb_name) {\n' +
             '    return schema(loadTable(db_path, tb_name))\n' +
-            '}\n'
-        )
-        
-        shell.set({ load_table_schema_defined: true })
+            '}\n')
     }
     
     
@@ -772,34 +760,6 @@ class ShellModel extends Model<ShellModel> {
         )
         
         shell.set({ load_table_variable_schema_defined: true })
-    }
-    
-    
-    async define_load_database_schema () {
-        if (this.load_database_schema_defined)
-            return
-        
-        await model.ddb.eval(
-            'def load_database_schema (db_path) {\n' +
-            '    return schema(database(db_path))\n' +
-            '}\n'
-        )
-        
-        shell.set({ load_database_schema_defined: true })
-    }
-    
-    
-    async define_peek_table () {
-        if (this.peek_table_defined)
-            return
-        
-        await model.ddb.eval(
-            'def peek_table (db_path, tb_name) {\n' +
-            '    return select top 100 * from loadTable(db_path, tb_name)\n' +
-            '}\n'
-        )
-        
-        shell.set({ peek_table_defined: true })
     }
     
     

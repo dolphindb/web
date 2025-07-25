@@ -79,10 +79,11 @@ class InspectionModel extends Model<InspectionModel> {
             new DdbInt(limit),
             search_key
         ])
-        return { records: plans_obj.data, total }
+        return { records: plans_obj, total }
     }
     async get_plan (plan_id: string): Promise<Plan>  {
-        return (await model.ddb.invoke('getPlans', [plan_id]))[0].data[0]
+        return (await model.ddb.invoke('getPlans', [plan_id]))
+            [0][0]
     }
     
     async cancel_running_plan (report_id: string) {
@@ -90,7 +91,7 @@ class InspectionModel extends Model<InspectionModel> {
     }
     
     async delete_plans (ids: string[]) {
-        await model.ddb.invoke('deletePlan', [ ids ])
+        await model.ddb.invoke('deletePlan', [ids])
     }
     
     async create_plan (plan: Omit<Plan, 'id' | 'lastReportId'>) {
@@ -114,7 +115,7 @@ class InspectionModel extends Model<InspectionModel> {
     }
     
     async get_plan_detail (plan_id: string): Promise<PlanDetail[]> {
-        return (await model.ddb.invoke('getPlanDetails', [plan_id])).data
+        return model.ddb.invoke('getPlanDetails', [plan_id])
     }
     
     async get_reports (plan_id: string = null, report_id: string = null, start_time: string = null, end_time: string = null, success: number = null, page: number = 1, limit: number = 5, search_key: string = '', order_by: string = 'receivedTime', asc_order: number = 0): Promise<{ records: PlanReport[], total: number }> {
@@ -130,11 +131,11 @@ class InspectionModel extends Model<InspectionModel> {
             order_by, 
             new DdbInt(asc_order)
         ])
-        return { records: reports.data, total }
+        return { records: reports, total }
     }
     
     async get_report (report_id: string): Promise<PlanReport>  {
-        return (await model.ddb.invoke('getReports', [new DdbVoid(), report_id]))[0].data[0]
+        return (await model.ddb.invoke('getReports', [new DdbVoid(), report_id]))[0][0]
     }
     
     async delete_reprorts (ids: string[]) {
@@ -143,15 +144,15 @@ class InspectionModel extends Model<InspectionModel> {
     
     
     async get_report_detail_metrics (report_id: string): Promise<PlanReportDetailMetric[]> {
-        return (await model.ddb.invoke('getReportDetailsOfMetrics', [report_id])).data
+        return model.ddb.invoke('getReportDetailsOfMetrics', [report_id])
     }
     
     async get_report_detail_nodes (report_id: string): Promise<PlanReportDetailNode[]> {
-        return (await model.ddb.invoke('getReportDetailsOfNodes', [report_id])).data
+        return model.ddb.invoke('getReportDetailsOfNodes', [report_id])
     }
     
     async get_metrics (): Promise<Array<Omit<Metric, 'params'> & { params: string }>> {
-        return (await model.ddb.invoke('getMetrics')).data
+        return model.ddb.invoke('getMetrics')
     }
     
     async can_configure_email () {

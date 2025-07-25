@@ -88,7 +88,7 @@ export function VariableConfig () {
         <Modal 
             title={t('配置变量')}
             width='80%' 
-            destroyOnClose
+            destroyOnHidden
             className='variable'
             open={visible}
             onCancel={handle_close} 

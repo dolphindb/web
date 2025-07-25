@@ -96,7 +96,10 @@ class AccessModel extends Model<AccessModel> {
         if (has_schema) {
             let schema_set = new Set<string>()
             const catelog_names = await model.ddb.invoke<string[]>('getAllCatalogs')
-            const schemas = (await Promise.all(catelog_names.map(async name => (await model.ddb.invoke('getSchemaByCatalog', [name])).data))).flat(2)
+            const schemas = (await Promise.all(catelog_names.map(
+                async name => model.ddb.invoke('getSchemaByCatalog', [name])
+            )))
+                .flat(2)
             schemas.forEach(({ dbUrl }) => schema_set.add(dbUrl))
             databases = databases.filter(db => !schema_set.has(db))
         }
@@ -131,8 +134,7 @@ class AccessModel extends Model<AccessModel> {
     
     
     async get_schemas_by_catelog (catelog: string) {
-        const schemas = (await model.ddb.invoke('getSchemaByCatalog', [catelog]))
-            .data
+        const schemas = await model.ddb.invoke('getSchemaByCatalog', [catelog])
         const schemas_with_tables = await Promise.all(
                 schemas.map(
                     async (schema: Schema) => ({ ...schema, tables: this.tables.filter(tb => tb.startsWith(`${schema.dbUrl}/`)) }))
@@ -149,8 +151,7 @@ class AccessModel extends Model<AccessModel> {
     async get_user_access (users: string[], final: boolean = false) {
         if (!users?.length)
             return [ ]
-        return (await model.ddb.invoke('getUserAccess', [...final ? [users, true] : [users]]))
-            .data
+        return model.ddb.invoke('getUserAccess', [...final ? [users, true] : [users]])
     }
     
     
@@ -162,7 +163,7 @@ class AccessModel extends Model<AccessModel> {
     async get_group_access (groups: string[]) {
         if (!groups?.length)
             return [ ]
-        return (await model.ddb.invoke('getGroupAccess', [ groups ])).data
+        return model.ddb.invoke('getGroupAccess', [ groups ])
     }
     
     
@@ -187,7 +188,7 @@ class AccessModel extends Model<AccessModel> {
             return
         await model.ddb.invoke(
             'addGroupMember',
-            [ users, groups ]
+            [users, groups]
         )
     }
     
@@ -213,13 +214,13 @@ class AccessModel extends Model<AccessModel> {
             return
         await model.ddb.invoke(
             'deleteGroupMember',
-            [ users, groups ]
+            [users, groups]
         )
     }
     
     
     async get_databases (): Promise<string[]> {
-        return (model.ddb.invoke<string[]>('getClusterDFSDatabases'))
+        return model.ddb.invoke<string[]>('getClusterDFSDatabases')
     }
     
     
@@ -231,9 +232,9 @@ class AccessModel extends Model<AccessModel> {
     async get_share_tables () {
         return (
                 await model.ddb.invoke<
-                    DdbTableData<{ type: string, form: string, name: string, shared: boolean, node: string }>
+                    { type: string, form: string, name: string, shared: boolean, node: string }[]
                 >('objs', [true], { nodes: model.get_online_node_names() })
-            ).data
+            )
             .filter(({ shared, type, form }) => shared && type === 'BASIC' && form === 'TABLE')
             .map(({ name, node }) => `${ model.node_type === NodeType.single ? '' : `${node}:` }${name}`)
     }
@@ -241,21 +242,19 @@ class AccessModel extends Model<AccessModel> {
     
     async get_stream_tables () {
         return (
-            await model.ddb.invoke<DdbTableData<{ shared: boolean, name: string, node: string }>>(
+            await model.ddb.invoke<{ shared: boolean, name: string, node: string }[]>(
                 'getStreamTables',
                 undefined,
                 { nodes: model.get_online_node_names() })
         )
-            .data
             .filter(select('shared'))
             .map(({ name, node }) => `${ model.node_type === NodeType.single ? '' : `${node}:` }${name}`)
     }
     
     
     async get_function_views () {
-        return (await model.ddb.invoke<DdbTableData<{ name: string }>>('getFunctionViews'))
-            .data
-            .map(select('name'))
+        return (await model.ddb.invoke<{ name: string }[]>('getFunctionViews'))
+            .select('name')
     }
     
     

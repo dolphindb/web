@@ -435,7 +435,7 @@ export class DashBoardModel extends Model<DashBoardModel> {
     
     /** 根据 id 获取单个 DashboardConfig */
     async get_dashboard_config (id: number): Promise<DashBoardConfig> {
-        const { data } = (await model.ddb.invoke('dashboard_get_config', [{ id: String(id) }]))
+        const data = await model.ddb.invoke('dashboard_get_config', [{ id: String(id) }])
         
         const res: any = data.length
             ? ({
@@ -458,21 +458,21 @@ export class DashBoardModel extends Model<DashBoardModel> {
     
     /** 从服务器获取 dashboard 配置 */
     async get_dashboard_configs () {
-        const { data = [ ] } = await model.ddb.invoke('dashboard_get_config_list')
-        const configs = data.map(cfg => {
-            // 有些只需要 parse 一次，有些需要 parse 两次
-            let data = typeof cfg.data === 'string' ?  JSON.parse(cfg.data) : new TextDecoder().decode(cfg.data)
-            data = typeof data === 'string' ? JSON.parse(data) : data
-            return { 
-                ...cfg, 
-                id: Number(cfg.id), 
-                data: {
-                    ...data,
-                    // 历史数据的数据源类型统一修改为表格类型
-                    datasources: data.datasources.map(item => ({ type: DdbForm.table, ...item }))
-                }
-            } as DashBoardConfig
-        } ) 
+        const configs = (await model.ddb.invoke('dashboard_get_config_list') || [ ])
+            .map(cfg => {
+                // 有些只需要 parse 一次，有些需要 parse 两次
+                let data = typeof cfg.data === 'string' ?  JSON.parse(cfg.data) : new TextDecoder().decode(cfg.data)
+                data = typeof data === 'string' ? JSON.parse(data) : data
+                return { 
+                    ...cfg, 
+                    id: Number(cfg.id), 
+                    data: {
+                        ...data,
+                        // 历史数据的数据源类型统一修改为表格类型
+                        datasources: data.datasources.map(item => ({ type: DdbForm.table, ...item }))
+                    }
+                } as DashBoardConfig
+            })
         this.set({ configs })
     }
     
