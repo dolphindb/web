@@ -174,12 +174,19 @@ export const AddColumnModal = NiceModal.create<Props>(({ node }) => {
             await shell.define_add_column()
             
             // 调用该函数时，数据库路径不能以 / 结尾
-            await model.ddb.call('add_column', [
-                table.db.path.slice(0, -1),
-                table.name,
-                values.column,
-                generateDDBDataTypeLiteral(values)
-            ])
+            await model.ddb.invoke(
+                'def add_column (db_path, tb_name, col_name, col_type_str) {\n' +
+                // addColumn 的最后一个参数不能是 'INT', 只能是 INT 或者对应的 typeInt 4
+                // https://www.dolphindb.cn/cn/help/DatabaseandDistributedComputing/DatabaseOperations/AddColumns.html?highlight=addcolumn
+                // https://www.dolphindb.cn/cn/help/FunctionsandCommands/CommandsReferences/a/addColumn.html
+                '    addColumn(loadTable(database(db_path), tb_name), col_name, eval(parseExpr(col_type_str)) )\n' + 
+                '}\n',
+                [
+                    table.db.path.slice(0, -1),
+                    table.name,
+                    values.column,
+                    generateDDBDataTypeLiteral(values)
+                ])
             
             model.message.success(t('添加成功'))
             
