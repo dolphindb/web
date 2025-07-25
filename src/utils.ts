@@ -10,6 +10,8 @@ import { shf } from '@model'
 /** 表单 Form.Item 必填 `<Form.Item {...required}>` */
 export const required = { required: true, rules: [{ required: true }] }
 
+export const urgent = { urgent: true } as const
+
 /** 侧边栏收起状态宽度 */
 export const sider_collapsed_width = 50
 
