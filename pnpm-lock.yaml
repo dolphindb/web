@@ -60,8 +60,8 @@ importers:
         specifier: ^1.11.13
         version: 1.11.13
       dolphindb:
-        specifier: ^3.1.0
-        version: 3.1.0(react-dom@19.1.0(react@19.1.0))
+        specifier: ^3.1.1
+        version: 3.1.1(react-dom@19.1.0(react@19.1.0))
       driver.js:
         specifier: ^1.3.6
         version: 1.3.6
@@ -85,7 +85,7 @@ importers:
         version: 4.17.21
       monaco-dolphindb:
         specifier: ^1.0.6
-        version: 1.0.6(dolphindb@3.1.0(react-dom@19.1.0(react@19.1.0)))(monaco-editor@0.52.2)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)(vscode-oniguruma@2.0.1)(vscode-textmate@9.2.0)
+        version: 1.0.6(dolphindb@3.1.1(react-dom@19.1.0(react@19.1.0)))(monaco-editor@0.52.2)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)(vscode-oniguruma@2.0.1)(vscode-textmate@9.2.0)
       monaco-editor:
         specifier: ^0.52.2
         version: 0.52.2
@@ -2300,8 +2300,8 @@ packages:
     resolution: {integrity: sha512-35mSku4ZXK0vfCuHEDAwt55dg2jNajHZ1odvF+8SSr82EsZY4QmXfuWso8oEd8zRhVObSN18aM0CjSdoBX7zIw==}
     engines: {node: '>=0.10.0'}
 
-  dolphindb@3.1.0:
-    resolution: {integrity: sha512-RAicJLGu7XzA6J4XwHJu+w4jYETi5ToFtdRUizev6Rx76if4w5BDIlCx6D+OHK93Rfz79DDLTu3084BTZUN8dw==}
+  dolphindb@3.1.1:
+    resolution: {integrity: sha512-JS2//K5t4NVAzz4e/MMft4T8QRGIjWvLct52tlBTInu/4szB3Xv/hK1Syk/7jbt1B6UByhp2cgVCvO1HaCYnmg==}
 
   dom-serializer@2.0.0:
     resolution: {integrity: sha512-wIkAryiqt/nV5EQKqQpo3SToSOV9J0DnbJqwK7Wv/Trc92zIAYZ4FlMu+JPFW1DfGFt81ZTCGgDEabffXeLyJg==}
@@ -7332,7 +7332,7 @@ snapshots:
     dependencies:
       esutils: 2.0.3
 
-  dolphindb@3.1.0(react-dom@19.1.0(react@19.1.0)):
+  dolphindb@3.1.1(react-dom@19.1.0(react@19.1.0)):
     dependencies:
       dayjs: 1.11.13
       ipaddr.js: 2.2.0
@@ -8710,9 +8710,9 @@ snapshots:
 
   minipass@7.0.4: {}
 
-  monaco-dolphindb@1.0.6(dolphindb@3.1.0(react-dom@19.1.0(react@19.1.0)))(monaco-editor@0.52.2)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)(vscode-oniguruma@2.0.1)(vscode-textmate@9.2.0):
+  monaco-dolphindb@1.0.6(dolphindb@3.1.1(react-dom@19.1.0(react@19.1.0)))(monaco-editor@0.52.2)(react-dom@19.1.0(react@19.1.0))(react@19.1.0)(vscode-oniguruma@2.0.1)(vscode-textmate@9.2.0):
     dependencies:
-      dolphindb: 3.1.0(react-dom@19.1.0(react@19.1.0))
+      dolphindb: 3.1.1(react-dom@19.1.0(react@19.1.0))
       monaco-editor: 0.52.2
       vscode-oniguruma: 2.0.1
       vscode-textmate: 9.2.0
