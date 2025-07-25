@@ -61,7 +61,7 @@
         "react-markdown": "^10.1.0",
         "react-object-model": "^1.2.25",
         "react-quill-new": "^3.4.6",
-        "react-router": "^7.7.0",
+        "react-router": "^7.7.1",
         "reactflow": "^11.11.4",
         "remark-gfm": "^4.0.1",
         "swr": "^2.3.4",
