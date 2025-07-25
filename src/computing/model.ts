@@ -35,7 +35,10 @@ class ComputingModel extends Model<ComputingModel> {
     
     /** 处理流计算引擎状态，给每一个引擎添加 engineType 字段，合并所有类型的引擎 */
     async get_streaming_pub_sub_stat () {
-        this.set({ streaming_stat: (await model.ddb.call('getStreamingStat', [ ], { urgent: true })).to_dict() })
+        this.set({
+            streaming_stat: (await model.ddb.call('getStreamingStat', undefined, { urgent: true }))
+                .to_dict()
+        })
     }
     
     
