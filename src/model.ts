@@ -1144,10 +1144,6 @@ export class DdbModel extends Model<DdbModel> {
 
 export const envs = [
     {
-        label: '雅婷.orca',
-        value: '183.134.101.138:8081'
-    },
-    {
         label: '测试单机.剑波',
         value: '192.168.0.54:8848'
     },
@@ -1162,6 +1158,14 @@ export const envs = [
     {
         label: '孙薇单机',
         value: '192.168.100.45:7802'
+    },
+    {
+        label: '雅婷.orca',
+        value: '183.134.101.138:8525'
+    },
+    {
+        label: '雅婷.orca.2',
+        value: '183.134.101.138:8081'
     },
     {
         label: '我的单机',
