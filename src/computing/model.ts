@@ -82,7 +82,7 @@ const get_streaming_stat =
     '        func = NULL\n' +
     '    }\n' +
     '    \n' +
-    '    if (func)\n' +
+    '    if (func != NULL)\n' +
     '        return func(getStreamingStat(), orca ? 0 : 1)\n' +
     '    else\n' +
     '        return getStreamingStat()\n' +
@@ -98,7 +98,7 @@ const get_engine_stat =
     '        func = NULL\n' +
     '    }\n' +
     '    \n' +
-    '    if (func)\n' +
+    '    if (func != NULL)\n' +
     '        return func(getStreamEngineStat(), orca ? 0 : 1)\n' +
     '    else\n' +
     '        return getStreamEngineStat()\n' +
