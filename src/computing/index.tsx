@@ -12,10 +12,6 @@ import { use_modal } from 'react-object-model/hooks.js'
 
 import { type DDB } from 'dolphindb/browser.js'
 
-import { vercmp } from 'xshell/utils.browser'
-
-import { repeat } from 'lodash'
-
 import { model, NodeType } from '../model.js'
 
 import { TableCellDetail } from '../components/TableCellDetail/index.js'
@@ -36,12 +32,14 @@ import { CEPComputing } from './CEPComputing/index.js'
 
 
 export function Computing () {
-    const {
+    let {
+        inited,
         streaming_stat, 
         engine_stat, 
         persistent_table_stat, 
         shared_table_stat
     } = computing.use([
+        'inited',
         'streaming_stat',
         'engine_stat',
         'persistent_table_stat',
@@ -95,9 +93,9 @@ export function Computing () {
         }
     }
     
-    if (!streaming_stat || !engine_stat || !shared_table_stat)
+    if (!inited || !streaming_stat || !engine_stat || !shared_table_stat)
         return <div className='spin-container'>
-            <Spin size='large' delay={300} />
+            <Spin size='large' delay={500} />
         </div>
     
     const streaming_engine_cols: TableColumnType<Record<string, any>>[] = Object.keys(leading_cols.engine).map(col_name => ({
@@ -491,6 +489,7 @@ const detail_title = {
     persistenceDir: t('持久化路径')
 }
 
+
 /** 省略文本内容，提供`详细`按钮，点开后弹出 modal 显示详细信息 */
 function handle_ellipsis_col (table: Record<string, any>[], col_name: string) {
     return table.map(row => {
@@ -502,6 +501,7 @@ function handle_ellipsis_col (table: Record<string, any>[], col_name: string) {
     })
 }
 
+
 /** 增加单位 */
 function add_unit (table: Record<string, any>[], table_name: string) {
     const unit_keys = Object.keys(units[table_name])
@@ -512,10 +512,12 @@ function add_unit (table: Record<string, any>[], table_name: string) {
     })
 }
 
+
 /** 按照主要列（leading_cols）的顺序对表格进行排序 */
 function sort_col (cols: TableColumnType<Record<string, any>>[], type: string) {
     return Object.keys(leading_cols[type]).map(col_name => cols.find(({ dataIndex }) => dataIndex === col_name))
 }
+
 
 /** 增加排序列，subWorker 的 lastErrMsg 和 queueDepth，engine 的 lastErrMsg 和 memoryUsed  */
 function translate_order_col (cols: TableColumnType<Record<string, any>>[], is_sub_workers: boolean) {
@@ -539,11 +541,13 @@ function translate_order_col (cols: TableColumnType<Record<string, any>>[], is_s
     return cols
 }
 
+
 /** 为每一张表增加 key */
 function add_key (table: Record<string, any>, key_index = 0) {
     const { title = '' } = table
     return table.map(row => ({ ...row, key: title === 'pubConns' ? row.client + row.tables : Object.values(row)[key_index] }))
 }
+
 
 /** 这里需要改掉 render，原有的 render 会对数据做 format，导致抛出 NaN  */
 function translate_format_col (cols: TableColumnType<Record<string, any>>[], col_name: string) {
@@ -554,6 +558,7 @@ function translate_format_col (cols: TableColumnType<Record<string, any>>[], col
     })
 }
 
+
 /** 处理 byte */
 function translate_byte_row (table: Record<string, any>[], col_name: string) {
     return table.map(row => ({
@@ -562,6 +567,7 @@ function translate_byte_row (table: Record<string, any>[], col_name: string) {
         [col_name]: row[col_name] === '--' ? row[col_name] : upper(Number(row[col_name]).to_fsize_str())
     }))
 }
+
 
 /** 翻译列名，添加 tooltip */
 function render_col_title (cols: TableColumnType<Record<string, any>>[], table_name: string) {
@@ -575,6 +581,7 @@ function render_col_title (cols: TableColumnType<Record<string, any>>[], table_n
     }
     return cols
 }
+
 
 /** 给 subWorkers 的 queueDepth 字段添加警告颜色 */
 function set_col_color (cols: TableColumnType<Record<string, any>>[], col_name: string) {
@@ -592,6 +599,7 @@ function set_col_color (cols: TableColumnType<Record<string, any>>[], col_name: 
     return cols
 }
 
+
 /** 设置单元格自动省略 */
 function set_col_ellipsis (cols: TableColumnType<Record<string, any>>[], col_name: string) {
     let col = cols.find(({ dataIndex }) => dataIndex === col_name)
@@ -601,6 +609,7 @@ function set_col_ellipsis (cols: TableColumnType<Record<string, any>>[], col_nam
         </Tooltip>
     return cols
 }
+
 
 /** 增加额外信息列 */
 function add_details_col (cols: TableColumnType<Record<string, any>>[]) {
@@ -613,6 +622,7 @@ function add_details_col (cols: TableColumnType<Record<string, any>>[]) {
         }
     ]
 }
+
 
 /** 增加额外信息行，点击展示更多信息 */
 function add_details_row (table: Record<string, any>[]) {
@@ -638,6 +648,7 @@ function add_details_row (table: Record<string, any>[]) {
     })
 }
 
+
 /** 将表里的 -1 转成真正的 null,null 转为空 */
 function handle_null (table: Record<string, any>[]) {
     return table.map(row => {
@@ -647,6 +658,7 @@ function handle_null (table: Record<string, any>[]) {
         return row
     })
 }
+
 
 /** 统一处理删除 */
 async function handle_delete (type: string, selected: string[], ddb: DDB, refresher: () => Promise<void>, is_admin: boolean, raftGroups?: string[]) {
@@ -761,6 +773,7 @@ function DeleteModal ({
             </Button>
         </>
 }
+
 
 function StateTable ({
     type,
