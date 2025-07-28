@@ -50,14 +50,7 @@ export function Computing () {
     
     const [tab_key, set_tab_key] = useState<string>('streaming_pub_sub_stat')
     
-    const { logined, node_type, version } = model.use(['logined', 'node_type', 'version'])
-    
-    const show_cep_engine = useMemo(() => {
-        if (!version)
-            return false
-        const server_version = version + repeat('.0', 4 - version.split('.').length)
-        return vercmp(server_version, '3.00.00.0') >= 0
-    }, [ version ])
+    const { logined, node_type, v3 } = model.use(['logined', 'node_type', 'v3'])
     
     
     useEffect(() => {
@@ -265,7 +258,7 @@ export function Computing () {
                     </div>
                 )
             },
-            ...(show_cep_engine ? [{
+            ...(v3 ? [{
                 key: 'cep_computing',
                 children: <CEPComputing />,
                 label: <Space className='tab-header'>

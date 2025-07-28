@@ -1,0 +1,50 @@
+// orca: true: 仅 orca; false: 仅非 orca
+def get_streaming_stat (orca) {
+    try {
+        func = funcByName('filterStreamingStat')
+    } catch (error) {
+        func = NULL
+    }
+    
+    if (func != NULL)
+        return func(getStreamingStat(), orca ? 0 : 1)
+    else
+        return getStreamingStat()
+}
+
+
+// orca: true: 仅 orca; false: 仅非 orca
+def get_engine_stat (orca) {
+    try {
+        func = funcByName('filterEngineStat')
+    } catch (error) {
+        func = NULL
+    }
+    
+    if (func != NULL)
+        return func(getStreamEngineStat(), orca ? 0 : 1)
+    else
+        return getStreamEngineStat()
+}
+
+
+def get_shared_table_stat () {
+    return select name as TableName, rowsInMemory as rows, columns, memoryUsed from getStreamTables(2) where shared=true
+}
+
+
+def get_persistence_stat () {
+    persistTable = getStreamTables(1)
+    resultColNames = ["name","lastLogSeqNum","sizeInMemory","asynWrite","totalSize","raftGroup","compress","memoryOffset","sizeOnDisk","retentionMinutes","persistenceDir","hashValue","diskOffset"]
+    resultColTypes = ["STRING", "LONG","LONG","BOOL","LONG","INT","BOOL","LONG","LONG","LONG","STRING","INT","LONG"]
+    result = table(1:0, resultColNames, resultColTypes)
+    for(tbname in persistTable["name"]){
+       try{
+           tbStat = getPersistenceMeta(objByName(tbname))
+           tbStat["name"] = tbname
+           result.tableInsert(tbStat)
+       }catch(ex){}
+    }
+    result = select name as tablename, loaded, columns, memoryUsed, totalSize, sizeInMemory, memoryOffset, sizeOnDisk, diskOffset, asynWrite, retentionMinutes, compress, persistenceDir, hashValue, raftGroup, lastLogSeqNum from lj(persistTable, result, `name)
+    return result
+}
