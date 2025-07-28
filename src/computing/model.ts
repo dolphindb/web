@@ -2,7 +2,8 @@ import { Model } from 'react-object-model'
 
 import { type DdbObj } from 'dolphindb/browser.js'
 
-import { model } from '../model.ts'
+import { model } from '@model'
+import { urgent } from '@utils'
 
 
 class ComputingModel extends Model<ComputingModel> {
@@ -20,71 +21,68 @@ class ComputingModel extends Model<ComputingModel> {
     
     
     async init () {
-        await this.get_persistence_dir()
-        if (this.persistence_dir)
-            await this.def_get_persistence_stat()
-        await this.def_get_shared_table_stat()
-        
-        this.set({ inited: true })
-    }
-    
-    
-    async get_persistence_dir () {
-        this.set({ persistence_dir: (await model.ddb.call('getConfig', ['persistenceDir'], { urgent: true })).value as string })
+        this.set({
+            inited: true,
+            persistence_dir: await model.ddb.invoke<string>('getConfig', ['persistenceDir'], urgent)
+        })
     }
     
     
     /** 处理流计算引擎状态，给每一个引擎添加 engineType 字段，合并所有类型的引擎 */
     async get_streaming_pub_sub_stat () {
         this.set({
-            streaming_stat: (await model.ddb.call('getStreamingStat', undefined, { urgent: true }))
+            streaming_stat: (await model.ddb.call('getStreamingStat', undefined, urgent))
                 .to_dict()
         })
     }
     
     
     async get_streaming_engine_stat () {
-        this.set({ origin_streaming_engine_stat: (await model.ddb.call('getStreamEngineStat', [ ], { urgent: true })).to_dict() })
+        this.set({
+            origin_streaming_engine_stat: (await model.ddb.call('getStreamEngineStat', undefined, urgent))
+                .to_dict() })
     }
     
     
     async get_streaming_table_stat () {
-        if (this.persistence_dir)
-            this.set({ persistent_table_stat: await model.ddb.call('get_persistence_stat', [ ], { urgent: true }) })
-        this.set({ shared_table_stat: await model.ddb.call('get_shared_table_stat', [ ], { urgent: true }) }) 
+        this.set({
+            ... this.persistence_dir ? {
+                persistent_table_stat: await model.ddb.call(
+                    await model.ddb.define(get_persistence_stat, urgent),
+                    undefined, 
+                    urgent)
+            } : { },
+            
+            shared_table_stat: await model.ddb.call(
+                await model.ddb.define(get_shared_table_stat), 
+                undefined, 
+                urgent)
+        })
     }
-    
-    
-    async def_get_persistence_stat () {
-        await model.ddb.eval(
-            'def get_persistence_stat () {\n' +
-            '    persistTable = getStreamTables(1)\n' +
-            '    resultColNames = ["name","lastLogSeqNum","sizeInMemory","asynWrite","totalSize","raftGroup","compress","memoryOffset","sizeOnDisk","retentionMinutes","persistenceDir","hashValue","diskOffset"]\n' +
-            '    resultColTypes = ["STRING", "LONG","LONG","BOOL","LONG","INT","BOOL","LONG","LONG","LONG","STRING","INT","LONG"]\n' +
-            '    result = table(1:0, resultColNames, resultColTypes)\n' +
-            '    for(tbname in persistTable["name"]){\n' +
-            '       try{\n' +
-            '           tbStat = getPersistenceMeta(objByName(tbname))\n' +
-            '           tbStat["name"] = tbname\n' +
-            '           result.tableInsert(tbStat)\n' +
-            '       }catch(ex){}\n' +
-            '    }\n' +
-            '    result = select name as tablename, loaded, columns, memoryUsed, totalSize, sizeInMemory, memoryOffset, sizeOnDisk, diskOffset, asynWrite, retentionMinutes, compress, persistenceDir, hashValue, raftGroup, lastLogSeqNum from lj(persistTable, result, `name)\n' +
-            '    return result\n' +
-            '}\n', { urgent: true }
-        )
-    }
-    
-    
-    async def_get_shared_table_stat () {
-        await model.ddb.eval(
-            'def get_shared_table_stat () {\n' +
-            '    return select name as TableName, rowsInMemory as rows, columns, memoryUsed from getStreamTables(2) where shared=true\n' +
-            '}\n', { urgent: true }
-        )
-    }
-    
 }
 
+
+const get_shared_table_stat = 
+    'def get_shared_table_stat () {\n' +
+    '    return select name as TableName, rowsInMemory as rows, columns, memoryUsed from getStreamTables(2) where shared=true\n' +
+    '}\n'
+
+
+const get_persistence_stat = 
+    'def get_persistence_stat () {\n' +
+    '    persistTable = getStreamTables(1)\n' +
+    '    resultColNames = ["name","lastLogSeqNum","sizeInMemory","asynWrite","totalSize","raftGroup","compress","memoryOffset","sizeOnDisk","retentionMinutes","persistenceDir","hashValue","diskOffset"]\n' +
+    '    resultColTypes = ["STRING", "LONG","LONG","BOOL","LONG","INT","BOOL","LONG","LONG","LONG","STRING","INT","LONG"]\n' +
+    '    result = table(1:0, resultColNames, resultColTypes)\n' +
+    '    for(tbname in persistTable["name"]){\n' +
+    '       try{\n' +
+    '           tbStat = getPersistenceMeta(objByName(tbname))\n' +
+    '           tbStat["name"] = tbname\n' +
+    '           result.tableInsert(tbStat)\n' +
+    '       }catch(ex){}\n' +
+    '    }\n' +
+    '    result = select name as tablename, loaded, columns, memoryUsed, totalSize, sizeInMemory, memoryOffset, sizeOnDisk, diskOffset, asynWrite, retentionMinutes, compress, persistenceDir, hashValue, raftGroup, lastLogSeqNum from lj(persistTable, result, `name)\n' +
+    '    return result\n' +
+    '}\n'
 
 export let computing = new ComputingModel()
