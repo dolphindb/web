@@ -38,12 +38,12 @@ import { CEPComputing } from './CEPComputing/index.js'
 export function Computing () {
     const {
         streaming_stat, 
-        origin_streaming_engine_stat, 
+        engine_stat, 
         persistent_table_stat, 
         shared_table_stat
     } = computing.use([
         'streaming_stat',
-        'origin_streaming_engine_stat',
+        'engine_stat',
         'persistent_table_stat',
         'shared_table_stat'
     ])
@@ -67,8 +67,8 @@ export function Computing () {
         (async () => {
             if (!computing.inited)
                 await computing.init()
-            await computing.get_streaming_pub_sub_stat()
-            await computing.get_streaming_engine_stat()
+            await computing.get_streaming_stat()
+            await computing.get_engine_stat()
             await computing.get_streaming_table_stat()
         })()
     }, [ ])
@@ -86,23 +86,23 @@ export function Computing () {
     const tab_content = {
         streaming_pub_sub_stat: {
             title: t('流计算发布订阅状态'),
-            refresher: computing.get_streaming_pub_sub_stat
+            refresher: computing.get_streaming_stat
         },
         streaming_engine_stat: {
             title: t('流计算引擎状态'),
-            refresher: computing.get_streaming_engine_stat
+            refresher: computing.get_engine_stat
         },
         streaming_table_stat: {
             title: t('流数据表状态'),
             refresher: async () =>
                 Promise.all([
                     computing.get_streaming_table_stat(),
-                    computing.get_streaming_pub_sub_stat()
+                    computing.get_streaming_stat()
                 ])
         }
     }
     
-    if (!streaming_stat || !origin_streaming_engine_stat || !shared_table_stat)
+    if (!streaming_stat || !engine_stat || !shared_table_stat)
         return <div className='spin-container'>
             <Spin size='large' delay={300} />
         </div>
@@ -116,8 +116,8 @@ export function Computing () {
     }))
     
     let streaming_engine_rows = [ ]
-    for (let engineType of Object.keys(origin_streaming_engine_stat))
-        for (let row of origin_streaming_engine_stat[engineType].to_rows()) {
+    for (let engineType of Object.keys(engine_stat))
+        for (let row of engine_stat[engineType].to_rows()) {
             let new_row = { }
             
             // 特殊的三种引擎类型，内存使用为 memoryInUsed
@@ -175,7 +175,7 @@ export function Computing () {
                             )}
                             min_width={1420}
                             default_page_size={10}
-                            refresher={computing.get_streaming_pub_sub_stat}
+                            refresher={computing.get_streaming_stat}
                         />
                         
                         {streaming_stat.pubConns && <StateTable
@@ -216,7 +216,7 @@ export function Computing () {
                             min_width={1530}
                             separated={false}
                             default_page_size={20}
-                            refresher={computing.get_streaming_engine_stat}
+                            refresher={computing.get_engine_stat}
                         />
                     </div>
                 )

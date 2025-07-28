@@ -13,7 +13,7 @@ class ComputingModel extends Model<ComputingModel> {
     
     streaming_stat: Record<string, DdbObj>
     
-    origin_streaming_engine_stat: Record<string, DdbObj>
+    engine_stat: Record<string, DdbObj>
     
     persistent_table_stat: DdbObj
     
@@ -29,18 +29,27 @@ class ComputingModel extends Model<ComputingModel> {
     
     
     /** 处理流计算引擎状态，给每一个引擎添加 engineType 字段，合并所有类型的引擎 */
-    async get_streaming_pub_sub_stat () {
+    async get_streaming_stat (orca = false) {
         this.set({
-            streaming_stat: (await model.ddb.call('getStreamingStat', undefined, urgent))
-                .to_dict()
+            streaming_stat: (
+                await model.ddb.call(
+                    await model.ddb.define(get_streaming_stat, urgent),
+                    [orca], 
+                    urgent)
+            ).to_dict()
         })
     }
     
     
-    async get_streaming_engine_stat () {
+    async get_engine_stat (orca = false) {
         this.set({
-            origin_streaming_engine_stat: (await model.ddb.call('getStreamEngineStat', undefined, urgent))
-                .to_dict() })
+            engine_stat: (
+                await model.ddb.call(
+                    await model.ddb.define(get_engine_stat, urgent), 
+                    [orca],
+                    urgent)
+            ).to_dict()
+        })
     }
     
     
@@ -54,12 +63,46 @@ class ComputingModel extends Model<ComputingModel> {
             } : { },
             
             shared_table_stat: await model.ddb.call(
-                await model.ddb.define(get_shared_table_stat), 
+                await model.ddb.define(get_shared_table_stat, urgent), 
                 undefined, 
                 urgent)
         })
     }
 }
+
+export let computing = new ComputingModel()
+
+
+const get_streaming_stat = 
+    '// orca: true: 仅 orca; false: 仅非 orca\n' +
+    'def get_streaming_stat (orca) {\n' +
+    '    try {\n' +
+    "        func = funcByName('filterStreamingStat')\n" +
+    '    } catch (error) {\n' +
+    '        func = NULL\n' +
+    '    }\n' +
+    '    \n' +
+    '    if (func)\n' +
+    '        return func(getStreamingStat(), orca ? 0 : 1)\n' +
+    '    else\n' +
+    '        return getStreamingStat()\n' +
+    '}\n'
+
+
+const get_engine_stat = 
+    '// orca: true: 仅 orca; false: 仅非 orca\n' +
+    'def get_engine_stat (orca) {\n' +
+    '    try {\n' +
+    "        func = funcByName('filterEngineStat')\n" +
+    '    } catch (error) {\n' +
+    '        func = NULL\n' +
+    '    }\n' +
+    '    \n' +
+    '    if (func)\n' +
+    '        return func(getStreamEngineStat(), orca ? 0 : 1)\n' +
+    '    else\n' +
+    '        return getStreamEngineStat()\n' +
+    '}\n'
 
 
 const get_shared_table_stat = 
@@ -85,4 +128,3 @@ const get_persistence_stat =
     '    return result\n' +
     '}\n'
 
-export let computing = new ComputingModel()
