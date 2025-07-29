@@ -77,8 +77,6 @@ export function NodeDetailsComponent ({ selectedNode, id, status }: NodeDetailsC
                     
                     // Extract columns from the data
                     
-                    console.log(data_)
-                    
                     return <Table
                         dataSource={data_}
                         columns={task_status_columns}
