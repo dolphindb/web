@@ -1,30 +1,19 @@
 // orca: true: 仅 orca; false: 仅非 orca
 def get_streaming_stat (orca) {
-    try {
-        func = funcByName('filterStreamingStat')
-    } catch (error) {
-        func = NULL
-    }
-    
-    if (func != NULL)
-        return func(getStreamingStat(), orca ? 0 : 1)
-    else
-        return getStreamingStat()
+    return defined('filterStreamingStat', DEF) ? 
+        funcByName('filterStreamingStat')(getStreamingStat(), orca ? 0 : 1)
+    :
+        getStreamingStat()
 }
 
+// get_streaming_stat (false)
 
 // orca: true: 仅 orca; false: 仅非 orca
 def get_engine_stat (orca) {
-    try {
-        func = funcByName('filterEngineStat')
-    } catch (error) {
-        func = NULL
-    }
-    
-    if (func != NULL)
-        return func(getStreamEngineStat(), orca ? 0 : 1)
-    else
-        return getStreamEngineStat()
+    return defined('filterEngineStat', DEF) ? 
+        funcByName('filterEngineStat')(getStreamEngineStat(), orca ? 0 : 1)
+    :
+        getStreamEngineStat()
 }
 
 
@@ -38,13 +27,14 @@ def get_persistence_stat () {
     resultColNames = ["name","lastLogSeqNum","sizeInMemory","asynWrite","totalSize","raftGroup","compress","memoryOffset","sizeOnDisk","retentionMinutes","persistenceDir","hashValue","diskOffset"]
     resultColTypes = ["STRING", "LONG","LONG","BOOL","LONG","INT","BOOL","LONG","LONG","LONG","STRING","INT","LONG"]
     result = table(1:0, resultColNames, resultColTypes)
-    for(tbname in persistTable["name"]){
-       try{
+    
+    for (tbname in persistTable["name"]) {
+       try {
            tbStat = getPersistenceMeta(objByName(tbname))
            tbStat["name"] = tbname
            result.tableInsert(tbStat)
-       }catch(ex){}
+       } catch (error) { }
     }
-    result = select name as tablename, loaded, columns, memoryUsed, totalSize, sizeInMemory, memoryOffset, sizeOnDisk, diskOffset, asynWrite, retentionMinutes, compress, persistenceDir, hashValue, raftGroup, lastLogSeqNum from lj(persistTable, result, `name)
-    return result
+    
+    return select name as tablename, loaded, columns, memoryUsed, totalSize, sizeInMemory, memoryOffset, sizeOnDisk, diskOffset, asynWrite, retentionMinutes, compress, persistenceDir, hashValue, raftGroup, lastLogSeqNum from lj(persistTable, result, `name)
 }
