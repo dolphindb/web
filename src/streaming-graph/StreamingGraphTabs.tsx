@@ -7,33 +7,29 @@ import { StreamingGraphOverview } from './StreamingGraphOverview.tsx'
 import { StreamingGraphCheckpoints } from './StreamingGraphCheckpoints.tsx'
 import { StreamingGraphConfiguration } from './StreamingGraphConfiguration.tsx'
 
-const { TabPane } = Tabs
 
-interface StreamingGraphTabsProps {
-  id: string
-}
-
-export function StreamingGraphTabs ({ id }: StreamingGraphTabsProps) {
-    return <Tabs defaultActiveKey='overview'>
-        <TabPane 
-            tab={<span><LineChartOutlined /> {t('概览')}</span>}
-            key='overview'
-        >
-            <StreamingGraphOverview id={id} />
-        </TabPane>
-        
-        <TabPane 
-            tab={<span><CheckCircleOutlined /> {t('检查点')}</span>}
-            key='checkpoints'
-        >
-            <StreamingGraphCheckpoints id={id} />
-        </TabPane>
-        
-        <TabPane 
-            tab={<span><SettingOutlined /> {t('配置')}</span>}
-            key='configuration'
-        >
-            <StreamingGraphConfiguration id={id} />
-        </TabPane>
-    </Tabs>
+export function StreamingGraphTabs ({ id }: { id: string }) {
+    return <Tabs 
+        defaultActiveKey='overview'
+        items={[
+            {
+                key: 'overview',
+                icon: <LineChartOutlined />,
+                label: t('概览'),
+                children: <StreamingGraphOverview id={id} />
+            },
+            {
+                key: 'checkpoints',
+                icon: <CheckCircleOutlined />,
+                label: t('检查点'),
+                children: <StreamingGraphCheckpoints id={id} />
+            },
+            {
+                key: 'configuration',
+                icon: <SettingOutlined />,
+                label: t('检查点'),
+                children: <StreamingGraphConfiguration id={id} />
+            },
+        ]}
+    />
 }
