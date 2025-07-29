@@ -1,25 +1,15 @@
+import 'reactflow/dist/style.css'
+import './streaming-graph.sass'
+
 import { Card, Typography, Empty, Drawer, Table, Tooltip } from 'antd'
 import useSWR from 'swr'
 import { useCallback, useEffect, useState } from 'react'
-import ReactFlow, {
-    Background,
-    Controls,
-    type Node,
-    type Edge,
-    type NodeTypes,
-    MarkerType,
-    Position,
-    type NodeProps,
-    useNodesState,
-    useEdgesState,
-    ReactFlowProvider,
-    Handle,
-    ConnectionLineType
+import {
+    default as ReactFlow, Background, Controls, type Node, type Edge, type NodeTypes, 
+    MarkerType, Position, type NodeProps, useNodesState, useEdgesState, ReactFlowProvider,
+    Handle, ConnectionLineType
 } from 'reactflow'
 import dagre from 'dagre'
-import 'reactflow/dist/style.css'
-
-import './streaming-graph.sass'
 
 import { t } from '@i18n'
 
@@ -34,12 +24,12 @@ import { NodeDetailsComponent } from './NodeDetailsComponent.tsx'
 const { Text } = Typography
 
 // 定义布局方向和节点间距
-const dagreGraph = new dagre.graphlib.Graph()
-dagreGraph.setDefaultEdgeLabel(() => ({ }))
+const dagre_graph = new dagre.graphlib.Graph()
+dagre_graph.setDefaultEdgeLabel(() => ({ }))
 
 // 设置布局方向为水平方向
-function getLayoutedElements (nodes: Node[], edges: Edge[]) {
-    dagreGraph.setGraph({
+function get_layouted_elements (nodes: Node[], edges: Edge[]) {
+    dagre_graph.setGraph({
         rankdir: 'LR',
         ranksep: 100, // 大幅增加排之间的距离(从100增加到250)
         nodesep: 100, // 增加同一排中节点之间的距离(从50增加到100)
@@ -47,24 +37,25 @@ function getLayoutedElements (nodes: Node[], edges: Edge[]) {
     })
     
     // 清除之前的布局
-    dagreGraph.nodes().forEach(node => dagreGraph.removeNode(node))
+    dagre_graph.nodes().forEach(node => 
+        dagre_graph.removeNode(node))
     
     // 添加节点到布局引擎
     nodes.forEach(node => {
-        dagreGraph.setNode(node.id, { width: node.data.width || 180, height: node.data.height || 100 })
+        dagre_graph.setNode(node.id, { width: node.data.width || 180, height: node.data.height || 100 })
     })
     
     // 添加边到布局引擎
     edges.forEach(edge => {
-        dagreGraph.setEdge(edge.source, edge.target)
+        dagre_graph.setEdge(edge.source, edge.target)
     })
     
     // 计算布局
-    dagre.layout(dagreGraph)
+    dagre.layout(dagre_graph)
     
     // 应用布局结果到节点
     const layoutedNodes = nodes.map(node => {
-        const nodeWithPosition = dagreGraph.node(node.id)
+        const nodeWithPosition = dagre_graph.node(node.id)
         
         return {
             ...node,
@@ -103,9 +94,6 @@ interface ProcessedEdge {
     actionName?: string
 }
 
-interface StreamingGraphOverviewProps {
-    id: string
-}
 
 // 自定义矩形节点组件
 function CustomNode ({ data, id, selected }: NodeProps) {
@@ -223,39 +211,33 @@ function StreamingGraphVisualization ({
     selectedActionName: string | null
     setSelectedActionName: (actionName: string | null) => void
 }) {
-    const [nodeMap, setNodeMap] = useState<Map<number, DdbNode>>()
+    const [node_map, set_node_map] = useState<Map<number, DdbNode>>()
     
     const { data, error, isLoading } = useSWR(
         ['getStreamGraphInfo', id],
         async () => {
-            const graphInfo = await get_stream_graph_info(id)
+            const graph = await get_stream_graph_info(id)
             const nodes = await model.get_cluster_perf(false)
             
-            const taskToNodeMap = new Map(graphInfo.meta.tasks.map(task => [task.id, nodes.find(({ name }) => name === task.node)]))
-            setNodeMap(taskToNodeMap)
-            return graphInfo
+            const task_to_node_map = new Map(graph.meta.tasks.map(task => 
+                [task.id, nodes.find(({ name }) => name === task.node)]))
+            
+            set_node_map(task_to_node_map)
+            
+            return graph
         },
-        {
-            refreshInterval: 500
-        }
-    )
+        { refreshInterval: 1000 })
     
-    const [nodes, setNodes] = useNodesState([ ])
-    const [edges, setEdges] = useEdgesState([ ])
-    const [selectedNode, setSelectedNode] = useState<Node | null>(null)
-    const [drawerVisible, setDrawerVisible] = useState(false)
+    const [nodes, set_nodes] = useNodesState([ ])
+    const [edges, set_edges] = useEdgesState([ ])
+    const [selected, set_selected] = useState<Node | null>(null)
+    const [drawer, set_drawer] = useState(false)
     
     // 节点类型注册
-    const nodeTypes: NodeTypes = {
+    const node_types: NodeTypes = {
         customNode: CustomNode,
         subgraphContainer: SubgraphContainer
     }
-    
-    // 处理节点点击
-    const onNodeClick = useCallback((event: React.MouseEvent, node: Node) => {
-        setSelectedNode(node)
-        setDrawerVisible(true)
-    }, [ ])
     
     // 从原始数据转换为 ProcessedNode 和 ProcessedEdge
     const processGraphData = useCallback(
@@ -269,7 +251,7 @@ function StreamingGraphVisualization ({
                 
                 const nodeType = type || 'DEFAULT'
                 // 获取逻辑节点对象和名称
-                const logicalNode = nodeMap?.get(node.taskId)
+                const logicalNode = node_map?.get(node.taskId)
                 
                 const logicalNodeName = logicalNode?.name || ''
                 // 获取节点状态
@@ -281,7 +263,7 @@ function StreamingGraphVisualization ({
                     showId: id,
                     variableName,
                     initialName,
-                    label: name || initialName || variableName || `Node ${node.id}`,
+                    label: name || initialName || variableName || `${t('节点')} ${node.id}`,
                     subType: nodeType,
                     taskId: node.taskId,
                     logicalNode: logicalNodeName,
@@ -308,7 +290,7 @@ function StreamingGraphVisualization ({
             })
             return { nodes: processedNodes, edges: processedEdges }
         },
-        [nodeMap]
+        [node_map]
     )
     
     // 将 ProcessedNode 和 ProcessedEdge 转换为 ReactFlow 格式
@@ -385,7 +367,7 @@ function StreamingGraphVisualization ({
             })
             
             // 应用 dagre 布局
-            const { nodes: layoutedNodes, edges: layoutedEdges } = getLayoutedElements(reactFlowNodes, reactFlowEdges)
+            const { nodes: layoutedNodes, edges: layoutedEdges } = get_layouted_elements(reactFlowNodes, reactFlowEdges)
             
             // Group nodes by subgraphId for subgraph containers
             const subgraphGroups = layoutedNodes.reduce((groups, node) => {
@@ -438,7 +420,7 @@ function StreamingGraphVisualization ({
                             fontWeight: 800,
                             backgroundColor: 'rgba(255, 255, 255, 0.9)',
                             padding: '6px 10px',
-                            boxShadow: '0 2px 4px rgba(0,0,0,0.2)'
+                            boxShadow: '0 2px 4px rgba(0, 0, 0, 0.2)'
                         }
                     }
                 }
@@ -448,23 +430,20 @@ function StreamingGraphVisualization ({
                 edges: layoutedEdges
             }
         },
-        [selectedActionName, nodeMap]
+        [selectedActionName, node_map]
     )
     
     // 数据加载后更新图
     useEffect(() => {
-        if (data?.graph)
-            try {
-                const graphData = typeof data.graph === 'string' ? JSON.parse(data.graph) : data.graph
-                const { nodes: processedNodes, edges: processedEdges } = processGraphData(graphData)
-                
-                const { nodes: reactFlowNodes, edges: reactFlowEdges } = convertToReactFlowFormat(processedNodes, processedEdges)
-                setNodes(reactFlowNodes)
-                setEdges(reactFlowEdges)
-            } catch (e) {
-                console.error('Failed to parse graph data:', e)
-            }
-    }, [data, processGraphData, convertToReactFlowFormat, setNodes, setEdges, nodeMap])
+        if (data?.graph) {
+            const graphData = typeof data.graph === 'string' ? JSON.parse(data.graph) : data.graph
+            const { nodes: processedNodes, edges: processedEdges } = processGraphData(graphData)
+            
+            const { nodes: reactFlowNodes, edges: reactFlowEdges } = convertToReactFlowFormat(processedNodes, processedEdges)
+            set_nodes(reactFlowNodes)
+            set_edges(reactFlowEdges)
+        }
+    }, [data, processGraphData, convertToReactFlowFormat, set_nodes, set_edges, node_map])
     
     if (isLoading)
         return <Card loading />
@@ -482,8 +461,10 @@ function StreamingGraphVisualization ({
                     edges={edges}
                     onNodeClick={(event, node) => {
                         // 只有当点击的是Node类型节点时才显示抽屉
-                        if (node.type !== 'subgraphContainer')
-                            onNodeClick(event, node)
+                        if (node.type !== 'subgraphContainer') {
+                            set_selected(node)
+                            set_drawer(true)
+                        }
                     }}
                     onEdgeClick={(event, edge) => {
                         const currentActionName = edge?.data?.actionName
@@ -492,7 +473,7 @@ function StreamingGraphVisualization ({
                         if (selectedActionName === currentActionName)
                             setSelectedActionName('')
                     }}
-                    nodeTypes={nodeTypes}
+                    nodeTypes={node_types}
                     fitView
                     attributionPosition='bottom-right'
                     connectionLineType={ConnectionLineType.SmoothStep}
@@ -519,154 +500,130 @@ function StreamingGraphVisualization ({
                     getContainer={false}
                     width='50%'
                     onClose={() => {
-                        setDrawerVisible(false)
+                        set_drawer(false)
                     }}
-                    open={drawerVisible}
+                    open={drawer}
                 >
-                    <NodeDetailsComponent selectedNode={selectedNode} id={id} status={data.meta.status} />
+                    <NodeDetailsComponent selectedNode={selected} id={id} status={data.meta.status} />
                 </Drawer>
             </div>
         </div>
 }
 
-export const task_status_columns_map = [
+
+export const task_status_columns = [
     {
         title: t('任务 ID'),
-        dataIndex: 'taskId',
         key: 'taskId'
     },
     {
         title: t('表名'),
-        dataIndex: 'tableName',
         key: 'tableName'
     },
     {
         title: t('订阅任务名称'),
-        dataIndex: 'actionName',
         key: 'actionName'
     },
     {
         title: t('线程 ID'),
-        dataIndex: 'workerId',
         key: 'workerId'
     },
     {
         title: t('订阅主题'),
-        dataIndex: 'topic',
         key: 'topic'
     },
     {
         title: t('订阅方式'),
-        dataIndex: 'type',
         key: 'type'
     },
     {
         title: t('队列深度上限'),
-        dataIndex: 'queueDepthLimit',
         key: 'queueDepthLimit'
     },
     {
         title: t('队列深度'),
-        dataIndex: 'queueDepth',
         key: 'queueDepth'
     },
     {
         title: t('已处理消息数'),
-        dataIndex: 'processedMsgCount',
         key: 'processedMsgCount'
     },
     {
         title: t('最近处理消息 ID'),
-        dataIndex: 'lastMsgId',
         key: 'lastMsgId'
     },
     {
         title: t('失败消息总数'),
-        dataIndex: 'failedMsgCount',
         key: 'failedMsgCount'
     },
     {
         title: t('最近处理失败的消息 ID'),
-        dataIndex: 'lastFailedMsgId',
         key: 'lastFailedMsgId'
     },
     {
         title: t('最近处理失败的时刻'),
-        dataIndex: 'lastFailedTimestamp',
         key: 'lastFailedTimestamp'
     },
     {
         title: t('最近错误信息'),
-        dataIndex: 'lastErrMsg',
         key: 'lastErrMsg'
     },
     {
         title: t('消息是否为表'),
-        dataIndex: 'msgAsTable',
         key: 'msgAsTable'
     },
     {
         title: t('批次大小'),
-        dataIndex: 'batchSize',
         key: 'batchSize'
     },
     {
         title: t('等待间隔'),
-        dataIndex: 'throttle',
         key: 'throttle'
     },
     {
         title: t('订阅 hash 值'),
-        dataIndex: 'hash',
         key: 'hash'
     },
     {
         title: t('过滤列'),
-        dataIndex: 'filter',
         key: 'filter'
     },
     {
         title: t('开启订阅偏移持久化'),
-        dataIndex: 'persistOffset',
         key: 'persistOffset'
     },
     {
         title: t('强制按时间间隔触发'),
-        dataIndex: 'timeTrigger',
         key: 'timeTrigger'
     },
     {
         title: t('包含消息 ID'),
-        dataIndex: 'handlerNeedMsgId',
         key: 'handlerNeedMsgId'
     },
     {
         title: t('高可用组'),
-        dataIndex: 'raftGroup',
         key: 'raftGroup'
     },
     {
         title: t('节点'),
-        dataIndex: 'node',
         key: 'node'
     }
-]
-
-export const task_status_columns = task_status_columns_map.map(({ title, dataIndex, key }) => ({
+].map(({ title, key }) => ({
     title: title,
-    dataIndex: dataIndex,
+    dataIndex: key,
     key: key,
-    render: (text: any) => {
-        if (typeof text === 'object')
-            text = JSON.stringify(text)
+    render (value: any) {
+        if (typeof value === 'object')
+            value = JSON.stringify(value)
         
-        return <Tooltip placement='topLeft' title={text}>
-                <span style={{ overflow: 'hidden', maxWidth: 100, textOverflow: 'ellipsis', whiteSpace: 'nowrap', display: 'block' }}>{text}</span>
+        return <Tooltip placement='topLeft' title={value}>
+                <span style={{ overflow: 'hidden', maxWidth: 100, textOverflow: 'ellipsis', whiteSpace: 'nowrap', display: 'block' }}>{value}</span>
             </Tooltip>
     }
 }))
 
-// Task Subscription Worker Status Table component
+
+/** Task Subscription Worker Status Table component */
 export function TaskSubWorkerStatTable ({
     id,
     selectedActionName,
@@ -698,8 +655,6 @@ export function TaskSubWorkerStatTable ({
     if (!data || data.length === 0)
         return null
     
-    // Extract columns from data
-    
     return <Card title={t('流任务订阅线程状态')} style={{ marginTop: 16 }}>
             <Table
                 dataSource={data}
@@ -725,8 +680,9 @@ export function TaskSubWorkerStatTable ({
         </Card>
 }
 
-// Export main component with ReactFlowProvider
-export function StreamingGraphOverview ({ id }: StreamingGraphOverviewProps) {
+
+/** Export main component with ReactFlowProvider */
+export function StreamingGraphOverview ({ id }: { id: string }) {
     // 添加选中的 actionName 状态
     const [selectedActionName, setSelectedActionName] = useState<string | null>(null)
     
