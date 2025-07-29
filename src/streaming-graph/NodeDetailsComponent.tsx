@@ -72,7 +72,7 @@ export function NodeDetailsComponent ({ selectedNode, id, status }: NodeDetailsC
                     const data_ = data.filter(item => 
                         item.taskId !== undefined && Number(item.taskId) === Number(nodeData.taskId))
                     
-                    if (data_.length === 0)
+                    if (!data_.length)
                         return <Empty description={`No metrics data found for worker ${nodeData.taskId}`} />
                     
                     // Extract columns from the data
