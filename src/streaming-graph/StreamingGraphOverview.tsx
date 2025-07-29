@@ -231,7 +231,7 @@ function StreamingGraphVisualization ({
     const [nodes, set_nodes] = useNodesState([ ])
     const [edges, set_edges] = useEdgesState([ ])
     const [selected, set_selected] = useState<Node | null>(null)
-    const [drawer, set_drawer] = useState(false)
+    const [drawer_visible, set_drawer_visible] = useState(false)
     
     // 节点类型注册
     const node_types: NodeTypes = {
@@ -463,7 +463,7 @@ function StreamingGraphVisualization ({
                         // 只有当点击的是Node类型节点时才显示抽屉
                         if (node.type !== 'subgraphContainer') {
                             set_selected(node)
-                            set_drawer(true)
+                            set_drawer_visible(true)
                         }
                     }}
                     onEdgeClick={(event, edge) => {
@@ -502,9 +502,9 @@ function StreamingGraphVisualization ({
                     getContainer={false}
                     width='50%'
                     onClose={() => {
-                        set_drawer(false)
+                        set_drawer_visible(false)
                     }}
-                    open={drawer}
+                    open={drawer_visible}
                 >
                     <NodeDetailsComponent selectedNode={selected} id={id} status={data.meta.status} />
                 </Drawer>
