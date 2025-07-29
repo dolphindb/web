@@ -493,8 +493,10 @@ function StreamingGraphVisualization ({
                     <Background color='#f8f8f8' gap={16} />
                     <Controls showInteractive={false} />
                 </ReactFlow>
+                
                 {/* Node details drawer - contained within the flow container */}
                 <Drawer
+                    className='node-details'
                     title={t('详情')}
                     placement='right'
                     getContainer={false}
@@ -655,29 +657,30 @@ export function TaskSubWorkerStatTable ({
     if (!data || data.length === 0)
         return null
     
-    return <Card title={t('流任务订阅线程状态')} style={{ marginTop: 16 }}>
-            <Table
-                dataSource={data}
-                columns={task_status_columns}
-                rowKey='topic'
-                pagination={{
-                    defaultPageSize: 5,
-                    showSizeChanger: true,
-                    showQuickJumper: true
-                }}
-                scroll={{ x: 'max-content' }}
-                size='small'
-                onRow={record => ({
-                    onClick: () => {
-                        onActionNameSelect(record.actionName === selectedActionName ? null : record.actionName)
-                    },
-                    style: {
-                        cursor: 'pointer'
-                    }
-                })}
-                rowClassName={record => (record.actionName === selectedActionName ? 'ant-table-row-selected' : '')}
-            />
-        </Card>
+    return <>
+        <h3>{t('流任务订阅线程状态')}</h3>
+        <Table
+            dataSource={data}
+            columns={task_status_columns}
+            rowKey='topic'
+            pagination={{
+                defaultPageSize: 5,
+                showSizeChanger: true,
+                showQuickJumper: true
+            }}
+            scroll={{ x: 'max-content' }}
+            size='small'
+            onRow={record => ({
+                onClick: () => {
+                    onActionNameSelect(record.actionName === selectedActionName ? null : record.actionName)
+                },
+                style: {
+                    cursor: 'pointer'
+                }
+            })}
+            rowClassName={record => (record.actionName === selectedActionName ? 'ant-table-row-selected' : '')}
+        />
+    </>
 }
 
 
