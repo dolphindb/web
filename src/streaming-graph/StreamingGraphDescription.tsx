@@ -115,7 +115,7 @@ export function StreamingGraphDescription ({ id }: StreamingGraphDescriptionProp
     return <div>
             <Descriptions
                 title={
-                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '8px' }}>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
                         <span>{t('流图详情')}</span>
                         <Space>
                             {renderActions(data)}
@@ -136,7 +136,7 @@ export function StreamingGraphDescription ({ id }: StreamingGraphDescriptionProp
                 size='small'
                 className='compact-descriptions'
                 style={{
-                    marginBottom: '16px'
+                    marginBottom: '10px'
                 }}
             >
                 <Descriptions.Item label={t('流图 ID')}>{data.id}</Descriptions.Item>
