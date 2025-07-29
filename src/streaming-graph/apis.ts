@@ -13,7 +13,7 @@ export async function getStreamGraphMetaList (): Promise<StreamGraphMeta[]> {
 
 export async function getStreamGraphMeta (name: string): Promise<StreamGraphMeta> {
     return parseStreamGraphMeta(
-        await model.ddb.invoke('getStreamGraphMeta', [name])
+        (await model.ddb.invoke('getStreamGraphMeta', [name]))
             [0])
 }
 
