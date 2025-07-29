@@ -1,5 +1,5 @@
 import { useParams, useNavigate } from 'react-router'
-import { Button, Typography, Divider, Spin } from 'antd'
+import { Button, Typography, Spin } from 'antd'
 import { ArrowLeftOutlined } from '@ant-design/icons'
 
 import { t } from '@i18n'
@@ -37,8 +37,6 @@ export function StreamingGraphDetail () {
             </div>
             
             <StreamingGraphDescription id={name} />
-            
-            <Divider />
             
             <StreamingGraphTabs id={name} />
         </div>

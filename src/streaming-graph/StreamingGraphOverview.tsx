@@ -507,6 +507,7 @@ function StreamingGraphVisualization ({
                     }}
                     minZoom={0.1}
                     maxZoom={2}
+                    proOptions={{ hideAttribution: true }}
                 >
                     <Background color='#f8f8f8' gap={16} />
                     <Controls showInteractive={false} />
