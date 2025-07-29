@@ -704,7 +704,7 @@ export function TaskSubWorkerStatTable ({
             <Table
                 dataSource={data}
                 columns={task_status_columns}
-                rowKey={(record, index) => record.topic}
+                rowKey='topic'
                 pagination={{
                     defaultPageSize: 5,
                     showSizeChanger: true,

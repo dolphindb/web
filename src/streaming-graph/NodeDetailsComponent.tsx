@@ -40,55 +40,65 @@ export function NodeDetailsComponent ({ selectedNode, id, status }: NodeDetailsC
     
     const nodeData = selectedNode.data
     
-    
-    return <Tabs defaultActiveKey='1'>
-            <Tabs.TabPane tab={t('节点详情')} key='1'>
-                <Descriptions bordered column={2} styles={{ label: { whiteSpace: 'nowrap' } }}>
+    return <Tabs
+        defaultActiveKey='1'
+        items={[
+            {
+                key: '1',
+                label: t('节点详情'),
+                children: <Descriptions bordered column={2} styles={{ label: { whiteSpace: 'nowrap' } }}>
+                    
                     <Descriptions.Item label='ID'>{nodeData.showId}</Descriptions.Item>
                     <Descriptions.Item label={t('类型')}>{nodeData.subType}</Descriptions.Item>
                     <Descriptions.Item label={t('名称')}>{nodeData.variableName}</Descriptions.Item>
                     <Descriptions.Item label={t('初始名称')}>{nodeData.initialName}</Descriptions.Item>
-                    <Descriptions.Item label={t('任务ID')}>{nodeData.taskId}</Descriptions.Item>
-                    <Descriptions.Item label={t('节点')} span={3}>
+                    <Descriptions.Item label={t('任务 ID')}>{nodeData.taskId}</Descriptions.Item>
+                    <Descriptions.Item label={t('节点')}>
                         {nodeData.logicalNode}
                     </Descriptions.Item>
-                    <Descriptions.Item label={t('Schema')} span={3}>
+                    <Descriptions.Item label={t('Schema')}>
                         {renderSchema(nodeData.schema)}
                     </Descriptions.Item>
                 </Descriptions>
-            </Tabs.TabPane>
-            {isTable && (
-                <Tabs.TabPane tab={t('子图指标')} key='2'>{(() => {
-                    if (isLoading)
-                        return <Card loading />
-                    
-                    if (error)
-                        return <Text type='danger'>Failed to load metrics data: {error.message}</Text>
-                    
-                    if (!data || data.length === 0)
-                        return <Empty description='No metrics data available' />
-                    
-                    // Filter data related to the current node's subGraph
-                    const data_ = data.filter(item => 
-                        item.taskId !== undefined && Number(item.taskId) === Number(nodeData.taskId))
-                    
-                    if (!data_.length)
-                        return <Empty description={`No metrics data found for worker ${nodeData.taskId}`} />
-                    
-                    // Extract columns from the data
-                    
-                    return <Table
-                        dataSource={data_}
-                        columns={task_status_columns}
-                        rowKey={(record, index) => index}
-                        pagination={false}
-                        size='small'
-                        scroll={{ x: 'max-content' }}
-                    />
-                })()}</Tabs.TabPane>
-            )}
-            {isEngine && status === 'running' && (
-                <Tabs.TabPane tab={t('引擎指标')} key='3'>{(() => {
+            },
+            
+            ... isTable ? [
+                {
+                    key: '2',
+                    label: t('子图指标'),
+                    children: (() => {
+                        if (isLoading)
+                            return <Card loading />
+                        
+                        if (error)
+                            return <Text type='danger'>Failed to load metrics data: {error.message}</Text>
+                        
+                        if (!data || data.length === 0)
+                            return <Empty description='No metrics data available' />
+                        
+                        // Filter data related to the current node's subGraph
+                        const data_ = data.filter(item => 
+                            item.taskId !== undefined && Number(item.taskId) === Number(nodeData.taskId))
+                        
+                        if (!data_.length)
+                            return <Empty description={`No metrics data found for worker ${nodeData.taskId}`} />
+                        
+                        return <Table
+                            dataSource={data_}
+                            columns={task_status_columns}
+                            rowKey={(record, index) => index}
+                            pagination={false}
+                            size='small'
+                            scroll={{ x: 'max-content' }}
+                        />
+                    })()
+                },
+            ] : [ ],
+            
+            ... isEngine && status === 'running' ? [{
+                key: '3',
+                label: t('引擎指标'),
+                children: (() => {
                     if (engineLoading)
                         return <Card loading />
                     
@@ -133,9 +143,11 @@ export function NodeDetailsComponent ({ selectedNode, id, status }: NodeDetailsC
                             scroll={{ x: 'max-content' }} // 允许横向滚动
                             bordered
                         />
-                })()}</Tabs.TabPane>
-            )}
-        </Tabs>
+                    
+                })()
+            }] : [ ],
+        ]}
+    />
 }
 
 
