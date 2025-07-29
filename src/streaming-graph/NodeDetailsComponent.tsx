@@ -4,7 +4,7 @@ import type { Node } from 'reactflow'
 
 import { t } from '@i18n'
 
-import { defGetTaskSubWorkerStat, getSteamEngineStat, getTaskSubWorkerStat } from './apis.ts'
+import { def_get_task_sub_worker_stat, get_steam_engine_stat, get_task_sub_worker_stat } from './apis.ts'
 import { task_status_columns } from './StreamingGraphOverview.tsx'
 import type { StreamGraphStatus } from './types.ts'
 
@@ -21,8 +21,8 @@ export function NodeDetailsComponent ({ selectedNode, id, status }: NodeDetailsC
     const isTable = selectedNode && selectedNode.data?.subType === 'TABLE'
     
     const { data, error, isLoading } = useSWR(selectedNode ? ['getTaskSubWorkerStat', id] : null, async () => {
-        await defGetTaskSubWorkerStat()
-        return getTaskSubWorkerStat(id)
+        await def_get_task_sub_worker_stat()
+        return get_task_sub_worker_stat(id)
     })
     
     const {
@@ -32,7 +32,7 @@ export function NodeDetailsComponent ({ selectedNode, id, status }: NodeDetailsC
     } = useSWR(
         isEngine && status === 'running' ? ['getSteamEngineStat', selectedNode] : null,
         async () =>
-            getSteamEngineStat(selectedNode.data.label)
+            get_steam_engine_stat(selectedNode.data.label)
     )
     
     if (!selectedNode)
@@ -43,7 +43,7 @@ export function NodeDetailsComponent ({ selectedNode, id, status }: NodeDetailsC
     
     return <Tabs defaultActiveKey='1'>
             <Tabs.TabPane tab={t('节点详情')} key='1'>
-                <Descriptions bordered column={2} labelStyle={{ whiteSpace: 'nowrap' }}>
+                <Descriptions bordered column={2} styles={{ label: { whiteSpace: 'nowrap' } }}>
                     <Descriptions.Item label='ID'>{nodeData.showId}</Descriptions.Item>
                     <Descriptions.Item label={t('类型')}>{nodeData.subType}</Descriptions.Item>
                     <Descriptions.Item label={t('名称')}>{nodeData.variableName}</Descriptions.Item>
@@ -67,22 +67,26 @@ export function NodeDetailsComponent ({ selectedNode, id, status }: NodeDetailsC
                     
                     if (!data || data.length === 0)
                         return <Empty description='No metrics data available' />
-                    // Filter data related to the current node's subGraph
-                    const filteredData = data.filter(item => item.taskId !== undefined && Number(item.taskId) === Number(nodeData.taskId))
                     
-                    if (filteredData.length === 0)
+                    // Filter data related to the current node's subGraph
+                    const data_ = data.filter(item => 
+                        item.taskId !== undefined && Number(item.taskId) === Number(nodeData.taskId))
+                    
+                    if (data_.length === 0)
                         return <Empty description={`No metrics data found for worker ${nodeData.taskId}`} />
                     
                     // Extract columns from the data
                     
+                    console.log(data_)
+                    
                     return <Table
-                            dataSource={filteredData}
-                            columns={task_status_columns}
-                            rowKey={(record, index) => index.toString()}
-                            pagination={false}
-                            size='small'
-                            scroll={{ x: 'max-content' }}
-                        />
+                        dataSource={data_}
+                        columns={task_status_columns}
+                        rowKey={(record, index) => index}
+                        pagination={false}
+                        size='small'
+                        scroll={{ x: 'max-content' }}
+                    />
                 })()}</Tabs.TabPane>
             )}
             {isEngine && status === 'running' && (

@@ -3,7 +3,7 @@ import useSWR from 'swr'
 
 import { t } from '@i18n'
 
-import { getStreamGraphInfo } from './apis.ts'
+import { get_stream_graph_info } from './apis.ts'
 
 const { Text } = Typography
 
@@ -13,7 +13,7 @@ interface StreamingGraphConfigurationProps {
 
 export function StreamingGraphConfiguration ({ id }: StreamingGraphConfigurationProps) {
     // 只使用 SWR 获取检查点配置
-    const { data, error, isLoading } = useSWR(['getStreamGraphInfo', id], async () => getStreamGraphInfo(id))
+    const { data, error, isLoading } = useSWR(['getStreamGraphInfo', id], async () => get_stream_graph_info(id))
     
     if (isLoading)
         return <Card loading />

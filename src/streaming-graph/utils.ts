@@ -1,6 +1,6 @@
 import type { StreamGraphInfo, StreamGraphMeta } from './types.ts'
 
-export function parseStreamGraphMeta (rawData: any): StreamGraphMeta {
+export function parse_stream_graph_meta (rawData: any): StreamGraphMeta {
     return {
         ...rawData,
         checkpointConfig: JSON.parse(rawData.checkpointConfig),
@@ -8,7 +8,7 @@ export function parseStreamGraphMeta (rawData: any): StreamGraphMeta {
     }
 }
 
-export function parseStreamGraphInfo (rawData: any): StreamGraphInfo {
+export function parse_stream_graph_info (rawData: any): StreamGraphInfo {
     return {
         ...rawData,
         graph: JSON.parse(rawData.graph),

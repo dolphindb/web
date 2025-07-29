@@ -8,7 +8,7 @@ import useSWR from 'swr'
 
 import { StreamingGraphDescription } from './StreamingGraphDescription.tsx'
 import { StreamingGraphTabs } from './StreamingGraphTabs.tsx'
-import { getStreamGraphMetaList } from './apis.ts'
+import { get_stream_graph_meta_list } from './apis.ts'
 import type { StreamGraphMeta } from './types.ts'
 
 export function StreamingGraphDetail () {
@@ -16,7 +16,7 @@ export function StreamingGraphDetail () {
     const navigate = useNavigate()
     
     // 使用 useSWR 获取流计算图数据
-    const { data: streamGraphs, isLoading } = useSWR<StreamGraphMeta[]>('streamGraphs', getStreamGraphMetaList, {
+    const { data: streamGraphs, isLoading } = useSWR<StreamGraphMeta[]>('streamGraphs', get_stream_graph_meta_list, {
         refreshInterval: 30000, // 每30秒刷新一次
         revalidateOnFocus: true
     })

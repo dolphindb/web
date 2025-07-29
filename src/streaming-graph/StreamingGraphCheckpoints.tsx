@@ -7,7 +7,7 @@ import { StatusTag, StatusType } from '@/components/tags/index.tsx'
 
 import { DDBTable } from '@/components/DDBTable/index.tsx'
 
-import { getCheckpointConfig, getCheckpointJobInfo, getCheckpointSubjobInfo } from './apis.ts'
+import { get_checkpoint_config, get_checkpoint_job_info, get_checkpoint_subjob_info } from './apis.ts'
 
 const { Text } = Typography
 
@@ -20,21 +20,21 @@ const status_map = {
 
 export function StreamingGraphCheckpoints ({ id }: { id: string }) {
     // Get Job data
-    const { data: jobData, error: jobError, isLoading: jobLoading } = useSWR(['getCheckpointJobInfo', id], async () => getCheckpointJobInfo(id))
+    const { data: jobData, error: jobError, isLoading: jobLoading } = useSWR(['getCheckpointJobInfo', id], async () => get_checkpoint_job_info(id))
     
     // Get SubJob data
     const {
         data: subjobData,
         error: subjobError,
         isLoading: subjobLoading
-    } = useSWR(['getCheckpointSubjobInfo', id], async () => getCheckpointSubjobInfo(id))
+    } = useSWR(['getCheckpointSubjobInfo', id], async () => get_checkpoint_subjob_info(id))
     
     // Get configuration data
     const {
         data: configData,
         error: configError,
         isLoading: configLoading
-    } = useSWR(['getCheckpointConfig', id], async () => getCheckpointConfig(id))
+    } = useSWR(['getCheckpointConfig', id], async () => get_checkpoint_config(id))
     
     // Safe timestamp comparison helper for sorting
     function compareTimestamps (a, b) {

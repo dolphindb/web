@@ -10,7 +10,7 @@ import { model } from '@model'
 import { StatusTag, StatusType } from '@/components/tags/index.tsx'
 
 
-import { getStreamGraphMeta } from './apis.ts'
+import { get_stream_graph_meta } from './apis.ts'
 import { type StreamGraphMeta } from './types.ts'
 import { streaming_graph_status } from './JobTable.tsx'
 
@@ -30,7 +30,7 @@ interface StreamingGraphDescriptionProps {
 
 export function StreamingGraphDescription ({ id }: StreamingGraphDescriptionProps) {
     // Use useSWR to fetch streaming graph details
-    const { data, error, mutate } = useSWR(['streamGraphs', id], async () => getStreamGraphMeta(id), {
+    const { data, error, mutate } = useSWR(['streamGraphs', id], async () => get_stream_graph_meta(id), {
         refreshInterval: 10000, // Refresh every 10 seconds
         revalidateOnFocus: true,
         keepPreviousData: true

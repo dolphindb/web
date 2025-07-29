@@ -27,7 +27,7 @@ import { model, type DdbNode, type DdbNodeState } from '@model'
 
 import { node_state_icons } from '@/overview/table.tsx'
 
-import { defGetTaskSubWorkerStat, getStreamGraphInfo, getTaskSubWorkerStat } from './apis.ts'
+import { def_get_task_sub_worker_stat, get_stream_graph_info, get_task_sub_worker_stat } from './apis.ts'
 import { type StreamGraph, type GraphNode, type GraphEdge } from './types.ts'
 import { NodeDetailsComponent } from './NodeDetailsComponent.tsx'
 
@@ -229,7 +229,7 @@ function StreamingGraphVisualization ({
     const { data, error, isLoading } = useSWR(
         ['getStreamGraphInfo', id],
         async () => {
-            const graphInfo = await getStreamGraphInfo(id)
+            const graphInfo = await get_stream_graph_info(id)
             const nodes = await model.get_cluster_perf(false)
             
             const taskToNodeMap = new Map(graphInfo.meta.tasks.map(task => [task.id, nodes.find(({ name }) => name === task.node)]))
@@ -681,8 +681,8 @@ export function TaskSubWorkerStatTable ({
     const { data, error, isLoading } = useSWR(
         ['getTaskSubWorkerStat', id],
         async () => {
-            await defGetTaskSubWorkerStat()
-            return getTaskSubWorkerStat(id)
+            await def_get_task_sub_worker_stat()
+            return get_task_sub_worker_stat(id)
         },
         {
             refreshInterval: 500

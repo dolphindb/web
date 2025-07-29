@@ -6,13 +6,13 @@ import useSWR from 'swr'
 
 import { t } from '@i18n'
 
-import { StatusTag, StatusType } from '@/components/tags/index.tsx'
-import { DDBTable } from '@/components/DDBTable/index.tsx'
+import { StatusTag, StatusType } from '@components/tags/index.tsx'
+import { DDBTable } from '@components/DDBTable/index.tsx'
 
 import { model } from '@model'
 
-import { getStreamGraphMetaList } from './apis.ts'
-import { type StreamGraphMeta, type StreamGraphStatus } from './types.ts'
+import { get_stream_graph_meta_list } from './apis.ts'
+import type { StreamGraphMeta, StreamGraphStatus } from './types.ts'
 
 
 const { Text } = Typography
@@ -146,7 +146,7 @@ export function JobTable () {
     const [status_filters, set_status_filters] = useState<StreamGraphStatus[]>(default_status_filters)
     
     // 使用 useSWR 获取流计算图数据
-    const { data: streamGraphs, isLoading } = useSWR('streamGraphs', getStreamGraphMetaList, {
+    const { data: streamGraphs, isLoading } = useSWR('streamGraphs', get_stream_graph_meta_list, {
         refreshInterval: 30000, // 每30秒刷新一次
         revalidateOnFocus: true
     })
