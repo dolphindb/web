@@ -10,7 +10,7 @@ export function HostSelect ({ size = 'small' }: { size?: SizeType }) {
         size={size}
         listHeight={512}
         options={envs}
-        onSelect={host => { 
+        onSelect={host => {
             const [hostname, port] = host.split(':')
             location.href = model.get_url(hostname, Number(port))
         }}
