@@ -88,13 +88,10 @@ export const CreateDataSourceModal = NiceModal.create((props: ICreateDataSourceM
                     [
                         { required: true, message: '请输入名称' },
                         {
-                            validator: async (_, val) => {
-                                if (val?.length > 10)
-                                    return Promise.reject(new Error(t('数据源名长度不能大于10')))
-                                else if (data_sources.find(data_source => data_source.name === val))
-                                    return Promise.reject(new Error(t('已有同名数据源，请修改')))
-                                return Promise.resolve()
-                            },
+                            async validator (_, val) {
+                                if (data_sources.find(data_source => data_source.name === val))
+                                    throw new Error(t('已有同名数据源，请修改'))
+                            }
                         }
                     ]
                 }
