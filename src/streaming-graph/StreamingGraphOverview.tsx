@@ -165,7 +165,6 @@ function CustomNode ({ data, id, selected }: NodeProps) {
                     title={data.logicalNode}
                     style={{
                         backgroundColor: 'rgba(0,0,0,0.05)',
-                        borderRadius: '3px',
                         fontSize: '11px',
                         fontWeight: 'bold',
                         display: 'flex',
@@ -173,11 +172,11 @@ function CustomNode ({ data, id, selected }: NodeProps) {
                         justifyContent: 'space-between'
                     }}
                 >
-                    <span>Node: {data.logicalNode}</span>
+                    <span>{t('节点')}: {data.logicalNode}</span>
                 </div>
             )}
             
-            <div className='node-task'>Task ID: {data.taskId}</div>
+            <div className='node-task'>{t('任务 ID')}: {data.taskId}</div>
             {/* <div className='node-schema' 
         title={typeof data.schema === 'object' ? JSON.stringify(data.schema) : String(data.schema)}
       >
@@ -429,7 +428,6 @@ function StreamingGraphVisualization ({
                         height: bottom - top,
                         backgroundColor: `rgba(${(parseInt(subgraphId) * 50) % 255}, ${(parseInt(subgraphId) * 30) % 255}, ${(parseInt(subgraphId) * 70) % 255}, 0.1)`,
                         border: '1px dashed rgba(0,0,0,0.2)',
-                        borderRadius: '8px',
                         zIndex: -1
                     },
                     data: {
@@ -440,7 +438,6 @@ function StreamingGraphVisualization ({
                             fontWeight: 800,
                             backgroundColor: 'rgba(255, 255, 255, 0.9)',
                             padding: '6px 10px',
-                            borderRadius: '4px',
                             boxShadow: '0 2px 4px rgba(0,0,0,0.2)'
                         }
                     }
@@ -479,7 +476,7 @@ function StreamingGraphVisualization ({
         return <Empty description='' />
     
     return <div className='streaming-graph-page'>
-            <div style={{ height: 600, width: '100%', border: '1px solid #ddd', borderRadius: '4px', position: 'relative', overflow: 'hidden' }}>
+            <div style={{ height: 600, width: '100%', border: '1px solid #ddd', position: 'relative', overflow: 'hidden' }}>
                 <ReactFlow
                     nodes={nodes}
                     edges={edges}

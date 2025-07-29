@@ -3,11 +3,12 @@ import useSWR from 'swr'
 
 import { t } from '@i18n'
 
-import { StatusTag, StatusType } from '@/components/tags/index.tsx'
+import { StatusTag, StatusType } from '@components/tags/index.tsx'
 
-import { DDBTable } from '@/components/DDBTable/index.tsx'
+import { DDBTable } from '@components/DDBTable/index.tsx'
 
 import { get_checkpoint_config, get_checkpoint_job_info, get_checkpoint_subjob_info } from './apis.ts'
+
 
 const { Text } = Typography
 
@@ -19,148 +20,50 @@ const status_map = {
 
 
 export function StreamingGraphCheckpoints ({ id }: { id: string }) {
-    // Get Job data
     const { data: jobData, error: jobError, isLoading: jobLoading } = useSWR(['getCheckpointJobInfo', id], async () => get_checkpoint_job_info(id))
     
-    // Get SubJob data
     const {
         data: subjobData,
         error: subjobError,
         isLoading: subjobLoading
     } = useSWR(['getCheckpointSubjobInfo', id], async () => get_checkpoint_subjob_info(id))
     
-    // Get configuration data
     const {
         data: configData,
         error: configError,
         isLoading: configLoading
     } = useSWR(['getCheckpointConfig', id], async () => get_checkpoint_config(id))
     
-    // Safe timestamp comparison helper for sorting
-    function compareTimestamps (a, b) {
-        // Handle cases where timestamps might be null/undefined/invalid
-        const timeA = a ? new Date(a).getTime() : 0
-        const timeB = b ? new Date(b).getTime() : 0
-        
-        // If both are invalid (0), maintain original order
-        if (timeA === 0 && timeB === 0)
-            return 0
-        // Sort nulls/invalid dates to the end
-        if (timeA === 0)
-            return 1
-        if (timeB === 0)
-            return -1
-        // Normal comparison
-        return timeA - timeB
-    }
     
-    // Job table columns
-    const jobColumns = [
-        { title: t('检查点 ID'), dataIndex: 'checkpointId', key: 'checkpointId' },
-        { title: t('作业 ID'), dataIndex: 'jobId', key: 'jobId' },
-        {
-            title: t('创建时间'),
-            dataIndex: 'createdTimeStamp',
-            key: 'createdTimeStamp',
-            sorter: (a, b) => compareTimestamps(a.createdTimeStamp, b.createdTimeStamp)
-        },
-        {
-            title: t('结束时间'),
-            dataIndex: 'finishedTimeStamp',
-            key: 'finishedTimeStamp',
-            sorter: (a, b) => compareTimestamps(a.finishedTimeStamp, b.finishedTimeStamp)
-        },
-        {
-            title: t('状态', { context: 'streaming-graph' }),
-            dataIndex: 'status',
-            key: 'status',
-            render: status => <StatusTag status={status_map[status]}>{status}</StatusTag>
-        },
-        {
-            title: t('额外信息'),
-            dataIndex: 'extra',
-            key: 'extra',
-            render: extra => (extra ? <Tooltip title={extra}>{extra}</Tooltip> : '-')
-        }
-    ]
-    
-    // SubJob table columns
-    const subjobColumns = [
-        { title: t('检查点 ID'), dataIndex: 'checkpointId', key: 'checkpointId' },
-        { title: t('作业 ID'), dataIndex: 'jobId', key: 'jobId' },
-        { title: t('子作业 ID'), dataIndex: 'subjobId', key: 'subjobId' },
-        {
-            title: t('收到第一个 Barrier 的时刻'),
-            dataIndex: 'firstBarrierArrTs',
-            key: 'firstBarrierArrTs',
-            sorter: (a, b) => compareTimestamps(a.firstBarrierArrTs, b.firstBarrierArrTs)
-        },
-        {
-            title: t('Barrier 对齐的时刻'),
-            dataIndex: 'barrierAlignTs',
-            key: 'barrierAlignTs',
-            sorter: (a, b) => compareTimestamps(a.barrierAlignTs, b.barrierAlignTs)
-        },
-        {
-            title: t('转发 Barrier 时刻'),
-            dataIndex: 'barrierForwardTs',
-            key: 'barrierForwardTs',
-            sorter: (a, b) => compareTimestamps(a.barrierForwardTs, b.barrierForwardTs)
-        },
-        {
-            title: t('状态', { context: 'streaming-graph' }),
-            dataIndex: 'status',
-            key: 'status',
-            render: status => <StatusTag status={status_map[status]}>{status}</StatusTag>
-        },
-        {
-            title: t('下游订阅偏移量'),
-            dataIndex: 'downstreamSubscribeOffsets',
-            key: 'downstreamSubscribeOffsets'
-        },
-        {
-            title: t('快照元数据'),
-            dataIndex: 'snapshotMeta',
-            key: 'snapshotMeta',
-            render: meta => (meta ? <Tooltip title={JSON.stringify(meta)}>{JSON.stringify(meta)}</Tooltip> : '-')
-        },
-        {
-            title: t('额外信息'),
-            dataIndex: 'extra',
-            key: 'extra',
-            render: extra => (extra ? <Tooltip title={extra}>{extra}</Tooltip> : '-')
-        }
-    ]
-    
-    // Render Job tab content
-    function renderJobTab () {
+    function render_job_tab () {
         if (jobLoading)
             return <Card loading />
+        
         if (jobError)
             return <Text type='danger'>
                     {t('加载作业信息失败：')} {jobError.message}
                 </Text>
+        
         if (!jobData || !Array.isArray(jobData) || jobData.length === 0)
             return <Empty description={t('没有作业数据')} />
         
         return <DDBTable
-                dataSource={jobData.map(item => ({ ...item, key: item.checkpointId }))}
-                columns={jobColumns}
-                rowKey='checkpointId'
-                size='small'
-                scroll={{ x: 'max-content' }}
-                pagination={{
-                    defaultPageSize: 10,
-                    pageSizeOptions: ['5', '10', '20', '50', '100'],
-                    size: 'small',
-                    showSizeChanger: true,
-                    showQuickJumper: true
-                }}
-            />
+            dataSource={jobData.map(item => ({ ...item, key: item.checkpointId }))}
+            columns={job_columns}
+            rowKey='checkpointId'
+            size='small'
+            scroll={{ x: 'max-content' }}
+            pagination={{
+                defaultPageSize: 10,
+                pageSizeOptions: ['5', '10', '20', '50', '100'],
+                size: 'small',
+                showSizeChanger: true,
+                showQuickJumper: true
+            }}
+        />
     }
     
-    // Render SubJob tab content
-    function renderSubjobTab () {
+    function render_subjob_tab () {
         if (subjobLoading)
             return <Card loading />
         if (subjobError)
@@ -178,7 +81,7 @@ export function StreamingGraphCheckpoints ({ id }: { id: string }) {
         
         return <DDBTable
                 dataSource={dataWithKeys}
-                columns={subjobColumns}
+                columns={subjob_columns}
                 rowKey='key'
                 size='small'
                 scroll={{ x: 'max-content' }}
@@ -192,12 +95,14 @@ export function StreamingGraphCheckpoints ({ id }: { id: string }) {
             />
     }
     
-    // Render Configuration tab content
-    function renderConfigTab () {
+    
+    function render_config_tab () {
         if (configLoading)
             return <Card loading />
+        
         if (configError)
             return <Text type='danger'>Failed to load configuration: {configError.message}</Text>
+        
         if (!configData || Object.keys(configData).length === 0)
             return <Empty description={t('没有配置数据')} />
         
@@ -208,17 +113,126 @@ export function StreamingGraphCheckpoints ({ id }: { id: string }) {
             </Descriptions>
     }
     
+    
     return <div className='streaming-config-container'>
-            <Tabs defaultActiveKey='job'>
-                <Tabs.TabPane tab={t('作业')} key='job'>
-                    {renderJobTab()}
-                </Tabs.TabPane>
-                <Tabs.TabPane tab={t('子作业')} key='subjob'>
-                    {renderSubjobTab()}
-                </Tabs.TabPane>
-                <Tabs.TabPane tab={t('检查点配置')} key='config'>
-                    {renderConfigTab()}
-                </Tabs.TabPane>
-            </Tabs>
-        </div>
+        <Tabs
+            defaultActiveKey='job' 
+            items={[
+                {
+                    label: t('作业'),
+                    key: 'job',
+                    children: render_job_tab()
+                },
+                {
+                    label: t('子作业'),
+                    key: 'subjob',
+                    children: render_subjob_tab()
+                },
+                {
+                    label: t('检查点配置'),
+                    key: 'config',
+                    children: render_config_tab()
+                }
+            ]}
+        />
+    </div>
 }
+
+
+// SubJob table columns
+const subjob_columns = [
+    { title: t('检查点 ID'), dataIndex: 'checkpointId', key: 'checkpointId' },
+    { title: t('作业 ID'), dataIndex: 'jobId', key: 'jobId' },
+    { title: t('子作业 ID'), dataIndex: 'subjobId', key: 'subjobId' },
+    {
+        title: t('收到第一个 Barrier 的时刻'),
+        dataIndex: 'firstBarrierArrTs',
+        key: 'firstBarrierArrTs',
+        sorter: (a, b) => compare_timestamps(a.firstBarrierArrTs, b.firstBarrierArrTs)
+    },
+    {
+        title: t('Barrier 对齐的时刻'),
+        dataIndex: 'barrierAlignTs',
+        key: 'barrierAlignTs',
+        sorter: (a, b) => compare_timestamps(a.barrierAlignTs, b.barrierAlignTs)
+    },
+    {
+        title: t('转发 Barrier 时刻'),
+        dataIndex: 'barrierForwardTs',
+        key: 'barrierForwardTs',
+        sorter: (a, b) => compare_timestamps(a.barrierForwardTs, b.barrierForwardTs)
+    },
+    {
+        title: t('状态', { context: 'streaming-graph' }),
+        dataIndex: 'status',
+        key: 'status',
+        render: status => <StatusTag status={status_map[status]}>{status}</StatusTag>
+    },
+    {
+        title: t('下游订阅偏移量'),
+        dataIndex: 'downstreamSubscribeOffsets',
+        key: 'downstreamSubscribeOffsets'
+    },
+    {
+        title: t('快照元数据'),
+        dataIndex: 'snapshotMeta',
+        key: 'snapshotMeta',
+        render: meta => (meta ? <Tooltip title={JSON.stringify(meta)}>{JSON.stringify(meta)}</Tooltip> : '-')
+    },
+    {
+        title: t('额外信息'),
+        dataIndex: 'extra',
+        key: 'extra',
+        render: extra => (extra ? <Tooltip title={extra}>{extra}</Tooltip> : '-')
+    }
+]
+
+
+const job_columns = [
+    { title: t('检查点 ID'), dataIndex: 'checkpointId', key: 'checkpointId' },
+    { title: t('作业 ID'), dataIndex: 'jobId', key: 'jobId' },
+    {
+        title: t('创建时间'),
+        dataIndex: 'createdTimeStamp',
+        key: 'createdTimeStamp',
+        sorter: (a, b) => compare_timestamps(a.createdTimeStamp, b.createdTimeStamp)
+    },
+    {
+        title: t('结束时间'),
+        dataIndex: 'finishedTimeStamp',
+        key: 'finishedTimeStamp',
+        sorter: (a, b) => compare_timestamps(a.finishedTimeStamp, b.finishedTimeStamp)
+    },
+    {
+        title: t('状态', { context: 'streaming-graph' }),
+        dataIndex: 'status',
+        key: 'status',
+        render: status => <StatusTag status={status_map[status]}>{status}</StatusTag>
+    },
+    {
+        title: t('额外信息'),
+        dataIndex: 'extra',
+        key: 'extra',
+        render: extra => (extra ? <Tooltip title={extra}>{extra}</Tooltip> : '-')
+    }
+]
+
+
+// Safe timestamp comparison helper for sorting
+function compare_timestamps (a, b) {
+    // Handle cases where timestamps might be null/undefined/invalid
+    const timeA = a ? new Date(a).getTime() : 0
+    const timeB = b ? new Date(b).getTime() : 0
+    
+    // If both are invalid (0), maintain original order
+    if (timeA === 0 && timeB === 0)
+        return 0
+    // Sort nulls/invalid dates to the end
+    if (timeA === 0)
+        return 1
+    if (timeB === 0)
+        return -1
+    // Normal comparison
+    return timeA - timeB
+}
+

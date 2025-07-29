@@ -27,9 +27,9 @@ export function StreamingGraphTabs ({ id }: { id: string }) {
             {
                 key: 'configuration',
                 icon: <SettingOutlined />,
-                label: t('检查点'),
+                label: t('配置'),
                 children: <StreamingGraphConfiguration id={id} />
-            },
+            }
         ]}
     />
 }
