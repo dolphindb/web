@@ -1,6 +1,9 @@
+import 'reactflow/dist/style.css'
+import './index.sass'
+
 import { useRoutes } from 'react-router'
 
-import { StreamingGraphDetail } from './StreamingGraphDetail.tsx'
+import { Detail } from './Detail.tsx'
 
 import { JobTable } from './JobTable.tsx'
 
@@ -13,7 +16,7 @@ export function StreamingGraph () {
         },
         {
             path: ':id',
-            element: <StreamingGraphDetail />
+            element: <Detail />
         }
     ])
 }

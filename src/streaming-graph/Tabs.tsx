@@ -3,9 +3,9 @@ import { LineChartOutlined, CheckCircleOutlined, SettingOutlined } from '@ant-de
 
 import { t } from '@i18n'
 
-import { StreamingGraphOverview } from './StreamingGraphOverview.tsx'
-import { StreamingGraphCheckpoints } from './StreamingGraphCheckpoints.tsx'
-import { StreamingGraphConfiguration } from './StreamingGraphConfiguration.tsx'
+import { Overview } from './Overview.tsx'
+import { Checkpoints } from './Checkpoints.tsx'
+import { Configuration } from './Configuration.tsx'
 
 
 export function StreamingGraphTabs ({ id }: { id: string }) {
@@ -16,19 +16,19 @@ export function StreamingGraphTabs ({ id }: { id: string }) {
                 key: 'overview',
                 icon: <LineChartOutlined />,
                 label: t('概览'),
-                children: <StreamingGraphOverview id={id} />
+                children: <Overview id={id} />
             },
             {
                 key: 'checkpoints',
                 icon: <CheckCircleOutlined />,
                 label: t('检查点'),
-                children: <StreamingGraphCheckpoints id={id} />
+                children: <Checkpoints id={id} />
             },
             {
                 key: 'configuration',
                 icon: <SettingOutlined />,
                 label: t('配置'),
-                children: <StreamingGraphConfiguration id={id} />
+                children: <Configuration id={id} />
             }
         ]}
     />

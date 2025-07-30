@@ -1,6 +1,3 @@
-import 'reactflow/dist/style.css'
-import './streaming-graph.sass'
-
 import { Card, Typography, Empty, Drawer, Table, Tooltip } from 'antd'
 import useSWR from 'swr'
 import { useCallback, useEffect, useState } from 'react'
@@ -19,7 +16,7 @@ import { node_state_icons } from '@/overview/table.tsx'
 
 import { def_get_task_sub_worker_stat, get_stream_graph_info, get_task_sub_worker_stat } from './apis.ts'
 import { type StreamGraph, type GraphNode, type GraphEdge } from './types.ts'
-import { NodeDetailsComponent } from './NodeDetailsComponent.tsx'
+import { NodeDetails } from './NodeDetails.tsx'
 
 const { Text } = Typography
 
@@ -506,7 +503,7 @@ function StreamingGraphVisualization ({
                     }}
                     open={drawer_visible}
                 >
-                    <NodeDetailsComponent selectedNode={selected} id={id} status={data.meta.status} />
+                    <NodeDetails selectedNode={selected} id={id} status={data.meta.status} />
                 </Drawer>
             </div>
         </div>
@@ -685,7 +682,7 @@ export function TaskSubWorkerStatTable ({
 
 
 /** Export main component with ReactFlowProvider */
-export function StreamingGraphOverview ({ id }: { id: string }) {
+export function Overview ({ id }: { id: string }) {
     // 添加选中的 actionName 状态
     const [selectedActionName, setSelectedActionName] = useState<string | null>(null)
     

@@ -11,7 +11,7 @@ interface StreamingGraphConfigurationProps {
     id: string
 }
 
-export function StreamingGraphConfiguration ({ id }: StreamingGraphConfigurationProps) {
+export function Configuration ({ id }: StreamingGraphConfigurationProps) {
     // 只使用 SWR 获取检查点配置
     const { data, error, isLoading } = useSWR(['getStreamGraphInfo', id], async () => get_stream_graph_info(id))
     

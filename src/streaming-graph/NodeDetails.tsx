@@ -5,7 +5,7 @@ import type { Node } from 'reactflow'
 import { t } from '@i18n'
 
 import { def_get_task_sub_worker_stat, get_steam_engine_stat, get_task_sub_worker_stat } from './apis.ts'
-import { task_status_columns } from './StreamingGraphOverview.tsx'
+import { task_status_columns } from './Overview.tsx'
 import type { StreamGraphStatus } from './types.ts'
 
 const { Text } = Typography
@@ -16,7 +16,7 @@ interface NodeDetailsComponentProps {
     status: StreamGraphStatus
 }
 
-export function NodeDetailsComponent ({ selectedNode, id, status }: NodeDetailsComponentProps) {
+export function NodeDetails ({ selectedNode, id, status }: NodeDetailsComponentProps) {
     const isEngine = selectedNode && (selectedNode.data?.subType === 'REACTIVE_STATE_ENGINE' || selectedNode.data?.subType === 'TIME_SERIES_ENGINE')
     const isTable = selectedNode && selectedNode.data?.subType === 'TABLE'
     

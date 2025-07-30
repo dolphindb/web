@@ -19,7 +19,7 @@ const status_map = {
 }
 
 
-export function StreamingGraphCheckpoints ({ id }: { id: string }) {
+export function Checkpoints ({ id }: { id: string }) {
     const { data: jobData, error: jobError, isLoading: jobLoading } = useSWR(['getCheckpointJobInfo', id], async () => get_checkpoint_job_info(id))
     
     const {
