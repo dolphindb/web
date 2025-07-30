@@ -129,7 +129,8 @@ export function UserList () {
             }}
             placeholder={t('请输入想要搜索的用户')}
         />}
-        title={t('用户列表')}
+        title={t('用户管理')}
+        big_title
         rowSelection={{
             selectedRowKeys: selected_users,
             onChange: (selectedRowKeys: React.Key[]) => {

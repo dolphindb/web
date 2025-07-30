@@ -72,7 +72,8 @@ export function GroupList () {
     
     return <>
        {groups_info && <DDBTable
-            title={t('组列表')}
+            title={t('组管理')}
+            big_title
             rowSelection={{
                 selectedRowKeys: selected_groups,
                 onChange: (selectedRowKeys: React.Key[]) => {

@@ -163,6 +163,7 @@ export function Plugins () {
         
         <DDBTable
             title={t('插件管理')}
+            big_title
             buttons={<>
                 <Popconfirm
                     title={t('加载插件')}

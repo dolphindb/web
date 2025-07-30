@@ -121,6 +121,8 @@ export function Job () {
     
     return <>
         <div className='actions'>
+            <div className='title'>{t('作业管理')}</div>
+            
             <Input.Search className='search' placeholder={t('输入关键字后按回车可搜索作业')} onSearch={ value => { set_query(value) }} />
             <Button
                 className='refresh'
