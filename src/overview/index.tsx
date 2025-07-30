@@ -61,6 +61,8 @@ export function Overview () {
     
     return <Layout>
             <Header className='header-bar'>
+                <div className='title'>{node_type === NodeType.single ? t('单机总览') : t('集群总览')}</div>
+                
                 <Segmented<DisplayMode>
                     value={display_mode}
                     onChange={mode => {
@@ -73,8 +75,9 @@ export function Overview () {
                     ]}
                 />
                 
+                <div className='padding' />
+                
                 <div className='operations'>
-                    
                     {node_type !== NodeType.single && (
                         <>
                             <div className={icon_classname}>
