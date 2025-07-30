@@ -452,7 +452,7 @@ function StreamingGraphVisualization ({
         return <Empty description='' />
     
     return <div className='streaming-graph-page'>
-            <div style={{ height: 600, width: '100%', border: '1px solid #ddd', position: 'relative', overflow: 'hidden' }}>
+            <div style={{ height: 600, width: '100%', position: 'relative', overflow: 'hidden' }}>
                 <ReactFlow
                     nodes={nodes}
                     edges={edges}

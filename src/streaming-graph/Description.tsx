@@ -83,7 +83,6 @@ export function Description ({ id }: { id: string }) {
                 icon={<DeleteOutlined />}
                 danger
                 disabled={!active}
-                size='small'
                 onClick={() => {
                     setDeleteModalVisible(true)
                 }}
@@ -102,30 +101,29 @@ export function Description ({ id }: { id: string }) {
         </Typography.Text>
     
     return <div>
+        <div className='graph-detail-header'>
+            <Button icon={<ArrowLeftOutlined />} onClick={async () => model.navigate(-1)}>
+                {t('返回')}
+            </Button>
+            
+            <div className='title'>{t('流图详情')}</div>
+            
+            <div className='padding' />
+            
+            <Space>
+                {render_actions(data)}
+                <Button
+                    icon={<ReloadOutlined />}
+                    onClick={() => {
+                        mutate(undefined, { revalidate: true })
+                    }}
+                >
+                    {t('刷新')}
+                </Button>
+            </Space>
+        </div>
         
         <Descriptions
-            title={
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                    <Button icon={<ArrowLeftOutlined />} onClick={async () => model.navigate(-1)}>
-                        {t('返回')}
-                    </Button>
-                    
-                    <h3>{t('流图详情')}</h3>
-                    
-                    <Space>
-                        {render_actions(data)}
-                        <Button
-                            icon={<ReloadOutlined />}
-                            onClick={() => {
-                                mutate(undefined, { revalidate: true })
-                            }}
-                            size='small'
-                        >
-                            {t('刷新')}
-                        </Button>
-                    </Space>
-                </div>
-            }
             bordered
             column={3}
             size='small'
