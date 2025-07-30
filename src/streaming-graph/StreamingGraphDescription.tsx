@@ -144,7 +144,7 @@ export function StreamingGraphDescription ({ id }: StreamingGraphDescriptionProp
                 <Descriptions.Item label={t('流图状态')}>
                     <StatusTag status={status_map[data.status]}>{getStatusText(data.status)}</StatusTag>
                 </Descriptions.Item>
-                <Descriptions.Item label={t('创建时间')}>{data.createTime ? new Date(data.createTime).toLocaleString() : '-'}</Descriptions.Item>
+                <Descriptions.Item label={t('创建时间')}>{data.createTime ? new Date(data.createTime).to_formal_str() : '-'}</Descriptions.Item>
                 <Descriptions.Item label={t('执行次数')}>{data.semantics}</Descriptions.Item>
                 <Descriptions.Item label={t('失败原因')}>{data.reason}</Descriptions.Item>
             </Descriptions>
