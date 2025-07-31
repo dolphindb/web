@@ -160,6 +160,7 @@ export function JobTable () {
                     {t('运行中')})
                 </>
             }
+            big_title
             columns={columns}
             dataSource={
                 (streamGraphs && status_filters?.length ?
