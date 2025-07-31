@@ -22,6 +22,12 @@
 // 流图页面样式
 .streaming-graph-page
     margin-bottom: 20px
+    
+    .react-flow-container
+        height: 800px
+        width: 100%
+        position: relative
+        overflow: hidden
 
 // 自定义节点样式
 .react-flow-node
@@ -116,6 +122,15 @@
     // 节点详情样式
     .node-detail-item
         margin-bottom: 8px
+    
+    .ant-descriptions-item-content.no-padding
+        padding: 0px !important
+    
+    .cell-descriptions
+        overflow: auto
+        
+        &.schema
+            max-height: 160px
 
 // 添加流图边的流动效果样式
 .react-flow__edge

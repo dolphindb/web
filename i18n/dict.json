@@ -1340,6 +1340,9 @@
     "结构": {
         "en": "schema"
     },
+    "结构_title": {
+        "en": "Schema"
+    },
     "分区数据": {
         "en": "partition data"
     },
@@ -6436,5 +6439,20 @@
     },
     "组态图": {
         "en": "Configuration"
+    },
+    "最新": {
+        "en": "Latest"
+    },
+    "指标已更新": {
+        "en": "Metrics updated"
+    },
+    "未知错误": {
+        "en": "Unknown error"
+    },
+    "指标": {
+        "en": "Metrics"
+    },
+    "node.properties 中的 metrics 数组长度应该为 1": {
+        "en": "Metrics array length in node.properties should be 1"
     }
 }

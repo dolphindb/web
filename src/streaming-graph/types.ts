@@ -64,6 +64,7 @@ export interface NodeProperties {
     timeColumn?: string
     filterColumn?: string
     variableName?: string
+    metrics?: any[]
 }
 
 // Graph node

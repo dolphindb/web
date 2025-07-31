@@ -129,8 +129,8 @@ importers:
         specifier: ^9.2.0
         version: 9.2.0
       xshell:
-        specifier: ^1.2.68
-        version: 1.2.68(react-dom@19.1.1(react@19.1.1))
+        specifier: ^1.2.69
+        version: 1.2.69(react-dom@19.1.1(react@19.1.1))
     devDependencies:
       '@types/js-cookie':
         specifier: ^3.0.6
@@ -4617,8 +4617,8 @@ packages:
       utf-8-validate:
         optional: true
 
-  xshell@1.2.68:
-    resolution: {integrity: sha512-c4cYWPLcU0M3uDxRTM5uIXDVNcSBXJuXF9byovgCPUQjJ5D8vORZ6yut2sllWwzxBhnrNOBswhS55daD+gpZ5w==}
+  xshell@1.2.69:
+    resolution: {integrity: sha512-GJATj9NZqxT6NNwgzgO0cC78Ptk0LG61ZIeidn7cwmOaTYymvgleZXLI2nX2tNER4V3Nx1ZW1lZ+dl4IjF8DRQ==}
     hasBin: true
 
   xtend@4.0.2:
@@ -7310,7 +7310,7 @@ snapshots:
       dayjs: 1.11.13
       ipaddr.js: 2.2.0
       tslib: 2.8.1
-      xshell: 1.2.68(react-dom@19.1.1(react@19.1.1))
+      xshell: 1.2.69(react-dom@19.1.1(react@19.1.1))
     transitivePeerDependencies:
       - '@rspack/core'
       - '@swc/core'
@@ -10239,7 +10239,7 @@ snapshots:
 
   ws@8.18.3: {}
 
-  xshell@1.2.68(react-dom@19.1.1(react@19.1.1)):
+  xshell@1.2.69(react-dom@19.1.1(react@19.1.1)):
     dependencies:
       '@babel/core': 7.28.0
       '@babel/parser': 7.28.0
