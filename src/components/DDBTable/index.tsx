@@ -29,7 +29,7 @@ export function DDBTable<T> ({ title, help, buttons, filter_form, pagination, bi
                 () => <>
                     <div className='ddb-table-header'>
                         {title ? 
-                            <div className={`ddb-table-title ${big_title ? 'bigtitle' : ''}`}>
+                            <div className={`ddb-table-title ${big_title ? 'big-title' : ''}`}>
                                 <div className='text'>{title}</div>
                                 { help && <Tooltip title={help}>
                                     <QuestionCircleOutlined className='help-icon' />
