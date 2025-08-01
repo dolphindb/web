@@ -67,9 +67,19 @@ export function ExportCsv ({ info }: { info: DdbTableObj | DdbObjRef<DdbObj<DdbV
                         URL.createObjectURL(new Blob(
                             [
                                 new Uint8Array([0xEF, 0xBB, 0xBF]),
-                                (await model.ddb.call('get_csv_content', [(info instanceof DdbObjRef) ? info.name : info, new DdbInt(start), new DdbInt(end)])).value as Uint8Array
-                            ], 
-                            { type: 'text/plain' }
+                                (await model.ddb.invoke(
+                                    'get_csv_content',
+                                    [
+                                        (info instanceof DdbObjRef) ? 
+                                            info.name
+                                        :
+                                            info,
+                                        new DdbInt(start), 
+                                        new DdbInt(end)
+                                    ],
+                                    { blob: 'binary' })) as Uint8Array<ArrayBuffer>
+                            ],
+                            { type: 'text/csv' }
                         ))
                     )
                 } finally {

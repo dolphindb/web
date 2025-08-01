@@ -25,7 +25,7 @@
         "@types/react-dom": "^19.1.7",
         "eslint": "^9.32.0",
         "react": "^19.1.1",
-        "typescript": "^5.8.3"
+        "typescript": "^5.9.2"
     },
     "dependencies": {
         "@ant-design/icons": "^6.0.0",
@@ -68,6 +68,6 @@
         "tslib": "^2.8.1",
         "vscode-oniguruma": "^2.0.1",
         "vscode-textmate": "^9.2.0",
-        "xshell": "^1.2.69"
+        "xshell": "^1.2.71"
     }
 }
