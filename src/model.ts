@@ -306,7 +306,17 @@ export class DdbModel extends Model<DdbModel> {
             await this.login_by_oauth()
         }
         
-        if (this.autologin && !this.logined)
+        const { params } = this
+        const username = params.get('username')
+        const password = params.get('password')
+        
+        if (username && password)  // 支持通过 url 中传用户名密码自动登录
+            try {
+                await this.login_by_password(username, password)
+            } catch (error) {
+                this.message.error(`${t('使用 url 参数中的用户名密码登录失败，')}${error.message}`)
+            }
+        else if (this.autologin && !this.logined)
             try {
                 await this.login_by_ticket()
             } catch {
