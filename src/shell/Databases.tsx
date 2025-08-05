@@ -1100,7 +1100,7 @@ export class Database implements DataNode {
 interface SchemaData {
     tableComment: string
     partitionColumnIndex: number
-    colDefs: { data: any[] }
+    colDefs: any[]
 }
 
 
@@ -1498,11 +1498,8 @@ export class ColumnRoot implements DataNode {
     
     
     load_children () {
-        if (!this.children) {
-            const schema_coldefs = this.table.schema_data.colDefs.data
-            
-            this.children = schema_coldefs.map(col => new Column(this, col))
-        }
+        this.children ||= this.table.schema_data.colDefs.map(col =>
+            new Column(this, col))
     }
 }
 
