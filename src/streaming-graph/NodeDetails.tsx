@@ -9,7 +9,6 @@ import { task_status_columns } from './Overview.tsx'
 import type { StreamGraphStatus } from './types.ts'
 
 const { Text } = Typography
-const { Item } = Descriptions
 
 interface NodeDetailsComponentProps {
     node: Node | null
@@ -52,18 +51,27 @@ export function NodeDetails ({ node, id, status }: NodeDetailsComponentProps) {
                     column={2}
                     styles={{ label: { whiteSpace: 'nowrap' } }}
                     size='small'
-                >
-                    <Item label='ID'>{showId}</Item>
-                    <Item label={t('类型')}>{subType}</Item>
-                    <Item label={t('名称')}>{variableName}</Item>
-                    <Item label={t('初始名称')}>{initialName}</Item>
-                    <Item label={t('任务 ID')}>{taskId}</Item>
-                    <Item label={t('节点')}>
-                        {logicalNode}
-                    </Item>
-                    { schema?.names ? <Schema schema={schema} /> : null }
-                    { metrics && <Metrics metrics={metrics} /> }
-                </Descriptions>
+                    items={[
+                        { label: 'ID', children: showId },
+                        { label: t('类型'), children: subType },
+                        { label: t('名称'), children: variableName },
+                        { label: t('初始名称'), children: initialName },
+                        { label: t('任务 ID'), children: taskId },
+                        { label: t('节点'), children: logicalNode },
+                        ... schema?.names.length ? [{
+                            className: 'no-padding',
+                            label: t('结构', { context: 'title' }),
+                            span: 2,
+                            children: <Schema schema={schema} />
+                        }] : [ ],
+                        ... metrics ? [{
+                            className: 'no-padding',
+                            label: t('指标'),
+                            span: 2,
+                            children: <Metrics metrics={metrics} />
+                        }] : [ ],
+                    ]}
+                />
             },
             
             ... is_table ? [
@@ -155,36 +163,37 @@ export function NodeDetails ({ node, id, status }: NodeDetailsComponentProps) {
 
 
 function Schema ({ schema }: { schema: any }) {
-    return <Item className='no-padding' label={t('结构', { context: 'title' })} span={2}>
-        <Descriptions
-            className='cell-descriptions.schema'
-            size='small'
-            column={1}
-            bordered
-        >
-            {schema.names.map((name: string, index: number) => 
-                <Item key={name} label={name}>
-                    <span style={{ color: get_type_color(schema.types[index]) }}>{schema.types[index]}</span>
-                </Item>)}
-        </Descriptions>
-    </Item>
+    return <Descriptions
+        className='cell-descriptions.schema'
+        size='small'
+        column={1}
+        bordered
+        items={schema.names.map((name: string, index: number) => ({
+            key: name,
+            label: name,
+            children: <span style={{ color: get_type_color(schema.types[index]) }}>
+                    {schema.types[index]}
+                </span>
+        }))}
+    />
 }
 
 
 function Metrics ({ metrics }: { metrics: Record<string, any> }) {
-    return <Item className='no-padding' label={t('指标')} span={2}>
-        <Descriptions
-            className='cell-descriptions'
-            size='small'
-            column={1}
-            bordered
-        >{
+    return <Descriptions
+        className='cell-descriptions'
+        size='small'
+        column={1}
+        bordered
+        items={
             Object.entries(metrics)
                 .filter(([key, value]) => key !== 'name' && value !== '')
-                .map(([key, value]) =>
-                    <Item label={key.to_space_case()}>{value}</Item>)
-        }</Descriptions>
-    </Item>
+                .map(([key, value]) => ({
+                    label: key.to_space_case(),
+                    children: value
+                }))
+        }
+    />
 }
 
 
