@@ -4,7 +4,7 @@ import { DdbInt, DdbVectorString, type DdbTableData } from 'dolphindb/browser.js
 
 import { select } from 'xshell/prototype.browser.js'
 
-import { DdbNodeState, model, NodeType } from '@model'
+import { model, NodeType } from '@model'
 
 import { DATABASES_WITHOUT_CATALOG } from './constants.tsx'
 
@@ -16,7 +16,7 @@ export interface User {
     isAdmin?: boolean
 }
 
-/** 无 catelog 的 databse */
+/** 无 catalog 的 databse */
 export interface Database {
     name: string
     tables: string[]
@@ -27,7 +27,7 @@ export interface Catalog {
     schemas: Schema[]
 }
 
-/** 有 catelog 的 schema */
+/** 有 catalog 的 schema */
 export interface Schema {
     schema: string
     dbUrl: string
@@ -76,14 +76,20 @@ class AccessModel extends Model<AccessModel> {
     tables: string[] = [ ]
     
     
-    async get_catelog_with_schemas () {
+    async get_catalog_with_schemas () {
         this.tables = await this.get_tables()
-        const catelog_names = await model.ddb.invoke<string[]>('getAllCatalogs')
-        const catalogs = await Promise.all(catelog_names.map(async name => ({ name, schemas: await this.get_schemas_by_catelog(name) })))
-        return [...catalogs, await this.get_databases_with_tables(true)]
+        
+        return [
+            ... await Promise.all(
+                (await model.ddb.invoke<string[]>('getAllCatalogs'))
+                    .map(async name => 
+                        ({ name, schemas: await this.get_schemas_by_catalog(name) }))),
+            
+            await this.get_databases_with_tables(true)
+        ]
     }
     
-    async get_catelog_with_schemas_v2 () {
+    async get_catalog_with_schemas_v2 () {
         return [{ 
             name: DATABASES_WITHOUT_CATALOG, 
             schemas: ((await this.get_databases_with_tables()) as Database[]).
@@ -95,12 +101,16 @@ class AccessModel extends Model<AccessModel> {
         let databases = await this.get_databases()
         if (has_schema) {
             let schema_set = new Set<string>()
-            const catelog_names = await model.ddb.invoke<string[]>('getAllCatalogs')
-            const schemas = (await Promise.all(catelog_names.map(
-                async name => model.ddb.invoke('getSchemaByCatalog', [name])
-            )))
+            
+            ;(
+                await Promise.all(
+                    (await model.ddb.invoke<string[]>('getAllCatalogs'))
+                        .map(async name => 
+                            model.ddb.invoke('getSchemaByCatalog', [name])))
+            )
                 .flat(2)
-            schemas.forEach(({ dbUrl }) => schema_set.add(dbUrl))
+                .forEach(({ dbUrl }) => schema_set.add(dbUrl))
+            
             databases = databases.filter(db => !schema_set.has(db))
         }
         const tables = await this.get_tables()
@@ -133,13 +143,10 @@ class AccessModel extends Model<AccessModel> {
     }
     
     
-    async get_schemas_by_catelog (catelog: string) {
-        const schemas = await model.ddb.invoke('getSchemaByCatalog', [catelog])
-        const schemas_with_tables = await Promise.all(
-                schemas.map(
-                    async (schema: Schema) => ({ ...schema, tables: this.tables.filter(tb => tb.startsWith(`${schema.dbUrl}/`)) }))
-                )
-        return schemas_with_tables
+    async get_schemas_by_catalog (catalog: string) {
+        return (await model.ddb.invoke('getSchemaByCatalog', [catalog]))
+            .map((schema: Schema) => 
+                ({ ...schema, tables: this.tables.filter(tb => tb.startsWith(`${schema.dbUrl}/`)) }))
     }
     
     
@@ -276,7 +283,6 @@ class AccessModel extends Model<AccessModel> {
     async revoke (user: string, access: string, obj?: string) {
         await model.ddb.invoke('revoke', obj ? [user, new DdbInt(Access[access]), typeof obj === 'number' ? new DdbInt(obj) : obj] : [user, new DdbInt(Access[access])])
     }
-    
 }
 
 

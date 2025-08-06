@@ -19,9 +19,9 @@ export function use_access_objs (role: AccessRole, category: AccessCategory) {
         async () => {
             switch (category) {
                 case 'catalog':
-                    return  v3 ? access.get_catelog_with_schemas() : access.get_catelog_with_schemas_v2()
+                    return  v3 ? access.get_catalog_with_schemas() : access.get_catalog_with_schemas_v2()
                 case 'database':
-                    return v3 ? access.get_catelog_with_schemas() : access.get_databases_with_tables()
+                    return v3 ? access.get_catalog_with_schemas() : access.get_databases_with_tables()
                 case 'shared':
                     return access.get_share_tables()
                 case 'function_view':
