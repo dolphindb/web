@@ -1,4 +1,4 @@
-import { CheckOutlined, CloseOutlined, DeleteOutlined, MailOutlined, PlusOutlined, ReloadOutlined } from '@ant-design/icons'
+import { CheckOutlined, CloseOutlined, DeleteOutlined, HistoryOutlined, MailOutlined, PlusOutlined, ReloadOutlined } from '@ant-design/icons'
 import NiceModal from '@ebay/nice-modal-react'
 import { t } from '@i18n'
 import { Button, DatePicker, Input, Popconfirm, Space, Table, Tooltip, Typography, type TableColumnsType } from 'antd'
@@ -82,7 +82,7 @@ export function InspectionListPage () {
                 )}
                 
                 <Button
-                    icon={<MailOutlined />}
+                    icon={<HistoryOutlined />}
                     onClick={() => { NiceModal.show(EmailHistoryModal) }}>
                     {t('邮件告警历史')}
                 </Button>
