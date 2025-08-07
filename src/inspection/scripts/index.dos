@@ -504,14 +504,14 @@ def generateEmailInEnglish(reportInfo) {
     body += "Total Metrics: " + string(reportInfo["totalNum"]) + "<br>"
     body += "Alerts Triggered: " + string(reportInfo["failedNum"]) + "<br>"
     if (reportInfo["failedNum"] > 0) {
-        failedMetricNames = exec distinct(metricName) from loadTable("dfs://autoInspection", "reportDetails") where reportId == reportInfo["reportId"] and success == false
+        failedMetricNames = exec distinct(metricName) from loadTable("dfs://autoInspection", "reportDetails") where reportId == reportInfo["id"] and success == false
         failedMetricDisplayNames = exec distinct(displayName) from loadTable("dfs://autoInspection", "metrics") where name in failedMetricNames and language == language_
         if (failedMetricDisplayNames.size() > 0) {
             body += "Failed Metrics: " + failedMetricDisplayNames.concat(", ") + "<br>"
         }
     }
     // 注意：中信特殊版本 web 不支持这个 URL
-    body += "http://" + getNodeHost() + ":" + string(getNodePort()) + "/inspection/report/" + string(reportInfo["reportId"]) + "<br>"
+    body += "http://" + getNodeHost() + ":" + string(getNodePort()) + "/inspection/report/" + string(reportInfo["id"]) + "<br>"
     return (subject, body)
 }
 
@@ -533,14 +533,14 @@ def generateEmailInChinese(reportInfo) {
     body += "总指标数：" + string(reportInfo["totalNum"]) + "<br>"
     body += "异常指标数：" + string(reportInfo["failedNum"]) + "<br>"
     if (reportInfo["failedNum"] > 0) {
-        failedMetricNames = exec distinct(metricName) from loadTable("dfs://autoInspection", "reportDetails") where reportId == reportInfo["reportId"] and success == false
+        failedMetricNames = exec distinct(metricName) from loadTable("dfs://autoInspection", "reportDetails") where reportId == reportInfo["id"] and success == false
         failedMetricDisplayNames = exec distinct(displayName) from loadTable("dfs://autoInspection", "metrics") where name in failedMetricNames and language == language_
         if (failedMetricDisplayNames.size() > 0) {
             body += "异常指标名称：" + failedMetricDisplayNames.concat(", ") + "<br>"
         }
     }
     // 注意：中信特殊版本 web 不支持这个 URL
-    body += "http://" + getNodeHost() + ":" + string(getNodePort()) + "/inspection/report/" + string(reportInfo["reportId"]) + "<br>"
+    body += "http://" + getNodeHost() + ":" + string(getNodePort()) + "/inspection/report/" + string(reportInfo["id"]) + "<br>"
     return (subject, body)
 }
 
@@ -632,17 +632,17 @@ def sendReportEmailInner(planInfo, reportInfo, alertConfig) {
 }
 
 def sendReportEmail(planInfo, reportInfo, alertConfig) {
-    planId = planInfo["id"]
-    writeLog("autoInspection: start to send alert email, plan id: " + planId)
+    planId_ = planInfo["id"]
+    writeLog("autoInspection: start to send alert email, plan id: " + planId_)
     try {
         userId, subject, recipient = sendReportEmailInner(planInfo, reportInfo, alertConfig)
-        writeLog("autoInspection: send alert email successfully, plan id: " + planId + ", subject: \"" + subject + "\", userId: " + userId + ", recipient: " + recipient.concat(","))
+        writeLog("autoInspection: send alert email successfully, plan id: " + planId_ + ", subject: \"" + subject + "\", userId: " + userId + ", recipient: " + recipient.concat(","))
     } catch(err) {
-        writeLog("autoInspection: alert failed, plan id: " + planId + ", err msg: " + string(err).last())
+        writeLog("autoInspection: alert failed, plan id: " + planId_ + ", err msg: " + string(err).last())
         try {
-            update loadTable("dfs://autoInspection", "emailHistory") set status = "failed", errMsg = string(err).last() where planId == planId and reportId = reportInfo["reportId"]
+            update loadTable("dfs://autoInspection", "emailHistory") set status = "failed", errMsg = string(err).last() where planId == planId_ and reportId = reportInfo["id"]
         } catch(err) {
-            writeLog("autoInspection: update email history failed, plan id: " + planId + ", err msg: " + string(err).last())
+            writeLog("autoInspection: update email history failed, plan id: " + planId_ + ", err msg: " + string(err).last())
         }
     }
 }
