@@ -851,7 +851,7 @@ def createPlan(name, desc, metrics, versions, nodes, params, frequency, days, sc
         throw "plan can only be created on data node or compute node"
     }
 
-    days_ = iif(days.form() == 1, days.concat(","), days)
+    daysString = iif(days.form() == 1, days.concat(","), string(days))
     user = getCurrentSessionAndUser()[1]
     startDate = today()
     endDate = temporalAdd(today(), 100y)
@@ -867,7 +867,7 @@ def createPlan(name, desc, metrics, versions, nodes, params, frequency, days, sc
         startDate as startDate,
         endDate as endDate,
         frequency as frequency,
-        days_ as days,
+        daysString as days,
         array(MINUTE[], 0).append!([scheduleTime_]) as scheduleTime,
         enabled_ as enabled,
         enabledNode_ as enabledNode,
