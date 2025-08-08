@@ -17,7 +17,7 @@ import type { StreamGraphMeta } from './types.ts'
 export function Detail () {
     const { id: url_id } = useParams()
     
-    const { data: streamGraphs, isLoading } = useSWR<StreamGraphMeta[]>(
+    const { data: nodes, isLoading } = useSWR<StreamGraphMeta[]>(
         'streamGraphs', 
         get_stream_graph_meta_list,
         {
@@ -28,7 +28,7 @@ export function Detail () {
     if (isLoading)
         return <Spin />
     
-    const id = streamGraphs?.find(graph => graph.id === url_id)?.fqn
+    const id = nodes?.find(graph => graph.id === url_id)?.fqn
     
     if (!id)
         return <Typography.Text type='danger'>{t('无效的流图 ID')}</Typography.Text>

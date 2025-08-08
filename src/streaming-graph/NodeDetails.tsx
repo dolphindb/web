@@ -2,6 +2,8 @@ import { Tabs, Descriptions, Table, Typography, Empty, Card, Tooltip } from 'ant
 import useSWR from 'swr'
 import type { Node } from 'reactflow'
 
+import { not_empty } from 'xshell/prototype.browser.js'
+
 import { t } from '@i18n'
 
 import { def_get_task_sub_worker_stat, get_steam_engine_stat, get_task_sub_worker_stat } from './apis.ts'
@@ -164,7 +166,7 @@ export function NodeDetails ({ node, id, status }: NodeDetailsComponentProps) {
 
 function Schema ({ schema }: { schema: any }) {
     return <Descriptions
-        className='cell-descriptions.schema'
+        className='cell-descriptions schema'
         size='small'
         column={1}
         bordered
@@ -187,7 +189,7 @@ function Metrics ({ metrics }: { metrics: Record<string, any> }) {
         bordered
         items={
             Object.entries(metrics)
-                .filter(([key, value]) => key !== 'name' && value !== '')
+                .filter(([key, value]) => key !== 'name' && not_empty(value) && value !== '')
                 .map(([key, value]) => ({
                     label: key.to_space_case(),
                     children: value
