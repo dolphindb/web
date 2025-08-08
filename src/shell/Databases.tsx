@@ -62,14 +62,6 @@ import SvgCatalog from './icons/catalog.icon.svg'
 import SvgCreateCatalog from './icons/create-catalog.icon.svg'
 
 
-
-enum TableKind {
-    /** 维度表 */
-    Table,
-    PartitionedTable
-}
-
-
 export function Databases () {
     const { node, logined, node_type, v3, client_auth, username } = 
         model.use(['node', 'logined', 'node_type', 'v3', 'client_auth', 'username'])
@@ -78,7 +70,7 @@ export function Databases () {
     
     const [expanded_keys, set_expanded_keys] = useState([ ])
     const [loaded_keys, set_loaded_keys] = useState([ ])
-    const previous_clicked_node = useRef<Catalog | DatabaseGroup | Database | Table | ColumnRoot | PartitionRoot | Column | PartitionDirectory | PartitionFile | Schema>(undefined)
+    const previous_clicked_node = useRef<TreeNodeType>(undefined)
     
     const enable_create_db = [NodeType.data, NodeType.single].includes(node_type)
     const [refresh_spin, set_refresh_spin] = useState(false)
@@ -212,7 +204,7 @@ export function Databases () {
                                 set_expanded_keys(keys)
                              }}
                             
-                            onClick={async (event, { self: node, type }: EventDataNode<Catalog | DatabaseGroup | Database | Table | ColumnRoot | PartitionRoot | Column | PartitionDirectory | PartitionFile | Schema>) => {
+                            onClick={async (event, { self: node, type }: EventDataNode<TreeNodeType>) => {
                                 const previous = previous_clicked_node.current
                                 if (previous && previous.key !== node.key && previous.type === 'table')
                                     previous.peeked = false
@@ -242,6 +234,7 @@ export function Databases () {
                                     
                                     case 'partition-file':
                                     case 'schema':
+                                    case 'orca-table':
                                         await node.inspect()
                                         break
                                     
@@ -287,18 +280,18 @@ export function Databases () {
                         <a onClick={async () => { await model.goto_login() }}>{t('去登录')}</a>
                     </div>
                 }
-                <SetTableComment />
-                <SetColumnComment />
-                {v3 && <CreateCatalog />}
-                <CreateDatabase />
-                <ConfirmCommand />
+                <TableCommentModal />
+                <ColumnCommentModal />
+                {v3 && <CreateCatalogModal />}
+                <CreateDatabaseModal />
+                <ConfirmCommandModal />
             </div>
         </div>
     </Resizable>
 }
 
 
-function SetTableComment () {
+function TableCommentModal () {
     const { current_node, set_table_comment_modal_visible } = shell.use(['current_node', 'set_table_comment_modal_visible']) as { current_node: Table, set_table_comment_modal_visible: boolean }
     const [form] = Form.useForm()
     
@@ -360,7 +353,7 @@ function SetTableComment () {
 }
 
 
-function SetColumnComment () {
+function ColumnCommentModal () {
     const { current_node, set_column_comment_modal_visible } = shell.use(['current_node', 'set_column_comment_modal_visible']) as { current_node: Column, set_column_comment_modal_visible: boolean }
     const [form] = Form.useForm()
     
@@ -421,7 +414,8 @@ function SetColumnComment () {
     </Modal>
 }
 
-function ConfirmCommand () {
+
+function ConfirmCommandModal () {
     const { generated_command, confirm_command_modal_visible } = shell.use(['generated_command', 'confirm_command_modal_visible'])
     const [form] = Form.useForm()
     
@@ -514,7 +508,8 @@ interface CreateDatabaseFormInfo {
     chunkGranularity?: ChunkGranularity | undefined
 }
 
-function CreateCatalog () {
+
+function CreateCatalogModal () {
     const { create_catalog_modal_visible } = shell.use(['create_catalog_modal_visible'])
     const [form] = Form.useForm()
     
@@ -566,7 +561,8 @@ function CreateCatalog () {
         </Modal>
 }
 
-function CreateDatabase () {
+
+function CreateDatabaseModal () {
     const { create_database_modal_visible, create_database_partition_count, dbs } = shell.use(['create_database_modal_visible', 'create_database_partition_count', 'dbs'])
     const { node_type, node, v2, v3 } = model.use(['node_type', 'node', 'v2', 'v3'])
     
@@ -574,16 +570,15 @@ function CreateDatabase () {
     const use_catalog = Form.useWatch('use_catalog', form)
     
     const catalogs = useMemo(() => 
-        shell.dbs?.filter(db => db instanceof Catalog)?.map(({ title }) => ({
-            label: title,
-            value: title,
-        })) ?? [ ]
+        shell.dbs?.filter(db => db instanceof Catalog)
+            .map(({ title }) => ({ label: title, value: title }))
+            ?? [ ]
     , [dbs])
     
     
     // We just assume this is always turned on in dolphindb.cfg
-    const enableChunkGranularityConfig = true
-    const shouldRunOnCurrNode = node_type === NodeType.data || node_type === NodeType.single
+    const enable_chunk_granularity_config = true
+    const should_run_on_curr_node = node_type === NodeType.data || node_type === NodeType.single
     
     let runOnNode = node.name
     // @TODO: not supported until we have support for running SQL statements inside anonymous function
@@ -618,7 +613,7 @@ function CreateDatabase () {
                 </a>
             </div>}
     >{
-    shouldRunOnCurrNode &&
+    should_run_on_curr_node &&
         <Form
             className='db-modal-form'
             name='create-database'
@@ -706,7 +701,7 @@ function CreateDatabase () {
                 createDBScript += `\nengine='${table.storageEngine}',\n`
                 createDBScript += `atomic='${table.atomicLevel}'`
                 
-                if (enableChunkGranularityConfig)
+                if (enable_chunk_granularity_config)
                     createDBScript += `,\nchunkGranularity='${table.chunkGranularity}'`
                 
                 // 等后端支持
@@ -915,7 +910,7 @@ export class Catalog implements DataNode {
     
     isLeaf = false as const
     
-    children: Database[] = [ ]
+    children: (Database | OrcaTable)[] = [ ]
     
     
     constructor (key: string) {
@@ -1231,6 +1226,39 @@ export class Table implements DataNode {
                 ... (this.kind === TableKind.Table ? [ ] : [new PartitionRoot(this)]) as [PartitionRoot?]
             ]
         }
+    }
+}
+
+
+export class OrcaTable implements DataNode {
+    type = 'orca-table' as const
+    
+    self: OrcaTable
+    
+    key: string
+    
+    fullname: string
+    
+    title: string
+    
+    className = 'orca-table'
+    
+    icon = <Icon component={SvgTable} />
+    
+    isLeaf = true
+    
+    
+    constructor (fullname: string, name: string) {
+        this.key = this.fullname = fullname
+        this.title = name
+        this.self = this
+    }
+    
+    
+    async inspect () {
+        let obj = await model.ddb.eval(`select top 100 * from ${this.fullname}`)
+        obj.name = `${this.title} (${t('前 100 行')})`
+        shell.set({ result: { type: 'object', data: obj } })
     }
 }
 
@@ -1551,3 +1579,12 @@ export class PartitionRoot implements DataNode {
     }
 }
 
+
+type TreeNodeType = Catalog | DatabaseGroup | Database | Table | ColumnRoot | PartitionRoot | Column | PartitionDirectory | PartitionFile | Schema | OrcaTable
+
+
+enum TableKind {
+    /** 维度表 */
+    Table,
+    PartitionedTable
+}
