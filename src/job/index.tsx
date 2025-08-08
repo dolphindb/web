@@ -58,7 +58,10 @@ export function Job () {
     useEffect(() => {
         Promise.all([get_cjobs(), get_rjobs(), get_sjobs()])
             .catch(error => {  
-                set_error_message(error.message)
+                if (error.message.includes('Not granted to access compute group'))
+                    set_error_message(error.message)
+                else 
+                    throw error
             })
     }, [refresher, username])
     
