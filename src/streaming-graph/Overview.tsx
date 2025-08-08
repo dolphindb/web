@@ -260,15 +260,16 @@ function StreamingGraphVisualization ({
             
             return {
                 nodes: graph_data.nodes.map((node: GraphNode) => {
-                    const { type, id, variableName, initialName, name, schema, metrics } = node.properties || { }
-                    
-                    const nodeType = type || 'DEFAULT'
+                    const { type, id, variableName, initialName, name, schema } = node.properties || { }
+                    let { metrics } = node.properties || { }
                     
                     // 获取逻辑节点对象和名称
                     const logical_node = node_map?.get(node.taskId)
                     
-                    if (metrics)
+                    if (Array.isArray(metrics)) {
                         check(metrics.length === 1, t('node.properties 中的 metrics 数组长度应该为 1'))
+                        metrics = metrics[0]
+                    }
                     
                     return {
                         id: String(node.id),
@@ -278,7 +279,7 @@ function StreamingGraphVisualization ({
                         variableName,
                         initialName,
                         label: name || initialName || variableName || `${t('节点')} ${node.id}`,
-                        subType: nodeType,
+                        subType: type || 'DEFAULT',
                         taskId: node.taskId,
                         
                         logicalNode: logical_node?.name || '',
@@ -291,7 +292,7 @@ function StreamingGraphVisualization ({
                         height: 100,
                         subgraphId: String(node.subgraphId),
                         
-                        metrics: metrics?.[0]
+                        metrics
                     } as ProcessedNode
                 }),
                 

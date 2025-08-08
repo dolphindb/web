@@ -64,7 +64,9 @@ export interface NodeProperties {
     timeColumn?: string
     filterColumn?: string
     variableName?: string
-    metrics?: any[]
+    
+    /** table 是对象, engine 是对象数组的第 0 项 */
+    metrics?: any[] | any
 }
 
 // Graph node
