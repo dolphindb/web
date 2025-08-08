@@ -4,8 +4,7 @@ import { useEffect, useState } from 'react'
 
 import {
     Button, Input, Popconfirm, Table, Typography, Tooltip, Spin,
-    type TablePaginationConfig, type TableColumnType, Modal,
-    Result
+    type TablePaginationConfig, type TableColumnType, Modal, Result
 } from 'antd'
 import { ReloadOutlined } from '@ant-design/icons'
 
@@ -55,11 +54,12 @@ export function Job () {
     
     const [query, set_query] = useState('')
     const [error_message, set_error_message] = useState('')
-    const is_access_error = error_message.includes('Not granted to access compute group')
+    
     useEffect(() => {
-        Promise.all([get_cjobs(), get_rjobs(), get_sjobs()]).catch(error => {  
-            set_error_message(error.message)
-        })
+        Promise.all([get_cjobs(), get_rjobs(), get_sjobs()])
+            .catch(error => {  
+                set_error_message(error.message)
+            })
     }, [refresher, username])
     
     
@@ -83,7 +83,8 @@ export function Job () {
         showSizeChanger: true,
         showQuickJumper: true,
     }
-    if (is_access_error)
+    
+    if (error_message.includes('Not granted to access compute group'))
         return <Result
             status='warning'
             className='interceptor'
