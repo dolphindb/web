@@ -9,7 +9,7 @@ import type { FitAddon } from '@xterm/addon-fit'
 
 import type * as monacoapi from 'monaco-editor/esm/vs/editor/editor.api.js'
 
-import { select } from 'xshell/prototype.browser.ts'
+import { select } from 'xshell/prototype.browser.js'
 import { delta2str, assert, delay, strcmp } from 'xshell/utils.browser.js'
 import { red, blue } from 'xshell/chalk.browser.js'
 
@@ -624,6 +624,9 @@ class ShellModel extends Model<ShellModel> {
                     }))
             
             orca_tables?.forEach(({ fqn: fullname }) => {
+                if (!fullname)
+                    return
+                
                 const [catalog_name, orca_table, table_name] = fullname.split('.')
                 
                 catalogs.get(catalog_name)
