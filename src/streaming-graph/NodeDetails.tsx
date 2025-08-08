@@ -192,7 +192,7 @@ function Metrics ({ metrics }: { metrics: Record<string, any> }) {
                 .filter(([key, value]) => key !== 'name' && not_empty(value) && value !== '')
                 .map(([key, value]) => ({
                     label: key.to_space_case(),
-                    children: value
+                    children: String(value)
                 }))
         }
     />
