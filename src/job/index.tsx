@@ -53,14 +53,15 @@ export function Job () {
     const [sjobs, set_sjobs] = useState<DdbObj<DdbObj[]>>()
     
     const [query, set_query] = useState('')
-    const [error_message, set_error_message] = useState('')
+    
+    const [access_error, set_access_error] = useState(false)
     
     useEffect(() => {
         Promise.all([get_cjobs(), get_rjobs(), get_sjobs()])
-            .catch(error => {  
+            .catch(error => {
                 if (error.message.includes('Not granted to access compute group'))
-                    set_error_message(error.message)
-                else 
+                    set_access_error(true)
+                else
                     throw error
             })
     }, [refresher, username])
@@ -87,7 +88,7 @@ export function Job () {
         showQuickJumper: true,
     }
     
-    if (error_message.includes('Not granted to access compute group'))
+    if (access_error)
         return <Result
             status='warning'
             className='interceptor'
