@@ -4,7 +4,8 @@ import { useEffect, useState } from 'react'
 
 import {
     Button, Input, Popconfirm, Table, Typography, Tooltip, Spin,
-    type TablePaginationConfig, type TableColumnType, Modal
+    type TablePaginationConfig, type TableColumnType, Modal,
+    Result
 } from 'antd'
 import { ReloadOutlined } from '@ant-design/icons'
 
@@ -53,11 +54,12 @@ export function Job () {
     const [sjobs, set_sjobs] = useState<DdbObj<DdbObj[]>>()
     
     const [query, set_query] = useState('')
-    
+    const [error_message, set_error_message] = useState('')
+    const is_access_error = error_message.includes('Not granted to access compute group')
     useEffect(() => {
-        get_cjobs()
-        get_rjobs()
-        get_sjobs()
+        Promise.all([get_cjobs(), get_rjobs(), get_sjobs()]).catch(error => {  
+            set_error_message(error.message)
+        })
     }, [refresher, username])
     
     
@@ -81,6 +83,12 @@ export function Job () {
         showSizeChanger: true,
         showQuickJumper: true,
     }
+    if (is_access_error)
+        return <Result
+            status='warning'
+            className='interceptor'
+            title={t('没有足够的权限查看作业')}
+        />
     
     if (!cjobs || !rjobs || !sjobs)
         return <div className='spin-container'>
