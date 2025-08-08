@@ -9,6 +9,7 @@ import type { FitAddon } from '@xterm/addon-fit'
 
 import type * as monacoapi from 'monaco-editor/esm/vs/editor/editor.api.js'
 
+import { select } from 'xshell/prototype.browser.ts'
 import { delta2str, assert, delay, strcmp } from 'xshell/utils.browser.js'
 import { red, blue } from 'xshell/chalk.browser.js'
 
@@ -32,7 +33,6 @@ import {
 } from './Databases.tsx'
 
 import { DdbVar } from './Variables.tsx'
-import { select } from 'xshell'
 
 
 type Result = { type: 'object', data: DdbObj } | { type: 'objref', data: DdbObjRef }

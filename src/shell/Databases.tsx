@@ -14,12 +14,7 @@ import { default as Icon, SyncOutlined, MinusSquareOutlined, EditOutlined, Loadi
 import { assert, delay } from 'xshell/utils.browser.js'
 
 
-import {
-    DdbInt,
-    type DdbVectorStringObj,
-    type DdbTableObj,
-    type DdbDictObj
-} from 'dolphindb/browser.js'
+import { DdbInt, type DdbVectorStringObj, type DdbTableObj, type DdbDictObj } from 'dolphindb/browser.js'
 
 
 import { language, t } from '@i18n'
