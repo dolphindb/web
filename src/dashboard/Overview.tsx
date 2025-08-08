@@ -219,6 +219,7 @@ export function Overview () {
             
             <DDBTable
                 title={t('数据面板')}
+                big_title
                 rowSelection={{
                     selectedRowKeys: selected_dashboard_ids,
                     onChange: (selectedRowKeys: React.Key[]) => {
