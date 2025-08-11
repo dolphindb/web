@@ -630,7 +630,7 @@ class ShellModel extends Model<ShellModel> {
                 const [catalog_name, orca_table, table_name] = fullname.split('.')
                 
                 catalogs.get(catalog_name)
-                    .children
+                    ?.children
                     .push(
                         new OrcaTable(fullname, table_name))
             })
