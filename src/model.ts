@@ -15,7 +15,7 @@ import { storage } from 'xshell/storage.js'
 
 import {
     DDB, DdbObj, SqlStandard, DdbInt, DdbLong, type InspectOptions,
-    DdbDatabaseError, type DdbTableData, DdbDict,
+    DdbDatabaseError, DdbDict,
 } from 'dolphindb/browser.js'
 
 import type { Docs } from 'dolphindb/docs.js'
