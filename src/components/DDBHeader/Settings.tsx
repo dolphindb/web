@@ -2,7 +2,7 @@ import { useState } from 'react'
 
 import { Popover, Card, Tooltip, Button, InputNumber } from 'antd'
 
-import { SettingFilled, CaretUpOutlined, CaretDownOutlined, SettingOutlined } from '@ant-design/icons'
+import { CaretUpOutlined, CaretDownOutlined, SettingOutlined } from '@ant-design/icons'
 
 import { t } from '@i18n'
 
@@ -49,7 +49,7 @@ export function Settings () {
         zIndex={1060}
         content={
             <div className='header-settings-content head-bar-info'>
-                <Card size='small' title={t('设置', { context: 'settings' })} bordered={false}>
+                <Card size='small' title={t('设置', { context: 'settings' })} variant='outlined'>
                     <div className='decimals-toolbar'>
                         <span className='decimals-toolbar-input'>
                             {t('设置小数位数: ')}

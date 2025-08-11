@@ -688,7 +688,7 @@ export class DdbModel extends Model<DdbModel> {
     async get_controller_alias () {
         const controller_alias = await this.ddb.invoke('getControllerAlias', undefined, { urgent: true })
         this.set({ controller_alias })
-        console.log(t('控制节点:'), controller_alias)
+        // console.log(t('控制节点:'), controller_alias)
         return controller_alias
     }
     
@@ -813,8 +813,8 @@ export class DdbModel extends Model<DdbModel> {
         
         if (print) {
             console.log(t('当前节点:'), node)
-            if (node.mode !== NodeType.single)
-                console.log(t('控制节点:'), controller, t('数据节点:'), datanode)
+            // if (node.mode !== NodeType.single)
+            //     console.log(t('控制节点:'), controller, t('数据节点:'), datanode)
         }
         
         this.set({ nodes, node, controller, datanode })
