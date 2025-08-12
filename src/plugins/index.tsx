@@ -6,15 +6,15 @@ import { Button, Form, Input, Modal, Popconfirm, Radio, Result, Table, Typograph
 import type { CheckboxGroupProps } from 'antd/es/checkbox/Group.js'
 import { default as Icon, InboxOutlined, CheckOutlined, PlayCircleOutlined } from '@ant-design/icons'
 import { select, noop } from 'xshell/prototype.browser.js'
-import { delay, log, vercmp } from 'xshell/utils.browser.js'
+import { delay, log, vercmp, required } from 'xshell/utils.browser.js'
 
 import { use_modal, use_rerender, type ModalController } from 'react-object-model/hooks.js'
 
-import { DdbVectorChar, DdbVectorString, type DdbTableData } from 'dolphindb/browser.js'
+import { DdbVectorChar, DdbVectorString } from 'dolphindb/browser.js'
 
 import { language, t } from '@i18n'
 
-import { required, switch_keys } from '@utils'
+import { switch_keys } from '@utils'
 import { model } from '@model'
 
 

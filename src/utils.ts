@@ -7,9 +7,6 @@ import { language, t } from '@i18n'
 import { shf } from '@model'
 
 
-/** 表单 Form.Item 必填 `<Form.Item {...required}>` */
-export const required = { required: true, rules: [{ required: true }] }
-
 export const urgent = { urgent: true } as const
 
 /** 侧边栏收起状态宽度 */
@@ -17,25 +14,6 @@ export const sider_collapsed_width = 50
 
 /** 侧边栏未收起状态宽度 */
 export const sider_uncollapsed_width = language === 'en' ? 220 : 150
-
-
-export function download_file (name: string, url: string) {
-    // 创建一个隐藏的 <a> 元素
-    const a = document.createElement('a')
-    a.style.display = 'none'
-    a.href = url
-    a.download = name
-    
-    // 将 <a> 元素添加到 DOM 中
-    document.body.appendChild(a)
-    
-    // 触发下载
-    a.click()
-    
-    // 下载完成后移除 <a> 元素和 URL 对象
-    document.body.removeChild(a)
-    URL.revokeObjectURL(url)
-}
 
 
 export function strip_quotes (str: string) {
@@ -156,9 +134,4 @@ export function ns2ms (num: number) {
 
 export function upper (str: string) {
     return shf ? str : str.toUpperCase()
-}
-
-
-export function to_option (value: string) {
-    return { label: value, value }
 }

@@ -4,13 +4,14 @@ import { use_modal } from 'react-object-model/hooks.js'
 import Icon from '@ant-design/icons'
 import { useEffect, useState } from 'react'
 
+import { download_url } from 'xshell/utils.browser.js'
+
 import { DdbInt, type DdbObj, type DdbTableObj, type DdbVectorValue } from 'dolphindb/browser.js'
 
 import { t } from '@i18n'
 import { DdbObjRef } from '../obj.js'
 
 import { shell } from '../shell/model.js'
-import { download_file } from '../utils.ts'
 import { model } from '../model.js'
 
 import SvgExport from './icons/export.icon.svg'
@@ -62,7 +63,7 @@ export function ExportCsv ({ info }: { info: DdbTableObj | DdbObjRef<DdbObj<DdbV
                     
                     await shell.define_get_csv_content()
                     
-                    download_file(
+                    download_url(
                         `${name}.csv`,
                         URL.createObjectURL(new Blob(
                             [

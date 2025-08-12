@@ -1,11 +1,10 @@
 import { Checkbox, Divider, Input, Select, TreeSelect } from 'antd'
 
-import { unique } from 'xshell/utils.browser.js'
+import { unique, to_option } from 'xshell/utils.browser.js'
 
 import { t } from '@i18n'
 
 import { model } from '@model'
-import { to_option } from '@utils'
 
 import { DATABASES_WITHOUT_CATALOG, NEED_INPUT_ACCESS } from '@/access/constants.js'
 
