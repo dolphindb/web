@@ -4,10 +4,10 @@ import { useCallback } from 'react'
 
 import { useBoolean } from 'ahooks'
 
-import { download_url } from 'xshell/utils.browser.ts'
+import { download_url } from 'xshell/utils.browser.js'
 
-import { request } from '../../../guide/utils.ts'
-import { safe_json_parse } from '../../../dashboard/utils.ts'
+import { request } from '@/guide/utils.ts'
+import { safe_json_parse } from '@/dashboard/utils.ts'
 
 import { t } from '@i18n'
 import { model } from '@model'
