@@ -6,7 +6,7 @@ import { not_empty } from 'xshell/prototype.browser.js'
 
 import { t } from '@i18n'
 
-import { def_get_task_sub_worker_stat, get_steam_engine_stat, get_task_sub_worker_stat } from './apis.ts'
+import { get_steam_engine_stat, get_task_subworker_stat } from './apis.ts'
 import { task_status_columns } from './Overview.tsx'
 import type { StreamGraphStatus } from './types.ts'
 
@@ -22,10 +22,9 @@ export function NodeDetails ({ node, id, status }: NodeDetailsComponentProps) {
     const is_engine = node && (node.data?.subType === 'REACTIVE_STATE_ENGINE' || node.data?.subType === 'TIME_SERIES_ENGINE')
     const is_table = node?.data?.subType === 'TABLE'
     
-    const { data, error, isLoading } = useSWR(node ? ['getTaskSubWorkerStat', id] : null, async () => {
-        await def_get_task_sub_worker_stat()
-        return get_task_sub_worker_stat(id)
-    })
+    const { data: stat, error, isLoading } = useSWR(
+        node ? ['get_task_subworker_stat', id] : null, 
+        async () => get_task_subworker_stat(id))
     
     const {
         data: engine_data,
@@ -85,17 +84,17 @@ export function NodeDetails ({ node, id, status }: NodeDetailsComponentProps) {
                             return <Card loading />
                         
                         if (error)
-                            return <Text type='danger'>Failed to load metrics data: {error.message}</Text>
+                            return <Text type='danger'>{t('加载子图指标报错')}: {error.message}</Text>
                         
-                        if (!data || data.length === 0)
-                            return <Empty description='No metrics data available' />
+                        if (!stat || stat.length === 0)
+                            return <Empty description={t('无可用子图指标')} />
                         
                         // Filter data related to the current node's subGraph
-                        const data_ = data.filter(item => 
+                        const data_ = stat.filter(item => 
                             item.taskId !== undefined && Number(item.taskId) === Number(taskId))
                         
                         if (!data_.length)
-                            return <Empty description={`No metrics data found for worker ${taskId}`} />
+                            return <Empty description={t('无 worker {task_id} 的可用子图指标', { task_id: taskId })} />
                         
                         return <Table
                             dataSource={data_}

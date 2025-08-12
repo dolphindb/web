@@ -36,20 +36,18 @@ export async function get_checkpoint_subjob_info (name: string): Promise<Checkpo
     return model.ddb.invoke('getOrcaCheckpointSubjobInfo', [name])
 }
 
-export async function def_get_task_sub_worker_stat (): Promise<void> {
-    await model.ddb.execute(
-        'def getTaskSubWorkerStat (name) {\n' +
-        '    getStat = def (): getStreamingStat().subWorkers\n' +
-        '    stat = pnodeRun(getStat, getDataNodes())\n' +
-        '    sub = getOrcaStreamTaskSubscriptionMeta(name)\n' +
-        '    return select * from sub, stat where strFind(stat.topic, sub.tableName + "/" + sub.actionName) != -1 order by taskId\n' +
-        '}\n'
-    )
+
+export async function get_task_subworker_stat (name: string): Promise<TaskSubWorkerStat[]> {
+    return model.ddb.invoke(get_task_subworker_stat_fundef, [name])
 }
 
-export async function get_task_sub_worker_stat (name: string): Promise<TaskSubWorkerStat[]> {
-    return model.ddb.invoke('getTaskSubWorkerStat', [name])
-}
+const get_task_subworker_stat_fundef = 
+    'def get_task_subworker_stat (name) {\n' +
+    '    getStat = def (): getStreamingStat().subWorkers\n' +
+    '    stat = pnodeRun(getStat, getDataNodes())\n' +
+    '    sub = getOrcaStreamTaskSubscriptionMeta(name)\n' +
+    '    return select * from sub, stat where strFind(stat.topic, sub.tableName + "/" + sub.actionName) != -1 order by taskId\n' +
+    '}\n'
 
 export async function get_steam_engine_stat (name: string): Promise<{ columns: string[], data: any[] }> {
     return model.ddb.invoke(

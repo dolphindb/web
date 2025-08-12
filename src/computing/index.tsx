@@ -74,25 +74,6 @@ export function Computing () {
     if (!logined)
         return <Unlogin info={t('当前节点流计算状态')}/>
     
-    const tab_content = {
-        streaming_pub_sub_stat: {
-            title: t('流计算发布订阅状态'),
-            refresher: computing.get_streaming_stat
-        },
-        streaming_engine_stat: {
-            title: t('流计算引擎状态'),
-            refresher: computing.get_engine_stat
-        },
-        streaming_table_stat: {
-            title: t('流数据表状态'),
-            refresher: async () =>
-                Promise.all([
-                    computing.get_streaming_table_stat(),
-                    computing.get_streaming_stat()
-                ])
-        }
-    }
-    
     if (!inited || !streaming_stat || !engine_stat || !shared_table_stat)
         return <div className='spin-container'>
             <Spin size='large' delay={500} />
@@ -107,21 +88,21 @@ export function Computing () {
     }))
     
     let streaming_engine_rows = [ ]
-    for (let engineType of Object.keys(engine_stat))
-        for (let row of engine_stat[engineType].to_rows()) {
+    for (let engine_type of Object.keys(engine_stat))
+        for (let row of engine_stat[engine_type].to_rows()) {
             let new_row = { }
             
             // 特殊的三种引擎类型，内存使用为 memoryInUsed
-            if (special_engine_type.has(engineType))
+            if (special_engine_type.has(engine_type))
                 row.memoryUsed = row.memoryInUsed
             
             for (let key of Object.keys(leading_cols.engine))
                 new_row[key] = row.hasOwnProperty(key) ? (typeof row[key] === 'bigint' ? Number(row[key]) : row[key]) : '--'
                 
-            for (let key of Object.keys(expanded_cols.engine[engineType] || { }))
+            for (let key of Object.keys(expanded_cols.engine[engine_type] || { }))
                 new_row[key] = row.hasOwnProperty(key) ? (typeof row[key] === 'bigint' ? Number(row[key]) : row[key] === null ? '' : row[key]) : ''
                 
-            new_row = { ...new_row, engineType }
+            new_row = { ...new_row, engineType: engine_type }
             
             streaming_engine_rows.push(new_row)
         }
@@ -134,56 +115,52 @@ export function Computing () {
         items={[
             {
                 key: 'streaming_pub_sub_stat',
-                label: (
-                    <Space>
-                        <ControlOutlined />
-                        {tab_content.streaming_pub_sub_stat.title}
-                    </Space>
-                ),
-                children: (
-                    <div className='streaming_pub_sub_stat'>
-                        <StateTable
-                            type='subWorkers'
-                            cols={add_details_col(
-                                render_col_title(
-                                    translate_order_col(
-                                        set_col_color(
-                                            sort_col(
-                                                streaming_stat.subWorkers.to_cols().filter(col => col.title in leading_cols.subWorkers),
-                                                'subWorkers'
-                                            ),
-                                            'queueDepth'
+                label: <Space>
+                    <ControlOutlined />
+                    {tabs.streaming_pub_sub_stat.title}
+                </Space>,
+                children: <div className='streaming_pub_sub_stat'>
+                    <StateTable
+                        type='subWorkers'
+                        cols={add_details_col(
+                            render_col_title(
+                                translate_order_col(
+                                    set_col_color(
+                                        sort_col(
+                                            streaming_stat.subWorkers.to_cols().filter(col => col.title in leading_cols.subWorkers),
+                                            'subWorkers'
                                         ),
-                                        true
+                                        'queueDepth'
                                     ),
-                                    'subWorkers'
-                                )
-                            )}
-                            rows={handle_null(
-                                add_details_row(
-                                    add_unit(handle_ellipsis_col(add_key(streaming_stat.subWorkers.to_rows(), 1), 'lastErrMsg'), 'subWorkers')
-                                )
-                            )}
-                            min_width={1420}
-                            default_page_size={10}
-                            refresher={computing.get_streaming_stat}
-                        />
-                        
-                        {streaming_stat.pubConns && <StateTable
-                            type='pubConns'
-                            cols={set_col_color(render_col_title(streaming_stat.pubConns.to_cols(), 'pubConns'), 'queueDepth')}
-                            rows={add_key(streaming_stat.pubConns.to_rows())}
-                            separated={false}
-                        />}
-                    </div>
-                )
+                                    true
+                                ),
+                                'subWorkers'
+                            )
+                        )}
+                        rows={handle_null(
+                            add_details_row(
+                                add_unit(handle_ellipsis_col(add_key(streaming_stat.subWorkers.to_rows(), 1), 'lastErrMsg'), 'subWorkers')
+                            )
+                        )}
+                        min_width={1420}
+                        default_page_size={10}
+                        refresher={computing.get_streaming_stat}
+                    />
+                    
+                    {streaming_stat.pubConns && <StateTable
+                        type='pubConns'
+                        cols={set_col_color(render_col_title(streaming_stat.pubConns.to_cols(), 'pubConns'), 'queueDepth')}
+                        rows={add_key(streaming_stat.pubConns.to_rows())}
+                        separated={false}
+                    />}
+                </div>
             },
             {
                 key: 'streaming_engine_stat',
                 label: (
                     <Space>
                         <DeploymentUnitOutlined />
-                        {tab_content.streaming_engine_stat.title}
+                        {tabs.streaming_engine_stat.title}
                     </Space>
                 ),
                 children: (
@@ -216,45 +193,40 @@ export function Computing () {
                 key: 'streaming_table_stat',
                 label: <Space className='tab-header'>
                     <TableOutlined />
-                    {tab_content.streaming_table_stat.title}
+                    {tabs.streaming_table_stat.title}
                 </Space>,
-                children: (
-                    <div className='persistent-table-stat'>
-                        <StateTable
-                            type='sharedStreamingTableStat'
-                            cols={render_col_title(translate_format_col(shared_table_stat.to_cols(), 'memoryUsed'), 'sharedStreamingTableStat')}
-                            rows={translate_byte_row(add_key(shared_table_stat.to_rows()), 'memoryUsed')}
-                            refresher={computing.get_streaming_table_stat}
-                        />
-                        {computing.persistence_dir && <StateTable
-                            type='persistenceMeta'
-                            cols={render_col_title(
-                                    sort_col(
-                                        translate_format_col(persistent_table_stat.to_cols(),
-                                         'memoryUsed'
-                                        ), 
-                                        'persistenceMeta'
-                                    ),
+                children: <div className='persistent-table-stat'>
+                    <StateTable
+                        type='sharedStreamingTableStat'
+                        cols={render_col_title(translate_format_col(shared_table_stat.to_cols(), 'memoryUsed'), 'sharedStreamingTableStat')}
+                        rows={translate_byte_row(add_key(shared_table_stat.to_rows()), 'memoryUsed')}
+                        refresher={computing.get_streaming_table_stat}
+                    />
+                    {computing.persistence_dir && <StateTable
+                        type='persistenceMeta'
+                        cols={render_col_title(
+                                sort_col(
+                                    translate_format_col(persistent_table_stat.to_cols(),
+                                        'memoryUsed'
+                                    ), 
                                     'persistenceMeta'
-                                )
-                            }
-                            rows={handle_null(
-                                    translate_byte_row(
-                                        handle_ellipsis_col(add_key(persistent_table_stat.to_rows()), 'persistenceDir'), 'memoryUsed'))}
-                            min_width={1600}
-                            refresher={computing.get_streaming_table_stat}
-                        />
+                                ),
+                                'persistenceMeta'
+                            )
                         }
-                        {streaming_stat.persistWorkers && (
-                            <StateTable
-                                type='persistWorkers'
-                                cols={render_col_title(set_col_color(streaming_stat.persistWorkers.to_cols(), 'queueDepth'), 'persistWorkers')}
-                                rows={add_key(streaming_stat.persistWorkers.to_rows())}
-                                separated
-                            />
-                        )}
-                    </div>
-                )
+                        rows={handle_null(
+                                translate_byte_row(
+                                    handle_ellipsis_col(add_key(persistent_table_stat.to_rows()), 'persistenceDir'), 'memoryUsed'))}
+                        min_width={1600}
+                        refresher={computing.get_streaming_table_stat}
+                    />}
+                    {streaming_stat.persistWorkers && <StateTable
+                        type='persistWorkers'
+                        cols={render_col_title(set_col_color(streaming_stat.persistWorkers.to_cols(), 'queueDepth'), 'persistWorkers')}
+                        rows={add_key(streaming_stat.persistWorkers.to_rows())}
+                        separated
+                    />}
+                </div>
             },
             ...(v3 ? [{
                 key: 'cep_computing',
@@ -266,17 +238,37 @@ export function Computing () {
             }] : [ ])
         ]}
         tabBarExtraContent={
-            tab_key === 'cep_computing'
-                ? null
-                : <RefreshButton
+            tab_key !== 'cep_computing' &&
+                <RefreshButton
                     onClick={async () => {
-                        await tab_content[tab_key].refresher.call(computing)
-                        model.message.success(`${tab_content[tab_key].title}${t('刷新成功')}`)
+                        await tabs[tab_key].refresher.call(computing)
+                        model.message.success(`${tabs[tab_key].title} ${t('刷新成功')}`)
                     }}
-                 />
+                />
         }
     />
 }
+
+
+const tabs = {
+    streaming_pub_sub_stat: {
+        title: t('流计算发布订阅状态'),
+        refresher: computing.get_streaming_stat
+    },
+    streaming_engine_stat: {
+        title: t('流计算引擎状态'),
+        refresher: computing.get_engine_stat
+    },
+    streaming_table_stat: {
+        title: t('流数据表状态'),
+        refresher: async () =>
+            Promise.all([
+                computing.get_streaming_table_stat(),
+                computing.get_streaming_stat()
+            ])
+    }
+}
+
 
 const special_engine_type = new Set(['NarrowReactiveStreamEngine', 'ReactiveStreamEngine', 'DualOwnershipReactiveStreamEngine'])
 

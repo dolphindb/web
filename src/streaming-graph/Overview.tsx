@@ -1,4 +1,6 @@
 import { Card, Typography, Empty, Drawer, Table, Tooltip } from 'antd'
+const { Text } = Typography
+
 import useSWR from 'swr'
 import { useCallback, useEffect, useState } from 'react'
 import {
@@ -16,16 +18,13 @@ import { model, type DdbNode, type DdbNodeState } from '@model'
 
 import { node_state_icons } from '@/overview/table.tsx'
 
-import { def_get_task_sub_worker_stat, get_stream_graph_info, get_task_sub_worker_stat } from './apis.ts'
+import { get_stream_graph_info, get_task_subworker_stat } from './apis.ts'
 import { type StreamGraph, type GraphNode, type GraphEdge } from './types.ts'
 import { NodeDetails } from './NodeDetails.tsx'
 
-const { Text } = Typography
 
-
-/** Export main component with ReactFlowProvider */
 export function Overview ({ id }: { id: string }) {
-    // 添加选中的 action_name 状态
+    // 选中的 action_name 状态
     const [selected_action_name, set_selected_action_name] = useState<string | null>(null)
     
     return <ReactFlowProvider>
@@ -533,102 +532,30 @@ function StreamingGraphVisualization ({
 
 
 export const task_status_columns = [
-    {
-        title: t('任务 ID'),
-        key: 'taskId'
-    },
-    {
-        title: t('表名'),
-        key: 'tableName'
-    },
-    {
-        title: t('订阅任务名称'),
-        key: 'actionName'
-    },
-    {
-        title: t('线程 ID'),
-        key: 'workerId'
-    },
-    {
-        title: t('订阅主题'),
-        key: 'topic'
-    },
-    {
-        title: t('订阅方式'),
-        key: 'type'
-    },
-    {
-        title: t('队列深度上限'),
-        key: 'queueDepthLimit'
-    },
-    {
-        title: t('队列深度'),
-        key: 'queueDepth'
-    },
-    {
-        title: t('已处理消息数'),
-        key: 'processedMsgCount'
-    },
-    {
-        title: t('最近处理消息 ID'),
-        key: 'lastMsgId'
-    },
-    {
-        title: t('失败消息总数'),
-        key: 'failedMsgCount'
-    },
-    {
-        title: t('最近处理失败的消息 ID'),
-        key: 'lastFailedMsgId'
-    },
-    {
-        title: t('最近处理失败的时刻'),
-        key: 'lastFailedTimestamp'
-    },
-    {
-        title: t('最近错误信息'),
-        key: 'lastErrMsg'
-    },
-    {
-        title: t('消息是否为表'),
-        key: 'msgAsTable'
-    },
-    {
-        title: t('批次大小'),
-        key: 'batchSize'
-    },
-    {
-        title: t('等待间隔'),
-        key: 'throttle'
-    },
-    {
-        title: t('订阅 hash 值'),
-        key: 'hash'
-    },
-    {
-        title: t('过滤列'),
-        key: 'filter'
-    },
-    {
-        title: t('开启订阅偏移持久化'),
-        key: 'persistOffset'
-    },
-    {
-        title: t('强制按时间间隔触发'),
-        key: 'timeTrigger'
-    },
-    {
-        title: t('包含消息 ID'),
-        key: 'handlerNeedMsgId'
-    },
-    {
-        title: t('高可用组'),
-        key: 'raftGroup'
-    },
-    {
-        title: t('节点'),
-        key: 'node'
-    }
+    { title: t('任务 ID'), key: 'taskId' },
+    { title: t('表名'), key: 'tableName' },
+    { title: t('订阅任务名称'), key: 'actionName' },
+    { title: t('线程 ID'), key: 'workerId' },
+    { title: t('订阅主题'), key: 'topic' },
+    { title: t('订阅方式'), key: 'type' },
+    { title: t('队列深度上限'), key: 'queueDepthLimit' },
+    { title: t('队列深度'), key: 'queueDepth' },
+    { title: t('已处理消息数'), key: 'processedMsgCount' },
+    { title: t('最近处理消息 ID'), key: 'lastMsgId' },
+    { title: t('失败消息总数'), key: 'failedMsgCount' },
+    { title: t('最近处理失败的消息 ID'), key: 'lastFailedMsgId' },
+    { title: t('最近处理失败的时刻'), key: 'lastFailedTimestamp' },
+    { title: t('最近错误信息'), key: 'lastErrMsg' },
+    { title: t('消息是否为表'), key: 'msgAsTable' },
+    { title: t('批次大小'), key: 'batchSize' },
+    { title: t('等待间隔'), key: 'throttle' },
+    { title: t('订阅 hash 值'), key: 'hash' },
+    { title: t('过滤列'), key: 'filter' },
+    { title: t('开启订阅偏移持久化'), key: 'persistOffset' },
+    { title: t('强制按时间间隔触发'), key: 'timeTrigger' },
+    { title: t('包含消息 ID'), key: 'handlerNeedMsgId' },
+    { title: t('高可用组'), key: 'raftGroup' },
+    { title: t('节点'), key: 'node' }
 ].map(({ title, key }) => ({
     title: title,
     dataIndex: key,
@@ -655,11 +582,8 @@ export function TaskSubWorkerStatTable ({
     on_action_name_select: (actionName: string | null) => void
 }) {
     const { data, error, isLoading } = useSWR(
-        ['getTaskSubWorkerStat', id],
-        async () => {
-            await def_get_task_sub_worker_stat()
-            return get_task_sub_worker_stat(id)
-        },
+        ['get_task_subworker_stat', id],
+        async () => get_task_subworker_stat(id),
         { refreshInterval: 1000 }
     )
     

@@ -1,6 +1,7 @@
 import { useState } from 'react'
 
 import { Typography, Tooltip, type TableColumnsType } from 'antd'
+const { Text } = Typography
 
 import useSWR from 'swr'
 
@@ -15,7 +16,56 @@ import { get_stream_graph_meta_list } from './apis.ts'
 import type { StreamGraphMeta, StreamGraphStatus } from './types.ts'
 
 
-const { Text } = Typography
+export function JobTable () {
+    const [status_filters, set_status_filters] = useState<StreamGraphStatus[]>(default_status_filters)
+    
+    const {
+        data: graphs,
+        isLoading: loading
+    } = useSWR(
+        'get_stream_graph_meta_list', 
+        get_stream_graph_meta_list,
+        {
+            refreshInterval: 30000,
+            revalidateOnFocus: true
+        })
+    
+    return <div className='job-table-container themed'>
+        <DDBTable
+            title={
+                <>
+                    <Tooltip title={t('流图列表')}>{t('流图列表')}</Tooltip> (
+                    {graphs?.filter(graph => graph.status === 'running').length || 0} {t('个')}
+                    {t('运行中')})
+                </>
+            }
+            big_title
+            columns={columns}
+            dataSource={
+                (graphs && status_filters?.length ?
+                    graphs.filter(
+                        graph => status_filters.includes(graph.status))
+                :
+                    graphs) || 
+                [ ]
+            }
+            rowKey='id'
+            loading={loading}
+            scroll={{ x: 'max-content' }}
+            pagination={{
+                defaultPageSize: 10,
+                showSizeChanger: true,
+                showQuickJumper: true,
+                hideOnSinglePage: true,
+            }}
+            onChange={(pagination, filters, sorter, { action }) => {
+                if (action === 'filter')
+                    set_status_filters(filters.status as StreamGraphStatus[])
+            }}
+        />
+    </div>
+}
+
 
 // 定义状态映射
 const status_map = {
@@ -141,48 +191,3 @@ const status_orders = {
     destroyed: 5
 } as const
 
-
-export function JobTable () {
-    const [status_filters, set_status_filters] = useState<StreamGraphStatus[]>(default_status_filters)
-    
-    // 使用 useSWR 获取流计算图数据
-    const { data: streamGraphs, isLoading } = useSWR('streamGraphs', get_stream_graph_meta_list, {
-        refreshInterval: 30000, // 每30秒刷新一次
-        revalidateOnFocus: true
-    })
-    
-    return <div className='job-table-container themed'>
-        <DDBTable
-            title={
-                <>
-                    <Tooltip title={t('流图列表')}>{t('流图列表')}</Tooltip> (
-                    {streamGraphs?.filter(graph => graph.status === 'running').length || 0} {t('个')}
-                    {t('运行中')})
-                </>
-            }
-            big_title
-            columns={columns}
-            dataSource={
-                (streamGraphs && status_filters?.length ?
-                    streamGraphs.filter(
-                        graph => status_filters.includes(graph.status))
-                :
-                    streamGraphs) || 
-                [ ]
-            }
-            rowKey='id'
-            loading={isLoading}
-            scroll={{ x: 'max-content' }}
-            pagination={{
-                defaultPageSize: 10,
-                showSizeChanger: true,
-                showQuickJumper: true,
-                hideOnSinglePage: true,
-            }}
-            onChange={(pagination, filters, sorter, { action }) => {
-                if (action === 'filter')
-                    set_status_filters(filters.status as StreamGraphStatus[])
-            }}
-        />
-    </div>
-}
