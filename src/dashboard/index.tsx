@@ -95,37 +95,36 @@ function Uninited () {
             title={t('数据面板未初始化，请联系管理员在数据节点完成初始化。')}
         />
     : model.admin ?
-        <div className='init'>
-            <Result
-                title={t('请点击下方按钮完成初始化')}
-                subTitle={
-                    <>
-                        <p>{t('初始化操作将新增以下数据库表：')}</p>
-                        <p>dfs://dashboardConfigDb/configDtl</p>
-                        <p>{t('以及 11 个以 dashboard_ 开头的函数视图（FunctionView）')}</p>
-                        <p>
-                            {t('提示：初始化后请完善用户相关配置（详见')}
-                            <Doc/>
-                            ）
-                        </p>
-                    </>
-                }
-                extra={
-                    <Popconfirm
-                        title={t('你确定要初始化数据面板功能吗？')}
-                        onConfirm={async () => { 
-                            await model.ddb.eval(backend)
-                            dashboard.set({ inited_state: InitedState.inited })
-                            model.message.success(t('初始化数据面板成功！'))
-                        }}
-                        okText={t('确定')}
-                        cancelText={t('取消')}
-                        >
-                        <Button type='primary' size='large'>{t('初始化')}</Button>
-                    </Popconfirm>
-                }
-            />
-        </div>
+        <Result
+            className='init'
+            title={t('请点击下方按钮完成初始化')}
+            subTitle={
+                <>
+                    <p>{t('初始化操作将新增以下数据库表：')}</p>
+                    <p>dfs://dashboardConfigDb/configDtl</p>
+                    <p>{t('以及 11 个以 dashboard_ 开头的函数视图（FunctionView）')}</p>
+                    <p>
+                        {t('提示：初始化后请完善用户相关配置（详见')}
+                        <Doc/>
+                        ）
+                    </p>
+                </>
+            }
+            extra={
+                <Popconfirm
+                    title={t('你确定要初始化数据面板功能吗？')}
+                    onConfirm={async () => { 
+                        await model.ddb.eval(backend)
+                        dashboard.set({ inited_state: InitedState.inited })
+                        model.message.success(t('初始化数据面板成功！'))
+                    }}
+                    okText={t('确定')}
+                    cancelText={t('取消')}
+                    >
+                    <Button type='primary' size='large'>{t('初始化')}</Button>
+                </Popconfirm>
+            }
+        />
     :
         <Result
             className='interceptor'

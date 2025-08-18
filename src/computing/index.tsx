@@ -825,6 +825,7 @@ function StateTable ({
             }
             scroll={{ x: 'max-content' }}
         />
+        
         {rows.length <= default_page_size && separated && <div className='separater' />}
     </>
 }

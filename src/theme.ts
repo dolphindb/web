@@ -15,6 +15,11 @@ const common_tokens: ThemeConfig['token'] = {
 }
 
 
+const tabs: ThemeConfig['components']['Tabs'] = {
+    horizontalMargin: '0px 0px 8px 0px'
+}
+
+
 export const light: ThemeConfig = {
     ...common_config,
     token: {
@@ -43,7 +48,8 @@ export const light: ThemeConfig = {
             itemSelectedColor: primary_color,
             // trackBg: '#f9f9fb',
             trackPadding: 4
-        }
+        },
+        Tabs: tabs
     }
 }
 
@@ -72,6 +78,7 @@ export const dark: ThemeConfig = {
             itemSelectedColor: primary_color,
             itemSelectedBg: '#313131',
             trackPadding: 4
-        }
+        },
+        Tabs: tabs
     }
 }
