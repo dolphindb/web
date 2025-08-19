@@ -38,7 +38,7 @@
         "@xterm/addon-fit": "^0.10.0",
         "@xterm/addon-webgl": "^0.18.0",
         "@xterm/xterm": "^5.5.0",
-        "ahooks": "^3.9.1",
+        "ahooks": "^3.9.3",
         "antd": "^5.27.0",
         "classnames": "^2.5.1",
         "client-zip": "^2.5.0",
