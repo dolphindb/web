@@ -10,16 +10,17 @@ import {
 } from 'reactflow'
 import dagre from 'dagre'
 
-import { check } from 'xshell/utils.browser.js'
+import { check, log, map_keys } from 'xshell/utils.browser.js'
 
 import { t } from '@i18n'
 
 import { model, type DdbNode, type DdbNodeState } from '@model'
 
 import { node_state_icons } from '@/overview/table.tsx'
+import { DDBTable } from '@/components/DDBTable/index.tsx'
 
-import { get_stream_graph_info, get_task_subworker_stat } from './apis.ts'
-import { type StreamGraph, type GraphNode, type GraphEdge } from './types.ts'
+import { get_stream_graph_info, get_task_subworker_stat, get_task_subworker_stat_fundef } from './apis.ts'
+import { type StreamGraph, type GraphNode, type GraphEdge, type TaskSubWorkerStat } from './types.ts'
 import { NodeDetails } from './NodeDetails.tsx'
 
 
@@ -28,9 +29,10 @@ export function Overview ({ id }: { id: string }) {
     const [selected_action_name, set_selected_action_name] = useState<string | null>(null)
     
     return <ReactFlowProvider>
-            <StreamingGraphVisualization id={id} selected_action_name={selected_action_name} set_selected_action_name={set_selected_action_name} />
-            <TaskSubWorkerStatTable id={id} selected_action_name={selected_action_name} on_action_name_select={set_selected_action_name} />
-        </ReactFlowProvider>
+        <StreamingGraphVisualization id={id} selected_action_name={selected_action_name} set_selected_action_name={set_selected_action_name} />
+        <TaskSubWorkerStatTable id={id} selected_action_name={selected_action_name} on_action_name_select={set_selected_action_name} />
+        <PublishStatsTable id={id} />
+    </ReactFlowProvider>
 }
 
 
@@ -238,7 +240,7 @@ function StreamingGraphVisualization ({
             
             return graph
         },
-        { refreshInterval: 1000 })
+        { refreshInterval: model.dev ? 1000 * 30 : 3000 })
     
     const [nodes, set_nodes] = useNodesState([ ])
     const [edges, set_edges] = useEdgesState([ ])
@@ -584,42 +586,81 @@ export function TaskSubWorkerStatTable ({
     const { data, error, isLoading } = useSWR(
         ['get_task_subworker_stat', id],
         async () => get_task_subworker_stat(id),
-        { refreshInterval: 1000 }
-    )
+        { refreshInterval: model.dev ? 1000 * 30 : 3000 })
     
     if (isLoading)
         return <Card loading />
     
     if (error)
         return <Text type='danger'>
-                {t('加载流任务订阅线程状态失败：')} {error.message}
-            </Text>
-        
+            {t('加载流任务订阅线程状态失败：')} {error.message}
+        </Text>
+    
     if (!data || data.length === 0)
         return null
     
-    return <>
-        <h3>{t('流任务订阅线程状态')}</h3>
-        <Table
-            dataSource={data}
-            columns={task_status_columns}
-            rowKey='topic'
-            pagination={{
-                defaultPageSize: 5,
-                showSizeChanger: true,
-                showQuickJumper: true
-            }}
-            scroll={{ x: 'max-content' }}
-            size='small'
-            onRow={record => ({
-                onClick () {
-                    on_action_name_select(record.actionName === selected_action_name ? null : record.actionName)
-                },
-                style: {
-                    cursor: 'pointer'
-                }
-            })}
-            rowClassName={record => (record.actionName === selected_action_name ? 'ant-table-row-selected' : '')}
-        />
-    </>
+    return <DDBTable<TaskSubWorkerStat>
+        title={t('流任务订阅线程状态')}
+        help={get_task_subworker_stat_fundef}
+        dataSource={data}
+        columns={task_status_columns}
+        rowKey='topic'
+        pagination={{
+            defaultPageSize: 5,
+            showSizeChanger: true,
+            showQuickJumper: true,
+            hideOnSinglePage: true
+        }}
+        scroll={{ x: 'max-content' }}
+        size='small'
+        onRow={record => ({
+            onClick () {
+                on_action_name_select(record.actionName === selected_action_name ? null : record.actionName)
+            },
+            style: {
+                cursor: 'pointer'
+            }
+        })}
+        rowClassName={record => (record.actionName === selected_action_name ? 'ant-table-row-selected' : '')}
+    />
 }
+
+
+export function PublishStatsTable ({ id }: { id: string }) {
+    let [stats, set_stats] = useState([ ])
+    
+    useEffect(() => {
+        (async () => {
+            set_stats(log('发布状态:',
+                (await model.ddb.invoke<any[]>(get_publish_stats_fundef, [id]))
+                    .map(obj => map_keys(obj))))
+        })()
+    }, [id])
+    
+    return <DDBTable
+        className='publish-stats-table'
+        title={t('流任务发布状态')}
+        help={get_publish_stats_fundef}
+        dataSource={stats}
+        size='small'
+        rowKey='table_name'
+        columns={[
+            { title: t('表名'), dataIndex: 'table_name' },
+            { title: t('客户端'), dataIndex: 'client' },
+            { title: t('队列深度'), dataIndex: 'queue_depth' },
+            { title: t('队列深度上限'), dataIndex: 'queue_depth_limit' }
+        ]}
+    />
+}
+
+
+const get_publish_stats_fundef = 
+    'def get_publish_stats (name) {\n' +
+    '    tableNames = select tableName from getOrcaStreamTaskSubscriptionMeta(name)\n' +
+    '    conns =  getStreamingStat().pubConns\n' +
+    '    \n' +
+    '    return select * from tableNames, conns where strFind(conns.tables,  tableNames.tableName) != -1\n' +
+    '}\n'
+
+
+

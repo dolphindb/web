@@ -6,7 +6,7 @@ import { not_empty } from 'xshell/prototype.browser.js'
 
 import { t } from '@i18n'
 
-import { get_steam_engine_stat, get_task_subworker_stat } from './apis.ts'
+import { get_stream_engine_stat, get_task_subworker_stat } from './apis.ts'
 import { task_status_columns } from './Overview.tsx'
 import type { StreamGraphStatus } from './types.ts'
 
@@ -33,7 +33,7 @@ export function NodeDetails ({ node, id, status }: NodeDetailsComponentProps) {
     } = useSWR(
         is_engine && status === 'running' ? ['getSteamEngineStat', node] : null,
         async () =>
-            get_steam_engine_stat(node.data.label)
+            get_stream_engine_stat(node.data.label)
     )
     
     if (!node)
@@ -94,7 +94,7 @@ export function NodeDetails ({ node, id, status }: NodeDetailsComponentProps) {
                             item.taskId !== undefined && Number(item.taskId) === Number(taskId))
                         
                         if (!data_.length)
-                            return <Empty description={t('无 worker {task_id} 的可用子图指标', { task_id: taskId })} />
+                            return <Empty description={t('无 worker {{task_id}} 的可用子图指标', { task_id: taskId })} />
                         
                         return <Table
                             dataSource={data_}

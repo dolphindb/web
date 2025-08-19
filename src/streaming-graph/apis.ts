@@ -41,15 +41,15 @@ export async function get_task_subworker_stat (name: string): Promise<TaskSubWor
     return model.ddb.invoke(get_task_subworker_stat_fundef, [name])
 }
 
-const get_task_subworker_stat_fundef = 
+export const get_task_subworker_stat_fundef = 
     'def get_task_subworker_stat (name) {\n' +
-    '    getStat = def (): getStreamingStat().subWorkers\n' +
-    '    stat = pnodeRun(getStat, getDataNodes())\n' +
+    '    stat = pnodeRun(def (): getStreamingStat().subWorkers, getDataNodes())\n' +
     '    sub = getOrcaStreamTaskSubscriptionMeta(name)\n' +
     '    return select * from sub, stat where strFind(stat.topic, sub.tableName + "/" + sub.actionName) != -1 order by taskId\n' +
     '}\n'
 
-export async function get_steam_engine_stat (name: string): Promise<{ columns: string[], data: any[] }> {
+
+export async function get_stream_engine_stat (name: string): Promise<{ columns: string[], data: any[] }> {
     return model.ddb.invoke(
         'useOrcaStreamEngine',
         [
