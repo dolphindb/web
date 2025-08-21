@@ -8,6 +8,7 @@ import { StatusTag, StatusType } from '@components/tags/index.tsx'
 import { DDBTable } from '@components/DDBTable/index.tsx'
 
 import { get_checkpoint_config, get_checkpoint_job_info, get_checkpoint_subjob_info } from './apis.ts'
+import { sgraph } from './model.ts'
 
 
 const { Text } = Typography
@@ -19,20 +20,22 @@ const status_map = {
 }
 
 
-export function Checkpoints ({ id }: { id: string }) {
-    const { data: jobData, error: jobError, isLoading: jobLoading } = useSWR(['getCheckpointJobInfo', id], async () => get_checkpoint_job_info(id))
+export function Checkpoints () {
+    const { name } = sgraph
+    
+    const { data: jobData, error: jobError, isLoading: jobLoading } = useSWR(['getCheckpointJobInfo', name], async () => get_checkpoint_job_info(name))
     
     const {
         data: subjobData,
         error: subjobError,
         isLoading: subjobLoading
-    } = useSWR(['getCheckpointSubjobInfo', id], async () => get_checkpoint_subjob_info(id))
+    } = useSWR(['getCheckpointSubjobInfo', name], async () => get_checkpoint_subjob_info(name))
     
     const {
         data: configData,
         error: configError,
         isLoading: configLoading
-    } = useSWR(['getCheckpointConfig', id], async () => get_checkpoint_config(id))
+    } = useSWR(['getCheckpointConfig', name], async () => get_checkpoint_config(name))
     
     
     function render_job_tab () {

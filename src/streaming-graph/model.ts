@@ -9,14 +9,28 @@ import { t } from '@i18n'
 
 
 class StreamingGraph extends Model<StreamingGraph> {
+    name: string
+    
     publish_stats: any[]
     
-    graph_info: StreamGraphInfo
+    subscription_stats: SubscriptionStat[]
+    
+    info: StreamGraphInfo
     
     
-    async get_publish_stats (fullname: string) {
+    async get_subscription_stats (name = this.name) {
+        const subscription_stats = await model.ddb.invoke<SubscriptionStat[]>(get_task_subworker_stat_fundef, [name])
+        
+        if (name === this.name)
+            this.set({ subscription_stats })
+        
+        return subscription_stats
+    }
+    
+    
+    async get_publish_stats (name = this.name) {
         const publish_stats = log('流任务发布状态',
-            (await model.ddb.invoke<any[]>(get_publish_stats_fundef, [fullname]))
+            (await model.ddb.invoke<any[]>(get_publish_stats_fundef, [name]))
                 .map(obj => map_keys(obj)))
         
         this.set({ publish_stats })
@@ -25,8 +39,8 @@ class StreamingGraph extends Model<StreamingGraph> {
     }
     
     
-    async get_stream_graph_info (fullname: string) {
-        const { graph, meta, ...others } = (await model.ddb.invoke<any[]>('getStreamGraphInfo', [fullname]))
+    async get_stream_graph_info (name = this.name) {
+        const { graph, meta, ...others } = (await model.ddb.invoke<any[]>('getStreamGraphInfo', [name]))
             [0]
         
         let graph_info: StreamGraphInfo = log('图信息:', {
@@ -50,7 +64,7 @@ class StreamingGraph extends Model<StreamingGraph> {
             properties.metrics = map_keys(metrics, to_space_case)
         })
         
-        this.set({ graph_info })
+        this.set({ info: graph_info })
         
         return graph_info
     }
@@ -58,6 +72,13 @@ class StreamingGraph extends Model<StreamingGraph> {
 
 export let sgraph = new StreamingGraph()
 
+
+export const get_task_subworker_stat_fundef = 
+    'def get_task_subworker_stat (name) {\n' +
+    '    stat = pnodeRun(def (): getStreamingStat().subWorkers, getDataNodes())\n' +
+    '    sub = getOrcaStreamTaskSubscriptionMeta(name)\n' +
+    '    return select * from sub, stat where strFind(stat.topic, sub.tableName + "/" + sub.actionName) != -1 order by taskId\n' +
+    '}\n'
 
 export const get_publish_stats_fundef = 
     'def get_publish_stats (name) {\n' +
@@ -67,3 +88,29 @@ export const get_publish_stats_fundef =
     '    return select * from tableNames, conns where strFind(conns.tables,  tableNames.tableName) != -1\n' +
     '}\n'
 
+
+export interface SubscriptionStat {
+    taskId: string
+    tableName: string
+    actionName: string
+    workerId: string
+    topic: string
+    type: string
+    queueDepthLimit: number | null
+    queueDepth: number | null
+    processedMsgCount: number | null
+    lastMsgId: number | null
+    failedMsgCount: number | null
+    lastFailedMsgId: number | null
+    lastFailedTimestamp: number | null
+    lastErrMsg: string
+    msgAsTable: boolean
+    batchSize: number
+    throttle: number
+    hash: string
+    filter: string
+    persistOffset: number
+    timeTrigger: string
+    handlerNeedMsgId: string
+    raftGroup: string
+}

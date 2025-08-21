@@ -16,7 +16,7 @@ import { get_stream_graph_meta_list } from './apis.ts'
 import type { StreamGraphMeta, StreamGraphStatus } from './types.ts'
 
 
-export function JobTable () {
+export function Table () {
     const [status_filters, set_status_filters] = useState<StreamGraphStatus[]>(default_status_filters)
     
     const {
@@ -95,15 +95,15 @@ const columns: TableColumnsType<StreamGraphMeta> = [
         title: t('流图名称'),
         dataIndex: 'fqn',
         key: 'fqn',
-        render: (text: string, record: StreamGraphMeta) => <Typography.Link
-                ellipsis
-                style={{ color: '#1890ff', cursor: 'pointer' }}
-                onClick={() => {
-                    model.goto(`/streaming-graph/${record.id}`)
-                }}
-            >
-                {text || '-'}
-            </Typography.Link>
+        render: (fullname: string) => <Typography.Link
+            ellipsis
+            style={{ color: '#1890ff', cursor: 'pointer' }}
+            onClick={() => {
+                model.goto(`/streaming-graph/${fullname}/`)
+            }}
+        >
+            {fullname}
+        </Typography.Link>
     },
     {
         title: t('创建者'),
@@ -168,9 +168,9 @@ const columns: TableColumnsType<StreamGraphMeta> = [
         
         sorter: (a: StreamGraphMeta, b: StreamGraphMeta) =>
             status_orders[a.status] - status_orders[b.status],
-
+        
         defaultFilteredValue: default_status_filters,
-
+        
         filters: Object.entries(streaming_graph_status)
             .map(([key, text]) => ({ text, value: key })),
         

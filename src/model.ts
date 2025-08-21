@@ -721,7 +721,7 @@ export class DdbModel extends Model<DdbModel> {
     
     
     /** 跳转到页面，保留查询参数
-        - pathname: 路径
+        - pathname: 以 / 开头的绝对路径，不需要包含 assets_root
         - options?: react-router NavigateOptions 选项，也可以可以在此处传 { queries: { key: value } } 更新查询参数 */
     goto (pathname: string, { queries, ...options }: NavigateOptions & { queries?: Record<string, string> } = { }) {
         check(pathname.startsWith('/'), 'model.goto 应该传入绝对路径')

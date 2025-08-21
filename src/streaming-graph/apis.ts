@@ -2,9 +2,7 @@ import { DdbFunction, DdbFunctionType } from 'dolphindb/browser'
 
 import { model } from '@model'
 
-import { parse_stream_graph_meta } from './utils.ts'
-
-import type { StreamGraphMeta, CheckpointJobInfo, CheckpointSubjobInfo, TaskSubWorkerStat } from './types.ts'
+import type { StreamGraphMeta, CheckpointJobInfo, CheckpointSubjobInfo } from './types.ts'
 
 export async function get_stream_graph_meta_list (): Promise<StreamGraphMeta[]> {
     return (await model.ddb.invoke('getStreamGraphMeta'))
@@ -31,18 +29,6 @@ export async function get_checkpoint_subjob_info (name: string): Promise<Checkpo
 }
 
 
-export async function get_task_subworker_stat (name: string): Promise<TaskSubWorkerStat[]> {
-    return model.ddb.invoke(get_task_subworker_stat_fundef, [name])
-}
-
-export const get_task_subworker_stat_fundef = 
-    'def get_task_subworker_stat (name) {\n' +
-    '    stat = pnodeRun(def (): getStreamingStat().subWorkers, getDataNodes())\n' +
-    '    sub = getOrcaStreamTaskSubscriptionMeta(name)\n' +
-    '    return select * from sub, stat where strFind(stat.topic, sub.tableName + "/" + sub.actionName) != -1 order by taskId\n' +
-    '}\n'
-
-
 export async function get_stream_engine_stat (name: string): Promise<{ columns: string[], data: any[] }> {
     return model.ddb.invoke(
         'useOrcaStreamEngine',
@@ -57,3 +43,13 @@ export async function get_stream_engine_stat (name: string): Promise<{ columns: 
 export async function drop_stream_graph (name: string): Promise<any[]> {
     return model.ddb.invoke('dropStreamGraph', [name])
 }
+
+
+function parse_stream_graph_meta (rawData: any): StreamGraphMeta {
+    return {
+        ...rawData,
+        checkpointConfig: JSON.parse(rawData.checkpointConfig),
+        tasks: JSON.parse(rawData.tasks)
+    }
+}
+

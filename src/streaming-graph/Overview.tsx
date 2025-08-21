@@ -17,25 +17,24 @@ import { model, type DdbNode, type DdbNodeState } from '@model'
 import { node_state_icons } from '@/overview/table.tsx'
 import { DDBTable } from '@/components/DDBTable/index.tsx'
 
-import { get_task_subworker_stat, get_task_subworker_stat_fundef } from './apis.ts'
-import { type StreamGraph, type GraphNode, type GraphEdge, type TaskSubWorkerStat } from './types.ts'
+import { type StreamGraph, type GraphNode, type GraphEdge } from './types.ts'
 import { NodeDetails } from './NodeDetails.tsx'
-import { get_publish_stats_fundef, sgraph } from './model.ts'
+import { get_publish_stats_fundef, get_task_subworker_stat_fundef, sgraph, type SubscriptionStat } from './model.ts'
 
 
-export function Overview ({ id }: { id: string }) {
+export function Overview () {
     // 选中的 action_name 状态
     const [selected_action_name, set_selected_action_name] = useState<string | null>(null)
     
     return <ReactFlowProvider>
-        <StreamingGraphVisualization id={id} selected_action_name={selected_action_name} set_selected_action_name={set_selected_action_name} />
+        <StreamingGraphVisualization selected_action_name={selected_action_name} set_selected_action_name={set_selected_action_name} />
         
         <div className='stat-tables'>
-            <TaskSubWorkerStatTable id={id} selected_action_name={selected_action_name} on_action_name_select={set_selected_action_name} />
-            <PublishStatsTable id={id} />
+            <TaskSubWorkerStatTable selected_action_name={selected_action_name} on_action_name_select={set_selected_action_name} />
+            <PublishStatsTable />
             
-            <EngineTableStatsTable id={id} engine />
-            <EngineTableStatsTable id={id} engine={false} />
+            <EngineTableStatsTable engine />
+            <EngineTableStatsTable engine={false} />
         </div>
     </ReactFlowProvider>
 }
@@ -194,48 +193,48 @@ function CustomNode ({ data, id, selected }: NodeProps) {
 }
 
 // 添加自定义子图容器组件
-function SubgraphContainer ({ data, id }: NodeProps) {
+function SubgraphContainer ({ data }: NodeProps) {
     return <div
+        style={{
+            width: '100%',
+            height: '100%',
+            position: 'relative',
+            pointerEvents: 'none'
+        }}
+    >
+        <div
             style={{
-                width: '100%',
-                height: '100%',
-                position: 'relative',
-                pointerEvents: 'none'
+                position: 'absolute',
+                top: '10px',
+                left: '50%',
+                transform: 'translateX(-50%)',
+                
+                fontSize: '16px',
+                fontWeight: 800,
+                zIndex: 10
             }}
         >
-            <div
-                style={{
-                    position: 'absolute',
-                    top: '10px',
-                    left: '50%',
-                    transform: 'translateX(-50%)',
-                    
-                    fontSize: '16px',
-                    fontWeight: 800,
-                    zIndex: 10
-                }}
-            >
-                {data.label}
-            </div>
+            {data.label}
         </div>
+    </div>
 }
 
 // 流图组件
 function StreamingGraphVisualization ({
-    id,
     selected_action_name,
     set_selected_action_name
 }: {
-    id: string
     selected_action_name: string | null
     set_selected_action_name: (actionName: string | null) => void
 }) {
+    const { name } = sgraph.use(['name'])
+    
     const [node_map, set_node_map] = useState<Map<number, DdbNode>>()
     
     const { data, error, isLoading } = useSWR(
-        ['getStreamGraphInfo', id],
+        ['getStreamGraphInfo', name],
         async () => {
-            const graph = await sgraph.get_stream_graph_info(id)
+            const graph = await sgraph.get_stream_graph_info(name)
             const nodes = await model.get_cluster_perf(false)
             
             const task_to_node_map = new Map(graph.meta.tasks.map(task => 
@@ -525,7 +524,7 @@ function StreamingGraphVisualization ({
                 }}
                 open={drawer_visible}
             >
-                <NodeDetails node={selected} id={id} status={data.meta.status} />
+                <NodeDetails node={selected} id={name} status={data.meta.status} />
             </Drawer>
         </div>
     </div>
@@ -572,36 +571,23 @@ export const task_status_columns = [
 }))
 
 
-/** Task Subscription Worker Status Table component */
 export function TaskSubWorkerStatTable ({
-    id,
     selected_action_name,
     on_action_name_select
 }: {
-    id: string
     selected_action_name: string | null
     on_action_name_select: (actionName: string | null) => void
 }) {
-    const { data, error, isLoading } = useSWR(
-        ['get_task_subworker_stat', id],
-        async () => get_task_subworker_stat(id),
-        { refreshInterval: model.dev ? 1000 * 30 : 3000 })
+    const { name, subscription_stats } = sgraph.use(['name', 'subscription_stats'])
     
-    if (isLoading)
-        return <Card loading />
+    useEffect(() => {
+        sgraph.get_subscription_stats()
+    }, [name])
     
-    if (error)
-        return <Text type='danger'>
-            {t('加载流任务订阅线程状态失败：')} {error.message}
-        </Text>
-    
-    if (!data || data.length === 0)
-        return null
-    
-    return <DDBTable<TaskSubWorkerStat>
+    return <DDBTable<SubscriptionStat>
         title={t('流任务订阅')}
         help={get_task_subworker_stat_fundef}
-        dataSource={data}
+        dataSource={subscription_stats}
         columns={task_status_columns}
         rowKey='topic'
         pagination={{
@@ -625,12 +611,12 @@ export function TaskSubWorkerStatTable ({
 }
 
 
-function PublishStatsTable ({ id }: { id: string }) {
-    let { publish_stats } = sgraph.use(['publish_stats'])
+function PublishStatsTable () {
+    let { name, publish_stats } = sgraph.use(['name', 'publish_stats'])
     
     useEffect(() => {
-        sgraph.get_publish_stats(id)
-    }, [id])
+        sgraph.get_publish_stats()
+    }, [name])
     
     return <DDBTable
         className='publish-stats-table'
@@ -654,17 +640,8 @@ const publish_stats_columns: TableColumnsType = [
 
 
 /** 显示引擎或者流表的状态表 */
-function EngineTableStatsTable ({ id, engine }: { id: string, engine: boolean }) {
-    const { graph_info } = sgraph.use(['graph_info'])
-    
-    useEffect(() => {
-        sgraph.get_stream_graph_info(id)
-    }, [id])
-    
-    if (!graph_info)
-        return null
-    
-    const { nodes } = graph_info.graph
+function EngineTableStatsTable ({ engine }: { engine: boolean }) {
+    const { info: { graph: { nodes } } } = sgraph.use(['info'])
     
     // 过滤出引擎或者流表
     const filter = engine ? 

@@ -131,28 +131,3 @@ export interface CheckpointSubjobInfo {
     extra: any
 }
 
-export interface TaskSubWorkerStat {
-    taskId: string
-    tableName: string
-    actionName: string
-    workerId: string
-    topic: string
-    type: string
-    queueDepthLimit: number | null
-    queueDepth: number | null
-    processedMsgCount: number | null
-    lastMsgId: number | null
-    failedMsgCount: number | null
-    lastFailedMsgId: number | null
-    lastFailedTimestamp: number | null
-    lastErrMsg: string
-    msgAsTable: boolean
-    batchSize: number
-    throttle: number
-    hash: string
-    filter: string
-    persistOffset: number
-    timeTrigger: string
-    handlerNeedMsgId: string
-    raftGroup: string
-}

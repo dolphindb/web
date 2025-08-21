@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 import { useParams } from 'react-router'
 
 import { Descriptions, Button, Typography, Modal, Input, Space, Spin, Tabs } from 'antd'
@@ -16,30 +16,44 @@ import { Checkpoints } from './Checkpoints.tsx'
 import { Configuration } from './Configuration.tsx'
 import { get_stream_graph_meta_list, get_stream_graph_meta } from './apis.ts'
 import type { StreamGraphMeta } from './types.ts'
-import { streaming_graph_status } from './JobTable.tsx'
+import { streaming_graph_status } from './Table.tsx'
+import { sgraph } from './model.ts'
 
 
-export function Detail () {
-    const { id: url_id } = useParams()
+export function Graph () {
+    const { name } = useParams()
     
-    const { data: graphs, isLoading } = useSWR<StreamGraphMeta[]>(
+    sgraph.name = name
+    
+    const { info } = sgraph.use(['name', 'info'])
+    
+    useEffect(() => {
+        sgraph.set({ name })
+        
+        sgraph.get_stream_graph_info()
+    }, [name])
+    
+    const { data: graphs } = useSWR<StreamGraphMeta[]>(
         'get_stream_graph_meta_list', 
         get_stream_graph_meta_list,
         {
             refreshInterval: 1000 * 30,
             revalidateOnFocus: true
         })
-        
-    if (isLoading)
-        return <Spin />
     
-    const id = graphs?.find(graph => graph.id === url_id)?.fqn
+    if (!graphs)
+        return null
     
-    if (!id)
-        return <Typography.Text type='danger'>{t('无效的流图 ID')}</Typography.Text>
+    const graph = graphs?.find(graph => graph.fqn === name)
+    
+    if (!graph)
+        return <Typography.Text type='danger'>{t('找不到流图 {{name}}', { name })}</Typography.Text>
+    
+    if (!info)
+        return null
     
     return <div className='themed'>
-        <TopDescription id={id} />
+        <TopDescription />
         
         <Tabs 
             defaultActiveKey='overview'
@@ -48,19 +62,19 @@ export function Detail () {
                     key: 'overview',
                     icon: <LineChartOutlined />,
                     label: t('概览'),
-                    children: <Overview id={id} />
+                    children: <Overview />
                 },
                 {
                     key: 'checkpoints',
                     icon: <CheckCircleOutlined />,
                     label: t('检查点'),
-                    children: <Checkpoints id={id} />
+                    children: <Checkpoints />
                 },
                 {
                     key: 'configuration',
                     icon: <SettingOutlined />,
                     label: t('配置'),
-                    children: <Configuration id={id} />
+                    children: <Configuration />
                 }
             ]}
         />
@@ -68,10 +82,12 @@ export function Detail () {
 }
 
 
-function TopDescription ({ id }: { id: string }) {
+function TopDescription () {
+    const { name } = sgraph
+    
     const { data, error, mutate } = useSWR(
-        ['get_stream_graph_meta', id],
-        async () => get_stream_graph_meta(id),
+        ['get_stream_graph_meta', name],
+        async () => get_stream_graph_meta(name),
         {
             refreshInterval: 1000 * 10,
             revalidateOnFocus: true,
@@ -80,6 +96,13 @@ function TopDescription ({ id }: { id: string }) {
     
     const [deleteModalVisible, setDeleteModalVisible] = useState(false)
     const [inputValue, setInputValue] = useState('')
+    
+    if (error)
+        throw error
+    
+    if (!data)
+        return null
+    
     
     function get_status_text (status: string) {
         return streaming_graph_status[status] || status
@@ -145,14 +168,6 @@ function TopDescription ({ id }: { id: string }) {
         </>
     }
     
-    // if (isLoading || !data)
-    //     return <Descriptions title='Streaming Graph Details' bordered size='small' />
-    
-    if (error || !data)
-        return <Typography.Text type='danger'>
-            {t('加载失败：')} {error?.message || t('未知错误')}
-        </Typography.Text>
-    
     const { id: graph_id, fqn, status, createTime, semantics, reason } = data
     
     return <div>
@@ -161,7 +176,7 @@ function TopDescription ({ id }: { id: string }) {
                 {t('返回')}
             </Button>
             
-            <div className='title'>{t('流图详情')}</div>
+            <div className='title'>{t('流图')} {name}</div>
             
             <div className='padding' />
             

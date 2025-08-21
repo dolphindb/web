@@ -6,9 +6,10 @@ import { not_empty } from 'xshell/prototype.browser.js'
 
 import { t } from '@i18n'
 
-import { get_stream_engine_stat, get_task_subworker_stat } from './apis.ts'
+import { get_stream_engine_stat } from './apis.ts'
 import { task_status_columns } from './Overview.tsx'
 import type { StreamGraphStatus } from './types.ts'
+import { sgraph } from './model.ts'
 
 const { Text } = Typography
 
@@ -24,7 +25,7 @@ export function NodeDetails ({ node, id, status }: NodeDetailsComponentProps) {
     
     const { data: stat, error, isLoading } = useSWR(
         node ? ['get_task_subworker_stat', id] : null, 
-        async () => get_task_subworker_stat(id))
+        async () => sgraph.get_subscription_stats(id))
     
     const {
         data: engine_data,
