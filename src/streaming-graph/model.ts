@@ -29,9 +29,10 @@ class StreamingGraph extends Model<StreamingGraph> {
     
     
     async get_publish_stats (name = this.name) {
-        const publish_stats = log('流任务发布状态',
-            (await model.ddb.invoke<any[]>(get_publish_stats_fundef, [name]))
-                .map(obj => map_keys(obj)))
+        const publish_stats = (await model.ddb.invoke<any[]>(get_publish_stats_fundef, [name]))
+            .map(obj => map_keys(obj))
+        
+        // console.log('流任务发布状态:', publish_stats)
         
         this.set({ publish_stats })
         
@@ -43,11 +44,11 @@ class StreamingGraph extends Model<StreamingGraph> {
         const { graph, meta, ...others } = (await model.ddb.invoke<any[]>('getStreamGraphInfo', [name]))
             [0]
         
-        let graph_info: StreamGraphInfo = log('图信息:', {
+        let graph_info: StreamGraphInfo = {
             ...others,
             graph: JSON.parse(graph),
             meta: JSON.parse(meta)
-        })
+        }
         
         // 统一规整 metrics 为对象，处理 keys 为 space case
         graph_info.graph.nodes.forEach(({ properties }) => {
@@ -63,6 +64,8 @@ class StreamingGraph extends Model<StreamingGraph> {
             
             properties.metrics = map_keys(metrics, to_space_case)
         })
+        
+        // console.log('图信息:', graph_info)
         
         this.set({ info: graph_info })
         

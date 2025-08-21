@@ -114,7 +114,7 @@ interface ProcessedEdge {
 
 
 // 自定义矩形节点组件
-function CustomNode ({ data, id, selected }: NodeProps) {
+function CustomNode ({ data, selected }: NodeProps) {
     // 根据节点状态确定状态颜色
     const stateColors = {
         0: '#ff4d4f', // 停止 - 红色
@@ -227,24 +227,20 @@ function StreamingGraphVisualization ({
     selected_action_name: string | null
     set_selected_action_name: (actionName: string | null) => void
 }) {
-    const { name } = sgraph.use(['name'])
+    const { name, info } = sgraph.use(['name', 'info'])
     
     const [node_map, set_node_map] = useState<Map<number, DdbNode>>()
     
-    const { data, error, isLoading } = useSWR(
+    const { data } = useSWR(
         ['getStreamGraphInfo', name],
-        async () => {
-            const graph = await sgraph.get_stream_graph_info(name)
-            const nodes = await model.get_cluster_perf(false)
+        () => {
+            set_node_map(
+                new Map(info.meta.tasks.map(task => 
+                    [task.id, model.nodes.find(({ name }) => name === task.node)]))
+            )
             
-            const task_to_node_map = new Map(graph.meta.tasks.map(task => 
-                [task.id, nodes.find(({ name }) => name === task.node)]))
-            
-            set_node_map(task_to_node_map)
-            
-            return graph
-        },
-        { refreshInterval: model.dev ? 1000 * 30 : 3000 })
+            return info
+        })
     
     const [nodes, set_nodes] = useNodesState([ ])
     const [edges, set_edges] = useEdgesState([ ])
@@ -432,7 +428,7 @@ function StreamingGraphVisualization ({
                         zIndex: -1
                     },
                     data: {
-                        label: `Subgraph ${subgraphId}`,
+                        label: `${t('子图')} ${subgraphId}`,
                         subgraphId,
                         labelStyle: {
                             fontSize: '16px',
@@ -454,23 +450,18 @@ function StreamingGraphVisualization ({
     
     // 数据加载后更新图
     useEffect(() => {
-        if (data?.graph) {
-            const graph_data = typeof data.graph === 'string' ? JSON.parse(data.graph) : data.graph
-            const { nodes: processed_nodes, edges: processed_edges } = process_graph_data(graph_data)
-            const { nodes: react_flow_nodes, edges: react_flow_edges } = convert_to_react_flow_format(processed_nodes, processed_edges)
-            set_nodes(react_flow_nodes)
-            set_edges(react_flow_edges)
-        }
-    }, [data, process_graph_data, convert_to_react_flow_format, set_nodes, set_edges, node_map])
-    
-    if (isLoading)
-        return <Card loading />
-    
-    if (error)
-        return <Text type='danger'>Failed to load data: {error.message}</Text>
+        if (!data?.graph)
+            return
+        
+        const graph_data = typeof data.graph === 'string' ? JSON.parse(data.graph) : data.graph
+        const { nodes: processed_nodes, edges: processed_edges } = process_graph_data(graph_data)
+        const { nodes: react_flow_nodes, edges: react_flow_edges } = convert_to_react_flow_format(processed_nodes, processed_edges)
+        set_nodes(react_flow_nodes)
+        set_edges(react_flow_edges)
+    }, [data, process_graph_data, convert_to_react_flow_format, node_map])
     
     if (!data)
-        return <Empty description='' />
+        return null
     
     return <div className='streaming-graph-page'>
         <div className='react-flow-container'>
@@ -652,7 +643,7 @@ function EngineTableStatsTable ({ engine }: { engine: boolean }) {
     const metrics: any[] = nodes.filter(filter)
         .map(({ properties: { metrics } }) => metrics)
     
-    console.log(`流${engine ? '引擎' : '表'}:`, metrics)
+    // console.log(`流${engine ? '引擎' : '表'}:`, metrics)
     
     const metric = metrics[0]
     
