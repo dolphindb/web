@@ -656,7 +656,7 @@ function EngineTableStatsTable ({ engine }: { engine: boolean }) {
         help='getStreamGraphInfo(fullname).graph.nodes.properties.metrics'
         dataSource={metrics}
         size='small'
-        rowKey={engine ? 'name' : 'table name'}
+        rowKey={engine ? 'name' : 'TableName'}
         scroll={{ x: 'max-content' }}
         columns={
             (engine ?

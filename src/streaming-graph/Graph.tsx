@@ -184,7 +184,14 @@ function TopDescription () {
                 {render_actions(data)}
                 <Button
                     icon={<ReloadOutlined />}
-                    onClick={() => { mutate(undefined, { revalidate: true }) }}
+                    onClick={async () => {
+                        mutate(undefined, { revalidate: true })
+                        await Promise.all([
+                            sgraph.get_stream_graph_info(),
+                            sgraph.get_publish_stats(),
+                            sgraph.get_subscription_stats()
+                        ])
+                    }}
                 >
                     {t('刷新')}
                 </Button>
