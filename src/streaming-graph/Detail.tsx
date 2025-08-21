@@ -29,7 +29,7 @@ export function Detail () {
             refreshInterval: 1000 * 30,
             revalidateOnFocus: true
         })
-    
+        
     if (isLoading)
         return <Spin />
     

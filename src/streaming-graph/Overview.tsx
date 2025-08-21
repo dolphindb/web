@@ -1,4 +1,4 @@
-import { Card, Typography, Empty, Drawer, Table, Tooltip } from 'antd'
+import { Card, Typography, Empty, Drawer, Tooltip, type TableColumnsType } from 'antd'
 const { Text } = Typography
 
 import useSWR from 'swr'
@@ -10,8 +10,6 @@ import {
 } from 'reactflow'
 import dagre from 'dagre'
 
-import { check, log, map_keys } from 'xshell/utils.browser.js'
-
 import { t } from '@i18n'
 
 import { model, type DdbNode, type DdbNodeState } from '@model'
@@ -19,9 +17,10 @@ import { model, type DdbNode, type DdbNodeState } from '@model'
 import { node_state_icons } from '@/overview/table.tsx'
 import { DDBTable } from '@/components/DDBTable/index.tsx'
 
-import { get_stream_graph_info, get_task_subworker_stat, get_task_subworker_stat_fundef } from './apis.ts'
+import { get_task_subworker_stat, get_task_subworker_stat_fundef } from './apis.ts'
 import { type StreamGraph, type GraphNode, type GraphEdge, type TaskSubWorkerStat } from './types.ts'
 import { NodeDetails } from './NodeDetails.tsx'
+import { get_publish_stats_fundef, sgraph } from './model.ts'
 
 
 export function Overview ({ id }: { id: string }) {
@@ -30,8 +29,14 @@ export function Overview ({ id }: { id: string }) {
     
     return <ReactFlowProvider>
         <StreamingGraphVisualization id={id} selected_action_name={selected_action_name} set_selected_action_name={set_selected_action_name} />
-        <TaskSubWorkerStatTable id={id} selected_action_name={selected_action_name} on_action_name_select={set_selected_action_name} />
-        <PublishStatsTable id={id} />
+        
+        <div className='stat-tables'>
+            <TaskSubWorkerStatTable id={id} selected_action_name={selected_action_name} on_action_name_select={set_selected_action_name} />
+            <PublishStatsTable id={id} />
+            
+            <EngineTableStatsTable id={id} engine />
+            <EngineTableStatsTable id={id} engine={false} />
+        </div>
     </ReactFlowProvider>
 }
 
@@ -230,7 +235,7 @@ function StreamingGraphVisualization ({
     const { data, error, isLoading } = useSWR(
         ['getStreamGraphInfo', id],
         async () => {
-            const graph = await get_stream_graph_info(id)
+            const graph = await sgraph.get_stream_graph_info(id)
             const nodes = await model.get_cluster_perf(false)
             
             const task_to_node_map = new Map(graph.meta.tasks.map(task => 
@@ -261,16 +266,10 @@ function StreamingGraphVisualization ({
             
             return {
                 nodes: graph_data.nodes.map((node: GraphNode) => {
-                    const { type, id, variableName, initialName, name, schema } = node.properties || { }
-                    let { metrics } = node.properties || { }
+                    const { type, id, variableName, initialName, name, schema, metrics } = node.properties || { }
                     
                     // 获取逻辑节点对象和名称
                     const logical_node = node_map?.get(node.taskId)
-                    
-                    if (Array.isArray(metrics)) {
-                        check(metrics.length === 1, t('node.properties 中的 metrics 数组长度应该为 1'))
-                        metrics = metrics[0]
-                    }
                     
                     return {
                         id: String(node.id),
@@ -600,7 +599,7 @@ export function TaskSubWorkerStatTable ({
         return null
     
     return <DDBTable<TaskSubWorkerStat>
-        title={t('流任务订阅线程状态')}
+        title={t('流任务订阅')}
         help={get_task_subworker_stat_fundef}
         dataSource={data}
         columns={task_status_columns}
@@ -626,41 +625,73 @@ export function TaskSubWorkerStatTable ({
 }
 
 
-export function PublishStatsTable ({ id }: { id: string }) {
-    let [stats, set_stats] = useState([ ])
+function PublishStatsTable ({ id }: { id: string }) {
+    let { publish_stats } = sgraph.use(['publish_stats'])
     
     useEffect(() => {
-        (async () => {
-            set_stats(log('发布状态:',
-                (await model.ddb.invoke<any[]>(get_publish_stats_fundef, [id]))
-                    .map(obj => map_keys(obj))))
-        })()
+        sgraph.get_publish_stats(id)
     }, [id])
     
     return <DDBTable
         className='publish-stats-table'
-        title={t('流任务发布状态')}
+        title={t('流任务发布')}
         help={get_publish_stats_fundef}
-        dataSource={stats}
+        dataSource={publish_stats}
         size='small'
         rowKey='table_name'
-        columns={[
-            { title: t('表名'), dataIndex: 'table_name' },
-            { title: t('客户端'), dataIndex: 'client' },
-            { title: t('队列深度'), dataIndex: 'queue_depth' },
-            { title: t('队列深度上限'), dataIndex: 'queue_depth_limit' }
-        ]}
+        scroll={{ x: 'max-content' }}
+        columns={publish_stats_columns}
     />
 }
 
 
-const get_publish_stats_fundef = 
-    'def get_publish_stats (name) {\n' +
-    '    tableNames = select tableName from getOrcaStreamTaskSubscriptionMeta(name)\n' +
-    '    conns =  getStreamingStat().pubConns\n' +
-    '    \n' +
-    '    return select * from tableNames, conns where strFind(conns.tables,  tableNames.tableName) != -1\n' +
-    '}\n'
+const publish_stats_columns: TableColumnsType = [
+    { title: t('表名'), dataIndex: 'table_name' },
+    { title: t('客户端'), dataIndex: 'client' },
+    { title: t('队列深度'), dataIndex: 'queue_depth' },
+    { title: t('队列深度上限'), dataIndex: 'queue_depth_limit' }
+]
 
 
-
+/** 显示引擎或者流表的状态表 */
+function EngineTableStatsTable ({ id, engine }: { id: string, engine: boolean }) {
+    const { graph_info } = sgraph.use(['graph_info'])
+    
+    useEffect(() => {
+        sgraph.get_stream_graph_info(id)
+    }, [id])
+    
+    if (!graph_info)
+        return null
+    
+    const { nodes } = graph_info.graph
+    
+    // 过滤出引擎或者流表
+    const filter = engine ? 
+        ({ properties: { type, metrics } }: GraphNode) => metrics && type !== 'TABLE' && type !== 'CHANNEL'
+    :
+        ({ properties: { type, metrics } }: GraphNode) => metrics && type === 'TABLE'
+    
+    const metrics: any[] = nodes.filter(filter)
+        .map(({ properties: { metrics } }) => metrics)
+    
+    console.log(`流${engine ? '引擎' : '表'}:`, metrics)
+    
+    const metric = metrics[0]
+    
+    if (!metric)
+        return null
+    
+    return <DDBTable
+        className='publish-stats-table'
+        title={engine ? t('流引擎') : t('流表')}
+        help='getStreamGraphInfo(fullname).graph.nodes.properties.metrics'
+        dataSource={metrics}
+        size='small'
+        rowKey={engine ? 'name' : 'table name'}
+        scroll={{ x: 'max-content' }}
+        columns={
+            Object.keys(metric)
+                .map(key => ({ title: key, dataIndex: key }))}
+    />
+}

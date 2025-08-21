@@ -2,9 +2,9 @@ import { DdbFunction, DdbFunctionType } from 'dolphindb/browser'
 
 import { model } from '@model'
 
-import { parse_stream_graph_info, parse_stream_graph_meta } from './utils.ts'
+import { parse_stream_graph_meta } from './utils.ts'
 
-import type { StreamGraphMeta, StreamGraphInfo, CheckpointJobInfo, CheckpointSubjobInfo, TaskSubWorkerStat } from './types.ts'
+import type { StreamGraphMeta, CheckpointJobInfo, CheckpointSubjobInfo, TaskSubWorkerStat } from './types.ts'
 
 export async function get_stream_graph_meta_list (): Promise<StreamGraphMeta[]> {
     return (await model.ddb.invoke('getStreamGraphMeta'))
@@ -14,12 +14,6 @@ export async function get_stream_graph_meta_list (): Promise<StreamGraphMeta[]> 
 export async function get_stream_graph_meta (name: string): Promise<StreamGraphMeta> {
     return parse_stream_graph_meta(
         (await model.ddb.invoke('getStreamGraphMeta', [name]))
-            [0])
-}
-
-export async function get_stream_graph_info (name: string): Promise<StreamGraphInfo> {
-    return parse_stream_graph_info(
-        (await model.ddb.invoke('getStreamGraphInfo', [name]))
             [0])
 }
 

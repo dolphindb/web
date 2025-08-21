@@ -7,11 +7,3 @@ export function parse_stream_graph_meta (rawData: any): StreamGraphMeta {
         tasks: JSON.parse(rawData.tasks)
     }
 }
-
-export function parse_stream_graph_info (rawData: any): StreamGraphInfo {
-    return {
-        ...rawData,
-        graph: JSON.parse(rawData.graph),
-        meta: JSON.parse(rawData.meta)
-    }
-}
