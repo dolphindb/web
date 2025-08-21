@@ -54,15 +54,10 @@ class StreamingGraph extends Model<StreamingGraph> {
         graph_info.graph.nodes.forEach(({ properties }) => {
             let { metrics } = properties
             
-            if (!metrics)
-                return
-            
             if (Array.isArray(metrics)) {
                 check(metrics.length === 1, t('node.properties 中的 metrics 数组长度应该为 1'))
-                metrics = metrics[0]
+                properties.metrics = metrics[0]
             }
-            
-            properties.metrics = map_keys(metrics, to_space_case)
         })
         
         // console.log('图信息:', graph_info)

@@ -6,6 +6,8 @@ import { not_empty } from 'xshell/prototype.browser.js'
 
 import { t } from '@i18n'
 
+import { engine_table_column_names } from '@/computing/model.ts'
+
 import { get_stream_engine_stat } from './apis.ts'
 import { task_status_columns } from './Overview.tsx'
 import type { StreamGraphStatus } from './types.ts'
@@ -191,7 +193,7 @@ function Metrics ({ metrics }: { metrics: Record<string, any> }) {
             Object.entries(metrics)
                 .filter(([key, value]) => key !== 'name' && not_empty(value) && value !== '')
                 .map(([key, value]) => ({
-                    label: key.to_space_case(),
+                    label: engine_table_column_names[key] || key.to_space_case(),
                     children: String(value)
                 }))
         }

@@ -66,7 +66,7 @@ export interface NodeProperties {
     variableName?: string
     
     /** table 是对象, engine 是对象数组的第 0 项 */
-    metrics?: any[] | any
+    metrics?: any
 }
 
 // Graph node

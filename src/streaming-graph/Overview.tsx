@@ -1,5 +1,4 @@
-import { Card, Typography, Empty, Drawer, Tooltip, type TableColumnsType } from 'antd'
-const { Text } = Typography
+import { Drawer, Tooltip, type TableColumnsType } from 'antd'
 
 import useSWR from 'swr'
 import { useCallback, useEffect, useState } from 'react'
@@ -16,6 +15,7 @@ import { model, type DdbNode, type DdbNodeState } from '@model'
 
 import { node_state_icons } from '@/overview/table.tsx'
 import { DDBTable } from '@/components/DDBTable/index.tsx'
+import { engine_table_column_names } from '@/computing/model.ts'
 
 import { type StreamGraph, type GraphNode, type GraphEdge } from './types.ts'
 import { NodeDetails } from './NodeDetails.tsx'
@@ -659,7 +659,16 @@ function EngineTableStatsTable ({ engine }: { engine: boolean }) {
         rowKey={engine ? 'name' : 'table name'}
         scroll={{ x: 'max-content' }}
         columns={
-            Object.keys(metric)
-                .map(key => ({ title: key, dataIndex: key }))}
+            (engine ?
+                Object.keys(metric)
+            :
+                ['TableName', ... Object.keys(metric).filter(key => key !== 'TableName')]
+            )
+                .map((key, index) => ({
+                    title: engine_table_column_names[key] || key.to_space_case(),
+                    dataIndex: key,
+                    fixed: index === 0
+                }))}
     />
 }
+
