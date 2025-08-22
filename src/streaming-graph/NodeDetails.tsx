@@ -3,6 +3,7 @@ import { Tabs, Descriptions, Table, Empty, Tooltip } from 'antd'
 import type { Node } from 'reactflow'
 
 import { not_empty } from 'xshell/prototype.browser.js'
+import { genid } from 'xshell/utils.browser.js'
 
 import { t } from '@i18n'
 
@@ -108,7 +109,7 @@ export function NodeDetails ({ node, status }: { node: Node | null, status: Stre
                     
                     return <Table
                         dataSource={engine_stats}
-                        rowKey={(_, index) => index}
+                        rowKey={() => genid()}
                         columns={
                             Object.keys(engine_stats[0])
                                 .map(key => ({

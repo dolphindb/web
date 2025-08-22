@@ -41,7 +41,7 @@ export function Graph () {
             extra={<Button type='primary' onClick={() => { model.goto('/streaming-graph/') }}>返回列表</Button>}
         />
     
-    return <div className='themed'>
+    return <div className='themed graph'>
         <TopDescription />
         
         <Tabs
@@ -83,7 +83,7 @@ function TopDescription () {
     
     const active = status === 'running' || status === 'building'
     
-    return <div>
+    return <>
         <div className='graph-detail-header'>
             <Button icon={<ArrowLeftOutlined />} onClick={async () => model.navigate(-1)}>
                 {t('返回')}
@@ -178,7 +178,7 @@ function TopDescription () {
                 { label: t('失败原因'), children: reason },
             ]}
         />
-    </div>
+    </>
 }
 
 
