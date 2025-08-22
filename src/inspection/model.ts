@@ -178,16 +178,15 @@ class InspectionModel extends Model<InspectionModel> {
         end_time?: string, 
         status?: 'sending' | 'sent' | 'failed'
     ): Promise<EmailHistory[]> {
-        const result = await model.ddb.invoke('getEmailHistory', [
-            plan_id || new DdbVoid(),
-            report_id || new DdbVoid(),
-            user_id || new DdbVoid(),
-            recipient || new DdbVoid(),
-            start_time || new DdbVoid(),
-            end_time || new DdbVoid(),
-            status || new DdbVoid()
+        return model.ddb.invoke('getEmailHistory', [
+            plan_id || undefined,
+            report_id || undefined,
+            user_id || undefined,
+            recipient || undefined,
+            start_time || undefined,
+            end_time || undefined,
+            status || undefined
         ])
-        return result.data
     }
 }
 

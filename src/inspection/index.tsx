@@ -10,22 +10,23 @@ import { InspectionGuard } from '@/inspection/components/InspectionGuard.tsx'
 
 
 export function Inspection () {
-    return <InspectionGuard>{useRoutes([
-        {
-            index: true,
-            element: <InspectionListPage />
-        },
-        {
-            path: 'report/:reportId',
-            element: <ReportDetailPage />
-        },
-        {
-            path: 'plan/:planId',
-            element: <EditInspectionPage />
-        },
-        {
-            path: 'plan/new',
-            element: <AddInspectionPage />
-        }
-    ])}</InspectionGuard>
+    return <InspectionGuard>{
+        useRoutes([
+            {
+                index: true,
+                element: <InspectionListPage />
+            },
+            {
+                path: 'report/:reportId',
+                element: <ReportDetailPage />
+            },
+            {
+                path: 'plan/:planId',
+                element: <EditInspectionPage />
+            },
+            {
+                path: 'plan/new',
+                element: <AddInspectionPage />
+            }])
+    }</InspectionGuard>
 }

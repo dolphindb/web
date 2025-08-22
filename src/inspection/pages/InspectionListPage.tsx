@@ -46,72 +46,69 @@ export function InspectionListPage () {
         checkMetrics()
     }, [ ])
     
-    return <div>
-            <div className='inspection-header'>
-                <Input.Search 
-                    placeholder={t('请输入巡检名称')} 
-                    value={search_input_value}
-                    onChange={e => { set_search_input_value(e.target.value) }}
-                    onSearch={set_search_key} 
-                    className='inspection-search'
-                />
-                
-                <Button 
-                    type='primary'
-                    icon={<PlusOutlined />}
-                    onClick={() => { model.goto('/inspection/plan/new') }}>
-                    {t('新增巡检')}
-                </Button>
-                
-                {!email_config.can_config ? (
-                <Tooltip title={<div style={{ whiteSpace: 'pre-wrap' }}>{email_config.error_msg}</div>}>
-                    <Button
-                        icon={<MailOutlined />}
-                        disabled
-                        onClick={ () => { NiceModal.show(EmailConfigModal) } }>
-                            {t('邮件告警设置')}
-                    </Button>
-                </Tooltip>
-                ) : (
-                    <Button
-                        icon={<MailOutlined />}
-                        disabled={false}
-                        onClick={ () => { NiceModal.show(EmailConfigModal) } }>
-                            {t('邮件告警设置')}
-                    </Button>
-                )}
-                
+    return <>
+        <div className='inspection-header'>
+            <Input.Search 
+                placeholder={t('请输入巡检名称')} 
+                value={search_input_value}
+                onChange={e => { set_search_input_value(e.target.value) }}
+                onSearch={set_search_key} 
+                className='inspection-search'
+            />
+            
+            <Button 
+                type='primary'
+                icon={<PlusOutlined />}
+                onClick={() => { model.goto('/inspection/plan/new') }}>
+                {t('新增巡检')}
+            </Button>
+            
+            {!email_config.can_config ? (
+            <Tooltip title={<div style={{ whiteSpace: 'pre-wrap' }}>{email_config.error_msg}</div>}>
                 <Button
-                    icon={<HistoryOutlined />}
-                    onClick={() => { NiceModal.show(EmailHistoryModal) }}>
-                    {t('邮件告警历史')}
+                    icon={<MailOutlined />}
+                    disabled
+                    onClick={ () => { NiceModal.show(EmailConfigModal) } }>
+                        {t('邮件告警设置')}
                 </Button>
-                
+            </Tooltip>
+            ) : (
+                <Button
+                    icon={<MailOutlined />}
+                    disabled={false}
+                    onClick={ () => { NiceModal.show(EmailConfigModal) } }>
+                        {t('邮件告警设置')}
+                </Button>
+            )}
             
-                <RefreshButton 
-                    onClick={() => {
-                        set_search_input_value('')
-                        set_search_key('')
-                        refresher()
-                        model.message.success(t('刷新成功'))
-                    }}/>
-                
-              
-            </div>
+            <Button
+                icon={<HistoryOutlined />}
+                onClick={() => { NiceModal.show(EmailHistoryModal) }}>
+                {t('邮件告警历史')}
+            </Button>
             
-            {
-            defined &&  
-            <Space direction='vertical' size='large' style={{ width: '100%' }}>
-                <PlanListTable enabled search_key={search_key}  refresh={refresh} refresher={refresher}/>
-                <PlanListTable search_key={search_key} refresh={refresh} refresher={refresher}/>
-                <ReportListTable
-                    search_key={search_key} 
-                    refresh={refresh}
-                    refresher={refresher}
-                />
-            </Space>
-        }
+        
+            <RefreshButton 
+                onClick={() => {
+                    set_search_input_value('')
+                    set_search_key('')
+                    refresher()
+                    model.message.success(t('刷新成功'))
+                }}/>
+            
+            
         </div>
+        
+        { defined && <div className='inspection-tables'>
+            <PlanListTable enabled search_key={search_key}  refresh={refresh} refresher={refresher}/>
+            <PlanListTable search_key={search_key} refresh={refresh} refresher={refresher}/>
+            <ReportListTable
+                search_key={search_key} 
+                refresh={refresh}
+                refresher={refresher}
+            />
+        </div> }
+    </>
 }
 
 

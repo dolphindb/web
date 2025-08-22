@@ -98,7 +98,7 @@ export const EmailHistoryModal = NiceModal.create(() => {
             title: t('邮件主题'),
             dataIndex: 'subject',
             key: 'subject',
-            width: 250,
+            width: 400,
             onHeaderCell: () => ({ style: { whiteSpace: 'nowrap' } }),
         },
         {
@@ -138,7 +138,7 @@ export const EmailHistoryModal = NiceModal.create(() => {
             afterClose={modal.remove}
             onCancel={modal.hide}
             title={t('邮件告警历史')}
-            width={1200}
+            width='90vw'
             footer={null}
         >
             <Form
