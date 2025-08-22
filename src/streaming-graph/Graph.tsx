@@ -1,14 +1,14 @@
 import { useEffect, useState } from 'react'
 import { useParams } from 'react-router'
 
-import { Descriptions, Button, Typography, Modal, Input, Space, Tabs } from 'antd'
+import { Descriptions, Button, Typography, Modal, Input, Space, Tabs, Result } from 'antd'
 import { LineChartOutlined, CheckCircleOutlined, SettingOutlined, ArrowLeftOutlined, DeleteOutlined, ReloadOutlined, WarningOutlined } from '@ant-design/icons'
 
 import { use_modal } from 'react-object-model/hooks.js'
 
 import { t } from '@i18n'
 import { model } from '@model'
-import { StatusTag, StatusType } from '@/components/tags/index.tsx'
+import { StatusTag, StatusType } from '@components/tags/index.tsx'
 
 import { sgraph, graph_statuses } from './model.ts'
 
@@ -22,7 +22,7 @@ export function Graph () {
     
     sgraph.name = name
     
-    const { graph } = sgraph.use(['name', 'graph'])
+    const { graph, graph_loading } = sgraph.use(['name', 'graph', 'graph_loading'])
     
     useEffect(() => {
         sgraph.set({ name })
@@ -30,8 +30,16 @@ export function Graph () {
         sgraph.get_graph()
     }, [name])
     
-    if (!graph)
+    if (!graph && graph_loading)
         return null
+    
+    if (!graph)
+        return <Result
+            className='not-exist'
+            status='warning'
+            title={t('流图 {{name}} 不存在', { name })}
+            extra={<Button type='primary' onClick={() => { model.goto('/streaming-graph/') }}>返回列表</Button>}
+        />
     
     return <div className='themed'>
         <TopDescription />

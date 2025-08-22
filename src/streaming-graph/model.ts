@@ -14,6 +14,8 @@ class StreamingGraph extends Model<StreamingGraph> {
     
     graph: StreamGraphInfo
     
+    graph_loading = false
+    
     engine_stats: any[]
     
     publish_stats: any[]
@@ -44,8 +46,15 @@ class StreamingGraph extends Model<StreamingGraph> {
     
     
     async get_graph (name = this.name) {
+        this.set({ graph_loading: true })
+        
         const info = (await model.ddb.invoke<any[]>('getStreamGraphInfo', [name]))
             [0]
+        
+        if (!info) {
+            this.set({ graph_loading: false })
+            return
+        }
         
         let graph: StreamGraphInfo = {
             ...info,
@@ -65,7 +74,7 @@ class StreamingGraph extends Model<StreamingGraph> {
         
         console.log('流图信息:', graph)
         
-        this.set({ graph })
+        this.set({ graph, graph_loading: false })
         
         return graph
     }
