@@ -10,11 +10,11 @@ import { t } from '@i18n'
 import { model } from '@model'
 import { StatusTag, StatusType } from '@/components/tags/index.tsx'
 
+import { sgraph, graph_statuses } from './model.ts'
+
 import { Overview } from './Overview.tsx'
 import { Checkpoints } from './Checkpoints.tsx'
 import { Configuration } from './Configuration.tsx'
-import type { StreamGraphMeta } from './model.ts'
-import { sgraph, graph_statuses } from './model.ts'
 
 
 export function Graph () {
@@ -22,30 +22,19 @@ export function Graph () {
     
     sgraph.name = name
     
-    const { graphs, graph } = sgraph.use(['name', 'graphs', 'graph'])
+    const { graph } = sgraph.use(['name', 'graph'])
     
     useEffect(() => {
         sgraph.set({ name })
         
-        if (!sgraph.graphs)
-            sgraph.get_graphs()
-        
         sgraph.get_graph()
     }, [name])
     
-    if (!graphs)
-        return null
-    
-    const meta = graphs?.find(({ fqn }) => fqn === name)
-    
-    if (!meta)
-        return <Typography.Text type='danger'>{t('找不到流图 {{name}}', { name })}</Typography.Text>
-        
     if (!graph)
         return null
     
     return <div className='themed'>
-        <TopDescription meta={meta} />
+        <TopDescription />
         
         <Tabs
             defaultActiveKey='overview'
@@ -74,11 +63,12 @@ export function Graph () {
 }
 
 
-function TopDescription ({
-    meta: { id, fqn: name, status, createTime, semantics, reason }
-}: {
-    meta: StreamGraphMeta
-}) {
+function TopDescription () {
+    const {
+        name,
+        graph: { meta: { id, status, createTime, semantics, reason } }
+    } = sgraph.use(['name', 'graph'])
+    
     let modal = use_modal()
     
     const [input_value, set_input_value] = useState('')
@@ -154,10 +144,9 @@ function TopDescription ({
                     icon={<ReloadOutlined />}
                     onClick={async () => {
                         await Promise.all([
-                            sgraph.get_graphs(),
                             sgraph.get_graph(),
-                            sgraph.get_publish_stats(),
-                            sgraph.get_subscription_stats()
+                            sgraph.get_subscription_stats(),
+                            sgraph.get_publish_stats()
                         ])
                     }}
                 >
@@ -176,7 +165,7 @@ function TopDescription ({
                 { label: t('流图 ID'), children: id },
                 { label: t('流图名称'), children: name },
                 { label: t('流图状态'), children: <StatusTag status={status_map[status]}>{graph_statuses[status] || status}</StatusTag> },
-                { label: t('创建时间'), children: createTime ? new Date(createTime).to_formal_str() : '-' },
+                { label: t('创建时间'), children: createTime ? new Date(createTime.replace('T', ' ')).to_formal_str() : '-' },
                 { label: t('执行次数'), children: semantics },
                 { label: t('失败原因'), children: reason },
             ]}

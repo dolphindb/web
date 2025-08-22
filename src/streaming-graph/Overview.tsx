@@ -18,7 +18,7 @@ import { engine_table_column_names } from '@/computing/model.ts'
 
 import { type StreamGraph, type GraphNode, type GraphEdge } from './model.ts'
 import { NodeDetails } from './NodeDetails.tsx'
-import { get_publish_stats_fundef, get_task_subworker_stat_fundef, sgraph, type SubscriptionStat } from './model.ts'
+import { get_publish_stats_fundef, get_subscription_stats_funcdef, sgraph, type SubscriptionStat } from './model.ts'
 
 
 export function Overview () {
@@ -571,7 +571,7 @@ export function SubscriptionStatsTable ({
     
     return <DDBTable<SubscriptionStat>
         title={t('流任务订阅')}
-        help={get_task_subworker_stat_fundef}
+        help={get_subscription_stats_funcdef}
         dataSource={subscription_stats}
         columns={task_status_columns}
         rowKey='topic'

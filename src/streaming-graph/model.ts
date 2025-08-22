@@ -88,7 +88,7 @@ class StreamingGraph extends Model<StreamingGraph> {
     
     
     async get_subscription_stats (name = this.name) {
-        const subscription_stats = await model.ddb.invoke<SubscriptionStat[]>(get_task_subworker_stat_fundef, [name])
+        const subscription_stats = await model.ddb.invoke<SubscriptionStat[]>(get_subscription_stats_funcdef, [name])
         
         if (name === this.name)
             this.set({ subscription_stats })
@@ -145,8 +145,8 @@ class StreamingGraph extends Model<StreamingGraph> {
 export let sgraph = new StreamingGraph()
 
 
-export const get_task_subworker_stat_fundef = 
-    'def get_task_subworker_stat (name) {\n' +
+export const get_subscription_stats_funcdef = 
+    'def get_subscription_stats (name) {\n' +
     '    stat = pnodeRun(def (): getStreamingStat().subWorkers, getDataNodes())\n' +
     '    sub = getOrcaStreamTaskSubscriptionMeta(name)\n' +
     '    return select * from sub, stat where strFind(stat.topic, sub.tableName + "/" + sub.actionName) != -1 order by taskId\n' +

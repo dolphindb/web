@@ -10,6 +10,7 @@ import { DDBTable } from '@components/DDBTable/index.tsx'
 
 import { model } from '@model'
 
+import { RefreshButton } from '@components/RefreshButton/index.tsx'
 import { sgraph, graph_statuses, type StreamGraphMeta, type StreamGraphStatus } from './model.ts'
 
 
@@ -32,6 +33,11 @@ export function List () {
                 </>
             }
             big_title
+            buttons={
+                <RefreshButton onClick={() => {
+                    sgraph.get_graphs()
+                }} />
+            }
             columns={columns}
             dataSource={
                 (graphs && status_filters?.length ?
