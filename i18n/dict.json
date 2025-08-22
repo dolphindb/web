@@ -6454,5 +6454,92 @@
     },
     "node.properties 中的 metrics 数组长度应该为 1": {
         "en": "Metrics array length in node.properties should be 1"
+    },
+    "最后检查点 ID": {
+        "en": "Last Checkpoint ID"
+    },
+    "待处理消息": {
+        "en": "Pending Message"
+    },
+    "行计数": {
+        "en": "Line Count"
+    },
+    "计划 ID": {
+        "en": "Plan ID"
+    },
+    "报告 ID": {
+        "en": "Report ID"
+    },
+    "发送人": {
+        "en": "Senders"
+    },
+    "收件人": {
+        "en": "Recipient"
+    },
+    "邮件主题": {
+        "en": "Message Subject"
+    },
+    "发送时间": {
+        "en": "Sending Time"
+    },
+    "发送状态": {
+        "en": "Sending Status"
+    },
+    "发送中": {
+        "en": "Sending"
+    },
+    "发送失败": {
+        "en": "Sending Failed"
+    },
+    "邮件告警历史": {
+        "en": "Mail Alarm History"
+    },
+    "请选择发送状态": {
+        "en": "Please select the sending status"
+    },
+    "搜索": {
+        "en": "Search"
+    },
+    "第 {{start}}-{{end}} 条，共 {{total}} 条": {
+        "en": "{{start}}-{{end}}} of {{total}}"
+    },
+    "没有足够的权限查看作业": {
+        "en": "Not enough permissions to view job"
+    },
+    "使用 url 参数中的用户名密码登录失败，": {
+        "en": "Failed to login using user name and password in url parameters"
+    },
+    "流图 {{name}} 不存在": {
+        "en": "Stream graph {{name}} does not exist"
+    },
+    "流图": {
+        "en": "Stream graph"
+    },
+    "删除流图失败": {
+        "en": "Failed to delete stream graph"
+    },
+    "无可用子图指标": {
+        "en": "No available subgraph indicator"
+    },
+    "无 worker {{task_id}} 的可用子图指标": {
+        "en": "No available subgraph indicator for worker {{task_id}}"
+    },
+    "无可用引擎指标": {
+        "en": "No available engine indicator"
+    },
+    "子图": {
+        "en": "Subgraph"
+    },
+    "流任务订阅": {
+        "en": "Stream task subscription"
+    },
+    "流任务发布": {
+        "en": "Stream task publishing"
+    },
+    "客户端": {
+        "en": "Client"
+    },
+    "流引擎": {
+        "en": "Stream engine"
     }
 }
