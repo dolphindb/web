@@ -1,11 +1,10 @@
 import { useEffect, useState } from 'react'
 import { useParams } from 'react-router'
 
-import { Descriptions, Button, Typography, Modal, Input, Space, Spin, Tabs } from 'antd'
+import { Descriptions, Button, Typography, Modal, Input, Space, Tabs } from 'antd'
 import { LineChartOutlined, CheckCircleOutlined, SettingOutlined, ArrowLeftOutlined, DeleteOutlined, ReloadOutlined, WarningOutlined } from '@ant-design/icons'
 
-import useSWR from 'swr'
-
+import { use_modal } from 'react-object-model/hooks.js'
 
 import { t } from '@i18n'
 import { model } from '@model'
@@ -14,8 +13,7 @@ import { StatusTag, StatusType } from '@/components/tags/index.tsx'
 import { Overview } from './Overview.tsx'
 import { Checkpoints } from './Checkpoints.tsx'
 import { Configuration } from './Configuration.tsx'
-import { get_stream_graph_meta_list, get_stream_graph_meta } from './apis.ts'
-import type { StreamGraphMeta } from './types.ts'
+import type { StreamGraphMeta } from './model.ts'
 import { streaming_graph_status } from './Table.tsx'
 import { sgraph } from './model.ts'
 
@@ -25,35 +23,30 @@ export function Graph () {
     
     sgraph.name = name
     
-    const { info } = sgraph.use(['name', 'info'])
+    const { info, metas } = sgraph.use(['name', 'info', 'metas'])
     
     useEffect(() => {
         sgraph.set({ name })
         
+        if (!sgraph.metas)
+            sgraph.get_metas()
+        
         sgraph.get_stream_graph_info()
     }, [name])
     
-    const { data: graphs } = useSWR<StreamGraphMeta[]>(
-        'get_stream_graph_meta_list', 
-        get_stream_graph_meta_list,
-        {
-            refreshInterval: 1000 * 30,
-            revalidateOnFocus: true
-        })
-    
-    if (!graphs)
+    if (!metas)
         return null
     
-    const graph = graphs?.find(graph => graph.fqn === name)
+    const meta = metas?.find(({ fqn }) => fqn === name)
     
-    if (!graph)
+    if (!meta)
         return <Typography.Text type='danger'>{t('找不到流图 {{name}}', { name })}</Typography.Text>
     
     if (!info)
         return null
     
     return <div className='themed'>
-        <TopDescription />
+        <TopDescription meta={meta} />
         
         <Tabs 
             defaultActiveKey='overview'
@@ -82,93 +75,14 @@ export function Graph () {
 }
 
 
-function TopDescription () {
-    const { name } = sgraph
+function TopDescription ({ meta }: { meta: StreamGraphMeta }) {
+    const { id, fqn: name, status, createTime, semantics, reason } = meta
     
-    const { data, error, mutate } = useSWR(
-        ['get_stream_graph_meta', name],
-        async () => get_stream_graph_meta(name),
-        {
-            refreshInterval: 1000 * 10,
-            revalidateOnFocus: true,
-            keepPreviousData: true
-        })
+    let modal = use_modal()
     
-    const [deleteModalVisible, setDeleteModalVisible] = useState(false)
-    const [inputValue, setInputValue] = useState('')
+    const [input_value, set_input_value] = useState('')
     
-    if (error)
-        throw error
-    
-    if (!data)
-        return null
-    
-    
-    function get_status_text (status: string) {
-        return streaming_graph_status[status] || status
-    }
-    
-    
-    function render_actions (graph: StreamGraphMeta) {
-        const active = graph.status === 'running' || graph.status === 'building'
-        
-        return <>
-            <Modal
-                className='computing-delete-modal'
-                title={
-                    <div className='delete-warning-title'>
-                        <WarningOutlined />
-                        <span>
-                            {t('确认删除流图')} <Typography.Text>{data.fqn}</Typography.Text> {t('吗？此操作不可恢复。')}
-                        </span>
-                    </div>
-                }
-                open={deleteModalVisible}
-                onCancel={() => {
-                    setInputValue('')
-                    setDeleteModalVisible(false)
-                }}
-                cancelButtonProps={{ className: 'hidden' }}
-                okText={t('删除流图')}
-                okButtonProps={{
-                    disabled: inputValue !== 'YES',
-                    danger: true
-                }}
-                onOk={async () => {
-                    try {
-                        await model.ddb.invoke('dropStreamGraph', [data.fqn])
-                        model.message.success(t('删除流图成功'))
-                        setInputValue('')
-                        setDeleteModalVisible(false)
-                        model.goto('/streaming-graph')
-                    } catch (error) {
-                        model.message.error(t('删除流图失败：') + error.message)
-                    }
-                }}
-            >
-                <Input
-                    placeholder={t("请输入 'YES' 以确认该操作")}
-                    value={inputValue}
-                    onChange={({ target: { value } }) => {
-                        setInputValue(value)
-                    }}
-                />
-            </Modal>
-            
-            <Button
-                icon={<DeleteOutlined />}
-                danger
-                disabled={!active}
-                onClick={() => {
-                    setDeleteModalVisible(true)
-                }}
-            >
-                {t('删除流图')}
-            </Button>
-        </>
-    }
-    
-    const { id: graph_id, fqn, status, createTime, semantics, reason } = data
+    const active = status === 'running' || status === 'building'
     
     return <div>
         <div className='graph-detail-header'>
@@ -181,12 +95,62 @@ function TopDescription () {
             <div className='padding' />
             
             <Space>
-                {render_actions(data)}
+                <Modal
+                    className='computing-delete-modal'
+                    title={
+                        <div className='delete-warning-title'>
+                            <WarningOutlined />
+                            <span>
+                                {t('确认删除流图')} <Typography.Text>{meta.fqn}</Typography.Text> {t('吗？此操作不可恢复。')}
+                            </span>
+                        </div>
+                    }
+                    open={modal.visible}
+                    onCancel={() => {
+                        set_input_value('')
+                        modal.close()
+                    }}
+                    cancelButtonProps={{ className: 'hidden' }}
+                    okText={t('删除流图')}
+                    okButtonProps={{
+                        disabled: input_value !== 'YES',
+                        danger: true
+                    }}
+                    onOk={async () => {
+                        try {
+                            await model.ddb.invoke('dropStreamGraph', [meta.fqn])
+                            model.message.success(t('删除流图成功'))
+                            set_input_value('')
+                            modal.close()
+                            model.goto('/streaming-graph')
+                        } catch (error) {
+                            model.message.error(t('删除流图失败：') + error.message)
+                        }
+                    }}
+                >
+                    <Input
+                        placeholder={t("请输入 'YES' 以确认该操作")}
+                        value={input_value}
+                        onChange={({ target: { value } }) => {
+                            set_input_value(value)
+                        }}
+                    />
+                </Modal>
+                
+                <Button
+                    icon={<DeleteOutlined />}
+                    danger
+                    disabled={!active}
+                    onClick={modal.open}
+                >
+                    {t('删除流图')}
+                </Button>
+                
                 <Button
                     icon={<ReloadOutlined />}
                     onClick={async () => {
-                        mutate(undefined, { revalidate: true })
                         await Promise.all([
+                            sgraph.get_metas(),
                             sgraph.get_stream_graph_info(),
                             sgraph.get_publish_stats(),
                             sgraph.get_subscription_stats()
@@ -205,9 +169,9 @@ function TopDescription () {
             className='top-descriptions'
             
             items={[
-                { label: t('流图 ID'), children: graph_id },
-                { label: t('流图名称'), children: fqn },
-                { label: t('流图状态'), children: <StatusTag status={status_map[status]}>{get_status_text(status)}</StatusTag> },
+                { label: t('流图 ID'), children: id },
+                { label: t('流图名称'), children: name },
+                { label: t('流图状态'), children: <StatusTag status={status_map[status]}>{streaming_graph_status[status] || status}</StatusTag> },
                 { label: t('创建时间'), children: createTime ? new Date(createTime).to_formal_str() : '-' },
                 { label: t('执行次数'), children: semantics },
                 { label: t('失败原因'), children: reason },

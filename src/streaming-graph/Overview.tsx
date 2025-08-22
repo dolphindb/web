@@ -17,7 +17,7 @@ import { node_state_icons } from '@/overview/table.tsx'
 import { DDBTable } from '@/components/DDBTable/index.tsx'
 import { engine_table_column_names } from '@/computing/model.ts'
 
-import { type StreamGraph, type GraphNode, type GraphEdge } from './types.ts'
+import { type StreamGraph, type GraphNode, type GraphEdge } from './model.ts'
 import { NodeDetails } from './NodeDetails.tsx'
 import { get_publish_stats_fundef, get_task_subworker_stat_fundef, sgraph, type SubscriptionStat } from './model.ts'
 

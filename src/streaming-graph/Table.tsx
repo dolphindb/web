@@ -1,9 +1,7 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 
 import { Typography, Tooltip, type TableColumnsType } from 'antd'
 const { Text } = Typography
-
-import useSWR from 'swr'
 
 import { t } from '@i18n'
 
@@ -12,45 +10,39 @@ import { DDBTable } from '@components/DDBTable/index.tsx'
 
 import { model } from '@model'
 
-import { get_stream_graph_meta_list } from './apis.ts'
-import type { StreamGraphMeta, StreamGraphStatus } from './types.ts'
+import { sgraph, type StreamGraphMeta, type StreamGraphStatus } from './model.ts'
 
 
 export function Table () {
     const [status_filters, set_status_filters] = useState<StreamGraphStatus[]>(default_status_filters)
     
-    const {
-        data: graphs,
-        isLoading: loading
-    } = useSWR(
-        'get_stream_graph_meta_list', 
-        get_stream_graph_meta_list,
-        {
-            refreshInterval: 30000,
-            revalidateOnFocus: true
-        })
+    let { metas } = sgraph.use(['metas'])
+    
+    useEffect(() => {
+        sgraph.get_metas()
+    }, [ ])
     
     return <div className='job-table-container themed'>
         <DDBTable
             title={
                 <>
                     <Tooltip title={t('流图列表')}>{t('流图列表')}</Tooltip> (
-                    {graphs?.filter(graph => graph.status === 'running').length || 0} {t('个')}
+                    {metas?.filter(graph => graph.status === 'running').length || 0} {t('个')}
                     {t('运行中')})
                 </>
             }
             big_title
             columns={columns}
             dataSource={
-                (graphs && status_filters?.length ?
-                    graphs.filter(
+                (metas && status_filters?.length ?
+                    metas.filter(
                         graph => status_filters.includes(graph.status))
                 :
-                    graphs) || 
+                    metas) || 
                 [ ]
             }
             rowKey='id'
-            loading={loading}
+            loading={!metas}
             scroll={{ x: 'max-content' }}
             pagination={{
                 defaultPageSize: 10,

@@ -10,7 +10,7 @@ import { engine_table_column_names } from '@/computing/model.ts'
 
 import { get_stream_engine_stat } from './apis.ts'
 import { task_status_columns } from './Overview.tsx'
-import type { StreamGraphStatus } from './types.ts'
+import type { StreamGraphStatus } from './model.ts'
 import { sgraph } from './model.ts'
 
 const { Text } = Typography

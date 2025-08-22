@@ -2,7 +2,7 @@ import { DdbFunction, DdbFunctionType } from 'dolphindb/browser'
 
 import { model } from '@model'
 
-import type { StreamGraphMeta, CheckpointJobInfo, CheckpointSubjobInfo } from './types.ts'
+import type { StreamGraphMeta, CheckpointJobInfo, CheckpointSubjobInfo } from './model.ts'
 
 export async function get_stream_graph_meta_list (): Promise<StreamGraphMeta[]> {
     return (await model.ddb.invoke('getStreamGraphMeta'))
