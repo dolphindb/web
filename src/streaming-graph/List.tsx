@@ -10,10 +10,10 @@ import { DDBTable } from '@components/DDBTable/index.tsx'
 
 import { model } from '@model'
 
-import { sgraph, type StreamGraphMeta, type StreamGraphStatus } from './model.ts'
+import { sgraph, graph_statuses, type StreamGraphMeta, type StreamGraphStatus } from './model.ts'
 
 
-export function Table () {
+export function List () {
     const [status_filters, set_status_filters] = useState<StreamGraphStatus[]>(default_status_filters)
     
     let { graphs } = sgraph.use(['graphs'])
@@ -69,14 +69,6 @@ const status_map = {
     destroying: StatusType.PARTIAL_SUCCESS
 } as const
 
-export const streaming_graph_status: Record<StreamGraphStatus, string> = {
-    building: t('构建中'),
-    running: t('运行中'),
-    error: t('错误'),
-    failed: t('失败'),
-    destroying: t('销毁中'),
-    destroyed: t('已销毁')
-}
 
 const default_status_filters = Object.keys(status_map).filter(key => key !== 'destroyed') as StreamGraphStatus[]
 
@@ -163,13 +155,13 @@ const columns: TableColumnsType<StreamGraphMeta> = [
         
         defaultFilteredValue: default_status_filters,
         
-        filters: Object.entries(streaming_graph_status)
+        filters: Object.entries(graph_statuses)
             .map(([key, text]) => ({ text, value: key })),
         
         filterResetToDefaultFilteredValue: true,
         
         render: (_, { status }) => 
-            <StatusTag status={status_map[status]}>{streaming_graph_status[status] || status}</StatusTag>,
+            <StatusTag status={status_map[status]}>{graph_statuses[status] || status}</StatusTag>,
     }
 ]
 

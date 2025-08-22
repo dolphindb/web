@@ -14,8 +14,7 @@ import { Overview } from './Overview.tsx'
 import { Checkpoints } from './Checkpoints.tsx'
 import { Configuration } from './Configuration.tsx'
 import type { StreamGraphMeta } from './model.ts'
-import { streaming_graph_status } from './Table.tsx'
-import { sgraph } from './model.ts'
+import { sgraph, graph_statuses } from './model.ts'
 
 
 export function Graph () {
@@ -176,7 +175,7 @@ function TopDescription ({
             items={[
                 { label: t('流图 ID'), children: id },
                 { label: t('流图名称'), children: name },
-                { label: t('流图状态'), children: <StatusTag status={status_map[status]}>{streaming_graph_status[status] || status}</StatusTag> },
+                { label: t('流图状态'), children: <StatusTag status={status_map[status]}>{graph_statuses[status] || status}</StatusTag> },
                 { label: t('创建时间'), children: createTime ? new Date(createTime).to_formal_str() : '-' },
                 { label: t('执行次数'), children: semantics },
                 { label: t('失败原因'), children: reason },

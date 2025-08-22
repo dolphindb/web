@@ -3,7 +3,7 @@ import './index.sass'
 
 import { useRoutes } from 'react-router'
 
-import { Table } from './Table.tsx'
+import { List } from './List.tsx'
 import { Graph } from './Graph.tsx'
 
 
@@ -11,7 +11,7 @@ export function StreamingGraph () {
     return useRoutes([
         {
             index: true,
-            element: <Table />,
+            element: <List />,
         },
         {
             path: ':name/',

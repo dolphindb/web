@@ -188,6 +188,15 @@ export interface SubscriptionStat {
 }
 
 
+export const graph_statuses: Record<StreamGraphStatus, string> = {
+    building: t('构建中'),
+    running: t('运行中'),
+    error: t('错误'),
+    failed: t('失败'),
+    destroying: t('销毁中'),
+    destroyed: t('已销毁')
+}
+
 // 流图状态
 export type StreamGraphStatus = 'building' | 'running' | 'error' | 'failed' | 'destroying' | 'destroyed'
 
