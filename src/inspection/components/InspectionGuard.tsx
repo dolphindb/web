@@ -37,6 +37,7 @@ export function InspectionGuard ({ children }: { children: React.ReactNode }) {
     if (table_created !== null && !table_created) 
         return <div className='initialization-container'>
             <Result
+                className='init'
                 title={t('请点击下方按钮完成初始化')}
                 subTitle={
                     <>
