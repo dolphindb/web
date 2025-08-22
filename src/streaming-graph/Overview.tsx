@@ -634,7 +634,7 @@ function EngineTableStatsTable ({ engine }: { engine: boolean }) {
     :
         ({ properties: { type, metrics } }: GraphNode) => metrics && type === 'TABLE'
     
-    const metrics: any[] = nodes.filter(filter)
+    const metrics = nodes.filter(filter)
         .map(({ properties: { metrics } }) => metrics)
     
     // console.log(`流${engine ? '引擎' : '表'}:`, metrics)
@@ -659,10 +659,11 @@ function EngineTableStatsTable ({ engine }: { engine: boolean }) {
                 ['TableName', ... Object.keys(metric).filter(key => key !== 'TableName')]
             )
                 .map((key, index) => ({
-                    title: engine_table_column_names[key] || key.to_space_case(),
+                    key,
                     dataIndex: key,
-                    fixed: index === 0
+                    title: <span title={key.to_space_case()}>{engine_table_column_names[key] || key.to_space_case()}</span>,
+                    fixed: index === 0,
+                    render: String
                 }))}
     />
 }
-
