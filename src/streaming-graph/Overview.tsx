@@ -1,6 +1,5 @@
 import { Drawer, Tooltip, type TableColumnsType } from 'antd'
 
-import useSWR from 'swr'
 import { useCallback, useEffect, useState } from 'react'
 import {
     default as ReactFlow, Background, Controls, type Node, type Edge, type NodeTypes, 
@@ -30,7 +29,7 @@ export function Overview () {
         <StreamingGraphVisualization selected_action_name={selected_action_name} set_selected_action_name={set_selected_action_name} />
         
         <div className='stat-tables'>
-            <TaskSubWorkerStatTable selected_action_name={selected_action_name} on_action_name_select={set_selected_action_name} />
+            <SubscriptionStatsTable selected_action_name={selected_action_name} on_action_name_select={set_selected_action_name} />
             <PublishStatsTable />
             
             <EngineTableStatsTable engine />
@@ -227,20 +226,16 @@ function StreamingGraphVisualization ({
     selected_action_name: string | null
     set_selected_action_name: (actionName: string | null) => void
 }) {
-    const { name, info } = sgraph.use(['name', 'info'])
+    const { name, graph } = sgraph.use(['name', 'graph'])
     
     const [node_map, set_node_map] = useState<Map<number, DdbNode>>()
     
-    const { data } = useSWR(
-        ['getStreamGraphInfo', name],
-        () => {
-            set_node_map(
-                new Map(info.meta.tasks.map(task => 
-                    [task.id, model.nodes.find(({ name }) => name === task.node)]))
-            )
-            
-            return info
-        })
+    useEffect(() => {
+        set_node_map(
+            new Map(graph.meta.tasks.map(task => 
+                [task.id, model.nodes.find(({ name }) => name === task.node)]))
+        )
+    }, [name, graph])
     
     const [nodes, set_nodes] = useNodesState([ ])
     const [edges, set_edges] = useEdgesState([ ])
@@ -445,22 +440,21 @@ function StreamingGraphVisualization ({
                 edges: layouted_edges
             }
         },
-        [selected_action_name, node_map]
-    )
+        [selected_action_name, node_map])
     
     // 数据加载后更新图
     useEffect(() => {
-        if (!data?.graph)
+        if (!graph?.graph)
             return
         
-        const graph_data = typeof data.graph === 'string' ? JSON.parse(data.graph) : data.graph
+        const graph_data = typeof graph.graph === 'string' ? JSON.parse(graph.graph) : graph.graph
         const { nodes: processed_nodes, edges: processed_edges } = process_graph_data(graph_data)
         const { nodes: react_flow_nodes, edges: react_flow_edges } = convert_to_react_flow_format(processed_nodes, processed_edges)
         set_nodes(react_flow_nodes)
         set_edges(react_flow_edges)
-    }, [data, process_graph_data, convert_to_react_flow_format, node_map])
+    }, [graph, process_graph_data, convert_to_react_flow_format, node_map])
     
-    if (!data)
+    if (!graph)
         return null
     
     return <div className='streaming-graph-page'>
@@ -515,7 +509,7 @@ function StreamingGraphVisualization ({
                 }}
                 open={drawer_visible}
             >
-                <NodeDetails node={selected} id={name} status={data.meta.status} />
+                <NodeDetails node={selected} status={graph.meta.status} />
             </Drawer>
         </div>
     </div>
@@ -562,7 +556,7 @@ export const task_status_columns = [
 }))
 
 
-export function TaskSubWorkerStatTable ({
+export function SubscriptionStatsTable ({
     selected_action_name,
     on_action_name_select
 }: {
@@ -632,7 +626,7 @@ const publish_stats_columns: TableColumnsType = [
 
 /** 显示引擎或者流表的状态表 */
 function EngineTableStatsTable ({ engine }: { engine: boolean }) {
-    const { info: { graph: { nodes } } } = sgraph.use(['info'])
+    const { graph: { graph: { nodes } } } = sgraph.use(['graph'])
     
     // 过滤出引擎或者流表
     const filter = engine ? 

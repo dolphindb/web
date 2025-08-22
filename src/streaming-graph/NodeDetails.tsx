@@ -1,5 +1,5 @@
-import { Tabs, Descriptions, Table, Typography, Empty, Card, Tooltip } from 'antd'
-import useSWR from 'swr'
+import { useEffect } from 'react'
+import { Tabs, Descriptions, Table, Empty, Tooltip } from 'antd'
 import type { Node } from 'reactflow'
 
 import { not_empty } from 'xshell/prototype.browser.js'
@@ -8,41 +8,29 @@ import { t } from '@i18n'
 
 import { engine_table_column_names } from '@/computing/model.ts'
 
-import { get_stream_engine_stat } from './apis.ts'
 import { task_status_columns } from './Overview.tsx'
-import type { StreamGraphStatus } from './model.ts'
-import { sgraph } from './model.ts'
+import { sgraph, type StreamGraphStatus } from './model.ts'
 
-const { Text } = Typography
 
-interface NodeDetailsComponentProps {
-    node: Node | null
-    id: string
-    status: StreamGraphStatus
-}
-
-export function NodeDetails ({ node, id, status }: NodeDetailsComponentProps) {
-    const is_engine = node && (node.data?.subType === 'REACTIVE_STATE_ENGINE' || node.data?.subType === 'TIME_SERIES_ENGINE')
-    const is_table = node?.data?.subType === 'TABLE'
+export function NodeDetails ({ node, status }: { node: Node | null, status: StreamGraphStatus }) {
+    const { label: name, showId, subType, variableName, initialName, taskId, logicalNode, schema, metrics } = node?.data || { }
     
-    const { data: stat, error, isLoading } = useSWR(
-        node ? ['get_task_subworker_stat', id] : null, 
-        async () => sgraph.get_subscription_stats(id))
+    const is_engine = subType?.endsWith('_ENGINE')
+    const is_table = subType === 'TABLE'
     
-    const {
-        data: engine_data,
-        error: engine_error,
-        isLoading: engine_loading
-    } = useSWR(
-        is_engine && status === 'running' ? ['getSteamEngineStat', node] : null,
-        async () =>
-            get_stream_engine_stat(node.data.label)
-    )
+    let { engine_stats, subscription_stats } = sgraph.use(['engine_stats', 'subscription_stats'])
+    
+    useEffect(() => {
+        if (!name)
+            return
+        
+        if (is_engine && status === 'running')
+            sgraph.get_engine_stats(name)
+    }, [name])
+    
     
     if (!node)
         return null
-    
-    const { showId, subType, variableName, initialName, taskId, logicalNode, schema, metrics } = node.data
     
     return <Tabs
         defaultActiveKey='1'
@@ -83,26 +71,23 @@ export function NodeDetails ({ node, id, status }: NodeDetailsComponentProps) {
                     key: '2',
                     label: t('子图指标'),
                     children: (() => {
-                        if (isLoading)
-                            return <Card loading />
+                        if (!subscription_stats)
+                            return null
                         
-                        if (error)
-                            return <Text type='danger'>{t('加载子图指标报错')}: {error.message}</Text>
-                        
-                        if (!stat || stat.length === 0)
+                        if (!subscription_stats.length)
                             return <Empty description={t('无可用子图指标')} />
                         
                         // Filter data related to the current node's subGraph
-                        const data_ = stat.filter(item => 
-                            item.taskId !== undefined && Number(item.taskId) === Number(taskId))
+                        const stats = subscription_stats.filter(item => 
+                            item.taskId && Number(item.taskId) === Number(taskId))
                         
-                        if (!data_.length)
+                        if (!stats.length)
                             return <Empty description={t('无 worker {{task_id}} 的可用子图指标', { task_id: taskId })} />
                         
                         return <Table
-                            dataSource={data_}
+                            dataSource={stats}
                             columns={task_status_columns}
-                            rowKey={(record, index) => index}
+                            rowKey='topic'
                             pagination={false}
                             size='small'
                             scroll={{ x: 'max-content' }}
@@ -115,45 +100,44 @@ export function NodeDetails ({ node, id, status }: NodeDetailsComponentProps) {
                 key: '3',
                 label: t('引擎指标'),
                 children: (() => {
-                    if (engine_loading)
-                        return <Card loading />
+                    if (!engine_stats)
+                        return null
                     
-                    if (engine_error)
-                        return <Text type='danger'>Failed to load engine metrics data: {engine_error.message}</Text>
-                    
-                    if (!engine_data)
-                        return <Empty description='No engine metrics data available' />
-                    
-                    // 从数据中提取列
-                    const columns = engine_data.columns.map(key => ({
-                        title: key,
-                        dataIndex: key,
-                        key: key,
-                        render: (text: any) => {
-                            // 如果值是对象，转换为字符串显示
-                            if (typeof text === 'object')
-                                text = JSON.stringify(text)
-                            
-                            // 添加 Tooltip 显示完整内容
-                            return <Tooltip placement='topLeft' title={text}>
-                                    <span
-                                        style={{
-                                            overflow: 'hidden',
-                                            textOverflow: 'ellipsis',
-                                            whiteSpace: 'nowrap',
-                                            display: 'block',
-                                            maxWidth: 150 // 限制最大宽度
-                                        }}
-                                    >
-                                        {text}
-                                    </span>
-                                </Tooltip>
-                        }
-                    }))
+                    if (!engine_stats.length)
+                        return <Empty description={t('无可用引擎指标')} />
                     
                     return <Table
-                        dataSource={engine_data.data}
-                        columns={columns}
+                        dataSource={engine_stats}
+                        rowKey={(_, index) => index}
+                        columns={
+                            Object.keys(engine_stats[0])
+                                .map(key => ({
+                                    title: key,
+                                    dataIndex: key,
+                                    key: key,
+                                    render (text: any) {
+                                        // 如果值是对象，转换为字符串显示
+                                        if (typeof text === 'object')
+                                            text = JSON.stringify(text)
+                                        
+                                        // 添加 Tooltip 显示完整内容
+                                        return <Tooltip placement='topLeft' title={text}>
+                                                <span
+                                                    style={{
+                                                        overflow: 'hidden',
+                                                        textOverflow: 'ellipsis',
+                                                        whiteSpace: 'nowrap',
+                                                        display: 'block',
+                                                        maxWidth: 150 // 限制最大宽度
+                                                    }}
+                                                >
+                                                    {text}
+                                                </span>
+                                            </Tooltip>
+                                    }
+                                }))
+                            
+                        }
                         pagination={false} // 单行数据不需要分页
                         size='small'
                         scroll={{ x: 'max-content' }} // 允许横向滚动

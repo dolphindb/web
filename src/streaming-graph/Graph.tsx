@@ -23,32 +23,32 @@ export function Graph () {
     
     sgraph.name = name
     
-    const { info, metas } = sgraph.use(['name', 'info', 'metas'])
+    const { graphs, graph } = sgraph.use(['name', 'graphs', 'graph'])
     
     useEffect(() => {
         sgraph.set({ name })
         
-        if (!sgraph.metas)
-            sgraph.get_metas()
+        if (!sgraph.graphs)
+            sgraph.get_graphs()
         
-        sgraph.get_stream_graph_info()
+        sgraph.get_graph()
     }, [name])
     
-    if (!metas)
+    if (!graphs)
         return null
     
-    const meta = metas?.find(({ fqn }) => fqn === name)
+    const meta = graphs?.find(({ fqn }) => fqn === name)
     
     if (!meta)
         return <Typography.Text type='danger'>{t('找不到流图 {{name}}', { name })}</Typography.Text>
-    
-    if (!info)
+        
+    if (!graph)
         return null
     
     return <div className='themed'>
         <TopDescription meta={meta} />
         
-        <Tabs 
+        <Tabs
             defaultActiveKey='overview'
             items={[
                 {
@@ -75,9 +75,11 @@ export function Graph () {
 }
 
 
-function TopDescription ({ meta }: { meta: StreamGraphMeta }) {
-    const { id, fqn: name, status, createTime, semantics, reason } = meta
-    
+function TopDescription ({
+    meta: { id, fqn: name, status, createTime, semantics, reason }
+}: {
+    meta: StreamGraphMeta
+}) {
     let modal = use_modal()
     
     const [input_value, set_input_value] = useState('')
@@ -101,7 +103,7 @@ function TopDescription ({ meta }: { meta: StreamGraphMeta }) {
                         <div className='delete-warning-title'>
                             <WarningOutlined />
                             <span>
-                                {t('确认删除流图')} <Typography.Text>{meta.fqn}</Typography.Text> {t('吗？此操作不可恢复。')}
+                                {t('确认删除流图')} <Typography.Text>{name}</Typography.Text> {t('吗？此操作不可恢复。')}
                             </span>
                         </div>
                     }
@@ -118,13 +120,16 @@ function TopDescription ({ meta }: { meta: StreamGraphMeta }) {
                     }}
                     onOk={async () => {
                         try {
-                            await model.ddb.invoke('dropStreamGraph', [meta.fqn])
+                            await model.ddb.invoke('dropStreamGraph', [name])
                             model.message.success(t('删除流图成功'))
                             set_input_value('')
                             modal.close()
                             model.goto('/streaming-graph')
                         } catch (error) {
-                            model.message.error(t('删除流图失败：') + error.message)
+                            model.modal.error({
+                                title: t('删除流图失败'),
+                                content: error.message
+                            })
                         }
                     }}
                 >
@@ -150,8 +155,8 @@ function TopDescription ({ meta }: { meta: StreamGraphMeta }) {
                     icon={<ReloadOutlined />}
                     onClick={async () => {
                         await Promise.all([
-                            sgraph.get_metas(),
-                            sgraph.get_stream_graph_info(),
+                            sgraph.get_graphs(),
+                            sgraph.get_graph(),
                             sgraph.get_publish_stats(),
                             sgraph.get_subscription_stats()
                         ])

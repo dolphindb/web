@@ -16,10 +16,10 @@ import { sgraph, type StreamGraphMeta, type StreamGraphStatus } from './model.ts
 export function Table () {
     const [status_filters, set_status_filters] = useState<StreamGraphStatus[]>(default_status_filters)
     
-    let { metas } = sgraph.use(['metas'])
+    let { graphs } = sgraph.use(['graphs'])
     
     useEffect(() => {
-        sgraph.get_metas()
+        sgraph.get_graphs()
     }, [ ])
     
     return <div className='job-table-container themed'>
@@ -27,22 +27,22 @@ export function Table () {
             title={
                 <>
                     <Tooltip title={t('流图列表')}>{t('流图列表')}</Tooltip> (
-                    {metas?.filter(graph => graph.status === 'running').length || 0} {t('个')}
+                    {graphs?.filter(graph => graph.status === 'running').length || 0} {t('个')}
                     {t('运行中')})
                 </>
             }
             big_title
             columns={columns}
             dataSource={
-                (metas && status_filters?.length ?
-                    metas.filter(
+                (graphs && status_filters?.length ?
+                    graphs.filter(
                         graph => status_filters.includes(graph.status))
                 :
-                    metas) || 
+                    graphs) || 
                 [ ]
             }
             rowKey='id'
-            loading={!metas}
+            loading={!graphs}
             scroll={{ x: 'max-content' }}
             pagination={{
                 defaultPageSize: 10,

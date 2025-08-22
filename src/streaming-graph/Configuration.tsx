@@ -6,7 +6,7 @@ import { sgraph } from './model.ts'
 
 
 export function Configuration () {
-    const { info: { graph: { config } } } = sgraph.use(['info'])
+    const { graph: { graph: { config } } } = sgraph.use(['graph'])
     
     if (!config || !Object.keys(config).length)
         return <Empty description={t('没有配置数据')} />

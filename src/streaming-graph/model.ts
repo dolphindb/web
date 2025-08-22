@@ -1,6 +1,7 @@
 import { Model } from 'react-object-model'
 
 import { check, map_keys } from 'xshell/utils.browser.js'
+import { DdbFunction, DdbFunctionType } from 'dolphindb/browser.js'
 
 import { model } from '@model'
 import { t } from '@i18n'
@@ -9,28 +10,80 @@ import { t } from '@i18n'
 class StreamingGraph extends Model<StreamingGraph> {
     name: string
     
-    metas: StreamGraphMeta[]
+    graphs: StreamGraphMeta[]
+    
+    graph: StreamGraphInfo
+    
+    engine_stats: any[]
     
     publish_stats: any[]
     
     subscription_stats: SubscriptionStat[]
     
-    info: StreamGraphInfo
+    checkpoint_config: CheckpointConfig
+    
+    jobs: CheckpointJob[]
+    
+    subjobs: CheckpointSubJob[]
     
     
-    async get_metas () {
-        const metas = (await model.ddb.invoke<any[]>('getStreamGraphMeta'))
+    async get_graphs () {
+        const graphs = (await model.ddb.invoke<any[]>('getStreamGraphMeta'))
             .map(({ checkpointConfig, tasks, ...others }) => ({
                 ...others,
                 checkpointConfig: JSON.parse(checkpointConfig),
                 tasks: JSON.parse(tasks)
             }))
         
-        console.log('图元数据:', metas)
+        console.log('流图列表:', graphs)
         
-        this.set({ metas })
+        this.set({ graphs })
         
-        return metas
+        return graphs
+    }
+    
+    
+    async get_graph (name = this.name) {
+        const info = (await model.ddb.invoke<any[]>('getStreamGraphInfo', [name]))
+            [0]
+        
+        let graph: StreamGraphInfo = {
+            ...info,
+            graph: JSON.parse(info.graph),
+            meta: JSON.parse(info.meta)
+        }
+        
+        // 统一规整 metrics 为对象，处理 keys 为 space case
+        graph.graph.nodes.forEach(({ properties }) => {
+            let { metrics } = properties
+            
+            if (Array.isArray(metrics)) {
+                check(metrics.length === 1, t('node.properties 中的 metrics 数组长度应该为 1'))
+                properties.metrics = metrics[0]
+            }
+        })
+        
+        console.log('流图信息:', graph)
+        
+        this.set({ graph })
+        
+        return graph
+    }
+    
+    
+    async get_engine_stats (engine_name: string) {
+        const engine_stats = await model.ddb.invoke<any[]>(
+            'useOrcaStreamEngine',
+            [
+                engine_name,
+                new DdbFunction('getStreamEngineStateTable', DdbFunctionType.SystemFunc)
+            ])
+        
+        this.set({ engine_stats })
+        
+        console.log('引擎状态:', engine_stats)
+        
+        return engine_stats
     }
     
     
@@ -56,31 +109,36 @@ class StreamingGraph extends Model<StreamingGraph> {
     }
     
     
-    async get_stream_graph_info (name = this.name) {
-        const { graph, meta, ...others } = (await model.ddb.invoke<any[]>('getStreamGraphInfo', [name]))
-            [0]
+    async get_checkpoint_config (name = this.name) {
+        const checkpoint_config = await model.ddb.invoke<CheckpointConfig>('getOrcaCheckpointConfig', [name])
         
-        let graph_info: StreamGraphInfo = {
-            ...others,
-            graph: JSON.parse(graph),
-            meta: JSON.parse(meta)
-        }
+        console.log('检查点配置:', checkpoint_config)
         
-        // 统一规整 metrics 为对象，处理 keys 为 space case
-        graph_info.graph.nodes.forEach(({ properties }) => {
-            let { metrics } = properties
-            
-            if (Array.isArray(metrics)) {
-                check(metrics.length === 1, t('node.properties 中的 metrics 数组长度应该为 1'))
-                properties.metrics = metrics[0]
-            }
-        })
+        this.set({ checkpoint_config })
         
-        // console.log('图信息:', graph_info)
+        return checkpoint_config
+    }
+    
+    
+    async get_checkpoint_jobs (name = this.name) {
+        const jobs = await model.ddb.invoke<CheckpointJob[]>('getOrcaCheckpointJobInfo', [name])
         
-        this.set({ info: graph_info })
+        console.log('检查点作业:', jobs)
         
-        return graph_info
+        this.set({ jobs })
+        
+        return jobs
+    }
+    
+    
+    async get_checkpoint_subjobs (name = this.name) {
+        const subjobs = await model.ddb.invoke<CheckpointSubJob[]>('getOrcaCheckpointSubjobInfo', [name])
+        
+        console.log('检查点子任务:', subjobs)
+        
+        this.set({ subjobs })
+        
+        return subjobs
     }
 }
 
@@ -138,7 +196,6 @@ export type CheckpointJobStatus = 'running' | 'error' | 'failed' | 'success' | '
 // 数据执行次数语义
 export type Semantics = 'exactly-once' | 'at-least-once'
 
-//  流图任务类型定义
 export interface StreamGraphTask {
     id: number
     node: string
@@ -146,12 +203,11 @@ export interface StreamGraphTask {
     reason: string
 }
 
-// 流计算图元数据类型定义
 export interface StreamGraphMeta {
-    checkpointConfig: CheckpointConfig
-    createTime: string
     fqn: string
     id: string
+    checkpointConfig: CheckpointConfig
+    createTime: string
     owner: string
     reason: string
     semantics: Semantics
@@ -160,8 +216,8 @@ export interface StreamGraphMeta {
 }
 
 export interface StreamGraphInfo {
-    id: string
     fqn: string
+    id: string
     graph: StreamGraph
     meta: StreamGraphMeta
 }
@@ -177,13 +233,11 @@ export interface CheckpointConfig {
     maxRetainedCheckpoints: number
 }
 
-// Node parallelism definition
 export interface NodeParallelism {
     keyName: string
     count: number
 }
 
-// Node properties
 export interface NodeProperties {
     type: string
     name?: string
@@ -197,11 +251,9 @@ export interface NodeProperties {
     filterColumn?: string
     variableName?: string
     
-    /** table 是对象, engine 是对象数组的第 0 项 */
-    metrics?: any
+    metrics?: Record<string, any>
 }
 
-// Graph node
 export interface GraphNode {
     id: number
     subgraphId: number
@@ -212,7 +264,6 @@ export interface GraphNode {
     outEdges: number[]
 }
 
-// Graph edge
 export interface GraphEdge {
     id: number
     inNodeId: number
@@ -226,7 +277,6 @@ export interface GraphEdge {
     }
 }
 
-// Complete graph structure
 export interface StreamGraph {
     version: number
     nodes: GraphNode[]
@@ -234,7 +284,7 @@ export interface StreamGraph {
     config: object
 }
 
-export interface CheckpointJobInfo {
+export interface CheckpointJob {
     checkpointId: string
     jobId: string
     createdTimeStamp: string
@@ -243,7 +293,7 @@ export interface CheckpointJobInfo {
     extra: any
 }
 
-export interface CheckpointSubjobInfo {
+export interface CheckpointSubJob {
     checkpointId: string
     jobId: string
     subjobId: string
