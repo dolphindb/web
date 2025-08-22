@@ -99,7 +99,7 @@ def getJobStatusEx(jobId) {
             sleep(100)
         }
     }
-    lastErr = iif(lastErr.form()==0, lastErr, lastErr.last())
+    lastErr = iif(lastErr.form()==0, string(lastErr), string(lastErr.last()))
     throw "getJobStatus failed after trying 10 times, last error: " + lastErr
 }
 
@@ -113,7 +113,7 @@ def getJobReturnEx(jobId, blocking=false) {
             sleep(100)
         }
     }
-    lastErr = iif(lastErr.form()==0, lastErr, lastErr.last())
+    lastErr = iif(lastErr.form()==0, string(lastErr), string(lastErr.last()))
     throw "getJobReturn failed after trying 10 times, last error: " + lastErr
 }
 
@@ -434,7 +434,11 @@ def runPlanInner(planId, reportId) {
             jobIds.append!(jobId)
         }
         print("job ids: ", jobIds)
-        usedParamsJson = toStdJson(iif(usedParams.keys().size() == 0, NULL, usedParams))
+        if (usedParams.keys().size() == 0) {
+            usedParamsJson = toStdJson(NULL)
+        } else {
+            usedParamsJson = toStdJson(usedParams)
+        }
         for (i in 0..(nodes.size()-1)) {
             jobId = jobIds[i]
             node = nodes[i]
@@ -448,7 +452,7 @@ def runPlanInner(planId, reportId) {
                 }
             } catch(err) {
                 success = false
-                detail = string(iif(err.form()==0, err, err.last()))
+                detail = string(iif(err.form()==0, string(err), string(err.last())))
                 extraDetail = string(NULL)
                 suggestion = string(NULL)
                 print("run metric failed! Node: " + node + ", job id: " + jobId + ", error: " + detail)
@@ -747,7 +751,7 @@ def enablePlan(id) {
 
 def createPlan(name, desc, metrics, versions, nodes, params, frequency, days, scheduleTime, enabled=false, enabledNode=NULL, alertEnabled=false, alertRecipient=NULL, runNow=false, id=NULL) {
     print("start to create plan: " + name)
-    id_ = iif(isNull(id), string(long(now())), id)
+    id_ = iif(isNull(id), string(long(now())), string(id))
     cnt = exec count(*) from loadTable("dfs://autoInspection", "plans") where id == id_
     if (cnt > 0) {
         throw "duplicated id: " + id_
@@ -851,7 +855,7 @@ def createPlan(name, desc, metrics, versions, nodes, params, frequency, days, sc
         throw "plan can only be created on data node or compute node"
     }
 
-    days_ = iif(days.form() == 1, days.concat(","), days)
+    daysString = iif(days.form() == 1, days.concat(","), string(days))
     user = getCurrentSessionAndUser()[1]
     startDate = today()
     endDate = temporalAdd(today(), 100y)
@@ -867,7 +871,7 @@ def createPlan(name, desc, metrics, versions, nodes, params, frequency, days, sc
         startDate as startDate,
         endDate as endDate,
         frequency as frequency,
-        days_ as days,
+        daysString as days,
         array(MINUTE[], 0).append!([scheduleTime_]) as scheduleTime,
         enabled_ as enabled,
         enabledNode_ as enabledNode,
@@ -938,7 +942,7 @@ def disablePlan(id) {
 }
 
 def deletePlan(id) {
-    id_ = iif(id.form() == 0, [id], id)
+    id_ = iif(id.form() == 0, string([id]), string(id))
     plans = select * from loadTable("dfs://autoInspection", "plans") where id in id_
     delete from loadTable("dfs://autoInspection", "plans") where id in id_
     delete from loadTable("dfs://autoInspection", "planDetails") where planId in id_
@@ -962,7 +966,7 @@ def getPlans(planId=NULL, enabled=NULL, page=NULL, pageLimit=NULL, searchPattern
     if (page != NULL and pageLimit == NULL or page == NULL and pageLimit != NULL) {
         throw "page and pageLimit must be NULL or not at the same time"
     }
-    planId_ = iif(planId.form()==0, [planId], planId)
+    planId_ = iif(planId.form()==0, string([planId]), string(planId))
     whereCond = [<1==1>]
     whereCond_ = [<!isNull(endTime)>]
 
@@ -1057,7 +1061,7 @@ def getReports(planId=NULL, reportId=NULL, startTime=NULL, endTime=NULL, success
 }
 
 def deleteReports(id) {
-    id_ = iif(id.form()==0, [id], id)
+    id_ = iif(id.form()==0, string([id]), string(id))
     delete from loadTable("dfs://autoInspection", "reports") where id in id_
     delete from loadTable("dfs://autoInspection", "reportDetails") where reportId in id_
 }
@@ -1073,7 +1077,7 @@ def getReportDetailsOfMetrics(reportId=NULL, language="cn") {
     res = sql(sqlCol("*"), loadTable("dfs://autoInspection", "reportDetails"), whereCond).eval()
     res = select first(metricVersion) as metricVersion, concat(node, ",") as nodes, min(startTime) as startTime, max(endTime) as endTime, all(success) as success, first(metricParams) as metricParams from res group by reportId, metricName
     metrics = select * from loadTable("dfs://autoInspection", "metrics") where name in res["metricName"] and language == language_
-    res = select reportId, metricName, metrics.displayName, metrics.group, metricVersion, desc, iif(isNull(metrics.nodes), NULL, res.nodes) as nodes, startTime, endTime, endTime - startTime as runningTime, script, success, metricParams from res left join metrics on res.metricName = metrics.name and res.metricVersion = metrics.version
+    res = select reportId, metricName, metrics.displayName, metrics.group, metricVersion, desc, iif(isNull(metrics.nodes), string(NULL), string(res.nodes)) as nodes, startTime, endTime, endTime - startTime as runningTime, script, success, metricParams from res left join metrics on res.metricName = metrics.name and res.metricVersion = metrics.version
 
     return res
 }
@@ -1137,7 +1141,7 @@ def cancelRunningPlan(reportId) {
         cnt += 1
     } while(cnt <= 30)
     
-    throw "delete report failed after trying 30 times, report id: " + reportId + ", last error: " + string(iif(lastErr.form()==0, lastErr, lastErr.last()))
+    throw "delete report failed after trying 30 times, report id: " + reportId + ", last error: " + string(iif(lastErr.form()==0, string(lastErr), string(lastErr.last())))
 }
 
 def createUpdateHistoryTable() {

@@ -2127,8 +2127,16 @@ def checkRangeExp(params = NULL){
         partitionType = dbSchema["partitionTypeName"]
         partitionSchema = dbSchema["partitionSchema"]
         temporalType = `DATE`MONTH`DATETIME`TIMESTAMP`NANOTIME`NANOTIMESTAMP`DATEHOUR
-        partitionType_ = iif(partitionType.form()==0, [partitionType], partitionType)
-        partitionSchema_ = iif(partitionType.form()==0, [partitionSchema], partitionSchema)
+        if (partitionType.form()==0) {
+            partitionType_ = [partitionType]
+        } else {
+            partitionType_ = partitionType
+        }
+        if (partitionSchema.form()==0) {
+            partitionSchema_ = [partitionSchema]
+        } else {
+            partitionSchema_ = partitionSchema
+        }
         if(at(partitionType_=="RANGE").size()>0){
             rangeLoc = at(partitionType_=="RANGE").size()-1
             for(one in 0..rangeLoc){   //若有多个RANGE分区，依次检查
