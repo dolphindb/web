@@ -100,3 +100,15 @@ export interface PlanReportDetailNode {
     extraDetail?: string
     suggestion: string
 }
+
+export interface EmailHistory {
+    id: string
+    planId: string
+    reportId: string
+    userId: string
+    recipient: string
+    subject: string
+    sendTime: string
+    status: 'sending' | 'sent' | 'failed'
+    errorMessage?: string
+}

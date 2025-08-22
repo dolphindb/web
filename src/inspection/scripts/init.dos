@@ -6,6 +6,9 @@ if (!existsDatabase("dfs://autoInspection")) {
     if (!existsTable("dfs://autoInspection", "updateHistory")) {
         createUpdateHistoryTable()
     }
+    if (!existsTable("dfs://autoInspection", "emailHistory")) {
+        createEmailHistoryTable()
+    }
 }
 go
 metrics = select * from loadTable("dfs://autoInspection", "metrics")
