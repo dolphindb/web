@@ -11,7 +11,7 @@ import { model, NodeType } from '../../model.js'
 import finance_guide_code from '../finance.dos'
 import iot_guide_code from '../iot.dos'
 
-import './index.scss'
+import './index.sass'
 
 
 

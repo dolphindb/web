@@ -721,7 +721,7 @@ export class DdbModel extends Model<DdbModel> {
     
     
     /** 跳转到页面，保留查询参数
-        - pathname: 路径
+        - pathname: 以 / 开头的绝对路径，不需要包含 assets_root
         - options?: react-router NavigateOptions 选项，也可以可以在此处传 { queries: { key: value } } 更新查询参数 */
     goto (pathname: string, { queries, ...options }: NavigateOptions & { queries?: Record<string, string> } = { }) {
         check(pathname.startsWith('/'), 'model.goto 应该传入绝对路径')
@@ -1158,32 +1158,16 @@ export const envs = [
         value: '192.168.0.54:8848'
     },
     {
+        label: '测试单机.孙薇',
+        value: '192.168.0.69:8807'
+    },
+    {
         label: '测试数据节点',
         value: '192.168.0.54:20002'
     },
     {
         label: '测试控制节点',
         value: '192.168.0.54:20000'
-    },
-    {
-        label: '孙薇单机',
-        value: '192.168.0.69:8807'
-    },
-    {
-        label: '孙乐',
-        value: '192.168.0.125:8848'
-    },
-    {
-        label: '雅婷.orca',
-        value: '183.134.101.138:8525'
-    },
-    {
-        label: '东海.orca',
-        value: '192.168.0.166:8833'
-    },
-    {
-        label: '雅婷.orca.2',
-        value: '183.134.101.138:8081'
     },
     {
         label: '我的单机',
@@ -1198,28 +1182,8 @@ export const envs = [
         value: '192.168.100.44:7600'
     },
     {
-        label: '外汇交易中心',
-        value: '183.134.101.138:8018'
-    },
-    {
-        label: '新海单机',
-        value: '183.134.101.134:8892'
-    },
-    {
-        label: '指标平台单机',
-        value: '192.168.100.45:8633',
-    },
-    {
-        label: '运维工具',
-        value: '192.168.0.69:18921'
-    },
-    {
         label: '本地',
         value: '127.0.0.1:8848'
-    },
-    {
-        label: '采集平台',
-        value: '183.134.101.140:7748'
     }
 ].map(({ label, value }) => ({ label, value, title: value }))
 

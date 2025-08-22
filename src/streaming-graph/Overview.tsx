@@ -1,7 +1,5 @@
-import { Card, Typography, Empty, Drawer, Table, Tooltip } from 'antd'
-const { Text } = Typography
+import { Drawer, Tooltip, type TableColumnsType } from 'antd'
 
-import useSWR from 'swr'
 import { useCallback, useEffect, useState } from 'react'
 import {
     default as ReactFlow, Background, Controls, type Node, type Edge, type NodeTypes, 
@@ -10,27 +8,34 @@ import {
 } from 'reactflow'
 import dagre from 'dagre'
 
-import { check } from 'xshell/utils.browser.js'
-
 import { t } from '@i18n'
 
 import { model, type DdbNode, type DdbNodeState } from '@model'
 
 import { node_state_icons } from '@/overview/table.tsx'
+import { DDBTable } from '@/components/DDBTable/index.tsx'
+import { engine_table_column_names } from '@/computing/model.ts'
 
-import { get_stream_graph_info, get_task_subworker_stat } from './apis.ts'
-import { type StreamGraph, type GraphNode, type GraphEdge } from './types.ts'
+import { type StreamGraph, type GraphNode, type GraphEdge } from './model.ts'
 import { NodeDetails } from './NodeDetails.tsx'
+import { get_publish_stats_fundef, get_subscription_stats_funcdef, sgraph, type SubscriptionStat } from './model.ts'
 
 
-export function Overview ({ id }: { id: string }) {
+export function Overview () {
     // 选中的 action_name 状态
     const [selected_action_name, set_selected_action_name] = useState<string | null>(null)
     
     return <ReactFlowProvider>
-            <StreamingGraphVisualization id={id} selected_action_name={selected_action_name} set_selected_action_name={set_selected_action_name} />
-            <TaskSubWorkerStatTable id={id} selected_action_name={selected_action_name} on_action_name_select={set_selected_action_name} />
-        </ReactFlowProvider>
+        <StreamingGraphVisualization selected_action_name={selected_action_name} set_selected_action_name={set_selected_action_name} />
+        
+        <div className='stat-tables'>
+            <SubscriptionStatsTable selected_action_name={selected_action_name} on_action_name_select={set_selected_action_name} />
+            <PublishStatsTable />
+            
+            <EngineTableStatsTable engine />
+            <EngineTableStatsTable engine={false} />
+        </div>
+    </ReactFlowProvider>
 }
 
 
@@ -108,7 +113,7 @@ interface ProcessedEdge {
 
 
 // 自定义矩形节点组件
-function CustomNode ({ data, id, selected }: NodeProps) {
+function CustomNode ({ data, selected }: NodeProps) {
     // 根据节点状态确定状态颜色
     const stateColors = {
         0: '#ff4d4f', // 停止 - 红色
@@ -187,58 +192,50 @@ function CustomNode ({ data, id, selected }: NodeProps) {
 }
 
 // 添加自定义子图容器组件
-function SubgraphContainer ({ data, id }: NodeProps) {
+function SubgraphContainer ({ data }: NodeProps) {
     return <div
+        style={{
+            width: '100%',
+            height: '100%',
+            position: 'relative',
+            pointerEvents: 'none'
+        }}
+    >
+        <div
             style={{
-                width: '100%',
-                height: '100%',
-                position: 'relative',
-                pointerEvents: 'none'
+                position: 'absolute',
+                top: '10px',
+                left: '50%',
+                transform: 'translateX(-50%)',
+                
+                fontSize: '16px',
+                fontWeight: 800,
+                zIndex: 10
             }}
         >
-            <div
-                style={{
-                    position: 'absolute',
-                    top: '10px',
-                    left: '50%',
-                    transform: 'translateX(-50%)',
-                    
-                    fontSize: '16px',
-                    fontWeight: 800,
-                    zIndex: 10
-                }}
-            >
-                {data.label}
-            </div>
+            {data.label}
         </div>
+    </div>
 }
 
 // 流图组件
 function StreamingGraphVisualization ({
-    id,
     selected_action_name,
     set_selected_action_name
 }: {
-    id: string
     selected_action_name: string | null
     set_selected_action_name: (actionName: string | null) => void
 }) {
+    const { name, graph } = sgraph.use(['name', 'graph'])
+    
     const [node_map, set_node_map] = useState<Map<number, DdbNode>>()
     
-    const { data, error, isLoading } = useSWR(
-        ['getStreamGraphInfo', id],
-        async () => {
-            const graph = await get_stream_graph_info(id)
-            const nodes = await model.get_cluster_perf(false)
-            
-            const task_to_node_map = new Map(graph.meta.tasks.map(task => 
-                [task.id, nodes.find(({ name }) => name === task.node)]))
-            
-            set_node_map(task_to_node_map)
-            
-            return graph
-        },
-        { refreshInterval: 1000 })
+    useEffect(() => {
+        set_node_map(
+            new Map(graph.meta.tasks.map(task => 
+                [task.id, model.nodes.find(({ name }) => name === task.node)]))
+        )
+    }, [name, graph])
     
     const [nodes, set_nodes] = useNodesState([ ])
     const [edges, set_edges] = useEdgesState([ ])
@@ -259,16 +256,10 @@ function StreamingGraphVisualization ({
             
             return {
                 nodes: graph_data.nodes.map((node: GraphNode) => {
-                    const { type, id, variableName, initialName, name, schema } = node.properties || { }
-                    let { metrics } = node.properties || { }
+                    const { type, id, variableName, initialName, name, schema, metrics } = node.properties || { }
                     
                     // 获取逻辑节点对象和名称
                     const logical_node = node_map?.get(node.taskId)
-                    
-                    if (Array.isArray(metrics)) {
-                        check(metrics.length === 1, t('node.properties 中的 metrics 数组长度应该为 1'))
-                        metrics = metrics[0]
-                    }
                     
                     return {
                         id: String(node.id),
@@ -432,7 +423,7 @@ function StreamingGraphVisualization ({
                         zIndex: -1
                     },
                     data: {
-                        label: `Subgraph ${subgraphId}`,
+                        label: `${t('子图')} ${subgraphId}`,
                         subgraphId,
                         labelStyle: {
                             fontSize: '16px',
@@ -449,28 +440,22 @@ function StreamingGraphVisualization ({
                 edges: layouted_edges
             }
         },
-        [selected_action_name, node_map]
-    )
+        [selected_action_name, node_map])
     
     // 数据加载后更新图
     useEffect(() => {
-        if (data?.graph) {
-            const graph_data = typeof data.graph === 'string' ? JSON.parse(data.graph) : data.graph
-            const { nodes: processed_nodes, edges: processed_edges } = process_graph_data(graph_data)
-            const { nodes: react_flow_nodes, edges: react_flow_edges } = convert_to_react_flow_format(processed_nodes, processed_edges)
-            set_nodes(react_flow_nodes)
-            set_edges(react_flow_edges)
-        }
-    }, [data, process_graph_data, convert_to_react_flow_format, set_nodes, set_edges, node_map])
+        if (!graph?.graph)
+            return
+        
+        const graph_data = typeof graph.graph === 'string' ? JSON.parse(graph.graph) : graph.graph
+        const { nodes: processed_nodes, edges: processed_edges } = process_graph_data(graph_data)
+        const { nodes: react_flow_nodes, edges: react_flow_edges } = convert_to_react_flow_format(processed_nodes, processed_edges)
+        set_nodes(react_flow_nodes)
+        set_edges(react_flow_edges)
+    }, [graph, process_graph_data, convert_to_react_flow_format, node_map])
     
-    if (isLoading)
-        return <Card loading />
-    
-    if (error)
-        return <Text type='danger'>Failed to load data: {error.message}</Text>
-    
-    if (!data)
-        return <Empty description='' />
+    if (!graph)
+        return null
     
     return <div className='streaming-graph-page'>
         <div className='react-flow-container'>
@@ -524,7 +509,7 @@ function StreamingGraphVisualization ({
                 }}
                 open={drawer_visible}
             >
-                <NodeDetails node={selected} id={id} status={data.meta.status} />
+                <NodeDetails node={selected} status={graph.meta.status} />
             </Drawer>
         </div>
     </div>
@@ -571,55 +556,114 @@ export const task_status_columns = [
 }))
 
 
-/** Task Subscription Worker Status Table component */
-export function TaskSubWorkerStatTable ({
-    id,
+export function SubscriptionStatsTable ({
     selected_action_name,
     on_action_name_select
 }: {
-    id: string
     selected_action_name: string | null
     on_action_name_select: (actionName: string | null) => void
 }) {
-    const { data, error, isLoading } = useSWR(
-        ['get_task_subworker_stat', id],
-        async () => get_task_subworker_stat(id),
-        { refreshInterval: 1000 }
-    )
+    const { name, subscription_stats } = sgraph.use(['name', 'subscription_stats'])
     
-    if (isLoading)
-        return <Card loading />
+    useEffect(() => {
+        sgraph.get_subscription_stats()
+    }, [name])
     
-    if (error)
-        return <Text type='danger'>
-                {t('加载流任务订阅线程状态失败：')} {error.message}
-            </Text>
-        
-    if (!data || data.length === 0)
+    return <DDBTable<SubscriptionStat>
+        title={t('流任务订阅')}
+        help={get_subscription_stats_funcdef}
+        dataSource={subscription_stats}
+        columns={task_status_columns}
+        rowKey='topic'
+        pagination={{
+            defaultPageSize: 5,
+            showSizeChanger: true,
+            showQuickJumper: true,
+            hideOnSinglePage: true
+        }}
+        scroll={{ x: 'max-content' }}
+        size='small'
+        onRow={record => ({
+            onClick () {
+                on_action_name_select(record.actionName === selected_action_name ? null : record.actionName)
+            },
+            style: {
+                cursor: 'pointer'
+            }
+        })}
+        rowClassName={record => (record.actionName === selected_action_name ? 'ant-table-row-selected' : '')}
+    />
+}
+
+
+function PublishStatsTable () {
+    let { name, publish_stats } = sgraph.use(['name', 'publish_stats'])
+    
+    useEffect(() => {
+        sgraph.get_publish_stats()
+    }, [name])
+    
+    return <DDBTable
+        className='publish-stats-table'
+        title={t('流任务发布')}
+        help={get_publish_stats_fundef}
+        dataSource={publish_stats}
+        size='small'
+        rowKey='table_name'
+        scroll={{ x: 'max-content' }}
+        columns={publish_stats_columns}
+    />
+}
+
+
+const publish_stats_columns: TableColumnsType = [
+    { title: t('表名'), dataIndex: 'table_name' },
+    { title: t('客户端'), dataIndex: 'client' },
+    { title: t('队列深度'), dataIndex: 'queue_depth' },
+    { title: t('队列深度上限'), dataIndex: 'queue_depth_limit' }
+]
+
+
+/** 显示引擎或者流表的状态表 */
+function EngineTableStatsTable ({ engine }: { engine: boolean }) {
+    const { graph: { graph: { nodes } } } = sgraph.use(['graph'])
+    
+    // 过滤出引擎或者流表
+    const filter = engine ? 
+        ({ properties: { type, metrics } }: GraphNode) => metrics && type !== 'TABLE' && type !== 'CHANNEL'
+    :
+        ({ properties: { type, metrics } }: GraphNode) => metrics && type === 'TABLE'
+    
+    const metrics = nodes.filter(filter)
+        .map(({ properties: { metrics } }) => metrics)
+    
+    // console.log(`流${engine ? '引擎' : '表'}:`, metrics)
+    
+    const metric = metrics[0]
+    
+    if (!metric)
         return null
     
-    return <>
-        <h3>{t('流任务订阅线程状态')}</h3>
-        <Table
-            dataSource={data}
-            columns={task_status_columns}
-            rowKey='topic'
-            pagination={{
-                defaultPageSize: 5,
-                showSizeChanger: true,
-                showQuickJumper: true
-            }}
-            scroll={{ x: 'max-content' }}
-            size='small'
-            onRow={record => ({
-                onClick () {
-                    on_action_name_select(record.actionName === selected_action_name ? null : record.actionName)
-                },
-                style: {
-                    cursor: 'pointer'
-                }
-            })}
-            rowClassName={record => (record.actionName === selected_action_name ? 'ant-table-row-selected' : '')}
-        />
-    </>
+    return <DDBTable
+        className='publish-stats-table'
+        title={engine ? t('流引擎') : t('流表')}
+        help='getStreamGraphInfo(fullname).graph.nodes.properties.metrics'
+        dataSource={metrics}
+        size='small'
+        rowKey={engine ? 'name' : 'TableName'}
+        scroll={{ x: 'max-content' }}
+        columns={
+            (engine ?
+                Object.keys(metric)
+            :
+                ['TableName', ... Object.keys(metric).filter(key => key !== 'TableName')]
+            )
+                .map((key, index) => ({
+                    key,
+                    dataIndex: key,
+                    title: <span title={key.to_space_case()}>{engine_table_column_names[key] || key.to_space_case()}</span>,
+                    fixed: index === 0,
+                    render: String
+                }))}
+    />
 }

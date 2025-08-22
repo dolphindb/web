@@ -22,7 +22,7 @@ export function Login () {
             if (model.pathname_before_login)
                 model.navigate(-1)
             else
-                model.goto(model.assets_root)
+                model.goto('/')
     }, [logined])
     
     return <>

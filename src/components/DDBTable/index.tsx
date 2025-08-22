@@ -21,41 +21,44 @@ export interface DDBTableProps<T> extends Omit<TableProps<T>, 'title'> {
 }
 
 
-export function DDBTable<T> ({ title, help, buttons, filter_form, pagination, big_title, ...others }: DDBTableProps<T>) {
+export function DDBTable<T> ({
+    title, help, buttons, filter_form, pagination, big_title, className,
+    ...others
+}: DDBTableProps<T>) {
     return <Table
-            className='ddb-title'
-            
-            title={title || buttons || filter_form ?
-                () => <>
-                    <div className='ddb-table-header'>
-                        {title ? 
-                            <div className={`ddb-table-title ${big_title ? 'big-title' : ''}`}>
-                                <div className='text'>{title}</div>
-                                { help && <Tooltip title={help}>
-                                    <QuestionCircleOutlined className='help-icon' />
-                                </Tooltip> }
-                            </div>
-                        : 
-                            null
-                        }
-                        {buttons && <Space size='middle'>{buttons}</Space>}
-                    </div>
-                    
-                    {filter_form && <div className='ddb-table-filter-form'>{filter_form}</div>}
-                </>
-            :
-                undefined
-            }
-            
-            pagination={
-                pagination
-                    ? {
-                          ...pagination,
-                          size: 'small'
-                      }
-                    : false
-            }
-            
-            {...others}
-        />
+        className={`ddb-table ${className || ''}`}
+        
+        title={title || buttons || filter_form ?
+            () => <>
+                <div className='ddb-table-header'>
+                    {title ? 
+                        <div className={`ddb-table-title ${big_title ? 'big-title' : ''}`}>
+                            <div className='text'>{title}</div>
+                            { help && <Tooltip title={help}>
+                                <QuestionCircleOutlined className='help-icon' />
+                            </Tooltip> }
+                        </div>
+                    :
+                        null
+                    }
+                    {buttons && <Space size='middle'>{buttons}</Space>}
+                </div>
+                
+                {filter_form && <div className='ddb-table-filter-form'>{filter_form}</div>}
+            </>
+        :
+            undefined
+        }
+        
+        pagination={
+            pagination
+                ? {
+                        ...pagination,
+                        size: 'small'
+                    }
+                : false
+        }
+        
+        {...others}
+    />
 }

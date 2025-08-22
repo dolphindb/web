@@ -3,20 +3,19 @@ import './index.sass'
 
 import { useRoutes } from 'react-router'
 
-import { Detail } from './Detail.tsx'
-
-import { JobTable } from './JobTable.tsx'
+import { List } from './List.tsx'
+import { Graph } from './Graph.tsx'
 
 
 export function StreamingGraph () {
     return useRoutes([
         {
             index: true,
-            element: <JobTable />,
+            element: <List />,
         },
         {
-            path: ':id',
-            element: <Detail />
+            path: ':name/',
+            element: <Graph />
         }
     ])
 }

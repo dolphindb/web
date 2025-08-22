@@ -1,4 +1,4 @@
-import './index.scss'
+import './index.sass'
 
 import useSWR from 'swr'
 
@@ -74,17 +74,22 @@ export function DataCollection () {
     if (data.is_inited === InitStatus.UNKONWN || isValidating )
         return <Spin className='data-collection-spin'/> 
     else if (data.is_inited === InitStatus.NOT_INITED)
-        return admin 
-            ? <Result 
-                title={t('初始化数据采集平台')} 
-                subTitle={<>
-                    {t('初始化操作将新增以下数据库')}
-                    <div>dfs://dataAcquisition</div>
-                </>}
-                extra={<Button type='primary' loading={is_initing} onClick={async () => on_init()}>{t('初始化')}</Button>}
-            /> 
-            : <Result title={t('数据采集平台功能未初始化，请联系管理员初始化数据采集平台功能')} />
-    else if (data.is_inited === InitStatus.INITED) 
+        return admin ?
+                <Result
+                    className='init'
+                    title={t('初始化数据采集平台')} 
+                    subTitle={<>
+                        {t('初始化操作将新增以下数据库')}
+                        <div>dfs://dataAcquisition</div>
+                    </>}
+                    extra={
+                        <Button type='primary' loading={is_initing} onClick={async () => on_init()}>{t('初始化')}</Button>}
+                /> 
+            :
+                <Result
+                    className='init'
+                    title={t('数据采集平台功能未初始化，请联系管理员初始化数据采集平台功能')} />
+    else if (data.is_inited === InitStatus.INITED)
         if (!data.has_auth && !admin)
             return <Result title={t('无库表权限，请联系管理员赋权')} />
         else

@@ -1,36 +1,23 @@
-import { Descriptions, Typography, Empty, Card } from 'antd'
-import useSWR from 'swr'
+import { Descriptions, Empty } from 'antd'
 
 import { t } from '@i18n'
 
-import { get_stream_graph_info } from './apis.ts'
+import { sgraph } from './model.ts'
 
-const { Text } = Typography
 
-interface StreamingGraphConfigurationProps {
-    id: string
-}
-
-export function Configuration ({ id }: StreamingGraphConfigurationProps) {
-    // 只使用 SWR 获取检查点配置
-    const { data, error, isLoading } = useSWR(['getStreamGraphInfo', id], async () => get_stream_graph_info(id))
+export function Configuration () {
+    const { graph: { graph: { config } } } = sgraph.use(['graph'])
     
-    if (isLoading)
-        return <Card loading />
-    
-    if (error)
-        return <Text type='danger'>
-                {t('加载配置数据失败：')} {error.message}
-            </Text>
-        
-    if (!data || Object.keys(data).length === 0)
+    if (!config || !Object.keys(config).length)
         return <Empty description={t('没有配置数据')} />
     
     return <div className='streaming-config-container'>
-            <Descriptions bordered size='small' column={1}>
-                {Object.entries(data.graph.config).map(([key, value]) => <Descriptions.Item key={key} label={key}>
+        <Descriptions bordered size='small' column={1}>
+            {Object.entries(config)
+                .map(([key, value]) =>
+                    <Descriptions.Item key={key} label={key}>
                         {typeof value === 'object' ? JSON.stringify(value) : String(value)}
                     </Descriptions.Item>)}
-            </Descriptions>
-        </div>
+        </Descriptions>
+    </div>
 }

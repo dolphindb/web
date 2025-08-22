@@ -1,9 +1,7 @@
-import { useState } from 'react'
+import { useEffect, useState } from 'react'
 
 import { Typography, Tooltip, type TableColumnsType } from 'antd'
 const { Text } = Typography
-
-import useSWR from 'swr'
 
 import { t } from '@i18n'
 
@@ -12,23 +10,18 @@ import { DDBTable } from '@components/DDBTable/index.tsx'
 
 import { model } from '@model'
 
-import { get_stream_graph_meta_list } from './apis.ts'
-import type { StreamGraphMeta, StreamGraphStatus } from './types.ts'
+import { RefreshButton } from '@components/RefreshButton/index.tsx'
+import { sgraph, graph_statuses, type StreamGraphMeta, type StreamGraphStatus } from './model.ts'
 
 
-export function JobTable () {
+export function List () {
     const [status_filters, set_status_filters] = useState<StreamGraphStatus[]>(default_status_filters)
     
-    const {
-        data: graphs,
-        isLoading: loading
-    } = useSWR(
-        'get_stream_graph_meta_list', 
-        get_stream_graph_meta_list,
-        {
-            refreshInterval: 30000,
-            revalidateOnFocus: true
-        })
+    let { graphs } = sgraph.use(['graphs'])
+    
+    useEffect(() => {
+        sgraph.get_graphs()
+    }, [ ])
     
     return <div className='job-table-container themed'>
         <DDBTable
@@ -40,6 +33,11 @@ export function JobTable () {
                 </>
             }
             big_title
+            buttons={
+                <RefreshButton onClick={() => {
+                    sgraph.get_graphs()
+                }} />
+            }
             columns={columns}
             dataSource={
                 (graphs && status_filters?.length ?
@@ -50,7 +48,7 @@ export function JobTable () {
                 [ ]
             }
             rowKey='id'
-            loading={loading}
+            loading={!graphs}
             scroll={{ x: 'max-content' }}
             pagination={{
                 defaultPageSize: 10,
@@ -77,14 +75,6 @@ const status_map = {
     destroying: StatusType.PARTIAL_SUCCESS
 } as const
 
-export const streaming_graph_status: Record<StreamGraphStatus, string> = {
-    building: t('构建中'),
-    running: t('运行中'),
-    error: t('错误'),
-    failed: t('失败'),
-    destroying: t('销毁中'),
-    destroyed: t('已销毁')
-}
 
 const default_status_filters = Object.keys(status_map).filter(key => key !== 'destroyed') as StreamGraphStatus[]
 
@@ -95,15 +85,15 @@ const columns: TableColumnsType<StreamGraphMeta> = [
         title: t('流图名称'),
         dataIndex: 'fqn',
         key: 'fqn',
-        render: (text: string, record: StreamGraphMeta) => <Typography.Link
-                ellipsis
-                style={{ color: '#1890ff', cursor: 'pointer' }}
-                onClick={() => {
-                    model.goto(`/streaming-graph/${record.id}`)
-                }}
-            >
-                {text || '-'}
-            </Typography.Link>
+        render: (fullname: string) => <Typography.Link
+            ellipsis
+            style={{ color: '#1890ff', cursor: 'pointer' }}
+            onClick={() => {
+                model.goto(`/streaming-graph/${fullname}/`)
+            }}
+        >
+            {fullname}
+        </Typography.Link>
     },
     {
         title: t('创建者'),
@@ -168,16 +158,16 @@ const columns: TableColumnsType<StreamGraphMeta> = [
         
         sorter: (a: StreamGraphMeta, b: StreamGraphMeta) =>
             status_orders[a.status] - status_orders[b.status],
-
+        
         defaultFilteredValue: default_status_filters,
-
-        filters: Object.entries(streaming_graph_status)
+        
+        filters: Object.entries(graph_statuses)
             .map(([key, text]) => ({ text, value: key })),
         
         filterResetToDefaultFilteredValue: true,
         
         render: (_, { status }) => 
-            <StatusTag status={status_map[status]}>{streaming_graph_status[status] || status}</StatusTag>,
+            <StatusTag status={status_map[status]}>{graph_statuses[status] || status}</StatusTag>,
     }
 ]
 
