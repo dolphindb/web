@@ -47,45 +47,44 @@ export function Settings () {
         trigger='hover'
         placement='bottomRight'
         zIndex={1060}
+        classNames={{ body: 'header-card' }}
         content={
-            <div className='header-settings-content head-bar-info'>
-                <Card size='small' title={t('设置', { context: 'settings' })} variant='outlined'>
-                    <div className='decimals-toolbar'>
-                        <span className='decimals-toolbar-input'>
-                            {t('设置小数位数: ')}
-                            <Tooltip title={t('输入应为空或介于 0 ~ 20')} placement='topLeft'>
-                                <InputNumber
-                                    min={0}
-                                    max={20}
-                                    onStep={value => {
-                                        set_decimals(validate(value.toString()))
-                                    }}
-                                    onInput={(text: string) => {
-                                        set_decimals(validate(text))
-                                    }}
-                                    value={decimals.value}
-                                    size='small'
-                                    status={decimals.status}
-                                    onPressEnter={confirm}
-                                    controls={{ upIcon: <CaretUpOutlined />, downIcon: <CaretDownOutlined /> }}
-                                />
-                            </Tooltip>
-                        </span>
-                        <span className='decimals-toolbar-button-group'>
-                            <Button size='small' onClick={() => {
-                                model.set({ options: { decimals: null } })
-                                set_decimals({ value: null, status: null })
-                                model.message.success(t('重置成功，目前小数位数为：实际位数'))
-                            }}>
-                                {t('重置')}
-                            </Button>
-                            <Button onClick={confirm} size='small' type='primary'>
-                                {t('确定')}
-                            </Button>
-                        </span>
-                    </div>
-                </Card>
-            </div>
+            <Card size='small' title={t('设置', { context: 'settings' })} variant='borderless'>
+                <div className='decimals-toolbar'>
+                    <span className='decimals-toolbar-input'>
+                        {t('设置小数位数: ')}
+                        <Tooltip title={t('输入应为空或介于 0 ~ 20')} placement='topLeft'>
+                            <InputNumber
+                                min={0}
+                                max={20}
+                                onStep={value => {
+                                    set_decimals(validate(value.toString()))
+                                }}
+                                onInput={(text: string) => {
+                                    set_decimals(validate(text))
+                                }}
+                                value={decimals.value}
+                                size='small'
+                                status={decimals.status}
+                                onPressEnter={confirm}
+                                controls={{ upIcon: <CaretUpOutlined />, downIcon: <CaretDownOutlined /> }}
+                            />
+                        </Tooltip>
+                    </span>
+                    <span className='decimals-toolbar-button-group'>
+                        <Button size='small' onClick={() => {
+                            model.set({ options: { decimals: null } })
+                            set_decimals({ value: null, status: null })
+                            model.message.success(t('重置成功，目前小数位数为：实际位数'))
+                        }}>
+                            {t('重置')}
+                        </Button>
+                        <Button onClick={confirm} size='small' type='primary'>
+                            {t('确定')}
+                        </Button>
+                    </span>
+                </div>
+            </Card>
         }
     >
         <SettingOutlined 

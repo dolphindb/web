@@ -68,8 +68,13 @@ function MenuIcon ({ view }: { view: DdbModel['view'] }) {
 export function DdbSider () {
     const { dev } = model
     
-    const { node_type, collapsed, logined, admin, login_required, client_auth, v1, v3, port, hostname, username } 
-        = model.use(['node_type', 'collapsed', 'logined', 'admin', 'login_required', 'client_auth', 'v1', 'v3', 'enabled_modules', 'port', 'hostname', 'username'])
+    const {
+        node_type, collapsed, logined, admin, login_required, client_auth, 
+        v1, v3, port, hostname, username, license
+    } = model.use([
+        'node_type', 'collapsed', 'logined', 'admin', 'login_required', 'client_auth', 
+        'v1', 'v3', 'enabled_modules', 'port', 'hostname', 'username', 'license'
+    ])
     
     const [factor_platform, set_factor_platform] = useState(false)
     
@@ -158,7 +163,7 @@ export function DdbSider () {
                     icon: <MenuIcon view='computing' />,
                     label: t('流计算监控', { context: 'menu' }),
                 },
-                ... logined && v3 ? [{
+                ... logined && v3 && (dev || license.product_key === 'ORCA') ? [{
                     key: 'streaming-graph',
                     icon: <MenuIcon view='streaming-graph' />,
                     label: t('流图监控', { context: 'menu' }),

@@ -10,15 +10,15 @@ import { useEffect } from 'react'
 
 import { config } from '@/config/model.ts'
 
-import { model, storage_keys, type DdbLicense, LicenseTypes } from '@model'
+import { model, storage_keys, type DdbLicense, LicenseType } from '@model'
 
 
 
-const license_types: Record<DdbLicense['licenseType'], string> = {
-    [LicenseTypes.Other]: t('其他方式'),
-    [LicenseTypes.MachineFingerprintBind]: t('机器指纹绑定'),
-    [LicenseTypes.OnlineVerify]: t('在线验证'),
-    [LicenseTypes.LicenseServerVerify]: 'LicenseServer',
+const license_types: Record<DdbLicense['license_type'], string> = {
+    [LicenseType.Other]: t('其他方式'),
+    [LicenseType.MachineFingerprintBind]: t('机器指纹绑定'),
+    [LicenseType.OnlineVerify]: t('在线验证'),
+    [LicenseType.LicenseServerVerify]: 'LicenseServer',
 }
 
 const authorizations = {
@@ -75,30 +75,34 @@ export function License () {
         return
     
     const auth = authorizations[license.authorization] || license.authorization
-    const license_type = license_types[license.licenseType] || license.licenseType
+    const license_type = license_types[license.license_type] || license.license_type
     
     return <Popover
         placement='bottomRight'
         zIndex={1060}
         trigger='hover'
+        classNames={{ body: 'header-card' }}
         content={
-            <div className='license-card head-bar-info'>
-                <Card size='small' variant='borderless' title={`${auth} v${version_full}`}>
-                    <Descriptions bordered size='small' column={2}>
-                        <Descriptions.Item label={t('授权类型')}>{auth}</Descriptions.Item>
-                        <Descriptions.Item label={t('授权客户')}>{license.clientName}</Descriptions.Item>
-                        <Descriptions.Item label={t('许可类型')}>{license_type}</Descriptions.Item>
-                        <Descriptions.Item label={t('过期时间')}>{license.expiration}</Descriptions.Item>
-                        <Descriptions.Item label={t('绑定 CPU')}>{String(license.bindCPU)}</Descriptions.Item>
-                        <Descriptions.Item label={t('license 版本')}>{license.version}</Descriptions.Item>
-                        <Descriptions.Item label={t('模块数量')}>{ license.modules === -1n ? '∞' : String(license.modules) }</Descriptions.Item>
-                        <Descriptions.Item label={t('每节点最大可用内存')}>{license.maxMemoryPerNode}</Descriptions.Item>
-                        <Descriptions.Item label={t('每节点最大可用核数')}>{license.maxCoresPerNode}</Descriptions.Item>
-                        <Descriptions.Item label={t('最大节点数')}>{license.maxNodes}</Descriptions.Item>
-                        <Descriptions.Item label={t('web 版本')}>{WEB_VERSION}</Descriptions.Item>
-                    </Descriptions>
-                </Card>
-            </div>
+            <Card size='small' variant='borderless' title={`${auth} v${version_full}`}>
+                <Descriptions
+                    bordered
+                    size='small'
+                    column={2}
+                    items={[
+                        { label: t('授权类型'), children: auth },
+                        { label: t('授权客户'), children: license.client_name },
+                        { label: t('许可类型'), children: license_type },
+                        { label: t('过期时间'), children: license.expiration },
+                        { label: t('绑定 CPU'), children: String(license.bind_cpu) },
+                        { label: t('license 版本'), children: license.version },
+                        { label: t('每节点最大可用内存'), children: license.max_memory_per_node },
+                        { label: t('每节点最大可用核数'), children: license.max_cores_per_node },
+                        { label: t('最大节点数'), children: license.max_nodes, span: 'filled' },
+                        { label: t('授权模块'), children: license.modules.join(' '), span: 'filled'  },
+                        { label: t('web 版本'), children: WEB_VERSION, span: 'filled' },
+                    ]}
+                />
+            </Card>
         }
     >
         <Tag className='license' color='#f2f2f2'>{auth} v{version}</Tag>

@@ -29,28 +29,27 @@ export function Status () {
         placement='bottomRight'
         zIndex={1060}
         trigger='hover'
+        classNames={{ body: 'header-card' }}
         content={
-            <div className='head-bar-info'>
-                <Card
-                    size='small'
-                    title={uppercase_node_types[node_type] + t('状态', { context: 'node_type' })}
-                    variant='borderless'
-                    extra={
-                        <div
-                            className='refresh'
-                            onClick={() => { model.get_cluster_perf(true) }}
-                        >
-                            <Tooltip title={t('刷新')} color='grey'>
-                                <SyncOutlined className='icon' />
-                            </Tooltip>
-                        </div>
-                    }
-                >
-                    <div className='status-description'>
-                        <Performance />
+            <Card
+                size='small'
+                title={uppercase_node_types[node_type] + t('状态', { context: 'node_type' })}
+                variant='borderless'
+                extra={
+                    <div
+                        className='refresh'
+                        onClick={() => { model.get_cluster_perf(true) }}
+                    >
+                        <Tooltip title={t('刷新')} color='grey'>
+                            <SyncOutlined className='icon' />
+                        </Tooltip>
                     </div>
-                </Card>
-            </div>
+                }
+            >
+                <div className='status-description'>
+                    <Performance />
+                </div>
+            </Card>
         }
     >
         <Tag

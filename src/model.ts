@@ -9,7 +9,7 @@ import type { NavigateFunction, NavigateOptions } from 'react-router'
 
 import 'xshell/polyfill.browser.js'
 import { not_empty, select } from 'xshell/prototype.browser.js'
-import { check, filter_values, strcmp } from 'xshell/utils.browser.js'
+import { check, filter_values, map_keys, strcmp } from 'xshell/utils.browser.js'
 import { request } from 'xshell/net.browser.js'
 import { storage } from 'xshell/storage.js'
 
@@ -273,7 +273,9 @@ export class DdbModel extends Model<DdbModel> {
             // 必须先调用上面的函数，load_configs 依赖 controller alias, version 等信息
             config.load_configs(),
             
-            this.get_cluster_perf(true)
+            this.get_cluster_perf(true),
+            
+            this.get_license()
         ])
         
         console.log(t('配置:'), await this.ddb.invoke<Record<string, string>>('getConfig'))
@@ -359,8 +361,6 @@ export class DdbModel extends Model<DdbModel> {
             
             console.log(t('web 初始化成功'))
         }
-        
-        await this.get_license_info()
     }
     
     
@@ -712,10 +712,16 @@ export class DdbModel extends Model<DdbModel> {
     
     
     /** 获取 license 相关信息 */
-    async get_license_info () {
-        const license = await this.ddb.invoke<DdbLicense>('license')
-        console.log('license:', license)
+    async get_license () {
+        const license = map_keys<DdbLicense>(
+            await this.ddb.invoke<any>('license'),
+            key => key === 'bindCPU' ? 'bind_cpu' : key.to_snake_case(),
+            ({ module_names }) => ({ modules: module_names.split(' ').filter(Boolean) }))
+        
+        console.log('授权:', license)
+        
         this.set({ license })
+        
         return license
     }
     
@@ -1332,28 +1338,32 @@ export interface DdbNode {
     // ... 省略了一些
 }
 
-export enum LicenseTypes {
+export enum LicenseType {
     /** 其他方式 */
     Other = 0,
+    
     /** 机器指纹绑定 */
     MachineFingerprintBind = 1,
+    
     /** 在线验证 */
     OnlineVerify = 2,
+    
     /** LicenseServer 验证 */
     LicenseServerVerify = 3,
 }
 
 export interface DdbLicense {
     authorization: string
-    licenseType: LicenseTypes
-    maxMemoryPerNode: number
-    maxCoresPerNode: number
-    clientName: string
-    bindCPU: boolean
+    license_type: LicenseType
+    max_memory_per_node: number
+    max_cores_per_node: number
+    client_name: string
+    bind_cpu: boolean
     expiration: string
-    maxNodes: number
+    max_nodes: number
     version: string
-    modules: bigint
+    product_key: 'DOLPHIN' | 'IOTBASIC' | 'IOTPRO' | 'SWORDFISH' | 'SHARK' | 'ORCA' | 'DOLPHINX'
+    modules: string[]
 }
 
 export interface DdbLicenseServerResource {

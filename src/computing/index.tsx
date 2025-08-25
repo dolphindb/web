@@ -32,6 +32,8 @@ import { CEPComputing } from './CEPComputing/index.js'
 
 
 export function Computing () {
+    let { license } = model.use(['license'])
+    
     let {
         inited,
         streaming_stat, 
@@ -228,7 +230,7 @@ export function Computing () {
                     />}
                 </div>
             },
-            ...(v3 ? [{
+            ...(v3 && (model.dev || license.modules.includes('cep')) ? [{
                 key: 'cep_computing',
                 children: <CEPComputing />,
                 label: <Space className='tab-header'>
