@@ -197,6 +197,8 @@ export const engine_table_column_names = {
     lastCheckpointId: t('最后检查点 ID'),
     messageWaitToProcess: t('待处理消息'),
     numRowsCounter: t('行计数'),
+    leftSnapshotMsgId: t('左快照消息 ID'),
+    rightSnapshotMsgId: t('右快照消息 ID'),
     ... Object.fromEntries(
         [
             Object.values(leading_cols)
