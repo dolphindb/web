@@ -92,7 +92,7 @@ export function ReportDetailPage () {
         
         try {
              // 保存原始标题
-            const originalTitle = document.title
+            const old_title = document.title
             
             // 设置新标题（这可能会影响某些浏览器生成的PDF文件名）
             document.title = t('巡检报告_{{id}}', { id: reportId })
@@ -122,7 +122,7 @@ export function ReportDetailPage () {
     
             // 打印完成后移除样式
             document.head.removeChild(style)
-            document.title = originalTitle
+            document.title = old_title
         } catch (error) {
             model.message.error(t('打印失败'), error)
         } finally {

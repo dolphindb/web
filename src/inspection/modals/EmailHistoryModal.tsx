@@ -65,55 +65,57 @@ export const EmailHistoryModal = NiceModal.create(() => {
         })
     }
     
+    const onHeaderCell = () => ({ style: { whiteSpace: 'nowrap' } })
+    
     const columns: TableColumnsType<EmailHistory> = [
         {
             title: t('计划 ID'),
             dataIndex: 'planId',
             key: 'planId',
             width: 120,
-            onHeaderCell: () => ({ style: { whiteSpace: 'nowrap' } }),
+            onHeaderCell,
         },
         {
             title: t('报告 ID'),
             dataIndex: 'reportId',
             key: 'reportId',
             width: 120,
-            onHeaderCell: () => ({ style: { whiteSpace: 'nowrap' } }),
+            onHeaderCell,
         },
         {
             title: t('发送人'),
             dataIndex: 'userId',
             key: 'userId',
             width: 100,
-            onHeaderCell: () => ({ style: { whiteSpace: 'nowrap' } }),
+            onHeaderCell,
         },
         {
             title: t('收件人'),
             dataIndex: 'recipient',
             key: 'recipient',
             width: 200,
-            onHeaderCell: () => ({ style: { whiteSpace: 'nowrap' } }),
+            onHeaderCell,
         },
         {
             title: t('邮件主题'),
             dataIndex: 'subject',
             key: 'subject',
             width: 400,
-            onHeaderCell: () => ({ style: { whiteSpace: 'nowrap' } }),
+            onHeaderCell,
         },
         {
             title: t('发送时间'),
             dataIndex: 'sendTime',
             key: 'sendTime',
             width: 160,
-            onHeaderCell: () => ({ style: { whiteSpace: 'nowrap' } }),
+            onHeaderCell,
         },
         {
             title: t('发送状态'),
             dataIndex: 'status',
             key: 'status',
             width: 100,
-            onHeaderCell: () => ({ style: { whiteSpace: 'nowrap' } }),
+            onHeaderCell,
             render: (status: string) => {
                 const status_config = {
                     sending: { color: 'processing', icon: <LoadingOutlined />, text: t('发送中') },
@@ -126,10 +128,9 @@ export const EmailHistoryModal = NiceModal.create(() => {
         },
         {
             title: t('错误信息'),
-            dataIndex: 'errorMessage',
-            key: 'errorMessage',
-            onHeaderCell: () => ({ style: { whiteSpace: 'nowrap' } }),
-            render: (errorMessage: string) => errorMessage || '-'
+            dataIndex: 'errMsg',
+            onHeaderCell,
+            render: (errMsg: string) => errMsg || ''
         }
     ]
     
