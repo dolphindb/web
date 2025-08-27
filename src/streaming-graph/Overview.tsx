@@ -19,6 +19,7 @@ import { engine_table_column_names } from '@/computing/model.ts'
 import { type StreamGraph, type GraphNode, type GraphEdge } from './model.ts'
 import { NodeDetails } from './NodeDetails.tsx'
 import { get_publish_stats_fundef, get_subscription_stats_funcdef, sgraph, type SubscriptionStat } from './model.ts'
+import { not_empty } from 'xshell'
 
 
 export function Overview () {
@@ -516,7 +517,7 @@ function StreamingGraphVisualization ({
 }
 
 
-export const task_status_columns = [
+export const subscription_columns = [
     { title: t('任务 ID'), key: 'taskId' },
     { title: t('表名'), key: 'tableName' },
     { title: t('订阅任务名称'), key: 'actionName' },
@@ -550,8 +551,8 @@ export const task_status_columns = [
             value = JSON.stringify(value)
         
         return <Tooltip placement='topLeft' title={value}>
-                <span style={{ overflow: 'hidden', maxWidth: 100, textOverflow: 'ellipsis', whiteSpace: 'nowrap', display: 'block' }}>{value}</span>
-            </Tooltip>
+            <span style={{ overflow: 'hidden', maxWidth: 100, textOverflow: 'ellipsis', whiteSpace: 'nowrap', display: 'block' }}>{not_empty(value) ? String(value) : ''}</span>
+        </Tooltip>
     }
 }))
 
@@ -573,7 +574,7 @@ export function SubscriptionStatsTable ({
         title={t('流任务订阅')}
         help={get_subscription_stats_funcdef}
         dataSource={subscription_stats}
-        columns={task_status_columns}
+        columns={subscription_columns}
         rowKey='topic'
         pagination={{
             defaultPageSize: 5,

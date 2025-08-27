@@ -9,7 +9,7 @@ import { t } from '@i18n'
 
 import { engine_table_column_names } from '@/computing/model.ts'
 
-import { task_status_columns } from './Overview.tsx'
+import { subscription_columns } from './Overview.tsx'
 import { sgraph, type StreamGraphStatus } from './model.ts'
 
 
@@ -87,7 +87,7 @@ export function NodeDetails ({ node, status }: { node: Node | null, status: Stre
                         
                         return <Table
                             dataSource={stats}
-                            columns={task_status_columns}
+                            columns={subscription_columns}
                             rowKey='topic'
                             pagination={false}
                             size='small'
