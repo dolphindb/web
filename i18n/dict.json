@@ -6568,5 +6568,8 @@
     },
     "httpClient 插件版本与 server 版本的前3位不一致。": {
         "en": " The httpClient plug-in version is inconsistent with the first 3 bits of the server version. "
+    },
+    "控制节点不支持流计算监控，请跳转到数据节点或计算节点查看流计算监控。": {
+        "en": "The control node does not support stream computing monitoring. Please jump to the data node or compute node to view stream computing monitoring. "
     }
 }
