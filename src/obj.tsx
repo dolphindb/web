@@ -1424,8 +1424,6 @@ class TableColumn implements TableColumnType <number> {
             return
         
         this.col = obj.value[this.index]
-    
-        this.options = { ...this.options, grouping: !(64 <= this.col.type && this.col.type < 128) }
         
         this.title = <Tooltip
             title={
