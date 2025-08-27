@@ -1,6 +1,6 @@
 import './index.sass'
 
-import { Dropdown, Avatar, Space, Layout } from 'antd'
+import { Dropdown, Avatar, Layout } from 'antd'
 
 import { DownOutlined, LoginOutlined, LogoutOutlined, UserOutlined } from '@ant-design/icons'
 
@@ -28,7 +28,7 @@ export function DdbHeader () {
         
         <div className='padding' />
         
-        <Space size='middle'>
+        <div className='actions'>
             { model.local && <CompileAndRefresh /> }
             { model.dev && <HostSelect />}
             
@@ -39,7 +39,6 @@ export function DdbHeader () {
             <Settings />
             
             <LanguageSelect/>
-            
             
             <Dropdown
                 menu={{
@@ -67,7 +66,7 @@ export function DdbHeader () {
                     <DownOutlined className='arrow-down'/>
                 </div>
             </Dropdown>
-        </Space>
+        </div>
     </Layout.Header>
 }
 

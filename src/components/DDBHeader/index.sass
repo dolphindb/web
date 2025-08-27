@@ -7,101 +7,111 @@ $radius: 0px
     --header-section-padding: 16px
 
 .ddb-header
-    padding: 0px 10px 0px 4px
+    padding: 0px 10px
+    
     height: 48px
-    line-height: 40px
+    line-height: normal
     
     display: flex
+    align-items: center
     
     background: var(--header-background)
     color: var(--header-color)
     
-    z-index: 10
-    
-    align-items: center
-    
-    .compile-and-refresh
-        background-color: var(--header-background-light) !important
-        color: var(--header-color)
-        border-radius: $radius
-        border-color: var(--header-background-light) !important
-        padding: 0px var(--header-section-padding)
-        font-size: 12px
-        
-        &:hover 
-            color: var(--header-color) !important
-    
-    .host-select.ant-select
-        .ant-select-selector
-            padding: 2px var(--header-section-padding)
-            background-color: var(--header-background-light) !important
-            border: none
-            border-radius: $radius
-            .ant-select-selection-item
-                font-size: 12px
-                color: var(--header-color) !important
-            
-        .ant-select-arrow
-            color: var(--header-color)
-            .ant-select-suffix
-                width: 12px
-                height: 12px
-
-        .host-select-container
-            margin: 20px
-            
-            .host-select.ant-select
-                margin-left: unset
-                
-                width: 160px
-    
-
-        
-    .header-settings-icon
-        font-size: 16px
-        cursor: pointer
-        
     .logo
-        display: flex
+        height: 100%
         
+        padding: 10px 0px
+        
+        display: flex
         align-items: center
         
-        .dolphindb
-            width: 100px
+        .dolphindb, .line, .suffix
+            height: 100%
         
+        .suffix
+            padding: 2px 0px 4px 0px
+            
+            &.dolphinx
+                padding: 2px 0px
+            
         .line
             font-size: 24px
-            margin: 0px 0px 4px 4px
-        
+            margin: 0px 8px 6px 8px
     
     .padding
         flex: 1
     
-    .node-info, .license
-        color: var(--header-color)
-        padding: 2px var(--header-section-padding)
-        border-radius: $radius
-        cursor: pointer
-        background-color: var(--header-background-light) !important
-        border: none
-        // ant tag 自带的，需要去掉
-        margin-inline-end: unset
-    
-    
-    .user
-        cursor: pointer
+    .actions
         display: flex
         align-items: center
-        padding-bottom: 2px
-        
-        .avatar
-            background-color: #707070
-            margin-right: 4px
-        
-        .arrow-down
-            margin-left: 2px
+        gap: 16px
+    
+        .compile-and-refresh
+            background-color: var(--header-background-light) !important
+            color: var(--header-color)
+            border-radius: $radius
+            border-color: var(--header-background-light) !important
+            padding: 0px var(--header-section-padding)
             font-size: 12px
-            transform: translateY(1px)
+            
+            &:hover 
+                color: var(--header-color) !important
+        
+        .host-select.ant-select
+            .ant-select-selector
+                padding: 2px var(--header-section-padding)
+                background-color: var(--header-background-light) !important
+                border: none
+                border-radius: $radius
+                .ant-select-selection-item
+                    font-size: 12px
+                    color: var(--header-color) !important
+                
+            .ant-select-arrow
+                color: var(--header-color)
+                .ant-select-suffix
+                    width: 12px
+                    height: 12px
+
+            .host-select-container
+                margin: 20px
+                
+                .host-select.ant-select
+                    margin-left: unset
+                    
+                    width: 160px
+        
+        .header-settings-icon
+            font-size: 16px
+            cursor: pointer
+        
+        .node-info, .license
+            color: var(--header-color)
+            padding: 2px var(--header-section-padding)
+            border-radius: $radius
+            cursor: pointer
+            background-color: var(--header-background-light) !important
+            border: none
+            // ant tag 自带的，需要去掉
+            margin-inline-end: unset
+        
+        
+        .user
+            cursor: pointer
+            display: flex
+            align-items: center
+            padding-bottom: 2px
+            
+            .avatar
+                background-color: #707070
+                margin-right: 4px
+            
+            .arrow-down
+                margin-left: 2px
+                font-size: 12px
+                transform: translateY(1px)
+        
 
 
 .ant-popover

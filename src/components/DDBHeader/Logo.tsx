@@ -21,7 +21,7 @@ export function Logo ({ header }: { header: boolean }) {
         { product !== 'dolphindb' && <>
             <div className='line'>|</div>
             <img
-                className='suffix'
+                className={`suffix ${product}`}
                 src={logos[product]}
                 style={ (shf || !header) ? { filter: 'invert(100%)' } : undefined } />
         </> }
