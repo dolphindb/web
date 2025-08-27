@@ -4,7 +4,7 @@ import { delay } from 'xshell/utils.browser.js'
 
 import { language, t } from '@i18n'
 
-import { shf } from '@model'
+import { model } from '@model'
 
 
 export const urgent = { urgent: true } as const
@@ -133,5 +133,5 @@ export function ns2ms (num: number) {
 
 
 export function upper (str: string) {
-    return shf ? str : str.toUpperCase()
+    return model.shf ? str : str.toUpperCase()
 }

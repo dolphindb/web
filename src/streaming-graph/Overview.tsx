@@ -8,6 +8,8 @@ import {
 } from 'reactflow'
 import dagre from 'dagre'
 
+import { not_empty } from 'xshell/prototype.browser.js'
+
 import { t } from '@i18n'
 
 import { model, type DdbNode, type DdbNodeState } from '@model'
@@ -19,7 +21,6 @@ import { engine_table_column_names } from '@/computing/model.ts'
 import { type StreamGraph, type GraphNode, type GraphEdge } from './model.ts'
 import { NodeDetails } from './NodeDetails.tsx'
 import { get_publish_stats_fundef, get_subscription_stats_funcdef, sgraph, type SubscriptionStat } from './model.ts'
-import { not_empty } from 'xshell'
 
 
 export function Overview () {

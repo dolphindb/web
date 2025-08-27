@@ -56,14 +56,14 @@ export function License () {
                 if (is_license_expired)
                     model.modal.error({
                         title: t('License 过期提醒'),
-                        content: t('DolphinDB License 已过期，请联系管理人员立即更新，避免数据库关闭'),
+                        content: t('License 已过期，请联系管理人员立即更新，避免程序关闭'),
                         width: 600,
                         onOk: () => { localStorage.setItem(storage_keys.license_notified_date, now.format(date_format)) },
                     })
                 else if (is_license_expire_soon)
                     model.modal.warning({
                         title: t('License 过期提醒'),
-                        content: t('DolphinDB License 将在两周内过期，请提醒管理人员及时更新，避免数据库过期后自动关闭'),
+                        content: t('License 将在两周内过期，请提醒管理人员及时更新，避免程序过期后自动关闭'),
                         width: 700,
                         onOk: () => { localStorage.setItem(storage_keys.license_notified_date, now.format(date_format)) },
                     })

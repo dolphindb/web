@@ -1,17 +1,17 @@
 import { DdbForm } from 'dolphindb/browser.js'
 
-import { Obj } from '../obj.js'
+import { Obj } from '@/obj.tsx'
 
-import { model } from '../model.js'
+import { model } from '@model'
 
-import { ExportCsv } from '../components/ExportCsv.js'
+import { ExportCsv } from '@components/ExportCsv.tsx'
 
-import { shell } from './model.js'
+import { shell } from './model.ts'
 
 
 export function DataView () {
     const { result } = shell.use(['result'])
-    const { options } = model.use(['options'])
+    const { options, product_name } = model.use(['options', 'product_name'])
     
     return <div className='dataview obj-result themed embed'>{
         (() => {
@@ -32,6 +32,7 @@ export function DataView () {
                 options={options} 
                 ExportCsv={ExportCsv} 
                 {...type === 'object' ? { obj: data } : { objref: data }}
+                product_name={product_name}
             />
         })()
     }</div>

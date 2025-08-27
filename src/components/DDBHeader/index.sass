@@ -62,8 +62,17 @@ $radius: 0px
         cursor: pointer
         
     .logo
-        width: 100px
-        height: 60px
+        display: flex
+        
+        align-items: center
+        
+        .dolphindb
+            width: 100px
+        
+        .line
+            font-size: 24px
+            margin: 0px 0px 4px 4px
+        
     
     .padding
         flex: 1
@@ -110,10 +119,32 @@ $radius: 0px
         
         .ant-card-head-title
             font-weight: bold
+            font-size: 16px
         
         .refresh
             cursor: pointer
-
+    
+    .settings-card
+        width: 300px
+        
+        .submit-line
+            width: 100%
+            
+            display: flex
+            
+            gap: 12px
+            
+            margin-top: 12px
+            
+            .padding
+                flex: 1
+        
+        .ant-form-item
+            margin-bottom: 8px
+            
+            &.decimals
+                margin-bottom: 30px
+    
     .decimals-toolbar
         display: flex
         flex-direction: column

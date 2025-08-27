@@ -29,9 +29,6 @@ import { config } from '@/config/model.ts'
 import { GitHubAdapter, GitLabAdapter } from '@/shell/git/git-adapter.ts'
 
 
-export const shf = storage.getstr('shf') === '1'
-
-
 export class DdbModel extends Model<DdbModel> {
     params: URLSearchParams
     
@@ -48,6 +45,9 @@ export class DdbModel extends Model<DdbModel> {
     
     /** 生产模式，等价于 !local && !test */
     production = true
+    
+    /** 启用沈鸿飞的白色主题 */
+    shf = false
     
     hostname: string
     
@@ -127,11 +127,20 @@ export class DdbModel extends Model<DdbModel> {
     
     license: DdbLicense
     
+    /** 产品 id */
+    product = 'dolphindb'
+    
+    /** 产品名称，决定页面标题 */
+    product_name = 'DolphinDB'
+    
     first_get_server_log_length = true
     
     first_get_server_log = true
     
-    options?: InspectOptions
+    options: InspectOptions = {
+        decimals: null,
+        grouping: storage.getstr(storage_keys.grouping) !== '0'
+    }
     
     /** 是否显示顶部导航栏，传 header=0 时隐藏，便于嵌入 web 页面 */
     header: boolean
@@ -179,6 +188,14 @@ export class DdbModel extends Model<DdbModel> {
         this.dev = this.local || this.test
         
         this.production = !this.dev
+        
+        // 通过 shf=1 url 参数来启用 / 禁用主题
+        const pshf = params.get('shf')
+        
+        if (pshf)
+            storage.setstr(storage_keys.shf, pshf)
+        
+        this.shf = (pshf || storage.getstr(storage_keys.shf)) === '1'
         
         // 确定 assets_root
         if (this.test)
@@ -720,7 +737,17 @@ export class DdbModel extends Model<DdbModel> {
         
         console.log('授权:', license)
         
-        this.set({ license })
+        const { product_key } = license
+        
+        // local
+        // const product = 'orca'
+        const product = product_key === 'DOLPHIN' ? 'dolphindb' : product_key.toLowerCase()
+        
+        this.set({
+            license,
+            product,
+            product_name: product_names[product] || 'DolphinDB'
+        })
         
         return license
     }
@@ -1217,6 +1244,8 @@ export const storage_keys = {
     git_provider: 'ddb.git.provider',
     git_root_url: 'ddb.git.root_url',
     git_api_root: 'ddb.git.api_root',
+    shf: 'ddb.shf',
+    grouping: 'ddb.grouping'
 } as const
 
 
@@ -1439,4 +1468,16 @@ export interface GetUrlOptions {
 }
 
 
+const product_names = {
+    dolphindb: 'DolphinDB',
+    iotbasic: 'DolphinDB',
+    iotpro: 'DolphinDB',
+    swordfish: 'Swordfish',
+    shark: 'Shark',
+    orca: 'Orca',
+    dolphinx: 'DolphinX',
+} as const
+
+
+// 需要放到 storage_keys 之后
 export let model = window.model = new DdbModel()

@@ -7,10 +7,9 @@ import { LockOutlined, UserOutlined } from '@ant-design/icons'
 
 import { t } from '@i18n'
 
-import { model, shf } from '@model'
+import { model } from '@model'
 
-import ddb_svg from '@/icons/ddb.svg'
-import ddb_italic_svg from '@/icons/ddb.italic.svg'
+import { Logo } from '@components/DDBHeader/Logo.tsx'
 
 
 export function Login () {
@@ -26,7 +25,7 @@ export function Login () {
     }, [logined])
     
     return <>
-        <img className='logo' src={shf ? ddb_svg : ddb_italic_svg} />
+        <Logo header={false} />
         
         <div className='form-container'>
             <Form

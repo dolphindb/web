@@ -1,5 +1,4 @@
 import './index.sass'
-import { useEffect } from 'react'
 
 import { Dropdown, Avatar, Space, Layout } from 'antd'
 
@@ -7,7 +6,7 @@ import { DownOutlined, LoginOutlined, LogoutOutlined, UserOutlined } from '@ant-
 
 import { t } from '@i18n'
 
-import { model, shf } from '@model'
+import { model } from '@model'
 
 import { LanguageSelect } from './LanguageSelect.tsx'
 
@@ -17,23 +16,15 @@ import { CompileAndRefresh } from './CompileAndRefresh.tsx'
 import { HostSelect } from './HostSelect.tsx'
 import { License } from './License.tsx'
 import { Settings } from './Settings.tsx'
+import { Logo } from './Logo.tsx'
 
-import ddb_svg from '@/icons/ddb.svg'
-import ddb_white_svg from '@/icons/ddb.white.svg'
 
 
 export function DdbHeader () {
-    const { logined, username, node_alias } = model.use(['logined', 'username', 'node_alias'])
-    
-    useEffect(() => {
-        if (!node_alias)
-            return
-        document.title = `DolphinDB - ${node_alias}`
-    }, [node_alias])
-    
+    const { logined, username } = model.use(['logined', 'username'])
     
     return <Layout.Header className='ddb-header'>
-        <img className='logo' src={shf ? ddb_svg : ddb_white_svg} style={shf ? { marginLeft: 6 } : undefined} />
+        <Logo header />
         
         <div className='padding' />
         
@@ -51,31 +42,31 @@ export function DdbHeader () {
             
             
             <Dropdown
-                    menu={{
-                        className: 'menu',
-                        items: [
-                            logined ?
-                                {
-                                    key: 'logout',
-                                    icon: <LogoutOutlined />,
-                                    label: <a className='logout' onClick={async () => { await model.logout() }}>{t('注销')}</a>,
-                                }
-                            :
-                                {
-                                    key: 'login',
-                                    icon: <LoginOutlined />,
-                                    label: <a className='login' onClick={async () => { await model.goto_login() }}>{t('登录')}</a>,
-                                }
-                        ]
-                    }}
-                >
-                    <div className='user'>
-                        <Avatar className='avatar' icon={<UserOutlined /> } size={18} />
-                        {username}
-                        {/* <Icon className='arrow-down' component={SvgArrowDown} /> */}
-                        <DownOutlined className='arrow-down'/>
-                    </div>
-                </Dropdown>
+                menu={{
+                    className: 'menu',
+                    items: [
+                        logined ?
+                            {
+                                key: 'logout',
+                                icon: <LogoutOutlined />,
+                                label: <a className='logout' onClick={async () => { await model.logout() }}>{t('注销')}</a>,
+                            }
+                        :
+                            {
+                                key: 'login',
+                                icon: <LoginOutlined />,
+                                label: <a className='login' onClick={async () => { await model.goto_login() }}>{t('登录')}</a>,
+                            }
+                    ]
+                }}
+            >
+                <div className='user'>
+                    <Avatar className='avatar' icon={<UserOutlined /> } size={18} />
+                    {username}
+                    {/* <Icon className='arrow-down' component={SvgArrowDown} /> */}
+                    <DownOutlined className='arrow-down'/>
+                </div>
+            </Dropdown>
         </Space>
     </Layout.Header>
 }

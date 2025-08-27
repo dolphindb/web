@@ -115,10 +115,6 @@ export let builder = {
                 htmls: {
                     'index.html': {
                         title: 'DolphinDB',
-                        icon: {
-                            src: 'src/logo.png',
-                            out: 'logo.png'
-                        },
                         scripts: {
                             before: [{
                                 // deps_bundler 构建出来的 deps.js 缓存
@@ -131,10 +127,6 @@ export let builder = {
                     
                     'window.html': {
                         title: 'DdbObj',
-                        icon: {
-                            src: 'src/logo.png',
-                            out: 'logo.png'
-                        },
                         entry: 'window.js',
                         dependencies: ['antd-icons', 'lodash', 'echarts'],
                     }

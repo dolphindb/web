@@ -1,97 +1,118 @@
-import { useState } from 'react'
+import { useRef } from 'react'
 
-import { Popover, Card, Tooltip, Button, InputNumber } from 'antd'
+import { Popover, Card, Button, InputNumber, type FormInstance, Form, Checkbox } from 'antd'
 
 import { CaretUpOutlined, CaretDownOutlined, SettingOutlined } from '@ant-design/icons'
 
+import { storage } from 'xshell/storage.js'
+
 import { t } from '@i18n'
 
-import { model } from '../../model.js'
+import { model, storage_keys } from '@model'
 
 
 export function Settings () {
-    type DecimalsStatus = null | 'error'
+    let { shf } = model.use(['shf'])
     
-    const [decimals, set_decimals] = useState<{ status: DecimalsStatus, value: number | null }>(
-        { status: null, value: model.options?.decimals ?? null }
-    )
-    
-    function confirm () {
-        if (decimals.status === null) {
-            model.set({ options: { decimals: decimals.value } })
-            model.message.success(t('设置成功，目前小数位数为：') + (decimals.value === null ? t('实际位数') : decimals.value))
-        } else
-            set_decimals({ status: null, value: model.options?.decimals ? model.options.decimals : null })
-    }
-    
-    function validate (text: string): { status: DecimalsStatus, value: null | number } {
-        text = text.trim()
-        if (text.length === 0) 
-            return { value: null, status: null }
-        
-        if (!/^[0-9]*$/.test(text)) 
-            return { value: null, status: 'error' }
-        
-        const num = Number(text)
-        if (Number.isNaN(num)) 
-            return { value: null, status: 'error' }
-        
-        if (num < 0 || num > 20) 
-            return { value: num, status: 'error' }
-        
-        return { value: num, status: null }
-    }
+    let rform = useRef<FormInstance<Fields>>(undefined)
     
     
     return <Popover
         trigger='hover'
-        placement='bottomRight'
-        zIndex={1060}
+        placement='bottomLeft'
         classNames={{ body: 'header-card' }}
         content={
-            <Card size='small' title={t('设置', { context: 'settings' })} variant='borderless'>
-                <div className='decimals-toolbar'>
-                    <span className='decimals-toolbar-input'>
-                        {t('设置小数位数: ')}
-                        <Tooltip title={t('输入应为空或介于 0 ~ 20')} placement='topLeft'>
-                            <InputNumber
-                                min={0}
-                                max={20}
-                                onStep={value => {
-                                    set_decimals(validate(value.toString()))
-                                }}
-                                onInput={(text: string) => {
-                                    set_decimals(validate(text))
-                                }}
-                                value={decimals.value}
-                                size='small'
-                                status={decimals.status}
-                                onPressEnter={confirm}
-                                controls={{ upIcon: <CaretUpOutlined />, downIcon: <CaretDownOutlined /> }}
-                            />
-                        </Tooltip>
-                    </span>
-                    <span className='decimals-toolbar-button-group'>
-                        <Button size='small' onClick={() => {
-                            model.set({ options: { decimals: null } })
-                            set_decimals({ value: null, status: null })
-                            model.message.success(t('重置成功，目前小数位数为：实际位数'))
-                        }}>
-                            {t('重置')}
-                        </Button>
-                        <Button onClick={confirm} size='small' type='primary'>
-                            {t('确定')}
-                        </Button>
-                    </span>
-                </div>
+            <Card className='settings-card' size='small' title={t('设置', { context: 'settings' })} variant='borderless'>
+                <Form<Fields>
+                    className='settings-form'
+                    ref={rform}
+                    initialValues={{
+                        ...model.options,
+                        shf
+                    } satisfies Fields}
+                    onFinish={fields => { apply_setttings(fields, false) }}
+                    onReset={() => {
+                        apply_setttings(
+                            {
+                                decimals: null,
+                                grouping: true,
+                                shf: false
+                            },
+                            true)
+                    }}
+                >
+                    <Form.Item<Fields>
+                        className='decimals'
+                        name='decimals'
+                        label={t('小数位数')}
+                        help={decimals_tooltip}
+                        rules={[{
+                            async validator (_, value) {
+                                if (value === null)
+                                    return
+                                
+                                let number = Number(value)
+                                
+                                if (!Number.isInteger(number) || number < 0 || number > 20)
+                                    throw new Error(decimals_tooltip)
+                            }
+                        }]}
+                    >
+                        <InputNumber
+                            size='small'
+                            controls={{ upIcon: <CaretUpOutlined />, downIcon: <CaretDownOutlined /> }}
+                        />
+                    </Form.Item>
+                    
+                    <Form.Item<Fields> name='grouping' label={t('数字用 "," 分组显示')} valuePropName='checked'>
+                        <Checkbox />
+                    </Form.Item>
+                    
+                    { (model.dev || shf) && <Form.Item<Fields> name='shf' label='沈鸿飞的白色主题' valuePropName='checked'>
+                        <Checkbox />
+                    </Form.Item> }
+                    
+                    <div className='submit-line'>
+                        <div className='padding' />
+                        <Button htmlType='reset' size='small'>{t('重置')}</Button>
+                        <Button htmlType='submit' size='small' type='primary'>{t('应用')}</Button>
+                    </div>
+                </Form>
             </Card>
         }
     >
-        <SettingOutlined 
-            className='header-settings-icon'
-            onMouseOver={() => {
-                set_decimals({ value: model.options?.decimals ?? null, status: null })
-            }} 
-        />
+        <SettingOutlined className='header-settings-icon' />
     </Popover>
 }
+
+
+interface Fields {
+    decimals?: number | null
+    
+    grouping?: boolean
+    
+    shf: boolean
+}
+
+
+function apply_setttings ({ decimals, grouping, shf }: Fields, reset: boolean) {
+    storage.setstr(storage_keys.shf, shf ? '1' : '0')
+    storage.setstr(storage_keys.grouping, grouping ? '1' : '0')
+    
+    if (new URLSearchParams(location.search).has('shf'))
+        model.set_query('shf', null)
+    
+    model.set({
+        options: { decimals, grouping },
+        shf
+    })
+    
+    model.message.success(t('{{action}}成功，当前小数位数为：{{decimals}}; 数字分组显示: {{grouping}}', {
+        action: reset ? t('重置') : t('设置'),
+        decimals: decimals === null ? '实际位数' : decimals,
+        grouping: grouping ? '开' : '关'
+    }))
+}
+
+
+const decimals_tooltip = t('输入应为空或者 0 ~ 20 的整数')

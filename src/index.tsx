@@ -1,6 +1,7 @@
 import 'xshell/scroll-bar.sass'
 
 import './index.sass'
+import './index.shf.sass'
 import './pagination.sass'
 
 
@@ -55,6 +56,7 @@ import { FinanceGuide } from './guide/finance-guide/index.tsx'
 import { DataCollection } from './data-collection/index.tsx'
 import { Access } from './access/index.tsx'
 import { StreamingGraph } from './streaming-graph/index.tsx'
+import { apply_favicon } from './utils.common.ts'
 
 
 createRoot(
@@ -65,6 +67,8 @@ createRoot(
 const locales = { zh, en, ja, ko }
 
 function DolphinDB () {
+    const { shf } = model.use(['shf'])
+    
     return <ConfigProvider
         locale={locales[language] as any}
         button={{ autoInsertSpace: false }}
@@ -82,7 +86,7 @@ function DolphinDB () {
         }}>
             <ProConfigProvider hashed={false} token={{ borderRadius: 0, motion: false }}>
                 <NiceModal.Provider>
-                    <App className='app'>
+                    <App className={`app ${shf ? 'shf' : ''}`}>
                         <RouterProvider router={router} />
                     </App>
                 </NiceModal.Provider>
@@ -93,7 +97,7 @@ function DolphinDB () {
 
 
 function MainLayout () {
-    const { header, inited, sider } = model.use(['header', 'inited', 'sider'])
+    const { header, inited, sider, shf } = model.use(['header', 'inited', 'sider', 'shf'])
     
     // App 组件通过 Context 提供上下文方法调用，因而 useApp 需要作为子组件才能使用
     Object.assign(model, App.useApp())
@@ -128,6 +132,19 @@ function MainLayout () {
             return () => { window.removeEventListener('keydown', on_keydown) }
         }
     }, [ ])
+    
+    
+    useEffect(() => {
+        if (!inited)
+            return
+        
+        document.title = `${model.product_name} - ${model.node_alias}`
+        
+        let link = apply_favicon(shf)
+        
+        return () => { document.head.removeChild(link) }
+    }, [inited, shf])
+    
     
     return inited ?
         <Layout className='root-layout'>
