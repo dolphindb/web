@@ -6541,5 +6541,32 @@
     },
     "流引擎": {
         "en": "Stream engine"
+    },
+    "License 已过期，请联系管理人员立即更新，避免程序关闭": {
+        "en": "The License has expired, please contact the manager to update it immediately to avoid the program closing"
+    },
+    "License 将在两周内过期，请提醒管理人员及时更新，避免程序过期后自动关闭": {
+        "en": "The License will expire in two weeks, please remind the manager to update it in time to avoid the program closing automatically after it expires"
+    },
+    "授权模块": {
+        "en": "Authorized Module"
+    },
+    "数字用 \",\" 分组显示": {
+        "en": "Numbers use\",\"Group Display"
+    },
+    "{{action}}成功，当前小数位数为：{{decimals}}; 数字分组显示: {{grouping}}": {
+        "en": "{{action}} successful, current decimal digits are: {{decimals}}}; Numbers display in groups: {{grouping}}"
+    },
+    "输入应为空或者 0 ~ 20 的整数": {
+        "en": " Input should be empty or an integer from 0 to 20 "
+    },
+    "左快照消息 ID": {
+        "en": " Left snapshot message ID"
+    },
+    "右快照消息 ID": {
+        "en": " Right snapshot message ID"
+    },
+    "httpClient 插件版本与 server 版本的前3位不一致。": {
+        "en": " The httpClient plug-in version is inconsistent with the first 3 bits of the server version. "
     }
 }
