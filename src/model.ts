@@ -740,7 +740,7 @@ export class DdbModel extends Model<DdbModel> {
         const { product_key } = license
         
         // local
-        // const product = 'orca'
+        // const product = 'iotbasic'
         const product = product_key === 'DOLPHIN' ? 'dolphindb' : product_key.toLowerCase()
         
         this.set({
