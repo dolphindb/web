@@ -26,12 +26,13 @@ export function DdbHeader () {
     return <Layout.Header className='ddb-header'>
         <Logo header />
         
+        { model.dev && <HostSelect />}
+        
+        { model.local && <CompileAndRefresh /> }
+        
         <div className='padding' />
         
         <div className='actions'>
-            { model.local && <CompileAndRefresh /> }
-            { model.dev && <HostSelect />}
-            
             <Status />
             
             <License />
