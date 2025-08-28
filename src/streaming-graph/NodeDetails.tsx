@@ -1,6 +1,6 @@
 import { useEffect } from 'react'
 import { Tabs, Descriptions, Table, Empty, Tooltip } from 'antd'
-import type { Node } from 'reactflow'
+import type { Node } from '@xyflow/react'
 
 import { not_empty } from 'xshell/prototype.browser.js'
 import { genid } from 'xshell/utils.browser.js'
@@ -13,7 +13,7 @@ import { subscription_columns } from './Overview.tsx'
 import { sgraph, type StreamGraphStatus } from './model.ts'
 
 
-export function NodeDetails ({ node, status }: { node: Node | null, status: StreamGraphStatus }) {
+export function NodeDetails ({ node, status }: { node: Node<Record<string, any>> | null, status: StreamGraphStatus }) {
     const { label: name, showId, subType, variableName, initialName, taskId, logicalNode, schema, metrics } = node?.data || { }
     
     // 只有这两种引擎有状态指标

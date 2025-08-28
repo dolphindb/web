@@ -2,10 +2,10 @@ import { Drawer, Tooltip, type TableColumnsType } from 'antd'
 
 import { useCallback, useEffect, useState } from 'react'
 import {
-    default as ReactFlow, Background, Controls, type Node, type Edge, type NodeTypes, 
+    ReactFlow, Background, Controls, type Node, type Edge, type NodeTypes, 
     MarkerType, Position, type NodeProps, useNodesState, useEdgesState, ReactFlowProvider,
     Handle, ConnectionLineType
-} from 'reactflow'
+} from '@xyflow/react'
 import dagre from 'dagre'
 
 import { not_empty } from 'xshell/prototype.browser.js'
@@ -42,21 +42,22 @@ export function Overview () {
 
 
 // 定义布局方向和节点间距
-const dagre_graph = new dagre.graphlib.Graph()
+let dagre_graph = new dagre.graphlib.Graph()
 dagre_graph.setDefaultEdgeLabel(() => ({ }))
 
 // 设置布局方向为水平方向
-function get_layouted_elements (nodes: Node[], edges: Edge[]) {
+function get_layouted_elements (nodes: Node<Record<string, any>>[], edges: Edge[]) {
     dagre_graph.setGraph({
         rankdir: 'LR',
-        ranksep: 100, // 大幅增加排之间的距离(从100增加到250)
-        nodesep: 100, // 增加同一排中节点之间的距离(从50增加到100)
-        edgesep: 30 // 稍微增加边之间的最小距离(从20增加到30)
+        ranksep: 100, // 大幅增加排之间的距离 (从 100 增加到 250)
+        nodesep: 100, // 增加同一排中节点之间的距离 (从 50 增加到 100)
+        edgesep: 30 // 稍微增加边之间的最小距离 (从 20 增加到 30)
     })
     
     // 清除之前的布局
-    dagre_graph.nodes().forEach(node => 
-        dagre_graph.removeNode(node))
+    dagre_graph.nodes().forEach(node => {
+        dagre_graph.removeNode(node)
+    })
     
     // 添加节点到布局引擎
     nodes.forEach(node => {
@@ -115,7 +116,7 @@ interface ProcessedEdge {
 
 
 // 自定义矩形节点组件
-function CustomNode ({ data, selected }: NodeProps) {
+function CustomNode ({ data, selected }: NodeProps<any>) {
     // 根据节点状态确定状态颜色
     const stateColors = {
         0: '#ff4d4f', // 停止 - 红色
@@ -194,7 +195,7 @@ function CustomNode ({ data, selected }: NodeProps) {
 }
 
 // 添加自定义子图容器组件
-function SubgraphContainer ({ data }: NodeProps) {
+function SubgraphContainer ({ data }: NodeProps<any>) {
     return <div
         style={{
             width: '100%',
@@ -327,7 +328,8 @@ function StreamingGraphVisualization ({
                     metrics: node.metrics
                 },
                 type: 'customNode',
-                style: { width: node.width, height: node.height }
+                width: node.width,
+                height: node.height
             }))
             
             // 创建节点ID到节点数据的映射，用于快速查找
@@ -384,8 +386,7 @@ function StreamingGraphVisualization ({
             // Group nodes by subgraphId for subgraph containers
             const subgraph_groups = layouted_nodes.reduce((groups, node) => {
                 const subgraphId = node.data.subgraphId
-                if (!groups[subgraphId])
-                    groups[subgraphId] = [ ]
+                groups[subgraphId] ||= [ ]
                 
                 groups[subgraphId].push(node)
                 return groups
@@ -396,9 +397,9 @@ function StreamingGraphVisualization ({
                 // Find boundaries of the group
                 const nodePositions = groupNodes.map(node => ({
                     left: node.position.x,
-                    right: node.position.x + Number(node.style?.width || 180),
+                    right: node.position.x + Number(node.width || 180),
                     top: node.position.y,
-                    bottom: node.position.y + Number(node.style?.height || 100)
+                    bottom: node.position.y + Number(node.height || 100)
                 }))
                 
                 const padding = {
@@ -451,9 +452,9 @@ function StreamingGraphVisualization ({
         
         const graph_data = typeof graph.graph === 'string' ? JSON.parse(graph.graph) : graph.graph
         const { nodes: processed_nodes, edges: processed_edges } = process_graph_data(graph_data)
-        const { nodes: react_flow_nodes, edges: react_flow_edges } = convert_to_react_flow_format(processed_nodes, processed_edges)
-        set_nodes(react_flow_nodes)
-        set_edges(react_flow_edges)
+        const { nodes, edges } = convert_to_react_flow_format(processed_nodes, processed_edges)
+        set_nodes(nodes)
+        set_edges(edges)
     }, [graph, process_graph_data, convert_to_react_flow_format, node_map])
     
     if (!graph)

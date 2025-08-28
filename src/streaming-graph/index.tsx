@@ -1,4 +1,4 @@
-import 'reactflow/dist/style.css'
+import '@xyflow/react/dist/base.css'
 import './index.sass'
 
 import { useRoutes } from 'react-router'
