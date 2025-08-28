@@ -16,7 +16,9 @@ import { sgraph, type StreamGraphStatus } from './model.ts'
 export function NodeDetails ({ node, status }: { node: Node | null, status: StreamGraphStatus }) {
     const { label: name, showId, subType, variableName, initialName, taskId, logicalNode, schema, metrics } = node?.data || { }
     
-    const is_engine = subType?.endsWith('_ENGINE')
+    // 只有这两种引擎有状态指标
+    const is_state_engine = subType === 'TIME_SERIES_ENGINE' || subType === 'REACTIVE_STATE_ENGINE'
+    
     const is_table = subType === 'TABLE'
     
     let { engine_stats, subscription_stats } = sgraph.use(['engine_stats', 'subscription_stats'])
@@ -25,7 +27,7 @@ export function NodeDetails ({ node, status }: { node: Node | null, status: Stre
         if (!name)
             return
         
-        if (is_engine && status === 'running')
+        if (is_state_engine && status === 'running')
             sgraph.get_engine_stats(name)
     }, [name])
     
@@ -97,7 +99,7 @@ export function NodeDetails ({ node, status }: { node: Node | null, status: Stre
                 },
             ] : [ ],
             
-            ... is_engine && status === 'running' ? [{
+            ... is_state_engine && status === 'running' ? [{
                 key: '3',
                 label: t('引擎指标'),
                 children: (() => {
@@ -110,6 +112,10 @@ export function NodeDetails ({ node, status }: { node: Node | null, status: Stre
                     return <Table
                         dataSource={engine_stats}
                         rowKey={() => genid()}
+                        pagination={false} // 单行数据不需要分页
+                        size='small'
+                        scroll={{ x: 'max-content' }} // 允许横向滚动
+                        bordered
                         columns={
                             Object.keys(engine_stats[0])
                                 .map(key => ({
@@ -139,10 +145,6 @@ export function NodeDetails ({ node, status }: { node: Node | null, status: Stre
                                 }))
                             
                         }
-                        pagination={false} // 单行数据不需要分页
-                        size='small'
-                        scroll={{ x: 'max-content' }} // 允许横向滚动
-                        bordered
                     />
                 })()
             }] : [ ],

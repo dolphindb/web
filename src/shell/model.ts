@@ -567,7 +567,7 @@ class ShellModel extends Model<ShellModel> {
                         console.log('getOrcaStreamTableMeta 错误，忽略')
                         return [ ]
                     })
-            ] : [ ],
+            ] : [ ]
         ])) as [string[], string[], string[], any[]]
         
         // const db_paths = [
