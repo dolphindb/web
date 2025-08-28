@@ -6,7 +6,7 @@ import {
     MarkerType, Position, type NodeProps, useNodesState, useEdgesState, ReactFlowProvider,
     Handle, ConnectionLineType
 } from '@xyflow/react'
-import dagre from 'dagre'
+import dagre from '@dagrejs/dagre'
 
 import { not_empty } from 'xshell/prototype.browser.js'
 
@@ -72,20 +72,21 @@ function get_layouted_elements (nodes: Node<Record<string, any>>[], edges: Edge[
     // 计算布局
     dagre.layout(dagre_graph)
     
-    // 应用布局结果到节点
-    const layoutedNodes = nodes.map(node => {
-        const nodeWithPosition = dagre_graph.node(node.id)
-        
-        return {
-            ...node,
-            position: {
-                x: nodeWithPosition.x - (node.data.width || 180) / 2,
-                y: nodeWithPosition.y - (node.data.height || 100) / 2
+    return {
+        nodes: nodes.map(node => {
+            const nodeWithPosition = dagre_graph.node(node.id)
+            
+            return {
+                ...node,
+                position: {
+                    x: nodeWithPosition.x - (node.data.width || 180) / 2,
+                    y: nodeWithPosition.y - (node.data.height || 100) / 2
+                }
             }
-        }
-    })
-    
-    return { nodes: layoutedNodes, edges }
+        }),
+        
+        edges
+    }
 }
 
 interface ProcessedNode {
