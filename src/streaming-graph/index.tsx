@@ -30,7 +30,7 @@ export function StreamingGraph () {
         return <Result
             status='warning'
             className='interceptor'
-            title={t('控制节点不支持流计算监控，请跳转到数据节点或计算节点查看流计算监控。')}
+            title={t('控制节点不支持流图监控，请跳转到数据节点或计算节点查看流图监控。')}
         />
     
     return routes

@@ -6571,5 +6571,14 @@
     },
     "控制节点不支持流计算监控，请跳转到数据节点或计算节点查看流计算监控。": {
         "en": "The control node does not support stream computing monitoring. Please jump to the data node or compute node to view stream computing monitoring. "
+    },
+    "数据血缘": {
+        "en": "Data Lineage"
+    },
+    "已使用内存": {
+        "en": "Memory used"
+    },
+    "控制节点不支持流图监控，请跳转到数据节点或计算节点查看流图监控。": {
+        "en": "Control node does not support stream graph monitoring. Please jump to the data node or compute node to view stream graph monitoring. "
     }
 }
