@@ -1208,6 +1208,10 @@ export const envs = [
     },
     {
         label: 'orca',
+        value: '183.134.101.138:8081'
+    },
+    {
+        label: 'orca2',
         value: '192.168.100.43:8193'
     },
     {

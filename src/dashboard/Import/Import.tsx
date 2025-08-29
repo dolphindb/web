@@ -2,7 +2,7 @@ import { useRef, useState } from 'react'
 
 import { Button, Input, Modal, Tooltip, Upload } from 'antd'
 
-import { UploadOutlined } from '@ant-design/icons'
+import { ImportOutlined } from '@ant-design/icons'
 
 import { use_modal } from 'react-object-model/hooks.js'
 
@@ -39,7 +39,7 @@ export function Import ({ type }: { type: 'icon' | 'button' }) {
                         confirm_open()
                     }}
                 >
-                    <Button icon={<UploadOutlined />}>{t('批量导入')}</Button>
+                    <Button icon={<ImportOutlined />}>{t('批量导入')}</Button>
                 </Upload>,
         icon: <Tooltip title={t('导入')}>
                     <Upload
@@ -52,7 +52,7 @@ export function Import ({ type }: { type: 'icon' | 'button' }) {
                         customRequest={noop}
                     >
                         <Button className='action'>
-                            <UploadOutlined />
+                            <ImportOutlined />
                         </Button>
                     </Upload>
                 </Tooltip>

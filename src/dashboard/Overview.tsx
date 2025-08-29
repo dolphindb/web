@@ -2,7 +2,7 @@ import './Overview.sass'
 
 import { useEffect, useState } from 'react'
 import { Button, Input, Modal, Table, Popconfirm, Spin, Tag, Typography } from 'antd'
-import { DeleteOutlined, PlusOutlined, UploadOutlined } from '@ant-design/icons'
+import { DeleteOutlined, DownloadOutlined, PlusOutlined } from '@ant-design/icons'
 import { downloadZip } from 'client-zip'
 import cn from 'classnames'
 
@@ -340,7 +340,7 @@ export function Overview () {
                     <Import type='button'/>
                     
                     <Button
-                        icon={<UploadOutlined />}
+                        icon={<DownloadOutlined />}
                         onClick={async () => {
                             if (selected_dashboard_ids && !selected_dashboard_ids.length) {
                                 model.message.error(t('请选择至少一个面板进行导出'))
