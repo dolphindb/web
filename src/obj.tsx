@@ -695,9 +695,6 @@ class VectorColumn implements TableColumnType <number> {
         Object.assign(this, data)
         this.title = String(this.index)
         this.key = this.index
-        
-        const { type } = this.obj || this.objref
-        this.options = { ...this.options, grouping: !(64 <= type && type < 128) }
     }
     
     render = (value: any, row: number, index: number) => {
