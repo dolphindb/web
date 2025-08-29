@@ -16,7 +16,7 @@ import dolphindb_color from '@/icons/logos/dolphindb.color.svg'
 export function Logo ({ header }: { header: boolean }) {
     const { shf, product } = model.use(['shf', 'product'])
     
-    return <div className='logo'>
+    return <div className={`logo ${shf ? 'shf' : ''}`}>
         <img className='dolphindb' src={shf ? dolphindb_shf : header ? dolphindb : dolphindb_color } />
         { product !== 'dolphindb' && <>
             <div className='line'>|</div>
