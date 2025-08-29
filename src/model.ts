@@ -844,11 +844,8 @@ export class DdbModel extends Model<DdbModel> {
                 datanode ??= _node
         }
         
-        if (print) {
+        if (print)
             console.log(t('当前节点:'), node)
-            // if (node.mode !== NodeType.single)
-            //     console.log(t('控制节点:'), controller, t('数据节点:'), datanode)
-        }
         
         this.set({ nodes, node, controller, datanode })
         
