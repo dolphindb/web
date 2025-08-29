@@ -2,7 +2,7 @@ import { useEffect, useMemo, useState } from 'react'
 
 import { Layout, Menu, Typography } from 'antd'
 
-import { default as Icon, DoubleLeftOutlined, DoubleRightOutlined, ExperimentOutlined, SettingOutlined } from '@ant-design/icons'
+import { default as Icon, DoubleLeftOutlined, DoubleRightOutlined, ExperimentOutlined, SettingOutlined, BranchesOutlined } from '@ant-design/icons'
 
 import { noop } from 'xshell/prototype.browser.js'
 import { filter_values } from 'xshell/utils.browser.js'
@@ -163,11 +163,18 @@ export function DdbSider () {
                     icon: <MenuIcon view='computing' />,
                     label: t('流计算监控', { context: 'menu' }),
                 },
-                ... logined && v3 && (dev || license.product_key === 'ORCA') ? [{
-                    key: 'streaming-graph',
-                    icon: <MenuIcon view='streaming-graph' />,
-                    label: t('流图监控', { context: 'menu' }),
-                }] : [ ],
+                ... logined && v3 && (dev || license.product_key === 'ORCA') ? [
+                    {
+                        key: 'streaming-graph',
+                        icon: <MenuIcon view='streaming-graph' />,
+                        label: t('流图监控', { context: 'menu' }),
+                    },
+                    {
+                        key: 'lineage',
+                        icon: <BranchesOutlined className='icon-menu' />,
+                        label: t('数据血缘'),
+                    }
+                ] : [ ],
                 ... node_type !== NodeType.computing && admin ? [{
                     key: 'access',
                     icon: <MenuIcon view='access' />,

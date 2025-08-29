@@ -1,0 +1,66 @@
+@use '../variables'
+
+.lineage
+    --xy-edge-stroke-default: #000000
+    
+    padding: 0px !important
+    
+    height: 100%
+    
+    display: flex
+    flex-direction: column
+    
+    .header
+        padding: 12px
+        
+        border-bottom: variables.$border
+        
+        .title
+            font-size: 1.5em
+            font-weight: bold
+    
+    .main
+        display: flex
+        
+        flex: 1
+        
+        .list
+            height: 100%
+            
+            width: 400px
+            
+            border-right: variables.$border
+            
+            .item
+                padding: 12px 12px 12px 12px
+                
+                display: flex
+                align-items: center
+                
+                cursor: pointer
+                
+                .anticon
+                    margin-right: 8px
+                    margin-top: 2px
+        
+        .body
+            height: 100%
+            
+            flex: 1
+            
+            display: flex
+            flex-direction: column
+            
+            .title
+                font-weight: bold
+                font-size: 16px
+                padding: 12px 24px
+                
+                border-bottom: variables.$border
+                
+            
+            .react-flow__edge.selectable
+                cursor: unset
+            
+            
+            

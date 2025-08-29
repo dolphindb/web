@@ -43,176 +43,180 @@
         display: flex
         flex-direction: column
         
-// 流图页面样式
-.streaming-graph-page
-    margin-bottom: 10px
-    
-    .react-flow-container
-        height: 500px
-        width: 100%
-        position: relative
-        overflow: hidden
-
-// 自定义节点样式
-.react-flow-node
-    border: 1px solid #033495
-    border-radius: 6px
-    padding: 8px
-    display: flex
-    flex-direction: column
-    overflow: visible
-    transition: transform 0.2s, box-shadow 0.2s
-    background-color: white
-    position: relative
-
-    &:hover
-        transform: scale(1.05) !important
-        box-shadow: 0 4px 8px rgba(0,0,0,0.2) !important
-        z-index: 1000
-
-    .node-content
+        
+    // 流图页面样式
+    .streaming-graph-page
+        margin-bottom: 10px
+        
+        .react-flow-container
+            height: 500px
+            width: 100%
+            position: relative
+            overflow: hidden
+            
+    // 自定义节点样式
+    .react-flow-node
+        border: 1px solid #033495
+        padding: 8px
         display: flex
         flex-direction: column
-        height: 100%
-        overflow: hidden
+        overflow: visible
+        transition: transform 0.2s, box-shadow 0.2s
+        background-color: white
         position: relative
-
-    .node-header
-        font-weight: bold
-        border-bottom: 1px solid #ddd
-        padding-bottom: 3px
-        margin-bottom: 5px
-        text-align: center
-        font-size: 12px
-        white-space: nowrap
-        overflow: hidden
-        text-overflow: ellipsis
-
-    .node-label
-        white-space: nowrap
-        overflow: hidden
-        text-overflow: ellipsis
-        font-weight: 500
-        font-size: 11px
-        line-height: 1.2
-        padding-bottom: 2px
-        border-bottom: 1px dashed rgba(0,0,0,0.1)
-
-    .node-task
-        font-size: 10px
-        white-space: nowrap
-        overflow: hidden
-        text-overflow: ellipsis
-
-    .node-schema
-        font-size: 9px
-        opacity: 0.7
-        // white-space: nowrap
-        // overflow: hidden
-        // text-overflow: ellipsis
-        // font-family: monospace
-        background: rgba(0,0,0,0.03)
-        border-radius: 3px
-        margin-top: auto
-
-    .node-logical
-        font-size: 10px
-        white-space: nowrap
-        overflow: hidden
-        text-overflow: ellipsis
-
-// 节点类型样式
-.node-type
-    &-TABLE
-        background: linear-gradient(135deg, #e0f7fa, #80deea)  // 浅青色渐变
-        color: #006064  // 深青色文字，确保对比度
-        
-    &-CHANNEL
-        background: linear-gradient(135deg, #e8eaf6, #c5cae9)  // 浅靛蓝渐变
-        color: #303f9f  // 深靛蓝文字
-        
-    &-REACTIVE_STATE_ENGINE
-        background: linear-gradient(135deg, #f3e5f5, #ce93d8)  // 浅紫色渐变
-        color: #6a1b9a  // 深紫色文字
-        
-    &-DEFAULT
-        background: linear-gradient(135deg, #e1f5fe, #81d4fa)  // 浅蓝色渐变
-        color: #01579b  // 深蓝色文字
-
-.node-details
-    .ant-drawer-body
-        padding: 0px 10px 10px 10px
     
-    // 节点详情样式
-    .node-detail-item
-        margin-bottom: 8px
+        &:hover
+            transform: scale(1.05) !important
+            box-shadow: 0 4px 8px rgba(0,0,0,0.2) !important
+            z-index: 1000
     
-    .ant-descriptions-item-content.no-padding
-        padding: 0px !important
+        .node-content
+            display: flex
+            flex-direction: column
+            height: 100%
+            overflow: hidden
+            position: relative
     
-    .cell-descriptions
-        overflow: auto
+        .node-header
+            font-weight: bold
+            border-bottom: 1px solid #ddd
+            padding-bottom: 3px
+            margin-bottom: 5px
+            text-align: center
+            font-size: 12px
+            white-space: nowrap
+            overflow: hidden
+            text-overflow: ellipsis
+    
+        .node-label
+            white-space: nowrap
+            overflow: hidden
+            text-overflow: ellipsis
+            font-weight: 500
+            font-size: 11px
+            line-height: 1.2
+            padding-bottom: 2px
+            border-bottom: 1px dashed rgba(0,0,0,0.1)
+    
+        .node-task
+            font-size: 10px
+            white-space: nowrap
+            overflow: hidden
+            text-overflow: ellipsis
+    
+        .node-schema
+            font-size: 9px
+            opacity: 0.7
+            // white-space: nowrap
+            // overflow: hidden
+            // text-overflow: ellipsis
+            // font-family: monospace
+            background: rgba(0,0,0,0.03)
+            border-radius: 3px
+            margin-top: auto
+    
+        .node-logical
+            font-size: 10px
+            white-space: nowrap
+            overflow: hidden
+            text-overflow: ellipsis
+    
+    // 节点类型样式
+    .node-type
+        &-TABLE
+            background: linear-gradient(135deg, #e0f7fa, #80deea)  // 浅青色渐变
+            color: #006064  // 深青色文字，确保对比度
+            
+        &-CHANNEL
+            background: linear-gradient(135deg, #e8eaf6, #c5cae9)  // 浅靛蓝渐变
+            color: #303f9f  // 深靛蓝文字
+            
+        &-REACTIVE_STATE_ENGINE
+            background: linear-gradient(135deg, #f3e5f5, #ce93d8)  // 浅紫色渐变
+            color: #6a1b9a  // 深紫色文字
+            
+        &-DEFAULT
+            background: linear-gradient(135deg, #e1f5fe, #81d4fa)  // 浅蓝色渐变
+            color: #01579b  // 深蓝色文字
+    
+    .node-details
+        .ant-drawer-body
+            padding: 0px 10px 10px 10px
         
-        &.schema
-            max-height: 160px
+        // 节点详情样式
+        .node-detail-item
+            margin-bottom: 8px
         
-        .ant-descriptions-item-label
-            width: 300px
-
-// 添加流图边的流动效果样式
-.react-flow__edge
-    &.animated
-        path
-            stroke-dasharray: 5, 5
-            animation: flowAnimation 1s linear infinite
-
-    &:hover
-        path
-            stroke-width: 3
-            animation-duration: 0.5s // 悬停时加快动画速度
-
-@keyframes flowAnimation
-    0%
-        stroke-dashoffset: 10
-    100%
-        stroke-dashoffset: 0
-
-// Subgraph container styling
-.subgraph-container
-    pointer-events: none
-    position: absolute
+        .ant-descriptions-item-content.no-padding
+            padding: 0px !important
+        
+        .cell-descriptions
+            overflow: auto
+            
+            &.schema
+                max-height: 160px
+            
+            .ant-descriptions-item-label
+                width: 300px
     
-    .subgraph-label
-        font-size: 16px
-        font-weight: 800
-        padding: 5px 8px
-        background-color: rgba(255, 255, 255, 0.8)
-        border-radius: 4px
-        box-shadow: 0 1px 2px rgba(0,0,0,0.1)
+    // 添加流图边的流动效果样式
+    .react-flow__edge
+        &.animated
+            path
+                stroke-dasharray: 5, 5
+                animation: flowAnimation 1s linear infinite
+    
+        &:hover
+            path
+                stroke-width: 3
+                animation-duration: 0.5s // 悬停时加快动画速度
+    
+    @keyframes flowAnimation
+        0%
+            stroke-dashoffset: 10
+        100%
+            stroke-dashoffset: 0
+    
+    // Subgraph container styling
+    .subgraph-container
+        pointer-events: none
         position: absolute
-        top: 5px
-        left: 5px
-
-.node-state-icon
-    margin-left: 5px
-    display: inline-flex
-    align-items: center
-    justify-content: center
-
-// 边样式
-.react-flow__edge-path
-    stroke-width: 2px
-
+        
+        .subgraph-label
+            font-size: 16px
+            font-weight: 800
+            padding: 5px 8px
+            background-color: rgba(255, 255, 255, 0.8)
+            border-radius: 4px
+            box-shadow: 0 1px 2px rgba(0,0,0,0.1)
+            position: absolute
+            top: 5px
+            left: 5px
     
-// react flow 去水印，生产环境可能需要去掉，版权问题
-// .react-flow__attribution 
-//   display: none !important
-
-// 增强的逻辑节点信息样式
-.node-logical-enhanced
-    background-color: rgba(0,0,0,0.05)
-    border-radius: 3px
-    font-weight: bold
-    display: flex
-    align-items: center
-    justify-content: space-between
+    .node-state-icon
+        margin-left: 5px
+        display: inline-flex
+        align-items: center
+        justify-content: center
+    
+    // 边样式
+    .react-flow__edge-path
+        stroke-width: 2px
+    
+        
+    // react flow 去水印，生产环境可能需要去掉，版权问题
+    // .react-flow__attribution 
+    //   display: none !important
+    
+    // 增强的逻辑节点信息样式
+    .node-logical-enhanced
+        background-color: rgba(0,0,0,0.05)
+        border-radius: 3px
+        font-weight: bold
+        display: flex
+        align-items: center
+        justify-content: space-between
+    
+    .react-flow__edge.selectable
+        cursor: unset
+    

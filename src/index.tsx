@@ -32,6 +32,7 @@ dayjs.locale(language === 'zh' ? 'zh-cn' : language)
 import { model } from '@model'
 
 import { light } from './theme.ts'
+import { apply_favicon } from './utils.common.ts'
 
 import { DdbHeader } from './components/DDBHeader/index.tsx'
 import { DdbSider } from './components/DdbSider.tsx'
@@ -56,7 +57,7 @@ import { FinanceGuide } from './guide/finance-guide/index.tsx'
 import { DataCollection } from './data-collection/index.tsx'
 import { Access } from './access/index.tsx'
 import { StreamingGraph } from './streaming-graph/index.tsx'
-import { apply_favicon } from './utils.common.ts'
+import { Lineage } from './lineage/index.tsx'
 
 
 createRoot(
@@ -138,7 +139,7 @@ function MainLayout () {
         if (!inited)
             return
         
-        document.title = `${model.product_name} - ${model.node_alias}`
+        document.title = `${shf ? 'DolphinDB' : model.product_name} - ${model.node_alias}`
         
         let link = apply_favicon(shf)
         
@@ -277,6 +278,10 @@ const router = createBrowserRouter([
                 path: 'streaming-graph/*',
                 element: <StreamingGraph />
             },
+            {
+                path: 'lineage/*',
+                element: <Lineage />
+            }
         ]
     }], 
     model.assets_root === '/' ? undefined : { basename: model.assets_root }

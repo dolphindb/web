@@ -74,13 +74,13 @@ function get_layouted_elements (nodes: Node<Record<string, any>>[], edges: Edge[
     
     return {
         nodes: nodes.map(node => {
-            const nodeWithPosition = dagre_graph.node(node.id)
+            const { x, y } = dagre_graph.node(node.id)
             
             return {
                 ...node,
                 position: {
-                    x: nodeWithPosition.x - (node.data.width || 180) / 2,
-                    y: nodeWithPosition.y - (node.data.height || 100) / 2
+                    x: x - (node.data.width || 180) / 2,
+                    y: y - (node.data.height || 100) / 2
                 }
             }
         }),
@@ -338,16 +338,12 @@ function StreamingGraphVisualization ({
             
             // 处理边 - 根据源节点状态和选中状态设置边的样式
             const react_flow_edges: Edge[] = processed_edges.map(edge => {
-                const sourceNode = nodes.get(edge.sourceId)
-                const nodeState = sourceNode?.nodeState !== undefined ? Number(sourceNode.nodeState) : 1
+                const { nodeState } = nodes.get(edge.sourceId) || { }
                 
-                const edgeStyles = {
-                    0: { color: '#ff4d4f', animated: false },
-                    1: { color: '#52c41a', animated: true },
-                    2: { color: '#faad14', animated: false }
-                }
-                
-                const { color, animated } = edgeStyles[nodeState] || edgeStyles[1]
+                const { color, animated } = edge_styles[
+                    // node state
+                    nodeState !== undefined ? Number(nodeState) : 1
+                ] || edge_styles[1]
                 
                 // 检查边是否与选中的 actionName 相关
                 const isSelected = selected_action_name && edge.actionName === selected_action_name
@@ -517,6 +513,13 @@ function StreamingGraphVisualization ({
             </Drawer>
         </div>
     </div>
+}
+
+
+const edge_styles = {
+    0: { color: '#ff4d4f', animated: false },
+    1: { color: '#52c41a', animated: true },
+    2: { color: '#faad14', animated: false }
 }
 
 
