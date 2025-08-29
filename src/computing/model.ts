@@ -199,6 +199,7 @@ export const engine_table_column_names = {
     numRowsCounter: t('行计数'),
     leftSnapshotMsgId: t('左快照消息 ID'),
     rightSnapshotMsgId: t('右快照消息 ID'),
+    memoryInUsed: t('已使用内存'),
     ... Object.fromEntries(
         [
             Object.values(leading_cols)
