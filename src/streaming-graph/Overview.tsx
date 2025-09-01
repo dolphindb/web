@@ -578,7 +578,7 @@ export function SubscriptionStatsTable ({
     
     return <DDBTable<SubscriptionStat>
         title={t('流任务订阅')}
-        help={get_subscription_stats_funcdef}
+        help={helps.subscriptions}
         dataSource={subscription_stats}
         columns={subscription_columns}
         rowKey='topic'
@@ -613,7 +613,7 @@ function PublishStatsTable () {
     return <DDBTable
         className='publish-stats-table'
         title={t('流任务发布')}
-        help={get_publish_stats_fundef}
+        help={helps.publish}
         dataSource={publish_stats}
         size='small'
         rowKey='table_name'
@@ -654,7 +654,7 @@ function EngineTableStatsTable ({ engine }: { engine: boolean }) {
     return <DDBTable
         className='publish-stats-table'
         title={engine ? t('流引擎') : t('流表')}
-        help='getStreamGraphInfo(fullname).graph.nodes.properties.metrics'
+        help={helps.tables}
         dataSource={metrics}
         size='small'
         rowKey={engine ? 'name' : 'TableName'}
@@ -674,3 +674,21 @@ function EngineTableStatsTable ({ engine }: { engine: boolean }) {
                 }))}
     />
 }
+
+
+const engine_table_script = 'getStreamGraphInfo(fullname).graph.nodes.properties.metrics'
+
+const helps = {
+    subscriptions: t('监控订阅节点的工作线程状态，以及流图中所有流任务的订阅信息\n') +
+        get_subscription_stats_funcdef,
+    
+    publish: t('监控流任务中所有订阅表对应的发布端连接状态\n') +
+        get_publish_stats_fundef,
+    
+    engines: t('监控流图中所有流计算引擎的状态\n') +
+        engine_table_script,
+    
+    tables: t('监控流图中所有流表的状态\n') +
+        engine_table_script
+}
+

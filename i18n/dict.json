@@ -6589,5 +6589,17 @@
     },
     "关": {
         "en": "off"
+    },
+    "监控订阅节点的工作线程状态，以及流图中所有流任务的订阅信息\n": {
+        "en": "Monitor the status of worker threads of subscribing nodes and subscription information of all flow tasks in the flow graph\n"
+    },
+    "监控流任务中所有订阅表对应的发布端连接状态\n": {
+        "en": "Monitor the publisher connection status corresponding to all subscription tables in the flow task\n"
+    },
+    "监控流图中所有流计算引擎的状态\n": {
+        "en": "Monitor the status of all flow calculation engines in the flow graph\n"
+    },
+    "监控流图中所有流表的状态\n": {
+        "en": "Monitor the status of all flow tables in the flow graph\n"
     }
 }
