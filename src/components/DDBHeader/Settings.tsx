@@ -99,9 +99,6 @@ function apply_setttings ({ decimals, grouping, shf }: Fields, reset: boolean) {
     storage.setstr(storage_keys.shf, shf ? '1' : '0')
     storage.setstr(storage_keys.grouping, grouping ? '1' : '0')
     
-    if (new URLSearchParams(location.search).has('shf'))
-        model.set_query('shf', null)
-    
     model.set({
         options: { decimals, grouping },
         shf
@@ -112,6 +109,9 @@ function apply_setttings ({ decimals, grouping, shf }: Fields, reset: boolean) {
         decimals: decimals === null ? t('实际位数') : decimals,
         grouping: grouping ? t('开') : t('关')
     }))
+    
+    if (new URLSearchParams(location.search).has('shf'))
+        model.set_query('shf', null)
 }
 
 
