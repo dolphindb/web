@@ -197,7 +197,7 @@ class LineageModel extends Model<LineageModel> {
         
         setTimeout(() => {
             this.reactflow?.fitView()
-        }, 500)
+        }, 200)
     }
 }
 
