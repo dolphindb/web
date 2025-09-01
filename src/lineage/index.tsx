@@ -3,7 +3,9 @@ import './index.sass'
 
 import { useEffect } from 'react'
 import { Model } from 'react-object-model'
-// import { useLocation } from 'react-router'
+import { useLocation } from 'react-router'
+
+import { ReactFlow, type Edge, type Node, MarkerType, type ReactFlowInstance } from '@xyflow/react'
 
 import { log, map_keys } from 'xshell/utils.browser.js'
 
@@ -13,23 +15,36 @@ import { t } from '@i18n'
 import { model } from '@model'
 import SvgTable from '@/shell/icons/table.icon.svg'
 import Icon from '@ant-design/icons'
-import { ReactFlow, type Edge, type Node, MarkerType } from '@xyflow/react'
 
-// todo: 保存选中的表格到 url 路径，并在刷新时自动
 
 export function Lineage () {
     const { tables, table, nodes, edges } = lineage.use(['tables', 'table', 'nodes', 'edges'])
     
-    // let { pathname } = useLocation()
+    // pathname 是不包含 assets_root 的
+    let { pathname } = useLocation()
     
     useEffect(() => {
         lineage.get_tables()
     }, [ ])
     
-    // useEffect(() => {
-    //     const table_name = pathname.strip_start('/lineage/')
-    //     lineage.get_lineage(table)
-    // }, [pathname])
+    useEffect(() => {
+        if (!tables?.length)
+            return
+        
+        const table_name = pathname.strip_start('/lineage/').strip_if_end('/')
+        if (!table_name)
+            return
+        
+        const table = tables.find(({ name }) => name === table_name)
+        
+        if (!table) {
+            model.message.warning(t('找不到流表 {{table_name}}，可能已经被删除', { table_name }))
+            return
+        }
+        
+        lineage.get_lineage(table)
+    }, [tables, pathname])
+    
     
     if (!tables)
         return null
@@ -45,8 +60,8 @@ export function Lineage () {
                     return <div
                         className='item'
                         key={name}
-                        onClick={async () => {
-                            await lineage.get_lineage(table)
+                        onClick={() => {
+                            model.goto(`/lineage/${name}/`)
                         }}
                     >
                         <Icon component={SvgTable} />
@@ -60,11 +75,11 @@ export function Lineage () {
                 <ReactFlow
                     nodes={nodes}
                     edges={edges}
-                    fitView
                     proOptions={{ hideAttribution: true }}
                     nodesDraggable={false}
                     nodesConnectable={false}
                     edgesReconnectable={false}
+                    onInit={reactflow => { lineage.set({ reactflow }) }}
                 />
             </div> }
         </div>
@@ -80,6 +95,8 @@ class LineageModel extends Model<LineageModel> {
     nodes: Node[] = [ ]
     
     edges: Edge[] = [ ]
+    
+    reactflow: ReactFlowInstance<Node, Edge>
     
     
     async get_tables () {
@@ -171,6 +188,11 @@ class LineageModel extends Model<LineageModel> {
                         },
                     }
                 })
+        })
+        
+        
+        setTimeout(() => {
+            this.reactflow?.fitView()
         })
     }
 }
