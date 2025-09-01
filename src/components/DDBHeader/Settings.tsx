@@ -32,13 +32,8 @@ export function Settings () {
                     } satisfies Fields}
                     onFinish={fields => { apply_setttings(fields, false) }}
                     onReset={() => {
-                        apply_setttings(
-                            {
-                                decimals: null,
-                                grouping: true,
-                                shf: false
-                            },
-                            true)
+                        rform.current.setFieldsValue(default_fields)
+                        apply_setttings(default_fields, true)
                     }}
                 >
                     <Form.Item<Fields>
@@ -116,3 +111,10 @@ function apply_setttings ({ decimals, grouping, shf }: Fields, reset: boolean) {
 
 
 const decimals_tooltip = t('输入应为空或者 0 ~ 20 的整数')
+
+
+const default_fields = {
+    decimals: null,
+    grouping: true,
+    shf: false
+}
