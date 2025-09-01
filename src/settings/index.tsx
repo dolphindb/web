@@ -19,7 +19,7 @@ export function Settings () {
     
     return admin && <div className='module-settings'>
         <div className='title'>{t('可选功能')}</div>
-        <Card 
+        <Card
             module_key='finance-guide'
             icon={<Icon className='label-icon' component={SvgFinance} style={icon_style}/>}
             label={t('金融库表向导')}

@@ -109,8 +109,8 @@ function apply_setttings ({ decimals, grouping, shf }: Fields, reset: boolean) {
     
     model.message.success(t('{{action}}成功，当前小数位数为：{{decimals}}; 数字分组显示: {{grouping}}', {
         action: reset ? t('重置') : t('设置'),
-        decimals: decimals === null ? '实际位数' : decimals,
-        grouping: grouping ? '开' : '关'
+        decimals: decimals === null ? t('实际位数') : decimals,
+        grouping: grouping ? t('开') : t('关')
     }))
 }
 

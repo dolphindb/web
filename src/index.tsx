@@ -24,6 +24,8 @@ import dayjs from 'dayjs'
 
 import { SWRConfig } from 'swr'
 
+import { use_keydown } from 'react-object-model/hooks.js'
+
 import { language } from '@i18n'
 
 import 'dayjs/locale/zh-cn'
@@ -111,29 +113,8 @@ function MainLayout () {
     }, [ ])
     
     
-    useEffect(() => {
-        if (model.local) {
-            async function on_keydown (event: KeyboardEvent) {
-                const { key, target, ctrlKey: ctrl, altKey: alt } = event
-                
-                if (
-                    key === 'r' && 
-                    (target as HTMLElement).tagName !== 'INPUT' && 
-                    (target as HTMLElement).tagName !== 'TEXTAREA' && 
-                    !ctrl && 
-                    !alt
-                ) {
-                    event.preventDefault()
-                    await model.recompile_and_refresh()
-                }
-            }
-            
-            window.addEventListener('keydown', on_keydown)
-            
-            return () => { window.removeEventListener('keydown', on_keydown) }
-        }
-    }, [ ])
-    
+    if (model.local)
+        use_keydown(on_keydown)
     
     useEffect(() => {
         if (!inited)
@@ -287,3 +268,18 @@ const router = createBrowserRouter([
     model.assets_root === '/' ? undefined : { basename: model.assets_root }
 )
 
+
+async function on_keydown (event: KeyboardEvent) {
+    const { key, target, ctrlKey: ctrl, altKey: alt } = event
+    
+    if (
+        key === 'r' && 
+        (target as HTMLElement).tagName !== 'INPUT' && 
+        (target as HTMLElement).tagName !== 'TEXTAREA' && 
+        !ctrl && 
+        !alt
+    ) {
+        event.preventDefault()
+        await model.recompile_and_refresh()
+    }
+}

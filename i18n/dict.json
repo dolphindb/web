@@ -6555,7 +6555,7 @@
         "en": "Numbers use\",\"Group Display"
     },
     "{{action}}成功，当前小数位数为：{{decimals}}; 数字分组显示: {{grouping}}": {
-        "en": "{{action}} successful, current decimal digits are: {{decimals}}}; Numbers display in groups: {{grouping}}"
+        "en": "{{action}} successful, current decimal digits are: {{decimals}}; Numbers display in groups: {{grouping}}"
     },
     "输入应为空或者 0 ~ 20 的整数": {
         "en": " Input should be empty or an integer from 0 to 20 "
@@ -6583,5 +6583,11 @@
     },
     "张量": {
         "en": "tensor"
+    },
+    "开": {
+        "en": "on"
+    },
+    "关": {
+        "en": "off"
     }
 }
