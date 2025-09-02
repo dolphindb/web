@@ -307,7 +307,7 @@ export class DdbModel extends Model<DdbModel> {
                 config.get_config('webModules')?.split(',') || [ ])
         })
         
-        console.log(t('web 强制登录:'), this.login_required)
+        console.log('强制登录:', this.login_required)
         
         // 对于完成初始化是必须的，用户登陆后可能会注销，此时需要判断是否重定向到登录页
         let pclient_auth = this.check_client_auth()
@@ -1172,7 +1172,7 @@ export class DdbModel extends Model<DdbModel> {
         
         try {
             const client_auth = await this.ddb.invoke<boolean>('isClientAuth', undefined, { urgent: true })
-            console.log(t('web 安全认证:'), client_auth)
+            console.log('安全认证:', client_auth)
             this.set({ client_auth })
             return client_auth
         } catch {
