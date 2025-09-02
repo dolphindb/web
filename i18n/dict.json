@@ -6601,5 +6601,11 @@
     },
     "监控流图中所有流表的状态\n": {
         "en": "Monitor the status of all flow tables in the flow graph\n"
+    },
+    "找不到流表 {{table_name}}，可能已经被删除": {
+        "en": "Stream table {{table_name}} cannot be found. It may have been deleted"
+    },
+    "流表 {{name}} 的血缘关系图": {
+        "en": "Lineage diagram of stream table {{name}}"
     }
 }
