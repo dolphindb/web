@@ -4,7 +4,7 @@ import './index.sass'
 import { useEffect } from 'react'
 import { Model } from 'react-object-model'
 import { useLocation } from 'react-router'
-import Icon, { ApartmentOutlined, TableOutlined, ThunderboltOutlined } from '@ant-design/icons'
+import Icon, { ApartmentOutlined, QuestionCircleOutlined, TableOutlined, ThunderboltOutlined } from '@ant-design/icons'
 
 import {
     ReactFlow, type Edge, type Node, MarkerType, type ReactFlowInstance, Controls, ConnectionLineType,
@@ -17,6 +17,7 @@ import dagre from '@dagrejs/dagre'
 
 import { t } from '@i18n'
 import { model } from '@model'
+import { RefreshButton } from '@components/RefreshButton/index.tsx'
 import SvgTable from '@/shell/icons/table.icon.svg'
 
 
@@ -55,6 +56,18 @@ export function Lineage () {
     return <>
         <div className='header'>
             <div className='title'>{t('数据血缘')}</div>
+            <div className='padding' />
+            <div className='note'><QuestionCircleOutlined /> 表名和引擎名称隐藏了中间的 .orca_table 和 .orca_engine</div>
+            <RefreshButton onClick={async () => {
+                const { table } = lineage
+                
+                await Promise.all([
+                    lineage.get_tables(),
+                    table && lineage.get_lineage(table)
+                ])
+                
+                model.message.success(t('刷新成功'))
+            }} />
         </div>
         <div className='main'>
             <div className='list'>{
@@ -76,7 +89,7 @@ export function Lineage () {
             { table && <div className='body'>
                 <div className='title'>
                     <ApartmentOutlined />
-                    <div>{t('流表 {{name}} 的血缘关系图', { name: table.name })}</div>
+                    <div className='name'>{t('流表 {{name}} 的血缘关系图', { name: table.name })}</div>
                 </div>
                 <ReactFlow
                     nodeTypes={node_types}

@@ -15,9 +15,28 @@
         
         border-bottom: variables.$border
         
+        display: flex
+        align-items: center
+        
         .title
             font-size: 1.5em
             font-weight: bold
+            
+        .padding
+            flex: 1
+            
+        .note
+            color: #888888
+            
+            display: flex
+            align-items: center
+            
+            margin-right: 40px
+            
+            .anticon
+                margin-right: 4px
+                margin-top: 1px
+                
     
     .main
         display: flex
@@ -52,8 +71,6 @@
             flex-direction: column
             
             .title
-                font-weight: bold
-                font-size: 20px
                 padding: 12px 24px
                 
                 border-bottom: variables.$border
@@ -61,11 +78,15 @@
                 display: flex
                 align-items: center
                 
-                .anticon
+                > .anticon
                     margin-top: 1px
                     
                     margin-right: 8px
-                
+                    
+                .name
+                    font-weight: bold
+                    font-size: 20px
+                    
             .react-flow
                 --xy-edge-stroke-default: #444444
                 --xy-edge-stroke-width-default: 0.5
