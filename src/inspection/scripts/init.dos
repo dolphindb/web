@@ -1153,7 +1153,10 @@ def getAgentConfigs(parsedConfigs, nodeAlias=NULL) {
         throw "no agent.cfg for mode: " + parsedConfigs["mode"]
     }
 
-    nodeAlias_ = iif(isNull(nodeAlias), parsedConfigs["agent.cfg"].keys().first(), nodeAlias)
+    nodeAlias_ = nodeAlias
+    if(isNull(nodeAlias)) {
+        nodeAlias_ = parsedConfigs["agent.cfg"].keys().first()
+    }
     return parsedConfigs["agent.cfg"][nodeAlias_]
 }
 
@@ -1321,7 +1324,7 @@ def newValuePartitionPolicy(parsedConfigs) {
 
     res = select * from readConfigs::getClusterConfigsEx(parsedConfigs, "newValuePartitionPolicy") where value != "add"
     if (res.size() > 0) {
-        throw "建议将 newValuePartitionPolicy 配置项配置为 add，当前值：\n" + res
+        throw "建议将 newValuePartitionPolicy 配置项配置为 add，当前值：\n" + snippet(res)
     }
 }
 
@@ -1490,7 +1493,7 @@ def lanCluster(parsedConfigs) {
     }
     v = set(lanCluster.values())
     if (v.size() != 1) {
-        throw "集群中所有节点的 lanCluster 配置值不一致：\n" + lanCluster
+        throw "集群中所有节点的 lanCluster 配置值不一致：\n" + snippet(lanCluster)
     } else {
         lanCluster = lanCluster.values().first()
     }
