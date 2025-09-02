@@ -8,7 +8,7 @@ import Icon, { ApartmentOutlined, TableOutlined, ThunderboltOutlined } from '@an
 
 import {
     ReactFlow, type Edge, type Node, MarkerType, type ReactFlowInstance, Controls, ConnectionLineType,
-    Handle, Position,
+    Handle, Position, type FitViewOptions,
 } from '@xyflow/react'
 
 import { log, map_keys } from 'xshell/utils.browser.js'
@@ -74,7 +74,10 @@ export function Lineage () {
             }</div>
             
             { table && <div className='body'>
-                <div className='title'><ApartmentOutlined /> {t('流表 {{name}} 的血缘关系图', { name: table.name })}</div>
+                <div className='title'>
+                    <ApartmentOutlined />
+                    <div>{t('流表 {{name}} 的血缘关系图', { name: table.name })}</div>
+                </div>
                 <ReactFlow
                     nodeTypes={node_types}
                     nodes={nodes}
@@ -84,12 +87,19 @@ export function Lineage () {
                     nodesConnectable={false}
                     edgesReconnectable={false}
                     fitView
+                    fitViewOptions={fit_view_options}
                     onInit={reactflow => { lineage.set({ reactflow }) }}
                     minZoom={0.1}
                     maxZoom={16}
                     connectionLineType={ConnectionLineType.Step}
                 >
-                    <Controls showInteractive={false} position='bottom-right' />
+                    <Controls
+                        showInteractive={false}
+                        position='bottom-right'
+                        onFitView={() => {
+                            lineage.reactflow.fitView(fit_view_options)
+                        }}
+                    />
                 </ReactFlow>
             </div> }
         </div>
@@ -107,6 +117,11 @@ function MyNode ({ data: { name, engine } }: TMyNode) {
         <Handle type='target' position={Position.Top} />
         <Handle type='source' position={Position.Bottom} />
     </>
+}
+
+
+const fit_view_options: FitViewOptions<TMyNode> = {
+    padding: '100px'
 }
 
 
@@ -232,11 +247,11 @@ class LineageModel extends Model<LineageModel> {
         
         
         setTimeout(() => {
-            this.reactflow?.fitView()
+            this.reactflow?.fitView(fit_view_options)
         })
         
         setTimeout(() => {
-            this.reactflow?.fitView()
+            this.reactflow?.fitView(fit_view_options)
         }, 200)
     }
 }
