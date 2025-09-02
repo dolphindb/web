@@ -40,7 +40,7 @@
         "@xterm/xterm": "^5.5.0",
         "@xyflow/react": "^12.8.4",
         "ahooks": "^3.9.5",
-        "antd": "^5.27.1",
+        "antd": "^5.27.2",
         "classnames": "^2.5.1",
         "client-zip": "^2.5.0",
         "copy-to-clipboard": "^3.3.3",

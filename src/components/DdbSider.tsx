@@ -2,7 +2,10 @@ import { useEffect, useMemo, useState } from 'react'
 
 import { Layout, Menu, Typography } from 'antd'
 
-import { default as Icon, DoubleLeftOutlined, DoubleRightOutlined, ExperimentOutlined, SettingOutlined, BranchesOutlined } from '@ant-design/icons'
+import {
+    default as Icon, DoubleLeftOutlined, DoubleRightOutlined, ExperimentOutlined, SettingOutlined,
+    ApartmentOutlined
+} from '@ant-design/icons'
 
 import { noop } from 'xshell/prototype.browser.js'
 import { filter_values } from 'xshell/utils.browser.js'
@@ -171,7 +174,7 @@ export function DdbSider () {
                     },
                     {
                         key: 'lineage',
-                        icon: <BranchesOutlined className='icon-menu' />,
+                        icon: <ApartmentOutlined className='icon-menu' />,
                         label: t('数据血缘'),
                     }
                 ] : [ ],

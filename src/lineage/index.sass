@@ -59,8 +59,52 @@
                 border-bottom: variables.$border
                 
             
+            .react-flow
+                --xy-edge-stroke-default: #444444
+                --xy-edge-stroke-width-default: 0.5
+            
             .react-flow__edge.selectable
                 cursor: unset
-            
-            
+                
+            .react-flow__handle
+                visibility: hidden
+                
+            .mynode
+                display: flex
+                align-items: center
+                border: 1px solid
+                border-left: 4px solid
+                
+                .icon
+                    padding: 8px
+                    
+                    width: 40px
+                    
+                    border-right: 1px solid
+                    
+                    display: flex
+                    align-items: center
+                    justify-content: center
+                    
+                    height: 100%
+                    
+                    .anticon
+                        margin-top: 3px
+                    
+                .name
+                    padding: 8px
+                    
+                    flex: 1
+                    
+                    display: flex
+                    align-items: center
+                    justify-content: center
+                    
+                &.engine
+                    color: #fb6ab0
+                    border-color: #fb6ab0
+                    
+                &.table
+                    color: #4559c9
+                    border-color: #4559c9
             

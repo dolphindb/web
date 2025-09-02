@@ -4,8 +4,12 @@ import './index.sass'
 import { useEffect } from 'react'
 import { Model } from 'react-object-model'
 import { useLocation } from 'react-router'
+import Icon, { ApartmentOutlined, TableOutlined, ThunderboltOutlined } from '@ant-design/icons'
 
-import { ReactFlow, type Edge, type Node, MarkerType, type ReactFlowInstance } from '@xyflow/react'
+import {
+    ReactFlow, type Edge, type Node, MarkerType, type ReactFlowInstance, Controls, ConnectionLineType,
+    Handle, Position,
+} from '@xyflow/react'
 
 import { log, map_keys } from 'xshell/utils.browser.js'
 
@@ -14,7 +18,6 @@ import dagre from '@dagrejs/dagre'
 import { t } from '@i18n'
 import { model } from '@model'
 import SvgTable from '@/shell/icons/table.icon.svg'
-import Icon from '@ant-design/icons'
 
 
 export function Lineage () {
@@ -71,19 +74,44 @@ export function Lineage () {
             }</div>
             
             { table && <div className='body'>
-                <div className='title'>{table.name}</div>
+                <div className='title'><ApartmentOutlined /> {t('流表 {{name}} 的血缘关系图', { name: table.name })}</div>
                 <ReactFlow
+                    nodeTypes={node_types}
                     nodes={nodes}
                     edges={edges}
                     proOptions={{ hideAttribution: true }}
                     nodesDraggable={false}
                     nodesConnectable={false}
                     edgesReconnectable={false}
+                    fitView
                     onInit={reactflow => { lineage.set({ reactflow }) }}
-                />
+                    minZoom={0.1}
+                    maxZoom={16}
+                    connectionLineType={ConnectionLineType.Step}
+                >
+                    <Controls showInteractive={false} position='bottom-right' />
+                </ReactFlow>
             </div> }
         </div>
     </>
+}
+
+
+function MyNode ({ data: { name, engine } }: TMyNode) {
+    return <>
+        <div className='icon'>
+            { engine ? <ThunderboltOutlined /> : <TableOutlined /> }
+        </div>
+        
+        <div className='name'><span title={name}>{name.truncate(46)}</span></div>
+        <Handle type='target' position={Position.Top} />
+        <Handle type='source' position={Position.Bottom} />
+    </>
+}
+
+
+let node_types = {
+    mynode: MyNode as React.FunctionComponent
 }
 
 
@@ -92,11 +120,11 @@ class LineageModel extends Model<LineageModel> {
     
     table: TableMeta
     
-    nodes: Node[] = [ ]
+    nodes: TMyNode[] = [ ]
     
     edges: Edge[] = [ ]
     
-    reactflow: ReactFlowInstance<Node, Edge>
+    reactflow: ReactFlowInstance<TMyNode, Edge>
     
     
     async get_tables () {
@@ -119,9 +147,10 @@ class LineageModel extends Model<LineageModel> {
     
     
     async get_lineage (table: TableMeta) {
-        const data = log('图数据:',
-                JSON.parse(
-                    await model.ddb.invoke<string>('getOrcaDataLineage', [table.fullname])))
+        const data = JSON.parse(
+            await model.ddb.invoke<string>('getOrcaDataLineage', [table.fullname]))
+        
+        console.log('图数据:', data)
         
         let g = new dagre.graphlib.Graph()
         
@@ -134,6 +163,8 @@ class LineageModel extends Model<LineageModel> {
         
         g.setDefaultEdgeLabel(() => ({ }))
         
+        let map = new Map<string, GraphNode>()
+        
         for (const graph_id in data) {
             const {
                 fqn: graph_fullname,
@@ -141,11 +172,20 @@ class LineageModel extends Model<LineageModel> {
                 ...nodes
             } = data[graph_id]
             
-            for (const name in nodes) {
-                g.setNode(name, { width: 320, height: 40 })
+            for (const fullname in nodes) {
+                const { is_engine: engine, parents } = map_keys<any>(nodes[fullname])
                 
-                ;(nodes[name].parents as string[]).forEach(parent => {
-                    g.setEdge(parent, name)
+                map.set(fullname, {
+                    fullname,
+                    name: fullname.replace(engine ? '.orca_engine' : '.orca_table', ''),
+                    engine,
+                    parents
+                })
+                
+                g.setNode(fullname, { width: 400, height: 40 })
+                
+                parents.forEach((parent: string) => {
+                    g.setEdge(parent, fullname)
                 })
             }
         }
@@ -156,38 +196,38 @@ class LineageModel extends Model<LineageModel> {
             table,
             
             nodes: g.nodes()
-                .map(name => {
-                    const { x, y, width, height } = g.node(name)
-                    
-                    
+                .map(fullname => {
+                    const { x, y, width, height } = g.node(fullname)
+                    const node = map.get(fullname)
                     
                     return {
-                        id: name,
-                        className: '',
+                        id: fullname,
+                        type: 'mynode',
+                        className: `mynode ${node.engine ? 'engine' : 'table'}`,
                         position: { x, y },
-                        data: { label: name.replace('.orca_table', '').replace('.orca_engine', '') },
+                        data: node,
                         width,
                         height
                     }
                 }),
             
             edges: g.edges()
-                .map(({ v, w }) => {
-                    return {
-                        id: `${v}-${w}`,
-                        source: v,
-                        target: w,
-                        style: {
-                            stroke: '#000000'
-                        },
-                        markerEnd: {
-                            type: MarkerType.Arrow,
-                            color: '#000000',
-                            width: 20,
-                            height: 20
-                        },
+                .map(({ v, w }) => ({
+                    id: `${v}-${w}`,
+                    source: v,
+                    target: w,
+                    type: ConnectionLineType.Step,
+                    // 间隔线
+                    // style: {
+                    //     strokeDasharray: '10, 10'
+                    // },
+                    markerEnd: {
+                        type: MarkerType.Arrow,
+                        color: '#666666',
+                        width: 40,
+                        height: 40
                     }
-                })
+                } satisfies Edge))
         })
         
         
@@ -213,3 +253,15 @@ interface TableMeta {
     
     graph_refs: string[]
 }
+
+
+interface GraphNode extends Record<string, any> {
+    name: string
+    
+    /** true 时为 engine, 否则是 table */
+    engine: boolean
+    
+    parents: string[]
+}
+
+type TMyNode = Node<GraphNode>

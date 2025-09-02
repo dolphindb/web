@@ -352,7 +352,7 @@ function StreamingGraphVisualization ({
                     id: edge.id,
                     source: edge.sourceId,
                     target: edge.targetId,
-                    type: 'smoothstep',
+                    type: ConnectionLineType.SmoothStep,
                     animated: animated,
                     data: {
                         actionName: edge.actionName
