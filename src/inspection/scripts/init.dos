@@ -198,7 +198,10 @@ def recoveryStatus(mutable params){
         return (true, NULL, NULL)
     }
 
-    checkInterval = iif(isVoid(params["checkInterval"]), 10000, int(params["checkInterval"]))
+    checkInterval = 10000
+    if (!isVoid(params["checkInterval"])) {
+        checkInterval = int(params["checkInterval"])
+    }
     sleep(checkInterval)
     
     inProcessTask=select * from rpc(getControllerAlias(),getRecoveryTaskStatus) where Status=="In-Progress";
@@ -459,7 +462,10 @@ def replicaRowNum(params){
     badChunkId=array(ANY);
     select addBadChunkId(badChunkId,first(chunkId),rowNum) from chunkidNodeRow group by chunkId;
     if(badChunkId.size()>0){
-        badChunkId_ = iif(badChunkId.size()>10, badChunkId[:10], badChunkId)
+        badChunkId_ = badChunkId
+        if(badChunkId.size()>10) {
+            badChunkId_ = badChunkId[:10]
+        }
         return false,"存在 "+badChunkId.size()+" 个不一致的副本。","请使用 deleteReplicas 删除错误副本并使用 copyReplicas 拷贝正确副本恢复。", badChunkId_.concat(", ");
     }
     return true,"所有分区副本数完全一致","";
@@ -492,7 +498,9 @@ def getServerLogEx(startTime, endTime) {
     logFile = getConfig("logFile")
     s = logFile.split("/")
     logDir = s[:(s.size()-1)].concat("/")
-    logDir = iif(isNull(logDir), "./", logDir)
+    if (isNull(logDir)) {
+        logDir = "./"
+    }
     nodeAlias = getNodeAlias()
     cnt = exec count(*) from rpc(getControllerAlias(), getClusterPerf) where mode == 3
     if (cnt == 1) {
@@ -610,7 +618,9 @@ def queryElapsed(params) {
     getQueryLogInner = def(startTime_, endTime_) {
 		logDir = getConfig("logFile").split("/")
 		logDir = logDir[:(logDir.size()-1)].concat("/")
-        logDir = iif(isNull(logDir), "./", logDir)
+        if (isNull(logDir)) {
+            logDir = "./"
+        }
         logFiles = select * from files(logDir, "%_job.log") where isDir == false order by filename asc
         schema = table(
             ["node","userId","sessionId","jobId","rootId","type","level","startTime","endTime","jobDesc","errorMsg"] as name,
@@ -692,7 +702,9 @@ def mostQueriedDFSTables(params) {
     getQueryLogInner = def(startTime_, endTime_) {
 		logDir = getConfig("logFile").split("/")
 		logDir = logDir[:(logDir.size()-1)].concat("/")
-        logDir = iif(isNull(logDir), "./", logDir)
+        if (isNull(logDir)) {
+            logDir = "./"
+        }
         logFiles = files(logDir, "%_query.log")
         schema = table(
             ["node","userId","sessionId","jobId","rootId","type","level","time","database","table","jobDesc"] as name,
@@ -1223,7 +1235,11 @@ def getConfigEx(parsedConfigs, key, nodeAlias) {
         }
     }
 
-    return iif(isNull(ret2), ret1, ret2)
+    if (isNull(ret2)) {
+        return ret1
+    } else {
+        return ret2
+    }
 }
 
 def getClusterConfigsEx(parsedConfigs, key) {
@@ -1627,6 +1643,9 @@ def commonDolphinDBConfig(params) {
 
     ret = table(1:0, `project`errMsg, [STRING, STRING])
     for (funcName in funcNames) {
+        if (funcName == "checkConfigs::jsrpc") {
+            continue
+        }
         try {
             funcByName(funcName)(parsedConfigs)
         } catch(err) {
