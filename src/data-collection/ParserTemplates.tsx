@@ -151,6 +151,7 @@ export function ParserTemplates () {
     return <div className='parser-template-content'>
         <DDBTable<IParserTemplate>
             title={t('解析模板')}
+            big_title
             buttons={
                 <>
                     <Button type='primary' icon={<PlusOutlined />} onClick={on_create}>{t('新建')}</Button>

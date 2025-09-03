@@ -138,7 +138,7 @@ export function Connections ({ protocols }: { protocols: Protocol[] }) {
     return <div className='data-collection-wrapper'>
         <div className='connection-list'>
             <div className='connection-list-title'>
-                <h2>{t('连接')}</h2>
+                <div className='title'>{t('连接信息')}</div>
                 <Typography.Link
                     className='delete-link'
                     type='danger'
