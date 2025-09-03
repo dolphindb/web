@@ -4,7 +4,7 @@ import './index.sass'
 import { useEffect } from 'react'
 import { Model } from 'react-object-model'
 import { useLocation } from 'react-router'
-import { Empty, Tooltip } from 'antd'
+import { Empty, Tooltip, Splitter } from 'antd'
 import {
     default as Icon, ApartmentOutlined, DeleteOutlined, QuestionCircleOutlined, TableOutlined,
     ThunderboltOutlined
@@ -26,7 +26,7 @@ import SvgTable from '@/shell/icons/table.icon.svg'
 
 
 export function Lineage () {
-    const { tables, table, nodes, edges } = lineage.use(['tables', 'table', 'nodes', 'edges'])
+    const { tables, table, nodes, edges, list_width } = lineage.use(['tables', 'table', 'nodes', 'edges', 'list_width'])
     
     // pathname 是不包含 assets_root 的
     let { pathname } = useLocation()
@@ -59,11 +59,11 @@ export function Lineage () {
     
     return <>
         <div className='header'>
-            <div className='title'>{t('数据血缘')}</div>
+            <div className='title' style={{ width: list_width }}>{t('数据血缘')}</div>
             
             { table && <div className='graph-title'>
                 <ApartmentOutlined />
-                <div className='name'>{t('流表 {{name}} 的血缘关系图', { name: table.name.truncate(max_name_length) })}</div>
+                <div className='name'>{t('流表 {{name}} 的血缘关系图', { name: table.name })}</div>
             </div> }
             
             <div className='padding' />
@@ -80,8 +80,9 @@ export function Lineage () {
                 model.message.success(t('刷新成功'))
             }} />
         </div>
-        <div className='main'>
-            <div className='list'>{
+        
+        <Splitter className='main' onResizeEnd={([list_width]) => { lineage.set({ list_width }) }}>
+            <Splitter.Panel className='list' defaultSize={default_list_width} collapsible>{
                 tables.length ?
                     tables.map(({ name }) =>
                         <div
@@ -91,36 +92,37 @@ export function Lineage () {
                             onClick={() => { model.goto(`/lineage/${name}/`) }}
                         >
                             <Icon component={SvgTable} />
-                            {name.truncate(max_name_length - 8)}
+                            <span className='text'>{name}</span>
                         </div>)
                 :
                     <Empty description={t('暂无流表')} image={Empty.PRESENTED_IMAGE_SIMPLE} />
-            }</div>
-            
-            { table && <ReactFlow
-                nodeTypes={node_types}
-                nodes={nodes}
-                edges={edges}
-                proOptions={{ hideAttribution: true }}
-                nodesDraggable={false}
-                nodesConnectable={false}
-                edgesReconnectable={false}
-                fitView
-                fitViewOptions={fit_view_options}
-                onInit={reactflow => { lineage.set({ reactflow }) }}
-                minZoom={0.1}
-                maxZoom={16}
-                connectionLineType={ConnectionLineType.Step}
-            >
-                <Controls
-                    showInteractive={false}
-                    position='bottom-right'
-                    onFitView={() => {
-                        lineage.reactflow.fitView(fit_view_options)
-                    }}
-                />
-            </ReactFlow> }
-        </div>
+            }</Splitter.Panel>
+            <Splitter.Panel>
+                { table && <ReactFlow
+                    nodeTypes={node_types}
+                    nodes={nodes}
+                    edges={edges}
+                    proOptions={{ hideAttribution: true }}
+                    nodesDraggable={false}
+                    nodesConnectable={false}
+                    edgesReconnectable={false}
+                    fitView
+                    fitViewOptions={fit_view_options}
+                    onInit={reactflow => { lineage.set({ reactflow }) }}
+                    minZoom={0.1}
+                    maxZoom={16}
+                    connectionLineType={ConnectionLineType.Step}
+                >
+                    <Controls
+                        showInteractive={false}
+                        position='bottom-right'
+                        onFitView={() => {
+                            lineage.reactflow.fitView(fit_view_options)
+                        }}
+                    />
+                </ReactFlow> }
+            </Splitter.Panel>
+        </Splitter>
     </>
 }
 
@@ -132,7 +134,7 @@ function MyNode ({ data: { name, engine, deleted, id } }: TMyNode) {
         </div>
         
         <div className='name'>
-            <span title={name}>{name.truncate(max_name_length)}</span>
+            <span title={name}>{name.truncate(46)}</span>
             { deleted && <Tooltip title={t('引擎 {{id}} 已删除', { id })}><DeleteOutlined /></Tooltip> }
         </div>
         <Handle type='target' position={Position.Top} />
@@ -151,7 +153,8 @@ let node_types = {
 }
 
 
-const max_name_length = 46 as const
+const default_list_width = 360
+
 
 class LineageModel extends Model<LineageModel> {
     tables: TableMeta[]
@@ -163,6 +166,8 @@ class LineageModel extends Model<LineageModel> {
     edges: Edge[] = [ ]
     
     reactflow: ReactFlowInstance<TMyNode, Edge>
+    
+    list_width = default_list_width
     
     
     async get_tables () {

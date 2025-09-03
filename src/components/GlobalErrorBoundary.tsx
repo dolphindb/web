@@ -4,12 +4,15 @@ import { Component, type PropsWithChildren } from 'react'
 
 import type { HookAPI as ModalHookAPI } from 'antd/es/modal/useModal/index.js'
 
+import { empty } from 'xshell/prototype.browser.js'
+
 import type { Model } from 'react-object-model'
 import { Button, Result } from 'antd'
 
 import { model } from '../model.js'
 import { dashboard } from '../dashboard/model.js'
 import { t } from '@i18n'
+
 
 
 export interface FormatErrorOptions {
@@ -45,6 +48,9 @@ export class GlobalErrorBoundary extends Component<PropsWithChildren<{ }>, Globa
     /** 挂载到全局的错误处理方法，在 onClick, useEffect 等回调中报错且未 catch 时弹框显示错误 */
     on_global_error = ({ error, reason }: ErrorEvent & PromiseRejectionEvent) => {
         error ??= reason
+        
+        if (empty(error))
+            return
         
         if (!error.shown) {
             // 非 Error 类型的错误转换为 Error

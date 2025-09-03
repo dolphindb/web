@@ -1,7 +1,5 @@
 @use '../variables'
 
-$list-width: 400px
-
 .lineage
     --xy-edge-stroke-default: #000000
     
@@ -20,15 +18,18 @@ $list-width: 400px
         display: flex
         align-items: center
         
+        white-space: nowrap
+        
         .title
             font-size: 1.5em
             font-weight: bold
             
-            width: $list-width
-            
+        
         .graph-title
             display: flex
             align-items: center
+            
+            padding-left: 10px
             
             > .anticon
                 margin-top: 1px
@@ -38,6 +39,10 @@ $list-width: 400px
             .name
                 font-weight: bold
                 font-size: 20px
+                
+                text-overflow: ellipsis
+                
+                overflow: hidden
             
             
         .padding
@@ -50,6 +55,8 @@ $list-width: 400px
             align-items: center
             
             margin-right: 40px
+            
+            margin-left: 40px
             
             .anticon
                 margin-right: 4px
@@ -69,8 +76,6 @@ $list-width: 400px
         .list
             height: 100%
             
-            width: $list-width
-            
             border-right: variables.$border
             
             overflow-y: auto
@@ -82,6 +87,15 @@ $list-width: 400px
                 align-items: center
                 
                 cursor: pointer
+                
+                width: 100%
+                
+                .text
+                    text-overflow: ellipsis
+                    
+                    white-space: nowrap
+                    
+                    overflow: hidden
                 
                 &.selected
                     font-weight: bold
