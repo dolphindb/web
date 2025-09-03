@@ -6613,5 +6613,8 @@
     },
     "引擎 {{id}} 已删除": {
         "en": "Engine {{id}} has been deleted"
+    },
+    "表名和引擎名称隐藏了中间的 .orca_table 和 .orca_engine": {
+        "en": "Table name and engine name hide the middle .orca_table and .orca_engine"
     }
 }

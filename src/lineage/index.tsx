@@ -70,7 +70,7 @@ export function Lineage () {
             
             <div className='padding' />
             
-            <div className='note'><QuestionCircleOutlined /> 表名和引擎名称隐藏了中间的 .orca_table 和 .orca_engine</div>
+            <div className='note'><QuestionCircleOutlined /> {t('表名和引擎名称隐藏了中间的 .orca_table 和 .orca_engine')}</div>
             <RefreshButton onClick={async () => {
                 const { table } = lineage
                 
