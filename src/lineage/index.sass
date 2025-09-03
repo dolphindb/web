@@ -7,11 +7,17 @@
     
     height: 100%
     
+    width: 100%
+    
+    overflow: hidden
+    
     display: flex
     flex-direction: column
     
     .header
         padding: 12px
+        
+        width: 100%
         
         border-bottom: variables.$border
         
@@ -23,7 +29,7 @@
         .title
             font-size: 1.5em
             font-weight: bold
-            
+            flex-shrink: 0
         
         .graph-title
             display: flex
@@ -31,19 +37,22 @@
             
             padding-left: 10px
             
+            min-width: 0px
+            
             > .anticon
                 margin-top: 1px
                 
                 margin-right: 8px
                 
             .name
+                min-width: 0px
+                
                 font-weight: bold
                 font-size: 20px
                 
                 text-overflow: ellipsis
                 
                 overflow: hidden
-            
             
         .padding
             flex: 1

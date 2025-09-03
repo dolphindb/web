@@ -57,13 +57,15 @@ export function Lineage () {
     if (!tables)
         return null
     
+    const graph_title = table ? t('流表 {{name}} 的血缘关系图', { name: table.name }) : ''
+    
     return <>
         <div className='header'>
             <div className='title' style={{ width: list_width }}>{t('数据血缘')}</div>
             
             { table && <div className='graph-title'>
                 <ApartmentOutlined />
-                <div className='name'>{t('流表 {{name}} 的血缘关系图', { name: table.name })}</div>
+                <div className='name' title={graph_title}>{graph_title}</div>
             </div> }
             
             <div className='padding' />
