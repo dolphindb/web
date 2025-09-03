@@ -15,7 +15,7 @@ import {
     Handle, Position, type FitViewOptions,
 } from '@xyflow/react'
 
-import { log, map_keys } from 'xshell/utils.browser.js'
+import { log, map_keys, strcmp } from 'xshell/utils.browser.js'
 
 import dagre from '@dagrejs/dagre'
 
@@ -188,7 +188,7 @@ class LineageModel extends Model<LineageModel> {
     
     async get_tables () {
         const tables = log('流表列表:', 
-            (await model.ddb.invoke<any[]>('getOrcaStreamTableMeta'))
+            ((await model.ddb.invoke<any[]>('getOrcaStreamTableMeta'))
                 .filter(({ fqn }) => fqn)
                 .map(o => 
                     map_keys(
@@ -200,6 +200,7 @@ class LineageModel extends Model<LineageModel> {
                             graph_refs: graph_refs.split(',')
                         }))
                 ) as TableMeta[])
+                .sort((l, r) => strcmp(l.name, r.name)))
         
         this.set({ tables })
         
