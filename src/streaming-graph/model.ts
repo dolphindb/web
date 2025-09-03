@@ -1,7 +1,7 @@
 import { Model } from 'react-object-model'
 
 import { check, map_keys } from 'xshell/utils.browser.js'
-import { DdbFunction, DdbFunctionType } from 'dolphindb/browser.js'
+import { DdbFunction, DdbFunctionType, type DdbTableData } from 'dolphindb/browser.js'
 
 import { model } from '@model'
 import { t } from '@i18n'
@@ -16,7 +16,7 @@ class StreamingGraph extends Model<StreamingGraph> {
     
     graph_loading = false
     
-    engine_stats: any[]
+    engine_stats: DdbTableData
     
     publish_stats: any[]
     
@@ -81,12 +81,13 @@ class StreamingGraph extends Model<StreamingGraph> {
     
     
     async get_engine_stats (engine_name: string) {
-        const engine_stats = await model.ddb.invoke<any[]>(
+        const engine_stats = await model.ddb.invoke<DdbTableData>(
             'useOrcaStreamEngine',
             [
                 engine_name,
                 new DdbFunction('getStreamEngineStateTable', DdbFunctionType.SystemFunc)
-            ])
+            ],
+            { table: 'full' })
         
         this.set({ engine_stats })
         

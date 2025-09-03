@@ -5,6 +5,8 @@ import type { Node } from '@xyflow/react'
 import { not_empty } from 'xshell/prototype.browser.js'
 import { genid } from 'xshell/utils.browser.js'
 
+import { get_type_name } from 'dolphindb/browser.js'
+
 import { t } from '@i18n'
 
 import { engine_table_column_names } from '@/computing/model.ts'
@@ -106,50 +108,39 @@ export function NodeDetails ({ node, status }: { node: Node<Record<string, any>>
                     if (!engine_stats)
                         return null
                     
-                    if (!engine_stats.length)
-                        return <Empty description={t('无可用引擎指标')} />
+                    const { columns, types, data } = engine_stats
                     
                     return <Table
-                        dataSource={engine_stats}
+                        dataSource={data}
                         rowKey={() => genid()}
                         pagination={false} // 单行数据不需要分页
                         size='small'
                         scroll={{ x: 'max-content' }} // 允许横向滚动
                         bordered
                         columns={
-                            Object.keys(engine_stats[0])
-                                .map(key => ({
-                                    title: key,
-                                    dataIndex: key,
-                                    key: key,
-                                    render (text: any) {
-                                        // 如果值是对象，转换为字符串显示
-                                        if (typeof text === 'object')
-                                            text = JSON.stringify(text)
-                                        
-                                        // 添加 Tooltip 显示完整内容
-                                        return <Tooltip placement='topLeft' title={text}>
-                                                <span
-                                                    style={{
-                                                        overflow: 'hidden',
-                                                        textOverflow: 'ellipsis',
-                                                        whiteSpace: 'nowrap',
-                                                        display: 'block',
-                                                        maxWidth: 150 // 限制最大宽度
-                                                    }}
-                                                >
-                                                    {text}
-                                                </span>
-                                            </Tooltip>
-                                    }
-                                }))
-                            
+                            columns.map((key, index) => ({
+                                title: <Tooltip title={get_type_name(types[index])}>{key}</Tooltip>,
+                                dataIndex: key,
+                                key: key,
+                                render: column_render
+                            }))
                         }
                     />
                 })()
             }] : [ ],
         ]}
     />
+}
+
+
+function column_render (text: any) {
+    // 如果值是对象，转换为字符串显示
+    if (typeof text === 'object')
+        text = JSON.stringify(text)
+    
+    return <Tooltip placement='top' title={text}>
+        <span className='engine-metrics-cell'>{text}</span>
+    </Tooltip>
 }
 
 
