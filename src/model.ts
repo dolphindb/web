@@ -519,7 +519,7 @@ export class DdbModel extends Model<DdbModel> {
             if (!node_)
                 throw new Error(t('无法从当前节点 {{current}} 跳转回发起登录的节点 {{origin}}，找不到节点信息', { current: this.node_alias, origin: node }))
             
-            console.log(t('根据 state 参数中的 node 信息跳转到节点:'), node)
+            console.log('根据 state 参数中的 node 信息跳转到节点:', node)
             
             await goto_url(
                 this.get_node_url(node_, { queries: { state: null } }))
