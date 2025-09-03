@@ -40,33 +40,6 @@ export const strs_2_nodes = (strs: string[]): ClusterNode[] =>
     })
 
 
-export function parse_nodes_configs (strs: string[]) {
-    const nodes_configs = new Map<string, NodesConfig>()
-    
-    strs.forEach(str => {
-        const iequal = str.indexOf('=')
-        const left = str.slice(0, iequal)
-        const idot = left.indexOf('.')
-        const qualifier = idot !== -1  ? left.slice(0, idot) : ''
-        const name = left.slice(idot + 1)
-        const value = str.slice(iequal + 1)
-        
-        nodes_configs.set(
-            left,
-            {
-                key: left,
-                category: get_category(name),
-                qualifier,
-                name,
-                value,
-            }
-        )
-    })
-    
-    return nodes_configs
-}
-
-
 export function get_category (name: string) {
     let category = t('其它')
     const config_classification = config.get_config_classification()

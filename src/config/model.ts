@@ -8,7 +8,7 @@ import { NodeType, model } from '@model'
 
 import { iterator_map } from '@utils'
 
-import { _2_strs, get_category, parse_nodes_configs } from './utils.ts'
+import { _2_strs, get_category } from './utils.ts'
 
 import type { NodesConfig } from './type.ts'
 
@@ -40,10 +40,29 @@ class ConfigModel extends Model<ConfigModel> {
     
     
     async load_configs () {
-        const configs = parse_nodes_configs(
-            // 2025.01.03 登录鉴权功能之后 loadClusterNodesConfigs 没有要求一定要在控制节点执行了
-            // 所以这里不用 this.invoke
-            await model.ddb.invoke<string[]>('loadClusterNodesConfigs', undefined, { urgent: true }))
+        const configs = new Map<string, NodesConfig>(
+            (
+                // 2025.01.03 登录鉴权功能之后 loadClusterNodesConfigs 没有要求一定要在控制节点执行了
+                // 所以这里不用 this.invoke
+                await model.ddb.invoke<string[]>('loadClusterNodesConfigs', undefined, { urgent: true })
+            ).map(str => {
+                const [left, value = ''] = str.split2('=', { optional: true })
+                    .map(s => s.trim()) as [string, string?]
+                
+                const idot = left.indexOf('.')
+                const name = left.slice(idot + 1)
+                
+                return [
+                    left,
+                    {
+                        key: left,
+                        category: get_category(name),
+                        qualifier: idot !== -1  ? left.slice(0, idot) : '',
+                        name,
+                        value,
+                    }
+                ]
+            }))
         
         this.set({ nodes_configs: configs })
         
