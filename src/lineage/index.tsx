@@ -4,7 +4,7 @@ import './index.sass'
 import { useEffect } from 'react'
 import { Model } from 'react-object-model'
 import { useLocation } from 'react-router'
-import { Tooltip } from 'antd'
+import { Empty, Tooltip } from 'antd'
 import {
     default as Icon, ApartmentOutlined, DeleteOutlined, QuestionCircleOutlined, TableOutlined,
     ThunderboltOutlined
@@ -63,7 +63,7 @@ export function Lineage () {
             
             { table && <div className='graph-title'>
                 <ApartmentOutlined />
-                <div className='name'>{t('流表 {{name}} 的血缘关系图', { name: table.name })}</div>
+                <div className='name'>{t('流表 {{name}} 的血缘关系图', { name: table.name.truncate(max_name_length) })}</div>
             </div> }
             
             <div className='padding' />
@@ -82,16 +82,19 @@ export function Lineage () {
         </div>
         <div className='main'>
             <div className='list'>{
-                tables.map(({ name }) =>
-                    <div
-                        className={`item ${name === table?.name ? 'selected' : ''}`}
-                        key={name}
-                        title={name}
-                        onClick={() => { model.goto(`/lineage/${name}/`) }}
-                    >
-                        <Icon component={SvgTable} />
-                        {name.truncate(max_name_length)}
-                    </div>)
+                tables.length ?
+                    tables.map(({ name }) =>
+                        <div
+                            className={`item ${name === table?.name ? 'selected' : ''}`}
+                            key={name}
+                            title={name}
+                            onClick={() => { model.goto(`/lineage/${name}/`) }}
+                        >
+                            <Icon component={SvgTable} />
+                            {name.truncate(max_name_length - 8)}
+                        </div>)
+                :
+                    <Empty description={t('暂无流表')} image={Empty.PRESENTED_IMAGE_SIMPLE} />
             }</div>
             
             { table && <ReactFlow

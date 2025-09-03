@@ -57,9 +57,14 @@ $list-width: 400px
                 
     
     .main
+        flex: 1
+        
         display: flex
         
-        flex: 1
+        overflow-y: hidden
+        
+        .ant-empty
+            margin-top: 200px
         
         .list
             height: 100%
@@ -67,6 +72,8 @@ $list-width: 400px
             width: $list-width
             
             border-right: variables.$border
+            
+            overflow-y: auto
             
             .item
                 padding: 12px 12px 12px 12px
@@ -88,6 +95,8 @@ $list-width: 400px
             --xy-edge-stroke-width-default: 0.5
             
             height: 100%
+            
+            overflow: hidden
             
             .react-flow__edge.selectable
                 cursor: unset

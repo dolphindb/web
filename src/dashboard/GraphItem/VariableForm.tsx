@@ -1,13 +1,13 @@
-import './index.scss'
-import { Button, Col, Form, Input, Row, Select, type SelectProps } from 'antd'
+import './index.sass'
+import { Button, Col, Form, Input, Row, Select } from 'antd'
 import { useCallback, useEffect, useState } from 'react'
 
 import classNames from 'classnames'
 
-import { genid } from 'xshell/utils.browser'
+import { genid } from 'xshell/utils.browser.js'
 
-import { type Variable, variables, update_variable_value } from '../Variable/variable.js'
-import { StringDatePicker } from '../../components/StringDatePicker/index.js'
+import { type Variable, variables, update_variable_value } from '../Variable/variable.ts'
+import { StringDatePicker } from '@components/StringDatePicker/index.tsx'
 
 
 import { VariableMode } from '../type.js'
