@@ -249,7 +249,7 @@ export function DdbSider () {
                     {
                         key: 'test',
                         icon: <ExperimentOutlined className='icon-menu' />,
-                        label: '测试模块'
+                        label: t('测试模块')
                 }] : [ ],
                 ... admin ? [
                     {

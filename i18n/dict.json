@@ -6616,5 +6616,8 @@
     },
     "表名和引擎名称隐藏了中间的 .orca_table 和 .orca_engine": {
         "en": "Table name and engine name hide the middle .orca_table and .orca_engine"
+    },
+    "测试模块": {
+        "en": "Test Module"
     }
 }
