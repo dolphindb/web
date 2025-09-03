@@ -1,6 +1,6 @@
-import './index.scss'
+import './index.sass'
 
-import { CloseOutlined, CopyOutlined } from '@ant-design/icons'
+import { CloseOutlined } from '@ant-design/icons'
 
 
 import { useMemo, useRef } from 'react'

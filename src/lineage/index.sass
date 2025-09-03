@@ -1,5 +1,7 @@
 @use '../variables'
 
+$list-width: 400px
+
 .lineage
     --xy-edge-stroke-default: #000000
     
@@ -21,6 +23,22 @@
         .title
             font-size: 1.5em
             font-weight: bold
+            
+            width: $list-width
+            
+        .graph-title
+            display: flex
+            align-items: center
+            
+            > .anticon
+                margin-top: 1px
+                
+                margin-right: 8px
+                
+            .name
+                font-weight: bold
+                font-size: 20px
+            
             
         .padding
             flex: 1
@@ -46,7 +64,7 @@
         .list
             height: 100%
             
-            width: 400px
+            width: $list-width
             
             border-right: variables.$border
             
@@ -58,38 +76,18 @@
                 
                 cursor: pointer
                 
+                &.selected
+                    font-weight: bold
+                
                 .anticon
                     margin-right: 8px
                     margin-top: 2px
         
-        .body
+        .react-flow
+            --xy-edge-stroke-default: #444444
+            --xy-edge-stroke-width-default: 0.5
+            
             height: 100%
-            
-            flex: 1
-            
-            display: flex
-            flex-direction: column
-            
-            .title
-                padding: 12px 24px
-                
-                border-bottom: variables.$border
-                
-                display: flex
-                align-items: center
-                
-                > .anticon
-                    margin-top: 1px
-                    
-                    margin-right: 8px
-                    
-                .name
-                    font-weight: bold
-                    font-size: 20px
-                    
-            .react-flow
-                --xy-edge-stroke-default: #444444
-                --xy-edge-stroke-width-default: 0.5
             
             .react-flow__edge.selectable
                 cursor: unset
@@ -128,9 +126,16 @@
                     align-items: center
                     justify-content: center
                     
+                    .anticon
+                        margin-left: 4px
+                    
                 &.engine
                     color: #fb6ab0
                     border-color: #fb6ab0
+                    
+                    &.deleted
+                        color: #aaaaaa
+                        border-color: #aaaaaa
                     
                 &.table
                     color: #4559c9
