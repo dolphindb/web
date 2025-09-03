@@ -4,7 +4,11 @@ import './index.sass'
 import { useEffect } from 'react'
 import { Model } from 'react-object-model'
 import { useLocation } from 'react-router'
-import Icon, { ApartmentOutlined, QuestionCircleOutlined, TableOutlined, ThunderboltOutlined } from '@ant-design/icons'
+import { Empty, Tooltip, Splitter } from 'antd'
+import {
+    default as Icon, ApartmentOutlined, DeleteOutlined, QuestionCircleOutlined, TableOutlined,
+    ThunderboltOutlined
+} from '@ant-design/icons'
 
 import {
     ReactFlow, type Edge, type Node, MarkerType, type ReactFlowInstance, Controls, ConnectionLineType,
@@ -22,7 +26,7 @@ import SvgTable from '@/shell/icons/table.icon.svg'
 
 
 export function Lineage () {
-    const { tables, table, nodes, edges } = lineage.use(['tables', 'table', 'nodes', 'edges'])
+    const { tables, table, nodes, edges, list_width } = lineage.use(['tables', 'table', 'nodes', 'edges', 'list_width'])
     
     // pathname 是不包含 assets_root 的
     let { pathname } = useLocation()
@@ -53,10 +57,19 @@ export function Lineage () {
     if (!tables)
         return null
     
+    const graph_title = table ? t('流表 {{name}} 的血缘关系图', { name: table.name }) : ''
+    
     return <>
         <div className='header'>
-            <div className='title'>{t('数据血缘')}</div>
+            <div className='title' style={{ width: list_width }}>{t('数据血缘')}</div>
+            
+            { table && <div className='graph-title'>
+                <ApartmentOutlined />
+                <div className='name' title={graph_title}>{graph_title}</div>
+            </div> }
+            
             <div className='padding' />
+            
             <div className='note'><QuestionCircleOutlined /> 表名和引擎名称隐藏了中间的 .orca_table 和 .orca_engine</div>
             <RefreshButton onClick={async () => {
                 const { table } = lineage
@@ -69,29 +82,25 @@ export function Lineage () {
                 model.message.success(t('刷新成功'))
             }} />
         </div>
-        <div className='main'>
-            <div className='list'>{
-                tables.map(table => {
-                    const { name } = table
-                    return <div
-                        className='item'
-                        key={name}
-                        onClick={() => {
-                            model.goto(`/lineage/${name}/`)
-                        }}
-                    >
-                        <Icon component={SvgTable} />
-                        {name}
-                    </div>
-                })
-            }</div>
-            
-            { table && <div className='body'>
-                <div className='title'>
-                    <ApartmentOutlined />
-                    <div className='name'>{t('流表 {{name}} 的血缘关系图', { name: table.name })}</div>
-                </div>
-                <ReactFlow
+        
+        <Splitter className='main' onResizeEnd={([list_width]) => { lineage.set({ list_width }) }}>
+            <Splitter.Panel className='list' defaultSize={default_list_width} collapsible>{
+                tables.length ?
+                    tables.map(({ name }) =>
+                        <div
+                            className={`item ${name === table?.name ? 'selected' : ''}`}
+                            key={name}
+                            title={name}
+                            onClick={() => { model.goto(`/lineage/${name}/`) }}
+                        >
+                            <Icon component={SvgTable} />
+                            <span className='text'>{name}</span>
+                        </div>)
+                :
+                    <Empty description={t('暂无流表')} image={Empty.PRESENTED_IMAGE_SIMPLE} />
+            }</Splitter.Panel>
+            <Splitter.Panel>
+                { table && <ReactFlow
                     nodeTypes={node_types}
                     nodes={nodes}
                     edges={edges}
@@ -113,20 +122,23 @@ export function Lineage () {
                             lineage.reactflow.fitView(fit_view_options)
                         }}
                     />
-                </ReactFlow>
-            </div> }
-        </div>
+                </ReactFlow> }
+            </Splitter.Panel>
+        </Splitter>
     </>
 }
 
 
-function MyNode ({ data: { name, engine } }: TMyNode) {
+function MyNode ({ data: { name, engine, deleted, id } }: TMyNode) {
     return <>
         <div className='icon'>
             { engine ? <ThunderboltOutlined /> : <TableOutlined /> }
         </div>
         
-        <div className='name'><span title={name}>{name.truncate(46)}</span></div>
+        <div className='name'>
+            <span title={name}>{name.truncate(46)}</span>
+            { deleted && <Tooltip title={t('引擎 {{id}} 已删除', { id })}><DeleteOutlined /></Tooltip> }
+        </div>
         <Handle type='target' position={Position.Top} />
         <Handle type='source' position={Position.Bottom} />
     </>
@@ -143,6 +155,9 @@ let node_types = {
 }
 
 
+const default_list_width = 360
+
+
 class LineageModel extends Model<LineageModel> {
     tables: TableMeta[]
     
@@ -153,6 +168,8 @@ class LineageModel extends Model<LineageModel> {
     edges: Edge[] = [ ]
     
     reactflow: ReactFlowInstance<TMyNode, Edge>
+    
+    list_width = default_list_width
     
     
     async get_tables () {
@@ -178,7 +195,7 @@ class LineageModel extends Model<LineageModel> {
         const data = JSON.parse(
             await model.ddb.invoke<string>('getOrcaDataLineage', [table.fullname]))
         
-        console.log('图数据:', data)
+        // console.log('图数据:', data)
         
         let g = new dagre.graphlib.Graph()
         
@@ -191,9 +208,13 @@ class LineageModel extends Model<LineageModel> {
         
         g.setDefaultEdgeLabel(() => ({ }))
         
-        let map = new Map<string, GraphNode>()
+        // reactflow 图的所有节点，引擎的 key 含有 graph_id，表的 key 不含
+        let all_nodes = new Map<string, GraphNode>()
         
         for (const graph_id in data) {
+            // parents 中需要根据 fullname 查找当前图的节点
+            let graph_nodes = new Map<string, GraphNode>()
+            
             const {
                 fqn: graph_fullname,
                 isDeleted: deleted,
@@ -201,21 +222,34 @@ class LineageModel extends Model<LineageModel> {
             } = data[graph_id]
             
             for (const fullname in nodes) {
-                const { is_engine: engine, parents } = map_keys<any>(nodes[fullname])
+                const engine = nodes[fullname].isEngine
                 
-                map.set(fullname, {
+                const id = engine ? `${fullname}.${graph_id}` : fullname
+                
+                const node = {
+                    id,
                     fullname,
                     name: fullname.replace(engine ? '.orca_engine' : '.orca_table', ''),
+                    graph_id,
                     engine,
-                    parents
-                })
+                    ... engine ? { deleted } : { },
+                }
                 
-                g.setNode(fullname, { width: 400, height: 40 })
+                graph_nodes.set(fullname, node)
                 
-                parents.forEach((parent: string) => {
-                    g.setEdge(parent, fullname)
-                })
+                if (engine || !all_nodes.has(id) /* table 的话不含 graph_id, 可能前面已经有了 */)
+                    all_nodes.set(id, node)
+                
+                g.setNode(id, { width: 400, height: 40 })
             }
+            
+            for (const fullname in nodes)
+                (nodes[fullname].parents as string[])
+                    .forEach(parent => {
+                        g.setEdge(
+                            graph_nodes.get(parent).id,
+                            graph_nodes.get(fullname).id)
+                    })
         }
         
         dagre.layout(g)
@@ -224,14 +258,14 @@ class LineageModel extends Model<LineageModel> {
             table,
             
             nodes: g.nodes()
-                .map(fullname => {
-                    const { x, y, width, height } = g.node(fullname)
-                    const node = map.get(fullname)
+                .map(id => {
+                    const { x, y, width, height } = g.node(id)
+                    const node = all_nodes.get(id)
                     
                     return {
-                        id: fullname,
+                        id,
                         type: 'mynode',
-                        className: `mynode ${node.engine ? 'engine' : 'table'}`,
+                        className: `mynode ${node.engine ? 'engine' : 'table'} ${node.deleted ? 'deleted' : ''}`,
                         position: { x, y },
                         data: node,
                         width,
@@ -284,12 +318,19 @@ interface TableMeta {
 
 
 interface GraphNode extends Record<string, any> {
+    id: string
+    
     name: string
+    
+    fullname: string
     
     /** true 时为 engine, 否则是 table */
     engine: boolean
     
-    parents: string[]
+    graph_id: string
+    
+    /** engine: true 时有这个属性，标记引擎是否被删除 */
+    deleted?: boolean
 }
 
 type TMyNode = Node<GraphNode>

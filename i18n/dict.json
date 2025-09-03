@@ -6607,5 +6607,11 @@
     },
     "流表 {{name}} 的血缘关系图": {
         "en": "Lineage diagram of stream table {{name}}"
+    },
+    "暂无流表": {
+        "en": "No Stream table"
+    },
+    "引擎 {{id}} 已删除": {
+        "en": "Engine {{id}} has been deleted"
     }
 }

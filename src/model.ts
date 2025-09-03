@@ -486,18 +486,43 @@ export class DdbModel extends Model<DdbModel> {
         }
     }
     
-    /** redirect_uri 只能跳转到其中某个节点，需要带参数跳回到原发起登录的节点 
-    发起跳转后会抛出错误中断后续流程 */
+    /** redirect_uri 只能跳转到其中某个固定节点，需要带参数跳回到原发起登录的节点，或者自定义 url，  
+        发起跳转后会抛出错误中断后续流程 */
     async maybe_jump (params: URLSearchParams): Promise<void> | never {
         const state = params.get('state')
-        if (state && state !== this.node_alias) {
-            const node = this.nodes.find(({ name }) => name === state)
-            if (!node)
-                throw new Error(t('无法从当前节点 {{current}} 跳转回发起登录的节点 {{origin}}，找不到节点信息', { current: this.node_alias, origin: state }))
-                
-            console.log(t('根据 state 参数跳转到节点:'), state)
+        
+        if (!state)
+            return
+        
+        const { node, url } = JSON.parse(state) as OAuthState
+        
+        // 跳转到自定义 url
+        if (url) {
+            let url_ = new URL(url)
+            let { searchParams: params } = url_
             
-            await goto_url(this.get_node_url(node, { queries: { state: null } }))
+            // 透传 state, 第三方 url 对应的网站可能有用别的属性
+            params.set('state', state)
+            
+            if (this.oauth_type === 'authorization code')
+                params.set('code', this.params.get('code'))
+            else
+                url_.hash = new URL(location.href).hash
+            
+            await goto_url(url_.toString())
+        }
+        
+        // 跳转到登录的节点
+        if (node && this.node_alias !== node) {
+            const node_ = this.nodes.find(({ name }) => name === node)
+            
+            if (!node_)
+                throw new Error(t('无法从当前节点 {{current}} 跳转回发起登录的节点 {{origin}}，找不到节点信息', { current: this.node_alias, origin: node }))
+            
+            console.log('根据 state 参数中的 node 信息跳转到节点:', node)
+            
+            await goto_url(
+                this.get_node_url(node_, { queries: { state: null } }))
         }
     }
     
@@ -796,7 +821,7 @@ export class DdbModel extends Model<DdbModel> {
                     response_type: this.oauth_type === 'authorization code' ? 'code' : 'token',
                     client_id,
                     ... redirect_uri ? { redirect_uri } : { },
-                    state: this.node_alias
+                    state: JSON.stringify({ node: this.node_alias })
                 }).toString()
             ).toString()
             
@@ -1259,6 +1284,16 @@ export const default_view = 'shell' as const
 
 
 type OAuthType = 'authorization code' | 'implicit'
+
+
+/** url 中的 state 参数是下面的对象序列化为 json string */
+interface OAuthState {
+    /** 要跳转到的集群内的节点 */
+    node?: string
+    
+    /** 要跳转到的 url, 会加上在 queries 中加上 code 参数 (authorization code 模式) 或者修改 hash (implicit 模式) */
+    url?: string
+}
 
 
 export enum NodeType {

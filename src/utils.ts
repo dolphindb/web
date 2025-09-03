@@ -29,7 +29,7 @@ export function strip_quotes (str: string) {
 
 /** 设置 location.href 之后可能会需要一段时间才跳转，这里稍作等待并抛出错误中断流程，
     防止执行后续代码，且不显示报错弹窗 */
-export async function goto_url (url: string) {
+export async function goto_url (url: string): Promise<never> {
     location.href = url
     
     await delay(1000 * 3)

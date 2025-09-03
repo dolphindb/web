@@ -7,20 +7,52 @@
     
     height: 100%
     
+    width: 100%
+    
+    overflow: hidden
+    
     display: flex
     flex-direction: column
     
     .header
         padding: 12px
         
+        width: 100%
+        
         border-bottom: variables.$border
         
         display: flex
         align-items: center
         
+        white-space: nowrap
+        
         .title
             font-size: 1.5em
             font-weight: bold
+            flex-shrink: 0
+        
+        .graph-title
+            display: flex
+            align-items: center
+            
+            padding-left: 10px
+            
+            min-width: 0px
+            
+            > .anticon
+                margin-top: 1px
+                
+                margin-right: 8px
+                
+            .name
+                min-width: 0px
+                
+                font-weight: bold
+                font-size: 20px
+                
+                text-overflow: ellipsis
+                
+                overflow: hidden
             
         .padding
             flex: 1
@@ -33,22 +65,29 @@
             
             margin-right: 40px
             
+            margin-left: 40px
+            
             .anticon
                 margin-right: 4px
                 margin-top: 1px
                 
     
     .main
+        flex: 1
+        
         display: flex
         
-        flex: 1
+        overflow-y: hidden
+        
+        .ant-empty
+            margin-top: 200px
         
         .list
             height: 100%
             
-            width: 400px
-            
             border-right: variables.$border
+            
+            overflow-y: auto
             
             .item
                 padding: 12px 12px 12px 12px
@@ -58,38 +97,29 @@
                 
                 cursor: pointer
                 
+                width: 100%
+                
+                .text
+                    text-overflow: ellipsis
+                    
+                    white-space: nowrap
+                    
+                    overflow: hidden
+                
+                &.selected
+                    font-weight: bold
+                
                 .anticon
                     margin-right: 8px
                     margin-top: 2px
         
-        .body
+        .react-flow
+            --xy-edge-stroke-default: #444444
+            --xy-edge-stroke-width-default: 0.5
+            
             height: 100%
             
-            flex: 1
-            
-            display: flex
-            flex-direction: column
-            
-            .title
-                padding: 12px 24px
-                
-                border-bottom: variables.$border
-                
-                display: flex
-                align-items: center
-                
-                > .anticon
-                    margin-top: 1px
-                    
-                    margin-right: 8px
-                    
-                .name
-                    font-weight: bold
-                    font-size: 20px
-                    
-            .react-flow
-                --xy-edge-stroke-default: #444444
-                --xy-edge-stroke-width-default: 0.5
+            overflow: hidden
             
             .react-flow__edge.selectable
                 cursor: unset
@@ -128,9 +158,16 @@
                     align-items: center
                     justify-content: center
                     
+                    .anticon
+                        margin-left: 4px
+                    
                 &.engine
                     color: #fb6ab0
                     border-color: #fb6ab0
+                    
+                    &.deleted
+                        color: #aaaaaa
+                        border-color: #aaaaaa
                     
                 &.table
                     color: #4559c9
