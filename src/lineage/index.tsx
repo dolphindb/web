@@ -46,7 +46,7 @@ export function Lineage () {
         const table = tables.find(({ name }) => name === table_name)
         
         if (!table) {
-            model.message.warning(t('找不到流表 {{table_name}}，可能已经被删除', { table_name }))
+            warn_table_not_found(table_name)
             return
         }
         
@@ -74,10 +74,18 @@ export function Lineage () {
             <RefreshButton onClick={async () => {
                 const { table } = lineage
                 
-                await Promise.all([
-                    lineage.get_tables(),
-                    table && lineage.get_lineage(table)
-                ])
+                const tables = await lineage.get_tables()
+                
+                if (table) {
+                    const table_ = tables.find(({ name }) => name === table.name)
+                    
+                    if (table_)
+                        await lineage.get_lineage(table_)
+                    else { // 刷新后原来的流表已经被删掉了
+                        warn_table_not_found(table.name)
+                        return
+                    }
+                }
                 
                 model.message.success(t('刷新成功'))
             }} />
@@ -158,6 +166,12 @@ let node_types = {
 const default_list_width = 360
 
 
+function warn_table_not_found (table_name: string) {
+    model.message.warning(
+        t('找不到流表 {{table_name}}，可能已经被删除', { table_name }))
+}
+
+
 class LineageModel extends Model<LineageModel> {
     tables: TableMeta[]
     
@@ -173,21 +187,23 @@ class LineageModel extends Model<LineageModel> {
     
     
     async get_tables () {
-        this.set({
-            tables: log('流表列表:', 
-                (await model.ddb.invoke<any[]>('getOrcaStreamTableMeta'))
-                    .filter(({ fqn }) => fqn)
-                    .map(o => 
-                        map_keys(
-                            o, 
-                            undefined, 
-                            ({ fqn, graph_refs }) => ({
-                                name: fqn.replace('.orca_table', ''),
-                                fullname: fqn,
-                                graph_refs: graph_refs.split(',')
-                            }))
-                    ) as TableMeta[])
-        })
+        const tables = log('流表列表:', 
+            (await model.ddb.invoke<any[]>('getOrcaStreamTableMeta'))
+                .filter(({ fqn }) => fqn)
+                .map(o => 
+                    map_keys(
+                        o, 
+                        undefined, 
+                        ({ fqn, graph_refs }) => ({
+                            name: fqn.replace('.orca_table', ''),
+                            fullname: fqn,
+                            graph_refs: graph_refs.split(',')
+                        }))
+                ) as TableMeta[])
+        
+        this.set({ tables })
+        
+        return tables
     }
     
     
