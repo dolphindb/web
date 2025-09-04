@@ -37,7 +37,7 @@ import {
 import { DdbVar } from './Variables.tsx'
 
 
-type Result = { type: 'object', data: DdbObj } | { type: 'objref', data: DdbObjRef }
+type Result = { type: 'object', data: DdbObj } | { type: 'objref', data: DdbObjRef } | { type: 'lineage' }
 
 
 class ShellModel extends Model<ShellModel> {

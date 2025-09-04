@@ -192,24 +192,15 @@ export function Variables ({ shared }: { shared?: boolean }) {
                     if (!v)
                         return
                     
-                    if (
-                        v.form === DdbForm.chart ||
-                        v.form === DdbForm.dict ||
-                        v.form === DdbForm.matrix ||
-                        v.form === DdbForm.set ||
-                        v.form === DdbForm.table ||
-                        v.form === DdbForm.vector ||
-                        v.form === DdbForm.tensor
-                    )
-                        shell.set({
-                            result: v.obj ? {
-                                type: 'object',
-                                data: v.obj
-                            } : {
-                                type: 'objref',
-                                data: new DdbObjRef(v)
-                            }
-                        })
+                    shell.set({
+                        result: v.obj ? {
+                            type: 'object',
+                            data: v.obj
+                        } : {
+                            type: 'objref',
+                            data: new DdbObjRef(v)
+                        }
+                    })
                 }}
             />
         </div>

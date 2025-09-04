@@ -26,7 +26,7 @@ import SvgTable from '@/shell/icons/table.icon.svg'
 
 
 export function Lineage () {
-    const { tables, table, nodes, edges, list_width } = lineage.use(['tables', 'table', 'nodes', 'edges', 'list_width'])
+    const { tables, table, list_width } = lineage.use(['tables', 'table', 'list_width'])
     
     // pathname 是不包含 assets_root 的
     let { pathname } = useLocation()
@@ -108,32 +108,43 @@ export function Lineage () {
                     <Empty description={t('暂无流表')} image={Empty.PRESENTED_IMAGE_SIMPLE} />
             }</Splitter.Panel>
             <Splitter.Panel>
-                { table && <ReactFlow
-                    nodeTypes={node_types}
-                    nodes={nodes}
-                    edges={edges}
-                    proOptions={{ hideAttribution: true }}
-                    nodesDraggable={false}
-                    nodesConnectable={false}
-                    edgesReconnectable={false}
-                    fitView
-                    fitViewOptions={fit_view_options}
-                    onInit={reactflow => { lineage.set({ reactflow }) }}
-                    minZoom={0.1}
-                    maxZoom={16}
-                    connectionLineType={ConnectionLineType.Step}
-                >
-                    <Controls
-                        showInteractive={false}
-                        position='bottom-right'
-                        onFitView={() => {
-                            lineage.reactflow.fitView(fit_view_options)
-                        }}
-                    />
-                </ReactFlow> }
+                <LineageGraph />
             </Splitter.Panel>
         </Splitter>
     </>
+}
+
+
+export function LineageGraph () {
+    const { table, nodes, edges } = lineage.use(['table', 'nodes', 'edges'])
+    
+    if (!table)
+        return
+    
+    return <ReactFlow
+        className='lineage-graph'
+        nodeTypes={node_types}
+        nodes={nodes}
+        edges={edges}
+        proOptions={{ hideAttribution: true }}
+        nodesDraggable={false}
+        nodesConnectable={false}
+        edgesReconnectable={false}
+        fitView
+        fitViewOptions={fit_view_options}
+        onInit={reactflow => { lineage.set({ reactflow }) }}
+        minZoom={0.1}
+        maxZoom={16}
+        connectionLineType={ConnectionLineType.Step}
+    >
+        <Controls
+            showInteractive={false}
+            position='bottom-right'
+            onFitView={() => {
+                lineage.reactflow.fitView(fit_view_options)
+            }}
+        />
+    </ReactFlow>
 }
 
 
@@ -283,7 +294,7 @@ class LineageModel extends Model<LineageModel> {
                     return {
                         id,
                         type: 'mynode',
-                        className: `mynode ${node.engine ? 'engine' : 'table'} ${node.deleted ? 'deleted' : ''}`,
+                        className: `mynode ${node.engine ? 'engine-type' : 'table-type'} ${node.deleted ? 'deleted' : ''}`,
                         position: { x, y },
                         data: node,
                         width,

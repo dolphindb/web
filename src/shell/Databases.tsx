@@ -9,7 +9,9 @@ import { Tooltip, Tree, Modal, Form, Input, Select, Button, InputNumber, Checkbo
 
 import type { DataNode, EventDataNode } from 'antd/es/tree'
 
-import { default as Icon, SyncOutlined, MinusSquareOutlined, EditOutlined, LoadingOutlined } from '@ant-design/icons'
+import {
+    default as Icon, SyncOutlined, MinusSquareOutlined, EditOutlined, LoadingOutlined, ApartmentOutlined
+} from '@ant-design/icons'
 
 import { assert, delay } from 'xshell/utils.browser.js'
 
@@ -27,7 +29,7 @@ import { CopyIconButton } from '@/components/copy/CopyIconButton.tsx'
 import { Editor } from '@/components/Editor/index.tsx'
 
 import { NAME_CHECK_PATTERN } from '@/access/constants.tsx'
-import type { TableMeta } from '@/lineage/index.tsx'
+import { lineage, type TableMeta } from '@/lineage/index.tsx'
 
 
 import { shell } from './model.ts'
@@ -1142,12 +1144,6 @@ export class Table implements DataNode {
         
         const enable_create_query = [NodeType.computing, NodeType.single, NodeType.data].includes(model.node_type)
         
-        const create_query: React.MouseEventHandler<HTMLSpanElement> = event => { 
-            event.stopPropagation()
-            if (enable_create_query)
-                NiceModal.show(QueryGuideModal, { database: this.db.path.slice(0, -1), table: this.name })
-        }
-        
         this.title = <div className='table-title'>
             <div title={`${this.name}${this.schema_data.tableComment ? ` ${this.schema_data.tableComment.bracket()}` : ''}`}>
                 <span> {this.name}</span>
@@ -1163,12 +1159,17 @@ export class Table implements DataNode {
                         <EditOutlined />
                     </Tooltip>
                 </div>
+                
                 <Tooltip title={enable_create_query ? t('新建查询') : t('仅单机节点、数据节点和计算节点支持新建查询')} color='grey'>
                     <Icon 
                         disabled={!enable_create_query}
                         className={enable_create_query ? '' : 'disabled'}
                         component={SvgQueryGuide}
-                        onClick={create_query} 
+                        onClick={event => { 
+                            event.stopPropagation()
+                            if (enable_create_query)
+                                NiceModal.show(QueryGuideModal, { database: this.db.path.slice(0, -1), table: this.name })
+                        }} 
                     />
                 </Tooltip>
             </div>
@@ -1231,7 +1232,9 @@ export class OrcaTable implements DataNode {
     
     key: string
     
-    title: string
+    name: string
+    
+    title: React.ReactNode
     
     meta: TableMeta
     
@@ -1244,16 +1247,31 @@ export class OrcaTable implements DataNode {
     
     constructor (meta: TableMeta) {
         this.meta = meta
-        const { name } = meta
+        const { name, fullname } = meta
         this.key = name
-        this.title = name.slice_from('.')
+        this.name = name.slice_from('.')
         this.self = this
+        
+        this.title = <div className='table-title'>
+            <div title={fullname}>
+                <span> {this.name}</span>
+            </div>
+            <div className='table-actions'>
+                <Tooltip title={t('查看数据血缘')} color='grey'>
+                    <ApartmentOutlined onClick={async event => {
+                        event.stopPropagation()
+                        await lineage.get_lineage(this.meta)
+                        shell.set({ result: { type: 'lineage' } })
+                    }} />
+                </Tooltip>
+            </div>
+        </div>
     }
     
     
     async inspect () {
         let obj = await model.ddb.eval(`select top 100 * from ${this.meta.fullname}`)
-        obj.name = `${this.title} (${t('前 100 行')})`
+        obj.name = `${this.name} (${t('前 100 行')})`
         shell.set({ result: { type: 'object', data: obj } })
     }
 }
