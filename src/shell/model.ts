@@ -626,7 +626,7 @@ class ShellModel extends Model<ShellModel> {
             
             orca_tables?.forEach(meta => {
                 catalogs.get(meta.name.slice_to('.'))
-                    .children
+                    ?.children
                     .push(new OrcaTable(meta))
             })
         }
