@@ -187,20 +187,21 @@ class LineageModel extends Model<LineageModel> {
     
     
     async get_tables () {
-        const tables = log('流表列表:', 
-            ((await model.ddb.invoke<any[]>('getOrcaStreamTableMeta'))
-                .filter(({ fqn }) => fqn)
-                .map(o => 
-                    map_keys(
-                        o, 
-                        undefined, 
-                        ({ fqn, graph_refs }) => ({
-                            name: fqn.replace('.orca_table', ''),
-                            fullname: fqn,
-                            graph_refs: graph_refs.split(',')
-                        }))
-                ) as TableMeta[])
-                .sort((l, r) => strcmp(l.name, r.name)))
+        const tables = ((await model.ddb.invoke<any[]>('getOrcaStreamTableMeta'))
+            .filter(({ fqn }) => fqn)
+            .map(o => 
+                map_keys(
+                    o, 
+                    undefined, 
+                    ({ fqn, graph_refs }) => ({
+                        name: fqn.replace('.orca_table', ''),
+                        fullname: fqn,
+                        graph_refs: graph_refs.split(',')
+                    }))
+            ) as TableMeta[])
+            .sort((l, r) => strcmp(l.name, r.name))
+        
+        // console.log('流表列表:', tables)
         
         this.set({ tables })
         
@@ -323,7 +324,7 @@ class LineageModel extends Model<LineageModel> {
 export let lineage = new LineageModel()
 
 
-interface TableMeta {
+export interface TableMeta {
     name: string
     
     fullname: string

@@ -24,11 +24,10 @@ import { model, NodeType } from '@model'
 import { switch_keys } from '@utils'
 
 import { CopyIconButton } from '@/components/copy/CopyIconButton.tsx'
-
-
 import { Editor } from '@/components/Editor/index.tsx'
 
 import { NAME_CHECK_PATTERN } from '@/access/constants.tsx'
+import type { TableMeta } from '@/lineage/index.tsx'
 
 
 import { shell } from './model.ts'
@@ -1232,9 +1231,9 @@ export class OrcaTable implements DataNode {
     
     key: string
     
-    fullname: string
-    
     title: string
+    
+    meta: TableMeta
     
     className = 'orca-table'
     
@@ -1243,15 +1242,17 @@ export class OrcaTable implements DataNode {
     isLeaf = true
     
     
-    constructor (fullname: string, name: string) {
-        this.key = this.fullname = fullname
-        this.title = name
+    constructor (meta: TableMeta) {
+        this.meta = meta
+        const { name } = meta
+        this.key = name
+        this.title = name.slice_from('.')
         this.self = this
     }
     
     
     async inspect () {
-        let obj = await model.ddb.eval(`select top 100 * from ${this.fullname}`)
+        let obj = await model.ddb.eval(`select top 100 * from ${this.meta.fullname}`)
         obj.name = `${this.title} (${t('前 100 行')})`
         shell.set({ result: { type: 'object', data: obj } })
     }

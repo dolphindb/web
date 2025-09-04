@@ -27,6 +27,8 @@ import { model, NodeType, storage_keys } from '@model'
 
 import type { Monaco } from '@components/Editor/index.tsx'
 
+import { lineage, type TableMeta } from '@/lineage/index.tsx'
+
 import {
     Database, DatabaseGroup, type Column, type ColumnRoot, PartitionDirectory, type PartitionRoot,
     PartitionFile, type Table, Catalog, OrcaTable
@@ -562,13 +564,12 @@ class ShellModel extends Model<ShellModel> {
                 }),
             ...v3 ? [
                 ddb.invoke<string[]>('getAllCatalogs'),
-                ddb.invoke<any[]>('getOrcaStreamTableMeta')
-                    .catch(() => {
-                        console.log('getOrcaStreamTableMeta 错误，忽略')
-                        return [ ]
-                    })
+                lineage.get_tables().catch(() => {
+                    console.log('getOrcaStreamTableMeta 错误，忽略')
+                    return [ ]
+                })
             ] : [ ]
-        ])) as [string[], string[], string[], any[]]
+        ])) as [string[], string[], string[]?, TableMeta[]?]
         
         // const db_paths = [
         //     'dfs://db1',
@@ -623,16 +624,10 @@ class ShellModel extends Model<ShellModel> {
                             })
                     }))
             
-            orca_tables?.forEach(({ fqn: fullname }) => {
-                if (!fullname)
-                    return
-                
-                const [catalog_name, orca_table, table_name] = fullname.split('.')
-                
-                catalogs.get(catalog_name)
-                    ?.children
-                    .push(
-                        new OrcaTable(fullname, table_name))
+            orca_tables?.forEach(meta => {
+                catalogs.get(meta.name.slice_to('.'))
+                    .children
+                    .push(new OrcaTable(meta))
             })
         }
         
