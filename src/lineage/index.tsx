@@ -155,7 +155,7 @@ function MyNode ({ data: { name, engine, deleted, id } }: TMyNode) {
         </div>
         
         <div className='name'>
-            <span title={name}>{name.truncate(44)}</span>
+            <span title={name}>{name.truncate(40)}</span>
             { deleted && <Tooltip title={t('引擎 {{id}} 已删除', { id })}><DeleteOutlined /></Tooltip> }
         </div>
         <Handle type='target' position={Position.Top} />
