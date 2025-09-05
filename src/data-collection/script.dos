@@ -816,6 +816,9 @@ comment:模板备注 字符串
 def dcp_addHandler(args){
     handlerArgs = parseExpr(args).eval() 
     ex=['user',NULL]
+    if(!in("comment", handlerArgs)){
+        handlerArgs["comment"] = ""
+    }
     try{
         if(strlen(string(handlerArgs[`name]))>50){//名称校验小于50
             throw("The parserTemplate name cannot be longer than 50 characters")    
