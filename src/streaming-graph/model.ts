@@ -165,7 +165,7 @@ export const get_subscription_stats_funcdef =
 export const get_publish_stats_fundef = 
     'def get_publish_stats (name) {\n' +
     '    tableNames = select tableName from getOrcaStreamTaskSubscriptionMeta(name)\n' +
-    '    conns =  getStreamingStat().pubConns\n' +
+    '    conns = pnodeRun(def (): getStreamingStat().pubConns, getDataNodes())\n' +
     '    \n' +
     '    return select * from tableNames, conns where strFind(conns.tables,  tableNames.tableName) != -1\n' +
     '}\n'
