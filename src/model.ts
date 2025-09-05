@@ -1209,20 +1209,20 @@ export class DdbModel extends Model<DdbModel> {
 
 export const envs = [
     {
-        label: '测试单机.孙薇',
-        value: '192.168.0.69:8807'
-    },
-    {
         label: '测试单机.剑波',
         value: '192.168.0.54:8848'
     },
     {
-        label: '测试数据节点',
-        value: '192.168.0.54:20002'
+        label: '测试节点.孙薇',
+        value: '192.168.0.69:8807'
     },
     {
         label: '测试控制节点',
         value: '192.168.0.54:20000'
+    },
+    {
+        label: '测试数据节点',
+        value: '192.168.0.54:20002'
     },
     {
         label: '我的单机',
