@@ -816,6 +816,7 @@ comment:模板备注 字符串
 def dcp_addHandler(args){
     handlerArgs = parseExpr(args).eval() 
     ex=['user',NULL]
+    
     if(!in("comment", handlerArgs)){
         handlerArgs["comment"] = ""
     }
