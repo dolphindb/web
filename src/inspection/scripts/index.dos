@@ -164,7 +164,7 @@ def initDfs() {
 def parseMetricParams(params) {
     params_ = params
     if (params.type() == STRING) { 
-        if (params != "null") { // 若为非 "null" 字符串，检查是否为合法 json
+        if (params != """") { // 若为非 """" 字符串，检查是否为合法 json
             params__ = fromStdJson(params)
             for (param in params__) {
                 // param = params__[0]
@@ -942,20 +942,21 @@ def createPlan(name, desc, metrics, versions, nodes, params, frequency, days, sc
     startDate = today()
     endDate = temporalAdd(today(), 100y)
     if (scheduleTime.form()==0) {
-        scheduleTime_ = [scheduleTime]
+        scheduleTime_ = [minute(scheduleTime)]$MINUTE
     } else {
-        scheduleTime_ = scheduleTime
+        scheduleTime_ = minute(scheduleTime)
     }
     enabled_ = false // 新建时默认填入 false，如果传入了 enabled = true，会在之后创建定时任务后 update 为 true
-    alertEnabled_ = bool(alertEnabled)
-    if (isNull(alertEnabled)) {
-        alertEnabled_ = false
+    alertEnabled_ = false
+    if (!isNull(alertEnabled)) {
+        alertEnabled_ = bool(alertEnabled)
     }
     if (alertRecipient.form()==0) {
-        alertRecipient_ = string(alertRecipient).strip()
+        alertRecipient_ = string(alertRecipient)
     } else {
         alertRecipient_ = string(alertRecipient).strip().concat(",")
     }
+    scheduleTime_ = array(MINUTE[], 0).append!([scheduleTime_])
     plan = table(
         id_ as id,
         name as name,
@@ -965,7 +966,7 @@ def createPlan(name, desc, metrics, versions, nodes, params, frequency, days, sc
         endDate as endDate,
         frequency as frequency,
         daysString as days,
-        array(MINUTE[], 0).append!([scheduleTime_]) as scheduleTime,
+        scheduleTime_ as scheduleTime,
         enabled_ as enabled,
         enabledNode_ as enabledNode,
         alertEnabled_ as alertEnabled,
@@ -994,7 +995,7 @@ def createPlan(name, desc, metrics, versions, nodes, params, frequency, days, sc
     loadTable("dfs://autoInspection", "plans").append!(plan)
     loadTable("dfs://autoInspection", "planDetails").append!(planDetails)
 
-    if (enabled) {
+    if (enabled_) {
         try {
             enablePlan(id_)
         } catch(err) {
