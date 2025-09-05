@@ -99,7 +99,11 @@ def getJobStatusEx(jobId) {
             sleep(100)
         }
     }
-    lastErr = iif(lastErr.form()==0, string(lastErr), string(lastErr.last()))
+    if (lastErr.form() == 0) {
+        lastErr = string(lastErr)
+    } else {
+        lastErr = string(lastErr.last())
+    }
     throw "getJobStatus failed after trying 10 times, last error: " + lastErr
 }
 
@@ -113,7 +117,11 @@ def getJobReturnEx(jobId, blocking=false) {
             sleep(100)
         }
     }
-    lastErr = iif(lastErr.form()==0, string(lastErr), string(lastErr.last()))
+    if (lastErr.form()==0) {
+        lastErr = string(lastErr)
+    } else {
+        lastErr = string(lastErr.last())
+    }
     throw "getJobReturn failed after trying 10 times, last error: " + lastErr
 }
 
@@ -199,7 +207,11 @@ def newMetric(name, displayName, group, desc, nodes, script, params=NULL, versio
     }
     params_ = parseMetricParams(params)
 
-    nodes_ = iif(nodes.form() == 1, nodes.concat(","), string(nodes))
+    if (nodes.form() == 1) {
+        nodes_ = nodes.concat(",")
+    } else {
+        nodes_ = string(nodes)
+    }
     ts = now()
     metric = table(
         name as name,
@@ -248,7 +260,11 @@ def updateMetric(name_, displayName_, group_, desc_, nodes, script_, params_, la
         update tb set desc = desc_ where name == name_
     }
     if (!isVoid(nodes)) {
-        nodes_ = iif(nodes.form() == 1, nodes.concat(","), string(nodes))
+        if (nodes.form() == 1) {
+            nodes_ = nodes.concat(",")
+        } else {
+            nodes_ = string(nodes)
+        }
         update tb set nodes = nodes_ where name == name_
     }
     if (!isVoid(script_)) {
@@ -353,7 +369,10 @@ def runMetric(name, script, mutable params) {
     print("params: ")
     print(string(params))
     print("script: ")
-    l = iif(script.strlen() > 50, 50, script.strlen())
+    l = script.strlen()
+    if (script.strlen() > 50) {
+        l = 50
+    }
     print(string(script)[0:l])
     success = false
     detail = NULL
@@ -378,7 +397,11 @@ def runMetric(name, script, mutable params) {
         }
     } catch(err) {
         success = false
-        detail = iif(err.form() == 0, string(err), string(err).last())
+        if (err.form() == 0) {
+            detail = string(err)
+        } else {
+            detail = string(err).last()
+        }
     }
 
     if (!success) {
@@ -423,11 +446,11 @@ def runPlanInner(planId, reportId) {
         // item = planDetails[0]
         name = item["metricName"]
         print("start to run metric: " + name)
-        nodes = iif(
-            isNull(item["nodes"]), 
-            [getNodeAlias()], // 未配置执行节点时，直接在当前数据节点执行
-            item["nodes"].split(",")
-        )
+        if (isNull(item["nodes"])) {
+            nodes = [getNodeAlias()]
+        } else {
+            nodes = item["nodes"].split(",")
+        }
         print("nodes: ", nodes)
         script = item["script"]
         version = item["metricVersion"]
@@ -463,7 +486,11 @@ def runPlanInner(planId, reportId) {
                 }
             } catch(err) {
                 success = false
-                detail = string(iif(err.form()==0, string(err), string(err.last())))
+                if (err.form() == 0) {
+                    detail = string(err)
+                } else {
+                    detail = string(err.last())
+                }
                 extraDetail = string(NULL)
                 suggestion = string(NULL)
                 print("run metric failed! Node: " + node + ", job id: " + jobId + ", error: " + detail)
@@ -492,7 +519,10 @@ def runPlanInner(planId, reportId) {
 
 def generateEmailInEnglish(reportInfo) {
     language_ = "en"
-    status = iif(reportInfo["success"], "All Clear", "Alerts Detected")
+    status = "Alerts Detected"
+    if (reportInfo["success"]) {
+        status = "All Clear"
+    }
     subject = "DolphinDB Health Check Alert - " + reportInfo["name"] + ". Status: " + status
     if (!bool(reportInfo["success"])) {
         subject += ", Alerts Triggered: " + string(reportInfo["failedNum"]) + "/" + string(reportInfo["totalNum"])
@@ -521,7 +551,10 @@ def generateEmailInEnglish(reportInfo) {
 
 def generateEmailInChinese(reportInfo) {
     language_ = "cn"
-    status = iif(reportInfo["success"], "All Clear", "Alerts Detected")
+    status = "Alerts Detected"
+    if (reportInfo["success"]) {
+        status = "All Clear"
+    }
     subject = "DolphinDB 定时巡检告警，巡检名称：" + reportInfo["name"] + "。状态: " + status
     if (!bool(reportInfo["success"])) {
         subject += ", 异常指标数: " + string(reportInfo["failedNum"]) + "/" + string(reportInfo["totalNum"])
@@ -597,7 +630,11 @@ def sendReportEmailInner(planInfo, reportInfo, alertConfig) {
         try {
             loadPlugin("httpClient")
         } catch(err) {
-            err_ = iif(err.form() == 0, string(err), string(err).last())
+            if (err.form() == 0) {
+                err_ = string(err)
+            } else {
+                err_ = string(err).last()
+            }
             throw "try to load httpClient plugin failed: " + err_
         }
     }
@@ -661,7 +698,10 @@ def runPlan(planId, blocking=false) {
     if (validNodes.size() == 0) {
         throw "failed to find a valid node, please check nodes' aliveness by getClusterPerf()"
     }
-    enabledNode = iif(isNull(planInfo.enabledNode), validNodes.first(), planInfo.enabledNode)
+    enabledNode = planInfo.enabledNode
+    if (isNull(planInfo.enabledNode)) {
+        enabledNode = validNodes.first()
+    }
     name = planInfo["name"]
     desc = planInfo["desc"]
 
@@ -783,7 +823,10 @@ def enablePlan(id) {
 
 def createPlan(name, desc, metrics, versions, nodes, params, frequency, days, scheduleTime, enabled=false, enabledNode=NULL, alertEnabled=false, alertRecipient=NULL, runNow=false, id=NULL) {
     print("start to create plan: " + name)
-    id_ = iif(isNull(id), string(long(now())), string(id))
+    id_ = string(id)
+    if (isNull(id)) {
+        id_ = string(long(now()))
+    }
     cnt = exec count(*) from loadTable("dfs://autoInspection", "plans") where id == id_
     if (cnt > 0) {
         throw "duplicated id: " + id_
@@ -882,19 +925,37 @@ def createPlan(name, desc, metrics, versions, nodes, params, frequency, days, sc
     if (validNodes.size() == 0) {
         throw "failed to find a valid node, please check nodes' aliveness by getClusterPerf()"
     }
-    enabledNode_ = iif(isNull(enabledNode), validNodes.first(), string(enabledNode))
+    enabledNode_ = string(enabledNode)
+    if (isNull(enabledNode)) {
+        enabledNode_ = validNodes.first()
+    }
     if (!in(enabledNode_, validNodes)) {
         throw "plan can only be created on data node or compute node"
     }
 
-    daysString = iif(days.form() == 1, days.concat(","), string(days))
+    if (days.form() == 1) {
+        daysString = days.concat(",")
+    } else {
+        daysString = string(days)
+    }
     user = getCurrentSessionAndUser()[1]
     startDate = today()
     endDate = temporalAdd(today(), 100y)
-    scheduleTime_ = minute(iif(scheduleTime.form()==0, [scheduleTime], scheduleTime))
+    if (scheduleTime.form()==0) {
+        scheduleTime_ = [scheduleTime]
+    } else {
+        scheduleTime_ = scheduleTime
+    }
     enabled_ = false // 新建时默认填入 false，如果传入了 enabled = true，会在之后创建定时任务后 update 为 true
-    alertEnabled_ = iif(isNull(alertEnabled), false, bool(alertEnabled))
-    alertRecipient_ = iif(alertRecipient.form()==0, string(alertRecipient), string(alertRecipient).strip().concat(","))
+    alertEnabled_ = bool(alertEnabled)
+    if (isNull(alertEnabled)) {
+        alertEnabled_ = false
+    }
+    if (alertRecipient.form()==0) {
+        alertRecipient_ = string(alertRecipient).strip()
+    } else {
+        alertRecipient_ = string(alertRecipient).strip().concat(",")
+    }
     plan = table(
         id_ as id,
         name as name,
@@ -974,7 +1035,11 @@ def disablePlan(id) {
 }
 
 def deletePlan(id) {
-    id_ = iif(id.form() == 0, string([id]), string(id))
+    if (id.form() == 0) {
+        id_ = string([id])
+    } else {
+        id_ = string(id)
+    }
     plans = select * from loadTable("dfs://autoInspection", "plans") where id in id_
     delete from loadTable("dfs://autoInspection", "plans") where id in id_
     delete from loadTable("dfs://autoInspection", "planDetails") where planId in id_
@@ -998,7 +1063,11 @@ def getPlans(planId=NULL, enabled=NULL, page=NULL, pageLimit=NULL, searchPattern
     if (page != NULL and pageLimit == NULL or page == NULL and pageLimit != NULL) {
         throw "page and pageLimit must be NULL or not at the same time"
     }
-    planId_ = iif(planId.form()==0, string([planId]), string(planId))
+    if (planId.form()==0) {
+        planId_ = string([planId])
+    } else {
+        planId_ = string(planId)
+    }
     whereCond = [<1==1>]
     whereCond_ = [<!isNull(endTime)>]
 
@@ -1093,7 +1162,11 @@ def getReports(planId=NULL, reportId=NULL, startTime=NULL, endTime=NULL, success
 }
 
 def deleteReports(id) {
-    id_ = iif(id.form()==0, string([id]), string(id))
+    if (id.form()==0) {
+        id_ = string([id])
+    } else {
+        id_ = string(id)
+    }
     delete from loadTable("dfs://autoInspection", "reports") where id in id_
     delete from loadTable("dfs://autoInspection", "reportDetails") where reportId in id_
 }
@@ -1173,7 +1246,12 @@ def cancelRunningPlan(reportId) {
         cnt += 1
     } while(cnt <= 30)
     
-    throw "delete report failed after trying 30 times, report id: " + reportId + ", last error: " + string(iif(lastErr.form()==0, string(lastErr), string(lastErr.last())))
+    if (lastErr.form() == 0) {
+        lastErr_ =  string(lastErr)
+    } else {
+        lastErr_ = string(lastErr.last())
+    }
+    throw "delete report failed after trying 30 times, report id: " + reportId + ", last error: " + lastErr_
 }
 
 def areMetricsUpdated(webVersion_) {
