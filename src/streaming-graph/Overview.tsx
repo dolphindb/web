@@ -616,7 +616,7 @@ function PublishStatsTable () {
         help={helps.publish}
         dataSource={publish_stats}
         size='small'
-        rowKey='table_name'
+        rowKey={({ table_name, client }) => `${table_name}-${client}`}
         scroll={{ x: 'max-content' }}
         columns={publish_stats_columns}
     />
