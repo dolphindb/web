@@ -11,8 +11,8 @@ export async function get_cep_engine_list () {
 
 
 export async function get_cep_engine_detail (name: string) { 
-    const { value } = (await model.ddb.eval(`toStdJson(getCEPEngineStat(${JSON.stringify(name)}))`))
-    const res = safe_json_parse(value) as IServerEngineDetail
+    const res = await model.ddb.invoke('getCEPEngineStat', [name])
+    
     
     return {
         ...res,
