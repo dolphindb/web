@@ -54,7 +54,7 @@
         "js-cookie": "^3.0.5",
         "lodash": "^4.17.21",
         "monaco-dolphindb": "^1.0.6",
-        "monaco-editor": "^0.53.0",
+        "monaco-editor": "0.52.2",
         "re-resizable": "^6.11.2",
         "react-dom": "^19.1.1",
         "react-draggable": "^4.5.0",
