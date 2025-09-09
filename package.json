@@ -23,7 +23,7 @@
         "@types/node": "^24.3.1",
         "@types/react": "^19.1.12",
         "@types/react-dom": "^19.1.9",
-        "eslint": "^9.34.0",
+        "eslint": "^9.35.0",
         "react": "^19.1.1",
         "typescript": "^5.9.2"
     },
@@ -40,7 +40,7 @@
         "@xterm/xterm": "^5.5.0",
         "@xyflow/react": "^12.8.4",
         "ahooks": "^3.9.5",
-        "antd": "^5.27.2",
+        "antd": "^5.27.3",
         "classnames": "^2.5.1",
         "client-zip": "^2.5.0",
         "copy-to-clipboard": "^3.3.3",
@@ -54,7 +54,7 @@
         "js-cookie": "^3.0.5",
         "lodash": "^4.17.21",
         "monaco-dolphindb": "^1.0.6",
-        "monaco-editor": "^0.52.2",
+        "monaco-editor": "^0.53.0",
         "re-resizable": "^6.11.2",
         "react-dom": "^19.1.1",
         "react-draggable": "^4.5.0",
@@ -67,6 +67,6 @@
         "tslib": "^2.8.1",
         "vscode-oniguruma": "^2.0.1",
         "vscode-textmate": "^9.2.0",
-        "xshell": "^1.2.85"
+        "xshell": "^1.2.86"
     }
 }
