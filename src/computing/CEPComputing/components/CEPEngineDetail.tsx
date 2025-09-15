@@ -186,15 +186,16 @@ function DataView ({ info }: { info: ICEPEngineDetail }) {
     const { ddb: { username, password } } = model
     // 缓存连接，每次选择 dataview 的时候新建连接，订阅 dataview 的流表，切换的时候关闭
     const cep_ddb = useRef<DDB>(undefined)
-    const [dataview, set_dataview] = useState<string>()
     
+    const [dataview, set_dataview] = useState<string>()
     // 当前选中的 key
     const [selected_key, set_selected_key] = useState<Record<string, any>>( )
-    
     const [subscribe_table, set_subscribe_table] = useState<string>()
-    
     // 搜索框的值
     const [search_key, set_search_key] = useState<string>()
+    
+    // 组件卸载，断开连接
+    useEffect(() => cep_ddb.current?.disconnect, [ ])
     
     const { data: dataview_info = { table: [ ], key_cols: [ ], keys: [ ] }, mutate, isLoading: loading } = useSWR(
         dataview ? ['get_dataview_info', info.engineStat.name, dataview] : null,
@@ -229,12 +230,7 @@ function DataView ({ info }: { info: ICEPEngineDetail }) {
         cep_ddb.current = undefined
     }, [info.engineStat.name])
     
-    // 组件卸载，断开连接
-    useEffect(() => 
-        () => { 
-            cep_ddb.current?.disconnect()
-        },
-        [ ])
+  
     
     
     // 选择 dataview 之后订阅流表
