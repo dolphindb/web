@@ -1,7 +1,7 @@
 import '../index.scss'
 
 import { Badge, Descriptions, type DescriptionsProps, Radio, type TableColumnsType, Space, Empty, Typography, Select, Input, Spin, Button } from 'antd'
-import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
 import { SearchOutlined, SendOutlined } from '@ant-design/icons'
 import { DDB, type StreamingMessage } from 'dolphindb/browser.js'
 import NiceModal from '@ebay/nice-modal-react'
@@ -185,11 +185,13 @@ function DataView ({ info }: { info: ICEPEngineDetail }) {
     
     const { ddb: { username, password } } = model
     // 缓存连接，每次选择 dataview 的时候新建连接，订阅 dataview 的流表，切换的时候关闭
-    const [cep_ddb, set_cep_ddb] = useState<DDB>()
+    const cep_ddb = useRef<DDB>(undefined)
     const [dataview, set_dataview] = useState<string>()
     
     // 当前选中的 key
-    const [selected_key, set_selected_key] = useState<string>()
+    const [selected_key, set_selected_key] = useState<Record<string, any>>( )
+    
+    const [subscribe_table, set_subscribe_table] = useState<string>()
     
     // 搜索框的值
     const [search_key, set_search_key] = useState<string>()
@@ -200,18 +202,21 @@ function DataView ({ info }: { info: ICEPEngineDetail }) {
             const { table = [ ], key_cols = [ ] } = await get_dataview_info(info.engineStat.name, dataview) 
             // 订阅 dataview 的流表
             const output_table_name = info.dataViewEngines.find(item => item.name === dataview).outputTableName
-            on_subscribe(output_table_name)
+            // 如果输出的流表与当前订阅的流表不同，则更新订阅的流表
+            if (subscribe_table !== output_table_name)
+                set_subscribe_table(output_table_name)
             // 生成 key 列表
             const keys =  table.map(item => {
     
                 const key_values = pick(item, key_cols)
                 
                 const label = key_cols?.map(key => `${key}: ${key_values[key]}`).join('  ') 
-                return { label, value: JSON.stringify(key_values) }
+                return { label, value: key_values }
             })
-            return { table, key_cols, keys }
+            return { table, key_cols, keys, output_table_name }
         }
     )
+    
     
     
     
@@ -220,22 +225,22 @@ function DataView ({ info }: { info: ICEPEngineDetail }) {
         set_selected_key(undefined)
         set_dataview(undefined)
         set_search_key(undefined)
-        cep_ddb?.disconnect()
-        set_cep_ddb(undefined)
+        cep_ddb.current?.disconnect()
+        cep_ddb.current = undefined
     }, [info.engineStat.name])
     
     // 组件卸载，断开连接
     useEffect(() => 
         () => { 
-            cep_ddb?.disconnect()
+            cep_ddb.current?.disconnect()
         },
-        [cep_ddb])
+        [ ])
     
     
     // 选择 dataview 之后订阅流表
     const on_subscribe = useCallback(async (streaming_table: string) => { 
         // 订阅前取消上个 dataview 的订阅
-        cep_ddb?.disconnect()
+        cep_ddb.current?.disconnect()
         const cep_streaming_ddb = new DDB(model.ddb.url, {
             autologin: !!username,
             username,
@@ -253,16 +258,16 @@ function DataView ({ info }: { info: ICEPEngineDetail }) {
             }
         })
         await cep_streaming_ddb.connect()
-        set_cep_ddb(cep_streaming_ddb)
+        cep_ddb.current = cep_streaming_ddb
     }, [cep_ddb, info])
     
     
     const value_table = useMemo(() => {
         if (!selected_key || !dataview_info?.table.length)
             return [ ]
-        const selected_key_value = JSON.parse(selected_key ?? '{}')
+       
         const table_item = dataview_info?.table.find(item => {
-            for (let [k, v] of Object.entries(selected_key_value)) 
+            for (let [k, v] of Object.entries(selected_key ?? { })) 
                 if (item[k] !== v)
                     return false
             return true
@@ -287,7 +292,7 @@ function DataView ({ info }: { info: ICEPEngineDetail }) {
                     set_selected_key(undefined)
                 }}
                 onClear={() => {
-                    cep_ddb?.disconnect?.()
+                    cep_ddb.current?.disconnect()
                 }}
                 showSearch
             />
