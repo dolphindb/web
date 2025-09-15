@@ -1,24 +1,20 @@
 import '../index.scss'
 
-import { table } from 'console'
-
 import { Badge, Descriptions, type DescriptionsProps, Radio, type TableColumnsType, Space, Empty, Typography, Select, Input, Spin, Button } from 'antd'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 import { SearchOutlined, SendOutlined } from '@ant-design/icons'
 import { DDB, type StreamingMessage } from 'dolphindb/browser.js'
 import NiceModal from '@ebay/nice-modal-react'
 import cn from 'classnames'
-import useSWRMutation from 'swr/mutation'
 
 import { t } from '@i18n'
 
-import { isEmpty, pick } from 'lodash'
+import { pick } from 'lodash'
 
 import useSWR from 'swr'
 
 import { type ICEPEngineDetail, EngineDetailPage, type SubEngineItem } from '../type.js'
 import { model } from '../../../model.js'
-import { stream_formatter } from '../../../dashboard/utils.ts'
 
 import { DDBTable } from '@/components/DDBTable/index.tsx'
 
