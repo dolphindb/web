@@ -198,7 +198,8 @@ export function ShellEditor ({ collapser }) {
                     id: 'dolphindb.execute',
                     
                     keybindings: [
-                        monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyE
+                        monaco.KeyMod.CtrlCmd | monaco.KeyCode.KeyE,
+                        monaco.KeyMod.CtrlCmd | monaco.KeyCode.Enter
                     ],
                     
                     label: t('DolphinDB: 执行当前行代码'),

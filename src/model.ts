@@ -1132,11 +1132,9 @@ export class DdbModel extends Model<DdbModel> {
             const { type, options, message } = error
             
             // json 错误是可以预期的业务逻辑错误，不需要显示后面的脚本、参数和调用栈了
-            if (message.includes(' => {"')) {
-                const i_arrow = message.lastIndexOf('=>')
-                const i_message_start = i_arrow === -1 ? 0 : i_arrow + 3
-                
-                const matches = json_error_pattern.exec(message.slice(i_message_start))
+            const index = message.lastIndexOf(' => {"')
+            if (index !== -1) {
+                const matches = json_error_pattern.exec(message.slice(index + 4))
                 
                 if (matches) {
                     const { code, message, variables, ...others } = JSON.parse(matches[0])
