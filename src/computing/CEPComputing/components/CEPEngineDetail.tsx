@@ -191,7 +191,7 @@ function DataView ({ info }: { info: ICEPEngineDetail }) {
     
     const [dataview, set_dataview] = useState<string>()
     
-    // 当前选中的 key，也就是表的某一行
+    // 当前选中的 key
     const [selected_key, set_selected_key] = useState<string>( )
     // 搜索框的值
     const [search_key, set_search_key] = useState<string>()
@@ -212,7 +212,7 @@ function DataView ({ info }: { info: ICEPEngineDetail }) {
         [ ])
     
     const { data: keys = [ ], mutate, isLoading: loading } = useSWR(
-        dataview ? ['get_dataview_info', info.engineStat.name, dataview] : null,
+        dataview ? ['get_dataview_info', dataview] : null,
         async () => {
             const { table = [ ], key_cols = [ ] } = await get_dataview_info(info.engineStat.name, dataview) 
             // dataview 的输出流表
