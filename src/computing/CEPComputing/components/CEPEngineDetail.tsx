@@ -185,63 +185,52 @@ function DataView ({ info }: { info: ICEPEngineDetail }) {
     
     const { ddb: { username, password } } = model
     // 缓存连接，每次选择 dataview 的时候新建连接，订阅 dataview 的流表，切换的时候关闭
-    const cep_ddb = useRef<DDB>(undefined)
-    const subscribe_table_ref = useRef<string>(null)
+    const subscribe_ref = useRef<{
+        ddb: DDB
+        table: string
+    }>(null)
     
     const [dataview, set_dataview] = useState<string>()
     
-    // 当前选中的 key
+    // 当前选中的 key，也就是表的某一行
     const [selected_key, set_selected_key] = useState<Record<string, any>>( )
     // 搜索框的值
     const [search_key, set_search_key] = useState<string>()
     
-    
-    // 组件卸载，断开连接
-    useEffect(() => cep_ddb.current?.disconnect, [ ])
-    
-    const { data: dataview_info = { table: [ ], key_cols: [ ], keys: [ ] }, mutate, isLoading: loading } = useSWR(
-        dataview ? ['get_dataview_info', info.engineStat.name, dataview] : null,
-        async () => {
-            const { table = [ ], key_cols = [ ] } = await get_dataview_info(info.engineStat.name, dataview) 
-            // 订阅 dataview 的流表
-            const output_table_name = info.dataViewEngines.find(item => item.name === dataview).outputTableName
-            // 如果输出的流表与当前订阅的流表不同，则更新订阅的流表
-            if (subscribe_table_ref.current !== output_table_name) {
-                on_subscribe(output_table_name)
-                subscribe_table_ref.current = output_table_name
-            }
-               
-            // 生成 key 列表
-            const keys =  table.map(item => {
-    
-                const key_values = pick(item, key_cols)
-                
-                const label = key_cols?.map(key => `${key}: ${key_values[key]}`).join('  ') 
-                return { label, value: key_values }
-            })
-            return { table, key_cols, keys, output_table_name }
-        }
-    )
-    
-    
-    
-    
-    // 引擎变更，重置所有状态
-    useEffect(() => {
+     // 引擎变更，重置所有状态
+     useEffect(() => {
         set_selected_key(undefined)
         set_dataview(undefined)
         set_search_key(undefined)
-        cep_ddb.current?.disconnect()
-        cep_ddb.current = undefined
+        subscribe_ref.current?.ddb?.disconnect()
+        subscribe_ref.current = null
     }, [info.engineStat.name])
     
-  
     
+    // 组件卸载，断开连接
+    useEffect(() => subscribe_ref.current?.ddb?.disconnect, [ ])
     
-    // 选择 dataview 之后订阅流表
-    const on_subscribe = useCallback(async (streaming_table: string) => { 
-        // 订阅前取消上个 dataview 的订阅
-        cep_ddb.current?.disconnect()
+    const { data: keys = [ ], mutate, isLoading: loading } = useSWR(
+        dataview ? ['get_dataview_info', info.engineStat.name, dataview] : null,
+        async () => {
+            const { table = [ ], key_cols = [ ] } = await get_dataview_info(info.engineStat.name, dataview) 
+            // dataview 的输出流表
+            const output_table_name = info.dataViewEngines.find(item => item.name === dataview).outputTableName
+            // 如果输出流表与当前订阅的流表不同，则重新订阅流表
+            if (subscribe_ref.current?.table !== output_table_name && output_table_name) 
+                subscribe_streaming_table(output_table_name)
+                  
+            // 生成 key 列表
+            return table.map(item => {
+                const label = key_cols?.map(key => `${key}: ${item[key]}`).join('  ') 
+                // value 用于存储当前 key 对应的行
+                return { label, value: item }
+            })
+        }
+    )
+    
+    async function subscribe_streaming_table (streaming_table: string) { 
+        subscribe_ref.current?.ddb?.disconnect()
         const cep_streaming_ddb = new DDB(model.ddb.url, {
             autologin: !!username,
             username,
@@ -259,24 +248,13 @@ function DataView ({ info }: { info: ICEPEngineDetail }) {
             }
         })
         await cep_streaming_ddb.connect()
-        cep_ddb.current = cep_streaming_ddb
-    }, [cep_ddb, info])
+        subscribe_ref.current = { 
+            ddb: cep_streaming_ddb,
+            table: streaming_table
+        }
+    }
     
-    
-    const value_table = useMemo(() => {
-        if (!selected_key || !dataview_info?.table.length)
-            return [ ]
-       
-        const table_item = dataview_info?.table.find(item => {
-            for (let [k, v] of Object.entries(selected_key ?? { })) 
-                if (item[k] !== v)
-                    return false
-            return true
-        })
-        return table_item ? Object.entries(table_item).map(([k, v]) => ({ name: k, value: v })) : [ ]
-    }, [dataview_info, selected_key])
-    
-    
+  
     return <div className='data-view-info'>
         <div>
             <Select
@@ -293,7 +271,7 @@ function DataView ({ info }: { info: ICEPEngineDetail }) {
                     set_selected_key(undefined)
                 }}
                 onClear={() => {
-                    cep_ddb.current?.disconnect()
+                    subscribe_ref.current?.ddb?.disconnect()
                 }}
                 showSearch
             />
@@ -306,10 +284,10 @@ function DataView ({ info }: { info: ICEPEngineDetail }) {
                 />
                 <Spin spinning={loading}> 
                     {   
-                        dataview_info?.table.length ? <>
+                        keys.length ? <>
                             {
-                                 (search_key ? dataview_info?.keys.filter(item => item.label.includes(search_key)) : dataview_info?.keys).map(item => <div
-                                        key={item.value}
+                                 (search_key ? keys.filter(item => item.label.includes(search_key)) : keys).map(item => <div
+                                        key={item.value.toString()}
                                         title={item.label}
                                         className={cn('data-view-key-item', { 'data-view-key-item-active': item.value === selected_key })}
                                         onClick={() => { 
@@ -330,7 +308,7 @@ function DataView ({ info }: { info: ICEPEngineDetail }) {
         <DDBTable
             size='small'
             className='data-view-table'
-            dataSource={value_table}
+            dataSource={Object.entries(selected_key ?? { }).map(([k, v]) => ({ name: k, value: v }))}
             rowKey='name'
             columns={[
                 { title: t('名称'), dataIndex: 'name', width: 300 },
