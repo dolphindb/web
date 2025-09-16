@@ -9,8 +9,6 @@ import cn from 'classnames'
 
 import { t } from '@i18n'
 
-import { pick } from 'lodash'
-
 import useSWR from 'swr'
 
 import { type ICEPEngineDetail, EngineDetailPage, type SubEngineItem } from '../type.js'
@@ -258,20 +256,19 @@ function DataView ({ info }: { info: ICEPEngineDetail }) {
     return <div className='data-view-info'>
         <div>
             <Select
-                allowClear
                 className='data-view-select'
                 placeholder={t('请选择数据视图')}
                 // dataview 名称按照字母序排序
-                options={info?.dataViewEngines?.sort((a, b) => a?.name?.localeCompare(b?.name))?.map(item => ({
-                    label: item.name,
-                    value: item.name
-                }))}
+                options={(info.dataViewEngines ?? [ ])
+                    .sort((a, b) => a.name.localeCompare(b.name))
+                    .map(item => ({
+                        label: item.name,
+                        value: item.name
+                    }))
+                }
                 onSelect={value => {
                     set_dataview(value)
                     set_selected_key(undefined)
-                }}
-                onClear={() => {
-                    subscribe_ref.current?.ddb?.disconnect()
                 }}
                 showSearch
             />

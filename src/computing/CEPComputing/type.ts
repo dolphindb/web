@@ -102,7 +102,7 @@ export interface ICEPEngineDetail {
     /** 引擎信息 */
     engineStat: CEPEngineItem
     /** 数据视图信息 */
-    dataViewEngines: DataViewEngineItem[]
+    dataViewEngines?: DataViewEngineItem[]
     /** 事件信息 */
     eventSchema: EventItem[]
     /** 子引擎信息 */
