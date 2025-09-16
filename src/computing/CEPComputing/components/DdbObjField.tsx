@@ -6,7 +6,7 @@ import { DdbType } from 'dolphindb/browser.js'
 
 import { t } from '@i18n'
 
-import { model } from '../../../model.js'
+import { model } from '@model'
 
 interface IProps extends Omit<DatePickerProps, 'onChange'> { 
     onChange?: (val: any) => void
@@ -21,7 +21,6 @@ interface IProps extends Omit<DatePickerProps, 'onChange'> {
 */
 
 export function DdbObjDatePicker ({ onChange, value, type_id, ...others }: IProps) { 
-    
     const on_value_change = useCallback(async (_, execute_str: string) => {
         if (type_id === DdbType.month)
             execute_str += 'M'
@@ -30,8 +29,8 @@ export function DdbObjDatePicker ({ onChange, value, type_id, ...others }: IProp
             execute_str = `datehour(${JSON.stringify(execute_str)})`
         
         try {
-            const obj = await model.ddb.eval(execute_str)
-            onChange(obj)
+            onChange(
+                await model.ddb.eval(execute_str))
         } catch (error) {
             onChange(execute_str)
         }
@@ -56,8 +55,8 @@ export function DdbObjTimePicker ({ onChange, type_id, value, ...others }: IDdbO
             time_str = `time(${JSON.stringify(time_str)})`
         
         try {
-            const time_obj = await model.ddb.eval(time_str)
-            onChange(time_obj)
+            onChange(
+                await model.ddb.eval(time_str))
         } catch (error) {
             onChange(time_str)
         }
@@ -81,8 +80,8 @@ export function DdbObjInputNumber ({ onChange, value, ...others }: IDdbObjInputN
     const on_blur = useCallback<FocusEventHandler<HTMLInputElement>>(async e => { 
         let val = e.target.value
         try {
-            const obj = await model.ddb.eval(val)
-            onChange(obj)
+            onChange(
+                await model.ddb.eval(val))
         } catch (error) {
             onChange(val)
         }
