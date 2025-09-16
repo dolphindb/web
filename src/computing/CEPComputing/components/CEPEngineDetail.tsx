@@ -192,7 +192,7 @@ function DataView ({ info }: { info: ICEPEngineDetail }) {
     const [dataview, set_dataview] = useState<string>()
     
     // 当前选中的 key，也就是表的某一行
-    const [selected_key, set_selected_key] = useState<Record<string, any>>( )
+    const [selected_key, set_selected_key] = useState<string>( )
     // 搜索框的值
     const [search_key, set_search_key] = useState<string>()
     
@@ -261,6 +261,7 @@ function DataView ({ info }: { info: ICEPEngineDetail }) {
             <Select
                 className='data-view-select'
                 placeholder={t('请选择数据视图')}
+                value={dataview}
                 // dataview 名称按照字母序排序
                 options={(info.dataViewEngines ?? [ ])
                     .sort((a, b) => strcmp(a.name, b.name))
@@ -287,11 +288,14 @@ function DataView ({ info }: { info: ICEPEngineDetail }) {
                         keys.length ? <>
                             {
                                  (search_key ? keys.filter(item => item.label.includes(search_key)) : keys).map(item => <div
-                                        key={item.value.toString()}
+                                        key={item.label}
                                         title={item.label}
-                                        className={cn('data-view-key-item', { 'data-view-key-item-active': item.value === selected_key })}
+                                        className={cn(
+                                            'data-view-key-item', 
+                                            { 'data-view-key-item-active': item.label === selected_key }
+                                        )}
                                         onClick={() => { 
-                                            set_selected_key(item.value)
+                                            set_selected_key(item.label)
                                         }}
                                     >
                                         {item.label}
@@ -308,7 +312,8 @@ function DataView ({ info }: { info: ICEPEngineDetail }) {
         <DDBTable
             size='small'
             className='data-view-table'
-            dataSource={Object.entries(selected_key ?? { }).map(([k, v]) => ({ name: k, value: v }))}
+            dataSource={Object.entries(keys.find(item => item.label === selected_key)?.value ?? { })
+                .map(([name, value]) => ({ name, value }))}
             rowKey='name'
             columns={[
                 { title: t('名称'), dataIndex: 'name', width: 300 },
