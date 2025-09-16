@@ -6,6 +6,7 @@ import { SearchOutlined, SendOutlined } from '@ant-design/icons'
 import { DDB, type StreamingMessage } from 'dolphindb/browser.js'
 import NiceModal from '@ebay/nice-modal-react'
 import cn from 'classnames'
+import { strcmp } from 'xshell/utils.browser.js'
 
 import { t } from '@i18n'
 
@@ -206,7 +207,9 @@ function DataView ({ info }: { info: ICEPEngineDetail }) {
     
     
     // 组件卸载，断开连接
-    useEffect(() => subscribe_ref.current?.ddb?.disconnect, [ ])
+    useEffect(() => 
+        () => { subscribe_ref.current?.ddb?.disconnect() },
+        [ ])
     
     const { data: keys = [ ], mutate, isLoading: loading } = useSWR(
         dataview ? ['get_dataview_info', info.engineStat.name, dataview] : null,
@@ -252,7 +255,7 @@ function DataView ({ info }: { info: ICEPEngineDetail }) {
         }
     }
     
-  
+    
     return <div className='data-view-info'>
         <div>
             <Select
@@ -260,7 +263,7 @@ function DataView ({ info }: { info: ICEPEngineDetail }) {
                 placeholder={t('请选择数据视图')}
                 // dataview 名称按照字母序排序
                 options={(info.dataViewEngines ?? [ ])
-                    .sort((a, b) => a.name.localeCompare(b.name))
+                    .sort((a, b) => strcmp(a.name, b.name))
                     .map(item => ({
                         label: item.name,
                         value: item.name
