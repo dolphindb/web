@@ -285,7 +285,7 @@ function DataView ({ info }: { info: ICEPEngineDetail }) {
                 />
                 <Spin spinning={loading}> 
                     {   
-                        keys.length ? <>
+                        keys.length ? <div className='key-list'>
                             {
                                  (search_key ? keys.filter(item => item.label.includes(search_key)) : keys).map(item => <div
                                         key={item.label}
@@ -302,7 +302,7 @@ function DataView ({ info }: { info: ICEPEngineDetail }) {
                                     </div>)
                                 
                             }
-                        </>
+                        </div>
                         : <Empty image={Empty.PRESENTED_IMAGE_SIMPLE}/>
                     }
                 </Spin>

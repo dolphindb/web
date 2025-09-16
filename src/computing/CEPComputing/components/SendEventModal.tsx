@@ -5,8 +5,9 @@ import { useCallback, useMemo } from 'react'
 import { DdbDict, DdbType, type  DdbObj } from 'dolphindb/browser.js'
 
 
-import { type ICEPEngineDetail } from '../type.js'
 import { t } from '@i18n'
+
+import { type ICEPEngineDetail } from '../type.js'
 import { model } from '../../../model.js'
 
 import { convertDecimalType } from './DdbObjField.tsx'

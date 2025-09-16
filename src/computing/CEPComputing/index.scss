@@ -44,9 +44,18 @@
         .data-view-key-wrapper {
             width: 300px;
             background-color: #fafafa;
-            padding: 16px;
+            padding: 12px;
             
             margin-top: 16px;
+            
+            .key-list {
+                max-height: calc(100vh - 320px);
+                overflow: auto;
+                ::-webkit-scrollbar-track-piece {
+                    background-color: transparent !important
+                }
+    
+            }
             
             .data-view-key-item {
                 padding: 0 0 0 12px;
@@ -181,4 +190,5 @@
         }
     }
 }
+
 
