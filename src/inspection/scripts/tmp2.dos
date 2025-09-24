@@ -1,0 +1,58 @@
+// drop database if exists "dfs://autoInspection"
+
+def dfsPath2tableName(node, chunkId, dfsPath){
+    fields=dfsPath.split("/");
+    dbUrl="dfs:/" + rpc(node, getDBIdByTabletChunk{chunkId})
+    res=exec tableName from listTables(dbUrl) where physicalIndex=last(fields);
+    return dbUrl,res[0];
+}
+
+def biggestChunks(params) {
+    startTime = timestamp(params["startTime"])
+    endTime = timestamp(params["endTime"])
+    print("startTime: " + startTime)
+    print("endTime: " + endTime)
+    threshold = params["sizeThresholdGB"]
+    res = table(1:0, `dbName`tbName`dfsPath`chunkId, [STRING, STRING, STRING, STRING])
+    meta = select * from rpc(getControllerAlias(), getClusterChunksStatus) where lastUpdated between startTime and endTime and !file.endsWith(".tbl") and !file.endsWith("/domain")
+    
+    for (item in meta) {
+        node = item["replicas"].split(",").first().split(":").first()
+        chunkId = item["chunkId"]
+        dfsPath = item["file"]
+        dbName, tbName = dfsPath2tableName(node, chunkId, dfsPath)
+        insert into res values (dbName, tbName, dfsPath, chunkId)
+    }
+    delete from res where tbName == NULL
+    
+    f = def(item) {
+        dfsPath = item["dfsPath"]
+        tbName = item["tbName"]
+        nodes = exec name from rpc(getControllerAlias(), getClusterPerf) where mode == 0 or mode == 3
+        diskGB = select sum(diskUsage\1024\1024\1024) as diskGB
+                    from pnodeRun(getTabletsMeta{dfsPath, tbName, true, -1}, nodes)
+        return double(diskGB["diskGB"].first())
+    }
+    res_ = peach(f, res)
+    update res set diskGB = res_
+    res = select * from res order by diskGB desc limit 10
+
+    if (!isVoid(threshold) && !isNull(threshold)) {  
+        oversizedChunks = select * from res where diskGB > threshold  
+        if (oversizedChunks.size() > 0) {  
+            errorMsg = "发现 " + snippet(oversizedChunks.size()) + " 个分区大小超过阈值 " + snippet(threshold) + " GB"  
+            oversizedInfo = exec (dbName + "." + tbName + " (" + string(diskGB) + " GB)") from oversizedChunks  
+            return (false, errorMsg, "建议检查以下分区大小是否异常：" + snippet (oversizedInfo.concat("\n"))) 
+        }  
+    } 
+    return (true, res, NULL)
+}
+params = dict(STRING, ANY)
+// params["startTime"] = timestamp(now() - long(duration("1d")))
+// params["endTime"] = now()
+
+// result = biggestChunks(params)  
+// print(result[1])
+
+params["sizeThresholdGB"] = 0.00000001
+biggestChunks(params)  
