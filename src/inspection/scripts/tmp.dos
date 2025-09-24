@@ -1,0 +1,74 @@
+drop database if exists "dfs://autoInspection"
+
+def coredump(params) {
+    if (getOS() != "linux") {
+        throw "不支持在非 linux 系统上检查 coredump。"
+    }
+    if (!isVoid(params["timeRange"]) && !isNull(params["timeRange"])) {
+        startTime = now() - params["timeRange"]
+        endTime = now()
+    }
+    else {
+        startTime = params["startTime"]
+        endTime = params["endTime"]
+    }
+        print("coredump, startTime: " + startTime + ", endTime: " + endTime)
+    if (!bool(getConfig("enableShellFunction"))) {
+        return (false, "未配置 enableShellFunction=true。", "请配置 enableShellFunction=true 以支持该项检查。")
+    }
+    
+    
+
+    tmpFilename = "autoInspection_coredump_" + getNodeAlias() + "_" + temporalFormat(now(), "yMdHmsSSS") + "_tmp.txt"
+    shell("cat /proc/sys/kernel/core_pattern > " + tmpFilename)
+    f = file(tmpFilename)
+    line = readLine(f)
+    f.close()
+    if (line.startsWith("/")) { // 绝对路径
+        s = line.split("/")
+        dir = s[0:(s.size()-1)].concat("/")
+    } else if (char(line[0]).isAlpha()) { // 形如 core-%e，生成 coredump 在当前目录
+        shell("pwd > " + tmpFilename)
+        f = file(tmpFilename)
+        dir = readLine(f)
+        f.close()
+    } else {
+        rm(tmpFilename)
+        return (false, "不支持自动检测的 core_pattern: " + line, "请参考《节点宕机》教程配置 coredump。")
+    }
+    
+    info = select * from files(dir) where isDir == false and lastModified >= startTime and lastModified <= endTime
+    
+    if (info.size() == 0) {
+        rm(tmpFilename)
+        return (true, NULL, NULL)
+    }
+    
+    ret = table(1:0, `filePath`lastModified, [STRING, TIMESTAMP])
+    for (item in info) {
+        // item = info[0]
+        filename = item["filename"]
+        filePath = dir + "/" + filename
+        shell("file " + filePath + " > " + tmpFilename)
+        f = file(tmpFilename)
+        line = readLine(f)
+        f.close()
+        
+        if (strFind(line, "core") != -1 and strFind(line, "dolphindb") != -1) {
+            insert into ret values (filePath, item["lastModified"])
+        }
+    }
+    ret = select * from ret order by lastModified desc
+    rm(tmpFilename)
+    
+    ret = select count(*) as "coredump 文件数", first(filePath) as "最新文件路径" from ret group by date(lastModified) as "日期"
+    
+    if (ret.size() == 0) {
+        return (true, NULL, NULL)
+    } else {
+        return (false, ret, "请检查 coredump 文件内容。")
+    }
+}
+
+params = {"timeRange": 5000}
+coredump(params)
