@@ -334,7 +334,7 @@ def updateMetricParams(mutable params, planId, metricName) {
     params_ = fromStdJson(params_)
     if (!isVoid(params_)) {
         for (key in params_.keys()) {
-            if (isVoid(params_[key])) { // 前端可能会传 NULL 参数值，无视
+            if (isVoid(params_[key]) || isNull(params_[key])) { // 前端可能会传 NULL 参数值，无视
                 continue
             }
             params[key] = params_[key]
@@ -441,7 +441,6 @@ def runPlanInner(planId, reportId) {
     planDetails = unionAll(planDetails1, planDetails2, true)
 
     defaultParams = generateDefaultMetricParams(planId)
-    print("默认参数生成结果: " + string(defaultParams)) 
     params = defaultParams
     for (item in planDetails) {
         // item = planDetails[0]
@@ -458,11 +457,8 @@ def runPlanInner(planId, reportId) {
         for (key in defaultParams.keys()) {
             params[key] = defaultParams[key] // 重置默认参数值
         }
-        print("update前params: " + string(params)) 
         updateMetricParams(params, planId, name) // 更新自定义参数值
-        print("update后params: " + string(params)) 
         usedParams = extractUsedParams(params, name) // 提取出 metrics 表里定义的参数字段
-        print("提取的参数: " + string(usedParams)) // debug
 
         jobIds = []$STRING
         for (node in nodes) {
@@ -520,11 +516,6 @@ def runPlanInner(planId, reportId) {
 
     }
 }
-
-
-runPlanInner("1758791336789", "runPlan_1758791336789_1758792174905328283")
-
-
 
 def generateEmailInEnglish(reportInfo) {
     language_ = "en"

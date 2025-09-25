@@ -892,11 +892,8 @@ def dfsPath2tableName(node, chunkId, dfsPath){
 def biggestChunks(params) {
     startTime = timestamp(params["startTime"])
     endTime = timestamp(params["endTime"])
-
-    print("test1, startTime: " + startTime)
-    print("test1, endTime: " + endTime)
-    
     threshold = params["sizeThresholdGB"]
+    
     res = table(1:0, `dbName`tbName`dfsPath`chunkId, [STRING, STRING, STRING, STRING])
     meta = select * from rpc(getControllerAlias(), getClusterChunksStatus) where lastUpdated between startTime and endTime and !file.endsWith(".tbl") and !file.endsWith("/domain")
     
