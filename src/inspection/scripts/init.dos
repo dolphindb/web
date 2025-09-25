@@ -608,12 +608,14 @@ group = "1"
 desc = "统计在指定时间范围内（startTime 到 endTime）执行的耗时最长的前10条 SQL。
 参数说明：
 - startTime：TIMESTAMP，统计范围的开始时间，默认值为上次相同方案 ID 的报告的开始时间。
-- endTime：TIMESTAMP，统计范围的结束时间，默认值为当前报告的开始时间。"
+- endTime：TIMESTAMP，统计范围的结束时间，默认值为当前报告的开始时间。  
+- elapsedThresholdMs：DOUBLE，查询耗时阈值（单位：毫秒），当查询耗时超过此阈值时返回错误。可选参数。"
 nodes = NULL // NULL 指该指标不能指定节点运行，选择任一数据节点执行
 script = '
 def queryElapsed(params) {
     startTime_ = params["startTime"]
     endTime_ = params["endTime"]
+    thresholdMs = params["elapsedThresholdMs"]
     
     getQueryLogInner = def(startTime_, endTime_) {
 		logDir = getConfig("logFile").split("/")
@@ -667,12 +669,25 @@ def queryElapsed(params) {
     ret = pnodeRun(getQueryLogInner{startTime_, endTime_}, nodes)
     
     res = select * from ret where type == "Q" order by elapseMs desc limit 10
+
+    
+    if (!isVoid(thresholdMs) && !isNull(thresholdMs)) {  
+        slowQueries = select * from res where elapseMs > thresholdMs  
+        if (slowQueries.size() > 0) {  
+            errorMsg = "发现 " + snippet(slowQueries.size()) + " 条查询耗时超过阈值 " + snippet(thresholdMs) + " 毫秒"  
+            slowQueryInfo = exec (userId + "@" + node + ": " + string(elapseMs) + "ms") from slowQueries  
+            return (false, errorMsg, "查询耗时超过阈值的用户ID和节点: " + slowQueryInfo.concat("\n"))  
+        }  
+    }
+
+	
 	return (true, res, NULL)
 }
 '
 params = [
     dict(`name`type, ["startTime", "TIMESTAMP"]),
-    dict(`name`type, ["endTime", "TIMESTAMP"])
+    dict(`name`type, ["endTime", "TIMESTAMP"]),
+    dict(`name`type, ["elapsedThresholdMs", "DOUBLE"])
 ]
 version = 1
 if (name in metrics.name) {
@@ -688,7 +703,8 @@ group = "1"
 desc = "统计在指定时间范围内（startTime 到 endTime）访问次数最多的前10个库表。
 参数说明：
 - startTime：TIMESTAMP，统计范围的开始时间，默认值为上次相同方案 ID 的报告的开始时间。
-- endTime：TIMESTAMP，统计范围的结束时间，默认值为当前报告的开始时间。"
+- endTime：TIMESTAMP，统计范围的结束时间，默认值为当前报告的开始时间。
+- queryCountThreshold：LONG，库表查询次数阈值，当查询次数超过此阈值时返回错误。可选参数。"
 nodes = NULL // NULL 指该指标不能指定节点运行，选择任一数据节点执行
 script = '
 def mostQueriedDFSTables(params) {
@@ -698,6 +714,7 @@ def mostQueriedDFSTables(params) {
     
     startTime_ = params["startTime"]
     endTime_ = params["endTime"]
+    queryCountThreshold = params["queryCountThreshold"]
     
     getQueryLogInner = def(startTime_, endTime_) {
 		logDir = getConfig("logFile").split("/")
@@ -743,12 +760,22 @@ def mostQueriedDFSTables(params) {
     ret = pnodeRun(getQueryLogInner{startTime_, endTime_}, nodes) 
     ret = select sum(count) as count from ret group by database, table order by count desc limit 10
     
+    if (!isVoid(queryCountThreshold) && !isNull(queryCountThreshold)) {  
+        highFrequencyTables = select * from ret where count > queryCountThreshold  
+        if (highFrequencyTables.size() > 0) {  
+            errorMsg = "发现 " + snippet(highFrequencyTables.size()) + " 个库表访问次数超过阈值 " + snippet(queryCountThreshold) + " 次"  
+            tableInfo = exec (database + "." + table + " (" + string(count) + " 次)") from highFrequencyTables  
+            return (false, errorMsg, "库表访问次数超过阈值的库表有：" + tableInfo.concat("\n"))  
+        }  
+    }
+
 	return (true, ret, NULL)
 }
 '
 params = [
     dict(`name`type, ["startTime", "TIMESTAMP"]),
-    dict(`name`type, ["endTime", "TIMESTAMP"])
+    dict(`name`type, ["endTime", "TIMESTAMP"]),
+    dict(`name`type, ["queryCountThreshold", "LONG"])
 ]
 version = 1
 if (name in metrics.name) {
@@ -764,7 +791,8 @@ group = "1"
 desc = "统计在指定时间范围内（startTime 到 endTime）数据库写入量前10名。
 参数说明：
 - startTime：TIMESTAMP，统计范围的开始时间，默认值为上次相同方案 ID 的报告的开始时间。
-- endTime：TIMESTAMP，统计范围的结束时间，默认值为当前报告的开始时间。"
+- endTime：TIMESTAMP，统计范围的结束时间，默认值为当前报告的开始时间。
+- diskUsageThresholdGB：DOUBLE，数据库表磁盘使用量阈值（单位：GB），当磁盘使用量超过此阈值时返回错误。可选参数。"
 nodes = NULL // NULL 指该指标不能指定节点运行，选择任一数据节点执行
 script = '
 def dfsPath2tableName(node, chunkId, dfsPath){
@@ -777,6 +805,7 @@ def dfsPath2tableName(node, chunkId, dfsPath){
 def DFSTableDiskUsage(params) {
     startTime = timestamp(params["startTime"])
     endTime = timestamp(params["endTime"])
+    thresholdGB = params["diskUsageThresholdGB"]
     meta = select * from rpc(getControllerAlias(), getClusterChunksStatus) where lastUpdated between startTime and endTime and !file.endsWith("domain") and !file.endsWith(".tbl")
     if (meta.size() == 0) {
         return (true, NULL, NULL)
@@ -817,12 +846,23 @@ def DFSTableDiskUsage(params) {
     if (ret.size() == 0) {
         return (true, NULL, NULL)
     }
+
+    if (!isVoid(thresholdGB) && !isNull(thresholdGB)) {  
+        oversizedTables = select * from ret where diskGB > thresholdGB  
+        if (oversizedTables.size() > 0) {  
+            errorMsg = "发现 " + snippet(oversizedTables.size()) + " 个数据库表写入量超过阈值 " + snippet(thresholdGB) + " GB"  
+            oversizedInfo = exec (dbName + "." + tbName + " (" + string(diskGB) + " GB)") from oversizedTables  
+            return (false, errorMsg, "请检查异常数据库" + snippet(oversizedInfo.concat("\n")))  
+        }  
+    }
+
     return (true, ret, NULL)
 }
 '
 params = [
     dict(`name`type, ["startTime", "TIMESTAMP"]),
-    dict(`name`type, ["endTime", "TIMESTAMP"])
+    dict(`name`type, ["endTime", "TIMESTAMP"]),
+    dict(`name`type, ["diskUsageThresholdGB", "DOUBLE"])
 ]
 version = 1
 if (name in metrics.name) {
@@ -852,6 +892,10 @@ def dfsPath2tableName(node, chunkId, dfsPath){
 def biggestChunks(params) {
     startTime = timestamp(params["startTime"])
     endTime = timestamp(params["endTime"])
+
+    print("test1, startTime: " + startTime)
+    print("test1, endTime: " + endTime)
+    
     threshold = params["sizeThresholdGB"]
     res = table(1:0, `dbName`tbName`dfsPath`chunkId, [STRING, STRING, STRING, STRING])
     meta = select * from rpc(getControllerAlias(), getClusterChunksStatus) where lastUpdated between startTime and endTime and !file.endsWith(".tbl") and !file.endsWith("/domain")

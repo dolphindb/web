@@ -1,58 +1,89 @@
 // drop database if exists "dfs://autoInspection"
 
-def dfsPath2tableName(node, chunkId, dfsPath){
-    fields=dfsPath.split("/");
-    dbUrl="dfs:/" + rpc(node, getDBIdByTabletChunk{chunkId})
-    res=exec tableName from listTables(dbUrl) where physicalIndex=last(fields);
-    return dbUrl,res[0];
-}
-
-def biggestChunks(params) {
-    startTime = timestamp(params["startTime"])
-    endTime = timestamp(params["endTime"])
-    print("startTime: " + startTime)
-    print("endTime: " + endTime)
-    threshold = params["sizeThresholdGB"]
-    res = table(1:0, `dbName`tbName`dfsPath`chunkId, [STRING, STRING, STRING, STRING])
-    meta = select * from rpc(getControllerAlias(), getClusterChunksStatus) where lastUpdated between startTime and endTime and !file.endsWith(".tbl") and !file.endsWith("/domain")
-    
-    for (item in meta) {
-        node = item["replicas"].split(",").first().split(":").first()
-        chunkId = item["chunkId"]
-        dfsPath = item["file"]
-        dbName, tbName = dfsPath2tableName(node, chunkId, dfsPath)
-        insert into res values (dbName, tbName, dfsPath, chunkId)
+def mostQueriedDFSTables(params) {
+    if (!bool(getConfig("enableDFSQueryLog"))) {
+        return (false, "未配置 enableDFSQueryLog=true。", "请配置 enableDFSQueryLog=true 以支持该项检查。")
     }
-    delete from res where tbName == NULL
     
-    f = def(item) {
-        dfsPath = item["dfsPath"]
-        tbName = item["tbName"]
-        nodes = exec name from rpc(getControllerAlias(), getClusterPerf) where mode == 0 or mode == 3
-        diskGB = select sum(diskUsage\1024\1024\1024) as diskGB
-                    from pnodeRun(getTabletsMeta{dfsPath, tbName, true, -1}, nodes)
-        return double(diskGB["diskGB"].first())
-    }
-    res_ = peach(f, res)
-    update res set diskGB = res_
-    res = select * from res order by diskGB desc limit 10
-
-    if (!isVoid(threshold) && !isNull(threshold)) {  
-        oversizedChunks = select * from res where diskGB > threshold  
-        if (oversizedChunks.size() > 0) {  
-            errorMsg = "发现 " + snippet(oversizedChunks.size()) + " 个分区大小超过阈值 " + snippet(threshold) + " GB"  
-            oversizedInfo = exec (dbName + "." + tbName + " (" + string(diskGB) + " GB)") from oversizedChunks  
-            return (false, errorMsg, "建议检查以下分区大小是否异常：" + snippet (oversizedInfo.concat("\n"))) 
+    startTime_ = params["startTime"]
+    endTime_ = params["endTime"]
+    queryCountThreshold = params["queryCountThreshold"]
+    
+    getQueryLogInner = def(startTime_, endTime_) {
+		logDir = getConfig("logFile").split("/")
+		logDir = logDir[:(logDir.size()-1)].concat("/")
+        if (isNull(logDir)) {
+            logDir = "./"
+        }
+        logFiles = files(logDir, "%_query.log")
+        schema = table(
+            ["node","userId","sessionId","jobId","rootId","type","level","time","database","table","jobDesc"] as name,
+            ["STRING", "STRING", "LONG", "UUID", "UUID", "STRING", "INT", "NANOTIMESTAMP", "STRING", "STRING", "STRING"] as type
+        )
+		if (logFiles.size() == 0) {
+			throw "Error: no query log found in " + logDir + ", maybe you haven\'t run any sql yet."
+		}
+        addColumn(logFiles, `startTime`endTime, [TIMESTAMP, TIMESTAMP])
+        update logFiles set endTime = temporalParse(substr(filename, 0, 14), "yyyyMMddHHmmss")
+        update logFiles set startTime = move(endTime, 1)
+        if (!isNull(startTime_)) {
+            delete from logFiles where endTime != NULL and endTime < startTime_
+        }
+        if (!isNull(endTime_)) {
+            delete from logFiles where startTime != NULL and startTime > endTime_
+        }
+        
+        ret = table(1:0, `database`table`count, [STRING, STRING, LONG])
+        for (filename in logFiles["filename"]) {
+            filePath = logDir + "/" + filename
+            logs = loadText(filePath, schema=schema)
+            if (!isNull(startTime_)) {
+                logs = select * from logs where time >= nanotimestamp(startTime_)
+            }
+            if (!isNull(endTime_)) {
+                logs = select * from logs where time <= nanotimestamp(endTime_)
+            }
+            delete from logs where database == NULL
+            res = select count(*) as count from logs group by database, table order by count desc limit 10
+            ret.append!(res)
+        }
+		return ret
+	}
+    nodes = exec name from rpc(getControllerAlias(), getClusterPerf) where mode != 1 and mode != 2
+    ret = pnodeRun(getQueryLogInner{startTime_, endTime_}, nodes) 
+    ret = select sum(count) as count from ret group by database, table order by count desc limit 10
+    
+    if (!isVoid(queryCountThreshold) && !isNull(queryCountThreshold)) {  
+        highFrequencyTables = select * from ret where count > queryCountThreshold  
+        if (highFrequencyTables.size() > 0) {  
+            errorMsg = "发现 " + snippet(highFrequencyTables.size()) + " 个库表访问次数超过阈值 " + snippet(queryCountThreshold) + " 次"  
+            tableInfo = exec (database + "." + table + " (" + string(count) + " 次)") from highFrequencyTables  
+            return (false, errorMsg, "库表访问次数超过阈值的库表有：" + tableInfo.concat("\n"))  
         }  
-    } 
-    return (true, res, NULL)
+    }
+
+	return (true, ret, NULL)
 }
-params = dict(STRING, ANY)
-// params["startTime"] = timestamp(now() - long(duration("1d")))
-// params["endTime"] = now()
 
-// result = biggestChunks(params)  
-// print(result[1])
 
-params["sizeThresholdGB"] = 0.00000001
-biggestChunks(params)  
+// 测试返回true（阈值较大）  
+params1 = dict(STRING, ANY)  
+params1["startTime"] = temporalAdd(now(), -1, "d")  
+params1["endTime"] = now()  
+params1["queryCountThreshold"] = 10000  // 10000次  
+result1 = mostQueriedDFSTables(params1)  
+print(result1[0])  // true
+print(result1[1])  // true
+  
+// 测试返回false（阈值较小）  
+params2 = dict(STRING, ANY)  
+params2["startTime"] = temporalAdd(now(), -1, "d")  
+params2["endTime"] = now()  
+params2["queryCountThreshold"] = 50  // 50次  
+result2 = mostQueriedDFSTables(params2)
+print(result2[0])  // false
+print(result2[1])  // 发现 1 个库表访问次数超过阈值 50 次
+
+
+
+
