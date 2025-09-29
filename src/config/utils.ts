@@ -34,8 +34,8 @@ export const strs_2_nodes = (strs: string[]): ClusterNode[] =>
             port,
             alias,
             mode: mode as NodeType,
-            computeGroup: group,
-            zone
+            computeGroup: group || '',
+            zone: zone || ''
         }
     })
 
