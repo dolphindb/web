@@ -27,7 +27,7 @@ export function ExportCsv ({ info }: { info: DdbTableObj | DdbObjRef<DdbObj<DdbV
     
     useEffect(() => {
         form.setFieldsValue({
-            name: info.name || t('表格'),
+            name: info.name || 'table',
             scope: 'all',
             start: 0,
             end: info.rows - 1
@@ -68,21 +68,16 @@ export function ExportCsv ({ info }: { info: DdbTableObj | DdbObjRef<DdbObj<DdbV
                         URL.createObjectURL(new Blob(
                             [
                                 new Uint8Array([0xEF, 0xBB, 0xBF]),
-                                (await model.ddb.invoke(
+                                await model.ddb.invoke<Uint8Array<ArrayBuffer>>(
                                     'get_csv_content',
                                     [
-                                        (info instanceof DdbObjRef) ? 
-                                            info.name
-                                        :
-                                            info,
+                                        info instanceof DdbObjRef ? info.name : info,
                                         new DdbInt(start), 
                                         new DdbInt(end)
                                     ],
-                                    { blob: 'binary' })) as Uint8Array<ArrayBuffer>
+                                    { chars: 'binary' })
                             ],
-                            { type: 'text/csv' }
-                        ))
-                    )
+                            { type: 'text/csv' })))
                 } finally {
                     set_loading(false)
                     close()
