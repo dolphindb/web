@@ -1,6 +1,6 @@
 import NiceModal, { useModal } from '@ebay/nice-modal-react'
 import { t } from '@i18n'
-import { Button, Form, Input, Modal, Select, Space, Switch, message } from 'antd'
+import { Button, Form, Input, Modal, Select, Space, Switch } from 'antd'
 import { useState } from 'react'
 
 import { model } from '@model'
@@ -56,15 +56,15 @@ function TestEmailModal ({ visible, onClose }) {
             const result = await inspection.send_test_email(values.testRecipient, values.language || 'cn')
             
             if (result.errCode === 0) {
-                message.success(result.errMsg || t('测试邮件发送成功'))
+                model.message.success(result.errMsg || t('测试邮件发送成功'))
                 onClose()
                 form.resetFields()
-            } else 
-                message.error(result.errMsg || t('测试邮件发送失败'))
+            } else
+                model.message.error(result.errMsg || t('测试邮件发送失败'))
             
         } catch (error) {
             console.error('发送测试邮件失败:', error)
-            message.error(t('发送测试邮件失败'))
+            model.message.error(t('发送测试邮件失败'))
         } finally {
             setLoading(false)
         }
@@ -163,7 +163,7 @@ export const EmailConfigModal = NiceModal.create(() => {
         const missingFields = requiredFields.filter(field => !currentValues[field])
         
         if (missingFields.length > 0) {
-            message.warning(t('请先完整填写邮件配置信息'))
+            model.message.warning(t('请先完整填写邮件配置信息'))
             return
         }
         
