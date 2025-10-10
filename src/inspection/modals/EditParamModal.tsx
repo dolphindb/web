@@ -31,12 +31,15 @@ export const EditParamModal = NiceModal.create(({
     
     function formatMetricData (metricData: MetricsWithStatus) {
         const { selected_params, params } = metricData
-        let formatted_params: Record<string, string | Dayjs | null> = { }
-        if (selected_params !== null && typeof selected_params === 'object' && !isEmpty(metricData.selected_params)) 
+        let formatted_params: Record<string, string | Dayjs | number | null> = { }
+        if (selected_params !== null && typeof selected_params === 'object' && !isEmpty(metricData.selected_params))
             for (const [key, value] of Object.entries(selected_params)) {
                 let param = params.get(key)
                 if (param.type === 'TIMESTAMP')
                     formatted_params[key] = value ?  dayjs(value) : null
+                else if (param.type === 'DOUBLE' || param.type === 'LONG' || param.type === 'INT')
+                    // 数值类型保持为数值
+                    formatted_params[key] = value !== null && value !== undefined ? Number(value) : null
                 else
                     formatted_params[key] = value
             }
@@ -156,7 +159,16 @@ export const EditParamModal = NiceModal.create(({
                                                 value: op,
                                                 label: op
                                         }))} />
-                                    :  <InputNumber/>}
+                                    : (type === DDB_TYPE_MAP[DdbType.double] ||
+                                       type === DDB_TYPE_MAP[DdbType.long] ||
+                                       type === DDB_TYPE_MAP[DdbType.int])
+                                    ? <InputNumber
+                                        style={{ width: 207 }}
+                                        placeholder={t('选填，留空表示不设置阈值')}
+                                      />
+                                    :  <InputNumber
+                                        style={{ width: 207 }}
+                                    />}
                             </Form.Item>
                       
                     })

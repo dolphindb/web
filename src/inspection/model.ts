@@ -168,7 +168,7 @@ class InspectionModel extends Model<InspectionModel> {
     async get_logs (report_id: string, node: string) {
         return model.ddb.invoke('rpc', [node, new DdbFunction('getJobMessage', DdbFunctionType.SystemFunc), report_id], { node })
     }
-
+    
     async get_email_history (
         plan_id?: string, 
         report_id?: string, 
