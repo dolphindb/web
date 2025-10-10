@@ -1,10 +1,12 @@
 import NiceModal, { useModal } from '@ebay/nice-modal-react'
 import { t } from '@i18n'
-import { Button, Form, Input, Modal, Space, Switch } from 'antd'
+import { Button, Form, Input, Modal, Select, Space, Switch, message } from 'antd'
+import { useState } from 'react'
 
 import { model } from '@model'
  
 import { config } from '@/config/model.ts'
+import { inspection } from '@/inspection/model.ts'
 
 const EMAIL_CONFIG_ITEMS = {
     inspectionAlertEnabled: { 
@@ -37,9 +39,104 @@ const EMAIL_CONFIG_ITEMS = {
     },
 } as const
 
+interface TestEmailModalProps {
+    visible: boolean
+    onClose: () => void
+}
+
+function TestEmailModal ({ visible, onClose }) {
+    const [form] = Form.useForm()
+    const [loading, setLoading] = useState(false)
+    
+    async function handleSendTestEmail () {
+        try {
+            const values = await form.validateFields()
+            setLoading(true)
+            console.log(values)
+            const result = await inspection.send_test_email(values.testRecipient, values.language || 'cn')
+            
+            if (result.errCode === 0) {
+                message.success(result.errMsg || t('测试邮件发送成功'))
+                onClose()
+                form.resetFields()
+            } else 
+                message.error(result.errMsg || t('测试邮件发送失败'))
+            
+        } catch (error) {
+            console.error('发送测试邮件失败:', error)
+            message.error(t('发送测试邮件失败'))
+        } finally {
+            setLoading(false)
+        }
+    }
+    
+    return <Modal
+            title={t('发送测试邮件')}
+            open={visible}
+            onCancel={onClose}
+            footer={null}
+            width={500}
+        >
+            <Form
+                form={form}
+                layout='vertical'
+                initialValues={{ language: 'cn' }}
+            >
+                <Form.Item
+                    name='testRecipient'
+                    label={t('测试收件人')}
+                    rules={[
+                        {
+                            validator: async (_, value) => {
+                                if (!value || value.trim() === '') 
+                                    return Promise.reject(new Error(t('请输入测试收件人邮箱')))
+                                
+                                const emails = value.split(',').map((email: string) => email.trim())
+                                const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/
+                                for (const email of emails) 
+                                    if (!emailRegex.test(email)) 
+                                        return Promise.reject(new Error(t('请输入有效的邮箱地址')))
+                                    
+                                
+                                return Promise.resolve()
+                            }
+                        }
+                    ]}
+                    extra={t('多个邮箱请用逗号分隔')}
+                >
+                    <Input.TextArea
+                        placeholder={t('例如: user1@example.com, user2@example.com')}
+                        rows={3}
+                    />
+                </Form.Item>
+                
+                <Form.Item
+                    name='language'
+                    label={t('邮件语言')}
+                    initialValue='cn'
+                >
+                    <Select>
+                        <Select.Option value='cn'>{t('中文')}</Select.Option>
+                        <Select.Option value='en'>{t('英文')}</Select.Option>
+                    </Select>
+                </Form.Item>
+                
+                <Form.Item>
+                    <Space>
+                        <Button onClick={onClose}>{t('取消')}</Button>
+                        <Button type='primary' loading={loading} onClick={handleSendTestEmail}>
+                            {t('发送测试邮件')}
+                        </Button>
+                    </Space>
+                </Form.Item>
+            </Form>
+        </Modal>
+}
 
 export const EmailConfigModal = NiceModal.create(() => {
     const modal = useModal()   
+    const [testModalVisible, setTestModalVisible] = useState(false)
+    const [form] = Form.useForm()
     
     const initialValues = Object.fromEntries(
         Object.keys(EMAIL_CONFIG_ITEMS).map(key => [
@@ -49,40 +146,72 @@ export const EmailConfigModal = NiceModal.create(() => {
                 : config.get_config(key) || ''
         ])
     )
-    return <Modal
-        width='30%'    
-        open={modal.visible}
-        afterClose={modal.remove}
-        onCancel={modal.hide}
-        title={t('邮件告警设置')}
-        footer={null}
-    >
-        <Form
-            onFinish={async configs => {
-                Object.
-                    entries(configs).
-                    forEach(([key, val]) => {
-                    config.set_config(key, val as string)
-                })
-                await config.save_configs()
-                await config.load_configs() 
-                model.message.success(t('保存成功'))
-                modal.remove()
-            }}
-            initialValues={initialValues}
-            labelCol={{ span: 8 }}
-            wrapperCol={{ span: 16 }}
+    
+    function handleTestEmail () {
+        // 先保存当前配置
+        const currentValues = form.getFieldsValue()
+        
+        // 检查必要的配置项是否已填写
+        const requiredFields = [
+            'inspectionAlertSMTPEmailName',
+            'inspectionAlertSMTPHost',
+            'inspectionAlertSMTPPort',
+            'inspectionAlertUserId',
+            'inspectionAlertPwd'
+        ]
+        
+        const missingFields = requiredFields.filter(field => !currentValues[field])
+        
+        if (missingFields.length > 0) {
+            message.warning(t('请先完整填写邮件配置信息'))
+            return
+        }
+        
+        setTestModalVisible(true)
+    }
+    
+    return <>
+            <Modal
+                width='30%'    
+                open={modal.visible}
+                afterClose={modal.remove}
+                onCancel={modal.hide}
+                title={t('邮件告警设置')}
+                footer={null}
             >
-            {Object.entries(EMAIL_CONFIG_ITEMS).map(([name, { label, component }]) => <Form.Item key={name} label={t(label)} name={name}>
-                    {component}
-                </Form.Item>)}
-            <Form.Item wrapperCol={{ offset: 8, span: 16 }} >
-                <Space size={20} wrap>
-                    <Button htmlType='button' onClick={modal.hide}>{t('取消')}</Button>
-                    <Button type='primary' htmlType='submit'>{t('保存')}</Button>
-                </Space>
-            </Form.Item>
-        </Form>
-    </Modal>
+                <Form
+                    form={form}
+                    onFinish={async configs => {
+                        Object.
+                            entries(configs).
+                            forEach(([key, val]) => {
+                            config.set_config(key, val as string)
+                        })
+                        await config.save_configs()
+                        await config.load_configs()
+                        model.message.success(t('保存成功'))
+                        modal.remove()
+                    }}
+                    initialValues={initialValues}
+                    labelCol={{ span: 8 }}
+                    wrapperCol={{ span: 16 }}
+                    >
+                    {Object.entries(EMAIL_CONFIG_ITEMS).map(([name, { label, component }]) => <Form.Item key={name} label={t(label)} name={name}>
+                            {component}
+                        </Form.Item>)}
+                    <Form.Item wrapperCol={{ offset: 8, span: 16 }} >
+                        <Space size={20} wrap>
+                            <Button htmlType='button' onClick={modal.hide}>{t('取消')}</Button>
+                            <Button htmlType='button' onClick={handleTestEmail}>{t('测试邮件')}</Button>
+                            <Button type='primary' htmlType='submit'>{t('保存')}</Button>
+                        </Space>
+                    </Form.Item>
+                </Form>
+            </Modal>
+            
+            <TestEmailModal
+                visible={testModalVisible}
+                onClose={() => { setTestModalVisible(false) }}
+            />
+        </>
 })
- 

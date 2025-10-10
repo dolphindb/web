@@ -168,7 +168,7 @@ class InspectionModel extends Model<InspectionModel> {
     async get_logs (report_id: string, node: string) {
         return model.ddb.invoke('rpc', [node, new DdbFunction('getJobMessage', DdbFunctionType.SystemFunc), report_id], { node })
     }
-
+ 
     async get_email_history (
         plan_id?: string, 
         report_id?: string, 
@@ -187,6 +187,10 @@ class InspectionModel extends Model<InspectionModel> {
             end_time || undefined,
             status || undefined
         ])
+    }
+    
+    async send_test_email (test_recipient: string, language: string = 'cn'): Promise<{ errCode: number, errMsg: string }> {
+        return model.ddb.invoke('sendTestEmail', [test_recipient, language])
     }
 }
 
