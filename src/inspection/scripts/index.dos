@@ -341,7 +341,7 @@ def updateMetricParams(mutable params, planId, metricName) {
         }
     }
     if (!isVoid(params["timeRange"]) && !isNull(params["timeRange"])) {
-        params["startTime"] = timestamp(now() - long(params["timeRange"]))
+        params["startTime"] = temporalAdd(now(), -params["timeRange"])
         params["endTime"] = now()
     }
 }

@@ -450,7 +450,7 @@ def replicaRowNum(params){
         return (true, "节点副本数小于 2，无法进行校验。", NULL)
     }
     if (!isVoid(params["timeRange"]) && !isNull(params["timeRange"])) {
-        startTime = now() - params["timeRange"]
+        startTime = temporalAdd(now(), -params["timeRange"])
         endTime = now()
     } else {
         startTime = params["startTime"]
@@ -584,7 +584,7 @@ def getServerLogEx(startTime, endTime) {
 
 def errorLogs(params) {
     if (!isVoid(params["timeRange"]) && !isNull(params["timeRange"])) {
-        startTime = now() - params["timeRange"]
+        startTime = temporalAdd(now(), -params["timeRange"])
         endTime = now()
     } else {
         startTime = params["startTime"]
@@ -628,7 +628,7 @@ nodes = NULL // NULL 指该指标不能指定节点运行，选择任一数据�
 script = '
 def queryElapsed(params) {
     if (!isVoid(params["timeRange"]) && !isNull(params["timeRange"])) {
-        startTime_ = now() - params["timeRange"]
+        startTime_ = temporalAdd(now(), -params["timeRange"])
         endTime_ = now()
     }
     else {
@@ -720,7 +720,7 @@ def mostQueriedDFSTables(params) {
     }
     
     if (!isVoid(params["timeRange"]) && !isNull(params["timeRange"])) {
-        startTime_ = now() - params["timeRange"]
+        startTime_ = temporalAdd(now(), -params["timeRange"])
         endTime_ = now()
     }
     else {
@@ -807,7 +807,7 @@ def dfsPath2tableName(node, chunkId, dfsPath){
 
 def DFSTableDiskUsage(params) {
     if (!isVoid(params["timeRange"]) && !isNull(params["timeRange"])) {
-        startTime = now() - params["timeRange"]
+        startTime = temporalAdd(now(), -params["timeRange"])
         endTime = now()
     }
     else {
@@ -889,7 +889,7 @@ def dfsPath2tableName(node, chunkId, dfsPath){
 
 def biggestChunks(params) {
     if (!isVoid(params["timeRange"]) && !isNull(params["timeRange"])) {
-        startTime = now() - params["timeRange"]
+        startTime = temporalAdd(now(), -params["timeRange"])
         endTime = now()
     }
     else {
@@ -954,7 +954,7 @@ def dfsPath2tableName(node, chunkId, dfsPath){
 
 def sortKeyCount(params) {
     if (!isVoid(params["timeRange"]) && !isNull(params["timeRange"])) {
-        startTime = now() - params["timeRange"]
+        startTime = temporalAdd(now(), -params["timeRange"])
         endTime = now()
     }
     else {
@@ -1817,7 +1817,7 @@ def replicaColNum(params){
     ret = table(1:0, ["库名", "表名", "dfsPath", "副本节点1", "副本节点2", "是否一致"], [STRING, STRING, STRING,STRING, STRING, BOOL])
 
     if (!isVoid(params["timeRange"]) && !isNull(params["timeRange"])) {
-        startTime = now() - params["timeRange"]
+        startTime = temporalAdd(now(), -params["timeRange"])
         endTime = now()
     }
     else {
@@ -1911,7 +1911,7 @@ def coredump(params) {
     }
     
     if (!isVoid(params["timeRange"]) && !isNull(params["timeRange"])) {
-        startTime = now() - params["timeRange"]
+        startTime = temporalAdd(now(), -params["timeRange"])
         endTime = now()
     }
     else {
