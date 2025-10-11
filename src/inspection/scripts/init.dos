@@ -412,7 +412,7 @@ desc = "检查在指定的 startTime 到 endTime 之间，是否存在副本数�
 参数说明：
 - startTime：TIMESTAMP，统计范围的开始时间，默认值为上次相同方案 ID 的报告的开始时间。
 - endTime：TIMESTAMP，统计范围的结束时间，默认值为当前报告的开始时间。
-- timeRange：DURATION，统计范围的时间范围。如果配置了 timeRange，则会自动计算 startTime 和 endTime。"
+- timeRange：STRING，统计范围的时间范围。如果配置了 timeRange，则会自动计算 startTime 和 endTime。"
 nodes = NULL
 script = '
 def getChunkidNode(nodes, replicas, chunkIds){
@@ -450,7 +450,7 @@ def replicaRowNum(params){
         return (true, "节点副本数小于 2，无法进行校验。", NULL)
     }
     if (!isVoid(params["timeRange"]) && !isNull(params["timeRange"])) {
-        startTime = temporalAdd(now(), -params["timeRange"])
+        startTime = temporalAdd(now(), duration("-" + params["timeRange"]))
         endTime = now()
     } else {
         startTime = params["startTime"]
@@ -478,7 +478,7 @@ def replicaRowNum(params){
 }
 '
 params = [
-    dict(`name`type, ["timeRange", "DURATION"]),
+    dict(`name`type, ["timeRange", "STRING"]),
     dict(`name`type, ["startTime", "TIMESTAMP"]),
     dict(`name`type, ["endTime", "TIMESTAMP"])
 ]
@@ -496,7 +496,7 @@ desc = "检查指定时间范围内（startTime 到 endTime）是否存在 ERROR
 参数说明：
 - startTime：TIMESTAMP，统计范围的开始时间，默认值为上次相同方案 ID 的报告的开始时间。
 - endTime：TIMESTAMP，统计范围的结束时间，默认值为当前报告的开始时间。
-- timeRange：DURATION，统计范围的时间范围。如果配置了 timeRange，则会自动计算 startTime 和 endTime。
+- timeRange：STRING，统计范围的时间范围。如果配置了 timeRange，则会自动计算 startTime 和 endTime。
 - logLevel：STRING 数组，统计的日志等级，可取值：ERROR，WARNING。"
 nodes = [0, 2, 3, 4]
 script = '
@@ -584,7 +584,7 @@ def getServerLogEx(startTime, endTime) {
 
 def errorLogs(params) {
     if (!isVoid(params["timeRange"]) && !isNull(params["timeRange"])) {
-        startTime = temporalAdd(now(), -params["timeRange"])
+        startTime = temporalAdd(now(), duration("-" + params["timeRange"]))
         endTime = now()
     } else {
         startTime = params["startTime"]
@@ -603,7 +603,7 @@ def errorLogs(params) {
 }
 '
 params = [
-    dict(`name`type, ["timeRange", "DURATION"]),
+    dict(`name`type, ["timeRange", "STRING"]),
     dict(`name`type, ["startTime", "TIMESTAMP"]),
     dict(`name`type, ["endTime", "TIMESTAMP"]),
     dict(`name`type`options, ["logLevel", "SYMBOL", ["ERROR", "WARNING"]])
@@ -623,12 +623,12 @@ desc = "统计在指定时间范围内（startTime 到 endTime）执行的耗时
 参数说明：
 - startTime：TIMESTAMP，统计范围的开始时间，默认值为上次相同方案 ID 的报告的开始时间。
 - endTime：TIMESTAMP，统计范围的结束时间，默认值为当前报告的开始时间。
-- timeRange：DURATION，统计范围的时间范围。如果配置了 timeRange，则会自动计算 startTime 和 endTime。"
+- timeRange：STRING，统计范围的时间范围。如果配置了 timeRange，则会自动计算 startTime 和 endTime。"
 nodes = NULL // NULL 指该指标不能指定节点运行，选择任一数据节点执行
 script = '
 def queryElapsed(params) {
     if (!isVoid(params["timeRange"]) && !isNull(params["timeRange"])) {
-        startTime_ = temporalAdd(now(), -params["timeRange"])
+        startTime_ = temporalAdd(now(), duration("-" + params["timeRange"]))
         endTime_ = now()
     }
     else {
@@ -692,7 +692,7 @@ def queryElapsed(params) {
 }
 '
 params = [
-    dict(`name`type, ["timeRange", "DURATION"]),
+    dict(`name`type, ["timeRange", "STRING"]),
     dict(`name`type, ["startTime", "TIMESTAMP"]),
     dict(`name`type, ["endTime", "TIMESTAMP"])
 ]
@@ -711,7 +711,7 @@ desc = "统计在指定时间范围内（startTime 到 endTime）访问次数最
 参数说明：
 - startTime：TIMESTAMP，统计范围的开始时间，默认值为上次相同方案 ID 的报告的开始时间。
 - endTime：TIMESTAMP，统计范围的结束时间，默认值为当前报告的开始时间。
-- timeRange：DURATION，统计范围的时间范围。如果配置了 timeRange，则会自动计算 startTime 和 endTime。"
+- timeRange：STRING，统计范围的时间范围。如果配置了 timeRange，则会自动计算 startTime 和 endTime。"
 nodes = NULL // NULL 指该指标不能指定节点运行，选择任一数据节点执行
 script = '
 def mostQueriedDFSTables(params) {
@@ -720,7 +720,7 @@ def mostQueriedDFSTables(params) {
     }
     
     if (!isVoid(params["timeRange"]) && !isNull(params["timeRange"])) {
-        startTime_ = temporalAdd(now(), -params["timeRange"])
+        startTime_ = temporalAdd(now(), duration("-" + params["timeRange"]))
         endTime_ = now()
     }
     else {
@@ -776,7 +776,7 @@ def mostQueriedDFSTables(params) {
 }
 '
 params = [
-    dict(`name`type, ["timeRange", "DURATION"]),
+    dict(`name`type, ["timeRange", "STRING"]),
     dict(`name`type, ["startTime", "TIMESTAMP"]),
     dict(`name`type, ["endTime", "TIMESTAMP"])
 ]
@@ -795,7 +795,7 @@ desc = "统计在指定时间范围内（startTime 到 endTime）数据库写入
 参数说明：
 - startTime：TIMESTAMP，统计范围的开始时间，默认值为上次相同方案 ID 的报告的开始时间。
 - endTime：TIMESTAMP，统计范围的结束时间，默认值为当前报告的开始时间。
-- timeRange：DURATION，统计范围的时间范围。如果配置了 timeRange，则会自动计算 startTime 和 endTime。"
+- timeRange：STRING，统计范围的时间范围。如果配置了 timeRange，则会自动计算 startTime 和 endTime。"
 nodes = NULL // NULL 指该指标不能指定节点运行，选择任一数据节点执行
 script = '
 def dfsPath2tableName(node, chunkId, dfsPath){
@@ -807,7 +807,7 @@ def dfsPath2tableName(node, chunkId, dfsPath){
 
 def DFSTableDiskUsage(params) {
     if (!isVoid(params["timeRange"]) && !isNull(params["timeRange"])) {
-        startTime = temporalAdd(now(), -params["timeRange"])
+        startTime = temporalAdd(now(), duration("-" + params["timeRange"]))
         endTime = now()
     }
     else {
@@ -858,7 +858,7 @@ def DFSTableDiskUsage(params) {
 }
 '
 params = [
-    dict(`name`type, ["timeRange", "DURATION"]),
+    dict(`name`type, ["timeRange", "STRING"]),
     dict(`name`type, ["startTime", "TIMESTAMP"]),
     dict(`name`type, ["endTime", "TIMESTAMP"])
 ]
@@ -877,7 +877,7 @@ desc = "统计在指定时间范围内（startTime 到 endTime）有写入记录
 参数说明：
 - startTime：TIMESTAMP，统计范围的开始时间，默认值为上次相同方案 ID 的报告的开始时间。
 - endTime：TIMESTAMP，统计范围的结束时间，默认值为当前报告的开始时间。
-- timeRange：DURATION，统计范围的时间范围。如果配置了 timeRange，则会自动计算 startTime 和 endTime。"
+- timeRange：STRING，统计范围的时间范围。如果配置了 timeRange，则会自动计算 startTime 和 endTime。"
 nodes = NULL // NULL 指该指标不能指定节点运行，选择任一数据节点执行
 script = '
 def dfsPath2tableName(node, chunkId, dfsPath){
@@ -889,7 +889,7 @@ def dfsPath2tableName(node, chunkId, dfsPath){
 
 def biggestChunks(params) {
     if (!isVoid(params["timeRange"]) && !isNull(params["timeRange"])) {
-        startTime = temporalAdd(now(), -params["timeRange"])
+        startTime = temporalAdd(now(), duration("-" + params["timeRange"]))
         endTime = now()
     }
     else {
@@ -924,7 +924,7 @@ def biggestChunks(params) {
 }
 '
 params = [
-    dict(`name`type, ["timeRange", "DURATION"]),
+    dict(`name`type, ["timeRange", "STRING"]),
     dict(`name`type, ["startTime", "TIMESTAMP"]),
     dict(`name`type, ["endTime", "TIMESTAMP"])
 ]
@@ -942,7 +942,7 @@ desc = "检查在指定时间范围内（startTime 到 endTime）有写入记录
 参数说明：
 - startTime：TIMESTAMP，统计范围的开始时间，默认值为上次相同方案 ID 的报告的开始时间。
 - endTime：TIMESTAMP，统计范围的结束时间，默认值为当前报告的开始时间。
-- timeRange：DURATION，统计范围的时间范围。如果配置了 timeRange，则会自动计算 startTime 和 endTime。"
+- timeRange：STRING，统计范围的时间范围。如果配置了 timeRange，则会自动计算 startTime 和 endTime。"
 nodes = NULL // NULL 指该指标不能指定节点运行，选择任一数据节点执行
 script = '
 def dfsPath2tableName(node, chunkId, dfsPath){
@@ -954,7 +954,7 @@ def dfsPath2tableName(node, chunkId, dfsPath){
 
 def sortKeyCount(params) {
     if (!isVoid(params["timeRange"]) && !isNull(params["timeRange"])) {
-        startTime = temporalAdd(now(), -params["timeRange"])
+        startTime = temporalAdd(now(), duration("-" + params["timeRange"]))
         endTime = now()
     }
     else {
@@ -992,7 +992,7 @@ def sortKeyCount(params) {
 }
 '
 params = [
-    dict(`name`type, ["timeRange", "DURATION"]),
+    dict(`name`type, ["timeRange", "STRING"]),
     dict(`name`type, ["startTime", "TIMESTAMP"]),
     dict(`name`type, ["endTime", "TIMESTAMP"])
 ]
@@ -1805,7 +1805,7 @@ desc = "检查多副本列数是否一致。
 参数说明：
 - startTime：TIMESTAMP，统计范围的开始时间，默认值为上次相同方案 ID 的报告的开始时间。
 - endTime：TIMESTAMP，统计范围的结束时间，默认值为当前报告的开始时间。
-- timeRange：DURATION，统计范围的时间范围。如果配置了 timeRange，则会自动计算 startTime 和 endTime。"
+- timeRange：STRING，统计范围的时间范围。如果配置了 timeRange，则会自动计算 startTime 和 endTime。"
 nodes = NULL
 script = '
 def replicaColNum(params){
@@ -1817,7 +1817,7 @@ def replicaColNum(params){
     ret = table(1:0, ["库名", "表名", "dfsPath", "副本节点1", "副本节点2", "是否一致"], [STRING, STRING, STRING,STRING, STRING, BOOL])
 
     if (!isVoid(params["timeRange"]) && !isNull(params["timeRange"])) {
-        startTime = temporalAdd(now(), -params["timeRange"])
+        startTime = temporalAdd(now(), duration("-" + params["timeRange"]))
         endTime = now()
     }
     else {
@@ -1880,7 +1880,7 @@ def replicaColNum(params){
 }
 '
 params = [
-    dict(`name`type, ["timeRange", "DURATION"]),
+    dict(`name`type, ["timeRange", "STRING"]),
     dict(`name`type, ["startTime", "TIMESTAMP"]),
     dict(`name`type, ["endTime", "TIMESTAMP"])
 ]
@@ -1899,7 +1899,7 @@ desc = "检查指定时间范围内（startTime 到 endTime）是否生成了 co
 参数说明：
 - startTime：TIMESTAMP，统计范围的开始时间，默认值为上次相同方案 ID 的报告的开始时间。
 - endTime：TIMESTAMP，统计范围的结束时间，默认值为当前报告的开始时间。
-- timeRange：DURATION，统计范围的时间范围。如果配置了 timeRange，则会自动计算 startTime 和 endTime。"
+- timeRange：STRING，统计范围的时间范围。如果配置了 timeRange，则会自动计算 startTime 和 endTime。"
 nodes = [0, 2, 3, 4]
 script = '
 def coredump(params) {
@@ -1911,7 +1911,7 @@ def coredump(params) {
     }
     
     if (!isVoid(params["timeRange"]) && !isNull(params["timeRange"])) {
-        startTime = temporalAdd(now(), -params["timeRange"])
+        startTime = temporalAdd(now(), duration("-" + params["timeRange"]))
         endTime = now()
     }
     else {
@@ -1970,7 +1970,7 @@ def coredump(params) {
 }
 '
 params = [
-    dict(`name`type, ["timeRange", "DURATION"]),
+    dict(`name`type, ["timeRange", "STRING"]),
     dict(`name`type, ["startTime", "TIMESTAMP"]),
     dict(`name`type, ["endTime", "TIMESTAMP"])
 ]
