@@ -32,11 +32,13 @@ export const EditParamModal = NiceModal.create(({
     function formatMetricData (metricData: MetricsWithStatus) {
         const { selected_params, params } = metricData
         let formatted_params: Record<string, string | Dayjs | null> = { }
-        if (selected_params !== null && typeof selected_params === 'object' && !isEmpty(metricData.selected_params)) 
+        if (selected_params !== null && typeof selected_params === 'object' && !isEmpty(metricData.selected_params))
             for (const [key, value] of Object.entries(selected_params)) {
                 let param = params.get(key)
                 if (param.type === 'TIMESTAMP')
                     formatted_params[key] = value ?  dayjs(value) : null
+                else if (param.type === 'DURATION' || param.type === 'STRING')
+                    formatted_params[key] = value
                 else
                     formatted_params[key] = value
             }
@@ -145,10 +147,10 @@ export const EditParamModal = NiceModal.create(({
                             labelCol={{ span: 3 }}
                             wrapperCol={{ span: 21 }}
                         >
-                            {type === DDB_TYPE_MAP[DdbType.timestamp] ? 
+                            {type === DDB_TYPE_MAP[DdbType.timestamp] ?
                                 <DatePicker
-                                    showTime 
-                                /> : 
+                                    showTime
+                                /> :
                                 type === DDB_TYPE_MAP[DdbType.symbol] || type === DDB_TYPE_MAP[DdbType.symbol_extended]
                                     ? <Select
                                         mode='multiple'
@@ -156,7 +158,9 @@ export const EditParamModal = NiceModal.create(({
                                                 value: op,
                                                 label: op
                                         }))} />
-                                    :  <InputNumber/>}
+                                    : type === 'DURATION' || type === 'STRING'
+                                        ? <Input style={{ width: 207 }} placeholder={type === 'DURATION' ? '例如: 1h, 30m, 1d' : ''} />
+                                        : <InputNumber/>}
                             </Form.Item>
                       
                     })

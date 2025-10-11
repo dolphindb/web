@@ -114,6 +114,8 @@ export function InspectionForm ({
                                 let param = params.get(key)
                                 if (param.type === DDB_TYPE_MAP[DdbType.timestamp])
                                     formatted_params[key] = value ? dayjs(value).format('YYYY.MM.DDTHH:mm:ss.SSS') : null
+                                else if (param.type === 'DURATION' || param.type === 'STRING')
+                                    formatted_params[key] = value
                                 else
                                     formatted_params[key] = value
                             }
