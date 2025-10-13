@@ -433,10 +433,10 @@ def runPlanInner(planId, reportId) {
     writeLog("autoInspection: start to run plan: " + string(planId))
     ts = reportId.split("_").last()
     planId_ = planId
-    planDetails = select a.metricName as metricName, a.nodes as nodes, a.params as params, b.script as script, b.version as metricVersion from loadTable("dfs://autoInspection", "planDetails") a left join loadTable("dfs://autoInspection", "metrics") b on a.metricName == b.name and a.metricVersion == b.version where a.planId == planId_
+    planDetails = select a.metricName as metricName, a.nodes as nodes, a.params as params, b.script as script, b.version as metricVersion from loadTable("dfs://autoInspection", "planDetails") as a left join loadTable("dfs://autoInspection", "metrics") as b on a.metricName == b.name and a.metricVersion == b.version where a.planId == planId_
     // metricVersion 设为空的 planDetail，自动选最大版本的指标
     maxVersionMetrics = select * from loadTable("dfs://autoInspection", "metrics") context by name csort version desc limit 1
-    planDetails1 = select a.metricName, a.nodes, a.params, b.script, b.version as metricVersion from planDetails a left join maxVersionMetrics b on a.metricName == b.name where a.metricVersion == NULL 
+    planDetails1 = select a.metricName, a.nodes, a.params, b.script, b.version as metricVersion from planDetails as a left join maxVersionMetrics as b on a.metricName == b.name where a.metricVersion == NULL 
     planDetails2 = select * from planDetails where metricVersion != NULL 
     planDetails = unionAll(planDetails1, planDetails2, true)
 
@@ -1086,7 +1086,7 @@ def getPlans(planId=NULL, enabled=NULL, page=NULL, pageLimit=NULL, searchPattern
     cnt = sql(sqlCol("*", count), loadTable("dfs://autoInspection", "plans"), whereCond, exec=true).eval()
     res = sql(sqlCol("*"), loadTable("dfs://autoInspection", "plans"), whereCond).eval()
     reports = sql(sqlCol("*"), loadTable("dfs://autoInspection", "reports"), whereCond_, groupBy=sqlCol("planId"), groupFlag=0, csort=sqlCol("endTime"), ascSort=0, limit=1).eval()
-    res = select res.id, res.name, res.desc, res.user, res.enabledNode, res.startDate, res.endDate, res.frequency, res.days, res.scheduleTime, res.enabled, res.alertEnabled, res.alertRecipient, reports.id as lastReportId from res left semijoin reports on res.id == reports.planId
+    res = select res.id, res.name, res.desc, res.user, res.enabledNode, res.startDate, res.endDate, res.frequency, res.days, res.scheduleTime, res.enabled, res.alertEnabled, res.alertRecipient, reports.id as lastReportId from res as res left semijoin reports as reports on res.id == reports.planId
     if (page != NULL) {
         startIndex = (page - 1) * pageLimit
         endIndex = page * pageLimit
@@ -1106,7 +1106,7 @@ def getPlanDetails(planId=NULL, language="cn") {
     }
     res = sql(sqlCol("*"), loadTable("dfs://autoInspection", "planDetails"), whereCond).eval()
     metricsInfo = select * from loadTable("dfs://autoInspection", "metrics") where name in distinct(res["metricName"]) and language == language_
-    res = select a.planId, a.metricName, a.metricVersion, a.nodes, a.params, b.displayName, b.language from res a left semijoin metricsInfo b on a.metricName == b.name and a.metricVersion == b.version
+    res = select a.planId, a.metricName, a.metricVersion, a.nodes, a.params, b.displayName, b.language from res as a left semijoin metricsInfo as b on a.metricName == b.name and a.metricVersion == b.version
 
     return res
 }
@@ -1183,7 +1183,7 @@ def getReportDetailsOfMetrics(reportId=NULL, language="cn") {
     res = sql(sqlCol("*"), loadTable("dfs://autoInspection", "reportDetails"), whereCond).eval()
     res = select first(metricVersion) as metricVersion, concat(node, ",") as nodes, min(startTime) as startTime, max(endTime) as endTime, all(success) as success, first(metricParams) as metricParams from res group by reportId, metricName
     metrics = select * from loadTable("dfs://autoInspection", "metrics") where name in res["metricName"] and language == language_
-    res = select reportId, metricName, metrics.displayName, metrics.group, metricVersion, desc, iif(isNull(metrics.nodes), string(NULL), string(res.nodes)) as nodes, startTime, endTime, endTime - startTime as runningTime, script, success, metricParams from res left join metrics on res.metricName = metrics.name and res.metricVersion = metrics.version
+    res = select reportId, metricName, metrics.displayName, metrics.group, metricVersion, desc, iif(isNull(metrics.nodes), string(NULL), string(res.nodes)) as nodes, startTime, endTime, endTime - startTime as runningTime, script, success, metricParams from res as res left join metrics as metrics on res.metricName = metrics.name and res.metricVersion = metrics.version
 
     return res
 }
@@ -1197,7 +1197,7 @@ def getReportDetailsOfNodes(reportId=NULL, language="cn") {
         whereCond = <reportId == reportId_>
     }
     res = sql(sqlCol("*"), loadTable("dfs://autoInspection", "reportDetails"), whereCond).eval()
-    res = select reportId, jobId, metricName, b.displayName as metricDisplayName, group, metricVersion, a.node as node, startTime, endTime, endTime - startTime as runningTime, success, detail, extraDetail, suggestion from res a left join loadTable("dfs://autoInspection", "metrics") b on a.metricName == b.name and a.metricVersion == b.version where b.language == language_
+    res = select reportId, jobId, metricName, b.displayName as metricDisplayName, group, metricVersion, a.node as node, startTime, endTime, endTime - startTime as runningTime, success, detail, extraDetail, suggestion from res as a left join loadTable("dfs://autoInspection", "metrics") as b on a.metricName == b.name and a.metricVersion == b.version where b.language == language_
 
     return res
 }
