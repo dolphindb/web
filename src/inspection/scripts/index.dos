@@ -1334,16 +1334,16 @@ def sendTestEmail(testRecipient, language="cn") {
             }
         }
         if (missingKeys.size() > 0) {
-            throw "邮件配置不完整，缺失必要项：" + missingKeys.concat(", ")
+            throw "Email configuration incomplete, missing required fields:" + missingKeys.concat(", ")
         }
 
         if (isVoid(testRecipient) || isNull(testRecipient) || testRecipient.strip() == "") {
-            throw "测试收件人不能为空，请输入邮箱（多个用逗号分隔）"
+            throw "Test recipient cannot be empty, please enter email address(es) (separate multiple with commas)"
         }
 
         recipients = testRecipient.split(",").strip()
         if (recipients.size() == 0) {
-            throw "测试收件人格式错误，请用逗号分隔多个邮箱（例如：a@xxx.com,b@xxx.com）"
+            throw "Test recipient format error, please separate multiple emails with commas (e.g., a@xxx.com,b@xxx.com)"
         }
 
         subject = iif(
@@ -1384,7 +1384,7 @@ def sendTestEmail(testRecipient, language="cn") {
                 } else {
                     errMsg = string(pluginErr.last())
                 }
-                throw "加载httpClient插件失败，无法发送邮件：" + errMsg
+                throw "Failed to load httpClient plugin, cannot send email:" + errMsg
             }
         }
 
@@ -1431,8 +1431,8 @@ def sendTestEmail(testRecipient, language="cn") {
             status = "sent",
             errMsg = string(NULL) 
         where planId == testPlanId and reportId == testReportId
-        writeLog("测试邮件发送成功：收件人=" + testRecipient + ", 主题=" + subject)
-        ret["errMsg"] = "测试邮件已发送，请查收（收件人：" + testRecipient + "）"
+        writeLog("Test email sent successfully: recipient=" + testRecipient + ", subject=" + subject)
+        ret["errMsg"] = "Test email sent, please check (recipient: " + testRecipient + ")"
 
     } catch(err) {
         if (err.form() == 0) {
@@ -1448,12 +1448,12 @@ def sendTestEmail(testRecipient, language="cn") {
                     errMsg = errMsg 
                 where planId == "TEST_EMAIL_PLAN" and reportId.startsWith("TEST_EMAIL_")
             } catch(updateErr) {
-                writeLog("更新邮件历史失败：" + string(updateErr.last()))
+                writeLog("Failed to update email history: " + string(updateErr.last()))
             }
         }
-        writeLog("测试邮件发送失败：" + errMsg)
+        writeLog("Test email sending failed: " + errMsg)
         ret["errCode"] = 1
-        ret["errMsg"] = "测试邮件发送失败：" + errMsg
+        ret["errMsg"] = "Test email sending failed: " + errMsg
     }
 
     return ret
