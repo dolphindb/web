@@ -7,6 +7,7 @@ import { model } from '@model'
  
 import { config } from '@/config/model.ts'
 import { inspection } from '@/inspection/model.ts'
+import { use_modal, type ModalController } from 'react-object-model/hooks'
 
 const EMAIL_CONFIG_ITEMS = {
     inspectionAlertEnabled: { 
@@ -39,25 +40,20 @@ const EMAIL_CONFIG_ITEMS = {
     },
 } as const
 
-interface TestEmailModalProps {
-    visible: boolean
-    onClose: () => void
-}
-
-function TestEmailModal ({ visible, onClose }) {
+function TestEmailModal ({ modal }: { modal: ModalController }) {
     const [form] = Form.useForm()
-    const [loading, setLoading] = useState(false)
+    const [loading, set_loading] = useState(false)
     
-    async function handleSendTestEmail () {
+    async function handle_send_test_email () {
         try {
             const values = await form.validateFields()
-            setLoading(true)
+            set_loading(true)
             console.log(values)
             const result = await inspection.send_test_email(values.testRecipient, values.language || 'cn')
             
             if (result.errCode === 0) {
                 model.message.success(result.errMsg || t('测试邮件发送成功'))
-                onClose()
+                modal.close()
                 form.resetFields()
             } else
                 model.message.error(result.errMsg || t('测试邮件发送失败'))
@@ -66,14 +62,14 @@ function TestEmailModal ({ visible, onClose }) {
             console.error('发送测试邮件失败:', error)
             model.message.error(t('发送测试邮件失败'))
         } finally {
-            setLoading(false)
+            set_loading(false)
         }
     }
     
     return <Modal
             title={t('发送测试邮件')}
-            open={visible}
-            onCancel={onClose}
+            open={modal.visible}
+            onCancel={modal.close}
             footer={null}
             width={500}
         >
@@ -123,8 +119,8 @@ function TestEmailModal ({ visible, onClose }) {
                 
                 <Form.Item>
                     <Space>
-                        <Button onClick={onClose}>{t('取消')}</Button>
-                        <Button type='primary' loading={loading} onClick={handleSendTestEmail}>
+                        <Button onClick={modal.close}>{t('取消')}</Button>
+                        <Button type='primary' loading={loading} onClick={handle_send_test_email}>
                             {t('发送测试邮件')}
                         </Button>
                     </Space>
@@ -134,8 +130,8 @@ function TestEmailModal ({ visible, onClose }) {
 }
 
 export const EmailConfigModal = NiceModal.create(() => {
-    const modal = useModal()   
-    const [testModalVisible, setTestModalVisible] = useState(false)
+    const modal = useModal()
+    let test_modal = use_modal()
     const [form] = Form.useForm()
     
     const initialValues = Object.fromEntries(
@@ -147,7 +143,7 @@ export const EmailConfigModal = NiceModal.create(() => {
         ])
     )
     
-    function handleTestEmail () {
+    function handle_test_email () {
         // 先保存当前配置
         const currentValues = form.getFieldsValue()
         
@@ -160,14 +156,12 @@ export const EmailConfigModal = NiceModal.create(() => {
             'inspectionAlertPwd'
         ]
         
-        const missingFields = requiredFields.filter(field => !currentValues[field])
-        
-        if (missingFields.length > 0) {
+        if (requiredFields.find(field => !currentValues[field])) {
             model.message.warning(t('请先完整填写邮件配置信息'))
             return
         }
         
-        setTestModalVisible(true)
+        test_modal.close()
     }
     
     return <>
@@ -196,22 +190,21 @@ export const EmailConfigModal = NiceModal.create(() => {
                     labelCol={{ span: 8 }}
                     wrapperCol={{ span: 16 }}
                     >
-                    {Object.entries(EMAIL_CONFIG_ITEMS).map(([name, { label, component }]) => <Form.Item key={name} label={t(label)} name={name}>
-                            {component}
-                        </Form.Item>)}
+                    {Object.entries(EMAIL_CONFIG_ITEMS)
+                        .map(([name, { label, component }]) => 
+                            <Form.Item key={name} label={t(label)} name={name}>
+                                {component}
+                            </Form.Item>)}
                     <Form.Item wrapperCol={{ offset: 8, span: 16 }} >
                         <Space size={20} wrap>
                             <Button htmlType='button' onClick={modal.hide}>{t('取消')}</Button>
-                            <Button htmlType='button' onClick={handleTestEmail}>{t('测试邮件')}</Button>
+                            <Button htmlType='button' onClick={handle_test_email}>{t('测试邮件')}</Button>
                             <Button type='primary' htmlType='submit'>{t('保存')}</Button>
                         </Space>
                     </Form.Item>
                 </Form>
             </Modal>
             
-            <TestEmailModal
-                visible={testModalVisible}
-                onClose={() => { setTestModalVisible(false) }}
-            />
+            <TestEmailModal modal={test_modal} />
         </>
 })
