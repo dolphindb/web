@@ -5,9 +5,10 @@ import { useState } from 'react'
 
 import { model } from '@model'
  
+import { use_modal, type ModalController } from 'react-object-model/hooks'
+
 import { config } from '@/config/model.ts'
 import { inspection } from '@/inspection/model.ts'
-import { use_modal, type ModalController } from 'react-object-model/hooks'
 
 const EMAIL_CONFIG_ITEMS = {
     inspectionAlertEnabled: { 
@@ -45,22 +46,20 @@ function TestEmailModal ({ modal }: { modal: ModalController }) {
     const [loading, set_loading] = useState(false)
     
     async function handle_send_test_email () {
+        const values = await form.validateFields()
         try {
-            const values = await form.validateFields()
             set_loading(true)
-            console.log(values)
             const result = await inspection.send_test_email(values.testRecipient, values.language || 'cn')
             
             if (result.errCode === 0) {
-                model.message.success(result.errMsg || t('测试邮件发送成功'))
+                model.message.success(t('测试邮件发送成功'))
                 modal.close()
                 form.resetFields()
             } else
                 model.message.error(result.errMsg || t('测试邮件发送失败'))
             
         } catch (error) {
-            console.error('发送测试邮件失败:', error)
-            model.message.error(t('发送测试邮件失败'))
+            model.message.error(t('发送测试邮件失败') + ' ' + error.message)
         } finally {
             set_loading(false)
         }
@@ -77,6 +76,7 @@ function TestEmailModal ({ modal }: { modal: ModalController }) {
                 form={form}
                 layout='vertical'
                 initialValues={{ language: 'cn' }}
+                onFinish={handle_send_test_email}
             >
                 <Form.Item
                     name='testRecipient'
@@ -120,7 +120,7 @@ function TestEmailModal ({ modal }: { modal: ModalController }) {
                 <Form.Item>
                     <Space>
                         <Button onClick={modal.close}>{t('取消')}</Button>
-                        <Button type='primary' loading={loading} onClick={handle_send_test_email}>
+                        <Button type='primary' loading={loading}  htmlType='submit'>
                             {t('发送测试邮件')}
                         </Button>
                     </Space>
@@ -161,7 +161,7 @@ export const EmailConfigModal = NiceModal.create(() => {
             return
         }
         
-        test_modal.close()
+        test_modal.open()
     }
     
     return <>
