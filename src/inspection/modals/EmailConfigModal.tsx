@@ -45,25 +45,6 @@ function TestEmailModal ({ modal }: { modal: ModalController }) {
     const [form] = Form.useForm()
     const [loading, set_loading] = useState(false)
     
-    async function handle_send_test_email () {
-        const values = await form.validateFields()
-        try {
-            set_loading(true)
-            const result = await inspection.send_test_email(values.testRecipient, values.language || 'cn')
-            
-            if (result.errCode === 0) {
-                model.message.success(t('测试邮件发送成功'))
-                modal.close()
-                form.resetFields()
-            } else
-                model.message.error(result.errMsg || t('测试邮件发送失败'))
-            
-        } catch (error) {
-            model.message.error(t('发送测试邮件失败') + ' ' + error.message)
-        } finally {
-            set_loading(false)
-        }
-    }
     
     return <Modal
             title={t('发送测试邮件')}
@@ -76,7 +57,24 @@ function TestEmailModal ({ modal }: { modal: ModalController }) {
                 form={form}
                 layout='vertical'
                 initialValues={{ language: 'cn' }}
-                onFinish={handle_send_test_email}
+                onFinish={async (values) => {
+                    try {
+                        set_loading(true)
+                        const result = await inspection.send_test_email(values.testRecipient, values.language || 'cn')
+                        
+                        if (result.errCode === 0) {
+                            model.message.success(t('测试邮件发送成功'))
+                            modal.close()
+                            form.resetFields()
+                        } else
+                            model.message.error(result.errMsg || t('测试邮件发送失败'))
+                        
+                    } catch (error) {
+                        model.message.error(t('发送测试邮件失败') + ' ' + error.message)
+                    } finally {
+                        set_loading(false)
+                    }
+                }}
             >
                 <Form.Item
                     name='testRecipient'

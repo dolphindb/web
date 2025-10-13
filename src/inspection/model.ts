@@ -189,8 +189,8 @@ class InspectionModel extends Model<InspectionModel> {
         ])
     }
     
-    async send_test_email (test_recipient: string, language: string = 'cn'): Promise<{ errCode: number, errMsg: string }> {
-        return model.ddb.invoke('sendTestEmail', [test_recipient, language])
+    async send_test_email (test_recipient: string, language = 'cn') {
+        return model.ddb.invoke<{ errCode: number, errMsg: string }>('sendTestEmail', [test_recipient, language])
     }
 }
 
