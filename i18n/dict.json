@@ -6622,5 +6622,8 @@
     },
     "查看数据血缘": {
         "en": "View Data Lineage"
+    },
+    "例如: 1h, 30m, 1d": {
+        "en": "For example: 1h, 30m, 1d"
     }
 }

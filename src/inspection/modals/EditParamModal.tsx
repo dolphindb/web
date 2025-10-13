@@ -37,8 +37,6 @@ export const EditParamModal = NiceModal.create(({
                 let param = params.get(key)
                 if (param.type === 'TIMESTAMP')
                     formatted_params[key] = value ?  dayjs(value) : null
-                else if (param.type === 'DURATION' || param.type === 'STRING')
-                    formatted_params[key] = value
                 else
                     formatted_params[key] = value
             }
@@ -148,9 +146,8 @@ export const EditParamModal = NiceModal.create(({
                             wrapperCol={{ span: 21 }}
                         >
                             {type === DDB_TYPE_MAP[DdbType.timestamp] ?
-                                <DatePicker
-                                    showTime
-                                /> :
+                                <DatePicker showTime />
+                            :
                                 type === DDB_TYPE_MAP[DdbType.symbol] || type === DDB_TYPE_MAP[DdbType.symbol_extended]
                                     ? <Select
                                         mode='multiple'
@@ -159,7 +156,7 @@ export const EditParamModal = NiceModal.create(({
                                                 label: op
                                         }))} />
                                     : type === 'DURATION' || type === 'STRING'
-                                        ? <Input style={{ width: 207 }} placeholder={type === 'DURATION' ? '例如: 1h, 30m, 1d' : ''} />
+                                        ? <Input style={{ width: 207 }} placeholder={type === 'DURATION' ? t('例如: 1h, 30m, 1d') : ''} />
                                         : <InputNumber/>}
                             </Form.Item>
                       
