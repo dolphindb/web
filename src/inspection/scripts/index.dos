@@ -340,6 +340,10 @@ def updateMetricParams(mutable params, planId, metricName) {
             params[key] = params_[key]
         }
     }
+    if (!isVoid(params["timeRange"]) && !isNull(params["timeRange"])) {
+        params["startTime"] = temporalAdd(now(), duration("-" + params["timeRange"]))
+        params["endTime"] = now()
+    }
 }
 
 def extractUsedParams(params, metricName) {

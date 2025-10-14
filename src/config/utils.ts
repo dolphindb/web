@@ -2,7 +2,7 @@ import { t } from '@i18n'
 
 import { config } from './model.ts'
 
-import { type NodeType, type ControllerConfig, type ClusterNode, type NodesConfig } from './type.js'
+import { type NodeType, type ControllerConfig, type ClusterNode } from './type.js'
 
 export const strs_2_controller_configs = (strs: string[]): ControllerConfig[] =>
     strs.map(str => {
@@ -26,7 +26,7 @@ export const _2_strs = (items: ControllerConfig[] | ClusterNode[]): string[] =>
 
 export const strs_2_nodes = (strs: string[]): ClusterNode[] =>
     strs.map(str => {
-        const [rest, mode, group, zone] = str.split(',')
+        const [rest, mode, group = '', zone = ''] = str.split(',')
         const [host, port, alias] = rest.split(':')
         return {
             id: str,
