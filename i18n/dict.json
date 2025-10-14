@@ -6625,5 +6625,47 @@
     },
     "例如: 1h, 30m, 1d": {
         "en": "For example: 1h, 30m, 1d"
+    },
+    "发送测试邮件": {
+        "en": "Send Test Email"
+    },
+    "测试邮件发送成功": {
+        "en": "Test email sent successfully"
+    },
+    "测试邮件发送失败": {
+        "en": "Failed to send test email"
+    },
+    "发送测试邮件失败": {
+        "en": "Failed to send test email"
+    },
+    "测试收件人": {
+        "en": "Test Recipient"
+    },
+    "请输入测试收件人邮箱": {
+        "en": "Please enter the test recipient's email"
+    },
+    "请输入有效的邮箱地址": {
+        "en": "Please enter a valid email address"
+    },
+    "多个邮箱请用逗号分隔": {
+        "en": "Separate multiple emails with commas"
+    },
+    "例如: user1@example.com, user2@example.com": {
+        "en": "e.g.: user1@example.com, user2@example.com"
+    },
+    "邮件语言": {
+        "en": "Email Language"
+    },
+    "中文": {
+        "en": "Chinese"
+    },
+    "英文": {
+        "en": "English"
+    },
+    "请先完整填写邮件配置信息": {
+        "en": "Please complete the email configuration first"
+    },
+    "测试邮件": {
+        "en": "Test Email"
     }
 }
