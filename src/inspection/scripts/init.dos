@@ -411,7 +411,8 @@ group = "1"
 desc = "检查在指定的 startTime 到 endTime 之间，是否存在副本数据条数不一致，仅统计有写入的副本。
 参数说明：
 - startTime：TIMESTAMP，统计范围的开始时间，默认值为上次相同方案 ID 的报告的开始时间。
-- endTime：TIMESTAMP，统计范围的结束时间，默认值为当前报告的开始时间。"
+- endTime：TIMESTAMP，统计范围的结束时间，默认值为当前报告的开始时间。
+- timeRange：STRING，统计范围的时间范围。如果配置了 timeRange，则会自动计算 startTime 和 endTime。"
 nodes = NULL
 script = '
 def getChunkidNode(nodes, replicas, chunkIds){
@@ -448,8 +449,13 @@ def replicaRowNum(params){
     if(int(getConfig().dfsReplicationFactor)<2){
         return (true, "节点副本数小于 2，无法进行校验。", NULL)
     }
-    startTime= params["startTime"]
-    endTime= params["endTime"]
+    if (!isVoid(params["timeRange"]) && !isNull(params["timeRange"])) {
+        startTime = temporalAdd(now(), duration("-" + params["timeRange"]))
+        endTime = now()
+    } else {
+        startTime = params["startTime"]
+        endTime = params["endTime"]
+    }
     nodes = exec name from rpc(getControllerAlias(), getClusterPerf) where mode==0 or mode==3;
     controllerChunks=select * from rpc(getControllerAlias(),getClusterChunksStatus) where lastUpdated>=startTime and lastUpdated<=endTime;
     if (controllerChunks.chunkId.size() == 0) {
@@ -472,6 +478,7 @@ def replicaRowNum(params){
 }
 '
 params = [
+    dict(`name`type, ["timeRange", "STRING"]),
     dict(`name`type, ["startTime", "TIMESTAMP"]),
     dict(`name`type, ["endTime", "TIMESTAMP"])
 ]
@@ -489,6 +496,7 @@ desc = "检查指定时间范围内（startTime 到 endTime）是否存在 ERROR
 参数说明：
 - startTime：TIMESTAMP，统计范围的开始时间，默认值为上次相同方案 ID 的报告的开始时间。
 - endTime：TIMESTAMP，统计范围的结束时间，默认值为当前报告的开始时间。
+- timeRange：STRING，统计范围的时间范围。如果配置了 timeRange，则会自动计算 startTime 和 endTime。
 - logLevel：STRING 数组，统计的日志等级，可取值：ERROR，WARNING。"
 nodes = [0, 2, 3, 4]
 script = '
@@ -575,8 +583,13 @@ def getServerLogEx(startTime, endTime) {
 }
 
 def errorLogs(params) {
-    startTime = params["startTime"]
-    endTime = params["endTime"]
+    if (!isVoid(params["timeRange"]) && !isNull(params["timeRange"])) {
+        startTime = temporalAdd(now(), duration("-" + params["timeRange"]))
+        endTime = now()
+    } else {
+        startTime = params["startTime"]
+        endTime = params["endTime"]
+    }
 
     logs = getServerLogEx(startTime, endTime)
     ret = select * from logs where level in params["logLevel"] and count > 0
@@ -590,6 +603,7 @@ def errorLogs(params) {
 }
 '
 params = [
+    dict(`name`type, ["timeRange", "STRING"]),
     dict(`name`type, ["startTime", "TIMESTAMP"]),
     dict(`name`type, ["endTime", "TIMESTAMP"]),
     dict(`name`type`options, ["logLevel", "SYMBOL", ["ERROR", "WARNING"]])
@@ -608,13 +622,20 @@ group = "1"
 desc = "统计在指定时间范围内（startTime 到 endTime）执行的耗时最长的前10条 SQL。
 参数说明：
 - startTime：TIMESTAMP，统计范围的开始时间，默认值为上次相同方案 ID 的报告的开始时间。
-- endTime：TIMESTAMP，统计范围的结束时间，默认值为当前报告的开始时间。"
+- endTime：TIMESTAMP，统计范围的结束时间，默认值为当前报告的开始时间。
+- timeRange：STRING，统计范围的时间范围。如果配置了 timeRange，则会自动计算 startTime 和 endTime。"
 nodes = NULL // NULL 指该指标不能指定节点运行，选择任一数据节点执行
 script = '
 def queryElapsed(params) {
-    startTime_ = params["startTime"]
-    endTime_ = params["endTime"]
-    
+    if (!isVoid(params["timeRange"]) && !isNull(params["timeRange"])) {
+        startTime_ = temporalAdd(now(), duration("-" + params["timeRange"]))
+        endTime_ = now()
+    }
+    else {
+        startTime_ = params["startTime"]
+        endTime_ = params["endTime"]
+    }
+
     getQueryLogInner = def(startTime_, endTime_) {
 		logDir = getConfig("logFile").split("/")
 		logDir = logDir[:(logDir.size()-1)].concat("/")
@@ -671,6 +692,7 @@ def queryElapsed(params) {
 }
 '
 params = [
+    dict(`name`type, ["timeRange", "STRING"]),
     dict(`name`type, ["startTime", "TIMESTAMP"]),
     dict(`name`type, ["endTime", "TIMESTAMP"])
 ]
@@ -688,7 +710,8 @@ group = "1"
 desc = "统计在指定时间范围内（startTime 到 endTime）访问次数最多的前10个库表。
 参数说明：
 - startTime：TIMESTAMP，统计范围的开始时间，默认值为上次相同方案 ID 的报告的开始时间。
-- endTime：TIMESTAMP，统计范围的结束时间，默认值为当前报告的开始时间。"
+- endTime：TIMESTAMP，统计范围的结束时间，默认值为当前报告的开始时间。
+- timeRange：STRING，统计范围的时间范围。如果配置了 timeRange，则会自动计算 startTime 和 endTime。"
 nodes = NULL // NULL 指该指标不能指定节点运行，选择任一数据节点执行
 script = '
 def mostQueriedDFSTables(params) {
@@ -696,8 +719,14 @@ def mostQueriedDFSTables(params) {
         return (false, "未配置 enableDFSQueryLog=true。", "请配置 enableDFSQueryLog=true 以支持该项检查。")
     }
     
-    startTime_ = params["startTime"]
-    endTime_ = params["endTime"]
+    if (!isVoid(params["timeRange"]) && !isNull(params["timeRange"])) {
+        startTime_ = temporalAdd(now(), duration("-" + params["timeRange"]))
+        endTime_ = now()
+    }
+    else {
+        startTime_ = params["startTime"]
+        endTime_ = params["endTime"]
+    }
     
     getQueryLogInner = def(startTime_, endTime_) {
 		logDir = getConfig("logFile").split("/")
@@ -747,6 +776,7 @@ def mostQueriedDFSTables(params) {
 }
 '
 params = [
+    dict(`name`type, ["timeRange", "STRING"]),
     dict(`name`type, ["startTime", "TIMESTAMP"]),
     dict(`name`type, ["endTime", "TIMESTAMP"])
 ]
@@ -764,7 +794,8 @@ group = "1"
 desc = "统计在指定时间范围内（startTime 到 endTime）数据库写入量前10名。
 参数说明：
 - startTime：TIMESTAMP，统计范围的开始时间，默认值为上次相同方案 ID 的报告的开始时间。
-- endTime：TIMESTAMP，统计范围的结束时间，默认值为当前报告的开始时间。"
+- endTime：TIMESTAMP，统计范围的结束时间，默认值为当前报告的开始时间。
+- timeRange：STRING，统计范围的时间范围。如果配置了 timeRange，则会自动计算 startTime 和 endTime。"
 nodes = NULL // NULL 指该指标不能指定节点运行，选择任一数据节点执行
 script = '
 def dfsPath2tableName(node, chunkId, dfsPath){
@@ -775,8 +806,14 @@ def dfsPath2tableName(node, chunkId, dfsPath){
 }
 
 def DFSTableDiskUsage(params) {
-    startTime = timestamp(params["startTime"])
-    endTime = timestamp(params["endTime"])
+    if (!isVoid(params["timeRange"]) && !isNull(params["timeRange"])) {
+        startTime = temporalAdd(now(), duration("-" + params["timeRange"]))
+        endTime = now()
+    }
+    else {
+        startTime = params["startTime"]
+        endTime = params["endTime"]
+    }
     meta = select * from rpc(getControllerAlias(), getClusterChunksStatus) where lastUpdated between startTime and endTime and !file.endsWith("domain") and !file.endsWith(".tbl")
     if (meta.size() == 0) {
         return (true, NULL, NULL)
@@ -821,6 +858,7 @@ def DFSTableDiskUsage(params) {
 }
 '
 params = [
+    dict(`name`type, ["timeRange", "STRING"]),
     dict(`name`type, ["startTime", "TIMESTAMP"]),
     dict(`name`type, ["endTime", "TIMESTAMP"])
 ]
@@ -838,7 +876,8 @@ group = "1"
 desc = "统计在指定时间范围内（startTime 到 endTime）有写入记录的分区大小前10名。
 参数说明：
 - startTime：TIMESTAMP，统计范围的开始时间，默认值为上次相同方案 ID 的报告的开始时间。
-- endTime：TIMESTAMP，统计范围的结束时间，默认值为当前报告的开始时间。"
+- endTime：TIMESTAMP，统计范围的结束时间，默认值为当前报告的开始时间。
+- timeRange：STRING，统计范围的时间范围。如果配置了 timeRange，则会自动计算 startTime 和 endTime。"
 nodes = NULL // NULL 指该指标不能指定节点运行，选择任一数据节点执行
 script = '
 def dfsPath2tableName(node, chunkId, dfsPath){
@@ -849,8 +888,14 @@ def dfsPath2tableName(node, chunkId, dfsPath){
 }
 
 def biggestChunks(params) {
-    startTime = timestamp(params["startTime"])
-    endTime = timestamp(params["endTime"])
+    if (!isVoid(params["timeRange"]) && !isNull(params["timeRange"])) {
+        startTime = temporalAdd(now(), duration("-" + params["timeRange"]))
+        endTime = now()
+    }
+    else {
+        startTime = params["startTime"]
+        endTime = params["endTime"]
+    }
     res = table(1:0, `dbName`tbName`dfsPath`chunkId, [STRING, STRING, STRING, STRING])
     meta = select * from rpc(getControllerAlias(), getClusterChunksStatus) where lastUpdated between startTime and endTime and !file.endsWith(".tbl") and !file.endsWith("/domain")
     
@@ -879,6 +924,7 @@ def biggestChunks(params) {
 }
 '
 params = [
+    dict(`name`type, ["timeRange", "STRING"]),
     dict(`name`type, ["startTime", "TIMESTAMP"]),
     dict(`name`type, ["endTime", "TIMESTAMP"])
 ]
@@ -895,7 +941,8 @@ group = "1"
 desc = "检查在指定时间范围内（startTime 到 endTime）有写入记录的表的排序键是否过多。当排序键过多时，需要进行哈希降维。
 参数说明：
 - startTime：TIMESTAMP，统计范围的开始时间，默认值为上次相同方案 ID 的报告的开始时间。
-- endTime：TIMESTAMP，统计范围的结束时间，默认值为当前报告的开始时间。"
+- endTime：TIMESTAMP，统计范围的结束时间，默认值为当前报告的开始时间。
+- timeRange：STRING，统计范围的时间范围。如果配置了 timeRange，则会自动计算 startTime 和 endTime。"
 nodes = NULL // NULL 指该指标不能指定节点运行，选择任一数据节点执行
 script = '
 def dfsPath2tableName(node, chunkId, dfsPath){
@@ -906,8 +953,14 @@ def dfsPath2tableName(node, chunkId, dfsPath){
 }
 
 def sortKeyCount(params) {
-    startTime = timestamp(params["startTime"])
-    endTime = timestamp(params["endTime"])
+    if (!isVoid(params["timeRange"]) && !isNull(params["timeRange"])) {
+        startTime = temporalAdd(now(), duration("-" + params["timeRange"]))
+        endTime = now()
+    }
+    else {
+        startTime = params["startTime"]
+        endTime = params["endTime"]
+    }
     meta = select * from rpc(getControllerAlias(), getClusterChunksStatus) where lastUpdated between startTime and endTime and !file.endsWith(".tbl") and !file.endsWith("/domain")
 
     res = table(1:0, `dbName`tbName`dfsPath`chunkId, [STRING, STRING, STRING, STRING])
@@ -939,6 +992,7 @@ def sortKeyCount(params) {
 }
 '
 params = [
+    dict(`name`type, ["timeRange", "STRING"]),
     dict(`name`type, ["startTime", "TIMESTAMP"]),
     dict(`name`type, ["endTime", "TIMESTAMP"])
 ]
@@ -1750,7 +1804,8 @@ group = "1"
 desc = "检查多副本列数是否一致。
 参数说明：
 - startTime：TIMESTAMP，统计范围的开始时间，默认值为上次相同方案 ID 的报告的开始时间。
-- endTime：TIMESTAMP，统计范围的结束时间，默认值为当前报告的开始时间。"
+- endTime：TIMESTAMP，统计范围的结束时间，默认值为当前报告的开始时间。
+- timeRange：STRING，统计范围的时间范围。如果配置了 timeRange，则会自动计算 startTime 和 endTime。"
 nodes = NULL
 script = '
 def replicaColNum(params){
@@ -1761,8 +1816,14 @@ def replicaColNum(params){
     
     ret = table(1:0, ["库名", "表名", "dfsPath", "副本节点1", "副本节点2", "是否一致"], [STRING, STRING, STRING,STRING, STRING, BOOL])
 
-    startTime = params["startTime"]
-    endTime = params["endTime"]
+    if (!isVoid(params["timeRange"]) && !isNull(params["timeRange"])) {
+        startTime = temporalAdd(now(), duration("-" + params["timeRange"]))
+        endTime = now()
+    }
+    else {
+        startTime = params["startTime"]
+        endTime = params["endTime"]
+    }
 
     controllerChunks = select chunkId from rpc(getControllerAlias(),getClusterChunksStatus) where lastUpdated >= startTime and lastUpdated <= endTime and replicaCount >= 2
     
@@ -1819,6 +1880,7 @@ def replicaColNum(params){
 }
 '
 params = [
+    dict(`name`type, ["timeRange", "STRING"]),
     dict(`name`type, ["startTime", "TIMESTAMP"]),
     dict(`name`type, ["endTime", "TIMESTAMP"])
 ]
@@ -1836,7 +1898,8 @@ group = "2"
 desc = "检查指定时间范围内（startTime 到 endTime）是否生成了 core 文件。
 参数说明：
 - startTime：TIMESTAMP，统计范围的开始时间，默认值为上次相同方案 ID 的报告的开始时间。
-- endTime：TIMESTAMP，统计范围的结束时间，默认值为当前报告的开始时间。"
+- endTime：TIMESTAMP，统计范围的结束时间，默认值为当前报告的开始时间。
+- timeRange：STRING，统计范围的时间范围。如果配置了 timeRange，则会自动计算 startTime 和 endTime。"
 nodes = [0, 2, 3, 4]
 script = '
 def coredump(params) {
@@ -1847,8 +1910,14 @@ def coredump(params) {
         return (false, "未配置 enableShellFunction=true。", "请配置 enableShellFunction=true 以支持该项检查。")
     }
     
-    startTime = params["startTime"]
-    endTime = params["endTime"]
+    if (!isVoid(params["timeRange"]) && !isNull(params["timeRange"])) {
+        startTime = temporalAdd(now(), duration("-" + params["timeRange"]))
+        endTime = now()
+    }
+    else {
+        startTime = params["startTime"]
+        endTime = params["endTime"]
+    }
     tmpFilename = "autoInspection_coredump_" + getNodeAlias() + "_" + temporalFormat(now(), "yMdHmsSSS") + "_tmp.txt"
     shell("cat /proc/sys/kernel/core_pattern > " + tmpFilename)
     f = file(tmpFilename)
@@ -1901,6 +1970,7 @@ def coredump(params) {
 }
 '
 params = [
+    dict(`name`type, ["timeRange", "STRING"]),
     dict(`name`type, ["startTime", "TIMESTAMP"]),
     dict(`name`type, ["endTime", "TIMESTAMP"])
 ]

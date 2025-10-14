@@ -334,11 +334,15 @@ def updateMetricParams(mutable params, planId, metricName) {
     params_ = fromStdJson(params_)
     if (!isVoid(params_)) {
         for (key in params_.keys()) {
-            if (isVoid(params_[key])) { // 前端可能会传 NULL 参数值，无视
+            if (isVoid(params_[key]) || isNull(params_[key])) { // 前端可能会传 NULL 参数值，无视
                 continue
             }
             params[key] = params_[key]
         }
+    }
+    if (!isVoid(params["timeRange"]) && !isNull(params["timeRange"])) {
+        params["startTime"] = temporalAdd(now(), duration("-" + params["timeRange"]))
+        params["endTime"] = now()
     }
 }
 
