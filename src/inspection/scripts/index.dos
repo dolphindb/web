@@ -1365,8 +1365,7 @@ def sendTestEmail(testRecipient, language="cn") {
             "- SMTP服务器：" + alertConfig["inspectionAlertSMTPHost"] + ":" + string(alertConfig["inspectionAlertSMTPPort"]) + "<br>" +
             "- 测试时间：" + string(now()) + "<br><br>" +
             "【说明】<br>" +
-            "- 若收到此邮件，说明邮件配置正确；<br>" +
-            "- 若未收到，请检查SMTP服务器、端口、账号密码是否正确。",
+            "- 若收到此邮件，说明邮件配置正确。",
             
             "<h3>DolphinDB Auto Inspection - Email Test Notification</h3><br>" +
             "This is a test email to verify the email configuration of auto inspection.<br><br>" +
@@ -1375,8 +1374,7 @@ def sendTestEmail(testRecipient, language="cn") {
             "- SMTP Server: " + alertConfig["inspectionAlertSMTPHost"] + ":" + string(alertConfig["inspectionAlertSMTPPort"]) + "<br>" +
             "- Test Time: " + string(now()) + "<br><br>" +
             "[Note]<br>" +
-            "- If you receive this email, the email configuration is correct;<br>" +
-            "- If not, please check SMTP server, port, account and password."
+            "- If you receive this email, the email configuration is correct."
         )
 
         if (defs("httpClient::emailSmtpConfig").size() == 0 || defs("httpClient::sendEmail").size() == 0) {
