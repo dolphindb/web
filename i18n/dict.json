@@ -6667,5 +6667,8 @@
     },
     "测试邮件": {
         "en": "Test Email"
+    },
+    "选填，留空表示不设置阈值": {
+        "en": "Optional, leave blank to not set a threshold"
     }
 }
