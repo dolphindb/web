@@ -6,7 +6,7 @@
         "dev": "node --experimental-transform-types ./dev.ts",
         "typecheck": "tsc --noEmit",
         "build": "node --experimental-transform-types ./build.ts",
-        "scan": "i18n-scan --input \"**/*.{ts,tsx}\"",
+        "scan": "i18n-scan",
         "lint": "eslint \"**/*.{ts,tsx}\"",
         "fix": "eslint --fix \"**/*.{ts,tsx}\""
     },
