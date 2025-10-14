@@ -15,7 +15,7 @@ export interface Metric {
 
 export interface MetricParam {
     name: string
-    type: 'TIMESTAMP' | 'SYMBOL' | 'DURATION' | 'STRING'
+    type: 'TIMESTAMP' | 'SYMBOL' | 'DURATION' | 'STRING' | 'DOUBLE' | 'LONG' | 'INT'
     options?: string[]
 }
 
