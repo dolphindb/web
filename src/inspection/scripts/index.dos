@@ -1338,16 +1338,28 @@ def sendTestEmail(testRecipient, language="cn") {
             }
         }
         if (missingKeys.size() > 0) {
-            throw "Email configuration incomplete, missing required fields:" + missingKeys.concat(", ")
+            throw iif(  
+                language == "cn",  
+                "邮件配置不完整,缺少必填字段:" + missingKeys.concat(", "),  
+                "Email configuration incomplete, missing required fields:" + missingKeys.concat(", ")  
+            )  
         }
 
         if (isVoid(testRecipient) || isNull(testRecipient) || testRecipient.strip() == "") {
-            throw "Test recipient cannot be empty, please enter email address(es) (separate multiple with commas)"
+            throw iif(  
+                language == "cn",  
+                "测试收件人不能为空,请输入邮箱地址（多个用逗号分隔）",  
+                "Test recipient cannot be empty, please enter email address(es) (separate multiple with commas)"  
+            )  
         }
 
         recipients = testRecipient.split(",").strip()
         if (recipients.size() == 0) {
-            throw "Test recipient format error, please separate multiple emails with commas (e.g., a@xxx.com,b@xxx.com)"
+            throw iif(  
+                language == "cn",  
+                "测试收件人格式错误,多个邮箱请用逗号分隔（例如:a@xxx.com,b@xxx.com）",  
+                "Test recipient format error, please separate multiple emails with commas (e.g., a@xxx.com,b@xxx.com)"  
+            )
         }
 
         subject = iif(
@@ -1386,7 +1398,11 @@ def sendTestEmail(testRecipient, language="cn") {
                 } else {
                     errMsg = string(pluginErr.last())
                 }
-                throw "Failed to load httpClient plugin, cannot send email:" + errMsg
+                throw iif(  
+                    language == "cn",  
+                    "加载httpClient插件失败,无法发送邮件:" + errMsg,  
+                    "Failed to load httpClient plugin, cannot send email:" + errMsg  
+                )  
             }
         }
 
@@ -1455,7 +1471,11 @@ def sendTestEmail(testRecipient, language="cn") {
         }
         writeLog("Test email sending failed: " + errMsg)
         ret["errCode"] = 1
-        ret["errMsg"] = "Test email sending failed: " + errMsg
+        ret["errMsg"] = iif(  
+            language == "cn",  
+            "测试邮件发送失败: " + errMsg,  
+            "Test email sending failed: " + errMsg  
+        )
     }
 
     return ret
