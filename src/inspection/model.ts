@@ -188,6 +188,10 @@ class InspectionModel extends Model<InspectionModel> {
             status || undefined
         ])
     }
+    
+    async send_test_email (test_recipient: string, language = 'cn') {
+        return model.ddb.invoke<{ errCode: number, errMsg: string }>('sendTestEmail', [test_recipient, language])
+    }
 }
 
 export let inspection = new InspectionModel()
