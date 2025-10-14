@@ -57,7 +57,7 @@ function TestEmailModal ({ modal }: { modal: ModalController }) {
                 form={form}
                 layout='vertical'
                 initialValues={{ language: 'cn' }}
-                onFinish={async (values) => {
+                onFinish={async values => {
                     try {
                         set_loading(true)
                         const result = await inspection.send_test_email(values.testRecipient, values.language || 'cn')
