@@ -50,3 +50,9 @@ export function get_category (name: string) {
 
 export const filter_config = (input: string, option?: { label: string, options: any }) =>
     (option?.label ?? '').toLowerCase().includes(input.toLowerCase())
+
+
+/** 渲染配置值，空字符串代表敏感配置项，用 ****** 表示 */
+export function render_config_value (value: string) {
+    return value || '******'
+}

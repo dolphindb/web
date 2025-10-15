@@ -15,7 +15,7 @@ import { RefreshButton } from '@/components/RefreshButton/index.tsx'
 import { config, controller_configs } from './model.js'
 
 import type { ControllerConfig } from './type.js'
-import { _2_strs, strs_2_controller_configs, filter_config } from './utils.ts'
+import { _2_strs, strs_2_controller_configs, filter_config, render_config_value } from './utils.ts'
 
 
 
@@ -63,7 +63,8 @@ export function ControllerConfig () {
                     required: true,
                     message: t('请输入配置值！')
                 }]
-            }
+            },
+            render: render_config_value
         },
         {
             title: t('操作'),
