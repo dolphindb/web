@@ -107,7 +107,8 @@ export function ControllerConfig () {
         className='editable-table'
         params={{ search_value }}
         request={async () => {
-            const value = unique(await config.load_controller_configs())
+            const value = unique(
+                await config.load_controller_configs())
             const configs = strs_2_controller_configs(value)
             set_configs(configs)
             return {
