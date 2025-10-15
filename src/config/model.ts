@@ -1,38 +1,42 @@
 import { Model } from 'react-object-model'
 
 import { DdbInt, type DdbCallOptions } from 'dolphindb/browser.js'
+import { to_option } from 'xshell/utils.browser.js'
 
 import { t } from '@i18n'
 
 import { NodeType, model } from '@model'
 
-import { iterator_map } from '@utils'
+import { iterator_map, urgent } from '@utils'
 
 import { _2_strs, get_category } from './utils.ts'
 
 import type { NodesConfig } from './type.ts'
 
 
-const trusies = ['1', 'true'] as const
-
 class ConfigModel extends Model<ConfigModel> {
     nodes_configs: Map<string, NodesConfig>
+    
     
     async load_controller_configs () {
         return this.invoke<string[]>('loadControllerConfigs')
     }
     
+    
     async save_controller_configs (configs: string[]) {
         await this.invoke('saveControllerConfigs', [configs])
     }
+    
     
     async get_cluster_nodes () {
         return this.invoke<string[]>('getClusterNodesCfg')
     }
     
+    
     async save_cluster_nodes (nodes: string[]) {
         await this.invoke('saveClusterNodes', [nodes])
     }
+    
     
     async add_agent_to_controller (host: string, port: number, alias: string) {
         await this.invoke('addAgentToController', [host, new DdbInt(port), alias])
@@ -44,7 +48,7 @@ class ConfigModel extends Model<ConfigModel> {
             (
                 // 2025.01.03 登录鉴权功能之后 loadClusterNodesConfigs 没有要求一定要在控制节点执行了
                 // 所以这里不用 this.invoke
-                await model.ddb.invoke<string[]>('loadClusterNodesConfigs', undefined, { urgent: true })
+                await model.ddb.invoke<string[]>('loadClusterNodesConfigs', undefined, urgent)
             ).map(str => {
                 const [left, value = ''] = str.split2('=', { optional: true })
                     .map(s => s.trim()) as [string, string?]
@@ -84,7 +88,8 @@ class ConfigModel extends Model<ConfigModel> {
     
     
     get_boolean_config (key: string) {
-        return trusies.includes(this.get_config(key))
+        const value = this.get_config(key)
+        return value === '1' || value === 'true'
     }
     
     
@@ -125,7 +130,7 @@ class ConfigModel extends Model<ConfigModel> {
     async save_configs () {
         const new_nodes_configs = new Map<string, NodesConfig>()
         
-        const old_config = await this.invoke<string[]>('loadClusterNodesConfigs', undefined, { urgent: true })
+        const old_config = await this.invoke<string[]>('loadClusterNodesConfigs', undefined, urgent)
         
         await this.invoke(
             'saveClusterNodesConfigs', 
@@ -172,86 +177,92 @@ class ConfigModel extends Model<ConfigModel> {
                 ...options
             })
     }
-    
-    
-    get_config_classification () {
-        return {
-            [t('线程')]: new Set([
-                'localExecutors', 'maxBatchJobWorker', 'maxDynamicWorker', 'webWorkerNum', 'workerNum', 
-                'PKEYBackgroundWorkerPerVolume', 'PKEYCacheFlushWorkerNumPerVolume'
-            ]),
-            [t('内存')]: new Set([
-                'chunkCacheEngineMemSize', 'maxMemSize', 'memoryReleaseRate', 'regularArrayMemoryLimit', 'warningMemSize', 
-                'PKEYCacheEngineSize', 'PKEYBlockCacheSize', 'PKEYDeleteBitmapUpdateThreshold', 'PKEYStashedPrimaryKeyBufferSize'
-            ]),
-            [t('磁盘')]: new Set([
-                'batchJobDir', 'chunkMetaDir', 'dataSync', 'jobLogFile', 'logFile', 'logLevel', 'maxLogSize', 'redoLogDir', 
-                'redoLogPurgeInterval', 'redoLogPurgeLimit', 'volumes', 'diskIOConcurrencyLevel', 'PKEYMetaLogDir', 'PKEYRedoLogDir', 'coldVolumes'
-            ]),
-            [t('网络')]: new Set([
-                'enableHTTPS', 'localSite', 'maxConnections', 'maxConnectionPerSite', 'tcpNoDelay'
-            ]),
-            [t('流发布')]: new Set([
-                'maxMsgNumPerBlock', 'maxPersistenceQueueDepth', 'maxPubQueueDepthPerSite', 'maxPubConnections', 
-                'persistenceDir', 'persistenceWorkerNum'
-            ]),
-            [t('流订阅')]: new Set([
-                'maxSubConnections', 'maxSubQueueDepth', 'persistOffsetDir', 'subExecutorPooling', 'subExecutors', 
-                'subPort', 'subThrottle', 'streamingHAMode', 'streamingSQLExecutors', 'maxStreamingSQLQueriesPerTable', 
-                'streamingRaftLearners', 'streamingRaftGroups', 'crossClusterRaftWorkerNum'
-            ]),
-            [t('系统')]: new Set([
-                'console', 'config', 'home', 'maxPartitionNumPerQuery', 'mode', 'moduleDir', 'newValuePartitionPolicy', 
-                'perfMonitoring', 'pluginDir', 'preloadModules', 'init', 'startup', 'run', 'tzdb', 'webRoot', 'webLoginRequired', 
-                'enableShellFunction', 'enablePKEYEngine'
-            ]),
-            [t('计算组')]: new Set([
-                'computeNodeCacheDir', 'computeNodeCacheMeta', 'computeNodeMemCacheSize', 'computeNodeDiskCacheSize',
-                'enableComputeNodeCacheEvictionFromQueryThread',
-            ])
-        }
-    }
-    
-    
-    get_controller_config () {
-        return [
-            'mode',
-            'preloadModules',
-            'localSite',
-            'clusterConfig',
-            'nodesFile',
-            'localExecutors',
-            'maxBatchJobWorker',
-            'maxConnections',
-            'maxConnectionPerSite',
-            'maxDynamicWorker',
-            'maxMemSize',
-            'webWorkerNum',
-            'dfsMetaDir',
-            'dfsMetaLogFilename',
-            'dfsReplicationFactor',
-            'dfsReplicaReliabilityLevel',
-            'dfsRecoveryWaitTime',
-            'enableDFS',
-            'enableHTTPS',
-            'dataSync',
-            'webLoginRequired',
-            'PublicName',
-            'datanodeRestartInterval',
-            'dfsHAMode',
-            'clusterReplicationSlaveNum',
-            'dfsChunkNodeHeartBeatTimeout',
-            'clusterReplicationMasterCtl',
-            'metricsToken',
-            'strictPermissionMode',
-            'enableLocalDatabase',
-            'enableClientAuth',
-            'computeNodeCachingDelay',
-            'computeNodeCachingQueryThreshold',
-            'enableComputeNodePrefetchData',
-        ]
-    }
 }
+
+
+/** 分类的集群节点配置 */
+export const node_configs = {
+    [t('线程')]: [
+        'localExecutors', 'maxBatchJobWorker', 'maxDynamicWorker', 'webWorkerNum', 'workerNum', 
+        'PKEYBackgroundWorkerPerVolume', 'PKEYCacheFlushWorkerNumPerVolume'
+    ],
+    [t('内存')]: [
+        'chunkCacheEngineMemSize', 'maxMemSize', 'memoryReleaseRate', 'regularArrayMemoryLimit', 'warningMemSize', 
+        'PKEYCacheEngineSize', 'PKEYBlockCacheSize', 'PKEYDeleteBitmapUpdateThreshold', 'PKEYStashedPrimaryKeyBufferSize'
+    ],
+    [t('磁盘')]: [
+        'batchJobDir', 'chunkMetaDir', 'dataSync', 'jobLogFile', 'logFile', 'logLevel', 'maxLogSize', 'redoLogDir', 
+        'redoLogPurgeInterval', 'redoLogPurgeLimit', 'volumes', 'diskIOConcurrencyLevel', 'PKEYMetaLogDir', 'PKEYRedoLogDir', 'coldVolumes'
+    ],
+    [t('网络')]: [
+        'enableHTTPS', 'localSite', 'maxConnections', 'maxConnectionPerSite', 'tcpNoDelay'
+    ],
+    [t('流发布')]: [
+        'maxMsgNumPerBlock', 'maxPersistenceQueueDepth', 'maxPubQueueDepthPerSite', 'maxPubConnections', 
+        'persistenceDir', 'persistenceWorkerNum'
+    ],
+    [t('流订阅')]: [
+        'maxSubConnections', 'maxSubQueueDepth', 'persistOffsetDir', 'subExecutorPooling', 'subExecutors', 
+        'subPort', 'subThrottle', 'streamingHAMode', 'streamingSQLExecutors', 'maxStreamingSQLQueriesPerTable', 
+        'streamingRaftLearners', 'streamingRaftGroups', 'crossClusterRaftWorkerNum'
+    ],
+    [t('系统')]: [
+        'console', 'config', 'home', 'maxPartitionNumPerQuery', 'mode', 'moduleDir', 'newValuePartitionPolicy', 
+        'perfMonitoring', 'pluginDir', 'preloadModules', 'init', 'startup', 'run', 'tzdb', 'webRoot', 'webLoginRequired', 
+        'enableShellFunction', 'enablePKEYEngine'
+    ],
+    [t('计算组')]: [
+        'computeNodeCacheDir', 'computeNodeCacheMeta', 'computeNodeMemCacheSize', 'computeNodeDiskCacheSize',
+        'enableComputeNodeCacheEvictionFromQueryThread',
+    ]
+}
+
+
+/** 集群节点配置选项，用于 antd options */
+export const node_configs_options = Object.entries(node_configs)
+    .map(([category_name, configs]) => ({
+        label: category_name,
+        options: configs.map(to_option)
+    }))
+
+
+export const controller_configs = ([
+    'mode',
+    'preloadModules',
+    'localSite',
+    'clusterConfig',
+    'nodesFile',
+    'localExecutors',
+    'maxBatchJobWorker',
+    'maxConnections',
+    'maxConnectionPerSite',
+    'maxDynamicWorker',
+    'maxMemSize',
+    'webWorkerNum',
+    'dfsMetaDir',
+    'dfsMetaLogFilename',
+    'dfsReplicationFactor',
+    'dfsReplicaReliabilityLevel',
+    'dfsRecoveryWaitTime',
+    'enableDFS',
+    'enableHTTPS',
+    'dataSync',
+    'webLoginRequired',
+    'PublicName',
+    'datanodeRestartInterval',
+    'dfsHAMode',
+    'clusterReplicationSlaveNum',
+    'dfsChunkNodeHeartBeatTimeout',
+    'clusterReplicationMasterCtl',
+    'metricsToken',
+    'strictPermissionMode',
+    'enableLocalDatabase',
+    'enableClientAuth',
+    'computeNodeCachingDelay',
+    'computeNodeCachingQueryThreshold',
+    'enableComputeNodePrefetchData'
+] as const).map(to_option)
+
 
 export async function validate_qualifier (config_name: string, value: string) {
     if ((config_name === 'computeNodeCacheDir' || config_name === 'computeNodeCacheMeta') && !value.includes('%'))

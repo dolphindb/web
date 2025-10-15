@@ -8,7 +8,7 @@ import { model } from '@model'
 import { t } from '@i18n'
 
  
-import { config, validate_config } from './model.ts'
+import { config, node_configs_options, validate_config } from './model.ts'
 import { strs_2_nodes } from './utils.ts'
 
 
@@ -177,13 +177,7 @@ export const GroupAddModal = NiceModal.create((props: { on_save: (form: { group_
                 onChange={e => {
                     update_config_by_field(key, 'name', e)
                 }}
-                options={Object.entries(config.get_config_classification()).map(([cfg_cls, configs]) => ({
-                    label: cfg_cls,
-                    options: Array.from(configs).map(cfg => ({
-                        label: cfg,
-                        value: cfg
-                    }))
-                }))} />
+                options={node_configs_options} />
         },
         { title: t('值'), key: 'value', render: (_, { key, value }) => <Input status={(validating && value === '') ? 'error' : undefined} placeholder={t('请输入值')} value={value} onChange={e => { update_config_by_field(key, 'value', e.target.value) }} /> },
         { title: t('操作'), key: 'operation', render: (_, { key }) => <Button variant='link' color='danger' onClick={() => { delete_config(key) }}>{t('删除')}</Button> }

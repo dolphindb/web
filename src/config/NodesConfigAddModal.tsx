@@ -12,7 +12,7 @@ import { model } from '../model.js'
 
 import { FormDependencies } from '@/components/FormDependencies/index.tsx'
 
-import { config, validate_config, validate_qualifier } from './model.js'
+import { config, node_configs_options, validate_config, validate_qualifier } from './model.ts'
 
 
 export const NodesConfigAddModal = NiceModal.create((props: { compute_group?: string, on_save?: () => void }) => {
@@ -84,13 +84,7 @@ export const NodesConfigAddModal = NiceModal.create((props: { compute_group?: st
                     showSearch
                     optionFilterProp='label'
                     filterOption={filter_config}
-                    options={Object.entries(config.get_config_classification()).map(([cfg_cls, configs]) => ({
-                        label: cfg_cls,
-                        options: Array.from(configs).map(cfg => ({
-                            label: cfg,
-                            value: cfg
-                        }))
-                    }))} />
+                    options={node_configs_options} />
             </Form.Item>
             <FormDependencies dependencies={['name']}>
                 {({ name }) => <Form.Item

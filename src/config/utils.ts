@@ -1,6 +1,6 @@
 import { t } from '@i18n'
 
-import { config } from './model.ts'
+import { node_configs } from './model.ts'
 
 import { type NodeType, type ControllerConfig, type ClusterNode } from './type.js'
 
@@ -41,14 +41,18 @@ export const strs_2_nodes = (strs: string[]): ClusterNode[] =>
 
 
 export function get_category (name: string) {
-    let category = t('其它')
-    const config_classification = config.get_config_classification()
-    let clses = Object.keys(config_classification)
-    for (let cls of clses)
-        if (config_classification[cls].has(name))
-            category = cls
-    return category
+    for (let category_name in node_configs)
+        if (node_configs[category_name].includes(name))
+            return category_name
+    
+    return t('其它')
 }
 
 export const filter_config = (input: string, option?: { label: string, options: any }) =>
     (option?.label ?? '').toLowerCase().includes(input.toLowerCase())
+
+
+/** 渲染配置值，空字符串代表敏感配置项，用 ****** 表示 */
+export function render_config_value (value: string) {
+    return value || '******'
+}

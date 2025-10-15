@@ -20,7 +20,7 @@ import { RefreshButton } from '@/components/RefreshButton/index.js'
 import { filter_config, strs_2_nodes } from './utils.js'
 import { NodesConfigAddModal } from './NodesConfigAddModal.js'
 
-import { config, validate_config, validate_qualifier } from './model.js'
+import { config, node_configs_options, validate_config, validate_qualifier } from './model.ts'
 
 
 
@@ -150,13 +150,7 @@ export function ComputeGroupConfig () {
                             if (e.key === 'Enter')
                                 on_search()
                         }}
-                        options={Object.entries(config.get_config_classification()).map(([cfg_cls, configs]) => ({
-                            label: cfg_cls,
-                            options: Array.from(configs).map(cfg => ({
-                                label: cfg,
-                                value: cfg
-                            }))
-                        }))} />
+                        options={node_configs_options} />
                     <Button icon={<SearchOutlined />} onClick={on_search} />
                 </div>
                 {current_compute_group !== '' && <Button

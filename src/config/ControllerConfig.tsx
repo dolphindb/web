@@ -12,10 +12,10 @@ import { model } from '../model.js'
 
 import { RefreshButton } from '@/components/RefreshButton/index.tsx'
 
-import { config } from './model.js'
+import { config, controller_configs } from './model.js'
 
 import type { ControllerConfig } from './type.js'
-import { _2_strs, strs_2_controller_configs, filter_config } from './utils.ts'
+import { _2_strs, strs_2_controller_configs, filter_config, render_config_value } from './utils.ts'
 
 
 
@@ -48,10 +48,7 @@ export function ControllerConfig () {
                     showSearch
                     optionFilterProp='label'
                     filterOption={filter_config}
-                    options={config.get_controller_config().map(config => ({
-                        label: config,
-                        value: config
-                    }))} 
+                    options={controller_configs} 
                 />
         },
         {
@@ -66,7 +63,8 @@ export function ControllerConfig () {
                     required: true,
                     message: t('请输入配置值！')
                 }]
-            }
+            },
+            render: render_config_value
         },
         {
             title: t('操作'),
@@ -110,7 +108,8 @@ export function ControllerConfig () {
         className='editable-table'
         params={{ search_value }}
         request={async () => {
-            const value = unique(await config.load_controller_configs())
+            const value = unique(
+                await config.load_controller_configs())
             const configs = strs_2_controller_configs(value)
             set_configs(configs)
             return {
@@ -155,12 +154,8 @@ export function ControllerConfig () {
                         if (e.key === 'Enter') 
                             set_search_value(search_key)
                     }}
-                    options={config.get_controller_config().map(config => ({
-                        label: config,
-                        value: config
-                        }))
-                        
-                } />
+                    options={controller_configs}
+                />
                 <Button icon={<SearchOutlined />} onClick={() => { set_search_value(search_key) }}/>
             </div>,
             <RefreshButton
