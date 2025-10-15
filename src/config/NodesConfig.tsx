@@ -4,19 +4,21 @@ import NiceModal from '@ebay/nice-modal-react'
 import { AutoComplete, Button, Collapse, Popconfirm, type CollapseProps } from 'antd'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 
+import { to_option } from 'xshell/utils.browser.js'
+
 import { t } from '@i18n'
-import { model } from '../model.js'
+import { model } from '@model'
 
 import { RefreshButton } from '@/components/RefreshButton/index.tsx'
 
-import { NodesConfigAddModal } from './NodesConfigAddModal.js'
-import { config, validate_config, validate_qualifier } from './model.js'
-import { type NodesConfig } from './type.js'
+import { NodesConfigAddModal } from './NodesConfigAddModal.tsx'
+import { config, node_configs as all_node_configs, validate_config, validate_qualifier, node_configs_options } from './model.ts'
+import type { NodesConfig } from './type.ts'
 import { _2_strs, filter_config } from './utils.ts'
+
 
 export function NodesConfig () {
     const { nodes_configs } = config.use(['nodes_configs'])
-    const config_classification = config.get_config_classification()
     
     const [active_key, set_active_key] = useState<string | string[]>('thread')
     
@@ -58,7 +60,9 @@ export function NodesConfig () {
     }
     
     const items: CollapseProps['items'] = useMemo(() => {
-        let clsed_configs = Object.fromEntries([...Object.keys(config_classification), t('其它')].map(cfg => [cfg, [ ]]))
+        let clsed_configs = Object.fromEntries(
+            [...Object.keys(all_node_configs), t('其它')].map(category_name =>
+                [category_name, [ ]]))
         
         nodes_configs?.forEach(nodes_config => {
             const { category } = nodes_config
@@ -109,12 +113,7 @@ export function NodesConfig () {
                                 <AutoComplete<{ label: string, value: string }>
                                     showSearch
                                     optionFilterProp='label'
-                                    options={(config_classification[key] || [ ]).map((config: string) => ({
-                                        label: config,
-                                        value: config
-                                        }))
-                                    } />
-                               
+                                    options={(all_node_configs[key] || [ ]).map(to_option)} />
                         },
                         {
                             title: t('值'),
@@ -228,13 +227,7 @@ export function NodesConfig () {
                         if (e.key === 'Enter') 
                             on_search()
                     }}
-                    options={Object.entries(config_classification).map(([cfg_cls, configs]) => ({
-                        label: cfg_cls,
-                        options: Array.from(configs).map(cfg => ({
-                            label: cfg,
-                            value: cfg
-                        }))
-                    }))} />
+                    options={node_configs_options} />
                     
                 <Button icon={<SearchOutlined />} onClick={on_search}/>
             </div>

@@ -12,7 +12,7 @@ import { model } from '../model.js'
 
 import { RefreshButton } from '@/components/RefreshButton/index.tsx'
 
-import { config } from './model.js'
+import { config, controller_configs } from './model.js'
 
 import type { ControllerConfig } from './type.js'
 import { _2_strs, strs_2_controller_configs, filter_config } from './utils.ts'
@@ -48,10 +48,7 @@ export function ControllerConfig () {
                     showSearch
                     optionFilterProp='label'
                     filterOption={filter_config}
-                    options={config.get_controller_config().map(config => ({
-                        label: config,
-                        value: config
-                    }))} 
+                    options={controller_configs} 
                 />
         },
         {
@@ -155,12 +152,8 @@ export function ControllerConfig () {
                         if (e.key === 'Enter') 
                             set_search_value(search_key)
                     }}
-                    options={config.get_controller_config().map(config => ({
-                        label: config,
-                        value: config
-                        }))
-                        
-                } />
+                    options={controller_configs}
+                />
                 <Button icon={<SearchOutlined />} onClick={() => { set_search_value(search_key) }}/>
             </div>,
             <RefreshButton
