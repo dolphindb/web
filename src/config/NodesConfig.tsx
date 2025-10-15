@@ -51,7 +51,7 @@ export function NodesConfig () {
     
     function on_search () {
         let keys = [ ]
-        nodes_configs?.forEach(config => {
+        nodes_configs.forEach(config => {
             const { category, name } = config
             if (name.toLowerCase().includes(search_key.toLowerCase()))
                 keys.push(category)
@@ -64,9 +64,8 @@ export function NodesConfig () {
             [...Object.keys(all_node_configs), t('其它')].map(category_name =>
                 [category_name, [ ]]))
         
-        nodes_configs?.forEach(nodes_config => {
-            const { category } = nodes_config
-            clsed_configs[category].push(nodes_config)
+        nodes_configs.forEach(nodes_config => {
+            clsed_configs[nodes_config.category].push(nodes_config)
         })
         
         return Object.entries(clsed_configs).map(([key, clsed_config]) => ({
