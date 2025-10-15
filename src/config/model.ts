@@ -14,8 +14,6 @@ import { _2_strs, get_category } from './utils.ts'
 import type { NodesConfig } from './type.ts'
 
 
-const trusies = ['1', 'true'] as const
-
 class ConfigModel extends Model<ConfigModel> {
     nodes_configs: Map<string, NodesConfig>
     
@@ -90,7 +88,8 @@ class ConfigModel extends Model<ConfigModel> {
     
     
     get_boolean_config (key: string) {
-        return trusies.includes(this.get_config(key))
+        const value = this.get_config(key)
+        return value === '1' || value === 'true'
     }
     
     
