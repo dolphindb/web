@@ -14,7 +14,7 @@ import { RefreshButton } from '@/components/RefreshButton/index.tsx'
 import { NodesConfigAddModal } from './NodesConfigAddModal.tsx'
 import { config, node_configs as all_node_configs, validate_config, validate_qualifier, node_configs_options } from './model.ts'
 import type { NodesConfig } from './type.ts'
-import { _2_strs, filter_config, render_config_value } from './utils.ts'
+import { _2_strs, filter_config } from './utils.ts'
 
 
 export function NodesConfig () {
@@ -128,8 +128,7 @@ export function NodesConfig () {
                                         message: t('请输入配置值')
                                     }
                                 ]
-                            },
-                            render: render_config_value
+                            }
                         },
                         {
                             title: t('操作'),
