@@ -61,7 +61,7 @@ export function Test () {
             })
             
             sddb.connect()
-        }}>开始测试流表 filter 收到表</Button>
+        }}>开始测试流表 filter 收到空表</Button>
         
         <div className='obj-result themed page'>
             <StreamingTable
