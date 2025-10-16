@@ -22,7 +22,7 @@ export function Test () {
     return <>
         <div className='title'>测试模块</div>
         
-        <Button onClick={async () => {
+        <Button type='primary' onClick={async () => {
             model.ddb.execute(
                 'n=20000\n' +
                 'colNames = `time`sym`qty`price\n' +
