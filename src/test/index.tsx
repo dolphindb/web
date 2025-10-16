@@ -60,7 +60,7 @@ export function Test () {
                 }
             })
             
-            sddb.connect()
+            await sddb.connect()
         }}>开始测试流表 filter 收到空表</Button>
         
         <div className='obj-result themed page'>
