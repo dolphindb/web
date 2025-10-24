@@ -341,7 +341,11 @@ def updateMetricParams(mutable params, planId, metricName) {
         }
     }
     if (!isVoid(params["timeRange"]) && !isNull(params["timeRange"])) {
-        params["startTime"] = temporalAdd(now(), duration("-" + params["timeRange"]))
+        try{
+            params["startTime"] = temporalAdd(now(), duration("-" + params["timeRange"]))
+        }catch(ex){
+            "Failed to convert the string to DURATION: " + params["timeRange"] + ". Expected format like '7s', '1d', '3M', etc." 
+        }
         params["endTime"] = now()
     }
 }
