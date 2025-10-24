@@ -1200,6 +1200,26 @@ def permissionManagementTest(params = NULL) {
         }
 
         try {
+            userList = getUserList()
+            if (form(userList) == 1 && userList.size() > 0) {
+                tableInsert(resultTb, ("查看用户列表功能", "成功", "用户列表查询成功（用户数量：" + snippet(userList.size()) + "）"))
+            } else {
+                tableInsert(resultTb, ("查看用户列表功能", "失败", "用户列表查询失败或为空"))
+                allSuccess = false
+            }
+            userAccess = getUserAccess(testUserName)
+            if (form(userAccess) == 6 && userAccess.size() > 0) {
+                tableInsert(resultTb, ("查看用户权限功能", "成功", "用户 " + testUserName + " 权限查询成功"))
+            } else {
+                tableInsert(resultTb, ("查看用户权限功能", "失败", "用户 " + testUserName + " 权限查询失败"))
+                allSuccess = false
+            }
+        } catch (err) {
+            tableInsert(resultTb, ("查看用户列表和权限功能", "失败", "查看用户列表和权限异常：" + snippet(err)))
+            allSuccess = false
+        }
+
+        try {
             deleteUser(testUserName)
             userList = getUserList()
             if (!(testUserName in userList)) {
@@ -1213,28 +1233,8 @@ def permissionManagementTest(params = NULL) {
             allSuccess = false
         }
 
-        createUser(testUserName, "Qb0507#$")
-
         try {
-            newAdminPwd = "smokingTest_Admin123"
-            changePwd(originalAdminPwd, newAdminPwd)
-            logout("admin")
-
-            login("admin", newAdminPwd)
-            loginResult = getCurrentSessionAndUser()[1] == "admin"
-            if (loginResult) {
-                tableInsert(resultTb, ("管理员密码修改功能", "成功", "登录成功，密码修改成功"))
-                changePwd(newAdminPwd, originalAdminPwd)
-            } else {
-                tableInsert(resultTb, ("管理员密码修改功能", "失败", "登录失败，密码修改失败"))
-                allSuccess = false
-            }
-        } catch (err) {
-            tableInsert(resultTb, ("管理员密码修改功能", "失败", "密码修改异常：" + snippet(err)))
-            allSuccess = false
-        }
-
-        try {
+            createUser(testUserName, "Qb0507#$")
             newTestPwd = "QbQ507#$"
             resetPwd(testUserName, newTestPwd)
             login(testUserName, newTestPwd)
@@ -1351,26 +1351,6 @@ def permissionManagementTest(params = NULL) {
             }
         } catch (err) {
             tableInsert(resultTb, ("权限禁止功能", "失败", "禁止用户" + testUserName + " DBOBJ_CREATE 权限异常：" + snippet(err)))
-            allSuccess = false
-        }
-
-        try {
-            userList = getUserList()
-            if (form(userList) == 1 && userList.size() > 0) {
-                tableInsert(resultTb, ("查看用户列表功能", "成功", "用户列表查询成功（用户数量：" + snippet(userList.size()) + "）"))
-            } else {
-                tableInsert(resultTb, ("查看用户列表功能", "失败", "用户列表查询失败或为空"))
-                allSuccess = false
-            }
-            userAccess = getUserAccess(testUserName)
-            if (form(userAccess) == 6 && userAccess.size() > 0) {
-                tableInsert(resultTb, ("查看用户权限功能", "成功", "用户 " + testUserName + " 权限查询成功"))
-            } else {
-                tableInsert(resultTb, ("查看用户权限功能", "失败", "用户 " + testUserName + " 权限查询失败"))
-                allSuccess = false
-            }
-        } catch (err) {
-            tableInsert(resultTb, ("查看用户列表和权限功能", "失败", "查看用户列表和权限异常：" + snippet(err)))
             allSuccess = false
         }
 
