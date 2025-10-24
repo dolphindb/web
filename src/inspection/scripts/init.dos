@@ -2205,7 +2205,11 @@ def replicaRowNum(params){
         return (true, "节点副本数小于 2，无法进行校验。", NULL)
     }
     if (!isVoid(params["timeRange"]) && !isNull(params["timeRange"])) {
-        startTime = temporalAdd(now(), duration("-" + params["timeRange"]))
+        try{
+            startTime = temporalAdd(now(), duration("-" + params["timeRange"]))
+        } catch(err){
+            throw "Failed to convert the string to DURATION: " + params["timeRange"] + ". Expected format like \'7s\', \'1d\', \'3M\', etc." 
+        }
         endTime = now()
     } else {
         startTime = params["startTime"]
@@ -2339,7 +2343,11 @@ def getServerLogEx(startTime, endTime) {
 
 def errorLogs(params) {
     if (!isVoid(params["timeRange"]) && !isNull(params["timeRange"])) {
-        startTime = temporalAdd(now(), duration("-" + params["timeRange"]))
+        try{
+            startTime = temporalAdd(now(), duration("-" + params["timeRange"]))
+        } catch(err){
+            throw "Failed to convert the string to DURATION: " + params["timeRange"] + ". Expected format like \'7s\', \'1d\', \'3M\', etc." 
+        }
         endTime = now()
     } else {
         startTime = params["startTime"]
@@ -2387,7 +2395,11 @@ def queryElapsed(params) {
     thresholdMs = params["elapsedThresholdMs"]
 
     if (!isVoid(params["timeRange"]) && !isNull(params["timeRange"])) {
-        startTime_ = temporalAdd(now(), duration("-" + params["timeRange"]))
+        try{
+            startTime_ = temporalAdd(now(), duration("-" + params["timeRange"]))
+        } catch(err){
+            throw "Failed to convert the string to DURATION: " + params["timeRange"] + ". Expected format like \'7s\', \'1d\', \'3M\', etc." 
+        }
         endTime_ = now()
     }
     else {
@@ -2495,7 +2507,11 @@ def mostQueriedDFSTables(params) {
     queryCountThreshold = params["queryCountThreshold"]
     
     if (!isVoid(params["timeRange"]) && !isNull(params["timeRange"])) {
-        startTime_ = temporalAdd(now(), duration("-" + params["timeRange"]))
+        try{
+            startTime_ = temporalAdd(now(), duration("-" + params["timeRange"]))
+        } catch(err){
+            throw "Failed to convert the string to DURATION: " + params["timeRange"] + ". Expected format like \'7s\', \'1d\', \'3M\', etc." 
+        }
         endTime_ = now()
     }
     else {
@@ -2596,7 +2612,11 @@ def DFSTableDiskUsage(params) {
     thresholdGB = params["diskUsageThresholdGB"]
     
     if (!isVoid(params["timeRange"]) && !isNull(params["timeRange"])) {
-        startTime = temporalAdd(now(), duration("-" + params["timeRange"]))
+        try{
+            startTime = temporalAdd(now(), duration("-" + params["timeRange"]))
+        } catch(err){
+            throw "Failed to convert the string to DURATION: " + params["timeRange"] + ". Expected format like \'7s\', \'1d\', \'3M\', etc." 
+        }
         endTime = now()
     }
     else {
@@ -2693,7 +2713,11 @@ def biggestChunks(params) {
     threshold = params["sizeThresholdGB"]
     
     if (!isVoid(params["timeRange"]) && !isNull(params["timeRange"])) {
-        startTime = temporalAdd(now(), duration("-" + params["timeRange"]))
+        try{
+            startTime = temporalAdd(now(), duration("-" + params["timeRange"]))
+        } catch(err){
+            throw "Failed to convert the string to DURATION: " + params["timeRange"] + ". Expected format like \'7s\', \'1d\', \'3M\', etc." 
+        }
         endTime = now()
     }
     else {
@@ -2767,7 +2791,11 @@ def dfsPath2tableName(node, chunkId, dfsPath){
 
 def sortKeyCount(params) {
     if (!isVoid(params["timeRange"]) && !isNull(params["timeRange"])) {
-        startTime = temporalAdd(now(), duration("-" + params["timeRange"]))
+        try{
+            startTime = temporalAdd(now(), duration("-" + params["timeRange"]))
+        } catch(err){
+            throw "Failed to convert the string to DURATION: " + params["timeRange"] + ". Expected format like \'7s\', \'1d\', \'3M\', etc." 
+        }
         endTime = now()
     }
     else {
@@ -3630,7 +3658,11 @@ def replicaColNum(params){
     ret = table(1:0, ["库名", "表名", "dfsPath", "副本节点1", "副本节点2", "是否一致"], [STRING, STRING, STRING,STRING, STRING, BOOL])
 
     if (!isVoid(params["timeRange"]) && !isNull(params["timeRange"])) {
-        startTime = temporalAdd(now(), duration("-" + params["timeRange"]))
+        try{
+            startTime = temporalAdd(now(), duration("-" + params["timeRange"]))
+        } catch(err){
+            throw "Failed to convert the string to DURATION: " + params["timeRange"] + ". Expected format like \'7s\', \'1d\', \'3M\', etc." 
+        }
         endTime = now()
     }
     else {
@@ -3724,7 +3756,11 @@ def coredump(params) {
     }
     
     if (!isVoid(params["timeRange"]) && !isNull(params["timeRange"])) {
-        startTime = temporalAdd(now(), duration("-" + params["timeRange"]))
+        try{
+            startTime = temporalAdd(now(), duration("-" + params["timeRange"]))
+        } catch(err){
+            throw "Failed to convert the string to DURATION: " + params["timeRange"] + ". Expected format like \'7s\', \'1d\', \'3M\', etc." 
+        }
         endTime = now()
     }
     else {
