@@ -378,6 +378,11 @@ export class DdbModel extends Model<DdbModel> {
             
             console.log(t('web 初始化成功'))
         }
+        
+        // 测试入口
+        if (this.params.get('autotest') === '1')
+            (await import('@test/index.ts'))
+                .test()
     }
     
     

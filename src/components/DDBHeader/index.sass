@@ -103,7 +103,7 @@ $radius: 0px
                 
                 width: 160px
     
-    .compile-and-refresh
+    .compile-and-refresh, .autotest
         margin-left: 10px
         background-color: var(--header-background-light) !important
         color: var(--header-color)
@@ -114,7 +114,16 @@ $radius: 0px
         
         &:hover 
             color: var(--header-color) !important
-
+    
+    .autotest
+        display: flex
+        align-items: center
+        
+        font-size: 14px
+        
+        .lucide
+            margin-top: 2px
+            width: 14px
 
 .ant-popover
     .header-card

@@ -1,8 +1,10 @@
 import './index.sass'
 
-import { Dropdown, Avatar, Layout } from 'antd'
+import { Dropdown, Avatar, Layout, Button } from 'antd'
 
 import { DownOutlined, LoginOutlined, LogoutOutlined, UserOutlined } from '@ant-design/icons'
+
+import { FlaskConicalIcon } from 'lucide-react'
 
 import { t } from '@i18n'
 
@@ -29,6 +31,18 @@ export function DdbHeader () {
         { model.dev && <HostSelect />}
         
         { model.local && <CompileAndRefresh /> }
+        
+        { model.dev && <Button
+            className='autotest'
+            size='small'
+            icon={<FlaskConicalIcon /> }
+            onClick={async () => {
+                await (await import('@test/index.ts'))
+                    .test()
+            }}
+        >
+            自动化测试
+        </Button> }
         
         <div className='padding' />
         

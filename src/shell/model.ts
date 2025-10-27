@@ -10,7 +10,7 @@ import type { FitAddon } from '@xterm/addon-fit'
 import type * as monacoapi from 'monaco-editor/esm/vs/editor/editor.api.js'
 
 import { select } from 'xshell/prototype.browser.js'
-import { delta2str, assert, delay, strcmp } from 'xshell/utils.browser.js'
+import { delta2str, assert, delay, strcmp, defer } from 'xshell/utils.browser.js'
 import { red, blue } from 'xshell/chalk.browser.js'
 
 import {
@@ -41,6 +41,8 @@ type Result = { type: 'object', data: DdbObj } | { type: 'objref', data: DdbObjR
 
 
 class ShellModel extends Model<ShellModel> {
+    pterm = defer<Terminal>()
+    
     term: Terminal
     
     fit_addon: FitAddon
@@ -475,6 +477,24 @@ class ShellModel extends Model<ShellModel> {
     
     
     async execute (default_selection: 'all' | 'line') {
+        let done = false
+        const show_delay = delay(500)
+        ;(async () => {
+            await show_delay
+            if (!done)
+                this.set({ show_executing: true })
+        })()
+        
+        try {
+            await this.execute_selection(default_selection)
+        } finally {
+            done = true
+            this.set({ show_executing: false })
+        }
+    }
+    
+    
+    async execute_selection (default_selection: 'all' | 'line') {
         const { editor } = this
         
         const selection = editor.getSelection()
@@ -493,6 +513,11 @@ class ShellModel extends Model<ShellModel> {
             istart = selection.startLineNumber
         }
         
+        await this.execute_code(code, istart)
+    }
+    
+    
+    async execute_code (code: string, istart: number) {
         if (code.includes('undef all') || code.includes('undef(all)'))
             if (await model.modal.confirm({ content: t('执行 undef all 会导致 web 部分功能不可用，执行完成后需要刷新才能恢复, 确定执行吗？') }))
                 try {
@@ -521,24 +546,6 @@ class ShellModel extends Model<ShellModel> {
         }
         
         await this.update_vars()
-    }
-    
-    
-    async execute_ (default_selection: 'all' | 'line') {
-        let done = false
-        const show_delay = delay(500)
-        ;(async () => {
-            await show_delay
-            if (!done)
-                this.set({ show_executing: true })
-        })()
-        
-        try {
-            await shell.execute(default_selection)
-        } finally {
-            done = true
-            this.set({ show_executing: false })
-        }
     }
     
     
