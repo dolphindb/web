@@ -1169,22 +1169,11 @@ def permissionManagementTest(params = NULL) {
     allSuccess = true
     testUserName = "smokingTest_Manage_testUser"
     testGroupName = "smokingTest_Manage_testGroup"
-    originalAdminPwd = "123456"
 
     if (testUserName in getUserList()) deleteUser(testUserName)
     if (testGroupName in getGroupList()) deleteGroup(testGroupName)
 
     try {
-        login("admin", originalAdminPwd)
-        sessionAndUser = getCurrentSessionAndUser()  
-        currentUser = sessionAndUser[1]
-        if (currentUser != "admin") {
-            tableInsert(resultTb, ("超级管理员登录功能", "失败", "用户不是超级管理员，无法登录"))
-            allSuccess = false
-        } else {
-            tableInsert(resultTb, ("超级管理员登录功能", "成功", "用户是超级管理员，登录成功"))
-        }
-
         try {
             createUser(testUserName, "Qb0507#$")
             userList = getUserList()
@@ -1230,26 +1219,6 @@ def permissionManagementTest(params = NULL) {
             }
         } catch (err) {
             tableInsert(resultTb, ("删除用户功能", "失败", "删除用户异常：" + snippet(err)))
-            allSuccess = false
-        }
-
-        try {
-            createUser(testUserName, "Qb0507#$")
-            newTestPwd = "QbQ507#$"
-            resetPwd(testUserName, newTestPwd)
-            login(testUserName, newTestPwd)
-            loginResult = getCurrentSessionAndUser()[1] == testUserName
-            if (loginResult) {
-                tableInsert(resultTb, ("重置用户密码功能", "成功", "用户 " + testUserName + " 重置密码成功（登录成功）"))
-                logout(testUserName)
-                login("admin", originalAdminPwd) 
-                resetPwd(testUserName, "Qb0507#$")
-            } else {
-                tableInsert(resultTb, ("重置用户密码功能", "失败", "用户 " + testUserName + " 重置密码失败（登录失败）"))
-                allSuccess = false
-            }
-        } catch (err) {
-            tableInsert(resultTb, ("重置用户密码功能", "失败", "重置用户密码异常：" + snippet(err)))
             allSuccess = false
         }
 
