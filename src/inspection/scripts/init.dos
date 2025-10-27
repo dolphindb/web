@@ -1158,6 +1158,198 @@ if (name in metrics.name) {
 }
 go
 
+name = "permissionManagementTest"
+displayName = "冒烟测试：用户权限管理功能"
+group = "0"
+desc = "测试用户权限管理功能，包括用户登录、创建用户、删除用户、密码管理、组管理、权限控制等功能，测试会创建以smokingTest为前缀的测试用户和测试组。"
+nodes = NULL
+script = '
+def permissionManagementTest(params = NULL) {
+    resultTb = table(1:0, `testType`testResult`testMessage, [STRING, STRING, STRING])
+    allSuccess = true
+    testUserName = "smokingTest_Manage_testUser"
+    testGroupName = "smokingTest_Manage_testGroup"
+
+    if (testUserName in getUserList()) deleteUser(testUserName)
+    if (testGroupName in getGroupList()) deleteGroup(testGroupName)
+
+    try {
+        try {
+            createUser(testUserName, "Qb0507#$")
+            userList = getUserList()
+            if (testUserName in userList) {
+                tableInsert(resultTb, ("创建用户功能", "成功", "用户 " + testUserName + " 创建成功"))
+            } else {
+                tableInsert(resultTb, ("创建用户功能", "失败", "用户 " + testUserName + " 创建失败（不在用户列表中）"))
+                allSuccess = false
+            }
+        } catch (err) {
+            tableInsert(resultTb, ("创建用户功能", "失败", "创建用户异常：" + snippet(err)))
+            allSuccess = false
+        }
+
+        try {
+            userList = getUserList()
+            if (form(userList) == 1 && userList.size() > 0) {
+                tableInsert(resultTb, ("查看用户列表功能", "成功", "用户列表查询成功（用户数量：" + snippet(userList.size()) + "）"))
+            } else {
+                tableInsert(resultTb, ("查看用户列表功能", "失败", "用户列表查询失败或为空"))
+                allSuccess = false
+            }
+            userAccess = getUserAccess(testUserName)
+            if (form(userAccess) == 6 && userAccess.size() > 0) {
+                tableInsert(resultTb, ("查看用户权限功能", "成功", "用户 " + testUserName + " 权限查询成功"))
+            } else {
+                tableInsert(resultTb, ("查看用户权限功能", "失败", "用户 " + testUserName + " 权限查询失败"))
+                allSuccess = false
+            }
+        } catch (err) {
+            tableInsert(resultTb, ("查看用户列表和权限功能", "失败", "查看用户列表和权限异常：" + snippet(err)))
+            allSuccess = false
+        }
+
+        try {
+            deleteUser(testUserName)
+            userList = getUserList()
+            if (!(testUserName in userList)) {
+                tableInsert(resultTb, ("删除用户功能", "成功", "用户 " + testUserName + " 删除成功"))
+            } else {
+                tableInsert(resultTb, ("删除用户功能", "失败", "用户 " + testUserName + " 删除失败（仍在用户列表中）"))
+                allSuccess = false
+            }
+        } catch (err) {
+            tableInsert(resultTb, ("删除用户功能", "失败", "删除用户异常：" + snippet(err)))
+            allSuccess = false
+        }
+
+        try {
+            createGroup(testGroupName)
+            groupList = getGroupList()
+            if (testGroupName in groupList) {
+                tableInsert(resultTb, ("创建用户组功能", "成功", "用户组 " + testGroupName + " 创建成功"))
+            } else {
+                tableInsert(resultTb, ("创建用户组功能", "失败", "用户组 " + testGroupName + " 创建失败（不在用户组列表中）"))
+                allSuccess = false
+            }
+        } catch (err) {
+            tableInsert(resultTb, ("创建用户组功能", "失败", "创建用户组异常：" + snippet(err)))
+            allSuccess = false
+        }
+
+        try {
+            addGroupMember(testUserName, testGroupName)
+            groupMembers = getUsersByGroupId(testGroupName)
+            if (testUserName in groupMembers) {
+                tableInsert(resultTb, ("添加用户到组功能", "成功", "用户 " + testUserName + " 已成功添加到用户组 " + testGroupName))
+            } else {
+                tableInsert(resultTb, ("添加用户到组功能", "失败", "用户 " + testUserName + " 未成功添加到用户组 " + testGroupName))
+                allSuccess = false
+            }
+        } catch (err) {
+            tableInsert(resultTb, ("添加用户到组功能", "失败", "添加用户到组异常：" + snippet(err)))
+            allSuccess = false
+        }
+
+        try {
+            deleteGroupMember(testUserName, testGroupName)
+            groupMembers = getUsersByGroupId(testGroupName)
+            if (!(testUserName in groupMembers)) {
+                tableInsert(resultTb, ("删除组成员功能", "成功", "用户 " + testUserName + " 已成功从用户组 " + testGroupName + " 删除"))
+            } else {
+                tableInsert(resultTb, ("删除组成员功能", "失败", "用户 " + testUserName + " 未成功从用户组 " + testGroupName + " 删除（仍在用户组成员列表中）"))
+                allSuccess = false
+            }
+        } catch (err) {
+            tableInsert(resultTb, ("删除组成员功能", "失败", "删除组成员异常：" + snippet(err)))
+            allSuccess = false
+        }
+
+        try {
+            deleteGroup(testGroupName)
+            groupList = getGroupList()
+            if (!(testGroupName in groupList)) {
+                tableInsert(resultTb, ("删除用户组功能", "成功", "用户组 " + testGroupName + " 删除成功"))
+            } else {
+                tableInsert(resultTb, ("删除用户组功能", "失败", "用户组 " + testGroupName + " 删除失败（仍在用户组列表中）"))
+                allSuccess = false
+            }
+        } catch (err) {
+            tableInsert(resultTb, ("删除用户组功能", "失败", "删除用户组异常：" + snippet(err)))
+            allSuccess = false
+        }
+
+        try {
+            grant(testUserName, DBOBJ_CREATE, "*")
+            userAccess = getUserAccess(testUserName)
+            hasGrantPerm = (userAccess.DBOBJ_CREATE[0] == "allow")
+            if (hasGrantPerm) {
+                tableInsert(resultTb, ("权限赋予功能", "成功", "赋予用户" + testUserName + " DBOBJ_CREATE 权限成功"))
+            } else {
+                tableInsert(resultTb, ("权限赋予功能", "失败", "赋予用户" + testUserName + " DBOBJ_CREATE 权限失败"))
+                allSuccess = false
+            }
+        } catch (err) {
+            tableInsert(resultTb, ("权限赋予功能", "失败", "赋予用户" + testUserName + " DBOBJ_CREATE 权限异常：" + snippet(err)))
+            allSuccess = false
+        }
+
+        try {
+            revoke(testUserName, DBOBJ_CREATE,"*")
+            userAccess = getUserAccess(testUserName)
+            hasRevokePerm = (userAccess.DBOBJ_CREATE[0] == "none")
+            if (hasRevokePerm) {
+                tableInsert(resultTb, ("权限撤销功能", "成功", "撤销用户" + testUserName + " DBOBJ_CREATE 权限成功"))
+            } else {
+                tableInsert(resultTb, ("权限撤销功能", "失败", "撤销用户" + testUserName + " DBOBJ_CREATE 权限失败"))
+                allSuccess = false
+            }
+        } catch (err) {
+            tableInsert(resultTb, ("权限撤销功能", "失败", "撤销用户" + testUserName + " DBOBJ_CREATE 权限异常：" + snippet(err)))
+            allSuccess = false
+        }
+
+        try {
+            deny(testUserName, DBOBJ_CREATE,"*")
+            userAccess = getUserAccess(testUserName)
+            hasDenyPerm = (userAccess.DBOBJ_CREATE[0] == "deny")
+            if (hasDenyPerm) {
+                tableInsert(resultTb, ("权限禁止功能", "成功", "禁止用户" + testUserName + " DBOBJ_CREATE 权限成功"))
+            } else {
+                tableInsert(resultTb, ("权限禁止功能", "失败", "禁止用户" + testUserName + " DBOBJ_CREATE 权限失败"))
+                allSuccess = false
+            }
+        } catch (err) {
+            tableInsert(resultTb, ("权限禁止功能", "失败", "禁止用户" + testUserName + " DBOBJ_CREATE 权限异常：" + snippet(err)))
+            allSuccess = false
+        }
+
+    } catch (err) {
+        tableInsert(resultTb, ("用户权限管理异常", "失败", snippet(err)))
+        allSuccess = false
+    } 
+
+    if (testUserName in getUserList()) deleteUser(testUserName)
+    if (testGroupName in getGroupList()) deleteGroup(testGroupName)
+
+    if (allSuccess) {
+        detail = "用户权限管理所有测试项通过。"
+        suggestion = NULL
+    } else {
+        failedItems = select * from resultTb where testResult == "失败"
+        detail = select testType as "测试失败的功能" from failedItems
+        suggestion = "建议检查：1. 超级管理员权限；2. 用户/组操作语法；3. 权限范围与对象的有效性。"
+    }
+    resultTb.rename!(`测试类型`测试结果`测试信息)
+    return (allSuccess, detail, suggestion, resultTb)
+}
+'
+if (name in metrics.name) {
+    updateMetric(name, displayName, group, desc, nodes, script, params, language)
+} else {
+    newMetric(name, displayName, group, desc, nodes, script, params)
+}
+go
+
 name = "jobManagementTest"
 displayName = "冒烟测试：作业管理测试"
 group = "0"
