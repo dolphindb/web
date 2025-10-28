@@ -74,6 +74,11 @@ async function dev () {
             
             const { path } = request
             
+            if (path === '/favicon.ico') {
+                response.status = 404
+                return true
+            }
+            
             if (path === '/api/recompile') {
                 response.status = 200
                 await recompile()
