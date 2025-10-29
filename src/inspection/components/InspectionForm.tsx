@@ -116,9 +116,11 @@ export function InspectionForm ({
                                     formatted_params[key] = value ? dayjs(value).format('YYYY.MM.DDTHH:mm:ss.SSS') : null
                                 else if (param.type === DDB_TYPE_MAP[DdbType.double] ||
                                          param.type === DDB_TYPE_MAP[DdbType.long] ||
-                                         param.type === DDB_TYPE_MAP[DdbType.int])
-                                    // 数值类型：保持原值，如果是 null 或 undefined 则不传递
-                                    formatted_params[key] = value ?? null
+                                         param.type === DDB_TYPE_MAP[DdbType.int]) {
+                                    const has_value = value !== null && value !== undefined && value !== ''
+                                    // 数值类型：保持原值，如果为空则传递 null 以表示未设置
+                                    formatted_params[key] = has_value ? value : null
+                                }
                                 else
                                     formatted_params[key] = value
                             }
@@ -200,6 +202,5 @@ export function InspectionForm ({
         />
     </div>
 }
-
 
 

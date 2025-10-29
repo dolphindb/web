@@ -39,7 +39,7 @@ export const EditParamModal = NiceModal.create(({
                     formatted_params[key] = value ?  dayjs(value) : null
                 else if (param.type === 'DOUBLE' || param.type === 'LONG' || param.type === 'INT')
                     // 数值类型保持为数值
-                    formatted_params[key] = value !== null && value !== undefined ? Number(value) : null
+                    formatted_params[key] = value !== null && value !== undefined && value !== '' ? Number(value) : null
                 else
                     formatted_params[key] = value
             }

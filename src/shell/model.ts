@@ -21,11 +21,12 @@ import {
 
 import { t } from '@i18n'
 
-import type { DdbObjRef } from '@/obj.tsx'
 
 import { model, NodeType, storage_keys } from '@model'
 
 import type { Monaco } from '@components/Editor/index.tsx'
+
+import type { DdbObjRef } from '@/obj.tsx' 
 
 import { lineage, type TableMeta } from '@/lineage/index.tsx'
 
