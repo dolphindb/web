@@ -3164,12 +3164,12 @@ def persistenceDir(parsedConfigs) {
     }
 
     key = "persistenceDir"
-    clusterNodes = select * from readConfigs::getClusterConfigsEx(parsedConfigs, key)
-    res = select count(*) as count from clusterNodes where value != NULL group by host, value
+    clusterNodes = select * from readConfigs::getClusterConfigsEx(parsedConfigs, key) where value != NULL and strpos(value, "<ALIAS>") == -1
+    res = select count(*) as count from clusterNodes group by host, value
     res = select * from res where count > 1
     if (res.size() > 0) {
         errInfo = select host, nodeAlias, value from res inner join clusterNodes on res.host == clusterNodes.host and res.value == clusterNodes.value
-        throw "存在同一台机器上的不同数据节点的 " + key + " 配置了相同的值：\n" + string(errInfo)
+        throw "存在同一台机器上的不同数据节点的 " + key + " 配置了相同的值：\n" + snippet(errInfo)
     }
 }
 
