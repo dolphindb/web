@@ -135,9 +135,9 @@ def listPluginsByNodes() {
     }
     loadedPlugins = getLoadedPluginsOfCluster()
     preloadPlugins = getPreloadPluginsOfCluster()
-    ret = select a.*, !isNull(b.plugin) as isInstalled, b.version as installedVersion from ret a left join installedPlugins b on a.plugin == b.plugin and a.node == b.node
-    ret = select a.*, !isNull(b.plugin) as isLoaded, b.version as loadedVersion from ret a left join loadedPlugins b on a.plugin == b.plugin and a.node == b.node
-    ret = select a.*, !isNull(b.plugin) as isPreloaded from ret a left join preloadPlugins b on a.plugin == b.plugin and a.node == b.node
+    ret = select a.*, !isNull(b.plugin) as isInstalled, b.version as installedVersion from ret as a left join installedPlugins as b on a.plugin == b.plugin and a.node == b.node
+    ret = select a.*, !isNull(b.plugin) as isLoaded, b.version as loadedVersion from ret as a left join loadedPlugins as b on a.plugin == b.plugin and a.node == b.node
+    ret = select a.*, !isNull(b.plugin) as isPreloaded from ret as a left join preloadPlugins as b on a.plugin == b.plugin and a.node == b.node
 
     return ret
 }
