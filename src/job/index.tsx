@@ -130,7 +130,7 @@ export function Job () {
     
     const n_rjob_rows_uncompleted = rjob_rows.filter(job => 
             job.status === 'queuing' || job.status === 'running'
-        ).length    
+        ).length
     
     return <>
         <div className='actions'>

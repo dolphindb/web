@@ -334,11 +334,19 @@ def updateMetricParams(mutable params, planId, metricName) {
     params_ = fromStdJson(params_)
     if (!isVoid(params_)) {
         for (key in params_.keys()) {
-            if (isVoid(params_[key])) { // 前端可能会传 NULL 参数值，无视
+            if (isVoid(params_[key]) || isNull(params_[key])) { // 前端可能会传 NULL 参数值，无视
                 continue
             }
             params[key] = params_[key]
         }
+    }
+    if (!isVoid(params["timeRange"]) && !isNull(params["timeRange"])) {
+        try{
+            params["startTime"] = temporalAdd(now(), duration("-" + params["timeRange"]))
+        }catch(ex){
+            "Failed to convert the string to DURATION: " + params["timeRange"] + ". Expected format like '7s', '1d', '3M', etc." 
+        }
+        params["endTime"] = now()
     }
 }
 
@@ -1303,6 +1311,176 @@ def getEmailHistory(planId_=NULL, reportId_=NULL, userId_=NULL, recipient_=NULL,
         whereCond.append!(<status == status_>)
     }
     ret = sql(sqlCol("*"), loadTable("dfs://autoInspection", "emailHistory"), whereCond, orderBy=sqlCol("sendTime"), ascOrder=0).eval()
+
+    return ret
+}
+
+// 发送测试邮件接口
+// 参数：
+// testRecipient: STRING - 测试收件人（多个邮箱用逗号分隔，必填）
+// language: STRING - 邮件语言（"cn"中文/"en"英文，默认"cn"）
+def sendTestEmail(testRecipient, language="cn") {
+    ret = dict(STRING, ANY)
+    ret["errCode"] = 0
+    ret["errMsg"] = ""
+
+    try {
+        alertConfig = loadAlertConfig()
+
+        requiredConfigKeys = [
+            "inspectionAlertSMTPEmailName",  
+            "inspectionAlertSMTPHost",       
+            "inspectionAlertSMTPPort",       
+            "inspectionAlertUserId",         
+            "inspectionAlertPwd"             
+        ]
+
+        missingKeys = []$STRING
+        for (key in requiredConfigKeys) {
+            if (isVoid(alertConfig[key]) || isNull(alertConfig[key]) || alertConfig[key] == "") {
+                missingKeys.append!(key)
+            }
+        }
+        if (missingKeys.size() > 0) {
+            throw iif(  
+                language == "cn",  
+                "邮件配置不完整,缺少必填字段:" + missingKeys.concat(", "),  
+                "Email configuration incomplete, missing required fields:" + missingKeys.concat(", ")  
+            )  
+        }
+
+        if (isVoid(testRecipient) || isNull(testRecipient) || testRecipient.strip() == "") {
+            throw iif(  
+                language == "cn",  
+                "测试收件人不能为空,请输入邮箱地址（多个用逗号分隔）",  
+                "Test recipient cannot be empty, please enter email address(es) (separate multiple with commas)"  
+            )  
+        }
+
+        recipients = testRecipient.split(",").strip()
+        if (recipients.size() == 0) {
+            throw iif(  
+                language == "cn",  
+                "测试收件人格式错误,多个邮箱请用逗号分隔（例如:a@xxx.com,b@xxx.com）",  
+                "Test recipient format error, please separate multiple emails with commas (e.g., a@xxx.com,b@xxx.com)"  
+            )
+        }
+
+        subject = iif(
+            language == "cn",
+            "DolphinDB 定时巡检 - 邮件配置测试",
+            "DolphinDB Auto Inspection - Email Configuration Test"
+        )
+
+        body = iif(
+            language == "cn",
+            "<h3>DolphinDB 定时巡检邮件测试通知</h3><br>" +
+            "这是一封测试邮件，用于验证定时巡检的邮件配置是否正常。<br><br>" +
+            "【配置信息】<br>" +
+            "- 发件人邮箱：" + alertConfig["inspectionAlertSMTPEmailName"] + "<br>" +
+            "- SMTP服务器：" + alertConfig["inspectionAlertSMTPHost"] + ":" + string(alertConfig["inspectionAlertSMTPPort"]) + "<br>" +
+            "- 测试时间：" + string(now()) + "<br><br>" +
+            "【说明】<br>" +
+            "- 若收到此邮件，说明邮件配置正确。",
+            
+            "<h3>DolphinDB Auto Inspection - Email Test Notification</h3><br>" +
+            "This is a test email to verify the email configuration of auto inspection.<br><br>" +
+            "[Configuration Info]<br>" +
+            "- Sender Email: " + alertConfig["inspectionAlertSMTPEmailName"] + "<br>" +
+            "- SMTP Server: " + alertConfig["inspectionAlertSMTPHost"] + ":" + string(alertConfig["inspectionAlertSMTPPort"]) + "<br>" +
+            "- Test Time: " + string(now()) + "<br><br>" +
+            "[Note]<br>" +
+            "- If you receive this email, the email configuration is correct."
+        )
+
+        if (defs("httpClient::emailSmtpConfig").size() == 0 || defs("httpClient::sendEmail").size() == 0) {
+            try {
+                loadPlugin("httpClient")
+            } catch(pluginErr) {
+                if (pluginErr.form() == 0) {
+                    errMsg = string(pluginErr)
+                } else {
+                    errMsg = string(pluginErr.last())
+                }
+                throw iif(  
+                    language == "cn",  
+                    "加载httpClient插件失败,无法发送邮件:" + errMsg,  
+                    "Failed to load httpClient plugin, cannot send email:" + errMsg  
+                )  
+            }
+        }
+
+        emailDomain = alertConfig["inspectionAlertSMTPEmailName"].split("@")[1]
+        funcByName("httpClient::emailSmtpConfig")(
+            emailDomain, 
+            alertConfig["inspectionAlertSMTPHost"],       
+            alertConfig["inspectionAlertSMTPPort"]      
+        )
+
+        testPlanId = "TEST_EMAIL_PLAN"
+        testReportId = "TEST_EMAIL_" + string(long(now())) 
+        
+        emailHistory = table(
+            testPlanId as planId,
+            testReportId as reportId,
+            subject as subject,
+            alertConfig["inspectionAlertUserId"] as userId,
+            testRecipient as recipient, 
+            now() as sendTime,
+            "sending" as status,       
+            string(NULL) as errMsg      
+        )
+        emailHistoryTable = loadTable("dfs://autoInspection", "emailHistory")
+        emailHistoryTable.append!(emailHistory)
+
+        smtpMsg = createSMTPMsg(
+            alertConfig["inspectionAlertUserId"],  
+            recipients,                          
+            subject,                               
+            body                                   
+        )
+
+        funcByName("httpClient::sendEmail")(  
+            alertConfig["inspectionAlertUserId"],  
+            alertConfig["inspectionAlertPwd"],     
+            recipients,                           
+            ,                                     
+            ,                                     
+            smtpMsg                              
+        )
+
+        update emailHistoryTable set 
+            status = "sent",
+            errMsg = string(NULL) 
+        where planId == testPlanId and reportId == testReportId
+        writeLog("Test email sent successfully: recipient=" + testRecipient + ", subject=" + subject)
+        ret["errMsg"] = "Test email sent, please check (recipient: " + testRecipient + ")"
+
+    } catch(err) {
+        if (err.form() == 0) {
+            errMsg = string(err)
+        } else {
+            errMsg = string(err.last())
+        }
+        
+        if (existsTable("dfs://autoInspection", "emailHistory")) {
+            try {
+                update loadTable("dfs://autoInspection", "emailHistory") set 
+                    status = "failed",  
+                    errMsg = errMsg 
+                where planId == "TEST_EMAIL_PLAN" and reportId.startsWith("TEST_EMAIL_")
+            } catch(updateErr) {
+                writeLog("Failed to update email history: " + string(updateErr.last()))
+            }
+        }
+        writeLog("Test email sending failed: " + errMsg)
+        ret["errCode"] = 1
+        ret["errMsg"] = iif(  
+            language == "cn",  
+            "测试邮件发送失败: " + errMsg,  
+            "Test email sending failed: " + errMsg  
+        )
+    }
 
     return ret
 }

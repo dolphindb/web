@@ -313,7 +313,14 @@ function DataView ({ info }: { info: ICEPEngineDetail }) {
             size='small'
             className='data-view-table'
             dataSource={Object.entries(keys.find(item => item.label === selected_key)?.value ?? { })
-                .map(([name, value]) => ({ name, value }))}
+                .map(([name, value]) => {
+                    if (['string', 'number'].includes(typeof value) || value === null)
+                        return { name, value }
+                    else if (typeof value === 'bigint')
+                        return { name, value: value.toString() }
+                    else
+                        return { name, value: JSON.stringify(value) }
+                })}
             rowKey='name'
             columns={[
                 { title: t('名称'), dataIndex: 'name', width: 300 },

@@ -187,7 +187,7 @@ export function ShellEditor ({ collapser }) {
                         model.message.warning(t('当前连接正在执行作业，请等待'))
                     else
                         try {
-                            await shell.execute_(selection)
+                            await shell.execute(selection)
                         } catch (error) {
                             // 忽略用户执行脚本的错误
                         }

@@ -988,7 +988,7 @@ export function StreamingTable ({
                 name='流表配置表单'
                 labelCol={{ span: label_span }}
                 wrapperCol={{ span: wrapper_span }}
-                initialValues={{ table: table }}
+                initialValues={{ table }}
                 autoComplete='off'
                 onFinish={async ({ table, column, expression }) => {
                     set_table(table)
@@ -1039,7 +1039,7 @@ export function StreamingTable ({
                                         table,
                                         filters: {
                                             ... column ? { column: await apiddb.eval(column) } : { },
-                                            expression: expression
+                                            expression
                                         },
                                         handler (message) {
                                             const { error } = message
@@ -1049,7 +1049,7 @@ export function StreamingTable ({
                                                 throw error
                                             }
                                             
-                                            const time = new Date().getTime()
+                                            const time = Date.now()
                                             
                                             rreceived.current += message.data.data.length
                                             
@@ -1190,7 +1190,7 @@ export function StreamingTable ({
             
             <div>接收到推送的 message 之后，才会在下面显示出表格</div>
         </div>
-    }, [table])
+    }, [ ])
     
     
     if (!rsddb.current || !rddbapi.current || !rmessage.current)

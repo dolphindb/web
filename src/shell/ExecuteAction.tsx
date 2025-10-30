@@ -28,7 +28,7 @@ export function ExecuteAction () {
                 try {
                     // shell 上的 executing 状态才是最新的
                     if (!shell.executing)
-                        await shell.execute_('all')
+                        await shell.execute('all')
                 } catch (error) {
                     // 忽略用户执行脚本的报错
                 }
