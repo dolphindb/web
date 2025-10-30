@@ -340,6 +340,16 @@ def updateMetricParams(mutable params, planId, metricName) {
             params[key] = params_[key]
         }
     }
+    if (!isVoid(params["timeRange"]) && !isNull(params["timeRange"])) {
+        try{
+            params["startTime"] = temporalAdd(now(), duration("-" + params["timeRange"]))
+        }catch(ex){
+            err = "Failed to convert the string to DURATION: " + params["timeRange"] + ". Expected format like '7s', '1d', '3M', etc. Error message: " + snippet(ex)
+            print(err)
+            throw err
+        }
+        params["endTime"] = now()
+    }
 }
 
 def extractUsedParams(params, metricName) {

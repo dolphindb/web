@@ -2116,7 +2116,7 @@ desc = "检查在指定的 startTime 到 endTime 之间，是否存在副本数�
 参数说明：
 - startTime：TIMESTAMP，统计范围的开始时间，默认值为上次相同方案 ID 的报告的开始时间。
 - endTime：TIMESTAMP，统计范围的结束时间，默认值为当前报告的开始时间。
-- timeRange：STRING，统计范围的时间范围。如果配置了 timeRange，则会自动计算 startTime 和 endTime。"
+- timeRange：STRING，统计范围的时间范围。如果配置了 timeRange，则会自动计算 startTime 和 endTime。填写格式参考 DolphinDB 中的 duration 类型，如 7s、1d、3M 等。"
 nodes = NULL
 script = '
 def getChunkidNode(nodes, replicas, chunkIds){
@@ -2204,7 +2204,7 @@ desc = "检查指定时间范围内（startTime 到 endTime）是否存在 ERROR
 参数说明：
 - startTime：TIMESTAMP，统计范围的开始时间，默认值为上次相同方案 ID 的报告的开始时间。
 - endTime：TIMESTAMP，统计范围的结束时间，默认值为当前报告的开始时间。
-- timeRange：STRING，统计范围的时间范围。如果配置了 timeRange，则会自动计算 startTime 和 endTime。
+- timeRange：STRING，统计范围的时间范围。如果配置了 timeRange，则会自动计算 startTime 和 endTime。填写格式参考 DolphinDB 中的 duration 类型，如 7s、1d、3M 等。
 - logLevel：STRING 数组，统计的日志等级，可取值：ERROR，WARNING。"
 nodes = [0, 2, 3, 4]
 script = '
@@ -2291,17 +2291,8 @@ def getServerLogEx(startTime, endTime) {
 }
 
 def errorLogs(params) {
-    if (!isVoid(params["timeRange"]) && !isNull(params["timeRange"])) {
-        try{
-            startTime = temporalAdd(now(), duration("-" + params["timeRange"]))
-        } catch(err){
-            throw "Failed to convert the string to DURATION: " + params["timeRange"] + ". Expected format like \'7s\', \'1d\', \'3M\', etc." 
-        }
-        endTime = now()
-    } else {
-        startTime = params["startTime"]
-        endTime = params["endTime"]
-    }
+    startTime = params["startTime"]
+    endTime = params["endTime"]
 
     logs = getServerLogEx(startTime, endTime)
     ret = select * from logs where level in params["logLevel"] and count > 0
@@ -2335,7 +2326,7 @@ desc = "统计在指定时间范围内（startTime 到 endTime）执行的耗时
 参数说明：
 - startTime：TIMESTAMP，统计范围的开始时间，默认值为上次相同方案 ID 的报告的开始时间。
 - endTime：TIMESTAMP，统计范围的结束时间，默认值为当前报告的开始时间。
-- timeRange：STRING，统计范围的时间范围。如果配置了 timeRange，则会自动计算 startTime 和 endTime。  
+- timeRange：STRING，统计范围的时间范围。如果配置了 timeRange，则会自动计算 startTime 和 endTime。填写格式参考 DolphinDB 中的 duration 类型，如 7s、1d、3M 等。
 - elapsedThresholdMs：DOUBLE，查询耗时阈值（单位：毫秒），当查询耗时超过此阈值时返回错误。可选参数。"
 nodes = NULL // NULL 指该指标不能指定节点运行，选择任一数据节点执行
 script = '
@@ -2343,18 +2334,8 @@ def queryElapsed(params) {
 
     thresholdMs = params["elapsedThresholdMs"]
 
-    if (!isVoid(params["timeRange"]) && !isNull(params["timeRange"])) {
-        try{
-            startTime_ = temporalAdd(now(), duration("-" + params["timeRange"]))
-        } catch(err){
-            throw "Failed to convert the string to DURATION: " + params["timeRange"] + ". Expected format like \'7s\', \'1d\', \'3M\', etc." 
-        }
-        endTime_ = now()
-    }
-    else {
-        startTime_ = params["startTime"]
-        endTime_ = params["endTime"]
-    }
+    startTime_ = params["startTime"]
+    endTime_ = params["endTime"]
 
     getQueryLogInner = def(startTime_, endTime_) {
 		logDir = getConfig("logFile").split("/")
@@ -2444,7 +2425,7 @@ desc = "统计在指定时间范围内（startTime 到 endTime）访问次数最
 参数说明：
 - startTime：TIMESTAMP，统计范围的开始时间，默认值为上次相同方案 ID 的报告的开始时间。
 - endTime：TIMESTAMP，统计范围的结束时间，默认值为当前报告的开始时间。
-- timeRange：STRING，统计范围的时间范围。如果配置了 timeRange，则会自动计算 startTime 和 endTime。
+- timeRange：STRING，统计范围的时间范围。如果配置了 timeRange，则会自动计算 startTime 和 endTime。填写格式参考 DolphinDB 中的 duration 类型，如 7s、1d、3M 等。
 - queryCountThreshold：LONG，库表查询次数阈值，当查询次数超过此阈值时返回错误。可选参数。"
 nodes = NULL // NULL 指该指标不能指定节点运行，选择任一数据节点执行
 script = '
@@ -2455,18 +2436,8 @@ def mostQueriedDFSTables(params) {
     
     queryCountThreshold = params["queryCountThreshold"]
     
-    if (!isVoid(params["timeRange"]) && !isNull(params["timeRange"])) {
-        try{
-            startTime_ = temporalAdd(now(), duration("-" + params["timeRange"]))
-        } catch(err){
-            throw "Failed to convert the string to DURATION: " + params["timeRange"] + ". Expected format like \'7s\', \'1d\', \'3M\', etc." 
-        }
-        endTime_ = now()
-    }
-    else {
-        startTime_ = params["startTime"]
-        endTime_ = params["endTime"]
-    }
+    startTime_ = params["startTime"]
+    endTime_ = params["endTime"]
     
     getQueryLogInner = def(startTime_, endTime_) {
 		logDir = getConfig("logFile").split("/")
@@ -2545,7 +2516,7 @@ desc = "统计在指定时间范围内（startTime 到 endTime）数据库写入
 参数说明：
 - startTime：TIMESTAMP，统计范围的开始时间，默认值为上次相同方案 ID 的报告的开始时间。
 - endTime：TIMESTAMP，统计范围的结束时间，默认值为当前报告的开始时间。
-- timeRange：STRING，统计范围的时间范围。如果配置了 timeRange，则会自动计算 startTime 和 endTime。
+- timeRange：STRING，统计范围的时间范围。如果配置了 timeRange，则会自动计算 startTime 和 endTime。填写格式参考 DolphinDB 中的 duration 类型，如 7s、1d、3M 等。
 - diskUsageThresholdGB：DOUBLE，数据库表磁盘使用量阈值（单位：GB），当磁盘使用量超过此阈值时返回错误。可选参数。"
 nodes = NULL // NULL 指该指标不能指定节点运行，选择任一数据节点执行
 script = '
@@ -2559,19 +2530,10 @@ def dfsPath2tableName(node, chunkId, dfsPath){
 def DFSTableDiskUsage(params) {
 
     thresholdGB = params["diskUsageThresholdGB"]
-    
-    if (!isVoid(params["timeRange"]) && !isNull(params["timeRange"])) {
-        try{
-            startTime = temporalAdd(now(), duration("-" + params["timeRange"]))
-        } catch(err){
-            throw "Failed to convert the string to DURATION: " + params["timeRange"] + ". Expected format like \'7s\', \'1d\', \'3M\', etc." 
-        }
-        endTime = now()
-    }
-    else {
-        startTime = params["startTime"]
-        endTime = params["endTime"]
-    }
+
+    startTime = params["startTime"]
+    endTime = params["endTime"]
+
     meta = select * from rpc(getControllerAlias(), getClusterChunksStatus) where lastUpdated between startTime and endTime and !file.endsWith("domain") and !file.endsWith(".tbl")
     if (meta.size() == 0) {
         return (true, NULL, NULL)
@@ -2646,7 +2608,7 @@ desc = "统计在指定时间范围内（startTime 到 endTime）有写入记录
 参数说明：
 - startTime：TIMESTAMP，统计范围的开始时间，默认值为上次相同方案 ID 的报告的开始时间。
 - endTime：TIMESTAMP，统计范围的结束时间，默认值为当前报告的开始时间。
-- timeRange：STRING，统计范围的时间范围。如果配置了 timeRange，则会自动计算 startTime 和 endTime。
+- timeRange：STRING，统计范围的时间范围。如果配置了 timeRange，则会自动计算 startTime 和 endTime。填写格式参考 DolphinDB 中的 duration 类型，如 7s、1d、3M 等。
 - sizeThresholdGB：DOUBLE，分区大小阈值（单位：GB），当分区大小超过此阈值时返回错误。可选参数。"
 nodes = NULL // NULL 指该指标不能指定节点运行，选择任一数据节点执行
 script = '
@@ -2660,19 +2622,10 @@ def dfsPath2tableName(node, chunkId, dfsPath){
 def biggestChunks(params) {
 
     threshold = params["sizeThresholdGB"]
-    
-    if (!isVoid(params["timeRange"]) && !isNull(params["timeRange"])) {
-        try{
-            startTime = temporalAdd(now(), duration("-" + params["timeRange"]))
-        } catch(err){
-            throw "Failed to convert the string to DURATION: " + params["timeRange"] + ". Expected format like \'7s\', \'1d\', \'3M\', etc." 
-        }
-        endTime = now()
-    }
-    else {
-        startTime = params["startTime"]
-        endTime = params["endTime"]
-    }
+
+    startTime = params["startTime"]
+    endTime = params["endTime"]
+
     res = table(1:0, `dbName`tbName`dfsPath`chunkId, [STRING, STRING, STRING, STRING])
     meta = select * from rpc(getControllerAlias(), getClusterChunksStatus) where lastUpdated between startTime and endTime and !file.endsWith(".tbl") and !file.endsWith("/domain")
     
@@ -2728,7 +2681,7 @@ desc = "检查在指定时间范围内（startTime 到 endTime）有写入记录
 参数说明：
 - startTime：TIMESTAMP，统计范围的开始时间，默认值为上次相同方案 ID 的报告的开始时间。
 - endTime：TIMESTAMP，统计范围的结束时间，默认值为当前报告的开始时间。
-- timeRange：STRING，统计范围的时间范围。如果配置了 timeRange，则会自动计算 startTime 和 endTime。"
+- timeRange：STRING，统计范围的时间范围。如果配置了 timeRange，则会自动计算 startTime 和 endTime。填写格式参考 DolphinDB 中的 duration 类型，如 7s、1d、3M 等。"
 nodes = NULL // NULL 指该指标不能指定节点运行，选择任一数据节点执行
 script = '
 def dfsPath2tableName(node, chunkId, dfsPath){
@@ -2739,18 +2692,9 @@ def dfsPath2tableName(node, chunkId, dfsPath){
 }
 
 def sortKeyCount(params) {
-    if (!isVoid(params["timeRange"]) && !isNull(params["timeRange"])) {
-        try{
-            startTime = temporalAdd(now(), duration("-" + params["timeRange"]))
-        } catch(err){
-            throw "Failed to convert the string to DURATION: " + params["timeRange"] + ". Expected format like \'7s\', \'1d\', \'3M\', etc." 
-        }
-        endTime = now()
-    }
-    else {
-        startTime = params["startTime"]
-        endTime = params["endTime"]
-    }
+    startTime = params["startTime"]
+    endTime = params["endTime"]
+
     meta = select * from rpc(getControllerAlias(), getClusterChunksStatus) where lastUpdated between startTime and endTime and !file.endsWith(".tbl") and !file.endsWith("/domain")
 
     res = table(1:0, `dbName`tbName`dfsPath`chunkId, [STRING, STRING, STRING, STRING])
@@ -3595,7 +3539,7 @@ desc = "检查多副本列数是否一致。
 参数说明：
 - startTime：TIMESTAMP，统计范围的开始时间，默认值为上次相同方案 ID 的报告的开始时间。
 - endTime：TIMESTAMP，统计范围的结束时间，默认值为当前报告的开始时间。
-- timeRange：STRING，统计范围的时间范围。如果配置了 timeRange，则会自动计算 startTime 和 endTime。"
+- timeRange：STRING，统计范围的时间范围。如果配置了 timeRange，则会自动计算 startTime 和 endTime。填写格式参考 DolphinDB 中的 duration 类型，如 7s、1d、3M 等。"
 nodes = NULL
 script = '
 def replicaColNum(params){
@@ -3606,18 +3550,9 @@ def replicaColNum(params){
     
     ret = table(1:0, ["库名", "表名", "dfsPath", "副本节点1", "副本节点2", "是否一致"], [STRING, STRING, STRING,STRING, STRING, BOOL])
 
-    if (!isVoid(params["timeRange"]) && !isNull(params["timeRange"])) {
-        try{
-            startTime = temporalAdd(now(), duration("-" + params["timeRange"]))
-        } catch(err){
-            throw "Failed to convert the string to DURATION: " + params["timeRange"] + ". Expected format like \'7s\', \'1d\', \'3M\', etc." 
-        }
-        endTime = now()
-    }
-    else {
-        startTime = params["startTime"]
-        endTime = params["endTime"]
-    }
+    startTime = params["startTime"]
+    endTime = params["endTime"]
+
 
     controllerChunks = select chunkId from rpc(getControllerAlias(),getClusterChunksStatus) where lastUpdated >= startTime and lastUpdated <= endTime and replicaCount >= 2
     
@@ -3693,7 +3628,7 @@ desc = "检查指定时间范围内（startTime 到 endTime）是否生成了 co
 参数说明：
 - startTime：TIMESTAMP，统计范围的开始时间，默认值为上次相同方案 ID 的报告的开始时间。
 - endTime：TIMESTAMP，统计范围的结束时间，默认值为当前报告的开始时间。
-- timeRange：STRING，统计范围的时间范围。如果配置了 timeRange，则会自动计算 startTime 和 endTime。"
+- timeRange：STRING，统计范围的时间范围。如果配置了 timeRange，则会自动计算 startTime 和 endTime。填写格式参考 DolphinDB 中的 duration 类型，如 7s、1d、3M 等。"
 nodes = [0, 2, 3, 4]
 script = '
 def coredump(params) {
@@ -3704,18 +3639,9 @@ def coredump(params) {
         return (false, "未配置 enableShellFunction=true。", "请配置 enableShellFunction=true 以支持该项检查。")
     }
     
-    if (!isVoid(params["timeRange"]) && !isNull(params["timeRange"])) {
-        try{
-            startTime = temporalAdd(now(), duration("-" + params["timeRange"]))
-        } catch(err){
-            throw "Failed to convert the string to DURATION: " + params["timeRange"] + ". Expected format like \'7s\', \'1d\', \'3M\', etc." 
-        }
-        endTime = now()
-    }
-    else {
-        startTime = params["startTime"]
-        endTime = params["endTime"]
-    }
+    startTime = params["startTime"]
+    endTime = params["endTime"]
+    
     tmpFilename = "autoInspection_coredump_" + getNodeAlias() + "_" + temporalFormat(now(), "yMdHmsSSS") + "_tmp.txt"
     shell("cat /proc/sys/kernel/core_pattern > " + tmpFilename)
     f = file(tmpFilename)
