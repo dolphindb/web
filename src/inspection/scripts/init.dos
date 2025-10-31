@@ -2153,17 +2153,10 @@ def replicaRowNum(params){
     if(int(getConfig().dfsReplicationFactor)<2){
         return (true, "节点副本数小于 2，无法进行校验。", NULL)
     }
-    if (!isVoid(params["timeRange"]) && !isNull(params["timeRange"])) {
-        try{
-            startTime = temporalAdd(now(), duration("-" + params["timeRange"]))
-        } catch(err){
-            throw "Failed to convert the string to DURATION: " + params["timeRange"] + ". Expected format like \'7s\', \'1d\', \'3M\', etc." 
-        }
-        endTime = now()
-    } else {
-        startTime = params["startTime"]
-        endTime = params["endTime"]
-    }
+    
+    startTime = params["startTime"]
+    endTime = params["endTime"]
+
     nodes = exec name from rpc(getControllerAlias(), getClusterPerf) where mode==0 or mode==3;
     controllerChunks=select * from rpc(getControllerAlias(),getClusterChunksStatus) where lastUpdated>=startTime and lastUpdated<=endTime;
     if (controllerChunks.chunkId.size() == 0) {
