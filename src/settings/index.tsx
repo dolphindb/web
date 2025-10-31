@@ -34,7 +34,7 @@ export function Settings () {
             description={t('此功能专为物联网用户设计。用户通过此功能无需设计分区方案或编写复杂的 SQL 语句，只需输入库表名称、列名等基本信息，并通过列表选择参数，即可快速生成建库建表脚本，进而完成库表创建。')}
         />
         
-        { license.product_key !== 'ORCA' && <>
+        { license.product_key !== 'ORCA' && model.v3 && <>
             <Card
                 module_key='streaming-graph'
                 icon={<Icon className='label-icon' component={SvgStreamingGraph} />}
