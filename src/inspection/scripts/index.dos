@@ -343,12 +343,12 @@ def updateMetricParams(mutable params, planId, metricName) {
     if (!isVoid(params["timeRange"]) && !isNull(params["timeRange"])) {
         try{
             params["startTime"] = temporalAdd(now(), duration("-" + params["timeRange"]))
+            params["endTime"] = now()
         }catch(ex){
             err = "Failed to convert the string to DURATION: " + params["timeRange"] + ". Expected format like '7s', '1d', '3M', etc. Error message: " + snippet(ex)
             print(err)
-            throw err
+            print("Parameters, startTime and endTime, still use default setting.")
         }
-        params["endTime"] = now()
     }
 }
 
