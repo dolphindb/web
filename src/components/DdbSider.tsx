@@ -73,10 +73,10 @@ export function DdbSider () {
     
     const {
         node_type, collapsed, logined, admin, login_required, client_auth, 
-        v1, v3, port, hostname, username, license
+        v1, v3, port, hostname, username, license, enabled_modules
     } = model.use([
         'node_type', 'collapsed', 'logined', 'admin', 'login_required', 'client_auth', 
-        'v1', 'v3', 'enabled_modules', 'port', 'hostname', 'username', 'license'
+        'v1', 'v3', 'port', 'hostname', 'username', 'license', 'enabled_modules'
     ])
     
     const [factor_platform, set_factor_platform] = useState(false)
@@ -141,21 +141,21 @@ export function DdbSider () {
                     icon: <MenuIcon view='overview' />,
                     label: node_type === NodeType.single ? t('单机总览') : t('集群总览'),
                 },
-                ...admin && node_type === NodeType.controller ? [{
+                admin && node_type === NodeType.controller && {
                     key: 'config',
                     icon: <MenuIcon view='config'/>,
                     label: t('配置管理')
-                }] : [ ],
+                },
                 {
                     key: 'shell',
                     icon: <MenuIcon view='shell' />,
                     label: t('交互编程'),
                 },
-                ... !v1 ? [ {
+                !v1 && {
                     key: 'dashboard',
                     icon: <MenuIcon view='dashboard' />,
                     label: t('数据面板'),
-                }] : [ ],
+                },
                 {
                     key: 'job',
                     icon: <MenuIcon view='job' />,
@@ -166,19 +166,17 @@ export function DdbSider () {
                     icon: <MenuIcon view='computing' />,
                     label: t('流计算监控', { context: 'menu' }),
                 },
-                ... logined && v3 && (dev || license.product_key === 'ORCA') ? [
-                    {
-                        key: 'streaming-graph',
-                        icon: <MenuIcon view='streaming-graph' />,
-                        label: t('流图监控', { context: 'menu' }),
-                    },
-                    {
-                        key: 'lineage',
-                        icon: <ApartmentOutlined className='icon-menu' />,
-                        label: t('数据血缘'),
-                    }
-                ] : [ ],
-                ... node_type !== NodeType.computing && admin ? [{
+                v3 && logined && (dev || license.product_key === 'ORCA' || enabled_modules.has('streaming-graph')) && {
+                    key: 'streaming-graph',
+                    icon: <MenuIcon view='streaming-graph' />,
+                    label: t('流图监控'),
+                },
+                v3 && logined && (dev || license.product_key === 'ORCA' || enabled_modules.has('lineage')) && {
+                    key: 'lineage',
+                    icon: <ApartmentOutlined className='icon-menu' />,
+                    label: t('数据血缘'),
+                },
+                node_type !== NodeType.computing && admin && {
                     key: 'access',
                     icon: <MenuIcon view='access' />,
                     label: t('权限管理'),
@@ -194,18 +192,18 @@ export function DdbSider () {
                             label: t('组管理'),
                         },
                     ]
-                }] : [ ],
-                ... admin && language === 'zh' ? [{
+                },
+                admin && language === 'zh' && {
                     key: 'inspection',
                     icon: <MenuIcon view='inspection' />,
                     label: t('定时巡检'),
-                }] : [ ],
+                },
                 {
                     key: 'log',
                     icon: <MenuIcon view='log' />,
                     label: t('日志查看'),
                 },
-                ... node_type !== NodeType.controller ? [{
+                node_type !== NodeType.controller && {
                     key: 'data-collection',
                     icon: <MenuIcon view='data-collection' />,
                     label: t('数据采集'),
@@ -221,43 +219,40 @@ export function DdbSider () {
                             key: 'parser-template'
                         }
                     ]
-                }] : [ ],
-                ... admin ? [
-                    {
-                        key: 'plugins',
-                        icon: <MenuIcon view='plugins' />,
-                        label: t('插件管理'),
-                }] : [ ],
-                ... factor_platform && node_type !== NodeType.controller && !model.dev ? [{
+                },
+                admin && {
+                    key: 'plugins',
+                    icon: <MenuIcon view='plugins' />,
+                    label: t('插件管理'),
+                },
+                factor_platform && node_type !== NodeType.controller && !model.dev && {
                     key: 'factor',
                     icon: <MenuIcon view='factor' />,
                     label: <Link className='starfish-link' target='_blank' href={factor_href}>{t('因子平台')}</Link>
-                }] : [ ],
-                {
+                },
+                enabled_modules.has('finance-guide') && {
                     key: 'finance-guide',
                     label: t('金融库表向导'),
                     title: t('金融库表向导'),
                     icon: <MenuIcon view='finance-guide'/>
                 },
-                {
+                enabled_modules.has('iot-guide') && {
                     key: 'iot-guide',
                     label: t('物联网库表向导'),
                     title: t('物联网库表向导'),
                     icon: <MenuIcon view='iot-guide'/>
                 },
-                ... dev ? [
-                    {
-                        key: 'test',
-                        icon: <ExperimentOutlined className='icon-menu' />,
-                        label: t('测试模块')
-                }] : [ ],
-                ... admin ? [
-                    {
-                        key: 'settings',
-                        icon: <SettingOutlined  className='icon-menu' />,
-                        label: t('功能设置')
-                }] : [ ],
-            ].filter(item => model.is_module_visible(item.key))}
+                dev && {
+                    key: 'test',
+                    icon: <ExperimentOutlined className='icon-menu' />,
+                    label: t('测试模块')
+                },
+                admin && {
+                    key: 'settings',
+                    icon: <SettingOutlined  className='icon-menu' />,
+                    label: t('功能设置')
+                },
+            ].filter(Boolean)}
         />
     </Layout.Sider>
 }

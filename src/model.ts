@@ -166,8 +166,6 @@ export class DdbModel extends Model<DdbModel> {
     /** 记录启用了哪些可选功能 */
     enabled_modules = new Set<string>()
     
-    /** 记录所有可选功能 */
-    optional_modules = new Set(['finance-guide', 'iot-guide'])
     
     docs: Docs
     
@@ -1185,11 +1183,6 @@ export class DdbModel extends Model<DdbModel> {
         return language === 'en'
             ? `https://docs.dolphindb.com/en/Maintenance/ErrorCodeReference/${ref_id}.html`
             : `https://docs.dolphindb.cn/zh/error_codes/${ref_id}.html`
-    }
-    
-    
-    is_module_visible (key: string): boolean {
-        return this.enabled_modules.has(key) || !this.optional_modules.has(key)
     }
     
     

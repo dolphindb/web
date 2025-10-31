@@ -6185,7 +6185,7 @@
     "PKEY 数据库引擎不支持 addColumn": {
         "en": "addColumn is not supported by PKEY database engine"
     },
-    "流图监控_menu": {
+    "流图监控": {
         "en": "Stream Graph"
     },
     "构建中": {
@@ -6670,5 +6670,14 @@
     },
     "选填，留空表示不设置阈值": {
         "en": "Optional, leave blank to not set a threshold"
+    },
+    "{{label}}{{action}}成功": {
+        "en": "{{label}} {{action}} successfully"
+    },
+    "查看流计算图相关信息，通过流图监控模块，用户可以直观监控通过 Orca 创建的流图任务及其运行状态，帮助用户实时掌握各流图的任务数量、执行次数和当前状态等。点击流图名称跳转至详情页面，查看具体任务结构与执行情况。": {
+        "en": "View relevant information on stream calculation charts. Through the Stream Graph Module, users can intuitively monitor steam graph tasks created through Orca and their running status, helping users grasp the number of tasks, execution times and current status of each stream graph in real time. Click on the stream chart name to jump to the details page to view the specific task structure and execution status. "
+    },
+    "查看数据库表、计算引擎的血缘关系，清晰地展示节点的上游拓扑结构，帮助用户直观地理解数据流动路径，从而快速定位问题。": {
+        "en": " View the blood relationship between database tables and calculation engines, clearly display the upstream topology of nodes, and help users intuitively understand the data flow path, thereby quickly locating problems. "
     }
 }
