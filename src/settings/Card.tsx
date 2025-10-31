@@ -48,10 +48,10 @@ export function Card ({
                     let enabled_modules_ = new Set(enabled_modules)
                     
                     if (active) {
-                        await on_deactivate()
+                        await on_deactivate?.()
                         enabled_modules_.delete(module_key)
                     } else {
-                        await on_activate()
+                        await on_activate?.()
                         enabled_modules_.add(module_key)
                     }
                     
