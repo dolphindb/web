@@ -22,7 +22,7 @@ import type { Docs } from 'dolphindb/docs.js'
 
 import { language, t } from '@i18n'
 
-import { goto_url, strip_quotes } from '@utils'
+import { goto_url, strip_quotes, urgent } from '@utils'
    
 import type { FormatErrorOptions } from '@/components/GlobalErrorBoundary.tsx'
 import { config } from '@/config/model.ts'
@@ -81,10 +81,13 @@ export class DdbModel extends Model<DdbModel> {
         return location.pathname.strip_start(this.assets_root).split('/')[0] || default_view
     }
     
+    /** 可读取，但禁止直接修改，需要通过 this.update_user() 更新，会同时更新 logined, username, admin 和 configs */
     logined = false
     
+    /** 可读取，但禁止直接修改，需要通过 this.update_user() 更新，会同时更新 logined, username, admin 和 configs */
     username: string = username_guest
     
+    /** 可读取，但禁止直接修改，需要通过 this.update_user() 更新，会同时更新 logined, username, admin 和 configs */
     admin = false
     
     node_type: NodeType
@@ -286,6 +289,7 @@ export class DdbModel extends Model<DdbModel> {
         
         await Promise.all([
             // 必须先调用上面的函数，load_configs 依赖 controller alias, version 等信息
+            // 登录前只能拿很少的一些 guest 用户能拿的配置，登录之后需要重新获取
             config.load_configs(),
             
             this.get_cluster_perf(true),
@@ -438,9 +442,11 @@ export class DdbModel extends Model<DdbModel> {
         
         try {
             await this.ddb.invoke('authenticateByTicket', [ticket], { urgent: true })
-            this.set({ logined: true, username: last_username })
             
-            await this.is_admin()
+            await this.update_user({
+                ticket,
+                username: last_username
+            })
             
             console.log(t('{{username}} 使用 ticket 登陆成功', { username: last_username }))
         } catch (error) {
@@ -480,10 +486,9 @@ export class DdbModel extends Model<DdbModel> {
             
             // result.username 由于 server 的 parseExpr 无法正确 parse \u1234 这样的字符串，先从后台 JSON 中提取信息
             // 等 server 增加 parseJSON 函数
-            const { name: username } = JSON.parse(result.raw)
-            this.set({ logined: true, username })
-            
-            await this.is_admin()
+            this.update_user({
+                username: JSON.parse(result.raw).name
+            })
             
             return result
         }
@@ -633,23 +638,42 @@ export class DdbModel extends Model<DdbModel> {
         }
     }
     
-    async update_user (ticket?: string) {
-        const [session, username] = await this.ddb.invoke<[string, string]>('getCurrentSessionAndUser')
+    
+    /** 同时更新 logined, username, admin 和 configs  
+        可选传入一些已知的参数，减少调用 server 函数 */
+    async update_user ({
+        ticket,
+        username,
+        admin
+    }: {
+        ticket?: string
+        username?: string
+        admin?: boolean
+    } = { }) {
+        username ||= (await this.ddb.invoke<[string, string]>('getCurrentSessionAndUser', undefined, urgent))
+            [1]
         
         const logined = username !== username_guest
         
-        this.set({ logined, username })
+        // 用户修改时，配置也会跟着改，这里需要重新拉一次
+        if (username !== this.username) {
+            admin ??= logined && (
+                await this.ddb.invoke<{ isAdmin: boolean }[]>('getUserAccess', undefined, urgent)
+            )[0].isAdmin
+            
+            await config.load_configs()
+        } else
+            admin ??= this.admin
         
-        await this.is_admin()
+        this.set({ logined, username, admin })
         
         if (logined) {
-            if (!ticket)
-                ticket = await this.ddb.invoke<string>('getAuthenticatedUserTicket', undefined, {
-                    urgent: true,
-                    ... this.node_type === NodeType.controller || this.node_type === NodeType.single 
-                        ? undefined
-                        : { node: this.controller_alias }
-                })
+            ticket ||= await this.ddb.invoke<string>('getAuthenticatedUserTicket', undefined, {
+                urgent: true,
+                ... this.node_type === NodeType.controller || this.node_type === NodeType.single 
+                    ? undefined
+                    : { node: this.controller_alias }
+            })
             
             localStorage.setItem(storage_keys.username, username)
             localStorage.setItem(storage_keys.ticket, ticket)
@@ -665,8 +689,7 @@ export class DdbModel extends Model<DdbModel> {
         
         await this.ddb.invoke('logout', undefined, { urgent: true })
         
-        this.set({
-            logined: false,
+        await this.update_user({
             username: username_guest,
             admin: false
         })
@@ -675,20 +698,6 @@ export class DdbModel extends Model<DdbModel> {
             await this.goto_login()
     }
     
-    
-    async is_admin () {
-        const admin = this.logined && (
-            await this.ddb.invoke<{ isAdmin: boolean }[]>(
-                'getUserAccess',
-                undefined,
-                { urgent: true }
-            )
-        )[0].isAdmin
-        
-        this.set({ admin })
-        
-        return admin
-    }
     
     async start_nodes (nodes: DdbNode[]) {
         await this.ddb.invoke('startDataNode', [nodes.map(node => node.name)], { node: this.controller_alias })
