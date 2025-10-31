@@ -1,7 +1,7 @@
 import { Model } from 'react-object-model'
 
-import { DdbInt, type DdbCallOptions } from 'dolphindb/browser.js'
-import { to_option } from 'xshell/utils.browser.js'
+import { DdbInt, DdbVectorString, type DdbCallOptions } from 'dolphindb/browser.js'
+import { log, to_option } from 'xshell/utils.browser.js'
 
 import { t } from '@i18n'
 
@@ -107,7 +107,7 @@ class ConfigModel extends Model<ConfigModel> {
     async change_configs (configs: Array<[string, NodesConfig]>) {
         configs.forEach(([key, value]) => {
             this.nodes_configs.set(key, { ...value, category: get_category(value.name) })
-        }) 
+        })
         
         await this.save_configs()
     }
@@ -134,25 +134,31 @@ class ConfigModel extends Model<ConfigModel> {
         
         await this.invoke(
             'saveClusterNodesConfigs', 
-            [[...iterator_map(
-                this.nodes_configs.entries(), 
-                ([key, config]) => {
-                    new_nodes_configs.set(key, config)
-                    const { value } = config
-                    return `${key}=${value}`
-                })
-            ]])
+            [
+                log(
+                    '保存新的配置:', 
+                    new DdbVectorString([...iterator_map(
+                        this.nodes_configs.entries(), 
+                        ([key, config]) => {
+                            new_nodes_configs.set(key, config)
+                            const { value } = config
+                            return `${key}=${value}`
+                        })
+                    ]))
+            ])
         
         if (model.node_type === NodeType.controller)
             try {
                 await this.invoke('reloadClusterConfig')
             } catch (error) {
                 model.modal.error({
-                    title: t('配置文件存在错误 {{message}} 请检查输入内容并重新尝试。', { message: error.message }),
+                    title: log('加载配置文件错误:', t('配置文件存在错误 {{message}} 请检查输入内容并重新尝试。', { message: error.message })),
                 })
                 error.shown = true
                 
-                await this.invoke('saveClusterNodesConfigs', [old_config])
+                await this.invoke('saveClusterNodesConfigs', [
+                    log('恢复旧的配置:', new DdbVectorString(old_config))
+                ])
                 await this.load_configs()
                 
                 throw error
