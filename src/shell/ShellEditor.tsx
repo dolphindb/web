@@ -115,9 +115,9 @@ export function ShellEditor ({ collapser }) {
             on_tab_rename={handle_tab_rename}
             show_add_button
             on_add_tab={() => { shell.add_tab() }}
-        />}
+        /> }
         
-        {monaco_inited && <div className='toolbar'>
+        { monaco_inited && <div className='toolbar'>
             <div className='actions'>
                 <ExecuteAction />
             </div>
@@ -167,7 +167,7 @@ export function ShellEditor ({ collapser }) {
                         </span>
                 }
             </div>
-        </div>}
+        </div> }
         
         <Editor
             minimap={minimap}
