@@ -316,6 +316,9 @@ class ShellModel extends Model<ShellModel> {
     
     
     save (code = this.editor?.getValue()) {
+        if (!this.monaco_inited)
+            return
+        
         if (code === undefined) 
             throw new Error('不能保存 undefined 的 code')
         
