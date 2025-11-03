@@ -26,7 +26,7 @@ export function ShellEditor ({ collapser }) {
     
     const [collapsed, set_collapsed] = useState(false)
     
-    const { itab, tabs } = shell.use(['itab', 'tabs'])
+    const { itab, tabs, monaco_inited } = shell.use(['itab', 'tabs', 'monaco_inited'])
     const current_tab = tabs.find(t => t.index === itab)
     const readonly = current_tab?.read_only
     
@@ -96,7 +96,7 @@ export function ShellEditor ({ collapser }) {
     }
     
     return <div className='shell-editor'>
-        <Tabs 
+        { monaco_inited && <Tabs 
             tabs={[
                 { key: -1, name: t('默认标签页'), closeable: false, renameable: false, icon: <FileTextOutlined /> }, 
                 ...tabs.map(tab => ({
@@ -115,9 +115,9 @@ export function ShellEditor ({ collapser }) {
             on_tab_rename={handle_tab_rename}
             show_add_button
             on_add_tab={() => { shell.add_tab() }}
-        />
+        />}
         
-        <div className='toolbar'>
+        {monaco_inited && <div className='toolbar'>
             <div className='actions'>
                 <ExecuteAction />
             </div>
@@ -167,7 +167,7 @@ export function ShellEditor ({ collapser }) {
                         </span>
                 }
             </div>
-        </div>
+        </div>}
         
         <Editor
             minimap={minimap}
