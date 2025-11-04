@@ -595,7 +595,7 @@ export class DdbModel extends Model<DdbModel> {
         
         
         if (ticket) {
-            const username = await this.update_user(ticket)
+            const username = await this.update_user({ ticket })
             
             if (this.logined)
                 console.log(t('{{username}} 使用 oauth 单点登录成功', { username }))

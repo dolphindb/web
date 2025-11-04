@@ -151,15 +151,11 @@ async function dev () {
         remote = new Remote({
             url: 'ws://localhost',
             
-            keeper: {
-                func: 'register',
-                args: ['ddb.web'],
-            },
+            args: ['ddb.web'],
             
             funcs: {
                 async recompile () {
                     await recompile()
-                    return [ ]
                 },
                 
                 async exit () {
