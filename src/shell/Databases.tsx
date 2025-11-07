@@ -1521,7 +1521,7 @@ export class ColumnRoot implements DataNode {
         this.key = `${table.path}${this.type}/`
         this.title = <div className='column-root-title'>
             {t('列')}
-            <div className='add-column-button' onClick={async event => {
+            { !model.iot && <div className='add-column-button' onClick={async event => {
                 event.stopPropagation()
                 await this.table.db.get_schema()
                 const engineType = this.table.db.schema.data<{ engineType: string }>().engineType
@@ -1534,7 +1534,7 @@ export class ColumnRoot implements DataNode {
                 <Tooltip title={t('添加列')} color='grey'>
                     <Icon component={SvgAddColumn} />
                 </Tooltip>
-            </div>
+            </div> }
         </div>
     }
     

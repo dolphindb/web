@@ -366,17 +366,17 @@ function ColumnsTable ({ value = [ ], onChange }) {
     ]
     
     return <div>
-            <Table
-                dataSource={value}
-                columns={columns}
-                pagination={{ pageSize: 10 }}
-                rowKey={(record, index) => index.toString()}
-                className='create-table-form-columns-table'
-            />
-            <Button type='dashed' onClick={addColumn} style={{ marginTop: 16, width: '100%' }}>
-                {t('添加列')}
-            </Button>
-        </div>
+        <Table
+            dataSource={value}
+            columns={columns}
+            pagination={{ pageSize: 10 }}
+            rowKey={(record, index) => index.toString()}
+            className='create-table-form-columns-table'
+        />
+        <Button type='dashed' onClick={addColumn} style={{ marginTop: 16, width: '100%' }}>
+            {t('添加列')}
+        </Button>
+    </div>
 }
 
 function CreateTableModalFillForm () {
