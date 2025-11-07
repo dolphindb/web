@@ -73,10 +73,10 @@ export function DdbSider () {
     
     const {
         node_type, collapsed, logined, admin, login_required, client_auth, 
-        v1, v3, port, hostname, username, license, enabled_modules
+        v1, v3, port, hostname, username, license, enabled_modules, iot
     } = model.use([
         'node_type', 'collapsed', 'logined', 'admin', 'login_required', 'client_auth', 
-        'v1', 'v3', 'port', 'hostname', 'username', 'license', 'enabled_modules'
+        'v1', 'v3', 'port', 'hostname', 'username', 'license', 'enabled_modules', 'iot'
     ])
     
     const [factor_platform, set_factor_platform] = useState(false)
@@ -193,7 +193,7 @@ export function DdbSider () {
                         },
                     ]
                 },
-                admin && language === 'zh' && {
+                admin && language === 'zh' && !iot && {
                     key: 'inspection',
                     icon: <MenuIcon view='inspection' />,
                     label: t('定时巡检'),
@@ -203,7 +203,7 @@ export function DdbSider () {
                     icon: <MenuIcon view='log' />,
                     label: t('日志查看'),
                 },
-                node_type !== NodeType.controller && {
+                node_type !== NodeType.controller && !iot && {
                     key: 'data-collection',
                     icon: <MenuIcon view='data-collection' />,
                     label: t('数据采集'),
@@ -220,7 +220,7 @@ export function DdbSider () {
                         }
                     ]
                 },
-                admin && {
+                admin && !iot && {
                     key: 'plugins',
                     icon: <MenuIcon view='plugins' />,
                     label: t('插件管理'),
@@ -247,7 +247,7 @@ export function DdbSider () {
                     icon: <ExperimentOutlined className='icon-menu' />,
                     label: t('测试模块')
                 },
-                admin && {
+                admin && !iot && {
                     key: 'settings',
                     icon: <SettingOutlined  className='icon-menu' />,
                     label: t('功能设置')

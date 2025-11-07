@@ -131,10 +131,12 @@ export class DdbModel extends Model<DdbModel> {
     license: DdbLicense
     
     /** 产品 id */
-    product = 'dolphindb'
+    product: Product = 'dolphindb'
     
     /** 产品名称，决定页面标题 */
     product_name = 'DolphinDB'
+    
+    iot = false
     
     first_get_server_log_length = true
     
@@ -778,12 +780,13 @@ export class DdbModel extends Model<DdbModel> {
         
         // local
         // const product = 'iotbasic'
-        const product = product_key === 'DOLPHIN' ? 'dolphindb' : product_key.toLowerCase()
+        const product = product_key === 'DOLPHIN' ? 'dolphindb' : product_key.toLowerCase() as Product
         
         this.set({
             license,
             product,
-            product_name: product_names[product] || 'DolphinDB'
+            product_name: product_names[product] || 'DolphinDB',
+            iot: product === 'iotbasic' || product === 'iotpro'
         })
         
         return license
@@ -1518,6 +1521,9 @@ const product_names = {
     orca: 'Orca',
     dolphinx: 'DolphinX',
 } as const
+
+
+type Product = keyof typeof product_names
 
 
 // 需要放到 storage_keys 之后
