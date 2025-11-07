@@ -344,16 +344,6 @@ export function Tabs ({
     </div>
 }
 
-interface TabProps {
-    name: string
-    active: boolean
-    closeable?: boolean
-    renameable?: boolean
-    onClick: () => void
-    onClose?: () => void
-    onRename?: (newName: string) => void
-    icon?: React.ReactNode
-}
 
 export function Tab ({
     name: initialName,
@@ -364,7 +354,16 @@ export function Tab ({
     onClose,
     onRename,
     icon
-}: TabProps) {
+}: {
+    name: string
+    active: boolean
+    closeable?: boolean
+    renameable?: boolean
+    onClick: () => void
+    onClose?: () => void
+    onRename?: (newName: string) => void
+    icon?: React.ReactNode
+}) {
     let [name, set_name] = useState(initialName)
     let [renaming, set_renaming] = useState(false)
     
