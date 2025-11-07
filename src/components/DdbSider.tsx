@@ -119,7 +119,7 @@ export function DdbSider () {
         }}
     >
         <Menu
-            className={`menu ${admin ? 'module-settings' : ''}`}
+            className='menu'
             mode='inline'
             theme='light'
             selectedKeys={[model.view]}
@@ -249,7 +249,8 @@ export function DdbSider () {
                 },
                 admin && !iot && {
                     key: 'settings',
-                    icon: <SettingOutlined  className='icon-menu' />,
+                    className: 'settings',
+                    icon: <SettingOutlined className='icon-menu' />,
                     label: t('功能设置')
                 },
             ].filter(Boolean)}
