@@ -3133,14 +3133,14 @@ def checkSites(parsedConfigs) {
     nodeAliases = exec nodeAlias from readConfigs::getClusterNodes(parsedConfigs, "controller")
     controllerCnt = nodeAliases.size()
     for (nodeAlias in nodeAliases) {
-        cfgs = readConfigs::getAgentConfigs(parsedConfigs, nodeAlias)
+        cfgs = readConfigs::getControllerConfigs(parsedConfigs, nodeAlias)
         if (isVoid(cfgs)) {
             continue
         }
         localSite = cfgs["localSite"]
         s = localSite.split(":")
         if (s.size() != 3) {
-            throw "控制节点 " + nodeAlias + " 的 localSite 格式非法：" + localSite + localSite
+            throw "控制节点 " + nodeAlias + " 的 localSite 格式非法：" + localSite
         }
         
         host_ = s[0]
@@ -3177,9 +3177,9 @@ def checkSites(parsedConfigs) {
         }
 
         controllerSite = cfgs["controllerSite"]
-        s = localSite.split(":")
+        s = controllerSite.split(":")
         if (s.size() != 3) {
-            throw "代理节点 " + nodeAlias + " 的 controllerSite 格式非法：" + localSite
+            throw "代理节点 " + nodeAlias + " 的 controllerSite 格式非法：" + controllerSite
         }
 
         host_ = s[0]
@@ -3201,7 +3201,7 @@ def checkSites(parsedConfigs) {
             controllerNodeAliases = []$STRING
             for (item in s_) {
                 s = item.split(":")
-                if (s_.size() != 4) {
+                if (s.size() != 4) {
                     throw "代理节点 " + nodeAlias + " 的 sites 格式非法"
                 }
 
