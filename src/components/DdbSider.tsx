@@ -141,7 +141,7 @@ export function DdbSider () {
                     icon: <MenuIcon view='overview' />,
                     label: node_type === NodeType.single ? t('单机总览') : t('集群总览'),
                 },
-                admin && node_type === NodeType.controller && {
+                admin && (node_type === NodeType.controller || model.dev) && {
                     key: 'config',
                     icon: <MenuIcon view='config'/>,
                     label: t('配置管理')

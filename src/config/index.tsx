@@ -6,6 +6,8 @@ import { Tabs } from 'antd'
 
 import { t } from '@i18n'
 
+import { model, NodeType } from '@model'
+
 import { ControllerConfig } from './ControllerConfig.js'
 import { NodesManagement } from './NodesManagement.js'
 import { NodesConfig } from './NodesConfig.js'
@@ -20,11 +22,13 @@ import SvgGroup from './icons/group.icon.svg'
 export function Config () {
     const [tab_key, set_tab_key] = useState<'controller_config' | 'nodes_config' | 'nodes_management'>('controller_config')
     
+    const single = model.node_type === NodeType.single
+    
     return <Tabs
         accessKey={tab_key}
         onChange={set_tab_key as any}
         items={[
-            {
+            !single && {
                 key: 'controller_config',
                 label: (
                     <div className='tab-header'>
@@ -34,7 +38,7 @@ export function Config () {
                 ),
                 children: <ControllerConfig />
             },
-            {
+            !single && {
                 key: 'nodes_management',
                 label: (
                     <div className='tab-header'>
@@ -54,7 +58,7 @@ export function Config () {
                 ),
                 children: <NodesConfig />
             },
-            {
+            !single && {
                 key: 'compute_group_config',
                 label: (
                     <div className='tab-header'>
@@ -64,6 +68,6 @@ export function Config () {
                 ),
                 children: <ComputeGroupConfig />
             }
-        ]}
+        ].filter(Boolean)}
     />
 }
