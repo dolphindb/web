@@ -61,6 +61,8 @@ export class DdbModel extends Model<DdbModel> {
     
     oauth_type: OAuthType
     
+    oauth_allow_password_login = false
+    
     /** 静态资源的根路径 */
     assets_root = '/'
     
@@ -304,8 +306,8 @@ export class DdbModel extends Model<DdbModel> {
         await this.check_leader_and_redirect()
         
         this.set({
-            // 在 dev 下禁用 oauth 方便开发
-            oauth: config.get_boolean_config('oauth') && this.production,
+            oauth: config.get_boolean_config('oauth'),
+            oauth_allow_password_login: this.get_oauth_allow_password_login(),
             login_required: config.get_boolean_config('webLoginRequired'),
             enabled_modules: new Set(
                 config.get_config('webModules')?.split(',') || [ ])
@@ -813,38 +815,41 @@ export class DdbModel extends Model<DdbModel> {
     }
     
     
-    /** 去登录页 */
+    /** 去登录页，或者跳转到 oauth 登录 */
     async goto_login () {
         const { pathname } = location
         if (pathname !== `${this.assets_root}login/`)
             this.pathname_before_login = pathname
         
-        if (this.oauth) {
-            const auth_uri = strip_quotes(
-                config.get_config('oauthAuthUri')
-            )
-            const client_id = config.get_config('oauthClientId')
-            const redirect_uri = strip_quotes(
-                config.get_config('oauthRedirectUri')
-            )
-            
-            if (!auth_uri || !client_id)
-                throw new Error(t('必须配置 oauthAuthUri, oauthClientId 参数'))
-            
-            const url = new URL(
-                auth_uri + '?' + new URLSearchParams({
-                    response_type: this.oauth_type === 'authorization code' ? 'code' : 'token',
-                    client_id,
-                    ... redirect_uri ? { redirect_uri } : { },
-                    state: JSON.stringify({ node: this.node_alias })
-                }).toString()
-            ).toString()
-            
-            console.log(t('跳转到 oauth 验证页面:'), url)
-            
-            await goto_url(url)
-        } else
+        if (this.oauth && !this.oauth_allow_password_login)
+            await this.goto_oauth()
+        else
             this.goto('/login/')
+    }
+    
+    
+    async goto_oauth () {
+        const auth_uri = strip_quotes(
+            config.get_config('oauthAuthUri'))
+        const client_id = config.get_config('oauthClientId')
+        const redirect_uri = strip_quotes(
+            config.get_config('oauthRedirectUri'))
+        
+        if (!auth_uri || !client_id)
+            throw new Error(t('必须配置 oauthAuthUri, oauthClientId 参数'))
+        
+        const url = new URL(
+            auth_uri + '?' + new URLSearchParams({
+                response_type: this.oauth_type === 'authorization code' ? 'code' : 'token',
+                client_id,
+                ... redirect_uri ? { redirect_uri } : { },
+                state: JSON.stringify({ node: this.node_alias })
+            }).toString()
+        ).toString()
+        
+        console.log(t('跳转到 oauth 验证页面:'), url)
+        
+        await goto_url(url)
     }
     
     
@@ -1211,6 +1216,21 @@ export class DdbModel extends Model<DdbModel> {
         } catch {
             return false
         }
+    }
+    
+    
+    get_oauth_allow_password_login () {
+        // 可以是 all 表示所有节点，或者是用逗号分隔的节点数组
+        const s = config.get_config('oauthAllowPasswordLoginNodes')
+        
+        if (!s)
+            return false
+        
+        if (s === 'all')
+            return true
+        
+        return s.split(',').map(x => x.trim())
+            .includes(this.node_alias)
     }
 }
 

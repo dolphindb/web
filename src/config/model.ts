@@ -132,20 +132,18 @@ class ConfigModel extends Model<ConfigModel> {
         
         const old_config = await this.invoke<string[]>('loadClusterNodesConfigs', undefined, urgent)
         
-        await this.invoke(
-            'saveClusterNodesConfigs', 
-            [
-                log(
-                    '保存新的配置:', 
-                    new DdbVectorString([...iterator_map(
-                        this.nodes_configs.entries(), 
-                        ([key, config]) => {
-                            new_nodes_configs.set(key, config)
-                            const { value } = config
-                            return `${key}=${value}`
-                        })
-                    ]))
-            ])
+        const new_config = [...iterator_map(
+            this.nodes_configs.entries(), 
+            ([key, config]) => {
+                new_nodes_configs.set(key, config)
+                const { value } = config
+                return `${key}=${value}`
+            })
+        ]
+        
+        console.log('保存新的配置:', new_config)
+        
+        await this.invoke('saveClusterNodesConfigs', [new DdbVectorString(new_config)])
         
         if (model.node_type === NodeType.controller)
             try {
