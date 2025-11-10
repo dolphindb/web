@@ -6679,5 +6679,8 @@
     },
     "查看数据库表、计算引擎的血缘关系，清晰地展示节点的上游拓扑结构，帮助用户直观地理解数据流动路径，从而快速定位问题。": {
         "en": " View the blood relationship between database tables and calculation engines, clearly display the upstream topology of nodes, and help users intuitively understand the data flow path, thereby quickly locating problems. "
+    },
+    "OAuth 登录": {
+        "en": "OAuth Login"
     }
 }
