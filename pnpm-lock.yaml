@@ -60,8 +60,8 @@ importers:
         specifier: ^1.11.19
         version: 1.11.19
       dolphindb:
-        specifier: ^3.1.23
-        version: 3.1.23(react-dom@19.2.0(react@19.2.0))
+        specifier: ^3.1.24
+        version: 3.1.24(react-dom@19.2.0(react@19.2.0))
       driver.js:
         specifier: ^1.3.6
         version: 1.3.6
@@ -88,7 +88,7 @@ importers:
         version: 0.553.0(react@19.2.0)
       monaco-dolphindb:
         specifier: ^1.0.6
-        version: 1.0.6(dolphindb@3.1.23(react-dom@19.2.0(react@19.2.0)))(monaco-editor@0.52.2)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)(vscode-oniguruma@2.0.1)(vscode-textmate@9.2.1)
+        version: 1.0.6(dolphindb@3.1.24(react-dom@19.2.0(react@19.2.0)))(monaco-editor@0.52.2)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)(vscode-oniguruma@2.0.1)(vscode-textmate@9.2.1)
       monaco-editor:
         specifier: 0.52.2
         version: 0.52.2
@@ -151,8 +151,8 @@ importers:
         specifier: ^19.2.3
         version: 19.2.3
       '@types/react-dom':
-        specifier: ^19.2.2
-        version: 19.2.2(@types/react@19.2.3)
+        specifier: ^19.2.3
+        version: 19.2.3(@types/react@19.2.3)
       eslint:
         specifier: ^9.39.1
         version: 9.39.1
@@ -1428,8 +1428,8 @@ packages:
   '@types/range-parser@1.2.4':
     resolution: {integrity: sha512-EEhsLsD6UsDM1yFhAvy0Cjr6VwmpMWqFBCb9w07wVugF7w9nfajxLuVmngTIpgS6svCnm6Vaw+MZhoDCKnOfsw==}
 
-  '@types/react-dom@19.2.2':
-    resolution: {integrity: sha512-9KQPoO6mZCi7jcIStSnlOWn2nEF3mNmyr3rIAsGnAbQKYbRLyqmeSc39EVgtxXVia+LMT8j3knZLAZAh+xLmrw==}
+  '@types/react-dom@19.2.3':
+    resolution: {integrity: sha512-jp2L/eY6fn+KgVVQAOqYItbF0VY/YApe5Mz2F0aykSO8gx31bYCZyvSeYxCHKvzHG5eZjc+zyaS5BrBWya2+kQ==}
     peerDependencies:
       '@types/react': ^19.2.0
 
@@ -2177,8 +2177,8 @@ packages:
     resolution: {integrity: sha512-35mSku4ZXK0vfCuHEDAwt55dg2jNajHZ1odvF+8SSr82EsZY4QmXfuWso8oEd8zRhVObSN18aM0CjSdoBX7zIw==}
     engines: {node: '>=0.10.0'}
 
-  dolphindb@3.1.23:
-    resolution: {integrity: sha512-FQLtvdLWXS+ArkMoB2c4owMGLUXi40VjSsbq1Ou37290Sfw4lpbJHPheAM+a3XW4lReipQPSyBt4cFO8LohLVg==}
+  dolphindb@3.1.24:
+    resolution: {integrity: sha512-AcBT3vP8mi+vCb4keWOt1x0vGyXX92iKifA4s2fq15Bm67XKqYje9K6aGNB4Ok2bVfh/E4AG7BCkGSm5XUnAgw==}
 
   dom-serializer@2.0.0:
     resolution: {integrity: sha512-wIkAryiqt/nV5EQKqQpo3SToSOV9J0DnbJqwK7Wv/Trc92zIAYZ4FlMu+JPFW1DfGFt81ZTCGgDEabffXeLyJg==}
@@ -6133,7 +6133,7 @@ snapshots:
 
   '@types/range-parser@1.2.4': {}
 
-  '@types/react-dom@19.2.2(@types/react@19.2.3)':
+  '@types/react-dom@19.2.3(@types/react@19.2.3)':
     dependencies:
       '@types/react': 19.2.3
 
@@ -7029,7 +7029,7 @@ snapshots:
     dependencies:
       esutils: 2.0.3
 
-  dolphindb@3.1.23(react-dom@19.2.0(react@19.2.0)):
+  dolphindb@3.1.24(react-dom@19.2.0(react@19.2.0)):
     dependencies:
       dayjs: 1.11.19
       ipaddr.js: 2.2.0
@@ -8404,9 +8404,9 @@ snapshots:
 
   minipass@7.0.4: {}
 
-  monaco-dolphindb@1.0.6(dolphindb@3.1.23(react-dom@19.2.0(react@19.2.0)))(monaco-editor@0.52.2)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)(vscode-oniguruma@2.0.1)(vscode-textmate@9.2.1):
+  monaco-dolphindb@1.0.6(dolphindb@3.1.24(react-dom@19.2.0(react@19.2.0)))(monaco-editor@0.52.2)(react-dom@19.2.0(react@19.2.0))(react@19.2.0)(vscode-oniguruma@2.0.1)(vscode-textmate@9.2.1):
     dependencies:
-      dolphindb: 3.1.23(react-dom@19.2.0(react@19.2.0))
+      dolphindb: 3.1.24(react-dom@19.2.0(react@19.2.0))
       monaco-editor: 0.52.2
       vscode-oniguruma: 2.0.1
       vscode-textmate: 9.2.1

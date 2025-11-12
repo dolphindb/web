@@ -22,7 +22,7 @@
         "@types/lodash": "^4.17.20",
         "@types/node": "^20.19.25",
         "@types/react": "^19.2.3",
-        "@types/react-dom": "^19.2.2",
+        "@types/react-dom": "^19.2.3",
         "eslint": "^9.39.1",
         "open": "^10.2.0",
         "typescript": "^5.9.3"
@@ -45,7 +45,7 @@
         "client-zip": "^2.5.0",
         "copy-to-clipboard": "^3.3.3",
         "dayjs": "^1.11.19",
-        "dolphindb": "^3.1.23",
+        "dolphindb": "^3.1.24",
         "driver.js": "^1.3.6",
         "echarts": "^6.0.0",
         "filenamify": "^7.0.1",
