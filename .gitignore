@@ -1,10 +1,6 @@
 node_modules/
 
-/web/
-/web.cloud/
-
-/pre-bundle/dist/
-/pre-bundle/index.js
+/out/
 
 /i18n/untranslateds.json
 
