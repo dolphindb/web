@@ -82,5 +82,5 @@ pnpm run fix
 # Build
 pnpm run build
 
-# The generated files are in the web directory
+# The generated files are in the out/ directory
 ```

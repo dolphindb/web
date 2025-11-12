@@ -83,5 +83,5 @@ pnpm run fix
 # 构建
 pnpm run build
 
-# 生成的文件在 web 目录下
+# 生成的文件在 out/ 目录下
 ```

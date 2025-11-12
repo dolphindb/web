@@ -2,7 +2,7 @@
 
 import type { Context } from 'koa'
 
-import { ramdisk, fwrite, noprint, fequals, fcopy, fdclear, Remote, set_inspect_options } from 'xshell'
+import { ramdisk, fwrite, noprint, fequals, fcopy, fdclear, Remote, set_inspect_options, fdelete } from 'xshell'
 import { Git } from 'xshell/git.js'
 import { Bundler, type BundlerOptions } from 'xshell/builder.js'
 import { Server } from 'xshell/server.js'
@@ -20,12 +20,14 @@ const fp_api = ''
 
 const fpd_root = import.meta.dirname.fpd
 
-const fpd_out = `${fpd_root}web/`
+const fpd_out = `${fpd_root}out/`
 
 const prefix_version = '--version='
 
 
 async function main () {
+    await fdelete(`${fpd_root}web/`, noprint)
+    
     switch (process.argv[2]) {
         case 'build':
             await builder.build_and_close(
