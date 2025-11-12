@@ -20,13 +20,7 @@ const fp_api = ''
 
 const fpd_root = import.meta.dirname.fpd
 
-const ci = process.argv.includes('--ci')
-
-const fpd_ramdisk_root = 'T:/2/ddb/web/'
-
-const external = !ci && ramdisk
-
-const fpd_out = `${ external ? fpd_ramdisk_root : fpd_root }web/`
+const fpd_out = `${fpd_root}web/`
 
 const prefix_version = '--version='
 
@@ -190,7 +184,7 @@ let builder = {
         
         const source_map = !production || version_name === 'dev'
         
-        const fpd_cache = external ? `${fpd_ramdisk_root}webpack/` : `${fpd_root}node_modules/.cache/webpack/`
+        const fpdt_cache = `${fpd_root}node_modules/.cache/webpack/`
         
         const dependencies: BundlerOptions['dependencies'] = ['antd-icons', 'lodash', 'xterm', 'gridstack', 'echarts', 'quill', 'vscode-oniguruma', 'monaco']
         
@@ -199,8 +193,8 @@ let builder = {
         const deps_src = ['package.json', 'src/deps.ts']
         
         if ((
-            await Promise.all(deps_src.map(async fp => 
-                fequals(`${fpd_root}${fp}`, `${fpd_cache}${fp.fname}`, noprint)
+            await Promise.all(deps_src.map(fp => 
+                fequals(`${fpd_root}${fp}`, `${fpdt_cache}${fp.fname}`, noprint)
             ))).every(Boolean)
         )
             console.log('deps.js 使用已缓存的版本')
@@ -209,8 +203,8 @@ let builder = {
                 'deps', 
                 'web',
                 fpd_root,
-                fpd_cache,
-                fpd_cache,
+                fpdt_cache,
+                fpdt_cache,
                 { 'deps.js': './src/deps.ts' },
                 {
                     source_map: true,
@@ -227,7 +221,7 @@ let builder = {
             'web',
             fpd_root,
             fpd_out,
-            external ? `${fpd_ramdisk_root}webpack/` : undefined,
+            fpdt_cache,
             {
                 'index.js': './src/index.tsx',
                 'window.js': './src/window.tsx'
@@ -271,7 +265,7 @@ let builder = {
                         scripts: {
                             before: [{
                                 // deps_bundler 构建出来的 deps.js 缓存
-                                src: `${fpd_cache}deps.js`,
+                                src: `${fpdt_cache}deps.js`,
                                 out: 'deps.js'
                             }]
                         },
@@ -303,7 +297,7 @@ let builder = {
                             ({ src: `node_modules/dolphindb/docs.${language}.json`, out: `docs.${language}.json` })),
                         
                         ... source_map ? [{
-                            src: `${fpd_cache}deps.js.map`,
+                            src: `${fpdt_cache}deps.js.map`,
                             out: 'deps.js.map'
                         }] : [ ],
                     ]
@@ -318,8 +312,8 @@ let builder = {
             this.deps_bundler?.close(),
             // 缓存依赖
             this.deps_bundler && Promise.all(
-                deps_src.map(async fp => 
-                    fcopy(`${fpd_root}${fp}`, `${fpd_cache}${fp.fname}`, { print: false }))),
+                deps_src.map(fp => 
+                    fcopy(`${fpd_root}${fp}`, `${fpdt_cache}${fp.fname}`, noprint))),
             this.bundler.build_all(),
             fwrite(`${fpd_out}version.json`, info, noprint)
         ])
