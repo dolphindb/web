@@ -8,13 +8,13 @@ import type monacoapi from 'monaco-editor/esm/vs/editor/editor.api.js'
 export type Monaco = typeof monacoapi
 export type { monacoapi }
 
-import { MonacoDolphinDBEditor } from 'monaco-dolphindb/react'
+import { MonacoDolphinDBEditor } from 'donaco/react'
 
 import { loadWASM } from 'vscode-oniguruma'
 
 import { request_json } from 'xshell/net.browser.js'
 
-import { t, language } from '../../../i18n/index.js'
+import { t, language } from '@i18n'
 
 import { model } from '@model'
 
