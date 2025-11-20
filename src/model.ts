@@ -774,7 +774,7 @@ export class DdbModel extends Model<DdbModel> {
         const license = map_keys<DdbLicense>(
             await this.ddb.invoke<any>('license'),
             key => key === 'bindCPU' ? 'bind_cpu' : key.to_snake_case(),
-            ({ module_names }) => ({ modules: module_names.split(' ').filter(Boolean) }))
+            ({ module_names }) => ({ modules: module_names?.split(' ').filter(Boolean) || [ ] }))
         
         console.log('授权:', license)
         
