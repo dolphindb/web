@@ -1056,14 +1056,25 @@ export class Database implements DataNode {
                 
                 await shell.define_load_table_schema()
                 
-                this.children = await Promise.all(
-                    this.table_paths.map(async table_path => {
-                        let table = new Table(this, table_path)
-                        
-                        await table.init()
-                        
-                        return table
-                    }))
+                this.children = (
+                    await Promise.all(
+                        this.table_paths.map(async table_path => {
+                            let table = new Table(this, table_path)
+                            
+                            // 在某个库下面可能含有一些当前用户无权访问 schema 的表，目前先直接隐藏
+                            // 可能最好的方法是实现一个特殊显示状态（如禁用状态）的表，只有表名
+                            try {
+                                await table.init()
+                                
+                                return table
+                            } catch (error) {
+                                if (error.message.includes('<NoPrivilege>'))
+                                    return null
+                                else
+                                    throw error
+                            }
+                        }))
+                ).filter(Boolean)
             } catch (error) {
                 this.loaded = false
                 throw error
@@ -1177,6 +1188,7 @@ export class Table implements DataNode {
     }
     
     
+    /** 获取 table schema，无权限时会抛出错误，消息中含有 <NoPrivilege> */
     async get_schema () {
         const { db, path } = this
         const schema = await model.ddb.call<DdbDictObj<DdbVectorStringObj>>(
@@ -1184,8 +1196,7 @@ export class Table implements DataNode {
             'load_table_schema',
             // 调用该函数时，数据库路径不能以 / 结尾
             [db.path.slice(0, -1), path.slice(db.path.length, -1)],
-            model.node_type === NodeType.controller ? { node: model.datanode.name } : undefined
-        )
+            model.node_type === NodeType.controller ? { node: model.datanode.name } : undefined)
         
         this.schema = schema
         this.schema_data = schema.data<SchemaData>()
