@@ -35,7 +35,7 @@ export function Overview () {
         let flag = true
         ;(async () => {
             while (true) {
-                await delay(10000)
+                await delay(10_000)
                 if (!flag)
                     break
                 await model.get_cluster_perf(false)
