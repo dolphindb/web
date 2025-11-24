@@ -25,8 +25,8 @@ import { model, NodeType } from '@model'
 
 import { switch_keys } from '@utils'
 
-import { CopyIconButton } from '@/components/copy/CopyIconButton.tsx'
-import { Editor } from '@/components/Editor/index.tsx'
+import { CopyIconButton } from '@components/copy/CopyIconButton.tsx'
+import { Editor } from '@components/Editor/index.tsx'
 
 import { NAME_CHECK_PATTERN } from '@/access/constants.tsx'
 import { lineage, type TableMeta } from '@/lineage/index.tsx'
@@ -737,7 +737,7 @@ function CreateDatabaseModal () {
                                 throw new TypeError(t('数据库路径不能包含双引号'))
                         }
                     }]}>
-                        <Input addonBefore='dfs://' placeholder={t('请输入数据库路径')} />
+                        <Input prefix='dfs://' placeholder={t('请输入数据库路径')} />
                     </Form.Item>
             }
             

@@ -13,9 +13,9 @@ import { genid, vercmp } from 'xshell/utils.browser.js'
 import { model } from '../model.js'
 import { t } from '@i18n'
 
-import { DDBTable } from '@/components/DDBTable/index.tsx'
+import { DDBTable } from '@components/DDBTable/index.tsx'
 
-import { TableOperations } from '@/components/TableOperations/index.tsx'
+import { TableOperations } from '@components/TableOperations/index.tsx'
 
 import { dashboard, DashboardPermission } from './model.js'
 import { check_name } from './utils.ts'

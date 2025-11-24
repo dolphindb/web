@@ -15,7 +15,7 @@ import { t } from '@i18n'
 import { NodeType, model } from '@model'
 
 
-import { Unlogin } from '@/components/Unlogin.tsx'
+import { Unlogin } from '@components/Unlogin.tsx'
 
 import { InitedState, dashboard } from './model.ts'
 

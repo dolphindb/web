@@ -15,9 +15,9 @@ import useSWR from 'swr'
 import { type ICEPEngineDetail, EngineDetailPage, type SubEngineItem } from '../type.js'
 import { model } from '../../../model.js'
 
-import { DDBTable } from '@/components/DDBTable/index.tsx'
+import { DDBTable } from '@components/DDBTable/index.tsx'
 
-import { RefreshButton } from '@/components/RefreshButton/index.tsx'
+import { RefreshButton } from '@components/RefreshButton/index.tsx'
 
 import { get_dataview_info } from '../api.ts'
 

@@ -15,7 +15,7 @@ import { use_users } from '@/access/hooks/use-users.ts'
 import { use_groups } from '@/access/hooks/use-groups.ts'
 import { AccessList } from '@/access/AccessList.tsx'
 import { AccessManage } from '@/access/AccessManage.tsx'
-import { RefreshButton } from '@/components/RefreshButton/index.tsx'
+import { RefreshButton } from '@components/RefreshButton/index.tsx'
 
 
 export function AccessTabs ({

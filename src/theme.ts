@@ -4,8 +4,7 @@ import { theme, type ThemeConfig } from 'antd'
 export const primary_color = '#6774bd' as const
 
 const common_config: ThemeConfig = {
-    hashed: false,
-    cssVar: true
+    hashed: false
 }
 
 const common_tokens: ThemeConfig['token'] = {

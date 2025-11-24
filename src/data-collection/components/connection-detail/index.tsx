@@ -32,9 +32,9 @@ import { get_connect_detail, get_parser_templates } from '@/data-collection/api.
 import { type IParserTemplate, Protocol, type ISubscribe } from '@/data-collection/type.ts'
 import { CreateSubscribeModal } from '../create-subscribe-modal/index.tsx'
 
-import { DDBTable } from '@/components/DDBTable/index.tsx'
+import { DDBTable } from '@components/DDBTable/index.tsx'
 
-import { TableOperations } from '@/components/TableOperations/index.tsx'
+import { TableOperations } from '@components/TableOperations/index.tsx'
 
 
 import { DeleteDescribeModal } from './delete-describe-modal.tsx'

@@ -1,6 +1,7 @@
 import { Form, InputNumber, Select } from 'antd'
 
 import { t } from '@i18n'
+
 import { BoolRadioGroup } from '../../../components/BoolRadioGroup/index.js'
 import { StringColorPicker } from '../../../components/StringColorPicker/index.js'
 import { line_type_options } from '../constant.js'
@@ -15,7 +16,7 @@ export function SplitLineFields () {
             <StringColorPicker />
         </Form.Item>
         <Form.Item name={['splitLine', 'lineStyle', 'width']} label={t('线宽')} initialValue={1}>
-            <InputNumber addonAfter='px' />
+            <InputNumber suffix='px' />
         </Form.Item>
         <Form.Item name={['splitLine', 'lineStyle', 'type']}  label={t('线类型')} initialValue={ILineType.DASHED}>
             <Select options={line_type_options} />

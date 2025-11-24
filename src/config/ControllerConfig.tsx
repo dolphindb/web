@@ -10,7 +10,7 @@ import { t } from '@i18n'
 
 import { model } from '../model.js'
 
-import { RefreshButton } from '@/components/RefreshButton/index.tsx'
+import { RefreshButton } from '@components/RefreshButton/index.tsx'
 
 import { config, controller_configs } from './model.js'
 

@@ -8,7 +8,7 @@ import { request } from '../utils.ts'
 
 import { t } from '@i18n'
 
-import { BottomFixedFooter } from '@/components/BottomFixedFooter/index.tsx'
+import { BottomFixedFooter } from '@components/BottomFixedFooter/index.tsx'
 
 import { ExistDBSelect } from './components/ExistedDBSelect.js'
 import { CUSTOM, DAILY_INCREASE_DATA_OPTIONS } from './constant.js'
@@ -72,7 +72,7 @@ export function DatabaseInfo (props: IProps) {
                                     }
                                 }
                             ]}>
-                            <Input addonBefore='dfs://' placeholder={t('请输入库名')} />
+                            <Input prefix='dfs://' placeholder={t('请输入库名')} />
                         </Form.Item>
                         <Form.Item label={t('日增量')} name={['dailyTotalNum', 'gap']} rules={[{ required: true, message: t('请选择日增量') }]}>
                             <Select options={DAILY_INCREASE_DATA_OPTIONS} placeholder={t('请选择日增量')} />

@@ -18,7 +18,7 @@ import { model, NodeType } from '@model'
 import { InitStatus, Protocol } from '@/data-collection/type.ts'
 import { has_data_collection_auth, test_init } from '@/data-collection/api.ts'
 
-import { Unlogin } from '@/components/Unlogin.tsx'
+import { Unlogin } from '@components/Unlogin.tsx'
 
 import code from './script.dos'
 

@@ -30,7 +30,7 @@ const authorizations = {
 }
 
 export function License () {
-    const { version, version_full, license, admin } = model.use(['version', 'version_full', 'license', 'admin'])
+    const { version, version_full, license, admin, shf } = model.use(['version', 'version_full', 'license', 'admin', 'shf'])
     
     // 在 admin 状态变化时，弹提示
     useEffect(() => {
@@ -81,7 +81,7 @@ export function License () {
         placement='bottomRight'
         zIndex={1060}
         trigger='hover'
-        classNames={{ body: 'header-card' }}
+        classNames={{ container: 'header-card' }}
         content={
             <Card size='small' variant='borderless' title={`${auth} v${version_full}`}>
                 <Descriptions
@@ -105,7 +105,7 @@ export function License () {
             </Card>
         }
     >
-        <Tag className='license' color='#f2f2f2'>{auth} v{version}</Tag>
+        <Tag className='license' color={shf ? 'black' : '#f2f2f2'}>{auth} v{version}</Tag>
     </Popover>
 }
 

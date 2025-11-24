@@ -5,9 +5,10 @@ import { Form, Input, Collapse, InputNumber } from 'antd'
 
 import { t } from '@i18n'
 
-import { BoolRadioGroup } from '../../components/BoolRadioGroup/index.js'
+import { BoolRadioGroup } from '@components/BoolRadioGroup/index.js'
+import { StringColorPicker } from '@components/StringColorPicker/index.js'
+
 import { variables } from '../Variable/variable.js'
-import { StringColorPicker } from '../../components/StringColorPicker/index.js'
 
 import { PaddingSetting, VariableSetting } from './BasicFormFields.js'
 
@@ -20,7 +21,7 @@ export function BasicFormFields ({ type }: { type: 'chart' | 'table' }) {
                 <Input />
             </Form.Item>
             <Form.Item name='title_size' label={t('标题字号')} initialValue={18}>
-                <InputNumber addonAfter='px' />
+                <InputNumber suffix='px' />
             </Form.Item>
             
             <PaddingSetting />

@@ -6,7 +6,7 @@ import { type SimpleInfos, type BasicInfoFormValues, GuideType, type ExecuteResu
 import { BasicInfoFields } from '../../components/BasicInfoFields.js'
 import { request } from '../../utils.ts'
 import { t } from '@i18n'
-import { BottomFixedFooter } from '@/components/BottomFixedFooter/index.tsx'
+import { BottomFixedFooter } from '@components/BottomFixedFooter/index.tsx'
 
 
 

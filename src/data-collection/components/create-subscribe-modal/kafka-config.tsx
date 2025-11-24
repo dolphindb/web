@@ -13,7 +13,7 @@ import { t } from '@i18n'
 import { request } from '../../utils.ts'
 import { kafka_params_doc_link } from '../../constant.js'
 
-import { FormDependencies } from '@/components/FormDependencies/index.js'
+import { FormDependencies } from '@components/FormDependencies/index.js'
 
 const DEFAULT_DATA = {
     consumerCfgList: [ ]

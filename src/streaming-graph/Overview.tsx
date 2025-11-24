@@ -15,7 +15,7 @@ import { t } from '@i18n'
 import { model, type DdbNode, type DdbNodeState } from '@model'
 
 import { node_state_icons } from '@/overview/table.tsx'
-import { DDBTable } from '@/components/DDBTable/index.tsx'
+import { DDBTable } from '@components/DDBTable/index.tsx'
 import { engine_table_column_names } from '@/computing/model.ts'
 
 import { type StreamGraph, type GraphNode, type GraphEdge } from './model.ts'

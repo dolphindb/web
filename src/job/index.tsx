@@ -16,8 +16,8 @@ import { language, t } from '@i18n'
 
 import { model, type DdbJob } from '@model'
 
-import { DDBTable } from '@/components/DDBTable/index.tsx'
-import { StatusTag, StatusType } from '@/components/tags/index.tsx'
+import { DDBTable } from '@components/DDBTable/index.tsx'
+import { StatusTag, StatusType } from '@components/tags/index.tsx'
 
 const { Text, Link } = Typography
 

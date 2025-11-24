@@ -20,7 +20,7 @@ export function Settings () {
     return <Popover
         trigger='hover'
         placement='bottomLeft'
-        classNames={{ body: 'header-card' }}
+        classNames={{ container: 'header-card' }}
         content={
             <Card className='settings-card' size='small' title={t('设置', { context: 'settings' })} variant='borderless'>
                 <Form<Fields>

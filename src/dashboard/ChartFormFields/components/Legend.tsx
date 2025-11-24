@@ -1,8 +1,9 @@
 import { Form, Input, InputNumber, Select, Space } from 'antd'
 
-import { BoolRadioGroup } from '../../../components/BoolRadioGroup/index.js'
 import { t } from '@i18n'
-import { StringColorPicker } from '../../../components/StringColorPicker/index.js'
+
+import { BoolRadioGroup } from '@components/BoolRadioGroup/index.tsx'
+import { StringColorPicker } from '@components/StringColorPicker/index.tsx'
 
 export function LegendFields () { 
     return <>
@@ -53,13 +54,13 @@ export function LegendFields () {
             </Space>
         </Form.Item>
         <Form.Item name={['legend', 'itemGap']} label={t('图例间隔')}>
-            <InputNumber addonAfter='px'/>
+            <InputNumber suffix='px'/>
         </Form.Item>
         <Form.Item name={['legend', 'textStyle', 'fontSize']} label={t('字号')}>
-            <InputNumber addonAfter='px' />
+            <InputNumber suffix='px' />
         </Form.Item>
         <Form.Item name={['legend', 'itemHeight']} label={t('标记大小')} initialValue={14}>
-            <InputNumber addonAfter='px'/>
+            <InputNumber suffix='px'/>
         </Form.Item>
         <Form.Item label={t('文字颜色')} name={['legend', 'textStyle', 'color']} initialValue='#fff'>
             <StringColorPicker />

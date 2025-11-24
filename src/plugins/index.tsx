@@ -18,9 +18,9 @@ import { switch_keys } from '@utils'
 import { model } from '@model'
 
 
-import { RefreshButton } from '@/components/RefreshButton/index.tsx'
+import { RefreshButton } from '@components/RefreshButton/index.tsx'
 
-import { DDBTable } from '@/components/DDBTable/index.tsx'
+import { DDBTable } from '@components/DDBTable/index.tsx'
 
 import script from './index.dos'
 import SvgUpgrade from './upgrade.icon.svg'

@@ -6,7 +6,7 @@ import { BasicInfoFields } from '../../components/BasicInfoFields.js'
 import { type RecommendInfo, type BasicInfoFormValues, type SecondStepInfo, type AdvancedInfos, GuideType, type ExecuteResult, type ServerRecommendInfo } from '../type.js'
 import { request } from '../../utils.ts'
 import { t } from '@i18n'
-import { BottomFixedFooter } from '@/components/BottomFixedFooter/index.tsx'
+import { BottomFixedFooter } from '@components/BottomFixedFooter/index.tsx'
 
 interface IProps { 
     info: AdvancedInfos

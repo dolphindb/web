@@ -39,7 +39,7 @@ export const DownloadConfigModal = NiceModal.create((props: IProps) => {
     >
         <Form form={form}>
             <Form.Item name='name' label={t('名称')} rules={[{ required: true, message: t('请输入文件名称') }]}>
-                <Input placeholder={t('请输入文件名称')} addonAfter='.json'/>
+                <Input placeholder={t('请输入文件名称')} suffix='.json'/>
             </Form.Item>
         </Form>
     </Modal>

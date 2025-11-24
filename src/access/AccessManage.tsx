@@ -9,7 +9,7 @@ import { PlusOutlined, DeleteOutlined } from '@ant-design/icons'
 
 import { model } from '@model'
 
-import { DDBTable } from '@/components/DDBTable/index.tsx'
+import { DDBTable } from '@components/DDBTable/index.tsx'
 
 import { ACCESS_OPTIONS, ACCESS_TYPE, NEED_INPUT_ACCESS, TABLE_NAMES } from './constants.tsx'
 import { access } from './model.ts'

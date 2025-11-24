@@ -5,7 +5,7 @@ import { t } from '@i18n'
 
 import { model } from '@model'
 
-import { DDBTable } from '@/components/DDBTable/index.tsx'
+import { DDBTable } from '@components/DDBTable/index.tsx'
 
 import { type Catalog, type Database } from './model.ts'
 import { ACCESS_TYPE, DATABASES_WITHOUT_CATALOG, NEED_INPUT_ACCESS, STAT_ICONS, TABLE_NAMES } from './constants.tsx'

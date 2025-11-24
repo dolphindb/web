@@ -15,7 +15,7 @@ import { MetricGroups } from '@/inspection/constants.ts'
 import type { MetricsWithStatus } from '@/inspection/type.ts'
 import { EditParamModal } from '@/inspection/modals/EditParamModal.tsx'
 import { AddParamsModal } from '@/inspection/modals/AddParamsModal.tsx'
-import { DDBTable } from '@/components/DDBTable/index.tsx'
+import { DDBTable } from '@components/DDBTable/index.tsx'
 
 
 interface MetricTableProps {

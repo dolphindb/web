@@ -15,7 +15,7 @@ import useSWR from 'swr'
 
 import { model } from '@model'
 
-import { RefreshButton } from '@/components/RefreshButton/index.js'
+import { RefreshButton } from '@components/RefreshButton/index.js'
 
 import { filter_config, strs_2_nodes } from './utils.js'
 import { NodesConfigAddModal } from './NodesConfigAddModal.js'

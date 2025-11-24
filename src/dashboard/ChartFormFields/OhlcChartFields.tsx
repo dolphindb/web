@@ -7,11 +7,13 @@ import { useMemo } from 'react'
 import { DeleteOutlined, PlusCircleOutlined } from '@ant-design/icons'
 
 import { t } from '@i18n'
-import { FormDependencies } from '../../components/FormDependencies/index.js'
+
+import { FormDependencies } from '@components/FormDependencies/index.tsx'
+import { BoolRadioGroup } from '@components/BoolRadioGroup/index.tsx'
+import { StringColorPicker } from '@components/StringColorPicker/index.tsx'
 
 import { concat_name_path, convert_list_to_options } from '../utils.ts'
-import { BoolRadioGroup } from '../../components/BoolRadioGroup/index.js'
-import { StringColorPicker } from '../../components/StringColorPicker/index.js'
+
 
 import { WidgetChartType, dashboard } from '../model.js'
 
@@ -61,7 +63,7 @@ export function BasicFormFields () {
                         <Input />
                     </Form.Item>
                     <Form.Item name='title_size' label='标题字号'>
-                        <InputNumber addonAfter='px'/>
+                        <InputNumber suffix='px'/>
                     </Form.Item>
                     
                     <PaddingSetting />
@@ -87,7 +89,7 @@ export function BasicFormFields () {
     />
 }
 
-function AxisItem (props: IAxisItem) { 
+function AxisItem (props: IAxisItem) {
     const { name_path, col_names = [ ], list_name, initial_values } = props
     
     return <>
@@ -102,7 +104,7 @@ function AxisItem (props: IAxisItem) {
             <Input />
         </Form.Item>
         <Form.Item name={concat_name_path(name_path, 'fontsize')} label={t('字号')} initialValue={12}>
-            <InputNumber addonAfter='px' />
+            <InputPx />
         </Form.Item>
         {/* 类目轴从col_name中获取data */}
         <FormDependencies dependencies={[concat_name_path(list_name, name_path, 'type')]}>

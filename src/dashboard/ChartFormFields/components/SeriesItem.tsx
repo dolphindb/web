@@ -163,7 +163,7 @@ export function SeriesItem (props: SeriesItemProps) {
                             <Select options={line_type_options} />
                         </Form.Item>
                         <Form.Item label={t('线宽')} name={concat_name_path(name, 'line_width')}>
-                            <InputNumber addonAfter='px'/>
+                            <InputNumber suffix='px'/>
                         </Form.Item>
                         
                         <Form.Item label={t('是否填充') } initialValue={false} name={[name, 'is_filled']}>

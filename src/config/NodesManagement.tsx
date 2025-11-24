@@ -12,7 +12,7 @@ import NiceModal from '@ebay/nice-modal-react'
 import { t } from '@i18n'
 import { DdbNodeState, model, NodeType } from '../model.js'
 
-import { RefreshButton } from '@/components/RefreshButton/index.tsx'
+import { RefreshButton } from '@components/RefreshButton/index.tsx'
 
 import { config } from './model.js'
 import { type ClusterNode, type NodesConfig } from './type.js'

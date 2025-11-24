@@ -10,7 +10,7 @@ import { request } from '../../utils.ts'
 import { ENUM_TYPES, TIME_TYPES } from '../../constant.js'
 import { t } from '@i18n'
 
-import { BottomFixedFooter } from '@/components/BottomFixedFooter/index.tsx'
+import { BottomFixedFooter } from '@components/BottomFixedFooter/index.tsx'
 
 import { CommonSortCols } from './CommonSortCols.js'
 

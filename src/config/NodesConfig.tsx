@@ -9,7 +9,7 @@ import { to_option } from 'xshell/utils.browser.js'
 import { t } from '@i18n'
 import { model } from '@model'
 
-import { RefreshButton } from '@/components/RefreshButton/index.tsx'
+import { RefreshButton } from '@components/RefreshButton/index.tsx'
 
 import { NodesConfigAddModal } from './NodesConfigAddModal.tsx'
 import { config, node_configs as all_node_configs, validate_config, validate_qualifier, node_configs_options } from './model.ts'

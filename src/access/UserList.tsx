@@ -13,13 +13,13 @@ import { language, t } from '@i18n'
 
 import { model } from '@model'
 
-import { DDBTable } from '@/components/DDBTable/index.tsx'
+import { DDBTable } from '@components/DDBTable/index.tsx'
 
-import { TableOperations } from '@/components/TableOperations/index.tsx'
+import { TableOperations } from '@components/TableOperations/index.tsx'
 
-import { DDBTag } from '@/components/tags/index.tsx'
+import { DDBTag } from '@components/tags/index.tsx'
 
-import { RefreshButton } from '@/components/RefreshButton/index.tsx'
+import { RefreshButton } from '@components/RefreshButton/index.tsx'
 
 import { access } from './model.ts'
 import { UserCreateModal } from './components/user/UserCreateModal.tsx'

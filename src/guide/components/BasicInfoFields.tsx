@@ -62,7 +62,7 @@ export function BasicInfoFields (props: IProps) {
                     }
                 }
             ]}>
-            <Input addonBefore='dfs://' placeholder={t('请输入库名')} />
+            <Input prefix='dfs://' placeholder={t('请输入库名')} />
         </Form.Item>
         
         <Form.Item

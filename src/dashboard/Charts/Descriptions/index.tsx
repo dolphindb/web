@@ -91,11 +91,11 @@ export function DBDescriptionsForm ({ data_source: { data, cols } }: GraphConfig
                 </Form.Item>
                 
                 <Form.Item name='label_font_size' label={t('标签字号')}>
-                    <InputNumber addonAfter='px'/>
+                    <InputNumber suffix='px'/>
                 </Form.Item>
                 
                 <Form.Item name='value_font_size' label={t('值字号')}>
-                    <InputNumber addonAfter='px'/>
+                    <InputNumber suffix='px'/>
                 </Form.Item>
                 
                 <Form.Item name='column_num' label={t('每行展示数量')} initialValue={4}>

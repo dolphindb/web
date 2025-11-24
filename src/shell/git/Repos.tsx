@@ -72,7 +72,7 @@ export function Repos ({ on_select_repo }: { on_select_repo: (repo_id: string, t
             {!error && <div className='button-logout'><Button className='segment-button' type='text' onClick={logout}>{t('登出')}</Button></div>}
         </div>
         {error && <div className='info'>
-            <Alert message={<>
+            <Alert title={<>
                 {t('无法获取仓库列表，请检查权限或：')}
                 <div>
                     <a onClick={() => { goto_auth('github-access-token') }}>

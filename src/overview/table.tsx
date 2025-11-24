@@ -14,7 +14,7 @@ import { t } from '@i18n'
 
 import { ns2ms, upper } from '@utils'
 
-import { DDBTable } from '@/components/DDBTable/index.tsx'
+import { DDBTable } from '@components/DDBTable/index.tsx'
 
 export const node_state_icons = [
     <MinusCircleOutlined style={{ color: 'red' }} />,

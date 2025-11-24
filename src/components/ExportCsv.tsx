@@ -90,7 +90,7 @@ export function ExportCsv ({ info }: { info: DdbTableObj | DdbObjRef<DdbObj<DdbV
         >
             <Form form={form} labelCol={{ span: 4 }} wrapperCol={{ span: 18 }} disabled={loading}>
                 <Form.Item rules={[{ required: true, message: t('请输入文件名') }]} name='name' label={t('文件名')}>
-                    <Input addonAfter='.csv' placeholder={t('请输入文件名')} />
+                    <Input suffix='.csv' placeholder={t('请输入文件名')} />
                 </Form.Item>
                 {info.rows > 0 && <>
                     <Form.Item name='scope' label={t('导出范围')} initialValue='all'>

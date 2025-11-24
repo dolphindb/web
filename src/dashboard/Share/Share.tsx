@@ -35,7 +35,7 @@ export function Share ({ dashboard_ids, trigger_type }: IProps) {
             const { href } = url
             copy(href)
             api.success({
-                message: t('以下内容已复制到剪切板'),
+                title: t('以下内容已复制到剪切板'),
                 style: {
                     width: 1100
                 },

@@ -17,7 +17,7 @@ import type { Metric, MetricsWithStatus, Plan } from '@/inspection/type.ts'
 
 import { InspectionFormContent } from '@/inspection/components/InspectionFormContent.tsx'
 
-import { BackButton } from '@/components/BackButton.tsx'
+import { BackButton } from '@components/BackButton.tsx'
 
 
 

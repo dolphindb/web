@@ -15,7 +15,7 @@ import './index.sass'
 
 
 
-import { Unlogin } from '@/components/Unlogin.tsx'
+import { Unlogin } from '@components/Unlogin.tsx'
 
 import { GuideType } from './type.js'
 import { SimpleVersion } from './SimpleVersion/index.js'

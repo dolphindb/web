@@ -10,7 +10,7 @@ import { t } from '@i18n'
 
 import { model } from '../model.js'
 
-import { FormDependencies } from '@/components/FormDependencies/index.tsx'
+import { FormDependencies } from '@components/FormDependencies/index.tsx'
 
 import { config, node_configs_options, validate_config, validate_qualifier } from './model.ts'
 

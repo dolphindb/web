@@ -16,11 +16,11 @@ import { format_time } from '@/dashboard/utils.ts'
 
 import { model } from '@model'
 
-import { DDBTag } from '@/components/tags/index.tsx'
+import { DDBTag } from '@components/tags/index.tsx'
 
-import { DDBTable } from '@/components/DDBTable/index.tsx'
+import { DDBTable } from '@components/DDBTable/index.tsx'
 
-import { TableOperations } from '@/components/TableOperations/index.tsx'
+import { TableOperations } from '@components/TableOperations/index.tsx'
 
 import { request } from './utils.ts'
 import { type IParserTemplate } from './type.js'

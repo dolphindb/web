@@ -102,11 +102,11 @@ export function GaugeConfigForm ({ data_source: { cols } }: GraphConfigProps) {
                 </Form.Item>
                 
                 <Form.Item label={t('标签字号')} name='label_size' initialValue={16}>
-                    <InputNumber addonAfter='px'/>
+                    <InputNumber suffix='px'/>
                 </Form.Item>
                 
                 <Form.Item label={t('值字号')} name='value_size' initialValue={18}>
-                    <InputNumber addonAfter='px'/>
+                    <InputNumber suffix='px'/>
                 </Form.Item>
                 
                 <Form.Item label={t('值精度')} name='value_precision' initialValue={2}>
@@ -145,17 +145,17 @@ export function GaugeConfigForm ({ data_source: { cols } }: GraphConfigProps) {
                                     </Form.Item>
                                     
                                     <Form.Item tooltip={t('相对仪表盘中心的水平偏移位置')} name={[field.name, 'title', 'level']} label={t('标题水平偏移')} initialValue={0}>
-                                        <InputNumber addonAfter='%'/>
+                                        <InputNumber suffix='%'/>
                                     </Form.Item>
                                     <Form.Item tooltip={t('相对仪表盘中心的垂直偏移位置')} name={[field.name, 'title', 'vertical']} label={t('标题垂直偏移')} initialValue={40}>
-                                        <InputNumber addonAfter='%'/>
+                                        <InputNumber suffix='%'/>
                                     </Form.Item>
                                 
                                     <Form.Item tooltip={t('相对仪表盘中心的水平偏移位置')} name={[field.name, 'value', 'level']} label={t('数值水平偏移')} initialValue={0}>
-                                        <InputNumber addonAfter='%'/>
+                                        <InputNumber suffix='%'/>
                                     </Form.Item>
                                     <Form.Item tooltip={t('相对仪表盘中心的垂直偏移位置')} name={[field.name, 'value', 'vertical']} label={t('数值垂直偏移')} initialValue={60}>
-                                        <InputNumber addonAfter='%'/>
+                                        <InputNumber suffix='%'/>
                                     </Form.Item>
                                 </>
                             }))

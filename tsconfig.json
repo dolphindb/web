@@ -12,13 +12,13 @@
     
     "compilerOptions": {
         "paths": {
-            "@/*": ["./src/*"],
             "@i18n": ["./i18n/index.ts"],
             "@model": ["./src/model.ts"],
             "@utils": ["./src/utils.ts"],
             "@theme": ["./src/theme.ts"],
             "@components/*": ["./src/components/*"],
-            "@test/*": ["./test/*"]
+            "@test/*": ["./test/*"],
+            "@/*": ["./src/*"]
         },
         
         

@@ -69,7 +69,7 @@ export function QueryDataView (props: IProps) {
                     </>
                     :
                     <Alert
-                        message={t('错误信息')}
+                        title={t('错误信息')}
                         description={error}
                         type='error'
                         showIcon

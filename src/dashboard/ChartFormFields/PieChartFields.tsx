@@ -20,7 +20,7 @@ export function BasicFormFields ({ type }: { type: 'chart' | 'table' }) {
                 <Input />
             </Form.Item>
             <Form.Item name='title_size' label='标题字号' initialValue={18}>
-                <InputNumber addonAfter='px' />
+                <InputNumber suffix='px' />
             </Form.Item>
             <PaddingSetting />
             

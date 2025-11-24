@@ -21,7 +21,7 @@ import { inspection } from '@/inspection/model.ts'
 import { MetricGroups, ReportLables } from '@/inspection/constants.ts'
 import { LogModal } from '@/inspection/modals/LogModal.tsx'   
 import { FailedStatus, SuccessStatus } from '@/inspection/pages/InspectionListPage.tsx'
-import { BackButton } from '@/components/BackButton.tsx'
+import { BackButton } from '@components/BackButton.tsx'
 
 const { Title } = Typography
 

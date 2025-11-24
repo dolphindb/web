@@ -20,9 +20,9 @@ import { t } from '@i18n'
 
 import { Unlogin } from '../components/Unlogin.js'
 
-import { RefreshButton } from '@/components/RefreshButton/index.js'
+import { RefreshButton } from '@components/RefreshButton/index.js'
 
-import { DDBTable } from '@/components/DDBTable/index.js'
+import { DDBTable } from '@components/DDBTable/index.js'
 
 import { upper } from '@utils'
 

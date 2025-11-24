@@ -29,7 +29,7 @@ export function Status () {
         placement='bottomRight'
         zIndex={1060}
         trigger='hover'
-        classNames={{ body: 'header-card' }}
+        classNames={{ container: 'header-card' }}
         content={
             <Card
                 size='small'

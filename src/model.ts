@@ -24,7 +24,7 @@ import { language, t } from '@i18n'
 
 import { goto_url, strip_quotes, urgent } from '@utils'
    
-import type { FormatErrorOptions } from '@/components/GlobalErrorBoundary.tsx'
+import type { FormatErrorOptions } from '@components/GlobalErrorBoundary.tsx'
 import { config } from '@/config/model.ts'
 import { GitHubAdapter, GitLabAdapter } from '@/shell/git/git-adapter.ts'
 

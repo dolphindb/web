@@ -14,7 +14,7 @@ import { t } from '@i18n'
 
 import { TIME_TYPES } from '../constant.js'
 
-import { BottomFixedFooter } from '@/components/BottomFixedFooter/index.tsx'
+import { BottomFixedFooter } from '@components/BottomFixedFooter/index.tsx'
 
 import { type IFinanceInfo } from './type.js'
 

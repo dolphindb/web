@@ -9,7 +9,7 @@ import { t } from '@i18n'
 
 import { model, storage_keys } from '@model'
 
-import { Editor, type monacoapi } from '@/components/Editor/index.tsx'
+import { Editor, type monacoapi } from '@components/Editor/index.tsx'
 
 import { shell, type Tab } from './model.ts'
 

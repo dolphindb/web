@@ -14,13 +14,13 @@ import useSWR from 'swr'
 
 import { model } from '@model'
 
-import { TableOperations } from '@/components/TableOperations/index.tsx'
+import { TableOperations } from '@components/TableOperations/index.tsx'
 
-import { DDBTable } from '@/components/DDBTable/index.tsx'
+import { DDBTable } from '@components/DDBTable/index.tsx'
 
-import { DDBTag } from '@/components/tags/index.tsx'
+import { DDBTag } from '@components/tags/index.tsx'
 
-import { RefreshButton } from '@/components/RefreshButton/index.tsx'
+import { RefreshButton } from '@components/RefreshButton/index.tsx'
 
 import { access } from './model.ts'
 import { GroupCreateModal } from './components/group/GroupCreateModal.tsx'
