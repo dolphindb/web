@@ -89,7 +89,7 @@ export function VariableConfig () {
             title={t('配置变量')}
             width='80%' 
             destroyOnHidden
-            className='variable'
+            className='variable-modal'
             open={visible}
             onCancel={handle_close} 
             maskClosable={false}
