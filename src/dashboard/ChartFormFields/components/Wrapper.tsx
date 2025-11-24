@@ -2,8 +2,6 @@ import { Form, InputNumber } from 'antd'
 
 import { t } from '@i18n'
 
-import { InputPx } from '@components/InputSuffix'
-
 
 export function WrapperFields () { 
     return <>

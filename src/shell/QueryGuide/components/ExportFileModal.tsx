@@ -1,12 +1,11 @@
 import NiceModal, { useModal } from '@ebay/nice-modal-react'
-import { Modal, Form } from 'antd'
+import { Modal, Form, Input } from 'antd'
 import { useCallback } from 'react'
 
 import { useBoolean } from 'ahooks'
 
 import { download_url } from 'xshell/utils.browser.js'
 
-import { InputSuffix } from '@components/InputSuffix'
 import { request } from '@/guide/utils.ts'
 import { safe_json_parse } from '@/dashboard/utils.ts'
 
@@ -67,7 +66,7 @@ export const ExportFileModal = NiceModal.create((props: IProps) => {
     >
         <Form form={form}>
             <Form.Item rules={[{ required: true, message: t('请输入文件名') }]} name='name' label={t('文件名')} initialValue={table}>
-                <InputSuffix suffix='.csv' placeholder={t('请输入文件名')} />
+                <Input suffix='.csv' placeholder={t('请输入文件名')} />
             </Form.Item>
         </Form>
     </Modal>

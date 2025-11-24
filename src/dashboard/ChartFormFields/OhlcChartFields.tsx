@@ -104,7 +104,7 @@ function AxisItem (props: IAxisItem) {
             <Input />
         </Form.Item>
         <Form.Item name={concat_name_path(name_path, 'fontsize')} label={t('字号')} initialValue={12}>
-            <InputPx />
+            <InputNumber suffix='px' />
         </Form.Item>
         {/* 类目轴从col_name中获取data */}
         <FormDependencies dependencies={[concat_name_path(list_name, name_path, 'type')]}>
