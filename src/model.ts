@@ -782,7 +782,10 @@ export class DdbModel extends Model<DdbModel> {
         
         // local
         // const product = 'iotbasic'
-        const product = product_key === 'DOLPHIN' ? 'dolphindb' : product_key.toLowerCase() as Product
+        const product = !product_key || product_key === 'DOLPHIN' ? 
+                'dolphindb'
+            :
+                product_key.toLowerCase() as Product
         
         this.set({
             license,
