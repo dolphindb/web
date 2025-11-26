@@ -13,6 +13,7 @@ import {
     default as Icon, SyncOutlined, MinusSquareOutlined, EditOutlined, LoadingOutlined, ApartmentOutlined
 } from '@ant-design/icons'
 
+import { noop } from 'xshell/prototype.browser.js'
 import { assert, delay } from 'xshell/utils.browser.js'
 
 
