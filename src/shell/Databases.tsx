@@ -513,49 +513,48 @@ function CreateCatalogModal () {
     const [loading, set_loading] = useState(false)
     
     return <Modal
-            width='30%'
-            forceRender
-            maskClosable={false}
-            title={t('创建 catalog')} 
-            open={create_catalog_modal_visible} 
-            onOk={async () => { 
-                try {
-                    set_loading(true)
-                    
-                    await form.validateFields()
-                    await model.ddb.invoke('createCatalog', [form.getFieldValue('name')])
-                    
-                    await shell.load_dbs()
-                    
-                    form.resetFields()
-                    shell.set({ create_catalog_modal_visible: false })
-                } catch (error) {
-                    if (error instanceof Error)
-                        throw error
-                    console.error(error)
-                } finally {
-                    set_loading(false)
-                }
-            }} 
-            onCancel={() => {
-                if (loading)
-                    return
+        width='30%'
+        maskClosable={false}
+        title={t('创建 catalog')}
+        open={create_catalog_modal_visible} 
+        onOk={async () => { 
+            try {
+                set_loading(true)
+                
+                await form.validateFields()
+                await model.ddb.invoke('createCatalog', [form.getFieldValue('name')])
+                
+                await shell.load_dbs()
+                
                 form.resetFields()
                 shell.set({ create_catalog_modal_visible: false })
-            }}
-        >
-            <Form form={form} labelCol={{ span: 4 }} wrapperCol={{ span: 18 }} disabled={loading}>
-                <Form.Item 
-                    required
-                    rules={[{ required: true, message: t('请输入名称') }, 
-                            { pattern: NAME_CHECK_PATTERN, message: t('catalog 名称只能包含字母、下划线或数字，并且不能以数字或下划线开头') }]} 
-                    name='name' 
-                    label={t('名称')}
-                >
-                    <Input placeholder={t('请输入名称')} />
-                </Form.Item>
-            </Form>
-        </Modal>
+            } catch (error) {
+                if (error instanceof Error)
+                    throw error
+                console.error(error)
+            } finally {
+                set_loading(false)
+            }
+        }} 
+        onCancel={() => {
+            if (loading)
+                return
+            form.resetFields()
+            shell.set({ create_catalog_modal_visible: false })
+        }}
+    >
+        <Form form={form} labelCol={{ span: 4 }} wrapperCol={{ span: 18 }} disabled={loading}>
+            <Form.Item 
+                required
+                rules={[{ required: true, message: t('请输入名称') }, 
+                        { pattern: NAME_CHECK_PATTERN, message: t('catalog 名称只能包含字母、下划线或数字，并且不能以数字或下划线开头') }]} 
+                name='name'
+                label={t('名称')}
+            >
+                <Input placeholder={t('请输入名称')} />
+            </Form.Item>
+        </Form>
+    </Modal>
 }
 
 
