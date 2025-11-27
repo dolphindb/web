@@ -484,7 +484,7 @@ export function convert_chart_config (
                 },
             } as any
         }
-    
+        
     return  {
         animation,
         grid: {
@@ -501,6 +501,7 @@ export function convert_chart_config (
                 ...legend?.textStyle,
             },
             ...legend,
+            top: legend?.top ?? 0,
         }, v => !isNil(v) && v !== ''),
         tooltip: {
             show: true,
@@ -518,7 +519,8 @@ export function convert_chart_config (
             textStyle: {
                 color: '#e6e6e6',
                 fontSize: title_size || 18,
-            }
+            },
+            left: 0,
         },
         xAxis: convert_axis(xAxis),
         yAxis: Array.isArray(yAxis) ? yAxis.filter(item => !!item).map(convert_axis) : convert_axis(yAxis),
