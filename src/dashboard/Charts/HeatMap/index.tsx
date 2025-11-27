@@ -58,7 +58,8 @@ export function HeatMap ({ widget }: GraphComponentProps) {
                 textStyle: {
                     color: '#e6e6e6',
                     fontSize: config?.title_size || 18,
-                }
+                },
+                left: 0
             },
             tooltip: {
                 ...config.tooltip,
