@@ -117,8 +117,8 @@ importers:
         specifier: ^4.0.1
         version: 4.0.1
       swr:
-        specifier: ^2.3.6
-        version: 2.3.6(react@19.2.0)
+        specifier: ^2.3.7
+        version: 2.3.7(react@19.2.0)
       tslib:
         specifier: ^2.8.1
         version: 2.8.1
@@ -129,8 +129,8 @@ importers:
         specifier: ^9.2.1
         version: 9.2.1
       xshell:
-        specifier: ^1.3.10
-        version: 1.3.10(react-dom@19.2.0(react@19.2.0))
+        specifier: ^1.3.12
+        version: 1.3.12(react-dom@19.2.0(react@19.2.0))
     devDependencies:
       '@types/js-cookie':
         specifier: ^3.0.6
@@ -1711,10 +1711,6 @@ packages:
       eslint: ^8.57.0 || ^9.0.0
       typescript: '>=4.8.4 <6.0.0'
 
-  '@typescript-eslint/types@8.47.0':
-    resolution: {integrity: sha512-nHAE6bMKsizhA2uuYZbEbmp5z2UpffNrPEqiKIeN7VsV6UY/roxanWfoRrf6x/k9+Obf+GQdkm0nPU+vnMXo9A==}
-    engines: {node: ^18.18.0 || ^20.9.0 || >=21.1.0}
-
   '@typescript-eslint/types@8.48.0':
     resolution: {integrity: sha512-cQMcGQQH7kwKoVswD1xdOytxQR60MWKM1di26xSUtxehaDs/32Zpqsu5WJlXTtTTqyAVK8R7hvsUnIXRS+bjvA==}
     engines: {node: ^18.18.0 || ^20.9.0 || >=21.1.0}
@@ -2217,6 +2213,7 @@ packages:
 
   css-loader@7.1.2:
     resolution: {integrity: sha512-6WvYYn7l/XEGN8Xu2vWFt9nVzrCn39vKyTEFf/ExEyoksJjjSZV/0/35XPlMbpnr6VGhZIUg5yJrL8tGfes/FA==}
+    version: 7.1.2
     engines: {node: '>= 18.12.0'}
     peerDependencies:
       '@rspack/core': 0.x || 1.x
@@ -3175,6 +3172,7 @@ packages:
 
   license-webpack-plugin@4.0.2:
     resolution: {integrity: sha512-771TFWFD70G1wLTC4oU2Cw4qvtmNrIw+wRvBtn+okgHl7slJVi7zfNcdmqDL72BojM30VNJ2UHylr1o77U37Jw==}
+    version: 4.0.2
     peerDependencies:
       webpack: '*'
     peerDependenciesMeta:
@@ -3936,6 +3934,7 @@ packages:
 
   sass-loader@16.0.6:
     resolution: {integrity: sha512-sglGzId5gmlfxNs4gK2U3h7HlVRfx278YK6Ono5lwzuvi1jxig80YiuHkaDBVsYIKFhx8wN7XSCI0M2IDS/3qA==}
+    version: 16.0.6
     engines: {node: '>= 18.12.0'}
     peerDependencies:
       '@rspack/core': 0.x || 1.x
@@ -4059,6 +4058,7 @@ packages:
 
   source-map-loader@5.0.0:
     resolution: {integrity: sha512-k2Dur7CbSLcAH73sBcIkV5xjPV4SzqO1NJ7+XaQl8if3VODDUj3FNchNGpqgJSKbvUfJuhVdv8K2Eu8/TNl2eA==}
+    version: 5.0.0
     engines: {node: '>= 18.12.0'}
     peerDependencies:
       webpack: ^5.72.1
@@ -4155,6 +4155,7 @@ packages:
 
   style-loader@4.0.0:
     resolution: {integrity: sha512-1V4WqhhZZgjVAVJyt7TdDPZoPBPNHbekX4fWnCJL1yQukhCeZhJySUL+gL9y6sNdN95uEOS83Y55SqHcP7MzLA==}
+    version: 4.0.0
     engines: {node: '>= 18.12.0'}
     peerDependencies:
       webpack: ^5.27.0
@@ -4185,8 +4186,8 @@ packages:
     engines: {node: '>=14.0.0'}
     hasBin: true
 
-  swr@2.3.6:
-    resolution: {integrity: sha512-wfHRmHWk/isGNMwlLGlZX5Gzz/uTgo0o2IRuTMcf4CPuPFJZlq0rDaKUx+ozB5nBOReNV1kiOyzMfj+MBMikLw==}
+  swr@2.3.7:
+    resolution: {integrity: sha512-ZEquQ82QvalqTxhBVv/DlAg2mbmUjF4UgpPg9wwk4ufb9rQnZXh1iKyyKBqV6bQGu1Ie7L1QwSYO07qFIa1p+g==}
     peerDependencies:
       react: ^16.11.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
 
@@ -4202,6 +4203,7 @@ packages:
 
   terser-webpack-plugin@5.3.11:
     resolution: {integrity: sha512-RVCsMfuD0+cTt3EwX8hSl2Ks56EbFHWmhluwcqoPKtBnfjiT6olaq7PRIRfhyU8nnC2MrnDrBLfrD/RGE+cVXQ==}
+    version: 5.3.11
     engines: {node: '>= 10.13.0'}
     peerDependencies:
       '@swc/core': '*'
@@ -4282,6 +4284,7 @@ packages:
 
   ts-loader@9.5.4:
     resolution: {integrity: sha512-nCz0rEwunlTZiy6rXFByQU1kVVpCIgUpc/psFiKVrUwrizdnIbRFu8w7bxhUF0X613DYwT4XzrZHpVyMe758hQ==}
+    version: 9.5.4
     engines: {node: '>=12.0.0'}
     peerDependencies:
       typescript: '*'
@@ -4386,11 +4389,6 @@ packages:
   uri-js@4.4.1:
     resolution: {integrity: sha512-7rKUyy33Q1yc98pQ1DAmLtwX109F7TIfWlW1Ydo8Wl1ii1SeHieeh0HHfPeL2fMXK6z0s8ecKs9frCuLJvndBg==}
 
-  use-sync-external-store@1.4.0:
-    resolution: {integrity: sha512-9WXSPC5fMv61vaupRkCKCxsPxBocVnwakBEkMIHHpkTTg6icbJtg6jzgtLDm4bl3cSHAca52rYWih0k4K3PfHw==}
-    peerDependencies:
-      react: ^16.8.0 || ^17.0.0 || ^18.0.0 || ^19.0.0
-
   use-sync-external-store@1.6.0:
     resolution: {integrity: sha512-Pp6GSwGP/NrPIrxVFAIkOQeyw8lFenOHijQWkUTrDvrF4ALqylP2C/KCkeS9dpUM3KvYRQhna5vt7IL95+ZQ9w==}
     peerDependencies:
@@ -4455,8 +4453,9 @@ packages:
     resolution: {integrity: sha512-yd1RBzSGanHkitROoPFd6qsrxt+oFhg/129YzheDGqeustzX0vTZJZsSsQjVQC4yzBQ56K55XU8gaNCtIzOnTg==}
     engines: {node: '>=10.13.0'}
 
-  webpack@5.101.0:
-    resolution: {integrity: sha512-B4t+nJqytPeuZlHuIKTbalhljIFXeNRqrUGAQgTGlfOl2lXXKXw+yZu6bicycP+PUlM44CxBjCFD6aciKFT3LQ==}
+  webpack@https://pkg.pr.new/webpack@4adc0d1:
+    resolution: {tarball: https://pkg.pr.new/webpack@4adc0d1}
+    version: 5.103.0
     engines: {node: '>=10.13.0'}
     hasBin: true
     peerDependencies:
@@ -4525,8 +4524,8 @@ packages:
     resolution: {integrity: sha512-3sFIGLiaDP7rTO4xh3g+b3AzhYDIUGGywE/WsmqzJWDxus5aJXVnPTNC/6L+r2WzrwXqVOdD262OaO+cEyPMSQ==}
     engines: {node: '>=20'}
 
-  xshell@1.3.10:
-    resolution: {integrity: sha512-r2D8QL9/6L5VatTWveMblU6swStN+2dSvScDQOEDK3tA4jSo2IDA01QQ2mvI7qt28W/UbMWmF8/43rLPTd559w==}
+  xshell@1.3.12:
+    resolution: {integrity: sha512-/rXqwlT24PMZy2FnHyNnM1264zbEscsjxJE7aPtFIZKVBgyAJGZpGsi7u7yLkmvJ6FgzaogQ7fUvwCiEPznCyQ==}
     hasBin: true
 
   xtend@4.0.2:
@@ -4703,7 +4702,7 @@ snapshots:
       lodash-es: 4.17.21
       rc-util: 5.44.4(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
       react: 19.2.0
-      swr: 2.3.6(react@19.2.0)
+      swr: 2.3.7(react@19.2.0)
     transitivePeerDependencies:
       - react-dom
 
@@ -4745,7 +4744,7 @@ snapshots:
       rc-util: 5.44.4(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
       react: 19.2.0
       react-dom: 19.2.0(react@19.2.0)
-      swr: 2.3.6(react@19.2.0)
+      swr: 2.3.7(react@19.2.0)
       warning: 4.0.3
 
   '@ant-design/pro-list@2.6.10(antd@6.0.0(react-dom@19.2.0(react@19.2.0))(react@19.2.0))(rc-field-form@2.7.1(react-dom@19.2.0(react@19.2.0))(react@19.2.0))(react-dom@19.2.0(react@19.2.0))(react@19.2.0)':
@@ -4777,7 +4776,7 @@ snapshots:
       rc-util: 5.44.4(react-dom@19.2.0(react@19.2.0))(react@19.2.0)
       react: 19.2.0
       react-dom: 19.2.0(react@19.2.0)
-      swr: 2.3.6(react@19.2.0)
+      swr: 2.3.7(react@19.2.0)
 
   '@ant-design/pro-skeleton@2.2.1(antd@6.0.0(react-dom@19.2.0(react@19.2.0))(react@19.2.0))(react-dom@19.2.0(react@19.2.0))(react@19.2.0)':
     dependencies:
@@ -4825,7 +4824,7 @@ snapshots:
       react: 19.2.0
       react-dom: 19.2.0(react@19.2.0)
       safe-stable-stringify: 2.4.3
-      swr: 2.3.6(react@19.2.0)
+      swr: 2.3.7(react@19.2.0)
 
   '@ant-design/react-slick@1.1.2(react@19.2.0)':
     dependencies:
@@ -6191,7 +6190,7 @@ snapshots:
   '@stylistic/eslint-plugin@5.6.1(eslint@9.39.1)':
     dependencies:
       '@eslint-community/eslint-utils': 4.9.0(eslint@9.39.1)
-      '@typescript-eslint/types': 8.47.0
+      '@typescript-eslint/types': 8.48.0
       eslint: 9.39.1
       eslint-visitor-keys: 4.2.1
       espree: 10.4.0
@@ -6527,8 +6526,6 @@ snapshots:
       typescript: 5.9.3
     transitivePeerDependencies:
       - supports-color
-
-  '@typescript-eslint/types@8.47.0': {}
 
   '@typescript-eslint/types@8.48.0': {}
 
@@ -7158,7 +7155,7 @@ snapshots:
       shebang-command: 2.0.0
       which: 2.0.2
 
-  css-loader@7.1.2(webpack@5.101.0):
+  css-loader@7.1.2(webpack@https://pkg.pr.new/webpack@4adc0d1):
     dependencies:
       icss-utils: 5.1.0(postcss@8.4.35)
       postcss: 8.4.35
@@ -7169,7 +7166,7 @@ snapshots:
       postcss-value-parser: 4.2.0
       semver: 7.6.0
     optionalDependencies:
-      webpack: 5.101.0
+      webpack: https://pkg.pr.new/webpack@4adc0d1
 
   css-select@5.1.0:
     dependencies:
@@ -7322,7 +7319,7 @@ snapshots:
       dayjs: 1.11.19
       ipaddr.js: 2.2.0
       tslib: 2.8.1
-      xshell: 1.3.10(react-dom@19.2.0(react@19.2.0))
+      xshell: 1.3.12(react-dom@19.2.0(react@19.2.0))
     transitivePeerDependencies:
       - '@rspack/core'
       - '@swc/core'
@@ -8249,11 +8246,11 @@ snapshots:
       prelude-ls: 1.2.1
       type-check: 0.4.0
 
-  license-webpack-plugin@4.0.2(webpack@5.101.0):
+  license-webpack-plugin@4.0.2(webpack@https://pkg.pr.new/webpack@4adc0d1):
     dependencies:
       webpack-sources: 3.3.3
     optionalDependencies:
-      webpack: 5.101.0
+      webpack: https://pkg.pr.new/webpack@4adc0d1
 
   lines-and-columns@1.2.4: {}
 
@@ -9262,12 +9259,12 @@ snapshots:
 
   safer-buffer@2.1.2: {}
 
-  sass-loader@16.0.6(sass@1.94.2)(webpack@5.101.0):
+  sass-loader@16.0.6(sass@1.94.2)(webpack@https://pkg.pr.new/webpack@4adc0d1):
     dependencies:
       neo-async: 2.6.2
     optionalDependencies:
       sass: 1.94.2
-      webpack: 5.101.0
+      webpack: https://pkg.pr.new/webpack@4adc0d1
 
   sass@1.94.2:
     dependencies:
@@ -9387,11 +9384,11 @@ snapshots:
 
   source-map-js@1.0.2: {}
 
-  source-map-loader@5.0.0(webpack@5.101.0):
+  source-map-loader@5.0.0(webpack@https://pkg.pr.new/webpack@4adc0d1):
     dependencies:
       iconv-lite: 0.6.3
       source-map-js: 1.0.2
-      webpack: 5.101.0
+      webpack: https://pkg.pr.new/webpack@4adc0d1
 
   source-map-support@0.5.21:
     dependencies:
@@ -9507,9 +9504,9 @@ snapshots:
 
   strip-json-comments@3.1.1: {}
 
-  style-loader@4.0.0(webpack@5.101.0):
+  style-loader@4.0.0(webpack@https://pkg.pr.new/webpack@4adc0d1):
     dependencies:
-      webpack: 5.101.0
+      webpack: https://pkg.pr.new/webpack@4adc0d1
 
   style-to-object@1.0.6:
     dependencies:
@@ -9538,11 +9535,11 @@ snapshots:
       csso: 5.0.5
       picocolors: 1.1.1
 
-  swr@2.3.6(react@19.2.0):
+  swr@2.3.7(react@19.2.0):
     dependencies:
       dequal: 2.0.3
       react: 19.2.0
-      use-sync-external-store: 1.4.0(react@19.2.0)
+      use-sync-external-store: 1.6.0(react@19.2.0)
 
   tapable@2.3.0: {}
 
@@ -9556,14 +9553,14 @@ snapshots:
     dependencies:
       streamx: 2.15.0
 
-  terser-webpack-plugin@5.3.11(webpack@5.101.0):
+  terser-webpack-plugin@5.3.11(webpack@https://pkg.pr.new/webpack@4adc0d1):
     dependencies:
       '@jridgewell/trace-mapping': 0.3.29
       jest-worker: 27.5.1
       schema-utils: 4.3.3
       serialize-javascript: 6.0.2
       terser: 5.39.0
-      webpack: 5.101.0
+      webpack: https://pkg.pr.new/webpack@4adc0d1
 
   terser@5.39.0:
     dependencies:
@@ -9622,7 +9619,7 @@ snapshots:
     dependencies:
       typescript: 5.9.3
 
-  ts-loader@9.5.4(typescript@5.9.3)(webpack@5.101.0):
+  ts-loader@9.5.4(typescript@5.9.3)(webpack@https://pkg.pr.new/webpack@4adc0d1):
     dependencies:
       chalk: 4.1.2
       enhanced-resolve: 5.18.2
@@ -9630,7 +9627,7 @@ snapshots:
       semver: 7.6.0
       source-map: 0.7.4
       typescript: 5.9.3
-      webpack: 5.101.0
+      webpack: https://pkg.pr.new/webpack@4adc0d1
 
   tsconfig-paths@3.15.0:
     dependencies:
@@ -9760,10 +9757,6 @@ snapshots:
     dependencies:
       punycode: 2.3.0
 
-  use-sync-external-store@1.4.0(react@19.2.0):
-    dependencies:
-      react: 19.2.0
-
   use-sync-external-store@1.6.0(react@19.2.0):
     dependencies:
       react: 19.2.0
@@ -9857,7 +9850,7 @@ snapshots:
 
   webpack-sources@3.3.3: {}
 
-  webpack@5.101.0:
+  webpack@https://pkg.pr.new/webpack@4adc0d1:
     dependencies:
       '@types/eslint-scope': 3.7.7
       '@types/estree': 1.0.8
@@ -9881,7 +9874,7 @@ snapshots:
       neo-async: 2.6.2
       schema-utils: 4.3.3
       tapable: 2.3.0
-      terser-webpack-plugin: 5.3.11(webpack@5.101.0)
+      terser-webpack-plugin: 5.3.11(webpack@https://pkg.pr.new/webpack@4adc0d1)
       watchpack: 2.4.4
       webpack-sources: 3.3.3
     transitivePeerDependencies:
@@ -9957,7 +9950,7 @@ snapshots:
       is-wsl: 3.1.0
       powershell-utils: 0.1.0
 
-  xshell@1.3.10(react-dom@19.2.0(react@19.2.0)):
+  xshell@1.3.12(react-dom@19.2.0(react@19.2.0)):
     dependencies:
       '@babel/core': 7.28.5
       '@babel/parser': 7.28.5
@@ -9972,7 +9965,7 @@ snapshots:
       archiver: 7.0.1
       chalk: 5.6.2
       commander: 14.0.2
-      css-loader: 7.1.2(webpack@5.101.0)
+      css-loader: 7.1.2(webpack@https://pkg.pr.new/webpack@4adc0d1)
       emoji-regex: 10.6.0
       eslint: 9.39.1
       eslint-plugin-import: 2.32.0(@typescript-eslint/parser@8.48.0(eslint@9.39.1)(typescript@5.9.3))(eslint@9.39.1)
@@ -9982,23 +9975,23 @@ snapshots:
       i18next-scanner: 4.6.0(typescript@5.9.3)
       koa: 3.1.1
       koa-compress: 5.1.1
-      license-webpack-plugin: 4.0.2(webpack@5.101.0)
+      license-webpack-plugin: 4.0.2(webpack@https://pkg.pr.new/webpack@4adc0d1)
       mime-types: 3.0.2
       p-map: 7.0.4
       react: 19.2.0
       react-i18next: 16.3.5(i18next@25.6.3(typescript@5.9.3))(react-dom@19.2.0(react@19.2.0))(react@19.2.0)(typescript@5.9.3)
       resolve-path: 1.4.0
       sass: 1.94.2
-      sass-loader: 16.0.6(sass@1.94.2)(webpack@5.101.0)
-      source-map-loader: 5.0.0(webpack@5.101.0)
+      sass-loader: 16.0.6(sass@1.94.2)(webpack@https://pkg.pr.new/webpack@4adc0d1)
+      source-map-loader: 5.0.0(webpack@https://pkg.pr.new/webpack@4adc0d1)
       strip-ansi: 7.1.2
-      style-loader: 4.0.0(webpack@5.101.0)
+      style-loader: 4.0.0(webpack@https://pkg.pr.new/webpack@4adc0d1)
       tough-cookie: 6.0.0
-      ts-loader: 9.5.4(typescript@5.9.3)(webpack@5.101.0)
+      ts-loader: 9.5.4(typescript@5.9.3)(webpack@https://pkg.pr.new/webpack@4adc0d1)
       tslib: 2.8.1
       typescript: 5.9.3
       undici: 7.16.0
-      webpack: 5.101.0
+      webpack: https://pkg.pr.new/webpack@4adc0d1
       webpack-bundle-analyzer: 5.0.1
       ws: 8.18.3
     transitivePeerDependencies:
