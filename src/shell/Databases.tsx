@@ -299,7 +299,7 @@ function TableCommentModal () {
     
     if (!current_node)
         return
-        
+    
     let { name, db } = current_node
     
     return <Modal 
