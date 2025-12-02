@@ -177,7 +177,7 @@ export function QueryCard (props: IQueryCard) {
                                 <FormDependencies dependencies={[concat_name_path(name_path, name, field.name, 'col'), concat_name_path(name_path, name, field.name, 'opt')]}>
                                     {value => {
                                         const item = name_path ? value?.[name_path]?.[name]?.[field.name] : value?.[name]?.[field.name]
-                                        const { col, opt } = item
+                                        const { col, opt } = item || { }
                                         const { data_type } = safe_json_parse(col ?? '{}')
                                         
                                         
