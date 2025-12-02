@@ -73,7 +73,7 @@ export function QueryCard (props: IQueryCard) {
                                         .map(item => ({
                                             label: <div className='col-select-label'>
                                                 <span className='table-name'>{item.name}</span>
-                                                <Tag color='processing' bordered={false}>
+                                                <Tag color='processing' variant='filled'>
                                                     {item.data_type}
                                                 </Tag>
                                             </div>,

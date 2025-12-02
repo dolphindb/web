@@ -49,7 +49,7 @@ function generate_tree_item (data_source: DataSource, widget?: Widget): MenuItem
         disabled: widget && get_chart_data_type(widget.type) !== data_source.type,
         title: <div className='data-source-tree-item'>
             {data_source.name}
-            <Tag color='blue' bordered={false}>{DATA_SOURCE_TYPE_MAP[data_source.type]}</Tag>
+            <Tag color='blue' variant='filled'>{DATA_SOURCE_TYPE_MAP[data_source.type]}</Tag>
         </div>
     }
 }
