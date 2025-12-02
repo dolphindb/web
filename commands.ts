@@ -2,7 +2,7 @@
 
 import type { Context } from 'koa'
 
-import { ramdisk, fwrite, noprint, fdclear, Remote, set_inspect_options, fdelete } from 'xshell'
+import { ramdisk, fwrite, noprint, fequals, fcopy, fdclear, Remote, set_inspect_options, fdelete } from 'xshell'
 import { Git } from 'xshell/git.js'
 import { Bundler, type BundlerOptions } from 'xshell/builder.js'
 import { Server } from 'xshell/server.js'
@@ -188,34 +188,34 @@ let builder = {
         
         const fpdt_cache = `${fpd_root}node_modules/.cache/webpack/`
         
-        const dependencies: BundlerOptions['dependencies'] = ['react', 'lodash', 'xterm', 'gridstack', 'echarts', 'quill', 'vscode-oniguruma', 'monaco']
+        const dependencies: BundlerOptions['dependencies'] = ['antd-icons', 'lodash', 'xterm', 'gridstack', 'echarts', 'quill', 'vscode-oniguruma', 'monaco']
         
         
         // --- 根据 package.json, deps.ts 缓存 deps.js
-        // const deps_src = ['package.json', 'src/deps.ts']
-        // 
-        // if ((
-        //     await Promise.all(deps_src.map(fp => 
-        //         fequals(`${fpd_root}${fp}`, `${fpdt_cache}${fp.fname}`, noprint)
-        //     ))).every(Boolean)
-        // )
-        //     console.log('deps.js 使用已缓存的版本')
-        // else
-        //     this.deps_bundler = new Bundler(
-        //         'deps', 
-        //         'web',
-        //         fpd_root,
-        //         fpdt_cache,
-        //         fpdt_cache,
-        //         { 'deps.js': './src/deps.ts' },
-        //         {
-        //             source_map: true,
-        //             external_dayjs: true,
-        //             production,
-        //             dependencies,
-        //             expose: true
-        //         }
-        //     )
+        const deps_src = ['package.json', 'src/deps.ts']
+        
+        if ((
+            await Promise.all(deps_src.map(fp => 
+                fequals(`${fpd_root}${fp}`, `${fpdt_cache}${fp.fname}`, noprint)
+            ))).every(Boolean)
+        )
+            console.log('deps.js 使用已缓存的版本')
+        else
+            this.deps_bundler = new Bundler(
+                'deps', 
+                'web',
+                fpd_root,
+                fpdt_cache,
+                fpdt_cache,
+                { 'deps.js': './src/deps.ts' },
+                {
+                    source_map: true,
+                    external_dayjs: true,
+                    production,
+                    dependencies,
+                    expose: true
+                }
+            )
         
         
         this.bundler = new Bundler(
@@ -230,11 +230,11 @@ let builder = {
             },
             {
                 source_map,
-                external_dayjs: false,
+                external_dayjs: true,
                 production,
                 externals: {
                     // 使用官方的 node_modules/@ant-design/pro-components/dist/pro-components.min.js 会有样式问题
-                    // '@ant-design/pro-components': 'AntdProComponents',
+                    '@ant-design/pro-components': 'AntdProComponents',
                     
                     // import { GridStack } from 'gridstack'
                     // 实际上 GridStack 直接暴露在了 window 上，而不是 window.GridStack.GridStack
@@ -243,11 +243,6 @@ let builder = {
                     // 在 .js 中手动加载脚本
                     // 取 window.ReactQuill 作为 import 的返回值
                     'react-quill': 'ReactQuill',
-                    
-                    antd: null,
-                    
-                    '@ant-design/icons': null,
-                    '@ant-design/plots': null,
                 },
                 resolve_alias: {
                     '@': `${fpd_root}src`,
@@ -269,20 +264,20 @@ let builder = {
                 htmls: {
                     'index.html': {
                         title: 'DolphinDB',
-                        // scripts: {
-                        //     before: [{
-                        //         // deps_bundler 构建出来的 deps.js 缓存
-                        //         src: `${fpdt_cache}deps.js`,
-                        //         out: 'deps.js'
-                        //     }]
-                        // },
-                        dependencies: ['react', 'xterm', 'lodash', 'echarts', 'gridstack'],
+                        scripts: {
+                            before: [{
+                                // deps_bundler 构建出来的 deps.js 缓存
+                                src: `${fpdt_cache}deps.js`,
+                                out: 'deps.js'
+                            }]
+                        },
+                        dependencies: ['antd-icons', 'xterm', 'lodash', 'echarts', 'gridstack'],
                     },
                     
                     'window.html': {
                         title: 'DdbObj',
                         entry: 'window.js',
-                        dependencies: ['react', 'lodash', 'echarts'],
+                        dependencies: ['antd-icons', 'lodash', 'echarts'],
                     }
                 },
                 
@@ -313,14 +308,14 @@ let builder = {
         )
         
         // this.bundler 依赖 deps_bundler 生成的文件
-        // await this.deps_bundler?.build()
+        await this.deps_bundler?.build()
         
         await Promise.all([
-            // this.deps_bundler?.close(),
-            // // 缓存依赖
-            // this.deps_bundler && Promise.all(
-            //     deps_src.map(fp => 
-            //         fcopy(`${fpd_root}${fp}`, `${fpdt_cache}${fp.fname}`, noprint))),
+            this.deps_bundler?.close(),
+            // 缓存依赖
+            this.deps_bundler && Promise.all(
+                deps_src.map(fp => 
+                    fcopy(`${fpd_root}${fp}`, `${fpdt_cache}${fp.fname}`, noprint))),
             this.bundler.build_all(),
             fwrite(`${fpd_out}version.json`, info, noprint)
         ])
