@@ -374,7 +374,7 @@ def extractUsedParams(params, metricName) {
     return usedParams
 }
 
-def runMetric(name, script, mutable params) {
+def runMetric(name, script, func, mutable params) {
     print("start to run metric: " + name + " on node: " + getNodeAlias())
     print("params: ")
     print(string(params))
@@ -390,8 +390,7 @@ def runMetric(name, script, mutable params) {
     extraDetail = NULL
 
     try {
-        runScript(script)
-        ret = funcByName(name)(params)
+        ret = func(params)
         if (ret.size() == 5) {
             success, detail, suggestion, extraDetail, params = ret
         } else if (ret.size() == 4) {
@@ -472,10 +471,11 @@ def runPlanInner(planId, reportId) {
         usedParams = extractUsedParams(params, name) // 提取出 metrics 表里定义的参数字段
 
         jobIds = []$STRING
+        runScript(script)
         for (node in nodes) {
             name_ = strReplace(name, "::", "") // 例如指标名 checkConfigs::commonDolphinDBConfig 特殊处理
             jobId_ = "runMetric_" + name_ + "_" + version + "_" + ts
-            jobId = rpc(node, submitJob, jobId_, reportId, runMetric{name, script, usedParams})
+            jobId = rpc(node, submitJob, jobId_, reportId, runMetric{name, script, funcByName(name), usedParams})
             jobIds.append!(jobId)
         }
         print("job ids: ", jobIds)
