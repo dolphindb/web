@@ -93,7 +93,7 @@ desc = "检查各个节点版本是否一致。"
 nodes = NULL
 script = '
 def nodeVersion(params) {
-    nodes = exec name from rpc(getControllerAlias(), getClusterPerf{true}) where mode != 1
+    nodes = exec name from rpc(getControllerAlias(), getClusterPerf{true}) where mode != 1 and iif(mode==2, isLeader, true)
     ver = pnodeRun(version, nodes)
     insert into ver values (getControllerAlias(), rpc(getControllerAlias(), version))
     cnt = select distinct(value) from ver
@@ -142,7 +142,7 @@ def pluginVersion(params) {
         return ret
     }
     
-    nodes = exec name from rpc(getControllerAlias(), getClusterPerf{true}) where mode != 1
+    nodes = exec name from rpc(getControllerAlias(), getClusterPerf{true}) where mode != 1 and iif(mode==2, isLeader, true)
     info = pnodeRun(listPluginsInner)
     cnt = exec count(*) from rpc(getControllerAlias(), getClusterPerf) where mode == 3
     if (cnt == 0) {

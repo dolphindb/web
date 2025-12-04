@@ -112,7 +112,8 @@ export function OHLC ({ widget, data_source: { data: _data } }: GraphComponentPr
                 textStyle: {
                     color: '#e6e6e6',
                     fontSize: title_size || 18,
-                }
+                },
+                left: 0
             },
             data,
             splitLine: {
@@ -121,13 +122,13 @@ export function OHLC ({ widget, data_source: { data: _data } }: GraphComponentPr
             },
             legend: pickBy({
                 show: true,
-                top: 10,
                 left: 'center',
                 data: series.slice(2).map(s => s?.name || ''),
                 textStyle: {
                     color: '#e6e6e6'
                 },
                 ...legend,
+                top: legend?.top ?? 0,
               }, v => !isNil(v) && v !== ''),
             backgroundColor: '#282828',
             tooltip: {

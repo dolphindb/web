@@ -55,17 +55,22 @@ export function Card ({
                         enabled_modules_.add(module_key)
                     }
                     
-                    await config.change_configs([
-                        [
-                            'webModules', 
-                            {
-                                key: 'webModules',
-                                name: 'webModules',
-                                value: Array.from(enabled_modules_).join(','), 
-                                qualifier: ''
-                            }
-                        ]
-                    ])
+                    if (enabled_modules_.size)
+                        await config.change_configs([
+                            [
+                                'webModules', 
+                                {
+                                    key: 'webModules',
+                                    name: 'webModules',
+                                    value: Array.from(enabled_modules_).join(','), 
+                                    qualifier: ''
+                                }
+                            ]
+                        ])
+                    else {  // 为空时不能保存为 webModules= ，必须删除这个配置项
+                        config.delete_config('webModules')
+                        await config.save_configs()
+                    }
                     
                     model.set({ enabled_modules: enabled_modules_ })
                     

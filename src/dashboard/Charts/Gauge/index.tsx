@@ -8,6 +8,8 @@ import { DeleteOutlined, PlusCircleOutlined } from '@ant-design/icons'
 
 import { useMemo } from 'react'
 
+import { t } from '@i18n'
+
 import { dashboard } from '../../model.js'
 import { convert_list_to_options, format_number, parse_text } from '../../utils.ts'
 
@@ -16,7 +18,6 @@ import { type IGaugeConfig } from '../../type.js'
 
 import { BasicFormFields } from '../../ChartFormFields/BasicFormFields.js'
 import { StringColorPicker } from '../../../components/StringColorPicker/index.js'
-import { t } from '@i18n'
 import { DashboardEchartsComponent } from '@/dashboard/components/EchartsComponent.tsx'
 import type { GraphComponentProps, GraphConfigProps } from '@/dashboard/graphs.ts'
 
@@ -37,7 +38,8 @@ export function Gauge ({ widget, data_source: { data } }: GraphComponentProps) {
                 textStyle: {
                     color: '#e6e6e6',
                     fontSize: title_size || 18,
-                }
+                },
+                left: 0
             },
             series: [{
                 type: 'gauge',

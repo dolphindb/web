@@ -29,6 +29,7 @@ export function Pie ({ widget, data_source: { data } }: GraphComponentProps) {
                         color: '#e6e6e6'
                     },
                     ...legend,
+                    top: legend?.top ?? 0,
                 }, v => !isNil(v) && v !== ''),
                 tooltip: {
                     show: tooltip?.show ?? true,
@@ -45,7 +46,8 @@ export function Pie ({ widget, data_source: { data } }: GraphComponentProps) {
                     textStyle: {
                         color: '#e6e6e6',
                         fontSize: title_size,
-                    }
+                    },
+                    left: 0
                 },
                 series: series.map((serie, index) => ({
                         id: index,
