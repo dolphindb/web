@@ -710,7 +710,7 @@ class ShellModel extends Model<ShellModel> {
             await model.ddb.invoke<string>(
                 'syntax', 
                 [new DdbFunction('getClusterDFSTables', DdbFunctionType.SystemFunc)])
-        ).includes('([includeSysDb=true]')
+        ).includes('([includeSysTable=true]')
     }
     
     
