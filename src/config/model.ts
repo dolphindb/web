@@ -1,13 +1,13 @@
 import { Model } from 'react-object-model'
 
-import { DdbInt, DdbVectorString, type DdbCallOptions } from 'dolphindb/browser.js'
+import { DdbInt, DdbVectorString, type DdbCallOptions, urgent } from 'dolphindb/browser.js'
 import { log, to_option } from 'xshell/utils.browser.js'
 
 import { t } from '@i18n'
 
 import { NodeType, model } from '@model'
 
-import { iterator_map, urgent } from '@utils'
+import { iterator_map } from '@utils'
 
 import { _2_strs, get_category } from './utils.ts'
 
