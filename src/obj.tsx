@@ -1006,7 +1006,7 @@ export function StreamingTable ({
                         
                         ;(async () => {
                             try {
-                                let apiddb = rddbapi.current = new DDB(url)
+                                let apiddb = rddbapi.current = new DDB(url, { username, password })
                                 
                                 if (table === 'prices')
                                     await apiddb.eval(

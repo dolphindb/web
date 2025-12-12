@@ -5,6 +5,8 @@ import { throttle } from 'lodash'
 
 import { type editor } from 'monaco-editor'
 
+import { to_option } from 'xshell/utils.browser.js'
+
 import { Editor } from '../../components/Editor/index.js'
 
 import { dashboard } from '../model.js'
@@ -54,24 +56,19 @@ export function StreamEditor ({
     useEffect(() => {
         const node = model.node
         const closest_node_host = model.find_node_closest_hostname(node)
-        const new_ip_list = [
-            {
-                value: closest_node_host + ':' + node.port,
-                label: closest_node_host + ':' + node.port
-            }
+        
+        let new_ip_list = [
+            to_option(`${closest_node_host}:${node.port}`)
         ]
+        
         if (node.host !== closest_node_host)
-            new_ip_list.push({
-                value: node.host + ':' + node.port,
-                label: node.host + ':' + node.port
-            })
+            new_ip_list.push(to_option(`${node.host}:${node.port}`))
+        
         node.publicName.split((/,|;/)).forEach(item => {
             if (item !== closest_node_host)
-                new_ip_list.push({
-                    value: item + ':' + node.port,
-                    label: item + ':' + node.port
-                })
+                new_ip_list.push(to_option(`${item}:${node.port}`))
         })
+        
         ip_list_ref.current = new_ip_list
     }, [ ])
     
@@ -120,8 +117,7 @@ export function StreamEditor ({
             
             if (!current_data_source.ip)
                 change_current_data_source_property('ip', ip_list_ref.current[0].value, false)
-                
-                
+            
             if (dashboard.filter_column_editor)
                 dashboard.filter_column_editor.setValue(current_data_source.filter_column)
             
@@ -131,7 +127,7 @@ export function StreamEditor ({
             if (current_data_source.mode === get_data_source(current_data_source.id).mode)
                 change_no_save_flag(false)
         })()
-    }, [ current_data_source.id ])
+    }, [current_data_source.id])
     
     useEffect(() => {
         tree_ref.current?.scrollTo({ key: current_data_source.stream_table })
