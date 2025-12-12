@@ -52,7 +52,7 @@
         "gridstack": "^12.3.3",
         "js-cookie": "^3.0.5",
         "lodash": "^4.17.21",
-        "lucide-react": "^0.560.0",
+        "lucide-react": "^0.561.0",
         "donaco": "^1.0.9",
         "monaco-editor": "0.52.2",
         "re-resizable": "^6.11.2",
