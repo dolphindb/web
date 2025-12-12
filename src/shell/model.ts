@@ -703,10 +703,7 @@ class ShellModel extends Model<ShellModel> {
     _can_hide_sysdb?: boolean
     
     async can_hide_sysdb () {
-        if (this._can_hide_sysdb !== undefined)
-            return this._can_hide_sysdb
-        
-        this._can_hide_sysdb = (
+        return this._can_hide_sysdb ??= (
             await model.ddb.invoke<string>(
                 'syntax', 
                 [new DdbFunction('getClusterDFSTables', DdbFunctionType.SystemFunc)])
