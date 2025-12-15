@@ -38,6 +38,6 @@ export function ColSelectTransfer (props: IProps) {
         targetKeys={value ?? [ ]}
         render={item => item.title}
         dataSource={options}
-        operations={[t('增加查询列'), t('删除查询列')]}
+        actions={[t('增加查询列'), t('删除查询列')]}
     />
 }

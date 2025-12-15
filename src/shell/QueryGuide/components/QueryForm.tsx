@@ -303,13 +303,14 @@ export function QueryForm (props: IProps) {
             <div className='query-conditions-wrapper'>
                 
                 {
-                    !!partition_cols?.length && <>
+                    Boolean(partition_cols?.length) && <>
                         <h4>
                             {t('分区列查询条件')}
                             <Tooltip title={t('必填项，仅支持【且满足】，与”其他查询条件”亦为【且满足】关系。')}>
                                 <QuestionCircleOutlined className='help-icon' />
                             </Tooltip>
                         </h4>
+                        
                         <QueryCard
                             table={table}
                             database={database}
@@ -317,9 +318,10 @@ export function QueryForm (props: IProps) {
                             name='partitionColQuerys'
                             name_path={null}
                         />
+                        
+                        <h4>{t('其他查询条件')}</h4>
                     </>
                 }
-                {!!partition_cols?.length && <h4>{t('其他查询条件')}</h4>}
                 <Form.List name='querys' initialValue={[ ]}>
                     {(fields, { add, remove }) => { 
                         return <div className='querys-wrapper'>
