@@ -1,6 +1,8 @@
 import { Input, Table, type TableColumnType } from 'antd'
 import { useEffect, useMemo, useState } from 'react'
 
+import { select } from 'xshell/prototype.browser.js'
+
 import { t } from '@i18n'
 
 import { model } from '@model'
@@ -33,7 +35,7 @@ export function AccessList ({ role, name, category }: { role: AccessRole, name: 
                 return
             
             let tmp_tb_access = [ ]
-        
+            
             for (let item of access_objs) {
                 const name = typeof item === 'string' ? item : item.name
                 const tb_ob: TABLE_ACCESS = {
@@ -47,15 +49,17 @@ export function AccessList ({ role, name, category }: { role: AccessRole, name: 
                             ? 
                         {
                            ...v3 ? {
-                                schemas: (item as Catalog).schemas.map(schema => ({
-                                    name: schema.schema,
-                                    access: generate_access_cols(accesses, 'database', schema.dbUrl),
-                                    tables: schema.tables.map(table => ({
-                                        name: table,
-                                        access: generate_access_cols(accesses, 'table', table)
+                                schemas: (item as Catalog).schemas
+                                    .filter(select('dbUrl'))
+                                    .map(schema => ({
+                                        name: schema.schema,
+                                        access: generate_access_cols(accesses, 'database', schema.dbUrl),
+                                        tables: schema.tables.map(table => ({
+                                            name: table,
+                                            access: generate_access_cols(accesses, 'table', table)
+                                        }))
                                     }))
-                                }))
-                           } : { 
+                           } : {
                                 tables: (item as Database).tables.map(table => ({
                                     name: table,
                                     access: generate_access_cols(accesses, 'table', table)
