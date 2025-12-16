@@ -213,7 +213,7 @@ export const node_configs = {
     [t('系统')]: [
         'console', 'config', 'home', 'maxPartitionNumPerQuery', 'mode', 'moduleDir', 'newValuePartitionPolicy', 
         'perfMonitoring', 'pluginDir', 'preloadModules', 'init', 'startup', 'run', 'tzdb', 'webRoot', 'webLoginRequired', 
-        'enableShellFunction', 'enablePKEYEngine'
+        'enableShellFunction', 'enablePKEYEngine', 'enableInsertStatementForDFSTable'
     ],
     [t('计算组')]: [
         'computeNodeCacheDir', 'computeNodeCacheMeta', 'computeNodeMemCacheSize', 'computeNodeDiskCacheSize',
