@@ -12,12 +12,8 @@ interface IInternalFormWatchProps {
     preserve?: boolean
 }
 
-function InternalFormWatch (props: IInternalFormWatchProps) {
-    const { name, onChange, onMount, onUnmount, form, preserve } = props
-    const value = Form.useWatch(name, {
-        form,
-        preserve
-    })
+function InternalFormWatch ({ name, onChange, onMount, onUnmount, form, preserve }: IInternalFormWatchProps) {
+    const value = Form.useWatch(name, { form, preserve })
     
     useMount(() => {
         onMount?.(value)
@@ -51,6 +47,6 @@ export function FormDependencies ({ dependencies, form: propForm, children }: {
                 form={form} 
                 onChange={useUpdate()} 
             />)}
-        {children(form.getFieldsValue(dependencies), form)}
+        {children(form.getFieldsValue(true), form)}
     </>
 }
