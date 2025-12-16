@@ -47,6 +47,6 @@ export function FormDependencies ({ dependencies, form: propForm, children }: {
                 form={form} 
                 onChange={useUpdate()} 
             />)}
-        {children(form.getFieldsValue(true), form)}
+        {children(form.getFieldsValue(dependencies), form)}
     </>
 }
