@@ -275,7 +275,7 @@ export function convert_chart_config (
         return data_zoom
     }
     
-    function convert_axis (axis: AxisConfig, index?: number) {
+    function convert_axis (axis: AxisConfig = { type: AxisType.VALUE, name: '', col_name: undefined }, index?: number) {
         const axis_config: echarts.EChartsOption['xAxis'] = {
             show: true,
             name: axis.name,
