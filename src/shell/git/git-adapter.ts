@@ -16,6 +16,12 @@ export interface IProject {
     path_with_namespace?: string
 }
 
+export interface IProjectsResponse {
+    projects: IProject[]
+    has_next_page: boolean
+    total_count?: number
+}
+
 interface IFile {
     id: string
     mode: string
@@ -55,7 +61,7 @@ interface IGitAdapter {
     get_files_by_repo(repo: string, file_path?: string, branch?: string): Promise<IFile[]>
     get_file_by_path(repo: string, file_path: string, ref: string): Promise<IFileData>
     get_auth_header(): string
-    get_projects(): Promise<IProject[]>
+    get_projects(page?: number, per_page?: number): Promise<IProjectsResponse>
     get_project(id: string): Promise<IProject>
     get_branches(repo: string): Promise<string[]>
     get_access_token(code: string, client_id: string, redirect_uri?: string, secret?: string): Promise<string>
@@ -133,13 +139,25 @@ export class GitLabAdapter implements IGitAdapter {
     }
     
     // 获取所有项目
-    async get_projects (): Promise<IProject[]> {
+    async get_projects (page?: number, per_page?: number): Promise<IProjectsResponse> {
         try {
-            const resp = await fetch(`${this.root_url}${this.api_root}/projects?per_page=100&membership=true`, this.get_fetch_options())
+            const currentPage = page || 1
+            const currentPerPage = per_page || 100
+            const resp = await fetch(`${this.root_url}${this.api_root}/projects?per_page=${currentPerPage}&membership=true&page=${currentPage}`, this.get_fetch_options())
             const result = await resp.json()
-            if (isArray(result))
-                return result
-            else
+            
+            if (isArray(result)) {
+                // GitLab在响应头中提供分页信息
+                const totalCount = parseInt(resp.headers.get('X-Total') || '0', 10)
+                const totalPages = parseInt(resp.headers.get('X-Total-Pages') || '1', 10)
+                const hasNextPage = currentPage < totalPages
+                
+                return {
+                    projects: result,
+                    has_next_page: hasNextPage,
+                    total_count: totalCount
+                }
+            } else
                 throw new Error('Invalid response')
         } catch (error) {
             error.shown = true
@@ -185,7 +203,7 @@ export class GitLabAdapter implements IGitAdapter {
         return { ...result, content }
     }
     
-    async commit_file (repo: string, file_path: string, message: string, content: string, branch = 'main', sha?: string, create = false): Promise<boolean> {
+    async commit_file (repo: string, file_path: string, message: string, branch: string, content: string, sha?: string, create = false): Promise<boolean> {
         const resp = await fetch(`${this.root_url}${this.api_root}/projects/${encodeURIComponent(repo)}/repository/files/${encodeURIComponent(file_path)}?branch=${branch}`
             , this.get_fetch_options(create ? 'POST' : 'PUT', JSON.stringify({ branch, message, content, commit_message: message })))
         return resp.ok
@@ -255,28 +273,37 @@ export class GitHubAdapter implements IGitAdapter {
     }
     
     
-    async get_projects (): Promise<IProject[]> {
+    async get_projects (page?: number, per_page?: number): Promise<IProjectsResponse> {
         try {
-            const resp = await fetch(`${this.root_url}${this.api_root}/user/repos`, this.get_fetch_options())
+            const currentPage = page || 1
+            const currentPerPage = per_page || 100
+            const resp = await fetch(`${this.root_url}${this.api_root}/user/repos?per_page=${currentPerPage}&page=${currentPage}`, this.get_fetch_options())
             const result = await resp.json()
-            if (isArray(result))
-                return result.map((repo: any) => ({
-                    id: String(repo.id),
-                    name: repo.name,
-                    path: repo.full_name,
-                    description: repo.description,
-                    last_activity_at: repo.updated_at,
-                    path_with_namespace: repo.full_name,
-                    default_branch: repo.default_branch
-                }))
-            else
+            
+            if (isArray(result)) {
+                // GitHub在Link响应头中提供分页信息
+                const linkHeader = resp.headers.get('Link') || ''
+                const hasNextPage = linkHeader.includes('rel="next"')
+                
+                return {
+                    projects: result.map((repo: any) => ({
+                        id: String(repo.id),
+                        name: repo.name,
+                        path: repo.full_name,
+                        description: repo.description,
+                        last_activity_at: repo.updated_at,
+                        path_with_namespace: repo.full_name,
+                        default_branch: repo.default_branch
+                    })),
+                    has_next_page: hasNextPage,
+                    total_count: undefined // GitHub不在单个请求中提供总数
+                }
+            } else
                 throw new Error('Invalid response')
         } catch (error) {
             error.shown = true
             throw error
         }
-        
-        
     }
     
     async get_project (id: string): Promise<IProject> {
