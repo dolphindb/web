@@ -99,9 +99,7 @@ function TopDescription () {
                     title={
                         <div className='delete-warning-title'>
                             <WarningOutlined />
-                            <span>
-                                {t('确认删除流图')} <Typography.Text>{name}</Typography.Text> {t('吗？此操作不可恢复。')}
-                            </span>
+                            {t('确认删除流图 {{name}} 吗？\n此操作不可恢复。', { name })}
                         </div>
                     }
                     open={modal.visible}
@@ -142,7 +140,7 @@ function TopDescription () {
                 <Button
                     icon={<DeleteOutlined />}
                     danger
-                    disabled={!active}
+                    // disabled={!active}
                     onClick={modal.open}
                 >
                     {t('删除流图')}
