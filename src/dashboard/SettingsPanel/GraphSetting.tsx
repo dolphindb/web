@@ -43,9 +43,9 @@ export function GraphSetting () {
     
     return Config && <>
         <Form
-            onValuesChange={(_, values) => {
+            onValuesChange={() => {
                 if (widget)
-                    dashboard.update_widget({ ...widget, config: values })
+                    dashboard.update_widget({ ...widget, config: form.getFieldsValue(true) })
             }}
             form={form}
             labelCol={{ span: language === 'zh' ? 10 : 12 }}

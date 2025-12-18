@@ -15,8 +15,9 @@ import { get_data_source } from '../../DataSource/date-source.js'
 
 import { DashboardEchartsComponent } from '@/dashboard/components/EchartsComponent.tsx'
 
-import { VALUE_TYPES, TIME_TYPES } from './constant.js'
 import type { GraphComponentProps } from '@/dashboard/graphs.ts'
+
+import { VALUE_TYPES, TIME_TYPES } from './constant.js'
 
 
 interface ICompositeSeriesConfig extends ISeriesConfig { 
