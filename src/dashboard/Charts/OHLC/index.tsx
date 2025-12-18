@@ -128,7 +128,7 @@ export function OHLC ({ widget, data_source: { data: _data } }: GraphComponentPr
                     color: '#e6e6e6'
                 },
                 ...legend,
-                top: legend?.top ?? 0,
+                top: legend?.top || 0,
               }, v => !isNil(v) && v !== ''),
             backgroundColor: '#282828',
             tooltip: {
