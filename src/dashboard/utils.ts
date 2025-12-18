@@ -247,7 +247,7 @@ export function convert_chart_config (
 ) {
     const { config } = widget
     
-    const { title, title_size, splitLine, xAxis, series, yAxis, x_datazoom, y_datazoom, legend, animation, tooltip, thresholds = [ ] } = config as IChartConfig
+    const { title, title_size, splitLine, xAxis = { }, series = [ ], yAxis, x_datazoom, y_datazoom, legend, animation, tooltip, thresholds = [ ] } = config as IChartConfig
     
     function convert_data_zoom (x_datazoom: boolean, y_datazoom: boolean) { 
         const total_data_zoom = [
@@ -279,7 +279,7 @@ export function convert_chart_config (
         const axis_config: echarts.EChartsOption['xAxis'] = {
             show: true,
             name: axis.name,
-            type: axis.type,
+            type: axis.type ?? 'value',
             interval: axis.interval,
             nameLocation: 'middle',
             nameGap: 25,
@@ -523,7 +523,7 @@ export function convert_chart_config (
             left: 0,
         },
         xAxis: convert_axis(xAxis),
-        yAxis: Array.isArray(yAxis) ? yAxis.filter(item => !!item).map(convert_axis) : convert_axis(yAxis),
+        yAxis: Array.isArray(yAxis) ? yAxis.filter(item => !!item).map(convert_axis) : convert_axis(yAxis ?? { }),
         series: echarts_series,
         dataZoom: convert_data_zoom(x_datazoom, y_datazoom)
     } as any as echarts.EChartsOption
