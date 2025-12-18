@@ -149,14 +149,16 @@ export function HeatMap ({ widget }: GraphComponentProps) {
 }
 
 
+const axis_hidden_fields = ['col_name', 'type', 'min', 'max', 'with_zero', 'interval', 'position', 'offset', 'time_format']
+
 export function HeatMapConfigForm ({ data_source: { cols } }: GraphConfigProps) {
     return <>
         <BasicFormFields type='chart' chart_fields={[ChartField.TOOLTIP]}/>        
         <Collapse items={[
             {
                 key: 'x_axis',
-                label: t('X 轴配置'),
-                children: <AxisItem name_path='xAxis' col_names={cols} hidden_fields={['col_name', 'type', 'min', 'max', 'with_zero', 'interval', 'position', 'offset', 'time_format']}/>,
+                    label: t('X 轴配置'),
+                    children: <AxisItem name_path='xAxis' col_names={cols} hidden_fields={axis_hidden_fields}/>,
                 forceRender: true,
             },
             {
@@ -168,7 +170,7 @@ export function HeatMapConfigForm ({ data_source: { cols } }: GraphConfigProps) 
                         name_path={field.name} 
                         col_names={cols} 
                         list_name='yAxis' 
-                        hidden_fields={['col_name', 'type', 'min', 'max', 'with_zero', 'interval', 'position', 'offset', 'time_format']}
+                        hidden_fields={axis_hidden_fields}
                     />)}
                 </Form.List>,
                 forceRender: true,
