@@ -44,7 +44,7 @@ export function Chart ({ widget, data_source: { data } }: GraphComponentProps) {
     return <DashboardEchartsComponent 
         on_chart_ready={set_echart_instance} 
         options={options} 
-        replace_merge={['series', 'dataZoom', 'yAxis']}
+        not_merge
     />
 } 
 

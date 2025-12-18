@@ -490,10 +490,10 @@ export function convert_chart_config (
         animation,
         grid: {
             containLabel: true,
-            left: 15,
-            // 如果 series 中设置了 endLabel，需要增加 right 为 endLabel 预留空间
-            right: series?.find(item => item?.end_label) ? 80 : 15,
-            bottom: x_datazoom ? 50 : 15
+            left: 20,
+            // 如果 series 中设置了 endLabel 或者 markLine，需要增加 right 预留 endLabel 和 markLine 右侧标签的展示空间
+            right: series?.some(item => item?.end_label || !!item?.mark_line?.length) ? 80 : 20,
+            bottom: x_datazoom ? 50 : 20
         },
         legend: pickBy({
             show: true,
