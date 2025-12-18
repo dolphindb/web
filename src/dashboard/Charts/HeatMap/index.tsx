@@ -156,7 +156,7 @@ export function HeatMapConfigForm ({ data_source: { cols } }: GraphConfigProps) 
             {
                 key: 'x_axis',
                 label: t('X 轴配置'),
-                children: <AxisItem name_path='xAxis' col_names={cols} hidden_fields={['type', 'col_name', 'time_format']}/>,
+                children: <AxisItem name_path='xAxis' col_names={cols} hidden_fields={['col_name', 'type', 'min', 'max', 'with_zero', 'interval', 'position', 'offset', 'time_format']}/>,
                 forceRender: true,
             },
             {
