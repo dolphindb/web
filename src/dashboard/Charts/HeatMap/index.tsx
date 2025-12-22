@@ -89,7 +89,7 @@ export function HeatMap ({ widget }: GraphComponentProps) {
                 axisLine: {
                     show: true,
                     lineStyle: {
-                        color: xAxis?.axis_color || '#6E6F7A'
+                        color: xAxis?.axis_color || '#6E6F7A',
                     }
                 },
                 axisLabel: {
@@ -105,10 +105,14 @@ export function HeatMap ({ widget }: GraphComponentProps) {
                 type: 'category',
                 data: y_data,
                 name: yAxis?.name,
+                show: true,
+                offset: 2,
                 axisLine: {
                     show: true,
                     lineStyle: {
-                        color: yAxis?.axis_color || '#6E6F7A'
+                        color: yAxis?.axis_color || '#6E6F7A',
+                        type: 'solid',
+                        width: 2,
                     }
                 },
                 axisLabel: {
@@ -117,7 +121,8 @@ export function HeatMap ({ widget }: GraphComponentProps) {
                 },
                 nameTextStyle: {
                     fontSize: yAxis?.fontsize ?? 12,
-                 
+                    color: yAxis?.font_color || '#6E6F7A',
+                    width: 2
                 },
             },
             visualMap: {
@@ -145,7 +150,9 @@ export function HeatMap ({ widget }: GraphComponentProps) {
         } as echarts.EChartsOption
     }, [widget.config, data])
     
-    return <DashboardEchartsComponent options={option} replace_merge={['series', 'dataZoom', 'yAxis']}/>
+    console.log(option, 'optioons')
+    
+    return <DashboardEchartsComponent options={option} not_merge/>
 }
 
 
