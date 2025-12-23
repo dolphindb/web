@@ -121,8 +121,6 @@ export function HeatMap ({ widget }: GraphComponentProps) {
                 },
                 nameTextStyle: {
                     fontSize: yAxis?.fontsize ?? 12,
-                    color: yAxis?.font_color || '#6E6F7A',
-                    width: 2
                 },
             },
             visualMap: {
