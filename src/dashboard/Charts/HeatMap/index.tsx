@@ -90,6 +90,7 @@ export function HeatMap ({ widget }: GraphComponentProps) {
                     show: true,
                     lineStyle: {
                         color: xAxis?.axis_color || '#6E6F7A',
+                        width: 3
                     }
                 },
                 axisLabel: {
