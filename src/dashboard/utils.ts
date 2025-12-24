@@ -502,7 +502,6 @@ export function convert_chart_config (
                 ...legend?.textStyle,
             },
             ...legend,
-            top: legend?.top || 0,
         }, v => !isNil(v) && v !== ''),
         tooltip: {
             show: true,

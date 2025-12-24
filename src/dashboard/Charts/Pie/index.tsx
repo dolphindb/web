@@ -28,8 +28,7 @@ export function Pie ({ widget, data_source: { data } }: GraphComponentProps) {
                     textStyle: {
                         color: '#e6e6e6'
                     },
-                    ...legend,
-                    top: legend?.top ?? 0,
+                    ...legend
                 }, v => !isNil(v) && v !== ''),
                 tooltip: {
                     show: tooltip?.show ?? true,

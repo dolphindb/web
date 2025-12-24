@@ -38,8 +38,7 @@ export function Radar ({ widget, data_source: { data } }: GraphComponentProps) {
                         color: '#e6e6e6'
                     },
                     data: legends,
-                    ...legend,
-                    top: legend?.top ?? 0,
+                    ...legend
                 }, v => !isNil(v) && v !== ''),
                 tooltip: {
                     show: true,
