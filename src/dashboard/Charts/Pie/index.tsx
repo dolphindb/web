@@ -72,7 +72,7 @@ export function Pie ({ widget, data_source: { data } }: GraphComponentProps) {
         [title, animation, series, title_size, data, legend, tooltip]
     )
     
-    return <DashboardEchartsComponent options={options} lazy_update />
+    return <DashboardEchartsComponent options={options} lazy_update not_merge />
 }
 
 export function PieConfigForm ({ data_source: { cols } }: GraphConfigProps) {
