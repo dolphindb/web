@@ -76,6 +76,7 @@ export function TransferModal ({
             title={step === 'edit' ? title : confirmTitle}
             onOk={step === 'edit' ? () => { set_step('preview') } : save}
             okText={step === 'edit' ? t('预览修改') : t('确认')}
+            width={1000}
         >
             {step === 'edit' ? (
                 <Transfer

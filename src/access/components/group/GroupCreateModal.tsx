@@ -36,6 +36,7 @@ export const GroupCreateModal = NiceModal.create(() => {
             }}
             destroyOnHidden
             title={t('新建组')}
+            width={1000}
             onOk={async () => {
                 try {
                     const { group_name, users } = await add_group_form.validateFields()
