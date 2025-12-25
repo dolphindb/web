@@ -43,7 +43,7 @@ export const ResetPasswordModal = NiceModal.create<ResetPasswordModalProps>(({ n
                     name='password'
                     rules={[
                         { required: true, message: t('请输入密码!') },
-                        { type: 'string', min: 6, max: 20, pattern: /^[^\s\u4E00-\u9FFF]+$/, message: t('密码长度为 6-20 个字符，且不包含空格或中文') },
+                        { type: 'string', min: 6, max: 20, pattern: /^[^\s\u4E00-\u9FFF]+$/, message: t('密码长度为 6-20 个字符，且不包含空格或中文') }
                     ]}
                 >
                     <Input.Password />
