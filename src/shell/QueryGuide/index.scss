@@ -44,6 +44,9 @@
     
     .col-select-transfer {
         width: 100%;
+        
+        --ant-transfer-list-width: 100%;
+        
         .ant-transfer-list {
             width: 40%;
             height: 200px;

@@ -3,7 +3,8 @@ import './index.sass'
 import { useCallback, useMemo, useState } from 'react'
 
 import { DeleteOutlined, PlusOutlined, SearchOutlined } from '@ant-design/icons'
-import { Button, Input, Popconfirm, Typography, type TableColumnType } from 'antd'
+import { Button, Flex, Input, Popconfirm, Typography, type TableColumnType } from 'antd'
+const { Link } = Typography
 
 
 import NiceModal from '@ebay/nice-modal-react'
@@ -27,8 +28,8 @@ import { GroupCreateModal } from './components/group/GroupCreateModal.tsx'
 import { GroupUserEditModal } from './components/group/GroupUserEditModal.tsx'
 import { use_groups } from './hooks/use-groups.ts'
 
+
 export function GroupList () {
-    
     const { data: groups, mutate: mutate_groups } = use_groups()
     
     const { data: groups_info, mutate: mutate_groups_info } = useSWR(
@@ -126,58 +127,52 @@ export function GroupList () {
                 .map(group => ({
                     key: group.groupName,
                     group_name: group.groupName,
-                    users: (
-                        <div>
-                            {group.users &&
-                                group.users.split(',').filter(name => name !== 'admin').map((user: string) => <DDBTag key={user}>
-                                    {user}
-                                </DDBTag>)}
-                        </div>
-                    ),
-                    actions: (
-                        <TableOperations>
-                            <Typography.Link
-                                onClick={() => {
-                                    model.goto(`/access/group/${group.groupName}`)
-                                }}
-                            >
-                                {t('查看权限')}
-                            </Typography.Link>
-                            
-                            <Typography.Link
-                            
-                                onClick={() => {
-                                    model.goto(`/access/group/${group.groupName}/edit`)
-                                }}
-                            >
-                                {t('设置权限')}
-                            </Typography.Link>
-                            
-                            <Typography.Link
-                             
-                                onClick={async () => {
-                                    NiceModal.show(GroupUserEditModal, { groupname: group.groupName })
-                                }}
-                            >
-                                {t('管理成员')}
-                            </Typography.Link>
-                            
-                            <Popconfirm
-                                title={t('删除组')}
-                                description={t('确认删除组 {{group}} 吗', { group: group.groupName })}
-                                okButtonProps={{ danger: true, type: 'primary' }}
-                                onConfirm={async () => {
-                                    await access.delete_group(group.groupName)
-                                    model.message.success(t('组删除成功'))
-                                    await mutate_groups()
-                                }}
-                            >
-                                <Typography.Link type='danger'>
-                                    {t('删除')}
-                                </Typography.Link>
-                            </Popconfirm>
-                        </TableOperations>
-                    )
+                    
+                    users: Boolean(group.users) && <Flex gap='small' align='center'>{
+                        group.users.split(',').filter(name => name !== 'admin').map((user: string) =>
+                            <DDBTag key={user}>{user}</DDBTag>)
+                    }</Flex>,
+                    
+                    actions: <TableOperations>
+                        <Link
+                            onClick={() => {
+                                model.goto(`/access/group/${group.groupName}`)
+                            }}
+                        >
+                            {t('查看权限')}
+                        </Link>
+                        
+                        <Link
+                            onClick={() => {
+                                model.goto(`/access/group/${group.groupName}/edit`)
+                            }}
+                        >
+                            {t('设置权限')}
+                        </Link>
+                        
+                        <Link
+                            onClick={async () => {
+                                NiceModal.show(GroupUserEditModal, { groupname: group.groupName })
+                            }}
+                        >
+                            {t('管理成员')}
+                        </Link>
+                        
+                        <Popconfirm
+                            title={t('删除组')}
+                            description={t('确认删除组 {{group}} 吗', { group: group.groupName })}
+                            okButtonProps={{ danger: true, type: 'primary' }}
+                            onConfirm={async () => {
+                                await access.delete_group(group.groupName)
+                                model.message.success(t('组删除成功'))
+                                await mutate_groups()
+                            }}
+                        >
+                            <Link type='danger'>
+                                {t('删除')}
+                            </Link>
+                        </Popconfirm>
+                    </TableOperations>
                 }))}
             tableLayout='fixed'
         />}

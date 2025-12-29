@@ -204,7 +204,7 @@ export const CreateSubscribeModal = NiceModal.create((props: IProps) => {
                                             value: item.id, 
                                             label: (<div className='parser-template-label'>
                                                 {item.name}
-                                                <Tag color='blue' bordered={false}>{item.protocol}</Tag>
+                                                <Tag color='blue' variant='filled'>{item.protocol}</Tag>
                                             </div> )
                                         }))} 
                                     placeholder={t('请选择点位解析模板')}

@@ -7,8 +7,6 @@ import { language, t } from '@i18n'
 import { model } from '@model'
 
 
-export const urgent = { urgent: true } as const
-
 /** 侧边栏收起状态宽度 */
 export const sider_collapsed_width = 50
 

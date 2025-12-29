@@ -10,7 +10,8 @@ import { max, min } from 'lodash'
 
 import { BoolRadioGroup } from '@components/BoolRadioGroup/index.js'
 import { StringColorPicker } from '@components/StringColorPicker/index.js'
-import { AxisFormFields } from '@/dashboard/ChartFormFields/BasicChartFields.js'
+
+import { AxisItem } from '@/dashboard/ChartFormFields/BasicChartFields.js'
 import { BasicFormFields } from '@/dashboard/ChartFormFields/BasicFormFields.js'
 import { ChartField } from '@/dashboard/ChartFormFields/type.js'
 import { get_data_source } from '@/dashboard/DataSource/date-source.js'
@@ -47,6 +48,9 @@ export function HeatMap ({ widget }: GraphComponentProps) {
         const min_data = min(flatten_data) ?? 0
         const max_data = max(flatten_data) ?? 10
         
+        const yAxis = config?.yAxis?.[0]
+        const xAxis = config?.xAxis
+        
         return {
             grid: {
                 bottom: 60,
@@ -80,11 +84,45 @@ export function HeatMap ({ widget }: GraphComponentProps) {
             },
             xAxis: {
                 type: 'category',
-                data: x_data
+                data: x_data,
+                name: xAxis?.name,
+                axisLine: {
+                    show: true,
+                    lineStyle: {
+                        color: xAxis?.axis_color || '#6E6F7A',
+                        width: 3
+                    }
+                },
+                axisLabel: {
+                    color: () => xAxis?.font_color || '#6E6F7A',
+                    fontSize: xAxis?.fontsize || 12
+                },
+                nameTextStyle: {
+                    fontSize: xAxis?.fontsize ?? 12
+                }
+                
             },
             yAxis: {
                 type: 'category',
-                data: y_data
+                data: y_data,
+                name: yAxis?.name,
+                show: true,
+                offset: 2,
+                axisLine: {
+                    show: true,
+                    lineStyle: {
+                        color: yAxis?.axis_color || '#6E6F7A',
+                        type: 'solid',
+                        width: 2,
+                    }
+                },
+                axisLabel: {
+                    color: () => yAxis?.font_color || '#6E6F7A',
+                    fontSize: yAxis?.fontsize || 12
+                },
+                nameTextStyle: {
+                    fontSize: yAxis?.fontsize ?? 12,
+                },
             },
             visualMap: {
                 min: series[0].min ?? Math.floor(min_data),
@@ -111,15 +149,39 @@ export function HeatMap ({ widget }: GraphComponentProps) {
         } as echarts.EChartsOption
     }, [widget.config, data])
     
-    return <DashboardEchartsComponent options={option} replace_merge={['series', 'dataZoom', 'yAxis']}/>
+    console.log(option, 'optioons')
+    
+    return <DashboardEchartsComponent options={option} not_merge/>
 }
 
 
+const axis_hidden_fields = ['col_name', 'type', 'min', 'max', 'with_zero', 'interval', 'position', 'offset', 'time_format']
+
 export function HeatMapConfigForm ({ data_source: { cols } }: GraphConfigProps) {
     return <>
-        <BasicFormFields type='chart' chart_fields={[ChartField.TOOLTIP]}/>
-        <AxisFormFields col_names={cols} single />
-        <Collapse items={[{
+        <BasicFormFields type='chart' chart_fields={[ChartField.TOOLTIP]}/>        
+        <Collapse items={[
+            {
+                key: 'x_axis',
+                    label: t('X 轴配置'),
+                    children: <AxisItem name_path='xAxis' col_names={cols} hidden_fields={axis_hidden_fields}/>,
+                forceRender: true,
+            },
+            {
+                key: 'y_axis',
+                label: t('Y 轴配置'),
+                children: <Form.List name='yAxis' initialValue={[{ }]}>
+                    {fields => fields.map(field => <AxisItem 
+                        key={field.name} 
+                        name_path={field.name} 
+                        col_names={cols} 
+                        list_name='yAxis' 
+                        hidden_fields={axis_hidden_fields}
+                    />)}
+                </Form.List>,
+                forceRender: true,
+            },
+            {
             forceRender: true,
             label: t('图配置'),
             children: <>

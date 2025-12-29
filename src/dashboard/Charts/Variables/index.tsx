@@ -17,7 +17,7 @@ interface IVariableConfig {
 export function Variables ({ widget }: GraphComponentProps) { 
     const config = widget.config as IVariableConfig
     
-    return <>
+    return <div className='variable-chart-wrapper'>
         {
             config?.title &&
                 <div className='variable-title' style={{ fontSize: config.title_size ?? 18, fontWeight: 500 }}>
@@ -25,12 +25,12 @@ export function Variables ({ widget }: GraphComponentProps) {
                 </div>
         }
          <VariableForm
-            className='variable-chart-wrapper'
+            className='variable-chart-form'
             ids={config?.variable_ids}
             cols={config?.variable_cols}
             with_search_btn={config?.with_search_btn}
             search_btn_label={config?.search_btn_label }
             label_col={config?.variable_form_label_col ? Math.floor(config?.variable_form_label_col * 24 / 100) : 6}
         />
-    </>
+    </div>
 }

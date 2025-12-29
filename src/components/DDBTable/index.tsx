@@ -21,7 +21,7 @@ export interface DDBTableProps<T> extends Omit<TableProps<T>, 'title'> {
 }
 
 
-export function DDBTable<T> ({
+export function DDBTable <T> ({
     title, help, buttons, filter_form, pagination, big_title, className,
     ...others
 }: DDBTableProps<T>) {
@@ -41,7 +41,7 @@ export function DDBTable<T> ({
                     :
                         null
                     }
-                    {buttons && <Space size='middle'>{buttons}</Space>}
+                    {buttons && <Space className='ddb-table-buttons' size='middle'>{buttons}</Space>}
                 </div>
                 
                 {filter_form && <div className='ddb-table-filter-form'>{filter_form}</div>}

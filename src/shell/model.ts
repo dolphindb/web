@@ -15,7 +15,7 @@ import { red, blue } from 'xshell/chalk.browser.js'
 
 import {
     DdbForm, SqlStandard, type DdbObj, DdbType, type DdbVectorStringObj, type DdbTableObj,
-    type DdbVectorInt, type DdbVectorLong, 
+    type DdbVectorInt, type DdbVectorLong, DdbFunction, DdbFunctionType
 } from 'dolphindb/browser.js'
 
 
@@ -562,13 +562,15 @@ class ShellModel extends Model<ShellModel> {
         if (model.node.mode !== NodeType.single && !model.has_data_nodes_alive()) 
             return
         
+        const hidable = await this.can_hide_sysdb()
+        
         // ['dfs://数据库路径(可能包含/)/表名', ...]
         // 不能直接使用 getClusterDFSDatabases, 因为新的数据库权限版本 (2.00.9) 之后，用户如果只有表的权限，调用 getClusterDFSDatabases 无法拿到该表对应的数据库
         // 但对于无数据表的数据库，仍然需要通过 getClusterDFSDatabases 来获取。因此要组合使用
         const [table_paths, db_paths, catalog_names, orca_tables] = (await Promise.all([
-            ddb.invoke<string[]>('getClusterDFSTables'),
+            ddb.invoke<string[]>('getClusterDFSTables', hidable ? [false] : undefined),
             // 可能因为用户没有数据库的权限报错，单独 catch 并返回空数组
-            ddb.invoke<string[]>('getClusterDFSDatabases')
+            ddb.invoke<string[]>('getClusterDFSDatabases', hidable ? [false] : undefined)
                 .catch(() => {
                     console.log('load_dbs: getClusterDFSDatabases 错误，可能没有权限')
                     return [ ]
@@ -695,6 +697,17 @@ class ShellModel extends Model<ShellModel> {
         //  }
         
         this.set({ dbs: root })
+    }
+    
+    
+    _can_hide_sysdb?: boolean
+    
+    async can_hide_sysdb () {
+        return this._can_hide_sysdb ??= (
+            await model.ddb.invoke<string>(
+                'syntax', 
+                [new DdbFunction('getClusterDFSTables', DdbFunctionType.SystemFunc)])
+        ).includes('([includeSysTable=')
     }
     
     

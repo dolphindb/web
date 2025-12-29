@@ -280,15 +280,6 @@ function ColumnsTable ({ value = [ ], onChange }) {
     
     const columns = [
         {
-            title: '',
-            key: 'sort',
-            width: 30,
-            render: (text, record, index) => <Space size='small'>
-                    <Button type='text' size='small' onClick={() => { moveColumn(index, -1) }}><UpOutlined/></Button>
-                    <Button type='text' size='small' onClick={() => { moveColumn(index, 1) }}><DownOutlined/></Button>
-                </Space>,
-        },
-        {
             title: t('列名'),
             key: 'name',
             width: 100,
@@ -359,10 +350,15 @@ function ColumnsTable ({ value = [ ], onChange }) {
             title: t('操作'),
             key: 'operation',
             width: 80,
-            render: (text, record, index) => <Button type='text' danger onClick={() => { removeColumn(index) }}>
+            render: (text, record, index) => <Space size='small'>
+                <Button type='text' danger onClick={() => { removeColumn(index) }}>
                     {t('删除')}
-                </Button>,
-        },
+                </Button>
+                
+                <Button type='text' size='small' onClick={() => { moveColumn(index, -1) }}><UpOutlined/></Button>
+                <Button type='text' size='small' onClick={() => { moveColumn(index, 1) }}><DownOutlined/></Button>
+            </Space>
+        }
     ]
     
     return <div>

@@ -1,13 +1,13 @@
 import { Model } from 'react-object-model'
 
-import { DdbInt, DdbVectorString, type DdbCallOptions } from 'dolphindb/browser.js'
+import { DdbInt, DdbVectorString, type DdbCallOptions, urgent } from 'dolphindb/browser.js'
 import { log, to_option } from 'xshell/utils.browser.js'
 
 import { t } from '@i18n'
 
 import { NodeType, model } from '@model'
 
-import { iterator_map, urgent } from '@utils'
+import { iterator_map } from '@utils'
 
 import { _2_strs, get_category } from './utils.ts'
 
@@ -213,7 +213,7 @@ export const node_configs = {
     [t('系统')]: [
         'console', 'config', 'home', 'maxPartitionNumPerQuery', 'mode', 'moduleDir', 'newValuePartitionPolicy', 
         'perfMonitoring', 'pluginDir', 'preloadModules', 'init', 'startup', 'run', 'tzdb', 'webRoot', 'webLoginRequired', 
-        'enableShellFunction', 'enablePKEYEngine'
+        'enableShellFunction', 'enablePKEYEngine', 'enableInsertStatementForDFSTable'
     ],
     [t('计算组')]: [
         'computeNodeCacheDir', 'computeNodeCacheMeta', 'computeNodeMemCacheSize', 'computeNodeDiskCacheSize',

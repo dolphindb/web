@@ -511,12 +511,7 @@
         },
         "markPoint": {
             "label": {
-                "color": "#eee"
-            },
-            "emphasis": {
-                "label": {
-                    "color": "#eee"
-                }
+                "color": "#000"
             }
         },
         "grid": {

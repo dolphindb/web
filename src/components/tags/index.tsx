@@ -24,7 +24,7 @@ export function StatusTag (props: IProps) {
     
     return <Tag 
         {...others} 
-        bordered={false}
+        variant='filled'
         className={cn({
             'ddb-tag': true,
             'ddb-success-tag': status === StatusType.SUCCESS,
@@ -37,5 +37,5 @@ export function StatusTag (props: IProps) {
 
 
 export function DDBTag (props: TagProps) {
-    return <Tag {...props} className='tag ddb-tag' bordered={false}/>
+    return <Tag {...props} className='tag ddb-tag' variant='filled'/>
 }

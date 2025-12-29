@@ -247,7 +247,7 @@ export function convert_chart_config (
 ) {
     const { config } = widget
     
-    const { title, title_size, splitLine, xAxis, series, yAxis, x_datazoom, y_datazoom, legend, animation, tooltip, thresholds = [ ] } = config as IChartConfig
+    const { title, title_size, splitLine, xAxis = { }, series = [ ], yAxis, x_datazoom, y_datazoom, legend, animation, tooltip, thresholds = [ ] } = config as IChartConfig
     
     function convert_data_zoom (x_datazoom: boolean, y_datazoom: boolean) { 
         const total_data_zoom = [
@@ -275,11 +275,11 @@ export function convert_chart_config (
         return data_zoom
     }
     
-    function convert_axis (axis: AxisConfig, index?: number) {
+    function convert_axis (axis: AxisConfig = { type: AxisType.VALUE, name: '', col_name: undefined }, index?: number) {
         const axis_config: echarts.EChartsOption['xAxis'] = {
             show: true,
             name: axis.name,
-            type: axis.type,
+            type: axis.type ?? 'value',
             interval: axis.interval,
             nameLocation: 'middle',
             nameGap: 25,
@@ -485,14 +485,15 @@ export function convert_chart_config (
             } as any
         }
         
+        
     return  {
         animation,
         grid: {
             containLabel: true,
-            left: 15,
-            // 如果 series 中设置了 endLabel，需要增加 right 为 endLabel 预留空间
-            right: series?.find(item => item?.end_label) ? 80 : 15,
-            bottom: x_datazoom ? 50 : 15
+            left: 20,
+            // 如果 series 中设置了 endLabel 或者 markLine，需要增加 right 预留 endLabel 和 markLine 右侧标签的展示空间
+            right: series?.some(item => item?.end_label || !!item?.mark_line?.length) ? 80 : 20,
+            bottom: x_datazoom ? 50 : 20
         },
         legend: pickBy({
             show: true,
@@ -501,7 +502,6 @@ export function convert_chart_config (
                 ...legend?.textStyle,
             },
             ...legend,
-            top: legend?.top ?? 0,
         }, v => !isNil(v) && v !== ''),
         tooltip: {
             show: true,
@@ -523,7 +523,7 @@ export function convert_chart_config (
             left: 0,
         },
         xAxis: convert_axis(xAxis),
-        yAxis: Array.isArray(yAxis) ? yAxis.filter(item => !!item).map(convert_axis) : convert_axis(yAxis),
+        yAxis: Array.isArray(yAxis) ? yAxis.filter(item => !!item).map(convert_axis) : convert_axis(yAxis ?? { }),
         series: echarts_series,
         dataZoom: convert_data_zoom(x_datazoom, y_datazoom)
     } as any as echarts.EChartsOption

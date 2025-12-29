@@ -28,8 +28,7 @@ export function Pie ({ widget, data_source: { data } }: GraphComponentProps) {
                     textStyle: {
                         color: '#e6e6e6'
                     },
-                    ...legend,
-                    top: legend?.top ?? 0,
+                    ...legend
                 }, v => !isNil(v) && v !== ''),
                 tooltip: {
                     show: tooltip?.show ?? true,
@@ -72,7 +71,7 @@ export function Pie ({ widget, data_source: { data } }: GraphComponentProps) {
         [title, animation, series, title_size, data, legend, tooltip]
     )
     
-    return <DashboardEchartsComponent options={options} lazy_update />
+    return <DashboardEchartsComponent options={options} lazy_update not_merge />
 }
 
 export function PieConfigForm ({ data_source: { cols } }: GraphConfigProps) {

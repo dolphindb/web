@@ -10,10 +10,9 @@ interface ResetPasswordModalProps extends NiceModalHocProps {
 }
 
 export const ResetPasswordModal = NiceModal.create<ResetPasswordModalProps>(({ name }) => {
-    
     const modal = useModal()
     
-    const [reset_password_form] = Form.useForm()
+    let [reset_password_form] = Form.useForm()
     
     return <Modal
             className='edit-user-modal'
@@ -44,9 +43,7 @@ export const ResetPasswordModal = NiceModal.create<ResetPasswordModalProps>(({ n
                     name='password'
                     rules={[
                         { required: true, message: t('请输入密码!') },
-                        { min: 6, message: t('密码长度为 6-20 个字符，且不包含空格或中文') },
-                        { max: 20, message: t('密码长度为 6-20 个字符，且不包含空格或中文') },
-                        { pattern: /^[^\s\u4E00-\u9FFF]+$/, message: t('密码长度为 6-20 个字符，且不包含空格或中文') }
+                        { type: 'string', min: 6, max: 20, pattern: /^[^\s\u4E00-\u9FFF]+$/, message: t('密码长度为 6-20 个字符，且不包含空格或中文') }
                     ]}
                 >
                     <Input.Password />

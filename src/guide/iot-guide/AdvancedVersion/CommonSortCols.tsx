@@ -19,7 +19,6 @@ export function CommonSortCols (props: IProps) {
     
     const form = Form.useFormInstance()
     
-    
     const validator = useCallback(async (_, value) => { 
         const other_sortkey_info = form.getFieldValue('otherSortKeyInfo') ?? [ ]
         const name_list = other_sortkey_info.map(item => item?.colName)

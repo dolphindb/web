@@ -2,8 +2,8 @@ import './index.sass'
 
 import { useCallback, useMemo, useState } from 'react'
 
-import { CheckCircleFilled, DeleteOutlined, MinusCircleFilled, PlusOutlined, ReloadOutlined, SearchOutlined } from '@ant-design/icons'
-import { Button, Input, Popconfirm, Typography, type TableColumnType } from 'antd'
+import { CheckCircleFilled, DeleteOutlined, MinusCircleFilled, PlusOutlined, SearchOutlined } from '@ant-design/icons'
+import { Button, Flex, Input, Popconfirm, Typography, type TableColumnType } from 'antd'
 
 import NiceModal from '@ebay/nice-modal-react'
 
@@ -145,14 +145,12 @@ export function UserList () {
                 key: current_user.userId,
                 user_name: current_user.userId,
                 is_admin: current_user.isAdmin ? <CheckCircleFilled className='green' /> : <MinusCircleFilled className='gray' />,
-                groups: (
-                    <div>
-                        {current_user.groups &&
-                            current_user.groups.split(',').map((group: string) => <DDBTag key={group}>
-                                {group}
-                            </DDBTag>)}
-                    </div>
-                ),
+                
+                groups: Boolean(current_user.groups) && <Flex gap='small' align='center'>{
+                    current_user.groups.split(',').map((group: string) => 
+                        <DDBTag key={group}>{group}</DDBTag>)
+                }</Flex>,
+                
                 actions: (
                     <TableOperations className='actions'>
                         <Typography.Link

@@ -39,7 +39,7 @@ export function DashboardEchartsComponent (props: IProps) {
                 options,  
                 { 
                     replaceMerge: replace_merge, 
-                    notMerge: not_merge,
+                    notMerge: not_merge ?? true,
                     lazyUpdate: lazy_update
                 }
             )

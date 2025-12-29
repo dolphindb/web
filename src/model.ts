@@ -15,14 +15,14 @@ import { storage } from 'xshell/storage.js'
 
 import {
     DDB, DdbObj, SqlStandard, DdbInt, DdbLong, type InspectOptions,
-    DdbDatabaseError, DdbDict
+    DdbDatabaseError, DdbDict, urgent
 } from 'dolphindb/browser.js'
 
 import type { Docs } from 'dolphindb/docs.js'
 
 import { language, t } from '@i18n'
 
-import { goto_url, strip_quotes, urgent } from '@utils'
+import { goto_url, strip_quotes } from '@utils'
    
 import type { FormatErrorOptions } from '@components/GlobalErrorBoundary.tsx'
 import { config } from '@/config/model.ts'
@@ -426,7 +426,7 @@ export class DdbModel extends Model<DdbModel> {
         this.ddb.username = username
         this.ddb.password = password
         
-        await this.ddb.invoke('login', [username, password], { urgent: true })
+        await this.ddb.invoke('login', [username, password], urgent)
         
         await this.update_user()
         
@@ -445,7 +445,7 @@ export class DdbModel extends Model<DdbModel> {
             throw new Error(t('没有自动登录的 username'))
         
         try {
-            await this.ddb.invoke('authenticateByTicket', [ticket], { urgent: true })
+            await this.ddb.login_by_ticket(ticket)
             
             await this.update_user({
                 ticket,
@@ -672,7 +672,7 @@ export class DdbModel extends Model<DdbModel> {
         this.set({ logined, username, admin })
         
         if (logined) {
-            ticket ||= await this.ddb.invoke<string>('getAuthenticatedUserTicket', undefined, {
+            this.ddb.ticket = ticket ||= await this.ddb.invoke<string>('getAuthenticatedUserTicket', undefined, {
                 urgent: true,
                 ... this.node_type === NodeType.controller || this.node_type === NodeType.single 
                     ? undefined

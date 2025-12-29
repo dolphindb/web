@@ -188,60 +188,61 @@ export function AccessManage ({ role, name, category }: { role: AccessRole, name
     ), [search_key, access_rules])
     
     return <DDBTable
-            rowSelection={{
-                selectedRowKeys: selected_access.map(ac => ac.key),
-                onChange: (_, selectedRows: any[], info) => {
-                    if (info.type === 'all')
-                        return
-                    set_selected_access(selectedRows)
-                },
-                onSelectAll () {
-                    const all_access = filtered_rules
-                    if (selected_access.length < all_access.length)
-                        set_selected_access(all_access)
-                    else
-                        set_selected_access([ ])
-                }
-            }}
-            // buttons={<AccessHeader
-            //     role={role}
-            //     name={name}
-            //     category={category}
-            //     preview={false}
-            //     search_key={search_key}
-            //     set_search_key={set_search_key}
-            //     add_open={async () => NiceModal.show(AccessAddModal, { category, role, name })}
-            //     delete_open={async () => NiceModal.show(AccessRevokeModal, { category, selected_access, reset_selected, name, update_accesses })}
-            //     selected_length={selected_access.length}
-            // />}
-            buttons={ <>
-                <Button 
-                    type='primary' 
-                    icon={<PlusOutlined />} 
-                    onClick={async () => NiceModal.show(AccessAddModal, { category, role, name })}>
-                    {t('新增权限')}
-                </Button>
-                <Button
-                    danger
-                    icon={<DeleteOutlined />}
-                    disabled={selected_access.length === 0}
-                    onClick={() => {
-                        if (selected_access.length)
-                            NiceModal.show(AccessRevokeModal, { category, selected_access, reset_selected, name, update_accesses })
-                    }}
-                >
-                    {t('批量撤销')}
-                </Button>
-            </>}
-            filter_form={<Input.Search
-                value={input_value}
-                onChange={e => {
-                    set_input_value(e.target.value)
+        title={t('设置权限')}
+        rowSelection={{
+            selectedRowKeys: selected_access.map(ac => ac.key),
+            onChange: (_, selectedRows: any[], info) => {
+                if (info.type === 'all')
+                    return
+                set_selected_access(selectedRows)
+            },
+            onSelectAll () {
+                const all_access = filtered_rules
+                if (selected_access.length < all_access.length)
+                    set_selected_access(all_access)
+                else
+                    set_selected_access([ ])
+            }
+        }}
+        // buttons={<AccessHeader
+        //     role={role}
+        //     name={name}
+        //     category={category}
+        //     preview={false}
+        //     search_key={search_key}
+        //     set_search_key={set_search_key}
+        //     add_open={async () => NiceModal.show(AccessAddModal, { category, role, name })}
+        //     delete_open={async () => NiceModal.show(AccessRevokeModal, { category, selected_access, reset_selected, name, update_accesses })}
+        //     selected_length={selected_access.length}
+        // />}
+        buttons={ <>
+            <Button 
+                type='primary' 
+                icon={<PlusOutlined />} 
+                onClick={async () => NiceModal.show(AccessAddModal, { category, role, name })}>
+                {t('新增权限')}
+            </Button>
+            <Button
+                danger
+                icon={<DeleteOutlined />}
+                disabled={selected_access.length === 0}
+                onClick={() => {
+                    if (selected_access.length)
+                        NiceModal.show(AccessRevokeModal, { category, selected_access, reset_selected, name, update_accesses })
                 }}
-                onSearch={() => { set_search_key(input_value) }}
-                placeholder={t('请输入想要搜索的{{category}}', { category: category === 'database' && v3 ? `${TABLE_NAMES.catalog} / ${TABLE_NAMES.database} / ${TABLE_NAMES.table}` : TABLE_NAMES[category] })}
-            />}
-            columns={showed_aces_cols}
-            dataSource={filtered_rules}
-        />
+            >
+                {t('批量撤销')}
+            </Button>
+        </>}
+        filter_form={<Input.Search
+            value={input_value}
+            onChange={e => {
+                set_input_value(e.target.value)
+            }}
+            onSearch={() => { set_search_key(input_value) }}
+            placeholder={t('请输入想要搜索的{{category}}', { category: category === 'database' && v3 ? `${TABLE_NAMES.catalog} / ${TABLE_NAMES.database} / ${TABLE_NAMES.table}` : TABLE_NAMES[category] })}
+        />}
+        columns={showed_aces_cols}
+        dataSource={filtered_rules}
+    />
 }

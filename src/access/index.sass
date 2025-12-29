@@ -41,6 +41,9 @@
         .ant-tabs-tab-btn
             font-size: 16px
             
+    .access-tabs
+        --ant-tabs-horizontal-margin: 0px
+    
     .switch-user
         font-size: 16px
         font-weight: 600
@@ -64,6 +67,7 @@
 .user-group-modal
     .ant-modal-header
         margin-bottom: 20px
+    
     .blue
         color: var(--ant-color-primary)
            
@@ -98,12 +102,13 @@
                 
        
 .add-group-modal, .user-group-modal
-    width: 800px !important
     .ant-transfer
-        margin: 20px 0px
         display: flex
         justify-content: center
-        .ant-transfer-list
+        
+        .ant-transfer-section
+            width: unset
             height: 500px
-            width: 100%
+            flex-grow: 1
+        
             

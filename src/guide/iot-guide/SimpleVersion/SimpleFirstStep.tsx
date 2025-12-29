@@ -43,9 +43,9 @@ export function SimpleFirstStep (props: IProps) {
         >
             <BasicInfoFields type={GuideType.SIMPLE} />
         </Form>
+        
         <BottomFixedFooter>
             <Button loading={loading} type='primary' onClick={form.submit}>{t('生成脚本')}</Button>
         </BottomFixedFooter>
-        
     </>
 }

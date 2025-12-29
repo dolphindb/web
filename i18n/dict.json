@@ -6682,5 +6682,8 @@
     },
     "OAuth 登录": {
         "en": "OAuth Login"
+    },
+    "确认删除流图 {{name}} 吗？\n此操作不可恢复。": {
+        "en": "Confirm deletion of stream graph {{name}}? \nThis operation is irreversible."
     }
 }

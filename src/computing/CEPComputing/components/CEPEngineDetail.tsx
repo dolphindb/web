@@ -181,8 +181,6 @@ function EngineInfo ({ info }: { info: ICEPEngineDetail }) {
 
 
 function DataView ({ info }: { info: ICEPEngineDetail }) {
-    
-    const { ddb: { username, password } } = model
     // 缓存连接，每次选择 dataview 的时候新建连接，订阅 dataview 的流表，切换的时候关闭
     const subscribe_ref = useRef<{
         ddb: DDB
@@ -232,8 +230,11 @@ function DataView ({ info }: { info: ICEPEngineDetail }) {
     
     async function subscribe_streaming_table (streaming_table: string) { 
         subscribe_ref.current?.ddb?.disconnect()
-        const cep_streaming_ddb = new DDB(model.ddb.url, {
-            autologin: !!username,
+        
+        const { ddb: { url, username, password, ticket } } = model
+        
+        const cep_streaming_ddb = new DDB(url, {
+            ticket,
             username,
             password,
             streaming: {

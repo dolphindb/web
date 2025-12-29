@@ -349,32 +349,15 @@ export async function execute (source_id: string) {
 
 
 async function create_sql_connection (): Promise<DDB> {
-    const params = new URLSearchParams(location.search)
-    const connection = new DDB(
-        (model.dev ? (params.get('tls') === '1' ? 'wss' : 'ws') : (location.protocol === 'https:' ? 'wss' : 'ws')) +
-            '://' + model.hostname +
-            
-            // model.port 可能是空字符串
-            (model.port ? `:${model.port}` : '') +
-            
-            // 检测 ddb 是否通过 nginx 代理，部署在子路径下
-            (location.pathname === '/dolphindb/' ? '/dolphindb/' : ''),
-        {
-            autologin: false,
-            verbose: model.verbose,
-            sql: model.sql
-        }
-    )
+    const { ddb: { url, username, password, ticket } } = model
     
-    await connection.connect()
-    const ticket = localStorage.getItem(storage_keys.ticket)
-    if (ticket)
-        await connection.call('authenticateByTicket', [ticket], { urgent: true })
-    else {
-        const { ddb: { username, password } } = model
-        await connection.call('login', [username, password], { urgent: true })
-    }
-    return connection
+    return new DDB(url, {
+        verbose: model.verbose,
+        sql: model.sql,
+        ticket,
+        username,
+        password
+    })
 }
 
 
@@ -394,7 +377,6 @@ async function subscribe_stream (data_source: DataSource) {
     clear_data_source(data_source)
     
     try {
-        const { ddb: { username, password } } = model
         let column: DdbObj<DdbValue>
         if (data_source.filter_column) {
             const { type, result } = await dashboard.execute_code(parse_code(data_source.filter_column, data_source))
@@ -405,11 +387,15 @@ async function subscribe_stream (data_source: DataSource) {
                 throw new Error(result as string)
         }
         
-        const stream_connection = new DDB(
-            (location.protocol === 'https:' ? 'wss' : 'ws') + '://' + data_source.ip,
+        // 这里连接的节点 ip 是集群内的，ticket 能使用
+        const { ddb: { username, password, ticket } } = model
+        
+        let sddb = new DDB(
+            `ws${location.protocol === 'https:' ? 's' : ''}://${data_source.ip}`,
             {
                 username,
                 password,
+                ticket,
                 streaming: {
                     table: data_source.stream_table,
                     filters: data_source.filter
@@ -433,10 +419,11 @@ async function subscribe_stream (data_source: DataSource) {
                         }   
                     }
                 }
-            }
-        )
-        await stream_connection.connect()
-        data_source.set({ data: [ ], cols: await get_stream_cols(data_source.stream_table), ddb: stream_connection })
+            })
+        
+        await sddb.connect()
+        
+        data_source.set({ data: [ ], cols: await get_stream_cols(data_source.stream_table), ddb: sddb })
     } catch (error) {
         console.error(error)
         dashboard.message.error(`${t('无法订阅到流数据表')} ${data_source.stream_table} (${error.message})`)
