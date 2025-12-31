@@ -571,14 +571,14 @@ class ShellModel extends Model<ShellModel> {
             ddb.invoke<string[]>('getClusterDFSTables', hidable ? [false] : undefined),
             // 可能因为用户没有数据库的权限报错，单独 catch 并返回空数组
             ddb.invoke<string[]>('getClusterDFSDatabases', hidable ? [false] : undefined)
-                .catch(() => {
-                    console.log('load_dbs: getClusterDFSDatabases 错误，可能没有权限')
+                .catch((error) => {
+                    console.log('load_dbs: getClusterDFSDatabases 错误，可能没有权限，忽略:', error.message)
                     return [ ]
                 }),
             ...v3 ? [
                 ddb.invoke<string[]>('getAllCatalogs'),
-                lineage.get_tables().catch(() => {
-                    console.log('getOrcaStreamTableMeta 错误，忽略')
+                lineage.get_tables().catch((error) => {
+                    console.log('getOrcaStreamTableMeta 错误，忽略:', error.message)
                     return [ ]
                 })
             ] : [ ]
@@ -605,9 +605,6 @@ class ShellModel extends Model<ShellModel> {
         //     'dfs://group_with_slash/g1.sg1.db1/tb1'
         // ]
         
-        // 将 db_paths 和 table_paths 合并到 merged_paths 中。db_paths 内可能存在 table_paths 中没有的 db，例如能查到无表的库
-        // 需要手动为 db_paths 中的每个路径加上斜杠结尾
-        const merged_paths = db_paths.map(path => `${path}/`).concat(table_paths).sort()
         
         // 假定所有的 table_name 值都不会以 / 结尾
         // 库和表之间以最后一个 / 隔开。表名不可能有 /
@@ -644,7 +641,14 @@ class ShellModel extends Model<ShellModel> {
             })
         }
         
-        for (const path of merged_paths) {
+        // 将 db_paths 和 table_paths 合并到 merged_paths 中。db_paths 内可能存在 table_paths 中没有的 db，例如能查到无表的库
+        // 需要手动为 db_paths 中的每个路径加上斜杠结尾
+        for (
+            const path of [
+                ... db_paths.map(path => `${path}/`),
+                ... table_paths
+            ].sort()
+        ) {
             // 找到数据库最后一个斜杠位置，截取前面部分的字符串作为库名
             const index_slash = path.lastIndexOf('/')
             
