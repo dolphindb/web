@@ -10,13 +10,12 @@ interface IProps {
     options: echarts.EChartsOption
     on_chart_ready?: (chart: echarts.ECharts) => void
     not_merge?: boolean
-    lazy_update?: boolean
     replace_merge?: string | string[]
 }
 
 
 export function DashboardEchartsComponent (props: IProps) {
-    const { options, on_chart_ready, not_merge, lazy_update, replace_merge } = props
+    const { options, on_chart_ready, not_merge, replace_merge } = props
     const div_ref = useRef<HTMLDivElement>(null)
     
     const wrapper_size = useSize(div_ref)
@@ -40,7 +39,6 @@ export function DashboardEchartsComponent (props: IProps) {
                 { 
                     replaceMerge: replace_merge, 
                     notMerge: not_merge ?? true,
-                    lazyUpdate: lazy_update
                 }
             )
     }, [options])
