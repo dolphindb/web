@@ -149,7 +149,6 @@ export function HeatMap ({ widget }: GraphComponentProps) {
         } as echarts.EChartsOption
     }, [widget.config, data])
     
-    console.log(option, 'optioons')
     
     return <DashboardEchartsComponent options={option} not_merge/>
 }

@@ -73,7 +73,7 @@ export function Radar ({ widget, data_source: { data } }: GraphComponentProps) {
         [title, tooltip, series, title_size, labels, data, legend]
     )
     
-    return <DashboardEchartsComponent options={option} lazy_update />
+    return <DashboardEchartsComponent options={option} />
 }
 
 

@@ -224,7 +224,7 @@ export function OHLC ({ widget, data_source: { data: _data } }: GraphComponentPr
                     name: xAxis.name,
                     data: data.categoryData,
                     
-                    boundaryGap: false,
+                    boundaryGap: true,
                     axisLine: { onZero: false },
                     splitLine: { show: true, ...splitLine },
                     nameTextStyle: {
@@ -252,7 +252,7 @@ export function OHLC ({ widget, data_source: { data: _data } }: GraphComponentPr
                         fontSize: xAxis?.fontsize ?? 12
                     },
                     // data: data.categoryData,
-                    boundaryGap: false,
+                    boundaryGap: true,
                     // axisLine: { onZero: false },
                     // axisTick: { show: false },
                     // splitLine: { show: false },
