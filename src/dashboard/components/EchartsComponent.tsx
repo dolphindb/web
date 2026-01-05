@@ -15,7 +15,7 @@ interface IProps {
 
 
 export function DashboardEchartsComponent (props: IProps) {
-    const { options, on_chart_ready, not_merge, replace_merge } = props
+    const { options, on_chart_ready, not_merge = true, replace_merge } = props
     const div_ref = useRef<HTMLDivElement>(null)
     
     const wrapper_size = useSize(div_ref)
@@ -24,7 +24,7 @@ export function DashboardEchartsComponent (props: IProps) {
     
     /** echarts 父级元素高度不定会使得图表无法填满整个空间，需要监听父元素高度，resize 图表 */
     useEffect(() => {
-        chart_ref?.current?.resize()
+        chart_ref.current?.resize()
     }, [wrapper_size])
     
     
@@ -38,7 +38,7 @@ export function DashboardEchartsComponent (props: IProps) {
                 options,  
                 { 
                     replaceMerge: replace_merge, 
-                    notMerge: not_merge ?? true,
+                    notMerge: not_merge,
                 }
             )
     }, [options])

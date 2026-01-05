@@ -19,6 +19,7 @@ import { BasicFormFields } from './ChartFormFields/BasicFormFields.tsx'
 import { CompositeChart } from './Charts/CompositeGraph/index.tsx'
 import { CompositeChartConfig } from './Charts/CompositeGraph/CompositeChartConfig.tsx'
 import { Configuration, ConfigurationConfig } from './Charts/Configuration/index.tsx'
+import { Surface, SurfaceConfig } from './Charts/Surface/index.tsx'
 
 
 export const graphs: {
@@ -93,6 +94,10 @@ export const graphs: {
     [WidgetChartType.CONFIGURATION]: {
         component: Configuration,
         config: ConfigurationConfig
+    },
+    [WidgetChartType.SURFACE]: {
+        component: Surface,
+        config: SurfaceConfig
     }
 }
 

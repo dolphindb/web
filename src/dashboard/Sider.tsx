@@ -2,9 +2,10 @@ import { useState } from 'react'
 import {
     BarChartOutlined, BarsOutlined, BoxPlotOutlined, DoubleLeftOutlined, DoubleRightOutlined,
     FileTextOutlined, FundOutlined, HeatMapOutlined, LineChartOutlined, PieChartOutlined, TableOutlined,
-    CodeOutlined, CompassOutlined, FunctionOutlined, DotChartOutlined,  RadarChartOutlined, WindowsOutlined,
-    GoldOutlined, GatewayOutlined,
+    CodeOutlined, CompassOutlined, FunctionOutlined, DotChartOutlined,  RadarChartOutlined,
+    WindowsOutlined, GoldOutlined, GatewayOutlined,
 } from '@ant-design/icons'
+import { ChartAreaIcon } from 'lucide-react'
 
 import { language } from 'xshell/i18n/instance.js'
 
@@ -33,6 +34,7 @@ const icons = {
     [WidgetType.HEATMAP]: <WindowsOutlined className='icon' />,
     [WidgetType.COMPOSITE_GRAPH]: <GoldOutlined className='icon'/>,
     [WidgetType.CONFIGURATION]: <GatewayOutlined className='icon' />,
+    [WidgetType.SURFACE]: <ChartAreaIcon className='icon' />,
 }
 
 

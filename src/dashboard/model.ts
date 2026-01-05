@@ -662,6 +662,7 @@ export enum WidgetType {
     COMPOSITE_GRAPH = '多源图',
     HEATMAP = '热力图',
     CONFIGURATION = '组态图',
+    SURFACE = '曲面图'
 }
 
 export enum WidgetChartType { 
@@ -682,6 +683,7 @@ export enum WidgetChartType {
     HEATMAP = 'HEATMAP',
     COMPOSITE_GRAPH = 'COMPOSITE_GRAPH',
     CONFIGURATION = 'CONFIGURATION',
+    SURFACE = 'SURFACE'
 }
 
 export enum DashboardPermission {

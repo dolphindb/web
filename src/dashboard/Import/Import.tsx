@@ -31,31 +31,32 @@ export function Import ({ type }: { type: 'icon' | 'button' }) {
     
     const triggers = {
         button: <Upload
+                accept='.json'
+                multiple
+                showUploadList={false}
+                beforeUpload={(file, fileList) => { 
+                    set_file_list(fileList) 
+                    confirm_open()
+                }}
+            >
+                <Button icon={<ImportOutlined />}>{t('批量导入')}</Button>
+            </Upload>,
+        
+        icon: <Tooltip title={t('导入')}>
+                <Upload
                     accept='.json'
-                    multiple
                     showUploadList={false}
                     beforeUpload={(file, fileList) => { 
                         set_file_list(fileList) 
                         confirm_open()
                     }}
+                    customRequest={noop}
                 >
-                    <Button icon={<ImportOutlined />}>{t('批量导入')}</Button>
-                </Upload>,
-        icon: <Tooltip title={t('导入')}>
-                    <Upload
-                        accept='.json'
-                        showUploadList={false}
-                        beforeUpload={(file, fileList) => { 
-                            set_file_list(fileList) 
-                            confirm_open()
-                        }}
-                        customRequest={noop}
-                    >
-                        <Button className='action'>
-                            <ImportOutlined />
-                        </Button>
-                    </Upload>
-                </Tooltip>
+                    <Button className='action'>
+                        <ImportOutlined />
+                    </Button>
+                </Upload>
+            </Tooltip>
     }
     
     return <>

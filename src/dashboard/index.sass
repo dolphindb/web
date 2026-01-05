@@ -1,6 +1,6 @@
-$canvas_back_color: rgb(40, 40, 40)
-$font_color: rgb(215, 215, 215)
-$blue: rgb(22, 104, 220)
+$canvas_back_color: #282828
+$font_color: #d7d7d7
+$blue: #1668dc
 $border_color: #333333
   
     
@@ -28,6 +28,11 @@ $border_color: #333333
     flex-direction: column
     min-width: 1400px
     
+    --canvas-back-color: #{$canvas_back_color}
+    --font-color: #{$font_color}
+    --blue: #{$blue}
+    --border-color: #{$border_color}
+    
     .dashboard-main
         flex: 1
         display: flex
@@ -42,7 +47,7 @@ $border_color: #333333
         
         .dashboard-canvas
             flex-grow: 1
-            background-color: $canvas_back_color
+            background-color: var(--canvas-back-color)
             // 在 grid stack 的外层提供滚动，防止滚动变得奇怪
             overflow-y: auto
             
@@ -50,7 +55,7 @@ $border_color: #333333
                 height: 100%
                 overflow: hidden
                 min-height: 0 !important
-                background-image: radial-gradient(circle at top left, $border_color 2px, transparent 2px),radial-gradient(circle at top right, $border_color 2px, transparent 2px),radial-gradient(circle at bottom left, $border_color 2px, transparent 2px),radial-gradient(circle at bottom right, $border_color 2px, transparent 2px)
+                background-image: radial-gradient(circle at top left, var(--border-color) 2px, transparent 2px), radial-gradient(circle at top right, var(--border-color) 2px, transparent 2px), radial-gradient(circle at bottom left, var(--border-color) 2px, transparent 2px), radial-gradient(circle at bottom right, var(--border-color) 2px, transparent 2px)
                 
                 .grid-stack-item-content
                     background-color: #282828
@@ -76,14 +81,14 @@ $border_color: #333333
                             width: 90%
                             height: 50px
                             text-align: center
-                            color: $font_color
-                            border: 2px $blue solid
+                            color: var(--font-color)
+                            border: 2px var(--blue) solid
                             background-color: rgba(255, 255, 255, 0.2)
                             cursor: pointer
                 
                 .grid-stack-item-active
                     z-index: 100
-                    outline: solid 1px $blue
+                    outline: solid 1px var(--blue)
                     background-color: #1d1d1d
                 
                 
@@ -96,22 +101,22 @@ $border_color: #333333
                         position: absolute
                         text-align: end
                         padding: 0 12px
-                        color: $font_color
+                        color: var(--font-color)
                         z-index: 999
                         &.with-edit-btn
                             background-color: rgba(80,80,80,0.2)
                     .drag-icon
                         width: 10px
                         height: 10px
-                        border-bottom: 3px solid $font_color
-                        border-right: 3px solid $font_color
+                        border-bottom: 3px solid var(--font-color)
+                        border-right: 3px solid var(--font-color)
                         position: absolute
                         right: 5px
                         bottom: 5px
                         
                     .drag-icon:hover
-                        border-bottom: 3px solid $blue
-                        border-right: 3px solid $blue
+                        border-bottom: 3px solid var(--blue)
+                        border-right: 3px solid var(--blue)
                 
                 
                 // 去除原来的拖拽图标
@@ -123,7 +128,7 @@ $border_color: #333333
             width: 100px
             margin-top: 0px
             background: #303030
-            color: $font_color
+            color: var(--font-color)
             
             display: flex
             flex-direction: column
@@ -142,14 +147,19 @@ $border_color: #333333
                 line-height: 50px
                 border: 1px solid transparent
                 display: flex
+                align-items: center
                 
                 padding-left: 12px
                 
                 &:hover
-                    border: 1px $blue solid
+                    border: 1px var(--blue) solid
                 
                 .icon
                     font-size: 16px
+                    
+                .lucide
+                    width: 16px
+                    height: 16px
                 
                 .name
                     flex-grow: 1
@@ -167,7 +177,7 @@ $border_color: #333333
                 cursor: pointer
                 
                 &:hover
-                    background-color: $blue
+                    background-color: var(--blue)
                 
         .dashboard-settings-panel
             width: 320px
