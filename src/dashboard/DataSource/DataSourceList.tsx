@@ -1,5 +1,8 @@
 import { type RefObject, type ReactNode, createElement, useEffect, useRef, useState, useMemo, useCallback } from 'react'
+
 import { Form, Input, Modal, Popconfirm, Radio, Tag, Tree, Typography } from 'antd'
+const { Link } = Typography
+
 import { CopyOutlined, DatabaseOutlined, DeleteOutlined, EditOutlined, FileOutlined } from '@ant-design/icons'
 
 import NiceModal, { useModal } from '@ebay/nice-modal-react'
@@ -10,35 +13,17 @@ import { type Widget, WidgetChartType, dashboard } from '../model.js'
 import { DATA_SOURCE_TYPE_MAP } from '../constant.js'
 import { get_chart_data_type } from '../utils.ts'
 
-import { create_data_source, data_sources, delete_data_source, rename_data_source, type DataSource, type DataSourcePropertyType, copy_data_source, paste_data_source } from './date-source.js'
+import {
+    create_data_source, data_sources, delete_data_source, rename_data_source, type DataSource, 
+    type DataSourcePropertyType, copy_data_source, paste_data_source
+} from './date-source.js'
 
-
-interface PropsType {
-    widget: Widget
-    loading: boolean
-    current_data_source: DataSource
-    no_save_flag: RefObject<boolean>
-    save_confirm: () => {
-        destroy: () => void
-        update: (configUpdate: any) => void
-    } & {
-        then<T>(resolve: (confirmed: boolean) => T, reject: VoidFunction): Promise<T>
-    }
-    handle_save: () => Promise<void>
-    change_current_data_source: (key: string) => void
-    change_current_data_source_property: (key: string, value: DataSourcePropertyType, save_confirm?: boolean) => void
-    on_select: (keys: string[] | string) => void
-}
 
 interface MenuItemType {
     key: string
     icon: ReactNode
     title: ReactNode
     disabled: boolean
-}
-
-interface ICreateDataSourceModalProps { 
-    on_after_create: (new_data_source: DataSource) => void
 }
 
 
@@ -54,59 +39,60 @@ function generate_tree_item (data_source: DataSource, widget?: Widget): MenuItem
     }
 }
 
-export const CreateDataSourceModal = NiceModal.create((props: ICreateDataSourceModalProps) => {
-    
-    const { on_after_create } = props
-    const modal = useModal()
-    const [form] = Form.useForm()
-    
-    const on_create = useCallback(async () => {
-        try {
-            await form.validateFields()
-        } catch { 
-           return
-        }
-        const { name, type } = await form.getFieldsValue()
-        const new_data_source = create_data_source(name, type)
-        on_after_create(new_data_source)
-        modal.hide()
-     }, [on_after_create])
-    
-    
-    return <Modal
-        destroyOnHidden
-        open={modal.visible}
-        maskClosable={false}
-        onCancel={modal.hide}
-        afterClose={modal.remove}
-        onOk={on_create}
-        title={t('创建数据源')}
-    >
-        <Form validateTrigger={['onCompositionEnd']} autoComplete='off' form={form}  labelCol={{ span: 6 }}>
-            <Form.Item label={t('名称')} name='name'
-                rules={
-                    [
-                        { required: true, message: '请输入名称' },
-                        {
-                            async validator (_, val) {
-                                if (data_sources.find(data_source => data_source.name === val))
-                                    throw new Error(t('已有同名数据源，请修改'))
+export const CreateDataSourceModal = NiceModal.create(
+    ({ on_after_create }: { on_after_create: (new_data_source: DataSource) => void }) => {
+        const modal = useModal()
+        
+        const [form] = Form.useForm()
+        
+        const on_create = useCallback(async () => {
+            try {
+                await form.validateFields()
+            } catch { 
+            return
+            }
+            const { name, type } = await form.getFieldsValue()
+            const new_data_source = create_data_source(name, type)
+            on_after_create(new_data_source)
+            modal.hide()
+        }, [on_after_create])
+        
+        
+        return <Modal
+            destroyOnHidden
+            open={modal.visible}
+            maskClosable={false}
+            onCancel={modal.hide}
+            afterClose={modal.remove}
+            onOk={on_create}
+            title={t('创建数据源')}
+        >
+            <Form validateTrigger={['onCompositionEnd']} autoComplete='off' form={form}  labelCol={{ span: 6 }}>
+                <Form.Item label={t('名称')} name='name'
+                    rules={
+                        [
+                            { required: true, message: '请输入名称' },
+                            {
+                                async validator (_, val) {
+                                    if (data_sources.find(data_source => data_source.name === val))
+                                        throw new Error(t('已有同名数据源，请修改'))
+                                }
                             }
-                        }
-                    ]
-                }
-            >
-                <Input placeholder={t('请输入数据源的名称')} />
-            </Form.Item>
-            <Form.Item label={t('数据类型')} name='type' initialValue={DdbForm.table} required>
-                <Radio.Group>
-                    <Radio value={DdbForm.table}>{DATA_SOURCE_TYPE_MAP[DdbForm.table]}</Radio>
-                    <Radio value={DdbForm.matrix}>{DATA_SOURCE_TYPE_MAP[DdbForm.matrix]}</Radio>
-                </Radio.Group>
-            </Form.Item>
-        </Form>
-    </Modal>
+                        ]
+                    }
+                >
+                    <Input placeholder={t('请输入数据源的名称')} />
+                </Form.Item>
+                <Form.Item label={t('数据类型')} name='type' initialValue={DdbForm.table} required>
+                    <Radio.Group>
+                        <Radio value={DdbForm.table}>{DATA_SOURCE_TYPE_MAP[DdbForm.table]}</Radio>
+                        <Radio value={DdbForm.matrix}>{DATA_SOURCE_TYPE_MAP[DdbForm.matrix]}</Radio>
+                    </Radio.Group>
+                </Form.Item>
+            </Form>
+        </Modal>
 })
+
 
 export function DataSourceList ({
     widget,
@@ -118,8 +104,22 @@ export function DataSourceList ({
     change_current_data_source,
     change_current_data_source_property,
     on_select
-}: PropsType) {
-    
+}: {
+    widget: Widget
+    loading: boolean
+    current_data_source: DataSource
+    no_save_flag: RefObject<boolean>
+    save_confirm: () => {
+        destroy: () => void
+        update: (configUpdate: any) => void
+    } & {
+        then<T>(resolve: (confirmed: boolean) => T, reject: VoidFunction): Promise<T>
+    }
+    handle_save: () => Promise<void>
+    change_current_data_source: (key: string) => void
+    change_current_data_source_property: (key: string, value: DataSourcePropertyType, save_confirm?: boolean) => void
+    on_select: (keys: string[] | string) => void
+}) {
     // 当前 check 的 datasource
     const [checked_keys, set_checked_keys] = useState<string[]>(widget?.source_id ?? [ ])
     
@@ -189,116 +189,117 @@ export function DataSourceList ({
         change_current_data_source(new_data_source.id)
     }, [menu_items, widget])
     
-    return <>
-            <div className='config-data-source-list'>
-                <div className='data-source-list-top'>
-                    <Typography.Link
-                        className='data-source-list-top-item'
-                        onClick={async () => {
-                            if (loading)
-                                return
-                            
-                            if (no_save_flag.current && (await save_confirm()))  
-                                await handle_save()
-                            
-                            no_save_flag.current = false
-                            
-                            await NiceModal.show('dashboard-create-datasource-modal', { on_after_create })
-                        }}
-                    >
-                        <FileOutlined className='data-source-list-top-item-icon' />
-                        {t('新建')}
-                    </Typography.Link>
+    return <div className='config-data-source-list'>
+        <div className='data-source-list-top'>
+            <Link
+                className='data-source-list-top-item'
+                onClick={async () => {
+                    if (loading)
+                        return
                     
-                    <CreateDataSourceModal id='dashboard-create-datasource-modal' on_after_create={on_after_create} />
+                    if (no_save_flag.current && (await save_confirm()))  
+                        await handle_save()
                     
-                    <Typography.Link
-                        disabled={!current_data_source}
-                        className='data-source-list-top-item'
-                        onClick={() => {
-                            if (loading)
-                                return
-                            if (current_data_source)
-                                rename_data_source_handler(menu_items, current_data_source.id, current_data_source.name)
-                        }}
-                    >
-                        <EditOutlined className='data-source-list-top-item-icon' />
-                        {t('重命名')}
-                    </Typography.Link>
-                    <Popconfirm
-                        title={t('确定要删除当前选中的数据源吗？')}
-                        okButtonProps={{ variant: 'solid', color: 'danger' }}
-                        onConfirm={() => {
-                            if (loading)
-                                return
-                            const delete_index = delete_data_source(current_data_source.id)
-                            if (delete_index >= 0) {
-                                menu_items.splice(delete_index, 1)
-                                set_menu_items([...menu_items])
-                                no_save_flag.current = false
-                                if (!data_sources.length)
-                                    change_current_data_source('')
-                                else {
-                                    const index = delete_index === 0 ? 0 : delete_index - 1
-                                    change_current_data_source(data_sources[index].id)
-                                }
-                            }
-                        }}
-                    >
-                        <Typography.Link
-                            disabled={!current_data_source}
-                            className='data-source-list-top-item'
-                        >
-                            <DeleteOutlined className='data-source-list-top-item-icon' />
-                            {t('删除')}
-                        </Typography.Link>
-                    </Popconfirm>
-                    <Typography.Link
-                        disabled={!current_data_source}
-                        className='data-source-list-top-item'
-                        onClick={async () => {
-                            if (loading)
-                                return
-                            if (!current_data_source)
-                                return
+                    no_save_flag.current = false
+                    
+                    await NiceModal.show('dashboard-create-datasource-modal', { on_after_create })
+                }}
+            >
+                <FileOutlined className='data-source-list-top-item-icon' />
+                {t('新建')}
+            </Link>
+            
+            <CreateDataSourceModal id='dashboard-create-datasource-modal' on_after_create={on_after_create} />
+            
+            <Link
+                disabled={!current_data_source}
+                className='data-source-list-top-item'
+                onClick={() => {
+                    if (loading)
+                        return
+                    if (current_data_source)
+                        rename_data_source_handler(menu_items, current_data_source.id, current_data_source.name)
+                }}
+            >
+                <EditOutlined className='data-source-list-top-item-icon' />
+                {t('重命名')}
+            </Link>
+            
+            <Popconfirm
+                title={t('确定要删除当前选中的数据源吗？')}
+                okButtonProps={{ variant: 'solid', color: 'danger' }}
+                onConfirm={() => {
+                    if (loading)
+                        return
+                    const delete_index = delete_data_source(current_data_source.id)
+                    if (delete_index >= 0) {
+                        menu_items.splice(delete_index, 1)
+                        set_menu_items([...menu_items])
+                        no_save_flag.current = false
+                        if (!data_sources.length)
+                            change_current_data_source('')
+                        else {
+                            const index = delete_index === 0 ? 0 : delete_index - 1
+                            change_current_data_source(data_sources[index].id)
+                        }
+                    }
+                }}
+            >
+                <Link
+                    disabled={!current_data_source}
+                    className='data-source-list-top-item'
+                >
+                    <DeleteOutlined className='data-source-list-top-item-icon' />
+                    {t('删除')}
+                </Link>
+            </Popconfirm>
+            
+            <Link
+                disabled={!current_data_source}
+                className='data-source-list-top-item'
+                onClick={async () => {
+                    if (loading)
+                        return
+                    if (!current_data_source)
+                        return
+                    if (no_save_flag.current && (await save_confirm()))
+                        await handle_save()
+                    no_save_flag.current = false
+                    copy_data_source(current_data_source.id)
+                }}
+            >
+                <CopyOutlined className='variable-list-top-item-icon' />
+                {t('复制')}
+            </Link>
+        </div>
+        
+        { current_data_source && <div className='data-source-list-bottom'>
+            {Boolean(data_sources.length) && 
+                <Tree
+                    checkable={checkable}
+                    checkedKeys={checked_keys}
+                    ref={tree_ref}
+                    showIcon
+                    height={450}
+                    blockNode
+                    selectedKeys={[current_data_source.id]}
+                    className='data-source-list-bottom-menu'
+                    onCheck={keys => { set_checked_keys(keys as string[]) }}
+                    onSelect={async key => {
+                        // 点击树节点触发
+                        if (loading)
+                            return
+                        const [selected_key] = key ?? [ ] 
+                        if (selected_key) {
                             if (no_save_flag.current && (await save_confirm()))
                                 await handle_save()
                             no_save_flag.current = false
-                            copy_data_source(current_data_source.id)
-                        }}
-                    >
-                        <CopyOutlined className='variable-list-top-item-icon' />
-                        {t('复制')}
-                    </Typography.Link>
-                </div>
-                { current_data_source && <div className='data-source-list-bottom'>
-                    {data_sources.length && 
-                        <Tree
-                            checkable={checkable}
-                            checkedKeys={checked_keys}
-                            ref={tree_ref}
-                            showIcon
-                            height={450}
-                            blockNode
-                            selectedKeys={[current_data_source.id]}
-                            className='data-source-list-bottom-menu'
-                            onCheck={keys => { set_checked_keys(keys as string[]) }}
-                            onSelect={async key => {
-                                // 点击树节点触发
-                                if (loading)
-                                    return
-                                const [selected_key] = key ?? [ ] 
-                                if (selected_key) {
-                                    if (no_save_flag.current && (await save_confirm()))
-                                        await handle_save()
-                                    no_save_flag.current = false
-                                    change_current_data_source(String(selected_key))
-                                }
-                            }}
-                            treeData={menu_items}
-                        />
-                    }
-                </div> }
-            </div>
-        </>
+                            change_current_data_source(String(selected_key))
+                        }
+                    }}
+                    treeData={menu_items}
+                />
+            }
+        </div> }
+    </div>
 }

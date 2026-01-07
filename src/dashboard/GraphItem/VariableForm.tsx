@@ -45,6 +45,7 @@ function ControlField ({ variable }: { variable: Variable }) {
             return <Form.Item name={id} label={display_name}>
                 <StringDatePicker allowClear className='data-picker'/>
             </Form.Item>
+        
         case VariableMode.MULTI_SELECT:
             return <Form.Item name={id} label={display_name}>
                <Select 
@@ -53,25 +54,26 @@ function ControlField ({ variable }: { variable: Variable }) {
                     allowClear 
                     mode='multiple' 
                     options={options.map(({ label, key }) => ({ label, value: key }))}
-                    showSearch
-                    optionFilterProp='label'
+                    showSearch={{ optionFilterProp: 'label' }}
                 />
             </Form.Item>
+        
         case VariableMode.SELECT:
             return <Form.Item name={id} label={display_name}>
                 <Select
                     key={key}
                     onBlur={() => { set_key(genid()) } }
-                    optionFilterProp='label'
+                    showSearch={{ optionFilterProp: 'label' }}
                     options={options.map(({ label, key }) => ({ label, value: key }))}
                     allowClear
-                    showSearch
                 />
             </Form.Item>
+        
         case VariableMode.TEXT:
             return <Form.Item name={id} label={display_name}>
                 <Input />
             </Form.Item>
+        
         default:
             return null
     }

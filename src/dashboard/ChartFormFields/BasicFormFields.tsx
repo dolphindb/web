@@ -110,17 +110,22 @@ export function BasicFormFields ({
                         label: v,
                         value: Number(k)
                     }))
-                    return automatic_mode
-                        ? <Form.Item label={t('X 轴类型')} name='x_col_types'>
+                    
+                    return Boolean(automatic_mode) && 
+                        <Form.Item label={t('X 轴类型')} name='x_col_types'>
                             <Select
                                 mode='multiple'
-                                showSearch
+                                showSearch={{
+                                    filterOption: (val, option) => 
+                                        val ? 
+                                            option.label.toLowerCase().includes(val.toLowerCase())
+                                        :
+                                            true
+                                }}
                                 options={options}
                                 placeholder={t('请选择类型')}
-                                filterOption={(val, option) => val ? option.label.toLowerCase().includes(val.toLowerCase()) : true}
                             />
                         </Form.Item>
-                        : null
                 } }
             </FormDependencies>
         

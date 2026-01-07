@@ -5,7 +5,7 @@ import { cloneDeep } from 'lodash'
 import copy from 'copy-to-clipboard'
 
 import { t } from '@i18n'
-import { model, storage_keys } from '@model'
+import { model } from '@model'
 
 import { type Widget, dashboard } from '@/dashboard/model.ts'
 import { sql_formatter, get_cols, stream_formatter, parse_code, safe_json_parse, get_sql_col_type_map, get_streaming_col_type_map } from '@/dashboard/utils.ts'
@@ -16,7 +16,7 @@ export type DataType = { }[]
 
 export type DataSourcePropertyType = string | number | boolean | string[] | DataType
 
-export type ExportDataSource = {
+export interface ExportDataSource {
     id: string
     name: string
     type: DdbForm
@@ -28,22 +28,31 @@ export type ExportDataSource = {
     variables: string[]
     error_message: string
     ddb: string
+    
     /** sql 模式专用 */
     auto_refresh: boolean
+    
     /** sql 模式专用 */
     code: string
+    
     /** sql 模式专用 */
     interval: number
+    
     /** sql 模式专用 */
     timer: null
+    
     /** stream 模式专用 */
     filter: boolean
+    
     /** stream 模式专用 */
     stream_table: string
+    
     /** stream 模式专用 */
     filter_column: string
+    
     /** stream 模式专用 */
     filter_expression: string
+    
     /** stream 模式专用 */
     ip: string
 }

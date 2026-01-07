@@ -694,13 +694,14 @@ export async function get_streaming_col_type_map (table_name: string): Promise<R
         
     return col_types_map
 }
+
+
 export function get_chart_data_type (chart_type: WidgetChartType) {
-    switch (chart_type) { 
-        case WidgetChartType.HEATMAP:
-            return DdbForm.matrix
-        default: 
-            return DdbForm.table
-    }
+    return chart_type === WidgetChartType.HEATMAP ||
+        chart_type === WidgetChartType.SURFACE ?
+            DdbForm.matrix
+        :
+            DdbForm.table
 }
 
 

@@ -8,7 +8,7 @@ export function TitleFields () {
             <Input />
         </Form.Item>
         
-        <Form.Item name='title_size' label={t('标题字号' )}initialValue={18}>
+        <Form.Item name='title_size' label={t('标题字号' )} initialValue={18}>
             <InputNumber suffix='px'/>
         </Form.Item>
     </>

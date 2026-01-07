@@ -12,7 +12,7 @@ import { check, datetime_format } from 'xshell/utils.browser.js'
 
 import { use_ref_state } from 'react-object-model/hooks.js'
 
-import { DdbForm, type DdbTableData } from 'dolphindb/browser.js'
+import { DdbForm } from 'dolphindb/browser.js'
 
 import { t } from '@i18n'
 import { model } from '@model'

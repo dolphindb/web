@@ -28,7 +28,7 @@ import { VariableConfig } from './Variable/VariableConfig.js'
 import { export_variables } from './Variable/variable.js'
 
 import { check_name, get_shared_dashboards } from './utils.ts'
-import { Import } from './Import/Import.js'
+import { Import } from './components/Import.tsx'
 import { Share } from './Share/Share.js'
 import { DashboardMode } from './type.js'
 import { SaveConfirmModal } from './components/SaveComfirmModal.js'

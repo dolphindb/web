@@ -19,7 +19,7 @@ import { TableOperations } from '@components/TableOperations/index.tsx'
 
 import { dashboard, DashboardPermission } from './model.js'
 import { check_name } from './utils.ts'
-import { Import } from './Import/Import.js'
+import { Import } from './components/Import.tsx'
 import { Share } from './Share/Share.js'
 import { Doc } from './components/Doc.js'
 
