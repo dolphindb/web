@@ -188,7 +188,8 @@ let builder = {
         
         const fpdt_cache = `${fpd_root}node_modules/.cache/webpack/`
         
-        const dependencies: BundlerOptions['dependencies'] = ['antd-icons', 'lodash', 'xterm', 'gridstack', 'echarts', 'quill', 'vscode-oniguruma', 'monaco']
+        const dependencies: BundlerOptions['dependencies'] =
+            ['antd-icons', 'lodash', 'xterm', 'gridstack', 'echarts', 'quill', 'vscode-oniguruma', 'monaco', 'plotly']
         
         
         // --- 根据 package.json, deps.ts 缓存 deps.js

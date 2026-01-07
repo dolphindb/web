@@ -2,13 +2,16 @@ import './index.sass'
 
 import { useEffect, useRef } from 'react'
 import { Collapse } from 'antd'
-import Plotly from 'plotly.js-dist-min'
 import { useSize } from 'ahooks'
 
-import { dark_background } from '@theme'
+import { delay, load_script } from 'xshell/utils.browser.js'
 
+import { dark_background } from '@theme'
+import { model } from '@model'
 import type { GraphComponentProps } from '@/dashboard/graphs.ts'
 
+
+let Plotly: typeof import('plotly.js-dist-min')
 
 
 export function Surface ({ widget, data_source }: GraphComponentProps<Data>) {
@@ -28,7 +31,16 @@ export function Surface ({ widget, data_source }: GraphComponentProps<Data>) {
     useEffect(() => {
         let { current: div } = rdiv
         
-        setTimeout(() => {
+        ;(async () => {
+            const pdelay = delay(100)
+            
+            if (!Plotly) {
+                await load_script(`${model.assets_root}vendors/plotly.js-dist-min/plotly.min.js`)
+                ;({ default: Plotly } = await import('plotly.js-dist-min'))
+            }
+            
+            await pdelay
+            
             Plotly.newPlot(
                 div,
                 [{
@@ -43,12 +55,14 @@ export function Surface ({ widget, data_source }: GraphComponentProps<Data>) {
                 get_layout({ width: div.clientWidth, height: div.clientHeight }))
             
             rinited.current = true
-        }, 100)
+        })()
+        
+        return () => { Plotly?.purge(div) }
     }, [ ])
     
     
     useEffect(() => {
-        if (!rinited.current || !rdiv.current || !size)
+        if (!rinited.current || !size)
             return
         
         Plotly.relayout(
@@ -65,32 +79,37 @@ function get_layout ({ width, height }: { width: number, height: number }): Part
     return {
         width,
         height,
-        margin: {
-            l: 0,
-            r: 0,
-            b: 0,
-            t: 35
-        },
-        title: {
-            yanchor: 'top',
-            y: 5,
-            text: '曲面图',
-            font: { color: '#ffffff' }
-        },
-        paper_bgcolor: dark_background, // 图表外部背景
-        plot_bgcolor: dark_background, // 绘图区域背景
-        font: { color: '#ffffff' }, // 默认文字颜色
-        xaxis: {
-            gridcolor: '#888888',
-            zerolinecolor: '#888888'
-        },
-        yaxis: {
-            gridcolor: '#888888',
-            zerolinecolor: '#888888'
-        },
-        modebar: {
-            remove: ['logo'] as any
-        }
+        ...layout
+    }
+}
+
+
+const layout: Partial<Plotly.Layout> = {
+    margin: {
+        l: 0,
+        r: 0,
+        b: 0,
+        t: 35
+    },
+    title: {
+        yanchor: 'top',
+        y: 5,
+        text: '曲面图',
+        font: { color: '#ffffff' }
+    },
+    paper_bgcolor: dark_background, // 图表外部背景
+    plot_bgcolor: dark_background, // 绘图区域背景
+    font: { color: '#ffffff' }, // 默认文字颜色
+    xaxis: {
+        gridcolor: '#888888',
+        zerolinecolor: '#888888'
+    },
+    yaxis: {
+        gridcolor: '#888888',
+        zerolinecolor: '#888888'
+    },
+    modebar: {
+        remove: ['logo'] as any
     }
 }
 
