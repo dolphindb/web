@@ -1,7 +1,7 @@
 import './index.sass'
 
 import { useEffect, useRef } from 'react'
-import { Collapse } from 'antd'
+import { Collapse, Form, Input } from 'antd'
 import { useSize } from 'ahooks'
 
 import { delay, load_script } from 'xshell/utils.browser.js'
@@ -74,11 +74,14 @@ export function Surface ({ widget, data_source }: GraphComponentProps) {
 
 function get_layout (
     { width, height }: { width: number, height: number },
-    { title, title_size }: ISurfaceConfig
+    config: ISurfaceConfig
 ): Partial<Plotly.Layout> {
+    const { title, title_size } = config
+    
     return {
         width,
         height,
+        
         title: {
             yanchor: 'top',
             y: 5,
@@ -88,36 +91,31 @@ function get_layout (
                 size: title_size || 13
             }
         },
-        ...layout
-    }
-}
-
-
-const layout: Partial<Plotly.Layout> = {
-    margin: {
-        l: 0,
-        r: 0,
-        b: 0,
-        t: 35
-    },
-    paper_bgcolor: dark_background, // 图表外部背景
-    plot_bgcolor: dark_background, // 绘图区域背景
-    font: {
-        // 默认文字颜色
-        color: '#ffffff',
         
-        ... model.shf ? { family: 'MyFont' } : { }
-    }, 
-    xaxis: {
-        gridcolor: '#888888',
-        zerolinecolor: '#888888'
-    },
-    yaxis: {
-        gridcolor: '#888888',
-        zerolinecolor: '#888888'
-    },
-    modebar: {
-        remove: ['logo'] as any
+        scene: axises.reduce(
+            (scene, a) => {
+                const axis = `${a}axis`
+                const name = config[axis]
+                if (name)
+                    scene[axis] = { title: { text: name } }
+                return scene
+            },
+            { } as Partial<Plotly.Layout['scene']>),
+        
+        margin: {
+            l: 0,
+            r: 0,
+            b: 0,
+            t: 35
+        },
+        
+        paper_bgcolor: dark_background, // 图表外部背景
+        plot_bgcolor: dark_background, // 绘图区域背景
+        font: {
+            // 默认文字颜色
+            color: '#ffffff',
+            ... model.shf ? { family: 'MyFont' } : { }
+        }
     }
 }
 
@@ -131,6 +129,8 @@ export function SurfaceConfig () {
                 forceRender: true,
                 children: <div className='axis-wrapper'>
                     <TitleFields />
+                    {axises.map(a => 
+                        <AxisNameField axis={a} key={a} />)}
                 </div>
             }
         ]}
@@ -141,4 +141,18 @@ export function SurfaceConfig () {
 export interface ISurfaceConfig {
     title?: string
     title_size?: number
+    
+    xaxis?: string
+    yaxis?: string
+    zaxis?: string
+}
+
+
+const axises = ['x', 'y', 'z'] as const
+
+
+function AxisNameField ({ axis }: { axis: 'x' | 'y' | 'z' }) {
+    return <Form.Item name={`${axis}axis`} label={t('{{axis}} 轴名称', { axis })}>
+        <Input />
+    </Form.Item>
 }
