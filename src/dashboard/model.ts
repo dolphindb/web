@@ -255,8 +255,6 @@ export class DashBoardModel extends Model<DashBoardModel> {
     
     
     dispose () {
-        console.log('dashboard.dispose')
-        
         window.removeEventListener('resize', this.on_resize)
         this.editing = true
         

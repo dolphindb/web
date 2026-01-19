@@ -43,11 +43,7 @@ export function Surface ({ widget, data_source }: GraphComponentProps) {
             
             Plotly.newPlot(
                 div,
-                [{
-                    type: 'surface',
-                    // { data: number[][], row_labels: string[], col_labels: string[] }
-                    z: (data as any).data
-                }],
+                get_data(data),
                 get_layout(
                     { width: div.clientWidth, height: div.clientHeight },
                     config))
@@ -63,12 +59,22 @@ export function Surface ({ widget, data_source }: GraphComponentProps) {
         if (!rinited.current || !size)
             return
         
-        Plotly.relayout(
-            rdiv.current, 
+        Plotly.react(
+            rdiv.current,
+            get_data(data),
             get_layout(size, config))
-    }, [size, config])
+    }, [size, config, data])
     
     return <div className='surface' ref={rdiv} />
+}
+
+
+function get_data (data: any) {
+    return [{
+        type: 'surface',
+        // { data: number[][], row_labels: string[], col_labels: string[] }
+        z: data.data
+    }] satisfies Plotly.Data[]
 }
 
 
