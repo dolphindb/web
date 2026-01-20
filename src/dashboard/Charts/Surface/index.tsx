@@ -98,15 +98,15 @@ function get_layout (
             }
         },
         
-        scene: axises.reduce(
-            (scene, a) => {
+        scene: Object.fromEntries(
+            axises.map(a => {
                 const axis = `${a}axis`
-                const name = config[axis]
-                if (name)
-                    scene[axis] = { title: { text: name } }
-                return scene
-            },
-            { } as Partial<Plotly.Layout['scene']>),
+                
+                return [axis, {
+                    title: { text: config[axis] },
+                    gridcolor: '#888888'
+                } satisfies Partial<Plotly.SceneAxis>]
+            })),
         
         margin: {
             l: 0,
