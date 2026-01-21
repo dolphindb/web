@@ -16,6 +16,7 @@ export function Surface ({
     options,
     assets_root
 }: {
+    // 每个子数组 y 不同，x 相同 (行优先)
     data: number[][]
     options: SurfaceOptions
     assets_root: string

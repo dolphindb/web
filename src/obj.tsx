@@ -1843,9 +1843,9 @@ function Chart ({
                 
                 case DdbChartType.surface:
                     // 将 data 转换为 data_ 的 number[][] 以便作为 Surface 的 data 参数传入
-                    data_ = seq(cols, i => 
-                        seq(rows, j => 
-                            to_chart_data(data[i * rows + j], datatype)))
+                    data_ = seq(rows, i => 
+                        seq(cols, j => 
+                            to_chart_data(data[i + j * rows], datatype)))
                     
                     break
                 
