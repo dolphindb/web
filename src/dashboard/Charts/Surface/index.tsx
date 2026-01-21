@@ -5,7 +5,7 @@ import { t } from '@i18n'
 import { model } from '@model'
 import type { GraphComponentProps, GraphConfigProps } from '@/dashboard/graphs.ts'
 import { TitleFields } from '@/dashboard/ChartFormFields/components/Title.tsx'
-import { Surface, axises, get_plotlyjs, type SurfaceOptions } from '@components/Surface.tsx'
+import { Surface, axises, type SurfaceOptions } from '@components/Surface.tsx'
 
 
 export function DashboardSurface ({ widget: { config = { } as SurfaceOptions }, data_source }: GraphComponentProps) {
@@ -27,7 +27,7 @@ export function DashboardSurface ({ widget: { config = { } as SurfaceOptions }, 
         // data_source.data 是 { data: number[][], row_labels: string[], col_labels: string[] }
         data={(data_source.data as any)?.data}
         options={roptions.current}
-        plotlyjs={get_plotlyjs(model.assets_root)} />
+        assets_root={model.assets_root} />
 }
 
 

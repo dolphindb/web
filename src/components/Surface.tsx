@@ -15,11 +15,11 @@ let Plotly: typeof import('plotly.js-dist-min')
 export function Surface ({
     data,
     options,
-    plotlyjs
+    assets_root
 }: {
     data: number[][]
     options: SurfaceOptions
-    plotlyjs: string
+    assets_root: string
 }) {
     let rdiv = useRef<HTMLDivElement>(undefined)
     
@@ -35,7 +35,7 @@ export function Surface ({
             const pdelay = delay(100)
             
             if (!Plotly) {
-                await load_script(plotlyjs)
+                await load_script(`${assets_root}vendors/plotly.js-dist-min/plotly.min.js`)
                 ;({ default: Plotly } = await import('plotly.js-dist-min'))
             }
             
@@ -148,9 +148,3 @@ export interface SurfaceOptions {
 
 
 export const axises = ['x', 'y', 'z'] as const
-
-
-export function get_plotlyjs (assets_root: string) {
-    return `${assets_root}vendors/plotly.js-dist-min/plotly.min.js`
-}
-

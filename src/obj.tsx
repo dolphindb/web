@@ -54,7 +54,7 @@ import { t } from '@i18n'
 import SvgLink from './icons/link.icon.svg'
 
 import type { WindowModel } from './window.tsx'
-import { get_plotlyjs, get_surface_options, Surface } from '@components/Surface.tsx'
+import { get_surface_options, Surface } from '@components/Surface.tsx'
 
 
 const max_strlen = 10000
@@ -1892,7 +1892,7 @@ function Chart ({
              <Surface
                 data={config.data}
                 options={get_surface_options(config)}
-                plotlyjs={get_plotlyjs(assets_root)}
+                assets_root={assets_root}
             />
         :
             <EChartsComponent option={get_chart_option(config)} /> }
