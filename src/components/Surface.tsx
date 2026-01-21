@@ -6,7 +6,6 @@ import { useSize } from 'ahooks'
 import { delay, load_script } from 'xshell/utils.browser.js'
 
 import { dark_background } from '@theme'
-import type { ChartConfig } from '@/obj.tsx'
 
 
 let Plotly: typeof import('plotly.js-dist-min')
@@ -77,21 +76,11 @@ function get_data (data: any) {
 }
 
 
-export function get_surface_options ({ titles, font }: ChartConfig): SurfaceOptions {
-    return {
-        // title: titles.chart,
-        font,
-        ... Object.fromEntries(
-            axises.map(a => [`${a}axis`, titles[`${a}_axis`]])),
-    }
-}
-
-
 function get_layout (
     { width, height }: { width: number, height: number },
     options: SurfaceOptions
 ): Partial<Plotly.Layout> {
-    const { title, title_size, font } = options
+    const { title, title_size, font, dark } = options
     
     return {
         width,
@@ -102,7 +91,7 @@ function get_layout (
             y: 5,
             text: title,
             font: {
-                color: '#ffffff',
+                color: dark ? '#ffffff' : undefined,
                 size: title_size || 13,
             }
         },
@@ -112,7 +101,7 @@ function get_layout (
                 const axis = `${a}axis`
                 
                 return [axis, {
-                    title: { text: options[axis] },
+                    title: { text: options[axis] || a },
                     gridcolor: '#888888'
                 } satisfies Partial<Plotly.SceneAxis>]
             })),
@@ -121,15 +110,17 @@ function get_layout (
             l: 0,
             r: 0,
             b: 0,
-            t: 35
+            t: title ? 35 : 0
         },
         
-        paper_bgcolor: dark_background, // 图表外部背景
-        plot_bgcolor: dark_background, // 绘图区域背景
+        ... dark ? {
+            paper_bgcolor: dark_background, // 图表外部背景
+            plot_bgcolor: dark_background, // 绘图区域背景
+        } : { },
         font: {
             // 默认文字颜色
-            color: '#ffffff',
-            ... font ? { family: font } : { }
+            color: dark ? '#ffffff' : undefined,
+            family: font || undefined
         }
     }
 }
@@ -144,6 +135,7 @@ export interface SurfaceOptions {
     zaxis?: string
     
     font?: string
+    dark: boolean
 }
 
 

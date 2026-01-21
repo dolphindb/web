@@ -51,10 +51,11 @@ import {
 
 import { t } from '@i18n'
 
+import { axises, Surface } from '@components/Surface.tsx'
+
 import SvgLink from './icons/link.icon.svg'
 
 import type { WindowModel } from './window.tsx'
-import { get_surface_options, Surface } from '@components/Surface.tsx'
 
 
 const max_strlen = 10000
@@ -91,6 +92,7 @@ export interface ObjOptions <TDdbValue extends DdbValue = DdbValue> {
     ExportCsv?: React.FC<{ info: DdbTableObj | DdbObjRef<DdbObj<DdbVectorValue>[]> }>
     assets_root: string
     font?: string
+    dark: boolean
 }
 
 
@@ -104,7 +106,8 @@ export function Obj ({
     options,
     product_name,
     assets_root,
-    font
+    font,
+    dark
 }: ObjOptions) {
     const info = obj || objref
     const View = views[info.form] || Default
@@ -120,6 +123,7 @@ export function Obj ({
         product_name={product_name}
         assets_root={assets_root}
         font={font}
+        dark={dark}
     />
 }
 
@@ -1722,7 +1726,8 @@ function Chart ({
     options,
     product_name,
     assets_root,
-    font
+    font,
+    dark
 }: ObjOptions<DdbChartValue>) {
     const [config, set_config] = useState<ChartConfig>({
         inited: false,
@@ -1891,7 +1896,12 @@ function Chart ({
         { config.charttype === DdbChartType.surface ?
              <Surface
                 data={config.data}
-                options={get_surface_options(config)}
+                options={{
+                    font,
+                    dark,
+                    ... Object.fromEntries(
+                        axises.map(a => [`${a}axis`, config.titles[`${a}_axis`]])),
+                }}
                 assets_root={assets_root}
             />
         :

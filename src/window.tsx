@@ -135,6 +135,7 @@ function DdbObjWindow () {
             options={options}
             product_name={product_name}
             assets_root={assets_root}
+            dark={false}
         />
     </div>
 }

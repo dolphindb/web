@@ -9,13 +9,14 @@ import { Surface, axises, type SurfaceOptions } from '@components/Surface.tsx'
 
 
 export function DashboardSurface ({ widget: { config = { } as SurfaceOptions }, data_source }: GraphComponentProps) {
-    let rconfig = useRef<SurfaceOptions>({ })
-    let roptions = useRef<SurfaceOptions>({ })
+    let rconfig = useRef<SurfaceOptions>({ } as SurfaceOptions)
+    let roptions = useRef<SurfaceOptions>({ } as SurfaceOptions)
     
     // widget.config 更新后，重新计算 options，不用 useState 避免无效渲染
     // widget.config 未更新时，复用之前计算的 roptions，保证传递给 Surface 的 options 引用不变
     if (config !== rconfig.current) {
         roptions.current = {
+            dark: true,
             ... config,
             ... model.shf ? { font: 'MyFont' } : { }
         }

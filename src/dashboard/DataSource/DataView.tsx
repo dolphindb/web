@@ -17,6 +17,7 @@ export function DataView () {
             product_name={product_name}
             assets_root={model.assets_root}
             font={model.shf ? 'MyFont' : undefined}
+            dark
         />
     }</div>
 }
