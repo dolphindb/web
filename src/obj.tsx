@@ -88,6 +88,7 @@ export interface ObjOptions <TDdbValue extends DdbValue = DdbValue> {
     options?: InspectOptions
     product_name: string
     ExportCsv?: React.FC<{ info: DdbTableObj | DdbObjRef<DdbObj<DdbVectorValue>[]> }>
+    plotlyjs: string
 }
 
 
@@ -99,12 +100,23 @@ export function Obj ({
     ddb,
     ExportCsv,
     options,
-    product_name
+    product_name,
+    plotlyjs
 }: ObjOptions) {
     const info = obj || objref
     const View = views[info.form] || Default
     
-    return <View obj={obj} objref={objref} ctx={ctx} remote={remote} ddb={ddb} options={options} ExportCsv={ExportCsv} product_name={product_name} />
+    return <View
+        obj={obj}
+        objref={objref}
+        ctx={ctx}
+        remote={remote}
+        ddb={ddb}
+        options={options}
+        ExportCsv={ExportCsv}
+        product_name={product_name}
+        plotlyjs={plotlyjs}
+    />
 }
 
 
@@ -1697,7 +1709,8 @@ function Chart ({
     remote,
     ddb,
     options,
-    product_name
+    product_name,
+    plotlyjs
 }: ObjOptions<DdbChartValue>) {
     const [config, set_config] = useState<ChartConfig>({
         inited: false,

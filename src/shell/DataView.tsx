@@ -5,6 +5,7 @@ import { Obj, type DdbObjRef } from '@/obj.tsx'
 import { model } from '@model'
 
 import { ExportCsv } from '@components/ExportCsv.tsx'
+import { get_plotlyjs } from '@components/Surface.tsx'
 import { LineageGraph } from '@/lineage/index.tsx'
 
 import { shell } from './model.ts'
@@ -32,6 +33,7 @@ export function DataView () {
                 options={options}
                 ExportCsv={ExportCsv}
                 product_name={product_name}
+                plotlyjs={get_plotlyjs(model.assets_root)}
                 {...type === 'object' ?
                     { obj: data as DdbObj<DdbValue> }
                 :
