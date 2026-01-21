@@ -54,6 +54,7 @@ import { t } from '@i18n'
 import SvgLink from './icons/link.icon.svg'
 
 import type { WindowModel } from './window.tsx'
+import { get_plotlyjs, get_surface_options, Surface } from '@components/Surface.tsx'
 
 
 const max_strlen = 10000
@@ -88,7 +89,8 @@ export interface ObjOptions <TDdbValue extends DdbValue = DdbValue> {
     options?: InspectOptions
     product_name: string
     ExportCsv?: React.FC<{ info: DdbTableObj | DdbObjRef<DdbObj<DdbVectorValue>[]> }>
-    plotlyjs: string
+    assets_root: string
+    font?: string
 }
 
 
@@ -101,7 +103,8 @@ export function Obj ({
     ExportCsv,
     options,
     product_name,
-    plotlyjs
+    assets_root,
+    font
 }: ObjOptions) {
     const info = obj || objref
     const View = views[info.form] || Default
@@ -115,7 +118,8 @@ export function Obj ({
         options={options}
         ExportCsv={ExportCsv}
         product_name={product_name}
-        plotlyjs={plotlyjs}
+        assets_root={assets_root}
+        font={font}
     />
 }
 
@@ -159,7 +163,8 @@ export async function open_obj ({
     remote,
     ddb,
     options,
-    product_name
+    product_name,
+    assets_root
 }: {
     obj?: DdbObj
     objref?: DdbObjRef
@@ -167,6 +172,7 @@ export async function open_obj ({
     ddb?: DDB
     options?: InspectOptions
     product_name: string
+    assets_root: string
 }) {
     let win = window.open('./window.html', new Date().toString(), 'left=100,top=100,width=1000,height=640,popup')
     
@@ -183,7 +189,8 @@ export async function open_obj ({
         remote,
         ddb,
         options,
-        product_name
+        product_name,
+        assets_root
     })
 }
 
@@ -537,7 +544,8 @@ function Vector ({
     remote,
     ddb,
     options,
-    product_name
+    product_name,
+    assets_root
 }: ObjOptions<DdbVectorValue>) {
     const info = obj || objref
     
@@ -677,7 +685,7 @@ function Vector ({
                     title={t('在新窗口中打开')}
                     component={SvgLink}
                     onClick={async () => {
-                        await open_obj({ obj, objref, remote, ddb, options, product_name })
+                        await open_obj({ obj, objref, remote, ddb, options, product_name, assets_root })
                     }}
                 />}
             </div>
@@ -778,6 +786,7 @@ export function Table ({
     ExportCsv,
     show_bottom_bar = true,
     product_name,
+    assets_root,
     ...others
 }: ObjOptions<DdbTableObj['value']> & {
     show_bottom_bar?: boolean
@@ -890,7 +899,7 @@ export function Table ({
                         title={t('在新窗口中打开')}
                         component={SvgLink}
                         onClick={async () => {
-                            await open_obj({ obj, objref, remote, ddb, options, product_name })
+                            await open_obj({ obj, objref, remote, ddb, options, product_name, assets_root })
                         }}
                     />
                     {ExportCsv && <ExportCsv info={info} />}
@@ -1472,6 +1481,7 @@ function Matrix ({
     ddb,
     options,
     product_name,
+    assets_root
 }: ObjOptions<DdbMatrixValue>) {
     const info = obj || objref
     
@@ -1590,7 +1600,7 @@ function Matrix ({
                     title={t('在新窗口中打开')}
                     component={SvgLink}
                     onClick={async () => {
-                        await open_obj({ obj, objref, remote, ddb, options, product_name })
+                        await open_obj({ obj, objref, remote, ddb, options, product_name, assets_root })
                     }}
                 />}
             </div>
@@ -1688,7 +1698,7 @@ function to_chart_data (data: DdbValue, datatype: DdbType) {
 }
 
 
-interface ChartConfig {
+export interface ChartConfig {
     inited: boolean
     charttype: DdbChartType
     data: any[]
@@ -1699,6 +1709,7 @@ interface ChartConfig {
     bin_count: DdbChartValue['bin_count']
     bin_start: DdbChartValue['bin_start']
     bin_end: DdbChartValue['bin_end']
+    font?: string
 }
 
 
@@ -1710,7 +1721,8 @@ function Chart ({
     ddb,
     options,
     product_name,
-    plotlyjs
+    assets_root,
+    font
 }: ObjOptions<DdbChartValue>) {
     const [config, set_config] = useState<ChartConfig>({
         inited: false,
@@ -1723,6 +1735,7 @@ function Chart ({
         bin_count: null as DdbChartValue['bin_count'],
         bin_start: null as DdbChartValue['bin_start'],
         bin_end: null as DdbChartValue['bin_end'],
+        font
     })
     
     useEffect(() => {
@@ -1751,8 +1764,7 @@ function Chart ({
                 (ddb ? 
                     await ddb.eval(objref.name)
                 :
-                    DdbObj.parse(... await remote.call<[Uint8Array, boolean]>('eval', [objref.node, objref.name])) as DdbChartObj
-                )
+                    DdbObj.parse(... await remote.call<[Uint8Array, boolean]>('eval', [objref.node, objref.name])) as DdbChartObj)
             
             const { multi_y_axes = false } = extras || { }
             
@@ -1769,7 +1781,14 @@ function Chart ({
                     return seq(rows, i => formati(rows_, i, options))
             })()
             
-            const n = charttype === DdbChartType.line && multi_y_axes || charttype === DdbChartType.kline ? rows : rows * cols
+            const n = 
+                charttype === DdbChartType.line && multi_y_axes || 
+                charttype === DdbChartType.kline ||
+                charttype === DdbChartType.surface ? 
+                    rows
+                :
+                    rows * cols
+            
             let data_ = new Array(n)
             
             switch (charttype) {
@@ -1816,7 +1835,15 @@ function Chart ({
                         
                     }
                     break
+                
+                case DdbChartType.surface:
+                    // 将 data 转换为 data_ 的 number[][] 以便作为 Surface 的 data 参数传入
+                    data_ = seq(cols, i => 
+                        seq(rows, j => 
+                            to_chart_data(data[i * rows + j], datatype)))
                     
+                    break
+                
                 default:
                     for (let i = 0;  i < cols;  i++) 
                         for (let j = 0;  j < rows;  j++) {
@@ -1836,7 +1863,7 @@ function Chart ({
                     break
             }
             
-            console.log('data:', data_)
+            // console.log('chart data:', data_)
             
             set_config({
                 inited: true,
@@ -1858,9 +1885,17 @@ function Chart ({
         return null
     
     return <div className='chart'>
-        <div className='chart-title'>{config.titles.chart}</div>
+        { config.charttype !== DdbChartType.surface && 
+            <div className='chart-title'>{config.titles.chart}</div> }
         
-        <EChartsComponent option={get_chart_option(config)} />
+        { config.charttype === DdbChartType.surface ?
+             <Surface
+                data={config.data}
+                options={get_surface_options(config)}
+                plotlyjs={get_plotlyjs(assets_root)}
+            />
+        :
+            <EChartsComponent option={get_chart_option(config)} /> }
         
         {ctx !== 'window' && <div className='bottom-bar-placeholder' />}
         
@@ -1871,7 +1906,7 @@ function Chart ({
                     title={t('在新窗口中打开')}
                     component={SvgLink}
                     onClick={async () => {
-                        await open_obj({ obj, objref, remote, ddb, options, product_name })
+                        await open_obj({ obj, objref, remote, ddb, options, product_name, assets_root })
                     }}
                 />}
             </div>

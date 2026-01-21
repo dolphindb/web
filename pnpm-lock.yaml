@@ -40,7 +40,7 @@ importers:
         version: 5.5.0
       '@xyflow/react':
         specifier: ^12.10.0
-        version: 12.10.0(@types/react@19.2.8)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
+        version: 12.10.0(@types/react@19.2.9)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
       ahooks:
         specifier: ^3.9.6
         version: 3.9.6(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
@@ -60,11 +60,11 @@ importers:
         specifier: ^1.11.19
         version: 1.11.19
       dolphindb:
-        specifier: ^3.1.33
-        version: 3.1.33(react-dom@19.2.3(react@19.2.3))
+        specifier: ^3.1.34
+        version: 3.1.34(react-dom@19.2.3(react@19.2.3))
       donaco:
         specifier: ^1.0.9
-        version: 1.0.9(dolphindb@3.1.33(react-dom@19.2.3(react@19.2.3)))(monaco-editor@0.52.2)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(vscode-oniguruma@2.0.1)(vscode-textmate@9.3.1)
+        version: 1.0.9(dolphindb@3.1.34(react-dom@19.2.3(react@19.2.3)))(monaco-editor@0.52.2)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(vscode-oniguruma@2.0.1)(vscode-textmate@9.3.1)
       echarts:
         specifier: ^6.0.0
         version: 6.0.0
@@ -106,7 +106,7 @@ importers:
         version: 4.5.0(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
       react-markdown:
         specifier: ^10.1.0
-        version: 10.1.0(@types/react@19.2.8)(react@19.2.3)
+        version: 10.1.0(@types/react@19.2.9)(react@19.2.3)
       react-object-model:
         specifier: ^1.2.27
         version: 1.2.27(react@19.2.3)
@@ -151,11 +151,11 @@ importers:
         specifier: ^2.3.4
         version: 2.3.4
       '@types/react':
-        specifier: ^19.2.8
-        version: 19.2.8
+        specifier: ^19.2.9
+        version: 19.2.9
       '@types/react-dom':
         specifier: ^19.2.3
-        version: 19.2.3(@types/react@19.2.8)
+        version: 19.2.3(@types/react@19.2.9)
       eslint:
         specifier: ^9.39.2
         version: 9.39.2
@@ -1682,8 +1682,8 @@ packages:
     peerDependencies:
       '@types/react': ^19.2.0
 
-  '@types/react@19.2.8':
-    resolution: {integrity: sha512-3MbSL37jEchWZz2p2mjntRZtPt837ij10ApxKfgmXCTuHWagYg7iA5bqPw6C8BMPfwidlvfPI/fxOc42HLhcyg==}
+  '@types/react@19.2.9':
+    resolution: {integrity: sha512-Lpo8kgb/igvMIPeNV2rsYKTgaORYdO1XGVZ4Qz3akwOj0ySGYMPlQWa8BaLn0G63D1aSaAQ5ldR06wCpChQCjA==}
 
   '@types/sass-loader@8.0.10':
     resolution: {integrity: sha512-MajDnLGRrM42uOoWGMSo4N5zIugGsihia0KDjh5ysyOAnnT843d85gEvthC4BbXfFwfJE5hQj6CBrvLKp3RpPA==}
@@ -2435,8 +2435,8 @@ packages:
     resolution: {integrity: sha512-35mSku4ZXK0vfCuHEDAwt55dg2jNajHZ1odvF+8SSr82EsZY4QmXfuWso8oEd8zRhVObSN18aM0CjSdoBX7zIw==}
     engines: {node: '>=0.10.0'}
 
-  dolphindb@3.1.33:
-    resolution: {integrity: sha512-RAof/x8+btIkGY0v9ULFtAJFq6GKS6zt5Tz1k+LXODIMwTpA/ccO/pqztpeWCeFrxZCxrBTO3F2KOUPUCDxI2w==}
+  dolphindb@3.1.34:
+    resolution: {integrity: sha512-3hSVwQpvztmdj+HnzqKy3YqhqHABExrjRmtpJr5cn2BE+MAdXIjChsmFJ36EqgDOESyB8tk8emH2vAZMOn21fA==}
 
   dom-serializer@2.0.0:
     resolution: {integrity: sha512-wIkAryiqt/nV5EQKqQpo3SToSOV9J0DnbJqwK7Wv/Trc92zIAYZ4FlMu+JPFW1DfGFt81ZTCGgDEabffXeLyJg==}
@@ -6468,11 +6468,11 @@ snapshots:
 
   '@types/range-parser@1.2.4': {}
 
-  '@types/react-dom@19.2.3(@types/react@19.2.8)':
+  '@types/react-dom@19.2.3(@types/react@19.2.9)':
     dependencies:
-      '@types/react': 19.2.8
+      '@types/react': 19.2.9
 
-  '@types/react@19.2.8':
+  '@types/react@19.2.9':
     dependencies:
       csstype: 3.2.3
 
@@ -6704,13 +6704,13 @@ snapshots:
 
   '@xtuc/long@4.2.2': {}
 
-  '@xyflow/react@12.10.0(@types/react@19.2.8)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)':
+  '@xyflow/react@12.10.0(@types/react@19.2.9)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)':
     dependencies:
       '@xyflow/system': 0.0.74
       classcat: 5.0.5
       react: 19.2.3
       react-dom: 19.2.3(react@19.2.3)
-      zustand: 4.5.6(@types/react@19.2.8)(react@19.2.3)
+      zustand: 4.5.6(@types/react@19.2.9)(react@19.2.3)
     transitivePeerDependencies:
       - '@types/react'
       - immer
@@ -7365,7 +7365,7 @@ snapshots:
     dependencies:
       esutils: 2.0.3
 
-  dolphindb@3.1.33(react-dom@19.2.3(react@19.2.3)):
+  dolphindb@3.1.34(react-dom@19.2.3(react@19.2.3)):
     dependencies:
       dayjs: 1.11.19
       ipaddr.js: 2.3.0
@@ -7406,9 +7406,9 @@ snapshots:
       domelementtype: 2.3.0
       domhandler: 5.0.3
 
-  donaco@1.0.9(dolphindb@3.1.33(react-dom@19.2.3(react@19.2.3)))(monaco-editor@0.52.2)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(vscode-oniguruma@2.0.1)(vscode-textmate@9.3.1):
+  donaco@1.0.9(dolphindb@3.1.34(react-dom@19.2.3(react@19.2.3)))(monaco-editor@0.52.2)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)(vscode-oniguruma@2.0.1)(vscode-textmate@9.3.1):
     dependencies:
-      dolphindb: 3.1.33(react-dom@19.2.3(react@19.2.3))
+      dolphindb: 3.1.34(react-dom@19.2.3(react@19.2.3))
       monaco-editor: 0.52.2
       vscode-oniguruma: 2.0.1
       vscode-textmate: 9.3.1
@@ -9061,11 +9061,11 @@ snapshots:
 
   react-lifecycles-compat@3.0.4: {}
 
-  react-markdown@10.1.0(@types/react@19.2.8)(react@19.2.3):
+  react-markdown@10.1.0(@types/react@19.2.9)(react@19.2.3):
     dependencies:
       '@types/hast': 3.0.4
       '@types/mdast': 4.0.4
-      '@types/react': 19.2.8
+      '@types/react': 19.2.9
       devlop: 1.1.0
       hast-util-to-jsx-runtime: 2.3.0
       html-url-attributes: 3.0.0
@@ -10045,11 +10045,11 @@ snapshots:
     dependencies:
       tslib: 2.3.0
 
-  zustand@4.5.6(@types/react@19.2.8)(react@19.2.3):
+  zustand@4.5.6(@types/react@19.2.9)(react@19.2.3):
     dependencies:
       use-sync-external-store: 1.6.0(react@19.2.3)
     optionalDependencies:
-      '@types/react': 19.2.8
+      '@types/react': 19.2.9
       react: 19.2.3
 
   zwitch@2.0.4: {}

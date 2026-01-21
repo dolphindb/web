@@ -6,6 +6,7 @@ import { useSize } from 'ahooks'
 import { delay, load_script } from 'xshell/utils.browser.js'
 
 import { dark_background } from '@theme'
+import type { ChartConfig } from '@/obj.tsx'
 
 
 let Plotly: typeof import('plotly.js-dist-min')
@@ -73,6 +74,16 @@ function get_data (data: any) {
         type: 'surface',
         z: data
     }] satisfies Plotly.Data[]
+}
+
+
+export function get_surface_options ({ titles, font }: ChartConfig): SurfaceOptions {
+    return {
+        // title: titles.chart,
+        font,
+        ... Object.fromEntries(
+            axises.map(a => [`${a}axis`, titles[`${a}_axis`]])),
+    }
 }
 
 

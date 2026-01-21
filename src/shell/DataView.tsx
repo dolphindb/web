@@ -1,11 +1,10 @@
-import { type DdbObj, type DdbValue } from 'dolphindb/browser.js'
+import { DdbChartType, DdbForm, type DdbChartValue, type DdbObj, type DdbValue } from 'dolphindb/browser.js'
 
 import { Obj, type DdbObjRef } from '@/obj.tsx'
 
 import { model } from '@model'
 
 import { ExportCsv } from '@components/ExportCsv.tsx'
-import { get_plotlyjs } from '@components/Surface.tsx'
 import { LineageGraph } from '@/lineage/index.tsx'
 
 import { shell } from './model.ts'
@@ -27,13 +26,20 @@ export function DataView () {
             
             const { data } = result
             
+            // local
+            if (data.form === DdbForm.chart) {
+                let v = (data as DdbObj).value as DdbChartValue
+                v.type = DdbChartType.surface
+            }
+            
             return <Obj
                 ddb={model.ddb}
                 ctx='embed'
                 options={options}
                 ExportCsv={ExportCsv}
                 product_name={product_name}
-                plotlyjs={get_plotlyjs(model.assets_root)}
+                assets_root={model.assets_root}
+                font={model.shf ? 'MyFont' : undefined}
                 {...type === 'object' ?
                     { obj: data as DdbObj<DdbValue> }
                 :

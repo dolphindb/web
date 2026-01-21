@@ -2,7 +2,6 @@ import { Obj } from '@/obj.tsx'
 
 import { model } from '@model'
 import { dashboard } from '@/dashboard/model.ts'
-import { get_plotlyjs } from '@components/Surface.tsx'
 
 
 export function DataView () {
@@ -16,7 +15,8 @@ export function DataView () {
             ctx='dashboard'
             options={options}
             product_name={product_name}
-            plotlyjs={get_plotlyjs(model.assets_root)}
+            assets_root={model.assets_root}
+            font={model.shf ? 'MyFont' : undefined}
         />
     }</div>
 }
