@@ -93,7 +93,7 @@ function get_layout (
             text: title,
             font: {
                 color: dark ? '#ffffff' : undefined,
-                size: title_size || 13,
+                size: title_size || 16,
             }
         },
         

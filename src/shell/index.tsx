@@ -1,6 +1,6 @@
 import './index.sass'
 
-import { useCallback, useEffect, useState } from 'react'
+import { useCallback, useState } from 'react'
 
 import { Resizable } from 're-resizable'
 
@@ -9,7 +9,6 @@ import { DatabaseOutlined } from '@ant-design/icons'
 import { delay } from 'xshell/utils.browser.js'
 
 import { t } from '@i18n'
-import { model } from '@model'
 
 import { shell } from './model.ts'
 
@@ -24,29 +23,6 @@ import { Git } from './git/Git.tsx'
 import SvgGit from './icons/git.icon.svg'
 
 export function Shell () {
-    useEffect(() => {
-        (async () => {
-            shell.set({
-                result: {
-                    type: 'object',
-                    data: await model.ddb.eval(
-                        'plot(\n' +
-                        '    table(\n' +
-                        '        1..5 as x,\n' +
-                        '        5..1 * 0.1 as y1,\n' +
-                        '        6..2 * 0.1 as y2\n' +
-                        '    ),\n' +
-                        "    ['x1', 'x2', 'x3', 'x4', 'x5'],\n" +
-                        "    ['graph title', 'x-axis title', 'y-axis title'],\n" +
-                        '    LINE,\n' +
-                        '    false,\n' +
-                        '    { multiYAxes: true }\n' +
-                        ')\n')
-                }
-            })
-        })()
-    }, [ ])
-    
     const [editor_state, set_editor_state] = useState({
         width: '75%',
         height: '100%',

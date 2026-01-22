@@ -27,10 +27,10 @@ export function DataView () {
             const { data } = result
             
             // local
-            if (data.form === DdbForm.chart) {
-                let v = (data as DdbObj).value as DdbChartValue
-                v.type = DdbChartType.surface
-            }
+            // if (data.form === DdbForm.chart) {
+            //     let v = (data as DdbObj).value as DdbChartValue
+            //     v.type = DdbChartType.surface
+            // }
             
             return <Obj
                 ddb={model.ddb}

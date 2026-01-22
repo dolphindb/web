@@ -1899,6 +1899,7 @@ function Chart ({
                 options={{
                     font,
                     dark,
+                    title: config.titles.chart,
                     ... Object.fromEntries(
                         axises.map(a => [`${a}axis`, config.titles[`${a}_axis`]])),
                 }}
