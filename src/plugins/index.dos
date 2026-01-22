@@ -44,6 +44,9 @@ def getInstalledPluginsOfCluster() {
             if (pluginName == "awss3" and pluginName_ == "aws") { // 特殊处理，awss3插件的命名空间名是aws，故不能用命名空间名作为插件名。未来会统一为aws。
                 pluginName_ = "awss3"
             }
+            if (pluginName like "amdQuote%"){ // 特殊处理，因为 amdQuote 插件有很多版本，在插件的 txt 文件中是统一使用 amdQuote 命名的，但实际加载插件的时候，不能使用 amdQuote 加载。
+                pluginName_ = pluginNames
+            }
             tableInsert(ret, (pluginName_, pluginVersion))
         }
         
