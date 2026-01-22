@@ -1,4 +1,4 @@
-import { DdbChartType, DdbForm, type DdbChartValue, type DdbObj, type DdbValue } from 'dolphindb/browser.js'
+import { type DdbObj, type DdbValue } from 'dolphindb/browser.js'
 
 import { Obj, type DdbObjRef } from '@/obj.tsx'
 

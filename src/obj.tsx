@@ -1890,9 +1890,6 @@ function Chart ({
         return null
     
     return <div className='chart'>
-        { config.charttype !== DdbChartType.surface && 
-            <div className='chart-title'>{config.titles.chart}</div> }
-        
         { config.charttype === DdbChartType.surface ?
              <Surface
                 data={config.data}
@@ -1906,7 +1903,11 @@ function Chart ({
                 assets_root={assets_root}
             />
         :
-            <EChartsComponent option={get_chart_option(config)} /> }
+            <>
+                <div className='chart-title'>{config.titles.chart}</div>
+                <EChartsComponent option={get_chart_option(config)} />
+            </>
+        }
         
         {ctx !== 'window' && <div className='bottom-bar-placeholder' />}
         
