@@ -1,7 +1,8 @@
 import './Surface.sass'
 
 import { useEffect, useRef } from 'react'
-import { useSize } from 'ahooks'
+
+import { use_size } from 'react-object-model/hooks.js'
 
 import { delay, load_script } from 'xshell/utils.browser.js'
 
@@ -23,7 +24,7 @@ export function Surface ({
 }) {
     let rdiv = useRef<HTMLDivElement>(undefined)
     
-    let size = useSize(rdiv)
+    let size = use_size(rdiv)
     
     let rinited = useRef<boolean>(false)
     

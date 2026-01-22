@@ -22,7 +22,7 @@ import * as echarts from 'echarts'
 
 import { use_rerender } from 'react-object-model/hooks.js'
 
-import { genid, seq, assert, delay, debounce, unique } from 'xshell/utils.browser.js'
+import { genid, seq, assert, delay, unique } from 'xshell/utils.browser.js'
 
 
 import {
@@ -2281,9 +2281,9 @@ function EChartsComponent ({ option }: { option: echarts.EChartsOption }) {
         let observer: ResizeObserver
         
         if (rchart.current) {
-            observer = new ResizeObserver(debounce(200, () => {
+            observer = new ResizeObserver(() => {
                 chart.current?.resize()
-            }))
+            })
             
             observer.observe(rchart.current)
         }

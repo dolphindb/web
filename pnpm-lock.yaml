@@ -108,8 +108,8 @@ importers:
         specifier: ^10.1.0
         version: 10.1.0(@types/react@19.2.9)(react@19.2.3)
       react-object-model:
-        specifier: ^1.2.27
-        version: 1.2.27(react@19.2.3)
+        specifier: ^1.2.28
+        version: 1.2.28(react@19.2.3)
       react-quill-new:
         specifier: ^3.7.0
         version: 3.7.0(quill-delta@5.1.0)(react-dom@19.2.3(react@19.2.3))(react@19.2.3)
@@ -3800,8 +3800,8 @@ packages:
       '@types/react': '>=18'
       react: '>=18'
 
-  react-object-model@1.2.27:
-    resolution: {integrity: sha512-7gcFLR7OqYf3Fa9vImYBnjmqVkijcmK3mW9r/UfToTkGKYjqdHZaGMgS0suClSOOSutpytZXpmU6/ZU7aCK+Ag==}
+  react-object-model@1.2.28:
+    resolution: {integrity: sha512-MPer64YcMZFbux4G/F9sA6XBYWM7aS4CMkyGA1yn2PtOsQ9PYIruT9FSPBEzognwBwbHGbvyTV0vfNnNnEfC2w==}
     peerDependencies:
       react: ^19.0.0
 
@@ -9079,7 +9079,7 @@ snapshots:
     transitivePeerDependencies:
       - supports-color
 
-  react-object-model@1.2.27(react@19.2.3):
+  react-object-model@1.2.28(react@19.2.3):
     dependencies:
       react: 19.2.3
     optionalDependencies:
