@@ -141,13 +141,13 @@ export function SessionManagement () {
                 ...(is_controller ? [{
                     title: t('节点'),
                     dataIndex: 'node',
-                    width: 150,
+                    width: 200,
                     ellipsis: true,
                 }] : [ ]),
                 {
                     title: t('系统缓存/用户会话'),
                     dataIndex: 'userId',
-                    width: 150,
+                    width: 200,
                     ellipsis: true,
                 },
                 {
