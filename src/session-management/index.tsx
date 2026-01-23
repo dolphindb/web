@@ -38,18 +38,6 @@ interface SessionItem {
     lastActiveTime?: string
 }
 
-
-function get_session_filter_options (key: string, data: SessionItem[] = [ ]) {
-    return {
-        filters: uniqBy(data, key).map(item => ({
-            text: item[key],
-            value: item[key]
-        })),
-        onFilter: (value, record) => record[key] === value,
-        filterSearch: true
-    } 
-}
-
 export function SessionManagement () {
     
     const { admin, logined, node_type } = model.use(['admin', 'logined', 'node_type'])
